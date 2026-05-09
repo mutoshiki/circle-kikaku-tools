@@ -1,0 +1,853 @@
+
+<!DOCTYPE html>
+<html lang="ja" data-bs-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>山歩会 企画ルーム</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+        <link href="./assets/css/01-foundation-components-guide.css" rel="stylesheet">
+    <link href="./assets/css/02-seisan.css" rel="stylesheet">
+    <link href="./assets/css/03-app-layout-and-themes.css" rel="stylesheet">
+    <link href="./assets/css/03b-guides-and-modals.css" rel="stylesheet">
+    <link href="./assets/css/03c-mobile-polish.css" rel="stylesheet">
+    <link href="./assets/css/03d-theme-picker.css" rel="stylesheet">
+    <link href="./assets/css/03e-late-maintenance.css" rel="stylesheet">
+    <link href="./assets/css/99-final-overrides.css" rel="stylesheet">
+  </head>
+  <body data-theme="light" data-app-theme="natural" class="sheet-mode">
+    <div id="app-layout">
+      <header id="app-header">
+        <div class="app-header-main">
+          <div class="app-brand app-room-control">
+            <div class="app-room-field">
+              <label for="roomNameInput">企画名</label>
+              <input type="text" id="roomNameInput" class="app-room-input" placeholder="例：御嶽山登山 5/12" autocomplete="off">
+            </div>
+          </div>
+          <div id="syncStatusBadge" class="sync-status-badge" data-status="local" aria-live="polite"><span class="sync-status-dot" aria-hidden="true"></span><span class="sync-status-label">ローカル保存</span></div>
+          <div class="header-actions">
+            <div class="header-more dropdown">
+              <button class="header-action dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="その他">
+                <i class="fas fa-ellipsis" aria-hidden="true"></i><span>その他</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li><button id="globalGuideBtn" class="dropdown-item" type="button"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>使い方</button></li>
+                <li><button id="appearanceSettingsBtn" class="dropdown-item" type="button"><i class="fas fa-circle-half-stroke me-2" aria-hidden="true"></i>テーマ設定</button></li>
+                <li><button id="historyBtn" class="dropdown-item" type="button"><i class="fas fa-clock-rotate-left me-2" aria-hidden="true"></i>この端末の履歴</button></li>
+                <li><button id="sampleDataBtn" class="dropdown-item" type="button"><i class="fas fa-wand-magic-sparkles me-2" aria-hidden="true"></i>サンプルデータ</button></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><button id="resetDataBtn" class="dropdown-item text-danger fw-bold" type="button"><i class="fas fa-trash-can me-2" aria-hidden="true"></i>全てリセット</button></li>
+              </ul>
+            </div>
+            <button class="header-action" id="editLockBtn" type="button" title="車割メーカーと精算ツールの誤編集を防ぐ">
+              <i class="fas fa-unlock" aria-hidden="true"></i><span>ロック</span>
+            </button>
+            <button id="shareLinkBtn" class="header-action share-action" type="button" title="共有リンクをコピー">
+              <i class="fas fa-link" aria-hidden="true"></i><span>共有</span>
+            </button>
+          </div>
+        </div>
+        <div id="view-toggle-bar">
+          <button class="view-tab" id="tab-list">
+            <i class="fas fa-car-side" aria-hidden="true"></i> 車割メーカー
+          </button>
+          <button class="view-tab active" id="tab-sheet">
+            <i class="fas fa-table-list" aria-hidden="true"></i> 車割発表ビュー
+          </button>
+          <button class="view-tab" id="tab-seisan">
+            <i class="fas fa-receipt" aria-hidden="true"></i> 精算ツール
+          </button>
+        </div>
+      </header>
+      <div id="top-area" style="display: none;">
+        <div class="edit-header edit-header-tools-only">
+          <div class="edit-tools">
+            <button id="carGuideBtn" class="btn tool-btn tool-help-btn" data-priority="high" title="使い方">
+              <i class="fas fa-circle-question" aria-hidden="true"></i>
+              <span>使い方</span>
+            </button>
+            <button id="batchOpenBtn" class="btn tool-btn" data-priority="high" title="参加者登録">
+              <i class="fas fa-paste" aria-hidden="true"></i>
+              <span>参加者登録</span>
+            </button>
+          </div>
+          <div id="lastAutoAssignCondition" class="auto-condition-pill" aria-live="polite">
+            <i class="fas fa-random" aria-hidden="true"></i><span>自動割当：未実行</span>
+          </div>
+        </div>
+        <div id="cars-container" class="row g-3 pb-5"></div>
+      </div>
+
+      <div id="sheet-view-area" class="active">
+        <div id="sheet-title-bar">
+          <i class="fas fa-table-list sheet-title-icon" aria-hidden="true"></i>
+          <span id="sheet-summary">車出し 0 / 同乗者 0 / 全員 0 / 待機 0</span>
+        </div>
+        <div id="sheet-canvas"></div>
+        <div id="sheet-hint"><i class="fas fa-hand-pointer me-1" aria-hidden="true"></i>横にドラッグ / ピンチでズーム</div>
+        <div id="sheet-bottom-controls">
+          <div id="zoom-controls">
+            <button id="sheetZoomInBtn" title="拡大"><i class="fas fa-plus" aria-hidden="true"></i></button>
+            <button id="sheetZoomOutBtn" title="縮小"><i class="fas fa-minus" aria-hidden="true"></i></button>
+            <button id="sheetZoomResetBtn" title="リセット" style="font-size:0.7rem;">⟲</button>
+          </div>
+          <button id="sheet-quick-edit-btn" type="button">
+            <i class="fas fa-hand-paper me-1" aria-hidden="true"></i>クイック編集
+          </button>
+        </div>
+      </div>
+
+      <div id="seisan-view-area">
+        <div class="seisan-wrap">
+          <div class="seisan-card">
+            <div class="seisan-head seisan-head-tools-only">
+              <div class="seisan-head-actions">
+                <button id="seisanGuideBtn" class="seisan-btn tool-help-btn" type="button" title="精算の使い方"><i class="fas fa-circle-question" aria-hidden="true"></i><span>使い方</span></button>
+                <button id="seisanRefreshBtn" class="seisan-btn seisan-refresh-btn" type="button" title="再計算"><i class="fas fa-rotate" aria-hidden="true"></i><span>再計算</span></button>
+                <button id="routeHelperBtn" class="seisan-btn primary seisan-route-main-btn" type="button" title="移動距離をGoogleマップで確認"><i class="fas fa-route" aria-hidden="true"></i><span>移動距離計算</span></button>
+              </div>
+            </div>
+            <div id="seisan-summary" class="seisan-top-flow"></div>
+            <div id="seisan-errors" class="seisan-alert"></div>
+          </div>
+
+          <div class="seisan-card">
+            <div class="seisan-title" style="margin-bottom:8px;"><i class="fas fa-sliders" aria-hidden="true"></i>精算設定</div>
+            <div class="seisan-settings">
+              <div class="seisan-field">
+                <label>端数処理</label>
+                <select id="seisanRounding" aria-label="端数処理">
+                  <option value="100">100円</option>
+                  <option value="50">50円</option>
+                  <option value="10">10円</option>
+                  <option value="1">1円</option>
+                </select>
+              </div>
+              <div class="seisan-field">
+                <label>車出し協力代（1台）</label>
+                <input id="seisanDriverReward" type="number" inputmode="numeric" value="1000" aria-label="車出し協力代">
+              </div>
+              <div class="seisan-field">
+                <label>企画者</label>
+                <select id="seisanOrganizerName" aria-label="企画者名"></select>
+              </div>
+              <label class="seisan-toggle">
+                <span>企画者を集金対象から外す</span>
+                <input id="seisanOrganizerFree" type="checkbox" checked>
+              </label>
+            </div>
+          </div>
+
+          <div class="seisan-card">
+            <div class="seisan-head">
+              <div>
+                <div class="seisan-title"><i class="fas fa-car-side" aria-hidden="true"></i>車ごとの費用</div>
+              </div>
+            </div>
+            <div id="seisan-car-list"></div>
+          </div>
+
+          <div class="seisan-card">
+            <div class="seisan-head">
+              <div>
+                <div class="seisan-title"><i class="fas fa-clipboard-list" aria-hidden="true"></i>集金チェック</div>
+                <div id="seisan-collection-note" class="seisan-muted"></div>
+              </div>
+            </div>
+            <div id="seisan-collection-list" class="seisan-check-list"></div>
+          </div>
+
+          <div class="seisan-card">
+            <div class="seisan-head">
+              <div>
+                <div class="seisan-title"><i class="fas fa-money-bill-transfer" aria-hidden="true"></i>支払いチェック</div>
+              </div>
+            </div>
+            <div id="seisan-driver-pay-list" class="seisan-driver-pay-list"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div id="bottom-tray" style="display: none;">
+        <div id="tray-handle" role="button" tabindex="0" aria-label="未割り当てメンバーを開閉">
+          <div class="handle-bar"></div>
+          <div id="tray-toggle-label"><i class="fas fa-chevron-up" aria-hidden="true"></i><span>未割り当てメンバーを開く</span></div>
+        </div>
+        <div id="bottom-tray-header">
+          <div class="tray-inline-row">
+            <div class="dropdown tray-settings-dropdown">
+              <button class="btn btn-sm btn-secondary dropdown-toggle settings-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="自動割り当ての設定を開く">
+                設定</button>
+              <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li><h6 class="dropdown-header">自動割り当ての条件</h6></li>
+                <li><div id="autoAssignSummary" class="dropdown-item-text small text-muted-dark-friendly">現在：ランダム</div></li>
+                <li>
+                  <label class="dropdown-item">
+                    <input type="checkbox" id="optFemale" class="form-check-input me-2">女子をまとめる</label>
+                </li>
+                <li>
+                  <label class="dropdown-item">
+                    <input type="checkbox" id="optMale" class="form-check-input me-2">男子をまとめる</label>
+                </li>
+                <li>
+                  <label class="dropdown-item">
+                    <input type="checkbox" id="optGrade" class="form-check-input me-2">学年をまとめる</label>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <button id="clearAllBtn" class="dropdown-item text-danger">
+                    <i class="fas fa-broom me-2" aria-hidden="true"></i>全員を未割り当てに戻す</button>
+                </li>
+              </ul>
+            </div>
+            <span id="waiting-count" class="waiting-inline-count" aria-live="polite">0人</span>
+            <button id="fillEmptySeatsBtn" class="btn btn-sm btn-outline-secondary tray-action-btn" title="今の配置をなるべく残して空席だけ埋めます">空席を埋める</button>
+            <button id="shuffleAssignBtn" class="btn btn-sm btn-outline-primary auto-assign-btn tray-action-btn">自動割り当て</button>
+          </div>
+        </div>
+        <div id="waiting-list-container">
+          <div id="waiting-list" class="shared-sortable"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="modal fade" id="appearanceModal" tabindex="-1" aria-labelledby="appearanceModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="appearanceModalTitle"><i class="fas fa-circle-half-stroke me-2" aria-hidden="true"></i>テーマ設定</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <div class="theme-settings-wrap theme-settings-wrap-v44">
+              <div class="theme-preview-panel" aria-label="テーマプレビュー">
+                <div class="theme-preview-head">
+                  <span><i class="fas fa-eye me-1" aria-hidden="true"></i>プレビュー</span>
+                  <span id="appearanceCurrentLabel" class="text-muted-dark-friendly"></span>
+                </div>
+                <div class="theme-preview-body">
+                  <div class="theme-app-preview">
+                    <div class="theme-preview-toolbar">
+                      <div class="theme-preview-title">御嶽山登山 5/12</div>
+                      <button type="button" class="theme-preview-btn">ロック</button>
+                      <button type="button" class="theme-preview-btn primary">共有</button>
+                    </div>
+                    <div class="theme-preview-tabs">
+                      <div class="theme-preview-tab active">車割</div>
+                      <div class="theme-preview-tab">発表</div>
+                      <div class="theme-preview-tab">精算</div>
+                    </div>
+                    <div class="theme-preview-content">
+                      <div class="theme-preview-car">
+                        <div class="theme-preview-car-head"><span>佐藤車</span><span>3/3 <i class="fas fa-pen" aria-hidden="true"></i></span></div>
+                        <div class="theme-preview-seat">田中 太郎　2年　⋮</div>
+                        <div class="theme-preview-seat sub">山田 花子　1年　⋮</div>
+                      </div>
+                      <div class="theme-preview-seisan">
+                        <div class="theme-preview-seisan-label">1人あたり</div>
+                        <div class="theme-preview-seisan-value">¥2,500</div>
+                        <div class="theme-preview-progress"><span></span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="theme-picker-grid" aria-label="テーマ選択">
+                <details class="theme-picker">
+                  <summary><i class="fas fa-moon" aria-hidden="true"></i><span>ダークテーマ</span><strong id="darkThemeSummary">標準</strong></summary>
+                  <div class="theme-choice-scroller">
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="natural">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#10b981"></span><span class="theme-swatch" style="background:#0f172a"></span><span class="theme-swatch" style="background:#1e293b"></span></span>
+                      <span class="theme-preset-main"><strong>標準</strong><small>既定のダーク。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="gameboy-classic">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#8fbf45"></span><span class="theme-swatch" style="background:#0f1d12"></span><span class="theme-swatch" style="background:#18341d"></span></span>
+                      <span class="theme-preset-main"><strong>GameBoy</strong><small>レトロな緑。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="eight-bit">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#22ff22"></span><span class="theme-swatch" style="background:#000000"></span><span class="theme-swatch" style="background:#050505"></span></span>
+                      <span class="theme-preset-main"><strong>8-Bit</strong><small>黒とネオン。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="earthbound">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#8f5cff"></span><span class="theme-swatch" style="background:#12091d"></span><span class="theme-swatch" style="background:#211431"></span></span>
+                      <span class="theme-preset-main"><strong>Earthbound</strong><small>暗い紫。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="everforest">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#a7c080"></span><span class="theme-swatch" style="background:#2d353b"></span><span class="theme-swatch" style="background:#343f44"></span></span>
+                      <span class="theme-preset-main"><strong>Everforest</strong><small>深い森色。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="horizon">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#e95678"></span><span class="theme-swatch" style="background:#1c1e26"></span><span class="theme-swatch" style="background:#232530"></span></span>
+                      <span class="theme-preset-main"><strong>Horizon</strong><small>赤みのある暗色。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="warm-burnout">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#e07a4f"></span><span class="theme-swatch" style="background:#241a16"></span><span class="theme-swatch" style="background:#33241e"></span></span>
+                      <span class="theme-preset-main"><strong>Warm Burnout</strong><small>淡い焼き色。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="anthropic-warm">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#d98263"></span><span class="theme-swatch" style="background:#1f1b17"></span><span class="theme-swatch" style="background:#2d2721"></span></span>
+                      <span class="theme-preset-main"><strong>Anthropic</strong><small>紙面に近い暖色。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="gruvbox-material">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#d8a657"></span><span class="theme-swatch" style="background:#282828"></span><span class="theme-swatch" style="background:#32302f"></span></span>
+                      <span class="theme-preset-main"><strong>Gruvbox</strong><small>くすんだ黄土色。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="claude-warm">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#d97757"></span><span class="theme-swatch" style="background:#211b16"></span><span class="theme-swatch" style="background:#302720"></span></span>
+                      <span class="theme-preset-main"><strong>Claude Warm</strong><small>落ち着いたベージュ。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="skyblue">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#58b6ff"></span><span class="theme-swatch" style="background:#0b1f33"></span><span class="theme-swatch" style="background:#102f4c"></span></span>
+                      <span class="theme-preset-main"><strong>SkyBlue</strong><small>爽やかな青。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="retro-keyboard">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#d7a35d"></span><span class="theme-swatch" style="background:#1f1a14"></span><span class="theme-swatch" style="background:#2b251e"></span></span>
+                      <span class="theme-preset-main"><strong>Retro Keyboard</strong><small>古いキーボード風。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="candy-pop">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#f472b6"></span><span class="theme-swatch" style="background:#251323"></span><span class="theme-swatch" style="background:#382035"></span></span>
+                      <span class="theme-preset-main"><strong>Candy Pop</strong><small>明るいピンク。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="graphite-red">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#f87171"></span><span class="theme-swatch" style="background:#171717"></span><span class="theme-swatch" style="background:#242424"></span></span>
+                      <span class="theme-preset-main"><strong>Graphite Red</strong><small>灰色と赤。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="dark-plus">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#007acc"></span><span class="theme-swatch" style="background:#1e1e1e"></span><span class="theme-swatch" style="background:#252526"></span></span>
+                      <span class="theme-preset-main"><strong>Dark+</strong><small>VS Code標準。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="github">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#2f81f7"></span><span class="theme-swatch" style="background:#0d1117"></span><span class="theme-swatch" style="background:#161b22"></span></span>
+                      <span class="theme-preset-main"><strong>GitHub Dark</strong><small>見慣れた配色。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="one-dark">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#61afef"></span><span class="theme-swatch" style="background:#282c34"></span><span class="theme-swatch" style="background:#21252b"></span></span>
+                      <span class="theme-preset-main"><strong>One Dark Pro</strong><small>定番ダーク。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="dracula">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#bd93f9"></span><span class="theme-swatch" style="background:#282a36"></span><span class="theme-swatch" style="background:#343746"></span></span>
+                      <span class="theme-preset-main"><strong>Dracula</strong><small>紫系。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="tokyo-night">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#7aa2f7"></span><span class="theme-swatch" style="background:#1a1b26"></span><span class="theme-swatch" style="background:#24283b"></span></span>
+                      <span class="theme-preset-main"><strong>Tokyo Night</strong><small>青紫で落ち着く。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="night-owl">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#82aaff"></span><span class="theme-swatch" style="background:#011627"></span><span class="theme-swatch" style="background:#0b253a"></span></span>
+                      <span class="theme-preset-main"><strong>Night Owl</strong><small>深い青。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="monokai-pro">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#ffd866"></span><span class="theme-swatch" style="background:#2d2a2e"></span><span class="theme-swatch" style="background:#403e41"></span></span>
+                      <span class="theme-preset-main"><strong>Monokai Pro</strong><small>高コントラスト。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="dark" data-theme-palette="catppuccin">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#cba6f7"></span><span class="theme-swatch" style="background:#1e1e2e"></span><span class="theme-swatch" style="background:#313244"></span></span>
+                      <span class="theme-preset-main"><strong>Catppuccin</strong><small>柔らかい色。</small></span>
+                    </button>
+                  </div>
+                </details>
+
+                <details class="theme-picker">
+                  <summary><i class="fas fa-sun" aria-hidden="true"></i><span>ライトテーマ</span><strong id="lightThemeSummary">標準</strong></summary>
+                  <div class="theme-choice-scroller">
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="natural">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#0f766e"></span><span class="theme-swatch" style="background:#eef3f1"></span><span class="theme-swatch" style="background:#ffffff"></span></span>
+                      <span class="theme-preset-main"><strong>標準</strong><small>既定のライト。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="gameboy-classic">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#5d4a9b"></span><span class="theme-swatch" style="background:#f0f4e8"></span><span class="theme-swatch" style="background:#d2df9f"></span></span>
+                      <span class="theme-preset-main"><strong>GameBoy</strong><small>淡い黄緑。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="eight-bit">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#165dff"></span><span class="theme-swatch" style="background:#ffffff"></span><span class="theme-swatch" style="background:#fff200"></span></span>
+                      <span class="theme-preset-main"><strong>8-Bit</strong><small>白と原色。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="earthbound">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#5f806b"></span><span class="theme-swatch" style="background:#edf4ed"></span><span class="theme-swatch" style="background:#c7ddc7"></span></span>
+                      <span class="theme-preset-main"><strong>Earthbound</strong><small>柔らかい緑。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="everforest">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#8da101"></span><span class="theme-swatch" style="background:#fff8dc"></span><span class="theme-swatch" style="background:#f3efcf"></span></span>
+                      <span class="theme-preset-main"><strong>Everforest</strong><small>温かい森色。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="horizon">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#e95678"></span><span class="theme-swatch" style="background:#fff5f7"></span><span class="theme-swatch" style="background:#fff0f3"></span></span>
+                      <span class="theme-preset-main"><strong>Horizon</strong><small>淡いピンク。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="warm-burnout">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#c76843"></span><span class="theme-swatch" style="background:#f6efe5"></span><span class="theme-swatch" style="background:#fffaf2"></span></span>
+                      <span class="theme-preset-main"><strong>Warm Burnout</strong><small>淡い焼き色。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="anthropic-warm">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#c96f50"></span><span class="theme-swatch" style="background:#f7f3ea"></span><span class="theme-swatch" style="background:#fffdf8"></span></span>
+                      <span class="theme-preset-main"><strong>Anthropic</strong><small>紙面に近い暖色。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="gruvbox-material">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#b57614"></span><span class="theme-swatch" style="background:#f9f5d7"></span><span class="theme-swatch" style="background:#fff9d9"></span></span>
+                      <span class="theme-preset-main"><strong>Gruvbox</strong><small>くすんだ黄土色。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="claude-warm">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#b8623d"></span><span class="theme-swatch" style="background:#f5efe6"></span><span class="theme-swatch" style="background:#fffaf4"></span></span>
+                      <span class="theme-preset-main"><strong>Claude Warm</strong><small>落ち着いたベージュ。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="skyblue">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#1f6aa5"></span><span class="theme-swatch" style="background:#eef8ff"></span><span class="theme-swatch" style="background:#ffffff"></span></span>
+                      <span class="theme-preset-main"><strong>SkyBlue</strong><small>爽やかな青。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="retro-keyboard">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#8b5e34"></span><span class="theme-swatch" style="background:#f4efe4"></span><span class="theme-swatch" style="background:#fffaf0"></span></span>
+                      <span class="theme-preset-main"><strong>Retro Keyboard</strong><small>古いキーボード風。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="candy-pop">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#d9468f"></span><span class="theme-swatch" style="background:#fff0f7"></span><span class="theme-swatch" style="background:#fffafd"></span></span>
+                      <span class="theme-preset-main"><strong>Candy Pop</strong><small>明るいピンク。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="graphite-red">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#c73b3b"></span><span class="theme-swatch" style="background:#f5f5f5"></span><span class="theme-swatch" style="background:#ffffff"></span></span>
+                      <span class="theme-preset-main"><strong>Graphite Red</strong><small>灰色と赤。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="light-plus">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#007acc"></span><span class="theme-swatch" style="background:#ffffff"></span><span class="theme-swatch" style="background:#f3f3f3"></span></span>
+                      <span class="theme-preset-main"><strong>Light+</strong><small>VS Code標準。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="github">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#0969da"></span><span class="theme-swatch" style="background:#f6f8fa"></span><span class="theme-swatch" style="background:#ffffff"></span></span>
+                      <span class="theme-preset-main"><strong>GitHub Light</strong><small>すっきり。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="ayu">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#ff9940"></span><span class="theme-swatch" style="background:#fafafa"></span><span class="theme-swatch" style="background:#ffffff"></span></span>
+                      <span class="theme-preset-main"><strong>Ayu Light</strong><small>明るい暖色。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="solarized">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#268bd2"></span><span class="theme-swatch" style="background:#fdf6e3"></span><span class="theme-swatch" style="background:#fffdf2"></span></span>
+                      <span class="theme-preset-main"><strong>Solarized Light</strong><small>目に優しい。</small></span>
+                    </button>
+                    <button type="button" class="theme-preset-card" data-theme-scope="light" data-theme-palette="catppuccin">
+                      <span class="theme-swatch-row"><span class="theme-swatch" style="background:#8839ef"></span><span class="theme-swatch" style="background:#eff1f5"></span><span class="theme-swatch" style="background:#ffffff"></span></span>
+                      <span class="theme-preset-main"><strong>Catppuccin</strong><small>柔らかい淡色。</small></span>
+                    </button>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="resetAppearanceBtn" type="button" class="btn btn-outline-secondary">標準に戻す</button>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">完了</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="commonEditModal" tabindex="-1" aria-labelledby="commonEditModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+          <div class="modal-header py-2">
+            <h6 class="modal-title fw-bold" style="font-size: 0.95rem;" id="editModalTitle" id="commonEditModalTitle">編集</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <input type="text" id="editModalInput" class="form-control" autocomplete="off" aria-label="編集内容">
+          </div>
+          <div class="modal-footer py-1">
+            <button type="button" class="btn btn-primary btn-sm w-100" style="background-color: var(--accent-color); border: none;" id="saveEditBtn">保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="batchImportModal" tabindex="-1" aria-labelledby="batchImportModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold" style="font-size: 1rem;" id="batchImportModalTitle">参加者登録</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <div class="guide-feature-card mb-2" style="padding:10px;">
+                  <div class="guide-feature-title mb-1"><i class="fas fa-table me-2" style="color:var(--accent-color);"></i>Googleフォームの回答から入れるとき</div>
+                  <div style="font-size:0.78rem; color:var(--text-sub); line-height:1.55;">回答スプレッドシートで学年や車出しの有無の列を並び替え、名前をコピーします。車出しできる人は「車出し」に貼ると、その人の車カードが作られます。</div>
+                </div>
+                </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label fw-bold small text-primary" style="color: var(--accent-color) !important;">同乗者 (改行区切り)</label>
+                <textarea id="batchMembers" class="form-control" style="height:150px; font-size:0.9rem;" placeholder="（例）&#10;田中 太郎&#10;佐藤 花子&#10;鈴木 次郎" aria-label="参加者名一覧"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label fw-bold small" style="color: var(--grade1-text) !important;">1年生 (改行区切り)</label>
+                <textarea id="batchGrade1" class="form-control" style="height:150px; font-size:0.9rem;" aria-label="1年生の表記"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label fw-bold small" style="color: var(--grade2-text) !important;">2年生 (改行区切り)</label>
+                <textarea id="batchGrade2" class="form-control" style="height:150px; font-size:0.9rem;" aria-label="2年生の表記"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label fw-bold small" style="color: var(--grade3-text) !important;">3年生 (改行区切り)</label>
+                <textarea id="batchGrade3" class="form-control" style="height:150px; font-size:0.9rem;" aria-label="3年生の表記"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label fw-bold small" style="color: var(--grade4-text) !important;">4年生 (改行区切り)</label>
+                <textarea id="batchGrade4" class="form-control" style="height:150px; font-size:0.9rem;" aria-label="4年生の表記"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label fw-bold small text-secondary" style="color: var(--text-sub) !important;">車出し (改行区切り)</label>
+                <div class="batch-field-note">ここに入れた人ごとに車カードが作られます。</div>
+                <textarea id="batchDrivers" class="form-control" style="height:150px; font-size:0.9rem;" aria-label="車出し可能な参加者"></textarea>
+              </div>
+            </div>
+            <div id="batchDuplicateWarning" class="batch-warning" style="display:none;"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+            <button id="executeBatchBtn" type="button" class="btn btn-primary" style="background-color: var(--accent-color); border: none;">登録内容で更新</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="globalGuideModal" tabindex="-1" aria-labelledby="globalGuideModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold" style="font-size:1.02rem;" id="globalGuideModalTitle"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>全体の使い方</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body p-0 unified-guide-body" data-guide-root="global">
+
+            <div class="guide-step-nav">
+              <button class="guide-step-btn active" data-guide="global" data-step="0">登録</button>
+              <button class="guide-step-btn" data-guide="global" data-step="1">車割</button>
+              <button class="guide-step-btn" data-guide="global" data-step="2">共有・精算</button>
+            </div>
+            <div class="guide-step-panel" data-guide="global" data-panel="0" style="display:none;">
+              <h6 class="guide-step-title">① 全体の流れを確認する</h6>
+              <p class="guide-page-lead">このサイトは、車割メーカー・車割発表ビュー・精算ツールの3画面で使います。</p>
+              <div class="guide-card-grid-three compact-guide-grid">
+                <div class="guide-feature-card guide-feature-wide">
+                  <div class="guide-feature-title"><i class="fas fa-layer-group me-2" aria-hidden="true"></i>3つの画面</div>
+                  <div class="guide-mini-screen">
+                    <div class="guide-mini-toolbar">
+                      <div class="guide-mini-tool guide-mini-primary">車割メーカー</div>
+                      <div class="guide-mini-tool">発表ビュー</div>
+                      <div class="guide-mini-tool">精算ツール</div>
+                    </div>
+                    <div class="guide-mini-sheet">
+                      <div class="head">登録</div><div class="head">確認</div><div class="head">会計</div>
+                      <div>参加者<br>車出し</div><div>車ごとの<br>一覧</div><div>集金<br>支払い</div>
+                    </div>
+                  </div>
+                  <p class="guide-short-text">編集、確認、会計を分けて使います。</p>
+                </div>
+                <div class="guide-feature-card">
+                  <div class="guide-feature-title"><i class="fas fa-users me-2" aria-hidden="true"></i>登録</div>
+                  <div class="guide-mini-screen"><div class="guide-copy-mock">Googleフォーム<br>↓<br>参加者登録</div></div>
+                  <p class="guide-short-text">参加者と車出しを登録します。</p>
+                </div>
+                <div class="guide-feature-card">
+                  <div class="guide-feature-title"><i class="fas fa-pen-to-square me-2" aria-hidden="true"></i>後から編集</div>
+                  <div class="guide-mini-screen"><div class="guide-edit-card-mock"><div class="guide-edit-field"><span>名前</span><strong>山本 花<span class="typing-caret">|</span></strong></div><div class="guide-edit-field compact"><span>学年</span><em>1年</em></div><div class="guide-edit-actions"><button>保存</button><button class="ghost">削除</button></div></div></div>
+                  <p class="guide-short-text">参加者登録から、あとで追加・削除・修正できます。</p>
+                </div>
+              </div>
+            </div>
+            <div class="guide-step-panel" data-guide="global" data-panel="1" style="display:none;">
+              <h6 class="guide-step-title">② 車割を作って確認する</h6>
+              <p class="guide-page-lead">車割メーカーで配置を作り、発表ビューで見え方を確認します。</p>
+              <div class="guide-card-grid-three compact-guide-grid">
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-shuffle me-2" aria-hidden="true"></i>車割メーカー</div><div class="guide-mini-screen"><div class="guide-action-row"><div class="guide-action-box"><i class="fas fa-fill-drip" aria-hidden="true"></i>空席を埋める</div><div class="guide-action-box primary"><i class="fas fa-shuffle" aria-hidden="true"></i>自動割当</div></div></div><p class="guide-short-text">自動割当と手動調整で車割を作ります。</p></div>
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-table-list me-2" aria-hidden="true"></i>発表ビュー</div><div class="guide-mini-screen"><div class="guide-mini-sheet"><div class="head">車</div><div class="head">車出し</div><div class="head">同乗者</div><div>田中車</div><div>田中</div><div>山本・佐藤</div><div>高橋車</div><div>高橋</div><div>鈴木・中村</div></div></div><p class="guide-short-text">未配置や定員超過がないか確認します。</p></div>
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-lock me-2" aria-hidden="true"></i>共有前のロック</div><div class="guide-mini-screen"><div class="guide-copy-mock"><i class="fas fa-lock" aria-hidden="true"></i> ロック中<br>編集・精算を保護</div></div><p class="guide-short-text">共有前にロックすると、参加者には発表ビューを見せたまま、編集画面や精算画面を開きにくくできます。</p></div>
+              </div>
+            </div>
+            <div class="guide-step-panel" data-guide="global" data-panel="2" style="display:none;">
+              <h6 class="guide-step-title">③ 共有し、必要なら精算する</h6>
+              <p class="guide-page-lead">共有リンクを案内し、車ごとの費用から集金額と支払い額を確認します。</p>
+              <div class="guide-card-grid-three compact-guide-grid">
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-link me-2" aria-hidden="true"></i>共有</div><div class="guide-mini-screen"><div class="guide-copy-mock">共有リンクをコピー<br>LINEなどに貼り付け</div></div><p class="guide-short-text">参加者は発表ビューで車割を確認できます。</p></div>
+                <div class="guide-feature-card guide-feature-wide"><div class="guide-feature-title"><i class="fas fa-yen-sign me-2" aria-hidden="true"></i>精算</div><div class="guide-mini-screen seisan-guide-summary-screen"><div class="seisan-mock-flow"><div class="seisan-mock-summary collect"><div class="seisan-mock-label">集める</div><div class="seisan-mock-value">¥2,400</div></div><div class="seisan-mock-summary account"><div class="seisan-mock-label">部費負担</div><div class="seisan-mock-value">¥300</div></div><div class="seisan-mock-summary pay"><div class="seisan-mock-label">支払い</div><div class="seisan-mock-value">¥9,800</div></div></div></div><p class="guide-short-text">車割の参加者と車出しを使って、集金額・部費負担・車出しに渡す額を計算します。</p></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer guide-footer" style="padding:10px 16px; gap:8px;">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="globalGuidePrevBtn" style="display:none;"><i class="fas fa-chevron-left me-1" aria-hidden="true"></i>前へ</button>
+            <button type="button" class="btn btn-primary btn-sm flex-grow-1" id="globalGuideNextBtn" style="background-color:var(--accent-color);border:none;">次へ <i class="fas fa-chevron-right ms-1" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-success btn-sm flex-grow-1" id="globalGuideCloseBtn" style="display:none;" data-bs-dismiss="modal"><i class="fas fa-check me-1" aria-hidden="true"></i>閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="guideModal" tabindex="-1" aria-labelledby="guideModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold" style="font-size:1.02rem;" id="guideModalTitle"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>車割メーカーの使い方</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body p-0 unified-guide-body" data-guide-root="car">
+
+            <div class="guide-step-nav">
+              <button class="guide-step-btn active" data-guide="car" data-step="0">登録</button>
+              <button class="guide-step-btn" data-guide="car" data-step="1">割当</button>
+              <button class="guide-step-btn" data-guide="car" data-step="2">調整・発表</button>
+            </div>
+            <div class="guide-step-panel" data-guide="car" data-panel="0" style="display:none;">
+              <h6 class="guide-step-title">① 参加者と車出しを登録する</h6>
+              <p class="guide-page-lead">Googleフォームの回答や名簿を貼り付け、参加者と車出しを登録します。</p>
+              <div class="guide-card-grid-three compact-guide-grid">
+                <div class="guide-feature-card guide-feature-wide">
+                  <div class="guide-feature-title"><i class="fas fa-table me-2" aria-hidden="true"></i>名簿から登録</div>
+                  <div class="guide-compare-ui-grid">
+                    <div class="guide-ui-card mock-sheet-app">
+                      <div class="mock-sheet-top"><span class="dot green"></span><span>Googleスプレッドシート</span></div>
+                      <div class="mock-sheet-toolbar"><span>学年順</span><span class="active">車出し順</span></div>
+                      <div class="mock-sheet-table realistic">
+                        <div class="head">名前</div><div class="head">学年</div><div class="head">車出し</div>
+                        <div>田中 太郎</div><div>1年</div><div>可</div>
+                        <div>山本 花子</div><div>1年</div><div>不可</div>
+                        <div>佐藤 健</div><div>2年</div><div>不可</div>
+                      </div>
+                    </div>
+                    <div class="guide-compare-arrow"><i class="fas fa-arrow-right" aria-hidden="true"></i></div>
+                    <div class="guide-ui-card mock-register-ui">
+                      <div class="mock-register-head"><i class="fas fa-users" aria-hidden="true"></i><span>参加者登録</span><button>登録</button></div>
+                      <div class="mock-register-grid">
+                        <div class="driver"><small>車出し</small><p>田中 太郎<br>定員 4人</p></div>
+                        <div><small>参加者</small><p>山本 花子<br>1年</p></div>
+                        <div><small>参加者</small><p>佐藤 健<br>2年</p></div>
+                        <div><small>あとから編集</small><p>追加・削除・修正</p></div>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="guide-short-text">学年や車出しの有無で並べてから貼り付けると、貼り付け後の確認や修正がしやすくなります。</p>
+                </div>
+                <div class="guide-feature-card">
+                  <div class="guide-feature-title"><i class="fas fa-car-side me-2" aria-hidden="true"></i>車出し</div>
+                  <div class="guide-mini-screen"><div class="guide-mini-car"><div class="guide-mini-car-head"><span>田中車</span><span>定員 4人 <i class="fas fa-pen" aria-hidden="true"></i></span></div><div class="guide-mini-grid"><div class="driver-seat" data-gender="male"><div class="driver-main-line"><span class="driver-name-disp">田中</span><span class="grade-badge" data-grade="1">1年</span><span>⋮</span></div></div><div class="seat-slot"></div><div class="seat-slot"></div><div class="seat-slot"></div></div></div></div>
+                  <p class="guide-short-text">車出しできる人を登録すると車カードが作られます。定員はあとから車カードで変更できます。</p>
+                </div>
+                <div class="guide-feature-card">
+                  <div class="guide-feature-title"><i class="fas fa-pen-to-square me-2" aria-hidden="true"></i>登録後の修正</div>
+                  <div class="guide-mini-screen"><div class="guide-edit-card-mock"><div class="guide-edit-field"><span>名前</span><strong>山本 花<span class="typing-caret">|</span></strong></div><div class="guide-edit-field compact"><span>学年</span><em>1年</em></div><div class="guide-edit-actions"><button>保存</button><button class="ghost">削除</button></div></div></div>
+                  <p class="guide-short-text">参加者登録を開くと、あとから名前・学年の修正、追加、削除ができます。</p>
+                </div>
+              </div>
+            </div>
+            <div class="guide-step-panel" data-guide="car" data-panel="1" style="display:none;">
+              <h6 class="guide-step-title">② 条件を決めて自動割当する</h6>
+              <p class="guide-page-lead">下の設定で条件を決めてから、自動割当を使います。</p>
+              <div class="guide-card-grid-three compact-guide-grid">
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-shuffle me-2" aria-hidden="true"></i>割当</div><div class="guide-mini-screen"><div class="guide-action-row"><div class="guide-action-box"><i class="fas fa-fill-drip" aria-hidden="true"></i>空席を埋める</div><div class="guide-action-box primary"><i class="fas fa-shuffle" aria-hidden="true"></i>自動割当</div></div></div><p class="guide-short-text">既に決めた配置を残す場合は「空席を埋める」、作り直す場合は「自動割当」を使います。</p></div>
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-sliders me-2" aria-hidden="true"></i>割当設定</div><div class="guide-mini-screen"><div class="guide-mini-form"><div class="field">設定 → 女子をまとめる：ON</div><div class="field">男子をまとめる：OFF</div><div class="field">学年をまとめる：ON</div></div></div><p class="guide-short-text">女子・男子・学年をまとめたい場合だけ、条件をオンにします。条件をすべて外すとランダムに近い形で割り当てます。</p></div>
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-lock me-2" aria-hidden="true"></i>固定</div><div class="guide-mini-screen"><div class="guide-mini-car"><div class="guide-mini-car-head"><span>高橋車</span><span>2/4</span></div><div class="guide-mini-grid"><div class="guide-mini-card" data-gender="female">山本 <span class="grade-badge" data-grade="1">1年</span> <i class="fas fa-lock" aria-hidden="true"></i></div><div class="guide-mini-card" data-gender="male">佐藤 <span class="grade-badge" data-grade="2">2年</span></div></div></div></div><p class="guide-short-text">配置を変えたくない人は固定します。固定した人はそのまま残し、ほかの人だけ組み直せます。</p></div>
+              </div>
+            </div>
+            <div class="guide-step-panel" data-guide="car" data-panel="2" style="display:none;">
+              <h6 class="guide-step-title">③ 手動で整えて発表ビューを確認する</h6>
+              <p class="guide-page-lead">自動割当のあと、必要なところだけ手動で調整します。</p>
+              <div class="guide-card-grid-three compact-guide-grid">
+                <div class="guide-feature-card guide-feature-wide">
+                  <div class="guide-feature-title"><i class="fas fa-hand-pointer me-2" aria-hidden="true"></i>長押しで移動</div>
+                  <div class="guide-mini-screen">
+                    <div class="guide-mini-car">
+                      <div class="guide-mini-car-head"><span>高橋車</span><span>3/4</span></div>
+                      <div class="guide-mini-grid">
+                        <div class="driver-seat" data-gender="male"><div class="driver-main-line"><span class="driver-name-disp">高橋</span><span class="grade-badge" data-grade="3">3年</span><span>⋮</span></div></div>
+                        <div class="guide-mini-card" data-gender="male"><i class="fas fa-hand-pointer" aria-hidden="true"></i> 田中 <span class="grade-badge" data-grade="1">1年</span></div>
+                        <div class="guide-mini-card" data-gender="female">山本 <span class="grade-badge" data-grade="2">2年</span></div>
+                        <div class="seat-slot"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="guide-short-text">長押しでカードを移動できます。</p>
+                </div>
+                <div class="guide-feature-card">
+                  <div class="guide-feature-title"><i class="fas fa-user-clock me-2" aria-hidden="true"></i>待機メンバー</div>
+                  <div class="guide-mini-screen"><div class="guide-copy-mock">未配置の人<br>あとから車へ移動</div></div>
+                  <p class="guide-short-text">定員不足などで入らなかった人は、待機メンバーに残ります。</p>
+                </div>
+                <div class="guide-feature-card">
+                  <div class="guide-feature-title"><i class="fas fa-table-list me-2" aria-hidden="true"></i>発表ビュー</div>
+                  <div class="guide-mini-screen">
+                    <div class="guide-mini-sheet">
+                      <div class="head">車</div><div class="head">車出し</div><div class="head">同乗者</div>
+                      <div>高橋車</div><div>高橋</div><div>田中・山本</div>
+                      <div>中村車</div><div>中村</div><div>佐藤・鈴木</div>
+                    </div>
+                  </div>
+                  <p class="guide-short-text">未配置・定員超過・待機人数を確認します。細かく直すときは、クイック編集も使えます。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer guide-footer" style="padding:10px 16px; gap:8px;">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="carGuidePrevBtn" style="display:none;"><i class="fas fa-chevron-left me-1" aria-hidden="true"></i>前へ</button>
+            <button type="button" class="btn btn-primary btn-sm flex-grow-1" id="carGuideNextBtn" style="background-color:var(--accent-color);border:none;">次へ <i class="fas fa-chevron-right ms-1" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-success btn-sm flex-grow-1" id="carGuideCloseBtn" style="display:none;" data-bs-dismiss="modal"><i class="fas fa-check me-1" aria-hidden="true"></i>閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="seisanGuideModal" tabindex="-1" aria-labelledby="seisanGuideModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold" style="font-size:1.02rem;" id="seisanGuideModalTitle"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>精算ツールの使い方</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body p-0 unified-guide-body" data-guide-root="seisan">
+
+            <div class="guide-step-nav">
+              <button class="guide-step-btn active" data-guide="seisan" data-step="0">入力</button>
+              <button class="guide-step-btn" data-guide="seisan" data-step="1">確認</button>
+              <button class="guide-step-btn" data-guide="seisan" data-step="2">記録</button>
+            </div>
+            <div class="guide-step-panel" data-guide="seisan" data-panel="0" style="display:none;">
+              <h6 class="guide-step-title">① 車ごとの費用を入力する</h6>
+              <p class="guide-page-lead">先に車割を登録しておくと、車出しと参加者が精算に反映されます。</p>
+              <div class="guide-card-grid-three compact-guide-grid">
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-route me-2" aria-hidden="true"></i>移動距離</div><div class="guide-mini-screen"><div class="route-guide-mock"><div><i class="fas fa-location-dot" aria-hidden="true"></i> 目的地・経由地</div><div><i class="fas fa-map-location-dot" aria-hidden="true"></i> Googleマップで往復距離を確認</div><button type="button">距離を確認する</button></div></div><p class="guide-short-text">移動距離計算からGoogleマップを開き、確認した往復距離を車ごとの距離に入力します。</p></div>
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-gas-pump me-2" aria-hidden="true"></i>ガソリン代</div><div class="guide-mini-screen"><div class="seisan-mock-car"><div class="seisan-mock-car-head"><span>佐藤車</span><span class="seisan-mock-car-total">¥5,560</span></div><div class="seisan-mock-car-inputs"><div class="seisan-mock-row"><small>往復距離</small><strong>180km</strong></div><div class="seisan-mock-row"><small>燃費</small><strong>15km/L</strong></div><div class="seisan-mock-row"><small>単価</small><strong>180円/L</strong></div></div></div></div><p class="guide-short-text">往復の移動距離・燃費・ガソリン単価から、車出しに渡すガソリン代を計算します。</p></div>
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-receipt me-2" aria-hidden="true"></i>諸経費</div><div class="guide-mini-screen"><div class="seisan-mock-expenses"><div class="seisan-mock-expense"><span>高速代</span><strong>¥2,000</strong><span class="seisan-mock-chip split">割り勘</span></div><div class="seisan-mock-expense"><span>駐車場</span><strong>¥500</strong><span class="seisan-mock-chip club">部費</span></div></div></div><p class="guide-short-text">高速代は割り勘、駐車場代は部費負担など、費目ごとに選べます。</p></div>
+              </div>
+            </div>
+            <div class="guide-step-panel" data-guide="seisan" data-panel="1" style="display:none;">
+              <h6 class="guide-step-title">② 集金額と支払い額を確認する</h6>
+              <p class="guide-page-lead">端数処理、車出し協力代、企画者の扱いを確認します。</p>
+              <div class="guide-card-grid-three compact-guide-grid">
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-sliders me-2" aria-hidden="true"></i>精算設定</div><div class="guide-mini-screen"><div class="seisan-mock-settings"><div class="seisan-mock-field"><small>端数処理</small><strong>100円</strong></div><div class="seisan-mock-field"><small>車出し協力代</small><strong>¥1,000/台</strong></div><div class="seisan-mock-toggle"><span>企画者を集金対象から外す</span><span class="seisan-mock-switch"></span></div></div></div><p class="guide-short-text">車出し協力代は、車を出した人への上乗せ分として計算されます。</p></div>
+                <div class="guide-feature-card guide-feature-wide"><div class="guide-feature-title"><i class="fas fa-yen-sign me-2" aria-hidden="true"></i>計算結果</div><div class="guide-mini-screen seisan-guide-summary-screen"><div class="seisan-mock-flow"><div class="seisan-mock-summary collect"><div class="seisan-mock-label">集める</div><div class="seisan-mock-value">¥2,400</div></div><div class="seisan-mock-summary account"><div class="seisan-mock-label">部費負担</div><div class="seisan-mock-value">¥300</div></div><div class="seisan-mock-summary pay"><div class="seisan-mock-label">支払い</div><div class="seisan-mock-value">¥9,800</div></div></div></div><p class="guide-short-text">集める＝参加者1人あたりの集金額、部費負担＝会計側の負担、支払い＝車出しに渡す合計額です。</p></div>
+              </div>
+            </div>
+            <div class="guide-step-panel" data-guide="seisan" data-panel="2" style="display:none;">
+              <h6 class="guide-step-title">③ 集金と支払いを記録する</h6>
+              <p class="guide-page-lead">集金状況と車出しへの支払い状況を残します。</p>
+              <div class="guide-card-grid-three compact-guide-grid">
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-clipboard-check me-2" aria-hidden="true"></i>集金チェック</div><div class="guide-mini-screen"><div class="seisan-mock-checks"><div class="seisan-mock-check done"><span class="seisan-mock-box-check"><i class="fas fa-check" aria-hidden="true"></i></span><span class="seisan-mock-check-name">田中</span><span class="seisan-mock-amount">集金済み</span></div><div class="seisan-mock-check"><span class="seisan-mock-box-check"></span><span class="seisan-mock-check-name">山本</span><span class="seisan-mock-amount">未回収</span></div></div></div><p class="guide-short-text">集金した人にチェックを入れます。集金対象外の人や待機の人は注記を確認します。</p></div>
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-hand-holding-yen me-2" aria-hidden="true"></i>支払いチェック</div><div class="guide-mini-screen"><div class="seisan-mock-driver-list"><div class="seisan-mock-driver-pay done"><span class="seisan-mock-box-check"><i class="fas fa-check" aria-hidden="true"></i></span><span class="seisan-mock-driver-name">佐藤へ</span><span class="seisan-mock-amount">¥5,560</span></div><div class="seisan-mock-driver-pay"><span class="seisan-mock-box-check"></span><span class="seisan-mock-driver-name">鈴木へ</span><span class="seisan-mock-amount">¥4,980</span></div></div></div><p class="guide-short-text">車出しに渡したら、その人の行にチェックを入れます。</p></div>
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-comment-dots me-2" aria-hidden="true"></i>LINE送信用メッセージ</div><div class="guide-mini-screen"><div class="guide-copy-mock">参加者：¥2,400<br>車出しに渡す：¥5,560<br>未回収：山本</div></div><p class="guide-short-text">集金案内や支払い内容をコピーして、LINEなどに貼り付けます。</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer guide-footer" style="padding:10px 16px; gap:8px;">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="seisanGuidePrevBtn" style="display:none;"><i class="fas fa-chevron-left me-1" aria-hidden="true"></i>前へ</button>
+            <button type="button" class="btn btn-primary btn-sm flex-grow-1" id="seisanGuideNextBtn" style="background-color:var(--accent-color);border:none;">次へ <i class="fas fa-chevron-right ms-1" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-success btn-sm flex-grow-1" id="seisanGuideCloseBtn" style="display:none;" data-bs-dismiss="modal"><i class="fas fa-check me-1" aria-hidden="true"></i>閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="routeDistanceModal" tabindex="-1" aria-labelledby="routeDistanceModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold" style="font-size:1.02rem;" id="routeDistanceModalTitle"><i class="fas fa-route me-2" aria-hidden="true"></i>移動距離計算</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <div class="route-helper-panel">
+              <div class="route-private-panel">
+                <div class="seisan-title route-helper-title"><i class="fas fa-house-user" aria-hidden="true"></i>自分用の出発地</div>
+                <div id="routePrivateOriginBox"></div>
+                <div class="route-helper-note mt-2">この端末だけに保存されます。保存済みの場合は、編集ボタンから確認・変更できます。Googleマップを開くときだけGoogleに送信されます。</div>
+              </div>
+
+              <div class="route-stop-panel">
+                <div class="seisan-title route-helper-title"><i class="fas fa-map-location-dot" aria-hidden="true"></i>目的地・経由地</div>
+                <div id="routeStopList" class="route-stop-list"></div>
+                <button id="addRouteStopBtn" class="seisan-btn" type="button" style="margin-top:8px;"><i class="fas fa-plus me-1" aria-hidden="true"></i>場所を追加</button>
+              </div>
+
+              <div class="route-helper-actions">
+                <button id="openGoogleRouteBtn" class="seisan-btn primary" type="button"><i class="fab fa-google"></i>Googleマップで開く</button>
+              </div>
+
+              <div class="route-helper-note">目的地・経由地は全員に共有されます。並び替えは左の番号をドラッグして行います。Googleマップで総移動距離を確認したら、車ごとの移動距離に入力してください。</div>
+              <div id="routeHelperStatus" class="seisan-small"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm w-100" data-bs-dismiss="modal">閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold" style="font-size: 1rem;" id="historyModalTitle">
+              <i class="fas fa-history me-2" aria-hidden="true"></i>履歴
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body p-0">
+            <div id="history-list" class="list-group list-group-flush"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="debugModal" tabindex="-1" aria-labelledby="debugModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header py-2">
+                    <h6 class="modal-title fw-bold mb-0" style="font-size: 0.9rem;" id="debugModalTitle">
+                        <i class="fas fa-wand-magic-sparkles me-2" aria-hidden="true"></i>サンプルデータ
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                </div>
+          <div class="modal-body">
+            <p class="mb-3" style="font-size:0.8rem; color:var(--text-sub);">現在のデータをリセットして、確認用のサンプルを入れます。</p>
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <label for="debugCarCount" class="mb-0" style="font-size:0.8rem; color:var(--text-sub); font-weight:700;">車の数</label>
+              <select id="debugCarCount" class="form-select form-select-sm" style="width:78px;" aria-label="サンプルデータの車の数">
+                <option value="2">2台</option>
+                <option value="3" selected>3台</option>
+                <option value="4">4台</option>
+                <option value="5">5台</option>
+              </select>
+            </div>
+            <div class="d-grid gap-2">
+              <button id="executeDebugBtn" type="button" class="btn btn-primary btn-sm fw-bold">通常サンプルを入れる</button>
+              <button id="executeDebugMissingBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold">入力漏れサンプルを入れる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script src="./firebase-config.js"></script>
+        <script src="./assets/js/modules/ui.js"></script>
+
+    <script>
+      window.addEventListener('DOMContentLoaded', function () {
+        if (!window.bootstrap) {
+          console.warn('Bootstrap JS could not be loaded. Some menus and modals may not work.');
+          document.body.classList.add('cdn-bootstrap-missing');
+        }
+        if (!window.Sortable) {
+          console.warn('Sortable could not be loaded. Legacy drag helper is disabled.');
+          document.body.classList.add('cdn-sortable-missing');
+        }
+        if (!document.querySelector('.fa, .fas, .fa-solid')) {
+          document.body.classList.add('cdn-icons-missing');
+        }
+      });
+    </script>
+
+    <script src="./assets/js/modules/history.js"></script>
+    <script src="./assets/js/modules/drag-cards.js"></script>
+    <script src="./assets/js/modules/settlement.js"></script>
+    <script src="./assets/js/app.js"></script>
+  </body>
+</html>
