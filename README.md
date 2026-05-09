@@ -668,3 +668,13 @@ Manual checks:
 - テーマ設定の完了ボタンまわりを少し見やすくする
 - ライトモードは既存の枠なし感を保ちつつ、薄いカード境界だけ整える
 - `tests/mobile-ui-polish-check.js` を追加
+
+
+## Badge/check light-mode repair and local gender heuristic refinement
+
+- ライトモードでも、定員表示（3/3など）とチェックマーク周辺に二重の枠・背景が出ないようにしました。
+- `107-badge-check-gender-fixes.css` を追加し、ライト/ダーク共通で定員バッジとチェックアイコンを整理しました。
+- 名前からの性別判定を、単純な末尾1文字だけではなく、姓名の分離、よくある名の末尾、2文字名、単漢字名、明示的な「男/女」表記を使うローカル推定に改善しました。
+- 外部API送信は引き続き行いません。
+- 推定結果は、性別が `unknown` の人だけに反映し、手動変更済みの性別は上書きしません。
+- `tests/badge-check-light-check.js` と `tests/gender-heuristic-check.js` を追加しました。

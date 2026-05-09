@@ -1770,9 +1770,86 @@ function toggleLock(el) {
     save();
 }
 
+
+function normalizeNameForGenderHeuristic(name) {
+    return String(name || '')
+        .replace(/[ 　\t\r\n]+/g, '')
+        .replace(/[様さん君くんちゃん先輩後輩氏]/g, '')
+        .trim();
+}
+
+function getGivenNameCandidate(name) {
+    const raw = String(name || '').trim();
+    const spaced = raw.split(/[ 　\t\r\n]+/).filter(Boolean);
+    if (spaced.length >= 2) return spaced[spaced.length - 1];
+
+    const compact = normalizeNameForGenderHeuristic(raw);
+    if (!compact) return '';
+
+    // Japanese full names are often 3-5 characters. Prefer the likely given-name tail.
+    if (compact.length >= 5) return compact.slice(-2);
+    if (compact.length >= 4) return compact.slice(-2);
+    if (compact.length >= 3) return compact.slice(-2);
+    return compact;
+}
+
+function scoreLocalGenderName(name) {
+    const compact = normalizeNameForGenderHeuristic(name);
+    const given = getGivenNameCandidate(name);
+    const last = given.slice(-1);
+    const last2 = given.slice(-2);
+
+    let femaleScore = 0;
+    let maleScore = 0;
+
+    // Strong common endings.
+    if (/[子美奈菜那花華香佳加果歌音乃野穂歩萌芽愛彩紗沙咲桜桃梨里莉理璃結優友由祐希姫]/.test(last)) femaleScore += 3;
+    if (/[郎朗太大斗翔人仁也哉矢弥介佑祐助輔平兵真誠司志史士樹生雄男夫]/.test(last)) maleScore += 3;
+
+    // Common two-character given-name endings.
+    if (/(陽菜|結菜|優奈|美咲|美月|美優|美穂|美緒|彩花|彩乃|花音|香織|真由|真央|莉子|梨子|愛子|桃子|杏奈|琴音|七海|芽衣|紗季|沙紀|友香|由香|遥香|里奈|理奈|菜月|千尋)$/.test(given)) femaleScore += 5;
+    if (/(太郎|一郎|二郎|三郎|大輔|祐介|裕介|健太|翔太|陽太|颯太|悠斗|拓海|大地|和也|拓也|直人|真人|健人|雄大|翔平|公平|大樹|直樹|一輝|和樹|智也|悠真|拓真|龍也|達也|勇人)$/.test(given)) maleScore += 5;
+
+    // Common single-character names.
+    if (/^(葵|凛|澪|楓|杏|舞|唯|茜|遥|愛|結)$/.test(given)) femaleScore += 3;
+    if (/^(蓮|樹|翔|翼|陸|駿|匠|隼|仁|誠|司|学|健)$/.test(given)) maleScore += 3;
+
+    // Ambiguous endings are weak only.
+    if (/[希葵陽遥優翼光空海晴]/.test(last)) {
+        femaleScore += 1;
+        maleScore += 1;
+    }
+
+    // Explicit notes sometimes pasted with names.
+    if (/[（(]女|女性|女子|女$/.test(compact)) femaleScore += 8;
+    if (/[（(]男|男性|男子|男$/.test(compact)) maleScore += 8;
+
+    const diff = femaleScore - maleScore;
+    if (diff >= 3) return 'female';
+    if (diff <= -3) return 'male';
+    return 'unknown';
+}
+
+function applyDetectedGenderToName(name, gender) {
+    if (!gender || gender === 'unknown') return;
+    $$('.member-card, .driver-seat').forEach(person => {
+        if (person.dataset.name !== name) return;
+        if (person.dataset.gender && person.dataset.gender !== 'unknown') return;
+        person.dataset.gender = gender;
+        updatePersonGenderBadge(person);
+        const grade = parseInt(person.dataset.grade) || 0;
+        const oldBadge = person.querySelector('.grade-badge');
+        if (oldBadge && grade > 0) {
+            oldBadge.className = `grade-badge ${gradeGenderClass(gender)}`;
+        }
+    });
+}
+
 function detectGender(name) {
     if (!AUTO_GENDER_HEURISTIC) return;
-    genderQueue.push(name);
+    const cleanName = String(name || '').trim();
+    if (!cleanName) return;
+    genderQueue.push(cleanName);
     processGenderQueue();
 }
 async function processGenderQueue() {
@@ -1781,17 +1858,10 @@ async function processGenderQueue() {
     try {
         while (genderQueue.length) {
             const name = genderQueue.shift();
-            let g = 'unknown';
-            // プライバシー優先：参加者名を外部APIへ送らず、端末内の簡易推定だけを行う。
-            if (name.match(/(子|美|代|奈|香|音|姫|華)$/)) g = 'female';
-            else if (name.match(/(郎|太|助|夫|男|平|介)$/)) g = 'male';
-            if (g !== 'unknown') $$(`[data-name="${name}"]`).forEach(e => {
-                const person = e.closest('.member-card') || e.closest('.driver-seat');
-                if (!person) return;
-                person.dataset.gender = g;
-                updatePersonGenderBadge(person);
-            });
-            await new Promise(r => setTimeout(r, 60));
+            // プライバシー優先：外部APIへ送らず、端末内の簡易推定だけを行う。
+            const g = scoreLocalGenderName(name);
+            applyDetectedGenderToName(name, g);
+            await new Promise(r => setTimeout(r, 30));
         }
         save();
     } finally {

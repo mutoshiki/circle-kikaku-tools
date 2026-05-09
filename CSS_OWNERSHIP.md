@@ -71,3 +71,8 @@ Old files still contain compatibility rules, but new edits should be added to th
 - `106-mobile-ui-polish.css`
   - final mobile visual polish
   - screenshot-based spacing, surface, and dark-mode softness adjustments
+
+
+- `107-badge-check-gender-fixes.css`
+  - light/dark capacity badge cleanup
+  - check icon/mock check double-frame cleanup
