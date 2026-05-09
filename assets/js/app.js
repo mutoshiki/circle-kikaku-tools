@@ -1,3 +1,18 @@
+
+function byId(id) {
+    return document.getElementById(id);
+}
+
+function bindClick(id, handler) {
+    const el = byId(id);
+    if (!el || el.dataset.boundClick === 'true') return;
+    el.dataset.boundClick = 'true';
+    el.addEventListener('click', event => {
+        event.preventDefault();
+        handler(event);
+    });
+}
+
 const firebaseConfig = window.SANPO_FIREBASE_CONFIG || {};
 const APP_SCHEMA_VERSION = 2;
 const APP_BUILD_ID = '2026-05-hardening';
@@ -102,9 +117,10 @@ function applyRuntimeAccessibilityFixes(root = document) {
     });
 }
 
+/* showMiniToast is only for one-off notifications. Save/sync state uses #syncStatusBadge. */
 function showMiniToast(message, tone = 'neutral') {
     if (!message) return;
-    let toast = document.getElementById('mini-status-toast');
+    let toast = byId('mini-status-toast');
     if (!toast) {
         toast = document.createElement('div');
         toast.id = 'mini-status-toast';
@@ -223,6 +239,24 @@ function updateAppearanceControls() {
     if (label) label.textContent = resolvedTheme === 'dark' ? '端末：ダーク' : '端末：ライト';
 }
 
+
+function setupAppearanceFooterSafety() {
+    const modal = byId('appearanceModal');
+    if (!modal || modal.dataset.footerSafetyBound === 'true') return;
+    modal.dataset.footerSafetyBound = 'true';
+
+    const closeThemePickers = () => {
+        modal.querySelectorAll('.theme-picker[open]').forEach(picker => {
+            picker.removeAttribute('open');
+        });
+    };
+
+    modal.querySelectorAll('.modal-footer .btn').forEach(button => {
+        button.addEventListener('pointerdown', closeThemePickers, { passive: true });
+        button.addEventListener('click', closeThemePickers);
+    });
+}
+
 function setupThemePickerDropdowns() {
     const pickers = $$('#appearanceModal .theme-picker');
     if (!pickers.length || setupThemePickerDropdowns.ready) return;
@@ -296,9 +330,7 @@ window.resetAppearanceSettings = function() {
 
 function updateStatus(kind = 'neutral', message = '') {
     if (!message) return;
-    const tone = kind === 'error' ? 'error' : (kind === 'saving' ? 'saving' : 'neutral');
     setPersistentSaveStatus(kind, message);
-    showMiniToast(message, tone);
 }
 
 D.addEventListener('DOMContentLoaded', async () => {
@@ -422,7 +454,7 @@ window.resetData = async () => {
 };
 
 function refreshRoomTitle() {
-    const titleEl = document.getElementById('sheet-room-name');
+    const titleEl = byId('sheet-room-name');
     if (!titleEl) return;
     const name = ($('#roomNameInput')?.value || '').trim();
     titleEl.textContent = name || '企画名未設定';
@@ -437,7 +469,7 @@ function formatUpdatedAt(ts) {
 }
 
 function updateSheetSummary(data = getData()) {
-    const summaryEl = document.getElementById('sheet-summary');
+    const summaryEl = byId('sheet-summary');
     if (!summaryEl) return;
     const driverCount = data.cars.length;
     const assignedRiderCount = data.cars.reduce((sum, car) => sum + (car.members || []).filter(Boolean).length, 0);
@@ -485,7 +517,7 @@ function hasTrustedEditAccess() {
 }
 
 function updateEditLockButton() {
-    const btn = document.getElementById('editLockBtn');
+    const btn = byId('editLockBtn');
     if (!btn) return;
     const icon = btn.querySelector('i');
     const label = btn.querySelector('span');
@@ -498,7 +530,7 @@ function updateEditLockButton() {
 }
 
 function updateQuickEditButton() {
-    const btn = document.getElementById('sheet-quick-edit-btn');
+    const btn = byId('sheet-quick-edit-btn');
     if (!btn) return;
     const canQuickEdit = !editLockEnabled || hasTrustedEditAccess();
     const shouldShow = currentView === 'sheet' && canQuickEdit;
@@ -522,7 +554,7 @@ function toggleQuickEdit() {
 window.toggleQuickEdit = toggleQuickEdit;
 
 function showAppNotice(message, isError = false) {
-    let toast = document.getElementById('app-notice');
+    let toast = byId('app-notice');
     if (!toast) {
         toast = document.createElement('div');
         toast.id = 'app-notice';
@@ -537,7 +569,7 @@ function showAppNotice(message, isError = false) {
 
 function requestPassphrasePanel(message, isPassword = true) {
     return new Promise(resolve => {
-        const old = document.getElementById('passphrase-panel');
+        const old = byId('passphrase-panel');
         if (old) old.remove();
 
         const overlay = document.createElement('div');
@@ -799,9 +831,9 @@ function highlightNewWaitingMembers(previousNames = []) {
 }
 
 function updateWaitingTrayState() {
-    const tray = document.getElementById("bottom-tray");
-    const countEl = document.getElementById("waiting-count");
-    const list = document.getElementById('waiting-list');
+    const tray = byId("bottom-tray");
+    const countEl = byId("waiting-count");
+    const list = byId('waiting-list');
     if (!tray || !countEl || !list) return;
 
     const stats = getWaitingTrayStats();
@@ -842,8 +874,8 @@ function updateWaitingTrayState() {
 }
 
 function updateTrayToggleLabel() {
-    const tray = document.getElementById("bottom-tray");
-    const label = document.getElementById("tray-toggle-label");
+    const tray = byId("bottom-tray");
+    const label = byId("tray-toggle-label");
     if (!tray || !label) return;
     const { waitingCount: count } = getWaitingTrayStats();
     if (count === 0) {
@@ -860,7 +892,7 @@ function updateTrayToggleLabel() {
 }
 
 function toggleTray() {
-  const tray = document.getElementById("bottom-tray");
+  const tray = byId("bottom-tray");
   if (!tray) return;
   if (tray.classList.contains('waiting-empty')) {
     tray.classList.toggle('empty-open');
@@ -876,7 +908,7 @@ function toggleTray() {
 }
 window.toggleTray = toggleTray;
 
-const trayHandleEl = document.getElementById('tray-handle');
+const trayHandleEl = byId('tray-handle');
 trayHandleEl?.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
@@ -885,7 +917,7 @@ trayHandleEl?.addEventListener('keydown', e => {
 });
 
 function updateTrayMenuDirection() {
-    const tray = document.getElementById("bottom-tray");
+    const tray = byId("bottom-tray");
     const menuWrap = tray?.querySelector('.tray-settings-dropdown');
     if (!tray || !menuWrap) return;
     menuWrap.classList.toggle('dropup', tray.classList.contains('minimized'));
@@ -893,7 +925,7 @@ function updateTrayMenuDirection() {
 }
 
 function prepareWaitingTrayForDrag() {
-    const tray = document.getElementById('bottom-tray');
+    const tray = byId('bottom-tray');
     if (!tray || currentView !== 'list') return;
 
     const fromWaiting = manualCardDrag?.currentContainer?.id === 'waiting-list';
@@ -917,8 +949,8 @@ function prepareWaitingTrayForDrag() {
 }
 
 function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
-    const tray = document.getElementById('bottom-tray');
-    const waitingList = document.getElementById('waiting-list');
+    const tray = byId('bottom-tray');
+    const waitingList = byId('waiting-list');
     if (!tray || !waitingList || currentView !== 'list' || !manualCardDrag) return;
 
     const closed = tray.classList.contains('minimized') || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
@@ -929,7 +961,7 @@ function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
 
     // 自動で開くのは、カードが「閉じているタブ本体」に触れたときだけ。
     // 以前のように画面下に近づいただけでは開かない。
-    const handle = document.getElementById('tray-handle');
+    const handle = byId('tray-handle');
     const targetRect = (handle || tray).getBoundingClientRect();
     const margin = 10;
     const touchingClosedTab =
@@ -950,7 +982,7 @@ function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
 }
 
 function finishWaitingTrayDragState() {
-    const tray = document.getElementById('bottom-tray');
+    const tray = byId('bottom-tray');
     if (!tray) return;
     const droppedToWaiting = manualCardDrag?.dropTarget?.id === 'waiting-list';
     tray.classList.remove('is-drop-ready', 'is-drop-near');
@@ -970,6 +1002,18 @@ function genderBadgeHtml(gender) {
     return '';
 }
 
+function gradeGenderClass(gender) {
+    if (gender === 'male') return 'grade-male';
+    if (gender === 'female') return 'grade-female';
+    return 'grade-unknown';
+}
+
+function renderGradeBadge(grade, gender = 'unknown') {
+    const n = parseInt(grade) || 0;
+    if (n <= 0) return '';
+    return `<span class="grade-badge ${gradeGenderClass(gender)}" data-grade="${n}">${n}年</span>`;
+}
+
 function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), locked=false) {
     const name = String(n || '').trim();
     if(!name) return;
@@ -982,7 +1026,7 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
     
     const safeName = escapeHtml(name);
     const safeMemo = escapeHtml(m || '');
-    const gradeHtml = grade > 0 ? `<span class="grade-badge" data-grade="${grade}">${grade}年</span>` : '';
+    const gradeHtml = renderGradeBadge(grade, g);
     const genderHtml = genderBadgeHtml(g);
     div.innerHTML = `
         <div class="member-main-line">
@@ -1007,7 +1051,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0) {
     const col = ce('div', 'col-12 col-md-6 col-lg-4');
     const safeName = escapeHtml(name);
     const safeMemo = escapeHtml(dm || '');
-    const driverGradeHtml = dgrade > 0 ? `<span class="grade-badge" data-grade="${dgrade}">${dgrade}年</span>` : '';
+    const driverGradeHtml = renderGradeBadge(dgrade, dg);
     const driverGenderHtml = genderBadgeHtml(dg);
     let slotsHtml = `
         <div class="driver-seat" data-gender="${dg}" data-name="${safeName}" data-grade="${dgrade || 0}">
@@ -1026,7 +1070,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0) {
         <div class="car-box" data-capacity="${c}">
             <div class="car-header">
                 <span class="car-name-label">${safeName}車</span>
-                <button type="button" class="capacity-badge capacity-edit-btn" onclick="window.editCapacity(this)" title="定員を変更" aria-label="定員を変更">
+                <button type="button" class="capacity-badge capacity-edit-btn" data-action="edit-capacity" title="定員を変更" aria-label="定員を変更">
                     <span class="capacity-count">0/${c}</span><i class="fas fa-pen" aria-hidden="true"></i>
                 </button>
                 <button type="button" class="car-delete-btn action-btn delete-btn" title="車を削除" aria-label="車を削除">
@@ -1140,8 +1184,8 @@ function enforceOneCardPerSeat() {
 
 function getManualCardDropTarget(clientX, clientY) {
     const el = document.elementFromPoint(clientX, clientY);
-    const waitingList = document.getElementById('waiting-list');
-    const tray = document.getElementById('bottom-tray');
+    const waitingList = byId('waiting-list');
+    const tray = byId('bottom-tray');
     const seat = el?.closest?.('.seat-slot');
     if (seat) return seat;
 
@@ -1155,7 +1199,7 @@ function getManualCardDropTarget(clientX, clientY) {
     }
 
     // 閉じているときは、閉じたタブ本体に触れたときだけ戻し先扱いにする。
-    const handle = document.getElementById('tray-handle');
+    const handle = byId('tray-handle');
     const targetRect = (handle || tray).getBoundingClientRect();
     const margin = 12;
     const touchingClosedTab =
@@ -1500,8 +1544,8 @@ function setupSortable(el) {
 
 function autoScrollEditingView(clientY) {
     if (!isDraggingCards || currentView !== 'list') return;
-    const topArea = document.getElementById('top-area');
-    const waitingContainer = document.getElementById('waiting-list-container');
+    const topArea = byId('top-area');
+    const waitingContainer = byId('waiting-list-container');
     const areas = [topArea, waitingContainer];
 
     areas.forEach(area => {
@@ -1520,7 +1564,7 @@ function autoScrollEditingView(clientY) {
 
 function autoScrollSheetQuickEdit(clientX, clientY) {
     if (!isDraggingCards || currentView !== 'sheet' || !quickEditMode) return;
-    const area = document.getElementById('sheet-view-area');
+    const area = byId('sheet-view-area');
     if (!area) return;
     const rect = area.getBoundingClientRect();
     const edgeX = Math.min(56, rect.width / 6);
@@ -1585,24 +1629,24 @@ function updateUI() {
 }
 
 function renderListEmptyHint() {
-    const container = document.getElementById('cars-container');
+    const container = byId('cars-container');
     if (!container) return;
     const hasCar = !!container.querySelector('.car-box');
-    const existing = document.getElementById('list-empty-hint');
+    const existing = byId('list-empty-hint');
     if (hasCar) {
         existing?.remove();
         return;
     }
     if (!existing) {
-        container.insertAdjacentHTML('afterbegin', `<div class="col-12" id="list-empty-hint"><div class="empty-card"><i class="fas fa-paste"></i><strong>登録から始めます</strong><span>Googleフォームの名簿を貼ると、参加者と車出しできる人をまとめて登録できます。</span><button class="seisan-btn primary" type="button" onclick="openBatchModal()">登録を開く</button></div></div>`);
+        container.insertAdjacentHTML('afterbegin', `<div class="col-12" id="list-empty-hint"><div class="empty-card"><i class="fas fa-paste"></i><strong>登録から始めます</strong><span>Googleフォームの名簿を貼ると、参加者と車出しできる人をまとめて登録できます。</span><button class="seisan-btn primary" type="button" data-action="open-batch">登録を開く</button></div></div>`);
     }
 }
 
 function getAutoAssignConditionItems(opts = null) {
     const source = opts || {
-        f: document.getElementById('optFemale')?.checked,
-        m: document.getElementById('optMale')?.checked,
-        g: document.getElementById('optGrade')?.checked
+        f: byId('optFemale')?.checked,
+        m: byId('optMale')?.checked,
+        g: byId('optGrade')?.checked
     };
     const items = [];
     if (source.f) items.push('女子');
@@ -1612,7 +1656,7 @@ function getAutoAssignConditionItems(opts = null) {
 }
 
 function updateAutoAssignSummary() {
-    const el = document.getElementById('autoAssignSummary');
+    const el = byId('autoAssignSummary');
     if (!el) return;
     const items = getAutoAssignConditionItems();
     el.textContent = items.length ? `現在：${items.join('・')}をまとめる` : '現在：ランダム';
@@ -1627,7 +1671,7 @@ function buildAutoAssignAppliedLabel(opts, mode) {
 }
 
 function updateLastAutoAssignCondition() {
-    const el = document.getElementById('lastAutoAssignCondition');
+    const el = byId('lastAutoAssignCondition');
     if (!el) return;
     const text = lastAutoAssignLabel || '自動割当：未実行';
     el.innerHTML = `<i class="fas fa-random"></i><span>${escapeHtml(text)}</span>`;
@@ -1638,7 +1682,7 @@ function getData() {
     return {
         schemaVersion: APP_SCHEMA_VERSION,
         roomName: $('#roomNameInput').value,
-        trayMinimized: document.getElementById("bottom-tray")
+        trayMinimized: byId("bottom-tray")
                            .classList.contains("minimized"),
         editLockEnabled,
         editLockPassphrase,
@@ -1678,7 +1722,7 @@ function restore(d) {
     }
     updateEditLockButton();
     refreshRoomTitle();
-    const tray = document.getElementById("bottom-tray");
+    const tray = byId("bottom-tray");
     if (d.trayMinimized) {
       tray.classList.add("minimized");
     } else {
@@ -1927,7 +1971,7 @@ function updatePersonGradeBadge(person) {
     if (!line) return;
     line.querySelector('.grade-badge')?.remove();
     if (grade > 0) {
-        const badge = ce('span', 'grade-badge');
+        const badge = ce('span', `grade-badge ${gradeGenderClass(person.dataset.gender)}`);
         badge.dataset.grade = String(grade);
         badge.textContent = `${grade}年`;
         const menuBtn = line.querySelector('.member-menu-btn, .driver-menu-btn');
@@ -1940,6 +1984,11 @@ function updatePersonGenderBadge(person) {
     const line = $('.member-main-line, .driver-main-line', person);
     if (!line) return;
     line.querySelector('.gender-badge')?.remove();
+    const badge = line.querySelector('.grade-badge');
+    if (badge) {
+        badge.classList.remove('grade-male', 'grade-female', 'grade-unknown');
+        badge.classList.add(gradeGenderClass(person.dataset.gender));
+    }
 }
 
 function setPersonGrade(person, gradeValue) {
@@ -2219,7 +2268,7 @@ async function executeBatch() {
         return acc;
     }, {});
     const duplicates = Object.entries(grouped).filter(([, groups]) => groups.length > 1);
-    const warning = document.getElementById('batchDuplicateWarning');
+    const warning = byId('batchDuplicateWarning');
     if (duplicates.length) {
         const message = '同じ名前があります：' + duplicates.map(([name, groups]) => `${name}（${groups.join('・')}）`).join('、');
         if (warning) {
@@ -2320,7 +2369,7 @@ async function executeBatch() {
 window.executeBatch = executeBatch;
 
 function showCopyFallback(message, text) {
-    let box = document.getElementById('copy-fallback');
+    let box = byId('copy-fallback');
     if (!box) {
         box = document.createElement('div');
         box.id = 'copy-fallback';
@@ -2351,7 +2400,7 @@ function showCopyFallback(message, text) {
 
 function copyUrl() { 
     navigator.clipboard.writeText(window.location.href).then(() => {
-        let toast = document.getElementById('copy-toast');
+        let toast = byId('copy-toast');
         if (!toast) {
             toast = document.createElement('div');
             toast.id = 'copy-toast';
@@ -2380,13 +2429,13 @@ async function switchView(view) {
         if (!(await verifyEditPassphrase(`${label}を開くには合言葉を入力してください`))) return;
     }
     currentView = view;
-    const listArea = document.getElementById('top-area');
-    const sheetArea = document.getElementById('sheet-view-area');
-    const bottomTray = document.getElementById('bottom-tray');
-    const tabList = document.getElementById('tab-list');
-    const tabSheet = document.getElementById('tab-sheet');
-    const tabSeisan = document.getElementById('tab-seisan');
-    const seisanArea = document.getElementById('seisan-view-area');
+    const listArea = byId('top-area');
+    const sheetArea = byId('sheet-view-area');
+    const bottomTray = byId('bottom-tray');
+    const tabList = byId('tab-list');
+    const tabSheet = byId('tab-sheet');
+    const tabSeisan = byId('tab-seisan');
+    const seisanArea = byId('seisan-view-area');
 
     if (view === 'seisan') {
         document.body.classList.remove('sheet-mode');
@@ -2428,7 +2477,7 @@ async function switchView(view) {
 window.switchView = switchView;
 
 function showSheetHint() {
-    const hint = document.getElementById('sheet-hint');
+    const hint = byId('sheet-hint');
     hint.classList.add('visible');
     setTimeout(() => hint.classList.remove('visible'), 3000);
 }
@@ -2517,14 +2566,14 @@ function safeLocalRemove(key) {
 
 function renderSheetPlain(member) {
     const grade = member.grade || 0;
-    const gradeBadge = grade > 0 ? `<span class="grade-badge" data-grade="${grade}">${grade}年</span>` : '';
+    const gradeBadge = renderGradeBadge(grade, member.gender || 'unknown');
     return `${gradeBadge}<span class="sheet-cell-text">${escapeHtml(member.name)}</span>`;
 }
 
 function renderSheetChip(member) {
     const grade = member.grade || 0;
     const gender = member.gender || 'unknown';
-    const gradeBadge = grade > 0 ? `<span class="grade-badge" data-grade="${grade}">${grade}年</span>` : '';
+    const gradeBadge = renderGradeBadge(grade, member.gender || 'unknown');
     const draggable = !member.locked && hasTrustedEditAccess() && quickEditMode;
     const lockIcon = member.locked ? `<i class="fas fa-lock" style="font-size:0.62rem; opacity:0.7;"></i>` : '';
     return `<div class="sheet-chip ${draggable ? 'draggable' : ''} ${member.locked ? 'locked' : ''}" data-name="${escapeHtml(member.name)}" data-gender="${gender}" data-locked="${member.locked ? 'true' : 'false'}">${gradeBadge}<span class="sheet-chip-text">${escapeHtml(member.name)}</span>${lockIcon}</div>`;
@@ -2844,31 +2893,21 @@ function setupSheetSortables() {
     return null;
 }
 
-function renderSheetView() {
-    const canvas = document.getElementById('sheet-canvas');
-    clearSheetSortables();
-    canvas.innerHTML = '';
-    updateQuickEditButton();
-    const data = getData();
-    updateSheetSummary(data);
 
-    if (!data.cars.length) {
-        canvas.innerHTML = `
-            <div class="sheet-empty-card">
-                <div class="sheet-empty-icon"><i class="fas fa-car-side" aria-hidden="true"></i></div>
-                <div class="sheet-empty-title">まず登録から始めます</div>
-                <div class="sheet-empty-text">参加者と車出しを登録すると、ここに発表用の車割が表示されます。</div>
-                <div class="sheet-empty-actions">
-                  <button class="seisan-btn primary" type="button" onclick="switchView('list'); openBatchModal();"><i class="fas fa-paste me-1"></i>登録を開く</button>
-                  <button class="seisan-btn" type="button" onclick="switchView('list')"><i class="fas fa-edit me-1"></i>車割メーカーへ</button>
-                </div>
+function renderSheetEmptyHtml() {
+    return `
+        <div class="sheet-empty-card">
+            <div class="sheet-empty-icon"><i class="fas fa-car-side" aria-hidden="true"></i></div>
+            <div class="sheet-empty-title">まず登録から始めます</div>
+            <div class="sheet-empty-text">参加者と車出しを登録すると、ここに発表用の車割が表示されます。</div>
+            <div class="sheet-empty-actions">
+              <button class="seisan-btn primary" type="button" data-action="open-batch-from-sheet"><i class="fas fa-paste me-1"></i>登録を開く</button>
+              <button class="seisan-btn" type="button" data-action="switch-list"><i class="fas fa-edit me-1"></i>車割メーカーへ</button>
             </div>
-        `;
-        return;
-    }
+        </div>`;
+}
 
-    const maxSeats = Math.max(...data.cars.map(c => parseInt(c.capacity)||0));
-
+function createSheetLabelColumn(maxSeats) {
     const labelCol = document.createElement('div');
     labelCol.className = 'sheet-car-col';
     labelCol.style.minWidth = '60px';
@@ -2877,48 +2916,50 @@ function renderSheetView() {
         <div class="sheet-driver-row" style="font-weight:700;color:var(--text-sub);font-size:0.72rem;background:var(--sheet-header);">車出し</div>
         ${Array.from({length:maxSeats},(_,i)=>`<div class="sheet-seat-row" style="background:var(--sheet-header);color:var(--text-sub);font-size:0.72rem;font-weight:600;">席 ${i+1}</div>`).join('')}
     `;
-    canvas.appendChild(labelCol);
+    return labelCol;
+}
 
-    data.cars.forEach(car => {
-        const col = document.createElement('div');
-        col.className = 'sheet-car-col';
+function renderSheetCarColumnHtml(car, maxSeats) {
+    const cap = parseInt(car.capacity)||0;
+    const filled = (car.members||[]).filter(Boolean).length;
+    const capColor = filled > cap ? '#b91c1c' : filled === cap ? 'var(--accent-color)' : 'var(--text-sub)';
 
-        const cap = parseInt(car.capacity)||0;
-        const filled = (car.members||[]).filter(Boolean).length;
-        const capColor = filled > cap ? '#b91c1c' : filled === cap ? 'var(--accent-color)' : 'var(--text-sub)';
+    let html = `<div class="sheet-car-header">${escapeHtml(car.name)}車 <span class="sheet-capacity-badge" style="color:${capColor}">${filled}/${cap}</span></div>`;
 
-        let html = `<div class="sheet-car-header">${escapeHtml(car.name)}車 <span class="sheet-capacity-badge" style="color:${capColor}">${filled}/${cap}</span></div>`;
+    const dg = car.driverGender || 'unknown';
+    const dgrade = parseInt(car.driverGrade) || 0;
+    const dgradeBadge = renderGradeBadge(dgrade, dg);
+    html += `<div class="sheet-driver-row" data-gender="${dg}">
+        <i class="fas fa-car" style="font-size:0.65rem;opacity:0.6;"></i>
+        <span style="font-weight:700;">${escapeHtml(car.name)}</span>${dgradeBadge}
+    </div>`;
 
-        const dg = car.driverGender || 'unknown';
-        const dgrade = parseInt(car.driverGrade) || 0;
-        const dgradeBadge = dgrade > 0 ? `<span class="grade-badge" data-grade="${dgrade}">${dgrade}年</span>` : '';
-        html += `<div class="sheet-driver-row" data-gender="${dg}">
-            <i class="fas fa-car" style="font-size:0.65rem;opacity:0.6;"></i>
-            <span style="font-weight:700;">${escapeHtml(car.name)}</span>${dgradeBadge}
-        </div>`;
-
-        for (let i = 0; i < maxSeats; i++) {
-            const mem = (car.members||[])[i];
-            if (i >= cap) {
-                html += `<div class="sheet-seat-row" style="background:var(--bg-body);"></div>`;
-            } else if (mem && mem.name) {
-                const g = mem.gender || 'unknown';
-                html += quickEditMode
-                    ? `<div class="sheet-seat-row" data-gender="${g}"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${escapeHtml(car.name)}" data-slot-index="${i}" data-accept-drop="${mem.locked ? 'false' : 'true'}">${renderSheetChip(mem)}</div></div>`
-                    : `<div class="sheet-seat-row" data-gender="${g}">${renderSheetPlain(mem)}</div>`;
-            } else {
-                html += quickEditMode
-                    ? `<div class="sheet-seat-row empty"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${escapeHtml(car.name)}" data-slot-index="${i}" data-accept-drop="true">空き</div></div>`
-                    : `<div class="sheet-seat-row empty">空き</div>`;
-            }
+    for (let i = 0; i < maxSeats; i++) {
+        const mem = (car.members||[])[i];
+        if (i >= cap) {
+            html += `<div class="sheet-seat-row" style="background:var(--bg-body);"></div>`;
+        } else if (mem && mem.name) {
+            const g = mem.gender || 'unknown';
+            html += quickEditMode
+                ? `<div class="sheet-seat-row" data-gender="${g}"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${escapeHtml(car.name)}" data-slot-index="${i}" data-accept-drop="${mem.locked ? 'false' : 'true'}">${renderSheetChip(mem)}</div></div>`
+                : `<div class="sheet-seat-row" data-gender="${g}">${renderSheetPlain(mem)}</div>`;
+        } else {
+            html += quickEditMode
+                ? `<div class="sheet-seat-row empty"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${escapeHtml(car.name)}" data-slot-index="${i}" data-accept-drop="true">空き</div></div>`
+                : `<div class="sheet-seat-row empty">空き</div>`;
         }
+    }
+    return html;
+}
 
-        col.innerHTML = html;
-        canvas.appendChild(col);
-    });
+function createSheetCarColumn(car, maxSeats) {
+    const col = document.createElement('div');
+    col.className = 'sheet-car-col';
+    col.innerHTML = renderSheetCarColumnHtml(car, maxSeats);
+    return col;
+}
 
-    const waitCol = document.createElement('div');
-    waitCol.className = 'sheet-wait-block';
+function renderSheetWaitingHtml(data) {
     let wHtml = `<div class="sheet-wait-header">待機中 (${data.waiting.length})</div>`;
     if (quickEditMode) {
         wHtml += `<div class="sheet-wait-body"><div class="sheet-waiting-list" data-zone-type="waiting" data-accept-drop="true">${data.waiting.map(m => renderSheetChip(m)).join('')}</div></div>`;
@@ -2928,18 +2969,45 @@ function renderSheetView() {
             return `<div class="sheet-wait-item" data-gender="${g}">${renderSheetPlain(m)}</div>`;
         }).join('') : '<div class="sheet-wait-item empty">待機メンバーはいません</div>'}</div>`;
     }
-    waitCol.innerHTML = wHtml;
-    canvas.appendChild(waitCol);
+    return wHtml;
+}
+
+function createSheetWaitingColumn(data) {
+    const waitCol = document.createElement('div');
+    waitCol.className = 'sheet-wait-block';
+    waitCol.innerHTML = renderSheetWaitingHtml(data);
+    return waitCol;
+}
+
+function renderSheetView() {
+    const canvas = byId('sheet-canvas');
+    if (!canvas) return;
+    clearSheetSortables();
+    canvas.innerHTML = '';
+    updateQuickEditButton();
+    const data = getData();
+    updateSheetSummary(data);
+
+    if (!data.cars.length) {
+        canvas.innerHTML = renderSheetEmptyHtml();
+        return;
+    }
+
+    const maxSeats = Math.max(...data.cars.map(c => parseInt(c.capacity)||0));
+    canvas.appendChild(createSheetLabelColumn(maxSeats));
+    data.cars.forEach(car => canvas.appendChild(createSheetCarColumn(car, maxSeats)));
+    canvas.appendChild(createSheetWaitingColumn(data));
 
     setupSheetSortables();
 }
+
 
 let sheetScale = 1, sheetX = 0, sheetY = 0;
 let isPanning = false, panStartX = 0, panStartY = 0, panOriginX = 0, panOriginY = 0;
 let lastPinchDist = 0;
 
 function applySheetTransform() {
-    const canvas = document.getElementById('sheet-canvas');
+    const canvas = byId('sheet-canvas');
     if (canvas) canvas.style.transform = `translate(${sheetX}px,${sheetY}px) scale(${sheetScale})`;
 }
 
@@ -2949,7 +3017,7 @@ function resetZoom() { sheetScale=1; sheetX=0; sheetY=0; applySheetTransform(); 
 window.zoomIn = zoomIn; window.zoomOut = zoomOut; window.resetZoom = resetZoom;
 
 D.addEventListener('DOMContentLoaded', () => {
-    const area = document.getElementById('sheet-view-area');
+    const area = byId('sheet-view-area');
     if (!area) return;
     const preventSheetTextSelection = e => {
         if (isSheetDragHandle(e.target)) e.preventDefault();
@@ -3149,10 +3217,10 @@ function getParticipantList(data = null) {
 
 function syncSettlementStateFromDOM() {
     const state = ensureSettlementState();
-    const rounding = document.getElementById('seisanRounding');
-    const organizerFree = document.getElementById('seisanOrganizerFree');
-    const organizerName = document.getElementById('seisanOrganizerName');
-    const driverReward = document.getElementById('seisanDriverReward');
+    const rounding = byId('seisanRounding');
+    const organizerFree = byId('seisanOrganizerFree');
+    const organizerName = byId('seisanOrganizerName');
+    const driverReward = byId('seisanDriverReward');
 
     if (rounding) state.rounding = rounding.value || '100';
     if (organizerFree) state.organizerFree = organizerFree.checked;
@@ -3180,7 +3248,7 @@ function syncSettlementStateFromDOM() {
 
 function getSettlementSnapshot() {
     const state = ensureSettlementState();
-    const settlementArea = document.getElementById('seisan-view-area');
+    const settlementArea = byId('seisan-view-area');
     if (settlementArea && settlementArea.classList.contains('active')) syncSettlementStateFromDOM();
     return JSON.parse(JSON.stringify(state));
 }
@@ -3309,7 +3377,7 @@ function extraFieldErrorClass(issues, carName, index, key) {
 }
 
 function renderSettlementIssues(issues) {
-    const box = document.getElementById('seisan-errors');
+    const box = byId('seisan-errors');
     if (!box) return;
     if (!issues.messages.length) {
         box.style.display = 'none';
@@ -3323,27 +3391,22 @@ function renderSettlementIssues(issues) {
 function renderExtraRowHtml(carName, ex, index, issues) {
     const type = ex.type === 'club' ? 'club' : 'split';
     return `<div class="seisan-extra-row" data-extra-index="${index}">
-        <input type="text" data-extra-field="name" class="${extraFieldErrorClass(issues, carName, index, 'name')}" value="${escapeHtml(ex.name || '')}" placeholder="例：駐車場代" oninput="window.onSettlementInputDelayed()" onchange="window.onSettlementInput()">
-        <input type="number" inputmode="numeric" data-extra-field="amount" class="${extraFieldErrorClass(issues, carName, index, 'amount')}" value="${escapeHtml(ex.amount || '')}" placeholder="金額" oninput="window.onSettlementInputDelayed()" onchange="window.onSettlementInput()">
-        <select data-extra-field="type" class="seisan-extra-type ${type}" onchange="window.onSettlementInput()">
+        <input type="text" data-extra-field="name" class="${extraFieldErrorClass(issues, carName, index, 'name')}" value="${escapeHtml(ex.name || '')}" placeholder="例：駐車場代">
+        <input type="number" inputmode="numeric" data-extra-field="amount" class="${extraFieldErrorClass(issues, carName, index, 'amount')}" value="${escapeHtml(ex.amount || '')}" placeholder="金額">
+        <select data-extra-field="type" class="seisan-extra-type ${type}">
             <option value="split" ${type === 'split' ? 'selected' : ''}>割勘</option>
             <option value="club" ${type === 'club' ? 'selected' : ''}>部費</option>
         </select>
-        <button class="seisan-icon-btn" type="button" onclick="window.removeSettlementExtra(this)" title="削除"><i class="fas fa-times"></i></button>
+        <button class="seisan-icon-btn" type="button" data-action="remove-settlement-extra" title="削除"><i class="fas fa-times"></i></button>
     </div>`;
 }
 
-function renderSettlementView() {
-    const area = document.getElementById('seisan-view-area');
-    if (!area) return;
-    const state = ensureSettlementState();
-    const data = getRoomDataOnly();
-    const participants = getParticipantList(data);
 
-    const roundingEl = document.getElementById('seisanRounding');
-    const organizerFreeEl = document.getElementById('seisanOrganizerFree');
-    const organizerEl = document.getElementById('seisanOrganizerName');
-    const rewardEl = document.getElementById('seisanDriverReward');
+function syncSettlementControls(state, participants) {
+    const roundingEl = byId('seisanRounding');
+    const organizerFreeEl = byId('seisanOrganizerFree');
+    const organizerEl = byId('seisanOrganizerName');
+    const rewardEl = byId('seisanDriverReward');
     if (roundingEl) roundingEl.value = state.rounding || '100';
     if (organizerFreeEl) organizerFreeEl.checked = state.organizerFree !== false;
     if (rewardEl) rewardEl.value = state.driverReward ?? '1000';
@@ -3353,115 +3416,130 @@ function renderSettlementView() {
         organizerEl.value = participants.some(p => p.name === current) ? current : '';
         state.organizerName = organizerEl.value;
     }
+}
+
+function renderSettlementSummaryHtml(result) {
+    const accountingLabel = result.accounting >= 0 ? '部費負担' : '部費へ戻す';
+    return `
+        <div class="seisan-summary-card collect">
+          <div class="seisan-summary-label"><i class="fas fa-users"></i>集める</div>
+          <div class="seisan-summary-value">${yen(result.perPerson)}</div>
+          <div class="seisan-summary-sub">1人あたり / ${result.payerCount}名</div>
+        </div>
+        <div class="seisan-flow-arrow">→</div>
+        <div class="seisan-summary-card accounting">
+          <div class="seisan-summary-label"><i class="fas fa-wallet"></i>部費</div>
+          <div class="seisan-summary-value">${yen(Math.abs(result.accounting))}</div>
+          <div class="seisan-summary-sub">${accountingLabel}</div>
+        </div>
+        <div class="seisan-flow-arrow">→</div>
+        <div class="seisan-summary-card pay">
+          <div class="seisan-summary-label"><i class="fas fa-car-side"></i>渡す</div>
+          <div class="seisan-summary-value">${yen(result.driverTotal)}</div>
+          <div class="seisan-summary-sub">車出し ${result.cars.length}名</div>
+        </div>`;
+}
+
+function renderSettlementCarRowHtml(car, state, result, issues) {
+    const cState = normalizeCarSettlementState(state.cars?.[car.name] || {});
+    state.cars[car.name] = cState;
+    const calc = result.cars.find(c => c.name === car.name) || { totalPay: 0, gas: 0, extras: [] };
+    const extras = cState.extras.length ? cState.extras : [{ name: '', amount: '', type: 'split' }];
+    const rowClass = issues.rows.has(car.name) ? ' has-error' : '';
+    const details = `ガソリン代 ${yen(calc.gas || 0)} / 諸経費 ${yen((calc.splitExtras || 0) + (calc.clubExtras || 0))}`;
+    return `<div class="seisan-car-row${rowClass}" data-driver-name="${escapeHtml(car.name)}">
+        <div class="seisan-car-title"><strong>${escapeHtml(car.name)}車</strong><span class="seisan-car-total">渡す ${yen(calc.totalPay)}</span></div>
+        <div class="seisan-small" style="margin-bottom:8px;">${details}</div>
+        <div class="seisan-car-inputs">
+          <label><span class="seisan-mini-label">移動距離（km）</span><input type="number" inputmode="decimal" data-field="dist" class="${fieldErrorClass(issues, car.name, 'dist')}" value="${escapeHtml(cState.dist || '')}"></label>
+          <label><span class="seisan-mini-label">燃費（km/L）</span><input type="number" inputmode="decimal" data-field="eco" class="${fieldErrorClass(issues, car.name, 'eco')}" value="${escapeHtml(cState.eco || '')}"></label>
+          <label><span class="seisan-mini-label">ガソリン単価（円/L）</span><input type="number" inputmode="decimal" data-field="price" class="${fieldErrorClass(issues, car.name, 'price')}" value="${escapeHtml(cState.price || '')}"></label>
+        </div>
+        <div class="seisan-subhead"><strong>諸経費</strong></div>
+        <div class="seisan-extra-list">
+          ${extras.map((ex, i) => renderExtraRowHtml(car.name, normalizeExtraItem(ex), i, issues)).join('')}
+        </div>
+        <div class="seisan-add-row">
+          <button class="seisan-btn" type="button" data-action="add-settlement-extra" data-driver-name="${encodeURIComponent(car.name)}"><i class="fas fa-plus me-1"></i>諸経費を追加</button>
+        </div>
+    </div>`;
+}
+
+function renderSettlementCarsHtml(data, state, result, issues) {
+    if (!data.cars.length) return `<div class="seisan-empty">先に車出しを登録してください。</div>`;
+    return data.cars.map(car => renderSettlementCarRowHtml(car, state, result, issues)).join('');
+}
+
+function renderSettlementCollectionHtml(participants, state, result) {
+    if (!participants.length) return `<div class="seisan-empty">名簿を登録すると表示されます。</div>`;
+    return participants.map(p => {
+        const excluded = state.organizerFree && result.organizerSelected && p.name === result.excludedName;
+        const paid = !!state.paid?.[p.name];
+        const note = excluded ? '対象外' : (p.role === 'driver' ? '車出し' : (p.role === 'waiting' ? '待機' : ''));
+        return `<label class="seisan-check-item ${paid ? 'paid' : ''} ${excluded ? 'excluded' : ''}">
+            <input type="checkbox" ${paid ? 'checked' : ''} ${excluded ? 'disabled' : ''} data-settlement-paid-name="${encodeURIComponent(p.name)}">
+            <span class="seisan-check-name">${escapeHtml(p.name)}</span>
+            ${note ? `<span class="seisan-check-note">${note}</span>` : ''}
+        </label>`;
+    }).join('');
+}
+
+function renderSettlementDriverPayHtml(result, state) {
+    if (!result.cars.length) return `<div class="seisan-empty">車出しを登録すると表示されます。</div>`;
+    return result.cars.map(car => {
+        const done = !!state.driverPaid?.[car.name];
+        const exText = car.extras.length ? car.extras.map(ex => `${escapeHtml(ex.name || '諸経費')} ${yen(ex.amountValue)}`).join(' / ') : '諸経費なし';
+        return `<label class="seisan-driver-pay-row ${done ? 'done' : ''}">
+            <span class="seisan-driver-name">${escapeHtml(car.name)}</span>
+            <span class="seisan-driver-amount">${yen(car.totalPay)}</span>
+            <input type="checkbox" ${done ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}">
+            <span class="seisan-driver-detail">ガソリン代 ${yen(car.gas)} / ${exText} / 協力代 ${yen(car.reward)}</span>
+        </label>`;
+    }).join('');
+}
+
+function renderSettlementBreakdownHtml(result) {
+    return `
+        <div class="seisan-break-row"><span>割勘対象</span><span>${yen(result.totalSplit)}</span></div>
+        <div class="seisan-break-row"><span>集金予定</span><span>${yen(result.expectedCollected)}</span></div>
+        <div class="seisan-break-row"><span>端数余り</span><span>${yen(result.surplus)}</span></div>
+        <div class="seisan-break-row"><span>部費負担</span><span>${yen(result.totalClub)}</span></div>
+        <div class="seisan-break-row"><span>車出し協力代</span><span>${yen(result.totalReward)}</span></div>
+        <div class="seisan-break-row"><span>支払い丸め</span><span>${yen(result.totalDriverRound)}</span></div>`;
+}
+
+function renderSettlementView() {
+    const area = byId('seisan-view-area');
+    if (!area) return;
+    const state = ensureSettlementState();
+    const data = getRoomDataOnly();
+    const participants = getParticipantList(data);
+
+    syncSettlementControls(state, participants);
 
     const result = calculateSettlement(data, state);
     const issues = getSettlementIssues(data, state, result);
     renderSettlementIssues(issues);
 
-    const summary = document.getElementById('seisan-summary');
-    if (summary) {
-        const accountingLabel = result.accounting >= 0 ? '部費負担' : '部費へ戻す';
-        summary.innerHTML = `
-            <div class="seisan-summary-card collect">
-              <div class="seisan-summary-label"><i class="fas fa-users"></i>集める</div>
-              <div class="seisan-summary-value">${yen(result.perPerson)}</div>
-              <div class="seisan-summary-sub">1人あたり / ${result.payerCount}名</div>
-            </div>
-            <div class="seisan-flow-arrow">→</div>
-            <div class="seisan-summary-card accounting">
-              <div class="seisan-summary-label"><i class="fas fa-wallet"></i>部費</div>
-              <div class="seisan-summary-value">${yen(Math.abs(result.accounting))}</div>
-              <div class="seisan-summary-sub">${accountingLabel}</div>
-            </div>
-            <div class="seisan-flow-arrow">→</div>
-            <div class="seisan-summary-card pay">
-              <div class="seisan-summary-label"><i class="fas fa-car-side"></i>渡す</div>
-              <div class="seisan-summary-value">${yen(result.driverTotal)}</div>
-              <div class="seisan-summary-sub">車出し ${result.cars.length}名</div>
-            </div>`;
-    }
+    const summary = byId('seisan-summary');
+    if (summary) summary.innerHTML = renderSettlementSummaryHtml(result);
 
-    const carList = document.getElementById('seisan-car-list');
-    if (carList) {
-        if (!data.cars.length) {
-            carList.innerHTML = `<div class="seisan-empty">先に車出しを登録してください。</div>`;
-        } else {
-            carList.innerHTML = data.cars.map(car => {
-                const cState = normalizeCarSettlementState(state.cars?.[car.name] || {});
-                state.cars[car.name] = cState;
-                const calc = result.cars.find(c => c.name === car.name) || { totalPay: 0, gas: 0, extras: [] };
-                const extras = cState.extras.length ? cState.extras : [{ name: '', amount: '', type: 'split' }];
-                const rowClass = issues.rows.has(car.name) ? ' has-error' : '';
-                const details = `ガソリン代 ${yen(calc.gas || 0)} / 諸経費 ${yen((calc.splitExtras || 0) + (calc.clubExtras || 0))}`;
-                return `<div class="seisan-car-row${rowClass}" data-driver-name="${escapeHtml(car.name)}">
-                    <div class="seisan-car-title"><strong>${escapeHtml(car.name)}車</strong><span class="seisan-car-total">渡す ${yen(calc.totalPay)}</span></div>
-                    <div class="seisan-small" style="margin-bottom:8px;">${details}</div>
-                    <div class="seisan-car-inputs">
-                      <label><span class="seisan-mini-label">移動距離（km）</span><input type="number" inputmode="decimal" data-field="dist" class="${fieldErrorClass(issues, car.name, 'dist')}" value="${escapeHtml(cState.dist || '')}" oninput="window.onSettlementInputDelayed()" onchange="window.onSettlementInput()"></label>
-                      <label><span class="seisan-mini-label">燃費（km/L）</span><input type="number" inputmode="decimal" data-field="eco" class="${fieldErrorClass(issues, car.name, 'eco')}" value="${escapeHtml(cState.eco || '')}" oninput="window.onSettlementInputDelayed()" onchange="window.onSettlementInput()"></label>
-                      <label><span class="seisan-mini-label">ガソリン単価（円/L）</span><input type="number" inputmode="decimal" data-field="price" class="${fieldErrorClass(issues, car.name, 'price')}" value="${escapeHtml(cState.price || '')}" oninput="window.onSettlementInputDelayed()" onchange="window.onSettlementInput()"></label>
-                    </div>
-                    <div class="seisan-subhead"><strong>諸経費</strong></div>
-                    <div class="seisan-extra-list">
-                      ${extras.map((ex, i) => renderExtraRowHtml(car.name, normalizeExtraItem(ex), i, issues)).join('')}
-                    </div>
-                    <div class="seisan-add-row">
-                      <button class="seisan-btn" type="button" onclick="window.addSettlementExtra('${encodeURIComponent(car.name)}')"><i class="fas fa-plus me-1"></i>諸経費を追加</button>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-    }
+    const carList = byId('seisan-car-list');
+    if (carList) carList.innerHTML = renderSettlementCarsHtml(data, state, result, issues);
 
-    const note = document.getElementById('seisan-collection-note');
+    const note = byId('seisan-collection-note');
     if (note) note.textContent = `集金済み ${result.paidCount}/${result.payerCount}名・未回収 ${yen(result.unpaidAmount)}`;
-    const collectionList = document.getElementById('seisan-collection-list');
-    if (collectionList) {
-        if (!participants.length) {
-            collectionList.innerHTML = `<div class="seisan-empty">名簿を登録すると表示されます。</div>`;
-        } else {
-            collectionList.innerHTML = participants.map(p => {
-                const excluded = state.organizerFree && result.organizerSelected && p.name === result.excludedName;
-                const paid = !!state.paid?.[p.name];
-                const note = excluded ? '対象外' : (p.role === 'driver' ? '車出し' : (p.role === 'waiting' ? '待機' : ''));
-                return `<label class="seisan-check-item ${paid ? 'paid' : ''} ${excluded ? 'excluded' : ''}">
-                    <input type="checkbox" ${paid ? 'checked' : ''} ${excluded ? 'disabled' : ''} onchange="window.toggleSettlementPaid('${encodeURIComponent(p.name)}', this.checked)">
-                    <span class="seisan-check-name">${escapeHtml(p.name)}</span>
-                    ${note ? `<span class="seisan-check-note">${note}</span>` : ''}
-                </label>`;
-            }).join('');
-        }
-    }
 
-    const driverPayList = document.getElementById('seisan-driver-pay-list');
-    if (driverPayList) {
-        if (!result.cars.length) {
-            driverPayList.innerHTML = `<div class="seisan-empty">車出しを登録すると表示されます。</div>`;
-        } else {
-            driverPayList.innerHTML = result.cars.map(car => {
-                const done = !!state.driverPaid?.[car.name];
-                const exText = car.extras.length ? car.extras.map(ex => `${escapeHtml(ex.name || '諸経費')} ${yen(ex.amountValue)}`).join(' / ') : '諸経費なし';
-                return `<label class="seisan-driver-pay-row ${done ? 'done' : ''}">
-                    <span class="seisan-driver-name">${escapeHtml(car.name)}</span>
-                    <span class="seisan-driver-amount">${yen(car.totalPay)}</span>
-                    <input type="checkbox" ${done ? 'checked' : ''} onchange="window.toggleSettlementDriverPaid('${encodeURIComponent(car.name)}', this.checked)">
-                    <span class="seisan-driver-detail">ガソリン代 ${yen(car.gas)} / ${exText} / 協力代 ${yen(car.reward)}</span>
-                </label>`;
-            }).join('');
-        }
-    }
+    const collectionList = byId('seisan-collection-list');
+    if (collectionList) collectionList.innerHTML = renderSettlementCollectionHtml(participants, state, result);
 
-    const breakdown = document.getElementById('seisan-breakdown');
-    if (breakdown) {
-        breakdown.innerHTML = `
-            <div class="seisan-break-row"><span>割勘対象</span><span>${yen(result.totalSplit)}</span></div>
-            <div class="seisan-break-row"><span>集金予定</span><span>${yen(result.expectedCollected)}</span></div>
-            <div class="seisan-break-row"><span>端数余り</span><span>${yen(result.surplus)}</span></div>
-            <div class="seisan-break-row"><span>部費負担</span><span>${yen(result.totalClub)}</span></div>
-            <div class="seisan-break-row"><span>車出し協力代</span><span>${yen(result.totalReward)}</span></div>
-            <div class="seisan-break-row"><span>支払い丸め</span><span>${yen(result.totalDriverRound)}</span></div>`;
-    }
+    const driverPayList = byId('seisan-driver-pay-list');
+    if (driverPayList) driverPayList.innerHTML = renderSettlementDriverPayHtml(result, state);
+
+    const breakdown = byId('seisan-breakdown');
+    if (breakdown) breakdown.innerHTML = renderSettlementBreakdownHtml(result);
 }
+
 
 const ROUTE_PRIVATE_ORIGIN_KEY = 'circle_route_private_origin_v1';
 
@@ -3485,32 +3563,32 @@ function setRoutePrivateOrigin(value) {
 }
 
 function renderRoutePrivateOrigin(editing = false) {
-    const box = document.getElementById('routePrivateOriginBox');
+    const box = byId('routePrivateOriginBox');
     if (!box) return;
     const saved = getRoutePrivateOrigin();
     if (saved && !editing) {
         box.innerHTML = `<div class="route-private-view">
             <div class="route-private-saved"><i class="fas fa-lock"></i>出発地：保存済み（編集で確認・変更）</div>
-            <button class="seisan-btn" type="button" onclick="window.editRoutePrivateOrigin()">編集</button>
-            <button class="seisan-btn" type="button" onclick="window.clearRoutePrivateOrigin()">削除</button>
+            <button class="seisan-btn" type="button" data-action="edit-route-private-origin">編集</button>
+            <button class="seisan-btn" type="button" data-action="clear-route-private-origin">削除</button>
         </div>`;
         return;
     }
     box.innerHTML = `<div class="route-private-edit">
         <input id="routePrivateOriginInput" class="route-private-input" type="text" value="${escapeHtml(saved)}" placeholder="例：イエローハイツ岡里 / 自宅" autocomplete="off">
-        <button class="seisan-btn primary" type="button" onclick="window.saveRoutePrivateOrigin()">保存</button>
-        <button class="seisan-btn" type="button" onclick="window.cancelRoutePrivateOriginEdit()">戻る</button>
+        <button class="seisan-btn primary" type="button" data-action="save-route-private-origin">保存</button>
+        <button class="seisan-btn" type="button" data-action="cancel-route-private-origin">戻る</button>
     </div>`;
 }
 
 window.editRoutePrivateOrigin = function() {
     renderRoutePrivateOrigin(true);
-    const input = document.getElementById('routePrivateOriginInput');
+    const input = byId('routePrivateOriginInput');
     if (input) input.focus();
 };
 
 window.saveRoutePrivateOrigin = function() {
-    const input = document.getElementById('routePrivateOriginInput');
+    const input = byId('routePrivateOriginInput');
     setRoutePrivateOrigin(input ? input.value : '');
     renderRoutePrivateOrigin(false);
     setRouteHelperStatus(getRoutePrivateOrigin() ? '自分用の出発地をこの端末に保存しました。' : '自分用の出発地を空にしました。');
@@ -3538,8 +3616,8 @@ function getSavedRouteStops() {
 function routeStopRowHtml(value = '', index = 0, total = 1) {
     return `<div class="route-stop-row">
         <span class="route-stop-num" title="ドラッグで並び替え">${index + 1}</span>
-        <input type="text" class="route-stop-input" value="${escapeHtml(value || '')}" placeholder="例：妙高山 集合場所" oninput="window.onRouteStopsChangedDelayed()" onchange="window.onRouteStopsChanged()">
-        <button class="seisan-icon-btn route-stop-delete-btn" type="button" onclick="window.removeRouteStop(this)" title="削除"><i class="fas fa-times"></i></button>
+        <input type="text" class="route-stop-input" value="${escapeHtml(value || '')}" placeholder="例：妙高山 集合場所">
+        <button class="seisan-icon-btn route-stop-delete-btn" type="button" data-action="remove-route-stop" title="削除"><i class="fas fa-times"></i></button>
     </div>`;
 }
 
@@ -3552,7 +3630,7 @@ function refreshRouteStopNumbers() {
 }
 
 function setRouteHelperStatus(message, isError = false) {
-    const el = document.getElementById('routeHelperStatus');
+    const el = byId('routeHelperStatus');
     if (!el) return;
     el.textContent = message || '';
     el.style.color = isError ? '#ef4444' : 'var(--text-sub)';
@@ -3565,7 +3643,7 @@ function getRouteStops() {
 }
 
 function setRouteStops(stops) {
-    const list = document.getElementById('routeStopList');
+    const list = byId('routeStopList');
     if (!list) return;
     const normalized = Array.isArray(stops) && stops.length ? stops : [''];
     list.innerHTML = normalized.map((stop, index) => routeStopRowHtml(stop, index, normalized.length)).join('');
@@ -3581,7 +3659,7 @@ function saveRouteStopsFromModal() {
 
 let routeStopSortable = null;
 function setupRouteStopSortable() {
-    const list = document.getElementById('routeStopList');
+    const list = byId('routeStopList');
     if (!list || typeof Sortable === 'undefined') return;
     if (routeStopSortable) {
         try { routeStopSortable.destroy(); } catch (e) {}
@@ -3621,7 +3699,7 @@ window.openRouteDistanceHelper = function() {
 };
 
 window.addRouteStop = function() {
-    const list = document.getElementById('routeStopList');
+    const list = byId('routeStopList');
     if (!list) return;
     const current = Array.from(list.querySelectorAll('.route-stop-input')).map(input => input.value);
     current.push('');
@@ -3634,7 +3712,7 @@ window.addRouteStop = function() {
 window.removeRouteStop = function(button) {
     const row = button.closest('.route-stop-row');
     if (row) row.remove();
-    const list = document.getElementById('routeStopList');
+    const list = byId('routeStopList');
     if (list && !list.querySelector('.route-stop-row')) setRouteStops(['']);
     refreshRouteStopNumbers();
     saveRouteStopsFromModal();
@@ -3785,9 +3863,9 @@ window.showGuideStep = function(guide, step) {
     });
 
     const prefix = GUIDE_KEYS[guide] || 'carGuide';
-    const prevBtn = document.getElementById(`${prefix}PrevBtn`);
-    const nextBtn = document.getElementById(`${prefix}NextBtn`);
-    const closeBtn = document.getElementById(`${prefix}CloseBtn`);
+    const prevBtn = byId(`${prefix}PrevBtn`);
+    const nextBtn = byId(`${prefix}NextBtn`);
+    const closeBtn = byId(`${prefix}CloseBtn`);
     if (prevBtn) prevBtn.style.display = safeStep > 0 ? '' : 'none';
     const isLast = safeStep >= total - 1;
     if (nextBtn) nextBtn.style.display = isLast ? 'none' : '';
@@ -3812,7 +3890,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ['guideModal', 'car'],
         ['seisanGuideModal', 'seisan']
     ].forEach(([modalId, guide]) => {
-        const el = document.getElementById(modalId);
+        const el = byId(modalId);
         if (el) el.addEventListener('show.bs.modal', () => showGuideStep(guide, 0));
     });
 });
@@ -3820,7 +3898,7 @@ document.addEventListener('DOMContentLoaded', () => {
 window.openDebugModal = function() {
     if (!window.modals) return;
     if (!window.modals.debug) {
-        const el = document.getElementById('debugModal');
+        const el = byId('debugModal');
         window.modals.debug = new bootstrap.Modal(el);
     }
     window.modals.debug.show();
@@ -3858,7 +3936,7 @@ function shouldApplyRemoteData(remoteData) {
 
 function setupStaticEventListeners() {
     const bind = (id, handler) => {
-        const el = document.getElementById(id);
+        const el = byId(id);
         if (!el || el.dataset.bound === 'true') return;
         el.dataset.bound = 'true';
         el.addEventListener('click', event => {
@@ -3877,7 +3955,7 @@ function setupStaticEventListeners() {
     bind('fillEmptySeatsBtn', () => autoAssign('fill'));
     bind('shuffleAssignBtn', () => autoAssign('shuffle'));
 
-    const trayHandle = document.getElementById('tray-handle');
+    const trayHandle = byId('tray-handle');
     if (trayHandle && trayHandle.dataset.boundClick !== 'true') {
         trayHandle.dataset.boundClick = 'true';
         trayHandle.addEventListener('click', event => {
@@ -3892,7 +3970,7 @@ function setupHiddenDebugTap() {
 }
 
 function seedDebugData({ missing = false } = {}) {
-    const carCount = parseInt(document.getElementById('debugCarCount')?.value) || 3;
+    const carCount = parseInt(byId('debugCarCount')?.value) || 3;
 
     const drivers = [
         { name: '高橋 健介', cap: 3, gender: 'male' },
@@ -3923,9 +4001,9 @@ function seedDebugData({ missing = false } = {}) {
         { name: '近藤 直樹', grade: 4, gender: 'male' },
     ];
 
-    document.getElementById('waiting-list').innerHTML = '';
-    document.getElementById('cars-container').innerHTML = '';
-    document.getElementById('roomNameInput').value = missing ? '入力漏れテスト' : '新歓企画 5/12';
+    byId('waiting-list').innerHTML = '';
+    byId('cars-container').innerHTML = '';
+    byId('roomNameInput').value = missing ? '入力漏れテスト' : '新歓企画 5/12';
     settlementState = normalizeSettlementState({
         rounding: '100', organizerFree: true, organizerName: '田中 太郎', driverReward: '1000', cars: {}, paid: {}, driverPaid: {}
     });
@@ -3950,7 +4028,7 @@ function seedDebugData({ missing = false } = {}) {
     const totalSeats = usedDrivers.reduce((sum, d) => sum + d.cap, 0);
     const shuffled = members.slice(0, totalSeats).sort(() => Math.random() - 0.5);
     shuffled.forEach(m => {
-        addMember(m.name, m.memo || '', m.gender, m.grade, document.getElementById('waiting-list'), false);
+        addMember(m.name, m.memo || '', m.gender, m.grade, byId('waiting-list'), false);
     });
 
     updateUI();
@@ -3968,7 +4046,7 @@ window.executeDebugMissingCostMode = function() { seedDebugData({ missing: true 
 
 window.showHistory = () => {
     const hist = window.SanpoHistory?.read(roomId) || safeLocalGet('syawari_history_' + roomId, []);
-    const container = document.getElementById('history-list');
+    const container = byId('history-list');
     container.replaceChildren();
     if (hist.length === 0) {
         const empty = document.createElement('div');
@@ -4022,9 +4100,124 @@ window.showHistory = () => {
 document.addEventListener('DOMContentLoaded', setupStaticEventListeners);
 
 
+
+function setupGeneratedHtmlEventDelegation() {
+    if (document.documentElement.dataset.generatedEventsBound === 'true') return;
+    document.documentElement.dataset.generatedEventsBound = 'true';
+
+    document.addEventListener('click', event => {
+        const actionTarget = event.target.closest?.('[data-action]');
+        if (!actionTarget) return;
+        const action = actionTarget.dataset.action;
+
+        if (action === 'edit-capacity') {
+            event.preventDefault();
+            window.editCapacity?.(actionTarget);
+            return;
+        }
+
+        if (action === 'open-batch') {
+            event.preventDefault();
+            openBatchModal();
+            return;
+        }
+
+        if (action === 'open-batch-from-sheet') {
+            event.preventDefault();
+            switchView('list');
+            openBatchModal();
+            return;
+        }
+
+        if (action === 'switch-list') {
+            event.preventDefault();
+            switchView('list');
+            return;
+        }
+
+        if (action === 'add-settlement-extra') {
+            event.preventDefault();
+            window.addSettlementExtra?.(actionTarget.dataset.driverName || '');
+            return;
+        }
+
+        if (action === 'remove-settlement-extra') {
+            event.preventDefault();
+            window.removeSettlementExtra?.(actionTarget);
+            return;
+        }
+
+        if (action === 'edit-route-private-origin') {
+            event.preventDefault();
+            window.editRoutePrivateOrigin?.();
+            return;
+        }
+
+        if (action === 'clear-route-private-origin') {
+            event.preventDefault();
+            window.clearRoutePrivateOrigin?.();
+            return;
+        }
+
+        if (action === 'save-route-private-origin') {
+            event.preventDefault();
+            window.saveRoutePrivateOrigin?.();
+            return;
+        }
+
+        if (action === 'cancel-route-private-origin') {
+            event.preventDefault();
+            window.cancelRoutePrivateOriginEdit?.();
+            return;
+        }
+
+        if (action === 'remove-route-stop') {
+            event.preventDefault();
+            window.removeRouteStop?.(actionTarget);
+        }
+    });
+
+    document.addEventListener('input', event => {
+        const target = event.target;
+        if (target?.matches?.('#seisan-car-list [data-field], #seisan-car-list [data-extra-field]')) {
+            window.onSettlementInputDelayed?.();
+            return;
+        }
+        if (target?.matches?.('#routeStopList .route-stop-input')) {
+            window.onRouteStopsChangedDelayed?.();
+        }
+    });
+
+    document.addEventListener('change', event => {
+        const target = event.target;
+        if (!target?.matches) return;
+
+        if (target.matches('#seisan-car-list [data-field], #seisan-car-list [data-extra-field]')) {
+            window.onSettlementInput?.();
+            return;
+        }
+
+        if (target.matches('[data-settlement-paid-name]')) {
+            window.toggleSettlementPaid?.(target.dataset.settlementPaidName || '', target.checked);
+            return;
+        }
+
+        if (target.matches('[data-settlement-driver-paid-name]')) {
+            window.toggleSettlementDriverPaid?.(target.dataset.settlementDriverPaidName || '', target.checked);
+            return;
+        }
+
+        if (target.matches('#routeStopList .route-stop-input')) {
+            window.onRouteStopsChanged?.();
+        }
+    });
+}
+
 function setupRefactorEventListeners() {
+    setupAppearanceFooterSafety();
+    setupGeneratedHtmlEventDelegation();
     const bind = (id, handler, eventName = 'click') => {
-        const el = document.getElementById(id);
+        const el = byId(id);
         if (!el || el.dataset.refactorBound === 'true') return;
         el.dataset.refactorBound = 'true';
         el.addEventListener(eventName, event => {
@@ -4054,14 +4247,14 @@ function setupRefactorEventListeners() {
     bind('openGoogleRouteBtn', () => window.openGoogleRoute?.());
 
     ['seisanRounding', 'seisanOrganizerName', 'seisanOrganizerFree'].forEach(id => {
-        const el = document.getElementById(id);
+        const el = byId(id);
         if (el && el.dataset.refactorBound !== 'true') {
             el.dataset.refactorBound = 'true';
             el.addEventListener('change', () => window.onSettlementInput?.());
         }
     });
 
-    const reward = document.getElementById('seisanDriverReward');
+    const reward = byId('seisanDriverReward');
     if (reward && reward.dataset.refactorBound !== 'true') {
         reward.dataset.refactorBound = 'true';
         reward.addEventListener('input', () => window.onSettlementInputDelayed?.());
@@ -4069,7 +4262,7 @@ function setupRefactorEventListeners() {
     }
 
     ['optFemale', 'optMale', 'optGrade'].forEach(id => {
-        const el = document.getElementById(id);
+        const el = byId(id);
         if (el && el.dataset.refactorBound !== 'true') {
             el.dataset.refactorBound = 'true';
             el.addEventListener('change', () => updateAutoAssignSummary());

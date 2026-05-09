@@ -12,10 +12,25 @@
     <link href="./assets/css/02-seisan.css" rel="stylesheet">
     <link href="./assets/css/03-app-layout-and-themes.css" rel="stylesheet">
     <link href="./assets/css/03b-guides-and-modals.css" rel="stylesheet">
+    <link href="./assets/css/03b-guide.css" rel="stylesheet">
+    <link href="./assets/css/03b-modals.css" rel="stylesheet">
     <link href="./assets/css/03c-mobile-polish.css" rel="stylesheet">
     <link href="./assets/css/03d-theme-picker.css" rel="stylesheet">
+    <link href="./assets/css/03d-legacy-theme-mobile-overrides.css" rel="stylesheet">
+    <link href="./assets/css/03d-theme-picker-cleanup.css" rel="stylesheet">
     <link href="./assets/css/03e-late-maintenance.css" rel="stylesheet">
+    <link href="./assets/css/04-header-tabs.css" rel="stylesheet">
+    <link href="./assets/css/04-person-cards.css" rel="stylesheet">
+    <link href="./assets/css/04-waiting-tray.css" rel="stylesheet">
+    <link href="./assets/css/04-status-badge.css" rel="stylesheet">
+    <link href="./assets/css/04-dark-highlight-fixes.css" rel="stylesheet">
     <link href="./assets/css/99-final-overrides.css" rel="stylesheet">
+    <link href="./assets/css/100-owner-safety.css" rel="stylesheet">
+    <link href="./assets/css/101-guide-fixes.css" rel="stylesheet">
+    <link href="./assets/css/102-appearance-modal.css" rel="stylesheet">
+    <link href="./assets/css/103-modal-fixes.css" rel="stylesheet">
+    <link href="./assets/css/104-room-input.css" rel="stylesheet">
+    <link href="./assets/css/105-dark-badge-fixes.css" rel="stylesheet">
   </head>
   <body data-theme="light" data-app-theme="natural" class="sheet-mode">
     <div id="app-layout">
@@ -136,7 +151,7 @@
               </div>
               <label class="seisan-toggle">
                 <span>企画者を集金対象から外す</span>
-                <input id="seisanOrganizerFree" type="checkbox" checked>
+                <input id="seisanOrganizerFree" type="checkbox" checked aria-label="企画者を集金対象から外す">
               </label>
             </div>
           </div>
@@ -187,15 +202,15 @@
                 <li><div id="autoAssignSummary" class="dropdown-item-text small text-muted-dark-friendly">現在：ランダム</div></li>
                 <li>
                   <label class="dropdown-item">
-                    <input type="checkbox" id="optFemale" class="form-check-input me-2">女子をまとめる</label>
+                    <input type="checkbox" id="optFemale" class="form-check-input me-2" aria-label="女性の配置を考慮する">女子をまとめる</label>
                 </li>
                 <li>
                   <label class="dropdown-item">
-                    <input type="checkbox" id="optMale" class="form-check-input me-2">男子をまとめる</label>
+                    <input type="checkbox" id="optMale" class="form-check-input me-2" aria-label="男性の配置を考慮する">男子をまとめる</label>
                 </li>
                 <li>
                   <label class="dropdown-item">
-                    <input type="checkbox" id="optGrade" class="form-check-input me-2">学年をまとめる</label>
+                    <input type="checkbox" id="optGrade" class="form-check-input me-2" aria-label="学年の配置を考慮する">学年をまとめる</label>
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
@@ -231,32 +246,30 @@
                   <span id="appearanceCurrentLabel" class="text-muted-dark-friendly"></span>
                 </div>
                 <div class="theme-preview-body">
-                  <div class="theme-app-preview">
-                    <div class="theme-preview-toolbar">
-                      <div class="theme-preview-title">新歓企画 5/12</div>
-                      <button type="button" class="theme-preview-btn">ロック</button>
-                      <button type="button" class="theme-preview-btn primary">共有</button>
+                  <div class="theme-simple-preview">
+                    <div class="theme-simple-top">
+                      <span class="theme-simple-title">新歓企画 5/12</span>
+                      <span class="theme-simple-pill">共有</span>
                     </div>
-                    <div class="theme-preview-tabs">
-                      <div class="theme-preview-tab active">車割</div>
-                      <div class="theme-preview-tab">発表</div>
-                      <div class="theme-preview-tab">精算</div>
+                    <div class="theme-simple-tabs">
+                      <span class="active">車割</span>
+                      <span>発表</span>
+                      <span>精算</span>
                     </div>
-                    <div class="theme-preview-content">
-                      <div class="theme-preview-car">
-                        <div class="theme-preview-car-head"><span>佐藤車</span><span>3/3 <i class="fas fa-pen" aria-hidden="true"></i></span></div>
-                        <div class="theme-preview-seat">田中 太郎　2年　⋮</div>
-                        <div class="theme-preview-seat sub">山田 花子　1年　⋮</div>
+                    <div class="theme-simple-body">
+                      <div class="theme-simple-card">
+                        <strong>佐藤車</strong>
+                        <span>田中　山田　鈴木</span>
                       </div>
-                      <div class="theme-preview-seisan">
-                        <div class="theme-preview-seisan-label">1人あたり</div>
-                        <div class="theme-preview-seisan-value">¥2,500</div>
-                        <div class="theme-preview-progress"><span></span></div>
+                      <div class="theme-simple-card accent">
+                        <small>1人あたり</small>
+                        <strong>¥2,500</strong>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
 
               <div class="theme-picker-grid" aria-label="テーマ選択">
                 <details class="theme-picker">

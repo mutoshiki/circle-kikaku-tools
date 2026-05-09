@@ -1,15 +1,13 @@
-/* --- v37 smartphone UI polish --- */
-.header-actions {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 8px !important;
-}
+/* COMPAT LAYER: remaining old mobile polish. Prefer owner files for new edits. */
+
+
 .share-action {
-    background: var(--accent-color) !important;
-    border-color: var(--accent-color) !important;
-    color: #fff !important;
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
 }
 .share-action i,
-.share-action span { color: #fff !important; }
+.share-action span { color: #fff; }
 
 .auto-condition-pill {
     display: flex;
@@ -29,8 +27,8 @@
 .auto-condition-pill.is-empty { background: var(--bg-card); border-color: var(--border-color); color: var(--text-sub); }
 
 .member-card {
-    min-height: 92px !important;
-    padding: 9px !important;
+    min-height: 92px;
+    padding: 9px;
     gap: 7px;
     touch-action: none;
 }
@@ -49,8 +47,8 @@
 }
 .member-name-text,
 .driver-name-disp {
-    font-size: 0.9rem !important;
-    line-height: 1.3 !important;
+    font-size: 0.9rem;
+    line-height: 1.3;
 }
 .member-action-row,
 .driver-action-row {
@@ -62,16 +60,16 @@
 .driver-action-row { grid-template-columns: 1fr; }
 .member-action-btn,
 .delete-btn-overlay {
-    position: static !important;
-    width: auto !important;
-    height: 38px !important;
+    position: static;
+    width: auto;
+    height: 38px;
     min-width: 0;
-    opacity: 1 !important;
-    display: inline-flex !important;
+    opacity: 1;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 4px;
-    padding: 7px 6px !important;
+    padding: 7px 6px;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     background: var(--bg-card);
@@ -92,11 +90,11 @@
 .member-action-btn:hover,
 .delete-btn-overlay:hover { background: var(--hover-bg); color: var(--text-main); }
 .member-card.in-waiting .member-action-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.member-card.in-waiting .memo-popup { margin-top: 0 !important; }
+.member-card.in-waiting .memo-popup { margin-top: 0; }
 
 .car-header {
-    align-items: center !important;
-    gap: 8px !important;
+    align-items: center;
+    gap: 8px;
 }
 .car-header > div {
     display: flex;
@@ -106,8 +104,8 @@
     justify-content: flex-end;
 }
 .capacity-badge.capacity-edit-btn {
-    min-height: 38px !important;
-    padding: 7px 10px !important;
+    min-height: 38px;
+    padding: 7px 10px;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     background: var(--bg-card);
@@ -130,32 +128,32 @@
 .capacity-badge.capacity-edit-btn.is-over .capacity-count { background: rgba(239,68,68,0.12); color: #b91c1c; }
 
 .seisan-head-actions {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.9fr) 46px !important;
-    gap: 8px !important;
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.9fr) 46px;
+    gap: 8px;
     width: 100%;
 }
 .seisan-head-actions .seisan-btn {
-    min-height: 44px !important;
+    min-height: 44px;
     font-size: 0.84rem;
 }
-.seisan-refresh-btn span { display: none !important; }
-.seisan-refresh-btn { padding-left: 0 !important; padding-right: 0 !important; }
+.seisan-refresh-btn span { display: none; }
+.seisan-refresh-btn { padding-left: 0; padding-right: 0; }
 
 .seisan-car-inputs {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 .route-stop-row {
-    grid-template-columns: 38px minmax(0, 1fr) 38px !important;
-    gap: 7px !important;
+    grid-template-columns: 38px minmax(0, 1fr) 38px;
+    gap: 7px;
 }
 .route-stop-num {
-    width: 38px !important;
-    height: 38px !important;
-    font-size: 0.86rem !important;
+    width: 38px;
+    height: 38px;
+    font-size: 0.86rem;
     touch-action: none;
 }
-.route-stop-delete-btn { width: 38px !important; min-width: 38px !important; }
+.route-stop-delete-btn { width: 38px; min-width: 38px; }
 .sheet-empty-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -165,18 +163,12 @@
 
 @media (max-width: 640px) {
     .app-header-main {
-        grid-template-columns: minmax(0, 1fr) !important;
+        grid-template-columns: minmax(0, 1fr);
     }
-    .header-actions {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    }
-    .header-action {
-        min-height: 44px !important;
-        flex-direction: row !important;
-        gap: 6px !important;
-    }
+
+
     .edit-tools {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .auto-condition-pill {
         font-size: 0.78rem;
@@ -184,51 +176,51 @@
     }
     .member-card,
     .driver-seat {
-        min-height: 96px !important;
+        min-height: 96px;
     }
     .member-action-btn,
     .delete-btn-overlay {
-        height: 40px !important;
+        height: 40px;
         font-size: 0.74rem;
     }
     .capacity-badge.capacity-edit-btn {
-        min-height: 42px !important;
+        min-height: 42px;
         font-size: 0.8rem;
     }
     .seisan-head-actions {
-        grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.9fr) 46px !important;
+        grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.9fr) 46px;
     }
     .seisan-head-actions .seisan-btn span {
-        font-size: 0.76rem !important;
+        font-size: 0.76rem;
     }
     .seisan-car-inputs {
-        grid-template-columns: 1fr !important;
-        gap: 9px !important;
+        grid-template-columns: 1fr;
+        gap: 9px;
     }
     .seisan-car-inputs input {
-        min-height: 42px !important;
-        font-size: 0.92rem !important;
-        padding: 8px 10px !important;
+        min-height: 42px;
+        font-size: 0.92rem;
+        padding: 8px 10px;
     }
     .seisan-mini-label {
-        font-size: 0.72rem !important;
-        white-space: normal !important;
+        font-size: 0.72rem;
+        white-space: normal;
     }
     .route-stop-row {
-        grid-template-columns: 40px minmax(0, 1fr) 40px !important;
+        grid-template-columns: 40px minmax(0, 1fr) 40px;
     }
     .route-stop-num,
     .route-stop-delete-btn {
-        width: 40px !important;
-        height: 40px !important;
-        min-width: 40px !important;
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
     }
     .route-stop-input {
-        min-height: 40px !important;
-        font-size: 0.9rem !important;
+        min-height: 40px;
+        font-size: 0.9rem;
     }
     .modal-fullscreen-sm-down .modal-content {
-        border-radius: 0 !important;
+        border-radius: 0;
     }
     .sheet-empty-actions {
         grid-template-columns: 1fr;
@@ -241,8 +233,8 @@
     }
     .member-action-btn,
     .delete-btn-overlay {
-        padding-left: 4px !important;
-        padding-right: 4px !important;
+        padding-left: 4px;
+        padding-right: 4px;
     }
     .capacity-badge.capacity-edit-btn {
         width: 100%;
@@ -270,28 +262,26 @@
 .tool-btn,
 .seisan-btn,
 .tray-actions .btn {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 .header-action span,
 .tool-btn span,
 .seisan-btn span,
 .tray-actions .btn {
-    line-height: 1.18 !important;
+    line-height: 1.18;
 }
 
-/* よく使う操作を右側へ */
-.header-actions .share-action { order: 3; }
-.header-actions #editLockBtn { order: 2; }
-.header-actions .header-more { order: 1; }
+
+
 .seisan-head-actions {
-    grid-template-columns: minmax(0, 0.9fr) 46px minmax(0, 1.35fr) !important;
+    grid-template-columns: minmax(0, 0.9fr) 46px minmax(0, 1.35fr);
 }
 .seisan-head-actions .tool-help-btn { order: 1; }
 .seisan-head-actions .seisan-refresh-btn { order: 2; }
 .seisan-head-actions .seisan-route-main-btn { order: 3; }
 .tray-actions {
-    grid-template-columns: minmax(76px, 0.8fr) minmax(94px, 1fr) minmax(112px, 1.2fr) !important;
+    grid-template-columns: minmax(76px, 0.8fr) minmax(94px, 1fr) minmax(112px, 1.2fr);
 }
 .tray-actions .dropdown { order: 1; min-width: 0; }
 .tray-actions .btn[onclick*="fill"] { order: 2; }
@@ -319,7 +309,7 @@
     border-bottom: 1px solid var(--border-color);
 }
 #bottom-tray-header {
-    padding: 8px 10px 10px !important;
+    padding: 8px 10px 10px;
 }
 .tray-status {
     min-height: 34px;
@@ -329,7 +319,7 @@
     font-size: 0.82rem;
 }
 .tray-actions .btn {
-    min-height: 42px !important;
+    min-height: 42px;
     white-space: normal;
 }
 
@@ -350,7 +340,7 @@
 }
 .member-card,
 .driver-seat {
-    padding: 10px !important;
+    padding: 10px;
 }
 .member-main-line,
 .driver-main-line {
@@ -365,15 +355,15 @@
 .capacity-badge.capacity-edit-btn,
 .seisan-icon-btn,
 .route-stop-delete-btn {
-    min-height: 42px !important;
+    min-height: 42px;
 }
 .member-action-btn,
 .delete-btn-overlay {
     gap: 5px;
-    padding: 8px 7px !important;
+    padding: 8px 7px;
 }
 .memo-popup {
-    padding: 4px 6px !important;
+    padding: 4px 6px;
 }
 .seisan-field input,
 .seisan-field select,
@@ -381,11 +371,11 @@
 .seisan-extra-row select,
 .route-private-input,
 .route-stop-input {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 .seisan-extra-row {
-    gap: 8px !important;
+    gap: 8px;
 }
 .seisan-extra-row .seisan-icon-btn i::before {
     content: "\f2ed";
@@ -415,49 +405,47 @@
 }
 
 @media (max-width: 640px) {
-    .header-actions {
-        grid-template-columns: minmax(0, 0.85fr) minmax(0, 0.95fr) minmax(0, 1.15fr) !important;
-    }
+
     .seisan-head-actions {
-        grid-template-columns: minmax(0, 0.9fr) 48px minmax(0, 1.4fr) !important;
+        grid-template-columns: minmax(0, 0.9fr) 48px minmax(0, 1.4fr);
     }
     .tray-actions {
-        grid-template-columns: minmax(76px, 0.8fr) minmax(86px, 0.95fr) minmax(106px, 1.2fr) !important;
-        gap: 6px !important;
+        grid-template-columns: minmax(76px, 0.8fr) minmax(86px, 0.95fr) minmax(106px, 1.2fr);
+        gap: 6px;
     }
     #bottom-tray.minimized {
-        height: 104px !important;
-        min-height: 104px !important;
+        height: 104px;
+        min-height: 104px;
     }
     #waiting-list-container {
-        padding: 12px 10px 18px !important;
+        padding: 12px 10px 18px;
     }
     .member-card,
     .driver-seat {
-        min-height: 104px !important;
+        min-height: 104px;
     }
     .member-name-text,
     .driver-name-disp {
-        font-size: 0.96rem !important;
+        font-size: 0.96rem;
     }
     .member-action-row,
     .driver-action-row {
-        gap: 7px !important;
+        gap: 7px;
     }
     .member-action-btn,
     .delete-btn-overlay {
-        height: 44px !important;
-        font-size: 0.76rem !important;
+        height: 44px;
+        font-size: 0.76rem;
     }
     .seisan-extra-row {
-        grid-template-columns: 1fr !important;
+        grid-template-columns: 1fr;
         padding: 10px;
         border: 1px solid var(--border-color);
         border-radius: var(--radius-main);
         background: var(--bg-body);
     }
     .seisan-extra-row .seisan-icon-btn {
-        width: 100% !important;
+        width: 100%;
     }
     .seisan-extra-row .seisan-icon-btn::after {
         content: "削除";
@@ -468,7 +456,7 @@
     .guide-feature-card,
     .seisan-card,
     .car-box {
-        padding: 12px !important;
+        padding: 12px;
     }
 }
 
@@ -477,11 +465,11 @@
     .tool-btn,
     .seisan-btn,
     .tray-actions .btn {
-        padding-left: 6px !important;
-        padding-right: 6px !important;
+        padding-left: 6px;
+        padding-right: 6px;
     }
     .tray-actions .btn {
-        font-size: 0.68rem !important;
+        font-size: 0.68rem;
     }
     .member-action-btn span,
     .delete-btn-overlay span {

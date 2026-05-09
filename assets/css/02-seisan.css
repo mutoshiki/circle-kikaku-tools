@@ -92,8 +92,8 @@
 .seisan-input-error,
 .seisan-extra-row input.seisan-input-error,
 .seisan-extra-row select.seisan-input-error {
-    border-color: #ef4444 !important;
-    background: rgba(239, 68, 68, 0.07) !important;
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.07);
 }
 .seisan-toggle {
     min-height: 37px;

@@ -1,0 +1,116 @@
+/* Dark mode highlight fixes
+   Keeps active tabs and highlighted seisan buttons rounded like light mode. */
+
+[data-theme="dark"] #view-toggle-bar,
+[data-theme="dark"] .view-toggle-bar {
+    background: rgba(15, 23, 42, 0.48);
+    border-color: rgba(148, 163, 184, 0.22);
+}
+
+[data-theme="dark"] #view-toggle-bar .view-tab,
+[data-theme="dark"] .view-toggle-bar .view-tab {
+    border: 1px solid transparent;
+    border-radius: calc(var(--radius-main) - 4px);
+    border-bottom-width: 1px;
+}
+
+[data-theme="dark"] #view-toggle-bar .view-tab.active,
+[data-theme="dark"] .view-toggle-bar .view-tab.active,
+[data-theme="dark"] #tab-list.view-tab.active,
+[data-theme="dark"] #tab-sheet.view-tab.active,
+[data-theme="dark"] #tab-seisan.view-tab.active {
+    background: var(--accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent-color) 38%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 38%, transparent);
+    border-radius: calc(var(--radius-main) - 4px);
+    color: var(--accent-color);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 8px 22px color-mix(in srgb, var(--accent-color) 14%, transparent);
+}
+
+[data-theme="dark"] #view-toggle-bar .view-tab.active i,
+[data-theme="dark"] .view-toggle-bar .view-tab.active i,
+[data-theme="dark"] #tab-list.view-tab.active i,
+[data-theme="dark"] #tab-sheet.view-tab.active i,
+[data-theme="dark"] #tab-seisan.view-tab.active i {
+    color: var(--accent-color);
+}
+
+[data-theme="dark"] #view-toggle-bar .view-tab:not(.active):hover,
+[data-theme="dark"] .view-toggle-bar .view-tab:not(.active):hover {
+    background: rgba(51, 65, 85, 0.62);
+    color: #f8fafc;
+    border-radius: calc(var(--radius-main) - 4px);
+}
+
+/* Seisan action highlights: keep button shape consistent in dark mode. */
+[data-theme="dark"] .seisan-btn.primary,
+[data-theme="dark"] .seisan-btn.active,
+[data-theme="dark"] .seisan-toggle.active,
+[data-theme="dark"] #sheet-quick-edit-btn.active {
+    border-radius: var(--radius-sm);
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--accent-color) 18%, transparent);
+}
+
+[data-theme="dark"] .seisan-btn.primary i,
+[data-theme="dark"] .seisan-btn.active i,
+[data-theme="dark"] .seisan-toggle.active i,
+[data-theme="dark"] #sheet-quick-edit-btn.active i {
+    color: #fff;
+}
+
+[data-theme="dark"] .seisan-add-row .seisan-btn {
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
+    border-color: color-mix(in srgb, var(--accent-color) 30%, var(--border-color));
+    color: var(--text-main);
+}
+
+[data-theme="dark"] .seisan-add-row .seisan-btn:hover {
+    background: color-mix(in srgb, var(--accent-color) 16%, var(--bg-card));
+    border-color: color-mix(in srgb, var(--accent-color) 44%, var(--border-color));
+}
+
+/* color-mix fallback */
+@supports not (background: color-mix(in srgb, red 10%, blue)) {
+    [data-theme="dark"] #view-toggle-bar .view-tab.active,
+    [data-theme="dark"] .view-toggle-bar .view-tab.active,
+    [data-theme="dark"] #tab-list.view-tab.active,
+    [data-theme="dark"] #tab-sheet.view-tab.active,
+    [data-theme="dark"] #tab-seisan.view-tab.active {
+        background: var(--accent-soft);
+        border-color: var(--accent-color);
+        border-bottom-color: var(--accent-color);
+    }
+
+    [data-theme="dark"] .seisan-add-row .seisan-btn {
+        background: var(--bg-card);
+        border-color: var(--accent-color);
+    }
+}
+
+
+/* Unified owner: active view tabs and active seisan buttons.
+   Keep this file later than legacy files. */
+#view-toggle-bar .view-tab.active,
+.view-toggle-bar .view-tab.active {
+    border-radius: calc(var(--radius-main) - 4px);
+}
+
+.seisan-add-row .seisan-btn,
+.seisan-btn.primary,
+.seisan-btn.active,
+.seisan-toggle.active {
+    border-radius: var(--radius-sm);
+}
+
+[data-theme="dark"] .seisan-btn.primary:hover,
+[data-theme="dark"] .seisan-btn.active:hover,
+[data-theme="dark"] .seisan-toggle.active:hover,
+[data-theme="dark"] #sheet-quick-edit-btn.active:hover {
+    filter: brightness(0.98);
+}
