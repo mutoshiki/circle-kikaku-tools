@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja" data-bs-theme="light">
   <head>
@@ -7383,6 +7382,508 @@ body.manual-sheet-dragging .sheet-chip.draggable,
     }
 }
 
+
+
+/* --- maintenance consolidation: neutral cards, focus states, safer touch targets --- */
+:root {
+    --focus-ring: color-mix(in srgb, var(--accent-color) 28%, transparent);
+}
+button:focus-visible,
+[role="button"]:focus-visible,
+summary:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+.seisan-field input:focus-visible,
+.seisan-field select:focus-visible,
+.seisan-extra-row input:focus-visible,
+.seisan-extra-row select:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.member-card[data-gender="male"],
+.member-card[data-gender="female"],
+.member-card[data-gender="unknown"],
+.driver-seat[data-gender="male"],
+.driver-seat[data-gender="female"],
+.driver-seat[data-gender="unknown"],
+.sheet-driver-row[data-gender="male"],
+.sheet-driver-row[data-gender="female"],
+.sheet-driver-row[data-gender="unknown"],
+.sheet-seat-row[data-gender="male"],
+.sheet-seat-row[data-gender="female"],
+.sheet-seat-row[data-gender="unknown"],
+.sheet-wait-item[data-gender="male"],
+.sheet-wait-item[data-gender="female"],
+.sheet-wait-item[data-gender="unknown"],
+.sheet-chip[data-gender="male"],
+.sheet-chip[data-gender="female"],
+.sheet-chip[data-gender="unknown"] {
+    background: var(--bg-card) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-color) !important;
+}
+.sheet-driver-row[data-gender],
+.sheet-seat-row[data-gender],
+.sheet-wait-item[data-gender] {
+    border-left-color: var(--border-color) !important;
+}
+.gender-badge {
+    display: none !important;
+}
+[data-gender="male"] .grade-badge,
+.grade-badge[data-gender="male"] {
+    background: #dbeafe !important;
+    border-color: #93c5fd !important;
+    color: #1d4ed8 !important;
+}
+[data-gender="female"] .grade-badge,
+.grade-badge[data-gender="female"] {
+    background: #ffe4e6 !important;
+    border-color: #fda4af !important;
+    color: #be123c !important;
+}
+[data-theme="dark"] [data-gender="male"] .grade-badge,
+[data-theme="dark"] .grade-badge[data-gender="male"] {
+    background: rgba(96,165,250,0.16) !important;
+    border-color: rgba(147,197,253,0.7) !important;
+    color: #bfdbfe !important;
+}
+[data-theme="dark"] [data-gender="female"] .grade-badge,
+[data-theme="dark"] .grade-badge[data-gender="female"] {
+    background: rgba(251,113,133,0.16) !important;
+    border-color: rgba(253,164,175,0.72) !important;
+    color: #ffe4e6 !important;
+}
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+    :root { --focus-ring: rgba(15, 118, 110, 0.18); }
+}
+@media (hover: none) and (pointer: coarse) {
+    .tool-btn,
+    .view-tab,
+    .seisan-btn,
+    .tray-actions .btn,
+    #zoom-controls button,
+    .delete-btn-overlay,
+    .seisan-icon-btn {
+        min-height: 40px;
+    }
+}
+
+
+
+/* --- smart waiting tray refinement --- */
+#bottom-tray {
+    --waiting-tray-cap: 42dvh;
+}
+#bottom-tray.waiting-few:not(.minimized) {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: min(280px, 36dvh) !important;
+    flex: 0 0 auto !important;
+}
+#bottom-tray.waiting-normal:not(.minimized) {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: min(390px, 46dvh) !important;
+    flex: 0 0 auto !important;
+}
+#bottom-tray.waiting-many:not(.minimized) {
+    height: min(520px, 56dvh) !important;
+    min-height: 260px !important;
+    max-height: 56dvh !important;
+}
+#bottom-tray.is-drop-ready {
+    box-shadow: 0 -10px 28px rgba(15, 23, 42, 0.16), inset 0 1px 0 var(--accent-color) !important;
+}
+#bottom-tray.is-drop-ready #waiting-list-container {
+    outline: 2px solid color-mix(in srgb, var(--accent-color) 55%, transparent);
+    outline-offset: -6px;
+    background: color-mix(in srgb, var(--accent-soft) 42%, var(--tray-bg));
+}
+.tray-smart-sub {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 7px;
+    padding-left: 7px;
+    border-left: 1px solid var(--border-color);
+    color: var(--text-sub);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+#bottom-tray.waiting-empty #waiting-count {
+    opacity: 0.6;
+}
+#bottom-tray:not(.waiting-empty) #waiting-count {
+    background: var(--accent-color) !important;
+    color: #fff !important;
+}
+#waiting-list.return-preview-target,
+#bottom-tray.is-drop-ready #waiting-list {
+    border-radius: var(--radius-main);
+}
+#waiting-list.return-preview-target::after,
+#bottom-tray.is-drop-ready #waiting-list::after {
+    content: "ここに戻せます";
+    grid-column: 1 / -1;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--accent-color);
+    border-radius: var(--radius-main);
+    color: var(--accent-color);
+    background: var(--accent-soft);
+    font-size: 0.76rem;
+    font-weight: 900;
+    pointer-events: none;
+}
+#waiting-list.return-preview-target:has(.member-card)::after,
+#bottom-tray.is-drop-ready #waiting-list:has(.member-card)::after {
+    min-height: 28px;
+}
+.member-card.waiting-card-new {
+    animation: waitingCardNewPulse 1.45s ease-out both;
+}
+@keyframes waitingCardNewPulse {
+    0% {
+        box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-color) 45%, transparent);
+        transform: translateY(-2px);
+    }
+    38% {
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-color) 18%, transparent);
+    }
+    100% {
+        box-shadow: none;
+        transform: translateY(0);
+    }
+}
+@supports not (background: color-mix(in srgb, white, black)) {
+    #bottom-tray.is-drop-ready #waiting-list-container {
+        background: var(--accent-soft);
+        outline-color: var(--accent-color);
+    }
+    .member-card.waiting-card-new {
+        box-shadow: 0 0 0 2px var(--accent-color);
+    }
+}
+@supports not selector(:has(*)) {
+    #waiting-list.return-preview-target::after,
+    #bottom-tray.is-drop-ready #waiting-list::after {
+        display: none;
+    }
+}
+@media (max-width: 640px) {
+    #bottom-tray.waiting-few:not(.minimized) {
+        max-height: min(250px, 34dvh) !important;
+    }
+    #bottom-tray.waiting-normal:not(.minimized) {
+        max-height: min(360px, 44dvh) !important;
+    }
+    #bottom-tray.waiting-many:not(.minimized) {
+        height: min(500px, 54dvh) !important;
+        min-height: 244px !important;
+        max-height: 54dvh !important;
+    }
+    .tray-smart-sub {
+        font-size: 0.66rem;
+        margin-left: 5px;
+        padding-left: 5px;
+    }
+}
+
+
+/* --- waiting header count placement refinement --- */
+.tray-actions {
+    grid-template-columns: auto auto minmax(92px, 1fr) auto !important;
+}
+.waiting-inline-count {
+    align-self: center;
+    justify-self: start;
+    color: var(--text-sub);
+    font-size: 0.76rem;
+    font-weight: 850;
+    line-height: 1;
+    white-space: nowrap;
+    padding: 0 2px;
+}
+.tray-actions .dropdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+}
+.tray-status small {
+    white-space: nowrap;
+}
+@media (max-width: 520px) {
+    .tray-actions {
+        grid-template-columns: 58px auto minmax(0, 1fr) 78px !important;
+        gap: 5px;
+    }
+    .waiting-inline-count {
+        font-size: 0.7rem;
+    }
+    .tray-actions .dropdown {
+        gap: 5px;
+    }
+}
+
+
+/* --- waiting tray header cleanup + forgiving return target --- */
+#bottom-tray-header {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+    padding: 7px 10px 10px !important;
+}
+.tray-header-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 0;
+}
+.tray-header-main .tray-status {
+    min-width: 0;
+}
+.tray-header-main .tray-status small {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.78rem;
+}
+.tray-header-meta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex: 0 0 auto;
+    min-width: 0;
+}
+.tray-settings-dropdown {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+}
+.tray-settings-dropdown .settings-btn {
+    min-height: 32px !important;
+    padding: 5px 9px !important;
+    font-size: 0.74rem !important;
+    border-radius: 999px !important;
+}
+.waiting-inline-count {
+    color: var(--text-sub) !important;
+    font-size: 0.74rem !important;
+    font-weight: 850 !important;
+    line-height: 1;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+#bottom-tray:not(.waiting-empty) #waiting-count,
+#bottom-tray.waiting-empty #waiting-count {
+    background: transparent !important;
+    color: var(--text-sub) !important;
+    opacity: 1 !important;
+}
+.tray-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 7px !important;
+    align-items: stretch !important;
+}
+.tray-actions .btn {
+    width: 100%;
+    min-height: 36px !important;
+    padding: 7px 8px !important;
+    font-size: 0.76rem !important;
+    border-radius: var(--radius-sm) !important;
+}
+#bottom-tray.is-drop-near #tray-handle,
+#bottom-tray.is-drop-ready #tray-handle {
+    background: color-mix(in srgb, var(--accent-soft) 66%, var(--tray-bg));
+}
+#bottom-tray.is-drop-near #tray-toggle-label,
+#bottom-tray.is-drop-ready #tray-toggle-label {
+    color: var(--accent-color);
+    font-weight: 900;
+}
+#bottom-tray.is-drop-ready #waiting-list-container,
+#bottom-tray.is-drop-near #waiting-list-container {
+    transition: background 0.14s ease, outline-color 0.14s ease;
+}
+#waiting-list.return-preview-target {
+    outline: 2px dashed color-mix(in srgb, var(--accent-color) 56%, transparent);
+    outline-offset: 3px;
+    background: color-mix(in srgb, var(--accent-soft) 34%, transparent);
+}
+@supports not (background: color-mix(in srgb, white, black)) {
+    #bottom-tray.is-drop-near #tray-handle,
+    #bottom-tray.is-drop-ready #tray-handle,
+    #waiting-list.return-preview-target {
+        background: var(--accent-soft);
+    }
+    #waiting-list.return-preview-target {
+        outline-color: var(--accent-color);
+    }
+}
+@media (max-width: 520px) {
+    #bottom-tray-header {
+        gap: 6px !important;
+        padding: 6px 8px 9px !important;
+    }
+    .tray-header-meta {
+        gap: 6px;
+    }
+    .tray-settings-dropdown .settings-btn {
+        min-height: 31px !important;
+        padding: 5px 8px !important;
+        font-size: 0.7rem !important;
+    }
+    .waiting-inline-count {
+        font-size: 0.7rem !important;
+    }
+    .tray-actions {
+        gap: 6px !important;
+    }
+    .tray-actions .btn {
+        min-height: 35px !important;
+        font-size: 0.72rem !important;
+        padding: 6px 6px !important;
+    }
+}
+
+
+
+/* --- waiting tray final cleanup --- */
+#bottom-tray-header {
+    display: block !important;
+    padding: 8px 10px 9px !important;
+}
+.tray-inline-row {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) minmax(0, 1fr);
+    gap: 7px;
+    align-items: center;
+}
+.tray-inline-row .tray-settings-dropdown,
+.tray-inline-row .tray-action-btn,
+.tray-inline-row #waiting-count {
+    min-width: 0;
+}
+.tray-inline-row .settings-btn,
+.tray-inline-row .tray-action-btn {
+    min-height: 34px !important;
+    padding: 7px 10px !important;
+    font-size: 0.74rem !important;
+    white-space: nowrap;
+}
+.tray-inline-row .settings-btn {
+    border-radius: 999px !important;
+}
+#waiting-count.waiting-inline-count {
+    justify-self: start;
+    font-size: 0.74rem !important;
+    font-weight: 800 !important;
+    color: var(--text-sub) !important;
+    letter-spacing: 0.01em;
+}
+.tray-header-main,
+.tray-header-meta,
+.tray-actions,
+.tray-status {
+    display: contents !important;
+}
+@media (max-width: 520px) {
+    .tray-inline-row {
+        grid-template-columns: auto auto minmax(0, 1fr) minmax(0, 1fr);
+        gap: 6px;
+    }
+    .tray-inline-row .settings-btn,
+    .tray-inline-row .tray-action-btn {
+        font-size: 0.7rem !important;
+        padding: 7px 8px !important;
+    }
+    #waiting-count.waiting-inline-count {
+        font-size: 0.7rem !important;
+    }
+}
+
+/* waiting tray drag hint: lighter and quieter */
+#bottom-tray.is-drop-ready {
+    box-shadow: 0 -8px 22px rgba(15, 23, 42, 0.10), inset 0 1px 0 color-mix(in srgb, var(--accent-color) 30%, transparent) !important;
+}
+#bottom-tray.is-drop-near #tray-handle,
+#bottom-tray.is-drop-ready #tray-handle {
+    background: color-mix(in srgb, var(--accent-soft) 28%, var(--tray-bg)) !important;
+}
+#bottom-tray.is-drop-near #tray-toggle-label,
+#bottom-tray.is-drop-ready #tray-toggle-label {
+    color: var(--text-main) !important;
+    font-weight: 800;
+}
+#bottom-tray.is-drop-ready #waiting-list-container,
+#bottom-tray.is-drop-near #waiting-list-container,
+#waiting-list.return-preview-target {
+    background: color-mix(in srgb, var(--accent-soft) 18%, var(--tray-bg)) !important;
+    outline: none !important;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 20%, transparent) !important;
+    border-radius: calc(var(--radius-main) + 2px);
+}
+#waiting-list.return-preview-target::after,
+#bottom-tray.is-drop-ready #waiting-list::after,
+#bottom-tray.is-drop-near #waiting-list::after {
+    content: none !important;
+    display: none !important;
+}
+
+/* stronger destination cues for seat drop */
+.seat-slot.drop-preview,
+.seat-slot.swap-target,
+.seat-slot.swap-origin,
+.seat-slot.escape-target,
+.seat-slot.shift-target {
+    transition: background-color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+}
+.seat-slot.drop-preview {
+    background: color-mix(in srgb, var(--accent-soft) 70%, var(--sheet-header)) !important;
+    border-color: color-mix(in srgb, var(--accent-color) 58%, var(--border-color)) !important;
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent-color) 35%, transparent);
+}
+.seat-slot.swap-target {
+    background: color-mix(in srgb, #f59e0b 16%, var(--sheet-header)) !important;
+    border-color: color-mix(in srgb, #f59e0b 65%, var(--border-color)) !important;
+    box-shadow: inset 0 0 0 2px rgba(245, 158, 11, 0.24);
+}
+.seat-slot.swap-origin,
+.seat-slot.escape-target,
+.seat-slot.shift-target {
+    background: color-mix(in srgb, #60a5fa 14%, var(--sheet-header)) !important;
+    border-color: color-mix(in srgb, #60a5fa 55%, var(--border-color)) !important;
+    box-shadow: inset 0 0 0 2px rgba(96, 165, 250, 0.16);
+}
+.seat-slot.drop-preview > .member-card,
+.seat-slot.swap-target > .member-card,
+.seat-slot.swap-origin > .member-card,
+.seat-slot.escape-target > .member-card,
+.seat-slot.shift-target > .member-card {
+    filter: saturate(0.98) contrast(1.02);
+}
+.seat-card-will-move {
+    visibility: visible !important;
+    opacity: 0.34 !important;
+    transform: scale(0.985);
+}
+
+/* debug modal simpler */
+#debugModal .modal-body p { line-height: 1.5; }
+#debugModal .modal-footer { display: none; }
+
 </style>
   </head>
   <body data-theme="light" data-app-theme="natural" class="sheet-mode">
@@ -7404,6 +7905,7 @@ body.manual-sheet-dragging .sheet-chip.draggable,
                 <li><button class="dropdown-item" type="button" onclick="modals.globalGuide.show()"><i class="fas fa-circle-question me-2"></i>使い方</button></li>
                 <li><button class="dropdown-item" type="button" onclick="openAppearanceModal()"><i class="fas fa-circle-half-stroke me-2"></i>テーマ設定</button></li>
                 <li><button class="dropdown-item" type="button" onclick="showHistory()"><i class="fas fa-clock-rotate-left me-2"></i>この端末の履歴</button></li>
+                <li><button class="dropdown-item" type="button" onclick="openDebugModal()"><i class="fas fa-wand-magic-sparkles me-2"></i>サンプルデータ</button></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><button class="dropdown-item text-danger fw-bold" type="button" onclick="window.resetData()"><i class="fas fa-trash-can me-2"></i>全てリセット</button></li>
               </ul>
@@ -7539,48 +8041,40 @@ body.manual-sheet-dragging .sheet-chip.draggable,
       </div>
 
       <div id="bottom-tray" style="display: none;">
-        <div id="tray-handle" onclick="toggleTray()" role="button" aria-label="待機メンバーを開閉">
+        <div id="tray-handle" onclick="toggleTray()" role="button" tabindex="0" aria-label="未割り当てメンバーを開閉">
           <div class="handle-bar"></div>
-          <div id="tray-toggle-label"><i class="fas fa-chevron-up"></i><span>待機メンバーを開く</span></div>
+          <div id="tray-toggle-label"><i class="fas fa-chevron-up"></i><span>未割り当てメンバーを開く</span></div>
         </div>
         <div id="bottom-tray-header">
-          <div class="tray-status">
-            <small class="fw-bold" style="color: var(--text-main);">
-              <i class="fas fa-user-clock me-1"></i>待機メンバー </small>
-            <span id="waiting-count" class="badge bg-secondary rounded-pill">0</span>
-          </div>
-          <div class="tray-actions">
-            <div class="dropdown">
-              <button class="btn btn-sm btn-secondary dropdown-toggle settings-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-sliders"></i> 設定 </button>
+          <div class="tray-inline-row">
+            <div class="dropdown tray-settings-dropdown">
+              <button class="btn btn-sm btn-secondary dropdown-toggle settings-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="自動割り当ての設定を開く">
+                設定</button>
               <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li><h6 class="dropdown-header">自動割り当ての条件</h6></li>
+                <li><div id="autoAssignSummary" class="dropdown-item-text small text-muted-dark-friendly">現在：ランダム</div></li>
                 <li>
-                  <h6 class="dropdown-header">自動割当の優先順位</h6><li><div id="autoAssignSummary" class="dropdown-item-text small text-muted-dark-friendly">現在：ランダム</div></li>
+                  <label class="dropdown-item">
+                    <input type="checkbox" id="optFemale" class="form-check-input me-2" onchange="updateAutoAssignSummary()">女子をまとめる</label>
                 </li>
                 <li>
                   <label class="dropdown-item">
-                    <input type="checkbox" id="optFemale" class="form-check-input me-2" onchange="updateAutoAssignSummary()">女子をまとめる </label>
+                    <input type="checkbox" id="optMale" class="form-check-input me-2" onchange="updateAutoAssignSummary()">男子をまとめる</label>
                 </li>
                 <li>
                   <label class="dropdown-item">
-                    <input type="checkbox" id="optMale" class="form-check-input me-2" onchange="updateAutoAssignSummary()">男子をまとめる </label>
+                    <input type="checkbox" id="optGrade" class="form-check-input me-2" onchange="updateAutoAssignSummary()">学年をまとめる</label>
                 </li>
-                <li>
-                  <label class="dropdown-item">
-                    <input type="checkbox" id="optGrade" class="form-check-input me-2" onchange="updateAutoAssignSummary()">学年をまとめる </label>
-                </li>
-                <li>
-                  <hr class="dropdown-divider">
-                </li>
+                <li><hr class="dropdown-divider"></li>
                 <li>
                   <button class="dropdown-item text-danger" onclick="window.clearAll()">
-                    <i class="fas fa-broom me-2"></i>全員を待機に戻す </button>
+                    <i class="fas fa-broom me-2" aria-hidden="true"></i>全員を未割り当てに戻す</button>
                 </li>
               </ul>
             </div>
-            <button class="btn btn-sm btn-outline-secondary" onclick="autoAssign('fill')" title="今の配置をなるべく残して空席だけ埋めます">空席を埋める</button>
-            <button class="btn btn-sm btn-outline-primary auto-assign-btn" onclick="autoAssign('shuffle')">
-              <i class="fas fa-shuffle"></i> 自動割当 </button>
+            <span id="waiting-count" class="waiting-inline-count" aria-live="polite">0人</span>
+            <button class="btn btn-sm btn-outline-secondary tray-action-btn" onclick="autoAssign('fill')" title="今の配置をなるべく残して空席だけ埋めます">空席を埋める</button>
+            <button class="btn btn-sm btn-outline-primary auto-assign-btn tray-action-btn" onclick="autoAssign('shuffle')">自動割り当て</button>
           </div>
         </div>
         <div id="waiting-list-container">
@@ -7595,7 +8089,7 @@ body.manual-sheet-dragging .sheet-chip.draggable,
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title"><i class="fas fa-circle-half-stroke me-2"></i>テーマ設定</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body">
             <div class="theme-settings-wrap theme-settings-wrap-v44">
@@ -7824,7 +8318,7 @@ body.manual-sheet-dragging .sheet-chip.draggable,
         <div class="modal-content">
           <div class="modal-header py-2">
             <h6 class="modal-title fw-bold" style="font-size: 0.95rem;" id="editModalTitle">編集</h6>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body">
             <input type="text" id="editModalInput" class="form-control" autocomplete="off">
@@ -7840,7 +8334,7 @@ body.manual-sheet-dragging .sheet-chip.draggable,
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title fw-bold" style="font-size: 1rem;">参加者登録</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body">
             <div class="row g-3">
@@ -7891,7 +8385,7 @@ body.manual-sheet-dragging .sheet-chip.draggable,
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title fw-bold" style="font-size:1.02rem;"><i class="fas fa-circle-question me-2"></i>全体の使い方</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body p-0 unified-guide-body" data-guide-root="global">
 
@@ -7964,7 +8458,7 @@ body.manual-sheet-dragging .sheet-chip.draggable,
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title fw-bold" style="font-size:1.02rem;"><i class="fas fa-circle-question me-2"></i>車割メーカーの使い方</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body p-0 unified-guide-body" data-guide-root="car">
 
@@ -8076,7 +8570,7 @@ body.manual-sheet-dragging .sheet-chip.draggable,
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title fw-bold" style="font-size:1.02rem;"><i class="fas fa-circle-question me-2"></i>精算ツールの使い方</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body p-0 unified-guide-body" data-guide-root="seisan">
 
@@ -8125,7 +8619,7 @@ body.manual-sheet-dragging .sheet-chip.draggable,
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title fw-bold" style="font-size:1.02rem;"><i class="fas fa-route me-2"></i>移動距離計算</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body">
             <div class="route-helper-panel">
@@ -8162,7 +8656,7 @@ body.manual-sheet-dragging .sheet-chip.draggable,
             <h5 class="modal-title fw-bold" style="font-size: 1rem;">
               <i class="fas fa-history me-2"></i>履歴
             </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body p-0">
             <div id="history-list" class="list-group list-group-flush"></div>
@@ -8175,17 +8669,14 @@ body.manual-sheet-dragging .sheet-chip.draggable,
             <div class="modal-content">
                 <div class="modal-header py-2">
                     <h6 class="modal-title fw-bold mb-0" style="font-size: 0.9rem;">
-                        <i class="fas fa-bug me-2"></i>デバッグモード
+                        <i class="fas fa-wand-magic-sparkles me-2"></i>サンプルデータ
                     </h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                 </div>
           <div class="modal-body">
-            <div style="background:rgba(245,158,11,0.14); border:1px solid rgba(245,158,11,0.55); border-radius:6px; padding:10px; margin-bottom:12px;">
-              <div class="fw-bold mb-1" style="font-size:0.82rem; color:var(--text-main);"><i class="fas fa-exclamation-triangle me-1"></i>テスト用</div>
-              <div style="font-size:0.78rem; color:var(--text-sub);">現在のデータをリセットして、配車・精算のサンプルを生成します。</div>
-            </div>
-            <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
-              <label style="font-size:0.8rem; color:var(--text-sub); font-weight:700;">車の数</label>
+            <p class="mb-3" style="font-size:0.8rem; color:var(--text-sub);">現在のデータをリセットして、確認用のサンプルを入れます。</p>
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <label for="debugCarCount" class="mb-0" style="font-size:0.8rem; color:var(--text-sub); font-weight:700;">車の数</label>
               <select id="debugCarCount" class="form-select form-select-sm" style="width:78px;">
                 <option value="2">2台</option>
                 <option value="3" selected>3台</option>
@@ -8194,16 +8685,9 @@ body.manual-sheet-dragging .sheet-chip.draggable,
               </select>
             </div>
             <div class="d-grid gap-2">
-              <button type="button" class="btn btn-warning btn-sm fw-bold" onclick="executeDebugMode()">
-                <i class="fas fa-random me-1"></i>ランダム値で動作確認
-              </button>
-              <button type="button" class="btn btn-outline-danger btn-sm fw-bold" onclick="executeDebugMissingCostMode()">
-                <i class="fas fa-triangle-exclamation me-1"></i>入力漏れテスト
-              </button>
+              <button type="button" class="btn btn-primary btn-sm fw-bold" onclick="executeDebugMode()">通常サンプルを入れる</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" onclick="executeDebugMissingCostMode()">入力漏れサンプルを入れる</button>
             </div>
-          </div>
-          <div class="modal-footer py-2">
-            <button type="button" class="btn btn-secondary btn-sm w-100" data-bs-dismiss="modal">閉じる</button>
           </div>
         </div>
       </div>
@@ -8213,28 +8697,54 @@ body.manual-sheet-dragging .sheet-chip.draggable,
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <script src="./firebase-config.js"></script>
     <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
 const firebaseConfig = window.SANPO_FIREBASE_CONFIG || {};
-const firebaseEnabled = Boolean(firebaseConfig.apiKey && firebaseConfig.databaseURL && firebaseConfig.projectId);
-const app = firebaseEnabled ? initializeApp(firebaseConfig) : null;
-const auth = firebaseEnabled ? getAuth(app) : null;
-const db = firebaseEnabled ? getDatabase(app) : null;
+let firebaseEnabled = Boolean(firebaseConfig.apiKey && firebaseConfig.databaseURL && firebaseConfig.projectId);
+let app = null;
+let auth = null;
+let db = null;
 let dbRef = null;
 let firebaseReady = false;
+let initializeApp = null;
+let getDatabase = null;
+let ref = null;
+let set = null;
+let update = null;
+let onValue = null;
+let getAuth = null;
+let signInAnonymously = null;
 
 async function initFirebaseSync() {
-    if (!firebaseEnabled || !auth || !db) return false;
+    if (!firebaseEnabled) return false;
     try {
+        const [appModule, databaseModule, authModule] = await Promise.all([
+            import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"),
+            import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"),
+            import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js")
+        ]);
+
+        initializeApp = appModule.initializeApp;
+        getDatabase = databaseModule.getDatabase;
+        ref = databaseModule.ref;
+        set = databaseModule.set;
+        update = databaseModule.update;
+        onValue = databaseModule.onValue;
+        getAuth = authModule.getAuth;
+        signInAnonymously = authModule.signInAnonymously;
+
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getDatabase(app);
         await signInAnonymously(auth);
         dbRef = ref(db, 'rooms/' + roomId);
         firebaseReady = true;
         return true;
     } catch (err) {
-        console.error('Firebase anonymous sign-in failed:', err);
+        console.warn('Firebase sync disabled. Falling back to local storage only:', err);
+        firebaseEnabled = false;
         firebaseReady = false;
+        app = null;
+        auth = null;
+        db = null;
         dbRef = null;
         return false;
     }
@@ -8277,6 +8787,15 @@ if (!roomId) {
 }
 
 localStorage.setItem('syawari_last_room_id', roomId);
+
+
+function applyRuntimeAccessibilityFixes(root = document) {
+    root.querySelectorAll('.btn-close:not([aria-label])').forEach(btn => btn.setAttribute('aria-label', '閉じる'));
+    root.querySelectorAll('button[title]:not([aria-label])').forEach(btn => btn.setAttribute('aria-label', btn.getAttribute('title')));
+    root.querySelectorAll('i.fas, i.fa').forEach(icon => {
+        if (!icon.hasAttribute('aria-hidden')) icon.setAttribute('aria-hidden', 'true');
+    });
+}
 
 function showMiniToast(message, tone = 'neutral') {
     if (!message) return;
@@ -8473,7 +8992,7 @@ D.addEventListener('DOMContentLoaded', async () => {
     modals.routeDistance = new bootstrap.Modal($('#routeDistanceModal'));
     modals.history = new bootstrap.Modal($('#historyModal'));
     window.modals = modals;
-    setupHiddenDebugTap();
+    applyRuntimeAccessibilityFixes();
 
     D.body.onclick = e => {
         const t = e.target;
@@ -8643,6 +9162,7 @@ function updateEditLockButton() {
     label.textContent = editLockEnabled ? 'ロック中' : 'ロック';
     btn.classList.toggle('is-locked', editLockEnabled);
     btn.title = editLockEnabled ? '車割メーカーと精算ツールのロックを解除' : '車割メーカーと精算ツールをロック';
+    btn.setAttribute('aria-label', btn.title);
     updateQuickEditButton();
 }
 
@@ -8656,8 +9176,10 @@ function updateQuickEditButton() {
     btn.classList.toggle('active', quickEditMode && shouldShow);
     document.body.classList.toggle('quick-edit-mode', quickEditMode && shouldShow);
     btn.innerHTML = quickEditMode
-        ? '<i class="fas fa-check me-1"></i>編集中'
-        : '<i class="fas fa-hand-paper me-1"></i>クイック編集';
+        ? '<i class="fas fa-check me-1" aria-hidden="true"></i>編集中'
+        : '<i class="fas fa-hand-paper me-1" aria-hidden="true"></i>クイック編集';
+    btn.setAttribute('aria-pressed', quickEditMode && shouldShow ? 'true' : 'false');
+    btn.setAttribute('aria-label', quickEditMode ? 'クイック編集を完了' : '発表ビューをクイック編集');
 }
 
 function toggleQuickEdit() {
@@ -8890,14 +9412,98 @@ function load() {
     });
 }
 
+function getWaitingCards() {
+    return Array.from(document.querySelectorAll('#waiting-list .member-card')).filter(card =>
+        card.isConnected &&
+        !card.classList.contains('manual-drag-source') &&
+        !card.classList.contains('manual-drag-float') &&
+        !card.classList.contains('swap-preview-card') &&
+        !card.classList.contains('drag-preview-card')
+    );
+}
+
+function getWaitingTrayStats() {
+    const waitingCards = getWaitingCards();
+    let seatsTotal = 0;
+    let seatsFilled = 0;
+    document.querySelectorAll('.car-box').forEach(box => {
+        const capacity = getInt(box.dataset.capacity);
+        seatsTotal += Math.max(0, capacity);
+        box.querySelectorAll('.seat-slot').forEach(slot => {
+            seatsFilled += getRealSeatCards(slot).length;
+        });
+    });
+    return {
+        waitingCount: waitingCards.length,
+        waitingNames: waitingCards.map(card => card.dataset.name || ''),
+        seatsTotal,
+        seatsFilled,
+        openSeats: Math.max(0, seatsTotal - seatsFilled)
+    };
+}
+
+function setWaitingTraySizeClass(tray, count) {
+    tray.classList.remove('waiting-empty', 'waiting-few', 'waiting-normal', 'waiting-many');
+    if (count === 0) tray.classList.add('waiting-empty');
+    else if (count <= 2) tray.classList.add('waiting-few');
+    else if (count <= 6) tray.classList.add('waiting-normal');
+    else tray.classList.add('waiting-many');
+}
+
+function highlightNewWaitingMembers(previousNames = []) {
+    const previous = new Set(previousNames.filter(Boolean));
+    const cards = getWaitingCards();
+    const newlyAdded = cards.filter(card => !previous.has(card.dataset.name || ''));
+    const targets = newlyAdded.length ? newlyAdded : cards.slice(-1);
+    targets.forEach(card => {
+        card.classList.remove('waiting-card-new');
+        void card.offsetWidth;
+        card.classList.add('waiting-card-new');
+        setTimeout(() => card.classList.remove('waiting-card-new'), 1600);
+    });
+    targets[0]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+}
+
 function updateWaitingTrayState() {
     const tray = document.getElementById("bottom-tray");
     const countEl = document.getElementById("waiting-count");
-    if (!tray || !countEl) return;
-    const count = document.querySelectorAll('#waiting-list .member-card').length;
-    countEl.textContent = count;
-    tray.classList.toggle('waiting-empty', count === 0);
+    const list = document.getElementById('waiting-list');
+    if (!tray || !countEl || !list) return;
+
+    const stats = getWaitingTrayStats();
+    const count = stats.waitingCount;
+    const previousCount = Number(tray.dataset.waitingCount || '0');
+    const previousNames = (() => {
+        try { return JSON.parse(tray.dataset.waitingNames || '[]'); }
+        catch (_) { return []; }
+    })();
+    const initialized = tray.dataset.waitingInitialized === 'true';
+
+    countEl.textContent = `${count}人`;
+    countEl.setAttribute('aria-label', `未割り当てメンバー ${count}人`);
+    setWaitingTraySizeClass(tray, count);
+    tray.dataset.waitingCount = String(count);
+    tray.dataset.waitingNames = JSON.stringify(stats.waitingNames);
+    tray.dataset.waitingInitialized = 'true';
+
     if (count > 0) tray.classList.remove('empty-open');
+
+    const status = tray.querySelector('.tray-status small');
+    if (status) {
+        status.textContent = '';
+    }
+
+    if (initialized && count > previousCount) {
+        highlightNewWaitingMembers(previousNames);
+        if (currentView === 'list' && tray.dataset.userMinimized !== 'true') {
+            tray.classList.remove('minimized');
+        }
+    }
+
+    if (count === 0) {
+        tray.classList.remove('is-drop-ready');
+    }
+
     updateTrayToggleLabel();
 }
 
@@ -8905,18 +9511,18 @@ function updateTrayToggleLabel() {
     const tray = document.getElementById("bottom-tray");
     const label = document.getElementById("tray-toggle-label");
     if (!tray || !label) return;
-    const count = document.querySelectorAll('#waiting-list .member-card').length;
+    const { waitingCount: count } = getWaitingTrayStats();
     if (count === 0) {
         const open = tray.classList.contains('empty-open');
         label.innerHTML = open
-            ? '<i class="fas fa-chevron-down"></i><span>待機メンバーを閉じる（0人）</span>'
-            : '<i class="fas fa-chevron-up"></i><span>待機メンバーを開く（0人）</span>'; 
+            ? '<i class="fas fa-chevron-down" aria-hidden="true"></i><span>未割り当てメンバーを閉じる</span>'
+            : '<i class="fas fa-chevron-up" aria-hidden="true"></i><span>未割り当てメンバーを開く</span>'; 
         return;
     }
     const minimized = tray.classList.contains("minimized");
     label.innerHTML = minimized
-        ? `<i class="fas fa-chevron-up"></i><span>待機メンバーを開く（${count}人）</span>`
-        : `<i class="fas fa-chevron-down"></i><span>待機メンバーを閉じる（${count}人）</span>`;
+        ? `<i class="fas fa-chevron-up" aria-hidden="true"></i><span>未割り当てメンバーを開く（${count}人）</span>`
+        : `<i class="fas fa-chevron-down" aria-hidden="true"></i><span>未割り当てメンバーを閉じる（${count}人）</span>`;
 }
 
 function toggleTray() {
@@ -8924,9 +9530,11 @@ function toggleTray() {
   if (!tray) return;
   if (tray.classList.contains('waiting-empty')) {
     tray.classList.toggle('empty-open');
+    tray.dataset.userMinimized = tray.classList.contains('empty-open') ? 'false' : 'true';
   } else {
     tray.classList.toggle("minimized");
     tray.classList.remove('empty-open');
+    tray.dataset.userMinimized = tray.classList.contains('minimized') ? 'true' : 'false';
   }
   updateTrayMenuDirection();
   updateTrayToggleLabel();
@@ -8934,11 +9542,64 @@ function toggleTray() {
 }
 window.toggleTray = toggleTray;
 
+const trayHandleEl = document.getElementById('tray-handle');
+trayHandleEl?.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleTray();
+    }
+});
+
 function updateTrayMenuDirection() {
     const tray = document.getElementById("bottom-tray");
-    const menuWrap = tray?.querySelector('.tray-actions .dropdown');
+    const menuWrap = tray?.querySelector('.tray-settings-dropdown');
     if (!tray || !menuWrap) return;
     menuWrap.classList.toggle('dropup', tray.classList.contains('minimized'));
+    updateTrayToggleLabel();
+}
+
+function prepareWaitingTrayForDrag() {
+    const tray = document.getElementById('bottom-tray');
+    if (!tray || currentView !== 'list') return;
+    tray.classList.add('is-drop-ready');
+    tray.dataset.dragStartedMinimized = tray.classList.contains('minimized') || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open')) ? 'true' : 'false';
+    updateTrayMenuDirection();
+    updateTrayToggleLabel();
+}
+
+function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
+    const tray = document.getElementById('bottom-tray');
+    const waitingList = document.getElementById('waiting-list');
+    if (!tray || !waitingList || currentView !== 'list' || !manualCardDrag) return;
+    const rect = tray.getBoundingClientRect();
+    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    const nearY = Math.max(rect.top - Math.min(220, Math.max(110, vh * 0.24)), 0);
+    const withinX = clientX >= -40 && clientX <= vw + 40;
+    const nearTray = withinX && clientY >= nearY;
+    tray.classList.toggle('is-drop-near', nearTray);
+    if (!nearTray) return;
+    const wasClosed = tray.classList.contains('minimized') || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
+    tray.classList.remove('minimized');
+    if (tray.classList.contains('waiting-empty')) tray.classList.add('empty-open');
+    if (wasClosed) tray.dataset.openedByDrag = 'true';
+    tray.classList.add('is-drop-ready');
+    updateTrayMenuDirection();
+    updateTrayToggleLabel();
+}
+
+function finishWaitingTrayDragState() {
+    const tray = document.getElementById('bottom-tray');
+    if (!tray) return;
+    const droppedToWaiting = manualCardDrag?.dropTarget?.id === 'waiting-list';
+    tray.classList.remove('is-drop-ready', 'is-drop-near');
+    if (tray.dataset.openedByDrag === 'true' && tray.dataset.userMinimized === 'true' && !droppedToWaiting) {
+        tray.classList.add('minimized');
+        tray.classList.remove('empty-open');
+    }
+    delete tray.dataset.openedByDrag;
+    delete tray.dataset.dragStartedMinimized;
+    updateTrayMenuDirection();
     updateTrayToggleLabel();
 }
 
@@ -9117,8 +9778,23 @@ function enforceOneCardPerSeat() {
 
 function getManualCardDropTarget(clientX, clientY) {
     const el = document.elementFromPoint(clientX, clientY);
-    if (!el) return null;
-    return el.closest('.seat-slot') || el.closest('#waiting-list');
+    const waitingList = document.getElementById('waiting-list');
+    const tray = document.getElementById('bottom-tray');
+    const seat = el?.closest?.('.seat-slot');
+    if (seat) return seat;
+    if (waitingList && el?.closest?.('#waiting-list, #waiting-list-container, #bottom-tray-header, #tray-handle, #bottom-tray')) {
+        return waitingList;
+    }
+    if (waitingList && tray && tray.isConnected) {
+        const rect = tray.getBoundingClientRect();
+        const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+        const nearTop = rect.top - Math.min(160, Math.max(72, vh * 0.16));
+        const nearBottom = rect.bottom + 28;
+        if (clientX >= rect.left - 40 && clientX <= rect.right + 40 && clientY >= nearTop && clientY <= nearBottom) {
+            return waitingList;
+        }
+    }
+    return null;
 }
 
 function moveManualDragCardTo(target) {
@@ -9131,6 +9807,7 @@ function moveManualDragCardTo(target) {
     const card = manualCardDrag.card;
     manualCardDrag.dropTarget = target;
     if (target.id === 'waiting-list') {
+        target.classList.add('return-preview-target');
         return;
     }
 
@@ -9215,6 +9892,7 @@ function finishManualCardDrag(commit = true) {
     floating?.remove();
     card.classList.remove('manual-drag-source');
     D.body.classList.remove('manual-card-dragging');
+    finishWaitingTrayDragState();
     manualCardDrag = null;
     isDraggingCards = false;
     clearSeatDropPreview();
@@ -9252,15 +9930,16 @@ function startManualCardDrag(card, point) {
     try { if (manualCardDrag.pointerId != null) card.setPointerCapture?.(manualCardDrag.pointerId); } catch (_) {}
     card.classList.add('manual-drag-source');
     D.body.classList.add('manual-card-dragging');
+    prepareWaitingTrayForDrag();
     isDraggingCards = true;
     updateManualDragFloat(clientX, clientY);
 }
 
 function setupManualCardDrag() {
     let pending = null;
-    const touchDelay = 720;
-    const mouseDelay = 180;
-    const touchMoveCancel = 10;
+    const touchDelay = 260;
+    const mouseDelay = 55;
+    const touchMoveCancel = 22;
 
     const canStartFromTarget = target => {
         if (currentView !== 'list') return null;
@@ -9317,6 +9996,7 @@ function setupManualCardDrag() {
         if (!manualCardDrag || manualCardDrag.pointerId !== e.pointerId) return;
         e.preventDefault();
         updateManualDragFloat(e.clientX, e.clientY);
+        maybeOpenWaitingTrayNearPointer(e.clientX, e.clientY);
         moveManualDragCardTo(getManualCardDropTarget(e.clientX, e.clientY));
     }, { passive: false });
 
@@ -9377,6 +10057,7 @@ function setupManualCardDrag() {
         e.preventDefault();
         e.stopPropagation();
         updateManualDragFloat(touch.clientX, touch.clientY);
+        maybeOpenWaitingTrayNearPointer(touch.clientX, touch.clientY);
         moveManualDragCardTo(getManualCardDropTarget(touch.clientX, touch.clientY));
     }, { passive: false });
 
@@ -9440,59 +10121,9 @@ function applyHoverSeatExchange(dragged) {
 }
 
 function setupSortable(el) {
-    return;
-    new Sortable(el, {
-        group: 'shared', animation: 150, scroll: true, scrollSensitivity: 80, scrollSpeed: 8, 
-        bubbleScroll: true, delay: 120, delayOnTouchOnly: true, touchStartThreshold: 3, 
-        fallbackOnBody: true, fallbackTolerance: 0, swapThreshold: 0.65, emptyInsertThreshold: 8, 
-        draggable: '.member-card:not(.swap-preview-card):not(.drag-preview-card)',
-        ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen', dragClass: 'sortable-fallback',
-        forceFallback: true,
-        onStart: evt => {
-            isDraggingCards = true;
-            dragOriginSlot = evt.from?.classList?.contains('seat-slot') ? evt.from : null;
-            clearDragHoverState();
-            clearSeatDropPreview();
-        },
-        onEnd: evt => {
-            isDraggingCards = false;
-            applyHoverSeatExchange(evt?.item);
-            dragOriginSlot = null;
-            clearDragHoverState();
-            clearSeatDropPreview();
-            enforceOneCardPerSeat();
-            updateUI();
-            save();
-        },
-        onAdd: (evt) => {
-            const item = evt.item; const target = evt.to;
-            clearSeatDropPreview();
-            if (target.id !== 'waiting-list') {
-                const children = Array.from(target.children).filter(c =>
-                    c !== item &&
-                    c.classList?.contains('member-card') &&
-                    !c.classList.contains('sortable-fallback') &&
-                    !c.classList.contains('swap-preview-card') &&
-                    !c.classList.contains('drag-preview-card')
-                );
-                children.forEach(extraCard => {
-                    const escapeSlot = findOpenSeatInSameCar(target, [evt.from]);
-                    const returnSlot = escapeSlot || (evt.from?.classList?.contains('seat-slot') ? evt.from : null);
-                    (returnSlot || $('#waiting-list')).appendChild(extraCard);
-                });
-            }
-            enforceOneCardPerSeat();
-            clearDragHoverState();
-            updateUI(); save();
-        },
-        onUnchoose: () => { isDraggingCards = false; dragOriginSlot = null; clearDragHoverState(); clearSeatDropPreview(); },
-        onSort: () => { isDraggingCards = true; },
-        onMove: evt => {
-            isDraggingCards = true;
-            updateSeatDropPreview(evt);
-            return !dragHoverOccupant;
-        }
-    });
+    // 編集画面のドラッグは setupManualCardDrag() に一本化しています。
+    // 旧 Sortable 実装はタッチ操作と競合するため、ここでは初期化しません。
+    return null;
 }
 
 function autoScrollEditingView(clientY) {
@@ -9680,6 +10311,7 @@ function restore(d) {
     } else {
       tray.classList.remove("minimized");
     }
+    tray.dataset.userMinimized = d.trayMinimized ? 'true' : 'false';
 
     $('#waiting-list').innerHTML = '';
     $('#cars-container').innerHTML = '';
@@ -10583,9 +11215,9 @@ function startManualSheetDrag(chip, point) {
 
 function setupManualSheetDrag() {
     let pending = null;
-    const touchDelay = 720;
-    const mouseDelay = 180;
-    const touchMoveCancel = 10;
+    const touchDelay = 260;
+    const mouseDelay = 55;
+    const touchMoveCancel = 22;
 
     const canStartFromTarget = target => {
         if (currentView !== 'sheet' || !quickEditMode || !hasTrustedEditAccess()) return null;
@@ -10717,49 +11349,9 @@ function setupManualSheetDrag() {
 
 function setupSheetSortables() {
     clearSheetSortables();
-    return;
-    if (!hasTrustedEditAccess() || !quickEditMode) return;
-    const zones = Array.from(document.querySelectorAll('.sheet-dropzone, .sheet-waiting-list'));
-    zones.forEach(zone => {
-        activeSheetSortable.push(new Sortable(zone, {
-            group: 'sheet-shared',
-            draggable: '.sheet-chip.draggable',
-            animation: 170,
-            delay: 220,
-            delayOnTouchOnly: true,
-            touchStartThreshold: 6,
-            forceFallback: true,
-            fallbackOnBody: true,
-            fallbackTolerance: 3,
-            ghostClass: 'sheet-chip-ghost',
-            dragClass: 'sheet-chip-drag',
-            scroll: false,
-            onStart: () => { isDraggingCards = true; },
-            onMove: evt => {
-                if (evt.to.dataset.acceptDrop === 'false') return false;
-                document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
-                evt.to.closest('.sheet-seat-row, .sheet-driver-row')?.classList.add('drop-target');
-                return true;
-            },
-            onAdd: evt => {
-                const toZone = evt.to;
-                if (toZone.dataset.zoneType === 'seat') {
-                    Array.from(toZone.childNodes).forEach(node => {
-                        if (node.nodeType === Node.TEXT_NODE) node.remove();
-                    });
-                }
-                if (toZone.dataset.zoneType !== 'waiting') {
-                    const others = Array.from(toZone.children).filter(c => c !== evt.item);
-                    if (others.length) evt.from.appendChild(others[0]);
-                }
-            },
-            onEnd: () => {
-                isDraggingCards = false;
-                document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
-                setTimeout(syncSheetToMainData, 0);
-            }
-        }));
-    });
+    // 発表ビューのクイック編集も setupManualSheetDrag() に一本化しています。
+    // 旧 Sortable 実装はスクロール・ピンチ操作と競合するため、ここでは初期化しません。
+    return null;
 }
 
 function renderSheetView() {
@@ -10805,7 +11397,7 @@ function renderSheetView() {
         const filled = (car.members||[]).filter(Boolean).length;
         const capColor = filled > cap ? '#b91c1c' : filled === cap ? 'var(--accent-color)' : 'var(--text-sub)';
 
-        let html = `<div class="sheet-car-header">${car.name}車 <span class="sheet-capacity-badge" style="color:${capColor}">${filled}/${cap}</span></div>`;
+        let html = `<div class="sheet-car-header">${escapeHtml(car.name)}車 <span class="sheet-capacity-badge" style="color:${capColor}">${filled}/${cap}</span></div>`;
 
         const dg = car.driverGender || 'unknown';
         const dgrade = parseInt(car.driverGrade) || 0;
@@ -10868,6 +11460,7 @@ window.zoomIn = zoomIn; window.zoomOut = zoomOut; window.resetZoom = resetZoom;
 
 D.addEventListener('DOMContentLoaded', () => {
     const area = document.getElementById('sheet-view-area');
+    if (!area) return;
     const preventSheetTextSelection = e => {
         if (isSheetDragHandle(e.target)) e.preventDefault();
     };
@@ -11357,7 +11950,7 @@ function renderSettlementView() {
         } else {
             driverPayList.innerHTML = result.cars.map(car => {
                 const done = !!state.driverPaid?.[car.name];
-                const exText = car.extras.length ? car.extras.map(ex => `${ex.name || '諸経費'} ${yen(ex.amountValue)}`).join(' / ') : '諸経費なし';
+                const exText = car.extras.length ? car.extras.map(ex => `${escapeHtml(ex.name || '諸経費')} ${yen(ex.amountValue)}`).join(' / ') : '諸経費なし';
                 return `<label class="seisan-driver-pay-row ${done ? 'done' : ''}">
                     <span class="seisan-driver-name">${escapeHtml(car.name)}</span>
                     <span class="seisan-driver-amount">${yen(car.totalPay)}</span>
@@ -11744,36 +12337,7 @@ window.openDebugModal = function() {
 };
 
 function setupHiddenDebugTap() {
-    const trigger = document.getElementById('editLockBtn');
-    if (!trigger) return;
-
-    let pressTimer = null;
-    let didOpen = false;
-
-    const startPress = (event) => {
-        if (event.pointerType === 'mouse' && event.button !== 0) return;
-        didOpen = false;
-        clearTimeout(pressTimer);
-        pressTimer = setTimeout(() => {
-            didOpen = true;
-            window.openDebugModal();
-        }, 1800);
-    };
-
-    const cancelPress = (event) => {
-        clearTimeout(pressTimer);
-        if (didOpen && event && event.type === 'click') {
-            event.preventDefault();
-            event.stopPropagation();
-            didOpen = false;
-        }
-    };
-
-    trigger.addEventListener('pointerdown', startPress);
-    ['pointerup', 'pointerleave', 'pointercancel'].forEach(type => {
-        trigger.addEventListener(type, cancelPress);
-    });
-    trigger.addEventListener('click', cancelPress, true);
+    // デバッグ用サンプルはヘッダーの「その他」メニューから開く。
 }
 
 function seedDebugData({ missing = false } = {}) {
@@ -11877,6 +12441,7 @@ window.showHistory = () => {
             container.appendChild(btn);
         });
     }
+    applyRuntimeAccessibilityFixes(container);
     modals.history.show();
 };
 
