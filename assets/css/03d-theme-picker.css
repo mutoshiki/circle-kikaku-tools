@@ -127,107 +127,19 @@ body[data-app-theme="dracula"][data-theme="dark"] {
     overflow: hidden;
     box-shadow: var(--shadow-card);
 }
-.theme-preview-toolbar {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    gap: 6px;
-    align-items: center;
-    padding: 9px;
-    background: var(--app-surface);
-    border-bottom: 1px solid var(--border-color);
-}
-.theme-preview-title {
-    min-width: 0;
-    color: var(--text-main);
-    font-size: 0.78rem;
-    font-weight: 900;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.theme-preview-btn {
-    min-height: 32px;
-    padding: 6px 9px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-card);
-    color: var(--text-main);
-    font-size: 0.68rem;
-    font-weight: 850;
-}
-.theme-preview-btn.primary {
-    background: var(--accent-color);
-    border-color: var(--accent-color);
-    color: #fff;
-}
 
 
 
-.theme-preview-content {
-    display: grid;
-    grid-template-columns: 1fr 0.95fr;
-    gap: 8px;
-    padding: 10px;
-}
-.theme-preview-car,
-.theme-preview-seisan {
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    background: var(--bg-card);
-    padding: 9px;
-    min-width: 0;
-}
-.theme-preview-car-head {
-    display: flex;
-    justify-content: space-between;
-    gap: 6px;
-    padding-bottom: 6px;
-    margin-bottom: 7px;
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.72rem;
-    font-weight: 900;
-    color: var(--text-main);
-}
-.theme-preview-seat {
-    padding: 7px 8px;
-    border-radius: 8px;
-    background: var(--accent-soft);
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-    font-size: 0.7rem;
-    font-weight: 850;
-    margin-bottom: 6px;
-}
-.theme-preview-seat.sub {
-    background: var(--sheet-header);
-    color: var(--text-sub);
-}
-.theme-preview-seisan-label {
-    color: var(--text-sub);
-    font-size: 0.67rem;
-    font-weight: 850;
-    margin-bottom: 4px;
-}
-.theme-preview-seisan-value {
-    color: var(--text-main);
-    font-size: 1.12rem;
-    line-height: 1;
-    font-weight: 950;
-    margin-bottom: 8px;
-}
-.theme-preview-progress {
-    height: 8px;
-    border-radius: 999px;
-    background: var(--sheet-header);
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-}
-.theme-preview-progress span {
-    display: block;
-    width: 68%;
-    height: 100%;
-    background: var(--accent-color);
-}
+
+
+
+
+
+
+
+
+
+
 .theme-section-title {
     font-size: 0.82rem;
     font-weight: 900;
@@ -327,9 +239,7 @@ body[data-app-theme="dracula"][data-theme="dark"] {
     .theme-preview-body {
         padding: 10px;
     }
-    .theme-preview-content {
-        grid-template-columns: 1fr;
-    }
+
 }
 
 /* --- Mobile spacing audit adjustments --- */
@@ -341,13 +251,8 @@ body[data-app-theme="dracula"][data-theme="dark"] {
         padding: 9px 10px;
         gap: 8px;
     }
-    .app-room-field {
-        padding: 8px 9px;
-    }
-    .app-room-input {
-        min-height: 38px;
-        padding-inline: 2px;
-    }
+
+
 
 
     .header-action span,

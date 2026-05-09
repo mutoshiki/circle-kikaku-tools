@@ -796,15 +796,7 @@
     font-weight: 800;
 }
 [data-theme="dark"] .batch-warning { color: #fecaca; }
-.capacity-badge {
-    min-height: 28px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 5px 8px;
-    font-size: 0.7rem;
-}
+
 .sheet-empty-card,
 .empty-card {
     width: min(520px, calc(100vw - 40px));

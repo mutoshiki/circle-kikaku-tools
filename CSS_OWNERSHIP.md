@@ -60,3 +60,14 @@ Old files still contain compatibility rules, but new edits should be added to th
 - `105-dark-badge-fixes.css`
   - dark-mode capacity badge frame removal
   - dark-mode check icon/mock check frame cleanup
+
+
+- `102-appearance-modal.css`
+  - Theme preview
+  - Appearance modal footer
+  - Theme picker dropdown consolidated owner
+
+
+- `106-mobile-ui-polish.css`
+  - final mobile visual polish
+  - screenshot-based spacing, surface, and dark-mode softness adjustments

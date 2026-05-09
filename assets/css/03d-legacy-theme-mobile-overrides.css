@@ -120,28 +120,8 @@
         width: 100% ;
     }
 
-    .capacity-badge.capacity-edit-btn {
-        width: 100% ;
-        min-width: 0 ;
-        min-height: var(--mobile-touch) ;
-        padding: 8px 10px ;
-        border-radius: var(--radius-sm) ;
-        gap: 8px ;
-        font-size: 0.9rem ;
-    }
 
-    .capacity-badge.capacity-edit-btn .capacity-count {
-        padding: 4px 9px ;
-        border-radius: 999px ;
-        background: var(--accent-soft);
-        color: var(--accent-color);
-        font-weight: 900 ;
-    }
 
-    .capacity-badge.capacity-edit-btn .capacity-label {
-        font-size: 0.82rem ;
-        font-weight: 900 ;
-    }
 
     .car-header .delete-btn {
         width: var(--mobile-touch) ;
@@ -462,19 +442,7 @@
     }
 }
 
-[data-theme="dark"] .member-action-btn,
-[data-theme="dark"] .delete-btn-overlay,
-[data-theme="dark"] .car-header .delete-btn,
-[data-theme="dark"] .capacity-badge.capacity-edit-btn,
-[data-theme="dark"] #waiting-list:empty::before {
-    background: rgba(15, 23, 42, 0.72);
-    border-color: rgba(148, 163, 184, 0.26);
-    color: var(--text-main);
-}
 
-[data-theme="dark"] .capacity-badge.capacity-edit-btn .capacity-count {
-    background: rgba(52, 211, 153, 0.14);
-}
 
 [data-theme="dark"] .seisan-check-item,
 [data-theme="dark"] .seisan-driver-pay-row {
@@ -573,25 +541,10 @@
         grid-template-columns: minmax(0, 1fr) 34px;
         gap: 6px;
     }
-    .capacity-badge.capacity-edit-btn {
-        min-height: 34px;
-        padding: 6px 8px;
-        gap: 6px;
-        font-size: 0.78rem;
-        box-shadow: none;
-    }
-    .capacity-badge.capacity-edit-btn > i {
-        font-size: 0.78rem;
-    }
-    .capacity-badge.capacity-edit-btn .capacity-count {
-        padding: 2px 6px;
-        border-radius: var(--radius-sm);
-        font-size: 0.78rem;
-    }
-    .capacity-badge.capacity-edit-btn .capacity-label {
-        font-size: 0.72rem;
-        font-weight: 850;
-    }
+
+
+
+
 
     /* 6. 車削除は控えめに */
     .car-header .delete-btn {
@@ -839,30 +792,10 @@
     line-height: 1.2;
 }
 .car-header > div { display: contents; }
-.capacity-badge.capacity-edit-btn {
-    min-height: 32px;
-    height: 32px;
-    padding: 5px 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    white-space: nowrap;
-    border-radius: var(--radius-sm);
-    font-size: 0.74rem;
-    font-weight: 850;
-}
-.capacity-badge.capacity-edit-btn > i { font-size: 0.76rem; }
-.capacity-badge.capacity-edit-btn .capacity-count {
-    padding: 1px 5px;
-    border-radius: 999px;
-    font-size: 0.76rem;
-    line-height: 1.25;
-}
-.capacity-badge.capacity-edit-btn .capacity-label {
-    font-size: 0.68rem;
-    line-height: 1;
-}
+
+
+
+
 .car-header .delete-btn,
 .car-delete-btn {
     width: 32px;
@@ -1023,33 +956,11 @@
 .auto-condition-pill i { color: var(--text-sub); }
 [data-theme="dark"] .auto-condition-pill { background: transparent; border-color: transparent; }
 
-.capacity-badge.capacity-edit-btn {
-    min-width: 0;
-    width: auto;
-    min-height: 26px;
-    height: 26px;
-    padding: 0 2px;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-    color: var(--text-sub);
-    gap: 5px;
-    font-size: 0.78rem;
-    font-weight: 900;
-}
-.capacity-badge.capacity-edit-btn .capacity-count {
-    padding: 0;
-    border-radius: 0;
-    background: transparent;
-    color: var(--text-sub);
-    font-size: 0.78rem;
-}
-.capacity-badge.capacity-edit-btn i { color: var(--text-sub); font-size: 0.72rem; opacity: 0.75; }
-.capacity-badge.capacity-edit-btn .capacity-label { display: none; }
-.capacity-badge.capacity-edit-btn.is-full,
-.capacity-badge.capacity-edit-btn.is-over { border: 0; color: var(--text-sub); }
-.capacity-badge.capacity-edit-btn.is-over .capacity-count { color:#b91c1c; }
+
+
+
+
+
 
 /* 1行カード */
 .car-header {

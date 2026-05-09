@@ -103,29 +103,11 @@
     flex-wrap: wrap;
     justify-content: flex-end;
 }
-.capacity-badge.capacity-edit-btn {
-    min-height: 38px;
-    padding: 7px 10px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    background: var(--bg-card);
-    color: var(--text-main);
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 0.78rem;
-    font-weight: 900;
-    cursor: pointer;
-}
-.capacity-badge.capacity-edit-btn .capacity-count {
-    padding: 2px 6px;
-    border-radius: 999px;
-    background: var(--accent-soft);
-    color: var(--accent-color);
-}
-.capacity-badge.capacity-edit-btn.is-full { border-color: rgba(15,118,110,0.55); }
-.capacity-badge.capacity-edit-btn.is-over { border-color: #ef4444; color: #b91c1c; }
-.capacity-badge.capacity-edit-btn.is-over .capacity-count { background: rgba(239,68,68,0.12); color: #b91c1c; }
+
+
+
+
+
 
 .seisan-head-actions {
     display: grid;
@@ -183,10 +165,7 @@
         height: 40px;
         font-size: 0.74rem;
     }
-    .capacity-badge.capacity-edit-btn {
-        min-height: 42px;
-        font-size: 0.8rem;
-    }
+
     .seisan-head-actions {
         grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.9fr) 46px;
     }
@@ -236,10 +215,7 @@
         padding-left: 4px;
         padding-right: 4px;
     }
-    .capacity-badge.capacity-edit-btn {
-        width: 100%;
-        justify-content: center;
-    }
+
     .car-header > div {
         width: 100%;
         justify-content: stretch;
@@ -350,13 +326,7 @@
 .driver-action-row {
     margin-top: 2px;
 }
-.member-action-btn,
-.delete-btn-overlay,
-.capacity-badge.capacity-edit-btn,
-.seisan-icon-btn,
-.route-stop-delete-btn {
-    min-height: 42px;
-}
+
 .member-action-btn,
 .delete-btn-overlay {
     gap: 5px;
@@ -383,19 +353,8 @@
     font-weight: 900;
 }
 
-/* 定員変更をボタンとして認識しやすくする */
-.capacity-badge.capacity-edit-btn {
-    min-width: 128px;
-    justify-content: center;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
-}
-.capacity-badge.capacity-edit-btn > i {
-    font-size: 0.86rem;
-    color: var(--accent-color);
-}
-.capacity-badge.capacity-edit-btn .capacity-label {
-    font-size: 0.76rem;
-}
+
+
 
 /* ガイドを開くボタンはすべて「？」アイコンで統一 */
 .tool-help-btn i,

@@ -512,3 +512,159 @@ Manual checks:
 - テーマ候補リストの z-index をフッターより低くし、ボタンを覆わないようにしました。
 - `103-modal-fixes.css` から `#appearanceModal` の所有を外し、テーマ設定モーダルは `102-appearance-modal.css` に集約しました。
 - `tests/appearance-done-visible-check.js` を追加しました。
+
+
+## Major CSS cleanup
+
+大幅整理として、旧CSSから重複していたテーマ設定・ヘッダー入力・定員バッジまわりのルールを削りました。
+
+主な内容：
+
+- 古い複雑なテーマプレビューCSSを削除
+- `#appearanceModal` / `theme-picker` / `theme-choice-scroller` の古い上書きを旧ファイルから削除
+- テーマ設定のドロップダウンCSSを `102-appearance-modal.css` に集約
+- 企画名入力欄の古い余白調整を旧ファイルから削除
+- 定員バッジの古い重複指定を削除
+- `tests/major-css-cleanup-check.js` を追加
+
+削除集計：
+```json
+[
+  {
+    "label": "old complex theme preview",
+    "file": "03d-theme-picker.css",
+    "rules": 14,
+    "bytes": 2350,
+    "important": 0,
+    "samples": [
+      ".theme-preview-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; align-items: center; padding: 9px; background: var(--app-surface); border-bottom: 1px solid var(--border-color); }",
+      ".theme-preview-title { min-width: 0; color: var(--text-main); font-size: 0.78rem; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }",
+      ".theme-preview-btn { min-height: 32px; padding: 6px 9px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 0.68rem; font-weight: 850; }",
+      ".theme-preview-btn.primary { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }",
+      ".theme-preview-content { display: grid; grid-template-columns: 1fr 0.95fr; gap: 8px; padding: 10px; }",
+      ".theme-preview-car, .theme-preview-seisan { border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-card); padding: 9px; min-width: 0; }",
+      ".theme-preview-car-head { display: flex; justify-content: space-between; gap: 6px; padding-bottom: 6px; margin-bottom: 7px; border-bottom: 1px solid var(--border-color); font-size: 0.72rem; font-weight: 900; color: var(--text-main); }",
+      ".theme-preview-seat { padding: 7px 8px; border-radius: 8px; background: var(--accent-soft); color: var(--text-main); border: 1px solid var(--border-color); font-size: 0.7rem; font-weight: 850; margin-bottom: 6px; }"
+    ]
+  },
+  {
+    "label": "old complex theme preview",
+    "file": "03d-theme-picker-cleanup.css",
+    "rules": 1,
+    "bytes": 311,
+    "important": 0,
+    "samples": [
+      ".theme-preview, .theme-preview-card, .appearance-preview { border: 1px solid var(--border-color); background: radial-gradient(circle at top left, color-mix(in srgb, var(--accent-color) 13%, transparent), transparent 34%), var(--bg-card); border-radius: 18px; o"
+    ]
+  },
+  {
+    "label": "old complex theme preview",
+    "file": "03d-legacy-theme-mobile-overrides.css",
+    "rules": 0,
+    "bytes": 0,
+    "important": 0,
+    "samples": []
+  },
+  {
+    "label": "old appearance modal/dropdown overrides",
+    "file": "03e-late-maintenance.css",
+    "rules": 43,
+    "bytes": 6346,
+    "important": 0,
+    "samples": [
+      "/* --- v48: theme picker dropdown clarity --- */ #appearanceModal .modal-content, #appearanceModal .modal-body, #appearanceModal .theme-settings-wrap-v44, #appearanceModal .theme-picker-grid { overflow: visible ; }",
+      "#appearanceModal .theme-picker-grid { position: relative; z-index: 50; }",
+      "#appearanceModal .theme-picker { position: relative; overflow: visible ; }",
+      "#appearanceModal .theme-picker[open] { z-index: 120; }",
+      "#appearanceModal .theme-picker summary { grid-template-columns: auto minmax(0, 1fr) auto ; grid-template-areas: \"icon label arrow\" \"icon value arrow\"; align-items: center; padding-right: 10px ; border-bottom: 0; }",
+      "#appearanceModal .theme-picker summary::after { content: \"\\f078\"; grid-area: arrow; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; border: 1px solid var(--border-color); background: var(--bg",
+      "#appearanceModal .theme-picker[open] summary { background: var(--hover-bg); }",
+      "#appearanceModal .theme-picker[open] summary::after { transform: rotate(180deg); background: var(--accent-soft); border-color: var(--accent-color); }"
+    ]
+  },
+  {
+    "label": "old project title input spacing",
+    "file": "03e-late-maintenance.css",
+    "rules": 9,
+    "bytes": 626,
+    "important": 0,
+    "samples": [
+      "/* --- v46: project title field spacing fix --- */ .app-room-control { padding-left: 0 ; }",
+      ".app-room-field { padding-left: 12px ; padding-right: 10px ; }",
+      ".app-room-field label, .app-room-input { padding-left: 0 ; }",
+      ".app-room-input { padding-right: 2px ; }",
+      ".app-room-field { padding-left: 13px ; padding-right: 9px ; }",
+      ".app-room-field { padding-left: 18px ; padding-right: 12px ; }",
+      ".app-room-field label, .app-room-input { padding-left: 2px ; }",
+      ".app-room-input { padding-right: 4px ; }"
+    ]
+  },
+  {
+    "label": "old project title input spacing",
+    "file": "03d-theme-picker.css",
+    "rules": 2,
+    "bytes": 135,
+    "important": 0,
+    "samples": [
+      ".app-room-field { padding: 8px 9px; }",
+      ".app-room-input { min-height: 38px; padding-inline: 2px; }"
+    ]
+  },
+  {
+    "label": "old capacity badge duplicates",
+    "file": "03b-guides-and-modals.css",
+    "rules": 1,
+    "bytes": 180,
+    "important": 0,
+    "samples": [
+      ".capacity-badge { min-height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 5px 8px; font-size: 0.7rem; }"
+    ]
+  },
+  {
+    "label": "old capacity badge duplicates",
+    "file": "03c-mobile-polish.css",
+    "rules": 11,
+    "bytes": 1479,
+    "important": 0,
+    "samples": [
+      ".capacity-badge.capacity-edit-btn { min-height: 38px; padding: 7px 10px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-main); display: inline-flex; align-items: center; gap: 7px; font-size",
+      ".capacity-badge.capacity-edit-btn .capacity-count { padding: 2px 6px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-color); }",
+      ".capacity-badge.capacity-edit-btn.is-full { border-color: rgba(15,118,110,0.55); }",
+      ".capacity-badge.capacity-edit-btn.is-over { border-color: #ef4444; color: #b91c1c; }",
+      ".capacity-badge.capacity-edit-btn.is-over .capacity-count { background: rgba(239,68,68,0.12); color: #b91c1c; }",
+      ".capacity-badge.capacity-edit-btn { min-height: 42px; font-size: 0.8rem; }",
+      ".capacity-badge.capacity-edit-btn { width: 100%; justify-content: center; }",
+      ".member-action-btn, .delete-btn-overlay, .capacity-badge.capacity-edit-btn, .seisan-icon-btn, .route-stop-delete-btn { min-height: 42px; }"
+    ]
+  },
+  {
+    "label": "old capacity badge duplicates",
+    "file": "03d-legacy-theme-mobile-overrides.css",
+    "rules": 19,
+    "bytes": 3024,
+    "important": 0,
+    "samples": [
+      ".capacity-badge.capacity-edit-btn { width: 100% ; min-width: 0 ; min-height: var(--mobile-touch) ; padding: 8px 10px ; border-radius: var(--radius-sm) ; gap: 8px ; font-size: 0.9rem ; }",
+      ".capacity-badge.capacity-edit-btn .capacity-count { padding: 4px 9px ; border-radius: 999px ; background: var(--accent-soft); color: var(--accent-color); font-weight: 900 ; }",
+      ".capacity-badge.capacity-edit-btn .capacity-label { font-size: 0.82rem ; font-weight: 900 ; }",
+      "[data-theme=\"dark\"] .member-action-btn, [data-theme=\"dark\"] .delete-btn-overlay, [data-theme=\"dark\"] .car-header .delete-btn, [data-theme=\"dark\"] .capacity-badge.capacity-edit-btn, [data-theme=\"dark\"] #waiting-list:empty::before { background: rgba(15, 23, 42, ",
+      "[data-theme=\"dark\"] .capacity-badge.capacity-edit-btn .capacity-count { background: rgba(52, 211, 153, 0.14); }",
+      ".capacity-badge.capacity-edit-btn { min-height: 34px; padding: 6px 8px; gap: 6px; font-size: 0.78rem; box-shadow: none; }",
+      ".capacity-badge.capacity-edit-btn > i { font-size: 0.78rem; }",
+      ".capacity-badge.capacity-edit-btn .capacity-count { padding: 2px 6px; border-radius: var(--radius-sm); font-size: 0.78rem; }"
+    ]
+  }
+]
+```
+
+
+## Mobile UI polish
+
+スクリーンショット確認後の微調整として `106-mobile-ui-polish.css` を追加しました。
+
+- スマホ幅でヘッダー、タブ、カード、モーダル、下部トレイの余白と角丸を微調整
+- ダークモードの黒さとカード境界を少し弱める
+- 車カード・精算カード・待機タブの面を少し柔らかくする
+- テーマ設定の完了ボタンまわりを少し見やすくする
+- ライトモードは既存の枠なし感を保ちつつ、薄いカード境界だけ整える
+- `tests/mobile-ui-polish-check.js` を追加

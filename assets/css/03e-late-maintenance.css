@@ -19,30 +19,14 @@ body.manual-sheet-dragging .sheet-chip.draggable,
 }
 
 
-/* --- v46: project title field spacing fix --- */
-.app-room-control {
-    padding-left: 0 ;
-}
-.app-room-field {
-    padding-left: 12px ;
-    padding-right: 10px ;
-}
-.app-room-field label,
-.app-room-input {
-    padding-left: 0 ;
-}
-.app-room-input {
-    padding-right: 2px ;
-}
+
+
 @media (max-width: 640px) {
     .app-header-main {
         padding-left: 10px ;
         padding-right: 10px ;
     }
-    .app-room-field {
-        padding-left: 13px ;
-        padding-right: 9px ;
-    }
+
 }
 
 .member-card .member-name-text,
@@ -222,272 +206,56 @@ body.manual-sheet-dragging .sheet-chip.draggable,
 
 
 
-/* --- v48: theme picker dropdown clarity --- */
-#appearanceModal .modal-content,
-#appearanceModal .modal-body,
-#appearanceModal .theme-settings-wrap-v44,
-#appearanceModal .theme-picker-grid {
-    overflow: visible ;
-}
 
-#appearanceModal .theme-picker-grid {
-    position: relative;
-    z-index: 50;
-}
 
-#appearanceModal .theme-picker {
-    position: relative;
-    overflow: visible ;
-}
 
-#appearanceModal .theme-picker[open] {
-    z-index: 120;
-}
 
-#appearanceModal .theme-picker summary {
-    grid-template-columns: auto minmax(0, 1fr) auto ;
-    grid-template-areas: "icon label arrow" "icon value arrow";
-    align-items: center;
-    padding-right: 10px ;
-    border-bottom: 0;
-}
 
-#appearanceModal .theme-picker summary::after {
-    content: "\f078";
-    grid-area: arrow;
-    width: 28px;
-    height: 28px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 999px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-body);
-    color: var(--accent-color);
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    font-size: 0.72rem;
-    line-height: 1;
-    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
-}
 
-#appearanceModal .theme-picker[open] summary {
-    background: var(--hover-bg);
-}
 
-#appearanceModal .theme-picker[open] summary::after {
-    transform: rotate(180deg);
-    background: var(--accent-soft);
-    border-color: var(--accent-color);
-}
 
-#appearanceModal .theme-choice-scroller {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    right: 0;
-    display: grid ;
-    grid-template-columns: 1fr;
-    gap: 7px;
-    max-height: min(58vh, 430px);
-    overflow-y: auto;
-    overflow-x: hidden;
-    overscroll-behavior: contain;
-    scroll-snap-type: none;
-    -webkit-overflow-scrolling: touch;
-    padding: 8px ;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-main);
-    background: var(--bg-card);
-    box-shadow: var(--shadow-float);
-    z-index: 130;
-}
-
-#appearanceModal .theme-choice-scroller .theme-preset-card {
-    width: 100%;
-    min-height: 62px ;
-    flex: none;
-    display: grid ;
-    grid-template-columns: 66px minmax(0, 1fr);
-    align-items: center;
-    gap: 8px;
-    padding: 9px 10px ;
-    text-align: left;
-    scroll-snap-align: none;
-}
-
-#appearanceModal .theme-choice-scroller .theme-swatch-row {
-    margin: 0 ;
-}
-
-#appearanceModal .theme-choice-scroller .theme-preset-main {
-    min-width: 0;
-}
-
-#appearanceModal .theme-choice-scroller .theme-preset-main strong,
-#appearanceModal .theme-choice-scroller .theme-preset-main small {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
 
 @media (max-width: 520px) {
-    #appearanceModal .theme-picker-grid {
-        grid-template-columns: 1fr ;
-    }
-    #appearanceModal .theme-choice-scroller {
-        max-height: min(56vh, 390px);
-    }
-    #appearanceModal .theme-picker summary {
-        min-height: 48px;
-    }
+
+
+
 }
 
 
 
-/* --- v49: requested theme picker layout / title spacing adjustments --- */
-#appearanceModal .theme-picker-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) ;
-    gap: 8px ;
-}
-#appearanceModal .theme-picker summary {
-    min-width: 0;
-    padding: 9px 8px ;
-    gap: 1px 6px ;
-}
-#appearanceModal .theme-picker summary::after {
-    width: 26px;
-    height: 26px;
-    font-size: 0.68rem;
-}
-#appearanceModal .theme-choice-scroller {
-    width: min(420px, calc(100vw - 24px));
-    max-width: calc(100vw - 24px);
-}
-#appearanceModal .theme-picker-grid .theme-picker:nth-child(2) .theme-choice-scroller {
-    left: auto;
-    right: 0;
-}
-#appearanceModal .theme-choice-scroller .theme-preset-card {
-    grid-template-columns: 64px minmax(0, 1fr);
-}
+
+
+
 @media (max-width: 520px) {
-    #appearanceModal .theme-picker-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) ;
-        gap: 7px ;
-    }
-    #appearanceModal .theme-picker summary {
-        min-height: 48px;
-        padding: 8px 7px ;
-        grid-template-columns: auto minmax(0, 1fr) auto ;
-        gap: 1px 5px ;
-    }
-    #appearanceModal .theme-picker summary span {
-        font-size: 0.68rem ;
-    }
-    #appearanceModal .theme-picker summary strong {
-        font-size: 0.62rem ;
-    }
-    #appearanceModal .theme-picker summary::after {
-        width: 24px;
-        height: 24px;
-        font-size: 0.64rem;
-    }
-    #appearanceModal .theme-choice-scroller {
-        width: min(360px, calc(100vw - 18px));
-        max-width: calc(100vw - 18px);
-        max-height: min(56vh, 390px);
-    }
-    #appearanceModal .theme-choice-scroller .theme-preset-card {
-        grid-template-columns: 60px minmax(0, 1fr);
-        min-height: 60px ;
-    }
+
+
+
+
+
+
+
 }
 
-.app-room-field {
-    padding-left: 18px ;
-    padding-right: 12px ;
-}
-.app-room-field label,
-.app-room-input {
-    padding-left: 2px ;
-}
-.app-room-input {
-    padding-right: 4px ;
-}
+
+
 @media (max-width: 640px) {
-    .app-room-field {
-        padding-left: 18px ;
-        padding-right: 10px ;
-    }
+
 }
 
 
-/* --- v50: independent dropdowns within each column --- */
-#appearanceModal .theme-picker-grid {
-    position: relative;
-    display: grid ;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) ;
-    align-items: start;
-    gap: 8px ;
-}
-#appearanceModal .theme-picker {
-    position: relative;
-    min-width: 0;
-}
-#appearanceModal .theme-picker[open] {
-    overflow: visible ;
-}
-#appearanceModal .theme-picker summary {
-    border-bottom: 0;
-}
-#appearanceModal .theme-choice-scroller {
-    left: 0;
-    right: 0;
-    width: 100% ;
-    max-width: 100%;
-    max-height: var(--theme-choice-max-height, min(46vh, 360px)) ;
-    z-index: 180;
-}
-#appearanceModal .theme-picker-grid .theme-picker:nth-child(2) .theme-choice-scroller {
-    left: 0;
-    right: 0;
-}
-#appearanceModal .theme-choice-scroller .theme-preset-card {
-    grid-template-columns: minmax(46px, 0.42fr) minmax(0, 1fr) ;
-    gap: 7px ;
-    min-width: 0;
-}
-#appearanceModal .theme-choice-scroller .theme-swatch-row {
-    min-width: 0;
-    gap: 3px;
-}
-#appearanceModal .theme-choice-scroller .theme-swatch {
-    width: 14px;
-    height: 14px;
-}
-#appearanceModal .modal-footer {
-    position: relative;
-    z-index: 220;
-}
+
+
+
+
+
+
+
+
 @media (max-width: 520px) {
-    #appearanceModal .theme-picker-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) ;
-    }
-    #appearanceModal .theme-choice-scroller {
-        max-height: var(--theme-choice-max-height, min(44vh, 320px)) ;
-        padding: 7px ;
-    }
-    #appearanceModal .theme-choice-scroller .theme-preset-card {
-        grid-template-columns: 42px minmax(0, 1fr) ;
-        min-height: 58px ;
-        padding: 8px 7px ;
-    }
-    #appearanceModal .theme-choice-scroller .theme-swatch {
-        width: 12px;
-        height: 12px;
-    }
+
+
+
+
 }
 
 
