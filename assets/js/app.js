@@ -895,8 +895,23 @@ function updateTrayMenuDirection() {
 function prepareWaitingTrayForDrag() {
     const tray = document.getElementById('bottom-tray');
     if (!tray || currentView !== 'list') return;
-    tray.classList.add('is-drop-ready');
-    tray.dataset.dragStartedMinimized = tray.classList.contains('minimized') || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open')) ? 'true' : 'false';
+
+    const fromWaiting = manualCardDrag?.currentContainer?.id === 'waiting-list';
+    const wasClosed = tray.classList.contains('minimized') || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
+    tray.dataset.dragStartedMinimized = wasClosed ? 'true' : 'false';
+
+    if (fromWaiting) {
+        // 未割り当て欄からカードを持ち上げたら、作業面を広くするために待機タブを閉じる。
+        tray.classList.add('minimized');
+        tray.classList.remove('empty-open', 'is-drop-ready', 'is-drop-near');
+        tray.dataset.userMinimized = 'true';
+        tray.dataset.closedByWaitingDrag = 'true';
+    } else {
+        // 車側から戻すときだけ、閉じたタブへのドロップ先として控えめに準備する。
+        tray.classList.add('is-drop-ready');
+        delete tray.dataset.closedByWaitingDrag;
+    }
+
     updateTrayMenuDirection();
     updateTrayToggleLabel();
 }
@@ -905,18 +920,30 @@ function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
     const tray = document.getElementById('bottom-tray');
     const waitingList = document.getElementById('waiting-list');
     if (!tray || !waitingList || currentView !== 'list' || !manualCardDrag) return;
-    const rect = tray.getBoundingClientRect();
-    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
-    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-    const nearY = Math.max(rect.top - Math.min(220, Math.max(110, vh * 0.24)), 0);
-    const withinX = clientX >= -40 && clientX <= vw + 40;
-    const nearTray = withinX && clientY >= nearY;
-    tray.classList.toggle('is-drop-near', nearTray);
-    if (!nearTray) return;
-    const wasClosed = tray.classList.contains('minimized') || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
+
+    const closed = tray.classList.contains('minimized') || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
+    if (!closed) {
+        tray.classList.remove('is-drop-near');
+        return;
+    }
+
+    // 自動で開くのは、カードが「閉じているタブ本体」に触れたときだけ。
+    // 以前のように画面下に近づいただけでは開かない。
+    const handle = document.getElementById('tray-handle');
+    const targetRect = (handle || tray).getBoundingClientRect();
+    const margin = 10;
+    const touchingClosedTab =
+        clientX >= targetRect.left - margin &&
+        clientX <= targetRect.right + margin &&
+        clientY >= targetRect.top - margin &&
+        clientY <= targetRect.bottom + margin;
+
+    tray.classList.toggle('is-drop-near', touchingClosedTab);
+    if (!touchingClosedTab) return;
+
     tray.classList.remove('minimized');
     if (tray.classList.contains('waiting-empty')) tray.classList.add('empty-open');
-    if (wasClosed) tray.dataset.openedByDrag = 'true';
+    tray.dataset.openedByDrag = 'true';
     tray.classList.add('is-drop-ready');
     updateTrayMenuDirection();
     updateTrayToggleLabel();
@@ -933,6 +960,7 @@ function finishWaitingTrayDragState() {
     }
     delete tray.dataset.openedByDrag;
     delete tray.dataset.dragStartedMinimized;
+    delete tray.dataset.closedByWaitingDrag;
     updateTrayMenuDirection();
     updateTrayToggleLabel();
 }
@@ -1116,18 +1144,27 @@ function getManualCardDropTarget(clientX, clientY) {
     const tray = document.getElementById('bottom-tray');
     const seat = el?.closest?.('.seat-slot');
     if (seat) return seat;
-    if (waitingList && el?.closest?.('#waiting-list, #waiting-list-container, #bottom-tray-header, #tray-handle, #bottom-tray')) {
+
+    if (!waitingList || !tray || !tray.isConnected) return null;
+
+    const trayIsOpen = !tray.classList.contains('minimized') && !(tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
+
+    // 開いているときは、待機欄の中に入った場合だけ戻し先にする。
+    if (trayIsOpen && el?.closest?.('#waiting-list, #waiting-list-container')) {
         return waitingList;
     }
-    if (waitingList && tray && tray.isConnected) {
-        const rect = tray.getBoundingClientRect();
-        const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-        const nearTop = rect.top - Math.min(160, Math.max(72, vh * 0.16));
-        const nearBottom = rect.bottom + 28;
-        if (clientX >= rect.left - 40 && clientX <= rect.right + 40 && clientY >= nearTop && clientY <= nearBottom) {
-            return waitingList;
-        }
-    }
+
+    // 閉じているときは、閉じたタブ本体に触れたときだけ戻し先扱いにする。
+    const handle = document.getElementById('tray-handle');
+    const targetRect = (handle || tray).getBoundingClientRect();
+    const margin = 12;
+    const touchingClosedTab =
+        clientX >= targetRect.left - margin &&
+        clientX <= targetRect.right + margin &&
+        clientY >= targetRect.top - margin &&
+        clientY <= targetRect.bottom + margin;
+
+    if (!trayIsOpen && touchingClosedTab) return waitingList;
     return null;
 }
 
@@ -3426,7 +3463,7 @@ function renderSettlementView() {
     }
 }
 
-const ROUTE_PRIVATE_ORIGIN_KEY = 'sanpokai_route_private_origin_v1';
+const ROUTE_PRIVATE_ORIGIN_KEY = 'circle_route_private_origin_v1';
 
 function getRoutePrivateOrigin() {
     try {
@@ -3501,7 +3538,7 @@ function getSavedRouteStops() {
 function routeStopRowHtml(value = '', index = 0, total = 1) {
     return `<div class="route-stop-row">
         <span class="route-stop-num" title="ドラッグで並び替え">${index + 1}</span>
-        <input type="text" class="route-stop-input" value="${escapeHtml(value || '')}" placeholder="例：妙高山 登山口" oninput="window.onRouteStopsChangedDelayed()" onchange="window.onRouteStopsChanged()">
+        <input type="text" class="route-stop-input" value="${escapeHtml(value || '')}" placeholder="例：妙高山 集合場所" oninput="window.onRouteStopsChangedDelayed()" onchange="window.onRouteStopsChanged()">
         <button class="seisan-icon-btn route-stop-delete-btn" type="button" onclick="window.removeRouteStop(this)" title="削除"><i class="fas fa-times"></i></button>
     </div>`;
 }
@@ -3872,8 +3909,8 @@ function seedDebugData({ missing = false } = {}) {
         { name: '伊藤 美月', grade: 1, gender: 'female' },
         { name: '渡辺 大地', grade: 1, gender: 'male' },
         { name: '加藤 ひかり', grade: 1, gender: 'female' },
-        { name: '石井 拓海', grade: 2, gender: 'male', memo: '温泉行く' },
-        { name: '岡田 真帆', grade: 3, gender: 'female', memo: '飯行く' },
+        { name: '石井 拓海', grade: 2, gender: 'male', memo: '帰りに寄り道' },
+        { name: '岡田 真帆', grade: 3, gender: 'female', memo: '帰りに食事' },
         { name: '山本 蓮', grade: 1, gender: 'male' },
         { name: '井上 結衣', grade: 1, gender: 'female' },
         { name: '木村 亮', grade: 2, gender: 'male' },
@@ -3888,7 +3925,7 @@ function seedDebugData({ missing = false } = {}) {
 
     document.getElementById('waiting-list').innerHTML = '';
     document.getElementById('cars-container').innerHTML = '';
-    document.getElementById('roomNameInput').value = missing ? '入力漏れテスト' : '御嶽山登山 5/12';
+    document.getElementById('roomNameInput').value = missing ? '入力漏れテスト' : '新歓企画 5/12';
     settlementState = normalizeSettlementState({
         rounding: '100', organizerFree: true, organizerName: '田中 太郎', driverReward: '1000', cars: {}, paid: {}, driverPaid: {}
     });

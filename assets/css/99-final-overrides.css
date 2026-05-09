@@ -446,3 +446,12 @@ body.manual-card-dragging .person-pop-menu,
 body.quick-sheet-dragging .person-pop-menu {
     display: none;
 }
+
+
+/* Waiting tray: close while dragging from waiting list */
+#bottom-tray[data-closed-by-waiting-drag="true"] #tray-handle {
+    background: var(--tray-bg);
+}
+#bottom-tray[data-closed-by-waiting-drag="true"] #tray-toggle-label {
+    color: var(--text-sub);
+}
