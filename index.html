@@ -18,7 +18,7 @@
     <meta name="twitter:image" content="https://mutoshiki.github.io/circle-kikaku-tools/ogp-thumbnail.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-        <link href="./assets/css/01-foundation-components-guide.css" rel="stylesheet">
+    <link href="./assets/css/01-foundation-components-guide.css" rel="stylesheet">
     <link href="./assets/css/02-seisan.css" rel="stylesheet">
     <link href="./assets/css/03-app-layout-and-themes.css" rel="stylesheet">
     <link href="./assets/css/03b-guides-and-modals.css" rel="stylesheet">
@@ -43,6 +43,9 @@
     <link href="./assets/css/105-dark-badge-fixes.css" rel="stylesheet">
     <link href="./assets/css/106-mobile-ui-polish.css" rel="stylesheet">
     <link href="./assets/css/107-badge-check-gender-fixes.css" rel="stylesheet">
+    <link href="./assets/css/108-density-restore.css" rel="stylesheet">
+    <link href="./assets/css/109-header-natural.css" rel="stylesheet">
+    <link href="./assets/css/110-seisan-compact-polish.css" rel="stylesheet">
   </head>
   <body data-theme="light" data-app-theme="natural" class="sheet-mode">
     <div id="app-layout">
@@ -78,14 +81,14 @@
           </div>
         </div>
         <div id="view-toggle-bar">
-          <button class="view-tab" id="tab-list">
-            <i class="fas fa-car-side" aria-hidden="true"></i> 車割メーカー
+          <button class="view-tab" id="tab-list" aria-label="車割メーカー">
+            <i class="fas fa-car-side" aria-hidden="true"></i><span class="view-tab-label">車割</span>
           </button>
-          <button class="view-tab active" id="tab-sheet">
-            <i class="fas fa-table-list" aria-hidden="true"></i> 車割発表ビュー
+          <button class="view-tab active" id="tab-sheet" aria-label="車割発表ビュー">
+            <i class="fas fa-table-list" aria-hidden="true"></i><span class="view-tab-label">発表</span>
           </button>
-          <button class="view-tab" id="tab-seisan">
-            <i class="fas fa-receipt" aria-hidden="true"></i> 精算ツール
+          <button class="view-tab" id="tab-seisan" aria-label="精算ツール">
+            <i class="fas fa-receipt" aria-hidden="true"></i><span class="view-tab-label">精算</span>
           </button>
         </div>
       </header>
@@ -142,7 +145,7 @@
           </div>
 
           <div class="seisan-card">
-            <div class="seisan-title" style="margin-bottom:8px;"><i class="fas fa-sliders" aria-hidden="true"></i>精算設定</div>
+            <div class="seisan-title" style="margin-bottom:6px;"><i class="fas fa-sliders" aria-hidden="true"></i>精算設定</div>
             <div class="seisan-settings">
               <div class="seisan-field">
                 <label>端数処理</label>

@@ -526,7 +526,32 @@ function updateEditLockButton() {
     btn.classList.toggle('is-locked', editLockEnabled);
     btn.title = editLockEnabled ? '車割メーカーと精算ツールのロックを解除' : '車割メーカーと精算ツールをロック';
     btn.setAttribute('aria-label', btn.title);
+    updateProtectedMenuItems();
     updateQuickEditButton();
+}
+
+function updateProtectedMenuItems() {
+    const locked = !!editLockEnabled;
+    ['historyBtn', 'sampleDataBtn', 'resetDataBtn'].forEach(id => {
+        const btn = byId(id);
+        if (!btn) return;
+        btn.disabled = locked;
+        btn.classList.toggle('disabled', locked);
+        btn.setAttribute('aria-disabled', locked ? 'true' : 'false');
+        if (locked) {
+            if (btn.dataset.lockTitle === undefined) btn.dataset.lockTitle = btn.title || '';
+            btn.title = 'ロック中は使えません';
+        } else {
+            btn.title = btn.dataset.lockTitle || '';
+            delete btn.dataset.lockTitle;
+        }
+    });
+}
+
+function canUseUnlockedMenuAction() {
+    if (!editLockEnabled) return true;
+    showAppNotice('ロック中は使えません。先にロックを解除してください。', true);
+    return false;
 }
 
 function updateQuickEditButton() {
@@ -1638,7 +1663,7 @@ function renderListEmptyHint() {
         return;
     }
     if (!existing) {
-        container.insertAdjacentHTML('afterbegin', `<div class="col-12" id="list-empty-hint"><div class="empty-card"><i class="fas fa-paste"></i><strong>登録から始めます</strong><span>Googleフォームの名簿を貼ると、参加者と車出しできる人をまとめて登録できます。</span><button class="seisan-btn primary" type="button" data-action="open-batch">登録を開く</button></div></div>`);
+        container.insertAdjacentHTML('afterbegin', `<div class="col-12" id="list-empty-hint"><div class="empty-card"><i class="fas fa-paste"></i><strong>まずは参加者登録から</strong><span>企画の参加者と車出しを登録すると、ここに車割の編集画面が表示されます。</span><button class="seisan-btn primary" type="button" data-action="open-batch">参加者登録を開く</button></div></div>`);
     }
 }
 
@@ -2968,10 +2993,10 @@ function renderSheetEmptyHtml() {
     return `
         <div class="sheet-empty-card">
             <div class="sheet-empty-icon"><i class="fas fa-car-side" aria-hidden="true"></i></div>
-            <div class="sheet-empty-title">まず登録から始めます</div>
-            <div class="sheet-empty-text">参加者と車出しを登録すると、ここに発表用の車割が表示されます。</div>
+            <div class="sheet-empty-title">まずは参加者登録から</div>
+            <div class="sheet-empty-text">企画の参加者と車出しを登録すると、ここに発表用の車割が表示されます。</div>
             <div class="sheet-empty-actions">
-              <button class="seisan-btn primary" type="button" data-action="open-batch-from-sheet"><i class="fas fa-paste me-1"></i>登録を開く</button>
+              <button class="seisan-btn primary" type="button" data-action="open-batch-from-sheet"><i class="fas fa-paste me-1"></i>参加者登録を開く</button>
               <button class="seisan-btn" type="button" data-action="switch-list"><i class="fas fa-edit me-1"></i>車割メーカーへ</button>
             </div>
         </div>`;
@@ -3519,7 +3544,7 @@ function renderSettlementCarRowHtml(car, state, result, issues) {
     const details = `ガソリン代 ${yen(calc.gas || 0)} / 諸経費 ${yen((calc.splitExtras || 0) + (calc.clubExtras || 0))}`;
     return `<div class="seisan-car-row${rowClass}" data-driver-name="${escapeHtml(car.name)}">
         <div class="seisan-car-title"><strong>${escapeHtml(car.name)}車</strong><span class="seisan-car-total">渡す ${yen(calc.totalPay)}</span></div>
-        <div class="seisan-small" style="margin-bottom:8px;">${details}</div>
+        <div class="seisan-small" style="margin-bottom:5px;">${details}</div>
         <div class="seisan-car-inputs">
           <label><span class="seisan-mini-label">移動距離（km）</span><input type="number" inputmode="decimal" data-field="dist" class="${fieldErrorClass(issues, car.name, 'dist')}" value="${escapeHtml(cState.dist || '')}"></label>
           <label><span class="seisan-mini-label">燃費（km/L）</span><input type="number" inputmode="decimal" data-field="eco" class="${fieldErrorClass(issues, car.name, 'eco')}" value="${escapeHtml(cState.eco || '')}"></label>
@@ -3578,12 +3603,41 @@ function renderSettlementBreakdownHtml(result) {
         <div class="seisan-break-row"><span>支払い丸め</span><span>${yen(result.totalDriverRound)}</span></div>`;
 }
 
+function toggleSettlementEmptyState(area, isEmpty) {
+    if (!area) return;
+    const wrap = area.querySelector('.seisan-wrap');
+    let empty = byId('seisan-empty-state');
+    if (!empty) {
+        empty = document.createElement('div');
+        empty.id = 'seisan-empty-state';
+        empty.className = 'seisan-empty-state';
+        empty.hidden = true;
+        empty.innerHTML = `<div class="empty-card">
+            <i class="fas fa-paste" aria-hidden="true"></i>
+            <strong>まずは参加者登録から</strong>
+            <span>企画の参加者と車出しを登録すると、ここに精算画面が表示されます。</span>
+            <button class="seisan-btn primary" type="button" data-action="open-batch">参加者登録を開く</button>
+        </div>`;
+        if (wrap) area.insertBefore(empty, wrap);
+        else area.appendChild(empty);
+    }
+    empty.hidden = !isEmpty;
+    if (wrap) wrap.hidden = isEmpty;
+}
+
 function renderSettlementView() {
     const area = byId('seisan-view-area');
     if (!area) return;
     const state = ensureSettlementState();
     const data = getRoomDataOnly();
     const participants = getParticipantList(data);
+    const hasParticipants = participants.length > 0;
+
+    toggleSettlementEmptyState(area, !hasParticipants);
+    if (!hasParticipants) {
+        renderSettlementIssues({ messages: [], fields: new Set(), rows: new Set() });
+        return;
+    }
 
     syncSettlementControls(state, participants);
 
@@ -4017,9 +4071,9 @@ function setupStaticEventListeners() {
 
     bind('globalGuideBtn', () => window.modals?.globalGuide?.show());
     bind('appearanceSettingsBtn', () => openAppearanceModal());
-    bind('historyBtn', () => showHistory());
-    bind('sampleDataBtn', () => openDebugModal());
-    bind('resetDataBtn', () => window.resetData());
+    bind('historyBtn', () => { if (canUseUnlockedMenuAction()) showHistory(); });
+    bind('sampleDataBtn', () => { if (canUseUnlockedMenuAction()) openDebugModal(); });
+    bind('resetDataBtn', () => { if (canUseUnlockedMenuAction()) window.resetData(); });
     bind('editLockBtn', () => toggleEditProtection());
     bind('shareLinkBtn', () => copyUrl());
     bind('fillEmptySeatsBtn', () => autoAssign('fill'));

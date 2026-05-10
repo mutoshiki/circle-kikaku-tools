@@ -76,3 +76,11 @@ Old files still contain compatibility rules, but new edits should be added to th
 - `107-badge-check-gender-fixes.css`
   - light/dark capacity badge cleanup
   - check icon/mock check double-frame cleanup
+
+- `108-density-restore.css`
+  - 実機スクリーンショット後の最終密度調整
+  - レイアウト構造は変えず、余白・高さ・文字サイズを圧縮
+  - 精算サマリー3カード横並び、精算設定2列、車ごとの費用入力3列を維持
+  - タブの表示ラベル消失防止
+
+- `assets/css/110-seisan-compact-polish.css`: 精算タブ専用の密度調整。既存レイアウトを変えず、余白・高さ・線・文字の強弱だけを最終補正。
