@@ -3515,19 +3515,20 @@ function syncSettlementControls(state, participants) {
 
 function renderSettlementSummaryHtml(result) {
     const accountingLabel = result.accounting >= 0 ? '部費負担' : '部費へ戻す';
+    const accountingSign = result.accounting >= 0 ? '＋' : '−';
     return `
         <div class="seisan-summary-card collect">
           <div class="seisan-summary-label"><i class="fas fa-users"></i>集める</div>
-          <div class="seisan-summary-value">${yen(result.perPerson)}</div>
-          <div class="seisan-summary-sub">1人あたり / ${result.payerCount}名</div>
+          <div class="seisan-summary-value">${yen(result.expectedCollected)}</div>
+          <div class="seisan-summary-sub">${yen(result.perPerson)} × ${result.payerCount}名</div>
         </div>
-        <div class="seisan-flow-arrow">→</div>
+        <div class="seisan-flow-arrow" aria-hidden="true">${accountingSign}</div>
         <div class="seisan-summary-card accounting">
           <div class="seisan-summary-label"><i class="fas fa-wallet"></i>部費</div>
           <div class="seisan-summary-value">${yen(Math.abs(result.accounting))}</div>
           <div class="seisan-summary-sub">${accountingLabel}</div>
         </div>
-        <div class="seisan-flow-arrow">→</div>
+        <div class="seisan-flow-arrow" aria-hidden="true">＝</div>
         <div class="seisan-summary-card pay">
           <div class="seisan-summary-label"><i class="fas fa-car-side"></i>渡す</div>
           <div class="seisan-summary-value">${yen(result.driverTotal)}</div>
@@ -3652,7 +3653,7 @@ function renderSettlementView() {
     if (carList) carList.innerHTML = renderSettlementCarsHtml(data, state, result, issues);
 
     const note = byId('seisan-collection-note');
-    if (note) note.textContent = `集金済み ${result.paidCount}/${result.payerCount}名・未回収 ${yen(result.unpaidAmount)}`;
+    if (note) note.textContent = `1人あたり ${yen(result.perPerson)}・集金済み ${result.paidCount}/${result.payerCount}名・未回収 ${yen(result.unpaidAmount)}`;
 
     const collectionList = byId('seisan-collection-list');
     if (collectionList) collectionList.innerHTML = renderSettlementCollectionHtml(participants, state, result);
@@ -3879,10 +3880,12 @@ window.onSettlementInput = function() {
 };
 
 window.onSettlementInputDelayed = function() {
+    // 入力中に精算画面全体を再描画すると、iPhoneなどでフォーカスが外れて
+    // キーボードが閉じやすくなる。入力中は状態保存だけ行い、再計算・再描画は
+    // change / blur 相当の確定タイミングで onSettlementInput() に任せる。
     syncSettlementStateFromDOM();
     clearTimeout(settlementRenderTimer);
     settlementRenderTimer = setTimeout(() => {
-        renderSettlementView();
         save();
     }, 350);
 };
