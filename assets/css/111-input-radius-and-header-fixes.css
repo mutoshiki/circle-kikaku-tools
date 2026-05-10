@@ -257,3 +257,42 @@ textarea,
         padding-inline: 9px;
     }
 }
+
+/* Settlement result sharing rebuilt as generic copy tools, not LINE-specific sending. */
+#seisan-view-area .seisan-share-card {
+    background: color-mix(in srgb, var(--bg-card) 92%, var(--accent-soft));
+}
+
+#seisan-view-area .seisan-share-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+#seisan-view-area .seisan-share-actions .seisan-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    #seisan-view-area .seisan-share-actions {
+        gap: 6px;
+    }
+
+    #seisan-view-area .seisan-share-actions .seisan-btn {
+        min-height: 36px;
+        padding-inline: 7px;
+        font-size: 0.72rem;
+    }
+}
+
+@media (max-width: 360px) {
+    #seisan-view-area .seisan-share-actions .seisan-btn {
+        font-size: 0.68rem;
+        padding-inline: 5px;
+    }
+}

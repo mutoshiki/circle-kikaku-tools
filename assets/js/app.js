@@ -89,6 +89,8 @@ let activeSheetSortable = [];
 let quickEditMode = false;
 let settlementState = null;
 let settlementRenderTimer = null;
+let settlementCommitTimer = null;
+let settlementRenderDeferred = false;
 let lastUpdatedAt = 0;
 let lastAutoAssignLabel = '';
 let lastHistoryRestoreBackup = null;
@@ -735,6 +737,43 @@ function save() {
     } else if (!isRemoteUpdate) {
         setTimeout(() => updateStatus('local', 'ローカル保存済み'), 180);
     }
+}
+
+
+function isSettlementCostField(target = document.activeElement) {
+    return !!(target?.matches?.('#seisan-car-list [data-field], #seisan-car-list [data-extra-field]'));
+}
+
+function isEditingSettlementCostField() {
+    return isSettlementCostField(document.activeElement);
+}
+
+function saveLocalDraftOnly() {
+    try {
+        lastUpdatedAt = Date.now();
+        const d = getData();
+        d.lastUpdatedBy = myClientId;
+        d.lastUpdatedAt = lastUpdatedAt;
+        L.setItem(CFG.STORE + '_' + roomId, J.stringify(d));
+    } catch (err) {
+        console.warn('Failed to save local settlement draft:', err);
+    }
+}
+
+function commitSettlementAfterKeyboardSettles() {
+    clearTimeout(settlementRenderTimer);
+    clearTimeout(settlementCommitTimer);
+    settlementCommitTimer = setTimeout(() => {
+        syncSettlementStateFromDOM();
+        if (isEditingSettlementCostField()) {
+            settlementRenderDeferred = true;
+            saveLocalDraftOnly();
+            return;
+        }
+        settlementRenderDeferred = false;
+        renderSettlementView();
+        save();
+    }, 0);
 }
 
 function load() {
@@ -3627,6 +3666,10 @@ function toggleSettlementEmptyState(area, isEmpty) {
 }
 
 function renderSettlementView() {
+    if (isEditingSettlementCostField()) {
+        settlementRenderDeferred = true;
+        return;
+    }
     const area = byId('seisan-view-area');
     if (!area) return;
     const state = ensureSettlementState();
@@ -3660,6 +3703,9 @@ function renderSettlementView() {
 
     const driverPayList = byId('seisan-driver-pay-list');
     if (driverPayList) driverPayList.innerHTML = renderSettlementDriverPayHtml(result, state);
+
+    const shareNote = byId('seisan-share-note');
+    if (shareNote) shareNote.textContent = `集金案内・支払いメモ・全体メモを用途別にコピーできます。未回収 ${yen(result.unpaidAmount)}`;
 
     const breakdown = byId('seisan-breakdown');
     if (breakdown) breakdown.innerHTML = renderSettlementBreakdownHtml(result);
@@ -3874,20 +3920,19 @@ window.openGoogleRoute = function() {
 };
 
 window.onSettlementInput = function() {
-    syncSettlementStateFromDOM();
-    renderSettlementView();
-    save();
+    commitSettlementAfterKeyboardSettles();
 };
 
 window.onSettlementInputDelayed = function() {
-    // 入力中に精算画面全体を再描画すると、iPhoneなどでフォーカスが外れて
-    // キーボードが閉じやすくなる。入力中は状態保存だけ行い、再計算・再描画は
-    // change / blur 相当の確定タイミングで onSettlementInput() に任せる。
+    // 入力中に精算画面全体を再描画・クラウド同期すると、iPhoneなどで
+    // フォーカスが外れてキーボードが閉じることがある。
+    // 入力中はDOMから状態を拾ってローカル下書きだけ保存し、再描画と同期は
+    // change / focusout の確定タイミングまで待つ。
     syncSettlementStateFromDOM();
     clearTimeout(settlementRenderTimer);
     settlementRenderTimer = setTimeout(() => {
-        save();
-    }, 350);
+        saveLocalDraftOnly();
+    }, 450);
 };
 
 window.addSettlementExtra = function(encodedName) {
@@ -3943,24 +3988,88 @@ window.toggleSettlementDriverPaid = function(encodedName, checked) {
     save();
 };
 
-window.copySettlementSummary = function() {
+function getSettlementTextContext() {
     syncSettlementStateFromDOM();
     const data = getRoomDataOnly();
     const state = ensureSettlementState();
-    const r = calculateSettlement(data, state);
-    const title = (data.roomName || '企画名未設定').trim();
-    const accountingLine = r.accounting >= 0 ? `部費負担：${yen(r.accounting)}` : `部費へ戻す：${yen(Math.abs(r.accounting))}`;
-    const driverLines = r.cars.map(c => `・${c.name}：${yen(c.totalPay)}${state.driverPaid?.[c.name] ? ' 済' : ''}`).join('\n');
-    const unpaid = r.participants.filter(p => {
-        if (state.organizerFree && r.organizerSelected && p.name === r.excludedName) return false;
+    const result = calculateSettlement(data, state);
+    return { data, state, result, title: (data.roomName || '企画名未設定').trim() };
+}
+
+function getSettlementUnpaidNames(result, state) {
+    return result.participants.filter(p => {
+        if (state.organizerFree && result.organizerSelected && p.name === result.excludedName) return false;
         return !state.paid?.[p.name];
     }).map(p => p.name);
-    const text = `【${title} 精算】\n集める：1人 ${yen(r.perPerson)}（${r.payerCount}名）\n${accountingLine}\n渡す：合計 ${yen(r.driverTotal)}\n\n車出しへ\n${driverLines || 'なし'}\n\n未回収：${unpaid.length ? unpaid.join('、') : 'なし'}`;
+}
+
+function copyTextWithFallback(text, successMessage) {
     navigator.clipboard.writeText(text).then(() => {
-        showAppNotice('精算結果をコピーしました');
+        showAppNotice(successMessage || 'コピーしました');
     }).catch(() => {
         showCopyFallback('コピーしてください', text);
     });
+}
+
+function buildSettlementCollectionText({ title, state, result }) {
+    const lines = [
+        `【${title} 集金案内】`,
+        `1人あたり：${yen(result.perPerson)}`,
+        `対象：${result.payerCount}名`,
+        `集金予定：${yen(result.expectedCollected)}`
+    ];
+    if (state.organizerFree && result.organizerSelected && result.excludedName) {
+        lines.push(`対象外：${result.excludedName}`);
+    }
+    return lines.join('\n');
+}
+
+function buildSettlementDriverText({ title, state, result }) {
+    const driverLines = result.cars.map(car => {
+        const done = state.driverPaid?.[car.name] ? '（支払い済み）' : '';
+        const detailParts = [
+            `ガソリン ${yen(car.gas)}`,
+            `諸経費 ${yen((car.splitExtras || 0) + (car.clubExtras || 0))}`,
+            `協力代 ${yen(car.reward)}`
+        ];
+        return `・${car.name}車：${yen(car.totalPay)}${done}\n　${detailParts.join(' / ')}`;
+    });
+    return [`【${title} 支払いメモ】`, ...(driverLines.length ? driverLines : ['車出しなし'])].join('\n');
+}
+
+function buildSettlementOverviewText({ title, state, result }) {
+    const accountingLine = result.accounting >= 0
+        ? `部費から出す：${yen(result.accounting)}`
+        : `部費へ戻す：${yen(Math.abs(result.accounting))}`;
+    const unpaid = getSettlementUnpaidNames(result, state);
+    const driverLines = result.cars.map(car => `・${car.name}車：${yen(car.totalPay)}${state.driverPaid?.[car.name] ? ' 済' : ''}`);
+    return [
+        `【${title} 精算メモ】`,
+        `集める：${yen(result.expectedCollected)}（${yen(result.perPerson)} × ${result.payerCount}名）`,
+        accountingLine,
+        `渡す：${yen(result.driverTotal)}`,
+        `集金：${result.paidCount}/${result.payerCount}名`,
+        `未回収：${unpaid.length ? unpaid.join('、') : 'なし'}`,
+        '',
+        '車出しへ',
+        ...(driverLines.length ? driverLines : ['なし'])
+    ].join('\n');
+}
+
+window.copySettlementText = function(kind) {
+    const ctx = getSettlementTextContext();
+    const builders = {
+        collection: buildSettlementCollectionText,
+        driver: buildSettlementDriverText,
+        overview: buildSettlementOverviewText
+    };
+    const labels = {
+        collection: '集金案内をコピーしました',
+        driver: '支払いメモをコピーしました',
+        overview: '全体メモをコピーしました'
+    };
+    const builder = builders[kind] || builders.overview;
+    copyTextWithFallback(builder(ctx), labels[kind] || labels.overview);
 };
 
 window.copyUrl = copyUrl;
@@ -4274,6 +4383,24 @@ function setupGeneratedHtmlEventDelegation() {
             return;
         }
 
+        if (action === 'copy-settlement-collection') {
+            event.preventDefault();
+            window.copySettlementText?.('collection');
+            return;
+        }
+
+        if (action === 'copy-settlement-driver') {
+            event.preventDefault();
+            window.copySettlementText?.('driver');
+            return;
+        }
+
+        if (action === 'copy-settlement-overview') {
+            event.preventDefault();
+            window.copySettlementText?.('overview');
+            return;
+        }
+
         if (action === 'edit-route-private-origin') {
             event.preventDefault();
             window.editRoutePrivateOrigin?.();
@@ -4312,6 +4439,13 @@ function setupGeneratedHtmlEventDelegation() {
         }
         if (target?.matches?.('#routeStopList .route-stop-input')) {
             window.onRouteStopsChangedDelayed?.();
+        }
+    });
+
+    document.addEventListener('focusout', event => {
+        const target = event.target;
+        if (isSettlementCostField(target)) {
+            window.onSettlementInput?.();
         }
     });
 
