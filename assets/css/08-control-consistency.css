@@ -678,3 +678,395 @@ body {
     font-size: 0.68rem;
   }
 }
+
+
+/* =========================================================
+   UI unification final pass
+   Keep this last: shared spacing, radius, surface, contrast, and danger styles.
+========================================================= */
+:root {
+  --ui-space-1: 4px;
+  --ui-space-2: 8px;
+  --ui-space-3: 12px;
+  --ui-space-4: 16px;
+  --ui-card-padding: 12px;
+  --ui-card-gap: 12px;
+  --ui-border-soft: color-mix(in srgb, var(--border-color) 86%, transparent);
+  --ui-surface-soft: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
+  --ui-surface-muted: color-mix(in srgb, var(--sheet-header) 78%, var(--bg-card));
+  --ui-danger: #dc2626;
+  --ui-danger-soft: rgba(220, 38, 38, 0.10);
+  --ui-danger-border: rgba(220, 38, 38, 0.30);
+  --ui-warning: #d97706;
+  --ui-warning-soft: rgba(217, 119, 6, 0.13);
+}
+
+[data-theme="dark"] {
+  --ui-border-soft: rgba(148, 163, 184, 0.22);
+  --ui-surface-soft: color-mix(in srgb, var(--bg-card) 86%, #020617);
+  --ui-surface-muted: color-mix(in srgb, var(--bg-card) 80%, #020617);
+  --ui-danger: #f87171;
+  --ui-danger-soft: rgba(248, 113, 113, 0.14);
+  --ui-danger-border: rgba(248, 113, 113, 0.38);
+  --ui-warning: #fbbf24;
+  --ui-warning-soft: rgba(251, 191, 36, 0.14);
+}
+
+body {
+  --control-radius: var(--radius-main);
+  --control-radius-compact: var(--radius-sm);
+  --control-primary-text: #fff;
+}
+
+/* Solid CTA text should not flip to black when changing themes.
+   For warm / bright accents, keep white text and slightly deepen the solid
+   button surface instead of changing the text color. */
+body[data-app-theme] {
+  --control-primary-text: #fff;
+}
+
+body[data-app-theme="warm-burnout"][data-theme="light"],
+body[data-app-theme="anthropic-warm"][data-theme="light"],
+body[data-app-theme="claude-warm"][data-theme="light"],
+body[data-app-theme="graphite-red"][data-theme="light"] {
+  --control-primary-bg: color-mix(in srgb, var(--accent-color) 82%, #111827);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 72%, #111827);
+}
+
+body[data-app-theme="ayu"][data-theme="light"],
+body[data-app-theme="monokai-pro"][data-theme="dark"],
+body[data-app-theme="gruvbox-material"][data-theme="light"],
+body[data-app-theme="gruvbox-material"][data-theme="dark"],
+body[data-app-theme="retro-keyboard"][data-theme="dark"] {
+  --control-primary-bg: color-mix(in srgb, var(--accent-color) 60%, #111827);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 52%, #111827);
+}
+
+body[data-app-theme="horizon"][data-theme="dark"],
+body[data-app-theme="warm-burnout"][data-theme="dark"],
+body[data-app-theme="anthropic-warm"][data-theme="dark"],
+body[data-app-theme="claude-warm"][data-theme="dark"],
+body[data-app-theme="candy-pop"][data-theme="dark"],
+body[data-app-theme="graphite-red"][data-theme="dark"] {
+  --control-primary-bg: color-mix(in srgb, var(--accent-color) 72%, #111827);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 64%, #111827);
+}
+
+body[data-app-theme="everforest"][data-theme="light"],
+body[data-app-theme="everforest"][data-theme="dark"],
+body[data-app-theme="skyblue"][data-theme="dark"],
+body[data-app-theme="gameboy-classic"][data-theme="dark"],
+body[data-app-theme="candy-pop"][data-theme="light"] {
+  --control-primary-bg: color-mix(in srgb, var(--accent-color) 65%, #111827);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 56%, #111827);
+}
+
+body[data-app-theme="eight-bit"][data-theme="dark"] {
+  --control-primary-bg: color-mix(in srgb, var(--accent-color) 45%, #111827);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 38%, #111827);
+}
+
+body[data-app-theme="solarized"][data-theme="light"],
+body[data-app-theme="solarized"][data-theme="dark"],
+body[data-app-theme="one-dark"][data-theme="dark"],
+body[data-app-theme="tokyo-night"][data-theme="dark"],
+body[data-app-theme="night-owl"][data-theme="dark"],
+body[data-app-theme="catppuccin"][data-theme="dark"] {
+  --control-primary-bg: color-mix(in srgb, var(--accent-color) 88%, #111827);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 78%, #111827);
+}
+
+/* Cards and surfaces share one visual rhythm. */
+:where(
+  .seisan-card,
+  .seisan-summary-card,
+  .seisan-car-card,
+  .car-box,
+  .global-guide-card,
+  .app-guide-box,
+  .guide-step-panel,
+  .batch-spreadsheet-import,
+  .batch-import-notice,
+  .theme-preview-panel,
+  .theme-app-preview,
+  .theme-mode-btn,
+  .theme-preset-card,
+  #sheet-title-bar
+) {
+  border-radius: var(--radius-main);
+  border-color: var(--ui-border-soft);
+  color: var(--text-main);
+}
+
+:where(.seisan-card, .car-box, .global-guide-card, .guide-step-panel, .theme-preview-panel) {
+  padding: var(--ui-card-padding);
+}
+
+:where(.seisan-card, .car-box) {
+  margin-bottom: var(--ui-card-gap);
+}
+
+:where(.driver-seat, .seat-slot, .member-card, .seisan-summary-card, .theme-current-note, .batch-warning) {
+  border-radius: var(--radius-sm);
+  border-color: var(--ui-border-soft);
+}
+
+:where(.seat-slot, .driver-seat) {
+  background: var(--ui-surface-muted);
+}
+
+:where(.member-card, .seat-slot > .member-card) {
+  background: var(--bg-card);
+  color: var(--text-main);
+}
+
+:where(.car-header, .seisan-head, .modal-header) {
+  gap: var(--ui-space-2);
+}
+
+:where(.seisan-title, .guide-step-title, .theme-section-title, .car-header, .modal-title) {
+  color: var(--text-main);
+  letter-spacing: 0;
+}
+
+:where(.seisan-muted, .seisan-small, .batch-field-note, .theme-preset-main small, .text-muted-dark-friendly) {
+  color: var(--text-sub);
+}
+
+/* Inputs/selects/textarea: same height, radius, padding and readable theme colors. */
+:where(
+  .form-control,
+  .form-select,
+  input[type="text"]:not(.form-check-input),
+  input[type="number"]:not(.form-check-input),
+  input[type="search"]:not(.form-check-input),
+  textarea,
+  select,
+  #roomNameInput,
+  .app-room-input,
+  .seisan-field input,
+  .seisan-field select,
+  .batch-spreadsheet-textarea,
+  .batch-import-textarea
+) {
+  min-height: 40px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--ui-border-soft);
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+:where(textarea, .batch-spreadsheet-textarea, .batch-import-textarea) {
+  min-height: 112px;
+  padding: 10px 11px;
+}
+
+:where(
+  .form-control,
+  .form-select,
+  input[type="text"]:not(.form-check-input),
+  input[type="number"]:not(.form-check-input),
+  input[type="search"]:not(.form-check-input),
+  textarea,
+  select,
+  #roomNameInput,
+  .app-room-input,
+  .seisan-field input,
+  .seisan-field select,
+  .batch-spreadsheet-textarea,
+  .batch-import-textarea
+):focus {
+  border-color: color-mix(in srgb, var(--accent-color) 52%, var(--border-color));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 18%, transparent);
+  outline: 0;
+}
+
+:where(input, textarea, select)::placeholder {
+  color: var(--text-sub);
+  opacity: 0.66;
+}
+
+/* Bootstrap surfaces: avoid white/black leftovers when switching themes. */
+.modal-content,
+.dropdown-menu {
+  border-radius: var(--radius-lg);
+  border-color: var(--ui-border-soft);
+  background: var(--modal-bg);
+  color: var(--text-main);
+}
+
+.dropdown-menu {
+  padding: var(--ui-space-2);
+}
+
+.dropdown-item {
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background: var(--hover-bg);
+  color: var(--text-main);
+}
+
+.modal-header,
+.modal-footer {
+  background: var(--modal-header-bg);
+  border-color: var(--ui-border-soft);
+}
+
+.modal-body {
+  background: var(--modal-bg);
+  color: var(--text-main);
+}
+
+/* Button priority: solid, secondary, quiet, and danger actions stay distinguishable. */
+#shareLinkBtn.header-action,
+.header-actions .share-action,
+.share-action,
+#batchOpenBtn.tool-btn,
+#routeHelperBtn.seisan-btn,
+.seisan-btn.primary,
+.seisan-btn.active,
+#shuffleAssignBtn.tray-action-btn,
+.tray-inline-row .tray-action-btn--auto,
+.btn-primary,
+.btn-accent-solid,
+.guide-step-btn.active,
+.guide-footer .btn-primary,
+.mock-form-import-button,
+.batch-spreadsheet-button {
+  background: var(--control-primary-bg);
+  border-color: var(--control-primary-bg);
+  color: var(--control-primary-text);
+}
+
+#shareLinkBtn.header-action i,
+#shareLinkBtn.header-action span,
+.header-actions .share-action i,
+.header-actions .share-action span,
+.share-action i,
+.share-action span,
+#batchOpenBtn.tool-btn i,
+#batchOpenBtn.tool-btn span,
+#routeHelperBtn.seisan-btn i,
+#routeHelperBtn.seisan-btn span,
+.seisan-btn.primary i,
+.seisan-btn.primary span,
+.seisan-btn.active i,
+.seisan-btn.active span,
+#shuffleAssignBtn.tray-action-btn i,
+#shuffleAssignBtn.tray-action-btn span,
+.tray-inline-row .tray-action-btn--auto i,
+.tray-inline-row .tray-action-btn--auto span,
+.btn-primary i,
+.btn-primary span,
+.btn-accent-solid i,
+.btn-accent-solid span,
+.guide-step-btn.active i,
+.guide-step-btn.active span,
+.guide-footer .btn-primary i,
+.guide-footer .btn-primary span,
+.mock-form-import-button i,
+.mock-form-import-button span,
+.batch-spreadsheet-button i,
+.batch-spreadsheet-button span {
+  color: var(--control-primary-text);
+}
+
+:where(.btn-outline-primary, .btn-outline-secondary, .btn-secondary):not(.btn-accent-solid) {
+  background: var(--control-secondary-bg);
+  border-color: var(--control-border);
+  color: var(--text-main);
+}
+
+:where(.btn-outline-primary, .btn-outline-secondary, .btn-secondary):not(.btn-accent-solid):hover,
+:where(.btn-outline-primary, .btn-outline-secondary, .btn-secondary):not(.btn-accent-solid):focus-visible {
+  background: var(--control-secondary-hover);
+  border-color: var(--control-border-strong);
+  color: var(--text-main);
+}
+
+.btn-danger,
+.btn-outline-danger,
+.danger-action {
+  background: var(--ui-danger-soft);
+  border-color: var(--ui-danger-border);
+  color: var(--ui-danger);
+  box-shadow: none;
+}
+
+.btn-danger:hover,
+.btn-outline-danger:hover,
+.danger-action:hover,
+.btn-danger:focus-visible,
+.btn-outline-danger:focus-visible,
+.danger-action:focus-visible {
+  background: color-mix(in srgb, var(--ui-danger) 16%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--ui-danger) 52%, var(--border-color));
+  color: var(--ui-danger);
+}
+
+.dropdown-item.text-danger,
+#resetDataBtn.dropdown-item,
+#clearAllBtn.dropdown-item {
+  color: var(--ui-danger);
+  font-weight: 850;
+}
+
+.dropdown-item.text-danger:hover,
+.dropdown-item.text-danger:focus,
+#resetDataBtn.dropdown-item:hover,
+#resetDataBtn.dropdown-item:focus,
+#clearAllBtn.dropdown-item:hover,
+#clearAllBtn.dropdown-item:focus {
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger);
+}
+
+.delete-btn-overlay:hover,
+.member-card.in-waiting .delete-btn-overlay:hover,
+.seisan-icon-btn:hover {
+  color: var(--ui-danger);
+}
+
+.header-action.is-locked,
+#editLockBtn.header-action.is-locked,
+.member-card[data-locked="true"] {
+  border-color: color-mix(in srgb, var(--ui-warning) 52%, var(--border-color));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ui-warning) 28%, transparent);
+}
+
+.header-action.is-locked,
+#editLockBtn.header-action.is-locked {
+  background: var(--ui-warning-soft);
+  color: var(--text-main);
+}
+
+/* Mobile-first density: keep touch targets comfortable without changing layout. */
+@media (max-width: 640px) {
+  :root {
+    --ui-card-padding: 11px;
+    --ui-card-gap: 10px;
+  }
+
+  .modal-fullscreen-sm-down .modal-content,
+  #appearanceModal .modal-content {
+    border-radius: 0;
+  }
+
+  :where(.seisan-card, .car-box, .global-guide-card, .guide-step-panel, .theme-preview-panel) {
+    padding: var(--ui-card-padding);
+  }
+
+  :where(.form-control, .form-select, .btn:not(.btn-close), .header-action, .tool-btn, .seisan-btn, .tray-action-btn) {
+    min-height: 40px;
+  }
+}

@@ -37,8 +37,9 @@
     --grade3-bg: #ede7f5; --grade3-border: #c8b9df; --grade3-text: #4f3d72; --grade3-badge: #ede7f5;
     --grade4-bg: #e4f1f5; --grade4-border: #b4d2dc; --grade4-text: #245b68; --grade4-badge: #e4f1f5;
 
-    --radius-main: 6px;
-    --radius-sm: 4px;
+    --radius-main: 10px;
+    --radius-sm: 8px;
+    --radius-lg: 14px;
     --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05);
     --shadow-float: 0 8px 18px rgba(15, 23, 42, 0.10);
     color-scheme: light;
