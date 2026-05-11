@@ -1,0 +1,4 @@
+/* 01-app-shell.css imports the single app-shell owner.
+   Header, room input, tabs, top tools, and responsive app-shell rules live together
+   so the same selector is not split across several late-loading override files. */
+@import url("./app-shell/01-app-shell-owner.css");

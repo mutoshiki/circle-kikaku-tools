@@ -1,0 +1,562 @@
+
+.app-header-main::before {
+content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(90deg, rgba(255,255,255,0.84) 0%, rgba(255,255,255,0.62) 42%, rgba(255,255,255,0.28) 100%),
+        var(--header-art-url);
+    background-size: 100% 100%, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    opacity: 1;
+    filter: saturate(1.02) contrast(1.03) brightness(0.98);
+}
+
+[data-theme="dark"] .app-header-main::before {
+background-image:
+        linear-gradient(90deg, rgba(15,23,42,0.88) 0%, rgba(15,23,42,0.72) 42%, rgba(15,23,42,0.48) 100%),
+        var(--header-art-url);
+    background-size: 100% 100%, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    opacity: 0.96;
+    filter: saturate(0.88) brightness(0.82) contrast(1.04);
+}
+
+.app-header-main > * {
+position: relative;
+    z-index: 1;
+}
+
+.app-brand {
+gap: 0;
+}
+
+.app-room-control {
+padding-left: 2px;
+}
+
+.app-room-field label {
+font-weight: 650;
+}
+
+.app-room-input {
+font-size: 1.04rem;
+    font-weight: 720;
+}
+
+.app-header-illustration,
+.app-brand-mark {
+display: none;
+}
+
+@media (max-width: 640px) {
+.app-header-main {
+min-height: 62px;
+}
+}
+
+@media (max-width: 640px) {
+.app-header-main::before {
+background-position: center;
+        background-size: 100% 100%, 100% 100%;
+        opacity: 1;
+}
+}
+
+@media (max-width: 640px) {
+.app-room-control {
+padding-left: 0;
+}
+}
+
+@media (max-width: 640px) {
+.app-room-input {
+font-size: 0.98rem;
+}
+}
+
+@media (max-width: 640px) {
+.edit-tools .tool-help-btn {
+display: inline-flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-height: 36px;
+}
+}
+
+@media (max-width: 640px) {
+.edit-tools .tool-help-btn i {
+margin-bottom: 0;
+}
+}
+
+#app-header,
+#view-toggle-bar,
+#top-area,
+.edit-header,
+.edit-tools {
+min-width: 0;
+}
+
+.edit-tools {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.edit-tools .tool-btn {
+min-width: 0;
+    justify-content: center;
+}
+
+.edit-tools .tool-btn span {
+overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+[data-theme="dark"] .header-action,
+[data-theme="dark"] .edit-tools .tool-btn {
+background: rgba(15, 23, 42, 0.68);
+    border-color: rgba(148, 163, 184, 0.24);
+    color: var(--text-main);
+}
+
+[data-theme="dark"] .header-action i,
+[data-theme="dark"] .header-action span,
+[data-theme="dark"] .edit-tools .tool-btn i,
+[data-theme="dark"] .edit-tools .tool-btn span {
+color: var(--text-main);
+    opacity: 1;
+}
+
+[data-theme="dark"] .header-action:hover,
+[data-theme="dark"] .edit-tools .tool-btn:hover {
+background: rgba(51, 65, 85, 0.92);
+    color: #fff;
+}
+
+@media (max-width: 640px) {
+#app-header {
+padding-left: 8px;
+        padding-right: 8px;
+}
+}
+
+@media (max-width: 640px) {
+.app-header-main {
+padding: 8px;
+        gap: 8px;
+}
+}
+
+@media (max-width: 640px) {
+.edit-tools {
+gap: 8px;
+}
+}
+
+@media (max-width: 640px) {
+.edit-tools .tool-btn {
+min-height: 40px;
+        padding: 8px 10px;
+        font-size: 0.84rem;
+}
+}
+
+@media (max-width: 640px) {
+.edit-tools .tool-btn {
+flex-direction: row;
+        gap: 6px;
+}
+}
+
+@media (max-width: 640px) {
+.edit-tools .tool-btn i {
+margin-bottom: 0;
+}
+}
+
+@media (max-width: 640px) {
+#top-area {
+padding-left: 8px;
+        padding-right: 8px;
+}
+}
+
+.app-header-main::before,
+[data-theme="dark"] .app-header-main::before {
+content: none;
+    display: none;
+    background-image: none;
+}
+
+.edit-quick-hint {
+margin-top: 8px;
+    color: var(--text-sub);
+    font-size: 0.74rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-chip.locked {
+background: rgba(245, 158, 11, 0.14); border-color: rgba(245,158,11,0.55); color: var(--text-main);
+}
+
+.global-mini-lock {
+display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+}
+
+.global-mini-lock span {
+min-height: 44px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--bg-body);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+#app-header {
+z-index: 1040;
+}
+
+.app-header-main {
+z-index: 1041;
+}
+
+[data-theme="dark"] .app-header-main,
+[data-theme="dark"] #view-toggle-bar {
+border-color: rgba(148, 163, 184, 0.18);
+}
+
+#app-header,
+.app-header-main,
+.header-actions,
+.header-more {
+overflow: visible;
+}
+
+.share-action {
+background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
+.share-action i,
+.share-action span {
+color: #fff;
+}
+
+@media (max-width: 640px) {
+.app-header-main {
+grid-template-columns: minmax(0, 1fr);
+}
+}
+
+@media (max-width: 640px) {
+.edit-tools {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+}
+
+.header-actions,
+.edit-tools {
+direction: ltr;
+}
+
+.header-action,
+.tool-btn {
+padding-left: 10px;
+    padding-right: 10px;
+}
+
+.header-action span,
+.tool-btn span {
+line-height: 1.18;
+}
+
+@media (max-width: 420px) {
+.header-action,
+.tool-btn {
+padding-left: 6px;
+        padding-right: 6px;
+}
+}
+
+@media (max-width: 640px) {
+#app-header {
+padding-inline: 0;
+}
+}
+
+@media (max-width: 640px) {
+.app-header-main {
+padding: 9px 10px;
+        gap: 8px;
+}
+}
+
+@media (max-width: 640px) {
+.header-action span,
+.view-tab,
+.tool-btn span {
+letter-spacing: 0;
+}
+}
+
+@media (max-width: 640px) {
+#top-area {
+padding-inline: 9px;
+}
+}
+
+@media (max-width: 640px) {
+.edit-header {
+gap: 9px;
+}
+}
+
+@media (max-width: 640px) {
+.edit-project-block {
+padding: 12px;
+}
+}
+
+@media (max-width: 640px) {
+.edit-tools {
+gap: 7px;
+}
+}
+
+@media (max-width: 640px) {
+.edit-tools .tool-btn {
+min-height: 42px;
+}
+}
+
+@media (max-width: 640px) {
+#app-layout {
+background: var(--bg-body);
+}
+}
+
+@media (max-width: 640px) {
+#app-header {
+padding: 6px 0 5px ;
+}
+}
+
+@media (max-width: 640px) {
+.app-header-main {
+margin: 0 ;
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0 0 var(--radius-main) var(--radius-main) ;
+        padding: 8px 10px ;
+        gap: 8px ;
+}
+}
+
+@media (max-width: 640px) {
+.app-room-field {
+padding: 5px 4px 3px ;
+        gap: 4px ;
+}
+}
+
+@media (max-width: 640px) {
+.app-room-field label {
+font-size: 0.72rem ;
+        line-height: 1.2 ;
+}
+}
+
+@media (max-width: 640px) {
+.app-room-input {
+min-height: 32px ;
+        padding: 1px 0 3px ;
+        font-size: 1.08rem ;
+        line-height: 1.25 ;
+        letter-spacing: 0 ;
+}
+}
+
+@media (max-width: 640px) {
+#view-toggle-bar {
+margin: 7px 10px 6px ;
+        padding: 5px ;
+        gap: 5px ;
+        border-radius: var(--radius-main) ;
+}
+}
+
+@media (max-width: 640px) {
+#top-area {
+padding-left: 10px ;
+        padding-right: 10px ;
+}
+}
+
+@media (max-width: 640px) {
+.edit-header {
+gap: 7px ;
+        margin-bottom: 9px ;
+}
+}
+
+@media (max-width: 640px) {
+.edit-tools {
+gap: 8px ;
+}
+}
+
+@media (max-width: 640px) {
+.edit-tools .tool-btn {
+min-height: var(--mobile-touch) ;
+        border-radius: var(--radius-main) ;
+        padding: 9px 10px ;
+        font-size: 0.84rem ;
+        line-height: 1.2 ;
+}
+}
+
+@media (max-width: 640px) {
+#view-toggle-bar {
+padding: 2px 8px 0;
+        gap: 4px;
+        margin: 5px 10px 5px;
+        background: var(--bg-card);
+        border-radius: var(--radius-main);
+}
+}
+
+@media (max-width: 640px) {
+#top-area {
+padding-top: 8px;
+}
+}
+
+@media (max-width: 640px) {
+.edit-header {
+gap: 6px;
+        margin-bottom: 8px;
+}
+}
+
+@media (max-width: 640px) {
+.edit-tools {
+gap: 6px;
+}
+}
+
+@media (max-width: 640px) {
+.edit-tools .tool-btn {
+min-height: 40px;
+        padding: 8px 9px;
+}
+}
+
+#view-toggle-bar {
+padding: 2px 8px 0;
+    gap: 4px;
+    background: var(--bg-card);
+}
+
+.edit-header-tools-only {
+display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+    margin: 4px 0 8px;
+}
+
+.edit-header-tools-only .edit-tools {
+display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.edit-header-tools-only .edit-tools .tool-btn {
+min-height: 40px;
+    padding: 7px 8px;
+    gap: 5px;
+    flex-direction: row;
+    font-size: 0.78rem;
+    border-radius: var(--radius-sm);
+}
+
+.edit-header-tools-only .edit-tools .tool-btn i {
+margin: 0;
+    font-size: 0.9rem;
+}
+
+.edit-header-tools-only .edit-tools .tool-btn span {
+font-size: 0.78rem;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+.edit-header-tools-only .edit-tools .tool-btn {
+min-height: 39px;
+}
+}
+
+@media (max-width: 640px) {
+.app-header-main {
+padding-left: 10px ;
+        padding-right: 10px ;
+}
+}
+
+@media (hover: none) and (pointer: coarse) {
+.tool-btn,
+.view-tab {
+min-height: 40px;
+}
+}
+
+#app-header,
+.app-header-main {
+min-width: 0;
+}
+
+.app-header-main {
+display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-actions,
+.header-actions .header-more {
+display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.header-action {
+min-height: 36px;
+    padding: 7px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--bg-card);
+    color: var(--text-sub);
+    box-shadow: none;
+    font-weight: 800;
+    line-height: 1.15;
+    touch-action: manipulation;
+}
