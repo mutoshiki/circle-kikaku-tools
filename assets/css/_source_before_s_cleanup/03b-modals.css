@@ -1,0 +1,95 @@
+/* Modal / notice CSS split from 03b-guides-and-modals.css. */
+
+
+
+[data-theme="dark"] .app-header-main,
+[data-theme="dark"] #view-toggle-bar,
+[data-theme="dark"] #sheet-title-bar,
+[data-theme="dark"] #sheet-bottom-controls,
+[data-theme="dark"] #bottom-tray,
+[data-theme="dark"] .seisan-card,
+[data-theme="dark"] .seisan-summary-card,
+[data-theme="dark"] .seisan-car-row,
+[data-theme="dark"] .car-box,
+[data-theme="dark"] .modal-content {
+    border-color: rgba(148, 163, 184, 0.18);
+}
+
+
+.mini-status-toast {
+    position: fixed;
+    right: 14px;
+    bottom: 14px;
+    z-index: 10050;
+    max-width: min(360px, calc(100vw - 28px));
+    padding: 9px 13px;
+    border-radius: 999px;
+    background: rgba(30, 41, 59, 0.94);
+    color: #fff;
+    font-size: 0.76rem;
+    font-weight: 800;
+    box-shadow: 0 8px 20px rgba(15,23,42,0.18);
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+
+.mini-status-toast.visible { opacity: 1; transform: translateY(0); }
+
+
+.mini-status-toast.error { background: rgba(185, 28, 28, 0.94); }
+
+
+.mini-status-toast.saving { background: rgba(15, 118, 110, 0.94); }
+
+
+
+
+/* --- v33 header dropdown + modal stacking fix --- */
+#app-header,
+.app-header-main,
+.header-actions,
+.header-more {
+    overflow: visible;
+}
+
+
+.modal-backdrop {
+    z-index: 1050;
+}
+
+
+.modal {
+    z-index: 1055;
+}
+
+
+.modal.show {
+    display: block;
+}
+
+
+/* Header dropdown menu: current smartphone behavior */
+
+.header-more .dropdown-menu {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, .18);
+}
+
+.header-more .dropdown-item {
+    color: var(--text-main);
+}
+
+.header-more .dropdown-item:hover,
+.header-more .dropdown-item:focus {
+    background: var(--hover-bg);
+    color: var(--text-main);
+}
+
+#appearanceModal .modal-body {
+    padding: 0;
+}

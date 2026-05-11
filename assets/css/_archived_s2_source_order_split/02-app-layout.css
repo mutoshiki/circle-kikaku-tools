@@ -1,0 +1,480 @@
+/* =========================================================
+   02-app-layout.css
+   Consolidated during S cleanup. Source files are archived in
+   assets/css/_source_before_s_cleanup/.
+   Keep new edits in this owner file instead of adding late override files.
+========================================================= */
+
+
+
+/* ===== Source: 03-app-layout-and-themes.css ===== */
+
+/* --- Unified app header --- */
+#app-header {
+    flex-shrink: 0;
+    padding: 8px 10px 6px;
+    background: var(--bg-body);
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+    z-index: 30;
+}
+.app-header-main {
+    max-width: 980px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    background: var(--app-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-main);
+    padding: 8px;
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(10px);
+}
+.app-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+}
+.app-brand-mark {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-main);
+    background: var(--accent-soft);
+    color: var(--accent-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    flex: 0 0 auto;
+}
+.app-title {
+    color: var(--text-main);
+    font-size: 0.98rem;
+    line-height: 1.2;
+    font-weight: 900;
+    letter-spacing: 0;
+}
+.app-subtitle {
+    color: var(--text-sub);
+    font-size: 0.68rem;
+    line-height: 1.25;
+    font-weight: 700;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+
+
+
+
+.share-helper {
+    max-width: 980px;
+    margin: 6px auto 0;
+    color: var(--text-sub);
+    font-size: 0.68rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 2px;
+}
+
+.edit-tools {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.seisan-head-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+#seisan-view-area {
+    background: var(--bg-body);
+}
+.seisan-title i,
+.edit-project-input-row i,
+#sheet-title-bar > .debug-tap-target {
+    color: var(--accent-color);
+}
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 640px) {
+    #app-header { padding: 7px 8px 5px; }
+    .app-header-main { grid-template-columns: 1fr; gap: 7px; padding: 7px; }
+    .app-brand-mark { width: 34px; height: 34px; }
+    .app-header-illustration { width: 92px; height: 40px; }
+    .app-title { font-size: 0.94rem; }
+    .app-subtitle { font-size: 0.64rem; }
+
+
+
+    .share-helper { font-size: 0.64rem; line-height: 1.35; align-items: flex-start; }
+
+
+
+
+    .edit-header { grid-template-columns: 1fr; }
+    .edit-tools { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .seisan-head { align-items: flex-start; }
+    .seisan-head-actions { justify-content: flex-start; margin-top: 6px; }
+
+
+}
+
+
+
+/* --- v4 UI polish --- */
+html, body {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "YuGothic", "Meiryo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 500;
+}
+#app-header { padding: 8px 10px 6px; }
+.app-header-main {
+    grid-template-columns: minmax(0, 1fr) auto;
+    max-width: 980px;
+    padding: 7px;
+}
+.app-room-control { min-width: 0; }
+.app-room-field {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+.app-room-field label {
+    margin: 0;
+    color: var(--text-sub);
+    font-size: 0.64rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.app-room-input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    border-bottom: 1px solid transparent;
+    background: transparent;
+    color: var(--text-main);
+    font-size: 1rem;
+    line-height: 1.25;
+    font-weight: 700;
+    padding: 2px 0 3px;
+    outline: none;
+}
+.app-room-input:focus {
+    border-bottom-color: var(--accent-color);
+    box-shadow: none;
+}
+.app-room-input::placeholder { color: var(--text-sub); opacity: 0.58; }
+.app-header-illustration {
+    flex: 0 0 auto;
+    width: 110px;
+    height: 46px;
+    border: 1px solid var(--border-color);
+    border-radius: calc(var(--radius-main) - 1px);
+    background: linear-gradient(180deg, var(--bg-card), var(--bg-body));
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.app-header-illustration svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.app-header-illustration .ill-stroke {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+.app-header-illustration .ill-soft {
+    fill: rgba(15, 118, 110, 0.08);
+    stroke: none;
+}
+[data-theme="dark"] .app-header-illustration .ill-soft {
+    fill: rgba(52, 211, 153, 0.10);
+}
+
+.header-action,
+.view-tab,
+.tool-btn,
+.edit-tools .tool-btn,
+.car-header,
+.driver-name-disp,
+.member-name-text,
+.seisan-title,
+.seisan-btn,
+.guide-feature-title {
+    font-weight: 700;
+}
+.app-brand-mark,
+.seisan-summary-value,
+.seisan-driver-amount,
+.seisan-flow-label,
+.seisan-guide-box strong,
+.app-guide-box strong {
+    font-weight: 750;
+}
+.member-card,
+.driver-seat,
+.seat-slot,
+.sheet-chip,
+.sheet-seat-row,
+.sheet-driver-row {
+    font-weight: 500;
+}
+.edit-header-tools-only {
+    display: block;
+    margin: 0 0 8px;
+}
+.edit-header-tools-only .edit-tools {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.share-helper,
+.app-subtitle,
+.app-title { display: none; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.c-collect { background: rgba(15,118,110,0.12); color: var(--text-main); }
+.c-account { background: rgba(245,158,11,0.14); color: var(--text-main); }
+.c-pay { background: var(--bg-card); color: var(--text-main); }
+.c-error { background: rgba(239,68,68,0.12); color: #b91c1c; }
+[data-theme="dark"] .c-error { color:#fecaca; }
+@media (max-width: 640px) {
+    .app-header-main { grid-template-columns: 1fr; gap: 7px; }
+
+
+
+
+
+
+
+}
+
+
+/* --- v9 random header artwork --- */
+#app-header {
+    background: var(--bg-body);
+}
+.app-header-main {
+    position: relative;
+    overflow: hidden;
+    min-height: 72px;
+    background: var(--app-surface);
+}
+.app-header-main::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(90deg, rgba(255,255,255,0.84) 0%, rgba(255,255,255,0.62) 42%, rgba(255,255,255,0.28) 100%),
+        var(--header-art-url);
+    background-size: 100% 100%, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    opacity: 1;
+    filter: saturate(1.02) contrast(1.03) brightness(0.98);
+}
+[data-theme="dark"] .app-header-main::before {
+    background-image:
+        linear-gradient(90deg, rgba(15,23,42,0.88) 0%, rgba(15,23,42,0.72) 42%, rgba(15,23,42,0.48) 100%),
+        var(--header-art-url);
+    background-size: 100% 100%, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    opacity: 0.96;
+    filter: saturate(0.88) brightness(0.82) contrast(1.04);
+}
+.app-header-main > * {
+    position: relative;
+    z-index: 1;
+}
+.app-brand {
+    gap: 0;
+}
+.app-room-control {
+    padding-left: 2px;
+}
+.app-room-field label {
+    font-weight: 650;
+}
+.app-room-input {
+    font-size: 1.04rem;
+    font-weight: 720;
+}
+.app-header-illustration,
+.app-brand-mark {
+    display: none;
+}
+#sheet-title-bar {
+    grid-template-columns: auto minmax(0, 1fr);
+    min-height: 48px;
+}
+.sheet-title-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--accent-soft);
+    color: var(--accent-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex: 0 0 auto;
+}
+.sheet-empty-icon {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 12px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    background: var(--accent-soft);
+    color: var(--accent-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    opacity: 0.72;
+}
+#sheet-summary {
+    margin-top: 0;
+    align-items: center;
+}
+#sheet-room-name {
+    display: none;
+}
+
+
+
+
+
+
+
+
+
+@media (max-width: 640px) {
+    .app-header-main {
+        min-height: 62px;
+    }
+    .app-header-main::before {
+        background-position: center;
+        background-size: 100% 100%, 100% 100%;
+        opacity: 1;
+    }
+    .app-room-control {
+        padding-left: 0;
+    }
+    .app-room-input {
+        font-size: 0.98rem;
+    }
+
+
+}
+
+
+/* --- v13 compact UI refinements --- */
+.tool-help-btn {
+    border-color: var(--border-color);
+}
+.seisan-head-tools-only {
+    justify-content: flex-end;
+    margin-bottom: 8px;
+}
+.seisan-head-tools-only .seisan-head-actions {
+    justify-content: flex-end;
+}
+@media (max-width: 640px) {
+
+
+
+
+    .seisan-car-inputs {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 5px;
+    }
+    .seisan-car-inputs input {
+        min-width: 0;
+        padding: 7px 5px;
+        font-size: 0.82rem;
+    }
+    .seisan-mini-label {
+        font-size: 0.58rem;
+        white-space: nowrap;
+        letter-spacing: -0.02em;
+    }
+    .edit-tools .tool-help-btn,
+    .seisan-head-actions .tool-help-btn {
+        display: inline-flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-height: 36px;
+    }
+    .edit-tools .tool-help-btn i {
+        margin-bottom: 0;
+    }
+}
+@media (max-width: 360px) {
+
+
+    .seisan-car-inputs input {
+        padding: 7px 4px;
+        font-size: 0.78rem;
+    }
+    .seisan-mini-label {
+        font-size: 0.54rem;
+    }
+}

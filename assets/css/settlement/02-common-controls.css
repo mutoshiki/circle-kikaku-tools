@@ -1,0 +1,612 @@
+/* Shared settlement buttons, labels and toggles.
+   Generated during S-1 responsibility split. */
+
+.seisan-toggle {
+min-height: 37px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 9px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-body);
+    color: var(--text-main);
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.seisan-mini-label {
+display:block; color:var(--text-sub); font-size:0.66rem; font-weight:850; margin-bottom:3px;
+}
+
+.seisan-icon-btn {
+min-width: 34px;
+    height: 37px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--bg-body);
+    color: var(--text-sub);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.seisan-icon-btn:hover {
+color:#ef4444; border-color:#ef4444;
+}
+
+.seisan-add-row .seisan-btn {
+min-height: 34px; padding: 6px 8px; font-size: 0.76rem;
+}
+
+.seisan-btn {
+border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-main);
+    min-height: 38px;
+    padding: 8px 10px;
+    font-size: 0.82rem;
+    font-weight: 850;
+}
+
+.seisan-btn.primary {
+background: var(--accent-color); color: #fff; border-color: var(--accent-color);
+}
+
+.seisan-btn:active {
+transform: scale(0.98);
+}
+
+.seisan-btn {
+font-weight: 700;
+}
+
+@media (max-width: 640px) {
+.seisan-mini-label {
+font-size: 0.58rem;
+        white-space: nowrap;
+        letter-spacing: -0.02em;
+}
+}
+
+@media (max-width: 360px) {
+.seisan-mini-label {
+font-size: 0.54rem;
+}
+}
+
+.seisan-head-actions .seisan-btn {
+min-width: 0;
+    justify-content: center;
+}
+
+.seisan-head-actions .seisan-btn span {
+overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.seisan-head-actions .seisan-btn {
+min-height: 42px;
+}
+
+.seisan-mini-label {
+line-height: 1.25;
+}
+
+[data-theme="dark"] .seisan-btn:not(.primary):not(.active),
+[data-theme="dark"] .seisan-toggle:not(.active),
+[data-theme="dark"] .seisan-icon-btn {
+background: rgba(15, 23, 42, 0.68);
+    border-color: rgba(148, 163, 184, 0.24);
+    color: var(--text-main);
+}
+
+[data-theme="dark"] .seisan-btn:not(.primary):not(.active):hover,
+[data-theme="dark"] .seisan-toggle:not(.active):hover,
+[data-theme="dark"] .seisan-icon-btn:hover {
+background: rgba(51, 65, 85, 0.92);
+    color: #fff;
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+min-height: 40px;
+        padding: 8px 10px;
+        font-size: 0.84rem;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn:first-child {
+width: 100%;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-mini-label {
+font-size: 0.6rem;
+        white-space: nowrap;
+        letter-spacing: -0.02em;
+}
+}
+
+@media (max-width: 360px) {
+.seisan-mini-label {
+font-size: 0.66rem;
+}
+}
+
+.seisan-head-actions .seisan-btn {
+display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.seisan-head-actions .seisan-btn i {
+margin: 0;
+    flex: 0 0 auto;
+}
+
+.seisan-head-actions .seisan-btn span {
+min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+width: 100%;
+        min-width: 0;
+        padding: 8px 6px;
+}
+}
+
+@media (max-width: 360px) {
+.seisan-head-actions .seisan-btn {
+font-size: 0.78rem;
+        padding: 8px 4px;
+}
+}
+
+.seisan-head-actions .seisan-btn {
+width: 100%;
+    min-height: 40px;
+    padding: 8px 8px;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.seisan-head-actions .seisan-btn span {
+font-size: 0.76rem;
+    line-height: 1;
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+min-height: 38px; padding: 7px 4px;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn span {
+font-size: 0.66rem;
+}
+}
+
+.seisan-head-actions .seisan-btn {
+min-width: 0;
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+padding-left: 6px;
+        padding-right: 6px;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn span {
+font-size: 0.68rem;
+}
+}
+
+.seisan-head-actions .seisan-btn span {
+white-space: normal;
+    line-height: 1.1;
+    text-align: center;
+}
+
+.seisan-head-actions .seisan-btn {
+min-height: 44px;
+    font-size: 0.84rem;
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn span {
+font-size: 0.76rem;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-mini-label {
+font-size: 0.72rem;
+        white-space: normal;
+}
+}
+
+.seisan-btn {
+padding-left: 10px;
+    padding-right: 10px;
+}
+
+.seisan-btn span {
+line-height: 1.18;
+}
+
+.seisan-extra-row .seisan-icon-btn i::before {
+content: "";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}
+
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn {
+width: 100%;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn::after {
+content: "削除";
+        margin-left: 6px;
+        font-size: 0.78rem;
+        font-weight: 850;
+}
+}
+
+@media (max-width: 420px) {
+.seisan-btn {
+padding-left: 6px;
+        padding-right: 6px;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-btn,
+.seisan-toggle,
+.seisan-icon-btn {
+min-height: 42px;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+min-height: var(--mobile-touch) ;
+        border-radius: var(--radius-main) ;
+        padding: 9px 10px ;
+        font-size: 0.84rem ;
+        line-height: 1.2 ;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-mini-label {
+font-size: 0.64rem;
+        line-height: 1.12;
+        margin-bottom: 3px;
+        white-space: nowrap;
+        letter-spacing: -0.02em;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn {
+width: 34px;
+        min-width: 34px;
+        height: 38px;
+        min-height: 38px;
+        padding: 0;
+        border-radius: var(--radius-sm);
+}
+}
+
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn::after {
+content: "";
+        margin: 0;
+}
+}
+
+@media (hover: none) and (pointer: coarse) {
+.seisan-btn,
+.seisan-icon-btn {
+min-height: 40px;
+}
+}
+
+[data-theme="dark"] .seisan-btn.primary,
+[data-theme="dark"] .seisan-btn.active,
+[data-theme="dark"] .seisan-toggle.active {
+border-radius: var(--radius-sm);
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--accent-color) 18%, transparent);
+}
+
+[data-theme="dark"] .seisan-btn.primary i,
+[data-theme="dark"] .seisan-btn.active i,
+[data-theme="dark"] .seisan-toggle.active i {
+color: #fff;
+}
+
+[data-theme="dark"] .seisan-add-row .seisan-btn {
+border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
+    border-color: color-mix(in srgb, var(--accent-color) 30%, var(--border-color));
+    color: var(--text-main);
+}
+
+[data-theme="dark"] .seisan-add-row .seisan-btn:hover {
+background: color-mix(in srgb, var(--accent-color) 16%, var(--bg-card));
+    border-color: color-mix(in srgb, var(--accent-color) 44%, var(--border-color));
+}
+
+@supports not (background: color-mix(in srgb, red 10%, blue)) {
+[data-theme="dark"] .seisan-add-row .seisan-btn {
+background: var(--bg-card);
+        border-color: var(--accent-color);
+}
+}
+
+.seisan-add-row .seisan-btn,
+.seisan-btn.primary,
+.seisan-btn.active,
+.seisan-toggle.active {
+border-radius: var(--radius-sm);
+}
+
+[data-theme="dark"] .seisan-btn.primary:hover,
+[data-theme="dark"] .seisan-btn.active:hover,
+[data-theme="dark"] .seisan-toggle.active:hover {
+filter: brightness(0.98);
+}
+
+.seisan-btn,
+.seisan-toggle {
+box-sizing: border-box;
+}
+
+.seisan-btn,
+.seisan-toggle,
+.seisan-icon-btn {
+border-radius: var(--radius-sm);
+}
+
+.seisan-btn.primary,
+.seisan-btn.active,
+.seisan-toggle.active {
+background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
+[data-theme="dark"] .seisan-btn.primary,
+[data-theme="dark"] .seisan-btn.active,
+[data-theme="dark"] .seisan-toggle.active {
+background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
+@media (max-width: 640px) {
+.seisan-btn,
+.seisan-toggle {
+border-radius: 12px;
+}
+}
+
+[data-theme="dark"] .seisan-btn.primary,
+[data-theme="dark"] .seisan-btn.active,
+[data-theme="dark"] .seisan-toggle.active {
+box-shadow: 0 7px 16px color-mix(in srgb, var(--accent-color) 18%, transparent);
+}
+
+@media (max-width: 640px) {
+.seisan-btn {
+min-height: 40px;
+        padding: 7px 9px;
+        border-radius: 12px;
+        line-height: 1.1;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-mini-label {
+margin-bottom: 3px;
+        font-size: 0.68rem;
+        line-height: 1.15;
+        white-space: nowrap;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-toggle {
+min-height: 38px;
+        padding: 6px 8px;
+        gap: 6px;
+        justify-content: space-between;
+        border-radius: 12px;
+        font-size: 0.67rem;
+        line-height: 1.1;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-toggle span {
+min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: clip;
+        letter-spacing: -0.04em;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-toggle input {
+flex: 0 0 auto;
+        width: 16px;
+        height: 16px;
+        margin: 0;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn {
+width: 34px;
+        min-width: 34px;
+        height: 38px;
+        min-height: 38px;
+        padding: 0;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn::after {
+content: none;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-add-row .seisan-btn {
+min-height: 36px;
+        font-size: 0.74rem;
+}
+}
+
+@media (max-width: 390px) {
+.seisan-toggle {
+font-size: 0.62rem;
+        padding-inline: 6px;
+}
+}
+
+#seisan-view-area .seisan-mini-label {
+font-size: 0.66rem;
+    line-height: 1.15;
+    margin-bottom: 3px;
+    color: color-mix(in srgb, var(--text-sub) 92%, var(--text-main));
+}
+
+#seisan-view-area .seisan-toggle {
+min-height: 36px;
+    padding: 6px 8px;
+    border-radius: 11px;
+    background: color-mix(in srgb, var(--bg-body) 72%, var(--bg-card));
+    border-color: color-mix(in srgb, var(--border-color) 86%, transparent);
+    font-size: 0.72rem;
+    line-height: 1.12;
+}
+
+#seisan-view-area .seisan-toggle input {
+width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+#seisan-view-area .seisan-icon-btn {
+min-width: 34px;
+    width: 34px;
+    height: 36px;
+    min-height: 36px;
+    border-radius: 11px;
+    background: color-mix(in srgb, var(--bg-body) 72%, var(--bg-card));
+}
+
+#seisan-view-area .seisan-add-row .seisan-btn {
+min-height: 34px;
+    padding: 5px 8px;
+    font-size: 0.74rem;
+}
+
+#seisan-view-area .seisan-btn {
+min-height: 36px;
+    padding: 7px 9px;
+    border-radius: 11px;
+    font-size: 0.78rem;
+    line-height: 1.1;
+}
+
+@media (max-width: 640px) {
+#seisan-view-area .seisan-toggle {
+min-height: 35px;
+        padding: 5px 7px;
+        font-size: 0.66rem;
+}
+}
+
+@media (max-width: 640px) {
+#seisan-view-area .seisan-icon-btn,
+#seisan-view-area .seisan-extra-row .seisan-icon-btn {
+width: 32px;
+        min-width: 32px;
+        height: 35px;
+        min-height: 35px;
+}
+}
+
+@media (max-width: 390px) {
+#seisan-view-area .seisan-mini-label {
+font-size: 0.62rem;
+}
+}
+
+@media (max-width: 390px) {
+#seisan-view-area .seisan-toggle {
+font-size: 0.61rem;
+        padding-inline: 6px;
+}
+}
+
+.seisan-btn,
+.seisan-icon-btn,
+.seisan-toggle {
+border-radius: var(--radius-main);
+}
+
+.seisan-btn,
+.seisan-icon-btn {
+border-radius: var(--radius-sm);
+}
+
+#seisan-view-area .seisan-share-actions .seisan-btn {
+display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+#seisan-view-area .seisan-share-actions .seisan-btn {
+min-height: 36px;
+        padding-inline: 7px;
+        font-size: 0.72rem;
+}
+}
+
+@media (max-width: 360px) {
+#seisan-view-area .seisan-share-actions .seisan-btn {
+font-size: 0.68rem;
+        padding-inline: 5px;
+}
+}
