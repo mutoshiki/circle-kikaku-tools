@@ -1,6 +1,0 @@
-/* 04-cars-members-tray.css is split by selector ownership. Keep this order stable. */
-@import url("./cars-members-tray/01-shared-card-primitives.css");
-@import url("./cars-members-tray/02-tray-shell.css");
-@import url("./cars-members-tray/03-person-card.css");
-@import url("./cars-members-tray/04-car-card.css");
-@import url("./cars-members-tray/05-drag-drop.css");

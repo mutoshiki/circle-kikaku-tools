@@ -1,6 +1,0 @@
-/* 05-settlement.css is split by settlement feature ownership. Keep this order stable. */
-@import url("./settlement/01-layout-summary.css");
-@import url("./settlement/02-common-controls.css");
-@import url("./settlement/03-car-inputs.css");
-@import url("./settlement/04-route-helper.css");
-@import url("./settlement/05-checklists-share.css");
