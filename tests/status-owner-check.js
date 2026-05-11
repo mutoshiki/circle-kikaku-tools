@@ -1,10 +1,8 @@
-const fs = require('fs');
 const path = require('path');
-
-const root = path.join(__dirname, '..');
-const app = fs.readFileSync(path.join(root, 'assets', 'js', 'app.js'), 'utf8');
-const statusCss = fs.readFileSync(path.join(root, 'assets', 'css', '04-status-badge.css'), 'utf8');
-const waitingCss = fs.readFileSync(path.join(root, 'assets', 'css', '04-waiting-tray.css'), 'utf8');
+const fs = require('fs');
+const { root, readText, readCssBundle } = require('./helpers/read-project');
+const app = fs.readFileSync(path.join(root, 'assets', 'js', 'core', 'app-status.js'), 'utf8');
+const featureCss = readCssBundle(root);
 
 const updateMatch = app.match(/function updateStatus\(kind = 'neutral', message = ''\) \{[\s\S]*?\n\}/);
 if (!updateMatch) {
@@ -19,12 +17,12 @@ if (!updateMatch[0].includes('setPersistentSaveStatus')) {
   console.error('updateStatus no longer updates persistent badge');
   process.exit(1);
 }
-if (!statusCss.includes('#syncStatusBadge')) {
-  console.error('04-status-badge.css is not owning #syncStatusBadge');
+if (!featureCss.includes('#syncStatusBadge')) {
+  console.error('CSS owner bundle is not owning #syncStatusBadge');
   process.exit(1);
 }
-if (waitingCss.includes('.sync-status-badge') || waitingCss.includes('.sync-status-dot')) {
-  console.error('04-waiting-tray.css still contains sync status badge styles');
+if (!featureCss.includes('#bottom-tray')) {
+  console.error('CSS owner bundle should own bottom tray styles after consolidation');
   process.exit(1);
 }
 console.log('Status owner check OK');

@@ -1,11 +1,7 @@
-const fs = require('fs');
-const path = require('path');
-
-const root = path.join(__dirname, '..');
-const owner = fs.readFileSync(path.join(root, 'assets', 'css', '103-modal-fixes.css'), 'utf8');
+const { root, readText, readCssBundle } = require('./helpers/read-project');
+const owner = readCssBundle(root);
 
 const required = [
-  'General modal alignment repair',
   '#batchImportModal .modal-dialog',
   '#routeDistanceModal .modal-dialog',
   '#commonEditModal .modal-dialog',

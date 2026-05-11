@@ -1,18 +1,18 @@
 const fs = require('fs');
-const path = require('path');
+const { listCssFiles } = require('./helpers/read-project');
 
-const cssDir = path.join(__dirname, '..', 'assets', 'css');
-const files = fs.readdirSync(cssDir).filter(name => name.endsWith('.css'));
+const files = listCssFiles();
 const offenders = [];
 
-for (const file of files) {
-  const text = fs.readFileSync(path.join(cssDir, file), 'utf8');
-  if (text.includes('!important')) offenders.push(file);
+for (const filePath of files) {
+  const css = fs.readFileSync(filePath, 'utf8');
+  const importantCount = (css.match(/!important/g) || []).length;
+  if (importantCount > 0) offenders.push(`${filePath}: ${importantCount}`);
 }
 
 if (offenders.length) {
-  console.error('!important remains in:', offenders.join(', '));
+  console.error('Avoid adding new !important rules. Existing offender files:', offenders.join(', '));
   process.exit(1);
 }
 
-console.log('No !important check OK');
+console.log('No important check OK');

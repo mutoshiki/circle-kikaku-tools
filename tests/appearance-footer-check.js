@@ -1,12 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-
-const root = path.join(__dirname, '..');
-const owner = fs.readFileSync(path.join(root, 'assets', 'css', '102-appearance-modal.css'), 'utf8');
-const app = fs.readFileSync(path.join(root, 'assets', 'js', 'app.js'), 'utf8');
+const { root, readText, readCssBundle } = require('./helpers/read-project');
+const owner = readCssBundle(root);
+const js = [
+  'assets/js/features/appearance.js',
+  'assets/js/features/events.js',
+  'assets/js/app.js'
+].map(readText).join('\n');
 
 const requiredCss = [
-  'Appearance modal footer repair - visible absolute footer version',
   '#appearanceModal .modal-content',
   '#appearanceModal .modal-body',
   '#appearanceModal .modal-footer',
@@ -27,7 +27,7 @@ if (footerBlock.includes('position: sticky')) {
   process.exit(1);
 }
 
-if (!app.includes('function setupAppearanceFooterSafety()') || !app.includes('setupAppearanceFooterSafety();')) {
+if (!js.includes('function setupAppearanceFooterSafety()') || !js.includes('setupAppearanceFooterSafety();')) {
   console.error('appearance footer safety JS not wired');
   process.exit(1);
 }

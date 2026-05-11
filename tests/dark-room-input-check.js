@@ -1,11 +1,7 @@
-const fs = require('fs');
-const path = require('path');
-
-const root = path.join(__dirname, '..');
-const owner = fs.readFileSync(path.join(root, 'assets', 'css', '104-room-input.css'), 'utf8');
+const { root, readText, readCssBundle } = require('./helpers/read-project');
+const owner = readCssBundle(root);
 
 const required = [
-  'Dark room name input repair',
   '[data-theme="dark"] .app-room-field',
   '[data-theme="dark"] .app-room-input',
   'background: transparent',

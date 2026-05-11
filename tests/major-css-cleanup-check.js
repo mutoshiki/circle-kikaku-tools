@@ -3,45 +3,60 @@ const path = require('path');
 
 const root = path.join(__dirname, '..');
 const cssDir = path.join(root, 'assets', 'css');
+const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const appearanceAndRepair = ['02-theme-appearance.css', '03-guides-modals.css']
+  .map(file => fs.readFileSync(path.join(cssDir, file), 'utf8'))
+  .join('\n');
 
-const appearance = fs.readFileSync(path.join(cssDir, '102-appearance-modal.css'), 'utf8');
-const modal = fs.readFileSync(path.join(cssDir, '103-modal-fixes.css'), 'utf8');
+if (!appearanceAndRepair.includes('#appearanceModal .theme-picker') || !appearanceAndRepair.includes('.appearance-modal')) {
+  console.error('Theme picker owner selectors are missing');
+  process.exit(1);
+}
 
 const oldFiles = [
+  '04-theme-mobile-compat.css',
+  '05-feature-components.css',
+  '06-structure.css',
+  '04-mobile-polish.css',
+  '05-theme-system.css',
+  '06-mobile-v40-layout.css',
+  '07-mobile-v41-tuning.css',
+  '08-theme-palette-extensions.css',
+  '09-theme-picker-cleanup.css',
+  '10-touch-maintenance.css',
+  '11-feature-components.css',
+  '12-structure-utilities.css',
+  '13-drag-interactions.css',
+  '14-core-owner-safety.css',
+  '15-guide-repairs.css',
+  '16-appearance-modal.css',
+  '17-modal-alignment.css',
+  '18-room-input.css',
+  '19-dark-badge-fixes.css',
+  '20-mobile-ui-polish.css',
+  '21-badge-visuals.css',
+  '22-density-responsive.css',
+  '23-header-polish.css',
+  '24-settlement-polish.css',
+  '25-input-radius-header.css',
   '03d-legacy-theme-mobile-overrides.css',
   '03d-theme-picker.css',
   '03d-theme-picker-cleanup.css',
-  '03e-late-maintenance.css'
+  '03e-late-maintenance.css',
+  '99-final-overrides.css',
+  '102-appearance-modal.css',
+  '111-input-radius-and-header-fixes.css',
 ];
 
-if (!appearance.includes('Theme picker dropdown consolidated owner')) {
-  console.error('Theme picker consolidated owner block missing');
+const loadedOldFiles = oldFiles.filter(file => html.includes(`./assets/css/${file}`));
+if (loadedOldFiles.length) {
+  console.error('Old CSS files are still loaded:', loadedOldFiles.join(', '));
   process.exit(1);
 }
 
-if (modal.includes('#appearanceModal')) {
-  console.error('103-modal-fixes.css should not own appearanceModal');
-  process.exit(1);
-}
-
-const forbiddenInOld = [
-  'theme-preview-toolbar',
-  'theme-preview-content',
-  'theme-preview-car',
-  'theme-preview-seisan',
-  '#appearanceModal .theme-choice-scroller'
-];
-
-const offenders = [];
-for (const file of oldFiles) {
-  const text = fs.readFileSync(path.join(cssDir, file), 'utf8');
-  for (const token of forbiddenInOld) {
-    if (text.includes(token)) offenders.push(`${file}: ${token}`);
-  }
-}
-
-if (offenders.length) {
-  console.error('Old appearance/theme rules remain:', offenders.join('; '));
+const topLevelOldFiles = oldFiles.filter(file => fs.existsSync(path.join(cssDir, file)));
+if (topLevelOldFiles.length) {
+  console.error('Old CSS files should be archived, not left at assets/css root:', topLevelOldFiles.join(', '));
   process.exit(1);
 }
 

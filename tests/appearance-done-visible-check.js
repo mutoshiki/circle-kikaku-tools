@@ -1,15 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-
-const root = path.join(__dirname, '..');
-const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const appearance = fs.readFileSync(path.join(root, 'assets', 'css', '102-appearance-modal.css'), 'utf8');
-const modal = fs.readFileSync(path.join(root, 'assets', 'css', '103-modal-fixes.css'), 'utf8');
-
-if (!html.includes('data-bs-dismiss="modal">完了</button>')) {
-  console.error('Appearance Done button markup is missing');
-  process.exit(1);
-}
+const { root, readText, readCssBundle } = require('./helpers/read-project');
+const html = readText('index.html');
+const repair = readCssBundle(root);
 
 const required = [
   '#appearanceModal .modal-content',
@@ -23,14 +14,9 @@ const required = [
   'pointer-events: auto'
 ];
 
-const missing = required.filter(token => !appearance.includes(token));
+const missing = required.filter(token => !repair.includes(token));
 if (missing.length) {
   console.error('Missing appearance done visible repair tokens:', missing.join(', '));
-  process.exit(1);
-}
-
-if (modal.includes('#appearanceModal')) {
-  console.error('103-modal-fixes.css should not own appearanceModal');
   process.exit(1);
 }
 

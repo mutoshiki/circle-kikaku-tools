@@ -3,7 +3,7 @@ const path = require('path');
 const vm = require('vm');
 
 const root = path.join(__dirname, '..');
-const app = fs.readFileSync(path.join(root, 'assets', 'js', 'app.js'), 'utf8');
+const app = fs.readFileSync(path.join(root, 'assets', 'js', 'features', 'auto-assign.js'), 'utf8');
 
 const functionNames = [
   'normalizeNameForGenderHeuristic',

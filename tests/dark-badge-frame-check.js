@@ -1,12 +1,8 @@
-const fs = require('fs');
-const path = require('path');
-
-const root = path.join(__dirname, '..');
-const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const css = fs.readFileSync(path.join(root, 'assets', 'css', '105-dark-badge-fixes.css'), 'utf8');
+const { root, readText, readCssBundle } = require('./helpers/read-project');
+const html = readText('index.html');
+const css = readCssBundle(root);
 
 const required = [
-  'Dark badge/check frame fixes',
   '[data-theme="dark"] .capacity-badge.capacity-edit-btn',
   '[data-theme="dark"] .capacity-badge.capacity-edit-btn .capacity-count',
   '[data-theme="dark"] .fa-check',
@@ -22,13 +18,8 @@ if (missing.length) {
   process.exit(1);
 }
 
-if (!html.includes('./assets/css/105-dark-badge-fixes.css')) {
-  console.error('105-dark-badge-fixes.css is not loaded');
-  process.exit(1);
-}
-
-if (html.indexOf('104-room-input.css') > html.indexOf('105-dark-badge-fixes.css')) {
-  console.error('105-dark-badge-fixes.css should load after 104-room-input.css');
+if (!html.includes('./assets/css/04-cars-members-tray.css')) {
+  console.error('04-cars-members-tray.css is not loaded');
   process.exit(1);
 }
 

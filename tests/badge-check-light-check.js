@@ -1,12 +1,8 @@
-const fs = require('fs');
-const path = require('path');
-
-const root = path.join(__dirname, '..');
-const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const css = fs.readFileSync(path.join(root, 'assets', 'css', '107-badge-check-gender-fixes.css'), 'utf8');
+const { root, readText, readCssBundle } = require('./helpers/read-project');
+const html = readText('index.html');
+const css = readCssBundle(root);
 
 const required = [
-  'Badge / check visual fixes for both light and dark modes',
   '.capacity-badge.capacity-edit-btn',
   '.capacity-badge.capacity-edit-btn .capacity-count',
   '.fa-check',
@@ -22,13 +18,8 @@ if (missing.length) {
   process.exit(1);
 }
 
-if (!html.includes('./assets/css/107-badge-check-gender-fixes.css')) {
-  console.error('107-badge-check-gender-fixes.css is not loaded');
-  process.exit(1);
-}
-
-if (html.indexOf('106-mobile-ui-polish.css') > html.indexOf('107-badge-check-gender-fixes.css')) {
-  console.error('107-badge-check-gender-fixes.css should load after 106-mobile-ui-polish.css');
+if (!html.includes('./assets/css/04-cars-members-tray.css')) {
+  console.error('04-cars-members-tray.css is not loaded');
   process.exit(1);
 }
 

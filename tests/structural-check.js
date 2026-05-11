@@ -1,8 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 
-const appPath = path.join(__dirname, '..', 'assets', 'js', 'app.js');
-const js = fs.readFileSync(appPath, 'utf8');
+const root = path.join(__dirname, '..');
+const js = [
+  'assets/js/features/settlement.js',
+  'assets/js/features/settlement/01-state.js',
+  'assets/js/features/settlement/02-calculator.js',
+  'assets/js/features/settlement/03-render.js',
+  'assets/js/features/sheet-view.js',
+  'assets/js/app.js'
+].map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n');
 
 const required = [
   'renderSettlementView',
