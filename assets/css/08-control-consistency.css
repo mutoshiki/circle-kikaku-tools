@@ -1,0 +1,680 @@
+/* =========================================================
+   08-control-consistency.css
+   Final pass for consistent action button shape, weight and priority.
+   Keep this small: it normalizes controls without changing layout ownership.
+========================================================= */
+
+:root {
+  --control-radius: 10px;
+  --control-radius-compact: 8px;
+  --control-border: color-mix(in srgb, var(--border-color) 86%, transparent);
+  --control-secondary-bg: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
+  --control-secondary-hover: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
+  --control-primary-shadow: 0 7px 16px color-mix(in srgb, var(--accent-color) 18%, transparent);
+}
+
+.btn:not(.btn-close),
+.header-action,
+.tool-btn,
+.seisan-btn,
+.tray-action-btn,
+#sheet-quick-edit-btn,
+#zoom-controls button,
+.guide-step-btn,
+.guide-footer .btn,
+.route-guide-mock button,
+.guide-phone-btn,
+.mock-form-import-button {
+  border-radius: var(--control-radius);
+  font-weight: 800;
+  letter-spacing: 0;
+  transition: background-color var(--motion-fast, 0.16s) ease,
+              border-color var(--motion-fast, 0.16s) ease,
+              color var(--motion-fast, 0.16s) ease,
+              box-shadow var(--motion-fast, 0.16s) ease,
+              transform var(--motion-fast, 0.16s) ease;
+}
+
+.btn:not(.btn-close):active,
+.header-action:active,
+.tool-btn:active,
+.seisan-btn:active,
+.tray-action-btn:active,
+#sheet-quick-edit-btn:active,
+#zoom-controls button:active {
+  transform: translateY(1px);
+}
+
+.btn-primary,
+.btn-accent-solid,
+.header-actions .share-action,
+.share-action,
+.seisan-btn.primary,
+.seisan-btn.active,
+#routeHelperBtn,
+#shuffleAssignBtn.tray-action-btn,
+.tray-inline-row .tray-action-btn--auto,
+.guide-footer .btn-primary,
+.mock-form-import-button {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #fff;
+  box-shadow: var(--control-primary-shadow);
+}
+
+.btn-primary:hover,
+.btn-accent-solid:hover,
+.header-actions .share-action:hover,
+.share-action:hover,
+.seisan-btn.primary:hover,
+.seisan-btn.active:hover,
+#routeHelperBtn:hover,
+#shuffleAssignBtn.tray-action-btn:hover,
+.tray-inline-row .tray-action-btn--auto:hover,
+.guide-footer .btn-primary:hover,
+.mock-form-import-button:hover {
+  background: color-mix(in srgb, var(--accent-color) 90%, #000);
+  border-color: color-mix(in srgb, var(--accent-color) 90%, #000);
+  color: #fff;
+}
+
+.header-action:not(.share-action),
+.tool-btn,
+.seisan-btn:not(.primary):not(.active),
+#fillEmptySeatsBtn.tray-action-btn,
+.tray-inline-row .tray-action-btn--fill,
+#sheet-quick-edit-btn,
+#zoom-controls button,
+.btn-outline-secondary,
+.btn-secondary:not(.btn-accent-solid) {
+  background: var(--control-secondary-bg);
+  border-color: var(--control-border);
+  color: var(--text-main);
+  box-shadow: none;
+}
+
+.header-action:not(.share-action):hover,
+.tool-btn:hover,
+.seisan-btn:not(.primary):not(.active):hover,
+#fillEmptySeatsBtn.tray-action-btn:hover,
+.tray-inline-row .tray-action-btn--fill:hover,
+#sheet-quick-edit-btn:hover,
+#zoom-controls button:hover,
+.btn-outline-secondary:hover,
+.btn-secondary:not(.btn-accent-solid):hover {
+  background: var(--control-secondary-hover);
+  border-color: color-mix(in srgb, var(--accent-color) 28%, var(--border-color));
+  color: var(--text-main);
+}
+
+.header-action i,
+.header-action span,
+.tool-btn i,
+.tool-btn span,
+.seisan-btn i,
+.seisan-btn span,
+.tray-action-btn i,
+.tray-action-btn span {
+  color: inherit;
+}
+
+#view-toggle-bar,
+.view-toggle-bar {
+  border-radius: calc(var(--control-radius) + 4px);
+}
+
+#view-toggle-bar .view-tab,
+.view-toggle-bar .view-tab {
+  border-radius: var(--control-radius-compact);
+}
+
+#view-toggle-bar .view-tab.active,
+.view-toggle-bar .view-tab.active {
+  background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--accent-color) 28%, var(--border-color));
+  color: var(--accent-color);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 12%, transparent);
+}
+
+[data-theme="dark"] {
+  --control-border: rgba(148, 163, 184, 0.20);
+  --control-secondary-bg: color-mix(in srgb, var(--bg-card) 86%, #020617);
+  --control-secondary-hover: color-mix(in srgb, var(--accent-color) 14%, var(--bg-card));
+}
+
+[data-theme="dark"] .header-action:not(.share-action),
+[data-theme="dark"] .tool-btn,
+[data-theme="dark"] .seisan-btn:not(.primary):not(.active),
+[data-theme="dark"] #fillEmptySeatsBtn.tray-action-btn,
+[data-theme="dark"] .tray-inline-row .tray-action-btn--fill,
+[data-theme="dark"] #sheet-quick-edit-btn,
+[data-theme="dark"] #zoom-controls button,
+[data-theme="dark"] .btn-outline-secondary,
+[data-theme="dark"] .btn-secondary:not(.btn-accent-solid) {
+  background: var(--control-secondary-bg);
+  border-color: var(--control-border);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] #view-toggle-bar .view-tab.active,
+[data-theme="dark"] .view-toggle-bar .view-tab.active {
+  background: color-mix(in srgb, var(--accent-color) 18%, transparent);
+  border-color: color-mix(in srgb, var(--accent-color) 32%, transparent);
+  color: color-mix(in srgb, var(--accent-color) 82%, #fff);
+}
+
+@media (max-width: 640px) {
+  :root {
+    --control-radius: 9px;
+    --control-radius-compact: 7px;
+  }
+
+  .btn:not(.btn-close),
+  .header-action,
+  .tool-btn,
+  .seisan-btn,
+  .tray-action-btn,
+  #sheet-quick-edit-btn,
+  #zoom-controls button {
+    min-height: 38px;
+  }
+}
+
+/* =========================================================
+   Priority-based button polish
+   Primary = next/main action, Secondary = useful action,
+   Tertiary/Icon = helper action.  This file stays last.
+========================================================= */
+:root {
+  --control-height: 42px;
+  --control-height-compact: 38px;
+  --control-icon-size: 42px;
+  --control-padding-x: 14px;
+  --control-border-strong: color-mix(in srgb, var(--accent-color) 24%, var(--border-color));
+  --control-primary-bg: var(--accent-color);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 88%, #000);
+  --control-primary-text: #fff;
+  --control-primary-shadow: 0 8px 18px color-mix(in srgb, var(--accent-color) 20%, transparent);
+  --control-secondary-bg: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  --control-secondary-hover: color-mix(in srgb, var(--accent-color) 9%, var(--bg-card));
+  --control-tertiary-bg: color-mix(in srgb, var(--bg-card) 74%, transparent);
+  --control-tertiary-hover: color-mix(in srgb, var(--accent-color) 7%, var(--bg-card));
+  --control-focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent-color) 20%, transparent);
+}
+
+.header-action,
+.tool-btn,
+.edit-tools .tool-btn,
+.seisan-btn,
+.tray-action-btn,
+#sheet-quick-edit-btn,
+#zoom-controls button,
+.guide-footer .btn,
+.route-guide-mock button,
+.guide-phone-btn,
+.mock-form-import-button,
+.batch-spreadsheet-button {
+  min-height: var(--control-height);
+  border-radius: var(--control-radius);
+  border-width: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding-inline: var(--control-padding-x);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: 0;
+  box-shadow: none;
+}
+
+.header-action i,
+.tool-btn i,
+.seisan-btn i,
+.tray-action-btn i,
+#sheet-quick-edit-btn i {
+  margin: 0;
+  flex: 0 0 auto;
+  font-size: 0.92em;
+}
+
+.header-action span,
+.tool-btn span,
+.seisan-btn span,
+.tray-action-btn span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.12;
+}
+
+.header-action:focus-visible,
+.tool-btn:focus-visible,
+.seisan-btn:focus-visible,
+.tray-action-btn:focus-visible,
+#sheet-quick-edit-btn:focus-visible,
+#zoom-controls button:focus-visible,
+.guide-footer .btn:focus-visible,
+.route-guide-mock button:focus-visible,
+.guide-phone-btn:focus-visible,
+.mock-form-import-button:focus-visible,
+.batch-spreadsheet-button:focus-visible {
+  outline: 0;
+  box-shadow: var(--control-focus-ring);
+}
+
+/* Recompute control aliases on body so light/dark palette changes are reflected.
+   Aliases declared only on :root can keep the initial palette in inherited values. */
+body {
+  --control-border: color-mix(in srgb, var(--border-color) 86%, transparent);
+  --control-border-strong: color-mix(in srgb, var(--accent-color) 24%, var(--border-color));
+  --control-primary-bg: var(--accent-color);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 88%, #000);
+  --control-primary-text: #fff;
+  --control-primary-shadow: 0 8px 18px color-mix(in srgb, var(--accent-color) 20%, transparent);
+  --control-secondary-bg: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  --control-secondary-hover: color-mix(in srgb, var(--accent-color) 9%, var(--bg-card));
+  --control-tertiary-bg: color-mix(in srgb, var(--bg-card) 74%, transparent);
+  --control-tertiary-hover: color-mix(in srgb, var(--accent-color) 7%, var(--bg-card));
+  --control-focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent-color) 20%, transparent);
+}
+
+/* Primary: sharing, participant registration, route calculation, full auto assign. */
+#shareLinkBtn.header-action,
+.header-actions .share-action,
+.share-action,
+#batchOpenBtn.tool-btn,
+#routeHelperBtn.seisan-btn,
+.seisan-btn.primary,
+#shuffleAssignBtn.tray-action-btn,
+.tray-inline-row .tray-action-btn--auto,
+.btn-primary,
+.btn-accent-solid,
+.guide-footer .btn-primary,
+.mock-form-import-button,
+.batch-spreadsheet-button {
+  background: var(--control-primary-bg);
+  border-color: var(--control-primary-bg);
+  color: var(--control-primary-text);
+  box-shadow: var(--control-primary-shadow);
+}
+
+#shareLinkBtn.header-action:hover,
+.header-actions .share-action:hover,
+.share-action:hover,
+#batchOpenBtn.tool-btn:hover,
+#routeHelperBtn.seisan-btn:hover,
+.seisan-btn.primary:hover,
+#shuffleAssignBtn.tray-action-btn:hover,
+.tray-inline-row .tray-action-btn--auto:hover,
+.btn-primary:hover,
+.btn-accent-solid:hover,
+.guide-footer .btn-primary:hover,
+.mock-form-import-button:hover,
+.batch-spreadsheet-button:hover,
+#shareLinkBtn.header-action:focus-visible,
+#batchOpenBtn.tool-btn:focus-visible,
+#routeHelperBtn.seisan-btn:focus-visible,
+#shuffleAssignBtn.tray-action-btn:focus-visible,
+.tray-inline-row .tray-action-btn--auto:focus-visible {
+  background: var(--control-primary-hover);
+  border-color: var(--control-primary-hover);
+  color: var(--control-primary-text);
+}
+
+/* Solid buttons must keep readable text/icons even when earlier owner CSS colored children. */
+#shareLinkBtn.header-action i,
+#shareLinkBtn.header-action span,
+.header-actions .share-action i,
+.header-actions .share-action span,
+.share-action i,
+.share-action span,
+#batchOpenBtn.tool-btn i,
+#batchOpenBtn.tool-btn span,
+#routeHelperBtn.seisan-btn i,
+#routeHelperBtn.seisan-btn span,
+.seisan-btn.primary i,
+.seisan-btn.primary span,
+.seisan-btn.active i,
+.seisan-btn.active span,
+#shuffleAssignBtn.tray-action-btn i,
+#shuffleAssignBtn.tray-action-btn span,
+.tray-inline-row .tray-action-btn--auto i,
+.tray-inline-row .tray-action-btn--auto span,
+.btn-primary i,
+.btn-primary span,
+.btn-accent-solid i,
+.btn-accent-solid span,
+.guide-footer .btn-primary i,
+.guide-footer .btn-primary span,
+.mock-form-import-button i,
+.mock-form-import-button span,
+.batch-spreadsheet-button i,
+.batch-spreadsheet-button span {
+  color: var(--control-primary-text);
+}
+
+/* Secondary: normal actions that are useful but not the next step. */
+#editLockBtn.header-action,
+#carGuideBtn.tool-btn,
+#seisanGuideBtn.seisan-btn,
+#fillEmptySeatsBtn.tray-action-btn,
+.tray-inline-row .tray-action-btn--fill,
+#sheet-quick-edit-btn,
+.btn-outline-secondary,
+.btn-secondary:not(.btn-accent-solid),
+.guide-footer .btn-outline-secondary {
+  background: var(--control-secondary-bg);
+  border-color: var(--control-border);
+  color: var(--text-main);
+  box-shadow: none;
+}
+
+#editLockBtn.header-action:hover,
+#carGuideBtn.tool-btn:hover,
+#seisanGuideBtn.seisan-btn:hover,
+#fillEmptySeatsBtn.tray-action-btn:hover,
+.tray-inline-row .tray-action-btn--fill:hover,
+#sheet-quick-edit-btn:hover,
+.btn-outline-secondary:hover,
+.btn-secondary:not(.btn-accent-solid):hover,
+.guide-footer .btn-outline-secondary:hover,
+#editLockBtn.header-action:focus-visible,
+#carGuideBtn.tool-btn:focus-visible,
+#seisanGuideBtn.seisan-btn:focus-visible,
+#fillEmptySeatsBtn.tray-action-btn:focus-visible,
+.tray-inline-row .tray-action-btn--fill:focus-visible {
+  background: var(--control-secondary-hover);
+  border-color: var(--control-border-strong);
+  color: var(--text-main);
+}
+
+/* Tertiary/icon: helpers stay visually quieter. */
+.header-more > .header-action,
+#seisanRefreshBtn.seisan-btn,
+.tray-inline-row .settings-btn,
+#zoom-controls button,
+.seisan-icon-btn {
+  background: var(--control-tertiary-bg);
+  border-color: var(--control-border);
+  color: var(--text-sub);
+  box-shadow: none;
+}
+
+.header-more > .header-action:hover,
+#seisanRefreshBtn.seisan-btn:hover,
+.tray-inline-row .settings-btn:hover,
+#zoom-controls button:hover,
+.seisan-icon-btn:hover,
+.header-more > .header-action:focus-visible,
+#seisanRefreshBtn.seisan-btn:focus-visible,
+.tray-inline-row .settings-btn:focus-visible,
+#zoom-controls button:focus-visible,
+.seisan-icon-btn:focus-visible {
+  background: var(--control-tertiary-hover);
+  border-color: var(--control-border-strong);
+  color: var(--text-main);
+}
+
+/* Header actions: keep the requested right alignment, but normalize shape and rhythm. */
+.header-actions,
+.header-actions .header-more {
+  gap: 8px;
+}
+
+.header-actions .header-action {
+  min-width: 96px;
+}
+
+.header-actions .header-more > .header-action {
+  min-width: 102px;
+}
+
+.header-actions .share-action {
+  min-width: 104px;
+}
+
+.header-action.is-locked,
+#editLockBtn.header-action.is-locked {
+  background: color-mix(in srgb, #f59e0b 14%, var(--bg-card));
+  border-color: color-mix(in srgb, #f59e0b 46%, var(--border-color));
+  color: var(--text-main);
+}
+
+/* Tab selector is navigation, not a primary CTA. */
+#view-toggle-bar,
+.view-toggle-bar {
+  padding: 4px;
+  gap: 4px;
+  border-radius: calc(var(--control-radius) + 4px);
+  background: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
+}
+
+#view-toggle-bar .view-tab,
+.view-toggle-bar .view-tab {
+  min-height: 40px;
+  border-radius: var(--control-radius-compact);
+  color: var(--text-sub);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+#view-toggle-bar .view-tab.active,
+.view-toggle-bar .view-tab.active,
+[data-theme="dark"] #view-toggle-bar .view-tab.active,
+[data-theme="dark"] .view-toggle-bar .view-tab.active,
+[data-theme="dark"] #tab-list.view-tab.active,
+[data-theme="dark"] #tab-sheet.view-tab.active,
+[data-theme="dark"] #tab-seisan.view-tab.active {
+  background: color-mix(in srgb, var(--accent-color) 11%, var(--bg-card));
+  border: 1px solid color-mix(in srgb, var(--accent-color) 28%, var(--border-color));
+  color: var(--accent-color);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 9%, transparent);
+}
+
+/* Maker top actions: guide is support, registration is the next step. */
+.edit-header-tools-only .edit-tools {
+  gap: 10px;
+}
+
+.edit-header-tools-only .edit-tools .tool-btn {
+  min-height: 46px;
+  border-radius: var(--control-radius);
+  font-size: 0.88rem;
+}
+
+#carGuideBtn.tool-btn {
+  color: var(--text-main);
+}
+
+#batchOpenBtn.tool-btn {
+  font-size: 0.9rem;
+}
+
+/* Settlement top actions: primary route button gets the strongest emphasis. */
+.seisan-head-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--control-icon-size) minmax(0, 1.55fr);
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+}
+
+.seisan-head-actions .seisan-btn {
+  min-height: 46px;
+  width: 100%;
+  border-radius: var(--control-radius);
+}
+
+#seisanRefreshBtn.seisan-btn {
+  width: var(--control-icon-size);
+  min-width: var(--control-icon-size);
+  padding-inline: 0;
+}
+
+#routeHelperBtn.seisan-btn {
+  font-size: 0.9rem;
+}
+
+/* Bottom tray: settings/count are meta, fill is secondary, auto assign is primary. */
+.tray-inline-row {
+  grid-template-columns: auto auto minmax(0, 1.06fr) minmax(0, 1.22fr);
+  gap: 8px;
+}
+
+.tray-inline-row .settings-btn {
+  min-width: 48px;
+  width: 48px;
+  min-height: 38px;
+  border-radius: var(--control-radius-compact);
+  padding-inline: 0;
+  font-size: 0.74rem;
+}
+
+#waiting-count.waiting-inline-count {
+  color: var(--text-sub);
+  font-weight: 800;
+}
+
+.tray-inline-row .tray-action-btn {
+  min-height: 42px;
+  border-radius: var(--control-radius);
+  padding-inline: 10px;
+  font-size: 0.78rem;
+}
+
+/* Forms/selects near buttons should share the same visual language. */
+.form-control,
+.form-select,
+.seisan-field input,
+.seisan-field select,
+.seisan-toggle {
+  border-radius: var(--control-radius);
+}
+
+
+[data-theme="dark"] {
+  --control-border: rgba(148, 163, 184, 0.22);
+  --control-border-strong: color-mix(in srgb, var(--accent-color) 32%, rgba(148, 163, 184, 0.24));
+  --control-secondary-bg: color-mix(in srgb, var(--bg-card) 84%, #020617);
+  --control-secondary-hover: color-mix(in srgb, var(--accent-color) 13%, var(--bg-card));
+  --control-tertiary-bg: color-mix(in srgb, var(--bg-card) 70%, #020617);
+  --control-tertiary-hover: color-mix(in srgb, var(--accent-color) 12%, var(--bg-card));
+}
+
+[data-theme="dark"] .header-action.is-locked,
+[data-theme="dark"] #editLockBtn.header-action.is-locked {
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.46);
+  color: var(--text-main);
+}
+
+@media (max-width: 640px) {
+  :root {
+    --control-height: 40px;
+    --control-height-compact: 36px;
+    --control-icon-size: 42px;
+    --control-padding-x: 12px;
+  }
+
+  .header-actions,
+  .header-actions .header-more {
+    gap: 7px;
+  }
+
+  .header-actions .header-action,
+  .header-actions .header-more > .header-action,
+  .header-actions .share-action {
+    min-width: 0;
+    min-height: 40px;
+    padding-inline: 10px;
+    font-size: 0.78rem;
+    border-radius: var(--control-radius);
+  }
+
+  #view-toggle-bar,
+  .view-toggle-bar {
+    padding: 4px;
+    gap: 4px;
+  }
+
+  #view-toggle-bar .view-tab,
+  .view-toggle-bar .view-tab {
+    min-height: 38px;
+    padding: 7px 4px;
+    font-size: 0.78rem;
+  }
+
+  .edit-header-tools-only .edit-tools {
+    gap: 8px;
+  }
+
+  .edit-header-tools-only .edit-tools .tool-btn {
+    min-height: 44px;
+    padding-inline: 10px;
+    font-size: 0.84rem;
+  }
+
+  .seisan-head-actions {
+    grid-template-columns: minmax(0, 1fr) var(--control-icon-size) minmax(0, 1.42fr);
+    gap: 8px;
+  }
+
+  .seisan-head-actions .seisan-btn {
+    min-height: 42px;
+    padding-inline: 8px;
+    font-size: 0.76rem;
+  }
+
+  #routeHelperBtn.seisan-btn {
+    font-size: 0.8rem;
+  }
+
+  .tray-inline-row {
+    grid-template-columns: auto auto minmax(0, 1.02fr) minmax(0, 1.22fr);
+    gap: 7px;
+  }
+
+  .tray-inline-row .settings-btn {
+    width: 44px;
+    min-width: 44px;
+    min-height: 38px;
+    font-size: 0.72rem;
+  }
+
+  #waiting-count.waiting-inline-count {
+    font-size: 0.72rem;
+  }
+
+  .tray-inline-row .tray-action-btn {
+    min-height: 40px;
+    padding-inline: 8px;
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .header-actions .header-action,
+  .header-actions .header-more > .header-action,
+  .header-actions .share-action {
+    padding-inline: 8px;
+    font-size: 0.74rem;
+  }
+
+  .tray-inline-row {
+    grid-template-columns: auto auto minmax(0, 1fr) minmax(0, 1.18fr);
+    gap: 6px;
+  }
+
+  .tray-inline-row .settings-btn {
+    width: 42px;
+    min-width: 42px;
+  }
+
+  .tray-inline-row .tray-action-btn {
+    padding-inline: 6px;
+    font-size: 0.68rem;
+  }
+}

@@ -96,11 +96,21 @@ function updateWaitingTrayState() {
     updateTrayToggleLabel();
 }
 
+function getWaitingTrayNameSummary(names = [], count = names.length) {
+    const cleanNames = names.map(name => String(name || '').trim()).filter(Boolean);
+    if (!count || cleanNames.length === 0) return count > 0 ? `${count}人` : '';
+    const firstName = cleanNames[0];
+    if (count <= 1) return firstName;
+    return `${firstName}・他${count - 1}人`;
+}
+
 function updateTrayToggleLabel() {
     const tray = byId("bottom-tray");
     const label = byId("tray-toggle-label");
     if (!tray || !label) return;
-    const { waitingCount: count } = getWaitingTrayStats();
+    const { waitingCount: count, waitingNames } = getWaitingTrayStats();
+    const summary = getWaitingTrayNameSummary(waitingNames, count);
+    const suffix = summary ? `（${summary}）` : '';
     if (count === 0) {
         const open = tray.classList.contains('empty-open');
         label.innerHTML = open
@@ -110,8 +120,8 @@ function updateTrayToggleLabel() {
     }
     const minimized = tray.classList.contains("minimized");
     label.innerHTML = minimized
-        ? `<i class="fas fa-chevron-up" aria-hidden="true"></i><span>未割り当てメンバーを開く（${count}人）</span>`
-        : `<i class="fas fa-chevron-down" aria-hidden="true"></i><span>未割り当てメンバーを閉じる（${count}人）</span>`;
+        ? `<i class="fas fa-chevron-up" aria-hidden="true"></i><span>未割り当てメンバーを開く${suffix}</span>`
+        : `<i class="fas fa-chevron-down" aria-hidden="true"></i><span>未割り当てメンバーを閉じる${suffix}</span>`;
 }
 
 function toggleTray() {
@@ -155,11 +165,21 @@ function prepareWaitingTrayForDrag() {
     const wasClosed = tray.classList.contains('minimized') || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
     tray.dataset.dragStartedMinimized = wasClosed ? 'true' : 'false';
 
+    // ドラッグ中は待機欄を一時的に閉じ、座席側の作業面を広く保つ。
+    // もともと開いていた場合だけ、ドロップ後に元の開いた状態へ戻す。
+    if (!wasClosed) {
+        tray.dataset.closedDuringDrag = 'true';
+    } else {
+        delete tray.dataset.closedDuringDrag;
+    }
+
+    tray.classList.add('minimized');
+    tray.classList.remove('empty-open', 'is-drop-near');
+    tray.dataset.userMinimized = 'true';
+
     if (fromWaiting) {
-        // 未割り当て欄からカードを持ち上げたら、作業面を広くするために待機タブを閉じる。
-        tray.classList.add('minimized');
-        tray.classList.remove('empty-open', 'is-drop-ready', 'is-drop-near');
-        tray.dataset.userMinimized = 'true';
+        // 待機メンバーから持ち上げたカードは、同じドラッグ中に自動再展開しない。
+        tray.classList.remove('is-drop-ready');
         tray.dataset.closedByWaitingDrag = 'true';
     } else {
         // 車側から戻すときだけ、閉じたタブへのドロップ先として控えめに準備する。
@@ -175,6 +195,13 @@ function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
     const tray = byId('bottom-tray');
     const waitingList = byId('waiting-list');
     if (!tray || !waitingList || currentView !== 'list' || !manualCardDrag) return;
+
+    // 待機欄からドラッグを始めた場合は、閉じたタブの上を通っても再展開しない。
+    // これにより「持ち上げた瞬間に閉じたのに、すぐ開き直す」挙動を防ぐ。
+    if (tray.dataset.closedByWaitingDrag === 'true' || manualCardDrag.currentContainer?.id === 'waiting-list') {
+        tray.classList.remove('is-drop-near');
+        return;
+    }
 
     const closed = tray.classList.contains('minimized') || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
     if (!closed) {
@@ -208,14 +235,33 @@ function finishWaitingTrayDragState() {
     const tray = byId('bottom-tray');
     if (!tray) return;
     const droppedToWaiting = manualCardDrag?.dropTarget?.id === 'waiting-list';
+    const closedByWaitingDrag = tray.dataset.closedByWaitingDrag === 'true';
+    const closedDuringDrag = tray.dataset.closedDuringDrag === 'true';
+    const wasMinimizedBeforeDrag = tray.dataset.dragStartedMinimized === 'true';
     tray.classList.remove('is-drop-ready', 'is-drop-near');
-    if (tray.dataset.openedByDrag === 'true' && tray.dataset.userMinimized === 'true' && !droppedToWaiting) {
+
+    if (closedByWaitingDrag || closedDuringDrag) {
+        if (!wasMinimizedBeforeDrag || droppedToWaiting) {
+            // ドラッグ中だけ閉じた場合は、ドロップ後に元の開いた状態へ戻す。
+            tray.classList.remove('minimized');
+            tray.classList.remove('empty-open');
+            tray.dataset.userMinimized = 'false';
+        } else {
+            tray.classList.add('minimized');
+            tray.classList.remove('empty-open');
+            tray.dataset.userMinimized = 'true';
+        }
+    } else if (tray.dataset.openedByDrag === 'true' && tray.dataset.userMinimized === 'true' && !droppedToWaiting) {
         tray.classList.add('minimized');
         tray.classList.remove('empty-open');
+    } else if (droppedToWaiting) {
+        tray.dataset.userMinimized = 'false';
     }
+
     delete tray.dataset.openedByDrag;
     delete tray.dataset.dragStartedMinimized;
     delete tray.dataset.closedByWaitingDrag;
+    delete tray.dataset.closedDuringDrag;
     updateTrayMenuDirection();
     updateTrayToggleLabel();
 }

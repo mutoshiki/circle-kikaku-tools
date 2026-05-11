@@ -26,6 +26,7 @@
     <link href="./assets/css/05-settlement.css" rel="stylesheet">
     <link href="./assets/css/06-sheet-view.css" rel="stylesheet">
     <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
+    <link href="./assets/css/08-control-consistency.css" rel="stylesheet">
   </head>
   <body data-theme="light" data-app-theme="natural" class="sheet-mode">
     <div id="app-layout">
@@ -227,8 +228,8 @@
               </ul>
             </div>
             <span id="waiting-count" class="waiting-inline-count" aria-live="polite">0人</span>
-            <button id="fillEmptySeatsBtn" class="btn btn-sm btn-outline-secondary tray-action-btn" title="今の配置をなるべく残して空席だけ埋めます">空席を埋める</button>
-            <button id="shuffleAssignBtn" class="btn btn-sm btn-outline-primary auto-assign-btn tray-action-btn">自動割り当て</button>
+            <button id="fillEmptySeatsBtn" class="btn btn-sm btn-outline-secondary tray-action-btn tray-action-btn--fill" title="今の配置をなるべく残して、空いている席だけ埋めます"><i class="fas fa-fill-drip" aria-hidden="true"></i><span>空席を埋める</span></button>
+            <button id="shuffleAssignBtn" class="btn btn-sm btn-outline-primary auto-assign-btn tray-action-btn tray-action-btn--auto" title="固定した人を残し、未固定の人を条件に合わせて組み直します"><i class="fas fa-shuffle" aria-hidden="true"></i><span>自動割り当て</span></button>
           </div>
         </div>
         <div id="waiting-list-container">
@@ -332,10 +333,15 @@
             <div class="row g-3">
               <div class="col-12">
                 <div class="guide-feature-card guide-feature-card--compact batch-spreadsheet-import mb-2">
-                  <div class="guide-feature-title mb-1"><i class="fas fa-table me-2 text-accent"></i>Googleフォームの回答をそのまま貼り付け</div>
-                  <div class="batch-import-help-text">スプレッドシートの回答部分をコピーして貼り付けると、名前・学年・車出しを自動で読み取ります。</div>
-                  <textarea id="googleFormPasteArea" class="form-control batch-spreadsheet-textarea mt-2" placeholder="スプレッドシートの見出し行ごと貼り付け&#10;例：タイムスタンプ&#9;名前&#9;学籍番号&#9;車出し" aria-label="Googleフォーム回答スプレッドシート貼り付け欄"></textarea>
-                  <button id="applyGoogleFormPasteBtn" type="button" class="btn btn-primary btn-accent-solid batch-spreadsheet-button mt-2">自動判別して反映</button>
+                  <div class="guide-feature-title mb-1"><i class="fas fa-table me-2 text-accent"></i>（推奨）Googleフォームのスプレッドシートからまとめて登録</div>
+                  <div class="batch-import-help-text">回答用スプレッドシートの回答全体を、そのままコピーして貼り付けるだけで、全員の名前・学年・車出しをまとめて読み込めます。</div>
+                  <div class="batch-import-notice"><i class="fas fa-circle-info" aria-hidden="true"></i><span>注意：各項目の見出し行も一緒にコピーしてください。</span></div>
+                  <div class="form-sheet-howto" aria-label="Googleフォームの回答をスプレッドシートで表示する方法">
+                    <div class="form-sheet-howto-title">Googleフォームの回答をスプレッドシートで表示する方法</div>
+                    <div class="form-sheet-howto-body">応募フォームの管理画面で「回答」を開き、右上の <span class="form-sheet-icon" aria-hidden="true"></span> 緑色のスプレッドシートアイコンを押すと、回答用スプレッドシートを作成できます。</div>
+                  </div>
+                  <textarea id="googleFormPasteArea" class="form-control batch-spreadsheet-textarea mt-2" placeholder="例：&#10;名前&#9;学籍番号&#9;学年&#9;車出し&#10;藤田 陽斗&#9;24T4082A&#9;3年&#9;する&#10;田中太郎&#9;26T1234A&#9;1年&#9;しない&#10;前田 航平&#9;23T9081A&#9;4年&#9;する&#10;中村 海斗&#9;25T5566A&#9;2年&#9;しない&#10;…" aria-label="Googleフォーム回答スプレッドシート貼り付け欄"></textarea>
+                  <button id="applyGoogleFormPasteBtn" type="button" class="btn btn-primary btn-accent-solid batch-spreadsheet-button mt-2">貼り付けた表を登録欄に読み込む</button>
                   <div id="googleFormImportPreview" class="form-import-preview" style="display:none;" aria-live="polite"></div>
                 </div>
               </div>
@@ -360,8 +366,7 @@
                 <textarea id="batchGrade4" class="form-control batch-import-textarea" aria-label="4年生の表記"></textarea>
               </div>
               <div class="col-12 col-md-3">
-                <label class="form-label fw-bold small batch-label-muted">車出し (改行区切り)</label>
-                <div class="batch-field-note">ここに入れた人ごとに車カードが作られます。</div>
+                <label class="form-label fw-bold small batch-label-muted">車出し</label>
                 <textarea id="batchDrivers" class="form-control batch-import-textarea" aria-label="車出し可能な参加者"></textarea>
               </div>
             </div>
@@ -389,7 +394,7 @@
           <div class="modal-footer guide-footer guide-footer--compact">
             <button type="button" class="btn btn-outline-secondary btn-sm" id="globalGuidePrevBtn" style="display:none;"><i class="fas fa-chevron-left me-1" aria-hidden="true"></i>前へ</button>
             <button type="button" class="btn btn-primary btn-sm flex-grow-1 btn-accent-solid" id="globalGuideNextBtn">次へ <i class="fas fa-chevron-right ms-1" aria-hidden="true"></i></button>
-            <button type="button" class="btn btn-success btn-sm flex-grow-1" id="globalGuideCloseBtn" style="display:none;" data-bs-dismiss="modal"><i class="fas fa-check me-1" aria-hidden="true"></i>閉じる</button>
+            <button type="button" class="btn btn-primary btn-sm flex-grow-1 btn-accent-solid" id="globalGuideCloseBtn" style="display:none;" data-bs-dismiss="modal"><i class="fas fa-check me-1" aria-hidden="true"></i>閉じる</button>
           </div>
         </div>
       </div>
@@ -408,7 +413,7 @@
           <div class="modal-footer guide-footer guide-footer--compact">
             <button type="button" class="btn btn-outline-secondary btn-sm" id="carGuidePrevBtn" style="display:none;"><i class="fas fa-chevron-left me-1" aria-hidden="true"></i>前へ</button>
             <button type="button" class="btn btn-primary btn-sm flex-grow-1 btn-accent-solid" id="carGuideNextBtn">次へ <i class="fas fa-chevron-right ms-1" aria-hidden="true"></i></button>
-            <button type="button" class="btn btn-success btn-sm flex-grow-1" id="carGuideCloseBtn" style="display:none;" data-bs-dismiss="modal"><i class="fas fa-check me-1" aria-hidden="true"></i>閉じる</button>
+            <button type="button" class="btn btn-primary btn-sm flex-grow-1 btn-accent-solid" id="carGuideCloseBtn" style="display:none;" data-bs-dismiss="modal"><i class="fas fa-check me-1" aria-hidden="true"></i>閉じる</button>
           </div>
         </div>
       </div>
@@ -427,7 +432,7 @@
           <div class="modal-footer guide-footer guide-footer--compact">
             <button type="button" class="btn btn-outline-secondary btn-sm" id="seisanGuidePrevBtn" style="display:none;"><i class="fas fa-chevron-left me-1" aria-hidden="true"></i>前へ</button>
             <button type="button" class="btn btn-primary btn-sm flex-grow-1 btn-accent-solid" id="seisanGuideNextBtn">次へ <i class="fas fa-chevron-right ms-1" aria-hidden="true"></i></button>
-            <button type="button" class="btn btn-success btn-sm flex-grow-1" id="seisanGuideCloseBtn" style="display:none;" data-bs-dismiss="modal"><i class="fas fa-check me-1" aria-hidden="true"></i>閉じる</button>
+            <button type="button" class="btn btn-primary btn-sm flex-grow-1 btn-accent-solid" id="seisanGuideCloseBtn" style="display:none;" data-bs-dismiss="modal"><i class="fas fa-check me-1" aria-hidden="true"></i>閉じる</button>
           </div>
         </div>
       </div>
