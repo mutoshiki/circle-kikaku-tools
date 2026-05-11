@@ -54,7 +54,7 @@ function renderGoogleFormImportPreview(result, reflected = false) {
         : (result.gradeSource === 'grade' ? '学年列を使用' : '学年列なし');
 
     return `
-        <div class="form-import-preview-title">読み取り結果</div>
+        <div class="form-import-preview-title">読み取り結果（登録前の確認）</div>
         <div class="form-import-result-grid">
             <div><span>参加者</span><strong>${counts.total || 0}名</strong></div>
             <div><span>1年生</span><strong>${counts.grade1 || 0}名</strong></div>
@@ -114,7 +114,7 @@ async function applyGoogleFormPasteImport() {
     if (hasManualBatchFieldContent()) {
         const confirmed = await appConfirm('既存の参加者登録欄に内容があります。自動判別した内容で入力欄を上書きしますか？\n登録はまだ実行されません。内容を確認してから「登録内容で更新」を押してください。', {
             title: '入力欄を上書きしますか？',
-            okText: '上書きして反映'
+            okText: '上書きして読み込む'
         });
         if (!confirmed) {
             setBatchPreviewVisible(renderGoogleFormImportPreview(result, false), 'info');
