@@ -527,6 +527,7 @@ function renderSheetView() {
         .forEach((plan, index) => canvas.appendChild(createSheetPlanSection(plan, index)));
     syncSheetPlanWidths();
     requestAnimationFrame(syncSheetPlanWidths);
+    requestAnimationFrame(fitInitialSheetScale);
 
     setupSheetSortables();
 }
@@ -535,15 +536,37 @@ function renderSheetView() {
 let sheetScale = 1, sheetX = 0, sheetY = 0;
 let isPanning = false, panStartX = 0, panStartY = 0, panOriginX = 0, panOriginY = 0;
 let lastPinchDist = 0;
+let sheetUserAdjusted = false;
 
 function applySheetTransform() {
     const canvas = byId('sheet-canvas');
     if (canvas) canvas.style.transform = `translate(${sheetX}px,${sheetY}px) scale(${sheetScale})`;
 }
 
-function zoomIn() { sheetScale = Math.min(sheetScale * 1.25, 4); applySheetTransform(); }
-function zoomOut() { sheetScale = Math.max(sheetScale / 1.25, 0.3); applySheetTransform(); }
-function resetZoom() { sheetScale=1; sheetX=0; sheetY=0; applySheetTransform(); }
+function fitInitialSheetScale() {
+    if (sheetUserAdjusted) return;
+    const area = byId('sheet-view-area');
+    const canvas = byId('sheet-canvas');
+    if (!area || !canvas || !canvas.children.length) return;
+    const contentWidth = canvas.querySelector('.sheet-plan-section')?.scrollWidth || canvas.scrollWidth;
+    const availableWidth = Math.max(0, area.clientWidth - 20);
+    if (!contentWidth || !availableWidth) return;
+    const isCompact = area.clientWidth <= 640;
+    const minScale = isCompact ? 0.74 : 0.92;
+    const maxScale = isCompact ? 0.88 : 1;
+    sheetScale = Math.min(1, Math.min(maxScale, Math.max(minScale, availableWidth / contentWidth)));
+    sheetX = 0;
+    sheetY = 0;
+    applySheetTransform();
+}
+
+function markSheetAdjusted() {
+    sheetUserAdjusted = true;
+}
+
+function zoomIn() { markSheetAdjusted(); sheetScale = Math.min(sheetScale * 1.25, 4); applySheetTransform(); }
+function zoomOut() { markSheetAdjusted(); sheetScale = Math.max(sheetScale / 1.25, 0.3); applySheetTransform(); }
+function resetZoom() { markSheetAdjusted(); sheetScale=1; sheetX=0; sheetY=0; applySheetTransform(); }
 window.zoomIn = zoomIn; window.zoomOut = zoomOut; window.resetZoom = resetZoom;
 
 D.addEventListener('DOMContentLoaded', () => {
@@ -563,6 +586,7 @@ D.addEventListener('DOMContentLoaded', () => {
 
     area.addEventListener('mousedown', e => {
         if (e.target.closest('button') || isSheetDragHandle(e.target)) return;
+        markSheetAdjusted();
         isPanning = true; panStartX = e.clientX; panStartY = e.clientY;
         panOriginX = sheetX; panOriginY = sheetY;
         area.style.cursor = 'grabbing';
@@ -577,6 +601,7 @@ D.addEventListener('DOMContentLoaded', () => {
 
     area.addEventListener('wheel', e => {
         e.preventDefault();
+        markSheetAdjusted();
         const factor = e.deltaY < 0 ? 1.1 : 0.9;
         const rect = area.getBoundingClientRect();
         const mx = e.clientX - rect.left, my = e.clientY - rect.top;
@@ -588,6 +613,7 @@ D.addEventListener('DOMContentLoaded', () => {
 
     area.addEventListener('touchstart', e => {
         if (e.target.closest('button') || isSheetDragHandle(e.target)) return;
+        markSheetAdjusted();
         if (e.touches.length === 1) {
             isPanning = true;
             panStartX = e.touches[0].clientX; panStartY = e.touches[0].clientY;
@@ -628,4 +654,3 @@ D.addEventListener('DOMContentLoaded', () => {
 
     area.addEventListener('touchend', () => { isPanning = false; lastPinchDist = 0; });
 });
-

@@ -12,7 +12,7 @@ const css = readText('assets/css/08-control-consistency.css');
 
 assert(templates.includes('function formatExtraLines'), 'extra costs should render as simple lines, not only chips');
 assert(templates.includes('seisan-car-summary-headline'), 'car summary should place name, payment, and edit action in one row');
-assert(templates.includes('<span>支払額</span>') && templates.includes('seisan-car-summary-total'), 'car card should show a clear payment label and value');
+assert(templates.includes('seisan-payment-tag') && templates.includes('seisan-car-summary-total'), 'car card should show a clear payment tag and value');
 assert(css.includes('simple black edit toggle, simpler settlement cards, fewer grey outlines'), 'final polish CSS block missing');
 assert(css.includes('background: #050505;') && css.includes('color: #fff;'), 'car/team active toggle should use simple black highlight');
 assert(css.includes('.seisan-extra-line-list') && css.includes('.seisan-extra-line'), 'extra costs should use simple line UI');

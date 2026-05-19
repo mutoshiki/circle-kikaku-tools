@@ -13,7 +13,7 @@ const css = readText('assets/css/08-control-consistency.css');
 assert(templates.includes('function formatExtraSlash'), 'extras should have a slash-separated inline formatter');
 assert(templates.includes(".join('<span class=\"seisan-extra-slash\""), 'extra items should be separated with slash spans');
 assert(templates.includes('seisan-car-summary-headline'), 'car name, payment amount, and edit button should be in one headline row');
-assert(templates.includes('aria-label="支払う金額"'), 'payment amount should be labeled as the amount to pay');
+assert(templates.includes('aria-label="支払い金額"'), 'payment amount should be labeled as the amount to pay');
 assert(!templates.includes('seisan-total-emphasis'), 'payment amount should not be rendered as a separate block');
 assert(!templates.includes('const extraTotal ='), 'extra total summary should not be displayed beside the expense label');
 assert(!templates.includes('<span class="seisan-cost-preview-detail-text">割勘対象</span>'), 'gas cost should use the same simple split label style as extras');

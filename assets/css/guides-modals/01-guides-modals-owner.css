@@ -1469,8 +1469,39 @@ padding: 10px;
 
 .batch-import-help-text {
 color: var(--text-sub);
-  font-size: 0.78rem;
-  line-height: 1.55;
+    font-size: 0.78rem;
+    line-height: 1.55;
+}
+
+.batch-import-help-text--compact {
+    margin-bottom: 2px;
+}
+
+.batch-import-help-details {
+    margin-top: 10px;
+    border-top: 1px solid var(--hairline, var(--border-color));
+    padding-top: 9px;
+}
+
+.batch-import-help-details summary {
+    cursor: pointer;
+    color: var(--text-sub);
+    font-size: 0.76rem;
+    font-weight: 850;
+    line-height: 1.3;
+}
+
+.batch-import-help-details[open] summary {
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+
+.batch-spreadsheet-import .batch-spreadsheet-textarea {
+    min-height: 124px;
+}
+
+.batch-spreadsheet-import .batch-spreadsheet-button {
+    min-height: 42px;
 }
 
 .batch-import-textarea {
@@ -1769,6 +1800,20 @@ padding-left: 0;
 #batchImportModal textarea {
 min-height: 120px;
 }
+}
+
+@media (max-width: 640px) {
+    #batchImportModal .modal-body {
+        padding-top: 10px;
+    }
+
+    .batch-spreadsheet-import {
+        padding: 12px;
+    }
+
+    .batch-spreadsheet-import .batch-spreadsheet-textarea {
+        min-height: 132px;
+    }
 }
 
 @media (max-width: 640px) {

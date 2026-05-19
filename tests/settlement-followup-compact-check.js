@@ -10,7 +10,7 @@ function assert(condition, message) {
 const templates = readText('assets/js/templates/settlement-templates.js');
 const css = readText('assets/css/08-control-consistency.css');
 
-assert(templates.includes('seisan-car-summary-total') && templates.includes('支払額'), 'car summary should show payment amount in the headline');
+assert(templates.includes('seisan-car-summary-total') && templates.includes('seisan-payment-tag'), 'car summary should show payment amount in the headline with a 支払いタグ');
 assert(templates.includes('seisan-cost-preview-item--gas') && templates.includes('seisan-cost-preview-item--extras'), 'gas and extra costs should use unified preview rows');
 assert(templates.includes('seisan-extra-inline split') || templates.includes('seisan-extra-inline ${type}'), 'split/club status should be carried by inline extra markup');
 assert(css.includes('quieter edit toggle, one-line settings summary, clearer settlement preview'), 'follow-up CSS block missing');

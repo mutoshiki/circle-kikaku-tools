@@ -92,7 +92,7 @@
       <div id="sheet-view-area" class="active">
         <div id="sheet-title-bar">
           <i class="fas fa-table-list sheet-title-icon" aria-hidden="true"></i>
-          <span id="sheet-summary">車出し 0 / 同乗者 0 / 全員 0 / 待機 0</span>
+          <span id="sheet-summary" aria-label="車割と班割の集計">車割 車出し 0 同乗者 0 全員 0 待機 0 / 班割 班長 0 メンバー 0 全員 0 待機 0</span>
         </div>
         <div id="sheet-canvas"></div>
         <div id="sheet-hint"><i class="fas fa-hand-pointer me-1" aria-hidden="true"></i>横にドラッグ / ピンチでズーム</div>
@@ -313,16 +313,19 @@
             <div class="row g-3">
               <div class="col-12">
                 <div class="guide-feature-card guide-feature-card--compact batch-spreadsheet-import mb-2">
-                  <div class="guide-feature-title mb-1"><i class="fas fa-table me-2 text-accent"></i>（推奨）Googleフォームのスプレッドシートからまとめて登録</div>
-                  <div class="batch-import-help-text">回答用スプレッドシートの回答全体を、そのままコピーして貼り付けるだけで、全員の名前・学年・車出しをまとめて読み込めます。</div>
-                  <div class="batch-import-notice"><i class="fas fa-circle-info" aria-hidden="true"></i><span>注意：各項目の見出し行も一緒にコピーしてください。</span></div>
-                  <div class="form-sheet-howto" aria-label="Googleフォームの回答をスプレッドシートで表示する方法">
-                    <div class="form-sheet-howto-title">Googleフォームの回答をスプレッドシートで表示する方法</div>
-                    <div class="form-sheet-howto-body">応募フォームの管理画面で「回答」を開き、右上の <span class="form-sheet-icon" aria-hidden="true"></span> 緑色のスプレッドシートアイコンを押すと、回答用スプレッドシートを作成できます。</div>
-                  </div>
+                  <div class="guide-feature-title mb-1"><i class="fas fa-table me-2 text-accent" aria-hidden="true"></i>スプレッドシートからまとめて登録</div>
+                  <div class="batch-import-help-text batch-import-help-text--compact">回答全体を貼り付けると、名前・学年・車出しをまとめて読み込めます。</div>
                   <textarea id="googleFormPasteArea" class="form-control batch-spreadsheet-textarea mt-2" placeholder="例：&#10;名前&#9;学籍番号&#9;学年&#9;車出し&#10;藤田 陽斗&#9;24T4082A&#9;3年&#9;する&#10;田中太郎&#9;26T1234A&#9;1年&#9;しない&#10;前田 航平&#9;23T9081A&#9;4年&#9;する&#10;中村 海斗&#9;25T5566A&#9;2年&#9;しない&#10;…" aria-label="Googleフォーム回答スプレッドシート貼り付け欄"></textarea>
                   <button id="applyGoogleFormPasteBtn" type="button" class="btn btn-primary btn-accent-solid batch-spreadsheet-button mt-2">貼り付けた表を登録欄に読み込む</button>
                   <div id="googleFormImportPreview" class="form-import-preview" style="display:none;" aria-live="polite"></div>
+                  <details class="batch-import-help-details">
+                    <summary>貼り付け方を見る</summary>
+                    <div class="batch-import-notice"><i class="fas fa-circle-info" aria-hidden="true"></i><span>注意：各項目の見出し行も一緒にコピーしてください。</span></div>
+                    <div class="form-sheet-howto" aria-label="Googleフォームの回答をスプレッドシートで表示する方法">
+                      <div class="form-sheet-howto-title">Googleフォームの回答をスプレッドシートで表示する方法</div>
+                      <div class="form-sheet-howto-body">応募フォームの管理画面で「回答」を開き、右上の <span class="form-sheet-icon" aria-hidden="true"></span> 緑色のスプレッドシートアイコンを押すと、回答用スプレッドシートを作成できます。</div>
+                    </div>
+                  </details>
                 </div>
               </div>
               <div class="col-12 col-md-3">

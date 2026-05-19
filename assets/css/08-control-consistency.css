@@ -1014,17 +1014,10 @@ body[data-app-theme="catppuccin"][data-theme="dark"] {
   line-height: 1.05;
 }
 
-/* 2026-05 collect summary color fix: 集める is blue, not green. */
+/* 2026-05 collect summary neutralization: 集めるは黒文字に戻す。 */
 :root {
-  --settlement-collect-blue: #2563eb;
-  --settlement-collect-blue-soft: #dbeafe;
-  --settlement-collect-blue-border: #93c5fd;
-}
-
-[data-theme="dark"] {
-  --settlement-collect-blue: #60a5fa;
-  --settlement-collect-blue-soft: rgba(37, 99, 235, 0.18);
-  --settlement-collect-blue-border: rgba(96, 165, 250, 0.42);
+  --settlement-collect-bg: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
+  --settlement-collect-line: var(--ui-hairline-quiet);
 }
 
 #seisan-view-area .seisan-summary-card.collect,
@@ -1032,22 +1025,14 @@ body[data-app-theme="catppuccin"][data-theme="dark"] {
 .seisan-mock-summary.collect,
 .seisan-guide-box.collect,
 .c-collect {
-  background: color-mix(in srgb, var(--settlement-collect-blue-soft) 72%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--settlement-collect-blue-border) 50%, transparent);
+  background: var(--settlement-collect-bg);
+  border-color: var(--settlement-collect-line);
 }
 
-#seisan-view-area .seisan-summary-card.collect .seisan-summary-label,
-#seisan-view-area .seisan-summary-card.collect .seisan-summary-label i,
-.seisan-summary-card.collect .seisan-summary-label,
-.seisan-summary-card.collect .seisan-summary-label i,
-.seisan-mock-summary.collect .seisan-mock-label {
-  color: var(--settlement-collect-blue);
-}
-
-#seisan-view-area .seisan-summary-card.collect .seisan-summary-value,
-.seisan-summary-card.collect .seisan-summary-value,
-.seisan-mock-summary.collect .seisan-mock-value {
-  color: color-mix(in srgb, var(--settlement-collect-blue) 82%, var(--text-main));
+#seisan-view-area .seisan-summary-card.collect :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-value),
+.seisan-summary-card.collect :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-value),
+.seisan-mock-summary.collect :is(.seisan-mock-label, .seisan-mock-value) {
+  color: var(--text-main);
 }
 
 .seisan-summary-card.accounting {
@@ -1870,4 +1855,303 @@ body[data-app-theme="catppuccin"][data-theme="dark"] {
   --settlement-tag-ink: var(--settlement-club-ink);
   --settlement-tag-bg: var(--settlement-club-bg);
   --settlement-tag-line: var(--settlement-club-line);
+}
+
+
+/* 2026-05 payment label polish: 支払も割勘/部費と同じタグ形状に統一。 */
+:root {
+  --settlement-pay-ink: var(--text-main);
+  --settlement-pay-bg: color-mix(in srgb, var(--bg-card) 72%, var(--bg-body));
+  --settlement-pay-line: var(--ui-hairline-quiet);
+}
+
+[data-theme="dark"] {
+  --settlement-pay-bg: rgba(255, 255, 255, 0.05);
+  --settlement-pay-line: rgba(255, 255, 255, 0.12);
+}
+
+#seisan-view-area .seisan-payment-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  min-width: var(--settlement-tag-min-width);
+  min-height: var(--settlement-tag-min-height);
+  padding: var(--settlement-tag-pad-y) var(--settlement-tag-pad-x);
+  border: 1px solid var(--settlement-pay-line);
+  border-radius: 999px;
+  background: var(--settlement-pay-bg);
+  color: var(--settlement-pay-ink);
+  font-size: var(--settlement-tag-font-size);
+  font-style: normal;
+  font-weight: 900;
+  line-height: var(--settlement-tag-line-height);
+  letter-spacing: 0;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+#seisan-view-area .seisan-summary-card.pay .seisan-summary-label,
+#seisan-view-area .seisan-summary-card.pay .seisan-summary-label i,
+#seisan-view-area .seisan-summary-card.pay .seisan-summary-value,
+#seisan-view-area .seisan-summary-card.collect .seisan-summary-label,
+#seisan-view-area .seisan-summary-card.collect .seisan-summary-label i,
+#seisan-view-area .seisan-summary-card.collect .seisan-summary-value {
+  color: var(--text-main);
+}
+
+#seisan-view-area .seisan-car-summary-payment {
+  gap: 6px;
+  align-items: center;
+}
+
+#seisan-view-area .seisan-car-summary-payment .seisan-payment-tag {
+  transform: translateY(-1px);
+}
+
+/* 2026-05 summary/payment label rename polish: サマリーの割勘/部費/支払いを車カードのタグ色に合わせる。 */
+:root {
+  --settlement-pay-surface-bg: color-mix(in srgb, var(--settlement-pay-bg) 78%, var(--bg-card));
+  --settlement-pay-surface-line: var(--settlement-pay-line);
+}
+
+#seisan-view-area .seisan-summary-card.collect {
+  background: color-mix(in srgb, var(--settlement-split-bg) 78%, var(--bg-card));
+  border-color: var(--settlement-split-line);
+}
+
+#seisan-view-area .seisan-summary-card.accounting {
+  background: color-mix(in srgb, var(--settlement-club-bg) 78%, var(--bg-card));
+  border-color: var(--settlement-club-line);
+}
+
+#seisan-view-area .seisan-summary-card.pay {
+  background: var(--settlement-pay-surface-bg);
+  border-color: var(--settlement-pay-surface-line);
+}
+
+#seisan-view-area .seisan-summary-card.collect .seisan-summary-label,
+#seisan-view-area .seisan-summary-card.collect .seisan-summary-label i,
+#seisan-view-area .seisan-summary-card.collect .seisan-summary-sub {
+  color: var(--settlement-split-ink);
+}
+
+#seisan-view-area .seisan-summary-card.accounting .seisan-summary-label,
+#seisan-view-area .seisan-summary-card.accounting .seisan-summary-label i,
+#seisan-view-area .seisan-summary-card.accounting .seisan-summary-sub {
+  color: var(--settlement-club-ink);
+}
+
+#seisan-view-area .seisan-summary-card.pay .seisan-summary-label,
+#seisan-view-area .seisan-summary-card.pay .seisan-summary-label i,
+#seisan-view-area .seisan-summary-card.pay .seisan-summary-sub {
+  color: var(--settlement-pay-ink);
+}
+
+#seisan-view-area .seisan-summary-card.collect .seisan-summary-value,
+#seisan-view-area .seisan-summary-card.accounting .seisan-summary-value,
+#seisan-view-area .seisan-summary-card.pay .seisan-summary-value {
+  color: var(--text-main);
+}
+
+#seisan-view-area .seisan-summary-card:is(.collect, .accounting, .pay) .seisan-summary-label {
+  gap: 5px;
+}
+
+#seisan-view-area .seisan-car-summary-payment {
+  gap: 6px;
+  align-items: center;
+  padding: 5px 8px;
+  border: 1px solid var(--settlement-pay-surface-line);
+  border-radius: var(--radius-main);
+  background: var(--settlement-pay-surface-bg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* 2026-05 app-wide visual cohesion: one surface language across edit, sheet, settlement, tray and modals. */
+body {
+  --ui-panel-bg: color-mix(in srgb, var(--bg-card) 96%, var(--bg-body));
+  --ui-panel-bg-raised: color-mix(in srgb, var(--bg-card) 98%, var(--sheet-header));
+  --ui-panel-bg-muted: color-mix(in srgb, var(--bg-card) 86%, var(--bg-body));
+  --ui-panel-border: color-mix(in srgb, var(--border-color) 70%, transparent);
+  --ui-panel-border-strong: color-mix(in srgb, var(--accent-color) 22%, var(--border-color));
+  --ui-panel-shadow: 0 1px 0 rgba(15, 23, 42, 0.04), 0 10px 24px rgba(15, 23, 42, 0.05);
+  --ui-panel-shadow-float: 0 16px 38px rgba(15, 23, 42, 0.12);
+  --ui-panel-radius: 16px;
+  --ui-inner-radius: 12px;
+  --ui-pill-radius: 999px;
+  --ui-inset-line: inset 0 0 0 1px var(--ui-panel-border);
+}
+
+[data-theme="dark"] {
+  --ui-panel-bg: color-mix(in srgb, var(--bg-card) 88%, #020617);
+  --ui-panel-bg-raised: color-mix(in srgb, var(--bg-card) 92%, rgba(255, 255, 255, 0.06));
+  --ui-panel-bg-muted: color-mix(in srgb, var(--bg-card) 72%, #020617);
+  --ui-panel-border: rgba(148, 163, 184, 0.18);
+  --ui-panel-border-strong: color-mix(in srgb, var(--accent-color) 30%, rgba(148, 163, 184, 0.22));
+  --ui-panel-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 14px 32px rgba(0, 0, 0, 0.24);
+  --ui-panel-shadow-float: 0 20px 54px rgba(0, 0, 0, 0.42);
+}
+
+#app-header,
+#view-toggle-bar,
+.edit-header-tools-only,
+.seisan-card,
+.car-box,
+#bottom-tray,
+#sheet-title-bar,
+#sheet-bottom-controls,
+.sheet-empty-card,
+.modal-content,
+.dropdown-menu,
+.person-pop-menu,
+.guide-feature-card,
+.global-guide-card,
+.app-guide-box,
+.batch-spreadsheet-import,
+.theme-preview-panel,
+.theme-app-preview,
+.theme-preset-card {
+  border: 1px solid var(--ui-panel-border);
+  border-radius: var(--ui-panel-radius);
+  background: var(--ui-panel-bg-raised);
+  box-shadow: var(--ui-panel-shadow);
+}
+
+#app-header,
+#sheet-title-bar,
+#sheet-bottom-controls,
+#bottom-tray,
+.modal-content,
+.dropdown-menu,
+.person-pop-menu {
+  backdrop-filter: blur(18px) saturate(1.05);
+}
+
+#view-toggle-bar,
+.edit-header-tools-only,
+.seisan-card,
+.car-box,
+.guide-feature-card,
+.batch-spreadsheet-import {
+  background: var(--ui-panel-bg);
+}
+
+.driver-seat,
+.seat-slot,
+.member-card,
+.seisan-summary-card,
+.seisan-car-summary-row,
+.seisan-check-item,
+.seisan-driver-pay-row,
+.sheet-car-col,
+.sheet-wait-block,
+.sheet-seat-row,
+.sheet-driver-row,
+.sheet-wait-item,
+.form-control,
+.form-select,
+.seisan-toggle,
+.route-stop-row,
+.route-private-view,
+.route-private-edit,
+.form-sheet-howto,
+.form-import-preview {
+  border-color: var(--ui-panel-border);
+  border-radius: var(--ui-inner-radius);
+  background: var(--ui-panel-bg-muted);
+  box-shadow: none;
+}
+
+.seat-slot,
+.sheet-seat-row,
+.sheet-wait-item,
+.seisan-cost-preview-item,
+.seisan-settings-card,
+.seisan-summary-pills span {
+  background: color-mix(in srgb, var(--ui-panel-bg-muted) 88%, var(--bg-body));
+}
+
+.driver-seat,
+.sheet-driver-row {
+  background: color-mix(in srgb, var(--accent-color) 6%, var(--ui-panel-bg-muted));
+  border-color: var(--ui-panel-border-strong);
+}
+
+.member-card,
+.seat-slot > .member-card,
+#waiting-list .member-card {
+  border-radius: var(--ui-inner-radius);
+  background: var(--ui-panel-bg-raised);
+  border-color: var(--ui-panel-border);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+}
+
+.car-header,
+.seisan-head,
+.seisan-compact-head,
+.modal-header,
+.sheet-car-header,
+.sheet-wait-header,
+#bottom-tray-header {
+  border-color: var(--ui-panel-border);
+}
+
+.capacity-badge,
+.grade-badge,
+.gender-badge,
+.sheet-capacity-badge,
+.sync-status-badge,
+.seisan-summary-pills span,
+.seisan-cost-policy-tag,
+.seisan-cost-type-badge,
+.seisan-payment-tag,
+.waiting-inline-count {
+  border-radius: var(--ui-pill-radius);
+}
+
+.modal-content,
+.dropdown-menu,
+.person-pop-menu {
+  box-shadow: var(--ui-panel-shadow-float);
+}
+
+.seisan-alert,
+.seisan-car-summary-row.has-error {
+  border-color: color-mix(in srgb, var(--ui-danger, #ef4444) 54%, var(--ui-panel-border));
+  background: color-mix(in srgb, var(--ui-danger-soft, rgba(239, 68, 68, 0.12)) 68%, var(--ui-panel-bg));
+}
+
+#sheet-view-area.active::after {
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--bg-body) 86%, transparent));
+}
+
+[data-theme="dark"] #sheet-view-area.active::after {
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--bg-body) 90%, transparent));
+}
+
+@media (max-width: 640px) {
+  body {
+    --ui-panel-radius: 14px;
+    --ui-inner-radius: 11px;
+    --ui-panel-shadow: 0 1px 0 rgba(15, 23, 42, 0.035), 0 8px 18px rgba(15, 23, 42, 0.045);
+  }
+
+  #app-header,
+  #view-toggle-bar,
+  .edit-header-tools-only,
+  .seisan-card,
+  .car-box,
+  #sheet-title-bar {
+    border-radius: var(--ui-panel-radius);
+  }
+
+  .modal-content {
+    border-radius: 18px 18px 0 0;
+  }
 }

@@ -9,10 +9,10 @@ function assert(condition, message) {
 
 const css = readText('assets/css/08-control-consistency.css');
 
-assert(css.includes('collect summary color fix: 集める is blue'), 'collect color fix comment missing');
-assert(css.includes('--settlement-collect-blue: #2563eb;'), 'collect card should use a blue token in light mode');
-assert(css.includes('--settlement-collect-blue: #60a5fa;'), 'collect card should use a readable blue token in dark mode');
-assert(css.includes('#seisan-view-area .seisan-summary-card.collect') && css.includes('.seisan-mock-summary.collect'), 'collect blue override should cover real and guide preview cards');
-assert(!/collect\s*\{[\s\S]{0,160}#10b981/.test(css.slice(css.lastIndexOf('collect summary color fix'))), 'final collect override should not use green');
+assert(css.includes('collect summary neutralization: 集めるは黒文字'), 'collect neutralization comment missing');
+assert(css.includes('--settlement-collect-bg:'), 'collect card should use a neutral background token');
+assert(css.includes('#seisan-view-area .seisan-summary-card.collect') && css.includes('.seisan-mock-summary.collect'), 'collect neutral override should cover real and guide preview cards');
+assert(css.includes('color: var(--text-main);'), 'collect label/value should return to normal text color');
+assert(!css.includes('--settlement-collect-blue:'), 'old collect blue tokens should be removed');
 
-console.log('Collect summary blue check OK');
+console.log('Collect summary neutral check OK');

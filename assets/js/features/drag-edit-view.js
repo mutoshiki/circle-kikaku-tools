@@ -6,7 +6,10 @@ function clearSeatDropPreview() {
         slot.classList.remove('drop-preview', 'shift-target', 'swap-target', 'swap-origin', 'escape-target');
     });
     document.querySelectorAll('#waiting-list.return-preview-target').forEach(list => list.classList.remove('return-preview-target'));
-    document.querySelectorAll('#cars-container.car-create-drop-target').forEach(container => container.classList.remove('car-create-drop-target'));
+    document.querySelectorAll('#cars-container.car-create-drop-target').forEach(container => {
+        container.classList.remove('car-create-drop-target');
+        delete container.dataset.dropKind;
+    });
     document.querySelectorAll('.swap-preview-card, .drag-preview-card').forEach(card => card.remove());
     document.querySelectorAll('.seat-card-will-move').forEach(card => card.classList.remove('seat-card-will-move'));
 }
@@ -156,6 +159,9 @@ function moveManualDragCardTo(target) {
 
     if (target.id === 'cars-container') {
         target.classList.add('car-create-drop-target');
+        const activePlan = typeof getActiveCarPlan === 'function' ? getActiveCarPlan() : 'car';
+        const template = typeof getCarPlanTemplateConfig === 'function' ? getCarPlanTemplateConfig(activePlan) : null;
+        target.dataset.dropKind = template?.type === 'team' ? 'team' : 'car';
         return;
     }
 

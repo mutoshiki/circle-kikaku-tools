@@ -31,7 +31,7 @@ function openChoicePopup(title, choices, onPick) {
     const menu = ce('div', 'person-pop-menu choice-menu');
     menu.innerHTML = `<div class="person-pop-title">${escapeHtml(title)}</div>` + choices.map(choice => `
         <button type="button" class="person-pop-item" data-value="${escapeHtml(choice.value)}">
-            <i class="${choice.icon || 'fas fa-circle'}"></i><span>${escapeHtml(choice.label)}</span>
+            <i class="${choice.icon || 'fas fa-circle'}" aria-hidden="true"></i><span>${escapeHtml(choice.label)}</span>
         </button>
     `).join('');
     menu.addEventListener('click', event => {
@@ -162,7 +162,7 @@ function openCompactPersonMenu(trigger) {
     const menu = ce('div', 'person-pop-menu');
     menu.innerHTML = actions.map(([action, label, icon]) => `
         <button type="button" class="person-pop-item ${action === 'return' && inWaiting ? 'danger' : ''}" data-person-action="${action}">
-            <i class="${icon}"></i><span>${label}</span>
+            <i class="${icon}" aria-hidden="true"></i><span>${label}</span>
         </button>
     `).join('');
     menu.addEventListener('click', event => {

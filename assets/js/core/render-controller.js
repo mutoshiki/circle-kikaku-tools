@@ -16,37 +16,72 @@ function formatUpdatedAt(ts) {
     return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
 
-function updateSheetSummary(data = getData()) {
-    const summaryEl = byId('sheet-summary');
-    if (!summaryEl) return;
-    const driverCount = data.cars.length;
-    const assignedRiderCount = data.cars.reduce((sum, car) => sum + (car.members || []).filter(Boolean).length, 0);
-    const waitingCount = data.waiting.length;
-    const riderCount = assignedRiderCount + waitingCount;
-    const totalCount = driverCount + riderCount;
-    const activePlan = typeof getActiveCarPlan === 'function' ? getActiveCarPlan() : null;
+function buildSheetPlanSummaryRow(plan, updatedLabel = '') {
     const template = typeof getCarPlanTemplateConfig === 'function'
-        ? getCarPlanTemplateConfig(activePlan || 'car')
-        : { ownerLabel: '車出し', memberLabel: '同乗者' };
+        ? getCarPlanTemplateConfig(plan || 'car')
+        : { type: 'car', ownerLabel: '車出し', memberLabel: '席' };
+    const cars = Array.isArray(plan?.cars) ? plan.cars : [];
+    const waiting = Array.isArray(plan?.waiting) ? plan.waiting : [];
+    const ownerCount = cars.length;
+    const assignedMemberCount = cars.reduce((sum, car) => sum + (car.members || []).filter(Boolean).length, 0);
+    const waitingCount = waiting.length;
+    const memberCount = assignedMemberCount + waitingCount;
+    const totalCount = ownerCount + memberCount;
     const memberSummaryLabel = template.type === 'team' ? 'メンバー' : '同乗者';
-    const items = [
-        ...(activePlan?.name ? [['表示', activePlan.name]] : []),
-        [template.ownerLabel || '車出し', driverCount],
-        [memberSummaryLabel, riderCount],
+    const stats = [
+        [template.ownerLabel || '車出し', ownerCount],
+        [memberSummaryLabel, memberCount],
         ['全員', totalCount],
         ['待機', waitingCount]
     ];
-    const updated = formatUpdatedAt(data.lastUpdatedAt);
-    if (updated) items.push(['最終更新', updated]);
-    summaryEl.replaceChildren(...items.map(([label, value]) => {
-        const span = document.createElement('span');
-        span.className = 'sheet-summary-pill';
-        span.append(document.createTextNode(label + ' '));
+    const row = document.createElement('span');
+    row.className = `sheet-summary-row is-${template.type || 'car'}`;
+    const planLabel = document.createElement('span');
+    planLabel.className = 'sheet-summary-plan-label';
+    planLabel.textContent = template.type === 'team' ? '班割' : '車割';
+    row.appendChild(planLabel);
+    stats.forEach(([label, value]) => {
+        const item = document.createElement('span');
+        item.className = 'sheet-summary-stat';
+        item.append(document.createTextNode(label));
         const strong = document.createElement('strong');
         strong.textContent = String(value);
-        span.appendChild(strong);
-        return span;
-    }));
+        item.appendChild(strong);
+        row.appendChild(item);
+    });
+    if (updatedLabel) {
+        const updated = document.createElement('span');
+        updated.className = 'sheet-summary-updated';
+        updated.append(document.createTextNode('更新'));
+        const strong = document.createElement('strong');
+        strong.textContent = updatedLabel;
+        updated.appendChild(strong);
+        row.appendChild(updated);
+    }
+    return row;
+}
+
+function updateSheetSummary(data = getData()) {
+    const summaryEl = byId('sheet-summary');
+    if (!summaryEl) return;
+    const plans = Array.isArray(data.carPlans) && data.carPlans.length
+        ? data.carPlans
+        : [{ id: SINGLE_CAR_PLAN_ID, name: '車割', cars: data.cars || [], waiting: data.waiting || [], templateType: 'car' }];
+    const normalizedPlans = typeof normalizeCarPlan === 'function'
+        ? plans.map((plan, index) => normalizeCarPlan(plan, index))
+        : plans;
+    const findPlanByType = type => normalizedPlans.find(plan => (
+        typeof normalizeCarPlanTemplateType === 'function'
+            ? normalizeCarPlanTemplateType(plan.templateType)
+            : String(plan.templateType || 'car')
+    ) === type);
+    const carPlan = findPlanByType('car') || { cars: [], waiting: [], templateType: 'car' };
+    const teamPlan = findPlanByType('team') || { cars: [], waiting: [], templateType: 'team' };
+    const updated = formatUpdatedAt(data.lastUpdatedAt);
+    summaryEl.replaceChildren(
+        buildSheetPlanSummaryRow(carPlan),
+        buildSheetPlanSummaryRow(teamPlan, updated)
+    );
 }
 
 // Large UI features are split into assets/js/features/*.js.
@@ -112,9 +147,10 @@ function renderListEmptyHint() {
     const template = typeof getCarPlanTemplateConfig === 'function'
         ? getCarPlanTemplateConfig(activePlan || 'car')
         : { sectionTitle: '車割', ownerLabel: '車出し', groupSuffix: '車', ownerIcon: 'fa-car' };
-    const label = template.type === 'team' ? '班' : '車';
-    const ownerText = template.type === 'team' ? '班長を置く' : '車出しを置く';
-    const createText = `${label}を作成`;
+    const ownerText = template.type === 'team'
+        ? '班長にする人をここへドロップ'
+        : '車出しをここへドロップ';
+    const createText = template.type === 'team' ? '新しい班を作成します' : '新しい車を作成します';
     const html = waitingCount > 0
         ? `<div class="col-12" id="list-empty-hint"><div class="drop-create-lane empty-card--drop-create"><i class="fas ${template.ownerIcon || 'fa-car'}" aria-hidden="true"></i><strong>${ownerText}</strong><span>${createText}</span></div></div>`
         : `<div class="col-12" id="list-empty-hint"><div class="empty-card"><i class="fas fa-plus" aria-hidden="true"></i><strong>参加者登録</strong><span>名簿を読み込むと、${template.sectionTitle}を作れます。</span><button class="seisan-btn primary" type="button" data-action="open-batch">参加者登録を開く</button></div></div>`;
