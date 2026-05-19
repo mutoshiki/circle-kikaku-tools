@@ -18,10 +18,14 @@ function save() {
                 roomName: d.roomName,
                 waiting: d.waiting,
                 cars: d.cars,
+                activeCarPlanId: d.activeCarPlanId,
+                carPlans: d.carPlans,
                 trayMinimized: d.trayMinimized,
                 editLockEnabled: d.editLockEnabled,
                 editLockPassphrase: d.editLockPassphrase,
                 settlement: d.settlement,
+                lastAutoAssignLabel: d.lastAutoAssignLabel,
+                schemaVersion: d.schemaVersion,
                 lastUpdatedBy: d.lastUpdatedBy,
                 lastUpdatedAt: d.lastUpdatedAt
             }).then(() => {
@@ -49,6 +53,10 @@ function load() {
             $('#cars-container').innerHTML = '';
             editLockEnabled = false;
             editLockPassphrase = '';
+            carPlans = [];
+            activeCarPlanId = 'plan-1';
+            lastAutoAssignLabel = '';
+            renderCarPlanSwitcher?.();
             rememberTrustedDevice('');
             updateEditLockButton();
             refreshRoomTitle();
@@ -97,7 +105,10 @@ function load() {
                 $('#cars-container').innerHTML = '';
                 editLockEnabled = false;
                 editLockPassphrase = '';
+                carPlans = [];
+                activeCarPlanId = 'plan-1';
                 lastAutoAssignLabel = '';
+                renderCarPlanSwitcher?.();
                 updateLastAutoAssignCondition();
                 rememberTrustedDevice('');
                 updateEditLockButton();

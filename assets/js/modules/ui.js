@@ -123,6 +123,11 @@
     const label = badge.querySelector('.sync-status-label');
     badge.dataset.status = kind;
     if (label) label.textContent = message || '保存済み';
+    badge.classList.add('is-visible');
+    clearTimeout(state.syncStatusTimer);
+    state.syncStatusTimer = setTimeout(() => {
+      if (!badge.matches(':hover, :focus-within')) badge.classList.remove('is-visible');
+    }, 1700);
   }
 
   function showUndoBar(message, onUndo) {

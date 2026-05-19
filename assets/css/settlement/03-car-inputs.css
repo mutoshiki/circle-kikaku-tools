@@ -481,3 +481,107 @@ border-radius: var(--radius-main);
 .seisan-extra-type {
 border-radius: var(--radius-sm);
 }
+
+/* Modern settlement car input refresh. */
+.seisan-field label {
+    color: var(--text-sub);
+    font-weight: 850;
+}
+
+.seisan-field input,
+.seisan-field select,
+.seisan-extra-row input,
+.seisan-extra-row select {
+    min-height: 40px;
+    border-color: var(--hairline, var(--border-color));
+    border-radius: var(--radius-main);
+    background: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
+    font-weight: 650;
+}
+
+.seisan-field input:focus,
+.seisan-field select:focus,
+.seisan-extra-row input:focus,
+.seisan-extra-row select:focus {
+    border-color: color-mix(in srgb, var(--accent-color) 44%, var(--border-color));
+    box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
+.seisan-car-row {
+    border-color: var(--hairline, var(--border-color));
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    margin-bottom: 11px;
+    background: color-mix(in srgb, var(--bg-card) 96%, var(--bg-body));
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+}
+
+.seisan-car-title {
+    margin-bottom: 7px;
+}
+
+.seisan-car-title strong {
+    font-size: 0.98rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.seisan-car-total {
+    padding: 4px 8px;
+    border: 1px solid color-mix(in srgb, var(--accent-color) 20%, var(--border-color));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent-color) 7%, var(--bg-card));
+    color: var(--text-main);
+    font-size: 0.82rem;
+}
+
+.seisan-car-inputs {
+    gap: 9px;
+}
+
+.seisan-subhead {
+    border-top-color: var(--hairline, var(--border-color));
+}
+
+.seisan-extra-row {
+    gap: 8px;
+}
+
+.seisan-extra-type.split,
+.seisan-extra-type.club {
+    font-weight: 850;
+}
+
+.seisan-extra-type.split {
+    background: color-mix(in srgb, #10b981 8%, var(--bg-card));
+    border-color: color-mix(in srgb, #10b981 30%, var(--border-color));
+}
+
+.seisan-extra-type.club {
+    background: color-mix(in srgb, #f59e0b 10%, var(--bg-card));
+    border-color: color-mix(in srgb, #f59e0b 32%, var(--border-color));
+}
+
+[data-theme="dark"] .seisan-field input,
+[data-theme="dark"] .seisan-field select,
+[data-theme="dark"] .seisan-extra-row input,
+[data-theme="dark"] .seisan-extra-row select,
+[data-theme="dark"] .seisan-car-row {
+    border-color: var(--hairline, var(--border-color));
+    background: color-mix(in srgb, var(--bg-card) 86%, #020617);
+}
+
+@media (max-width: 640px) {
+    .seisan-car-row {
+        padding: 11px;
+        border-radius: 16px;
+    }
+
+    .seisan-field input,
+    .seisan-field select,
+    .seisan-extra-row input,
+    .seisan-extra-row select {
+        min-height: 39px;
+        border-radius: 12px;
+    }
+}

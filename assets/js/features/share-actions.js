@@ -40,7 +40,7 @@ function copyUrl() {
             toast.className = 'copy-toast';
             document.body.appendChild(toast);
         }
-        toast.textContent = '✓ 共有リンクをコピーしました。参加者は車割発表ビューで開きます';
+        toast.textContent = '✓ 共有リンクをコピーしました。参加者は発表ビューで開きます';
         toast.classList.add('visible');
         setTimeout(() => { toast.classList.remove('visible'); }, 2000);
     }).catch(() => {

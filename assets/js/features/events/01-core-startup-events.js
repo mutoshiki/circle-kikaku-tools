@@ -46,12 +46,23 @@
                     $('#waiting-list').appendChild(card);
                 }
             } else if (box) {
-                if (await appConfirm('この車を削除しますか？同乗者は未割り当てメンバーに戻ります。', { title: '車を削除', okText: '削除', danger: true })) {
-                    $$('.member-card', box).forEach(m => $('#waiting-list').appendChild(m));
+                if (await appConfirm('この車出しを解除して、車出しと同乗者を待機メンバーに戻しますか？', { title: '車出しを解除', okText: '戻す' })) {
+                    const driver = $('.driver-seat', box);
+                    const driverName = driver?.dataset?.name || $('.driver-name-disp', driver)?.innerText || '';
+                    const driverMemo = $('.driver-memo-text', driver)?.innerText || '';
+                    const driverGender = driver?.dataset?.gender || 'unknown';
+                    const driverGrade = parseInt(driver?.dataset?.grade) || 0;
+                    const waitingList = $('#waiting-list');
+
+                    if (driverName && waitingList) addMember(driverName, driverMemo, driverGender, driverGrade, waitingList, false);
+                    $$('.member-card', box).forEach(m => waitingList?.appendChild(m));
+                    if (settlementState?.cars && driverName) delete settlementState.cars[driverName];
+                    if (settlementState?.driverPaid && driverName) delete settlementState.driverPaid[driverName];
+
                     if (box.parentElement && box.parentElement.classList.contains('col-12')) {
                         box.parentElement.remove();
                     } else {
-                        box.closest('.col-12').remove();
+                        box.closest('.col-12')?.remove();
                     }
                 }
             }

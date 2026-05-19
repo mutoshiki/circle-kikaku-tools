@@ -2242,3 +2242,424 @@ padding-inline: 9px;
 }
 
 
+
+/* Modern app shell refresh: header, tabs and top tool hierarchy. */
+#app-layout {
+    background: transparent;
+}
+
+#app-header {
+    padding: 12px 12px 8px;
+    background: transparent;
+    border-bottom: 0;
+}
+
+.app-header-main {
+    max-width: 1120px;
+    min-height: 70px;
+    padding: 12px 14px;
+    gap: 12px;
+    border: 1px solid var(--hairline, var(--border-color));
+    border-radius: var(--radius-lg);
+    background: var(--app-surface);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.app-room-field {
+    gap: 5px;
+}
+
+.app-room-field label {
+    font-size: 0.68rem;
+    font-weight: 850;
+    color: var(--text-sub);
+}
+
+.app-room-input {
+    min-height: 32px;
+    padding: 0;
+    font-size: 1.12rem;
+    font-weight: 860;
+    letter-spacing: -0.03em;
+}
+
+.app-room-input:focus {
+    border-bottom-color: color-mix(in srgb, var(--accent-color) 42%, transparent);
+}
+
+.header-actions {
+    gap: 8px;
+}
+
+.header-action,
+.header-actions .header-action,
+.header-actions .header-more > .header-action {
+    min-height: 38px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border-color: var(--hairline, var(--border-color));
+    background: color-mix(in srgb, var(--bg-card) 86%, transparent);
+    color: color-mix(in srgb, var(--text-sub) 86%, var(--text-main));
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+    font-size: 0.79rem;
+    font-weight: 850;
+}
+
+.header-action:not(.share-action):hover {
+    background: var(--hover-bg);
+    border-color: color-mix(in srgb, var(--accent-color) 20%, var(--border-color));
+    color: var(--text-main);
+}
+
+.header-actions .share-action,
+.share-action {
+    background: var(--accent-color);
+    border-color: color-mix(in srgb, var(--accent-color) 90%, #000);
+    color: #fff;
+    box-shadow: 0 10px 22px color-mix(in srgb, var(--accent-color) 16%, transparent);
+}
+
+.header-actions .share-action:hover,
+.share-action:hover {
+    background: color-mix(in srgb, var(--accent-color) 88%, #000);
+    border-color: color-mix(in srgb, var(--accent-color) 82%, #000);
+    color: #fff;
+}
+
+#view-toggle-bar,
+.view-toggle-bar {
+    max-width: 1120px;
+    margin: 10px auto 0;
+    min-height: 48px;
+    padding: 4px;
+    gap: 4px;
+    border: 1px solid var(--hairline, var(--border-color));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg-card) 86%, transparent);
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+    backdrop-filter: blur(16px) saturate(1.05);
+}
+
+#view-toggle-bar .view-tab,
+.view-toggle-bar .view-tab {
+    min-height: 38px;
+    border-radius: 999px;
+    color: var(--text-sub);
+    font-size: 0.82rem;
+    font-weight: 900;
+    gap: 7px;
+}
+
+#view-toggle-bar .view-tab:not(.active):hover,
+.view-toggle-bar .view-tab:not(.active):hover {
+    background: var(--hover-bg);
+    color: var(--text-main);
+}
+
+#view-toggle-bar .view-tab.active,
+.view-toggle-bar .view-tab.active {
+    background: var(--accent-color);
+    color: #fff;
+    box-shadow: 0 8px 18px color-mix(in srgb, var(--accent-color) 15%, transparent);
+}
+
+#view-toggle-bar .view-tab.active i,
+.view-toggle-bar .view-tab.active i {
+    color: #fff;
+}
+
+#top-area {
+    padding: 12px 12px 24px;
+}
+
+.edit-header-tools-only {
+    max-width: 1120px;
+    margin: 0 auto 12px;
+}
+
+.edit-header-tools-only .edit-tools {
+    gap: 10px;
+}
+
+.edit-header-tools-only .edit-tools .tool-btn,
+.edit-tools .tool-btn {
+    min-height: 44px;
+    border-radius: 999px;
+    border-color: var(--hairline, var(--border-color));
+    background: var(--bg-card);
+    color: var(--text-main);
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+    font-size: 0.82rem;
+    font-weight: 850;
+}
+
+.edit-tools .tool-btn[data-priority="high"] {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border-color: var(--hairline, var(--border-color));
+}
+
+.edit-tools .tool-btn[data-priority="high"]:hover {
+    background: var(--hover-bg);
+    border-color: color-mix(in srgb, var(--accent-color) 22%, var(--border-color));
+}
+
+.auto-condition-pill {
+    justify-self: start;
+    padding: 8px 11px;
+    border: 1px solid var(--hairline, var(--border-color));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg-card) 80%, transparent);
+    color: var(--text-sub);
+    font-size: 0.74rem;
+    font-weight: 800;
+}
+
+#cars-container {
+    max-width: 1120px;
+    margin: 0 auto;
+}
+
+#syncStatusBadge.sync-status-badge {
+    top: calc(env(safe-area-inset-top, 0px) + 14px);
+    right: calc(env(safe-area-inset-right, 0px) + 16px);
+    min-height: 28px;
+    padding: 5px 10px;
+    border-color: var(--hairline, var(--border-color));
+    background: color-mix(in srgb, var(--bg-card) 76%, transparent);
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="dark"] .app-header-main,
+[data-theme="dark"] #view-toggle-bar,
+[data-theme="dark"] .view-toggle-bar,
+[data-theme="dark"] .edit-tools .tool-btn,
+[data-theme="dark"] .header-action:not(.share-action) {
+    background: color-mix(in srgb, var(--bg-card) 78%, transparent);
+    border-color: var(--hairline, var(--border-color));
+}
+
+[data-theme="dark"] #view-toggle-bar .view-tab.active,
+[data-theme="dark"] .view-toggle-bar .view-tab.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #00111a;
+}
+
+[data-theme="dark"] #view-toggle-bar .view-tab.active i,
+[data-theme="dark"] .view-toggle-bar .view-tab.active i {
+    color: #00111a;
+}
+
+@media (max-width: 640px) {
+    #app-header {
+        padding: 8px 8px 6px;
+    }
+
+    .app-header-main {
+        padding: 13px 14px 12px;
+        border-radius: 18px;
+        min-height: auto;
+    }
+
+    .app-room-control {
+        padding-right: min(42vw, 164px);
+    }
+
+    .app-room-field label {
+        font-size: 0.64rem;
+    }
+
+    .app-room-input {
+        min-height: 30px;
+        font-size: 16px;
+        font-weight: 880;
+    }
+
+    #syncStatusBadge.sync-status-badge {
+        top: calc(env(safe-area-inset-top, 0px) + 18px);
+        right: calc(env(safe-area-inset-right, 0px) + 20px);
+        max-width: min(42vw, 160px);
+    }
+
+    .app-header-main > .header-actions {
+        gap: 7px;
+        width: fit-content;
+        margin-left: auto;
+    }
+
+    .header-actions .header-action,
+    .header-actions .header-more > .header-action {
+        min-height: 38px;
+        padding: 8px 11px;
+        font-size: 0.76rem;
+    }
+
+    #view-toggle-bar,
+    .view-toggle-bar {
+        margin: 8px 0 0;
+        min-height: 46px;
+        border-radius: 16px;
+    }
+
+    #view-toggle-bar .view-tab,
+    .view-toggle-bar .view-tab {
+        min-height: 38px;
+        border-radius: 13px;
+        font-size: 0.76rem;
+    }
+
+    #top-area {
+        padding: 10px 8px 18px;
+    }
+
+    .edit-header-tools-only {
+        margin-bottom: 10px;
+    }
+
+    .edit-header-tools-only .edit-tools .tool-btn,
+    .edit-tools .tool-btn {
+        min-height: 42px;
+        border-radius: 14px;
+    }
+}
+
+/* 2026-05 header compact row and bottom-right save status. */
+.app-header-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-auto-rows: auto;
+    align-items: center;
+    gap: 8px;
+}
+
+.app-header-main > .app-brand {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+}
+
+.app-header-main > .header-actions {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    display: flex;
+    flex-wrap: nowrap;
+    width: auto;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.app-room-field {
+    display: block;
+}
+
+.app-room-field label {
+    display: none;
+}
+
+.app-room-input {
+    min-height: 36px;
+    padding: 4px 0;
+    font-size: 1.02rem;
+}
+
+.header-actions .header-action,
+.header-actions .header-more > .header-action,
+.header-actions .share-action {
+    min-width: auto;
+    width: auto;
+    min-height: 34px;
+    padding: 7px 9px;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+#editLockBtn.header-action i {
+    font-size: 0.78em;
+}
+
+#syncStatusBadge.sync-status-badge {
+    top: auto;
+    right: calc(env(safe-area-inset-right, 0px) + 12px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    pointer-events: auto;
+}
+
+#syncStatusBadge.sync-status-badge.is-visible,
+#syncStatusBadge.sync-status-badge:hover,
+#syncStatusBadge.sync-status-badge:focus-within {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+@media (max-width: 640px) {
+    .app-header-main {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 7px;
+        padding: 9px 10px;
+        border-radius: 16px;
+    }
+
+    .app-header-main > .app-brand,
+    .app-header-main > .header-actions {
+        grid-column: auto;
+        grid-row: 1 / 2;
+    }
+
+    .app-header-main > .header-actions {
+        width: auto;
+        max-width: 62vw;
+        margin-left: 0;
+        justify-self: end;
+        gap: 5px;
+    }
+
+    .app-room-control {
+        padding-right: 0;
+        min-width: 0;
+    }
+
+    .app-room-input {
+        min-height: 34px;
+        font-size: 16px;
+        line-height: 1.15;
+    }
+
+    .header-actions .header-action,
+    .header-actions .header-more > .header-action,
+    .header-actions .share-action {
+        min-width: auto;
+        width: auto;
+        min-height: 34px;
+        padding: 7px 7px;
+        font-size: 0.72rem;
+    }
+
+    .header-actions .header-action i {
+        font-size: 0.82em;
+    }
+
+    #syncStatusBadge.sync-status-badge {
+        top: auto;
+        right: calc(env(safe-area-inset-right, 0px) + 10px);
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+        max-width: min(68vw, 220px);
+    }
+}
+
+@media (max-width: 380px) {
+    .app-header-main > .header-actions {
+        max-width: 64vw;
+        gap: 4px;
+    }
+
+    .header-actions .header-action,
+    .header-actions .header-more > .header-action,
+    .header-actions .share-action {
+        padding-inline: 6px;
+        font-size: 0.68rem;
+    }
+}

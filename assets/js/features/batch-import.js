@@ -294,7 +294,7 @@ async function executeBatch() {
             const oldCar = existingDrivers.get(key);
             addCar(driverName, oldCar.capacity, [], oldCar.driverMemo, oldCar.driverGender, driverGrade || oldCar.driverGrade || 0);
         } else {
-            addCar(driverName, 3, [], '', 'unknown', driverGrade);
+            addCar(driverName, (typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3), [], '', 'unknown', driverGrade);
             detectGender(driverName);
         }
     });

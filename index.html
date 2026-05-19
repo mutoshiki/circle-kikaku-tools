@@ -34,8 +34,7 @@
         <div class="app-header-main">
           <div class="app-brand app-room-control">
             <div class="app-room-field">
-              <label for="roomNameInput">企画名</label>
-              <input type="text" id="roomNameInput" class="app-room-input" placeholder="例：新歓企画 5/12" autocomplete="off">
+              <input type="text" id="roomNameInput" class="app-room-input" placeholder="企画名" autocomplete="off" aria-label="企画名">
             </div>
           </div>
           <div id="syncStatusBadge" class="sync-status-badge" data-status="local" aria-live="polite"><span class="sync-status-dot" aria-hidden="true"></span><span class="sync-status-label">ローカル保存</span></div>
@@ -62,10 +61,10 @@
           </div>
         </div>
         <div id="view-toggle-bar">
-          <button class="view-tab" id="tab-list" aria-label="車割メーカー">
-            <i class="fas fa-car-side" aria-hidden="true"></i><span class="view-tab-label">車割</span>
+          <button class="view-tab" id="tab-list" aria-label="編集">
+            <i class="fas fa-pen-to-square" aria-hidden="true"></i><span class="view-tab-label">編集</span>
           </button>
-          <button class="view-tab active" id="tab-sheet" aria-label="車割発表ビュー">
+          <button class="view-tab active" id="tab-sheet" aria-label="発表ビュー">
             <i class="fas fa-table-list" aria-hidden="true"></i><span class="view-tab-label">発表</span>
           </button>
           <button class="view-tab" id="tab-seisan" aria-label="精算ツール">
@@ -74,19 +73,17 @@
         </div>
       </header>
       <div id="top-area" style="display: none;">
-        <div class="edit-header edit-header-tools-only">
-          <div class="edit-tools">
+        <div class="edit-header edit-header-tools-only allocation-toolbar">
+          <div class="edit-tools allocation-toolbar-inner">
             <button id="carGuideBtn" class="btn tool-btn tool-help-btn" data-priority="high" title="使い方">
               <i class="fas fa-circle-question" aria-hidden="true"></i>
               <span>使い方</span>
             </button>
             <button id="batchOpenBtn" class="btn tool-btn" data-priority="high" title="参加者登録">
-              <i class="fas fa-paste" aria-hidden="true"></i>
+              <i class="fas fa-plus" aria-hidden="true"></i>
               <span>参加者登録</span>
             </button>
-          </div>
-          <div id="lastAutoAssignCondition" class="auto-condition-pill" aria-live="polite">
-            <i class="fas fa-random" aria-hidden="true"></i><span>自動割当：未実行</span>
+            <div id="car-plan-switcher" class="car-plan-bar allocation-mode-toggle" aria-label="車割と班割の切り替え"></div>
           </div>
         </div>
         <div id="cars-container" class="row g-3 pb-5"></div>
@@ -202,34 +199,36 @@
         </div>
         <div id="bottom-tray-header">
           <div class="tray-inline-row">
-            <div class="dropdown tray-settings-dropdown">
-              <button class="btn btn-sm btn-secondary dropdown-toggle settings-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="自動割り当ての設定を開く">
-                設定</button>
-              <ul class="dropdown-menu dropdown-menu-end shadow">
-                <li><h6 class="dropdown-header">自動割り当ての条件</h6></li>
-                <li><div id="autoAssignSummary" class="dropdown-item-text small text-muted-dark-friendly">現在：ランダム</div></li>
-                <li>
-                  <label class="dropdown-item">
-                    <input type="checkbox" id="optFemale" class="form-check-input me-2" aria-label="女性の配置を考慮する">女子をまとめる</label>
-                </li>
-                <li>
-                  <label class="dropdown-item">
-                    <input type="checkbox" id="optMale" class="form-check-input me-2" aria-label="男性の配置を考慮する">男子をまとめる</label>
-                </li>
-                <li>
-                  <label class="dropdown-item">
-                    <input type="checkbox" id="optGrade" class="form-check-input me-2" aria-label="学年の配置を考慮する">学年をまとめる</label>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <button id="clearAllBtn" class="dropdown-item text-danger">
-                    <i class="fas fa-broom me-2" aria-hidden="true"></i>全員を未割り当てに戻す</button>
-                </li>
-              </ul>
+            <span id="waiting-count" class="waiting-inline-count" aria-live="polite">未割り当て 0人</span>
+            <button id="fillEmptySeatsBtn" class="btn btn-sm btn-outline-secondary tray-action-btn tray-action-btn--fill" title="今の配置をなるべく残して、空いている席だけ埋めます"><i class="fas fa-fill-drip" aria-hidden="true"></i><span>空席</span></button>
+            <div class="random-tools">
+              <button id="shuffleAssignBtn" class="btn btn-sm btn-outline-primary auto-assign-btn tray-action-btn tray-action-btn--auto" title="固定した人を残し、未固定の人をランダムに組み直します"><i class="fas fa-dice" aria-hidden="true"></i><span>ランダム</span></button>
+              <div class="dropdown tray-settings-dropdown">
+                <button class="btn btn-sm btn-secondary dropdown-toggle settings-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="割り当て条件を開く">
+                  条件</button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                  <li><h6 class="dropdown-header">割り当て条件</h6></li>
+                  <li><div id="autoAssignSummary" class="dropdown-item-text small text-muted-dark-friendly">条件：なし</div></li>
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" id="optFemale" class="form-check-input me-2" aria-label="女性の配置を考慮する">女子をまとめる</label>
+                  </li>
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" id="optMale" class="form-check-input me-2" aria-label="男性の配置を考慮する">男子をまとめる</label>
+                  </li>
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" id="optGrade" class="form-check-input me-2" aria-label="学年の配置を考慮する">学年をまとめる</label>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <button id="clearAllBtn" class="dropdown-item text-danger">
+                      <i class="fas fa-broom me-2" aria-hidden="true"></i>全員を未割り当てに戻す</button>
+                  </li>
+                </ul>
+              </div>
             </div>
-            <span id="waiting-count" class="waiting-inline-count" aria-live="polite">0人</span>
-            <button id="fillEmptySeatsBtn" class="btn btn-sm btn-outline-secondary tray-action-btn tray-action-btn--fill" title="今の配置をなるべく残して、空いている席だけ埋めます"><i class="fas fa-fill-drip" aria-hidden="true"></i><span>空席を埋める</span></button>
-            <button id="shuffleAssignBtn" class="btn btn-sm btn-outline-primary auto-assign-btn tray-action-btn tray-action-btn--auto" title="固定した人を残し、未固定の人を条件に合わせて組み直します"><i class="fas fa-shuffle" aria-hidden="true"></i><span>自動割り当て</span></button>
           </div>
         </div>
         <div id="waiting-list-container">

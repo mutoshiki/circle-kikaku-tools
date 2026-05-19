@@ -256,7 +256,7 @@
     "label": "標準",
     "description": "既定のライト。",
     "swatches": [
-      "#0f766e",
+      "#12805c",
       "#eef3f1",
       "#ffffff"
     ]

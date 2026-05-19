@@ -289,7 +289,7 @@ function handleEdit(type, el) {
             $('.driver-name-disp', driver).textContent = nextName;
             const boxEl = driver.closest('.car-box');
             const label = $('.car-name-label', boxEl);
-            if (label) label.textContent = `${nextName}車`;
+            if (label) label.textContent = `${nextName}${typeof getActiveGroupSuffix === 'function' ? getActiveGroupSuffix() : '車'}`;
             if (settlementState?.cars?.[oldName] && !settlementState.cars[nextName]) {
                 settlementState.cars[nextName] = settlementState.cars[oldName];
                 delete settlementState.cars[oldName];

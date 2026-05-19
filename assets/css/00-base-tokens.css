@@ -11,8 +11,8 @@
     --text-sub: #667085;
     --bg-card: #ffffff;
     --border-color: #dbe4df;
-    --accent-color: #0f766e;
-    --accent-soft: #e7f3ef;
+    --accent-color: #12805c;
+    --accent-soft: #e6f4ee;
     --app-surface: rgba(255, 255, 255, 0.92);
     --sheet-header: #f7faf8;
     --sheet-grid: #dbe4df;
@@ -51,8 +51,8 @@
     --text-sub: #94a3b8;
     --bg-card: #1e293b; 
     --border-color: #334155;
-    --accent-color: #059669;
-    --accent-soft: rgba(52, 211, 153, 0.16);
+    --accent-color: #34d399;
+    --accent-soft: rgba(52, 211, 153, 0.18);
     --app-surface: rgba(30, 41, 59, 0.92);
     --sheet-header: #162033;
     --sheet-grid: #334155;
@@ -1161,4 +1161,144 @@ font-size: 16px;
   background-color: var(--hover-bg);
   border-color: color-mix(in srgb, var(--accent-color) 20%, var(--border-color));
   color: var(--text-main);
+}
+
+/* Modern product UI tokens and base control polish. */
+:root {
+    --bg-body: #f5f7fb;
+    --text-main: #111827;
+    --text-sub: #6b7280;
+    --bg-card: #ffffff;
+    --border-color: #e5e7eb;
+    --accent-color: #111827;
+    --accent-soft: #f1f5f9;
+    --app-surface: rgba(255, 255, 255, 0.94);
+    --sheet-header: #f8fafc;
+    --hover-bg: #f9fafb;
+    --driver-bg: #f8fafc;
+    --seat-bg: #f3f4f6;
+    --seat-slot-bg: #ffffff;
+    --tray-bg: #ffffff;
+    --radius-main: 12px;
+    --radius-sm: 9px;
+    --radius-lg: 18px;
+    --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 28px rgba(15, 23, 42, 0.04);
+    --shadow-float: 0 18px 44px rgba(15, 23, 42, 0.16);
+    --surface-muted: #f8fafc;
+    --surface-elevated: rgba(255, 255, 255, 0.86);
+    --hairline: color-mix(in srgb, var(--border-color) 78%, transparent);
+    --focus-ring: color-mix(in srgb, var(--accent-color) 20%, transparent);
+}
+
+[data-theme="dark"] {
+    --bg-body: #0b1220;
+    --text-main: #f8fafc;
+    --text-sub: #a7b1c2;
+    --bg-card: #111827;
+    --border-color: #263244;
+    --accent-color: #38bdf8;
+    --accent-soft: rgba(56, 189, 248, 0.14);
+    --app-surface: rgba(17, 24, 39, 0.9);
+    --sheet-header: #0f172a;
+    --hover-bg: #172033;
+    --driver-bg: #101827;
+    --seat-bg: #111827;
+    --seat-slot-bg: #111827;
+    --tray-bg: #111827;
+    --surface-muted: #0f172a;
+    --surface-elevated: rgba(17, 24, 39, 0.86);
+    --hairline: rgba(148, 163, 184, 0.18);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.26), 0 12px 32px rgba(0, 0, 0, 0.22);
+    --shadow-float: 0 22px 52px rgba(0, 0, 0, 0.38);
+}
+
+html,
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+}
+
+body {
+    background:
+        radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--accent-color) 8%, transparent), transparent 28rem),
+        linear-gradient(180deg, color-mix(in srgb, var(--bg-body) 94%, #ffffff), var(--bg-body) 38%);
+}
+
+.btn,
+.form-control,
+.form-select,
+.dropdown-menu,
+.modal-content,
+button,
+input,
+select,
+textarea {
+    letter-spacing: -0.01em;
+}
+
+.btn,
+.form-control,
+.form-select,
+.seisan-btn,
+.header-action,
+.view-tab,
+.tool-btn {
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, transform 120ms ease;
+}
+
+.btn:hover,
+.seisan-btn:hover,
+.header-action:hover,
+.view-tab:hover,
+.tool-btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn:active,
+.seisan-btn:active,
+.header-action:active,
+.view-tab:active,
+.tool-btn:active {
+    transform: translateY(0);
+}
+
+.form-control,
+.form-select,
+input,
+select,
+textarea {
+    border-radius: var(--radius-sm);
+}
+
+.form-control:focus,
+.form-select:focus,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+.btn-primary,
+.btn-accent-solid {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    box-shadow: 0 8px 18px color-mix(in srgb, var(--accent-color) 16%, transparent);
+}
+
+.btn-outline-secondary,
+.btn-outline-primary {
+    background: var(--bg-card);
+    border-color: var(--hairline);
+    color: var(--text-main);
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-primary:hover {
+    background: var(--hover-bg);
+    border-color: color-mix(in srgb, var(--accent-color) 28%, var(--border-color));
+    color: var(--text-main);
 }

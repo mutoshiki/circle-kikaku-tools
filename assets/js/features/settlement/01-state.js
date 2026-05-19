@@ -85,8 +85,25 @@ function yen(value) {
 }
 
 function getRoomDataOnly() {
+    const roomName = $('#roomNameInput')?.value || '';
+    if (typeof getCarPlansSnapshot === 'function' && typeof normalizeCarPlanTemplateType === 'function') {
+        const plans = getCarPlansSnapshot();
+        const active = plans.find(plan => plan.id === activeCarPlanId);
+        const target = active && normalizeCarPlanTemplateType(active.templateType) === 'car'
+            ? active
+            : plans.find(plan => normalizeCarPlanTemplateType(plan.templateType) === 'car');
+        if (target) {
+            return {
+                roomName,
+                settlementPlanName: target.name || '車割',
+                waiting: cloneData(target.waiting || []),
+                cars: cloneData(target.cars || [])
+            };
+        }
+    }
     return {
-        roomName: $('#roomNameInput')?.value || '',
+        roomName,
+        settlementPlanName: '',
         waiting: Array.from($$('#waiting-list .member-card')).map(getMemData),
         cars: Array.from($$('.car-box')).map(c => ({
             name: $('.driver-name-disp', c).innerText,

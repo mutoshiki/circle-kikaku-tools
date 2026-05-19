@@ -771,3 +771,322 @@ border-radius: var(--radius-main);
 .sheet-capacity-badge.is-full {
   color: var(--accent-color);
 }
+
+/* Modern announcement sheet refresh. */
+#sheet-view-area {
+    background: transparent;
+}
+
+#sheet-view-area.active::after {
+    top: 58px;
+    width: 34px;
+}
+
+#sheet-title-bar {
+    top: 10px;
+    left: 12px;
+    right: 12px;
+    min-height: 54px;
+    padding: 10px 13px;
+    border: 1px solid var(--hairline, var(--border-color));
+    border-radius: var(--radius-lg);
+    background: var(--app-surface);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.sheet-title-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border-color: color-mix(in srgb, var(--accent-color) 22%, var(--border-color));
+    background: color-mix(in srgb, var(--accent-color) 8%, var(--bg-card));
+}
+
+#sheet-summary {
+    gap: 6px;
+}
+
+.sheet-summary-pill {
+    min-height: 30px;
+    padding: 5px 9px;
+    border-color: var(--hairline, var(--border-color));
+    background: color-mix(in srgb, var(--bg-card) 88%, var(--bg-body));
+    font-weight: 850;
+}
+
+#sheet-canvas {
+    top: 72px;
+    padding: 14px 14px 104px;
+}
+
+.sheet-car-col,
+.sheet-wait-block {
+    min-width: 150px;
+    border-color: var(--hairline, var(--border-color));
+    border-radius: var(--radius-main);
+    overflow: hidden;
+    background: var(--bg-card);
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+    margin-right: 8px;
+}
+
+.sheet-car-col:first-child {
+    border-left: 1px solid var(--hairline, var(--border-color));
+}
+
+.sheet-car-col:last-child {
+    border-right: 1px solid var(--hairline, var(--border-color));
+}
+
+.sheet-car-header,
+.sheet-wait-header {
+    padding: 9px 10px;
+    border-bottom-color: var(--hairline, var(--border-color));
+    background: linear-gradient(180deg, var(--sheet-header), color-mix(in srgb, var(--sheet-header) 82%, var(--bg-card)));
+    font-size: 0.8rem;
+    font-weight: 900;
+}
+
+.sheet-driver-row,
+.sheet-seat-row,
+.sheet-wait-item {
+    border-bottom-color: var(--hairline, var(--border-color));
+}
+
+.sheet-driver-row {
+    background: color-mix(in srgb, var(--accent-color) 6%, var(--bg-card));
+    font-weight: 850;
+}
+
+.sheet-seat-row,
+.sheet-wait-item {
+    min-height: 40px;
+    background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+}
+
+.sheet-chip {
+    border-color: var(--hairline, var(--border-color));
+    border-radius: 999px;
+    background: var(--bg-card);
+    padding: 4px 7px;
+    font-weight: 850;
+}
+
+.sheet-chip.draggable:hover {
+    border-color: color-mix(in srgb, var(--accent-color) 28%, var(--border-color));
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+}
+
+.sheet-capacity-badge {
+    border-radius: 999px;
+    padding: 2px 6px;
+}
+
+#sheet-bottom-controls {
+    bottom: 18px;
+    padding: 7px;
+    border-color: var(--hairline, var(--border-color));
+    border-radius: 999px;
+    background: var(--app-surface);
+    box-shadow: var(--shadow-float);
+}
+
+#zoom-controls button,
+#sheet-quick-edit-btn {
+    border-color: var(--hairline, var(--border-color));
+    background: var(--bg-card);
+    color: var(--text-main);
+}
+
+#zoom-controls button {
+    border-radius: 999px;
+}
+
+#sheet-quick-edit-btn {
+    border-radius: 999px;
+}
+
+#sheet-quick-edit-btn.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
+.sheet-empty-card {
+    border-color: var(--hairline, var(--border-color));
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+[data-theme="dark"] #sheet-title-bar,
+[data-theme="dark"] #sheet-bottom-controls,
+[data-theme="dark"] .sheet-car-col,
+[data-theme="dark"] .sheet-wait-block {
+    background: color-mix(in srgb, var(--bg-card) 86%, transparent);
+    border-color: var(--hairline, var(--border-color));
+}
+
+[data-theme="dark"] .sheet-seat-row,
+[data-theme="dark"] .sheet-wait-item,
+[data-theme="dark"] .sheet-chip {
+    background: color-mix(in srgb, var(--bg-card) 84%, #020617);
+    border-color: var(--hairline, var(--border-color));
+}
+
+[data-theme="dark"] .sheet-driver-row {
+    background: color-mix(in srgb, var(--accent-color) 9%, var(--bg-card));
+}
+
+[data-theme="dark"] #sheet-quick-edit-btn.active {
+    color: #00111a;
+}
+
+@media (max-width: 640px) {
+    #sheet-title-bar {
+        top: 8px;
+        left: 8px;
+        right: 8px;
+        min-height: 52px;
+        border-radius: 16px;
+    }
+
+    #sheet-canvas {
+        top: 70px;
+        padding: 12px 10px 100px;
+    }
+
+    .sheet-car-col,
+    .sheet-wait-block {
+        min-width: 136px;
+        margin-right: 7px;
+        border-radius: 14px;
+    }
+
+    #sheet-bottom-controls {
+        bottom: 14px;
+        border-radius: 18px;
+    }
+}
+
+/* 発表ビューは車割を上、班割を下に縦並びで表示する。 */
+#sheet-canvas {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+}
+
+.sheet-plan-section {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: max-content;
+    max-width: none;
+}
+
+.sheet-plan-heading {
+    margin: 0 0 6px 2px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-main);
+    font-size: 0.98rem;
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.sheet-plan-table {
+    display: flex;
+    align-items: stretch;
+    width: max-content;
+}
+
+.sheet-plan-table .sheet-car-col:last-child {
+    margin-right: 0;
+}
+
+.sheet-plan-section .sheet-wait-block {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin: 8px 0 0;
+    flex: 0 0 auto;
+    border-left: 1px solid var(--hairline, var(--border-color));
+}
+
+.sheet-plan-section .sheet-wait-body,
+.sheet-plan-section .sheet-waiting-list {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 6px;
+    padding: 8px;
+}
+
+.sheet-plan-section .sheet-wait-item {
+    min-height: 32px;
+    border: 1px solid var(--hairline, var(--border-color));
+    border-radius: 999px;
+    padding: 5px 8px;
+}
+
+.sheet-plan-empty {
+    min-width: 280px;
+    padding: 16px;
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-main);
+    background: var(--bg-card);
+    color: var(--text-sub);
+    font-weight: 700;
+}
+
+@media (max-width: 640px) {
+    #sheet-canvas {
+        gap: 16px;
+    }
+
+    .sheet-plan-heading {
+        font-size: 0.92rem;
+    }
+}
+
+/* Keep names aligned even when grade is blank. */
+.sheet-grade-placeholder,
+.sheet-seat-row .grade-badge,
+.sheet-wait-item .grade-badge,
+.sheet-chip .grade-badge,
+.sheet-driver-row .grade-badge {
+    flex: 0 0 2.35em;
+    width: 2.35em;
+    min-width: 2.35em;
+    justify-content: center;
+    text-align: center;
+}
+
+.sheet-grade-placeholder {
+    display: inline-flex;
+    height: 1.55em;
+}
+
+
+/* 2026-05 shared-view width alignment and lighter headings. */
+.sheet-plan-section {
+  width: var(--sheet-plan-width, max-content);
+}
+
+.sheet-plan-table {
+  width: max-content;
+}
+
+.sheet-plan-section .sheet-wait-block {
+  width: var(--sheet-plan-width, 100%);
+  max-width: none;
+  align-self: flex-start;
+}
+
+.sheet-plan-heading {
+  font-weight: 650;
+}
+
+.sheet-plan-empty {
+  font-weight: 500;
+}

@@ -7,7 +7,22 @@
   }
 
   function gradeBadge(grade, gender, helpers) {
+    const n = parseInt(grade) || 0;
+    if (n <= 0) return '<span class="sheet-grade-placeholder" aria-hidden="true"></span>';
     return (helpers?.renderGradeBadge || (() => ''))(grade, gender);
+  }
+
+  function normalizeTemplate(template = {}) {
+    if (template && typeof template === 'object' && template.ownerLabel) return template;
+    return {
+      type: 'car',
+      sectionTitle: '車割',
+      ownerLabel: '車出し',
+      memberLabel: '席',
+      groupSuffix: '車',
+      ownerIcon: 'fa-car',
+      planName: '車割'
+    };
   }
 
   function plainMember(member, helpers = {}) {
@@ -36,23 +51,30 @@
         </div>`;
   }
 
-  function labelColumn(maxSeats) {
+  function labelColumn(maxSeats, template = {}) {
+    const cfg = normalizeTemplate(template);
     return `
-        <div class="sheet-car-header sheet-label-header">　</div>
-        <div class="sheet-driver-row sheet-label-row">車出し</div>
-        ${Array.from({ length: maxSeats }, (_, i) => `<div class="sheet-seat-row sheet-label-row">席 ${i + 1}</div>`).join('')}`;
+        <div class="sheet-car-header sheet-label-header">${esc(cfg.planName || cfg.sectionTitle || '', helpersFromTemplate(template))}</div>
+        <div class="sheet-driver-row sheet-label-row">${esc(cfg.ownerLabel, helpersFromTemplate(template))}</div>
+        ${Array.from({ length: maxSeats }, (_, i) => `<div class="sheet-seat-row sheet-label-row">${esc(cfg.memberLabel, helpersFromTemplate(template))} ${i + 1}</div>`).join('')}`;
   }
 
-  function carColumn({ car, maxSeats, quickEditMode, helpers = {} }) {
+  function helpersFromTemplate(template) {
+    return template?.helpers || {};
+  }
+
+  function carColumn({ car, maxSeats, groupIndex = 0, quickEditMode, helpers = {}, template = {} }) {
+    const cfg = normalizeTemplate(template);
     const cap = parseInt(car.capacity) || 0;
     const filled = (car.members || []).filter(Boolean).length;
     const capacityClass = filled > cap ? 'is-over' : (filled === cap ? 'is-full' : '');
-    let html = `<div class="sheet-car-header">${esc(car.name, helpers)}車 <span class="sheet-capacity-badge ${capacityClass}">${filled}/${cap}</span></div>`;
+    const groupTitle = cfg.type === 'team' ? `第${groupIndex + 1}班` : `${car.name}${cfg.groupSuffix}`;
+    let html = `<div class="sheet-car-header">${esc(groupTitle, helpers)} <span class="sheet-capacity-badge ${capacityClass}">${filled}/${cap}</span></div>`;
 
     const dg = car.driverGender || 'unknown';
     const dgrade = parseInt(car.driverGrade) || 0;
     html += `<div class="sheet-driver-row" data-gender="${dg}">
-        <i class="fas fa-car sheet-driver-icon" aria-hidden="true"></i>
+        <i class="fas ${esc(cfg.ownerIcon, helpers)} sheet-driver-icon" aria-hidden="true"></i>
         <span class="sheet-driver-name">${esc(car.name, helpers)}</span>${gradeBadge(dgrade, dg, helpers)}
     </div>`;
 
@@ -75,14 +97,15 @@
   }
 
   function waitingColumn({ data, quickEditMode, helpers = {} }) {
-    let html = `<div class="sheet-wait-header">待機中 (${data.waiting.length})</div>`;
+    const waiting = Array.isArray(data?.waiting) ? data.waiting : [];
+    let html = `<div class="sheet-wait-header">未割り当て (${waiting.length})</div>`;
     if (quickEditMode) {
-      html += `<div class="sheet-wait-body"><div class="sheet-waiting-list" data-zone-type="waiting" data-accept-drop="true">${data.waiting.map(member => memberChip(member, helpers)).join('')}</div></div>`;
+      html += `<div class="sheet-wait-body"><div class="sheet-waiting-list" data-zone-type="waiting" data-accept-drop="true">${waiting.map(member => memberChip(member, helpers)).join('')}</div></div>`;
     } else {
-      html += `<div class="sheet-wait-body">${data.waiting.length ? data.waiting.map(member => {
+      html += `<div class="sheet-wait-body">${waiting.map(member => {
         const gender = member.gender || 'unknown';
         return `<div class="sheet-wait-item" data-gender="${gender}">${plainMember(member, helpers)}</div>`;
-      }).join('') : '<div class="sheet-wait-item empty">待機メンバーはいません</div>'}</div>`;
+      }).join('')}</div>`;
     }
     return html;
   }
