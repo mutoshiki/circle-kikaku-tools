@@ -1,0 +1,323 @@
+/* Mobile UI polish
+   Small visual refinements based on iPhone screenshots.
+   This file should be loaded last. It does not change app logic. */
+
+@media (max-width: 640px) {
+    body {
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    #app-layout {
+        min-height: 100dvh;
+    }
+
+    #main-container,
+    .main-container,
+    #app-main {
+        max-width: 100%;
+    }
+
+    .app-header-main {
+        margin: 0;
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0 0 18px 18px;
+        box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+    }
+
+    .app-room-field {
+        gap: 3px;
+    }
+
+    .app-room-field label {
+        font-size: 0.62rem;
+        letter-spacing: 0.01em;
+    }
+
+    .app-room-input {
+        min-height: 28px;
+        line-height: 1.2;
+        letter-spacing: 0;
+    }
+
+    .header-actions {
+        align-items: center;
+    }
+
+    .header-action,
+    .header-more .dropdown-toggle,
+    .share-action {
+        min-height: 34px;
+        border-radius: 999px;
+        box-shadow: none;
+    }
+
+    #view-toggle-bar,
+    .view-toggle-bar {
+        margin-top: 8px;
+        padding: 3px;
+        border-radius: 14px;
+    }
+
+    .view-tab {
+        min-height: 34px;
+        border-radius: 11px;
+        font-size: 0.73rem;
+    }
+
+    .tool-btn,
+    .seisan-btn,
+    .seisan-toggle,
+    .tray-action-btn,
+    #sheet-quick-edit-btn {
+        border-radius: 12px;
+    }
+
+    .section-toolbar,
+    .sheet-actions,
+    .tray-actions,
+    .seisan-add-row {
+        gap: 8px;
+    }
+
+    .car-box,
+    .seisan-card,
+    .seisan-summary-card,
+    .seisan-car-row,
+    .guide-feature-card,
+    .route-private-panel,
+    .route-stop-panel {
+        border-radius: 16px;
+    }
+
+    .car-box,
+    .seisan-card {
+        margin-bottom: 10px;
+    }
+
+    .car-header,
+    .seisan-head {
+        gap: 8px;
+    }
+
+    .member-card,
+    .driver-seat,
+    .seat-slot,
+    .guide-mini-card {
+        border-radius: 12px;
+    }
+
+    .member-card,
+    .driver-seat {
+        min-height: 42px;
+    }
+
+    .member-main-line,
+    .driver-main-line {
+        gap: 7px;
+    }
+
+    .grade-badge {
+        border-radius: 999px;
+        padding: 2px 6px;
+        font-size: 0.58rem;
+        line-height: 1.15;
+        box-shadow: none;
+    }
+
+    .seisan-summary-grid,
+    .seisan-mock-flow {
+        gap: 8px;
+    }
+
+    .seisan-summary-card,
+    .seisan-mock-summary {
+        min-height: 78px;
+        padding: 12px;
+    }
+
+    .seisan-summary-value,
+    .seisan-mock-value {
+        letter-spacing: -0.02em;
+    }
+
+    .seisan-check-item,
+    .seisan-driver-pay-row {
+        border-radius: 14px;
+        min-height: 46px;
+    }
+
+    .route-stop-row {
+        border-radius: 13px;
+    }
+
+    #bottom-tray {
+        border-radius: 18px 18px 0 0;
+        box-shadow: 0 -12px 28px rgba(15, 23, 42, 0.12);
+    }
+
+    #tray-handle {
+        min-height: 38px;
+    }
+
+    .tray-inline-row,
+    .tray-actions {
+        gap: 7px;
+    }
+
+    .modal-content {
+        border-radius: 18px;
+    }
+
+    .modal-header {
+        min-height: 52px;
+    }
+
+    .modal-title {
+        letter-spacing: -0.01em;
+    }
+
+    .modal-body {
+        line-height: 1.55;
+    }
+}
+
+/* Light mode: keep cards clean but reduce the pale flat feeling slightly. */
+[data-theme="light"] .app-header-main,
+[data-theme="light"] #view-toggle-bar,
+[data-theme="light"] .view-toggle-bar,
+[data-theme="light"] .car-box,
+[data-theme="light"] .seisan-card,
+[data-theme="light"] .seisan-summary-card,
+[data-theme="light"] .route-private-panel,
+[data-theme="light"] .route-stop-panel,
+[data-theme="light"] .guide-feature-card {
+    border-color: color-mix(in srgb, var(--border-color) 82%, transparent);
+}
+
+[data-theme="light"] .member-card,
+[data-theme="light"] .driver-seat,
+[data-theme="light"] .seat-slot {
+    border-color: color-mix(in srgb, var(--border-color) 78%, transparent);
+}
+
+[data-theme="light"] .view-tab.active,
+[data-theme="light"] #view-toggle-bar .view-tab.active {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 16%, transparent);
+}
+
+/* Dark mode: reduce the heavy black/card contrast and remove noisy double-frame impressions. */
+[data-theme="dark"] body {
+    background:
+        radial-gradient(circle at 16% -8%, color-mix(in srgb, var(--accent-color) 8%, transparent), transparent 32%),
+        var(--bg-body);
+}
+
+[data-theme="dark"] .app-header-main {
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 92%, #111827), color-mix(in srgb, var(--bg-card) 82%, #020617));
+    border-color: rgba(148, 163, 184, 0.16);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);
+}
+
+[data-theme="dark"] #view-toggle-bar,
+[data-theme="dark"] .view-toggle-bar,
+[data-theme="dark"] .car-box,
+[data-theme="dark"] .seisan-card,
+[data-theme="dark"] .seisan-summary-card,
+[data-theme="dark"] .seisan-car-row,
+[data-theme="dark"] .route-private-panel,
+[data-theme="dark"] .route-stop-panel,
+[data-theme="dark"] .guide-feature-card,
+[data-theme="dark"] .modal-content {
+    background: color-mix(in srgb, var(--bg-card) 88%, #020617);
+    border-color: rgba(148, 163, 184, 0.16);
+    box-shadow: none;
+}
+
+[data-theme="dark"] .member-card,
+[data-theme="dark"] .driver-seat,
+[data-theme="dark"] .seat-slot,
+[data-theme="dark"] .guide-mini-card,
+[data-theme="dark"] .seisan-check-item,
+[data-theme="dark"] .seisan-driver-pay-row {
+    background: color-mix(in srgb, var(--bg-card) 76%, #020617);
+    border-color: rgba(148, 163, 184, 0.14);
+    box-shadow: none;
+}
+
+[data-theme="dark"] .member-card:hover,
+[data-theme="dark"] .driver-seat:hover {
+    border-color: rgba(148, 163, 184, 0.24);
+}
+
+[data-theme="dark"] .view-tab {
+    color: color-mix(in srgb, var(--text-sub) 92%, transparent);
+}
+
+[data-theme="dark"] .view-tab.active,
+[data-theme="dark"] #view-toggle-bar .view-tab.active {
+    background: color-mix(in srgb, var(--accent-color) 18%, transparent);
+    color: color-mix(in srgb, var(--accent-color) 82%, #ffffff);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 18%, transparent);
+}
+
+[data-theme="dark"] .header-action:not(.share-action),
+[data-theme="dark"] .header-more .dropdown-toggle {
+    background: rgba(15, 23, 42, 0.32);
+    border-color: rgba(148, 163, 184, 0.15);
+    color: var(--text-main);
+}
+
+[data-theme="dark"] .share-action,
+[data-theme="dark"] .seisan-btn.primary,
+[data-theme="dark"] .seisan-btn.active,
+[data-theme="dark"] .seisan-toggle.active,
+[data-theme="dark"] .tool-btn.primary {
+    box-shadow: 0 7px 16px color-mix(in srgb, var(--accent-color) 18%, transparent);
+}
+
+[data-theme="dark"] .seisan-summary-card,
+[data-theme="dark"] .seisan-mock-summary {
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 78%, #020617), color-mix(in srgb, var(--bg-card) 68%, #020617));
+}
+
+[data-theme="dark"] .seisan-summary-card.collect,
+[data-theme="dark"] .seisan-mock-summary.collect {
+    border-color: color-mix(in srgb, var(--accent-color) 24%, rgba(148, 163, 184, 0.16));
+}
+
+[data-theme="dark"] #bottom-tray {
+    background: color-mix(in srgb, var(--bg-card) 90%, #020617);
+    border-color: rgba(148, 163, 184, 0.16);
+    box-shadow: 0 -16px 32px rgba(0, 0, 0, 0.32);
+}
+
+[data-theme="dark"] .capacity-badge.capacity-edit-btn,
+[data-theme="dark"] .capacity-badge.capacity-edit-btn .capacity-count,
+[data-theme="dark"] .fa-check {
+    box-shadow: none;
+}
+
+/* Theme settings: keep the final buttons visible and visually lighter. */
+#appearanceModal .modal-footer {
+    min-height: calc(env(safe-area-inset-bottom, 0px) + 64px);
+}
+
+#appearanceModal .modal-footer .btn {
+    box-shadow: none;
+}
+
+#appearanceModal .theme-picker summary {
+    border-radius: calc(var(--radius-main) - 1px);
+}
+
+#appearanceModal .theme-choice-scroller .theme-preset-card {
+    transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+#appearanceModal .theme-choice-scroller .theme-preset-card:active {
+    transform: scale(0.99);
+}

@@ -1,0 +1,236 @@
+/* Distance/route helper modal and route stop controls.
+   Generated during S-1 responsibility split. */
+
+.route-private-panel,
+.route-stop-panel {
+border: 1px solid var(--border-color);
+    border-radius: var(--radius-main);
+    background: var(--bg-card);
+    padding: 10px;
+}
+
+.route-private-view {
+display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 6px;
+    align-items: center;
+}
+
+.route-private-saved {
+min-height: 37px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 9px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-body);
+    color: var(--text-main);
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.route-private-edit {
+display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 6px;
+    align-items: center;
+}
+
+.route-private-input,
+.route-stop-input {
+width: 100%;
+    min-height: 38px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-main);
+    padding: 7px 8px;
+    font-size: 0.86rem;
+}
+
+.route-private-input:focus,
+.route-stop-input:focus {
+outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.13);
+}
+
+.route-stop-list {
+display: grid;
+    gap: 7px;
+}
+
+.route-stop-row {
+display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) 34px 34px 34px;
+    gap: 6px;
+    align-items: center;
+}
+
+.route-stop-num {
+width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    background: var(--accent-soft);
+    color: var(--accent-color);
+    border: 1px solid var(--border-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.74rem;
+    font-weight: 900;
+}
+
+.route-helper-actions .seisan-btn {
+display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.route-helper-actions .seisan-btn i {
+margin: 0;
+}
+
+@media (max-width: 640px) {
+.route-private-view,
+.route-private-edit {
+grid-template-columns: 1fr;
+}
+}
+
+@media (max-width: 640px) {
+.route-stop-row {
+grid-template-columns: 24px minmax(0, 1fr) 30px 30px 30px;
+        gap: 5px;
+}
+}
+
+@media (max-width: 640px) {
+.route-stop-num {
+width: 24px;
+        height: 24px;
+        font-size: 0.68rem;
+}
+}
+
+@media (max-width: 640px) {
+.route-private-input,
+.route-stop-input {
+min-height: 36px;
+        font-size: 0.82rem;
+        padding: 6px 7px;
+}
+}
+
+.route-stop-row {
+cursor: default;
+}
+
+.route-stop-num {
+cursor: grab;
+}
+
+.route-stop-num:active {
+cursor: grabbing;
+}
+
+.route-stop-row {
+grid-template-columns: 38px minmax(0, 1fr) 38px;
+    gap: 7px;
+}
+
+.route-stop-num {
+width: 38px;
+    height: 38px;
+    font-size: 0.86rem;
+    touch-action: none;
+}
+
+.route-stop-delete-btn {
+width: 38px; min-width: 38px;
+}
+
+@media (max-width: 640px) {
+.route-stop-row {
+grid-template-columns: 40px minmax(0, 1fr) 40px;
+}
+}
+
+@media (max-width: 640px) {
+.route-stop-num,
+.route-stop-delete-btn {
+width: 40px;
+        height: 40px;
+        min-width: 40px;
+}
+}
+
+@media (max-width: 640px) {
+.route-stop-input {
+min-height: 40px;
+        font-size: 0.9rem;
+}
+}
+
+.route-private-panel,
+.route-stop-panel,
+.route-stop-row {
+box-sizing: border-box;
+}
+
+.route-private-input,
+.route-stop-input {
+padding-left: 10px;
+    padding-right: 10px;
+}
+
+#routeDistanceModal .route-private-panel,
+#routeDistanceModal .route-stop-panel,
+#routeDistanceModal .route-stop-row {
+max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .route-private-panel,
+  .route-stop-panel {
+    /* Use the unified main radius for mobile panels */
+    border-radius: var(--radius-main);
+  }
+}
+
+@media (max-width: 640px) {
+  .route-stop-row {
+    /* Use the unified small radius for rows */
+    border-radius: var(--radius-sm);
+  }
+}
+
+[data-theme="light"] .route-private-panel,
+[data-theme="light"] .route-stop-panel {
+border-color: color-mix(in srgb, var(--border-color) 82%, transparent);
+}
+
+[data-theme="dark"] .route-private-panel,
+[data-theme="dark"] .route-stop-panel {
+background: color-mix(in srgb, var(--bg-card) 88%, #020617);
+    border-color: rgba(148, 163, 184, 0.16);
+    box-shadow: none;
+}
+
+.route-stop-row,
+.route-private-input,
+.route-private-view,
+.route-private-edit {
+border-radius: var(--radius-main);
+}
+
+@media (max-width: 768px) {
+.route-stop-input,
+.route-private-input {
+font-size: 16px;
+}
+}

@@ -1,0 +1,298 @@
+/* 111 Input / radius / header fixes
+   Final owner overrides for the requested polish pass. */
+
+:root {
+    --radius-main: 12px;
+    --radius-sm: 10px;
+    --radius-xs: 8px;
+}
+
+/* Header action tools: keep その他 / ロック / 共有 visually right-aligned. */
+.app-header-main > .header-actions,
+.header-actions {
+    justify-self: end;
+    margin-left: auto;
+    justify-content: flex-end;
+}
+
+.header-actions .header-more {
+    justify-content: flex-end;
+}
+
+.header-action,
+.header-actions .header-action,
+.header-actions .share-action {
+    border-radius: var(--radius-sm);
+}
+
+@media (max-width: 640px) {
+    .app-header-main > .header-actions {
+        width: 100%;
+        justify-self: end;
+        justify-content: end;
+        justify-items: end;
+    }
+}
+
+/* Moderate, consistent corners for buttons, cards, frames and form controls. */
+.btn,
+.tool-btn,
+.header-action,
+.view-tab,
+.seisan-btn,
+.seisan-icon-btn,
+.guide-step-btn,
+.guide-nav-btn,
+.theme-option-btn,
+.appearance-choice,
+button.dropdown-item,
+.app-room-field,
+.app-room-input,
+.form-control,
+.form-select,
+.form-check-input,
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea,
+.dropdown-menu,
+.dropdown-item,
+.modal-content,
+.modal-header,
+.modal-footer,
+.card,
+.seisan-card,
+.seisan-summary-card,
+.seisan-car-row,
+.seisan-check-item,
+.seisan-driver-pay-row,
+.seisan-extra-row input,
+.seisan-extra-row select,
+.seisan-toggle,
+.seisan-empty-state .empty-card,
+.car-box,
+.driver-seat,
+.seat-slot,
+.member-card,
+.waiting-tray,
+.guide-feature-card,
+.guide-mini-screen,
+#view-toggle-bar,
+#sheet-title-bar,
+#sheet-canvas,
+.route-stop-row,
+.route-private-input,
+.route-private-view,
+.route-private-edit {
+    border-radius: var(--radius-main);
+}
+
+.btn-sm,
+.view-tab,
+.dropdown-item,
+.seisan-btn,
+.seisan-icon-btn,
+.header-action,
+.tool-btn,
+.theme-simple-pill,
+.theme-pill,
+.badge,
+.grade-badge,
+.gender-badge,
+.sync-status-badge,
+.auto-condition-pill,
+.seisan-check-note,
+.seisan-car-total,
+.seisan-extra-type,
+.seisan-mock-chip {
+    border-radius: var(--radius-sm);
+}
+
+/* True circles/dots stay circular because they communicate status or are native controls. */
+.sync-status-dot,
+.capacity-badge,
+.form-check-input[type="radio"] {
+    border-radius: 50%;
+}
+
+/* iOS Safari zooms focused inputs below 16px and often does not zoom back out.
+   Keep keyboard fields at 16px on phone-sized screens while preserving desktop density. */
+@media (max-width: 768px) {
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea,
+    .form-control,
+    .form-select,
+    .app-room-input,
+    #seisan-view-area .seisan-field input,
+    #seisan-view-area .seisan-field select,
+    #seisan-view-area .seisan-extra-row input,
+    #seisan-view-area .seisan-extra-row select,
+    #seisan-view-area .seisan-car-inputs input,
+    .route-stop-input,
+    .route-private-input {
+        font-size: 16px;
+    }
+}
+
+/* Settlement summary formula: 集める ＋ 部費 ＝ 渡す. */
+#seisan-view-area .seisan-top-flow {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: stretch;
+    gap: 6px;
+}
+
+#seisan-view-area .seisan-flow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    min-width: 13px;
+    color: color-mix(in srgb, var(--text-sub) 62%, transparent);
+    font-size: 0.76rem;
+    font-weight: 750;
+    line-height: 1;
+    transform: translateY(1px);
+}
+
+#seisan-view-area .seisan-summary-sub {
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    #seisan-view-area .seisan-top-flow {
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+        gap: 4px;
+    }
+
+    #seisan-view-area .seisan-flow-arrow {
+        display: flex;
+        min-width: 10px;
+        font-size: 0.66rem;
+        opacity: 0.72;
+    }
+
+    #seisan-view-area .seisan-summary-card {
+        min-width: 0;
+    }
+
+    #seisan-view-area .seisan-summary-value {
+        font-size: clamp(1.02rem, 5.3vw, 1.24rem);
+    }
+
+    #seisan-view-area .seisan-summary-sub {
+        font-size: clamp(0.52rem, 2.55vw, 0.6rem);
+        letter-spacing: -0.035em;
+    }
+}
+
+/* Definitive header action alignment fix.
+   Earlier mobile polish widened the action row to the full header and stretched the
+   three buttons. Keep the row itself fit-content so その他 / ロック / 共有 sit on
+   the right edge as one compact group. */
+.app-header-main > .header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    justify-self: end;
+    width: auto;
+    max-width: 100%;
+    margin-left: auto;
+}
+
+.header-actions .header-more,
+.header-actions .header-action,
+.header-actions .header-more > .header-action,
+.header-more .dropdown-toggle {
+    flex: 0 0 auto;
+    width: auto;
+}
+
+@media (min-width: 641px) {
+    .app-header-main > .header-actions {
+        grid-column: 2 / 3;
+        grid-row: 2 / 3;
+    }
+}
+
+@media (max-width: 640px) {
+    .app-header-main > .header-actions {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-wrap: nowrap;
+        width: fit-content;
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: 0;
+        justify-self: end;
+        justify-content: flex-end;
+        justify-items: end;
+        gap: 7px;
+    }
+
+    .header-actions .header-more {
+        display: flex;
+        width: auto;
+        min-width: 0;
+        justify-self: end;
+    }
+
+    .header-actions .header-action,
+    .header-actions .header-more > .header-action,
+    .header-more .dropdown-toggle {
+        width: auto;
+        min-width: 0;
+        padding-inline: 11px;
+        justify-content: center;
+    }
+
+    .header-actions .share-action {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 360px) {
+    .header-actions .header-action,
+    .header-actions .header-more > .header-action,
+    .header-more .dropdown-toggle {
+        padding-inline: 9px;
+    }
+}
+
+/* Settlement result sharing rebuilt as generic copy tools, not LINE-specific sending. */
+#seisan-view-area .seisan-share-card {
+    background: color-mix(in srgb, var(--bg-card) 92%, var(--accent-soft));
+}
+
+#seisan-view-area .seisan-share-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+}
+
+#seisan-view-area .seisan-share-actions .seisan-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    #seisan-view-area .seisan-share-actions {
+        gap: 6px;
+    }
+
+    #seisan-view-area .seisan-share-actions .seisan-btn {
+        min-height: 36px;
+        padding-inline: 7px;
+        font-size: 0.72rem;
+    }
+}
+
+@media (max-width: 360px) {
+    #seisan-view-area .seisan-share-actions .seisan-btn {
+        font-size: 0.68rem;
+        padding-inline: 5px;
+    }
+}

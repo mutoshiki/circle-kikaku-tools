@@ -1,0 +1,109 @@
+/* Experimental owner overrides
+   Loaded last so the no-important cleanup stays stable. */
+
+#app-header,
+.app-header-main,
+.header-actions,
+.header-action,
+#view-toggle-bar,
+.view-tab,
+#syncStatusBadge,
+#bottom-tray,
+#tray-handle,
+#waiting-list,
+.member-card,
+.driver-seat,
+.seisan-btn,
+.seisan-toggle {
+    box-sizing: border-box;
+}
+
+/* Header / tabs: keep owner file behavior late in the cascade. */
+.app-header-main {
+    min-width: 0;
+}
+
+.header-actions {
+    min-width: 0;
+}
+
+.header-action {
+    border-radius: 999px;
+}
+
+#view-toggle-bar .view-tab.active,
+.view-toggle-bar .view-tab.active {
+    border-radius: calc(var(--radius-main) - 4px);
+    background: var(--accent-soft);
+    color: var(--accent-color);
+}
+
+#view-toggle-bar .view-tab.active i,
+.view-toggle-bar .view-tab.active i {
+    color: var(--accent-color);
+}
+
+/* Status badge: single top-right owner. */
+#syncStatusBadge.sync-status-badge {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 8px);
+    right: calc(env(safe-area-inset-right, 0px) + 10px);
+    z-index: 2200;
+    pointer-events: none;
+}
+
+/* Cards: gender must not affect lock look. */
+.member-card[data-gender]:not([data-locked="true"]),
+.driver-seat[data-gender]:not([data-locked="true"]) {
+    border-color: var(--border-color);
+}
+
+.member-card[data-locked="true"] {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 1px #f59e0b;
+}
+
+/* Buttons: keep active/highlight rounded after removing important. */
+.seisan-btn,
+.seisan-toggle,
+.seisan-icon-btn,
+.tool-btn,
+.tray-actions .btn {
+    border-radius: var(--radius-sm);
+}
+
+.seisan-btn.primary,
+.seisan-btn.active,
+.seisan-toggle.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
+[data-theme="dark"] .seisan-btn.primary,
+[data-theme="dark"] .seisan-btn.active,
+[data-theme="dark"] .seisan-toggle.active,
+[data-theme="dark"] #sheet-quick-edit-btn.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+
+/* Modal/dropdown safety. */
+.header-more .dropdown-menu {
+    max-width: calc(100vw - 24px);
+    max-height: min(70dvh, 460px);
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+/* Preserve drag usability. */
+body.manual-card-dragging,
+body.quick-sheet-dragging {
+    user-select: none;
+}
+
+body.manual-card-dragging .person-pop-menu,
+body.quick-sheet-dragging .person-pop-menu {
+    display: none;
+}

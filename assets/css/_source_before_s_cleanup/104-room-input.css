@@ -1,0 +1,36 @@
+/* Dark room name input repair
+   Remove the extra framed/background look around the project title field in dark mode. */
+[data-theme="dark"] .app-brand.app-room-control,
+[data-theme="dark"] .app-room-control,
+[data-theme="dark"] .app-room-field {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    outline: 0;
+}
+
+[data-theme="dark"] .app-room-field {
+    border-radius: 0;
+}
+
+[data-theme="dark"] .app-room-input {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    outline: 0;
+}
+
+[data-theme="dark"] .app-room-input:focus {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    outline: 0;
+}
+
+[data-theme="dark"] .app-room-input:-webkit-autofill,
+[data-theme="dark"] .app-room-input:-webkit-autofill:hover,
+[data-theme="dark"] .app-room-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-main);
+    transition: background-color 9999s ease-out;
+    box-shadow: 0 0 0 1000px transparent inset;
+}

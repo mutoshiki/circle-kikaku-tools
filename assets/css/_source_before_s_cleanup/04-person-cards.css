@@ -1,0 +1,74 @@
+/* Person cards
+   Shared card language for member cards and driver seats.
+   Existing class names are kept for JS compatibility. */
+
+:where(.member-card, .driver-seat) {
+    border-radius: var(--radius-main, 14px);
+    color: var(--text-main);
+}
+
+:where(.member-card, .driver-seat) :where(.member-main-line, .driver-main-line) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+:where(.member-name-text, .driver-name-disp) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+:where(.member-menu-btn, .driver-menu-btn) {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 999px;
+    color: var(--text-sub);
+    touch-action: manipulation;
+}
+
+:where(.member-menu-btn, .driver-menu-btn):hover {
+    color: var(--accent-color);
+    background: var(--hover-bg);
+}
+
+:where(.member-card, .driver-seat) .memo-popup {
+    overflow-wrap: anywhere;
+}
+
+:where(.member-card.manual-drag-source, .driver-seat.manual-drag-source) {
+    opacity: .42;
+}
+
+.manual-drag-float {
+    pointer-events: none;
+    will-change: transform;
+}
+
+@media (max-width: 640px) {
+    :where(.member-card, .driver-seat) :where(.member-main-line, .driver-main-line) {
+        gap: 6px;
+    }
+
+    :where(.member-menu-btn, .driver-menu-btn) {
+        min-width: 30px;
+        min-height: 30px;
+    }
+}
+
+.member-card[data-locked="true"] {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 1px #f59e0b;
+}
+
+/* Card lock visual: locked cards only */
+.member-card[data-locked="true"] {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 1px #f59e0b;
+}
