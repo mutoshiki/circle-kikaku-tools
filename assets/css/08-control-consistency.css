@@ -5623,3 +5623,347 @@ body.overview-drawer-open {
     font-weight: 780;
   }
 }
+
+
+/* 2026-05 cohesive UI tune: keep this as the final visual-system pass. */
+body[data-theme="light"] {
+  --accent-color: #3f6f96;
+  --accent-soft: #e8f0f6;
+  --bg-body: #f5f7fa;
+  --bg-card: #ffffff;
+  --border-color: #e3e8ef;
+  --text-main: #111827;
+  --text-sub: #687386;
+  --hover-bg: #f0f5f8;
+  --sheet-header: #f7f9fb;
+  --ui-saas-panel: rgba(255, 255, 255, 0.88);
+  --ui-saas-panel-raised: rgba(255, 255, 255, 0.96);
+  --ui-saas-inner: color-mix(in srgb, #ffffff 90%, #edf4f8);
+  --ui-saas-border: rgba(116, 132, 153, 0.22);
+  --ui-saas-border-strong: rgba(63, 111, 150, 0.30);
+  --ui-saas-shadow: 0 1px 0 rgba(15, 23, 42, 0.035), 0 10px 24px rgba(15, 23, 42, 0.045);
+  --ui-saas-shadow-soft: 0 1px 0 rgba(15, 23, 42, 0.026), 0 5px 16px rgba(15, 23, 42, 0.035);
+  --ui-unified-divider: color-mix(in srgb, var(--border-color) 72%, transparent);
+  --ui-unified-muted-surface: color-mix(in srgb, var(--bg-card) 84%, var(--bg-body));
+}
+
+body[data-theme="dark"] {
+  --accent-color: #78a6ca;
+  --accent-soft: rgba(120, 166, 202, 0.16);
+  --bg-body: #090d18;
+  --bg-card: #111827;
+  --border-color: #273044;
+  --text-main: #f8fafc;
+  --text-sub: #a2adbf;
+  --hover-bg: #172133;
+  --sheet-header: #0f172a;
+  --ui-saas-panel: rgba(15, 23, 42, 0.80);
+  --ui-saas-panel-raised: rgba(17, 24, 39, 0.92);
+  --ui-saas-inner: color-mix(in srgb, var(--bg-card) 88%, #12314a);
+  --ui-saas-border: rgba(148, 163, 184, 0.18);
+  --ui-saas-border-strong: rgba(120, 166, 202, 0.32);
+  --ui-saas-shadow: 0 1px 0 rgba(255, 255, 255, 0.026), 0 12px 30px rgba(0, 0, 0, 0.26);
+  --ui-saas-shadow-soft: 0 1px 0 rgba(255, 255, 255, 0.020), 0 7px 20px rgba(0, 0, 0, 0.20);
+  --ui-unified-divider: rgba(148, 163, 184, 0.16);
+  --ui-unified-muted-surface: color-mix(in srgb, var(--bg-card) 78%, #020617);
+}
+
+body {
+  --control-primary-bg: color-mix(in srgb, var(--accent-color) 92%, #111827);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 82%, #111827);
+  --control-primary-text: #fff;
+  --control-secondary-bg: color-mix(in srgb, var(--bg-card) 90%, var(--bg-body));
+  --control-secondary-hover: color-mix(in srgb, var(--accent-color) 8%, var(--bg-card));
+  --control-border: var(--ui-saas-border);
+  --control-border-strong: var(--ui-saas-border-strong);
+  font-feature-settings: "palt" 1;
+}
+
+#app-header,
+#view-toggle-bar,
+.edit-header-tools-only,
+.seisan-card,
+.car-box,
+#bottom-tray,
+#sheet-title-bar,
+#sheet-bottom-controls,
+.sheet-empty-card,
+.modal-content,
+.dropdown-menu,
+.person-pop-menu,
+.batch-spreadsheet-import,
+.theme-preview-panel,
+.theme-app-preview,
+.theme-preset-card,
+.overview-drawer {
+  border-color: var(--ui-saas-border);
+  background: var(--ui-saas-panel-raised);
+  box-shadow: var(--ui-saas-shadow-soft);
+}
+
+.driver-seat,
+.seat-slot,
+.member-card,
+.seisan-summary-card,
+.seisan-car-summary-row,
+.seisan-check-item,
+.seisan-driver-pay-row,
+.sheet-car-col,
+.sheet-wait-block,
+.sheet-seat-row,
+.sheet-driver-row,
+.sheet-wait-item,
+.form-control,
+.form-select,
+.seisan-toggle,
+.route-stop-row,
+.route-private-view,
+.route-private-edit,
+.form-sheet-howto,
+.form-import-preview,
+.seisan-summary-pills span,
+.overview-panel,
+.overview-textarea,
+.overview-mini-action,
+.overview-copy-action {
+  border-color: var(--ui-saas-border);
+  background: var(--ui-saas-inner);
+  box-shadow: none;
+}
+
+.car-header,
+.seisan-head,
+.seisan-compact-head,
+.modal-header,
+.modal-footer,
+.sheet-car-header,
+.sheet-wait-header,
+#bottom-tray-header,
+.overview-drawer-head,
+.overview-panel-title-row {
+  border-color: var(--ui-unified-divider);
+}
+
+.btn:not(.btn-close),
+.header-action,
+.tool-btn,
+.seisan-btn,
+.tray-action-btn,
+#sheet-quick-edit-btn,
+#zoom-controls button,
+.guide-footer .btn,
+.overview-mini-action,
+.overview-copy-action,
+.overview-drawer-close {
+  border-color: var(--control-border);
+  font-weight: 720;
+  box-shadow: none;
+}
+
+.btn-primary,
+.btn-accent-solid,
+.header-actions .share-action,
+#shareLinkBtn.header-action,
+#batchOpenBtn.tool-btn,
+#routeHelperBtn.seisan-btn,
+.seisan-btn.primary,
+#shuffleAssignBtn.tray-action-btn,
+.tray-inline-row .tray-action-btn--auto,
+.guide-footer .btn-primary,
+.mock-form-import-button,
+.batch-spreadsheet-button {
+  background: var(--control-primary-bg);
+  border-color: var(--control-primary-bg);
+  color: var(--control-primary-text);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-color) 16%, transparent);
+}
+
+.btn-primary:hover,
+.btn-accent-solid:hover,
+.header-actions .share-action:hover,
+#shareLinkBtn.header-action:hover,
+#batchOpenBtn.tool-btn:hover,
+#routeHelperBtn.seisan-btn:hover,
+.seisan-btn.primary:hover,
+#shuffleAssignBtn.tray-action-btn:hover,
+.tray-inline-row .tray-action-btn--auto:hover,
+.guide-footer .btn-primary:hover,
+.mock-form-import-button:hover,
+.batch-spreadsheet-button:hover {
+  background: var(--control-primary-hover);
+  border-color: var(--control-primary-hover);
+  color: var(--control-primary-text);
+}
+
+.header-action:not(.share-action),
+.tool-btn:not(#batchOpenBtn),
+.seisan-btn:not(.primary):not(.active),
+#fillEmptySeatsBtn.tray-action-btn,
+.tray-inline-row .tray-action-btn--fill,
+#sheet-quick-edit-btn,
+#zoom-controls button,
+.btn-outline-secondary,
+.btn-secondary:not(.btn-accent-solid),
+.overview-mini-action,
+.overview-copy-action,
+.overview-drawer-close {
+  background: var(--control-secondary-bg);
+  border-color: var(--control-border);
+  color: var(--text-main);
+}
+
+.header-action:not(.share-action):hover,
+.tool-btn:not(#batchOpenBtn):hover,
+.seisan-btn:not(.primary):not(.active):hover,
+#fillEmptySeatsBtn.tray-action-btn:hover,
+.tray-inline-row .tray-action-btn--fill:hover,
+#sheet-quick-edit-btn:hover,
+#zoom-controls button:hover,
+.btn-outline-secondary:hover,
+.btn-secondary:not(.btn-accent-solid):hover,
+.overview-mini-action:hover,
+.overview-copy-action:hover,
+.overview-drawer-close:hover {
+  background: var(--control-secondary-hover);
+  border-color: var(--control-border-strong);
+  color: var(--text-main);
+}
+
+#app-layout #app-header .app-room-input {
+  color: var(--text-main);
+  font-weight: 780;
+  letter-spacing: -0.015em;
+}
+
+#app-layout #app-header .header-actions {
+  gap: 8px;
+}
+
+#app-layout #app-header .header-actions .header-action,
+#app-layout #app-header .header-actions .header-more > .header-action,
+#app-layout #app-header #shareLinkBtn.header-action {
+  width: 30px;
+  min-width: 30px;
+  height: 34px;
+  color: var(--text-main);
+}
+
+#app-layout #app-header .header-action.share-action,
+#app-layout #app-header #shareLinkBtn.header-action {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+#app-layout #app-header .header-action.share-action:hover,
+#app-layout #app-header #shareLinkBtn.header-action:hover {
+  color: var(--accent-color);
+}
+
+#app-layout #view-toggle-bar .view-tab,
+#app-layout .view-toggle-bar .view-tab {
+  color: var(--text-sub);
+  font-weight: 740;
+}
+
+#app-layout #view-toggle-bar .view-tab.active,
+#app-layout .view-toggle-bar .view-tab.active,
+[data-theme="dark"] #app-layout #view-toggle-bar .view-tab.active,
+[data-theme="dark"] #app-layout .view-toggle-bar .view-tab.active {
+  color: var(--accent-color);
+}
+
+#app-layout #view-toggle-bar .view-tab.active::after,
+#app-layout .view-toggle-bar .view-tab.active::after {
+  background: var(--accent-color);
+}
+
+#cars-container .car-box,
+#seisan-view-area .seisan-card,
+#bottom-tray,
+.overview-panel {
+  border-radius: var(--radius-lg);
+}
+
+#cars-container .driver-seat,
+#cars-container .seat-slot,
+#cars-container .member-card,
+#seisan-view-area .seisan-summary-card,
+#seisan-view-area .seisan-car-summary-row,
+#seisan-view-area .seisan-check-item,
+#seisan-view-area .seisan-driver-pay-row {
+  border-radius: var(--radius-main);
+}
+
+#cars-container .car-name-label,
+#cars-container .driver-name-disp,
+#cars-container .member-name-text,
+#seisan-view-area .seisan-title,
+#seisan-view-area .seisan-car-summary-name,
+#seisan-view-area .seisan-check-name,
+#seisan-view-area .seisan-driver-name {
+  font-weight: 720;
+}
+
+#seisan-view-area .seisan-summary-card.collect,
+[data-theme="dark"] #seisan-view-area .seisan-summary-card.collect {
+  background: color-mix(in srgb, var(--settlement-split-bg) 50%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-split-line) 72%, var(--ui-saas-border));
+}
+
+#seisan-view-area .seisan-summary-card.accounting,
+[data-theme="dark"] #seisan-view-area .seisan-summary-card.accounting {
+  background: color-mix(in srgb, var(--settlement-club-bg) 52%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-club-line) 72%, var(--ui-saas-border));
+}
+
+#seisan-view-area .seisan-summary-card.pay,
+[data-theme="dark"] #seisan-view-area .seisan-summary-card.pay {
+  background: color-mix(in srgb, var(--settlement-pay-surface-bg) 50%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-pay-surface-line) 72%, var(--ui-saas-border));
+}
+
+#seisan-view-area .seisan-summary-value,
+#seisan-view-area .seisan-car-summary-total,
+#seisan-view-area .seisan-driver-amount {
+  color: var(--text-main);
+  font-weight: 720;
+  letter-spacing: -0.01em;
+}
+
+#seisan-view-area .seisan-cost-policy-tag,
+#seisan-view-area .seisan-cost-type-badge,
+#seisan-view-area .seisan-payment-tag,
+.grade-badge,
+.gender-badge,
+.capacity-badge,
+.sync-status-badge,
+.waiting-inline-count {
+  font-weight: 720;
+  box-shadow: none;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-item + .seisan-cost-preview-item {
+  border-top-color: var(--ui-unified-divider);
+}
+
+@media (max-width: 640px) {
+  #app-layout #app-header .header-actions {
+    gap: 7px;
+    margin-right: 34px;
+  }
+
+  #app-layout #app-header .header-actions .header-action,
+  #app-layout #app-header .header-actions .header-more > .header-action,
+  #app-layout #app-header #shareLinkBtn.header-action {
+    width: 28px;
+    min-width: 28px;
+    height: 34px;
+  }
+
+  #seisan-view-area .seisan-card,
+  #cars-container .car-box,
+  #bottom-tray {
+    border-radius: 12px;
+  }
+}

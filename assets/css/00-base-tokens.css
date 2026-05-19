@@ -6,7 +6,7 @@
 ========================================================= */
 
 :root {
---bg-body: #eef3f1;
+    --bg-body: #eef3f1;
     --text-main: #172033;
     --text-sub: #667085;
     --bg-card: #ffffff;
@@ -54,7 +54,7 @@
 }
 
 [data-theme="dark"] {
---bg-body: #0f172a; 
+    --bg-body: #0f172a; 
     --text-main: #f1f5f9; 
     --text-sub: #94a3b8;
     --bg-card: #1e293b; 
