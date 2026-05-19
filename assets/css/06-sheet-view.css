@@ -1093,8 +1093,9 @@ border-radius: var(--radius-main);
 
 /* 2026-05 sheet summary: compact two-line car/team counts. */
 #sheet-title-bar {
-    min-height: 66px;
-    align-items: center;
+    min-height: 50px;
+    align-items: flex-start;
+    justify-content: flex-start;
 }
 
 #sheet-summary {
@@ -1104,14 +1105,18 @@ border-radius: var(--radius-main);
     flex-direction: column;
     gap: 3px;
     margin: 0;
+    align-items: stretch;
 }
 
 .sheet-summary-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 38px repeat(4, 50px) minmax(68px, auto);
     align-items: center;
-    gap: 5px;
+    justify-content: start;
+    column-gap: 5px;
     min-width: 0;
-    overflow-x: auto;
+    width: 100%;
+    overflow-x: hidden;
     overflow-y: hidden;
     white-space: nowrap;
     scrollbar-width: none;
@@ -1123,8 +1128,7 @@ border-radius: var(--radius-main);
 }
 
 .sheet-summary-plan-label {
-    flex: 0 0 auto;
-    min-width: 34px;
+    min-width: 0;
     padding: 2px 6px;
     border-radius: 999px;
     background: var(--text-main);
@@ -1132,7 +1136,7 @@ border-radius: var(--radius-main);
     font-size: 0.62rem;
     font-weight: 850;
     text-align: center;
-    letter-spacing: 0.01em;
+    letter-spacing: 0;
 }
 
 .sheet-summary-row.is-team .sheet-summary-plan-label {
@@ -1141,10 +1145,11 @@ border-radius: var(--radius-main);
 
 .sheet-summary-stat,
 .sheet-summary-updated {
-    flex: 0 0 auto;
     display: inline-flex;
     align-items: baseline;
+    justify-content: flex-start;
     gap: 3px;
+    min-width: 0;
     color: var(--text-sub);
     font-size: 0.64rem;
     font-weight: 760;
@@ -1162,6 +1167,7 @@ border-radius: var(--radius-main);
     padding-left: 7px;
     border-left: 1px solid var(--hairline, var(--border-color));
     color: color-mix(in srgb, var(--text-sub) 82%, var(--text-main));
+    justify-self: start;
 }
 
 #sheet-canvas {
@@ -1175,14 +1181,13 @@ border-radius: var(--radius-main);
 
 @media (max-width: 640px) {
     #sheet-title-bar {
-        min-height: 64px;
-        padding: 8px 10px;
+        min-height: 48px;
+        padding: 7px 9px;
+        gap: 7px;
     }
 
     .sheet-title-icon {
-        width: 28px;
-        height: 28px;
-        font-size: 0.8rem;
+        display: none;
     }
 
     #sheet-summary {
@@ -1190,11 +1195,11 @@ border-radius: var(--radius-main);
     }
 
     .sheet-summary-row {
-        gap: 4px;
+        grid-template-columns: 34px repeat(4, 43px) minmax(58px, auto);
+        column-gap: 4px;
     }
 
     .sheet-summary-plan-label {
-        min-width: 32px;
         padding: 2px 5px;
         font-size: 0.58rem;
     }
@@ -1215,7 +1220,7 @@ border-radius: var(--radius-main);
     }
 
     #sheet-canvas {
-        top: 86px;
+        top: 70px;
         padding: 12px 10px 132px;
     }
 }
