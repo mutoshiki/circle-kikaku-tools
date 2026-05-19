@@ -1,0 +1,446 @@
+/* =========================================================
+   04-mobile-polish.css
+   S2 owner cleanup: extracted from the former consolidated CSS
+   without changing rule order within this responsibility block.
+   Keep future edits in this owner file, not in late override dumps.
+========================================================= */
+
+/* ===== Source: 03c-mobile-polish.css ===== */
+
+/* COMPAT LAYER: remaining old mobile polish. Prefer owner files for new edits. */
+
+
+.share-action {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+}
+.share-action i,
+.share-action span { color: #fff; }
+
+.auto-condition-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 9px 10px;
+    border: 1px solid rgba(15, 118, 110, 0.28);
+    border-radius: var(--radius-main);
+    background: var(--accent-soft);
+    color: var(--text-main);
+    font-size: 0.8rem;
+    font-weight: 850;
+    line-height: 1.35;
+}
+.auto-condition-pill i { color: var(--accent-color); flex: 0 0 auto; }
+.auto-condition-pill.is-empty { background: var(--bg-card); border-color: var(--border-color); color: var(--text-sub); }
+
+.member-card {
+    min-height: 92px;
+    padding: 9px;
+    gap: 7px;
+    touch-action: none;
+}
+.member-main-line,
+.driver-main-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+}
+.member-main-line .grade-badge {
+    flex: 0 0 auto;
+    font-size: 0.68rem;
+    padding: 2px 7px;
+}
+.member-name-text,
+.driver-name-disp {
+    font-size: 0.9rem;
+    line-height: 1.3;
+}
+.member-action-row,
+.driver-action-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
+}
+.driver-action-row { grid-template-columns: 1fr; }
+.member-action-btn,
+.delete-btn-overlay {
+    position: static;
+    width: auto;
+    height: 38px;
+    min-width: 0;
+    opacity: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 7px 6px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-main);
+    font-size: 0.72rem;
+    font-weight: 850;
+    line-height: 1;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.member-action-btn i,
+.delete-btn-overlay i {
+    font-size: 0.86rem;
+    pointer-events: none;
+}
+.member-action-btn span,
+.delete-btn-overlay span { pointer-events: none; white-space: nowrap; }
+.member-action-btn:hover,
+.delete-btn-overlay:hover { background: var(--hover-bg); color: var(--text-main); }
+.member-card.in-waiting .member-action-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.member-card.in-waiting .memo-popup { margin-top: 0; }
+
+.car-header {
+    align-items: center;
+    gap: 8px;
+}
+.car-header > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+
+
+
+
+
+.seisan-head-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.9fr) 46px;
+    gap: 8px;
+    width: 100%;
+}
+.seisan-head-actions .seisan-btn {
+    min-height: 44px;
+    font-size: 0.84rem;
+}
+.seisan-refresh-btn span { display: none; }
+.seisan-refresh-btn { padding-left: 0; padding-right: 0; }
+
+.seisan-car-inputs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.route-stop-row {
+    grid-template-columns: 38px minmax(0, 1fr) 38px;
+    gap: 7px;
+}
+.route-stop-num {
+    width: 38px;
+    height: 38px;
+    font-size: 0.86rem;
+    touch-action: none;
+}
+.route-stop-delete-btn { width: 38px; min-width: 38px; }
+.sheet-empty-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+@media (max-width: 640px) {
+    .app-header-main {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+
+    .edit-tools {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .auto-condition-pill {
+        font-size: 0.78rem;
+        min-height: 42px;
+    }
+    .member-card,
+    .driver-seat {
+        min-height: 96px;
+    }
+    .member-action-btn,
+    .delete-btn-overlay {
+        height: 40px;
+        font-size: 0.74rem;
+    }
+
+    .seisan-head-actions {
+        grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.9fr) 46px;
+    }
+    .seisan-head-actions .seisan-btn span {
+        font-size: 0.76rem;
+    }
+    .seisan-car-inputs {
+        grid-template-columns: 1fr;
+        gap: 9px;
+    }
+    .seisan-car-inputs input {
+        min-height: 42px;
+        font-size: 0.92rem;
+        padding: 8px 10px;
+    }
+    .seisan-mini-label {
+        font-size: 0.72rem;
+        white-space: normal;
+    }
+    .route-stop-row {
+        grid-template-columns: 40px minmax(0, 1fr) 40px;
+    }
+    .route-stop-num,
+    .route-stop-delete-btn {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+    }
+    .route-stop-input {
+        min-height: 40px;
+        font-size: 0.9rem;
+    }
+    .modal-fullscreen-sm-down .modal-content {
+        border-radius: 0;
+    }
+    .sheet-empty-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 420px) {
+    .member-action-row {
+        gap: 5px;
+    }
+    .member-action-btn,
+    .delete-btn-overlay {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+
+    .car-header > div {
+        width: 100%;
+        justify-content: stretch;
+    }
+    .car-header .delete-btn {
+        margin-left: auto;
+    }
+}
+
+
+
+/* --- v38 mobile UI refinement: spacing, icons, toolbars, waiting tray --- */
+.header-actions,
+.edit-tools,
+.seisan-head-actions,
+.tray-actions {
+    direction: ltr;
+}
+.header-action,
+.tool-btn,
+.seisan-btn,
+.tray-actions .btn {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.header-action span,
+.tool-btn span,
+.seisan-btn span,
+.tray-actions .btn {
+    line-height: 1.18;
+}
+
+
+
+.seisan-head-actions {
+    grid-template-columns: minmax(0, 0.9fr) 46px minmax(0, 1.35fr);
+}
+.seisan-head-actions .tool-help-btn { order: 1; }
+.seisan-head-actions .seisan-refresh-btn { order: 2; }
+.seisan-head-actions .seisan-route-main-btn { order: 3; }
+.tray-actions {
+    grid-template-columns: minmax(76px, 0.8fr) minmax(94px, 1fr) minmax(112px, 1.2fr);
+}
+.tray-actions .dropdown { order: 1; min-width: 0; }
+.tray-actions .btn[onclick*="fill"] { order: 2; }
+.tray-actions .auto-assign-btn { order: 3; }
+
+/* 待機メンバーの開閉を明確化 */
+#tray-handle {
+    min-height: 42px;
+    height: 42px;
+    flex-direction: column;
+    gap: 3px;
+    touch-action: manipulation;
+}
+#tray-toggle-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--text-sub);
+    font-size: 0.72rem;
+    font-weight: 850;
+    line-height: 1;
+}
+#bottom-tray.minimized #tray-handle {
+    border-bottom: 1px solid var(--border-color);
+}
+#bottom-tray-header {
+    padding: 8px 10px 10px;
+}
+.tray-status {
+    min-height: 34px;
+    padding: 0 2px;
+}
+.tray-status small {
+    font-size: 0.82rem;
+}
+.tray-actions .btn {
+    min-height: 42px;
+    white-space: normal;
+}
+
+/* 文字が枠に近い箇所の余白を確保 */
+.member-card,
+.driver-seat,
+.seat-slot,
+.seisan-card,
+.seisan-car-row,
+.guide-feature-card,
+.guide-mini-screen,
+.route-private-panel,
+.route-stop-panel,
+.route-stop-row,
+.seisan-check-item,
+.seisan-driver-pay-row {
+    box-sizing: border-box;
+}
+.member-card,
+.driver-seat {
+    padding: 10px;
+}
+.member-main-line,
+.driver-main-line {
+    padding: 1px 2px 0;
+}
+.member-action-row,
+.driver-action-row {
+    margin-top: 2px;
+}
+
+.member-action-btn,
+.delete-btn-overlay {
+    gap: 5px;
+    padding: 8px 7px;
+}
+.memo-popup {
+    padding: 4px 6px;
+}
+.seisan-field input,
+.seisan-field select,
+.seisan-extra-row input,
+.seisan-extra-row select,
+.route-private-input,
+.route-stop-input {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.seisan-extra-row {
+    gap: 8px;
+}
+.seisan-extra-row .seisan-icon-btn i::before {
+    content: "\f2ed";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}
+
+
+
+
+/* ガイドを開くボタンはすべて「？」アイコンで統一 */
+.tool-help-btn i,
+.dropdown-item[onclick*="Guide"] i,
+.modal-title .fa-circle-question {
+    color: var(--accent-color);
+}
+
+@media (max-width: 640px) {
+
+    .seisan-head-actions {
+        grid-template-columns: minmax(0, 0.9fr) 48px minmax(0, 1.4fr);
+    }
+    .tray-actions {
+        grid-template-columns: minmax(76px, 0.8fr) minmax(86px, 0.95fr) minmax(106px, 1.2fr);
+        gap: 6px;
+    }
+    #bottom-tray.minimized {
+        height: 104px;
+        min-height: 104px;
+    }
+    #waiting-list-container {
+        padding: 12px 10px 18px;
+    }
+    .member-card,
+    .driver-seat {
+        min-height: 104px;
+    }
+    .member-name-text,
+    .driver-name-disp {
+        font-size: 0.96rem;
+    }
+    .member-action-row,
+    .driver-action-row {
+        gap: 7px;
+    }
+    .member-action-btn,
+    .delete-btn-overlay {
+        height: 44px;
+        font-size: 0.76rem;
+    }
+    .seisan-extra-row {
+        grid-template-columns: 1fr;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-main);
+        background: var(--bg-body);
+    }
+    .seisan-extra-row .seisan-icon-btn {
+        width: 100%;
+    }
+    .seisan-extra-row .seisan-icon-btn::after {
+        content: "削除";
+        margin-left: 6px;
+        font-size: 0.78rem;
+        font-weight: 850;
+    }
+    .guide-feature-card,
+    .seisan-card,
+    .car-box {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 420px) {
+    .header-action,
+    .tool-btn,
+    .seisan-btn,
+    .tray-actions .btn {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+    .tray-actions .btn {
+        font-size: 0.68rem;
+    }
+    .member-action-btn span,
+    .delete-btn-overlay span {
+        font-size: 0.7rem;
+    }
+}

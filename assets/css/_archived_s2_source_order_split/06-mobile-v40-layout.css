@@ -1,0 +1,455 @@
+/* =========================================================
+   06-mobile-v40-layout.css
+   S2 owner cleanup: extracted from the former consolidated CSS
+   without changing rule order within this responsibility block.
+   Keep future edits in this owner file, not in late override dumps.
+========================================================= */
+
+/* Mobile layout owner: v40 screenshot-based corrections extracted from the former legacy compat layer. */
+
+/* --- v40 screenshot-based mobile UI corrections --- */
+:root {
+    --mobile-gap: 8px;
+    --mobile-card-pad: 12px;
+    --mobile-touch: 44px;
+}
+
+@media (max-width: 640px) {
+    html, body {
+        font-size: 16px;
+    }
+
+    #app-layout {
+        background: var(--bg-body);
+    }
+
+    #app-header {
+        padding: 6px 0 5px ;
+    }
+
+    .app-header-main {
+        margin: 0 ;
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0 0 var(--radius-main) var(--radius-main) ;
+        padding: 8px 10px ;
+        gap: 8px ;
+    }
+
+    .app-room-field {
+        padding: 5px 4px 3px ;
+        gap: 4px ;
+    }
+
+    .app-room-field label {
+        font-size: 0.72rem ;
+        line-height: 1.2 ;
+    }
+
+    .app-room-input {
+        min-height: 32px ;
+        padding: 1px 0 3px ;
+        font-size: 1.08rem ;
+        line-height: 1.25 ;
+        letter-spacing: 0 ;
+    }
+
+
+
+
+
+    #view-toggle-bar {
+        margin: 7px 10px 6px ;
+        padding: 5px ;
+        gap: 5px ;
+        border-radius: var(--radius-main) ;
+    }
+
+
+
+    #top-area,
+    #seisan-view-area {
+        padding-left: 10px ;
+        padding-right: 10px ;
+    }
+
+    .edit-header {
+        gap: 7px ;
+        margin-bottom: 9px ;
+    }
+
+    .edit-tools {
+        gap: 8px ;
+    }
+
+    .edit-tools .tool-btn,
+    .seisan-head-actions .seisan-btn {
+        min-height: var(--mobile-touch) ;
+        border-radius: var(--radius-main) ;
+        padding: 9px 10px ;
+        font-size: 0.84rem ;
+        line-height: 1.2 ;
+    }
+
+    .auto-condition-pill {
+        min-height: var(--mobile-touch) ;
+        padding: 10px 12px ;
+        border-radius: var(--radius-main) ;
+        font-size: 0.86rem ;
+        line-height: 1.35 ;
+    }
+
+    .car-box {
+        padding: 12px ;
+        margin-bottom: 12px ;
+        border-radius: var(--radius-main) ;
+    }
+
+    .car-header {
+        gap: 10px ;
+        padding-bottom: 10px ;
+        margin-bottom: 10px ;
+    }
+
+    .car-header > span,
+    .car-header > strong {
+        font-size: 1.02rem ;
+        line-height: 1.25 ;
+    }
+
+    .car-header > div {
+        display: grid ;
+        grid-template-columns: minmax(0, 1fr) 44px ;
+        gap: 8px ;
+        align-items: center ;
+        width: 100% ;
+    }
+
+
+
+
+    .car-header .delete-btn {
+        width: var(--mobile-touch) ;
+        height: var(--mobile-touch) ;
+        min-width: var(--mobile-touch) ;
+        min-height: var(--mobile-touch) ;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm) ;
+        background: var(--bg-body);
+        color: var(--text-sub);
+        display: inline-flex ;
+        align-items: center ;
+        justify-content: center ;
+        opacity: 0.9;
+        margin: 0 ;
+        font-size: 1rem ;
+    }
+
+    .car-layout-grid {
+        gap: 8px ;
+    }
+
+
+    .member-main-line,
+    .driver-main-line {
+        min-height: 30px ;
+        padding: 0 ;
+        display: flex ;
+        align-items: flex-start ;
+    }
+
+    .member-name-text,
+    .driver-name-disp {
+        font-size: 0.96rem ;
+        line-height: 1.25 ;
+        font-weight: 900 ;
+        letter-spacing: 0 ;
+    }
+
+    .grade-badge {
+        font-size: 0.68rem ;
+        line-height: 1.05 ;
+        padding: 4px 8px ;
+        border-radius: var(--radius-sm) ;
+        white-space: nowrap;
+    }
+
+    .member-action-row,
+    .driver-action-row {
+        display: grid ;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) ;
+        gap: 6px ;
+        margin-top: 8px ;
+        width: 100% ;
+    }
+
+    .driver-action-row {
+        grid-template-columns: 1fr ;
+    }
+
+    .member-action-btn,
+    .delete-btn-overlay {
+        position: static;
+        inset: auto;
+        width: 100% ;
+        min-width: 0 ;
+        height: var(--mobile-touch) ;
+        min-height: var(--mobile-touch) ;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm) ;
+        background: var(--bg-card);
+        color: var(--text-main);
+        opacity: 1;
+        z-index: auto;
+        display: inline-flex ;
+        align-items: center ;
+        justify-content: center ;
+        gap: 4px ;
+        padding: 6px 4px ;
+        line-height: 1 ;
+    }
+
+    .member-action-btn i,
+    .delete-btn-overlay i {
+        font-size: 0.9rem ;
+        margin: 0 ;
+    }
+
+    .member-action-btn span,
+    .delete-btn-overlay span {
+        display: inline ;
+        font-size: 0.7rem ;
+        line-height: 1 ;
+        font-weight: 900 ;
+        white-space: nowrap;
+    }
+
+    .memo-popup {
+        margin-top: 8px ;
+        padding: 5px 6px;
+        font-size: 0.74rem;
+        line-height: 1.35;
+    }
+
+    #bottom-tray:not(.minimized) {
+        height: auto;
+        min-height: 0;
+        max-height: 58dvh;
+        flex: 0 0 auto;
+    }
+
+    #tray-handle {
+        height: 38px;
+        min-height: 38px;
+        gap: 4px;
+    }
+
+    #tray-toggle-label {
+        font-size: 0.76rem;
+    }
+
+    #bottom-tray-header {
+        grid-template-columns: 1fr;
+        gap: 9px;
+        padding: 9px 10px 12px;
+    }
+
+    .tray-status {
+        justify-content: flex-start;
+        min-height: 28px;
+    }
+
+    .tray-status small {
+        font-size: 0.9rem;
+        line-height: 1.2;
+    }
+
+    .tray-actions {
+        grid-template-columns: minmax(68px, 0.75fr) minmax(92px, 1fr) minmax(110px, 1.2fr);
+        gap: 7px;
+    }
+
+    .tray-actions .btn {
+        min-height: var(--mobile-touch);
+        border-radius: var(--radius-sm);
+        font-size: 0.76rem;
+        line-height: 1.15;
+        padding: 8px 7px;
+    }
+
+    #waiting-list-container {
+        flex: 0 1 auto;
+        max-height: calc(58dvh - 132px);
+        padding: 8px 10px 14px;
+    }
+
+    #waiting-list {
+        min-height: 0;
+        gap: 9px;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    #waiting-list:empty::before {
+        content: "待機メンバーはいません";
+        display: flex;
+        min-height: 46px;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-sub);
+        border: 1px dashed var(--border-color);
+        border-radius: var(--radius-main);
+        background: var(--bg-body);
+        font-size: 0.82rem;
+        font-weight: 800;
+        grid-column: 1 / -1;
+    }
+
+    .seisan-wrap {
+        max-width: 100%;
+    }
+
+    .seisan-card {
+        padding: 12px;
+        margin-bottom: 10px;
+        border-radius: var(--radius-main);
+    }
+
+    .seisan-head {
+        margin-bottom: 10px;
+    }
+
+    .seisan-title {
+        font-size: 1.02rem;
+        line-height: 1.25;
+        gap: 8px;
+    }
+
+    .seisan-check-list,
+    .seisan-driver-pay-list {
+        gap: 8px;
+    }
+
+    .seisan-check-item {
+        min-height: 52px;
+        padding: 11px 12px;
+        gap: 10px;
+        border-radius: var(--radius-main);
+        font-size: 0.95rem;
+    }
+
+    .seisan-check-name {
+        font-size: 0.95rem;
+        line-height: 1.25;
+    }
+
+    .seisan-check-note {
+        font-size: 0.76rem;
+    }
+
+    .seisan-check-item input,
+    .seisan-driver-pay-row input {
+        width: 24px;
+        height: 24px;
+        accent-color: var(--accent-color);
+    }
+
+    .seisan-driver-pay-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto 28px;
+        gap: 7px 10px;
+        align-items: center;
+        padding: 12px;
+        border-radius: var(--radius-main);
+    }
+
+    .seisan-driver-name {
+        grid-column: 1 / 2;
+        grid-row: 1 / 2;
+        font-size: 1rem;
+        line-height: 1.25;
+        font-weight: 900;
+    }
+
+    .seisan-driver-amount {
+        grid-column: 2 / 3;
+        grid-row: 1 / 2;
+        justify-self: end;
+        font-size: 1rem;
+        line-height: 1.2;
+        font-weight: 950;
+    }
+
+    .seisan-driver-pay-row input {
+        grid-column: 3 / 4;
+        grid-row: 1 / 2;
+        justify-self: end;
+        margin: 0;
+    }
+
+    .seisan-driver-detail {
+        grid-column: 1 / -1;
+        grid-row: 2 / 3;
+        font-size: 0.8rem;
+        line-height: 1.45;
+        margin-top: 2px;
+        color: var(--text-sub);
+        overflow-wrap: normal;
+        word-break: keep-all;
+    }
+
+    .seisan-car-row {
+        padding: 12px;
+        border-radius: var(--radius-main);
+    }
+
+    .seisan-car-title strong {
+        font-size: 1rem;
+    }
+
+    .seisan-car-total {
+        font-size: 0.96rem;
+    }
+}
+
+@media (max-width: 420px) {
+
+
+
+
+    .member-name-text,
+    .driver-name-disp {
+        font-size: 0.9rem;
+    }
+
+    .member-action-btn span,
+    .delete-btn-overlay span {
+        font-size: 0.66rem;
+    }
+
+    .tray-actions {
+        grid-template-columns: 66px minmax(82px, 1fr) minmax(104px, 1.18fr);
+    }
+
+    .tray-actions .btn {
+        font-size: 0.72rem;
+        padding-inline: 5px;
+    }
+}
+
+@media (max-width: 360px) {
+    .car-layout-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .tray-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+[data-theme="dark"] .seisan-check-item,
+[data-theme="dark"] .seisan-driver-pay-row {
+    background: rgba(15, 23, 42, 0.46);
+}

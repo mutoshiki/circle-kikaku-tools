@@ -1,0 +1,89 @@
+/* Status badge
+   Fixed site-state badge for local/cloud save status. */
+
+#syncStatusBadge.sync-status-badge {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 8px);
+    right: calc(env(safe-area-inset-right, 0px) + 10px);
+    z-index: 2200;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    max-width: min(58vw, 230px);
+    min-height: 28px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--border-color) 84%, transparent);
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 88%, transparent), color-mix(in srgb, var(--bg-card) 72%, transparent));
+    color: var(--text-sub);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    backdrop-filter: blur(12px);
+    font-size: 0.64rem;
+    font-weight: 850;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+#syncStatusBadge .sync-status-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#syncStatusBadge .sync-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #94a3b8;
+    box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.12);
+    flex: 0 0 auto;
+}
+
+#syncStatusBadge[data-status="saving"] .sync-status-dot {
+    background: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.16);
+}
+
+#syncStatusBadge[data-status="connected"] .sync-status-dot {
+    background: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.16);
+}
+
+#syncStatusBadge[data-status="local"] .sync-status-dot {
+    background: #60a5fa;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.16);
+}
+
+#syncStatusBadge[data-status="error"] .sync-status-dot {
+    background: #ef4444;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.16);
+}
+
+[data-theme="dark"] #syncStatusBadge.sync-status-badge {
+    background:
+        linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(15, 23, 42, 0.68));
+    border-color: rgba(148, 163, 184, 0.26);
+    color: #cbd5e1;
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+}
+
+@media (max-width: 640px) {
+    #syncStatusBadge.sync-status-badge {
+        top: calc(env(safe-area-inset-top, 0px) + 7px);
+        right: calc(env(safe-area-inset-right, 0px) + 8px);
+        max-width: min(50vw, 178px);
+        min-height: 26px;
+        padding: 4px 8px;
+        font-size: 0.6rem;
+    }
+}
+
+@media (max-width: 360px) {
+    #syncStatusBadge.sync-status-badge {
+        max-width: 44vw;
+    }
+}

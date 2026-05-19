@@ -1,0 +1,55 @@
+/* 01-app-shell.css imports the single app-shell owner.
+   Header, room input, tabs, top tools, and responsive app-shell rules live together
+   so the same selector is not split across several late-loading override files. */
+@import url("./app-shell/01-app-shell-owner.css");
+
+/* App button rule: same radius, weight, motion, and clear priority across header/tabs/tools. */
+:where(.header-action, .view-tab, .tool-btn) {
+  border-radius: var(--radius-sm);
+  font-weight: 820;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, transform 0.08s ease;
+}
+
+:where(.header-action, .view-tab, .tool-btn):active {
+  transform: translateY(1px);
+}
+
+.header-action:not(.share-action),
+.tool-btn:not([data-priority="share"]),
+.view-tab:not(.active) {
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  border-color: var(--border-color);
+  color: color-mix(in srgb, var(--text-sub) 88%, var(--text-main));
+  box-shadow: none;
+}
+
+.header-action:not(.share-action):hover,
+.tool-btn:not([data-priority="share"]):hover,
+.view-tab:not(.active):hover {
+  background: var(--hover-bg);
+  border-color: color-mix(in srgb, var(--accent-color) 20%, var(--border-color));
+  color: var(--text-main);
+}
+
+.header-action.share-action,
+.view-tab.active,
+.tool-btn[data-priority="share"] {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #fff;
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--accent-color) 18%, transparent);
+}
+
+.header-action.share-action:hover,
+.tool-btn[data-priority="share"]:hover {
+  background: color-mix(in srgb, var(--accent-color) 88%, #000);
+  border-color: color-mix(in srgb, var(--accent-color) 88%, #000);
+  color: #fff;
+}
+
+[data-theme="dark"] .header-action:not(.share-action),
+[data-theme="dark"] .tool-btn:not([data-priority="share"]),
+[data-theme="dark"] .view-tab:not(.active) {
+  background: color-mix(in srgb, var(--bg-card) 84%, #020617);
+  border-color: var(--border-color);
+}

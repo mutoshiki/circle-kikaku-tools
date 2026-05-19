@@ -1,0 +1,82 @@
+/* Badge / check visual fixes for both light and dark modes
+   Keeps capacity count and check marks clean without double frames. */
+
+/* Capacity badge in car headers should be a compact text control, not a nested framed chip. */
+.capacity-badge.capacity-edit-btn,
+.capacity-badge.capacity-edit-btn.is-full,
+.capacity-badge.capacity-edit-btn.is-over {
+    min-width: 0;
+    width: auto;
+    min-height: 26px;
+    height: 26px;
+    padding: 0 2px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    outline: 0;
+    color: var(--text-sub);
+    gap: 5px;
+    font-size: 0.78rem;
+    font-weight: 900;
+}
+
+.capacity-badge.capacity-edit-btn .capacity-count,
+.capacity-badge.capacity-edit-btn.is-over .capacity-count {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    outline: 0;
+    color: var(--text-sub);
+    font-size: 0.78rem;
+    line-height: 1.25;
+}
+
+.capacity-badge.capacity-edit-btn > i,
+.capacity-badge.capacity-edit-btn .fa-pen {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    color: var(--text-sub);
+    font-size: 0.72rem;
+    opacity: 0.75;
+}
+
+.capacity-badge.capacity-edit-btn .capacity-label {
+    display: none;
+}
+
+/* Check icons should not inherit chip-like background/border styles. */
+.fa-check,
+.fas.fa-check {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    outline: 0;
+}
+
+/* Guide mock check boxes should be a single clean box. */
+.seisan-mock-box-check {
+    box-shadow: none;
+}
+
+.seisan-mock-check.done .seisan-mock-box-check,
+.seisan-mock-driver-pay.done .seisan-mock-box-check {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+    box-shadow: none;
+}
+
+/* Actual settlement checkbox inputs: avoid extra visual ring unless keyboard focused. */
+.seisan-check-item input[type="checkbox"],
+.seisan-driver-pay-row input[type="checkbox"] {
+    box-shadow: none;
+}
+
+.seisan-check-item input[type="checkbox"]:focus:not(:focus-visible),
+.seisan-driver-pay-row input[type="checkbox"]:focus:not(:focus-visible) {
+    outline: 0;
+}
