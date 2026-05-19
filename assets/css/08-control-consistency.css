@@ -4736,6 +4736,131 @@ body[data-theme="dark"] {
   }
 }
 
+/* Final overview drawer behavior for the bars menu. */
+#overviewDrawerScrim.overview-drawer-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 2040;
+  background: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(2px);
+}
+
+#overviewDrawer.overview-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 2050;
+  display: flex;
+  flex-direction: column;
+  width: min(90vw, 370px);
+  height: 100dvh;
+  padding: 18px;
+  border-left: 1px solid color-mix(in srgb, var(--border-color) 76%, transparent);
+  background: color-mix(in srgb, var(--bg-card) 96%, var(--bg-body));
+  color: var(--text-main);
+  box-shadow: -26px 0 46px rgba(15, 23, 42, 0.2);
+  transform: translateX(104%);
+  transition: transform 0.24s ease;
+}
+
+#overviewDrawer.overview-drawer.is-open {
+  transform: translateX(0);
+}
+
+#overviewDrawer .overview-panel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#overviewDrawer .overview-mini-action,
+#overviewDrawer .overview-copy-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-body) 72%, var(--bg-card));
+  color: var(--text-main);
+  font-size: 0.86rem;
+  font-weight: 760;
+}
+
+#overviewDrawer .overview-mini-action {
+  padding: 0 10px;
+}
+
+#overviewDrawer .overview-copy-action {
+  width: 100%;
+  padding: 0 12px;
+}
+
+#overviewDrawer .overview-mini-action:hover,
+#overviewDrawer .overview-copy-action:hover {
+  border-color: color-mix(in srgb, var(--accent-color) 42%, var(--border-color));
+  color: var(--accent-color);
+}
+
+#overviewDrawer .overview-timetable-rows {
+  display: grid;
+  gap: 8px;
+}
+
+#overviewDrawer .overview-timetable-row {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) 32px;
+  gap: 8px;
+  align-items: center;
+}
+
+#overviewDrawer .overview-timetable-row input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 84%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-body) 74%, var(--bg-card));
+  color: var(--text-main);
+  font: inherit;
+  font-size: 0.92rem;
+}
+
+#overviewDrawer .overview-timetable-row input:focus,
+#overviewDrawer .overview-textarea:focus {
+  border-color: color-mix(in srgb, var(--accent-color) 64%, var(--border-color));
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 14%, transparent);
+}
+
+#overviewDrawer .overview-row-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 38px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: color-mix(in srgb, var(--text-sub) 84%, var(--text-main));
+}
+
+#overviewDrawer .overview-row-delete:hover {
+  color: #b91c1c;
+  background: rgba(248, 113, 113, 0.1);
+}
+
+body.overview-drawer-open {
+  overflow: hidden;
+}
+
+[data-theme="dark"] #overviewDrawer.overview-drawer {
+  background: color-mix(in srgb, var(--bg-card) 90%, #020617);
+  box-shadow: -26px 0 46px rgba(0, 0, 0, 0.42);
+}
+
 /* Final app header shape: compact top actions and underline tabs. */
 #app-layout #app-header {
   display: grid;
@@ -5268,7 +5393,14 @@ body.overview-drawer-open {
   right: auto;
   flex: 0 0 auto;
   gap: 7px;
+  margin-right: max(0px, calc((100vw - 100%) / 2));
   transform: none;
+}
+
+@media (max-width: 640px) {
+  #app-layout #app-header .header-actions {
+    margin-right: 38px;
+  }
 }
 
 #app-layout #app-header .header-actions .header-action,

@@ -58,21 +58,9 @@
             <button id="shareLinkBtn" class="header-action share-action" type="button" title="共有リンクをコピー">
               <i class="fas fa-link" aria-hidden="true"></i><span>共有</span>
             </button>
-            <div class="header-more dropdown header-overview-menu">
-              <button class="header-action dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="メモ・タイムテーブル">
-                <i class="fas fa-bars" aria-hidden="true"></i><span>概要</span>
-              </button>
-              <div class="dropdown-menu dropdown-menu-end shadow overview-dropdown-menu">
-                <label class="overview-dropdown-field">
-                  <span>メモ</span>
-                  <textarea id="overviewMemoInput" rows="3" placeholder="企画メモ"></textarea>
-                </label>
-                <label class="overview-dropdown-field">
-                  <span>タイムテーブル</span>
-                  <textarea id="overviewTimetableInput" rows="4" placeholder="10:00 集合&#10;10:15 出発"></textarea>
-                </label>
-              </div>
-            </div>
+            <button id="overviewMenuBtn" class="header-action overview-menu-toggle" type="button" title="メモ・タイムテーブル" aria-controls="overviewDrawer" aria-expanded="false">
+              <i class="fas fa-bars" aria-hidden="true"></i><span>概要</span>
+            </button>
           </div>
         </div>
         <div id="view-toggle-bar">
@@ -87,6 +75,36 @@
           </button>
         </div>
       </header>
+      <div id="overviewDrawerScrim" class="overview-drawer-scrim" hidden></div>
+      <aside id="overviewDrawer" class="overview-drawer" aria-hidden="true" aria-labelledby="overviewDrawerTitle">
+        <div class="overview-drawer-head">
+          <div>
+            <p class="overview-drawer-kicker">OVERVIEW</p>
+            <h2 id="overviewDrawerTitle">メモ・タイムテーブル</h2>
+          </div>
+          <button id="overviewDrawerCloseBtn" class="overview-drawer-close" type="button" aria-label="メニューを閉じる">
+            <i class="fas fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="overview-drawer-body">
+          <section class="overview-panel">
+            <h3>メモ</h3>
+            <textarea id="overviewMemoInput" class="overview-textarea" rows="5" placeholder="企画メモ"></textarea>
+          </section>
+          <section class="overview-panel overview-timetable-panel">
+            <div class="overview-panel-title-row">
+              <h3>タイムテーブル</h3>
+              <button id="overviewTimetableAddBtn" class="overview-mini-action" type="button">
+                <i class="fas fa-plus" aria-hidden="true"></i><span>追加</span>
+              </button>
+            </div>
+            <div id="overviewTimetableRows" class="overview-timetable-rows" aria-live="polite"></div>
+            <button id="overviewTimetableCopyBtn" class="overview-copy-action" type="button">
+              <i class="fas fa-copy" aria-hidden="true"></i><span>タイムテーブルをコピー</span>
+            </button>
+          </section>
+        </div>
+      </aside>
       <div id="top-area" style="display: none;">
         <div class="edit-header edit-header-tools-only allocation-toolbar ui-toolbar-card">
           <div class="edit-tools allocation-toolbar-inner ui-toolbar-row">
