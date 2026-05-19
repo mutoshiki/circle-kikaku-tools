@@ -149,7 +149,10 @@ function renderSettlementView() {
     if (driverPayList) driverPayList.innerHTML = renderSettlementDriverPayHtml(result, state);
 
     const shareNote = byId('seisan-share-note');
-    if (shareNote) shareNote.textContent = `諸経費の内訳と部費・割勘の扱いまでまとめてコピーできます。未回収 ${yen(result.unpaidAmount)}`;
+    if (shareNote) {
+        const planText = data.settlementPlanName ? `精算対象：${data.settlementPlanName}。` : '';
+        shareNote.textContent = `${planText}諸経費の内訳と部費・割勘の扱いまでまとめてコピーできます。未回収 ${yen(result.unpaidAmount)}`;
+    }
 
     const breakdown = byId('seisan-breakdown');
     if (breakdown) breakdown.innerHTML = renderSettlementBreakdownHtml(result);

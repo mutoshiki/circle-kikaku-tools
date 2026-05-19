@@ -49,3 +49,726 @@
   border-color: color-mix(in srgb, var(--accent-color) 36%, var(--border-color));
   color: var(--text-main);
 }
+
+/* Multiple car-allocation sets */
+.car-plan-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 14px 8px;
+  padding: 10px;
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--accent-color));
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: var(--shadow-soft);
+}
+
+.car-plan-selector,
+.car-plan-template {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.car-plan-selector label,
+.car-plan-template label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--text-sub);
+  font-size: 0.84rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.car-plan-selector label i,
+.car-plan-template label i {
+  color: var(--accent-color);
+}
+
+.car-plan-select {
+  min-width: 0;
+  width: 100%;
+  max-width: 220px;
+  min-height: 34px;
+  padding: 0 30px 0 10px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, var(--accent-color));
+  border-radius: 10px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.car-plan-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.car-plan-btn {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.car-plan-btn:hover,
+.car-plan-btn:focus-visible {
+  background: var(--hover-bg);
+  border-color: color-mix(in srgb, var(--accent-color) 32%, var(--border-color));
+}
+
+.car-plan-btn.danger {
+  color: var(--danger-color, #dc3545);
+}
+
+.car-plan-btn:disabled {
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .car-plan-bar {
+    align-items: stretch;
+    flex-direction: column;
+    margin: 8px 10px;
+    gap: 8px;
+  }
+
+  .car-plan-selector,
+  .car-plan-template {
+    width: 100%;
+  }
+
+  .car-plan-select {
+    max-width: none;
+  }
+
+  .car-plan-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .car-plan-btn {
+    padding: 0 6px;
+    font-size: 0.78rem;
+  }
+}
+
+
+/* UI optimization: compact plan switcher and edit cards */
+.car-plan-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin: 8px 12px 6px;
+  padding: 10px 12px;
+}
+
+.car-plan-toolbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.car-plan-template-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.car-plan-inline-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-sub);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.car-plan-inline-label i {
+  color: var(--accent-color);
+}
+
+.car-plan-template-tabs,
+.car-plan-chip-list {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.car-plan-template-tabs {
+  flex-wrap: nowrap;
+}
+
+.car-plan-chip-list {
+  flex-wrap: wrap;
+}
+
+.car-plan-template-chip,
+.car-plan-chip {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-main);
+  border-radius: 999px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.car-plan-template-chip {
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 0.82rem;
+}
+
+.car-plan-template-chip.active,
+.car-plan-chip.active {
+  background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--accent-color) 36%, var(--border-color));
+  color: var(--accent-color);
+}
+
+.car-plan-chip {
+  min-height: 32px;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.car-plan-chip-name {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.82rem;
+}
+
+.car-plan-chip-type {
+  flex: 0 0 auto;
+  min-width: 1.8em;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sheet-header) 78%, var(--bg-card));
+  color: var(--text-sub);
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.car-plan-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.car-plan-btn {
+  min-height: 32px;
+  padding: 0 9px;
+  font-size: 0.78rem;
+  gap: 4px;
+  border-radius: 9px;
+}
+
+#top-area .row.g-3 {
+  --bs-gutter-x: 0.8rem;
+  --bs-gutter-y: 0.8rem;
+}
+
+#cars-container .car-box {
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 18px;
+}
+
+#cars-container .car-header {
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  gap: 6px;
+  font-size: 0.84rem;
+}
+
+#cars-container .car-name-label {
+  font-size: 0.88rem;
+  line-height: 1.2;
+}
+
+#cars-container .capacity-badge {
+  min-height: 28px;
+  padding: 0 8px;
+  font-size: 0.8rem;
+}
+
+#cars-container .car-return-btn,
+#cars-container .driver-menu-btn,
+#cars-container .member-menu-btn {
+  width: 28px;
+  height: 28px;
+}
+
+#cars-container .car-layout-grid {
+  gap: 4px;
+}
+
+#cars-container .driver-seat,
+#cars-container .seat-slot,
+#cars-container .member-card {
+  min-height: 58px;
+  padding: 7px 8px;
+  border-radius: 16px;
+}
+
+#cars-container .driver-seat {
+  min-height: 60px;
+}
+
+#cars-container .member-main-line,
+#cars-container .driver-main-line {
+  gap: 6px;
+}
+
+#cars-container .driver-name-disp,
+#cars-container .member-name-text {
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+
+#cars-container .member-main-line .grade-badge,
+#cars-container .driver-main-line .grade-badge {
+  font-size: 0.62rem;
+  padding: 2px 6px;
+}
+
+#cars-container .memo-popup {
+  margin-top: 3px;
+  font-size: 0.62rem;
+  line-height: 1.2;
+}
+
+#cars-container .col-12.col-md-6.col-lg-4 {
+  display: flex;
+}
+
+#cars-container .col-12.col-md-6.col-lg-4 > .car-box {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .car-plan-bar {
+    margin: 8px 10px 6px;
+    padding: 8px 10px;
+    gap: 7px;
+  }
+
+  .car-plan-toolbar-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .car-plan-template-inline {
+    justify-content: space-between;
+  }
+
+  .car-plan-template-tabs {
+    margin-left: auto;
+  }
+
+  .car-plan-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .car-plan-btn {
+    padding: 0 6px;
+    font-size: 0.74rem;
+  }
+
+  .car-plan-chip-list {
+    gap: 5px;
+  }
+
+  .car-plan-chip {
+    padding: 6px 9px;
+  }
+
+  #cars-container .car-box {
+    padding: 7px;
+    margin-bottom: 6px;
+  }
+
+  #cars-container .car-header {
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+  }
+
+  #cars-container .driver-seat,
+  #cars-container .seat-slot,
+  #cars-container .member-card {
+    min-height: 54px;
+    padding: 6px 7px;
+  }
+
+  #cars-container .driver-name-disp,
+  #cars-container .member-name-text {
+    font-size: 0.8rem;
+  }
+}
+
+
+/* 2026-05 UI tuning: compact car/team switcher and small drop lane. */
+.car-plan-bar {
+  margin: 8px 12px 8px;
+  padding: 10px;
+  gap: 8px;
+  background: color-mix(in srgb, var(--bg-card) 97%, var(--accent-color));
+  border-color: color-mix(in srgb, var(--border-color) 88%, var(--accent-color));
+}
+
+.car-plan-head-row,
+.car-plan-select-row,
+.car-plan-command-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.car-plan-head-row {
+  justify-content: space-between;
+}
+
+.car-plan-current {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sheet-header) 70%, var(--bg-card));
+}
+
+.car-plan-current-label {
+  color: var(--text-sub);
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.car-plan-current-name {
+  min-width: 0;
+  max-width: 12em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-main);
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.car-plan-template-tabs {
+  flex: 0 0 auto;
+  padding: 3px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sheet-header) 72%, var(--bg-card));
+}
+
+.car-plan-template-chip {
+  min-height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 0.78rem;
+  font-weight: 650;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.car-plan-template-chip.active {
+  background: var(--bg-card);
+  color: var(--accent-color);
+  box-shadow: 0 1px 5px rgba(15, 23, 42, 0.08);
+}
+
+.car-plan-select-row {
+  align-items: stretch;
+}
+
+.car-plan-chip-list {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 2px 1px 5px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.car-plan-chip {
+  flex: 0 0 auto;
+  min-height: 34px;
+  max-width: min(72vw, 240px);
+  padding: 6px 9px;
+  border-radius: 11px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 500;
+}
+
+.car-plan-chip-number {
+  flex: 0 0 auto;
+  width: 1.75em;
+  height: 1.75em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--sheet-header) 72%, var(--bg-card));
+  color: var(--text-sub);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.car-plan-chip.active {
+  background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--accent-color) 45%, var(--border-color));
+  color: var(--text-main);
+  box-shadow: inset 3px 0 0 var(--accent-color), 0 3px 10px rgba(15, 23, 42, 0.05);
+}
+
+.car-plan-chip.active .car-plan-chip-number {
+  background: var(--accent-color);
+  color: #ffffff;
+}
+
+.car-plan-chip-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.car-plan-command-row {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.car-plan-btn,
+.car-plan-more-summary,
+.car-plan-more-item {
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg-card);
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.car-plan-btn-primary {
+  background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--accent-color) 34%, var(--border-color));
+  color: var(--accent-color);
+}
+
+.car-plan-more {
+  position: relative;
+}
+
+.car-plan-more-summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.car-plan-more-summary::-webkit-details-marker {
+  display: none;
+}
+
+.car-plan-more-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 30;
+  min-width: 132px;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-float);
+  display: grid;
+  gap: 6px;
+}
+
+.car-plan-more-item {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.car-plan-more-item.danger {
+  color: #dc3545;
+}
+
+#cars-container .car-name-label,
+#cars-container .driver-name-disp,
+#cars-container .member-name-text,
+#cars-container .capacity-badge,
+#bottom-tray .tray-action-btn,
+#bottom-tray .settings-btn,
+#waiting-count.waiting-inline-count {
+  font-weight: 600;
+}
+
+#cars-container .driver-name-disp,
+#cars-container .member-name-text {
+  font-size: 0.8rem;
+}
+
+#cars-container .car-box.is-team-group .car-name-label {
+  color: var(--accent-color);
+}
+
+#list-empty-hint .empty-card {
+  min-height: 124px;
+}
+
+#list-empty-hint .empty-card strong {
+  font-weight: 650;
+}
+
+#list-empty-hint .drop-create-lane {
+  min-height: 58px;
+  padding: 12px 14px;
+  border: 1px dashed color-mix(in srgb, var(--accent-color) 36%, var(--border-color));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--accent-color) 6%, var(--bg-card));
+  box-shadow: none;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+
+#list-empty-hint .drop-create-lane i {
+  color: var(--accent-color);
+  opacity: 0.86;
+}
+
+#list-empty-hint .drop-create-lane strong {
+  font-size: 0.95rem;
+}
+
+#list-empty-hint .drop-create-lane span {
+  color: var(--text-sub);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+body[data-active-plan-template="team"] #cars-container.car-create-drop-target::after {
+  content: "ドロップで班を作成";
+}
+
+body[data-active-plan-template="car"] #cars-container.car-create-drop-target::after {
+  content: "ドロップで車を作成";
+}
+
+#cars-container.car-create-drop-target::after {
+  font-weight: 650;
+  border-color: color-mix(in srgb, var(--accent-color) 42%, var(--border-color));
+  background: color-mix(in srgb, var(--accent-color) 8%, var(--bg-card));
+}
+
+@media (max-width: 640px) {
+  .car-plan-bar {
+    padding: 9px;
+  }
+
+  .car-plan-head-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .car-plan-current {
+    max-width: 100%;
+  }
+
+  .car-plan-current-name {
+    max-width: 13em;
+  }
+
+  .car-plan-command-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 6px;
+  }
+
+  .car-plan-btn,
+  .car-plan-more-summary {
+    padding: 0 8px;
+  }
+}
+
+/* 車割・班を各1つに固定したため、切り替えバーを軽く保つ。 */
+.car-plan-head-row--single {
+  flex-wrap: wrap;
+}
+
+.car-plan-head-row--single .car-plan-btn {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+  .car-plan-head-row--single {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .car-plan-head-row--single .car-plan-template-tabs {
+    flex: 1 1 auto;
+  }
+
+  .car-plan-head-row--single .car-plan-current {
+    flex: 1 1 100%;
+  }
+}

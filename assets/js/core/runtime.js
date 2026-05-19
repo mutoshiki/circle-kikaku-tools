@@ -17,7 +17,7 @@ function bindClick(id, handler) {
 }
 
 const firebaseConfig = window.SANPO_FIREBASE_CONFIG || {};
-const APP_SCHEMA_VERSION = 2;
+const APP_SCHEMA_VERSION = 3;
 const APP_BUILD_ID = '2026-05-hardening';
 let firebaseEnabled = Boolean(firebaseConfig.apiKey && firebaseConfig.databaseURL && firebaseConfig.projectId);
 let app = null;
@@ -100,6 +100,9 @@ let settlementCompositionActive = false;
 let pendingRemoteSettlementData = null;
 let lastUpdatedAt = 0;
 let lastAutoAssignLabel = '';
+let activeCarPlanId = 'plan-1';
+let carPlans = [];
+let isRestoringCarPlans = false;
 let lastHistoryRestoreBackup = null;
 
 const CFG = { STORE:'sampokai_v10_split' };
@@ -142,6 +145,50 @@ function showMiniToast(message, tone = 'neutral') {
     showMiniToast.timer = setTimeout(() => toast.classList.remove('visible'), 1800);
 }
 
+
+
+function appPrompt(message, defaultValue = '', options = {}) {
+    const modalEl = byId('commonEditModal');
+    const input = byId('editModalInput');
+    const titleEl = byId('commonEditModalTitle');
+    const saveBtn = byId('saveEditBtn');
+    if (!window.bootstrap || !modals?.edit || !modalEl || !input || !titleEl || !saveBtn) {
+        return Promise.resolve(window.prompt(String(message || ''), String(defaultValue || '')));
+    }
+    return new Promise(resolve => {
+        const previousSaveCb = saveCb;
+        const previousTitle = titleEl.textContent;
+        const previousButtonText = saveBtn.textContent;
+        let settled = false;
+        function cleanup() {
+            modalEl.removeEventListener('hidden.bs.modal', onHidden);
+            titleEl.textContent = previousTitle || '編集';
+            saveBtn.textContent = previousButtonText || '保存';
+            saveCb = previousSaveCb;
+        }
+        function finish(value) {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            modals.edit.hide();
+            resolve(value);
+        }
+        function onHidden() {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            resolve(null);
+        }
+        titleEl.textContent = String(options.title || message || '編集');
+        saveBtn.textContent = String(options.okText || '保存');
+        input.value = String(defaultValue || '');
+        input.setAttribute('aria-label', String(message || '入力'));
+        saveCb = () => finish(input.value);
+        modalEl.addEventListener('hidden.bs.modal', onHidden);
+        modals.edit.show();
+        setTimeout(() => { input.focus(); input.select(); }, 80);
+    });
+}
 
 function appConfirm(message, options = {}) {
     return window.AppUI?.confirm ? window.AppUI.confirm(message, options) : Promise.resolve(window.confirm(String(message || '')));

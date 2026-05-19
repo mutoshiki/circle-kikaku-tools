@@ -6,6 +6,7 @@ function clearSeatDropPreview() {
         slot.classList.remove('drop-preview', 'shift-target', 'swap-target', 'swap-origin', 'escape-target');
     });
     document.querySelectorAll('#waiting-list.return-preview-target').forEach(list => list.classList.remove('return-preview-target'));
+    document.querySelectorAll('#cars-container.car-create-drop-target').forEach(container => container.classList.remove('car-create-drop-target'));
     document.querySelectorAll('.swap-preview-card, .drag-preview-card').forEach(card => card.remove());
     document.querySelectorAll('.seat-card-will-move').forEach(card => card.classList.remove('seat-card-will-move'));
 }
@@ -87,6 +88,31 @@ function enforceOneCardPerSeat() {
     });
 }
 
+function isPointInsideRect(clientX, clientY, rect, margin = 0) {
+    if (!rect) return false;
+    return clientX >= rect.left - margin &&
+        clientX <= rect.right + margin &&
+        clientY >= rect.top - margin &&
+        clientY <= rect.bottom + margin;
+}
+
+function getCarCreateDropTarget(clientX, clientY, el) {
+    const carsContainer = byId('cars-container');
+    const topArea = byId('top-area');
+    if (!carsContainer || !topArea || currentView !== 'list') return null;
+    if (el?.closest?.('.car-box, .edit-header, #bottom-tray, .modal, .dropdown-menu, button, input, textarea, select')) return null;
+
+    const topRect = topArea.getBoundingClientRect();
+    if (!isPointInsideRect(clientX, clientY, topRect)) return null;
+
+    const containerRect = carsContainer.getBoundingClientRect();
+    const startsBelowTools = clientY >= Math.min(containerRect.top || topRect.top, topRect.bottom) - 20;
+    if (!startsBelowTools) return null;
+
+    // 車カード同士のすき間、車カードの下の余白、まだ車がないときの空き領域を新規作成エリアにする。
+    return carsContainer;
+}
+
 function getManualCardDropTarget(clientX, clientY) {
     const el = document.elementFromPoint(clientX, clientY);
     const waitingList = byId('waiting-list');
@@ -94,27 +120,24 @@ function getManualCardDropTarget(clientX, clientY) {
     const seat = el?.closest?.('.seat-slot');
     if (seat) return seat;
 
-    if (!waitingList || !tray || !tray.isConnected) return null;
+    if (waitingList && tray && tray.isConnected) {
+        const trayIsOpen = !tray.classList.contains('minimized') && !(tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
 
-    const trayIsOpen = !tray.classList.contains('minimized') && !(tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
+        // 開いているときは、待機欄の中に入った場合だけ戻し先にする。
+        if (trayIsOpen && el?.closest?.('#waiting-list, #waiting-list-container')) {
+            return waitingList;
+        }
 
-    // 開いているときは、待機欄の中に入った場合だけ戻し先にする。
-    if (trayIsOpen && el?.closest?.('#waiting-list, #waiting-list-container')) {
-        return waitingList;
+        // 閉じているときは、閉じたタブ本体に触れたときだけ戻し先扱いにする。
+        const handle = byId('tray-handle');
+        const targetRect = (handle || tray).getBoundingClientRect();
+        const margin = 12;
+        const touchingClosedTab = isPointInsideRect(clientX, clientY, targetRect, margin);
+
+        if (!trayIsOpen && touchingClosedTab) return waitingList;
     }
 
-    // 閉じているときは、閉じたタブ本体に触れたときだけ戻し先扱いにする。
-    const handle = byId('tray-handle');
-    const targetRect = (handle || tray).getBoundingClientRect();
-    const margin = 12;
-    const touchingClosedTab =
-        clientX >= targetRect.left - margin &&
-        clientX <= targetRect.right + margin &&
-        clientY >= targetRect.top - margin &&
-        clientY <= targetRect.bottom + margin;
-
-    if (!trayIsOpen && touchingClosedTab) return waitingList;
-    return null;
+    return getCarCreateDropTarget(clientX, clientY, el);
 }
 
 function moveManualDragCardTo(target) {
@@ -128,6 +151,11 @@ function moveManualDragCardTo(target) {
     manualCardDrag.dropTarget = target;
     if (target.id === 'waiting-list') {
         target.classList.add('return-preview-target');
+        return;
+    }
+
+    if (target.id === 'cars-container') {
+        target.classList.add('car-create-drop-target');
         return;
     }
 
@@ -157,6 +185,16 @@ function moveManualDragCardTo(target) {
     showDraggedSeatPreview(card, target, [card]);
 }
 
+function createCarFromDroppedMember(card) {
+    if (!card?.isConnected) return false;
+    const member = getMemData(card);
+    if (!member?.name) return false;
+
+    card.remove();
+    addCar(member.name, (typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3), [], member.memo, member.gender, member.grade || 0);
+    return true;
+}
+
 function commitManualCardDrop() {
     if (!manualCardDrag) return;
     const card = manualCardDrag.card;
@@ -167,6 +205,11 @@ function commitManualCardDrop() {
     if (target.id === 'waiting-list') {
         target.appendChild(card);
         manualCardDrag.currentContainer = target;
+        return;
+    }
+
+    if (target.id === 'cars-container') {
+        if (createCarFromDroppedMember(card)) manualCardDrag.currentContainer = target;
         return;
     }
 

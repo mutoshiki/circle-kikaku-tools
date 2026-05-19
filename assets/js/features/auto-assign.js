@@ -18,22 +18,21 @@ function updateAutoAssignSummary() {
     const el = byId('autoAssignSummary');
     if (!el) return;
     const items = getAutoAssignConditionItems();
-    el.textContent = items.length ? `現在：${items.join('・')}をまとめる` : '現在：ランダム';
+    el.textContent = items.length ? `条件：${items.join('・')}` : '条件：なし';
 }
 window.updateAutoAssignSummary = updateAutoAssignSummary;
 
 function buildAutoAssignAppliedLabel(opts, mode) {
     const items = getAutoAssignConditionItems(opts);
-    const condition = items.length ? `${items.join('・')}をまとめる` : 'ランダム';
-    const scope = mode === 'fill' ? '空席のみ' : '全体を組み直し';
-    return `自動割当：${condition} / ${scope}`;
+    if (mode === 'fill') return '空席';
+    return items.length ? `${items.join('・')}` : 'ランダム';
 }
 
 function updateLastAutoAssignCondition() {
     const el = byId('lastAutoAssignCondition');
     if (!el) return;
-    const text = lastAutoAssignLabel || '自動割当：未実行';
-    el.innerHTML = `<i class="fas fa-random"></i><span>${escapeHtml(text)}</span>`;
+    const text = lastAutoAssignLabel || '未実行';
+    el.innerHTML = `<i class="fas fa-dice"></i><span>${escapeHtml(text)}</span>`;
     el.classList.toggle('is-empty', !lastAutoAssignLabel);
 }
 
@@ -242,7 +241,9 @@ async function autoAssign(mode) {
     let mems = [];
     
     if(mode === 'shuffle') {
-        if(!await appConfirm('配置済みのメンバーも含めて再シャッフルしますか？固定済みの人は残します。', { title: '自動割り当て', okText: '組み直す' })) return;
+        const items = getAutoAssignConditionItems(opts);
+        const message = items.length ? `${items.join('・')}をまとめて自動割り当てします。` : 'ランダムで自動割り当てします。';
+        if(!await appConfirm(message, { title: 'ランダム', okText: '実行' })) return;
         $$('.seat-slot').forEach(slot => getRealSeatCards(slot).filter(m => m.dataset.locked !== 'true').forEach(m => { mems.push(getMemData(m)); m.remove(); }));
         $$('#waiting-list .member-card:not([data-locked="true"])').forEach(m => { mems.push(getMemData(m)); m.remove(); });
     } else {

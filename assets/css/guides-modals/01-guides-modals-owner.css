@@ -3242,3 +3242,100 @@ padding-inline: 9px;
     background: rgba(15, 23, 42, 0.46);
     border-color: var(--border-color);
 }
+
+/* Modern modal, dropdown and guide surface refresh. */
+.dropdown-menu,
+.modal-content {
+    border-color: var(--hairline, var(--border-color));
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-float);
+}
+
+.dropdown-menu {
+    padding: 7px;
+}
+
+.dropdown-item {
+    min-height: 38px;
+    border-radius: var(--radius-main);
+    font-weight: 750;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background: var(--hover-bg);
+}
+
+.modal-header {
+    padding: 14px 16px;
+    background: color-mix(in srgb, var(--modal-header-bg) 88%, var(--bg-body));
+    border-bottom-color: var(--hairline, var(--border-color));
+}
+
+.modal-footer {
+    padding: 12px 16px;
+    background: color-mix(in srgb, var(--modal-footer-bg) 88%, var(--bg-body));
+    border-top-color: var(--hairline, var(--border-color));
+}
+
+.modal-title {
+    letter-spacing: -0.02em;
+}
+
+.guide-feature-card,
+.global-guide-card,
+.app-guide-box,
+.guide-mini-screen,
+.route-helper-panel,
+.route-private-panel,
+.route-stop-panel,
+.batch-warning,
+.theme-system-note,
+.empty-card {
+    border-color: var(--hairline, var(--border-color));
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+}
+
+.guide-feature-card,
+.global-guide-card,
+.app-guide-box {
+    background: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
+}
+
+.guide-feature-title,
+.app-guide-box strong,
+.global-guide-card strong {
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.guide-important-note,
+.theme-system-note {
+    background: color-mix(in srgb, var(--accent-color) 7%, var(--bg-card));
+}
+
+[data-theme="dark"] .dropdown-menu,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .guide-feature-card,
+[data-theme="dark"] .global-guide-card,
+[data-theme="dark"] .app-guide-box,
+[data-theme="dark"] .guide-mini-screen,
+[data-theme="dark"] .route-helper-panel,
+[data-theme="dark"] .route-private-panel,
+[data-theme="dark"] .route-stop-panel,
+[data-theme="dark"] .empty-card {
+    border-color: var(--hairline, var(--border-color));
+    background: color-mix(in srgb, var(--bg-card) 88%, #020617);
+}
+
+@media (max-width: 640px) {
+    .modal-content {
+        border-radius: 18px 18px 0 0;
+    }
+
+    .modal-header,
+    .modal-footer {
+        padding-inline: 14px;
+    }
+}

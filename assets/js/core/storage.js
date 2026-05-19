@@ -26,6 +26,15 @@ function migrateAppData(rawData) {
         };
     }
 
+    if (version < 3) {
+        migrated.schemaVersion = 3;
+        migrated.meta = {
+            ...(migrated.meta || {}),
+            migratedAt: new Date().toISOString(),
+            migratedFrom: version
+        };
+    }
+
     if (!migrated.schemaVersion) migrated.schemaVersion = APP_SCHEMA_VERSION;
     return migrated;
 }

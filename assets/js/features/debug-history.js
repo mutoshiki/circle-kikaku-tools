@@ -77,6 +77,13 @@ function seedDebugData({ missing = false } = {}) {
         addMember(m.name, m.memo || '', m.gender, m.grade, byId('waiting-list'), false);
     });
 
+    activeCarPlanId = typeof SINGLE_CAR_PLAN_ID !== 'undefined' ? SINGLE_CAR_PLAN_ID : 'plan-car';
+    lastAutoAssignLabel = '';
+    carPlans = normalizeCarPlansFromData({
+        activeCarPlanId,
+        carPlans: [{ id: activeCarPlanId, name: '車割', ...getCurrentAllocationFromDom(), lastAutoAssignLabel, templateType: 'car' }]
+    });
+
     updateUI();
     save();
 

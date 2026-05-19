@@ -4,7 +4,7 @@
 let currentView = 'sheet';
 async function switchView(view) {
     if (view !== 'sheet' && editLockEnabled && !hasTrustedEditAccess()) {
-        const label = view === 'seisan' ? '精算ツール' : '車割メーカー';
+        const label = view === 'seisan' ? '精算' : '編集';
         if (!(await verifyEditPassphrase(`${label}を開くには合言葉を入力してください`))) return;
     }
     currentView = view;
@@ -118,7 +118,8 @@ function moveCardToSheetLocation(card, zone) {
 
 function syncSheetToMainData() {
     const names = new Set();
-    document.querySelectorAll('.sheet-dropzone .sheet-chip, .sheet-waiting-list .sheet-chip').forEach(chip => {
+    const activePlanScope = Array.from(document.querySelectorAll('.sheet-plan-section')).find(section => section.dataset.planId === activeCarPlanId) || document;
+    activePlanScope.querySelectorAll('.sheet-dropzone .sheet-chip, .sheet-waiting-list .sheet-chip').forEach(chip => {
         const name = chip.dataset.name;
         if (!name || names.has(name)) return;
         names.add(name);
@@ -396,18 +397,20 @@ function renderSheetEmptyHtml() {
     return window.SanpoApp.templates.sheet.empty();
 }
 
-function createSheetLabelColumn(maxSeats) {
+function createSheetLabelColumn(maxSeats, template) {
     const labelCol = document.createElement('div');
     labelCol.className = 'sheet-car-col sheet-label-col';
-    labelCol.innerHTML = window.SanpoApp.templates.sheet.labelColumn(maxSeats);
+    labelCol.innerHTML = window.SanpoApp.templates.sheet.labelColumn(maxSeats, template);
     return labelCol;
 }
 
-function renderSheetCarColumnHtml(car, maxSeats) {
+function renderSheetCarColumnHtml(car, maxSeats, template, isEditablePlan, groupIndex = 0) {
     return window.SanpoApp.templates.sheet.carColumn({
         car,
         maxSeats,
-        quickEditMode,
+        template,
+        groupIndex,
+        quickEditMode: quickEditMode && isEditablePlan,
         helpers: {
             escapeHtml,
             renderGradeBadge,
@@ -416,17 +419,17 @@ function renderSheetCarColumnHtml(car, maxSeats) {
     });
 }
 
-function createSheetCarColumn(car, maxSeats) {
+function createSheetCarColumn(car, maxSeats, template, isEditablePlan, groupIndex = 0) {
     const col = document.createElement('div');
     col.className = 'sheet-car-col';
-    col.innerHTML = renderSheetCarColumnHtml(car, maxSeats);
+    col.innerHTML = renderSheetCarColumnHtml(car, maxSeats, template, isEditablePlan, groupIndex);
     return col;
 }
 
-function renderSheetWaitingHtml(data) {
+function renderSheetWaitingHtml(data, isEditablePlan) {
     return window.SanpoApp.templates.sheet.waitingColumn({
         data,
-        quickEditMode,
+        quickEditMode: quickEditMode && isEditablePlan,
         helpers: {
             escapeHtml,
             renderGradeBadge,
@@ -435,14 +438,70 @@ function renderSheetWaitingHtml(data) {
     });
 }
 
-function createSheetWaitingColumn(data) {
+function createSheetWaitingColumn(data, isEditablePlan) {
     const waitCol = document.createElement('div');
     waitCol.className = 'sheet-wait-block';
-    waitCol.innerHTML = renderSheetWaitingHtml(data);
+    waitCol.innerHTML = renderSheetWaitingHtml(data, isEditablePlan);
     return waitCol;
 }
 
+function createSheetPlanSection(plan, index) {
+    const template = typeof getCarPlanTemplateConfig === 'function'
+        ? getCarPlanTemplateConfig(plan)
+        : { sectionTitle: '車割', ownerLabel: '車出し', memberLabel: '席', groupSuffix: '車', ownerIcon: 'fa-car' };
+    const section = document.createElement('section');
+    section.className = 'sheet-plan-section';
+    section.dataset.planId = plan.id || `plan-${index}`;
+
+    const displayName = String(plan.name || template.sectionTitle || '').trim() || template.sectionTitle;
+    const heading = document.createElement('div');
+    heading.className = 'sheet-plan-heading';
+    heading.textContent = template.sectionTitle;
+    section.appendChild(heading);
+
+    const cars = Array.isArray(plan.cars) ? plan.cars : [];
+    const waiting = Array.isArray(plan.waiting) ? plan.waiting : [];
+    const isEditablePlan = plan.id === activeCarPlanId;
+
+    if (cars.length) {
+        const maxSeats = Math.max(1, ...cars.map(c => parseInt(c.capacity) || 0));
+        const table = document.createElement('div');
+        table.className = 'sheet-plan-table';
+        table.appendChild(createSheetLabelColumn(maxSeats, { ...template, planName: displayName }));
+        cars.forEach((car, carIndex) => table.appendChild(createSheetCarColumn(car, maxSeats, template, isEditablePlan, carIndex)));
+        section.appendChild(table);
+    }
+
+    if (waiting.length) {
+        section.appendChild(createSheetWaitingColumn({ waiting }, isEditablePlan));
+    }
+
+    if (!cars.length && !waiting.length) {
+        const empty = document.createElement('div');
+        empty.className = 'sheet-plan-empty';
+        empty.textContent = 'まだ配置がありません';
+        section.appendChild(empty);
+    }
+
+    return section;
+}
+
+
+function syncSheetPlanWidths() {
+    document.querySelectorAll('.sheet-plan-section').forEach(section => {
+        const table = section.querySelector('.sheet-plan-table');
+        const waitBlock = section.querySelector('.sheet-wait-block');
+        if (!table || !waitBlock) return;
+        const width = Math.ceil(table.scrollWidth || table.offsetWidth || 0);
+        if (width > 0) {
+            section.style.setProperty('--sheet-plan-width', `${width}px`);
+            waitBlock.style.width = `${width}px`;
+        }
+    });
+}
+
 function renderSheetView() {
+    // createSheetPlanSection() keeps using createSheetCarColumn and createSheetWaitingColumn.
     const canvas = byId('sheet-canvas');
     if (!canvas) return;
     clearSheetSortables();
@@ -451,15 +510,23 @@ function renderSheetView() {
     const data = getData();
     updateSheetSummary(data);
 
-    if (!data.cars.length) {
+    const plans = typeof getCarPlansSnapshot === 'function' ? getCarPlansSnapshot() : [data];
+    const visiblePlans = plans.filter(plan => (plan.cars || []).length || (plan.waiting || []).length);
+
+    if (!visiblePlans.length) {
         canvas.innerHTML = renderSheetEmptyHtml();
         return;
     }
 
-    const maxSeats = Math.max(...data.cars.map(c => parseInt(c.capacity)||0));
-    canvas.appendChild(createSheetLabelColumn(maxSeats));
-    data.cars.forEach(car => canvas.appendChild(createSheetCarColumn(car, maxSeats)));
-    canvas.appendChild(createSheetWaitingColumn(data));
+    visiblePlans
+        .sort((a, b) => {
+            const typeA = typeof normalizeCarPlanTemplateType === 'function' ? normalizeCarPlanTemplateType(a.templateType) : 'car';
+            const typeB = typeof normalizeCarPlanTemplateType === 'function' ? normalizeCarPlanTemplateType(b.templateType) : 'car';
+            return (typeA === 'car' ? 0 : 1) - (typeB === 'car' ? 0 : 1);
+        })
+        .forEach((plan, index) => canvas.appendChild(createSheetPlanSection(plan, index)));
+    syncSheetPlanWidths();
+    requestAnimationFrame(syncSheetPlanWidths);
 
     setupSheetSortables();
 }

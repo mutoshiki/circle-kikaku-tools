@@ -48,7 +48,8 @@ window.addMember = addMember;
 
 function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0) {
     const name = String(n || '').trim();
-    const c = getInt(cap);
+    const fallbackCapacity = typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3;
+    const c = getInt(cap) || fallbackCapacity;
     if(!name) return;
 
     const col = ce('div', 'col-12 col-md-6 col-lg-4');
@@ -56,6 +57,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0) {
     const safeMemo = escapeHtml(dm || '');
     const driverGradeHtml = renderGradeBadge(dgrade, dg);
     const driverGenderHtml = genderBadgeHtml(dg);
+    const groupSuffix = typeof getActiveGroupSuffix === 'function' ? getActiveGroupSuffix() : '車';
     let slotsHtml = `
         <div class="driver-seat" data-gender="${dg}" data-name="${safeName}" data-grade="${dgrade || 0}">
             <div class="member-main-line driver-main-line">
@@ -72,12 +74,12 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0) {
     col.innerHTML = `
         <div class="car-box" data-capacity="${c}">
             <div class="car-header">
-                <span class="car-name-label">${safeName}車</span>
+                <span class="car-name-label">${safeName}${groupSuffix}</span>
                 <button type="button" class="capacity-badge capacity-edit-btn" data-action="edit-capacity" title="定員を変更" aria-label="定員を変更">
                     <span class="capacity-count">0/${c}</span><i class="fas fa-pen" aria-hidden="true"></i>
                 </button>
-                <button type="button" class="car-delete-btn action-btn delete-btn" title="車を削除" aria-label="車を削除">
-                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                <button type="button" class="car-delete-btn car-return-btn action-btn delete-btn" title="車出しを解除して待機に戻す" aria-label="車出しを解除して待機に戻す">
+                    <i class="fas fa-reply" aria-hidden="true"></i>
                 </button>
             </div>
             <div class="car-layout-grid">${slotsHtml}</div>

@@ -374,3 +374,60 @@ border-radius: var(--radius-main);
 .seisan-check-note {
 border-radius: var(--radius-sm);
 }
+
+/* Modern checklist and share controls refresh. */
+.seisan-check-list,
+.seisan-driver-pay-list {
+    gap: 8px;
+}
+
+#seisan-view-area .seisan-check-item,
+#seisan-view-area .seisan-driver-pay-row,
+.seisan-check-item,
+.seisan-driver-pay-row {
+    border-color: var(--hairline, var(--border-color));
+    border-radius: var(--radius-main);
+    background: color-mix(in srgb, var(--bg-card) 86%, var(--bg-body));
+}
+
+.seisan-check-item.paid,
+#seisan-view-area .seisan-check-item.paid {
+    background: color-mix(in srgb, #10b981 10%, var(--bg-card));
+    border-color: color-mix(in srgb, #10b981 38%, var(--border-color));
+}
+
+.seisan-driver-pay-row.done,
+#seisan-view-area .seisan-driver-pay-row.done {
+    background: color-mix(in srgb, #3b82f6 10%, var(--bg-card));
+    border-color: color-mix(in srgb, #3b82f6 38%, var(--border-color));
+}
+
+.seisan-check-note {
+    padding: 2px 6px;
+    background: var(--surface-muted, var(--bg-body));
+    color: var(--text-sub);
+}
+
+.seisan-driver-detail {
+    color: var(--text-sub);
+}
+
+[data-theme="dark"] #seisan-view-area .seisan-check-item,
+[data-theme="dark"] #seisan-view-area .seisan-driver-pay-row,
+[data-theme="dark"] .seisan-check-item,
+[data-theme="dark"] .seisan-driver-pay-row {
+    border-color: var(--hairline, var(--border-color));
+    background: color-mix(in srgb, var(--bg-card) 82%, #020617);
+}
+
+@media (max-width: 640px) {
+    #seisan-view-area .seisan-check-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    #seisan-view-area .seisan-check-item,
+    #seisan-view-area .seisan-driver-pay-row {
+        border-radius: 13px;
+    }
+}

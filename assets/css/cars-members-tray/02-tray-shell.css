@@ -1038,3 +1038,99 @@ min-height: 36px;
     border-color: color-mix(in srgb, var(--accent-color) 36%, var(--border-color));
     color: var(--text-main);
 }
+
+/* Modern waiting tray refresh. */
+#bottom-tray {
+    border-top-color: var(--hairline, var(--border-color));
+    border-radius: 22px 22px 0 0;
+    background: var(--tray-bg);
+    box-shadow: 0 -16px 38px rgba(15, 23, 42, 0.12);
+}
+
+#tray-handle {
+    min-height: 40px;
+    background: transparent;
+    border-top: 0;
+    border-radius: 22px 22px 0 0;
+}
+
+.handle-bar {
+    width: 46px;
+    height: 5px;
+    opacity: 0.32;
+}
+
+#tray-toggle-label {
+    color: var(--text-sub);
+    font-weight: 850;
+}
+
+#bottom-tray-header {
+    padding: 8px 12px 11px;
+    border-bottom-color: var(--hairline, var(--border-color));
+    background: transparent;
+}
+
+.tray-inline-row {
+    gap: 8px;
+}
+
+.tray-inline-row .settings-btn,
+.tray-inline-row .tray-action-btn {
+    min-height: 36px;
+    border-radius: 999px;
+    border-color: var(--hairline, var(--border-color));
+    background: var(--bg-card);
+    color: var(--text-main);
+    font-weight: 850;
+}
+
+.tray-inline-row .tray-action-btn.auto-assign-btn,
+.tray-actions .auto-assign-btn {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+    box-shadow: 0 8px 18px color-mix(in srgb, var(--accent-color) 14%, transparent);
+}
+
+#waiting-list-container {
+    padding: 12px 12px 18px;
+}
+
+#waiting-list {
+    gap: 9px;
+}
+
+#waiting-count.waiting-inline-count {
+    color: var(--text-sub);
+    font-weight: 850;
+}
+
+[data-theme="dark"] #bottom-tray {
+    background: color-mix(in srgb, var(--bg-card) 92%, #020617);
+    border-color: var(--hairline, var(--border-color));
+}
+
+@media (max-width: 640px) {
+    #bottom-tray {
+        border-radius: 20px 20px 0 0;
+    }
+
+    #tray-handle {
+        min-height: 36px;
+    }
+
+    #bottom-tray-header {
+        padding: 7px 9px 9px;
+    }
+
+    .tray-inline-row {
+        gap: 6px;
+    }
+
+    .tray-inline-row .settings-btn,
+    .tray-inline-row .tray-action-btn {
+        min-height: 36px;
+        border-radius: 12px;
+    }
+}

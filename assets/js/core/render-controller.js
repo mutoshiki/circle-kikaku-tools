@@ -24,9 +24,15 @@ function updateSheetSummary(data = getData()) {
     const waitingCount = data.waiting.length;
     const riderCount = assignedRiderCount + waitingCount;
     const totalCount = driverCount + riderCount;
+    const activePlan = typeof getActiveCarPlan === 'function' ? getActiveCarPlan() : null;
+    const template = typeof getCarPlanTemplateConfig === 'function'
+        ? getCarPlanTemplateConfig(activePlan || 'car')
+        : { ownerLabel: '車出し', memberLabel: '同乗者' };
+    const memberSummaryLabel = template.type === 'team' ? 'メンバー' : '同乗者';
     const items = [
-        ['車出し', driverCount],
-        ['同乗者', riderCount],
+        ...(activePlan?.name ? [['表示', activePlan.name]] : []),
+        [template.ownerLabel || '車出し', driverCount],
+        [memberSummaryLabel, riderCount],
         ['全員', totalCount],
         ['待機', waitingCount]
     ];
@@ -47,6 +53,10 @@ function updateSheetSummary(data = getData()) {
 
 function updateUI() {
     refreshRoomTitle();
+    const activePlanForUi = typeof getActiveCarPlan === 'function' ? getActiveCarPlan() : null;
+    const activeTemplateForUi = typeof getCarPlanTemplateConfig === 'function' ? getCarPlanTemplateConfig(activePlanForUi || 'car') : { type: 'car' };
+    document.body.dataset.activePlanTemplate = activeTemplateForUi.type || 'car';
+    if (typeof renderCarPlanSwitcher === 'function') renderCarPlanSwitcher();
     $$('.member-card').forEach(card => {
         const inWaiting = card.parentElement?.id === 'waiting-list';
         card.classList.toggle('in-waiting', inWaiting);
@@ -64,6 +74,14 @@ function updateUI() {
         const badge = $('.capacity-badge', b);
         badge.innerHTML = `<span class="capacity-count">${n}/${c}</span><i class="fas fa-pen" aria-hidden="true"></i>`;
         badge.className = `capacity-badge capacity-edit-btn ${n>c?'is-over':(n===c?'is-full':'')}`;
+        const label = $('.car-name-label', b);
+        const driverName = $('.driver-name-disp', b)?.innerText?.trim() || '';
+        if (label && driverName) {
+            label.textContent = activeTemplateForUi.type === 'team'
+                ? `第${Array.from($$('.car-box')).indexOf(b) + 1}班`
+                : `${driverName}車`;
+        }
+        b.classList.toggle('is-team-group', activeTemplateForUi.type === 'team');
         b.classList.toggle('over-capacity', n>c);
     });
     updateWaitingTrayState();
@@ -88,7 +106,22 @@ function renderListEmptyHint() {
         existing?.remove();
         return;
     }
+
+    const waitingCount = $$('#waiting-list .member-card').length;
+    const activePlan = typeof getActiveCarPlan === 'function' ? getActiveCarPlan() : null;
+    const template = typeof getCarPlanTemplateConfig === 'function'
+        ? getCarPlanTemplateConfig(activePlan || 'car')
+        : { sectionTitle: '車割', ownerLabel: '車出し', groupSuffix: '車', ownerIcon: 'fa-car' };
+    const label = template.type === 'team' ? '班' : '車';
+    const ownerText = template.type === 'team' ? '班長を置く' : '車出しを置く';
+    const createText = `${label}を作成`;
+    const html = waitingCount > 0
+        ? `<div class="col-12" id="list-empty-hint"><div class="drop-create-lane empty-card--drop-create"><i class="fas ${template.ownerIcon || 'fa-car'}" aria-hidden="true"></i><strong>${ownerText}</strong><span>${createText}</span></div></div>`
+        : `<div class="col-12" id="list-empty-hint"><div class="empty-card"><i class="fas fa-plus" aria-hidden="true"></i><strong>参加者登録</strong><span>名簿を読み込むと、${template.sectionTitle}を作れます。</span><button class="seisan-btn primary" type="button" data-action="open-batch">参加者登録を開く</button></div></div>`;
+
     if (!existing) {
-        container.insertAdjacentHTML('afterbegin', `<div class="col-12" id="list-empty-hint"><div class="empty-card"><i class="fas fa-paste"></i><strong>まずは参加者登録から</strong><span>企画の参加者と車出しを登録すると、ここに車割の編集画面が表示されます。</span><button class="seisan-btn primary" type="button" data-action="open-batch">参加者登録を開く</button></div></div>`);
+        container.insertAdjacentHTML('afterbegin', html);
+        return;
     }
+    existing.outerHTML = html;
 }

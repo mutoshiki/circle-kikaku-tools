@@ -68,7 +68,7 @@ function updateWaitingTrayState() {
     })();
     const initialized = tray.dataset.waitingInitialized === 'true';
 
-    countEl.textContent = `${count}人`;
+    countEl.textContent = `未割り当て ${count}人`;
     countEl.setAttribute('aria-label', `未割り当てメンバー ${count}人`);
     setWaitingTraySizeClass(tray, count);
     tray.dataset.waitingCount = String(count);
