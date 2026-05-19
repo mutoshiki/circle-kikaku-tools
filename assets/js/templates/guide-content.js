@@ -9,13 +9,13 @@ window.SanpoGuideTemplates = {
             </div>
             <div class="guide-step-panel" data-guide="global" data-panel="0" style="display:none;">
               <h6 class="guide-step-title">① 全体の流れを確認する</h6>
-              <p class="guide-page-lead">参加者登録で名簿を読み込み、車割メーカーで配置を作り、発表ビューで共有し、必要に応じて精算します。</p>
+              <p class="guide-page-lead">参加者登録で名簿を読み込み、車割・班で配置を作り、発表ビューで共有し、必要に応じて精算します。</p>
               <div class="guide-card-grid-three compact-guide-grid">
                 <div class="guide-feature-card guide-feature-wide">
                   <div class="guide-feature-title"><i class="fas fa-layer-group me-2" aria-hidden="true"></i>3つの画面</div>
                   <div class="guide-mini-screen">
                     <div class="guide-mini-toolbar">
-                      <div class="guide-mini-tool guide-mini-primary">車割メーカー</div>
+                      <div class="guide-mini-tool guide-mini-primary">車割・班</div>
                       <div class="guide-mini-tool">発表ビュー</div>
                       <div class="guide-mini-tool">精算ツール</div>
                     </div>
@@ -49,18 +49,18 @@ window.SanpoGuideTemplates = {
             </div>
             <div class="guide-step-panel" data-guide="global" data-panel="1" style="display:none;">
               <h6 class="guide-step-title">② 車割を作って確認する</h6>
-              <p class="guide-page-lead">車割メーカーで配置を作り、発表ビューで参加者に見せる内容を確認します。</p>
+              <p class="guide-page-lead">車割ができたら、発表ビューで参加者に見せる車割だけを確認します。</p>
               <div class="guide-card-grid-three compact-guide-grid">
-                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-shuffle me-2" aria-hidden="true"></i>車割メーカー</div><div class="guide-mini-screen"><div class="guide-action-row guide-action-row--context"><div class="guide-action-box"><i class="fas fa-fill-drip" aria-hidden="true"></i><span>空席を埋める</span></div><div class="guide-action-box primary"><i class="fas fa-shuffle" aria-hidden="true"></i><span>自動割り当て</span></div></div></div><p class="guide-short-text">条件に合わせて自動で割り当て、必要なところだけ手動で整えます。</p></div>
-                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-table-list me-2" aria-hidden="true"></i>発表ビュー</div><div class="guide-mini-screen"><div class="guide-mini-sheet"><div class="head">車</div><div class="head">車出し</div><div class="head">同乗者</div><div>田中車</div><div>田中</div><div>山本・佐藤</div><div>高橋車</div><div>高橋</div><div>鈴木・中村</div></div></div><p class="guide-short-text">未配置や定員超過がないか確認します。</p></div>
-                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-lock me-2" aria-hidden="true"></i>共有前のロック</div><div class="guide-mini-screen"><div class="guide-copy-mock"><i class="fas fa-lock" aria-hidden="true"></i> ロック中</div></div><p class="guide-short-text">共有前にロックして、車割メーカーと精算ツールの誤編集を防ぎます。</p></div>
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-dice me-2" aria-hidden="true"></i>車割・班</div><div class="guide-mini-screen"><div class="guide-action-row guide-action-row--context"><div class="guide-action-box"><i class="fas fa-fill-drip" aria-hidden="true"></i><span>空席</span></div><div class="guide-action-box primary"><i class="fas fa-dice" aria-hidden="true"></i><span>ランダム</span></div></div></div><p class="guide-short-text">条件に合わせて自動で割り当て、必要なところだけ手動で整えます。</p></div>
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-table-list me-2" aria-hidden="true"></i>発表ビュー</div><div class="guide-mini-screen"><div class="guide-mini-sheet"><div class="head">車</div><div class="head">車出し</div><div class="head">同乗者</div><div>田中車</div><div>田中</div><div>山本・佐藤</div><div>高橋車</div><div>高橋</div><div>鈴木・中村</div></div></div><p class="guide-short-text">グループに貼るための見やすい一覧です。余計な編集情報は出しません。</p></div>
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-lock me-2" aria-hidden="true"></i>共有前のロック</div><div class="guide-mini-screen"><div class="guide-copy-mock"><i class="fas fa-lock" aria-hidden="true"></i> ロック中</div></div><p class="guide-short-text">メモなどに個人情報がある場合はロックします。参加者は車割メーカーと精算ツールを見られません。</p></div>
               </div>
             </div>
             <div class="guide-step-panel" data-guide="global" data-panel="2" style="display:none;">
               <h6 class="guide-step-title">③ 共有し、必要なら精算する</h6>
-              <p class="guide-page-lead">発表ビューの共有リンクを案内し、必要に応じて車ごとの費用を精算します。</p>
+              <p class="guide-page-lead">共有リンクをコピーして企画グループに貼ります。リンクを開くと自動で発表ビューが開きます。</p>
               <div class="guide-card-grid-three compact-guide-grid">
-                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-link me-2" aria-hidden="true"></i>共有</div><div class="guide-mini-screen"><div class="guide-copy-mock">共有リンク<br>コピー</div></div><p class="guide-short-text">参加者には発表ビューのリンクを共有します。</p></div>
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-link me-2" aria-hidden="true"></i>共有</div><div class="guide-mini-screen"><div class="guide-copy-mock">共有リンク<br>コピー</div></div><p class="guide-short-text">車割ができたらリンクをコピーし、企画グループに貼り付けます。</p></div>
                 <div class="guide-feature-card guide-feature-wide"><div class="guide-feature-title"><i class="fas fa-yen-sign me-2" aria-hidden="true"></i>精算</div><div class="guide-mini-screen seisan-guide-summary-screen"><div class="seisan-mock-flow"><div class="seisan-mock-summary collect"><div class="seisan-mock-label">集める</div><div class="seisan-mock-value">¥2,400</div></div><div class="seisan-mock-summary account"><div class="seisan-mock-label">部費負担</div><div class="seisan-mock-value">¥300</div></div><div class="seisan-mock-summary pay"><div class="seisan-mock-label">支払い</div><div class="seisan-mock-value">¥9,800</div></div></div></div><p class="guide-short-text">車割の参加者情報を使って、集金額と支払い額を計算します。</p></div>
               </div>
             </div>
@@ -137,17 +137,17 @@ window.SanpoGuideTemplates = {
               </div>
             </div>
             <div class="guide-step-panel" data-guide="car" data-panel="1" style="display:none;">
-              <h6 class="guide-step-title">② 条件を決めて自動割り当てする</h6>
-              <p class="guide-page-lead">条件を選び、固定した席を残すか、全体を組み直すか決めて割り当てます。</p>
+              <h6 class="guide-step-title">② 条件を決めてランダムする</h6>
+              <p class="guide-page-lead">条件を選び、条件を選んで自動割り当てします。</p>
               <div class="guide-card-grid-three compact-guide-grid">
-                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-shuffle me-2" aria-hidden="true"></i>割当</div><div class="guide-mini-screen"><div class="guide-action-row guide-action-row--context"><div class="guide-action-box"><i class="fas fa-fill-drip" aria-hidden="true"></i><span>空席を埋める</span></div><div class="guide-action-box primary"><i class="fas fa-shuffle" aria-hidden="true"></i><span>自動割り当て</span></div></div></div><p class="guide-short-text">今の配置を残したいときは「空席を埋める」、全体を組み直すときは「自動割り当て」を使います。</p></div>
+                <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-dice me-2" aria-hidden="true"></i>割当</div><div class="guide-mini-screen"><div class="guide-action-row guide-action-row--context"><div class="guide-action-box"><i class="fas fa-fill-drip" aria-hidden="true"></i><span>空席</span></div><div class="guide-action-box primary"><i class="fas fa-dice" aria-hidden="true"></i><span>ランダム</span></div></div></div><p class="guide-short-text">今の配置を残したいときは「空席」、全体を割り当て直すときは「ランダム」を使います。</p></div>
                 <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-sliders me-2" aria-hidden="true"></i>割当設定</div><div class="guide-mini-screen"><div class="guide-mini-form"><div class="field">女子：ON</div><div class="field">男子：OFF</div><div class="field">学年：ON</div></div></div><p class="guide-short-text">学年・性別など、必要な条件だけオンにします。</p></div>
                 <div class="guide-feature-card"><div class="guide-feature-title"><i class="fas fa-lock me-2" aria-hidden="true"></i>固定</div><div class="guide-mini-screen"><div class="guide-mini-car"><div class="guide-mini-car-head"><span>高橋車</span><span>2/4</span></div><div class="guide-mini-grid"><div class="guide-mini-card" data-gender="female">山本 <span class="grade-badge" data-grade="1">1年</span> <i class="fas fa-lock" aria-hidden="true"></i></div><div class="guide-mini-card" data-gender="male">佐藤 <span class="grade-badge" data-grade="2">2年</span></div></div></div></div><p class="guide-short-text">変えたくない配置は固定できます。</p></div>
               </div>
             </div>
             <div class="guide-step-panel" data-guide="car" data-panel="2" style="display:none;">
               <h6 class="guide-step-title">③ 手動で整えて発表ビューを確認する</h6>
-              <p class="guide-page-lead">自動割り当てのあと、必要なところだけ手動で調整します。</p>
+              <p class="guide-page-lead">ランダムのあと、必要なところだけ手動で調整します。</p>
               <div class="guide-card-grid-three compact-guide-grid">
                 <div class="guide-feature-card guide-feature-wide">
                   <div class="guide-feature-title"><i class="fas fa-hand-pointer me-2" aria-hidden="true"></i>長押しで移動</div>
@@ -178,7 +178,7 @@ window.SanpoGuideTemplates = {
                       <div>中村車</div><div>中村</div><div>佐藤・鈴木</div>
                     </div>
                   </div>
-                  <p class="guide-short-text">発表ビューで、未配置・定員超過がないか確認します。</p>
+                  <p class="guide-short-text">グループに送るための車割だけを表示します。リンクを開くと自動で発表ビューが開きます。</p>
                 </div>
               </div>
             </div>
