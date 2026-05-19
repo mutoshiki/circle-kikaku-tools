@@ -11,7 +11,7 @@ function getSettlementTextContext() {
 
 function getSettlementUnpaidNames(result, state) {
     return result.participants.filter(p => {
-        if (state.organizerFree && result.organizerSelected && p.name === result.excludedName) return false;
+        if (result.excludedNames?.has?.(p.name)) return false;
         return !state.paid?.[p.name];
     }).map(p => p.name);
 }
@@ -44,8 +44,9 @@ function buildSettlementOverviewText({ title, state, result }) {
             `ガソリン代：${yen(car.gas)}`,
             `諸経費：${formatSettlementExtraDetail(car)}`
         ];
+        if (car.collectionOffset) details.push(`集金：-${yen(car.collectionOffset)}`);
         if (car.driverRound) details.push(`支払い丸め：${yen(car.driverRound)}`);
-        return `・${car.name}車：${yen(car.totalPay)}${paidMark}\n　${details.join(' / ')}`;
+        return `・${car.name}車：${yen(car.adjustedTotalPay ?? car.totalPay)}${paidMark}\n　${details.join(' ＋ ')}`;
     });
 
     return [
@@ -57,6 +58,7 @@ function buildSettlementOverviewText({ title, state, result }) {
         '',
         `割勘対象：${yen(result.totalSplit)}`,
         `諸経費：割勘 ${yen(splitExtraTotal)} / 部費 ${yen(result.totalClub)}`,
+        `集金：-${yen(result.totalDriverCollectionOffset)}`,
         `端数余り：${yen(result.surplus)}`,
         `集金：${result.paidCount}/${result.payerCount}名`,
         `未回収：${unpaid.length ? unpaid.join('、') : 'なし'}`,

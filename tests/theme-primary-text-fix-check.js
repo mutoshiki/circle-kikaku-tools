@@ -9,7 +9,7 @@ function assert(condition, message) {
 
 const css = readText('assets/css/08-control-consistency.css');
 
-assert(css.includes('body[data-app-theme] {\n  --control-primary-text: #fff;\n}'), 'solid CTA text should stay white after theme changes');
+assert(/body\[data-app-theme\]\s*\{\r?\n\s+--control-primary-text: #fff;\r?\n\}/.test(css), 'solid CTA text should stay white after theme changes');
 assert(!css.includes('--control-primary-text: #111827;'), 'solid CTA text must not be forced to black');
 assert(css.includes('body[data-app-theme="anthropic-warm"][data-theme="light"]'), 'warm light theme should have a readable solid-button background override');
 assert(css.includes('--control-primary-bg: color-mix(in srgb, var(--accent-color) 82%, #111827);'), 'warm accent should be deepened instead of changing text to black');

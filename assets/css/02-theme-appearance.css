@@ -29,8 +29,8 @@ body[data-app-theme="natural"][data-theme="light"] {
     --text-sub: #667085;
     --bg-card: #ffffff;
     --border-color: #dbe4df;
-    --accent-color: #12805c;
-    --accent-soft: #e6f4ee;
+    --accent-color: #2f7fbd;
+    --accent-soft: #e4f1fb;
     --app-surface: rgba(255, 255, 255, 0.95);
     --sheet-header: #f7faf8;
     --hover-bg: #f4f8f6;
@@ -42,8 +42,8 @@ body[data-app-theme="natural"][data-theme="dark"] {
     --text-sub: #94a3b8;
     --bg-card: #1e293b;
     --border-color: #334155;
-    --accent-color: #34d399;
-    --accent-soft: rgba(52, 211, 153, 0.18);
+    --accent-color: #61a8df;
+    --accent-soft: rgba(97, 168, 223, 0.22);
     --app-surface: rgba(30, 41, 59, 0.95);
     --sheet-header: #162033;
     --hover-bg: #243247;
@@ -1294,8 +1294,8 @@ body[data-app-theme="natural"][data-theme="light"] {
     --text-sub: #667085;
     --bg-card: #ffffff;
     --border-color: #e5e7eb;
-    --accent-color: #4f46e5;
-    --accent-soft: #eef2ff;
+    --accent-color: #2f7fbd;
+    --accent-soft: #e4f1fb;
     --app-surface: rgba(255, 255, 255, 0.94);
     --sheet-header: #f8fafc;
     --hover-bg: #f9fafb;
@@ -1307,8 +1307,8 @@ body[data-app-theme="natural"][data-theme="dark"] {
     --text-sub: #a7b1c2;
     --bg-card: #111827;
     --border-color: #263244;
-    --accent-color: #818cf8;
-    --accent-soft: rgba(129, 140, 248, 0.18);
+    --accent-color: #61a8df;
+    --accent-soft: rgba(97, 168, 223, 0.22);
     --app-surface: rgba(17, 24, 39, 0.9);
     --sheet-header: #0f172a;
     --hover-bg: #172033;

@@ -46,13 +46,13 @@
           <div class="seisan-summary-value">${money(result.expectedCollected, helpers)}</div>
           <div class="seisan-summary-sub">1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名</div>
         </div>
-        <div class="seisan-flow-arrow" aria-hidden="true">${accountingSign}</div>
+        <div class="seisan-flow-arrow seisan-flow-arrow--plus" aria-hidden="true">${accountingSign}</div>
         <div class="seisan-summary-card accounting" data-summary-kind="club">
           <div class="seisan-summary-label"><i class="fas fa-wallet" aria-hidden="true"></i>${formatCostBadge('club')}</div>
           <div class="seisan-summary-value">${money(Math.abs(result.accounting), helpers)}</div>
           <div class="seisan-summary-sub">${accountingLabel}</div>
         </div>
-        <div class="seisan-flow-arrow" aria-hidden="true">＝</div>
+        <div class="seisan-flow-arrow seisan-flow-arrow--equals" aria-hidden="true">＝</div>
         <div class="seisan-summary-card pay" data-summary-kind="pay">
           <div class="seisan-summary-label"><i class="fas fa-car-side" aria-hidden="true"></i>${formatPaymentBadge()}</div>
           <div class="seisan-summary-value">${money(result.driverTotal, helpers)}</div>
@@ -67,7 +67,7 @@
         <span><small>端数</small>${esc(state.rounding || '100', helpers)}円</span>
         <span><small>協力代</small>${money(result.reward || 0, helpers)}</span>
         <span class="${state.organizerName ? '' : 'is-attention'}"><small>企画者</small>${esc(organizer, helpers)}</span>
-        <span><small>企画者控除</small>${esc(freeLabel, helpers)}</span>
+        <span><small>対象外設定</small>${esc(freeLabel, helpers)}</span>
     </div>`;
   }
 
@@ -96,17 +96,30 @@
     }).join('');
   }
 
-  function joinSlashParts(parts) {
-    return parts.filter(Boolean).join('<span class="seisan-extra-slash" aria-hidden="true">/</span>');
+  function joinFormulaParts(parts) {
+    return parts
+      .filter(part => part && (typeof part === 'string' ? part.trim() : true))
+      .map(part => typeof part === 'string' ? { html: part, op: '＋' } : part)
+      .reduce((html, part, index) => {
+      const partHtml = part.html || '';
+      if (index === 0) return partHtml;
+      const sign = part.op === '−' || String(partHtml).includes('seisan-extra-inline--offset') ? '−' : '＋';
+      return `${html}<span class="seisan-extra-plus" aria-hidden="true">${sign}</span>${partHtml}`;
+    }, '');
   }
 
   function formatGasInline(calc, helpers = {}) {
     return `<span class="seisan-extra-inline seisan-extra-inline--gas split"><span>ガソリン代</span><strong>${money(calc.gas || 0, helpers)}</strong>${formatCostBadge('split')}</span>`;
   }
 
+  function formatDriverCollectionOffsetInline(calc, helpers = {}) {
+    if (!calc.collectionOffset) return '';
+    return { op: '−', html: `<span class="seisan-extra-inline seisan-extra-inline--offset club"><span>集金</span><strong>${money(calc.collectionOffset, helpers)}</strong>${formatCostBadge('club')}</span>` };
+  }
+
   function formatExtraSlash(extras, helpers = {}) {
     if (!extras.length) return '';
-    return joinSlashParts(extras.map(ex => {
+    return joinFormulaParts(extras.map(ex => {
       const type = ex.type === 'club' ? 'club' : 'split';
       return `<span class="seisan-extra-inline ${type}"><span>${esc(ex.name || '費用', helpers)}</span><strong>${money(ex.amountValue || ex.amount || 0, helpers)}</strong>${formatCostBadge(type)}</span>`;
     }));
@@ -115,13 +128,13 @@
   function carSummary({ car, calc, issues, helpers = {} }) {
     const rowClass = issues.rows.has(car.name) ? ' has-error' : '';
     const extras = Array.isArray(calc.extras) ? calc.extras : [];
-    const costDetails = joinSlashParts([formatGasInline(calc, helpers), formatExtraSlash(extras, helpers)]);
+    const costDetails = joinFormulaParts([formatGasInline(calc, helpers), formatExtraSlash(extras, helpers), formatDriverCollectionOffsetInline(calc, helpers)]);
     return `<article class="seisan-car-summary-row${rowClass}" data-driver-name="${esc(car.name, helpers)}">
         <div class="seisan-car-summary-headline">
           <strong class="seisan-car-summary-name"><span>${esc(car.name, helpers)}</span><em>車</em></strong>
           <div class="seisan-car-summary-payment" aria-label="車主への支払い金額">
             ${formatPaymentBadge()}
-            <strong class="seisan-car-summary-total">${money(calc.totalPay || 0, helpers)}</strong>
+            <strong class="seisan-car-summary-total">${money(calc.adjustedTotalPay ?? calc.totalPay ?? 0, helpers)}</strong>
           </div>
           <button class="seisan-btn seisan-edit-btn" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><i class="fas fa-pen" aria-hidden="true"></i><span>編集</span></button>
         </div>
@@ -136,9 +149,10 @@
   function carRow({ car, cState, calc, extras, issues, helpers = {} }) {
     const fieldErrorClass = helpers.fieldErrorClass || (() => '');
     const rowClass = issues.rows.has(car.name) ? ' has-error' : '';
-    const details = `ガソリン代 ${money(calc.gas || 0, helpers)} / 諸経費 ${money((calc.splitExtras || 0) + (calc.clubExtras || 0), helpers)}`;
+    const offsetText = calc.collectionOffset ? ` / 集金 -${money(calc.collectionOffset, helpers)}` : '';
+    const details = `ガソリン代 ${money(calc.gas || 0, helpers)} / 諸経費 ${money((calc.splitExtras || 0) + (calc.clubExtras || 0), helpers)}${offsetText}`;
     return `<div class="seisan-car-row${rowClass}" data-driver-name="${esc(car.name, helpers)}">
-        <div class="seisan-car-title"><strong>${esc(car.name, helpers)} 車</strong><span class="seisan-car-total">支払い ${money(calc.totalPay, helpers)}</span></div>
+        <div class="seisan-car-title"><strong>${esc(car.name, helpers)} 車</strong><span class="seisan-car-total">支払い ${money(calc.adjustedTotalPay ?? calc.totalPay, helpers)}</span></div>
         <div class="seisan-small">${details}</div>
         <div class="seisan-car-inputs">
           <label><span class="seisan-mini-label">移動距離（km）</span><input type="number" inputmode="decimal" data-field="dist" class="${fieldErrorClass(issues, car.name, 'dist')}" value="${esc(cState.dist || '', helpers)}"></label>
@@ -168,9 +182,11 @@
   function collection({ participants, state, result, helpers = {} }) {
     if (!participants.length) return `<div class="seisan-empty">名簿を登録すると表示されます。</div>`;
     return participants.map(p => {
-      const excluded = state.organizerFree && result.organizerSelected && p.name === result.excludedName;
+      const excluded = !!result.excludedNames?.has?.(p.name);
       const paid = !!state.paid?.[p.name];
-      const note = excluded ? '対象外' : (p.role === 'driver' ? '車出し' : (p.role === 'waiting' ? '待機' : ''));
+      const note = excluded
+        ? (p.role === 'driver' ? '支払から差引' : (p.name === result.excludedName ? '対象外(企画者)' : '対象外'))
+        : (p.role === 'waiting' ? '待機' : '');
       return `<label class="seisan-check-item ${paid ? 'paid' : ''} ${excluded ? 'excluded' : ''}">
             <input type="checkbox" ${paid ? 'checked' : ''} ${excluded ? 'disabled' : ''} data-settlement-paid-name="${encodeURIComponent(p.name)}">
             <span class="seisan-check-name">${esc(p.name, helpers)}</span>
@@ -183,10 +199,12 @@
     if (!result.cars.length) return `<div class="seisan-empty">車出しを登録すると表示されます。</div>`;
     return result.cars.map(car => {
       const done = !!state.driverPaid?.[car.name];
-      const exText = car.extras.length ? car.extras.map(ex => `${esc(ex.name || '費用', helpers)} ${money(ex.amountValue, helpers)}`).join(' / ') : '追加なし';
+      const exParts = car.extras.length ? car.extras.map(ex => `${esc(ex.name || '費用', helpers)} ${money(ex.amountValue, helpers)}`) : ['追加なし'];
+      if (car.collectionOffset) exParts.push({ op: '−', html: `集金 ${money(car.collectionOffset, helpers)}` });
+      const exText = joinFormulaParts(exParts);
       return `<label class="seisan-driver-pay-row ${done ? 'done' : ''}">
             <span class="seisan-driver-name">${esc(car.name, helpers)}</span>
-            <span class="seisan-driver-amount">${money(car.totalPay, helpers)}</span>
+            <span class="seisan-driver-amount">${money(car.adjustedTotalPay ?? car.totalPay, helpers)}</span>
             <input type="checkbox" ${done ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}">
             <span class="seisan-driver-detail">ガソリン代 ${money(car.gas, helpers)} / ${exText}</span>
         </label>`;
@@ -200,6 +218,7 @@
         <div class="seisan-break-row"><span>端数余り</span><span>${money(result.surplus, helpers)}</span></div>
         <div class="seisan-break-row"><span>部費から</span><span>${money(result.totalClub, helpers)}</span></div>
         <div class="seisan-break-row"><span>うち車出し協力代</span><span>${money(result.totalReward, helpers)}</span></div>
+        <div class="seisan-break-row"><span>集金</span><span>-${money(result.totalDriverCollectionOffset, helpers)}</span></div>
         <div class="seisan-break-row"><span>支払い丸め</span><span>${money(result.totalDriverRound, helpers)}</span></div>`;
   }
 

@@ -20,7 +20,7 @@ for (const id of guideIds) {
   const block = nextModalStart === -1 ? html.slice(start) : html.slice(start, nextModalStart);
 
   assert(block.includes('class="modal-body p-0 unified-guide-body"'), `${id} modal body is missing`);
-  assert(block.includes('</div>\n          <div class="modal-footer guide-footer guide-footer--compact">'), `${id} modal body must close before modal-footer`);
+  assert(/<\/div>\r?\n\s+<div class="modal-footer guide-footer guide-footer--compact">/.test(block), `${id} modal body must close before modal-footer`);
   assert(block.includes('class="modal-footer guide-footer guide-footer--compact"'), `${id} modal footer is missing`);
 }
 

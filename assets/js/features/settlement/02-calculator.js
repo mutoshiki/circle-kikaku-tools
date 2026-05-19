@@ -6,9 +6,13 @@ function calculateSettlement(data, state) {
     const organizerName = state.organizerName || '';
     const organizerSelected = !!organizerName;
     const excludedName = state.organizerFree && organizerSelected ? organizerName : '';
-    const payerCount = Math.max(0, state.organizerFree
-        ? (organizerSelected ? participants.filter(p => p.name !== excludedName).length : participants.length - 1)
-        : participants.length);
+    const driverNames = new Set((data.cars || []).map(car => String(car.name || '').trim()).filter(Boolean));
+    const excludedNames = new Set(driverNames);
+    if (excludedName) excludedNames.add(excludedName);
+    const payerCount = participants.filter(p => !excludedNames.has(p.name)).length;
+    const shareExcludedNames = new Set();
+    if (excludedName) shareExcludedNames.add(excludedName);
+    const shareCount = participants.filter(p => !shareExcludedNames.has(p.name)).length;
     const rounding = getNumberValue(state.rounding) || 100;
     const reward = getDriverRewardAmount(state);
 
@@ -42,13 +46,18 @@ function calculateSettlement(data, state) {
         return { name: car.name, gas, extras, splitExtras, clubExtras, reward: rewardAmount, rawPay, totalPay, driverRound };
     });
 
-    const perPerson = payerCount > 0 ? roundUp(totalSplit / payerCount, rounding) : 0;
+    const perPerson = shareCount > 0 ? roundUp(totalSplit / shareCount, rounding) : 0;
     const expectedCollected = perPerson * payerCount;
     const surplus = expectedCollected - totalSplit;
-    const driverTotal = cars.reduce((sum, c) => sum + c.totalPay, 0);
+    cars.forEach(car => {
+        car.collectionOffset = driverNames.has(car.name) ? perPerson : 0;
+        car.adjustedTotalPay = Math.max(0, car.totalPay - car.collectionOffset);
+    });
+    const totalDriverCollectionOffset = cars.reduce((sum, c) => sum + c.collectionOffset, 0);
+    const driverTotal = cars.reduce((sum, c) => sum + c.adjustedTotalPay, 0);
     const accounting = driverTotal - expectedCollected;
     const paidCount = participants.filter(p => {
-        if (state.organizerFree && organizerSelected && p.name === excludedName) return false;
+        if (excludedNames.has(p.name)) return false;
         return !!state.paid?.[p.name];
     }).length;
     const unpaidCount = Math.max(0, payerCount - paidCount);
@@ -57,7 +66,10 @@ function calculateSettlement(data, state) {
         participants,
         organizerSelected,
         excludedName,
+        excludedNames,
+        driverNames,
         payerCount,
+        shareCount,
         rounding,
         reward,
         cars,
@@ -69,6 +81,7 @@ function calculateSettlement(data, state) {
         expectedCollected,
         surplus,
         driverTotal,
+        totalDriverCollectionOffset,
         accounting,
         paidCount,
         unpaidCount,
@@ -83,8 +96,8 @@ function getSettlementIssues(data, state, result) {
     const participants = result.participants || [];
     if (!participants.length) messages.push('名簿が空です。先に登録画面から参加者を入れてください。');
     if (!(data.cars || []).length) messages.push('車出しが未登録です。登録画面で追加してください。');
-    if (state.organizerFree && participants.length > 0 && !state.organizerName) messages.push('企画者を選ぶと、集金対象を正確にできます。');
-    if (result.payerCount <= 0 && participants.length > 0) messages.push('集金対象が0人です。企画者設定を確認してください。');
+    if (state.organizerFree && participants.length > 0 && !state.organizerName) messages.push('企画者を選ぶと、企画者と車出しの集金対象外を正確にできます。');
+    if (result.payerCount <= 0 && participants.length > 0) messages.push('集金対象が0人です。企画者・車出し設定を確認してください。');
 
     (data.cars || []).forEach(car => {
         const cState = normalizeCarSettlementState(state.cars?.[car.name] || {});

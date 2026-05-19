@@ -11,8 +11,8 @@ const templates = readText('assets/js/templates/settlement-templates.js');
 const css = readText('assets/css/08-control-consistency.css');
 
 assert(templates.includes('function formatExtraSlash'), 'extras should have an inline formatter');
-assert(templates.includes('function joinSlashParts'), 'slash-separated cost rows should use a shared join helper');
-assert(templates.includes(".join('<span class=\"seisan-extra-slash\" aria-hidden=\"true\">/</span>')"), 'gas and extra items should be separated with slash marks');
+assert(templates.includes('function joinFormulaParts'), 'formula-style cost rows should use a shared join helper');
+assert(templates.includes('seisan-extra-inline--offset') && templates.includes(" ? '−' : '＋'"), 'formula rows should show a minus before driver collection offsets and plus elsewhere');
 assert(templates.includes('seisan-car-summary-headline'), 'car name, payment amount, and edit button should be in one headline row');
 assert(templates.includes('aria-label="車主への支払い金額"'), 'payment amount should be labeled as the amount paid to the car owner');
 assert(templates.includes('<strong class="seisan-car-summary-name"><span>${esc(car.name, helpers)}</span><em>車</em></strong>'), 'driver name and 車 label should be separated for readability');
@@ -27,6 +27,6 @@ assert(css.includes('.seisan-car-summary-headline') && css.includes('grid-templa
 assert(css.includes('Settlement car summary: inline costs without amount frames') && css.includes('border: 0;'), 'car summary amount frames should be removed in the final override');
 assert(css.includes('.seisan-cost-preview-item--inline-all'), 'gas and extra costs should render in one inline summary row');
 assert(css.includes('.seisan-extra-inline-list') && css.includes('flex-wrap: wrap;'), 'extra details should wrap instead of being truncated on phones');
-assert(css.includes('.seisan-car-summary-row .seisan-extra-slash') && css.includes('display: inline-flex;'), 'slash separators should be visible in car cost summaries');
+assert(css.includes('.seisan-car-summary-row .seisan-extra-plus') && css.includes('display: inline-flex;'), 'plus separators should be visible in car cost summaries');
 
 console.log('Settlement car summary readability check OK');

@@ -11,12 +11,8 @@
     --text-sub: #667085;
     --bg-card: #ffffff;
     --border-color: #dbe4df;
-    /* Harmonised accent colour for the natural theme.
-       A deeper teal provides better contrast across light and dark themes,
-       and the soft variant offers a subtle hint of the accent for hover
-       backgrounds and other states. */
-    --accent-color: #0f766e;
-    --accent-soft: #e7f3ef;
+    --accent-color: #2f7fbd;
+    --accent-soft: #e4f1fb;
     --app-surface: rgba(255, 255, 255, 0.92);
     --sheet-header: #f7faf8;
     --sheet-grid: #dbe4df;
@@ -63,11 +59,8 @@
     --text-sub: #94a3b8;
     --bg-card: #1e293b; 
     --border-color: #334155;
-    /* Use the same teal accent in dark mode for a unified identity.
-       The soft tone has a higher opacity to maintain visibility against dark
-       backgrounds. */
-    --accent-color: #0f766e;
-    --accent-soft: rgba(15, 118, 110, 0.24);
+    --accent-color: #61a8df;
+    --accent-soft: rgba(97, 168, 223, 0.22);
     --app-surface: rgba(30, 41, 59, 0.92);
     --sheet-header: #162033;
     --sheet-grid: #334155;
@@ -359,15 +352,15 @@ display: none;
 }
 
 .c-collect {
-background: rgba(15,118,110,0.12); color: var(--text-main);
+background: rgba(72,128,92,0.12); color: var(--text-main);
 }
 
 .c-account {
-background: rgba(245,158,11,0.14); color: var(--text-main);
+background: rgba(153,110,48,0.14); color: var(--text-main);
 }
 
 .c-pay {
-background: var(--bg-card); color: var(--text-main);
+background: rgba(63,111,150,0.12); color: var(--text-main);
 }
 
 .c-error {

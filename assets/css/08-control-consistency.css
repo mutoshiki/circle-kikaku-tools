@@ -3430,20 +3430,20 @@ body[data-theme="light"] {
   --ui-saas-panel-raised: rgba(255, 255, 255, 0.94);
   --ui-saas-inner: color-mix(in srgb, #ffffff 92%, #f4f5ff);
   --ui-saas-border: rgba(148, 163, 184, 0.22);
-  --ui-saas-border-strong: rgba(79, 70, 229, 0.24);
+  --ui-saas-border-strong: rgba(63, 111, 150, 0.24);
   --ui-saas-shadow: 0 1px 0 rgba(15, 23, 42, 0.035), 0 8px 22px rgba(15, 23, 42, 0.045);
   --ui-saas-shadow-soft: 0 1px 0 rgba(15, 23, 42, 0.03), 0 4px 14px rgba(15, 23, 42, 0.035);
-  --settlement-split-ink: #334155;
-  --settlement-split-bg: color-mix(in srgb, #eef2ff 58%, #ffffff);
-  --settlement-split-line: rgba(79, 70, 229, 0.24);
-  --settlement-club-ink: #44403c;
-  --settlement-club-bg: color-mix(in srgb, #f7f4ef 70%, #ffffff);
-  --settlement-club-line: rgba(120, 113, 108, 0.24);
-  --settlement-pay-ink: #3730a3;
-  --settlement-pay-bg: color-mix(in srgb, #eef2ff 74%, #ffffff);
-  --settlement-pay-line: rgba(79, 70, 229, 0.28);
-  --settlement-pay-surface-bg: color-mix(in srgb, #eef2ff 64%, #ffffff);
-  --settlement-pay-surface-line: rgba(79, 70, 229, 0.26);
+  --settlement-split-ink: #315a3f;
+  --settlement-split-bg: color-mix(in srgb, #e7f3ec 70%, #ffffff);
+  --settlement-split-line: rgba(72, 128, 92, 0.28);
+  --settlement-club-ink: #6b4a1e;
+  --settlement-club-bg: color-mix(in srgb, #f5ead7 72%, #ffffff);
+  --settlement-club-line: rgba(153, 110, 48, 0.28);
+  --settlement-pay-ink: #284f73;
+  --settlement-pay-bg: color-mix(in srgb, #e8f0f6 76%, #ffffff);
+  --settlement-pay-line: rgba(63, 111, 150, 0.30);
+  --settlement-pay-surface-bg: color-mix(in srgb, #e8f0f6 66%, #ffffff);
+  --settlement-pay-surface-line: rgba(63, 111, 150, 0.28);
   --radius-main: 10px;
   --radius-sm: 7px;
   --radius-lg: 14px;
@@ -3455,26 +3455,26 @@ body[data-theme="dark"] {
   --text-main: #f8fafc;
   --text-sub: #a1a9ba;
   --bg-card: #111827;
-  --accent-color: #818cf8;
-  --accent-soft: rgba(129, 140, 248, 0.14);
+  --accent-color: #78a6ca;
+  --accent-soft: rgba(120, 166, 202, 0.16);
   --ui-saas-panel: rgba(15, 23, 42, 0.80);
   --ui-saas-panel-raised: rgba(17, 24, 39, 0.90);
-  --ui-saas-inner: color-mix(in srgb, var(--bg-card) 88%, #1e1b4b);
+  --ui-saas-inner: color-mix(in srgb, var(--bg-card) 88%, #12314a);
   --ui-saas-border: rgba(148, 163, 184, 0.17);
-  --ui-saas-border-strong: rgba(129, 140, 248, 0.30);
+  --ui-saas-border-strong: rgba(120, 166, 202, 0.30);
   --ui-saas-shadow: 0 1px 0 rgba(255, 255, 255, 0.028), 0 12px 30px rgba(0, 0, 0, 0.26);
   --ui-saas-shadow-soft: 0 1px 0 rgba(255, 255, 255, 0.022), 0 7px 20px rgba(0, 0, 0, 0.20);
-  --settlement-split-ink: #cbd5e1;
-  --settlement-split-bg: rgba(129, 140, 248, 0.13);
-  --settlement-split-line: rgba(129, 140, 248, 0.28);
-  --settlement-club-ink: #d6d3d1;
-  --settlement-club-bg: rgba(168, 162, 158, 0.12);
-  --settlement-club-line: rgba(168, 162, 158, 0.26);
-  --settlement-pay-ink: #c7d2fe;
-  --settlement-pay-bg: rgba(129, 140, 248, 0.17);
-  --settlement-pay-line: rgba(129, 140, 248, 0.34);
-  --settlement-pay-surface-bg: color-mix(in srgb, rgba(129, 140, 248, 0.20) 62%, var(--bg-card));
-  --settlement-pay-surface-line: rgba(129, 140, 248, 0.32);
+  --settlement-split-ink: #b8d8c3;
+  --settlement-split-bg: rgba(72, 128, 92, 0.18);
+  --settlement-split-line: rgba(126, 174, 142, 0.32);
+  --settlement-club-ink: #ead4ad;
+  --settlement-club-bg: rgba(153, 110, 48, 0.16);
+  --settlement-club-line: rgba(205, 166, 103, 0.32);
+  --settlement-pay-ink: #c7dceb;
+  --settlement-pay-bg: rgba(120, 166, 202, 0.18);
+  --settlement-pay-line: rgba(120, 166, 202, 0.36);
+  --settlement-pay-surface-bg: color-mix(in srgb, rgba(120, 166, 202, 0.20) 62%, var(--bg-card));
+  --settlement-pay-surface-line: rgba(120, 166, 202, 0.34);
   --radius-main: 10px;
   --radius-sm: 7px;
   --radius-lg: 14px;
@@ -3972,7 +3972,8 @@ body {
   text-align: left;
 }
 
-#seisan-view-area .seisan-extra-slash {
+#seisan-view-area .seisan-extra-slash,
+#seisan-view-area .seisan-extra-plus {
   display: none;
 }
 
@@ -4271,12 +4272,22 @@ body {
   letter-spacing: -0.012em;
 }
 
-#seisan-view-area .seisan-car-summary-row .seisan-extra-slash {
+#seisan-view-area .seisan-car-summary-row .seisan-extra-slash,
+#seisan-view-area .seisan-car-summary-row .seisan-extra-plus {
   display: inline-flex;
   align-items: center;
-  color: color-mix(in srgb, var(--text-sub) 58%, transparent);
+  color: color-mix(in srgb, var(--text-sub) 86%, var(--text-main));
   font-size: 0.72rem;
-  font-weight: 620;
+  font-weight: 820;
+  line-height: 1;
+}
+
+#seisan-view-area .seisan-driver-detail .seisan-extra-plus {
+  display: inline-flex;
+  align-items: center;
+  margin-inline: 3px;
+  color: color-mix(in srgb, var(--text-main) 82%, var(--text-sub));
+  font-weight: 820;
   line-height: 1;
 }
 
@@ -4614,8 +4625,115 @@ body[data-theme="dark"] {
   border-color: transparent;
 }
 
-[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-extra-slash {
-  color: color-mix(in srgb, var(--text-sub) 62%, transparent);
+[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-extra-slash,
+[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-extra-plus {
+  color: color-mix(in srgb, var(--text-sub) 82%, var(--text-main));
+}
+
+[data-theme="dark"] #seisan-view-area .seisan-driver-detail .seisan-extra-plus {
+  color: color-mix(in srgb, var(--text-sub) 82%, var(--text-main));
+}
+
+/* 2026-05 settlement summary formula refinement */
+#seisan-view-area .seisan-top-flow {
+  grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr) 18px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 6px;
+}
+
+#seisan-view-area .seisan-flow-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  min-width: 18px;
+  min-height: 28px;
+  color: color-mix(in srgb, var(--text-main) 86%, var(--text-sub));
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.94rem;
+  font-weight: 760;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+#seisan-view-area .seisan-summary-card {
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  border-color: color-mix(in srgb, var(--border-color) 88%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+#seisan-view-area .seisan-summary-card.collect {
+  background: color-mix(in srgb, var(--settlement-split-bg) 48%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-split-line) 82%, var(--border-color));
+}
+
+#seisan-view-area .seisan-summary-card.accounting {
+  background: color-mix(in srgb, var(--settlement-club-bg) 50%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-club-line) 82%, var(--border-color));
+}
+
+#seisan-view-area .seisan-summary-card.pay {
+  background: color-mix(in srgb, var(--settlement-pay-surface-bg) 54%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-pay-surface-line) 82%, var(--border-color));
+}
+
+#seisan-view-area .seisan-summary-card .seisan-summary-value {
+  color: #111827;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-size: clamp(0.98rem, 4.1vw, 1.16rem);
+  font-weight: 720;
+  letter-spacing: 0;
+  line-height: 1.08;
+}
+
+#seisan-view-area .seisan-summary-label {
+  gap: 5px;
+  color: color-mix(in srgb, var(--text-sub) 84%, var(--text-main));
+  font-weight: 760;
+  letter-spacing: 0;
+}
+
+#seisan-view-area .seisan-summary-sub {
+  color: color-mix(in srgb, var(--text-sub) 88%, var(--text-main));
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: 0;
+}
+
+#seisan-view-area .seisan-driver-amount,
+#seisan-view-area .seisan-car-summary-total,
+#seisan-view-area .seisan-car-summary-payment .seisan-car-summary-total {
+  color: #111827;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-weight: 740;
+  letter-spacing: 0;
+}
+
+[data-theme="dark"] #seisan-view-area .seisan-summary-card .seisan-summary-value,
+[data-theme="dark"] #seisan-view-area .seisan-driver-amount,
+[data-theme="dark"] #seisan-view-area .seisan-car-summary-total,
+[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment .seisan-car-summary-total {
+  color: var(--text-main);
+}
+
+[data-theme="dark"] #seisan-view-area .seisan-summary-card {
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  #seisan-view-area .seisan-top-flow {
+    grid-template-columns: minmax(0, 1fr) 14px minmax(0, 1fr) 14px minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  #seisan-view-area .seisan-flow-arrow {
+    min-width: 14px;
+    font-size: 0.82rem;
+    font-weight: 780;
+  }
 }
 
 [data-theme="dark"] :is(
@@ -4710,4 +4828,82 @@ body[data-theme="dark"] {
 ) {
   color: var(--text-main);
   background: transparent;
+}
+
+/* Final settlement summary formula polish. Keep after density overrides. */
+#seisan-view-area .seisan-top-flow {
+  grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr) 18px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 6px;
+}
+
+#seisan-view-area .seisan-flow-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  min-width: 18px;
+  min-height: 28px;
+  color: color-mix(in srgb, var(--text-main) 86%, var(--text-sub));
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.94rem;
+  font-weight: 780;
+  line-height: 1;
+  letter-spacing: 0;
+  opacity: 1;
+}
+
+#seisan-view-area .seisan-summary-card .seisan-summary-value {
+  color: #111827;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-size: clamp(0.98rem, 4.1vw, 1.16rem);
+  font-weight: 720;
+  letter-spacing: 0;
+  line-height: 1.08;
+}
+
+#seisan-view-area .seisan-driver-amount,
+#seisan-view-area .seisan-car-summary-total {
+  color: #111827;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-weight: 740;
+  letter-spacing: 0;
+}
+
+[data-theme="dark"] #seisan-view-area .seisan-summary-card .seisan-summary-value,
+[data-theme="dark"] #seisan-view-area .seisan-driver-amount,
+[data-theme="dark"] #seisan-view-area .seisan-car-summary-total {
+  color: var(--text-main);
+}
+
+#seisan-view-area .seisan-summary-card.collect {
+  background: color-mix(in srgb, var(--settlement-split-bg) 48%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-split-line) 82%, var(--border-color));
+}
+
+#seisan-view-area .seisan-summary-card.accounting {
+  background: color-mix(in srgb, var(--settlement-club-bg) 50%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-club-line) 82%, var(--border-color));
+}
+
+#seisan-view-area .seisan-summary-card.pay {
+  background: color-mix(in srgb, var(--settlement-pay-surface-bg) 54%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-pay-surface-line) 82%, var(--border-color));
+}
+
+@media (max-width: 640px) {
+  #seisan-view-area .seisan-top-flow {
+    grid-template-columns: minmax(0, 1fr) 14px minmax(0, 1fr) 14px minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  #seisan-view-area .seisan-flow-arrow {
+    display: flex;
+    min-width: 14px;
+    font-size: 0.82rem;
+    font-weight: 780;
+  }
 }

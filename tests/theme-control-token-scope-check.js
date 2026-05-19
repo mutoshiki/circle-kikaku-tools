@@ -10,7 +10,7 @@ function assert(condition, message) {
 const controlCss = readText('assets/css/08-control-consistency.css');
 const appShellOwner = readText('assets/css/app-shell/01-app-shell-owner.css');
 
-assert(controlCss.includes('body {\n  --control-border'), 'control theme aliases should be recomputed on body');
+assert(/body\s*\{\r?\n\s+--control-border/.test(controlCss), 'control theme aliases should be recomputed on body');
 assert(controlCss.includes('--control-primary-bg: var(--accent-color);'), 'primary control background should follow the active accent color');
 assert(controlCss.includes('#batchOpenBtn.tool-btn span') && controlCss.includes('#shuffleAssignBtn.tray-action-btn i'), 'solid button child color safety selectors missing');
 assert(controlCss.includes('color: var(--control-primary-text);'), 'solid button child text/icon color should use the primary text token');

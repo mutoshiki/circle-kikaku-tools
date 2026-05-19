@@ -13,12 +13,12 @@ const finalBlock = css.slice(css.indexOf(marker));
 
 assert(css.includes(marker), 'final cost type tag unification block should exist');
 [
-  '--settlement-split-ink: #075985',
-  '--settlement-split-bg: #e0f2fe',
-  '--settlement-split-line: #7dd3fc',
-  '--settlement-club-ink: #92400e',
-  '--settlement-club-bg: #fef3c7',
-  '--settlement-club-line: #fcd34d',
+  '--settlement-split-ink: #315a3f',
+  '--settlement-split-bg: color-mix(in srgb, #e7f3ec 70%, #ffffff)',
+  '--settlement-split-line: rgba(72, 128, 92, 0.28)',
+  '--settlement-club-ink: #6b4a1e',
+  '--settlement-club-bg: color-mix(in srgb, #f5ead7 72%, #ffffff)',
+  '--settlement-club-line: rgba(153, 110, 48, 0.28)',
 ].forEach(token => assert(finalBlock.includes(token), `${token} should be centralized in the final block`));
 
 assert(finalBlock.includes('.seisan-extra-inline.split') && finalBlock.includes('.seisan-extra-inline.club'), 'inline gas/extra labels should inherit the same tokenized selectors');
