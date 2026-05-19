@@ -10,33 +10,36 @@ function calculateSettlement(data, state) {
         ? (organizerSelected ? participants.filter(p => p.name !== excludedName).length : participants.length - 1)
         : participants.length);
     const rounding = getNumberValue(state.rounding) || 100;
-    const reward = Math.max(0, getNumberValue(state.driverReward));
+    const reward = getDriverRewardAmount(state);
 
     let totalSplit = 0;
     let totalClub = 0;
     let totalReward = 0;
     let totalDriverRound = 0;
     const cars = (data.cars || []).map(car => {
-        const cState = normalizeCarSettlementState(state.cars?.[car.name] || {});
+        const cState = ensureDriverRewardExtra(state.cars?.[car.name] || {}, state);
         const dist = getNumberValue(cState.dist);
         const eco = getNumberValue(cState.eco);
         const price = getNumberValue(cState.price);
         const gas = dist > 0 && eco > 0 && price > 0 ? Math.round((dist / eco) * price) : 0;
         const extras = cState.extras.map(normalizeExtraItem).filter(hasMeaningfulExtra).map(ex => ({
             ...ex,
-            amountValue: getNumberValue(ex.amount)
+            type: isDriverRewardExtra(ex) ? 'club' : ex.type,
+            amountValue: getNumberValue(ex.amount),
+            isDriverReward: isDriverRewardExtra(ex)
         }));
         const splitExtras = extras.filter(ex => ex.type === 'split').reduce((sum, ex) => sum + ex.amountValue, 0);
         const clubExtras = extras.filter(ex => ex.type === 'club').reduce((sum, ex) => sum + ex.amountValue, 0);
+        const rewardAmount = extras.filter(ex => ex.isDriverReward).reduce((sum, ex) => sum + ex.amountValue, 0);
         const split = gas + splitExtras;
-        const rawPay = split + clubExtras + reward;
+        const rawPay = split + clubExtras;
         const totalPay = roundUp(rawPay, 100);
         const driverRound = totalPay - rawPay;
         totalSplit += split;
         totalClub += clubExtras;
-        totalReward += reward;
+        totalReward += rewardAmount;
         totalDriverRound += driverRound;
-        return { name: car.name, gas, extras, splitExtras, clubExtras, reward, rawPay, totalPay, driverRound };
+        return { name: car.name, gas, extras, splitExtras, clubExtras, reward: rewardAmount, rawPay, totalPay, driverRound };
     });
 
     const perPerson = payerCount > 0 ? roundUp(totalSplit / payerCount, rounding) : 0;

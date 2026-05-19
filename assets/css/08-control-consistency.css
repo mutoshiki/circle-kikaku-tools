@@ -682,7 +682,8 @@ body {
 
 /* =========================================================
    UI unification final pass
-   Keep this last: shared spacing, radius, surface, contrast, and danger styles.
+   Final layer only: tokens, surfaces, toolbar rhythm, settlement previews.
+   目的：灰色の細枠で区切りすぎず、背景差・余白・文字階層で統一する。
 ========================================================= */
 :root {
   --ui-space-1: 4px;
@@ -691,36 +692,50 @@ body {
   --ui-space-4: 16px;
   --ui-card-padding: 12px;
   --ui-card-gap: 12px;
-  --ui-border-soft: color-mix(in srgb, var(--border-color) 86%, transparent);
-  --ui-surface-soft: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
-  --ui-surface-muted: color-mix(in srgb, var(--sheet-header) 78%, var(--bg-card));
+  --ui-border-soft: color-mix(in srgb, var(--border-color) 44%, transparent);
+  --ui-hairline-quiet: color-mix(in srgb, var(--border-color) 28%, transparent);
+  --ui-surface-soft: color-mix(in srgb, var(--bg-card) 96%, var(--bg-body));
+  --ui-surface-muted: color-mix(in srgb, var(--sheet-header) 66%, var(--bg-card));
+  --ui-surface-sunken: color-mix(in srgb, var(--bg-body) 54%, var(--bg-card));
+  --ui-surface-shadow: 0 12px 34px rgba(15, 23, 42, 0.055), 0 1px 2px rgba(15, 23, 42, 0.045);
+  --ui-surface-shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.035);
+  --ui-focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent-color) 22%, transparent);
   --ui-danger: #dc2626;
-  --ui-danger-soft: rgba(220, 38, 38, 0.10);
-  --ui-danger-border: rgba(220, 38, 38, 0.30);
+  --ui-danger-soft: rgba(220, 38, 38, 0.08);
   --ui-warning: #d97706;
-  --ui-warning-soft: rgba(217, 119, 6, 0.13);
+  --ui-warning-soft: rgba(217, 119, 6, 0.11);
+  --ui-blue: #2563eb;
+  --ui-blue-soft: #dbeafe;
 }
 
 [data-theme="dark"] {
-  --ui-border-soft: rgba(148, 163, 184, 0.22);
-  --ui-surface-soft: color-mix(in srgb, var(--bg-card) 86%, #020617);
-  --ui-surface-muted: color-mix(in srgb, var(--bg-card) 80%, #020617);
+  --ui-border-soft: rgba(148, 163, 184, 0.12);
+  --ui-hairline-quiet: rgba(148, 163, 184, 0.09);
+  --ui-surface-soft: color-mix(in srgb, var(--bg-card) 88%, #020617);
+  --ui-surface-muted: rgba(255, 255, 255, 0.045);
+  --ui-surface-sunken: rgba(2, 6, 23, 0.28);
+  --ui-surface-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
+  --ui-surface-shadow-soft: none;
   --ui-danger: #f87171;
-  --ui-danger-soft: rgba(248, 113, 113, 0.14);
-  --ui-danger-border: rgba(248, 113, 113, 0.38);
+  --ui-danger-soft: rgba(248, 113, 113, 0.12);
   --ui-warning: #fbbf24;
-  --ui-warning-soft: rgba(251, 191, 36, 0.14);
+  --ui-warning-soft: rgba(251, 191, 36, 0.12);
+  --ui-blue: #60a5fa;
+  --ui-blue-soft: rgba(37, 99, 235, 0.18);
 }
 
+/* Theme-safe solid controls. */
 body {
   --control-radius: var(--radius-main);
   --control-radius-compact: var(--radius-sm);
+  --control-border: var(--ui-border-soft);
+  --control-primary-bg: var(--accent-color);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 88%, #111827);
   --control-primary-text: #fff;
+  --control-secondary-bg: var(--ui-surface-soft);
+  --control-secondary-hover: color-mix(in srgb, var(--accent-color) 8%, var(--bg-card));
 }
 
-/* Solid CTA text should not flip to black when changing themes.
-   For warm / bright accents, keep white text and slightly deepen the solid
-   button surface instead of changing the text color. */
 body[data-app-theme] {
   --control-primary-text: #fff;
 }
@@ -776,490 +791,300 @@ body[data-app-theme="catppuccin"][data-theme="dark"] {
   --control-primary-hover: color-mix(in srgb, var(--accent-color) 78%, #111827);
 }
 
-/* Cards and surfaces share one visual rhythm. */
-:where(
-  .seisan-card,
-  .seisan-summary-card,
-  .seisan-car-card,
-  .car-box,
-  .global-guide-card,
-  .app-guide-box,
-  .guide-step-panel,
-  .batch-spreadsheet-import,
-  .batch-import-notice,
-  .theme-preview-panel,
-  .theme-app-preview,
-  .theme-mode-btn,
-  .theme-preset-card,
-  #sheet-title-bar
-) {
-  border-radius: var(--radius-main);
-  border-color: var(--ui-border-soft);
-  color: var(--text-main);
-}
-
-:where(.seisan-card, .car-box, .global-guide-card, .guide-step-panel, .theme-preview-panel) {
-  padding: var(--ui-card-padding);
-}
-
-:where(.seisan-card, .car-box) {
-  margin-bottom: var(--ui-card-gap);
-}
-
-:where(.driver-seat, .seat-slot, .member-card, .seisan-summary-card, .theme-current-note, .batch-warning) {
-  border-radius: var(--radius-sm);
-  border-color: var(--ui-border-soft);
-}
-
-:where(.seat-slot, .driver-seat) {
-  background: var(--ui-surface-muted);
-}
-
-:where(.member-card, .seat-slot > .member-card) {
-  background: var(--bg-card);
-  color: var(--text-main);
-}
-
-:where(.car-header, .seisan-head, .modal-header) {
-  gap: var(--ui-space-2);
-}
-
-:where(.seisan-title, .guide-step-title, .theme-section-title, .car-header, .modal-title) {
-  color: var(--text-main);
-  letter-spacing: 0;
-}
-
-:where(.seisan-muted, .seisan-small, .batch-field-note, .theme-preset-main small, .text-muted-dark-friendly) {
-  color: var(--text-sub);
-}
-
-/* Inputs/selects/textarea: same height, radius, padding and readable theme colors. */
-:where(
-  .form-control,
-  .form-select,
-  input[type="text"]:not(.form-check-input),
-  input[type="number"]:not(.form-check-input),
-  input[type="search"]:not(.form-check-input),
-  textarea,
-  select,
-  #roomNameInput,
-  .app-room-input,
-  .seisan-field input,
-  .seisan-field select,
-  .batch-spreadsheet-textarea,
-  .batch-import-textarea
-) {
-  min-height: 40px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--ui-border-soft);
-  background-color: var(--bg-card);
-  color: var(--text-main);
-  font-size: 0.86rem;
-  line-height: 1.35;
-}
-
-:where(textarea, .batch-spreadsheet-textarea, .batch-import-textarea) {
-  min-height: 112px;
-  padding: 10px 11px;
-}
-
-:where(
-  .form-control,
-  .form-select,
-  input[type="text"]:not(.form-check-input),
-  input[type="number"]:not(.form-check-input),
-  input[type="search"]:not(.form-check-input),
-  textarea,
-  select,
-  #roomNameInput,
-  .app-room-input,
-  .seisan-field input,
-  .seisan-field select,
-  .batch-spreadsheet-textarea,
-  .batch-import-textarea
-):focus {
-  border-color: color-mix(in srgb, var(--accent-color) 52%, var(--border-color));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 18%, transparent);
-  outline: 0;
-}
-
-:where(input, textarea, select)::placeholder {
-  color: var(--text-sub);
-  opacity: 0.66;
-}
-
-/* Bootstrap surfaces: avoid white/black leftovers when switching themes. */
-.modal-content,
-.dropdown-menu {
-  border-radius: var(--radius-lg);
-  border-color: var(--ui-border-soft);
-  background: var(--modal-bg);
-  color: var(--text-main);
-}
-
-.dropdown-menu {
-  padding: var(--ui-space-2);
-}
-
-.dropdown-item {
-  border-radius: var(--radius-sm);
-  color: var(--text-main);
-  min-height: 36px;
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
-
-.dropdown-item:hover,
-.dropdown-item:focus {
-  background: var(--hover-bg);
-  color: var(--text-main);
-}
-
-.modal-header,
-.modal-footer {
-  background: var(--modal-header-bg);
-  border-color: var(--ui-border-soft);
-}
-
-.modal-body {
-  background: var(--modal-bg);
-  color: var(--text-main);
-}
-
-/* Button priority: solid, secondary, quiet, and danger actions stay distinguishable. */
-#shareLinkBtn.header-action,
-.header-actions .share-action,
-.share-action,
-#batchOpenBtn.tool-btn,
-#routeHelperBtn.seisan-btn,
-.seisan-btn.primary,
-.seisan-btn.active,
-#shuffleAssignBtn.tray-action-btn,
-.tray-inline-row .tray-action-btn--auto,
 .btn-primary,
 .btn-accent-solid,
-.guide-step-btn.active,
+.header-actions .share-action,
+.share-action,
+.seisan-btn.primary,
+.seisan-btn.active,
+#routeHelperBtn,
+#batchOpenBtn.tool-btn,
+#shuffleAssignBtn.tray-action-btn,
+.tray-inline-row .tray-action-btn--auto,
 .guide-footer .btn-primary,
-.mock-form-import-button,
-.batch-spreadsheet-button {
+.mock-form-import-button {
   background: var(--control-primary-bg);
-  border-color: var(--control-primary-bg);
+  border-color: transparent;
+  color: var(--control-primary-text);
+  box-shadow: none;
+}
+
+.btn-primary:hover,
+.btn-accent-solid:hover,
+.header-actions .share-action:hover,
+.share-action:hover,
+.seisan-btn.primary:hover,
+.seisan-btn.active:hover,
+#routeHelperBtn:hover,
+#batchOpenBtn.tool-btn:hover,
+#shuffleAssignBtn.tray-action-btn:hover,
+.tray-inline-row .tray-action-btn--auto:hover,
+.guide-footer .btn-primary:hover,
+.mock-form-import-button:hover {
+  background: var(--control-primary-hover);
+  border-color: transparent;
   color: var(--control-primary-text);
 }
 
-#shareLinkBtn.header-action i,
-#shareLinkBtn.header-action span,
-.header-actions .share-action i,
-.header-actions .share-action span,
-.share-action i,
-.share-action span,
-#batchOpenBtn.tool-btn i,
-#batchOpenBtn.tool-btn span,
-#routeHelperBtn.seisan-btn i,
-#routeHelperBtn.seisan-btn span,
-.seisan-btn.primary i,
-.seisan-btn.primary span,
-.seisan-btn.active i,
-.seisan-btn.active span,
-#shuffleAssignBtn.tray-action-btn i,
-#shuffleAssignBtn.tray-action-btn span,
-.tray-inline-row .tray-action-btn--auto i,
-.tray-inline-row .tray-action-btn--auto span,
 .btn-primary i,
 .btn-primary span,
 .btn-accent-solid i,
 .btn-accent-solid span,
-.guide-step-btn.active i,
-.guide-step-btn.active span,
+.header-actions .share-action i,
+.header-actions .share-action span,
+.share-action i,
+.share-action span,
+.seisan-btn.primary i,
+.seisan-btn.primary span,
+#routeHelperBtn i,
+#routeHelperBtn span,
+#batchOpenBtn.tool-btn i,
+#batchOpenBtn.tool-btn span,
+#shuffleAssignBtn.tray-action-btn i,
+#shuffleAssignBtn.tray-action-btn span,
+.tray-inline-row .tray-action-btn--auto i,
+.tray-inline-row .tray-action-btn--auto span,
 .guide-footer .btn-primary i,
 .guide-footer .btn-primary span,
 .mock-form-import-button i,
-.mock-form-import-button span,
-.batch-spreadsheet-button i,
-.batch-spreadsheet-button span {
+.mock-form-import-button span {
   color: var(--control-primary-text);
 }
 
-:where(.btn-outline-primary, .btn-outline-secondary, .btn-secondary):not(.btn-accent-solid) {
+.header-action:not(.share-action),
+.tool-btn:not(#batchOpenBtn),
+.seisan-btn:not(.primary):not(.active),
+#fillEmptySeatsBtn.tray-action-btn,
+.tray-inline-row .tray-action-btn--fill,
+#sheet-quick-edit-btn,
+#zoom-controls button,
+.btn-outline-secondary,
+.btn-secondary:not(.btn-accent-solid) {
   background: var(--control-secondary-bg);
-  border-color: var(--control-border);
+  border-color: var(--ui-border-soft);
   color: var(--text-main);
-}
-
-:where(.btn-outline-primary, .btn-outline-secondary, .btn-secondary):not(.btn-accent-solid):hover,
-:where(.btn-outline-primary, .btn-outline-secondary, .btn-secondary):not(.btn-accent-solid):focus-visible {
-  background: var(--control-secondary-hover);
-  border-color: var(--control-border-strong);
-  color: var(--text-main);
-}
-
-.btn-danger,
-.btn-outline-danger,
-.danger-action {
-  background: var(--ui-danger-soft);
-  border-color: var(--ui-danger-border);
-  color: var(--ui-danger);
   box-shadow: none;
 }
 
-.btn-danger:hover,
-.btn-outline-danger:hover,
-.danger-action:hover,
-.btn-danger:focus-visible,
-.btn-outline-danger:focus-visible,
-.danger-action:focus-visible {
-  background: color-mix(in srgb, var(--ui-danger) 16%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--ui-danger) 52%, var(--border-color));
-  color: var(--ui-danger);
-}
-
-.dropdown-item.text-danger,
-#resetDataBtn.dropdown-item,
-#clearAllBtn.dropdown-item {
-  color: var(--ui-danger);
-  font-weight: 850;
-}
-
-.dropdown-item.text-danger:hover,
-.dropdown-item.text-danger:focus,
-#resetDataBtn.dropdown-item:hover,
-#resetDataBtn.dropdown-item:focus,
-#clearAllBtn.dropdown-item:hover,
-#clearAllBtn.dropdown-item:focus {
-  background: var(--ui-danger-soft);
-  color: var(--ui-danger);
-}
-
-.delete-btn-overlay:hover,
-.member-card.in-waiting .delete-btn-overlay:hover,
-.seisan-icon-btn:hover {
-  color: var(--ui-danger);
-}
-
-.header-action.is-locked,
-#editLockBtn.header-action.is-locked,
-.member-card[data-locked="true"] {
-  border-color: color-mix(in srgb, var(--ui-warning) 52%, var(--border-color));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ui-warning) 28%, transparent);
-}
-
-.header-action.is-locked,
-#editLockBtn.header-action.is-locked {
-  background: var(--ui-warning-soft);
+.header-action:not(.share-action):hover,
+.tool-btn:not(#batchOpenBtn):hover,
+.seisan-btn:not(.primary):not(.active):hover,
+#fillEmptySeatsBtn.tray-action-btn:hover,
+.tray-inline-row .tray-action-btn--fill:hover,
+#sheet-quick-edit-btn:hover,
+#zoom-controls button:hover,
+.btn-outline-secondary:hover,
+.btn-secondary:not(.btn-accent-solid):hover {
+  background: var(--control-secondary-hover);
+  border-color: var(--ui-border-soft);
   color: var(--text-main);
 }
 
-/* Mobile-first density: keep touch targets comfortable without changing layout. */
-@media (max-width: 640px) {
-  :root {
-    --ui-card-padding: 11px;
-    --ui-card-gap: 10px;
-  }
-
-  .modal-fullscreen-sm-down .modal-content,
-  #appearanceModal .modal-content {
-    border-radius: 0;
-  }
-
-  :where(.seisan-card, .car-box, .global-guide-card, .guide-step-panel, .theme-preview-panel) {
-    padding: var(--ui-card-padding);
-  }
-
-  :where(.form-control, .form-select, .btn:not(.btn-close), .header-action, .tool-btn, .seisan-btn, .tray-action-btn) {
-    min-height: 40px;
-  }
+.header-action:focus-visible,
+.tool-btn:focus-visible,
+.seisan-btn:focus-visible,
+.tray-action-btn:focus-visible,
+.view-tab:focus-visible,
+.car-plan-template-chip:focus-visible {
+  outline: 0;
+  box-shadow: var(--ui-focus-ring);
 }
 
-/* Random controls live next to their settings. */
-#lastAutoAssignCondition {
-    display: none;
+/* Surface cleanup: grey outlines are no longer the main separator. */
+.seisan-card,
+.car-box,
+.global-guide-card,
+.app-guide-box,
+.guide-step-panel,
+.batch-spreadsheet-import,
+.batch-import-notice,
+.theme-preview-panel,
+.theme-app-preview,
+.theme-preset-card,
+.seisan-settings-card,
+.empty-card {
+  border-color: transparent;
+  background: var(--bg-card);
+  box-shadow: var(--ui-surface-shadow-soft);
 }
 
-.tray-inline-row .random-tools {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
+:where(.seisan-summary-card, .seisan-check-item, .seisan-driver-pay-row, .driver-seat, .seat-slot, .member-card, .route-stop-row, .route-private-view, .route-private-edit, .form-control, .form-select) {
+  border-color: var(--ui-hairline-quiet);
 }
 
-.tray-inline-row .random-tools .tray-settings-dropdown {
-    flex: 0 0 auto;
+:where(.driver-seat, .seat-slot, .seisan-check-item, .seisan-driver-pay-row) {
+  background: var(--ui-surface-muted);
 }
 
-.tray-inline-row .random-tools .settings-btn {
-    min-height: 34px;
-    padding-inline: 9px;
+/* Header tabs: navigation uses a quiet selected state, not CTA styling. */
+#view-toggle-bar,
+.view-toggle-bar {
+  padding: 4px;
+  gap: 4px;
+  border-color: transparent;
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  box-shadow: var(--ui-surface-shadow-soft);
 }
 
-.tray-inline-row .tray-action-btn--auto i.fa-dice {
-    font-size: 0.9em;
+#view-toggle-bar .view-tab,
+.view-toggle-bar .view-tab {
+  min-height: 40px;
+  border: 0;
+  color: var(--text-sub);
+  font-weight: 820;
 }
 
-@media (max-width: 520px) {
-    .tray-inline-row .random-tools {
-        gap: 5px;
-    }
-
-    .tray-inline-row .random-tools .settings-btn {
-        padding-inline: 8px;
-    }
+#view-toggle-bar .view-tab.active,
+.view-toggle-bar .view-tab.active,
+[data-theme="dark"] #view-toggle-bar .view-tab.active,
+[data-theme="dark"] .view-toggle-bar .view-tab.active,
+[data-theme="dark"] #tab-list.view-tab.active,
+[data-theme="dark"] #tab-sheet.view-tab.active,
+[data-theme="dark"] #tab-seisan.view-tab.active {
+  background: color-mix(in srgb, var(--text-main) 8%, var(--bg-card));
+  border-color: transparent;
+  color: var(--text-main);
+  box-shadow: inset 0 0 0 1px var(--ui-hairline-quiet);
 }
 
-
-/* 2026-05 tray layout fix: keep Random visible and anchored at the right. */
-.tray-inline-row {
+/* 2026-05 compact settlement cards. Inputs live in edit modals. */
+.seisan-wrap {
   display: grid;
-  grid-template-columns: auto minmax(92px, 1fr) auto;
+  gap: 10px;
+}
+
+.seisan-card {
+  margin-bottom: 0;
+  padding: 12px;
+  border-radius: var(--radius-lg);
+}
+
+.seisan-head,
+.seisan-compact-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.seisan-title {
+  font-size: 0.98rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.seisan-head-tools-only,
+.seisan-toolbar-card {
+  padding: 12px;
+}
+
+.seisan-head-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1.45fr);
+  gap: 8px;
+  width: 100%;
+  align-items: center;
+}
+
+.seisan-head-actions .seisan-btn {
+  min-height: 42px;
+  width: 100%;
+}
+
+#seisanRefreshBtn.seisan-btn {
+  min-width: 44px;
+  width: 44px;
+  padding-inline: 0;
+}
+
+.seisan-top-flow {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 8px;
+}
+
+.seisan-summary-card {
+  min-height: 78px;
+  padding: 11px 12px;
+  border-radius: var(--radius-main);
+  box-shadow: none;
+}
+
+.seisan-summary-value {
+  font-size: 1.34rem;
+  line-height: 1.05;
+}
+
+/* 2026-05 collect summary color fix: 集める is blue, not green. */
+:root {
+  --settlement-collect-blue: #2563eb;
+  --settlement-collect-blue-soft: #dbeafe;
+  --settlement-collect-blue-border: #93c5fd;
+}
+
+[data-theme="dark"] {
+  --settlement-collect-blue: #60a5fa;
+  --settlement-collect-blue-soft: rgba(37, 99, 235, 0.18);
+  --settlement-collect-blue-border: rgba(96, 165, 250, 0.42);
+}
+
+#seisan-view-area .seisan-summary-card.collect,
+.seisan-summary-card.collect,
+.seisan-mock-summary.collect,
+.seisan-guide-box.collect,
+.c-collect {
+  background: color-mix(in srgb, var(--settlement-collect-blue-soft) 72%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-collect-blue-border) 50%, transparent);
+}
+
+#seisan-view-area .seisan-summary-card.collect .seisan-summary-label,
+#seisan-view-area .seisan-summary-card.collect .seisan-summary-label i,
+.seisan-summary-card.collect .seisan-summary-label,
+.seisan-summary-card.collect .seisan-summary-label i,
+.seisan-mock-summary.collect .seisan-mock-label {
+  color: var(--settlement-collect-blue);
+}
+
+#seisan-view-area .seisan-summary-card.collect .seisan-summary-value,
+.seisan-summary-card.collect .seisan-summary-value,
+.seisan-mock-summary.collect .seisan-mock-value {
+  color: color-mix(in srgb, var(--settlement-collect-blue) 82%, var(--text-main));
+}
+
+.seisan-summary-card.accounting {
+  background: color-mix(in srgb, #f59e0b 10%, var(--bg-card));
+  border-color: color-mix(in srgb, #f59e0b 22%, transparent);
+}
+
+.seisan-summary-card.pay {
+  background: color-mix(in srgb, var(--text-main) 5%, var(--bg-card));
+  border-color: var(--ui-hairline-quiet);
+}
+
+
+.ui-toolbar-card {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.ui-toolbar-row {
+  display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.tray-inline-row .random-tools {
-  grid-column: 3;
-  justify-self: end;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-width: max-content;
-}
-
-#fillEmptySeatsBtn.tray-action-btn {
-  grid-column: 2;
-  min-width: 92px;
-}
-
-#shuffleAssignBtn.tray-action-btn {
-  min-width: 104px;
-  flex: 0 0 auto;
-  justify-content: center;
-  white-space: nowrap;
-  overflow: visible;
-  text-overflow: clip;
-}
-
-#shuffleAssignBtn.tray-action-btn span {
-  display: inline;
-  overflow: visible;
-  text-overflow: clip;
-  white-space: nowrap;
-}
-
-.tray-inline-row .settings-btn {
-  min-width: 54px;
-  flex: 0 0 auto;
-}
-
-#sheet-view-area,
-#top-area,
-#bottom-tray {
-  font-weight: 500;
-}
-
-.sheet-plan-heading,
-.sheet-car-header,
-.sheet-driver-name,
-.sheet-cell-text,
-.sheet-chip-text,
-.sheet-summary-pill strong {
-  font-weight: 600;
-}
-
-.sheet-plan-heading {
-  font-weight: 650;
-}
-
-@media (max-width: 420px) {
-  .tray-inline-row {
-    grid-template-columns: auto minmax(84px, 1fr) auto;
-    gap: 6px;
-  }
-
-  #fillEmptySeatsBtn.tray-action-btn {
-    min-width: 84px;
-    padding-inline: 8px;
-  }
-
-  #shuffleAssignBtn.tray-action-btn {
-    min-width: 96px;
-    padding-inline: 10px;
-  }
-
-  .tray-inline-row .settings-btn {
-    min-width: 48px;
-    padding-inline: 8px;
-  }
-}
-
-/* Settlement typography weight pass: keep only totals and primary actions clearly emphasized. */
-#seisan-view-area {
-  font-weight: 400;
-}
-
-#seisan-view-area .seisan-title,
-#seisan-view-area .seisan-title--settings,
-#seisan-view-area .seisan-subhead strong,
-#seisan-view-area .seisan-detail summary {
-  font-weight: 600;
-}
-
-#seisan-view-area .seisan-summary-label,
-#seisan-view-area .seisan-mini-label,
-#seisan-view-area .seisan-field label,
-#seisan-view-area .seisan-check-note,
-#seisan-view-area .seisan-summary-sub,
-#seisan-view-area .seisan-small,
-#seisan-view-area .seisan-muted {
-  font-weight: 500;
-}
-
-#seisan-view-area .seisan-btn,
-#seisan-view-area .seisan-toggle,
-#seisan-view-area .seisan-extra-type,
-#seisan-view-area .seisan-check-name,
-#seisan-view-area .seisan-driver-name,
-#seisan-view-area .seisan-car-title strong {
-  font-weight: 600;
-}
-
-#seisan-view-area .seisan-btn.primary,
-#seisan-view-area .seisan-btn.active,
-#seisan-view-area #routeHelperBtn.seisan-btn,
-#seisan-view-area .seisan-summary-value,
-#seisan-view-area .seisan-driver-amount,
-#seisan-view-area .seisan-car-total,
-#seisan-view-area .seisan-break-row span:last-child {
-  font-weight: 700;
-}
-
-#seisan-view-area .seisan-field input,
-#seisan-view-area .seisan-field select,
-#seisan-view-area .seisan-extra-row input,
-#seisan-view-area .seisan-extra-row select {
-  font-weight: 450;
-}
-
-#seisan-view-area .seisan-summary-value {
-  letter-spacing: -0.015em;
-}
-
-#seisan-view-area .seisan-car-title strong,
-#seisan-view-area .seisan-check-name,
-#seisan-view-area .seisan-driver-name {
-  letter-spacing: -0.01em;
-}
-
-/* 2026-05: editing toolbar order = 使い方 → 参加者登録 → 車割/班割切り替え。 */
+/* 2026-05 quiet 車割/班割 toggle. */
+/* 2026-05 quieter edit toggle, one-line settings summary, clearer settlement preview. */
+/* 2026-05 simple black edit toggle, simpler settlement cards, fewer grey outlines. */
 .edit-header-tools-only.allocation-toolbar {
   max-width: 1120px;
   margin: 4px auto 10px;
-  display: block;
+  padding-inline: max(10px, env(safe-area-inset-left));
 }
 
 .edit-header-tools-only.allocation-toolbar .allocation-toolbar-inner,
 .edit-header-tools-only.allocation-toolbar .edit-tools {
   display: flex;
-  grid-template-columns: none;
   align-items: center;
   justify-content: flex-start;
   gap: 8px;
@@ -1271,15 +1096,11 @@ body[data-app-theme="catppuccin"][data-theme="dark"] {
 .edit-header-tools-only.allocation-toolbar .tool-btn,
 .edit-header-tools-only.allocation-toolbar .edit-tools .tool-btn {
   flex: 0 0 auto;
-  width: auto;
   min-height: 40px;
-  padding: 7px 12px;
-  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  border-radius: var(--radius-main);
+  line-height: 1;
   white-space: nowrap;
-}
-
-.edit-header-tools-only.allocation-toolbar #batchOpenBtn.tool-btn {
-  padding-inline: 13px;
 }
 
 .allocation-mode-toggle.car-plan-bar {
@@ -1287,38 +1108,415 @@ body[data-app-theme="catppuccin"][data-theme="dark"] {
   width: auto;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   margin: 0;
   padding: 0;
-  gap: 0;
   border: 0;
-  border-radius: 0;
   background: transparent;
   box-shadow: none;
 }
 
 .allocation-mode-toggle .car-plan-template-tabs {
-  flex: 0 0 auto;
-  min-width: 0;
+  min-height: 40px;
   display: inline-flex;
   align-items: center;
-  padding: 3px;
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--sheet-header) 78%, var(--bg-card));
-  border: 1px solid var(--border-color);
+  gap: 2px;
+  padding: 2px;
+  border: 0;
+  border-radius: var(--radius-main);
+  background: color-mix(in srgb, var(--bg-card) 74%, var(--bg-body));
+  box-shadow: inset 0 0 0 1px var(--ui-hairline-quiet);
 }
 
 .allocation-mode-toggle .car-plan-template-chip {
   min-height: 34px;
-  padding: 0 11px;
-  border-radius: calc(var(--radius-sm) - 3px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: calc(var(--radius-main) - 4px);
+  background: transparent;
+  color: var(--text-sub);
   font-size: 0.8rem;
+  font-weight: 820;
+  line-height: 1;
+}
+
+.allocation-mode-toggle .car-plan-template-chip.active,
+[data-theme="dark"] .allocation-mode-toggle .car-plan-template-chip.active {
+  background: #050505;
+  color: #fff;
+  border-color: #050505;
+  box-shadow: none;
+}
+
+[data-theme="dark"] .allocation-mode-toggle .car-plan-template-tabs {
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="dark"] .allocation-mode-toggle .car-plan-template-chip:not(.active) {
+  color: rgba(226, 232, 240, 0.68);
+}
+
+[data-theme="dark"] .allocation-mode-toggle .car-plan-template-chip.active {
+  background: rgba(226, 232, 240, 0.10);
+  color: rgba(248, 250, 252, 0.96);
+}
+
+/* One-line settlement settings summary. */
+.seisan-settings-card {
+  padding-block: 10px;
+}
+
+.seisan-settings-card .seisan-compact-head {
+  margin-bottom: 8px;
+}
+
+.seisan-summary-pills {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+
+.seisan-summary-pills--single {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 5px;
+  margin-top: 0;
+  overflow: hidden;
+}
+
+.seisan-summary-pills--single span {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--ui-surface-muted);
+  color: var(--text-main);
+  font-size: 0.72rem;
+  line-height: 1.05;
+  font-weight: 850;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.allocation-mode-toggle .car-plan-template-chip.active {
-  background: var(--bg-card);
-  color: var(--accent-color);
+.seisan-summary-pills--single small {
+  display: inline;
+  margin-right: 3px;
+  color: var(--text-sub);
+  font-size: 0.56rem;
+  font-weight: 840;
+}
+
+/* 2026-05 settlement car summary readability: one-line header, unified cost rows, extras slash-separated. */
+.seisan-car-summary-row {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--ui-surface-soft);
+  box-shadow: var(--ui-surface-shadow-soft);
+}
+
+.seisan-car-summary-row + .seisan-car-summary-row {
+  margin-top: 9px;
+}
+
+.seisan-car-summary-row.has-error {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--ui-danger-soft) 60%, var(--ui-surface-soft));
+  box-shadow: inset 3px 0 0 var(--ui-danger), var(--ui-surface-shadow-soft);
+}
+
+.seisan-car-summary-headline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.seisan-car-summary-name {
+  min-width: 0;
+  color: var(--text-main);
+  font-size: 1rem;
+  line-height: 1.15;
+  font-weight: 920;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seisan-car-summary-payment {
+  min-width: max-content;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--ui-surface-sunken);
+}
+
+.seisan-car-summary-payment span {
+  color: var(--text-sub);
+  font-size: 0.66rem;
+  font-weight: 850;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.seisan-car-summary-total {
+  color: var(--text-main);
+  font-size: 1.16rem;
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.seisan-car-summary-headline .seisan-edit-btn {
+  min-height: 34px;
+  padding-inline: 10px;
+  border-radius: var(--radius-main);
+  white-space: nowrap;
+}
+
+.seisan-car-summary-row .seisan-cost-preview-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+  margin-top: 0;
+}
+
+.seisan-car-summary-row .seisan-cost-preview-item {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  align-items: start;
+  gap: 7px;
+  min-height: 32px;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--ui-surface-sunken);
+}
+
+[data-theme="dark"] .seisan-car-summary-payment,
+[data-theme="dark"] .seisan-car-summary-row .seisan-cost-preview-item {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.seisan-car-summary-row .seisan-cost-preview-label {
+  align-self: baseline;
+  color: var(--text-sub);
+  font-size: 0.70rem;
+  font-weight: 850;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
+.seisan-cost-preview-detail-text {
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  color: var(--text-sub);
+  font-size: 0.72rem;
+  font-weight: 760;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.seisan-extra-inline-list {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 2px 5px;
+  white-space: normal;
+}
+
+.seisan-extra-inline {
+  min-width: 0;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: normal;
+}
+
+.seisan-extra-inline span {
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+}
+
+.seisan-extra-inline strong {
+  color: var(--text-main);
+  font-weight: 900;
+}
+
+.seisan-extra-inline em {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  font-style: normal;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.seisan-extra-slash {
+  flex: 0 0 auto;
+  color: color-mix(in srgb, var(--text-sub) 54%, transparent);
+  font-weight: 700;
+}
+
+.seisan-cost-preview-muted {
+  color: var(--text-sub);
+  font-weight: 760;
+}
+
+.seisan-extra-line-list {
+  display: grid;
+  gap: 2px;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid var(--ui-hairline-quiet);
+}
+
+.seisan-extra-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  color: var(--text-main);
+  font-size: 0.76rem;
+}
+
+.seisan-extra-line span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-sub);
+  font-weight: 760;
+}
+
+.seisan-extra-line strong {
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+/* Car editor uses the same popup outline as settings. */
+.settlement-edit-dialog,
+.settlement-edit-dialog--car {
+  width: min(calc(100vw - 24px), 360px);
+  margin-inline: auto;
+}
+
+.settlement-edit-modal-content {
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--bg-card) 96%, var(--sheet-header));
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.22);
+}
+
+[data-theme="dark"] .settlement-edit-modal-content {
+  background: color-mix(in srgb, var(--bg-card) 90%, rgba(255, 255, 255, 0.05));
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.42);
+}
+
+#settlementCarEditModal .modal-body,
+#settlementSettingsModal .modal-body {
+  padding: 12px;
+}
+
+#settlementCarEditModal .modal-body {
+  max-height: min(70vh, 560px);
+  overflow-y: auto;
+}
+
+#settlementCarEditModal .seisan-car-row {
+  margin-bottom: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#settlementCarEditModal .seisan-car-title {
+  margin-bottom: 8px;
+}
+
+#settlementCarEditModal .seisan-car-inputs {
+  gap: 7px;
+}
+
+#settlementCarEditModal .seisan-subhead {
+  margin-top: 11px;
+}
+
+#settlementCarEditModal .seisan-add-row {
+  margin-top: 8px;
+}
+
+.seisan-settings--modal {
+  display: grid;
+  gap: 9px;
+}
+
+.seisan-toggle--modal {
+  margin-top: 0;
+}
+
+/* Check lists: less boxed, more list-like. */
+.seisan-check-list,
+.seisan-driver-pay-list {
+  gap: 8px;
+}
+
+.seisan-check-item,
+.seisan-driver-pay-row {
+  border: 0;
+  border-radius: var(--radius-main);
+  background: var(--ui-surface-muted);
+  box-shadow: inset 0 0 0 1px var(--ui-hairline-quiet);
+}
+
+.seisan-check-item.paid,
+.seisan-driver-pay-row.done {
+  background: color-mix(in srgb, var(--settlement-collect-blue-soft) 55%, var(--bg-card));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--settlement-collect-blue-border) 55%, transparent);
+}
+
+/* Mobile density. */
+@media (max-width: 640px) {
+  .seisan-top-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .seisan-flow-arrow {
+    display: none;
+  }
+
+  .seisan-card {
+    padding: 10px;
+  }
+
+  .edit-header-tools-only.allocation-toolbar .tool-btn,
+  .edit-header-tools-only.allocation-toolbar .edit-tools .tool-btn {
+    min-height: 40px;
+    padding-inline: 10px;
+    font-size: 0.82rem;
+  }
 }
 
 @media (max-width: 420px) {
@@ -1329,15 +1527,347 @@ body[data-app-theme="catppuccin"][data-theme="dark"] {
 
   .edit-header-tools-only.allocation-toolbar .tool-btn,
   .edit-header-tools-only.allocation-toolbar .edit-tools .tool-btn {
-    min-height: 38px;
-    padding-inline: 9px;
-    font-size: 0.76rem;
+    padding-inline: 8px;
+    font-size: 0.78rem;
   }
 
   .allocation-mode-toggle .car-plan-template-chip {
     min-height: 32px;
     padding-inline: 8px;
     font-size: 0.76rem;
+  }
+
+  .seisan-summary-pills--single span {
+    padding-inline: 4px;
+    font-size: 0.66rem;
+  }
+
+  .seisan-summary-pills--single small {
+    font-size: 0.52rem;
+  }
+
+  .seisan-car-summary-row {
+    padding: 10px;
+  }
+
+  .seisan-car-summary-headline {
+    gap: 6px;
+  }
+
+  .seisan-car-summary-name {
+    font-size: 0.92rem;
+  }
+
+  .seisan-car-summary-payment {
+    gap: 4px;
+    padding: 4px 6px;
+  }
+
+  .seisan-car-summary-payment span {
+    font-size: 0.58rem;
+  }
+
+  .seisan-car-summary-total {
+    font-size: 1.02rem;
+  }
+
+  .seisan-car-summary-headline .seisan-edit-btn {
+    min-height: 32px;
+    padding-inline: 8px;
+  }
+
+  .seisan-car-summary-row .seisan-cost-preview-item {
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 5px;
+    padding-inline: 7px;
+  }
+
+  .seisan-cost-preview-detail-text {
+    font-size: 0.68rem;
+  }
+
+  .seisan-car-summary-row .seisan-cost-preview-item .seisan-extra-inline-list {
+    justify-content: flex-start;
+  }
+
+  .settlement-edit-dialog,
+  .settlement-edit-dialog--car {
+    width: calc(100vw - 18px);
+  }
+
+  #settlementCarEditModal .modal-body,
+  #settlementSettingsModal .modal-body {
+    padding: 10px;
+  }
+}
+
+/* 2026-05 phone UI polish: denser summary and tray alignment. */
+.seisan-summary-value {
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.random-tools {
+  display: grid;
+  grid-template-columns: minmax(92px, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.random-tools .tray-settings-dropdown {
+  min-width: 0;
+}
+
+.random-tools .settings-btn {
+  width: auto;
+  min-width: 56px;
+}
+
+@media (max-width: 640px) {
+  #seisan-view-area .seisan-top-flow,
+  .seisan-top-flow {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  #seisan-view-area .seisan-flow-arrow,
+  .seisan-flow-arrow {
+    display: flex;
+    min-width: 8px;
+    font-size: 0.72rem;
+  }
+
+  #seisan-view-area .seisan-summary-card,
+  .seisan-summary-card {
+    min-height: 76px;
+    padding: 9px 8px;
+  }
+
+  #seisan-view-area .seisan-summary-label,
+  .seisan-summary-label {
+    font-size: 0.68rem;
     gap: 4px;
   }
+
+  #seisan-view-area .seisan-summary-value,
+  .seisan-summary-value {
+    font-size: clamp(1.04rem, 5.4vw, 1.28rem);
+    letter-spacing: -0.05em;
+  }
+
+  #seisan-view-area .seisan-summary-sub,
+  .seisan-summary-sub {
+    font-size: 0.62rem;
+  }
+
+  .tray-inline-row {
+    grid-template-columns: auto auto minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .random-tools {
+    grid-template-columns: minmax(86px, 1fr) auto;
+  }
+}
+
+@media (max-width: 390px) {
+  #seisan-view-area .seisan-summary-card,
+  .seisan-summary-card {
+    padding-inline: 7px;
+  }
+
+  #seisan-view-area .seisan-summary-label,
+  .seisan-summary-label {
+    font-size: 0.62rem;
+  }
+
+  #seisan-view-area .seisan-summary-value,
+  .seisan-summary-value {
+    font-size: 1.04rem;
+  }
+
+  .seisan-car-summary-headline {
+    grid-template-columns: minmax(0, 1fr) max-content max-content;
+  }
+
+  .seisan-car-summary-payment {
+    padding-inline: 5px;
+  }
+
+  .seisan-car-summary-payment span {
+    font-size: 0.54rem;
+  }
+
+  .seisan-car-summary-total {
+    font-size: 0.98rem;
+  }
+
+  .random-tools {
+    grid-template-columns: minmax(78px, 1fr) auto;
+    gap: 5px;
+  }
+
+  .random-tools .settings-btn {
+    min-width: 48px;
+  }
+}
+
+
+/* 2026-05 cost type tag unification: one token set for every 割勘 / 部費 label. */
+:root {
+  --settlement-tag-font-size: 0.64rem;
+  --settlement-tag-line-height: 1;
+  --settlement-tag-pad-y: 2px;
+  --settlement-tag-pad-x: 7px;
+  --settlement-tag-min-width: 2.4em;
+  --settlement-tag-min-height: 1.38em;
+  --settlement-split-ink: #075985;
+  --settlement-split-bg: #e0f2fe;
+  --settlement-split-line: #7dd3fc;
+  --settlement-club-ink: #92400e;
+  --settlement-club-bg: #fef3c7;
+  --settlement-club-line: #fcd34d;
+}
+
+[data-theme="dark"] {
+  --settlement-split-ink: #bae6fd;
+  --settlement-split-bg: rgba(14, 165, 233, 0.22);
+  --settlement-split-line: rgba(125, 211, 252, 0.48);
+  --settlement-club-ink: #fde68a;
+  --settlement-club-bg: rgba(245, 158, 11, 0.22);
+  --settlement-club-line: rgba(251, 191, 36, 0.52);
+}
+
+.seisan-extra-inline.split,
+.seisan-cost-policy-tag.split,
+.seisan-cost-type-badge.split,
+.seisan-mock-chip.split,
+.seisan-extra-type.split {
+  --settlement-tag-ink: var(--settlement-split-ink);
+  --settlement-tag-bg: var(--settlement-split-bg);
+  --settlement-tag-line: var(--settlement-split-line);
+}
+
+.seisan-extra-inline.club,
+.seisan-cost-policy-tag.club,
+.seisan-cost-type-badge.club,
+.seisan-mock-chip.club,
+.seisan-extra-type.club {
+  --settlement-tag-ink: var(--settlement-club-ink);
+  --settlement-tag-bg: var(--settlement-club-bg);
+  --settlement-tag-line: var(--settlement-club-line);
+}
+
+#seisan-view-area :is(.seisan-cost-policy-tag, .seisan-cost-type-badge, .seisan-extra-inline > em),
+.guide-mini-screen .seisan-mock-chip,
+.seisan-extra-type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  min-width: var(--settlement-tag-min-width);
+  min-height: var(--settlement-tag-min-height);
+  padding: var(--settlement-tag-pad-y) var(--settlement-tag-pad-x);
+  border: 1px solid var(--settlement-tag-line, var(--settlement-split-line));
+  border-radius: 999px;
+  box-shadow: none;
+  background: var(--settlement-tag-bg, var(--settlement-split-bg));
+  background-clip: padding-box;
+  color: var(--settlement-tag-ink, var(--settlement-split-ink));
+  font-size: var(--settlement-tag-font-size);
+  font-style: normal;
+  font-weight: 900;
+  line-height: var(--settlement-tag-line-height);
+  letter-spacing: 0;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+#seisan-view-area .seisan-extra-inline > .seisan-cost-policy-tag {
+  margin-left: 0;
+}
+
+#seisan-view-area .seisan-extra-inline strong + .seisan-cost-policy-tag,
+#seisan-view-area .seisan-extra-inline b + .seisan-cost-policy-tag {
+  margin-left: 0;
+}
+
+.seisan-extra-chip.split,
+.seisan-extra-chip.club {
+  color: var(--text-main);
+  background: color-mix(in srgb, var(--bg-body) 34%, var(--bg-card));
+  border-color: var(--ui-hairline-quiet);
+}
+
+.seisan-extra-chip :is(.seisan-cost-policy-tag, .seisan-cost-type-badge) {
+  color: var(--settlement-tag-ink, var(--settlement-split-ink));
+  background: var(--settlement-tag-bg, var(--settlement-split-bg));
+  border-color: var(--settlement-tag-line, var(--settlement-split-line));
+}
+
+/* 2026-05 strict settlement cost surfaces: summary cards and row tags share one palette. */
+#seisan-view-area :is(.seisan-summary-card.collect, .settlement-cost-surface.split) {
+  background: color-mix(in srgb, var(--settlement-split-bg) 78%, var(--bg-card));
+  border-color: var(--settlement-split-line);
+}
+
+#seisan-view-area :is(.seisan-summary-card.accounting, .settlement-cost-surface.club) {
+  background: color-mix(in srgb, var(--settlement-club-bg) 78%, var(--bg-card));
+  border-color: var(--settlement-club-line);
+}
+
+#seisan-view-area .settlement-cost-surface.split :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-sub) {
+  color: var(--settlement-split-ink);
+}
+
+#seisan-view-area .settlement-cost-surface.club :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-sub) {
+  color: var(--settlement-club-ink);
+}
+
+#seisan-view-area .seisan-summary-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+#seisan-view-area :is(.seisan-cost-policy-tag, .seisan-cost-type-badge),
+.guide-mini-screen .seisan-mock-chip,
+.seisan-extra-type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--settlement-tag-min-width);
+  min-height: var(--settlement-tag-min-height);
+  padding: var(--settlement-tag-pad-y) var(--settlement-tag-pad-x);
+  border: 1px solid var(--settlement-tag-line, var(--settlement-split-line));
+  border-radius: 999px;
+  background: var(--settlement-tag-bg, var(--settlement-split-bg));
+  color: var(--settlement-tag-ink, var(--settlement-split-ink));
+  font-size: var(--settlement-tag-font-size);
+  font-style: normal;
+  font-weight: 900;
+  line-height: var(--settlement-tag-line-height);
+  letter-spacing: 0;
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+#seisan-view-area :is(.seisan-cost-policy-tag.split, .seisan-cost-type-badge.split),
+.guide-mini-screen .seisan-mock-chip.split,
+.seisan-extra-type.split {
+  --settlement-tag-ink: var(--settlement-split-ink);
+  --settlement-tag-bg: var(--settlement-split-bg);
+  --settlement-tag-line: var(--settlement-split-line);
+}
+
+#seisan-view-area :is(.seisan-cost-policy-tag.club, .seisan-cost-type-badge.club),
+.guide-mini-screen .seisan-mock-chip.club,
+.seisan-extra-type.club {
+  --settlement-tag-ink: var(--settlement-club-ink);
+  --settlement-tag-bg: var(--settlement-club-bg);
+  --settlement-tag-line: var(--settlement-club-line);
 }

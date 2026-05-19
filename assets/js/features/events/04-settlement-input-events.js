@@ -31,7 +31,7 @@
 
         document.addEventListener('input', event => {
             const target = event.target;
-            if (target?.matches?.('#seisan-car-list [data-field], #seisan-car-list [data-extra-field]')) {
+            if (target?.matches?.('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
                 global.onSettlementInputDelayed?.();
                 return;
             }
@@ -52,7 +52,7 @@
             const target = event.target;
             if (!target?.matches) return;
 
-            if (target.matches('#seisan-car-list [data-field], #seisan-car-list [data-extra-field]')) {
+            if (target.matches('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
                 global.onSettlementInput?.();
                 return;
             }

@@ -14,6 +14,8 @@ function getDefaultSettlementState() {
     };
 }
 
+const DRIVER_REWARD_EXTRA_NAME = '車出し協力代';
+
 function normalizeExtraItem(ex = {}) {
     const type = ex.type === 'club' ? 'club' : 'split';
     return {
@@ -21,6 +23,45 @@ function normalizeExtraItem(ex = {}) {
         amount: String(ex.amount ?? ''),
         type
     };
+}
+
+function normalizeRewardExtraName(value = '') {
+    return String(value ?? '').replace(/\s+/g, '').replace(/[（）()]/g, '');
+}
+
+function isDriverRewardExtra(ex = {}) {
+    const name = normalizeRewardExtraName(ex.name || '');
+    return name === '車出し協力代' || name === '車出し協力代1台' || name === '協力代';
+}
+
+function getDriverRewardAmount(state = ensureSettlementState()) {
+    return Math.max(0, getNumberValue(state?.driverReward ?? getDefaultSettlementState().driverReward));
+}
+
+function ensureDriverRewardExtra(carState = {}, state = ensureSettlementState()) {
+    const normalized = normalizeCarSettlementState(carState || {});
+    const rewardAmount = getDriverRewardAmount(state);
+    const extras = normalized.extras.map(normalizeExtraItem);
+    const rewardIndex = extras.findIndex(isDriverRewardExtra);
+
+    if (rewardAmount > 0 && rewardIndex === -1) {
+        extras.push({ name: DRIVER_REWARD_EXTRA_NAME, amount: String(rewardAmount), type: 'club' });
+    } else if (rewardIndex >= 0) {
+        const rewardExtra = extras[rewardIndex];
+        extras[rewardIndex] = {
+            name: rewardExtra.name || DRIVER_REWARD_EXTRA_NAME,
+            amount: rewardExtra.amount || String(rewardAmount || ''),
+            type: 'club'
+        };
+    }
+
+    return { ...normalized, extras };
+}
+
+function getDriverRewardExtraAmount(carState = {}, state = ensureSettlementState()) {
+    const car = ensureDriverRewardExtra(carState, state);
+    const rewardExtra = car.extras.find(isDriverRewardExtra);
+    return rewardExtra ? getNumberValue(rewardExtra.amount) : 0;
 }
 
 function hasMeaningfulExtra(ex = {}) {
@@ -155,12 +196,12 @@ function syncSettlementStateFromDOM() {
             amount: exRow.querySelector('[data-extra-field="amount"]')?.value || '',
             type: exRow.querySelector('[data-extra-field="type"]')?.value || 'split'
         }));
-        state.cars[name] = normalizeCarSettlementState({
+        state.cars[name] = ensureDriverRewardExtra({
             dist: row.querySelector('[data-field="dist"]')?.value || '',
             eco: row.querySelector('[data-field="eco"]')?.value || '',
             price: row.querySelector('[data-field="price"]')?.value || '',
             extras
-        });
+        }, state);
     });
     return state;
 }

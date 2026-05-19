@@ -42,8 +42,7 @@ function buildSettlementOverviewText({ title, state, result }) {
         const paidMark = state.driverPaid?.[car.name] ? '（支払い済み）' : '';
         const details = [
             `ガソリン代：${yen(car.gas)}`,
-            `諸経費：${formatSettlementExtraDetail(car)}`,
-            `協力代：${yen(car.reward)}`
+            `諸経費：${formatSettlementExtraDetail(car)}`
         ];
         if (car.driverRound) details.push(`支払い丸め：${yen(car.driverRound)}`);
         return `・${car.name}車：${yen(car.totalPay)}${paidMark}\n　${details.join(' / ')}`;

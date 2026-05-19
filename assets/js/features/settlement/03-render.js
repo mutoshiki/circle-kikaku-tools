@@ -49,7 +49,7 @@ function renderSettlementSummaryHtml(result) {
 }
 
 function renderSettlementCarRowHtml(car, state, result, issues) {
-    const cState = normalizeCarSettlementState(state.cars?.[car.name] || {});
+    const cState = ensureDriverRewardExtra(state.cars?.[car.name] || {}, state);
     state.cars[car.name] = cState;
     const calc = result.cars.find(c => c.name === car.name) || { totalPay: 0, gas: 0, extras: [] };
     const extras = cState.extras.length ? cState.extras.map(normalizeExtraItem) : [{ name: '', amount: '', type: 'split' }];
@@ -74,7 +74,7 @@ function renderSettlementCarsHtml(data, state, result, issues) {
             yen,
             fieldErrorClass,
             extraFieldErrorClass,
-            getCarState: (car, currentState) => normalizeCarSettlementState(currentState.cars?.[car.name] || {})
+            getCarState: (car, currentState) => ensureDriverRewardExtra(currentState.cars?.[car.name] || {}, currentState)
         }
     });
 }
@@ -90,6 +90,75 @@ function renderSettlementDriverPayHtml(result, state) {
 function renderSettlementBreakdownHtml(result) {
     return window.SanpoApp.templates.settlement.breakdown(result, { yen });
 }
+
+function renderSettlementSettingSummaryHtml(state, result) {
+    return window.SanpoApp.templates.settlement.settingSummary({ state, result, helpers: { escapeHtml, yen } });
+}
+
+let activeSettlementCarEditName = '';
+
+function getSettlementCarEditHtml(name) {
+    const data = getRoomDataOnly();
+    const state = ensureSettlementState();
+    const result = calculateSettlement(data, state);
+    const issues = getSettlementIssues(data, state, result);
+    const car = (data.cars || []).find(c => c.name === name);
+    if (!car) return '<div class="seisan-empty">この車が見つかりません。</div>';
+    return renderSettlementCarRowHtml(car, state, result, issues);
+}
+
+function refreshSettlementCarEditor(name = activeSettlementCarEditName) {
+    const body = byId('settlementCarEditBody');
+    if (!body || !name) return;
+    body.innerHTML = getSettlementCarEditHtml(name);
+    applyRuntimeAccessibilityFixes(body);
+}
+
+window.openSettlementSettings = function() {
+    syncSettlementStateFromDOM();
+    const data = getRoomDataOnly();
+    const state = ensureSettlementState();
+    syncSettlementControls(state, getParticipantList(data));
+    if (modals.settlementSettings) modals.settlementSettings.show();
+};
+
+window.saveSettlementSettingsDraft = function() {
+    syncSettlementStateFromDOM();
+    renderSettlementView({ force: true });
+    save();
+};
+
+window.saveSettlementSettings = function() {
+    window.saveSettlementSettingsDraft?.();
+    if (modals.settlementSettings) modals.settlementSettings.hide();
+};
+
+window.openSettlementCarEditor = function(encodedName) {
+    syncSettlementStateFromDOM();
+    const name = decodeURIComponent(encodedName || '');
+    activeSettlementCarEditName = name;
+    const title = byId('settlementCarEditModalTitle');
+    if (title) title.innerHTML = `<i class="fas fa-car-side me-2" aria-hidden="true"></i>${escapeHtml(name)}車の費用`;
+    refreshSettlementCarEditor(name);
+    if (modals.settlementCarEdit) modals.settlementCarEdit.show();
+};
+
+window.saveSettlementCarEditDraft = function() {
+    syncSettlementStateFromDOM();
+    renderSettlementView({ force: true });
+    save();
+};
+
+window.saveSettlementCarEdit = function() {
+    window.saveSettlementCarEditDraft?.();
+    if (modals.settlementCarEdit) modals.settlementCarEdit.hide();
+};
+
+window.clearSettlementCarEditor = function() {
+    const body = byId('settlementCarEditBody');
+    if (body) body.innerHTML = '';
+    activeSettlementCarEditName = '';
+};
 
 function toggleSettlementEmptyState(area, isEmpty) {
     if (!area) return;
@@ -132,6 +201,9 @@ function renderSettlementView() {
     const result = calculateSettlement(data, state);
     const issues = getSettlementIssues(data, state, result);
     renderSettlementIssues(issues);
+
+    const settingsSummary = byId('seisan-settings-summary');
+    if (settingsSummary) settingsSummary.innerHTML = renderSettlementSettingSummaryHtml(state, result);
 
     const summary = byId('seisan-summary');
     if (summary) summary.innerHTML = renderSettlementSummaryHtml(result);

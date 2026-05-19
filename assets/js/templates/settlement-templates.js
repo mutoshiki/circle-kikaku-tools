@@ -33,14 +33,14 @@
     const accountingLabel = result.accounting >= 0 ? '部費負担' : '部費へ戻す';
     const accountingSign = result.accounting >= 0 ? '＋' : '−';
     return `
-        <div class="seisan-summary-card collect">
-          <div class="seisan-summary-label"><i class="fas fa-users"></i>集める</div>
+        <div class="seisan-summary-card collect settlement-cost-surface split" data-cost-type="split">
+          <div class="seisan-summary-label"><i class="fas fa-users"></i><span>集める</span><em class="seisan-cost-policy-tag seisan-cost-type-badge split" data-cost-type="split">割勘</em></div>
           <div class="seisan-summary-value">${money(result.expectedCollected, helpers)}</div>
           <div class="seisan-summary-sub">${money(result.perPerson, helpers)} × ${result.payerCount}名</div>
         </div>
         <div class="seisan-flow-arrow" aria-hidden="true">${accountingSign}</div>
-        <div class="seisan-summary-card accounting">
-          <div class="seisan-summary-label"><i class="fas fa-wallet"></i>部費</div>
+        <div class="seisan-summary-card accounting settlement-cost-surface club" data-cost-type="club">
+          <div class="seisan-summary-label"><i class="fas fa-wallet"></i><span>部費</span><em class="seisan-cost-policy-tag seisan-cost-type-badge club" data-cost-type="club">部費</em></div>
           <div class="seisan-summary-value">${money(Math.abs(result.accounting), helpers)}</div>
           <div class="seisan-summary-sub">${accountingLabel}</div>
         </div>
@@ -50,6 +50,73 @@
           <div class="seisan-summary-value">${money(result.driverTotal, helpers)}</div>
           <div class="seisan-summary-sub">車出し ${result.cars.length}名</div>
         </div>`;
+  }
+
+  function settingSummary({ state, result, helpers = {} }) {
+    const organizer = state.organizerName || '未選択';
+    const freeLabel = state.organizerFree ? '対象外' : '対象';
+    return `<div class="seisan-summary-pills seisan-summary-pills--single" aria-label="現在の精算設定">
+        <span><small>端数</small>${esc(state.rounding || '100', helpers)}円</span>
+        <span><small>協力代</small>${money(result.reward || 0, helpers)}</span>
+        <span><small>企画者</small>${esc(organizer, helpers)}</span>
+        <span><small>扱い</small>${esc(freeLabel, helpers)}</span>
+    </div>`;
+  }
+
+  function formatCostBadge(type = 'split') {
+    const normalized = type === 'club' ? 'club' : 'split';
+    return `<em class="seisan-cost-policy-tag seisan-cost-type-badge ${normalized}" data-cost-type="${normalized}">${normalized === 'club' ? '部費' : '割勘'}</em>`;
+  }
+
+  function formatExtraChips(extras, helpers = {}) {
+    if (!extras.length) return '<span class="seisan-extra-empty">諸経費なし</span>';
+    return extras.map(ex => {
+      const type = ex.type === 'club' ? 'club' : 'split';
+      return `<span class="seisan-extra-chip ${type}"><strong>${esc(ex.name || '諸経費', helpers)}</strong><b>${money(ex.amountValue || ex.amount || 0, helpers)}</b>${formatCostBadge(type)}</span>`;
+    }).join('');
+  }
+
+  function formatExtraLines(extras, helpers = {}) {
+    if (!extras.length) return '<div class="seisan-extra-line is-empty"><span>諸経費なし</span></div>';
+    return extras.map(ex => {
+      const type = ex.type === 'club' ? 'club' : 'split';
+      return `<div class="seisan-extra-line ${type}"><span>${esc(ex.name || '諸経費', helpers)}</span><strong>${money(ex.amountValue || ex.amount || 0, helpers)}</strong>${formatCostBadge(type)}</div>`;
+    }).join('');
+  }
+
+  function formatExtraSlash(extras, helpers = {}) {
+    if (!extras.length) return '<span class="seisan-cost-preview-muted">諸経費なし</span>';
+    return extras.map(ex => {
+      const type = ex.type === 'club' ? 'club' : 'split';
+      return `<span class="seisan-extra-inline ${type}"><span>${esc(ex.name || '諸経費', helpers)}</span><strong>${money(ex.amountValue || ex.amount || 0, helpers)}</strong>${formatCostBadge(type)}</span>`;
+    }).join('<span class="seisan-extra-slash" aria-hidden="true">/</span>');
+  }
+
+  function carSummary({ car, calc, issues, helpers = {} }) {
+    const rowClass = issues.rows.has(car.name) ? ' has-error' : '';
+    const extras = Array.isArray(calc.extras) ? calc.extras : [];
+    return `<article class="seisan-car-summary-row${rowClass}" data-driver-name="${esc(car.name, helpers)}">
+        <div class="seisan-car-summary-headline">
+          <strong class="seisan-car-summary-name">${esc(car.name, helpers)}車</strong>
+          <div class="seisan-car-summary-payment" aria-label="支払う金額">
+            <span>支払額</span>
+            <strong class="seisan-car-summary-total">${money(calc.totalPay || 0, helpers)}</strong>
+          </div>
+          <button class="seisan-btn seisan-edit-btn" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><i class="fas fa-pen" aria-hidden="true"></i><span>編集</span></button>
+        </div>
+        <div class="seisan-cost-preview-list" aria-label="費用内訳">
+          <div class="seisan-cost-preview-item seisan-cost-preview-item--gas">
+            <span class="seisan-cost-preview-label">ガソリン代</span>
+            <span class="seisan-cost-preview-detail-text seisan-extra-inline-list">
+              <span class="seisan-extra-inline split"><strong>${money(calc.gas || 0, helpers)}</strong>${formatCostBadge('split')}</span>
+            </span>
+          </div>
+          <div class="seisan-cost-preview-item seisan-cost-preview-item--extras">
+            <span class="seisan-cost-preview-label">諸経費</span>
+            <span class="seisan-cost-preview-detail-text seisan-extra-inline-list">${formatExtraSlash(extras, helpers)}</span>
+          </div>
+        </div>
+    </article>`;
   }
 
   function carRow({ car, cState, calc, extras, issues, helpers = {} }) {
@@ -80,8 +147,7 @@
       const cState = helpers.getCarState(car, state);
       state.cars[car.name] = cState;
       const calc = result.cars.find(c => c.name === car.name) || { totalPay: 0, gas: 0, extras: [] };
-      const extras = cState.extras.length ? cState.extras : [{ name: '', amount: '', type: 'split' }];
-      return carRow({ car, cState, calc, extras, issues, helpers });
+      return carSummary({ car, calc, issues, helpers });
     }).join('');
   }
 
@@ -108,7 +174,7 @@
             <span class="seisan-driver-name">${esc(car.name, helpers)}</span>
             <span class="seisan-driver-amount">${money(car.totalPay, helpers)}</span>
             <input type="checkbox" ${done ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}">
-            <span class="seisan-driver-detail">ガソリン代 ${money(car.gas, helpers)} / ${exText} / 協力代 ${money(car.reward, helpers)}</span>
+            <span class="seisan-driver-detail">ガソリン代 ${money(car.gas, helpers)} / ${exText}</span>
         </label>`;
     }).join('');
   }
@@ -119,7 +185,7 @@
         <div class="seisan-break-row"><span>集金予定</span><span>${money(result.expectedCollected, helpers)}</span></div>
         <div class="seisan-break-row"><span>端数余り</span><span>${money(result.surplus, helpers)}</span></div>
         <div class="seisan-break-row"><span>部費負担</span><span>${money(result.totalClub, helpers)}</span></div>
-        <div class="seisan-break-row"><span>車出し協力代</span><span>${money(result.totalReward, helpers)}</span></div>
+        <div class="seisan-break-row"><span>うち車出し協力代</span><span>${money(result.totalReward, helpers)}</span></div>
         <div class="seisan-break-row"><span>支払い丸め</span><span>${money(result.totalDriverRound, helpers)}</span></div>`;
   }
 
@@ -160,6 +226,8 @@
     renderIssues,
     extraRow,
     summary,
+    settingSummary,
+    carSummary,
     carRow,
     cars,
     collection,

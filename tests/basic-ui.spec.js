@@ -122,7 +122,11 @@ test('settlement typing keeps focus and value until commit', async ({ page }) =>
   await loadSampleData(page);
   await page.locator('#tab-seisan').click();
 
-  const firstDistance = page.locator('#seisan-car-list [data-field="dist"]').first();
+  const firstEdit = page.locator('#seisan-car-list [data-action="open-settlement-car-edit"]').first();
+  await expect(firstEdit).toBeVisible();
+  await firstEdit.click();
+
+  const firstDistance = page.locator('#settlementCarEditModal [data-field="dist"]').first();
   await expect(firstDistance).toBeVisible();
   await firstDistance.fill('123');
   await expect(firstDistance).toHaveValue('123');

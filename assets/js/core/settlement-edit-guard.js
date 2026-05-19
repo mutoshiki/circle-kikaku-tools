@@ -2,7 +2,7 @@
 // Split from app.js during S-4 cleanup.
 
 function isSettlementCostField(target = document.activeElement) {
-    return !!(target?.matches?.('#seisan-car-list [data-field], #seisan-car-list [data-extra-field]'));
+    return !!(target?.matches?.('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]'));
 }
 
 function isEditingSettlementCostField() {

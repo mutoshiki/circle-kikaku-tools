@@ -25,7 +25,8 @@ window.addSettlementExtra = function(encodedName) {
     const car = normalizeCarSettlementState(state.cars[name] || {});
     car.extras.push({ name: '', amount: '', type: 'split' });
     state.cars[name] = car;
-    renderSettlementView();
+    if (typeof refreshSettlementCarEditor === 'function') refreshSettlementCarEditor(name);
+    renderSettlementView({ force: true });
     save();
 };
 

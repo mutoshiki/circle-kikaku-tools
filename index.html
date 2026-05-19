@@ -73,8 +73,8 @@
         </div>
       </header>
       <div id="top-area" style="display: none;">
-        <div class="edit-header edit-header-tools-only allocation-toolbar">
-          <div class="edit-tools allocation-toolbar-inner">
+        <div class="edit-header edit-header-tools-only allocation-toolbar ui-toolbar-card">
+          <div class="edit-tools allocation-toolbar-inner ui-toolbar-row">
             <button id="carGuideBtn" class="btn tool-btn tool-help-btn" data-priority="high" title="使い方">
               <i class="fas fa-circle-question" aria-hidden="true"></i>
               <span>使い方</span>
@@ -110,7 +110,7 @@
 
       <div id="seisan-view-area">
         <div class="seisan-wrap">
-          <div class="seisan-card">
+          <section class="seisan-card seisan-toolbar-card">
             <div class="seisan-head seisan-head-tools-only">
               <div class="seisan-head-actions">
                 <button id="seisanGuideBtn" class="seisan-btn tool-help-btn" type="button" title="精算の使い方"><i class="fas fa-circle-question" aria-hidden="true"></i><span>使い方</span></button>
@@ -120,45 +120,26 @@
             </div>
             <div id="seisan-summary" class="seisan-top-flow"></div>
             <div id="seisan-errors" class="seisan-alert"></div>
-          </div>
+          </section>
 
-          <div class="seisan-card">
-            <div class="seisan-title seisan-title--settings"><i class="fas fa-sliders" aria-hidden="true"></i>精算設定</div>
-            <div class="seisan-settings">
-              <div class="seisan-field">
-                <label>端数処理</label>
-                <select id="seisanRounding" aria-label="端数処理">
-                  <option value="100">100円</option>
-                  <option value="50">50円</option>
-                  <option value="10">10円</option>
-                  <option value="1">1円</option>
-                </select>
-              </div>
-              <div class="seisan-field">
-                <label>車出し協力代（1台）</label>
-                <input id="seisanDriverReward" type="number" inputmode="numeric" value="1000" aria-label="車出し協力代">
-              </div>
-              <div class="seisan-field">
-                <label>企画者</label>
-                <select id="seisanOrganizerName" aria-label="企画者名"></select>
-              </div>
-              <label class="seisan-toggle">
-                <span>企画者を集金対象から外す</span>
-                <input id="seisanOrganizerFree" type="checkbox" checked aria-label="企画者を集金対象から外す">
-              </label>
+          <section class="seisan-card seisan-settings-card">
+            <div class="seisan-compact-head">
+              <div class="seisan-title seisan-title--settings"><i class="fas fa-sliders" aria-hidden="true"></i>精算設定</div>
+              <button class="seisan-btn seisan-edit-btn" type="button" data-action="open-settlement-settings"><i class="fas fa-pen" aria-hidden="true"></i><span>編集</span></button>
             </div>
-          </div>
+            <div id="seisan-settings-summary" class="seisan-settings-summary" aria-live="polite"></div>
+          </section>
 
-          <div class="seisan-card">
+          <section class="seisan-card seisan-panel seisan-car-panel">
             <div class="seisan-head">
               <div>
                 <div class="seisan-title"><i class="fas fa-car-side" aria-hidden="true"></i>車ごとの費用</div>
               </div>
             </div>
             <div id="seisan-car-list"></div>
-          </div>
+          </section>
 
-          <div class="seisan-card">
+          <section class="seisan-card seisan-panel">
             <div class="seisan-head">
               <div>
                 <div class="seisan-title"><i class="fas fa-clipboard-list" aria-hidden="true"></i>集金チェック</div>
@@ -166,18 +147,18 @@
               </div>
             </div>
             <div id="seisan-collection-list" class="seisan-check-list"></div>
-          </div>
+          </section>
 
-          <div class="seisan-card">
+          <section class="seisan-card seisan-panel">
             <div class="seisan-head">
               <div>
                 <div class="seisan-title"><i class="fas fa-money-bill-transfer" aria-hidden="true"></i>支払いチェック</div>
               </div>
             </div>
             <div id="seisan-driver-pay-list" class="seisan-driver-pay-list"></div>
-          </div>
+          </section>
 
-          <div class="seisan-card seisan-share-card">
+          <section class="seisan-card seisan-share-card seisan-panel">
             <div class="seisan-head">
               <div>
                 <div class="seisan-title"><i class="fas fa-copy" aria-hidden="true"></i>共有用テキスト</div>
@@ -187,7 +168,7 @@
             <div class="seisan-share-actions" aria-label="精算結果の共有用テキスト">
               <button class="seisan-btn primary" type="button" data-action="copy-settlement-text"><i class="fas fa-clipboard-check me-1" aria-hidden="true"></i>精算メモをコピー</button>
             </div>
-          </div>
+          </section>
 
         </div>
       </div>
@@ -436,6 +417,63 @@
         </div>
       </div>
     </div>
+    <!-- Settlement edit modals -->
+    <div class="modal fade" id="settlementSettingsModal" tabindex="-1" aria-labelledby="settlementSettingsModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm settlement-edit-dialog">
+        <div class="modal-content settlement-edit-modal-content">
+          <div class="modal-header py-2">
+            <h6 class="modal-title fw-bold modal-title--compact" id="settlementSettingsModalTitle"><i class="fas fa-sliders me-2" aria-hidden="true"></i>精算設定</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <div class="seisan-settings seisan-settings--modal">
+              <div class="seisan-field">
+                <label>端数処理</label>
+                <select id="seisanRounding" aria-label="端数処理">
+                  <option value="100">100円</option>
+                  <option value="50">50円</option>
+                  <option value="10">10円</option>
+                  <option value="1">1円</option>
+                </select>
+              </div>
+              <div class="seisan-field">
+                <label>車出し協力代（1台）</label>
+                <input id="seisanDriverReward" type="number" inputmode="numeric" value="1000" aria-label="車出し協力代">
+              </div>
+              <div class="seisan-field">
+                <label>企画者</label>
+                <select id="seisanOrganizerName" aria-label="企画者名"></select>
+              </div>
+              <label class="seisan-toggle seisan-toggle--modal">
+                <span>企画者を集金対象から外す</span>
+                <input id="seisanOrganizerFree" type="checkbox" checked aria-label="企画者を集金対象から外す">
+              </label>
+            </div>
+          </div>
+          <div class="modal-footer py-2">
+            <button class="btn btn-primary btn-sm w-100 btn-accent-solid" type="button" data-action="save-settlement-settings">保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="settlementCarEditModal" tabindex="-1" aria-labelledby="settlementCarEditModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm settlement-edit-dialog settlement-edit-dialog--car">
+        <div class="modal-content settlement-edit-modal-content">
+          <div class="modal-header py-2">
+            <h6 class="modal-title fw-bold modal-title--compact" id="settlementCarEditModalTitle"><i class="fas fa-car-side me-2" aria-hidden="true"></i>車ごとの費用</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <div id="settlementCarEditBody"></div>
+          </div>
+          <div class="modal-footer py-2">
+            <button class="btn btn-primary btn-sm w-100 btn-accent-solid" type="button" data-action="save-settlement-car-edit">保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Utility modals -->
     <div class="modal fade" id="routeDistanceModal" tabindex="-1" aria-labelledby="routeDistanceModalTitle" aria-hidden="true">
       <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
