@@ -4203,3 +4203,511 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Settlement car summary: inline costs without amount frames. */
+#seisan-view-area .seisan-car-summary-payment,
+[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
+  min-height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-item--inline-all {
+  display: block;
+  min-height: auto;
+  padding: 7px 8px 8px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-item--inline-all + .seisan-cost-preview-item--inline-all {
+  border-top: 0;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-detail-text,
+#seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  color: var(--text-main);
+  font-size: 0.72rem;
+  font-weight: 640;
+  line-height: 1.5;
+  text-align: left;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-extra-inline {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  gap: 4px;
+  color: var(--text-main);
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-extra-inline.split,
+#seisan-view-area .seisan-car-summary-row .seisan-extra-inline.club {
+  border-color: transparent;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-extra-inline > span {
+  color: var(--text-main);
+  font-weight: 680;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-extra-inline strong {
+  margin-left: 0;
+  color: var(--text-main);
+  font-size: 0.76rem;
+  font-weight: 760;
+  letter-spacing: -0.012em;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-extra-slash {
+  display: inline-flex;
+  align-items: center;
+  color: color-mix(in srgb, var(--text-sub) 58%, transparent);
+  font-size: 0.72rem;
+  font-weight: 620;
+  line-height: 1;
+}
+
+@media (max-width: 640px) {
+  #seisan-view-area .seisan-car-summary-payment,
+  [data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
+    min-height: auto;
+    padding: 0;
+  }
+
+  #seisan-view-area .seisan-car-summary-row .seisan-cost-preview-item--inline-all {
+    padding: 6px 7px 7px;
+  }
+
+  #seisan-view-area .seisan-car-summary-row .seisan-extra-inline {
+    min-height: 0;
+    padding: 0;
+    font-size: 0.68rem;
+  }
+
+  #seisan-view-area .seisan-car-summary-row .seisan-extra-inline strong {
+    font-size: 0.72rem;
+  }
+}
+
+/* =========================================================
+   2026-05 dark mode coverage pass
+   目的: 既存のSaaS調の見た目を保ったまま、白く残りやすい面・入力・モックUIをダークテーマに追従させる。
+========================================================= */
+body[data-theme="dark"] {
+  --bs-body-bg: var(--bg-body);
+  --bs-body-color: var(--text-main);
+  --bs-secondary-color: var(--text-sub);
+  --bs-border-color: var(--border-color);
+  --bs-tertiary-bg: var(--sheet-header);
+  --bs-modal-bg: var(--bg-card);
+  --bs-dropdown-bg: var(--bg-card);
+  --bs-dropdown-color: var(--text-main);
+  --bs-dropdown-link-color: var(--text-main);
+  --bs-dropdown-link-hover-color: var(--text-main);
+  --bs-dropdown-link-hover-bg: var(--hover-bg);
+  --bs-form-control-bg: var(--bg-card);
+  --bs-form-control-color: var(--text-main);
+}
+
+[data-theme="dark"] :is(
+  #app-header,
+  .app-header-main,
+  #view-toggle-bar,
+  .view-toggle-bar,
+  .edit-header-tools-only,
+  .ui-toolbar-card,
+  #bottom-tray,
+  .tray-inline-row,
+  .car-box,
+  .driver-seat,
+  .seat-slot,
+  .member-card,
+  .drop-create-lane,
+  .empty-card,
+  .sheet-empty-card,
+  .sheet-car-col,
+  .sheet-wait-block,
+  .sheet-driver-row,
+  .sheet-seat-row,
+  .sheet-wait-item,
+  #sheet-title-bar,
+  #sheet-bottom-controls,
+  .seisan-card,
+  .seisan-summary-card,
+  .seisan-car-summary-row,
+  .seisan-check-item,
+  .seisan-driver-pay-row,
+  .seisan-summary-pills span,
+  .route-private-panel,
+  .route-stop-panel,
+  .route-helper-panel,
+  .route-private-view,
+  .route-private-edit,
+  .theme-preview-panel,
+  .theme-app-preview,
+  .theme-preset-card,
+  .theme-system-note,
+  .global-guide-card,
+  .app-guide-box,
+  .guide-mini-screen,
+  .batch-spreadsheet-import,
+  .form-import-preview,
+  .form-sheet-howto,
+  .form-import-result-grid,
+  .dropdown-menu,
+  .modal-content
+) {
+  color: var(--text-main);
+  border-color: var(--ui-saas-border, var(--border-color));
+  background-color: color-mix(in srgb, var(--bg-card) 90%, #020617);
+}
+
+[data-theme="dark"] :is(
+  .app-shell,
+  #list-view-area,
+  #sheet-view-area,
+  #seisan-view-area,
+  .modal-body,
+  .offcanvas,
+  .theme-preview-body,
+  .sheet-viewport,
+  .guide-step-body,
+  .guide-modal-body
+) {
+  color: var(--text-main);
+  background-color: var(--bg-body);
+}
+
+[data-theme="dark"] :is(
+  .modal-header,
+  .modal-footer,
+  .dropdown-header,
+  .sheet-car-header,
+  .sheet-wait-header,
+  .seisan-car-summary-headline,
+  .theme-preview-head,
+  .guide-modal-header,
+  .guide-section-head,
+  .batch-spreadsheet-head
+) {
+  color: var(--text-main);
+  border-color: color-mix(in srgb, var(--border-color) 70%, transparent);
+  background: color-mix(in srgb, var(--bg-card) 78%, #020617);
+}
+
+[data-theme="dark"] :is(
+  .form-control,
+  .form-select,
+  textarea,
+  input[type="text"],
+  input[type="number"],
+  input[type="search"],
+  input[type="url"],
+  select,
+  .route-stop-input,
+  .route-private-input,
+  .seisan-field input,
+  .seisan-field select,
+  .seisan-extra-row input,
+  .seisan-extra-row select,
+  .seisan-car-inputs input
+) {
+  color: var(--text-main);
+  caret-color: var(--accent-color);
+  border-color: var(--ui-saas-border, var(--border-color));
+  background-color: color-mix(in srgb, var(--bg-card) 84%, #020617);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+[data-theme="dark"] :is(
+  .form-control,
+  .form-select,
+  textarea,
+  input,
+  select
+)::placeholder {
+  color: color-mix(in srgb, var(--text-sub) 72%, transparent);
+  opacity: 1;
+}
+
+[data-theme="dark"] :is(
+  .form-control:focus,
+  .form-select:focus,
+  textarea:focus,
+  input:focus,
+  select:focus,
+  .seisan-field input:focus,
+  .seisan-field select:focus,
+  .seisan-extra-row input:focus,
+  .seisan-extra-row select:focus
+) {
+  color: var(--text-main);
+  border-color: color-mix(in srgb, var(--accent-color) 54%, var(--border-color));
+  background-color: color-mix(in srgb, var(--bg-card) 90%, #020617);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 18%, transparent);
+}
+
+[data-theme="dark"] :is(
+  .btn-outline-primary,
+  .btn-secondary,
+  .seisan-btn:not(.primary):not(.active),
+  .tool-btn:not([data-priority="share"]),
+  .tool-btn:not(.primary),
+  .header-action:not(.share-action),
+  .view-tab:not(.active),
+  .car-plan-template-chip:not(.active),
+  .sheet-zoom-btn,
+  .sheet-zoom-reset-btn,
+  .seisan-icon-btn,
+  .member-menu-btn,
+  .car-delete-btn,
+  .settings-btn,
+  .tray-action-btn
+) {
+  color: color-mix(in srgb, var(--text-main) 84%, var(--text-sub));
+  border-color: var(--ui-saas-border, var(--border-color));
+  background: color-mix(in srgb, var(--bg-card) 80%, #020617);
+  box-shadow: none;
+}
+
+[data-theme="dark"] :is(
+  .btn-outline-primary:hover,
+  .btn-secondary:hover,
+  .seisan-btn:not(.primary):not(.active):hover,
+  .tool-btn:not([data-priority="share"]):hover,
+  .tool-btn:not(.primary):hover,
+  .header-action:not(.share-action):hover,
+  .view-tab:not(.active):hover,
+  .car-plan-template-chip:not(.active):hover,
+  .sheet-zoom-btn:hover,
+  .sheet-zoom-reset-btn:hover,
+  .seisan-icon-btn:hover,
+  .member-menu-btn:hover,
+  .settings-btn:hover,
+  .tray-action-btn:hover
+) {
+  color: var(--text-main);
+  border-color: color-mix(in srgb, var(--accent-color) 36%, var(--ui-saas-border));
+  background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
+}
+
+[data-theme="dark"] :is(
+  .header-action.share-action,
+  #shareLinkBtn.header-action,
+  .seisan-btn.primary,
+  .btn-primary,
+  .tool-btn.primary,
+  .tool-btn[data-priority="share"]
+) {
+  color: #fff;
+  background: color-mix(in srgb, var(--accent-color) 86%, #0f172a);
+  border-color: color-mix(in srgb, var(--accent-color) 68%, #0f172a);
+  box-shadow: 0 5px 16px color-mix(in srgb, var(--accent-color) 18%, transparent);
+}
+
+[data-theme="dark"] :is(
+  #view-toggle-bar .view-tab.active,
+  .view-toggle-bar .view-tab.active,
+  #tab-list.view-tab.active,
+  #tab-sheet.view-tab.active,
+  #tab-seisan.view-tab.active,
+  .allocation-mode-toggle .car-plan-template-chip.active
+) {
+  color: var(--accent-color);
+  border-color: color-mix(in srgb, var(--accent-color) 34%, var(--ui-saas-border));
+  background: color-mix(in srgb, var(--accent-color) 14%, var(--bg-card));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 10%, transparent);
+}
+
+[data-theme="dark"] :is(
+  .text-muted,
+  .seisan-muted,
+  .seisan-small,
+  .seisan-summary-sub,
+  .sheet-summary-sub,
+  .guide-short-text,
+  .guide-note-inline,
+  .theme-system-note,
+  .dropdown-item small,
+  .member-meta,
+  .car-subtitle,
+  .tray-subtext,
+  .seisan-driver-detail,
+  .seisan-check-note
+) {
+  color: var(--text-sub);
+}
+
+[data-theme="dark"] :is(
+  .dropdown-item,
+  .dropdown-item button,
+  .modal-title,
+  .guide-feature-title,
+  .theme-section-title,
+  .seisan-title,
+  .sheet-title-main,
+  .car-name-label,
+  .member-name-text,
+  .driver-name-disp,
+  .sheet-cell-text,
+  .sheet-chip-text,
+  .seisan-check-name,
+  .seisan-driver-name,
+  .seisan-car-summary-name,
+  .seisan-car-summary-total,
+  .seisan-summary-value,
+  .seisan-extra-inline,
+  .seisan-extra-inline > span,
+  .seisan-extra-inline strong
+) {
+  color: var(--text-main);
+}
+
+[data-theme="dark"] :is(
+  .dropdown-item:hover,
+  .dropdown-item:focus,
+  .dropdown-item.active,
+  .person-pop-menu button:hover,
+  .person-pop-menu button:focus
+) {
+  color: var(--text-main);
+  background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
+}
+
+[data-theme="dark"] :is(.form-check-input, input[type="checkbox"]) {
+  border-color: color-mix(in srgb, var(--text-sub) 58%, transparent);
+  background-color: color-mix(in srgb, var(--bg-card) 86%, #020617);
+}
+
+[data-theme="dark"] :is(.form-check-input:checked, input[type="checkbox"]:checked) {
+  border-color: var(--accent-color);
+  background-color: var(--accent-color);
+}
+
+[data-theme="dark"] :is(
+  .seisan-summary-card.collect,
+  .seisan-summary-card.accounting,
+  .seisan-summary-card.pay,
+  .seisan-cost-policy-tag,
+  .seisan-cost-type-badge,
+  .seisan-payment-tag
+) {
+  box-shadow: none;
+}
+
+[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-cost-preview-item--inline-all,
+[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-extra-inline {
+  background: transparent;
+  border-color: transparent;
+}
+
+[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-extra-slash {
+  color: color-mix(in srgb, var(--text-sub) 62%, transparent);
+}
+
+[data-theme="dark"] :is(
+  .seisan-alert-action,
+  #seisan-view-area .seisan-alert-action
+) {
+  color: #fecaca;
+  border-color: rgba(248, 113, 113, 0.32);
+  background: rgba(127, 29, 29, 0.22);
+}
+
+[data-theme="dark"] :is(
+  .guide-registration-context,
+  .guide-registration-context--highlight,
+  .guide-registration-ghost,
+  .guide-registration-cta,
+  .guide-action-box,
+  .guide-action-box.primary,
+  .guide-copy-mock,
+  .guide-mini-form .field,
+  .guide-edit-card-mock,
+  .guide-edit-field,
+  .guide-ui-card,
+  .mock-form-import-ui,
+  .mock-form-import-textarea,
+  .mock-sheet-browser,
+  .mock-sheet-browser-canvas,
+  .mock-sheet-browser-sheet
+) {
+  color: var(--text-main);
+  border-color: var(--ui-saas-border, var(--border-color));
+  background-color: color-mix(in srgb, var(--bg-card) 86%, #020617);
+}
+
+[data-theme="dark"] :is(
+  .mock-sheet-window-top,
+  .mock-sheet-browser-top
+) {
+  color: var(--text-main);
+  border-color: var(--ui-saas-border, var(--border-color));
+  background: color-mix(in srgb, var(--bg-card) 74%, #020617);
+}
+
+[data-theme="dark"] :is(
+  .mock-sheet-selection-table,
+  .mock-sheet-selection-table div
+) {
+  color: #dbeafe;
+  border-color: rgba(96, 165, 250, 0.24);
+  background: rgba(30, 64, 175, 0.18);
+}
+
+[data-theme="dark"] .mock-sheet-purple-head {
+  color: #fff;
+  background: color-mix(in srgb, var(--accent-color) 46%, #1e1b4b);
+}
+
+[data-theme="dark"] :is(
+  .mock-form-import-title,
+  .mock-form-import-help,
+  .mock-form-import-entry-tag,
+  .mock-form-import-textarea,
+  .mock-form-import-textarea div
+) {
+  color: var(--text-main);
+}
+
+[data-theme="dark"] :is(
+  .sheet-seat-row.empty,
+  .sheet-seat-disabled,
+  .seat-slot.empty,
+  .seisan-empty,
+  .seisan-extra-empty
+) {
+  color: color-mix(in srgb, var(--text-sub) 80%, transparent);
+  border-color: color-mix(in srgb, var(--border-color) 60%, transparent);
+  background: color-mix(in srgb, var(--bg-body) 70%, var(--bg-card));
+}
+
+[data-theme="dark"] :is(
+  .has-error,
+  .seisan-car-summary-row.has-error,
+  .seisan-car-row.has-error
+) {
+  border-color: rgba(248, 113, 113, 0.34);
+}
+
+[data-theme="dark"] :is(
+  .app-room-input,
+  .room-input-shell,
+  #roomInput
+) {
+  color: var(--text-main);
+  background: transparent;
+}

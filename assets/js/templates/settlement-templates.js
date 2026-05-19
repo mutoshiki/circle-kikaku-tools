@@ -96,17 +96,26 @@
     }).join('');
   }
 
+  function joinSlashParts(parts) {
+    return parts.filter(Boolean).join('<span class="seisan-extra-slash" aria-hidden="true">/</span>');
+  }
+
+  function formatGasInline(calc, helpers = {}) {
+    return `<span class="seisan-extra-inline seisan-extra-inline--gas split"><span>ガソリン代</span><strong>${money(calc.gas || 0, helpers)}</strong>${formatCostBadge('split')}</span>`;
+  }
+
   function formatExtraSlash(extras, helpers = {}) {
-    if (!extras.length) return '<span class="seisan-cost-preview-muted">追加なし</span>';
-    return extras.map(ex => {
+    if (!extras.length) return '';
+    return joinSlashParts(extras.map(ex => {
       const type = ex.type === 'club' ? 'club' : 'split';
       return `<span class="seisan-extra-inline ${type}"><span>${esc(ex.name || '費用', helpers)}</span><strong>${money(ex.amountValue || ex.amount || 0, helpers)}</strong>${formatCostBadge(type)}</span>`;
-    }).join('');
+    }));
   }
 
   function carSummary({ car, calc, issues, helpers = {} }) {
     const rowClass = issues.rows.has(car.name) ? ' has-error' : '';
     const extras = Array.isArray(calc.extras) ? calc.extras : [];
+    const costDetails = joinSlashParts([formatGasInline(calc, helpers), formatExtraSlash(extras, helpers)]);
     return `<article class="seisan-car-summary-row${rowClass}" data-driver-name="${esc(car.name, helpers)}">
         <div class="seisan-car-summary-headline">
           <strong class="seisan-car-summary-name"><span>${esc(car.name, helpers)}</span><em>車</em></strong>
@@ -117,14 +126,8 @@
           <button class="seisan-btn seisan-edit-btn" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><i class="fas fa-pen" aria-hidden="true"></i><span>編集</span></button>
         </div>
         <div class="seisan-cost-preview-list" aria-label="費用内訳">
-          <div class="seisan-cost-preview-item seisan-cost-preview-item--gas">
-            <span class="seisan-cost-preview-label">ガソリン代</span>
-            <span class="seisan-cost-preview-detail-text seisan-extra-inline-list">
-              <span class="seisan-extra-inline split"><strong>${money(calc.gas || 0, helpers)}</strong>${formatCostBadge('split')}</span>
-            </span>
-          </div>
-          <div class="seisan-cost-preview-item seisan-cost-preview-item--extras seisan-cost-preview-item--no-label">
-            <span class="seisan-cost-preview-detail-text seisan-extra-inline-list">${formatExtraSlash(extras, helpers)}</span>
+          <div class="seisan-cost-preview-item seisan-cost-preview-item--gas seisan-cost-preview-item--extras seisan-cost-preview-item--inline-all">
+            <span class="seisan-cost-preview-detail-text seisan-extra-inline-list">${costDetails}</span>
           </div>
         </div>
     </article>`;
