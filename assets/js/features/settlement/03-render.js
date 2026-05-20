@@ -213,7 +213,7 @@ function renderSettlementView() {
 
     const note = byId('seisan-collection-note');
     if (note) {
-        note.innerHTML = `<span class="seisan-collection-note-left"><span>集金済み ${result.paidCount}/${result.payerCount}名</span><span>未回収 ${yen(result.unpaidAmount)}</span></span><span class="seisan-collection-per-person"><span>1人あたり</span><strong>${yen(result.perPerson)}</strong></span>`;
+        note.innerHTML = `<span class="seisan-collection-note-left"><span>集金済み ${result.paidCount}/${result.payerCount}名</span><span>未回収 ${yen(result.unpaidAmount)}</span></span><span class="seisan-collection-per-person"><span class="seisan-collection-per-person-label">1人あたり /</span><strong class="seisan-collection-per-person-amount">${yen(result.perPerson)}</strong></span>`;
     }
 
     const collectionList = byId('seisan-collection-list');

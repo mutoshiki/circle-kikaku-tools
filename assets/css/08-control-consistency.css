@@ -8827,61 +8827,71 @@ body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.accou
 }
 
 
-/* 2026-05 collection check layout polish: keep collected/unpaid status left, and align only the per-person amount to the right. */
+/* 2026-05 collection check layout polish: keep collected/unpaid status left, align per-person amount right, and remove extra header gap. */
+#seisan-view-area .seisan-collection-panel .seisan-head {
+  margin-bottom: 2px;
+  padding-bottom: 0;
+}
+
+#seisan-view-area .seisan-collection-panel .seisan-head > div {
+  width: 100%;
+  min-width: 0;
+}
+
 #seisan-view-area #seisan-collection-note.seisan-muted {
   display: flex;
-  align-items: flex-end;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
+  margin: 0;
   color: var(--text-sub);
   -webkit-text-fill-color: var(--text-sub);
+  font-size: 0.74rem;
+  font-weight: 500;
+  line-height: 1.15;
 }
 
 #seisan-view-area .seisan-collection-note-left {
   display: flex;
   align-items: center;
+  flex: 1 1 auto;
   flex-wrap: wrap;
-  gap: 3px 9px;
+  gap: 2px 9px;
   min-width: 0;
   text-align: left;
+}
+
+#seisan-view-area .seisan-collection-note-left > span,
+#seisan-view-area .seisan-collection-per-person-label {
+  color: var(--text-sub);
+  -webkit-text-fill-color: var(--text-sub);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.15;
 }
 
 #seisan-view-area .seisan-collection-per-person {
   display: inline-flex;
   align-items: baseline;
   justify-content: flex-end;
-  gap: 5px;
+  gap: 4px;
   margin-left: auto;
   flex: 0 0 auto;
+  min-width: max-content;
   text-align: right;
   white-space: nowrap;
+  line-height: 1.05;
 }
 
-#seisan-view-area .seisan-collection-per-person span {
-  color: var(--text-sub);
-  -webkit-text-fill-color: var(--text-sub);
-  font-size: 0.68rem;
-  font-weight: 760;
-}
-
-#seisan-view-area .seisan-collection-per-person strong {
-  color: var(--accent-color);
-  -webkit-text-fill-color: var(--accent-color);
-  font-size: 0.9rem;
-  font-weight: 900;
-  letter-spacing: -0.035em;
-  line-height: 1;
-}
-
-@media (max-width: 420px) {
-  #seisan-view-area #seisan-collection-note.seisan-muted {
-    align-items: flex-start;
-  }
-
-  #seisan-view-area .seisan-collection-per-person {
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-  }
+#seisan-view-area .seisan-collection-per-person-amount {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+  font-size: clamp(0.98rem, 4.1vw, 1.16rem);
+  font-weight: 720;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.012em;
+  line-height: 1.08;
 }

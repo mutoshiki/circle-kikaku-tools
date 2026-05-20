@@ -471,7 +471,8 @@ function createSheetPlanSection(plan, index) {
         const maxSeats = Math.max(1, ...cars.map(c => parseInt(c.capacity) || 0));
         const table = document.createElement('div');
         table.className = 'sheet-plan-table';
-        table.appendChild(createSheetLabelColumn(maxSeats, { ...template, planName: displayName }));
+        // 発表ビューでは左端の行見出し列（車割 / 車出し / 席1...、班 / 班員1...）を出さず、
+        // 各カード列を左端から並べる。
         cars.forEach((car, carIndex) => table.appendChild(createSheetCarColumn(car, maxSeats, template, isEditablePlan, carIndex)));
         section.appendChild(table);
     }
