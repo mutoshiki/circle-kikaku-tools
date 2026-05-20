@@ -6942,3 +6942,1946 @@ body {
 [data-theme="dark"] :where(.seat-slot:empty, .sheet-seat-row.empty, .sheet-wait-item.empty, .sheet-seat-disabled) {
   background-color: color-mix(in srgb, var(--bg-body) 72%, var(--bg-card));
 }
+
+/* タイムテーブル入力: 時刻欄を小さく固定し、内容欄へはみ出さないようにする。 */
+#overviewDrawer .overview-timetable-row,
+.overview-drawer .overview-timetable-row {
+  grid-template-columns: minmax(0, 76px) minmax(0, 1fr) 30px;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+#overviewDrawer .overview-timetable-row input,
+.overview-drawer .overview-timetable-row input {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 7px 8px;
+  font-size: 0.9rem;
+}
+
+#overviewDrawer .overview-timetable-row input[data-field="time"],
+.overview-drawer .overview-timetable-row input[data-field="time"] {
+  width: 76px;
+  min-width: 0;
+  padding-inline: 7px 3px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+#overviewDrawer .overview-timetable-row input[data-field="title"],
+.overview-drawer .overview-timetable-row input[data-field="title"] {
+  width: 100%;
+}
+
+#overviewDrawer .overview-row-delete,
+.overview-drawer .overview-row-delete {
+  width: 30px;
+  min-width: 30px;
+  height: 36px;
+}
+
+@media (max-width: 380px) {
+  #overviewDrawer .overview-timetable-row,
+  .overview-drawer .overview-timetable-row {
+    grid-template-columns: minmax(0, 72px) minmax(0, 1fr) 28px;
+    gap: 5px;
+  }
+
+  #overviewDrawer .overview-timetable-row input[data-field="time"],
+  .overview-drawer .overview-timetable-row input[data-field="time"] {
+    width: 72px;
+    padding-inline: 6px 2px;
+  }
+
+  #overviewDrawer .overview-row-delete,
+  .overview-drawer .overview-row-delete {
+    width: 28px;
+    min-width: 28px;
+  }
+}
+
+/* 2026-05 screenshot micro-polish: tune the screens shown in latest mobile captures. */
+@media (max-width: 640px) {
+  .edit-header-tools-only.allocation-toolbar {
+    margin: 9px 12px 12px;
+    padding: 8px;
+    border-radius: 15px;
+  }
+
+  .edit-header-tools-only.allocation-toolbar .allocation-toolbar-inner,
+  .edit-header-tools-only.allocation-toolbar .edit-tools {
+    gap: 7px;
+  }
+
+  .edit-header-tools-only.allocation-toolbar .tool-btn,
+  .edit-header-tools-only.allocation-toolbar .edit-tools .tool-btn,
+  .allocation-mode-toggle .car-plan-template-tabs,
+  .allocation-mode-toggle .car-plan-template-chip {
+    min-height: 34px;
+  }
+
+  .edit-header-tools-only.allocation-toolbar .tool-btn,
+  .edit-header-tools-only.allocation-toolbar .edit-tools .tool-btn {
+    padding-inline: 9px;
+  }
+
+  .allocation-mode-toggle .car-plan-template-tabs {
+    padding: 2px;
+  }
+
+  .allocation-mode-toggle .car-plan-template-chip {
+    min-width: 50px;
+    padding-inline: 8px;
+  }
+}
+
+@media (max-width: 430px) {
+  #cars-container {
+    --bs-gutter-y: 0.85rem;
+  }
+
+  #cars-container .col-12 {
+    padding-inline: 10px;
+  }
+
+  #cars-container .car-box {
+    padding: 9px;
+    border-radius: 14px;
+  }
+
+  #cars-container .car-header {
+    min-height: 36px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+  }
+
+  #cars-container .car-header .car-name-label {
+    font-size: 0.92rem;
+    font-weight: 790;
+  }
+
+  #cars-container .capacity-badge.capacity-edit-btn,
+  #cars-container .car-delete-btn {
+    height: 30px;
+    min-height: 30px;
+  }
+
+  #cars-container .car-layout-grid {
+    gap: 7px;
+  }
+
+  #cars-container .driver-seat,
+  #cars-container .seat-slot {
+    min-height: 38px;
+    border-radius: 11px;
+  }
+
+  #cars-container .driver-seat {
+    padding: 6px 7px;
+  }
+
+  #cars-container .seat-slot > .member-card,
+  #cars-container .member-card.in-waiting {
+    min-height: 38px;
+    padding: 6px 7px;
+    border-radius: 11px;
+  }
+
+  #cars-container .seat-slot > .member-card:has(.memo-popup:not(:empty)) {
+    min-height: 56px;
+  }
+
+  #cars-container .member-main-line,
+  #cars-container .driver-main-line {
+    min-height: 26px;
+    gap: 5px;
+  }
+
+  #cars-container .member-name-text,
+  #cars-container .driver-name-disp {
+    font-size: 0.83rem;
+    font-weight: 790;
+    letter-spacing: 0;
+  }
+
+  #cars-container .member-main-line .grade-badge,
+  #cars-container .driver-main-line .grade-badge {
+    padding: 2px 7px;
+    font-size: 0.60rem;
+    border-radius: 999px;
+  }
+
+  #cars-container .member-menu-btn,
+  #cars-container .driver-menu-btn {
+    width: 26px;
+    min-width: 26px;
+    height: 26px;
+    min-height: 26px;
+  }
+
+  #cars-container .memo-popup {
+    margin-top: 3px;
+    font-size: 0.65rem;
+    line-height: 1.25;
+  }
+}
+
+/* Shared screen: keep tables compact and make horizontal continuation feel intentional. */
+@media (max-width: 640px) {
+  #sheet-view-area #sheet-title-bar {
+    border-radius: 13px;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.065);
+  }
+
+  #sheet-view-area .sheet-plan-heading {
+    margin-left: 2px;
+    margin-bottom: 7px;
+    font-size: 0.91rem;
+    font-weight: 760;
+  }
+
+  #sheet-view-area .sheet-label-col {
+    min-width: 44px;
+  }
+
+  #sheet-view-area .sheet-car-col,
+  #sheet-view-area .sheet-wait-block {
+    min-width: 118px;
+    margin-right: 6px;
+    border-radius: 12px;
+  }
+
+  #sheet-view-area .sheet-car-header,
+  #sheet-view-area .sheet-wait-header {
+    min-height: 34px;
+    padding: 7px 7px;
+    font-size: 0.72rem;
+    font-weight: 760;
+  }
+
+  #sheet-view-area .sheet-driver-row,
+  #sheet-view-area .sheet-seat-row,
+  #sheet-view-area .sheet-wait-item {
+    min-height: 34px;
+    padding: 5px 7px;
+    font-size: 0.76rem;
+  }
+
+  #sheet-view-area .sheet-grade-placeholder,
+  #sheet-view-area .sheet-seat-row .grade-badge,
+  #sheet-view-area .sheet-wait-item .grade-badge,
+  #sheet-view-area .sheet-chip .grade-badge,
+  #sheet-view-area .sheet-driver-row .grade-badge {
+    flex-basis: 2.18em;
+    width: 2.18em;
+    min-width: 2.18em;
+  }
+
+  #sheet-view-area .sheet-capacity-badge {
+    padding-inline: 6px;
+    font-size: 0.68rem;
+  }
+
+  #sheet-view-area .sheet-timetable-section {
+    width: min(var(--sheet-plan-content-width, 520px), calc(100vw - 22px));
+  }
+
+  #sheet-view-area .sheet-timetable-card {
+    border-radius: 14px;
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.035), 0 8px 20px rgba(15, 23, 42, 0.045);
+  }
+
+  #sheet-view-area .sheet-timetable-row {
+    min-height: 34px;
+    padding: 7px 8px;
+  }
+
+  #sheet-view-area .sheet-timetable-time {
+    font-size: 0.80rem;
+  }
+
+  #sheet-view-area .sheet-timetable-title {
+    font-size: 0.84rem;
+  }
+
+  #sheet-bottom-controls {
+    gap: 6px;
+    padding: 7px 9px;
+    border-radius: 14px;
+  }
+
+  #sheet-bottom-controls button,
+  #sheet-quick-edit-btn {
+    min-height: 34px;
+  }
+}
+
+/* Settlement screen: reduce unused air and align the formula cards with the car rows. */
+#seisan-view-area .seisan-toolbar-card .seisan-head-tools-only {
+  min-height: 44px;
+  margin-bottom: 8px;
+  padding: 5px;
+  border-color: color-mix(in srgb, var(--ui-saas-border) 72%, transparent);
+  border-radius: 13px;
+  box-shadow: none;
+}
+
+#seisan-view-area .seisan-toolbar-card .seisan-head-actions {
+  gap: 5px;
+}
+
+#seisan-view-area .seisan-head-actions .seisan-btn,
+#seisan-view-area .seisan-compact-head .seisan-btn,
+#seisan-view-area .seisan-share-actions .seisan-btn {
+  min-height: 34px;
+  border-radius: 10px;
+}
+
+#seisan-view-area .seisan-top-flow {
+  gap: 6px;
+}
+
+#seisan-view-area .seisan-summary-card {
+  min-height: 64px;
+  padding: 7px 8px 6px;
+  border-radius: 11px;
+}
+
+#seisan-view-area .seisan-summary-value {
+  letter-spacing: -0.035em;
+}
+
+#seisan-view-area .seisan-settings-card,
+#seisan-view-area .seisan-panel {
+  border-radius: 15px;
+}
+
+#seisan-view-area .seisan-car-summary-row {
+  border-radius: 12px;
+}
+
+#seisan-view-area .seisan-car-summary-headline {
+  min-height: 44px;
+  padding: 9px 10px;
+}
+
+#seisan-view-area .seisan-car-summary-name span,
+#seisan-view-area .seisan-car-summary-name em {
+  font-weight: 760;
+}
+
+#seisan-view-area .seisan-car-summary-headline .seisan-edit-btn {
+  width: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  border-radius: 9px;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-item--inline-all {
+  padding: 7px 10px 8px;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-extra-inline {
+  white-space: nowrap;
+}
+
+#seisan-view-area .seisan-extra-plus {
+  color: color-mix(in srgb, var(--text-sub) 76%, transparent);
+  font-weight: 720;
+}
+
+@media (max-width: 390px) {
+  #seisan-view-area .seisan-head-actions .seisan-btn {
+    padding-inline: 8px;
+  }
+
+  #seisan-view-area #routeHelperBtn.seisan-btn {
+    min-width: 86px;
+  }
+
+  #seisan-view-area .seisan-summary-card {
+    padding-inline: 6px;
+  }
+}
+
+/* Settlement car edit modal: soften inputs and make the dense mobile form more even. */
+#settlementCarEditModal .settlement-edit-dialog--car {
+  width: min(calc(100vw - 28px), 382px);
+}
+
+#settlementCarEditModal .settlement-edit-modal-content {
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.20);
+}
+
+#settlementCarEditModal .modal-header {
+  min-height: 52px;
+  padding: 10px 14px;
+}
+
+#settlementCarEditModal .modal-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.98rem;
+  font-weight: 780;
+  letter-spacing: 0;
+}
+
+#settlementCarEditModal .btn-close {
+  flex: 0 0 auto;
+  opacity: 0.72;
+  transform: scale(0.86);
+}
+
+#settlementCarEditModal .modal-body {
+  padding: 12px 14px 10px;
+}
+
+#settlementCarEditModal .modal-footer {
+  padding: 10px 14px 14px;
+}
+
+#settlementCarEditModal .modal-footer .btn {
+  min-height: 44px;
+  border-radius: 11px;
+  font-size: 0.92rem;
+  font-weight: 760;
+}
+
+#settlementCarEditModal .seisan-car-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+#settlementCarEditModal .seisan-car-title strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.96rem;
+  font-weight: 780;
+}
+
+#settlementCarEditModal .seisan-car-total {
+  flex: 0 0 auto;
+  padding: 4px 9px;
+  border-color: color-mix(in srgb, var(--accent-color) 22%, var(--ui-saas-border));
+  font-size: 0.80rem;
+  font-weight: 730;
+}
+
+#settlementCarEditModal .seisan-small {
+  margin-bottom: 10px;
+  color: var(--text-sub);
+  font-size: 0.70rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+#settlementCarEditModal .seisan-car-inputs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+#settlementCarEditModal .seisan-car-inputs label,
+#settlementCarEditModal .seisan-distance-field {
+  min-width: 0;
+}
+
+#settlementCarEditModal .seisan-mini-label {
+  min-height: 1.3em;
+  margin-bottom: 4px;
+  color: var(--text-sub);
+  font-size: 0.66rem;
+  font-weight: 720;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+#settlementCarEditModal .seisan-car-inputs input,
+#settlementCarEditModal .seisan-extra-row input,
+#settlementCarEditModal .seisan-extra-row select {
+  min-height: 40px;
+  padding: 7px 9px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 78%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  color: var(--text-main);
+  font-size: 0.88rem;
+  font-weight: 650;
+  box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.025);
+}
+
+#settlementCarEditModal .seisan-car-inputs input:focus,
+#settlementCarEditModal .seisan-extra-row input:focus,
+#settlementCarEditModal .seisan-extra-row select:focus {
+  border-color: color-mix(in srgb, var(--accent-color) 48%, var(--border-color));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 16%, transparent);
+}
+
+#settlementCarEditModal .seisan-distance-shortcut {
+  min-height: 34px;
+  border-radius: 10px;
+  font-size: 0.68rem;
+  box-shadow: none;
+}
+
+#settlementCarEditModal .seisan-subhead {
+  margin-top: 12px;
+  padding-top: 10px;
+}
+
+#settlementCarEditModal .seisan-subhead strong {
+  font-size: 0.80rem;
+  font-weight: 740;
+}
+
+#settlementCarEditModal .seisan-extra-row {
+  grid-template-columns: minmax(0, 1.25fr) minmax(68px, 0.72fr) minmax(74px, 0.68fr) 34px;
+  gap: 7px;
+  align-items: center;
+}
+
+#settlementCarEditModal .seisan-extra-row .seisan-icon-btn {
+  width: 34px;
+  min-width: 34px;
+  height: 40px;
+  min-height: 40px;
+  border-radius: 10px;
+}
+
+#settlementCarEditModal .seisan-add-row .seisan-btn {
+  min-height: 39px;
+  border-radius: 10px;
+}
+
+[data-theme="dark"] #settlementCarEditModal .seisan-car-inputs input,
+[data-theme="dark"] #settlementCarEditModal .seisan-extra-row input,
+[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select {
+  border-color: var(--ui-saas-border);
+  background: color-mix(in srgb, var(--bg-card) 80%, #020617);
+}
+
+@media (max-width: 380px) {
+  #settlementCarEditModal .modal-body {
+    padding-inline: 12px;
+  }
+
+  #settlementCarEditModal .seisan-car-inputs {
+    gap: 6px;
+  }
+
+  #settlementCarEditModal .seisan-car-inputs input,
+  #settlementCarEditModal .seisan-extra-row input,
+  #settlementCarEditModal .seisan-extra-row select {
+    padding-inline: 7px;
+    font-size: 0.84rem;
+  }
+
+  #settlementCarEditModal .seisan-extra-row {
+    grid-template-columns: minmax(0, 1.15fr) minmax(62px, 0.7fr) minmax(68px, 0.62fr) 32px;
+    gap: 5px;
+  }
+}
+
+/* 2026-05 dark header link share visibility: keep the link icon readable after later header overrides. */
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action i,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action span {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover i {
+  color: color-mix(in srgb, var(--accent-color) 72%, #ffffff);
+}
+
+/* 2026-05 dark mode readability fix: header share icon + settlement tab. */
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action {
+  background: color-mix(in srgb, var(--accent-color) 76%, #0f172a);
+  border-color: color-mix(in srgb, var(--accent-color) 72%, #ffffff);
+  color: #f8fafc;
+  box-shadow: 0 0 0 1px rgba(248, 250, 252, 0.10), 0 8px 22px rgba(0, 0, 0, 0.28);
+}
+
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action i,
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action span,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action i,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action span {
+  color: #f8fafc;
+}
+
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action:hover,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action:hover {
+  background: color-mix(in srgb, var(--accent-color) 88%, #111827);
+  border-color: color-mix(in srgb, var(--accent-color) 76%, #ffffff);
+  color: #ffffff;
+}
+
+body[data-theme="dark"] #seisan-view-area,
+html[data-theme="dark"] #seisan-view-area {
+  --seisan-dark-panel: color-mix(in srgb, var(--bg-card) 88%, #020617);
+  --seisan-dark-panel-raised: color-mix(in srgb, var(--bg-card) 94%, #020617);
+  --seisan-dark-panel-soft: color-mix(in srgb, var(--bg-card) 74%, #020617);
+  --seisan-dark-line: rgba(148, 163, 184, 0.26);
+  --seisan-dark-line-soft: rgba(148, 163, 184, 0.18);
+  --seisan-dark-text: #f8fafc;
+  --seisan-dark-muted: #cbd5e1;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bg-body) 88%, #020617), var(--bg-body));
+  color: var(--seisan-dark-text);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-card,
+html[data-theme="dark"] #seisan-view-area .seisan-card {
+  background: var(--seisan-dark-panel-raised);
+  border-color: var(--seisan-dark-line);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.035), 0 16px 36px rgba(0, 0, 0, 0.30);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-toolbar-card .seisan-head-tools-only,
+html[data-theme="dark"] #seisan-view-area .seisan-toolbar-card .seisan-head-tools-only {
+  background: color-mix(in srgb, var(--seisan-dark-panel-soft) 88%, transparent);
+  border-color: var(--seisan-dark-line-soft);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-title,
+body[data-theme="dark"] #seisan-view-area .seisan-summary-value,
+body[data-theme="dark"] #seisan-view-area .seisan-car-summary-name,
+body[data-theme="dark"] #seisan-view-area .seisan-car-summary-name span,
+body[data-theme="dark"] #seisan-view-area .seisan-car-summary-total,
+body[data-theme="dark"] #seisan-view-area .seisan-check-name,
+body[data-theme="dark"] #seisan-view-area .seisan-driver-name,
+html[data-theme="dark"] #seisan-view-area .seisan-title,
+html[data-theme="dark"] #seisan-view-area .seisan-summary-value,
+html[data-theme="dark"] #seisan-view-area .seisan-car-summary-name,
+html[data-theme="dark"] #seisan-view-area .seisan-car-summary-name span,
+html[data-theme="dark"] #seisan-view-area .seisan-car-summary-total,
+html[data-theme="dark"] #seisan-view-area .seisan-check-name,
+html[data-theme="dark"] #seisan-view-area .seisan-driver-name {
+  color: var(--seisan-dark-text);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-muted,
+body[data-theme="dark"] #seisan-view-area .seisan-small,
+body[data-theme="dark"] #seisan-view-area .seisan-summary-label,
+body[data-theme="dark"] #seisan-view-area .seisan-summary-sub,
+body[data-theme="dark"] #seisan-view-area .seisan-check-note,
+body[data-theme="dark"] #seisan-view-area .seisan-driver-detail,
+body[data-theme="dark"] #seisan-view-area .seisan-extra-plus,
+html[data-theme="dark"] #seisan-view-area .seisan-muted,
+html[data-theme="dark"] #seisan-view-area .seisan-small,
+html[data-theme="dark"] #seisan-view-area .seisan-summary-label,
+html[data-theme="dark"] #seisan-view-area .seisan-summary-sub,
+html[data-theme="dark"] #seisan-view-area .seisan-check-note,
+html[data-theme="dark"] #seisan-view-area .seisan-driver-detail,
+html[data-theme="dark"] #seisan-view-area .seisan-extra-plus {
+  color: var(--seisan-dark-muted);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-btn:not(.primary):not(.active),
+body[data-theme="dark"] #seisan-view-area .seisan-edit-btn,
+html[data-theme="dark"] #seisan-view-area .seisan-btn:not(.primary):not(.active),
+html[data-theme="dark"] #seisan-view-area .seisan-edit-btn {
+  background: color-mix(in srgb, var(--seisan-dark-panel-soft) 82%, #020617);
+  border-color: var(--seisan-dark-line);
+  color: var(--seisan-dark-text);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-btn:not(.primary):not(.active):hover,
+body[data-theme="dark"] #seisan-view-area .seisan-edit-btn:hover,
+html[data-theme="dark"] #seisan-view-area .seisan-btn:not(.primary):not(.active):hover,
+html[data-theme="dark"] #seisan-view-area .seisan-edit-btn:hover {
+  background: color-mix(in srgb, var(--accent-color) 20%, var(--seisan-dark-panel));
+  border-color: color-mix(in srgb, var(--accent-color) 46%, var(--seisan-dark-line));
+  color: #ffffff;
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-summary-card.collect,
+html[data-theme="dark"] #seisan-view-area .seisan-summary-card.collect {
+  background: color-mix(in srgb, rgba(16, 185, 129, 0.22) 80%, var(--seisan-dark-panel-raised));
+  border-color: rgba(110, 231, 183, 0.34);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-summary-card.accounting,
+html[data-theme="dark"] #seisan-view-area .seisan-summary-card.accounting {
+  background: color-mix(in srgb, rgba(245, 158, 11, 0.22) 80%, var(--seisan-dark-panel-raised));
+  border-color: rgba(251, 191, 36, 0.34);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-summary-card.pay,
+body[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment,
+html[data-theme="dark"] #seisan-view-area .seisan-summary-card.pay,
+html[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
+  background: color-mix(in srgb, rgba(96, 165, 250, 0.24) 82%, var(--seisan-dark-panel-raised));
+  border-color: rgba(147, 197, 253, 0.38);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-summary-pills--single span,
+body[data-theme="dark"] #seisan-view-area .seisan-car-summary-row,
+body[data-theme="dark"] #seisan-view-area .seisan-car-summary-headline,
+body[data-theme="dark"] #seisan-view-area .seisan-cost-preview-item,
+body[data-theme="dark"] #seisan-view-area .seisan-check-item,
+body[data-theme="dark"] #seisan-view-area .seisan-driver-pay-row,
+html[data-theme="dark"] #seisan-view-area .seisan-summary-pills--single span,
+html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row,
+html[data-theme="dark"] #seisan-view-area .seisan-car-summary-headline,
+html[data-theme="dark"] #seisan-view-area .seisan-cost-preview-item,
+html[data-theme="dark"] #seisan-view-area .seisan-check-item,
+html[data-theme="dark"] #seisan-view-area .seisan-driver-pay-row {
+  background: var(--seisan-dark-panel);
+  border-color: var(--seisan-dark-line-soft);
+  color: var(--seisan-dark-text);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-check-item.paid,
+html[data-theme="dark"] #seisan-view-area .seisan-check-item.paid {
+  background: color-mix(in srgb, #10b981 18%, var(--seisan-dark-panel));
+  border-color: rgba(110, 231, 183, 0.38);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-driver-pay-row.done,
+html[data-theme="dark"] #seisan-view-area .seisan-driver-pay-row.done {
+  background: color-mix(in srgb, #3b82f6 18%, var(--seisan-dark-panel));
+  border-color: rgba(147, 197, 253, 0.38);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-extra-inline,
+html[data-theme="dark"] #seisan-view-area .seisan-extra-inline {
+  background: color-mix(in srgb, var(--seisan-dark-panel-soft) 88%, #020617);
+  border-color: var(--seisan-dark-line-soft);
+  color: var(--seisan-dark-text);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-extra-inline > span,
+body[data-theme="dark"] #seisan-view-area .seisan-extra-inline strong,
+html[data-theme="dark"] #seisan-view-area .seisan-extra-inline > span,
+html[data-theme="dark"] #seisan-view-area .seisan-extra-inline strong {
+  color: var(--seisan-dark-text);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag,
+body[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge,
+body[data-theme="dark"] #seisan-view-area .seisan-payment-tag,
+html[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag,
+html[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge,
+html[data-theme="dark"] #seisan-view-area .seisan-payment-tag {
+  color: #e0f2fe;
+  border-color: rgba(147, 197, 253, 0.38);
+  background: rgba(30, 41, 59, 0.82);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag.split,
+body[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.split,
+html[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag.split,
+html[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.split {
+  color: #bbf7d0;
+  border-color: rgba(110, 231, 183, 0.42);
+  background: rgba(20, 83, 45, 0.48);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag.club,
+body[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.club,
+html[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag.club,
+html[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.club {
+  color: #fde68a;
+  border-color: rgba(251, 191, 36, 0.42);
+  background: rgba(120, 53, 15, 0.48);
+}
+
+body[data-theme="dark"] #settlementCarEditModal .settlement-edit-modal-content,
+html[data-theme="dark"] #settlementCarEditModal .settlement-edit-modal-content {
+  background: color-mix(in srgb, var(--bg-card) 94%, #020617);
+  border-color: rgba(148, 163, 184, 0.26);
+  color: #f8fafc;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.56);
+}
+
+body[data-theme="dark"] #settlementCarEditModal .modal-header,
+body[data-theme="dark"] #settlementCarEditModal .modal-footer,
+html[data-theme="dark"] #settlementCarEditModal .modal-header,
+html[data-theme="dark"] #settlementCarEditModal .modal-footer {
+  border-color: rgba(148, 163, 184, 0.20);
+}
+
+body[data-theme="dark"] #settlementCarEditModal .modal-title,
+body[data-theme="dark"] #settlementCarEditModal .seisan-car-title strong,
+body[data-theme="dark"] #settlementCarEditModal .seisan-subhead strong,
+html[data-theme="dark"] #settlementCarEditModal .modal-title,
+html[data-theme="dark"] #settlementCarEditModal .seisan-car-title strong,
+html[data-theme="dark"] #settlementCarEditModal .seisan-subhead strong {
+  color: #f8fafc;
+}
+
+body[data-theme="dark"] #settlementCarEditModal .seisan-small,
+body[data-theme="dark"] #settlementCarEditModal .seisan-mini-label,
+html[data-theme="dark"] #settlementCarEditModal .seisan-small,
+html[data-theme="dark"] #settlementCarEditModal .seisan-mini-label {
+  color: #cbd5e1;
+}
+
+body[data-theme="dark"] #settlementCarEditModal .seisan-car-inputs input,
+body[data-theme="dark"] #settlementCarEditModal .seisan-extra-row input,
+body[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select,
+html[data-theme="dark"] #settlementCarEditModal .seisan-car-inputs input,
+html[data-theme="dark"] #settlementCarEditModal .seisan-extra-row input,
+html[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select {
+  background: color-mix(in srgb, var(--bg-card) 78%, #020617);
+  border-color: rgba(148, 163, 184, 0.32);
+  color: #f8fafc;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+body[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select option,
+html[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select option {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+/* 2026-05 dark theme text inheritance repair: make dark palettes drive text instead of fixed white/gray. */
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  --dark-ui-text: var(--text-main);
+  --dark-ui-muted: var(--text-sub);
+  --dark-ui-faint: color-mix(in srgb, var(--text-sub) 70%, transparent);
+  --dark-ui-line: var(--hairline, color-mix(in srgb, var(--border-color) 78%, transparent));
+  --dark-ui-surface: color-mix(in srgb, var(--bg-card) 88%, var(--bg-body));
+  --dark-ui-surface-soft: color-mix(in srgb, var(--bg-card) 76%, var(--bg-body));
+  --dark-ui-surface-deep: color-mix(in srgb, var(--bg-card) 78%, #020617);
+}
+
+body[data-theme="dark"],
+html[data-theme="dark"] body,
+body[data-theme="dark"] #app-layout {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] #app-layout :where(.text-dark, .text-body, .text-black, .text-reset),
+html[data-theme="dark"] body :where(.text-dark, .text-body, .text-black, .text-reset) {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] #app-layout :where(.text-muted, .text-secondary, .text-body-secondary, .text-muted-dark-friendly),
+html[data-theme="dark"] body :where(.text-muted, .text-secondary, .text-body-secondary, .text-muted-dark-friendly) {
+  color: var(--dark-ui-muted);
+}
+
+body[data-theme="dark"] :where(.dropdown-menu, .modal-content, .list-group-item),
+html[data-theme="dark"] body :where(.dropdown-menu, .modal-content, .list-group-item) {
+  background-color: var(--bg-card);
+  border-color: var(--dark-ui-line);
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] :where(.dropdown-item, .modal-title, .modal-body, .modal-footer),
+html[data-theme="dark"] body :where(.dropdown-item, .modal-title, .modal-body, .modal-footer) {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] .dropdown-item:hover,
+body[data-theme="dark"] .dropdown-item:focus,
+html[data-theme="dark"] body .dropdown-item:hover,
+html[data-theme="dark"] body .dropdown-item:focus {
+  background: var(--hover-bg);
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] .dropdown-divider,
+html[data-theme="dark"] body .dropdown-divider {
+  border-color: var(--dark-ui-line);
+}
+
+body[data-theme="dark"] :where(.form-control, .form-select, input, select, textarea),
+html[data-theme="dark"] body :where(.form-control, .form-select, input, select, textarea) {
+  background-color: var(--dark-ui-surface-deep);
+  border-color: var(--dark-ui-line);
+  color: var(--dark-ui-text);
+  caret-color: var(--accent-color);
+}
+
+body[data-theme="dark"] :where(.form-control, .form-select, input, select, textarea)::placeholder,
+html[data-theme="dark"] body :where(.form-control, .form-select, input, select, textarea)::placeholder {
+  color: var(--dark-ui-muted);
+  opacity: 0.78;
+}
+
+body[data-theme="dark"] #app-header,
+html[data-theme="dark"] #app-header {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] #roomNameInput,
+body[data-theme="dark"] .app-room-input,
+html[data-theme="dark"] #roomNameInput,
+html[data-theme="dark"] .app-room-input {
+  color: var(--dark-ui-text);
+  -webkit-text-fill-color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] #roomNameInput::placeholder,
+body[data-theme="dark"] .app-room-input::placeholder,
+html[data-theme="dark"] #roomNameInput::placeholder,
+html[data-theme="dark"] .app-room-input::placeholder {
+  color: var(--dark-ui-muted);
+  -webkit-text-fill-color: var(--dark-ui-muted);
+}
+
+body[data-theme="dark"] #app-header :where(.sync-status-badge, .header-action:not(.share-action), .header-action:not(.share-action) i, .header-action:not(.share-action) span, .view-tab:not(.active), .view-tab:not(.active) i, .view-tab:not(.active) span),
+html[data-theme="dark"] #app-header :where(.sync-status-badge, .header-action:not(.share-action), .header-action:not(.share-action) i, .header-action:not(.share-action) span, .view-tab:not(.active), .view-tab:not(.active) i, .view-tab:not(.active) span) {
+  color: var(--dark-ui-muted);
+}
+
+body[data-theme="dark"] #app-header :where(.view-tab.active, .view-tab.active i, .view-tab.active span),
+html[data-theme="dark"] #app-header :where(.view-tab.active, .view-tab.active i, .view-tab.active span) {
+  color: var(--accent-color);
+}
+
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action,
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action i,
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action span,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action i,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action span {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] #top-area,
+body[data-theme="dark"] #cars-container,
+body[data-theme="dark"] #bottom-tray,
+body[data-theme="dark"] #waiting-list-container,
+html[data-theme="dark"] #top-area,
+html[data-theme="dark"] #cars-container,
+html[data-theme="dark"] #bottom-tray,
+html[data-theme="dark"] #waiting-list-container {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] :where(.ui-toolbar-card, .car-box, .driver-seat, .seat-slot, .member-card, .waiting-tray),
+html[data-theme="dark"] body :where(.ui-toolbar-card, .car-box, .driver-seat, .seat-slot, .member-card, .waiting-tray) {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] :where(.car-name-label, .driver-name-disp, .member-name-text, .tray-title, .waiting-title, .sheet-driver-name, .sheet-chip-text, .sheet-cell-text),
+html[data-theme="dark"] body :where(.car-name-label, .driver-name-disp, .member-name-text, .tray-title, .waiting-title, .sheet-driver-name, .sheet-chip-text, .sheet-cell-text) {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] :where(.memo-popup, .capacity-badge, .tray-subtitle, .waiting-inline-count, #waiting-count, .empty-seat, .sheet-seat-row.empty, .sheet-wait-header),
+html[data-theme="dark"] body :where(.memo-popup, .capacity-badge, .tray-subtitle, .waiting-inline-count, #waiting-count, .empty-seat, .sheet-seat-row.empty, .sheet-wait-header) {
+  color: var(--dark-ui-muted);
+}
+
+body[data-theme="dark"] #sheet-view-area,
+html[data-theme="dark"] #sheet-view-area {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] #sheet-title-bar,
+body[data-theme="dark"] #sheet-canvas,
+body[data-theme="dark"] #sheet-bottom-controls,
+body[data-theme="dark"] :where(.sheet-car-col, .sheet-wait-block, .sheet-car-header, .sheet-driver-row, .sheet-seat-row, .sheet-wait-item, .sheet-chip, .sheet-empty-card),
+html[data-theme="dark"] #sheet-title-bar,
+html[data-theme="dark"] #sheet-canvas,
+html[data-theme="dark"] #sheet-bottom-controls,
+html[data-theme="dark"] body :where(.sheet-car-col, .sheet-wait-block, .sheet-car-header, .sheet-driver-row, .sheet-seat-row, .sheet-wait-item, .sheet-chip, .sheet-empty-card) {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] :where(#sheet-summary, .sheet-summary-pill, .sheet-empty-text, #sheet-hint),
+html[data-theme="dark"] body :where(#sheet-summary, .sheet-summary-pill, .sheet-empty-text, #sheet-hint) {
+  color: var(--dark-ui-muted);
+}
+
+body[data-theme="dark"] #seisan-view-area,
+html[data-theme="dark"] #seisan-view-area {
+  --seisan-dark-text: #f8fafc;
+  --seisan-dark-muted: #cbd5e1;
+  --seisan-dark-text: var(--dark-ui-text);
+  --seisan-dark-muted: var(--dark-ui-muted);
+  color: var(--seisan-dark-text);
+}
+
+body[data-theme="dark"] #seisan-view-area :where(.seisan-card, .seisan-toolbar-card, .seisan-settings-card, .seisan-panel, .seisan-car-summary-row, .seisan-car-summary-headline, .seisan-cost-preview-item, .seisan-check-item, .seisan-driver-pay-row, .seisan-summary-pills--single span),
+html[data-theme="dark"] #seisan-view-area :where(.seisan-card, .seisan-toolbar-card, .seisan-settings-card, .seisan-panel, .seisan-car-summary-row, .seisan-car-summary-headline, .seisan-cost-preview-item, .seisan-check-item, .seisan-driver-pay-row, .seisan-summary-pills--single span) {
+  color: var(--seisan-dark-text);
+}
+
+body[data-theme="dark"] #seisan-view-area :where(.seisan-title, .seisan-summary-value, .seisan-car-summary-name, .seisan-car-summary-name span, .seisan-car-summary-total, .seisan-check-name, .seisan-driver-name, .seisan-driver-amount, .seisan-car-total, .seisan-settings-summary span, .seisan-extra-inline strong, .seisan-extra-inline > span),
+html[data-theme="dark"] #seisan-view-area :where(.seisan-title, .seisan-summary-value, .seisan-car-summary-name, .seisan-car-summary-name span, .seisan-car-summary-total, .seisan-check-name, .seisan-driver-name, .seisan-driver-amount, .seisan-car-total, .seisan-settings-summary span, .seisan-extra-inline strong, .seisan-extra-inline > span) {
+  color: var(--seisan-dark-text);
+}
+
+body[data-theme="dark"] #seisan-view-area :where(.seisan-muted, .seisan-small, .seisan-summary-label, .seisan-summary-sub, .seisan-check-note, .seisan-driver-detail, .seisan-extra-plus, .seisan-extra-empty, .seisan-settings-summary small, .seisan-cost-preview-detail-text),
+html[data-theme="dark"] #seisan-view-area :where(.seisan-muted, .seisan-small, .seisan-summary-label, .seisan-summary-sub, .seisan-check-note, .seisan-driver-detail, .seisan-extra-plus, .seisan-extra-empty, .seisan-settings-summary small, .seisan-cost-preview-detail-text) {
+  color: var(--seisan-dark-muted);
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-extra-inline,
+html[data-theme="dark"] #seisan-view-area .seisan-extra-inline {
+  color: var(--seisan-dark-text);
+}
+
+body[data-theme="dark"] #settlementCarEditModal,
+body[data-theme="dark"] #settlementCarEditModal .settlement-edit-modal-content,
+html[data-theme="dark"] #settlementCarEditModal,
+html[data-theme="dark"] #settlementCarEditModal .settlement-edit-modal-content {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] #settlementCarEditModal :where(.modal-title, .seisan-car-title strong, .seisan-subhead strong),
+html[data-theme="dark"] #settlementCarEditModal :where(.modal-title, .seisan-car-title strong, .seisan-subhead strong) {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] #settlementCarEditModal :where(.seisan-small, .seisan-mini-label),
+html[data-theme="dark"] #settlementCarEditModal :where(.seisan-small, .seisan-mini-label) {
+  color: var(--dark-ui-muted);
+}
+
+/* 2026-05 dark theme text inheritance repair follow-up: override older fixed modal/sheet colors. */
+body[data-theme="dark"] #settlementCarEditModal .modal-title,
+body[data-theme="dark"] #settlementCarEditModal .seisan-car-title strong,
+body[data-theme="dark"] #settlementCarEditModal .seisan-subhead strong,
+html[data-theme="dark"] #settlementCarEditModal .modal-title,
+html[data-theme="dark"] #settlementCarEditModal .seisan-car-title strong,
+html[data-theme="dark"] #settlementCarEditModal .seisan-subhead strong {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] #settlementCarEditModal .seisan-small,
+body[data-theme="dark"] #settlementCarEditModal .seisan-mini-label,
+html[data-theme="dark"] #settlementCarEditModal .seisan-small,
+html[data-theme="dark"] #settlementCarEditModal .seisan-mini-label {
+  color: var(--dark-ui-muted);
+}
+
+body[data-theme="dark"] #settlementCarEditModal .seisan-car-inputs input,
+body[data-theme="dark"] #settlementCarEditModal .seisan-extra-row input,
+body[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select,
+html[data-theme="dark"] #settlementCarEditModal .seisan-car-inputs input,
+html[data-theme="dark"] #settlementCarEditModal .seisan-extra-row input,
+html[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select {
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select option,
+html[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select option {
+  background: var(--bg-card);
+  color: var(--dark-ui-text);
+}
+
+body[data-theme="dark"] #sheet-quick-edit-btn.active,
+html[data-theme="dark"] #sheet-quick-edit-btn.active {
+  color: var(--control-primary-text, #fff);
+}
+
+/* =========================================================
+   2026-05 theme integrity repair
+   目的: ダークテーマで固定白に戻っていたCTA文字・ヘッダー共有アイコンを、選択中テーマの配色に追従させる。
+========================================================= */
+body[data-theme="dark"],
+html[data-theme="dark"] body {
+  --control-primary-text: color-mix(in srgb, var(--bg-body) 88%, #000000);
+  --theme-filled-control-text: var(--control-primary-text);
+  --header-icon-text: color-mix(in srgb, var(--text-sub) 86%, var(--text-main));
+}
+
+body[data-theme="dark"] #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action),
+html[data-theme="dark"] body #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action) {
+  color: var(--header-icon-text);
+  -webkit-text-fill-color: var(--header-icon-text);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+body[data-theme="dark"] #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action) :is(i, span),
+html[data-theme="dark"] body #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action) :is(i, span) {
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+
+body[data-theme="dark"] #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action):is(:hover, :focus-visible),
+html[data-theme="dark"] body #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action):is(:hover, :focus-visible) {
+  color: var(--accent-color);
+  -webkit-text-fill-color: var(--accent-color);
+}
+
+body[data-theme="dark"] :is(
+  .btn-primary,
+  .btn-accent-solid,
+  .guide-footer .btn-primary,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  #batchOpenBtn.tool-btn,
+  #routeHelperBtn.seisan-btn,
+  #openGoogleRouteBtn.seisan-btn,
+  .seisan-btn.primary,
+  .seisan-btn.active,
+  #shuffleAssignBtn.tray-action-btn,
+  .tray-inline-row .tray-action-btn--auto,
+  #settlementCarEditModal .seisan-distance-shortcut,
+  .guide-action-box.primary,
+  .guide-mini-primary,
+  .guide-registration-cta,
+  .guide-phone-btn.primary
+),
+html[data-theme="dark"] body :is(
+  .btn-primary,
+  .btn-accent-solid,
+  .guide-footer .btn-primary,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  #batchOpenBtn.tool-btn,
+  #routeHelperBtn.seisan-btn,
+  #openGoogleRouteBtn.seisan-btn,
+  .seisan-btn.primary,
+  .seisan-btn.active,
+  #shuffleAssignBtn.tray-action-btn,
+  .tray-inline-row .tray-action-btn--auto,
+  #settlementCarEditModal .seisan-distance-shortcut,
+  .guide-action-box.primary,
+  .guide-mini-primary,
+  .guide-registration-cta,
+  .guide-phone-btn.primary
+) {
+  color: var(--theme-filled-control-text);
+  -webkit-text-fill-color: var(--theme-filled-control-text);
+  text-shadow: none;
+}
+
+body[data-theme="dark"] :is(
+  .btn-primary,
+  .btn-accent-solid,
+  .guide-footer .btn-primary,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  #batchOpenBtn.tool-btn,
+  #routeHelperBtn.seisan-btn,
+  #openGoogleRouteBtn.seisan-btn,
+  .seisan-btn.primary,
+  .seisan-btn.active,
+  #shuffleAssignBtn.tray-action-btn,
+  .tray-inline-row .tray-action-btn--auto,
+  #settlementCarEditModal .seisan-distance-shortcut,
+  .guide-action-box.primary,
+  .guide-mini-primary,
+  .guide-registration-cta,
+  .guide-phone-btn.primary
+) :is(i, span, strong, small),
+html[data-theme="dark"] body :is(
+  .btn-primary,
+  .btn-accent-solid,
+  .guide-footer .btn-primary,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  #batchOpenBtn.tool-btn,
+  #routeHelperBtn.seisan-btn,
+  #openGoogleRouteBtn.seisan-btn,
+  .seisan-btn.primary,
+  .seisan-btn.active,
+  #shuffleAssignBtn.tray-action-btn,
+  .tray-inline-row .tray-action-btn--auto,
+  #settlementCarEditModal .seisan-distance-shortcut,
+  .guide-action-box.primary,
+  .guide-mini-primary,
+  .guide-registration-cta,
+  .guide-phone-btn.primary
+) :is(i, span, strong, small) {
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+
+body[data-theme="dark"] :is(
+  .btn-primary,
+  .btn-accent-solid,
+  .guide-footer .btn-primary,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  #batchOpenBtn.tool-btn,
+  #routeHelperBtn.seisan-btn,
+  #openGoogleRouteBtn.seisan-btn,
+  .seisan-btn.primary,
+  .seisan-btn.active,
+  #shuffleAssignBtn.tray-action-btn,
+  .tray-inline-row .tray-action-btn--auto,
+  #settlementCarEditModal .seisan-distance-shortcut,
+  .guide-action-box.primary,
+  .guide-mini-primary,
+  .guide-registration-cta,
+  .guide-phone-btn.primary
+):is(:hover, :focus-visible),
+html[data-theme="dark"] body :is(
+  .btn-primary,
+  .btn-accent-solid,
+  .guide-footer .btn-primary,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  #batchOpenBtn.tool-btn,
+  #routeHelperBtn.seisan-btn,
+  #openGoogleRouteBtn.seisan-btn,
+  .seisan-btn.primary,
+  .seisan-btn.active,
+  #shuffleAssignBtn.tray-action-btn,
+  .tray-inline-row .tray-action-btn--auto,
+  #settlementCarEditModal .seisan-distance-shortcut,
+  .guide-action-box.primary,
+  .guide-mini-primary,
+  .guide-registration-cta,
+  .guide-phone-btn.primary
+):is(:hover, :focus-visible) {
+  color: var(--theme-filled-control-text);
+  -webkit-text-fill-color: var(--theme-filled-control-text);
+}
+
+body[data-theme="dark"] #sheet-quick-edit-btn.active,
+html[data-theme="dark"] #sheet-quick-edit-btn.active {
+  color: var(--theme-filled-control-text);
+  -webkit-text-fill-color: var(--theme-filled-control-text);
+}
+
+
+/* 2026-05 final dark-theme polish: payment label cleanup, modal insets, share button parity, shared-view badge alignment. */
+#app-layout #app-header #shareLinkBtn.header-action,
+#app-layout #app-header #shareLinkBtn.header-action i,
+#app-layout #app-header #shareLinkBtn.header-action span,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action i,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action span {
+  color: var(--text-sub);
+  -webkit-text-fill-color: var(--text-sub);
+  opacity: 1;
+}
+
+#app-layout #app-header #shareLinkBtn.header-action:hover,
+#app-layout #app-header #shareLinkBtn.header-action:hover i,
+#app-layout #app-header #shareLinkBtn.header-action:hover span,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover i,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover span {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+
+/* Remove the extra blue square behind 支払い while keeping the row compact. */
+#seisan-view-area .seisan-payment-tag,
+#seisan-view-area .seisan-summary-card.pay .seisan-payment-tag,
+#seisan-view-area .seisan-car-summary-payment .seisan-payment-tag {
+  background: transparent;
+  background-image: none;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  border-radius: 0;
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+
+#seisan-view-area .seisan-car-summary-payment,
+[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  gap: 10px;
+  padding: 0;
+  color: var(--text-main);
+}
+
+/* Keep summary card typography on filled theme surfaces readable and calm. */
+#seisan-view-area .seisan-summary-card .seisan-summary-label,
+#seisan-view-area .seisan-summary-card .seisan-summary-label i,
+#seisan-view-area .seisan-summary-card .seisan-summary-value,
+#seisan-view-area .seisan-summary-card.pay .seisan-payment-tag,
+#seisan-view-area .seisan-car-summary-total {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+
+#seisan-view-area .seisan-summary-card .seisan-summary-sub,
+#seisan-view-area .seisan-summary-card.collect .seisan-summary-sub,
+#seisan-view-area .seisan-summary-card.accounting .seisan-summary-sub,
+#seisan-view-area .seisan-summary-card.pay .seisan-summary-sub {
+  color: var(--text-sub);
+  -webkit-text-fill-color: var(--text-sub);
+}
+
+/* Dark mode list/team switcher: only the active chip should draw a frame. */
+[data-theme="dark"] .allocation-mode-toggle .car-plan-template-tabs {
+  border-color: color-mix(in srgb, var(--border-color) 78%, transparent);
+}
+
+[data-theme="dark"] .allocation-mode-toggle .car-plan-template-chip:not(.active) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* Shared/presentation view: cleaner leader/driver rows and better badge alignment. */
+#sheet-view-area .sheet-driver-icon {
+  display: none;
+}
+
+#sheet-view-area .sheet-driver-row,
+#sheet-view-area .sheet-seat-row,
+#sheet-view-area .sheet-wait-item,
+#sheet-view-area .sheet-chip {
+  gap: 8px;
+  align-items: center;
+}
+
+#sheet-view-area :is(.sheet-driver-row, .sheet-seat-row, .sheet-wait-item, .sheet-chip) .grade-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.35em;
+  min-height: 1.55em;
+  line-height: 1;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+
+/* Modal/dialog polish: center popups and keep them away from screen edges instead of fullscreen. */
+.modal {
+  padding: 12px;
+}
+
+.modal.show .modal-dialog,
+.modal.fade .modal-dialog {
+  margin: auto;
+  width: min(100%, 720px);
+  max-width: calc(100vw - 32px);
+  min-height: calc(100dvh - 32px);
+  display: flex;
+  align-items: center;
+}
+
+.modal-dialog.modal-lg {
+  width: min(100%, 860px);
+  max-width: calc(100vw - 32px);
+}
+
+.modal-dialog.modal-xl {
+  width: min(100%, 980px);
+  max-width: calc(100vw - 32px);
+}
+
+.modal-content {
+  width: 100%;
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+  border-radius: calc(var(--radius-lg) + 2px);
+}
+
+.modal-body {
+  overflow: auto;
+}
+
+@media (max-width: 640px) {
+  .modal {
+    padding: 10px;
+  }
+
+  .modal.show .modal-dialog,
+  .modal.fade .modal-dialog,
+  .modal-dialog.modal-lg,
+  .modal-dialog.modal-xl {
+    width: 100%;
+    max-width: calc(100vw - 20px);
+    min-height: calc(100dvh - 20px);
+  }
+
+  .modal-content {
+    max-height: calc(100dvh - 20px);
+  }
+}
+
+/* 2026-05 final polish: header share button, settlement tag colors, and driver collection offset. */
+:root {
+  --settlement-split-ink: #075985;
+  --settlement-split-bg: #e0f2fe;
+  --settlement-split-line: #38bdf8;
+  --settlement-club-ink: #9a3412;
+  --settlement-club-bg: #ffedd5;
+  --settlement-club-line: #fb923c;
+  --settlement-pay-ink: #166534;
+  --settlement-pay-bg: #dcfce7;
+  --settlement-pay-line: #4ade80;
+  --settlement-pay-surface-bg: color-mix(in srgb, var(--settlement-pay-bg) 76%, var(--bg-card));
+  --settlement-pay-surface-line: var(--settlement-pay-line);
+}
+
+[data-theme="dark"],
+body[data-theme="dark"],
+html[data-theme="dark"] {
+  --settlement-split-ink: #7dd3fc;
+  --settlement-split-bg: rgba(14, 165, 233, 0.24);
+  --settlement-split-line: rgba(125, 211, 252, 0.62);
+  --settlement-club-ink: #fdba74;
+  --settlement-club-bg: rgba(249, 115, 22, 0.24);
+  --settlement-club-line: rgba(251, 146, 60, 0.62);
+  --settlement-pay-ink: #86efac;
+  --settlement-pay-bg: rgba(34, 197, 94, 0.22);
+  --settlement-pay-line: rgba(74, 222, 128, 0.62);
+  --settlement-pay-surface-bg: color-mix(in srgb, var(--settlement-pay-bg) 64%, var(--bg-card));
+}
+
+#seisan-view-area :is(.seisan-cost-policy-tag.split, .seisan-cost-type-badge.split),
+#seisan-view-area .seisan-extra-inline.split > :is(.seisan-cost-policy-tag, .seisan-cost-type-badge),
+.guide-mini-screen .seisan-mock-chip.split,
+.seisan-extra-type.split {
+  --settlement-tag-ink: var(--settlement-split-ink);
+  --settlement-tag-bg: var(--settlement-split-bg);
+  --settlement-tag-line: var(--settlement-split-line);
+  color: var(--settlement-split-ink);
+  background: var(--settlement-split-bg);
+  border-color: var(--settlement-split-line);
+}
+
+#seisan-view-area :is(.seisan-cost-policy-tag.club, .seisan-cost-type-badge.club),
+#seisan-view-area .seisan-extra-inline.club > :is(.seisan-cost-policy-tag, .seisan-cost-type-badge),
+.guide-mini-screen .seisan-mock-chip.club,
+.seisan-extra-type.club {
+  --settlement-tag-ink: var(--settlement-club-ink);
+  --settlement-tag-bg: var(--settlement-club-bg);
+  --settlement-tag-line: var(--settlement-club-line);
+  color: var(--settlement-club-ink);
+  background: var(--settlement-club-bg);
+  border-color: var(--settlement-club-line);
+}
+
+#seisan-view-area .seisan-payment-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--settlement-tag-min-width, 2.4em);
+  min-height: var(--settlement-tag-min-height, 1.38em);
+  padding: var(--settlement-tag-pad-y, 2px) var(--settlement-tag-pad-x, 7px);
+  border: 1px solid var(--settlement-pay-line);
+  border-radius: 999px;
+  background: var(--settlement-pay-bg);
+  color: var(--settlement-pay-ink);
+  font-size: var(--settlement-tag-font-size, 0.64rem);
+  font-style: normal;
+  font-weight: 900;
+  line-height: var(--settlement-tag-line-height, 1);
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+#seisan-view-area .seisan-summary-card.collect,
+#seisan-view-area .seisan-summary-card.accounting,
+#seisan-view-area .seisan-summary-card.pay {
+  border-width: 1px;
+}
+
+#seisan-view-area .seisan-summary-card.collect {
+  background: color-mix(in srgb, var(--settlement-split-bg) 76%, var(--bg-card));
+  border-color: var(--settlement-split-line);
+}
+
+#seisan-view-area .seisan-summary-card.accounting {
+  background: color-mix(in srgb, var(--settlement-club-bg) 76%, var(--bg-card));
+  border-color: var(--settlement-club-line);
+}
+
+#seisan-view-area .seisan-summary-card.pay {
+  background: var(--settlement-pay-surface-bg);
+  border-color: var(--settlement-pay-surface-line);
+}
+
+#seisan-view-area .seisan-summary-card.collect :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-sub) {
+  color: var(--settlement-split-ink);
+}
+
+#seisan-view-area .seisan-summary-card.accounting :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-sub) {
+  color: var(--settlement-club-ink);
+}
+
+#seisan-view-area .seisan-summary-card.pay :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-sub) {
+  color: var(--settlement-pay-ink);
+}
+
+#seisan-view-area .seisan-car-summary-payment .seisan-payment-tag,
+#seisan-view-area .seisan-summary-card.pay .seisan-payment-tag {
+  color: var(--settlement-pay-ink);
+  background: var(--settlement-pay-bg);
+  border-color: var(--settlement-pay-line);
+}
+
+#seisan-view-area .seisan-extra-inline--offset {
+  border-color: color-mix(in srgb, var(--text-sub) 38%, var(--ui-saas-border, var(--border-color)));
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-extra-inline--offset > span,
+#seisan-view-area .seisan-car-summary-row .seisan-extra-inline--offset strong {
+  color: var(--text-main);
+}
+
+#app-layout #app-header #shareLinkBtn.header-action,
+#app-layout #app-header .header-actions #shareLinkBtn.header-action.share-action,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action,
+html[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action,
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action {
+  width: 28px;
+  min-width: 28px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--text-main) 88%, var(--text-sub));
+  opacity: 0.96;
+  box-shadow: none;
+}
+
+#app-layout #app-header #shareLinkBtn.header-action i,
+#app-layout #app-header #shareLinkBtn.header-action span,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action i,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action span,
+html[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action i,
+html[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action span {
+  color: currentColor;
+}
+
+#app-layout #app-header #shareLinkBtn.header-action:hover,
+#app-layout #app-header .header-actions #shareLinkBtn.header-action.share-action:hover,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover,
+html[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover,
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action:hover,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action:hover {
+  border: 0;
+  background: transparent;
+  color: var(--accent-color);
+  opacity: 1;
+  box-shadow: none;
+}
+
+
+/* 2026-05 follow-up polish: clearer summary subtexts and unified payment tag without combined highlight. */
+:root {
+  --settlement-pay-ink: #1d4ed8;
+  --settlement-pay-bg: #dbeafe;
+  --settlement-pay-line: #60a5fa;
+  --settlement-pay-surface-bg: color-mix(in srgb, var(--settlement-pay-bg) 76%, var(--bg-card));
+  --settlement-pay-surface-line: var(--settlement-pay-line);
+}
+
+[data-theme="dark"],
+body[data-theme="dark"],
+html[data-theme="dark"] {
+  --settlement-pay-ink: #93c5fd;
+  --settlement-pay-bg: rgba(59, 130, 246, 0.22);
+  --settlement-pay-line: rgba(96, 165, 250, 0.62);
+  --settlement-pay-surface-bg: color-mix(in srgb, var(--settlement-pay-bg) 64%, var(--bg-card));
+}
+
+#seisan-view-area .seisan-summary-card.pay :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-sub),
+#seisan-view-area .seisan-car-summary-payment .seisan-payment-tag,
+#seisan-view-area .seisan-summary-card.pay .seisan-payment-tag {
+  color: var(--settlement-pay-ink);
+  -webkit-text-fill-color: var(--settlement-pay-ink);
+}
+
+#seisan-view-area .seisan-payment-tag,
+#seisan-view-area .seisan-summary-card.pay .seisan-payment-tag,
+#seisan-view-area .seisan-car-summary-payment .seisan-payment-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--settlement-tag-min-width, 2.4em);
+  min-height: var(--settlement-tag-min-height, 1.38em);
+  padding: var(--settlement-tag-pad-y, 2px) var(--settlement-tag-pad-x, 7px);
+  border: 1px solid var(--settlement-pay-line);
+  border-radius: 999px;
+  background: var(--settlement-pay-bg);
+  background-image: none;
+  box-shadow: none;
+  font-size: var(--settlement-tag-font-size, 0.64rem);
+  font-style: normal;
+  font-weight: 900;
+  line-height: var(--settlement-tag-line-height, 1);
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+#seisan-view-area .seisan-car-summary-payment,
+[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment,
+body[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment,
+html[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
+  background: transparent;
+  border: 0;
+  border-color: transparent;
+  box-shadow: none;
+  padding: 0;
+  border-radius: 0;
+  gap: 10px;
+}
+
+#seisan-view-area .seisan-summary-card.pay {
+  background: var(--settlement-pay-surface-bg);
+  border-color: var(--settlement-pay-surface-line);
+}
+
+
+/* 2026-05 finishing polish: lock final settlement tag colors and lightly tune spacing/alignment without changing layout. */
+:root {
+  --settlement-split-ink: #047857;
+  --settlement-split-bg: #d1fae5;
+  --settlement-split-line: #34d399;
+  --settlement-club-ink: #b45309;
+  --settlement-club-bg: #fef3c7;
+  --settlement-club-line: #f59e0b;
+  --settlement-pay-ink: #1d4ed8;
+  --settlement-pay-bg: #dbeafe;
+  --settlement-pay-line: #60a5fa;
+  --settlement-pay-surface-bg: color-mix(in srgb, var(--settlement-pay-bg) 82%, var(--bg-card));
+  --settlement-pay-surface-line: color-mix(in srgb, var(--settlement-pay-line) 88%, var(--ui-saas-border, var(--border-color)));
+}
+
+[data-theme="dark"],
+body[data-theme="dark"],
+html[data-theme="dark"] {
+  --settlement-split-ink: #bbf7d0;
+  --settlement-split-bg: rgba(16, 185, 129, 0.18);
+  --settlement-split-line: rgba(52, 211, 153, 0.40);
+  --settlement-club-ink: #fcd34d;
+  --settlement-club-bg: rgba(245, 158, 11, 0.17);
+  --settlement-club-line: rgba(251, 191, 36, 0.40);
+  --settlement-pay-ink: #93c5fd;
+  --settlement-pay-bg: rgba(59, 130, 246, 0.22);
+  --settlement-pay-line: rgba(96, 165, 250, 0.60);
+  --settlement-pay-surface-bg: color-mix(in srgb, var(--settlement-pay-bg) 66%, var(--bg-card));
+  --settlement-pay-surface-line: rgba(147, 197, 253, 0.36);
+}
+
+#seisan-view-area .seisan-cost-policy-tag,
+#seisan-view-area .seisan-cost-type-badge,
+#seisan-view-area .seisan-payment-tag {
+  min-height: 18px;
+  padding: 2px 8px;
+  border-width: 1px;
+  font-size: 0.64rem;
+  font-weight: 820;
+  letter-spacing: 0;
+  line-height: 1;
+  box-shadow: none;
+}
+
+#seisan-view-area .seisan-cost-policy-tag.split,
+#seisan-view-area .seisan-cost-type-badge.split {
+  color: var(--settlement-split-ink);
+  -webkit-text-fill-color: var(--settlement-split-ink);
+  background: var(--settlement-split-bg);
+  border-color: var(--settlement-split-line);
+}
+
+#seisan-view-area .seisan-cost-policy-tag.club,
+#seisan-view-area .seisan-cost-type-badge.club {
+  color: var(--settlement-club-ink);
+  -webkit-text-fill-color: var(--settlement-club-ink);
+  background: var(--settlement-club-bg);
+  border-color: var(--settlement-club-line);
+}
+
+#seisan-view-area .seisan-payment-tag,
+#seisan-view-area .seisan-summary-card.pay .seisan-payment-tag,
+#seisan-view-area .seisan-car-summary-payment .seisan-payment-tag {
+  color: var(--settlement-pay-ink);
+  -webkit-text-fill-color: var(--settlement-pay-ink);
+  background: var(--settlement-pay-bg);
+  border-color: var(--settlement-pay-line);
+}
+
+#seisan-view-area .seisan-summary-card.collect {
+  background: color-mix(in srgb, var(--settlement-split-bg) 82%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-split-line) 78%, var(--ui-saas-border, var(--border-color)));
+}
+
+#seisan-view-area .seisan-summary-card.accounting {
+  background: color-mix(in srgb, var(--settlement-club-bg) 82%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-club-line) 78%, var(--ui-saas-border, var(--border-color)));
+}
+
+#seisan-view-area .seisan-summary-card.pay {
+  background: var(--settlement-pay-surface-bg);
+  border-color: var(--settlement-pay-surface-line);
+}
+
+#seisan-view-area .seisan-summary-card {
+  box-shadow: none;
+}
+
+#seisan-view-area .seisan-summary-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+#seisan-view-area .seisan-summary-label i {
+  font-size: 0.74rem;
+}
+
+#seisan-view-area .seisan-summary-card.collect :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-sub) {
+  color: var(--settlement-split-ink);
+}
+
+#seisan-view-area .seisan-summary-card.accounting :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-sub) {
+  color: var(--settlement-club-ink);
+}
+
+#seisan-view-area .seisan-summary-card.pay :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-sub),
+#seisan-view-area .seisan-car-summary-payment,
+#seisan-view-area .seisan-car-summary-payment .seisan-car-summary-total {
+  color: var(--settlement-pay-ink);
+}
+
+#seisan-view-area .seisan-summary-card :is(.seisan-summary-label, .seisan-summary-value, .seisan-summary-sub),
+#seisan-view-area .seisan-car-summary-total {
+  -webkit-text-fill-color: currentColor;
+}
+
+#seisan-view-area .seisan-summary-sub {
+  margin-top: 4px;
+  line-height: 1.28;
+}
+
+#seisan-view-area .seisan-flow-arrow {
+  align-self: center;
+  transform: translateY(-1px);
+  opacity: 0.72;
+}
+
+#seisan-view-area .seisan-car-summary-headline {
+  align-items: center;
+  gap: 8px;
+}
+
+#seisan-view-area .seisan-car-summary-payment {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#seisan-view-area .seisan-car-summary-total {
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-item--inline-all {
+  padding-top: 8px;
+  padding-bottom: 9px;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list {
+  align-items: center;
+  gap: 3px 7px;
+}
+
+#seisan-view-area .seisan-extra-plus {
+  opacity: 0.68;
+}
+
+/* 2026-05 final share/payment color repair: keep share button equal to the other header icons, and keep 支払い blue instead of theme-accent tinted. */
+:root,
+body {
+  --settlement-pay-ink-fixed: #1d4ed8;
+  --settlement-pay-bg-fixed: #dbeafe;
+  --settlement-pay-line-fixed: #60a5fa;
+  --settlement-pay-surface-fixed: color-mix(in srgb, var(--settlement-pay-bg-fixed) 82%, var(--bg-card));
+  --settlement-pay-surface-line-fixed: color-mix(in srgb, var(--settlement-pay-line-fixed) 88%, var(--ui-saas-border, var(--border-color)));
+  --header-share-icon-bg: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  --header-share-icon-line: color-mix(in srgb, var(--border-color) 88%, transparent);
+  --header-share-icon-text: color-mix(in srgb, var(--text-main) 80%, var(--text-sub));
+  --header-share-icon-hover-bg: var(--hover-bg);
+  --header-share-icon-hover-text: var(--text-main);
+}
+
+html[data-theme="dark"],
+body[data-theme="dark"],
+html[data-theme="dark"] body {
+  --settlement-pay-ink-fixed: #93c5fd;
+  --settlement-pay-bg-fixed: rgba(59, 130, 246, 0.22);
+  --settlement-pay-line-fixed: rgba(96, 165, 250, 0.60);
+  --settlement-pay-surface-fixed: color-mix(in srgb, var(--settlement-pay-bg-fixed) 66%, var(--bg-card));
+  --settlement-pay-surface-line-fixed: rgba(147, 197, 253, 0.36);
+  --header-share-icon-bg: transparent;
+  --header-share-icon-line: transparent;
+  --header-share-icon-text: var(--header-icon-text, color-mix(in srgb, var(--text-sub) 86%, var(--text-main)));
+  --header-share-icon-hover-bg: transparent;
+  --header-share-icon-hover-text: var(--accent-color);
+}
+
+#app-layout #app-header #shareLinkBtn.header-action.share-action,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action,
+html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action {
+  width: auto;
+  min-width: auto;
+  height: auto;
+  min-height: 34px;
+  padding: 7px 9px;
+  gap: 5px;
+  border: 1px solid var(--header-share-icon-line);
+  border-radius: 12px;
+  background: var(--header-share-icon-bg);
+  color: var(--header-share-icon-text);
+  -webkit-text-fill-color: var(--header-share-icon-text);
+  box-shadow: none;
+  opacity: 1;
+}
+
+#app-layout #app-header #shareLinkBtn.header-action.share-action span,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action span,
+html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action span {
+  display: none;
+}
+
+#app-layout #app-header #shareLinkBtn.header-action.share-action i,
+#app-layout #app-header #shareLinkBtn.header-action.share-action span,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action i,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action span,
+html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action i,
+html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action span {
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+
+#app-layout #app-header #shareLinkBtn.header-action.share-action:hover,
+#app-layout #app-header #shareLinkBtn.header-action.share-action:focus-visible,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action:hover,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action:focus-visible,
+html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action:hover,
+html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action:focus-visible {
+  background: var(--header-share-icon-hover-bg);
+  border-color: color-mix(in srgb, var(--accent-color) 24%, var(--header-share-icon-line));
+  color: var(--header-share-icon-hover-text);
+  -webkit-text-fill-color: var(--header-share-icon-hover-text);
+  box-shadow: none;
+}
+
+#seisan-view-area .seisan-summary-card.pay {
+  background: var(--settlement-pay-surface-fixed);
+  border-color: var(--settlement-pay-surface-line-fixed);
+}
+
+#seisan-view-area .seisan-summary-card.pay .seisan-summary-label,
+#seisan-view-area .seisan-summary-card.pay .seisan-summary-label i,
+#seisan-view-area .seisan-summary-card.pay .seisan-payment-tag,
+#seisan-view-area .seisan-car-summary-payment .seisan-payment-tag {
+  color: var(--settlement-pay-ink-fixed);
+  -webkit-text-fill-color: var(--settlement-pay-ink-fixed);
+}
+
+#seisan-view-area .seisan-summary-card.pay .seisan-payment-tag,
+#seisan-view-area .seisan-car-summary-payment .seisan-payment-tag {
+  background: var(--settlement-pay-bg-fixed);
+  border-color: var(--settlement-pay-line-fixed);
+}
+
+#seisan-view-area .seisan-car-summary-payment,
+#seisan-view-area .seisan-car-summary-payment .seisan-car-summary-total {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+
+/* 2026-05 pay summary color repair: アイコンと支払いタグは固定ブルー、補足文は通常文字色に戻す。 */
+html body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label,
+html body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label i {
+  color: #1d4ed8;
+  -webkit-text-fill-color: #1d4ed8;
+}
+
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label,
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label i,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label i {
+  color: #93c5fd;
+  -webkit-text-fill-color: #93c5fd;
+}
+
+html body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] > .seisan-summary-sub,
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] > .seisan-summary-sub,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] > .seisan-summary-sub {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+
+/* 2026-05 summary subtext repair: 金額の下の補足文は、割勘・部費・支払いすべて通常の本文色に揃える。 */
+html body #app-layout #seisan-view-area .seisan-summary-card.collect[data-summary-kind="collect"] > .seisan-summary-sub,
+html body #app-layout #seisan-view-area .seisan-summary-card.accounting[data-summary-kind="club"] > .seisan-summary-sub,
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.collect[data-summary-kind="collect"] > .seisan-summary-sub,
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.accounting[data-summary-kind="club"] > .seisan-summary-sub,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.collect[data-summary-kind="collect"] > .seisan-summary-sub,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.accounting[data-summary-kind="club"] > .seisan-summary-sub {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+
+
+/* 2026-05 collection check layout polish: keep collected/unpaid status left, and align only the per-person amount to the right. */
+#seisan-view-area #seisan-collection-note.seisan-muted {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  color: var(--text-sub);
+  -webkit-text-fill-color: var(--text-sub);
+}
+
+#seisan-view-area .seisan-collection-note-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 3px 9px;
+  min-width: 0;
+  text-align: left;
+}
+
+#seisan-view-area .seisan-collection-per-person {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-left: auto;
+  flex: 0 0 auto;
+  text-align: right;
+  white-space: nowrap;
+}
+
+#seisan-view-area .seisan-collection-per-person span {
+  color: var(--text-sub);
+  -webkit-text-fill-color: var(--text-sub);
+  font-size: 0.68rem;
+  font-weight: 760;
+}
+
+#seisan-view-area .seisan-collection-per-person strong {
+  color: var(--accent-color);
+  -webkit-text-fill-color: var(--accent-color);
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+@media (max-width: 420px) {
+  #seisan-view-area #seisan-collection-note.seisan-muted {
+    align-items: flex-start;
+  }
+
+  #seisan-view-area .seisan-collection-per-person {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+}

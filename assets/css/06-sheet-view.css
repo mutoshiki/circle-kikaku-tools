@@ -1328,3 +1328,89 @@ border-radius: var(--radius-main);
     top: 76px;
   }
 }
+
+/* 2026-05 発表ビュー: 車割・班割の下にタイムテーブルを表示する。 */
+.sheet-timetable-section {
+    width: min(var(--sheet-plan-content-width, 560px), 720px);
+    min-width: min(320px, calc(100vw - 28px));
+}
+
+.sheet-timetable-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 6px;
+    border: 1px solid var(--hairline, var(--border-color));
+    border-radius: var(--radius-main);
+    background: color-mix(in srgb, var(--bg-card) 94%, var(--accent-color));
+    box-shadow: var(--shadow-soft, 0 12px 28px rgba(15, 23, 42, 0.08));
+}
+
+.sheet-timetable-row {
+    display: grid;
+    grid-template-columns: 4.8em minmax(0, 1fr);
+    align-items: start;
+    gap: 8px;
+    min-height: 36px;
+    padding: 7px 8px;
+    border-radius: 10px;
+}
+
+.sheet-timetable-row + .sheet-timetable-row {
+    border-top: 1px solid var(--hairline, var(--border-color));
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.sheet-timetable-time {
+    color: var(--text-sub);
+    font-size: 0.84rem;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+.sheet-timetable-title {
+    min-width: 0;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-weight: 520;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.sheet-timetable-link {
+    color: color-mix(in srgb, #2563eb 82%, var(--accent-color));
+    font-weight: 650;
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+    touch-action: manipulation;
+}
+
+.sheet-timetable-link:hover {
+    text-decoration-thickness: 0.12em;
+}
+
+[data-theme="dark"] .sheet-timetable-card {
+    background: color-mix(in srgb, var(--bg-card) 88%, var(--accent-color));
+}
+
+[data-theme="dark"] .sheet-timetable-link {
+    color: #93c5fd;
+}
+
+@media (max-width: 640px) {
+    .sheet-timetable-section {
+        width: min(var(--sheet-plan-content-width, 520px), calc(100vw - 24px));
+        min-width: min(300px, calc(100vw - 24px));
+    }
+
+    .sheet-timetable-row {
+        grid-template-columns: 4.2em minmax(0, 1fr);
+        gap: 7px;
+        padding: 7px;
+    }
+}

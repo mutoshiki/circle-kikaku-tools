@@ -161,15 +161,16 @@ function getParticipantList(data = null) {
     const source = data || getRoomDataOnly();
     const seen = new Set();
     const list = [];
-    const push = (name, role) => {
+    const push = (name, role, meta = {}) => {
         const key = String(name || '').trim();
         if (!key || seen.has(key)) return;
         seen.add(key);
-        list.push({ name: key, role });
+        list.push({ name: key, role, ...meta });
     };
     (source.cars || []).forEach(car => {
-        push(car.name, 'driver');
-        (car.members || []).forEach(m => push(m?.name, 'member'));
+        const driverName = String(car?.name || '').trim();
+        push(driverName, 'driver');
+        (car.members || []).forEach(m => push(m?.name, 'member', { driverName }));
     });
     (source.waiting || []).forEach(m => push(m?.name, 'waiting'));
     return list;

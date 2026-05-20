@@ -212,7 +212,9 @@ function renderSettlementView() {
     if (carList) carList.innerHTML = renderSettlementCarsHtml(data, state, result, issues);
 
     const note = byId('seisan-collection-note');
-    if (note) note.textContent = `1人あたり ${yen(result.perPerson)}・集金済み ${result.paidCount}/${result.payerCount}名・未回収 ${yen(result.unpaidAmount)}`;
+    if (note) {
+        note.innerHTML = `<span class="seisan-collection-note-left"><span>集金済み ${result.paidCount}/${result.payerCount}名</span><span>未回収 ${yen(result.unpaidAmount)}</span></span><span class="seisan-collection-per-person"><span>1人あたり</span><strong>${yen(result.perPerson)}</strong></span>`;
+    }
 
     const collectionList = byId('seisan-collection-list');
     if (collectionList) collectionList.innerHTML = renderSettlementCollectionHtml(participants, state, result);

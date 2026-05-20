@@ -5,6 +5,7 @@
     const events = global.SanpoEvents || {};
     const bind = events.bind;
     const OVERVIEW_STORAGE_KEY = 'sanpoOverviewDraft:v1';
+    let applyingOverviewSnapshot = false;
 
     function getOverviewStorageKey() {
         const room = new URLSearchParams(global.location.search).get('room') || 'local';
@@ -19,17 +20,35 @@
         }
     }
 
+    function normalizeOverviewSnapshot(value = {}) {
+        const source = value && typeof value === 'object' ? value : {};
+        return {
+            memo: String(source.memo || ''),
+            timetableItems: getTimetableItems(source)
+                .map(item => ({
+                    time: String(item.time || '').slice(0, 5),
+                    title: String(item.title || '').trim()
+                }))
+                .filter(item => item.time || item.title)
+        };
+    }
+
     function saveOverviewDraft() {
         const memo = byId('overviewMemoInput')?.value || '';
         const timetableItems = [...document.querySelectorAll('.overview-timetable-row')].map(row => ({
             time: row.querySelector('[data-field="time"]')?.value || '',
             title: row.querySelector('[data-field="title"]')?.value || ''
         })).filter(item => item.time || item.title);
+        const snapshot = { memo, timetableItems };
         try {
-            global.localStorage.setItem(getOverviewStorageKey(), JSON.stringify({ memo, timetableItems }));
+            global.localStorage.setItem(getOverviewStorageKey(), JSON.stringify(snapshot));
         } catch {
             // Local memo/timetable are convenience fields; failing silently keeps core flows usable.
         }
+        if (applyingOverviewSnapshot) return;
+        if (byId('sheet-view-area')?.classList.contains('active')) global.renderSheetView?.();
+        clearTimeout(global.__overviewSaveTimer);
+        global.__overviewSaveTimer = setTimeout(() => global.save?.(), 400);
     }
 
     function getTimetableItems(draft) {
@@ -60,41 +79,53 @@
         })[char]);
     }
 
+    function createTimetableRow(item = { time: '', title: '' }) {
+        const row = document.createElement('div');
+        row.className = 'overview-timetable-row';
+        row.innerHTML = `
+                <input type="time" data-field="time" value="${escapeAttr(item.time || '')}" aria-label="時刻">
+                <input type="text" data-field="title" value="${escapeAttr(item.title || '')}" placeholder="内容" aria-label="内容">
+                <button type="button" class="overview-row-delete" data-action="delete-timetable-row" aria-label="行を削除">
+                  <i class="fas fa-xmark" aria-hidden="true"></i>
+                </button>
+            `;
+        return row;
+    }
+
     function renderTimetableRows(items = getTimetableItems(loadOverviewDraft())) {
         const root = byId('overviewTimetableRows');
         if (!root) return;
         root.innerHTML = '';
         const rows = items.length ? items : [{ time: '', title: '' }];
-        rows.forEach(item => {
-            const row = document.createElement('div');
-            row.className = 'overview-timetable-row';
-            row.innerHTML = `
-                <input type="time" data-field="time" value="${escapeAttr(item.time || '')}" aria-label="時刻">
-                <input type="text" data-field="title" value="${escapeAttr(item.title || '')}" placeholder="予定" aria-label="予定">
-                <button type="button" class="overview-row-delete" data-action="delete-timetable-row" aria-label="行を削除">
-                  <i class="fas fa-xmark" aria-hidden="true"></i>
-                </button>
-            `;
-            root.appendChild(row);
-        });
+        rows.forEach(item => root.appendChild(createTimetableRow(item)));
     }
 
     function addTimetableRow() {
-        const items = [...document.querySelectorAll('.overview-timetable-row')].map(row => ({
-            time: row.querySelector('[data-field="time"]')?.value || '',
-            title: row.querySelector('[data-field="title"]')?.value || ''
-        }));
-        items.push({ time: '', title: '' });
-        renderTimetableRows(items);
+        const root = byId('overviewTimetableRows');
+        if (!root) return;
+        root.appendChild(createTimetableRow());
+        root.lastElementChild?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         saveOverviewDraft();
-        byId('overviewTimetableRows')?.lastElementChild?.querySelector('[data-field="time"]')?.focus();
     }
 
-    function focusTimetableTitleAfterTime(input) {
-        if (!input || input.dataset.field !== 'time' || !input.value) return;
-        const title = input.closest('.overview-timetable-row')?.querySelector('[data-field="title"]');
-        if (!title || document.activeElement === title) return;
-        title.focus({ preventScroll: true });
+    function getOverviewSnapshot() {
+        return normalizeOverviewSnapshot(loadOverviewDraft());
+    }
+
+    function applyOverviewSnapshot(snapshot = {}) {
+        applyingOverviewSnapshot = true;
+        try {
+            const normalized = normalizeOverviewSnapshot(snapshot);
+            global.localStorage.setItem(getOverviewStorageKey(), JSON.stringify(normalized));
+            const memo = byId('overviewMemoInput');
+            if (memo) memo.value = normalized.memo || '';
+            renderTimetableRows(normalized.timetableItems.length ? normalized.timetableItems : [{ time: '', title: '' }]);
+            if (byId('sheet-view-area')?.classList.contains('active')) global.renderSheetView?.();
+        } catch {
+            // Keep the main allocation flow usable even if overview data is malformed.
+        } finally {
+            applyingOverviewSnapshot = false;
+        }
     }
 
     function setOverviewDrawerOpen(open) {
@@ -111,7 +142,7 @@
     }
 
     function setupOverviewMenuFields() {
-        const draft = loadOverviewDraft();
+        const draft = normalizeOverviewSnapshot(global.SanpoApp?.state?.getSnapshot?.()?.overview || loadOverviewDraft());
         const memo = byId('overviewMemoInput');
         if (memo) memo.value = draft.memo || '';
         renderTimetableRows(getTimetableItems(draft));
@@ -122,13 +153,6 @@
         bind('overviewTimetableCopyBtn', () => copyTextWithFallback(buildTimetableText(), '予定をコピーしました'));
         memo?.addEventListener('input', saveOverviewDraft);
         byId('overviewTimetableRows')?.addEventListener('input', saveOverviewDraft);
-        byId('overviewTimetableRows')?.addEventListener('input', event => {
-            const input = event.target.closest?.('[data-field="time"]');
-            if (input?.value && input.value.length >= 5) focusTimetableTitleAfterTime(input);
-        });
-        byId('overviewTimetableRows')?.addEventListener('change', event => {
-            focusTimetableTitleAfterTime(event.target.closest?.('[data-field="time"]'));
-        });
         byId('overviewTimetableRows')?.addEventListener('click', event => {
             const button = event.target.closest?.('[data-action="delete-timetable-row"]');
             if (!button) return;
@@ -158,6 +182,13 @@
         bind('shuffleAssignBtn', () => autoAssign('shuffle'));
         bind('tray-handle', () => toggleTray());
     }
+
+    global.SanpoOverview = Object.freeze({
+        getSnapshot: getOverviewSnapshot,
+        applySnapshot: applyOverviewSnapshot,
+        buildTimetableText,
+        getTimetableItems: () => getTimetableItems(loadOverviewDraft())
+    });
 
     global.SanpoEvents = Object.freeze({
         ...events,

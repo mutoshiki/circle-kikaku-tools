@@ -20,8 +20,10 @@ border-color: #f59e0b; box-shadow: 0 0 0 1px #f59e0b;
 }
 
 .grade-badge {
-font-size: 0.58rem; font-weight: 700; padding: 1px 4px; border-radius: 3px;
-    display: inline-block; line-height: 1.35; border: 1px solid currentColor;
+font-size: 0.58rem; font-weight: 700; padding: 1px 5px; border-radius: 999px;
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 1.55em; line-height: 1; border: 1px solid currentColor;
+    box-sizing: border-box; vertical-align: middle; white-space: nowrap;
 }
 
 .grade-badge[data-grade="1"] {

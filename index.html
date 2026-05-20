@@ -24,9 +24,9 @@
     <link href="./assets/css/03-guides-modals.css" rel="stylesheet">
     <link href="./assets/css/04-cars-members-tray.css" rel="stylesheet">
     <link href="./assets/css/05-settlement.css" rel="stylesheet">
-    <link href="./assets/css/06-sheet-view.css?v=mobile-summary-readable" rel="stylesheet">
+    <link href="./assets/css/06-sheet-view.css?v=timetable-sheet-links" rel="stylesheet">
     <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
-    <link href="./assets/css/08-control-consistency.css?v=primary-theme-color-fix3" rel="stylesheet">
+    <link href="./assets/css/08-control-consistency.css?v=collection-check-polish" rel="stylesheet">
   </head>
   <body data-theme="light" data-app-theme="natural" class="sheet-mode">
     <div id="app-layout">
@@ -481,8 +481,8 @@
                 <select id="seisanOrganizerName" aria-label="企画者名"></select>
               </div>
               <label class="seisan-toggle seisan-toggle--modal">
-                <span>企画者も集金対象から外す（車出しは常に対象外）</span>
-                <input id="seisanOrganizerFree" type="checkbox" checked aria-label="企画者も集金対象から外す。車出しは常に対象外">
+                <span>企画者を集金対象から外す</span>
+                <input id="seisanOrganizerFree" type="checkbox" checked aria-label="企画者を集金対象から外す">
               </label>
             </div>
           </div>
@@ -650,7 +650,7 @@
     <script src="./assets/js/features/waiting-tray.js"></script>
     <script src="./assets/js/features/person-cards.js"></script>
     <script src="./assets/js/templates/sheet-templates.js"></script>
-    <script src="./assets/js/features/sheet-view.js"></script>
+    <script src="./assets/js/features/sheet-view.js?v=timetable-sheet-links"></script>
     <script src="./assets/js/features/drag-edit-view.js"></script>
     <script src="./assets/js/features/auto-assign.js"></script>
     <script src="./assets/js/features/person-menu.js"></script>
@@ -660,7 +660,7 @@
     <script src="./assets/js/app.js"></script>
     <script src="./assets/js/features/events/00-event-utils.js"></script>
     <script src="./assets/js/features/events/01-core-startup-events.js"></script>
-    <script src="./assets/js/features/events/02-static-header-events.js?v=timetable-focus"></script>
+    <script src="./assets/js/features/events/02-static-header-events.js?v=timetable-sheet-sync"></script>
     <script src="./assets/js/features/events/03-generated-action-events.js?v=route-shortcut"></script>
     <script src="./assets/js/features/events/04-settlement-input-events.js"></script>
     <script src="./assets/js/features/events/05-view-feature-events.js"></script>

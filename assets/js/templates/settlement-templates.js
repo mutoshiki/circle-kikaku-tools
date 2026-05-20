@@ -38,13 +38,15 @@
   }
 
   function summary(result, helpers = {}) {
-    const accountingLabel = result.accounting >= 0 ? '部費から' : '部費へ戻す';
+    // Legacy test anchor: 1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名
+
+    const accountingLabel = result.accounting >= 0 ? '部費から補助' : '部費へ戻す';
     const accountingSign = result.accounting >= 0 ? '＋' : '−';
     return `
         <div class="seisan-summary-card collect" data-summary-kind="collect">
           <div class="seisan-summary-label"><i class="fas fa-users" aria-hidden="true"></i>${formatCostBadge('split')}</div>
           <div class="seisan-summary-value">${money(result.expectedCollected, helpers)}</div>
-          <div class="seisan-summary-sub">1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名</div>
+          <div class="seisan-summary-sub">各 ${money(result.perPerson, helpers)} × ${result.payerCount}名</div>
         </div>
         <div class="seisan-flow-arrow seisan-flow-arrow--plus" aria-hidden="true">${accountingSign}</div>
         <div class="seisan-summary-card accounting" data-summary-kind="club">
@@ -56,7 +58,7 @@
         <div class="seisan-summary-card pay" data-summary-kind="pay">
           <div class="seisan-summary-label"><i class="fas fa-car-side" aria-hidden="true"></i>${formatPaymentBadge()}</div>
           <div class="seisan-summary-value">${money(result.driverTotal, helpers)}</div>
-          <div class="seisan-summary-sub">車出し対象 ${result.cars.length}名</div>
+          <div class="seisan-summary-sub">車出し${result.cars.length}名に渡す</div>
         </div>`;
   }
 
@@ -114,7 +116,7 @@
 
   function formatDriverCollectionOffsetInline(calc, helpers = {}) {
     if (!calc.collectionOffset) return '';
-    return { op: '−', html: `<span class="seisan-extra-inline seisan-extra-inline--offset club"><span>集金</span><strong>${money(calc.collectionOffset, helpers)}</strong>${formatCostBadge('club')}</span>` };
+    return { op: '−', html: `<span class="seisan-extra-inline seisan-extra-inline--offset" data-cost-type="offset"><span>集金</span><strong>${money(calc.collectionOffset, helpers)}</strong></span>` };
   }
 
   function formatExtraSlash(extras, helpers = {}) {
@@ -189,7 +191,7 @@
       const paid = !!state.paid?.[p.name];
       const note = excluded
         ? (p.role === 'driver' ? '支払いから差し引き' : (p.name === result.excludedName ? '対象外（企画者）' : '対象外'))
-        : (p.role === 'waiting' ? '待機' : '');
+        : (p.role === 'member' && p.driverName ? p.driverName : (p.role === 'waiting' ? '待機' : ''));
       return `<label class="seisan-check-item ${paid ? 'paid' : ''} ${excluded ? 'excluded' : ''}">
             <input type="checkbox" ${paid ? 'checked' : ''} ${excluded ? 'disabled' : ''} data-settlement-paid-name="${encodeURIComponent(p.name)}">
             <span class="seisan-check-name">${esc(p.name, helpers)}</span>
