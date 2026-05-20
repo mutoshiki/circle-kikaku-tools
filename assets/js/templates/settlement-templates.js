@@ -155,7 +155,10 @@
         <div class="seisan-car-title"><strong>${esc(car.name, helpers)} 車</strong><span class="seisan-car-total">支払い ${money(calc.adjustedTotalPay ?? calc.totalPay, helpers)}</span></div>
         <div class="seisan-small">${details}</div>
         <div class="seisan-car-inputs">
-          <label><span class="seisan-mini-label">移動距離（km）</span><input type="number" inputmode="decimal" data-field="dist" class="${fieldErrorClass(issues, car.name, 'dist')}" value="${esc(cState.dist || '', helpers)}"></label>
+          <div class="seisan-distance-field">
+            <label><span class="seisan-mini-label">移動距離（km）</span><input type="number" inputmode="decimal" data-field="dist" class="${fieldErrorClass(issues, car.name, 'dist')}" value="${esc(cState.dist || '', helpers)}"></label>
+            <button class="seisan-distance-shortcut" type="button" data-action="open-route-helper-shortcut" title="距離計算ツールを開く" aria-label="距離計算ツールを開く"><i class="fas fa-route" aria-hidden="true"></i><span>距離計算ツール</span></button>
+          </div>
           <label><span class="seisan-mini-label">燃費（km/L）</span><input type="number" inputmode="decimal" data-field="eco" class="${fieldErrorClass(issues, car.name, 'eco')}" value="${esc(cState.eco || '', helpers)}"></label>
           <label><span class="seisan-mini-label">ガソリン単価（円/L）</span><input type="number" inputmode="decimal" data-field="price" class="${fieldErrorClass(issues, car.name, 'price')}" value="${esc(cState.price || '', helpers)}"></label>
         </div>
@@ -185,7 +188,7 @@
       const excluded = !!result.excludedNames?.has?.(p.name);
       const paid = !!state.paid?.[p.name];
       const note = excluded
-        ? (p.role === 'driver' ? '支払から差引' : (p.name === result.excludedName ? '対象外(企画者)' : '対象外'))
+        ? (p.role === 'driver' ? '支払いから差し引き' : (p.name === result.excludedName ? '対象外（企画者）' : '対象外'))
         : (p.role === 'waiting' ? '待機' : '');
       return `<label class="seisan-check-item ${paid ? 'paid' : ''} ${excluded ? 'excluded' : ''}">
             <input type="checkbox" ${paid ? 'checked' : ''} ${excluded ? 'disabled' : ''} data-settlement-paid-name="${encodeURIComponent(p.name)}">

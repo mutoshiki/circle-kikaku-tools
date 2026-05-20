@@ -24,9 +24,9 @@
     <link href="./assets/css/03-guides-modals.css" rel="stylesheet">
     <link href="./assets/css/04-cars-members-tray.css" rel="stylesheet">
     <link href="./assets/css/05-settlement.css" rel="stylesheet">
-    <link href="./assets/css/06-sheet-view.css" rel="stylesheet">
+    <link href="./assets/css/06-sheet-view.css?v=mobile-summary-readable" rel="stylesheet">
     <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
-    <link href="./assets/css/08-control-consistency.css" rel="stylesheet">
+    <link href="./assets/css/08-control-consistency.css?v=primary-theme-color-fix3" rel="stylesheet">
   </head>
   <body data-theme="light" data-app-theme="natural" class="sheet-mode">
     <div id="app-layout">
@@ -79,7 +79,7 @@
       <aside id="overviewDrawer" class="overview-drawer" aria-hidden="true" aria-labelledby="overviewDrawerTitle">
         <div class="overview-drawer-head">
           <div>
-            <p class="overview-drawer-kicker">OVERVIEW</p>
+            <p class="overview-drawer-kicker">概要</p>
             <h2 id="overviewDrawerTitle">メモ・タイムテーブル</h2>
           </div>
           <button id="overviewDrawerCloseBtn" class="overview-drawer-close" type="button" aria-label="メニューを閉じる">
@@ -100,7 +100,7 @@
             </div>
             <div id="overviewTimetableRows" class="overview-timetable-rows" aria-live="polite"></div>
             <button id="overviewTimetableCopyBtn" class="overview-copy-action" type="button">
-              <i class="fas fa-copy" aria-hidden="true"></i><span>タイムテーブルをコピー</span>
+              <i class="fas fa-copy" aria-hidden="true"></i><span>予定をコピー</span>
             </button>
           </section>
         </div>
@@ -581,6 +581,14 @@
                 <option value="5">5台</option>
               </select>
             </div>
+            <div class="debug-theme-tools mb-3" aria-label="テーマ表示確認">
+              <div class="debug-label mb-2">テーマ表示確認</div>
+              <div class="btn-group w-100 debug-theme-toggle" role="group" aria-label="ライト・ダーク切り替え">
+                <button id="debugThemeSystemBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-debug-theme-mode="system">端末</button>
+                <button id="debugThemeLightBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-debug-theme-mode="light">ライト</button>
+                <button id="debugThemeDarkBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-debug-theme-mode="dark">ダーク</button>
+              </div>
+            </div>
             <div class="d-grid gap-2">
               <button id="executeDebugBtn" type="button" class="btn btn-primary btn-sm fw-bold">通常サンプルを入れる</button>
               <button id="executeDebugMissingBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold">入力漏れサンプルを入れる</button>
@@ -625,12 +633,12 @@
     <script src="./assets/js/modules/drag-cards.js"></script>
     <script src="./assets/js/modules/settlement.js"></script>
     <script src="./assets/js/modules/theme-presets.js"></script>
-    <script src="./assets/js/features/appearance.js"></script>
-    <script src="./assets/js/templates/settlement-templates.js"></script>
+    <script src="./assets/js/features/appearance.js?v=debug-theme-mode"></script>
+    <script src="./assets/js/templates/settlement-templates.js?v=route-shortcut-label"></script>
     <script src="./assets/js/features/settlement/01-state.js"></script>
     <script src="./assets/js/features/settlement/02-calculator.js"></script>
     <script src="./assets/js/features/settlement/03-render.js"></script>
-    <script src="./assets/js/features/settlement/04-route-helper.js"></script>
+    <script src="./assets/js/features/settlement/04-route-helper.js?v=route-shortcut"></script>
     <script src="./assets/js/features/settlement/05-input-actions.js"></script>
     <script src="./assets/js/features/settlement/06-share-text.js"></script>
     <script src="./assets/js/features/settlement.js"></script>
@@ -648,12 +656,12 @@
     <script src="./assets/js/features/person-menu.js"></script>
     <script src="./assets/js/features/google-form-import-parser.js"></script>
     <script src="./assets/js/features/batch-import.js"></script>
-    <script src="./assets/js/features/debug-history.js"></script>
+    <script src="./assets/js/features/debug-history.js?v=debug-theme-mode"></script>
     <script src="./assets/js/app.js"></script>
     <script src="./assets/js/features/events/00-event-utils.js"></script>
     <script src="./assets/js/features/events/01-core-startup-events.js"></script>
-    <script src="./assets/js/features/events/02-static-header-events.js"></script>
-    <script src="./assets/js/features/events/03-generated-action-events.js"></script>
+    <script src="./assets/js/features/events/02-static-header-events.js?v=timetable-focus"></script>
+    <script src="./assets/js/features/events/03-generated-action-events.js?v=route-shortcut"></script>
     <script src="./assets/js/features/events/04-settlement-input-events.js"></script>
     <script src="./assets/js/features/events/05-view-feature-events.js"></script>
     <script src="./assets/js/features/events.js"></script>

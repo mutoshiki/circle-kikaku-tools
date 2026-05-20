@@ -791,6 +791,12 @@ body[data-app-theme="catppuccin"][data-theme="dark"] {
   --control-primary-hover: color-mix(in srgb, var(--accent-color) 78%, #111827);
 }
 
+body[data-app-theme][data-theme] {
+  --control-primary-bg: var(--accent-color);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 88%, #000);
+  --control-primary-text: #fff;
+}
+
 .btn-primary,
 .btn-accent-solid,
 .header-actions .share-action,
@@ -1458,6 +1464,17 @@ body[data-app-theme="catppuccin"][data-theme="dark"] {
 
 .seisan-toggle--modal {
   margin-top: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.seisan-toggle--modal span {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
 }
 
 /* Check lists: less boxed, more list-like. */
@@ -3054,7 +3071,7 @@ body {
 }
 
 /* 2026-05 SaaS indigo final polish: site-wide accent and settlement consistency. */
-body[data-theme="light"] {
+body[data-app-theme="natural"][data-theme="light"] {
   --bg-body: #f6f7fb;
   --text-main: #0f172a;
   --text-sub: #64748b;
@@ -3079,7 +3096,7 @@ body[data-theme="light"] {
   --settlement-pay-surface-line: rgba(79, 70, 229, 0.30);
 }
 
-body[data-theme="dark"] {
+body[data-app-theme="natural"][data-theme="dark"] {
   --bg-body: #080d1a;
   --text-main: #f8fafc;
   --text-sub: #a5b4c9;
@@ -3200,8 +3217,8 @@ body,
 .seisan-btn.primary,
 .tool-btn.primary,
 .header-action.share-action {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--accent-color) 94%, #ffffff), var(--accent-color));
-  border-color: color-mix(in srgb, var(--accent-color) 82%, #111827);
+  background: var(--control-primary-bg);
+  border-color: var(--control-primary-bg);
   color: #fff;
   box-shadow: 0 8px 20px color-mix(in srgb, var(--accent-color) 20%, transparent);
 }
@@ -3419,7 +3436,7 @@ body,
    2026-05 compact SaaS settlement pass
    目的: 余白・色数・太字・枠線を抑え、精算画面をスマホで一覧しやすくする。
 ========================================================= */
-body[data-theme="light"] {
+body[data-app-theme="natural"][data-theme="light"] {
   --bg-body: #f7f8fc;
   --border-color: #e6e8f0;
   --text-main: #111827;
@@ -3449,7 +3466,7 @@ body[data-theme="light"] {
   --radius-lg: 14px;
 }
 
-body[data-theme="dark"] {
+body[data-app-theme="natural"][data-theme="dark"] {
   --bg-body: #090d18;
   --border-color: #273044;
   --text-main: #f8fafc;
@@ -3555,8 +3572,8 @@ body {
 
 .header-action.share-action,
 #shareLinkBtn.header-action {
-  background: color-mix(in srgb, var(--accent-color) 90%, #111827);
-  border-color: color-mix(in srgb, var(--accent-color) 78%, #111827);
+  background: var(--control-primary-bg);
+  border-color: var(--control-primary-bg);
   box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-color) 16%, transparent);
 }
 
@@ -3660,8 +3677,8 @@ body {
 
 #seisan-view-area #routeHelperBtn.seisan-btn {
   min-width: 96px;
-  background: color-mix(in srgb, var(--accent-color) 92%, #111827);
-  border-color: color-mix(in srgb, var(--accent-color) 76%, #111827);
+  background: var(--control-primary-bg);
+  border-color: var(--control-primary-bg);
   box-shadow: 0 5px 14px color-mix(in srgb, var(--accent-color) 15%, transparent);
 }
 
@@ -4317,7 +4334,7 @@ body {
    2026-05 dark mode coverage pass
    目的: 既存のSaaS調の見た目を保ったまま、白く残りやすい面・入力・モックUIをダークテーマに追従させる。
 ========================================================= */
-body[data-theme="dark"] {
+body[data-app-theme="natural"][data-theme="dark"] {
   --bs-body-bg: var(--bg-body);
   --bs-body-color: var(--text-main);
   --bs-secondary-color: var(--text-sub);
@@ -5626,7 +5643,7 @@ body.overview-drawer-open {
 
 
 /* 2026-05 cohesive UI tune: keep this as the final visual-system pass. */
-body[data-theme="light"] {
+body[data-app-theme="natural"][data-theme="light"] {
   --accent-color: #3f6f96;
   --accent-soft: #e8f0f6;
   --bg-body: #f5f7fa;
@@ -5647,7 +5664,7 @@ body[data-theme="light"] {
   --ui-unified-muted-surface: color-mix(in srgb, var(--bg-card) 84%, var(--bg-body));
 }
 
-body[data-theme="dark"] {
+body[data-app-theme="natural"][data-theme="dark"] {
   --accent-color: #78a6ca;
   --accent-soft: rgba(120, 166, 202, 0.16);
   --bg-body: #090d18;
@@ -5669,8 +5686,8 @@ body[data-theme="dark"] {
 }
 
 body {
-  --control-primary-bg: color-mix(in srgb, var(--accent-color) 92%, #111827);
-  --control-primary-hover: color-mix(in srgb, var(--accent-color) 82%, #111827);
+  --control-primary-bg: var(--accent-color);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 88%, #000);
   --control-primary-text: #fff;
   --control-secondary-bg: color-mix(in srgb, var(--bg-card) 90%, var(--bg-body));
   --control-secondary-hover: color-mix(in srgb, var(--accent-color) 8%, var(--bg-card));
@@ -5966,4 +5983,962 @@ body {
   #bottom-tray {
     border-radius: 12px;
   }
+}
+
+/* =========================================================
+   2026-05 requested full UI repair pass
+   目的: 前回の確認リストを実装側に反映し、枠線・余白・文字階層・色の揺れを最終調整する。
+========================================================= */
+body[data-app-theme="natural"][data-theme="light"] {
+  --accent-color: #34749b;
+  --accent-soft: #e8f1f6;
+  --bg-body: #f6f8fb;
+  --bg-card: #ffffff;
+  --border-color: #e4e9f0;
+  --text-main: #111827;
+  --text-sub: #6b7484;
+  --hover-bg: #eef5f8;
+  --sheet-header: #f7f9fb;
+  --ui-saas-border: rgba(111, 126, 145, 0.20);
+  --ui-saas-border-strong: rgba(52, 116, 155, 0.32);
+  --ui-saas-panel: rgba(255, 255, 255, 0.86);
+  --ui-saas-panel-raised: rgba(255, 255, 255, 0.96);
+  --ui-saas-inner: color-mix(in srgb, #ffffff 91%, #edf4f8);
+  --ui-saas-shadow: 0 1px 0 rgba(15, 23, 42, 0.032), 0 8px 22px rgba(15, 23, 42, 0.042);
+  --ui-saas-shadow-soft: 0 1px 0 rgba(15, 23, 42, 0.024), 0 4px 12px rgba(15, 23, 42, 0.030);
+  --ui-danger-line: rgba(220, 38, 38, 0.30);
+  --ui-danger-bg: color-mix(in srgb, #fef2f2 55%, var(--bg-card));
+  --radius-main: 10px;
+  --radius-sm: 7px;
+  --radius-lg: 14px;
+}
+
+body[data-app-theme="natural"][data-theme="dark"] {
+  --accent-color: #7fb0d3;
+  --accent-soft: rgba(127, 176, 211, 0.16);
+  --bg-body: #090e1a;
+  --bg-card: #111827;
+  --border-color: #293448;
+  --text-main: #f8fafc;
+  --text-sub: #a5afbf;
+  --hover-bg: #172133;
+  --sheet-header: #0f172a;
+  --ui-saas-border: rgba(148, 163, 184, 0.16);
+  --ui-saas-border-strong: rgba(127, 176, 211, 0.34);
+  --ui-saas-panel: rgba(15, 23, 42, 0.78);
+  --ui-saas-panel-raised: rgba(17, 24, 39, 0.92);
+  --ui-saas-inner: color-mix(in srgb, var(--bg-card) 88%, #12314a);
+  --ui-saas-shadow: 0 1px 0 rgba(255, 255, 255, 0.024), 0 12px 30px rgba(0, 0, 0, 0.24);
+  --ui-saas-shadow-soft: 0 1px 0 rgba(255, 255, 255, 0.018), 0 7px 18px rgba(0, 0, 0, 0.18);
+  --ui-danger-line: rgba(248, 113, 113, 0.30);
+  --ui-danger-bg: rgba(127, 29, 29, 0.15);
+  --radius-main: 10px;
+  --radius-sm: 7px;
+  --radius-lg: 14px;
+}
+
+body[data-app-theme]:not([data-app-theme="natural"]) {
+  --ui-saas-panel: color-mix(in srgb, var(--bg-card) 88%, transparent);
+  --ui-saas-panel-raised: color-mix(in srgb, var(--bg-card) 96%, var(--bg-body));
+  --ui-saas-inner: color-mix(in srgb, var(--bg-card) 86%, var(--bg-body));
+  --ui-saas-border: color-mix(in srgb, var(--border-color) 82%, transparent);
+  --ui-saas-border-strong: color-mix(in srgb, var(--accent-color) 34%, var(--border-color));
+  --ui-saas-shadow: 0 1px 0 color-mix(in srgb, var(--text-main) 5%, transparent), 0 10px 24px color-mix(in srgb, var(--text-main) 7%, transparent);
+  --ui-saas-shadow-soft: 0 1px 0 color-mix(in srgb, var(--text-main) 4%, transparent), 0 5px 16px color-mix(in srgb, var(--text-main) 5%, transparent);
+  --ui-unified-divider: color-mix(in srgb, var(--border-color) 72%, transparent);
+  --ui-unified-muted-surface: color-mix(in srgb, var(--bg-card) 84%, var(--bg-body));
+  --ui-danger-line: rgba(220, 38, 38, 0.30);
+  --ui-danger-bg: color-mix(in srgb, #fef2f2 42%, var(--bg-card));
+  --settlement-split-ink: color-mix(in srgb, #166534 70%, var(--text-main));
+  --settlement-split-bg: color-mix(in srgb, #dcfce7 42%, var(--bg-card));
+  --settlement-split-line: color-mix(in srgb, #22c55e 32%, var(--border-color));
+  --settlement-club-ink: color-mix(in srgb, #92400e 70%, var(--text-main));
+  --settlement-club-bg: color-mix(in srgb, #fef3c7 42%, var(--bg-card));
+  --settlement-club-line: color-mix(in srgb, #f59e0b 32%, var(--border-color));
+  --settlement-pay-ink: color-mix(in srgb, var(--accent-color) 78%, var(--text-main));
+  --settlement-pay-bg: color-mix(in srgb, var(--accent-soft) 70%, var(--bg-card));
+  --settlement-pay-line: color-mix(in srgb, var(--accent-color) 32%, var(--border-color));
+  --settlement-pay-surface-bg: color-mix(in srgb, var(--accent-soft) 58%, var(--bg-card));
+  --settlement-pay-surface-line: color-mix(in srgb, var(--accent-color) 30%, var(--border-color));
+}
+
+body {
+  font-weight: 450;
+  letter-spacing: -0.005em;
+  background:
+    radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--accent-color) 7%, transparent), transparent 26rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg-body) 94%, var(--bg-card)), var(--bg-body) 24rem),
+    var(--bg-body);
+}
+
+/* 文字階層を少し落ち着かせる。 */
+:where(.car-header .car-name-label, .driver-name-disp, .member-name-text, .seisan-title, .seisan-car-summary-name, .seisan-check-name, .seisan-driver-name, .sheet-car-header, .sheet-wait-header) {
+  font-weight: 760;
+  letter-spacing: -0.01em;
+}
+
+:where(.seisan-summary-value, .seisan-car-summary-total, .seisan-driver-amount) {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.012em;
+}
+
+/* ヘッダーは上部を軽く、アイコンを均一に。 */
+#app-layout #app-header {
+  padding: 8px 12px 0;
+  background: color-mix(in srgb, var(--bg-card) 90%, var(--bg-body));
+  border-bottom-color: color-mix(in srgb, var(--border-color) 62%, transparent);
+}
+
+#app-layout #app-header .app-header-main {
+  min-height: 44px;
+  gap: 10px;
+}
+
+#app-layout #app-header .app-room-input {
+  font-size: clamp(1.05rem, 4.6vw, 1.30rem);
+  font-weight: 790;
+  letter-spacing: -0.018em;
+}
+
+#app-layout #app-header .header-actions {
+  gap: 8px;
+}
+
+#app-layout #app-header .header-actions .header-action,
+#app-layout #app-header .header-actions .header-more > .header-action,
+#app-layout #app-header #shareLinkBtn.header-action {
+  width: 28px;
+  min-width: 28px;
+  height: 34px;
+  color: color-mix(in srgb, var(--text-main) 88%, var(--text-sub));
+  opacity: 0.96;
+}
+
+#app-layout #app-header .header-action i,
+#app-layout #app-header .header-actions .header-more > .header-action i {
+  width: 21px;
+  height: 21px;
+  font-size: 1.24rem;
+}
+
+#app-layout #app-header .header-actions .header-action:hover,
+#app-layout #app-header .header-actions .header-more > .header-action:hover,
+#app-layout #app-header #shareLinkBtn.header-action:hover {
+  color: var(--accent-color);
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  #app-layout #app-header .header-actions {
+    gap: 8px;
+    margin-right: 12px;
+  }
+}
+
+/* タブはCTAではなく現在位置表示に寄せる。 */
+#app-layout #view-toggle-bar,
+#app-layout .view-toggle-bar {
+  min-height: 40px;
+  margin-top: 6px;
+  border-top: 0;
+}
+
+#app-layout #view-toggle-bar .view-tab,
+#app-layout .view-toggle-bar .view-tab {
+  min-height: 40px;
+  color: color-mix(in srgb, var(--text-sub) 88%, var(--text-main));
+  font-size: 0.82rem;
+  font-weight: 730;
+}
+
+#app-layout #view-toggle-bar .view-tab::after,
+#app-layout .view-toggle-bar .view-tab::after {
+  left: 24%;
+  right: 24%;
+  height: 3px;
+}
+
+/* 操作バー: 主要・補助・切替の強さを整理。 */
+.edit-header-tools-only.allocation-toolbar {
+  margin-top: 6px;
+  margin-bottom: 10px;
+  padding: 8px 6px 8px 8px;
+  border-color: var(--ui-saas-border);
+  background: var(--ui-saas-panel-raised);
+  box-shadow: var(--ui-saas-shadow-soft);
+}
+
+.edit-header-tools-only.allocation-toolbar .allocation-toolbar-inner,
+.edit-header-tools-only.allocation-toolbar .edit-tools {
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.edit-header-tools-only.allocation-toolbar #car-plan-switcher {
+  order: -1;
+  margin-right: auto;
+}
+
+.edit-header-tools-only.allocation-toolbar .tool-btn,
+.edit-header-tools-only.allocation-toolbar .edit-tools .tool-btn,
+.allocation-mode-toggle .car-plan-template-tabs,
+.allocation-mode-toggle .car-plan-template-chip {
+  min-height: 36px;
+  border-radius: 10px;
+  font-size: 0.76rem;
+  font-weight: 720;
+}
+
+#batchOpenBtn.tool-btn,
+#routeHelperBtn.seisan-btn,
+#shuffleAssignBtn.tray-action-btn {
+  background: var(--control-primary-bg);
+  border-color: var(--control-primary-bg);
+  color: var(--control-primary-text);
+}
+
+#batchOpenBtn.tool-btn i,
+#batchOpenBtn.tool-btn span,
+#routeHelperBtn.seisan-btn i,
+#routeHelperBtn.seisan-btn span,
+#shuffleAssignBtn.tray-action-btn i,
+#shuffleAssignBtn.tray-action-btn span {
+  color: var(--control-primary-text);
+}
+
+.allocation-mode-toggle .car-plan-template-tabs {
+  padding: 3px;
+  border-color: var(--ui-saas-border);
+  background: color-mix(in srgb, var(--bg-card) 82%, var(--bg-body));
+}
+
+[data-theme="dark"] .allocation-mode-toggle .car-plan-template-tabs {
+  background: color-mix(in srgb, var(--bg-card) 78%, #020617);
+}
+
+.allocation-mode-toggle .car-plan-template-chip.active,
+[data-theme="dark"] .allocation-mode-toggle .car-plan-template-chip.active {
+  border-color: color-mix(in srgb, var(--accent-color) 30%, var(--ui-saas-border));
+  background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-card));
+  color: var(--accent-color);
+}
+
+/* 車・班カード: 空席は弱く、実カードは軽く。 */
+#cars-container {
+  row-gap: 10px;
+}
+
+#cars-container .car-box {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-color: var(--ui-saas-border);
+  border-radius: var(--radius-lg);
+  background: var(--ui-saas-panel-raised);
+  box-shadow: var(--ui-saas-shadow-soft);
+}
+
+#cars-container .car-header {
+  margin-bottom: 7px;
+  padding-bottom: 7px;
+  border-bottom-color: color-mix(in srgb, var(--ui-saas-border) 72%, transparent);
+}
+
+#cars-container .car-layout-grid {
+  gap: 6px;
+}
+
+#cars-container .driver-seat,
+#cars-container .seat-slot,
+#cars-container .member-card {
+  border-color: var(--ui-saas-border);
+  border-left-width: 1px;
+  border-radius: var(--radius-main);
+  box-shadow: none;
+}
+
+#cars-container .driver-seat,
+#cars-container .seat-slot > .member-card {
+  min-height: 44px;
+  padding: 7px 8px;
+  background: color-mix(in srgb, var(--bg-card) 88%, var(--bg-body));
+}
+
+#cars-container .seat-slot {
+  min-height: 44px;
+  background: color-mix(in srgb, var(--bg-card) 58%, var(--bg-body));
+  border-style: dashed;
+  opacity: 0.64;
+}
+
+#cars-container .seat-slot:has(> .member-card) {
+  opacity: 1;
+}
+
+#cars-container .member-card.in-waiting,
+#waiting-list .member-card {
+  min-height: 44px;
+  padding: 7px 8px;
+  background: var(--ui-saas-panel-raised);
+}
+
+#cars-container :where(.member-menu-btn, .driver-menu-btn) {
+  min-width: 28px;
+  min-height: 28px;
+  color: color-mix(in srgb, var(--text-sub) 82%, transparent);
+}
+
+#cars-container :where(.member-menu-btn, .driver-menu-btn):hover {
+  color: var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color) 9%, var(--bg-card));
+}
+
+#cars-container .memo-popup {
+  margin-top: 2px;
+  color: color-mix(in srgb, var(--text-sub) 94%, var(--text-main));
+  font-size: 0.64rem;
+}
+
+.grade-badge.grade-male,
+.sheet-seat-row .grade-badge.grade-male,
+.sheet-wait-item .grade-badge.grade-male {
+  background: color-mix(in srgb, #dbeafe 62%, var(--bg-card));
+  border-color: rgba(80, 137, 192, 0.32);
+  color: #376b95;
+}
+
+.grade-badge.grade-female,
+.sheet-seat-row .grade-badge.grade-female,
+.sheet-wait-item .grade-badge.grade-female {
+  background: color-mix(in srgb, #ffe4e6 60%, var(--bg-card));
+  border-color: rgba(190, 92, 117, 0.32);
+  color: #a84a66;
+}
+
+[data-theme="dark"] .grade-badge.grade-male,
+[data-theme="dark"] .sheet-seat-row .grade-badge.grade-male,
+[data-theme="dark"] .sheet-wait-item .grade-badge.grade-male {
+  background: rgba(96, 165, 250, 0.13);
+  border-color: rgba(147, 197, 253, 0.42);
+  color: #c7ddf4;
+}
+
+[data-theme="dark"] .grade-badge.grade-female,
+[data-theme="dark"] .sheet-seat-row .grade-badge.grade-female,
+[data-theme="dark"] .sheet-wait-item .grade-badge.grade-female {
+  background: rgba(251, 113, 133, 0.13);
+  border-color: rgba(253, 164, 175, 0.42);
+  color: #f7ced7;
+}
+
+/* 下部トレイ: ブラウザ下部UIと干渉しにくい高さ・密度。 */
+#bottom-tray {
+  border-color: var(--ui-saas-border);
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  box-shadow: 0 -1px 0 rgba(15, 23, 42, 0.035), 0 -14px 28px rgba(15, 23, 42, 0.055);
+}
+
+#tray-handle {
+  min-height: 34px;
+  height: 34px;
+  border-color: color-mix(in srgb, var(--ui-saas-border) 72%, transparent);
+  background: transparent;
+}
+
+#tray-toggle-label {
+  font-size: 0.72rem;
+  font-weight: 720;
+}
+
+#bottom-tray-header {
+  padding: 7px 10px 9px;
+  border-color: color-mix(in srgb, var(--ui-saas-border) 72%, transparent);
+}
+
+.tray-inline-row {
+  align-items: center;
+  gap: 6px;
+}
+
+.tray-inline-row .tray-action-btn,
+.random-tools .settings-btn {
+  min-height: 36px;
+  border-radius: 10px;
+  font-size: 0.70rem;
+  font-weight: 720;
+}
+
+#waiting-count.waiting-inline-count {
+  font-size: 0.70rem;
+  font-weight: 720;
+  padding: 3px 7px;
+}
+
+@media (max-width: 640px) {
+  #bottom-tray.minimized {
+    height: 86px;
+    min-height: 86px;
+  }
+
+  #waiting-list-container {
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+}
+
+/* 共有画面: 表は読みやすく、空き表示は弱く。 */
+#sheet-title-bar {
+  top: 8px;
+  left: 10px;
+  right: 10px;
+  min-height: 48px;
+  padding: 7px 9px;
+  border-color: var(--ui-saas-border);
+  background: var(--ui-saas-panel-raised);
+  box-shadow: var(--ui-saas-shadow-soft);
+}
+
+.sheet-summary-plan-label {
+  background: color-mix(in srgb, var(--text-main) 86%, var(--accent-color));
+  color: var(--bg-card);
+  font-weight: 760;
+}
+
+.sheet-summary-stat,
+.sheet-summary-updated {
+  color: var(--text-sub);
+  font-weight: 680;
+}
+
+.sheet-summary-stat strong,
+.sheet-summary-updated strong {
+  font-weight: 800;
+}
+
+#sheet-canvas {
+  top: 70px;
+  gap: 18px;
+  padding: 12px 10px 126px;
+}
+
+.sheet-plan-heading {
+  margin-left: 2px;
+  margin-bottom: 7px;
+  color: color-mix(in srgb, var(--text-main) 92%, var(--text-sub));
+  font-size: 0.86rem;
+  font-weight: 760;
+}
+
+.sheet-car-col,
+.sheet-wait-block {
+  min-width: 132px;
+  border-color: var(--ui-saas-border);
+  border-radius: 12px;
+  background: var(--ui-saas-panel-raised);
+  box-shadow: none;
+}
+
+.sheet-label-col {
+  min-width: 48px;
+}
+
+.sheet-car-header,
+.sheet-wait-header {
+  padding: 7px 8px;
+  background: color-mix(in srgb, var(--bg-card) 84%, var(--bg-body));
+  color: var(--text-main);
+  font-size: 0.72rem;
+  font-weight: 780;
+}
+
+.sheet-driver-row,
+.sheet-seat-row,
+.sheet-wait-item {
+  min-height: 34px;
+  padding: 5px 7px;
+  border-bottom-color: color-mix(in srgb, var(--ui-saas-border) 74%, transparent);
+  background: var(--bg-card);
+}
+
+.sheet-driver-row {
+  background: color-mix(in srgb, var(--accent-color) 5%, var(--bg-card));
+}
+
+.sheet-seat-row.empty,
+.sheet-wait-item.empty,
+.sheet-seat-disabled {
+  color: color-mix(in srgb, var(--text-sub) 70%, transparent);
+  background: color-mix(in srgb, var(--bg-card) 62%, var(--bg-body));
+  font-style: normal;
+}
+
+.sheet-seat-row.empty .sheet-cell-text,
+.sheet-wait-item.empty .sheet-cell-text {
+  opacity: 0.68;
+}
+
+#sheet-hint {
+  bottom: 76px;
+  background: rgba(15, 23, 42, 0.72);
+  font-size: 0.68rem;
+}
+
+#sheet-bottom-controls {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+  padding: 6px;
+  border-color: var(--ui-saas-border);
+  background: color-mix(in srgb, var(--bg-card) 88%, transparent);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+}
+
+#zoom-controls button,
+#sheet-quick-edit-btn {
+  min-height: 34px;
+  border-color: var(--ui-saas-border);
+  background: var(--bg-card);
+  font-weight: 720;
+}
+
+@media (max-width: 640px) {
+  .sheet-car-col,
+  .sheet-wait-block {
+    min-width: 120px;
+  }
+
+  .sheet-label-col {
+    min-width: 46px;
+  }
+
+  #sheet-bottom-controls {
+    transform: translateX(-50%) scale(0.92);
+  }
+}
+
+/* 精算画面: サマリー・エラー・車別内訳を読みやすく。 */
+#seisan-view-area {
+  padding: 9px 10px 24px;
+}
+
+#seisan-view-area .seisan-wrap {
+  gap: 9px;
+}
+
+#seisan-view-area .seisan-card {
+  padding: 10px;
+  border-color: var(--ui-saas-border);
+  border-radius: 13px;
+  background: var(--ui-saas-panel-raised);
+  box-shadow: var(--ui-saas-shadow-soft);
+}
+
+#seisan-view-area .seisan-head,
+#seisan-view-area .seisan-compact-head,
+#seisan-view-area .seisan-head-tools-only {
+  margin-bottom: 8px;
+  padding-bottom: 7px;
+  border-bottom-color: color-mix(in srgb, var(--ui-saas-border) 64%, transparent);
+}
+
+#seisan-view-area .seisan-title {
+  font-size: 0.86rem;
+  font-weight: 760;
+}
+
+#seisan-view-area .seisan-head-actions {
+  gap: 5px;
+}
+
+#seisan-view-area .seisan-toolbar-card .seisan-head-tools-only {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 52px;
+  margin: 0 0 10px;
+  padding: 8px 6px 8px 8px;
+  border: 1px solid var(--ui-saas-border);
+  border-radius: var(--radius-lg);
+  background: var(--ui-saas-panel-raised);
+  box-shadow: var(--ui-saas-shadow-soft);
+}
+
+#seisan-view-area .seisan-toolbar-card .seisan-head-actions {
+  width: 100%;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+#seisan-view-area .seisan-head-actions .seisan-btn,
+#seisan-view-area .seisan-compact-head .seisan-btn,
+#seisan-view-area .seisan-share-actions .seisan-btn {
+  min-height: 36px;
+  padding-inline: 10px;
+  border-radius: 10px;
+  font-size: 0.76rem;
+  font-weight: 720;
+}
+
+#seisan-view-area #seisanRefreshBtn.seisan-btn {
+  width: 36px;
+  min-width: 36px;
+  padding-inline: 0;
+}
+
+#seisan-view-area #routeHelperBtn.seisan-btn {
+  min-width: 92px;
+}
+
+#settlementCarEditModal .seisan-distance-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  min-width: 0;
+}
+
+#settlementCarEditModal .seisan-distance-field label {
+  min-width: 0;
+}
+
+#settlementCarEditModal .seisan-distance-shortcut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 7px;
+  border: 1px solid var(--app-accent, var(--accent-color));
+  border-radius: 9px;
+  background: var(--app-accent, var(--accent-color));
+  color: #fff;
+  font-size: 0.64rem;
+  font-weight: 820;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--app-accent, var(--accent-color)) 24%, transparent);
+}
+
+#settlementCarEditModal .seisan-distance-shortcut:hover,
+#settlementCarEditModal .seisan-distance-shortcut:focus-visible {
+  background: color-mix(in srgb, var(--app-accent, var(--accent-color)) 86%, #000);
+  border-color: color-mix(in srgb, var(--app-accent, var(--accent-color)) 86%, #000);
+}
+
+#settlementCarEditModal .seisan-distance-shortcut:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--app-accent, var(--accent-color)) 28%, transparent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  #settlementCarEditModal .seisan-distance-shortcut {
+    min-height: 32px;
+    padding-inline: 6px;
+  }
+}
+
+#seisan-view-area .seisan-top-flow {
+  grid-template-columns: minmax(0, 1fr) 14px minmax(0, 1fr) 14px minmax(0, 1fr);
+  gap: 5px;
+}
+
+#seisan-view-area .seisan-flow-arrow {
+  min-width: 14px;
+  font-size: 0.82rem;
+  color: color-mix(in srgb, var(--text-main) 74%, var(--text-sub));
+}
+
+#seisan-view-area .seisan-summary-card {
+  min-height: 66px;
+  padding: 7px 7px 6px;
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+#seisan-view-area .seisan-summary-label {
+  font-size: 0.55rem;
+  font-weight: 720;
+}
+
+#seisan-view-area .seisan-summary-value {
+  font-size: clamp(0.94rem, 4.1vw, 1.12rem);
+  font-weight: 760;
+}
+
+#seisan-view-area .seisan-summary-sub {
+  font-size: 0.51rem;
+  font-weight: 600;
+}
+
+#seisan-view-area .seisan-alert {
+  display: grid;
+  gap: 6px;
+  margin-top: 7px;
+  padding: 8px 9px;
+  border: 1px solid var(--ui-danger-line);
+  border-left-width: 3px;
+  border-radius: 10px;
+  background: var(--ui-danger-bg);
+  color: #991b1b;
+  font-size: 0.70rem;
+  line-height: 1.4;
+}
+
+[data-theme="dark"] #seisan-view-area .seisan-alert {
+  color: #fecaca;
+}
+
+#seisan-view-area .seisan-alert-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+}
+
+#seisan-view-area .seisan-alert-action {
+  flex: 0 0 auto;
+  min-height: 28px;
+  padding-inline: 8px;
+  border-radius: 8px;
+}
+
+#seisan-view-area .seisan-summary-pills--single {
+  gap: 5px;
+}
+
+#seisan-view-area .seisan-summary-pills--single span {
+  min-height: 32px;
+  padding: 5px 6px;
+  border-color: var(--ui-saas-border);
+  border-radius: 10px;
+  font-size: 0.68rem;
+  font-weight: 720;
+}
+
+#seisan-view-area .seisan-summary-pills--single small {
+  font-size: 0.52rem;
+}
+
+#seisan-view-area .seisan-car-summary-row {
+  border-color: var(--ui-saas-border);
+  border-radius: 11px;
+  background: var(--ui-saas-panel-raised);
+  box-shadow: none;
+}
+
+#seisan-view-area .seisan-car-summary-row.has-error {
+  border-color: var(--ui-danger-line);
+  background: color-mix(in srgb, var(--ui-danger-bg) 58%, var(--bg-card));
+}
+
+#seisan-view-area .seisan-car-summary-headline {
+  grid-template-columns: minmax(0, 1fr) auto 32px;
+  gap: 6px;
+  padding: 7px 8px;
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--accent-soft));
+  border-bottom-color: color-mix(in srgb, var(--ui-saas-border) 58%, transparent);
+}
+
+#seisan-view-area .seisan-car-summary-name {
+  font-size: 0.82rem;
+  font-weight: 760;
+}
+
+#seisan-view-area .seisan-car-summary-name em {
+  font-size: 0.54rem;
+  font-weight: 690;
+}
+
+#seisan-view-area .seisan-car-summary-total {
+  font-size: 0.92rem;
+  font-weight: 760;
+}
+
+#seisan-view-area .seisan-car-summary-headline .seisan-edit-btn {
+  width: 32px;
+  min-width: 32px;
+  min-height: 28px;
+  border-radius: 8px;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-item--inline-all {
+  padding: 6px 8px 7px;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-detail-text,
+#seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list {
+  gap: 3px 6px;
+  font-size: 0.70rem;
+  line-height: 1.5;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-extra-inline > span {
+  font-weight: 620;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-extra-inline strong {
+  font-size: 0.73rem;
+  font-weight: 760;
+}
+
+#seisan-view-area .seisan-cost-policy-tag,
+#seisan-view-area .seisan-cost-type-badge,
+#seisan-view-area .seisan-payment-tag {
+  min-height: 17px;
+  padding: 1px 6px;
+  font-size: 0.56rem;
+  font-weight: 720;
+}
+
+#seisan-view-area .seisan-check-item,
+#seisan-view-area .seisan-driver-pay-row {
+  border-color: var(--ui-saas-border);
+  border-radius: 10px;
+  background: var(--ui-saas-panel-raised);
+  box-shadow: none;
+}
+
+#seisan-view-area .seisan-driver-pay-row {
+  grid-template-columns: minmax(0, 1fr) auto 22px;
+  padding: 8px 9px;
+}
+
+#seisan-view-area .seisan-driver-detail {
+  margin-top: 1px;
+  font-size: 0.64rem;
+  line-height: 1.34;
+  color: var(--text-sub);
+}
+
+#seisan-view-area .seisan-check-note {
+  color: var(--text-sub);
+  font-size: 0.64rem;
+  font-weight: 650;
+}
+
+#seisan-view-area .seisan-share-actions .seisan-btn {
+  min-height: 38px;
+}
+
+/* 概要ドロワー: スマホでは下シート、入力行は重ならない。 */
+.overview-drawer-kicker {
+  letter-spacing: 0.04em;
+}
+
+.overview-drawer h2 {
+  font-size: 1.24rem;
+  font-weight: 780;
+}
+
+.debug-theme-tools {
+  padding: 8px;
+  border: 1px solid var(--ui-saas-border, var(--border-color));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg-card) 88%, var(--bg-body));
+}
+
+.debug-theme-toggle .btn {
+  min-height: 34px;
+}
+
+.debug-theme-toggle .btn.active {
+  color: var(--control-primary-text);
+  border-color: var(--control-primary-bg);
+  background: var(--control-primary-bg);
+}
+
+.overview-textarea {
+  min-height: 112px;
+  border-radius: 11px;
+}
+
+#overviewDrawer .overview-timetable-row,
+.overview-drawer .overview-timetable-row {
+  grid-template-columns: 88px minmax(0, 1fr) 32px;
+  gap: 7px;
+}
+
+#overviewDrawer .overview-timetable-row input,
+.overview-drawer .overview-timetable-row input {
+  min-width: 0;
+  min-height: 38px;
+  border-radius: 10px;
+}
+
+@media (max-width: 640px) {
+  .overview-drawer,
+  #overviewDrawer.overview-drawer {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: min(78dvh, 620px);
+    padding: 16px 16px max(16px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--ui-saas-border);
+    border-left: 0;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -26px 54px rgba(15, 23, 42, 0.18);
+    transform: translateY(104%);
+    overflow-x: hidden;
+  }
+
+  .overview-drawer.is-open,
+  #overviewDrawer.overview-drawer.is-open {
+    transform: translateY(0);
+  }
+
+  .overview-drawer-head {
+    padding-bottom: 12px;
+  }
+
+  .overview-drawer-body {
+    gap: 16px;
+    padding-top: 14px;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  #overviewDrawer .overview-panel,
+  #overviewDrawer .overview-timetable-rows,
+  .overview-drawer .overview-panel,
+  .overview-drawer .overview-timetable-rows {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  #overviewDrawer .overview-textarea,
+  #overviewDrawer .overview-copy-action,
+  .overview-drawer .overview-textarea,
+  .overview-drawer .overview-copy-action {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #overviewDrawer .overview-textarea,
+  .overview-drawer .overview-textarea {
+    resize: vertical;
+  }
+
+  #overviewDrawer .overview-timetable-row,
+  .overview-drawer .overview-timetable-row {
+    grid-template-columns: 86px minmax(0, 1fr) 30px;
+    gap: 6px;
+  }
+}
+
+/* ダークモードの白残り・強すぎる枠を抑える。 */
+[data-theme="dark"] :where(#app-header, #view-toggle-bar, .edit-header-tools-only, .seisan-card, .car-box, #bottom-tray, #sheet-title-bar, #sheet-bottom-controls, .sheet-car-col, .sheet-wait-block, .overview-drawer, .modal-content, .dropdown-menu) {
+  border-color: var(--ui-saas-border);
+  background-color: color-mix(in srgb, var(--bg-card) 88%, #020617);
+  box-shadow: var(--ui-saas-shadow-soft);
+}
+
+[data-theme="dark"] :where(.driver-seat, .seat-slot, .member-card, .sheet-driver-row, .sheet-seat-row, .sheet-wait-item, .seisan-summary-card, .seisan-car-summary-row, .seisan-check-item, .seisan-driver-pay-row, .overview-textarea, .overview-timetable-row input, .form-control, .form-select) {
+  border-color: var(--ui-saas-border);
+  background-color: color-mix(in srgb, var(--bg-card) 82%, #020617);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] :where(.seat-slot:empty, .sheet-seat-row.empty, .sheet-wait-item.empty, .sheet-seat-disabled) {
+  background-color: color-mix(in srgb, var(--bg-body) 72%, var(--bg-card));
 }

@@ -7,8 +7,20 @@ window.openDebugModal = function() {
         const el = byId('debugModal');
         window.modals.debug = new bootstrap.Modal(el);
     }
+    setupDebugThemeControls();
     window.modals.debug.show();
 };
+
+function setupDebugThemeControls() {
+    const root = byId('debugModal');
+    if (!root || root.dataset.themeControlsBound === 'true') return;
+    root.dataset.themeControlsBound = 'true';
+    root.querySelectorAll('[data-debug-theme-mode]').forEach(button => {
+        button.addEventListener('click', () => {
+            window.setDebugAppearanceMode?.(button.dataset.debugThemeMode);
+        });
+    });
+}
 
 
 function setupHiddenDebugTap() {

@@ -33,6 +33,7 @@
             'add-settlement-extra': ({ target }) => global.addSettlementExtra?.(target.dataset.driverName || ''),
             'remove-settlement-extra': ({ target }) => global.removeSettlementExtra?.(target),
             'copy-settlement-text': () => global.copySettlementText?.(),
+            'open-route-helper-shortcut': () => global.openRouteDistanceHelperFromShortcut?.(),
             'edit-route-private-origin': () => global.editRoutePrivateOrigin?.(),
             'clear-route-private-origin': () => global.clearRoutePrivateOrigin?.(),
             'save-route-private-origin': () => global.saveRoutePrivateOrigin?.(),

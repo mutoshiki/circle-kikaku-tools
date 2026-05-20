@@ -1276,3 +1276,55 @@ border-radius: var(--radius-main);
     transform: translateX(-50%) scale(0.94);
   }
 }
+
+/* Mobile sheet summary readability: keep the current viewport chrome while giving
+   each count enough room to read without crowding. */
+@media (max-width: 640px) {
+  #sheet-title-bar {
+    min-height: 54px;
+    padding: 8px 10px;
+  }
+
+  #sheet-summary {
+    width: 100%;
+    gap: 4px;
+  }
+
+  .sheet-summary-row {
+    grid-template-columns: minmax(42px, 0.8fr) repeat(4, minmax(48px, 1fr));
+    column-gap: 5px;
+    row-gap: 3px;
+  }
+
+  .sheet-summary-plan-label {
+    padding: 3px 6px;
+    font-size: 0.62rem;
+  }
+
+  .sheet-summary-stat,
+  .sheet-summary-updated {
+    justify-content: center;
+    min-height: 18px;
+    gap: 3px;
+    font-size: 0.62rem;
+  }
+
+  .sheet-summary-stat strong,
+  .sheet-summary-updated strong {
+    font-size: 0.68rem;
+  }
+
+  .sheet-summary-updated {
+    grid-column: 2 / -1;
+    justify-self: stretch;
+    margin-left: 0;
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--hairline, var(--border-color));
+    padding-top: 2px;
+  }
+
+  #sheet-canvas {
+    top: 76px;
+  }
+}

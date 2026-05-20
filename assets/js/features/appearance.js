@@ -22,19 +22,22 @@ function readAppearanceSettings() {
         const legacyPalette = parsed.palette || parsed.appTheme;
         const lightPalette = normalizeAppearancePalette(parsed.lightPalette || legacyPalette || DEFAULT_APPEARANCE.lightPalette, 'light');
         const darkPalette = normalizeAppearancePalette(parsed.darkPalette || legacyPalette || DEFAULT_APPEARANCE.darkPalette, 'dark');
-        return { mode: 'system', lightPalette, darkPalette };
+        const mode = ['light', 'dark', 'system'].includes(parsed.mode) ? parsed.mode : 'system';
+        return { mode, lightPalette, darkPalette };
     } catch (_) {
         return { ...DEFAULT_APPEARANCE };
     }
 }
 function resolveAppearanceMode() {
+    if (appearanceSettings.mode === 'light' || appearanceSettings.mode === 'dark') return appearanceSettings.mode;
     return appearanceMql.matches ? 'dark' : 'light';
 }
 function getActiveAppearancePalette(settings = appearanceSettings) {
     return resolveAppearanceMode() === 'dark' ? settings.darkPalette : settings.lightPalette;
 }
 function applyAppearanceSettings(settings = readAppearanceSettings(), persist = true) {
-    const next = { ...DEFAULT_APPEARANCE, ...settings, mode: 'system' };
+    const next = { ...DEFAULT_APPEARANCE, ...settings };
+    next.mode = ['light', 'dark', 'system'].includes(next.mode) ? next.mode : 'system';
     next.lightPalette = normalizeAppearancePalette(next.lightPalette, 'light');
     next.darkPalette = normalizeAppearancePalette(next.darkPalette, 'dark');
     appearanceSettings = next;
@@ -61,6 +64,9 @@ function updateAppearanceControls() {
     const lightLabel = $('#lightThemeSummary');
     if (darkLabel) darkLabel.textContent = getAppearancePaletteLabel(appearanceSettings.darkPalette);
     if (lightLabel) lightLabel.textContent = getAppearancePaletteLabel(appearanceSettings.lightPalette);
+    $$('[data-debug-theme-mode]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.debugThemeMode === appearanceSettings.mode);
+    });
     const label = $('#appearanceCurrentLabel');
     if (label) label.textContent = resolvedTheme === 'dark' ? '端末：ダーク' : '端末：ライト';
 }
@@ -135,19 +141,25 @@ function setupAppearanceControls() {
         btn.addEventListener('click', () => {
             const scope = btn.dataset.themeScope === 'dark' ? 'dark' : 'light';
             const palette = btn.dataset.themePalette;
-            const next = { ...appearanceSettings, mode: 'system' };
+            const next = { ...appearanceSettings };
             if (scope === 'dark') next.darkPalette = palette;
             else next.lightPalette = palette;
             applyAppearanceSettings(next);
         });
     });
-    const refreshBySystem = () => applyAppearanceSettings({ ...appearanceSettings, mode: 'system' }, false);
+    const refreshBySystem = () => applyAppearanceSettings({ ...appearanceSettings }, false);
     if (appearanceMql.addEventListener) appearanceMql.addEventListener('change', refreshBySystem);
     else if (appearanceMql.addListener) appearanceMql.addListener(refreshBySystem);
 }
 window.openAppearanceModal = function() {
-    applyAppearanceSettings({ ...appearanceSettings, mode: 'system' }, false);
+    applyAppearanceSettings({ ...appearanceSettings }, false);
     if (modals.appearance) modals.appearance.show();
+};
+
+window.setDebugAppearanceMode = function(mode) {
+    const nextMode = ['light', 'dark', 'system'].includes(mode) ? mode : 'system';
+    applyAppearanceSettings({ ...appearanceSettings, mode: nextMode });
+    showMiniToast(nextMode === 'system' ? 'テーマを端末設定に戻しました' : `${nextMode === 'dark' ? 'ダーク' : 'ライト'}表示に切り替えました`);
 };
 window.resetAppearanceSettings = function() {
     applyAppearanceSettings({ ...DEFAULT_APPEARANCE });

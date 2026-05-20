@@ -90,6 +90,13 @@
         byId('overviewTimetableRows')?.lastElementChild?.querySelector('[data-field="time"]')?.focus();
     }
 
+    function focusTimetableTitleAfterTime(input) {
+        if (!input || input.dataset.field !== 'time' || !input.value) return;
+        const title = input.closest('.overview-timetable-row')?.querySelector('[data-field="title"]');
+        if (!title || document.activeElement === title) return;
+        title.focus({ preventScroll: true });
+    }
+
     function setOverviewDrawerOpen(open) {
         const drawer = byId('overviewDrawer');
         const scrim = byId('overviewDrawerScrim');
@@ -112,9 +119,16 @@
         bind('overviewDrawerCloseBtn', () => setOverviewDrawerOpen(false));
         bind('overviewDrawerScrim', () => setOverviewDrawerOpen(false));
         bind('overviewTimetableAddBtn', () => addTimetableRow());
-        bind('overviewTimetableCopyBtn', () => copyTextWithFallback(buildTimetableText(), 'タイムテーブルをコピーしました'));
+        bind('overviewTimetableCopyBtn', () => copyTextWithFallback(buildTimetableText(), '予定をコピーしました'));
         memo?.addEventListener('input', saveOverviewDraft);
         byId('overviewTimetableRows')?.addEventListener('input', saveOverviewDraft);
+        byId('overviewTimetableRows')?.addEventListener('input', event => {
+            const input = event.target.closest?.('[data-field="time"]');
+            if (input?.value && input.value.length >= 5) focusTimetableTitleAfterTime(input);
+        });
+        byId('overviewTimetableRows')?.addEventListener('change', event => {
+            focusTimetableTitleAfterTime(event.target.closest?.('[data-field="time"]'));
+        });
         byId('overviewTimetableRows')?.addEventListener('click', event => {
             const button = event.target.closest?.('[data-action="delete-timetable-row"]');
             if (!button) return;
