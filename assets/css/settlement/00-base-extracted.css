@@ -1,0 +1,43 @@
+/* 00-base-extracted.css
+   Component rules moved out of 00-base-tokens.css. */
+
+.c-collect {
+background: rgba(72,128,92,0.12); color: var(--text-main);
+}
+
+.c-account {
+background: rgba(153,110,48,0.14); color: var(--text-main);
+}
+
+.c-pay {
+background: rgba(63,111,150,0.12); color: var(--text-main);
+}
+
+.c-error {
+background: rgba(239,68,68,0.12); color: var(--color-danger-text);
+}
+
+[data-theme="dark"] .c-error {
+color:var(--palette-red-200);
+}
+
+.route-helper-panel {
+display: grid;
+    gap: 10px;
+}
+
+.route-helper-title {
+margin-bottom: 8px;
+}
+
+.route-helper-note {
+color: var(--text-sub);
+    font-size: 0.72rem;
+    line-height: 1.45;
+}
+
+.route-helper-actions {
+display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
