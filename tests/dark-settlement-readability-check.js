@@ -1,21 +1,7 @@
-const fs = require('fs');
-const path = require('path');
+const { readCssBundle } = require('./helpers/read-project');
 
-const cssPath = path.join(__dirname, '..', 'assets', 'css', '08-control-consistency.css');
-const css = fs.readFileSync(cssPath, 'utf8');
+const css = readCssBundle();
 
-const oldMarker = 'dark mode readability fix: header share icon + settlement tab';
-if (!css.includes(oldMarker)) {
-  throw new Error('Dark settlement readability patch is missing.');
-}
-
-const marker = '2026-05 theme integrity repair';
-const markerIndex = css.lastIndexOf(marker);
-if (markerIndex === -1) {
-  throw new Error('Theme integrity repair patch is missing.');
-}
-
-const block = css.slice(markerIndex);
 const required = [
   '--theme-filled-control-text',
   '--header-icon-text',
@@ -28,7 +14,7 @@ const required = [
 ];
 
 for (const token of required) {
-  if (!block.includes(token)) {
+  if (!css.includes(token)) {
     throw new Error(`Theme integrity patch is incomplete: missing ${token}`);
   }
 }

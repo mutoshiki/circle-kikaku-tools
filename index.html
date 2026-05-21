@@ -1,0 +1,695 @@
+
+<!DOCTYPE html>
+<html lang="ja" data-bs-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サークル企画ツール</title>
+    <meta name="description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">
+    <meta property="og:title" content="サークル企画ツール">
+    <meta property="og:description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mutoshiki.github.io/circle-kikaku-tools/">
+    <meta property="og:image" content="https://mutoshiki.github.io/circle-kikaku-tools/ogp-thumbnail.png">
+    <meta property="og:site_name" content="サークル企画ツール">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="サークル企画ツール">
+    <meta name="twitter:description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">
+    <meta name="twitter:image" content="https://mutoshiki.github.io/circle-kikaku-tools/ogp-thumbnail.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="./assets/css/00-base-tokens.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/00-base-extracted.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/01-layout-core.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/02-edit-controls.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/03-header-room.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/04-mobile-header-layout.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/05-mobile-header-responsive.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/06-mobile-header-repairs.css" rel="stylesheet">
+    <link href="./assets/css/02-theme-appearance.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/01-modal-dropdown-base.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/02-guide-cards.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/03-guide-mockups.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/04-modal-repairs.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/00-base-extracted.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/01-shared-card-primitives.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/02-tray-shell.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/03-person-card.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/04-car-card.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/05-drag-drop.css" rel="stylesheet">
+    <link href="./assets/css/settlement/00-base-extracted.css" rel="stylesheet">
+    <link href="./assets/css/settlement/01-page-shell.css" rel="stylesheet">
+    <link href="./assets/css/settlement/02-summary-cards.css" rel="stylesheet">
+    <link href="./assets/css/settlement/03-guide-mockups.css" rel="stylesheet">
+    <link href="./assets/css/settlement/02-common-controls.css" rel="stylesheet">
+    <link href="./assets/css/settlement/03-car-inputs.css" rel="stylesheet">
+    <link href="./assets/css/settlement/04-route-helper.css" rel="stylesheet">
+    <link href="./assets/css/settlement/05-checklists-share.css" rel="stylesheet">
+    <link href="./assets/css/06-sheet-view.css" rel="stylesheet">
+    <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
+    <link href="./assets/css/08-utilities.css" rel="stylesheet">
+  </head>
+  <body data-theme="light" data-app-theme="natural" class="sheet-mode">
+    <div id="app-layout">
+      <header id="app-header">
+        <div class="app-header-main">
+          <div class="app-brand app-room-control">
+            <div class="app-room-field">
+              <input type="text" id="roomNameInput" class="app-room-input" placeholder="企画名" autocomplete="off" aria-label="企画名">
+            </div>
+          </div>
+          <div id="syncStatusBadge" class="sync-status-badge" data-status="local" aria-live="polite"><span class="sync-status-dot" aria-hidden="true"></span><span class="sync-status-label">ローカル保存</span></div>
+          <div class="header-actions">
+            <div class="header-more dropdown">
+              <button class="header-action dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="その他">
+                <i class="fas fa-ellipsis" aria-hidden="true"></i><span>その他</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li><button id="globalGuideBtn" class="dropdown-item" type="button"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>使い方</button></li>
+                <li><button id="appearanceSettingsBtn" class="dropdown-item" type="button"><i class="fas fa-circle-half-stroke me-2" aria-hidden="true"></i>テーマ設定</button></li>
+                <li><button id="historyBtn" class="dropdown-item" type="button"><i class="fas fa-clock-rotate-left me-2" aria-hidden="true"></i>この端末の履歴</button></li>
+                <li><button id="sampleDataBtn" class="dropdown-item" type="button"><i class="fas fa-wand-magic-sparkles me-2" aria-hidden="true"></i>サンプルデータ</button></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><button id="resetDataBtn" class="dropdown-item text-danger fw-bold" type="button"><i class="fas fa-trash-can me-2" aria-hidden="true"></i>全てリセット</button></li>
+              </ul>
+            </div>
+            <button class="header-action" id="editLockBtn" type="button" title="車割メーカーと精算ツールの誤編集を防ぐ">
+              <i class="fas fa-unlock" aria-hidden="true"></i><span>ロック</span>
+            </button>
+            <button id="shareLinkBtn" class="header-action share-action" type="button" title="共有リンクをコピー">
+              <i class="fas fa-link" aria-hidden="true"></i><span>共有</span>
+            </button>
+            <button id="overviewMenuBtn" class="header-action overview-menu-toggle" type="button" title="メモ・タイムテーブル" aria-controls="overviewDrawer" aria-expanded="false">
+              <i class="fas fa-bars" aria-hidden="true"></i><span>概要</span>
+            </button>
+          </div>
+        </div>
+        <div id="view-toggle-bar">
+          <button class="view-tab" id="tab-list" aria-label="車割・班割">
+            <i class="fas fa-pen-to-square" aria-hidden="true"></i><span class="view-tab-label">車割・班割</span>
+          </button>
+          <button class="view-tab active" id="tab-sheet" aria-label="共有画面">
+            <i class="fas fa-table-list" aria-hidden="true"></i><span class="view-tab-label">共有画面</span>
+          </button>
+          <button class="view-tab" id="tab-seisan" aria-label="精算ツール">
+            <i class="fas fa-receipt" aria-hidden="true"></i><span class="view-tab-label">精算</span>
+          </button>
+        </div>
+      </header>
+      <div id="overviewDrawerScrim" class="overview-drawer-scrim" hidden></div>
+      <aside id="overviewDrawer" class="overview-drawer" aria-hidden="true" aria-labelledby="overviewDrawerTitle">
+        <div class="overview-drawer-head">
+          <div>
+            <p class="overview-drawer-kicker">概要</p>
+            <h2 id="overviewDrawerTitle">メモ・タイムテーブル</h2>
+          </div>
+          <button id="overviewDrawerCloseBtn" class="overview-drawer-close" type="button" aria-label="メニューを閉じる">
+            <i class="fas fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="overview-drawer-body">
+          <section class="overview-panel">
+            <h3>メモ</h3>
+            <textarea id="overviewMemoInput" class="overview-textarea" rows="5" placeholder="企画メモ"></textarea>
+          </section>
+          <section class="overview-panel overview-timetable-panel">
+            <div class="overview-panel-title-row">
+              <h3>タイムテーブル</h3>
+              <button id="overviewTimetableAddBtn" class="overview-mini-action" type="button">
+                <i class="fas fa-plus" aria-hidden="true"></i><span>追加</span>
+              </button>
+            </div>
+            <div id="overviewTimetableRows" class="overview-timetable-rows" aria-live="polite"></div>
+            <button id="overviewTimetableCopyBtn" class="overview-copy-action" type="button">
+              <i class="fas fa-copy" aria-hidden="true"></i><span>予定をコピー</span>
+            </button>
+          </section>
+        </div>
+      </aside>
+      <div id="top-area" style="display: none;">
+        <div class="edit-header edit-header-tools-only allocation-toolbar ui-toolbar-card">
+          <div class="edit-tools allocation-toolbar-inner ui-toolbar-row">
+            <button id="carGuideBtn" class="btn tool-btn tool-help-btn" data-priority="high" title="使い方">
+              <i class="fas fa-circle-question" aria-hidden="true"></i>
+              <span>使い方</span>
+            </button>
+            <button id="batchOpenBtn" class="btn tool-btn" data-priority="high" title="参加者登録">
+              <i class="fas fa-plus" aria-hidden="true"></i>
+              <span>参加者登録</span>
+            </button>
+            <div id="car-plan-switcher" class="car-plan-bar allocation-mode-toggle" aria-label="車割と班割の切り替え"></div>
+          </div>
+        </div>
+        <div id="cars-container" class="row g-3 pb-5"></div>
+      </div>
+
+      <div id="sheet-view-area" class="active">
+        <div id="sheet-title-bar">
+          <i class="fas fa-table-list sheet-title-icon" aria-hidden="true"></i>
+          <span id="sheet-summary" aria-label="車割と班割の集計">車割 車出し 0 同乗者 0 全員 0 待機 0 / 班割 班長 0 メンバー 0 全員 0 待機 0</span>
+        </div>
+        <div id="sheet-canvas"></div>
+        <div id="sheet-hint"><i class="fas fa-hand-pointer me-1" aria-hidden="true"></i>横にドラッグ / ピンチでズーム</div>
+        <div id="sheet-bottom-controls">
+          <div id="zoom-controls">
+            <button id="sheetZoomInBtn" title="拡大"><i class="fas fa-plus" aria-hidden="true"></i></button>
+            <button id="sheetZoomOutBtn" title="縮小"><i class="fas fa-minus" aria-hidden="true"></i></button>
+            <button id="sheetZoomResetBtn" class="sheet-zoom-reset-btn" title="リセット">⟲</button>
+          </div>
+          <button id="sheet-quick-edit-btn" type="button">
+            <i class="fas fa-hand-paper me-1" aria-hidden="true"></i>クイック編集
+          </button>
+        </div>
+      </div>
+
+      <div id="seisan-view-area">
+        <div class="seisan-wrap">
+          <section class="seisan-card seisan-toolbar-card">
+            <div class="seisan-head seisan-head-tools-only">
+              <div class="seisan-head-actions">
+                <button id="seisanGuideBtn" class="seisan-btn tool-help-btn" type="button" title="精算の使い方"><i class="fas fa-circle-question" aria-hidden="true"></i><span>使い方</span></button>
+                <button id="seisanRefreshBtn" class="seisan-btn seisan-refresh-btn" type="button" title="再計算"><i class="fas fa-rotate" aria-hidden="true"></i><span>再計算</span></button>
+                <button id="routeHelperBtn" class="seisan-btn primary seisan-route-main-btn" type="button" title="移動距離をGoogleマップで確認"><i class="fas fa-route" aria-hidden="true"></i><span>距離計算</span></button>
+              </div>
+            </div>
+            <div id="seisan-summary" class="seisan-top-flow"></div>
+            <div id="seisan-errors" class="seisan-alert"></div>
+          </section>
+
+          <section class="seisan-card seisan-settings-card">
+            <div class="seisan-compact-head">
+              <div class="seisan-title seisan-title--settings"><i class="fas fa-sliders" aria-hidden="true"></i>精算設定</div>
+              <button class="seisan-btn seisan-edit-btn" type="button" data-action="open-settlement-settings"><i class="fas fa-pen" aria-hidden="true"></i><span>編集</span></button>
+            </div>
+            <div id="seisan-settings-summary" class="seisan-settings-summary" aria-live="polite"></div>
+          </section>
+
+          <section class="seisan-card seisan-panel seisan-car-panel">
+            <div class="seisan-head">
+              <div>
+                <div class="seisan-title"><i class="fas fa-car-side" aria-hidden="true"></i>車別の費用</div>
+              </div>
+            </div>
+            <div id="seisan-car-list"></div>
+          </section>
+
+          <section class="seisan-card seisan-panel seisan-collection-panel">
+            <div class="seisan-head">
+              <div>
+                <div class="seisan-title"><i class="fas fa-clipboard-list" aria-hidden="true"></i>集金チェック</div>
+                <div id="seisan-collection-note" class="seisan-muted"></div>
+              </div>
+            </div>
+            <div id="seisan-collection-list" class="seisan-check-list"></div>
+          </section>
+
+          <section class="seisan-card seisan-panel seisan-driver-panel">
+            <div class="seisan-head">
+              <div>
+                <div class="seisan-title"><i class="fas fa-money-bill-transfer" aria-hidden="true"></i>支払いチェック</div>
+              </div>
+            </div>
+            <div id="seisan-driver-pay-list" class="seisan-driver-pay-list"></div>
+          </section>
+
+          <section class="seisan-card seisan-share-card seisan-panel">
+            <div class="seisan-head">
+              <div>
+                <div class="seisan-title"><i class="fas fa-copy" aria-hidden="true"></i>共有用テキスト</div>
+                <div id="seisan-share-note" class="seisan-muted">諸経費の内訳と部費・割勘の扱いまでまとめてコピーできます。</div>
+              </div>
+            </div>
+            <div class="seisan-share-actions" aria-label="精算結果の共有用テキスト">
+              <button class="seisan-btn primary" type="button" data-action="copy-settlement-text"><i class="fas fa-clipboard-check me-1" aria-hidden="true"></i>精算メモをコピー</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <div id="bottom-tray" style="display: none;">
+        <div id="tray-handle" role="button" tabindex="0" aria-label="未割り当てメンバーを開閉">
+          <div class="handle-bar"></div>
+          <div id="tray-toggle-label"><i class="fas fa-chevron-up" aria-hidden="true"></i><span>未割り当てメンバーを開く</span></div>
+        </div>
+        <div id="bottom-tray-header">
+          <div class="tray-inline-row">
+            <span id="waiting-count" class="waiting-inline-count" aria-live="polite">未割り当て 0人</span>
+            <button id="fillEmptySeatsBtn" class="btn btn-sm btn-outline-secondary tray-action-btn tray-action-btn--fill" title="今の配置をなるべく残して、空いている席だけ埋めます"><i class="fas fa-fill-drip" aria-hidden="true"></i><span>空席</span></button>
+            <div class="random-tools">
+              <button id="shuffleAssignBtn" class="btn btn-sm btn-outline-primary auto-assign-btn tray-action-btn tray-action-btn--auto" title="固定した人を残し、未固定の人をランダムに組み直します"><i class="fas fa-dice" aria-hidden="true"></i><span>ランダム</span></button>
+              <div class="dropdown tray-settings-dropdown">
+                <button class="btn btn-sm btn-secondary dropdown-toggle settings-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="割り当て条件を開く">
+                  条件</button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                  <li><h6 class="dropdown-header">割り当て条件</h6></li>
+                  <li><div id="autoAssignSummary" class="dropdown-item-text small text-muted-dark-friendly">条件：なし</div></li>
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" id="optFemale" class="form-check-input me-2" aria-label="女性の配置を考慮する">女子をまとめる</label>
+                  </li>
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" id="optMale" class="form-check-input me-2" aria-label="男性の配置を考慮する">男子をまとめる</label>
+                  </li>
+                  <li>
+                    <label class="dropdown-item">
+                      <input type="checkbox" id="optGrade" class="form-check-input me-2" aria-label="学年の配置を考慮する">学年をまとめる</label>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <button id="clearAllBtn" class="dropdown-item text-danger">
+                      <i class="fas fa-broom me-2" aria-hidden="true"></i>全員を未割り当てに戻す</button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="waiting-list-container">
+          <div id="waiting-list" class="shared-sortable"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Appearance settings modal -->
+    <div class="modal fade" id="appearanceModal" tabindex="-1" aria-labelledby="appearanceModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="appearanceModalTitle"><i class="fas fa-circle-half-stroke me-2" aria-hidden="true"></i>テーマ設定</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <div class="theme-settings-wrap theme-settings-wrap-v44">
+              <div class="theme-preview-panel" aria-label="テーマプレビュー">
+                <div class="theme-preview-head">
+                  <span><i class="fas fa-eye me-1" aria-hidden="true"></i>プレビュー</span>
+                  <span id="appearanceCurrentLabel" class="text-muted-dark-friendly"></span>
+                </div>
+                <div class="theme-preview-body">
+                  <div class="theme-simple-preview">
+                    <div class="theme-simple-top">
+                      <span class="theme-simple-title">新歓企画 5/12</span>
+                      <span class="theme-simple-pill">共有</span>
+                    </div>
+                    <div class="theme-simple-tabs">
+                      <span class="active">車割</span>
+                      <span>発表</span>
+                      <span>精算</span>
+                    </div>
+                    <div class="theme-simple-body">
+                      <div class="theme-simple-card">
+                        <strong>佐藤車</strong>
+                        <span>田中　山田　鈴木</span>
+                      </div>
+                      <div class="theme-simple-card accent">
+                        <small>1人あたり</small>
+                        <strong>¥2,500</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+              <div class="theme-picker-grid" aria-label="テーマ選択">
+                <details class="theme-picker">
+                  <summary><i class="fas fa-moon" aria-hidden="true"></i><span>ダークテーマ</span><strong id="darkThemeSummary">標準</strong></summary>
+                  <div class="theme-choice-scroller" data-theme-preset-list="dark">
+                    <noscript>テーマ一覧を表示するにはJavaScriptを有効にしてください。</noscript>
+                  </div>
+                </details>
+
+                <details class="theme-picker">
+                  <summary><i class="fas fa-sun" aria-hidden="true"></i><span>ライトテーマ</span><strong id="lightThemeSummary">標準</strong></summary>
+                  <div class="theme-choice-scroller" data-theme-preset-list="light">
+                    <noscript>テーマ一覧を表示するにはJavaScriptを有効にしてください。</noscript>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="resetAppearanceBtn" type="button" class="btn btn-outline-secondary">標準に戻す</button>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">完了</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit and import modals -->
+    <div class="modal fade" id="commonEditModal" tabindex="-1" aria-labelledby="commonEditModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+          <div class="modal-header py-2">
+            <h6 class="modal-title fw-bold modal-title--compact" id="commonEditModalTitle">編集</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <input type="text" id="editModalInput" class="form-control" autocomplete="off" aria-label="編集内容">
+          </div>
+          <div class="modal-footer py-1">
+            <button type="button" class="btn btn-primary btn-sm w-100 btn-accent-solid" id="saveEditBtn">保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="batchImportModal" tabindex="-1" aria-labelledby="batchImportModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold modal-title--standard" id="batchImportModalTitle">参加者登録</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <div class="guide-feature-card guide-feature-card--compact batch-spreadsheet-import mb-2">
+                  <div class="guide-feature-title mb-1"><i class="fas fa-table me-2 text-accent" aria-hidden="true"></i>スプレッドシートからまとめて登録</div>
+                  <div class="batch-import-help-text batch-import-help-text--compact">回答全体を貼り付けると、全員の名前・学年・車出しをまとめて読み込めます。</div>
+                  <textarea id="googleFormPasteArea" class="form-control batch-spreadsheet-textarea mt-2" placeholder="例：&#10;名前&#9;学籍番号&#9;学年&#9;車出し&#10;藤田 陽斗&#9;24T4082A&#9;3年&#9;する&#10;田中太郎&#9;26T1234A&#9;1年&#9;しない&#10;前田 航平&#9;23T9081A&#9;4年&#9;する&#10;中村 海斗&#9;25T5566A&#9;2年&#9;しない&#10;…" aria-label="Googleフォーム回答スプレッドシート貼り付け欄"></textarea>
+                  <button id="applyGoogleFormPasteBtn" type="button" class="btn btn-primary btn-accent-solid batch-spreadsheet-button mt-2">貼り付けた表を登録欄に読み込む</button>
+                  <div id="googleFormImportPreview" class="form-import-preview" style="display:none;" aria-live="polite"></div>
+                  <details class="batch-import-help-details">
+                    <summary>貼り付け方を見る</summary>
+                    <div class="batch-import-notice"><i class="fas fa-circle-info" aria-hidden="true"></i><span>注意：各項目の見出し行も一緒にコピーしてください。</span></div>
+                    <div class="form-sheet-howto" aria-label="Googleフォームの回答をスプレッドシートで表示する方法">
+                      <div class="form-sheet-howto-title">Googleフォームの回答をスプレッドシートで表示する方法</div>
+                      <div class="form-sheet-howto-body">応募フォームの管理画面で「回答」を開き、右上の <span class="form-sheet-icon" aria-hidden="true"></span> 緑色のスプレッドシートアイコンを押すと、回答用スプレッドシートを作成できます。</div>
+                    </div>
+                  </details>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label fw-bold small batch-label-accent">同乗者 (改行区切り)</label>
+                <textarea id="batchMembers" class="form-control batch-import-textarea" placeholder="（例）&#10;田中 太郎&#10;佐藤 花子&#10;鈴木 次郎" aria-label="参加者名一覧"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label fw-bold small batch-label-grade1">1年生 (改行区切り)</label>
+                <textarea id="batchGrade1" class="form-control batch-import-textarea" aria-label="1年生の表記"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label fw-bold small batch-label-grade2">2年生 (改行区切り)</label>
+                <textarea id="batchGrade2" class="form-control batch-import-textarea" aria-label="2年生の表記"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label fw-bold small batch-label-grade3">3年生 (改行区切り)</label>
+                <textarea id="batchGrade3" class="form-control batch-import-textarea" aria-label="3年生の表記"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label fw-bold small batch-label-grade4">4年生 (改行区切り)</label>
+                <textarea id="batchGrade4" class="form-control batch-import-textarea" aria-label="4年生の表記"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label fw-bold small batch-label-muted">車出し</label>
+                <textarea id="batchDrivers" class="form-control batch-import-textarea" aria-label="車出し可能な参加者"></textarea>
+              </div>
+            </div>
+            <div id="batchDuplicateWarning" class="batch-warning" style="display:none;"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+            <button id="executeBatchBtn" type="button" class="btn btn-primary btn-accent-solid">登録内容で更新</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Guide modals -->
+    <div class="modal fade" id="globalGuideModal" tabindex="-1" aria-labelledby="globalGuideModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold modal-title--guide" id="globalGuideModalTitle"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>全体の使い方</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body p-0 unified-guide-body" data-guide-root="global">
+            <div class="guide-template-placeholder" data-guide-template-placeholder="true">読み込み中...</div>
+          </div>
+          <div class="modal-footer guide-footer guide-footer--compact">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="globalGuidePrevBtn" style="display:none;"><i class="fas fa-chevron-left me-1" aria-hidden="true"></i>前へ</button>
+            <button type="button" class="btn btn-primary btn-sm flex-grow-1 btn-accent-solid" id="globalGuideNextBtn">次へ <i class="fas fa-chevron-right ms-1" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-primary btn-sm flex-grow-1 btn-accent-solid" id="globalGuideCloseBtn" style="display:none;" data-bs-dismiss="modal"><i class="fas fa-check me-1" aria-hidden="true"></i>閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="guideModal" tabindex="-1" aria-labelledby="guideModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold modal-title--guide" id="guideModalTitle"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>車割メーカーの使い方</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body p-0 unified-guide-body" data-guide-root="car">
+            <div class="guide-template-placeholder" data-guide-template-placeholder="true">読み込み中...</div>
+          </div>
+          <div class="modal-footer guide-footer guide-footer--compact">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="carGuidePrevBtn" style="display:none;"><i class="fas fa-chevron-left me-1" aria-hidden="true"></i>前へ</button>
+            <button type="button" class="btn btn-primary btn-sm flex-grow-1 btn-accent-solid" id="carGuideNextBtn">次へ <i class="fas fa-chevron-right ms-1" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-primary btn-sm flex-grow-1 btn-accent-solid" id="carGuideCloseBtn" style="display:none;" data-bs-dismiss="modal"><i class="fas fa-check me-1" aria-hidden="true"></i>閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="seisanGuideModal" tabindex="-1" aria-labelledby="seisanGuideModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold modal-title--guide" id="seisanGuideModalTitle"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>精算ツールの使い方</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body p-0 unified-guide-body" data-guide-root="seisan">
+            <div class="guide-template-placeholder" data-guide-template-placeholder="true">読み込み中...</div>
+          </div>
+          <div class="modal-footer guide-footer guide-footer--compact">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="seisanGuidePrevBtn" style="display:none;"><i class="fas fa-chevron-left me-1" aria-hidden="true"></i>前へ</button>
+            <button type="button" class="btn btn-primary btn-sm flex-grow-1 btn-accent-solid" id="seisanGuideNextBtn">次へ <i class="fas fa-chevron-right ms-1" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-primary btn-sm flex-grow-1 btn-accent-solid" id="seisanGuideCloseBtn" style="display:none;" data-bs-dismiss="modal"><i class="fas fa-check me-1" aria-hidden="true"></i>閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Settlement edit modals -->
+    <div class="modal fade" id="settlementSettingsModal" tabindex="-1" aria-labelledby="settlementSettingsModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm settlement-edit-dialog">
+        <div class="modal-content settlement-edit-modal-content">
+          <div class="modal-header py-2">
+            <h6 class="modal-title fw-bold modal-title--compact" id="settlementSettingsModalTitle"><i class="fas fa-sliders me-2" aria-hidden="true"></i>精算設定</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <div class="seisan-settings seisan-settings--modal">
+              <div class="seisan-field">
+                <label>端数処理</label>
+                <select id="seisanRounding" aria-label="端数処理">
+                  <option value="100">100円</option>
+                  <option value="50">50円</option>
+                  <option value="10">10円</option>
+                  <option value="1">1円</option>
+                </select>
+              </div>
+              <div class="seisan-field">
+                <label>車出し協力代（1台）</label>
+                <input id="seisanDriverReward" type="number" inputmode="numeric" value="0" aria-label="車出し協力代">
+              </div>
+              <div class="seisan-field">
+                <label>企画者</label>
+                <select id="seisanOrganizerName" aria-label="企画者名"></select>
+              </div>
+              <label class="seisan-toggle seisan-toggle--modal">
+                <span>車出しの集金を支払いから差し引く</span>
+                <input id="seisanDriverCollectionOffset" type="checkbox" checked aria-label="車出しの集金を支払いから差し引く">
+              </label>
+              <label class="seisan-toggle seisan-toggle--modal">
+                <span>企画者を集金対象から外す</span>
+                <input id="seisanOrganizerFree" type="checkbox" checked aria-label="企画者を集金対象から外す">
+              </label>
+            </div>
+          </div>
+          <div class="modal-footer py-2">
+            <button class="btn btn-primary btn-sm w-100 btn-accent-solid" type="button" data-action="save-settlement-settings">保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="settlementCarEditModal" tabindex="-1" aria-labelledby="settlementCarEditModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm settlement-edit-dialog settlement-edit-dialog--car">
+        <div class="modal-content settlement-edit-modal-content">
+          <div class="modal-header py-2">
+            <h6 class="modal-title fw-bold modal-title--compact" id="settlementCarEditModalTitle"><i class="fas fa-car-side me-2" aria-hidden="true"></i>車ごとの費用</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <div id="settlementCarEditBody"></div>
+          </div>
+          <div class="modal-footer py-2">
+            <button class="btn btn-primary btn-sm w-100 btn-accent-solid" type="button" data-action="save-settlement-car-edit">保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Utility modals -->
+    <div class="modal fade" id="routeDistanceModal" tabindex="-1" aria-labelledby="routeDistanceModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold modal-title--guide" id="routeDistanceModalTitle"><i class="fas fa-route me-2" aria-hidden="true"></i>移動距離計算</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <div class="route-helper-panel">
+              <div class="route-private-panel">
+                <div class="seisan-title route-helper-title"><i class="fas fa-house-user" aria-hidden="true"></i>自分用の出発地</div>
+                <div id="routePrivateOriginBox"></div>
+                <div class="route-helper-note mt-2">この端末だけに保存されます。保存済みの場合は、編集ボタンから確認・変更できます。Googleマップを開くときだけGoogleに送信されます。</div>
+              </div>
+
+              <div class="route-stop-panel">
+                <div class="seisan-title route-helper-title"><i class="fas fa-map-location-dot" aria-hidden="true"></i>目的地・経由地</div>
+                <div id="routeStopList" class="route-stop-list"></div>
+                <button id="addRouteStopBtn" class="seisan-btn route-add-stop-btn" type="button"><i class="fas fa-plus me-1" aria-hidden="true"></i>場所を追加</button>
+              </div>
+
+              <div class="route-helper-actions">
+                <button id="openGoogleRouteBtn" class="seisan-btn primary" type="button"><i class="fab fa-google"></i>Googleマップで開く</button>
+              </div>
+
+              <div class="route-helper-note">目的地・経由地は全員に共有されます。並び替えは左の番号をドラッグして行います。Googleマップで総移動距離を確認したら、車ごとの移動距離に入力してください。</div>
+              <div id="routeHelperStatus" class="seisan-small"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm w-100" data-bs-dismiss="modal">閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold modal-title--standard" id="historyModalTitle">
+              <i class="fas fa-history me-2" aria-hidden="true"></i>履歴
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body p-0">
+            <div id="history-list" class="list-group list-group-flush"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="debugModal" tabindex="-1" aria-labelledby="debugModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header py-2">
+                    <h6 class="modal-title fw-bold mb-0 modal-title--debug" id="debugModalTitle">
+                        <i class="fas fa-wand-magic-sparkles me-2" aria-hidden="true"></i>サンプルデータ
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                </div>
+          <div class="modal-body">
+            <p class="mb-3 debug-help-text">現在のデータをリセットして、確認用のサンプルを入れます。</p>
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <label for="debugCarCount" class="mb-0 debug-label">車の数</label>
+              <select id="debugCarCount" class="form-select form-select-sm debug-car-count-select" aria-label="サンプルデータの車の数">
+                <option value="2">2台</option>
+                <option value="3" selected>3台</option>
+                <option value="4">4台</option>
+                <option value="5">5台</option>
+              </select>
+            </div>
+            <div class="debug-theme-tools mb-3" aria-label="テーマ表示確認">
+              <div class="debug-label mb-2">テーマ表示確認</div>
+              <div class="btn-group w-100 debug-theme-toggle" role="group" aria-label="ライト・ダーク切り替え">
+                <button id="debugThemeSystemBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-debug-theme-mode="system">端末</button>
+                <button id="debugThemeLightBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-debug-theme-mode="light">ライト</button>
+                <button id="debugThemeDarkBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-debug-theme-mode="dark">ダーク</button>
+              </div>
+            </div>
+            <div class="d-grid gap-2">
+              <button id="executeDebugBtn" type="button" class="btn btn-primary btn-sm fw-bold">通常サンプルを入れる</button>
+              <button id="executeDebugMissingBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold">入力漏れサンプルを入れる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script src="./firebase-config.js"></script>
+        <script src="./assets/js/modules/ui.js"></script>
+
+    <script>
+      window.addEventListener('DOMContentLoaded', function () {
+        if (!window.bootstrap) {
+          console.warn('Bootstrap JS could not be loaded. Some menus and modals may not work.');
+          document.body.classList.add('cdn-bootstrap-missing');
+        }
+        if (!window.Sortable) {
+          console.warn('Sortable could not be loaded. Legacy drag helper is disabled.');
+          document.body.classList.add('cdn-sortable-missing');
+        }
+        if (!document.querySelector('.fa, .fas, .fa-solid')) {
+          document.body.classList.add('cdn-icons-missing');
+        }
+      });
+    </script>
+
+    <script src="./assets/js/core/app-namespace.js"></script>
+    <script src="./assets/js/core/runtime.js"></script>
+    <script src="./assets/js/core/app-status.js"></script>
+    <script src="./assets/js/core/storage.js"></script>
+    <script src="./assets/js/core/render-controller.js"></script>
+    <script src="./assets/js/core/settlement-edit-guard.js"></script>
+    <script src="./assets/js/core/sync-controller.js"></script>
+    <script src="./assets/js/core/history-scheduler.js"></script>
+    <script src="./assets/js/core/data-state.js"></script>
+    <script src="./assets/js/core/modal-controller.js"></script>
+    <script src="./assets/js/modules/history.js"></script>
+    <script src="./assets/js/modules/drag-cards.js"></script>
+    <script src="./assets/js/modules/settlement.js"></script>
+    <script src="./assets/js/modules/theme-presets.js"></script>
+    <script src="./assets/js/features/appearance.js?v=debug-theme-mode"></script>
+    <script src="./assets/js/templates/settlement-templates.js?v=route-shortcut-label"></script>
+    <script src="./assets/js/features/settlement/01-state.js"></script>
+    <script src="./assets/js/features/settlement/02-calculator.js"></script>
+    <script src="./assets/js/features/settlement/03-render.js"></script>
+    <script src="./assets/js/features/settlement/04-route-helper.js?v=route-shortcut"></script>
+    <script src="./assets/js/features/settlement/05-input-actions.js"></script>
+    <script src="./assets/js/features/settlement/06-share-text.js"></script>
+    <script src="./assets/js/features/settlement.js"></script>
+    <script src="./assets/js/templates/guide-content.js"></script>
+    <script src="./assets/js/features/guides.js"></script>
+    <script src="./assets/js/core/remote-guard.js"></script>
+    <script src="./assets/js/features/share-actions.js"></script>
+    <script src="./assets/js/features/lock-protection.js"></script>
+    <script src="./assets/js/features/waiting-tray.js"></script>
+    <script src="./assets/js/features/person-cards.js"></script>
+    <script src="./assets/js/templates/sheet-templates.js"></script>
+    <script src="./assets/js/features/sheet-view.js?v=timetable-sheet-links"></script>
+    <script src="./assets/js/features/drag-edit-view.js"></script>
+    <script src="./assets/js/features/auto-assign.js"></script>
+    <script src="./assets/js/features/person-menu.js"></script>
+    <script src="./assets/js/features/google-form-import-parser.js"></script>
+    <script src="./assets/js/features/batch-import.js"></script>
+    <script src="./assets/js/features/debug-history.js?v=debug-theme-mode"></script>
+    <script src="./assets/js/app.js"></script>
+    <script src="./assets/js/features/events/00-event-utils.js"></script>
+    <script src="./assets/js/features/events/01-core-startup-events.js"></script>
+    <script src="./assets/js/features/events/02-static-header-events.js?v=timetable-sheet-sync"></script>
+    <script src="./assets/js/features/events/03-generated-action-events.js?v=route-shortcut"></script>
+    <script src="./assets/js/features/events/04-settlement-input-events.js"></script>
+    <script src="./assets/js/features/events/05-view-feature-events.js"></script>
+    <script src="./assets/js/features/events.js"></script>
+  </body>
+</html>
