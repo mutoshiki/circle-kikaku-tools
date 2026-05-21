@@ -796,3 +796,49 @@ html[data-theme="dark"] #seisan-view-area .seisan-toolbar-card .seisan-head-tool
   background: color-mix(in srgb, var(--seisan-dark-panel-soft) 88%, transparent);
   border-color: var(--seisan-dark-line-soft);
 }
+
+
+/* Standalone settlement mode: enter only driver count and other participant count. */
+#seisan-view-area .seisan-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+#settlementSettingsModal .seisan-standalone-toggle {
+  margin-top: 2px;
+}
+
+#settlementSettingsModal .seisan-standalone-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border-muted, rgba(148, 163, 184, 0.24));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel-muted) 82%, transparent);
+}
+
+#settlementSettingsModal .seisan-standalone-fields[hidden] {
+  display: none;
+}
+
+#settlementSettingsModal .seisan-standalone-note {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+#seisan-view-area .seisan-summary-pills .is-standalone {
+  border-color: color-mix(in srgb, var(--accent-color) 36%, var(--border-muted));
+  background: color-mix(in srgb, var(--accent-color) 10%, transparent);
+}
+
+body[data-theme="dark"] #settlementSettingsModal .seisan-standalone-fields,
+html[data-theme="dark"] #settlementSettingsModal .seisan-standalone-fields {
+  border-color: var(--border-muted);
+  background: var(--surface-elevated);
+}

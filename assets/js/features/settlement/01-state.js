@@ -8,6 +8,11 @@ function getDefaultSettlementState() {
         organizerName: '',
         driverCollectionOffset: true,
         driverReward: '0',
+        standalone: {
+            enabled: false,
+            driverCount: '',
+            memberCount: ''
+        },
         cars: {},
         routeStops: [],
         paid: {},
@@ -28,6 +33,72 @@ function normalizeExtraItem(ex = {}) {
 
 function normalizeRewardExtraName(value = '') {
     return String(value ?? '').replace(/\s+/g, '').replace(/[（）()]/g, '');
+}
+
+function clampStandaloneCount(value) {
+    const raw = String(value ?? '').trim();
+    if (!raw) return '';
+    const parsed = Math.floor(Number(raw));
+    if (!Number.isFinite(parsed) || parsed < 0) return '';
+    return String(Math.min(parsed, 99));
+}
+
+function normalizeStandaloneSettlementState(raw = {}) {
+    return {
+        enabled: raw.enabled === true,
+        driverCount: clampStandaloneCount(raw.driverCount),
+        memberCount: clampStandaloneCount(raw.memberCount)
+    };
+}
+
+function getStandaloneCount(value) {
+    const parsed = Number(clampStandaloneCount(value));
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function hasStandaloneSettlementCounts(state = ensureSettlementState()) {
+    const standalone = normalizeStandaloneSettlementState(state?.standalone || {});
+    return standalone.enabled && (getStandaloneCount(standalone.driverCount) > 0 || getStandaloneCount(standalone.memberCount) > 0);
+}
+
+function createStandaloneMembers(count, driverCount) {
+    const members = [];
+    for (let i = 0; i < count; i += 1) {
+        members.push({
+            name: `参加者${i + 1}`,
+            grade: 0,
+            gender: '',
+            memo: ''
+        });
+    }
+    if (driverCount <= 0) return { waiting: members, cars: [] };
+    const cars = Array.from({ length: driverCount }, (_, i) => ({
+        name: `車出し${i + 1}`,
+        capacity: '',
+        driverMemo: '',
+        driverGender: '',
+        driverGrade: 0,
+        members: []
+    }));
+    members.forEach((member, index) => {
+        cars[index % driverCount].members.push(member);
+    });
+    return { waiting: [], cars };
+}
+
+function createStandaloneSettlementData(state = ensureSettlementState(), roomName = '') {
+    const standalone = normalizeStandaloneSettlementState(state?.standalone || {});
+    const driverCount = getStandaloneCount(standalone.driverCount);
+    const memberCount = getStandaloneCount(standalone.memberCount);
+    const { waiting, cars } = createStandaloneMembers(memberCount, driverCount);
+    return {
+        roomName,
+        settlementPlanName: '精算だけ',
+        isStandaloneSettlement: true,
+        standaloneCounts: { driverCount, memberCount },
+        waiting,
+        cars
+    };
 }
 
 function isDriverRewardExtra(ex = {}) {
@@ -109,6 +180,7 @@ function normalizeSettlementState(state = {}) {
         organizerName: state.organizerName || '',
         driverCollectionOffset: state.driverCollectionOffset !== undefined ? !!state.driverCollectionOffset : true,
         driverReward: String(state.driverReward ?? base.driverReward),
+        standalone: normalizeStandaloneSettlementState(state.standalone || base.standalone),
         cars,
         routeStops: Array.isArray(state.routeStops) ? state.routeStops.map(v => String(v ?? '').trim()).filter(Boolean) : [],
         paid: state.paid && typeof state.paid === 'object' ? state.paid : {},
@@ -137,6 +209,10 @@ function yen(value) {
 
 function getRoomDataOnly() {
     const roomName = $('#roomNameInput')?.value || '';
+    const state = ensureSettlementState();
+    if (hasStandaloneSettlementCounts(state)) {
+        return createStandaloneSettlementData(state, roomName);
+    }
     if (typeof getCarPlansSnapshot === 'function' && typeof normalizeCarPlanTemplateType === 'function') {
         const plans = getCarPlansSnapshot();
         const active = plans.find(plan => plan.id === activeCarPlanId);
@@ -193,12 +269,20 @@ function syncSettlementStateFromDOM() {
     const organizerName = byId('seisanOrganizerName');
     const driverCollectionOffset = byId('seisanDriverCollectionOffset');
     const driverReward = byId('seisanDriverReward');
+    const standaloneEnabled = byId('seisanStandaloneEnabled');
+    const standaloneDriverCount = byId('seisanStandaloneDriverCount');
+    const standaloneMemberCount = byId('seisanStandaloneMemberCount');
 
     if (rounding) state.rounding = rounding.value || '100';
     if (organizerFree) state.organizerFree = organizerFree.checked;
     if (organizerName) state.organizerName = organizerName.value || '';
     if (driverCollectionOffset) state.driverCollectionOffset = driverCollectionOffset.checked;
     if (driverReward) state.driverReward = driverReward.value;
+    state.standalone = normalizeStandaloneSettlementState({
+        enabled: standaloneEnabled ? standaloneEnabled.checked : state.standalone?.enabled,
+        driverCount: standaloneDriverCount ? standaloneDriverCount.value : state.standalone?.driverCount,
+        memberCount: standaloneMemberCount ? standaloneMemberCount.value : state.standalone?.memberCount
+    });
 
     document.querySelectorAll('.seisan-car-row').forEach(row => {
         const name = row.dataset.driverName;

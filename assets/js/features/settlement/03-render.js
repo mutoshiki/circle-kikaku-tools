@@ -32,10 +32,19 @@ function syncSettlementControls(state, participants) {
     const organizerEl = byId('seisanOrganizerName');
     const driverCollectionOffsetEl = byId('seisanDriverCollectionOffset');
     const rewardEl = byId('seisanDriverReward');
+    const standaloneEnabledEl = byId('seisanStandaloneEnabled');
+    const standaloneDriverCountEl = byId('seisanStandaloneDriverCount');
+    const standaloneMemberCountEl = byId('seisanStandaloneMemberCount');
+    const standaloneFieldsEl = byId('seisanStandaloneFields');
     if (roundingEl) roundingEl.value = state.rounding || '100';
     if (organizerFreeEl) organizerFreeEl.checked = state.organizerFree !== false;
     if (driverCollectionOffsetEl) driverCollectionOffsetEl.checked = state.driverCollectionOffset !== false;
     if (rewardEl) rewardEl.value = state.driverReward ?? '0';
+    const standalone = normalizeStandaloneSettlementState(state.standalone || {});
+    if (standaloneEnabledEl) standaloneEnabledEl.checked = standalone.enabled;
+    if (standaloneDriverCountEl) standaloneDriverCountEl.value = standalone.driverCount || '';
+    if (standaloneMemberCountEl) standaloneMemberCountEl.value = standalone.memberCount || '';
+    if (standaloneFieldsEl) standaloneFieldsEl.hidden = !standalone.enabled;
     if (organizerEl) {
         const current = state.organizerName || '';
         const placeholder = new Option('未選択', '');

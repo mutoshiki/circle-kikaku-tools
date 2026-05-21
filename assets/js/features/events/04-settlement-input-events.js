@@ -35,6 +35,10 @@
                 global.onSettlementInputDelayed?.();
                 return;
             }
+            if (target?.matches?.('#seisanStandaloneDriverCount, #seisanStandaloneMemberCount')) {
+                syncSettlementStateFromDOM?.();
+                return;
+            }
             if (target?.matches?.('#routeStopList .route-stop-input')) {
                 global.onRouteStopsChangedDelayed?.();
             }
@@ -54,6 +58,12 @@
 
             if (target.matches('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
                 global.onSettlementInput?.();
+                return;
+            }
+
+            if (target.matches('#seisanStandaloneEnabled, #seisanStandaloneDriverCount, #seisanStandaloneMemberCount')) {
+                syncSettlementStateFromDOM?.();
+                syncSettlementControls?.(ensureSettlementState(), getParticipantList(getRoomDataOnly()));
                 return;
             }
 

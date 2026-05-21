@@ -498,6 +498,21 @@
                 <label>車出し協力代（1台）</label>
                 <input id="seisanDriverReward" type="number" inputmode="numeric" value="0" aria-label="車出し協力代">
               </div>
+              <label class="seisan-toggle seisan-toggle--modal seisan-standalone-toggle">
+                <span>人数だけで精算する</span>
+                <input id="seisanStandaloneEnabled" type="checkbox" aria-label="人数だけで精算する">
+              </label>
+              <div id="seisanStandaloneFields" class="seisan-standalone-fields" hidden>
+                <div class="seisan-field">
+                  <label>車出し人数</label>
+                  <input id="seisanStandaloneDriverCount" type="number" min="0" max="99" inputmode="numeric" placeholder="例：3" aria-label="車出し人数">
+                </div>
+                <div class="seisan-field">
+                  <label>それ以外の人数</label>
+                  <input id="seisanStandaloneMemberCount" type="number" min="0" max="99" inputmode="numeric" placeholder="例：8" aria-label="それ以外の人数">
+                </div>
+                <div class="seisan-standalone-note">名簿なしで概算精算します。車ごとの費用は「車出し1」「車出し2」…として入力します。</div>
+              </div>
               <div class="seisan-field">
                 <label>企画者</label>
                 <select id="seisanOrganizerName" aria-label="企画者名"></select>

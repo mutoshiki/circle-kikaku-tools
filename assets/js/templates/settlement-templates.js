@@ -66,11 +66,17 @@
     const organizer = state.organizerName || '未選択';
     const organizerFreeLabel = state.organizerFree ? 'あり' : 'なし';
     const driverOffsetLabel = result.driverCollectionOffset ? '差し引き' : '通常集金';
+    const standalone = result.isStandaloneSettlement ? result.standaloneCounts : null;
+    const organizerClass = result.isStandaloneSettlement || state.organizerName ? '' : 'is-attention';
+    const standalonePill = standalone
+      ? `<span class="is-standalone"><small>入力方法</small>精算だけ</span><span><small>人数</small>車出し${standalone.driverCount}名＋その他${standalone.memberCount}名</span>`
+      : '';
     return `<div class="seisan-summary-pills seisan-summary-pills--single" aria-label="現在の精算設定">
+        ${standalonePill}
         <span><small>端数</small>${esc(state.rounding || '100', helpers)}円</span>
         <span><small>協力代</small>${money(result.reward || 0, helpers)}</span>
         <span><small>車出し集金</small>${esc(driverOffsetLabel, helpers)}</span>
-        <span class="${state.organizerName ? '' : 'is-attention'}"><small>企画者</small>${esc(organizer, helpers)}</span>
+        <span class="${organizerClass}"><small>企画者</small>${result.isStandaloneSettlement ? 'なし' : esc(organizer, helpers)}</span>
         <span><small>企画者除外</small>${esc(organizerFreeLabel, helpers)}</span>
     </div>`;
   }
@@ -231,10 +237,13 @@
 
   function emptyState() {
     return `<div class="empty-card">
-            <i class="fas fa-paste" aria-hidden="true"></i>
+            <i class="fas fa-calculator" aria-hidden="true"></i>
             <strong>まずは参加者登録から</strong>
-            <span>企画の参加者と車出しを登録すると、ここに精算画面が表示されます。</span>
-            <button class="seisan-btn primary" type="button" data-action="open-batch">参加者登録を開く</button>
+            <span>車出し人数と、それ以外の人数だけ入れると、参加者登録なしでも割勘の1人あたり金額を計算できます。通常は参加者と車出しを登録すると、ここに精算画面が表示されます。</span>
+            <div class="seisan-empty-actions">
+              <button class="seisan-btn primary" type="button" data-action="open-settlement-settings">人数だけで精算</button>
+              <button class="seisan-btn" type="button" data-action="open-batch">参加者登録を開く</button>
+            </div>
         </div>`;
   }
 

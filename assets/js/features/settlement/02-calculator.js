@@ -65,6 +65,8 @@ function calculateSettlement(data, state) {
     const unpaidCount = Math.max(0, payerCount - paidCount);
 
     return {
+        isStandaloneSettlement: !!data.isStandaloneSettlement,
+        standaloneCounts: data.standaloneCounts || null,
         participants,
         organizerSelected,
         excludedName,
@@ -99,7 +101,7 @@ function getSettlementIssues(data, state, result) {
     const participants = result.participants || [];
     if (!participants.length) messages.push('名簿が空です。先に登録画面から参加者を入れてください。');
     if (!(data.cars || []).length) messages.push('車出しが未登録です。登録画面で追加してください。');
-    if (state.organizerFree && participants.length > 0 && !state.organizerName) messages.push('企画者を選ぶと、企画者の集金対象外を正確にできます。');
+    if (!result.isStandaloneSettlement && state.organizerFree && participants.length > 0 && !state.organizerName) messages.push('企画者を選ぶと、企画者の集金対象外を正確にできます。');
     if (result.payerCount <= 0 && participants.length > 0) messages.push('集金対象が0人です。企画者・車出し設定を確認してください。');
 
     (data.cars || []).forEach(car => {
