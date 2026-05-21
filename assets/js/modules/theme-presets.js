@@ -14,7 +14,7 @@
     "label": "標準",
     "description": "既定のダーク。",
     "swatches": [
-      "#61a8df",
+      "#305CDE",
       "#0b1020",
       "#111827"
     ]
@@ -256,7 +256,7 @@
     "label": "標準",
     "description": "既定のライト。",
     "swatches": [
-      "#2f7fbd",
+      "#305CDE",
       "#f6f7fb",
       "#ffffff"
     ]

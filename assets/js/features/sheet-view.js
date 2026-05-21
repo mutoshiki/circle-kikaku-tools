@@ -120,10 +120,10 @@ function moveCardToSheetLocation(card, zone) {
     targetSlot.appendChild(card);
 }
 
-function syncSheetToMainData() {
+function syncSheetSectionToActiveDom(section) {
+    if (!section) return;
     const names = new Set();
-    const activePlanScope = Array.from(document.querySelectorAll('.sheet-plan-section')).find(section => section.dataset.planId === activeCarPlanId) || document;
-    activePlanScope.querySelectorAll('.sheet-dropzone .sheet-chip, .sheet-waiting-list .sheet-chip').forEach(chip => {
+    section.querySelectorAll('.sheet-dropzone .sheet-chip, .sheet-waiting-list .sheet-chip').forEach(chip => {
         const name = chip.dataset.name;
         if (!name || names.has(name)) return;
         names.add(name);
@@ -132,6 +132,97 @@ function syncSheetToMainData() {
             moveCardToSheetLocation(card, chip.parentElement);
         }
     });
+}
+
+function getSheetPlanMemberRegistry(plan = {}) {
+    const registry = new Map();
+    const put = member => {
+        const name = String(member?.name || '').trim();
+        if (!name || registry.has(name)) return;
+        registry.set(name, {
+            name,
+            memo: member.memo || '',
+            gender: member.gender || 'unknown',
+            grade: parseInt(member.grade) || 0,
+            locked: !!member.locked
+        });
+    };
+    (plan.cars || []).forEach(car => {
+        put({
+            name: car.name,
+            memo: car.driverMemo || '',
+            gender: car.driverGender || 'unknown',
+            grade: car.driverGrade || 0,
+            locked: false
+        });
+        (car.members || []).forEach(put);
+    });
+    (plan.waiting || []).forEach(put);
+    return registry;
+}
+
+function getMemberFromSheetChip(chip, registry) {
+    const name = String(chip?.dataset?.name || '').trim();
+    if (!name) return null;
+    const base = registry.get(name) || {};
+    return {
+        name,
+        memo: base.memo || '',
+        gender: base.gender || chip.dataset.gender || 'unknown',
+        grade: parseInt(base.grade) || 0,
+        locked: base.locked || chip.dataset.locked === 'true'
+    };
+}
+
+function syncSheetSectionToPlan(section) {
+    const planId = section?.dataset?.planId;
+    if (!planId || !Array.isArray(carPlans)) return;
+    const plan = carPlans.find(item => item.id === planId);
+    if (!plan) return;
+    const registry = getSheetPlanMemberRegistry(plan);
+
+    const columns = Array.from(section.querySelectorAll('.sheet-plan-table > .sheet-car-col'));
+    const nextCars = (plan.cars || []).map((car, index) => {
+        const column = columns[index];
+        const members = [];
+        if (column) {
+            column.querySelectorAll('.sheet-dropzone[data-zone-type="seat"]').forEach(zone => {
+                const chip = getSheetZoneChip(zone);
+                members.push(chip ? getMemberFromSheetChip(chip, registry) : null);
+            });
+        } else {
+            (car.members || []).forEach(member => members.push(member || null));
+        }
+        return {
+            ...car,
+            capacity: parseInt(car.capacity) || members.length || 0,
+            members
+        };
+    });
+
+    const waitZone = section.querySelector('.sheet-waiting-list[data-zone-type="waiting"]');
+    const nextWaiting = waitZone
+        ? Array.from(waitZone.querySelectorAll(':scope > .sheet-chip'))
+            .map(chip => getMemberFromSheetChip(chip, registry))
+            .filter(Boolean)
+        : (plan.waiting || []);
+
+    plan.cars = cloneData(nextCars);
+    plan.waiting = cloneData(nextWaiting);
+    plan.updatedAt = Date.now();
+}
+
+function syncSheetToMainData() {
+    const sections = Array.from(document.querySelectorAll('.sheet-plan-section[data-plan-id]'))
+        .filter(section => !section.classList.contains('sheet-timetable-section'));
+    const activeSection = sections.find(section => section.dataset.planId === activeCarPlanId);
+    if (activeSection) {
+        syncSheetSectionToActiveDom(activeSection);
+        syncActiveCarPlanFromDom();
+    }
+    sections
+        .filter(section => section.dataset.planId !== activeCarPlanId)
+        .forEach(syncSheetSectionToPlan);
     updateUI();
     save();
 }
@@ -163,6 +254,8 @@ function moveManualSheetChipTo(zone) {
     document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
     manualSheetDrag.dropZone = null;
     if (!zone || !zone.isConnected) return;
+    const zonePlanId = zone.closest('.sheet-plan-section')?.dataset?.planId || '';
+    if (manualSheetDrag.planId && zonePlanId !== manualSheetDrag.planId) return;
     if (zone.dataset.acceptDrop === 'false') return;
     manualSheetDrag.dropZone = zone;
     zone.closest('.sheet-seat-row, .sheet-driver-row')?.classList.add('drop-target');
@@ -241,6 +334,7 @@ function startManualSheetDrag(chip, point) {
         chip,
         floating,
         currentZone,
+        planId: currentZone.closest('.sheet-plan-section')?.dataset?.planId || '',
         pointerId: point?.pointerId ?? null,
         pointerType: point?.pointerType || (point?.touchIdentifier != null ? 'touch' : 'mouse'),
         touchIdentifier: point?.touchIdentifier ?? null,
@@ -465,7 +559,7 @@ function createSheetPlanSection(plan, index) {
 
     const cars = Array.isArray(plan.cars) ? plan.cars : [];
     const waiting = Array.isArray(plan.waiting) ? plan.waiting : [];
-    const isEditablePlan = plan.id === activeCarPlanId;
+    const isEditablePlan = true;
 
     if (cars.length) {
         const maxSeats = Math.max(1, ...cars.map(c => parseInt(c.capacity) || 0));

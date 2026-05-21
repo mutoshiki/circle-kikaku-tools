@@ -27,9 +27,10 @@ function buildSheetPlanSummaryRow(plan, updatedLabel = '') {
     const waitingCount = waiting.length;
     const memberCount = assignedMemberCount + waitingCount;
     const totalCount = ownerCount + memberCount;
-    const memberSummaryLabel = template.type === 'team' ? 'メンバー' : '同乗者';
+    const ownerSummaryLabel = template.type === 'team' ? (template.ownerLabel || '班長') : '運転手';
+    const memberSummaryLabel = template.type === 'team' ? '班員' : '同乗者';
     const stats = [
-        [template.ownerLabel || '車出し', ownerCount],
+        [ownerSummaryLabel, ownerCount],
         [memberSummaryLabel, memberCount],
         ['全員', totalCount],
         ['待機', waitingCount]

@@ -140,35 +140,43 @@ display: flex; gap: 5px; flex-direction: row;
 transform: scale(0.92);
 }
 
+.quick-edit-mode #sheet-view-area .sheet-seat-row:not(.sheet-label-row):not(.sheet-seat-disabled),
+.quick-edit-mode #sheet-view-area .sheet-wait-item:not(.empty) {
+    display: flex;
+    grid-template-columns: none;
+    align-items: stretch;
+    padding: 4px;
+}
+
 .quick-edit-mode .sheet-dropzone,
 .quick-edit-mode .sheet-waiting-list {
-background: transparent;
+    width: 100%;
+    min-height: 34px;
+    background: transparent;
     border: 0;
     padding: 0;
 }
 
 .quick-edit-mode .sheet-chip.draggable {
-animation: sheetJiggle 0.24s ease-in-out infinite alternate;
+    width: 100%;
+    min-height: 32px;
+    padding: 6px 8px;
+    border-radius: 9px;
+    justify-content: flex-start;
+    cursor: grab;
+    animation: none;
     transform-origin: center center;
     will-change: transform;
+    touch-action: none;
 }
 
-.quick-edit-mode .sheet-chip.draggable:nth-child(2n) {
-animation-delay: -0.12s;
+.quick-edit-mode .sheet-chip.draggable:active {
+    cursor: grabbing;
 }
 
-.quick-edit-mode .sheet-chip.draggable:nth-child(3n) {
-animation-duration: 0.27s;
-}
-
-.quick-edit-mode .sheet-chip-drag {
-animation: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-.quick-edit-mode .sheet-chip.draggable {
-animation: none;
-}
+.quick-edit-mode .sheet-chip-drag,
+.quick-edit-mode .manual-sheet-drag-float {
+    animation: none;
 }
 
 .quick-edit-mode #sheet-title-bar {

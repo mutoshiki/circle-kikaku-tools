@@ -8,7 +8,7 @@ const html = readText('index.html');
 assert(render.includes('function buildSheetPlanSummaryRow'), 'sheet summary rows should be built by a dedicated helper');
 assert(render.includes("buildSheetPlanSummaryRow(carPlan)") && render.includes("buildSheetPlanSummaryRow(teamPlan, updated)"), 'sheet summary should render car and team rows');
 assert(render.includes("planLabel.textContent = template.type === 'team' ? '班割' : '車割'"), 'summary row labels should be 車割 and 班割');
-assert(render.includes("const memberSummaryLabel = template.type === 'team' ? 'メンバー' : '同乗者'"), 'team member summary label should be メンバー');
+assert(render.includes("const memberSummaryLabel = template.type === 'team' ? '班員' : '同乗者'"), 'team member summary label should be 班員');
 assert(!render.includes("...(activePlan?.name ? [['表示', activePlan.name]] : [])"), 'summary should not use the old active-plan-only 表示 row');
 assert(css.includes('sheet summary: compact two-line car/team counts'), 'two-line sheet summary CSS should be documented');
 assert(/#sheet-summary\s*\{[\s\S]*?flex-direction:\s*column;[\s\S]*?\}/.test(css), 'sheet summary should stack rows vertically');
