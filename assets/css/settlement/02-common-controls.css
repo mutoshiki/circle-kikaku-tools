@@ -1,0 +1,844 @@
+.seisan-icon-btn {
+min-width: 34px;
+    height: 37px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--bg-body);
+    color: var(--text-sub);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.seisan-add-row .seisan-btn {
+min-height: 34px; padding: 6px 8px; font-size: 0.76rem;
+}
+
+.seisan-btn.primary {
+background: var(--accent-color); color: var(--color-white); border-color: var(--accent-color);
+}
+
+.seisan-btn:active {
+transform: scale(0.98);
+}
+
+@media (max-width: 640px) {
+.seisan-mini-label {
+font-size: 0.58rem;
+        white-space: nowrap;
+        letter-spacing: -0.02em;
+}
+}
+
+@media (max-width: 360px) {
+.seisan-mini-label {
+font-size: 0.54rem;
+}
+}
+
+[data-theme="dark"] .seisan-btn:not(.primary):not(.active):hover,
+[data-theme="dark"] .seisan-toggle:not(.active):hover,
+[data-theme="dark"] .seisan-icon-btn:hover {
+background: rgba(51, 65, 85, 0.92);
+    color: var(--color-white);
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+min-height: 40px;
+        padding: 8px 10px;
+        font-size: 0.84rem;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn:first-child {
+width: 100%;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-mini-label {
+font-size: 0.6rem;
+        white-space: nowrap;
+        letter-spacing: -0.02em;
+}
+}
+
+@media (max-width: 360px) {
+.seisan-mini-label {
+font-size: 0.66rem;
+}
+}
+
+.seisan-head-actions .seisan-btn i {
+margin: 0;
+    flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+width: 100%;
+        min-width: 0;
+        padding: 8px 6px;
+}
+}
+
+@media (max-width: 360px) {
+.seisan-head-actions .seisan-btn {
+font-size: 0.78rem;
+        padding: 8px 4px;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+min-height: 38px; padding: 7px 4px;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn span {
+font-size: 0.66rem;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+padding-left: 6px;
+        padding-right: 6px;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn span {
+font-size: 0.68rem;
+}
+}
+
+.seisan-head-actions .seisan-btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  font-size: 0.76rem;
+  line-height: 1.1;
+  white-space: normal;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn span {
+font-size: 0.76rem;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-mini-label {
+font-size: 0.72rem;
+        white-space: normal;
+}
+}
+
+.seisan-btn {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-main);
+  min-height: 38px;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.seisan-btn span {
+line-height: 1.18;
+}
+
+.seisan-extra-row .seisan-icon-btn i::before {
+content: "";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}
+
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn {
+width: 100%;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn::after {
+content: "削除";
+        margin-left: 6px;
+        font-size: 0.78rem;
+        font-weight: 850;
+}
+}
+
+@media (max-width: 420px) {
+.seisan-btn {
+padding-left: 6px;
+        padding-right: 6px;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-btn,
+.seisan-toggle,
+.seisan-icon-btn {
+min-height: 42px;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+min-height: var(--mobile-touch) ;
+        border-radius: var(--radius-main) ;
+        padding: 9px 10px ;
+        font-size: 0.84rem ;
+        line-height: 1.2 ;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-mini-label {
+font-size: 0.64rem;
+        line-height: 1.12;
+        margin-bottom: 3px;
+        white-space: nowrap;
+        letter-spacing: -0.02em;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn {
+width: 34px;
+        min-width: 34px;
+        height: 38px;
+        min-height: 38px;
+        padding: 0;
+        border-radius: var(--radius-sm);
+}
+}
+
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn::after {
+content: "";
+        margin: 0;
+}
+}
+
+@media (hover: none) and (pointer: coarse) {
+.seisan-btn,
+.seisan-icon-btn {
+min-height: 40px;
+}
+}
+
+[data-theme="dark"] .seisan-btn.primary i,
+[data-theme="dark"] .seisan-btn.active i,
+[data-theme="dark"] .seisan-toggle.active i {
+color: var(--color-white);
+}
+
+[data-theme="dark"] .seisan-add-row .seisan-btn {
+border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
+    border-color: color-mix(in srgb, var(--accent-color) 30%, var(--border-color));
+    color: var(--text-main);
+}
+
+[data-theme="dark"] .seisan-add-row .seisan-btn:hover {
+background: color-mix(in srgb, var(--accent-color) 16%, var(--bg-card));
+    border-color: color-mix(in srgb, var(--accent-color) 44%, var(--border-color));
+}
+
+@supports not (background: color-mix(in srgb, red 10%, blue)) {
+[data-theme="dark"] .seisan-add-row .seisan-btn {
+background: var(--bg-card);
+        border-color: var(--accent-color);
+}
+}
+
+.seisan-add-row .seisan-btn,
+.seisan-btn.primary,
+.seisan-btn.active,
+.seisan-toggle.active {
+border-radius: var(--radius-sm);
+}
+
+[data-theme="dark"] .seisan-btn.primary:hover,
+[data-theme="dark"] .seisan-btn.active:hover,
+[data-theme="dark"] .seisan-toggle.active:hover {
+filter: brightness(0.98);
+}
+
+.seisan-btn,
+.seisan-toggle {
+box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+.seisan-btn,
+.seisan-toggle {
+border-radius: 12px;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-btn {
+min-height: 40px;
+        padding: 7px 9px;
+        border-radius: 12px;
+        line-height: 1.1;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-mini-label {
+margin-bottom: 3px;
+        font-size: 0.68rem;
+        line-height: 1.15;
+        white-space: nowrap;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-toggle {
+min-height: 38px;
+        padding: 6px 8px;
+        gap: 6px;
+        justify-content: space-between;
+        border-radius: 12px;
+        font-size: 0.67rem;
+        line-height: 1.1;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-toggle span {
+min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: clip;
+        letter-spacing: -0.04em;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-toggle input {
+flex: 0 0 auto;
+        width: 16px;
+        height: 16px;
+        margin: 0;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn {
+width: 34px;
+        min-width: 34px;
+        height: 38px;
+        min-height: 38px;
+        padding: 0;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn::after {
+content: none;
+}
+}
+
+@media (max-width: 640px) {
+.seisan-add-row .seisan-btn {
+min-height: 36px;
+        font-size: 0.74rem;
+}
+}
+
+@media (max-width: 390px) {
+.seisan-toggle {
+font-size: 0.62rem;
+        padding-inline: 6px;
+}
+}
+
+#seisan-view-area .seisan-mini-label {
+font-size: 0.66rem;
+    line-height: 1.15;
+    margin-bottom: 3px;
+    color: color-mix(in srgb, var(--text-sub) 92%, var(--text-main));
+}
+
+#seisan-view-area .seisan-toggle {
+min-height: 36px;
+    padding: 6px 8px;
+    border-radius: 11px;
+    background: color-mix(in srgb, var(--bg-body) 72%, var(--bg-card));
+    border-color: color-mix(in srgb, var(--border-color) 86%, transparent);
+    font-size: 0.72rem;
+    line-height: 1.12;
+}
+
+#seisan-view-area .seisan-toggle input {
+width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+#seisan-view-area .seisan-icon-btn {
+min-width: 34px;
+    width: 34px;
+    height: 36px;
+    min-height: 36px;
+    border-radius: 11px;
+    background: color-mix(in srgb, var(--bg-body) 72%, var(--bg-card));
+}
+
+#seisan-view-area .seisan-add-row .seisan-btn {
+min-height: 34px;
+    padding: 5px 8px;
+    font-size: 0.74rem;
+}
+
+#seisan-view-area .seisan-btn {
+min-height: 36px;
+    padding: 7px 9px;
+    border-radius: 11px;
+    font-size: 0.78rem;
+    line-height: 1.1;
+}
+
+@media (max-width: 640px) {
+#seisan-view-area .seisan-toggle {
+min-height: 35px;
+        padding: 5px 7px;
+        font-size: 0.66rem;
+}
+}
+
+@media (max-width: 640px) {
+#seisan-view-area .seisan-icon-btn,
+#seisan-view-area .seisan-extra-row .seisan-icon-btn {
+width: 32px;
+        min-width: 32px;
+        height: 35px;
+        min-height: 35px;
+}
+}
+
+@media (max-width: 390px) {
+#seisan-view-area .seisan-mini-label {
+font-size: 0.62rem;
+}
+}
+
+@media (max-width: 390px) {
+#seisan-view-area .seisan-toggle {
+font-size: 0.61rem;
+        padding-inline: 6px;
+}
+}
+
+.seisan-btn,
+.seisan-icon-btn,
+.seisan-toggle {
+border-radius: var(--radius-main);
+}
+
+.seisan-btn,
+.seisan-icon-btn {
+border-radius: var(--radius-sm);
+}
+
+#seisan-view-area .seisan-share-actions .seisan-btn {
+display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+#seisan-view-area .seisan-share-actions .seisan-btn {
+min-height: 36px;
+        padding-inline: 7px;
+        font-size: 0.72rem;
+}
+}
+
+@media (max-width: 360px) {
+#seisan-view-area .seisan-share-actions .seisan-btn {
+font-size: 0.68rem;
+        padding-inline: 5px;
+}
+}
+
+.seisan-btn, .seisan-toggle, .seisan-icon-btn {
+  border-radius: 999px;
+  border-color: var(--hairline, var(--border-color));
+  background: var(--bg-card);
+  color: var(--text-main);
+  box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.03);
+  font-weight: 850;
+}
+
+.seisan-btn:hover,
+.seisan-toggle:hover,
+.seisan-icon-btn:hover {
+    background: var(--hover-bg);
+    border-color: color-mix(in srgb, var(--accent-color) 22%, var(--border-color));
+    color: var(--text-main);
+}
+
+.seisan-btn.primary, .seisan-btn.active, .seisan-toggle.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--color-white);
+  box-shadow: 0 9px 20px color-mix(in srgb, var(--accent-color) 15%, transparent);
+}
+
+.seisan-toggle {
+  min-height: 37px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 9px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-main);
+  background: color-mix(in srgb, var(--bg-card) 82%, var(--bg-body));
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.seisan-mini-label {
+  display: block;
+  color: var(--text-sub);
+  font-size: 0.66rem;
+  font-weight: 850;
+  margin-bottom: 3px;
+  line-height: 1.25;
+}
+
+.seisan-head-actions {
+    gap: 8px;
+}
+
+.seisan-icon-btn:hover {
+  color: var(--color-danger-strong);
+  border-color: color-mix(in srgb, var(--color-danger) 38%, var(--border-color));
+  background: color-mix(in srgb, var(--color-danger) 6%, var(--bg-card));
+}
+
+[data-theme="dark"] .seisan-btn:not(.primary):not(.active), [data-theme="dark"] .seisan-toggle:not(.active), [data-theme="dark"] .seisan-icon-btn {
+  background: color-mix(in srgb, var(--bg-card) 78%, transparent);
+  border-color: var(--hairline, var(--border-color));
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .seisan-btn.primary, [data-theme="dark"] .seisan-btn.active, [data-theme="dark"] .seisan-toggle.active {
+  border-radius: var(--radius-sm);
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--palette-night-blue);
+  box-shadow: 0 7px 16px color-mix(in srgb, var(--accent-color) 18%, transparent);
+}
+
+@media (max-width: 640px) {
+    .seisan-head-actions .seisan-btn,
+    .seisan-btn,
+    .seisan-toggle,
+    .seisan-icon-btn {
+        min-height: 40px;
+        border-radius: 13px;
+    }
+}
+
+/* =========================================================
+   Settlement controls and switches moved from 08-control-consistency.css
+========================================================= */
+.header-action i,
+.header-action span,
+.tool-btn i,
+.tool-btn span,
+.seisan-btn i,
+.seisan-btn span,
+.tray-action-btn i,
+.tray-action-btn span {
+  color: inherit;
+}
+
+.header-action span,
+.tool-btn span,
+.seisan-btn span,
+.tray-action-btn span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.12;
+}
+
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+    min-height: 42px;
+    padding-inline: 8px;
+    font-size: 0.76rem;
+  }
+}
+
+.header-action:focus-visible,
+.tool-btn:focus-visible,
+.seisan-btn:focus-visible,
+.tray-action-btn:focus-visible,
+.view-tab:focus-visible,
+.car-plan-template-chip:focus-visible {
+  outline: 0;
+  box-shadow: var(--ui-focus-ring);
+}
+
+.seisan-card,
+.car-box,
+.guide-step-panel,
+.batch-spreadsheet-import,
+.batch-import-notice,
+.theme-preview-panel,
+.theme-app-preview,
+.theme-preset-card,
+.seisan-settings-card,
+.empty-card {
+  border-color: transparent;
+  background: var(--bg-card);
+  box-shadow: var(--ui-surface-shadow-soft);
+}
+
+.seisan-head-tools-only,
+.seisan-toolbar-card {
+  padding: 12px;
+}
+
+.seisan-head-actions .seisan-btn {
+  min-width: 0;
+  justify-content: center;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  line-height: 1;
+  width: 100%;
+  padding: 8px 8px;
+  border-radius: var(--control-radius);
+  font-size: 0.84rem;
+}
+
+#seisanRefreshBtn.seisan-btn {
+  width: 44px;
+  min-width: 44px;
+  padding-inline: 0;
+}
+
+.seisan-settings-card {
+  padding-block: 10px;
+}
+
+.seisan-settings-card .seisan-compact-head {
+  margin-bottom: 8px;
+}
+
+.seat-slot,
+.sheet-seat-row,
+.sheet-wait-item,
+.seisan-cost-preview-item,
+.seisan-settings-card,
+.seisan-summary-pills span {
+  background: color-mix(in srgb, var(--ui-panel-bg-muted) 88%, var(--bg-body));
+}
+
+#seisan-view-area .seisan-head-tools-only .seisan-btn {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+#seisan-view-area .seisan-head-tools-only .seisan-btn {
+    min-height: 36px;
+    padding-inline: 8px;
+    font-size: 0.74rem;
+  }
+}
+
+#seisan-view-area .seisan-head-actions .seisan-btn {
+  width: auto;
+  min-height: 38px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+#seisan-view-area .seisan-toolbar-card {
+    padding: 9px;
+  }
+
+#seisan-view-area .seisan-head-actions .seisan-btn {
+    min-height: 36px;
+    padding-inline: 8px;
+    font-size: 0.74rem;
+  }
+
+#seisan-view-area #seisanRefreshBtn.seisan-btn {
+    width: 38px;
+    min-width: 38px;
+  }
+}
+
+#view-toggle-bar .view-tab.active, .view-toggle-bar .view-tab.active, [data-theme="dark"] #view-toggle-bar .view-tab.active, [data-theme="dark"] .view-toggle-bar .view-tab.active, [data-theme="dark"] #tab-list.view-tab.active, [data-theme="dark"] #tab-sheet.view-tab.active, [data-theme="dark"] #tab-seisan.view-tab.active {
+  background: color-mix(in srgb, var(--accent-color) 9%, var(--bg-card));
+  border: 1px solid color-mix(in srgb, var(--accent-color) 28%, var(--border-color));
+  color: color-mix(in srgb, var(--accent-color) 84%, var(--text-main));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 7%, transparent);
+  border-color: color-mix(in srgb, var(--accent-color) 20%, var(--ui-saas-border));
+}
+
+#seisan-view-area .seisan-toolbar-card {
+  padding: 9px;
+}
+
+@media (max-width: 640px) {
+#seisan-view-area .seisan-head-actions .seisan-btn {
+    min-height: 32px;
+    padding-inline: 8px;
+    font-size: 0.68rem;
+  }
+
+#seisan-view-area #seisanRefreshBtn.seisan-btn {
+    width: 34px;
+    min-width: 34px;
+  }
+}
+
+[data-theme="dark"] :is(
+  #view-toggle-bar .view-tab.active,
+  .view-toggle-bar .view-tab.active,
+  #tab-list.view-tab.active,
+  #tab-sheet.view-tab.active,
+  #tab-seisan.view-tab.active,
+  .allocation-mode-toggle .car-plan-template-chip.active
+) {
+  color: var(--accent-color);
+  border-color: color-mix(in srgb, var(--accent-color) 34%, var(--ui-saas-border));
+  background: color-mix(in srgb, var(--accent-color) 14%, var(--bg-card));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 10%, transparent);
+}
+
+#app-layout #view-toggle-bar .view-tab.active,
+#app-layout .view-toggle-bar .view-tab.active,
+[data-theme="dark"] #app-layout #view-toggle-bar .view-tab.active,
+[data-theme="dark"] #app-layout .view-toggle-bar .view-tab.active,
+[data-theme="dark"] #app-layout #tab-list.view-tab.active,
+[data-theme="dark"] #app-layout #tab-sheet.view-tab.active,
+[data-theme="dark"] #app-layout #tab-seisan.view-tab.active {
+  border: 0;
+  background: transparent;
+  color: var(--accent-color);
+  box-shadow: none;
+}
+
+#seisan-view-area #seisanRefreshBtn.seisan-btn {
+  width: 36px;
+  min-width: 36px;
+  padding-inline: 0;
+  min-height: 34px;
+}
+
+#seisan-view-area .seisan-toolbar-card .seisan-head-tools-only {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 44px;
+  margin: 0 0 10px;
+  padding: 5px;
+  border: 1px solid var(--ui-saas-border);
+  border-radius: 13px;
+  background: var(--ui-saas-panel-raised);
+  box-shadow: none;
+  margin-bottom: 8px;
+  border-color: color-mix(in srgb, var(--ui-saas-border) 72%, transparent);
+}
+
+#seisan-view-area .seisan-toolbar-card .seisan-head-actions {
+  width: 100%;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+#seisan-view-area .seisan-settings-card,
+#seisan-view-area .seisan-panel {
+  border-radius: 15px;
+}
+
+@media (max-width: 390px) {
+#seisan-view-area .seisan-head-actions .seisan-btn {
+    padding-inline: 8px;
+  }
+}
+
+body[data-theme="dark"] #seisan-view-area .seisan-toolbar-card .seisan-head-tools-only,
+html[data-theme="dark"] #seisan-view-area .seisan-toolbar-card .seisan-head-tools-only {
+  background: color-mix(in srgb, var(--seisan-dark-panel-soft) 88%, transparent);
+  border-color: var(--seisan-dark-line-soft);
+}
+
+
+/* Standalone settlement mode: enter only driver count and other participant count. */
+#seisan-view-area .seisan-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+#settlementSettingsModal .seisan-standalone-toggle {
+  margin-top: 2px;
+}
+
+#settlementSettingsModal .seisan-standalone-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border-muted, rgba(148, 163, 184, 0.24));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel-muted) 82%, transparent);
+}
+
+#settlementSettingsModal .seisan-standalone-fields[hidden] {
+  display: none;
+}
+
+#settlementSettingsModal .seisan-standalone-note {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+#seisan-view-area .seisan-summary-pills .is-standalone {
+  border-color: color-mix(in srgb, var(--accent-color) 36%, var(--border-muted));
+  background: color-mix(in srgb, var(--accent-color) 10%, transparent);
+}
+
+body[data-theme="dark"] #settlementSettingsModal .seisan-standalone-fields,
+html[data-theme="dark"] #settlementSettingsModal .seisan-standalone-fields {
+  border-color: var(--border-muted);
+  background: var(--surface-elevated);
+}

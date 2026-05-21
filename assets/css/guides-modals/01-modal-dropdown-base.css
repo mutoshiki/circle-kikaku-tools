@@ -1,0 +1,456 @@
+/* 01-modal-dropdown-base.css
+   Split from assets/css/guides-modals/01-guides-modals-owner.css so this component has a smaller owner file. */
+
+/* =========================================================
+   03-guides-modals.css
+   Guides, Bootstrap modals, dropdowns, import/history/debug modal surfaces.
+   S2 owner cleanup: rules were regrouped by selector responsibility.
+   Do not add late override dumps; keep future edits in this owner.
+========================================================= */
+
+[data-theme="dark"] .dropdown-menu {
+background-color: var(--modal-bg); border-color: var(--border-color);
+}
+
+[data-theme="dark"] .dropdown-item {
+color: var(--text-main);
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+background-color: var(--tray-bg); color: var(--text-main);
+}
+
+[data-theme="dark"] .dropdown-header {
+color: var(--text-sub);
+}
+
+[data-theme="dark"] .dropdown-divider {
+border-top-color: var(--border-color);
+}
+
+#bottom-tray.minimized .dropdown-menu {
+margin-bottom: 8px;
+}
+
+.modal-content {
+background-color: var(--modal-bg); color: var(--text-main); border-color: var(--border-color); border-radius: var(--radius-main); box-shadow: var(--shadow-float);
+}
+
+.dropdown-menu {
+background: var(--bg-card);
+            border-color: var(--border-color);
+            border-radius: var(--radius-main);
+            box-shadow: var(--shadow-float);
+            padding: 6px;
+}
+
+.dropdown-item {
+border-radius: var(--radius-sm);
+            color: var(--text-main);
+            font-size: 0.86rem;
+            padding: 7px 10px;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+background: var(--hover-bg);
+            color: var(--text-main);
+}
+
+.modal-header,
+.modal-footer {
+background: var(--modal-header-bg);
+            border-color: var(--border-color);
+}
+
+.modal-header {
+  background-color: var(--modal-header-bg);
+  border-bottom-color: var(--border-color);
+  padding: 12px 14px;
+}
+
+.modal-footer {
+  background-color: var(--modal-footer-bg);
+  border-top-color: var(--border-color);
+  padding: 10px 14px;
+}
+
+#debugModal .modal-content {
+border: 1px solid var(--border-color);
+}
+
+#debugModal .modal-header {
+background: var(--modal-header-bg);
+            border-bottom: 1px solid var(--border-color);
+}
+
+#debugModal .modal-title {
+color: var(--text-main);
+}
+
+.debug-tap-target {
+cursor: pointer;
+}
+
+.app-guide-box strong {
+font-weight: 750;
+}
+
+.batch-field-note {
+color: var(--text-sub);
+    font-size: 0.68rem;
+    font-weight: 700;
+    margin: -2px 0 4px;
+}
+
+.batch-warning {
+margin-top: 10px;
+    border: 1px solid var(--color-danger);
+    color: var(--color-danger-text);
+    background: rgba(239,68,68,0.08);
+    border-radius: var(--radius-main);
+    padding: 9px 10px;
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+[data-theme="dark"] .batch-warning {
+color: var(--palette-red-200);
+}
+
+.tray-actions .dropdown .btn {
+width: 42px;
+    min-width: 42px;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.unified-flow {
+margin-bottom: 12px;
+}
+
+.app-guide-flow.five-step {
+grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.app-guide-flow.four-step {
+grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.app-guide-flow.five-step,
+.app-guide-flow.four-step {
+grid-template-columns: 1fr;
+}
+
+.app-guide-flow.simple-flow .app-guide-box {
+min-height: 74px;
+}
+
+.global-guide-body {
+display: grid; gap: 12px;
+}
+
+.global-five-step .app-guide-box {
+min-height: 72px; padding: 9px 6px;
+}
+
+.global-guide-mini-grid {
+display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.global-guide-card {
+padding: 12px;
+}
+
+.compact-guide-grid {
+gap: 10px;
+}
+
+.app-guide-mini-tools.two-col {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.app-guide-mini-tools.two-col small {
+color: var(--text-sub); font-weight: 700;
+}
+
+.guide-mini-toolbar.compact-actions {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.guide-mini-toolbar.compact-actions .guide-mini-tool {
+min-height: 48px;
+}
+
+.app-guide-flow.compact {
+grid-template-columns: 1fr;
+}
+
+.global-five-step .app-guide-arrow,
+.app-guide-flow.compact .app-guide-arrow {
+transform: rotate(90deg);
+        min-height: 14px;
+}
+
+.global-guide-mini-grid,
+.compact-guide-grid {
+grid-template-columns: 1fr;
+}
+
+.compact-flow .app-guide-box {
+min-height: 78px;
+}
+
+.compact-actions .guide-mini-tool {
+min-width: 0;
+    overflow: hidden;
+    line-height: 1.2;
+}
+
+.guide-important-card {
+margin: 8px 0 12px;
+}
+
+.guide-important-note {
+  margin-top: 0;
+  font-size: 0.76rem;
+  font-weight: 650;
+  color: var(--text-main);
+  background: var(--accent-soft);
+  border-color: rgba(15, 118, 110, 0.25);
+}
+
+.guide-copy-mock {
+width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-body);
+    color: var(--text-main);
+    padding: 10px;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    font-weight: 700;
+}
+
+.route-guide-mock {
+display: grid;
+    gap: 7px;
+}
+
+.route-guide-mock div {
+border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    padding: 8px 9px;
+    color: var(--text-main);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.route-guide-mock i {
+color: var(--accent-color);
+    margin-right: 4px;
+}
+
+.route-guide-mock button {
+border: 1px solid var(--accent-color);
+    border-radius: var(--radius-sm);
+    background: var(--accent-color);
+    color: var(--color-white);
+    padding: 9px;
+    font-weight: 800;
+    font-size: 0.8rem;
+}
+
+.guide-footer .btn {
+min-height: 34px;
+    font-weight: 800;
+}
+
+.guide-step-nav {
+  display: flex;
+  gap: 6px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  background: var(--bg-body);
+  border-bottom: 1px solid var(--border-color);
+  -webkit-overflow-scrolling: touch;
+}
+
+.guide-step-btn {
+flex: 1 0 auto;
+        min-width: 74px;
+        text-align: center;
+}
+
+.compact-flow .app-guide-arrow,
+.two-step-flow .app-guide-arrow {
+transform: rotate(90deg);
+        min-height: 16px;
+}
+
+.unified-guide-body .guide-step-panel {
+  min-height: 0;
+  padding: 16px;
+}
+
+.guide-step-title {
+margin-bottom: 12px;
+}
+
+.guide-page-lead {
+margin: -4px 0 12px;
+    color: var(--text-sub);
+    font-size: 0.8rem;
+    line-height: 1.55;
+    font-weight: 650;
+}
+
+.guide-card-grid-three {
+display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.guide-card-grid-two {
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.guide-feature-card {
+display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.guide-feature-title {
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+.guide-feature-title i {
+color: var(--accent-color);
+}
+
+.guide-short-text {
+color: var(--text-sub);
+    font-size: 0.76rem;
+    line-height: 1.55;
+    margin: 0;
+}
+
+.guide-mini-screen {
+margin-top: 0;
+}
+
+.guide-list-compact {
+display: grid;
+    gap: 6px;
+}
+
+.guide-list-compact div {
+display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-body);
+    color: var(--text-main);
+    padding: 7px 8px;
+    font-size: 0.74rem;
+    font-weight: 750;
+}
+
+.guide-list-compact i {
+color: var(--accent-color);
+    width: 16px;
+    text-align: center;
+}
+
+.guide-chip-row {
+display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.guide-chip {
+display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--bg-body);
+    color: var(--text-main);
+    padding: 5px 8px;
+    font-size: 0.7rem;
+    font-weight: 750;
+}
+
+.guide-chip i {
+color: var(--accent-color);
+}
+
+.guide-phone-frame {
+border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--bg-card);
+    padding: 8px;
+    box-shadow: inset 0 0 0 1px rgba(148,163,184,0.06);
+}
+
+.guide-phone-header {
+display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding:6px 7px;
+    border-radius: var(--radius-sm);
+    background: var(--sheet-header);
+    font-size:0.72rem;
+    font-weight:850;
+    color:var(--text-main);
+    margin-bottom:7px;
+}
+
+.guide-phone-btn {
+display:inline-flex;
+    align-items:center;
+    gap:4px;
+    border-radius: var(--radius-sm);
+    background: var(--accent-color);
+    color:var(--color-white);
+    padding:4px 6px;
+    font-size:0.66rem;
+    font-weight:850;
+}
+
+.guide-mini-form {
+display:grid;
+    gap:6px;
+}
+
+.guide-mini-form .field {
+border:1px solid var(--border-color);
+    border-radius:var(--radius-sm);
+    background:var(--bg-card);
+    min-height:36px;
+    padding:7px 8px;
+    color:var(--text-sub);
+    font-size:0.72rem;
+    font-weight:750;
+}
+
+.guide-mini-form .field.primary {
+background: var(--accent-soft);
+    color: var(--text-main);
+    border-color: rgba(15,118,110,0.28);
+}
+
+.guide-action-row {
+display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6px;
+}
