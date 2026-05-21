@@ -1156,8 +1156,8 @@ html body #app-layout #seisan-view-area .seisan-summary-card.accounting[data-sum
 
 #seisan-view-area .seisan-summary-card.pay,
 html body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] {
-  background: var(--settlement-pay-surface-bg);
-  border-color: var(--settlement-pay-surface-line);
+  background: var(--settlement-pay-surface-fixed);
+  border-color: var(--settlement-pay-surface-line-fixed);
 }
 
 [data-theme="dark"] #seisan-view-area .seisan-summary-card.collect,
@@ -1175,6 +1175,6 @@ body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.accou
 [data-theme="dark"] #seisan-view-area .seisan-summary-card.pay,
 html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"],
 body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] {
-  background: var(--settlement-pay-surface-bg);
-  border-color: var(--settlement-pay-surface-line);
+  background: var(--settlement-pay-surface-fixed);
+  border-color: var(--settlement-pay-surface-line-fixed);
 }

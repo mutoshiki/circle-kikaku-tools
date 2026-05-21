@@ -1,0 +1,84 @@
+/* Waiting tray action alignment.
+   Keep the member count on the left and pin 空席・ランダム・条件 to the right. */
+#bottom-tray-header .tray-inline-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+#bottom-tray-header #waiting-count.waiting-inline-count {
+  justify-self: start;
+  min-width: 0;
+}
+
+#bottom-tray-header #fillEmptySeatsBtn.tray-action-btn {
+  justify-self: end;
+}
+
+#bottom-tray-header .random-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  justify-self: end;
+  gap: 8px;
+  min-width: 0;
+}
+
+#bottom-tray-header .random-tools .tray-settings-dropdown {
+  flex: 0 0 auto;
+}
+
+#bottom-tray-header .random-tools .settings-btn {
+  min-width: 58px;
+}
+
+#bottom-tray-header #shuffleAssignBtn.tray-action-btn {
+  min-width: 96px;
+}
+
+@media (max-width: 640px) {
+  #bottom-tray-header .tray-inline-row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 7px;
+  }
+
+  #bottom-tray-header .random-tools {
+    gap: 7px;
+  }
+
+  #bottom-tray-header #shuffleAssignBtn.tray-action-btn {
+    min-width: 88px;
+  }
+
+  #bottom-tray-header .random-tools .settings-btn {
+    min-width: 52px;
+    width: auto;
+  }
+}
+
+@media (max-width: 390px) {
+  #bottom-tray-header .tray-inline-row {
+    gap: 6px;
+  }
+
+  #bottom-tray-header .random-tools {
+    gap: 6px;
+  }
+
+  #bottom-tray-header #waiting-count.waiting-inline-count {
+    max-width: 8.2em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #bottom-tray-header #shuffleAssignBtn.tray-action-btn {
+    min-width: 80px;
+  }
+
+  #bottom-tray-header .random-tools .settings-btn {
+    min-width: 48px;
+  }
+}

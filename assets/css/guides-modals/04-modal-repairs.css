@@ -1945,3 +1945,53 @@ html[data-theme="dark"] body #app-layout #app-header :is(.header-action, .header
 }
 
 /* Participant registration mock: calm, low-contrast mock UI preserved after leaf split. */
+
+/* Screenshot repair: overview drawer and route modal must sit above the edit screen. */
+#overviewDrawerScrim.overview-drawer-scrim,
+.overview-drawer-scrim {
+  z-index: var(--z-modal-backdrop);
+}
+
+#overviewDrawer.overview-drawer,
+.overview-drawer {
+  z-index: var(--z-modal);
+}
+
+@media (max-width: 640px) {
+  #routeDistanceModal.modal {
+    padding: 0;
+  }
+
+  #routeDistanceModal .modal-dialog,
+  #routeDistanceModal .modal-dialog.modal-lg,
+  #routeDistanceModal .modal-dialog.modal-fullscreen-sm-down {
+    width: 100vw;
+    max-width: 100vw;
+    min-height: 100dvh;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    align-items: stretch;
+  }
+
+  #routeDistanceModal .modal-content {
+    min-height: 100dvh;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  #routeDistanceModal .modal-body {
+    flex: 0 1 auto;
+    max-height: calc(100dvh - 124px);
+    overflow-y: auto;
+    padding: 12px 14px 10px;
+  }
+
+  #routeDistanceModal .modal-footer {
+    flex: 0 0 auto;
+    border-top-color: var(--hairline, var(--border-color));
+  }
+}

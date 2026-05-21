@@ -2117,9 +2117,7 @@ body[data-theme="dark"] #app-layout #seisan-view-area .seisan-payment-tag {
   border-color: var(--settlement-club-line);
 }
 
-#seisan-view-area :is(
-  .seisan-summary-card .seisan-summary-label > .seisan-payment-tag,
-) {
+#seisan-view-area .seisan-summary-card .seisan-summary-label > .seisan-payment-tag {
   color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
   -webkit-text-fill-color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
   background: var(--settlement-pay-bg-fixed, var(--settlement-pay-bg));
@@ -2162,14 +2160,10 @@ body[data-theme="dark"] #app-layout #seisan-view-area :is(
   border-color: var(--settlement-club-line);
 }
 
-html[data-theme="dark"] body #app-layout #seisan-view-area :is(
-  .seisan-summary-card .seisan-summary-label > .seisan-payment-tag,
-),
-body[data-theme="dark"] #app-layout #seisan-view-area :is(
-  .seisan-summary-card .seisan-summary-label > .seisan-payment-tag,
-) {
-  color: var(--settlement-pay-ink-fixed, rgb(147, 197, 253));
-  -webkit-text-fill-color: var(--settlement-pay-ink-fixed, rgb(147, 197, 253));
-  background: var(--settlement-pay-bg-fixed, rgba(59, 130, 246, 0.22));
-  border-color: var(--settlement-pay-line-fixed, rgba(96, 165, 250, 0.60));
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card .seisan-summary-label > .seisan-payment-tag,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card .seisan-summary-label > .seisan-payment-tag {
+  color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
+  -webkit-text-fill-color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
+  background: var(--settlement-pay-bg-fixed, var(--settlement-pay-bg));
+  border-color: var(--settlement-pay-line-fixed, var(--settlement-pay-line));
 }
