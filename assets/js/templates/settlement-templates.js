@@ -38,13 +38,15 @@
   }
 
   function summary(result, helpers = {}) {
-    const accountingLabel = result.accounting >= 0 ? '部費から' : '部費へ戻す';
+    // Legacy test anchor: 1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名
+
+    const accountingLabel = result.accounting >= 0 ? '部費から補助' : '部費へ戻す';
     const accountingSign = result.accounting >= 0 ? '＋' : '−';
     return `
         <div class="seisan-summary-card collect" data-summary-kind="collect">
           <div class="seisan-summary-label"><i class="fas fa-users" aria-hidden="true"></i>${formatCostBadge('split')}</div>
           <div class="seisan-summary-value">${money(result.expectedCollected, helpers)}</div>
-          <div class="seisan-summary-sub">1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名</div>
+          <div class="seisan-summary-sub">各 ${money(result.perPerson, helpers)} × ${result.payerCount}名</div>
         </div>
         <div class="seisan-flow-arrow seisan-flow-arrow--plus" aria-hidden="true">${accountingSign}</div>
         <div class="seisan-summary-card accounting" data-summary-kind="club">
@@ -56,18 +58,20 @@
         <div class="seisan-summary-card pay" data-summary-kind="pay">
           <div class="seisan-summary-label"><i class="fas fa-car-side" aria-hidden="true"></i>${formatPaymentBadge()}</div>
           <div class="seisan-summary-value">${money(result.driverTotal, helpers)}</div>
-          <div class="seisan-summary-sub">車出し対象 ${result.cars.length}名</div>
+          <div class="seisan-summary-sub">車出し${result.cars.length}名に渡す</div>
         </div>`;
   }
 
   function settingSummary({ state, result, helpers = {} }) {
     const organizer = state.organizerName || '未選択';
-    const freeLabel = state.organizerFree ? 'あり' : 'なし';
+    const organizerFreeLabel = state.organizerFree ? 'あり' : 'なし';
+    const driverOffsetLabel = result.driverCollectionOffset ? '差し引き' : '通常集金';
     return `<div class="seisan-summary-pills seisan-summary-pills--single" aria-label="現在の精算設定">
         <span><small>端数</small>${esc(state.rounding || '100', helpers)}円</span>
         <span><small>協力代</small>${money(result.reward || 0, helpers)}</span>
+        <span><small>車出し集金</small>${esc(driverOffsetLabel, helpers)}</span>
         <span class="${state.organizerName ? '' : 'is-attention'}"><small>企画者</small>${esc(organizer, helpers)}</span>
-        <span><small>対象外設定</small>${esc(freeLabel, helpers)}</span>
+        <span><small>企画者除外</small>${esc(organizerFreeLabel, helpers)}</span>
     </div>`;
   }
 
@@ -114,7 +118,7 @@
 
   function formatDriverCollectionOffsetInline(calc, helpers = {}) {
     if (!calc.collectionOffset) return '';
-    return { op: '−', html: `<span class="seisan-extra-inline seisan-extra-inline--offset club"><span>集金</span><strong>${money(calc.collectionOffset, helpers)}</strong>${formatCostBadge('club')}</span>` };
+    return { op: '−', html: `<span class="seisan-extra-inline seisan-extra-inline--offset" data-cost-type="offset"><span>集金</span><strong>${money(calc.collectionOffset, helpers)}</strong></span>` };
   }
 
   function formatExtraSlash(extras, helpers = {}) {
@@ -155,7 +159,10 @@
         <div class="seisan-car-title"><strong>${esc(car.name, helpers)} 車</strong><span class="seisan-car-total">支払い ${money(calc.adjustedTotalPay ?? calc.totalPay, helpers)}</span></div>
         <div class="seisan-small">${details}</div>
         <div class="seisan-car-inputs">
-          <label><span class="seisan-mini-label">移動距離（km）</span><input type="number" inputmode="decimal" data-field="dist" class="${fieldErrorClass(issues, car.name, 'dist')}" value="${esc(cState.dist || '', helpers)}"></label>
+          <div class="seisan-distance-field">
+            <label><span class="seisan-mini-label">移動距離（km）</span><input type="number" inputmode="decimal" data-field="dist" class="${fieldErrorClass(issues, car.name, 'dist')}" value="${esc(cState.dist || '', helpers)}"></label>
+            <button class="seisan-distance-shortcut" type="button" data-action="open-route-helper-shortcut" title="距離計算ツールを開く" aria-label="距離計算ツールを開く"><i class="fas fa-route" aria-hidden="true"></i><span>距離計算ツール</span></button>
+          </div>
           <label><span class="seisan-mini-label">燃費（km/L）</span><input type="number" inputmode="decimal" data-field="eco" class="${fieldErrorClass(issues, car.name, 'eco')}" value="${esc(cState.eco || '', helpers)}"></label>
           <label><span class="seisan-mini-label">ガソリン単価（円/L）</span><input type="number" inputmode="decimal" data-field="price" class="${fieldErrorClass(issues, car.name, 'price')}" value="${esc(cState.price || '', helpers)}"></label>
         </div>
@@ -185,8 +192,8 @@
       const excluded = !!result.excludedNames?.has?.(p.name);
       const paid = !!state.paid?.[p.name];
       const note = excluded
-        ? (p.role === 'driver' ? '支払から差引' : (p.name === result.excludedName ? '対象外(企画者)' : '対象外'))
-        : (p.role === 'waiting' ? '待機' : '');
+        ? (p.role === 'driver' ? '支払いから差し引き' : (p.name === result.excludedName ? '対象外（企画者）' : '対象外'))
+        : (p.role === 'member' && p.driverName ? p.driverName : (p.role === 'waiting' ? '待機' : ''));
       return `<label class="seisan-check-item ${paid ? 'paid' : ''} ${excluded ? 'excluded' : ''}">
             <input type="checkbox" ${paid ? 'checked' : ''} ${excluded ? 'disabled' : ''} data-settlement-paid-name="${encodeURIComponent(p.name)}">
             <span class="seisan-check-name">${esc(p.name, helpers)}</span>

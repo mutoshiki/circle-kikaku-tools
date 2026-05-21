@@ -24,6 +24,7 @@ function save() {
                 editLockEnabled: d.editLockEnabled,
                 editLockPassphrase: d.editLockPassphrase,
                 settlement: d.settlement,
+                overview: d.overview,
                 lastAutoAssignLabel: d.lastAutoAssignLabel,
                 schemaVersion: d.schemaVersion,
                 lastUpdatedBy: d.lastUpdatedBy,
@@ -141,6 +142,7 @@ window.resetData = async () => {
     if (input !== 'リセット') return;
     L.removeItem(CFG.STORE + '_' + roomId);
     L.removeItem('syawari_history_' + roomId);
+    L.removeItem('sanpoOverviewDraft:v1:' + roomId);
     L.removeItem(getTrustedDeviceKey());
     if (dbRef) {
         set(dbRef, null).then(() => { location.reload(); }).catch(err => { console.error(err); showAppNotice('リセットに失敗しました。', true); });

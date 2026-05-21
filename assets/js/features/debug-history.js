@@ -7,12 +7,78 @@ window.openDebugModal = function() {
         const el = byId('debugModal');
         window.modals.debug = new bootstrap.Modal(el);
     }
+    setupDebugThemeControls();
     window.modals.debug.show();
 };
+
+function setupDebugThemeControls() {
+    const root = byId('debugModal');
+    if (!root || root.dataset.themeControlsBound === 'true') return;
+    root.dataset.themeControlsBound = 'true';
+    root.querySelectorAll('[data-debug-theme-mode]').forEach(button => {
+        button.addEventListener('click', () => {
+            window.setDebugAppearanceMode?.(button.dataset.debugThemeMode);
+        });
+    });
+}
 
 
 function setupHiddenDebugTap() {
     // デバッグ用サンプルはヘッダーの「その他」メニューから開く。
+}
+
+function createSampleTimetableItems() {
+    return [
+        { time: '08:00', title: '集合・受付' },
+        { time: '08:20', title: '車ごとに点呼' },
+        { time: '08:30', title: '出発' },
+        { time: '10:00', title: '現地到着・散策 https://maps.google.com' },
+        { time: '12:00', title: '昼食' },
+        { time: '15:30', title: '帰路出発' },
+        { time: '17:00', title: '解散' }
+    ];
+}
+
+function createSampleTeamPlan(participants = []) {
+    const people = participants.map(member => ({
+        name: member.name,
+        memo: member.memo || '',
+        gender: member.gender || 'unknown',
+        grade: parseInt(member.grade) || 0,
+        locked: false
+    })).filter(member => member.name);
+
+    const firstLeader = people[0] || { name: '田中 太郎', gender: 'male', grade: 1, memo: '' };
+    const secondLeader = people[3] || people[1] || { name: '伊藤 美月', gender: 'female', grade: 1, memo: '' };
+    const firstMembers = people.slice(1, 3);
+    const secondMembers = people.slice(4, 6);
+    const usedNames = new Set([firstLeader.name, secondLeader.name, ...firstMembers.map(m => m.name), ...secondMembers.map(m => m.name)]);
+
+    return {
+        id: typeof SINGLE_TEAM_PLAN_ID !== 'undefined' ? SINGLE_TEAM_PLAN_ID : 'plan-team',
+        name: '班',
+        templateType: 'team',
+        lastAutoAssignLabel: '',
+        waiting: people.filter(member => !usedNames.has(member.name)),
+        cars: [
+            {
+                name: firstLeader.name,
+                capacity: 5,
+                driverMemo: firstLeader.memo || '',
+                driverGender: firstLeader.gender || 'unknown',
+                driverGrade: firstLeader.grade || 0,
+                members: firstMembers
+            },
+            {
+                name: secondLeader.name,
+                capacity: 5,
+                driverMemo: secondLeader.memo || '',
+                driverGender: secondLeader.gender || 'unknown',
+                driverGrade: secondLeader.grade || 0,
+                members: secondMembers
+            }
+        ]
+    };
 }
 
 function seedDebugData({ missing = false } = {}) {
@@ -51,7 +117,7 @@ function seedDebugData({ missing = false } = {}) {
     byId('cars-container').innerHTML = '';
     byId('roomNameInput').value = missing ? '入力漏れテスト' : '新歓企画 5/12';
     settlementState = normalizeSettlementState({
-        rounding: '100', organizerFree: true, organizerName: '田中 太郎', driverReward: '1000', cars: {}, paid: {}, driverPaid: {}
+        rounding: '100', organizerFree: true, organizerName: '田中 太郎', driverCollectionOffset: true, driverReward: '0', cars: {}, paid: {}, driverPaid: {}
     });
 
     const usedDrivers = drivers.slice(0, carCount);
@@ -62,12 +128,8 @@ function seedDebugData({ missing = false } = {}) {
             eco: missing && idx === 0 ? '' : String(12 + idx * 2),
             price: '170',
             extras: missing && idx === 1
-                ? [{ name: '', amount: '2500', type: 'split' }, { name: 'レンタカー代', amount: '', type: 'club' }]
-                : [
-                    { name: '高速代', amount: String(1200 + idx * 400), type: 'split' },
-                    { name: '駐車場', amount: idx % 2 === 0 ? '800' : '', type: 'split' },
-                    { name: idx === 0 ? 'レンタカー代' : '差し入れ', amount: idx === 0 ? '3000' : '600', type: 'club' }
-                  ].filter(hasMeaningfulExtra)
+                ? [{ name: '', amount: '2500', type: 'split' }]
+                : [{ name: '駐車場', amount: '200', type: 'split' }]
         });
     });
 
@@ -79,9 +141,15 @@ function seedDebugData({ missing = false } = {}) {
 
     activeCarPlanId = typeof SINGLE_CAR_PLAN_ID !== 'undefined' ? SINGLE_CAR_PLAN_ID : 'plan-car';
     lastAutoAssignLabel = '';
+    const carPlan = { id: activeCarPlanId, name: '車割', ...getCurrentAllocationFromDom(), lastAutoAssignLabel, templateType: 'car' };
+    const teamPlan = createSampleTeamPlan(members.slice(0, totalSeats));
     carPlans = normalizeCarPlansFromData({
         activeCarPlanId,
-        carPlans: [{ id: activeCarPlanId, name: '車割', ...getCurrentAllocationFromDom(), lastAutoAssignLabel, templateType: 'car' }]
+        carPlans: [carPlan, teamPlan]
+    });
+    window.SanpoOverview?.applySnapshot?.({
+        memo: missing ? '入力漏れ確認用のサンプルです。' : 'サンプル企画のメモです。',
+        timetableItems: createSampleTimetableItems()
     });
 
     updateUI();

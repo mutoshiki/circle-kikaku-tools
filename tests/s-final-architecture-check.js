@@ -35,23 +35,29 @@ assert(!share.includes('style.cssText'), 'share-actions.js should not keep inlin
 assert(settlement.includes('window.SanpoApp.templates.settlement'), 'settlement rendering should use settlement templates');
 assert(sheet.includes('window.SanpoApp.templates.sheet'), 'sheet rendering should use sheet templates');
 
-const requiredCssImports = [
-  'assets/css/01-app-shell.css',
-  'assets/css/03-guides-modals.css',
-  'assets/css/04-cars-members-tray.css',
-  'assets/css/05-settlement.css'
+
+const requiredLeafCss = [
+  'assets/css/app-shell/01-layout-core.css',
+  'assets/css/guides-modals/01-modal-dropdown-base.css',
+  'assets/css/settlement/01-page-shell.css',
+  'assets/css/settlement/02-summary-cards.css'
 ];
-for (const file of requiredCssImports) {
+for (const file of requiredLeafCss) {
   const content = readText(file);
-  assert(content.includes('@import url('), `${file} should be an owner import aggregator`);
+  assert(!content.includes('@import url('), `${file} must be a direct leaf CSS file, not an import aggregator`);
+  assert(html.includes(file.replace('assets/css/', 'assets/css/')), `${file} should be linked directly from index.html`);
 }
 
 const requiredSubFiles = [
-  'assets/css/app-shell/01-app-shell-owner.css',
-  'assets/css/guides-modals/01-guides-modals-owner.css',
+  'assets/css/app-shell/01-layout-core.css',
+  'assets/css/app-shell/02-edit-controls.css',
+  'assets/css/app-shell/04-mobile-header-layout.css',
+  'assets/css/guides-modals/01-modal-dropdown-base.css',
+  'assets/css/guides-modals/02-guide-cards.css',
   'assets/css/cars-members-tray/01-shared-card-primitives.css',
   'assets/css/cars-members-tray/02-tray-shell.css',
-  'assets/css/settlement/01-layout-summary.css',
+  'assets/css/settlement/01-page-shell.css',
+  'assets/css/settlement/02-summary-cards.css',
   'assets/css/settlement/02-common-controls.css',
   'assets/js/templates/settlement-templates.js',
   'assets/js/features/settlement/01-state.js',

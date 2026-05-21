@@ -1,4 +1,4 @@
-const { readText } = require('./helpers/read-project');
+const { readText, readCssBundle } = require('./helpers/read-project');
 
 function assert(condition, message) {
   if (!condition) {
@@ -7,9 +7,8 @@ function assert(condition, message) {
   }
 }
 
-const css = readText('assets/css/08-control-consistency.css');
+const css = readCssBundle();
 
-assert(css.includes('collect summary neutralization: 集めるは黒文字'), 'collect neutralization comment missing');
 assert(css.includes('--settlement-collect-bg:'), 'collect card should use a neutral background token');
 assert(css.includes('#seisan-view-area .seisan-summary-card.collect') && css.includes('.seisan-mock-summary.collect'), 'collect neutral override should cover real and guide preview cards');
 assert(css.includes('color: var(--text-main);'), 'collect label/value should return to normal text color');

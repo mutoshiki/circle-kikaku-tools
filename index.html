@@ -19,14 +19,36 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="./assets/css/00-base-tokens.css" rel="stylesheet">
-    <link href="./assets/css/01-app-shell.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/00-base-extracted.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/01-layout-core.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/02-edit-controls.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/03-header-room.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/04-mobile-header-layout.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/05-mobile-header-responsive.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/06-mobile-header-repairs.css" rel="stylesheet">
     <link href="./assets/css/02-theme-appearance.css" rel="stylesheet">
-    <link href="./assets/css/03-guides-modals.css" rel="stylesheet">
-    <link href="./assets/css/04-cars-members-tray.css" rel="stylesheet">
-    <link href="./assets/css/05-settlement.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/01-modal-dropdown-base.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/02-guide-cards.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/03-guide-mockups.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/04-modal-repairs.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/00-base-extracted.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/01-shared-card-primitives.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/02-tray-shell.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/03-person-card.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/04-car-card.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/05-drag-drop.css" rel="stylesheet">
+    <link href="./assets/css/settlement/00-base-extracted.css" rel="stylesheet">
+    <link href="./assets/css/settlement/01-page-shell.css" rel="stylesheet">
+    <link href="./assets/css/settlement/02-summary-cards.css" rel="stylesheet">
+    <link href="./assets/css/settlement/03-guide-mockups.css" rel="stylesheet">
+    <link href="./assets/css/settlement/02-common-controls.css" rel="stylesheet">
+    <link href="./assets/css/settlement/03-car-inputs.css" rel="stylesheet">
+    <link href="./assets/css/settlement/04-route-helper.css" rel="stylesheet">
+    <link href="./assets/css/settlement/05-checklists-share.css" rel="stylesheet">
     <link href="./assets/css/06-sheet-view.css" rel="stylesheet">
     <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
-    <link href="./assets/css/08-control-consistency.css" rel="stylesheet">
+    <link href="./assets/css/08-utilities.css" rel="stylesheet">
   </head>
   <body data-theme="light" data-app-theme="natural" class="sheet-mode">
     <div id="app-layout">
@@ -79,7 +101,7 @@
       <aside id="overviewDrawer" class="overview-drawer" aria-hidden="true" aria-labelledby="overviewDrawerTitle">
         <div class="overview-drawer-head">
           <div>
-            <p class="overview-drawer-kicker">OVERVIEW</p>
+            <p class="overview-drawer-kicker">概要</p>
             <h2 id="overviewDrawerTitle">メモ・タイムテーブル</h2>
           </div>
           <button id="overviewDrawerCloseBtn" class="overview-drawer-close" type="button" aria-label="メニューを閉じる">
@@ -100,7 +122,7 @@
             </div>
             <div id="overviewTimetableRows" class="overview-timetable-rows" aria-live="polite"></div>
             <button id="overviewTimetableCopyBtn" class="overview-copy-action" type="button">
-              <i class="fas fa-copy" aria-hidden="true"></i><span>タイムテーブルをコピー</span>
+              <i class="fas fa-copy" aria-hidden="true"></i><span>予定をコピー</span>
             </button>
           </section>
         </div>
@@ -474,15 +496,19 @@
               </div>
               <div class="seisan-field">
                 <label>車出し協力代（1台）</label>
-                <input id="seisanDriverReward" type="number" inputmode="numeric" value="1000" aria-label="車出し協力代">
+                <input id="seisanDriverReward" type="number" inputmode="numeric" value="0" aria-label="車出し協力代">
               </div>
               <div class="seisan-field">
                 <label>企画者</label>
                 <select id="seisanOrganizerName" aria-label="企画者名"></select>
               </div>
               <label class="seisan-toggle seisan-toggle--modal">
-                <span>企画者も集金対象から外す（車出しは常に対象外）</span>
-                <input id="seisanOrganizerFree" type="checkbox" checked aria-label="企画者も集金対象から外す。車出しは常に対象外">
+                <span>車出しの集金を支払いから差し引く</span>
+                <input id="seisanDriverCollectionOffset" type="checkbox" checked aria-label="車出しの集金を支払いから差し引く">
+              </label>
+              <label class="seisan-toggle seisan-toggle--modal">
+                <span>企画者を集金対象から外す</span>
+                <input id="seisanOrganizerFree" type="checkbox" checked aria-label="企画者を集金対象から外す">
               </label>
             </div>
           </div>
@@ -581,6 +607,14 @@
                 <option value="5">5台</option>
               </select>
             </div>
+            <div class="debug-theme-tools mb-3" aria-label="テーマ表示確認">
+              <div class="debug-label mb-2">テーマ表示確認</div>
+              <div class="btn-group w-100 debug-theme-toggle" role="group" aria-label="ライト・ダーク切り替え">
+                <button id="debugThemeSystemBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-debug-theme-mode="system">端末</button>
+                <button id="debugThemeLightBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-debug-theme-mode="light">ライト</button>
+                <button id="debugThemeDarkBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-debug-theme-mode="dark">ダーク</button>
+              </div>
+            </div>
             <div class="d-grid gap-2">
               <button id="executeDebugBtn" type="button" class="btn btn-primary btn-sm fw-bold">通常サンプルを入れる</button>
               <button id="executeDebugMissingBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold">入力漏れサンプルを入れる</button>
@@ -625,12 +659,12 @@
     <script src="./assets/js/modules/drag-cards.js"></script>
     <script src="./assets/js/modules/settlement.js"></script>
     <script src="./assets/js/modules/theme-presets.js"></script>
-    <script src="./assets/js/features/appearance.js"></script>
-    <script src="./assets/js/templates/settlement-templates.js"></script>
+    <script src="./assets/js/features/appearance.js?v=debug-theme-mode"></script>
+    <script src="./assets/js/templates/settlement-templates.js?v=route-shortcut-label"></script>
     <script src="./assets/js/features/settlement/01-state.js"></script>
     <script src="./assets/js/features/settlement/02-calculator.js"></script>
     <script src="./assets/js/features/settlement/03-render.js"></script>
-    <script src="./assets/js/features/settlement/04-route-helper.js"></script>
+    <script src="./assets/js/features/settlement/04-route-helper.js?v=route-shortcut"></script>
     <script src="./assets/js/features/settlement/05-input-actions.js"></script>
     <script src="./assets/js/features/settlement/06-share-text.js"></script>
     <script src="./assets/js/features/settlement.js"></script>
@@ -642,18 +676,18 @@
     <script src="./assets/js/features/waiting-tray.js"></script>
     <script src="./assets/js/features/person-cards.js"></script>
     <script src="./assets/js/templates/sheet-templates.js"></script>
-    <script src="./assets/js/features/sheet-view.js"></script>
+    <script src="./assets/js/features/sheet-view.js?v=timetable-sheet-links"></script>
     <script src="./assets/js/features/drag-edit-view.js"></script>
     <script src="./assets/js/features/auto-assign.js"></script>
     <script src="./assets/js/features/person-menu.js"></script>
     <script src="./assets/js/features/google-form-import-parser.js"></script>
     <script src="./assets/js/features/batch-import.js"></script>
-    <script src="./assets/js/features/debug-history.js"></script>
+    <script src="./assets/js/features/debug-history.js?v=debug-theme-mode"></script>
     <script src="./assets/js/app.js"></script>
     <script src="./assets/js/features/events/00-event-utils.js"></script>
     <script src="./assets/js/features/events/01-core-startup-events.js"></script>
-    <script src="./assets/js/features/events/02-static-header-events.js"></script>
-    <script src="./assets/js/features/events/03-generated-action-events.js"></script>
+    <script src="./assets/js/features/events/02-static-header-events.js?v=timetable-sheet-sync"></script>
+    <script src="./assets/js/features/events/03-generated-action-events.js?v=route-shortcut"></script>
     <script src="./assets/js/features/events/04-settlement-input-events.js"></script>
     <script src="./assets/js/features/events/05-view-feature-events.js"></script>
     <script src="./assets/js/features/events.js"></script>

@@ -30,10 +30,12 @@ function syncSettlementControls(state, participants) {
     const roundingEl = byId('seisanRounding');
     const organizerFreeEl = byId('seisanOrganizerFree');
     const organizerEl = byId('seisanOrganizerName');
+    const driverCollectionOffsetEl = byId('seisanDriverCollectionOffset');
     const rewardEl = byId('seisanDriverReward');
     if (roundingEl) roundingEl.value = state.rounding || '100';
     if (organizerFreeEl) organizerFreeEl.checked = state.organizerFree !== false;
-    if (rewardEl) rewardEl.value = state.driverReward ?? '1000';
+    if (driverCollectionOffsetEl) driverCollectionOffsetEl.checked = state.driverCollectionOffset !== false;
+    if (rewardEl) rewardEl.value = state.driverReward ?? '0';
     if (organizerEl) {
         const current = state.organizerName || '';
         const placeholder = new Option('未選択', '');
@@ -212,7 +214,9 @@ function renderSettlementView() {
     if (carList) carList.innerHTML = renderSettlementCarsHtml(data, state, result, issues);
 
     const note = byId('seisan-collection-note');
-    if (note) note.textContent = `1人あたり ${yen(result.perPerson)}・集金済み ${result.paidCount}/${result.payerCount}名・未回収 ${yen(result.unpaidAmount)}`;
+    if (note) {
+        note.innerHTML = `<span class="seisan-collection-note-left"><span>集金済み ${result.paidCount}/${result.payerCount}名</span><span>未回収 ${yen(result.unpaidAmount)}</span></span><span class="seisan-collection-per-person"><span class="seisan-collection-per-person-label">1人あたり /</span><strong class="seisan-collection-per-person-amount">${yen(result.perPerson)}</strong></span>`;
+    }
 
     const collectionList = byId('seisan-collection-list');
     if (collectionList) collectionList.innerHTML = renderSettlementCollectionHtml(participants, state, result);

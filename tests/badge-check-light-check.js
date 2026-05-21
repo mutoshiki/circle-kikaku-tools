@@ -18,8 +18,8 @@ if (missing.length) {
   process.exit(1);
 }
 
-if (!html.includes('./assets/css/04-cars-members-tray.css')) {
-  console.error('04-cars-members-tray.css is not loaded');
+if (!html.includes('./assets/css/cars-members-tray/03-person-card.css') || !html.includes('./assets/css/cars-members-tray/04-car-card.css')) {
+  console.error('car/member leaf CSS is not loaded');
   process.exit(1);
 }
 

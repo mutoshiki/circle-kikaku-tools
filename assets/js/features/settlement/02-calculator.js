@@ -7,7 +7,9 @@ function calculateSettlement(data, state) {
     const organizerSelected = !!organizerName;
     const excludedName = state.organizerFree && organizerSelected ? organizerName : '';
     const driverNames = new Set((data.cars || []).map(car => String(car.name || '').trim()).filter(Boolean));
-    const excludedNames = new Set(driverNames);
+    const driverCollectionOffset = isDriverCollectionOffsetEnabled(state);
+    const excludedNames = new Set();
+    if (driverCollectionOffset) driverNames.forEach(name => excludedNames.add(name));
     if (excludedName) excludedNames.add(excludedName);
     const payerCount = participants.filter(p => !excludedNames.has(p.name)).length;
     const shareExcludedNames = new Set();
@@ -50,7 +52,7 @@ function calculateSettlement(data, state) {
     const expectedCollected = perPerson * payerCount;
     const surplus = expectedCollected - totalSplit;
     cars.forEach(car => {
-        car.collectionOffset = driverNames.has(car.name) ? perPerson : 0;
+        car.collectionOffset = driverCollectionOffset && driverNames.has(car.name) ? perPerson : 0;
         car.adjustedTotalPay = Math.max(0, car.totalPay - car.collectionOffset);
     });
     const totalDriverCollectionOffset = cars.reduce((sum, c) => sum + c.collectionOffset, 0);
@@ -68,6 +70,7 @@ function calculateSettlement(data, state) {
         excludedName,
         excludedNames,
         driverNames,
+        driverCollectionOffset,
         payerCount,
         shareCount,
         rounding,
@@ -96,7 +99,7 @@ function getSettlementIssues(data, state, result) {
     const participants = result.participants || [];
     if (!participants.length) messages.push('名簿が空です。先に登録画面から参加者を入れてください。');
     if (!(data.cars || []).length) messages.push('車出しが未登録です。登録画面で追加してください。');
-    if (state.organizerFree && participants.length > 0 && !state.organizerName) messages.push('企画者を選ぶと、企画者と車出しの集金対象外を正確にできます。');
+    if (state.organizerFree && participants.length > 0 && !state.organizerName) messages.push('企画者を選ぶと、企画者の集金対象外を正確にできます。');
     if (result.payerCount <= 0 && participants.length > 0) messages.push('集金対象が0人です。企画者・車出し設定を確認してください。');
 
     (data.cars || []).forEach(car => {

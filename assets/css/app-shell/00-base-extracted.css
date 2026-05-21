@@ -1,0 +1,217 @@
+.grade-select-btn.active[data-grade="0"] {
+background: var(--border-color); color: var(--text-main); font-weight: 700;
+}
+
+.grade-select-btn[data-grade="1"] {
+background: var(--grade1-bg); color: var(--grade1-text); border-color: var(--grade1-border);
+}
+
+.grade-select-btn[data-grade="2"] {
+background: var(--grade2-bg); color: var(--grade2-text); border-color: var(--grade2-border);
+}
+
+.grade-select-btn[data-grade="3"] {
+background: var(--grade3-bg); color: var(--grade3-text); border-color: var(--grade3-border);
+}
+
+.grade-select-btn[data-grade="4"] {
+background: var(--grade4-bg); color: var(--grade4-text); border-color: var(--grade4-border);
+}
+
+.grade-select-btn.active {
+box-shadow: inset 0 0 0 1px var(--text-main); font-weight: 700;
+}
+
+#roomNameInput {
+min-width: 0;
+}
+
+.grade-select-btn {
+  font-size: 0.75rem;
+  padding: 4px 9px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-body);
+  color: var(--text-sub);
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+#tab-list {
+font-size:0;
+}
+}
+
+@media (max-width: 640px) {
+#tab-list i::after {
+content:" 車割"; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size:0.68rem; font-weight:700;
+}
+}
+
+@media (max-width: 640px) {
+#tab-sheet {
+font-size:0;
+}
+}
+
+@media (max-width: 640px) {
+#tab-sheet i::after {
+content:" 発表"; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size:0.68rem; font-weight:700;
+}
+}
+
+.tool-help-btn {
+border-color: var(--border-color);
+}
+
+.auto-condition-pill.is-empty {
+background: var(--bg-card); border-color: var(--border-color); color: var(--text-sub);
+}
+
+@media (max-width: 640px) {
+.auto-condition-pill {
+font-size: 0.78rem;
+        min-height: 42px;
+}
+}
+
+.tool-help-btn i {
+color: var(--accent-color);
+}
+
+@media (max-width: 640px) {
+.auto-condition-pill {
+min-height: var(--mobile-touch) ;
+        padding: 10px 12px ;
+        border-radius: var(--radius-main) ;
+        font-size: 0.86rem ;
+        line-height: 1.35 ;
+}
+}
+
+@media (max-width: 640px) {
+.auto-condition-pill {
+min-height: 34px;
+        padding: 7px 10px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-left: 3px solid var(--accent-color);
+        font-size: 0.76rem;
+        font-weight: 760;
+        line-height: 1.25;
+}
+}
+
+@media (max-width: 640px) {
+.auto-condition-pill i {
+font-size: 0.78rem;
+}
+}
+
+.auto-condition-pill span {
+min-width: 0;
+}
+
+.auto-condition-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 24px;
+  padding: 0 2px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 0.73rem;
+  font-weight: 800;
+  line-height: 1.25;
+  width: 100%;
+  border-left: 0;
+  overflow-wrap: anywhere;
+  box-shadow: none;
+}
+
+.auto-condition-pill i {
+  color: var(--text-sub);
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+}
+
+[data-theme="dark"] .auto-condition-pill {
+  background: transparent;
+  border-color: transparent;
+  border-left-color: var(--accent-color);
+}
+
+.grade-select-btn[data-grade="1"],
+.grade-select-btn[data-grade="2"],
+.grade-select-btn[data-grade="3"],
+.grade-select-btn[data-grade="4"] {
+background: var(--bg-body) ;
+    border-color: var(--border-color) ;
+    color: var(--text-main) ;
+}
+
+.grade-select-btn.active[data-grade="1"],
+.grade-select-btn.active[data-grade="2"],
+.grade-select-btn.active[data-grade="3"],
+.grade-select-btn.active[data-grade="4"] {
+background: var(--accent-soft) ;
+    border-color: var(--accent-color) ;
+    color: var(--text-main) ;
+}
+
+@media (max-width: 640px) {
+#tab-list,
+#tab-sheet {
+min-height: 34px;
+        padding: 6px 4px;
+        font-size: 0.73rem;
+        line-height: 1;
+        gap: 0;
+}
+}
+
+@media (max-width: 640px) {
+#tab-list i::after,
+#tab-sheet i::after {
+content: none;
+}
+}
+
+@media (max-width: 640px) {
+.auto-condition-pill {
+min-height: 34px;
+        padding: 6px 8px;
+        font-size: 0.74rem;
+        margin-bottom: 8px;
+}
+}
+
+@media (max-width: 640px) {
+.settings-btn {
+min-height: 36px;
+        padding: 6px 8px;
+        font-size: 0.72rem;
+}
+}
+
+@media (max-width: 640px) {
+#tab-list,
+#tab-sheet {
+min-height: 36px;
+        padding: 7px 4px;
+        border-radius: 13px;
+        color: color-mix(in srgb, var(--text-sub) 88%, var(--text-main));
+        font-size: 0.74rem;
+        font-weight: 820;
+}
+}
+
+.btn-sm,
+.badge,
+.sync-status-badge,
+.auto-condition-pill {
+border-radius: var(--radius-sm);
+}

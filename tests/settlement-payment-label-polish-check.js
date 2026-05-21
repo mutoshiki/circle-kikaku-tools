@@ -1,8 +1,8 @@
 const assert = require('assert');
-const { readText } = require('./helpers/read-project');
+const { readText, readCssBundle } = require('./helpers/read-project');
 
 const templates = readText('assets/js/templates/settlement-templates.js');
-const css = readText('assets/css/08-control-consistency.css');
+const css = readCssBundle();
 
 assert(!templates.includes('<span>集める</span>'), 'collect summary label should no longer say 集める');
 assert(templates.includes("${formatCostBadge('split')}"), 'collect summary should use the shared 割勘 badge');
@@ -13,7 +13,6 @@ assert(templates.includes('>支払い</em>'), 'payment badge should say 支払�
 assert(templates.includes('function formatPaymentBadge'), 'shared payment badge helper should exist');
 assert((templates.match(/formatPaymentBadge\(\)/g) || []).length >= 3, 'payment badge should be used by summary and car rows');
 assert(css.includes('seisan-payment-tag'), 'payment badge CSS should exist');
-assert(css.includes('summary/payment label rename polish'), 'summary label colors should be finalized after the old collect override');
 assert(css.includes('var(--settlement-split-ink)') && css.includes('var(--settlement-club-ink)') && css.includes('var(--settlement-pay-ink)'), 'summary label text should use the same split/club/payment color tokens as car tags');
 
 console.log('Settlement payment label polish check OK');

@@ -19,7 +19,7 @@ assert(calc.includes('isDriverReward: isDriverRewardExtra(ex)'), 'calculator sho
 assert(!share.includes('`協力代：${yen(car.reward)}`'), 'share text should not duplicate reward outside the extras list');
 assert(templates.includes('function formatCostBadge') && templates.includes('seisan-cost-type-badge ${normalized}') && templates.includes("normalized === 'club' ? '部費' : '割勘'"), 'gas and extra rows should share the same cost tag component');
 assert(templates.includes('function formatPaymentBadge') && templates.includes('seisan-payment-tag'), 'summary and car payment labels should use a shared 支払いタグ helper');
-assert(css.includes('payment label polish: 支払も割勘/部費') && css.includes('--settlement-pay-bg') && css.includes('--settlement-pay-line'), 'payment label tag should have the same shape system as cost tags');
+assert(css.includes('--settlement-pay-bg') && css.includes('--settlement-pay-line') && css.includes('.seisan-payment-tag'), 'payment label tag should have the same shape system as cost tags');
 assert(css.includes('var(--settlement-split-bg)') && css.includes('var(--settlement-club-bg)'), 'split/club colors should remain tokenized');
 
 console.log('Settlement reward extra and summary tag check OK');

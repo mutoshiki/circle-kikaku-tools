@@ -13,17 +13,6 @@ visibility: hidden;
 display: none;
 }
 
-.manual-drag-float {
-position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 100000;
-    pointer-events: none;
-    opacity: 0.96;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
-    transform: translate3d(0, 0, 0) scale(1.03);
-}
-
 body.manual-card-dragging,
 body.manual-card-dragging * {
 cursor: grabbing;
@@ -46,10 +35,10 @@ visibility: hidden;
 position: fixed;
     left: 0;
     top: 0;
-    z-index: 100000;
+    z-index: var(--z-drag);
     pointer-events: none;
     opacity: 0.96;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+    box-shadow: 0 10px 24px rgba(var(--shadow-rgb), 0.18);
     transform: translate3d(0, 0, 0) scale(1.03);
 }
 
@@ -59,16 +48,6 @@ cursor: grabbing;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
-}
-
-.seat-slot.swap-target::after {
-display: none;
-}
-
-.seat-slot.swap-target::after {
-content: "交換";
-    background: #f59e0b;
-    color: #fff;
 }
 
 body.manual-card-dragging .member-card,
@@ -100,31 +79,35 @@ opacity: .42;
 }
 
 .manual-drag-float {
-pointer-events: none;
-    will-change: transform;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: var(--z-drag);
+  pointer-events: none;
+  opacity: 0.96;
+  box-shadow: 0 10px 24px rgba(var(--shadow-rgb), 0.18);
+  transform: translate3d(0, 0, 0) scale(1.03);
+  will-change: transform;
 }
 
 .seat-slot.swap-target {
 background: var(--swap-target-bg) ;
-    border-color: color-mix(in srgb, #f59e0b 58%, var(--border-color)) ;
-    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.24), inset 0 0 0 1px rgba(255,255,255,0.28) ;
+    border-color: color-mix(in srgb, var(--color-warning) 58%, var(--border-color)) ;
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.24), inset 0 0 0 1px rgba(var(--white-rgb), 0.28) ;
 }
 
 .seat-slot.swap-target::after {
-content: none;
-    display: none;
+  display: none;
+  content: none;
+  background: var(--color-warning);
+  color: var(--color-white);
 }
 
 .manual-drag-float,
 .manual-sheet-drag-float {
 opacity: 0.94 ;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16) ;
+    box-shadow: 0 10px 24px rgba(var(--shadow-rgb), 0.16) ;
     transform: translate3d(0, 0, 0) scale(1.025) ;
-}
-
-body.manual-card-dragging .person-pop-menu,
-body.quick-sheet-dragging .person-pop-menu {
-display: none;
 }
 
 body.manual-card-dragging,
@@ -132,7 +115,79 @@ body.quick-sheet-dragging {
 user-select: none;
 }
 
-body.manual-card-dragging .person-pop-menu,
-body.quick-sheet-dragging .person-pop-menu {
+body.manual-card-dragging .person-pop-menu, body.quick-sheet-dragging .person-pop-menu {
+  display: none;
+}
+
+/* =========================================================
+   Global drag interaction rules moved from 08-control-consistency.css
+========================================================= */
+#sheet-view-area .sheet-seat-row > .sheet-dropzone {
+  grid-column: 1 / -1;
+}
+
+[data-theme="dark"] :is(
+  .guide-registration-context,
+  .guide-registration-context--highlight,
+  .guide-registration-ghost,
+  .guide-registration-cta,
+  .guide-action-box,
+  .guide-action-box.primary,
+  .guide-copy-mock,
+  .guide-mini-form .field,
+  .guide-edit-card-mock,
+  .guide-edit-field,
+  .guide-ui-card,
+  .mock-form-import-ui,
+  .mock-form-import-textarea,
+  .mock-sheet-browser,
+  .mock-sheet-browser-canvas,
+  .mock-sheet-browser-sheet
+) {
+  color: var(--text-main);
+  border-color: var(--ui-saas-border, var(--border-color));
+  background-color: color-mix(in srgb, var(--bg-card) 86%, var(--color-night));
+}
+
+/* Component rules extracted from 00-base-tokens.css. */
+.swap-preview-card,
+.drag-preview-card {
+opacity: 1;
+    pointer-events: none;
+    transform: none;
+    filter: none;
+}
+
+.sortable-ghost {
+opacity: 0.4; background: var(--border-color);
+}
+
+.sortable-fallback {
+opacity: 1; box-shadow: 0 4px 12px rgba(var(--black-rgb), 0.15); 
+    transform: scale(1.02); cursor: grabbing; z-index: var(--z-drag); pointer-events: none;
+}
+
+.drag-preview-card {
 display: none;
+}
+
+.cdn-bootstrap-missing::before,
+.cdn-sortable-missing::after {
+position: fixed;
+    left: 10px;
+    right: 10px;
+    z-index: var(--z-local-raised);
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(245, 158, 11, 0.92);
+    color: var(--color-ink);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-align: center;
+    pointer-events: none;
+}
+
+.cdn-sortable-missing::after {
+content: "Sortableの読み込みに失敗しました。旧ドラッグ補助は無効です。";
+    bottom: 10px;
 }

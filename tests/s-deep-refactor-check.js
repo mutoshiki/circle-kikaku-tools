@@ -15,8 +15,8 @@ const sync = readText('assets/js/core/sync-controller.js');
 const render = readText('assets/js/core/render-controller.js');
 const guard = readText('assets/js/core/settlement-edit-guard.js');
 const settlementFacade = readText('assets/js/features/settlement.js');
-const carsOwner = readText('assets/css/04-cars-members-tray.css');
-const settlementOwner = readText('assets/css/05-settlement.css');
+const carsOwner = readText('assets/css/cars-members-tray/02-tray-shell.css') + readText('assets/css/cars-members-tray/03-person-card.css') + readText('assets/css/cars-members-tray/04-car-card.css');
+const settlementOwner = readText('assets/css/settlement/01-page-shell.css') + readText('assets/css/settlement/02-summary-cards.css') + readText('assets/css/settlement/02-common-controls.css');
 const baseTokens = readText('assets/css/00-base-tokens.css');
 const themeAppearance = readText('assets/css/02-theme-appearance.css');
 const uiSpec = readText('tests/basic-ui.spec.js');
@@ -56,9 +56,9 @@ assert(settlementFacade.includes('SanpoApp.features.settlement'), 'settlement fa
 assert(html.indexOf('assets/js/features/settlement/01-state.js') < html.indexOf('assets/js/features/settlement.js'), 'settlement split files must load before facade');
 assert(html.indexOf('assets/js/core/sync-controller.js') < html.indexOf('assets/js/app.js'), 'sync controller must load before app bootstrap');
 
-assert(carsOwner.includes('01-shared-card-primitives.css') && carsOwner.includes('05-drag-drop.css'), 'cars-members tray owner imports are incomplete');
-assert(settlementOwner.includes('02-common-controls.css') && settlementOwner.includes('05-checklists-share.css'), 'settlement owner imports are incomplete');
-assert(!carsOwner.includes('01-tray-base.css') && !settlementOwner.includes('02-route-helper.css'), 'owner aggregators still load stale split names');
+assert(html.includes('assets/css/cars-members-tray/01-shared-card-primitives.css') && html.includes('assets/css/cars-members-tray/05-drag-drop.css'), 'cars-members tray leaf CSS links are incomplete');
+assert(html.includes('assets/css/settlement/02-common-controls.css') && html.includes('assets/css/settlement/05-checklists-share.css'), 'settlement leaf CSS links are incomplete');
+assert(!html.includes('01-tray-base.css') && !html.includes('02-route-helper.css'), 'stale split CSS names are still linked');
 
 assert(!baseTokens.includes('@keyframes sheetJiggle {\n {'), 'sheetJiggle still has malformed nested braces');
 assert(!baseTokens.includes('@keyframes waitingCardNewPulse {\n {'), 'waitingCardNewPulse still has malformed nested braces');

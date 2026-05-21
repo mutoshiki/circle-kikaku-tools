@@ -1,4 +1,4 @@
-const { readText } = require('./helpers/read-project');
+const { readText, readCssBundle } = require('./helpers/read-project');
 
 function assert(condition, message) {
   if (!condition) {
@@ -7,17 +7,15 @@ function assert(condition, message) {
   }
 }
 
-const css = readText('assets/css/08-control-consistency.css');
-const marker = '2026-05 cost type tag unification';
-const finalBlock = css.slice(css.indexOf(marker));
+const css = readCssBundle();
+const finalBlock = css;
 
-assert(css.includes(marker), 'final cost type tag unification block should exist');
 [
-  '--settlement-split-ink: #315a3f',
-  '--settlement-split-bg: color-mix(in srgb, #e7f3ec 70%, #ffffff)',
+  '--settlement-split-ink: var(--palette-315a3f)',
+  '--settlement-split-bg: color-mix(in srgb, var(--palette-e7f3ec) 70%, var(--color-white))',
   '--settlement-split-line: rgba(72, 128, 92, 0.28)',
-  '--settlement-club-ink: #6b4a1e',
-  '--settlement-club-bg: color-mix(in srgb, #f5ead7 72%, #ffffff)',
+  '--settlement-club-ink: var(--palette-6b4a1e)',
+  '--settlement-club-bg: color-mix(in srgb, var(--palette-f5ead7) 72%, var(--color-white))',
   '--settlement-club-line: rgba(153, 110, 48, 0.28)',
 ].forEach(token => assert(finalBlock.includes(token), `${token} should be centralized in the final block`));
 

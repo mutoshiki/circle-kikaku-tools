@@ -6,7 +6,7 @@
     const bind = events.bind;
 
     function setupSettlementOptionEvents() {
-        ['seisanRounding', 'seisanOrganizerName', 'seisanOrganizerFree'].forEach(id => {
+        ['seisanRounding', 'seisanOrganizerName', 'seisanOrganizerFree', 'seisanDriverCollectionOffset'].forEach(id => {
             const el = byId(id);
             if (el && el.dataset.eventOwnerBound !== 'true') {
                 el.dataset.eventOwnerBound = 'true';

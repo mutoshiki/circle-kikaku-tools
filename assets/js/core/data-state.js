@@ -485,6 +485,7 @@ function getData() {
         waiting: cloneData(active.waiting || []),
         cars: cloneData(active.cars || []),
         settlement: getSettlementSnapshot(),
+        overview: window.SanpoOverview?.getSnapshot?.() || window.SanpoApp?.state?.getSnapshot?.()?.overview || {},
         lastUpdatedAt
     };
     window.SanpoApp?.state?.setSnapshot?.(snapshot);
@@ -495,6 +496,9 @@ function restore(d) {
     window.SanpoApp?.state?.setSnapshot?.(d);
     lastUpdatedAt = Number(d.lastUpdatedAt || 0) || lastUpdatedAt;
     settlementState = normalizeSettlementState(d.settlement || settlementState || {});
+    if (Object.prototype.hasOwnProperty.call(d, 'overview')) {
+        window.SanpoOverview?.applySnapshot?.(d.overview || {});
+    }
     $('#roomNameInput').value = d.roomName || '';
     editLockEnabled = !!d.editLockEnabled;
     editLockPassphrase = d.editLockPassphrase || '';

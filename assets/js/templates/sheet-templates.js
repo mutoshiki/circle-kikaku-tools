@@ -74,7 +74,6 @@
     const dg = car.driverGender || 'unknown';
     const dgrade = parseInt(car.driverGrade) || 0;
     html += `<div class="sheet-driver-row" data-gender="${dg}">
-        <i class="fas ${esc(cfg.ownerIcon, helpers)} sheet-driver-icon" aria-hidden="true"></i>
         <span class="sheet-driver-name">${esc(car.name, helpers)}</span>${gradeBadge(dgrade, dg, helpers)}
     </div>`;
 

@@ -10,7 +10,7 @@ const required = [
   '#appearanceModal .modal-footer',
   'position: absolute',
   'bottom: 0',
-  'z-index: 320',
+  'z-index: var(--z-appearance-footer)',
   'pointer-events: auto'
 ];
 

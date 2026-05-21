@@ -1,4 +1,4 @@
-const { readText } = require('./helpers/read-project');
+const { readText, readCssBundle } = require('./helpers/read-project');
 
 function assert(condition, message) {
   if (!condition) {
@@ -7,7 +7,7 @@ function assert(condition, message) {
   }
 }
 
-const css = readText('assets/css/08-control-consistency.css');
+const css = readCssBundle();
 
 assert(css.includes('--settlement-split-ink') && css.includes('--settlement-club-ink'), 'split/club cost color tokens should be centralized');
 assert(css.includes('.seisan-extra-inline > em') && css.includes('.seisan-cost-type-badge'), 'inline cost labels and badges should share the same pill UI');

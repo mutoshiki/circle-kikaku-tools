@@ -1,4 +1,4 @@
-const { readText } = require('./helpers/read-project');
+const { readText, readCssBundle } = require('./helpers/read-project');
 
 function assert(condition, message) {
   if (!condition) {
@@ -7,7 +7,7 @@ function assert(condition, message) {
   }
 }
 
-const controlCss = readText('assets/css/08-control-consistency.css');
+const controlCss = readCssBundle();
 const appShellOwner = readText('assets/css/app-shell/01-app-shell-owner.css');
 
 assert(/body\s*\{\r?\n\s+--control-border/.test(controlCss), 'control theme aliases should be recomputed on body');

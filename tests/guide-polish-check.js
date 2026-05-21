@@ -8,8 +8,8 @@ function assert(condition, message) {
 }
 
 const guide = readText('assets/js/templates/guide-content.js');
-const guideCss = readText('assets/css/guides-modals/01-guides-modals-owner.css');
-const trayCss = readText('assets/css/04-cars-members-tray.css');
+const guideCss = readText('assets/css/guides-modals/01-modal-dropdown-base.css') + readText('assets/css/guides-modals/02-guide-cards.css') + readText('assets/css/guides-modals/03-guide-mockups.css') + readText('assets/css/guides-modals/04-modal-repairs.css');
+const trayCss = readText('assets/css/cars-members-tray/02-tray-shell.css') + readText('assets/css/cars-members-tray/05-drag-drop.css');
 const html = readText('index.html');
 
 assert(guide.includes('フォーム回答を読み込み'), 'requested import mock title missing');
@@ -26,8 +26,8 @@ assert(guide.includes('注意:見出し行も含めてコピーしてくださ�
 assert(!guide.includes('見出し付きで貼り付け'), 'old guide helper wording remains');
 assert(!guide.includes('車出しの有無'), 'old guide spreadsheet heading remains');
 
-assert(guideCss.includes('--guide-external-blue: #2563eb'), 'fixed light blue selection token missing');
-assert(guideCss.includes('--guide-external-blue: #60a5fa'), 'fixed dark blue selection token missing');
+assert(guideCss.includes('--guide-external-blue: var(--palette-blue-600)'), 'fixed light blue selection token missing');
+assert(guideCss.includes('--guide-external-blue: var(--palette-blue-400)'), 'fixed dark blue selection token missing');
 assert(guideCss.includes('margin: 0 auto;'), 'centered spreadsheet selection override missing');
 assert(guideCss.includes('Participant registration mock: calm'), 'calm participant registration mock rule missing');
 assert(trayCss.includes('fill-empty is secondary'), 'tray button priority rule missing');

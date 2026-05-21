@@ -146,6 +146,16 @@ window.openRouteDistanceHelper = function() {
     if (modals.routeDistance) modals.routeDistance.show();
 };
 
+window.openRouteDistanceHelperFromShortcut = function() {
+    const editor = byId('settlementCarEditModal');
+    if (editor?.classList.contains('show') && modals.settlementCarEdit) {
+        modals.settlementCarEdit.hide();
+        setTimeout(() => window.openRouteDistanceHelper?.(), 180);
+        return;
+    }
+    window.openRouteDistanceHelper?.();
+};
+
 window.addRouteStop = function() {
     const list = byId('routeStopList');
     if (!list) return;

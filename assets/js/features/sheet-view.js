@@ -65,6 +65,10 @@ function isSheetDragHandle(target) {
     return quickEditMode && hasTrustedEditAccess() && !!target.closest('.sheet-chip.draggable, .sheet-dropzone, .sheet-waiting-list');
 }
 
+function isSheetInteractiveTarget(target) {
+    return !!target?.closest?.('button, a, input, textarea, select, [role="button"]');
+}
+
 function renderSheetPlain(member) {
     return window.SanpoApp.templates.sheet.plainMember(member, { escapeHtml, renderGradeBadge });
 }
@@ -467,7 +471,8 @@ function createSheetPlanSection(plan, index) {
         const maxSeats = Math.max(1, ...cars.map(c => parseInt(c.capacity) || 0));
         const table = document.createElement('div');
         table.className = 'sheet-plan-table';
-        table.appendChild(createSheetLabelColumn(maxSeats, { ...template, planName: displayName }));
+        // 発表ビューでは左端の行見出し列（車割 / 車出し / 席1...、班 / 班員1...）を出さず、
+        // 各カード列を左端から並べる。
         cars.forEach((car, carIndex) => table.appendChild(createSheetCarColumn(car, maxSeats, template, isEditablePlan, carIndex)));
         section.appendChild(table);
     }
@@ -487,17 +492,78 @@ function createSheetPlanSection(plan, index) {
 }
 
 
+function getSheetTimetableItems() {
+    const snapshot = window.SanpoOverview?.getSnapshot?.() || window.SanpoApp?.state?.getSnapshot?.()?.overview || {};
+    const items = Array.isArray(snapshot.timetableItems) ? snapshot.timetableItems : [];
+    return items
+        .map(item => ({
+            time: String(item?.time || '').trim(),
+            title: String(item?.title || '').trim()
+        }))
+        .filter(item => item.time || item.title);
+}
+
+function linkifySheetTimetableText(value = '') {
+    const text = String(value || '');
+    const urlPattern = /https?:\/\/[^\s<>"]+/gi;
+    let html = '';
+    let lastIndex = 0;
+    for (const match of text.matchAll(urlPattern)) {
+        const url = match[0];
+        const index = match.index || 0;
+        html += escapeHtml(text.slice(lastIndex, index));
+        try {
+            const parsed = new URL(url);
+            if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+                const safeUrl = escapeHtml(url);
+                html += `<a class="sheet-timetable-link" href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a>`;
+            } else {
+                html += escapeHtml(url);
+            }
+        } catch {
+            html += escapeHtml(url);
+        }
+        lastIndex = index + url.length;
+    }
+    html += escapeHtml(text.slice(lastIndex));
+    return html;
+}
+
+function createSheetTimetableSection() {
+    const items = getSheetTimetableItems();
+    if (!items.length) return null;
+    const section = document.createElement('section');
+    section.className = 'sheet-plan-section sheet-timetable-section';
+    section.innerHTML = `
+        <div class="sheet-plan-heading sheet-timetable-heading">タイムテーブル</div>
+        <div class="sheet-timetable-card">
+            ${items.map(item => `
+                <div class="sheet-timetable-row">
+                    <div class="sheet-timetable-time">${item.time ? escapeHtml(item.time) : '—'}</div>
+                    <div class="sheet-timetable-title">${linkifySheetTimetableText(item.title)}</div>
+                </div>
+            `).join('')}
+        </div>`;
+    return section;
+}
+
 function syncSheetPlanWidths() {
-    document.querySelectorAll('.sheet-plan-section').forEach(section => {
+    let widestPlanWidth = 0;
+    document.querySelectorAll('.sheet-plan-section:not(.sheet-timetable-section)').forEach(section => {
         const table = section.querySelector('.sheet-plan-table');
         const waitBlock = section.querySelector('.sheet-wait-block');
         if (!table || !waitBlock) return;
         const width = Math.ceil(table.scrollWidth || table.offsetWidth || 0);
         if (width > 0) {
+            widestPlanWidth = Math.max(widestPlanWidth, width);
             section.style.setProperty('--sheet-plan-width', `${width}px`);
             waitBlock.style.width = `${width}px`;
         }
     });
+    const canvas = byId('sheet-canvas');
+    if (canvas && widestPlanWidth > 0) {
+        canvas.style.setProperty('--sheet-plan-content-width', `${widestPlanWidth}px`);
+    }
 }
 
 function renderSheetView() {
@@ -525,6 +591,8 @@ function renderSheetView() {
             return (typeA === 'car' ? 0 : 1) - (typeB === 'car' ? 0 : 1);
         })
         .forEach((plan, index) => canvas.appendChild(createSheetPlanSection(plan, index)));
+    const timetableSection = createSheetTimetableSection();
+    if (timetableSection) canvas.appendChild(timetableSection);
     syncSheetPlanWidths();
     requestAnimationFrame(syncSheetPlanWidths);
     requestAnimationFrame(fitInitialSheetScale);
@@ -548,7 +616,10 @@ function fitInitialSheetScale() {
     const area = byId('sheet-view-area');
     const canvas = byId('sheet-canvas');
     if (!area || !canvas || !canvas.children.length) return;
-    const contentWidth = canvas.querySelector('.sheet-plan-section')?.scrollWidth || canvas.scrollWidth;
+    const contentWidth = Math.max(
+        ...Array.from(canvas.children).map(child => child.scrollWidth || child.offsetWidth || 0),
+        canvas.scrollWidth || 0
+    );
     const availableWidth = Math.max(0, area.clientWidth - 20);
     if (!contentWidth || !availableWidth) return;
     const isCompact = area.clientWidth <= 640;
@@ -585,7 +656,7 @@ D.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 
     area.addEventListener('mousedown', e => {
-        if (e.target.closest('button') || isSheetDragHandle(e.target)) return;
+        if (isSheetInteractiveTarget(e.target) || isSheetDragHandle(e.target)) return;
         markSheetAdjusted();
         isPanning = true; panStartX = e.clientX; panStartY = e.clientY;
         panOriginX = sheetX; panOriginY = sheetY;
@@ -612,7 +683,7 @@ D.addEventListener('DOMContentLoaded', () => {
     }, { passive: false });
 
     area.addEventListener('touchstart', e => {
-        if (e.target.closest('button') || isSheetDragHandle(e.target)) return;
+        if (isSheetInteractiveTarget(e.target) || isSheetDragHandle(e.target)) return;
         markSheetAdjusted();
         if (e.touches.length === 1) {
             isPanning = true;

@@ -6,7 +6,8 @@ function getDefaultSettlementState() {
         rounding: '100',
         organizerFree: true,
         organizerName: '',
-        driverReward: '1000',
+        driverCollectionOffset: true,
+        driverReward: '0',
         cars: {},
         routeStops: [],
         paid: {},
@@ -38,21 +39,29 @@ function getDriverRewardAmount(state = ensureSettlementState()) {
     return Math.max(0, getNumberValue(state?.driverReward ?? getDefaultSettlementState().driverReward));
 }
 
+function isDriverCollectionOffsetEnabled(state = ensureSettlementState()) {
+    return state?.driverCollectionOffset !== false;
+}
+
 function ensureDriverRewardExtra(carState = {}, state = ensureSettlementState()) {
     const normalized = normalizeCarSettlementState(carState || {});
     const rewardAmount = getDriverRewardAmount(state);
-    const extras = normalized.extras.map(normalizeExtraItem);
-    const rewardIndex = extras.findIndex(isDriverRewardExtra);
+    let rewardUsed = false;
+    const extras = normalized.extras
+        .map(normalizeExtraItem)
+        .filter(ex => {
+            if (!isDriverRewardExtra(ex)) return true;
+            if (rewardAmount <= 0) return false;
+            if (rewardUsed) return false;
+            rewardUsed = true;
+            ex.name = ex.name || DRIVER_REWARD_EXTRA_NAME;
+            ex.amount = String(rewardAmount);
+            ex.type = 'club';
+            return true;
+        });
 
-    if (rewardAmount > 0 && rewardIndex === -1) {
+    if (rewardAmount > 0 && !rewardUsed) {
         extras.push({ name: DRIVER_REWARD_EXTRA_NAME, amount: String(rewardAmount), type: 'club' });
-    } else if (rewardIndex >= 0) {
-        const rewardExtra = extras[rewardIndex];
-        extras[rewardIndex] = {
-            name: rewardExtra.name || DRIVER_REWARD_EXTRA_NAME,
-            amount: rewardExtra.amount || String(rewardAmount || ''),
-            type: 'club'
-        };
     }
 
     return { ...normalized, extras };
@@ -98,6 +107,7 @@ function normalizeSettlementState(state = {}) {
         rounding: String(state.rounding ?? base.rounding),
         organizerFree: state.organizerFree !== undefined ? !!state.organizerFree : true,
         organizerName: state.organizerName || '',
+        driverCollectionOffset: state.driverCollectionOffset !== undefined ? !!state.driverCollectionOffset : true,
         driverReward: String(state.driverReward ?? base.driverReward),
         cars,
         routeStops: Array.isArray(state.routeStops) ? state.routeStops.map(v => String(v ?? '').trim()).filter(Boolean) : [],
@@ -161,15 +171,16 @@ function getParticipantList(data = null) {
     const source = data || getRoomDataOnly();
     const seen = new Set();
     const list = [];
-    const push = (name, role) => {
+    const push = (name, role, meta = {}) => {
         const key = String(name || '').trim();
         if (!key || seen.has(key)) return;
         seen.add(key);
-        list.push({ name: key, role });
+        list.push({ name: key, role, ...meta });
     };
     (source.cars || []).forEach(car => {
-        push(car.name, 'driver');
-        (car.members || []).forEach(m => push(m?.name, 'member'));
+        const driverName = String(car?.name || '').trim();
+        push(driverName, 'driver');
+        (car.members || []).forEach(m => push(m?.name, 'member', { driverName }));
     });
     (source.waiting || []).forEach(m => push(m?.name, 'waiting'));
     return list;
@@ -180,11 +191,13 @@ function syncSettlementStateFromDOM() {
     const rounding = byId('seisanRounding');
     const organizerFree = byId('seisanOrganizerFree');
     const organizerName = byId('seisanOrganizerName');
+    const driverCollectionOffset = byId('seisanDriverCollectionOffset');
     const driverReward = byId('seisanDriverReward');
 
     if (rounding) state.rounding = rounding.value || '100';
     if (organizerFree) state.organizerFree = organizerFree.checked;
     if (organizerName) state.organizerName = organizerName.value || '';
+    if (driverCollectionOffset) state.driverCollectionOffset = driverCollectionOffset.checked;
     if (driverReward) state.driverReward = driverReward.value;
 
     document.querySelectorAll('.seisan-car-row').forEach(row => {
