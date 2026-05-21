@@ -1,0 +1,150 @@
+@media (max-width: 640px) {
+:root {
+    --control-radius: 9px;
+    --control-radius-compact: 7px;
+  }
+}
+
+#batchOpenBtn.tool-btn {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+:root {
+    --control-height: 40px;
+    --control-height-compact: 36px;
+    --control-icon-size: 42px;
+    --control-padding-x: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+body {
+    --ui-panel-radius: 14px;
+    --ui-inner-radius: 11px;
+    --ui-panel-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.035), 0 8px 18px rgba(var(--shadow-rgb), 0.045);
+  }
+}
+
+@media (max-width: 640px) {
+body {
+    --ui-readable-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.045), 0 6px 14px rgba(var(--shadow-rgb), 0.06);
+  }
+}
+
+html,
+body {
+  font-weight: 450;
+}
+
+body {
+  --control-border: var(--ui-saas-border);
+  --control-border-strong: var(--ui-saas-border-strong);
+  --control-primary-bg: var(--accent-color);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 88%, var(--color-black));
+  --control-primary-text: var(--color-white);
+  --control-primary-shadow: 0 8px 18px color-mix(in srgb, var(--accent-color) 20%, transparent);
+  --control-secondary-bg: color-mix(in srgb, var(--bg-card) 90%, var(--bg-body));
+  --control-secondary-hover: color-mix(in srgb, var(--accent-color) 8%, var(--bg-card));
+  --control-tertiary-bg: color-mix(in srgb, var(--bg-card) 74%, transparent);
+  --control-tertiary-hover: color-mix(in srgb, var(--accent-color) 7%, var(--bg-card));
+  --control-focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent-color) 20%, transparent);
+  --control-radius: var(--radius-main);
+  --control-radius-compact: var(--radius-sm);
+  --ui-panel-bg: color-mix(in srgb, var(--bg-card) 96%, var(--bg-body));
+  --ui-panel-bg-raised: color-mix(in srgb, var(--bg-card) 98%, var(--sheet-header));
+  --ui-panel-bg-muted: color-mix(in srgb, var(--bg-card) 86%, var(--bg-body));
+  --ui-panel-border: color-mix(in srgb, var(--border-color) 70%, transparent);
+  --ui-panel-border-strong: color-mix(in srgb, var(--accent-color) 22%, var(--border-color));
+  --ui-panel-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.04), 0 10px 24px rgba(var(--shadow-rgb), 0.05);
+  --ui-panel-shadow-float: 0 16px 38px rgba(var(--shadow-rgb), 0.12);
+  --ui-panel-radius: 16px;
+  --ui-inner-radius: 12px;
+  --ui-pill-radius: 999px;
+  --ui-inset-line: inset 0 0 0 1px var(--ui-panel-border);
+  --ui-readable-border: color-mix(in srgb, var(--border-color) 92%, var(--text-sub) 8%);
+  --ui-readable-border-strong: color-mix(in srgb, var(--border-color) 78%, var(--text-sub) 22%);
+  --ui-readable-divider: color-mix(in srgb, var(--border-color) 84%, var(--text-sub) 16%);
+  --ui-readable-bg: color-mix(in srgb, var(--bg-card) 98%, var(--bg-body));
+  --ui-readable-inner-bg: color-mix(in srgb, var(--bg-card) 82%, var(--bg-body));
+  --ui-readable-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.05), 0 8px 18px rgba(var(--shadow-rgb), 0.065);
+  background: radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--accent-color) 7%, transparent), transparent 26rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg-body) 94%, var(--bg-card)), var(--bg-body) 24rem),
+    var(--bg-body);
+  font-feature-settings: "palt" 1;
+  font-weight: 450;
+  letter-spacing: -0.005em;
+}
+
+:root {
+  --control-radius: 10px;
+  --control-radius-compact: 8px;
+  --control-border: color-mix(in srgb, var(--border-color) 86%, transparent);
+  --control-secondary-bg: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  --control-secondary-hover: color-mix(in srgb, var(--accent-color) 9%, var(--bg-card));
+  --control-primary-shadow: 0 8px 18px color-mix(in srgb, var(--accent-color) 20%, transparent);
+  --control-height: 42px;
+  --control-height-compact: 38px;
+  --control-icon-size: 42px;
+  --control-padding-x: 14px;
+  --control-border-strong: color-mix(in srgb, var(--accent-color) 24%, var(--border-color));
+  --control-primary-bg: var(--accent-color);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 88%, var(--color-black));
+  --control-primary-text: var(--color-white);
+  --control-tertiary-bg: color-mix(in srgb, var(--bg-card) 74%, transparent);
+  --control-tertiary-hover: color-mix(in srgb, var(--accent-color) 7%, var(--bg-card));
+  --control-focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent-color) 20%, transparent);
+  --ui-space-1: 4px;
+  --ui-space-2: 8px;
+  --ui-space-3: 12px;
+  --ui-space-4: 16px;
+  --ui-card-padding: 12px;
+  --ui-card-gap: 12px;
+  --ui-border-soft: color-mix(in srgb, var(--border-color) 44%, transparent);
+  --ui-hairline-quiet: color-mix(in srgb, var(--border-color) 28%, transparent);
+  --ui-surface-soft: color-mix(in srgb, var(--bg-card) 96%, var(--bg-body));
+  --ui-surface-muted: color-mix(in srgb, var(--sheet-header) 66%, var(--bg-card));
+  --ui-surface-sunken: color-mix(in srgb, var(--bg-body) 54%, var(--bg-card));
+  --ui-surface-shadow: 0 12px 34px rgba(var(--shadow-rgb), 0.055), 0 1px 2px rgba(var(--shadow-rgb), 0.045);
+  --ui-surface-shadow-soft: 0 1px 2px rgba(var(--shadow-rgb), 0.035);
+  --ui-focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent-color) 22%, transparent);
+  --ui-danger: var(--color-danger-strong);
+  --ui-danger-soft: rgba(220, 38, 38, 0.08);
+  --ui-warning: var(--palette-amber-600);
+  --ui-warning-soft: rgba(217, 119, 6, 0.11);
+  --ui-blue: var(--palette-blue-600);
+  --ui-blue-soft: var(--palette-blue-100);
+  --settlement-collect-bg: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
+  --settlement-collect-line: var(--ui-hairline-quiet);
+  --settlement-tag-font-size: 0.64rem;
+  --settlement-tag-line-height: 1;
+  --settlement-tag-pad-y: 2px;
+  --settlement-tag-pad-x: 7px;
+  --settlement-tag-min-width: 2.4em;
+  --settlement-tag-min-height: 1.38em;
+  --settlement-split-ink: var(--palette-047857);
+  --settlement-split-bg: var(--palette-d1fae5);
+  --settlement-split-line: var(--color-success-soft);
+  --settlement-club-ink: var(--palette-b45309);
+  --settlement-club-bg: var(--palette-amber-100);
+  --settlement-club-line: var(--color-warning);
+  --settlement-pay-ink: var(--palette-blue-700);
+  --settlement-pay-bg: var(--palette-blue-100);
+  --settlement-pay-line: var(--palette-blue-400);
+  --settlement-pay-surface-bg: color-mix(in srgb, var(--settlement-pay-bg) 82%, var(--bg-card));
+  --settlement-pay-surface-line: color-mix(in srgb, var(--settlement-pay-line) 88%, var(--ui-saas-border, var(--border-color)));
+}
+
+:root,
+body {
+  --settlement-pay-ink-fixed: var(--palette-blue-700);
+  --settlement-pay-bg-fixed: var(--palette-blue-100);
+  --settlement-pay-line-fixed: var(--palette-blue-400);
+  --settlement-pay-surface-fixed: color-mix(in srgb, var(--settlement-pay-bg-fixed) 82%, var(--bg-card));
+  --settlement-pay-surface-line-fixed: color-mix(in srgb, var(--settlement-pay-line-fixed) 88%, var(--ui-saas-border, var(--border-color)));
+  --header-share-icon-bg: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  --header-share-icon-line: color-mix(in srgb, var(--border-color) 88%, transparent);
+  --header-share-icon-text: color-mix(in srgb, var(--text-main) 80%, var(--text-sub));
+  --header-share-icon-hover-bg: var(--hover-bg);
+  --header-share-icon-hover-text: var(--text-main);
+}
