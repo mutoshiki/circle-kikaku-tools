@@ -11,7 +11,8 @@ function getDefaultSettlementState() {
         standalone: {
             enabled: false,
             driverCount: '',
-            memberCount: ''
+            memberCount: '',
+            driverNames: []
         },
         cars: {},
         routeStops: [],
@@ -43,11 +44,32 @@ function clampStandaloneCount(value) {
     return String(Math.min(parsed, 99));
 }
 
+function normalizeStandaloneDriverName(value, index = 0) {
+    const fallback = `車出し${Number(index) + 1}`;
+    const normalized = String(value ?? '').replace(/\s+/g, ' ').trim();
+    return normalized || fallback;
+}
+
+function getStandaloneDriverNames(raw = {}, countValue = raw.driverCount) {
+    const count = getStandaloneCount(countValue);
+    const source = Array.isArray(raw.driverNames) ? raw.driverNames : [];
+    const used = new Map();
+    return Array.from({ length: count }, (_, index) => {
+        const base = normalizeStandaloneDriverName(source[index], index);
+        const seen = used.get(base) || 0;
+        used.set(base, seen + 1);
+        return seen ? `${base}${seen + 1}` : base;
+    });
+}
+
 function normalizeStandaloneSettlementState(raw = {}) {
+    const driverCount = clampStandaloneCount(raw.driverCount);
+    const driverNames = getStandaloneDriverNames(raw, driverCount);
     return {
         enabled: raw.enabled === true,
-        driverCount: clampStandaloneCount(raw.driverCount),
-        memberCount: clampStandaloneCount(raw.memberCount)
+        driverCount,
+        memberCount: clampStandaloneCount(raw.memberCount),
+        driverNames
     };
 }
 
@@ -61,7 +83,7 @@ function hasStandaloneSettlementCounts(state = ensureSettlementState()) {
     return standalone.enabled && (getStandaloneCount(standalone.driverCount) > 0 || getStandaloneCount(standalone.memberCount) > 0);
 }
 
-function createStandaloneMembers(count, driverCount) {
+function createStandaloneMembers(count, driverCount, driverNames = []) {
     const members = [];
     for (let i = 0; i < count; i += 1) {
         members.push({
@@ -72,8 +94,10 @@ function createStandaloneMembers(count, driverCount) {
         });
     }
     if (driverCount <= 0) return { waiting: members, cars: [] };
+    const names = getStandaloneDriverNames({ driverNames }, driverCount);
     const cars = Array.from({ length: driverCount }, (_, i) => ({
-        name: `車出し${i + 1}`,
+        name: names[i] || `車出し${i + 1}`,
+        standaloneIndex: i,
         capacity: '',
         driverMemo: '',
         driverGender: '',
@@ -90,7 +114,8 @@ function createStandaloneSettlementData(state = ensureSettlementState(), roomNam
     const standalone = normalizeStandaloneSettlementState(state?.standalone || {});
     const driverCount = getStandaloneCount(standalone.driverCount);
     const memberCount = getStandaloneCount(standalone.memberCount);
-    const { waiting, cars } = createStandaloneMembers(memberCount, driverCount);
+    const driverNames = getStandaloneDriverNames(standalone, driverCount);
+    const { waiting, cars } = createStandaloneMembers(memberCount, driverCount, driverNames);
     return {
         roomName,
         settlementPlanName: '精算だけ',
@@ -281,12 +306,31 @@ function syncSettlementStateFromDOM() {
     state.standalone = normalizeStandaloneSettlementState({
         enabled: standaloneEnabled ? standaloneEnabled.checked : state.standalone?.enabled,
         driverCount: standaloneDriverCount ? standaloneDriverCount.value : state.standalone?.driverCount,
-        memberCount: standaloneMemberCount ? standaloneMemberCount.value : state.standalone?.memberCount
+        memberCount: standaloneMemberCount ? standaloneMemberCount.value : state.standalone?.memberCount,
+        driverNames: state.standalone?.driverNames || []
     });
 
+    const standaloneRows = Array.from(document.querySelectorAll('.seisan-car-row[data-standalone-driver-index]'));
+    if (state.standalone.enabled && standaloneRows.length) {
+        const driverNames = getStandaloneDriverNames(state.standalone, state.standalone.driverCount);
+        standaloneRows.forEach(row => {
+            const index = Number(row.dataset.standaloneDriverIndex);
+            if (!Number.isInteger(index) || index < 0) return;
+            const input = row.querySelector('[data-field="standaloneDriverName"]');
+            driverNames[index] = normalizeStandaloneDriverName(input?.value || row.dataset.driverName, index);
+        });
+        state.standalone = normalizeStandaloneSettlementState({ ...state.standalone, driverNames });
+    }
+    const standaloneDriverNames = getStandaloneDriverNames(state.standalone, state.standalone.driverCount);
+
     document.querySelectorAll('.seisan-car-row').forEach(row => {
-        const name = row.dataset.driverName;
-        if (!name) return;
+        const originalName = row.dataset.driverName;
+        if (!originalName) return;
+        const standaloneIndex = Number(row.dataset.standaloneDriverIndex);
+        const isStandaloneRow = state.standalone.enabled && Number.isInteger(standaloneIndex) && standaloneIndex >= 0;
+        const name = isStandaloneRow
+            ? (standaloneDriverNames[standaloneIndex] || normalizeStandaloneDriverName(originalName, standaloneIndex))
+            : originalName;
         // 入力途中の空行も保持する。計算時だけ空行を除外する。
         const extras = Array.from(row.querySelectorAll('.seisan-extra-row')).map(exRow => normalizeExtraItem({
             name: exRow.querySelector('[data-extra-field="name"]')?.value || '',
@@ -299,6 +343,7 @@ function syncSettlementStateFromDOM() {
             price: row.querySelector('[data-field="price"]')?.value || '',
             extras
         }, state);
+        if (isStandaloneRow && originalName !== name && state.cars[originalName]) delete state.cars[originalName];
     });
     return state;
 }

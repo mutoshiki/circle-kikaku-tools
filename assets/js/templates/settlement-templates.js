@@ -161,8 +161,12 @@
     const rowClass = issues.rows.has(car.name) ? ' has-error' : '';
     const offsetText = calc.collectionOffset ? ` / 集金 -${money(calc.collectionOffset, helpers)}` : '';
     const details = `ガソリン代 ${money(calc.gas || 0, helpers)} / 諸経費 ${money((calc.splitExtras || 0) + (calc.clubExtras || 0), helpers)}${offsetText}`;
-    return `<div class="seisan-car-row${rowClass}" data-driver-name="${esc(car.name, helpers)}">
+    const standaloneIndex = Number.isInteger(car.standaloneIndex) ? car.standaloneIndex : null;
+    const standaloneData = standaloneIndex == null ? '' : ` data-standalone-driver-index="${standaloneIndex}"`;
+    const standaloneNameField = standaloneIndex == null ? '' : `<label class="seisan-standalone-driver-name-field"><span class="seisan-mini-label">車出し名</span><input type="text" data-field="standaloneDriverName" value="${esc(car.name, helpers)}" placeholder="車出し${standaloneIndex + 1}" autocomplete="off"></label>`;
+    return `<div class="seisan-car-row${rowClass}" data-driver-name="${esc(car.name, helpers)}"${standaloneData}>
         <div class="seisan-car-title"><strong>${esc(car.name, helpers)} 車</strong><span class="seisan-car-total">支払い ${money(calc.adjustedTotalPay ?? calc.totalPay, helpers)}</span></div>
+        ${standaloneNameField}
         <div class="seisan-small">${details}</div>
         <div class="seisan-car-inputs">
           <div class="seisan-distance-field">
@@ -239,10 +243,10 @@
     return `<div class="empty-card">
             <i class="fas fa-calculator" aria-hidden="true"></i>
             <strong>まずは参加者登録から</strong>
-            <span>車出し人数と、それ以外の人数だけ入れると、参加者登録なしでも割勘の1人あたり金額を計算できます。通常は参加者と車出しを登録すると、ここに精算画面が表示されます。</span>
             <div class="seisan-empty-actions">
-              <button class="seisan-btn primary" type="button" data-action="open-settlement-settings">人数だけで精算</button>
-              <button class="seisan-btn" type="button" data-action="open-batch">参加者登録を開く</button>
+              <button class="seisan-btn" type="button" data-action="open-settlement-settings">人数だけで精算</button>
+              <span class="seisan-empty-or">もしくは</span>
+              <button class="seisan-btn primary" type="button" data-action="open-batch">参加者登録を開く</button>
             </div>
         </div>`;
   }

@@ -9,11 +9,22 @@ const js = [
   'assets/js/app.js'
 ].map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n');
 
+const settlementTemplate = fs.readFileSync(path.join(root, 'assets/js/templates/settlement-templates.js'), 'utf8');
+
+if (!settlementTemplate.includes('class="seisan-btn" type="button" data-action="open-settlement-settings">人数だけで精算</button>')) {
+  throw new Error('人数だけで精算 should use the secondary/default button style in the empty state.');
+}
+
+if (!settlementTemplate.includes('class="seisan-btn primary" type="button" data-action="open-batch">参加者登録を開く</button>')) {
+  throw new Error('参加者登録を開く should use the primary button style in the empty state.');
+}
+
 const required = [
   'function toggleSettlementEmptyState',
   'seisan-empty-state',
   'まずは参加者登録から',
-  'ここに精算画面が表示されます。',
+  'seisan-empty-or',
+  'もしくは',
   'data-action="open-batch"',
   'wrap.hidden = isEmpty',
   'if (!hasParticipants) {'

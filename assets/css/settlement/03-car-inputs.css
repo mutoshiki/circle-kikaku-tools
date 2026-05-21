@@ -1126,3 +1126,33 @@ body[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select option,
   font-weight: 720;
   opacity: 0.68;
 }
+
+#settlementCarEditModal .seisan-standalone-driver-name-field {
+  display: grid;
+  gap: 5px;
+  margin: 8px 0 6px;
+}
+
+#settlementCarEditModal .seisan-standalone-driver-name-field input {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  padding: 8px 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+#settlementCarEditModal .seisan-standalone-driver-name-field input:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent-color) 26%, transparent);
+  border-color: color-mix(in srgb, var(--accent-color) 54%, var(--border-color));
+}
+
+body[data-theme="dark"] #settlementCarEditModal .seisan-standalone-driver-name-field input,
+html[data-theme="dark"] #settlementCarEditModal .seisan-standalone-driver-name-field input {
+  background: var(--surface-elevated);
+  border-color: var(--border-muted);
+  color: var(--text-main);
+}

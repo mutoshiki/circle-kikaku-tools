@@ -155,8 +155,22 @@ window.openSettlementCarEditor = function(encodedName) {
 };
 
 window.saveSettlementCarEditDraft = function() {
+    const body = byId('settlementCarEditBody');
+    const standaloneRow = body?.querySelector?.('.seisan-car-row[data-standalone-driver-index]');
+    let renamedStandaloneDriver = '';
+    if (standaloneRow) {
+        const index = Number(standaloneRow.dataset.standaloneDriverIndex);
+        const input = standaloneRow.querySelector('[data-field="standaloneDriverName"]');
+        renamedStandaloneDriver = normalizeStandaloneDriverName(input?.value || standaloneRow.dataset.driverName, Number.isInteger(index) ? index : 0);
+    }
     syncSettlementStateFromDOM();
+    if (renamedStandaloneDriver) activeSettlementCarEditName = renamedStandaloneDriver;
     renderSettlementView({ force: true });
+    if (renamedStandaloneDriver) {
+        const title = byId('settlementCarEditModalTitle');
+        if (title) title.innerHTML = `<i class="fas fa-car-side me-2" aria-hidden="true"></i>${escapeHtml(renamedStandaloneDriver)}車の費用`;
+        refreshSettlementCarEditor(renamedStandaloneDriver);
+    }
     save();
 };
 
