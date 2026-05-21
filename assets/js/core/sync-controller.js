@@ -5,7 +5,7 @@ function save() {
     updateStatus('saving', '保存中...');
 
     lastUpdatedAt = Date.now();
-    const d = getData();
+    const d = getData({ skipDomSync: !!window.__suspendActiveDomPlanSync });
     d.lastUpdatedBy = myClientId;
     d.lastUpdatedAt = lastUpdatedAt;
 
@@ -77,6 +77,23 @@ function load() {
 
         const val = snapshot.val();
         if (val) {
+            const localDataStr = L.getItem(CFG.STORE + '_' + roomId);
+            const localData = localDataStr ? safeJsonParse(localDataStr, null) : null;
+            const localTime = Number(localData?.lastUpdatedAt || 0);
+            const remoteTime = Number(val.lastUpdatedAt || 0);
+
+            // クイック編集直後にページ更新すると、Firebase の500ms遅延保存より先に
+            // 古いリモート値が返り、ローカルの最新編集を上書きしてしまうことがある。
+            // タイムスタンプでローカルが新しければ、まずローカルを復元してから再同期する。
+            if (localData && localTime > remoteTime) {
+                isRemoteUpdate = true;
+                restore(migrateAppData(localData));
+                isRemoteUpdate = false;
+                updateStatus('saving', 'ローカル変更を同期中...');
+                save();
+                return;
+            }
+
             if (val.lastUpdatedBy === myClientId) {
                 return;
             }

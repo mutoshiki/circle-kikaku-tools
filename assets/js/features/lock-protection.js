@@ -70,19 +70,112 @@ function updateQuickEditButton() {
     btn.classList.toggle('active', quickEditMode && shouldShow);
     document.body.classList.toggle('quick-edit-mode', quickEditMode && shouldShow);
     btn.innerHTML = quickEditMode
-        ? '<i class="fas fa-check me-1" aria-hidden="true"></i>編集中'
-        : '<i class="fas fa-hand-paper me-1" aria-hidden="true"></i>クイック編集';
+        ? '<i class="fas fa-check me-1" aria-hidden="true"></i>完了'
+        : '<i class="fas fa-pen me-1" aria-hidden="true"></i>編集';
     btn.setAttribute('aria-pressed', quickEditMode && shouldShow ? 'true' : 'false');
-    btn.setAttribute('aria-label', quickEditMode ? 'クイック編集を完了' : '発表ビューをクイック編集');
+    btn.setAttribute('aria-label', quickEditMode ? '編集内容を保存して完了' : '発表ビューを編集');
+}
+
+function completeQuickEdit({ showNotice = true, rerender = true } = {}) {
+    if (!quickEditMode) return false;
+
+    let saveError = null;
+    const previousPlans = Array.isArray(carPlans) ? cloneData(carPlans) : [];
+    const previousOverview = window.SanpoOverview?.getSnapshot?.() || window.SanpoApp?.state?.getSnapshot?.()?.overview || {};
+    const hadRenderablePlans = typeof hasSheetPlanContent === 'function'
+        ? hasSheetPlanContent(previousPlans)
+        : previousPlans.some(plan => (plan?.cars || []).length || (plan?.waiting || []).length);
+
+    const restorePreviousSheet = reason => {
+        if (previousPlans.length) carPlans = cloneData(previousPlans);
+        window.SanpoOverview?.applySnapshot?.(previousOverview, { skipRender: true });
+        saveError = saveError || new Error(reason || 'Quick edit restored previous sheet.');
+    };
+
+    if (currentView === 'sheet' && typeof syncSheetToMainData === 'function') {
+        try {
+            // 完了ボタンを押した時点の発表ビューDOMを、通常編集DOMより先に本データへ確定する。
+            // 保存は再描画後に「表が残っている」ことを確認してから実行する。
+            syncSheetToMainData({ refresh: false, persist: false, syncHiddenDom: false });
+        } catch (error) {
+            console.error('Quick edit commit failed:', error);
+            restorePreviousSheet(error?.message || 'Quick edit commit failed.');
+        }
+    }
+
+    // 保存処理で例外が出ても、空の通常表示を描画しないよう、
+    // 発表ビュー側を復元してから編集モードを終了する。
+    quickEditMode = false;
+    updateQuickEditButton();
+
+    if (typeof cleanupSheetEditArtifacts === 'function') cleanupSheetEditArtifacts();
+
+    if (rerender && currentView === 'sheet' && typeof renderSheetView === 'function') {
+        renderSheetView();
+        const canvas = byId('sheet-canvas');
+        const hasPlanSection = typeof hasRenderedSheetPlanContent === 'function'
+            ? hasRenderedSheetPlanContent(canvas)
+            : !!canvas?.querySelector(':scope > .sheet-plan-section[data-plan-id]:not(.sheet-timetable-section) .sheet-plan-table > .sheet-car-col, :scope > .sheet-plan-section[data-plan-id]:not(.sheet-timetable-section) .sheet-wait-block');
+        const isEmptySheet = hadRenderablePlans && !hasPlanSection;
+        if (isEmptySheet) {
+            restorePreviousSheet('Quick edit render fallback restored previous sheet.');
+            renderSheetView();
+        }
+    }
+
+    if (!saveError && typeof renderActiveCarPlanToDom === 'function') {
+        const previousSuspend = !!window.__suspendActiveDomPlanSync;
+        try {
+            window.__suspendActiveDomPlanSync = true;
+            renderActiveCarPlanToDom({ skipUpdate: true });
+        } catch (error) {
+            console.error('Quick edit hidden DOM refresh failed:', error);
+        } finally {
+            window.__suspendActiveDomPlanSync = previousSuspend;
+        }
+    }
+
+    if (!saveError && typeof persistSheetCommittedSnapshot === 'function') {
+        try {
+            persistSheetCommittedSnapshot();
+        } catch (error) {
+            saveError = error;
+            console.error('Quick edit persist failed:', error);
+            restorePreviousSheet(error?.message || 'Quick edit persist failed.');
+            if (rerender && currentView === 'sheet' && typeof renderSheetView === 'function') renderSheetView();
+        }
+    }
+
+    if (showNotice && typeof showAppNotice === 'function') {
+        showAppNotice(saveError ? '編集を保存できなかったため、表示を元に戻しました。' : '編集を保存しました。', !!saveError);
+    }
+    return !saveError;
 }
 
 function toggleQuickEdit() {
     if (!hasTrustedEditAccess()) return;
-    quickEditMode = !quickEditMode;
+    if (quickEditMode) {
+        completeQuickEdit({ showNotice: true, rerender: true });
+        return;
+    }
+    quickEditMode = true;
     updateQuickEditButton();
     if (currentView === 'sheet') renderSheetView();
 }
+
+window.addEventListener('beforeunload', () => {
+    if (quickEditMode && currentView === 'sheet' && typeof syncSheetToMainData === 'function') {
+        try {
+            syncSheetToMainData({ refresh: false, persist: true, syncHiddenDom: false });
+        } catch (error) {
+            console.error('Quick edit beforeunload save failed:', error);
+        }
+    }
+});
+
+window.completeQuickEdit = completeQuickEdit;
 window.SanpoApp?.exposeCompat?.('toggleQuickEdit', toggleQuickEdit);
+window.SanpoApp?.exposeCompat?.('completeQuickEdit', completeQuickEdit);
 
 function showAppNotice(message, isError = false) {
     let toast = byId('app-notice');

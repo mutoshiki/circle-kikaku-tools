@@ -41,7 +41,7 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
         <div class="memo-popup" style="display:${m?'block':'none'}">${safeMemo}</div>
     `;
     parent.appendChild(div);
-    updateUI();
+    if (!isRestoringCarPlans && !window.__suspendCardUpdateUi) updateUI();
     return div;
 }
 window.addMember = addMember;
@@ -91,7 +91,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0) {
         setupSortable(slot);
         if(mems[i]) addMember(mems[i].name, mems[i].memo, mems[i].gender, mems[i].grade||0, slot, mems[i].locked);
     });
-    updateUI();
+    if (!isRestoringCarPlans && !window.__suspendCardUpdateUi) updateUI();
 }
 window.addCar = addCar;
 

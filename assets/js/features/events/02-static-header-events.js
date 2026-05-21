@@ -33,7 +33,7 @@
         };
     }
 
-    function saveOverviewDraft() {
+    function saveOverviewDraft(options = {}) {
         const memo = byId('overviewMemoInput')?.value || '';
         const timetableItems = [...document.querySelectorAll('.overview-timetable-row')].map(row => ({
             time: row.querySelector('[data-field="time"]')?.value || '',
@@ -46,7 +46,7 @@
             // Local memo/timetable are convenience fields; failing silently keeps core flows usable.
         }
         if (applyingOverviewSnapshot) return;
-        if (byId('sheet-view-area')?.classList.contains('active')) global.renderSheetView?.();
+        if (!options.skipRender && byId('sheet-view-area')?.classList.contains('active')) global.renderSheetView?.();
         clearTimeout(global.__overviewSaveTimer);
         global.__overviewSaveTimer = setTimeout(() => global.save?.(), 400);
     }
@@ -112,7 +112,7 @@
         return normalizeOverviewSnapshot(loadOverviewDraft());
     }
 
-    function applyOverviewSnapshot(snapshot = {}) {
+    function applyOverviewSnapshot(snapshot = {}, options = {}) {
         applyingOverviewSnapshot = true;
         try {
             const normalized = normalizeOverviewSnapshot(snapshot);
@@ -120,7 +120,7 @@
             const memo = byId('overviewMemoInput');
             if (memo) memo.value = normalized.memo || '';
             renderTimetableRows(normalized.timetableItems.length ? normalized.timetableItems : [{ time: '', title: '' }]);
-            if (byId('sheet-view-area')?.classList.contains('active')) global.renderSheetView?.();
+            if (!options.skipRender && byId('sheet-view-area')?.classList.contains('active')) global.renderSheetView?.();
         } catch {
             // Keep the main allocation flow usable even if overview data is malformed.
         } finally {

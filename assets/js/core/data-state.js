@@ -113,6 +113,7 @@ function normalizeParticipantKey(value = '') {
 }
 
 function createMemberRecord(member = {}) {
+    member = member || {};
     const name = String(member.name || '').trim();
     if (!name) return null;
     return {
@@ -312,7 +313,7 @@ function getActiveCarPlan() {
 }
 
 function syncActiveCarPlanFromDom() {
-    if (isRestoringCarPlans) return getActiveCarPlan();
+    if (isRestoringCarPlans || window.__suspendActiveDomPlanSync) return getActiveCarPlan();
     const plan = getActiveCarPlan();
     const dom = getCurrentAllocationFromDom();
     plan.waiting = cloneData(dom.waiting);
@@ -323,23 +324,29 @@ function syncActiveCarPlanFromDom() {
     return carPlans.find(p => p.id === activeCarPlanId) || plan;
 }
 
-function getCarPlansSnapshot() {
-    syncActiveCarPlanFromDom();
+function getCarPlansSnapshot(options = {}) {
+    if (!options.skipDomSync) syncActiveCarPlanFromDom();
     ensureSingleCarPlans();
     return carPlans.map((plan, index) => normalizeCarPlan(plan, index));
 }
 
-function renderActiveCarPlanToDom() {
+function renderActiveCarPlanToDom(options = {}) {
     const plan = getActiveCarPlan();
+    const previousCardUpdateSuspend = !!window.__suspendCardUpdateUi;
     isRestoringCarPlans = true;
-    $('#waiting-list').innerHTML = '';
-    $('#cars-container').innerHTML = '';
-    (plan.waiting || []).forEach(m => addMember(m.name, m.memo, m.gender, m.grade||0, $('#waiting-list'), m.locked));
-    (plan.cars || []).forEach(c => addCar(c.name, c.capacity, c.members, c.driverMemo, c.driverGender, c.driverGrade || 0));
-    isRestoringCarPlans = false;
+    window.__suspendCardUpdateUi = true;
+    try {
+        $('#waiting-list').innerHTML = '';
+        $('#cars-container').innerHTML = '';
+        (plan.waiting || []).forEach(m => addMember(m.name, m.memo, m.gender, m.grade||0, $('#waiting-list'), m.locked));
+        (plan.cars || []).forEach(c => addCar(c.name, c.capacity, c.members, c.driverMemo, c.driverGender, c.driverGrade || 0));
+    } finally {
+        isRestoringCarPlans = false;
+        window.__suspendCardUpdateUi = previousCardUpdateSuspend;
+    }
     lastAutoAssignLabel = plan.lastAutoAssignLabel || '';
     renderCarPlanSwitcher();
-    updateUI();
+    if (!options.skipUpdate) updateUI();
 }
 
 function collectParticipantsForNewPlan(plan = null) {
@@ -468,8 +475,8 @@ function setupCarPlanSwitcherEvents() {
     });
 }
 
-function getData() {
-    const plans = getCarPlansSnapshot();
+function getData(options = {}) {
+    const plans = getCarPlansSnapshot({ skipDomSync: !!options.skipDomSync });
     const active = plans.find(plan => plan.id === activeCarPlanId) || plans[0];
     const snapshot = {
         schemaVersion: APP_SCHEMA_VERSION,

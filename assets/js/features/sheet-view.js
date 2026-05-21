@@ -3,6 +3,9 @@
 
 let currentView = 'sheet';
 async function switchView(view) {
+    if (currentView === 'sheet' && view !== 'sheet' && quickEditMode && typeof completeQuickEdit === 'function') {
+        completeQuickEdit({ showNotice: false, rerender: false });
+    }
     if (view !== 'sheet' && editLockEnabled && !hasTrustedEditAccess()) {
         const label = view === 'seisan' ? '精算' : '編集';
         if (!(await verifyEditPassphrase(`${label}を開くには合言葉を入力してください`))) return;
@@ -79,6 +82,77 @@ function renderSheetChip(member) {
         renderGradeBadge,
         isDraggable: currentMember => !currentMember.locked && hasTrustedEditAccess() && quickEditMode
     });
+}
+
+
+function cleanupSheetEditArtifacts() {
+    document.querySelectorAll('.manual-sheet-drag-float').forEach(node => node.remove());
+    document.querySelectorAll('.manual-sheet-drag-source').forEach(node => node.classList.remove('manual-sheet-drag-source'));
+    document.querySelectorAll('.drop-target').forEach(node => node.classList.remove('drop-target'));
+    D.body.classList.remove('manual-sheet-dragging');
+    if (manualSheetDrag) manualSheetDrag = null;
+    isDraggingCards = false;
+}
+window.cleanupSheetEditArtifacts = cleanupSheetEditArtifacts;
+
+function buildSheetCommittedSnapshot() {
+    const snapshot = getData({ skipDomSync: true });
+    lastUpdatedAt = Date.now();
+    snapshot.lastUpdatedBy = myClientId;
+    snapshot.lastUpdatedAt = lastUpdatedAt;
+    window.SanpoApp?.state?.setSnapshot?.(snapshot);
+    return snapshot;
+}
+
+function writeSheetSnapshotToLocal(snapshot) {
+    try {
+        L.setItem(CFG.STORE + '_' + roomId, J.stringify(snapshot));
+    } catch (error) {
+        console.warn('Failed to persist sheet quick edit locally:', error);
+    }
+}
+
+function scheduleSheetSnapshotRemoteSave(snapshot) {
+    if (isRemoteUpdate || !dbRef || typeof update !== 'function') return;
+    clearTimeout(saveTimer);
+    const payload = {
+        roomName: snapshot.roomName,
+        waiting: snapshot.waiting,
+        cars: snapshot.cars,
+        activeCarPlanId: snapshot.activeCarPlanId,
+        carPlans: snapshot.carPlans,
+        trayMinimized: snapshot.trayMinimized,
+        editLockEnabled: snapshot.editLockEnabled,
+        editLockPassphrase: snapshot.editLockPassphrase,
+        settlement: snapshot.settlement,
+        overview: snapshot.overview,
+        lastAutoAssignLabel: snapshot.lastAutoAssignLabel,
+        schemaVersion: snapshot.schemaVersion,
+        lastUpdatedBy: snapshot.lastUpdatedBy,
+        lastUpdatedAt: snapshot.lastUpdatedAt
+    };
+    updateStatus('saving', '保存中...');
+    saveTimer = setTimeout(() => {
+        update(dbRef, payload).then(() => {
+            updateStatus('connected', '同期完了');
+        }).catch(error => {
+            console.error(error);
+            updateStatus('error', '保存失敗');
+        });
+    }, 80);
+}
+
+function persistSheetCommittedSnapshot() {
+    const previousSuspend = !!window.__suspendActiveDomPlanSync;
+    window.__suspendActiveDomPlanSync = true;
+    try {
+        const snapshot = buildSheetCommittedSnapshot();
+        writeSheetSnapshotToLocal(snapshot);
+        scheduleSheetSnapshotRemoteSave(snapshot);
+        return snapshot;
+    } finally {
+        window.__suspendActiveDomPlanSync = previousSuspend;
+    }
 }
 
 function clearSheetSortables() {
@@ -212,19 +286,61 @@ function syncSheetSectionToPlan(section) {
     plan.updatedAt = Date.now();
 }
 
-function syncSheetToMainData() {
-    const sections = Array.from(document.querySelectorAll('.sheet-plan-section[data-plan-id]'))
-        .filter(section => !section.classList.contains('sheet-timetable-section'));
-    const activeSection = sections.find(section => section.dataset.planId === activeCarPlanId);
-    if (activeSection) {
-        syncSheetSectionToActiveDom(activeSection);
-        syncActiveCarPlanFromDom();
+function hasSheetPlanContent(plans = carPlans) {
+    return Array.isArray(plans) && plans.some(plan =>
+        (Array.isArray(plan?.cars) && plan.cars.length > 0) ||
+        (Array.isArray(plan?.waiting) && plan.waiting.length > 0)
+    );
+}
+
+function hasRenderedSheetPlanContent(root = byId('sheet-canvas')) {
+    if (!root) return false;
+    const sections = Array.from(root.querySelectorAll('.sheet-plan-section[data-plan-id]:not(.sheet-timetable-section)'));
+    return sections.some(section =>
+        !!section.querySelector('.sheet-plan-table > .sheet-car-col, .sheet-wait-block .sheet-chip, .sheet-wait-block .sheet-wait-item')
+    );
+}
+
+function syncSheetToMainData({ refresh = true, persist = true } = {}) {
+    const options = arguments[0] || {};
+    const syncHiddenDom = options.syncHiddenDom !== false;
+    const previousPlans = cloneData(carPlans || []);
+    const previousOverview = window.SanpoOverview?.getSnapshot?.() || window.SanpoApp?.state?.getSnapshot?.()?.overview || {};
+    const hadPlanContent = hasSheetPlanContent(previousPlans);
+    const canvas = byId('sheet-canvas');
+    const sectionRoot = canvas || document;
+    const sections = Array.from(sectionRoot.querySelectorAll('.sheet-plan-section[data-plan-id]:not(.sheet-timetable-section)'));
+
+    if (currentView === 'sheet' && hadPlanContent && !sections.length) {
+        throw new Error('Sheet quick edit commit skipped: no plan sections were found.');
     }
-    sections
-        .filter(section => section.dataset.planId !== activeCarPlanId)
-        .forEach(syncSheetSectionToPlan);
-    updateUI();
-    save();
+
+    try {
+        // 発表ビュー上の並びを唯一の正として、車割・班割の両方を carPlans に直接反映する。
+        // 非表示の通常編集画面DOMは古いことがあるため、先に発表ビューDOMを carPlans へ確定する。
+        sections.forEach(syncSheetSectionToPlan);
+        syncSheetTimetableToOverview();
+
+        if (hadPlanContent && !hasSheetPlanContent(carPlans)) {
+            throw new Error('Sheet quick edit commit produced an empty plan set.');
+        }
+    } catch (error) {
+        carPlans = cloneData(previousPlans);
+        window.SanpoOverview?.applySnapshot?.(previousOverview, { skipRender: true });
+        throw error;
+    }
+
+    const previousSuspend = !!window.__suspendActiveDomPlanSync;
+    window.__suspendActiveDomPlanSync = true;
+    try {
+        if (persist) persistSheetCommittedSnapshot();
+        if (syncHiddenDom && typeof renderActiveCarPlanToDom === 'function') {
+            renderActiveCarPlanToDom({ skipUpdate: true });
+        }
+        if (refresh) updateUI();
+    } finally {
+        window.__suspendActiveDomPlanSync = previousSuspend;
+    }
 }
 
 function getSheetZoneChip(zone, excluded = []) {
@@ -313,7 +429,8 @@ function finishManualSheetDrag(commit = true) {
     manualSheetDrag = null;
     isDraggingCards = false;
     document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
-    syncSheetToMainData();
+    cleanupSheetEditArtifacts();
+    syncSheetToMainData({ refresh: false, persist: true });
 }
 
 function startManualSheetDrag(chip, point) {
@@ -623,11 +740,38 @@ function linkifySheetTimetableText(value = '') {
     return html;
 }
 
+function createSheetTimetableEditRow(item = {}) {
+    const time = escapeHtml(String(item?.time || '').slice(0, 5));
+    const title = escapeHtml(String(item?.title || ''));
+    return `
+        <div class="sheet-timetable-edit-row">
+            <input class="sheet-timetable-input time" type="time" data-field="time" value="${time}" aria-label="時刻">
+            <input class="sheet-timetable-input title" type="text" data-field="title" value="${title}" placeholder="内容" aria-label="内容">
+            <button class="sheet-timetable-delete" type="button" data-action="delete-sheet-timetable-row" aria-label="行を削除">
+                <i class="fas fa-xmark" aria-hidden="true"></i>
+            </button>
+        </div>`;
+}
+
 function createSheetTimetableSection() {
     const items = getSheetTimetableItems();
-    if (!items.length) return null;
+    if (!quickEditMode && !items.length) return null;
     const section = document.createElement('section');
     section.className = 'sheet-plan-section sheet-timetable-section';
+    if (quickEditMode) {
+        const editItems = items.length ? items : [{ time: '', title: '' }];
+        section.innerHTML = `
+            <div class="sheet-plan-heading sheet-timetable-heading">タイムテーブル</div>
+            <div class="sheet-timetable-card sheet-timetable-card--edit">
+                <div class="sheet-timetable-edit-list">
+                    ${editItems.map(item => createSheetTimetableEditRow(item)).join('')}
+                </div>
+                <button class="sheet-timetable-add" type="button" data-action="add-sheet-timetable-row">
+                    <i class="fas fa-plus" aria-hidden="true"></i><span>行を追加</span>
+                </button>
+            </div>`;
+        return section;
+    }
     section.innerHTML = `
         <div class="sheet-plan-heading sheet-timetable-heading">タイムテーブル</div>
         <div class="sheet-timetable-card">
@@ -639,6 +783,41 @@ function createSheetTimetableSection() {
             `).join('')}
         </div>`;
     return section;
+}
+
+function getSheetTimetableDraftItems() {
+    const rows = Array.from(document.querySelectorAll('.sheet-timetable-edit-row'));
+    return rows.map(row => ({
+        time: String(row.querySelector('[data-field="time"]')?.value || '').slice(0, 5),
+        title: String(row.querySelector('[data-field="title"]')?.value || '').trim()
+    })).filter(item => item.time || item.title);
+}
+
+function syncSheetTimetableToOverview() {
+    const section = document.querySelector('.sheet-timetable-section');
+    if (!section || !section.querySelector('.sheet-timetable-edit-row')) return;
+    const current = window.SanpoOverview?.getSnapshot?.() || window.SanpoApp?.state?.getSnapshot?.()?.overview || {};
+    const next = {
+        ...current,
+        timetableItems: getSheetTimetableDraftItems()
+    };
+    window.SanpoOverview?.applySnapshot?.(next, { skipRender: true });
+}
+
+function addSheetTimetableEditRow() {
+    const list = document.querySelector('.sheet-timetable-edit-list');
+    if (!list) return;
+    list.insertAdjacentHTML('beforeend', createSheetTimetableEditRow());
+    list.lastElementChild?.querySelector('[data-field="time"], [data-field="title"]')?.focus({ preventScroll: true });
+}
+
+function deleteSheetTimetableEditRow(button) {
+    const list = button?.closest?.('.sheet-timetable-edit-list');
+    const row = button?.closest?.('.sheet-timetable-edit-row');
+    row?.remove();
+    if (list && !list.querySelector('.sheet-timetable-edit-row')) {
+        list.insertAdjacentHTML('beforeend', createSheetTimetableEditRow());
+    }
 }
 
 function syncSheetPlanWidths() {
@@ -664,13 +843,14 @@ function renderSheetView() {
     // createSheetPlanSection() keeps using createSheetCarColumn and createSheetWaitingColumn.
     const canvas = byId('sheet-canvas');
     if (!canvas) return;
+    if (!manualSheetDrag) cleanupSheetEditArtifacts();
     clearSheetSortables();
     canvas.innerHTML = '';
     updateQuickEditButton();
-    const data = getData();
+    const data = getData({ skipDomSync: true });
     updateSheetSummary(data);
 
-    const plans = typeof getCarPlansSnapshot === 'function' ? getCarPlansSnapshot() : [data];
+    const plans = typeof getCarPlansSnapshot === 'function' ? getCarPlansSnapshot({ skipDomSync: true }) : [data];
     const visiblePlans = plans.filter(plan => (plan.cars || []).length || (plan.waiting || []).length);
 
     if (!visiblePlans.length) {
@@ -748,6 +928,29 @@ D.addEventListener('DOMContentLoaded', () => {
             window.getSelection()?.removeAllRanges();
         }
     }, { passive: true });
+
+    area.addEventListener('click', event => {
+        const action = event.target.closest?.('[data-action]')?.dataset?.action;
+        if (action === 'add-sheet-timetable-row') {
+            event.preventDefault();
+            addSheetTimetableEditRow();
+            syncSheetToMainData({ refresh: false, persist: true });
+        }
+        if (action === 'delete-sheet-timetable-row') {
+            event.preventDefault();
+            deleteSheetTimetableEditRow(event.target.closest('[data-action]'));
+            syncSheetToMainData({ refresh: false, persist: true });
+        }
+    });
+
+    area.addEventListener('input', event => {
+        if (!event.target.closest?.('.sheet-timetable-input')) return;
+        syncSheetTimetableToOverview();
+        clearTimeout(window.__sheetTimetableSaveTimer);
+        window.__sheetTimetableSaveTimer = setTimeout(() => {
+            syncSheetToMainData({ refresh: false, persist: true });
+        }, 250);
+    });
 
     area.addEventListener('mousedown', e => {
         if (isSheetInteractiveTarget(e.target) || isSheetDragHandle(e.target)) return;

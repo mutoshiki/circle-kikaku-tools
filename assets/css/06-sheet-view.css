@@ -1711,3 +1711,148 @@ html[data-theme="dark"] #sheet-quick-edit-btn.active {
 /* 発表ビューは車割を上、班割を下に縦並びで表示する。 */
 
 /* sheet summary: compact two-line car/team counts */
+
+/* Sheet edit mode: keep waiting members compact, readable, and editable. */
+body.quick-edit-mode #sheet-view-area .sheet-waiting-list {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 8px;
+}
+
+body.quick-edit-mode #sheet-view-area .sheet-waiting-list .sheet-chip.draggable {
+  width: auto;
+  min-width: 96px;
+  max-width: 100%;
+  flex: 0 0 auto;
+}
+
+body.quick-edit-mode #sheet-view-area .sheet-chip,
+body.quick-edit-mode #sheet-view-area .sheet-chip-text {
+  color: var(--text-main);
+  opacity: 1;
+}
+
+body.quick-edit-mode #sheet-view-area .sheet-chip-text {
+  font-weight: 850;
+}
+
+.sheet-timetable-card--edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+}
+
+.sheet-timetable-edit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sheet-timetable-edit-row {
+  display: grid;
+  grid-template-columns: 82px minmax(150px, 1fr) 32px;
+  align-items: center;
+  gap: 6px;
+}
+
+.sheet-timetable-input {
+  min-height: 34px;
+  border: 1px solid var(--hairline, var(--border-color));
+  border-radius: 9px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 8px;
+  touch-action: manipulation;
+}
+
+.sheet-timetable-input.title {
+  min-width: 0;
+}
+
+.sheet-timetable-delete,
+.sheet-timetable-add {
+  min-height: 34px;
+  border: 1px solid var(--hairline, var(--border-color));
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  touch-action: manipulation;
+}
+
+.sheet-timetable-add {
+  align-self: flex-start;
+  padding: 6px 10px;
+}
+
+[data-theme="dark"] .sheet-timetable-input,
+[data-theme="dark"] .sheet-timetable-delete,
+[data-theme="dark"] .sheet-timetable-add {
+  background: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
+  border-color: var(--hairline, var(--border-color));
+  color: var(--text-main);
+}
+
+/* Quick sheet edit final polish: editing should not dim member names. */
+body.quick-edit-mode #sheet-view-area :where(.sheet-chip, .sheet-chip-text) {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+  opacity: 1;
+  filter: none;
+}
+
+body.quick-edit-mode #sheet-view-area .sheet-chip.locked {
+  opacity: 1;
+}
+
+body.quick-edit-mode #sheet-view-area .sheet-chip.draggable {
+  background: var(--bg-card);
+  color: var(--text-main);
+}
+
+body[data-theme="dark"].quick-edit-mode #sheet-view-area :where(.sheet-chip, .sheet-chip-text),
+html[data-theme="dark"] body.quick-edit-mode #sheet-view-area :where(.sheet-chip, .sheet-chip-text) {
+  color: var(--dark-ui-text, var(--text-main));
+  -webkit-text-fill-color: var(--dark-ui-text, var(--text-main));
+}
+
+/* Quick edit commit hardening: edited sheet members must not stay faded after drag or completion. */
+#sheet-view-area :where(.sheet-chip, .sheet-chip-text, .sheet-cell-text, .sheet-driver-name) {
+  opacity: 1;
+  filter: none;
+}
+
+#sheet-view-area :where(.sheet-chip-text, .sheet-cell-text, .sheet-driver-name) {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+
+#sheet-view-area .sheet-seat-row:not(.empty):not(.sheet-seat-disabled) > .sheet-cell-text,
+#sheet-view-area .sheet-wait-item:not(.empty) > .sheet-cell-text,
+#sheet-view-area .sheet-chip-text {
+  font-weight: 800;
+}
+
+#sheet-view-area .sheet-chip.manual-sheet-drag-source:not(.manual-sheet-drag-float) {
+  opacity: 1;
+  filter: none;
+}
+
+body:not(.manual-sheet-dragging) #sheet-view-area .sheet-chip.manual-sheet-drag-source {
+  visibility: visible;
+}
+
+#sheet-view-area .sheet-timetable-card:not(.sheet-timetable-card--edit) :where(input, button.sheet-timetable-delete, button.sheet-timetable-add) {
+  display: none;
+}
