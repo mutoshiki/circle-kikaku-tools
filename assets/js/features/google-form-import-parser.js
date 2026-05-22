@@ -227,15 +227,19 @@
             const inferredGrade = studentIdIndex >= 0 ? inferGradeFromStudentId(studentIdValue, options) : null;
 
             if (gradeIndex >= 0) {
+                const gradeAndStudentIdShareColumn = gradeIndex === studentIdIndex;
                 if (parsedGrade) {
                     grade = parsedGrade;
+                } else if (gradeAndStudentIdShareColumn && inferredGrade) {
+                    grade = inferredGrade;
                 } else {
                     addWarning(`${displayName}：学年を判定できませんでした（${rowNumber}行目、値「${trimDisplay(gradeValue) || '空欄'}」）。`);
                 }
-                if (studentIdIndex >= 0 && trimDisplay(studentIdValue) && !inferredGrade) {
-                    addWarning(`${displayName}：学籍番号から学年を判定できませんでした（${rowNumber}行目、値「${trimDisplay(studentIdValue)}」）。`);
+                if (studentIdIndex >= 0 && trimDisplay(studentIdValue) && !inferredGrade && !parsedGrade) {
+                    const label = gradeAndStudentIdShareColumn ? '学籍番号もしくは学年' : '学籍番号';
+                    addWarning(`${displayName}：${label}から学年を判定できませんでした（${rowNumber}行目、値「${trimDisplay(studentIdValue)}」）。`);
                 }
-                if (parsedGrade && inferredGrade && parsedGrade !== inferredGrade) {
+                if (!gradeAndStudentIdShareColumn && parsedGrade && inferredGrade && parsedGrade !== inferredGrade) {
                     addWarning(`${displayName}：学年列は${parsedGrade}年ですが、学籍番号からは${inferredGrade}年と推定されます。学年列の値を採用します。`);
                 }
             } else if (studentIdIndex >= 0) {

@@ -95,13 +95,13 @@ window.SanpoGuideTemplates = {
                       <div class="mock-sheet-browser-canvas">
                         <div class="mock-sheet-browser-sheet">
                           <div class="mock-sheet-selection-wrap">
-                            <div class="mock-sheet-purple-head"><span>学年</span><span>名前</span><span>車出し</span></div>
+                            <div class="mock-sheet-purple-head"><span>名前</span><span>学籍/学年</span><span>車出し</span></div>
                             <div class="mock-sheet-selection-table">
-                              <div>3</div><div>藤田 陽斗</div><div>Yes</div>
-                              <div>1</div><div>田中太郎</div><div>No</div>
-                              <div>4</div><div>前田 航平</div><div>Yes</div>
-                              <div>2</div><div>中村 海斗</div><div>No</div>
-                              <div>1</div><div>山田 美咲</div><div>No</div>
+                              <div>藤田 陽斗</div><div>24T1234A</div><div>Yes</div>
+                              <div>田中太郎</div><div>1年</div><div>No</div>
+                              <div>前田 航平</div><div>23T9081A</div><div>Yes</div>
+                              <div>中村 海斗</div><div>2年</div><div>No</div>
+                              <div>山田 美咲</div><div>1年</div><div>No</div>
                             </div>
                             <div class="mock-sheet-selection-dot"></div>
                           </div>
@@ -114,15 +114,15 @@ window.SanpoGuideTemplates = {
                       <div class="mock-form-import-title">フォーム回答を読み込み</div>
                       
                       <div class="mock-form-import-textarea">
-                        <div>学年&nbsp;&nbsp;名前&nbsp;&nbsp;車出し</div>
-                        <div>3&nbsp;&nbsp;藤田 陽斗&nbsp;&nbsp;Yes</div>
-                        <div>1&nbsp;&nbsp;田中太郎&nbsp;&nbsp;No</div>
-                        <div>4&nbsp;&nbsp;前田 航平&nbsp;&nbsp;Yes</div>
+                        <div>名前&nbsp;&nbsp;学籍番号もしくは学年&nbsp;&nbsp;(車出し)</div>
+                        <div>藤田 陽斗&nbsp;&nbsp;24T1234A&nbsp;&nbsp;Yes</div>
+                        <div>田中太郎&nbsp;&nbsp;1年&nbsp;&nbsp;No</div>
+                        <div>前田 航平&nbsp;&nbsp;23T9081A&nbsp;&nbsp;Yes</div>
                       </div>
                       <div class="mock-form-import-button">登録欄に読み込む</div>
                     </div>
                   </div>
-                  <p class="guide-short-text">スプレッドシート全体をそのまま貼り付けるだけで、名前・学年・車出しをまとめて読み込めます。<span class="guide-note-inline">注意:見出し行も含めてコピーしてください。</span></p>
+                  <p class="guide-short-text">スプレッドシート全体をそのまま貼り付けるだけで、名前・学籍番号/学年・車出しをまとめて読み込めます。<span class="guide-note-inline">見出し行も一緒にコピーすると判定しやすくなります。</span></p>
                 </div>
                 <div class="guide-feature-card">
                   <div class="guide-feature-title"><i class="fas fa-car-side me-2" aria-hidden="true"></i>車出し</div>

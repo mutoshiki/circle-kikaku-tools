@@ -476,21 +476,38 @@ color: var(--text-sub);
 
 .batch-import-help-details {
     margin-top: 10px;
-    border-top: 1px solid var(--hairline, var(--border-color));
-    padding-top: 9px;
+    border: 1px solid var(--ui-saas-border, var(--border-color));
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--bg-card) 90%, var(--accent-soft));
+    padding: 0;
+    overflow: hidden;
 }
 
 .batch-import-help-details summary {
     cursor: pointer;
-    color: var(--text-sub);
-    font-size: 0.76rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+    font-size: 0.8rem;
     font-weight: 850;
-    line-height: 1.3;
+    line-height: 1.35;
+    padding: 12px 14px;
+}
+
+.batch-import-help-details summary::-webkit-details-marker {
+    display: none;
 }
 
 .batch-import-help-details[open] summary {
-    margin-bottom: 8px;
-    color: var(--text-main);
+    margin-bottom: 0;
+    background: color-mix(in srgb, var(--accent-color) 6%, var(--bg-card));
+}
+
+.batch-import-help-details > :not(summary) {
+    padding-left: 14px;
+    padding-right: 14px;
+    padding-bottom: 14px;
 }
 
 .batch-spreadsheet-import .batch-spreadsheet-textarea {

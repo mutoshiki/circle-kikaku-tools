@@ -20,9 +20,9 @@ const date = new Date('2026-05-11T00:00:00+09:00');
 
 const studentIdOnly = parser.parseSpreadsheetImport([
   'タイムスタンプ\t名前\t学籍番号\t車出し',
-  '5/11\t山田太郎\t24T4082A\tする',
+  '5/11\t山田太郎\t24T1234A\tする',
   '5/11\t佐藤 花子\t２５Ａ１２３４\tしない',
-  '5/11\t山田 太郎\t24t4082a\t出せる'
+  '5/11\t山田 太郎\t24t1234a\t出せる'
 ].join('\n'), { currentDate: date });
 assert(studentIdOnly.ok, 'studentIdOnly should parse');
 assert(studentIdOnly.counts.total === 2, 'normalized duplicate names should be merged');
@@ -34,7 +34,7 @@ assert(studentIdOnly.gradeSource === 'studentId', 'student id should be grade so
 
 const gradeAndId = parser.parseSpreadsheetImport([
   '名前\t学年\t学籍番号\t車出し',
-  '山田太郎\t2年\t24T4082A\tできます',
+  '山田太郎\t2年\t24T1234A\tできます',
   '田中花子\t三年\tbad\tできません',
   '鈴木一郎\t\t25A1234\t不明'
 ].join('\n'), { currentDate: date });
@@ -57,7 +57,7 @@ for (const [input, expected] of gradeCases) {
   assert(parser.parseGradeValue(input) === expected, `grade value failed: ${input}`);
 }
 
-const idCases = new Map([['24T4082A', 3], ['24t4082a', 3], ['２４Ｔ４０８２Ａ', 3], ['25A1234', 2], ['26M0001', 1]]);
+const idCases = new Map([['24T1234A', 3], ['24t1234a', 3], ['２４Ｔ１２３４Ａ', 3], ['25A1234', 2], ['26M0001', 1]]);
 for (const [input, expected] of idCases) {
   assert(parser.inferGradeFromStudentId(input, { currentDate: date }) === expected, `student id failed: ${input}`);
 }

@@ -138,7 +138,6 @@
         trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
         scrim.hidden = !open;
         document.body.classList.toggle('overview-drawer-open', open);
-        if (open) byId('overviewMemoInput')?.focus({ preventScroll: true });
     }
 
     function setupOverviewMenuFields() {
