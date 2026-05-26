@@ -32,7 +32,7 @@ for (const file of cssFiles) {
   const text = fs.readFileSync(path.join(root, 'assets/css', file), 'utf8');
   const lines = text.split(/\r?\n/).length;
   assert(lines <= 320, `CSS leaf is too large: ${file} has ${lines} lines`);
-  assert(!/(repair|fix|guard|continued)/i.test(path.basename(file)), `CSS filename should be responsibility-based: ${file}`);
+  assert(!/(repair|fix|guard|continued|final|adjustments?|follow-?up)/i.test(path.basename(file)), `CSS filename should be responsibility-based: ${file}`);
   assert(!text.includes('!important'), `!important should not be used: ${file}`);
 }
 

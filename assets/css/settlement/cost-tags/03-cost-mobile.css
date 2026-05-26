@@ -23,7 +23,7 @@
   --settlement-tag-bg: var(--settlement-club-bg);
   --settlement-tag-line: var(--settlement-club-line);
 }
-/* 2026-05 final chip parity alignment
+/* Summary and detail chip parity alignment
    Summary chips must not have their own washed/green theme styling.
    Use the same component tokens as the car settlement chips, and keep payment blue with fixed tokens. */
 #seisan-view-area :is(

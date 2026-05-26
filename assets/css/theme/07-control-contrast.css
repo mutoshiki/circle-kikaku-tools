@@ -1,4 +1,57 @@
-/* Moved from assets/css/theme/*; source-order chunk 7/7. */
+/* Theme-specific contrast and dark-control surfaces. */
+body[data-app-theme] {
+  --control-primary-text: var(--color-white);
+}
+body[data-app-theme="warm-burnout"][data-theme="light"],
+body[data-app-theme="anthropic-warm"][data-theme="light"],
+body[data-app-theme="claude-warm"][data-theme="light"],
+body[data-app-theme="graphite-red"][data-theme="light"] {
+  --control-primary-bg: color-mix(in srgb, var(--accent-color) 82%, var(--color-ink));
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 72%, var(--color-ink));
+}
+body[data-app-theme="ayu"][data-theme="light"],
+body[data-app-theme="monokai-pro"][data-theme="dark"],
+body[data-app-theme="gruvbox-material"][data-theme="light"],
+body[data-app-theme="gruvbox-material"][data-theme="dark"],
+body[data-app-theme="retro-keyboard"][data-theme="dark"] {
+  --control-primary-bg: color-mix(in srgb, var(--accent-color) 60%, var(--color-ink));
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 52%, var(--color-ink));
+}
+body[data-app-theme="horizon"][data-theme="dark"],
+body[data-app-theme="warm-burnout"][data-theme="dark"],
+body[data-app-theme="anthropic-warm"][data-theme="dark"],
+body[data-app-theme="claude-warm"][data-theme="dark"],
+body[data-app-theme="candy-pop"][data-theme="dark"],
+body[data-app-theme="graphite-red"][data-theme="dark"] {
+  --control-primary-bg: color-mix(in srgb, var(--accent-color) 72%, var(--color-ink));
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 64%, var(--color-ink));
+}
+body[data-app-theme="everforest"][data-theme="light"],
+body[data-app-theme="everforest"][data-theme="dark"],
+body[data-app-theme="skyblue"][data-theme="dark"],
+body[data-app-theme="gameboy-classic"][data-theme="dark"],
+body[data-app-theme="candy-pop"][data-theme="light"] {
+  --control-primary-bg: color-mix(in srgb, var(--accent-color) 65%, var(--color-ink));
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 56%, var(--color-ink));
+}
+body[data-app-theme="eight-bit"][data-theme="dark"] {
+  --control-primary-bg: color-mix(in srgb, var(--accent-color) 45%, var(--color-ink));
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 38%, var(--color-ink));
+}
+body[data-app-theme="solarized"][data-theme="light"],
+body[data-app-theme="solarized"][data-theme="dark"],
+body[data-app-theme="one-dark"][data-theme="dark"],
+body[data-app-theme="tokyo-night"][data-theme="dark"],
+body[data-app-theme="night-owl"][data-theme="dark"],
+body[data-app-theme="catppuccin"][data-theme="dark"] {
+  --control-primary-bg: color-mix(in srgb, var(--accent-color) 88%, var(--color-ink));
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 78%, var(--color-ink));
+}
+body[data-app-theme][data-theme] {
+  --control-primary-bg: var(--accent-color);
+  --control-primary-hover: color-mix(in srgb, var(--accent-color) 88%, var(--color-black));
+  --control-primary-text: var(--color-white);
+}
 [data-theme="dark"] {
   --control-border: rgba(148, 163, 184, 0.20);
   --control-secondary-bg: color-mix(in srgb, var(--bg-card) 86%, #020617);

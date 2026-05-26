@@ -1,17 +1,15 @@
-/* Moved from assets/css/10-button-system.css; source-order chunk 3/3. */
-.header-action:not(.share-action):hover,
-.tool-btn:not(#batchOpenBtn):hover,
-.seisan-btn:not(.primary):not(.active):hover,
-#fillEmptySeatsBtn.tray-action-btn:hover,
-.tray-inline-row .tray-action-btn--fill:hover,
-#sheet-quick-edit-btn:hover,
-#zoom-controls button:hover,
-.btn-outline-secondary:hover,
-.btn-secondary:not(.btn-accent-solid):hover,
-.overview-mini-action:hover,
-.overview-copy-action:hover,
-.overview-drawer-close:hover {
-  background: var(--control-secondary-hover);
-  border-color: var(--control-border-strong);
-  color: var(--text-main);
+/* Small icon and compact button details. */
+:is(.header-action, .tool-btn, .seisan-btn, .tray-action-btn, .seisan-icon-btn) i {
+  flex: 0 0 auto;
+  line-height: 1;
+}
+
+:is(.header-more > .header-action, .seisan-icon-btn, #zoom-controls button) {
+  width: auto;
+  min-width: var(--control-height, 38px);
+  padding-inline: 10px;
+}
+
+:is(.header-action, .tool-btn, .seisan-btn, .tray-action-btn) span {
+  min-width: 0;
 }

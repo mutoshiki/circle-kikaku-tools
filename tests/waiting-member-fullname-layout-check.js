@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const css = fs.readFileSync(path.join(__dirname, '..', 'assets/css/cars-members-tray/06-tray-action-alignment.css'), 'utf8');
+const css = fs.readFileSync(path.join(__dirname, '..', 'assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css'), 'utf8');
 
 function assertIncludes(fragment, message) {
   if (!css.includes(fragment)) {

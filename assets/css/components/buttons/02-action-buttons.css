@@ -1,286 +1,157 @@
-/* Moved from assets/css/10-button-system.css; source-order chunk 2/3. */
-.btn-primary,
-.btn-accent-solid,
-.header-actions .share-action,
-.share-action,
-.seisan-btn.primary,
-.seisan-btn.active,
-#routeHelperBtn,
-#batchOpenBtn.tool-btn,
-#shuffleAssignBtn.tray-action-btn,
-.tray-inline-row .tray-action-btn--auto,
-.guide-footer .btn-primary,
-.mock-form-import-button {
-  background: var(--control-primary-bg);
-  border-color: transparent;
-  color: var(--control-primary-text);
-  box-shadow: none;
-}
-.btn-primary:hover,
-.btn-accent-solid:hover,
-.header-actions .share-action:hover,
-.share-action:hover,
-.seisan-btn.primary:hover,
-.seisan-btn.active:hover,
-#routeHelperBtn:hover,
-#batchOpenBtn.tool-btn:hover,
-#shuffleAssignBtn.tray-action-btn:hover,
-.tray-inline-row .tray-action-btn--auto:hover,
-.guide-footer .btn-primary:hover,
-.mock-form-import-button:hover {
-  background: var(--control-primary-hover);
-  border-color: transparent;
-  color: var(--control-primary-text);
-}
-.btn-primary i,
-.btn-primary span,
-.btn-accent-solid i,
-.btn-accent-solid span,
-.header-actions .share-action i,
-.header-actions .share-action span,
-.share-action i,
-.share-action span,
-.seisan-btn.primary i,
-.seisan-btn.primary span,
-#routeHelperBtn i,
-#routeHelperBtn span,
-#batchOpenBtn.tool-btn i,
-#batchOpenBtn.tool-btn span,
-#shuffleAssignBtn.tray-action-btn i,
-#shuffleAssignBtn.tray-action-btn span,
-.tray-inline-row .tray-action-btn--auto i,
-.tray-inline-row .tray-action-btn--auto span,
-.guide-footer .btn-primary i,
-.guide-footer .btn-primary span,
-.mock-form-import-button i,
-.mock-form-import-button span {
-  color: var(--control-primary-text);
-}
-.header-action:not(.share-action),
-.tool-btn:not(#batchOpenBtn),
-.seisan-btn:not(.primary):not(.active),
-#fillEmptySeatsBtn.tray-action-btn,
-.tray-inline-row .tray-action-btn--fill,
-#sheet-quick-edit-btn,
-#zoom-controls button,
-.btn-outline-secondary,
-.btn-secondary:not(.btn-accent-solid) {
-  background: var(--control-secondary-bg);
-  border-color: var(--ui-border-soft);
-  color: var(--text-main);
-  box-shadow: none;
-}
-.header-action:not(.share-action):hover,
-.tool-btn:not(#batchOpenBtn):hover,
-.seisan-btn:not(.primary):not(.active):hover,
-#fillEmptySeatsBtn.tray-action-btn:hover,
-.tray-inline-row .tray-action-btn--fill:hover,
-#sheet-quick-edit-btn:hover,
-#zoom-controls button:hover,
-.btn-outline-secondary:hover,
-.btn-secondary:not(.btn-accent-solid):hover {
-  background: var(--control-secondary-hover);
-  border-color: var(--ui-border-soft);
-  color: var(--text-main);
-}
-.btn-primary,
-.btn-accent-solid,
-.seisan-btn.primary,
-.tool-btn.primary,
-.header-action.share-action {
-  background: var(--control-primary-bg);
-  border-color: var(--control-primary-bg);
-  color: var(--color-white);
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--accent-color) 20%, transparent);
-}
-.btn-primary:hover,
-.btn-accent-solid:hover,
-.seisan-btn.primary:hover,
-.tool-btn.primary:hover,
-.header-action.share-action:hover {
-  background: color-mix(in srgb, var(--accent-color) 90%, var(--color-black));
-  border-color: color-mix(in srgb, var(--accent-color) 88%, var(--color-black));
-  color: var(--color-white);
-}
-.btn-outline-primary,
-.btn-secondary,
-.seisan-btn:not(.primary),
-.tool-btn:not(.primary),
-.header-action:not(.share-action),
-.view-tab {
-  border-color: var(--ui-saas-border);
-  background: color-mix(in srgb, var(--bg-card) 84%, var(--accent-soft));
-  color: color-mix(in srgb, var(--text-main) 78%, var(--accent-color));
-}
-.btn-outline-primary:hover,
-.btn-secondary:hover,
-.seisan-btn:not(.primary):hover,
-.tool-btn:not(.primary):hover,
-.header-action:not(.share-action):hover,
-.view-tab:hover {
-  border-color: var(--ui-saas-border-strong);
-  background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
-  color: var(--accent-color);
-}
-.driver-seat,
-.seat-slot,
-.member-card,
-.seisan-summary-card,
-.seisan-car-summary-row,
-.seisan-check-item,
-.seisan-driver-pay-row,
-.sheet-car-col,
-.sheet-wait-block,
-.sheet-seat-row,
-.sheet-driver-row,
-.sheet-wait-item,
-.form-control,
-.form-select,
-.seisan-toggle,
-.form-sheet-howto,
-.form-import-preview,
-.seisan-summary-pills span,
-.overview-panel,
-.overview-textarea,
-.overview-mini-action,
-.overview-copy-action {
-  border-color: var(--ui-saas-border);
-  background: var(--ui-saas-inner);
-  box-shadow: none;
-}
-.btn:not(.btn-close),
-.header-action,
-.tool-btn,
-.seisan-btn,
-.tray-action-btn,
-#sheet-quick-edit-btn,
-#zoom-controls button,
-.guide-footer .btn,
-.overview-mini-action,
-.overview-copy-action,
-.overview-drawer-close {
-  border-color: var(--control-border);
-  font-weight: 720;
-  box-shadow: none;
-}
-.btn-primary,
-.btn-accent-solid,
-.header-actions .share-action,
-#shareLinkBtn.header-action,
-#batchOpenBtn.tool-btn,
-#routeHelperBtn.seisan-btn,
-.seisan-btn.primary,
-#shuffleAssignBtn.tray-action-btn,
-.tray-inline-row .tray-action-btn--auto,
-.guide-footer .btn-primary,
-.mock-form-import-button,
-.batch-spreadsheet-button {
-  background: var(--control-primary-bg);
-  border-color: var(--control-primary-bg);
-  color: var(--control-primary-text);
+/* Shared button/control priority colors.
+   The app uses three visual weights:
+   - primary: important actions that should follow the current theme color
+   - secondary: normal actions with a quiet surface
+   - tertiary: compact/icon-like actions that should recede
+*/
+:is(
+  .btn-primary,
+  .btn-accent-solid,
+  .header-actions .share-action,
+  .share-action,
+  #shareLinkBtn.header-action,
+  #batchOpenBtn.tool-btn,
+  #routeHelperBtn,
+  #routeHelperBtn.seisan-btn,
+  .seisan-btn.primary,
+  .seisan-btn.active,
+  #shuffleAssignBtn.tray-action-btn,
+  .tray-inline-row .tray-action-btn--auto,
+  .guide-footer .btn-primary,
+  .mock-form-import-button,
+  .batch-spreadsheet-button
+) {
+  background: var(--control-primary-bg, var(--accent-color));
+  border-color: var(--control-primary-bg, var(--accent-color));
+  color: var(--control-primary-text, var(--color-white));
   box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-color) 16%, transparent);
 }
-.btn-primary:hover,
-.btn-accent-solid:hover,
-.header-actions .share-action:hover,
-#shareLinkBtn.header-action:hover,
-#batchOpenBtn.tool-btn:hover,
-#routeHelperBtn.seisan-btn:hover,
-.seisan-btn.primary:hover,
-#shuffleAssignBtn.tray-action-btn:hover,
-.tray-inline-row .tray-action-btn--auto:hover,
-.guide-footer .btn-primary:hover,
-.mock-form-import-button:hover,
-.batch-spreadsheet-button:hover {
-  background: var(--control-primary-hover);
-  border-color: var(--control-primary-hover);
-  color: var(--control-primary-text);
+
+:is(
+  .btn-primary,
+  .btn-accent-solid,
+  .header-actions .share-action,
+  .share-action,
+  #shareLinkBtn.header-action,
+  #batchOpenBtn.tool-btn,
+  #routeHelperBtn,
+  #routeHelperBtn.seisan-btn,
+  .seisan-btn.primary,
+  .seisan-btn.active,
+  #shuffleAssignBtn.tray-action-btn,
+  .tray-inline-row .tray-action-btn--auto,
+  .guide-footer .btn-primary,
+  .mock-form-import-button,
+  .batch-spreadsheet-button
+):is(:hover, :focus-visible) {
+  background: var(--control-primary-hover, color-mix(in srgb, var(--accent-color) 88%, var(--color-black)));
+  border-color: var(--control-primary-hover, color-mix(in srgb, var(--accent-color) 88%, var(--color-black)));
+  color: var(--control-primary-text, var(--color-white));
 }
-.header-action:not(.share-action),
-.tool-btn:not(#batchOpenBtn),
-.seisan-btn:not(.primary):not(.active),
-#fillEmptySeatsBtn.tray-action-btn,
-.tray-inline-row .tray-action-btn--fill,
-#sheet-quick-edit-btn,
-#zoom-controls button,
-.btn-outline-secondary,
-.btn-secondary:not(.btn-accent-solid),
-.overview-mini-action,
-.overview-copy-action,
-.overview-drawer-close {
-  background: var(--control-secondary-bg);
-  border-color: var(--control-border);
+
+:is(
+  #shareLinkBtn.header-action i,
+  #shareLinkBtn.header-action span,
+  .header-actions .share-action i,
+  .header-actions .share-action span,
+  .share-action i,
+  .share-action span,
+  #batchOpenBtn.tool-btn i,
+  #batchOpenBtn.tool-btn span,
+  #routeHelperBtn i,
+  #routeHelperBtn span,
+  #routeHelperBtn.seisan-btn i,
+  #routeHelperBtn.seisan-btn span,
+  .seisan-btn.primary i,
+  .seisan-btn.primary span,
+  .seisan-btn.active i,
+  .seisan-btn.active span,
+  #shuffleAssignBtn.tray-action-btn i,
+  #shuffleAssignBtn.tray-action-btn span,
+  .tray-inline-row .tray-action-btn--auto i,
+  .tray-inline-row .tray-action-btn--auto span,
+  .btn-primary i,
+  .btn-primary span,
+  .btn-accent-solid i,
+  .btn-accent-solid span,
+  .guide-footer .btn-primary i,
+  .guide-footer .btn-primary span,
+  .mock-form-import-button i,
+  .mock-form-import-button span,
+  .batch-spreadsheet-button i,
+  .batch-spreadsheet-button span
+) {
+  color: var(--control-primary-text, var(--color-white));
+}
+
+:is(
+  .header-action:not(.share-action),
+  .tool-btn:not(#batchOpenBtn):not(.primary),
+  .seisan-btn:not(.primary):not(.active),
+  #fillEmptySeatsBtn.tray-action-btn,
+  .tray-inline-row .tray-action-btn--fill,
+  #sheet-quick-edit-btn,
+  #zoom-controls button,
+  .btn-outline-secondary,
+  .btn-outline-primary,
+  .btn-secondary:not(.btn-accent-solid),
+  .guide-footer .btn-outline-secondary,
+  .overview-mini-action,
+  .overview-copy-action,
+  .overview-drawer-close,
+  .view-tab
+) {
+  background: var(--control-secondary-bg, var(--bg-card));
+  border-color: var(--control-border, var(--ui-border-soft, var(--border-color)));
   color: var(--text-main);
-}
-
-/* Shared control structure moved out of route-helper CSS. */
-:is(
-  .btn:not(.btn-close),
-  .header-action,
-  .tool-btn,
-  .seisan-btn,
-  .tray-action-btn,
-  #sheet-quick-edit-btn,
-  #zoom-controls button,
-  .guide-step-btn,
-  .guide-footer .btn,
-  .route-guide-mock button,
-  .guide-phone-btn,
-  .mock-form-import-button,
-  .batch-spreadsheet-button
-) {
-  border-radius: var(--control-radius);
-  font-weight: 800;
-  letter-spacing: 0;
-  transition: background-color var(--motion-fast, 0.16s) ease,
-              border-color var(--motion-fast, 0.16s) ease,
-              color var(--motion-fast, 0.16s) ease,
-              box-shadow var(--motion-fast, 0.16s) ease,
-              transform var(--motion-fast, 0.16s) ease;
-}
-
-:is(
-  .header-action,
-  .tool-btn,
-  .edit-tools .tool-btn,
-  .seisan-btn,
-  .tray-action-btn,
-  #sheet-quick-edit-btn,
-  #zoom-controls button,
-  .guide-footer .btn,
-  .route-guide-mock button,
-  .guide-phone-btn,
-  .mock-form-import-button,
-  .batch-spreadsheet-button
-) {
-  min-height: var(--control-height);
-  border-radius: var(--control-radius);
-  border-width: 1px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding-inline: var(--control-padding-x);
-  font-size: 0.82rem;
-  font-weight: 800;
-  line-height: 1.12;
-  letter-spacing: 0;
   box-shadow: none;
 }
 
 :is(
-  .header-action,
-  .tool-btn,
-  .seisan-btn,
-  .tray-action-btn,
+  .header-action:not(.share-action),
+  .tool-btn:not(#batchOpenBtn):not(.primary),
+  .seisan-btn:not(.primary):not(.active),
+  #fillEmptySeatsBtn.tray-action-btn,
+  .tray-inline-row .tray-action-btn--fill,
   #sheet-quick-edit-btn,
   #zoom-controls button,
-  .guide-footer .btn,
-  .route-guide-mock button,
-  .guide-phone-btn,
-  .mock-form-import-button,
-  .batch-spreadsheet-button
-):focus-visible {
-  outline: 0;
-  box-shadow: var(--control-focus-ring);
+  .btn-outline-secondary,
+  .btn-outline-primary,
+  .btn-secondary:not(.btn-accent-solid),
+  .guide-footer .btn-outline-secondary,
+  .overview-mini-action,
+  .overview-copy-action,
+  .overview-drawer-close,
+  .view-tab
+):is(:hover, :focus-visible) {
+  background: var(--control-secondary-hover, var(--hover-bg));
+  border-color: var(--control-border-strong, color-mix(in srgb, var(--accent-color) 28%, var(--border-color)));
+  color: var(--text-main);
+}
+
+:is(
+  .header-more > .header-action,
+  #seisanRefreshBtn.seisan-btn,
+  .tray-inline-row .settings-btn,
+  .seisan-icon-btn
+) {
+  background: var(--control-tertiary-bg, color-mix(in srgb, var(--bg-card) 82%, var(--bg-body)));
+  border-color: var(--control-border, var(--border-color));
+  color: var(--text-sub);
+  box-shadow: none;
+}
+
+:is(
+  .header-more > .header-action,
+  #seisanRefreshBtn.seisan-btn,
+  .tray-inline-row .settings-btn,
+  .seisan-icon-btn
+):is(:hover, :focus-visible) {
+  background: var(--control-tertiary-hover, var(--control-secondary-hover, var(--hover-bg)));
+  border-color: var(--control-border-strong, color-mix(in srgb, var(--accent-color) 28%, var(--border-color)));
+  color: var(--text-main);
+}
+
+:is(.btn-danger, .btn-outline-danger) {
+  border-color: var(--color-danger);
 }

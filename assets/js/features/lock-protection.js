@@ -230,14 +230,14 @@ function requestPassphrasePanel(message, isPassword = true) {
             resolve(value);
         };
 
-        cancel.onclick = () => done(null);
-        overlay.onclick = event => {
+        cancel.addEventListener('click', () => done(null));
+        overlay.addEventListener('click', event => {
             if (event.target === overlay) done(null);
-        };
-        form.onsubmit = event => {
+        });
+        form.addEventListener('submit', event => {
             event.preventDefault();
             done(input.value.trim());
-        };
+        });
 
         actions.append(cancel, submit);
         form.append(label, input, actions);

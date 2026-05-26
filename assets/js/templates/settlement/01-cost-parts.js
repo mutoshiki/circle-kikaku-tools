@@ -94,8 +94,8 @@
     return parts
       .map(normalizeCostPart)
       .filter(part => part && String(part.html || '').trim())
-      .map((part, index) => {
-        const sign = index === 0 ? '' : (part.op === '−' ? '−' : '＋');
+      .map(part => {
+        const sign = part.op === '−' ? '−' : '＋';
         const tone = part.op === '−' ? ' is-minus' : ' is-plus';
         const html = applyAmountSign(part.html, sign);
         return `<div class="seisan-cost-preview-line${tone}"><span class="seisan-cost-preview-line-body">${html}</span></div>`;

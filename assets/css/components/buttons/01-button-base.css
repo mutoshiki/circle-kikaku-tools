@@ -1,208 +1,159 @@
-/* Moved from assets/css/10-button-system.css; source-order chunk 1/3. */
-/* Shared button/control color and interaction rules.
-   CSS architecture cleanup: keep this file focused on the responsibility in its name. */
+/* Shared button/control structure.
+   This file owns shape, spacing and interaction motion only.
+   Priority colors live in 02-action-buttons.css, and small icon details live in 03-icon-buttons.css. */
 .seisan-actions {
-display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--control-gap, 8px);
 }
+
 @media (max-width: 640px) {
-.seisan-actions {
-grid-template-columns: 1fr;
+  .seisan-actions {
+    gap: var(--mobile-gap, 8px);
+  }
 }
-}
-@media (max-width: 640px) {
-.seisan-actions {
-gap: 8px;
-}
-}
-@media (max-width: 640px) {
-.seisan-actions {
-grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-}
-/* =========================================================
-   Settlement checklist/share rules moved from 08-control-consistency.css
-========================================================= */
-.btn-primary,
-.btn-accent-solid,
-.header-actions .share-action,
-.share-action,
-.seisan-btn.primary,
-.seisan-btn.active,
-#routeHelperBtn,
-#shuffleAssignBtn.tray-action-btn,
-.tray-inline-row .tray-action-btn--auto,
-.guide-footer .btn-primary,
-.mock-form-import-button {
-  background: var(--accent-color);
-  border-color: var(--accent-color);
-  color: var(--color-white);
-  box-shadow: var(--control-primary-shadow);
-}
-.btn-primary:hover,
-.btn-accent-solid:hover,
-.header-actions .share-action:hover,
-.share-action:hover,
-.seisan-btn.primary:hover,
-.seisan-btn.active:hover,
-#routeHelperBtn:hover,
-#shuffleAssignBtn.tray-action-btn:hover,
-.tray-inline-row .tray-action-btn--auto:hover,
-.guide-footer .btn-primary:hover,
-.mock-form-import-button:hover {
-  background: color-mix(in srgb, var(--accent-color) 90%, var(--color-black));
-  border-color: color-mix(in srgb, var(--accent-color) 90%, var(--color-black));
-  color: var(--color-white);
-}
-.header-action:not(.share-action),
-.tool-btn,
-.seisan-btn:not(.primary):not(.active),
-#fillEmptySeatsBtn.tray-action-btn,
-.tray-inline-row .tray-action-btn--fill,
-#sheet-quick-edit-btn,
-#zoom-controls button,
-.btn-outline-secondary,
-.btn-secondary:not(.btn-accent-solid) {
-  background: var(--control-secondary-bg);
-  border-color: var(--control-border);
+
+:is(
+  .btn:not(.btn-close),
+  .header-action,
+  .tool-btn,
+  .edit-tools .tool-btn,
+  .seisan-btn,
+  .tray-action-btn,
+  #sheet-quick-edit-btn,
+  #zoom-controls button,
+  .guide-step-btn,
+  .guide-footer .btn,
+  .route-guide-mock button,
+  .guide-phone-btn,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  .overview-mini-action,
+  .overview-copy-action,
+  .overview-drawer-close
+) {
+  min-height: var(--control-height, 38px);
+  border: 1px solid var(--control-border, var(--border-color));
+  border-radius: var(--control-radius, var(--radius-sm));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding-inline: var(--control-padding-x, 12px);
   color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: 0;
   box-shadow: none;
+  transition:
+    background-color var(--motion-fast, 0.16s) ease,
+    border-color var(--motion-fast, 0.16s) ease,
+    color var(--motion-fast, 0.16s) ease,
+    box-shadow var(--motion-fast, 0.16s) ease,
+    transform var(--motion-fast, 0.16s) ease;
 }
-.header-action:not(.share-action):hover,
-.tool-btn:hover,
-.seisan-btn:not(.primary):not(.active):hover,
-#fillEmptySeatsBtn.tray-action-btn:hover,
-.tray-inline-row .tray-action-btn--fill:hover,
-#sheet-quick-edit-btn:hover,
-#zoom-controls button:hover,
-.btn-outline-secondary:hover,
-.btn-secondary:not(.btn-accent-solid):hover {
-  background: var(--control-secondary-hover);
-  border-color: color-mix(in srgb, var(--accent-color) 28%, var(--border-color));
-  color: var(--text-main);
+
+:is(
+  .btn:not(.btn-close),
+  .header-action,
+  .tool-btn,
+  .seisan-btn,
+  .tray-action-btn,
+  #sheet-quick-edit-btn,
+  #zoom-controls button,
+  .guide-step-btn,
+  .guide-footer .btn,
+  .route-guide-mock button,
+  .guide-phone-btn,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  .overview-mini-action,
+  .overview-copy-action,
+  .overview-drawer-close
+):hover {
+  transform: translateY(-1px);
 }
-#shareLinkBtn.header-action,
-.header-actions .share-action,
-.share-action,
-#batchOpenBtn.tool-btn,
-#routeHelperBtn.seisan-btn,
-.seisan-btn.primary,
-#shuffleAssignBtn.tray-action-btn,
-.tray-inline-row .tray-action-btn--auto,
-.btn-primary,
-.btn-accent-solid,
-.guide-footer .btn-primary,
-.mock-form-import-button,
-.batch-spreadsheet-button {
-  background: var(--control-primary-bg);
-  border-color: var(--control-primary-bg);
-  color: var(--control-primary-text);
-  box-shadow: var(--control-primary-shadow);
+
+:is(
+  .btn:not(.btn-close),
+  .header-action,
+  .tool-btn,
+  .seisan-btn,
+  .tray-action-btn,
+  #sheet-quick-edit-btn,
+  #zoom-controls button,
+  .guide-step-btn,
+  .guide-footer .btn,
+  .route-guide-mock button,
+  .guide-phone-btn,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  .overview-mini-action,
+  .overview-copy-action,
+  .overview-drawer-close
+):active {
+  transform: translateY(0);
 }
-#shareLinkBtn.header-action:hover,
-.header-actions .share-action:hover,
-.share-action:hover,
-#batchOpenBtn.tool-btn:hover,
-#routeHelperBtn.seisan-btn:hover,
-.seisan-btn.primary:hover,
-#shuffleAssignBtn.tray-action-btn:hover,
-.tray-inline-row .tray-action-btn--auto:hover,
-.btn-primary:hover,
-.btn-accent-solid:hover,
-.guide-footer .btn-primary:hover,
-.mock-form-import-button:hover,
-.batch-spreadsheet-button:hover,
-#shareLinkBtn.header-action:focus-visible,
-#batchOpenBtn.tool-btn:focus-visible,
-#routeHelperBtn.seisan-btn:focus-visible,
-#shuffleAssignBtn.tray-action-btn:focus-visible,
-.tray-inline-row .tray-action-btn--auto:focus-visible {
-  background: var(--control-primary-hover);
-  border-color: var(--control-primary-hover);
-  color: var(--control-primary-text);
+
+:is(
+  .header-action,
+  .tool-btn,
+  .seisan-btn,
+  .tray-action-btn,
+  #sheet-quick-edit-btn,
+  #zoom-controls button,
+  .guide-step-btn,
+  .guide-footer .btn,
+  .route-guide-mock button,
+  .guide-phone-btn,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  .overview-mini-action,
+  .overview-copy-action,
+  .overview-drawer-close
+):focus-visible {
+  outline: 0;
+  box-shadow: var(--control-focus-ring, 0 0 0 4px var(--focus-ring));
 }
-#shareLinkBtn.header-action i,
-#shareLinkBtn.header-action span,
-.header-actions .share-action i,
-.header-actions .share-action span,
-.share-action i,
-.share-action span,
-#batchOpenBtn.tool-btn i,
-#batchOpenBtn.tool-btn span,
-#routeHelperBtn.seisan-btn i,
-#routeHelperBtn.seisan-btn span,
-.seisan-btn.primary i,
-.seisan-btn.primary span,
-.seisan-btn.active i,
-.seisan-btn.active span,
-#shuffleAssignBtn.tray-action-btn i,
-#shuffleAssignBtn.tray-action-btn span,
-.tray-inline-row .tray-action-btn--auto i,
-.tray-inline-row .tray-action-btn--auto span,
-.btn-primary i,
-.btn-primary span,
-.btn-accent-solid i,
-.btn-accent-solid span,
-.guide-footer .btn-primary i,
-.guide-footer .btn-primary span,
-.mock-form-import-button i,
-.mock-form-import-button span,
-.batch-spreadsheet-button i,
-.batch-spreadsheet-button span {
-  color: var(--control-primary-text);
-}
-#editLockBtn.header-action,
-#carGuideBtn.tool-btn,
-#seisanGuideBtn.seisan-btn,
-#fillEmptySeatsBtn.tray-action-btn,
-.tray-inline-row .tray-action-btn--fill,
-#sheet-quick-edit-btn,
-.btn-outline-secondary,
-.btn-secondary:not(.btn-accent-solid),
-.guide-footer .btn-outline-secondary {
-  background: var(--control-secondary-bg);
-  border-color: var(--control-border);
-  color: var(--text-main);
-  box-shadow: none;
-}
-#editLockBtn.header-action:hover,
-#carGuideBtn.tool-btn:hover,
-#seisanGuideBtn.seisan-btn:hover,
-#fillEmptySeatsBtn.tray-action-btn:hover,
-.tray-inline-row .tray-action-btn--fill:hover,
-#sheet-quick-edit-btn:hover,
-.btn-outline-secondary:hover,
-.btn-secondary:not(.btn-accent-solid):hover,
-.guide-footer .btn-outline-secondary:hover,
-#editLockBtn.header-action:focus-visible,
-#carGuideBtn.tool-btn:focus-visible,
-#seisanGuideBtn.seisan-btn:focus-visible,
-#fillEmptySeatsBtn.tray-action-btn:focus-visible,
-.tray-inline-row .tray-action-btn--fill:focus-visible {
-  background: var(--control-secondary-hover);
-  border-color: var(--control-border-strong);
-  color: var(--text-main);
-}
-.header-more > .header-action,
-#seisanRefreshBtn.seisan-btn,
-.tray-inline-row .settings-btn,
-#zoom-controls button,
-.seisan-icon-btn {
-  background: var(--control-tertiary-bg);
-  border-color: var(--control-border);
-  color: var(--text-sub);
-  box-shadow: none;
-}
-.header-more > .header-action:hover,
-#seisanRefreshBtn.seisan-btn:hover,
-.tray-inline-row .settings-btn:hover,
-#zoom-controls button:hover,
-.seisan-icon-btn:hover,
-.header-more > .header-action:focus-visible,
-#seisanRefreshBtn.seisan-btn:focus-visible,
-.tray-inline-row .settings-btn:focus-visible,
-#zoom-controls button:focus-visible,
-.seisan-icon-btn:focus-visible {
-  background: var(--control-tertiary-hover);
-  border-color: var(--control-border-strong);
-  color: var(--text-main);
+
+:is(
+  .btn:not(.btn-close),
+  .header-action,
+  .tool-btn,
+  .seisan-btn,
+  .tray-action-btn,
+  #sheet-quick-edit-btn,
+  #zoom-controls button,
+  .guide-step-btn,
+  .guide-footer .btn,
+  .route-guide-mock button,
+  .guide-phone-btn,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  .overview-mini-action,
+  .overview-copy-action,
+  .overview-drawer-close
+):disabled,
+:is(
+  .btn:not(.btn-close),
+  .header-action,
+  .tool-btn,
+  .seisan-btn,
+  .tray-action-btn,
+  #sheet-quick-edit-btn,
+  #zoom-controls button,
+  .guide-step-btn,
+  .guide-footer .btn,
+  .route-guide-mock button,
+  .guide-phone-btn,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  .overview-mini-action,
+  .overview-copy-action,
+  .overview-drawer-close
+).disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+  transform: none;
 }

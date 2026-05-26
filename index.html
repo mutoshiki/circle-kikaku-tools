@@ -23,6 +23,10 @@
     <link href="./assets/css/tokens/03-bootstrap-controls.css" rel="stylesheet">
     <link href="./assets/css/tokens/04-forms-inputs.css" rel="stylesheet">
     <link href="./assets/css/components/00-component-contracts.css" rel="stylesheet">
+    <link href="./assets/css/components/surfaces/01-surface-tokens.css" rel="stylesheet">
+    <link href="./assets/css/components/buttons/01-button-base.css" rel="stylesheet">
+    <link href="./assets/css/components/buttons/02-action-buttons.css" rel="stylesheet">
+    <link href="./assets/css/components/buttons/03-icon-buttons.css" rel="stylesheet">
     <link href="./assets/css/app-shell/00-base-extracted.css" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/01-app-frame.css" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/02-panels.css" rel="stylesheet">
@@ -38,7 +42,7 @@
     <link href="./assets/css/app-shell/header/06-mobile-actions.css" rel="stylesheet">
     <link href="./assets/css/app-shell/header/07-mobile-tabs.css" rel="stylesheet">
     <link href="./assets/css/app-shell/header/08-mobile-density.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/08-mobile-final.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/header/13-controls-and-tabs.css" rel="stylesheet">
     <link href="./assets/css/app-shell/header/09-responsive-base.css" rel="stylesheet">
     <link href="./assets/css/app-shell/header/10-responsive-small.css" rel="stylesheet">
     <link href="./assets/css/app-shell/header/11-responsive-edge.css" rel="stylesheet">
@@ -49,7 +53,7 @@
     <link href="./assets/css/theme/04-theme-preview.css" rel="stylesheet">
     <link href="./assets/css/theme/05-theme-mobile-dark.css" rel="stylesheet">
     <link href="./assets/css/theme/06-theme-accessibility.css" rel="stylesheet">
-    <link href="./assets/css/theme/07-theme-final-adjustments.css" rel="stylesheet">
+    <link href="./assets/css/theme/07-control-contrast.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/modal/01-modal-base.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/modal/02-dropdowns.css" rel="stylesheet">
@@ -76,6 +80,7 @@
     <link href="./assets/css/cars-members-tray/waiting-tray/03-tray-actions.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/05-tray-states.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/01-person-card-shell.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/02-person-name-grade.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/03-person-menu.css" rel="stylesheet">
@@ -94,13 +99,12 @@
     <link href="./assets/css/settlement/page-shell/04-mobile-layout.css" rel="stylesheet">
     <link href="./assets/css/settlement/page-shell/05-error-states.css" rel="stylesheet">
     <link href="./assets/css/settlement/page-shell/06-density.css" rel="stylesheet">
-    <link href="./assets/css/settlement/page-shell/07-page-final.css" rel="stylesheet">
+    <link href="./assets/css/settlement/page-shell/07-payment-tag-surfaces.css" rel="stylesheet">
     <link href="./assets/css/settlement/summary/01-summary-layout.css" rel="stylesheet">
     <link href="./assets/css/settlement/summary/02-summary-values.css" rel="stylesheet">
     <link href="./assets/css/settlement/summary/03-summary-colors.css" rel="stylesheet">
     <link href="./assets/css/settlement/summary/04-summary-pills.css" rel="stylesheet">
-    <link href="./assets/css/settlement/summary/05-summary-mobile.css" rel="stylesheet">
-    <link href="./assets/css/settlement/summary/06-summary-final.css" rel="stylesheet">
+    <link href="./assets/css/settlement/summary/05-summary-surfaces.css" rel="stylesheet">
     <link href="./assets/css/settlement/guide-mockups/01-guide-base.css" rel="stylesheet">
     <link href="./assets/css/settlement/guide-mockups/02-guide-cards.css" rel="stylesheet">
     <link href="./assets/css/settlement/guide-mockups/03-guide-mobile.css" rel="stylesheet">
@@ -137,7 +141,6 @@
     <link href="./assets/css/sheet-view/layout/01-sheet-frame.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/layout/02-sheet-car-table.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/layout/03-sheet-summary.css" rel="stylesheet">
-    <link href="./assets/css/sheet-view/layout/04-sheet-final.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/waiting/01-sheet-waiting.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/waiting/02-sheet-waiting-mobile.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/timetable/01-timetable-base.css" rel="stylesheet">
@@ -147,11 +150,6 @@
     <link href="./assets/css/sheet-view/print/01-zoom-print.css" rel="stylesheet">
     <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
     <link href="./assets/css/08-utilities.css" rel="stylesheet">
-    <link href="./assets/css/components/buttons/01-button-base.css" rel="stylesheet">
-    <link href="./assets/css/components/buttons/02-action-buttons.css" rel="stylesheet">
-    <link href="./assets/css/components/buttons/03-icon-buttons.css" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/06-tray-action-alignment.css" rel="stylesheet">
-    <link href="./assets/css/components/surfaces/01-surface-tokens.css" rel="stylesheet">
   </head>
   <body data-theme="light" data-app-theme="natural" class="sheet-mode">
     <div id="app-layout">
@@ -768,7 +766,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                 </div>
           <div class="modal-body">
-            <p class="mb-3 debug-help-text">現在のデータをリセットして、確認用のサンプルを入れます。</p>
+            <p class="mb-3 debug-help-text">現在のデータをリセットして、車の席数に合う確認用サンプルを入れます。</p>
             <div class="d-flex align-items-center gap-2 mb-3">
               <label for="debugCarCount" class="mb-0 debug-label">車の数</label>
               <select id="debugCarCount" class="form-select form-select-sm debug-car-count-select" aria-label="サンプルデータの車の数">
@@ -798,39 +796,23 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <script src="./firebase-config.js"></script>
-        <script src="./assets/js/modules/ui.js"></script>
-
-    <script>
-      window.addEventListener('DOMContentLoaded', function () {
-        if (!window.bootstrap) {
-          console.warn('Bootstrap JS could not be loaded. Some menus and modals may not work.');
-          document.body.classList.add('cdn-bootstrap-missing');
-        }
-        if (!window.Sortable) {
-          console.warn('Sortable could not be loaded. Legacy drag helper is disabled.');
-          document.body.classList.add('cdn-sortable-missing');
-        }
-        if (!document.querySelector('.fa, .fas, .fa-solid')) {
-          document.body.classList.add('cdn-icons-missing');
-        }
-      });
-    </script>
-
+    <script src="./assets/js/modules/ui.js"></script>
     <script src="./assets/js/core/app-namespace.js"></script>
     <script src="./assets/js/core/runtime.js"></script>
+    <script src="./assets/js/core/dependency-status.js"></script>
     <script src="./assets/js/core/app-status.js"></script>
     <script src="./assets/js/core/storage.js"></script>
     <script src="./assets/js/core/render-controller.js"></script>
     <script src="./assets/js/core/settlement-edit-guard.js"></script>
     <script src="./assets/js/core/sync-controller.js"></script>
     <script src="./assets/js/core/history-scheduler.js"></script>
-    <script src="./assets/js/core/data-state.js?v=quickedit-null-seat-fix"></script>
+    <script src="./assets/js/core/data-state.js"></script>
     <script src="./assets/js/core/modal-controller.js"></script>
     <script src="./assets/js/modules/history.js"></script>
     <script src="./assets/js/modules/drag-cards.js"></script>
     <script src="./assets/js/modules/settlement.js"></script>
     <script src="./assets/js/modules/theme-presets.js"></script>
-    <script src="./assets/js/features/appearance.js?v=debug-theme-mode"></script>
+    <script src="./assets/js/features/appearance.js"></script>
     <script src="./assets/js/templates/settlement/00-template-utils.js"></script>
     <script src="./assets/js/templates/settlement/01-cost-parts.js"></script>
     <script src="./assets/js/templates/settlement/02-summary-templates.js"></script>
@@ -845,7 +827,7 @@
     <script src="./assets/js/features/settlement/01-state.js"></script>
     <script src="./assets/js/features/settlement/02-calculator.js"></script>
     <script src="./assets/js/features/settlement/03-render.js"></script>
-    <script src="./assets/js/features/settlement/04-route-helper.js?v=route-shortcut"></script>
+    <script src="./assets/js/features/settlement/04-route-helper.js"></script>
     <script src="./assets/js/features/settlement/05-input-actions.js"></script>
     <script src="./assets/js/features/settlement/06-share-text.js"></script>
     <script src="./assets/js/features/settlement.js"></script>
@@ -853,22 +835,25 @@
     <script src="./assets/js/features/guides.js"></script>
     <script src="./assets/js/core/remote-guard.js"></script>
     <script src="./assets/js/features/share-actions.js"></script>
-    <script src="./assets/js/features/lock-protection.js?v=quickedit-done-save-guard"></script>
+    <script src="./assets/js/features/lock-protection.js"></script>
     <script src="./assets/js/features/waiting-tray.js"></script>
     <script src="./assets/js/features/person-cards.js"></script>
     <script src="./assets/js/templates/sheet-templates.js"></script>
-    <script src="./assets/js/features/sheet-view.js?v=quickedit-done-save-guard"></script>
+    <script src="./assets/js/features/sheet/00-data-sync.js"></script>
+    <script src="./assets/js/features/sheet-view.js"></script>
     <script src="./assets/js/features/drag-edit-view.js"></script>
+    <script src="./assets/js/features/sheet/01-drag-interactions.js"></script>
+    <script src="./assets/js/features/sheet/02-viewport-controls.js"></script>
     <script src="./assets/js/features/auto-assign.js"></script>
     <script src="./assets/js/features/person-menu.js"></script>
     <script src="./assets/js/features/google-form-import-parser.js"></script>
     <script src="./assets/js/features/batch-import.js"></script>
-    <script src="./assets/js/features/debug-history.js?v=debug-theme-mode"></script>
+    <script src="./assets/js/features/sample-data-history.js"></script>
     <script src="./assets/js/app.js"></script>
     <script src="./assets/js/features/events/00-event-utils.js"></script>
     <script src="./assets/js/features/events/01-core-startup-events.js"></script>
-    <script src="./assets/js/features/events/02-static-header-events.js?v=timetable-sheet-sync"></script>
-    <script src="./assets/js/features/events/03-generated-action-events.js?v=route-shortcut"></script>
+    <script src="./assets/js/features/events/02-static-header-events.js"></script>
+    <script src="./assets/js/features/events/03-generated-action-events.js"></script>
     <script src="./assets/js/features/events/04-settlement-input-events.js"></script>
     <script src="./assets/js/features/events/05-view-feature-events.js"></script>
     <script src="./assets/js/features/events.js"></script>

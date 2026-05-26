@@ -2,7 +2,7 @@ const assert = require('assert');
 const vm = require('vm');
 const { readText } = require('./helpers/read-project');
 
-const debug = readText('assets/js/features/debug-history.js');
+const debug = readText('assets/js/features/sample-data-history.js');
 const sandbox = {
   console,
   window: { modals: {}, SanpoOverview: null },
@@ -36,6 +36,15 @@ assert(sandbox.__restored, 'sample action should restore a snapshot');
 assert.strictEqual(sandbox.__restored.activeCarPlanId, 'plan-car', 'sample should activate the car plan');
 assert.strictEqual(sandbox.__restored.carPlans.length, 2, 'sample should include car and team plans');
 assert(sandbox.__restored.carPlans[0].cars.every(car => Array.isArray(car.members) && car.members.length > 0), 'each sample car should have passengers');
+for (const carCount of [2, 3, 4, 5]) {
+  const data = sandbox.createSampleAppData({ carCount });
+  const carPlan = data.carPlans[0];
+  assert.strictEqual(carPlan.waiting.length, 0, `sample should not leave overflow waiting members for ${carCount} cars`);
+  carPlan.cars.forEach(car => {
+    const capacity = Number(car.capacity) || 0;
+    assert(car.members.length <= capacity, `sample car ${car.name} should not exceed capacity`);
+  });
+}
 assert(sandbox.__restored.settlement.routeStops.length >= 3, 'sample should include route candidates');
 assert.strictEqual(sandbox.__updated, true, 'sample should refresh UI');
 assert.strictEqual(sandbox.__saved, true, 'sample should save after restore');

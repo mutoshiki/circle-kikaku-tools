@@ -44,7 +44,7 @@ outline: 2px solid var(--accent-color);
 }
 @media (max-width: 640px) {
 .seisan-car-row {
-  /* Same unified radius for the compact car row with spacing adjustments */
+  /* Same unified radius for the compact car row with compact spacing. */
   border-radius: var(--radius-main);
   padding: 9px;
   margin-bottom: 8px;

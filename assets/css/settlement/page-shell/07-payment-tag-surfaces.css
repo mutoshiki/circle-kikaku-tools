@@ -1,4 +1,4 @@
-/* Moved from assets/css/settlement/01-page-shell.css; source-order chunk 7/7. */
+/* Page-level payment row and semantic cost tag surfaces. */
 body[data-theme="dark"] #seisan-view-area, html[data-theme="dark"] #seisan-view-area {
   --seisan-dark-panel: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
   --seisan-dark-panel-raised: color-mix(in srgb, var(--bg-card) 94%, var(--color-night));

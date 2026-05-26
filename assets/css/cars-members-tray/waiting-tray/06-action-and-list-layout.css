@@ -1,4 +1,4 @@
-/* Waiting tray action alignment.
+/* Waiting tray action and readable member-list layout.
    Keep the member count on the left and pin 空席・ランダム・条件 to the right. */
 #bottom-tray-header .tray-inline-row {
   display: grid;

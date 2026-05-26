@@ -1,4 +1,4 @@
-/* Moved from assets/css/settlement/02-summary-cards.css; source-order chunk 5/6. */
+/* Summary responsive layout and semantic card surfaces. */
 body[data-theme="dark"] #seisan-view-area .seisan-summary-card.pay,
 body[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment,
 html[data-theme="dark"] #seisan-view-area .seisan-summary-card.pay,
@@ -203,4 +203,30 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
 html body #app-layout #seisan-view-area .seisan-summary-card.collect[data-summary-kind="collect"] {
   background: color-mix(in srgb, var(--settlement-split-bg) 82%, var(--bg-card));
   border-color: color-mix(in srgb, var(--settlement-split-line) 78%, var(--ui-saas-border, var(--border-color)));
+}
+#seisan-view-area .seisan-summary-card.accounting,
+html body #app-layout #seisan-view-area .seisan-summary-card.accounting[data-summary-kind="club"] {
+  background: color-mix(in srgb, var(--settlement-club-bg) 82%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-club-line) 78%, var(--ui-saas-border, var(--border-color)));
+}
+#seisan-view-area .seisan-summary-card.pay,
+html body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] {
+  background: var(--settlement-pay-surface-fixed);
+  border-color: var(--settlement-pay-surface-line-fixed);
+}
+[data-theme="dark"] #seisan-view-area .seisan-summary-card.collect,
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.collect[data-summary-kind="collect"],
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.collect[data-summary-kind="collect"] {
+  background: color-mix(in srgb, var(--settlement-split-bg) 78%, var(--bg-card));
+}
+[data-theme="dark"] #seisan-view-area .seisan-summary-card.accounting,
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.accounting[data-summary-kind="club"],
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.accounting[data-summary-kind="club"] {
+  background: color-mix(in srgb, var(--settlement-club-bg) 78%, var(--bg-card));
+}
+[data-theme="dark"] #seisan-view-area .seisan-summary-card.pay,
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"],
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] {
+  background: var(--settlement-pay-surface-fixed);
+  border-color: var(--settlement-pay-surface-line-fixed);
 }

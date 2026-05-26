@@ -54,3 +54,14 @@ window.SanpoApp.templates.settlement.collection(...)
 - `settlement-templates.js` が薄い互換入口になっていること
 
 既存テストでテンプレート全体を見る場合は、`tests/helpers/read-project.js` の `readSettlementTemplateBundle()` を使います。
+
+## 発表ビュー機能
+
+発表ビューは表示、同期、入力操作を分けて読み込みます。
+
+1. `features/sheet/00-data-sync.js`: クイック編集のスナップショット保存と本データ同期
+2. `features/sheet-view.js`: 発表ビューの描画とタイムテーブル HTML
+3. `features/sheet/01-drag-interactions.js`: カードのポインター/タッチ移動
+4. `features/sheet/02-viewport-controls.js`: パン、ズーム、表示上の入力イベント
+
+HTML やテンプレートには inline handler を置かず、動的操作は `data-action` または `addEventListener` で所有します。互換用の `window` 公開関数は既存画面から呼ばれる薄い入口に限ります。

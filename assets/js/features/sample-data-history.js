@@ -143,11 +143,20 @@ function cloneSampleMember(member = {}) {
     };
 }
 
+function getSampleMemberLimitForCars(drivers = []) {
+    return drivers.reduce((total, driver) => {
+        const capacity = Math.max(0, Number(driver.capacity) || 0);
+        return total + capacity;
+    }, 0);
+}
+
 function createSampleCarPlan(carCount = 3) {
     const drivers = getSampleDrivers().slice(0, Math.max(2, Math.min(5, Number(carCount) || 3)));
-    const members = getSampleMembers().map(cloneSampleMember);
+    const seatCount = getSampleMemberLimitForCars(drivers);
+    // サンプル投入直後に「入りきらない人」が出ないよう、車の席数ぶんだけ参加者を使う。
+    const members = getSampleMembers().slice(0, seatCount).map(cloneSampleMember);
     let cursor = 0;
-    const cars = drivers.map((driver, index) => {
+    const cars = drivers.map((driver) => {
         const count = Math.max(0, Number(driver.capacity) || 3);
         const assigned = members.slice(cursor, cursor + count);
         cursor += count;
@@ -166,7 +175,7 @@ function createSampleCarPlan(carCount = 3) {
         name: '車割',
         templateType: 'car',
         lastAutoAssignLabel: 'サンプル配置',
-        waiting: members.slice(cursor),
+        waiting: [],
         cars
     };
 }
@@ -300,7 +309,7 @@ window.showHistory = () => {
             badge.className = 'badge bg-primary rounded-pill';
             badge.textContent = '復元';
             btn.append(meta, badge);
-            btn.onclick = async () => {
+            btn.addEventListener('click', async () => {
                 if (await appConfirm('この状態に復元しますか？現在の状態は一時的にバックアップされます。', { title: '履歴を復元', okText: '復元' })) {
                     lastHistoryRestoreBackup = getData();
                     restore(migrateAppData(h.data));
@@ -314,7 +323,7 @@ window.showHistory = () => {
                         showAppNotice('復元前の状態に戻しました');
                     });
                 }
-            };
+            });
             container.appendChild(btn);
         });
     }

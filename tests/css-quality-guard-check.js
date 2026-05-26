@@ -16,7 +16,7 @@ function walk(dir) {
 const cssFiles = walk(cssRoot).filter(file => file.endsWith('.css'));
 const loadedCss = [...html.matchAll(/\.\/assets\/css\/([^\"]+\.css)/g)].map(match => match[1]);
 
-const discouragedNames = loadedCss.filter(file => /(?:repair|guard|fix)/i.test(path.basename(file)));
+const discouragedNames = loadedCss.filter(file => /(?:repair|guard|fix|final|adjustments?|follow-?up)/i.test(path.basename(file)));
 if (discouragedNames.length) {
   console.error('Loaded CSS filenames should describe ownership, not repair history:', discouragedNames.join(', '));
   process.exit(1);

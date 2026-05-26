@@ -62,6 +62,22 @@ assert(templates.summary({ expectedCollected: 1000, perPerson: 500, payerCount: 
 assert(templates.emptyState().includes('人数だけで精算'), 'empty state template should render after split');
 assert(templates.routeCandidateButton('上高地').includes('data-route-candidate'), 'route candidate template should render after split');
 
+const carSummaryHtml = templates.cars({
+  data: { cars: [{ name: '武藤俊樹' }] },
+  result: {
+    cars: [{
+      name: '武藤俊樹',
+      gas: 2125,
+      extras: [{ name: '駐車場代', amount: 200, amountValue: 200, type: 'split' }],
+      totalPay: 2325
+    }]
+  },
+  issues: { rows: new Set(), messages: [] },
+  helpers: { yen: value => `¥${Number(value || 0).toLocaleString()}` }
+});
+assert(carSummaryHtml.includes('ガソリン代'), 'car summary should render gas cost');
+assert(/ガソリン代[\s\S]*?<span class="seisan-amount-sign" aria-hidden="true">＋<\/span>/.test(carSummaryHtml), 'gas cost amount should show a plus sign like other positive cost rows');
+
 const driverPayHtml = templates.driverPay({
   result: {
     cars: [{

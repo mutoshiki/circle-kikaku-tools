@@ -8,8 +8,8 @@
 
 1. `assets/css/tokens/*`  
    色、テーマ土台、リセット、Bootstrap補正、入力欄の基礎。
-2. `assets/css/components/00-component-contracts.css`  
-   共通の面、金額、タグ、入力欄、タブ、アイコンの契約クラス。
+2. `assets/css/components/*`  
+   共通の面、金額、タグ、入力欄、タブ、ボタン、アイコンの契約クラス。
 3. `assets/css/app-shell/*`  
    アプリ外枠、編集バー、ヘッダー、ルーム欄、モバイルヘッダー。
 4. `assets/css/theme/*`  
@@ -22,8 +22,8 @@
    精算ページ、サマリー、入力、距離補助、集金/支払チェック、共有文面、費用タグ、ダーク面、車別費用。
 8. `assets/css/sheet-view/*`  
    発表ビュー、待機欄、タイムテーブル、編集モード、印刷/ズーム。
-9. `07-drag-interactions.css` / `08-utilities.css` / `components/buttons/*` / `components/surfaces/*`  
-   横断的なドラッグ補助、ユーティリティ、ボタン体系、面と枠線の階層。
+9. `07-drag-interactions.css` / `08-utilities.css`  
+   横断的なドラッグ補助とユーティリティ。
 
 旧集約CSS、修正履歴名のCSS、巨大なowner CSSは削除済みです。
 
@@ -71,7 +71,7 @@
 
 - `!important` を使わない。
 - `@import` を使わない。CSSは `index.html` から直接読む。
-- `repair`、`guard`、`fix`、`continued` のような修正履歴名のCSSファイルを作らない。
+- `repair`、`guard`、`fix`、`continued`、`final`、`adjustments`、`followup` のような修正履歴名のCSSファイルを作らない。
 - 1ファイルが大きくなったら、その場で責務別に分ける。
 - 枠線を足す前に `components/surfaces/*` を確認する。
 - 金額表示を足す前に `.ui-amount` を使う。

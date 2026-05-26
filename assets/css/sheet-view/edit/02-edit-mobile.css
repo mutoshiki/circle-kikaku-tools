@@ -2,7 +2,7 @@
 body.quick-edit-mode #sheet-view-area .sheet-chip-text {
   font-weight: 850;
 }
-/* Quick sheet edit final polish: editing should not dim member names. */
+/* Quick sheet edit readability: editing should not dim member names. */
 body.quick-edit-mode #sheet-view-area :where(.sheet-chip, .sheet-chip-text) {
   color: var(--text-main);
   -webkit-text-fill-color: var(--text-main);

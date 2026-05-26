@@ -210,3 +210,20 @@ html[data-theme="dark"] body :where(#sheet-summary, .sheet-summary-pill, .sheet-
   justify-self: center;
   display: none;
 }
+
+/* Committed sheet members remain legible after drag or quick-edit completion. */
+#sheet-view-area :where(.sheet-chip, .sheet-chip-text, .sheet-cell-text, .sheet-driver-name) {
+  opacity: 1;
+  filter: none;
+}
+#sheet-view-area :where(.sheet-chip-text, .sheet-cell-text, .sheet-driver-name) {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+#sheet-view-area .sheet-chip.manual-sheet-drag-source:not(.manual-sheet-drag-float) {
+  opacity: 1;
+  filter: none;
+}
+body:not(.manual-sheet-dragging) #sheet-view-area .sheet-chip.manual-sheet-drag-source {
+  visibility: visible;
+}

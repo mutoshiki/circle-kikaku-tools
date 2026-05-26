@@ -20,6 +20,8 @@ for (const file of cssLinks) {
 const requiredOrder = [
   'tokens/01-color-scheme.css',
   'components/00-component-contracts.css',
+  'components/surfaces/01-surface-tokens.css',
+  'components/buttons/01-button-base.css',
   'app-shell/00-base-extracted.css',
   'app-shell/header/01-header-base.css',
   'theme/01-theme-tokens.css',
@@ -28,9 +30,7 @@ const requiredOrder = [
   'settlement/00-base-extracted.css',
   'sheet-view/layout/01-sheet-frame.css',
   '07-drag-interactions.css',
-  '08-utilities.css',
-  'components/buttons/01-button-base.css',
-  'components/surfaces/01-surface-tokens.css'
+  '08-utilities.css'
 ];
 let last = -1;
 for (const file of requiredOrder) {

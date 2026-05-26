@@ -1,7 +1,7 @@
 const assert = require('assert');
 const { readText } = require('./helpers/read-project');
 
-const debug = readText('assets/js/features/debug-history.js');
+const debug = readText('assets/js/features/sample-data-history.js');
 
 assert(debug.includes('function createSampleTimetableItems()'), 'sample data should include timetable helper');
 assert(debug.includes("{ time: '08:00', title: '大学集合・受付' }"), 'sample timetable should include visible start time');

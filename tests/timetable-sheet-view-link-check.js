@@ -11,6 +11,7 @@ const assert = (condition, message) => {
 };
 
 const sheet = readText('assets/js/features/sheet-view.js');
+const viewport = readText('assets/js/features/sheet/02-viewport-controls.js');
 const events = readText('assets/js/features/events/02-static-header-events.js');
 const css = readCssBundle();
 const sync = readText('assets/js/core/sync-controller.js');
@@ -20,7 +21,7 @@ assert(sheet.includes('function createSheetTimetableSection()'), 'Sheet view sho
 assert(sheet.includes('canvas.appendChild(timetableSection)'), 'Timetable should be appended under car/team plan sections.');
 assert(sheet.includes('linkifySheetTimetableText') && sheet.includes('class="sheet-timetable-link"'), 'Timetable URLs should be linkified in the sheet view.');
 assert(sheet.includes('target="_blank"') && sheet.includes('rel="noopener noreferrer"'), 'Sheet timetable links should open safely.');
-assert(sheet.includes('isSheetInteractiveTarget(e.target)'), 'Sheet panning should not steal taps from timetable links.');
+assert(viewport.includes('isSheetInteractiveTarget(e.target)'), 'Sheet panning should not steal taps from timetable links.');
 assert(css.includes('発表ビュー: 車割・班割の下にタイムテーブルを表示する'), 'Timetable sheet CSS note is missing.');
 assert(css.includes('.sheet-timetable-link') && css.includes('var(--palette-blue-600)'), 'Timetable links should have a blue treatment.');
 assert(events.includes('global.SanpoOverview') && events.includes('getSnapshot') && events.includes('applySnapshot'), 'Overview data should expose a shared snapshot API.');
