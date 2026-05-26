@@ -6,7 +6,7 @@
     function setupAppEventListeners() {
         const events = global.SanpoEvents || {};
         events.bindCoreStartupEvents?.();
-        setupAppearanceFooterSafety();
+        global.setupAppearanceFooterSafety?.();
         events.setupStaticHeaderEvents?.();
         events.setupGeneratedHtmlEventDelegation?.();
         events.setupSettlementInputEvents?.();

@@ -4,7 +4,6 @@ function initializeAppModals() {
     modals.edit = new bootstrap.Modal($('#commonEditModal'));
     modals.batch = new bootstrap.Modal($('#batchImportModal'));
     modals.globalGuide = new bootstrap.Modal($('#globalGuideModal'));
-    modals.appearance = new bootstrap.Modal($('#appearanceModal'));
     modals.guide = new bootstrap.Modal($('#guideModal'));
     modals.seisanGuide = new bootstrap.Modal($('#seisanGuideModal'));
     modals.routeDistance = new bootstrap.Modal($('#routeDistanceModal'));

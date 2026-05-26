@@ -35,7 +35,6 @@ const requiredLeafOwners = [
   'app-shell/header/01-header-base.css',
   'app-shell/header/04-mobile-layout.css',
   'theme/01-theme-tokens.css',
-  'theme/03-theme-picker.css',
   'guides-modals/modal/01-modal-base.css',
   'guides-modals/guide/01-guide-cards.css',
   'guides-modals/dialog/01-dialog-shell.css',
@@ -49,7 +48,6 @@ for (const file of requiredLeafOwners) {
   assert(fs.existsSync(path.join(root, 'assets/css', file)), `${file} is missing`);
 }
 
-assert(!css.includes('.guide-feature-card,\n.theme-system-note'), 'guide feature cards must not be styled from theme appearance');
 assert(css.includes('.guide-feature-card'), 'guide feature card styles should live in guides/modals leaf CSS');
 
 console.log('CSS fixed scope owner check OK');

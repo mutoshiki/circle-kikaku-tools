@@ -7,8 +7,8 @@ const cssDir = path.join(root, 'assets', 'css');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const appearanceAndRepair = readCssBundle();
 
-if (!appearanceAndRepair.includes('#appearanceModal .theme-picker') || !appearanceAndRepair.includes('.appearance-modal')) {
-  console.error('Theme picker owner selectors are missing');
+if (html.includes('appearanceModal') || html.includes('theme-picker')) {
+  console.error('Theme picker should be removed from the single-theme build');
   process.exit(1);
 }
 

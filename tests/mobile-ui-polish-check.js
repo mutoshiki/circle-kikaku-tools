@@ -7,7 +7,6 @@ const required = [
   '[data-theme="dark"] .app-header-main',
   '[data-theme="dark"] .member-card',
   '[data-theme="dark"] #bottom-tray',
-  '#appearanceModal .modal-footer',
 ];
 
 const haystack = `${html}

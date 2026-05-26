@@ -1,13 +1,4 @@
 /* Moved from assets/css/settlement/03-car-inputs.css; source-order chunk 4/5. */
-#app-header,
-#view-toggle-bar,
-.edit-header-tools-only,
-.seisan-card,
-.car-box,
-#bottom-tray,
-#sheet-title-bar,
-#sheet-bottom-controls,
-.sheet-empty-card,
 .modal-content,
 .dropdown-menu,
 .person-pop-menu,
@@ -29,11 +20,6 @@
 .batch-import-help-details {
   border-color: var(--ui-readable-divider);
 }
-#view-toggle-bar,
-.edit-header-tools-only,
-.seisan-card,
-.car-box,
-.sheet-empty-card,
 .batch-spreadsheet-import {
   background: var(--ui-saas-panel);
 }
@@ -43,7 +29,7 @@
   border-color: color-mix(in srgb, var(--accent-color) 58%, var(--border-color));
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 14%, transparent);
 }
-#app-header, #view-toggle-bar, .edit-header-tools-only, .seisan-card, .car-box, #bottom-tray, #sheet-title-bar, #sheet-bottom-controls, .sheet-empty-card, .modal-content, .dropdown-menu, .person-pop-menu, .batch-spreadsheet-import, .theme-preview-panel, .theme-app-preview, .theme-preset-card {
+.modal-content, .dropdown-menu, .person-pop-menu, .batch-spreadsheet-import, .theme-preview-panel, .theme-app-preview, .theme-preset-card {
   border: 1px solid var(--ui-panel-border);
   border-radius: var(--radius-lg);
   background: var(--ui-saas-panel-raised);
@@ -120,15 +106,6 @@
   border-color: color-mix(in srgb, var(--border-color) 60%, transparent);
   background: color-mix(in srgb, var(--bg-body) 70%, var(--bg-card));
 }
-#app-header,
-#view-toggle-bar,
-.edit-header-tools-only,
-.seisan-card,
-.car-box,
-#bottom-tray,
-#sheet-title-bar,
-#sheet-bottom-controls,
-.sheet-empty-card,
 .modal-content,
 .dropdown-menu,
 .person-pop-menu,
@@ -153,7 +130,7 @@
 .overview-panel-title-row {
   border-color: var(--ui-unified-divider);
 }
-[data-theme="dark"] :where(#app-header, #view-toggle-bar, .edit-header-tools-only, .seisan-card, .car-box, #bottom-tray, #sheet-title-bar, #sheet-bottom-controls, .sheet-car-col, .sheet-wait-block, .overview-drawer, .modal-content, .dropdown-menu) {
+[data-theme="dark"] :where(.sheet-car-col, .sheet-wait-block, .overview-drawer, .modal-content, .dropdown-menu) {
   border-color: var(--ui-saas-border);
   background-color: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
   box-shadow: var(--ui-saas-shadow-soft);

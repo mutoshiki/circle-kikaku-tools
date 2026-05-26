@@ -15,7 +15,7 @@ function assert(condition, message) {
 
 function extractPresetScopes() {
   const presets = [];
-  const re = /"scope": "([^"]+)",[\s\S]*?"palette": "([^"]+)"/g;
+  const re = /scope:\s*['\"]([^'\"]+)['\"][\s\S]*?palette:\s*['\"]([^'\"]+)['\"]/g;
   let match;
   while ((match = re.exec(js))) presets.push({ scope: match[1], palette: match[2] });
   return presets;
@@ -39,6 +39,8 @@ const darkAllowed = darkCards;
 
 assert(lightCards.length > 0, 'light presets missing from renderer data');
 assert(darkCards.length > 0, 'dark presets missing from renderer data');
+assert(lightCards.length === 3, 'light preset count should stay at 3');
+assert(darkCards.length === 3, 'dark preset count should stay at 3');
 assert(new Set(lightCards).size === lightCards.length, 'light theme cards include duplicate palettes');
 assert(new Set(darkCards).size === darkCards.length, 'dark theme cards include duplicate palettes');
 assert(js.includes('idsByScope'), 'theme registry should derive allowed ids by scope');

@@ -171,7 +171,6 @@
     function setupStaticHeaderEvents() {
         setupOverviewMenuFields();
         bind('globalGuideBtn', () => global.modals?.globalGuide?.show());
-        bind('appearanceSettingsBtn', () => openAppearanceModal());
         bind('historyBtn', () => { if (canUseUnlockedMenuAction()) global.showHistory?.(); });
         bind('sampleDataBtn', () => { if (canUseUnlockedMenuAction()) global.openDebugModal?.(); });
         bind('resetDataBtn', () => { if (canUseUnlockedMenuAction()) global.resetData(); });
