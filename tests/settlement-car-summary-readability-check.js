@@ -16,7 +16,7 @@ assert(templates.includes('seisan-extra-inline--offset') && templates.includes("
 assert(templates.includes('seisan-car-summary-headline'), 'car name and edit button should stay in one headline row');
 assert(templates.includes('aria-label="車主への支払い金額"'), 'payment amount should be labeled as the amount paid to the car owner');
 assert(templates.includes('function formatPaymentTotalRow') && templates.includes('seisan-cost-total-row'), 'payment total should render below all cost rows');
-assert(templates.includes('<strong class="seisan-car-summary-name"><span>${esc(car.name, helpers)}</span><em>車</em></strong>'), 'driver name and 車 label should be separated for readability');
+assert(templates.includes('<strong class="seisan-car-summary-name">${esc(car.name, helpers)}車${calc.usesTimesRental ? \'（レンタカー）\' : \'\'}</strong>'), 'driver name, 車, and rental marker should use one plain text style');
 assert(!templates.includes('seisan-total-emphasis'), 'payment amount should not use the old separate emphasis block');
 assert(!templates.includes('const extraTotal ='), 'extra total summary should not be displayed beside the expense label');
 assert(!templates.includes('<span class="seisan-cost-preview-detail-text">割勘対象</span>'), 'gas cost should use the same simple split label style as extras');

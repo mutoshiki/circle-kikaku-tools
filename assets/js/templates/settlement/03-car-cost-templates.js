@@ -41,7 +41,7 @@
     ]);
     return `<article class="seisan-car-summary-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}">
         <div class="seisan-car-summary-headline">
-          <strong class="seisan-car-summary-name"><span>${esc(car.name, helpers)}</span><em>車</em></strong>
+          <strong class="seisan-car-summary-name">${esc(car.name, helpers)}車${calc.usesTimesRental ? '（レンタカー）' : ''}</strong>
           <button class="seisan-btn seisan-edit-btn" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><i class="fas fa-pen" aria-hidden="true"></i><span>編集</span></button>
         </div>
         <div class="seisan-cost-preview-list" aria-label="費用内訳">
@@ -55,23 +55,27 @@
 
     function carRow({ car, cState, calc, extras, issues, helpers = {} }) {
     const fieldErrorClass = helpers.fieldErrorClass || (() => '');
-    const rowClass = issues.rows.has(car.name) ? ' has-error' : '';
-    const offsetText = calc.collectionOffset ? ` / 集金 -${money(calc.collectionOffset, helpers)}` : '';
-    const details = `ガソリン代 ${money(calc.gas || 0, helpers)} / 諸経費 ${money((calc.splitExtras || 0) + (calc.clubExtras || 0), helpers)}${offsetText}`;
+    const usesTimesRental = cState.rentalType === 'times' || calc.usesTimesRental;
+    const rowClass = `${issues.rows.has(car.name) ? ' has-error' : ''}${usesTimesRental ? ' is-times-rental' : ''}`;
+    const offsetText = calc.collectionOffset ? ` / 車出し分 -${money(calc.collectionOffset, helpers)}` : '';
+    const fuelText = usesTimesRental ? 'タイムズ' : `ガソリン代 ${money(calc.gas || 0, helpers)}`;
+    const details = `${fuelText} / 諸経費 ${money((calc.splitExtras || 0) + (calc.clubExtras || 0), helpers)}${offsetText}`;
     const standaloneIndex = Number.isInteger(car.standaloneIndex) ? car.standaloneIndex : null;
     const standaloneData = standaloneIndex == null ? '' : ` data-standalone-driver-index="${standaloneIndex}"`;
     const standaloneNameField = standaloneIndex == null ? '' : `<label class="seisan-standalone-driver-name-field"><span class="seisan-mini-label">車出し名</span><input type="text" data-field="standaloneDriverName" value="${esc(car.name, helpers)}" placeholder="車出し${standaloneIndex + 1}" autocomplete="off"></label>`;
+    const rentalType = usesTimesRental ? 'times' : 'private';
     return `<div class="seisan-car-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}"${standaloneData}>
         <div class="seisan-car-title"><strong>${esc(car.name, helpers)} 車</strong><span class="seisan-car-total ${UI_CLASS.amount}">支払 ${money(calc.adjustedTotalPay ?? calc.totalPay, helpers)}</span></div>
         ${standaloneNameField}
         <div class="seisan-small">${details}</div>
         <div class="seisan-car-inputs">
+          <div class="seisan-times-toggle-field"><span class="seisan-mini-label">レンタカー設定</span><label class="seisan-times-toggle"><input type="checkbox" data-field="rentalType" value="times" ${rentalType === 'times' ? 'checked' : ''} aria-label="レンタカー（タイムズ）"><span class="seisan-times-toggle-ui" aria-hidden="true"></span><span class="seisan-times-toggle-text">レンタカー（タイムズ）</span></label></div>
           <div class="seisan-distance-field">
             <label><span class="seisan-mini-label">移動距離（km）</span><input type="number" inputmode="decimal" data-field="dist" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'dist')}" value="${esc(cState.dist || '', helpers)}"></label>
             <button class="seisan-distance-shortcut" type="button" data-action="open-route-helper-shortcut" title="距離計算ツールを開く" aria-label="距離計算ツールを開く"><i class="fas fa-route" aria-hidden="true"></i><span>距離計算ツール</span></button>
           </div>
-          <label><span class="seisan-mini-label">燃費（km/L）</span><input type="number" inputmode="decimal" data-field="eco" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'eco')}" value="${esc(cState.eco || '', helpers)}"></label>
-          <label><span class="seisan-mini-label">ガソリン単価（円/L）</span><input type="number" inputmode="decimal" data-field="price" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'price')}" value="${esc(cState.price || '', helpers)}"></label>
+          <label class="seisan-fuel-field"><span class="seisan-mini-label">燃費（km/L）</span><input type="number" inputmode="decimal" data-field="eco" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'eco')}" value="${esc(cState.eco || '', helpers)}"></label>
+          <label class="seisan-fuel-field"><span class="seisan-mini-label">ガソリン単価（円/L）</span><input type="number" inputmode="decimal" data-field="price" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'price')}" value="${esc(cState.price || '', helpers)}"></label>
         </div>
         <div class="seisan-subhead"><strong>諸経費</strong></div>
         <div class="seisan-extra-list">

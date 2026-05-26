@@ -4,6 +4,25 @@
 
     const events = global.SanpoEvents || {};
 
+
+    function isTimesRentalInput(row) {
+        const rentalField = row?.querySelector?.('[data-field="rentalType"]');
+        if (!rentalField) return false;
+        return rentalField.type === 'checkbox' ? rentalField.checked : rentalField.value === 'times';
+    }
+
+    function updateTimesDistanceFeeInRow(row) {
+        if (!row || !isTimesRentalInput(row) || typeof getTimesDistanceFee !== 'function') return;
+        const dist = row.querySelector('[data-field="dist"]')?.value || '';
+        const amount = String(getTimesDistanceFee(dist));
+        const distanceRow = row.querySelector('.seisan-extra-row[data-times-extra="distance"]') || Array.from(row.querySelectorAll('.seisan-extra-row')).find(extraRow => {
+            const name = extraRow.querySelector('[data-extra-field="name"]')?.value || '';
+            return String(name).replace(/\s+/g, '').replace(/[（）()]/g, '') === 'タイムズ移動料金';
+        });
+        const amountInput = distanceRow?.querySelector?.('[data-extra-field="amount"]');
+        if (amountInput && amountInput.value !== amount) amountInput.value = amount;
+    }
+
     function setupSettlementInputEvents() {
         if (document.documentElement.dataset.settlementInputEventsBound === 'true') return;
         document.documentElement.dataset.settlementInputEventsBound = 'true';
@@ -32,6 +51,7 @@
         document.addEventListener('input', event => {
             const target = event.target;
             if (target?.matches?.('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
+                if (target.matches('[data-field="dist"]')) updateTimesDistanceFeeInRow(target.closest('.seisan-car-row'));
                 global.onSettlementInputDelayed?.();
                 return;
             }
@@ -56,7 +76,21 @@
             const target = event.target;
             if (!target?.matches) return;
 
+            if (target.matches('.seisan-car-row [data-field="rentalType"]')) {
+                syncSettlementStateFromDOM?.();
+                const row = target.closest('.seisan-car-row');
+                const name = row?.dataset?.driverName || '';
+                if (name && typeof refreshSettlementCarEditor === 'function') refreshSettlementCarEditor(name);
+                renderSettlementView?.({ force: true });
+                save?.();
+                return;
+            }
+
             if (target.matches('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
+                if (target.matches('[data-extra-field="type"]')) {
+                    target.classList.toggle('split', target.value !== 'club');
+                    target.classList.toggle('club', target.value === 'club');
+                }
                 global.onSettlementInput?.();
                 return;
             }

@@ -41,7 +41,7 @@ function buildSettlementOverviewText({ title, state, result }) {
     const driverLines = result.cars.map(car => {
         const paidMark = state.driverPaid?.[car.name] ? '（支払い済み）' : '';
         const details = [
-            `ガソリン代：${yen(car.gas)}`,
+            car.usesTimesRental ? 'ガソリン代：なし（タイムズ）' : `ガソリン代：${yen(car.gas)}`,
             `諸経費：${formatSettlementExtraDetail(car)}`
         ];
         if (car.collectionOffset) details.push(`集金：-${yen(car.collectionOffset)}`);

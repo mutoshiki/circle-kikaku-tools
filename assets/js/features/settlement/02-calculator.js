@@ -27,13 +27,21 @@ function calculateSettlement(data, state) {
         const dist = getNumberValue(cState.dist);
         const eco = getNumberValue(cState.eco);
         const price = getNumberValue(cState.price);
-        const gas = dist > 0 && eco > 0 && price > 0 ? Math.round((dist / eco) * price) : 0;
-        const extras = cState.extras.map(normalizeExtraItem).filter(hasMeaningfulExtra).map(ex => ({
-            ...ex,
-            type: isDriverRewardExtra(ex) ? 'club' : ex.type,
-            amountValue: getNumberValue(ex.amount),
-            isDriverReward: isDriverRewardExtra(ex)
-        }));
+        const usesTimesRental = isTimesRentalCar(cState);
+        const gas = !usesTimesRental && dist > 0 && eco > 0 && price > 0 ? Math.round((dist / eco) * price) : 0;
+        const timesDistanceFee = usesTimesRental ? getTimesDistanceFee(cState.dist) : 0;
+        const extras = cState.extras.map(normalizeExtraItem).filter(hasMeaningfulExtra).map(ex => {
+            const isTimesDistanceFee = usesTimesRental && isTimesDistanceFeeExtra(ex);
+            const isDriverReward = isDriverRewardExtra(ex);
+            return {
+                ...ex,
+                type: isDriverReward ? 'club' : ex.type,
+                amount: isTimesDistanceFee ? String(timesDistanceFee) : ex.amount,
+                amountValue: isTimesDistanceFee ? timesDistanceFee : getNumberValue(ex.amount),
+                isDriverReward: isDriverRewardExtra(ex),
+                isTimesDistanceFee
+            };
+        });
         const splitExtras = extras.filter(ex => ex.type === 'split').reduce((sum, ex) => sum + ex.amountValue, 0);
         const clubExtras = extras.filter(ex => ex.type === 'club').reduce((sum, ex) => sum + ex.amountValue, 0);
         const rewardAmount = extras.filter(ex => ex.isDriverReward).reduce((sum, ex) => sum + ex.amountValue, 0);
@@ -45,7 +53,20 @@ function calculateSettlement(data, state) {
         totalClub += clubExtras;
         totalReward += rewardAmount;
         totalDriverRound += driverRound;
-        return { name: car.name, gas, extras, splitExtras, clubExtras, reward: rewardAmount, rawPay, totalPay, driverRound };
+        return {
+            name: car.name,
+            gas,
+            rentalType: cState.rentalType,
+            usesTimesRental,
+            timesDistanceFee,
+            extras,
+            splitExtras,
+            clubExtras,
+            reward: rewardAmount,
+            rawPay,
+            totalPay,
+            driverRound
+        };
     });
 
     const perPerson = shareCount > 0 ? roundUp(totalSplit / shareCount, rounding) : 0;
@@ -105,18 +126,28 @@ function getSettlementIssues(data, state, result) {
     if (result.payerCount <= 0 && participants.length > 0) messages.push('集金対象が0人です。企画者・車出し設定を確認してください。');
 
     (data.cars || []).forEach(car => {
-        const cState = normalizeCarSettlementState(state.cars?.[car.name] || {});
-        const hasAnyFuel = ['dist','eco','price'].some(k => String(cState[k] ?? '').trim());
-        if (hasAnyFuel) {
-            ['dist','eco','price'].forEach(k => {
-                const raw = String(cState[k] ?? '').trim();
-                if (!raw || getNumberValue(raw) <= 0) {
-                    fields.add(`${car.name}:${k}`);
-                    rows.add(car.name);
+        const cState = ensureDriverRewardExtra(state.cars?.[car.name] || {}, state);
+        const usesTimesRental = isTimesRentalCar(cState);
+        if (usesTimesRental) {
+            const distRaw = String(cState.dist ?? '').trim();
+            if (!distRaw || getNumberValue(distRaw) <= 0) {
+                fields.add(`${car.name}:dist`);
+                rows.add(car.name);
+                messages.push(`${car.name}車のタイムズ移動料金に移動距離が必要です。`);
+            }
+        } else {
+            const hasAnyFuel = ['dist','eco','price'].some(k => String(cState[k] ?? '').trim());
+            if (hasAnyFuel) {
+                ['dist','eco','price'].forEach(k => {
+                    const raw = String(cState[k] ?? '').trim();
+                    if (!raw || getNumberValue(raw) <= 0) {
+                        fields.add(`${car.name}:${k}`);
+                        rows.add(car.name);
+                    }
+                });
+                if (fields.has(`${car.name}:dist`) || fields.has(`${car.name}:eco`) || fields.has(`${car.name}:price`)) {
+                    messages.push(`${car.name}車のガソリン計算に未入力または0があります。`);
                 }
-            });
-            if (fields.has(`${car.name}:dist`) || fields.has(`${car.name}:eco`) || fields.has(`${car.name}:price`)) {
-                messages.push(`${car.name}車のガソリン計算に未入力または0があります。`);
             }
         }
         cState.extras.forEach((ex, i) => {
@@ -127,7 +158,7 @@ function getSettlementIssues(data, state, result) {
                 rows.add(car.name);
                 messages.push(`${car.name}車の諸経費に名目が空の行があります。`);
             }
-            if (hasName && !hasAmount) {
+            if (hasName && !hasAmount && !isTimesTimeFeeExtra(ex)) {
                 fields.add(`${car.name}:extra:${i}:amount`);
                 rows.add(car.name);
                 messages.push(`${car.name}車の「${hasName}」の金額が空です。`);

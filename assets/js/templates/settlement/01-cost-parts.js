@@ -44,6 +44,7 @@
   }
 
     function formatGasInline(calc, helpers = {}) {
+    if (calc?.usesTimesRental) return '';
     return `<span class="seisan-extra-inline seisan-cost-line seisan-extra-inline--gas split"><span>ガソリン代</span><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.gas || 0, helpers)}</strong>${formatCostBadge('split')}</span>`;
   }
 
