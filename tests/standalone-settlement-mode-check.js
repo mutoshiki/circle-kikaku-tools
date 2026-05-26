@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+const { readSettlementTemplateBundle } = require('./helpers/read-project');
 
 const root = path.resolve(__dirname, '..');
 const state = fs.readFileSync(path.join(root, 'assets/js/features/settlement/01-state.js'), 'utf8');
 const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const templates = fs.readFileSync(path.join(root, 'assets/js/templates/settlement-templates.js'), 'utf8');
+const templates = readSettlementTemplateBundle();
 
 const requiredStateSnippets = [
   "standalone: {",

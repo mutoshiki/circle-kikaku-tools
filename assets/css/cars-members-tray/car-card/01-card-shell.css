@@ -1,0 +1,206 @@
+/* Moved from assets/css/cars-members-tray/04-car-card.css; source-order chunk 1/5. */
+[data-theme="dark"] .car-box.over-capacity {
+background: rgba(239, 68, 68, 0.15);
+}
+.driver-label {
+display: none;
+}
+.seat-slot > .swap-preview-card {
+position: absolute;
+    inset: 3px;
+    z-index: var(--z-local-raised);
+    margin: 0;
+    min-height: 0;
+    box-sizing: border-box;
+}
+.seat-slot,
+.driver-seat {
+border-radius: var(--radius-sm);
+}
+.car-header,
+.driver-name-disp {
+font-weight: 700;
+}
+.car-box,
+.driver-seat {
+min-width: 0;
+}
+.car-box > .d-flex:first-child,
+.car-box .car-box-head,
+.car-box .car-head,
+.car-box .car-header {
+min-width: 0;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+@media (max-width: 640px) {
+.car-box {
+padding: 9px;
+}
+}
+@media (max-width: 640px) {
+.driver-seat {
+min-height: 80px;
+}
+}
+@media (max-width: 640px) {
+.driver-seat {
+min-height: 96px;
+}
+}
+@media (max-width: 420px) {
+.car-header > div {
+width: 100%;
+        justify-content: stretch;
+}
+}
+@media (max-width: 420px) {
+.car-header .delete-btn {
+margin-left: auto;
+}
+}
+@media (max-width: 640px) {
+.driver-seat {
+min-height: 104px;
+}
+}
+@media (max-width: 640px) {
+.driver-name-disp {
+font-size: 0.96rem;
+}
+}
+@media (max-width: 640px) {
+.driver-action-row {
+gap: 7px;
+}
+}
+@media (max-width: 640px) {
+.car-box {
+padding: 12px;
+}
+}
+@media (max-width: 640px) {
+.car-box {
+padding: 12px;
+}
+}
+@media (max-width: 640px) {
+.driver-seat,
+.seat-slot {
+padding: 9px 10px;
+}
+}
+@media (max-width: 640px) {
+.car-box {
+padding: 12px ;
+        margin-bottom: 12px ;
+        border-radius: var(--radius-main) ;
+}
+}
+@media (max-width: 640px) {
+.car-header {
+gap: 10px ;
+        padding-bottom: 10px ;
+        margin-bottom: 10px ;
+}
+}
+@media (max-width: 640px) {
+.car-header > span,
+.car-header > strong {
+font-size: 1.02rem ;
+        line-height: 1.25 ;
+}
+}
+@media (max-width: 640px) {
+.car-header > div {
+display: grid ;
+        grid-template-columns: minmax(0, 1fr) 44px ;
+        gap: 8px ;
+        align-items: center ;
+        width: 100% ;
+}
+}
+@media (max-width: 640px) {
+.car-header .delete-btn {
+width: var(--mobile-touch) ;
+        height: var(--mobile-touch) ;
+        min-width: var(--mobile-touch) ;
+        min-height: var(--mobile-touch) ;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm) ;
+        background: var(--bg-body);
+        color: var(--text-sub);
+        display: inline-flex ;
+        align-items: center ;
+        justify-content: center ;
+        opacity: 0.9;
+        margin: 0 ;
+        font-size: 1rem ;
+}
+}
+@media (max-width: 640px) {
+.car-layout-grid {
+gap: 8px ;
+}
+}
+@media (max-width: 640px) {
+.driver-main-line {
+min-height: 30px ;
+        padding: 0 ;
+        display: flex ;
+        align-items: flex-start ;
+}
+}
+@media (max-width: 640px) {
+.driver-name-disp {
+font-size: 0.96rem ;
+        line-height: 1.25 ;
+        font-weight: 900 ;
+        letter-spacing: 0 ;
+}
+}
+@media (max-width: 640px) {
+.driver-action-row {
+display: grid ;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) ;
+        gap: 6px ;
+        margin-top: 8px ;
+        width: 100% ;
+}
+}
+@media (max-width: 640px) {
+.driver-action-row {
+grid-template-columns: 1fr ;
+}
+}
+@media (max-width: 420px) {
+.driver-name-disp {
+font-size: 0.9rem;
+}
+}
+@media (max-width: 360px) {
+.car-layout-grid {
+grid-template-columns: 1fr;
+}
+}
+@media (max-width: 640px) {
+.car-box {
+padding: 10px;
+        margin-bottom: 10px;
+        border-radius: var(--radius-main);
+}
+}
+@media (max-width: 640px) {
+.car-header {
+gap: 8px;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+}
+}
+@media (max-width: 640px) {
+.car-header > span,
+.car-header > strong {
+font-size: 0.98rem;
+        line-height: 1.2;
+}
+}

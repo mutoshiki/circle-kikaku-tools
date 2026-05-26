@@ -16,6 +16,21 @@ function walk(dir) {
 const cssFiles = walk(cssRoot).filter(file => file.endsWith('.css'));
 const loadedCss = [...html.matchAll(/\.\/assets\/css\/([^\"]+\.css)/g)].map(match => match[1]);
 
+const discouragedNames = loadedCss.filter(file => /(?:repair|guard|fix)/i.test(path.basename(file)));
+if (discouragedNames.length) {
+  console.error('Loaded CSS filenames should describe ownership, not repair history:', discouragedNames.join(', '));
+  process.exit(1);
+}
+
+const oversizedLoadedCss = loadedCss.filter(file => {
+  const full = path.join(cssRoot, file);
+  return fs.existsSync(full) && fs.readFileSync(full, 'utf8').split(/\r?\n/).length > 1700;
+});
+if (oversizedLoadedCss.length) {
+  console.error('Loaded CSS files are too long and should be split by responsibility:', oversizedLoadedCss.join(', '));
+  process.exit(1);
+}
+
 for (const file of cssFiles) {
   const rel = path.relative(cssRoot, file).replace(/\\/g, '/');
   const content = fs.readFileSync(file, 'utf8');
@@ -31,7 +46,7 @@ for (const file of cssFiles) {
 
 const componentFiles = cssFiles.filter(file => {
   const rel = path.relative(cssRoot, file).replace(/\\/g, '/');
-  return !['00-base-tokens.css', '02-theme-appearance.css', '08-control-consistency.css'].includes(rel);
+  return !rel.startsWith('tokens/') && !rel.startsWith('theme/') && rel !== 'components/00-component-contracts.css';
 });
 
 const literalColorPattern = /(?<![\w-])#(?:[0-9a-fA-F]{3,8})\b|rgba?\(\s*(?:0|15|255)\s*,\s*(?:0|23|255)\s*,\s*(?:0|42|255)\s*,/;

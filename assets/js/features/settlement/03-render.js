@@ -90,8 +90,8 @@ function renderSettlementCarsHtml(data, state, result, issues) {
     });
 }
 
-function renderSettlementCollectionHtml(participants, state, result) {
-    return window.SanpoApp.templates.settlement.collection({ participants, state, result, helpers: { escapeHtml } });
+function renderSettlementCollectionHtml(data, participants, state, result) {
+    return window.SanpoApp.templates.settlement.collection({ data, participants, state, result, helpers: { escapeHtml } });
 }
 
 function renderSettlementDriverPayHtml(result, state) {
@@ -242,7 +242,7 @@ function renderSettlementView() {
     }
 
     const collectionList = byId('seisan-collection-list');
-    if (collectionList) collectionList.innerHTML = renderSettlementCollectionHtml(participants, state, result);
+    if (collectionList) collectionList.innerHTML = renderSettlementCollectionHtml(data, participants, state, result);
 
     const driverPayList = byId('seisan-driver-pay-list');
     if (driverPayList) driverPayList.innerHTML = renderSettlementDriverPayHtml(result, state);

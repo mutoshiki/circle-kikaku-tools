@@ -5,7 +5,7 @@ const { spawnSync } = require('child_process');
 const testsDir = __dirname;
 const skip = new Set(['run-static-tests.js', 'basic-ui.spec.js']);
 const files = fs.readdirSync(testsDir)
-  .filter(name => name.endsWith('.js') && !skip.has(name))
+  .filter(name => name.endsWith('.js') && !name.endsWith('.spec.js') && !skip.has(name))
   .sort();
 
 for (const file of files) {

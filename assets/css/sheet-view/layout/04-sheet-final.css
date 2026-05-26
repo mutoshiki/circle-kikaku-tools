@@ -1,0 +1,17 @@
+/* Moved from assets/css/sheet-view/01-sheet-layout.css; source-order chunk 4/4. */
+/* Quick edit commit hardening: edited sheet members must not stay faded after drag or completion. */
+#sheet-view-area :where(.sheet-chip, .sheet-chip-text, .sheet-cell-text, .sheet-driver-name) {
+  opacity: 1;
+  filter: none;
+}
+#sheet-view-area :where(.sheet-chip-text, .sheet-cell-text, .sheet-driver-name) {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+#sheet-view-area .sheet-chip.manual-sheet-drag-source:not(.manual-sheet-drag-float) {
+  opacity: 1;
+  filter: none;
+}
+body:not(.manual-sheet-dragging) #sheet-view-area .sheet-chip.manual-sheet-drag-source {
+  visibility: visible;
+}

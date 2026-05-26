@@ -12,7 +12,6 @@ function assert(condition, message) {
 const html = readText('index.html');
 const namespace = readText('assets/js/core/app-namespace.js');
 const dataState = readText('assets/js/core/data-state.js');
-const events = readText('assets/js/features/events.js');
 const generatedEvents = readText('assets/js/features/events/03-generated-action-events.js');
 const share = readText('assets/js/features/share-actions.js');
 const settlement = readText('assets/js/features/settlement.js');
@@ -26,7 +25,6 @@ assert(html.indexOf('assets/js/templates/sheet-templates.js') < html.indexOf('as
 assert(namespace.includes('registerActions') && namespace.includes('runAction'), 'SanpoApp action registry is missing');
 assert(namespace.includes('registerTemplates') && namespace.includes('exposeCompat'), 'SanpoApp template/compat registries are missing');
 assert(dataState.includes('state?.setSnapshot') || dataState.includes('state.setSnapshot'), 'data-state must write snapshots into SanpoApp.state');
-
 assert(generatedEvents.includes('generatedActionHandlers'), 'generated event module should use a generated action map');
 assert(generatedEvents.includes('registerActions') && generatedEvents.includes('runAction'), 'generated event module should dispatch through SanpoApp actions');
 assert(!generatedEvents.includes("if (action === 'add-settlement-extra')"), 'generated event module still has the old data-action if-chain');
@@ -35,12 +33,13 @@ assert(!share.includes('style.cssText'), 'share-actions.js should not keep inlin
 assert(settlement.includes('window.SanpoApp.templates.settlement'), 'settlement rendering should use settlement templates');
 assert(sheet.includes('window.SanpoApp.templates.sheet'), 'sheet rendering should use sheet templates');
 
-
 const requiredLeafCss = [
-  'assets/css/app-shell/01-layout-core.css',
-  'assets/css/guides-modals/01-modal-dropdown-base.css',
-  'assets/css/settlement/01-page-shell.css',
-  'assets/css/settlement/02-summary-cards.css'
+  'assets/css/app-shell/layout/01-app-frame.css',
+  'assets/css/app-shell/header/01-header-base.css',
+  'assets/css/guides-modals/modal/01-modal-base.css',
+  'assets/css/settlement/page-shell/01-layout.css',
+  'assets/css/settlement/summary/01-summary-layout.css',
+  'assets/css/components/00-component-contracts.css'
 ];
 for (const file of requiredLeafCss) {
   const content = readText(file);
@@ -49,16 +48,16 @@ for (const file of requiredLeafCss) {
 }
 
 const requiredSubFiles = [
-  'assets/css/app-shell/01-layout-core.css',
-  'assets/css/app-shell/02-edit-controls.css',
-  'assets/css/app-shell/04-mobile-header-layout.css',
-  'assets/css/guides-modals/01-modal-dropdown-base.css',
-  'assets/css/guides-modals/02-guide-cards.css',
+  'assets/css/app-shell/layout/01-app-frame.css',
+  'assets/css/app-shell/edit/01-edit-base.css',
+  'assets/css/app-shell/header/04-mobile-layout.css',
+  'assets/css/guides-modals/modal/01-modal-base.css',
+  'assets/css/guides-modals/guide/01-guide-cards.css',
   'assets/css/cars-members-tray/01-shared-card-primitives.css',
-  'assets/css/cars-members-tray/02-tray-shell.css',
-  'assets/css/settlement/01-page-shell.css',
-  'assets/css/settlement/02-summary-cards.css',
-  'assets/css/settlement/02-common-controls.css',
+  'assets/css/cars-members-tray/waiting-tray/01-tray-shell.css',
+  'assets/css/settlement/page-shell/01-layout.css',
+  'assets/css/settlement/summary/01-summary-layout.css',
+  'assets/css/settlement/controls/01-control-shell.css',
   'assets/js/templates/settlement-templates.js',
   'assets/js/features/settlement/01-state.js',
   'assets/js/features/settlement/03-render.js',

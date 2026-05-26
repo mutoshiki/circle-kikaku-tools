@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const root = path.resolve(__dirname, '..');
 const readText = file => fs.readFileSync(path.join(root, file), 'utf8');
+const { readCssBundle } = require('./helpers/read-project');
 const assert = (condition, message) => {
   if (!condition) {
     console.error(message);
@@ -11,7 +12,7 @@ const assert = (condition, message) => {
 
 const sheet = readText('assets/js/features/sheet-view.js');
 const events = readText('assets/js/features/events/02-static-header-events.js');
-const css = readText('assets/css/06-sheet-view.css');
+const css = readCssBundle();
 const sync = readText('assets/js/core/sync-controller.js');
 const state = readText('assets/js/core/data-state.js');
 

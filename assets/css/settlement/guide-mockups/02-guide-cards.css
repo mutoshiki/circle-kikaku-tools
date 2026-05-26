@@ -1,0 +1,206 @@
+/* Moved from assets/css/settlement/03-guide-mockups.css; source-order chunk 2/3. */
+.seisan-mock-check.done {
+background: var(--accent-soft);
+    border-color: var(--accent-color);
+}
+.seisan-mock-amount {
+color: var(--accent-color);
+    font-size: 0.72rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
+@media (max-width: 520px) {
+.seisan-mock-flow,
+.seisan-mock-settings,
+.seisan-mock-car-inputs {
+grid-template-columns: 1fr;
+}
+}
+@media (max-width: 520px) {
+.seisan-mock-expense {
+grid-template-columns: minmax(0, 1fr) 58px 64px;
+}
+}
+.seisan-screen-guide {
+display: grid;
+    gap: 12px;
+}
+.seisan-guide-hero {
+border: 1px solid var(--border-color);
+    border-radius: var(--radius-main);
+    background: var(--bg-card);
+    box-shadow: var(--shadow-card);
+    padding: 12px;
+}
+.seisan-guide-hero-title {
+display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+.seisan-guide-hero-title i,
+.seisan-guide-screen-title i,
+.seisan-guide-point i {
+color: var(--accent-color);
+}
+.seisan-guide-hero-text {
+color: var(--text-sub);
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+.seisan-guide-screen-card.full {
+grid-template-columns: 1fr;
+}
+.seisan-guide-screen-title {
+display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+.seisan-guide-points {
+display: grid;
+    gap: 7px;
+}
+.seisan-guide-point {
+display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 8px;
+    align-items: start;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-body);
+    padding: 8px;
+}
+.seisan-guide-point strong {
+display: block;
+    color: var(--text-main);
+    font-size: 0.78rem;
+    line-height: 1.35;
+    margin-bottom: 2px;
+}
+.seisan-guide-point span {
+display: block;
+    color: var(--text-sub);
+    font-size: 0.72rem;
+    line-height: 1.45;
+}
+.seisan-guide-caption {
+margin-top: 8px;
+    color: var(--text-sub);
+    font-size: 0.72rem;
+    line-height: 1.45;
+}
+.seisan-guide-screen-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  align-items: stretch;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-main);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
+  padding: 12px;
+}
+.seisan-guide-summary-screen {
+  margin-bottom: 10px;
+}
+.seisan-guide-box i {
+display: block;
+    color: var(--accent-color);
+    font-size: 1.05rem;
+    margin-bottom: 5px;
+}
+.seisan-guide-list {
+display: grid;
+    gap: 8px;
+}
+.seisan-guide-item {
+display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 9px;
+    align-items: start;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-main);
+    padding: 10px;
+}
+.seisan-guide-num {
+width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--accent-color);
+    color: var(--color-white);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+}
+.seisan-guide-item strong {
+display: block;
+    color: var(--text-main);
+    font-size: 0.84rem;
+    margin-bottom: 2px;
+}
+.seisan-guide-item span {
+display: block;
+    color: var(--text-sub);
+    font-size: 0.76rem;
+    line-height: 1.45;
+}
+.seisan-guide-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-main);
+  padding: 10px;
+  text-align: center;
+  color: var(--text-main);
+  font-weight: 900;
+  font-size: 0.78rem;
+  min-height: 86px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+}
+.seisan-guide-box strong {
+display:block; font-size:0.86rem;
+}
+.seisan-guide-box span {
+display:block; color:var(--text-sub); font-size:0.7rem;
+}
+.seisan-guide-box.collect {
+border-color: rgba(15,118,110,0.42); background: rgba(15,118,110,0.08);
+}
+.seisan-guide-box.account {
+border-color: rgba(245,158,11,0.42); background: rgba(245,158,11,0.09);
+}
+.seisan-guide-box.pay {
+border-color: rgba(30,41,59,0.32); background: var(--bg-card);
+}
+.seisan-guide-form {
+display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+.seisan-guide-form div,
+.seisan-guide-expense div {
+border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-body);
+    padding: 8px;
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--text-sub);
+}
+.seisan-guide-form strong {
+color: var(--text-main); font-size:0.8rem;
+}
+.seisan-guide-expense {
+display:grid; gap:6px;
+}

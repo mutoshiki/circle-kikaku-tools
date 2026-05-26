@@ -1,0 +1,192 @@
+/* Moved from assets/css/app-shell/05-header-mobile-responsive.css; source-order chunk 4/4. */
+@media (max-width: 640px) {
+.edit-header-tools-only.allocation-toolbar {
+    margin: 9px 12px 12px;
+    padding: 8px;
+    border-radius: 15px;
+  }
+
+.edit-header-tools-only.allocation-toolbar .allocation-toolbar-inner,
+  .edit-header-tools-only.allocation-toolbar .edit-tools {
+    gap: 7px;
+  }
+
+.edit-header-tools-only.allocation-toolbar .tool-btn,
+  .edit-header-tools-only.allocation-toolbar .edit-tools .tool-btn {
+    padding-inline: 9px;
+  }
+}
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action i,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action span {
+  color: var(--text-main);
+}
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover i {
+  color: color-mix(in srgb, var(--accent-color) 72%, var(--color-white));
+}
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action {
+  background: color-mix(in srgb, var(--accent-color) 76%, var(--palette-slate-950));
+  border-color: color-mix(in srgb, var(--accent-color) 72%, var(--color-white));
+  color: var(--text-main);
+  box-shadow: 0 0 0 1px rgba(248, 250, 252, 0.10), 0 8px 22px rgba(var(--black-rgb), 0.28);
+}
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action i,
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action span,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action i,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action span {
+  color: var(--text-main);
+}
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action:hover,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action:hover {
+  background: color-mix(in srgb, var(--accent-color) 88%, var(--color-ink));
+  border-color: color-mix(in srgb, var(--accent-color) 76%, var(--color-white));
+  color: var(--color-white);
+}
+body[data-theme="dark"],
+html[data-theme="dark"] body,
+body[data-theme="dark"] #app-layout {
+  color: var(--dark-ui-text);
+}
+body[data-theme="dark"] #app-layout :where(.text-dark, .text-body, .text-black, .text-reset),
+html[data-theme="dark"] body :where(.text-dark, .text-body, .text-black, .text-reset) {
+  color: var(--dark-ui-text);
+}
+body[data-theme="dark"] #app-layout :where(.text-muted, .text-secondary, .text-body-secondary, .text-muted-dark-friendly),
+html[data-theme="dark"] body :where(.text-muted, .text-secondary, .text-body-secondary, .text-muted-dark-friendly) {
+  color: var(--dark-ui-muted);
+}
+body[data-theme="dark"] #app-header,
+html[data-theme="dark"] #app-header {
+  color: var(--dark-ui-text);
+}
+body[data-theme="dark"] #roomNameInput,
+body[data-theme="dark"] .app-room-input,
+html[data-theme="dark"] #roomNameInput,
+html[data-theme="dark"] .app-room-input {
+  color: var(--dark-ui-text);
+  -webkit-text-fill-color: var(--dark-ui-text);
+}
+body[data-theme="dark"] #roomNameInput::placeholder,
+body[data-theme="dark"] .app-room-input::placeholder,
+html[data-theme="dark"] #roomNameInput::placeholder,
+html[data-theme="dark"] .app-room-input::placeholder {
+  color: var(--dark-ui-muted);
+  -webkit-text-fill-color: var(--dark-ui-muted);
+}
+body[data-theme="dark"] #app-header :where(.sync-status-badge, .header-action:not(.share-action), .header-action:not(.share-action) i, .header-action:not(.share-action) span, .view-tab:not(.active), .view-tab:not(.active) i, .view-tab:not(.active) span),
+html[data-theme="dark"] #app-header :where(.sync-status-badge, .header-action:not(.share-action), .header-action:not(.share-action) i, .header-action:not(.share-action) span, .view-tab:not(.active), .view-tab:not(.active) i, .view-tab:not(.active) span) {
+  color: var(--dark-ui-muted);
+}
+body[data-theme="dark"] #app-header :where(.view-tab.active, .view-tab.active i, .view-tab.active span),
+html[data-theme="dark"] #app-header :where(.view-tab.active, .view-tab.active i, .view-tab.active span) {
+  color: var(--accent-color);
+}
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action,
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action i,
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action span,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action i,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action span {
+  color: var(--dark-ui-text);
+}
+#app-layout #app-header #shareLinkBtn.header-action,
+#app-layout #app-header #shareLinkBtn.header-action i,
+#app-layout #app-header #shareLinkBtn.header-action span,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action i,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action span {
+  color: var(--text-sub);
+  -webkit-text-fill-color: var(--text-sub);
+  opacity: 1;
+}
+#app-layout #app-header #shareLinkBtn.header-action:hover,
+#app-layout #app-header #shareLinkBtn.header-action:hover i,
+#app-layout #app-header #shareLinkBtn.header-action:hover span,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover i,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover span {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+#app-layout #app-header #shareLinkBtn.header-action,
+#app-layout #app-header .header-actions #shareLinkBtn.header-action.share-action,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action,
+html[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action,
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action {
+  width: 28px;
+  min-width: 28px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--text-main) 88%, var(--text-sub));
+  opacity: 0.96;
+  box-shadow: none;
+}
+#app-layout #app-header #shareLinkBtn.header-action i,
+#app-layout #app-header #shareLinkBtn.header-action span,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action i,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action span,
+html[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action i,
+html[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action span {
+  color: currentColor;
+}
+#app-layout #app-header #shareLinkBtn.header-action:hover,
+#app-layout #app-header .header-actions #shareLinkBtn.header-action.share-action:hover,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover,
+html[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover,
+body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action:hover,
+html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action:hover {
+  border: 0;
+  background: transparent;
+  color: var(--accent-color);
+  opacity: 1;
+  box-shadow: none;
+}
+#app-layout #app-header #shareLinkBtn.header-action.share-action,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action,
+html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action {
+  width: auto;
+  min-width: auto;
+  height: auto;
+  min-height: 34px;
+  padding: 7px 9px;
+  gap: 5px;
+  border: 1px solid var(--header-share-icon-line);
+  border-radius: 12px;
+  background: var(--header-share-icon-bg);
+  color: var(--header-share-icon-text);
+  -webkit-text-fill-color: var(--header-share-icon-text);
+  box-shadow: none;
+  opacity: 1;
+}
+#app-layout #app-header #shareLinkBtn.header-action.share-action span,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action span,
+html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action span {
+  display: none;
+}
+#app-layout #app-header #shareLinkBtn.header-action.share-action i,
+#app-layout #app-header #shareLinkBtn.header-action.share-action span,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action i,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action span,
+html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action i,
+html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action span {
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+#app-layout #app-header #shareLinkBtn.header-action.share-action:hover,
+#app-layout #app-header #shareLinkBtn.header-action.share-action:focus-visible,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action:hover,
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action:focus-visible,
+html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action:hover,
+html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action:focus-visible {
+  background: var(--header-share-icon-hover-bg);
+  border-color: color-mix(in srgb, var(--accent-color) 24%, var(--header-share-icon-line));
+  color: var(--header-share-icon-hover-text);
+  -webkit-text-fill-color: var(--header-share-icon-hover-text);
+  box-shadow: none;
+}

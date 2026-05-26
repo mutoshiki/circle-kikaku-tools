@@ -128,7 +128,17 @@ function createStandaloneSettlementData(state = ensureSettlementState(), roomNam
 
 function isDriverRewardExtra(ex = {}) {
     const name = normalizeRewardExtraName(ex.name || '');
-    return name === '車出し協力代' || name === '車出し協力代1台' || name === '協力代';
+    return name === '車出し協力代' || name === '車出し協力代1台' || name === '運転協力代' || name === '運転協力代1台' || name === '協力代';
+}
+
+function orderDriverRewardExtrasFirst(extras = []) {
+    const list = Array.isArray(extras) ? extras : [];
+    const rewardExtras = [];
+    const otherExtras = [];
+    list.forEach(ex => {
+        (isDriverRewardExtra(ex) ? rewardExtras : otherExtras).push(ex);
+    });
+    return rewardExtras.concat(otherExtras);
 }
 
 function getDriverRewardAmount(state = ensureSettlementState()) {
@@ -160,7 +170,7 @@ function ensureDriverRewardExtra(carState = {}, state = ensureSettlementState())
         extras.push({ name: DRIVER_REWARD_EXTRA_NAME, amount: String(rewardAmount), type: 'club' });
     }
 
-    return { ...normalized, extras };
+    return { ...normalized, extras: orderDriverRewardExtrasFirst(extras) };
 }
 
 function getDriverRewardExtraAmount(carState = {}, state = ensureSettlementState()) {

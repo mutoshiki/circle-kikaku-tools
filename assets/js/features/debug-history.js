@@ -29,13 +29,15 @@ function setupHiddenDebugTap() {
 
 function createSampleTimetableItems() {
     return [
-        { time: '08:00', title: '集合・受付' },
-        { time: '08:20', title: '車ごとに点呼' },
+        { time: '08:00', title: '大学集合・受付' },
+        { time: '08:15', title: '車ごとに点呼・荷物確認' },
         { time: '08:30', title: '出発' },
-        { time: '10:00', title: '現地到着・散策 https://maps.google.com' },
+        { time: '09:25', title: 'コンビニ休憩' },
+        { time: '10:10', title: '飯綱高原到着・散策 https://maps.google.com' },
         { time: '12:00', title: '昼食' },
-        { time: '15:30', title: '帰路出発' },
-        { time: '17:00', title: '解散' }
+        { time: '14:30', title: '温泉または自由時間' },
+        { time: '16:00', title: '帰路出発' },
+        { time: '17:10', title: '大学到着・解散' }
     ];
 }
 
@@ -49,10 +51,19 @@ function createSampleTeamPlan(participants = []) {
     })).filter(member => member.name);
 
     const firstLeader = people[0] || { name: '田中 太郎', gender: 'male', grade: 1, memo: '' };
-    const secondLeader = people[3] || people[1] || { name: '伊藤 美月', gender: 'female', grade: 1, memo: '' };
-    const firstMembers = people.slice(1, 3);
-    const secondMembers = people.slice(4, 6);
-    const usedNames = new Set([firstLeader.name, secondLeader.name, ...firstMembers.map(m => m.name), ...secondMembers.map(m => m.name)]);
+    const secondLeader = people[4] || people[1] || { name: '伊藤 美月', gender: 'female', grade: 1, memo: '' };
+    const thirdLeader = people[8] || people[2] || { name: '石井 拓海', gender: 'male', grade: 2, memo: '' };
+    const firstMembers = people.slice(1, 4);
+    const secondMembers = people.slice(5, 8);
+    const thirdMembers = people.slice(9, 12);
+    const usedNames = new Set([
+        firstLeader.name,
+        secondLeader.name,
+        thirdLeader.name,
+        ...firstMembers.map(m => m.name),
+        ...secondMembers.map(m => m.name),
+        ...thirdMembers.map(m => m.name)
+    ]);
 
     return {
         id: typeof SINGLE_TEAM_PLAN_ID !== 'undefined' ? SINGLE_TEAM_PLAN_ID : 'plan-team',
@@ -76,27 +87,35 @@ function createSampleTeamPlan(participants = []) {
                 driverGender: secondLeader.gender || 'unknown',
                 driverGrade: secondLeader.grade || 0,
                 members: secondMembers
+            },
+            {
+                name: thirdLeader.name,
+                capacity: 5,
+                driverMemo: thirdLeader.memo || '',
+                driverGender: thirdLeader.gender || 'unknown',
+                driverGrade: thirdLeader.grade || 0,
+                members: thirdMembers
             }
         ]
     };
 }
 
-function seedDebugData({ missing = false } = {}) {
-    const carCount = parseInt(byId('debugCarCount')?.value) || 3;
-
-    const drivers = [
-        { name: '高橋 健介', cap: 3, gender: 'male' },
-        { name: '中村 美咲', cap: 3, gender: 'female' },
-        { name: '小林 悠斗', cap: 3, gender: 'male' },
-        { name: '松本 彩花', cap: 3, gender: 'female' },
-        { name: '山口 直人', cap: 3, gender: 'male' },
+function getSampleDrivers() {
+    return [
+        { name: '高橋 健介', capacity: 3, gender: 'male', grade: 3, memo: 'ETCあり・荷物少なめ' },
+        { name: '中村 美咲', capacity: 3, gender: 'female', grade: 2, memo: '初心者運転・早め帰宅' },
+        { name: '小林 悠斗', capacity: 4, gender: 'male', grade: 4, memo: '大きめの車' },
+        { name: '松本 彩花', capacity: 3, gender: 'female', grade: 3, memo: '帰りに給油予定' },
+        { name: '山口 直人', capacity: 3, gender: 'male', grade: 2, memo: '集合場所に直行' }
     ];
+}
 
-    const members = [
-        { name: '田中 太郎', grade: 1, gender: 'male' },
+function getSampleMembers() {
+    return [
+        { name: '田中 太郎', grade: 1, gender: 'male', memo: '会計担当' },
         { name: '佐藤 花', grade: 1, gender: 'female' },
         { name: '鈴木 陽介', grade: 1, gender: 'male' },
-        { name: '伊藤 美月', grade: 1, gender: 'female' },
+        { name: '伊藤 美月', grade: 1, gender: 'female', memo: '車酔いしやすい' },
         { name: '渡辺 大地', grade: 1, gender: 'male' },
         { name: '加藤 ひかり', grade: 1, gender: 'female' },
         { name: '石井 拓海', grade: 2, gender: 'male', memo: '帰りに寄り道' },
@@ -110,56 +129,143 @@ function seedDebugData({ missing = false } = {}) {
         { name: '小川 悠真', grade: 3, gender: 'male' },
         { name: '長谷川 翼', grade: 3, gender: 'male' },
         { name: '村上 紗季', grade: 4, gender: 'female' },
-        { name: '近藤 直樹', grade: 4, gender: 'male' },
+        { name: '近藤 直樹', grade: 4, gender: 'male' }
     ];
+}
 
-    byId('waiting-list').innerHTML = '';
-    byId('cars-container').innerHTML = '';
-    byId('roomNameInput').value = missing ? '入力漏れテスト' : '新歓企画 5/12';
-    settlementState = normalizeSettlementState({
-        rounding: '100', organizerFree: true, organizerName: '田中 太郎', driverCollectionOffset: true, driverReward: '0', cars: {}, paid: {}, driverPaid: {}
+function cloneSampleMember(member = {}) {
+    return {
+        name: member.name,
+        memo: member.memo || '',
+        gender: member.gender || 'unknown',
+        grade: parseInt(member.grade) || 0,
+        locked: !!member.locked
+    };
+}
+
+function createSampleCarPlan(carCount = 3) {
+    const drivers = getSampleDrivers().slice(0, Math.max(2, Math.min(5, Number(carCount) || 3)));
+    const members = getSampleMembers().map(cloneSampleMember);
+    let cursor = 0;
+    const cars = drivers.map((driver, index) => {
+        const count = Math.max(0, Number(driver.capacity) || 3);
+        const assigned = members.slice(cursor, cursor + count);
+        cursor += count;
+        return {
+            name: driver.name,
+            capacity: driver.capacity,
+            driverMemo: driver.memo || '',
+            driverGender: driver.gender || 'unknown',
+            driverGrade: driver.grade || 0,
+            members: assigned
+        };
     });
 
-    const usedDrivers = drivers.slice(0, carCount);
-    usedDrivers.forEach((d, idx) => {
-        addCar(d.name, d.cap, [], '', d.gender);
-        settlementState.cars[d.name] = normalizeCarSettlementState({
-            dist: missing && idx === 0 ? '180' : String(150 + idx * 28),
-            eco: missing && idx === 0 ? '' : String(12 + idx * 2),
-            price: '170',
-            extras: missing && idx === 1
-                ? [{ name: '', amount: '2500', type: 'split' }]
-                : [{ name: '駐車場', amount: '200', type: 'split' }]
-        });
+    return {
+        id: typeof SINGLE_CAR_PLAN_ID !== 'undefined' ? SINGLE_CAR_PLAN_ID : 'plan-car',
+        name: '車割',
+        templateType: 'car',
+        lastAutoAssignLabel: 'サンプル配置',
+        waiting: members.slice(cursor),
+        cars
+    };
+}
+
+function createSampleSettlementState(carPlan, { missing = false } = {}) {
+    const normalCars = {
+        '高橋 健介': { dist: '86', eco: '13.5', price: '172', extras: [{ name: '駐車場', amount: '400', type: 'split' }] },
+        '中村 美咲': { dist: '92', eco: '15', price: '172', extras: [{ name: '有料道路', amount: '300', type: 'split' }] },
+        '小林 悠斗': { dist: '104', eco: '11.5', price: '172', extras: [{ name: '駐車場', amount: '400', type: 'split' }, { name: '部費補助', amount: '500', type: 'club' }] },
+        '松本 彩花': { dist: '97', eco: '14', price: '172', extras: [{ name: '駐車場', amount: '400', type: 'split' }] },
+        '山口 直人': { dist: '89', eco: '12.8', price: '172', extras: [{ name: '施設利用料', amount: '200', type: 'split' }] }
+    };
+    const missingCars = {
+        '高橋 健介': { dist: '86', eco: '', price: '172', extras: [{ name: '駐車場', amount: '400', type: 'split' }] },
+        '中村 美咲': { dist: '', eco: '15', price: '172', extras: [{ name: '', amount: '300', type: 'split' }] },
+        '小林 悠斗': { dist: '104', eco: '11.5', price: '', extras: [{ name: '部費補助', amount: '', type: 'club' }] },
+        '松本 彩花': { dist: '97', eco: '14', price: '172', extras: [{ name: '駐車場', amount: '400', type: 'split' }] },
+        '山口 直人': { dist: '89', eco: '12.8', price: '172', extras: [{ name: '施設利用料', amount: '200', type: 'split' }] }
+    };
+    const source = missing ? missingCars : normalCars;
+    const cars = {};
+    (carPlan.cars || []).forEach(car => {
+        cars[car.name] = normalizeCarSettlementState(source[car.name] || { dist: '90', eco: '13', price: '172', extras: [{ name: '駐車場', amount: '400', type: 'split' }] });
     });
-
-    const totalSeats = usedDrivers.reduce((sum, d) => sum + d.cap, 0);
-    const shuffled = members.slice(0, totalSeats).sort(() => Math.random() - 0.5);
-    shuffled.forEach(m => {
-        addMember(m.name, m.memo || '', m.gender, m.grade, byId('waiting-list'), false);
+    return normalizeSettlementState({
+        rounding: '100',
+        organizerFree: true,
+        organizerName: '田中 太郎',
+        driverCollectionOffset: true,
+        driverReward: '0',
+        cars,
+        routeStops: ['信州大学工学部', '飯綱高原キャンプ場', 'むれ温泉 天狗の館'],
+        paid: {},
+        driverPaid: {}
     });
+}
 
-    activeCarPlanId = typeof SINGLE_CAR_PLAN_ID !== 'undefined' ? SINGLE_CAR_PLAN_ID : 'plan-car';
-    lastAutoAssignLabel = '';
-    const carPlan = { id: activeCarPlanId, name: '車割', ...getCurrentAllocationFromDom(), lastAutoAssignLabel, templateType: 'car' };
-    const teamPlan = createSampleTeamPlan(members.slice(0, totalSeats));
-    carPlans = normalizeCarPlansFromData({
-        activeCarPlanId,
-        carPlans: [carPlan, teamPlan]
-    });
-    window.SanpoOverview?.applySnapshot?.({
-        memo: missing ? '入力漏れ確認用のサンプルです。' : 'サンプル企画のメモです。',
-        timetableItems: createSampleTimetableItems()
-    });
+function createSampleAppData({ missing = false, carCount = 3 } = {}) {
+    const safeCarCount = Math.max(2, Math.min(5, Number(carCount) || 3));
+    const carPlan = createSampleCarPlan(safeCarCount);
+    const allParticipants = [
+        ...(carPlan.cars || []).flatMap(car => [
+            { name: car.name, memo: car.driverMemo || '', gender: car.driverGender || 'unknown', grade: car.driverGrade || 0 },
+            ...(car.members || [])
+        ]),
+        ...(carPlan.waiting || [])
+    ].map(cloneSampleMember);
+    const teamPlan = createSampleTeamPlan(allParticipants);
 
-    updateUI();
-    save();
+    return {
+        schemaVersion: typeof APP_SCHEMA_VERSION !== 'undefined' ? APP_SCHEMA_VERSION : 3,
+        roomName: missing ? '入力漏れチェック用サンプル' : '飯綱高原 新歓ドライブ 5/12',
+        trayMinimized: false,
+        editLockEnabled: false,
+        editLockPassphrase: '',
+        activeCarPlanId: carPlan.id,
+        carPlans: [carPlan, teamPlan],
+        lastAutoAssignLabel: carPlan.lastAutoAssignLabel || '',
+        waiting: carPlan.waiting,
+        cars: carPlan.cars,
+        settlement: createSampleSettlementState(carPlan, { missing }),
+        overview: {
+            memo: missing
+                ? '入力漏れや未入力欄の見え方を確認するためのサンプルです。'
+                : '新歓ドライブを想定した確認用サンプルです。車割、班割、精算、予定表をまとめて確認できます。',
+            timetableItems: createSampleTimetableItems()
+        },
+        lastUpdatedAt: Date.now()
+    };
+}
 
-    if (window.modals && window.modals.debug) window.modals.debug.hide();
+function seedDebugData({ missing = false } = {}) {
+    try {
+        const carCount = parseInt(byId('debugCarCount')?.value, 10) || 3;
+        const sampleData = createSampleAppData({ missing, carCount });
+        const previousCardSuspend = !!window.__suspendCardUpdateUi;
+        const previousDomSyncSuspend = !!window.__suspendActiveDomPlanSync;
+        window.__suspendCardUpdateUi = true;
+        window.__suspendActiveDomPlanSync = true;
+        try {
+            restore(migrateAppData(sampleData));
+        } finally {
+            window.__suspendCardUpdateUi = previousCardSuspend;
+            window.__suspendActiveDomPlanSync = previousDomSyncSuspend;
+        }
+        updateUI();
+        save();
 
-    setTimeout(() => {
-        switchView('seisan');
-    }, 200);
+        if (window.modals && window.modals.debug) window.modals.debug.hide();
+        showAppNotice?.(missing ? '入力漏れサンプルを入れました' : '通常サンプルを入れました');
+
+        setTimeout(() => {
+            switchView('seisan');
+        }, 120);
+    } catch (error) {
+        console.error('Failed to seed sample data:', error);
+        window.__sampleDataLastError = String(error?.stack || error?.message || error);
+        appAlert?.('サンプルデータを入れられませんでした。画面を更新してもう一度試してください。', { title: 'サンプルデータ' });
+    }
 }
 
 window.executeDebugMode = function() { seedDebugData({ missing: false }); };

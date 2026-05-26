@@ -1,0 +1,214 @@
+/* Moved from assets/css/app-shell/05-header-mobile-responsive.css; source-order chunk 3/4. */
+body[data-app-theme="natural"][data-theme="dark"] {
+  --bg-body: var(--palette-090e1a);
+  --text-main: var(--palette-slate-50);
+  --text-sub: var(--palette-a5afbf);
+  --bg-card: var(--color-ink);
+  --border-color: var(--palette-293448);
+  --accent-color: var(--palette-7fb0d3);
+  --accent-soft: rgba(127, 176, 211, 0.16);
+  --app-surface: rgba(var(--shadow-rgb), 0.88);
+  --sheet-header: var(--palette-slate-950);
+  --hover-bg: var(--palette-172133);
+  --ui-saas-panel: rgba(var(--shadow-rgb), 0.78);
+  --ui-saas-panel-raised: rgba(17, 24, 39, 0.92);
+  --ui-saas-border: rgba(148, 163, 184, 0.16);
+  --ui-saas-border-strong: rgba(127, 176, 211, 0.34);
+  --ui-saas-shadow: 0 1px 0 rgba(var(--white-rgb), 0.024), 0 12px 30px rgba(var(--black-rgb), 0.24);
+  --ui-saas-shadow-soft: 0 1px 0 rgba(var(--white-rgb), 0.018), 0 7px 18px rgba(var(--black-rgb), 0.18);
+  --ui-saas-inner: color-mix(in srgb, var(--bg-card) 88%, var(--palette-12314a));
+  --settlement-pay-ink: var(--palette-c7dceb);
+  --settlement-pay-bg: rgba(120, 166, 202, 0.18);
+  --settlement-pay-line: rgba(120, 166, 202, 0.36);
+  --settlement-pay-surface-bg: color-mix(in srgb, rgba(120, 166, 202, 0.20) 62%, var(--bg-card));
+  --settlement-pay-surface-line: rgba(120, 166, 202, 0.34);
+  --settlement-split-ink: var(--palette-b8d8c3);
+  --settlement-split-bg: rgba(72, 128, 92, 0.18);
+  --settlement-split-line: rgba(126, 174, 142, 0.32);
+  --settlement-club-ink: var(--palette-ead4ad);
+  --settlement-club-bg: rgba(153, 110, 48, 0.16);
+  --settlement-club-line: rgba(205, 166, 103, 0.32);
+  --radius-main: 10px;
+  --radius-sm: 7px;
+  --radius-lg: 14px;
+  --bs-body-bg: var(--bg-body);
+  --bs-body-color: var(--text-main);
+  --bs-secondary-color: var(--text-sub);
+  --bs-border-color: var(--border-color);
+  --bs-tertiary-bg: var(--sheet-header);
+  --bs-modal-bg: var(--bg-card);
+  --bs-dropdown-bg: var(--bg-card);
+  --bs-dropdown-color: var(--text-main);
+  --bs-dropdown-link-color: var(--text-main);
+  --bs-dropdown-link-hover-color: var(--text-main);
+  --bs-dropdown-link-hover-bg: var(--hover-bg);
+  --bs-form-control-bg: var(--bg-card);
+  --bs-form-control-color: var(--text-main);
+  --ui-unified-divider: rgba(148, 163, 184, 0.16);
+  --ui-unified-muted-surface: color-mix(in srgb, var(--bg-card) 78%, var(--color-night));
+  --ui-danger-line: rgba(248, 113, 113, 0.30);
+  --ui-danger-bg: rgba(127, 29, 29, 0.15);
+}
+body[data-app-theme]:not([data-app-theme="natural"]) {
+  --ui-saas-panel: color-mix(in srgb, var(--bg-card) 88%, transparent);
+  --ui-saas-panel-raised: color-mix(in srgb, var(--bg-card) 96%, var(--bg-body));
+  --ui-saas-inner: color-mix(in srgb, var(--bg-card) 86%, var(--bg-body));
+  --ui-saas-border: color-mix(in srgb, var(--border-color) 82%, transparent);
+  --ui-saas-border-strong: color-mix(in srgb, var(--accent-color) 34%, var(--border-color));
+  --ui-saas-shadow: 0 1px 0 color-mix(in srgb, var(--text-main) 5%, transparent), 0 10px 24px color-mix(in srgb, var(--text-main) 7%, transparent);
+  --ui-saas-shadow-soft: 0 1px 0 color-mix(in srgb, var(--text-main) 4%, transparent), 0 5px 16px color-mix(in srgb, var(--text-main) 5%, transparent);
+  --ui-unified-divider: color-mix(in srgb, var(--border-color) 72%, transparent);
+  --ui-unified-muted-surface: color-mix(in srgb, var(--bg-card) 84%, var(--bg-body));
+  --ui-danger-line: rgba(220, 38, 38, 0.30);
+  --ui-danger-bg: color-mix(in srgb, var(--palette-red-50) 42%, var(--bg-card));
+  --settlement-split-ink: color-mix(in srgb, var(--palette-166534) 70%, var(--text-main));
+  --settlement-split-bg: color-mix(in srgb, var(--palette-dcfce7) 42%, var(--bg-card));
+  --settlement-split-line: color-mix(in srgb, var(--palette-22c55e) 32%, var(--border-color));
+  --settlement-club-ink: color-mix(in srgb, var(--palette-amber-900) 70%, var(--text-main));
+  --settlement-club-bg: color-mix(in srgb, var(--palette-amber-100) 42%, var(--bg-card));
+  --settlement-club-line: color-mix(in srgb, var(--color-warning) 32%, var(--border-color));
+  --settlement-pay-ink: color-mix(in srgb, var(--accent-color) 78%, var(--text-main));
+  --settlement-pay-bg: color-mix(in srgb, var(--accent-soft) 70%, var(--bg-card));
+  --settlement-pay-line: color-mix(in srgb, var(--accent-color) 32%, var(--border-color));
+  --settlement-pay-surface-bg: color-mix(in srgb, var(--accent-soft) 58%, var(--bg-card));
+  --settlement-pay-surface-line: color-mix(in srgb, var(--accent-color) 30%, var(--border-color));
+}
+#app-layout #app-header {
+  display: grid;
+  gap: 0;
+  padding: 8px 12px 0;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--bg-card) 90%, var(--bg-body));
+  box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.04);
+  box-sizing: border-box;
+  width: 100%;
+  padding-right: 12px;
+  padding-left: 12px;
+  border-bottom-color: color-mix(in srgb, var(--border-color) 62%, transparent);
+}
+#app-layout #app-header .app-header-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 0;
+  gap: 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  position: static;
+  width: 100%;
+}
+#app-layout #app-header .app-room-input {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-main);
+  text-align: left;
+  font-size: clamp(1.05rem, 4.6vw, 1.30rem);
+  font-weight: 790;
+  letter-spacing: -0.018em;
+}
+#app-layout #app-header .header-actions {
+  position: static;
+  top: auto;
+  right: auto;
+  gap: 8px;
+  transform: none;
+  flex: 0 0 auto;
+  margin-right: max(0px, calc((100vw - 100%) / 2));
+}
+#app-layout #app-header .header-actions .header-action, #app-layout #app-header .header-actions .header-more > .header-action, #app-layout #app-header #shareLinkBtn.header-action {
+  width: 28px;
+  min-width: 28px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--text-main) 88%, var(--text-sub));
+  box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.96;
+}
+#app-layout #app-header .header-action i, #app-layout #app-header .header-actions .header-more > .header-action i {
+  width: 21px;
+  height: 21px;
+  margin: 0;
+  stroke-width: 2.6;
+  font-size: 1.24rem;
+  line-height: 1;
+}
+#app-layout #app-header .header-actions .header-action:hover, #app-layout #app-header .header-actions .header-more > .header-action:hover, #app-layout #app-header #shareLinkBtn.header-action:hover {
+  border: 0;
+  background: transparent;
+  color: var(--accent-color);
+  box-shadow: none;
+  opacity: 1;
+}
+@media (max-width: 640px) {
+#app-layout #app-header .header-actions {
+    gap: 8px;
+    margin-right: 12px;
+  }
+}
+#app-layout #view-toggle-bar, #app-layout .view-toggle-bar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  min-height: 40px;
+  margin: 8px -12px 0;
+  padding: 0 12px;
+  border: 0;
+  border-top: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  margin-top: 6px;
+}
+#app-layout #view-toggle-bar .view-tab, #app-layout .view-toggle-bar .view-tab {
+  position: relative;
+  min-height: 40px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--text-sub) 88%, var(--text-main));
+  box-shadow: none;
+  font-size: 0.82rem;
+  font-weight: 730;
+  letter-spacing: 0;
+}
+#app-layout #view-toggle-bar .view-tab::after, #app-layout .view-toggle-bar .view-tab::after {
+  content: "";
+  position: absolute;
+  right: 24%;
+  bottom: 0;
+  left: 24%;
+  height: 3px;
+  border-radius: 999px 999px 0 0;
+  background: transparent;
+}
+.edit-header-tools-only.allocation-toolbar {
+  padding: 8px 6px 8px 8px;
+  border-color: var(--ui-saas-border);
+  background: var(--ui-saas-panel-raised);
+  margin-top: 6px;
+  margin-bottom: 10px;
+  box-shadow: var(--ui-saas-shadow-soft);
+}
+.edit-header-tools-only.allocation-toolbar .allocation-toolbar-inner, .edit-header-tools-only.allocation-toolbar .edit-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  flex-wrap: wrap;
+}

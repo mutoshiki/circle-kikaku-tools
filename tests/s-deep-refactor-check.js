@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { root, readText } = require('./helpers/read-project');
+const { root, readText, readCssBundle } = require('./helpers/read-project');
 
 function assert(condition, message) {
   if (!condition) {
@@ -15,10 +15,10 @@ const sync = readText('assets/js/core/sync-controller.js');
 const render = readText('assets/js/core/render-controller.js');
 const guard = readText('assets/js/core/settlement-edit-guard.js');
 const settlementFacade = readText('assets/js/features/settlement.js');
-const carsOwner = readText('assets/css/cars-members-tray/02-tray-shell.css') + readText('assets/css/cars-members-tray/03-person-card.css') + readText('assets/css/cars-members-tray/04-car-card.css');
-const settlementOwner = readText('assets/css/settlement/01-page-shell.css') + readText('assets/css/settlement/02-summary-cards.css') + readText('assets/css/settlement/02-common-controls.css');
-const baseTokens = readText('assets/css/00-base-tokens.css');
-const themeAppearance = readText('assets/css/02-theme-appearance.css');
+const carsOwner = readCssBundle();
+const settlementOwner = readCssBundle();
+const baseTokens = readCssBundle();
+const themeAppearance = readCssBundle();
 const uiSpec = readText('tests/basic-ui.spec.js');
 
 [
@@ -34,14 +34,16 @@ const uiSpec = readText('tests/basic-ui.spec.js');
   'assets/js/features/settlement/05-input-actions.js',
   'assets/js/features/settlement/06-share-text.js',
   'assets/css/cars-members-tray/01-shared-card-primitives.css',
-  'assets/css/cars-members-tray/02-tray-shell.css',
-  'assets/css/cars-members-tray/03-person-card.css',
-  'assets/css/cars-members-tray/04-car-card.css',
-  'assets/css/cars-members-tray/05-drag-drop.css',
-  'assets/css/settlement/02-common-controls.css',
-  'assets/css/settlement/03-car-inputs.css',
-  'assets/css/settlement/04-route-helper.css',
-  'assets/css/settlement/05-checklists-share.css'
+  'assets/css/cars-members-tray/waiting-tray/01-tray-shell.css',
+  'assets/css/cars-members-tray/person-card/01-person-card-shell.css',
+  'assets/css/cars-members-tray/car-card/01-card-shell.css',
+  'assets/css/cars-members-tray/drag-drop/01-card-drag.css',
+  'assets/css/settlement/controls/01-control-shell.css',
+  'assets/css/settlement/car-inputs/01-car-form.css',
+  'assets/css/settlement/route-helper/01-route-shell.css',
+  'assets/css/settlement/checklists/01-collection-list.css',
+  'assets/css/settlement/checklists/03-driver-payment-list.css',
+  'assets/css/settlement/share/01-share-output.css'
 ].forEach(file => assert(fs.existsSync(path.join(root, file)), `missing deep refactor file: ${file}`));
 
 assert(!app.includes('function save('), 'app.js should not own save() after S-4');
@@ -56,8 +58,8 @@ assert(settlementFacade.includes('SanpoApp.features.settlement'), 'settlement fa
 assert(html.indexOf('assets/js/features/settlement/01-state.js') < html.indexOf('assets/js/features/settlement.js'), 'settlement split files must load before facade');
 assert(html.indexOf('assets/js/core/sync-controller.js') < html.indexOf('assets/js/app.js'), 'sync controller must load before app bootstrap');
 
-assert(html.includes('assets/css/cars-members-tray/01-shared-card-primitives.css') && html.includes('assets/css/cars-members-tray/05-drag-drop.css'), 'cars-members tray leaf CSS links are incomplete');
-assert(html.includes('assets/css/settlement/02-common-controls.css') && html.includes('assets/css/settlement/05-checklists-share.css'), 'settlement leaf CSS links are incomplete');
+assert(html.includes('assets/css/cars-members-tray/01-shared-card-primitives.css') && html.includes('assets/css/cars-members-tray/drag-drop/01-card-drag.css'), 'cars-members tray leaf CSS links are incomplete');
+assert(html.includes('assets/css/settlement/controls/01-control-shell.css') && html.includes('assets/css/settlement/checklists/01-collection-list.css') && html.includes('assets/css/settlement/checklists/03-driver-payment-list.css'), 'settlement leaf CSS links are incomplete');
 assert(!html.includes('01-tray-base.css') && !html.includes('02-route-helper.css'), 'stale split CSS names are still linked');
 
 assert(!baseTokens.includes('@keyframes sheetJiggle {\n {'), 'sheetJiggle still has malformed nested braces');

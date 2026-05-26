@@ -1,4 +1,6 @@
-const { readText, readCssBundle } = require('./helpers/read-project');
+const fs = require('fs');
+const path = require('path');
+const { root, readCssBundle } = require('./helpers/read-project');
 
 function assert(condition, message) {
   if (!condition) {
@@ -8,7 +10,8 @@ function assert(condition, message) {
 }
 
 const controlCss = readCssBundle();
-const appShellOwner = readText('assets/css/app-shell/01-app-shell-owner.css');
+const appShellOwnerPath = path.join(root, 'assets/css/app-shell/01-app-shell-owner.css');
+const appShellOwner = fs.existsSync(appShellOwnerPath) ? fs.readFileSync(appShellOwnerPath, 'utf8') : '';
 
 assert(/body\s*\{\r?\n\s+--control-border/.test(controlCss), 'control theme aliases should be recomputed on body');
 assert(controlCss.includes('--control-primary-bg: var(--accent-color);'), 'primary control background should follow the active accent color');

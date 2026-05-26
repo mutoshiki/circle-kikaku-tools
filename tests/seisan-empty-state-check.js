@@ -1,15 +1,16 @@
 const fs = require('fs');
 const path = require('path');
+const { readSettlementTemplateBundle } = require('./helpers/read-project');
 
 const root = path.join(__dirname, '..');
 const js = [
-  'assets/js/templates/settlement-templates.js',
+  readSettlementTemplateBundle(),
   'assets/js/features/settlement.js',
   'assets/js/features/settlement/03-render.js',
   'assets/js/app.js'
-].map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n');
+].map(item => item.includes('\n') ? item : fs.readFileSync(path.join(root, item), 'utf8')).join('\n');
 
-const settlementTemplate = fs.readFileSync(path.join(root, 'assets/js/templates/settlement-templates.js'), 'utf8');
+const settlementTemplate = readSettlementTemplateBundle();
 
 if (!settlementTemplate.includes('class="seisan-btn" type="button" data-action="open-settlement-settings">人数だけで精算</button>')) {
   throw new Error('人数だけで精算 should use the secondary/default button style in the empty state.');

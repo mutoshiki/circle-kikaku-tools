@@ -1,0 +1,212 @@
+/* Moved from assets/css/sheet-view/01-sheet-layout.css; source-order chunk 3/4. */
+.sheet-summary-row::-webkit-scrollbar {
+    display: none;
+}
+.sheet-summary-updated {
+    margin-left: 2px;
+    padding-left: 7px;
+    border-left: 1px solid var(--hairline, var(--border-color));
+    color: color-mix(in srgb, var(--text-sub) 82%, var(--text-main));
+    justify-self: start;
+}
+#sheet-bottom-controls:hover,
+#sheet-bottom-controls:focus-within {
+  opacity: 1;
+}
+/* =========================================================
+   Sheet/presentation view rules moved from 08-control-consistency.css
+========================================================= */
+#app-header,
+#sheet-title-bar,
+#sheet-bottom-controls,
+#bottom-tray,
+.modal-content,
+.dropdown-menu,
+.person-pop-menu {
+  backdrop-filter: blur(18px) saturate(1.05);
+}
+#sheet-view-area.active::after {
+  content: "";
+  position: absolute;
+  top: 74px;
+  right: 0;
+  bottom: 0;
+  width: 34px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--bg-body) 86%, transparent));
+  z-index: var(--z-local-raised);
+}
+[data-theme="dark"] #sheet-view-area.active::after {
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--bg-body) 90%, transparent));
+}
+.driver-seat, .sheet-driver-row {
+  background: color-mix(in srgb, var(--accent-color) 7%, var(--ui-readable-inner-bg));
+  border-color: color-mix(in srgb, var(--accent-color) 28%, var(--ui-readable-border-strong));
+}
+#sheet-view-area .sheet-driver-row {
+  background: color-mix(in srgb, var(--accent-color) 5%, var(--bg-card));
+}
+#sheet-view-area .sheet-driver-row:not(.sheet-label-row) {
+  grid-template-columns: 28px minmax(0, 1fr) 16px;
+}
+#sheet-view-area .sheet-driver-row .grade-badge,
+#sheet-view-area .sheet-driver-row .sheet-grade-placeholder {
+  order: 1;
+}
+#sheet-view-area .sheet-driver-name {
+  order: 2;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+#sheet-view-area #sheet-title-bar {
+    min-height: 48px;
+    padding: 7px 9px;
+    align-items: flex-start;
+  }
+
+#sheet-view-area #sheet-canvas {
+    top: 70px;
+  }
+}
+.driver-seat,
+.sheet-driver-row,
+#sheet-view-area .sheet-driver-row {
+  border-color: var(--ui-saas-border-strong);
+  background: color-mix(in srgb, var(--accent-color) 7%, var(--ui-saas-inner));
+}
+[data-theme="dark"] :is(
+  .mock-sheet-window-top,
+  .mock-sheet-browser-top
+) {
+  color: var(--text-main);
+  border-color: var(--ui-saas-border, var(--border-color));
+  background: color-mix(in srgb, var(--bg-card) 74%, var(--color-night));
+}
+[data-theme="dark"] :is(
+  .mock-sheet-selection-table,
+  .mock-sheet-selection-table div
+) {
+  color: var(--palette-blue-100);
+  border-color: rgba(96, 165, 250, 0.24);
+  background: rgba(30, 64, 175, 0.18);
+}
+[data-theme="dark"] .mock-sheet-purple-head {
+  color: var(--color-white);
+  background: color-mix(in srgb, var(--accent-color) 46%, var(--palette-indigo-950));
+}
+#sheet-title-bar {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  right: 10px;
+  z-index: var(--z-local-sticky);
+  min-height: 48px;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 7px 9px;
+  background: var(--ui-saas-panel-raised);
+  backdrop-filter: blur(18px) saturate(1.08);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-weight: 700;
+  grid-template-columns: auto minmax(0, 1fr);
+  border: 1px solid var(--hairline, var(--border-color));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--ui-saas-shadow-soft);
+  justify-content: flex-start;
+  border-color: var(--ui-saas-border);
+}
+.sheet-summary-stat, .sheet-summary-updated {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 3px;
+  min-width: 0;
+  color: var(--text-sub);
+  font-size: 0.64rem;
+  font-weight: 680;
+}
+.sheet-summary-stat strong, .sheet-summary-updated strong {
+  color: var(--text-main);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+#sheet-canvas {
+  position: absolute;
+  top: 70px;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 22px;
+  padding: 12px 10px 126px;
+  min-width: max-content;
+  padding-bottom: 132px;
+}
+.sheet-label-col {
+  min-width: 48px;
+}
+.sheet-driver-row {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--sheet-grid);
+  font-size: 0.75rem;
+  background: color-mix(in srgb, var(--accent-color) 5%, var(--bg-card));
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 850;
+}
+#sheet-hint {
+  position: absolute;
+  bottom: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(var(--shadow-rgb), 0.72);
+  color: var(--color-white);
+  font-size: 0.68rem;
+  padding: 6px 10px;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+#sheet-bottom-controls {
+  position: absolute;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+  transform: translateX(-50%);
+  z-index: var(--z-local-sticky);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-card) 88%, transparent);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 12px 28px rgba(var(--shadow-rgb), 0.14);
+  backdrop-filter: blur(10px);
+  max-width: calc(100vw - 24px);
+  border-color: var(--ui-saas-border);
+  opacity: 0.94;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+body[data-theme="dark"] #sheet-view-area,
+html[data-theme="dark"] #sheet-view-area {
+  color: var(--dark-ui-text);
+}
+body[data-theme="dark"] :where(#sheet-summary, .sheet-summary-pill, .sheet-empty-text, #sheet-hint),
+html[data-theme="dark"] body :where(#sheet-summary, .sheet-summary-pill, .sheet-empty-text, #sheet-hint) {
+  color: var(--dark-ui-muted);
+}
+#sheet-view-area .sheet-driver-icon {
+  order: 3;
+  justify-self: center;
+  display: none;
+}

@@ -1,0 +1,187 @@
+/* Moved from assets/css/cars-members-tray/03-person-card.css; source-order chunk 1/4. */
+.member-card:active {
+cursor: grabbing;
+}
+.grade-badge[data-grade="1"] {
+background: var(--grade1-bg); color: var(--grade1-text); border-color: var(--grade1-border);
+}
+.grade-badge[data-grade="2"] {
+background: var(--grade2-bg); color: var(--grade2-text); border-color: var(--grade2-border);
+}
+.grade-badge[data-grade="3"] {
+background: var(--grade3-bg); color: var(--grade3-text); border-color: var(--grade3-border);
+}
+.grade-badge[data-grade="4"] {
+background: var(--grade4-bg); color: var(--grade4-text); border-color: var(--grade4-border);
+}
+.grade-badge[data-grade="0"] {
+display: none;
+}
+.member-card.in-waiting .member-card-row {
+grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+}
+.member-card.in-waiting .member-inline-actions {
+justify-content: flex-start;
+    flex-wrap: nowrap;
+    min-width: 0;
+    overflow: hidden;
+}
+.member-card.in-waiting .delete-btn-overlay:hover {
+color: var(--color-danger);
+}
+[data-theme="dark"] .memo-popup {
+background: var(--bg-card); color: var(--text-main);
+}
+.member-card.in-waiting .memo-popup:empty::before {
+content: "";
+}
+.member-card-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: center;
+}
+.member-inline-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.member-inline-actions .action-btn {
+width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+@media (max-width: 640px) {
+.member-card {
+min-height: 80px;
+}
+}
+.member-main-line .grade-badge {
+flex: 0 0 auto;
+    font-size: 0.68rem;
+    padding: 2px 7px;
+}
+.member-action-btn:hover {
+background: var(--hover-bg); color: var(--text-main);
+}
+.member-card.in-waiting .member-action-row {
+grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.member-card.in-waiting .memo-popup {
+  display: block;
+  min-height: 16px;
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 0.67rem;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 640px) {
+.member-card {
+min-height: 96px;
+}
+}
+@media (max-width: 640px) {
+.member-action-btn {
+height: 40px;
+        font-size: 0.74rem;
+}
+}
+@media (max-width: 420px) {
+.member-action-row {
+gap: 5px;
+}
+}
+@media (max-width: 420px) {
+.member-action-btn {
+padding-left: 4px;
+        padding-right: 4px;
+}
+}
+@media (max-width: 640px) {
+.member-card {
+min-height: 104px;
+}
+}
+@media (max-width: 640px) {
+.member-name-text {
+font-size: 0.96rem;
+}
+}
+@media (max-width: 640px) {
+.member-action-row {
+gap: 7px;
+}
+}
+@media (max-width: 640px) {
+.member-action-btn {
+height: 44px;
+        font-size: 0.76rem;
+}
+}
+@media (max-width: 420px) {
+.member-action-btn span {
+font-size: 0.7rem;
+}
+}
+@media (max-width: 640px) {
+.member-card {
+padding: 9px 10px;
+}
+}
+@media (max-width: 640px) {
+.member-card-row,
+.member-inline-actions {
+gap: 8px;
+}
+}
+@media (max-width: 640px) {
+.member-action-btn {
+min-height: 42px;
+}
+}
+@media (max-width: 640px) {
+.member-main-line {
+min-height: 30px ;
+        padding: 0 ;
+        display: flex ;
+        align-items: flex-start ;
+}
+}
+@media (max-width: 640px) {
+.member-name-text {
+font-size: 0.96rem ;
+        line-height: 1.25 ;
+        font-weight: 900 ;
+        letter-spacing: 0 ;
+}
+}
+@media (max-width: 640px) {
+.grade-badge {
+font-size: 0.68rem ;
+        line-height: 1.05 ;
+        padding: 4px 8px ;
+        border-radius: var(--radius-sm) ;
+        white-space: nowrap;
+}
+}
+@media (max-width: 640px) {
+.member-action-row {
+display: grid ;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) ;
+        gap: 6px ;
+        margin-top: 8px ;
+        width: 100% ;
+}
+}

@@ -1,12 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+const { readCssBundle } = require('./helpers/read-project');
 
 const root = path.join(__dirname, '..');
 const cssDir = path.join(root, 'assets', 'css');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const appearanceAndRepair = ['02-theme-appearance.css', '03-guides-modals.css']
-  .map(file => fs.readFileSync(path.join(cssDir, file), 'utf8'))
-  .join('\n');
+const appearanceAndRepair = readCssBundle();
 
 if (!appearanceAndRepair.includes('#appearanceModal .theme-picker') || !appearanceAndRepair.includes('.appearance-modal')) {
   console.error('Theme picker owner selectors are missing');

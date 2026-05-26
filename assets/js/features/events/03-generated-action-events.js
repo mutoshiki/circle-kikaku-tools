@@ -38,7 +38,8 @@
             'clear-route-private-origin': () => global.clearRoutePrivateOrigin?.(),
             'save-route-private-origin': () => global.saveRoutePrivateOrigin?.(),
             'cancel-route-private-origin': () => global.cancelRoutePrivateOriginEdit?.(),
-            'remove-route-stop': ({ target }) => global.removeRouteStop?.(target)
+            'remove-route-stop': ({ target }) => global.removeRouteStop?.(target),
+            'add-route-candidate-to-personal': ({ target }) => global.addRouteCandidateToPersonal?.(target.dataset.routeCandidate || '')
         };
         global.SanpoApp?.registerActions?.(generatedActionHandlers);
 

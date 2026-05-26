@@ -3,7 +3,7 @@
 // A-cleanup owner: this file is the single source of truth for theme presets,
 // palette labels, allowed light/dark ids, and legacy palette aliases.
 // appearance.js consumes window.SanpoThemeRegistry instead of keeping duplicate
-// theme arrays. Keep CSS variable definitions and palette-related styles in assets/css/02-theme-appearance.css.
+// theme arrays. Keep CSS variable definitions and palette-related styles in assets/css/theme/*.
 (function () {
   'use strict';
 

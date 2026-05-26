@@ -1,11 +1,12 @@
 const fs = require('fs');
 const path = require('path');
+const { readCssBundle } = require('./helpers/read-project');
 
 const dataState = fs.readFileSync(path.join(__dirname, '..', 'assets/js/core/data-state.js'), 'utf8');
 const sheetView = fs.readFileSync(path.join(__dirname, '..', 'assets/js/features/sheet-view.js'), 'utf8');
 const syncController = fs.readFileSync(path.join(__dirname, '..', 'assets/js/core/sync-controller.js'), 'utf8');
 const headerEvents = fs.readFileSync(path.join(__dirname, '..', 'assets/js/features/events/02-static-header-events.js'), 'utf8');
-const sheetCss = fs.readFileSync(path.join(__dirname, '..', 'assets/css/06-sheet-view.css'), 'utf8');
+const sheetCss = readCssBundle();
 
 function assert(condition, message) {
   if (!condition) {

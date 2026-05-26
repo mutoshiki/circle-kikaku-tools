@@ -1,0 +1,218 @@
+/* Moved from assets/css/sheet-view/03-timetable.css; source-order chunk 1/2. */
+/* Sheet view timetable and plan table.
+   CSS architecture cleanup: keep this file focused on the responsibility in its name. */
+.sheet-plan-table .sheet-car-col:last-child {
+    margin-right: 0;
+}
+.sheet-plan-section .sheet-wait-body,
+.sheet-plan-section .sheet-waiting-list {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 6px;
+    padding: 8px;
+}
+.sheet-plan-section .sheet-wait-item {
+    min-height: 32px;
+    border: 1px solid var(--hairline, var(--border-color));
+    border-radius: 999px;
+    padding: 5px 8px;
+}
+@media (max-width: 640px) {
+    #sheet-canvas {
+        gap: 16px;
+    }
+
+    .sheet-plan-heading {
+        font-size: 0.92rem;
+    }
+}
+.sheet-plan-section {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: var(--sheet-plan-width, max-content);
+  max-width: none;
+}
+.sheet-plan-table {
+  display: flex;
+  align-items: stretch;
+  width: max-content;
+}
+.sheet-plan-section .sheet-wait-block {
+  width: var(--sheet-plan-width, 100%);
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 8px 0 0;
+  flex: 0 0 auto;
+  border-left: 1px solid var(--hairline, var(--border-color));
+  max-width: none;
+  align-self: flex-start;
+}
+.sheet-plan-empty {
+  min-width: 280px;
+  padding: 16px;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-main);
+  background: var(--bg-card);
+  color: var(--text-sub);
+  font-weight: 500;
+}
+.sheet-summary-row.is-team .sheet-summary-plan-label {
+    background: color-mix(in srgb, var(--text-main) 86%, var(--accent-color));
+}
+@media (max-width: 640px) {
+    #sheet-title-bar {
+        min-height: 48px;
+        padding: 7px 9px;
+        gap: 7px;
+    }
+
+    .sheet-title-icon {
+        display: none;
+    }
+
+    #sheet-summary {
+        gap: 2px;
+    }
+
+    .sheet-summary-row {
+        grid-template-columns: 34px repeat(4, 43px) minmax(58px, auto);
+        column-gap: 4px;
+    }
+
+    .sheet-summary-plan-label {
+        padding: 2px 5px;
+        font-size: 0.58rem;
+    }
+
+    .sheet-summary-stat,
+    .sheet-summary-updated {
+        gap: 2px;
+        font-size: 0.58rem;
+    }
+
+    .sheet-summary-stat strong,
+    .sheet-summary-updated strong {
+        font-size: 0.63rem;
+    }
+
+    .sheet-summary-updated {
+        padding-left: 5px;
+    }
+
+    #sheet-canvas {
+        top: 70px;
+        padding: 12px 10px 132px;
+    }
+}
+/* Mobile sheet summary readability: keep the current viewport chrome while giving
+   each count enough room to read without crowding. */
+@media (max-width: 640px) {
+  #sheet-title-bar {
+    min-height: 54px;
+    padding: 8px 10px;
+  }
+
+  #sheet-summary {
+    width: 100%;
+    gap: 4px;
+  }
+
+  .sheet-summary-row {
+    grid-template-columns: minmax(42px, 0.8fr) repeat(4, minmax(48px, 1fr));
+    column-gap: 5px;
+    row-gap: 3px;
+  }
+
+  .sheet-summary-plan-label {
+    padding: 3px 6px;
+    font-size: 0.62rem;
+  }
+
+  .sheet-summary-stat,
+  .sheet-summary-updated {
+    justify-content: center;
+    min-height: 18px;
+    gap: 3px;
+    font-size: 0.62rem;
+  }
+
+  .sheet-summary-stat strong,
+  .sheet-summary-updated strong {
+    font-size: 0.68rem;
+  }
+
+  .sheet-summary-updated {
+    grid-column: 2 / -1;
+    justify-self: stretch;
+    margin-left: 0;
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--hairline, var(--border-color));
+    padding-top: 2px;
+  }
+
+  #sheet-canvas {
+    top: 76px;
+  }
+}
+/* 2026-05 発表ビュー: 車割・班割の下にタイムテーブルを表示する。 */
+.sheet-timetable-section {
+    width: min(var(--sheet-plan-content-width, 560px), 720px);
+    min-width: min(320px, calc(100vw - 28px));
+}
+.sheet-timetable-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 6px;
+    border: 1px solid var(--hairline, var(--border-color));
+    border-radius: var(--radius-main);
+    background: color-mix(in srgb, var(--bg-card) 94%, var(--accent-color));
+    box-shadow: var(--shadow-soft, 0 12px 28px rgba(var(--shadow-rgb), 0.08));
+}
+.sheet-timetable-row {
+    display: grid;
+    grid-template-columns: 4.8em minmax(0, 1fr);
+    align-items: start;
+    gap: 8px;
+    min-height: 36px;
+    padding: 7px 8px;
+    border-radius: 10px;
+}
+.sheet-timetable-row + .sheet-timetable-row {
+    border-top: 1px solid var(--hairline, var(--border-color));
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+.sheet-timetable-time {
+    color: var(--text-sub);
+    font-size: 0.84rem;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+.sheet-timetable-title {
+    min-width: 0;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-weight: 520;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+.sheet-timetable-link {
+    color: color-mix(in srgb, var(--palette-blue-600) 82%, var(--accent-color));
+    font-weight: 650;
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+    touch-action: manipulation;
+}
+.sheet-timetable-link:hover {
+    text-decoration-thickness: 0.12em;
+}
+[data-theme="dark"] .sheet-timetable-card {
+    background: color-mix(in srgb, var(--bg-card) 88%, var(--accent-color));
+}

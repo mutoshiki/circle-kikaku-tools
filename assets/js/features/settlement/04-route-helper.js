@@ -2,6 +2,7 @@
 // Split from features/settlement.js during S-3 cleanup.
 
 const ROUTE_PRIVATE_ORIGIN_KEY = 'circle_route_private_origin_v1';
+const ROUTE_PERSONAL_STOPS_KEY_PREFIX = 'circle_route_personal_stops_v1:';
 
 function getRoutePrivateOrigin() {
     try {
@@ -18,6 +19,45 @@ function setRoutePrivateOrigin(value) {
             localStorage.setItem(ROUTE_PRIVATE_ORIGIN_KEY, normalized);
         } else {
             safeLocalRemove(ROUTE_PRIVATE_ORIGIN_KEY);
+        }
+    } catch (e) {}
+}
+
+function normalizeRouteStopList(stops = []) {
+    const seen = new Set();
+    const list = [];
+    (Array.isArray(stops) ? stops : []).forEach(stop => {
+        const text = String(stop || '').replace(/\s+/g, ' ').trim();
+        const key = text.toLowerCase();
+        if (!text || seen.has(key)) return;
+        seen.add(key);
+        list.push(text);
+    });
+    return list;
+}
+
+function getRoutePersonalStopsKey() {
+    const queryRoom = new URLSearchParams(location.search || '').get('room') || '';
+    const room = String(byId('roomNameInput')?.value || '').trim();
+    const key = queryRoom || room || 'default';
+    return ROUTE_PERSONAL_STOPS_KEY_PREFIX + key.slice(0, 120);
+}
+
+function getRoutePersonalStops(fallbackStops = []) {
+    try {
+        const raw = localStorage.getItem(getRoutePersonalStopsKey());
+        if (raw) return normalizeRouteStopList(JSON.parse(raw));
+    } catch (e) {}
+    return normalizeRouteStopList(fallbackStops);
+}
+
+function setRoutePersonalStops(stops = []) {
+    try {
+        const normalized = normalizeRouteStopList(stops);
+        if (normalized.length) {
+            localStorage.setItem(getRoutePersonalStopsKey(), JSON.stringify(normalized));
+        } else {
+            safeLocalRemove(getRoutePersonalStopsKey());
         }
     } catch (e) {}
 }
@@ -43,13 +83,13 @@ window.saveRoutePrivateOrigin = function() {
     const input = byId('routePrivateOriginInput');
     setRoutePrivateOrigin(input ? input.value : '');
     renderRoutePrivateOrigin(false);
-    setRouteHelperStatus(getRoutePrivateOrigin() ? '自分用の出発地をこの端末に保存しました。' : '自分用の出発地を空にしました。');
+    setRouteHelperStatus(getRoutePrivateOrigin() ? '自宅を保存しました。' : '自宅を空にしました。');
 };
 
 window.clearRoutePrivateOrigin = function() {
     setRoutePrivateOrigin('');
     renderRoutePrivateOrigin(false);
-    setRouteHelperStatus('自分用の出発地をこの端末から削除しました。');
+    setRouteHelperStatus('自宅を削除しました。');
 };
 
 window.cancelRoutePrivateOriginEdit = function() {
@@ -62,11 +102,15 @@ function getRouteCarNames() {
 
 function getSavedRouteStops() {
     const state = ensureSettlementState();
-    return Array.isArray(state.routeStops) ? state.routeStops.map(v => String(v || '').trim()).filter(Boolean) : [];
+    return normalizeRouteStopList(state.routeStops || []);
 }
 
 function routeStopRowHtml(value = '', index = 0, total = 1) {
     return window.SanpoApp.templates.settlement.routeStopRow(value, index, { escapeHtml });
+}
+
+function routeCandidateHtml(value = '') {
+    return window.SanpoApp.templates.settlement.routeCandidateButton(value, { escapeHtml });
 }
 
 function refreshRouteStopNumbers() {
@@ -85,9 +129,8 @@ function setRouteHelperStatus(message, isError = false) {
 }
 
 function getRouteStops() {
-    return Array.from(document.querySelectorAll('#routeStopList .route-stop-input'))
-        .map(input => String(input.value || '').trim())
-        .filter(Boolean);
+    return normalizeRouteStopList(Array.from(document.querySelectorAll('#routeStopList .route-stop-input'))
+        .map(input => String(input.value || '').trim()));
 }
 
 function setRouteStops(stops) {
@@ -99,10 +142,36 @@ function setRouteStops(stops) {
     setupRouteStopSortable();
 }
 
-function saveRouteStopsFromModal() {
+function setRouteCandidates(candidates = getSavedRouteStops()) {
+    const list = byId('routeCandidateList');
+    if (!list) return;
+    const normalized = normalizeRouteStopList(candidates);
+    list.innerHTML = normalized.length
+        ? normalized.map(routeCandidateHtml).join('')
+        : '<div class="route-candidate-empty">候補はまだありません。</div>';
+}
+
+function mergeRouteCandidates(stops = []) {
+    const normalized = normalizeRouteStopList(stops);
+    if (!normalized.length) return getSavedRouteStops();
     const state = ensureSettlementState();
-    state.routeStops = getRouteStops();
-    save();
+    const merged = normalizeRouteStopList([...(state.routeStops || []), ...normalized]);
+    state.routeStops = merged;
+    setRouteCandidates(merged);
+    return merged;
+}
+
+function saveRouteStopsFromModal(options = {}) {
+    const share = options.share === true;
+    const stops = getRouteStops();
+    setRoutePersonalStops(stops);
+    if (share) {
+        mergeRouteCandidates(stops);
+        save();
+    } else {
+        saveLocalDraftOnly?.();
+    }
+    return stops;
 }
 
 let routeStopSortable = null;
@@ -126,7 +195,7 @@ function setupRouteStopSortable() {
 let routeStopSaveTimer = null;
 window.onRouteStopsChanged = function() {
     clearTimeout(routeStopSaveTimer);
-    saveRouteStopsFromModal();
+    saveRouteStopsFromModal({ share: true });
     refreshRouteStopNumbers();
 };
 
@@ -140,7 +209,9 @@ window.onRouteStopsChangedDelayed = function() {
 
 window.openRouteDistanceHelper = function() {
     syncSettlementStateFromDOM();
-    setRouteStops(getSavedRouteStops());
+    const candidates = getSavedRouteStops();
+    setRouteStops(getRoutePersonalStops(candidates));
+    setRouteCandidates(candidates);
     renderRoutePrivateOrigin(false);
     setRouteHelperStatus('');
     if (modals.routeDistance) modals.routeDistance.show();
@@ -173,15 +244,22 @@ window.removeRouteStop = function(button) {
     const list = byId('routeStopList');
     if (list && !list.querySelector('.route-stop-row')) setRouteStops(['']);
     refreshRouteStopNumbers();
-    saveRouteStopsFromModal();
+    saveRouteStopsFromModal({ share: true });
 };
 
+window.addRouteCandidateToPersonal = function(encodedValue) {
+    const value = decodeURIComponent(encodedValue || '').trim();
+    if (!value) return;
+    const current = getRouteStops();
+    setRouteStops(normalizeRouteStopList([...current, value]));
+    setRoutePersonalStops(getRouteStops());
+    setRouteHelperStatus('候補を回る場所に追加しました。');
+};
 
 window.openGoogleRoute = function() {
-    saveRouteStopsFromModal();
-    const stops = getRouteStops();
+    const stops = saveRouteStopsFromModal({ share: true });
     if (!stops.length) {
-        setRouteHelperStatus('目的地・経由地を1つ以上入力してください。', true);
+        setRouteHelperStatus('回る場所を1つ以上入力してください。', true);
         return;
     }
 
@@ -203,5 +281,5 @@ window.openGoogleRoute = function() {
     }
     const url = `https://www.google.com/maps/dir/?${params.toString()}`;
     window.open(url, '_blank', 'noopener,noreferrer');
-    setRouteHelperStatus(privateOrigin ? '自分用の出発地を含めた往復ルートを開きました。' : 'Googleマップを開きました。必要なら出発地・帰着地を追加してください。');
+    setRouteHelperStatus(privateOrigin ? '自宅に戻るルートを開きました。' : 'Googleマップを開きました。');
 };

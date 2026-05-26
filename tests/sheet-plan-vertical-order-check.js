@@ -1,6 +1,6 @@
-const { readText } = require('./helpers/read-project');
+const { readText, readCssBundle } = require('./helpers/read-project');
 
-const css = readText('assets/css/06-sheet-view.css');
+const css = readCssBundle();
 const js = readText('assets/js/features/sheet-view.js');
 
 if (!css.includes('発表ビューは車割を上、班割を下に縦並びで表示する。')) {

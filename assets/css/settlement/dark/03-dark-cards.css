@@ -1,0 +1,167 @@
+/* Moved from assets/css/settlement/10-dark-surfaces.css; source-order chunk 3/3. */
+body[data-theme="dark"] :is(
+  .btn-primary,
+  .btn-accent-solid,
+  .guide-footer .btn-primary,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  #batchOpenBtn.tool-btn,
+  #routeHelperBtn.seisan-btn,
+  #openGoogleRouteBtn.seisan-btn,
+  .seisan-btn.primary,
+  .seisan-btn.active,
+  #shuffleAssignBtn.tray-action-btn,
+  .tray-inline-row .tray-action-btn--auto,
+  #settlementCarEditModal .seisan-distance-shortcut,
+  .guide-action-box.primary,
+  .guide-mini-primary,
+  .guide-registration-cta,
+  .guide-phone-btn.primary
+):is(:hover, :focus-visible),
+html[data-theme="dark"] body :is(
+  .btn-primary,
+  .btn-accent-solid,
+  .guide-footer .btn-primary,
+  .mock-form-import-button,
+  .batch-spreadsheet-button,
+  #batchOpenBtn.tool-btn,
+  #routeHelperBtn.seisan-btn,
+  #openGoogleRouteBtn.seisan-btn,
+  .seisan-btn.primary,
+  .seisan-btn.active,
+  #shuffleAssignBtn.tray-action-btn,
+  .tray-inline-row .tray-action-btn--auto,
+  #settlementCarEditModal .seisan-distance-shortcut,
+  .guide-action-box.primary,
+  .guide-mini-primary,
+  .guide-registration-cta,
+  .guide-phone-btn.primary
+):is(:hover, :focus-visible) {
+  color: var(--theme-filled-control-text);
+  -webkit-text-fill-color: var(--theme-filled-control-text);
+}
+/* 2026-05 refinement: restore dark-mode readability after settlement summary color repairs.
+   This intentionally lives after the shared neutral-card rules so summary and car
+   result surfaces do not become flat or low-contrast in dark mode. */
+html[data-theme="dark"] body #app-layout #seisan-view-area,
+body[data-theme="dark"] #app-layout #seisan-view-area {
+  --seisan-dark-surface-strong: color-mix(in srgb, var(--bg-card) 78%, var(--color-night));
+  --seisan-dark-surface-inner: color-mix(in srgb, var(--bg-card) 86%, var(--palette-slate-950));
+  --seisan-dark-line-strong: color-mix(in srgb, var(--palette-slate-300) 30%, transparent);
+  --seisan-dark-line-soft: color-mix(in srgb, var(--palette-slate-400) 20%, transparent);
+  --seisan-dark-muted-readable: color-mix(in srgb, var(--text-main) 74%, var(--text-sub));
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-card,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-card,
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-car-summary-row,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-car-summary-row {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bg-card) 88%, var(--palette-slate-950)),
+      var(--seisan-dark-surface-strong)
+    );
+  border-color: var(--seisan-dark-line-strong);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--color-black) 22%, transparent);
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-car-summary-headline,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-car-summary-headline {
+  border-color: var(--seisan-dark-line-soft);
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.collect[data-summary-kind="collect"],
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.collect[data-summary-kind="collect"] {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-success) 24%, var(--bg-card)),
+      color-mix(in srgb, var(--color-success) 13%, var(--bg-card))
+    );
+  border-color: color-mix(in srgb, var(--color-success-soft) 54%, var(--border-color));
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.accounting[data-summary-kind="club"],
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.accounting[data-summary-kind="club"] {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-warning) 24%, var(--bg-card)),
+      color-mix(in srgb, var(--color-warning) 13%, var(--bg-card))
+    );
+  border-color: color-mix(in srgb, var(--color-warning) 54%, var(--border-color));
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"],
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-info) 26%, var(--bg-card)),
+      color-mix(in srgb, var(--color-info) 14%, var(--bg-card))
+    );
+  border-color: color-mix(in srgb, var(--palette-blue-400) 58%, var(--border-color));
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-value),
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-value),
+html[data-theme="dark"] body #app-layout #seisan-view-area :is(.seisan-car-summary-name, .seisan-car-summary-total, .seisan-cost-preview-label, .seisan-cost-preview-value, .seisan-extra-inline, .seisan-extra-chip),
+body[data-theme="dark"] #app-layout #seisan-view-area :is(.seisan-car-summary-name, .seisan-car-summary-total, .seisan-cost-preview-label, .seisan-cost-preview-value, .seisan-extra-inline, .seisan-extra-chip) {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card .seisan-summary-sub,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card .seisan-summary-sub,
+html[data-theme="dark"] body #app-layout #seisan-view-area :is(.seisan-muted, .seisan-small),
+body[data-theme="dark"] #app-layout #seisan-view-area :is(.seisan-muted, .seisan-small) {
+  color: var(--seisan-dark-muted-readable);
+  -webkit-text-fill-color: var(--seisan-dark-muted-readable);
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area :is(.seisan-cost-preview-item, .seisan-extra-inline, .seisan-extra-chip),
+body[data-theme="dark"] #app-layout #seisan-view-area :is(.seisan-cost-preview-item, .seisan-extra-inline, .seisan-extra-chip) {
+  background: var(--seisan-dark-surface-inner);
+  border-color: var(--seisan-dark-line-soft);
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-payment-tag,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-payment-tag {
+  background: color-mix(in srgb, var(--color-info) 24%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--palette-blue-400) 64%, var(--border-color));
+  color: var(--palette-blue-200);
+  -webkit-text-fill-color: var(--palette-blue-200);
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.split,
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.split,
+  .seisan-extra-inline > .seisan-cost-policy-tag.split,
+  .seisan-extra-inline > .seisan-cost-type-badge.split
+),
+body[data-theme="dark"] #app-layout #seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.split,
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.split,
+  .seisan-extra-inline > .seisan-cost-policy-tag.split,
+  .seisan-extra-inline > .seisan-cost-type-badge.split
+) {
+  color: var(--settlement-split-ink);
+  -webkit-text-fill-color: var(--settlement-split-ink);
+  background: var(--settlement-split-bg);
+  border-color: var(--settlement-split-line);
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.club,
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.club,
+  .seisan-extra-inline > .seisan-cost-policy-tag.club,
+  .seisan-extra-inline > .seisan-cost-type-badge.club
+),
+body[data-theme="dark"] #app-layout #seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.club,
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.club,
+  .seisan-extra-inline > .seisan-cost-policy-tag.club,
+  .seisan-extra-inline > .seisan-cost-type-badge.club
+) {
+  color: var(--settlement-club-ink);
+  -webkit-text-fill-color: var(--settlement-club-ink);
+  background: var(--settlement-club-bg);
+  border-color: var(--settlement-club-line);
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card .seisan-summary-label > .seisan-payment-tag,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card .seisan-summary-label > .seisan-payment-tag {
+  color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
+  -webkit-text-fill-color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
+  background: var(--settlement-pay-bg-fixed, var(--settlement-pay-bg));
+  border-color: var(--settlement-pay-line-fixed, var(--settlement-pay-line));
+}

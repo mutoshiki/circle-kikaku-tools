@@ -1,0 +1,56 @@
+/* Moved from assets/css/app-shell/01-layout-core.css; source-order chunk 3/3. */
+.app-brand-mark {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-main);
+  background: var(--accent-soft);
+  color: var(--accent-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  flex: 0 0 auto;
+  font-weight: 750;
+}
+.edit-header-tools-only {
+display: block;
+    margin: 0 0 8px;
+}
+.edit-header-tools-only .edit-tools {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.app-subtitle,
+.app-title {
+display: none;
+}
+@media (max-width: 640px) {
+.app-header-main {
+grid-template-columns: 1fr; gap: 7px;
+}
+}
+#app-header {
+  flex-shrink: 0;
+  padding: 8px 10px 6px;
+  background: var(--bg-body);
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  z-index: var(--z-local-raised);
+}
+.app-header-main {
+  max-width: 980px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  background: var(--app-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-main);
+  padding: 7px;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  min-height: 72px;
+}

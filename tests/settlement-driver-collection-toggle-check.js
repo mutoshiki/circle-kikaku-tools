@@ -1,13 +1,13 @@
 const assert = require('assert');
 const vm = require('vm');
-const { readText } = require('./helpers/read-project');
+const { readText, readSettlementTemplateBundle } = require('./helpers/read-project');
 
 const html = readText('index.html');
 const stateText = readText('assets/js/features/settlement/01-state.js');
 const calcText = readText('assets/js/features/settlement/02-calculator.js');
 const renderText = readText('assets/js/features/settlement/03-render.js');
 const eventsText = readText('assets/js/features/events/05-view-feature-events.js');
-const templatesText = readText('assets/js/templates/settlement-templates.js');
+const templatesText = readSettlementTemplateBundle();
 const guideText = readText('assets/js/templates/guide-content.js');
 
 assert(html.includes('id="seisanDriverCollectionOffset"'), 'settings modal should expose driver collection offset toggle');

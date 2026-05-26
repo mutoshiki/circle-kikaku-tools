@@ -1,0 +1,109 @@
+/* Moved from assets/css/settlement/11-chip-parity.css; source-order chunk 1/1. */
+/* Dark settlement chip haze removal.
+   Summary and car-settlement chips share the same darker, non-frosted surfaces. */
+html[data-theme="dark"] body #app-layout #seisan-view-area,
+body[data-theme="dark"] #app-layout #seisan-view-area {
+  --settlement-split-ink: rgb(134, 239, 172);
+  --settlement-split-bg: rgba(34, 197, 94, 0.10);
+  --settlement-split-line: rgba(52, 211, 153, 0.46);
+  --settlement-club-ink: rgb(250, 204, 21);
+  --settlement-club-bg: rgba(245, 158, 11, 0.10);
+  --settlement-club-line: rgba(251, 191, 36, 0.46);
+  --settlement-pay-ink-fixed: rgb(147, 197, 253);
+  --settlement-pay-bg-fixed: rgba(59, 130, 246, 0.14);
+  --settlement-pay-line-fixed: rgba(96, 165, 250, 0.56);
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag,
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge,
+  .seisan-summary-card .seisan-summary-label > .seisan-payment-tag,
+  .seisan-car-summary-payment .seisan-payment-tag,
+  .seisan-extra-inline > .seisan-cost-policy-tag,
+  .seisan-extra-inline > .seisan-cost-type-badge
+),
+body[data-theme="dark"] #app-layout #seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag,
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge,
+  .seisan-summary-card .seisan-summary-label > .seisan-payment-tag,
+  .seisan-car-summary-payment .seisan-payment-tag,
+  .seisan-extra-inline > .seisan-cost-policy-tag,
+  .seisan-extra-inline > .seisan-cost-type-badge
+) {
+  background-image: none;
+  box-shadow: none;
+  filter: none;
+  opacity: 1;
+  text-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.split,
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.split,
+  .seisan-extra-inline > .seisan-cost-policy-tag.split,
+  .seisan-extra-inline > .seisan-cost-type-badge.split
+),
+body[data-theme="dark"] #app-layout #seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.split,
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.split,
+  .seisan-extra-inline > .seisan-cost-policy-tag.split,
+  .seisan-extra-inline > .seisan-cost-type-badge.split
+) {
+  color: var(--settlement-split-ink);
+  -webkit-text-fill-color: var(--settlement-split-ink);
+  background: var(--settlement-split-bg);
+  border-color: var(--settlement-split-line);
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.club,
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.club,
+  .seisan-extra-inline > .seisan-cost-policy-tag.club,
+  .seisan-extra-inline > .seisan-cost-type-badge.club
+),
+body[data-theme="dark"] #app-layout #seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.club,
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.club,
+  .seisan-extra-inline > .seisan-cost-policy-tag.club,
+  .seisan-extra-inline > .seisan-cost-type-badge.club
+) {
+  color: var(--settlement-club-ink);
+  -webkit-text-fill-color: var(--settlement-club-ink);
+  background: var(--settlement-club-bg);
+  border-color: var(--settlement-club-line);
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-payment-tag,
+  .seisan-car-summary-payment .seisan-payment-tag
+),
+body[data-theme="dark"] #app-layout #seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-payment-tag,
+  .seisan-car-summary-payment .seisan-payment-tag
+) {
+  color: var(--settlement-pay-ink-fixed);
+  -webkit-text-fill-color: var(--settlement-pay-ink-fixed);
+  background: var(--settlement-pay-bg-fixed);
+  border-color: var(--settlement-pay-line-fixed);
+}
+/* Summary payment icon color alignment.
+   The pay chip stays blue, but the car icon beside it should use the same
+   neutral summary text color as the other summary icons. */
+html body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label,
+html body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label > i {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label,
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label > i,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label > i {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+html body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label > .seisan-payment-tag,
+html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label > .seisan-payment-tag,
+body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label > .seisan-payment-tag {
+  color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
+  -webkit-text-fill-color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
+  background: var(--settlement-pay-bg-fixed, var(--settlement-pay-bg));
+  border-color: var(--settlement-pay-line-fixed, var(--settlement-pay-line));
+}

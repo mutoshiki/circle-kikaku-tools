@@ -1,6 +1,5 @@
-const fs = require('fs');
-const path = require('path');
-const css = fs.readFileSync(path.join(__dirname, '..', 'assets/css/settlement/05-checklists-share.css'), 'utf8');
+const { readCssBundle } = require('./helpers/read-project');
+const css = readCssBundle();
 const forbiddenSnippets = [
   '.driver-seat, .seat-slot, .member-card, .seisan-summary-card, .seisan-car-summary-row',
   '[data-theme="dark"] :where(.driver-seat, .seat-slot, .member-card, .sheet-driver-row, .sheet-seat-row, .sheet-wait-item, .seisan-summary-card'

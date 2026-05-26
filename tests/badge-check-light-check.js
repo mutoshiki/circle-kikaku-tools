@@ -18,7 +18,7 @@ if (missing.length) {
   process.exit(1);
 }
 
-if (!html.includes('./assets/css/cars-members-tray/03-person-card.css') || !html.includes('./assets/css/cars-members-tray/04-car-card.css')) {
+if (!html.includes('./assets/css/cars-members-tray/person-card/01-person-card-shell.css') || !html.includes('./assets/css/cars-members-tray/car-card/01-card-shell.css')) {
   console.error('car/member leaf CSS is not loaded');
   process.exit(1);
 }

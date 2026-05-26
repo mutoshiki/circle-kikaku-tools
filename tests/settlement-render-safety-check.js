@@ -1,4 +1,4 @@
-const { readText } = require('./helpers/read-project');
+const { readText, readSettlementTemplateBundle } = require('./helpers/read-project');
 
 function assert(condition, message) {
   if (!condition) {
@@ -8,7 +8,7 @@ function assert(condition, message) {
 }
 
 const render = readText('assets/js/features/settlement/03-render.js');
-const templates = readText('assets/js/templates/settlement-templates.js');
+const templates = readSettlementTemplateBundle();
 const generatedEvents = readText('assets/js/features/events/03-generated-action-events.js');
 
 assert(render.includes('organizerEl.replaceChildren'), 'organizer select should be built with DOM options, not innerHTML');

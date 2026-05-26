@@ -1,8 +1,8 @@
 const assert = require('assert');
-const { readText } = require('./helpers/read-project');
+const { readText, readCssBundle } = require('./helpers/read-project');
 
 const render = readText('assets/js/core/render-controller.js');
-const css = readText('assets/css/06-sheet-view.css');
+const css = readCssBundle();
 const html = readText('index.html');
 
 assert(render.includes('function buildSheetPlanSummaryRow'), 'sheet summary rows should be built by a dedicated helper');

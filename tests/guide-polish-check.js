@@ -1,4 +1,4 @@
-const { readText } = require('./helpers/read-project');
+const { readText, readCssBundle } = require('./helpers/read-project');
 
 function assert(condition, message) {
   if (!condition) {
@@ -8,8 +8,8 @@ function assert(condition, message) {
 }
 
 const guide = readText('assets/js/templates/guide-content.js');
-const guideCss = readText('assets/css/guides-modals/01-modal-dropdown-base.css') + readText('assets/css/guides-modals/02-guide-cards.css') + readText('assets/css/guides-modals/03-guide-mockups.css') + readText('assets/css/guides-modals/04-modal-repairs.css');
-const trayCss = readText('assets/css/cars-members-tray/02-tray-shell.css') + readText('assets/css/cars-members-tray/05-drag-drop.css');
+const guideCss = readCssBundle();
+const trayCss = guideCss;
 const html = readText('index.html');
 
 assert(guide.includes('フォーム回答を読み込み'), 'requested import mock title missing');

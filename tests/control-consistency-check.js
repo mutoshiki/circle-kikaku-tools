@@ -1,4 +1,4 @@
-const { readText, readCssBundle } = require('./helpers/read-project');
+const { root, readText, readCssBundle } = require('./helpers/read-project');
 
 function assert(condition, message) {
   if (!condition) {
@@ -17,6 +17,6 @@ assert(css.includes('--control-radius: 10px'), 'moderate control radius token mi
 assert(css.includes('.header-action') && css.includes('.tool-btn') && css.includes('.seisan-btn') && css.includes('.tray-action-btn'), 'main action button selectors missing across owner CSS files');
 assert(css.includes('#shuffleAssignBtn.tray-action-btn') && css.includes('#fillEmptySeatsBtn.tray-action-btn'), 'tray action priority selectors missing');
 assert(css.includes('[data-theme="dark"]'), 'dark theme consistency rules missing');
-assert(readText('assets/css/08-control-consistency.css').includes('Deprecated file'), 'legacy 08 file should remain as a non-loaded migration note only');
+assert(!require('fs').existsSync(require('path').join(root, 'assets/css/08-control-consistency.css')), 'legacy 08 control dump should be deleted');
 
 console.log('Control consistency check OK');

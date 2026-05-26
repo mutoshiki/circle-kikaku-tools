@@ -1,0 +1,215 @@
+/* Moved from assets/css/cars-members-tray/02-tray-shell.css; source-order chunk 4/5. */
+@media (max-width: 640px) {
+    .tray-inline-row .tray-action-btn {
+        min-height: 40px;
+        padding-inline: 8px;
+        font-size: 0.69rem;
+    }
+}
+.tray-inline-row .tray-action-btn--fill {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--color-white);
+  box-shadow: 0 8px 18px rgba(212, 124, 88, 0.22);
+}
+.tray-inline-row .tray-action-btn--fill:hover,
+.tray-inline-row .tray-action-btn--fill:focus-visible {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--color-white);
+}
+.tray-inline-row .tray-action-btn--auto {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--color-white);
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.18);
+}
+.tray-inline-row .tray-action-btn--auto:hover,
+.tray-inline-row .tray-action-btn--auto:focus-visible {
+    background: var(--palette-teal-deep);
+    border-color: var(--palette-teal-deep);
+    color: var(--color-white);
+}
+.tray-inline-row .tray-action-btn--fill i,
+.tray-inline-row .tray-action-btn--fill span,
+.tray-inline-row .tray-action-btn--auto i,
+.tray-inline-row .tray-action-btn--auto span {
+    color: inherit;
+}
+/* fill-empty is secondary; auto-assign is the only emphasized tray action. */
+/* Tray action buttons: consistent, subtle, theme-aware. */
+#fillEmptySeatsBtn.tray-action-btn,
+.tray-inline-row .tray-action-btn--fill {
+    background: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
+    border-color: color-mix(in srgb, var(--accent-color) 18%, var(--border-color));
+    color: var(--text-main);
+    box-shadow: none;
+}
+#shuffleAssignBtn.tray-action-btn,
+.tray-inline-row .tray-action-btn--auto {
+    background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
+    border-color: color-mix(in srgb, var(--accent-color) 28%, var(--border-color));
+    color: var(--text-main);
+    box-shadow: none;
+}
+#fillEmptySeatsBtn.tray-action-btn:hover,
+#fillEmptySeatsBtn.tray-action-btn:focus-visible,
+#shuffleAssignBtn.tray-action-btn:hover,
+#shuffleAssignBtn.tray-action-btn:focus-visible,
+.tray-inline-row .tray-action-btn--fill:hover,
+.tray-inline-row .tray-action-btn--fill:focus-visible,
+.tray-inline-row .tray-action-btn--auto:hover,
+.tray-inline-row .tray-action-btn--auto:focus-visible {
+    background: color-mix(in srgb, var(--accent-color) 14%, var(--bg-card));
+    border-color: color-mix(in srgb, var(--accent-color) 36%, var(--border-color));
+    color: var(--text-main);
+}
+.handle-bar {
+    width: 46px;
+    height: 5px;
+    opacity: 0.32;
+}
+.tray-inline-row .settings-btn, .tray-inline-row .tray-action-btn {
+  min-height: 36px;
+  padding: 7px 10px;
+  font-size: 0.74rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  border-radius: 999px;
+  border-color: var(--hairline, var(--border-color));
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-weight: 850;
+}
+.tray-inline-row .tray-action-btn.auto-assign-btn,
+.tray-actions .auto-assign-btn {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--color-white);
+    box-shadow: 0 8px 18px color-mix(in srgb, var(--accent-color) 14%, transparent);
+}
+#waiting-list-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 12px 18px;
+  -webkit-overflow-scrolling: touch;
+}
+#waiting-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+  gap: 9px;
+  min-height: 100px;
+  position: relative;
+  align-content: start;
+  overscroll-behavior: contain;
+}
+[data-theme="dark"] #bottom-tray {
+  border-color: var(--hairline, var(--border-color));
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--color-night));
+  box-shadow: 0 -16px 32px rgba(var(--black-rgb), 0.32);
+}
+@media (max-width: 640px) {
+    #bottom-tray {
+        border-radius: 20px 20px 0 0;
+    }
+
+    #tray-handle {
+        min-height: 36px;
+    }
+
+    #bottom-tray-header {
+        padding: 7px 9px 9px;
+    }
+
+    .tray-inline-row {
+        gap: 6px;
+    }
+
+    .tray-inline-row .settings-btn,
+    .tray-inline-row .tray-action-btn {
+        min-height: 36px;
+        border-radius: 12px;
+    }
+}
+.tray-inline-row .settings-btn {
+  border-radius: var(--control-radius-compact);
+  background: var(--bg-card);
+  color: var(--text-main);
+  border-color: var(--border-color);
+  box-shadow: none;
+  min-width: 48px;
+  width: 48px;
+  min-height: 38px;
+  padding-inline: 0;
+  font-size: 0.74rem;
+}
+.tray-inline-row .tray-action-btn {
+  border-radius: var(--control-radius);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 850;
+  letter-spacing: -0.01em;
+  min-height: 42px;
+  /* Use the unified main radius for action buttons */
+    border-radius: var(--radius-main);
+  padding-inline: 10px;
+  font-size: 0.78rem;
+}
+@media (max-width: 640px) {
+.tray-inline-row {
+    grid-template-columns: auto auto minmax(0, 1.02fr) minmax(0, 1.22fr);
+    gap: 7px;
+  }
+
+.tray-inline-row .settings-btn {
+    width: 44px;
+    min-width: 44px;
+    min-height: 38px;
+    font-size: 0.72rem;
+  }
+
+#waiting-count.waiting-inline-count {
+    font-size: 0.72rem;
+  }
+
+.tray-inline-row .tray-action-btn {
+    min-height: 40px;
+    padding-inline: 8px;
+    font-size: 0.72rem;
+  }
+}
+@media (max-width: 390px) {
+.tray-inline-row {
+    grid-template-columns: auto auto minmax(0, 1fr) minmax(0, 1.18fr);
+    gap: 6px;
+  }
+
+.tray-inline-row .settings-btn {
+    width: 42px;
+    min-width: 42px;
+  }
+
+.tray-inline-row .tray-action-btn {
+    padding-inline: 6px;
+    font-size: 0.68rem;
+  }
+}
+.random-tools .tray-settings-dropdown {
+  min-width: 0;
+}
+@media (max-width: 640px) {
+.tray-inline-row {
+    grid-template-columns: auto auto minmax(0, 1fr);
+    align-items: center;
+  }
+}
+.member-card,
+.seat-slot > .member-card,
+#waiting-list .member-card {
+  border-radius: var(--ui-inner-radius);
+  background: var(--bg-card);
+  border-color: var(--ui-readable-border-strong);
+  box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.03);
+}

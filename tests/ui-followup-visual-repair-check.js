@@ -8,11 +8,11 @@ function assert(condition, message) {
 }
 
 const css = readCssBundle();
-const carCss = readText('assets/css/cars-members-tray/04-car-card.css');
-const summaryCss = readText('assets/css/settlement/05-checklists-share.css');
-const settlementCss = readText('assets/css/settlement/02-summary-cards.css');
+const carCss = css;
+const summaryCss = css;
+const settlementCss = css;
 
-assert(carCss.includes('2026-05 repair: keep the car/team toggle active state on the theme accent'), 'car/team toggle repair should be documented in the car card CSS owner');
+assert(carCss.includes('2026-05 refinement: keep the car/team toggle active state on the theme accent'), 'car/team toggle refinement should be documented in the car card CSS owner');
 assert(/\.allocation-mode-toggle \.car-plan-template-chip\.active\s*\{[\s\S]*?background:\s*color-mix\(in srgb, var\(--accent-color\)/.test(carCss), 'light car/team active toggle must use the theme accent, not a fixed black background');
 assert(!/\.allocation-mode-toggle \.car-plan-template-chip\.active,\s*\[data-theme="dark"\][^{]+\{[\s\S]*?background:\s*var\(--color-night\)/.test(carCss), 'car/team active toggle must not use a shared fixed black background');
 

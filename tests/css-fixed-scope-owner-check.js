@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { root, readText } = require('./helpers/read-project');
+const { root, readText, readCssBundle } = require('./helpers/read-project');
 
 function assert(condition, message) {
   if (!condition) {
@@ -10,38 +10,46 @@ function assert(condition, message) {
 }
 
 const html = readText('index.html');
+const css = readCssBundle();
 const cssLinks = [...html.matchAll(/\.\/assets\/css\/([^\"]+\.css)/g)].map(match => match[1]);
 
-const deprecatedAggregators = ['01-app-shell.css', '03-guides-modals.css', '04-cars-members-tray.css', '05-settlement.css'];
-for (const file of deprecatedAggregators) {
+const removedAggregators = [
+  '01-app-shell.css', '03-guides-modals.css', '04-cars-members-tray.css', '05-settlement.css',
+  '00-base-tokens.css', '02-theme-appearance.css', '10-button-system.css',
+  'app-shell/01-layout-core.css', 'app-shell/02-edit-controls.css', 'app-shell/03-header-system.css',
+  'app-shell/04-header-mobile-layout.css', 'app-shell/05-header-mobile-responsive.css',
+  'guides-modals/01-modal-dropdown-base.css', 'guides-modals/02-guide-cards.css', 'guides-modals/03-guide-mockups.css',
+  'guides-modals/04-dialog-layout.css', 'guides-modals/05-import-guide.css', 'guides-modals/06-copy-lock-notices.css',
+  'guides-modals/07-overview-drawer.css', 'guides-modals/08-modal-z-layer.css'
+];
+for (const file of removedAggregators) {
   assert(!cssLinks.includes(file), `${file} should not be loaded after the direct leaf-link refactor`);
-  const content = readText(`assets/css/${file}`);
-  assert(!/^\s*@import\b/m.test(content), `${file} must not contain active @import rules`);
+  assert(!fs.existsSync(path.join(root, 'assets/css', file)), `${file} should be removed after the direct leaf-link refactor`);
 }
 
 const requiredLeafOwners = [
-  'app-shell/01-layout-core.css',
-  'app-shell/02-edit-controls.css',
-  'app-shell/03-header-room.css',
-  'app-shell/04-mobile-header-layout.css',
-  'app-shell/05-mobile-header-responsive.css',
-  'app-shell/06-mobile-header-repairs.css',
-  'guides-modals/01-modal-dropdown-base.css',
-  'guides-modals/02-guide-cards.css',
-  'guides-modals/03-guide-mockups.css',
-  'guides-modals/04-modal-repairs.css'
+  'tokens/01-color-scheme.css',
+  'components/00-component-contracts.css',
+  'app-shell/layout/01-app-frame.css',
+  'app-shell/edit/01-edit-base.css',
+  'app-shell/header/01-header-base.css',
+  'app-shell/header/04-mobile-layout.css',
+  'theme/01-theme-tokens.css',
+  'theme/03-theme-picker.css',
+  'guides-modals/modal/01-modal-base.css',
+  'guides-modals/guide/01-guide-cards.css',
+  'guides-modals/dialog/01-dialog-shell.css',
+  'guides-modals/import-guide/01-import-shell.css',
+  'guides-modals/notices/01-copy-lock.css',
+  'guides-modals/overview/01-overview-drawer.css',
+  'guides-modals/z-layer/01-z-layer.css'
 ];
 for (const file of requiredLeafOwners) {
   assert(cssLinks.includes(file), `${file} should be linked directly from index.html`);
   assert(fs.existsSync(path.join(root, 'assets/css', file)), `${file} is missing`);
 }
 
-const theme = readText('assets/css/02-theme-appearance.css');
-assert(!theme.includes('.guide-feature-card,'), 'guide feature cards must not be styled from theme appearance');
-
-const guideBundle = ['guides-modals/02-guide-cards.css', 'guides-modals/03-guide-mockups.css', 'guides-modals/04-modal-repairs.css']
-  .map(file => readText(`assets/css/${file}`))
-  .join('\n');
-assert(guideBundle.includes('.guide-feature-card'), 'guide feature card styles should live in guides/modals leaf CSS');
+assert(!css.includes('.guide-feature-card,\n.theme-system-note'), 'guide feature cards must not be styled from theme appearance');
+assert(css.includes('.guide-feature-card'), 'guide feature card styles should live in guides/modals leaf CSS');
 
 console.log('CSS fixed scope owner check OK');

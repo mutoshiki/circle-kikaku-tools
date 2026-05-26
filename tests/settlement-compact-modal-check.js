@@ -1,4 +1,4 @@
-const { readText, readCssBundle } = require('./helpers/read-project');
+const { readText, readCssBundle, readSettlementTemplateBundle } = require('./helpers/read-project');
 
 function assert(condition, message) {
   if (!condition) {
@@ -8,7 +8,7 @@ function assert(condition, message) {
 }
 
 const html = readText('index.html');
-const templates = readText('assets/js/templates/settlement-templates.js');
+const templates = readSettlementTemplateBundle();
 const render = readText('assets/js/features/settlement/03-render.js');
 const events = readText('assets/js/features/events/03-generated-action-events.js');
 const css = readCssBundle();
