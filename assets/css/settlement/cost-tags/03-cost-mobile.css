@@ -1,0 +1,87 @@
+/* Moved from assets/css/settlement/09-cost-tags-breakdown.css; source-order chunk 3/3. */
+#seisan-view-area .seisan-summary-card.collect :is(.seisan-cost-policy-tag.split, .seisan-cost-type-badge.split),
+#seisan-view-area .seisan-summary-card.accounting :is(.seisan-cost-policy-tag.club, .seisan-cost-type-badge.club) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--settlement-tag-min-height);
+  padding: var(--settlement-tag-pad-y) var(--settlement-tag-pad-x);
+  border: 1px solid var(--settlement-tag-line, currentColor);
+  border-radius: 999px;
+  background: var(--settlement-tag-bg, var(--bg-card));
+  color: var(--settlement-tag-ink, var(--text-main));
+  -webkit-text-fill-color: var(--settlement-tag-ink, var(--text-main));
+  box-shadow: none;
+}
+#seisan-view-area .seisan-summary-card.collect :is(.seisan-cost-policy-tag.split, .seisan-cost-type-badge.split) {
+  --settlement-tag-ink: var(--settlement-split-ink);
+  --settlement-tag-bg: var(--settlement-split-bg);
+  --settlement-tag-line: var(--settlement-split-line);
+}
+#seisan-view-area .seisan-summary-card.accounting :is(.seisan-cost-policy-tag.club, .seisan-cost-type-badge.club) {
+  --settlement-tag-ink: var(--settlement-club-ink);
+  --settlement-tag-bg: var(--settlement-club-bg);
+  --settlement-tag-line: var(--settlement-club-line);
+}
+/* Summary and detail chip parity alignment
+   Summary chips must not have their own washed/green theme styling.
+   Use the same component tokens as the car settlement chips, and keep payment blue with fixed tokens. */
+#seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag,
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge,
+  .seisan-summary-card .seisan-summary-label > .seisan-payment-tag,
+  .seisan-extra-inline > .seisan-cost-policy-tag,
+  .seisan-extra-inline > .seisan-cost-type-badge
+) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  min-width: var(--settlement-tag-min-width, 2.4em);
+  min-height: var(--settlement-tag-min-height, 1.38em);
+  padding: var(--settlement-tag-pad-y, 2px) var(--settlement-tag-pad-x, 7px);
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 999px;
+  background-image: none;
+  background-clip: padding-box;
+  box-shadow: none;
+  filter: none;
+  opacity: 1;
+  font-size: var(--settlement-tag-font-size, 0.64rem);
+  font-style: normal;
+  font-weight: 900;
+  line-height: var(--settlement-tag-line-height, 1);
+  letter-spacing: 0;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+#seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.split,
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.split,
+  .seisan-extra-inline > .seisan-cost-policy-tag.split,
+  .seisan-extra-inline > .seisan-cost-type-badge.split
+) {
+  color: var(--settlement-split-ink);
+  -webkit-text-fill-color: var(--settlement-split-ink);
+  background: var(--settlement-split-bg);
+  border-color: var(--settlement-split-line);
+}
+#seisan-view-area :is(
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.club,
+  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.club,
+  .seisan-extra-inline > .seisan-cost-policy-tag.club,
+  .seisan-extra-inline > .seisan-cost-type-badge.club
+) {
+  color: var(--settlement-club-ink);
+  -webkit-text-fill-color: var(--settlement-club-ink);
+  background: var(--settlement-club-bg);
+  border-color: var(--settlement-club-line);
+}
+#seisan-view-area .seisan-summary-card .seisan-summary-label > .seisan-payment-tag {
+  color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
+  -webkit-text-fill-color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
+  background: var(--settlement-pay-bg-fixed, var(--settlement-pay-bg));
+  border-color: var(--settlement-pay-line-fixed, var(--settlement-pay-line));
+}

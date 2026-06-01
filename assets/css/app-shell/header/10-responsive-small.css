@@ -1,0 +1,137 @@
+/* Moved from assets/css/app-shell/05-header-mobile-responsive.css; source-order chunk 2/4. */
+@media (max-width: 640px) {
+#app-layout #app-header {
+    padding: 9px 12px 0;
+  }
+
+#app-layout #app-header .app-header-main {
+    min-height: 40px;
+  }
+
+#app-layout #app-header .header-actions,
+  #app-layout #app-header .header-actions .header-more {
+    gap: 7px;
+  }
+
+#app-layout #app-header .header-actions .header-action,
+  #app-layout #app-header .header-actions .header-more > .header-action {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+  }
+
+#app-layout #app-header .header-action.share-action,
+  #app-layout #app-header #shareLinkBtn.header-action {
+    min-width: 64px;
+    height: 34px;
+    padding: 0 12px;
+  }
+}
+#app-layout #app-header #syncStatusBadge {
+  display: none;
+}
+#app-layout #app-header .app-room-field {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+#app-layout #app-header .app-room-input:focus {
+  outline: 0;
+  box-shadow: none;
+}
+#app-layout #app-header #shareLinkBtn.header-action {
+  min-width: 28px;
+}
+[data-theme="dark"] #app-layout #app-header .app-room-input,
+[data-theme="dark"] #app-layout #app-header .header-actions .header-action,
+[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action {
+  color: var(--text-main);
+}
+@media (max-width: 640px) {
+#app-layout #app-header .app-header-main {
+    min-height: 48px;
+  }
+
+#app-layout #app-header .app-brand {
+    width: min(42vw, 170px);
+  }
+
+#app-layout #app-header .header-actions {
+    gap: 11px;
+  }
+
+#app-layout #app-header .header-actions .header-action,
+  #app-layout #app-header #shareLinkBtn.header-action {
+    width: 26px;
+    min-width: 26px;
+    height: 36px;
+  }
+}
+#app-layout #app-header .app-brand {
+  position: static;
+  left: auto;
+  width: auto;
+  transform: none;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+}
+@media (max-width: 640px) {
+#app-layout #app-header .header-actions {
+    margin-right: 38px;
+  }
+}
+#app-layout #app-header #shareLinkBtn.header-action,
+#app-layout #app-header #shareLinkBtn.header-action i {
+  color: var(--color-ink);
+}
+#app-layout #app-header .header-more > .header-action.dropdown-toggle::after {
+  display: none;
+}
+[data-theme="dark"] :is(
+  .app-room-input,
+  .room-input-shell,
+  #roomInput
+) {
+  color: var(--text-main);
+  background: transparent;
+}
+#app-layout #app-header .header-action.share-action, #app-layout #app-header #shareLinkBtn.header-action {
+  width: auto;
+  min-width: 68px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-white);
+  box-shadow: none;
+}
+#app-layout #app-header .header-action.share-action:hover,
+#app-layout #app-header #shareLinkBtn.header-action:hover {
+  color: var(--accent-color);
+}
+#app-layout #view-toggle-bar .view-tab.active,
+#app-layout .view-toggle-bar .view-tab.active,
+[data-theme="dark"] #app-layout #view-toggle-bar .view-tab.active,
+[data-theme="dark"] #app-layout .view-toggle-bar .view-tab.active {
+  color: var(--accent-color);
+}
+#app-layout #view-toggle-bar .view-tab.active::after, #app-layout .view-toggle-bar .view-tab.active::after {
+  background: var(--accent-color);
+}
+@media (max-width: 640px) {
+#app-layout #app-header .header-actions {
+    gap: 7px;
+    margin-right: 34px;
+  }
+
+#app-layout #app-header .header-actions .header-action,
+  #app-layout #app-header .header-actions .header-more > .header-action,
+  #app-layout #app-header #shareLinkBtn.header-action {
+    width: 28px;
+    min-width: 28px;
+    height: 34px;
+  }
+}

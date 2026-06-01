@@ -1,0 +1,148 @@
+/* Moved from assets/css/settlement/02-common-controls.css; source-order chunk 4/4. */
+#seisan-view-area .seisan-toolbar-card {
+  padding: 9px;
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-head-actions .seisan-btn {
+    min-height: 32px;
+    padding-inline: 8px;
+    font-size: 0.68rem;
+  }
+
+#seisan-view-area #seisanRefreshBtn.seisan-btn {
+    width: 34px;
+    min-width: 34px;
+  }
+}
+[data-theme="dark"] :is(
+  #view-toggle-bar .view-tab.active,
+  .view-toggle-bar .view-tab.active,
+  #tab-list.view-tab.active,
+  #tab-sheet.view-tab.active,
+  #tab-seisan.view-tab.active,
+  .allocation-mode-toggle .car-plan-template-chip.active
+) {
+  color: var(--accent-color);
+  border-color: color-mix(in srgb, var(--accent-color) 34%, var(--ui-saas-border));
+  background: color-mix(in srgb, var(--accent-color) 14%, var(--bg-card));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 10%, transparent);
+}
+#app-layout #view-toggle-bar .view-tab.active,
+#app-layout .view-toggle-bar .view-tab.active,
+[data-theme="dark"] #app-layout #view-toggle-bar .view-tab.active,
+[data-theme="dark"] #app-layout .view-toggle-bar .view-tab.active,
+[data-theme="dark"] #app-layout #tab-list.view-tab.active,
+[data-theme="dark"] #app-layout #tab-sheet.view-tab.active,
+[data-theme="dark"] #app-layout #tab-seisan.view-tab.active {
+  border: 0;
+  background: transparent;
+  color: var(--accent-color);
+  box-shadow: none;
+}
+#seisan-view-area #seisanRefreshBtn.seisan-btn {
+  width: 36px;
+  min-width: 36px;
+  padding-inline: 0;
+  min-height: 34px;
+}
+#seisan-view-area .seisan-toolbar-card .seisan-head-tools-only {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 0;
+  margin: 0 0 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  border-bottom: 0;
+}
+#seisan-view-area .seisan-toolbar-card .seisan-head-actions {
+  width: 100%;
+  justify-content: flex-end;
+  gap: 5px;
+}
+#seisan-view-area .seisan-settings-card,
+#seisan-view-area .seisan-panel {
+  border-radius: 15px;
+}
+@media (max-width: 390px) {
+#seisan-view-area .seisan-head-actions .seisan-btn {
+    padding-inline: 8px;
+  }
+}
+body[data-theme="dark"] #seisan-view-area .seisan-toolbar-card .seisan-head-tools-only,
+html[data-theme="dark"] #seisan-view-area .seisan-toolbar-card .seisan-head-tools-only {
+  background: transparent;
+  border-color: transparent;
+}
+/* Standalone settlement mode: enter only driver count and other participant count. */
+#seisan-view-area .seisan-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+#settlementSettingsModal .seisan-standalone-toggle {
+  margin-top: 2px;
+}
+#settlementSettingsModal .seisan-standalone-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border: 1px solid var(--border-muted, rgba(148, 163, 184, 0.24));
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--panel-muted) 82%, transparent);
+}
+#settlementSettingsModal .seisan-standalone-fields[hidden] {
+  display: none;
+}
+#settlementSettingsModal .seisan-standalone-note {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+#seisan-view-area .seisan-summary-pills .is-standalone {
+  border-color: color-mix(in srgb, var(--accent-color) 36%, var(--border-muted));
+  background: color-mix(in srgb, var(--accent-color) 10%, transparent);
+}
+body[data-theme="dark"] #settlementSettingsModal .seisan-standalone-fields,
+html[data-theme="dark"] #settlementSettingsModal .seisan-standalone-fields {
+  border-color: var(--border-muted);
+  background: var(--surface-elevated);
+}
+#seisan-view-area .seisan-empty-or {
+  align-self: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Route helper launch button belongs to settlement controls, not route-stop CSS. */
+#routeHelperBtn.seisan-btn {
+  font-size: 0.9rem;
+}
+
+#seisan-view-area .seisan-head-tools-only #routeHelperBtn.seisan-btn {
+  min-width: 0;
+}
+
+#seisan-view-area #routeHelperBtn.seisan-btn {
+  min-width: 92px;
+  padding-inline: 12px;
+}
+
+@media (max-width: 640px) {
+  #routeHelperBtn.seisan-btn {
+    font-size: 0.8rem;
+  }
+
+  #seisan-view-area #routeHelperBtn.seisan-btn {
+    min-width: 86px;
+    padding-inline: 10px;
+  }
+}

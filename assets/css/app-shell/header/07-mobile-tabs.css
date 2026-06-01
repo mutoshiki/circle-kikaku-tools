@@ -1,0 +1,221 @@
+/* Moved from assets/css/app-shell/04-header-mobile-layout.css; source-order chunk 4/6. */
+@media (max-width: 640px) {
+    #app-header {
+        padding: 8px 8px 6px;
+    }
+
+    .app-header-main {
+        padding: 13px 14px 12px;
+        border-radius: 18px;
+        min-height: auto;
+    }
+
+    .app-room-control {
+        padding-right: min(42vw, 164px);
+    }
+
+    .app-room-field label {
+        font-size: 0.64rem;
+    }
+
+    .app-room-input {
+        min-height: 30px;
+        font-size: 16px;
+        font-weight: 880;
+    }
+
+    #syncStatusBadge.sync-status-badge {
+        top: calc(env(safe-area-inset-top, 0px) + 18px);
+        right: calc(env(safe-area-inset-right, 0px) + 20px);
+        max-width: min(42vw, 160px);
+    }
+
+    .app-header-main > .header-actions {
+        gap: 7px;
+        width: fit-content;
+        margin-left: auto;
+    }
+
+    .header-actions .header-action,
+    .header-actions .header-more > .header-action {
+        min-height: 38px;
+        padding: 8px 11px;
+        font-size: 0.76rem;
+    }
+
+    #view-toggle-bar,
+    .view-toggle-bar {
+        margin: 8px 0 0;
+        min-height: 46px;
+        border-radius: 16px;
+    }
+
+    #view-toggle-bar .view-tab,
+    .view-toggle-bar .view-tab {
+        min-height: 38px;
+        border-radius: 13px;
+        font-size: 0.76rem;
+    }
+
+    #top-area {
+        padding: 10px 8px 18px;
+    }
+
+    .edit-header-tools-only {
+        margin-bottom: 10px;
+    }
+
+    .edit-header-tools-only .edit-tools .tool-btn,
+    .edit-tools .tool-btn {
+        min-height: 42px;
+        border-radius: 14px;
+    }
+}
+.header-actions .header-action span {
+    display: none;
+}
+.header-actions .header-action i {
+    font-size: 0.92rem;
+    margin: 0;
+}
+.header-actions .share-action span,
+.share-action span {
+    display: inline;
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+#view-toggle-bar .view-tab i,
+.view-toggle-bar .view-tab i {
+    display: none;
+}
+#view-toggle-bar .view-tab.active::after,
+.view-toggle-bar .view-tab.active::after {
+    content: "";
+    position: absolute;
+    left: 22%;
+    right: 22%;
+    bottom: 0;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--accent-color);
+}
+[data-theme="dark"] #app-header {
+    background: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
+    border-bottom-color: color-mix(in srgb, var(--border-color) 70%, transparent);
+}
+[data-theme="dark"] .header-actions .header-action:not(.share-action) {
+    background: color-mix(in srgb, var(--bg-card) 86%, var(--color-night));
+}
+@media (max-width: 640px) {
+    #app-header {
+        padding: 7px 10px 5px;
+    }
+
+    .app-header-main {
+        min-height: 42px;
+        padding: 0;
+        gap: 8px;
+    }
+
+    .app-header-main > .header-actions {
+        max-width: 58vw;
+        gap: 6px;
+    }
+
+    .app-room-input {
+        min-height: 40px;
+        font-size: 1rem;
+    }
+
+    .header-actions .header-action,
+    .header-actions .header-more > .header-action {
+        width: 36px;
+        min-width: 36px;
+        height: 36px;
+        min-height: 36px;
+    }
+
+    .header-actions .share-action,
+    .share-action {
+        min-width: 66px;
+        height: 36px;
+        min-height: 36px;
+        padding-inline: 12px;
+    }
+
+    #view-toggle-bar,
+    .view-toggle-bar {
+        min-height: 40px;
+        margin-top: 2px;
+    }
+
+    #view-toggle-bar .view-tab,
+    .view-toggle-bar .view-tab {
+        min-height: 40px;
+        font-size: 0.74rem;
+    }
+}
+@media (max-width: 380px) {
+    .app-header-main > .header-actions {
+        max-width: 54vw;
+        gap: 5px;
+    }
+
+    .header-actions .header-action,
+    .header-actions .header-more > .header-action {
+        width: 34px;
+        min-width: 34px;
+        height: 34px;
+        min-height: 34px;
+    }
+
+    .header-actions .share-action,
+    .share-action {
+        min-width: 60px;
+        height: 34px;
+        min-height: 34px;
+        padding-inline: 10px;
+    }
+}
+#app-header {
+  padding: 10px 10px 8px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bg-body) 94%, var(--accent-soft)), var(--bg-body));
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
+}
+.header-actions {
+  gap: 6px;
+  align-items: center;
+}
+.header-action:not(.share-action),
+.header-actions .header-more > .header-action {
+    background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+    color: color-mix(in srgb, var(--text-main) 80%, var(--text-sub));
+}
+.header-actions .share-action, .share-action {
+  background: var(--accent-color);
+  border-color: color-mix(in srgb, var(--accent-color) 84%, var(--palette-slate-950));
+  color: var(--color-white);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent-color) 16%, transparent);
+  width: auto;
+  min-width: 74px;
+  padding: 0 14px;
+  border-radius: 999px;
+}
+#view-toggle-bar .view-tab.active, .view-toggle-bar .view-tab.active, [data-theme="dark"] #view-toggle-bar .view-tab.active, [data-theme="dark"] .view-toggle-bar .view-tab.active {
+  background: color-mix(in srgb, var(--accent-soft) 76%, var(--bg-card));
+  border: 0;
+  color: color-mix(in srgb, var(--accent-color) 78%, var(--palette-slate-950));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 18%, transparent);
+  border-color: color-mix(in srgb, var(--accent-color) 38%, var(--border-color));
+}
+#view-toggle-bar .view-tab.active i,
+.view-toggle-bar .view-tab.active i,
+[data-theme="dark"] #view-toggle-bar .view-tab.active i,
+[data-theme="dark"] .view-toggle-bar .view-tab.active i {
+    color: currentColor;
+}
+[data-theme="dark"] .app-header-main, [data-theme="dark"] #view-toggle-bar, [data-theme="dark"] .view-toggle-bar {
+  background: color-mix(in srgb, var(--bg-card) 86%, var(--color-night));
+  border-color: color-mix(in srgb, var(--border-color) 76%, transparent);
+  box-shadow: none;
+}

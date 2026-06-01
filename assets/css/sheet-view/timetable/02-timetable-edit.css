@@ -1,0 +1,182 @@
+/* Moved from assets/css/sheet-view/03-timetable.css; source-order chunk 2/2. */
+[data-theme="dark"] .sheet-timetable-link {
+    color: var(--palette-blue-300);
+}
+@media (max-width: 640px) {
+    .sheet-timetable-section {
+        width: min(var(--sheet-plan-content-width, 520px), calc(100vw - 24px));
+        min-width: min(300px, calc(100vw - 24px));
+    }
+
+    .sheet-timetable-row {
+        grid-template-columns: 4.2em minmax(0, 1fr);
+        gap: 7px;
+        padding: 7px;
+    }
+}
+#overviewDrawer .overview-timetable-rows {
+  display: grid;
+  gap: 8px;
+}
+#overviewDrawer .overview-timetable-row {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) 32px;
+  gap: 8px;
+  align-items: center;
+}
+#overviewDrawer .overview-timetable-row input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 84%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-body) 74%, var(--bg-card));
+  color: var(--text-main);
+  font: inherit;
+  font-size: 0.92rem;
+}
+#overviewDrawer .overview-timetable-row input:focus,
+#overviewDrawer .overview-textarea:focus {
+  border-color: color-mix(in srgb, var(--accent-color) 64%, var(--border-color));
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 14%, transparent);
+}
+.sheet-summary-plan-label {
+  min-width: 0;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-main) 86%, var(--accent-color));
+  color: var(--bg-card);
+  font-size: 0.62rem;
+  font-weight: 760;
+  text-align: center;
+  letter-spacing: 0;
+}
+.sheet-plan-heading {
+  margin: 0 0 6px 2px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--text-main) 92%, var(--text-sub));
+  font-size: 0.86rem;
+  font-weight: 760;
+  line-height: 1.2;
+  margin-left: 2px;
+  margin-bottom: 7px;
+}
+@media (max-width: 640px) {
+#overviewDrawer .overview-panel,
+  #overviewDrawer .overview-timetable-rows,
+  .overview-drawer .overview-panel,
+  .overview-drawer .overview-timetable-rows {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+#overviewDrawer .overview-timetable-row,
+  .overview-drawer .overview-timetable-row {
+    grid-template-columns: 86px minmax(0, 1fr) 30px;
+    gap: 6px;
+  }
+}
+#overviewDrawer .overview-timetable-row, .overview-drawer .overview-timetable-row {
+  grid-template-columns: minmax(0, 76px) minmax(0, 1fr) 30px;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+}
+#overviewDrawer .overview-timetable-row input, .overview-drawer .overview-timetable-row input {
+  min-width: 0;
+  min-height: 36px;
+  border-radius: 10px;
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 7px 8px;
+  font-size: 0.9rem;
+}
+#overviewDrawer .overview-timetable-row input[data-field="time"],
+.overview-drawer .overview-timetable-row input[data-field="time"] {
+  width: 76px;
+  min-width: 0;
+  padding-inline: 7px 3px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+#overviewDrawer .overview-timetable-row input[data-field="title"],
+.overview-drawer .overview-timetable-row input[data-field="title"] {
+  width: 100%;
+}
+@media (max-width: 380px) {
+#overviewDrawer .overview-timetable-row,
+  .overview-drawer .overview-timetable-row {
+    grid-template-columns: minmax(0, 72px) minmax(0, 1fr) 28px;
+    gap: 5px;
+  }
+
+#overviewDrawer .overview-timetable-row input[data-field="time"],
+  .overview-drawer .overview-timetable-row input[data-field="time"] {
+    width: 72px;
+    padding-inline: 6px 2px;
+  }
+}
+.sheet-timetable-card--edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+}
+.sheet-timetable-edit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sheet-timetable-edit-row {
+  display: grid;
+  grid-template-columns: 82px minmax(150px, 1fr) 32px;
+  align-items: center;
+  gap: 6px;
+}
+.sheet-timetable-input {
+  min-height: 34px;
+  border: 1px solid var(--hairline, var(--border-color));
+  border-radius: 9px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 8px;
+  touch-action: manipulation;
+}
+.sheet-timetable-input.title {
+  min-width: 0;
+}
+.sheet-timetable-delete,
+.sheet-timetable-add {
+  min-height: 34px;
+  border: 1px solid var(--hairline, var(--border-color));
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  touch-action: manipulation;
+}
+.sheet-timetable-add {
+  align-self: flex-start;
+  padding: 6px 10px;
+}
+[data-theme="dark"] .sheet-timetable-input,
+[data-theme="dark"] .sheet-timetable-delete,
+[data-theme="dark"] .sheet-timetable-add {
+  background: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
+  border-color: var(--hairline, var(--border-color));
+  color: var(--text-main);
+}
+#sheet-view-area .sheet-timetable-card:not(.sheet-timetable-card--edit) :where(input, button.sheet-timetable-delete, button.sheet-timetable-add) {
+  display: none;
+}

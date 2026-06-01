@@ -1,0 +1,24 @@
+/* Moved from assets/css/guides-modals/02-guide-cards.css; source-order chunk 3/3. */
+.app-guide-box {
+border: 1px solid var(--border-color);
+    border-radius: var(--radius-main);
+    background: var(--bg-card);
+    color: var(--text-main);
+    min-height: 82px;
+    padding: 10px 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.app-guide-box i {
+color: var(--accent-color);
+    font-size: 1.1rem;
+}
+.app-guide-box strong {
+display: block;
+    font-size: 0.82rem;
+    line-height: 1.25;
+}

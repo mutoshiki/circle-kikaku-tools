@@ -1,0 +1,205 @@
+/* Moved from assets/css/settlement/05-collection-checklist.css; source-order chunk 1/2. */
+/* Collection checklist rows and per-car grouping.
+   CSS architecture cleanup: keep this file focused on the responsibility in its name. */
+/* Collection/payment checklists, breakdown and share controls.
+   Generated during S-1 responsibility split. */
+.seisan-check-list {
+display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 7px;
+}
+.seisan-check-item {
+display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 7px 8px;
+    background: var(--bg-body);
+    min-height: 38px;
+    font-size: 0.8rem;
+}
+.seisan-check-item.excluded {
+opacity: 0.62;
+}
+.seisan-check-item input {
+flex: 0 0 auto;
+}
+.seisan-check-name {
+min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 800; color: var(--text-main);
+}
+@media (max-width: 640px) {
+.seisan-check-list {
+grid-template-columns: 1fr;
+}
+}
+.seisan-check-item.paid {
+  background: rgba(15, 118, 110, 0.12);
+  border-color: rgba(15, 118, 110, 0.55);
+}
+@media (max-width: 640px) {
+.seisan-check-item {
+min-height: 52px;
+        padding: 11px 12px;
+        gap: 10px;
+        border-radius: var(--radius-main);
+        font-size: 0.95rem;
+}
+}
+@media (max-width: 640px) {
+.seisan-check-name {
+font-size: 0.95rem;
+        line-height: 1.25;
+}
+}
+@media (max-width: 640px) {
+.seisan-check-note {
+font-size: 0.76rem;
+}
+}
+@media (max-width: 640px) {
+.seisan-check-list {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+}
+}
+#seisan-view-area .seisan-check-list {
+gap: 5px;
+}
+#seisan-view-area .seisan-check-item input {
+width: 16px;
+    height: 16px;
+    margin: 0;
+}
+#seisan-view-area .seisan-check-name {
+font-weight: 780;
+    letter-spacing: -0.02em;
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-check-list {
+gap: 5px;
+}
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-check-item {
+min-height: 33px;
+        padding: 5px 7px;
+        font-size: 0.72rem;
+}
+}
+.seisan-check-item.paid,
+#seisan-view-area .seisan-check-item.paid {
+    background: color-mix(in srgb, var(--color-success) 10%, var(--bg-card));
+    border-color: color-mix(in srgb, var(--color-success) 38%, var(--border-color));
+}
+.seisan-check-note {
+  margin-left: auto;
+  flex: 0 0 auto;
+  color: var(--text-sub);
+  font-size: 0.66rem;
+  font-weight: 800;
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  background: var(--surface-muted, var(--bg-body));
+}
+#seisan-view-area .seisan-check-item {
+  min-height: 42px;
+  padding: 8px 9px;
+  gap: 6px;
+  /* Use the unified small radius for individual checklist items */
+    border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--bg-body) 84%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--border-color) 84%, transparent);
+  font-size: 0.74rem;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+}
+#seisan-view-area .seisan-check-note {
+  font-size: 0.64rem;
+  font-weight: 650;
+  color: var(--text-sub);
+}
+#seisan-view-area .seisan-collection-panel .seisan-head {
+  margin-bottom: 2px;
+  padding-bottom: 0;
+}
+#seisan-view-area .seisan-collection-panel .seisan-head > div {
+  width: 100%;
+  min-width: 0;
+}
+#seisan-view-area #seisan-collection-note.seisan-muted {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  color: var(--text-sub);
+  -webkit-text-fill-color: var(--text-sub);
+  font-size: 0.74rem;
+  font-weight: 500;
+  line-height: 1.15;
+}
+#seisan-view-area .seisan-collection-note-left {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 2px 9px;
+  min-width: 0;
+  text-align: left;
+}
+#seisan-view-area .seisan-collection-note-left > span,
+#seisan-view-area .seisan-collection-per-person-label {
+  color: var(--text-sub);
+  -webkit-text-fill-color: var(--text-sub);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+#seisan-view-area .seisan-collection-per-person {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-left: auto;
+  flex: 0 0 auto;
+  min-width: max-content;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 1.05;
+}
+#seisan-view-area .seisan-collection-per-person-amount {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+  font-size: clamp(0.98rem, 4.1vw, 1.16rem);
+  font-weight: 720;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.012em;
+  line-height: 1.08;
+}
+/* 2026-05 collection checklist: keep rows grouped by car. */
+#seisan-view-area .seisan-check-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 9px;
+}
+#seisan-view-area .seisan-collection-group {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+#seisan-view-area .seisan-collection-group-title {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 2px;
+  color: var(--text-sub);
+  font-size: 0.76rem;
+  font-weight: 820;
+  letter-spacing: -0.01em;
+}
+#seisan-view-area .seisan-collection-group-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 7px;
+}

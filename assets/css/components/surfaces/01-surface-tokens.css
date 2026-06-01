@@ -1,0 +1,132 @@
+/* Moved from assets/css/components/surfaces/*; source-order chunk 1/1. */
+/* Site-wide surface hierarchy.
+   Purpose: one quiet rule for borders so individual feature CSS does not keep adding outlines.
+   Outer cards may have a subtle edge; inner rows should mostly rely on spacing and background. */
+:root,
+body[data-theme="light"],
+html[data-theme="light"] body {
+  --ui-surface-border: color-mix(in srgb, var(--border-color) 42%, transparent);
+  --ui-surface-border-soft: color-mix(in srgb, var(--border-color) 24%, transparent);
+  --ui-surface-border-inner: color-mix(in srgb, var(--border-color) 16%, transparent);
+  --ui-surface-bg: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
+  --ui-surface-bg-inner: color-mix(in srgb, var(--bg-card) 68%, var(--bg-body));
+  --ui-surface-shadow: 0 1px 2px color-mix(in srgb, var(--color-black) 5%, transparent);
+}
+body[data-theme="dark"],
+html[data-theme="dark"] body {
+  --ui-surface-border: color-mix(in srgb, var(--border-color) 34%, transparent);
+  --ui-surface-border-soft: color-mix(in srgb, var(--border-color) 22%, transparent);
+  --ui-surface-border-inner: color-mix(in srgb, var(--border-color) 14%, transparent);
+  --ui-surface-bg: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
+  --ui-surface-bg-inner: color-mix(in srgb, var(--bg-card) 74%, var(--color-night));
+  --ui-surface-shadow: 0 1px 0 color-mix(in srgb, var(--color-white) 3%, transparent), 0 14px 30px color-mix(in srgb, var(--color-black) 18%, transparent);
+}
+:is(
+  .member-card,
+  .driver-seat,
+  .seat-slot,
+  .car-box,
+  .team-box,
+  .seisan-card,
+  .seisan-toolbar-card,
+  .seisan-settings-card,
+  .seisan-panel,
+  .seisan-car-summary-row,
+  .seisan-check-item,
+  .seisan-driver-pay-row,
+  .sheet-car-col,
+  .sheet-wait-block,
+  .sheet-seat-row,
+  .sheet-driver-row,
+  .sheet-wait-item,
+  .form-sheet-howto,
+  .form-import-preview,
+  .theme-preset-card,
+  .guide-feature-card
+) {
+  border-color: var(--ui-surface-border);
+  background-clip: padding-box;
+  box-shadow: var(--ui-surface-shadow);
+}
+:is(
+  .seisan-extra-row,
+  .seisan-cost-preview-item,
+  .seisan-summary-pills span,
+  .tray-inline-row,
+  .capacity-edit-row,
+  .timetable-row,
+  .sheet-seat-row,
+  .sheet-wait-item
+) {
+  border-color: var(--ui-surface-border-soft);
+  box-shadow: none;
+}
+#seisan-view-area :is(.seisan-car-summary-headline, .seisan-cost-preview-item--inline-all) {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+#seisan-view-area .seisan-car-summary-headline {
+  border-bottom: 0;
+}
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-list {
+  margin-top: 0;
+  padding: 4px 10px 10px;
+}
+#seisan-view-area .seisan-cost-preview-item--inline-all {
+  padding: 6px 2px 0;
+}
+#seisan-view-area .seisan-cost-total-row.seisan-car-summary-payment {
+  border-top-color: var(--ui-surface-border-soft);
+}
+/* Semantic summary cards keep their own colored meaning surfaces. */
+#seisan-view-area :is(.seisan-summary-card.collect, .seisan-summary-card.accounting, .seisan-summary-card.pay) {
+  box-shadow: var(--ui-surface-shadow);
+}
+/* Controls already communicate interactivity through shape and text; keep their outlines quiet. */
+:is(.form-control, .form-select, .seisan-toggle, .tool-btn, .tray-action-btn, .header-action) {
+  border-color: var(--ui-surface-border-soft);
+}
+/* Active and error states are allowed to be more visible than neutral surfaces. */
+:is(.active, .selected, .has-error, .drop-target-active) {
+  border-color: revert-layer;
+}
+/* Moved from settlement/05-checklists-share.css: neutral card/row backgrounds are managed here. */
+:is(.driver-seat, .seat-slot, .seisan-check-item, .seisan-driver-pay-row) {
+  background: var(--ui-surface-bg-inner);
+}
+body[data-theme="dark"] :is(
+  .driver-seat,
+  .seat-slot,
+  .member-card,
+  .sheet-driver-row,
+  .sheet-seat-row,
+  .sheet-wait-item,
+  .seisan-car-summary-row,
+  .seisan-check-item,
+  .seisan-driver-pay-row,
+  .overview-textarea,
+  .overview-timetable-row input,
+  .form-control,
+  .form-select
+),
+html[data-theme="dark"] body :is(
+  .driver-seat,
+  .seat-slot,
+  .member-card,
+  .sheet-driver-row,
+  .sheet-seat-row,
+  .sheet-wait-item,
+  .seisan-car-summary-row,
+  .seisan-check-item,
+  .seisan-driver-pay-row,
+  .overview-textarea,
+  .overview-timetable-row input,
+  .form-control,
+  .form-select
+) {
+  border-color: var(--ui-surface-border-soft);
+  background-color: color-mix(in srgb, var(--bg-card) 82%, var(--color-night));
+  color: var(--text-main);
+}
+/* Surface hierarchy owns neutral borders; feature CSS should not introduce broad card/input borders. */

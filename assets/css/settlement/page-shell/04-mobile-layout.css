@@ -1,0 +1,205 @@
+/* Moved from assets/css/settlement/01-page-shell.css; source-order chunk 4/7. */
+#seisan-view-area .seisan-extra-row {
+gap: 5px;
+}
+#seisan-view-area .seisan-add-row {
+margin-top: 5px;
+}
+#seisan-view-area .seisan-driver-name {
+font-size: 0.88rem;
+    font-weight: 820;
+    letter-spacing: -0.02em;
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-card {
+padding: 9px;
+        margin-bottom: 8px;
+        border-radius: 15px;
+}
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-head-actions {
+gap: 6px;
+}
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-title {
+font-size: 0.88rem;
+        margin-bottom: 5px;
+}
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-settings {
+gap: 7px;
+}
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-field input,
+#seisan-view-area .seisan-field select,
+#seisan-view-area .seisan-extra-row input,
+#seisan-view-area .seisan-extra-row select,
+#seisan-view-area .seisan-car-inputs input {
+min-height: 35px;
+        padding: 5px 7px;
+        font-size: 0.8rem;
+}
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-car-row {
+padding: 8px;
+        margin-bottom: 7px;
+        border-radius: 14px;
+}
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-car-title strong,
+#seisan-view-area .seisan-car-total {
+font-size: 0.84rem;
+}
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-extra-row {
+grid-template-columns: minmax(0, 1.28fr) minmax(68px, 0.78fr) minmax(62px, 0.62fr) 32px;
+        gap: 4px;
+}
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-driver-detail {
+font-size: 0.62rem;
+        line-height: 1.22;
+}
+}
+@media (max-width: 390px) {
+#seisan-view-area .seisan-field label {
+font-size: 0.62rem;
+}
+}
+[data-theme="dark"] #seisan-view-area .seisan-card,
+[data-theme="dark"] #seisan-view-area .seisan-car-row {
+box-shadow: none;
+}
+@media (max-width: 768px) {
+#seisan-view-area .seisan-field input,
+#seisan-view-area .seisan-field select,
+#seisan-view-area .seisan-extra-row input,
+#seisan-view-area .seisan-extra-row select,
+#seisan-view-area .seisan-car-inputs input {
+font-size: 16px;
+}
+}
+#seisan-view-area .seisan-share-card {
+background: color-mix(in srgb, var(--bg-card) 92%, var(--accent-soft));
+}
+#seisan-view-area .seisan-share-actions {
+display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-share-actions {
+gap: 6px;
+}
+}
+.seisan-settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.seisan-alert {
+  display: none;
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-main);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--color-danger-text);
+  padding: 9px 10px;
+  margin-top: 9px;
+  font-size: 0.78rem;
+  font-weight: 750;
+  line-height: 1.55;
+}
+@media (max-width: 640px) {
+.seisan-head-actions {
+    grid-template-columns: minmax(0, 1fr) var(--control-icon-size) minmax(0, 1.42fr);
+    gap: 8px;
+  }
+}
+.seisan-wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  display: grid;
+  gap: 10px;
+}
+.seisan-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 12px;
+  margin-bottom: 0;
+  box-sizing: border-box;
+  border-color: var(--hairline, var(--border-color));
+}
+.seisan-head,
+.seisan-compact-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.seisan-title {
+  font-size: 0.98rem;
+  font-weight: 900;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+.seisan-head-actions {
+  display: grid;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1.45fr);
+  width: 100%;
+  direction: ltr;
+}
+.seisan-car-summary-row {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--ui-surface-soft);
+  box-shadow: var(--ui-surface-shadow-soft);
+}
+.seisan-car-summary-row + .seisan-car-summary-row {
+  margin-top: 9px;
+}
+.seisan-car-summary-row.has-error {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--ui-danger-soft) 60%, var(--ui-surface-soft));
+  box-shadow: inset 3px 0 0 var(--ui-danger), var(--ui-surface-shadow-soft);
+}
+.seisan-car-summary-name {
+  min-width: 0;
+  color: var(--text-main);
+  font-size: 1rem;
+  line-height: 1.15;
+  font-weight: 920;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.seisan-car-summary-payment {
+  min-width: max-content;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--ui-surface-sunken);
+}

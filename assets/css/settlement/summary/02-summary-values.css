@@ -1,0 +1,224 @@
+/* Moved from assets/css/settlement/02-summary-cards.css; source-order chunk 2/6. */
+.seisan-summary-label {
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: var(--text-sub);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+[data-theme="dark"] .seisan-summary-card.collect,
+[data-theme="dark"] .seisan-summary-card.accounting,
+[data-theme="dark"] .seisan-summary-card.pay {
+    box-shadow: none;
+}
+@media (max-width: 640px) {
+    #seisan-view-area {
+        padding: 10px 8px 24px;
+    }
+
+    .seisan-card {
+        padding: 12px;
+        /* Use unified main radius for cards */
+        border-radius: var(--radius-main);
+        margin-bottom: 10px;
+    }
+
+    .seisan-summary-card {
+        min-height: 84px;
+        /* Use unified main radius for summary cards */
+        border-radius: var(--radius-main);
+    }
+
+    .seisan-summary-value {
+        font-size: 1.44rem;
+    }
+}
+.seisan-top-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 8px;
+}
+.seisan-summary-card {
+  border-radius: var(--radius-main);
+  border: 1px solid var(--border-color);
+  padding: 11px 12px;
+  min-height: 78px;
+  display: grid;
+  gap: 4px;
+  background: var(--bg-card);
+  border-color: var(--hairline, var(--border-color));
+  box-shadow: none;
+}
+.seisan-summary-card.accounting {
+  background: color-mix(in srgb, var(--color-warning) 10%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--color-warning) 22%, transparent);
+}
+.seisan-summary-card.pay {
+  background: color-mix(in srgb, var(--text-main) 5%, var(--bg-card));
+  border-color: var(--ui-hairline-quiet);
+}
+.seisan-summary-pills {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+.seisan-summary-pills--single {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 5px;
+  margin-top: 0;
+  overflow: hidden;
+}
+.seisan-summary-pills--single span {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--ui-surface-muted);
+  color: var(--text-main);
+  font-size: 0.72rem;
+  line-height: 1.05;
+  font-weight: 850;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.seisan-summary-pills--single small {
+  display: inline;
+  margin-right: 3px;
+  color: var(--text-sub);
+  font-size: 0.56rem;
+  font-weight: 840;
+}
+@media (max-width: 640px) {
+.seisan-top-flow {
+    grid-template-columns: 1fr;
+  }
+
+.seisan-flow-arrow {
+    display: none;
+  }
+
+.seisan-card {
+    padding: 10px;
+  }
+}
+@media (max-width: 420px) {
+.seisan-summary-pills--single span {
+    padding-inline: 4px;
+    font-size: 0.66rem;
+  }
+
+.seisan-summary-pills--single small {
+    font-size: 0.52rem;
+  }
+
+.seisan-car-summary-row {
+    padding: 10px;
+  }
+
+.seisan-car-summary-name {
+    font-size: 0.92rem;
+  }
+
+.seisan-car-summary-payment {
+    gap: 4px;
+    padding: 4px 6px;
+  }
+
+.seisan-car-summary-payment span {
+    font-size: 0.58rem;
+  }
+
+.seisan-car-summary-total {
+    font-size: 1.02rem;
+  }
+
+.seisan-car-summary-row .seisan-cost-preview-item {
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 5px;
+    padding-inline: 7px;
+  }
+
+.seisan-cost-preview-detail-text {
+    font-size: 0.68rem;
+  }
+}
+.seisan-summary-value {
+  font-size: 1.34rem;
+  font-weight: 960;
+  color: var(--text-main);
+  line-height: 1.05;
+  white-space: nowrap;
+  letter-spacing: -0.04em;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-top-flow,
+  .seisan-top-flow {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 6px;
+  }
+
+#seisan-view-area .seisan-flow-arrow,
+  .seisan-flow-arrow {
+    display: flex;
+    min-width: 8px;
+    font-size: 0.72rem;
+  }
+
+#seisan-view-area .seisan-summary-card,
+  .seisan-summary-card {
+    min-height: 76px;
+    padding: 9px 8px;
+  }
+
+#seisan-view-area .seisan-summary-label,
+  .seisan-summary-label {
+    font-size: 0.68rem;
+    gap: 4px;
+  }
+
+#seisan-view-area .seisan-summary-value,
+  .seisan-summary-value {
+    font-size: clamp(1.04rem, 5.4vw, 1.28rem);
+    letter-spacing: -0.05em;
+  }
+
+#seisan-view-area .seisan-summary-sub,
+  .seisan-summary-sub {
+    font-size: 0.62rem;
+  }
+}
+@media (max-width: 390px) {
+#seisan-view-area .seisan-summary-card,
+  .seisan-summary-card {
+    padding-inline: 7px;
+  }
+
+#seisan-view-area .seisan-summary-label,
+  .seisan-summary-label {
+    font-size: 0.62rem;
+  }
+
+#seisan-view-area .seisan-summary-value,
+  .seisan-summary-value {
+    font-size: 1.04rem;
+  }
+
+.seisan-car-summary-payment {
+    padding-inline: 5px;
+  }
+
+.seisan-car-summary-payment span {
+    font-size: 0.54rem;
+  }
+
+.seisan-car-summary-total {
+    font-size: 0.98rem;
+  }
+}
