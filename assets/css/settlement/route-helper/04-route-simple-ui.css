@@ -1,4 +1,0 @@
-/* Deprecated compatibility file.
-   The route helper UI rules were absorbed into 01-route-shell.css,
-   02-route-stops.css, and 03-route-candidates.css so this file no longer
-   needs to be loaded as a late global override. */
