@@ -1,0 +1,121 @@
+/* Moved from assets/css/settlement/03-guide-mockups.css; source-order chunk 3/3. */
+.seisan-guide-expense div {
+display:flex;
+    justify-content:space-between;
+    align-items:center;
+    text-align:left;
+}
+.seisan-guide-expense strong {
+color: var(--accent-color);
+    font-size:0.74rem;
+}
+.seisan-guide-colors span {
+min-height:40px;
+    border-radius: var(--radius-sm);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.74rem;
+    font-weight:700;
+    border:1px solid var(--border-color);
+}
+.seisan-guide-flow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  align-items: stretch;
+}
+.seisan-guide-arrow {
+  color: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  transform: rotate(90deg);
+  min-height: 16px;
+}
+.seisan-guide-colors {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+[data-theme="dark"] .seisan-mock-box-check {
+background: transparent;
+    box-shadow: none;
+}
+[data-theme="dark"] .seisan-mock-check.done .seisan-mock-box-check {
+background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--color-white);
+    box-shadow: none;
+}
+@media (max-width: 640px) {
+.seisan-summary-grid,
+.seisan-mock-flow {
+gap: 8px;
+}
+}
+@media (max-width: 640px) {
+.seisan-summary-card,
+.seisan-mock-summary {
+min-height: 78px;
+        padding: 12px;
+}
+}
+@media (max-width: 640px) {
+.seisan-summary-value,
+.seisan-mock-value {
+letter-spacing: -0.02em;
+}
+}
+[data-theme="dark"] .seisan-summary-card,
+[data-theme="dark"] .seisan-mock-summary {
+background:
+        linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 78%, var(--color-night)), color-mix(in srgb, var(--bg-card) 68%, var(--color-night)));
+}
+[data-theme="dark"] .seisan-summary-card.collect,
+[data-theme="dark"] .seisan-mock-summary.collect {
+border-color: color-mix(in srgb, var(--accent-color) 24%, rgba(148, 163, 184, 0.16));
+}
+.seisan-mock-box-check {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  background: var(--bg-card);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-color);
+  font-size: 0.65rem;
+  box-shadow: none;
+}
+.seisan-mock-check.done .seisan-mock-box-check {
+background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--color-white);
+    box-shadow: none;
+}
+.seisan-mock-chip {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-body);
+  color: var(--text-sub);
+  font-size: 0.64rem;
+  font-weight: 850;
+  text-align: center;
+  padding: 3px 5px;
+}
+#seisan-view-area .seisan-summary-card.collect,
+.seisan-summary-card.collect,
+.seisan-mock-summary.collect,
+.seisan-guide-box.collect,
+.c-collect {
+  background: var(--settlement-collect-bg);
+  border-color: var(--settlement-collect-line);
+}
+#seisan-view-area .seisan-summary-card.collect :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-value),
+.seisan-summary-card.collect :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-value),
+.seisan-mock-summary.collect :is(.seisan-mock-label, .seisan-mock-value) {
+  color: var(--text-main);
+}

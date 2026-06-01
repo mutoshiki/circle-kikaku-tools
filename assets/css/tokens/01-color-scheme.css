@@ -1,0 +1,206 @@
+/* Moved from assets/css/00-base-tokens.css; source-order chunk 1/4. */
+/* =========================================================
+   00-base-tokens.css
+   Design tokens, reset and generic Bootstrap/control normalization only.
+   Component rules live in their owner folders.
+========================================================= */
+/* =========================================================
+   00-base-tokens.css
+   Base tokens, reset, generic controls and utility classes.
+   S2 owner cleanup: rules were regrouped by selector responsibility.
+   Do not add late override dumps; keep future edits in this owner.
+========================================================= */
+:root {
+    --bg-body: #eef3f1;
+    --text-main: #172033;
+    --text-sub: #667085;
+    --bg-card: #ffffff;
+    --border-color: #dbe4df;
+    --accent-color: #305CDE;
+    --accent-soft: #e9efff;
+    --app-surface: rgba(255, 255, 255, 0.92);
+    --sheet-header: #f7faf8;
+    --sheet-grid: #dbe4df;
+    --hover-bg: #f4f8f6;
+    
+    --driver-bg: #f8fafc;
+    --seat-bg: #f1f5f9;
+    --seat-slot-bg: #ffffff;
+    --tray-bg: #ffffff;
+    
+    --modal-bg: #ffffff;
+    --modal-header-bg: #ffffff;
+    --header-art-url: none;
+    --modal-footer-bg: #f8fafc;
+
+    --bg-male: #eef7fb; --border-male: #bdd7e6; --text-male: #1f455b;
+    --bg-female: #fbf0ed; --border-female: #e6c6bd; --text-female: #5a342d;
+    --bg-unknown: #f5f8f6; --border-unknown: #c8d5ce; --text-unknown: #3f4f46;
+
+    --grade1-bg: #e4f3ea; --grade1-border: #b3d5c0; --grade1-text: #236242; --grade1-badge: #e4f3ea;
+    --grade2-bg: #f4edda; --grade2-border: #d4c28e; --grade2-text: #654f20; --grade2-badge: #f4edda;
+    --grade3-bg: #ede7f5; --grade3-border: #c8b9df; --grade3-text: #4f3d72; --grade3-badge: #ede7f5;
+    --grade4-bg: #e4f1f5; --grade4-border: #b4d2dc; --grade4-text: #245b68; --grade4-badge: #e4f1f5;
+
+    /* Unified radii across the app for a more cohesive look.  All cards,
+       buttons and panels now share the same roundedness values rather than a mix of numbers.
+       Smaller controls (like form inputs) use --radius-sm, general panels use --radius-main and
+       larger floating components use --radius-lg. */
+    --radius-main: 12px;
+    --radius-sm: 8px;
+    --radius-lg: 16px;
+
+    /* Consistent shadows: a subtle, universal elevation for cards and floating
+       elements.  Card shadows are lighter for a gentle lift, while floating
+       elements (modals, overlays) have a slightly stronger shadow. */
+    --shadow-card: 0 2px 6px rgba(15, 23, 42, 0.08);
+    --shadow-float: 0 10px 24px rgba(15, 23, 42, 0.15);
+    color-scheme: light;
+}
+[data-theme="dark"] {
+    --bg-body: #0f172a; 
+    --text-main: #f1f5f9; 
+    --text-sub: #94a3b8;
+    --bg-card: #1e293b; 
+    --border-color: #334155;
+    --accent-color: #305CDE;
+    --accent-soft: rgba(48, 92, 222, 0.22);
+    --app-surface: rgba(30, 41, 59, 0.92);
+    --sheet-header: #162033;
+    --sheet-grid: #334155;
+    --hover-bg: #243247;
+
+    --driver-bg: #0f172a; 
+    --seat-bg: #0f172a; 
+    --seat-slot-bg: #1e293b;
+    --tray-bg: #1e293b;
+    
+    --modal-bg: #1e293b;
+    --modal-header-bg: #1e293b;
+    --modal-footer-bg: #0f172a;
+
+    --bg-male: rgba(37, 99, 235, 0.22); --border-male: #60a5fa; --text-male: #dbeafe;
+    --bg-female: rgba(190, 24, 93, 0.24); --border-female: #f472b6; --text-female: #fce7f3;
+    --bg-unknown: rgba(148, 163, 184, 0.15); --border-unknown: #64748b; --text-unknown: #cbd5e1;
+
+    --grade1-bg: rgba(52,211,153,0.14); --grade1-border: rgba(52,211,153,0.42); --grade1-text: #d1fae5; --grade1-badge: rgba(52,211,153,0.14);
+    --grade2-bg: rgba(245,158,11,0.12); --grade2-border: rgba(245,158,11,0.36); --grade2-text: #fde68a; --grade2-badge: rgba(245,158,11,0.12);
+    --grade3-bg: rgba(167,139,250,0.12); --grade3-border: rgba(167,139,250,0.36); --grade3-text: #ddd6fe; --grade3-badge: rgba(167,139,250,0.12);
+    --grade4-bg: rgba(56,189,248,0.12); --grade4-border: rgba(56,189,248,0.36); --grade4-text: #bae6fd; --grade4-badge: rgba(56,189,248,0.12);
+    color-scheme: dark;
+}
+[data-theme="dark"] .form-control:disabled {
+background-color: rgba(255, 255, 255, 0.05); color: var(--text-sub); border-color: var(--border-color); opacity: 1;
+}
+[data-theme="dark"] .list-group-item {
+background-color: var(--bg-card); border-color: var(--border-color); color: var(--text-main);
+}
+[data-theme="dark"] .list-group-item:hover {
+background-color: var(--tray-bg); color: var(--text-main);
+}
+html,
+body {
+height: 100%; margin: 0; padding: 0; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-body); color: var(--text-main);
+    letter-spacing: 0;
+}
+.handle-bar {
+width: 40px; height: 4px; background-color: var(--text-sub); border-radius: 2px; opacity: 0.4;
+}
+.btn {
+border-radius: var(--radius-sm); font-weight: 500;
+}
+.btn-primary {
+background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+.btn-outline-primary {
+color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+.btn-outline-primary:hover {
+background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+/* Secondary buttons now derive their colour from the accent palette.  The
+   default state uses a very soft tint of the accent colour on a light
+   background, and the hover state promotes the button into a filled
+   primary style. */
+.btn-secondary {
+  background-color: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+.btn-secondary:hover {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #fff;
+}
+.form-control {
+background-color: var(--bg-card); 
+    color: var(--text-main); 
+    border-color: var(--border-color); 
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+}
+.form-control:focus {
+background-color: var(--bg-card);
+    color: var(--text-main);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 1px var(--accent-color);
+}
+.form-control::placeholder {
+color: var(--text-sub);
+    opacity: 0.6;
+}
+.form-check-input {
+background-color: var(--bg-card);
+    border-color: var(--border-color);
+    cursor: pointer;
+}
+[data-theme="dark"] .form-check-input:checked {
+background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+@keyframes sheetJiggle {
+    from { transform: rotate(-1.05deg); }
+    to { transform: rotate(1.05deg); }
+}
+.btn-close {
+filter: invert(var(--bs-btn-close-invert));
+}
+[data-theme="dark"] .btn-close {
+filter: invert(1);
+}
+.text-muted-dark-friendly {
+color: var(--text-sub);
+}
+[data-theme="dark"] .bg-light-subtle {
+background-color: var(--bg-card); color: var(--text-main);
+}
+[data-theme="dark"] .bg-white {
+background-color: var(--bg-card); color: var(--text-main);
+}
+[data-theme="dark"] .bg-light {
+background-color: var(--tray-bg); color: var(--text-main);
+}
+[data-theme="dark"] .border {
+border-color: var(--border-color);
+}
+.form-control,
+.form-select {
+background-color: var(--bg-card);
+            border-color: var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+}
+.form-control:focus,
+.form-select:focus {
+border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.18rem rgba(15, 118, 110, 0.14);
+}
+html,
+body {
+font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "YuGothic", "Meiryo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 500;
+}

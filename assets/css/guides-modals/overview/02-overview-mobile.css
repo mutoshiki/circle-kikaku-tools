@@ -1,0 +1,134 @@
+/* Moved from assets/css/guides-modals/07-overview-drawer.css; source-order chunk 2/2. */
+#app-layout #app-header .overview-dropdown-field {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0;
+  padding: 0 4px;
+  color: var(--text-main);
+  font-size: 0.84rem;
+  font-weight: 760;
+}
+#app-layout #app-header .overview-dropdown-field textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 9px 10px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 84%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-body) 74%, var(--bg-card));
+  color: var(--text-main);
+  font: inherit;
+  font-weight: 500;
+  line-height: 1.45;
+}
+.overview-drawer-kicker {
+  margin: 0 0 4px;
+  color: var(--accent-color);
+  font-size: 0.72rem;
+  font-weight: 820;
+  letter-spacing: 0.04em;
+}
+.overview-drawer h2 {
+  font-size: 1.24rem;
+  font-weight: 780;
+}
+.overview-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 112px;
+  padding: 12px 13px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 86%, transparent);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--bg-body) 70%, var(--bg-card));
+  color: var(--text-main);
+  font: inherit;
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+@media (max-width: 640px) {
+.overview-drawer,
+  #overviewDrawer.overview-drawer {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: min(78dvh, 620px);
+    padding: 16px 16px max(16px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--ui-saas-border);
+    border-left: 0;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -26px 54px rgba(var(--shadow-rgb), 0.18);
+    transform: translateY(104%);
+    overflow-x: hidden;
+  }
+
+.overview-drawer.is-open,
+  #overviewDrawer.overview-drawer.is-open {
+    transform: translateY(0);
+  }
+
+.overview-drawer-head {
+    padding-bottom: 12px;
+  }
+
+.overview-drawer-body {
+    gap: 16px;
+    padding-top: 14px;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+#overviewDrawer .overview-textarea,
+  #overviewDrawer .overview-copy-action,
+  .overview-drawer .overview-textarea,
+  .overview-drawer .overview-copy-action {
+    width: 100%;
+    max-width: 100%;
+  }
+
+#overviewDrawer .overview-textarea,
+  .overview-drawer .overview-textarea {
+    resize: vertical;
+  }
+}
+#overviewDrawer .overview-row-delete,
+.overview-drawer .overview-row-delete {
+  width: 30px;
+  min-width: 30px;
+  height: 36px;
+}
+@media (max-width: 380px) {
+#overviewDrawer .overview-row-delete,
+  .overview-drawer .overview-row-delete {
+    width: 28px;
+    min-width: 28px;
+  }
+}
+body[data-theme="dark"] #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action),
+html[data-theme="dark"] body #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action) {
+  color: var(--header-icon-text);
+  -webkit-text-fill-color: var(--header-icon-text);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+body[data-theme="dark"] #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action) :is(i, span),
+html[data-theme="dark"] body #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action) :is(i, span) {
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+body[data-theme="dark"] #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action):is(:hover, :focus-visible),
+html[data-theme="dark"] body #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action):is(:hover, :focus-visible) {
+  color: var(--accent-color);
+  -webkit-text-fill-color: var(--accent-color);
+}
+/* Participant registration mock: calm, low-contrast mock UI preserved after leaf split. */
+/* Overview drawer and route modal must sit above the edit screen. */
+#overviewDrawerScrim.overview-drawer-scrim,
+.overview-drawer-scrim {
+  z-index: var(--z-modal-backdrop);
+}
+#overviewDrawer.overview-drawer,
+.overview-drawer {
+  z-index: var(--z-modal);
+}

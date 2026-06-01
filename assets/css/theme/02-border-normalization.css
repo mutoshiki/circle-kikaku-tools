@@ -1,0 +1,119 @@
+/* =========================================================
+   Single-theme border repair
+   Cause: theme/panel variables and broad panel selectors were feeding strong
+   border colors into normal cards (.card, .car-box, .member-card, .seisan-card).
+   This final layer intentionally normalizes neutral borders after every feature CSS.
+========================================================= */
+:root,
+html[data-theme],
+body[data-theme],
+body[data-app-theme] {
+  --hairline: var(--app-border-soft);
+  --ui-saas-border: var(--app-border-soft);
+  --ui-readable-border: var(--app-border-soft);
+  --ui-panel-border: var(--app-border-soft);
+  --ui-surface-border: var(--app-border-soft);
+  --ui-surface-border-soft: var(--app-border-subtle);
+  --ui-surface-border-inner: var(--app-border-inner);
+  --ui-unified-divider: var(--app-divider-soft);
+}
+
+html[data-bs-theme="light"],
+html[data-theme="light"],
+body[data-theme="light"] {
+  color-scheme: light;
+}
+
+html[data-bs-theme="dark"],
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  color-scheme: dark;
+  --control-border: rgba(148, 163, 184, 0.22);
+  --control-border-strong: color-mix(in srgb, var(--accent-color) 32%, rgba(148, 163, 184, 0.24));
+  --control-secondary-bg: color-mix(in srgb, var(--bg-card) 84%, var(--color-night));
+  --control-secondary-hover: color-mix(in srgb, var(--accent-color) 13%, var(--bg-card));
+  --control-tertiary-bg: color-mix(in srgb, var(--bg-card) 70%, var(--color-night));
+  --control-tertiary-hover: color-mix(in srgb, var(--accent-color) 12%, var(--bg-card));
+  --control-primary-text: color-mix(in srgb, var(--bg-body) 88%, var(--color-black));
+  --theme-filled-control-text: var(--control-primary-text);
+  --ui-readable-shadow: 0 1px 0 color-mix(in srgb, var(--color-white) 4%, transparent), 0 12px 26px color-mix(in srgb, var(--color-black) 28%, transparent);
+}
+
+#app-layout :is(
+  #app-header,
+  #view-toggle-bar,
+  .view-toggle-bar,
+  #top-area > .d-flex:first-child,
+  .edit-header-tools-only,
+  .allocation-toolbar,
+  .car-box,
+  .team-box,
+  .waiting-tray,
+  #bottom-tray,
+  #sheet-title-bar,
+  #sheet-bottom-controls,
+  .sheet-empty-card,
+  .sheet-car-col,
+  .sheet-wait-block,
+  .seisan-card,
+  .seisan-toolbar-card,
+  .seisan-settings-card,
+  .seisan-panel,
+  .modal-content,
+  .dropdown-menu,
+  .person-pop-menu,
+  .overview-drawer,
+  .batch-spreadsheet-import
+) {
+  border-color: var(--app-border-soft);
+  outline: 0;
+}
+
+#app-layout :is(
+  .card,
+  .member-card,
+  .driver-seat,
+  .seat-slot,
+  .sheet-seat-row,
+  .sheet-driver-row,
+  .sheet-wait-item,
+  .seisan-car-summary-row,
+  .seisan-check-item,
+  .seisan-driver-pay-row,
+  .seisan-extra-row,
+  .seisan-cost-preview-item,
+  .seisan-summary-pills span,
+  .form-control,
+  .form-select,
+  .seisan-field input,
+  .seisan-field select
+) {
+  border-color: var(--app-border-subtle);
+  outline: 0;
+}
+
+#app-layout :is(
+  .car-header,
+  .seisan-head,
+  .seisan-compact-head,
+  .seisan-subhead,
+  .seisan-detail,
+  .sheet-car-header,
+  .sheet-wait-header,
+  #bottom-tray-header,
+  .modal-header,
+  .modal-footer,
+  .overview-drawer-head,
+  .overview-panel-title-row,
+  .batch-import-help-details
+) {
+  border-color: var(--app-divider-soft);
+}
+
+#app-layout :is(.driver-seat, .seat-slot, .member-card) {
+  box-shadow: none;
+}
+
+#app-layout .driver-seat {
+  border-left-color: var(--app-border-subtle);
+}

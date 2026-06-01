@@ -1,0 +1,201 @@
+/* Moved from assets/css/settlement/01-page-shell.css; source-order chunk 2/7. */
+@media (max-width: 640px) {
+.seisan-wrap {
+gap: 8px;
+}
+}
+@media (max-width: 640px) {
+.seisan-card {
+padding: 10px;
+}
+}
+@media (max-width: 640px) {
+.seisan-head-actions {
+display: grid;
+        grid-template-columns: minmax(0, 1fr) 48px;
+        width: 100%;
+}
+}
+@media (max-width: 640px) {
+.seisan-head-actions {
+display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px;
+        width: 100%;
+        gap: 6px;
+}
+}
+@media (max-width: 360px) {
+.seisan-head-actions {
+grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 40px;
+}
+}
+@media (max-width: 640px) {
+.seisan-head-actions {
+grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+}
+#seisanGuideModal .modal-header,
+#seisanGuideModal .modal-footer {
+background: var(--modal-header-bg);
+    border-color: var(--border-color);
+}
+#seisanGuideModal .modal-body {
+background: var(--bg-body);
+}
+.seisan-refresh-btn span {
+display: none;
+}
+.seisan-refresh-btn {
+padding-left: 0; padding-right: 0;
+}
+@media (max-width: 640px) {
+.seisan-head-actions {
+grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.9fr) 46px;
+}
+}
+.seisan-head-actions .tool-help-btn {
+order: 1;
+}
+.seisan-head-actions .seisan-refresh-btn {
+order: 2;
+}
+.seisan-head-actions .seisan-route-main-btn {
+order: 3;
+}
+@media (max-width: 640px) {
+.seisan-head-actions {
+grid-template-columns: minmax(0, 0.9fr) 48px minmax(0, 1.4fr);
+}
+}
+@media (max-width: 640px) {
+.seisan-card {
+padding: 12px;
+}
+}
+@media (max-width: 640px) {
+#seisan-view-area {
+padding-inline: 9px;
+}
+}
+@media (max-width: 640px) {
+.seisan-wrap {
+gap: 9px;
+}
+}
+@media (max-width: 640px) {
+.seisan-card {
+padding: 12px;
+}
+}
+@media (max-width: 640px) {
+.seisan-settings {
+gap: 8px;
+}
+}
+@media (max-width: 640px) {
+#seisan-view-area {
+padding-left: 10px ;
+        padding-right: 10px ;
+}
+}
+@media (max-width: 640px) {
+.seisan-wrap {
+max-width: 100%;
+}
+}
+@media (max-width: 640px) {
+.seisan-card {
+padding: 12px;
+        margin-bottom: 10px;
+        border-radius: var(--radius-main);
+}
+}
+@media (max-width: 640px) {
+.seisan-head {
+margin-bottom: 10px;
+}
+}
+@media (max-width: 640px) {
+.seisan-title {
+font-size: 1.02rem;
+        line-height: 1.25;
+        gap: 8px;
+}
+}
+@media (max-width: 640px) {
+.seisan-driver-name {
+grid-column: 1 / 2;
+        grid-row: 1 / 2;
+        font-size: 1rem;
+        line-height: 1.25;
+        font-weight: 900;
+}
+}
+@media (max-width: 640px) {
+.seisan-driver-amount {
+grid-column: 2 / 3;
+        grid-row: 1 / 2;
+        justify-self: end;
+        font-size: 1rem;
+        line-height: 1.2;
+        font-weight: 950;
+}
+}
+@media (max-width: 640px) {
+.seisan-driver-detail {
+grid-column: 1 / -1;
+        grid-row: 2 / 3;
+        font-size: 0.8rem;
+        line-height: 1.45;
+        margin-top: 2px;
+        color: var(--text-sub);
+        overflow-wrap: normal;
+        word-break: keep-all;
+}
+}
+@media (max-width: 640px) {
+#seisan-view-area {
+padding-top: 8px;
+}
+}
+@media (max-width: 640px) {
+.seisan-card {
+padding: 10px;
+        margin-bottom: 8px;
+}
+}
+[data-theme="dark"] #tab-seisan.view-tab.active {
+background: var(--accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent-color) 38%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 38%, transparent);
+    border-radius: calc(var(--radius-main) - 4px);
+    color: var(--accent-color);
+    box-shadow:
+        inset 0 1px 0 rgba(var(--white-rgb), 0.05),
+        0 8px 22px color-mix(in srgb, var(--accent-color) 14%, transparent);
+}
+[data-theme="dark"] #tab-seisan.view-tab.active i {
+color: var(--accent-color);
+}
+@supports not (background: color-mix(in srgb, red 10%, blue)) {
+[data-theme="dark"] #tab-seisan.view-tab.active {
+background: var(--accent-soft);
+        border-color: var(--accent-color);
+        border-bottom-color: var(--accent-color);
+}
+}
+.seisan-title--settings {
+margin-bottom: 6px;
+}
+.route-add-stop-btn {
+margin-top: 8px;
+}
+#seisanGuideModal .modal-content {
+overflow: hidden;
+}
+@media (max-width: 640px) {
+#seisanGuideModal .modal-dialog {
+margin: 0;
+        max-width: 100%;
+}
+}
