@@ -37,7 +37,6 @@
     <link href="./assets/css/app-shell/layout/02-panels.css" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/03-mobile-frame.css" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/04-layering.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/layout/05-viewport-balance.css" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/01-edit-base.css" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/02-toolbar.css" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/03-mobile-edit.css" rel="stylesheet">
@@ -90,7 +89,6 @@
     <link href="./assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/05-tray-states.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/waiting-tray/07-toolbar-spacing.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/01-person-card-shell.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/02-person-name-grade.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/03-person-menu.css" rel="stylesheet">
@@ -154,7 +152,6 @@
     <link href="./assets/css/sheet-view/layout/01-sheet-frame.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/layout/02-sheet-car-table.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/layout/03-sheet-summary.css" rel="stylesheet">
-    <link href="./assets/css/sheet-view/layout/04-viewport-density.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/waiting/01-sheet-waiting.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/waiting/02-sheet-waiting-mobile.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/timetable/01-timetable-base.css" rel="stylesheet">
@@ -164,11 +161,8 @@
     <link href="./assets/css/sheet-view/print/01-zoom-print.css" rel="stylesheet">
     <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
     <link href="./assets/css/08-utilities.css" rel="stylesheet">
-    <link href="./assets/css/theme/05-bottom-toolbar.css" rel="stylesheet">
     <link href="./assets/css/09-font-weight-tuning.css" rel="stylesheet">
     <link href="./assets/css/theme/06-palette-toolbar.css" rel="stylesheet">
-    <link href="./assets/css/theme/07-toolbar-hard-flat.css" rel="stylesheet">
-    <link href="./assets/css/theme/08-toolbar-auto-hide.css" rel="stylesheet">
     <link href="./assets/css/theme/08-dark-border-softness.css" rel="stylesheet">
   </head>
   <body data-theme="light" data-app-theme="standard" data-light-theme="standard" data-dark-theme="standard" class="sheet-mode view-mode-sheet">
@@ -206,14 +200,21 @@
             </button>
           </div>
         </div>
+        <div id="view-toggle-bar">
+          <button class="view-tab" id="tab-list" aria-label="車割・班割">
+            <i class="fas fa-pen-to-square" aria-hidden="true"></i><span class="view-tab-label">車割・班割</span>
+          </button>
+          <button class="view-tab active" id="tab-sheet" aria-label="共有画面">
+            <i class="fas fa-table-list" aria-hidden="true"></i><span class="view-tab-label">共有画面</span>
+          </button>
+          <button class="view-tab" id="tab-seisan" aria-label="精算ツール">
+            <i class="fas fa-receipt" aria-hidden="true"></i><span class="view-tab-label">精算</span>
+          </button>
+        </div>
       </header>
       <div id="overviewDrawerScrim" class="overview-drawer-scrim" hidden></div>
-      <aside id="overviewDrawer" class="overview-drawer" aria-hidden="true" aria-labelledby="overviewDrawerTitle">
-        <div class="overview-drawer-head">
-          <div>
-            <p class="overview-drawer-kicker">概要</p>
-            <h2 id="overviewDrawerTitle">メモ・タイムテーブル</h2>
-          </div>
+      <aside id="overviewDrawer" class="overview-drawer" aria-hidden="true" aria-label="メモ・タイムテーブル">
+        <div class="overview-drawer-head overview-drawer-head--compact">
           <button id="overviewDrawerCloseBtn" class="overview-drawer-close" type="button" aria-label="メニューを閉じる">
             <i class="fas fa-xmark" aria-hidden="true"></i>
           </button>
@@ -336,18 +337,6 @@
           </section>
 
         </div>
-      </div>
-
-      <div id="view-toggle-bar">
-        <button class="view-tab" id="tab-list" aria-label="車割・班割">
-          <i class="fas fa-people-group" aria-hidden="true"></i><span class="view-tab-label">車割・班割</span>
-        </button>
-        <button class="view-tab active" id="tab-sheet" aria-label="共有画面">
-          <i class="fas fa-table-list" aria-hidden="true"></i><span class="view-tab-label">共有画面</span>
-        </button>
-        <button class="view-tab" id="tab-seisan" aria-label="精算ツール">
-          <i class="fas fa-receipt" aria-hidden="true"></i><span class="view-tab-label">精算</span>
-        </button>
       </div>
 
       <div id="bottom-tray" style="display: none;">
@@ -933,5 +922,5 @@
     <script src="./assets/js/features/events/04-settlement-input-events.js"></script>
     <script src="./assets/js/features/events/05-view-feature-events.js"></script>
     <script src="./assets/js/features/events.js"></script>
-    <script src="./assets/js/features/bottom-toolbar-auto-hide.js"></script>  </body>
+  </body>
 </html>

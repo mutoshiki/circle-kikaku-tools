@@ -1,5 +1,5 @@
 .grade-select-btn.active[data-grade="0"] {
-background: var(--border-color); color: var(--text-main); font-weight: 600;
+background: var(--border-color); color: var(--text-main); font-weight: 700;
 }
 
 .grade-select-btn[data-grade="1"] {
@@ -19,7 +19,7 @@ background: var(--grade4-bg); color: var(--grade4-text); border-color: var(--gra
 }
 
 .grade-select-btn.active {
-box-shadow: inset 0 0 0 1px var(--text-main); font-weight: 600;
+box-shadow: inset 0 0 0 1px var(--text-main); font-weight: 700;
 }
 
 #roomNameInput {
@@ -45,7 +45,7 @@ font-size:0;
 
 @media (max-width: 640px) {
 #tab-list i::after {
-content:" 車割"; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size:0.68rem; font-weight: 500;
+content:" 車割"; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size:0.68rem; font-weight:700;
 }
 }
 
@@ -57,7 +57,7 @@ font-size:0;
 
 @media (max-width: 640px) {
 #tab-sheet i::after {
-content:" 発表"; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size:0.68rem; font-weight: 500;
+content:" 発表"; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size:0.68rem; font-weight:700;
 }
 }
 
@@ -98,7 +98,7 @@ min-height: 34px;
         border: 1px solid var(--border-color);
         border-left: 3px solid var(--accent-color);
         font-size: 0.76rem;
-        font-weight: 500;
+        font-weight: 760;
         line-height: 1.25;
 }
 }
@@ -124,7 +124,7 @@ min-width: 0;
   background: transparent;
   color: var(--text-sub);
   font-size: 0.73rem;
-  font-weight: 500;
+  font-weight: 800;
   line-height: 1.25;
   width: 100%;
   border-left: 0;
@@ -205,7 +205,7 @@ min-height: 36px;
         border-radius: 13px;
         color: color-mix(in srgb, var(--text-sub) 88%, var(--text-main));
         font-size: 0.74rem;
-        font-weight: 500;
+        font-weight: 820;
 }
 }
 

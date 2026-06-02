@@ -35,7 +35,7 @@
   color: var(--text-main);
   text-align: left;
   font-size: clamp(1.05rem, 4.6vw, 1.30rem);
-  font-weight: 600;
+  font-weight: 790;
   letter-spacing: -0.018em;
 }
 #app-layout #app-header .header-actions {
@@ -107,7 +107,7 @@
   color: color-mix(in srgb, var(--text-sub) 88%, var(--text-main));
   box-shadow: none;
   font-size: 0.82rem;
-  font-weight: 500;
+  font-weight: 730;
   letter-spacing: 0;
 }
 #app-layout #view-toggle-bar .view-tab::after, #app-layout .view-toggle-bar .view-tab::after {

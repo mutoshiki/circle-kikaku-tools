@@ -132,3 +132,80 @@ html[data-theme="dark"] body #app-layout #app-header :is(.header-action, .header
 .overview-drawer {
   z-index: var(--z-modal);
 }
+
+/* Compact overview drawer after removing the title block. */
+#overviewDrawer .overview-drawer-head--compact,
+.overview-drawer .overview-drawer-head--compact {
+  justify-content: flex-end;
+  min-height: 0;
+  padding-bottom: 8px;
+  border-bottom: 0;
+}
+
+#overviewDrawer .overview-drawer-body,
+.overview-drawer .overview-drawer-body {
+  min-width: 0;
+  padding-top: 8px;
+  overflow-x: hidden;
+}
+
+#overviewDrawer .overview-panel,
+.overview-drawer .overview-panel,
+#overviewDrawer .overview-timetable-panel,
+.overview-drawer .overview-timetable-panel {
+  min-width: 0;
+  max-width: 100%;
+}
+
+#overviewDrawer .overview-timetable-row,
+.overview-drawer .overview-timetable-row {
+  grid-template-columns: minmax(0, 70px) minmax(0, 1fr) 28px;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+#overviewDrawer .overview-timetable-row input,
+.overview-drawer .overview-timetable-row input {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#overviewDrawer .overview-timetable-row input[data-field="time"],
+.overview-drawer .overview-timetable-row input[data-field="time"] {
+  width: 70px;
+  padding-inline: 6px 2px;
+}
+
+#overviewDrawer .overview-row-delete,
+.overview-drawer .overview-row-delete {
+  width: 28px;
+  min-width: 28px;
+}
+
+@media (max-width: 380px) {
+  #overviewDrawer.overview-drawer,
+  .overview-drawer {
+    width: min(92vw, 340px);
+    padding-inline: 12px;
+  }
+
+  #overviewDrawer .overview-timetable-row,
+  .overview-drawer .overview-timetable-row {
+    grid-template-columns: minmax(0, 64px) minmax(0, 1fr) 26px;
+    gap: 5px;
+  }
+
+  #overviewDrawer .overview-timetable-row input[data-field="time"],
+  .overview-drawer .overview-timetable-row input[data-field="time"] {
+    width: 64px;
+  }
+
+  #overviewDrawer .overview-row-delete,
+  .overview-drawer .overview-row-delete {
+    width: 26px;
+    min-width: 26px;
+  }
+}

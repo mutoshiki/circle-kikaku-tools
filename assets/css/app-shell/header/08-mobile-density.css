@@ -14,7 +14,7 @@
     .app-room-input {
         min-height: 32px;
         font-size: 1rem;
-        font-weight: 600;
+        font-weight: 800;
     }
 
     .app-header-main > .header-actions {
@@ -105,7 +105,7 @@
 }
 .app-room-field label {
   font-size: 0.68rem;
-  font-weight: 600;
+  font-weight: 850;
   color: var(--text-sub);
   display: none;
 }
@@ -113,7 +113,7 @@
   min-height: 36px;
   padding: 4px 0;
   font-size: 1.02rem;
-  font-weight: 500;
+  font-weight: 800;
   letter-spacing: 0;
   color: var(--text-main);
 }
@@ -130,7 +130,7 @@
   color: color-mix(in srgb, var(--text-main) 82%, var(--text-sub));
   box-shadow: none;
   font-size: 0.76rem;
-  font-weight: 600;
+  font-weight: 780;
   letter-spacing: 0;
   gap: 5px;
   white-space: nowrap;

@@ -24,7 +24,7 @@ display: flex; gap: 4px; padding: 5px;
     backdrop-filter: blur(10px);
 }
 .view-tab {
-flex: 1; padding: 8px 6px; font-size: 0.74rem; font-weight: 500;
+flex: 1; padding: 8px 6px; font-size: 0.74rem; font-weight: 700;
     border: 1px solid transparent; border-radius: var(--radius-sm);
     background: transparent; color: var(--text-sub); cursor: pointer;
     transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 5px;
@@ -68,7 +68,7 @@ background: var(--bg-card);
 font-size: 1rem; margin-bottom: 4px;
 }
 .tool-btn span {
-font-size: 0.62rem; line-height: 1; font-weight: 500; white-space: nowrap;
+font-size: 0.62rem; line-height: 1; font-weight: 650; white-space: nowrap;
 }
 .edit-header {
 display: grid;
@@ -85,7 +85,7 @@ display: grid;
 .edit-kicker {
 color: var(--text-sub);
     font-size: 0.68rem;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0;
     margin-bottom: 4px;
 }
@@ -132,7 +132,7 @@ display: flex;
 .edit-panel-title span {
 color: var(--text-main);
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 800;
 }
 .edit-panel-title small {
 color: var(--text-sub);
@@ -157,7 +157,7 @@ display: grid;
 .edit-grade-row > span {
 color: var(--text-sub);
     font-size: 0.72rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 .edit-grade-row {
 display: grid;
@@ -182,7 +182,7 @@ display: flex;
 display: block;
     color: var(--text-main);
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 800;
 }
 .edit-section-head small {
 display: block;
