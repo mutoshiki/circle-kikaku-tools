@@ -64,7 +64,7 @@ content: "待機メンバーはいません";
         border-radius: var(--radius-main);
         background: var(--bg-body);
         font-size: 0.82rem;
-        font-weight: 800;
+        font-weight: 500;
         grid-column: 1 / -1;
 }
 }
@@ -128,7 +128,7 @@ min-height: 38px;
 @media (max-width: 640px) {
 #tray-toggle-label {
 font-size: 0.74rem;
-        font-weight: 850;
+        font-weight: 500;
 }
 }
 @media (max-width: 640px) {
@@ -174,7 +174,7 @@ display: inline-flex;
     border-left: 1px solid var(--border-color);
     color: var(--text-sub);
     font-size: 0.72rem;
-    font-weight: 800;
+    font-weight: 500;
 }
 #bottom-tray.waiting-empty #waiting-count {
 opacity: 0.6;

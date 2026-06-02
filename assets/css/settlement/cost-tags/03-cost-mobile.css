@@ -51,7 +51,7 @@
   opacity: 1;
   font-size: var(--settlement-tag-font-size, 0.64rem);
   font-style: normal;
-  font-weight: 900;
+  font-weight: 500;
   line-height: var(--settlement-tag-line-height, 1);
   letter-spacing: 0;
   white-space: nowrap;

@@ -12,7 +12,7 @@ display: flex;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-sub);
     font-size: 0.62rem;
-    font-weight: 800;
+    font-weight: 500;
     white-space: nowrap;
 }
 .mock-sheet-toolbar span {
@@ -45,7 +45,7 @@ background: var(--sheet-header);
 }
 .mock-sheet-table.realistic .ok {
 color: var(--accent-color);
-    font-weight: 900;
+    font-weight: 600;
 }
 @media (max-width: 640px) {
 .sheet-actions {
@@ -62,7 +62,7 @@ border-radius: var(--radius-main);
   color: var(--text-sub);
 }
 .sheet-label-row {
-  font-weight: 700;
+  font-weight: 600;
   font-size: 0.72rem;
 }
 .sheet-seat-disabled {
@@ -73,7 +73,7 @@ border-radius: var(--radius-main);
   opacity: 0.6;
 }
 .sheet-driver-name {
-  font-weight: 700;
+  font-weight: 600;
 }
 .sheet-chip-lock {
   font-size: 0.62rem;
@@ -119,7 +119,7 @@ border-radius: var(--radius-main);
   background: color-mix(in srgb, var(--bg-card) 88%, var(--bg-body));
   color: var(--text-sub);
   font-size: 0.65rem;
-  font-weight: 850;
+  font-weight: 500;
   line-height: 1.1;
   min-height: 30px;
   border-color: var(--hairline, var(--border-color));
@@ -146,7 +146,7 @@ border-radius: var(--radius-main);
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
   border-color: var(--hairline, var(--border-color));
-  font-weight: 850;
+  font-weight: 500;
 }
 .sheet-chip.draggable:hover {
     border-color: color-mix(in srgb, var(--accent-color) 28%, var(--border-color));

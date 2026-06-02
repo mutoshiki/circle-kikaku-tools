@@ -73,7 +73,7 @@
 .seisan-extra-slash {
   flex: 0 0 auto;
   color: color-mix(in srgb, var(--text-sub) 54%, transparent);
-  font-weight: 700;
+  font-weight: 600;
 }
 .settlement-edit-dialog,
 .settlement-edit-dialog--car {
@@ -119,7 +119,7 @@
   margin-bottom: 5px;
   color: var(--text-sub);
   font-size: 0.72rem;
-  font-weight: 900;
+  font-weight: 500;
   line-height: 1.2;
   white-space: nowrap;
 }
@@ -189,7 +189,7 @@
   color: var(--settlement-tag-ink, var(--settlement-split-ink));
   font-size: var(--settlement-tag-font-size);
   font-style: normal;
-  font-weight: 900;
+  font-weight: 500;
   line-height: var(--settlement-tag-line-height);
   letter-spacing: 0;
   box-shadow: none;

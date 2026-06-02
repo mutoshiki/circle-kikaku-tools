@@ -7,8 +7,8 @@ const cssDir = path.join(root, 'assets', 'css');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const appearanceAndRepair = readCssBundle();
 
-if (html.includes('appearanceModal') || html.includes('theme-picker')) {
-  console.error('Theme picker should be removed from the single-theme build');
+if (!html.includes('appearanceModal') || !html.includes('appearanceSettingsBtn')) {
+  console.error('Theme picker should be available in the themed build');
   process.exit(1);
 }
 

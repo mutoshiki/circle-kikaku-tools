@@ -93,7 +93,7 @@ font-size: 0.9rem ;
 display: inline ;
         font-size: 0.7rem ;
         line-height: 1 ;
-        font-weight: 900 ;
+        font-weight: 500;
         white-space: nowrap;
 }
 }
@@ -152,7 +152,7 @@ font-size: 0.61rem;
   padding: 4px 4px;
   border: 1px solid var(--border-color);
   background: var(--bg-card);
-  font-weight: 850;
+  font-weight: 500;
   line-height: 1;
   min-height: 32px;
   flex-direction: row;

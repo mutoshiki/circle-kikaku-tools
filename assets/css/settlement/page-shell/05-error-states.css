@@ -2,7 +2,7 @@
 .seisan-car-summary-payment span {
   color: var(--text-sub);
   font-size: 0.66rem;
-  font-weight: 850;
+  font-weight: 650;
   line-height: 1;
   white-space: nowrap;
 }
@@ -10,7 +10,7 @@
   color: var(--text-main);
   font-size: 1.16rem;
   line-height: 1;
-  font-weight: 950;
+  font-weight: 650;
   letter-spacing: -0.035em;
   white-space: nowrap;
 }
@@ -39,7 +39,7 @@
   align-self: baseline;
   color: var(--text-sub);
   font-size: 0.70rem;
-  font-weight: 850;
+  font-weight: 650;
   line-height: 1.45;
   white-space: nowrap;
 }
@@ -50,13 +50,13 @@
   white-space: normal;
   color: var(--text-sub);
   font-size: 0.72rem;
-  font-weight: 760;
+  font-weight: 650;
   line-height: 1.45;
   text-align: left;
 }
 .seisan-cost-preview-muted {
   color: var(--text-sub);
-  font-weight: 760;
+  font-weight: 650;
 }
 #seisan-view-area .seisan-car-summary-payment .seisan-payment-tag {
   transform: translateY(-1px);
@@ -116,7 +116,7 @@
 #seisan-view-area .seisan-driver-amount {
   font-size: 0.94rem;
   letter-spacing: 0;
-  font-weight: 950;
+  font-weight: 650;
 }
 @media (min-width: 860px) {
 #seisan-view-area .seisan-wrap {
@@ -132,7 +132,7 @@
   color: color-mix(in srgb, var(--text-sub) 92%, var(--text-main));
 }
 #seisan-view-area .seisan-alert-row.is-error {
-  font-weight: 730;
+  font-weight: 600;
 }
 [data-theme="dark"] #seisan-view-area .seisan-alert-row.is-guidance {
   color: var(--palette-slate-300);
@@ -173,12 +173,12 @@
 }
 #seisan-view-area .seisan-car-summary-row .seisan-cost-preview-label {
   font-size: 0.65rem;
-  font-weight: 680;
+  font-weight: 650;
   color: var(--text-sub);
 }
 #seisan-view-area .seisan-cost-preview-muted {
   color: var(--text-sub);
-  font-weight: 620;
+  font-weight: 600;
   padding: 2px 0;
   font-size: 0.68rem;
 }
@@ -198,6 +198,6 @@
   color: var(--color-ink);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
-  font-weight: 740;
+  font-weight: 650;
   letter-spacing: 0;
 }

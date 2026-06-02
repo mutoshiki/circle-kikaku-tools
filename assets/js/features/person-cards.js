@@ -61,7 +61,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0) {
     let slotsHtml = `
         <div class="driver-seat" data-gender="${dg}" data-name="${safeName}" data-grade="${dgrade || 0}">
             <div class="member-main-line driver-main-line">
-                <div class="driver-name-disp fw-bold">${safeName}</div>
+                <div class="driver-name-disp ">${safeName}</div>
                 ${driverGenderHtml}
                 ${driverGradeHtml}
                 <button type="button" class="driver-menu-btn action-btn" title="車出しメニュー" aria-label="車出し操作メニュー"><i class="fas fa-ellipsis-vertical" aria-hidden="true"></i></button>

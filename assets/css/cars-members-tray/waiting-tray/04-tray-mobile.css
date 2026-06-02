@@ -89,7 +89,7 @@
   border-color: var(--hairline, var(--border-color));
   background: var(--bg-card);
   color: var(--text-main);
-  font-weight: 850;
+  font-weight: 500;
 }
 .tray-inline-row .tray-action-btn.auto-assign-btn,
 .tray-actions .auto-assign-btn {
@@ -159,7 +159,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-weight: 850;
+  font-weight: 500;
   letter-spacing: -0.01em;
   min-height: 42px;
   /* Use the unified main radius for action buttons */

@@ -48,7 +48,7 @@
   background: color-mix(in srgb, var(--text-main) 86%, var(--accent-color));
   color: var(--bg-card);
   font-size: 0.62rem;
-  font-weight: 760;
+  font-weight: 500;
   text-align: center;
   letter-spacing: 0;
 }
@@ -59,7 +59,7 @@
   background: transparent;
   color: color-mix(in srgb, var(--text-main) 92%, var(--text-sub));
   font-size: 0.86rem;
-  font-weight: 760;
+  font-weight: 600;
   line-height: 1.2;
   margin-left: 2px;
   margin-bottom: 7px;
@@ -144,7 +144,7 @@
   background: var(--bg-card);
   color: var(--text-main);
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 500;
   padding: 6px 8px;
   touch-action: manipulation;
 }
@@ -163,7 +163,7 @@
   justify-content: center;
   gap: 6px;
   font-size: 0.76rem;
-  font-weight: 800;
+  font-weight: 600;
   touch-action: manipulation;
 }
 .sheet-timetable-add {

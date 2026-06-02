@@ -1,0 +1,78 @@
+/* Palette-specific control fixes. */
+body[data-app-theme="spinel-light"],
+html[data-app-theme="spinel-light"] body {
+  --accent-color: #98A4BD;
+  --accent-soft: #D8DEE9;
+  --app-accent: #98A4BD;
+  --control-primary-bg: #98A4BD;
+  --control-primary-hover: #8794AD;
+  --control-primary-text: #FFFFFF;
+  --control-primary-shadow: none;
+  --ui-blue: #98A4BD;
+  --ui-blue-soft: #D8DEE9;
+  --palette-blue-700: #53617A;
+  --palette-blue-600: #6F7E9B;
+  --palette-blue-400: #98A4BD;
+  --palette-blue-300: #B3BCD0;
+  --palette-blue-200: #C9D0DE;
+  --palette-blue-100: #D8DEE9;
+  --palette-blue-50: #ECEFF5;
+  --settlement-pay-ink: #53617A;
+  --settlement-pay-bg: #E5E8EF;
+  --settlement-pay-line: #98A4BD;
+  --settlement-pay-surface-bg: #EDF0F5;
+  --settlement-pay-surface-line: #98A4BD;
+  --settlement-pay-ink-fixed: #53617A;
+  --settlement-pay-bg-fixed: #E5E8EF;
+  --settlement-pay-line-fixed: #98A4BD;
+  --settlement-pay-surface-fixed: #EDF0F5;
+  --settlement-pay-surface-line-fixed: #98A4BD;
+  --bs-primary: #98A4BD;
+  --bs-primary-rgb: 152, 164, 189;
+  --bs-link-color: #53617A;
+  --bs-link-hover-color: #333333;
+  --return-target-bg: color-mix(in srgb, #98A4BD 12%, var(--sheet-header));
+}
+
+body[data-app-theme="spinel-light"] :where(.btn-primary, .btn-accent-solid, .header-actions .share-action, .share-action, #shareLinkBtn.header-action, #batchOpenBtn.tool-btn, #routeHelperBtn, #routeHelperBtn.seisan-btn, .seisan-btn.primary, .seisan-btn.active, #shuffleAssignBtn.tray-action-btn, .tray-inline-row .tray-action-btn--auto, .guide-footer .btn-primary, .mock-form-import-button, .batch-spreadsheet-button, .seisan-btn-primary, .seisan-primary-action, .tool-btn[data-priority="share"], .room-mode-tab.active, .car-plan-template-chip.active, .bg-primary, .badge.bg-primary, .text-bg-primary),
+html[data-app-theme="spinel-light"] body :where(.btn-primary, .btn-accent-solid, .header-actions .share-action, .share-action, #shareLinkBtn.header-action, #batchOpenBtn.tool-btn, #routeHelperBtn, #routeHelperBtn.seisan-btn, .seisan-btn.primary, .seisan-btn.active, #shuffleAssignBtn.tray-action-btn, .tray-inline-row .tray-action-btn--auto, .guide-footer .btn-primary, .mock-form-import-button, .batch-spreadsheet-button, .seisan-btn-primary, .seisan-primary-action, .tool-btn[data-priority="share"], .room-mode-tab.active, .car-plan-template-chip.active, .bg-primary, .badge.bg-primary, .text-bg-primary) {
+  background: #98A4BD;
+  border-color: #98A4BD;
+  color: #FFFFFF;
+  box-shadow: none;
+}
+
+body[data-app-theme="spinel-light"] :where(.btn-primary, .btn-accent-solid, .header-actions .share-action, .share-action, #shareLinkBtn.header-action, #batchOpenBtn.tool-btn, #routeHelperBtn, #routeHelperBtn.seisan-btn, .seisan-btn.primary, .seisan-btn.active, #shuffleAssignBtn.tray-action-btn, .tray-inline-row .tray-action-btn--auto, .guide-footer .btn-primary, .mock-form-import-button, .batch-spreadsheet-button, .seisan-btn-primary, .seisan-primary-action, .tool-btn[data-priority="share"]):is(:hover, :focus-visible),
+html[data-app-theme="spinel-light"] body :where(.btn-primary, .btn-accent-solid, .header-actions .share-action, .share-action, #shareLinkBtn.header-action, #batchOpenBtn.tool-btn, #routeHelperBtn, #routeHelperBtn.seisan-btn, .seisan-btn.primary, .seisan-btn.active, #shuffleAssignBtn.tray-action-btn, .tray-inline-row .tray-action-btn--auto, .guide-footer .btn-primary, .mock-form-import-button, .batch-spreadsheet-button, .seisan-btn-primary, .seisan-primary-action, .tool-btn[data-priority="share"]):is(:hover, :focus-visible) {
+  background: #8794AD;
+  border-color: #8794AD;
+  color: #FFFFFF;
+  box-shadow: none;
+}
+
+body[data-app-theme="spinel-light"] :where(.btn-outline-primary, .btn-link, a, .link-primary, .text-primary),
+html[data-app-theme="spinel-light"] body :where(.btn-outline-primary, .btn-link, a, .link-primary, .text-primary) {
+  color: #53617A;
+  border-color: #98A4BD;
+}
+
+body[data-app-theme="spinel-light"] :where(.btn-outline-primary:hover),
+html[data-app-theme="spinel-light"] body :where(.btn-outline-primary:hover) {
+  background: #98A4BD;
+  border-color: #98A4BD;
+  color: #FFFFFF;
+}
+
+body[data-app-theme="spinel-light"] :where(.seisan-payment-tag, .payment-chip, .payment-badge, .cost-payment-tag),
+html[data-app-theme="spinel-light"] body :where(.seisan-payment-tag, .payment-chip, .payment-badge, .cost-payment-tag) {
+  background: #E5E8EF;
+  border-color: #98A4BD;
+  color: #53617A;
+}
+
+body[data-app-theme="spinel-light"] :where(.form-control:focus, .form-select:focus, .form-check-input:checked),
+html[data-app-theme="spinel-light"] body :where(.form-control:focus, .form-select:focus, .form-check-input:checked) {
+  border-color: #98A4BD;
+  box-shadow: 0 0 0 3px rgba(152, 164, 189, 0.24);
+  accent-color: #98A4BD;
+}

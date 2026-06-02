@@ -34,7 +34,7 @@ width: 36px;
 border-bottom: 1px solid var(--border-color);
     color: var(--text-main);
     font-size: 0.82rem;
-    font-weight: 700;
+    font-weight: 500;
     padding-bottom: 3px;
 }
 .app-guide-mini-tools {
@@ -54,7 +54,7 @@ border: 1px solid var(--border-color);
     justify-content: center;
     color: var(--text-main);
     font-size: 0.7rem;
-    font-weight: 700;
+    font-weight: 500;
 }
 .app-guide-mini-tools i {
 color: var(--accent-color);
@@ -68,7 +68,7 @@ grid-template-columns: 1fr;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
+  font-weight: 500;
   transform: rotate(90deg);
   min-height: 16px;
 }
@@ -160,7 +160,7 @@ position: fixed;
     background: rgba(30, 41, 59, 0.94);
     color: var(--color-white);
     font-size: 0.76rem;
-    font-weight: 800;
+    font-weight: 500;
     box-shadow: 0 8px 20px rgba(var(--shadow-rgb), 0.18);
     opacity: 0;
     transform: translateY(8px);

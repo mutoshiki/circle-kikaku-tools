@@ -10,7 +10,7 @@ min-height: 39px;
         background: color-mix(in srgb, var(--bg-card) 86%, transparent);
         color: color-mix(in srgb, var(--text-sub) 86%, var(--text-main));
         font-size: 0.77rem;
-        font-weight: 820;
+        font-weight: 600;
         line-height: 1;
         box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.02);
 }
@@ -70,7 +70,7 @@ padding-inline: 9px;
     margin-top: 4px;
     color: var(--text-sub);
     font-size: 0.74rem;
-    font-weight: 850;
+    font-weight: 600;
 }
 .guide-compare-arrow {
     color: var(--text-sub);
@@ -88,7 +88,7 @@ padding-inline: 9px;
 .dropdown-item {
   border-radius: var(--radius-main);
   min-height: 38px;
-  font-weight: 750;
+  font-weight: 500;
 }
 .dropdown-item:hover,
 .dropdown-item:focus {
@@ -115,7 +115,7 @@ padding-inline: 9px;
 .guide-feature-title,
 .app-guide-box strong,
 .global-guide-card strong {
-    font-weight: 900;
+    font-weight: 600;
     letter-spacing: -0.02em;
 }
 .guide-important-note,

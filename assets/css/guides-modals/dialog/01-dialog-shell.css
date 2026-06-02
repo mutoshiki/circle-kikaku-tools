@@ -16,7 +16,7 @@ color: var(--text-sub);
 .debug-label {
 color: var(--text-sub);
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 .debug-car-count-select {
 width: 78px;

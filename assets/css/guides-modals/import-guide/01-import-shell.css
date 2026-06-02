@@ -142,7 +142,7 @@ min-height: 120px;
     border: 1px solid color-mix(in srgb, var(--color-warning) 32%, var(--border-color));
     color: var(--text-main);
     font-size: 0.78rem;
-    font-weight: 800;
+    font-weight: 500;
     line-height: 1.45;
     padding: 7px 9px;
 }
@@ -160,14 +160,14 @@ min-height: 120px;
 }
 .form-sheet-howto-title {
     font-size: 0.8rem;
-    font-weight: 850;
+    font-weight: 600;
     color: var(--text-main);
     margin-bottom: 4px;
 }
 .form-sheet-howto-body {
     color: var(--text-sub);
     font-size: 0.76rem;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.55;
 }
 .form-sheet-icon {
@@ -204,6 +204,6 @@ min-height: 120px;
     display: inline-block;
     margin-top: 11px;
     font-size: 0.8rem;
-    font-weight: 850;
+    font-weight: 500;
     color: var(--text-main);
 }

@@ -37,11 +37,11 @@ gap: 0;
 padding-left: 2px;
 }
 .app-room-field label {
-font-weight: 650;
+font-weight: 600;
 }
 .app-room-input {
 font-size: 1.04rem;
-    font-weight: 720;
+    font-weight: 600;
 }
 .app-header-illustration,
 .app-brand-mark {
@@ -172,7 +172,7 @@ content: none;
 margin-top: 8px;
     color: var(--text-sub);
     font-size: 0.74rem;
-    font-weight: 700;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -195,7 +195,7 @@ min-height: 44px;
     justify-content: center;
     gap: 6px;
     font-size: 0.76rem;
-    font-weight: 800;
+    font-weight: 500;
     color: var(--text-main);
 }
 #app-header {

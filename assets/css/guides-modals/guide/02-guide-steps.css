@@ -13,7 +13,7 @@ display: flex;
     padding-bottom: 5px;
     margin-bottom: 6px;
     font-size: 0.76rem;
-    font-weight: 800;
+    font-weight: 500;
 }
 .guide-mini-grid {
 display: grid;
@@ -37,7 +37,7 @@ padding: 6px 5px;
 }
 .guide-mini-sheet .head {
 background: var(--sheet-header);
-    font-weight: 800;
+    font-weight: 600;
 }
 .guide-mini-sheet .person-male {
 background: var(--bg-male); color: var(--text-male);
@@ -84,7 +84,7 @@ margin-left: auto;
     color: var(--color-white);
     padding: 4px 7px;
     font-size: 0.62rem;
-    font-weight: 900;
+    font-weight: 500;
 }
 .guide-edit-card-mock {
 border: 1px solid var(--border-color);
@@ -108,12 +108,12 @@ min-height: 36px;
 .guide-edit-field span:first-child {
 color: var(--text-sub);
     font-size: 0.68rem;
-    font-weight: 900;
+    font-weight: 500;
 }
 .guide-edit-field strong {
 color: var(--text-main);
     font-size: 0.82rem;
-    font-weight: 900;
+    font-weight: 500;
 }
 .guide-edit-field.compact {
 grid-template-columns: 42px auto auto;
@@ -123,7 +123,7 @@ grid-template-columns: 42px auto auto;
 color: var(--text-main);
     font-style: normal;
     font-size: 0.76rem;
-    font-weight: 900;
+    font-weight: 500;
 }
 .guide-edit-actions {
 display: grid;
@@ -167,7 +167,7 @@ display: flex;
     background: var(--sheet-header);
     color: var(--text-sub);
     font-size: 0.72rem;
-    font-weight: 800;
+    font-weight: 600;
     line-height: 1.45;
 }
 .guide-compare-ui-grid {

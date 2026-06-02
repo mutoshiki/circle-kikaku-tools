@@ -24,7 +24,7 @@ min-height: 36px;
     background: var(--bg-body);
     color: var(--text-main);
     font-size: 0.86rem;
-    font-weight: 700;
+    font-weight: 500;
 }
 
 .edit-capacity-wrap {
@@ -36,7 +36,7 @@ display: flex;
 .edit-capacity-wrap span {
 color: var(--text-sub);
     font-size: 0.72rem;
-    font-weight: 700;
+    font-weight: 500;
 }
 
 .edit-capacity-wrap input {
@@ -133,7 +133,7 @@ border-radius: var(--radius-sm);
   :where(.member-name-text, .driver-name-disp) {
     font-size: 0.96rem;
     line-height: 1.25;
-    font-weight: 900;
+    font-weight: 600;
     letter-spacing: 0;
   }
 

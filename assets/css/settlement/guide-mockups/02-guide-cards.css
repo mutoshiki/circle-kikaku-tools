@@ -6,7 +6,7 @@ background: var(--accent-soft);
 .seisan-mock-amount {
 color: var(--accent-color);
     font-size: 0.72rem;
-    font-weight: 900;
+    font-weight: 650;
     white-space: nowrap;
 }
 @media (max-width: 520px) {
@@ -38,7 +38,7 @@ display: flex;
     gap: 8px;
     color: var(--text-main);
     font-size: 0.95rem;
-    font-weight: 800;
+    font-weight: 600;
     margin-bottom: 4px;
 }
 .seisan-guide-hero-title i,
@@ -60,7 +60,7 @@ display: flex;
     gap: 7px;
     color: var(--text-main);
     font-size: 0.9rem;
-    font-weight: 800;
+    font-weight: 600;
     margin-bottom: 8px;
 }
 .seisan-guide-points {
@@ -139,7 +139,7 @@ width: 32px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-weight: 900;
+    font-weight: 500;
 }
 .seisan-guide-item strong {
 display: block;
@@ -160,7 +160,7 @@ display: block;
   padding: 10px;
   text-align: center;
   color: var(--text-main);
-  font-weight: 900;
+  font-weight: 500;
   font-size: 0.78rem;
   min-height: 86px;
   display: flex;

@@ -16,7 +16,7 @@
   background: color-mix(in srgb, var(--accent-color) 7%, var(--bg-card));
   color: var(--text-main);
   font-size: 0.86rem;
-  font-weight: 680;
+  font-weight: 500;
   line-height: 1.55;
 }
 
@@ -46,7 +46,7 @@
   gap: 6px;
   color: var(--text-main);
   font-size: 0.9rem;
-  font-weight: 850;
+  font-weight: 600;
   line-height: 1.25;
 }
 
@@ -58,7 +58,7 @@
 #routeDistanceModal .route-helper-subtitle {
   color: var(--text-sub);
   font-size: 0.72rem;
-  font-weight: 720;
+  font-weight: 600;
   line-height: 1.25;
   white-space: normal;
   text-align: right;
@@ -67,7 +67,7 @@
 #routeDistanceModal .route-helper-note {
   color: var(--text-sub);
   font-size: 0.78rem;
-  font-weight: 560;
+  font-weight: 500;
   line-height: 1.45;
 }
 
@@ -91,7 +91,7 @@
   background: var(--bg-body);
   color: var(--text-main);
   font-size: 0.86rem;
-  font-weight: 760;
+  font-weight: 500;
 }
 
 #routeDistanceModal .route-private-input {
@@ -103,7 +103,7 @@
   background: var(--bg-card);
   color: var(--text-main);
   font-size: 0.9rem;
-  font-weight: 620;
+  font-weight: 600;
 }
 
 #routeDistanceModal .route-private-input:focus {
@@ -124,7 +124,7 @@
   justify-content: center;
   gap: 6px;
   font-size: 0.9rem;
-  font-weight: 850;
+  font-weight: 500;
 }
 
 #routeDistanceModal .route-helper-actions .seisan-btn i {

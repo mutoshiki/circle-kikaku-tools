@@ -112,7 +112,7 @@
   backdrop-filter: blur(18px) saturate(1.08);
   border-bottom: 1px solid var(--border-color);
   color: var(--text-main);
-  font-weight: 700;
+  font-weight: 600;
   grid-template-columns: auto minmax(0, 1fr);
   border: 1px solid var(--hairline, var(--border-color));
   border-radius: var(--radius-lg);
@@ -128,12 +128,12 @@
   min-width: 0;
   color: var(--text-sub);
   font-size: 0.64rem;
-  font-weight: 680;
+  font-weight: 500;
 }
 .sheet-summary-stat strong, .sheet-summary-updated strong {
   color: var(--text-main);
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 500;
 }
 #sheet-canvas {
   position: absolute;
@@ -161,7 +161,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-weight: 850;
+  font-weight: 500;
 }
 #sheet-hint {
   position: absolute;

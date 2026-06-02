@@ -6,12 +6,10 @@ const testsDir = __dirname;
 const skip = new Set([
   'run-static-tests.js',
   'basic-ui.spec.js',
-  // Theme/appearance picker was intentionally removed in the single-theme build.
-  'appearance-done-visible-check.js',
-  'appearance-footer-check.js',
-  'guide-theme-preview-check.js',
+  // The themed build supersedes the old single-theme removal assertion.
+  'single-theme-removal-check.js',
+  // These legacy checks target a previous control-text repair implementation.
   'theme-control-token-scope-check.js',
-  'theme-preset-renderer-check.js',
   'theme-primary-text-fix-check.js'
 ]);
 const files = fs.readdirSync(testsDir)

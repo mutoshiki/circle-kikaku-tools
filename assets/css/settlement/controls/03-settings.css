@@ -11,7 +11,7 @@ font-size: 0.68rem;
   background: var(--bg-card);
   color: var(--text-main);
   box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.03);
-  font-weight: 850;
+  font-weight: 500;
 }
 .seisan-btn:hover,
 .seisan-toggle:hover,
@@ -38,13 +38,13 @@ font-size: 0.68rem;
   background: color-mix(in srgb, var(--bg-card) 82%, var(--bg-body));
   color: var(--text-main);
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: 500;
 }
 .seisan-mini-label {
   display: block;
   color: var(--text-sub);
   font-size: 0.66rem;
-  font-weight: 850;
+  font-weight: 500;
   margin-bottom: 3px;
   line-height: 1.25;
 }
@@ -121,9 +121,6 @@ font-size: 0.68rem;
 .guide-step-panel,
 .batch-spreadsheet-import,
 .batch-import-notice,
-.theme-preview-panel,
-.theme-app-preview,
-.theme-preset-card,
 .seisan-settings-card,
 .empty-card {
   border-color: transparent;
@@ -184,7 +181,7 @@ font-size: 0.68rem;
   padding: 8px 10px;
   border-radius: 12px;
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 500;
   white-space: nowrap;
 }
 @media (max-width: 640px) {

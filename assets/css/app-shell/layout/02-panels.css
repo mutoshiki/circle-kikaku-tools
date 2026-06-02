@@ -58,14 +58,14 @@ display: flex;
 color: var(--text-main);
     font-size: 0.98rem;
     line-height: 1.2;
-    font-weight: 900;
+    font-weight: 600;
     letter-spacing: 0;
 }
 .app-subtitle {
 color: var(--text-sub);
     font-size: 0.68rem;
     line-height: 1.25;
-    font-weight: 700;
+    font-weight: 600;
     margin-top: 2px;
     white-space: nowrap;
     overflow: hidden;
@@ -133,7 +133,7 @@ display: grid;
 margin: 0;
     color: var(--text-sub);
     font-size: 0.64rem;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.1;
 }
 .app-room-input {
@@ -145,7 +145,7 @@ width: 100%;
     color: var(--text-main);
     font-size: 1rem;
     line-height: 1.25;
-    font-weight: 700;
+    font-weight: 500;
     padding: 2px 0 3px;
     outline: none;
 }
@@ -193,5 +193,5 @@ fill: rgba(52, 211, 153, 0.10);
 .view-tab,
 .tool-btn,
 .edit-tools .tool-btn {
-font-weight: 700;
+font-weight: 600;
 }

@@ -1,0 +1,222 @@
+/* Bottom toolbar guard. Keep it flat in every theme. */
+#app-layout > #view-toggle-bar,
+html body #app-layout > #view-toggle-bar,
+#view-toggle-bar.view-toggle-bar,
+.view-toggle-bar {
+  background: var(--bottom-toolbar-bg, var(--preview-header-bg));
+  background-image: none;
+  border-radius: 0;
+  box-shadow: none;
+  filter: none;
+  text-shadow: none;
+  transform: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+#app-layout > #view-toggle-bar::before,
+#app-layout > #view-toggle-bar::after,
+#app-layout > #view-toggle-bar .view-tab,
+#app-layout > #view-toggle-bar .view-tab::before,
+#app-layout > #view-toggle-bar .view-tab::after,
+#app-layout > #view-toggle-bar .view-tab i,
+#app-layout > #view-toggle-bar .view-tab span,
+#app-layout > #view-toggle-bar .view-tab:hover,
+#app-layout > #view-toggle-bar .view-tab:focus,
+#app-layout > #view-toggle-bar .view-tab:focus-visible,
+#app-layout > #view-toggle-bar .view-tab:active,
+#app-layout > #view-toggle-bar .view-tab.active,
+#view-toggle-bar .view-tab,
+#view-toggle-bar .view-tab::before,
+#view-toggle-bar .view-tab::after,
+#view-toggle-bar .view-tab i,
+#view-toggle-bar .view-tab span,
+#view-toggle-bar .view-tab:hover,
+#view-toggle-bar .view-tab:focus,
+#view-toggle-bar .view-tab:focus-visible,
+#view-toggle-bar .view-tab:active,
+#view-toggle-bar .view-tab.active,
+.view-toggle-bar .view-tab,
+.view-toggle-bar .view-tab::before,
+.view-toggle-bar .view-tab::after,
+.view-toggle-bar .view-tab i,
+.view-toggle-bar .view-tab span,
+.view-toggle-bar .view-tab:hover,
+.view-toggle-bar .view-tab:focus,
+.view-toggle-bar .view-tab:focus-visible,
+.view-toggle-bar .view-tab:active,
+.view-toggle-bar .view-tab.active,
+body[data-theme="dark"] #app-layout > #view-toggle-bar .view-tab.active,
+html[data-theme="dark"] body #app-layout > #view-toggle-bar .view-tab.active {
+  background-image: none;
+  box-shadow: none;
+  filter: none;
+  text-shadow: none;
+  transform: none;
+}
+
+#app-layout > #view-toggle-bar .view-tab,
+html body #app-layout > #view-toggle-bar .view-tab,
+#view-toggle-bar .view-tab,
+.view-toggle-bar .view-tab {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+#app-layout > #view-toggle-bar .view-tab:hover,
+#app-layout > #view-toggle-bar .view-tab:focus,
+#app-layout > #view-toggle-bar .view-tab:focus-visible,
+#app-layout > #view-toggle-bar .view-tab:active,
+#app-layout > #view-toggle-bar .view-tab.active,
+#view-toggle-bar .view-tab:hover,
+#view-toggle-bar .view-tab:focus,
+#view-toggle-bar .view-tab:focus-visible,
+#view-toggle-bar .view-tab:active,
+#view-toggle-bar .view-tab.active,
+.view-toggle-bar .view-tab:hover,
+.view-toggle-bar .view-tab:focus,
+.view-toggle-bar .view-tab:focus-visible,
+.view-toggle-bar .view-tab:active,
+.view-toggle-bar .view-tab.active,
+body[data-theme="dark"] #app-layout > #view-toggle-bar .view-tab.active,
+html[data-theme="dark"] body #app-layout > #view-toggle-bar .view-tab.active {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+#app-layout > #view-toggle-bar .view-tab.active::before,
+#view-toggle-bar .view-tab.active::before,
+.view-toggle-bar .view-tab.active::before,
+body[data-theme="dark"] #app-layout > #view-toggle-bar .view-tab.active::before,
+html[data-theme="dark"] body #app-layout > #view-toggle-bar .view-tab.active::before {
+  height: 3px;
+  background: currentColor;
+  background-image: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+#app-layout > #view-toggle-bar .view-tab.active::after,
+#view-toggle-bar .view-tab.active::after,
+.view-toggle-bar .view-tab.active::after,
+body[data-theme="dark"] #app-layout > #view-toggle-bar .view-tab.active::after,
+html[data-theme="dark"] body #app-layout > #view-toggle-bar .view-tab.active::after {
+  content: none;
+  display: none;
+}
+
+.theme-preview-tabs,
+.theme-preview-tabs span,
+.theme-preview-tabs span.active,
+.theme-preview-tabs span::before,
+.theme-preview-tabs span::after {
+  background-image: none;
+  box-shadow: none;
+  filter: none;
+  text-shadow: none;
+}
+
+.theme-preview-tabs {
+  background: var(--bottom-toolbar-bg, var(--preview-header-bg));
+  color: var(--bottom-toolbar-text, var(--preview-header-text));
+}
+
+.theme-preview-tabs span,
+.theme-preview-tabs span:hover,
+.theme-preview-tabs span.active {
+  background: transparent;
+}
+
+.theme-preview-tabs span.active::before {
+  background: currentColor;
+  box-shadow: none;
+}
+
+/* Attribute-specific override for old light/dark toolbar rules. */
+body[data-theme] #app-layout > #view-toggle-bar,
+html[data-theme] body #app-layout > #view-toggle-bar,
+body[data-app-theme] #app-layout > #view-toggle-bar,
+html[data-app-theme] body #app-layout > #view-toggle-bar {
+  background: var(--bottom-toolbar-bg, var(--preview-header-bg));
+  background-image: none;
+  border-radius: 0;
+  box-shadow: none;
+  filter: none;
+  text-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transform: none;
+}
+
+body[data-theme] #app-layout > #view-toggle-bar .view-tab,
+html[data-theme] body #app-layout > #view-toggle-bar .view-tab,
+body[data-app-theme] #app-layout > #view-toggle-bar .view-tab,
+html[data-app-theme] body #app-layout > #view-toggle-bar .view-tab,
+body[data-theme] #app-layout > #view-toggle-bar .view-tab:hover,
+html[data-theme] body #app-layout > #view-toggle-bar .view-tab:hover,
+body[data-app-theme] #app-layout > #view-toggle-bar .view-tab:hover,
+html[data-app-theme] body #app-layout > #view-toggle-bar .view-tab:hover,
+body[data-theme] #app-layout > #view-toggle-bar .view-tab:focus,
+html[data-theme] body #app-layout > #view-toggle-bar .view-tab:focus,
+body[data-app-theme] #app-layout > #view-toggle-bar .view-tab:focus,
+html[data-app-theme] body #app-layout > #view-toggle-bar .view-tab:focus,
+body[data-theme] #app-layout > #view-toggle-bar .view-tab:focus-visible,
+html[data-theme] body #app-layout > #view-toggle-bar .view-tab:focus-visible,
+body[data-app-theme] #app-layout > #view-toggle-bar .view-tab:focus-visible,
+html[data-app-theme] body #app-layout > #view-toggle-bar .view-tab:focus-visible,
+body[data-theme] #app-layout > #view-toggle-bar .view-tab:active,
+html[data-theme] body #app-layout > #view-toggle-bar .view-tab:active,
+body[data-app-theme] #app-layout > #view-toggle-bar .view-tab:active,
+html[data-app-theme] body #app-layout > #view-toggle-bar .view-tab:active,
+body[data-theme] #app-layout > #view-toggle-bar .view-tab.active,
+html[data-theme] body #app-layout > #view-toggle-bar .view-tab.active,
+body[data-app-theme] #app-layout > #view-toggle-bar .view-tab.active,
+html[data-app-theme] body #app-layout > #view-toggle-bar .view-tab.active,
+body[data-theme] #app-layout > #view-toggle-bar #tab-list.view-tab.active,
+html[data-theme] body #app-layout > #view-toggle-bar #tab-list.view-tab.active,
+body[data-theme] #app-layout > #view-toggle-bar #tab-sheet.view-tab.active,
+html[data-theme] body #app-layout > #view-toggle-bar #tab-sheet.view-tab.active,
+body[data-theme] #app-layout > #view-toggle-bar #tab-seisan.view-tab.active,
+html[data-theme] body #app-layout > #view-toggle-bar #tab-seisan.view-tab.active {
+  background: transparent;
+  background-image: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  filter: none;
+  text-shadow: none;
+  transform: none;
+}
+
+body[data-theme] #app-layout > #view-toggle-bar .view-tab.active::before,
+html[data-theme] body #app-layout > #view-toggle-bar .view-tab.active::before,
+body[data-app-theme] #app-layout > #view-toggle-bar .view-tab.active::before,
+html[data-app-theme] body #app-layout > #view-toggle-bar .view-tab.active::before,
+body[data-theme] #app-layout > #view-toggle-bar #tab-list.view-tab.active::before,
+html[data-theme] body #app-layout > #view-toggle-bar #tab-list.view-tab.active::before,
+body[data-theme] #app-layout > #view-toggle-bar #tab-sheet.view-tab.active::before,
+html[data-theme] body #app-layout > #view-toggle-bar #tab-sheet.view-tab.active::before,
+body[data-theme] #app-layout > #view-toggle-bar #tab-seisan.view-tab.active::before,
+html[data-theme] body #app-layout > #view-toggle-bar #tab-seisan.view-tab.active::before {
+  height: 3px;
+  background: currentColor;
+  background-image: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body[data-theme] #app-layout > #view-toggle-bar .view-tab.active::after,
+html[data-theme] body #app-layout > #view-toggle-bar .view-tab.active::after,
+body[data-app-theme] #app-layout > #view-toggle-bar .view-tab.active::after,
+html[data-app-theme] body #app-layout > #view-toggle-bar .view-tab.active::after,
+body[data-theme] #app-layout > #view-toggle-bar #tab-list.view-tab.active::after,
+html[data-theme] body #app-layout > #view-toggle-bar #tab-list.view-tab.active::after,
+body[data-theme] #app-layout > #view-toggle-bar #tab-sheet.view-tab.active::after,
+html[data-theme] body #app-layout > #view-toggle-bar #tab-sheet.view-tab.active::after,
+body[data-theme] #app-layout > #view-toggle-bar #tab-seisan.view-tab.active::after,
+html[data-theme] body #app-layout > #view-toggle-bar #tab-seisan.view-tab.active::after {
+  content: none;
+  display: none;
+}

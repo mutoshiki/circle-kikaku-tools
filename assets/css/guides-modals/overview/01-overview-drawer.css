@@ -46,7 +46,7 @@
   background: color-mix(in srgb, var(--bg-body) 72%, var(--bg-card));
   color: var(--text-main);
   font-size: 0.86rem;
-  font-weight: 760;
+  font-weight: 500;
 }
 #overviewDrawer .overview-mini-action {
   padding: 0 10px;
@@ -151,7 +151,7 @@
 }
 .overview-panel h3 {
   font-size: 0.9rem;
-  font-weight: 820;
+  font-weight: 500;
 }
 .overview-menu-item {
   display: flex;
@@ -166,7 +166,7 @@
   color: var(--text-main);
   text-align: left;
   font-size: 0.96rem;
-  font-weight: 720;
+  font-weight: 500;
 }
 .overview-menu-item i {
   width: 22px;

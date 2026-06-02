@@ -4,7 +4,7 @@
   border-bottom-color: var(--hairline, var(--border-color));
   background: color-mix(in srgb, var(--bg-card) 84%, var(--bg-body));
   font-size: 0.72rem;
-  font-weight: 780;
+  font-weight: 600;
   color: var(--text-main);
 }
 .sheet-driver-row, .sheet-seat-row, .sheet-wait-item {
@@ -65,5 +65,5 @@ html[data-theme="dark"] body :where(.sheet-car-col, .sheet-wait-block, .sheet-ca
 #sheet-view-area .sheet-seat-row:not(.empty):not(.sheet-seat-disabled) > .sheet-cell-text,
 #sheet-view-area .sheet-wait-item:not(.empty) > .sheet-cell-text,
 #sheet-view-area .sheet-chip-text {
-  font-weight: 800;
+  font-weight: 500;
 }

@@ -27,7 +27,7 @@ if (footerBlock.includes('position: sticky')) {
   process.exit(1);
 }
 
-if (!js.includes('function setupAppearanceFooterSafety()') || !js.includes('setupAppearanceFooterSafety();')) {
+if (!js.includes('function setupAppearanceFooterSafety()') || !(js.includes('setupAppearanceFooterSafety();') || js.includes('setupAppearanceFooterSafety?.();'))) {
   console.error('appearance footer safety JS not wired');
   process.exit(1);
 }

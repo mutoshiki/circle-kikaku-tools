@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="ja" data-bs-theme="light" data-theme="light" data-app-theme="single">
+<html lang="ja" data-bs-theme="light" data-theme="light" data-app-theme="standard" data-light-theme="standard" data-dark-theme="standard">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,6 +37,7 @@
     <link href="./assets/css/app-shell/layout/02-panels.css" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/03-mobile-frame.css" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/04-layering.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/layout/05-viewport-balance.css" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/01-edit-base.css" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/02-toolbar.css" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/03-mobile-edit.css" rel="stylesheet">
@@ -54,8 +55,11 @@
     <link href="./assets/css/app-shell/header/11-responsive-edge.css" rel="stylesheet">
     <link href="./assets/css/app-shell/header/12-responsive-wide.css" rel="stylesheet">
     <!-- CSS: theme -->
+    <link href="./assets/css/theme/00-theme-contract.css" rel="stylesheet">
     <link href="./assets/css/theme/01-theme-tokens.css" rel="stylesheet">
     <link href="./assets/css/theme/02-border-normalization.css" rel="stylesheet">
+    <link href="./assets/css/theme/03-theme-picker.css" rel="stylesheet">
+    <link href="./assets/css/theme/04-picker-preview.css" rel="stylesheet">
     <!-- CSS: guides and modals -->
     <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/modal/01-modal-base.css" rel="stylesheet">
@@ -86,6 +90,7 @@
     <link href="./assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/05-tray-states.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/waiting-tray/07-toolbar-spacing.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/01-person-card-shell.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/02-person-name-grade.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/03-person-menu.css" rel="stylesheet">
@@ -106,6 +111,7 @@
     <link href="./assets/css/settlement/page-shell/05-error-states.css" rel="stylesheet">
     <link href="./assets/css/settlement/page-shell/06-density.css" rel="stylesheet">
     <link href="./assets/css/settlement/page-shell/07-payment-tag-surfaces.css" rel="stylesheet">
+    <link href="./assets/css/settlement/page-shell/08-density-balance.css" rel="stylesheet">
     <link href="./assets/css/settlement/summary/01-summary-layout.css" rel="stylesheet">
     <link href="./assets/css/settlement/summary/02-summary-values.css" rel="stylesheet">
     <link href="./assets/css/settlement/summary/03-summary-colors.css" rel="stylesheet">
@@ -148,6 +154,7 @@
     <link href="./assets/css/sheet-view/layout/01-sheet-frame.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/layout/02-sheet-car-table.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/layout/03-sheet-summary.css" rel="stylesheet">
+    <link href="./assets/css/sheet-view/layout/04-viewport-density.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/waiting/01-sheet-waiting.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/waiting/02-sheet-waiting-mobile.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/timetable/01-timetable-base.css" rel="stylesheet">
@@ -157,8 +164,12 @@
     <link href="./assets/css/sheet-view/print/01-zoom-print.css" rel="stylesheet">
     <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
     <link href="./assets/css/08-utilities.css" rel="stylesheet">
+    <link href="./assets/css/theme/05-bottom-toolbar.css" rel="stylesheet">
+    <link href="./assets/css/09-font-weight-tuning.css" rel="stylesheet">
+    <link href="./assets/css/theme/06-palette-toolbar.css" rel="stylesheet">
+    <link href="./assets/css/theme/07-toolbar-hard-flat.css" rel="stylesheet">
   </head>
-  <body data-theme="light" data-app-theme="single" class="sheet-mode">
+  <body data-theme="light" data-app-theme="standard" data-light-theme="standard" data-dark-theme="standard" class="sheet-mode view-mode-sheet">
     <div id="app-layout">
       <header id="app-header">
         <div class="app-header-main">
@@ -177,8 +188,9 @@
                 <li><button id="globalGuideBtn" class="dropdown-item" type="button"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>使い方</button></li>
                 <li><button id="historyBtn" class="dropdown-item" type="button"><i class="fas fa-clock-rotate-left me-2" aria-hidden="true"></i>この端末の履歴</button></li>
                 <li><button id="sampleDataBtn" class="dropdown-item" type="button"><i class="fas fa-wand-magic-sparkles me-2" aria-hidden="true"></i>サンプルデータ</button></li>
+                <li><button id="appearanceSettingsBtn" class="dropdown-item" type="button"><i class="fas fa-palette me-2" aria-hidden="true"></i>表示テーマ</button></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><button id="resetDataBtn" class="dropdown-item text-danger fw-bold" type="button"><i class="fas fa-trash-can me-2" aria-hidden="true"></i>全てリセット</button></li>
+                <li><button id="resetDataBtn" class="dropdown-item text-danger " type="button"><i class="fas fa-trash-can me-2" aria-hidden="true"></i>全てリセット</button></li>
               </ul>
             </div>
             <button class="header-action" id="editLockBtn" type="button" title="車割メーカーと精算ツールの誤編集を防ぐ">
@@ -191,17 +203,6 @@
               <i class="fas fa-bars" aria-hidden="true"></i><span>概要</span>
             </button>
           </div>
-        </div>
-        <div id="view-toggle-bar">
-          <button class="view-tab" id="tab-list" aria-label="車割・班割">
-            <i class="fas fa-pen-to-square" aria-hidden="true"></i><span class="view-tab-label">車割・班割</span>
-          </button>
-          <button class="view-tab active" id="tab-sheet" aria-label="共有画面">
-            <i class="fas fa-table-list" aria-hidden="true"></i><span class="view-tab-label">共有画面</span>
-          </button>
-          <button class="view-tab" id="tab-seisan" aria-label="精算ツール">
-            <i class="fas fa-receipt" aria-hidden="true"></i><span class="view-tab-label">精算</span>
-          </button>
         </div>
       </header>
       <div id="overviewDrawerScrim" class="overview-drawer-scrim" hidden></div>
@@ -335,6 +336,18 @@
         </div>
       </div>
 
+      <div id="view-toggle-bar">
+        <button class="view-tab" id="tab-list" aria-label="車割・班割">
+          <i class="fas fa-people-group" aria-hidden="true"></i><span class="view-tab-label">車割・班割</span>
+        </button>
+        <button class="view-tab active" id="tab-sheet" aria-label="共有画面">
+          <i class="fas fa-table-list" aria-hidden="true"></i><span class="view-tab-label">共有画面</span>
+        </button>
+        <button class="view-tab" id="tab-seisan" aria-label="精算ツール">
+          <i class="fas fa-receipt" aria-hidden="true"></i><span class="view-tab-label">精算</span>
+        </button>
+      </div>
+
       <div id="bottom-tray" style="display: none;">
         <div id="tray-handle" role="button" tabindex="0" aria-label="未割り当てメンバーを開閉">
           <div class="handle-bar"></div>
@@ -390,7 +403,7 @@
       <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
           <div class="modal-header py-2">
-            <h6 class="modal-title fw-bold modal-title--compact" id="commonEditModalTitle">編集</h6>
+            <h6 class="modal-title modal-title--compact" id="commonEditModalTitle">編集</h6>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body">
@@ -406,7 +419,7 @@
       <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title fw-bold modal-title--standard" id="batchImportModalTitle">参加者登録</h5>
+            <h5 class="modal-title modal-title--standard" id="batchImportModalTitle">参加者登録</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body">
@@ -429,7 +442,7 @@
                   <details class="batch-import-help-details batch-import-auto-details">
                     <summary>自動判定の仕組み</summary>
                     <div class="batch-auto-simple">
-                      <p class="batch-auto-lead">自動判定では、<strong>名前</strong>、<strong>学年または学籍番号</strong>、<strong>車出しの有無</strong>の3つを使います。列の順番は自由です。見出しと回答の文言から、それぞれの列を判定します。</p>
+                      <p class="batch-auto-lead">自動判定では、名前、学年または学籍番号、車出しの有無の3つを使います。列の順番は自由です。見出しと回答の文言から、それぞれの列を判定します。</p>
                       <div class="batch-auto-table-wrap" aria-label="自動判定に使う情報と読み取れる文言の例">
                         <table class="batch-auto-rule-table">
                           <thead>
@@ -451,7 +464,7 @@
                               <th scope="row">回答として読み取れる例</th>
                               <td>入力された名前</td>
                               <td>1、1年、1年生、一年、一年生、壱年、B1、学部1年、1回生など。2〜4年も同じ形式で判定できます。学籍番号の場合は、24T1234A、24t1234a、２４Ｔ１２３４Ａなど。</td>
-                              <td><b>あり</b>：true、1、yes、y、○、◯、〇、はい、する、出す、出せる、出せます、できます、出来ます、可能、可、車出し可、運転可、自家用車あり、車あり、あり、有<br><b>なし</b>：false、0、no、n、×、✕、x、いいえ、しない、出さない、出せない、出せません、できない、できません、出来ない、出来ません、不可、無理、車出し不可、運転不可、自家用車なし、車なし、なし、無し、無</td>
+                              <td>あり：true、1、yes、y、○、◯、〇、はい、する、出す、出せる、出せます、できます、出来ます、可能、可、車出し可、運転可、自家用車あり、車あり、あり、有<br>なし：false、0、no、n、×、✕、x、いいえ、しない、出さない、出せない、出せません、できない、できません、出来ない、出来ません、不可、無理、車出し不可、運転不可、自家用車なし、車なし、なし、無し、無</td>
                             </tr>
                             <tr>
                               <th scope="row">補足</th>
@@ -467,27 +480,27 @@
                 </div>
               </div>
               <div class="col-12 col-md-3">
-                <label class="form-label fw-bold small batch-label-accent">同乗者 (改行区切り)</label>
+                <label class="form-label small batch-label-accent">同乗者 (改行区切り)</label>
                 <textarea id="batchMembers" class="form-control batch-import-textarea" placeholder="（例）&#10;田中 太郎&#10;佐藤 花子&#10;鈴木 次郎" aria-label="参加者名一覧"></textarea>
               </div>
               <div class="col-12 col-md-3">
-                <label class="form-label fw-bold small batch-label-grade1">1年生 (改行区切り)</label>
+                <label class="form-label small batch-label-grade1">1年生 (改行区切り)</label>
                 <textarea id="batchGrade1" class="form-control batch-import-textarea" aria-label="1年生の表記"></textarea>
               </div>
               <div class="col-12 col-md-3">
-                <label class="form-label fw-bold small batch-label-grade2">2年生 (改行区切り)</label>
+                <label class="form-label small batch-label-grade2">2年生 (改行区切り)</label>
                 <textarea id="batchGrade2" class="form-control batch-import-textarea" aria-label="2年生の表記"></textarea>
               </div>
               <div class="col-12 col-md-3">
-                <label class="form-label fw-bold small batch-label-grade3">3年生 (改行区切り)</label>
+                <label class="form-label small batch-label-grade3">3年生 (改行区切り)</label>
                 <textarea id="batchGrade3" class="form-control batch-import-textarea" aria-label="3年生の表記"></textarea>
               </div>
               <div class="col-12 col-md-3">
-                <label class="form-label fw-bold small batch-label-grade4">4年生 (改行区切り)</label>
+                <label class="form-label small batch-label-grade4">4年生 (改行区切り)</label>
                 <textarea id="batchGrade4" class="form-control batch-import-textarea" aria-label="4年生の表記"></textarea>
               </div>
               <div class="col-12 col-md-3">
-                <label class="form-label fw-bold small batch-label-muted">車出し</label>
+                <label class="form-label small batch-label-muted">車出し</label>
                 <textarea id="batchDrivers" class="form-control batch-import-textarea" aria-label="車出し可能な参加者"></textarea>
               </div>
             </div>
@@ -506,7 +519,7 @@
       <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title fw-bold modal-title--guide" id="globalGuideModalTitle"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>全体の使い方</h5>
+            <h5 class="modal-title modal-title--guide" id="globalGuideModalTitle"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>全体の使い方</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body p-0 unified-guide-body" data-guide-root="global">
@@ -525,7 +538,7 @@
       <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title fw-bold modal-title--guide" id="guideModalTitle"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>車割メーカーの使い方</h5>
+            <h5 class="modal-title modal-title--guide" id="guideModalTitle"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>車割メーカーの使い方</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body p-0 unified-guide-body" data-guide-root="car">
@@ -544,7 +557,7 @@
       <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title fw-bold modal-title--guide" id="seisanGuideModalTitle"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>精算ツールの使い方</h5>
+            <h5 class="modal-title modal-title--guide" id="seisanGuideModalTitle"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>精算ツールの使い方</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body p-0 unified-guide-body" data-guide-root="seisan">
@@ -563,7 +576,7 @@
       <div class="modal-dialog modal-dialog-centered modal-sm settlement-edit-dialog">
         <div class="modal-content settlement-edit-modal-content">
           <div class="modal-header py-2">
-            <h6 class="modal-title fw-bold modal-title--compact" id="settlementSettingsModalTitle"><i class="fas fa-sliders me-2" aria-hidden="true"></i>精算設定</h6>
+            <h6 class="modal-title modal-title--compact" id="settlementSettingsModalTitle"><i class="fas fa-sliders me-2" aria-hidden="true"></i>精算設定</h6>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body">
@@ -620,7 +633,7 @@
       <div class="modal-dialog modal-dialog-centered modal-sm settlement-edit-dialog settlement-edit-dialog--car">
         <div class="modal-content settlement-edit-modal-content">
           <div class="modal-header py-2">
-            <h6 class="modal-title fw-bold modal-title--compact" id="settlementCarEditModalTitle"><i class="fas fa-car-side me-2" aria-hidden="true"></i>車ごとの費用</h6>
+            <h6 class="modal-title modal-title--compact" id="settlementCarEditModalTitle"><i class="fas fa-car-side me-2" aria-hidden="true"></i>車ごとの費用</h6>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body">
@@ -633,12 +646,130 @@
       </div>
     </div>
 
+    <div class="modal fade" id="appearanceModal" tabindex="-1" aria-labelledby="appearanceModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title modal-title--standard" id="appearanceModalTitle">
+              <i class="fas fa-palette me-2" aria-hidden="true"></i>表示テーマ
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <div class="appearance-panel">
+              <section class="appearance-section" aria-label="プレビュー">
+                <div class="appearance-section-title">
+                  <h6>プレビュー</h6>
+                  <span id="appearanceCurrentThemeLabel">標準</span>
+                </div>
+                <div class="theme-simple-preview" aria-hidden="true">
+                  <div class="theme-preview-app-header">
+                    <span class="theme-preview-room">春企画</span>
+                    <span class="theme-preview-header-actions">
+                      <span>共有</span>
+                      <span>概要</span>
+                    </span>
+                  </div>
+                  <div class="theme-preview-sheet-title">
+                    <i class="fas fa-table-list" aria-hidden="true"></i>
+                    <span>車割 9名 / 班割 3班</span>
+                  </div>
+                  <div class="theme-preview-canvas">
+                    <section class="theme-preview-feature">
+                      <div class="theme-preview-feature-header">
+                        <span>車割</span>
+                        <em>3台</em>
+                      </div>
+                      <div class="theme-preview-mini-table">
+                        <div class="theme-preview-table-head">
+                          <span>佐藤車</span>
+                          <span>鈴木車</span>
+                        </div>
+                        <div class="theme-preview-table-body">
+                          <span class="theme-preview-name is-driver">佐藤</span>
+                          <span class="theme-preview-name is-driver">鈴木</span>
+                          <span class="theme-preview-name">田中</span>
+                          <span class="theme-preview-name">高橋</span>
+                        </div>
+                      </div>
+                    </section>
+                    <section class="theme-preview-feature">
+                      <div class="theme-preview-feature-header">
+                        <span>班割</span>
+                        <em>3班</em>
+                      </div>
+                      <div class="theme-preview-mini-table">
+                        <div class="theme-preview-table-head">
+                          <span>第1班</span>
+                          <span>第2班</span>
+                        </div>
+                        <div class="theme-preview-table-body">
+                          <span class="theme-preview-name is-driver">班長</span>
+                          <span class="theme-preview-name is-driver">班長</span>
+                          <span class="theme-preview-name">山本</span>
+                          <span class="theme-preview-name">伊藤</span>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                  <div class="theme-preview-tabs">
+                    <span><i class="fas fa-people-group" aria-hidden="true"></i>車割・班割</span>
+                    <span class="active"><i class="fas fa-table-list" aria-hidden="true"></i>共有画面</span>
+                    <span><i class="fas fa-receipt" aria-hidden="true"></i>精算</span>
+                  </div>
+                </div>
+              </section>
+
+              <section class="appearance-section" aria-labelledby="appearanceModeTitle">
+                <div class="appearance-section-title">
+                  <h6 id="appearanceModeTitle">表示</h6>
+                  <span id="appearanceCurrentModeLabel">自動</span>
+                </div>
+                <div class="appearance-mode-group" role="group" aria-label="表示">
+                  <button class="appearance-mode-btn" type="button" data-appearance-mode="system"><i class="fas fa-circle-half-stroke" aria-hidden="true"></i><span>自動</span></button>
+                  <button class="appearance-mode-btn" type="button" data-appearance-mode="light"><i class="fas fa-sun" aria-hidden="true"></i><span>ライト</span></button>
+                  <button class="appearance-mode-btn" type="button" data-appearance-mode="dark"><i class="fas fa-moon" aria-hidden="true"></i><span>ダーク</span></button>
+                </div>
+              </section>
+
+              <section class="appearance-section" aria-labelledby="appearanceThemeTitle">
+                <div class="appearance-section-title">
+                  <h6 id="appearanceThemeTitle">テーマ</h6>
+                </div>
+                <div class="theme-choice-columns">
+                  <details class="theme-choice-toggle" data-theme-toggle="light">
+                    <summary class="theme-choice-summary">
+                      <span class="theme-choice-title">ライト</span>
+                      <em id="appearanceLightThemeLabel">標準</em>
+                      <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                    </summary>
+                    <div class="theme-preset-grid" data-theme-preset-list="light" aria-label="ライトテーマ"></div>
+                  </details>
+                  <details class="theme-choice-toggle" data-theme-toggle="dark">
+                    <summary class="theme-choice-summary">
+                      <span class="theme-choice-title">ダーク</span>
+                      <em id="appearanceDarkThemeLabel">標準</em>
+                      <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                    </summary>
+                    <div class="theme-preset-grid" data-theme-preset-list="dark" aria-label="ダークテーマ"></div>
+                  </details>
+                </div>
+              </section>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary btn-sm w-100 btn-accent-solid" data-bs-dismiss="modal">完了</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Utility modals -->
     <div class="modal fade" id="routeDistanceModal" tabindex="-1" aria-labelledby="routeDistanceModalTitle" aria-hidden="true">
       <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title fw-bold modal-title--guide" id="routeDistanceModalTitle"><i class="fas fa-route me-2" aria-hidden="true"></i>移動距離を調べる</h5>
+            <h5 class="modal-title modal-title--guide" id="routeDistanceModalTitle"><i class="fas fa-route me-2" aria-hidden="true"></i>移動距離を調べる</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body route-helper-body">
@@ -689,7 +820,7 @@
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title fw-bold modal-title--standard" id="historyModalTitle">
+            <h5 class="modal-title modal-title--standard" id="historyModalTitle">
               <i class="fas fa-history me-2" aria-hidden="true"></i>履歴
             </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
@@ -704,7 +835,7 @@
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content">
                 <div class="modal-header py-2">
-                    <h6 class="modal-title fw-bold mb-0 modal-title--debug" id="debugModalTitle">
+                    <h6 class="modal-title mb-0 modal-title--debug" id="debugModalTitle">
                         <i class="fas fa-wand-magic-sparkles me-2" aria-hidden="true"></i>サンプルデータ
                     </h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
@@ -722,8 +853,8 @@
             </div>
             
             <div class="d-grid gap-2">
-              <button id="executeDebugBtn" type="button" class="btn btn-primary btn-sm fw-bold">通常サンプルを入れる</button>
-              <button id="executeDebugMissingBtn" type="button" class="btn btn-outline-secondary btn-sm fw-bold">入力漏れサンプルを入れる</button>
+              <button id="executeDebugBtn" type="button" class="btn btn-primary btn-sm ">通常サンプルを入れる</button>
+              <button id="executeDebugMissingBtn" type="button" class="btn btn-outline-secondary btn-sm ">入力漏れサンプルを入れる</button>
             </div>
           </div>
         </div>
@@ -751,6 +882,7 @@
     <script src="./assets/js/modules/history.js"></script>
     <script src="./assets/js/modules/drag-cards.js"></script>
     <script src="./assets/js/modules/settlement.js"></script>
+    <script src="./assets/js/modules/theme-presets.js"></script>
     <!-- JS: settlement templates and feature modules; templates must load before render/facade. -->
     <script src="./assets/js/templates/settlement/00-template-utils.js"></script>
     <script src="./assets/js/templates/settlement/01-cost-parts.js"></script>

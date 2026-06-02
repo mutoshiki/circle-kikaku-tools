@@ -136,7 +136,7 @@ min-height: 36px;
         border-radius: 13px;
         color: color-mix(in srgb, var(--text-sub) 88%, var(--text-main));
         font-size: 0.74rem;
-        font-weight: 820;
+        font-weight: 500;
 }
 }
 #seisan-view-area .seisan-muted {
@@ -197,7 +197,7 @@ margin: 7px 0 5px;
 }
 #seisan-view-area .seisan-subhead strong {
 font-size: 0.73rem;
-    font-weight: 820;
+    font-weight: 650;
 }
 #seisan-view-area .seisan-extra-list {
 gap: 5px;

@@ -1,6 +1,6 @@
 /* Moved from assets/css/sheet-view/04-quick-edit.css; source-order chunk 2/2. */
 body.quick-edit-mode #sheet-view-area .sheet-chip-text {
-  font-weight: 850;
+  font-weight: 500;
 }
 /* Quick sheet edit readability: editing should not dim member names. */
 body.quick-edit-mode #sheet-view-area :where(.sheet-chip, .sheet-chip-text) {

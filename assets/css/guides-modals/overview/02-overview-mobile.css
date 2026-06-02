@@ -6,7 +6,7 @@
   padding: 0 4px;
   color: var(--text-main);
   font-size: 0.84rem;
-  font-weight: 760;
+  font-weight: 600;
 }
 #app-layout #app-header .overview-dropdown-field textarea {
   width: 100%;
@@ -24,12 +24,12 @@
   margin: 0 0 4px;
   color: var(--accent-color);
   font-size: 0.72rem;
-  font-weight: 820;
+  font-weight: 500;
   letter-spacing: 0.04em;
 }
 .overview-drawer h2 {
   font-size: 1.24rem;
-  font-weight: 780;
+  font-weight: 500;
 }
 .overview-textarea {
   width: 100%;

@@ -117,7 +117,7 @@
   background: transparent;
   color: var(--text-sub);
   font-size: 0.8rem;
-  font-weight: 830;
+  font-weight: 500;
   line-height: 1;
   min-width: 58px;
 }
@@ -185,7 +185,7 @@
   border-radius: 10px;
   font-size: 0.76rem;
   line-height: 1;
-  font-weight: 720;
+  font-weight: 600;
 }
 .allocation-mode-toggle .car-plan-template-tabs {
   min-height: 40px;

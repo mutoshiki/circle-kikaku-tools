@@ -37,14 +37,14 @@
 :root {
     --bg-body: #f5f7fb;
     --text-main: #111827;
-    --text-sub: #6b7280;
+    --text-sub: #526071;
     --bg-card: #ffffff;
-    --border-color: #e5e7eb;
+    --border-color: #cbd5e1;
     --accent-color: #305CDE;
-    --accent-soft: #e9efff;
+    --accent-soft: #e6edff;
     --app-surface: rgba(255, 255, 255, 0.94);
     --sheet-header: #f8fafc;
-    --hover-bg: #f9fafb;
+    --hover-bg: #eef3f8;
     --driver-bg: #f8fafc;
     --seat-bg: #f3f4f6;
     --seat-slot-bg: #ffffff;
@@ -60,16 +60,16 @@
     --focus-ring: color-mix(in srgb, var(--accent-color) 20%, transparent);
 }
 [data-theme="dark"] {
-    --bg-body: #0b1220;
+    --bg-body: #0b1120;
     --text-main: #f8fafc;
-    --text-sub: #a7b1c2;
+    --text-sub: #b0b9ca;
     --bg-card: #111827;
-    --border-color: #263244;
+    --border-color: #334155;
     --accent-color: #305CDE;
-    --accent-soft: rgba(48, 92, 222, 0.18);
+    --accent-soft: rgba(138, 180, 255, 0.18);
     --app-surface: rgba(17, 24, 39, 0.9);
     --sheet-header: #0f172a;
-    --hover-bg: #172033;
+    --hover-bg: #1b2740;
     --driver-bg: #101827;
     --seat-bg: #111827;
     --seat-slot-bg: #111827;

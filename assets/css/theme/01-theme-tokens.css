@@ -1,43 +1,51 @@
-/* Single app theme.
-   Theme presets/picker are removed. Only one visual theme remains, with automatic light/dark modes. */
+/* Theme token mapper.
+   This file maps a selected palette contract to the semantic tokens used by the app. */
 :root,
 html,
 body,
+html[data-theme="light"],
 html[data-theme="light"] body,
-body[data-theme="light"],
-body[data-app-theme="single"][data-theme="light"] {
+body[data-theme="light"] {
   color-scheme: light;
-  --bg-body: #eef3f8;
-  --text-main: #172033;
-  --text-sub: #667085;
-  --bg-card: #ffffff;
-  --border-color: #d7dee8;
-  --accent-color: #305CDE;
-  --accent-soft: #e9efff;
-  --app-surface: rgba(255, 255, 255, 0.96);
-  --sheet-header: #f7f9fc;
-  --sheet-grid: #d7dee8;
-  --hover-bg: #f3f6fb;
-  --driver-bg: #f8fafc;
-  --seat-bg: #f4f7fb;
-  --seat-slot-bg: #ffffff;
-  --tray-bg: #ffffff;
-  --modal-bg: #ffffff;
-  --modal-header-bg: #ffffff;
-  --modal-footer-bg: #f8fafc;
-  --hairline: rgba(100, 116, 139, 0.24);
-  --app-border-soft: rgba(100, 116, 139, 0.24);
-  --app-border-subtle: rgba(100, 116, 139, 0.16);
-  --app-divider-soft: rgba(100, 116, 139, 0.20);
-  --app-border-inner: rgba(100, 116, 139, 0.12);
+  --bg-body: var(--theme-light-bg-body);
+  --text-main: var(--theme-light-text-main);
+  --text-sub: var(--theme-light-text-sub);
+  --bg-card: var(--theme-light-bg-card);
+  --border-color: var(--theme-light-border-color);
+  --accent-color: var(--theme-light-accent);
+  --accent-soft: var(--theme-light-accent-soft);
+  --preview-header-bg: var(--theme-light-preview-header-bg, var(--theme-light-accent));
+  --preview-header-text: var(--theme-light-preview-header-text, #ffffff);
+  --preview-header-border: var(--theme-light-preview-header-border, var(--theme-light-border-color));
+  --bottom-toolbar-bg: var(--theme-light-preview-header-bg, var(--theme-light-accent));
+  --bottom-toolbar-text: var(--theme-light-preview-header-text, #ffffff);
+  --bottom-toolbar-border: var(--theme-light-preview-header-border, var(--theme-light-border-color));
+  --bottom-toolbar-muted: color-mix(in srgb, var(--bottom-toolbar-text) 72%, var(--bottom-toolbar-bg));
+  --bottom-toolbar-hover-text: color-mix(in srgb, var(--bottom-toolbar-text) 88%, var(--bottom-toolbar-bg));
+  --app-surface: var(--theme-light-app-surface);
+  --sheet-header: var(--theme-light-sheet-header);
+  --sheet-grid: var(--theme-light-sheet-grid);
+  --hover-bg: var(--theme-light-hover-bg);
+  --driver-bg: var(--theme-light-driver-bg);
+  --seat-bg: var(--theme-light-seat-bg);
+  --seat-slot-bg: var(--theme-light-seat-slot-bg);
+  --tray-bg: var(--theme-light-tray-bg);
+  --modal-bg: var(--theme-light-modal-bg);
+  --modal-header-bg: var(--theme-light-modal-bg);
+  --modal-footer-bg: var(--theme-light-modal-footer-bg);
+  --hairline: rgba(82, 96, 113, 0.28);
+  --app-border-soft: rgba(82, 96, 113, 0.28);
+  --app-border-subtle: rgba(82, 96, 113, 0.18);
+  --app-divider-soft: rgba(82, 96, 113, 0.24);
+  --app-border-inner: rgba(82, 96, 113, 0.14);
   --ui-saas-border: var(--app-border-soft);
-  --ui-saas-border-strong: rgba(48, 92, 222, 0.30);
-  --ui-saas-panel: rgba(255, 255, 255, 0.88);
-  --ui-saas-panel-raised: rgba(255, 255, 255, 0.96);
+  --ui-saas-border-strong: color-mix(in srgb, var(--accent-color) 30%, var(--app-border-soft));
+  --ui-saas-panel: color-mix(in srgb, var(--bg-card) 88%, transparent);
+  --ui-saas-panel-raised: color-mix(in srgb, var(--bg-card) 96%, transparent);
   --ui-saas-inner: color-mix(in srgb, var(--bg-card) 82%, var(--bg-body));
-  --ui-saas-shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.035);
+  --ui-saas-shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.045), 0 8px 20px rgba(15, 23, 42, 0.045);
   --ui-readable-border: var(--app-border-soft);
-  --ui-readable-border-strong: rgba(100, 116, 139, 0.30);
+  --ui-readable-border-strong: rgba(82, 96, 113, 0.34);
   --ui-readable-divider: var(--app-divider-soft);
   --ui-readable-bg: color-mix(in srgb, var(--bg-card) 98%, var(--bg-body));
   --ui-readable-inner-bg: color-mix(in srgb, var(--bg-card) 84%, var(--bg-body));
@@ -47,47 +55,55 @@ body[data-app-theme="single"][data-theme="light"] {
   --ui-surface-border-inner: var(--app-border-inner);
   --ui-surface-bg: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
   --ui-surface-bg-inner: color-mix(in srgb, var(--bg-card) 72%, var(--bg-body));
-  --ui-surface-shadow: 0 1px 2px rgba(15, 23, 42, 0.035);
+  --ui-surface-shadow: var(--ui-saas-shadow-soft);
   --ui-unified-divider: var(--app-divider-soft);
 }
 
 [data-theme="dark"],
+html[data-theme="dark"],
 html[data-theme="dark"] body,
-body[data-theme="dark"],
-body[data-app-theme="single"][data-theme="dark"] {
+body[data-theme="dark"] {
   color-scheme: dark;
-  --bg-body: #0b1020;
-  --text-main: #f2f6ff;
-  --text-sub: #9aa7bd;
-  --bg-card: #111827;
-  --border-color: #273449;
-  --accent-color: #78a9ff;
-  --accent-soft: rgba(120, 169, 255, 0.17);
-  --app-surface: rgba(17, 24, 39, 0.92);
-  --sheet-header: #0f1726;
-  --sheet-grid: #2a3850;
-  --hover-bg: #182236;
-  --driver-bg: #0f1726;
-  --seat-bg: #121b2c;
-  --seat-slot-bg: #111827;
-  --tray-bg: #111827;
-  --modal-bg: #111827;
-  --modal-header-bg: #111827;
-  --modal-footer-bg: #0b1020;
-  --hairline: rgba(148, 163, 184, 0.18);
-  --app-border-soft: rgba(148, 163, 184, 0.18);
-  --app-border-subtle: rgba(148, 163, 184, 0.12);
-  --app-divider-soft: rgba(148, 163, 184, 0.16);
-  --app-border-inner: rgba(148, 163, 184, 0.10);
+  --bg-body: var(--theme-dark-bg-body);
+  --text-main: var(--theme-dark-text-main);
+  --text-sub: var(--theme-dark-text-sub);
+  --bg-card: var(--theme-dark-bg-card);
+  --border-color: var(--theme-dark-border-color);
+  --accent-color: var(--theme-dark-accent);
+  --accent-soft: var(--theme-dark-accent-soft);
+  --preview-header-bg: var(--theme-dark-preview-header-bg, var(--theme-dark-bg-card));
+  --preview-header-text: var(--theme-dark-preview-header-text, var(--theme-dark-text-main));
+  --preview-header-border: var(--theme-dark-preview-header-border, var(--theme-dark-border-color));
+  --bottom-toolbar-bg: var(--theme-dark-preview-header-bg, var(--theme-dark-bg-card));
+  --bottom-toolbar-text: var(--theme-dark-preview-header-text, var(--theme-dark-text-main));
+  --bottom-toolbar-border: var(--theme-dark-preview-header-border, var(--theme-dark-border-color));
+  --bottom-toolbar-muted: color-mix(in srgb, var(--bottom-toolbar-text) 72%, var(--bottom-toolbar-bg));
+  --bottom-toolbar-hover-text: color-mix(in srgb, var(--bottom-toolbar-text) 88%, var(--bottom-toolbar-bg));
+  --app-surface: var(--theme-dark-app-surface);
+  --sheet-header: var(--theme-dark-sheet-header);
+  --sheet-grid: var(--theme-dark-sheet-grid);
+  --hover-bg: var(--theme-dark-hover-bg);
+  --driver-bg: var(--theme-dark-driver-bg);
+  --seat-bg: var(--theme-dark-seat-bg);
+  --seat-slot-bg: var(--theme-dark-seat-slot-bg);
+  --tray-bg: var(--theme-dark-tray-bg);
+  --modal-bg: var(--theme-dark-modal-bg);
+  --modal-header-bg: var(--theme-dark-modal-bg);
+  --modal-footer-bg: var(--theme-dark-modal-footer-bg);
+  --hairline: rgba(148, 163, 184, 0.24);
+  --app-border-soft: rgba(148, 163, 184, 0.24);
+  --app-border-subtle: rgba(148, 163, 184, 0.16);
+  --app-divider-soft: rgba(148, 163, 184, 0.22);
+  --app-border-inner: rgba(148, 163, 184, 0.14);
   --ui-saas-border: var(--app-border-soft);
   --ui-saas-border-strong: color-mix(in srgb, var(--accent-color) 34%, rgba(148, 163, 184, 0.22));
-  --ui-saas-panel: rgba(17, 24, 39, 0.84);
-  --ui-saas-panel-raised: rgba(17, 24, 39, 0.94);
+  --ui-saas-panel: color-mix(in srgb, var(--bg-card) 84%, transparent);
+  --ui-saas-panel-raised: color-mix(in srgb, var(--bg-card) 94%, transparent);
   --ui-saas-inner: color-mix(in srgb, var(--bg-card) 74%, var(--color-night));
   --ui-saas-shadow-soft: 0 1px 0 rgba(255, 255, 255, 0.03), 0 14px 30px rgba(0, 0, 0, 0.18);
-  --ui-readable-border: rgba(148, 163, 184, 0.24);
-  --ui-readable-border-strong: rgba(148, 163, 184, 0.36);
-  --ui-readable-divider: rgba(148, 163, 184, 0.22);
+  --ui-readable-border: rgba(148, 163, 184, 0.30);
+  --ui-readable-border-strong: rgba(148, 163, 184, 0.42);
+  --ui-readable-divider: rgba(148, 163, 184, 0.28);
   --ui-readable-bg: color-mix(in srgb, var(--bg-card) 90%, var(--color-night));
   --ui-readable-inner-bg: color-mix(in srgb, var(--bg-card) 74%, var(--color-night));
   --ui-panel-border: var(--app-border-soft);
@@ -96,13 +112,13 @@ body[data-app-theme="single"][data-theme="dark"] {
   --ui-surface-border-inner: var(--app-border-inner);
   --ui-surface-bg: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
   --ui-surface-bg-inner: color-mix(in srgb, var(--bg-card) 74%, var(--color-night));
-  --ui-surface-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 14px 30px rgba(0, 0, 0, 0.18);
+  --ui-surface-shadow: var(--ui-saas-shadow-soft);
   --ui-unified-divider: var(--app-divider-soft);
   --control-primary-text: color-mix(in srgb, var(--bg-body) 88%, var(--color-black));
   --theme-filled-control-text: var(--control-primary-text);
 }
 
-body[data-app-theme="single"][data-theme] {
+body[data-app-theme][data-theme] {
   --bs-body-bg: var(--bg-body);
   --bs-body-color: var(--text-main);
   --bs-secondary-color: var(--text-sub);

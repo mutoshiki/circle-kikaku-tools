@@ -151,7 +151,7 @@ margin-top: 3px;
 }
 .grade-badge {
   font-size: 0.58rem;
-  font-weight: 700;
+  font-weight: 500;
   padding: 2px 5px;
   border-radius: var(--radius-sm);
   display: inline-flex;

@@ -21,7 +21,7 @@ display: inline-flex;
     border-radius: 999px;
     padding: 3px 8px;
     font-size: 0.68rem;
-    font-weight: 800;
+    font-weight: 500;
 }
 .legend-chip.male {
 background: var(--bg-male); color: var(--text-male); border-color: var(--border-male);
@@ -57,7 +57,7 @@ font-size: 16px;
 }
 .typing-caret {
 color: var(--accent-color);
-    font-weight: 950;
+    font-weight: 500;
 }
 :root {
 --focus-ring: color-mix(in srgb, var(--accent-color) 28%, transparent);
@@ -199,7 +199,7 @@ font-size: 16px;
 /* Shared Bootstrap button rule: primary = accent, secondary/outline = quiet neutral. */
 .btn {
   border-radius: var(--radius-sm);
-  font-weight: 820;
+  font-weight: 500;
   box-shadow: none;
   transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.08s ease;
 }

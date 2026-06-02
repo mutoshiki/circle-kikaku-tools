@@ -13,7 +13,7 @@
 3. `assets/css/app-shell/*`  
    アプリ外枠、編集バー、ヘッダー、ルーム欄、モバイルヘッダー。
 4. `assets/css/theme/*`  
-   テーマ変数、テーマピッカー、プレビュー、ライト/ダーク調整。
+   テーマ契約、ライト/ダークの意味変数、枠線正規化。テーマピッカーUIは現在なし。
 5. `assets/css/guides-modals/*`  
    ガイド、モーダル、取り込みガイド、コピー/ロック通知、概要ドロワー、z-layer。
 6. `assets/css/cars-members-tray/*`  
@@ -37,10 +37,9 @@
 | アプリ全体の外枠 | `assets/css/app-shell/layout/*` |
 | 編集/操作バー | `assets/css/app-shell/edit/*` |
 | ヘッダー、共有、ロック、ルーム欄、タブ | `assets/css/app-shell/header/*` |
-| テーマ変数 | `assets/css/theme/01-theme-tokens.css` |
-| テーマピッカーUI | `assets/css/theme/03-theme-picker.css` |
-| テーマプレビュー | `assets/css/theme/04-theme-preview.css` |
-| テーマのモバイル/ダーク補正 | `assets/css/theme/05-theme-mobile-dark.css` 以降 |
+| テーマの色セットを追加・変更 | `assets/css/theme/00-theme-contract.css` |
+| ライト/ダークの意味変数への変換 | `assets/css/theme/01-theme-tokens.css` |
+| テーマ由来の枠線の濃さ調整 | `assets/css/theme/02-border-normalization.css` |
 | 通常モーダル | `assets/css/guides-modals/modal/*` / `assets/css/guides-modals/dialog/*` |
 | ガイドカード・ガイド内モック | `assets/css/guides-modals/guide/*` |
 | Googleフォーム取り込みガイド | `assets/css/guides-modals/import-guide/*` |
@@ -66,6 +65,16 @@
 | タイムテーブル | `assets/css/sheet-view/timetable/*` |
 | 発表ビュー編集モード | `assets/css/sheet-view/edit/*` |
 | 印刷・ズーム | `assets/css/sheet-view/print/*` |
+
+## テーマを増やすときの方針
+
+現在のUIは単一テーマですが、CSS側はテーマ追加に備えて `data-app-theme` と `data-theme` を分けています。
+
+- `data-app-theme`: 色セットの種類。現在は `single`。将来テーマを増やす場合はここに `forest` や `warm` などを追加する。
+- `data-theme`: ライト/ダーク。現在も端末設定またはデバッグ切替で `light` / `dark` が入る。
+- 新しいテーマを足すときは、まず `assets/css/theme/00-theme-contract.css` に `--theme-light-*` と `--theme-dark-*` だけを追加する。
+- 画面別CSSに `body[data-app-theme="..."] .xxx` のような個別指定を増やさず、既存の `--bg-body`、`--bg-card`、`--accent-color`、`--border-color` に流し込む。
+- テーマピッカーUIを復活させる場合も、CSSは `00-theme-contract.css` に色セット、JSは `data-app-theme` の切替だけを担当させる。
 
 ## 追加・修正時のルール
 
@@ -108,3 +117,11 @@ npm run test:visual
 - `components/00-component-contracts.css` などの共通部品ファイルで `--z-modal`、`--z-dropdown`、`--z-tray` を再定義しない
 
 CSS分割時に共通部品側で `--z-modal` を上書きすると、背景だけが前面に出て、使い方・サンプルデータ・各種設定モーダルが暗くなったまま押せなくなります。
+
+## Theme picker note
+
+- Theme selection is active again. The current first-paint theme is `standard`.
+- Add or remove selectable themes in `assets/js/modules/theme-presets.js`.
+- Add the matching color variables in `assets/css/theme/00-theme-contract.css`.
+- Component and screen CSS should continue to use semantic tokens such as `--bg-body`, `--bg-card`, `--text-main`, `--border-color`, `--accent-color`, and `--accent-soft`.
+- Do not put theme-specific colors directly into screen CSS unless the color is a fixed semantic state such as error, warning, or success.

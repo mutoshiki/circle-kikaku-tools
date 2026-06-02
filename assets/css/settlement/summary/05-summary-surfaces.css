@@ -58,7 +58,7 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
   min-height: var(--settlement-tag-min-height, 1.38em);
   font-size: var(--settlement-tag-font-size, 0.64rem);
   font-style: normal;
-  font-weight: 900;
+  font-weight: 650;
   line-height: var(--settlement-tag-line-height, 1);
   letter-spacing: 0;
   white-space: nowrap;
@@ -91,7 +91,7 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
   align-items: center;
   flex-wrap: wrap;
   min-width: 0;
-  font-weight: 720;
+  font-weight: 500;
   color: color-mix(in srgb, var(--text-sub) 84%, var(--text-main));
   letter-spacing: 0;
   margin-bottom: 8px;
@@ -132,7 +132,7 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
   min-width: 14px;
   color: color-mix(in srgb, var(--text-main) 74%, var(--text-sub));
   font-size: 0.82rem;
-  font-weight: 780;
+  font-weight: 500;
   line-height: 1;
   transform: translateY(-1px);
   min-height: 28px;

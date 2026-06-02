@@ -25,7 +25,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-weight: 800;
+    font-weight: 600;
     margin-bottom: 8px;
 }
 .form-import-result-grid {
@@ -46,7 +46,7 @@
 }
 .form-import-result-grid span {
     color: var(--text-sub);
-    font-weight: 700;
+    font-weight: 500;
 }
 .form-import-result-grid strong {
     font-size: 0.92rem;
@@ -55,7 +55,7 @@
     display: grid;
     gap: 3px;
     color: var(--text-sub);
-    font-weight: 700;
+    font-weight: 500;
     line-height: 1.55;
 }
 .form-import-source-chip {
@@ -67,7 +67,7 @@
     background: var(--accent-soft);
     color: var(--accent-color);
     font-size: 0.68rem;
-    font-weight: 800;
+    font-weight: 500;
     vertical-align: middle;
 }
 .form-import-reflected,
@@ -80,12 +80,12 @@
 .form-import-reflected {
     background: color-mix(in srgb, var(--accent-soft) 68%, var(--bg-card));
     color: var(--accent-color);
-    font-weight: 800;
+    font-weight: 500;
 }
 .form-import-ok {
     background: color-mix(in srgb, var(--accent-soft) 58%, var(--bg-card));
     color: var(--accent-color);
-    font-weight: 800;
+    font-weight: 500;
 }
 .form-import-warnings {
     border: 1px solid color-mix(in srgb, var(--color-warning) 46%, var(--border-color));
@@ -97,7 +97,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-weight: 850;
+    font-weight: 600;
     margin-bottom: 5px;
 }
 .form-import-warnings ul,
@@ -168,7 +168,7 @@
     text-align: center;
     color: var(--text-sub);
     font-size: 0.68rem;
-    font-weight: 800;
+    font-weight: 500;
 }
 .guide-registration-context--wide .guide-registration-row {
     grid-template-columns: 1fr 1.35fr 1fr;

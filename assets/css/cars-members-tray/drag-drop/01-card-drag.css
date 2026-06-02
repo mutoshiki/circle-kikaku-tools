@@ -60,7 +60,7 @@ content: "";
     color: var(--accent-color);
     background: var(--accent-soft);
     font-size: 0.76rem;
-    font-weight: 900;
+    font-weight: 500;
     pointer-events: none;
 }
 #waiting-list.return-preview-target:has(.member-card)::after,
@@ -109,7 +109,7 @@ background: var(--tray-drop-bg) ;
 #bottom-tray.is-drop-near #tray-toggle-label,
 #bottom-tray.is-drop-ready #tray-toggle-label {
 color: var(--text-main) ;
-    font-weight: 850;
+    font-weight: 500;
 }
 #bottom-tray.is-drop-ready #waiting-list-container,
 #bottom-tray.is-drop-near #waiting-list-container,
@@ -185,14 +185,14 @@ color: var(--accent-color);
 .drop-create-lane strong {
 display: block;
 font-size: 0.86rem;
-font-weight: 850;
+font-weight: 500;
 line-height: 1.35;
 color: var(--text-main);
 }
 .drop-create-lane span {
 display: block;
 font-size: 0.76rem;
-font-weight: 700;
+font-weight: 500;
 line-height: 1.3;
 color: var(--text-sub);
 }

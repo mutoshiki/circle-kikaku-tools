@@ -9,17 +9,17 @@ background: rgba(30,41,59,0.92);
 }
 #sheet-room-name.is-placeholder {
 color: var(--text-sub);
-    font-weight: 650;
+    font-weight: 600;
     opacity: 0.72;
 }
 .sheet-summary-pill strong {
 color: var(--text-main);
     font-size: 0.69rem;
-    font-weight: 800;
+    font-weight: 600;
 }
 .sheet-car-header {
 background: var(--sheet-header); color: var(--text-main);
-    padding: 7px 10px; font-weight: 800; font-size: 0.78rem;
+    padding: 7px 10px; font-weight: 600; font-size: 0.78rem;
     text-align: center; position: sticky; top: 0; z-index: var(--z-local-raised);
     border-bottom: 1px solid var(--sheet-grid);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -138,7 +138,7 @@ padding: 5px 8px;
 .sheet-empty-title {
 display: block;
     font-size: 0.95rem;
-    font-weight: 850;
+    font-weight: 600;
     color: var(--text-main);
     margin-bottom: 6px;
 }
@@ -164,7 +164,7 @@ padding: 6px;
 border-right: 0;
 }
 .mock-sheet-table .head {
-background: var(--palette-f8fafd); font-weight: 800;
+background: var(--palette-f8fafd); font-weight: 500;
 }
 .guide-sheet-preview {
 margin-top: 10px;
@@ -198,5 +198,5 @@ min-height: 32px;
     background: var(--sheet-header);
     color: var(--text-main);
     font-size: 0.72rem;
-    font-weight: 900;
+    font-weight: 600;
 }

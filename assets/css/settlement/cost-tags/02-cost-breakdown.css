@@ -9,7 +9,7 @@
   border: 1px solid var(--ui-saas-border);
   background: color-mix(in srgb, var(--bg-card) 86%, var(--bg-body));
   font-size: 0.68rem;
-  font-weight: 640;
+  font-weight: 650;
   color: var(--text-main);
   box-shadow: none;
 }
@@ -17,7 +17,7 @@
 #seisan-view-area .seisan-extra-chip b {
   margin-left: auto;
   font-size: 0.76rem;
-  font-weight: 760;
+  font-weight: 500;
   letter-spacing: -0.012em;
 }
 #seisan-view-area .seisan-extra-inline.split {
@@ -89,7 +89,7 @@
 #seisan-view-area .seisan-car-summary-name,
 #seisan-view-area .seisan-check-name,
 #seisan-view-area .seisan-driver-name {
-  font-weight: 720;
+  font-weight: 650;
 }
 #seisan-view-area .seisan-cost-policy-tag,
 #seisan-view-area .seisan-cost-type-badge,
@@ -99,11 +99,11 @@
 .capacity-badge,
 .sync-status-badge,
 .waiting-inline-count {
-  font-weight: 720;
+  font-weight: 650;
   box-shadow: none;
 }
 :where(.car-header .car-name-label, .driver-name-disp, .member-name-text, .seisan-title, .seisan-car-summary-name, .seisan-check-name, .seisan-driver-name, .sheet-car-header, .sheet-wait-header) {
-  font-weight: 760;
+  font-weight: 650;
   letter-spacing: -0.01em;
 }
 #seisan-view-area .seisan-car-summary-row .seisan-cost-preview-detail-text, #seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list {
@@ -114,19 +114,19 @@
   gap: 3px 6px;
   color: var(--text-main);
   font-size: 0.70rem;
-  font-weight: 640;
+  font-weight: 650;
   line-height: 1.5;
   text-align: left;
 }
 #seisan-view-area .seisan-car-summary-row .seisan-extra-inline > span {
   color: var(--text-main);
-  font-weight: 620;
+  font-weight: 600;
 }
 #seisan-view-area .seisan-car-summary-row .seisan-extra-inline strong {
   margin-left: 0;
   color: var(--text-main);
   font-size: 0.73rem;
-  font-weight: 760;
+  font-weight: 500;
   letter-spacing: -0.012em;
 }
 #seisan-view-area .seisan-car-summary-headline .seisan-edit-btn {

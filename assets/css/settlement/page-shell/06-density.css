@@ -19,7 +19,7 @@
   color: var(--color-ink);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
-  font-weight: 740;
+  font-weight: 650;
   letter-spacing: 0;
 }
 #cars-container .car-box,
@@ -71,7 +71,7 @@
 }
 #seisan-view-area .seisan-title {
   font-size: 0.86rem;
-  font-weight: 760;
+  font-weight: 600;
   letter-spacing: 0;
   line-height: 1.2;
 }
@@ -90,7 +90,7 @@
   background: var(--ui-danger-bg);
   color: var(--color-danger-deep);
   font-size: 0.70rem;
-  font-weight: 620;
+  font-weight: 600;
   line-height: 1.4;
   display: grid;
   gap: 6px;
@@ -114,7 +114,7 @@
   padding: 4px 8px;
   border-radius: 8px;
   font-size: 0.66rem;
-  font-weight: 720;
+  font-weight: 500;
   background: color-mix(in srgb, var(--color-white) 76%, var(--palette-red-50));
   box-shadow: none;
   flex: 0 0 auto;
@@ -126,7 +126,7 @@
 }
 #seisan-view-area .seisan-car-summary-name {
   font-size: 0.82rem;
-  font-weight: 760;
+  font-weight: 500;
   letter-spacing: 0;
   display: inline-flex;
   min-width: 0;
@@ -143,7 +143,7 @@
   background: color-mix(in srgb, var(--bg-card) 70%, var(--bg-body));
   font-size: 0.54rem;
   font-style: normal;
-  font-weight: 690;
+  font-weight: 500;
 }
 #seisan-view-area .seisan-driver-pay-row {
   min-height: 58px;
@@ -168,7 +168,7 @@
 }
 #seisan-view-area .seisan-car-summary-name span,
 #seisan-view-area .seisan-car-summary-name em {
-  font-weight: 760;
+  font-weight: 500;
 }
 body[data-theme="dark"] #seisan-view-area .seisan-card,
 html[data-theme="dark"] #seisan-view-area .seisan-card {

@@ -29,7 +29,10 @@
   border-color: color-mix(in srgb, var(--accent-color) 58%, var(--border-color));
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 14%, transparent);
 }
-.modal-content, .dropdown-menu, .person-pop-menu, .batch-spreadsheet-import, .theme-preview-panel, .theme-app-preview, .theme-preset-card {
+.modal-content,
+.dropdown-menu,
+.person-pop-menu,
+.batch-spreadsheet-import {
   border: 1px solid var(--ui-panel-border);
   border-radius: var(--radius-lg);
   background: var(--ui-saas-panel-raised);
@@ -46,7 +49,7 @@
   align-items: center;
   color: color-mix(in srgb, var(--text-sub) 86%, var(--text-main));
   font-size: 0.72rem;
-  font-weight: 820;
+  font-weight: 500;
   line-height: 1;
 }
 #seisan-view-area .seisan-driver-detail .seisan-extra-plus {
@@ -54,7 +57,7 @@
   align-items: center;
   margin-inline: 3px;
   color: color-mix(in srgb, var(--text-main) 82%, var(--text-sub));
-  font-weight: 820;
+  font-weight: 500;
   line-height: 1;
 }
 [data-theme="dark"] :is(
@@ -64,7 +67,6 @@
   #seisan-view-area,
   .modal-body,
   .offcanvas,
-  .theme-preview-body,
   .sheet-viewport,
   .guide-step-body,
   .guide-modal-body
@@ -110,9 +112,6 @@
 .dropdown-menu,
 .person-pop-menu,
 .batch-spreadsheet-import,
-.theme-preview-panel,
-.theme-app-preview,
-.theme-preset-card,
 .overview-drawer {
   border-color: var(--ui-saas-border);
   background: var(--ui-saas-panel-raised);
@@ -152,7 +151,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 0.98rem;
-  font-weight: 780;
+  font-weight: 600;
   letter-spacing: 0;
 }
 #settlementCarEditModal .btn-close {
@@ -172,7 +171,7 @@
   min-height: 44px;
   border-radius: 11px;
   font-size: 0.92rem;
-  font-weight: 760;
+  font-weight: 500;
 }
 #settlementCarEditModal .seisan-car-title {
   margin-bottom: 5px;
@@ -186,7 +185,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 0.96rem;
-  font-weight: 780;
+  font-weight: 600;
 }
 
 /* Distance shortcut in the car edit modal. */
@@ -216,7 +215,7 @@
   background: var(--app-accent, var(--accent-color));
   color: var(--color-white);
   font-size: 0.68rem;
-  font-weight: 820;
+  font-weight: 500;
   line-height: 1;
   white-space: nowrap;
   box-shadow: none;

@@ -12,13 +12,13 @@
         <div class="modal-dialog modal-dialog-centered modal-sm">
           <div class="modal-content">
             <div class="modal-header py-2">
-              <h6 class="modal-title fw-bold mb-0">確認</h6>
+              <h6 class="modal-title mb-0">確認</h6>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
             </div>
             <div class="modal-body"><div class="app-decision-message"></div></div>
             <div class="modal-footer py-2">
               <button type="button" class="btn btn-outline-secondary btn-sm" data-role="cancel">キャンセル</button>
-              <button type="button" class="btn btn-primary btn-sm fw-bold" data-role="ok">実行</button>
+              <button type="button" class="btn btn-primary btn-sm " data-role="ok">実行</button>
             </div>
           </div>
         </div>`;
@@ -39,12 +39,12 @@
         <div class="modal-dialog modal-dialog-centered modal-sm">
           <div class="modal-content">
             <div class="modal-header py-2">
-              <h6 class="modal-title fw-bold mb-0">お知らせ</h6>
+              <h6 class="modal-title mb-0">お知らせ</h6>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
             </div>
             <div class="modal-body"><div class="app-decision-message"></div></div>
             <div class="modal-footer py-2">
-              <button type="button" class="btn btn-primary btn-sm fw-bold" data-role="ok">OK</button>
+              <button type="button" class="btn btn-primary btn-sm " data-role="ok">OK</button>
             </div>
           </div>
         </div>`;
@@ -68,7 +68,7 @@
     title.textContent = options.title || '確認';
     ok.textContent = options.okText || '実行';
     cancel.textContent = options.cancelText || 'キャンセル';
-    ok.className = `btn btn-sm fw-bold ${options.danger ? 'btn-danger' : 'btn-primary'}`;
+    ok.className = `btn btn-sm ${options.danger ? 'btn-danger' : 'btn-primary'}`;
     setMessage(el, '.app-decision-message', message);
 
     return new Promise(resolve => {

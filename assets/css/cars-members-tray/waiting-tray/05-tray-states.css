@@ -55,7 +55,7 @@
   gap: 5px;
   color: var(--text-sub);
   font-size: 0.72rem;
-  font-weight: 720;
+  font-weight: 500;
   line-height: 1;
 }
 #bottom-tray-header {
@@ -81,7 +81,7 @@
   min-height: 36px;
   border-radius: 10px;
   font-size: 0.70rem;
-  font-weight: 720;
+  font-weight: 500;
 }
 #waiting-count.waiting-inline-count {
   justify-self: start;
@@ -92,7 +92,7 @@
   box-shadow: none;
   color: var(--text-sub);
   font-size: 0.70rem;
-  font-weight: 720;
+  font-weight: 500;
   line-height: 1;
   white-space: nowrap;
 }

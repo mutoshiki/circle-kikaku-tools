@@ -14,7 +14,7 @@
   min-width: 0;
   color: var(--text-sub);
   font-size: 0.73rem;
-  font-weight: 760;
+  font-weight: 650;
   line-height: 1.45;
 }
 .batch-sheet-criteria i {
@@ -51,12 +51,12 @@
   margin: 0;
   color: var(--text-sub);
   font-size: 0.76rem;
-  font-weight: 740;
+  font-weight: 500;
   line-height: 1.55;
 }
 .batch-auto-lead strong {
   color: var(--text-main);
-  font-weight: 850;
+  font-weight: 500;
 }
 .batch-auto-table-wrap {
   overflow-x: auto;
@@ -77,14 +77,14 @@
   border-bottom: 1px solid var(--ui-saas-border, var(--border-color));
   color: var(--text-sub);
   font-size: 0.72rem;
-  font-weight: 720;
+  font-weight: 500;
   line-height: 1.55;
   vertical-align: top;
   word-break: break-word;
 }
 .batch-auto-rule-table th {
   color: var(--text-main);
-  font-weight: 850;
+  font-weight: 500;
 }
 .batch-auto-rule-table thead th {
   background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
@@ -102,7 +102,7 @@
 }
 .batch-auto-rule-table b {
   color: var(--text-main);
-  font-weight: 850;
+  font-weight: 500;
 }
 .batch-required-columns {
   display: grid;
@@ -120,13 +120,13 @@
 .batch-required-columns strong {
   color: var(--text-main);
   font-size: 0.8rem;
-  font-weight: 850;
+  font-weight: 500;
   line-height: 1.35;
 }
 .batch-required-columns span {
   color: var(--text-sub);
   font-size: 0.7rem;
-  font-weight: 720;
+  font-weight: 500;
   line-height: 1.35;
 }
 .batch-sheet-example--simple {

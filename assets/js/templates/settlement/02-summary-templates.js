@@ -33,7 +33,7 @@
     function settingSummary({ state, result, helpers = {} }) {
     const organizer = state.organizerName || '未選択';
     const organizerFreeLabel = state.organizerFree ? '集金しない' : '集金する';
-    const driverOffsetLabel = result.driverCollectionOffset ? '支払いから差し引く' : '集金に含める';
+    const driverOffsetLabel = result.driverCollectionOffset ? '差し引き' : '通常集金';
     const standalone = result.isStandaloneSettlement ? result.standaloneCounts : null;
     const organizerClass = result.isStandaloneSettlement || state.organizerName ? '' : 'is-attention';
     const standalonePill = standalone

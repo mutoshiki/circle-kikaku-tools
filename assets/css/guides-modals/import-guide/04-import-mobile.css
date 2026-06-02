@@ -59,7 +59,7 @@
   background: var(--guide-external-purple);
   color: var(--color-white);
   font-size: 0.76rem;
-  font-weight: 900;
+  font-weight: 500;
   border-bottom: 2px solid var(--palette-blue-600);
   border-bottom-color: var(--guide-external-blue);
 }
@@ -76,7 +76,7 @@
   border-top: 0;
   color: var(--guide-external-text);
   font-size: 0.7rem;
-  font-weight: 760;
+  font-weight: 500;
 }
 .mock-sheet-selection-table div {
   padding: 8px 10px;
@@ -142,7 +142,7 @@
   background: var(--bg-body);
   color: var(--text-sub);
   font-size: 0.68rem;
-  font-weight: 900;
+  font-weight: 500;
   border: 1px solid var(--border-color);
 }
 .mock-form-import-help:empty {
@@ -151,7 +151,7 @@
 .mock-form-import-title {
   color: var(--text-main);
   font-size: 0.82rem;
-  font-weight: 900;
+  font-weight: 600;
   line-height: 1.28;
 }
 .mock-form-import-textarea {
@@ -162,7 +162,7 @@
   padding: 7px 8px;
   color: var(--text-main);
   font-size: 0.65rem;
-  font-weight: 760;
+  font-weight: 600;
   line-height: 1.6;
   min-height: 70px;
   overflow: hidden;
@@ -176,7 +176,7 @@
   text-align: center;
   padding: 8px 6px;
   font-size: 0.66rem;
-  font-weight: 900;
+  font-weight: 500;
   border-color: var(--accent-color);
   box-shadow: none;
   border: 1px solid color-mix(in srgb, var(--accent-color) 24%, var(--border-color));

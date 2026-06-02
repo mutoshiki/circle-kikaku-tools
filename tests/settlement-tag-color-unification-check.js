@@ -11,12 +11,12 @@ const css = readCssBundle();
 const finalBlock = css;
 
 [
-  '--settlement-split-ink: var(--palette-315a3f)',
-  '--settlement-split-bg: color-mix(in srgb, var(--palette-e7f3ec) 70%, var(--color-white))',
-  '--settlement-split-line: rgba(72, 128, 92, 0.28)',
-  '--settlement-club-ink: var(--palette-6b4a1e)',
-  '--settlement-club-bg: color-mix(in srgb, var(--palette-f5ead7) 72%, var(--color-white))',
-  '--settlement-club-line: rgba(153, 110, 48, 0.28)',
+  '--settlement-split-ink: #245a3b',
+  '--settlement-split-bg: #e8f5ee',
+  '--settlement-split-line: rgba(55, 118, 79, 0.36)',
+  '--settlement-club-ink: #694816',
+  '--settlement-club-bg: #f7eddb',
+  '--settlement-club-line: rgba(145, 101, 35, 0.36)',
 ].forEach(token => assert(finalBlock.includes(token), `${token} should be centralized in the final block`));
 
 assert(finalBlock.includes('.seisan-extra-inline.split') && finalBlock.includes('.seisan-extra-inline.club'), 'inline gas/extra labels should inherit the same tokenized selectors');

@@ -1,6 +1,6 @@
 /* Moved from assets/css/cars-members-tray/03-person-card.css; source-order chunk 4/4. */
 .member-name-text {
-  font-weight: 880;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -15,7 +15,7 @@
   color: var(--text-sub);
   border-radius: 999px;
   padding: 2px 6px;
-  font-weight: 850;
+  font-weight: 500;
 }
 .grade-badge.grade-male {
   background: rgba(59, 130, 246, 0.10);
@@ -64,7 +64,7 @@
   padding: 8px 10px 6px;
   color: var(--text-sub);
   font-size: 0.72rem;
-  font-weight: 900;
+  font-weight: 600;
 }
 .person-pop-item {
   width: 100%;
@@ -78,7 +78,7 @@
   align-items: center;
   gap: 9px;
   font-size: 0.84rem;
-  font-weight: 850;
+  font-weight: 600;
   text-align: left;
 }
 .member-card[data-locked="true"] {

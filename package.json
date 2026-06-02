@@ -1,7 +1,7 @@
 {
   "name": "circle-kikaku-tools",
   "private": true,
-  "version": "4.3.0-css-45-cleanup",
+  "version": "4.3.3-theme-picker",
   "scripts": {
     "test": "node tests/run-static-tests.js",
     "test:ui": "playwright test tests/basic-ui.spec.js",

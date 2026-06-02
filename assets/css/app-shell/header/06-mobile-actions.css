@@ -82,7 +82,7 @@ padding-inline: 9px;
     color: color-mix(in srgb, var(--text-sub) 86%, var(--text-main));
     box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.03);
     font-size: 0.79rem;
-    font-weight: 850;
+    font-weight: 600;
 }
 .header-action:not(.share-action):hover {
     background: var(--hover-bg);
@@ -120,7 +120,7 @@ padding-inline: 9px;
     color: var(--text-main);
     box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.03);
     font-size: 0.82rem;
-    font-weight: 850;
+    font-weight: 600;
 }
 .edit-tools .tool-btn[data-priority="high"] {
     background: var(--bg-card);
@@ -139,7 +139,7 @@ padding-inline: 9px;
     background: color-mix(in srgb, var(--bg-card) 80%, transparent);
     color: var(--text-sub);
     font-size: 0.74rem;
-    font-weight: 800;
+    font-weight: 500;
 }
 #cars-container {
     max-width: 1120px;

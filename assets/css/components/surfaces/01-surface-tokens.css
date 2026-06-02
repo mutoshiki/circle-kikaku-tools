@@ -41,7 +41,6 @@ html[data-theme="dark"] body {
   .sheet-wait-item,
   .form-sheet-howto,
   .form-import-preview,
-  .theme-preset-card,
   .guide-feature-card
 ) {
   border-color: var(--ui-surface-border);

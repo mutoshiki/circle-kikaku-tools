@@ -17,9 +17,9 @@
   --font-size-body: 0.9rem;
   --font-size-title: 1rem;
   --font-size-amount: clamp(0.94rem, 4.1vw, 1.12rem);
-  --font-weight-label: 720;
-  --font-weight-title: 780;
-  --font-weight-amount: 760;
+  --font-weight-label: 500;
+  --font-weight-title: 600;
+  --font-weight-amount: 650;
   /* Component-local z tokens only. Do not redefine app-level --z-modal/--z-dropdown here. */
   --ui-z-base: 0;
   --ui-z-raised: 10;

@@ -2,6 +2,27 @@
 
 UIの見た目は、できるだけここに書いたトークン経由でそろえます。
 
+## テーマ契約
+
+テーマは、色セットとライト/ダークを分けて扱います。
+
+- `assets/css/theme/00-theme-contract.css`: テーマごとの元色。`--theme-light-*` と `--theme-dark-*` を定義する。
+- `assets/css/theme/01-theme-tokens.css`: 元色を `--bg-body`、`--bg-card`、`--accent-color` などのアプリ共通トークンへ変換する。
+- 画面別CSSでは `--theme-light-*` を直接使わず、必ず `--bg-card` などの意味トークンを使う。
+
+将来テーマを増やす場合は、基本的に `00-theme-contract.css` へ次のようなブロックを追加します。
+
+```css
+body[data-app-theme="forest"] {
+  --theme-light-bg-body: ...;
+  --theme-light-accent: ...;
+  --theme-dark-bg-body: ...;
+  --theme-dark-accent: ...;
+}
+```
+
+この形にしておくと、ボタン、カード、精算タグ、モーダル側のCSSを個別に増やさずに済みます。
+
 ## 色
 
 - `--bg-body`: ページ背景
@@ -11,6 +32,18 @@ UIの見た目は、できるだけここに書いたトークン経由でそろ
 - `--border-color`: 標準の線
 - `--accent-color`: 主要操作・選択状態
 - `--accent-soft`: 薄いアクセント面
+
+
+## コントラスト基準
+
+標準テーマでは、本文と補助文の読みやすさを優先します。
+
+- 本文 `--text-main` はカード面に対して十分に強いコントラストを保つ。
+- 補助文 `--text-sub` も小さな文字で読めるように、白背景で4.5:1以上を目安にする。
+- 主要ボタンは、ライトでは白文字、ダークでは暗い文字を使い、背景色とのコントラストを確保する。
+- 精算タグの「割勘」「部費」も、淡い背景のまま文字だけが薄くならないようにする。
+
+数値の確認は `tests/standard-theme-contrast-check.js` で行います。
 
 ## 面・枠線・影
 
@@ -74,3 +107,11 @@ UIの見た目は、できるだけここに書いたトークン経由でそろ
 - `--z-toast`
 
 数値を直接書くと重なり事故が起きやすいので、必ず `--z-*` を使います。
+
+## Theme picker note
+
+- Theme selection is active again. The current first-paint theme is `standard`.
+- Add or remove selectable themes in `assets/js/modules/theme-presets.js`.
+- Add the matching color variables in `assets/css/theme/00-theme-contract.css`.
+- Component and screen CSS should continue to use semantic tokens such as `--bg-body`, `--bg-card`, `--text-main`, `--border-color`, `--accent-color`, and `--accent-soft`.
+- Do not put theme-specific colors directly into screen CSS unless the color is a fixed semantic state such as error, warning, or success.

@@ -31,7 +31,7 @@
   background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
   color: var(--text-sub);
   font-size: 0.78rem;
-  font-weight: 820;
+  font-weight: 500;
   cursor: grab;
   touch-action: none;
 }
@@ -46,7 +46,7 @@
   display: block;
   font-size: 0.76rem;
   line-height: 1;
-  font-weight: 850;
+  font-weight: 500;
 }
 
 #routeDistanceModal .route-stop-num:active {
@@ -62,7 +62,7 @@
   background: var(--bg-card);
   color: var(--text-main);
   font-size: 0.9rem;
-  font-weight: 620;
+  font-weight: 600;
 }
 
 #routeDistanceModal .route-stop-input:focus {

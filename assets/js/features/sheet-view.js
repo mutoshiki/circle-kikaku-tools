@@ -11,6 +11,9 @@ async function switchView(view) {
         if (!(await verifyEditPassphrase(`${label}を開くには合言葉を入力してください`))) return;
     }
     currentView = view;
+    document.body.classList.toggle('view-mode-list', view === 'list');
+    document.body.classList.toggle('view-mode-sheet', view === 'sheet');
+    document.body.classList.toggle('view-mode-seisan', view === 'seisan');
     const listArea = byId('top-area');
     const sheetArea = byId('sheet-view-area');
     const bottomTray = byId('bottom-tray');

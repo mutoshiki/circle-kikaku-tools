@@ -127,7 +127,7 @@ font-size: 0.72rem;
   min-height: 38px;
   padding: 8px 10px;
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 500;
   padding-left: 10px;
   padding-right: 10px;
 }
@@ -137,7 +137,7 @@ line-height: 1.18;
 .seisan-extra-row .seisan-icon-btn i::before {
 content: "";
     font-family: "Font Awesome 6 Free";
-    font-weight: 900;
+    font-weight: 500;
 }
 @media (max-width: 640px) {
 .seisan-extra-row .seisan-icon-btn {
@@ -149,7 +149,7 @@ width: 100%;
 content: "削除";
         margin-left: 6px;
         font-size: 0.78rem;
-        font-weight: 850;
+        font-weight: 500;
 }
 }
 @media (max-width: 420px) {

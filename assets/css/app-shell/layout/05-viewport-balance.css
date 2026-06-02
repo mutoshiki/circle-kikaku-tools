@@ -1,0 +1,144 @@
+/* App shell balance: lighter chrome and fixed controls that leave room for content. */
+:root {
+  --bottom-toolbar-height: 52px;
+  --bottom-toolbar-gap: 7px;
+  --bottom-toolbar-inline: 8px;
+  --bottom-toolbar-total: calc(var(--bottom-toolbar-height) + var(--bottom-toolbar-gap) + env(safe-area-inset-bottom, 0px));
+  --balance-card-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.045), 0 10px 22px rgba(var(--shadow-rgb), 0.055);
+  --balance-soft-shadow: 0 6px 18px rgba(var(--shadow-rgb), 0.08);
+}
+
+#top-area {
+  padding-bottom: calc(22px + var(--bottom-toolbar-total));
+}
+
+#app-header {
+  padding: 7px 10px 5px;
+}
+
+.app-header-main {
+  min-height: 54px;
+  border-radius: 16px;
+  box-shadow: 0 1px 0 rgba(var(--white-rgb), 0.35), 0 8px 18px rgba(var(--shadow-rgb), 0.055);
+}
+
+.app-room-input {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.header-actions .header-action,
+.header-actions .header-more > .header-action {
+  box-shadow: none;
+}
+
+#app-layout #view-toggle-bar {
+  min-height: var(--bottom-toolbar-height);
+  padding: 4px;
+  gap: 3px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--preview-header-bg) 90%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--preview-header-border) 78%, transparent);
+  box-shadow: 0 10px 24px rgba(var(--shadow-rgb), 0.16);
+}
+
+#app-layout #view-toggle-bar .view-tab {
+  min-height: 42px;
+  padding: 5px 4px;
+  border-radius: 12px;
+  font-size: 0.70rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: color-mix(in srgb, var(--preview-header-text) 76%, var(--preview-header-bg));
+}
+
+#app-layout #view-toggle-bar .view-tab.active,
+body[data-theme="dark"] #app-layout #view-toggle-bar .view-tab.active,
+html[data-theme="dark"] body #app-layout #view-toggle-bar .view-tab.active {
+  background: color-mix(in srgb, var(--preview-header-text) 16%, transparent);
+  color: var(--preview-header-text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--preview-header-text) 16%, transparent);
+}
+
+.card,
+.car-box,
+.team-box,
+.member-card,
+.driver-card {
+  box-shadow: var(--balance-card-shadow);
+}
+
+.member-card,
+.seat-slot > .member-card,
+#waiting-list .member-card {
+  font-weight: 500;
+}
+
+.member-name,
+.person-name,
+.driver-name,
+.team-member-name,
+.car-member-name {
+  font-weight: 600;
+}
+
+.grade-badge,
+.capacity-badge,
+.sheet-capacity-badge,
+.seisan-payment-tag,
+.seisan-cost-type-badge {
+  font-weight: 500;
+}
+
+.room-mode-tab.active,
+.car-plan-template-chip.active,
+.tool-btn[data-priority="share"] {
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-color) 14%, transparent);
+}
+
+@media (max-width: 640px) {
+  :root {
+    --bottom-toolbar-height: 54px;
+    --bottom-toolbar-gap: 7px;
+    --bottom-toolbar-inline: 8px;
+  }
+
+  #app-header {
+    padding: 6px 8px 4px;
+  }
+
+  .app-header-main {
+    min-height: 48px;
+  }
+
+  .app-room-input {
+    min-height: 36px;
+    font-size: 0.98rem;
+    line-height: 1.2;
+  }
+
+  .header-actions .header-action,
+  .header-actions .header-more > .header-action {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    min-height: 34px;
+  }
+
+  .header-actions .share-action,
+  .share-action {
+    min-width: 62px;
+    height: 34px;
+    min-height: 34px;
+    padding-inline: 11px;
+  }
+
+  #app-layout #view-toggle-bar {
+    border-radius: 16px;
+  }
+
+  #app-layout #view-toggle-bar .view-tab {
+    min-height: 44px;
+    font-size: 0.68rem;
+  }
+}

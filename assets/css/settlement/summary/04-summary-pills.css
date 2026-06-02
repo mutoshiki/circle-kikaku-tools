@@ -112,7 +112,7 @@
 #seisan-view-area .seisan-flow-arrow {
     min-width: 14px;
     font-size: 0.82rem;
-    font-weight: 780;
+    font-weight: 650;
   }
 }
 #seisan-view-area .seisan-summary-card .seisan-summary-value {
@@ -121,7 +121,7 @@
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
   font-size: clamp(0.98rem, 4.1vw, 1.16rem);
-  font-weight: 720;
+  font-weight: 650;
   letter-spacing: 0;
   line-height: 1.08;
 }
@@ -140,7 +140,7 @@
     display: flex;
     min-width: 14px;
     font-size: 0.82rem;
-    font-weight: 780;
+    font-weight: 650;
   }
 }
 #seisan-view-area .seisan-summary-card.collect, [data-theme="dark"] #seisan-view-area .seisan-summary-card.collect {
@@ -159,7 +159,7 @@
 #seisan-view-area .seisan-car-summary-total,
 #seisan-view-area .seisan-driver-amount {
   color: var(--text-main);
-  font-weight: 720;
+  font-weight: 650;
   letter-spacing: -0.01em;
 }
 :where(.seisan-summary-value, .seisan-car-summary-total, .seisan-driver-amount) {
@@ -181,14 +181,14 @@
   box-shadow: none;
   border-color: var(--ui-saas-border);
   font-size: 0.68rem;
-  font-weight: 720;
+  font-weight: 500;
 }
 #seisan-view-area .seisan-summary-pills--single small {
   margin-bottom: 1px;
   font-size: 0.52rem;
   letter-spacing: 0;
   color: var(--text-sub);
-  font-weight: 640;
+  font-weight: 500;
 }
 #seisan-view-area .seisan-top-flow {
   grid-template-columns: minmax(0, 1fr) 14px minmax(0, 1fr) 14px minmax(0, 1fr);
@@ -200,7 +200,7 @@
   font-size: clamp(0.94rem, 4.1vw, 1.12rem);
   line-height: 1.02;
   letter-spacing: -0.035em;
-  font-weight: 760;
+  font-weight: 650;
 }
 @media (max-width: 390px) {
 #seisan-view-area .seisan-summary-card {

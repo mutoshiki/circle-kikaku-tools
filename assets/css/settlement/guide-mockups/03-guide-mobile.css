@@ -16,7 +16,7 @@ min-height:40px;
     align-items:center;
     justify-content:center;
     font-size:0.74rem;
-    font-weight:700;
+    font-weight: 500;
     border:1px solid var(--border-color);
 }
 .seisan-guide-flow {
@@ -30,7 +30,7 @@ min-height:40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 900;
+  font-weight: 500;
   transform: rotate(90deg);
   min-height: 16px;
 }
@@ -102,7 +102,7 @@ background: var(--accent-color);
   background: var(--bg-body);
   color: var(--text-sub);
   font-size: 0.64rem;
-  font-weight: 850;
+  font-weight: 500;
   text-align: center;
   padding: 3px 5px;
 }

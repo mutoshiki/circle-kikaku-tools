@@ -1,0 +1,90 @@
+/* Sheet view density: compact floating controls and opaque summary surfaces. */
+#sheet-title-bar {
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  min-height: 46px;
+  padding: 7px 9px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--bg-card) 98%, var(--bg-body));
+  box-shadow: var(--balance-soft-shadow, 0 6px 18px rgba(var(--shadow-rgb), 0.08));
+}
+
+[data-theme="dark"] #sheet-title-bar {
+  background: color-mix(in srgb, var(--bg-card) 96%, var(--color-night));
+}
+
+#sheet-canvas {
+  top: 72px;
+  gap: 20px;
+  padding-bottom: calc(132px + var(--bottom-toolbar-total));
+}
+
+.sheet-summary-row {
+  row-gap: 2px;
+}
+
+.sheet-summary-plan-label,
+.sheet-summary-stat,
+.sheet-summary-updated,
+.sheet-summary-stat strong,
+.sheet-summary-updated strong {
+  font-weight: 500;
+}
+
+.sheet-section-title {
+  font-size: 0.94rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.sheet-car-header,
+.sheet-driver-name {
+  font-weight: 600;
+}
+
+.sheet-seat-row,
+.sheet-chip,
+.sheet-cell-text,
+.sheet-chip-text {
+  font-weight: 500;
+}
+
+#sheet-bottom-controls {
+  bottom: calc(var(--bottom-toolbar-total) + 8px);
+  padding: 5px;
+  gap: 5px;
+  box-shadow: 0 8px 20px rgba(var(--shadow-rgb), 0.12);
+}
+
+#sheet-bottom-controls .tool-btn {
+  min-height: 38px;
+  min-width: 46px;
+  padding: 5px 8px;
+  border-radius: 14px;
+}
+
+#sheet-bottom-controls .tool-btn span {
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  #sheet-view-area #sheet-title-bar,
+  #sheet-title-bar {
+    min-height: 50px;
+    padding: 7px 9px;
+  }
+
+  #sheet-view-area #sheet-canvas,
+  #sheet-canvas {
+    top: 76px;
+  }
+
+  .sheet-summary-row {
+    column-gap: 4px;
+  }
+
+  #sheet-bottom-controls {
+    max-width: calc(100vw - 72px);
+  }
+}

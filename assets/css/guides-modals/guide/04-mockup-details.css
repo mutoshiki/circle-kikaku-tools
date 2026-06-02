@@ -63,7 +63,7 @@ min-height: 32px;
     background: var(--sheet-header);
     color: var(--text-main);
     font-size: 0.72rem;
-    font-weight: 900;
+    font-weight: 600;
 }
 .mock-register-grid {
 display: grid;
@@ -82,7 +82,7 @@ border: 1px solid var(--border-color);
 display: block;
     color: var(--text-sub);
     font-size: 0.62rem;
-    font-weight: 900;
+    font-weight: 500;
     margin-bottom: 4px;
 }
 .mock-register-grid p {
@@ -90,7 +90,7 @@ margin: 0;
     color: var(--text-main);
     font-size: 0.68rem;
     line-height: 1.45;
-    font-weight: 800;
+    font-weight: 500;
 }
 .mock-register-grid .driver {
 border-color: rgba(15,118,110,0.34);

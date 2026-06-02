@@ -1,7 +1,7 @@
 /* Moved from assets/css/settlement/02-summary-cards.css; source-order chunk 2/6. */
 .seisan-summary-label {
   font-size: 0.75rem;
-  font-weight: 900;
+  font-weight: 500;
   color: var(--text-sub);
   display: flex;
   align-items: center;
@@ -81,7 +81,7 @@
   color: var(--text-main);
   font-size: 0.72rem;
   line-height: 1.05;
-  font-weight: 850;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -91,7 +91,7 @@
   margin-right: 3px;
   color: var(--text-sub);
   font-size: 0.56rem;
-  font-weight: 840;
+  font-weight: 500;
 }
 @media (max-width: 640px) {
 .seisan-top-flow {
@@ -149,7 +149,7 @@
 }
 .seisan-summary-value {
   font-size: 1.34rem;
-  font-weight: 960;
+  font-weight: 650;
   color: var(--text-main);
   line-height: 1.05;
   white-space: nowrap;

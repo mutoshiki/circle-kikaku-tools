@@ -70,7 +70,7 @@ min-height: 36px;
     background: var(--bg-card);
     color: var(--text-sub);
     box-shadow: none;
-    font-weight: 800;
+    font-weight: 600;
     line-height: 1.15;
     touch-action: manipulation;
 }

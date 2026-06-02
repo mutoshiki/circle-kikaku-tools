@@ -78,12 +78,12 @@ color: var(--text-main);
 cursor: pointer;
 }
 .app-guide-box strong {
-font-weight: 750;
+font-weight: 600;
 }
 .batch-field-note {
 color: var(--text-sub);
     font-size: 0.68rem;
-    font-weight: 700;
+    font-weight: 600;
     margin: -2px 0 4px;
 }
 .batch-warning {
@@ -94,7 +94,7 @@ margin-top: 10px;
     border-radius: var(--radius-main);
     padding: 9px 10px;
     font-size: 0.78rem;
-    font-weight: 800;
+    font-weight: 500;
 }
 [data-theme="dark"] .batch-warning {
 color: var(--palette-red-200);
@@ -142,7 +142,7 @@ gap: 10px;
 grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .app-guide-mini-tools.two-col small {
-color: var(--text-sub); font-weight: 700;
+color: var(--text-sub); font-weight: 500;
 }
 .guide-mini-toolbar.compact-actions {
 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -176,7 +176,7 @@ margin: 8px 0 12px;
 .guide-important-note {
   margin-top: 0;
   font-size: 0.76rem;
-  font-weight: 650;
+  font-weight: 500;
   color: var(--text-main);
   background: var(--accent-soft);
   border-color: rgba(15, 118, 110, 0.25);
@@ -190,5 +190,5 @@ width: 100%;
     padding: 10px;
     font-size: 0.8rem;
     line-height: 1.55;
-    font-weight: 700;
+    font-weight: 500;
 }

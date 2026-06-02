@@ -9,7 +9,7 @@ font-size: 0.64rem; line-height: 1.35; align-items: flex-start;
   margin: 6px auto 0;
   color: var(--text-sub);
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 500;
   display: none;
   align-items: center;
   gap: 5px;
@@ -39,7 +39,7 @@ margin-top: 8px;
 .empty-card strong {
 display: block;
     font-size: 0.95rem;
-    font-weight: 850;
+    font-weight: 500;
     color: var(--text-main);
     margin-bottom: 6px;
 }

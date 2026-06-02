@@ -128,7 +128,7 @@ grid-column: 1 / 2;
         grid-row: 1 / 2;
         font-size: 1rem;
         line-height: 1.25;
-        font-weight: 900;
+        font-weight: 600;
 }
 }
 @media (max-width: 640px) {
@@ -138,7 +138,7 @@ grid-column: 2 / 3;
         justify-self: end;
         font-size: 1rem;
         line-height: 1.2;
-        font-weight: 950;
+        font-weight: 650;
 }
 }
 @media (max-width: 640px) {

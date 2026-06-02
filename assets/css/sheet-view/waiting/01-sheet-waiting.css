@@ -28,7 +28,7 @@ justify-content: flex-start;
 background: var(--sheet-header);
     color: var(--text-main);
     padding: 8px 12px;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 0.85rem;
 }
 .sheet-wait-body {

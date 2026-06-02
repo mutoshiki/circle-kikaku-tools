@@ -39,7 +39,7 @@
 }
 .seisan-extra-inline strong {
   color: var(--text-main);
-  font-weight: 900;
+  font-weight: 500;
 }
 .seisan-extra-inline em {
   padding: 0;
@@ -47,7 +47,7 @@
   background: transparent;
   font-style: normal;
   font-size: 0.68rem;
-  font-weight: 900;
+  font-weight: 500;
 }
 .seisan-extra-line-list {
   display: grid;
@@ -71,10 +71,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--text-sub);
-  font-weight: 760;
+  font-weight: 500;
 }
 .seisan-extra-line strong {
-  font-weight: 900;
+  font-weight: 500;
   white-space: nowrap;
 }
 @media (max-width: 420px) {
@@ -133,7 +133,7 @@
   color: var(--settlement-tag-ink, var(--settlement-split-ink));
   font-size: var(--settlement-tag-font-size);
   font-style: normal;
-  font-weight: 900;
+  font-weight: 500;
   line-height: var(--settlement-tag-line-height);
   letter-spacing: 0;
   white-space: nowrap;

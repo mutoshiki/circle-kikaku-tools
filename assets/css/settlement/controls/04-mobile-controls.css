@@ -118,7 +118,7 @@ html[data-theme="dark"] #settlementSettingsModal .seisan-standalone-fields {
   align-self: center;
   color: var(--text-muted);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 0.02em;
 }
 

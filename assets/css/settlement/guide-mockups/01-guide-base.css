@@ -5,7 +5,7 @@
 .seisan-driver-amount,
 .seisan-flow-label,
 .seisan-guide-box strong {
-font-weight: 750;
+font-weight: 650;
 }
 .seisan-mock-screen {
 border: 1px solid var(--border-color);
@@ -58,7 +58,7 @@ background: rgba(96, 165, 250, 0.13); border-color: rgba(96, 165, 250, 0.34);
 .seisan-mock-label {
 color: var(--text-sub);
     font-size: 0.64rem;
-    font-weight: 800;
+    font-weight: 650;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -67,7 +67,7 @@ color: var(--text-sub);
 color: var(--text-main);
     font-size: 1.12rem;
     line-height: 1.1;
-    font-weight: 900;
+    font-weight: 650;
     margin-top: 6px;
     white-space: nowrap;
 }
@@ -96,7 +96,7 @@ border: 1px solid var(--border-color);
 display: block;
     color: var(--text-sub);
     font-size: 0.62rem;
-    font-weight: 800;
+    font-weight: 500;
     margin-bottom: 3px;
 }
 .seisan-mock-field strong,
@@ -104,7 +104,7 @@ display: block;
 display: block;
     color: var(--text-main);
     font-size: 0.82rem;
-    font-weight: 850;
+    font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -116,7 +116,7 @@ display: flex;
     gap: 8px;
     color: var(--text-main);
     font-size: 0.76rem;
-    font-weight: 800;
+    font-weight: 500;
 }
 .seisan-mock-switch {
 width: 30px;
@@ -147,11 +147,11 @@ display: flex;
     gap: 8px;
     color: var(--text-main);
     font-size: 0.78rem;
-    font-weight: 850;
+    font-weight: 500;
 }
 .seisan-mock-car-total {
 color: var(--accent-color);
-    font-weight: 900;
+    font-weight: 650;
     white-space: nowrap;
 }
 .seisan-mock-car-inputs {
@@ -178,7 +178,7 @@ display: grid;
 .seisan-mock-check-name,
 .seisan-mock-driver-name {
 color: var(--text-main);
-    font-weight: 800;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

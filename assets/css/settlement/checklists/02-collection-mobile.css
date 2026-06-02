@@ -7,7 +7,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--text-sub);
-  font-weight: 720;
+  font-weight: 650;
 }
 @media (max-width: 640px) {
   #seisan-view-area .seisan-collection-group-list {
