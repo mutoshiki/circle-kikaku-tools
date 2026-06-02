@@ -47,24 +47,24 @@
 @media (max-width: 640px) {
 .overview-drawer,
   #overviewDrawer.overview-drawer {
-    top: auto;
+    top: 0;
     right: 0;
-    bottom: 0;
-    left: 0;
-    width: 100vw;
-    height: min(78dvh, 620px);
+    bottom: auto;
+    left: auto;
+    width: min(88vw, 360px);
+    height: 100dvh;
     padding: 16px 16px max(16px, env(safe-area-inset-bottom));
-    border-top: 1px solid var(--ui-saas-border);
-    border-left: 0;
-    border-radius: 18px 18px 0 0;
-    box-shadow: 0 -26px 54px rgba(var(--shadow-rgb), 0.18);
-    transform: translateY(104%);
+    border-top: 0;
+    border-left: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
+    border-radius: 0;
+    box-shadow: -18px 0 34px rgba(var(--shadow-rgb), 0.14);
+    transform: translateX(104%);
     overflow-x: hidden;
   }
 
 .overview-drawer.is-open,
   #overviewDrawer.overview-drawer.is-open {
-    transform: translateY(0);
+    transform: translateX(0);
   }
 
 .overview-drawer-head {
