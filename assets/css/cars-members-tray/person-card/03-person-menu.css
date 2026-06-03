@@ -102,12 +102,13 @@ border-radius: 999px;
 border-color: color-mix(in srgb, var(--border-color) 78%, transparent);
 }
 [data-theme="dark"] .member-card {
-background: color-mix(in srgb, var(--bg-card) 76%, var(--color-night));
-    border-color: rgba(148, 163, 184, 0.14);
-    box-shadow: none;
+background: color-mix(in srgb, var(--bg-card) 84%, var(--text-main) 4%);
+    border-color: rgba(148, 163, 184, 0.22);
+    box-shadow: 0 6px 16px rgba(var(--shadow-rgb), 0.14);
 }
 [data-theme="dark"] .member-card:hover {
-border-color: rgba(148, 163, 184, 0.24);
+border-color: color-mix(in srgb, var(--accent-color) 34%, rgba(148, 163, 184, 0.28));
+    background: color-mix(in srgb, var(--bg-card) 76%, var(--accent-color) 8%);
 }
 @media (max-width: 640px) {
 .member-card,
@@ -167,9 +168,9 @@ margin-top: 3px;
 .member-card, .seat-slot > .member-card {
   touch-action: pan-y;
   border-radius: var(--radius-main);
-  border-color: var(--hairline, var(--border-color));
-  background: var(--bg-card);
-  box-shadow: none;
+  border-color: color-mix(in srgb, var(--border-color) 72%, var(--text-sub) 14%);
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--text-main) 3%);
+  box-shadow: 0 4px 12px rgba(var(--shadow-rgb), 0.05);
 }
 .member-card {
   background: var(--bg-card);
@@ -178,7 +179,7 @@ margin-top: 3px;
   border-radius: var(--radius-main);
   padding: 8px;
   position: relative;
-  box-shadow: none;
+  box-shadow: 0 4px 12px rgba(var(--shadow-rgb), 0.05);
   color: var(--text-main);
   display: flex;
   flex-direction: column;
@@ -195,8 +196,18 @@ margin-top: 3px;
   min-width: 0;
   gap: 7px;
   box-sizing: border-box;
+  transition: background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
 }
 .member-card:hover {
     border-color: color-mix(in srgb, var(--accent-color) 22%, var(--border-color));
-    box-shadow: 0 6px 16px rgba(var(--shadow-rgb), 0.06);
+    box-shadow: 0 8px 20px rgba(var(--shadow-rgb), 0.10);
+    transform: translateY(-1px);
+}
+.member-card:active,
+.member-card.manual-drag-source {
+  cursor: grabbing;
+  border-color: color-mix(in srgb, var(--accent-color) 45%, var(--border-color));
+  background: color-mix(in srgb, var(--bg-card) 82%, var(--accent-color) 10%);
+  box-shadow: 0 10px 24px rgba(var(--shadow-rgb), 0.14);
+  transform: scale(0.995);
 }

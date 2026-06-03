@@ -88,7 +88,7 @@
 
 #overviewDrawer .overview-textarea,
   .overview-drawer .overview-textarea {
-    resize: vertical;
+    resize: none;
   }
 }
 #overviewDrawer .overview-row-delete,
@@ -155,14 +155,22 @@ html[data-theme="dark"] body #app-layout #app-header :is(.header-action, .header
 .overview-drawer .overview-timetable-panel {
   min-width: 0;
   max-width: 100%;
+  box-sizing: border-box;
+}
+
+#overviewDrawer .overview-timetable-panel,
+.overview-drawer .overview-timetable-panel {
+  padding-inline: 1px;
+  overflow: visible;
 }
 
 #overviewDrawer .overview-timetable-row,
 .overview-drawer .overview-timetable-row {
   grid-template-columns: minmax(0, 70px) minmax(0, 1fr) 28px;
   gap: 6px;
-  width: 100%;
+  width: calc(100% - 2px);
   min-width: 0;
+  margin-inline: 1px;
   box-sizing: border-box;
 }
 
@@ -170,6 +178,13 @@ html[data-theme="dark"] body #app-layout #app-header :is(.header-action, .header
 .overview-drawer .overview-timetable-row input {
   min-width: 0;
   max-width: 100%;
+  box-sizing: border-box;
+}
+
+#overviewDrawer .overview-copy-action,
+.overview-drawer .overview-copy-action {
+  width: calc(100% - 2px);
+  margin-inline: 1px;
   box-sizing: border-box;
 }
 

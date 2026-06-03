@@ -1,0 +1,579 @@
+/* Theme accent application.
+   Use the selected main color on more visible UI labels, while keeping text legible on filled surfaces. */
+body[data-theme] {
+  --theme-accent-fill: var(--control-primary-bg, var(--accent-color));
+  --theme-accent-fill-hover: var(--control-primary-hover, color-mix(in srgb, var(--accent-color) 88%, var(--color-black)));
+  --theme-accent-on-fill: var(--control-primary-text, var(--color-white));
+  --theme-accent-muted-on-fill: color-mix(in srgb, var(--theme-accent-on-fill) 76%, var(--theme-accent-fill));
+  --theme-accent-fill-border: color-mix(in srgb, var(--theme-accent-fill) 82%, var(--color-black));
+  --theme-accent-fill-shadow: 0 8px 20px color-mix(in srgb, var(--accent-color) 18%, transparent);
+  --theme-accent-soft-surface: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
+}
+
+body[data-theme="dark"] {
+  --theme-accent-fill-border: color-mix(in srgb, var(--theme-accent-fill) 66%, var(--color-white));
+  --theme-accent-fill-shadow: 0 10px 24px color-mix(in srgb, var(--accent-color) 16%, transparent);
+  --theme-accent-soft-surface: color-mix(in srgb, var(--accent-color) 16%, var(--bg-card));
+}
+
+/* Active tabs and mode chips: selected states are now filled with the active theme color. */
+body[data-theme] #view-toggle-bar .view-tab.active,
+body[data-theme] .view-toggle-bar .view-tab.active,
+body[data-theme] #app-layout #view-toggle-bar .view-tab.active,
+body[data-theme] #app-layout .view-toggle-bar .view-tab.active,
+body[data-theme] .appearance-mode-btn.active,
+body[data-theme] .room-mode-tab.active,
+body[data-theme] .allocation-mode-toggle .car-plan-template-chip.active {
+  background: var(--theme-accent-fill);
+  border-color: var(--theme-accent-fill-border);
+  color: var(--theme-accent-on-fill);
+  box-shadow: var(--theme-accent-fill-shadow);
+}
+
+body[data-theme] #view-toggle-bar .view-tab.active :is(i, span),
+body[data-theme] .view-toggle-bar .view-tab.active :is(i, span),
+body[data-theme] #app-layout #view-toggle-bar .view-tab.active :is(i, span),
+body[data-theme] #app-layout .view-toggle-bar .view-tab.active :is(i, span),
+body[data-theme] .appearance-mode-btn.active :is(i, span),
+body[data-theme] .room-mode-tab.active :is(i, span),
+body[data-theme] .allocation-mode-toggle .car-plan-template-chip.active :is(i, span) {
+  color: var(--theme-accent-on-fill);
+  -webkit-text-fill-color: var(--theme-accent-on-fill);
+}
+
+body[data-theme] #view-toggle-bar .view-tab.active:is(:hover, :focus-visible),
+body[data-theme] .view-toggle-bar .view-tab.active:is(:hover, :focus-visible),
+body[data-theme] #app-layout #view-toggle-bar .view-tab.active:is(:hover, :focus-visible),
+body[data-theme] #app-layout .view-toggle-bar .view-tab.active:is(:hover, :focus-visible),
+body[data-theme] .appearance-mode-btn.active:is(:hover, :focus-visible),
+body[data-theme] .room-mode-tab.active:is(:hover, :focus-visible),
+body[data-theme] .allocation-mode-toggle .car-plan-template-chip.active:is(:hover, :focus-visible) {
+  background: var(--theme-accent-fill-hover);
+  border-color: var(--theme-accent-fill-hover);
+  color: var(--theme-accent-on-fill);
+}
+
+/* Section titles become compact filled labels instead of only accent-colored text/icons. */
+#seisan-view-area .seisan-title,
+.overview-drawer .overview-panel h3,
+.sheet-summary-plan-label,
+body[data-theme] .sheet-summary-row.is-team .sheet-summary-plan-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 24px;
+  padding: 4px 10px;
+  border: 1px solid var(--theme-accent-fill-border);
+  border-radius: 999px;
+  background: var(--theme-accent-fill);
+  color: var(--theme-accent-on-fill);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--accent-color) 12%, transparent);
+  line-height: 1.1;
+}
+
+#seisan-view-area .seisan-title :is(i, span),
+.overview-drawer .overview-panel h3 :is(i, span),
+.sheet-summary-plan-label :is(i, span),
+.sheet-summary-row.is-team .sheet-summary-plan-label,
+body[data-theme] .sheet-summary-row.is-team .sheet-summary-plan-label {
+  color: var(--theme-accent-on-fill);
+  -webkit-text-fill-color: var(--theme-accent-on-fill);
+}
+
+#seisan-view-area .seisan-title > i,
+.sheet-title-icon,
+.sheet-empty-icon {
+  opacity: 1;
+  background: var(--theme-accent-fill);
+  border-color: var(--theme-accent-fill-border);
+  color: var(--theme-accent-on-fill);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-color) 14%, transparent);
+}
+
+/* Summary/settings chips that represent the current configuration should read as selected values. */
+#seisan-view-area .seisan-summary-pills span.seisan-setting-pill--primary,
+#seisan-view-area .seisan-summary-pills span.is-standalone {
+  background: var(--theme-accent-fill);
+  border-color: var(--theme-accent-fill-border);
+  color: var(--theme-accent-on-fill);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--accent-color) 12%, transparent);
+}
+
+#seisan-view-area .seisan-summary-pills span.seisan-setting-pill--primary small,
+#seisan-view-area .seisan-summary-pills span.is-standalone small {
+  color: var(--theme-accent-muted-on-fill);
+  -webkit-text-fill-color: var(--theme-accent-muted-on-fill);
+}
+
+/* Sheet/presentation view: group headers now use the selected main color. */
+#sheet-view-area .sheet-car-header:not(.sheet-label-header),
+#sheet-view-area .sheet-wait-header {
+  background: var(--theme-accent-fill);
+  border-color: var(--theme-accent-fill-border);
+  color: var(--theme-accent-on-fill);
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--theme-accent-on-fill) 22%, transparent);
+}
+
+#sheet-view-area .sheet-car-header:not(.sheet-label-header) :is(span, strong, i),
+#sheet-view-area .sheet-wait-header :is(span, strong, i) {
+  color: var(--theme-accent-on-fill);
+  -webkit-text-fill-color: var(--theme-accent-on-fill);
+}
+
+#sheet-view-area .sheet-capacity-badge:not(.is-over),
+#cars-container .capacity-badge.capacity-edit-btn.is-full {
+  background: color-mix(in srgb, var(--theme-accent-on-fill) 18%, transparent);
+  border-color: color-mix(in srgb, var(--theme-accent-on-fill) 34%, transparent);
+  color: var(--theme-accent-on-fill);
+}
+
+#sheet-view-area .sheet-capacity-badge.is-over {
+  background: var(--color-danger, #dc2626);
+  border-color: var(--color-danger, #dc2626);
+  color: var(--color-white);
+}
+
+#cars-container .capacity-badge.capacity-edit-btn:not(.is-over),
+#syncStatusBadge[data-status="local"] .sync-status-dot {
+  border-color: color-mix(in srgb, var(--accent-color) 34%, var(--border-color));
+}
+
+#syncStatusBadge[data-status="local"] .sync-status-dot {
+  background: var(--accent-color);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color) 18%, transparent);
+}
+
+body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action {
+  background: transparent;
+  border: 0;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action,
+body[data-theme="dark"] #app-layout #app-header .header-actions #shareLinkBtn.header-action.share-action {
+  background: transparent;
+  border: 0;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+body[data-theme] #car-plan-switcher.allocation-mode-toggle .car-plan-template-tabs {
+  border: 1px solid color-mix(in srgb, var(--border-color) 78%, transparent);
+  box-shadow: none;
+}
+
+body[data-theme] #car-plan-switcher.allocation-mode-toggle .car-plan-template-chip,
+body[data-theme] #car-plan-switcher.allocation-mode-toggle .car-plan-template-chip.active {
+  border: 0;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] body #car-plan-switcher.allocation-mode-toggle .car-plan-template-chip.active {
+  background: var(--theme-accent-fill);
+  color: var(--theme-accent-on-fill);
+  -webkit-text-fill-color: var(--theme-accent-on-fill);
+}
+
+html[data-theme="dark"] body #car-plan-switcher.allocation-mode-toggle .car-plan-template-chip.active :is(i, span) {
+  color: var(--theme-accent-on-fill);
+  -webkit-text-fill-color: var(--theme-accent-on-fill);
+}
+
+body[data-theme] #seisan-view-area .seisan-title,
+body[data-theme] #overviewDrawer .overview-panel h3,
+body[data-theme] .overview-drawer .overview-panel h3 {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-main);
+  box-shadow: none;
+}
+
+body[data-theme] #seisan-view-area .seisan-title :is(i, span),
+body[data-theme] #seisan-view-area .seisan-title > i {
+  background: transparent;
+  border-color: transparent;
+  color: var(--accent-color);
+  -webkit-text-fill-color: var(--accent-color);
+  box-shadow: none;
+}
+
+body[data-theme] #overviewDrawer .overview-panel h3 :is(i, span),
+body[data-theme] .overview-drawer .overview-panel h3 :is(i, span) {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+
+body[data-theme] #overviewDrawer .overview-panel::before,
+body[data-theme] .overview-drawer .overview-panel::before {
+  display: none;
+}
+
+body[data-theme] #seisan-view-area .seisan-summary-pills span.seisan-setting-pill--primary,
+body[data-theme] #seisan-view-area .seisan-summary-pills span.is-standalone,
+body[data-theme] #seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--primary {
+  background: color-mix(in srgb, var(--bg-card) 88%, var(--accent-color) 6%);
+  border-color: color-mix(in srgb, var(--border-color) 82%, var(--accent-color) 18%);
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+  box-shadow: none;
+}
+
+body[data-theme] #seisan-view-area .seisan-summary-pills span.seisan-setting-pill--primary small,
+body[data-theme] #seisan-view-area .seisan-summary-pills span.is-standalone small,
+body[data-theme] #seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--primary small {
+  color: var(--text-sub);
+  -webkit-text-fill-color: var(--text-sub);
+}
+
+body[data-theme] #bottom-tray-header #shuffleAssignBtn.tray-action-btn,
+body[data-theme] #bottom-tray-header .tray-inline-row .tray-action-btn--auto {
+  background: var(--theme-accent-fill);
+  border-color: var(--theme-accent-fill-border);
+  color: var(--theme-accent-on-fill);
+  -webkit-text-fill-color: var(--theme-accent-on-fill);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-color) 16%, transparent);
+}
+
+body[data-theme] #bottom-tray-header #shuffleAssignBtn.tray-action-btn :is(i, span),
+body[data-theme] #bottom-tray-header .tray-inline-row .tray-action-btn--auto :is(i, span) {
+  color: var(--theme-accent-on-fill);
+  -webkit-text-fill-color: var(--theme-accent-on-fill);
+}
+
+body[data-theme] #bottom-tray-header #shuffleAssignBtn.tray-action-btn:is(:hover, :focus-visible),
+body[data-theme] #bottom-tray-header .tray-inline-row .tray-action-btn--auto:is(:hover, :focus-visible) {
+  background: var(--theme-accent-fill-hover);
+  border-color: var(--theme-accent-fill-hover);
+  color: var(--theme-accent-on-fill);
+  -webkit-text-fill-color: var(--theme-accent-on-fill);
+}
+
+/* Small accent strips make primary cards feel connected to the theme without repainting every surface. */
+#cars-container .car-box,
+#seisan-view-area .seisan-card,
+.sheet-empty-card,
+.overview-drawer .overview-panel {
+  position: relative;
+}
+
+#cars-container .car-box::before,
+#seisan-view-area .seisan-card::before,
+.sheet-empty-card::before,
+.overview-drawer .overview-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: inherit;
+  background: linear-gradient(180deg, var(--accent-color), color-mix(in srgb, var(--accent-color) 42%, transparent));
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+#seisan-view-area .seisan-toolbar-card::before {
+  display: none;
+}
+
+#cars-container .car-box::before,
+#seisan-view-area .seisan-card::before,
+.sheet-empty-card::before,
+.overview-drawer .overview-panel::before {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  #seisan-view-area .seisan-title,
+  .overview-drawer .overview-panel h3,
+  .sheet-summary-plan-label,
+  body[data-theme] .sheet-summary-row.is-team .sheet-summary-plan-label {
+    min-height: 22px;
+    padding: 3px 8px;
+  }
+}
+
+html[data-theme] body #app-layout #view-toggle-bar .view-tab.active,
+html[data-theme] body #app-layout .view-toggle-bar .view-tab.active,
+html[data-theme] body #app-layout #tab-list.view-tab.active,
+html[data-theme] body #app-layout #tab-sheet.view-tab.active,
+html[data-theme] body #app-layout #tab-seisan.view-tab.active {
+  background: transparent !important;
+  border: 0 !important;
+  color: var(--text-main) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme] body #app-layout #view-toggle-bar .view-tab.active :is(i, span),
+html[data-theme] body #app-layout .view-toggle-bar .view-tab.active :is(i, span),
+html[data-theme] body #app-layout #tab-list.view-tab.active :is(i, span),
+html[data-theme] body #app-layout #tab-sheet.view-tab.active :is(i, span),
+html[data-theme] body #app-layout #tab-seisan.view-tab.active :is(i, span) {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+
+html[data-theme] body #app-layout #cars-container .seat-slot > .member-card,
+html[data-theme] body #app-layout #waiting-list .member-card {
+  border-color: color-mix(in srgb, var(--border-color) 70%, var(--text-sub) 16%);
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--text-main) 3%);
+  box-shadow: 0 4px 12px rgba(var(--shadow-rgb), 0.05);
+}
+
+html[data-theme="dark"] body #app-layout #cars-container .seat-slot > .member-card,
+html[data-theme="dark"] body #app-layout #waiting-list .member-card {
+  border-color: rgba(148, 163, 184, 0.22);
+  background: color-mix(in srgb, var(--bg-card) 84%, var(--text-main) 4%);
+  box-shadow: 0 6px 16px rgba(var(--shadow-rgb), 0.14);
+}
+
+html[data-theme] body #app-layout #cars-container .seat-slot > .member-card:hover,
+html[data-theme] body #app-layout #waiting-list .member-card:hover {
+  border-color: color-mix(in srgb, var(--accent-color) 34%, var(--border-color));
+  background: color-mix(in srgb, var(--bg-card) 82%, var(--accent-color) 8%);
+  box-shadow: 0 8px 20px rgba(var(--shadow-rgb), 0.10);
+  transform: translateY(-1px);
+}
+
+html[data-theme] body #app-layout #cars-container .seat-slot > .member-card:active,
+html[data-theme] body #app-layout #cars-container .seat-slot > .member-card.manual-drag-source,
+html[data-theme] body #app-layout #waiting-list .member-card:active,
+html[data-theme] body #app-layout #waiting-list .member-card.manual-drag-source {
+  border-color: color-mix(in srgb, var(--accent-color) 45%, var(--border-color));
+  background: color-mix(in srgb, var(--bg-card) 78%, var(--accent-color) 12%);
+  box-shadow: 0 10px 24px rgba(var(--shadow-rgb), 0.14);
+  transform: scale(0.995);
+}
+
+html[data-theme] body {
+  --app-line-soft: color-mix(in srgb, var(--border-color) 58%, transparent);
+  --app-line-readable: color-mix(in srgb, var(--border-color) 74%, var(--text-sub) 8%);
+  --app-line-strong: color-mix(in srgb, var(--border-color) 66%, var(--text-main) 14%);
+  --app-line-divider: color-mix(in srgb, var(--border-color) 46%, transparent);
+  --app-line-active: color-mix(in srgb, var(--accent-color) 36%, var(--border-color));
+  --hairline: var(--app-line-soft);
+  --ui-saas-border: var(--app-line-readable);
+  --ui-saas-border-strong: var(--app-line-active);
+  --ui-readable-border: var(--app-line-readable);
+  --ui-readable-border-strong: var(--app-line-strong);
+  --ui-panel-border: var(--app-line-readable);
+  --ui-surface-border: var(--app-line-readable);
+  --ui-surface-border-soft: var(--app-line-soft);
+  --ui-surface-border-inner: var(--app-line-divider);
+  --ui-unified-divider: var(--app-line-divider);
+  --control-border: var(--app-line-readable);
+  --control-border-strong: var(--app-line-active);
+}
+
+html[data-theme="dark"] body {
+  --app-line-soft: rgba(148, 163, 184, 0.15);
+  --app-line-readable: rgba(148, 163, 184, 0.22);
+  --app-line-strong: rgba(148, 163, 184, 0.34);
+  --app-line-divider: rgba(148, 163, 184, 0.12);
+  --app-line-active: color-mix(in srgb, var(--accent-color) 38%, rgba(148, 163, 184, 0.24));
+}
+
+html[data-theme] body #app-layout :where(
+  .ui-toolbar-card,
+  .car-box,
+  .driver-seat,
+  .seat-slot,
+  .member-card,
+  .waiting-tray,
+  .sheet-summary-card,
+  .sheet-car-col,
+  .sheet-wait-block,
+  .sheet-timetable,
+  .seisan-card,
+  .seisan-panel,
+  .seisan-car-summary-row,
+  .seisan-car-summary-headline,
+  .seisan-check-item,
+  .seisan-driver-pay-row,
+  .overview-drawer,
+  .overview-panel,
+  .modal-content,
+  .guide-feature-card,
+  .batch-import-help-details
+) {
+  border-color: var(--app-line-readable);
+}
+
+html[data-theme] body #app-layout :where(
+  .car-header,
+  .seisan-head,
+  .seisan-compact-head,
+  .modal-header,
+  .modal-footer,
+  .overview-drawer-head,
+  .overview-panel-title-row,
+  #bottom-tray-header,
+  .sheet-car-header,
+  .sheet-wait-header,
+  .sheet-timetable-row,
+  .seisan-subhead
+) {
+  border-color: var(--app-line-divider);
+}
+
+html[data-theme] body #app-layout :where(
+  input,
+  textarea,
+  select,
+  .form-control,
+  .form-select,
+  .tool-btn,
+  .seisan-btn,
+  .tray-action-btn,
+  .member-menu-btn,
+  .driver-menu-btn,
+  .overview-add-btn,
+  .overview-copy-action,
+  .batch-spreadsheet-button
+):not(.active):not(.primary):not(.btn-primary):not(.tray-action-btn--auto) {
+  border-color: var(--control-border);
+}
+
+html[data-theme] body #app-layout :where(
+  input,
+  textarea,
+  select,
+  .form-control,
+  .form-select,
+  .tool-btn,
+  .seisan-btn,
+  .tray-action-btn,
+  .overview-add-btn,
+  .overview-copy-action
+):focus-visible {
+  border-color: var(--control-border-strong);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 16%, transparent);
+}
+
+html[data-theme] body #app-layout #seisan-view-area :where(
+  .seisan-card,
+  .seisan-toolbar-card,
+  .seisan-settings-card,
+  .seisan-panel,
+  .seisan-car-summary-row,
+  .seisan-car-summary-headline,
+  .seisan-cost-preview-item,
+  .seisan-check-item,
+  .seisan-driver-pay-row,
+  .seisan-summary-pills span,
+  .seisan-field input,
+  .seisan-field select,
+  .seisan-extra-row input,
+  .seisan-extra-row select
+) {
+  border-color: var(--app-line-readable) !important;
+}
+
+html[data-theme] body #app-layout #seisan-view-area :where(
+  .seisan-head,
+  .seisan-compact-head,
+  .seisan-subhead,
+  .seisan-cost-total-row,
+  .seisan-car-summary-payment
+) {
+  border-color: var(--app-line-divider) !important;
+}
+
+html[data-theme] body #app-layout #seisan-view-area :where(
+  .seisan-summary-card.collect,
+  .seisan-summary-card.accounting,
+  .seisan-summary-card.pay,
+  .seisan-cost-policy-tag,
+  .seisan-cost-type-badge,
+  .seisan-payment-tag
+) {
+  border-color: revert-layer;
+}
+
+html[data-theme="dark"] body #app-layout #seisan-view-area :where(
+  .seisan-card,
+  .seisan-toolbar-card,
+  .seisan-settings-card,
+  .seisan-panel,
+  .seisan-car-summary-row
+) {
+  border-color: var(--app-line-soft) !important;
+  background-color: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
+}
+
+html[data-theme="dark"] body #app-layout #seisan-view-area :where(
+  .seisan-car-summary-headline,
+  .seisan-cost-preview-item,
+  .seisan-check-item,
+  .seisan-driver-pay-row,
+  .seisan-summary-pills span,
+  .seisan-field input,
+  .seisan-field select,
+  .seisan-extra-row input,
+  .seisan-extra-row select
+) {
+  border-color: var(--app-line-divider) !important;
+}
+
+html[data-theme] body #app-layout #cars-container .capacity-badge.capacity-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 62px;
+  min-height: 32px;
+  height: 32px;
+  padding-inline: 11px;
+  border: 0;
+  gap: 9px;
+  font-size: 0.9rem;
+}
+
+html[data-theme] body #app-layout #cars-container .capacity-badge.capacity-edit-btn .capacity-count {
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+html[data-theme] body #app-layout #cars-container .capacity-badge.capacity-edit-btn > i,
+html[data-theme] body #app-layout #cars-container .capacity-badge.capacity-edit-btn .fa-pen {
+  margin-left: 0;
+  font-size: 0.9rem;
+}
+
+html[data-theme] body #app-layout #cars-container :where(
+  .car-return-btn,
+  .car-delete-btn,
+  .member-menu-btn,
+  .driver-menu-btn
+) {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+html[data-theme] body #app-layout #cars-container :where(
+  .car-return-btn,
+  .car-delete-btn,
+  .member-menu-btn,
+  .driver-menu-btn
+):hover {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: var(--text-main);
+}
+
+html[data-theme] body #app-layout #cars-container :where(
+  .member-card .memo-popup,
+  .driver-seat .memo-popup,
+  .driver-memo-text
+) {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
