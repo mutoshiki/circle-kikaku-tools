@@ -529,8 +529,15 @@ html[data-theme] body #app-layout #cars-container .capacity-badge.capacity-edit-
   height: 32px;
   padding-inline: 11px;
   border: 0;
+  background: transparent;
+  box-shadow: none;
   gap: 9px;
   font-size: 0.9rem;
+}
+
+html[data-theme] body #app-layout #cars-container .capacity-badge.capacity-edit-btn:is(:hover, :focus-visible) {
+  background: transparent;
+  box-shadow: none;
 }
 
 html[data-theme] body #app-layout #cars-container .capacity-badge.capacity-edit-btn .capacity-count {
@@ -576,4 +583,64 @@ html[data-theme] body #app-layout #cars-container :where(
   border: 0;
   box-shadow: none;
   padding: 0;
+}
+
+html[data-theme] body #app-layout #cars-container .car-box {
+  padding: 10px 12px 8px;
+}
+
+html[data-theme] body #app-layout #cars-container .car-header {
+  min-height: 30px;
+  padding-bottom: 5px;
+  margin-bottom: 7px;
+}
+
+html[data-theme] body #app-layout #cars-container .car-layout-grid {
+  gap: 6px;
+}
+
+html[data-theme] body #app-layout #cars-container :where(.driver-seat, .seat-slot > .member-card) {
+  min-height: 58px;
+  padding-block: 5px;
+}
+
+html[data-theme] body #app-layout #cars-container .member-card {
+  gap: 3px;
+}
+
+html[data-theme] body #app-layout #cars-container :where(.member-main-line, .driver-main-line) {
+  min-height: 22px;
+}
+
+html[data-theme] body #app-layout #cars-container :where(.member-card .memo-popup, .driver-seat .memo-popup, .driver-memo-text) {
+  margin-top: 0;
+  line-height: 1.08;
+}
+
+html[data-theme] body #app-layout #cars-container .seat-slot {
+  min-height: 58px;
+}
+
+html[data-theme] body #app-layout #top-area .edit-header.edit-header-tools-only,
+html[data-theme] body #app-layout #top-area .allocation-toolbar {
+  min-height: 0;
+  padding: 8px 10px;
+  gap: 8px;
+}
+
+html[data-theme] body #app-layout #top-area :where(.tool-btn, .car-plan-template-chip, .car-plan-template-tabs) {
+  min-height: 34px;
+  height: 34px;
+}
+
+html[data-theme] body #app-layout #top-area .tool-btn {
+  padding-inline: 12px;
+}
+
+html[data-theme] body #app-layout #top-area .car-plan-template-chip {
+  padding-inline: 10px;
+}
+
+html[data-theme] body #app-layout #top-area .car-plan-template-tabs {
+  padding: 3px;
 }
