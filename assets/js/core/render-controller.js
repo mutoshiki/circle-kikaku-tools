@@ -154,7 +154,7 @@ function renderListEmptyHint() {
     const createText = template.type === 'team' ? '新しい班を作成します' : '新しい車を作成します';
     const html = waitingCount > 0
         ? `<div class="col-12" id="list-empty-hint"><div class="drop-create-lane empty-card--drop-create"><i class="fas ${template.ownerIcon || 'fa-car'}" aria-hidden="true"></i><strong>${ownerText}</strong><span>${createText}</span></div></div>`
-        : `<div class="col-12" id="list-empty-hint"><div class="empty-card"><i class="fas fa-plus" aria-hidden="true"></i><strong>参加者登録</strong><span>名簿を読み込むと、${template.sectionTitle}を作れます。</span><button class="seisan-btn primary" type="button" data-action="open-batch">参加者登録を開く</button></div></div>`;
+        : `<div class="col-12" id="list-empty-hint"><div class="empty-card app-empty-card"><i class="fas fa-plus" aria-hidden="true"></i><strong>参加者登録</strong><span class="empty-card-text">名簿を読み込むと、${template.sectionTitle}を作れます。</span><div class="app-empty-actions"><button class="seisan-btn primary" type="button" data-action="open-batch">参加者登録を開く</button></div></div></div>`;
 
     if (!existing) {
         container.insertAdjacentHTML('afterbegin', html);

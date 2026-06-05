@@ -32,6 +32,16 @@
   min-width: 0;
 }
 
+#cars-container :where(.car-box, .team-box) {
+  border-color: var(--app-border-soft);
+  box-shadow: none;
+  outline: 0;
+}
+
+#cars-container .car-header {
+  border-color: var(--app-divider-soft);
+}
+
 .car-box > .d-flex:first-child,
 .car-box .car-box-head,
 .car-box .car-head,

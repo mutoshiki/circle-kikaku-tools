@@ -1,4 +1,3 @@
-/* Moved from assets/css/sheet-view/04-quick-edit.css; source-order chunk 1/2. */
 /* Sheet view quick edit visual states.
    CSS architecture cleanup: keep this file focused on the responsibility in its name. */
 .quick-edit-mode #sheet-view-area .sheet-seat-row:not(.sheet-label-row):not(.sheet-seat-disabled),
@@ -190,7 +189,7 @@ html[data-theme="dark"] #sheet-quick-edit-btn.active {
   color: var(--theme-filled-control-text);
   -webkit-text-fill-color: var(--theme-filled-control-text);
 }
-/* 発表ビューは車割を上、班割を下に縦並びで表示する。 */
+/* 発表ビューは車割を上、班割を下に縦並びで表示する、E*/
 /* sheet summary: compact two-line car/team counts */
 /* Sheet edit mode: keep waiting members compact, readable, and editable. */
 body.quick-edit-mode #sheet-view-area .sheet-waiting-list {

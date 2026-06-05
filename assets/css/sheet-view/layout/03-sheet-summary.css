@@ -1,4 +1,3 @@
-/* Moved from assets/css/sheet-view/01-sheet-layout.css; source-order chunk 3/4. */
 .sheet-summary-row::-webkit-scrollbar {
     display: none;
 }
@@ -14,7 +13,6 @@
   opacity: 1;
 }
 /* =========================================================
-   Sheet/presentation view rules moved from 08-control-consistency.css
 ========================================================= */
 #app-header,
 #sheet-title-bar,

@@ -1,4 +1,3 @@
-/* Moved from assets/css/app-shell/01-layout-core.css; source-order chunk 2/3. */
 @media (max-width: 520px) {
 .edit-tools {
 grid-template-columns: repeat(5, minmax(0, 1fr));

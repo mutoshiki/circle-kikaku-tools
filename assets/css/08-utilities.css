@@ -1,5 +1,5 @@
 /* Generic utility helpers only.
-   Feature styling, design tokens, and late repair rules have owners elsewhere. */
+   Feature styling and design tokens have owners elsewhere. */
 [hidden],
 .is-hidden {
   display: none;

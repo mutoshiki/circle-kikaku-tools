@@ -1,4 +1,3 @@
-/* Moved from assets/css/guides-modals/07-overview-drawer.css; source-order chunk 1/2. */
 /* Overview drawer and overview menu rules.
    CSS architecture cleanup: keep this file focused on the responsibility in its name. */
 #overviewDrawerScrim.overview-drawer-scrim {
@@ -24,6 +23,8 @@
   box-shadow: -26px 0 46px rgba(var(--shadow-rgb), 0.2);
   transform: translateX(104%);
   transition: transform 0.24s ease;
+  border-color: var(--app-border-soft, var(--border-color));
+  outline: 0;
 }
 #overviewDrawer.overview-drawer.is-open {
   transform: translateX(0);
@@ -118,6 +119,7 @@
   gap: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid color-mix(in srgb, var(--border-color) 76%, transparent);
+  border-color: var(--app-divider-soft, var(--border-color));
 }
 .overview-drawer h2,
 .overview-panel h3 {
@@ -148,6 +150,9 @@
 .overview-panel {
   display: grid;
   gap: 10px;
+}
+.overview-panel-title-row {
+  border-color: var(--app-divider-soft, var(--border-color));
 }
 .overview-panel h3 {
   font-size: 0.9rem;

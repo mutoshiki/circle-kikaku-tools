@@ -1,6 +1,9 @@
-/* Moved from assets/css/cars-members-tray/03-person-card.css; source-order chunk 3/4. */
 [data-theme="dark"] .person-pop-menu {
-background: var(--modal-bg); border-color: var(--border-color);
+background: var(--modal-bg); border-color: var(--app-border-soft, var(--border-color));
+}
+.person-pop-menu {
+border-color: var(--app-border-soft, var(--border-color));
+outline: 0;
 }
 @media (max-width: 640px) {
 .member-card,

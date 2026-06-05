@@ -1,6 +1,4 @@
-/* Moved from assets/css/cars-members-tray/05-drag-drop.css; source-order chunk 1/2. */
 /* Manual drag/drop, return previews, drop highlighting.
-   Generated during S-1/S-2 responsibility split. */
 .seat-slot.shift-target::after,
 .seat-slot.swap-origin::after,
 .seat-slot.drop-preview::after,
@@ -13,17 +11,17 @@ content: "ここへ";
     color: var(--color-white);
 }
 .seat-slot.shift-target::after {
-content: "ずらす";
+content: "ずらぁE;
     background: var(--color-info);
     color: var(--color-white);
 }
 .seat-slot.swap-origin::after {
-content: "戻り先";
+content: "戻り�E";
     background: var(--accent-color);
     color: var(--color-white);
 }
 .seat-slot.escape-target::after {
-content: "移動先";
+content: "移動�E";
     background: var(--color-info);
     color: var(--color-white);
 }

@@ -1,8 +1,16 @@
-/* Moved from assets/css/guides-modals/05-import-guide.css; source-order chunk 1/4. */
 /* Google Forms import guide and mock UI rules.
    CSS architecture cleanup: keep this file focused on the responsibility in its name. */
 .batch-label-muted {
 color: var(--text-sub);
+}
+.batch-spreadsheet-import {
+  border: 1px solid var(--ui-saas-border, var(--border-color));
+  border-radius: var(--radius-lg);
+  background: var(--ui-saas-panel, var(--bg-card));
+  box-shadow: var(--ui-saas-shadow-soft, none);
+}
+.batch-import-help-details {
+  border-color: var(--app-divider-soft, var(--border-color));
 }
 #batchImportModal .modal-dialog,
 #routeDistanceModal .modal-dialog,

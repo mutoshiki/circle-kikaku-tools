@@ -1,4 +1,3 @@
-/* Moved from assets/css/settlement/10-dark-surfaces.css; source-order chunk 1/3. */
 /* Settlement dark-mode surface/readability overrides.
    CSS architecture cleanup: keep this file focused on the responsibility in its name. */
 [data-theme="dark"] .seisan-driver-pay-row.done {

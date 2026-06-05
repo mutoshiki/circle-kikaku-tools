@@ -1,4 +1,3 @@
-/* Moved from assets/css/settlement/02-common-controls.css; source-order chunk 1/4. */
 .seisan-icon-btn {
 min-width: 34px;
     height: 37px;
@@ -135,7 +134,7 @@ font-size: 0.72rem;
 line-height: 1.18;
 }
 .seisan-extra-row .seisan-icon-btn i::before {
-content: "Ôã≠";
+content: "ÅE≠";
     font-family: "Font Awesome 6 Free";
     font-weight: 500;
 }

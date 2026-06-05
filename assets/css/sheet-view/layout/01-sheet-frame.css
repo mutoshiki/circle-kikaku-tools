@@ -1,4 +1,3 @@
-/* Moved from assets/css/sheet-view/01-sheet-layout.css; source-order chunk 1/4. */
 /* Sheet view base layout and car columns.
    CSS architecture cleanup: keep this file focused on the responsibility in its name. */
 #sheet-view-area.active {
@@ -90,6 +89,28 @@ gap: 6px;
   flex-shrink: 0;
   background: var(--bg-card);
 }
+
+#sheet-title-bar,
+#sheet-bottom-controls,
+.sheet-empty-card,
+.sheet-car-col,
+.sheet-wait-block {
+  border-color: var(--app-border-soft);
+  outline: 0;
+}
+
+.sheet-car-header,
+.sheet-wait-header {
+  border-color: var(--app-divider-soft);
+}
+
+.sheet-driver-row,
+.sheet-seat-row,
+.sheet-wait-item {
+  border-color: var(--app-border-subtle);
+  outline: 0;
+}
+
 #sheet-title-bar > .debug-tap-target {
 color: var(--accent-color);
 }

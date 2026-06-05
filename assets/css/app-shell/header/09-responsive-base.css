@@ -1,5 +1,4 @@
-/* Moved from assets/css/app-shell/05-header-mobile-responsive.css; source-order chunk 1/4. */
-/* Mobile app header responsive refinements. */
+/* Mobile app header responsive rules. */
 @media (max-width: 640px) {
 .edit-header-tools-only.allocation-toolbar .tool-btn,
   .edit-header-tools-only.allocation-toolbar .edit-tools .tool-btn {

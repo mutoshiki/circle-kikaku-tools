@@ -303,10 +303,10 @@ html[data-theme] body #app-layout .view-toggle-bar .view-tab.active,
 html[data-theme] body #app-layout #tab-list.view-tab.active,
 html[data-theme] body #app-layout #tab-sheet.view-tab.active,
 html[data-theme] body #app-layout #tab-seisan.view-tab.active {
-  background: transparent !important;
-  border: 0 !important;
-  color: var(--text-main) !important;
-  box-shadow: none !important;
+  background: transparent;
+  border: 0;
+  color: var(--text-main);
+  box-shadow: none;
 }
 
 html[data-theme] body #app-layout #view-toggle-bar .view-tab.active :is(i, span),
@@ -351,11 +351,11 @@ html[data-theme] body #app-layout #waiting-list .member-card.manual-drag-source 
 }
 
 html[data-theme] body {
-  --app-line-soft: color-mix(in srgb, var(--border-color) 58%, transparent);
-  --app-line-readable: color-mix(in srgb, var(--border-color) 74%, var(--text-sub) 8%);
-  --app-line-strong: color-mix(in srgb, var(--border-color) 66%, var(--text-main) 14%);
-  --app-line-divider: color-mix(in srgb, var(--border-color) 46%, transparent);
-  --app-line-active: color-mix(in srgb, var(--accent-color) 36%, var(--border-color));
+  --app-line-soft: var(--app-border-subtle, color-mix(in srgb, var(--border-color) 30%, transparent));
+  --app-line-readable: var(--app-border-soft, color-mix(in srgb, var(--border-color) 46%, transparent));
+  --app-line-strong: var(--ui-readable-border-strong, color-mix(in srgb, var(--border-color) 62%, var(--text-sub) 4%));
+  --app-line-divider: var(--app-divider-soft, color-mix(in srgb, var(--border-color) 34%, transparent));
+  --app-line-active: color-mix(in srgb, var(--accent-color) 20%, var(--border-color));
   --hairline: var(--app-line-soft);
   --ui-saas-border: var(--app-line-readable);
   --ui-saas-border-strong: var(--app-line-active);
@@ -366,16 +366,16 @@ html[data-theme] body {
   --ui-surface-border-soft: var(--app-line-soft);
   --ui-surface-border-inner: var(--app-line-divider);
   --ui-unified-divider: var(--app-line-divider);
-  --control-border: var(--app-line-readable);
+  --control-border: var(--app-line-soft);
   --control-border-strong: var(--app-line-active);
 }
 
 html[data-theme="dark"] body {
-  --app-line-soft: rgba(148, 163, 184, 0.15);
-  --app-line-readable: rgba(148, 163, 184, 0.22);
-  --app-line-strong: rgba(148, 163, 184, 0.34);
-  --app-line-divider: rgba(148, 163, 184, 0.12);
-  --app-line-active: color-mix(in srgb, var(--accent-color) 38%, rgba(148, 163, 184, 0.24));
+  --app-line-soft: rgba(148, 163, 184, 0.10);
+  --app-line-readable: rgba(148, 163, 184, 0.14);
+  --app-line-strong: rgba(148, 163, 184, 0.22);
+  --app-line-divider: rgba(148, 163, 184, 0.09);
+  --app-line-active: color-mix(in srgb, var(--accent-color) 24%, rgba(148, 163, 184, 0.16));
 }
 
 html[data-theme] body #app-layout :where(
@@ -402,6 +402,7 @@ html[data-theme] body #app-layout :where(
   .batch-import-help-details
 ) {
   border-color: var(--app-line-readable);
+  box-shadow: none;
 }
 
 html[data-theme] body #app-layout :where(
@@ -471,7 +472,7 @@ html[data-theme] body #app-layout #seisan-view-area :where(
   .seisan-extra-row input,
   .seisan-extra-row select
 ) {
-  border-color: var(--app-line-readable) !important;
+  border-color: var(--app-line-readable);
 }
 
 html[data-theme] body #app-layout #seisan-view-area :where(
@@ -481,7 +482,7 @@ html[data-theme] body #app-layout #seisan-view-area :where(
   .seisan-cost-total-row,
   .seisan-car-summary-payment
 ) {
-  border-color: var(--app-line-divider) !important;
+  border-color: var(--app-line-divider);
 }
 
 html[data-theme] body #app-layout #seisan-view-area :where(
@@ -502,7 +503,7 @@ html[data-theme="dark"] body #app-layout #seisan-view-area :where(
   .seisan-panel,
   .seisan-car-summary-row
 ) {
-  border-color: var(--app-line-soft) !important;
+  border-color: var(--app-line-soft);
   background-color: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
 }
 
@@ -517,7 +518,7 @@ html[data-theme="dark"] body #app-layout #seisan-view-area :where(
   .seisan-extra-row input,
   .seisan-extra-row select
 ) {
-  border-color: var(--app-line-divider) !important;
+  border-color: var(--app-line-divider);
 }
 
 html[data-theme] body #app-layout #cars-container .capacity-badge.capacity-edit-btn {

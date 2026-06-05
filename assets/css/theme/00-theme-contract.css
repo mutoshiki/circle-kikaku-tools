@@ -1,4 +1,6 @@
-/* Theme palette contract. */
+/* Theme palette contract.
+   This is the source of truth for palette values. Semantic app tokens are mapped
+   from these variables in 01-theme-tokens.css. */
 :root,
 html[data-app-theme="single"],
 body[data-app-theme="single"],
@@ -6,20 +8,20 @@ html[data-app-theme="single"] body,
 html[data-app-theme="standard"],
 body[data-app-theme="standard"],
 html[data-app-theme="standard"] body {
-  --theme-light-bg-body: #f3f6fb;
+  --theme-light-bg-body: #f7f9fc;
   --theme-light-text-main: #111827;
   --theme-light-text-sub: #526071;
   --theme-light-bg-card: #ffffff;
-  --theme-light-border-color: #cbd5e1;
+  --theme-light-border-color: #e4e8f0;
   --theme-light-accent: #305CDE;
   --theme-light-accent-soft: #e6edff;
   --theme-light-preview-header-bg: #305CDE;
   --theme-light-preview-header-text: #ffffff;
   --theme-light-preview-header-border: #244cc5;
   --theme-light-app-surface: rgba(255, 255, 255, 0.97);
-  --theme-light-sheet-header: #f7f9fc;
-  --theme-light-sheet-grid: #cbd5e1;
-  --theme-light-hover-bg: #eef3f8;
+  --theme-light-sheet-header: #f9fafb;
+  --theme-light-sheet-grid: #e6eaf2;
+  --theme-light-hover-bg: #f2f5f9;
   --theme-light-driver-bg: #f8fafc;
   --theme-light-seat-bg: #f1f5f9;
   --theme-light-seat-slot-bg: #ffffff;
@@ -31,15 +33,15 @@ html[data-app-theme="standard"] body {
   --theme-dark-text-main: #f8fafc;
   --theme-dark-text-sub: #b0b9ca;
   --theme-dark-bg-card: #111827;
-  --theme-dark-border-color: #334155;
+  --theme-dark-border-color: rgba(148, 163, 184, 0.16);
   --theme-dark-accent: #8ab4ff;
   --theme-dark-accent-soft: rgba(138, 180, 255, 0.18);
   --theme-dark-preview-header-bg: #0f172a;
   --theme-dark-preview-header-text: #f8fafc;
-  --theme-dark-preview-header-border: #334155;
+  --theme-dark-preview-header-border: rgba(148, 163, 184, 0.16);
   --theme-dark-app-surface: rgba(17, 24, 39, 0.94);
   --theme-dark-sheet-header: #0f172a;
-  --theme-dark-sheet-grid: #334155;
+  --theme-dark-sheet-grid: rgba(148, 163, 184, 0.14);
   --theme-dark-hover-bg: #1b2740;
   --theme-dark-driver-bg: #0f172a;
   --theme-dark-seat-bg: #121c2f;

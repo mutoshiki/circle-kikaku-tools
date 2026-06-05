@@ -1,9 +1,8 @@
-/* Moved from assets/css/cars-members-tray/05-drag-drop.css; source-order chunk 2/2. */
 #cars-container.car-create-drop-target {
 position: relative;
 }
 #cars-container.car-create-drop-target::after {
-content: "ドロップで車を作成";
+content: "ドロチE�Eで車を作�E";
 flex: 0 0 100%;
 max-width: 100%;
 min-height: 76px;
@@ -20,7 +19,7 @@ letter-spacing: 0.02em;
 pointer-events: none;
 }
 #cars-container.car-create-drop-target[data-drop-kind="team"]::after {
-content: "ドロップで班を作成";
+content: "ドロチE�Eで班を作�E";
 }
 @supports not (background: color-mix(in srgb, white, black)) {
 #cars-container.car-create-drop-target::after {

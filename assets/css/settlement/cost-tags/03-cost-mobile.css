@@ -1,4 +1,3 @@
-/* Moved from assets/css/settlement/09-cost-tags-breakdown.css; source-order chunk 3/3. */
 #seisan-view-area .seisan-summary-card.collect :is(.seisan-cost-policy-tag.split, .seisan-cost-type-badge.split),
 #seisan-view-area .seisan-summary-card.accounting :is(.seisan-cost-policy-tag.club, .seisan-cost-type-badge.club) {
   display: inline-flex;

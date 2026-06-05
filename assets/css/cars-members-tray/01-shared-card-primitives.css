@@ -1,5 +1,4 @@
 /* Shared member/driver/seat primitives used by both car and tray cards.
-   Generated during S-1/S-2 responsibility split. */
 
 .card-bottom-row {
 display: none;
@@ -110,6 +109,17 @@ background: transparent;
 .card,
 .waiting-tray {
 border-radius: var(--radius-main);
+}
+
+#cars-container :where(.member-card, .driver-seat, .seat-slot),
+#waiting-list .member-card {
+  border-color: var(--app-border-subtle);
+  box-shadow: none;
+  outline: 0;
+}
+
+#cars-container .driver-seat {
+  border-left-color: var(--app-border-subtle);
 }
 
 .gender-badge {

@@ -1,4 +1,3 @@
-/* Moved from assets/css/settlement/02-summary-cards.css; source-order chunk 3/6. */
 #seisan-view-area :is(.seisan-summary-card.collect, .settlement-cost-surface.split) {
   background: color-mix(in srgb, var(--settlement-split-bg) 78%, var(--bg-card));
   border-color: var(--settlement-split-line);

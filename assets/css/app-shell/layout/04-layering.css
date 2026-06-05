@@ -1,11 +1,13 @@
 /* =========================================================
-   Dropdown layer repair
+   Dropdown layering
    Header/tray menus must stay above car-allocation cards.
 ========================================================= */
 #app-layout #app-header {
   position: relative;
   z-index: var(--z-header);
   overflow: visible;
+  border-color: var(--app-border-soft, var(--border-color));
+  outline: 0;
 }
 
 #app-layout #app-header .app-header-main,

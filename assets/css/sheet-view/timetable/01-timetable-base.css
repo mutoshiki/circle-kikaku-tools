@@ -1,4 +1,3 @@
-/* Moved from assets/css/sheet-view/03-timetable.css; source-order chunk 1/2. */
 /* Sheet view timetable and plan table.
    CSS architecture cleanup: keep this file focused on the responsibility in its name. */
 .sheet-plan-table .sheet-car-col:last-child {
@@ -156,7 +155,7 @@
     top: 76px;
   }
 }
-/* 2026-05 発表ビュー: 車割・班割の下にタイムテーブルを表示する。 */
+/* Presentation view shows the timetable below car/team assignment. */
 .sheet-timetable-section {
     width: min(var(--sheet-plan-content-width, 560px), 720px);
     min-width: min(320px, calc(100vw - 28px));

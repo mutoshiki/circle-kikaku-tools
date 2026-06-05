@@ -5,7 +5,7 @@
   const parts = window.SanpoApp?.settlementTemplateParts || {};
 
   function emptyState() {
-    return `<div class="empty-card">
+    return `<div class="empty-card app-empty-card">
             <i class="fas fa-calculator" aria-hidden="true"></i>
             <strong>まずは参加者登録から</strong>
             <div class="seisan-empty-actions">

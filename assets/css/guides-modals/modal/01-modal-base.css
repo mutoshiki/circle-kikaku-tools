@@ -1,11 +1,8 @@
-/* Moved from assets/css/guides-modals/01-modal-dropdown-base.css; source-order chunk 1/2. */
 /* 01-modal-dropdown-base.css
    Split from assets/css/guides-modals/01-guides-modals-owner.css so this component has a smaller owner file. */
 /* =========================================================
    03-guides-modals.css
    Guides, Bootstrap modals, dropdowns, import/history/debug modal surfaces.
-   S2 owner cleanup: rules were regrouped by selector responsibility.
-   Do not add late override dumps; keep future edits in this owner.
 ========================================================= */
 [data-theme="dark"] .dropdown-menu {
 background-color: var(--modal-bg); border-color: var(--border-color);
@@ -26,17 +23,18 @@ border-top-color: var(--border-color);
 margin-bottom: 8px;
 }
 .modal-content {
-background-color: var(--modal-bg); color: var(--text-main); border-color: var(--border-color); border-radius: max(var(--radius-main), 18px); box-shadow: var(--shadow-float); overflow: hidden;
+background-color: var(--modal-bg); color: var(--text-main); border-color: var(--app-border-soft, var(--border-color)); border-radius: max(var(--radius-main), 18px); box-shadow: var(--shadow-float); overflow: hidden; outline: 0;
 }
 .modal-body {
   padding: 16px;
 }
 .dropdown-menu {
 background: var(--bg-card);
-            border-color: var(--border-color);
+            border-color: var(--app-border-soft, var(--border-color));
             border-radius: var(--radius-main);
             box-shadow: var(--shadow-float);
             padding: 6px;
+            outline: 0;
 }
 .dropdown-item {
 border-radius: var(--radius-sm);
@@ -52,7 +50,7 @@ background: var(--hover-bg);
 .modal-header,
 .modal-footer {
 background: var(--modal-header-bg);
-            border-color: var(--border-color);
+            border-color: var(--app-divider-soft, var(--border-color));
 }
 .modal-header {
   background-color: var(--modal-header-bg);

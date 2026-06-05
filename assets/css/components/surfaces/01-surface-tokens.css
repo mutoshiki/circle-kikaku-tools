@@ -1,16 +1,15 @@
-/* Moved from assets/css/components/surfaces/*; source-order chunk 1/1. */
 /* Site-wide surface hierarchy.
    Purpose: one quiet rule for borders so individual feature CSS does not keep adding outlines.
    Outer cards may have a subtle edge; inner rows should mostly rely on spacing and background. */
 :root,
 body[data-theme="light"],
 html[data-theme="light"] body {
-  --ui-surface-border: color-mix(in srgb, var(--border-color) 42%, transparent);
-  --ui-surface-border-soft: color-mix(in srgb, var(--border-color) 24%, transparent);
-  --ui-surface-border-inner: color-mix(in srgb, var(--border-color) 16%, transparent);
+  --ui-surface-border: color-mix(in srgb, var(--border-color) 34%, transparent);
+  --ui-surface-border-soft: color-mix(in srgb, var(--border-color) 18%, transparent);
+  --ui-surface-border-inner: color-mix(in srgb, var(--border-color) 12%, transparent);
   --ui-surface-bg: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
   --ui-surface-bg-inner: color-mix(in srgb, var(--bg-card) 68%, var(--bg-body));
-  --ui-surface-shadow: 0 1px 2px color-mix(in srgb, var(--color-black) 5%, transparent);
+  --ui-surface-shadow: none;
 }
 body[data-theme="dark"],
 html[data-theme="dark"] body {
@@ -19,7 +18,7 @@ html[data-theme="dark"] body {
   --ui-surface-border-inner: color-mix(in srgb, var(--border-color) 14%, transparent);
   --ui-surface-bg: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
   --ui-surface-bg-inner: color-mix(in srgb, var(--bg-card) 74%, var(--color-night));
-  --ui-surface-shadow: 0 1px 0 color-mix(in srgb, var(--color-white) 3%, transparent), 0 14px 30px color-mix(in srgb, var(--color-black) 18%, transparent);
+  --ui-surface-shadow: none;
 }
 :is(
   .member-card,
@@ -90,7 +89,6 @@ html[data-theme="dark"] body {
 :is(.active, .selected, .has-error, .drop-target-active) {
   border-color: revert-layer;
 }
-/* Moved from settlement/05-checklists-share.css: neutral card/row backgrounds are managed here. */
 :is(.driver-seat, .seat-slot, .seisan-check-item, .seisan-driver-pay-row) {
   background: var(--ui-surface-bg-inner);
 }

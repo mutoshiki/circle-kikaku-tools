@@ -1,4 +1,3 @@
-/* Moved from assets/css/settlement/02-summary-cards.css; source-order chunk 4/6. */
 @media (max-width: 640px) {
 #seisan-view-area {
     padding: 8px 10px 22px;
@@ -180,6 +179,7 @@
   background: color-mix(in srgb, var(--bg-card) 78%, var(--bg-body));
   box-shadow: none;
   border-color: var(--ui-saas-border);
+  outline: 0;
   font-size: 0.68rem;
   font-weight: 500;
 }

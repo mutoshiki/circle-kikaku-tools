@@ -1,4 +1,3 @@
-/* Moved from assets/css/guides-modals/04-dialog-layout.css; source-order chunk 2/2. */
 @media (max-width: 640px) {
 .header-more .dropdown-toggle {
 min-height: 39px;
@@ -146,7 +145,6 @@ padding-inline: 9px;
     }
 }
 /* =========================================================
-   Guide, modal and drawer rules moved from 08-control-consistency.css
 ========================================================= */
 #carGuideBtn.tool-btn {
   color: var(--text-main);
