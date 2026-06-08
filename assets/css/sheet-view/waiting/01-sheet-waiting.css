@@ -148,7 +148,7 @@ color: var(--text-sub);
 }
 #sheet-view-area .sheet-seat-row,
 #sheet-view-area .sheet-wait-item {
-  background: var(--bg-card);
+  background: var(--ui-surface-bg-inner);
 }
 #sheet-view-area .sheet-driver-row:not(.sheet-label-row),
 #sheet-view-area .sheet-seat-row:not(.sheet-label-row):not(.empty):not(.sheet-seat-disabled),

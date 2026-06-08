@@ -128,13 +128,21 @@
   width: 1.25em;
 }
 #seisan-view-area .seisan-alert-row.is-guidance {
-  color: color-mix(in srgb, var(--text-sub) 92%, var(--text-main));
-}
-#seisan-view-area .seisan-alert-row.is-error {
+  border-color: color-mix(in srgb, var(--color-danger) 24%, var(--border-color));
+  background: color-mix(in srgb, var(--color-danger) 5%, var(--bg-card));
+  color: color-mix(in srgb, var(--color-danger-deep) 72%, var(--text-main));
   font-weight: 600;
 }
+#seisan-view-area .seisan-alert-row.is-error {
+  border-color: color-mix(in srgb, var(--color-danger) 42%, var(--border-color));
+  background: color-mix(in srgb, var(--color-danger) 10%, var(--bg-card));
+  color: var(--color-danger-deep);
+  font-weight: 650;
+}
 [data-theme="dark"] #seisan-view-area .seisan-alert-row.is-guidance {
-  color: var(--palette-slate-300);
+  color: var(--palette-red-200);
+  background: rgba(127, 29, 29, 0.20);
+  border-color: rgba(248, 113, 113, 0.36);
 }
 #seisan-view-area .seisan-car-panel .seisan-head {
   margin-bottom: 7px;

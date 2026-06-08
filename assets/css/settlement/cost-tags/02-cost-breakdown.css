@@ -33,9 +33,10 @@
   }
 
 #seisan-view-area .seisan-car-summary-headline .seisan-edit-btn {
-    width: 32px;
-    min-width: 32px;
-    min-height: 28px;
+    width: auto;
+    min-width: 0;
+    min-height: 34px;
+    padding-inline: 10px;
   }
 
 #seisan-view-area .seisan-extra-inline,
@@ -129,11 +130,12 @@
   letter-spacing: -0.012em;
 }
 #seisan-view-area .seisan-car-summary-headline .seisan-edit-btn {
-  width: 30px;
-  min-width: 30px;
-  min-height: 30px;
-  padding: 0;
-  border-radius: 9px;
+  width: auto;
+  min-width: 0;
+  min-height: 34px;
+  padding: 0 10px;
+  gap: 6px;
+  border-radius: 12px;
 }
 #seisan-view-area .seisan-car-summary-row .seisan-extra-inline {
   min-height: 0;
@@ -177,7 +179,7 @@
 }
 #seisan-view-area .seisan-car-summary-headline {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 34px;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
   padding: 9px 10px;

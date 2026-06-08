@@ -8,22 +8,22 @@ html[data-app-theme="single"] body,
 html[data-app-theme="standard"],
 body[data-app-theme="standard"],
 html[data-app-theme="standard"] body {
-  --theme-light-bg-body: #f7f9fc;
+  --theme-light-bg-body: #f3f6fb;
   --theme-light-text-main: #111827;
   --theme-light-text-sub: #526071;
   --theme-light-bg-card: #ffffff;
-  --theme-light-border-color: #e4e8f0;
+  --theme-light-border-color: #d7dee9;
   --theme-light-accent: #305CDE;
   --theme-light-accent-soft: #e6edff;
   --theme-light-preview-header-bg: #305CDE;
   --theme-light-preview-header-text: #ffffff;
   --theme-light-preview-header-border: #244cc5;
   --theme-light-app-surface: rgba(255, 255, 255, 0.97);
-  --theme-light-sheet-header: #f9fafb;
-  --theme-light-sheet-grid: #e6eaf2;
-  --theme-light-hover-bg: #f2f5f9;
-  --theme-light-driver-bg: #f8fafc;
-  --theme-light-seat-bg: #f1f5f9;
+  --theme-light-sheet-header: #f6f8fc;
+  --theme-light-sheet-grid: #dfe6f0;
+  --theme-light-hover-bg: #edf2f8;
+  --theme-light-driver-bg: #f6f8fb;
+  --theme-light-seat-bg: #eef3f8;
   --theme-light-seat-slot-bg: #ffffff;
   --theme-light-tray-bg: #ffffff;
   --theme-light-modal-bg: #ffffff;

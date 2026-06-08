@@ -320,9 +320,9 @@ html[data-theme] body #app-layout #tab-seisan.view-tab.active :is(i, span) {
 
 html[data-theme] body #app-layout #cars-container .seat-slot > .member-card,
 html[data-theme] body #app-layout #waiting-list .member-card {
-  border-color: color-mix(in srgb, var(--border-color) 70%, var(--text-sub) 16%);
-  background: color-mix(in srgb, var(--bg-card) 92%, var(--text-main) 3%);
-  box-shadow: 0 4px 12px rgba(var(--shadow-rgb), 0.05);
+  border-color: var(--app-line-soft);
+  background: var(--ui-surface-bg-inner);
+  box-shadow: none;
 }
 
 html[data-theme="dark"] body #app-layout #cars-container .seat-slot > .member-card,
@@ -334,9 +334,9 @@ html[data-theme="dark"] body #app-layout #waiting-list .member-card {
 
 html[data-theme] body #app-layout #cars-container .seat-slot > .member-card:hover,
 html[data-theme] body #app-layout #waiting-list .member-card:hover {
-  border-color: color-mix(in srgb, var(--accent-color) 34%, var(--border-color));
-  background: color-mix(in srgb, var(--bg-card) 82%, var(--accent-color) 8%);
-  box-shadow: 0 8px 20px rgba(var(--shadow-rgb), 0.10);
+  border-color: color-mix(in srgb, var(--accent-color) 22%, var(--app-line-soft));
+  background: color-mix(in srgb, var(--ui-surface-bg-inner) 86%, var(--accent-color) 7%);
+  box-shadow: 0 6px 16px rgba(var(--shadow-rgb), 0.06);
   transform: translateY(-1px);
 }
 
@@ -344,17 +344,17 @@ html[data-theme] body #app-layout #cars-container .seat-slot > .member-card:acti
 html[data-theme] body #app-layout #cars-container .seat-slot > .member-card.manual-drag-source,
 html[data-theme] body #app-layout #waiting-list .member-card:active,
 html[data-theme] body #app-layout #waiting-list .member-card.manual-drag-source {
-  border-color: color-mix(in srgb, var(--accent-color) 45%, var(--border-color));
-  background: color-mix(in srgb, var(--bg-card) 78%, var(--accent-color) 12%);
-  box-shadow: 0 10px 24px rgba(var(--shadow-rgb), 0.14);
+  border-color: color-mix(in srgb, var(--accent-color) 32%, var(--app-line-soft));
+  background: color-mix(in srgb, var(--ui-surface-bg-inner) 78%, var(--accent-color) 10%);
+  box-shadow: 0 8px 20px rgba(var(--shadow-rgb), 0.08);
   transform: scale(0.995);
 }
 
 html[data-theme] body {
-  --app-line-soft: var(--app-border-subtle, color-mix(in srgb, var(--border-color) 30%, transparent));
-  --app-line-readable: var(--app-border-soft, color-mix(in srgb, var(--border-color) 46%, transparent));
-  --app-line-strong: var(--ui-readable-border-strong, color-mix(in srgb, var(--border-color) 62%, var(--text-sub) 4%));
-  --app-line-divider: var(--app-divider-soft, color-mix(in srgb, var(--border-color) 34%, transparent));
+  --app-line-soft: color-mix(in srgb, var(--app-border-subtle, var(--border-color)) 72%, transparent);
+  --app-line-readable: color-mix(in srgb, var(--app-border-soft, var(--border-color)) 76%, transparent);
+  --app-line-strong: var(--ui-readable-border-strong, color-mix(in srgb, var(--border-color) 56%, var(--text-sub) 4%));
+  --app-line-divider: color-mix(in srgb, var(--app-divider-soft, var(--border-color)) 76%, transparent);
   --app-line-active: color-mix(in srgb, var(--accent-color) 20%, var(--border-color));
   --hairline: var(--app-line-soft);
   --ui-saas-border: var(--app-line-readable);
@@ -371,10 +371,10 @@ html[data-theme] body {
 }
 
 html[data-theme="dark"] body {
-  --app-line-soft: rgba(148, 163, 184, 0.10);
-  --app-line-readable: rgba(148, 163, 184, 0.14);
-  --app-line-strong: rgba(148, 163, 184, 0.22);
-  --app-line-divider: rgba(148, 163, 184, 0.09);
+  --app-line-soft: rgba(148, 163, 184, 0.12);
+  --app-line-readable: rgba(148, 163, 184, 0.16);
+  --app-line-strong: rgba(148, 163, 184, 0.24);
+  --app-line-divider: rgba(148, 163, 184, 0.12);
   --app-line-active: color-mix(in srgb, var(--accent-color) 24%, rgba(148, 163, 184, 0.16));
 }
 
@@ -390,6 +390,7 @@ html[data-theme] body #app-layout :where(
   .sheet-wait-block,
   .sheet-timetable,
   .seisan-card,
+  .seisan-settings-card,
   .seisan-panel,
   .seisan-car-summary-row,
   .seisan-car-summary-headline,
@@ -402,6 +403,41 @@ html[data-theme] body #app-layout :where(
   .batch-import-help-details
 ) {
   border-color: var(--app-line-readable);
+  box-shadow: var(--ui-surface-shadow);
+}
+
+html[data-theme] body #app-layout :where(
+  .seisan-car-summary-headline,
+  .seisan-cost-preview-item,
+  .seisan-summary-pills span,
+  .sheet-timetable-row,
+  .car-header,
+  .seisan-head,
+  .seisan-compact-head
+) {
+  box-shadow: none;
+}
+
+html[data-theme] body #app-layout :where(
+  .driver-seat,
+  .seat-slot,
+  .member-card,
+  .seisan-check-item,
+  .seisan-driver-pay-row,
+  .seisan-car-summary-row,
+  .seisan-cost-preview-item,
+  .seisan-summary-pills span,
+  .sheet-seat-row,
+  .sheet-wait-item,
+  .sheet-timetable-row,
+  input,
+  textarea,
+  select,
+  .form-control,
+  .form-select
+) {
+  border-color: var(--app-line-soft);
+  background-color: var(--ui-surface-bg-inner);
   box-shadow: none;
 }
 

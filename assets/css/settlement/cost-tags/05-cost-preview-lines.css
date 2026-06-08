@@ -221,47 +221,50 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-amount
 #seisan-view-area .seisan-summary-pills--single {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 7px;
 }
 #seisan-view-area .seisan-summary-pills--single > span {
   display: flex;
-  min-height: 44px;
+  min-height: 42px;
+  min-width: 0;
   flex-direction: column;
   justify-content: center;
-  padding: 8px 10px;
+  padding: 7px 9px;
   border-radius: 12px;
   border: 1px solid color-mix(in srgb, var(--border-color) 76%, transparent);
   background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
   box-shadow: none;
-  line-height: 1.18;
+  line-height: 1.16;
 }
 #seisan-view-area .seisan-summary-pills--single > span small {
   display: block;
-  margin: 0 0 4px;
+  margin: 0 0 3px;
   color: var(--text-sub);
-  font-size: 0.62rem;
+  font-size: 0.60rem;
   font-weight: 650;
   line-height: 1;
 }
 #seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--primary {
-  min-height: 52px;
-  background: color-mix(in srgb, var(--accent-color) 7%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--accent-color) 20%, var(--ui-saas-border, var(--border-color)));
+  min-height: 44px;
+  font-weight: 650;
 }
 #seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--mode {
-  grid-column: 1 / -1;
-  min-height: 58px;
-  padding: 10px 12px;
-  background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--accent-color) 26%, var(--border-color));
-  font-size: 1rem;
-  font-weight: 750;
+  min-height: 46px;
+  font-weight: 650;
 }
 #seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--count {
-  grid-column: 1 / -1;
   min-height: 46px;
   font-weight: 650;
 }
 #seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--subtle {
   background: color-mix(in srgb, var(--bg-card) 76%, transparent);
+}
+#seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--primary,
+#seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--mode,
+#seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--count,
+#seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--subtle {
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  border-color: color-mix(in srgb, var(--border-color) 76%, transparent);
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
 }

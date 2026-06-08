@@ -26,8 +26,8 @@
     ].filter(Boolean).join(' ');
     const timesAttr = timesFeeKind ? ` data-times-extra="${timesFeeKind}"` : '';
     const deleteControl = timesFeeKind
-      ? '<button class="seisan-icon-btn seisan-extra-delete-placeholder" type="button" tabindex="-1" aria-hidden="true"><i class="fas fa-times" aria-hidden="true"></i></button>'
-      : '<button class="seisan-icon-btn" type="button" data-action="remove-settlement-extra" title="削除"><i class="fas fa-times" aria-hidden="true"></i></button>';
+      ? '<button class="seisan-icon-btn seisan-extra-delete-placeholder" type="button" tabindex="-1" aria-hidden="true"><i class="fas fa-trash-can" aria-hidden="true"></i></button>'
+      : '<button class="seisan-icon-btn" type="button" data-action="remove-settlement-extra" title="削除"><i class="fas fa-trash-can" aria-hidden="true"></i></button>';
 
     return `<div class="${rowClass}" data-extra-index="${index}"${timesAttr}>
         <input type="text" data-extra-field="name" class="${extraFieldErrorClass(issues, carName, index, 'name')}" value="${esc(ex.name || '', helpers)}" placeholder="例：駐車場代">

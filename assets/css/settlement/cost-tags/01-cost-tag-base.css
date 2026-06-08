@@ -160,7 +160,7 @@
 /* Surface borders are now owned by assets/css/components/surfaces/*.
    Keep this file focused on settlement checklist/share layout. */
 #seisan-view-area .seisan-car-summary-headline .seisan-edit-btn span {
-  display: none;
+  display: inline;
 }
 /* Cross-screen neutral surface rules moved to components/surfaces/*. */
 /* Keep settlement summary cards on their own semantic surfaces.
@@ -194,7 +194,7 @@
   padding: 3px 6px;
 }
 #seisan-view-area .seisan-car-summary-headline .seisan-edit-btn i {
-  font-size: 0.78rem;
+  font-size: 0.88rem;
 }
 #seisan-view-area .seisan-cost-preview-detail-text, #seisan-view-area .seisan-extra-inline-list {
   min-width: 0;

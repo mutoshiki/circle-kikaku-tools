@@ -63,13 +63,13 @@
     const standaloneIndex = Number.isInteger(car.standaloneIndex) ? car.standaloneIndex : null;
     const standaloneData = standaloneIndex == null ? '' : ` data-standalone-driver-index="${standaloneIndex}"`;
     const standaloneNameField = standaloneIndex == null ? '' : `<label class="seisan-standalone-driver-name-field"><span class="seisan-mini-label">車出し名</span><input type="text" data-field="standaloneDriverName" value="${esc(car.name, helpers)}" placeholder="車出し${standaloneIndex + 1}" autocomplete="off"></label>`;
+    const carTitleName = standaloneIndex == null ? `<strong>${esc(car.name, helpers)} 車</strong>` : '';
     const rentalType = usesTimesRental ? 'times' : 'private';
     return `<div class="seisan-car-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}"${standaloneData}>
-        <div class="seisan-car-title"><strong>${esc(car.name, helpers)} 車</strong><span class="seisan-car-total ${UI_CLASS.amount}">支払 ${money(calc.adjustedTotalPay ?? calc.totalPay, helpers)}</span></div>
+        <div class="seisan-car-title">${carTitleName}<span class="seisan-car-total ${UI_CLASS.amount}">支払 ${money(calc.adjustedTotalPay ?? calc.totalPay, helpers)}</span></div>
         ${standaloneNameField}
-        <div class="seisan-small">${details}</div>
         <div class="seisan-car-inputs">
-          <div class="seisan-times-toggle-field"><span class="seisan-mini-label">レンタカー設定</span><label class="seisan-times-toggle"><input type="checkbox" data-field="rentalType" value="times" ${rentalType === 'times' ? 'checked' : ''} aria-label="レンタカー（タイムズ）"><span class="seisan-times-toggle-ui" aria-hidden="true"></span><span class="seisan-times-toggle-text">レンタカー（タイムズ）</span></label></div>
+          <div class="seisan-times-toggle-field"><label class="seisan-times-toggle"><input type="checkbox" data-field="rentalType" value="times" ${rentalType === 'times' ? 'checked' : ''} aria-label="レンタカー（タイムズ）"><span class="seisan-times-toggle-ui" aria-hidden="true"></span><span class="seisan-times-toggle-text">レンタカー（タイムズ）</span></label></div>
           <div class="seisan-distance-field">
             <label><span class="seisan-mini-label">移動距離（km）</span><input type="number" inputmode="decimal" data-field="dist" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'dist')}" value="${esc(cState.dist || '', helpers)}"></label>
             <button class="seisan-distance-shortcut" type="button" data-action="open-route-helper-shortcut" title="距離計算ツールを開く" aria-label="距離計算ツールを開く"><i class="fas fa-route" aria-hidden="true"></i><span>距離計算ツール</span></button>

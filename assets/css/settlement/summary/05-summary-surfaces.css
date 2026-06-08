@@ -64,12 +64,12 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
   white-space: nowrap;
 }
 #seisan-view-area .seisan-summary-card.collect {
-  background: color-mix(in srgb, var(--settlement-split-bg) 82%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--settlement-split-line) 78%, var(--ui-saas-border, var(--border-color)));
+  background: color-mix(in srgb, var(--settlement-split-bg) 70%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-split-line) 42%, var(--ui-saas-border, var(--border-color)));
 }
 #seisan-view-area .seisan-summary-card.accounting {
-  background: color-mix(in srgb, var(--settlement-club-bg) 82%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--settlement-club-line) 78%, var(--ui-saas-border, var(--border-color)));
+  background: color-mix(in srgb, var(--settlement-club-bg) 70%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-club-line) 42%, var(--ui-saas-border, var(--border-color)));
 }
 #seisan-view-area .seisan-summary-card:not(.collect):not(.accounting):not(.pay) {
   min-height: 64px;
@@ -200,13 +200,13 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
 /* Final invariant: semantic settlement summary cards must keep their own colored surfaces. */
 #seisan-view-area .seisan-summary-card.collect,
 html body #app-layout #seisan-view-area .seisan-summary-card.collect[data-summary-kind="collect"] {
-  background: color-mix(in srgb, var(--settlement-split-bg) 82%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--settlement-split-line) 78%, var(--ui-saas-border, var(--border-color)));
+  background: color-mix(in srgb, var(--settlement-split-bg) 70%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-split-line) 42%, var(--ui-saas-border, var(--border-color)));
 }
 #seisan-view-area .seisan-summary-card.accounting,
 html body #app-layout #seisan-view-area .seisan-summary-card.accounting[data-summary-kind="club"] {
-  background: color-mix(in srgb, var(--settlement-club-bg) 82%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--settlement-club-line) 78%, var(--ui-saas-border, var(--border-color)));
+  background: color-mix(in srgb, var(--settlement-club-bg) 70%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--settlement-club-line) 42%, var(--ui-saas-border, var(--border-color)));
 }
 #seisan-view-area .seisan-summary-card.pay,
 html body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] {

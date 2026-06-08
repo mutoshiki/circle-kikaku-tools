@@ -15,14 +15,22 @@ color: var(--text-sub); font-size: 0.74rem; line-height: 1.45;
 color: var(--text-sub); font-size: 0.68rem; line-height: 1.35;
 }
 .seisan-alert-row {
-display: flex;
+display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    justify-content: space-between;
     gap: 8px;
-    margin: 3px 0;
+    margin: 5px 0;
+    padding: 8px 9px;
+    border: 1px solid color-mix(in srgb, var(--color-danger) 34%, var(--border-color));
+    border-left-width: 3px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--color-danger) 8%, var(--bg-card));
+    color: var(--color-danger-deep);
 }
 .seisan-alert-row span {
 min-width: 0;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
 }
 .seisan-alert-action {
 appearance: none;
@@ -31,21 +39,22 @@ flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 30px;
-    border: 1px solid rgba(185, 28, 28, 0.22);
-    border-radius: 999px;
-    background: rgba(var(--white-rgb), 0.66);
+    min-height: 32px;
+    border: 1px solid color-mix(in srgb, var(--color-danger) 34%, var(--border-color));
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--color-danger) 7%, var(--bg-card));
     color: var(--color-danger-deep);
-    padding: 4px 9px;
+    padding: 0 10px;
     font-size: 0.72rem;
-    font-weight: 500;
+    font-weight: 650;
     line-height: 1;
     box-shadow: none;
+    white-space: nowrap;
 }
 .seisan-alert-action:hover,
 .seisan-alert-action:focus {
-background: var(--color-white);
-    border-color: rgba(185, 28, 28, 0.46);
+background: color-mix(in srgb, var(--color-danger) 11%, var(--bg-card));
+    border-color: color-mix(in srgb, var(--color-danger) 52%, var(--border-color));
 }
 .seisan-alert-action:focus {
 outline: none;
@@ -64,14 +73,13 @@ background: rgba(127, 29, 29, 0.38);
 }
 @media (max-width: 640px) {
 .seisan-alert-row {
-align-items: stretch;
-    flex-direction: column;
+grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
 }
 
 .seisan-alert-action {
-align-self: flex-start;
-    min-height: 32px;
-    padding-inline: 10px;
+align-self: stretch;
+    justify-self: stretch;
 }
 }
 .seisan-subhead {

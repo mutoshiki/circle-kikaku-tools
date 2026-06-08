@@ -6,7 +6,7 @@
 /* Gas/expense rows use the same amount rule as the payment total. */
    The payment total is moved below every gas/expense row, separated by one quiet divider. */
 #seisan-view-area .seisan-car-summary-headline {
-  grid-template-columns: minmax(0, 1fr) 34px;
+  grid-template-columns: minmax(0, 1fr) auto;
   border-bottom: 0;
 }
 #seisan-view-area .seisan-car-summary-row .seisan-cost-preview-list {

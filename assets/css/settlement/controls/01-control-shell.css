@@ -134,9 +134,9 @@ font-size: 0.72rem;
 line-height: 1.18;
 }
 .seisan-extra-row .seisan-icon-btn i::before {
-content: "ÅE≠";
+content: "\f2ed";
     font-family: "Font Awesome 6 Free";
-    font-weight: 500;
+    font-weight: 900;
 }
 @media (max-width: 640px) {
 .seisan-extra-row .seisan-icon-btn {

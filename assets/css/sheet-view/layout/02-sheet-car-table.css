@@ -65,7 +65,7 @@ border-radius: var(--radius-main);
   font-size: 0.72rem;
 }
 .sheet-seat-disabled {
-  background: var(--bg-body);
+  background: color-mix(in srgb, var(--ui-surface-bg-inner) 76%, var(--bg-body));
 }
 .sheet-driver-icon {
   font-size: 0.65rem;

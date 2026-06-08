@@ -5,10 +5,10 @@ body[data-theme="light"],
 html[data-theme="light"] body,
 body[data-app-theme][data-theme="light"] {
   --settlement-pay-ink-fixed: var(--palette-blue-700);
-  --settlement-pay-bg-fixed: var(--palette-blue-100);
-  --settlement-pay-line-fixed: var(--palette-blue-400);
-  --settlement-pay-surface-fixed: color-mix(in srgb, var(--settlement-pay-bg-fixed) 82%, var(--bg-card));
-  --settlement-pay-surface-line-fixed: color-mix(in srgb, var(--settlement-pay-line-fixed) 88%, var(--ui-saas-border, var(--border-color)));
+  --settlement-pay-bg-fixed: color-mix(in srgb, var(--palette-blue-100) 72%, var(--bg-card));
+  --settlement-pay-line-fixed: color-mix(in srgb, var(--palette-blue-400) 72%, var(--border-color));
+  --settlement-pay-surface-fixed: color-mix(in srgb, var(--settlement-pay-bg-fixed) 64%, var(--bg-card));
+  --settlement-pay-surface-line-fixed: color-mix(in srgb, var(--settlement-pay-line-fixed) 28%, var(--ui-saas-border, var(--border-color)));
   --settlement-pay-ink: var(--settlement-pay-ink-fixed);
   --settlement-pay-bg: var(--settlement-pay-bg-fixed);
   --settlement-pay-line: var(--settlement-pay-line-fixed);
