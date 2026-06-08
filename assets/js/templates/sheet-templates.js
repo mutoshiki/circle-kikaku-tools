@@ -43,10 +43,10 @@
         <div class="sheet-empty-card app-empty-card">
             <div class="sheet-empty-icon"><i class="fas fa-car-side" aria-hidden="true"></i></div>
             <div class="sheet-empty-title">まずは参加者登録から</div>
-            <div class="sheet-empty-text">企画の参加者と車出しを登録すると、ここに発表用の車割が表示されます。</div>
-            <div class="sheet-empty-actions app-empty-actions">
-              <button class="seisan-btn primary" type="button" data-action="open-batch-from-sheet"><i class="fas fa-paste me-1"></i>参加者登録を開く</button>
-              <button class="seisan-btn" type="button" data-action="switch-list"><i class="fas fa-edit me-1"></i>車割メーカーへ</button>
+            <div class="seisan-empty-actions">
+              <button class="seisan-btn primary" type="button" data-action="switch-list"><i class="fas fa-edit me-1"></i>車割メーカーへ</button>
+              <span class="seisan-empty-or">もしくは</span>
+              <button class="seisan-btn" type="button" data-action="switch-seisan-settings"><i class="fas fa-calculator me-1" aria-hidden="true"></i>人数だけで精算</button>
             </div>
         </div>`;
   }

@@ -65,6 +65,30 @@
   white-space: nowrap;
 }
 
+.app-empty-card .seisan-empty-actions .seisan-btn i,
+.app-empty-card .app-empty-actions .seisan-btn i {
+  width: auto;
+  height: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.sheet-empty-card.app-empty-card .seisan-empty-actions,
+.empty-card.app-empty-card .seisan-empty-actions {
+  flex-wrap: nowrap;
+}
+
+.sheet-empty-card.app-empty-card .seisan-empty-actions .seisan-btn,
+.empty-card.app-empty-card .seisan-empty-actions .seisan-btn {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding-inline: 10px;
+  white-space: nowrap;
+}
+
 @media (max-width: 640px) {
   .app-empty-card,
   .sheet-empty-card.app-empty-card,
@@ -73,4 +97,36 @@
     margin: 24px auto;
     padding: 24px 18px;
   }
+}
+
+#sheet-view-area:has(#sheet-canvas .sheet-empty-card) #sheet-canvas {
+  min-height: calc(100dvh - 260px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#sheet-view-area:has(#sheet-canvas .sheet-empty-card) .sheet-empty-card {
+  margin: 0 auto;
+}
+
+#cars-container #list-empty-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#cars-container #list-empty-hint .app-empty-card {
+  margin-block: clamp(72px, 18dvh, 160px);
+}
+
+#seisan-empty-state:not([hidden]) {
+  min-height: calc(100dvh - 230px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#seisan-empty-state:not([hidden]) .app-empty-card {
+  margin: 0 auto;
 }

@@ -80,7 +80,7 @@ font-size: 0.7rem;
 
   #sheet-bottom-controls {
     bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
-    transform: translateX(-50%) scale(0.94);
+    transform: none;
   }
 }
 #zoom-controls button, #sheet-quick-edit-btn {
@@ -101,6 +101,6 @@ font-size: 0.7rem;
   }
 
 #sheet-bottom-controls {
-    transform: translateX(-50%) scale(0.92);
+    transform: none;
   }
 }

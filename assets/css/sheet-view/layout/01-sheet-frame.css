@@ -119,21 +119,6 @@ color: var(--accent-color);
 .sheet-driver-row {
 font-weight: 500;
 }
-.sheet-empty-icon {
-width: 52px;
-    height: 52px;
-    margin: 0 auto 12px;
-    /* Use unified large radius for empty state icons */
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
-    background: var(--accent-soft);
-    color: var(--accent-color);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.35rem;
-    opacity: 0.72;
-}
 #sheet-room-name {
   display: none;
   font-size: 0.94rem;

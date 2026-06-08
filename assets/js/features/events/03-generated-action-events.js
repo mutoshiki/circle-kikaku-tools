@@ -24,9 +24,10 @@
         const generatedActionHandlers = {
             'edit-capacity': ({ target }) => global.editCapacity?.(target),
             'open-batch': () => openBatchModal(),
-            'open-batch-from-sheet': () => { switchView('list'); openBatchModal(); },
             'switch-list': () => switchView('list'),
+            'switch-seisan-settings': () => Promise.resolve(switchView('seisan')).then(() => global.openStandaloneSettlementSettings?.()),
             'open-settlement-settings': () => global.openSettlementSettings?.(),
+            'open-standalone-settlement-settings': () => global.openStandaloneSettlementSettings?.(),
             'save-settlement-settings': () => global.saveSettlementSettings?.(),
             'open-settlement-car-edit': ({ target }) => global.openSettlementCarEditor?.(target.dataset.driverName || ''),
             'save-settlement-car-edit': () => global.saveSettlementCarEdit?.(),

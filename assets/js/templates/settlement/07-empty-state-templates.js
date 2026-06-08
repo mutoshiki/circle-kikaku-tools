@@ -9,9 +9,9 @@
             <i class="fas fa-calculator" aria-hidden="true"></i>
             <strong>まずは参加者登録から</strong>
             <div class="seisan-empty-actions">
-              <button class="seisan-btn" type="button" data-action="open-settlement-settings">人数だけで精算</button>
+              <button class="seisan-btn primary" type="button" data-action="switch-list"><i class="fas fa-edit me-1" aria-hidden="true"></i>車割メーカーへ</button>
               <span class="seisan-empty-or">もしくは</span>
-              <button class="seisan-btn primary" type="button" data-action="open-batch">参加者登録を開く</button>
+              <button class="seisan-btn" type="button" data-action="open-standalone-settlement-settings">人数だけで精算</button>
             </div>
         </div>`;
   }

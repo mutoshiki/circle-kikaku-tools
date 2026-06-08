@@ -28,8 +28,10 @@ function renderExtraRowHtml(carName, ex, index, issues) {
 
 function syncSettlementControls(state, participants) {
     const roundingEl = byId('seisanRounding');
+    const roundingOptions = Array.from(document.querySelectorAll('[data-rounding-value]'));
     const organizerFreeEl = byId('seisanOrganizerFree');
     const organizerEl = byId('seisanOrganizerName');
+    const organizerField = byId('seisanOrganizerField');
     const driverCollectionOffsetEl = byId('seisanDriverCollectionOffset');
     const rewardEl = byId('seisanDriverReward');
     const standaloneEnabledEl = byId('seisanStandaloneEnabled');
@@ -41,10 +43,17 @@ function syncSettlementControls(state, participants) {
     if (driverCollectionOffsetEl) driverCollectionOffsetEl.checked = state.driverCollectionOffset !== false;
     if (rewardEl) rewardEl.value = state.driverReward ?? '0';
     const standalone = normalizeStandaloneSettlementState(state.standalone || {});
+    const roundingValue = String(state.rounding || '100');
     if (standaloneEnabledEl) standaloneEnabledEl.checked = standalone.enabled;
     if (standaloneDriverCountEl) standaloneDriverCountEl.value = standalone.driverCount || '';
     if (standaloneMemberCountEl) standaloneMemberCountEl.value = standalone.memberCount || '';
     if (standaloneFieldsEl) standaloneFieldsEl.hidden = !standalone.enabled;
+    roundingOptions.forEach(option => {
+        const active = option.dataset.roundingValue === roundingValue;
+        option.classList.toggle('active', active);
+        option.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    if (organizerField) organizerField.hidden = state.organizerFree === false;
     if (organizerEl) {
         const current = state.organizerName || '';
         const placeholder = new Option('未選択', '');
@@ -130,7 +139,48 @@ function openSettlementSettings() {
     const data = getRoomDataOnly();
     const state = ensureSettlementState();
     syncSettlementControls(state, getParticipantList(data));
+    validateStandaloneSettlementSettings(false);
     if (modals.settlementSettings) modals.settlementSettings.show();
+}
+
+function openStandaloneSettlementSettings() {
+    syncSettlementStateFromDOM();
+    const state = ensureSettlementState();
+    state.standalone = normalizeStandaloneSettlementState({
+        ...(state.standalone || {}),
+        enabled: true
+    });
+    state.driverCollectionOffset = false;
+    state.organizerFree = false;
+    const data = getRoomDataOnly();
+    syncSettlementControls(state, getParticipantList(data));
+    const standaloneEnabled = byId('seisanStandaloneEnabled');
+    const standaloneFields = byId('seisanStandaloneFields');
+    const driverCollectionOffset = byId('seisanDriverCollectionOffset');
+    const organizerFree = byId('seisanOrganizerFree');
+    if (standaloneEnabled) standaloneEnabled.checked = true;
+    if (standaloneFields) standaloneFields.hidden = false;
+    if (driverCollectionOffset) driverCollectionOffset.checked = false;
+    if (organizerFree) organizerFree.checked = false;
+    validateStandaloneSettlementSettings(false);
+    if (modals.settlementSettings) modals.settlementSettings.show();
+}
+
+function validateStandaloneSettlementSettings(showErrors = true) {
+    const enabled = byId('seisanStandaloneEnabled');
+    const fields = [byId('seisanStandaloneDriverCount'), byId('seisanStandaloneMemberCount')].filter(Boolean);
+    const message = byId('seisanStandaloneError');
+    const shouldValidate = !!enabled?.checked;
+    const invalidFields = shouldValidate ? fields.filter(field => String(field.value || '').trim() === '') : [];
+    fields.forEach(field => {
+        const invalid = showErrors && invalidFields.includes(field);
+        field.classList.toggle('is-invalid', invalid);
+        field.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+    });
+    if (message) {
+        message.hidden = !(showErrors && invalidFields.length);
+    }
+    return invalidFields.length === 0;
 }
 
 function saveSettlementSettingsDraft() {
@@ -140,6 +190,7 @@ function saveSettlementSettingsDraft() {
 }
 
 function saveSettlementSettings() {
+    if (!validateStandaloneSettlementSettings(true)) return;
     saveSettlementSettingsDraft();
     if (modals.settlementSettings) modals.settlementSettings.hide();
 }
@@ -186,6 +237,7 @@ function clearSettlementCarEditor() {
 }
 
 window.SanpoApp?.exposeCompat?.('openSettlementSettings', openSettlementSettings);
+window.SanpoApp?.exposeCompat?.('openStandaloneSettlementSettings', openStandaloneSettlementSettings);
 window.SanpoApp?.exposeCompat?.('saveSettlementSettingsDraft', saveSettlementSettingsDraft);
 window.SanpoApp?.exposeCompat?.('saveSettlementSettings', saveSettlementSettings);
 window.SanpoApp?.exposeCompat?.('openSettlementCarEditor', openSettlementCarEditor);

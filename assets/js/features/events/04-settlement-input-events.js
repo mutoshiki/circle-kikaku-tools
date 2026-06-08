@@ -57,6 +57,7 @@
             }
             if (target?.matches?.('#seisanStandaloneDriverCount, #seisanStandaloneMemberCount')) {
                 syncSettlementStateFromDOM?.();
+                validateStandaloneSettlementSettings?.(true);
                 return;
             }
             if (target?.matches?.('#routeStopList .route-stop-input')) {
@@ -98,6 +99,13 @@
             if (target.matches('#seisanStandaloneEnabled, #seisanStandaloneDriverCount, #seisanStandaloneMemberCount')) {
                 syncSettlementStateFromDOM?.();
                 syncSettlementControls?.(ensureSettlementState(), getParticipantList(getRoomDataOnly()));
+                validateStandaloneSettlementSettings?.(true);
+                return;
+            }
+
+            if (target.matches('#seisanOrganizerFree')) {
+                syncSettlementStateFromDOM?.();
+                syncSettlementControls?.(ensureSettlementState(), getParticipantList(getRoomDataOnly()));
                 return;
             }
 
@@ -114,6 +122,16 @@
             if (target.matches('#routeStopList .route-stop-input')) {
                 global.onRouteStopsChanged?.();
             }
+        });
+
+        document.addEventListener('click', event => {
+            const option = event.target.closest?.('[data-rounding-value]');
+            if (!option) return;
+            const rounding = document.getElementById('seisanRounding');
+            if (!rounding) return;
+            rounding.value = option.dataset.roundingValue || '100';
+            syncSettlementStateFromDOM?.();
+            syncSettlementControls?.(ensureSettlementState(), getParticipantList(getRoomDataOnly()));
         });
     }
 

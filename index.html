@@ -267,13 +267,8 @@
         <div id="sheet-canvas"></div>
         <div id="sheet-hint"><i class="fas fa-hand-pointer me-1" aria-hidden="true"></i>横にドラッグ / ピンチでズーム</div>
         <div id="sheet-bottom-controls">
-          <div id="zoom-controls">
-            <button id="sheetZoomInBtn" title="拡大"><i class="fas fa-plus" aria-hidden="true"></i></button>
-            <button id="sheetZoomOutBtn" title="縮小"><i class="fas fa-minus" aria-hidden="true"></i></button>
-            <button id="sheetZoomResetBtn" class="sheet-zoom-reset-btn" title="リセット">⟲</button>
-          </div>
-          <button id="sheet-quick-edit-btn" type="button">
-            <i class="fas fa-pen me-1" aria-hidden="true"></i>編集
+          <button id="sheet-quick-edit-btn" type="button" title="編集">
+            <i class="fas fa-pen" aria-hidden="true"></i>
           </button>
         </div>
       </div>
@@ -576,19 +571,32 @@
           </div>
           <div class="modal-body">
             <div class="seisan-settings seisan-settings--modal">
-              <div class="seisan-field seisan-settings-field--rounding">
-                <label>端数処理</label>
-                <select id="seisanRounding" aria-label="端数処理">
-                  <option value="100">100円</option>
-                  <option value="50">50円</option>
-                  <option value="10">10円</option>
-                  <option value="1">1円</option>
-                </select>
+              <div class="seisan-settings-section seisan-settings-section--basic seisan-settings-span">
+                <div class="seisan-settings-section-title">基本設定</div>
+                <div class="seisan-settings-grid">
+                  <div class="seisan-field seisan-settings-field--rounding">
+                    <label>端数処理</label>
+                    <div class="seisan-rounding-options" role="radiogroup" aria-label="端数処理">
+                      <button class="seisan-rounding-option" type="button" data-rounding-value="100" aria-pressed="true">100円</button>
+                      <button class="seisan-rounding-option" type="button" data-rounding-value="50" aria-pressed="false">50円</button>
+                      <button class="seisan-rounding-option" type="button" data-rounding-value="10" aria-pressed="false">10円</button>
+                      <button class="seisan-rounding-option" type="button" data-rounding-value="1" aria-pressed="false">1円</button>
+                    </div>
+                    <select id="seisanRounding" aria-label="端数処理" hidden>
+                      <option value="100">100円</option>
+                      <option value="50">50円</option>
+                      <option value="10">10円</option>
+                      <option value="1">1円</option>
+                    </select>
+                  </div>
+                  <div class="seisan-field seisan-settings-field--reward">
+                    <label>車出し協力代（1台）</label>
+                    <input id="seisanDriverReward" type="number" inputmode="numeric" value="0" aria-label="車出し協力代">
+                  </div>
+                </div>
               </div>
-              <div class="seisan-field seisan-settings-field--reward">
-                <label>車出し協力代（1台）</label>
-                <input id="seisanDriverReward" type="number" inputmode="numeric" value="0" aria-label="車出し協力代">
-              </div>
+              <div class="seisan-settings-section seisan-settings-section--standalone seisan-settings-span">
+                <div class="seisan-settings-section-title">人数だけで精算</div>
               <label class="seisan-toggle seisan-toggle--modal seisan-standalone-toggle seisan-settings-span">
                 <span>人数だけで精算する</span>
                 <input id="seisanStandaloneEnabled" type="checkbox" aria-label="人数だけで精算する">
@@ -602,11 +610,11 @@
                   <label>それ以外の人数</label>
                   <input id="seisanStandaloneMemberCount" type="number" min="0" max="99" inputmode="numeric" placeholder="例：8" aria-label="それ以外の人数">
                 </div>
+                <div id="seisanStandaloneError" class="seisan-standalone-error" hidden>車出し人数とそれ以外の人数を入力してください。</div>
               </div>
-              <div class="seisan-field seisan-settings-span">
-                <label>企画者</label>
-                <select id="seisanOrganizerName" aria-label="企画者名"></select>
               </div>
+              <div class="seisan-settings-section seisan-settings-section--detail seisan-settings-span">
+                <div class="seisan-settings-section-title">詳細オプション</div>
               <label class="seisan-toggle seisan-toggle--modal seisan-settings-span">
                 <span>車出しの集金を支払いから差し引く</span>
                 <input id="seisanDriverCollectionOffset" type="checkbox" checked aria-label="車出しの集金を支払いから差し引く">
@@ -615,6 +623,11 @@
                 <span>企画者を集金対象から外す</span>
                 <input id="seisanOrganizerFree" type="checkbox" checked aria-label="企画者を集金対象から外す">
               </label>
+              <div class="seisan-field seisan-settings-span seisan-organizer-field" id="seisanOrganizerField" hidden>
+                <label>企画者</label>
+                <select id="seisanOrganizerName" aria-label="企画者名"></select>
+              </div>
+              </div>
             </div>
           </div>
           <div class="modal-footer py-2">

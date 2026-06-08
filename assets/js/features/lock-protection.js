@@ -70,8 +70,9 @@ function updateQuickEditButton() {
     btn.classList.toggle('active', quickEditMode && shouldShow);
     document.body.classList.toggle('quick-edit-mode', quickEditMode && shouldShow);
     btn.innerHTML = quickEditMode
-        ? '<i class="fas fa-check me-1" aria-hidden="true"></i>完了'
-        : '<i class="fas fa-pen me-1" aria-hidden="true"></i>編集';
+        ? '<i class="fas fa-check" aria-hidden="true"></i>'
+        : '<i class="fas fa-pen" aria-hidden="true"></i>';
+    btn.title = quickEditMode ? '完了' : '編集';
     btn.setAttribute('aria-pressed', quickEditMode && shouldShow ? 'true' : 'false');
     btn.setAttribute('aria-label', quickEditMode ? '編集内容を保存して完了' : '発表ビューを編集');
 }

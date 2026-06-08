@@ -65,6 +65,18 @@ function buildSheetPlanSummaryRow(plan, updatedLabel = '') {
 function updateSheetSummary(data = getData()) {
     const summaryEl = byId('sheet-summary');
     if (!summaryEl) return;
+    const titleBar = byId('sheet-title-bar');
+    const hasRegisteredParticipants = (Array.isArray(data.cars) && data.cars.length > 0)
+        || (Array.isArray(data.waiting) && data.waiting.length > 0)
+        || (Array.isArray(data.carPlans) && data.carPlans.some(plan => (
+            (Array.isArray(plan.cars) && plan.cars.length > 0)
+            || (Array.isArray(plan.waiting) && plan.waiting.length > 0)
+        )));
+    if (titleBar) titleBar.hidden = !hasRegisteredParticipants;
+    if (!hasRegisteredParticipants) {
+        summaryEl.replaceChildren();
+        return;
+    }
     const plans = Array.isArray(data.carPlans) && data.carPlans.length
         ? data.carPlans
         : [{ id: SINGLE_CAR_PLAN_ID, name: '車割', cars: data.cars || [], waiting: data.waiting || [], templateType: 'car' }];
@@ -154,7 +166,7 @@ function renderListEmptyHint() {
     const createText = template.type === 'team' ? '新しい班を作成します' : '新しい車を作成します';
     const html = waitingCount > 0
         ? `<div class="col-12" id="list-empty-hint"><div class="drop-create-lane empty-card--drop-create"><i class="fas ${template.ownerIcon || 'fa-car'}" aria-hidden="true"></i><strong>${ownerText}</strong><span>${createText}</span></div></div>`
-        : `<div class="col-12" id="list-empty-hint"><div class="empty-card app-empty-card"><i class="fas fa-plus" aria-hidden="true"></i><strong>参加者登録</strong><span class="empty-card-text">名簿を読み込むと、${template.sectionTitle}を作れます。</span><div class="app-empty-actions"><button class="seisan-btn primary" type="button" data-action="open-batch">参加者登録を開く</button></div></div></div>`;
+        : `<div class="col-12" id="list-empty-hint"><div class="empty-card app-empty-card"><i class="fas fa-plus" aria-hidden="true"></i><strong>参加者登録</strong><div class="seisan-empty-actions"><button class="seisan-btn primary" type="button" data-action="open-batch"><i class="fas fa-plus me-1" aria-hidden="true"></i>参加者登録を開く</button><span class="seisan-empty-or">もしくは</span><button class="seisan-btn" type="button" data-action="switch-seisan-settings"><i class="fas fa-calculator me-1" aria-hidden="true"></i>人数だけで精算</button></div></div></div>`;
 
     if (!existing) {
         container.insertAdjacentHTML('afterbegin', html);

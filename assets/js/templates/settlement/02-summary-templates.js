@@ -37,15 +37,15 @@
     const standalone = result.isStandaloneSettlement ? result.standaloneCounts : null;
     const organizerClass = result.isStandaloneSettlement || state.organizerName ? '' : 'is-attention';
     const standalonePill = standalone
-      ? `<span class="is-standalone"><small>入力方法</small>精算だけ</span><span><small>人数</small>車出し${standalone.driverCount}名＋その他${standalone.memberCount}名</span>`
+      ? `<span class="is-standalone seisan-setting-pill--mode"><small>入力方法</small>精算だけ</span><span class="seisan-setting-pill--count"><small>人数</small>車出し${standalone.driverCount}名＋その他${standalone.memberCount}名</span>`
       : '';
     return `<div class="seisan-summary-pills seisan-summary-pills--single" aria-label="現在の精算設定">
         ${standalonePill}
         <span class="seisan-setting-pill--primary"><small>車出し集金</small>${esc(driverOffsetLabel, helpers)}</span>
         <span class="${organizerClass} seisan-setting-pill--primary"><small>企画者</small>${result.isStandaloneSettlement ? 'なし' : esc(organizer, helpers)}</span>
-        <span><small>端数処理</small>${esc(state.rounding || '100', helpers)}円単位</span>
-        <span><small>車出し協力代</small>1台 ${money(result.reward || 0, helpers)}</span>
-        <span><small>企画者の集金</small>${esc(organizerFreeLabel, helpers)}</span>
+        <span class="seisan-setting-pill--subtle"><small>端数処理</small>${esc(state.rounding || '100', helpers)}円単位</span>
+        <span class="seisan-setting-pill--subtle"><small>車出し協力代</small>1台 ${money(result.reward || 0, helpers)}</span>
+        <span class="seisan-setting-pill--subtle"><small>企画者の集金</small>${esc(organizerFreeLabel, helpers)}</span>
     </div>`;
   }
 

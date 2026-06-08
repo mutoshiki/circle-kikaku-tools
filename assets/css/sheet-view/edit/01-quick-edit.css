@@ -42,9 +42,9 @@ font-size: 0.95rem;
 }
 @media (max-width: 520px) {
 #sheet-quick-edit-btn {
-padding: 8px 10px;
-        min-width: 96px;
-        font-size: 0.74rem;
+padding: 0;
+        min-width: 48px;
+        font-size: 1rem;
 }
 }
 [data-theme="dark"] #sheet-quick-edit-btn.active i {
@@ -55,33 +55,33 @@ filter: brightness(0.98);
 }
 @media (max-width: 640px) {
 #sheet-quick-edit-btn {
-border-radius: 12px;
+border-radius: 999px;
 }
 }
 @media (max-width: 640px) {
 #sheet-quick-edit-btn {
-min-height: 40px;
-        padding: 7px 9px;
-        border-radius: 12px;
+min-height: 48px;
+        padding: 0;
+        border-radius: 999px;
         line-height: 1.1;
 }
 }
 #sheet-quick-edit-btn {
   display: none;
-  min-height: 36px;
-  padding: 8px 12px;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
   border-radius: 999px;
   border: 1px solid var(--border-color);
   background: var(--bg-card);
   color: var(--text-main);
-  box-shadow: none;
-  font-size: 0.78rem;
+  box-shadow: 0 14px 32px rgba(var(--shadow-rgb), 0.16);
+  font-size: 1rem;
   font-weight: 500;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  min-width: 104px;
-  white-space: nowrap;
   flex-shrink: 0;
 }
 #sheet-quick-edit-btn.active {

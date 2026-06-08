@@ -90,10 +90,9 @@ html[data-theme="dark"] #seisan-view-area .seisan-toolbar-card .seisan-head-tool
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  padding: 10px 12px 12px;
-  border: 1px solid var(--border-muted, rgba(148, 163, 184, 0.24));
-  border-radius: 13px;
-  background: color-mix(in srgb, var(--panel-muted) 82%, transparent);
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 #settlementSettingsModal .seisan-standalone-fields[hidden] {
   display: none;
@@ -104,14 +103,25 @@ html[data-theme="dark"] #seisan-view-area .seisan-toolbar-card .seisan-head-tool
   line-height: 1.55;
   color: var(--text-muted);
 }
+#settlementSettingsModal .seisan-standalone-error {
+  grid-column: 1 / -1;
+  color: var(--danger-color, #dc2626);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+#settlementSettingsModal .seisan-standalone-fields input.is-invalid {
+  border-color: var(--danger-color, #dc2626);
+  background: color-mix(in srgb, var(--danger-color, #dc2626) 7%, var(--bg-card));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger-color, #dc2626) 16%, transparent);
+}
 #seisan-view-area .seisan-summary-pills .is-standalone {
   border-color: color-mix(in srgb, var(--accent-color) 36%, var(--border-muted));
   background: color-mix(in srgb, var(--accent-color) 10%, transparent);
 }
 body[data-theme="dark"] #settlementSettingsModal .seisan-standalone-fields,
 html[data-theme="dark"] #settlementSettingsModal .seisan-standalone-fields {
-  border-color: var(--border-muted);
-  background: var(--surface-elevated);
+  background: transparent;
 }
 #seisan-view-area .seisan-empty-or {
   align-self: center;

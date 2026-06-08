@@ -12,7 +12,7 @@ const js = [
 
 const settlementTemplate = readSettlementTemplateBundle();
 
-if (!settlementTemplate.includes('class="seisan-btn" type="button" data-action="open-settlement-settings">人数だけで精算</button>')) {
+if (!settlementTemplate.includes('class="seisan-btn" type="button" data-action="open-standalone-settlement-settings">人数だけで精算</button>')) {
   throw new Error('人数だけで精算 should use the secondary/default button style in the empty state.');
 }
 
@@ -27,6 +27,7 @@ const required = [
   'seisan-empty-or',
   'もしくは',
   'data-action="open-batch"',
+  'data-action="open-standalone-settlement-settings"',
   'wrap.hidden = isEmpty',
   'if (!hasParticipants) {'
 ];
