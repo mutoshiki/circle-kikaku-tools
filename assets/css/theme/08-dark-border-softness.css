@@ -59,8 +59,7 @@ body[data-theme="dark"] #app-layout :is(
   .form-import-result-grid,
   .dropdown-menu,
   .modal-content,
-  .person-pop-menu,
-  .overview-drawer
+  .person-pop-menu
 ) {
   border-color: var(--app-border-soft);
 }
@@ -100,8 +99,6 @@ body[data-theme="dark"] #app-layout :is(
   .seisan-car-summary-headline,
   .modal-header,
   .modal-footer,
-  .overview-drawer-head,
-  .overview-panel-title-row,
   .batch-import-help-details
 ) {
   border-color: var(--app-divider-soft);

@@ -128,8 +128,8 @@
 }
 #cars-container .driver-seat,
 #cars-container .seat-slot > .member-card {
-  min-height: 44px;
-  padding: 7px 8px;
+  min-height: 58px;
+  padding: 5px 8px;
   background: color-mix(in srgb, var(--bg-card) 88%, var(--bg-body));
 }
 #cars-container .seat-slot:has(> .member-card) {
@@ -144,11 +144,15 @@
 #cars-container :where(.member-menu-btn, .driver-menu-btn) {
   min-width: 28px;
   min-height: 28px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
   color: color-mix(in srgb, var(--text-sub) 82%, transparent);
 }
 #cars-container :where(.member-menu-btn, .driver-menu-btn):hover {
-  color: var(--accent-color);
-  background: color-mix(in srgb, var(--accent-color) 9%, var(--bg-card));
+  color: var(--text-main);
+  background: transparent;
+  box-shadow: none;
 }
 @media (max-width: 430px) {
 #cars-container .seat-slot > .member-card:has(.memo-popup:not(:empty)) {

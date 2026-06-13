@@ -197,3 +197,35 @@ border-radius: var(--radius-sm);
     font-size: 0.9rem;
   }
 }
+
+#cars-container .seat-slot > .member-card,
+#waiting-list .member-card {
+  border-color: var(--app-line-soft, var(--ui-surface-border-soft));
+  background: var(--ui-surface-bg-inner);
+  box-shadow: none;
+}
+
+[data-theme="dark"] #cars-container .seat-slot > .member-card,
+[data-theme="dark"] #waiting-list .member-card {
+  border-color: rgba(148, 163, 184, 0.22);
+  background: color-mix(in srgb, var(--bg-card) 84%, var(--text-main) 4%);
+  box-shadow: 0 6px 16px rgba(var(--shadow-rgb), 0.14);
+}
+
+#cars-container .seat-slot > .member-card:hover,
+#waiting-list .member-card:hover {
+  border-color: color-mix(in srgb, var(--accent-color) 22%, var(--app-line-soft, var(--border-color)));
+  background: color-mix(in srgb, var(--ui-surface-bg-inner) 86%, var(--accent-color) 7%);
+  box-shadow: 0 6px 16px rgba(var(--shadow-rgb), 0.06);
+  transform: translateY(-1px);
+}
+
+#cars-container .seat-slot > .member-card:active,
+#cars-container .seat-slot > .member-card.manual-drag-source,
+#waiting-list .member-card:active,
+#waiting-list .member-card.manual-drag-source {
+  border-color: color-mix(in srgb, var(--accent-color) 32%, var(--app-line-soft, var(--border-color)));
+  background: color-mix(in srgb, var(--ui-surface-bg-inner) 78%, var(--accent-color) 10%);
+  box-shadow: 0 8px 20px rgba(var(--shadow-rgb), 0.08);
+  transform: scale(0.995);
+}

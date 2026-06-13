@@ -13,32 +13,36 @@
         padding: 7px;
     }
 }
-#overviewDrawer .overview-timetable-rows {
+.overview-drawer .overview-timetable-rows {
   display: grid;
   gap: 8px;
 }
-#overviewDrawer .overview-timetable-row {
+.overview-drawer .overview-timetable-row {
   display: grid;
-  grid-template-columns: 92px minmax(0, 1fr) 32px;
-  gap: 8px;
+  grid-template-columns: minmax(0, 72px) minmax(0, 1fr) 28px;
+  gap: 6px;
   align-items: center;
-}
-#overviewDrawer .overview-timetable-row input {
   width: 100%;
-  min-height: 38px;
-  padding: 8px 10px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 84%, transparent);
-  border-radius: 8px;
+}
+.overview-drawer .overview-timetable-row input {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 7px 8px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 68%, transparent);
+  border-radius: 10px;
   background: color-mix(in srgb, var(--bg-body) 74%, var(--bg-card));
   color: var(--text-main);
   font: inherit;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
+  box-sizing: border-box;
 }
-#overviewDrawer .overview-timetable-row input:focus,
-#overviewDrawer .overview-textarea:focus {
+.overview-drawer .overview-timetable-row input:focus,
+.overview-drawer .overview-textarea:focus {
   border-color: color-mix(in srgb, var(--accent-color) 64%, var(--border-color));
   outline: 0;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 14%, transparent);
+  box-shadow: none;
 }
 .sheet-summary-plan-label {
   min-width: 0;
@@ -64,56 +68,30 @@
   margin-bottom: 7px;
 }
 @media (max-width: 640px) {
-#overviewDrawer .overview-panel,
-  #overviewDrawer .overview-timetable-rows,
   .overview-drawer .overview-panel,
   .overview-drawer .overview-timetable-rows {
     min-width: 0;
     max-width: 100%;
     overflow-x: hidden;
   }
+}
 
-#overviewDrawer .overview-timetable-row,
-  .overview-drawer .overview-timetable-row {
-    grid-template-columns: 86px minmax(0, 1fr) 30px;
-    gap: 6px;
-  }
-}
-#overviewDrawer .overview-timetable-row, .overview-drawer .overview-timetable-row {
-  grid-template-columns: minmax(0, 76px) minmax(0, 1fr) 30px;
-  gap: 6px;
-  align-items: center;
-  width: 100%;
-}
-#overviewDrawer .overview-timetable-row input, .overview-drawer .overview-timetable-row input {
-  min-width: 0;
-  min-height: 36px;
-  border-radius: 10px;
-  box-sizing: border-box;
-  max-width: 100%;
-  padding: 7px 8px;
-  font-size: 0.9rem;
-}
-#overviewDrawer .overview-timetable-row input[data-field="time"],
 .overview-drawer .overview-timetable-row input[data-field="time"] {
-  width: 76px;
+  width: 72px;
   min-width: 0;
   padding-inline: 7px 3px;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
-#overviewDrawer .overview-timetable-row input[data-field="title"],
 .overview-drawer .overview-timetable-row input[data-field="title"] {
   width: 100%;
 }
 @media (max-width: 380px) {
-#overviewDrawer .overview-timetable-row,
   .overview-drawer .overview-timetable-row {
     grid-template-columns: minmax(0, 72px) minmax(0, 1fr) 28px;
     gap: 5px;
   }
 
-#overviewDrawer .overview-timetable-row input[data-field="time"],
   .overview-drawer .overview-timetable-row input[data-field="time"] {
     width: 72px;
     padding-inline: 6px 2px;

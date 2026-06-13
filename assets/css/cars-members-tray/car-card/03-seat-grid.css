@@ -26,7 +26,8 @@ background: transparent;
     border: 0;
     box-shadow: none;
     color: var(--text-sub);
-    font-size: 0.72rem;
+    margin-left: 0;
+    font-size: 0.9rem;
     opacity: 0.75;
 }
 .capacity-badge.capacity-edit-btn .capacity-label {
@@ -121,20 +122,24 @@ border-radius: var(--radius-main);
   letter-spacing: -0.02em;
 }
 .capacity-badge.capacity-edit-btn, .capacity-badge.capacity-edit-btn.is-full, .capacity-badge.capacity-edit-btn.is-over {
-  min-width: 0;
+  min-width: 62px;
   width: auto;
-  min-height: 28px;
-  height: 28px;
-  padding: 0 8px;
-  border: 1px solid var(--hairline, var(--border-color));
+  min-height: 32px;
+  height: 32px;
+  padding: 0 11px;
+  border: 0;
   border-radius: 999px;
-  background: var(--surface-muted, var(--bg-body));
+  background: transparent;
   box-shadow: none;
   outline: 0;
   color: var(--text-sub);
-  gap: 5px;
-  font-size: 0.78rem;
+  gap: 9px;
+  font-size: 0.9rem;
   font-weight: 500;
+}
+.capacity-badge.capacity-edit-btn:is(:hover, :focus-visible) {
+  background: transparent;
+  box-shadow: none;
 }
 .capacity-badge.capacity-edit-btn .capacity-count, .capacity-badge.capacity-edit-btn.is-over .capacity-count {
   padding: 0;
@@ -144,8 +149,8 @@ border-radius: var(--radius-main);
   box-shadow: none;
   outline: 0;
   color: var(--text-sub);
-  font-size: 0.78rem;
-  line-height: 1.25;
+  font-size: 0.9rem;
+  line-height: 1.2;
   font-weight: 500;
 }
 .car-layout-grid {

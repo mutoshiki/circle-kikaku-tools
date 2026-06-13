@@ -1,7 +1,7 @@
 #cars-container .car-box {
   width: 100%;
   height: 100%;
-  padding: 10px;
+  padding: 10px 12px 8px;
   margin-bottom: 10px;
   border-color: var(--ui-saas-border);
   border-radius: var(--radius-lg);
@@ -12,8 +12,9 @@
   display: flex;
 }
 #cars-container .car-header {
+  min-height: 30px;
   margin-bottom: 7px;
-  padding-bottom: 7px;
+  padding-bottom: 5px;
   border-bottom-color: color-mix(in srgb, var(--ui-saas-border) 72%, transparent);
 }
 #cars-container .car-layout-grid {
@@ -22,15 +23,16 @@
   min-height: 144px;
 }
 #cars-container .seat-slot {
-  min-height: 44px;
+  min-height: 58px;
   background: color-mix(in srgb, var(--bg-card) 58%, var(--bg-body));
   border-style: dashed;
   opacity: 0.64;
 }
 #cars-container .memo-popup {
-  margin-top: 2px;
+  margin-top: 0;
   color: color-mix(in srgb, var(--text-sub) 94%, var(--text-main));
   font-size: 0.64rem;
+  line-height: 1.08;
 }
 @media (max-width: 640px) {
 .edit-header-tools-only.allocation-toolbar .tool-btn,

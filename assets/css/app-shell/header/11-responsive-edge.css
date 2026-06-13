@@ -109,6 +109,15 @@
   font-size: 0.82rem;
   font-weight: 730;
   letter-spacing: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+#app-layout #view-toggle-bar .view-tab:is(:hover, :active, :focus, :focus-visible),
+#app-layout #view-toggle-bar .view-tab.active:is(:hover, :active, :focus, :focus-visible),
+#app-layout .view-toggle-bar .view-tab:is(:hover, :active, :focus, :focus-visible),
+#app-layout .view-toggle-bar .view-tab.active:is(:hover, :active, :focus, :focus-visible) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 #app-layout #view-toggle-bar .view-tab::after, #app-layout .view-toggle-bar .view-tab::after {
   content: "";

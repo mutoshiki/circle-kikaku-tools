@@ -16,11 +16,7 @@ body[data-theme="dark"] {
   --theme-accent-soft-surface: color-mix(in srgb, var(--accent-color) 16%, var(--bg-card));
 }
 
-/* Active tabs and mode chips: selected states are now filled with the active theme color. */
-body[data-theme] #view-toggle-bar .view-tab.active,
-body[data-theme] .view-toggle-bar .view-tab.active,
-body[data-theme] #app-layout #view-toggle-bar .view-tab.active,
-body[data-theme] #app-layout .view-toggle-bar .view-tab.active,
+/* Active mode chips: selected states are filled with the active theme color. */
 body[data-theme] .appearance-mode-btn.active,
 body[data-theme] .room-mode-tab.active,
 body[data-theme] .allocation-mode-toggle .car-plan-template-chip.active {
@@ -30,10 +26,6 @@ body[data-theme] .allocation-mode-toggle .car-plan-template-chip.active {
   box-shadow: var(--theme-accent-fill-shadow);
 }
 
-body[data-theme] #view-toggle-bar .view-tab.active :is(i, span),
-body[data-theme] .view-toggle-bar .view-tab.active :is(i, span),
-body[data-theme] #app-layout #view-toggle-bar .view-tab.active :is(i, span),
-body[data-theme] #app-layout .view-toggle-bar .view-tab.active :is(i, span),
 body[data-theme] .appearance-mode-btn.active :is(i, span),
 body[data-theme] .room-mode-tab.active :is(i, span),
 body[data-theme] .allocation-mode-toggle .car-plan-template-chip.active :is(i, span) {
@@ -41,10 +33,6 @@ body[data-theme] .allocation-mode-toggle .car-plan-template-chip.active :is(i, s
   -webkit-text-fill-color: var(--theme-accent-on-fill);
 }
 
-body[data-theme] #view-toggle-bar .view-tab.active:is(:hover, :focus-visible),
-body[data-theme] .view-toggle-bar .view-tab.active:is(:hover, :focus-visible),
-body[data-theme] #app-layout #view-toggle-bar .view-tab.active:is(:hover, :focus-visible),
-body[data-theme] #app-layout .view-toggle-bar .view-tab.active:is(:hover, :focus-visible),
 body[data-theme] .appearance-mode-btn.active:is(:hover, :focus-visible),
 body[data-theme] .room-mode-tab.active:is(:hover, :focus-visible),
 body[data-theme] .allocation-mode-toggle .car-plan-template-chip.active:is(:hover, :focus-visible) {
@@ -53,9 +41,7 @@ body[data-theme] .allocation-mode-toggle .car-plan-template-chip.active:is(:hove
   color: var(--theme-accent-on-fill);
 }
 
-/* Section titles become compact filled labels instead of only accent-colored text/icons. */
-#seisan-view-area .seisan-title,
-.overview-drawer .overview-panel h3,
+/* Sheet labels use the active theme color. */
 .sheet-summary-plan-label,
 body[data-theme] .sheet-summary-row.is-team .sheet-summary-plan-label {
   display: inline-flex;
@@ -74,8 +60,6 @@ body[data-theme] .sheet-summary-row.is-team .sheet-summary-plan-label {
   line-height: 1.1;
 }
 
-#seisan-view-area .seisan-title :is(i, span),
-.overview-drawer .overview-panel h3 :is(i, span),
 .sheet-summary-plan-label :is(i, span),
 .sheet-summary-row.is-team .sheet-summary-plan-label,
 body[data-theme] .sheet-summary-row.is-team .sheet-summary-plan-label {
@@ -83,7 +67,6 @@ body[data-theme] .sheet-summary-row.is-team .sheet-summary-plan-label {
   -webkit-text-fill-color: var(--theme-accent-on-fill);
 }
 
-#seisan-view-area .seisan-title > i,
 .sheet-title-icon,
 .sheet-empty-icon {
   opacity: 1;
@@ -91,21 +74,6 @@ body[data-theme] .sheet-summary-row.is-team .sheet-summary-plan-label {
   border-color: var(--theme-accent-fill-border);
   color: var(--theme-accent-on-fill);
   box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-color) 14%, transparent);
-}
-
-/* Summary/settings chips that represent the current configuration should read as selected values. */
-#seisan-view-area .seisan-summary-pills span.seisan-setting-pill--primary,
-#seisan-view-area .seisan-summary-pills span.is-standalone {
-  background: var(--theme-accent-fill);
-  border-color: var(--theme-accent-fill-border);
-  color: var(--theme-accent-on-fill);
-  box-shadow: 0 5px 14px color-mix(in srgb, var(--accent-color) 12%, transparent);
-}
-
-#seisan-view-area .seisan-summary-pills span.seisan-setting-pill--primary small,
-#seisan-view-area .seisan-summary-pills span.is-standalone small {
-  color: var(--theme-accent-muted-on-fill);
-  -webkit-text-fill-color: var(--theme-accent-muted-on-fill);
 }
 
 /* Sheet/presentation view: group headers now use the selected main color. */
@@ -136,31 +104,6 @@ body[data-theme] .sheet-summary-row.is-team .sheet-summary-plan-label {
   color: var(--color-white);
 }
 
-#cars-container .capacity-badge.capacity-edit-btn:not(.is-over),
-#syncStatusBadge[data-status="local"] .sync-status-dot {
-  border-color: color-mix(in srgb, var(--accent-color) 34%, var(--border-color));
-}
-
-#syncStatusBadge[data-status="local"] .sync-status-dot {
-  background: var(--accent-color);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color) 18%, transparent);
-}
-
-body[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action.share-action {
-  background: transparent;
-  border: 0;
-  border-color: transparent;
-  box-shadow: none;
-}
-
-html[data-theme="dark"] body #app-layout #app-header #shareLinkBtn.header-action.share-action,
-body[data-theme="dark"] #app-layout #app-header .header-actions #shareLinkBtn.header-action.share-action {
-  background: transparent;
-  border: 0;
-  border-color: transparent;
-  box-shadow: none;
-}
-
 body[data-theme] #car-plan-switcher.allocation-mode-toggle .car-plan-template-tabs {
   border: 1px solid color-mix(in srgb, var(--border-color) 78%, transparent);
   box-shadow: none;
@@ -181,55 +124,6 @@ html[data-theme="dark"] body #car-plan-switcher.allocation-mode-toggle .car-plan
 html[data-theme="dark"] body #car-plan-switcher.allocation-mode-toggle .car-plan-template-chip.active :is(i, span) {
   color: var(--theme-accent-on-fill);
   -webkit-text-fill-color: var(--theme-accent-on-fill);
-}
-
-body[data-theme] #seisan-view-area .seisan-title,
-body[data-theme] #overviewDrawer .overview-panel h3,
-body[data-theme] .overview-drawer .overview-panel h3 {
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--text-main);
-  box-shadow: none;
-}
-
-body[data-theme] #seisan-view-area .seisan-title :is(i, span),
-body[data-theme] #seisan-view-area .seisan-title > i {
-  background: transparent;
-  border-color: transparent;
-  color: var(--accent-color);
-  -webkit-text-fill-color: var(--accent-color);
-  box-shadow: none;
-}
-
-body[data-theme] #overviewDrawer .overview-panel h3 :is(i, span),
-body[data-theme] .overview-drawer .overview-panel h3 :is(i, span) {
-  color: var(--text-main);
-  -webkit-text-fill-color: var(--text-main);
-}
-
-body[data-theme] #overviewDrawer .overview-panel::before,
-body[data-theme] .overview-drawer .overview-panel::before {
-  display: none;
-}
-
-body[data-theme] #seisan-view-area .seisan-summary-pills span.seisan-setting-pill--primary,
-body[data-theme] #seisan-view-area .seisan-summary-pills span.is-standalone,
-body[data-theme] #seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--primary {
-  background: color-mix(in srgb, var(--bg-card) 88%, var(--accent-color) 6%);
-  border-color: color-mix(in srgb, var(--border-color) 82%, var(--accent-color) 18%);
-  color: var(--text-main);
-  -webkit-text-fill-color: var(--text-main);
-  box-shadow: none;
-}
-
-body[data-theme] #seisan-view-area .seisan-summary-pills span.seisan-setting-pill--primary small,
-body[data-theme] #seisan-view-area .seisan-summary-pills span.is-standalone small,
-body[data-theme] #seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--primary small {
-  color: var(--text-sub);
-  -webkit-text-fill-color: var(--text-sub);
 }
 
 body[data-theme] #bottom-tray-header #shuffleAssignBtn.tray-action-btn,
@@ -255,99 +149,12 @@ body[data-theme] #bottom-tray-header .tray-inline-row .tray-action-btn--auto:is(
   -webkit-text-fill-color: var(--theme-accent-on-fill);
 }
 
-/* Small accent strips make primary cards feel connected to the theme without repainting every surface. */
-#cars-container .car-box,
-#seisan-view-area .seisan-card,
-.sheet-empty-card,
-.overview-drawer .overview-panel {
-  position: relative;
-}
-
-#cars-container .car-box::before,
-#seisan-view-area .seisan-card::before,
-.sheet-empty-card::before,
-.overview-drawer .overview-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  border-radius: inherit;
-  background: linear-gradient(180deg, var(--accent-color), color-mix(in srgb, var(--accent-color) 42%, transparent));
-  opacity: 0.9;
-  pointer-events: none;
-}
-
-#seisan-view-area .seisan-toolbar-card::before {
-  display: none;
-}
-
-#cars-container .car-box::before,
-#seisan-view-area .seisan-card::before,
-.sheet-empty-card::before,
-.overview-drawer .overview-panel::before {
-  display: none;
-}
-
 @media (max-width: 640px) {
-  #seisan-view-area .seisan-title,
-  .overview-drawer .overview-panel h3,
   .sheet-summary-plan-label,
   body[data-theme] .sheet-summary-row.is-team .sheet-summary-plan-label {
     min-height: 22px;
     padding: 3px 8px;
   }
-}
-
-html[data-theme] body #app-layout #view-toggle-bar .view-tab.active,
-html[data-theme] body #app-layout .view-toggle-bar .view-tab.active,
-html[data-theme] body #app-layout #tab-list.view-tab.active,
-html[data-theme] body #app-layout #tab-sheet.view-tab.active,
-html[data-theme] body #app-layout #tab-seisan.view-tab.active {
-  background: transparent;
-  border: 0;
-  color: var(--text-main);
-  box-shadow: none;
-}
-
-html[data-theme] body #app-layout #view-toggle-bar .view-tab.active :is(i, span),
-html[data-theme] body #app-layout .view-toggle-bar .view-tab.active :is(i, span),
-html[data-theme] body #app-layout #tab-list.view-tab.active :is(i, span),
-html[data-theme] body #app-layout #tab-sheet.view-tab.active :is(i, span),
-html[data-theme] body #app-layout #tab-seisan.view-tab.active :is(i, span) {
-  color: var(--text-main);
-  -webkit-text-fill-color: var(--text-main);
-}
-
-html[data-theme] body #app-layout #cars-container .seat-slot > .member-card,
-html[data-theme] body #app-layout #waiting-list .member-card {
-  border-color: var(--app-line-soft);
-  background: var(--ui-surface-bg-inner);
-  box-shadow: none;
-}
-
-html[data-theme="dark"] body #app-layout #cars-container .seat-slot > .member-card,
-html[data-theme="dark"] body #app-layout #waiting-list .member-card {
-  border-color: rgba(148, 163, 184, 0.22);
-  background: color-mix(in srgb, var(--bg-card) 84%, var(--text-main) 4%);
-  box-shadow: 0 6px 16px rgba(var(--shadow-rgb), 0.14);
-}
-
-html[data-theme] body #app-layout #cars-container .seat-slot > .member-card:hover,
-html[data-theme] body #app-layout #waiting-list .member-card:hover {
-  border-color: color-mix(in srgb, var(--accent-color) 22%, var(--app-line-soft));
-  background: color-mix(in srgb, var(--ui-surface-bg-inner) 86%, var(--accent-color) 7%);
-  box-shadow: 0 6px 16px rgba(var(--shadow-rgb), 0.06);
-  transform: translateY(-1px);
-}
-
-html[data-theme] body #app-layout #cars-container .seat-slot > .member-card:active,
-html[data-theme] body #app-layout #cars-container .seat-slot > .member-card.manual-drag-source,
-html[data-theme] body #app-layout #waiting-list .member-card:active,
-html[data-theme] body #app-layout #waiting-list .member-card.manual-drag-source {
-  border-color: color-mix(in srgb, var(--accent-color) 32%, var(--app-line-soft));
-  background: color-mix(in srgb, var(--ui-surface-bg-inner) 78%, var(--accent-color) 10%);
-  box-shadow: 0 8px 20px rgba(var(--shadow-rgb), 0.08);
-  transform: scale(0.995);
 }
 
 html[data-theme] body {
@@ -396,8 +203,6 @@ html[data-theme] body #app-layout :where(
   .seisan-car-summary-headline,
   .seisan-check-item,
   .seisan-driver-pay-row,
-  .overview-drawer,
-  .overview-panel,
   .modal-content,
   .guide-feature-card,
   .batch-import-help-details
@@ -429,12 +234,7 @@ html[data-theme] body #app-layout :where(
   .seisan-summary-pills span,
   .sheet-seat-row,
   .sheet-wait-item,
-  .sheet-timetable-row,
-  input,
-  textarea,
-  select,
-  .form-control,
-  .form-select
+  .sheet-timetable-row
 ) {
   border-color: var(--app-line-soft);
   background-color: var(--ui-surface-bg-inner);
@@ -447,8 +247,6 @@ html[data-theme] body #app-layout :where(
   .seisan-compact-head,
   .modal-header,
   .modal-footer,
-  .overview-drawer-head,
-  .overview-panel-title-row,
   #bottom-tray-header,
   .sheet-car-header,
   .sheet-wait-header,
@@ -459,34 +257,20 @@ html[data-theme] body #app-layout :where(
 }
 
 html[data-theme] body #app-layout :where(
-  input,
-  textarea,
-  select,
-  .form-control,
-  .form-select,
   .tool-btn,
   .seisan-btn,
   .tray-action-btn,
   .member-menu-btn,
   .driver-menu-btn,
-  .overview-add-btn,
-  .overview-copy-action,
   .batch-spreadsheet-button
 ):not(.active):not(.primary):not(.btn-primary):not(.tray-action-btn--auto) {
   border-color: var(--control-border);
 }
 
 html[data-theme] body #app-layout :where(
-  input,
-  textarea,
-  select,
-  .form-control,
-  .form-select,
   .tool-btn,
   .seisan-btn,
-  .tray-action-btn,
-  .overview-add-btn,
-  .overview-copy-action
+  .tray-action-btn
 ):focus-visible {
   border-color: var(--control-border-strong);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 16%, transparent);
@@ -521,17 +305,6 @@ html[data-theme] body #app-layout #seisan-view-area :where(
   border-color: var(--app-line-divider);
 }
 
-html[data-theme] body #app-layout #seisan-view-area :where(
-  .seisan-summary-card.collect,
-  .seisan-summary-card.accounting,
-  .seisan-summary-card.pay,
-  .seisan-cost-policy-tag,
-  .seisan-cost-type-badge,
-  .seisan-payment-tag
-) {
-  border-color: revert-layer;
-}
-
 html[data-theme="dark"] body #app-layout #seisan-view-area :where(
   .seisan-card,
   .seisan-toolbar-card,
@@ -557,127 +330,3 @@ html[data-theme="dark"] body #app-layout #seisan-view-area :where(
   border-color: var(--app-line-divider);
 }
 
-html[data-theme] body #app-layout #cars-container .capacity-badge.capacity-edit-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 62px;
-  min-height: 32px;
-  height: 32px;
-  padding-inline: 11px;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  gap: 9px;
-  font-size: 0.9rem;
-}
-
-html[data-theme] body #app-layout #cars-container .capacity-badge.capacity-edit-btn:is(:hover, :focus-visible) {
-  background: transparent;
-  box-shadow: none;
-}
-
-html[data-theme] body #app-layout #cars-container .capacity-badge.capacity-edit-btn .capacity-count {
-  font-size: 0.9rem;
-  line-height: 1.2;
-}
-
-html[data-theme] body #app-layout #cars-container .capacity-badge.capacity-edit-btn > i,
-html[data-theme] body #app-layout #cars-container .capacity-badge.capacity-edit-btn .fa-pen {
-  margin-left: 0;
-  font-size: 0.9rem;
-}
-
-html[data-theme] body #app-layout #cars-container :where(
-  .car-return-btn,
-  .car-delete-btn,
-  .member-menu-btn,
-  .driver-menu-btn
-) {
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-}
-
-html[data-theme] body #app-layout #cars-container :where(
-  .car-return-btn,
-  .car-delete-btn,
-  .member-menu-btn,
-  .driver-menu-btn
-):hover {
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  color: var(--text-main);
-}
-
-html[data-theme] body #app-layout #cars-container :where(
-  .member-card .memo-popup,
-  .driver-seat .memo-popup,
-  .driver-memo-text
-) {
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  padding: 0;
-}
-
-html[data-theme] body #app-layout #cars-container .car-box {
-  padding: 10px 12px 8px;
-}
-
-html[data-theme] body #app-layout #cars-container .car-header {
-  min-height: 30px;
-  padding-bottom: 5px;
-  margin-bottom: 7px;
-}
-
-html[data-theme] body #app-layout #cars-container .car-layout-grid {
-  gap: 6px;
-}
-
-html[data-theme] body #app-layout #cars-container :where(.driver-seat, .seat-slot > .member-card) {
-  min-height: 58px;
-  padding-block: 5px;
-}
-
-html[data-theme] body #app-layout #cars-container .member-card {
-  gap: 3px;
-}
-
-html[data-theme] body #app-layout #cars-container :where(.member-main-line, .driver-main-line) {
-  min-height: 22px;
-}
-
-html[data-theme] body #app-layout #cars-container :where(.member-card .memo-popup, .driver-seat .memo-popup, .driver-memo-text) {
-  margin-top: 0;
-  line-height: 1.08;
-}
-
-html[data-theme] body #app-layout #cars-container .seat-slot {
-  min-height: 58px;
-}
-
-html[data-theme] body #app-layout #top-area .edit-header.edit-header-tools-only,
-html[data-theme] body #app-layout #top-area .allocation-toolbar {
-  min-height: 0;
-  padding: 8px 10px;
-  gap: 8px;
-}
-
-html[data-theme] body #app-layout #top-area :where(.tool-btn, .car-plan-template-chip, .car-plan-template-tabs) {
-  min-height: 34px;
-  height: 34px;
-}
-
-html[data-theme] body #app-layout #top-area .tool-btn {
-  padding-inline: 12px;
-}
-
-html[data-theme] body #app-layout #top-area .car-plan-template-chip {
-  padding-inline: 10px;
-}
-
-html[data-theme] body #app-layout #top-area .car-plan-template-tabs {
-  padding: 3px;
-}

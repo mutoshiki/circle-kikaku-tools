@@ -15,34 +15,6 @@
     padding-inline: 9px;
   }
 }
-[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action,
-[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action i,
-[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action span {
-  color: var(--text-main);
-}
-[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover,
-[data-theme="dark"] #app-layout #app-header #shareLinkBtn.header-action:hover i {
-  color: color-mix(in srgb, var(--accent-color) 72%, var(--color-white));
-}
-body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action,
-html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action {
-  background: color-mix(in srgb, var(--accent-color) 76%, var(--palette-slate-950));
-  border-color: color-mix(in srgb, var(--accent-color) 72%, var(--color-white));
-  color: var(--text-main);
-  box-shadow: 0 0 0 1px rgba(248, 250, 252, 0.10), 0 8px 22px rgba(var(--black-rgb), 0.28);
-}
-body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action i,
-body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action span,
-html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action i,
-html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action span {
-  color: var(--text-main);
-}
-body[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action:hover,
-html[data-theme="dark"] #app-header #shareLinkBtn.header-action.share-action:hover {
-  background: color-mix(in srgb, var(--accent-color) 88%, var(--color-ink));
-  border-color: color-mix(in srgb, var(--accent-color) 76%, var(--color-white));
-  color: var(--color-white);
-}
 body[data-theme="dark"],
 html[data-theme="dark"] body,
 body[data-theme="dark"] #app-layout {

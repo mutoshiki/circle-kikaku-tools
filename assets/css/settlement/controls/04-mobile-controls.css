@@ -13,30 +13,11 @@
     min-width: 34px;
   }
 }
-[data-theme="dark"] :is(
-  #view-toggle-bar .view-tab.active,
-  .view-toggle-bar .view-tab.active,
-  #tab-list.view-tab.active,
-  #tab-sheet.view-tab.active,
-  #tab-seisan.view-tab.active,
-  .allocation-mode-toggle .car-plan-template-chip.active
-) {
+[data-theme="dark"] .allocation-mode-toggle .car-plan-template-chip.active {
   color: var(--accent-color);
   border-color: color-mix(in srgb, var(--accent-color) 34%, var(--ui-saas-border));
   background: color-mix(in srgb, var(--accent-color) 14%, var(--bg-card));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 10%, transparent);
-}
-#app-layout #view-toggle-bar .view-tab.active,
-#app-layout .view-toggle-bar .view-tab.active,
-[data-theme="dark"] #app-layout #view-toggle-bar .view-tab.active,
-[data-theme="dark"] #app-layout .view-toggle-bar .view-tab.active,
-[data-theme="dark"] #app-layout #tab-list.view-tab.active,
-[data-theme="dark"] #app-layout #tab-sheet.view-tab.active,
-[data-theme="dark"] #app-layout #tab-seisan.view-tab.active {
-  border: 0;
-  background: transparent;
-  color: var(--accent-color);
-  box-shadow: none;
 }
 #seisan-view-area #seisanRefreshBtn.seisan-btn {
   width: 36px;

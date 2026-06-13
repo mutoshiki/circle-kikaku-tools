@@ -201,3 +201,27 @@ padding: 2px 8px 0;
     gap: 4px;
     background: var(--bg-card);
 }
+
+#top-area .edit-header.edit-header-tools-only,
+#top-area .allocation-toolbar {
+  min-height: 0;
+  padding: 8px 10px;
+  gap: 8px;
+}
+
+#top-area :where(.tool-btn, .car-plan-template-chip, .car-plan-template-tabs) {
+  min-height: 34px;
+  height: 34px;
+}
+
+#top-area .tool-btn {
+  padding-inline: 12px;
+}
+
+#top-area .car-plan-template-chip {
+  padding-inline: 10px;
+}
+
+#top-area .car-plan-template-tabs {
+  padding: 3px;
+}

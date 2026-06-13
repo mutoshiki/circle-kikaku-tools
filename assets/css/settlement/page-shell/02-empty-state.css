@@ -163,26 +163,6 @@ padding: 10px;
         margin-bottom: 8px;
 }
 }
-[data-theme="dark"] #tab-seisan.view-tab.active {
-background: var(--accent-soft);
-    border: 1px solid color-mix(in srgb, var(--accent-color) 38%, transparent);
-    border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 38%, transparent);
-    border-radius: calc(var(--radius-main) - 4px);
-    color: var(--accent-color);
-    box-shadow:
-        inset 0 1px 0 rgba(var(--white-rgb), 0.05),
-        0 8px 22px color-mix(in srgb, var(--accent-color) 14%, transparent);
-}
-[data-theme="dark"] #tab-seisan.view-tab.active i {
-color: var(--accent-color);
-}
-@supports not (background: color-mix(in srgb, red 10%, blue)) {
-[data-theme="dark"] #tab-seisan.view-tab.active {
-background: var(--accent-soft);
-        border-color: var(--accent-color);
-        border-bottom-color: var(--accent-color);
-}
-}
 .seisan-title--settings {
 margin-bottom: 6px;
 }

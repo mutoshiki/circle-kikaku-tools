@@ -68,8 +68,9 @@ background: var(--color-success);
     box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.16);
 }
 #syncStatusBadge[data-status="local"] .sync-status-dot {
-background: var(--palette-blue-400);
-    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.16);
+background: var(--accent-color);
+    border-color: color-mix(in srgb, var(--accent-color) 34%, var(--border-color));
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color) 18%, transparent);
 }
 #syncStatusBadge[data-status="error"] .sync-status-dot {
 background: var(--color-danger);
@@ -97,58 +98,10 @@ top: calc(env(safe-area-inset-top, 0px) + 7px);
 max-width: 44vw;
 }
 }
-[data-theme="dark"] #view-toggle-bar,
-[data-theme="dark"] .view-toggle-bar {
-background: rgba(var(--shadow-rgb), 0.48);
-    border-color: rgba(148, 163, 184, 0.22);
-}
-[data-theme="dark"] #view-toggle-bar .view-tab,
-[data-theme="dark"] .view-toggle-bar .view-tab {
-border: 1px solid transparent;
-    border-radius: calc(var(--radius-main) - 4px);
-    border-bottom-width: 1px;
-}
-[data-theme="dark"] #view-toggle-bar .view-tab.active,
-[data-theme="dark"] .view-toggle-bar .view-tab.active,
-[data-theme="dark"] #tab-list.view-tab.active,
-[data-theme="dark"] #tab-sheet.view-tab.active {
-background: var(--accent-soft);
-    border: 1px solid color-mix(in srgb, var(--accent-color) 38%, transparent);
-    border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 38%, transparent);
-    border-radius: calc(var(--radius-main) - 4px);
-    color: var(--accent-color);
-    box-shadow:
-        inset 0 1px 0 rgba(var(--white-rgb), 0.05),
-        0 8px 22px color-mix(in srgb, var(--accent-color) 14%, transparent);
-}
-[data-theme="dark"] #view-toggle-bar .view-tab.active i,
-[data-theme="dark"] .view-toggle-bar .view-tab.active i,
-[data-theme="dark"] #tab-list.view-tab.active i,
-[data-theme="dark"] #tab-sheet.view-tab.active i {
-color: var(--accent-color);
-}
-[data-theme="dark"] #view-toggle-bar .view-tab:not(.active):hover,
-[data-theme="dark"] .view-toggle-bar .view-tab:not(.active):hover {
-background: rgba(51, 65, 85, 0.62);
-    color: var(--text-main);
-    border-radius: calc(var(--radius-main) - 4px);
-}
-@supports not (background: color-mix(in srgb, red 10%, blue)) {
-[data-theme="dark"] #view-toggle-bar .view-tab.active,
-[data-theme="dark"] .view-toggle-bar .view-tab.active,
-[data-theme="dark"] #tab-list.view-tab.active,
-[data-theme="dark"] #tab-sheet.view-tab.active {
-background: var(--accent-soft);
-        border-color: var(--accent-color);
-        border-bottom-color: var(--accent-color);
-}
-}
 #app-header,
 .app-header-main,
 .header-actions,
 .header-action,
-#view-toggle-bar,
-.view-tab,
 #syncStatusBadge {
 box-sizing: border-box;
 }
@@ -157,18 +110,6 @@ min-width: 0;
 }
 .header-actions {
 min-width: 0;
-}
-.header-action {
-border-radius: 999px;
-}
-#view-toggle-bar .view-tab.active, .view-toggle-bar .view-tab.active {
-  border-radius: calc(var(--radius-main) - 4px);
-  background: var(--accent-soft);
-  color: var(--accent-color);
-}
-#view-toggle-bar .view-tab.active i,
-.view-toggle-bar .view-tab.active i {
-color: var(--accent-color);
 }
 #syncStatusBadge.sync-status-badge {
   position: fixed;

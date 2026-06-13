@@ -85,10 +85,6 @@ html[data-theme="dark"] body {
 :is(.form-control, .form-select, .seisan-toggle, .tool-btn, .tray-action-btn, .header-action) {
   border-color: var(--ui-surface-border-soft);
 }
-/* Active and error states are allowed to be more visible than neutral surfaces. */
-:is(.active, .selected, .has-error, .drop-target-active) {
-  border-color: revert-layer;
-}
 :is(.driver-seat, .seat-slot, .seisan-check-item, .seisan-driver-pay-row) {
   background: var(--ui-surface-bg-inner);
 }
@@ -98,8 +94,6 @@ html[data-theme="dark"] body {
   .seisan-summary-pills span,
   .form-control,
   .form-select,
-  textarea,
-  .overview-textarea,
   .form-import-preview,
   .mock-form-import-textarea
 ) {
@@ -118,8 +112,6 @@ body[data-theme="dark"] :is(
   .seisan-car-summary-row,
   .seisan-check-item,
   .seisan-driver-pay-row,
-  .overview-textarea,
-  .overview-timetable-row input,
   .form-control,
   .form-select
 ),
@@ -133,8 +125,6 @@ html[data-theme="dark"] body :is(
   .seisan-car-summary-row,
   .seisan-check-item,
   .seisan-driver-pay-row,
-  .overview-textarea,
-  .overview-timetable-row input,
   .form-control,
   .form-select
 ) {
