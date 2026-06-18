@@ -52,14 +52,6 @@ body,
   padding: 4px 8px 5px;
   box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.035), 0 6px 18px rgba(var(--shadow-rgb), 0.04);
 }
-.app-header-main {
-  padding: 8px 10px;
-  gap: 7px;
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--ui-saas-panel-raised) 96%, transparent);
-  border-color: var(--ui-saas-border);
-  box-shadow: none;
-}
 .app-room-input {
   min-height: 30px;
   padding: 2px 0;

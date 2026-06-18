@@ -99,14 +99,10 @@ max-width: 44vw;
 }
 }
 #app-header,
-.app-header-main,
 .header-actions,
 .header-action,
 #syncStatusBadge {
 box-sizing: border-box;
-}
-.app-header-main {
-min-width: 0;
 }
 .header-actions {
 min-width: 0;

@@ -1,6 +1,16 @@
 /* Source: 01-header-base.css */
 /* 03-header-room.css
    Split from assets/css/app-shell/01-app-shell-owner.css so this component has a smaller owner file. */
+.app-header-main {
+box-sizing: border-box;
+    min-width: 0;
+    padding: 8px 10px;
+    gap: 7px;
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--ui-saas-panel-raised) 96%, transparent);
+    border-color: var(--ui-saas-border);
+    box-shadow: none;
+}
 .header-action i,
 .header-action span {
 color: inherit;
