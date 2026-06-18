@@ -107,10 +107,50 @@ box-sizing: border-box;
 .header-actions {
 min-width: 0;
 }
+.app-room-field {
+display: block;
+    gap: 5px;
+    min-width: 0;
+    flex: 1 1 auto;
+    border-radius: var(--radius-main);
+}
+.app-room-field label {
+margin: 0;
+    color: var(--text-sub);
+    font-size: 0.68rem;
+    font-weight: 850;
+    line-height: 1.1;
+    display: none;
+}
+.app-room-input {
+width: 100%;
+    min-width: 0;
+    min-height: 30px;
+    border: 0;
+    border-bottom: 1px solid transparent;
+    border-radius: var(--radius-main);
+    background: transparent;
+    color: var(--text-main);
+    font-size: 0.98rem;
+    line-height: 1.25;
+    font-weight: 750;
+    letter-spacing: -0.015em;
+    padding: 2px 0;
+    outline: none;
+}
+.app-room-input:focus {
+border-bottom-color: var(--accent-color);
+    box-shadow: none;
+}
+.app-room-input::placeholder {
+color: var(--text-sub);
+    opacity: 0.58;
+}
 #syncStatusBadge.sync-status-badge {
   position: fixed;
-  top: calc(env(safe-area-inset-top, 0px) + 8px);
-  right: calc(env(safe-area-inset-right, 0px) + 10px);
+  top: auto;
+  right: calc(env(safe-area-inset-right, 0px) + 12px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
   z-index: var(--z-floating);
   display: inline-flex;
   align-items: center;
@@ -118,19 +158,22 @@ min-width: 0;
   gap: 6px;
   max-width: min(58vw, 230px);
   min-height: 28px;
-  padding: 5px 9px;
+  padding: 5px 10px;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 84%, transparent);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 88%, transparent), color-mix(in srgb, var(--bg-card) 72%, transparent));
+  border: 1px solid var(--hairline, var(--border-color));
+  background: color-mix(in srgb, var(--bg-card) 76%, transparent);
   color: var(--text-sub);
-  box-shadow: 0 8px 24px rgba(var(--shadow-rgb), 0.12);
+  box-shadow: 0 10px 26px rgba(var(--shadow-rgb), 0.08);
   backdrop-filter: blur(12px);
   font-size: 0.64rem;
   font-weight: 850;
   line-height: 1;
   white-space: nowrap;
   overflow: hidden;
-  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  pointer-events: auto;
 }
 .tool-btn {
 border-radius: var(--radius-sm);

@@ -190,8 +190,6 @@ width: 100%;
 .tool-btn,
 .header-action,
 .view-tab,
-.app-room-field,
-.app-room-input,
 #view-toggle-bar {
 border-radius: var(--radius-main);
 }

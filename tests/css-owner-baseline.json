@@ -2,8 +2,8 @@
   "version": 1,
   "selectors": {
     ".app-header-main": {
-      "maxDefinitions": 29,
-      "maxBaseDefinitions": 8,
+      "maxDefinitions": 22,
+      "maxBaseDefinitions": 1,
       "allowedFiles": [
         "app-shell/edit/01-edit-base.css",
         "app-shell/edit/02-toolbar.css",
@@ -140,11 +140,12 @@
       ]
     },
     ".app-room-input": {
-      "maxDefinitions": 16,
-      "maxBaseDefinitions": 5,
+      "maxDefinitions": 14,
+      "maxBaseDefinitions": 3,
       "allowedFiles": [
         "app-shell/edit/01-edit-base.css",
         "app-shell/edit/02-toolbar.css",
+        "app-shell/header/02-room-status.css",
         "app-shell/header/03-tabs-actions.css",
         "app-shell/header/04-mobile-layout.css",
         "app-shell/header/05-mobile-room.css",
@@ -153,6 +154,29 @@
         "app-shell/header/08-mobile-density.css",
         "app-shell/header/09-responsive-base.css",
         "app-shell/layout/02-panels.css"
+      ]
+    },
+    ".app-room-field": {
+      "maxDefinitions": 7,
+      "maxBaseDefinitions": 2,
+      "allowedFiles": [
+        "app-shell/edit/02-toolbar.css",
+        "app-shell/header/02-room-status.css",
+        "app-shell/header/03-tabs-actions.css",
+        "app-shell/header/04-mobile-layout.css",
+        "app-shell/header/05-mobile-room.css",
+        "app-shell/header/08-mobile-density.css",
+        "app-shell/layout/02-panels.css"
+      ]
+    },
+    "#syncStatusBadge.sync-status-badge": {
+      "maxDefinitions": 6,
+      "maxBaseDefinitions": 1,
+      "allowedFiles": [
+        "app-shell/header/02-room-status.css",
+        "app-shell/header/05-mobile-room.css",
+        "app-shell/header/07-mobile-tabs.css",
+        "app-shell/header/08-mobile-density.css"
       ]
     }
   }

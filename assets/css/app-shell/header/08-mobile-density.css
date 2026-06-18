@@ -16,6 +16,10 @@
         font-weight: 800;
     }
 
+    .app-room-field {
+        gap: 5px;
+    }
+
     .app-header-main > .header-actions {
         max-width: 58vw;
         gap: 5px;
@@ -82,24 +86,6 @@
   flex-wrap: nowrap;
   gap: 6px;
 }
-.app-room-field {
-  gap: 5px;
-  display: block;
-}
-.app-room-field label {
-  font-size: 0.68rem;
-  font-weight: 850;
-  color: var(--text-sub);
-  display: none;
-}
-.app-room-input {
-  min-height: 36px;
-  padding: 4px 0;
-  font-size: 1.02rem;
-  font-weight: 800;
-  letter-spacing: 0;
-  color: var(--text-main);
-}
 .header-actions .header-action, .header-actions .header-more > .header-action, .header-actions .share-action {
   width: auto;
   min-width: auto;
@@ -120,20 +106,6 @@
 }
 #editLockBtn.header-action i {
     font-size: 0.78em;
-}
-#syncStatusBadge.sync-status-badge {
-  top: auto;
-  right: calc(env(safe-area-inset-right, 0px) + 12px);
-  min-height: 28px;
-  padding: 5px 10px;
-  border-color: var(--hairline, var(--border-color));
-  background: color-mix(in srgb, var(--bg-card) 76%, transparent);
-  box-shadow: 0 10px 26px rgba(var(--shadow-rgb), 0.08);
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
-  opacity: 0;
-  transform: translateY(8px) scale(0.98);
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  pointer-events: auto;
 }
 #syncStatusBadge.sync-status-badge.is-visible,
 #syncStatusBadge.sync-status-badge:hover,
@@ -193,6 +165,8 @@
         right: calc(env(safe-area-inset-right, 0px) + 10px);
         bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
         max-width: min(68vw, 220px);
+        min-height: 28px;
+        padding: 5px 10px;
     }
 }
 @media (max-width: 380px) {
