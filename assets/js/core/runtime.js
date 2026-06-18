@@ -60,7 +60,9 @@ async function initFirebaseSync() {
         firebaseReady = true;
         return true;
     } catch (err) {
-        console.warn('Firebase sync disabled. Falling back to local storage only:', err);
+        const isLocalPreview = ['127.0.0.1', 'localhost'].includes(location.hostname);
+        const reportFallback = isLocalPreview ? console.info : console.warn;
+        reportFallback('Firebase sync disabled. Falling back to local storage only:', err);
         firebaseEnabled = false;
         firebaseReady = false;
         app = null;
