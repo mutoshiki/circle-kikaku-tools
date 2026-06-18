@@ -32,16 +32,6 @@ position: relative;
 .app-brand {
 gap: 0;
 }
-.app-room-control {
-padding-left: 2px;
-}
-.app-room-field label {
-font-weight: 600;
-}
-.app-room-input {
-font-size: 1.04rem;
-    font-weight: 600;
-}
 .app-header-illustration,
 .app-brand-mark {
 display: none;
@@ -56,16 +46,6 @@ min-height: 62px;
 background-position: center;
         background-size: 100% 100%, 100% 100%;
         opacity: 1;
-}
-}
-@media (max-width: 640px) {
-.app-room-control {
-padding-left: 0;
-}
-}
-@media (max-width: 640px) {
-.app-room-input {
-font-size: 0.98rem;
 }
 }
 @media (max-width: 640px) {

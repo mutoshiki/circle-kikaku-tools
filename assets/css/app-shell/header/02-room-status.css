@@ -107,6 +107,10 @@ box-sizing: border-box;
 .header-actions {
 min-width: 0;
 }
+.app-room-control {
+min-width: 0;
+    padding-left: 2px;
+}
 .app-room-field {
 display: block;
     gap: 5px;
@@ -145,6 +149,11 @@ border-bottom-color: var(--accent-color);
 .app-room-input::placeholder {
 color: var(--text-sub);
     opacity: 0.58;
+}
+@media (max-width: 640px) {
+.app-room-control {
+padding-left: 0;
+}
 }
 #syncStatusBadge.sync-status-badge {
   position: fixed;

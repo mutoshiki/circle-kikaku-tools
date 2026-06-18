@@ -119,42 +119,6 @@ grid-template-columns: 1fr;
 grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 }
-.app-room-control {
-min-width: 0;
-}
-.app-room-field {
-display: grid;
-    gap: 2px;
-    min-width: 0;
-    flex: 1 1 auto;
-}
-.app-room-field label {
-margin: 0;
-    color: var(--text-sub);
-    font-size: 0.64rem;
-    font-weight: 700;
-    line-height: 1.1;
-}
-.app-room-input {
-width: 100%;
-    min-width: 0;
-    border: 0;
-    border-bottom: 1px solid transparent;
-    background: transparent;
-    color: var(--text-main);
-    font-size: 1rem;
-    line-height: 1.25;
-    font-weight: 700;
-    padding: 2px 0 3px;
-    outline: none;
-}
-.app-room-input:focus {
-border-bottom-color: var(--accent-color);
-    box-shadow: none;
-}
-.app-room-input::placeholder {
-color: var(--text-sub); opacity: 0.58;
-}
 .app-header-illustration {
 flex: 0 0 auto;
     width: 110px;
