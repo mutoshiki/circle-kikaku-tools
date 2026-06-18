@@ -96,7 +96,7 @@ body {
   --ui-space-4: 16px;
   --ui-card-padding: 12px;
   --ui-card-gap: 12px;
-  --ui-border-soft: color-mix(in srgb, var(--border-color) 30%, transparent);
+  --ui-border-soft: color-mix(in srgb, var(--border-color) 44%, transparent);
   --ui-hairline-quiet: color-mix(in srgb, var(--border-color) 20%, transparent);
   --ui-surface-soft: color-mix(in srgb, var(--bg-card) 98%, var(--bg-body));
   --ui-surface-muted: color-mix(in srgb, var(--sheet-header) 76%, var(--bg-card));
@@ -118,12 +118,12 @@ body {
   --settlement-tag-pad-x: 7px;
   --settlement-tag-min-width: 2.4em;
   --settlement-tag-min-height: 1.38em;
-  --settlement-split-ink: #256247;
-  --settlement-split-bg: color-mix(in srgb, #dcfce7 62%, var(--bg-card));
-  --settlement-split-line: rgba(55, 118, 79, 0.24);
-  --settlement-club-ink: #765a1f;
-  --settlement-club-bg: color-mix(in srgb, #fef3c7 58%, var(--bg-card));
-  --settlement-club-line: rgba(145, 101, 35, 0.24);
+  --settlement-split-ink: #245a3b;
+  --settlement-split-bg: #e8f5ee;
+  --settlement-split-line: rgba(55, 118, 79, 0.36);
+  --settlement-club-ink: #694816;
+  --settlement-club-bg: #f7eddb;
+  --settlement-club-line: rgba(145, 101, 35, 0.36);
   --settlement-pay-ink: var(--palette-blue-700);
   --settlement-pay-bg: color-mix(in srgb, var(--palette-blue-100) 72%, var(--bg-card));
   --settlement-pay-line: color-mix(in srgb, var(--palette-blue-400) 72%, var(--border-color));

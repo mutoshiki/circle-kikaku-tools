@@ -55,10 +55,6 @@
     color: var(--accent-color);
     opacity: 1;
 }
-[data-theme="dark"] .allocation-mode-toggle .car-plan-template-chip.active {
-  background: rgba(226, 232, 240, 0.10);
-  color: rgba(248, 250, 252, 0.96);
-}
 @media (max-width: 420px) {
 .allocation-mode-toggle .car-plan-template-chip {
     min-height: 32px;
@@ -167,9 +163,7 @@
   }
 }
 #view-toggle-bar .view-tab.active,
-.view-toggle-bar .view-tab.active,
-.allocation-mode-toggle .car-plan-template-chip.active,
-[data-theme="dark"] .allocation-mode-toggle .car-plan-template-chip.active {
+.view-toggle-bar .view-tab.active {
   border-color: var(--ui-saas-border-strong);
   background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-card));
   color: var(--accent-color);
@@ -198,7 +192,8 @@
   box-shadow: none;
   border-color: var(--ui-saas-border);
 }
-.allocation-mode-toggle .car-plan-template-chip.active, [data-theme="dark"] .allocation-mode-toggle .car-plan-template-chip.active {
+/* 2026-05 refinement: keep the car/team toggle active state on the theme accent. */
+.allocation-mode-toggle .car-plan-template-chip.active {
   background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-card));
   color: var(--accent-color);
   border-color: color-mix(in srgb, var(--accent-color) 30%, var(--ui-saas-border));

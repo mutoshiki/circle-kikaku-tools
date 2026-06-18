@@ -44,6 +44,7 @@
 [data-theme="dark"] .mock-sheet-left-rail {
     background: rgba(71, 85, 105, 0.55);
 }
+/* Participant registration mock: calm */
 .guide-registration-context--highlight {
     border-color: color-mix(in srgb, var(--accent-color) 35%, var(--border-color));
     box-shadow: 0 8px 20px rgba(15, 118, 110, 0.10);

@@ -18,8 +18,7 @@ body[data-theme="dark"] {
 
 /* Active mode chips: selected states are filled with the active theme color. */
 body[data-theme] .appearance-mode-btn.active,
-body[data-theme] .room-mode-tab.active,
-body[data-theme] .allocation-mode-toggle .car-plan-template-chip.active {
+body[data-theme] .room-mode-tab.active {
   background: var(--theme-accent-fill);
   border-color: var(--theme-accent-fill-border);
   color: var(--theme-accent-on-fill);
@@ -27,15 +26,13 @@ body[data-theme] .allocation-mode-toggle .car-plan-template-chip.active {
 }
 
 body[data-theme] .appearance-mode-btn.active :is(i, span),
-body[data-theme] .room-mode-tab.active :is(i, span),
-body[data-theme] .allocation-mode-toggle .car-plan-template-chip.active :is(i, span) {
+body[data-theme] .room-mode-tab.active :is(i, span) {
   color: var(--theme-accent-on-fill);
   -webkit-text-fill-color: var(--theme-accent-on-fill);
 }
 
 body[data-theme] .appearance-mode-btn.active:is(:hover, :focus-visible),
-body[data-theme] .room-mode-tab.active:is(:hover, :focus-visible),
-body[data-theme] .allocation-mode-toggle .car-plan-template-chip.active:is(:hover, :focus-visible) {
+body[data-theme] .room-mode-tab.active:is(:hover, :focus-visible) {
   background: var(--theme-accent-fill-hover);
   border-color: var(--theme-accent-fill-hover);
   color: var(--theme-accent-on-fill);
@@ -109,21 +106,9 @@ body[data-theme] #car-plan-switcher.allocation-mode-toggle .car-plan-template-ta
   box-shadow: none;
 }
 
-body[data-theme] #car-plan-switcher.allocation-mode-toggle .car-plan-template-chip,
-body[data-theme] #car-plan-switcher.allocation-mode-toggle .car-plan-template-chip.active {
+body[data-theme] #car-plan-switcher.allocation-mode-toggle .car-plan-template-chip {
   border: 0;
   box-shadow: none;
-}
-
-html[data-theme="dark"] body #car-plan-switcher.allocation-mode-toggle .car-plan-template-chip.active {
-  background: var(--theme-accent-fill);
-  color: var(--theme-accent-on-fill);
-  -webkit-text-fill-color: var(--theme-accent-on-fill);
-}
-
-html[data-theme="dark"] body #car-plan-switcher.allocation-mode-toggle .car-plan-template-chip.active :is(i, span) {
-  color: var(--theme-accent-on-fill);
-  -webkit-text-fill-color: var(--theme-accent-on-fill);
 }
 
 body[data-theme] #bottom-tray-header #shuffleAssignBtn.tray-action-btn,

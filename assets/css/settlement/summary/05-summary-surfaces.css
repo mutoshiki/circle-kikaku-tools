@@ -183,6 +183,7 @@ body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card.accou
   color: var(--text-main);
   -webkit-text-fill-color: var(--text-main);
 }
+/* the payment group in each car row should be plain text + badge */
 /* Car-row payment group is plain text plus badge, without an extra outer pill. */
 #seisan-view-area .seisan-car-summary-payment,
 [data-theme="dark"] #seisan-view-area .seisan-car-summary-payment,

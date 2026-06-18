@@ -39,6 +39,7 @@ html[data-theme="dark"] body :is(
   color: var(--theme-filled-control-text);
   -webkit-text-fill-color: var(--theme-filled-control-text);
 }
+/* restore dark-mode readability after settlement summary color repairs */
 /* Dark settlement result surfaces stay readable after shared neutral-card rules. */
 html[data-theme="dark"] body #app-layout #seisan-view-area,
 body[data-theme="dark"] #app-layout #seisan-view-area {

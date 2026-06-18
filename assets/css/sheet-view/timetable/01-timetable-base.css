@@ -155,7 +155,8 @@
     top: 76px;
   }
 }
-/* Presentation view shows the timetable below car/team assignment. */
+/* 発表ビュー: 車割・班割の下にタイムテーブルを表示する */
+/* 逋ｺ陦ｨ繝薙Η繝ｼ: 霆雁牡繝ｻ迴ｭ蜑ｲ縺ｮ荳九↓繧ｿ繧､繝繝・・繝悶Ν繧定｡ｨ遉ｺ縺吶ｋ */
 .sheet-timetable-section {
     width: min(var(--sheet-plan-content-width, 560px), 720px);
     min-width: min(320px, calc(100vw - 28px));

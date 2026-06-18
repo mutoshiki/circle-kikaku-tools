@@ -19,7 +19,7 @@
 }
 .overview-drawer .overview-timetable-row {
   display: grid;
-  grid-template-columns: minmax(0, 72px) minmax(0, 1fr) 28px;
+  grid-template-columns: minmax(0, 76px) minmax(0, 1fr) 30px;
   gap: 6px;
   align-items: center;
   width: 100%;
@@ -88,7 +88,7 @@
 }
 @media (max-width: 380px) {
   .overview-drawer .overview-timetable-row {
-    grid-template-columns: minmax(0, 72px) minmax(0, 1fr) 28px;
+    grid-template-columns: minmax(0, 76px) minmax(0, 1fr) 30px;
     gap: 5px;
   }
 

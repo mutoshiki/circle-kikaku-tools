@@ -64,6 +64,7 @@ padding: 8px 12px;
 }
 }
 @media (max-width: 520px) {
+/* 発表ビューは車割を上、班割を下に縦並びで表示する。 */
 #sheet-canvas {
 padding: 10px 10px 92px;
 }

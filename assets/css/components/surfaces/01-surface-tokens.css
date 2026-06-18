@@ -9,7 +9,7 @@ html[data-theme="light"] body {
   --ui-surface-border-inner: color-mix(in srgb, var(--border-color) 10%, transparent);
   --ui-surface-bg: color-mix(in srgb, var(--bg-card) 100%, var(--bg-body));
   --ui-surface-bg-inner: color-mix(in srgb, var(--bg-card) 42%, var(--bg-body));
-  --ui-surface-shadow: 0 1px 0 rgba(15, 23, 42, 0.035), 0 8px 20px rgba(15, 23, 42, 0.055);
+  --ui-surface-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.035), 0 8px 20px rgba(var(--shadow-rgb), 0.055);
 }
 body[data-theme="dark"],
 html[data-theme="dark"] body {
@@ -18,7 +18,7 @@ html[data-theme="dark"] body {
   --ui-surface-border-inner: color-mix(in srgb, var(--border-color) 16%, transparent);
   --ui-surface-bg: color-mix(in srgb, var(--bg-card) 92%, var(--color-night));
   --ui-surface-bg-inner: color-mix(in srgb, var(--bg-card) 54%, var(--color-night));
-  --ui-surface-shadow: 0 1px 0 rgba(255, 255, 255, 0.035), 0 10px 26px rgba(0, 0, 0, 0.28);
+  --ui-surface-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.035), 0 10px 26px rgba(var(--shadow-rgb), 0.28);
 }
 :is(
   .member-card,

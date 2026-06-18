@@ -70,7 +70,7 @@ function updateQuickEditButton() {
     btn.classList.toggle('active', quickEditMode && shouldShow);
     document.body.classList.toggle('quick-edit-mode', quickEditMode && shouldShow);
     btn.innerHTML = quickEditMode
-        ? '<i class="fas fa-check" aria-hidden="true"></i>'
+        ? '<i class="fas fa-check" aria-hidden="true"></i><span>完了</span>'
         : '<i class="fas fa-pen" aria-hidden="true"></i>';
     btn.title = quickEditMode ? '完了' : '編集';
     btn.setAttribute('aria-pressed', quickEditMode && shouldShow ? 'true' : 'false');
