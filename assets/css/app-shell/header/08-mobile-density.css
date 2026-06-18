@@ -65,22 +65,6 @@
         display: inline;
     }
 }
-.app-header-main {
-  max-width: 1120px;
-  min-height: 58px;
-  padding: 10px 12px;
-  gap: 8px;
-  border: 0;
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--bg-card) 96%, var(--app-surface));
-  box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.035), 0 10px 26px rgba(var(--shadow-rgb), 0.055);
-  backdrop-filter: blur(14px) saturate(1.02);
-  border-color: color-mix(in srgb, var(--border-color) 88%, transparent);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-auto-rows: auto;
-  align-items: center;
-}
 .app-header-main > .app-brand {
     grid-column: 1 / 2;
     grid-row: 1 / 2;

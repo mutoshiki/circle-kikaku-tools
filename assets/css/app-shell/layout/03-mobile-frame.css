@@ -36,20 +36,3 @@ grid-template-columns: 1fr; gap: 7px;
   position: relative;
   z-index: var(--z-local-raised);
 }
-.app-header-main {
-  max-width: 980px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: center;
-  background: var(--app-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-main);
-  padding: 7px;
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(10px);
-  position: relative;
-  overflow: hidden;
-  min-height: 72px;
-}

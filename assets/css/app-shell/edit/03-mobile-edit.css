@@ -43,16 +43,8 @@ padding-left: 10px ;
 min-height: 40px;
 }
 }
-#app-header,
-.app-header-main {
+#app-header {
 min-width: 0;
-}
-.app-header-main {
-  z-index: var(--z-local-raised);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
 }
 .header-actions,
 .header-actions .header-more {
