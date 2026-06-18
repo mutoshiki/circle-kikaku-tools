@@ -196,6 +196,27 @@
         "app-shell/header/02-room-status.css"
       ]
     },
+    ".app-room-input:focus": {
+      "maxDefinitions": 1,
+      "maxBaseDefinitions": 1,
+      "allowedFiles": [
+        "app-shell/header/02-room-status.css"
+      ]
+    },
+    "[data-theme=\"dark\"] .app-room-input": {
+      "maxDefinitions": 1,
+      "maxBaseDefinitions": 1,
+      "allowedFiles": [
+        "app-shell/header/02-room-status.css"
+      ]
+    },
+    "[data-theme=\"dark\"] .app-room-input:focus": {
+      "maxDefinitions": 1,
+      "maxBaseDefinitions": 1,
+      "allowedFiles": [
+        "app-shell/header/02-room-status.css"
+      ]
+    },
     "#syncStatusBadge.sync-status-badge": {
       "maxDefinitions": 6,
       "maxBaseDefinitions": 1,

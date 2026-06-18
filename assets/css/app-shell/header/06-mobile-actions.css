@@ -67,9 +67,6 @@ padding-inline: 9px;
 #app-layout {
     background: transparent;
 }
-.app-room-input:focus {
-    border-bottom-color: color-mix(in srgb, var(--accent-color) 42%, transparent);
-}
 .header-action,
 .header-actions .header-action,
 .header-actions .header-more > .header-action {
