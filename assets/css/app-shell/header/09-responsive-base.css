@@ -56,17 +56,6 @@ body,
 .header-actions .header-more {
   gap: 5px;
 }
-.header-actions .header-action,
-.header-actions .header-more > .header-action,
-.header-actions .share-action {
-  min-height: 32px;
-  padding: 6px 8px;
-  border-radius: 10px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  gap: 5px;
-  box-shadow: none;
-}
 .header-action.share-action,
 #shareLinkBtn.header-action {
   background: var(--control-primary-bg);

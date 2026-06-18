@@ -86,24 +86,6 @@
   flex-wrap: nowrap;
   gap: 6px;
 }
-.header-actions .header-action, .header-actions .header-more > .header-action, .header-actions .share-action {
-  width: auto;
-  min-width: auto;
-  height: 38px;
-  min-height: 34px;
-  padding: 7px 9px;
-  border-radius: 12px;
-  justify-content: center;
-  border-color: color-mix(in srgb, var(--border-color) 88%, transparent);
-  background: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
-  color: color-mix(in srgb, var(--text-main) 82%, var(--text-sub));
-  box-shadow: none;
-  font-size: 0.76rem;
-  font-weight: 780;
-  letter-spacing: 0;
-  gap: 5px;
-  white-space: nowrap;
-}
 #editLockBtn.header-action i {
     font-size: 0.78em;
 }

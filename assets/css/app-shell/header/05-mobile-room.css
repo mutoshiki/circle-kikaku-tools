@@ -174,9 +174,7 @@ justify-self: end;
 .header-actions .header-more {
 justify-content: flex-end;
 }
-.header-action,
-.header-actions .header-action,
-.header-actions .share-action {
+.header-action {
 border-radius: var(--radius-sm);
 }
 @media (max-width: 640px) {

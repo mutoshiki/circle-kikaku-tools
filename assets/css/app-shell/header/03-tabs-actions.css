@@ -57,14 +57,26 @@ min-height: 34px;
 .header-actions .header-more {
   gap: 8px;
 }
-.header-actions .header-action {
-  min-width: 96px;
-}
-.header-actions .header-more > .header-action {
-  min-width: 102px;
-}
+.header-actions .header-action,
+.header-actions .header-more > .header-action,
 .header-actions .share-action {
-  min-width: 104px;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: auto;
+  height: 38px;
+  min-height: 32px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  justify-content: center;
+  border-color: color-mix(in srgb, var(--border-color) 88%, transparent);
+  background: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
+  color: color-mix(in srgb, var(--text-main) 82%, var(--text-sub));
+  box-shadow: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  gap: 5px;
+  white-space: nowrap;
 }
 .header-action.is-locked,
 #editLockBtn.header-action.is-locked {
