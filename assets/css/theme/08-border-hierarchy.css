@@ -3,7 +3,7 @@
 html[data-theme] body {
   --app-line-soft: color-mix(in srgb, var(--app-border-subtle, var(--border-color)) 72%, transparent);
   --app-line-readable: color-mix(in srgb, var(--app-border-soft, var(--border-color)) 76%, transparent);
-  --app-line-strong: var(--ui-readable-border-strong, color-mix(in srgb, var(--border-color) 56%, var(--text-sub) 4%));
+  --app-line-strong: color-mix(in srgb, var(--text-sub) 36%, transparent);
   --app-line-divider: color-mix(in srgb, var(--app-divider-soft, var(--border-color)) 76%, transparent);
   --app-line-active: color-mix(in srgb, var(--accent-color) 20%, var(--border-color));
   --hairline: var(--app-line-soft);
@@ -23,7 +23,7 @@ html[data-theme] body {
 html[data-theme="dark"] body {
   --app-line-soft: rgba(148, 163, 184, 0.12);
   --app-line-readable: rgba(148, 163, 184, 0.16);
-  --app-line-strong: rgba(148, 163, 184, 0.24);
+  --app-line-strong: rgba(148, 163, 184, 0.36);
   --app-line-divider: rgba(148, 163, 184, 0.12);
   --app-line-active: color-mix(in srgb, var(--accent-color) 24%, rgba(148, 163, 184, 0.16));
 }
@@ -141,11 +141,16 @@ html[data-theme] body #app-layout #seisan-view-area :where(
 html[data-theme] body #app-layout #seisan-view-area :where(
   .seisan-head,
   .seisan-compact-head,
-  .seisan-subhead,
+  .seisan-subhead
+) {
+  border-color: var(--app-line-divider);
+}
+
+html[data-theme] body #app-layout #seisan-view-area :where(
   .seisan-cost-total-row,
   .seisan-car-summary-payment
 ) {
-  border-color: var(--app-line-divider);
+  border-color: var(--app-line-strong);
 }
 
 html[data-theme="dark"] body #app-layout #seisan-view-area :where(
