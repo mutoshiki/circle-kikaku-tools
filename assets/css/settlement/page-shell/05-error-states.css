@@ -69,7 +69,6 @@
   background: color-mix(in srgb, var(--ui-danger-soft, rgba(239, 68, 68, 0.12)) 68%, var(--ui-panel-bg));
 }
 .car-box,
-.seisan-card,
 .sheet-car-col,
 .sheet-wait-block,
 .seisan-car-summary-row {

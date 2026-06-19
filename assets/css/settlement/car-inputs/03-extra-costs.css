@@ -258,7 +258,6 @@
   --settlement-tag-line: var(--settlement-club-line);
 }
 .edit-header-tools-only,
-.seisan-card,
 .car-box,
 .batch-spreadsheet-import {
   background: var(--ui-panel-bg);

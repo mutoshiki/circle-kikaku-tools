@@ -215,6 +215,18 @@
         "app-shell/header/07-mobile-tabs.css",
         "app-shell/header/08-mobile-density.css"
       ]
+    },
+    ".seisan-card": {
+      "maxDefinitions": 13,
+      "maxBaseDefinitions": 1,
+      "allowedFiles": [
+        "settlement/car-inputs/03-extra-costs.css",
+        "settlement/page-shell/01-layout.css",
+        "settlement/page-shell/02-empty-state.css",
+        "settlement/page-shell/03-car-summary-base.css",
+        "settlement/summary/01-summary-layout.css",
+        "settlement/summary/02-summary-values.css"
+      ]
     }
   }
 }

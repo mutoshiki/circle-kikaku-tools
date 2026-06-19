@@ -189,11 +189,20 @@ display: inline-flex;
 }
 }
 #seisan-view-area,
-.seisan-wrap,
-.seisan-card {
+.seisan-wrap {
 min-width: 0;
 }
-.seisan-card,
+.seisan-card {
+min-width: 0;
+box-sizing: border-box;
+margin-bottom: 0;
+padding: 12px;
+border: 1px solid transparent;
+border-radius: var(--radius-lg);
+background: var(--ui-panel-bg);
+box-shadow: var(--ui-surface-shadow-soft);
+outline: 0;
+}
 .seisan-toolbar-card,
 .seisan-settings-card,
 .seisan-panel {
