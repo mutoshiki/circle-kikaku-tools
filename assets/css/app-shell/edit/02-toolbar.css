@@ -188,12 +188,6 @@ min-height: 40px;
         padding: 8px 9px;
 }
 }
-#view-toggle-bar {
-padding: 2px 8px 0;
-    gap: 4px;
-    background: var(--bg-card);
-}
-
 #top-area .edit-header.edit-header-tools-only,
 #top-area .allocation-toolbar {
   min-height: 0;

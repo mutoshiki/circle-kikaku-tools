@@ -113,10 +113,9 @@
       ]
     },
     "#view-toggle-bar": {
-      "maxDefinitions": 19,
-      "maxBaseDefinitions": 7,
+      "maxDefinitions": 13,
+      "maxBaseDefinitions": 1,
       "allowedFiles": [
-        "app-shell/edit/01-edit-base.css",
         "app-shell/edit/02-toolbar.css",
         "app-shell/header/01-header-base.css",
         "app-shell/header/04-mobile-layout.css",

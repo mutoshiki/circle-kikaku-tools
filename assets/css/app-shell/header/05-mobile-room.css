@@ -177,7 +177,6 @@ width: 100%;
 }
 }
 .tool-btn,
-.view-tab,
-#view-toggle-bar {
+.view-tab {
 border-radius: var(--radius-main);
 }

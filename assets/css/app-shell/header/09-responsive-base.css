@@ -57,15 +57,6 @@ body,
   border-color: var(--control-primary-bg);
   box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-color) 16%, transparent);
 }
-#view-toggle-bar,
-.view-toggle-bar {
-  margin: 5px 8px 3px;
-  padding: 3px;
-  gap: 3px;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--ui-saas-panel) 96%, transparent);
-  box-shadow: none;
-}
 #view-toggle-bar .view-tab,
 .view-toggle-bar .view-tab {
   min-height: 34px;

@@ -49,13 +49,18 @@ background: rgba(245, 158, 11, 0.14);
 .view-toggle-bar {
 display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 4px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-main);
+    gap: 3px;
+    min-width: 0;
+    margin: 5px 8px 3px;
     padding: 3px;
+    background: var(--ui-panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    flex-shrink: 0;
+    backdrop-filter: blur(10px);
     border-color: var(--app-border-soft, var(--border-color));
     outline: 0;
+    box-shadow: none;
 }
 .view-tab {
 min-width: 0;

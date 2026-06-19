@@ -11,17 +11,6 @@ display: flex; flex-direction: column; height: 100dvh; background: var(--bg-body
 flex: 1; overflow-y: auto; padding: 8px 10px 20px 10px;
     -webkit-overflow-scrolling: touch; scroll-behavior: auto; position: relative; z-index: var(--z-local-popover);
 }
-#view-toggle-bar {
-display: flex; gap: 4px; padding: 5px;
-    margin: 8px 10px 6px;
-    background: var(--app-surface);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-main);
-    flex-shrink: 0;
-    backdrop-filter: blur(10px);
-    border-color: var(--app-border-soft, var(--border-color));
-    outline: 0;
-}
 .view-tab {
 flex: 1; padding: 8px 6px; font-size: 0.74rem; font-weight: 700;
     border: 1px solid transparent; border-radius: var(--radius-sm);
