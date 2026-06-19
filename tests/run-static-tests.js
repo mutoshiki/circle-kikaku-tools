@@ -5,6 +5,7 @@ const { spawnSync } = require('child_process');
 const testsDir = __dirname;
 const skip = new Set([
   'run-static-tests.js',
+  'serve-static.js',
   'basic-ui.spec.js',
   // The themed build supersedes the old single-theme removal assertion.
   'single-theme-removal-check.js',

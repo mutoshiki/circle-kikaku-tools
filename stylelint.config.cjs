@@ -1,0 +1,31 @@
+module.exports = {
+  ignoreFiles: [
+    'assets/css/vendor/**/*.css'
+  ],
+  rules: {
+    'annotation-no-unknown': true,
+    'at-rule-no-unknown': true,
+    'block-no-empty': true,
+    'color-no-invalid-hex': true,
+    'comment-no-empty': true,
+    'declaration-block-no-duplicate-custom-properties': true,
+    'declaration-block-no-duplicate-properties': [
+      true,
+      {
+        ignore: ['consecutive-duplicates-with-different-values']
+      }
+    ],
+    'declaration-no-important': true,
+    'font-family-no-duplicate-names': true,
+    'function-calc-no-unspaced-operator': true,
+    'function-linear-gradient-no-nonstandard-direction': true,
+    'keyframe-block-no-duplicate-selectors': true,
+    'media-feature-name-no-unknown': true,
+    'no-duplicate-at-import-rules': true,
+    'property-no-unknown': true,
+    'selector-pseudo-class-no-unknown': true,
+    'selector-pseudo-element-no-unknown': true,
+    'string-no-newline': true,
+    'unit-no-unknown': true
+  }
+};

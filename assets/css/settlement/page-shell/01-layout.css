@@ -135,7 +135,10 @@ font-size:0;
 }
 @media (max-width: 640px) {
 #tab-seisan i::after {
-content:" 精箁E; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size:0.68rem; font-weight: 500;
+content: " 精算";
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+font-size: 0.68rem;
+font-weight: 500;
 }
 }
 @media (max-width: 640px) {

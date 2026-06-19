@@ -95,8 +95,6 @@ border-radius: var(--radius-main);
 .sheet-title-icon {
   width: 32px;
   height: 32px;
-  /* Use unified small radius for title icons */
-    border-radius: var(--radius-sm);
   border: 1px solid var(--border-color);
   background: color-mix(in srgb, var(--accent-color) 8%, var(--bg-card));
   color: var(--accent-color);

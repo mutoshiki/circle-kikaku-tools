@@ -7,9 +7,14 @@ const launchOptions = fs.existsSync(systemChromium)
 
 module.exports = {
   testDir: './tests',
-  testMatch: 'basic-ui.spec.js',
+  testMatch: '**/*.spec.js',
+  forbidOnly: Boolean(process.env.CI),
+  retries: process.env.CI ? 1 : 0,
+  reporter: process.env.CI
+    ? [['list'], ['html', { open: 'never' }]]
+    : 'list',
   webServer: {
-    command: 'python3 -m http.server 4173 --bind 127.0.0.1',
+    command: 'node tests/serve-static.js',
     url: 'http://127.0.0.1:4173/index.html',
     reuseExistingServer: true,
     timeout: 10000
@@ -18,6 +23,8 @@ module.exports = {
     baseURL: 'http://127.0.0.1:4173/',
     viewport: { width: 390, height: 844 },
     browserName: 'chromium',
+    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure',
     launchOptions
   }
 };
