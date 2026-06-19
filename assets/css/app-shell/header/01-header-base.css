@@ -1,6 +1,15 @@
 /* Source: 01-header-base.css */
 /* 03-header-room.css
    Split from assets/css/app-shell/01-app-shell-owner.css so this component has a smaller owner file. */
+#app-header {
+box-sizing: border-box;
+    min-width: 0;
+    overflow: visible;
+    position: relative;
+    z-index: var(--z-modal-backdrop);
+    flex-shrink: 0;
+    backdrop-filter: blur(18px) saturate(1.05);
+}
 .app-header-main {
 box-sizing: border-box;
     min-width: 0;

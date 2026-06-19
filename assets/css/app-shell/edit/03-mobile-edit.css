@@ -43,9 +43,6 @@ padding-left: 10px ;
 min-height: 40px;
 }
 }
-#app-header {
-min-width: 0;
-}
 .header-actions .header-more {
 display: flex;
     align-items: center;

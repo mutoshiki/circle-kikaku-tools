@@ -28,11 +28,3 @@ display: none;
 grid-template-columns: 1fr; gap: 7px;
 }
 }
-#app-header {
-  flex-shrink: 0;
-  padding: 8px 10px 6px;
-  background: var(--bg-body);
-  border-bottom: 1px solid var(--border-color);
-  position: relative;
-  z-index: var(--z-local-raised);
-}

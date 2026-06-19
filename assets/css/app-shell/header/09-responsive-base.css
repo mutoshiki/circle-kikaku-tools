@@ -48,10 +48,6 @@ body,
     linear-gradient(180deg, color-mix(in srgb, var(--bg-body) 86%, var(--bg-card)), var(--bg-body) 42rem),
     var(--bg-body);
 }
-#app-header {
-  padding: 4px 8px 5px;
-  box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.035), 0 6px 18px rgba(var(--shadow-rgb), 0.04);
-}
 .header-actions .header-more {
   gap: 5px;
 }

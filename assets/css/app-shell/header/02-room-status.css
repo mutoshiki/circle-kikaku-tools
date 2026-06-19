@@ -98,7 +98,6 @@ top: calc(env(safe-area-inset-top, 0px) + 7px);
 max-width: 44vw;
 }
 }
-#app-header,
 #syncStatusBadge {
 box-sizing: border-box;
 }
