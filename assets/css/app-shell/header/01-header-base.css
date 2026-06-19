@@ -110,7 +110,17 @@ min-height: 34px;
 min-width: 0;
 }
 .app-header-main > .header-actions {
-justify-self: end;
+display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    justify-self: end;
+    width: auto;
+    max-width: 100%;
+    margin-left: auto;
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    flex-wrap: nowrap;
+    gap: 6px;
 }
 .header-actions .header-more {
 min-width: 0;
@@ -140,7 +150,6 @@ grid-column: 1 / 2;
 @media (min-width: 641px) {
 .app-header-main > .header-actions {
 grid-column: 2 / 3;
-        grid-row: 2 / 3;
 }
 }
 @media (max-width: 640px) {

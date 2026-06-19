@@ -73,19 +73,6 @@
     grid-column: 1 / 2;
     grid-row: 1 / 2;
 }
-.app-header-main > .header-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  justify-self: end;
-  width: auto;
-  max-width: 100%;
-  margin-left: auto;
-  grid-column: 2 / 3;
-  grid-row: 1 / 2;
-  flex-wrap: nowrap;
-  gap: 6px;
-}
 #editLockBtn.header-action i {
     font-size: 0.78em;
 }
