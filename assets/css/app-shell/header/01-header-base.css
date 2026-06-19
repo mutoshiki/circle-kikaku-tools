@@ -36,11 +36,6 @@ background: rgba(245, 158, 11, 0.14);
     border-color: rgba(245, 158, 11, 0.55);
     color: var(--text-main);
 }
-.header-actions .share-action {
-background: var(--accent-color);
-    border-color: var(--accent-color);
-    color: var(--color-white);
-}
 #view-toggle-bar,
 .view-toggle-bar {
 display: grid;
@@ -110,9 +105,6 @@ justify-self: end;
 }
 .header-actions .header-more {
 min-width: 0;
-}
-.header-actions .header-more > .header-action {
-width: 100%;
 }
 @media (max-width: 640px) {
 .app-header-main {

@@ -83,8 +83,8 @@
       ]
     },
     ".header-actions .header-action": {
-      "maxDefinitions": 24,
-      "maxBaseDefinitions": 6,
+      "maxDefinitions": 19,
+      "maxBaseDefinitions": 1,
       "allowedFiles": [
         "app-shell/header/01-header-base.css",
         "app-shell/header/03-tabs-actions.css",
@@ -97,8 +97,8 @@
       ]
     },
     ".header-actions .share-action": {
-      "maxDefinitions": 20,
-      "maxBaseDefinitions": 6,
+      "maxDefinitions": 15,
+      "maxBaseDefinitions": 1,
       "allowedFiles": [
         "app-shell/header/01-header-base.css",
         "app-shell/header/03-tabs-actions.css",
@@ -111,10 +111,9 @@
       ]
     },
     ".header-actions .header-more > .header-action": {
-      "maxDefinitions": 19,
-      "maxBaseDefinitions": 7,
+      "maxDefinitions": 13,
+      "maxBaseDefinitions": 1,
       "allowedFiles": [
-        "app-shell/header/01-header-base.css",
         "app-shell/header/03-tabs-actions.css",
         "app-shell/header/06-mobile-actions.css",
         "app-shell/header/07-mobile-tabs.css",

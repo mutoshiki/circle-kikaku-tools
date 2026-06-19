@@ -185,21 +185,6 @@
   gap: 6px;
   align-items: center;
 }
-.header-action:not(.share-action),
-.header-actions .header-more > .header-action {
-    background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
-    color: color-mix(in srgb, var(--text-main) 80%, var(--text-sub));
-}
-.header-actions .share-action, .share-action {
-  background: var(--accent-color);
-  border-color: color-mix(in srgb, var(--accent-color) 84%, var(--palette-slate-950));
-  color: var(--color-white);
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent-color) 16%, transparent);
-  width: auto;
-  min-width: 74px;
-  padding: 0 14px;
-  border-radius: 999px;
-}
 #view-toggle-bar .view-tab.active i,
 .view-toggle-bar .view-tab.active i,
 [data-theme="dark"] #view-toggle-bar .view-tab.active i,
