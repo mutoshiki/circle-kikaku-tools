@@ -41,7 +41,7 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
   color: var(--settlement-pay-ink);
   -webkit-text-fill-color: var(--settlement-pay-ink);
 }
-#seisan-view-area .seisan-payment-tag, #seisan-view-area .seisan-summary-card.pay .seisan-payment-tag, #seisan-view-area .seisan-car-summary-payment .seisan-payment-tag {
+#seisan-view-area .seisan-summary-card.pay .seisan-payment-tag, #seisan-view-area .seisan-car-summary-payment .seisan-payment-tag {
   border-color: var(--settlement-pay-line);
   background: var(--settlement-pay-bg);
   color: var(--settlement-pay-ink);

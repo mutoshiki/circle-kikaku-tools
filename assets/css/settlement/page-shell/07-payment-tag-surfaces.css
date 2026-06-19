@@ -21,27 +21,6 @@ body[data-theme="dark"] #seisan-view-area, html[data-theme="dark"] #seisan-view-
   box-shadow: none;
   border: 0;
 }
-#seisan-view-area .seisan-payment-tag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  flex: 0 0 auto;
-  min-width: var(--settlement-tag-min-width, 2.4em);
-  min-height: var(--settlement-tag-min-height, 1.38em);
-  padding: var(--settlement-tag-pad-y, 2px) var(--settlement-tag-pad-x, 7px);
-  border: 1px solid var(--settlement-pay-line);
-  border-radius: 999px;
-  background: var(--settlement-pay-bg);
-  color: var(--settlement-pay-ink);
-  font-size: var(--settlement-tag-font-size, 0.64rem);
-  font-style: normal;
-  font-weight: 650;
-  line-height: var(--settlement-tag-line-height, 1);
-  letter-spacing: 0;
-  white-space: nowrap;
-  vertical-align: baseline;
-}
 #seisan-view-area .seisan-car-summary-payment,
 [data-theme="dark"] #seisan-view-area .seisan-car-summary-payment,
 body[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment,
@@ -54,7 +33,7 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
   border-radius: 0;
   gap: 10px;
 }
-#seisan-view-area .seisan-cost-policy-tag, #seisan-view-area .seisan-cost-type-badge, #seisan-view-area .seisan-payment-tag {
+#seisan-view-area .seisan-cost-policy-tag, #seisan-view-area .seisan-cost-type-badge {
   min-height: 18px;
   padding: 2px 8px;
   border-radius: 999px;

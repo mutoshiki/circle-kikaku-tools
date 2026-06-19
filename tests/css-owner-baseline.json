@@ -227,6 +227,13 @@
         "settlement/summary/01-summary-layout.css",
         "settlement/summary/02-summary-values.css"
       ]
+    },
+    "#seisan-view-area .seisan-payment-tag": {
+      "maxDefinitions": 1,
+      "maxBaseDefinitions": 1,
+      "allowedFiles": [
+        "settlement/payment-chip/01-payment-tokens.css"
+      ]
     }
   }
 }
