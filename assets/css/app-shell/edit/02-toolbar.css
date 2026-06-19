@@ -2,8 +2,7 @@
 [data-theme="dark"] #view-toggle-bar {
 border-color: rgba(148, 163, 184, 0.18);
 }
-#app-header,
-.header-more {
+#app-header {
 overflow: visible;
 }
 .share-action {

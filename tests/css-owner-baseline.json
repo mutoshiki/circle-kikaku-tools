@@ -60,6 +60,13 @@
         "app-shell/header/04-mobile-layout.css"
       ]
     },
+    ".header-more": {
+      "maxDefinitions": 1,
+      "maxBaseDefinitions": 1,
+      "allowedFiles": [
+        "app-shell/header/03-tabs-actions.css"
+      ]
+    },
     ".header-action": {
       "maxDefinitions": 5,
       "maxBaseDefinitions": 1,

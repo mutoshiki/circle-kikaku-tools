@@ -79,6 +79,9 @@ min-height: 34px;
   overflow: visible;
   direction: ltr;
 }
+.header-more {
+  overflow: visible;
+}
 .header-actions .header-more {
   gap: 8px;
 }
