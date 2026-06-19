@@ -33,17 +33,6 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
   border-radius: 0;
   gap: 10px;
 }
-#seisan-view-area .seisan-cost-policy-tag, #seisan-view-area .seisan-cost-type-badge {
-  min-height: 18px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border-width: 1px;
-  font-size: 0.64rem;
-  font-weight: 650;
-  line-height: 1;
-  box-shadow: none;
-  letter-spacing: 0;
-}
 #seisan-view-area .seisan-cost-policy-tag.split, #seisan-view-area .seisan-cost-type-badge.split {
   background: var(--settlement-split-bg);
   border-color: var(--settlement-split-line);

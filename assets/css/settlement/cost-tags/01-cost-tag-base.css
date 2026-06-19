@@ -113,7 +113,9 @@
   --settlement-tag-bg: var(--settlement-club-bg);
   --settlement-tag-line: var(--settlement-club-line);
 }
-#seisan-view-area :is(.seisan-cost-policy-tag, .seisan-cost-type-badge, .seisan-extra-inline > em),
+#seisan-view-area .seisan-cost-policy-tag,
+#seisan-view-area .seisan-cost-type-badge,
+#seisan-view-area .seisan-extra-inline > em,
 .guide-mini-screen .seisan-mock-chip,
 .seisan-extra-type {
   display: inline-flex;
