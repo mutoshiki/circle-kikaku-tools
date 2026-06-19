@@ -177,7 +177,7 @@ display: block;
     color: var(--text-sub);
     font-size: 0.72rem;
 }
-@media (min-width: 760px) {
+@media (min-width: 769px) {
 .edit-header {
 grid-template-columns: minmax(220px, 1fr) minmax(340px, 1.2fr);
         align-items: stretch;
