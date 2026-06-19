@@ -52,7 +52,6 @@ body,
   padding: 4px 8px 5px;
   box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.035), 0 6px 18px rgba(var(--shadow-rgb), 0.04);
 }
-.header-actions,
 .header-actions .header-more {
   gap: 5px;
 }

@@ -99,13 +99,9 @@ max-width: 44vw;
 }
 }
 #app-header,
-.header-actions,
 .header-action,
 #syncStatusBadge {
 box-sizing: border-box;
-}
-.header-actions {
-min-width: 0;
 }
 .app-room-control {
 min-width: 0;

@@ -165,8 +165,7 @@ background: rgba(var(--shadow-rgb), 0.54);
         box-shadow: inset 0 1px 0 rgba(var(--white-rgb), 0.04);
 }
 }
-.app-header-main > .header-actions,
-.header-actions {
+.app-header-main > .header-actions {
 justify-self: end;
     margin-left: auto;
     justify-content: flex-end;

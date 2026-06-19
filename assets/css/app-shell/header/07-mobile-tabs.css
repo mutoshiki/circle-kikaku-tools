@@ -181,10 +181,6 @@
   background: linear-gradient(180deg, color-mix(in srgb, var(--bg-body) 94%, var(--accent-soft)), var(--bg-body));
   border-bottom: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
 }
-.header-actions {
-  gap: 6px;
-  align-items: center;
-}
 #view-toggle-bar .view-tab.active i,
 .view-toggle-bar .view-tab.active i,
 [data-theme="dark"] #view-toggle-bar .view-tab.active i,
