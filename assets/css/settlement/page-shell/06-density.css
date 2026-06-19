@@ -190,19 +190,3 @@ html[data-theme="dark"] #seisan-view-area .seisan-payment-tag {
   border-color: rgba(147, 197, 253, 0.38);
   background: rgba(30, 41, 59, 0.82);
 }
-body[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag.split,
-body[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.split,
-html[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag.split,
-html[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.split {
-  color: var(--palette-bbf7d0);
-  border-color: rgba(110, 231, 183, 0.42);
-  background: rgba(20, 83, 45, 0.48);
-}
-body[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag.club,
-body[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.club,
-html[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag.club,
-html[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.club {
-  color: var(--palette-fde68a);
-  border-color: rgba(251, 191, 36, 0.42);
-  background: rgba(120, 53, 15, 0.48);
-}

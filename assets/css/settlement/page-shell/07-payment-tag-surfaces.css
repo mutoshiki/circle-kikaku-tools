@@ -33,18 +33,6 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
   border-radius: 0;
   gap: 10px;
 }
-#seisan-view-area .seisan-cost-policy-tag.split, #seisan-view-area .seisan-cost-type-badge.split {
-  background: var(--settlement-split-bg);
-  border-color: var(--settlement-split-line);
-  color: var(--settlement-split-ink);
-  -webkit-text-fill-color: var(--settlement-split-ink);
-}
-#seisan-view-area .seisan-cost-policy-tag.club, #seisan-view-area .seisan-cost-type-badge.club {
-  background: var(--settlement-club-bg);
-  border-color: var(--settlement-club-line);
-  color: var(--settlement-club-ink);
-  -webkit-text-fill-color: var(--settlement-club-ink);
-}
 #seisan-view-area .seisan-car-summary-payment {
   gap: 8px;
   align-items: center;

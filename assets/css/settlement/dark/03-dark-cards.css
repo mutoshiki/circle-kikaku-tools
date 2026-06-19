@@ -122,40 +122,6 @@ body[data-theme="dark"] #app-layout #seisan-view-area .seisan-payment-tag {
   color: var(--palette-blue-200);
   -webkit-text-fill-color: var(--palette-blue-200);
 }
-html[data-theme="dark"] body #app-layout #seisan-view-area :is(
-  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.split,
-  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.split,
-  .seisan-extra-inline > .seisan-cost-policy-tag.split,
-  .seisan-extra-inline > .seisan-cost-type-badge.split
-),
-body[data-theme="dark"] #app-layout #seisan-view-area :is(
-  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.split,
-  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.split,
-  .seisan-extra-inline > .seisan-cost-policy-tag.split,
-  .seisan-extra-inline > .seisan-cost-type-badge.split
-) {
-  color: var(--settlement-split-ink);
-  -webkit-text-fill-color: var(--settlement-split-ink);
-  background: var(--settlement-split-bg);
-  border-color: var(--settlement-split-line);
-}
-html[data-theme="dark"] body #app-layout #seisan-view-area :is(
-  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.club,
-  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.club,
-  .seisan-extra-inline > .seisan-cost-policy-tag.club,
-  .seisan-extra-inline > .seisan-cost-type-badge.club
-),
-body[data-theme="dark"] #app-layout #seisan-view-area :is(
-  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag.club,
-  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge.club,
-  .seisan-extra-inline > .seisan-cost-policy-tag.club,
-  .seisan-extra-inline > .seisan-cost-type-badge.club
-) {
-  color: var(--settlement-club-ink);
-  -webkit-text-fill-color: var(--settlement-club-ink);
-  background: var(--settlement-club-bg);
-  border-color: var(--settlement-club-line);
-}
 html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-summary-card .seisan-summary-label > .seisan-payment-tag,
 body[data-theme="dark"] #app-layout #seisan-view-area .seisan-summary-card .seisan-summary-label > .seisan-payment-tag {
   color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));

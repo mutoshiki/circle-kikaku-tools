@@ -243,20 +243,6 @@
   box-shadow: none;
   white-space: nowrap;
 }
-#seisan-view-area :is(.seisan-cost-policy-tag.split, .seisan-cost-type-badge.split),
-.guide-mini-screen .seisan-mock-chip.split,
-.seisan-extra-type.split {
-  --settlement-tag-ink: var(--settlement-split-ink);
-  --settlement-tag-bg: var(--settlement-split-bg);
-  --settlement-tag-line: var(--settlement-split-line);
-}
-#seisan-view-area :is(.seisan-cost-policy-tag.club, .seisan-cost-type-badge.club),
-.guide-mini-screen .seisan-mock-chip.club,
-.seisan-extra-type.club {
-  --settlement-tag-ink: var(--settlement-club-ink);
-  --settlement-tag-bg: var(--settlement-club-bg);
-  --settlement-tag-line: var(--settlement-club-line);
-}
 .edit-header-tools-only,
 .car-box,
 .batch-spreadsheet-import {

@@ -6,7 +6,10 @@ const stateJs = fs.readFileSync(path.join(root, 'assets/js/features/settlement/0
 const calcJs = fs.readFileSync(path.join(root, 'assets/js/features/settlement/02-calculator.js'), 'utf8');
 const carTemplate = fs.readFileSync(path.join(root, 'assets/js/templates/settlement/03-car-cost-templates.js'), 'utf8');
 const extraTemplate = fs.readFileSync(path.join(root, 'assets/js/templates/settlement/04-extra-input-templates.js'), 'utf8');
-const timesCss = fs.readFileSync(path.join(root, 'assets/css/settlement/car-inputs/06-times-rental.css'), 'utf8');
+const timesCss = [
+  'assets/css/settlement/car-inputs/06-times-rental.css',
+  'assets/css/settlement/cost-tags/01-cost-tag-base.css'
+].map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n');
 const eventJs = fs.readFileSync(path.join(root, 'assets/js/features/events/04-settlement-input-events.js'), 'utf8');
 
 function assert(condition, message) {

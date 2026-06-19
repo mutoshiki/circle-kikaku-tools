@@ -105,18 +105,6 @@
   text-align: center;
   text-align-last: center;
 }
-#settlementCarEditModal .seisan-extra-type.split {
-  color: var(--settlement-split-ink);
-  -webkit-text-fill-color: var(--settlement-split-ink);
-  background: var(--settlement-split-bg);
-  border-color: var(--settlement-split-line);
-}
-#settlementCarEditModal .seisan-extra-type.club {
-  color: var(--settlement-club-ink);
-  -webkit-text-fill-color: var(--settlement-club-ink);
-  background: var(--settlement-club-bg);
-  border-color: var(--settlement-club-line);
-}
 [data-theme="dark"] #settlementCarEditModal .seisan-times-toggle {
   border-color: rgba(148, 163, 184, 0.32);
   background: color-mix(in srgb, var(--bg-card) 78%, var(--color-night));

@@ -248,6 +248,34 @@
       "allowedFiles": [
         "settlement/cost-tags/01-cost-tag-base.css"
       ]
+    },
+    "#seisan-view-area .seisan-cost-policy-tag.split": {
+      "maxDefinitions": 1,
+      "maxBaseDefinitions": 1,
+      "allowedFiles": [
+        "settlement/cost-tags/01-cost-tag-base.css"
+      ]
+    },
+    "#seisan-view-area .seisan-cost-type-badge.split": {
+      "maxDefinitions": 1,
+      "maxBaseDefinitions": 1,
+      "allowedFiles": [
+        "settlement/cost-tags/01-cost-tag-base.css"
+      ]
+    },
+    "#seisan-view-area .seisan-cost-policy-tag.club": {
+      "maxDefinitions": 1,
+      "maxBaseDefinitions": 1,
+      "allowedFiles": [
+        "settlement/cost-tags/01-cost-tag-base.css"
+      ]
+    },
+    "#seisan-view-area .seisan-cost-type-badge.club": {
+      "maxDefinitions": 1,
+      "maxBaseDefinitions": 1,
+      "allowedFiles": [
+        "settlement/cost-tags/01-cost-tag-base.css"
+      ]
     }
   }
 }
