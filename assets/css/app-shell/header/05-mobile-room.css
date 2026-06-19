@@ -173,9 +173,6 @@ justify-self: end;
 .header-actions .header-more {
 justify-content: flex-end;
 }
-.header-action {
-border-radius: var(--radius-sm);
-}
 @media (max-width: 640px) {
 .app-header-main > .header-actions {
 width: 100%;
@@ -185,7 +182,6 @@ width: 100%;
 }
 }
 .tool-btn,
-.header-action,
 .view-tab,
 #view-toggle-bar {
 border-radius: var(--radius-main);

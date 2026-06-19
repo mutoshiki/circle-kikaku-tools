@@ -71,7 +71,6 @@ textarea {
 .form-control,
 .form-select,
 .seisan-btn,
-.header-action,
 .view-tab,
 .tool-btn {
     transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, transform 120ms ease;

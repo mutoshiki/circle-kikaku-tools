@@ -28,7 +28,6 @@ grid-template-columns: repeat(2, minmax(0, 1fr));
 .edit-tools {
 direction: ltr;
 }
-.header-action,
 .tool-btn {
 padding-left: 10px;
     padding-right: 10px;

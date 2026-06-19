@@ -99,7 +99,6 @@ max-width: 44vw;
 }
 }
 #app-header,
-.header-action,
 #syncStatusBadge {
 box-sizing: border-box;
 }

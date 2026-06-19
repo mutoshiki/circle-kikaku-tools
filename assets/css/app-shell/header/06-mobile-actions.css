@@ -1,5 +1,4 @@
 .view-tab,
-.header-action,
 .tool-btn {
 border-radius: var(--radius-sm);
 }
@@ -64,17 +63,6 @@ padding-inline: 9px;
 /* Modern app shell refresh: header, tabs and top tool hierarchy. */
 #app-layout {
     background: transparent;
-}
-.header-action {
-    min-height: 38px;
-    padding: 8px 12px;
-    border-radius: 999px;
-    border-color: var(--hairline, var(--border-color));
-    background: color-mix(in srgb, var(--bg-card) 86%, transparent);
-    color: color-mix(in srgb, var(--text-sub) 86%, var(--text-main));
-    box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.03);
-    font-size: 0.79rem;
-    font-weight: 850;
 }
 .header-action:not(.share-action):hover {
     background: var(--hover-bg);

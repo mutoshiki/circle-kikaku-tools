@@ -53,6 +53,20 @@ min-height: 34px;
 }
 
 /* Header action sizing, lock state, and view-tab layout. */
+.header-action {
+  box-sizing: border-box;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-card) 86%, transparent);
+  color: color-mix(in srgb, var(--text-sub) 86%, var(--text-main));
+  box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.03);
+  font-size: 0.79rem;
+  font-weight: 850;
+  line-height: 1.15;
+  touch-action: manipulation;
+}
 .header-actions {
   box-sizing: border-box;
   display: flex;

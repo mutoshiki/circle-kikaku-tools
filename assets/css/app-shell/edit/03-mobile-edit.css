@@ -52,15 +52,3 @@ display: flex;
     gap: 6px;
     min-width: 0;
 }
-.header-action {
-min-height: 36px;
-    padding: 7px 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 999px;
-    background: var(--bg-card);
-    color: var(--text-sub);
-    box-shadow: none;
-    font-weight: 600;
-    line-height: 1.15;
-    touch-action: manipulation;
-}

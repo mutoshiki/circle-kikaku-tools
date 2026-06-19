@@ -152,7 +152,6 @@ fill: rgba(15, 118, 110, 0.08);
 [data-theme="dark"] .app-header-illustration .ill-soft {
 fill: rgba(52, 211, 153, 0.10);
 }
-.header-action,
 .view-tab,
 .tool-btn,
 .edit-tools .tool-btn {
