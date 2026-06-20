@@ -1,6 +1,6 @@
 /* 車別費用カード専用の最終レイアウト。後追い上書きではなく、このファイルを表示ルールの正式な置き場にする。ガソリン代・諸経費・端数処理分・合計の列幅と金額表示を一本のルールでそろえる。 */
 #seisan-view-area .seisan-car-summary-row {
-  --settlement-car-amount-col: 6.65em;
+  --settlement-car-amount-col: 106px;
   --settlement-car-tag-col: 30px;
 }
 /* Gas/expense rows use the same amount rule as the payment total. */
@@ -57,11 +57,19 @@
   grid-template-columns: minmax(0, 1fr);
   gap: 6px;
 }
-#seisan-view-area .seisan-car-summary-row :is(.seisan-cost-line, .seisan-cost-total-row.seisan-car-summary-payment) {
+#seisan-view-area .seisan-car-summary-row .seisan-cost-line {
   width: 100%;
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--settlement-car-amount-col) var(--settlement-car-tag-col);
+  grid-template-columns: minmax(0, 1fr) var(--settlement-car-tag-col) var(--settlement-car-amount-col);
+  align-items: center;
+  column-gap: 10px;
+}
+#seisan-view-area .seisan-car-summary-row .seisan-cost-total-row.seisan-car-summary-payment {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--settlement-car-tag-col) var(--settlement-car-amount-col);
   align-items: center;
   column-gap: 10px;
 }
@@ -126,20 +134,8 @@
   margin-right: 0.03em;
   color: var(--text-sub);
   -webkit-text-fill-color: var(--text-sub);
-  line-height: 1;
-  font-weight: 650;
-  text-align: center;
-}
-#seisan-view-area .seisan-car-summary-row .seisan-cost-total-row .seisan-car-summary-total::before {
-  content: "＝";
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 0.82em;
-  flex: 0 0 0.82em;
-  margin-right: 0.03em;
-  color: var(--text-sub);
-  -webkit-text-fill-color: var(--text-sub);
+  font-size: inherit;
+  letter-spacing: inherit;
   line-height: 1;
   font-weight: 650;
   text-align: center;
@@ -160,9 +156,9 @@
   height: 18px;
   min-height: 18px;
   margin: 0;
-  padding: 0 4px;
+  padding: 2px;
   font-size: 0.64rem;
-  font-weight: 650;
+  font-weight: 500;
   line-height: 1;
 }
 #seisan-view-area .seisan-car-summary-row .seisan-cost-total-row.seisan-car-summary-payment {
@@ -175,13 +171,6 @@
   box-shadow: none;
 }
 #seisan-view-area .seisan-car-summary-row .seisan-cost-total-row .seisan-payment-tag {
-  width: 30px;
-  min-width: 30px;
-  height: 18px;
-  min-height: 18px;
-  padding: 0 4px;
-  font-size: 0.64rem;
-  font-weight: 650;
   color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
   -webkit-text-fill-color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
   background: var(--settlement-pay-bg-fixed, var(--settlement-pay-bg));
@@ -199,7 +188,7 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-amount
 }
 @media (max-width: 640px) {
   #seisan-view-area .seisan-car-summary-row {
-    --settlement-car-amount-col: 6.5em;
+    --settlement-car-amount-col: 104px;
     --settlement-car-tag-col: 30px;
   }
 

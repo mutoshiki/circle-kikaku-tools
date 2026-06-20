@@ -20,14 +20,12 @@
     font-size: 0.75rem;
   }
 
-  #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline,
-  #seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list .seisan-extra-inline {
+  #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline {
     grid-template-columns: minmax(0, 1fr) minmax(6.6em, 6.6em) var(--settlement-tag-min-width, 2.8em);
     column-gap: 7px;
   }
 
-  #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline strong,
-  #seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list .seisan-extra-inline strong {
+  #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline strong {
     width: 6.6em;
     min-width: 6.6em;
   }

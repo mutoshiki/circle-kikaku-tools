@@ -90,11 +90,16 @@
           user: car.name
         }))
     );
-    const accountingTotal = getAccountingAmount(result);
+    const accountingTotal = Number(result.accounting || 0);
+    const collectionRounding = -Number(result.surplus || 0);
     const adjustmentRows = [
       { name: '支払い端数', amount: Number(result.totalDriverRound || 0), user: '全体' },
       { name: '運転手の集金差し引き', amount: -Number(result.totalDriverCollectionOffset || 0), user: '全体' },
-      { name: '集金の端数余り', amount: -Number(result.surplus || 0), user: '全体' }
+      {
+        name: collectionRounding > 0 ? '集金不足の補填' : '集金の端数余り',
+        amount: collectionRounding,
+        user: '全体'
+      }
     ].filter(row => row.amount !== 0);
     const rows = [...expenseRows, ...adjustmentRows];
     const details = rows.length

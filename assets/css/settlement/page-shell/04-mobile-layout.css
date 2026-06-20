@@ -201,7 +201,7 @@ gap: 6px;
   }
 
   #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row {
-    --settlement-car-amount-col: 4.5em;
+    --settlement-car-amount-col: 61px;
     --settlement-car-tag-col: 28px;
     min-width: 0;
   }
@@ -233,9 +233,9 @@ gap: 6px;
 
   #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-line > span:first-child,
   #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-total-label {
-    overflow: visible;
-    text-overflow: clip;
-    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 0.70rem;
     line-height: 1.15;
   }

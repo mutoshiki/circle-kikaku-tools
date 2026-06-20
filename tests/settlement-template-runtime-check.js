@@ -48,6 +48,7 @@ const publicNames = [
   'collection',
   'driverPay',
   'breakdown',
+  'clubExpenseBreakdown',
   'emptyState',
   'routeStopRow',
   'routeCandidateButton'
@@ -106,5 +107,21 @@ assert(driverPayHtml.includes('seisan-driver-pay-row'), 'driverPay should render
 assert(driverPayHtml.includes('<span class="seisan-amount-sign" aria-hidden="true">＝</span>'), 'driver payment amount should show an equals sign before the total');
 assert(driverPayHtml.includes('駐車場代') && driverPayHtml.includes('端数処理分'), 'driverPay should render cost details without ReferenceError');
 assert(driverPayHtml.includes('checked'), 'driverPay should reflect checked payment state');
+
+const clubBreakdownHtml = templates.clubExpenseBreakdown({
+  cars: [{
+    name: '小林 悠斗',
+    extras: [{ name: '部費補助', amountValue: 500, type: 'club' }]
+  }],
+  totalDriverRound: 94,
+  totalDriverCollectionOffset: 1500,
+  surplus: -306,
+  accounting: -600
+}, {
+  yen: value => `¥${Number(value || 0).toLocaleString()}`
+});
+assert(clubBreakdownHtml.includes('集金不足の補填'), 'negative collection surplus should be labeled as a shortage, not a surplus');
+assert(!clubBreakdownHtml.includes('集金の端数余り'), 'shortage must not be described as leftover collection');
+assert(clubBreakdownHtml.includes('<strong>¥-600</strong>'), 'club breakdown total should retain the accounting sign so rows add up to the displayed total');
 
 console.log('Settlement template runtime check OK');

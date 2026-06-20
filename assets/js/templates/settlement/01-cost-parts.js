@@ -11,8 +11,9 @@
     return `<em class="seisan-cost-policy-tag seisan-cost-type-badge ${UI_CLASS.chip} ${normalized}" data-cost-type="${normalized}">${normalized === 'club' ? '部費' : '割勘'}</em>`;
   }
 
-    function formatPaymentBadge() {
-    return `<em class="seisan-payment-tag ${UI_CLASS.chip}" data-cost-type="pay">支払い</em>`;
+    function formatPaymentBadge(label = '支払い') {
+    const text = label === '支払' ? '支払' : '支払い';
+    return `<em class="seisan-payment-tag ${UI_CLASS.chip}" data-cost-type="pay">${text}</em>`;
   }
 
     function formatExtraChips(extras, helpers = {}) {
@@ -45,17 +46,17 @@
 
     function formatGasInline(calc, helpers = {}) {
     if (calc?.usesTimesRental) return '';
-    return `<span class="seisan-extra-inline seisan-cost-line seisan-extra-inline--gas split"><span>ガソリン代</span><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.gas || 0, helpers)}</strong>${formatCostBadge('split')}</span>`;
+    return `<span class="seisan-extra-inline seisan-cost-line seisan-extra-inline--gas split"><span>ガソリン代</span>${formatCostBadge('split')}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.gas || 0, helpers)}</strong></span>`;
   }
 
     function formatDriverCollectionOffsetInline(calc, helpers = {}) {
     if (!calc.collectionOffset) return '';
-    return { op: '−', html: `<span class="seisan-extra-inline seisan-cost-line seisan-extra-inline--offset" data-cost-type="offset"><span>集金</span><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.collectionOffset, helpers)}</strong><em class="seisan-cost-type-badge seisan-cost-type-badge--spacer" aria-hidden="true">割勘</em></span>` };
+    return { op: '−', html: `<span class="seisan-extra-inline seisan-cost-line seisan-extra-inline--offset" data-cost-type="offset"><span>集金</span><em class="seisan-cost-type-badge seisan-cost-type-badge--spacer" aria-hidden="true">割勘</em><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.collectionOffset, helpers)}</strong></span>` };
   }
 
     function formatDriverRoundInline(calc, helpers = {}) {
     if (!calc.driverRound) return '';
-    return { op: '＋', html: `<span class="seisan-extra-inline seisan-cost-line seisan-extra-inline--rounding split" data-cost-type="rounding"><span>端数処理分</span><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.driverRound, helpers)}</strong>${formatCostBadge('split')}</span>` };
+    return { op: '＋', html: `<span class="seisan-extra-inline seisan-cost-line seisan-extra-inline--rounding split" data-cost-type="rounding"><span>端数処理分</span>${formatCostBadge('split')}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.driverRound, helpers)}</strong></span>` };
   }
 
     function isRewardExtraForDisplay(ex = {}) {
@@ -72,7 +73,7 @@
     function formatExtraInline(ex, helpers = {}) {
     const type = ex.type === 'club' ? 'club' : 'split';
     const rewardClass = isRewardExtraForDisplay(ex) ? ' seisan-extra-inline--driver-reward' : '';
-    return `<span class="seisan-extra-inline seisan-cost-line ${type}${rewardClass}"><span>${esc(ex.name || '費用', helpers)}</span><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(ex.amountValue || ex.amount || 0, helpers)}</strong>${formatCostBadge(type)}</span>`;
+    return `<span class="seisan-extra-inline seisan-cost-line ${type}${rewardClass}"><span>${esc(ex.name || '費用', helpers)}</span>${formatCostBadge(type)}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(ex.amountValue || ex.amount || 0, helpers)}</strong></span>`;
   }
 
     function formatExtraSlash(extras, helpers = {}) {
@@ -107,7 +108,7 @@
 
     function formatPaymentTotalRow(calc, helpers = {}) {
     const amount = calc.adjustedTotalPay ?? calc.totalPay ?? 0;
-    return `<div class="seisan-car-summary-payment seisan-cost-total-row" aria-label="車主への支払い金額"><span class="seisan-cost-total-label">合計</span><strong class="seisan-car-summary-total ${UI_CLASS.amount}">${money(amount, helpers)}</strong>${formatPaymentBadge()}</div>`;
+    return `<div class="seisan-car-summary-payment seisan-cost-total-row" aria-label="車主への支払い金額"><span class="seisan-cost-total-label">合計</span>${formatPaymentBadge('支払')}<strong class="seisan-car-summary-total ${UI_CLASS.amount}"><span class="seisan-amount-sign" aria-hidden="true">＝</span>${money(amount, helpers)}</strong></div>`;
   }
 
   
