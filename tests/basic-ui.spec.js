@@ -160,14 +160,9 @@ test('critical modals stay clickable and above the backdrop', async ({ page }) =
   await page.locator('#batchOpenBtn').click();
   await closeModal(page, '#batchImportModal');
 
-  await page.locator('#carGuideBtn').click();
-  await closeModal(page, '#guideModal');
-
   await page.locator('#tab-seisan').click();
-  await page.locator('#seisanGuideBtn').click();
-  await closeModal(page, '#seisanGuideModal');
-
-  await page.locator('#routeHelperBtn').click();
+  await page.locator('#seisan-car-list [data-action="open-settlement-car-edit"]').first().click();
+  await page.locator('#settlementCarEditModal [data-action="open-route-helper-shortcut"]').click();
   await closeModal(page, '#routeDistanceModal');
 });
 

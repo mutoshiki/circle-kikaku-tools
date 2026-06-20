@@ -27,6 +27,7 @@ assert(css.includes('.seisan-car-summary-headline') && css.includes('grid-templa
 assert(css.includes('.seisan-cost-preview-item') && css.includes('border: 0;'), 'car summary amount frames should be removed in the final override');
 assert(css.includes('.seisan-cost-preview-item--inline-all'), 'gas and extra costs should render in one inline summary row');
 assert(css.includes('.seisan-cost-total-row') && css.includes('border-top: 1px solid'), 'payment total should be separated from gas and extra rows by a divider');
+assert(css.includes('.seisan-cost-total-row .seisan-car-summary-total::before') && css.includes('content: "＝";'), 'payment total should show an equals sign before the amount');
 assert(css.includes('.seisan-cost-line-amount.seisan-car-summary-total') && css.includes('--amount-font-size'), 'cost row amounts should follow the same visual amount rule as the payment total');
 
 console.log('Settlement car summary readability check OK');

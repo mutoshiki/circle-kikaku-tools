@@ -147,13 +147,10 @@ border-radius: var(--radius-main);
 .app-decision-modal .modal-content {
     overflow: hidden;
 }
-.app-decision-modal .modal-header,
-.app-decision-modal .modal-footer {
-border-color: var(--border-color);
-}
 .app-decision-modal .modal-header {
     min-height: 0;
     padding: 14px 16px 12px;
+    border-bottom: 0;
 }
 .app-decision-modal .modal-body {
     padding: 16px;
@@ -162,7 +159,7 @@ border-color: var(--border-color);
     gap: 8px;
     padding: 12px 16px 16px;
     background: var(--bg-card);
-    border-top: 1px solid var(--border-color);
+    border-top: 0;
 }
 .app-decision-modal .modal-footer .btn {
     flex: 0 0 auto;

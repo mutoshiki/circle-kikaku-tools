@@ -111,28 +111,3 @@ html[data-theme="dark"] #settlementSettingsModal .seisan-standalone-fields {
   font-weight: 500;
   letter-spacing: 0.02em;
 }
-
-/* Route helper launch button belongs to settlement controls, not route-stop CSS. */
-#routeHelperBtn.seisan-btn {
-  font-size: 0.9rem;
-}
-
-#seisan-view-area .seisan-head-tools-only #routeHelperBtn.seisan-btn {
-  min-width: 0;
-}
-
-#seisan-view-area #routeHelperBtn.seisan-btn {
-  min-width: 92px;
-  padding-inline: 12px;
-}
-
-@media (max-width: 640px) {
-  #routeHelperBtn.seisan-btn {
-    font-size: 0.8rem;
-  }
-
-  #seisan-view-area #routeHelperBtn.seisan-btn {
-    min-width: 86px;
-    padding-inline: 10px;
-  }
-}

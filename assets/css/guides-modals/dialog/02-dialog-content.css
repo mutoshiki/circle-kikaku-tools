@@ -146,9 +146,6 @@ padding-inline: 9px;
 }
 /* =========================================================
 ========================================================= */
-#carGuideBtn.tool-btn {
-  color: var(--text-main);
-}
 .modal-content,
 .dropdown-menu,
 .person-pop-menu {

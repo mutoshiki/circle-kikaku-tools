@@ -192,3 +192,64 @@ gap: 6px;
   border-radius: var(--radius-sm);
   background: var(--ui-surface-sunken);
 }
+
+@media (max-width: 640px) {
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row {
+    --settlement-car-amount-col: 4.5em;
+    --settlement-car-tag-col: 28px;
+    min-width: 0;
+  }
+
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row + .seisan-car-summary-row {
+    margin-top: 0;
+  }
+
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-headline {
+    padding-inline: 9px;
+  }
+
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-name {
+    font-size: 0.76rem;
+  }
+
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-edit-btn {
+    min-width: 0;
+    padding-inline: 6px;
+  }
+
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row :is(.seisan-cost-line, .seisan-cost-total-row.seisan-car-summary-payment) {
+    column-gap: 4px;
+  }
+
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-preview-list {
+    padding-inline: 7px;
+  }
+
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-line > span:first-child,
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-total-label {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    font-size: 0.70rem;
+    line-height: 1.15;
+  }
+
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-line > .seisan-car-summary-total,
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-line-amount.seisan-car-summary-total,
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-total-row .seisan-car-summary-total {
+    font-size: 0.90rem;
+  }
+
+  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row :is(.seisan-cost-type-badge, .seisan-payment-tag) {
+    width: 28px;
+    min-width: 28px;
+    padding-inline: 2px;
+    font-size: 0.56rem;
+  }
+}

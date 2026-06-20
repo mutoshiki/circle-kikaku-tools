@@ -27,7 +27,7 @@
       ]);
       return `<label class="seisan-driver-pay-row ${done ? 'done' : ''}">
             <span class="seisan-driver-name">${esc(car.name, helpers)}</span>
-            <span class="seisan-driver-amount">${money(car.adjustedTotalPay ?? car.totalPay, helpers)}</span>
+            <span class="seisan-driver-amount"><span class="seisan-amount-sign" aria-hidden="true">＝</span>${money(car.adjustedTotalPay ?? car.totalPay, helpers)}</span>
             <input type="checkbox" ${done ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}">
             <div class="seisan-driver-detail seisan-driver-detail-list" aria-label="支払い内訳">${costDetails}</div>
         </label>`;

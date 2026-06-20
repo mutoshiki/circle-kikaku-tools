@@ -6,7 +6,6 @@ const required = [
   '--theme-filled-control-text',
   '--header-icon-text',
   '#shareLinkBtn.header-action',
-  '#routeHelperBtn.seisan-btn',
   '.seisan-btn.primary',
   '#shuffleAssignBtn.tray-action-btn',
   '#settlementCarEditModal .seisan-distance-shortcut',

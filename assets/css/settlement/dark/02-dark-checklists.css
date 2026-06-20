@@ -80,6 +80,11 @@ html[data-theme="dark"] #seisan-view-area .seisan-check-item.paid {
   background: color-mix(in srgb, var(--color-success) 18%, var(--seisan-dark-panel));
   border-color: rgba(110, 231, 183, 0.38);
 }
+body[data-theme="dark"] #seisan-view-area .seisan-check-item.excluded,
+html[data-theme="dark"] #seisan-view-area .seisan-check-item.excluded {
+  background: color-mix(in srgb, var(--color-night) 34%, var(--seisan-dark-panel));
+  border-color: color-mix(in srgb, var(--seisan-dark-muted) 26%, var(--seisan-dark-line-soft));
+}
 body[data-theme="dark"] #seisan-view-area .seisan-extra-inline > span,
 body[data-theme="dark"] #seisan-view-area .seisan-extra-inline strong,
 html[data-theme="dark"] #seisan-view-area .seisan-extra-inline > span,
@@ -110,7 +115,6 @@ body[data-theme="dark"] :is(
   .mock-form-import-button,
   .batch-spreadsheet-button,
   #batchOpenBtn.tool-btn,
-  #routeHelperBtn.seisan-btn,
   #openGoogleRouteBtn.seisan-btn,
   .seisan-btn.primary,
   .seisan-btn.active,
@@ -129,7 +133,6 @@ html[data-theme="dark"] body :is(
   .mock-form-import-button,
   .batch-spreadsheet-button,
   #batchOpenBtn.tool-btn,
-  #routeHelperBtn.seisan-btn,
   #openGoogleRouteBtn.seisan-btn,
   .seisan-btn.primary,
   .seisan-btn.active,
@@ -152,7 +155,6 @@ body[data-theme="dark"] :is(
   .mock-form-import-button,
   .batch-spreadsheet-button,
   #batchOpenBtn.tool-btn,
-  #routeHelperBtn.seisan-btn,
   #openGoogleRouteBtn.seisan-btn,
   .seisan-btn.primary,
   .seisan-btn.active,
@@ -171,7 +173,6 @@ html[data-theme="dark"] body :is(
   .mock-form-import-button,
   .batch-spreadsheet-button,
   #batchOpenBtn.tool-btn,
-  #routeHelperBtn.seisan-btn,
   #openGoogleRouteBtn.seisan-btn,
   .seisan-btn.primary,
   .seisan-btn.active,

@@ -78,6 +78,17 @@ const carSummaryHtml = templates.cars({
 assert(carSummaryHtml.includes('ガソリン代'), 'car summary should render gas cost');
 assert(/ガソリン代[\s\S]*?<span class="seisan-amount-sign" aria-hidden="true">＋<\/span>/.test(carSummaryHtml), 'gas cost amount should show a plus sign like other positive cost rows');
 
+const carEditHtml = templates.carRow({
+  car: { name: '高橋 健介' },
+  cState: { dist: '86', eco: '13.5', price: '172', rentalType: 'private' },
+  calc: { gas: 1096, totalPay: 1000 },
+  extras: [{ name: '駐車場', amount: '400', type: 'split' }],
+  issues: { rows: new Set(), messages: [] },
+  helpers: { yen: value => `¥${Number(value || 0).toLocaleString()}` }
+});
+assert(carEditHtml.includes('<div class="seisan-subhead"><strong>ガソリン代</strong>'), 'car editor should label the fuel inputs with the same heading format as expenses');
+assert(!carEditHtml.includes('高橋 健介 車</strong>'), 'car editor should not repeat the driver name above the fuel inputs');
+
 const driverPayHtml = templates.driverPay({
   result: {
     cars: [{
@@ -94,6 +105,7 @@ const driverPayHtml = templates.driverPay({
   helpers: { yen: value => `¥${Number(value || 0).toLocaleString()}` }
 });
 assert(driverPayHtml.includes('seisan-driver-pay-row'), 'driverPay should render the payment checklist row');
+assert(driverPayHtml.includes('<span class="seisan-amount-sign" aria-hidden="true">＝</span>'), 'driver payment amount should show an equals sign before the total');
 assert(driverPayHtml.includes('駐車場代') && driverPayHtml.includes('端数処理分'), 'driverPay should render cost details without ReferenceError');
 assert(driverPayHtml.includes('checked'), 'driverPay should reflect checked payment state');
 

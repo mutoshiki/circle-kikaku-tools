@@ -56,15 +56,12 @@
         bind('tab-list', () => switchView('list'));
         bind('tab-sheet', () => switchView('sheet'));
         bind('tab-seisan', () => switchView('seisan'));
-        bind('carGuideBtn', () => global.modals?.guide?.show());
         bind('batchOpenBtn', () => openBatchModal());
         bind('sheetZoomInBtn', () => zoomIn());
         bind('sheetZoomOutBtn', () => zoomOut());
         bind('sheetZoomResetBtn', () => resetZoom());
         bind('sheet-quick-edit-btn', () => toggleQuickEdit());
-        bind('seisanGuideBtn', () => global.modals?.seisanGuide?.show());
         bind('seisanRefreshBtn', () => renderSettlementView());
-        bind('routeHelperBtn', () => openRouteDistanceHelper());
         bind('clearAllBtn', () => global.clearAll());
         bind('resetAppearanceBtn', () => resetAppearanceSettings());
         bind('applyGoogleFormPasteBtn', () => global.applyGoogleFormPasteImport?.());

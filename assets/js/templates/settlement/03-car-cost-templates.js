@@ -63,10 +63,9 @@
     const standaloneIndex = Number.isInteger(car.standaloneIndex) ? car.standaloneIndex : null;
     const standaloneData = standaloneIndex == null ? '' : ` data-standalone-driver-index="${standaloneIndex}"`;
     const standaloneNameField = standaloneIndex == null ? '' : `<label class="seisan-standalone-driver-name-field"><span class="seisan-mini-label">車出し名</span><input type="text" data-field="standaloneDriverName" value="${esc(car.name, helpers)}" placeholder="車出し${standaloneIndex + 1}" autocomplete="off"></label>`;
-    const carTitleName = standaloneIndex == null ? `<strong>${esc(car.name, helpers)} 車</strong>` : '';
     const rentalType = usesTimesRental ? 'times' : 'private';
     return `<div class="seisan-car-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}"${standaloneData}>
-        <div class="seisan-car-title">${carTitleName}<span class="seisan-car-total ${UI_CLASS.amount}">支払 ${money(calc.adjustedTotalPay ?? calc.totalPay, helpers)}</span></div>
+        <div class="seisan-subhead"><strong>ガソリン代</strong><span class="seisan-car-total ${UI_CLASS.amount}">支払 ${money(calc.adjustedTotalPay ?? calc.totalPay, helpers)}</span></div>
         ${standaloneNameField}
         <div class="seisan-car-inputs">
           <div class="seisan-times-toggle-field"><label class="seisan-times-toggle"><input type="checkbox" data-field="rentalType" value="times" ${rentalType === 'times' ? 'checked' : ''} aria-label="レンタカー（タイムズ）"><span class="seisan-times-toggle-ui" aria-hidden="true"></span><span class="seisan-times-toggle-text">レンタカー（タイムズ）</span></label></div>
