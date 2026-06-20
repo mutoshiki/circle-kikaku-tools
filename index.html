@@ -765,7 +765,7 @@
 
     <!-- Utility modals -->
     <div class="modal fade" id="routeDistanceModal" tabindex="-1" aria-labelledby="routeDistanceModalTitle" aria-hidden="true">
-      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-dialog modal-lg modal-dialog-centered route-helper-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title modal-title--guide" id="routeDistanceModalTitle"><i class="fas fa-route me-2" aria-hidden="true"></i>移動距離を調べる</h5>
@@ -773,23 +773,11 @@
           </div>
           <div class="modal-body route-helper-body">
             <div class="route-helper-panel">
-              <p class="route-helper-lead">自宅から各地点を回って自宅へ戻るルートをGoogleマップで開きます。表示された距離を、車ごとの「移動距離」に入力してください。</p>
-
-              <div class="route-private-panel">
-                <div class="route-helper-title-row">
-                  <div class="seisan-title route-helper-title"><i class="fas fa-house-user" aria-hidden="true"></i>自宅</div>
-                  <span class="route-helper-subtitle">出発地・最後の到着地</span>
-                </div>
-                <div id="routePrivateOriginBox"></div>
-                <div class="route-helper-note mt-2">この端末だけに保存されます。未入力の場合は、最初の地点から最後の地点までのルートになります。</div>
-              </div>
-
               <div class="route-stop-panel route-personal-stop-panel">
                 <div class="route-helper-title-row">
-                  <div class="seisan-title route-helper-title"><i class="fas fa-map-location-dot" aria-hidden="true"></i>回る場所</div>
-                  <span class="route-helper-subtitle">訪問する順番</span>
+                  <div class="seisan-title route-helper-title"><i class="fas fa-map-location-dot" aria-hidden="true"></i>立ち寄る場所</div>
                 </div>
-                <div class="route-helper-note route-stop-help"><i class="fas fa-grip-vertical" aria-hidden="true"></i>番号をドラッグして並び替えできます。候補はタップするとここに追加されます。</div>
+                <p class="route-location-privacy-note"><i class="fas fa-shield-halved" aria-hidden="true"></i>自宅は入力せず、近くの施設や集合場所などを入力してください。</p>
                 <div id="routeStopList" class="route-stop-list"></div>
                 <button id="addRouteStopBtn" class="seisan-btn route-add-stop-btn" type="button"><i class="fas fa-plus me-1" aria-hidden="true"></i>場所を追加</button>
               </div>
@@ -797,13 +785,12 @@
               <div class="route-candidate-panel">
                 <div class="route-helper-title-row">
                   <div class="seisan-title route-helper-title"><i class="fas fa-lightbulb" aria-hidden="true"></i>候補</div>
-                  <span class="route-helper-subtitle">タップで追加</span>
                 </div>
                 <div id="routeCandidateList" class="route-candidate-list"></div>
               </div>
 
               <div class="route-helper-actions">
-                <button id="openGoogleRouteBtn" class="seisan-btn primary" type="button"><i class="fab fa-google" aria-hidden="true"></i>Googleマップでルートを開く</button>
+                <button id="openGoogleRouteBtn" class="seisan-btn primary" type="button"><i class="fab fa-google" aria-hidden="true"></i>Google Mapで距離を確認</button>
               </div>
 
               <div id="routeHelperStatus" class="seisan-small route-helper-status"></div>

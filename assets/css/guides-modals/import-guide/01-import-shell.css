@@ -13,7 +13,6 @@ color: var(--text-sub);
   border-color: var(--app-divider-soft, var(--border-color));
 }
 #batchImportModal .modal-dialog,
-#routeDistanceModal .modal-dialog,
 #commonEditModal .modal-dialog,
 #historyModal .modal-dialog,
 #debugModal .modal-dialog,
@@ -24,7 +23,6 @@ margin-left: auto;
     transform: none;
 }
 #batchImportModal .modal-content,
-#routeDistanceModal .modal-content,
 #commonEditModal .modal-content,
 #historyModal .modal-content,
 #debugModal .modal-content {
@@ -33,7 +31,6 @@ width: 100%;
     overflow: hidden;
 }
 #batchImportModal .modal-body,
-#routeDistanceModal .modal-body,
 #commonEditModal .modal-body,
 #historyModal .modal-body,
 #debugModal .modal-body {
@@ -61,7 +58,6 @@ max-width: 100%;
 }
 @media (min-width: 641px) {
 #batchImportModal .modal-dialog.modal-lg,
-#routeDistanceModal .modal-dialog.modal-lg,
 #globalGuideModal .modal-dialog.modal-lg,
 #guideModal .modal-dialog.modal-lg {
 width: min(920px, calc(100vw - 32px));
@@ -70,7 +66,6 @@ width: min(920px, calc(100vw - 32px));
 }
 @media (max-width: 640px) {
 #batchImportModal .modal-dialog,
-#routeDistanceModal .modal-dialog,
 #globalGuideModal .modal-dialog,
 #guideModal .modal-dialog {
 width: 100%;
@@ -82,7 +77,6 @@ width: 100%;
 }
 @media (max-width: 640px) {
 #batchImportModal .modal-content,
-#routeDistanceModal .modal-content,
 #globalGuideModal .modal-content,
 #guideModal .modal-content {
 width: 100%;
@@ -92,8 +86,7 @@ width: 100%;
 }
 }
 @media (max-width: 640px) {
-#batchImportModal .modal-body,
-#routeDistanceModal .modal-body {
+#batchImportModal .modal-body {
 overflow-y: auto;
         overflow-x: hidden;
         -webkit-overflow-scrolling: touch;

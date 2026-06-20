@@ -3,7 +3,7 @@ const owner = readCssBundle(root);
 
 const required = [
   '#batchImportModal .modal-dialog',
-  '#routeDistanceModal .modal-dialog',
+  '#routeDistanceModal .route-helper-dialog',
   '#commonEditModal .modal-dialog',
   'margin-left: auto',
   'margin-right: auto',

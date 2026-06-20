@@ -35,10 +35,6 @@
             'remove-settlement-extra': ({ target }) => global.removeSettlementExtra?.(target),
             'copy-settlement-text': () => global.copySettlementText?.(),
             'open-route-helper-shortcut': () => global.openRouteDistanceHelperFromShortcut?.(),
-            'edit-route-private-origin': () => global.editRoutePrivateOrigin?.(),
-            'clear-route-private-origin': () => global.clearRoutePrivateOrigin?.(),
-            'save-route-private-origin': () => global.saveRoutePrivateOrigin?.(),
-            'cancel-route-private-origin': () => global.cancelRoutePrivateOriginEdit?.(),
             'remove-route-stop': ({ target }) => global.removeRouteStop?.(target),
             'add-route-candidate-to-personal': ({ target }) => global.addRouteCandidateToPersonal?.(target.dataset.routeCandidate || '')
         };

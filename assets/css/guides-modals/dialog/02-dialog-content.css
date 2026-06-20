@@ -128,7 +128,6 @@ padding-inline: 9px;
 [data-theme="dark"] .app-guide-box,
 [data-theme="dark"] .guide-mini-screen,
 [data-theme="dark"] .route-helper-panel,
-[data-theme="dark"] .route-private-panel,
 [data-theme="dark"] .route-stop-panel,
 [data-theme="dark"] .empty-card {
     border-color: var(--hairline, var(--border-color));

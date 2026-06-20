@@ -1,27 +1,7 @@
 // Settlement route helper modal actions.
 // Split from features/settlement.js during S-3 cleanup.
 
-const ROUTE_PRIVATE_ORIGIN_KEY = 'circle_route_private_origin_v1';
 const ROUTE_PERSONAL_STOPS_KEY_PREFIX = 'circle_route_personal_stops_v1:';
-
-function getRoutePrivateOrigin() {
-    try {
-        return String(localStorage.getItem(ROUTE_PRIVATE_ORIGIN_KEY) || '').trim();
-    } catch (e) {
-        return '';
-    }
-}
-
-function setRoutePrivateOrigin(value) {
-    try {
-        const normalized = String(value || '').trim();
-        if (normalized) {
-            localStorage.setItem(ROUTE_PRIVATE_ORIGIN_KEY, normalized);
-        } else {
-            safeLocalRemove(ROUTE_PRIVATE_ORIGIN_KEY);
-        }
-    } catch (e) {}
-}
 
 function normalizeRouteStopList(stops = []) {
     const seen = new Set();
@@ -62,40 +42,6 @@ function setRoutePersonalStops(stops = []) {
     } catch (e) {}
 }
 
-function renderRoutePrivateOrigin(editing = false) {
-    const box = byId('routePrivateOriginBox');
-    if (!box) return;
-    const saved = getRoutePrivateOrigin();
-    if (saved && !editing) {
-        box.innerHTML = window.SanpoApp.templates.settlement.routePrivateOriginView();
-        return;
-    }
-    box.innerHTML = window.SanpoApp.templates.settlement.routePrivateOriginEdit(saved, { escapeHtml });
-}
-
-window.editRoutePrivateOrigin = function() {
-    renderRoutePrivateOrigin(true);
-    const input = byId('routePrivateOriginInput');
-    if (input) input.focus();
-};
-
-window.saveRoutePrivateOrigin = function() {
-    const input = byId('routePrivateOriginInput');
-    setRoutePrivateOrigin(input ? input.value : '');
-    renderRoutePrivateOrigin(false);
-    setRouteHelperStatus(getRoutePrivateOrigin() ? '自宅を保存しました。' : '自宅を空にしました。');
-};
-
-window.clearRoutePrivateOrigin = function() {
-    setRoutePrivateOrigin('');
-    renderRoutePrivateOrigin(false);
-    setRouteHelperStatus('自宅を削除しました。');
-};
-
-window.cancelRoutePrivateOriginEdit = function() {
-    renderRoutePrivateOrigin(false);
-};
-
 function getRouteCarNames() {
     return (getRoomDataOnly().cars || []).map(c => c.name).filter(Boolean);
 }
@@ -113,11 +59,11 @@ function routeCandidateHtml(value = '') {
     return window.SanpoApp.templates.settlement.routeCandidateButton(value, { escapeHtml });
 }
 
-function refreshRouteStopNumbers() {
+function refreshRouteStopHandles() {
     const rows = Array.from(document.querySelectorAll('#routeStopList .route-stop-row'));
-    rows.forEach((row, index) => {
+    rows.forEach(row => {
         const num = row.querySelector('.route-stop-num');
-        if (num) num.textContent = String(index + 1);
+        if (num) num.setAttribute('aria-label', 'この場所を並び替え');
     });
 }
 
@@ -138,7 +84,7 @@ function setRouteStops(stops) {
     if (!list) return;
     const normalized = Array.isArray(stops) && stops.length ? stops : [''];
     list.innerHTML = normalized.map((stop, index) => routeStopRowHtml(stop, index, normalized.length)).join('');
-    refreshRouteStopNumbers();
+    refreshRouteStopHandles();
     setupRouteStopSortable();
 }
 
@@ -186,7 +132,7 @@ function setupRouteStopSortable() {
         animation: 150,
         handle: '.route-stop-num',
         onEnd: () => {
-            refreshRouteStopNumbers();
+            refreshRouteStopHandles();
             saveRouteStopsFromModal();
         }
     });
@@ -196,14 +142,14 @@ let routeStopSaveTimer = null;
 window.onRouteStopsChanged = function() {
     clearTimeout(routeStopSaveTimer);
     saveRouteStopsFromModal({ share: true });
-    refreshRouteStopNumbers();
+    refreshRouteStopHandles();
 };
 
 window.onRouteStopsChangedDelayed = function() {
     clearTimeout(routeStopSaveTimer);
     routeStopSaveTimer = setTimeout(() => {
         saveRouteStopsFromModal();
-        refreshRouteStopNumbers();
+        refreshRouteStopHandles();
     }, 450);
 };
 
@@ -212,7 +158,6 @@ window.openRouteDistanceHelper = function() {
     const candidates = getSavedRouteStops();
     setRouteStops(getRoutePersonalStops(candidates));
     setRouteCandidates(candidates);
-    renderRoutePrivateOrigin(false);
     setRouteHelperStatus('');
     if (modals.routeDistance) modals.routeDistance.show();
 };
@@ -243,7 +188,7 @@ window.removeRouteStop = function(button) {
     if (row) row.remove();
     const list = byId('routeStopList');
     if (list && !list.querySelector('.route-stop-row')) setRouteStops(['']);
-    refreshRouteStopNumbers();
+    refreshRouteStopHandles();
     saveRouteStopsFromModal({ share: true });
 };
 
@@ -253,25 +198,20 @@ window.addRouteCandidateToPersonal = function(encodedValue) {
     const current = getRouteStops();
     setRouteStops(normalizeRouteStopList([...current, value]));
     setRoutePersonalStops(getRouteStops());
-    setRouteHelperStatus('候補を回る場所に追加しました。');
+    setRouteHelperStatus('候補を立ち寄る場所に追加しました。');
 };
 
 window.openGoogleRoute = function() {
     const stops = saveRouteStopsFromModal({ share: true });
     if (!stops.length) {
-        setRouteHelperStatus('回る場所を1つ以上入力してください。', true);
+        setRouteHelperStatus('立ち寄る場所を1つ以上入力してください。', true);
         return;
     }
 
-    const privateOrigin = getRoutePrivateOrigin();
     const params = new URLSearchParams();
     params.set('api', '1');
     params.set('travelmode', 'driving');
-    if (privateOrigin) {
-        params.set('origin', privateOrigin);
-        params.set('destination', privateOrigin);
-        params.set('waypoints', stops.join('|'));
-    } else if (stops.length === 1) {
+    if (stops.length === 1) {
         params.set('destination', stops[0]);
     } else {
         params.set('origin', stops[0]);
@@ -281,5 +221,5 @@ window.openGoogleRoute = function() {
     }
     const url = `https://www.google.com/maps/dir/?${params.toString()}`;
     window.open(url, '_blank', 'noopener,noreferrer');
-    setRouteHelperStatus(privateOrigin ? '自宅に戻るルートを開きました。' : 'Googleマップを開きました。');
+    setRouteHelperStatus('Google Mapを開きました。');
 };

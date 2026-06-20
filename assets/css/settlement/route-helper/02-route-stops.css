@@ -22,31 +22,20 @@
   width: 30px;
   height: 38px;
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
   border: 0;
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
+  background: color-mix(in srgb, var(--text-sub) 7%, transparent);
   color: var(--text-sub);
-  font-size: 0.78rem;
-  font-weight: 500;
   cursor: grab;
   touch-action: none;
 }
 
 #routeDistanceModal .route-stop-num i {
-  font-size: 0.68rem;
+  font-size: 0.92rem;
   line-height: 1;
-  opacity: 0.72;
-}
-
-#routeDistanceModal .route-stop-num b {
-  display: block;
-  font-size: 0.76rem;
-  line-height: 1;
-  font-weight: 500;
+  opacity: 0.68;
 }
 
 #routeDistanceModal .route-stop-num:active {
@@ -87,10 +76,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin: -2px 0 8px;
-  padding: 6px 8px;
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--bg-body) 82%, var(--bg-card));
+  margin: -2px 0 7px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--text-sub);
 }
 
