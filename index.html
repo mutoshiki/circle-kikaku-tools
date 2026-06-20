@@ -137,6 +137,7 @@
     <link href="./assets/css/settlement/checklists/03-driver-payment-list.css" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/04-driver-payment-mobile.css" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/05-driver-payment-detail.css" rel="stylesheet">
+    <link href="./assets/css/settlement/checklists/06-club-expense-list.css" rel="stylesheet">
     <link href="./assets/css/settlement/share/01-share-output.css" rel="stylesheet">
     <link href="./assets/css/settlement/cost-tags/01-cost-tag-base.css" rel="stylesheet">
     <link href="./assets/css/settlement/cost-tags/02-cost-breakdown.css" rel="stylesheet">
@@ -291,30 +292,35 @@
 
           <section class="seisan-card seisan-panel seisan-car-panel">
             <div class="seisan-head">
-              <div>
-                <div class="seisan-title"><i class="fas fa-car-side" aria-hidden="true"></i>車別の費用</div>
+              <div class="seisan-title seisan-semantic-section-title">
+                <i class="fas fa-car-side" aria-hidden="true"></i>
+                <span>ドライバーへの<em class="seisan-payment-tag ui-chip" data-cost-type="pay">支払い</em></span>
               </div>
             </div>
             <div id="seisan-car-list"></div>
           </section>
 
+          <section class="seisan-card seisan-panel seisan-club-expense-panel">
+            <div class="seisan-head">
+              <div class="seisan-title seisan-semantic-section-title">
+                <i class="fas fa-wallet" aria-hidden="true"></i>
+                <span><em class="seisan-cost-policy-tag seisan-cost-type-badge ui-chip club" data-cost-type="club">部費</em>使用内訳</span>
+              </div>
+            </div>
+            <div id="seisan-club-expense-list" class="seisan-club-expense-list"></div>
+          </section>
+
           <section class="seisan-card seisan-panel seisan-collection-panel">
             <div class="seisan-head">
               <div>
-                <div class="seisan-title"><i class="fas fa-clipboard-list" aria-hidden="true"></i>集金チェック</div>
+                <div class="seisan-title seisan-semantic-section-title">
+                  <i class="fas fa-square-check" aria-hidden="true"></i>
+                  <span><em class="seisan-cost-policy-tag seisan-cost-type-badge ui-chip split" data-cost-type="split">割勘</em>支払いチェック</span>
+                </div>
                 <div id="seisan-collection-note" class="seisan-muted"></div>
               </div>
             </div>
             <div id="seisan-collection-list" class="seisan-check-list"></div>
-          </section>
-
-          <section class="seisan-card seisan-panel seisan-driver-panel">
-            <div class="seisan-head">
-              <div>
-                <div class="seisan-title"><i class="fas fa-money-bill-transfer" aria-hidden="true"></i>支払いチェック</div>
-              </div>
-            </div>
-            <div id="seisan-driver-pay-list" class="seisan-driver-pay-list"></div>
           </section>
 
           <section class="seisan-card seisan-share-card seisan-panel">

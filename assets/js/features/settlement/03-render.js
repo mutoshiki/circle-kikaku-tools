@@ -132,6 +132,10 @@ function renderSettlementBreakdownHtml(result) {
     return window.SanpoApp.templates.settlement.breakdown(result, { yen });
 }
 
+function renderSettlementClubExpenseBreakdownHtml(result) {
+    return window.SanpoApp.templates.settlement.clubExpenseBreakdown(result, { escapeHtml, yen });
+}
+
 function renderSettlementSettingSummaryHtml(state, result) {
     return window.SanpoApp.templates.settlement.settingSummary({ state, result, helpers: { escapeHtml, yen } });
 }
@@ -319,6 +323,9 @@ function renderSettlementView() {
 
     const carList = byId('seisan-car-list');
     if (carList) carList.innerHTML = renderSettlementCarsHtml(data, state, result, issues);
+
+    const clubExpenseList = byId('seisan-club-expense-list');
+    if (clubExpenseList) clubExpenseList.innerHTML = renderSettlementClubExpenseBreakdownHtml(result);
 
     const note = byId('seisan-collection-note');
     if (note) {

@@ -12,7 +12,7 @@
   }
 
     function formatPaymentBadge() {
-    return `<em class="seisan-payment-tag ${UI_CLASS.chip}" data-cost-type="pay">支払</em>`;
+    return `<em class="seisan-payment-tag ${UI_CLASS.chip}" data-cost-type="pay">支払い</em>`;
   }
 
     function formatExtraChips(extras, helpers = {}) {

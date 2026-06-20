@@ -9,7 +9,7 @@ assert(templates.includes("${formatCostBadge('split')}"), 'collect summary shoul
 assert(templates.includes('1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名'), 'collect summary sub text should remove the duplicated 割勘 label');
 assert(!templates.includes('>渡す</div>'), 'summary label 渡す should be replaced');
 assert(!templates.includes('<span>支払額</span>'), 'car summary should not use 支払額');
-assert(templates.includes('>支払</em>'), 'payment badge should say 支払い');
+assert(templates.includes('>支払い</em>'), 'payment badge should say 支払い');
 assert(templates.includes('function formatPaymentBadge'), 'shared payment badge helper should exist');
 assert((templates.match(/formatPaymentBadge\(\)/g) || []).length >= 3, 'payment badge should be used by summary and car rows');
 assert(css.includes('seisan-payment-tag'), 'payment badge CSS should exist');

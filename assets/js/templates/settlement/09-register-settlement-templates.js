@@ -13,6 +13,7 @@
     'collection',
     'driverPay',
     'breakdown',
+    'clubExpenseBreakdown',
     'emptyState',
     'routeStopRow',
     'routeCandidateButton'

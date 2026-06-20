@@ -1,0 +1,65 @@
+/* Club-expense usage breakdown shown above the collection checklist. */
+#seisan-view-area .seisan-club-expense-list {
+  display: grid;
+  gap: 3px;
+  padding: 2px 4px 0;
+}
+
+#seisan-view-area .seisan-club-expense-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(62px, auto) minmax(68px, auto);
+  align-items: center;
+  gap: 7px;
+  min-height: 27px;
+  padding: 3px 5px;
+}
+
+#seisan-view-area .seisan-club-expense-name,
+#seisan-view-area .seisan-club-expense-user {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+#seisan-view-area .seisan-club-expense-name {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+#seisan-view-area .seisan-club-expense-amount {
+  justify-self: end;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+#seisan-view-area .seisan-club-expense-user {
+  justify-self: end;
+  color: var(--text-sub);
+  font-size: 0.7rem;
+  text-align: right;
+}
+
+#seisan-view-area .seisan-club-expense-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 3px;
+  padding: 7px 5px 3px;
+  border-top: 1px solid var(--ui-hairline-quiet);
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+#seisan-view-area .seisan-club-expense-total strong {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+#seisan-view-area .seisan-club-expense-empty {
+  padding: 9px;
+  color: var(--text-sub);
+  font-size: 0.78rem;
+}

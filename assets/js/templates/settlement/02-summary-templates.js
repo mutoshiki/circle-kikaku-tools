@@ -5,6 +5,10 @@
   const parts = window.SanpoApp?.settlementTemplateParts || {};
   const { UI_CLASS, esc, money, formatCostBadge, formatPaymentBadge, formatExtraLines } = parts;
 
+  function getAccountingAmount(result = {}) {
+    return Math.abs(Number(result.accounting || 0));
+  }
+
   function summary(result, helpers = {}) {
     // Legacy test anchor: 1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名
 
@@ -19,7 +23,7 @@
         <div class="seisan-flow-arrow seisan-flow-arrow--plus" aria-hidden="true">${accountingSign}</div>
         <div class="seisan-summary-card accounting ${UI_CLASS.surfaceCard}" data-summary-kind="club">
           <div class="seisan-summary-label"><i class="fas fa-wallet" aria-hidden="true"></i>${formatCostBadge('club')}</div>
-          <div class="seisan-summary-value ${UI_CLASS.amount}">${money(Math.abs(result.accounting), helpers)}</div>
+          <div class="seisan-summary-value ${UI_CLASS.amount}">${money(getAccountingAmount(result), helpers)}</div>
           <div class="seisan-summary-sub">${accountingLabel}</div>
         </div>
         <div class="seisan-flow-arrow seisan-flow-arrow--equals" aria-hidden="true">＝</div>
@@ -76,6 +80,33 @@
         <div class="seisan-break-row"><span>支払い丸め</span><span>${money(result.totalDriverRound, helpers)}</span></div>`;
   }
 
+  function clubExpenseBreakdown(result, helpers = {}) {
+    const expenseRows = (result.cars || []).flatMap(car =>
+      (car.extras || [])
+        .filter(extra => extra.type === 'club' && Number(extra.amountValue || 0) !== 0)
+        .map(extra => ({
+          name: extra.name || '名目未入力',
+          amount: Number(extra.amountValue || 0),
+          user: car.name
+        }))
+    );
+    const accountingTotal = getAccountingAmount(result);
+    const adjustmentRows = [
+      { name: '支払い端数', amount: Number(result.totalDriverRound || 0), user: '全体' },
+      { name: '運転手の集金差し引き', amount: -Number(result.totalDriverCollectionOffset || 0), user: '全体' },
+      { name: '集金の端数余り', amount: -Number(result.surplus || 0), user: '全体' }
+    ].filter(row => row.amount !== 0);
+    const rows = [...expenseRows, ...adjustmentRows];
+    const details = rows.length
+      ? rows.map(row => `<div class="seisan-club-expense-row">
+          <span class="seisan-club-expense-name">${esc(row.name, helpers)}</span>
+          <span class="seisan-club-expense-user">${esc(row.user, helpers)}</span>
+          <strong class="seisan-club-expense-amount">${money(row.amount, helpers)}</strong>
+        </div>`).join('')
+      : '<div class="seisan-club-expense-empty">部費の使用はありません。</div>';
+    return `${details}<div class="seisan-club-expense-total"><span>合計</span><strong>${money(accountingTotal, helpers)}</strong></div>`;
+  }
+
   
-  Object.assign(parts, { summary, settingSummary, breakdown });
+  Object.assign(parts, { summary, settingSummary, breakdown, clubExpenseBreakdown });
 })();

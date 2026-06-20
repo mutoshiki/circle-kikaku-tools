@@ -30,7 +30,7 @@
     }).join('');
   }
 
-    function carSummary({ car, calc, issues, helpers = {} }) {
+    function carSummary({ car, calc, issues, paid = false, helpers = {} }) {
     const rowClass = issues.rows.has(car.name) ? ' has-error' : '';
     const extras = orderDriverRewardFirstForDisplay(Array.isArray(calc.extras) ? calc.extras : []);
     const costDetails = formatCostDetailRows([
@@ -43,6 +43,10 @@
         <div class="seisan-car-summary-headline">
           <strong class="seisan-car-summary-name">${esc(car.name, helpers)}車${calc.usesTimesRental ? '（レンタカー）' : ''}</strong>
           <button class="seisan-btn seisan-edit-btn" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><i class="fas fa-pen" aria-hidden="true"></i><span>編集</span></button>
+          <label class="seisan-car-payment-check ${paid ? 'done' : ''}">
+            <span>${paid ? '支払い済み' : '未支払い'}</span>
+            <input type="checkbox" ${paid ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" aria-label="${esc(car.name, helpers)}車への支払いチェック">
+          </label>
         </div>
         <div class="seisan-cost-preview-list" aria-label="費用内訳">
           <div class="seisan-cost-preview-item seisan-cost-preview-item--gas seisan-cost-preview-item--extras seisan-cost-preview-item--inline-all ${UI_CLASS.surfaceInset}">
@@ -92,11 +96,11 @@
     </div>`;
   }
 
-    function cars({ data, result, issues, helpers = {} }) {
+    function cars({ data, state = {}, result, issues, helpers = {} }) {
     if (!data.cars.length) return `<div class="seisan-empty">先に車出しを登録してください。</div>`;
     return data.cars.map(car => {
       const calc = result.cars.find(c => c.name === car.name) || { totalPay: 0, gas: 0, extras: [] };
-      return carSummary({ car, calc, issues, helpers });
+      return carSummary({ car, calc, issues, paid: !!state.driverPaid?.[car.name], helpers });
     }).join('');
   }
 
