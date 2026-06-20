@@ -128,6 +128,7 @@
     <link href="./assets/css/settlement/car-inputs/04-edit-modal.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/05-mobile-inputs.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/06-times-rental.css" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/07-extra-candidates.css" rel="stylesheet">
     <link href="./assets/css/settlement/route-helper/01-route-shell.css" rel="stylesheet">
     <link href="./assets/css/settlement/route-helper/02-route-stops.css" rel="stylesheet">
     <link href="./assets/css/settlement/route-helper/03-route-candidates.css" rel="stylesheet">
@@ -272,17 +273,20 @@
 
       <div id="seisan-view-area">
         <div class="seisan-wrap">
-          <section class="seisan-card seisan-toolbar-card">
-            <div id="seisan-summary" class="seisan-top-flow"></div>
-            <div id="seisan-errors" class="seisan-alert"></div>
-          </section>
-
           <section class="seisan-card seisan-settings-card">
             <div class="seisan-compact-head">
               <div class="seisan-title seisan-title--settings"><i class="fas fa-sliders" aria-hidden="true"></i>精算設定</div>
               <button class="seisan-btn seisan-edit-btn" type="button" data-action="open-settlement-settings"><i class="fas fa-pen" aria-hidden="true"></i><span>編集</span></button>
             </div>
             <div id="seisan-settings-summary" class="seisan-settings-summary" aria-live="polite"></div>
+          </section>
+
+          <section class="seisan-card seisan-toolbar-card">
+            <div class="seisan-head">
+              <div class="seisan-title"><i class="fas fa-calculator" aria-hidden="true"></i>全体の費用</div>
+            </div>
+            <div id="seisan-summary" class="seisan-top-flow"></div>
+            <div id="seisan-errors" class="seisan-alert"></div>
           </section>
 
           <section class="seisan-card seisan-panel seisan-car-panel">
@@ -607,12 +611,16 @@
               <div class="seisan-settings-section seisan-settings-section--detail seisan-settings-span">
                 <div class="seisan-settings-section-title">詳細オプション</div>
               <label class="seisan-toggle seisan-toggle--modal seisan-settings-span">
-                <span>車出しの集金を支払いから差し引く</span>
-                <input id="seisanDriverCollectionOffset" type="checkbox" checked aria-label="車出しの集金を支払いから差し引く">
+                <span>運転手の集金を支払いから差し引く</span>
+                <input id="seisanDriverCollectionOffset" type="checkbox" checked aria-label="運転手の集金を支払いから差し引く">
               </label>
               <label class="seisan-toggle seisan-toggle--modal seisan-settings-span">
-                <span>企画者を集金対象から外す</span>
-                <input id="seisanOrganizerFree" type="checkbox" checked aria-label="企画者を集金対象から外す">
+                <span>企画者から集金しない</span>
+                <input id="seisanOrganizerFree" type="checkbox" checked aria-label="企画者から集金しない">
+              </label>
+              <label class="seisan-toggle seisan-toggle--modal seisan-settings-span">
+                <span>運転手から集金しない</span>
+                <input id="seisanDriverCollectionFree" type="checkbox" aria-label="運転手から集金しない">
               </label>
               <div class="seisan-field seisan-settings-span seisan-organizer-field" id="seisanOrganizerField" hidden>
                 <label>企画者</label>
@@ -768,16 +776,13 @@
       <div class="modal-dialog modal-lg modal-dialog-centered route-helper-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title modal-title--guide" id="routeDistanceModalTitle"><i class="fas fa-route me-2" aria-hidden="true"></i>移動距離を調べる</h5>
+            <h5 class="modal-title modal-title--guide" id="routeDistanceModalTitle"><i class="fas fa-route me-2" aria-hidden="true"></i>移動距離計算ツール</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body route-helper-body">
             <div class="route-helper-panel">
               <div class="route-stop-panel route-personal-stop-panel">
-                <div class="route-helper-title-row">
-                  <div class="seisan-title route-helper-title"><i class="fas fa-map-location-dot" aria-hidden="true"></i>立ち寄る場所</div>
-                </div>
-                <p class="route-location-privacy-note"><i class="fas fa-shield-halved" aria-hidden="true"></i>自宅は入力せず、近くの施設や集合場所などを入力してください。</p>
+                <p class="route-location-privacy-note">自宅などは入力せず、近くの施設などを代わりに入力してください。ドラッグで並び替えられます。</p>
                 <div id="routeStopList" class="route-stop-list"></div>
                 <button id="addRouteStopBtn" class="seisan-btn route-add-stop-btn" type="button"><i class="fas fa-plus me-1" aria-hidden="true"></i>場所を追加</button>
               </div>

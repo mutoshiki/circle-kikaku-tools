@@ -103,6 +103,7 @@
 #settlementCarEditModal .seisan-add-row {
   margin-top: 8px;
 }
+
 .seisan-settings--modal {
   display: grid;
   grid-template-columns: 1fr;

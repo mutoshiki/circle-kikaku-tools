@@ -32,6 +32,12 @@
             'open-settlement-car-edit': ({ target }) => global.openSettlementCarEditor?.(target.dataset.driverName || ''),
             'save-settlement-car-edit': () => global.saveSettlementCarEdit?.(),
             'add-settlement-extra': ({ target }) => global.addSettlementExtra?.(target.dataset.driverName || ''),
+            'add-settlement-extra-candidate': ({ target }) => global.addSettlementExtraCandidate?.(
+                target.dataset.driverName || '',
+                target.dataset.extraCandidate || '',
+                target.dataset.extraAmount || '',
+                target.dataset.extraType || 'split'
+            ),
             'remove-settlement-extra': ({ target }) => global.removeSettlementExtra?.(target),
             'copy-settlement-text': () => global.copySettlementText?.(),
             'open-route-helper-shortcut': () => global.openRouteDistanceHelperFromShortcut?.(),

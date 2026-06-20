@@ -8,12 +8,14 @@ function calculateSettlement(data, state) {
     const excludedName = state.organizerFree && organizerSelected ? organizerName : '';
     const driverNames = new Set((data.cars || []).map(car => String(car.name || '').trim()).filter(Boolean));
     const driverCollectionOffset = isDriverCollectionOffsetEnabled(state);
+    const driverCollectionFree = isDriverCollectionFreeEnabled(state);
     const excludedNames = new Set();
-    if (driverCollectionOffset) driverNames.forEach(name => excludedNames.add(name));
+    if (driverCollectionOffset || driverCollectionFree) driverNames.forEach(name => excludedNames.add(name));
     if (excludedName) excludedNames.add(excludedName);
     const payerCount = participants.filter(p => !excludedNames.has(p.name)).length;
     const shareExcludedNames = new Set();
     if (excludedName) shareExcludedNames.add(excludedName);
+    if (driverCollectionFree) driverNames.forEach(name => shareExcludedNames.add(name));
     const shareCount = participants.filter(p => !shareExcludedNames.has(p.name)).length;
     const rounding = getNumberValue(state.rounding) || 100;
     const reward = getDriverRewardAmount(state);
@@ -94,6 +96,7 @@ function calculateSettlement(data, state) {
         excludedNames,
         driverNames,
         driverCollectionOffset,
+        driverCollectionFree,
         payerCount,
         shareCount,
         rounding,

@@ -11,16 +11,20 @@ const templatesText = readSettlementTemplateBundle();
 const guideText = readText('assets/js/templates/guide-content.js');
 
 assert(html.includes('id="seisanDriverCollectionOffset"'), 'settings modal should expose driver collection offset toggle');
+assert(html.includes('id="seisanDriverCollectionFree"'), 'settings modal should expose separate driver collection-free toggle');
 assert(html.includes('value="0" aria-label="車出し協力代"'), 'driver reward input should default to zero yen');
 assert(stateText.includes('driverCollectionOffset: true'), 'driver collection offset should default on for compatibility');
+assert(stateText.includes('driverCollectionFree: false'), 'driver collection-free mode should default off');
 assert(stateText.includes("driverReward: '0'"), 'default driver reward should be zero yen');
 assert(stateText.includes('function isDriverCollectionOffsetEnabled'), 'driver collection offset should have a single state helper');
 assert(stateText.includes('state.driverCollectionOffset = driverCollectionOffset.checked'), 'settings sync should save driver collection offset toggle');
+assert(stateText.includes('state.driverCollectionFree = driverCollectionFree.checked'), 'settings sync should save driver collection-free toggle separately');
 assert(calcText.includes('const excludedNames = new Set();'), 'drivers should not be excluded unconditionally');
-assert(calcText.includes('if (driverCollectionOffset) driverNames.forEach(name => excludedNames.add(name));'), 'drivers should be excluded only when offset setting is on');
+assert(calcText.includes('if (driverCollectionOffset || driverCollectionFree) driverNames.forEach(name => excludedNames.add(name));'), 'drivers should be excluded for either driver collection mode');
+assert(calcText.includes('if (driverCollectionFree) driverNames.forEach(name => shareExcludedNames.add(name));'), 'collection-free drivers should be excluded from the split');
 assert(calcText.includes('car.collectionOffset = driverCollectionOffset && driverNames.has(car.name) ? perPerson : 0;'), 'driver payment offset should be conditional');
 assert(renderText.includes('seisanDriverCollectionOffset') && eventsText.includes('seisanDriverCollectionOffset'), 'driver collection offset control should render and react to changes');
-assert(templatesText.includes('車出し集金') && templatesText.includes('通常集金') && templatesText.includes('差し引き'), 'settings summary should show driver collection mode');
+assert(templatesText.includes('車出しの集金:') && templatesText.includes('しない（支払い額から差し引き）') && templatesText.includes("'する'"), 'settings summary should show driver collection mode');
 assert(!guideText.includes('¥1,000/台'), 'guide mock should not advertise old 1000 yen default reward');
 
 const context = {
@@ -68,6 +72,16 @@ assert.strictEqual(off.payerCount, 2, 'driver should be included in collection c
 assert.strictEqual(off.cars[0].collectionOffset, 0, 'driver payment should not be offset when setting is off');
 assert.strictEqual(off.cars[0].adjustedTotalPay, 1000, 'driver payment should remain full when setting is off');
 assert(!off.excludedNames.has('Driver'), 'driver should not be excluded when setting is off');
+
+const free = context.calculateSettlement(data, context.normalizeSettlementState({
+  ...base,
+  driverCollectionOffset: false,
+  driverCollectionFree: true
+}));
+assert.strictEqual(free.perPerson, 1000, 'collection-free driver should be excluded from the split denominator');
+assert.strictEqual(free.payerCount, 1, 'collection-free driver should not appear in collection checklist');
+assert.strictEqual(free.cars[0].collectionOffset, 0, 'collection-free mode should not deduct anything from driver payment');
+assert.strictEqual(free.cars[0].adjustedTotalPay, 1000, 'collection-free mode should preserve full driver payment');
 
 const normalizedDefault = context.normalizeSettlementState({});
 assert.strictEqual(normalizedDefault.driverReward, '0', 'fresh settlement state should use zero yen reward');

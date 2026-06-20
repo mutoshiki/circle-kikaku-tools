@@ -7,9 +7,9 @@
 
     function routeStopRow(value = '', index = 0, helpers = {}) {
     return `<div class="route-stop-row">
-        <span class="route-stop-num" title="並び替え" aria-label="この場所を並び替え"><i class="fas fa-grip-vertical" aria-hidden="true"></i></span>
-        <input type="text" class="route-stop-input" value="${esc(value || '', helpers)}" placeholder="例：飯綱高原、温泉、駐車場">
         <button class="seisan-icon-btn route-stop-delete-btn" type="button" data-action="remove-route-stop" title="削除"><i class="fas fa-times" aria-hidden="true"></i></button>
+        <input type="text" class="route-stop-input" value="${esc(value || '', helpers)}" placeholder="例：飯綱高原、温泉、駐車場">
+        <span class="route-stop-num" title="並び替え" aria-label="この場所を並び替え"><i class="fas fa-grip-vertical" aria-hidden="true"></i></span>
     </div>`;
   }
 

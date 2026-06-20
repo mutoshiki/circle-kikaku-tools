@@ -30,6 +30,29 @@ function addSettlementExtra(encodedName) {
     save();
 }
 
+function addSettlementExtraCandidate(encodedName, encodedCandidate, encodedAmount = '', type = 'split') {
+    syncSettlementStateFromDOM();
+    const name = decodeURIComponent(encodedName || '');
+    const candidate = decodeURIComponent(encodedCandidate || '').trim();
+    const amount = decodeURIComponent(encodedAmount || '');
+    const normalizedType = type === 'club' ? 'club' : 'split';
+    if (!name || !candidate) return;
+    const state = ensureSettlementState();
+    const car = normalizeCarSettlementState(state.cars[name] || {});
+    const blankExtra = car.extras.find(extra => !String(extra?.name || '').trim());
+    if (blankExtra) {
+        blankExtra.name = candidate;
+        blankExtra.amount = amount;
+        blankExtra.type = normalizedType;
+    } else {
+        car.extras.push({ name: candidate, amount, type: normalizedType });
+    }
+    state.cars[name] = car;
+    if (typeof refreshSettlementCarEditor === 'function') refreshSettlementCarEditor(name);
+    renderSettlementView({ force: true });
+    save();
+}
+
 async function removeSettlementExtra(button) {
     const row = button.closest('.seisan-extra-row');
     const carRow = button.closest('.seisan-car-row');
@@ -95,6 +118,7 @@ async function toggleSettlementDriverPaid(encodedName, checked, input = null) {
 window.SanpoApp?.exposeCompat?.('onSettlementInput', onSettlementInput);
 window.SanpoApp?.exposeCompat?.('onSettlementInputDelayed', onSettlementInputDelayed);
 window.SanpoApp?.exposeCompat?.('addSettlementExtra', addSettlementExtra);
+window.SanpoApp?.exposeCompat?.('addSettlementExtraCandidate', addSettlementExtraCandidate);
 window.SanpoApp?.exposeCompat?.('removeSettlementExtra', removeSettlementExtra);
 window.SanpoApp?.exposeCompat?.('toggleSettlementPaid', toggleSettlementPaid);
 window.SanpoApp?.exposeCompat?.('toggleSettlementDriverPaid', toggleSettlementDriverPaid);

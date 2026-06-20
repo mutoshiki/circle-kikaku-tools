@@ -22,8 +22,6 @@ const forbidden = [
   'oninput="window.onRouteStopsChangedDelayed()"',
   'onchange="window.onRouteStopsChanged()"',
   'onclick="window.removeRouteStop',
-  'onclick="window.editRoutePrivateOrigin',
-  'onclick="window.saveRoutePrivateOrigin'
 ];
 
 const found = forbidden.filter(token => js.includes(token));

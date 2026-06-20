@@ -88,10 +88,6 @@
   padding-inline: 12px;
   white-space: nowrap;
 }
-#settlementCarEditModal .seisan-extra-row--times-time,
-#settlementCarEditModal .seisan-extra-row--times-distance {
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.85fr) minmax(86px, 0.72fr) 34px;
-}
 #settlementCarEditModal .seisan-extra-delete-placeholder {
   opacity: 0.45;
   pointer-events: none;
@@ -121,10 +117,6 @@
   #settlementCarEditModal .seisan-car-row.is-times-rental .seisan-distance-shortcut {
     justify-content: center;
     width: 100%;
-  }
-  #settlementCarEditModal .seisan-extra-row--times-time,
-  #settlementCarEditModal .seisan-extra-row--times-distance {
-    grid-template-columns: minmax(0, 1.15fr) minmax(62px, 0.7fr) minmax(68px, 0.62fr) 30px;
   }
   #settlementCarEditModal .seisan-times-toggle {
     padding-inline: 9px;

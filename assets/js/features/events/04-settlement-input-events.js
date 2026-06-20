@@ -109,6 +109,16 @@
                 return;
             }
 
+            if (target.matches('#seisanDriverCollectionOffset, #seisanDriverCollectionFree')) {
+                const otherId = target.id === 'seisanDriverCollectionOffset'
+                    ? 'seisanDriverCollectionFree'
+                    : 'seisanDriverCollectionOffset';
+                const other = document.getElementById(otherId);
+                if (target.checked && other) other.checked = false;
+                syncSettlementStateFromDOM?.();
+                return;
+            }
+
             if (target.matches('[data-settlement-paid-name]')) {
                 global.toggleSettlementPaid?.(target.dataset.settlementPaidName || '', target.checked, target);
                 return;

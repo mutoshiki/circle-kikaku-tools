@@ -48,6 +48,14 @@
   min-height: 52px;
   padding: 10px 14px;
 }
+
+#settlementSettingsModal .modal-header {
+  border-bottom: 0;
+}
+
+#settlementSettingsModal .modal-footer {
+  border-top: 0;
+}
 #settlementCarEditModal .modal-title {
   min-width: 0;
   overflow: hidden;

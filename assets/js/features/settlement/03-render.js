@@ -33,6 +33,7 @@ function syncSettlementControls(state, participants) {
     const organizerEl = byId('seisanOrganizerName');
     const organizerField = byId('seisanOrganizerField');
     const driverCollectionOffsetEl = byId('seisanDriverCollectionOffset');
+    const driverCollectionFreeEl = byId('seisanDriverCollectionFree');
     const rewardEl = byId('seisanDriverReward');
     const standaloneEnabledEl = byId('seisanStandaloneEnabled');
     const standaloneDriverCountEl = byId('seisanStandaloneDriverCount');
@@ -41,6 +42,7 @@ function syncSettlementControls(state, participants) {
     if (roundingEl) roundingEl.value = state.rounding || '100';
     if (organizerFreeEl) organizerFreeEl.checked = state.organizerFree !== false;
     if (driverCollectionOffsetEl) driverCollectionOffsetEl.checked = state.driverCollectionOffset !== false;
+    if (driverCollectionFreeEl) driverCollectionFreeEl.checked = state.driverCollectionFree === true;
     if (rewardEl) rewardEl.value = state.driverReward ?? '0';
     const standalone = normalizeStandaloneSettlementState(state.standalone || {});
     const roundingValue = String(state.rounding || '100');
@@ -73,11 +75,30 @@ function renderSettlementCarRowHtml(car, state, result, issues) {
     state.cars[car.name] = cState;
     const calc = result.cars.find(c => c.name === car.name) || { totalPay: 0, gas: 0, extras: [] };
     const extras = cState.extras.length ? cState.extras.map(normalizeExtraItem) : [{ name: '', amount: '', type: 'split' }];
+    const extraCandidateMap = new Map();
+    Object.values(state.cars || {})
+        .flatMap(carState => normalizeCarSettlementState(carState || {}).extras || [])
+        .forEach(extra => {
+            const name = String(extra?.name || '').trim();
+            const normalizedName = name.replace(/\s+/g, '');
+            if (!name
+                || isDriverRewardExtra({ name })
+                || normalizedName === 'タイムズ時間料金'
+                || normalizedName === 'タイムズ移動料金'
+                || extraCandidateMap.has(name)) return;
+            extraCandidateMap.set(name, {
+                name,
+                amount: String(extra?.amount || ''),
+                type: extra?.type === 'club' ? 'club' : 'split'
+            });
+        });
+    const extraCandidates = [...extraCandidateMap.values()];
     return window.SanpoApp.templates.settlement.carRow({
         car,
         cState,
         calc,
         extras,
+        extraCandidates,
         issues,
         helpers: { escapeHtml, yen, fieldErrorClass, extraFieldErrorClass }
     });
@@ -151,16 +172,19 @@ function openStandaloneSettlementSettings() {
         enabled: true
     });
     state.driverCollectionOffset = false;
+    state.driverCollectionFree = false;
     state.organizerFree = false;
     const data = getRoomDataOnly();
     syncSettlementControls(state, getParticipantList(data));
     const standaloneEnabled = byId('seisanStandaloneEnabled');
     const standaloneFields = byId('seisanStandaloneFields');
     const driverCollectionOffset = byId('seisanDriverCollectionOffset');
+    const driverCollectionFree = byId('seisanDriverCollectionFree');
     const organizerFree = byId('seisanOrganizerFree');
     if (standaloneEnabled) standaloneEnabled.checked = true;
     if (standaloneFields) standaloneFields.hidden = false;
     if (driverCollectionOffset) driverCollectionOffset.checked = false;
+    if (driverCollectionFree) driverCollectionFree.checked = false;
     if (organizerFree) organizerFree.checked = false;
     validateStandaloneSettlementSettings(false);
     if (modals.settlementSettings) modals.settlementSettings.show();

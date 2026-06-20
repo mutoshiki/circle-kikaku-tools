@@ -7,6 +7,7 @@ function getDefaultSettlementState() {
         organizerFree: true,
         organizerName: '',
         driverCollectionOffset: true,
+        driverCollectionFree: false,
         driverReward: '0',
         standalone: {
             enabled: false,
@@ -231,6 +232,10 @@ function isDriverCollectionOffsetEnabled(state = ensureSettlementState()) {
     return state?.driverCollectionOffset !== false;
 }
 
+function isDriverCollectionFreeEnabled(state = ensureSettlementState()) {
+    return state?.driverCollectionFree === true;
+}
+
 function ensureDriverRewardExtra(carState = {}, state = ensureSettlementState()) {
     const normalized = ensureTimesRentalExtras(carState || {});
     const rewardAmount = getDriverRewardAmount(state);
@@ -297,6 +302,7 @@ function normalizeSettlementState(state = {}) {
         organizerFree: state.organizerFree !== undefined ? !!state.organizerFree : true,
         organizerName: state.organizerName || '',
         driverCollectionOffset: state.driverCollectionOffset !== undefined ? !!state.driverCollectionOffset : true,
+        driverCollectionFree: state.driverCollectionFree === true,
         driverReward: String(state.driverReward ?? base.driverReward),
         standalone: normalizeStandaloneSettlementState(state.standalone || base.standalone),
         cars,
@@ -386,6 +392,7 @@ function syncSettlementStateFromDOM() {
     const organizerFree = byId('seisanOrganizerFree');
     const organizerName = byId('seisanOrganizerName');
     const driverCollectionOffset = byId('seisanDriverCollectionOffset');
+    const driverCollectionFree = byId('seisanDriverCollectionFree');
     const driverReward = byId('seisanDriverReward');
     const standaloneEnabled = byId('seisanStandaloneEnabled');
     const standaloneDriverCount = byId('seisanStandaloneDriverCount');
@@ -395,6 +402,7 @@ function syncSettlementStateFromDOM() {
     if (organizerFree) state.organizerFree = organizerFree.checked;
     if (organizerName) state.organizerName = organizerName.value || '';
     if (driverCollectionOffset) state.driverCollectionOffset = driverCollectionOffset.checked;
+    if (driverCollectionFree) state.driverCollectionFree = driverCollectionFree.checked;
     if (driverReward) state.driverReward = driverReward.value;
     state.standalone = normalizeStandaloneSettlementState({
         enabled: standaloneEnabled ? standaloneEnabled.checked : state.standalone?.enabled,

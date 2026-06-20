@@ -53,7 +53,7 @@
     </article>`;
   }
 
-    function carRow({ car, cState, calc, extras, issues, helpers = {} }) {
+    function carRow({ car, cState, calc, extras, extraCandidates = [], issues, helpers = {} }) {
     const fieldErrorClass = helpers.fieldErrorClass || (() => '');
     const usesTimesRental = cState.rentalType === 'times' || calc.usesTimesRental;
     const rowClass = `${issues.rows.has(car.name) ? ' has-error' : ''}${usesTimesRental ? ' is-times-rental' : ''}`;
@@ -65,7 +65,7 @@
     const standaloneNameField = standaloneIndex == null ? '' : `<label class="seisan-standalone-driver-name-field"><span class="seisan-mini-label">車出し名</span><input type="text" data-field="standaloneDriverName" value="${esc(car.name, helpers)}" placeholder="車出し${standaloneIndex + 1}" autocomplete="off"></label>`;
     const rentalType = usesTimesRental ? 'times' : 'private';
     return `<div class="seisan-car-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}"${standaloneData}>
-        <div class="seisan-subhead"><strong>ガソリン代</strong><span class="seisan-car-total ${UI_CLASS.amount}">支払 ${money(calc.adjustedTotalPay ?? calc.totalPay, helpers)}</span></div>
+        <div class="seisan-subhead"><strong>ガソリン代</strong></div>
         ${standaloneNameField}
         <div class="seisan-car-inputs">
           <div class="seisan-times-toggle-field"><label class="seisan-times-toggle"><input type="checkbox" data-field="rentalType" value="times" ${rentalType === 'times' ? 'checked' : ''} aria-label="レンタカー（タイムズ）"><span class="seisan-times-toggle-ui" aria-hidden="true"></span><span class="seisan-times-toggle-text">レンタカー（タイムズ）</span></label></div>
@@ -81,8 +81,14 @@
           ${extras.map((ex, i) => extraRow({ carName: car.name, ex, index: i, issues, helpers })).join('')}
         </div>
         <div class="seisan-add-row">
-          <button class="seisan-btn" type="button" data-action="add-settlement-extra" data-driver-name="${encodeURIComponent(car.name)}"><i class="fas fa-plus me-1" aria-hidden="true"></i>諸経費を追加</button>
+          <button class="seisan-btn" type="button" data-action="add-settlement-extra" data-driver-name="${encodeURIComponent(car.name)}" title="諸経費を追加" aria-label="諸経費を追加"><i class="fas fa-plus" aria-hidden="true"></i></button>
         </div>
+        ${extraCandidates.length ? `<div class="seisan-extra-candidates">
+          <div class="seisan-extra-candidates-title"><i class="fas fa-lightbulb" aria-hidden="true"></i>候補</div>
+          <div class="seisan-extra-candidate-list">
+            ${extraCandidates.map(candidate => `<button class="seisan-extra-candidate-chip" type="button" data-action="add-settlement-extra-candidate" data-driver-name="${encodeURIComponent(car.name)}" data-extra-candidate="${encodeURIComponent(candidate.name)}" data-extra-amount="${encodeURIComponent(candidate.amount)}" data-extra-type="${candidate.type}"><i class="fas fa-plus" aria-hidden="true"></i><span>${esc(candidate.name, helpers)}</span></button>`).join('')}
+          </div>
+        </div>` : ''}
     </div>`;
   }
 

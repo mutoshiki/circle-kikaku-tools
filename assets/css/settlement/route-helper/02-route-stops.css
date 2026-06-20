@@ -5,8 +5,9 @@
 }
 
 #routeDistanceModal .route-stop-row {
+  position: relative;
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) 34px;
+  grid-template-columns: 34px minmax(0, 1fr) 30px;
   gap: 6px;
   align-items: center;
   max-width: 100%;
@@ -16,6 +17,18 @@
   border: 0;
   border-radius: var(--radius-sm);
   background: transparent;
+}
+
+#routeDistanceModal .route-stop-row:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: calc(34px + 6px + (100% - 34px - 30px - 12px) / 2);
+  top: 100%;
+  width: 8px;
+  height: 6px;
+  background: rgba(100, 116, 139, 0.22);
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 #routeDistanceModal .route-stop-num {
@@ -90,7 +103,11 @@
 
 @media (max-width: 640px) {
   #routeDistanceModal .route-stop-row {
-    grid-template-columns: 32px minmax(0, 1fr) 38px;
+    grid-template-columns: 38px minmax(0, 1fr) 32px;
+  }
+
+  #routeDistanceModal .route-stop-row:not(:last-child)::after {
+    left: calc(38px + 6px + (100% - 38px - 32px - 12px) / 2);
   }
 
   #routeDistanceModal .route-stop-num,

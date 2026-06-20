@@ -41,8 +41,6 @@ const publicNames = [
   'driverPay',
   'breakdown',
   'emptyState',
-  'routePrivateOriginView',
-  'routePrivateOriginEdit',
   'routeStopRow',
   'routeCandidateButton'
 ];
