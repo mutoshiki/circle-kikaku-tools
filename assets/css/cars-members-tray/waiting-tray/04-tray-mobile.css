@@ -36,7 +36,7 @@
     color: inherit;
 }
 /* fill-empty is secondary; auto-assign is the only emphasized tray action. */
-/* Tray action buttons: consistent, subtle, theme-aware. */
+/* Tray action buttons: consistent, subtle, consistent with the visual system. */
 #fillEmptySeatsBtn.tray-action-btn,
 .tray-inline-row .tray-action-btn--fill {
     background: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
@@ -84,7 +84,7 @@
   font-size: 0.74rem;
   line-height: 1.1;
   white-space: nowrap;
-  border-radius: 999px;
+  border-radius: var(--radius-main);
   border-color: var(--hairline, var(--border-color));
   background: var(--bg-card);
   color: var(--text-main);
@@ -111,11 +111,6 @@
   position: relative;
   align-content: start;
   overscroll-behavior: contain;
-}
-[data-theme="dark"] #bottom-tray {
-  border-color: var(--hairline, var(--border-color));
-  background: color-mix(in srgb, var(--bg-card) 92%, var(--color-night));
-  box-shadow: 0 -16px 32px rgba(var(--black-rgb), 0.32);
 }
 @media (max-width: 640px) {
     #bottom-tray {
@@ -212,12 +207,17 @@
     grid-template-columns: auto auto minmax(0, 1fr);
     align-items: center;
   }
+#bottom-tray {
+        box-shadow: var(--shadow-tray-mobile);
+    }
 }
-.member-card,
 .seat-slot > .member-card,
 #waiting-list .member-card {
   border-radius: var(--ui-inner-radius);
   background: var(--bg-card);
   border-color: var(--ui-readable-border-strong);
   box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.03);
+}
+.member-card {
+  border-color: var(--ui-readable-border-strong);
 }

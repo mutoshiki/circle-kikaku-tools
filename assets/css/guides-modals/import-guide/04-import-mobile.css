@@ -10,7 +10,7 @@
 }
 .mock-sheet-browser-bar {
   height: 18px;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: var(--palette-d1d5db);
   opacity: 1;
 }
@@ -89,40 +89,9 @@
   bottom: -7px;
   width: 12px;
   height: 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: var(--guide-external-blue);
   box-shadow: 0 0 0 2px var(--guide-external-surface);
-}
-[data-theme="dark"] .mock-sheet-browser {
-  background: rgba(30, 41, 59, 0.9);
-  --guide-external-blue: var(--palette-blue-400);
-  --guide-external-blue-soft: rgba(30, 64, 175, 0.24);
-  --guide-external-purple: var(--palette-6d5ab5);
-  --guide-external-chrome: var(--color-ink);
-  --guide-external-canvas: var(--palette-1e293b);
-  --guide-external-surface: var(--palette-slate-950);
-  --guide-external-border: rgba(148, 163, 184, 0.26);
-  --guide-external-line: rgba(96, 165, 250, 0.24);
-  --guide-external-text: var(--palette-blue-100);
-}
-[data-theme="dark"] .mock-sheet-browser,
-[data-theme="dark"] .mock-sheet-browser-canvas,
-[data-theme="dark"] .mock-sheet-browser-sheet {
-    background-color: var(--guide-external-canvas);
-    border-color: var(--guide-external-border);
-}
-[data-theme="dark"] .mock-sheet-browser-sheet {
-  background: linear-gradient(var(--guide-external-surface), var(--guide-external-surface)),
-        repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.16) 0 1px, transparent 1px 34px),
-        repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.13) 0 1px, transparent 1px 104px);
-  border-color: rgba(148, 163, 184, 0.22);
-}
-[data-theme="dark"] .mock-sheet-browser-top {
-  background: var(--guide-external-chrome);
-  border-bottom-color: var(--guide-external-border);
-}
-[data-theme="dark"] .mock-sheet-browser-bar {
-    background: var(--palette-334155);
 }
 .mock-form-import-ui {
   padding: 12px;
@@ -137,7 +106,7 @@
   min-height: 24px;
   padding: 4px 9px;
   margin-bottom: 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: var(--bg-body);
   color: var(--text-sub);
   font-size: 0.68rem;
@@ -180,24 +149,17 @@
   box-shadow: none;
   border: 1px solid color-mix(in srgb, var(--accent-color) 24%, var(--border-color));
 }
-[data-theme="dark"] .mock-form-import-entry-tag {
-  background: rgba(var(--shadow-rgb), 0.45);
-  color: var(--text-sub);
-}
-[data-theme="dark"] .mock-form-import-textarea {
-  background: rgba(var(--shadow-rgb), 0.46);
-  border-color: var(--border-color);
-}
-.guide-feature-card,
 .global-guide-card,
 .app-guide-box,
 .guide-mini-screen,
 .route-helper-panel,
 .route-stop-panel,
 .batch-warning,
-.theme-system-note,
 .empty-card {
     border-color: var(--hairline, var(--border-color));
     border-radius: var(--radius-lg);
     box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.03);
+}
+.guide-feature-card {
+    border-color: var(--hairline, var(--border-color));
 }

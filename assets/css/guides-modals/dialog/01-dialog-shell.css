@@ -20,12 +20,6 @@ color: var(--text-sub);
 .debug-car-count-select {
 width: 78px;
 }
-.header-more .dropdown-menu {
-max-width: calc(100vw - 24px);
-    max-height: min(70dvh, 460px);
-    overflow: auto;
-    overscroll-behavior: contain;
-}
 #globalGuideModal .modal-dialog,
 #guideModal .modal-dialog {
 margin-left: auto;
@@ -59,15 +53,20 @@ width: 100%;
 .compact-guide-grid,
 .global-guide-mini-grid,
 .guide-compare-ui-grid,
-.guide-mini-screen,
+.guide-mini-screen {
+max-width: 100%;
+    box-sizing: border-box;
+}
 .guide-feature-card {
 max-width: 100%;
     box-sizing: border-box;
 }
-.guide-feature-card,
 .guide-mini-screen,
 .guide-phone-frame,
 .guide-ui-card {
+min-width: 0;
+}
+.guide-feature-card {
 min-width: 0;
 }
 @media (max-width: 640px) {
@@ -125,13 +124,6 @@ grid-template-columns: 1fr;
 }
 }
 @media (max-width: 640px) {
-.header-more .dropdown-toggle {
-min-height: 34px;
-        border-radius: 999px;
-        box-shadow: none;
-}
-}
-@media (max-width: 640px) {
 .guide-feature-card {
 border-radius: 16px;
 }
@@ -139,16 +131,6 @@ border-radius: 16px;
 @media (max-width: 640px) {
 .guide-mini-card {
 border-radius: 12px;
-}
-}
-@media (max-width: 640px) {
-.modal-content {
-border-radius: 18px;
-}
-}
-@media (max-width: 640px) {
-.modal-header {
-min-height: 52px;
 }
 }
 @media (max-width: 640px) {
@@ -161,35 +143,6 @@ letter-spacing: -0.01em;
 line-height: 1.55;
 }
 }
-[data-theme="light"] .guide-feature-card {
+.guide-feature-card {
 border-color: color-mix(in srgb, var(--border-color) 82%, transparent);
-}
-[data-theme="dark"] .guide-feature-card,
-[data-theme="dark"] .modal-content {
-background: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
-    border-color: rgba(148, 163, 184, 0.16);
-    box-shadow: none;
-}
-[data-theme="dark"] .guide-mini-card {
-background: color-mix(in srgb, var(--bg-card) 76%, var(--color-night));
-    border-color: rgba(148, 163, 184, 0.14);
-    box-shadow: none;
-}
-[data-theme="dark"] .header-more .dropdown-toggle {
-background: rgba(var(--shadow-rgb), 0.32);
-    border-color: rgba(148, 163, 184, 0.15);
-    color: var(--text-main);
-}
-@media (max-width: 640px) {
-.header-more .dropdown-toggle {
-min-height: 34px;
-        padding: 6px 11px;
-        font-size: 0.76rem;
-}
-}
-@media (max-width: 390px) {
-.header-more .dropdown-toggle {
-min-width: 74px;
-        padding-inline: 8px;
-}
 }

@@ -3,9 +3,9 @@
 }
 @media (max-width: 640px) {
 #seisan-view-area .seisan-head-actions .seisan-btn {
-    min-height: 32px;
+    min-height: 34px;
     padding-inline: 8px;
-    font-size: 0.68rem;
+    font-size: 0.70rem;
   }
 
 #seisan-view-area #seisanRefreshBtn.seisan-btn {
@@ -13,17 +13,11 @@
     min-width: 34px;
   }
 }
-[data-theme="dark"] .allocation-mode-toggle .car-plan-template-chip.active {
-  color: var(--accent-color);
-  border-color: color-mix(in srgb, var(--accent-color) 34%, var(--ui-saas-border));
-  background: rgba(226, 232, 240, 0.10);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 10%, transparent);
-}
 #seisan-view-area #seisanRefreshBtn.seisan-btn {
   width: 36px;
   min-width: 36px;
   padding-inline: 0;
-  min-height: 34px;
+  min-height: 36px;
 }
 #seisan-view-area .seisan-toolbar-card .seisan-head-tools-only {
   display: flex;
@@ -50,11 +44,6 @@
 #seisan-view-area .seisan-head-actions .seisan-btn {
     padding-inline: 8px;
   }
-}
-body[data-theme="dark"] #seisan-view-area .seisan-toolbar-card .seisan-head-tools-only,
-html[data-theme="dark"] #seisan-view-area .seisan-toolbar-card .seisan-head-tools-only {
-  background: transparent;
-  border-color: transparent;
 }
 /* Standalone settlement mode: enter only driver count and other participant count. */
 #seisan-view-area .seisan-empty-actions {
@@ -99,10 +88,6 @@ html[data-theme="dark"] #seisan-view-area .seisan-toolbar-card .seisan-head-tool
 #seisan-view-area .seisan-summary-pills .is-standalone {
   border-color: color-mix(in srgb, var(--accent-color) 36%, var(--border-muted));
   background: color-mix(in srgb, var(--accent-color) 10%, transparent);
-}
-body[data-theme="dark"] #settlementSettingsModal .seisan-standalone-fields,
-html[data-theme="dark"] #settlementSettingsModal .seisan-standalone-fields {
-  background: transparent;
 }
 #seisan-view-area .seisan-empty-or {
   align-self: center;

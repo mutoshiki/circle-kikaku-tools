@@ -29,7 +29,7 @@
   gap: 4px;
   padding: 4px 7px;
   border: 1px solid color-mix(in srgb, var(--ui-saas-border, var(--border-color)) 72%, transparent);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-sub);
   font-size: 0.74rem;

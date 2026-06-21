@@ -19,7 +19,6 @@ D.addEventListener('DOMContentLoaded', async () => {
     setupManualCardDrag();
     setupManualSheetDrag();
 
-    setupAppearanceControls();
 
     if (firebaseEnabled && db && firebaseReady) {
         onValue(ref(db, ".info/connected"), (snap) => {

@@ -14,23 +14,6 @@ width: 32px;
         height: 32px;
 }
 }
-[data-theme="dark"] #zoom-controls button,
-[data-theme="dark"] #sheet-quick-edit-btn {
-background: rgba(var(--shadow-rgb), 0.68);
-    border-color: rgba(148, 163, 184, 0.24);
-    color: var(--text-main);
-}
-[data-theme="dark"] #zoom-controls button i,
-[data-theme="dark"] #sheet-quick-edit-btn,
-[data-theme="dark"] #sheet-quick-edit-btn i {
-color: var(--text-main);
-    opacity: 1;
-}
-[data-theme="dark"] #zoom-controls button:hover,
-[data-theme="dark"] #sheet-quick-edit-btn:hover {
-background: rgba(51, 65, 85, 0.92);
-    color: var(--color-white);
-}
 .guide-zoom-screen {
 padding: 8px;
 }
@@ -43,9 +26,9 @@ min-height: 40px;
 font-size: 0.7rem;
 }
 #zoom-controls button {
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-main);
   background: transparent;
   border: 1px solid transparent;
   color: var(--text-main);
@@ -83,11 +66,16 @@ font-size: 0.7rem;
     transform: none;
   }
 }
-#zoom-controls button, #sheet-quick-edit-btn {
+#zoom-controls button {
   border-color: var(--ui-saas-border);
   background: var(--bg-card);
   color: var(--text-main);
-  min-height: 34px;
+  min-height: 38px;
+  font-weight: 500;
+}
+#sheet-quick-edit-btn {
+  border-color: var(--ui-saas-border);
+  min-height: 38px;
   font-weight: 500;
 }
 @media (max-width: 640px) {
@@ -103,4 +91,11 @@ font-size: 0.7rem;
 #sheet-bottom-controls {
     transform: none;
   }
+}
+#sheet-bottom-controls {
+border: 1px solid var(--border-strong);
+border-radius: var(--radius-lg);
+background: var(--color-white);
+box-shadow: 0 8px 24px color-mix(in srgb, var(--text-main) 10%, transparent);
+backdrop-filter: none;
 }

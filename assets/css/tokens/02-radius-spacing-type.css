@@ -1,202 +1,70 @@
-[data-theme="dark"] .form-control,
-[data-theme="dark"] .form-select,
-[data-theme="dark"] input,
-[data-theme="dark"] select,
-[data-theme="dark"] textarea {
-background-color: rgba(15, 23, 42, 0.78);
-    color: var(--text-main);
-    border-color: rgba(148, 163, 184, 0.24);
-}
-[data-theme="dark"] .form-control::placeholder,
-[data-theme="dark"] input::placeholder,
-[data-theme="dark"] textarea::placeholder {
-color: #94a3b8;
-}
-.legend-chip {
-display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    border: 1px solid var(--border-color);
-    border-radius: 999px;
-    padding: 3px 8px;
-    font-size: 0.68rem;
-    font-weight: 500;
-}
-.legend-chip.male {
-background: var(--bg-male); color: var(--text-male); border-color: var(--border-male);
-}
-.legend-chip.female {
-background: var(--bg-female); color: var(--text-female); border-color: var(--border-female);
-}
-.legend-chip.unknown {
-background: var(--bg-unknown); color: var(--text-unknown); border-color: var(--border-unknown);
-}
-.two-col {
-grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.compact-actions {
-grid-template-columns: repeat(2, minmax(0, 1fr));
-}
+/* Product-wide radius, spacing, typography and keyboard-focus tokens. */
 :root {
---mobile-gap: 8px;
-    --mobile-card-pad: 12px;
-    --mobile-touch: 44px;
-}
-@media (max-width: 640px) {
-html,
-body {
-font-size: 16px;
-}
-}
-@media (max-width: 640px) {
-:root {
---radius-main: 10px;
-        --radius-sm: 8px;
-}
-}
-.typing-caret {
-color: var(--accent-color);
-    font-weight: 500;
-}
-:root {
---focus-ring: color-mix(in srgb, var(--accent-color) 28%, transparent);
-}
-button:focus-visible,
-[role="button"]:focus-visible,
-summary:focus-visible,
-.form-control:focus-visible,
-.form-select:focus-visible {
-outline: 2px solid var(--accent-color);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px var(--focus-ring);
-}
-@supports not (color: color-mix(in srgb, red 50%, transparent)) {
-:root {
---focus-ring: rgba(15, 118, 110, 0.18);
-}
-}
-@keyframes waitingCardNewPulse {
-    0% {
-        box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-color) 45%, transparent);
-        transform: translateY(-2px);
-    }
-    38% {
-        box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-color) 18%, transparent);
-    }
-    100% {
-        box-shadow: none;
-        transform: translateY(0);
-    }
-}
-[data-theme="dark"] .list-group-item {
-background-color: color-mix(in srgb, var(--bg-card) 92%, #000) ;
-    color: var(--text-main) ;
-    border-color: var(--border-color) ;
-}
-[data-theme="dark"] .form-control:disabled,
-[data-theme="dark"] .form-select:disabled,
-[data-theme="dark"] input:disabled,
-[data-theme="dark"] textarea:disabled {
-background-color: color-mix(in srgb, var(--bg-card) 72%, #000) ;
-    color: color-mix(in srgb, var(--text-sub) 78%, transparent) ;
-    border-color: var(--border-color) ;
-    opacity: 1;
-}
-button,
-[role="button"] {
--webkit-tap-highlight-color: transparent;
-}
-.cdn-bootstrap-missing::before {
-content: "Bootstrapの読み込みに失敗しました。一部のメニューやモーダルを利用できない可能性があります。";
-    top: 10px;
-}
-.btn-accent-solid {
-background-color: var(--accent-color);
-  border: none;
-}
-.text-accent {
-color: var(--accent-color);
-}
-:root {
---drop-accent: color-mix(in srgb, var(--accent-color) 58%, #ffffff);
-    --drop-accent-soft: color-mix(in srgb, var(--accent-soft) 56%, transparent);
-    --drop-outline: color-mix(in srgb, var(--accent-color) 30%, transparent);
-    --drop-shadow: 0 0 0 1px var(--drop-outline), inset 0 0 0 1px rgba(255,255,255,0.42);
-    --drop-target-bg: color-mix(in srgb, var(--accent-soft) 46%, var(--sheet-header));
-    --swap-target-bg: color-mix(in srgb, #f59e0b 12%, var(--sheet-header));
-    --return-target-bg: color-mix(in srgb, #60a5fa 10%, var(--sheet-header));
-    --tray-drop-bg: color-mix(in srgb, var(--accent-soft) 20%, var(--tray-bg));
-    --tray-drop-border: color-mix(in srgb, var(--accent-color) 20%, transparent);
-    --motion-fast: 120ms;
-}
-[data-theme="dark"] {
---drop-accent: color-mix(in srgb, var(--accent-color) 62%, #ffffff);
-    --drop-accent-soft: color-mix(in srgb, var(--accent-soft) 42%, transparent);
-    --drop-outline: color-mix(in srgb, var(--accent-color) 34%, transparent);
-    --drop-shadow: 0 0 0 1px var(--drop-outline), inset 0 0 0 1px rgba(255,255,255,0.05);
-    --drop-target-bg: color-mix(in srgb, var(--accent-soft) 30%, var(--sheet-header));
-    --swap-target-bg: color-mix(in srgb, #f59e0b 14%, var(--sheet-header));
-    --return-target-bg: color-mix(in srgb, #60a5fa 12%, var(--sheet-header));
-    --tray-drop-bg: color-mix(in srgb, var(--accent-soft) 14%, var(--tray-bg));
-    --tray-drop-border: color-mix(in srgb, var(--accent-color) 24%, transparent);
-}
-@supports not (background: color-mix(in srgb, white, black)) {
-:root {
---drop-accent: var(--accent-color);
-        --drop-accent-soft: var(--accent-soft);
-        --drop-outline: var(--accent-color);
-        --drop-target-bg: var(--accent-soft);
-        --swap-target-bg: rgba(245, 158, 11, 0.12);
-        --return-target-bg: rgba(96, 165, 250, 0.10);
-        --tray-drop-bg: var(--accent-soft);
-        --tray-drop-border: var(--accent-color);
-}
-}
-@media (max-width: 640px) {
-body {
--webkit-font-smoothing: antialiased;
-        text-rendering: optimizeLegibility;
-}
-}
-@media (max-width: 640px) {
-.section-toolbar {
-gap: 8px;
-}
-}
-[data-theme="dark"] body {
-background: var(--bg-body);
-}:root {
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-main: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+
+  --mobile-gap: 8px;
+  --mobile-card-pad: 12px;
+  --mobile-touch: 44px;
   --density-card-gap: 8px;
-  --radius-main: 12px;
-  --radius-sm: 10px;
-  --radius-xs: 8px;
+
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  --font-size-caption: 0.68rem;
+  --font-size-label: 0.78rem;
+  --font-size-body: 0.9rem;
+  --font-size-title: 1rem;
+  --font-size-amount: clamp(0.94rem, 4.1vw, 1.12rem);
+  --font-weight-label: 500;
+  --font-weight-title: 600;
+  --font-weight-amount: 650;
+  --amount-font-weight: var(--font-weight-amount);
+
+  --focus-ring: color-mix(in srgb, var(--focus-accent) 24%, transparent);
 }
-.btn,
-.form-control,
-.form-select,
-.form-check-input,
-input:not([type="checkbox"]):not([type="radio"]),
-select,
-textarea {
-border-radius: var(--radius-main);
+
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  :root { --focus-ring: rgba(37, 99, 235, 0.22); }
 }
-.sync-status-dot,
-.form-check-input[type="radio"] {
-border-radius: 50%;
+
+:where(button, [role="button"], summary, input:not([type="hidden"]), select, textarea, .form-control, .form-select):focus-visible {
+  outline: 2px solid var(--focus-accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
+
+button,
+[role="button"] { -webkit-tap-highlight-color: transparent; }
+
+.form-check-input { border-radius: var(--radius-xs); }
+.form-check-input[type="radio"] { border-radius: 50%; }
+
+@media (max-width: 640px) {
+  html,
+  body {
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .section-toolbar { gap: 8px; }
+}
+
 @media (max-width: 768px) {
-input:not([type="checkbox"]):not([type="radio"]),
-select,
-textarea,
-.form-control,
-.form-select {
-font-size: 16px;
-}
-}
-/* Shared Bootstrap button rule: primary = accent, secondary/outline = quiet neutral. */
-.btn {
-  border-radius: var(--radius-sm);
-  font-weight: 500;
-  box-shadow: none;
-  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.08s ease;
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea,
+  .form-control,
+  .form-select { font-size: 16px; }
 }

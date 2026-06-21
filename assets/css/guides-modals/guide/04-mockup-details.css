@@ -1,8 +1,3 @@
-.header-more .dropdown-item:hover,
-.header-more .dropdown-item:focus {
-background: var(--hover-bg);
-    color: var(--text-main);
-}
 @media (max-width: 640px) {
 .modal-fullscreen-sm-down .modal-content {
 border-radius: 0;
@@ -46,11 +41,6 @@ min-height: 42px;
         display: flex;
         align-items: center;
 }
-}
-[data-theme="dark"] .guide-step-btn.active {
-background: var(--accent-color);
-    border-color: var(--accent-color);
-    color: var(--color-white);
 }
 .mock-register-head {
 min-height: 32px;
@@ -98,34 +88,6 @@ border-color: rgba(15,118,110,0.34);
 @media (max-width: 420px) {
 .mock-register-grid {
 grid-template-columns: 1fr;
-}
-}
-@media (max-width: 640px) {
-.header-more .dropdown-menu {
---bs-dropdown-min-width: 258px;
-        min-width: min(258px, calc(100vw - 24px));
-        max-width: calc(100vw - 24px);
-        max-height: min(70dvh, 460px);
-        overflow: auto;
-        overscroll-behavior: contain;
-        border-radius: 18px;
-        padding: 8px;
-}
-}
-@media (max-width: 640px) {
-.header-more .dropdown-menu.show {
-right: 0;
-        left: auto;
-}
-}
-@media (max-width: 640px) {
-.header-more .dropdown-item {
-min-height: 42px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        white-space: nowrap;
 }
 }
 .tray-inline-row .tray-settings-dropdown {
@@ -190,22 +152,6 @@ color: var(--text-main);
 }
 .history-meta small {
 color: var(--text-sub); font-size: 0.72rem;
-}
-[data-theme="dark"] .dropdown-menu,
-[data-theme="dark"] .modal-content {
-background-color: color-mix(in srgb, var(--bg-card) 92%, var(--color-black)) ;
-    color: var(--text-main) ;
-    border-color: var(--border-color) ;
-}
-[data-theme="dark"] .dropdown-item,
-[data-theme="dark"] .dropdown-item-text,
-[data-theme="dark"] .dropdown-header {
-color: var(--text-main) ;
-}
-[data-theme="dark"] .dropdown-item:hover,
-[data-theme="dark"] .dropdown-item:focus {
-background-color: color-mix(in srgb, var(--accent-soft) 42%, transparent) ;
-    color: var(--text-main) ;
 }
 @media (max-width: 520px) {
 .modal-dialog.modal-dialog-centered {

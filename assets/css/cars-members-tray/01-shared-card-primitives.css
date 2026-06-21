@@ -86,18 +86,6 @@ gap: 6px;
 }
 }
 
-[data-theme="dark"] .fa-check,
-[data-theme="dark"] .fas.fa-check {
-background: transparent;
-    border: 0;
-    box-shadow: none;
-    outline: 0;
-}
-
-[data-theme="dark"] .fa-check {
-box-shadow: none;
-}
-
 .fa-check,
 .fas.fa-check {
 background: transparent;
@@ -203,13 +191,6 @@ border-radius: var(--radius-sm);
   border-color: var(--app-line-soft, var(--ui-surface-border-soft));
   background: var(--ui-surface-bg-inner);
   box-shadow: none;
-}
-
-[data-theme="dark"] #cars-container .seat-slot > .member-card,
-[data-theme="dark"] #waiting-list .member-card {
-  border-color: rgba(148, 163, 184, 0.22);
-  background: color-mix(in srgb, var(--bg-card) 84%, var(--text-main) 4%);
-  box-shadow: 0 6px 16px rgba(var(--shadow-rgb), 0.14);
 }
 
 #cars-container .seat-slot > .member-card:hover,

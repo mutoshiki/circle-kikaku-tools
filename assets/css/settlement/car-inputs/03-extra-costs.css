@@ -6,14 +6,6 @@
   background: color-mix(in srgb, var(--color-warning) 10%, var(--bg-card));
   border-color: color-mix(in srgb, var(--color-warning) 32%, var(--border-color));
 }
-[data-theme="dark"] .seisan-field input,
-[data-theme="dark"] .seisan-field select,
-[data-theme="dark"] .seisan-extra-row input,
-[data-theme="dark"] .seisan-extra-row select,
-[data-theme="dark"] .seisan-car-row {
-    border-color: var(--hairline, var(--border-color));
-    background: color-mix(in srgb, var(--bg-card) 86%, var(--color-night));
-}
 @media (max-width: 640px) {
     .seisan-car-row {
         padding: 11px;
@@ -33,7 +25,6 @@
 /* =========================================================
 ========================================================= */
 .btn:not(.btn-close):active,
-.header-action:active,
 .tool-btn:active,
 .seisan-btn:active,
 .tray-action-btn:active,
@@ -43,7 +34,6 @@
 }
 @media (max-width: 640px) {
 .btn:not(.btn-close),
-  .header-action,
   .tool-btn,
   .seisan-btn,
   .tray-action-btn,
@@ -52,7 +42,7 @@
     min-height: 38px;
   }
 }
-.header-action i,
+
 .tool-btn i,
 .seisan-btn i,
 .tray-action-btn i,
@@ -61,8 +51,6 @@
   flex: 0 0 auto;
   font-size: 0.92em;
 }
-.form-control,
-.form-select,
 .seisan-field input,
 .seisan-field select,
 .seisan-toggle {
@@ -84,10 +72,6 @@
   border-radius: var(--radius-lg);
   background: color-mix(in srgb, var(--bg-card) 96%, var(--sheet-header));
   box-shadow: 0 22px 60px rgba(var(--shadow-rgb), 0.22);
-}
-[data-theme="dark"] .settlement-edit-modal-content {
-  background: color-mix(in srgb, var(--bg-card) 90%, rgba(var(--white-rgb), 0.05));
-  box-shadow: 0 26px 80px rgba(var(--black-rgb), 0.42);
 }
 #settlementCarEditModal .modal-body,
 #settlementSettingsModal .modal-body {
@@ -223,9 +207,7 @@
   background: var(--settlement-tag-bg, var(--settlement-split-bg));
   border-color: var(--settlement-tag-line, var(--settlement-split-line));
 }
-#seisan-view-area :is(.seisan-cost-policy-tag, .seisan-cost-type-badge),
-.guide-mini-screen .seisan-mock-chip,
-.seisan-extra-type {
+#seisan-view-area :is(.seisan-cost-policy-tag, .seisan-cost-type-badge),  .guide-mini-screen .seisan-mock-chip,  .seisan-extra-type {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -233,7 +215,7 @@
   min-height: var(--settlement-tag-min-height);
   padding: var(--settlement-tag-pad-y) var(--settlement-tag-pad-x);
   border: 1px solid var(--settlement-tag-line, var(--settlement-split-line));
-  border-radius: 999px;
+  border-radius: var(--radius-xs);
   background: var(--settlement-tag-bg, var(--settlement-split-bg));
   color: var(--settlement-tag-ink, var(--settlement-split-ink));
   font-size: var(--settlement-tag-font-size);
@@ -245,26 +227,12 @@
   white-space: nowrap;
 }
 .edit-header-tools-only,
-.car-box,
 .batch-spreadsheet-import {
   background: var(--ui-panel-bg);
 }
-.car-header,
-.seisan-head,
-.seisan-compact-head,
-.modal-header,
-.sheet-car-header,
-.sheet-wait-header,
-#bottom-tray-header {
-  border-color: var(--ui-panel-border);
-}
 @media (max-width: 640px) {
-#app-header,
-  #view-toggle-bar,
-  .edit-header-tools-only,
-  .seisan-card,
-  .car-box,
-  #sheet-title-bar {
+
+.edit-header-tools-only {
     border-radius: var(--ui-panel-radius);
   }
 }

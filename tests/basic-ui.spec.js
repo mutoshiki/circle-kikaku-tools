@@ -2,7 +2,38 @@
 // Run after `npm i -D @playwright/test` and `npx playwright install chromium`.
 // Then: `npx playwright test tests/basic-ui.spec.js`
 
+const fs = require('fs');
+const path = require('path');
 const { test, expect } = require('@playwright/test');
+
+const ROOT = path.resolve(__dirname, '..');
+const readAsset = relativePath => fs.readFileSync(path.join(ROOT, relativePath));
+
+async function installLocalVendorRoutes(page) {
+  await page.route('**/*', async route => {
+    const url = route.request().url();
+    if (url === 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css') {
+      return route.fulfill({ status: 200, contentType: 'text/css', body: readAsset('node_modules/bootstrap/dist/css/bootstrap.min.css') });
+    }
+    if (url === 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js') {
+      return route.fulfill({ status: 200, contentType: 'application/javascript', body: readAsset('node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') });
+    }
+    if (url === 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css') {
+      return route.fulfill({ status: 200, contentType: 'text/css', body: readAsset('node_modules/@fortawesome/fontawesome-free/css/all.min.css') });
+    }
+    if (url.startsWith('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/')) {
+      const filename = path.basename(new URL(url).pathname);
+      return route.fulfill({ status: 200, contentType: 'font/woff2', body: readAsset(`node_modules/@fortawesome/fontawesome-free/webfonts/${filename}`) });
+    }
+    if (url === 'https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js') {
+      return route.fulfill({ status: 200, contentType: 'application/javascript', body: readAsset('node_modules/sortablejs/Sortable.min.js') });
+    }
+    if (url.endsWith('/firebase-config.js')) {
+      return route.fulfill({ status: 200, contentType: 'application/javascript', body: 'window.SANPO_FIREBASE_CONFIG = {};' });
+    }
+    return route.continue();
+  });
+}
 
 async function installOfflineBootstrapFallback(page) {
   await page.addInitScript(() => {
@@ -67,6 +98,7 @@ async function installOfflineBootstrapFallback(page) {
 }
 
 async function gotoApp(page) {
+  await installLocalVendorRoutes(page);
   await installOfflineBootstrapFallback(page);
   await page.goto('./index.html');
 }
@@ -111,6 +143,7 @@ async function loadSampleData(page) {
     }
   });
   await expect(page.locator('#debugModal')).toBeHidden();
+  await page.waitForFunction(() => document.body.classList.contains('view-mode-seisan'));
 }
 
 async function closeModal(page, modalId) {
@@ -148,13 +181,6 @@ test('critical modals stay clickable and above the backdrop', async ({ page }) =
   await page.locator('#globalGuideBtn').click();
   await closeHeaderMenu(page);
   await closeModal(page, '#globalGuideModal');
-
-  await openHeaderMenu(page);
-  await page.locator('#appearanceSettingsBtn').click();
-  await closeHeaderMenu(page);
-  await expect(page.locator('#appearanceModal .modal-footer [data-bs-dismiss="modal"]')).toBeVisible();
-  await page.locator('#appearanceModal .modal-footer [data-bs-dismiss="modal"]').click();
-  await expect(page.locator('#appearanceModal')).toBeHidden();
 
   await page.locator('#tab-list').click();
   await page.locator('#batchOpenBtn').click();

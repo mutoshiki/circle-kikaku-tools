@@ -15,8 +15,3 @@ body.quick-edit-mode #sheet-view-area .sheet-chip.draggable {
   background: var(--bg-card);
   color: var(--text-main);
 }
-body[data-theme="dark"].quick-edit-mode #sheet-view-area :where(.sheet-chip, .sheet-chip-text),
-html[data-theme="dark"] body.quick-edit-mode #sheet-view-area :where(.sheet-chip, .sheet-chip-text) {
-  color: var(--dark-ui-text, var(--text-main));
-  -webkit-text-fill-color: var(--dark-ui-text, var(--text-main));
-}

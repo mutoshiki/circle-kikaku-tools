@@ -17,10 +17,6 @@ background: rgba(63,111,150,0.12); color: var(--text-main);
 background: rgba(239,68,68,0.12); color: var(--color-danger-text);
 }
 
-[data-theme="dark"] .c-error {
-color:var(--palette-red-200);
-}
-
 .route-helper-panel {
 display: grid;
     gap: 10px;

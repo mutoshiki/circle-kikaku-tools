@@ -50,7 +50,8 @@ for (const file of requiredLeafCss) {
 const requiredSubFiles = [
   'assets/css/app-shell/layout/01-app-frame.css',
   'assets/css/app-shell/edit/01-edit-base.css',
-  'assets/css/app-shell/header/04-mobile-layout.css',
+  'assets/css/app-shell/header/02-room-status.css',
+  'assets/css/app-shell/header/03-tabs-actions.css',
   'assets/css/guides-modals/modal/01-modal-base.css',
   'assets/css/guides-modals/guide/01-guide-cards.css',
   'assets/css/cars-members-tray/01-shared-card-primitives.css',

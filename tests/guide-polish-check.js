@@ -27,7 +27,7 @@ assert(!guide.includes('見出し付きで貼り付け'), 'old guide helper word
 assert(!guide.includes('車出しの有無'), 'old guide spreadsheet heading remains');
 
 assert(guideCss.includes('--guide-external-blue: var(--palette-blue-600)'), 'fixed light blue selection token missing');
-assert(guideCss.includes('--guide-external-blue: var(--palette-blue-400)'), 'fixed dark blue selection token missing');
+assert(!guideCss.includes('--guide-external-blue: var(--palette-blue-400)'), 'obsolete alternate visual-mode selection token remains');
 assert(guideCss.includes('margin: 0 auto;'), 'centered spreadsheet selection override missing');
 assert(guideCss.includes('Participant registration mock: calm'), 'calm participant registration mock rule missing');
 assert(trayCss.includes('fill-empty is secondary'), 'tray button priority rule missing');

@@ -2,25 +2,21 @@
    Dropdown layering
    Header/tray menus must stay above car-allocation cards.
 ========================================================= */
-#app-layout #app-header {
-  position: relative;
-  z-index: var(--z-header);
-  overflow: visible;
-  border-color: var(--app-border-soft, var(--border-color));
-  outline: 0;
-}
 
-#app-layout #app-header .app-header-main,
-#app-layout #app-header .header-actions,
-#app-layout #app-header .header-more,
-#app-layout #app-header .dropdown {
-  position: relative;
-  overflow: visible;
-}
-
-#app-layout #app-header .dropdown-menu,
-#app-layout #app-header .dropdown-menu.show {
-  z-index: var(--z-dropdown);
+:root {
+  --z-local-base: 1;
+  --z-local-raised: 2;
+  --z-local-sticky: 3;
+  --z-local-overlay: 8;
+  --z-local-popover: 20;
+  --z-header: 100;
+  --z-tray: 300;
+  --z-dropdown: 600;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-floating: 2200;
+  --z-toast: 2300;
+  --z-drag: 100000;
 }
 
 #top-area {

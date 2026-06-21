@@ -13,7 +13,7 @@
 .sheet-plan-section .sheet-wait-item {
     min-height: 32px;
     border: 1px solid var(--hairline, var(--border-color));
-    border-radius: 999px;
+    border-radius: var(--radius-sm);
     padding: 5px 8px;
 }
 @media (max-width: 640px) {
@@ -57,7 +57,9 @@
   font-weight: 500;
 }
 .sheet-summary-row.is-team .sheet-summary-plan-label {
-    background: color-mix(in srgb, var(--text-main) 86%, var(--accent-color));
+    border-color: var(--border-color);
+    background: var(--surface-muted);
+    color: var(--text-sub);
 }
 @media (max-width: 640px) {
     #sheet-title-bar {
@@ -213,6 +215,10 @@
 .sheet-timetable-link:hover {
     text-decoration-thickness: 0.12em;
 }
-[data-theme="dark"] .sheet-timetable-card {
-    background: color-mix(in srgb, var(--bg-card) 88%, var(--accent-color));
+.sheet-timetable {
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-main);
+    background: var(--color-white);
+    box-shadow: none;
 }

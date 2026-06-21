@@ -1,7 +1,5 @@
 /* 03-guide-mockups.css
    Split from settlement/01-layout-summary.css. */
-.seisan-summary-value,
-.seisan-driver-amount,
 .seisan-flow-label,
 .seisan-guide-box strong {
 font-weight: 650;
@@ -21,7 +19,7 @@ display: flex;
 .seisan-mock-window-bar span {
 width: 7px;
     height: 7px;
-    border-radius: 999px;
+    border-radius: var(--radius-xs);
     background: var(--border-color);
 }
 .seisan-mock-flow {
@@ -44,15 +42,6 @@ background: rgba(245, 158, 11, 0.14); border-color: rgba(245, 158, 11, 0.38);
 }
 .seisan-mock-summary.pay {
 background: rgba(30, 41, 59, 0.08); border-color: rgba(30, 41, 59, 0.22);
-}
-[data-theme="dark"] .seisan-mock-summary.collect {
-background: rgba(52, 211, 153, 0.13); border-color: rgba(52, 211, 153, 0.32);
-}
-[data-theme="dark"] .seisan-mock-summary.account {
-background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.38);
-}
-[data-theme="dark"] .seisan-mock-summary.pay {
-background: rgba(96, 165, 250, 0.13); border-color: rgba(96, 165, 250, 0.34);
 }
 .seisan-mock-label {
 color: var(--text-sub);
@@ -120,7 +109,7 @@ display: flex;
 .seisan-mock-switch {
 width: 30px;
     height: 17px;
-    border-radius: 999px;
+    border-radius: var(--radius-xs);
     background: var(--accent-color);
     position: relative;
     flex: 0 0 auto;
@@ -132,7 +121,7 @@ content: "";
     height: 13px;
     top: 2px;
     right: 2px;
-    border-radius: 999px;
+    border-radius: var(--radius-xs);
     background: var(--color-white);
 }
 .seisan-mock-car {

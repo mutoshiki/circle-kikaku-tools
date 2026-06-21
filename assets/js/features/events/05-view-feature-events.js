@@ -63,7 +63,6 @@
         bind('sheet-quick-edit-btn', () => toggleQuickEdit());
         bind('seisanRefreshBtn', () => renderSettlementView());
         bind('clearAllBtn', () => global.clearAll());
-        bind('resetAppearanceBtn', () => resetAppearanceSettings());
         bind('applyGoogleFormPasteBtn', () => global.applyGoogleFormPasteImport?.());
         bind('executeBatchBtn', () => executeBatch());
         bind('executeDebugBtn', () => global.executeDebugMode?.());

@@ -1,0 +1,2290 @@
+[
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout",
+    "at": "root",
+    "dest": "assets/css/app-shell/layout/01-app-frame.css",
+    "removed": 3,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#top-area",
+    "at": "root",
+    "dest": "assets/css/app-shell/layout/01-app-frame.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#sheet-view-area",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/01-sheet-frame.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#seisan-view-area",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/01-header-base.css",
+    "removed": 4,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .app-header-main",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/01-header-base.css",
+    "removed": 7,
+    "properties": 9
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .app-room-input",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/02-room-status.css",
+    "removed": 7,
+    "properties": 11
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .app-room-input::placeholder",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/02-room-status.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .app-room-input:focus",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/02-room-status.css",
+    "removed": 1,
+    "properties": 4
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .sync-status-badge",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/02-room-status.css",
+    "removed": 0,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header #syncStatusBadge.sync-status-badge",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/02-room-status.css",
+    "removed": 0,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .sync-status-dot",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/02-room-status.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-action",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 12
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-actions .header-action",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 18,
+    "properties": 12
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-actions .header-more > .header-action",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 18,
+    "properties": 12
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-action:hover",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-actions .header-action:hover",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 5,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-actions .header-more > .header-action:hover",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 5,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-action.is-locked",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header #editLockBtn.header-action.is-locked",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-actions .share-action",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header #shareLinkBtn.share-action",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-actions .share-action:hover",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header #shareLinkBtn.share-action:hover",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #view-toggle-bar",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 8,
+    "properties": 11
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout .view-toggle-bar",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 8,
+    "properties": 11
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #view-toggle-bar .view-tab",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 11,
+    "properties": 11
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout .view-toggle-bar .view-tab",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 11,
+    "properties": 11
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #view-toggle-bar .view-tab:hover",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout .view-toggle-bar .view-tab:hover",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #view-toggle-bar .view-tab.active",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 1,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout .view-toggle-bar .view-tab.active",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 1,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #view-toggle-bar .view-tab.active::after",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 1,
+    "properties": 9
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout .view-toggle-bar .view-tab.active::after",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 1,
+    "properties": 9
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #view-toggle-bar .view-tab.active i",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout .view-toggle-bar .view-tab.active i",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".btn",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 6,
+    "properties": 8
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".tool-btn",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 9,
+    "properties": 8
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".tray-action-btn",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 3,
+    "properties": 8
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".seisan-btn",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 14,
+    "properties": 8
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".overview-mini-action",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 0,
+    "properties": 8
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".overview-copy-action",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 0,
+    "properties": 8
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".btn:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 0,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".tool-btn:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 3,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".tray-action-btn:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 0,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".seisan-btn:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 3,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".overview-mini-action:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 0,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".overview-copy-action:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 0,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".btn-primary",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 4,
+    "properties": 4
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".btn-accent-solid",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 4,
+    "properties": 4
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".tool-btn.primary",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".tray-action-btn.primary",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".seisan-btn.primary",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 7,
+    "properties": 4
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".seisan-btn.active",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 4,
+    "properties": 4
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#batchOpenBtn",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#participantAddBtn",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".btn-primary:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 3,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".btn-accent-solid:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 3,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".tool-btn.primary:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".tray-action-btn.primary:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".seisan-btn.primary:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".seisan-btn.active:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#batchOpenBtn:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#participantAddBtn:hover",
+    "at": "root",
+    "dest": "assets/css/components/buttons/02-action-buttons.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".form-control",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 3,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".form-select",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 3,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "input:not([type=\"checkbox\"]):not([type=\"radio\"])",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 1,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "select",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 2,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "textarea",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 2,
+    "properties": 5
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".form-control:hover",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".form-select:hover",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "input:not([type=\"checkbox\"]):not([type=\"radio\"]):hover",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "select:hover",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "textarea:hover",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".form-control:focus",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": ".form-select:focus",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "input:not([type=\"checkbox\"]):not([type=\"radio\"]):focus",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "select:focus",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "textarea:focus",
+    "at": "root",
+    "dest": "assets/css/tokens/04-forms-inputs.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-actions .header-action",
+    "at": "@media (min-width: 860px)",
+    "dest": "assets/css/app-shell/header/12-responsive-wide.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-actions .header-more > .header-action",
+    "at": "@media (min-width: 860px)",
+    "dest": "assets/css/app-shell/header/12-responsive-wide.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-action span",
+    "at": "@media (min-width: 860px)",
+    "dest": "assets/css/app-shell/header/12-responsive-wide.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-more > .header-action span",
+    "at": "@media (min-width: 860px)",
+    "dest": "assets/css/app-shell/header/12-responsive-wide.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header #shareLinkBtn.header-action.share-action span",
+    "at": "@media (min-width: 860px)",
+    "dest": "assets/css/app-shell/header/12-responsive-wide.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/04-mobile-layout.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .app-header-main",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/04-mobile-layout.css",
+    "removed": 2,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .app-room-input",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/05-mobile-room.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-actions",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/06-mobile-actions.css",
+    "removed": 4,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-actions .header-action",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/06-mobile-actions.css",
+    "removed": 9,
+    "properties": 6
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-actions .header-more > .header-action",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/06-mobile-actions.css",
+    "removed": 6,
+    "properties": 6
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-actions .share-action",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/06-mobile-actions.css",
+    "removed": 0,
+    "properties": 6
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-action span",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/06-mobile-actions.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header .header-more > .header-action span",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/06-mobile-actions.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #app-header #shareLinkBtn.header-action.share-action span",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/06-mobile-actions.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #view-toggle-bar",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/07-mobile-tabs.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout .view-toggle-bar",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/07-mobile-tabs.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #view-toggle-bar .view-tab",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/07-mobile-tabs.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout .view-toggle-bar .view-tab",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/07-mobile-tabs.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout #view-toggle-bar .view-tab.active::after",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/07-mobile-tabs.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "01-product-shell.css",
+    "selector": "#app-layout .view-toggle-bar .view-tab.active::after",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/header/07-mobile-tabs.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".edit-header-tools-only.allocation-toolbar",
+    "at": "root",
+    "dest": "assets/css/app-shell/edit/02-toolbar.css",
+    "removed": 3,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".allocation-toolbar-inner",
+    "at": "root",
+    "dest": "assets/css/app-shell/edit/02-toolbar.css",
+    "removed": 0,
+    "properties": 6
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-plan-template-tabs",
+    "at": "root",
+    "dest": "assets/css/app-shell/edit/02-toolbar.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-plan-template-chip",
+    "at": "root",
+    "dest": "assets/css/app-shell/edit/02-toolbar.css",
+    "removed": 0,
+    "properties": 7
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-plan-template-chip.active",
+    "at": "root",
+    "dest": "assets/css/app-shell/edit/02-toolbar.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": "#cars-container",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/01-card-shell.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-box",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/01-card-shell.css",
+    "removed": 9,
+    "properties": 6
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".team-box",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/01-card-shell.css",
+    "removed": 0,
+    "properties": 6
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-box::before",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/01-card-shell.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".team-box::before",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/01-card-shell.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-header",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 1,
+    "properties": 2
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-box-head",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/01-card-shell.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-head",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-header",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-header > span",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 4,
+    "properties": 5
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-header > strong",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 4,
+    "properties": 5
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-header-title",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 1,
+    "properties": 5
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-card-title",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 1,
+    "properties": 5
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-name-label",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 0,
+    "properties": 5
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".capacity-badge",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 9,
+    "properties": 6
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".capacity-badge.capacity-edit-btn",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 6,
+    "properties": 6
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".capacity-badge.capacity-edit-btn.is-full",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 6,
+    "properties": 6
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".capacity-badge.capacity-edit-btn.is-over",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 6,
+    "properties": 6
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-layout-grid",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/03-seat-grid.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".driver-seat",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/03-seat-grid.css",
+    "removed": 9,
+    "properties": 4
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".seat-slot",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/03-seat-grid.css",
+    "removed": 10,
+    "properties": 4
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".member-card",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/01-person-card-shell.css",
+    "removed": 11,
+    "properties": 4
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".driver-seat",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/03-seat-grid.css",
+    "removed": 6,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".driver-seat:hover",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/03-seat-grid.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".seat-slot:hover",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/03-seat-grid.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".member-card:hover",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/01-person-card-shell.css",
+    "removed": 3,
+    "properties": 4
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".member-card",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/01-person-card-shell.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".member-name",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/02-person-name-grade.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".driver-name-disp",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/02-person-name-grade.css",
+    "removed": 2,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".member-card .memo-popup",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/02-person-name-grade.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".person-note",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/02-person-name-grade.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".driver-note",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/02-person-name-grade.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".grade-badge",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/02-person-name-grade.css",
+    "removed": 8,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".gender-badge",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/02-person-name-grade.css",
+    "removed": 4,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".legend-chip",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/02-person-name-grade.css",
+    "removed": 3,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".capacity-badge",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 3,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".member-action-btn",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/03-person-menu.css",
+    "removed": 2,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".delete-btn-overlay",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/03-person-menu.css",
+    "removed": 2,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-header .delete-btn",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 2,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".member-action-btn:hover",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/03-person-menu.css",
+    "removed": 2,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".delete-btn-overlay:hover",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/03-person-menu.css",
+    "removed": 2,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-header .delete-btn:hover",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 2,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": "#bottom-tray",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/waiting-tray/01-tray-shell.css",
+    "removed": 3,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": "#bottom-tray-header",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/waiting-tray/01-tray-shell.css",
+    "removed": 4,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".waiting-tray",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/waiting-tray/01-tray-shell.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".waiting-tray-content",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/waiting-tray/01-tray-shell.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".waiting-list-shell",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/waiting-tray/01-tray-shell.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".tray-title",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/waiting-tray/01-tray-shell.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".waiting-tray-title",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/waiting-tray/01-tray-shell.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": "#sheet-title-bar",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/01-sheet-frame.css",
+    "removed": 11,
+    "properties": 11
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": "#sheet-title-bar .sheet-title-icon",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/01-sheet-frame.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": "#sheet-title-bar #sheet-summary",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/01-sheet-frame.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": "#sheet-summary",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/01-sheet-frame.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": "#sheet-canvas",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/01-sheet-frame.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-car-col",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/02-sheet-car-table.css",
+    "removed": 6,
+    "properties": 5
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-wait-block",
+    "at": "root",
+    "dest": "assets/css/sheet-view/waiting/01-sheet-waiting.css",
+    "removed": 10,
+    "properties": 5
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-timetable",
+    "at": "root",
+    "dest": "assets/css/sheet-view/timetable/01-timetable-base.css",
+    "removed": 0,
+    "properties": 5
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-summary-panel",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/03-sheet-summary.css",
+    "removed": 0,
+    "properties": 5
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-car-header",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/02-sheet-car-table.css",
+    "removed": 8,
+    "properties": 4
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-wait-header",
+    "at": "root",
+    "dest": "assets/css/sheet-view/waiting/01-sheet-waiting.css",
+    "removed": 8,
+    "properties": 4
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-driver-row",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/02-sheet-car-table.css",
+    "removed": 7,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-seat-row",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/02-sheet-car-table.css",
+    "removed": 6,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-wait-item",
+    "at": "root",
+    "dest": "assets/css/sheet-view/waiting/01-sheet-waiting.css",
+    "removed": 7,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-driver-row",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/02-sheet-car-table.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-driver-row:hover",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/02-sheet-car-table.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-seat-row:hover",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/02-sheet-car-table.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-wait-item:hover",
+    "at": "root",
+    "dest": "assets/css/sheet-view/waiting/01-sheet-waiting.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-section-title",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/03-sheet-summary.css",
+    "removed": 1,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-summary-pill",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/03-sheet-summary.css",
+    "removed": 5,
+    "properties": 5
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-summary-pills span",
+    "at": "root",
+    "dest": "assets/css/sheet-view/layout/03-sheet-summary.css",
+    "removed": 0,
+    "properties": 5
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": "#sheet-bottom-controls",
+    "at": "root",
+    "dest": "assets/css/sheet-view/print/01-zoom-print.css",
+    "removed": 6,
+    "properties": 5
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": "#sheet-quick-edit-btn",
+    "at": "root",
+    "dest": "assets/css/sheet-view/edit/01-quick-edit.css",
+    "removed": 5,
+    "properties": 3
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".sheet-empty-card",
+    "at": "root",
+    "dest": "assets/css/components/surfaces/02-empty-state.css",
+    "removed": 4,
+    "properties": 4
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".empty-state",
+    "at": "root",
+    "dest": "assets/css/components/surfaces/02-empty-state.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".seisan-empty",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/02-empty-state.css",
+    "removed": 3,
+    "properties": 4
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".edit-header-tools-only.allocation-toolbar",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/edit/03-mobile-edit.css",
+    "removed": 1,
+    "properties": 2
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".allocation-toolbar-inner",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/app-shell/edit/03-mobile-edit.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-box",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/cars-members-tray/car-card/01-card-shell.css",
+    "removed": 5,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".team-box",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/cars-members-tray/car-card/01-card-shell.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".car-header",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/cars-members-tray/car-card/02-card-header.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".driver-seat",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/cars-members-tray/car-card/03-seat-grid.css",
+    "removed": 3,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".seat-slot",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/cars-members-tray/car-card/03-seat-grid.css",
+    "removed": 2,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": ".member-card",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/cars-members-tray/person-card/01-person-card-shell.css",
+    "removed": 3,
+    "properties": 1
+  },
+  {
+    "source": "02-allocation-sheet.css",
+    "selector": "#sheet-title-bar",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/sheet-view/layout/01-sheet-frame.css",
+    "removed": 2,
+    "properties": 2
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": "#seisan-view-area",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-card",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 4,
+    "properties": 5
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-toolbar-card",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 0,
+    "properties": 5
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-settings-card",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 3,
+    "properties": 5
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-panel",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 0,
+    "properties": 5
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-toolbar-card",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-settings-card",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-head",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 2,
+    "properties": 2
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-card-head",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-compact-head",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 2,
+    "properties": 2
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-title",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 4,
+    "properties": 4
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-section-title",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 1,
+    "properties": 4
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-subhead strong",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 1,
+    "properties": 4
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-title i",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-section-title i",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/01-layout.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-summary-card",
+    "at": "root",
+    "dest": "assets/css/settlement/summary/01-summary-layout.css",
+    "removed": 5,
+    "properties": 6
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-summary-card::before",
+    "at": "root",
+    "dest": "assets/css/settlement/summary/01-summary-layout.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-summary-card.collect",
+    "at": "root",
+    "dest": "assets/css/settlement/summary/01-summary-layout.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-summary-card.accounting",
+    "at": "root",
+    "dest": "assets/css/settlement/summary/01-summary-layout.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-summary-card.pay",
+    "at": "root",
+    "dest": "assets/css/settlement/summary/03-summary-colors.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-summary-label",
+    "at": "root",
+    "dest": "assets/css/settlement/summary/02-summary-values.css",
+    "removed": 2,
+    "properties": 2
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-summary-value",
+    "at": "root",
+    "dest": "assets/css/settlement/summary/02-summary-values.css",
+    "removed": 6,
+    "properties": 5
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-summary-card.pay",
+    "at": "root",
+    "dest": "assets/css/settlement/summary/03-summary-colors.css",
+    "removed": 2,
+    "properties": 2
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-summary-card.pay .seisan-summary-value",
+    "at": "root",
+    "dest": "assets/css/settlement/summary/03-summary-colors.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-car-summary-row",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/03-car-summary-base.css",
+    "removed": 2,
+    "properties": 3
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-check-item",
+    "at": "root",
+    "dest": "assets/css/settlement/checklists/01-collection-list.css",
+    "removed": 5,
+    "properties": 3
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-driver-pay-row",
+    "at": "root",
+    "dest": "assets/css/settlement/checklists/03-driver-payment-list.css",
+    "removed": 7,
+    "properties": 3
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-cost-row",
+    "at": "root",
+    "dest": "assets/css/settlement/cost-tags/02-cost-breakdown.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-collection-row",
+    "at": "root",
+    "dest": "assets/css/settlement/checklists/01-collection-list.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-car-summary-row:hover",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/03-car-summary-base.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-check-item:hover",
+    "at": "root",
+    "dest": "assets/css/settlement/checklists/01-collection-list.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-driver-pay-row:hover",
+    "at": "root",
+    "dest": "assets/css/settlement/checklists/03-driver-payment-list.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-cost-tag",
+    "at": "root",
+    "dest": "assets/css/settlement/cost-tags/01-cost-tag-base.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-payment-tag",
+    "at": "root",
+    "dest": "assets/css/settlement/cost-tags/01-cost-tag-base.css",
+    "removed": 3,
+    "properties": 3
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-cost-policy-tag",
+    "at": "root",
+    "dest": "assets/css/settlement/cost-tags/01-cost-tag-base.css",
+    "removed": 3,
+    "properties": 3
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-cost-type-badge",
+    "at": "root",
+    "dest": "assets/css/settlement/cost-tags/01-cost-tag-base.css",
+    "removed": 3,
+    "properties": 3
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-car-summary-total",
+    "at": "root",
+    "dest": "assets/css/settlement/page-shell/03-car-summary-base.css",
+    "removed": 4,
+    "properties": 4
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-driver-amount",
+    "at": "root",
+    "dest": "assets/css/settlement/checklists/03-driver-payment-list.css",
+    "removed": 4,
+    "properties": 4
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-cost-line-amount",
+    "at": "root",
+    "dest": "assets/css/settlement/cost-tags/02-cost-breakdown.css",
+    "removed": 1,
+    "properties": 4
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".settlement-amount",
+    "at": "root",
+    "dest": "assets/css/09-font-weight-tuning.css",
+    "removed": 1,
+    "properties": 4
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".settlement-total",
+    "at": "root",
+    "dest": "assets/css/09-font-weight-tuning.css",
+    "removed": 1,
+    "properties": 4
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-cost-row",
+    "at": "root",
+    "dest": "assets/css/settlement/cost-tags/02-cost-breakdown.css",
+    "removed": 1,
+    "properties": 3
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-driver-pay-row",
+    "at": "root",
+    "dest": "assets/css/settlement/checklists/03-driver-payment-list.css",
+    "removed": 1,
+    "properties": 3
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-collection-row",
+    "at": "root",
+    "dest": "assets/css/settlement/checklists/01-collection-list.css",
+    "removed": 1,
+    "properties": 3
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": "#seisan-view-area",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/settlement/page-shell/04-mobile-layout.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-card",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/settlement/page-shell/04-mobile-layout.css",
+    "removed": 5,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-toolbar-card",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/settlement/page-shell/04-mobile-layout.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-settings-card",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/settlement/page-shell/04-mobile-layout.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-panel",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/settlement/page-shell/04-mobile-layout.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "03-settlement.css",
+    "selector": ".seisan-summary-value",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/settlement/summary/02-summary-values.css",
+    "removed": 4,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".dropdown-menu",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/02-dropdowns.css",
+    "removed": 9,
+    "properties": 5
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".dropdown-item",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/02-dropdowns.css",
+    "removed": 7,
+    "properties": 4
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".dropdown-item:hover",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/02-dropdowns.css",
+    "removed": 3,
+    "properties": 2
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".dropdown-item:focus",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/02-dropdowns.css",
+    "removed": 3,
+    "properties": 2
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".dropdown-divider",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/02-dropdowns.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".overview-drawer",
+    "at": "root",
+    "dest": "assets/css/guides-modals/overview/01-overview-drawer.css",
+    "removed": 3,
+    "properties": 3
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".overview-drawer-head",
+    "at": "root",
+    "dest": "assets/css/guides-modals/overview/01-overview-drawer.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".overview-drawer-close",
+    "at": "root",
+    "dest": "assets/css/guides-modals/overview/01-overview-drawer.css",
+    "removed": 2,
+    "properties": 3
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".overview-panel",
+    "at": "root",
+    "dest": "assets/css/guides-modals/overview/01-overview-drawer.css",
+    "removed": 4,
+    "properties": 3
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".overview-panel h3",
+    "at": "root",
+    "dest": "assets/css/guides-modals/overview/01-overview-drawer.css",
+    "removed": 2,
+    "properties": 2
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".modal-backdrop.show",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/01-modal-base.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".modal-content",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/01-modal-base.css",
+    "removed": 9,
+    "properties": 5
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".modal-header",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/01-modal-base.css",
+    "removed": 4,
+    "properties": 4
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".modal-title",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/01-modal-base.css",
+    "removed": 2,
+    "properties": 4
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".modal-title i",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/01-modal-base.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".modal-header .btn-close",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/01-modal-base.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".modal-header .btn-close:hover",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/01-modal-base.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".modal-body",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/01-modal-base.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".modal-footer",
+    "at": "root",
+    "dest": "assets/css/guides-modals/modal/01-modal-base.css",
+    "removed": 3,
+    "properties": 2
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".guide-feature-card",
+    "at": "root",
+    "dest": "assets/css/guides-modals/guide/01-guide-cards.css",
+    "removed": 8,
+    "properties": 4
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".guide-step",
+    "at": "root",
+    "dest": "assets/css/guides-modals/guide/02-guide-steps.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".import-preview-card",
+    "at": "root",
+    "dest": "assets/css/guides-modals/import-guide/03-import-preview.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".route-stop-card",
+    "at": "root",
+    "dest": "assets/css/settlement/route-helper/02-route-stops.css",
+    "removed": 0,
+    "properties": 4
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".driver-seat",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/03-seat-grid.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".seat-slot",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/car-card/03-seat-grid.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".member-card",
+    "at": "root",
+    "dest": "assets/css/cars-members-tray/person-card/01-person-card-shell.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".btn",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 2,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".tool-btn",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 2,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".tray-action-btn",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".seisan-btn",
+    "at": "root",
+    "dest": "assets/css/components/buttons/01-button-base.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".modal-content",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/guides-modals/modal/01-modal-base.css",
+    "removed": 3,
+    "properties": 4
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": ".modal-header",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/guides-modals/modal/01-modal-base.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "04-overlays-responsive.css",
+    "selector": "#bottom-tray",
+    "at": "@media (max-width: 640px)",
+    "dest": "assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css",
+    "removed": 1,
+    "properties": 1
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header .header-actions #shareLinkBtn.header-action.share-action",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 10,
+    "properties": 13
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header .header-actions #shareLinkBtn.header-action.share-action i",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header .header-actions #shareLinkBtn.header-action.share-action span",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 2
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header #view-toggle-bar .view-tab",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 6
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header .view-toggle-bar .view-tab",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 6
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header #view-toggle-bar .view-tab.active",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header .view-toggle-bar .view-tab.active",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header #view-toggle-bar .view-tab::after",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header .view-toggle-bar .view-tab::after",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header #view-toggle-bar .view-tab.active::after",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header .view-toggle-bar .view-tab.active::after",
+    "at": "root",
+    "dest": "assets/css/app-shell/header/03-tabs-actions.css",
+    "removed": 0,
+    "properties": 1
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header .header-actions #shareLinkBtn.header-action.share-action",
+    "at": "@media (min-width: 860px)",
+    "dest": "assets/css/app-shell/header/12-responsive-wide.css",
+    "removed": 0,
+    "properties": 3
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header #shareLinkBtn.header-action.share-action span",
+    "at": "@media (min-width: 860px)",
+    "dest": "assets/css/app-shell/header/12-responsive-wide.css",
+    "removed": 1,
+    "properties": 3
+  },
+  {
+    "source": "05-header-resolution.css",
+    "selector": "#app-layout #app-header #shareLinkBtn.header-action.share-action span",
+    "at": "@media (max-width: 768px)",
+    "dest": "assets/css/app-shell/header/06-mobile-actions.css",
+    "removed": 0,
+    "properties": 1
+  }
+]

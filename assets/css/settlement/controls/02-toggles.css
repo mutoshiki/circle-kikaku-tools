@@ -1,37 +1,15 @@
-[data-theme="dark"] .seisan-btn.primary i,
-[data-theme="dark"] .seisan-btn.active i,
-[data-theme="dark"] .seisan-toggle.active i {
-color: var(--color-white);
-}
-[data-theme="dark"] .seisan-add-row .seisan-btn {
-border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
-    border-color: color-mix(in srgb, var(--accent-color) 30%, var(--border-color));
-    color: var(--text-main);
-}
-[data-theme="dark"] .seisan-add-row .seisan-btn:hover {
-background: color-mix(in srgb, var(--accent-color) 16%, var(--bg-card));
-    border-color: color-mix(in srgb, var(--accent-color) 44%, var(--border-color));
-}
-@supports not (background: color-mix(in srgb, red 10%, blue)) {
-[data-theme="dark"] .seisan-add-row .seisan-btn {
-background: var(--bg-card);
-        border-color: var(--accent-color);
-}
-}
 .seisan-add-row .seisan-btn,
-.seisan-btn.primary,
-.seisan-btn.active,
 .seisan-toggle.active {
 border-radius: var(--radius-sm);
+}.seisan-btn.active {
+border-radius: var(--radius-sm);
+}.seisan-btn.primary {
+border-radius: var(--radius-sm);
 }
-[data-theme="dark"] .seisan-btn.primary:hover,
-[data-theme="dark"] .seisan-btn.active:hover,
-[data-theme="dark"] .seisan-toggle.active:hover {
-filter: brightness(0.98);
-}
-.seisan-btn,
 .seisan-toggle {
+box-sizing: border-box;
+}
+.seisan-btn {
 box-sizing: border-box;
 }
 @media (max-width: 640px) {
@@ -177,12 +155,10 @@ font-size: 0.61rem;
         padding-inline: 6px;
 }
 }
-.seisan-btn,
 .seisan-icon-btn,
 .seisan-toggle {
 border-radius: var(--radius-main);
 }
-.seisan-btn,
 .seisan-icon-btn {
 border-radius: var(--radius-sm);
 }

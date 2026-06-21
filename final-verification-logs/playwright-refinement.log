@@ -1,0 +1,12 @@
+
+> circle-kikaku-tools@7.0.0-calm-workspace test:refinement
+> playwright test tests/refinement-audit.spec.js
+
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/refinement-audit.spec.js:104:1 › six target widths keep all main views and long-content stress free of horizontal overflow (8.2s)
+  ✓  2 tests/refinement-audit.spec.js:157:1 › focus, disabled, selected and closed-drawer states remain distinct and operable (2.3s)
+  ✓  3 tests/refinement-audit.spec.js:239:1 › every modal fits the viewport and exposes a reachable scroll region (17.6s)
+
+  3 passed (29.4s)

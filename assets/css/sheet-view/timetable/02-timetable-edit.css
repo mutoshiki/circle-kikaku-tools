@@ -1,6 +1,3 @@
-[data-theme="dark"] .sheet-timetable-link {
-    color: var(--palette-blue-300);
-}
 @media (max-width: 640px) {
     .sheet-timetable-section {
         width: min(var(--sheet-plan-content-width, 520px), calc(100vw - 24px));
@@ -41,17 +38,16 @@
 .overview-drawer .overview-timetable-row input:focus,
 .overview-drawer .overview-textarea:focus {
   border-color: color-mix(in srgb, var(--accent-color) 64%, var(--border-color));
-  outline: 0;
-  box-shadow: none;
 }
 .sheet-summary-plan-label {
   min-width: 0;
   padding: 2px 6px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--text-main) 86%, var(--accent-color));
-  color: var(--bg-card);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent-color);
   font-size: 0.62rem;
-  font-weight: 500;
+  font-weight: 600;
   text-align: center;
   letter-spacing: 0;
 }
@@ -146,13 +142,6 @@
 .sheet-timetable-add {
   align-self: flex-start;
   padding: 6px 10px;
-}
-[data-theme="dark"] .sheet-timetable-input,
-[data-theme="dark"] .sheet-timetable-delete,
-[data-theme="dark"] .sheet-timetable-add {
-  background: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
-  border-color: var(--hairline, var(--border-color));
-  color: var(--text-main);
 }
 #sheet-view-area .sheet-timetable-card:not(.sheet-timetable-card--edit) :where(input, button.sheet-timetable-delete, button.sheet-timetable-add) {
   display: none;

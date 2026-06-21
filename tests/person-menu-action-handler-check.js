@@ -12,7 +12,7 @@ function assert(condition, message) {
   }
 }
 
-const initBlock = app.match(/D\.addEventListener\('DOMContentLoaded',[\s\S]*?setupAppearanceControls\(\);/)?.[0] || '';
+const initBlock = app.match(/D\.addEventListener\('DOMContentLoaded',[\s\S]*?startHistoryAutosave\(\);/)?.[0] || '';
 assert(initBlock.includes('setupCompactPersonMenu();'), 'compact person menu binding is missing from startup');
 assert(initBlock.includes('ensureCompactMenuFallback();'), 'compact menu fallback binding is missing from startup');
 assert(initBlock.indexOf('setupCompactPersonMenu();') < initBlock.indexOf('await initFirebaseSync();'), 'person menu binding must happen before Firebase/network startup');

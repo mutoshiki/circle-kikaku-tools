@@ -91,3 +91,19 @@
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 7px;
 }
+.seisan-check-item {
+  border-color: var(--border-item);
+  border-radius: var(--radius-main);
+  background: var(--color-white);
+}
+.seisan-check-item:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+.seisan-collection-row {
+  border-color: var(--border-item);
+  background: var(--color-white);
+  border-right: 0;
+  border-left: 0;
+  border-radius: 0;
+}

@@ -17,7 +17,7 @@ if (!updateMatch[0].includes('setPersistentSaveStatus')) {
   console.error('updateStatus no longer updates persistent badge');
   process.exit(1);
 }
-if (!featureCss.includes('#syncStatusBadge')) {
+if (!featureCss.includes('.sync-status-badge')) {
   console.error('CSS owner bundle is not owning #syncStatusBadge');
   process.exit(1);
 }

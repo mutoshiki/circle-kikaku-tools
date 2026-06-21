@@ -68,9 +68,7 @@
 }
 
 #routeDistanceModal .route-stop-input:focus {
-  outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.13);
+  border-color: var(--focus-accent);
 }
 
 #routeDistanceModal .route-stop-delete-btn {
@@ -128,4 +126,11 @@
     align-items: flex-start;
     line-height: 1.45;
   }
+}
+
+.route-stop-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-main);
+  background: var(--color-white);
+  box-shadow: none;
 }

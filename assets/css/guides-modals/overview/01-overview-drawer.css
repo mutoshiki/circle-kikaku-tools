@@ -59,15 +59,6 @@
   color: var(--color-danger-text);
   background: rgba(248, 113, 113, 0.1);
 }
-[data-theme="dark"] .overview-drawer {
-  background: var(--bg-card);
-  box-shadow: none;
-}
-#app-layout #app-header .header-action span,
-#app-layout #app-header #shareLinkBtn.header-action span,
-#app-layout #app-header .overview-menu-toggle span {
-  display: none;
-}
 .overview-drawer-scrim {
   position: fixed;
   inset: 0;
@@ -75,34 +66,11 @@
   background: rgba(var(--shadow-rgb), 0.3);
   backdrop-filter: blur(2px);
 }
-.overview-drawer {
-  position: fixed;
-  top: 0;
-  right: 0;
-  z-index: var(--z-modal);
-  display: flex;
-  flex-direction: column;
-  width: min(86vw, 340px);
-  height: 100dvh;
-  padding: 18px 16px max(18px, env(safe-area-inset-bottom));
-  border-left: 1px solid var(--app-border-soft, color-mix(in srgb, var(--border-color) 76%, transparent));
-  background: var(--bg-card);
-  color: var(--text-main);
-  box-shadow: none;
-  transform: translateX(104%);
-  transition: transform 0.24s ease;
-  outline: 0;
-}
 .overview-drawer.is-open {
+  visibility: visible;
   transform: translateX(0);
-}
-.overview-drawer-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 10px;
-  border-bottom: 0;
+  pointer-events: auto;
+  transition-delay: 0s;
 }
 .overview-drawer-head--compact {
   justify-content: flex-end;
@@ -110,20 +78,7 @@
 }
 .overview-panel h3 {
   margin: 0;
-  color: var(--text-main);
   letter-spacing: 0;
-}
-.overview-drawer-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
-  border-radius: 10px;
-  background: transparent;
-  color: var(--text-main);
-  box-shadow: none;
 }
 .overview-drawer-close i {
   font-size: 1.18rem;
@@ -141,25 +96,8 @@
   background: transparent;
   box-shadow: none;
 }
-.overview-panel {
-  display: grid;
-  gap: 8px;
-  min-width: 0;
-  max-width: 100%;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  box-sizing: border-box;
-}
 .overview-panel-title-row {
   border-color: var(--app-divider-soft, var(--border-color));
-}
-.overview-panel h3 {
-  font-size: 0.92rem;
-  font-weight: 700;
-  line-height: 1.2;
 }
 .overview-textarea {
   width: 100%;
@@ -180,12 +118,68 @@
 }
 .overview-textarea:focus {
   border-color: color-mix(in srgb, var(--accent-color) 48%, var(--border-color));
-  outline: 0;
-  box-shadow: none;
 }
 body.overview-drawer-open {
   overflow: hidden;
 }
-[data-theme="dark"] .overview-drawer-scrim {
-  background: rgba(2, 6, 23, 0.52);
+.overview-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  width: min(86vw, 340px);
+  height: 100dvh;
+  padding: 18px 16px max(18px, env(safe-area-inset-bottom));
+  color: var(--text-main);
+  visibility: hidden;
+  transform: translateX(104%);
+  pointer-events: none;
+  transition: transform 0.24s ease, visibility 0s linear 0.24s;
+  outline: 0;
+  border-left: 1px solid var(--border-strong);
+  background: var(--color-white);
+  box-shadow: -14px 0 36px color-mix(in srgb, var(--text-main) 14%, transparent);
+}
+.overview-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 10px;
+  border-bottom: 0;
+  border-color: var(--border-section);
+  background: var(--color-white);
+}
+.overview-drawer-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+  border-radius: 10px;
+  box-shadow: none;
+  border-color: var(--border-color);
+  background: var(--color-white);
+  color: var(--text-sub);
+}
+.overview-panel {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  box-shadow: none;
+  box-sizing: border-box;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+}
+.overview-panel h3 {
+  font-size: 0.92rem;
+  line-height: 1.2;
+  color: var(--text-main);
+  font-weight: 600;
 }

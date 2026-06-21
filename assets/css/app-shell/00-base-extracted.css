@@ -138,12 +138,6 @@ min-width: 0;
   font-size: 0.78rem;
 }
 
-[data-theme="dark"] .auto-condition-pill {
-  background: transparent;
-  border-color: transparent;
-  border-left-color: var(--accent-color);
-}
-
 .grade-select-btn[data-grade="1"],
 .grade-select-btn[data-grade="2"],
 .grade-select-btn[data-grade="3"],
@@ -211,7 +205,6 @@ min-height: 36px;
 
 .btn-sm,
 .badge,
-.sync-status-badge,
 .auto-condition-pill {
 border-radius: var(--radius-sm);
 }

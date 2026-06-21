@@ -1,5 +1,5 @@
-#seisan-view-area .seisan-extra-inline, #seisan-view-area .seisan-extra-chip {
-  border-radius: 999px;
+#seisan-view-area .seisan-extra-inline,  #seisan-view-area .seisan-extra-chip {
+  border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: baseline;
   gap: 5px;
@@ -91,10 +91,7 @@
 #seisan-view-area .seisan-driver-name {
   font-weight: 650;
 }
-.grade-badge,
-.gender-badge,
-.capacity-badge,
-.sync-status-badge,
+
 .waiting-inline-count {
   font-weight: 650;
   box-shadow: none;
@@ -103,7 +100,7 @@
   font-weight: 650;
   letter-spacing: -0.01em;
 }
-#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-detail-text, #seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list {
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-detail-text,  #seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list {
   display: flex;
   align-items: baseline;
   justify-content: flex-start;
@@ -180,3 +177,16 @@
   gap: 3px 7px;
 }
 /* Summary cost tags keep their own chip surface. */
+.seisan-cost-line-amount {
+  color: var(--text-main);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+.seisan-cost-row {
+  border-color: var(--border-item);
+  background: var(--color-white);
+  border-right: 0;
+  border-left: 0;
+  border-radius: 0;
+}

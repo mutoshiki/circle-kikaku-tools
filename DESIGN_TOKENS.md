@@ -1,117 +1,44 @@
 # Design Tokens
 
-UIの見た目は、できるだけここに書いたトークン経由でそろえます。
+## 単一ビジュアルシステム
 
-## テーマ契約
+画面の色、余白、角丸、影、操作状態は、`assets/css/tokens/`にある意味トークンを通して管理します。画面固有CSSへ色の直接値を増やさず、役割に対応する変数を使用します。
 
-テーマは、色セットとライト/ダークを分けて扱います。
+- `tokens/01-color-scheme.css`: 背景、文字、境界、主操作色、意味色、影
+- `tokens/02-radius-spacing-type.css`: 余白、角丸、文字、フォーカス
+- `tokens/03-bootstrap-controls.css`: Bootstrap操作部品の基礎
+- `tokens/04-forms-inputs.css`: フォーム入力の基礎
+- `tokens/05-control-surface-tokens.css`: 共通操作寸法と表面階層
 
-- `assets/css/theme/00-theme-contract.css`: テーマごとの元色。`--theme-light-*` と `--theme-dark-*` を定義する。
-- `assets/css/theme/01-theme-tokens.css`: 元色を `--bg-body`、`--bg-card`、`--accent-color` などのアプリ共通トークンへ変換する。
-- 画面別CSSでは `--theme-light-*` を直接使わず、必ず `--bg-card` などの意味トークンを使う。
+トークンを利用した最終的な表示責任は、共通部品なら`components/`、画面固有部品なら各機能ownerが持ちます。全画面へ後から適用するvisualスキンは置きません。
 
-将来テーマを増やす場合は、基本的に `00-theme-contract.css` へ次のようなブロックを追加します。
+## 基本方針
+
+- 背景は淡いニュートラル、主要コンテナは白を使用する。
+- 主操作だけに`--accent-color`を使用する。
+- 文字は`--text-main`と`--text-sub`で階層を作る。
+- 境界は`--border-color`を基準にし、強調時のみ`--border-hover`や`--accent-line`を使う。
+- 影は`--shadow-card`と`--shadow-float`に限定する。
+- 状態色は成功、注意、危険、精算区分など意味を持つ箇所だけに使う。
+- レスポンシブ差分は寸法と密度を中心とし、色や部品の役割を変えない。
+
+## 主要トークン
 
 ```css
-body[data-app-theme="forest"] {
-  --theme-light-bg-body: ...;
-  --theme-light-accent: ...;
-  --theme-dark-bg-body: ...;
-  --theme-dark-accent: ...;
-}
+--bg-body
+--bg-card
+--text-main
+--text-sub
+--border-color
+--accent-color
+--accent-hover
+--accent-soft
+--surface-soft
+--surface-muted
+--shadow-card
+--shadow-float
+--control-height
+--control-radius
 ```
 
-この形にしておくと、ボタン、カード、精算タグ、モーダル側のCSSを個別に増やさずに済みます。
-
-## 色
-
-- `--bg-body`: ページ背景
-- `--bg-card`: カード面
-- `--text-main`: 本文
-- `--text-sub`: 補助文
-- `--border-color`: 標準の線
-- `--accent-color`: 主要操作・選択状態
-- `--accent-soft`: 薄いアクセント面
-
-
-## コントラスト基準
-
-標準テーマでは、本文と補助文の読みやすさを優先します。
-
-- 本文 `--text-main` はカード面に対して十分に強いコントラストを保つ。
-- 補助文 `--text-sub` も小さな文字で読めるように、白背景で4.5:1以上を目安にする。
-- 主要ボタンは、ライトでは白文字、ダークでは暗い文字を使い、背景色とのコントラストを確保する。
-- 精算タグの「割勘」「部費」も、淡い背景のまま文字だけが薄くならないようにする。
-
-数値の確認は `tests/standard-theme-contrast-check.js` で行います。
-
-## 面・枠線・影
-
-- `--shadow-card`: 通常カード
-- `--shadow-float`: モーダル・浮いた部品
-- `.ui-surface`: 共通面
-- `.ui-surface--card`: 外側カード
-- `.ui-surface--inset`: 内側の控えめな面
-
-枠線を増やすときは、外側カードだけを少し濃く、内側の行や内訳は薄くします。二重枠に見える場合は内側を枠なし寄りにします。
-
-## 角丸
-
-- `--radius-control`: 入力欄・小ボタン
-- `--radius-card`: 通常カード
-- `--radius-panel`: 大きめの面
-
-角丸は丸すぎない値を基準にします。
-
-## 余白
-
-- `--space-1`: 2px
-- `--space-2`: 4px
-- `--space-3`: 6px
-- `--space-4`: 8px
-- `--space-5`: 10px
-- `--space-6`: 12px
-- `--space-8`: 16px
-- `--space-10`: 20px
-
-細かい `padding: 7px 11px` のような値を増やす前に、近いトークンへ寄せます。
-
-## 文字
-
-- `--font-size-caption`: 補助ラベル
-- `--font-size-label`: 小見出し
-- `--font-size-body`: 本文
-- `--font-size-title`: カード見出し
-- `--font-size-amount`: 金額
-- `--font-weight-amount`: 金額の太さ
-
-金額は `.ui-amount` を使います。サマリー、車別費用、集金チェックで数字の雰囲気をそろえるためです。
-
-## タグ
-
-- `.ui-chip`: 共通タグ土台
-- `.seisan-cost-type-badge`: 割勘/部費
-- `.seisan-payment-tag`: 支払
-
-タグは高さ・中央揃え・角丸を共通化し、色だけ意味別トークンで変えます。
-
-## z-index
-
-- `--z-base`
-- `--z-raised`
-- `--z-sticky`
-- `--z-tray`
-- `--z-dropdown`
-- `--z-overlay`
-- `--z-modal`
-- `--z-toast`
-
-数値を直接書くと重なり事故が起きやすいので、必ず `--z-*` を使います。
-
-## Theme picker note
-
-- Theme selection is active again. The current first-paint theme is `standard`.
-- Add or remove selectable themes in `assets/js/modules/theme-presets.js`.
-- Add the matching color variables in `assets/css/theme/00-theme-contract.css`.
-- Component and screen CSS should continue to use semantic tokens such as `--bg-body`, `--bg-card`, `--text-main`, `--border-color`, `--accent-color`, and `--accent-soft`.
-- Do not put theme-specific colors directly into screen CSS unless the color is a fixed semantic state such as error, warning, or success.
+新しい値が必要な場合は、既存の意味トークンで表現できないことと、参照先全体への波及を確認してから追加します。

@@ -63,14 +63,6 @@ outline: none;
 outline: 2px solid rgba(185, 28, 28, 0.28);
     outline-offset: 2px;
 }
-[data-theme="dark"] .seisan-alert {
-color: var(--palette-red-200); background: rgba(239, 68, 68, 0.15); border-color: rgba(248, 113, 113, 0.65);
-}
-[data-theme="dark"] .seisan-alert-action {
-background: rgba(127, 29, 29, 0.38);
-    border-color: rgba(248, 113, 113, 0.36);
-    color: var(--palette-red-200);
-}
 @media (max-width: 640px) {
 .seisan-alert-row {
 grid-template-columns: minmax(0, 1fr);
@@ -91,9 +83,6 @@ display: flex;
     padding-top: 9px;
     border-top: 1px dashed var(--border-color);
 }
-.seisan-subhead strong {
-font-size:0.78rem; color:var(--text-main);
-}
 .seisan-add-row {
 display: grid; grid-template-columns: 1fr; gap:6px; margin-top: 7px;
 }
@@ -101,15 +90,11 @@ display: grid; grid-template-columns: 1fr; gap:6px; margin-top: 7px;
 text-align: center;
     padding: 22px 12px;
     color: var(--text-sub);
-    border: 1px dashed var(--border-color);
-    border-radius: var(--radius-main);
-    background: var(--bg-body);
 }
 .seisan-driver-name {
 font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.seisan-driver-amount {
-font-weight: 650; color: var(--accent-color); white-space: nowrap;
+.seisan-driver-amount { white-space: nowrap;
 }
 .seisan-driver-detail {
 grid-column: 1 / -1; color: var(--text-sub); font-size:0.69rem; line-height:1.35;
@@ -161,9 +146,6 @@ grid-template-columns: 1fr;
 grid-template-columns: 1fr;
 }
 }
-.seisan-title i {
-color: var(--accent-color);
-}
 @media (max-width: 640px) {
 .seisan-head {
 align-items: flex-start;
@@ -191,34 +173,13 @@ display: inline-flex;
         min-height: 36px;
 }
 }
-#seisan-view-area,
 .seisan-wrap {
 min-width: 0;
 }
-.seisan-card {
-min-width: 0;
-box-sizing: border-box;
-margin-bottom: 0;
-padding: 12px;
-border: 1px solid transparent;
-border-radius: var(--radius-lg);
-background: var(--ui-panel-bg);
-box-shadow: var(--ui-surface-shadow-soft);
-outline: 0;
-}
-.seisan-toolbar-card,
-.seisan-settings-card,
-.seisan-panel {
-border-color: var(--app-border-soft, var(--border-color));
-outline: 0;
-}
-.seisan-head,
-.seisan-compact-head,
 .seisan-subhead,
 .seisan-detail {
 border-color: var(--app-divider-soft, var(--border-color));
 }
-.seisan-title,
 .seisan-subhead {
 min-width: 0;
 }
@@ -226,4 +187,88 @@ min-width: 0;
 .seisan-settings select {
 width: 100%;
     min-width: 0;
+}
+#seisan-view-area {
+min-width: 0;
+background: var(--bg-body);
+padding-top: 12px;
+}
+.seisan-card {
+min-width: 0;
+box-sizing: border-box;
+margin-bottom: 0;
+padding: 12px;
+outline: 0;
+overflow: hidden;
+border: 1px solid var(--border-panel);
+border-radius: var(--radius-lg);
+background: var(--color-white);
+box-shadow: none;
+}
+.seisan-panel {
+border-color: var(--app-border-soft, var(--border-color));
+outline: 0;
+overflow: hidden;
+border: 1px solid var(--border-panel);
+border-radius: var(--radius-lg);
+background: var(--color-white);
+box-shadow: none;
+}
+.seisan-toolbar-card {
+border-color: var(--app-border-soft, var(--border-color));
+outline: 0;
+overflow: hidden;
+border: 1px solid var(--border-panel);
+border-radius: var(--radius-lg);
+background: var(--color-white);
+box-shadow: none;
+border-top-width: 1px;
+}
+.seisan-settings-card {
+border-color: var(--app-border-soft, var(--border-color));
+outline: 0;
+overflow: hidden;
+border: 1px solid var(--border-panel);
+border-radius: var(--radius-lg);
+background: var(--color-white);
+box-shadow: none;
+border-top-width: 1px;
+}
+.seisan-head {
+border-color: var(--border-section);
+background: var(--color-white);
+}
+.seisan-card-head {
+border-color: var(--border-section);
+background: var(--color-white);
+}
+.seisan-compact-head {
+border-color: var(--border-section);
+background: var(--color-white);
+}
+.seisan-title {
+min-width: 0;
+color: var(--text-main);
+font-weight: 600;
+line-height: 1.4;
+letter-spacing: 0;
+}
+.seisan-section-title {
+color: var(--text-main);
+font-weight: 600;
+line-height: 1.4;
+letter-spacing: 0;
+}
+.seisan-subhead strong {
+font-size:0.78rem;
+color: var(--text-main);
+font-weight: 600;
+line-height: 1.4;
+letter-spacing: 0;
+}
+.seisan-title i {
+color: var(--text-sub);
+}
+.seisan-section-title i {
+color: var(--text-sub);
 }

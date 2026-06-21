@@ -21,11 +21,6 @@ outline: 2px solid var(--accent-color);
   border-radius: var(--radius-main);
 }
 }
-[data-theme="dark"] .seisan-car-row {
-  border-color: rgba(148, 163, 184, 0.16);
-  background: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
-  box-shadow: none;
-}
 @media (max-width: 640px) {
 .seisan-car-row {
   /* Same unified radius for the compact car row with compact spacing. */
@@ -130,10 +125,11 @@ border-radius: var(--radius-sm);
   border-color: var(--hairline, var(--border-color));
   font-weight: 500;
 }
-.seisan-field input:focus, .seisan-field select:focus, .seisan-extra-row input:focus, .seisan-extra-row select:focus {
-  outline: none;
+.seisan-field input:focus,
+.seisan-field select:focus,
+.seisan-extra-row input:focus,
+.seisan-extra-row select:focus {
   border-color: color-mix(in srgb, var(--accent-color) 44%, var(--border-color));
-  box-shadow: 0 0 0 4px var(--focus-ring);
 }
 .seisan-car-row {
   border: 1px solid var(--border-color);
@@ -171,7 +167,7 @@ border-radius: var(--radius-sm);
   white-space: nowrap;
   padding: 4px 8px;
   border: 1px solid color-mix(in srgb, var(--accent-color) 20%, var(--border-color));
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--accent-color) 7%, var(--bg-card));
 }
 .seisan-car-inputs {

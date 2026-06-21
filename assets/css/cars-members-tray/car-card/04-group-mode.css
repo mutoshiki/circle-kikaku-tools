@@ -1,4 +1,4 @@
-.car-header .delete-btn, .car-delete-btn {
+.car-delete-btn {
   width: 32px;
   height: 32px;
   min-width: 32px;
@@ -8,9 +8,22 @@
   align-items: center;
   justify-content: center;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: var(--radius-main);
   background: transparent;
   color: var(--text-sub);
+  opacity: 0.72;
+  font-size: 0.82rem;
+}.car-header .delete-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-main);
   opacity: 0.72;
   font-size: 0.82rem;
 }
@@ -18,18 +31,9 @@
   border-color: rgba(239, 68, 68, 0.55);
   background: color-mix(in srgb, var(--color-danger) 5%, var(--bg-card));
 }
-[data-theme="dark"] .car-box,
-[data-theme="dark"] .driver-seat,
-[data-theme="dark"] .seat-slot {
-    border-color: var(--hairline, var(--border-color));
-}
-[data-theme="dark"] .driver-seat {
-    background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-card));
-}
 @media (max-width: 640px) {
     .car-box {
         padding: 11px;
-        border-radius: 16px;
         margin-bottom: 10px;
     }
 
@@ -38,11 +42,14 @@
         padding-bottom: 9px;
     }
 
-    .driver-seat,
     .seat-slot {
         min-height: 45px;
         padding: 8px;
-        border-radius: 13px;
+    }
+
+    .driver-seat {
+        min-height: 45px;
+        padding: 8px;
     }
 
     .car-layout-grid {
@@ -162,18 +169,11 @@
     min-width: 49px;
   }
 }
-#view-toggle-bar .view-tab.active,
-.view-toggle-bar .view-tab.active {
-  border-color: var(--ui-saas-border-strong);
-  background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-card));
-  color: var(--accent-color);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 14%, transparent);
-}
 .edit-header-tools-only.allocation-toolbar #car-plan-switcher {
   order: -1;
   margin-right: auto;
 }
-.edit-header-tools-only.allocation-toolbar .tool-btn, .edit-header-tools-only.allocation-toolbar .edit-tools .tool-btn, .allocation-mode-toggle .car-plan-template-tabs, .allocation-mode-toggle .car-plan-template-chip {
+.edit-header-tools-only.allocation-toolbar .tool-btn,  .edit-header-tools-only.allocation-toolbar .edit-tools .tool-btn,  .allocation-mode-toggle .car-plan-template-tabs,  .allocation-mode-toggle .car-plan-template-chip {
   min-height: 36px;
   border-radius: 10px;
   font-size: 0.76rem;
@@ -192,13 +192,10 @@
   box-shadow: none;
   border-color: var(--ui-saas-border);
 }
-/* 2026-05 refinement: keep the car/team toggle active state on the theme accent. */
+/* 2026-05 refinement: keep the car/team toggle active state on the primary accent. */
 .allocation-mode-toggle .car-plan-template-chip.active {
   background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-card));
   color: var(--accent-color);
   border-color: color-mix(in srgb, var(--accent-color) 30%, var(--ui-saas-border));
   box-shadow: none;
-}
-#cars-container {
-  row-gap: 10px;
 }

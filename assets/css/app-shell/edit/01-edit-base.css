@@ -1,52 +1,8 @@
 /* 02-edit-controls.css
    Split from assets/css/app-shell/01-app-shell-owner.css so this component has a smaller owner file. */
-.app-header-main::before {
-content: "";
-    position: absolute;
-    inset: 0;
-    z-index: var(--z-local-raised);
-    pointer-events: none;
-    background-image:
-        linear-gradient(90deg, rgba(var(--white-rgb), 0.84) 0%, rgba(var(--white-rgb), 0.62) 42%, rgba(var(--white-rgb), 0.28) 100%),
-        var(--header-art-url);
-    background-size: 100% 100%, cover;
-    background-position: center, center;
-    background-repeat: no-repeat, no-repeat;
-    opacity: 1;
-    filter: saturate(1.02) contrast(1.03) brightness(0.98);
-}
-[data-theme="dark"] .app-header-main::before {
-background-image:
-        linear-gradient(90deg, rgba(var(--shadow-rgb), 0.88) 0%, rgba(var(--shadow-rgb), 0.72) 42%, rgba(var(--shadow-rgb), 0.48) 100%),
-        var(--header-art-url);
-    background-size: 100% 100%, cover;
-    background-position: center, center;
-    background-repeat: no-repeat, no-repeat;
-    opacity: 0.96;
-    filter: saturate(0.88) brightness(0.82) contrast(1.04);
-}
-.app-header-main > * {
-position: relative;
-    z-index: var(--z-local-base);
-}
-.app-brand {
-gap: 0;
-}
 .app-header-illustration,
 .app-brand-mark {
 display: none;
-}
-@media (max-width: 640px) {
-.app-header-main {
-min-height: 62px;
-}
-}
-@media (max-width: 640px) {
-.app-header-main::before {
-background-position: center;
-        background-size: 100% 100%, 100% 100%;
-        opacity: 1;
-}
 }
 @media (max-width: 640px) {
 .edit-tools .tool-help-btn {
@@ -80,36 +36,6 @@ min-width: 0;
 overflow: hidden;
     text-overflow: ellipsis;
 }
-[data-theme="dark"] .header-action,
-[data-theme="dark"] .edit-tools .tool-btn {
-background: rgba(var(--shadow-rgb), 0.68);
-    border-color: rgba(148, 163, 184, 0.24);
-    color: var(--text-main);
-}
-[data-theme="dark"] .header-action i,
-[data-theme="dark"] .header-action span,
-[data-theme="dark"] .edit-tools .tool-btn i,
-[data-theme="dark"] .edit-tools .tool-btn span {
-color: var(--text-main);
-    opacity: 1;
-}
-[data-theme="dark"] .header-action:hover,
-[data-theme="dark"] .edit-tools .tool-btn:hover {
-background: rgba(51, 65, 85, 0.92);
-    color: var(--color-white);
-}
-@media (max-width: 640px) {
-#app-header {
-padding-left: 8px;
-        padding-right: 8px;
-}
-}
-@media (max-width: 640px) {
-.app-header-main {
-padding: 8px;
-        gap: 8px;
-}
-}
 @media (max-width: 640px) {
 .edit-tools {
 gap: 8px;
@@ -138,12 +64,6 @@ margin-bottom: 0;
 padding-left: 8px;
         padding-right: 8px;
 }
-}
-.app-header-main::before,
-[data-theme="dark"] .app-header-main::before {
-content: none;
-    display: none;
-    background-image: none;
 }
 .edit-quick-hint {
 margin-top: 8px;

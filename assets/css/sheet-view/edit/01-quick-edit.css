@@ -47,54 +47,23 @@ padding: 0;
         font-size: 1rem;
 }
 }
-[data-theme="dark"] #sheet-quick-edit-btn.active i {
-color: var(--color-white);
-}
-[data-theme="dark"] #sheet-quick-edit-btn.active:hover {
-filter: brightness(0.98);
-}
 @media (max-width: 640px) {
 #sheet-quick-edit-btn {
-border-radius: 999px;
+border-radius: var(--radius-main);
 }
 }
 @media (max-width: 640px) {
 #sheet-quick-edit-btn {
 min-height: 48px;
         padding: 0;
-        border-radius: 999px;
+        border-radius: var(--radius-main);
         line-height: 1.1;
 }
-}
-#sheet-quick-edit-btn {
-  display: none;
-  width: 48px;
-  min-width: 48px;
-  height: 48px;
-  min-height: 48px;
-  padding: 0;
-  border-radius: 999px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-card);
-  color: var(--text-main);
-  box-shadow: 0 14px 32px rgba(var(--shadow-rgb), 0.16);
-  font-size: 1rem;
-  font-weight: 500;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
 }
 #sheet-quick-edit-btn.active {
   background: var(--accent-color);
   color: var(--color-white);
   border-color: var(--accent-color);
-}
-[data-theme="dark"] #sheet-quick-edit-btn.active {
-  border-radius: var(--radius-sm);
-  background: var(--accent-color);
-  border-color: var(--accent-color);
-  color: var(--palette-night-blue);
-  box-shadow: 0 8px 22px color-mix(in srgb, var(--accent-color) 18%, transparent);
 }
 @media (max-width: 640px) {
 #sheet-view-area #sheet-title-bar {
@@ -184,11 +153,6 @@ min-height: 48px;
     min-height: 34px;
   }
 }
-body[data-theme="dark"] #sheet-quick-edit-btn.active,
-html[data-theme="dark"] #sheet-quick-edit-btn.active {
-  color: var(--theme-filled-control-text);
-  -webkit-text-fill-color: var(--theme-filled-control-text);
-}
 /* 発表ビューは車割を上、班割を下に縦並びで表示する、E*/
 /* sheet summary: compact two-line car/team counts */
 /* Sheet edit mode: keep waiting members compact, readable, and editable. */
@@ -210,4 +174,22 @@ body.quick-edit-mode #sheet-view-area .sheet-chip,
 body.quick-edit-mode #sheet-view-area .sheet-chip-text {
   color: var(--text-main);
   opacity: 1;
+}
+#sheet-quick-edit-btn {
+  display: none;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 14px 32px rgba(var(--shadow-rgb), 0.16);
+  font-size: 1rem;
+  font-weight: 500;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-main);
+  background: var(--accent-color);
+  color: var(--color-white);
 }

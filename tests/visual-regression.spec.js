@@ -1,4 +1,35 @@
+const fs = require('fs');
+const path = require('path');
 const { test, expect } = require('@playwright/test');
+
+test.setTimeout(90000);
+
+const ROOT = path.resolve(__dirname, '..');
+function local(relativePath) {
+  return fs.readFileSync(path.join(ROOT, relativePath));
+}
+async function installOfflineAssets(page) {
+  await page.route('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css', route =>
+    route.fulfill({ status: 200, contentType: 'text/css', body: local('node_modules/bootstrap/dist/css/bootstrap.min.css') })
+  );
+  await page.route('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js', route =>
+    route.fulfill({ status: 200, contentType: 'application/javascript', body: local('node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') })
+  );
+  await page.route('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', route =>
+    route.fulfill({ status: 200, contentType: 'text/css', body: local('node_modules/@fortawesome/fontawesome-free/css/all.min.css') })
+  );
+  await page.route('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/**', route => {
+    const filename = path.basename(new URL(route.request().url()).pathname);
+    return route.fulfill({
+      status: 200,
+      contentType: filename.endsWith('.woff2') ? 'font/woff2' : 'application/octet-stream',
+      body: local(`node_modules/@fortawesome/fontawesome-free/webfonts/${filename}`)
+    });
+  });
+  await page.route('https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js', route =>
+    route.fulfill({ status: 200, contentType: 'application/javascript', body: local('node_modules/sortablejs/Sortable.min.js') })
+  );
+}
 
 async function installOfflineBootstrapFallback(page) {
   await page.addInitScript(() => {
@@ -103,13 +134,14 @@ async function openSettlementCarModal(page) {
 }
 
 for (const scenario of [
-  { width: 380, theme: 'light' },
-  { width: 390, theme: 'dark' },
-  { width: 768, theme: 'light' },
-  { width: 769, theme: 'dark' },
-  { width: 1280, theme: 'light' }
+  { width: 360, height: 800 },
+  { width: 390, height: 844 },
+  { width: 430, height: 932 },
+  { width: 768, height: 1024 },
+  { width: 1280, height: 720 },
+  { width: 1440, height: 900 }
 ]) {
-  test(`settlement modal visual contract ${scenario.width}px ${scenario.theme}`, async ({ page }) => {
+  test(`settlement modal visual contract ${scenario.width}px`, async ({ page }) => {
     const consoleProblems = [];
     page.on('console', message => {
       if (['error', 'warning'].includes(message.type())) {
@@ -133,13 +165,7 @@ for (const scenario of [
       route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({
-          users: [{
-            localId: 'visual-test-user',
-            lastLoginAt: '0',
-            createdAt: '0'
-          }]
-        })
+        body: JSON.stringify({ users: [{ localId: 'visual-test-user', lastLoginAt: '0', createdAt: '0' }] })
       });
     });
     await page.route('https://securetoken.googleapis.com/v1/token**', route => {
@@ -158,21 +184,15 @@ for (const scenario of [
       });
     });
 
-    await page.setViewportSize({ width: scenario.width, height: scenario.width < 700 ? 844 : 720 });
+    await page.setViewportSize({ width: scenario.width, height: scenario.height });
+    await installOfflineAssets(page);
     await installOfflineBootstrapFallback(page);
     await page.goto('./index.html?visual-regression=1');
     await loadSampleData(page);
-
-    if (scenario.theme === 'dark') {
-      await page.evaluate(() => {
-        document.documentElement.dataset.theme = 'dark';
-        document.body.dataset.theme = 'dark';
-      });
-    }
-
     await openSettlementCarModal(page);
+
     await expect(page.locator('#settlementCarEditModal .modal-dialog')).toHaveScreenshot(
-      `settlement-modal-${scenario.width}-${scenario.theme}.png`,
+      `settlement-modal-${scenario.width}-saas.png`,
       {
         animations: 'disabled',
         caret: 'hide',

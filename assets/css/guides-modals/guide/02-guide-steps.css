@@ -201,3 +201,9 @@ display: grid;
 .app-guide-flow.compact {
 grid-template-columns: 1fr auto 1fr auto 1fr;
 }
+.guide-step {
+border: 1px solid var(--border-color);
+border-radius: var(--radius-main);
+background: var(--color-white);
+box-shadow: none;
+}

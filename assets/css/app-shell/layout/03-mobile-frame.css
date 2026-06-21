@@ -19,12 +19,6 @@ display: block;
 .edit-header-tools-only .edit-tools {
 grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-.app-subtitle,
-.app-title {
+.app-subtitle {
 display: none;
-}
-@media (max-width: 640px) {
-.app-header-main {
-grid-template-columns: 1fr; gap: 7px;
-}
 }

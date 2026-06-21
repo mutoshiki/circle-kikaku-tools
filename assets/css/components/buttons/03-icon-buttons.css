@@ -1,15 +1,1 @@
 /* Small icon and compact button details. */
-:is(.header-action, .tool-btn, .seisan-btn, .tray-action-btn, .seisan-icon-btn) i {
-  flex: 0 0 auto;
-  line-height: 1;
-}
-
-:is(.header-more > .header-action, .seisan-icon-btn, #zoom-controls button) {
-  width: auto;
-  min-width: var(--control-height, 38px);
-  padding-inline: 10px;
-}
-
-:is(.header-action, .tool-btn, .seisan-btn, .tray-action-btn) span {
-  min-width: 0;
-}

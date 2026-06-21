@@ -4,12 +4,6 @@
   --settlement-car-tag-col: 30px;
 }
 /* Gas/expense rows use the same amount rule as the payment total. */
-   The payment total is moved below every gas/expense row, separated by one quiet divider. */
-#seisan-view-area .seisan-car-summary-headline {
-  grid-template-columns: minmax(0, 1fr) max-content;
-  gap: 7px;
-  border-bottom: 0;
-}
 
 #seisan-view-area .seisan-car-summary-headline .seisan-edit-btn {
   width: auto;
@@ -175,16 +169,6 @@
   -webkit-text-fill-color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
   background: var(--settlement-pay-bg-fixed, var(--settlement-pay-bg));
   border-color: var(--settlement-pay-line-fixed, var(--settlement-pay-line));
-}
-body[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-cost-total-row.seisan-car-summary-payment,
-html[data-theme="dark"] body #seisan-view-area .seisan-car-summary-row .seisan-cost-total-row.seisan-car-summary-payment {
-  background: transparent;
-  border-top-color: color-mix(in srgb, var(--seisan-dark-line-strong, rgba(148, 163, 184, 0.34)) 88%, transparent);
-}
-body[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-amount-sign,
-html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-amount-sign {
-  color: var(--seisan-dark-muted-readable, var(--text-sub));
-  -webkit-text-fill-color: var(--seisan-dark-muted-readable, var(--text-sub));
 }
 @media (max-width: 640px) {
   #seisan-view-area .seisan-car-summary-row {

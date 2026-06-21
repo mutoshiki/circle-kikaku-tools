@@ -32,11 +32,6 @@
 #seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list .seisan-extra-plus {
   display: none;
 }
-body[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-cost-preview-sign,
-html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-cost-preview-sign {
-  color: var(--seisan-dark-muted-readable, var(--text-sub));
-  -webkit-text-fill-color: var(--seisan-dark-muted-readable, var(--text-sub));
-}
 /* Amount signs sit next to the amount, not before the item name. */
 #seisan-view-area .seisan-car-summary-row .seisan-cost-preview-line {
   display: block;
@@ -61,11 +56,6 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-cost-p
 #seisan-view-area .seisan-car-summary-row .seisan-cost-type-badge--spacer {
   visibility: hidden;
   pointer-events: none;
-}
-body[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-amount-sign,
-html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-amount-sign {
-  color: var(--seisan-dark-muted-readable, var(--text-sub));
-  -webkit-text-fill-color: var(--seisan-dark-muted-readable, var(--text-sub));
 }
 /* Fixed amount/badge columns, reserved badge slots, payment detail lists, and compact setting chips. */
 #seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list,

@@ -43,13 +43,16 @@
 #seisan-view-area .seisan-summary-card:is(.collect, .accounting, .pay) .seisan-summary-label {
   gap: 5px;
 }
-.seat-slot,
-.sheet-seat-row,
-.sheet-wait-item,
 .seisan-cost-preview-item,
 .seisan-summary-pills span,
 .seisan-car-summary-payment {
   background: color-mix(in srgb, var(--ui-readable-inner-bg) 88%, var(--bg-body));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ui-readable-border) 78%, transparent);
+}
+.sheet-wait-item {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ui-readable-border) 78%, transparent);
+}
+.sheet-seat-row {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ui-readable-border) 78%, transparent);
 }
 @media (max-width: 640px) {
@@ -135,9 +138,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-[data-theme="dark"] #seisan-view-area .seisan-summary-card.pay {
-  background: color-mix(in srgb, var(--palette-indigo-800) 22%, var(--bg-card));
-}
 #seisan-view-area .seisan-summary-card.pay,
 #seisan-view-area .seisan-car-summary-payment {
   background: var(--settlement-pay-surface-bg);
@@ -145,17 +145,6 @@
 }
 #seisan-view-area .seisan-summary-card.pay .seisan-summary-value {
   color: var(--text-main);
-}
-[data-theme="dark"] #seisan-view-area .seisan-summary-card.collect {
-  background: color-mix(in srgb, var(--settlement-split-bg) 78%, var(--bg-card));
-}
-[data-theme="dark"] #seisan-view-area .seisan-summary-card.accounting {
-  background: color-mix(in srgb, var(--settlement-club-bg) 78%, var(--bg-card));
-}
-[data-theme="dark"] #seisan-view-area .seisan-summary-card.pay,
-[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
-  background: var(--settlement-pay-surface-bg);
-  border-color: var(--settlement-pay-surface-line);
 }
 @media (max-width: 640px) {
 #seisan-view-area .seisan-card {
@@ -174,7 +163,11 @@
   border-color: color-mix(in srgb, var(--color-danger) 34%, var(--ui-saas-border));
   background: color-mix(in srgb, var(--palette-red-50) 58%, var(--bg-card));
 }
-[data-theme="dark"] #seisan-view-area .seisan-summary-pills--single span.is-attention {
-  background: rgba(127, 29, 29, 0.16);
-  border-color: rgba(248, 113, 113, 0.30);
+.seisan-summary-card.pay {
+  border-left-width: 1px;
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+.seisan-summary-card.pay .seisan-summary-value {
+  color: var(--accent-color);
 }

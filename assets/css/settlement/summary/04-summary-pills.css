@@ -83,25 +83,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-[data-theme="dark"] :is(
-  .seisan-summary-card.collect,
-  .seisan-summary-card.accounting,
-  .seisan-summary-card.pay,
-  .seisan-cost-policy-tag,
-  .seisan-cost-type-badge,
-  .seisan-payment-tag
-) {
-  box-shadow: none;
-}
-[data-theme="dark"] #seisan-view-area .seisan-summary-card .seisan-summary-value,
-[data-theme="dark"] #seisan-view-area .seisan-driver-amount,
-[data-theme="dark"] #seisan-view-area .seisan-car-summary-total,
-[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment .seisan-car-summary-total {
-  color: var(--text-main);
-}
-[data-theme="dark"] #seisan-view-area .seisan-summary-card {
-  box-shadow: none;
-}
 @media (max-width: 640px) {
 #seisan-view-area .seisan-top-flow {
     grid-template-columns: minmax(0, 1fr) 14px minmax(0, 1fr) 14px minmax(0, 1fr);
@@ -124,11 +105,6 @@
   letter-spacing: 0;
   line-height: 1.08;
 }
-[data-theme="dark"] #seisan-view-area .seisan-summary-card .seisan-summary-value,
-[data-theme="dark"] #seisan-view-area .seisan-driver-amount,
-[data-theme="dark"] #seisan-view-area .seisan-car-summary-total {
-  color: var(--text-main);
-}
 @media (max-width: 640px) {
 #seisan-view-area .seisan-top-flow {
     grid-template-columns: minmax(0, 1fr) 14px minmax(0, 1fr) 14px minmax(0, 1fr);
@@ -142,15 +118,15 @@
     font-weight: 650;
   }
 }
-#seisan-view-area .seisan-summary-card.collect, [data-theme="dark"] #seisan-view-area .seisan-summary-card.collect {
+#seisan-view-area .seisan-summary-card.collect {
   background: color-mix(in srgb, var(--settlement-split-bg) 50%, var(--bg-card));
   border-color: color-mix(in srgb, var(--settlement-split-line) 72%, var(--ui-saas-border));
 }
-#seisan-view-area .seisan-summary-card.accounting, [data-theme="dark"] #seisan-view-area .seisan-summary-card.accounting {
+#seisan-view-area .seisan-summary-card.accounting {
   background: color-mix(in srgb, var(--settlement-club-bg) 52%, var(--bg-card));
   border-color: color-mix(in srgb, var(--settlement-club-line) 72%, var(--ui-saas-border));
 }
-#seisan-view-area .seisan-summary-card.pay, [data-theme="dark"] #seisan-view-area .seisan-summary-card.pay {
+#seisan-view-area .seisan-summary-card.pay {
   background: color-mix(in srgb, var(--settlement-pay-surface-bg) 50%, var(--bg-card));
   border-color: color-mix(in srgb, var(--settlement-pay-surface-line) 72%, var(--ui-saas-border));
 }
@@ -206,14 +182,4 @@
 #seisan-view-area .seisan-summary-card {
     padding-inline: 6px;
   }
-}
-body[data-theme="dark"] #seisan-view-area .seisan-summary-card.collect,
-html[data-theme="dark"] #seisan-view-area .seisan-summary-card.collect {
-  background: color-mix(in srgb, rgba(16, 185, 129, 0.22) 80%, var(--seisan-dark-panel-raised));
-  border-color: rgba(110, 231, 183, 0.34);
-}
-body[data-theme="dark"] #seisan-view-area .seisan-summary-card.accounting,
-html[data-theme="dark"] #seisan-view-area .seisan-summary-card.accounting {
-  background: color-mix(in srgb, rgba(245, 158, 11, 0.22) 80%, var(--seisan-dark-panel-raised));
-  border-color: rgba(251, 191, 36, 0.34);
 }

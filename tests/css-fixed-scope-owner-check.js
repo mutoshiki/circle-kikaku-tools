@@ -33,8 +33,8 @@ const requiredLeafOwners = [
   'app-shell/layout/01-app-frame.css',
   'app-shell/edit/01-edit-base.css',
   'app-shell/header/01-header-base.css',
-  'app-shell/header/04-mobile-layout.css',
-  'theme/01-theme-tokens.css',
+  'app-shell/header/02-room-status.css',
+  'app-shell/header/03-tabs-actions.css',
   'guides-modals/modal/01-modal-base.css',
   'guides-modals/guide/01-guide-cards.css',
   'guides-modals/dialog/01-dialog-shell.css',
@@ -48,6 +48,8 @@ for (const file of requiredLeafOwners) {
   assert(fs.existsSync(path.join(root, 'assets/css', file)), `${file} is missing`);
 }
 
+assert(!fs.existsSync(path.join(root, 'assets/css/visual')), 'visual override directory must not exist');
+assert(!cssLinks.some(file => file.startsWith('visual/')), 'visual override CSS must not be linked');
 assert(css.includes('.guide-feature-card'), 'guide feature card styles should live in guides/modals leaf CSS');
 
 console.log('CSS fixed scope owner check OK');

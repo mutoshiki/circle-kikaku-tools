@@ -6,15 +6,6 @@ display: flex;
     font-weight: 500;
     font-size: 0.82rem;
 }
-[data-theme="dark"] .seisan-summary-card.collect {
-background: rgba(52, 211, 153, 0.13); border-color: rgba(52, 211, 153, 0.32);
-}
-[data-theme="dark"] .seisan-summary-card.accounting {
-background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.38);
-}
-[data-theme="dark"] .seisan-summary-card.pay {
-background: rgba(96, 165, 250, 0.13); border-color: rgba(96, 165, 250, 0.34);
-}
 .seisan-summary-sub {
 font-size: 0.69rem; color: var(--text-sub); line-height: 1.35;
 }
@@ -34,25 +25,16 @@ min-height: 78px;
 }
 }
 @media (max-width: 640px) {
-.seisan-summary-value {
-font-size: 1.42rem;
-}
-}
-@media (max-width: 640px) {
-.seisan-card,
 .seisan-summary-card {
     /* Use the unified main radius for settlement cards on mobile */
     border-radius: var(--radius-main);
 }
 }
-[data-theme="light"] .seisan-card,
-[data-theme="light"] .seisan-summary-card {
+.seisan-summary-card {
 border-color: color-mix(in srgb, var(--border-color) 82%, transparent);
 }
-[data-theme="dark"] .seisan-card, [data-theme="dark"] .seisan-summary-card {
-  border-color: rgba(148, 163, 184, 0.16);
-  background: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
-  box-shadow: none;
+.seisan-card {
+border-color: color-mix(in srgb, var(--border-color) 82%, transparent);
 }
 @media (max-width: 640px) {
 .seisan-top-flow {
@@ -85,7 +67,6 @@ gap: 4px;
 }
 @media (max-width: 640px) {
 .seisan-summary-value {
-font-size: 1.36rem;
         line-height: 1.02;
         letter-spacing: -0.04em;
         white-space: nowrap;
@@ -153,7 +134,6 @@ font-size: 1.2rem;
 font-size: 0.58rem;
 }
 }
-.seisan-summary-card,
 .seisan-empty-state .empty-card {
 border-radius: var(--radius-main);
 }
@@ -192,7 +172,22 @@ font-size: clamp(0.52rem, 2.55vw, 0.6rem);
 .seisan-summary-sub {
     color: var(--text-sub);
 }
+.seisan-summary-card {
+position: relative;
+overflow: hidden;
+border: 1px solid var(--border-summary);
+border-radius: var(--radius-main);
+background: var(--surface-soft);
+box-shadow: none;
+}
+.seisan-summary-card::before {
+display: none;
+}
 .seisan-summary-card.collect {
   background: color-mix(in srgb, var(--color-success) 9%, var(--bg-card));
   border-color: color-mix(in srgb, var(--color-success) 28%, var(--border-color));
+  border-left-width: 1px;
+}
+.seisan-summary-card.accounting {
+border-left-width: 1px;
 }

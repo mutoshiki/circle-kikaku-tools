@@ -31,19 +31,6 @@
   border-bottom: 0;
 }
 .mock-form-import-textarea div { white-space: nowrap; }
-[data-theme="dark"] .guide-registration-context {
-    background: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
-}
-[data-theme="dark"] .guide-registration-ghost {
-    background: color-mix(in srgb, var(--bg-body) 75%, var(--bg-card));
-}
-[data-theme="dark"] .guide-registration-cta i {
-    color: var(--palette-blue-100);
-}
-[data-theme="dark"] .mock-sheet-browser-bar,
-[data-theme="dark"] .mock-sheet-left-rail {
-    background: rgba(71, 85, 105, 0.55);
-}
 /* Participant registration mock: calm */
 .guide-registration-context--highlight {
     border-color: color-mix(in srgb, var(--accent-color) 35%, var(--border-color));
@@ -55,20 +42,7 @@
     color: var(--color-white);
     box-shadow: 0 6px 14px rgba(212, 124, 88, 0.24);
 }
-[data-theme="dark"] .guide-registration-context--highlight {
-    box-shadow: 0 8px 20px rgba(15, 118, 110, 0.16);
-}
-[data-theme="dark"] .guide-action-box {
-    background: var(--accent-color);
-    border-color: var(--accent-color);
-}
-[data-theme="dark"] .mock-sheet-browser-canvas {
-    background: rgba(30, 41, 59, 0.9);
-}
-[data-theme="dark"] .mock-form-import-help {
-    color: var(--palette-ffd7c3);
-}
-/* Guide polish: quieter buttons, theme-aware mockups, and shorter diagram surfaces. */
+/* Guide polish: quieter buttons, neutral mockups, and shorter diagram surfaces. */
 .guide-registration-context--highlight,
 .guide-registration-context {
     background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
@@ -102,20 +76,6 @@
 .mock-sheet-browser-canvas {
     background: var(--bg-body);
 }
-[data-theme="dark"] .guide-registration-context--highlight,
-[data-theme="dark"] .guide-registration-context,
-[data-theme="dark"] .mock-sheet-browser,
-[data-theme="dark"] .mock-sheet-browser-canvas,
-[data-theme="dark"] .mock-sheet-browser-sheet,
-[data-theme="dark"] .mock-form-import-ui {
-    background: var(--bg-card);
-    border-color: var(--border-color);
-}
-[data-theme="dark"] .guide-registration-cta i,
-[data-theme="dark"] .guide-action-box i,
-[data-theme="dark"] .guide-action-box.primary i {
-    color: var(--accent-color);
-}
 .guide-register-entry-screen {
   padding-bottom: 10px;
   padding: 9px;
@@ -141,8 +101,7 @@
   box-shadow: none;
   border-color: var(--border-color);
 }
-.guide-registration-cta i,
-[data-theme="dark"] .guide-registration-cta i {
+.guide-registration-cta i {
     color: var(--text-sub);
 }
 .guide-registration-ghost {
@@ -170,7 +129,7 @@
 .guide-action-box.primary i {
     color: var(--accent-color);
 }
-/* Google Sheets-like guide mock: keep the blue selection blue in every theme. */
+/* Google Sheets-like guide mock: keep the blue selection blue throughout the application. */
 .mock-sheet-browser,
 .mock-sheet-browser * {
     box-sizing: border-box;
@@ -190,4 +149,10 @@
   --guide-external-text: var(--palette-243447);
   border-color: var(--guide-external-border);
   color: var(--guide-external-text);
+}
+.import-preview-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-main);
+    background: var(--color-white);
+    box-shadow: none;
 }

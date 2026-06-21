@@ -31,7 +31,7 @@
   }
 }
 /* Payment-check details use a plain vertical list, not the general chip surface. */
-html body #app-layout #seisan-view-area .seisan-driver-detail-list {
+body #app-layout #seisan-view-area .seisan-driver-detail-list {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 3px;
@@ -40,7 +40,7 @@ html body #app-layout #seisan-view-area .seisan-driver-detail-list {
   border-top: 1px solid color-mix(in srgb, var(--ui-saas-border) 52%, transparent);
   overflow: hidden;
 }
-html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-cost-preview-line {
+body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-cost-preview-line {
   display: block;
   min-width: 0;
   padding: 0;
@@ -48,19 +48,19 @@ html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-cost-
   background: transparent;
   overflow: visible;
 }
-html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-cost-preview-line + .seisan-cost-preview-line {
+body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-cost-preview-line + .seisan-cost-preview-line {
   padding-top: 3px;
   border-top: 1px solid color-mix(in srgb, var(--ui-saas-border) 34%, transparent);
 }
-html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-cost-preview-line-body {
+body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-cost-preview-line-body {
   display: block;
   min-width: 0;
   overflow: visible;
 }
-html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline,
-html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline.split,
-html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline.club,
-html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline--offset {
+body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline,
+body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline.split,
+body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline.club,
+body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline--offset {
   width: 100%;
   max-width: none;
   min-height: 0;
@@ -79,7 +79,7 @@ html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra
   line-height: 1.3;
   overflow: hidden;
 }
-html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline > span {
+body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline > span {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -89,7 +89,7 @@ html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra
   font-size: inherit;
   font-weight: 500;
 }
-html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline strong {
+body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline strong {
   justify-self: end;
   width: auto;
   min-width: max-content;
@@ -104,7 +104,7 @@ html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra
   font-feature-settings: "tnum" 1;
   letter-spacing: -0.012em;
 }
-html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-amount-sign {
+body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-amount-sign {
   display: inline-block;
   width: 0.9em;
   margin-right: 1px;
@@ -112,12 +112,12 @@ html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-amoun
   -webkit-text-fill-color: var(--text-sub);
   text-align: center;
 }
-html body #app-layout #seisan-view-area .seisan-driver-amount {
+body #app-layout #seisan-view-area .seisan-driver-amount {
   display: inline-flex;
   align-items: baseline;
   justify-content: flex-end;
 }
-html body #app-layout #seisan-view-area .seisan-driver-amount .seisan-amount-sign {
+body #app-layout #seisan-view-area .seisan-driver-amount .seisan-amount-sign {
   display: inline-block;
   width: 0.9em;
   margin-right: 1px;
@@ -126,7 +126,7 @@ html body #app-layout #seisan-view-area .seisan-driver-amount .seisan-amount-sig
   font-weight: 500;
   text-align: center;
 }
-html body #app-layout #seisan-view-area .seisan-driver-detail-list :is(.seisan-cost-policy-tag, .seisan-cost-type-badge) {
+body #app-layout #seisan-view-area .seisan-driver-detail-list :is(.seisan-cost-policy-tag, .seisan-cost-type-badge) {
   justify-self: end;
   box-sizing: border-box;
   width: 30px;
@@ -134,49 +134,31 @@ html body #app-layout #seisan-view-area .seisan-driver-detail-list :is(.seisan-c
   height: 18px;
   min-height: 18px;
   padding: 0 4px;
-  border-radius: var(--settlement-tag-radius, 999px);
+  border-radius: var(--settlement-tag-radius, var(--radius-xs));
   font-size: 0.64rem;
   line-height: 1;
   transform: none;
 }
-html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-cost-type-badge--spacer {
+body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-cost-type-badge--spacer {
   visibility: hidden;
   pointer-events: none;
 }
-html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline,
-body[data-theme="dark"] #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline {
-  background: transparent;
-  border-color: transparent;
-  color: var(--seisan-dark-muted-readable, var(--text-sub));
-  -webkit-text-fill-color: var(--seisan-dark-muted-readable, var(--text-sub));
-}
-html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline > span,
-html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline strong,
-html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-amount-sign,
-html[data-theme="dark"] body #app-layout #seisan-view-area .seisan-driver-amount .seisan-amount-sign,
-body[data-theme="dark"] #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline > span,
-body[data-theme="dark"] #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline strong,
-body[data-theme="dark"] #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-amount-sign,
-body[data-theme="dark"] #app-layout #seisan-view-area .seisan-driver-amount .seisan-amount-sign {
-  color: var(--seisan-dark-muted-readable, var(--text-sub));
-  -webkit-text-fill-color: var(--seisan-dark-muted-readable, var(--text-sub));
-}
 @media (max-width: 640px) {
-  html body #app-layout #seisan-view-area .seisan-driver-detail-list {
+  body #app-layout #seisan-view-area .seisan-driver-detail-list {
     gap: 2px;
     padding-top: 6px;
   }
 
-  html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline,
-  html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline.split,
-  html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline.club,
-  html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline--offset {
+  body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline,
+  body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline.split,
+  body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline.club,
+  body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline--offset {
     grid-template-columns: minmax(0, 1fr) max-content 30px;
     column-gap: 7px;
     font-size: 0.76rem;
   }
 
-  html body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline strong {
+  body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline strong {
     width: auto;
     min-width: max-content;
     font-size: 0.84rem;

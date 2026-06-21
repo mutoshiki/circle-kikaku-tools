@@ -9,7 +9,15 @@ opacity: 0.5; padding: 4px; cursor: pointer; transition: opacity 0.2s;
 opacity: 1;
 }
 
-.action-btn,
+.action-btn {
+width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
 .delete-btn-overlay {
 width: 24px;
     height: 24px;
@@ -21,8 +29,6 @@ width: 24px;
 
 .delete-btn-overlay:hover {
   opacity: 1;
-  color: var(--text-main);
-  background: var(--hover-bg);
 }
 
 @media (max-width: 640px) {
@@ -140,7 +146,6 @@ font-size: 0.61rem;
   opacity: 1;
   cursor: pointer;
   z-index: var(--z-local-overlay);
-  color: var(--text-main);
   transition: opacity 0.2s, color 0.2s;
   display: inline-flex;
   align-items: center;
@@ -151,7 +156,6 @@ font-size: 0.61rem;
   gap: 4px;
   padding: 4px 4px;
   border: 1px solid var(--border-color);
-  background: var(--bg-card);
   font-weight: 500;
   line-height: 1;
   min-height: 32px;
@@ -185,11 +189,6 @@ height: 31px;
 .delete-btn-overlay span {
 font-size: 0.58rem;
 }
-}
-
-[data-theme="dark"] .delete-btn-overlay {
-background: rgba(var(--shadow-rgb), 0.46);
-    border-color: var(--border-color);
 }
 
 @media (hover: none) and (pointer: coarse) {

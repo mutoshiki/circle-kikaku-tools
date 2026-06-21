@@ -62,7 +62,7 @@
     align-items: center;
     margin-left: 6px;
     padding: 1px 6px;
-    border-radius: 999px;
+    border-radius: var(--radius-xs);
     background: var(--accent-soft);
     color: var(--accent-color);
     font-size: 0.68rem;
@@ -108,12 +108,6 @@
 .batch-warning li {
     margin: 2px 0;
 }
-[data-theme="dark"] .batch-spreadsheet-import {
-    background: color-mix(in srgb, var(--accent-soft) 20%, var(--bg-card));
-}
-[data-theme="dark"] .form-import-preview {
-    background: color-mix(in srgb, var(--bg-card) 92%, var(--accent-soft));
-}
 @media (min-width: 769px) {
     .batch-spreadsheet-button {
         width: auto;
@@ -130,15 +124,6 @@
 }
 .mock-sheet-app--selected {
     background: var(--palette-slate-50);
-}
-[data-theme="dark"] .mock-form-import-ui {
-    background: rgba(120, 53, 15, 0.24);
-    border-color: rgba(251, 146, 60, 0.45);
-}
-[data-theme="dark"] .mock-form-import-title,
-[data-theme="dark"] .mock-form-import-help,
-[data-theme="dark"] .mock-form-import-textarea {
-    color: var(--text-main);
 }
 @media (max-width: 640px) {
     .guide-form-import-grid {

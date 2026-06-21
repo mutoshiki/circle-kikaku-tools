@@ -1,34 +1,12 @@
-/* Keep bold text to a minimum across the app. */
-:root {
-  --font-weight-label: 500;
-  --font-weight-title: 600;
-  --font-weight-amount: 650;
-  --amount-font-weight: var(--font-weight-amount);
-}
-
+/* Keep bold text to a minimum across the app. Type tokens live in tokens/02-radius-spacing-type.css. */
 body {
   font-weight: 400;
 }
 
 button,
-.btn,
-.seisan-btn,
-.tool-btn,
-.tray-action-btn,
-.dropdown-item,
 .form-label,
 label,
-.badge,
-.legend-chip,
-.seisan-cost-type-badge,
-.seisan-payment-tag,
-.seisan-cost-policy-tag,
-.theme-card,
-.theme-mode-toggle,
-.theme-panel-toggle,
-.theme-preset-name,
-.theme-preset-meta,
-.view-tab {
+.badge {
   font-weight: 500;
 }
 
@@ -43,30 +21,30 @@ h3,
 h4,
 h5,
 h6,
-.modal-title,
 .section-title,
 .card-title,
-.sheet-section-title,
-.seisan-section-title,
 .seisan-subhead,
-.car-card-title,
-.car-header-title,
-.view-tab.active,
-.room-mode-tab.active,
-.theme-card.is-selected,
-.theme-mode-toggle[aria-expanded="true"] {
+.room-mode-tab.active {
   font-weight: 600;
 }
 
 .ui-amount,
-.seisan-summary-value,
-.seisan-car-summary-total,
 .seisan-car-total,
-.seisan-driver-amount,
 .seisan-collection-per-person-amount,
-.seisan-cost-line-amount,
-.seisan-cost-total-row strong,
-.settlement-total,
-.settlement-amount {
+.seisan-cost-total-row strong {
   font-weight: 650;
+}
+
+.settlement-amount {
+  color: var(--text-main);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+.settlement-total {
+  color: var(--text-main);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
 }

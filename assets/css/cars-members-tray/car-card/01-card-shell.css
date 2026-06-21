@@ -1,8 +1,5 @@
 /* Car card shell: car-specific structure only.
    Shared mobile member/driver card primitives live in 01-shared-card-primitives.css. */
-[data-theme="dark"] .car-box.over-capacity {
-  background: color-mix(in srgb, var(--color-danger) 18%, var(--bg-card));
-}
 
 .driver-label {
   display: none;
@@ -17,17 +14,10 @@
   box-sizing: border-box;
 }
 
-.seat-slot,
-.driver-seat {
-  border-radius: var(--radius-sm);
-}
-
-.car-header,
-.driver-name-disp {
+.car-header {
   font-weight: 600;
 }
 
-.car-box,
 .driver-seat {
   min-width: 0;
 }
@@ -52,14 +42,12 @@
 }
 
 @media (max-width: 640px) {
-  .car-box {
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: var(--radius-main);
+
+  .seat-slot {
+    padding: 9px 10px;
   }
 
-  .driver-seat,
-  .seat-slot {
+  .driver-seat {
     padding: 9px 10px;
   }
 
@@ -103,6 +91,14 @@
   .car-layout-grid {
     gap: 8px;
   }
+  .car-box {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: var(--radius-lg);
+  }
+  .team-box {
+    border-radius: var(--radius-lg);
+  }
 }
 
 @media (max-width: 420px) {
@@ -120,4 +116,40 @@
   .car-layout-grid {
     grid-template-columns: 1fr;
   }
+}
+
+#cars-container {
+  row-gap: 12px;
+}
+
+.car-box {
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: none;
+}
+
+.team-box {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: none;
+}
+
+.car-box::before {
+  display: none;
+}
+
+.team-box::before {
+  display: none;
+}
+
+.car-box-head {
+  border-color: var(--border-section);
+  background: var(--color-white);
 }

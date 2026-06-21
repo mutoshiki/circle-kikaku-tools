@@ -73,10 +73,6 @@ font-size: 0.62rem;
 font-size: 0.62rem;
 }
 }
-[data-theme="dark"] #seisan-view-area .seisan-card,
-[data-theme="dark"] #seisan-view-area .seisan-car-row {
-box-shadow: none;
-}
 @media (max-width: 768px) {
 #seisan-view-area .seisan-field input,
 #seisan-view-area .seisan-field select,
@@ -121,6 +117,21 @@ gap: 6px;
     grid-template-columns: minmax(0, 1fr) var(--control-icon-size) minmax(0, 1.42fr);
     gap: 8px;
   }
+#seisan-view-area {
+padding-top: 8px;
+}
+.seisan-card {
+border-radius: var(--radius-lg);
+}
+.seisan-toolbar-card {
+border-radius: var(--radius-lg);
+}
+.seisan-settings-card {
+border-radius: var(--radius-lg);
+}
+.seisan-panel {
+border-radius: var(--radius-lg);
+}
 }
 .seisan-wrap {
   max-width: 980px;
@@ -128,8 +139,13 @@ gap: 6px;
   display: grid;
   gap: 10px;
 }
-.seisan-head,
 .seisan-compact-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.seisan-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -137,13 +153,9 @@ gap: 6px;
 }
 .seisan-title {
   font-size: 0.98rem;
-  font-weight: 600;
-  color: var(--text-main);
   display: flex;
   align-items: center;
   gap: 7px;
-  letter-spacing: -0.01em;
-  line-height: 1.25;
 }
 .seisan-head-actions {
   display: grid;
@@ -160,8 +172,6 @@ gap: 6px;
   gap: 7px;
   padding: 10px;
   border: 0;
-  border-radius: var(--radius-lg);
-  background: var(--ui-surface-soft);
   box-shadow: var(--ui-surface-shadow-soft);
 }
 .seisan-car-summary-row + .seisan-car-summary-row {
@@ -191,65 +201,4 @@ gap: 6px;
   padding: 5px 8px;
   border-radius: var(--radius-sm);
   background: var(--ui-surface-sunken);
-}
-
-@media (max-width: 640px) {
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row {
-    --settlement-car-amount-col: 61px;
-    --settlement-car-tag-col: 28px;
-    min-width: 0;
-  }
-
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row + .seisan-car-summary-row {
-    margin-top: 0;
-  }
-
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-headline {
-    padding-inline: 9px;
-  }
-
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-name {
-    font-size: 0.76rem;
-  }
-
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-edit-btn {
-    min-width: 0;
-    padding-inline: 6px;
-  }
-
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row :is(.seisan-cost-line, .seisan-cost-total-row.seisan-car-summary-payment) {
-    column-gap: 4px;
-  }
-
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-preview-list {
-    padding-inline: 7px;
-  }
-
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-line > span:first-child,
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-total-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 0.70rem;
-    line-height: 1.15;
-  }
-
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-line > .seisan-car-summary-total,
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-line-amount.seisan-car-summary-total,
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row .seisan-cost-total-row .seisan-car-summary-total {
-    font-size: 0.90rem;
-  }
-
-  #seisan-view-area #seisan-car-list:has(> .seisan-car-summary-row:nth-child(3)) .seisan-car-summary-row :is(.seisan-cost-type-badge, .seisan-payment-tag) {
-    width: 28px;
-    min-width: 28px;
-    padding-inline: 2px;
-    font-size: 0.56rem;
-  }
 }

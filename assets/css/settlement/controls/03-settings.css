@@ -4,22 +4,25 @@ font-size: 0.68rem;
         padding-inline: 5px;
 }
 }
-.seisan-btn, .seisan-toggle, .seisan-icon-btn {
-  border-radius: 999px;
+.seisan-toggle,
+.seisan-icon-btn {
+  border-radius: var(--radius-main);
   border-color: var(--hairline, var(--border-color));
   background: var(--bg-card);
   color: var(--text-main);
   box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.03);
   font-weight: 500;
 }
-.seisan-btn:hover,
+.seisan-btn {
+  border-color: var(--hairline, var(--border-color));
+}
 .seisan-toggle:hover,
 .seisan-icon-btn:hover {
     background: var(--hover-bg);
     border-color: color-mix(in srgb, var(--accent-color) 22%, var(--border-color));
     color: var(--text-main);
 }
-.seisan-btn.primary, .seisan-btn.active, .seisan-toggle.active {
+.seisan-toggle.active {
   background: var(--accent-color);
   border-color: var(--accent-color);
   color: var(--color-white);
@@ -55,18 +58,6 @@ font-size: 0.68rem;
   border-color: color-mix(in srgb, var(--color-danger) 38%, var(--border-color));
   background: color-mix(in srgb, var(--color-danger) 6%, var(--bg-card));
 }
-[data-theme="dark"] .seisan-btn:not(.primary):not(.active), [data-theme="dark"] .seisan-toggle:not(.active), [data-theme="dark"] .seisan-icon-btn {
-  background: color-mix(in srgb, var(--bg-card) 78%, transparent);
-  border-color: var(--hairline, var(--border-color));
-  color: var(--text-main);
-}
-[data-theme="dark"] .seisan-btn.primary, [data-theme="dark"] .seisan-btn.active, [data-theme="dark"] .seisan-toggle.active {
-  border-radius: var(--radius-sm);
-  background: var(--accent-color);
-  border-color: var(--accent-color);
-  color: var(--palette-night-blue);
-  box-shadow: 0 7px 16px color-mix(in srgb, var(--accent-color) 18%, transparent);
-}
 @media (max-width: 640px) {
     .seisan-head-actions .seisan-btn,
     .seisan-btn,
@@ -78,8 +69,7 @@ font-size: 0.68rem;
 }
 /* =========================================================
 ========================================================= */
-.header-action i,
-.header-action span,
+
 .tool-btn i,
 .tool-btn span,
 .seisan-btn i,
@@ -88,7 +78,7 @@ font-size: 0.68rem;
 .tray-action-btn span {
   color: inherit;
 }
-.header-action span,
+
 .tool-btn span,
 .seisan-btn span,
 .tray-action-btn span {
@@ -105,26 +95,24 @@ font-size: 0.68rem;
     font-size: 0.76rem;
   }
 }
-.header-action:focus-visible,
-.tool-btn:focus-visible,
-.seisan-btn:focus-visible,
-.tray-action-btn:focus-visible,
-.view-tab:focus-visible,
-.car-plan-template-chip:focus-visible {
-  outline: 0;
-  box-shadow: var(--ui-focus-ring);
-}
-.car-box,
+
 .guide-step-panel,
 .batch-spreadsheet-import,
 .batch-import-notice,
-.seisan-settings-card,
 .empty-card {
   border-color: transparent;
   background: var(--bg-card);
   box-shadow: var(--ui-surface-shadow-soft);
 }
-.seisan-head-tools-only,
+.seisan-settings-card {
+  border-color: transparent;
+}
+.car-box {
+  border-color: transparent;
+}
+.seisan-head-tools-only {
+  padding: 12px;
+}
 .seisan-toolbar-card {
   padding: 12px;
 }
@@ -153,11 +141,7 @@ font-size: 0.68rem;
 .seisan-settings-card .seisan-compact-head {
   margin-bottom: 8px;
 }
-.seat-slot,
-.sheet-seat-row,
-.sheet-wait-item,
 .seisan-cost-preview-item,
-.seisan-settings-card,
 .seisan-summary-pills span {
   background: color-mix(in srgb, var(--ui-panel-bg-muted) 88%, var(--bg-body));
 }

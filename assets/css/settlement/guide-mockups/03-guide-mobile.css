@@ -38,16 +38,6 @@ min-height:40px;
   grid-template-columns: repeat(2, 1fr);
   gap: 6px;
 }
-[data-theme="dark"] .seisan-mock-box-check {
-background: transparent;
-    box-shadow: none;
-}
-[data-theme="dark"] .seisan-mock-check.done .seisan-mock-box-check {
-background: var(--accent-color);
-    border-color: var(--accent-color);
-    color: var(--color-white);
-    box-shadow: none;
-}
 @media (max-width: 640px) {
 .seisan-summary-grid,
 .seisan-mock-flow {
@@ -66,15 +56,6 @@ min-height: 78px;
 .seisan-mock-value {
 letter-spacing: -0.02em;
 }
-}
-[data-theme="dark"] .seisan-summary-card,
-[data-theme="dark"] .seisan-mock-summary {
-background:
-        linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 78%, var(--color-night)), color-mix(in srgb, var(--bg-card) 68%, var(--color-night)));
-}
-[data-theme="dark"] .seisan-summary-card.collect,
-[data-theme="dark"] .seisan-mock-summary.collect {
-border-color: color-mix(in srgb, var(--accent-color) 24%, rgba(148, 163, 184, 0.16));
 }
 .seisan-mock-box-check {
   width: 14px;
@@ -113,8 +94,6 @@ background: var(--accent-color);
   background: var(--settlement-collect-bg);
   border-color: var(--settlement-collect-line);
 }
-#seisan-view-area .seisan-summary-card.collect :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-value),
-.seisan-summary-card.collect :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-value),
-.seisan-mock-summary.collect :is(.seisan-mock-label, .seisan-mock-value) {
+#seisan-view-area .seisan-summary-card.collect :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-value), .seisan-summary-card.collect :is(.seisan-summary-label, .seisan-summary-label i, .seisan-summary-value), .seisan-mock-summary.collect :is(.seisan-mock-label, .seisan-mock-value) {
   color: var(--text-main);
 }

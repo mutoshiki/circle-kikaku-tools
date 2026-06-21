@@ -13,147 +13,120 @@
   }
 }
 
-:is(
-  .btn:not(.btn-close),
-  .header-action,
-  .tool-btn,
-  .edit-tools .tool-btn,
-  .seisan-btn,
-  .tray-action-btn,
-  #sheet-quick-edit-btn,
-  #zoom-controls button,
-  .guide-step-btn,
-  .guide-footer .btn,
-  .route-guide-mock button,
-  .guide-phone-btn,
-  .mock-form-import-button,
-  .batch-spreadsheet-button,
-  .overview-mini-action,
-  .overview-copy-action,
-  .overview-drawer-close
-) {
-  min-height: var(--control-height, 38px);
-  border: 1px solid var(--control-border, var(--border-color));
-  border-radius: var(--control-radius, var(--radius-sm));
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding-inline: var(--control-padding-x, 12px);
+.overview-mini-action {
+  min-height: var(--control-height);
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--control-secondary-bg);
   color: var(--text-main);
-  font-size: 0.82rem;
-  font-weight: 500;
-  line-height: 1.12;
-  letter-spacing: 0;
   box-shadow: none;
-  transition:
-    background-color var(--motion-fast, 0.16s) ease,
-    border-color var(--motion-fast, 0.16s) ease,
-    color var(--motion-fast, 0.16s) ease,
-    box-shadow var(--motion-fast, 0.16s) ease,
-    transform var(--motion-fast, 0.16s) ease;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
-:is(
-  .btn:not(.btn-close),
-  .header-action,
-  .tool-btn,
-  .seisan-btn,
-  .tray-action-btn,
-  #sheet-quick-edit-btn,
-  #zoom-controls button,
-  .guide-step-btn,
-  .guide-footer .btn,
-  .route-guide-mock button,
-  .guide-phone-btn,
-  .mock-form-import-button,
-  .batch-spreadsheet-button,
-  .overview-mini-action,
-  .overview-copy-action,
-  .overview-drawer-close
-):hover {
-  transform: translateY(-1px);
+.overview-copy-action {
+  min-height: var(--control-height);
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--control-secondary-bg);
+  color: var(--text-main);
+  box-shadow: none;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
-:is(
-  .btn:not(.btn-close),
-  .header-action,
-  .tool-btn,
-  .seisan-btn,
-  .tray-action-btn,
-  #sheet-quick-edit-btn,
-  #zoom-controls button,
-  .guide-step-btn,
-  .guide-footer .btn,
-  .route-guide-mock button,
-  .guide-phone-btn,
-  .mock-form-import-button,
-  .batch-spreadsheet-button,
-  .overview-mini-action,
-  .overview-copy-action,
-  .overview-drawer-close
-):active {
-  transform: translateY(0);
-}
-
-:is(
-  .header-action,
-  .tool-btn,
-  .seisan-btn,
-  .tray-action-btn,
-  #sheet-quick-edit-btn,
-  #zoom-controls button,
-  .guide-step-btn,
-  .guide-footer .btn,
-  .route-guide-mock button,
-  .guide-phone-btn,
-  .mock-form-import-button,
-  .batch-spreadsheet-button,
-  .overview-mini-action,
-  .overview-copy-action,
-  .overview-drawer-close
-):focus-visible {
-  outline: 0;
-  box-shadow: var(--control-focus-ring, 0 0 0 4px var(--focus-ring));
-}
-
-:is(
-  .btn:not(.btn-close),
-  .header-action,
-  .tool-btn,
-  .seisan-btn,
-  .tray-action-btn,
-  #sheet-quick-edit-btn,
-  #zoom-controls button,
-  .guide-step-btn,
-  .guide-footer .btn,
-  .route-guide-mock button,
-  .guide-phone-btn,
-  .mock-form-import-button,
-  .batch-spreadsheet-button,
-  .overview-mini-action,
-  .overview-copy-action,
-  .overview-drawer-close
-):disabled,
-:is(
-  .btn:not(.btn-close),
-  .header-action,
-  .tool-btn,
-  .seisan-btn,
-  .tray-action-btn,
-  #sheet-quick-edit-btn,
-  #zoom-controls button,
-  .guide-step-btn,
-  .guide-footer .btn,
-  .route-guide-mock button,
-  .guide-phone-btn,
-  .mock-form-import-button,
-  .batch-spreadsheet-button,
-  .overview-mini-action,
-  .overview-copy-action,
-  .overview-drawer-close
-).disabled {
-  cursor: not-allowed;
-  opacity: 0.62;
+.btn:hover {
+  border-color: var(--border-hover);
+  background: var(--control-secondary-hover);
+  color: var(--text-main);
   transform: none;
+  box-shadow: none;
+}
+
+.tool-btn:hover {
+  border-color: var(--border-hover);
+  background: var(--control-secondary-hover);
+  color: var(--text-main);
+  transform: none;
+  box-shadow: none;
+}
+
+.tray-action-btn:hover {
+  border-color: var(--border-hover);
+  background: var(--control-secondary-hover);
+  color: var(--text-main);
+  transform: none;
+  box-shadow: none;
+}
+
+.seisan-btn:hover {
+  border-color: var(--border-hover);
+  background: var(--control-secondary-hover);
+  color: var(--text-main);
+  transform: none;
+  box-shadow: none;
+}
+
+.overview-mini-action:hover {
+  border-color: var(--border-hover);
+  background: var(--control-secondary-hover);
+  color: var(--text-main);
+  transform: none;
+  box-shadow: none;
+}
+
+.overview-copy-action:hover {
+  border-color: var(--border-hover);
+  background: var(--control-secondary-hover);
+  color: var(--text-main);
+  transform: none;
+  box-shadow: none;
+}
+
+.btn {
+  min-height: var(--control-height);
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--control-secondary-bg);
+  color: var(--text-main);
+  box-shadow: none;
+  font-weight: 600;
+  letter-spacing: 0;
+  transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+
+.tool-btn {
+  min-height: var(--control-height);
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--control-secondary-bg);
+  color: var(--text-main);
+  box-shadow: none;
+  font-weight: 600;
+  letter-spacing: 0;
+  transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+
+.tray-action-btn {
+  min-height: var(--control-height);
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--control-secondary-bg);
+  color: var(--text-main);
+  box-shadow: none;
+  font-weight: 600;
+  letter-spacing: 0;
+  transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+
+.seisan-btn {
+  min-height: var(--control-height);
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--control-secondary-bg);
+  color: var(--text-main);
+  box-shadow: none;
+  font-weight: 600;
+  letter-spacing: 0;
+  transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
 }

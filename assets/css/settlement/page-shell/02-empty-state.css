@@ -106,7 +106,6 @@ max-width: 100%;
 .seisan-card {
 padding: 12px;
         margin-bottom: 10px;
-        border-radius: var(--radius-main);
 }
 }
 @media (max-width: 640px) {
@@ -153,11 +152,6 @@ grid-column: 1 / -1;
 }
 }
 @media (max-width: 640px) {
-#seisan-view-area {
-padding-top: 8px;
-}
-}
-@media (max-width: 640px) {
 .seisan-card {
 padding: 10px;
         margin-bottom: 8px;
@@ -177,4 +171,10 @@ overflow: hidden;
 margin: 0;
         max-width: 100%;
 }
+}
+.seisan-empty {
+border: 1px dashed var(--border-dashed);
+border-radius: var(--radius-lg);
+background: var(--color-white);
+box-shadow: none;
 }

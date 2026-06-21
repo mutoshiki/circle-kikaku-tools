@@ -16,12 +16,12 @@ content: "ずらぁE;
     color: var(--color-white);
 }
 .seat-slot.swap-origin::after {
-content: "戻り�E";
+content: "戻り�E";
     background: var(--accent-color);
     color: var(--color-white);
 }
 .seat-slot.escape-target::after {
-content: "移動�E";
+content: "移動�E";
     background: var(--color-info);
     color: var(--color-white);
 }

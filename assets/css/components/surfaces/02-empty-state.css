@@ -100,7 +100,10 @@
 }
 
 #sheet-view-area:has(#sheet-canvas .sheet-empty-card) #sheet-canvas {
+  width: 100%;
+  min-width: 100%;
   min-height: calc(100dvh - 260px);
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -129,4 +132,18 @@
 
 #seisan-empty-state:not([hidden]) .app-empty-card {
   margin: 0 auto;
+}
+
+.sheet-empty-card {
+  border: 1px dashed var(--border-dashed);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: none;
+}
+
+.empty-state {
+  border: 1px dashed var(--border-dashed);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: none;
 }

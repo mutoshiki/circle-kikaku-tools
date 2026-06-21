@@ -32,7 +32,7 @@ gap: 7px;
 }
 @media (max-width: 640px) {
 .driver-main-line {
-min-height: 28px;
+min-height: 32px;
 }
 }
 @media (max-width: 640px) {
@@ -54,7 +54,6 @@ gap: 5px;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
-.car-header .delete-btn:hover,
 .car-delete-btn:hover {
 background: rgba(239, 68, 68, 0.08);
     color: var(--color-danger-strong);
@@ -62,7 +61,7 @@ background: rgba(239, 68, 68, 0.08);
 }
 @media (max-width: 640px) {
 .car-header {
-grid-template-columns: minmax(0, 1fr) auto 30px;
+grid-template-columns: minmax(0, 1fr) auto 32px;
         gap: 6px;
 }
 }
@@ -85,14 +84,14 @@ width: 30px;
 .driver-menu-btn {
 width: 28px;
     height: 28px;
-    min-width: 28px;
-    min-height: 28px;
+    min-width: 32px;
+    min-height: 32px;
     padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border: 0;
-    border-radius: 999px;
+    border-radius: var(--radius-main);
     background: transparent;
     color: var(--text-sub);
     opacity: 0.86;
@@ -105,8 +104,10 @@ background: var(--hover-bg); color: var(--text-main); opacity: 1;
 font-size: 0.86rem; pointer-events: none;
 }
 @media (max-width: 640px) {
-.driver-seat,
 .seat-slot {
+min-height: 44px;
+}
+.driver-seat {
 min-height: 44px;
 }
 }
@@ -130,8 +131,8 @@ color: var(--text-main) ;
   gap: 6px;
   min-width: 0;
   padding: 0;
-  min-height: 28px;
-  grid-template-columns: minmax(0, 1fr) auto 28px;
+  min-height: 32px;
+  grid-template-columns: minmax(0, 1fr) auto 32px;
 }
 @media (prefers-reduced-motion: reduce) {
 .seat-slot {
@@ -141,37 +142,6 @@ transition: none;
 }
 .driver-seat[data-gender]:not([data-locked="true"]) {
 border-color: var(--border-color);
-}
-[data-theme="dark"] .capacity-badge.capacity-edit-btn,
-[data-theme="dark"] .capacity-badge.capacity-edit-btn.is-full,
-[data-theme="dark"] .capacity-badge.capacity-edit-btn.is-over {
-background: transparent;
-    border: 0;
-    box-shadow: none;
-    outline: 0;
-    color: var(--text-sub);
-}
-[data-theme="dark"] .capacity-badge.capacity-edit-btn .capacity-count,
-[data-theme="dark"] .capacity-badge.capacity-edit-btn.is-over .capacity-count {
-background: transparent;
-    border: 0;
-    box-shadow: none;
-    outline: 0;
-    color: var(--text-sub);
-    padding: 0;
-}
-[data-theme="dark"] .capacity-badge.capacity-edit-btn > i,
-[data-theme="dark"] .capacity-badge.capacity-edit-btn .fa-pen {
-background: transparent;
-    border: 0;
-    box-shadow: none;
-    color: var(--text-sub);
-    opacity: 0.76;
-}
-@media (max-width: 640px) {
-.car-box {
-border-radius: 16px;
-}
 }
 @media (max-width: 640px) {
 .car-box {
@@ -184,12 +154,6 @@ gap: 8px;
 }
 }
 @media (max-width: 640px) {
-.driver-seat,
-.seat-slot {
-border-radius: 12px;
-}
-}
-@media (max-width: 640px) {
 .driver-seat {
 min-height: 42px;
 }
@@ -198,7 +162,99 @@ min-height: 42px;
 .driver-main-line {
 gap: 7px;
 }
+.car-header {
+min-height: 44px;
+padding-inline: 10px;
 }
-[data-theme="light"] .car-box {
+}
+.car-box {
 border-color: color-mix(in srgb, var(--border-color) 82%, transparent);
+}
+.car-head {
+border-color: var(--border-section);
+background: var(--color-white);
+}
+.car-header {
+border-color: var(--border-section);
+background: var(--color-white);
+min-height: 44px;
+padding-inline: 12px;
+}
+.car-header > span {
+color: var(--text-main);
+font-size: 0.92rem;
+font-weight: 600;
+line-height: 1.35;
+letter-spacing: 0;
+}
+.car-header > strong {
+color: var(--text-main);
+font-size: 0.92rem;
+font-weight: 600;
+line-height: 1.35;
+letter-spacing: 0;
+}
+.car-header-title {
+color: var(--text-main);
+font-size: 0.92rem;
+font-weight: 600;
+line-height: 1.35;
+letter-spacing: 0;
+}
+.car-card-title {
+color: var(--text-main);
+font-size: 0.92rem;
+font-weight: 600;
+line-height: 1.35;
+letter-spacing: 0;
+}
+.car-name-label {
+color: var(--text-main);
+font-size: 0.92rem;
+font-weight: 600;
+line-height: 1.35;
+letter-spacing: 0;
+}
+.capacity-badge.capacity-edit-btn {
+border: 0;
+border-radius: var(--radius-sm);
+background: transparent;
+color: var(--text-sub);
+font-weight: 500;
+box-shadow: none;
+}
+.capacity-badge.capacity-edit-btn.is-full {
+border: 0;
+border-radius: var(--radius-sm);
+background: transparent;
+color: var(--text-sub);
+font-weight: 500;
+box-shadow: none;
+}
+.capacity-badge.capacity-edit-btn.is-over {
+border: 0;
+border-radius: var(--radius-sm);
+background: transparent;
+color: var(--text-sub);
+font-weight: 500;
+box-shadow: none;
+}
+.capacity-badge {
+border: 0;
+background: transparent;
+color: var(--text-sub);
+border-radius: var(--radius-main);
+font-weight: 500;
+box-shadow: none;
+}
+.car-header .delete-btn {
+border-color: transparent;
+background: transparent;
+color: var(--text-faint);
+}
+.car-header .delete-btn:hover {
+    opacity: 1;
+    border-color: var(--border-color);
+    background: var(--surface-hover);
+    color: var(--text-main);
 }

@@ -37,29 +37,6 @@ background: var(--bg-card);
             box-shadow: var(--shadow-card);
             padding: 8px;
 }
-@media (max-width: 640px) {
-#view-toggle-bar {
-margin: 7px 8px 5px; gap: 4px;
-}
-}
-@media (max-width: 640px) {
-.view-tab {
-font-size: 0.68rem; padding: 7px 4px; gap: 3px;
-}
-}
-.app-brand {
-display: flex;
-    align-items: center;
-    gap: 9px;
-    min-width: 0;
-}
-.app-title {
-color: var(--text-main);
-    font-size: 0.98rem;
-    line-height: 1.2;
-    font-weight: 900;
-    letter-spacing: 0;
-}
 .app-subtitle {
 color: var(--text-sub);
     font-size: 0.68rem;
@@ -80,16 +57,6 @@ color: var(--text-sub);
   font-size: 1rem;
 }
 @media (max-width: 640px) {
-#app-header {
-padding: 7px 8px 5px;
-}
-}
-@media (max-width: 640px) {
-.app-header-main {
-grid-template-columns: 1fr; gap: 7px; padding: 7px;
-}
-}
-@media (max-width: 640px) {
 .app-brand-mark {
 width: 34px; height: 34px;
 }
@@ -97,11 +64,6 @@ width: 34px; height: 34px;
 @media (max-width: 640px) {
 .app-header-illustration {
 width: 92px; height: 40px;
-}
-}
-@media (max-width: 640px) {
-.app-title {
-font-size: 0.94rem;
 }
 }
 @media (max-width: 640px) {
@@ -149,11 +111,7 @@ fill: none;
 fill: rgba(15, 118, 110, 0.08);
     stroke: none;
 }
-[data-theme="dark"] .app-header-illustration .ill-soft {
-fill: rgba(52, 211, 153, 0.10);
-}
-.view-tab,
-.tool-btn,
+
 .edit-tools .tool-btn {
 font-weight: 700;
 }

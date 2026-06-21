@@ -1,59 +1,32 @@
 {
-  "version": 1,
+  "version": 3,
   "selectors": {
     ".app-header-main": {
-      "maxDefinitions": 22,
+      "maxDefinitions": 2,
       "maxBaseDefinitions": 1,
       "allowedFiles": [
-        "app-shell/edit/01-edit-base.css",
-        "app-shell/edit/02-toolbar.css",
-        "app-shell/edit/03-mobile-edit.css",
-        "app-shell/header/01-header-base.css",
-        "app-shell/header/02-room-status.css",
-        "app-shell/header/03-tabs-actions.css",
-        "app-shell/header/04-mobile-layout.css",
-        "app-shell/header/05-mobile-room.css",
-        "app-shell/header/07-mobile-tabs.css",
-        "app-shell/header/08-mobile-density.css",
-        "app-shell/header/09-responsive-base.css",
-        "app-shell/layout/02-panels.css",
-        "app-shell/layout/03-mobile-frame.css"
+        "app-shell/header/01-header-base.css"
       ]
     },
     "#app-header": {
-      "maxDefinitions": 12,
+      "maxDefinitions": 2,
       "maxBaseDefinitions": 1,
       "allowedFiles": [
-        "app-shell/header/01-header-base.css",
-        "app-shell/edit/01-edit-base.css",
-        "app-shell/edit/02-toolbar.css",
-        "app-shell/header/04-mobile-layout.css",
-        "app-shell/header/07-mobile-tabs.css",
-        "app-shell/header/08-mobile-density.css",
-        "app-shell/header/09-responsive-base.css",
-        "app-shell/layout/02-panels.css",
-        "settlement/car-inputs/03-extra-costs.css"
+        "app-shell/header/01-header-base.css"
       ]
     },
     ".app-header-main > .header-actions": {
-      "maxDefinitions": 18,
+      "maxDefinitions": 1,
       "maxBaseDefinitions": 1,
       "allowedFiles": [
-        "app-shell/header/01-header-base.css",
-        "app-shell/header/05-mobile-room.css",
-        "app-shell/header/06-mobile-actions.css",
-        "app-shell/header/07-mobile-tabs.css",
-        "app-shell/header/08-mobile-density.css",
-        "app-shell/header/09-responsive-base.css"
+        "app-shell/header/01-header-base.css"
       ]
     },
     ".header-actions": {
-      "maxDefinitions": 5,
+      "maxDefinitions": 2,
       "maxBaseDefinitions": 1,
       "allowedFiles": [
-        "app-shell/header/01-header-base.css",
-        "app-shell/header/03-tabs-actions.css",
-        "app-shell/header/04-mobile-layout.css"
+        "app-shell/header/03-tabs-actions.css"
       ]
     },
     ".header-more": {
@@ -64,118 +37,60 @@
       ]
     },
     ".header-action": {
-      "maxDefinitions": 5,
+      "maxDefinitions": 1,
       "maxBaseDefinitions": 1,
       "allowedFiles": [
-        "app-shell/edit/02-toolbar.css",
-        "app-shell/header/01-header-base.css",
-        "app-shell/header/03-tabs-actions.css",
-        "settlement/car-inputs/03-extra-costs.css"
+        "app-shell/header/03-tabs-actions.css"
       ]
     },
     ".header-actions .header-action": {
-      "maxDefinitions": 19,
-      "maxBaseDefinitions": 1,
-      "allowedFiles": [
-        "app-shell/header/01-header-base.css",
-        "app-shell/header/03-tabs-actions.css",
-        "app-shell/header/04-mobile-layout.css",
-        "app-shell/header/05-mobile-room.css",
-        "app-shell/header/06-mobile-actions.css",
-        "app-shell/header/07-mobile-tabs.css",
-        "app-shell/header/08-mobile-density.css",
-        "app-shell/header/09-responsive-base.css"
-      ]
+      "maxDefinitions": 0,
+      "maxBaseDefinitions": 0,
+      "allowedFiles": []
     },
     ".header-actions .share-action": {
-      "maxDefinitions": 15,
-      "maxBaseDefinitions": 1,
-      "allowedFiles": [
-        "app-shell/header/01-header-base.css",
-        "app-shell/header/03-tabs-actions.css",
-        "app-shell/header/04-mobile-layout.css",
-        "app-shell/header/05-mobile-room.css",
-        "app-shell/header/06-mobile-actions.css",
-        "app-shell/header/07-mobile-tabs.css",
-        "app-shell/header/08-mobile-density.css",
-        "app-shell/header/09-responsive-base.css"
-      ]
+      "maxDefinitions": 0,
+      "maxBaseDefinitions": 0,
+      "allowedFiles": []
     },
     ".header-actions .header-more > .header-action": {
-      "maxDefinitions": 13,
-      "maxBaseDefinitions": 1,
-      "allowedFiles": [
-        "app-shell/header/03-tabs-actions.css",
-        "app-shell/header/06-mobile-actions.css",
-        "app-shell/header/07-mobile-tabs.css",
-        "app-shell/header/08-mobile-density.css",
-        "app-shell/header/09-responsive-base.css"
-      ]
+      "maxDefinitions": 0,
+      "maxBaseDefinitions": 0,
+      "allowedFiles": []
     },
     "#view-toggle-bar": {
-      "maxDefinitions": 13,
+      "maxDefinitions": 2,
       "maxBaseDefinitions": 1,
       "allowedFiles": [
-        "app-shell/edit/02-toolbar.css",
-        "app-shell/header/01-header-base.css",
-        "app-shell/header/04-mobile-layout.css",
-        "app-shell/header/05-mobile-room.css",
-        "app-shell/header/07-mobile-tabs.css",
-        "app-shell/header/08-mobile-density.css",
-        "app-shell/header/09-responsive-base.css",
-        "app-shell/layout/01-app-frame.css",
-        "app-shell/layout/02-panels.css",
-        "settlement/car-inputs/03-extra-costs.css"
+        "app-shell/header/03-tabs-actions.css"
       ]
     },
     ".app-room-input": {
-      "maxDefinitions": 11,
+      "maxDefinitions": 2,
       "maxBaseDefinitions": 1,
       "allowedFiles": [
-        "app-shell/edit/02-toolbar.css",
-        "app-shell/header/02-room-status.css",
-        "app-shell/header/03-tabs-actions.css",
-        "app-shell/header/04-mobile-layout.css",
-        "app-shell/header/05-mobile-room.css",
-        "app-shell/header/06-mobile-actions.css",
-        "app-shell/header/07-mobile-tabs.css",
-        "app-shell/header/08-mobile-density.css",
-        "app-shell/header/09-responsive-base.css"
+        "app-shell/header/02-room-status.css"
       ]
     },
     ".app-room-field": {
-      "maxDefinitions": 6,
+      "maxDefinitions": 1,
       "maxBaseDefinitions": 1,
       "allowedFiles": [
-        "app-shell/edit/02-toolbar.css",
-        "app-shell/header/02-room-status.css",
-        "app-shell/header/03-tabs-actions.css",
-        "app-shell/header/04-mobile-layout.css",
-        "app-shell/header/05-mobile-room.css",
-        "app-shell/header/08-mobile-density.css"
+        "app-shell/header/02-room-status.css"
       ]
     },
     ".app-room-control": {
-      "maxDefinitions": 6,
+      "maxDefinitions": 2,
       "maxBaseDefinitions": 1,
       "allowedFiles": [
-        "app-shell/header/02-room-status.css",
-        "app-shell/header/04-mobile-layout.css",
-        "app-shell/header/05-mobile-room.css",
-        "app-shell/header/07-mobile-tabs.css",
-        "app-shell/header/08-mobile-density.css"
+        "app-shell/header/02-room-status.css"
       ]
     },
     ".app-room-field label": {
-      "maxDefinitions": 6,
+      "maxDefinitions": 1,
       "maxBaseDefinitions": 1,
       "allowedFiles": [
-        "app-shell/edit/02-toolbar.css",
-        "app-shell/header/02-room-status.css",
-        "app-shell/header/03-tabs-actions.css",
-        "app-shell/header/04-mobile-layout.css",
-        "app-shell/header/05-mobile-room.css",
-        "app-shell/header/07-mobile-tabs.css"
+        "app-shell/header/02-room-status.css"
       ]
     },
     ".app-room-input::placeholder": {
@@ -192,38 +107,19 @@
         "app-shell/header/02-room-status.css"
       ]
     },
-    "[data-theme=\"dark\"] .app-room-input": {
-      "maxDefinitions": 1,
-      "maxBaseDefinitions": 1,
-      "allowedFiles": [
-        "app-shell/header/02-room-status.css"
-      ]
-    },
-    "[data-theme=\"dark\"] .app-room-input:focus": {
-      "maxDefinitions": 1,
-      "maxBaseDefinitions": 1,
-      "allowedFiles": [
-        "app-shell/header/02-room-status.css"
-      ]
-    },
     "#syncStatusBadge.sync-status-badge": {
-      "maxDefinitions": 6,
-      "maxBaseDefinitions": 1,
-      "allowedFiles": [
-        "app-shell/header/02-room-status.css",
-        "app-shell/header/05-mobile-room.css",
-        "app-shell/header/07-mobile-tabs.css",
-        "app-shell/header/08-mobile-density.css"
-      ]
+      "maxDefinitions": 0,
+      "maxBaseDefinitions": 0,
+      "allowedFiles": []
     },
     ".seisan-card": {
       "maxDefinitions": 13,
-      "maxBaseDefinitions": 1,
+      "maxBaseDefinitions": 2,
       "allowedFiles": [
-        "settlement/car-inputs/03-extra-costs.css",
         "settlement/page-shell/01-layout.css",
         "settlement/page-shell/02-empty-state.css",
         "settlement/page-shell/03-car-summary-base.css",
+        "settlement/page-shell/04-mobile-layout.css",
         "settlement/summary/01-summary-layout.css",
         "settlement/summary/02-summary-values.css"
       ]

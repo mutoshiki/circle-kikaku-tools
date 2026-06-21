@@ -40,25 +40,6 @@
     resize: none;
   }
 }
-
-body[data-theme="dark"] #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action),
-html[data-theme="dark"] body #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action) {
-  color: var(--header-icon-text);
-  -webkit-text-fill-color: var(--header-icon-text);
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-}
-body[data-theme="dark"] #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action) :is(i, span),
-html[data-theme="dark"] body #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action) :is(i, span) {
-  color: inherit;
-  -webkit-text-fill-color: currentColor;
-}
-body[data-theme="dark"] #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action):is(:hover, :focus-visible),
-html[data-theme="dark"] body #app-layout #app-header :is(.header-action, .header-actions .header-more > .header-action, #shareLinkBtn.header-action, #overviewMenuBtn.header-action):is(:hover, :focus-visible) {
-  color: var(--accent-color);
-  -webkit-text-fill-color: var(--accent-color);
-}
 @media (max-width: 380px) {
   .overview-drawer {
     width: min(92vw, 340px);

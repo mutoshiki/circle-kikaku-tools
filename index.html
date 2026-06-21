@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="ja" data-bs-theme="light" data-theme="light" data-app-theme="standard" data-light-theme="standard" data-dark-theme="standard">
+<html lang="ja">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +21,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- CSS: tokens -->
     <link href="./assets/css/tokens/01-color-scheme.css" rel="stylesheet">
+    <link href="./assets/css/tokens/01-component-palette.css" rel="stylesheet">
     <link href="./assets/css/tokens/02-radius-spacing-type.css" rel="stylesheet">
     <link href="./assets/css/tokens/03-bootstrap-controls.css" rel="stylesheet">
     <link href="./assets/css/tokens/04-forms-inputs.css" rel="stylesheet">
@@ -46,19 +47,7 @@
     <link href="./assets/css/app-shell/header/01-header-base.css" rel="stylesheet">
     <link href="./assets/css/app-shell/header/02-room-status.css" rel="stylesheet">
     <link href="./assets/css/app-shell/header/03-tabs-actions.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/04-mobile-layout.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/05-mobile-room.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/06-mobile-actions.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/07-mobile-tabs.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/08-mobile-density.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/09-responsive-base.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/10-responsive-small.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/11-responsive-edge.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/12-responsive-wide.css" rel="stylesheet">
-    <!-- CSS: theme contract and tokens -->
-    <link href="./assets/css/theme/00-theme-contract.css" rel="stylesheet">
-    <link href="./assets/css/theme/01-theme-tokens.css" rel="stylesheet">
-    <link href="./assets/css/theme/02-border-normalization.css" rel="stylesheet">
+<!-- CSS: foundations and design tokens -->
     <!-- CSS: guides and modals -->
     <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/modal/01-modal-base.css" rel="stylesheet">
@@ -144,9 +133,6 @@
     <link href="./assets/css/settlement/cost-tags/03-cost-mobile.css" rel="stylesheet">
     <link href="./assets/css/settlement/cost-tags/04-chip-parity.css" rel="stylesheet">
     <link href="./assets/css/settlement/cost-tags/05-cost-preview-lines.css" rel="stylesheet">
-    <link href="./assets/css/settlement/dark/01-dark-surfaces.css" rel="stylesheet">
-    <link href="./assets/css/settlement/dark/02-dark-checklists.css" rel="stylesheet">
-    <link href="./assets/css/settlement/dark/03-dark-cards.css" rel="stylesheet">
     <link href="./assets/css/settlement/payment-chip/01-payment-tokens.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-cost-summary/01-car-cost-card.css" rel="stylesheet">
     <!-- CSS: sheet view and utilities -->
@@ -164,15 +150,8 @@
     <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
     <link href="./assets/css/08-utilities.css" rel="stylesheet">
     <link href="./assets/css/09-font-weight-tuning.css" rel="stylesheet">
-    <!-- CSS: theme UI and application -->
-    <link href="./assets/css/theme/03-theme-picker.css" rel="stylesheet">
-    <link href="./assets/css/theme/04-picker-preview.css" rel="stylesheet">
-    <link href="./assets/css/theme/06-palette-toolbar.css" rel="stylesheet">
-    <link href="./assets/css/theme/08-dark-border-softness.css" rel="stylesheet">
-    <link href="./assets/css/theme/08-border-hierarchy.css" rel="stylesheet">
-    <link href="./assets/css/theme/09-accent-application.css" rel="stylesheet">
   </head>
-  <body data-theme="light" data-app-theme="standard" data-light-theme="standard" data-dark-theme="standard" class="sheet-mode view-mode-sheet">
+  <body class="sheet-mode view-mode-sheet">
     <div id="app-layout">
       <header id="app-header">
         <div class="app-header-main">
@@ -191,7 +170,6 @@
                 <li><button id="globalGuideBtn" class="dropdown-item" type="button"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>使い方</button></li>
                 <li><button id="historyBtn" class="dropdown-item" type="button"><i class="fas fa-clock-rotate-left me-2" aria-hidden="true"></i>この端末の履歴</button></li>
                 <li><button id="sampleDataBtn" class="dropdown-item" type="button"><i class="fas fa-wand-magic-sparkles me-2" aria-hidden="true"></i>サンプルデータ</button></li>
-                <li><button id="appearanceSettingsBtn" class="dropdown-item" type="button"><i class="fas fa-palette me-2" aria-hidden="true"></i>表示テーマ</button></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><button id="resetDataBtn" class="dropdown-item text-danger " type="button"><i class="fas fa-trash-can me-2" aria-hidden="true"></i>全てリセット</button></li>
               </ul>
@@ -355,7 +333,7 @@
                   条件</button>
                 <ul class="dropdown-menu dropdown-menu-end shadow">
                   <li><h6 class="dropdown-header">割り当て条件</h6></li>
-                  <li><div id="autoAssignSummary" class="dropdown-item-text small text-muted-dark-friendly">条件：なし</div></li>
+                  <li><div id="autoAssignSummary" class="dropdown-item-text small text-muted-readable">条件：なし</div></li>
                   <li>
                     <label class="dropdown-item">
                       <input type="checkbox" id="optFemale" class="form-check-input me-2" aria-label="女性の配置を考慮する">女子をまとめる</label>
@@ -659,123 +637,6 @@
       </div>
     </div>
 
-    <div class="modal fade" id="appearanceModal" tabindex="-1" aria-labelledby="appearanceModalTitle" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title modal-title--standard" id="appearanceModalTitle">
-              <i class="fas fa-palette me-2" aria-hidden="true"></i>表示テーマ
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
-          </div>
-          <div class="modal-body">
-            <div class="appearance-panel">
-              <section class="appearance-section" aria-label="プレビュー">
-                <div class="appearance-section-title">
-                  <h6>プレビュー</h6>
-                  <span id="appearanceCurrentThemeLabel">標準</span>
-                </div>
-                <div class="theme-simple-preview" aria-hidden="true">
-                  <div class="theme-preview-app-header">
-                    <span class="theme-preview-room">春企画</span>
-                    <span class="theme-preview-header-actions">
-                      <span>共有</span>
-                      <span>概要</span>
-                    </span>
-                  </div>
-                  <div class="theme-preview-sheet-title">
-                    <i class="fas fa-table-list" aria-hidden="true"></i>
-                    <span>車割 9名 / 班割 3班</span>
-                  </div>
-                  <div class="theme-preview-canvas">
-                    <section class="theme-preview-feature">
-                      <div class="theme-preview-feature-header">
-                        <span>車割</span>
-                        <em>3台</em>
-                      </div>
-                      <div class="theme-preview-mini-table">
-                        <div class="theme-preview-table-head">
-                          <span>佐藤車</span>
-                          <span>鈴木車</span>
-                        </div>
-                        <div class="theme-preview-table-body">
-                          <span class="theme-preview-name is-driver">佐藤</span>
-                          <span class="theme-preview-name is-driver">鈴木</span>
-                          <span class="theme-preview-name">田中</span>
-                          <span class="theme-preview-name">高橋</span>
-                        </div>
-                      </div>
-                    </section>
-                    <section class="theme-preview-feature">
-                      <div class="theme-preview-feature-header">
-                        <span>班割</span>
-                        <em>3班</em>
-                      </div>
-                      <div class="theme-preview-mini-table">
-                        <div class="theme-preview-table-head">
-                          <span>第1班</span>
-                          <span>第2班</span>
-                        </div>
-                        <div class="theme-preview-table-body">
-                          <span class="theme-preview-name is-driver">班長</span>
-                          <span class="theme-preview-name is-driver">班長</span>
-                          <span class="theme-preview-name">山本</span>
-                          <span class="theme-preview-name">伊藤</span>
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                  <div class="theme-preview-tabs">
-                    <span><i class="fas fa-people-group" aria-hidden="true"></i>車割・班割</span>
-                    <span class="active"><i class="fas fa-table-list" aria-hidden="true"></i>共有画面</span>
-                    <span><i class="fas fa-receipt" aria-hidden="true"></i>精算</span>
-                  </div>
-                </div>
-              </section>
-
-              <section class="appearance-section" aria-labelledby="appearanceModeTitle">
-                <div class="appearance-section-title">
-                  <h6 id="appearanceModeTitle">表示</h6>
-                  <span id="appearanceCurrentModeLabel">自動</span>
-                </div>
-                <div class="appearance-mode-group" role="group" aria-label="表示">
-                  <button class="appearance-mode-btn" type="button" data-appearance-mode="system"><i class="fas fa-circle-half-stroke" aria-hidden="true"></i><span>自動</span></button>
-                  <button class="appearance-mode-btn" type="button" data-appearance-mode="light"><i class="fas fa-sun" aria-hidden="true"></i><span>ライト</span></button>
-                  <button class="appearance-mode-btn" type="button" data-appearance-mode="dark"><i class="fas fa-moon" aria-hidden="true"></i><span>ダーク</span></button>
-                </div>
-              </section>
-
-              <section class="appearance-section" aria-labelledby="appearanceThemeTitle">
-                <div class="appearance-section-title">
-                  <h6 id="appearanceThemeTitle">テーマ</h6>
-                </div>
-                <div class="theme-choice-columns">
-                  <details class="theme-choice-toggle" data-theme-toggle="light">
-                    <summary class="theme-choice-summary">
-                      <span class="theme-choice-title">ライト</span>
-                      <em id="appearanceLightThemeLabel">標準</em>
-                      <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                    </summary>
-                    <div class="theme-preset-grid" data-theme-preset-list="light" aria-label="ライトテーマ"></div>
-                  </details>
-                  <details class="theme-choice-toggle" data-theme-toggle="dark">
-                    <summary class="theme-choice-summary">
-                      <span class="theme-choice-title">ダーク</span>
-                      <em id="appearanceDarkThemeLabel">標準</em>
-                      <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                    </summary>
-                    <div class="theme-preset-grid" data-theme-preset-list="dark" aria-label="ダークテーマ"></div>
-                  </details>
-                </div>
-              </section>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary btn-sm w-100 btn-accent-solid" data-bs-dismiss="modal">完了</button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Utility modals -->
     <div class="modal fade" id="routeDistanceModal" tabindex="-1" aria-labelledby="routeDistanceModalTitle" aria-hidden="true">
@@ -879,7 +740,6 @@
     <script src="./assets/js/modules/history.js"></script>
     <script src="./assets/js/modules/drag-cards.js"></script>
     <script src="./assets/js/modules/settlement.js"></script>
-    <script src="./assets/js/modules/theme-presets.js"></script>
     <!-- JS: settlement templates and feature modules; templates must load before render/facade. -->
     <script src="./assets/js/templates/settlement/00-template-utils.js"></script>
     <script src="./assets/js/templates/settlement/01-cost-parts.js"></script>
@@ -900,7 +760,6 @@
     <script src="./assets/js/features/settlement/06-share-text.js"></script>
     <script src="./assets/js/features/settlement.js"></script>
     <!-- JS: guide, share, lock, and assignment features -->
-    <script src="./assets/js/features/appearance.js"></script>
     <script src="./assets/js/templates/guide-content.js"></script>
     <script src="./assets/js/features/guides.js"></script>
     <script src="./assets/js/core/remote-guard.js"></script>

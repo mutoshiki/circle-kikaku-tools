@@ -1,0 +1,15 @@
+
+> circle-kikaku-tools@7.0.0-calm-workspace test:visual
+> playwright test tests/visual-regression.spec.js
+
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/visual-regression.spec.js:144:3 › settlement modal visual contract 360px (3.2s)
+  ✓  2 tests/visual-regression.spec.js:144:3 › settlement modal visual contract 390px (2.7s)
+  ✓  3 tests/visual-regression.spec.js:144:3 › settlement modal visual contract 430px (2.6s)
+  ✓  4 tests/visual-regression.spec.js:144:3 › settlement modal visual contract 768px (2.8s)
+  ✓  5 tests/visual-regression.spec.js:144:3 › settlement modal visual contract 1280px (2.6s)
+  ✓  6 tests/visual-regression.spec.js:144:3 › settlement modal visual contract 1440px (2.6s)
+
+  6 passed (17.8s)

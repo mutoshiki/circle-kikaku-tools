@@ -1,170 +1,40 @@
-.btn:active {
-  transform: translateY(1px);
+/* Bootstrap behavior bridges. Product tokens and focus styling live in their canonical owners. */
+:where(button, input, textarea, select, .form-select, .form-control, .modal-content, .dropdown-menu) {
+  letter-spacing: 0;
 }
-.btn-primary,
-.btn-accent-solid {
-  background-color: var(--accent-color);
-  border-color: var(--accent-color);
-  color: #fff;
+
+.form-select,
+.form-control {
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
 }
-.btn-primary:hover,
+
+.btn:active,
+.seisan-btn:active,
+.tool-btn:active { filter: brightness(0.97); }
+
 .btn-primary:focus-visible,
-.btn-accent-solid:hover,
 .btn-accent-solid:focus-visible {
-  background-color: color-mix(in srgb, var(--accent-color) 88%, #000);
-  border-color: color-mix(in srgb, var(--accent-color) 88%, #000);
-  color: #fff;
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: var(--color-white);
 }
+
 .btn-secondary,
 .btn-outline-secondary,
 .btn-outline-primary {
-  background-color: var(--bg-card);
+  background: var(--color-white);
   border-color: var(--border-color);
   color: var(--text-main);
+  box-shadow: none;
 }
+
 .btn-secondary:hover,
 .btn-secondary:focus-visible,
 .btn-outline-secondary:hover,
 .btn-outline-secondary:focus-visible,
 .btn-outline-primary:hover,
 .btn-outline-primary:focus-visible {
-  background-color: var(--hover-bg);
-  border-color: color-mix(in srgb, var(--accent-color) 20%, var(--border-color));
+  background: var(--hover-bg);
+  border-color: var(--border-strong);
   color: var(--text-main);
 }
-/* Bootstrap/control polish. Core palette values live in theme/00 + theme/01. */
-:root {
-    --surface-muted: #f8fafc;
-    --surface-elevated: rgba(255, 255, 255, 0.86);
-    --hairline: color-mix(in srgb, var(--border-color) 38%, transparent);
-    --focus-ring: color-mix(in srgb, var(--accent-color) 20%, transparent);
-}
-[data-theme="dark"] {
-    --surface-muted: #0f172a;
-    --surface-elevated: rgba(17, 24, 39, 0.86);
-    --hairline: rgba(148, 163, 184, 0.14);
-    --shadow-card: none;
-    --shadow-float: 0 18px 42px rgba(0, 0, 0, 0.28);
-}
-html,
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
-    font-size: 15px;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: geometricPrecision;
-}
-body {
-    background: var(--bg-body);
-}
-.btn,
-.form-control,
-.form-select,
-.dropdown-menu,
-.modal-content,
-button,
-input,
-select,
-textarea {
-    letter-spacing: -0.01em;
-}
-.btn,
-.form-control,
-.form-select,
-.seisan-btn,
-.view-tab,
-.tool-btn {
-    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, transform 120ms ease;
-}
-.btn:hover,
-.seisan-btn:hover,
-.header-action:hover,
-.view-tab:hover,
-.tool-btn:hover {
-    transform: translateY(-1px);
-}
-.btn:active,
-.seisan-btn:active,
-.header-action:active,
-.view-tab:active,
-.tool-btn:active {
-    transform: translateY(0);
-}
-.form-control,
-.form-select,
-input,
-select,
-textarea {
-    border-radius: var(--radius-sm);
-}
-.form-control:focus,
-.form-select:focus,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-button:focus-visible {
-    outline: 2px solid var(--focus-ring);
-    outline-offset: 2px;
-}
-.btn-primary,
-.btn-accent-solid {
-    background: var(--accent-color);
-    border-color: var(--accent-color);
-    box-shadow: 0 8px 18px color-mix(in srgb, var(--accent-color) 16%, transparent);
-}
-.btn-outline-secondary,
-.btn-outline-primary {
-    background: var(--bg-card);
-    border-color: var(--hairline);
-    color: var(--text-main);
-}
-.btn-outline-secondary:hover,
-.btn-outline-primary:hover {
-    background: var(--hover-bg);
-    border-color: color-mix(in srgb, var(--accent-color) 28%, var(--border-color));
-    color: var(--text-main);
-}
-/* =========================================================
-   CSS architecture tokens: radii, spacing, z-index and semantic status colors.
-========================================================= */
-:root {
-  --radius-xs: 6px;
-  --radius-md: var(--radius-main, 12px);
-  --radius-xl: 18px;
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --control-radius: 10px;
-  --control-gap: 8px;
-  --surface-subtle: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
-  --surface-raised: color-mix(in srgb, var(--bg-card) 96%, var(--bg-body));
-  --text-muted: var(--text-sub);
-  --status-split-text: #5f4b14;
-  --status-split-bg: #fff7d6;
-  --status-split-border: #ead28a;
-  --status-club-text: #295b43;
-  --status-club-bg: #e9f7ef;
-  --status-club-border: #b7dfc6;
-  --status-payment-text: #1d4f86;
-  --status-payment-bg: #e8f2ff;
-  --status-payment-border: #b9d7ff;
-  --z-header: 100;
-  --z-tray: 300;
-  --z-dropdown: 600;
-  --z-modal: 1000;
-  --z-drag: 10000;
-}
-[data-theme="dark"] {
-  --surface-subtle: color-mix(in srgb, var(--bg-card) 84%, #020617);
-  --surface-raised: color-mix(in srgb, var(--bg-card) 92%, #020617);
-  --status-split-text: #f8e7a2;
-  --status-split-bg: rgba(245, 158, 11, 0.16);
-  --status-split-border: rgba(245, 158, 11, 0.32);
-  --status-club-text: #b8f3cf;
-  --status-club-bg: rgba(34, 197, 94, 0.14);
-  --status-club-border: rgba(34, 197, 94, 0.30);
-  --status-payment-text: #bfdbfe;
-  --status-payment-bg: rgba(59, 130, 246, 0.16);
-  --status-payment-border: rgba(59, 130, 246, 0.34);
-}
-/* Shared semantic primitives used by component CSS. */

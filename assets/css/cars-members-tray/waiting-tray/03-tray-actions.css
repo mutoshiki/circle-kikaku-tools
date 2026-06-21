@@ -12,10 +12,6 @@ display: flex;
     gap: var(--tray-row-gap);
     min-width: 0;
 }
-.tray-action-btn {
-min-height: 34px;
-    border-radius: 999px;
-}
 @media (max-width: 640px) {
 .tray-inline-row,
 .tray-actions {
@@ -74,9 +70,11 @@ transition: none;
         animation: none;
 }
 }
-#bottom-tray,
 #tray-handle,
 #waiting-list {
+box-sizing: border-box;
+}
+#bottom-tray {
 box-sizing: border-box;
 }
 .tray-actions .btn {
@@ -107,7 +105,6 @@ gap: 8px;
 @media (max-width: 640px) {
 #bottom-tray {
 border-radius: 18px 18px 0 0;
-        box-shadow: 0 -12px 28px rgba(var(--shadow-rgb), 0.12);
 }
 }
 @media (max-width: 640px) {

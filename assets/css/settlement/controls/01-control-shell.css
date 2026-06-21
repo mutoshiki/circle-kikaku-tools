@@ -12,9 +12,6 @@ min-width: 34px;
 .seisan-add-row .seisan-btn {
 min-height: 34px; padding: 6px 8px; font-size: 0.76rem;
 }
-.seisan-btn.primary {
-background: var(--accent-color); color: var(--color-white); border-color: var(--accent-color);
-}
 .seisan-btn:active {
 transform: scale(0.98);
 }
@@ -29,12 +26,6 @@ font-size: 0.58rem;
 .seisan-mini-label {
 font-size: 0.54rem;
 }
-}
-[data-theme="dark"] .seisan-btn:not(.primary):not(.active):hover,
-[data-theme="dark"] .seisan-toggle:not(.active):hover,
-[data-theme="dark"] .seisan-icon-btn:hover {
-background: rgba(51, 65, 85, 0.92);
-    color: var(--color-white);
 }
 @media (max-width: 640px) {
 .seisan-head-actions .seisan-btn {
@@ -119,14 +110,8 @@ font-size: 0.72rem;
 }
 }
 .seisan-btn {
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background: var(--bg-card);
-  color: var(--text-main);
-  min-height: 38px;
   padding: 8px 10px;
   font-size: 0.82rem;
-  font-weight: 500;
   padding-left: 10px;
   padding-right: 10px;
 }

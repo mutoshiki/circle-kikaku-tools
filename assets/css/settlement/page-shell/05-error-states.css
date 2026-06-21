@@ -6,11 +6,8 @@
   white-space: nowrap;
 }
 .seisan-car-summary-total {
-  color: var(--text-main);
   font-size: 1.16rem;
   line-height: 1;
-  font-weight: 650;
-  letter-spacing: -0.035em;
   white-space: nowrap;
 }
 .seisan-car-summary-row .seisan-cost-preview-list {
@@ -29,10 +26,6 @@
   border: 0;
   border-radius: var(--radius-sm);
   background: var(--ui-surface-sunken);
-}
-[data-theme="dark"] .seisan-car-summary-payment,
-[data-theme="dark"] .seisan-car-summary-row .seisan-cost-preview-item {
-  background: rgba(var(--white-rgb), 0.04);
 }
 .seisan-car-summary-row .seisan-cost-preview-label {
   align-self: baseline;
@@ -60,30 +53,35 @@
 #seisan-view-area .seisan-car-summary-payment .seisan-payment-tag {
   transform: translateY(-1px);
 }
-[data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
-  box-shadow: inset 0 1px 0 rgba(var(--white-rgb), 0.06);
-}
 .seisan-alert,
 .seisan-car-summary-row.has-error {
   border-color: color-mix(in srgb, var(--ui-danger, var(--color-danger)) 54%, var(--ui-panel-border));
   background: color-mix(in srgb, var(--ui-danger-soft, rgba(239, 68, 68, 0.12)) 68%, var(--ui-panel-bg));
 }
-.car-box,
-.sheet-car-col,
-.sheet-wait-block,
 .seisan-car-summary-row {
   box-shadow: var(--ui-readable-shadow);
 }
-.capacity-badge,
-.grade-badge,
-.gender-badge,
-.sheet-capacity-badge,
-.sync-status-badge,
-.seisan-cost-policy-tag,
-.seisan-cost-type-badge,
-.seisan-payment-tag {
+.sheet-capacity-badge {
   border-width: 1px;
   box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.035);
+}
+.seisan-cost-type-badge {
+  border-width: 1px;
+}
+.seisan-cost-policy-tag {
+  border-width: 1px;
+}
+.seisan-payment-tag {
+  border-width: 1px;
+}
+.gender-badge {
+  border-width: 1px;
+}
+.grade-badge {
+  border-width: 1px;
+}
+.capacity-badge {
+  border-width: 1px;
 }
 #seisan-view-area .seisan-head-tools-only .seisan-head-actions {
   display: flex;
@@ -138,11 +136,6 @@
   color: var(--color-danger-deep);
   font-weight: 650;
 }
-[data-theme="dark"] #seisan-view-area .seisan-alert-row.is-guidance {
-  color: var(--palette-red-200);
-  background: rgba(127, 29, 29, 0.20);
-  border-color: rgba(248, 113, 113, 0.36);
-}
 #seisan-view-area .seisan-car-panel .seisan-head {
   margin-bottom: 7px;
   padding-bottom: 7px;
@@ -188,12 +181,8 @@
   padding: 2px 0;
   font-size: 0.68rem;
 }
-[data-theme="dark"] #seisan-view-area .seisan-car-summary-row.has-error {
-  background: color-mix(in srgb, rgba(127, 29, 29, 0.18) 58%, var(--bg-card));
-}
 @media (max-width: 640px) {
-#seisan-view-area .seisan-car-summary-payment,
-  [data-theme="dark"] #seisan-view-area .seisan-car-summary-payment {
+#seisan-view-area .seisan-car-summary-payment {
     min-height: auto;
     padding: 0;
   }

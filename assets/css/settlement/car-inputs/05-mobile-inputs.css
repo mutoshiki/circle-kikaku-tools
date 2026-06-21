@@ -80,12 +80,6 @@
   min-height: 39px;
   border-radius: 10px;
 }
-[data-theme="dark"] #settlementCarEditModal .seisan-car-inputs input,
-[data-theme="dark"] #settlementCarEditModal .seisan-extra-row input,
-[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select {
-  border-color: var(--ui-saas-border);
-  background: color-mix(in srgb, var(--bg-card) 80%, var(--color-night));
-}
 @media (max-width: 380px) {
 #settlementCarEditModal .modal-body {
     padding-inline: 12px;
@@ -111,65 +105,6 @@
     grid-column: 1 / 3;
   }
 }
-body[data-theme="dark"] #seisan-view-area .seisan-btn:not(.primary):not(.active),
-body[data-theme="dark"] #seisan-view-area .seisan-edit-btn,
-html[data-theme="dark"] #seisan-view-area .seisan-btn:not(.primary):not(.active),
-html[data-theme="dark"] #seisan-view-area .seisan-edit-btn {
-  background: color-mix(in srgb, var(--seisan-dark-panel-soft) 82%, var(--color-night));
-  border-color: var(--seisan-dark-line);
-  color: var(--seisan-dark-text);
-}
-body[data-theme="dark"] #seisan-view-area .seisan-btn:not(.primary):not(.active):hover,
-body[data-theme="dark"] #seisan-view-area .seisan-edit-btn:hover,
-html[data-theme="dark"] #seisan-view-area .seisan-btn:not(.primary):not(.active):hover,
-html[data-theme="dark"] #seisan-view-area .seisan-edit-btn:hover {
-  background: color-mix(in srgb, var(--accent-color) 20%, var(--seisan-dark-panel));
-  border-color: color-mix(in srgb, var(--accent-color) 46%, var(--seisan-dark-line));
-  color: var(--color-white);
-}
-body[data-theme="dark"] #settlementCarEditModal .settlement-edit-modal-content,
-html[data-theme="dark"] #settlementCarEditModal .settlement-edit-modal-content {
-  background: color-mix(in srgb, var(--bg-card) 94%, var(--color-night));
-  border-color: rgba(148, 163, 184, 0.26);
-  color: var(--text-main);
-  box-shadow: 0 28px 70px rgba(var(--black-rgb), 0.56);
-}
-body[data-theme="dark"] #settlementCarEditModal .modal-header,
-body[data-theme="dark"] #settlementCarEditModal .modal-footer,
-html[data-theme="dark"] #settlementCarEditModal .modal-header,
-html[data-theme="dark"] #settlementCarEditModal .modal-footer {
-  border-color: rgba(148, 163, 184, 0.20);
-}
-body[data-theme="dark"] #settlementCarEditModal,
-body[data-theme="dark"] #settlementCarEditModal .settlement-edit-modal-content,
-html[data-theme="dark"] #settlementCarEditModal,
-html[data-theme="dark"] #settlementCarEditModal .settlement-edit-modal-content {
-  color: var(--dark-ui-text);
-}
-body[data-theme="dark"] #settlementCarEditModal :where(.modal-title, .seisan-car-title strong, .seisan-subhead strong),
-html[data-theme="dark"] #settlementCarEditModal :where(.modal-title, .seisan-car-title strong, .seisan-subhead strong) {
-  color: var(--dark-ui-text);
-}
-body[data-theme="dark"] #settlementCarEditModal :where(.seisan-small, .seisan-mini-label),
-html[data-theme="dark"] #settlementCarEditModal :where(.seisan-small, .seisan-mini-label) {
-  color: var(--dark-ui-muted);
-}
-body[data-theme="dark"] #settlementCarEditModal .modal-title, body[data-theme="dark"] #settlementCarEditModal .seisan-car-title strong, body[data-theme="dark"] #settlementCarEditModal .seisan-subhead strong, html[data-theme="dark"] #settlementCarEditModal .modal-title, html[data-theme="dark"] #settlementCarEditModal .seisan-car-title strong, html[data-theme="dark"] #settlementCarEditModal .seisan-subhead strong {
-  color: var(--dark-ui-text);
-}
-body[data-theme="dark"] #settlementCarEditModal .seisan-small, body[data-theme="dark"] #settlementCarEditModal .seisan-mini-label, html[data-theme="dark"] #settlementCarEditModal .seisan-small, html[data-theme="dark"] #settlementCarEditModal .seisan-mini-label {
-  color: var(--dark-ui-muted);
-}
-body[data-theme="dark"] #settlementCarEditModal .seisan-car-inputs input, body[data-theme="dark"] #settlementCarEditModal .seisan-extra-row input, body[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select, html[data-theme="dark"] #settlementCarEditModal .seisan-car-inputs input, html[data-theme="dark"] #settlementCarEditModal .seisan-extra-row input, html[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select {
-  background: color-mix(in srgb, var(--bg-card) 78%, var(--color-night));
-  border-color: rgba(148, 163, 184, 0.32);
-  color: var(--dark-ui-text);
-  box-shadow: inset 0 1px 0 rgba(var(--white-rgb), 0.035);
-}
-body[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select option, html[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select option {
-  background: var(--bg-card);
-  color: var(--dark-ui-text);
-}
 #seisan-view-area .seisan-extra-plus {
   color: color-mix(in srgb, var(--text-sub) 76%, transparent);
   font-weight: 500;
@@ -194,10 +129,4 @@ body[data-theme="dark"] #settlementCarEditModal .seisan-extra-row select option,
 #settlementCarEditModal .seisan-standalone-driver-name-field input:focus {
   outline: 2px solid color-mix(in srgb, var(--accent-color) 26%, transparent);
   border-color: color-mix(in srgb, var(--accent-color) 54%, var(--border-color));
-}
-body[data-theme="dark"] #settlementCarEditModal .seisan-standalone-driver-name-field input,
-html[data-theme="dark"] #settlementCarEditModal .seisan-standalone-driver-name-field input {
-  background: var(--surface-elevated);
-  border-color: var(--border-muted);
-  color: var(--text-main);
 }

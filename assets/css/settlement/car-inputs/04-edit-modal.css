@@ -19,24 +19,6 @@
   font-weight: 500;
   line-height: 1;
 }
-[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-extra-slash,
-[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-extra-plus {
-  color: color-mix(in srgb, var(--text-sub) 82%, var(--text-main));
-}
-[data-theme="dark"] #seisan-view-area .seisan-driver-detail .seisan-extra-plus {
-  color: color-mix(in srgb, var(--text-sub) 82%, var(--text-main));
-}
-[data-theme="dark"] :is(
-  .sheet-seat-row.empty,
-  .sheet-seat-disabled,
-  .seat-slot.empty,
-  .seisan-empty,
-  .seisan-extra-empty
-) {
-  color: color-mix(in srgb, var(--text-sub) 80%, transparent);
-  border-color: color-mix(in srgb, var(--border-color) 60%, transparent);
-  background: color-mix(in srgb, var(--bg-body) 70%, var(--bg-card));
-}
 #settlementCarEditModal .settlement-edit-dialog--car {
   width: min(calc(100vw - 28px), 382px);
 }

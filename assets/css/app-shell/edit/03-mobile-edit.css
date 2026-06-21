@@ -32,20 +32,17 @@ min-height: 39px;
 }
 }
 @media (max-width: 640px) {
-.app-header-main {
-padding-left: 10px ;
-        padding-right: 10px ;
+.edit-header-tools-only.allocation-toolbar {
+margin: 8px 0 10px;
+padding-inline: 8px;
+}
+.allocation-toolbar-inner {
+min-height: 50px;
+padding: 6px;
 }
 }
 @media (hover: none) and (pointer: coarse) {
-.tool-btn,
-.view-tab {
+.tool-btn {
 min-height: 40px;
 }
-}
-.header-actions .header-more {
-display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
 }

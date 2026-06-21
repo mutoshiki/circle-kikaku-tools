@@ -119,11 +119,6 @@ font-weight: 600; font-size: 1rem; color: var(--text-main);
     border-left: 4px solid var(--accent-color); padding-left: 10px;
     margin-bottom: 16px;
 }
-.guide-feature-card {
-background: var(--bg-card); border: 1px solid var(--border-color);
-    border-radius: var(--radius-main); padding: 14px; 
-    box-shadow: var(--shadow-card);
-}
 .guide-feature-title {
 font-weight: 600; font-size: 0.88rem; color: var(--text-main);
     margin-bottom: 8px; display:flex; align-items:center; flex-wrap:wrap; gap:4px;
@@ -197,4 +192,6 @@ min-height: 34px;
 background: var(--seat-slot-bg);
     border: 1px dashed var(--border-color);
     border-radius: var(--radius-sm);
+}
+.guide-feature-card { padding: 14px; border:1px solid var(--border-color); border-radius:var(--radius-main); background:var(--color-white); box-shadow:none;
 }
