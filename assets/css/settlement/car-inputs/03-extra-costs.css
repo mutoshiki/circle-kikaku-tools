@@ -226,13 +226,6 @@
   box-shadow: none;
   white-space: nowrap;
 }
-.edit-header-tools-only,
 .batch-spreadsheet-import {
   background: var(--ui-panel-bg);
-}
-@media (max-width: 640px) {
-
-.edit-header-tools-only {
-    border-radius: var(--ui-panel-radius);
-  }
 }

@@ -138,9 +138,6 @@ padding-inline: 16px;
 .allocation-toolbar-inner {
 min-height: 50px;
 padding: 7px 8px;
-border: 1px solid var(--border-color);
-border-radius: var(--radius-lg);
-background: var(--color-white);
 box-shadow: none;
 }
 

@@ -31,11 +31,13 @@
   padding: 10px 14px;
 }
 
-#settlementSettingsModal .modal-header {
+#settlementSettingsModal .modal-header,
+#settlementCarEditModal .modal-header {
   border-bottom: 0;
 }
 
-#settlementSettingsModal .modal-footer {
+#settlementSettingsModal .modal-footer,
+#settlementCarEditModal .modal-footer {
   border-top: 0;
 }
 #settlementCarEditModal .modal-title {
