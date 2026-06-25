@@ -1,0 +1,71 @@
+name: Apply shared UI update
+
+on:
+  push:
+    branches:
+      - shared-ui-upload
+    paths:
+      - .github/shared-ui-upload/READY
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct update archive
+        run: |
+          cat .github/shared-ui-upload/text-part-* | base64 --decode > /tmp/shared-ui-text-changes.tar.gz
+          tar -tzf /tmp/shared-ui-text-changes.tar.gz
+
+      - name: Apply changes to clean main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout -B apply-shared-ui origin/main
+          tar -xzf /tmp/shared-ui-text-changes.tar.gz
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:visual:update
+      - run: npm run lint:css
+      - run: npm test
+      - run: npm run test:ui
+      - run: npm run test:visual
+
+      - name: Commit and push main
+        run: |
+          git add \
+            assets/css/app-shell/layout/01-app-frame.css \
+            assets/css/components/buttons/01-button-base.css \
+            assets/css/components/buttons/02-action-buttons.css \
+            assets/css/settlement/car-inputs/04-edit-modal.css \
+            assets/css/settlement/car-inputs/06-times-rental.css \
+            assets/css/settlement/controls/02-toggles.css \
+            assets/css/settlement/controls/03-settings.css \
+            assets/css/settlement/route-helper/01-route-shell.css \
+            assets/css/settlement/route-helper/02-route-stops.css \
+            assets/css/settlement/share/01-share-output.css \
+            assets/css/sheet-view/layout/02-sheet-car-table.css \
+            assets/js/templates/settlement/03-car-cost-templates.js \
+            assets/js/templates/sheet-templates.js \
+            index.html \
+            tests/root-owner-ui.spec.js \
+            tests/shared-ui-unification-check.js \
+            tests/visual-regression.spec.js \
+            tests/visual-regression.spec.js-snapshots/settlement-modal-*-saas-linux.png
+          git diff --cached --check
+          git commit -m "Unify shared screen UI styles"
+          git push origin HEAD:main
