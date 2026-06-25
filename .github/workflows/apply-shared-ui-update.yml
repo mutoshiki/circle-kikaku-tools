@@ -6,17 +6,25 @@ on:
       - shared-ui-upload
     paths:
       - .github/shared-ui-upload/READY
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
 
 permissions:
   contents: write
 
 jobs:
   apply:
+    if: github.head_ref == 'shared-ui-upload'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: shared-ui-upload
           fetch-depth: 0
 
       - name: Reconstruct update archive
