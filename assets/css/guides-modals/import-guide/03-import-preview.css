@@ -1,0 +1,9 @@
+/* Participant registration mock: calm */
+/* Guide polish: quieter buttons, neutral mockups, and shorter diagram surfaces. */
+/* Google Sheets-like guide mock: keep the blue selection blue throughout the application. */
+.import-preview-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-main);
+    background: var(--color-white);
+    box-shadow: none;
+}

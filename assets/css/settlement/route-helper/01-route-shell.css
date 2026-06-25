@@ -1,0 +1,152 @@
+/* Distance route helper: modal shell, panels, titles, and private home field. */
+#routeDistanceModal .route-helper-body {
+  max-height: min(66vh, 600px);
+  overflow-y: auto;
+  padding: 12px;
+}
+
+#routeDistanceModal .route-helper-dialog {
+  width: min(620px, calc(100vw - 28px));
+  max-width: min(620px, calc(100vw - 28px));
+  margin-inline: auto;
+}
+
+#routeDistanceModal .modal-content {
+  max-height: min(82vh, 720px);
+}
+
+#routeDistanceModal .modal-header {
+  border-bottom: 0;
+}
+
+#routeDistanceModal .modal-footer {
+  border-top: 0;
+}
+
+#routeDistanceModal .route-helper-panel {
+  display: grid;
+  gap: 10px;
+}
+
+#routeDistanceModal :is(.route-stop-panel, .route-candidate-panel) {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--ui-saas-border, var(--border-color)) 72%, transparent);
+  border-radius: var(--radius-main);
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  box-shadow: none;
+}
+
+#routeDistanceModal .route-location-privacy-note {
+  margin: -1px 0 8px;
+  padding: 0 2px;
+  color: var(--text-sub);
+  font-size: 0.70rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+#routeDistanceModal .route-helper-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+#routeDistanceModal .route-helper-title {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+#routeDistanceModal .route-helper-title i {
+  color: var(--text-sub);
+  font-size: 0.86em;
+}
+
+#routeDistanceModal .route-helper-subtitle {
+  color: var(--text-sub);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: normal;
+  text-align: right;
+}
+
+#routeDistanceModal .route-helper-note {
+  color: var(--text-sub);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+#routeDistanceModal .route-helper-actions {
+  margin-top: 2px;
+}
+
+#routeDistanceModal .route-helper-actions .seisan-btn {
+  width: 100%;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+#routeDistanceModal .route-helper-actions .seisan-btn i {
+  margin: 0;
+}
+
+#routeDistanceModal .route-helper-status {
+  min-height: 1.2em;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  #routeDistanceModal .route-stop-input {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  #routeDistanceModal .route-helper-dialog {
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+    margin: 12px auto;
+  }
+
+  #routeDistanceModal .modal-content {
+    max-height: calc(100dvh - 24px);
+    border-radius: 18px;
+  }
+
+  #routeDistanceModal .route-helper-body {
+    max-height: calc(100dvh - 164px);
+    padding: 10px;
+  }
+
+  #routeDistanceModal .route-helper-panel {
+    gap: 9px;
+  }
+
+  #routeDistanceModal .route-helper-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  #routeDistanceModal .route-helper-subtitle {
+    text-align: left;
+  }
+
+}

@@ -1,0 +1,107 @@
+/* Person-card structure and interaction states. Visual surface is shared. */
+.member-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  min-height: 48px;
+  padding: 7px 8px;
+  gap: 6px;
+  color: var(--text-main);
+  box-sizing: border-box;
+  cursor: grab;
+  font-size: 0.82rem;
+  font-weight: 500;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.seat-slot > .member-card {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  touch-action: pan-y;
+}
+
+.member-card:hover {
+  cursor: grab;
+}
+
+.member-card:active,
+.member-card.manual-drag-source {
+  cursor: grabbing;
+}
+
+.member-card[data-locked="true"] {
+  border-color: color-mix(in srgb, var(--color-warning) 50%, var(--ui-saas-border, var(--border-color)));
+  background: color-mix(in srgb, var(--color-warning) 6%, var(--bg-card));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-warning) 16%, transparent);
+}
+
+.member-card-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.member-inline-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.member-inline-actions .action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+.member-card.in-waiting {
+  min-height: 48px;
+  padding: 7px 8px;
+}
+
+.member-card.in-waiting .member-card-row {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+
+.member-card.in-waiting .member-inline-actions {
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.member-card.in-waiting .member-action-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.member-card.in-waiting .delete-btn-overlay:hover {
+  color: var(--color-danger);
+}
+
+@media (max-width: 640px) {
+  .member-card,
+  .seat-slot > .member-card,
+  .member-card.in-waiting {
+    min-height: 52px;
+  }
+
+  .member-inline-actions .action-btn {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+  }
+}

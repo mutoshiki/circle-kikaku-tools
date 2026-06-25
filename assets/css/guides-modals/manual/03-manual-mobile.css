@@ -1,0 +1,27 @@
+@media (max-width: 640px) {
+  #userGuideModal .modal-dialog {
+    width: 100%;
+    min-height: calc(100dvh - 20px);
+    margin: 0;
+    max-width: 100%;
+  }
+
+  #userGuideModal .modal-content {
+    height: calc(100dvh - 20px);
+    max-height: calc(100dvh - 20px);
+    border-radius: var(--radius-xl);
+  }
+
+  .user-manual-intro,
+  .user-manual-section {
+    padding: 20px 16px;
+  }
+
+  .user-manual-nav {
+    padding-inline: 12px;
+  }
+
+  .user-manual p {
+    font-size: 0.84rem;
+  }
+}

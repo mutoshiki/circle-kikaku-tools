@@ -1,0 +1,344 @@
+{
+  "generatedAt": "2026-06-21T14:27:50.694Z",
+  "browser": "144.0.7559.96",
+  "screenshots": [
+    "empty-sheet-saas-desktop-1280-1280x720-top-dpr1.png",
+    "list-car-saas-desktop-1280-1280x720-top-dpr1.png",
+    "list-car-saas-desktop-1280-1280x720-mid-dpr1.png",
+    "list-car-saas-desktop-1280-1280x720-bottom-dpr1.png",
+    "sheet-saas-desktop-1280-1280x720-top-dpr1.png",
+    "sheet-saas-desktop-1280-1280x720-mid-dpr1.png",
+    "sheet-saas-desktop-1280-1280x720-bottom-dpr1.png",
+    "settlement-saas-desktop-1280-1280x720-top-dpr1.png",
+    "settlement-saas-desktop-1280-1280x720-mid-dpr1.png",
+    "settlement-saas-desktop-1280-1280x720-bottom-dpr1.png",
+    "list-team-saas-desktop-1280-1280x720-top-dpr1.png",
+    "list-team-saas-desktop-1280-1280x720-mid-dpr1.png",
+    "list-team-saas-desktop-1280-1280x720-bottom-dpr1.png",
+    "sheet-quick-edit-saas-desktop-1280-1280x720-top-dpr1.png",
+    "sheet-quick-edit-saas-desktop-1280-1280x720-mid-dpr1.png",
+    "sheet-quick-edit-saas-desktop-1280-1280x720-bottom-dpr1.png",
+    "overview-drawer-saas-desktop-1280-1280x720-top-dpr1.png",
+    "overview-drawer-saas-desktop-1280-1280x720-bottom-dpr1.png",
+    "header-menu-saas-desktop-1280-1280x720-top-dpr1.png",
+    "batch-import-modal-saas-desktop-1280-1280x720-top-dpr1.png",
+    "batch-import-modal-saas-desktop-1280-1280x720-mid-dpr1.png",
+    "batch-import-modal-saas-desktop-1280-1280x720-bottom-dpr1.png",
+    "global-guide-modal-saas-desktop-1280-1280x720-top-dpr1.png",
+    "global-guide-modal-saas-desktop-1280-1280x720-bottom-dpr1.png",
+    "settlement-settings-modal-saas-desktop-1280-1280x720-top-dpr1.png",
+    "settlement-settings-modal-saas-desktop-1280-1280x720-bottom-dpr1.png",
+    "settlement-car-modal-saas-desktop-1280-1280x720-top-dpr1.png",
+    "settlement-car-modal-saas-desktop-1280-1280x720-mid-dpr1.png",
+    "settlement-car-modal-saas-desktop-1280-1280x720-bottom-dpr1.png",
+    "route-helper-modal-saas-desktop-1280-1280x720-top-dpr1.png",
+    "route-helper-modal-saas-desktop-1280-1280x720-bottom-dpr1.png",
+    "settlement-missing-saas-desktop-1280-1280x720-top-dpr1.png",
+    "settlement-missing-saas-desktop-1280-1280x720-mid-dpr1.png",
+    "settlement-missing-saas-desktop-1280-1280x720-bottom-dpr1.png"
+  ],
+  "console": [],
+  "requestFailures": [],
+  "metrics": [
+    {
+      "state": "empty-sheet",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": {
+        "selector": "#sheet-view-area",
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 613,
+        "clientHeight": 613,
+        "overflowX": false,
+        "overflowY": false
+      },
+      "offscreen": []
+    },
+    {
+      "state": "list-car",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": {
+        "selector": "#top-area",
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 460,
+        "clientHeight": 339,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "sheet",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": {
+        "selector": "#sheet-view-area",
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 1187,
+        "clientHeight": 613,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "settlement",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": {
+        "selector": "#seisan-view-area",
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 2031,
+        "clientHeight": 613,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "list-team",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": {
+        "selector": "#top-area",
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 460,
+        "clientHeight": 395,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "sheet-quick-edit",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": {
+        "selector": "#sheet-view-area",
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 1358,
+        "clientHeight": 613,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "overview-drawer",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": {
+        "selector": "#overviewDrawer .overview-drawer-body",
+        "scrollWidth": 307,
+        "clientWidth": 307,
+        "scrollHeight": 657,
+        "clientHeight": 641,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "header-menu",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": null,
+      "offscreen": []
+    },
+    {
+      "state": "batch-import-modal",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": {
+        "selector": "#batchImportModal .modal-body",
+        "scrollWidth": 918,
+        "clientWidth": 918,
+        "scrollHeight": 831,
+        "clientHeight": 560,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "global-guide-modal",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": {
+        "selector": "#globalGuideModal .modal-body",
+        "scrollWidth": 918,
+        "clientWidth": 918,
+        "scrollHeight": 855,
+        "clientHeight": 564,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "settlement-settings-modal",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": {
+        "selector": "#settlementSettingsModal .modal-body",
+        "scrollWidth": 720,
+        "clientWidth": 720,
+        "scrollHeight": 485,
+        "clientHeight": 485,
+        "overflowX": false,
+        "overflowY": false
+      },
+      "offscreen": []
+    },
+    {
+      "state": "settlement-car-modal",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": {
+        "selector": "#settlementCarEditModal .modal-body",
+        "scrollWidth": 382,
+        "clientWidth": 382,
+        "scrollHeight": 411,
+        "clientHeight": 411,
+        "overflowX": false,
+        "overflowY": false
+      },
+      "offscreen": []
+    },
+    {
+      "state": "route-helper-modal",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": {
+        "selector": "#routeDistanceModal .modal-body",
+        "scrollWidth": 618,
+        "clientWidth": 618,
+        "scrollHeight": 374,
+        "clientHeight": 374,
+        "overflowX": false,
+        "overflowY": false
+      },
+      "offscreen": []
+    },
+    {
+      "state": "settlement-missing",
+      "variant": "saas",
+      "size": "desktop-1280",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 720,
+        "clientHeight": 720
+      },
+      "root": {
+        "selector": "#seisan-view-area",
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 2148,
+        "clientHeight": 613,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    }
+  ]
+}

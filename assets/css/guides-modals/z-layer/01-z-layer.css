@@ -1,0 +1,39 @@
+/* Canonical modal stacking and viewport positioning. */
+.modal-backdrop {
+  z-index: var(--z-modal-backdrop);
+}
+
+.modal {
+  z-index: var(--z-modal);
+  padding: 12px;
+}
+
+.modal.show .modal-dialog,
+.modal.fade .modal-dialog {
+  display: flex;
+  width: min(100%, 720px);
+  min-height: calc(100dvh - 32px);
+  margin: auto;
+  align-items: center;
+  max-width: calc(100vw - 32px);
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .modal {
+    padding: 10px;
+  }
+
+  .modal.show .modal-dialog,
+  .modal.fade .modal-dialog,
+  .modal-dialog.modal-lg,
+  .modal-dialog.modal-xl {
+    width: 100%;
+    min-height: calc(100dvh - 20px);
+    max-width: calc(100vw - 20px);
+  }
+
+  .modal-content {
+    max-height: calc(100dvh - 20px);
+  }
+}

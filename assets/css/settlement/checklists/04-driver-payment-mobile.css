@@ -1,0 +1,21 @@
+#seisan-view-area .seisan-check-name,
+#seisan-view-area .seisan-driver-name {
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+#seisan-view-area .seisan-check-item.paid, #seisan-view-area .seisan-driver-pay-row.done {
+  border-color: color-mix(in srgb, var(--accent-color) 32%, var(--ui-saas-border));
+  background: color-mix(in srgb, var(--accent-color) 9%, var(--bg-card));
+}
+#seisan-view-area .seisan-driver-name,
+#seisan-view-area .seisan-check-name,
+#seisan-view-area .seisan-driver-amount {
+  font-weight: 650;
+}
+#seisan-view-area .seisan-check-item, #seisan-view-area .seisan-driver-pay-row {
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 84%, var(--text-sub) 16%);
+  background: var(--ui-saas-panel-raised);
+  box-shadow: none;
+  border-color: var(--ui-saas-border);
+}

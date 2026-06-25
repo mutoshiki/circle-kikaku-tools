@@ -1,0 +1,60 @@
+/* Application shell header: frame and primary row layout. */
+#app-header {
+  position: relative;
+  z-index: var(--z-header);
+  display: grid;
+  flex: 0 0 auto;
+  gap: 0;
+  width: 100%;
+  min-width: 0;
+  padding: 0 12px;
+  overflow: visible;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 62%, transparent);
+  border-radius: 0;
+  background: var(--color-white);
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.app-header-main {
+  position: static;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 1200px;
+  min-width: 0;
+  min-height: 56px;
+  margin-inline: auto;
+  padding: 8px 16px;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: var(--color-white);
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.app-header-main > .app-brand {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.app-header-main > .header-actions {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  #app-header {
+    padding: max(4px, env(safe-area-inset-top)) 0 0;
+  }
+
+  .app-header-main {
+    min-height: 58px;
+    padding: 6px 10px;
+    gap: 8px;
+  }
+}

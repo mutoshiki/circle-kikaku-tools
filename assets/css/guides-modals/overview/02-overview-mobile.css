@@ -1,0 +1,50 @@
+@media (max-width: 640px) {
+  .overview-drawer {
+    width: min(88vw, 360px);
+    padding: 14px 14px max(16px, env(safe-area-inset-bottom));
+    border: 0;
+    border-radius: 0;
+    transform: translateX(104%);
+  }
+
+  .overview-drawer.is-open {
+    transform: translateX(0);
+  }
+
+  .overview-drawer-body {
+    gap: 20px;
+  }
+
+  .overview-drawer .overview-textarea,
+  .overview-drawer .overview-copy-action {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .overview-drawer .overview-textarea {
+    resize: none;
+  }
+
+  .overview-drawer .overview-mini-action,
+  .overview-drawer .overview-copy-action,
+  .overview-drawer .overview-row-delete,
+  .overview-drawer-close {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 380px) {
+  .overview-drawer {
+    width: min(94vw, 350px);
+    padding-inline: 12px;
+  }
+
+  .overview-drawer .overview-timetable-row {
+    grid-template-columns: minmax(0, 66px) minmax(0, 1fr) 40px;
+    gap: 6px;
+  }
+
+  .overview-drawer .overview-timetable-row input[data-field="time"] {
+    width: 66px;
+  }
+}

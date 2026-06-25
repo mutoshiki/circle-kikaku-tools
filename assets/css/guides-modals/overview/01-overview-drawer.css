@@ -1,0 +1,194 @@
+/* Canonical overview drawer and timetable controls. */
+.overview-drawer-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-backdrop);
+  background: rgba(var(--shadow-rgb), 0.3);
+  backdrop-filter: blur(2px);
+}
+
+.overview-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  width: min(86vw, 340px);
+  height: 100dvh;
+  padding: 18px 16px max(18px, env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  border: 0;
+  outline: 0;
+  background: var(--bg-card);
+  color: var(--text-main);
+  box-shadow: -14px 0 36px color-mix(in srgb, var(--text-main) 14%, transparent);
+  visibility: hidden;
+  transform: translateX(104%);
+  pointer-events: none;
+  transition: transform 0.24s ease, visibility 0s linear 0.24s;
+}
+
+.overview-drawer.is-open {
+  visibility: visible;
+  transform: translateX(0);
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.overview-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border: 0;
+  background: transparent;
+}
+
+.overview-drawer-head--compact {
+  justify-content: flex-end;
+  min-height: 0;
+}
+
+.overview-drawer-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-main);
+  background: transparent;
+  color: var(--text-sub);
+  box-shadow: none;
+}
+
+.overview-drawer-close:hover {
+  background: var(--hover-bg);
+  color: var(--text-main);
+}
+
+.overview-drawer-close i {
+  font-size: 1.2rem;
+}
+
+.overview-drawer-body {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  padding: 0 0 4px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.overview-panel {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.overview-panel h3 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 0.94rem;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.overview-drawer .overview-panel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+}
+
+.overview-textarea {
+  width: 100%;
+  min-height: 112px;
+  padding: 10px 11px;
+  resize: vertical;
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius-compact);
+  background: var(--control-tertiary-bg);
+  color: var(--text-main);
+  box-shadow: none;
+  font: inherit;
+  font-size: 0.94rem;
+  line-height: 1.65;
+}
+
+.overview-textarea:focus {
+  border-color: var(--accent-color);
+  box-shadow: var(--control-focus-ring);
+  outline: 0;
+}
+
+.overview-drawer .overview-mini-action,
+.overview-drawer .overview-copy-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-main);
+  background: var(--control-tertiary-bg);
+  color: var(--text-main);
+  box-shadow: none;
+  font-size: 0.86rem;
+  font-weight: 650;
+}
+
+.overview-drawer .overview-copy-action {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.overview-drawer .overview-mini-action:hover,
+.overview-drawer .overview-copy-action:hover {
+  background: var(--control-tertiary-hover);
+  color: var(--text-main);
+}
+
+.overview-drawer .overview-row-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-main);
+  background: transparent;
+  color: var(--text-sub);
+  box-shadow: none;
+}
+
+.overview-drawer .overview-row-delete:hover {
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  color: var(--color-danger-text);
+}
+
+body.overview-drawer-open {
+  overflow: hidden;
+}

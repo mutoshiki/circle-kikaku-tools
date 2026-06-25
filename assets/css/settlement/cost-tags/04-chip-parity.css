@@ -1,0 +1,16 @@
+/* Dark settlement chip haze removal.
+   Summary and car-settlement chips share the same darker, non-frosted surfaces. */
+/* Summary payment icon color alignment.
+   The pay chip stays blue, but the car icon beside it should use the same
+   neutral summary text color as the other summary icons. */
+body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label,
+body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label > i {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label > .seisan-payment-tag {
+  color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
+  -webkit-text-fill-color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
+  background: var(--settlement-pay-bg-fixed, var(--settlement-pay-bg));
+  border-color: var(--settlement-pay-line-fixed, var(--settlement-pay-line));
+}

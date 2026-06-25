@@ -1,0 +1,187 @@
+/* Sheet view waiting and unassigned members.
+   CSS architecture cleanup: keep this file focused on the responsibility in its name. */
+.sheet-dropzone,
+.sheet-waiting-list {
+width: 100%;
+    min-height: 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.sheet-waiting-list {
+justify-content: flex-start;
+}
+.sheet-chip *,
+.sheet-dropzone *,
+.sheet-waiting-list * {
+-webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+.sheet-wait-body {
+display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    background: var(--bg-card);
+}
+.sheet-wait-item {
+min-height: 38px;
+    border: 0;
+    border-bottom: 1px solid var(--sheet-grid);
+    padding: 6px 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.sheet-wait-item.empty {
+color: var(--text-sub);
+    justify-content: center;
+    font-size: 0.78rem;
+}
+.sheet-wait-block {
+  flex: 0 0 150px;
+  width: 150px;
+  margin-top: 0;
+  border-left: none;
+}
+.sheet-seat-row {
+    min-height: 40px;
+}
+@media (max-width: 640px) {
+    #sheet-title-bar {
+        top: 8px;
+        left: 8px;
+        right: 8px;
+        min-height: 52px;
+        /* Use unified main radius for the title bar */
+    }
+
+    #sheet-canvas {
+        top: 70px;
+        padding: 12px 10px 100px;
+    }
+
+    .sheet-car-col,
+    .sheet-wait-block {
+        min-width: 136px;
+        margin-right: 7px;
+        border-radius: 14px;
+    }
+
+    #sheet-bottom-controls {
+        bottom: 14px;
+        border-radius: 18px;
+    }
+}
+/* Keep names aligned even when grade is blank. */
+.sheet-grade-placeholder,
+.sheet-seat-row .grade-badge,
+.sheet-wait-item .grade-badge,
+.sheet-chip .grade-badge,
+.sheet-driver-row .grade-badge {
+    flex: 0 0 2.35em;
+    width: 2.35em;
+    min-width: 2.35em;
+    justify-content: center;
+    text-align: center;
+}
+#sheet-view-area .sheet-car-col,
+#sheet-view-area .sheet-wait-block {
+  overflow: hidden;
+}
+#sheet-view-area .sheet-car-header,
+#sheet-view-area .sheet-wait-header,
+#sheet-view-area .sheet-driver-row,
+#sheet-view-area .sheet-seat-row,
+#sheet-view-area .sheet-wait-item {
+  border-radius: 0;
+  box-shadow: none;
+}
+#sheet-view-area .sheet-driver-row,
+#sheet-view-area .sheet-seat-row,
+#sheet-view-area .sheet-wait-item {
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  border-bottom: 1px solid var(--ui-readable-divider);
+}
+#sheet-view-area .sheet-car-col > :last-child,
+#sheet-view-area .sheet-wait-body > :last-child,
+#sheet-view-area .sheet-waiting-list > :last-child {
+  border-bottom: 0;
+}
+#sheet-view-area .sheet-seat-row,
+#sheet-view-area .sheet-wait-item {
+  background: var(--ui-surface-bg-inner);
+}
+#sheet-view-area .sheet-driver-row:not(.sheet-label-row),
+#sheet-view-area .sheet-seat-row:not(.sheet-label-row):not(.empty):not(.sheet-seat-disabled),
+#sheet-view-area .sheet-wait-item:not(.empty) {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 6px;
+}
+#sheet-view-area .sheet-seat-row > .grade-badge,
+#sheet-view-area .sheet-seat-row > .sheet-grade-placeholder,
+#sheet-view-area .sheet-wait-item > .grade-badge,
+#sheet-view-area .sheet-wait-item > .sheet-grade-placeholder {
+  grid-column: 1;
+}
+#sheet-view-area .sheet-seat-row > .sheet-cell-text,
+#sheet-view-area .sheet-wait-item > .sheet-cell-text {
+  grid-column: 2;
+  min-width: 0;
+}
+.grade-badge.grade-male,
+.sheet-seat-row .grade-badge.grade-male,
+.sheet-wait-item .grade-badge.grade-male {
+  background: color-mix(in srgb, var(--palette-blue-100) 62%, var(--bg-card));
+  border-color: rgba(80, 137, 192, 0.32);
+  color: var(--palette-376b95);
+}
+.grade-badge.grade-female,
+.sheet-seat-row .grade-badge.grade-female,
+.sheet-wait-item .grade-badge.grade-female {
+  background: color-mix(in srgb, var(--palette-rose-100) 60%, var(--bg-card));
+  border-color: rgba(190, 92, 117, 0.32);
+  color: var(--palette-a84a66);
+}
+.sheet-car-col {
+  min-width: 132px;
+  border-color: var(--ui-saas-border);
+  margin-right: 8px;
+}
+.sheet-wait-block {
+  min-width: 132px;
+  border-color: var(--ui-saas-border);
+  margin-right: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-main);
+  background: var(--color-white);
+  box-shadow: none;
+}
+.sheet-wait-header {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border-color: var(--border-section);
+    background: var(--surface-muted);
+    color: var(--text-main);
+    font-weight: 600;
+}
+.sheet-wait-item {
+    min-height: 40px;
+    border-color: var(--border-item);
+    border-radius: 0;
+    background: var(--color-white);
+}
+.sheet-wait-item:hover {
+background: var(--surface-hover);
+}

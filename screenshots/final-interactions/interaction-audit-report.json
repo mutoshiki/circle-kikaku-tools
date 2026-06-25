@@ -1,0 +1,262 @@
+{
+  "generatedAt": "2026-06-21T14:31:24.579Z",
+  "screenshots": [
+    "hover-primary-mobile-390.png",
+    "focus-header-mobile-390.png",
+    "disabled-primary-mobile-390.png",
+    "active-primary-mobile-390.png",
+    "selected-and-hover-tab-mobile-390.png",
+    "person-menu-mobile-390.png",
+    "drag-in-progress-mobile-390.png",
+    "long-content-list-mobile-390.png",
+    "long-amount-settlement-mobile-390.png",
+    "common-edit-modal-mobile-390.png",
+    "car-guide-modal-mobile-390.png",
+    "settlement-guide-modal-mobile-390.png",
+    "history-modal-mobile-390.png",
+    "debug-modal-mobile-390.png",
+    "hover-primary-desktop-1280.png",
+    "focus-header-desktop-1280.png",
+    "disabled-primary-desktop-1280.png",
+    "active-primary-desktop-1280.png",
+    "selected-and-hover-tab-desktop-1280.png",
+    "person-menu-desktop-1280.png",
+    "drag-in-progress-desktop-1280.png",
+    "long-content-list-desktop-1280.png",
+    "long-amount-settlement-desktop-1280.png",
+    "common-edit-modal-desktop-1280.png",
+    "car-guide-modal-desktop-1280.png",
+    "settlement-guide-modal-desktop-1280.png",
+    "history-modal-desktop-1280.png",
+    "debug-modal-desktop-1280.png"
+  ],
+  "console": [],
+  "requestFailures": [],
+  "states": [
+    {
+      "size": "mobile-390",
+      "state": "hover-primary",
+      "active": "BODY#.view-mode-list",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "mobile-390",
+      "state": "focus-header",
+      "active": "BUTTON#overviewMenuBtn.header-action overview-menu-toggle",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "mobile-390",
+      "state": "disabled-primary",
+      "active": "BUTTON#overviewMenuBtn.header-action overview-menu-toggle",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "mobile-390",
+      "state": "active-primary",
+      "active": "BUTTON#batchOpenBtn.btn tool-btn",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "mobile-390",
+      "state": "selected-and-hover-tab",
+      "active": "BUTTON#batchOpenBtn.btn tool-btn",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "mobile-390",
+      "state": "person-menu",
+      "active": "BUTTON#.member-menu-btn action-btn",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "mobile-390",
+      "state": "drag-in-progress",
+      "active": "BODY#.view-mode-list manual-card-dragging",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list manual-card-dragging"
+    },
+    {
+      "size": "mobile-390",
+      "state": "long-content-list",
+      "active": "BODY#.view-mode-list",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "mobile-390",
+      "state": "long-amount-settlement",
+      "active": "BODY#.view-mode-seisan",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-seisan"
+    },
+    {
+      "size": "mobile-390",
+      "state": "common-edit-modal",
+      "active": "INPUT#editModalInput.form-control",
+      "documentOverflowX": false,
+      "openModal": "commonEditModal",
+      "bodyClasses": "view-mode-seisan modal-open"
+    },
+    {
+      "size": "mobile-390",
+      "state": "car-guide-modal",
+      "active": "DIV#guideModal.modal fade show",
+      "documentOverflowX": false,
+      "openModal": "guideModal",
+      "bodyClasses": "view-mode-seisan modal-open"
+    },
+    {
+      "size": "mobile-390",
+      "state": "settlement-guide-modal",
+      "active": "DIV#seisanGuideModal.modal fade show",
+      "documentOverflowX": false,
+      "openModal": "seisanGuideModal",
+      "bodyClasses": "view-mode-seisan modal-open"
+    },
+    {
+      "size": "mobile-390",
+      "state": "history-modal",
+      "active": "DIV#historyModal.modal fade show",
+      "documentOverflowX": false,
+      "openModal": "historyModal",
+      "bodyClasses": "view-mode-seisan modal-open"
+    },
+    {
+      "size": "mobile-390",
+      "state": "debug-modal",
+      "active": "DIV#debugModal.modal fade show",
+      "documentOverflowX": false,
+      "openModal": "debugModal",
+      "bodyClasses": "view-mode-seisan modal-open"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "hover-primary",
+      "active": "BODY#.view-mode-list",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "focus-header",
+      "active": "BUTTON#overviewMenuBtn.header-action overview-menu-toggle",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "disabled-primary",
+      "active": "BUTTON#overviewMenuBtn.header-action overview-menu-toggle",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "active-primary",
+      "active": "BUTTON#batchOpenBtn.btn tool-btn",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "selected-and-hover-tab",
+      "active": "BUTTON#batchOpenBtn.btn tool-btn",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "person-menu",
+      "active": "BUTTON#.member-menu-btn action-btn",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "drag-in-progress",
+      "active": "BODY#.view-mode-list manual-card-dragging",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list manual-card-dragging"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "long-content-list",
+      "active": "BODY#.view-mode-list",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-list"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "long-amount-settlement",
+      "active": "BODY#.view-mode-seisan",
+      "documentOverflowX": false,
+      "openModal": "",
+      "bodyClasses": "view-mode-seisan"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "common-edit-modal",
+      "active": "INPUT#editModalInput.form-control",
+      "documentOverflowX": false,
+      "openModal": "commonEditModal",
+      "bodyClasses": "view-mode-seisan modal-open"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "car-guide-modal",
+      "active": "DIV#guideModal.modal fade show",
+      "documentOverflowX": false,
+      "openModal": "guideModal",
+      "bodyClasses": "view-mode-seisan modal-open"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "settlement-guide-modal",
+      "active": "DIV#seisanGuideModal.modal fade show",
+      "documentOverflowX": false,
+      "openModal": "seisanGuideModal",
+      "bodyClasses": "view-mode-seisan modal-open"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "history-modal",
+      "active": "DIV#historyModal.modal fade show",
+      "documentOverflowX": false,
+      "openModal": "historyModal",
+      "bodyClasses": "view-mode-seisan modal-open"
+    },
+    {
+      "size": "desktop-1280",
+      "state": "debug-modal",
+      "active": "DIV#debugModal.modal fade show",
+      "documentOverflowX": false,
+      "openModal": "debugModal",
+      "bodyClasses": "view-mode-seisan modal-open"
+    }
+  ],
+  "browser": "144.0.7559.96"
+}

@@ -1,0 +1,117 @@
+@media (max-width: 520px) {
+.edit-tools {
+grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 5px;
+}
+}
+@media (max-width: 520px) {
+.edit-tools .tool-btn {
+min-width: 0;
+        padding: 6px 2px;
+}
+}
+@media (max-width: 520px) {
+.edit-tools .tool-btn span {
+font-size: 0.58rem;
+}
+}
+@media (max-width: 520px) {
+.edit-add-row {
+grid-template-columns: minmax(0, 1fr) 82px;
+}
+}
+@media (max-width: 520px) {
+.edit-options-row {
+grid-template-columns: minmax(0, 1fr) 84px;
+}
+}
+@media (max-width: 520px) {
+.edit-add-btn {
+width: 100%;
+}
+}
+#top-area > .d-flex:first-child {
+background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-main);
+            box-shadow: var(--shadow-card);
+            padding: 8px;
+}
+.app-subtitle {
+color: var(--text-sub);
+    font-size: 0.68rem;
+    line-height: 1.25;
+    font-weight: 700;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.edit-tools {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.edit-project-input-row i {
+  color: var(--accent-color);
+  font-size: 1rem;
+}
+@media (max-width: 640px) {
+.app-brand-mark {
+width: 34px; height: 34px;
+}
+}
+@media (max-width: 640px) {
+.app-header-illustration {
+width: 92px; height: 40px;
+}
+}
+@media (max-width: 640px) {
+.app-subtitle {
+font-size: 0.64rem;
+}
+}
+@media (max-width: 640px) {
+.edit-header {
+grid-template-columns: 1fr;
+}
+}
+@media (max-width: 640px) {
+.edit-tools {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+}
+.app-header-illustration {
+flex: 0 0 auto;
+    width: 110px;
+    height: 46px;
+    border: 1px solid var(--border-color);
+    border-radius: calc(var(--radius-main) - 1px);
+    background: linear-gradient(180deg, var(--bg-card), var(--bg-body));
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.app-header-illustration svg {
+display: block;
+    width: 100%;
+    height: 100%;
+}
+.app-header-illustration .ill-stroke {
+fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+.app-header-illustration .ill-soft {
+fill: rgba(15, 118, 110, 0.08);
+    stroke: none;
+}
+
+.edit-tools .tool-btn {
+font-weight: 700;
+}

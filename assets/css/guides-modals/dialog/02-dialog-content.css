@@ -1,0 +1,46 @@
+/* Shared dialog content sizing and quiet dropdown surfaces. */
+button.dropdown-item {
+  border-radius: var(--radius-main);
+}
+
+.modal-header {
+  padding: 14px 16px;
+}
+
+.modal-footer {
+  padding: 12px 16px;
+}
+
+.dropdown-menu {
+  border-color: var(--hairline, var(--border-color));
+}
+
+.person-pop-menu {
+  box-shadow: var(--ui-panel-shadow-float);
+}
+
+.modal-dialog.modal-lg {
+  width: min(100%, 860px);
+  max-width: calc(100vw - 32px);
+}
+
+.modal-dialog.modal-xl {
+  width: min(100%, 980px);
+  max-width: calc(100vw - 32px);
+}
+
+.modal-content {
+  width: 100%;
+  max-height: calc(100dvh - 32px);
+}
+
+.modal-body {
+  overflow: auto;
+}
+
+@media (max-width: 640px) {
+  .modal-header,
+  .modal-footer {
+    padding-inline: 14px;
+  }
+}

@@ -1,0 +1,57 @@
+/* Settlement payment blue color system.
+   Keep payment accents fixed to the blue token set throughout the application. */
+:root,
+body {
+  --settlement-pay-ink-fixed: var(--palette-blue-700);
+  --settlement-pay-bg-fixed: color-mix(in srgb, var(--palette-blue-100) 72%, var(--bg-card));
+  --settlement-pay-line-fixed: color-mix(in srgb, var(--palette-blue-400) 72%, var(--border-color));
+  --settlement-pay-surface-fixed: color-mix(in srgb, var(--settlement-pay-bg-fixed) 64%, var(--bg-card));
+  --settlement-pay-surface-line-fixed: color-mix(in srgb, var(--settlement-pay-line-fixed) 28%, var(--ui-saas-border, var(--border-color)));
+  --settlement-pay-ink: var(--settlement-pay-ink-fixed);
+  --settlement-pay-bg: var(--settlement-pay-bg-fixed);
+  --settlement-pay-line: var(--settlement-pay-line-fixed);
+  --settlement-pay-surface-bg: var(--settlement-pay-surface-fixed);
+  --settlement-pay-surface-line: var(--settlement-pay-surface-line-fixed);
+}
+#seisan-view-area .seisan-payment-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  min-width: var(--settlement-tag-min-width, 2.4em);
+  min-height: var(--settlement-tag-min-height, 1.38em);
+  padding: var(--settlement-tag-pad-y, 2px) var(--settlement-tag-pad-x, 7px);
+  border: 1px solid var(--settlement-pay-line-fixed);
+  border-radius: var(--radius-xs);
+  background: var(--settlement-pay-bg-fixed);
+  background-image: none;
+  color: var(--settlement-pay-ink-fixed);
+  -webkit-text-fill-color: var(--settlement-pay-ink-fixed);
+  box-shadow: none;
+  font-size: var(--settlement-tag-font-size, 0.64rem);
+  font-style: normal;
+  font-weight: 500;
+  line-height: var(--settlement-tag-line-height, 1);
+  letter-spacing: 0;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+#seisan-view-area .seisan-summary-card.pay,
+body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] {
+  background: var(--settlement-pay-surface-fixed);
+  border-color: var(--settlement-pay-surface-line-fixed);
+}
+#seisan-view-area .seisan-summary-card.pay .seisan-summary-label > .seisan-payment-tag,
+#seisan-view-area .seisan-car-summary-payment .seisan-payment-tag,
+body #app-layout #seisan-view-area .seisan-summary-card.pay[data-summary-kind="pay"] .seisan-summary-label > .seisan-payment-tag {
+  color: var(--settlement-pay-ink-fixed);
+  -webkit-text-fill-color: var(--settlement-pay-ink-fixed);
+  background: var(--settlement-pay-bg-fixed);
+  border-color: var(--settlement-pay-line-fixed);
+}
+#seisan-view-area .seisan-summary-card.pay .seisan-summary-value,
+#seisan-view-area .seisan-summary-card.pay .seisan-summary-sub {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}

@@ -1,0 +1,135 @@
+#seisan-view-area .seisan-extra-slash,
+#seisan-view-area .seisan-extra-plus {
+  display: none;
+}
+#seisan-view-area .seisan-car-summary-row .seisan-extra-slash,
+#seisan-view-area .seisan-car-summary-row .seisan-extra-plus {
+  display: inline-flex;
+  align-items: center;
+  color: color-mix(in srgb, var(--text-sub) 86%, var(--text-main));
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1;
+}
+#seisan-view-area .seisan-driver-detail .seisan-extra-plus {
+  display: inline-flex;
+  align-items: center;
+  margin-inline: 3px;
+  color: color-mix(in srgb, var(--text-main) 82%, var(--text-sub));
+  font-weight: 500;
+  line-height: 1;
+}
+#settlementCarEditModal .settlement-edit-dialog--car {
+  width: min(calc(100vw - 28px), 382px);
+}
+#settlementCarEditModal .settlement-edit-modal-content {
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(var(--shadow-rgb), 0.20);
+}
+#settlementCarEditModal .modal-header {
+  min-height: 52px;
+  padding: 10px 14px;
+}
+
+#settlementSettingsModal .modal-header,
+#settlementCarEditModal .modal-header {
+  border-bottom: 0;
+}
+
+#settlementSettingsModal .modal-footer,
+#settlementCarEditModal .modal-footer {
+  border-top: 0;
+}
+#settlementCarEditModal .modal-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+#settlementCarEditModal .btn-close {
+  flex: 0 0 auto;
+  opacity: 0.72;
+  transform: scale(0.86);
+}
+#settlementCarEditModal .modal-body {
+  max-height: min(70vh, 560px);
+  overflow-y: auto;
+  padding: 12px 14px 10px;
+}
+#settlementCarEditModal .modal-footer {
+  padding: 10px 14px 14px;
+}
+#settlementCarEditModal .modal-footer .btn {
+  min-height: 44px;
+  border-radius: 11px;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+#settlementCarEditModal .seisan-car-title {
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#settlementCarEditModal .seisan-car-title strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.96rem;
+  font-weight: 600;
+}
+
+/* Distance shortcut in the car edit modal. */
+#settlementCarEditModal .seisan-distance-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  min-width: 0;
+}
+
+#settlementCarEditModal .seisan-distance-field label,
+#settlementCarEditModal .seisan-car-inputs label {
+  min-width: 0;
+}
+
+#settlementCarEditModal .seisan-distance-shortcut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  min-height: 34px;
+  padding: 0 7px;
+  border: 1px solid var(--app-accent, var(--accent-color));
+  border-radius: 10px;
+  background: var(--app-accent, var(--accent-color));
+  color: var(--color-white);
+  font-size: 0.68rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: none;
+}
+
+#settlementCarEditModal .seisan-distance-shortcut:hover,
+#settlementCarEditModal .seisan-distance-shortcut:focus-visible {
+  background: color-mix(in srgb, var(--app-accent, var(--accent-color)) 86%, var(--color-black));
+  border-color: color-mix(in srgb, var(--app-accent, var(--accent-color)) 86%, var(--color-black));
+}
+
+#settlementCarEditModal .seisan-distance-shortcut:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--app-accent, var(--accent-color)) 28%, transparent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  #settlementCarEditModal .seisan-distance-shortcut {
+    min-height: 32px;
+    padding-inline: 6px;
+  }
+}

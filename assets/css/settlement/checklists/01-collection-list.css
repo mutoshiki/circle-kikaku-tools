@@ -1,0 +1,109 @@
+/* Collection checklist rows and per-car grouping. */
+#seisan-view-area .seisan-check-note {
+  font-size: 0.64rem;
+  font-weight: 500;
+  color: var(--text-sub);
+}
+#seisan-view-area .seisan-collection-panel .seisan-head {
+  margin-bottom: 2px;
+  padding-bottom: 0;
+}
+#seisan-view-area .seisan-collection-panel .seisan-head > div {
+  width: 100%;
+  min-width: 0;
+}
+#seisan-view-area #seisan-collection-note.seisan-muted {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  color: var(--text-sub);
+  -webkit-text-fill-color: var(--text-sub);
+  font-size: 0.74rem;
+  font-weight: 500;
+  line-height: 1.15;
+}
+#seisan-view-area .seisan-collection-note-left {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 2px 9px;
+  min-width: 0;
+  text-align: left;
+}
+#seisan-view-area .seisan-collection-note-left > span,
+#seisan-view-area .seisan-collection-per-person-label {
+  color: var(--text-sub);
+  -webkit-text-fill-color: var(--text-sub);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+#seisan-view-area .seisan-collection-per-person {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-left: auto;
+  flex: 0 0 auto;
+  min-width: max-content;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 1.05;
+}
+#seisan-view-area .seisan-collection-per-person-amount {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+  font-size: clamp(0.98rem, 4.1vw, 1.16rem);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.012em;
+  line-height: 1.08;
+}
+/* Collection checklist rows stay grouped by car. */
+#seisan-view-area .seisan-check-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 9px;
+}
+#seisan-view-area .seisan-collection-group {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+#seisan-view-area .seisan-collection-group-title {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 2px;
+  color: var(--text-sub);
+  font-size: 0.76rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+#seisan-view-area .seisan-collection-group-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 7px;
+}
+.seisan-check-item {
+  border-color: var(--border-item);
+  border-radius: var(--radius-main);
+  background: var(--color-white);
+}
+.seisan-check-item:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+.seisan-collection-row {
+  border-color: var(--border-item);
+  background: var(--color-white);
+  border-right: 0;
+  border-left: 0;
+  border-radius: 0;
+}

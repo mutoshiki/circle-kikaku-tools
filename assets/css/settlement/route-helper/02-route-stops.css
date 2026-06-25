@@ -1,0 +1,136 @@
+/* Distance route helper: stop list, stop rows, and drag/delete controls. */
+#routeDistanceModal .route-stop-list {
+  display: grid;
+  gap: 6px;
+}
+
+#routeDistanceModal .route-stop-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 30px;
+  gap: 6px;
+  align-items: center;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+}
+
+#routeDistanceModal .route-stop-row:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: calc(34px + 6px + (100% - 34px - 30px - 12px) / 2);
+  top: 100%;
+  width: 8px;
+  height: 6px;
+  background: rgba(100, 116, 139, 0.22);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+#routeDistanceModal .route-stop-num {
+  width: 30px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--text-sub) 7%, transparent);
+  color: var(--text-sub);
+  cursor: grab;
+  touch-action: none;
+}
+
+#routeDistanceModal .route-stop-num i {
+  font-size: 0.92rem;
+  line-height: 1;
+  opacity: 0.68;
+}
+
+#routeDistanceModal .route-stop-num:active {
+  cursor: grabbing;
+}
+
+#routeDistanceModal .route-stop-input {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid color-mix(in srgb, var(--ui-saas-border, var(--border-color)) 78%, transparent);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+#routeDistanceModal .route-stop-input:focus {
+  border-color: var(--focus-accent);
+}
+
+#routeDistanceModal .route-stop-delete-btn {
+  width: 34px;
+  min-width: 34px;
+  height: 38px;
+}
+
+#routeDistanceModal .route-add-stop-btn {
+  width: 100%;
+  margin-top: 7px;
+  min-height: 38px;
+}
+
+#routeDistanceModal .route-stop-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: -2px 0 7px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-sub);
+}
+
+#routeDistanceModal .route-stop-help i {
+  color: var(--text-sub);
+  font-size: 0.84em;
+}
+
+@media (max-width: 640px) {
+  #routeDistanceModal .route-stop-row {
+    grid-template-columns: 38px minmax(0, 1fr) 32px;
+  }
+
+  #routeDistanceModal .route-stop-row:not(:last-child)::after {
+    left: calc(38px + 6px + (100% - 38px - 32px - 12px) / 2);
+  }
+
+  #routeDistanceModal .route-stop-num,
+  #routeDistanceModal .route-stop-delete-btn {
+    height: 40px;
+  }
+
+  #routeDistanceModal .route-stop-num {
+    width: 32px;
+  }
+
+  #routeDistanceModal .route-stop-delete-btn {
+    width: 38px;
+    min-width: 38px;
+  }
+
+  #routeDistanceModal .route-stop-help {
+    align-items: flex-start;
+    line-height: 1.45;
+  }
+}
+
+.route-stop-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-main);
+  background: var(--color-white);
+  box-shadow: none;
+}

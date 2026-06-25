@@ -1,0 +1,48 @@
+.edit-header-tools-only {
+display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+    margin: 4px 0 8px;
+}
+.edit-header-tools-only .edit-tools {
+display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+}
+.edit-header-tools-only .edit-tools .tool-btn {
+min-height: 40px;
+    padding: 7px 8px;
+    gap: 5px;
+    flex-direction: row;
+    font-size: 0.78rem;
+    border-radius: var(--radius-sm);
+}
+.edit-header-tools-only .edit-tools .tool-btn i {
+margin: 0;
+    font-size: 0.9rem;
+}
+.edit-header-tools-only .edit-tools .tool-btn span {
+font-size: 0.78rem;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+@media (max-width: 640px) {
+.edit-header-tools-only .edit-tools .tool-btn {
+min-height: 39px;
+}
+}
+@media (max-width: 640px) {
+.edit-header-tools-only.allocation-toolbar {
+margin: 8px 0 10px;
+padding-inline: 8px;
+}
+.allocation-toolbar-inner {
+min-height: 50px;
+padding: 6px;
+}
+}
+@media (hover: none) and (pointer: coarse) {
+.tool-btn {
+min-height: 40px;
+}
+}

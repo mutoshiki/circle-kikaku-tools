@@ -1,0 +1,34 @@
+/* Generic utility helpers only.
+   Feature styling and design tokens have owners elsewhere. */
+[hidden],
+.is-hidden {
+  display: none;
+}
+
+.visually-hidden:not(:focus):not(:active) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.text-accent {
+  color: var(--accent-color);
+}
+
+.text-muted-readable {
+  color: var(--text-sub);
+}
+
+.u-nowrap {
+  white-space: nowrap;
+}
+
+.u-min-0 {
+  min-width: 0;
+}

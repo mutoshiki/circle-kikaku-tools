@@ -1,0 +1,182 @@
+/* Header utilities and primary view navigation.
+   This owner keeps every header icon on one shared visual contract. */
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
+  margin-left: auto;
+  overflow: visible;
+  --header-action-size: 40px;
+  --header-icon-size: 1.12rem;
+}
+
+.header-more {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-width: 0;
+  overflow: visible;
+}
+
+.header-action {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: var(--header-action-size);
+  min-width: var(--header-action-size);
+  height: var(--header-action-size);
+  min-height: var(--header-action-size);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-main);
+  background: transparent;
+  color: var(--text-sub);
+  box-shadow: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  touch-action: manipulation;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.header-action span,
+.header-action.dropdown-toggle::after {
+  display: none;
+}
+
+.header-action i {
+  width: 1.15em;
+  margin: 0;
+  color: inherit;
+  font-size: var(--header-icon-size);
+  line-height: 1;
+  text-align: center;
+}
+
+.header-action:hover,
+.header-action:active {
+  border: 0;
+  background: var(--surface-hover);
+  color: var(--text-main);
+}
+
+.header-action:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent-color) 72%, transparent);
+  outline-offset: 2px;
+}
+
+.header-action.is-locked,
+#editLockBtn.header-action.is-locked {
+  border: 0;
+  background: color-mix(in srgb, var(--semantic-warning) 9%, transparent);
+  color: var(--semantic-warning);
+}
+
+.header-action.is-partial-lock {
+  background: color-mix(in srgb, var(--semantic-warning) 6%, transparent);
+}
+
+#view-toggle-bar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  width: min(100%, 440px);
+  max-width: 440px;
+  min-height: 48px;
+  margin: 6px auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--bg-card);
+  box-shadow: none;
+}
+
+.view-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 9px 14px 11px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-sub);
+  box-shadow: none;
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.view-tab i {
+  display: none;
+}
+
+.view-tab:hover {
+  background: var(--surface-hover);
+  color: var(--text-main);
+}
+
+.view-tab:focus-visible {
+  z-index: var(--z-local-base);
+  outline: 2px solid color-mix(in srgb, var(--accent-color) 72%, transparent);
+  outline-offset: -2px;
+}
+
+.view-tab.active {
+  background: transparent;
+  color: var(--accent-color);
+}
+
+.view-tab::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  bottom: 0;
+  left: 16px;
+  display: block;
+  height: 2px;
+  background: transparent;
+}
+
+.view-tab.active::after {
+  background: var(--accent-color);
+}
+
+.view-tab-label {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .header-actions {
+    gap: 2px;
+    --header-action-size: 42px;
+    --header-icon-size: 1.25rem;
+  }
+
+  #view-toggle-bar {
+    width: 100%;
+    max-width: none;
+  }
+
+  .view-tab {
+    gap: 4px;
+    min-height: 48px;
+    padding-inline: 4px;
+    font-size: 0.8rem;
+  }
+
+  .view-tab::after {
+    right: 12px;
+    left: 12px;
+  }
+}

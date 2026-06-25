@@ -1,0 +1,165 @@
+@media (max-width: 640px) {
+.edit-tools {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+}
+.edit-tools {
+direction: ltr;
+}
+.tool-btn {
+padding-left: 10px;
+    padding-right: 10px;
+}
+
+.tool-btn span {
+line-height: 1.18;
+}
+@media (max-width: 420px) {
+
+.tool-btn {
+padding-left: 6px;
+        padding-right: 6px;
+}
+}
+@media (max-width: 640px) {
+
+.tool-btn span {
+letter-spacing: 0;
+}
+}
+@media (max-width: 640px) {
+#top-area {
+padding-inline: 9px;
+}
+}
+@media (max-width: 640px) {
+.edit-header {
+gap: 9px;
+}
+}
+@media (max-width: 640px) {
+.edit-project-block {
+padding: 12px;
+}
+}
+@media (max-width: 640px) {
+.edit-tools {
+gap: 7px;
+}
+}
+@media (max-width: 640px) {
+.edit-tools .tool-btn {
+min-height: 42px;
+}
+}
+@media (max-width: 640px) {
+#app-layout {
+background: var(--bg-body);
+}
+}
+@media (max-width: 640px) {
+#top-area {
+padding-left: 10px ;
+        padding-right: 10px ;
+}
+}
+@media (max-width: 640px) {
+.edit-header {
+gap: 7px ;
+        margin-bottom: 9px ;
+}
+}
+@media (max-width: 640px) {
+.edit-tools {
+gap: 8px ;
+}
+}
+@media (max-width: 640px) {
+.edit-tools .tool-btn {
+min-height: var(--mobile-touch) ;
+        border-radius: var(--radius-main) ;
+        padding: 9px 10px ;
+        font-size: 0.84rem ;
+        line-height: 1.2 ;
+}
+}
+@media (max-width: 640px) {
+#top-area {
+padding-top: 8px;
+}
+}
+@media (max-width: 640px) {
+.edit-header {
+gap: 6px;
+        margin-bottom: 8px;
+}
+}
+@media (max-width: 640px) {
+.edit-tools {
+gap: 6px;
+}
+}
+@media (max-width: 640px) {
+.edit-tools .tool-btn {
+min-height: 40px;
+        padding: 8px 9px;
+}
+}
+#top-area .edit-header.edit-header-tools-only,
+#top-area .allocation-toolbar {
+  min-height: 0;
+  padding: 8px 10px;
+  gap: 8px;
+}
+
+#top-area :where(.tool-btn, .car-plan-template-chip, .car-plan-template-tabs) {
+  min-height: 34px;
+  height: 34px;
+}
+
+#top-area .tool-btn {
+  padding-inline: 12px;
+}
+
+#top-area .car-plan-template-chip {
+  padding-inline: 10px;
+}
+
+#top-area .car-plan-template-tabs {
+  padding: 3px;
+}
+
+.edit-header-tools-only.allocation-toolbar {
+max-width: 1200px;
+margin: 12px auto;
+padding-inline: 16px;
+}
+
+.allocation-toolbar-inner {
+min-height: 50px;
+padding: 7px 8px;
+box-shadow: none;
+}
+
+.car-plan-template-tabs {
+padding: 3px;
+border: 1px solid var(--border-color);
+border-radius: var(--radius-main);
+background: var(--surface-muted);
+}
+
+.car-plan-template-chip {
+min-height: 34px;
+border: 0;
+border-radius: var(--radius-sm);
+background: transparent;
+color: var(--text-sub);
+font-weight: 600;
+box-shadow: none;
+}
+
+.car-plan-template-chip.active {
+background: var(--color-white);
+color: var(--text-main);
+box-shadow: 0 1px 2px color-mix(in srgb, var(--text-main) 8%, transparent);
+}

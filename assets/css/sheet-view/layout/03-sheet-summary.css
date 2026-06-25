@@ -1,0 +1,188 @@
+/* sheet summary: compact two-line car/team counts */
+.sheet-summary-row::-webkit-scrollbar {
+    display: none;
+}
+.sheet-summary-updated {
+    margin-left: 2px;
+    padding-left: 7px;
+    border-left: 1px solid var(--hairline, var(--border-color));
+    color: color-mix(in srgb, var(--text-sub) 82%, var(--text-main));
+    justify-self: start;
+}
+#sheet-bottom-controls:hover,
+#sheet-bottom-controls:focus-within {
+  opacity: 1;
+}
+#sheet-view-area.active::after {
+  content: "";
+  position: absolute;
+  top: 74px;
+  right: 0;
+  bottom: 0;
+  width: 34px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--bg-body) 86%, transparent));
+  z-index: var(--z-local-raised);
+}
+#sheet-view-area .sheet-driver-row {
+  background: color-mix(in srgb, var(--accent-color) 5%, var(--bg-card));
+}
+#sheet-view-area .sheet-driver-row:not(.sheet-label-row) {
+  grid-template-columns: 28px minmax(0, 1fr) 16px;
+}
+#sheet-view-area .sheet-driver-row .grade-badge,
+#sheet-view-area .sheet-driver-row .sheet-grade-placeholder {
+  order: 1;
+}
+#sheet-view-area .sheet-driver-name {
+  order: 2;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+#sheet-view-area #sheet-title-bar {
+    min-height: 48px;
+    padding: 7px 9px;
+    align-items: flex-start;
+  }
+
+#sheet-view-area #sheet-canvas {
+    top: 70px;
+  }
+}
+#sheet-view-area .sheet-driver-row {
+  border-color: var(--ui-saas-border-strong);
+  background: color-mix(in srgb, var(--accent-color) 7%, var(--ui-saas-inner));
+}
+#sheet-title-bar {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  right: 10px;
+  z-index: var(--z-local-sticky);
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-weight: 600;
+  grid-template-columns: auto minmax(0, 1fr);
+  justify-content: flex-start;
+  border-color: var(--ui-saas-border);
+}
+.sheet-summary-stat, .sheet-summary-updated {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 3px;
+  min-width: 0;
+  color: var(--text-sub);
+  font-size: 0.64rem;
+  font-weight: 500;
+}
+.sheet-summary-stat strong, .sheet-summary-updated strong {
+  color: var(--text-main);
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+#sheet-canvas {
+  position: absolute;
+  top: 70px;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 22px;
+  padding: 12px 10px 126px;
+  min-width: max-content;
+  padding-bottom: 132px;
+}
+.sheet-label-col {
+  min-width: 48px;
+}
+.sheet-driver-row {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--sheet-grid);
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+#sheet-hint {
+  position: absolute;
+  bottom: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(var(--shadow-rgb), 0.72);
+  color: var(--color-white);
+  font-size: 0.68rem;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+#sheet-bottom-controls {
+  position: absolute;
+  right: 14px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+  z-index: var(--z-local-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 1;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+#sheet-view-area .sheet-driver-icon {
+  order: 3;
+  justify-self: center;
+  display: none;
+}
+
+/* Committed sheet members remain legible after drag or quick-edit completion. */
+#sheet-view-area :where(.sheet-chip, .sheet-chip-text, .sheet-cell-text, .sheet-driver-name) {
+  opacity: 1;
+  filter: none;
+}
+#sheet-view-area :where(.sheet-chip-text, .sheet-cell-text, .sheet-driver-name) {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+#sheet-view-area .sheet-chip.manual-sheet-drag-source:not(.manual-sheet-drag-float) {
+  opacity: 1;
+  filter: none;
+}
+body:not(.manual-sheet-dragging) #sheet-view-area .sheet-chip.manual-sheet-drag-source {
+  visibility: visible;
+}
+.sheet-summary-panel {
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-main);
+    background: var(--bg-card);
+    box-shadow: none;
+}
+.sheet-section-title {
+    color: var(--text-main);
+    font-weight: 600;
+    letter-spacing: 0;
+}
+.sheet-summary-pill {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--surface-soft);
+    color: var(--text-sub);
+    font-weight: 500;
+}
+.sheet-summary-pills span {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--surface-soft);
+    color: var(--text-sub);
+    font-weight: 500;
+}

@@ -1,0 +1,102 @@
+{
+  "generatedAt": "2026-06-21T14:32:03.599Z",
+  "browser": "144.0.7559.96",
+  "screenshots": [
+    "empty-sheet-saas-tablet-768-768x1024-top-dpr1.png",
+    "list-car-saas-tablet-768-768x1024-top-dpr1.png",
+    "sheet-saas-tablet-768-768x1024-top-dpr1.png",
+    "settlement-saas-tablet-768-768x1024-top-dpr1.png"
+  ],
+  "console": [],
+  "requestFailures": [],
+  "metrics": [
+    {
+      "state": "empty-sheet",
+      "variant": "saas",
+      "size": "tablet-768",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "scrollHeight": 1024,
+        "clientHeight": 1024
+      },
+      "root": {
+        "selector": "#sheet-view-area",
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "scrollHeight": 917,
+        "clientHeight": 917,
+        "overflowX": false,
+        "overflowY": false
+      },
+      "offscreen": []
+    },
+    {
+      "state": "list-car",
+      "variant": "saas",
+      "size": "tablet-768",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "scrollHeight": 1024,
+        "clientHeight": 1024
+      },
+      "root": {
+        "selector": "#top-area",
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "scrollHeight": 713,
+        "clientHeight": 528,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "sheet",
+      "variant": "saas",
+      "size": "tablet-768",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "scrollHeight": 1024,
+        "clientHeight": 1024
+      },
+      "root": {
+        "selector": "#sheet-view-area",
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "scrollHeight": 1187,
+        "clientHeight": 917,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "settlement",
+      "variant": "saas",
+      "size": "tablet-768",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "scrollHeight": 1024,
+        "clientHeight": 1024
+      },
+      "root": {
+        "selector": "#seisan-view-area",
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "scrollHeight": 2160,
+        "clientHeight": 917,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    }
+  ]
+}

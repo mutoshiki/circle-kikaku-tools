@@ -1,0 +1,191 @@
+.seisan-icon-btn {
+min-width: 34px;
+    height: 37px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--bg-body);
+    color: var(--text-sub);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.seisan-add-row .seisan-btn {
+min-height: 34px; padding: 6px 8px; font-size: 0.76rem;
+}
+.seisan-btn:active {
+transform: scale(0.98);
+}
+@media (max-width: 640px) {
+.seisan-mini-label {
+font-size: 0.58rem;
+        white-space: nowrap;
+        letter-spacing: -0.02em;
+}
+}
+@media (max-width: 360px) {
+.seisan-mini-label {
+font-size: 0.54rem;
+}
+}
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+min-height: 40px;
+        padding: 8px 10px;
+        font-size: 0.84rem;
+}
+}
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn:first-child {
+width: 100%;
+}
+}
+@media (max-width: 640px) {
+.seisan-mini-label {
+font-size: 0.6rem;
+        white-space: nowrap;
+        letter-spacing: -0.02em;
+}
+}
+@media (max-width: 360px) {
+.seisan-mini-label {
+font-size: 0.66rem;
+}
+}
+.seisan-head-actions .seisan-btn i {
+margin: 0;
+    flex: 0 0 auto;
+}
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+width: 100%;
+        min-width: 0;
+        padding: 8px 6px;
+}
+}
+@media (max-width: 360px) {
+.seisan-head-actions .seisan-btn {
+font-size: 0.78rem;
+        padding: 8px 4px;
+}
+}
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+min-height: 38px; padding: 7px 4px;
+}
+}
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn span {
+font-size: 0.66rem;
+}
+}
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+padding-left: 6px;
+        padding-right: 6px;
+}
+}
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn span {
+font-size: 0.68rem;
+}
+}
+.seisan-head-actions .seisan-btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  font-size: 0.76rem;
+  line-height: 1.1;
+  white-space: normal;
+  text-align: center;
+}
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn span {
+font-size: 0.76rem;
+}
+}
+@media (max-width: 640px) {
+.seisan-mini-label {
+font-size: 0.72rem;
+        white-space: normal;
+}
+}
+.seisan-btn {
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.seisan-btn span {
+line-height: 1.18;
+}
+.seisan-extra-row .seisan-icon-btn i::before {
+content: "\f2ed";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn {
+width: 100%;
+}
+}
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn::after {
+content: "削除";
+        margin-left: 6px;
+        font-size: 0.78rem;
+        font-weight: 500;
+}
+}
+@media (max-width: 420px) {
+.seisan-btn {
+padding-left: 6px;
+        padding-right: 6px;
+}
+}
+@media (max-width: 640px) {
+.seisan-btn,
+.seisan-toggle,
+.seisan-icon-btn {
+min-height: 42px;
+}
+}
+@media (max-width: 640px) {
+.seisan-head-actions .seisan-btn {
+min-height: var(--mobile-touch) ;
+        border-radius: var(--radius-main) ;
+        padding: 9px 10px ;
+        font-size: 0.84rem ;
+        line-height: 1.2 ;
+}
+}
+@media (max-width: 640px) {
+.seisan-mini-label {
+font-size: 0.64rem;
+        line-height: 1.12;
+        margin-bottom: 3px;
+        white-space: nowrap;
+        letter-spacing: -0.02em;
+}
+}
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn {
+width: 34px;
+        min-width: 34px;
+        height: 38px;
+        min-height: 38px;
+        padding: 0;
+        border-radius: var(--radius-sm);
+}
+}
+@media (max-width: 640px) {
+.seisan-extra-row .seisan-icon-btn::after {
+content: "";
+        margin: 0;
+}
+}
+@media (hover: none) and (pointer: coarse) {
+.seisan-btn,
+.seisan-icon-btn {
+min-height: 40px;
+}
+}

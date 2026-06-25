@@ -1,0 +1,40 @@
+/* Bootstrap behavior bridges. Product tokens and focus styling live in their canonical owners. */
+:where(button, input, textarea, select, .form-select, .form-control, .modal-content, .dropdown-menu) {
+  letter-spacing: 0;
+}
+
+.form-select,
+.form-control {
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
+}
+
+.btn:active,
+.seisan-btn:active,
+.tool-btn:active { filter: brightness(0.97); }
+
+.btn-primary:focus-visible,
+.btn-accent-solid:focus-visible {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: var(--color-white);
+}
+
+.btn-secondary,
+.btn-outline-secondary,
+.btn-outline-primary {
+  background: var(--color-white);
+  border-color: var(--border-color);
+  color: var(--text-main);
+  box-shadow: none;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus-visible,
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus-visible,
+.btn-outline-primary:hover,
+.btn-outline-primary:focus-visible {
+  background: var(--hover-bg);
+  border-color: var(--border-strong);
+  color: var(--text-main);
+}
