@@ -25,7 +25,7 @@ assert(sheetTemplate.includes('${gradeBadge(dgrade, dg, helpers)}<span class="sh
 assert(carCostCss.includes('--amount-font-size: 1.2rem;') && carCostCss.includes('font-size: 1.36rem;'), 'driver payment breakdown amounts must retain a readable hierarchy');
 assert(!/\.seisan-car-summary-row \.seisan-extra-inline strong\s*\{[^}]*font-size/s.test(costBreakdownCss), 'generic cost-tag CSS must not override driver payment amount typography');
 assert(!index.includes('id="zoom-controls"') && !index.includes('id="sheetZoomInBtn"'), 'shared view must not keep button-based zoom controls');
-assert(viewportJs.includes("event.touches.length !== 2") && viewportJs.includes('sourceClientX: lastPinchCenterX'), 'shared view must keep two-finger pinch zoom with movable focal tracking');
+assert(viewportJs.includes('event.touches.length === 1') && viewportJs.includes('event.touches.length === 2') && viewportJs.includes('sheetX = centerX - (centerX - sheetX) * factor'), 'shared view must use the legacy free-pan and focal pinch movement');
 assert(layeringCss.includes('--z-floating: 900;') && layeringCss.includes('--z-modal: 1050;'), 'floating shared controls must remain below modal-level overlays');
 assert(overviewCss.includes('z-index: var(--z-modal);'), 'overview drawer must use the canonical top overlay layer');
 assert(extraCostsCss.includes('grid-template-columns: minmax(0, 1fr) 70px 74px 48px;') && !extraCostsCss.includes('grid-column: 1 / 3'), 'extra cost type and delete controls must stay on the same row at mobile widths');

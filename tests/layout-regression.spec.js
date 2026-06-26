@@ -43,38 +43,46 @@ for (const viewport of [
   { width: 360, height: 800 },
   { width: 390, height: 844 }
 ]) {
-  test(`shared view reaches its final content at ${viewport.width}px`, async ({ page }) => {
+  test(`shared view restores free legacy movement at ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport);
-    await gotoSeededApp(page, `SHARED-SCROLL-${viewport.width}`);
+    await gotoSeededApp(page, `SHARED-LEGACY-MOVE-${viewport.width}`);
     await page.evaluate(() => window.switchView('sheet'));
     await expect(page.locator('#sheet-view-area')).toBeVisible();
     await expect(page.locator('#sheet-content')).toBeVisible();
     await page.waitForTimeout(250);
 
-    const metrics = await page.locator('#sheet-canvas').evaluate(viewportNode => {
-      const content = viewportNode.querySelector('#sheet-content');
-      const finalChild = content?.lastElementChild;
-      viewportNode.scrollTop = viewportNode.scrollHeight;
-      viewportNode.scrollLeft = viewportNode.scrollWidth;
-      const viewportRect = viewportNode.getBoundingClientRect();
-      const finalRect = finalChild?.getBoundingClientRect();
+    const canvas = page.locator('#sheet-canvas');
+    const content = page.locator('#sheet-content');
+    const canvasBox = await canvas.boundingBox();
+    if (!canvasBox) throw new Error('shared sheet canvas is not measurable');
+
+    const before = await content.evaluate(node => {
+      const matrix = new DOMMatrix(getComputedStyle(node).transform);
       return {
-        overflowY: viewportNode.scrollHeight > viewportNode.clientHeight,
-        scrollTop: viewportNode.scrollTop,
-        maxScrollTop: viewportNode.scrollHeight - viewportNode.clientHeight,
-        finalBottom: finalRect?.bottom ?? 0,
-        viewportBottom: viewportRect.bottom,
-        contentBottomPadding: content ? parseFloat(getComputedStyle(content).paddingBottom) : 0,
+        x: matrix.e,
+        y: matrix.f,
+        scale: matrix.a,
+        bottomPadding: parseFloat(getComputedStyle(node).paddingBottom),
         documentOverflow: document.documentElement.scrollWidth > window.innerWidth
       };
     });
 
-    expect(metrics.overflowY).toBeTruthy();
-    expect(metrics.scrollTop).toBeGreaterThan(0);
-    expect(Math.abs(metrics.maxScrollTop - metrics.scrollTop)).toBeLessThanOrEqual(2);
-    expect(metrics.finalBottom).toBeLessThanOrEqual(metrics.viewportBottom - 24);
-    expect(metrics.contentBottomPadding).toBeGreaterThanOrEqual(100);
-    expect(metrics.documentOverflow).toBeFalsy();
+    await page.mouse.move(canvasBox.x + canvasBox.width * 0.7, canvasBox.y + canvasBox.height * 0.68);
+    await page.mouse.down();
+    await page.mouse.move(canvasBox.x + canvasBox.width * 0.36, canvasBox.y + canvasBox.height * 0.32, { steps: 8 });
+    await page.mouse.up();
+
+    const after = await content.evaluate(node => {
+      const matrix = new DOMMatrix(getComputedStyle(node).transform);
+      return { x: matrix.e, y: matrix.f, scale: matrix.a };
+    });
+
+    expect(before.scale).toBeGreaterThanOrEqual(0.7);
+    expect(after.x).not.toBe(before.x);
+    expect(after.y).not.toBe(before.y);
+    expect(after.scale).toBeCloseTo(before.scale, 4);
+    expect(before.bottomPadding).toBeGreaterThanOrEqual(100);
+    expect(before.documentOverflow).toBeFalsy();
   });
 
   test(`distance fuel and price stay horizontal without overlap at ${viewport.width}px`, async ({ page }) => {
@@ -147,6 +155,37 @@ for (const viewport of [
   });
 }
 
+test('participant registration help keeps its left disclosure triangles', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await gotoSeededApp(page, 'PARTICIPANT-DISCLOSURE');
+  await page.evaluate(() => window.switchView('list'));
+  await page.locator('#batchOpenBtn').click();
+  await expect(page.locator('#batchImportModal')).toBeVisible();
+
+  const summaries = page.locator('#batchImportModal .batch-import-help-details > summary');
+  await expect(summaries).toHaveCount(2);
+  await expect(summaries).toHaveText(['貼り付け方を見る', '自動判定の仕組み']);
+
+  for (let index = 0; index < 2; index += 1) {
+    const markerStyle = await summaries.nth(index).evaluate(node => {
+      const pseudo = getComputedStyle(node, '::before');
+      return {
+        display: pseudo.display,
+        borderLeftWidth: parseFloat(pseudo.borderLeftWidth),
+        borderLeftColor: pseudo.borderLeftColor,
+        width: node.getBoundingClientRect().width
+      };
+    });
+    expect(markerStyle.display).not.toBe('none');
+    expect(markerStyle.borderLeftWidth).toBeGreaterThanOrEqual(7);
+    expect(markerStyle.borderLeftColor).not.toBe('rgba(0, 0, 0, 0)');
+    expect(markerStyle.width).toBeGreaterThan(200);
+  }
+
+  await summaries.first().click();
+  await expect(page.locator('#batchImportModal .batch-import-help-details').first()).toHaveAttribute('open', '');
+});
+
 test('pinpoint settlement and shared-view fixes stay readable and operable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await gotoSeededApp(page, 'PINPOINT-FOLLOWUP');
@@ -200,7 +239,7 @@ test('pinpoint settlement and shared-view fixes stay readable and operable', asy
   const canvasBox = await canvas.boundingBox();
   if (!canvasBox) throw new Error('shared sheet canvas is not measurable');
 
-  const beforeZoom = await page.locator('#sheet-content').evaluate(node => parseFloat(node.style.zoom || '1'));
+  const beforeZoom = await page.locator('#sheet-content').evaluate(node => new DOMMatrix(getComputedStyle(node).transform).a);
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
   const centerX = canvasBox.x + canvasBox.width * 0.5;
@@ -220,16 +259,29 @@ test('pinpoint settlement and shared-view fixes stay readable and operable', asy
     ]
   });
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-  const afterZoom = await page.locator('#sheet-content').evaluate(node => parseFloat(node.style.zoom || '1'));
+  const afterZoom = await page.locator('#sheet-content').evaluate(node => new DOMMatrix(getComputedStyle(node).transform).a);
   expect(afterZoom).toBeGreaterThan(beforeZoom);
 
-  const panBefore = await canvas.evaluate(node => ({ left: node.scrollLeft, top: node.scrollTop }));
+  const touchPanBefore = await page.locator('#sheet-content').evaluate(node => { const matrix = new DOMMatrix(getComputedStyle(node).transform); return { x: matrix.e, y: matrix.f }; });
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints: [{ x: centerX, y: centerY, radiusX: 4, radiusY: 4, force: 1, id: 3 }]
+  });
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchMove',
+    touchPoints: [{ x: centerX - 64, y: centerY - 86, radiusX: 4, radiusY: 4, force: 1, id: 3 }]
+  });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  const touchPanAfter = await page.locator('#sheet-content').evaluate(node => { const matrix = new DOMMatrix(getComputedStyle(node).transform); return { x: matrix.e, y: matrix.f }; });
+  expect(touchPanAfter.x !== touchPanBefore.x || touchPanAfter.y !== touchPanBefore.y).toBeTruthy();
+
+  const panBefore = await page.locator('#sheet-content').evaluate(node => { const matrix = new DOMMatrix(getComputedStyle(node).transform); return { x: matrix.e, y: matrix.f }; });
   await page.mouse.move(canvasBox.x + canvasBox.width * 0.72, canvasBox.y + canvasBox.height * 0.65);
   await page.mouse.down();
   await page.mouse.move(canvasBox.x + canvasBox.width * 0.38, canvasBox.y + canvasBox.height * 0.35, { steps: 6 });
   await page.mouse.up();
-  const panAfter = await canvas.evaluate(node => ({ left: node.scrollLeft, top: node.scrollTop }));
-  expect(panAfter.left > panBefore.left || panAfter.top > panBefore.top).toBeTruthy();
+  const panAfter = await page.locator('#sheet-content').evaluate(node => { const matrix = new DOMMatrix(getComputedStyle(node).transform); return { x: matrix.e, y: matrix.f }; });
+  expect(panAfter.x !== panBefore.x || panAfter.y !== panBefore.y).toBeTruthy();
 
   await page.locator('#overviewMenuBtn').click();
   await expect(page.locator('#overviewDrawer')).toHaveClass(/is-open/);
@@ -245,19 +297,13 @@ test('pinpoint settlement and shared-view fixes stay readable and operable', asy
   expect(layerOrder.modalToken).toBeGreaterThan(layerOrder.floatingToken);
   await page.locator('#overviewDrawerCloseBtn').click();
 
-  const finalReach = await page.locator('#sheet-canvas').evaluate(viewportNode => {
-    viewportNode.scrollTop = viewportNode.scrollHeight;
-    const finalChild = viewportNode.querySelector('#sheet-content')?.lastElementChild;
-    const viewportRect = viewportNode.getBoundingClientRect();
-    const finalRect = finalChild?.getBoundingClientRect();
-    return {
-      maxScroll: viewportNode.scrollHeight - viewportNode.clientHeight,
-      scrollTop: viewportNode.scrollTop,
-      finalBottom: finalRect?.bottom ?? 0,
-      viewportBottom: viewportRect.bottom
-    };
-  });
-  expect(finalReach.scrollTop).toBeGreaterThan(0);
-  expect(Math.abs(finalReach.maxScroll - finalReach.scrollTop)).toBeLessThanOrEqual(2);
-  expect(finalReach.finalBottom).toBeLessThanOrEqual(finalReach.viewportBottom - 20);
+  const finalBefore = await page.locator('#sheet-content').evaluate(node => node.lastElementChild?.getBoundingClientRect().bottom ?? 0);
+  for (let index = 0; index < 3; index += 1) {
+    await page.mouse.move(canvasBox.x + canvasBox.width * 0.58, canvasBox.y + canvasBox.height * 0.72);
+    await page.mouse.down();
+    await page.mouse.move(canvasBox.x + canvasBox.width * 0.58, canvasBox.y + canvasBox.height * 0.2, { steps: 8 });
+    await page.mouse.up();
+  }
+  const finalAfter = await page.locator('#sheet-content').evaluate(node => node.lastElementChild?.getBoundingClientRect().bottom ?? 0);
+  expect(finalAfter).toBeLessThan(finalBefore - 100);
 });

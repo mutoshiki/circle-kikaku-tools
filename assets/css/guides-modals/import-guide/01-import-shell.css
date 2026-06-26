@@ -24,12 +24,31 @@ color: var(--text-sub);
 .batch-import-help-details > summary {
   display: flex;
   align-items: center;
+  gap: 9px;
   min-height: 48px;
   padding: 8px 4px;
   color: var(--text-main);
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
+  list-style: none;
+}
+.batch-import-help-details > summary::-webkit-details-marker {
+  display: none;
+}
+.batch-import-help-details > summary::before {
+  content: "";
+  width: 0;
+  height: 0;
+  flex: 0 0 auto;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid currentColor;
+  transform-origin: 45% 50%;
+  transition: transform var(--motion-duration-fast, 120ms) ease;
+}
+.batch-import-help-details[open] > summary::before {
+  transform: rotate(90deg);
 }
 #batchImportModal .modal-dialog,
 #commonEditModal .modal-dialog,
