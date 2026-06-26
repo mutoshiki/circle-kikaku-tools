@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   gap: 7px;
-  min-height: 44px;
+  min-height: 48px;
   padding: 0 14px;
   border: 0;
   border-radius: var(--radius-pill);
@@ -20,7 +20,7 @@
 .seisan-toggle:hover,
 .seisan-icon-btn:hover { background: var(--surface-high); color: var(--text-main); }
 .seisan-edit-btn { background: var(--accent-container); color: var(--accent-container-text); }
-.seisan-icon-btn { width: 44px; min-width: 44px; padding: 0; }
+.seisan-icon-btn { width: 48px; min-width: 48px; padding: 0; }
 .seisan-mini-label { display: block; margin-bottom: 5px; color: var(--text-sub); font-size: 0.7rem; font-weight: 650; line-height: 1.25; }
 .tool-btn i,
 .tool-btn span,

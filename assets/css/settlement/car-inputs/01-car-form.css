@@ -52,7 +52,7 @@
 
 .seisan-car-inputs {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 10px;
 }
@@ -119,5 +119,4 @@
 @media (max-width: 640px) {
   .seisan-car-row { padding: 14px; }
   .seisan-car-title { align-items: flex-start; }
-  .seisan-car-inputs { grid-template-columns: 1fr; }
 }

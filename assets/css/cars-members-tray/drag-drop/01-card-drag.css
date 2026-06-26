@@ -19,7 +19,7 @@
 }
 
 .member-card.waiting-card-new {
-  animation: waitingCardNewPulse 1.45s ease-out both;
+  animation: waitingCardNewPulse var(--motion-emphasis) ease-out both;
 }
 
 #bottom-tray.is-drop-ready {
@@ -124,9 +124,3 @@ body.manual-card-dragging #cars-container {
   min-height: 92px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .member-card.waiting-card-new {
-    animation: none;
-    transition: none;
-  }
-}

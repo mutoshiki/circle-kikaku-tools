@@ -7,7 +7,7 @@
   flex-direction: column;
   height: 40%;
   min-height: 220px;
-  transition: height 220ms ease, min-height 220ms ease;
+  transition: height var(--motion-slow) ease, min-height var(--motion-slow) ease;
 }
 #tray-handle {
   display: flex;
@@ -16,7 +16,7 @@
   align-items: center;
   gap: 4px;
   width: 100%;
-  min-height: 42px;
+  min-height: 48px;
   border: 0;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   background: transparent;

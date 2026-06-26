@@ -104,6 +104,7 @@ async function openSettlementCarModal(page) {
   await expect(edit).toBeVisible();
   await edit.click();
   await expect(page.locator('#settlementCarEditModal')).toBeVisible();
+  await page.waitForFunction(() => !document.querySelector('#appStatusToast')?.classList.contains('visible'));
 }
 
 for (const scenario of [

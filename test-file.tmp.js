@@ -1,0 +1,2 @@
+const {chromium}=require('@playwright/test');
+(async()=>{const b=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']}); const p=await b.newPage(); try{await p.goto('file://' + process.cwd() + '/index.html'); console.log('ok',await p.title(),p.url()); console.log('ls',await p.evaluate(()=>{try{localStorage.setItem('x','1');return localStorage.getItem('x')}catch(e){return e.message}}));}catch(e){console.error('ERR',e.message)} await b.close();})();

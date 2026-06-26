@@ -1,12 +1,12 @@
 /* Shared presentation view frame.
    発表ビューは車割を上、班割を下に縦並びで表示する。 */
 #sheet-view-area {
+  position: relative;
   display: none;
   flex: 1;
   min-width: 0;
+  min-height: 0;
   overflow: hidden;
-  position: relative;
-  touch-action: none;
   background: var(--bg-body);
 }
 #sheet-view-area.active { display: flex; }
@@ -36,16 +36,24 @@
 #sheet-title-bar #sheet-summary { color: var(--text-sub); }
 
 #sheet-canvas {
-  display: flex;
   flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--canvas-bg);
+}
+
+.sheet-content {
+  box-sizing: border-box;
+  display: flex;
   flex-direction: column;
   gap: 22px;
-  overflow: auto;
-  padding: 100px 12px 88px;
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  padding: 100px 12px calc(112px + env(safe-area-inset-bottom));
   transform-origin: top left;
-  background: var(--canvas-bg);
-  border-radius: 0;
-  -webkit-overflow-scrolling: touch;
 }
 
 .sheet-plan-section { width: max-content; min-width: min(100%, 320px); margin-bottom: 0; }
@@ -100,27 +108,9 @@
 .sheet-chip.locked { opacity: 0.78; }
 .sheet-chip-ghost { opacity: 0.45; }
 .sheet-chip-drag { box-shadow: var(--shadow-float); }
-#sheet-hint {
-  position: absolute;
-  right: 16px;
-  bottom: 84px;
-  z-index: var(--z-floating);
-  max-width: calc(100% - 32px);
-  padding: 9px 12px;
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--surface-highest) 94%, transparent);
-  color: var(--text-main);
-  box-shadow: var(--shadow-float);
-  opacity: 0;
-  pointer-events: none;
-  font-size: var(--font-size-caption);
-  font-weight: 650;
-  white-space: nowrap;
-  backdrop-filter: var(--ui-floating-backdrop);
-}
-#sheet-hint.visible { opacity: 1; }
 
 @media (min-width: 769px) {
-  #sheet-canvas { padding-inline: max(24px, calc((100vw - 1200px) / 2)); }
+  #sheet-canvas { scrollbar-gutter: stable; }
+  .sheet-content { padding-inline: max(24px, calc((100vw - 1200px) / 2)); }
   .sheet-car-col { min-width: 154px; }
 }

@@ -196,12 +196,12 @@ async function captureScenario(browser, size) {
 
   if (captureMode === 'fullpage') {
     await switchView(page, 'sheet');
-    await fullPageShot(page, 'empty-sheet', size, '#sheet-view-area', dpr);
+    await fullPageShot(page, 'empty-sheet', size, '#sheet-canvas', dpr);
     await seed(page, 'normal');
     await switchView(page, 'list');
     await fullPageShot(page, 'list-car', size, '#top-area', dpr);
     await switchView(page, 'sheet');
-    await fullPageShot(page, 'sheet', size, '#sheet-view-area', dpr);
+    await fullPageShot(page, 'sheet', size, '#sheet-canvas', dpr);
     await switchView(page, 'seisan');
     await fullPageShot(page, 'settlement', size, '#seisan-view-area', dpr);
     await context.close();
@@ -212,13 +212,13 @@ async function captureScenario(browser, size) {
   const positions = key ? ['top', 'mid', 'bottom'] : ['top'];
 
   await switchView(page, 'sheet');
-  await shot(page, 'empty-sheet', size, '#sheet-view-area', ['top'], dpr);
+  await shot(page, 'empty-sheet', size, '#sheet-canvas', ['top'], dpr);
 
   await seed(page, 'normal');
   await switchView(page, 'list');
   await shot(page, 'list-car', size, '#top-area', positions, dpr);
   await switchView(page, 'sheet');
-  await shot(page, 'sheet', size, '#sheet-view-area', positions, dpr);
+  await shot(page, 'sheet', size, '#sheet-canvas', positions, dpr);
   await switchView(page, 'seisan');
   await shot(page, 'settlement', size, '#seisan-view-area', positions, dpr);
 
@@ -231,7 +231,7 @@ async function captureScenario(browser, size) {
     await switchView(page, 'sheet');
     await page.locator('#sheet-quick-edit-btn').click();
     await page.waitForTimeout(120);
-    await shot(page, 'sheet-quick-edit', size, '#sheet-view-area', positions, dpr);
+    await shot(page, 'sheet-quick-edit', size, '#sheet-canvas', positions, dpr);
 
     await closeAllOverlays(page);
     await page.locator('#overviewMenuBtn').click();

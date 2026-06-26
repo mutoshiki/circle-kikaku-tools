@@ -1,21 +1,35 @@
 /* Distance, fuel-efficiency and route-helper composition. */
-.seisan-distance-field,
-.seisan-fuel-field {
+.seisan-gas-field-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 8px;
   min-width: 0;
 }
 
-.seisan-distance-field {
+.seisan-distance-field,
+.seisan-fuel-field {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 8px;
+  grid-template-rows: minmax(2.5em, auto) auto;
+  align-content: end;
+  min-width: 0;
 }
 
-.seisan-distance-field label { min-width: 0; }
+.seisan-gas-field-row input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+.seisan-gas-field-row .seisan-mini-label {
+  align-self: end;
+  min-height: 2.5em;
+  margin-bottom: 5px;
+  overflow-wrap: anywhere;
+}
 
 .seisan-distance-shortcut {
-  align-self: end;
-  min-width: 48px;
+  width: 100%;
   min-height: 48px;
   margin: 0;
   padding-inline: 14px;
@@ -30,7 +44,7 @@
   white-space: nowrap;
 }
 
-@media (max-width: 420px) {
-  .seisan-distance-field { grid-template-columns: 1fr; }
-  .seisan-distance-shortcut { width: 100%; }
+@media (max-width: 360px) {
+  .seisan-gas-field-row { gap: 6px; }
+  .seisan-gas-field-row .seisan-mini-label { font-size: 0.64rem; }
 }

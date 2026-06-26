@@ -1,32 +1,7 @@
-/* Responsive field composition inside vehicle editor. */
+/* Responsive labels and standalone-driver fields inside the vehicle editor. */
 #settlementCarEditModal .modal-body { overflow-x: hidden; }
 #settlementCarEditModal .seisan-small { margin-bottom: 12px; color: var(--text-sub); font-size: 0.74rem; font-weight: 600; line-height: 1.45; }
-#settlementCarEditModal .seisan-car-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 #settlementCarEditModal .seisan-mini-label { min-height: 1.3em; margin-bottom: 5px; color: var(--text-sub); font-size: 0.68rem; font-weight: 650; white-space: nowrap; }
-#settlementCarEditModal .seisan-car-inputs input,
-#settlementCarEditModal .seisan-extra-row input,
-#settlementCarEditModal .seisan-extra-row select { min-height: 48px; padding: 9px 10px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--surface-lowest); color: var(--text-main); font-size: 16px; }
 #settlementCarEditModal .seisan-subhead { margin-top: 18px; padding-top: 14px; }
-#settlementCarEditModal .seisan-extra-row { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(72px, 0.68fr) minmax(76px, 0.62fr) 48px; gap: 8px; align-items: center; }
-#settlementCarEditModal .seisan-extra-row .seisan-icon-btn { width: 48px; min-width: 48px; height: 48px; }
-#settlementCarEditModal .seisan-add-row .seisan-btn { min-height: 48px; }
 #settlementCarEditModal .seisan-standalone-driver-name-field { display: grid; gap: 5px; margin: 2px 0 12px; }
 #settlementCarEditModal .seisan-standalone-driver-name-field input { width: 100%; min-height: 48px; padding: 9px 11px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--surface-lowest); color: var(--text-main); font-size: 16px; font-weight: 600; }
-
-@media (max-width: 420px) {
-  #settlementCarEditModal .seisan-car-inputs { grid-template-columns: 1fr; }
-  #settlementCarEditModal .seisan-extra-row { grid-template-columns: minmax(0, 1fr) minmax(88px, 0.8fr) 48px; }
-  #settlementCarEditModal .seisan-extra-row select { grid-column: 1 / 3; }
-}
-
-
-@media (max-width: 380px) {
-  #settlementCarEditModal .seisan-extra-row {
-    grid-template-columns: minmax(0, 1fr) minmax(86px, 0.7fr) 48px;
-    gap: 6px;
-  }
-
-  #settlementCarEditModal .seisan-extra-row select {
-    grid-column: 1 / 3;
-  }
-}

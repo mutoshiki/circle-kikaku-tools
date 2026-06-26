@@ -1,0 +1,4 @@
+
+> circle-kikaku-tools@7.0.0-calm-workspace lint:css
+> stylelint "assets/css/**/*.css"
+

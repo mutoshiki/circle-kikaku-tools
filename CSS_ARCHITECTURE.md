@@ -43,9 +43,9 @@
 
 - `settlement/car-inputs/01-car-form.css`: 車両費フォームのシェル、見出し、共通入力、エラー、フォーカス
 - `settlement/car-inputs/02-distance-fuel.css`: 距離・燃費・距離計算導線
-- `settlement/car-inputs/03-extra-costs.css`: 諸経費行、追加操作、精算区分
+- `settlement/car-inputs/03-extra-costs.css`: 諸経費行の1列構成、削除操作、追加操作、精算区分
 - `settlement/car-inputs/04-edit-modal.css`: 精算編集ダイアログの枠、ヘッダー、フッター、画面内配置
-- `settlement/car-inputs/05-mobile-inputs.css`: 車両編集ダイアログ内部の狭幅構成
+- `settlement/car-inputs/05-mobile-inputs.css`: 車両編集ダイアログ内の補足ラベルと車出し名入力
 - `settlement/car-inputs/06-times-rental.css`: タイムズ固有の状態と自動費用
 - `settlement/car-inputs/07-extra-candidates.css`: 諸経費候補
 - `settlement/controls/03-settings.css`: 精算設定ダイアログの全状態

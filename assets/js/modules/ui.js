@@ -1,5 +1,5 @@
 (function () {
-  const state = { confirmModal: null, alertModal: null, undoTimer: null, undoAction: null };
+  const state = { confirmModal: null, alertModal: null, undoTimer: null, undoAction: null, statusTimer: null };
 
   function ensureConfirmModal() {
     let el = document.getElementById('appConfirmModal');
@@ -8,11 +8,14 @@
       el.id = 'appConfirmModal';
       el.className = 'modal fade app-decision-modal';
       el.tabIndex = -1;
+      el.setAttribute('role', 'dialog');
+      el.setAttribute('aria-modal', 'true');
+      el.setAttribute('aria-labelledby', 'appConfirmModalTitle');
       el.innerHTML = `
         <div class="modal-dialog modal-dialog-centered modal-sm">
           <div class="modal-content">
             <div class="modal-header py-2">
-              <h6 class="modal-title mb-0">確認</h6>
+              <h6 class="modal-title mb-0" id="appConfirmModalTitle">確認</h6>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
             </div>
             <div class="modal-body"><div class="app-decision-message"></div></div>
@@ -35,11 +38,14 @@
       el.id = 'appAlertModal';
       el.className = 'modal fade app-decision-modal';
       el.tabIndex = -1;
+      el.setAttribute('role', 'dialog');
+      el.setAttribute('aria-modal', 'true');
+      el.setAttribute('aria-labelledby', 'appAlertModalTitle');
       el.innerHTML = `
         <div class="modal-dialog modal-dialog-centered modal-sm">
           <div class="modal-content">
             <div class="modal-header py-2">
-              <h6 class="modal-title mb-0">お知らせ</h6>
+              <h6 class="modal-title mb-0" id="appAlertModalTitle">お知らせ</h6>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
             </div>
             <div class="modal-body"><div class="app-decision-message"></div></div>
@@ -117,6 +123,37 @@
     });
   }
 
+  function ensureStatusToast() {
+    let toast = document.getElementById('appStatusToast');
+    if (toast) return toast;
+    toast = document.createElement('div');
+    toast.id = 'appStatusToast';
+    toast.className = 'app-status-toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    toast.setAttribute('aria-atomic', 'true');
+    document.body.appendChild(toast);
+    return toast;
+  }
+
+  function showStatus(message, options = {}) {
+    if (!message) return;
+    const toast = ensureStatusToast();
+    const tone = options.tone === 'error' ? 'error' : options.tone === 'success' ? 'success' : 'neutral';
+    const duration = Number.isFinite(options.duration) ? Math.max(800, options.duration) : 2200;
+    toast.dataset.tone = tone;
+    toast.setAttribute('role', tone === 'error' ? 'alert' : 'status');
+    toast.setAttribute('aria-live', tone === 'error' ? 'assertive' : 'polite');
+    toast.classList.remove('visible');
+    toast.textContent = '';
+    requestAnimationFrame(() => {
+      toast.textContent = String(message);
+      toast.classList.add('visible');
+    });
+    clearTimeout(state.statusTimer);
+    state.statusTimer = setTimeout(() => toast.classList.remove('visible'), duration);
+  }
+
   function setSyncStatus(kind = 'neutral', message = '') {
     const badge = document.getElementById('syncStatusBadge');
     if (!badge) return;
@@ -157,5 +194,7 @@
     if (bar) bar.classList.remove('visible');
   }
 
-  window.AppUI = { confirm, alert, setSyncStatus, showUndoBar, hideUndoBar };
+  window.AppUI = { confirm, alert, showStatus, setSyncStatus, showUndoBar, hideUndoBar };
+  window.showAppNotice = (message, isError = false) => showStatus(message, { tone: isError ? 'error' : 'neutral' });
+  window.showMiniToast = (message, tone = 'neutral') => showStatus(message, { tone, duration: 1800 });
 })();

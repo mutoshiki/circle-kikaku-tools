@@ -99,17 +99,15 @@
   }
 }
 
-#sheet-view-area:has(#sheet-canvas .sheet-empty-card) #sheet-canvas {
+#sheet-view-area:has(#sheet-content .sheet-empty-card) .sheet-content {
   width: 100%;
   min-width: 100%;
-  min-height: calc(100dvh - 260px);
-  box-sizing: border-box;
-  display: flex;
+  min-height: 100%;
   align-items: center;
   justify-content: center;
 }
 
-#sheet-view-area:has(#sheet-canvas .sheet-empty-card) .sheet-empty-card {
+#sheet-view-area:has(#sheet-content .sheet-empty-card) .sheet-empty-card {
   margin: 0 auto;
 }
 

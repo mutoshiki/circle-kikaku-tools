@@ -1,6 +1,6 @@
 /* Driver payment card: one group surface, quiet inner cost rows and explicit completion. */
 #seisan-view-area .seisan-car-summary-row {
-  --settlement-car-amount-col: 104px;
+  --settlement-car-amount-col: 112px;
   --settlement-car-tag-col: 36px;
 }
 
@@ -57,19 +57,19 @@
   justify-content: flex-end;
   width: var(--settlement-car-amount-col);
   color: var(--text-main);
-  --amount-font-size: 1.08rem;
+  --amount-font-size: 1.2rem;
   font-size: var(--amount-font-size);
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-weight: 750;
+  letter-spacing: -0.025em;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 #seisan-view-area .seisan-amount-sign { display: inline-flex; justify-content: center; width: 0.9em; margin-right: 0.04em; color: var(--text-sub); }
 #seisan-view-area .seisan-car-summary-row :is(.seisan-cost-type-badge, .seisan-payment-tag) { justify-self: end; min-width: 34px; min-height: 20px; margin: 0; padding: 3px 5px; font-size: 0.62rem; }
 #seisan-view-area .seisan-car-summary-row .seisan-cost-total-row.seisan-car-summary-payment { margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--border-section); }
-#seisan-view-area .seisan-cost-line-amount.seisan-car-summary-total { --amount-font-size: 1.08rem; font-size: var(--amount-font-size); }
-#seisan-view-area .seisan-car-summary-row .seisan-cost-total-row .seisan-car-summary-total { font-size: 1.25rem; color: var(--accent-color); }
+#seisan-view-area .seisan-cost-line-amount.seisan-car-summary-total { --amount-font-size: 1.2rem; font-size: var(--amount-font-size); }
+#seisan-view-area .seisan-car-summary-row .seisan-cost-total-row .seisan-car-summary-total { font-size: 1.36rem; color: var(--accent-color); }
 
 @media (max-width: 390px) {
-  #seisan-view-area .seisan-car-summary-row { --settlement-car-amount-col: 102px; --settlement-car-tag-col: 32px; }
+  #seisan-view-area .seisan-car-summary-row { --settlement-car-amount-col: 108px; --settlement-car-tag-col: 32px; }
 }

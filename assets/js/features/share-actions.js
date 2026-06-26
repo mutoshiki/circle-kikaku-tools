@@ -33,16 +33,7 @@ function showCopyFallback(message, text) {
 
 function copyUrl() {
     navigator.clipboard.writeText(window.location.href).then(() => {
-        let toast = byId('copy-toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'copy-toast';
-            toast.className = 'copy-toast';
-            document.body.appendChild(toast);
-        }
-        toast.textContent = '✓ 共有リンクをコピーしました。参加者は発表ビューで開きます';
-        toast.classList.add('visible');
-        setTimeout(() => { toast.classList.remove('visible'); }, 2000);
+        showAppNotice('共有リンクをコピーしました。参加者は発表ビューで開きます');
     }).catch(() => {
         showCopyFallback('共有リンクをコピーしてください', window.location.href);
     });

@@ -13,11 +13,11 @@
   --z-tray: 300;
   --z-dropdown: 600;
   --z-person-menu: 800;
+  --z-floating: 900;
+  --z-drag: 1000;
   --z-modal-backdrop: 1040;
   --z-modal: 1050;
-  --z-floating: 2200;
-  --z-toast: 2300;
-  --z-drag: 100000;
+  --z-toast: 1100;
 }
 
 #top-area {

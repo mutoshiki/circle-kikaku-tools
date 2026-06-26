@@ -22,7 +22,7 @@ const requiredDirs = [
   'cars-members-tray/waiting-tray/', 'cars-members-tray/person-card/', 'cars-members-tray/car-card/', 'cars-members-tray/drag-drop/',
   'settlement/page-shell/', 'settlement/summary/', 'settlement/controls/', 'settlement/car-inputs/', 'settlement/route-helper/',
   'settlement/checklists/', 'settlement/share/', 'settlement/cost-tags/', 'settlement/payment-chip/', 'settlement/car-cost-summary/',
-  'sheet-view/layout/', 'sheet-view/waiting/', 'sheet-view/timetable/', 'sheet-view/edit/', 'sheet-view/print/'
+  'sheet-view/layout/', 'sheet-view/gestures/', 'sheet-view/waiting/', 'sheet-view/timetable/', 'sheet-view/edit/'
 ];
 for (const dir of requiredDirs) {
   assert(cssFiles.some(file => file.startsWith(dir)), `missing CSS owner directory: ${dir}`);

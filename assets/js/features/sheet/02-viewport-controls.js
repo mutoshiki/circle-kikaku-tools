@@ -1,67 +1,100 @@
 // Sheet viewport pan, zoom, and timetable editing interactions.
 
-let sheetScale = 1, sheetX = 0, sheetY = 0;
-let isPanning = false, panStartX = 0, panStartY = 0, panOriginX = 0, panOriginY = 0;
+let sheetScale = 1;
+let isPanning = false;
+let panStartX = 0;
+let panStartY = 0;
+let panOriginLeft = 0;
+let panOriginTop = 0;
 let lastPinchDist = 0;
+let lastPinchCenterX = 0;
+let lastPinchCenterY = 0;
 let sheetUserAdjusted = false;
 
-function applySheetTransform() {
-    const canvas = byId('sheet-canvas');
-    if (canvas) canvas.style.transform = `translate(${sheetX}px,${sheetY}px) scale(${sheetScale})`;
+function getSheetViewport() {
+    return byId('sheet-canvas');
 }
 
-function getSheetContentWidth(canvas) {
-    if (!canvas?.children.length) return 0;
-    return Math.max(
-        ...Array.from(canvas.children).map(child => child.scrollWidth || child.offsetWidth || 0),
-        canvas.scrollWidth || 0
+function getSheetContent() {
+    return byId('sheet-content');
+}
+
+function clampSheetScale(value) {
+    return Math.max(0.3, Math.min(4, Number(value) || 1));
+}
+
+function applySheetScale() {
+    const content = getSheetContent();
+    if (!content) return;
+    content.style.transform = 'none';
+    content.style.zoom = String(sheetScale);
+}
+
+function setSheetScale(nextScale, options = {}) {
+    const viewport = getSheetViewport();
+    const content = getSheetContent();
+    if (!viewport || !content) return;
+
+    const previousScale = sheetScale || 1;
+    const rect = viewport.getBoundingClientRect();
+    const targetFocalX = Number.isFinite(options.clientX) ? options.clientX - rect.left : viewport.clientWidth / 2;
+    const targetFocalY = Number.isFinite(options.clientY) ? options.clientY - rect.top : viewport.clientHeight / 2;
+    const sourceFocalX = Number.isFinite(options.sourceClientX) ? options.sourceClientX - rect.left : targetFocalX;
+    const sourceFocalY = Number.isFinite(options.sourceClientY) ? options.sourceClientY - rect.top : targetFocalY;
+    const contentX = (viewport.scrollLeft + sourceFocalX) / previousScale;
+    const contentY = (viewport.scrollTop + sourceFocalY) / previousScale;
+
+    sheetScale = clampSheetScale(nextScale);
+    applySheetScale();
+
+    viewport.scrollTo({
+        left: Math.max(0, contentX * sheetScale - targetFocalX),
+        top: Math.max(0, contentY * sheetScale - targetFocalY),
+        behavior: 'auto'
+    });
+}
+
+function getSheetContentWidth(content = getSheetContent()) {
+    if (!content?.children.length) return 0;
+    const previousZoom = content.style.zoom;
+    content.style.zoom = '1';
+    const width = Math.max(
+        ...Array.from(content.children).map(child => child.scrollWidth || child.offsetWidth || 0),
+        content.scrollWidth || 0
     );
-}
-
-function getInitialSheetX(area, contentWidth, scale) {
-    if (!area || area.clientWidth <= 640) return 0;
-    return Math.max(0, Math.round((area.clientWidth - contentWidth * scale) / 2));
+    content.style.zoom = previousZoom;
+    return width;
 }
 
 function fitInitialSheetScale() {
     if (sheetUserAdjusted) return;
-    const area = byId('sheet-view-area');
-    const canvas = byId('sheet-canvas');
-    if (!area || !canvas || !canvas.children.length) return;
-    const contentWidth = getSheetContentWidth(canvas);
-    const availableWidth = Math.max(0, area.clientWidth - 20);
+    const viewport = getSheetViewport();
+    const content = getSheetContent();
+    if (!viewport || !content || !content.children.length) return;
+
+    const contentWidth = getSheetContentWidth(content);
+    const availableWidth = Math.max(0, viewport.clientWidth - 24);
     if (!contentWidth || !availableWidth) return;
-    const isCompact = area.clientWidth <= 640;
-    const minScale = isCompact ? 0.74 : 0.92;
-    const maxScale = isCompact ? 0.88 : 1;
-    sheetScale = Math.min(1, Math.min(maxScale, Math.max(minScale, availableWidth / contentWidth)));
-    sheetX = getInitialSheetX(area, contentWidth, sheetScale);
-    sheetY = 0;
-    applySheetTransform();
+
+    const compact = viewport.clientWidth <= 640;
+    const minScale = compact ? 0.58 : 0.88;
+    const maxScale = compact ? 0.9 : 1;
+    sheetScale = Math.min(maxScale, Math.max(minScale, availableWidth / contentWidth));
+    applySheetScale();
+    viewport.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 }
 
 function markSheetAdjusted() {
     sheetUserAdjusted = true;
 }
 
-function zoomIn() { markSheetAdjusted(); sheetScale = Math.min(sheetScale * 1.25, 4); applySheetTransform(); }
-function zoomOut() { markSheetAdjusted(); sheetScale = Math.max(sheetScale / 1.25, 0.3); applySheetTransform(); }
-function resetZoom() {
-    markSheetAdjusted();
-    const area = byId('sheet-view-area');
-    const canvas = byId('sheet-canvas');
-    sheetScale = 1;
-    sheetX = getInitialSheetX(area, getSheetContentWidth(canvas), sheetScale);
-    sheetY = 0;
-    applySheetTransform();
-}
-window.zoomIn = zoomIn; window.zoomOut = zoomOut; window.resetZoom = resetZoom;
-
 D.addEventListener('DOMContentLoaded', () => {
     const area = byId('sheet-view-area');
-    if (!area) return;
-    const preventSheetTextSelection = e => {
-        if (isSheetDragHandle(e.target)) e.preventDefault();
+    const viewport = getSheetViewport();
+    if (!area || !viewport) return;
+
+    const preventSheetTextSelection = event => {
+        if (isSheetDragHandle(event.target)) event.preventDefault();
     };
 
     area.addEventListener('contextmenu', preventSheetTextSelection);
@@ -95,73 +128,78 @@ D.addEventListener('DOMContentLoaded', () => {
         }, 250);
     });
 
-    area.addEventListener('mousedown', e => {
-        if (isSheetInteractiveTarget(e.target) || isSheetDragHandle(e.target)) return;
+    viewport.addEventListener('mousedown', event => {
+        if (event.button !== 0 || isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
         markSheetAdjusted();
-        isPanning = true; panStartX = e.clientX; panStartY = e.clientY;
-        panOriginX = sheetX; panOriginY = sheetY;
-        area.style.cursor = 'grabbing';
+        isPanning = true;
+        panStartX = event.clientX;
+        panStartY = event.clientY;
+        panOriginLeft = viewport.scrollLeft;
+        panOriginTop = viewport.scrollTop;
+        viewport.classList.add('is-panning');
+        event.preventDefault();
     });
-    D.addEventListener('mousemove', e => {
+    D.addEventListener('mousemove', event => {
         if (!isPanning) return;
-        sheetX = panOriginX + (e.clientX - panStartX);
-        sheetY = panOriginY + (e.clientY - panStartY);
-        applySheetTransform();
+        viewport.scrollLeft = panOriginLeft - (event.clientX - panStartX);
+        viewport.scrollTop = panOriginTop - (event.clientY - panStartY);
     });
-    D.addEventListener('mouseup', () => { isPanning = false; area.style.cursor = ''; });
+    D.addEventListener('mouseup', () => {
+        isPanning = false;
+        viewport.classList.remove('is-panning');
+    });
 
-    area.addEventListener('wheel', e => {
-        e.preventDefault();
+    viewport.addEventListener('wheel', event => {
+        if (!event.ctrlKey && !event.metaKey) return;
+        event.preventDefault();
         markSheetAdjusted();
-        const factor = e.deltaY < 0 ? 1.1 : 0.9;
-        const rect = area.getBoundingClientRect();
-        const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-        sheetX = mx - (mx - sheetX) * factor;
-        sheetY = my - (my - sheetY) * factor;
-        sheetScale = Math.max(0.3, Math.min(4, sheetScale * factor));
-        applySheetTransform();
+        const factor = event.deltaY < 0 ? 1.1 : 0.9;
+        setSheetScale(sheetScale * factor, { clientX: event.clientX, clientY: event.clientY });
     }, { passive: false });
 
-    area.addEventListener('touchstart', e => {
-        if (isSheetInteractiveTarget(e.target) || isSheetDragHandle(e.target)) return;
+    viewport.addEventListener('touchstart', event => {
+        if (isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
+        if (event.touches.length !== 2) return;
         markSheetAdjusted();
-        if (e.touches.length === 1) {
-            isPanning = true;
-            panStartX = e.touches[0].clientX; panStartY = e.touches[0].clientY;
-            panOriginX = sheetX; panOriginY = sheetY;
-        } else if (e.touches.length === 2) {
-            isPanning = false;
-            lastPinchDist = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-        }
-    }, { passive: true });
-
-    area.addEventListener('touchmove', e => {
-        e.preventDefault();
-        if (e.touches.length === 1 && isPanning) {
-            sheetX = panOriginX + (e.touches[0].clientX - panStartX);
-            sheetY = panOriginY + (e.touches[0].clientY - panStartY);
-            applySheetTransform();
-        } else if (e.touches.length === 2) {
-            const dist = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-            if (lastPinchDist > 0) {
-                const factor = dist / lastPinchDist;
-                const rect = area.getBoundingClientRect();
-                const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
-                const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
-                sheetX = cx - (cx - sheetX) * factor;
-                sheetY = cy - (cy - sheetY) * factor;
-                sheetScale = Math.max(0.3, Math.min(4, sheetScale * factor));
-                applySheetTransform();
-            }
-            lastPinchDist = dist;
-        }
+        lastPinchDist = Math.hypot(
+            event.touches[0].clientX - event.touches[1].clientX,
+            event.touches[0].clientY - event.touches[1].clientY
+        );
+        lastPinchCenterX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
+        lastPinchCenterY = (event.touches[0].clientY + event.touches[1].clientY) / 2;
+        event.preventDefault();
     }, { passive: false });
 
-    area.addEventListener('touchend', () => { isPanning = false; lastPinchDist = 0; });
+    viewport.addEventListener('touchmove', event => {
+        if (event.touches.length !== 2 || lastPinchDist <= 0) return;
+        event.preventDefault();
+        const dist = Math.hypot(
+            event.touches[0].clientX - event.touches[1].clientX,
+            event.touches[0].clientY - event.touches[1].clientY
+        );
+        const clientX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
+        const clientY = (event.touches[0].clientY + event.touches[1].clientY) / 2;
+        setSheetScale(sheetScale * (dist / lastPinchDist), {
+            sourceClientX: lastPinchCenterX,
+            sourceClientY: lastPinchCenterY,
+            clientX,
+            clientY
+        });
+        lastPinchDist = dist;
+        lastPinchCenterX = clientX;
+        lastPinchCenterY = clientY;
+    }, { passive: false });
+
+    const finishPinch = event => {
+        if (event.touches.length >= 2) return;
+        lastPinchDist = 0;
+        lastPinchCenterX = 0;
+        lastPinchCenterY = 0;
+    };
+    viewport.addEventListener('touchend', finishPinch, { passive: true });
+    viewport.addEventListener('touchcancel', finishPinch, { passive: true });
+
+    window.addEventListener('resize', () => {
+        if (!sheetUserAdjusted) requestAnimationFrame(fitInitialSheetScale);
+    });
 });

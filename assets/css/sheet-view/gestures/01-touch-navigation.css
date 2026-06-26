@@ -1,0 +1,39 @@
+/* Direct manipulation for the shared presentation canvas. */
+#sheet-canvas {
+  touch-action: pan-x pan-y;
+  cursor: grab;
+  -webkit-overflow-scrolling: touch;
+}
+
+#sheet-canvas:focus-visible {
+  outline: 3px solid var(--focus-accent);
+  outline-offset: -3px;
+}
+
+#sheet-canvas.is-panning {
+  cursor: grabbing;
+  user-select: none;
+}
+
+#sheet-hint {
+  position: absolute;
+  right: 16px;
+  bottom: 84px;
+  z-index: var(--z-floating);
+  max-width: calc(100% - 32px);
+  padding: 9px 12px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--surface-highest) 94%, transparent);
+  color: var(--text-main);
+  box-shadow: var(--shadow-float);
+  opacity: 0;
+  pointer-events: none;
+  font-size: var(--font-size-caption);
+  font-weight: 650;
+  white-space: nowrap;
+  backdrop-filter: var(--ui-floating-backdrop);
+}
+
+#sheet-hint.visible {
+  opacity: 1;
+}

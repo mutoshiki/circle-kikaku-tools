@@ -52,11 +52,6 @@
 #settlementCarEditModal .seisan-car-row { margin-bottom: 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
 #settlementCarEditModal .seisan-car-title { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 #settlementCarEditModal .seisan-car-title strong { min-width: 0; overflow: hidden; font-size: 1rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-#settlementCarEditModal .seisan-distance-field { display: flex; flex-direction: column; align-items: stretch; gap: 8px; min-width: 0; }
-#settlementCarEditModal .seisan-distance-field label,
-#settlementCarEditModal .seisan-car-inputs label { min-width: 0; }
-#settlementCarEditModal .seisan-distance-shortcut { width: 100%; min-height: 48px; white-space: nowrap; }
-#settlementCarEditModal .seisan-add-row { margin-top: 8px; }
 
 @media (max-width: 640px) {
   #settlementSettingsModal .modal-dialog,

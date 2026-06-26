@@ -44,6 +44,8 @@ function getCarPlanTemplateConfig(planOrType = 'car') {
         return {
             type: 'team',
             sectionTitle: '班',
+            sheetTitle: '班割',
+            planName: '班割',
             ownerLabel: '班長',
             memberLabel: '班員',
             groupSuffix: '班',
@@ -53,6 +55,8 @@ function getCarPlanTemplateConfig(planOrType = 'car') {
     return {
         type: 'car',
         sectionTitle: '車割',
+        sheetTitle: '車割',
+        planName: '車割',
         ownerLabel: '車出し',
         memberLabel: '席',
         groupSuffix: '車',

@@ -108,7 +108,7 @@
   opacity: 0;
   pointer-events: none;
   transform: translate(-50%, 18px);
-  transition: opacity 160ms ease, transform 160ms ease;
+  transition: opacity var(--motion-medium) ease, transform var(--motion-medium) ease;
 }
 
 #appUndoBar.visible { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }

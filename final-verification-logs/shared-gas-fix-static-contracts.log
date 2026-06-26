@@ -1,0 +1,154 @@
+
+> circle-kikaku-tools@7.0.0-calm-workspace test
+> node tests/run-static-tests.js
+
+RUN badge-check-light-check.js
+Badge/check light repair check OK
+RUN breakpoint-policy-check.js
+Breakpoint policy check OK
+RUN collect-summary-blue-check.js
+Collect summary neutral check OK
+RUN common-edit-modal-id-check.js
+Common edit modal id check OK
+RUN control-consistency-check.js
+Control consistency check OK
+RUN css-45-completion-check.js
+CSS 45-point completion check OK
+RUN css-fixed-scope-owner-check.js
+CSS fixed scope owner check OK
+RUN css-link-integrity-check.js
+CSS link integrity check OK
+RUN css-owner-regression-check.js
+CSS owner regression check OK (25 selectors)
+RUN css-quality-guard-check.js
+CSS quality guard OK
+RUN css-split-check.js
+CSS direct leaf split check OK
+RUN drag-single-visual-check.js
+Drag single visual check OK
+RUN event-owner-check.js
+Event owner check OK
+RUN final-ui-polish-check.js
+Final UI polish check OK
+RUN floating-surface-owner-check.js
+Floating surface owner check OK
+RUN gender-heuristic-check.js
+Gender heuristic check OK
+RUN google-form-import-parser-check.js
+Google Form import parser check OK
+RUN header-icon-contract-check.js
+Header icon contract check OK
+RUN inline-event-check.js
+Inline event cleanup check OK
+RUN lock-scope-selection-check.js
+Lock scope selection check OK
+RUN major-css-cleanup-check.js
+Major CSS cleanup check OK
+RUN mobile-ui-polish-check.js
+Mobile UI polish check OK
+RUN modal-alignment-check.js
+Modal alignment check OK
+RUN modal-border-radius-contract-check.js
+Modal border/radius contract check OK
+RUN modal-hierarchy-check.js
+Modal hierarchy check OK
+RUN modal-z-layer-check.js
+Modal z-layer guard OK
+RUN no-important-check.js
+No important check OK
+RUN non-blue-color-system-check.js
+Non-blue color system check OK
+RUN person-menu-action-handler-check.js
+Person menu action handler check OK
+RUN person-menu-event-namespace-check.js
+person menu event namespace check passed
+RUN person-menu-layer-contract-check.js
+Person menu layer contract check OK
+RUN quick-edit-confirm-check.js
+Quick edit confirm check OK
+RUN quick-edit-done-no-empty-check.js
+Quick edit done no-empty check OK
+RUN quick-edit-persist-refresh-check.js
+Quick edit persist/refresh check OK
+RUN requested-root-fixes-check.js
+Requested root fixes check OK
+RUN route-helper-simple-ui-check.js
+Route helper simple popup check OK
+RUN s-deep-refactor-check.js
+S deep refactor check OK
+RUN s-final-architecture-check.js
+S final architecture check OK
+RUN sample-data-runtime-guard-check.js
+Sample data runtime guard check OK
+RUN sample-data-timetable-team-check.js
+Sample data timetable/team check OK
+RUN seisan-empty-state-check.js
+Settlement empty state check OK
+RUN settlement-car-list-column-check.js
+Settlement car list column check OK
+RUN settlement-car-summary-readability-check.js
+Settlement car summary readability check OK
+RUN settlement-collection-excluded-state-check.js
+Settlement collection excluded state check OK
+RUN settlement-compact-modal-check.js
+Settlement compact modal check OK
+RUN settlement-cost-tag-and-tray-polish-check.js
+Settlement cost tag and tray polish check OK
+RUN settlement-driver-collection-toggle-check.js
+Settlement driver collection toggle check OK
+RUN settlement-followup-compact-check.js
+Settlement follow-up compact check OK
+RUN settlement-payment-label-polish-check.js
+Settlement payment label polish check OK
+RUN settlement-render-safety-check.js
+Settlement render safety check OK
+RUN settlement-reward-extra-and-summary-tag-check.js
+Settlement reward extra and summary tag check OK
+RUN settlement-summary-color-guard-check.js
+Settlement summary color guard OK
+RUN settlement-summary-row-parity-check.js
+Settlement summary row parity check OK
+RUN settlement-summary-surface-guard-check.js
+Settlement summary surface guard OK
+RUN settlement-tag-color-unification-check.js
+Settlement tag color unification check OK
+RUN settlement-template-runtime-check.js
+Settlement template runtime check OK
+RUN settlement-template-split-check.js
+Settlement template split check OK
+RUN settlement-times-rental-polish-check.js
+settlement times rental polish check OK
+RUN shared-card-surface-contract-check.js
+Shared card surface contract check OK
+RUN shared-scroll-and-gas-grid-check.js
+Shared scroll and gas grid check OK
+RUN shared-ui-unification-check.js
+Shared UI unification check OK
+RUN sheet-plan-vertical-order-check.js
+Sheet plan vertical order check OK
+RUN sheet-summary-two-row-check.js
+Sheet summary two-row check OK
+RUN standalone-settlement-mode-check.js
+standalone settlement mode check OK
+RUN status-owner-check.js
+Status owner check OK
+RUN structural-check.js
+Structural check OK
+RUN timetable-input-stability-check.js
+Timetable input stability check OK
+RUN timetable-sheet-view-link-check.js
+RUN ui-followup-visual-repair-check.js
+UI follow-up visual repair check OK
+RUN unused-module-cleanup-check.js
+Unused module cleanup check OK
+RUN user-guide-rebuild-check.js
+User guide rebuild check OK
+RUN visual-mode-removal-check.js
+Visual mode removal check OK
+RUN waiting-member-fullname-layout-check.js
+waiting-member-fullname-layout-check OK
+RUN waiting-tray-drag-behavior-check.js
+Waiting tray drag behavior check OK
+RUN window-api-compat-check.js
+Window API compatibility check OK
+Static test suite OK (75 files)

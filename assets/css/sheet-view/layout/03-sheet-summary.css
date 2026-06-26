@@ -17,7 +17,7 @@
 
 @media (max-width: 640px) {
   #sheet-title-bar { min-height: 76px; }
-  #sheet-canvas { padding-top: 104px; }
+  .sheet-content { padding-top: 104px; }
   .sheet-summary-row { grid-template-columns: 38px repeat(4, minmax(0, 1fr)); column-gap: 3px; font-size: 0.66rem; }
   .sheet-summary-updated { display: none; }
 }

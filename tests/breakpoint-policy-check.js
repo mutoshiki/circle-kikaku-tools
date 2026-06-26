@@ -41,17 +41,18 @@ const distanceFuel = fs.readFileSync(
   path.join(cssRoot, 'settlement', 'car-inputs', '02-distance-fuel.css'),
   'utf8'
 );
-const mobileInputs = fs.readFileSync(
-  path.join(cssRoot, 'settlement', 'car-inputs', '05-mobile-inputs.css'),
+const extraCosts = fs.readFileSync(
+  path.join(cssRoot, 'settlement', 'car-inputs', '03-extra-costs.css'),
   'utf8'
 );
 
 if (distanceFuel.includes('@media (max-width: 374px)')) {
   errors.push('distance/fuel owner must not restore the obsolete 374px breakpoint');
 }
-if (!mobileInputs.includes('@media (max-width: 380px)') ||
-    !mobileInputs.includes('#settlementCarEditModal .seisan-extra-row select')) {
-  errors.push('mobile input owner must keep the narrow modal overflow fallback');
+if (!extraCosts.includes('@media (max-width: 360px)') ||
+    !extraCosts.includes('grid-template-columns: minmax(0, 1fr) 66px 70px 48px;') ||
+    extraCosts.includes('grid-column: 1 / 3')) {
+  errors.push('extra-cost owner must keep the one-row narrow modal composition');
 }
 
 if (errors.length) {

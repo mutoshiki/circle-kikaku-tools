@@ -26,7 +26,7 @@
   visibility: hidden;
   transform: translateX(104%);
   pointer-events: none;
-  transition: transform 220ms ease, visibility 0s linear 220ms;
+  transition: transform var(--motion-slow) ease, visibility 0s linear var(--motion-slow);
 }
 .overview-drawer.is-open { visibility: visible; transform: translateX(0); pointer-events: auto; transition-delay: 0s; }
 .overview-drawer-head { display: flex; align-items: center; justify-content: flex-end; min-height: 52px; padding-bottom: 8px; }

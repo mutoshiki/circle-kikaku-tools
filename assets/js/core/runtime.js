@@ -132,24 +132,6 @@ function applyRuntimeAccessibilityFixes(root = document) {
     });
 }
 
-/* showMiniToast is only for one-off notifications. Save/sync state uses #syncStatusBadge. */
-function showMiniToast(message, tone = 'neutral') {
-    if (!message) return;
-    let toast = byId('mini-status-toast');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'mini-status-toast';
-        document.body.appendChild(toast);
-    }
-    toast.className = `mini-status-toast ${tone}`;
-    toast.textContent = message;
-    toast.classList.add('visible');
-    clearTimeout(showMiniToast.timer);
-    showMiniToast.timer = setTimeout(() => toast.classList.remove('visible'), 1800);
-}
-
-
-
 function appPrompt(message, defaultValue = '', options = {}) {
     const modalEl = byId('commonEditModal');
     const input = byId('editModalInput');

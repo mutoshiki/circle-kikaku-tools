@@ -100,13 +100,12 @@
   border-top: 1px solid var(--border-section);
 }
 .seisan-subhead strong { color: var(--text-main); font-size: var(--font-size-label); font-weight: 700; }
-.seisan-add-row { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
 .seisan-empty { padding: 30px 16px; border-radius: var(--radius-main); background: var(--surface-low); color: var(--text-sub); text-align: center; }
 .seisan-driver-name { overflow: hidden; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
 .seisan-driver-amount { white-space: nowrap; }
 .seisan-driver-detail { grid-column: 1 / -1; color: var(--text-sub); font-size: 0.72rem; line-height: 1.4; }
 .seisan-detail { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-section); }
-.seisan-detail summary { min-height: 44px; color: var(--text-sub); cursor: pointer; font-size: var(--font-size-label); font-weight: 650; }
+.seisan-detail summary { min-height: 48px; color: var(--text-sub); cursor: pointer; font-size: var(--font-size-label); font-weight: 650; }
 .seisan-break-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-section); font-size: var(--font-size-label); }
 .seisan-break-row span:last-child { font-weight: 650; white-space: nowrap; }
 

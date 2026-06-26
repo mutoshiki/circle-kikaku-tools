@@ -39,7 +39,7 @@
   border: 1px solid color-mix(in srgb, var(--text-sub) 24%, var(--border-color));
   border-radius: 999px;
   background: color-mix(in srgb, var(--bg-body) 72%, var(--bg-card));
-  transition: background 0.16s ease, border-color 0.16s ease;
+  transition: background var(--motion-medium) ease, border-color var(--motion-medium) ease;
 }
 #settlementCarEditModal .seisan-times-toggle-ui::after {
   content: '';
@@ -50,7 +50,7 @@
   height: 16px;
   border-radius: 50%;
   background: var(--text-sub);
-  transition: transform 0.16s ease, background 0.16s ease;
+  transition: transform var(--motion-medium) ease, background var(--motion-medium) ease;
 }
 #settlementCarEditModal .seisan-times-toggle input:checked + .seisan-times-toggle-ui {
   border-color: color-mix(in srgb, var(--accent-color) 58%, var(--border-color));
@@ -72,19 +72,11 @@
 #settlementCarEditModal .seisan-car-row.is-times-rental .seisan-fuel-field {
   display: none;
 }
+#settlementCarEditModal .seisan-car-row.is-times-rental .seisan-gas-field-row {
+  grid-template-columns: minmax(0, 1fr);
+}
 #settlementCarEditModal .seisan-car-row.is-times-rental .seisan-distance-field {
   grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 8px;
-}
-#settlementCarEditModal .seisan-car-row.is-times-rental .seisan-distance-field label {
-  min-width: 0;
-}
-#settlementCarEditModal .seisan-car-row.is-times-rental .seisan-distance-shortcut {
-  margin: 0;
-  white-space: nowrap;
 }
 #settlementCarEditModal .seisan-extra-delete-placeholder {
   opacity: 0.45;
@@ -100,13 +92,6 @@
   text-align-last: center;
 }
 @media (max-width: 380px) {
-  #settlementCarEditModal .seisan-car-row.is-times-rental .seisan-distance-field {
-    grid-template-columns: 1fr;
-  }
-  #settlementCarEditModal .seisan-car-row.is-times-rental .seisan-distance-shortcut {
-    justify-content: center;
-    width: 100%;
-  }
   #settlementCarEditModal .seisan-times-toggle {
     padding-inline: 9px;
     font-size: 0.86rem;

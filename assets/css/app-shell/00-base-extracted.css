@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   min-width: 48px;
-  min-height: 44px;
+  min-height: 48px;
   padding: 7px 11px;
   border: 1px solid var(--border-item);
   border-radius: var(--radius-pill);

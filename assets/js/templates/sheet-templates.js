@@ -17,6 +17,7 @@
     return {
       type: 'car',
       sectionTitle: '車割',
+      sheetTitle: '車割',
       ownerLabel: '車出し',
       memberLabel: '席',
       groupSuffix: '車',
@@ -74,7 +75,7 @@
     const dg = car.driverGender || 'unknown';
     const dgrade = parseInt(car.driverGrade) || 0;
     html += `<div class="sheet-driver-row" data-gender="${dg}">
-        <span class="sheet-driver-name">${esc(car.name, helpers)}</span>${gradeBadge(dgrade, dg, helpers)}
+        ${gradeBadge(dgrade, dg, helpers)}<span class="sheet-driver-name">${esc(car.name, helpers)}</span>
     </div>`;
 
     for (let i = 0; i < maxSeats; i++) {

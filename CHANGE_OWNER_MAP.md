@@ -35,7 +35,7 @@
 | 精算画面のフォーム・タグ・集計 | `assets/css/settlement/car-inputs/`、`checklists/05-driver-payment-detail.css`、`controls/03-settings.css`、`cost-tags/`、`payment-chip/01-payment-tokens.css`、`summary/05-summary-surfaces.css` | フォーカス打ち消し、完全ピル角丸、近似境界値を除去。費用区分・支払区分・集計面の優先順位は変えず、同じ役割を同じ規則へ統一。 |
 | 精算画面の密度・表面 | `assets/css/settlement/page-shell/06-density.css` / `07-payment-tag-surfaces.css` | 高密度な業務画面の方向性を維持しながら、余白・タグ面・境界の局所差を整理。 |
 | 経路補助 | `assets/css/settlement/route-helper/02-route-stops.css` / `03-route-candidates.css` | 入力・候補・停留点のフォーカス、角丸、境界を共通規則へ接続。 |
-| 発表ビュー・クイック編集 | `assets/css/sheet-view/edit/01-quick-edit.css`、`layout/02-sheet-car-table.css`、`layout/03-sheet-summary.css`、`timetable/01-timetable-base.css`、`02-timetable-edit.css`、`print/01-zoom-print.css` | 表、集計、時間表、編集欄に残っていた局所角丸・フォーカス差を owner 内で整理。配置・列構造・操作は維持。 |
+| 発表ビュー・クイック編集 | `assets/css/sheet-view/edit/01-quick-edit.css`、`layout/02-sheet-car-table.css`、`layout/03-sheet-summary.css`、`timetable/01-timetable-base.css`、`02-timetable-edit.css`、`gestures/01-touch-navigation.css` | 表、集計、時間表、編集欄に残っていた局所角丸・フォーカス差を owner 内で整理。配置・列構造・操作は維持。 |
 | CSS 読み込み | `index.html` | `01-component-palette.css` を token 群の所定位置に追加。アプリ DOM・機能・操作は変更なし。 |
 | 監査・回帰テスト | `tests/refinement-audit.spec.js` / `package.json` | 6幅、長文・長金額、フォーカス・disabled・selected、閉ドロワー、全10モーダルの到達性を検査する `test:refinement` を追加。 |
 | 撮影監査 | `tools/capture-saas-audit.js` / `tools/capture-interaction-audit.js` | モーダル終了処理を安定化し、hover/focus/active/disabled/selected、人物メニュー、実ドラッグ、長文、長金額、主要モーダルを390/1280pxで撮影する監査を追加。 |

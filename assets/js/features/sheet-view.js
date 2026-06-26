@@ -162,7 +162,7 @@ function createSheetWaitingColumn(data, isEditablePlan) {
 function createSheetPlanSection(plan, index) {
     const template = typeof getCarPlanTemplateConfig === 'function'
         ? getCarPlanTemplateConfig(plan)
-        : { sectionTitle: '車割', ownerLabel: '車出し', memberLabel: '席', groupSuffix: '車', ownerIcon: 'fa-car' };
+        : { sectionTitle: '車割', sheetTitle: '車割', planName: '車割', ownerLabel: '車出し', memberLabel: '席', groupSuffix: '車', ownerIcon: 'fa-car' };
     const section = document.createElement('section');
     section.className = 'sheet-plan-section';
     section.dataset.planId = plan.id || `plan-${index}`;
@@ -170,7 +170,7 @@ function createSheetPlanSection(plan, index) {
     const displayName = String(plan.name || template.sectionTitle || '').trim() || template.sectionTitle;
     const heading = document.createElement('div');
     heading.className = 'sheet-plan-heading';
-    heading.textContent = template.sectionTitle;
+    heading.textContent = template.sheetTitle || template.planName || template.sectionTitle;
     section.appendChild(heading);
 
     const cars = Array.isArray(plan.cars) ? plan.cars : [];
@@ -345,6 +345,10 @@ function renderSheetView() {
     if (!manualSheetDrag) cleanupSheetEditArtifacts();
     clearSheetSortables();
     canvas.innerHTML = '';
+    const content = document.createElement('div');
+    content.id = 'sheet-content';
+    content.className = 'sheet-content';
+    canvas.appendChild(content);
     updateQuickEditButton();
     const data = getData({ skipDomSync: true });
     updateSheetSummary(data);
@@ -353,7 +357,8 @@ function renderSheetView() {
     const visiblePlans = plans.filter(plan => (plan.cars || []).length || (plan.waiting || []).length);
 
     if (!visiblePlans.length) {
-        canvas.innerHTML = renderSheetEmptyHtml();
+        content.innerHTML = renderSheetEmptyHtml();
+        requestAnimationFrame(fitInitialSheetScale);
         return;
     }
 
@@ -363,9 +368,9 @@ function renderSheetView() {
             const typeB = typeof normalizeCarPlanTemplateType === 'function' ? normalizeCarPlanTemplateType(b.templateType) : 'car';
             return (typeA === 'car' ? 0 : 1) - (typeB === 'car' ? 0 : 1);
         })
-        .forEach((plan, index) => canvas.appendChild(createSheetPlanSection(plan, index)));
+        .forEach((plan, index) => content.appendChild(createSheetPlanSection(plan, index)));
     const timetableSection = createSheetTimetableSection();
-    if (timetableSection) canvas.appendChild(timetableSection);
+    if (timetableSection) content.appendChild(timetableSection);
     syncSheetPlanWidths();
     requestAnimationFrame(syncSheetPlanWidths);
     requestAnimationFrame(fitInitialSheetScale);

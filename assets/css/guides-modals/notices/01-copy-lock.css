@@ -48,36 +48,52 @@
   font-weight: 600;
 }
 
-.copy-toast,
-.app-notice {
+.app-status-toast {
   position: fixed;
   bottom: max(20px, env(safe-area-inset-bottom));
   left: 50%;
   z-index: var(--z-toast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
   max-width: min(92vw, 520px);
+  min-height: 48px;
   padding: 10px 16px;
-  transform: translateX(-50%);
+  transform: translate(-50%, 8px);
   border-radius: 999px;
   background: var(--text-main);
   color: var(--bg-card);
   box-shadow: var(--shadow-float);
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 650;
+  line-height: 1.35;
   text-align: center;
   white-space: normal;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 180ms ease;
+  transition: opacity var(--motion-medium) ease, transform var(--motion-medium) ease;
 }
 
-.copy-toast.visible,
-.app-notice.visible {
+.app-status-toast.visible {
+  transform: translate(-50%, 0);
   opacity: 1;
 }
 
-.app-notice.is-error {
-  background: var(--color-danger-text);
+.app-status-toast[data-tone="success"] {
+  background: var(--semantic-success);
   color: var(--color-white);
+}
+
+.app-status-toast[data-tone="error"] {
+  background: var(--semantic-danger);
+  color: var(--color-white);
+}
+
+@media (max-width: 640px) {
+  .app-status-toast {
+    bottom: calc(max(20px, env(safe-area-inset-bottom)) + 64px);
+  }
 }
 
 .passphrase-panel {

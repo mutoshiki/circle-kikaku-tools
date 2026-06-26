@@ -14,5 +14,5 @@ function assert(condition, message) {
 assert(value('person-menu') > value('tray'), 'person menu must appear above the waiting tray');
 assert(value('person-menu') < value('modal-backdrop'), 'person menu must stay below modals');
 assert(menu.includes('z-index: var(--z-person-menu);'), 'person menu must use the shared layer token');
-assert(menu.includes('min-height: 44px;'), 'person menu items must provide a mobile touch target');
+assert(menu.includes('min-height: 48px;'), 'person menu items must provide a 48px mobile touch target');
 console.log('Person menu layer contract check OK');

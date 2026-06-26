@@ -17,7 +17,7 @@
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  transition: background-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+  transition: background-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease, transform var(--motion-fast) ease;
 }
 
 .seat-slot > .member-card { width: 100%; height: 100%; margin: 0; touch-action: pan-y; }
@@ -42,7 +42,7 @@
 
 .member-card-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: center; }
 .member-inline-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-.member-inline-actions .action-btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; min-width: 44px; height: 44px; padding: 0; }
+.member-inline-actions .action-btn { display: inline-flex; align-items: center; justify-content: center; width: 48px; min-width: 48px; height: 48px; padding: 0; }
 .member-card.in-waiting { min-height: 60px; }
 .member-card.in-waiting .member-card-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
 .member-card.in-waiting .member-inline-actions { justify-content: flex-start; min-width: 0; overflow: hidden; }

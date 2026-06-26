@@ -37,9 +37,6 @@
         bind('tab-sheet', () => switchView('sheet'));
         bind('tab-seisan', () => switchView('seisan'));
         bind('batchOpenBtn', () => openBatchModal());
-        bind('sheetZoomInBtn', () => zoomIn());
-        bind('sheetZoomOutBtn', () => zoomOut());
-        bind('sheetZoomResetBtn', () => resetZoom());
         bind('sheet-quick-edit-btn', () => toggleQuickEdit());
         bind('seisanRefreshBtn', () => renderSettlementView());
         bind('clearAllBtn', () => global.clearAll());

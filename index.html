@@ -28,6 +28,7 @@
     <link href="./assets/css/tokens/03-bootstrap-controls.css" rel="stylesheet">
     <link href="./assets/css/tokens/04-forms-inputs.css" rel="stylesheet">
     <link href="./assets/css/tokens/05-control-surface-tokens.css" rel="stylesheet">
+    <link href="./assets/css/tokens/06-motion-tokens.css" rel="stylesheet">
     <!-- CSS: components -->
     <link href="./assets/css/components/00-component-contracts.css" rel="stylesheet">
     <link href="./assets/css/components/surfaces/01-surface-tokens.css" rel="stylesheet">
@@ -134,13 +135,13 @@
     <link href="./assets/css/sheet-view/layout/01-sheet-frame.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/layout/02-sheet-car-table.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/layout/03-sheet-summary.css" rel="stylesheet">
+    <link href="./assets/css/sheet-view/gestures/01-touch-navigation.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/waiting/01-sheet-waiting.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/waiting/02-sheet-waiting-mobile.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/timetable/01-timetable-base.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/timetable/02-timetable-edit.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/edit/01-quick-edit.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/edit/02-edit-mobile.css" rel="stylesheet">
-    <link href="./assets/css/sheet-view/print/01-zoom-print.css" rel="stylesheet">
     <!-- CSS: interaction utilities -->
     <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
     <link href="./assets/css/08-utilities.css" rel="stylesheet">
@@ -238,8 +239,8 @@
           <i class="fas fa-table-list sheet-title-icon" aria-hidden="true"></i>
           <span id="sheet-summary" aria-label="車割と班割の集計">車割 車出し 0 同乗者 0 全員 0 待機 0 / 班割 班長 0 メンバー 0 全員 0 待機 0</span>
         </div>
-        <div id="sheet-canvas"></div>
-        <div id="sheet-hint"><i class="fas fa-hand-pointer me-1" aria-hidden="true"></i>横にドラッグ / ピンチでズーム</div>
+        <div id="sheet-canvas" role="region" aria-label="共有画面の車割・班割・タイムテーブル" aria-describedby="sheet-hint" tabindex="0"></div>
+        <div id="sheet-hint"><i class="fas fa-hand-pointer me-1" aria-hidden="true"></i>1本指で移動 / 2本指で拡大・縮小</div>
         <div id="sheet-bottom-controls">
           <button id="sheet-quick-edit-btn" type="button" title="編集">
             <i class="fas fa-pen" aria-hidden="true"></i>
@@ -290,7 +291,7 @@
               <div>
                 <div class="seisan-title seisan-semantic-section-title">
                   <i class="fas fa-square-check" aria-hidden="true"></i>
-                  <span><em class="seisan-cost-policy-tag seisan-cost-type-badge ui-chip split" data-cost-type="split">割勘</em>支払いチェック</span>
+                  <span><em class="seisan-cost-policy-tag seisan-cost-type-badge ui-chip split" data-cost-type="split">割勘</em>集金チェック</span>
                 </div>
                 <div id="seisan-collection-note" class="seisan-muted"></div>
               </div>

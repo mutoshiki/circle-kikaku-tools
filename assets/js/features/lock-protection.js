@@ -207,20 +207,6 @@ window.completeQuickEdit = completeQuickEdit;
 window.SanpoApp?.exposeCompat?.('toggleQuickEdit', toggleQuickEdit);
 window.SanpoApp?.exposeCompat?.('completeQuickEdit', completeQuickEdit);
 
-function showAppNotice(message, isError = false) {
-    let toast = byId('app-notice');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'app-notice';
-        toast.className = 'app-notice';
-        document.body.appendChild(toast);
-    }
-    toast.textContent = message;
-    toast.classList.toggle('is-error', !!isError);
-    toast.classList.add('visible');
-    setTimeout(() => { toast.classList.remove('visible'); }, 2200);
-}
-
 function createLockPanelBase(message) {
     const old = byId('passphrase-panel');
     if (old) old.remove();

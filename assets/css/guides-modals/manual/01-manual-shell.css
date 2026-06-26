@@ -10,7 +10,7 @@
 
 #userGuideModal .modal-body {
   padding: 0;
-  scroll-behavior: smooth;
+  scroll-behavior: var(--motion-scroll-behavior);
 }
 
 .user-manual {
