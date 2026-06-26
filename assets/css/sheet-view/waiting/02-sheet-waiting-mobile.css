@@ -1,0 +1,4 @@
+@media (max-width: 640px) {
+  .sheet-wait-block { width: min(var(--sheet-plan-width, 520px), calc(100vw - 24px)); }
+  .sheet-wait-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

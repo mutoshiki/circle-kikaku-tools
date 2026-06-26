@@ -1,0 +1,126 @@
+/* Settlement settings summary and settings-modal controls. */
+.seisan-settings-card .seisan-compact-head { margin-bottom: 10px; }
+.seisan-settings-summary { min-width: 0; }
+.seisan-title--settings i { color: var(--accent-color); }
+
+#settlementSettingsModal .settlement-edit-dialog { width: min(calc(100vw - 24px), 360px); }
+#settlementSettingsModal .modal-body { padding: 12px 18px 18px; }
+
+.seisan-settings--modal {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.seisan-settings--modal .seisan-settings-span { grid-column: 1 / -1; }
+
+.seisan-settings-section {
+  display: grid;
+  gap: 8px;
+  padding: 2px 0 12px;
+}
+
+.seisan-settings-section--standalone { padding-top: 4px; }
+
+.seisan-settings-section-title {
+  padding-inline: 2px;
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.seisan-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.seisan-settings--modal .seisan-field label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text-sub);
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.seisan-settings-field--rounding,
+.seisan-settings-field--reward {
+  display: grid;
+  grid-template-rows: auto minmax(48px, auto);
+  align-items: start;
+}
+
+.seisan-settings--modal .seisan-field input,
+.seisan-settings--modal .seisan-field select { min-height: 48px; }
+
+.seisan-rounding-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.seisan-rounding-option {
+  position: relative;
+  min-height: 48px;
+  padding: 0 4px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--surface-lowest);
+  color: var(--text-main);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.seisan-rounding-option.active,
+.seisan-rounding-option[aria-pressed='true'] {
+  border-color: var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color) 14%, var(--surface-lowest));
+  color: var(--accent-color);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 26%, transparent);
+}
+
+.seisan-rounding-option[aria-pressed='true']::after {
+  content: '✓';
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  font-size: 0.62rem;
+  line-height: 1;
+}
+
+.seisan-settings--modal .seisan-toggle {
+  min-height: 48px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-lowest);
+}
+
+.seisan-toggle--modal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0;
+}
+
+.seisan-toggle--modal span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+@media (max-width: 420px) {
+  #settlementSettingsModal .settlement-edit-dialog { width: calc(100vw - 18px); }
+  #settlementSettingsModal .modal-body { padding: 10px 14px 16px; }
+}
+
+@media (max-width: 360px) {
+  .seisan-settings-grid,
+  #settlementSettingsModal .seisan-standalone-fields { grid-template-columns: 1fr; }
+}

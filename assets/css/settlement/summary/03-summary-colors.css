@@ -1,0 +1,18 @@
+/* Split, club, and payment use the same surface algorithm. */
+#seisan-view-area .seisan-summary-card.collect {
+  --settlement-summary-bg: var(--settlement-collect-bg);
+  background: var(--settlement-summary-bg);
+  color: var(--settlement-split-ink);
+}
+#seisan-view-area .seisan-summary-card.accounting {
+  --settlement-summary-bg: var(--settlement-club-bg);
+  background: var(--settlement-summary-bg);
+  color: var(--settlement-club-ink);
+}
+#seisan-view-area .seisan-summary-card.pay,
+#seisan-view-area .seisan-summary-card.payment {
+  --settlement-summary-bg: var(--settlement-pay-bg);
+  background: var(--settlement-summary-bg);
+  color: var(--settlement-pay-ink);
+}
+#seisan-view-area .seisan-summary-card :is(.seisan-summary-label, .seisan-summary-value, .seisan-summary-sub) { color: inherit; }

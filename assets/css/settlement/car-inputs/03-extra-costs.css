@@ -1,0 +1,47 @@
+/* Additional-cost rows inside the vehicle editor. */
+.seisan-extra-list {
+  display: grid;
+  gap: 8px;
+}
+
+.seisan-extra-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(88px, 0.72fr) minmax(84px, 0.66fr) 48px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.seisan-extra-type {
+  text-align: center;
+  text-align-last: center;
+}
+
+.seisan-extra-type.split {
+  border-color: var(--settlement-split-line);
+  background: var(--settlement-split-bg);
+  color: var(--settlement-split-ink);
+}
+
+.seisan-extra-type.club {
+  border-color: var(--settlement-club-line);
+  background: var(--settlement-club-bg);
+  color: var(--settlement-club-ink);
+}
+
+.seisan-add-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
+}
+
+.seisan-add-row .seisan-btn { min-height: 48px; }
+
+@media (max-width: 420px) {
+  .seisan-extra-row {
+    grid-template-columns: minmax(0, 1fr) minmax(88px, 0.8fr) 48px;
+    gap: 8px;
+  }
+
+  .seisan-extra-row select { grid-column: 1 / 3; }
+}

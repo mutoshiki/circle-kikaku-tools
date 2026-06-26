@@ -1,0 +1,12 @@
+/* Summary typography. */
+.seisan-summary-label { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--text-sub); font-size: 0.76rem; font-weight: 650; }
+.seisan-summary-label i { color: inherit; }
+.seisan-summary-value {
+  color: var(--text-main);
+  font-size: clamp(1.2rem, 5vw, 1.65rem);
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+.seisan-summary-sub { color: var(--text-sub); font-size: 0.7rem; line-height: 1.3; }

@@ -1,0 +1,50 @@
+/* Application frame and shared editor layout. */
+.quick-edit-mode .sortable-fallback { animation: none; }
+
+.tool-btn {
+  min-width: 48px;
+  padding: 0 14px;
+  flex-direction: row;
+}
+.tool-btn i { margin: 0; font-size: 1rem; }
+.tool-btn span { font-size: 0.84rem; line-height: 1; font-weight: 650; white-space: nowrap; }
+
+.edit-header { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin: 0 0 16px; }
+.edit-project-block { padding: 16px; border: 0; border-radius: var(--radius-lg); background: var(--surface-lowest); box-shadow: var(--shadow-card); }
+.edit-kicker { margin-bottom: 4px; color: var(--text-sub); font-size: 0.72rem; font-weight: 650; }
+.edit-project-input-row { display: flex; align-items: center; gap: 8px; }
+.edit-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.edit-tools .tool-btn { min-height: 48px; }
+.edit-panel-title,
+.edit-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.edit-panel-title span,
+.edit-section-head span { color: var(--text-main); font-size: var(--font-size-title); font-weight: 700; }
+.edit-panel-title small,
+.edit-section-head small { color: var(--text-sub); font-size: var(--font-size-caption); }
+.edit-add-row,
+.edit-options-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin-bottom: 10px; align-items: center; }
+.edit-grade-row { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; }
+.edit-grade-row > span { color: var(--text-sub); font-size: var(--font-size-caption); font-weight: 650; }
+.edit-grade-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+
+#app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: var(--bg-body);
+}
+
+#top-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px max(16px, env(safe-area-inset-right)) calc(116px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  z-index: var(--z-local-popover);
+  background: var(--bg-body);
+}
+
+@media (min-width: 769px) {
+  .edit-header { grid-template-columns: minmax(220px, 1fr) minmax(340px, 1.2fr); }
+  #top-area { padding-inline: max(24px, calc((100vw - 1200px) / 2)); }
+}

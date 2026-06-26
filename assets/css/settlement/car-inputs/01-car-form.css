@@ -1,0 +1,123 @@
+/* Canonical vehicle-cost form shell and shared field treatment. */
+.seisan-car-row {
+  box-sizing: border-box;
+  min-width: 0;
+  margin-bottom: 12px;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--surface-low);
+  box-shadow: var(--shadow-card);
+}
+
+.seisan-car-row:last-child { margin-bottom: 0; }
+
+.seisan-car-row.has-error {
+  border-color: color-mix(in srgb, var(--color-danger) 68%, var(--border-color));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 12%, transparent);
+}
+
+.seisan-car-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  margin-bottom: 12px;
+}
+
+.seisan-car-title strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-main);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seisan-car-total {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border: 1px solid color-mix(in srgb, var(--accent-color) 24%, var(--border-color));
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent-color) 8%, var(--surface-lowest));
+  color: var(--text-main);
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.seisan-car-inputs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 10px;
+}
+
+.seisan-field,
+.seisan-car-inputs label,
+.seisan-extra-row > * { min-width: 0; }
+
+.seisan-field label,
+.seisan-mini-label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text-sub);
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.seisan-field input,
+.seisan-field select,
+.seisan-extra-row input,
+.seisan-extra-row select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 9px 11px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--surface-lowest);
+  color: var(--text-main);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 550;
+}
+
+.seisan-field input:focus-visible,
+.seisan-field select:focus-visible,
+.seisan-extra-row input:focus-visible,
+.seisan-extra-row select:focus-visible {
+  border-color: var(--accent-color);
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
+.seisan-input-error,
+.seisan-extra-row input.seisan-input-error,
+.seisan-extra-row select.seisan-input-error {
+  border-color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 7%, var(--surface-lowest));
+}
+
+.seisan-subhead {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 640px) {
+  .seisan-car-row { padding: 14px; }
+  .seisan-car-title { align-items: flex-start; }
+  .seisan-car-inputs { grid-template-columns: 1fr; }
+}

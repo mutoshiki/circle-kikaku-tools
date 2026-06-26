@@ -1,0 +1,32 @@
+/* Bottom-sheet action priority. */
+#bottom-tray.minimized .dropdown-menu { margin-bottom: 8px; }
+.tray-inline-row,
+.tray-actions { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.tray-header-main,
+.tray-header-meta,
+.tray-actions,
+.tray-status { display: contents; }
+
+.tray-actions .btn,
+.tray-inline-row .tray-action-btn {
+  min-width: 0;
+  min-height: var(--mobile-touch);
+  padding: 0 13px;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.tray-action-btn i { flex: 0 0 auto; font-size: 0.86rem; }
+.tray-action-break { display: none; }
+
+#fillEmptySeatsBtn.tray-action-btn,
+.tray-inline-row .tray-action-btn--fill { background: var(--surface-container); color: var(--text-main); }
+#shuffleAssignBtn.tray-action-btn,
+.tray-inline-row .tray-action-btn--auto,
+.tray-actions .auto-assign-btn { background: color-mix(in srgb, var(--accent-color) 9%, var(--bg-card)); color: var(--accent-color); }
+#fillEmptySeatsBtn.tray-action-btn:hover,
+.tray-inline-row .tray-action-btn--fill:hover { background: var(--surface-high); }
+#shuffleAssignBtn.tray-action-btn:hover,
+.tray-inline-row .tray-action-btn--auto:hover { background: color-mix(in srgb, var(--accent-container) 76%, var(--accent-color)); }
+.tray-inline-row .tray-action-btn :is(i, span) { color: inherit; }

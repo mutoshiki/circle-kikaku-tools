@@ -1,0 +1,346 @@
+{
+  "generatedAt": "2026-06-25T23:14:26.046Z",
+  "theme": "light",
+  "browser": "144.0.7559.96",
+  "screenshots": [
+    "empty-sheet-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "list-car-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "list-car-saas-mobile-standard-390-390x844-mid-dpr1.png",
+    "list-car-saas-mobile-standard-390-390x844-bottom-dpr1.png",
+    "sheet-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "sheet-saas-mobile-standard-390-390x844-mid-dpr1.png",
+    "sheet-saas-mobile-standard-390-390x844-bottom-dpr1.png",
+    "settlement-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "settlement-saas-mobile-standard-390-390x844-mid-dpr1.png",
+    "settlement-saas-mobile-standard-390-390x844-bottom-dpr1.png",
+    "list-team-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "list-team-saas-mobile-standard-390-390x844-mid-dpr1.png",
+    "list-team-saas-mobile-standard-390-390x844-bottom-dpr1.png",
+    "sheet-quick-edit-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "sheet-quick-edit-saas-mobile-standard-390-390x844-mid-dpr1.png",
+    "sheet-quick-edit-saas-mobile-standard-390-390x844-bottom-dpr1.png",
+    "overview-drawer-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "overview-drawer-saas-mobile-standard-390-390x844-bottom-dpr1.png",
+    "header-menu-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "batch-import-modal-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "batch-import-modal-saas-mobile-standard-390-390x844-mid-dpr1.png",
+    "batch-import-modal-saas-mobile-standard-390-390x844-bottom-dpr1.png",
+    "user-guide-modal-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "user-guide-modal-saas-mobile-standard-390-390x844-mid-dpr1.png",
+    "user-guide-modal-saas-mobile-standard-390-390x844-bottom-dpr1.png",
+    "settlement-settings-modal-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "settlement-settings-modal-saas-mobile-standard-390-390x844-bottom-dpr1.png",
+    "settlement-car-modal-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "settlement-car-modal-saas-mobile-standard-390-390x844-mid-dpr1.png",
+    "settlement-car-modal-saas-mobile-standard-390-390x844-bottom-dpr1.png",
+    "route-helper-modal-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "route-helper-modal-saas-mobile-standard-390-390x844-bottom-dpr1.png",
+    "settlement-missing-saas-mobile-standard-390-390x844-top-dpr1.png",
+    "settlement-missing-saas-mobile-standard-390-390x844-mid-dpr1.png",
+    "settlement-missing-saas-mobile-standard-390-390x844-bottom-dpr1.png"
+  ],
+  "console": [],
+  "requestFailures": [],
+  "metrics": [
+    {
+      "state": "empty-sheet",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": {
+        "selector": "#sheet-view-area",
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 710,
+        "clientHeight": 710,
+        "overflowX": false,
+        "overflowY": false
+      },
+      "offscreen": []
+    },
+    {
+      "state": "list-car",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": {
+        "selector": "#top-area",
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1183,
+        "clientHeight": 662,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "sheet",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": {
+        "selector": "#sheet-view-area",
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 710,
+        "clientHeight": 710,
+        "overflowX": false,
+        "overflowY": false
+      },
+      "offscreen": []
+    },
+    {
+      "state": "settlement",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": {
+        "selector": "#seisan-view-area",
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 3485,
+        "clientHeight": 710,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "list-team",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": {
+        "selector": "#top-area",
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1309,
+        "clientHeight": 474,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "sheet-quick-edit",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": {
+        "selector": "#sheet-view-area",
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 710,
+        "clientHeight": 710,
+        "overflowX": false,
+        "overflowY": false
+      },
+      "offscreen": []
+    },
+    {
+      "state": "overview-drawer",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": {
+        "selector": "#overviewDrawer .overview-drawer-body",
+        "scrollWidth": 358,
+        "clientWidth": 358,
+        "scrollHeight": 839,
+        "clientHeight": 760,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "header-menu",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": null,
+      "offscreen": []
+    },
+    {
+      "state": "batch-import-modal",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": {
+        "selector": "#batchImportModal .modal-body",
+        "scrollWidth": 370,
+        "clientWidth": 370,
+        "scrollHeight": 1410,
+        "clientHeight": 677,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "user-guide-modal",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": {
+        "selector": "#userGuideModal .modal-body",
+        "scrollWidth": 370,
+        "clientWidth": 370,
+        "scrollHeight": 9108,
+        "clientHeight": 760,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "settlement-settings-modal",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": {
+        "selector": "#settlementSettingsModal .modal-body",
+        "scrollWidth": 370,
+        "clientWidth": 370,
+        "scrollHeight": 513,
+        "clientHeight": 513,
+        "overflowX": false,
+        "overflowY": false
+      },
+      "offscreen": []
+    },
+    {
+      "state": "settlement-car-modal",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": {
+        "selector": "#settlementCarEditModal .modal-body",
+        "scrollWidth": 370,
+        "clientWidth": 370,
+        "scrollHeight": 724,
+        "clientHeight": 608,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "route-helper-modal",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": {
+        "selector": "#routeDistanceModal .modal-body",
+        "scrollWidth": 366,
+        "clientWidth": 366,
+        "scrollHeight": 453,
+        "clientHeight": 453,
+        "overflowX": false,
+        "overflowY": false
+      },
+      "offscreen": []
+    },
+    {
+      "state": "settlement-missing",
+      "variant": "saas",
+      "size": "mobile-standard-390",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 844,
+        "clientHeight": 844
+      },
+      "root": {
+        "selector": "#seisan-view-area",
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 3888,
+        "clientHeight": 710,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+/* Group title, capacity state and return action. */
+.car-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 48px;
+  align-items: center;
+  gap: 6px;
+  min-height: 56px;
+  margin: 0;
+  padding: 8px 8px 8px 16px;
+  border: 0;
+  background: var(--surface-low);
+  color: var(--text-main);
+}
+
+.car-header > div { display: contents; }
+.car-header :where(.car-name-label, .car-header-title, .car-card-title, strong, span) { min-width: 0; }
+.car-header .car-name-label,
+.car-header-title,
+.car-card-title {
+  overflow: hidden;
+  color: var(--text-main);
+  font-size: var(--font-size-title);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.capacity-badge.capacity-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: auto;
+  min-width: 76px;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-highest);
+  color: var(--text-main);
+  box-shadow: none;
+  font-size: var(--font-size-label);
+  font-weight: 700;
+}
+.capacity-badge.capacity-edit-btn:hover { background: var(--accent-container); color: var(--accent-container-text); }
+.capacity-badge.capacity-edit-btn .capacity-label { display: none; }
+.capacity-badge.capacity-edit-btn .capacity-count { padding: 0; border: 0; background: transparent; color: inherit; }
+.capacity-badge.capacity-edit-btn > i { margin: 0; color: inherit; font-size: 0.8rem; opacity: 0.72; }
+.capacity-badge.capacity-edit-btn.is-over { background: var(--semantic-danger-soft); color: var(--semantic-danger); }
+
+.car-delete-btn,
+.car-header .delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-sub);
+  box-shadow: none;
+}
+.car-delete-btn:hover,
+.car-header .delete-btn:hover { background: var(--accent-container); color: var(--accent-container-text); }
+
+.driver-main-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 44px;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 48px;
+}
+.driver-name-disp { min-width: 0; overflow: hidden; color: var(--text-main); font-size: 0.92rem; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.driver-action-row { display: none; }

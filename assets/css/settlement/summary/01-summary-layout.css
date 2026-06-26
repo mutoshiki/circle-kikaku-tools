@@ -1,0 +1,47 @@
+/* Equation-like summary: collect plus/minus club equals driver payments. */
+.seisan-top-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 6px;
+}
+
+.seisan-summary-card {
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  min-width: 0;
+  padding: 14px 12px;
+  border: 0;
+  border-radius: var(--radius-main);
+  box-shadow: none;
+}
+
+#seisan-view-area .seisan-summary-card:not(.collect):not(.accounting):not(.pay) {
+  background: var(--surface-low);
+}
+
+.seisan-flow-arrow {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  color: var(--text-faint);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .seisan-top-flow {
+    grid-template-columns: minmax(0, 1fr) 14px minmax(0, 1fr) 14px minmax(0, 1fr);
+    gap: 3px;
+  }
+
+  .seisan-summary-card {
+    min-height: 112px;
+    padding: 12px 8px;
+  }
+
+  .seisan-flow-arrow {
+    font-size: 1rem;
+  }
+}

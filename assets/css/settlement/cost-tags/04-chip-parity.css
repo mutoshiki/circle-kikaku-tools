@@ -1,0 +1,5 @@
+/* Summary icons remain neutral; each cost badge carries its own semantic color. */
+#seisan-view-area .seisan-summary-card .seisan-summary-label > i {
+  color: currentColor;
+  -webkit-text-fill-color: currentColor;
+}

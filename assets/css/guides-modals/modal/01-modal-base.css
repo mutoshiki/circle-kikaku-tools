@@ -1,0 +1,59 @@
+/* Canonical modal, menu and overlay surfaces. */
+.debug-tap-target { cursor: pointer; }
+.batch-field-note { margin: -2px 0 6px; color: var(--text-sub); font-size: 0.72rem; font-weight: 600; }
+.batch-warning { margin-top: 10px; padding: 12px 14px; border: 0; border-radius: var(--radius-sm); background: var(--semantic-danger-soft); color: var(--semantic-danger); font-size: 0.8rem; font-weight: 600; box-shadow: inset 4px 0 0 var(--semantic-danger); }
+.tray-actions .dropdown .btn { width: 48px; min-width: 48px; padding-inline: 0; }
+.unified-flow { margin-bottom: 14px; }
+.compact-guide-grid { grid-template-columns: 1fr; gap: 12px; }
+.modal-backdrop.show { opacity: 0.48; }
+
+.modal-content {
+  width: 100%;
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-xl);
+  outline: 0;
+  background: var(--modal-bg);
+  color: var(--text-main);
+  box-shadow: var(--shadow-modal);
+  backdrop-filter: var(--ui-floating-backdrop);
+}
+.modal-header {
+  min-height: 64px;
+  padding: 12px 18px;
+  border: 0;
+  background: var(--modal-header-bg);
+  color: var(--text-main);
+}
+.modal-title { color: var(--text-main); font-size: 1.05rem; font-weight: 700; line-height: 1.35; letter-spacing: -0.01em; }
+.modal-title i { color: var(--accent-color); }
+.modal-header .btn-close {
+  width: 48px;
+  height: 48px;
+  margin: -4px -8px -4px auto;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  background-image: none;
+  opacity: 0.78;
+  font-size: 0;
+}
+.modal-header .btn-close::before {
+  content: "×";
+  color: var(--text-main);
+  font-size: 2rem;
+  font-weight: 300;
+  line-height: 1;
+}
+.modal-header .btn-close:hover { background-color: var(--surface-hover); opacity: 1; }
+.modal-body { padding: 8px 18px 18px; overflow: auto; background: var(--modal-bg); }
+.modal-footer { padding: 12px 18px calc(16px + env(safe-area-inset-bottom)); border: 0; background: var(--modal-footer-bg); }
+.modal-footer .btn { min-height: 48px; }
+#commonEditModal .modal-content { border: 0; }
+
+@media (max-width: 640px) {
+  .dropdown-item { min-height: 48px; }
+  .modal-dialog:not(.modal-fullscreen-sm-down) { align-items: flex-end; min-height: 100%; margin: 0; }
+  .modal-dialog:not(.modal-fullscreen-sm-down) .modal-content { max-height: 92dvh; border-radius: var(--radius-xl); }
+  .modal-dialog.modal-fullscreen-sm-down .modal-content { border-radius: 0; }
+}

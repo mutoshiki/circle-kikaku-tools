@@ -1,0 +1,58 @@
+/* Overview drawer for memo and timetable. */
+.overview-drawer-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-backdrop);
+  background: rgba(var(--black-rgb), 0.42);
+  backdrop-filter: blur(3px);
+}
+.overview-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  width: min(92vw, 420px);
+  height: 100dvh;
+  padding: max(14px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  border: 0;
+  border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+  outline: 0;
+  background: var(--surface-lowest);
+  color: var(--text-main);
+  box-shadow: var(--shadow-modal);
+  visibility: hidden;
+  transform: translateX(104%);
+  pointer-events: none;
+  transition: transform 220ms ease, visibility 0s linear 220ms;
+}
+.overview-drawer.is-open { visibility: visible; transform: translateX(0); pointer-events: auto; transition-delay: 0s; }
+.overview-drawer-head { display: flex; align-items: center; justify-content: flex-end; min-height: 52px; padding-bottom: 8px; }
+.overview-drawer-close,
+.overview-drawer .overview-row-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-sub);
+  box-shadow: none;
+}
+.overview-drawer-close:hover,
+.overview-drawer .overview-row-delete:hover { background: var(--surface-hover); color: var(--text-main); }
+.overview-drawer-body { display: grid; gap: 24px; min-width: 0; padding: 0 0 8px; overflow-y: auto; }
+.overview-panel { display: grid; gap: 12px; min-width: 0; padding: 0; border: 0; background: transparent; }
+.overview-panel h3 { margin: 0; color: var(--text-main); font-size: 1.05rem; font-weight: 700; }
+.overview-drawer .overview-panel-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.overview-textarea { width: 100%; min-height: 144px; padding: 14px; resize: vertical; border: 0; border-radius: var(--radius-main); background: var(--surface-low); color: var(--text-main); box-shadow: none; font: inherit; font-size: 1rem; line-height: 1.65; }
+.overview-drawer .overview-mini-action,
+.overview-drawer .overview-copy-action { min-height: 48px; border-radius: var(--radius-pill); background: var(--surface-container); }
+.overview-drawer .overview-copy-action { width: 100%; margin-top: 8px; background: var(--accent-container); color: var(--accent-container-text); }
+body.overview-drawer-open { overflow: hidden; }

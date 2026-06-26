@@ -1,0 +1,21 @@
+/* Settlement empty and guidance states. */
+.seisan-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-height: 148px;
+  padding: 28px 18px;
+  border: 1px dashed var(--border-dashed);
+  border-radius: var(--radius-lg);
+  background: var(--surface-low);
+  color: var(--text-sub);
+  box-shadow: none;
+  text-align: center;
+}
+.seisan-empty i { color: var(--accent-color); font-size: 1.35rem; }
+.seisan-empty strong { color: var(--text-main); font-size: 1rem; font-weight: 700; }
+.seisan-empty span { max-width: 34em; font-size: var(--font-size-label); line-height: 1.55; }
+.seisan-refresh-btn span { display: none; }
+.seisan-refresh-btn { padding-inline: 0; }
+.seisan-title--settings { margin-bottom: 0; }
+.route-add-stop-btn { margin-top: 8px; }

@@ -1,0 +1,51 @@
+/* Action priority: one filled primary, tonal secondary, text/icon tertiary. */
+:is(.btn-danger, .btn-outline-danger) {
+  border-color: transparent;
+  background: var(--semantic-danger-soft);
+  color: var(--semantic-danger);
+}
+
+.btn-primary,
+.btn-accent-solid,
+.tool-btn.primary,
+.tray-action-btn.primary,
+.seisan-btn.primary,
+.seisan-btn.active {
+  border-color: transparent;
+  background: var(--control-primary-bg);
+  color: var(--control-primary-text);
+  box-shadow: var(--control-primary-shadow);
+}
+
+.btn-primary:hover,
+.btn-accent-solid:hover,
+.tool-btn.primary:hover,
+.tray-action-btn.primary:hover,
+.seisan-btn.primary:hover,
+.seisan-btn.active:hover {
+  border-color: transparent;
+  background: var(--control-primary-hover);
+  color: var(--control-primary-text);
+}
+
+#batchOpenBtn,
+#participantAddBtn {
+  border-color: transparent;
+  background: var(--accent-color);
+  color: var(--text-on-accent);
+  box-shadow: var(--control-primary-shadow);
+}
+
+#batchOpenBtn:hover,
+#participantAddBtn:hover {
+  background: var(--accent-hover);
+  color: var(--text-on-accent);
+}
+
+:is(.btn, .tool-btn, .tray-action-btn, .seisan-btn, button):disabled,
+:is(.btn, .tool-btn, .tray-action-btn, .seisan-btn, button)[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.46;
+  pointer-events: none;
+  box-shadow: none;
+}

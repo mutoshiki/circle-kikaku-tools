@@ -1,0 +1,9 @@
+/* Participant registration mock: calm */
+/* Guide polish: quieter buttons, neutral mockups, and shorter diagram surfaces. */
+/* Spreadsheet guide mock uses the product accent for selection. */
+.import-preview-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-main);
+    background: var(--surface-lowest);
+    box-shadow: none;
+}

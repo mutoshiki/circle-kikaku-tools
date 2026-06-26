@@ -1,0 +1,72 @@
+/* Presentation table metadata and chips. */
+.sheet-label-header,
+.sheet-label-row { background: var(--surface-container); color: var(--text-sub); }
+.sheet-seat-disabled { background: var(--surface-container); opacity: 0.5; }
+.sheet-driver-icon { font-size: 0.68rem; opacity: 0.72; }
+.sheet-driver-name { font-weight: 700; color: inherit; }
+.sheet-chip-lock { font-size: 0.64rem; opacity: 0.72; }
+.sheet-summary-plan-label,
+.sheet-capacity-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-highest);
+  color: var(--text-sub);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.sheet-capacity-badge.is-over { background: var(--semantic-danger-soft); color: var(--semantic-danger); }
+.sheet-title-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--radius-main);
+  background: var(--accent-container);
+  color: var(--accent-container-text);
+  font-size: 1rem;
+}
+#sheet-summary { display: flex; flex: 1 1 auto; flex-direction: column; gap: 4px; min-width: 0; margin: 0; }
+.sheet-summary-row {
+  display: grid;
+  grid-template-columns: 44px repeat(4, minmax(46px, 1fr)) minmax(60px, auto);
+  align-items: center;
+  column-gap: 7px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 1.15;
+}
+.sheet-summary-pill { display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 4px 8px; border: 0; border-radius: var(--radius-pill); background: var(--surface-low); font-size: 0.7rem; }
+.sheet-summary-pill strong { color: var(--text-main); font-size: 0.74rem; font-weight: 750; }
+
+.sheet-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  min-height: 34px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  color: var(--text-main);
+  font-size: 0.8rem;
+  font-weight: 600;
+  user-select: none;
+}
+.sheet-chip.draggable:hover { background: var(--surface-container); }
+.sheet-chip.draggable { cursor: grab; touch-action: pan-x pan-y; }
+
+.sheet-empty-card { width: min(520px, calc(100vw - 40px)); margin: 32px auto; padding: 28px 20px; border: 0; border-radius: var(--radius-lg); background: var(--surface-lowest); color: var(--text-sub); box-shadow: var(--shadow-card); text-align: center; }
+.sheet-empty-title { display: block; margin-bottom: 6px; color: var(--text-main); font-size: 1.05rem; font-weight: 700; }
+.sheet-empty-text { display: block; margin-bottom: 14px; font-size: 0.82rem; }
+.sheet-empty-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }

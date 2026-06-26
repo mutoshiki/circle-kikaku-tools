@@ -1,0 +1,30 @@
+/* Settlement controls use the shared button contract. */
+.seisan-btn,
+.seisan-toggle,
+.seisan-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-container);
+  color: var(--text-main);
+  box-shadow: none;
+  font-size: var(--font-size-label);
+  font-weight: 650;
+}
+.seisan-btn:hover,
+.seisan-toggle:hover,
+.seisan-icon-btn:hover { background: var(--surface-high); color: var(--text-main); }
+.seisan-edit-btn { background: var(--accent-container); color: var(--accent-container-text); }
+.seisan-icon-btn { width: 44px; min-width: 44px; padding: 0; }
+.seisan-mini-label { display: block; margin-bottom: 5px; color: var(--text-sub); font-size: 0.7rem; font-weight: 650; line-height: 1.25; }
+.tool-btn i,
+.tool-btn span,
+.seisan-btn i,
+.seisan-btn span,
+.tray-action-btn i,
+.tray-action-btn span { color: inherit; }

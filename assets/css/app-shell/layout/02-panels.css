@@ -1,0 +1,32 @@
+/* Allocation command band. */
+#top-area > .edit-header:first-child,
+.allocation-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-local-raised);
+  margin: 0 0 18px;
+  padding: 6px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-low) 92%, transparent);
+  box-shadow: none;
+  backdrop-filter: blur(14px);
+}
+
+.allocation-toolbar-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 8px;
+}
+
+#batchOpenBtn { order: 2; min-width: 148px; }
+#car-plan-switcher { order: 1; min-width: 0; }
+
+.app-subtitle { display: none; }
+.edit-project-input-row i { color: var(--accent-color); font-size: 1rem; }
+
+@media (max-width: 520px) {
+  .allocation-toolbar-inner { grid-template-columns: minmax(0, 1fr) minmax(132px, auto); }
+  #batchOpenBtn { min-width: 132px; padding-inline: 12px; }
+}

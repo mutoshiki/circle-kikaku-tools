@@ -1,0 +1,122 @@
+/* Settlement page composition and semantic feedback. */
+#seisan-view-area.active { display: block; }
+#seisan-view-area {
+  display: none;
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 16px max(16px, env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: var(--bg-body);
+}
+
+.seisan-wrap {
+  display: grid;
+  gap: 16px;
+  max-width: 980px;
+  min-width: 0;
+  margin: 0 auto;
+}
+
+.seisan-card,
+.seisan-panel,
+.seisan-toolbar-card,
+.seisan-settings-card {
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 16px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-lg);
+  outline: 0;
+  background: var(--surface-lowest);
+  box-shadow: var(--shadow-card);
+}
+
+.seisan-settings-card { background: var(--surface-low); box-shadow: none; }
+.seisan-share-card { background: var(--surface-low); box-shadow: none; }
+
+.seisan-head,
+.seisan-compact-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  border: 0;
+  background: transparent;
+}
+
+.seisan-title,
+.seisan-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--text-main);
+  font-size: var(--font-size-title);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.seisan-title i,
+.seisan-section-title i { color: var(--accent-color); }
+.seisan-muted { color: var(--text-sub); font-size: var(--font-size-label); line-height: 1.5; }
+.seisan-small { color: var(--text-sub); font-size: var(--font-size-caption); line-height: 1.4; }
+
+.seisan-alert { display: none; margin-top: 12px; }
+.seisan-alert-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--semantic-danger-soft);
+  color: var(--semantic-danger);
+  box-shadow: inset 4px 0 0 var(--semantic-danger);
+}
+.seisan-alert-row span { min-width: 0; line-height: 1.45; overflow-wrap: anywhere; }
+.seisan-alert-action {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--semantic-danger) 12%, transparent);
+  color: var(--semantic-danger);
+  font-size: var(--font-size-label);
+  font-weight: 700;
+}
+
+.seisan-subhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 18px 0 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-section);
+}
+.seisan-subhead strong { color: var(--text-main); font-size: var(--font-size-label); font-weight: 700; }
+.seisan-add-row { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
+.seisan-empty { padding: 30px 16px; border-radius: var(--radius-main); background: var(--surface-low); color: var(--text-sub); text-align: center; }
+.seisan-driver-name { overflow: hidden; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.seisan-driver-amount { white-space: nowrap; }
+.seisan-driver-detail { grid-column: 1 / -1; color: var(--text-sub); font-size: 0.72rem; line-height: 1.4; }
+.seisan-detail { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-section); }
+.seisan-detail summary { min-height: 44px; color: var(--text-sub); cursor: pointer; font-size: var(--font-size-label); font-weight: 650; }
+.seisan-break-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-section); font-size: var(--font-size-label); }
+.seisan-break-row span:last-child { font-weight: 650; white-space: nowrap; }
+
+@media (max-width: 640px) {
+  #seisan-view-area { padding: 12px 12px calc(28px + env(safe-area-inset-bottom)); }
+  .seisan-wrap { gap: 12px; }
+  .seisan-card,
+  .seisan-panel,
+  .seisan-toolbar-card,
+  .seisan-settings-card { padding: 14px; }
+  .seisan-alert-row { grid-template-columns: 1fr; }
+  .seisan-alert-action { width: 100%; }
+}

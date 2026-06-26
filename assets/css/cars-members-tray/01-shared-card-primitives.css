@@ -1,0 +1,61 @@
+/* Shared member, driver and occupied-seat primitives. */
+.card-bottom-row,
+.swap-preview-card .card-actions,
+.drag-preview-card .card-actions { display: none; }
+
+.card.bg-light-subtle {
+  border: 0;
+  background: var(--surface-lowest);
+  box-shadow: var(--shadow-card);
+}
+
+.edit-driver-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--control-height);
+  padding: 9px 12px;
+  border: 1px solid var(--border-item);
+  border-left-width: 1px;
+  border-radius: var(--radius-sm);
+  background: var(--ui-saas-panel-raised, var(--bg-card));
+  color: var(--text-main);
+  font-size: var(--font-size-body);
+  font-weight: 550;
+}
+
+.edit-capacity-wrap { display: flex; align-items: center; gap: 10px; }
+.edit-capacity-wrap span { color: var(--text-sub); font-size: var(--font-size-label); font-weight: 650; }
+.edit-capacity-wrap input { width: 80px; }
+
+#cars-container { --bs-gutter-x: 16px; --bs-gutter-y: 16px; }
+
+:where(.member-card, .driver-seat) {
+  min-width: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  color: var(--text-main);
+  box-shadow: none;
+}
+
+#cars-container .seat-slot > .member-card,
+#waiting-list .member-card {
+  width: 100%;
+  min-height: 56px;
+  margin: 0;
+  padding: 8px 10px;
+  background: var(--ui-saas-panel-raised, var(--bg-card));
+}
+
+#cars-container .seat-slot > .member-card:hover,
+#waiting-list .member-card:hover { background: var(--surface-container); }
+
+:where(.member-card, .driver-seat) :where(.member-main-line, .driver-main-line) { min-width: 0; }
+:where(.member-name-text, .driver-name-disp) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:where(.member-card, .driver-seat) .memo-popup { overflow-wrap: anywhere; }
+.gender-badge,
+.card,
+.waiting-tray { border-radius: var(--radius-main); }
+.fa-check,
+.fas.fa-check { border: 0; outline: 0; background: transparent; box-shadow: none; }

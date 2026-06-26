@@ -1,0 +1,47 @@
+/* App bar and destination navigation. */
+#app-header {
+  position: relative;
+  z-index: var(--z-header);
+  display: grid;
+  flex: 0 0 auto;
+  gap: 0;
+  width: 100%;
+  min-width: 0;
+  padding-top: env(safe-area-inset-top);
+  border: 0;
+  background: color-mix(in srgb, var(--surface-lowest) 94%, transparent);
+  box-shadow: 0 1px 0 var(--hairline);
+  backdrop-filter: blur(18px) saturate(1.1);
+}
+
+.app-header-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 1200px;
+  min-width: 0;
+  min-height: 68px;
+  margin-inline: auto;
+  padding: 8px 16px;
+  background: transparent;
+}
+
+.app-header-main > .app-brand {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.app-header-main > .header-actions {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .app-header-main {
+    min-height: 68px;
+    gap: 6px;
+    padding: 8px 10px 6px 16px;
+  }
+}

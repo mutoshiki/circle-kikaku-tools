@@ -1,0 +1,42 @@
+/* Shared helper copy and empty-state presentation used by guides. */
+.share-helper {
+  display: none;
+  align-items: flex-start;
+  gap: 6px;
+  max-width: 980px;
+  margin: 8px auto 0;
+  padding: 0 2px;
+  color: var(--text-sub);
+  font-size: var(--font-size-caption);
+  font-weight: 550;
+  line-height: 1.45;
+}
+.color-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.empty-card {
+  width: min(520px, calc(100vw - 32px));
+  min-width: 0;
+  margin: 32px auto;
+  padding: 28px 20px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--surface-lowest);
+  color: var(--text-sub);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+.empty-card strong { display: block; margin-bottom: 6px; color: var(--text-main); font-size: 1rem; font-weight: 700; }
+.empty-card span { display: block; margin-bottom: 14px; font-size: var(--font-size-body); line-height: 1.5; }
+.empty-card i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  border-radius: var(--radius-main);
+  background: var(--accent-container);
+  color: var(--accent-container-text);
+  font-size: 1.15rem;
+}
+.global-flow-screen { margin-top: 0; }
+.global-five-step { grid-template-columns: 1fr; gap: 8px; }

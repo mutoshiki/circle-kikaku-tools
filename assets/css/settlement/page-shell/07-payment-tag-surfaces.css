@@ -1,0 +1,46 @@
+/* Payment total row owner.
+   The payment group in each car row should be plain text + badge. */
+#seisan-view-area .seisan-car-summary-payment {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: max-content;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-main);
+  box-shadow: none;
+}
+
+#seisan-view-area .seisan-car-summary-payment .seisan-cost-total-label {
+  color: var(--text-sub);
+  font-size: 0.66rem;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+#seisan-view-area .seisan-car-summary-payment .seisan-payment-tag {
+  transform: translateY(-1px);
+}
+
+#seisan-view-area .seisan-car-summary-total {
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+  font-size: 0.92rem;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 420px) {
+  #seisan-view-area .seisan-car-summary-payment {
+    gap: 5px;
+  }
+
+  #seisan-view-area .seisan-car-summary-payment .seisan-cost-total-label {
+    font-size: 0.62rem;
+  }
+}

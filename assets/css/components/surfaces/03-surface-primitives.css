@@ -1,0 +1,32 @@
+/* Reusable surfaces; feature owners may adjust density and semantic accents. */
+.ui-card-surface,
+.ui-toolbar-card,
+.ui-modal-shell,
+:where(.modal-content) {
+  border: 0;
+  background: var(--ui-surface-bg, var(--surface-lowest));
+  box-shadow: var(--ui-surface-shadow, var(--shadow-card));
+}
+
+.ui-card-surface { border-radius: var(--radius-lg); }
+
+.ui-toolbar-card {
+  border-radius: var(--radius-lg);
+  background: var(--surface-low);
+  box-shadow: none;
+}
+
+.ui-modal-shell,
+:where(.modal-content) {
+  border-radius: var(--radius-xl);
+  background: var(--modal-bg);
+  box-shadow: var(--shadow-modal);
+}
+
+.ui-summary-pill,
+:where(#seisan-view-area .seisan-summary-pills--single > span) {
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  box-shadow: none;
+}

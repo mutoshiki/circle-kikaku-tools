@@ -1,0 +1,23 @@
+/* Semantic surface hierarchy. Outer groups use shape; inner rows use spacing/dividers. */
+:root,
+body {
+  --ui-surface-border: transparent;
+  --ui-surface-border-soft: var(--border-section);
+  --ui-surface-border-inner: var(--app-border-inner);
+  --ui-surface-bg: var(--surface-lowest);
+  --ui-surface-bg-inner: var(--surface-low);
+  --ui-surface-shadow: var(--shadow-card);
+}
+
+:is(.seisan-extra-row, .seisan-cost-preview-item, .tray-inline-row, .capacity-edit-row, .timetable-row, .sheet-seat-row, .sheet-wait-item) {
+  border-color: var(--ui-surface-border-soft);
+  box-shadow: none;
+}
+
+:is(.driver-seat, .seat-slot, .seisan-check-item, .seisan-driver-pay-row) {
+  background: var(--ui-surface-bg-inner);
+}
+
+:is(.seisan-card, .seisan-settings-card, .seisan-panel, .car-box, .team-box, .waiting-tray) {
+  background-color: var(--ui-surface-bg);
+}

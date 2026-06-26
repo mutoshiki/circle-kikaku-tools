@@ -1,0 +1,26 @@
+/* Shared compact actions used inside allocation cards. */
+.action-btn,
+.delete-btn-overlay {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-sub);
+  box-shadow: none;
+  font-size: var(--font-size-label);
+  font-weight: 650;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.action-btn:hover,
+.delete-btn-overlay:hover { background: var(--surface-hover); color: var(--text-main); }
+.delete-btn-overlay { position: static; z-index: var(--z-local-overlay); }
+.delete-btn-overlay i { margin: 0; color: inherit; font-size: 0.9rem; line-height: 1; pointer-events: none; }
+.delete-btn-overlay span { color: inherit; font-size: var(--font-size-caption); line-height: 1; white-space: nowrap; pointer-events: none; }

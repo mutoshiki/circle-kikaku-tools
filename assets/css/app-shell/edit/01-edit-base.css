@@ -1,0 +1,43 @@
+/* Editor helper layout. Main toolbar geometry is owned by 02-toolbar.css. */
+.app-header-illustration,
+.app-brand-mark { display: none; }
+
+#top-area,
+.edit-header,
+.edit-tools { min-width: 0; }
+.edit-tools { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.edit-tools .tool-btn { min-width: 0; min-height: var(--mobile-touch); justify-content: center; }
+.edit-tools .tool-btn span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+.edit-quick-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 10px;
+  color: var(--text-sub);
+  font-size: var(--font-size-caption);
+  font-weight: 600;
+  line-height: 1.45;
+}
+.legend-chip.locked { background: var(--semantic-warning-soft); color: var(--semantic-warning); }
+.global-mini-lock { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.global-mini-lock span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--mobile-touch);
+  padding: 8px;
+  border: 1px solid var(--border-item);
+  border-radius: var(--radius-sm);
+  background: var(--surface-lowest);
+  color: var(--text-main);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .edit-tools { gap: 8px; }
+  .edit-tools .tool-btn { padding-inline: 10px; }
+  .edit-tools .tool-help-btn { display: inline-flex; flex-direction: row; gap: 6px; }
+}

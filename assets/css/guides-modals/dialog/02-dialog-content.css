@@ -1,0 +1,10 @@
+/* Shared content bounds. */
+button.dropdown-item { border-radius: var(--radius-sm); }
+.person-pop-menu { box-shadow: var(--shadow-float); }
+.modal-dialog.modal-lg { width: min(100%, 860px); max-width: calc(100vw - 32px); }
+.modal-dialog.modal-xl { width: min(100%, 980px); max-width: calc(100vw - 32px); }
+
+@media (max-width: 640px) {
+  .modal-dialog.modal-lg,
+  .modal-dialog.modal-xl { width: 100%; max-width: none; }
+}

@@ -1,0 +1,13 @@
+/* Timetable editor in overview and quick-edit mode. */
+.overview-drawer .overview-timetable-rows { display: grid; gap: 8px; }
+.overview-drawer .overview-timetable-row { display: grid; grid-template-columns: 82px minmax(0, 1fr) 48px; gap: 8px; align-items: center; width: 100%; }
+.overview-drawer .overview-timetable-row input { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; min-height: 48px; padding: 9px 10px; border: 0; border-radius: var(--radius-sm); background: var(--surface-low); color: var(--text-main); font: inherit; font-size: 0.9rem; }
+.overview-drawer .overview-timetable-row input[data-field="time"] { width: 82px; font-variant-numeric: tabular-nums; }
+.sheet-timetable-card--edit { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+.sheet-timetable-edit-list { display: flex; flex-direction: column; gap: 8px; }
+.sheet-timetable-edit-row { display: grid; grid-template-columns: 92px minmax(160px, 1fr) 48px; align-items: center; gap: 8px; }
+.sheet-timetable-input { min-height: 48px; border: 0; border-radius: var(--radius-sm); background: var(--surface-low); color: var(--text-main); font-size: 0.82rem; font-weight: 550; padding: 8px 10px; }
+.sheet-timetable-delete,
+.sheet-timetable-add { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; border: 0; border-radius: var(--radius-pill); background: var(--surface-container); color: var(--text-main); font-size: 0.78rem; font-weight: 650; }
+.sheet-timetable-add { align-self: flex-start; padding: 0 14px; }
+#sheet-view-area .sheet-timetable-card:not(.sheet-timetable-card--edit) :where(input, button.sheet-timetable-delete, button.sheet-timetable-add) { display: none; }

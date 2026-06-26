@@ -1,0 +1,126 @@
+/* Shared presentation view frame.
+   発表ビューは車割を上、班割を下に縦並びで表示する。 */
+#sheet-view-area {
+  display: none;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+  touch-action: none;
+  background: var(--bg-body);
+}
+#sheet-view-area.active { display: flex; }
+
+#sheet-title-bar {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  left: 12px;
+  z-index: var(--z-local-sticky);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 1200px;
+  min-height: 72px;
+  margin: 0 auto;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-lowest) 94%, transparent);
+  color: var(--text-main);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px) saturate(1.1);
+}
+#sheet-room-name { display: none; }
+#sheet-title-bar .sheet-title-icon { color: var(--accent-color); }
+#sheet-title-bar #sheet-summary { color: var(--text-sub); }
+
+#sheet-canvas {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 22px;
+  overflow: auto;
+  padding: 100px 12px 88px;
+  transform-origin: top left;
+  background: var(--canvas-bg);
+  border-radius: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sheet-plan-section { width: max-content; min-width: min(100%, 320px); margin-bottom: 0; }
+.sheet-plan-heading { margin: 0 0 8px 2px; color: var(--text-main); font-size: 1rem; font-weight: 750; }
+.sheet-plan-table { display: flex; align-items: stretch; gap: 8px; width: max-content; }
+
+.sheet-car-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 142px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-main);
+  background: var(--surface-lowest);
+  box-shadow: var(--shadow-card);
+}
+.sheet-car-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-local-raised);
+  min-height: 42px;
+  padding: 9px 10px;
+  overflow: hidden;
+  background: var(--surface-container);
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sheet-driver-row,
+.sheet-seat-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 7px 9px;
+  border-bottom: 1px solid var(--border-section);
+  background: var(--surface-lowest);
+  color: var(--text-main);
+  font-size: 0.84rem;
+  font-weight: 550;
+}
+.sheet-driver-row { background: var(--accent-container); color: var(--accent-container-text); font-weight: 650; }
+.sheet-seat-row:last-child { border-bottom: 0; }
+.sheet-seat-row.empty { color: var(--text-faint); font-size: 0.76rem; font-style: normal; }
+.sheet-cell-text,
+.sheet-chip-text,
+.sheet-driver-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sheet-chip.locked { opacity: 0.78; }
+.sheet-chip-ghost { opacity: 0.45; }
+.sheet-chip-drag { box-shadow: var(--shadow-float); }
+#sheet-hint {
+  position: absolute;
+  right: 16px;
+  bottom: 84px;
+  z-index: var(--z-floating);
+  max-width: calc(100% - 32px);
+  padding: 9px 12px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--surface-highest) 94%, transparent);
+  color: var(--text-main);
+  box-shadow: var(--shadow-float);
+  opacity: 0;
+  pointer-events: none;
+  font-size: var(--font-size-caption);
+  font-weight: 650;
+  white-space: nowrap;
+  backdrop-filter: var(--ui-floating-backdrop);
+}
+#sheet-hint.visible { opacity: 1; }
+
+@media (min-width: 769px) {
+  #sheet-canvas { padding-inline: max(24px, calc((100vw - 1200px) / 2)); }
+  .sheet-car-col { min-width: 154px; }
+}

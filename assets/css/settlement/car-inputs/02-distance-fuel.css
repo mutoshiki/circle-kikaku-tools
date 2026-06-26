@@ -1,0 +1,36 @@
+/* Distance, fuel-efficiency and route-helper composition. */
+.seisan-distance-field,
+.seisan-fuel-field {
+  min-width: 0;
+}
+
+.seisan-distance-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+}
+
+.seisan-distance-field label { min-width: 0; }
+
+.seisan-distance-shortcut {
+  align-self: end;
+  min-width: 48px;
+  min-height: 48px;
+  margin: 0;
+  padding-inline: 14px;
+  white-space: nowrap;
+}
+
+.seisan-distance-unit,
+.seisan-fuel-unit {
+  color: var(--text-sub);
+  font-size: 0.74rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .seisan-distance-field { grid-template-columns: 1fr; }
+  .seisan-distance-shortcut { width: 100%; }
+}

@@ -1,0 +1,19 @@
+/* Bottom sheet shell. */
+#bottom-tray {
+  min-width: 0;
+  border: 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  outline: 0;
+  background: var(--tray-bg);
+  box-shadow: var(--shadow-tray-mobile);
+  backdrop-filter: var(--ui-floating-backdrop);
+}
+#bottom-tray.minimized { height: 82px; min-height: 82px; overflow: visible; }
+#bottom-tray.minimized #waiting-list-container { display: none; }
+#waiting-list > .swap-preview-card { position: absolute; left: 0; top: 0; width: min(160px, 100%); z-index: var(--z-local-raised); margin: 0; }
+#bottom-tray-header { min-width: 0; background: var(--tray-bg); }
+.waiting-tray,
+.waiting-tray-content,
+.waiting-list-shell { border: 0; outline: 0; background: var(--tray-bg); }
+.tray-title,
+.waiting-tray-title { color: var(--text-main); font-weight: 700; }

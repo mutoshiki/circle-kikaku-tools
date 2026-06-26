@@ -1,0 +1,10 @@
+/* Settlement payment wine token set.
+   Payment uses the same semantic badge/card logic as split and club. */
+:root,
+body {
+  --settlement-pay-ink: var(--status-payment-text);
+  --settlement-pay-bg: var(--status-payment-bg);
+  --settlement-pay-line: var(--status-payment-border);
+  --settlement-pay-surface-bg: color-mix(in srgb, var(--settlement-pay-bg) 64%, var(--bg-card));
+  --settlement-pay-surface-line: color-mix(in srgb, var(--settlement-pay-line) 28%, var(--ui-saas-border, var(--border-color)));
+}

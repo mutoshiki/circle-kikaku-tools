@@ -1,0 +1,93 @@
+/* Shared control dimensions and semantic surface hierarchy. */
+:root,
+body {
+  --control-height: 44px;
+  --control-height-compact: 40px;
+  --control-icon-size: 44px;
+  --control-padding-x: 16px;
+  --control-radius: var(--radius-main);
+  --control-radius-compact: var(--radius-main);
+  --control-border: var(--border-color);
+  --control-border-strong: var(--accent-line);
+  --control-primary-bg: var(--accent-color);
+  --control-primary-hover: var(--accent-hover);
+  --control-primary-text: var(--text-on-accent);
+  --control-primary-shadow: 0 2px 8px color-mix(in srgb, var(--accent-color) 22%, transparent);
+  --control-secondary-bg: var(--surface-low);
+  --control-secondary-hover: var(--surface-high);
+  --control-tertiary-bg: transparent;
+  --control-tertiary-hover: var(--surface-container);
+  --control-focus-ring: 0 0 0 4px var(--focus-ring);
+
+  --ui-space-1: var(--space-1);
+  --ui-space-2: var(--space-2);
+  --ui-space-3: var(--space-3);
+  --ui-space-4: var(--space-4);
+  --ui-card-padding: var(--space-4);
+  --ui-card-gap: var(--space-3);
+  --ui-panel-bg: var(--surface-lowest);
+  --ui-panel-bg-raised: var(--surface-lowest);
+  --ui-panel-bg-muted: var(--surface-low);
+  --ui-panel-border: transparent;
+  --ui-panel-border-strong: var(--border-color);
+  --ui-panel-shadow: var(--shadow-card);
+  --ui-panel-shadow-float: var(--shadow-float);
+  --ui-floating-backdrop: blur(20px) saturate(1.08);
+  --ui-panel-radius: var(--radius-lg);
+  --ui-inner-radius: var(--radius-main);
+  --ui-inset-line: inset 0 0 0 1px var(--border-section);
+
+  --ui-readable-border: var(--border-color);
+  --ui-readable-border-strong: var(--border-strong);
+  --ui-readable-divider: var(--border-section);
+  --ui-readable-bg: var(--surface-lowest);
+  --ui-readable-inner-bg: var(--surface-low);
+  --ui-readable-shadow: var(--shadow-card);
+  --ui-border-soft: var(--border-color);
+  --ui-hairline-quiet: var(--hairline);
+  --ui-surface-soft: var(--surface-lowest);
+  --ui-surface-muted: var(--surface-low);
+  --ui-surface-sunken: var(--surface-container);
+  --ui-surface-shadow-soft: var(--shadow-card);
+  --ui-focus-ring: var(--control-focus-ring);
+
+  --ui-danger: var(--semantic-danger);
+  --ui-danger-soft: var(--semantic-danger-soft);
+  --ui-warning: var(--semantic-warning);
+  --ui-warning-soft: var(--semantic-warning-soft);
+
+  --settlement-collect-bg: var(--status-split-bg);
+  --settlement-collect-line: var(--status-split-border);
+  --settlement-tag-font-size: 0.68rem;
+  --settlement-tag-line-height: 1;
+  --settlement-tag-pad-y: 4px;
+  --settlement-tag-pad-x: 8px;
+  --settlement-tag-min-width: 2.4em;
+  --settlement-tag-min-height: 1.65em;
+  --settlement-split-ink: var(--status-split-text);
+  --settlement-split-bg: var(--status-split-bg);
+  --settlement-split-line: var(--status-split-border);
+  --settlement-club-ink: var(--status-club-text);
+  --settlement-club-bg: var(--status-club-bg);
+  --settlement-club-line: var(--status-club-border);
+
+  --header-share-icon-bg: var(--accent-color);
+  --header-share-icon-line: transparent;
+  --header-share-icon-text: var(--text-on-accent);
+  --header-share-icon-hover-bg: var(--accent-hover);
+  --header-share-icon-hover-text: var(--text-on-accent);
+
+  font-feature-settings: "palt" 1;
+}
+
+@media (max-width: 640px) {
+  :root,
+  body {
+    --control-height: 48px;
+    --control-height-compact: 44px;
+    --control-icon-size: 48px;
+    --control-padding-x: 16px;
+    --ui-panel-radius: var(--radius-lg);
+    --ui-inner-radius: var(--radius-main);
+  }
+}

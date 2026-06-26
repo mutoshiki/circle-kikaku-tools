@@ -1,0 +1,13 @@
+/* General edit-tool spacing. Allocation mode styling belongs to car-card/04-group-mode.css. */
+.edit-tools { direction: ltr; }
+.tool-btn { padding-inline: 14px; }
+.tool-btn span { line-height: 1.18; }
+
+@media (max-width: 640px) {
+  .edit-tools { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .edit-tools .tool-btn { min-height: var(--mobile-touch); }
+}
+
+@media (max-width: 420px) {
+  .tool-btn { padding-inline: 10px; }
+}

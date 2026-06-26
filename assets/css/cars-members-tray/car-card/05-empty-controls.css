@@ -1,0 +1,11 @@
+/* Group density and content typography. */
+#cars-container .car-box { width: 100%; height: 100%; }
+#cars-container .car-layout-grid { min-height: 164px; }
+#cars-container .memo-popup { margin-top: 2px; color: var(--text-sub); font-size: 0.72rem; line-height: 1.3; }
+
+@media (max-width: 430px) {
+  #cars-container { --bs-gutter-y: 14px; }
+  #cars-container .col-12 { padding-inline: 0; }
+  #cars-container .member-name-text,
+  #cars-container .driver-name-disp { font-size: 0.9rem; }
+}

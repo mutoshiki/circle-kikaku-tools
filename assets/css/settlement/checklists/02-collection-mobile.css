@@ -1,0 +1,4 @@
+@media (max-width: 640px) {
+  #seisan-view-area .seisan-collection-group-list { grid-template-columns: 1fr; }
+  #seisan-view-area .seisan-check-note { max-width: 42%; }
+}

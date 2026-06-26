@@ -1,0 +1,132 @@
+/* Manual drag/drop, return previews and drag feedback. */
+.seat-slot.shift-target::after,
+.seat-slot.swap-origin::after,
+.seat-slot.drop-preview::after,
+.seat-slot.escape-target::after {
+  display: none;
+  content: none;
+}
+
+.seat-slot > .drag-preview-card,
+.seat-slot > .swap-preview-card {
+  position: absolute;
+  inset: 3px;
+  z-index: var(--z-local-raised);
+  min-height: 0;
+  margin: 0;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.member-card.waiting-card-new {
+  animation: waitingCardNewPulse 1.45s ease-out both;
+}
+
+#bottom-tray.is-drop-ready {
+  box-shadow: 0 -8px 22px rgba(var(--shadow-rgb), 0.08), inset 0 1px 0 var(--tray-drop-border);
+}
+
+#bottom-tray.is-drop-near #tray-handle,
+#bottom-tray.is-drop-ready #tray-handle {
+  background: var(--tray-drop-bg);
+}
+
+#bottom-tray.is-drop-near #tray-toggle-label,
+#bottom-tray.is-drop-ready #tray-toggle-label {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+#bottom-tray.is-drop-ready #waiting-list-container,
+#bottom-tray.is-drop-near #waiting-list-container,
+#waiting-list.return-preview-target {
+  border-radius: calc(var(--radius-main) + 2px);
+  outline: 0;
+  background: var(--tray-drop-bg);
+  box-shadow: inset 0 0 0 1px var(--tray-drop-border);
+}
+
+#waiting-list.return-preview-target::after,
+#bottom-tray.is-drop-ready #waiting-list::after,
+#bottom-tray.is-drop-near #waiting-list::after {
+  display: none;
+  content: none;
+}
+
+.seat-slot.drop-preview {
+  border-color: var(--drop-accent);
+  background: var(--drop-target-bg);
+  box-shadow: var(--drop-shadow);
+}
+
+.seat-slot.swap-origin,
+.seat-slot.escape-target,
+.seat-slot.shift-target {
+  border-color: color-mix(in srgb, var(--palette-olive-400) 48%, var(--border-color));
+  background: var(--return-target-bg);
+  box-shadow: 0 0 0 1px rgba(156, 175, 125, 0.18), inset 0 0 0 1px rgba(var(--white-rgb), 0.18);
+}
+
+/* The displaced original keeps its layout slot but is visually hidden while
+   its single preview clone shows the destination. */
+.seat-card-will-move {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#bottom-tray[data-closed-by-waiting-drag="true"] #tray-handle {
+  background: var(--tray-bg);
+}
+
+#bottom-tray[data-closed-by-waiting-drag="true"] #tray-toggle-label {
+  color: var(--text-sub);
+}
+
+.drop-create-lane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  min-height: 76px;
+  padding: 16px 18px;
+  border: 1.5px dashed var(--border-color);
+  border-radius: calc(var(--radius-main) + 2px);
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  color: var(--text-sub);
+  text-align: center;
+}
+
+.drop-create-lane i {
+  color: var(--accent-color);
+  font-size: 0.92rem;
+}
+
+.drop-create-lane strong {
+  display: block;
+  color: var(--text-main);
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.drop-create-lane span {
+  display: block;
+  color: var(--text-sub);
+  font-size: 0.76rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+body.manual-card-dragging #cars-container {
+  min-height: 92px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .member-card.waiting-card-new {
+    animation: none;
+    transition: none;
+  }
+}

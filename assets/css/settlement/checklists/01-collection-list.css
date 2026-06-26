@@ -1,0 +1,39 @@
+/* Collection checklist grouped by vehicle. */
+#seisan-view-area .seisan-collection-panel .seisan-head { margin-bottom: 8px; }
+#seisan-view-area .seisan-collection-panel .seisan-head > div { width: 100%; min-width: 0; }
+#seisan-view-area #seisan-collection-note.seisan-muted {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin: 2px 0 0;
+}
+#seisan-view-area .seisan-collection-note-left { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: 2px 9px; min-width: 0; }
+#seisan-view-area .seisan-collection-per-person { display: inline-flex; align-items: baseline; gap: 4px; margin-left: auto; white-space: nowrap; }
+#seisan-view-area .seisan-collection-per-person-amount { color: var(--text-main); font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+#seisan-view-area .seisan-check-list { display: grid; grid-template-columns: 1fr; gap: 14px; }
+#seisan-view-area .seisan-collection-group { display: grid; gap: 7px; min-width: 0; }
+#seisan-view-area .seisan-collection-group-title { padding: 0 2px; color: var(--text-sub); font-size: 0.78rem; font-weight: 700; }
+#seisan-view-area .seisan-collection-group-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+
+.seisan-check-item {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  min-height: 52px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  color: var(--text-main);
+  box-shadow: none;
+  cursor: pointer;
+}
+.seisan-check-item:hover { background: var(--surface-container); }
+.seisan-check-item.paid { background: var(--semantic-success-soft); color: var(--semantic-success); }
+.seisan-check-item.paid .seisan-check-name::after { content: " ✓"; font-weight: 800; }
+.seisan-check-item.excluded { cursor: not-allowed; background: var(--surface-container); color: var(--text-faint); opacity: 0.72; }
+.seisan-check-item input { width: 22px; height: 22px; margin: 0; }
+#seisan-view-area .seisan-check-note { max-width: 12em; overflow: hidden; color: currentColor; font-size: 0.7rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }

@@ -1,0 +1,177 @@
+.seisan-car-summary-total {
+  font-size: 1.16rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+.seisan-car-summary-row .seisan-cost-preview-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+  margin-top: 0;
+}
+.seisan-car-summary-row .seisan-cost-preview-item {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  align-items: start;
+  gap: 7px;
+  min-height: 32px;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--ui-surface-sunken);
+}
+.seisan-car-summary-row .seisan-cost-preview-label {
+  align-self: baseline;
+  color: var(--text-sub);
+  font-size: 0.70rem;
+  font-weight: 650;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+.seisan-cost-preview-detail-text {
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  color: var(--text-sub);
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.45;
+  text-align: left;
+}
+.seisan-cost-preview-muted {
+  color: var(--text-sub);
+  font-weight: 650;
+}
+.seisan-alert,
+.seisan-car-summary-row.has-error {
+  border-color: color-mix(in srgb, var(--ui-danger, var(--color-danger)) 54%, var(--ui-panel-border));
+  background: color-mix(in srgb, var(--ui-danger-soft, rgba(239, 68, 68, 0.12)) 68%, var(--ui-panel-bg));
+}
+.seisan-car-summary-row {
+  box-shadow: var(--ui-readable-shadow);
+}
+.seisan-cost-type-badge {
+  border-width: 1px;
+}
+.seisan-cost-policy-tag {
+  border-width: 1px;
+}
+.seisan-payment-tag {
+  border-width: 1px;
+}
+.gender-badge {
+  border-width: 1px;
+}
+.grade-badge {
+  border-width: 1px;
+}
+.capacity-badge {
+  border-width: 1px;
+}
+#seisan-view-area .seisan-head-tools-only .seisan-head-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+}
+@media (max-width: 640px) {
+#seisan-view-area .seisan-head-tools-only .seisan-head-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+  }
+}
+#seisan-view-area .seisan-head,
+#seisan-view-area .seisan-compact-head {
+  margin: 0 0 10px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+}
+#seisan-view-area .seisan-head-tools-only {
+  justify-content: flex-end;
+  margin: 0 0 10px;
+  padding-bottom: 9px;
+}
+#seisan-view-area .seisan-driver-amount {
+  font-size: 0.94rem;
+  letter-spacing: 0;
+  font-weight: 650;
+}
+@media (min-width: 860px) {
+#seisan-view-area .seisan-wrap {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+#seisan-view-area .seisan-title i {
+  font-size: 0.94em;
+  color: color-mix(in srgb, var(--accent-color) 72%, var(--text-sub));
+  width: 1.25em;
+}
+#seisan-view-area .seisan-alert-row.is-guidance {
+  border-color: color-mix(in srgb, var(--color-danger) 24%, var(--border-color));
+  background: color-mix(in srgb, var(--color-danger) 5%, var(--bg-card));
+  color: color-mix(in srgb, var(--color-danger-deep) 72%, var(--text-main));
+  font-weight: 600;
+}
+#seisan-view-area .seisan-alert-row.is-error {
+  border-color: color-mix(in srgb, var(--color-danger) 42%, var(--border-color));
+  background: color-mix(in srgb, var(--color-danger) 10%, var(--bg-card));
+  color: var(--color-danger-deep);
+  font-weight: 650;
+}
+#seisan-view-area .seisan-car-panel .seisan-head {
+  margin-bottom: 7px;
+  padding-bottom: 7px;
+}
+#seisan-view-area .seisan-car-summary-row + .seisan-car-summary-row {
+  margin-top: 7px;
+}
+#seisan-view-area .seisan-car-summary-name span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-list {
+  display: grid;
+  gap: 0;
+  padding: 0;
+}
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-item {
+  display: grid;
+  grid-template-columns: minmax(70px, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  min-height: 34px;
+}
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-item.seisan-cost-preview-item--no-label {
+  grid-template-columns: minmax(0, 1fr);
+  padding-top: 6px;
+}
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-label {
+  font-size: 0.65rem;
+  font-weight: 650;
+  color: var(--text-sub);
+}
+#seisan-view-area .seisan-cost-preview-muted {
+  color: var(--text-sub);
+  font-weight: 600;
+  padding: 2px 0;
+  font-size: 0.68rem;
+}
+#seisan-view-area .seisan-driver-amount,
+#seisan-view-area .seisan-car-summary-total {
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-weight: 650;
+  letter-spacing: 0;
+}

@@ -1,0 +1,18 @@
+.app-brand-mark {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--radius-main);
+  background: var(--accent-container);
+  color: var(--accent-container-text);
+  font-size: 1.05rem;
+  font-weight: 750;
+}
+
+.edit-header-tools-only { display: block; }
+.edit-header-tools-only .edit-tools { grid-template-columns: minmax(0, 1fr) auto; }
+.app-subtitle { display: none; }

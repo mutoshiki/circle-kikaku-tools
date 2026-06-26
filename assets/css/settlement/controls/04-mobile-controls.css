@@ -1,0 +1,6 @@
+@media (max-width: 640px) {
+  .seisan-btn,
+  .seisan-toggle,
+  .seisan-icon-btn { min-height: 48px; }
+  .seisan-head-actions { width: 100%; justify-content: flex-start; }
+}

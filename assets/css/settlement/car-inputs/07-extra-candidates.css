@@ -1,0 +1,55 @@
+/* Settlement car editor: shared extra-name candidates and locked generated rows. */
+#settlementCarEditModal .seisan-extra-candidates {
+  display: grid;
+  gap: 5px;
+  margin-top: 10px;
+  padding: 2px;
+}
+
+#settlementCarEditModal .seisan-extra-candidates-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-sub);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+#settlementCarEditModal .seisan-extra-candidate-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+#settlementCarEditModal .seisan-extra-candidate-chip {
+  min-height: 48px;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--ui-saas-border, var(--border-color)) 72%, transparent);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 0.74rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+#settlementCarEditModal .seisan-extra-candidate-chip:hover {
+  border-color: color-mix(in srgb, var(--accent-color) 36%, var(--ui-saas-border, var(--border-color)));
+  background: color-mix(in srgb, var(--accent-color) 9%, var(--bg-card));
+}
+
+#settlementCarEditModal .seisan-extra-candidate-chip span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#settlementCarEditModal .seisan-extra-row--reward :is(input[readonly], select:disabled) {
+  cursor: default;
+  opacity: 0.76;
+}

@@ -1,0 +1,222 @@
+/*
+ * Warm field-notebook color system.
+ * Shape and layout stay neutral; warm mineral surfaces establish hierarchy,
+ * olive marks primary actions, and settlement roles use sage, ochre, and wine.
+ */
+:root {
+  color-scheme: light;
+
+  --bg-body: #f4f1ea;
+  --bg-card: #fffcf7;
+  --surface-lowest: #fffcf7;
+  --surface-low: #f0ece3;
+  --surface-container: #e8e2d8;
+  --surface-high: #ddd5c8;
+  --surface-highest: #d2c8b9;
+  --surface-tint: #556b3e;
+  --surface-dim: #d9d1c5;
+
+  --text-main: #27251f;
+  --text-sub: #625d53;
+  --text-faint: #746e64;
+  --text-strong-sub: #49453d;
+  --text-on-dark: #f6f2e9;
+
+  --accent-color: #556b3e;
+  --accent-hover: #465832;
+  --accent-pressed: #374627;
+  --accent-soft: #e3ead7;
+  --accent-container: #e3ead7;
+  --accent-container-text: #30411f;
+  --accent-line: #aeba98;
+  --accent-border: #556b3e;
+  --accent-border-hover: #465832;
+  --accent-raised: #556b3e;
+  --accent-icon: #556b3e;
+  --focus-accent: #627a49;
+  --text-on-accent: #ffffff;
+
+  --border-color: #c9c1b5;
+  --border-strong: #777064;
+  --border-card: #d7cfc3;
+  --border-section: #ddd6cb;
+  --border-item: #e4ded5;
+  --border-panel: #d7cfc3;
+  --border-summary: #d7cfc3;
+  --border-dashed: #9d9589;
+  --border-empty: #b6aea2;
+  --border-hover: #777064;
+  --divider-strong: #d6cec2;
+  --hairline: rgba(98, 93, 83, 0.18);
+
+  --semantic-success: #357a54;
+  --semantic-success-soft: #e2f1e7;
+  --semantic-warning: #8b5d0c;
+  --semantic-warning-soft: #f9e8c4;
+  --semantic-danger: #b33a32;
+  --semantic-danger-soft: #f8ddd8;
+  --warning-on-ink: #704a08;
+
+  --surface-soft: var(--surface-low);
+  --surface-muted: var(--surface-container);
+  --surface-hover: #e7e1d7;
+  --surface-inset-line: rgba(255, 255, 255, 0.66);
+  --surface-elevated: var(--surface-lowest);
+  --surface-subtle: var(--surface-low);
+  --surface-raised: var(--surface-lowest);
+  --surface-chip: var(--surface-container);
+  --canvas-bg: var(--bg-body);
+
+  --app-surface: var(--surface-lowest);
+  --sheet-header: var(--surface-container);
+  --sheet-grid: #ddd6cb;
+  --hover-bg: var(--surface-hover);
+  --driver-bg: var(--accent-container);
+  --seat-bg: var(--surface-low);
+  --seat-slot-bg: var(--surface-lowest);
+  --tray-bg: var(--surface-lowest);
+  --modal-bg: var(--surface-lowest);
+  --modal-header-bg: var(--surface-lowest);
+  --modal-footer-bg: var(--surface-low);
+  --header-art-url: none;
+
+  --brand-ink: var(--text-main);
+  --brand-ink-soft: var(--text-strong-sub);
+  --brand-ink-muted: var(--text-sub);
+  --brand-on-ink: #ffffff;
+  --brand-on-ink-muted: #e9e2d8;
+  --brand-border: rgba(39, 37, 31, 0.12);
+  --brand-ink-border: var(--border-color);
+
+  --preview-header-bg: var(--surface-lowest);
+  --preview-header-text: var(--text-main);
+  --preview-header-border: var(--border-color);
+  --bottom-toolbar-bg: var(--surface-lowest);
+  --bottom-toolbar-text: var(--text-main);
+  --bottom-toolbar-border: var(--border-color);
+  --bottom-toolbar-muted: var(--text-sub);
+  --bottom-toolbar-hover-text: var(--text-main);
+
+  --bg-male: #e8eee1;
+  --border-male: #c9d6bd;
+  --text-male: #4d6540;
+  --bg-female: #f7e8ea;
+  --border-female: #e1c7cd;
+  --text-female: #79515b;
+  --bg-unknown: var(--surface-container);
+  --border-unknown: var(--border-color);
+  --text-unknown: var(--text-sub);
+
+  --grade1-bg: #f0e8f1;
+  --grade1-border: #d8c7d9;
+  --grade1-text: #665469;
+  --grade2-bg: #f6e7e0;
+  --grade2-border: #dfc8bd;
+  --grade2-text: #7a5240;
+  --grade3-bg: #f6edd7;
+  --grade3-border: #ddca9f;
+  --grade3-text: #725a25;
+  --grade4-bg: #e7efe2;
+  --grade4-border: #c9d8bf;
+  --grade4-text: #4e6743;
+  --grade1-badge: var(--grade1-bg);
+  --grade2-badge: var(--grade2-bg);
+  --grade3-badge: var(--grade3-bg);
+  --grade4-badge: var(--grade4-bg);
+
+  --status-split-text: #365e43;
+  --status-split-bg: #e4f0e5;
+  --status-split-border: #bcd1c0;
+  --status-club-text: #765318;
+  --status-club-bg: #f7ebcb;
+  --status-club-border: #dbc28b;
+  --status-payment-text: #733f56;
+  --status-payment-bg: #f4e4ea;
+  --status-payment-border: #d7b4c3;
+
+  --shadow-card: 0 1px 2px rgba(53, 47, 38, 0.08), 0 6px 18px rgba(53, 47, 38, 0.05);
+  --shadow-float: 0 14px 38px rgba(53, 47, 38, 0.18);
+  --shadow-modal: 0 24px 64px rgba(53, 47, 38, 0.24);
+  --shadow-tray: 0 -8px 28px rgba(53, 47, 38, 0.12);
+  --shadow-tray-mobile: 0 -10px 30px rgba(53, 47, 38, 0.14);
+  --shadow-status: 0 8px 22px rgba(53, 47, 38, 0.14);
+  --shadow-tab: none;
+  --status-surface: rgba(255, 252, 247, 0.95);
+
+  --app-border-soft: rgba(98, 93, 83, 0.22);
+  --app-border-subtle: rgba(98, 93, 83, 0.14);
+  --app-divider-soft: rgba(98, 93, 83, 0.16);
+  --app-border-inner: rgba(98, 93, 83, 0.10);
+  --ui-saas-border: var(--app-border-soft);
+  --ui-saas-border-strong: rgba(85, 107, 62, 0.36);
+  --ui-saas-panel: var(--surface-lowest);
+  --ui-saas-panel-raised: var(--surface-lowest);
+  --ui-saas-inner: var(--surface-low);
+  --ui-saas-shadow-soft: var(--shadow-card);
+  --ui-unified-divider: var(--app-divider-soft);
+
+  --text-muted: var(--text-sub);
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --white-rgb: 255, 255, 255;
+  --black-rgb: 0, 0, 0;
+  --shadow-rgb: 53, 47, 38;
+
+  --bs-body-bg: var(--bg-body);
+  --bs-body-color: var(--text-main);
+  --bs-secondary-color: var(--text-sub);
+  --bs-border-color: var(--border-color);
+  --bs-tertiary-bg: var(--surface-container);
+  --bs-modal-bg: var(--modal-bg);
+  --bs-dropdown-bg: var(--surface-lowest);
+  --bs-dropdown-color: var(--text-main);
+  --bs-dropdown-link-color: var(--text-main);
+  --bs-dropdown-link-hover-color: var(--text-main);
+  --bs-dropdown-link-hover-bg: var(--surface-hover);
+  --bs-form-control-bg: var(--surface-lowest);
+  --bs-form-control-color: var(--text-main);
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: Roboto, "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", Meiryo, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  background: var(--bg-body);
+  color: var(--text-main);
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  accent-color: var(--accent-color);
+}
+
+::selection {
+  background: var(--accent-container);
+  color: var(--accent-container-text);
+}
+
+.handle-bar {
+  width: 32px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--text-faint);
+  opacity: 0.56;
+}
+
+.text-muted-readable {
+  color: var(--text-sub);
+}
+
+@keyframes sheetJiggle {
+  from { transform: rotate(-0.7deg); }
+  to { transform: rotate(0.7deg); }
+}

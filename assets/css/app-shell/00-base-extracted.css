@@ -1,0 +1,52 @@
+/* Grade selectors and compact condition summaries shared by editor flows. */
+#roomNameInput { min-width: 0; }
+
+.grade-select-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  min-height: 44px;
+  padding: 7px 11px;
+  border: 1px solid var(--border-item);
+  border-radius: var(--radius-pill);
+  background: var(--surface-lowest);
+  color: var(--text-sub);
+  font-size: var(--font-size-label);
+  font-weight: 650;
+  cursor: pointer;
+}
+.grade-select-btn:hover { background: var(--surface-hover); color: var(--text-main); }
+.grade-select-btn.active {
+  border-color: var(--accent-color);
+  background: var(--accent-container);
+  color: var(--accent-container-text);
+  box-shadow: inset 0 0 0 1px var(--accent-color);
+}
+.grade-select-btn.active::before { content: "✓"; margin-right: 4px; font-weight: 800; }
+.grade-select-btn.active[data-grade="0"] { background: var(--surface-highest); color: var(--text-main); }
+
+.auto-condition-pill {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  color: var(--text-sub);
+  font-size: var(--font-size-label);
+  font-weight: 650;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.auto-condition-pill i { flex: 0 0 auto; margin-top: 2px; color: var(--accent-color); }
+.auto-condition-pill span { min-width: 0; }
+.auto-condition-pill.is-empty { background: var(--surface-container); color: var(--text-faint); }
+.tool-help-btn i { color: currentColor; }
+.btn-sm,
+.badge,
+.auto-condition-pill { border-radius: var(--radius-sm); }

@@ -1,0 +1,22 @@
+/* Dialog sizing. */
+.modal-title--debug { font-size: 0.98rem; }
+.debug-help-text,
+.debug-label { color: var(--text-sub); font-size: 0.82rem; }
+.debug-label { font-weight: 650; }
+.debug-car-count-select { width: 88px; }
+.compact-guide-grid { max-width: 100%; box-sizing: border-box; }
+body.modal-open { padding-right: 0; }
+
+@media (min-width: 641px) {
+  #commonEditModal .modal-dialog.modal-sm,
+  #debugModal .modal-dialog.modal-sm { width: min(460px, calc(100vw - 32px)); max-width: min(460px, calc(100vw - 32px)); }
+  #historyModal .modal-dialog { width: min(600px, calc(100vw - 32px)); max-width: min(600px, calc(100vw - 32px)); }
+}
+
+@media (max-width: 640px) {
+  #commonEditModal .modal-dialog,
+  #historyModal .modal-dialog,
+  #debugModal .modal-dialog { width: 100%; max-width: none; }
+  #routeDistanceModal .route-helper-actions { grid-template-columns: 1fr; }
+  .modal-body { line-height: 1.55; }
+}

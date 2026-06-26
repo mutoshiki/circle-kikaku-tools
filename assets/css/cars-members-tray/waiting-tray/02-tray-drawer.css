@@ -1,0 +1,28 @@
+/* Responsive bottom-sheet height and empty state. */
+#waiting-list .member-card { touch-action: pan-y; }
+#bottom-tray.waiting-few:not(.minimized) { height: auto; min-height: 0; max-height: min(300px, 38dvh); }
+#bottom-tray.waiting-normal:not(.minimized) { height: auto; min-height: 0; max-height: min(410px, 48dvh); }
+#bottom-tray.waiting-many:not(.minimized) { height: min(540px, 58dvh); min-height: 280px; max-height: 58dvh; }
+
+#waiting-list:empty::before {
+  content: "未割り当ての参加者はいません";
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-sub);
+  border: 0;
+  border-radius: var(--radius-main);
+  background: var(--surface-low);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+  #bottom-tray.waiting-empty:not(.empty-open) { height: 48px; min-height: 48px; max-height: 48px; overflow: hidden; }
+  #bottom-tray.waiting-empty:not(.empty-open) #tray-handle { height: 48px; min-height: 48px; }
+  #bottom-tray.waiting-empty:not(.empty-open) #bottom-tray-header,
+  #bottom-tray.waiting-empty:not(.empty-open) #waiting-list-container { display: none; }
+  #bottom-tray.waiting-empty.empty-open { height: auto; min-height: 0; max-height: 190px; }
+}

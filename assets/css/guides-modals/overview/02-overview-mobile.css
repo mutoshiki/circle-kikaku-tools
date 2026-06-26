@@ -1,0 +1,5 @@
+@media (max-width: 640px) {
+  .overview-drawer { width: 100%; padding-inline: 16px; border-radius: var(--radius-xl) 0 0 var(--radius-xl); }
+  .overview-drawer-body { gap: 24px; }
+  .overview-drawer .overview-textarea { resize: none; }
+}

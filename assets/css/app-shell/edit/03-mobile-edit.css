@@ -1,0 +1,22 @@
+/* Compact editor header used in modal and inline edit contexts. */
+.edit-header-tools-only {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin: 0;
+}
+
+.edit-header-tools-only .edit-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.edit-header-tools-only .edit-tools .tool-btn {
+  min-height: var(--control-height);
+  gap: 7px;
+  flex-direction: row;
+}
+
+.edit-header-tools-only .edit-tools .tool-btn i { margin: 0; }
+.edit-header-tools-only .edit-tools .tool-btn span { font-size: var(--font-size-label); }

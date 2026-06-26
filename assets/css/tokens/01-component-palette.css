@@ -1,0 +1,20 @@
+/* Low-level colors that are still required by interaction and guide owners.
+   Product components should prefer semantic tokens from 01-color-scheme.css. */
+:root {
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-ink: var(--text-main);
+  --color-danger: var(--semantic-danger);
+  --color-danger-strong: var(--semantic-danger);
+  --color-danger-text: var(--semantic-danger);
+  --color-danger-deep: var(--semantic-danger);
+  --color-warning: var(--semantic-warning);
+  --color-success: var(--semantic-success);
+  --color-success-soft: var(--semantic-success);
+  --color-info: var(--accent-color);
+  --overlay-soft-light: rgba(var(--white-rgb), 0.66);
+  --overlay-soft-dark: rgba(var(--black-rgb), 0.26);
+  --palette-olive-400: #9caf7d;
+  --palette-green-600: #357a54;
+  --palette-amber-600: #a36a0a;
+}

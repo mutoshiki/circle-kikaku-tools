@@ -1,0 +1,103 @@
+{
+  "generatedAt": "2026-06-25T17:32:46.295Z",
+  "theme": "light",
+  "browser": "144.0.7559.96",
+  "screenshots": [
+    "empty-sheet-saas-mobile-large-430-430x932-top-dpr1.png",
+    "list-car-saas-mobile-large-430-430x932-top-dpr1.png",
+    "sheet-saas-mobile-large-430-430x932-top-dpr1.png",
+    "settlement-saas-mobile-large-430-430x932-top-dpr1.png"
+  ],
+  "console": [],
+  "requestFailures": [],
+  "metrics": [
+    {
+      "state": "empty-sheet",
+      "variant": "saas",
+      "size": "mobile-large-430",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 430,
+        "clientWidth": 430,
+        "scrollHeight": 932,
+        "clientHeight": 932
+      },
+      "root": {
+        "selector": "#sheet-view-area",
+        "scrollWidth": 430,
+        "clientWidth": 430,
+        "scrollHeight": 798,
+        "clientHeight": 798,
+        "overflowX": false,
+        "overflowY": false
+      },
+      "offscreen": []
+    },
+    {
+      "state": "list-car",
+      "variant": "saas",
+      "size": "mobile-large-430",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 430,
+        "clientWidth": 430,
+        "scrollHeight": 932,
+        "clientHeight": 932
+      },
+      "root": {
+        "selector": "#top-area",
+        "scrollWidth": 430,
+        "clientWidth": 430,
+        "scrollHeight": 1183,
+        "clientHeight": 750,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    },
+    {
+      "state": "sheet",
+      "variant": "saas",
+      "size": "mobile-large-430",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 430,
+        "clientWidth": 430,
+        "scrollHeight": 932,
+        "clientHeight": 932
+      },
+      "root": {
+        "selector": "#sheet-view-area",
+        "scrollWidth": 430,
+        "clientWidth": 430,
+        "scrollHeight": 798,
+        "clientHeight": 798,
+        "overflowX": false,
+        "overflowY": false
+      },
+      "offscreen": []
+    },
+    {
+      "state": "settlement",
+      "variant": "saas",
+      "size": "mobile-large-430",
+      "documentOverflowX": false,
+      "document": {
+        "scrollWidth": 430,
+        "clientWidth": 430,
+        "scrollHeight": 932,
+        "clientHeight": 932
+      },
+      "root": {
+        "selector": "#seisan-view-area",
+        "scrollWidth": 430,
+        "clientWidth": 430,
+        "scrollHeight": 3489,
+        "clientHeight": 798,
+        "overflowX": false,
+        "overflowY": true
+      },
+      "offscreen": []
+    }
+  ]
+}

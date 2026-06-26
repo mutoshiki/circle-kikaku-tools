@@ -1,0 +1,16 @@
+/* Settlement small-screen form and share behavior. */
+.seisan-settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.seisan-share-actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+
+.seisan-car-summary-row + .seisan-car-summary-row { margin-top: 9px; }
+
+@media (max-width: 640px) {
+  .seisan-settings { grid-template-columns: 1fr; }
+  #seisan-view-area .seisan-field input,
+  #seisan-view-area .seisan-field select,
+  #seisan-view-area .seisan-extra-row input,
+  #seisan-view-area .seisan-extra-row select,
+  #seisan-view-area .seisan-car-inputs input { min-height: 48px; padding: 9px 11px; font-size: 16px; }
+  #seisan-view-area .seisan-car-row { padding: 14px; margin-bottom: 10px; border-radius: var(--radius-lg); }
+  #seisan-view-area .seisan-driver-detail { font-size: 0.72rem; line-height: 1.4; }
+}

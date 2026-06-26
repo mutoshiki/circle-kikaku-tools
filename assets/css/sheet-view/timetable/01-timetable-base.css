@@ -1,0 +1,8 @@
+/* 発表ビュー: 車割・班割の下にタイムテーブルを表示する。 */
+.sheet-timetable-section { width: min(var(--sheet-plan-content-width, 560px), 720px); min-width: min(320px, calc(100vw - 24px)); }
+.sheet-timetable-card { display: flex; flex-direction: column; gap: 0; overflow: hidden; border: 0; border-radius: var(--radius-main); background: var(--surface-lowest); box-shadow: var(--shadow-card); }
+.sheet-timetable-row { display: grid; grid-template-columns: 5em minmax(0, 1fr); align-items: start; gap: 10px; min-height: 48px; padding: 10px 12px; }
+.sheet-timetable-row + .sheet-timetable-row { border-top: 1px solid var(--border-section); }
+.sheet-timetable-time { color: var(--text-sub); font-size: 0.82rem; font-weight: 650; line-height: 1.5; white-space: nowrap; }
+.sheet-timetable-title { min-width: 0; color: var(--text-main); font-size: 0.88rem; font-weight: 550; line-height: 1.5; overflow-wrap: anywhere; }
+.sheet-timetable-link { color: var(--accent-color); font-weight: 650; text-decoration: underline; text-underline-offset: 0.18em; }

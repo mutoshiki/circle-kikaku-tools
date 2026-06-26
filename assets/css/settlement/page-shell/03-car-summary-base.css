@@ -1,0 +1,20 @@
+/* Base surface for each driver cost summary. Detailed rows are owned by car-cost-summary. */
+#seisan-view-area #seisan-car-list { display: grid; gap: 10px; }
+#seisan-view-area .seisan-car-summary-row {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-item);
+  border-radius: var(--radius-lg);
+  background: var(--surface-lowest);
+  color: var(--text-main);
+  box-shadow: none;
+}
+#seisan-view-area .seisan-car-summary-row:hover { border-color: var(--border-hover); background: var(--surface-lowest); }
+#seisan-view-area .seisan-car-summary-total {
+  color: var(--text-main);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
