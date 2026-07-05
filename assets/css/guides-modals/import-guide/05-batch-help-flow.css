@@ -153,20 +153,11 @@
 }
 
 @media (max-width: 520px) {
-  .batch-auto-table-wrap { overflow: visible; border: 0; background: transparent; }
-  .batch-auto-rule-table,
-  .batch-auto-rule-table tbody,
-  .batch-auto-rule-table tr,
-  .batch-auto-rule-table th,
-  .batch-auto-rule-table td { display: block; width: 100%; min-width: 0; }
-  .batch-auto-rule-table thead { display: none; }
-  .batch-auto-rule-table tr { margin-bottom: 10px; overflow: hidden; border: 1px solid var(--ui-saas-border, var(--border-color)); border-radius: var(--radius-sm); background: var(--surface-lowest); }
-  .batch-auto-rule-table th,
-  .batch-auto-rule-table td { padding: 9px 10px; border-right: 0; border-bottom: 1px solid var(--ui-saas-border, var(--border-color)); }
-  .batch-auto-rule-table th:first-child { width: auto; background: var(--surface-container); }
-  .batch-auto-rule-table td::before { display: block; margin-bottom: 3px; color: var(--text-faint); font-size: 0.66rem; font-weight: 700; }
-  .batch-auto-rule-table td:nth-child(2)::before { content: "名前"; }
-  .batch-auto-rule-table td:nth-child(3)::before { content: "学年・学籍番号"; }
-  .batch-auto-rule-table td:nth-child(4)::before { content: "車出し"; }
-  .batch-auto-rule-table tr > :last-child { border-bottom: 0; }
+  .batch-auto-table-wrap {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .batch-auto-rule-table { min-width: 680px; }
 }

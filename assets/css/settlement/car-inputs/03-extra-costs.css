@@ -6,7 +6,7 @@
 
 #settlementCarEditModal .seisan-extra-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(72px, 0.72fr) minmax(76px, 0.68fr) 48px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(72px, 0.72fr) minmax(108px, 0.82fr) 48px;
   align-items: center;
   gap: 8px;
   min-width: 0;
@@ -53,14 +53,14 @@
 
 @media (max-width: 420px) {
   #settlementCarEditModal .seisan-extra-row {
-    grid-template-columns: minmax(0, 1fr) 70px 74px 48px;
+    grid-template-columns: minmax(0, 1fr) 70px 96px 48px;
     gap: 6px;
   }
 }
 
 @media (max-width: 360px) {
   #settlementCarEditModal .seisan-extra-row {
-    grid-template-columns: minmax(0, 1fr) 66px 70px 48px;
+    grid-template-columns: minmax(0, 1fr) 64px 92px 48px;
     gap: 5px;
   }
 

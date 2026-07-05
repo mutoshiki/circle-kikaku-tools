@@ -112,6 +112,12 @@
   --settlement-tag-bg: var(--settlement-club-bg);
   --settlement-tag-line: var(--settlement-club-line);
 }
+.seisan-cost-policy-tag.is-negative,
+.seisan-cost-type-badge.is-negative,
+.seisan-extra-type.split-minus,
+.seisan-extra-type.club-minus {
+  border-style: dashed;
+}
 .seisan-cost-policy-tag.pay,
 .seisan-cost-type-badge.pay,
 .seisan-payment-tag.pay {

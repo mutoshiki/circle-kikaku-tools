@@ -22,7 +22,7 @@ assert(!templates.includes('const extraTotal ='), 'extra total summary should no
 assert(!templates.includes('<span class="seisan-cost-preview-detail-text">割勘対象</span>'), 'gas cost should use the same simple split label style as extras');
 assert(templates.includes("<span>ガソリン代</span>${formatCostBadge('split')}<strong class=\"seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}\">${money(calc.gas || 0, helpers)}</strong>"), 'gas cost should place its cost badge before the amount');
 assert(css.includes('grid-template-columns: minmax(0, 1fr) var(--settlement-car-tag-col) var(--settlement-car-amount-col);'), 'cost rows should align badge and amount columns at the right edge');
-assert(css.includes('--settlement-car-amount-col: 112px;'), 'driver payment cards should preserve a readable fixed amount column so badges stay vertically aligned');
+assert(css.includes('--settlement-car-amount-col: 64px;') && css.includes('--settlement-car-amount-col: 54px;'), 'driver payment cards should keep fixed list and compact amount columns so badges stay aligned near four-digit amounts');
 assert(templates.includes('<span class="seisan-cost-total-label">合計</span>${formatPaymentBadge(\'支払\')}<strong class="seisan-car-summary-total'), 'car payment total should use the short 支払 badge before the amount');
 assert(!css.includes('.seisan-car-summary-row .seisan-extra-inline-list .seisan-extra-inline strong,'), 'legacy cost-tag CSS must not override the car-card amount column');
 assert(!css.includes('.seisan-car-summary-row .seisan-extra-inline-list .seisan-extra-inline {\n  grid-template-columns: minmax(0, 1fr) minmax('), 'legacy cost-tag CSS must not own the car-card grid');
@@ -31,9 +31,9 @@ assert(!templates.includes('<div class="seisan-extra-line-list">${formatExtraLin
 assert(css.includes('.seisan-car-summary-headline') && css.includes('grid-template-columns: minmax(0, 1fr) 48px;'), 'headline should keep the name and a 48px edit action in one row');
 assert(css.includes('.seisan-cost-preview-item') && css.includes('border: 0;'), 'car summary amount frames should be removed in the final override');
 assert(css.includes('.seisan-cost-preview-item--inline-all'), 'gas and extra costs should render in one inline summary row');
-assert(css.includes('.seisan-cost-total-row') && css.includes('border-top: 1px solid'), 'payment total should be separated from gas and extra rows by a divider');
+assert(css.includes('.seisan-cost-total-row') && css.includes('border-top: 2px solid var(--border-strong);'), 'payment total should be separated from gas and extra rows by a clear divider');
 assert(templates.includes('<span class="seisan-amount-sign" aria-hidden="true">＝</span>${money(amount, helpers)}'), 'payment total should use the same real sign element as plus/minus amounts');
 assert(!css.includes('.seisan-cost-total-row .seisan-car-summary-total::before'), 'payment total should not use a separately styled equals pseudo-element');
-assert(css.includes('.seisan-cost-line-amount.seisan-car-summary-total') && css.includes('--amount-font-size'), 'cost row amounts should follow the same visual amount rule as the payment total');
+assert(css.includes('.seisan-cost-line-amount.seisan-car-summary-total') && css.includes('--amount-font-size: var(--settlement-car-amount-size);') && !css.includes('font-size: 1.36rem;'), 'cost rows and payment total should use the same amount typography');
 
 console.log('Settlement car summary readability check OK');

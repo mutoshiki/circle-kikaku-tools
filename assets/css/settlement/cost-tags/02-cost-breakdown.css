@@ -107,7 +107,6 @@
 #seisan-view-area .seisan-car-summary-row .seisan-extra-inline strong {
   margin-left: 0;
   color: var(--text-main);
-  letter-spacing: -0.012em;
 }
 #seisan-view-area .seisan-car-summary-headline .seisan-edit-btn {
   width: auto;

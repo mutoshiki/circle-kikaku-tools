@@ -34,18 +34,24 @@ function calculateSettlement(data, state) {
         const timesDistanceFee = usesTimesRental ? getTimesDistanceFee(cState.dist) : 0;
         const extras = cState.extras.map(normalizeExtraItem).filter(hasMeaningfulExtra).map(ex => {
             const isTimesDistanceFee = usesTimesRental && isTimesDistanceFeeExtra(ex);
-            const isDriverReward = isDriverRewardExtra(ex);
+            const type = normalizeSettlementExtraType(ex.type);
+            const amount = isTimesDistanceFee ? String(timesDistanceFee) : ex.amount;
+            const amountValue = isTimesDistanceFee
+                ? (isNegativeSettlementExtraType(type) ? -Math.abs(timesDistanceFee) : timesDistanceFee)
+                : getSignedSettlementExtraAmount({ ...ex, type, amount });
             return {
                 ...ex,
-                type: ex.type,
-                amount: isTimesDistanceFee ? String(timesDistanceFee) : ex.amount,
-                amountValue: isTimesDistanceFee ? timesDistanceFee : getNumberValue(ex.amount),
+                type,
+                baseType: getSettlementExtraBaseType(type),
+                isNegative: amountValue < 0,
+                amount,
+                amountValue,
                 isDriverReward: isDriverRewardExtra(ex),
                 isTimesDistanceFee
             };
         });
-        const splitExtras = extras.filter(ex => ex.type === 'split').reduce((sum, ex) => sum + ex.amountValue, 0);
-        const clubExtras = extras.filter(ex => ex.type === 'club').reduce((sum, ex) => sum + ex.amountValue, 0);
+        const splitExtras = extras.filter(ex => ex.baseType === 'split').reduce((sum, ex) => sum + ex.amountValue, 0);
+        const clubExtras = extras.filter(ex => ex.baseType === 'club').reduce((sum, ex) => sum + ex.amountValue, 0);
         const rewardAmount = extras.filter(ex => ex.isDriverReward).reduce((sum, ex) => sum + ex.amountValue, 0);
         const split = gas + splitExtras;
         const rawPay = split + clubExtras;

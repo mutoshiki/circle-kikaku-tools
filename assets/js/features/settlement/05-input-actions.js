@@ -35,7 +35,7 @@ function addSettlementExtraCandidate(encodedName, encodedCandidate, encodedAmoun
     const name = decodeURIComponent(encodedName || '');
     const candidate = decodeURIComponent(encodedCandidate || '').trim();
     const amount = decodeURIComponent(encodedAmount || '');
-    const normalizedType = type === 'club' ? 'club' : 'split';
+    const normalizedType = normalizeSettlementExtraType(type);
     if (!name || !candidate) return;
     const state = ensureSettlementState();
     const car = normalizeCarSettlementState(state.cars[name] || {});

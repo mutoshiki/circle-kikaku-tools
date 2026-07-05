@@ -56,6 +56,22 @@
   transform-origin: top left;
 }
 
+.sheet-primary-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  width: max-content;
+  min-width: 100%;
+}
+.sheet-primary-row > .sheet-plan-section,
+.sheet-primary-row > .sheet-allocation-stack { flex: 0 0 auto; }
+.sheet-allocation-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 22px;
+  width: max-content;
+}
 .sheet-plan-section { width: max-content; min-width: min(100%, 320px); margin-bottom: 0; }
 .sheet-plan-heading { margin: 0 0 8px 2px; color: var(--text-main); font-size: 1rem; font-weight: 750; }
 .sheet-plan-table { display: flex; align-items: stretch; gap: 8px; width: max-content; }

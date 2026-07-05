@@ -131,6 +131,7 @@
     <link href="./assets/css/settlement/cost-tags/05-cost-preview-lines.css" rel="stylesheet">
     <link href="./assets/css/settlement/payment-chip/01-payment-tokens.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-cost-summary/01-car-cost-card.css" rel="stylesheet">
+    <link href="./assets/css/settlement/car-cost-summary/02-layout-toggle.css" rel="stylesheet">
     <!-- CSS: sheet view and utilities -->
     <link href="./assets/css/sheet-view/layout/01-sheet-frame.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/layout/02-sheet-car-table.css" rel="stylesheet">
@@ -272,6 +273,9 @@
                 <i class="fas fa-car-side" aria-hidden="true"></i>
                 <span>ドライバーへの<em class="seisan-cost-policy-tag seisan-cost-type-badge seisan-payment-tag ui-chip pay" data-cost-type="pay">支払い</em></span>
               </div>
+              <button id="seisanCarLayoutToggle" class="seisan-car-layout-toggle" type="button" data-action="toggle-settlement-car-layout" aria-label="1列表示に切り替え" title="1列表示に切り替え" aria-pressed="true" hidden>
+                <span class="seisan-layout-grid-icon" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+              </button>
             </div>
             <div id="seisan-car-list"></div>
           </section>
@@ -442,28 +446,28 @@
                 </div>
               </div>
               <div class="col-12 col-md-3">
-                <label class="form-label small batch-label-accent">同乗者 (改行区切り)</label>
+                <label class="form-label small batch-label-accent">同乗者（改行区切り）</label>
                 <textarea id="batchMembers" class="form-control batch-import-textarea" placeholder="（例）&#10;田中 太郎&#10;佐藤 花子&#10;鈴木 次郎" aria-label="参加者名一覧"></textarea>
-              </div>
-              <div class="col-12 col-md-3">
-                <label class="form-label small batch-label-grade1">1年生 (改行区切り)</label>
-                <textarea id="batchGrade1" class="form-control batch-import-textarea" aria-label="1年生の表記"></textarea>
-              </div>
-              <div class="col-12 col-md-3">
-                <label class="form-label small batch-label-grade2">2年生 (改行区切り)</label>
-                <textarea id="batchGrade2" class="form-control batch-import-textarea" aria-label="2年生の表記"></textarea>
-              </div>
-              <div class="col-12 col-md-3">
-                <label class="form-label small batch-label-grade3">3年生 (改行区切り)</label>
-                <textarea id="batchGrade3" class="form-control batch-import-textarea" aria-label="3年生の表記"></textarea>
-              </div>
-              <div class="col-12 col-md-3">
-                <label class="form-label small batch-label-grade4">4年生 (改行区切り)</label>
-                <textarea id="batchGrade4" class="form-control batch-import-textarea" aria-label="4年生の表記"></textarea>
               </div>
               <div class="col-12 col-md-3">
                 <label class="form-label small batch-label-muted">車出し</label>
                 <textarea id="batchDrivers" class="form-control batch-import-textarea" aria-label="車出し可能な参加者"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label small batch-label-grade1">1年生</label>
+                <textarea id="batchGrade1" class="form-control batch-import-textarea" aria-label="1年生の表記"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label small batch-label-grade2">2年生</label>
+                <textarea id="batchGrade2" class="form-control batch-import-textarea" aria-label="2年生の表記"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label small batch-label-grade3">3年生</label>
+                <textarea id="batchGrade3" class="form-control batch-import-textarea" aria-label="3年生の表記"></textarea>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label small batch-label-grade4">4年生</label>
+                <textarea id="batchGrade4" class="form-control batch-import-textarea" aria-label="4年生の表記"></textarea>
               </div>
             </div>
             <div id="batchDuplicateWarning" class="batch-warning" hidden></div>

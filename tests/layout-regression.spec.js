@@ -215,11 +215,12 @@ test('pinpoint settlement and shared-view fixes stay readable and operable', asy
   const totalAmount = page.locator('#seisan-car-list .seisan-cost-total-row .seisan-car-summary-total').first();
   await expect(detailAmount).toBeVisible();
   const amountSizes = await page.evaluate(() => ({
+    label: parseFloat(getComputedStyle(document.querySelector('#seisan-car-list .seisan-cost-line > span:first-child')).fontSize),
     detail: parseFloat(getComputedStyle(document.querySelector('#seisan-car-list .seisan-cost-line-amount')).fontSize),
     total: parseFloat(getComputedStyle(document.querySelector('#seisan-car-list .seisan-cost-total-row .seisan-car-summary-total')).fontSize)
   }));
-  expect(amountSizes.detail).toBeGreaterThanOrEqual(18);
-  expect(amountSizes.total).toBeGreaterThan(amountSizes.detail);
+  expect(amountSizes.detail).toBeCloseTo(amountSizes.label, 1);
+  expect(amountSizes.total).toBeCloseTo(amountSizes.label, 1);
 
   await page.evaluate(() => window.switchView('sheet'));
   const driverRow = page.locator('.sheet-driver-row:not(.sheet-label-row):has(.grade-badge)').first();

@@ -1,5 +1,6 @@
 /* Base surface for each driver cost summary. Detailed rows are owned by car-cost-summary. */
 #seisan-view-area #seisan-car-list { display: grid; gap: 10px; }
+#seisan-view-area #seisan-car-list.is-two-column { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 #seisan-view-area .seisan-car-summary-row {
   min-width: 0;
   overflow: hidden;

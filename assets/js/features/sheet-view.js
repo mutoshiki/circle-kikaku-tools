@@ -362,15 +362,36 @@ function renderSheetView() {
         return;
     }
 
-    visiblePlans
-        .sort((a, b) => {
-            const typeA = typeof normalizeCarPlanTemplateType === 'function' ? normalizeCarPlanTemplateType(a.templateType) : 'car';
-            const typeB = typeof normalizeCarPlanTemplateType === 'function' ? normalizeCarPlanTemplateType(b.templateType) : 'car';
-            return (typeA === 'car' ? 0 : 1) - (typeB === 'car' ? 0 : 1);
-        })
-        .forEach((plan, index) => content.appendChild(createSheetPlanSection(plan, index)));
+    const sortedPlans = visiblePlans.sort((a, b) => {
+        const typeA = typeof normalizeCarPlanTemplateType === 'function' ? normalizeCarPlanTemplateType(a.templateType) : 'car';
+        const typeB = typeof normalizeCarPlanTemplateType === 'function' ? normalizeCarPlanTemplateType(b.templateType) : 'car';
+        return (typeA === 'car' ? 0 : 1) - (typeB === 'car' ? 0 : 1);
+    });
+    const planSections = sortedPlans.map((plan, index) => ({
+        plan,
+        type: typeof normalizeCarPlanTemplateType === 'function' ? normalizeCarPlanTemplateType(plan.templateType) : 'car',
+        section: createSheetPlanSection(plan, index)
+    }));
     const timetableSection = createSheetTimetableSection();
-    if (timetableSection) content.appendChild(timetableSection);
+    const primaryCarIndex = planSections.findIndex(item => item.type === 'car');
+
+    if (timetableSection && primaryCarIndex >= 0) {
+        const primaryRow = document.createElement('div');
+        primaryRow.className = 'sheet-primary-row';
+
+        const allocationStack = document.createElement('div');
+        allocationStack.className = 'sheet-allocation-stack';
+        allocationStack.appendChild(planSections[primaryCarIndex].section);
+        planSections.forEach((item, index) => {
+            if (index !== primaryCarIndex) allocationStack.appendChild(item.section);
+        });
+
+        primaryRow.append(timetableSection, allocationStack);
+        content.appendChild(primaryRow);
+    } else {
+        if (timetableSection) content.appendChild(timetableSection);
+        planSections.forEach(item => content.appendChild(item.section));
+    }
     syncSheetPlanWidths();
     requestAnimationFrame(syncSheetPlanWidths);
     requestAnimationFrame(fitInitialSheetScale);

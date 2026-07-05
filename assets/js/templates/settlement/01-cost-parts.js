@@ -6,12 +6,27 @@
   const parts = window.SanpoApp?.settlementTemplateParts || {};
   const { UI_CLASS, esc, money } = parts;
 
+  function normalizeDisplayExtraType(type = 'split') {
+    if (type === 'pay') return { type: 'pay', baseType: 'pay', negative: false };
+    const normalized = ['split', 'club', 'split-minus', 'club-minus'].includes(type) ? type : 'split';
+    return {
+      type: normalized,
+      baseType: normalized.startsWith('club') ? 'club' : 'split',
+      negative: normalized.endsWith('-minus')
+    };
+  }
+
   function formatCostBadge(type = 'split', label = '') {
-    const normalized = type === 'club' || type === 'pay' ? type : 'split';
-    const defaultLabel = normalized === 'club' ? '部費' : normalized === 'pay' ? '支払い' : '割勘';
-    const text = normalized === 'pay' && label === '支払' ? '支払' : (label || defaultLabel);
-    const paymentClass = normalized === 'pay' ? ' seisan-payment-tag' : '';
-    return `<em class="seisan-cost-policy-tag seisan-cost-type-badge${paymentClass} ${UI_CLASS.chip} ${normalized}" data-cost-type="${normalized}">${text}</em>`;
+    const config = normalizeDisplayExtraType(type);
+    const defaultLabel = config.baseType === 'club'
+      ? (config.negative ? '部費−' : '部費')
+      : config.baseType === 'pay'
+        ? '支払い'
+        : (config.negative ? '割勘−' : '割勘');
+    const text = config.baseType === 'pay' && label === '支払' ? '支払' : (label || defaultLabel);
+    const paymentClass = config.baseType === 'pay' ? ' seisan-payment-tag' : '';
+    const negativeClass = config.negative ? ' is-negative' : '';
+    return `<em class="seisan-cost-policy-tag seisan-cost-type-badge${paymentClass}${negativeClass} ${UI_CLASS.chip} ${config.baseType}" data-cost-type="${config.type}">${text}</em>`;
   }
 
   function formatPaymentBadge(label = '支払い') {
@@ -21,16 +36,18 @@
     function formatExtraChips(extras, helpers = {}) {
     if (!extras.length) return '<span class="seisan-extra-empty">追加なし</span>'; 
     return extras.map(ex => {
-      const type = ex.type === 'club' ? 'club' : 'split';
-      return `<span class="seisan-extra-chip ${type}"><strong>${esc(ex.name || '費用', helpers)}</strong><b>${money(ex.amountValue || ex.amount || 0, helpers)}</b>${formatCostBadge(type)}</span>`;
+      const config = normalizeDisplayExtraType(ex.type);
+      const amount = Number(ex.amountValue ?? ex.amount ?? 0);
+      return `<span class="seisan-extra-chip ${config.baseType}${config.negative ? ' is-negative' : ''}"><strong>${esc(ex.name || '費用', helpers)}</strong><b>${money(amount, helpers)}</b>${formatCostBadge(config.type)}</span>`;
     }).join('');
   }
 
     function formatExtraLines(extras, helpers = {}) {
     if (!extras.length) return '<div class="seisan-extra-line is-empty"><span>追加なし</span></div>'; 
     return extras.map(ex => {
-      const type = ex.type === 'club' ? 'club' : 'split';
-      return `<div class="seisan-extra-line ${type}"><span>${esc(ex.name || '費用', helpers)}</span><strong>${money(ex.amountValue || ex.amount || 0, helpers)}</strong>${formatCostBadge(type)}</div>`;
+      const config = normalizeDisplayExtraType(ex.type);
+      const amount = Number(ex.amountValue ?? ex.amount ?? 0);
+      return `<div class="seisan-extra-line ${config.baseType}${config.negative ? ' is-negative' : ''}"><span>${esc(ex.name || '費用', helpers)}</span><strong>${money(amount, helpers)}</strong>${formatCostBadge(config.type)}</div>`;
     }).join('');
   }
 
@@ -73,9 +90,16 @@
   }
 
     function formatExtraInline(ex, helpers = {}) {
-    const type = ex.type === 'club' ? 'club' : 'split';
+    const config = normalizeDisplayExtraType(ex.type);
+    const rawAmount = Number(ex.amountValue ?? ex.amount ?? 0);
+    const isMinus = rawAmount < 0 || config.negative;
+    const amount = Math.abs(rawAmount);
     const rewardClass = isRewardExtraForDisplay(ex) ? ' seisan-extra-inline--driver-reward' : '';
-    return `<span class="seisan-extra-inline seisan-cost-line ${type}${rewardClass}"><span>${esc(ex.name || '費用', helpers)}</span>${formatCostBadge(type)}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(ex.amountValue || ex.amount || 0, helpers)}</strong></span>`;
+    const negativeClass = isMinus ? ' is-negative' : '';
+    return {
+      op: isMinus ? '−' : '＋',
+      html: `<span class="seisan-extra-inline seisan-cost-line ${config.baseType}${negativeClass}${rewardClass}"><span>${esc(ex.name || '費用', helpers)}</span>${formatCostBadge(config.type)}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(amount, helpers)}</strong></span>`
+    };
   }
 
     function formatExtraSlash(extras, helpers = {}) {
@@ -98,8 +122,8 @@
     return parts
       .map(normalizeCostPart)
       .filter(part => part && String(part.html || '').trim())
-      .map(part => {
-        const sign = part.op === '−' ? '−' : '＋';
+      .map((part, index) => {
+        const sign = part.op === '−' ? '−' : (index === 0 ? '' : '＋');
         const tone = part.op === '−' ? ' is-minus' : ' is-plus';
         const html = applyAmountSign(part.html, sign);
         return `<div class="seisan-cost-preview-line${tone}"><span class="seisan-cost-preview-line-body">${html}</span></div>`;

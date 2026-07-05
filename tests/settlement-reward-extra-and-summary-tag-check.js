@@ -17,7 +17,7 @@ assert(!calc.includes('rawPay = split + clubExtras + reward'), 'driver reward mu
 assert(calc.includes('const rawPay = split + clubExtras'), 'driver reward should be paid through its selected split/club extra bucket');
 assert(calc.includes('isDriverReward: isDriverRewardExtra(ex)'), 'calculator should recognize reward extras separately for reporting');
 assert(!share.includes('`協力代：${yen(car.reward)}`'), 'share text should not duplicate reward outside the extras list');
-assert(templates.includes('function formatCostBadge') && templates.includes('seisan-cost-type-badge${paymentClass} ${UI_CLASS.chip} ${normalized}') && templates.includes("normalized === 'club' ? '部費' : normalized === 'pay' ? '支払い' : '割勘'"), 'gas, extra, and payment rows should share the same cost tag component');
+assert(templates.includes('function normalizeDisplayExtraType') && templates.includes('function formatCostBadge') && templates.includes('seisan-cost-type-badge${paymentClass}${negativeClass}') && templates.includes("config.baseType === 'club'") && templates.includes("config.baseType === 'pay'") && templates.includes("config.negative ? '割勘−' : '割勘'"), 'gas, positive/negative extras, and payment rows should share the same cost tag component');
 assert(templates.includes('function formatPaymentBadge') && templates.includes('seisan-payment-tag'), 'summary and car payment labels should use a shared 支払タグ helper');
 assert(css.includes('--settlement-pay-bg') && css.includes('--settlement-pay-line') && css.includes('.seisan-payment-tag'), 'payment label tag should have the same shape system as cost tags');
 assert(css.includes('var(--settlement-split-bg)') && css.includes('var(--settlement-club-bg)'), 'split/club colors should remain tokenized');

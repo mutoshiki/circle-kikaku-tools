@@ -5,7 +5,7 @@
   "scripts": {
     "test": "node tests/run-static-tests.js",
     "lint:css": "stylelint \"assets/css/**/*.css\"",
-    "test:ui": "playwright test tests/basic-ui.spec.js && playwright test tests/root-owner-ui.spec.js && playwright test tests/layout-regression.spec.js",
+    "test:ui": "playwright test tests/basic-ui.spec.js && playwright test tests/root-owner-ui.spec.js && playwright test tests/layout-regression.spec.js && playwright test tests/requested-settlement-participant-shared.spec.js",
     "test:visual": "playwright test tests/visual-regression.spec.js",
     "test:refinement": "playwright test tests/refinement-audit.spec.js",
     "test:guard": "npm run lint:css && npm test && npm run test:ui && npm run test:visual",

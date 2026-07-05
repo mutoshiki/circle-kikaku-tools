@@ -22,13 +22,13 @@ assert(index.includes('割勘</em>集金チェック') && !index.includes('割�
 assert(collectionTemplate.includes('seisan-check-copy${note ? \' has-note\' : \'\'}') && collectionTemplate.indexOf('seisan-check-name') < collectionTemplate.indexOf('seisan-check-note'), 'collection rows must keep the name and its explanation in one readable copy row');
 assert(collectionCss.includes('.seisan-check-copy.has-note .seisan-check-name') && collectionCss.includes('flex: 1 1 52%;'), 'collection explanation must retain visible space to the right of the name');
 assert(sheetTemplate.includes('${gradeBadge(dgrade, dg, helpers)}<span class="sheet-driver-name">'), 'representative grade badge must appear to the left like other members');
-assert(carCostCss.includes('--amount-font-size: 1.2rem;') && carCostCss.includes('font-size: 1.36rem;'), 'driver payment breakdown amounts must retain a readable hierarchy');
+assert(carCostCss.includes('--settlement-car-amount-size: 0.86rem;') && carCostCss.includes('--settlement-car-amount-size: 0.78rem;') && carCostCss.includes('--amount-font-size: var(--settlement-car-amount-size);') && !carCostCss.includes('font-size: 1.36rem;'), 'driver payment total and expense labels must use the same typography scale');
 assert(!/\.seisan-car-summary-row \.seisan-extra-inline strong\s*\{[^}]*font-size/s.test(costBreakdownCss), 'generic cost-tag CSS must not override driver payment amount typography');
 assert(!index.includes('id="zoom-controls"') && !index.includes('id="sheetZoomInBtn"'), 'shared view must not keep button-based zoom controls');
 assert(viewportJs.includes('event.touches.length === 1') && viewportJs.includes('event.touches.length === 2') && viewportJs.includes('sheetX = centerX - (centerX - sheetX) * factor'), 'shared view must use the legacy free-pan and focal pinch movement');
 assert(layeringCss.includes('--z-floating: 900;') && layeringCss.includes('--z-modal: 1050;'), 'floating shared controls must remain below modal-level overlays');
 assert(overviewCss.includes('z-index: var(--z-modal);'), 'overview drawer must use the canonical top overlay layer');
-assert(extraCostsCss.includes('grid-template-columns: minmax(0, 1fr) 70px 74px 48px;') && !extraCostsCss.includes('grid-column: 1 / 3'), 'extra cost type and delete controls must stay on the same row at mobile widths');
+assert(extraCostsCss.includes('grid-template-columns: minmax(0, 1fr) 70px 96px 48px;') && !extraCostsCss.includes('grid-column: 1 / 3'), 'extra cost type and delete controls must stay on the same row at mobile widths');
 assert(extraCostsCss.includes('#settlementCarEditModal .seisan-add-row .seisan-btn') && extraCostsCss.includes('width: auto;') && extraCostsCss.includes('white-space: nowrap;'), 'add-extra action must stay below at a compact content-sized width');
 assert(!mobileInputsCss.includes('.seisan-extra-row') && !controlsCss.includes('.seisan-extra-row') && !pageLayoutCss.includes('.seisan-add-row'), 'extra-cost row composition must have one canonical CSS owner');
 console.log('Pinpoint follow-up contract check OK');

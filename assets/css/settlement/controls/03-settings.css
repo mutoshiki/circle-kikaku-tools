@@ -3,7 +3,7 @@
 .seisan-settings-summary { min-width: 0; }
 .seisan-title--settings i { color: var(--accent-color); }
 
-#settlementSettingsModal .settlement-edit-dialog { width: min(calc(100vw - 24px), 360px); }
+#settlementSettingsModal .settlement-edit-dialog { width: min(100%, 360px); max-width: 360px; margin-inline: auto; }
 #settlementSettingsModal .modal-body { padding: 12px 18px 18px; }
 
 .seisan-settings--modal {
@@ -55,6 +55,17 @@
 
 .seisan-settings--modal .seisan-field input,
 .seisan-settings--modal .seisan-field select { min-height: 48px; }
+
+#settlementSettingsModal .seisan-standalone-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+#settlementSettingsModal .seisan-standalone-fields[hidden] { display: none; }
+#settlementSettingsModal .seisan-standalone-fields .seisan-field { min-width: 0; }
+#settlementSettingsModal .seisan-standalone-fields input { width: 100%; min-width: 0; }
 
 .seisan-rounding-options {
   display: grid;
@@ -115,12 +126,19 @@
   white-space: normal;
 }
 
+#settlementSettingsModal .seisan-standalone-error {
+  grid-column: 1 / -1;
+  margin-top: -2px;
+  color: var(--semantic-danger);
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
 @media (max-width: 420px) {
-  #settlementSettingsModal .settlement-edit-dialog { width: calc(100vw - 18px); }
   #settlementSettingsModal .modal-body { padding: 10px 14px 16px; }
 }
 
 @media (max-width: 360px) {
-  .seisan-settings-grid,
-  #settlementSettingsModal .seisan-standalone-fields { grid-template-columns: 1fr; }
+  .seisan-rounding-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

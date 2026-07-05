@@ -78,11 +78,9 @@
         ${gradeBadge(dgrade, dg, helpers)}<span class="sheet-driver-name">${esc(car.name, helpers)}</span>
     </div>`;
 
-    for (let i = 0; i < maxSeats; i++) {
+    for (let i = 0; i < cap; i++) {
       const mem = (car.members || [])[i];
-      if (i >= cap) {
-        html += `<div class="sheet-seat-row sheet-seat-disabled"></div>`;
-      } else if (mem && mem.name) {
+      if (mem && mem.name) {
         const g = mem.gender || 'unknown';
         html += quickEditMode
           ? `<div class="sheet-seat-row" data-gender="${g}"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${esc(car.name, helpers)}" data-slot-index="${i}" data-accept-drop="${mem.locked ? 'false' : 'true'}">${memberChip(mem, helpers)}</div></div>`

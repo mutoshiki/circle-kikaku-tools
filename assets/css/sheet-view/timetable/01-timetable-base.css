@@ -1,5 +1,5 @@
-/* 発表ビュー: 車割・班割の下にタイムテーブルを表示する。 */
-.sheet-timetable-section { width: min(var(--sheet-plan-content-width, 560px), 720px); min-width: min(320px, calc(100vw - 24px)); }
+/* 発表ビュー: タイムテーブルを最初の車割の左側に表示する。 */
+.sheet-timetable-section { width: clamp(280px, 34vw, 420px); min-width: 280px; }
 .sheet-timetable-card { display: flex; flex-direction: column; gap: 0; overflow: hidden; border: 0; border-radius: var(--radius-main); background: var(--surface-lowest); box-shadow: var(--shadow-card); }
 .sheet-timetable-row { display: grid; grid-template-columns: 5em minmax(0, 1fr); align-items: start; gap: 10px; min-height: 48px; padding: 10px 12px; }
 .sheet-timetable-row + .sheet-timetable-row { border-top: 1px solid var(--border-section); }

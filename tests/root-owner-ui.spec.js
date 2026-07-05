@@ -73,28 +73,40 @@ test('header actions share one borderless mobile icon contract', async ({ page }
 });
 
 
-test('theme toggle applies and persists the light/dark semantic theme', async ({ page }) => {
+test('theme follows the device and can also be changed manually', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
   await gotoApp(page, 'ROOT-THEME-CONTRACT');
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.evaluate(() => localStorage.removeItem('sanpo-theme'));
-  await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.SanpoTheme?.effectiveTheme?.() === 'light');
 
   const lightBackground = await page.locator('body').evaluate(node => getComputedStyle(node).backgroundColor);
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+
   await page.locator('.header-more > button').click();
   await expect(page.locator('#themeToggleBtn')).toBeVisible();
+  await expect(page.locator('#themeToggleBtn')).toContainText('ダークモードに切り替え');
   await page.locator('#themeToggleBtn').click();
-
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await expect(page.locator('#themeToggleBtn')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#themeToggleBtn')).toContainText('ライトモードに切り替え');
-  expect(await page.evaluate(() => localStorage.getItem('sanpo-theme'))).toBe('dark');
+
   const darkBackground = await page.locator('body').evaluate(node => getComputedStyle(node).backgroundColor);
   expect(darkBackground).not.toBe(lightBackground);
 
-  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.locator('.header-more > button').click();
+  await expect(page.locator('#themeToggleBtn')).toBeVisible();
+  await page.locator('#themeToggleBtn').click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(page.locator('#themeToggleBtn')).toContainText('ダークモードに切り替え');
+
+  await page.emulateMedia({ colorScheme: 'dark' });
   await page.waitForFunction(() => window.SanpoTheme?.effectiveTheme?.() === 'dark');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('#themeToggleBtn')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#themeToggleBtn')).toContainText('ライトモードに切り替え');
+
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.waitForFunction(() => window.SanpoTheme?.effectiveTheme?.() === 'light');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
 
 test('lock setup supports independent allocation and settlement scopes', async ({ page }) => {

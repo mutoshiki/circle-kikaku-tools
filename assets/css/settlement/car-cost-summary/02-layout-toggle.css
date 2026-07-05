@@ -1,0 +1,49 @@
+/* Driver payment list/compact layout switch. */
+#seisan-view-area .seisan-car-panel .seisan-head {
+  align-items: center;
+}
+
+#seisan-view-area .seisan-car-layout-toggle {
+  display: inline-flex;
+  flex: 0 0 40px;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-item);
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  color: var(--accent-color);
+  box-shadow: none;
+  cursor: pointer;
+}
+
+#seisan-view-area .seisan-car-layout-toggle:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-container);
+}
+
+#seisan-view-area .seisan-car-layout-toggle:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent-color) 28%, transparent);
+  outline-offset: 2px;
+}
+
+#seisan-view-area .seisan-layout-grid-icon {
+  display: grid;
+  grid-template-columns: repeat(2, 6px);
+  grid-template-rows: repeat(2, 6px);
+  gap: 3px;
+  width: 15px;
+  height: 15px;
+}
+
+#seisan-view-area .seisan-layout-grid-icon > span {
+  display: block;
+  border-radius: 1.5px;
+  background: currentColor;
+}
+

@@ -126,9 +126,6 @@
   margin-bottom: 7px;
   padding-bottom: 7px;
 }
-#seisan-view-area .seisan-car-summary-row + .seisan-car-summary-row {
-  margin-top: 7px;
-}
 #seisan-view-area .seisan-car-summary-name span {
   min-width: 0;
   overflow: hidden;

@@ -55,7 +55,7 @@
 
 @media (max-width: 640px) {
   #settlementSettingsModal .modal-dialog,
-  #settlementCarEditModal .modal-dialog { align-items: flex-end; min-height: 100%; margin: 0; }
+  #settlementCarEditModal .modal-dialog { align-items: flex-end; min-height: 100%; margin: 0 auto; }
 
   #settlementCarEditModal .settlement-edit-dialog--car { width: 100%; max-width: none; }
 

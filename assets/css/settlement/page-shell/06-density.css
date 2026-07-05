@@ -8,11 +8,9 @@
 .seisan-car-summary-row {
   display: grid;
   gap: 10px;
-  margin-bottom: 12px;
   padding: 0;
   border: 0;
   border-radius: var(--radius-lg);
   background: var(--surface-low);
   box-shadow: none;
 }
-.seisan-car-summary-row:last-child { margin-bottom: 0; }

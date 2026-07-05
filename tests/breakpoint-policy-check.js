@@ -50,7 +50,7 @@ if (distanceFuel.includes('@media (max-width: 374px)')) {
   errors.push('distance/fuel owner must not restore the obsolete 374px breakpoint');
 }
 if (!extraCosts.includes('@media (max-width: 360px)') ||
-    !extraCosts.includes('grid-template-columns: minmax(0, 1fr) 66px 70px 48px;') ||
+    !extraCosts.includes('grid-template-columns: minmax(0, 1fr) 64px 92px 48px;') ||
     extraCosts.includes('grid-column: 1 / 3')) {
   errors.push('extra-cost owner must keep the one-row narrow modal composition');
 }
