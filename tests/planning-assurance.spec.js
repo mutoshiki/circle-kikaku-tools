@@ -44,7 +44,7 @@ async function seed(page) {
   await page.waitForFunction(() => document.body.classList.contains('view-mode-list'));
 }
 
-test('generic person flag syncs across plans and can be undone', async ({ page }) => {
+test('generic person flag syncs across plans without noisy completion toast', async ({ page }) => {
   await prepare(page);
   await seed(page);
 
@@ -57,9 +57,7 @@ test('generic person flag syncs across plans and can be undone', async ({ page }
 
   await page.getByRole('tab', { name: '班割' }).click();
   await expect(page.locator(`.member-card[data-name="${name}"]:visible .person-flag[data-flag="red"]`).first()).toBeVisible();
-
-  await page.getByRole('button', { name: '元に戻す' }).click();
-  await expect(page.locator('.person-flag[data-flag="red"]')).toHaveCount(0);
+  await expect(page.locator('#appUndoBar.visible')).toHaveCount(0);
 });
 
 test('coach mark, planning check, skeleton and responsive layout remain usable', async ({ page }) => {

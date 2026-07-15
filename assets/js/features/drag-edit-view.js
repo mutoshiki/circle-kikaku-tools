@@ -257,8 +257,7 @@ function updateManualDragFloat(clientX, clientY) {
 
 function finishManualCardDrag(commit = true) {
     if (!manualCardDrag) return;
-    const { card, floating, undoSnapshot } = manualCardDrag;
-    const memberName = card.dataset.name || 'メンバー';
+    const { card, floating } = manualCardDrag;
     if (commit) commitManualCardDrop();
     floating?.remove();
     card.classList.remove('manual-drag-source');
@@ -271,7 +270,6 @@ function finishManualCardDrag(commit = true) {
     enforceOneCardPerSeat();
     updateUI();
     save();
-    if (commit) commitAppUndo(undoSnapshot, `${memberName}を移動しました`);
 }
 
 function startManualCardDrag(card, point) {
@@ -297,8 +295,7 @@ function startManualCardDrag(card, point) {
         pointerType: point?.pointerType || (point?.touchIdentifier != null ? 'touch' : 'mouse'),
         touchIdentifier: point?.touchIdentifier ?? null,
         offsetX: clampDragOffset(clientX - rect.left, rect.width),
-        offsetY: clampDragOffset(clientY - rect.top, rect.height),
-        undoSnapshot: captureAppUndoSnapshot()
+        offsetY: clampDragOffset(clientY - rect.top, rect.height)
     };
 
     try { if (manualCardDrag.pointerId != null) card.setPointerCapture?.(manualCardDrag.pointerId); } catch (_) {}

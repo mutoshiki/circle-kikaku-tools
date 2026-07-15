@@ -192,25 +192,3 @@ function normalizePersonFlag(flag) {
     const value = String(flag || 'none').toLowerCase();
     return ['blue', 'purple', 'yellow', 'red'].includes(value) ? value : 'none';
 }
-
-function captureAppUndoSnapshot() {
-    try {
-        return typeof getData === 'function' ? cloneData(getData()) : null;
-    } catch (error) {
-        console.warn('Undo snapshot could not be created:', error);
-        return null;
-    }
-}
-
-function commitAppUndo(snapshot, message = '変更しました') {
-    if (!snapshot) return;
-    let changed = true;
-    try { changed = JSON.stringify(snapshot) !== JSON.stringify(getData()); } catch (_) {}
-    if (!changed) return;
-    showUndoRestoreToast(message, () => {
-        restore(cloneData(snapshot));
-        updateUI();
-        save();
-        window.AppUI?.showStatus?.('変更を元に戻しました', { tone: 'success', duration: 2200 });
-    });
-}

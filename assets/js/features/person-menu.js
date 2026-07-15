@@ -120,7 +120,6 @@ function syncFlagAcrossPlans(name, flag) {
 
 function setPersonFlag(person, value) {
     if (!person) return;
-    const before = captureAppUndoSnapshot();
     const flag = normalizePersonFlag(value);
     const name = person.dataset.name || $('.member-name-text, .driver-name-disp', person)?.textContent || '';
     $$('.member-card, .driver-seat').forEach(candidate => {
@@ -132,7 +131,6 @@ function setPersonFlag(person, value) {
     syncFlagAcrossPlans(name, flag);
     updateUI();
     save();
-    commitAppUndo(before, flag === 'none' ? `${name}のしるしを外しました` : `${name}にしるしを付けました`);
 }
 
 async function returnOrDeleteMemberCard(card) {
@@ -141,8 +139,6 @@ async function returnOrDeleteMemberCard(card) {
         showAppNotice('固定されています。先に固定を解除してください。', true);
         return;
     }
-    const memberName = card.dataset.name || 'メンバー';
-    const before = captureAppUndoSnapshot();
     let changed = false;
     if (card.parentElement?.id === 'waiting-list') {
         if (await appConfirm('このメンバーを完全に削除しますか？', { title: 'メンバー削除', okText: '削除', danger: true })) { card.remove(); changed = true; }
@@ -153,7 +149,6 @@ async function returnOrDeleteMemberCard(card) {
     if (!changed) return;
     updateUI();
     save();
-    commitAppUndo(before, `${memberName}を${card.isConnected ? '未割り当てに戻しました' : '削除しました'}`);
 }
 
 function handleCompactPersonAction(action, person = activePersonMenuTarget) {

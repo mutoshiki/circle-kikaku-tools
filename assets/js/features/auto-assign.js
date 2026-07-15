@@ -239,17 +239,14 @@ function assignBalanced(members, carStates, opts) {
 async function autoAssign(mode) {
     const opts = { f:$('#optFemale').checked, m:$('#optMale').checked, g:$('#optGrade').checked };
     let mems = [];
-    let undoSnapshot = null;
     
     if(mode === 'shuffle') {
         const items = getAutoAssignConditionItems(opts);
         const message = items.length ? `${items.join('・')}をまとめて自動割り当てします。` : 'ランダムで自動割り当てします。';
         if(!await appConfirm(message, { title: 'ランダム', okText: '実行' })) return;
-        undoSnapshot = captureAppUndoSnapshot();
         $$('.seat-slot').forEach(slot => getRealSeatCards(slot).filter(m => m.dataset.locked !== 'true').forEach(m => { mems.push(getMemData(m)); m.remove(); }));
         $$('#waiting-list .member-card:not([data-locked="true"])').forEach(m => { mems.push(getMemData(m)); m.remove(); });
     } else {
-        undoSnapshot = captureAppUndoSnapshot();
         $$('#waiting-list .member-card').forEach(m => { mems.push(getMemData(m)); m.remove(); });
     }
     
@@ -263,6 +260,5 @@ async function autoAssign(mode) {
     leftOvers.forEach(m => addMember(m.name, m.memo, m.gender, m.grade || 0, $('#waiting-list'), m.locked, m.flag));
     lastAutoAssignLabel = buildAutoAssignAppliedLabel(opts, mode);
     updateUI(); save();
-    commitAppUndo(undoSnapshot, mode === 'shuffle' ? 'ランダムに割り当てました' : '空席へ割り当てました');
 }
 window.autoAssign = autoAssign;

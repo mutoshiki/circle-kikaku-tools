@@ -57,13 +57,10 @@ function assignWaitingMemberToSeat(card) {
         modals.seatMember?.hide();
         return;
     }
-    const before = captureAppUndoSnapshot();
-    const memberName = card.dataset.name || 'メンバー';
     slot.appendChild(card);
     modals.seatMember?.hide();
     updateUI();
     save();
-    commitAppUndo(before, `${memberName}を空席に追加しました`);
     requestAnimationFrame(() => card.querySelector('.member-menu-btn')?.focus());
 }
 
