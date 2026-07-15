@@ -58,6 +58,7 @@ async function switchView(view) {
         tabList.classList.add('active');
         tabSheet.classList.remove('active');
         updateQuickEditButton();
+        maybeShowPlanningCoach?.('list');
     }
 }
 window.switchView = switchView;

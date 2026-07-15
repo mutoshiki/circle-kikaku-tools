@@ -78,7 +78,8 @@ function getActiveGroupSuffix() {
 function getMemData(el) {
     return {
         name: el.dataset.name, memo: $('.memo-popup', el).innerText,
-        gender: el.dataset.gender, grade: parseInt(el.dataset.grade)||0, locked: el.dataset.locked === 'true'
+        gender: el.dataset.gender, grade: parseInt(el.dataset.grade)||0, locked: el.dataset.locked === 'true',
+        flag: normalizePersonFlag(el.dataset.flag)
     };
 }
 
@@ -91,6 +92,7 @@ function getCurrentAllocationFromDom() {
             driverMemo: $('.driver-memo-text', c).innerText,
             driverGender: $('.driver-seat', c).dataset.gender,
             driverGrade: parseInt($('.driver-seat', c).dataset.grade)||0,
+            driverFlag: normalizePersonFlag($('.driver-seat', c).dataset.flag),
             members: Array.from($$('.seat-slot', c)).flatMap(s => getRealSeatCards(s).map(getMemData))
         }))
     };
@@ -125,7 +127,8 @@ function createMemberRecord(member = {}) {
         memo: member.memo || member.driverMemo || '',
         gender: member.gender || member.driverGender || 'unknown',
         grade: parseInt(member.grade ?? member.driverGrade) || 0,
-        locked: !!member.locked
+        locked: !!member.locked,
+        flag: normalizePersonFlag(member.flag ?? member.driverFlag)
     };
 }
 
@@ -139,7 +142,8 @@ function addParticipantToRegistry(registry, member = {}) {
         memo: record.memo || existing.memo || '',
         gender: record.gender && record.gender !== 'unknown' ? record.gender : (existing.gender || record.gender || 'unknown'),
         grade: record.grade || existing.grade || 0,
-        locked: Boolean(record.locked || existing.locked)
+        locked: Boolean(record.locked || existing.locked),
+        flag: record.flag !== 'none' ? record.flag : (existing.flag || 'none')
     });
 }
 
@@ -153,7 +157,8 @@ function collectParticipantRegistryFromPlans(plans = []) {
                 memo: group.driverMemo || '',
                 gender: group.driverGender || 'unknown',
                 grade: group.driverGrade || 0,
-                locked: false
+                locked: false,
+                flag: group.driverFlag || 'none'
             });
             (group.members || []).forEach(member => addParticipantToRegistry(registry, member));
         });
@@ -175,7 +180,8 @@ function updateMemberFromRegistry(member, registry) {
         memo: record.memo || member.memo || '',
         gender: record.gender || member.gender || 'unknown',
         grade: parseInt(record.grade || member.grade) || 0,
-        locked: Boolean(record.locked || member.locked)
+        locked: Boolean(record.locked || member.locked),
+        flag: normalizePersonFlag(record.flag !== 'none' ? record.flag : member.flag)
     };
 }
 
@@ -205,6 +211,7 @@ function sanitizePlanToParticipantRegistry(plan, registry) {
             driverMemo: driverRecord.memo || group.driverMemo || '',
             driverGender: driverRecord.gender || group.driverGender || 'unknown',
             driverGrade: parseInt(driverRecord.grade || group.driverGrade) || 0,
+            driverFlag: normalizePersonFlag(driverRecord.flag !== 'none' ? driverRecord.flag : group.driverFlag),
             members: []
         };
         used.add(driverKey);
@@ -342,8 +349,8 @@ function renderActiveCarPlanToDom(options = {}) {
     try {
         $('#waiting-list').innerHTML = '';
         $('#cars-container').innerHTML = '';
-        (plan.waiting || []).forEach(m => addMember(m.name, m.memo, m.gender, m.grade||0, $('#waiting-list'), m.locked));
-        (plan.cars || []).forEach(c => addCar(c.name, c.capacity, c.members, c.driverMemo, c.driverGender, c.driverGrade || 0));
+        (plan.waiting || []).forEach(m => addMember(m.name, m.memo, m.gender, m.grade||0, $('#waiting-list'), m.locked, m.flag));
+        (plan.cars || []).forEach(c => addCar(c.name, c.capacity, c.members, c.driverMemo, c.driverGender, c.driverGrade || 0, c.driverFlag));
     } finally {
         isRestoringCarPlans = false;
         window.__suspendCardUpdateUi = previousCardUpdateSuspend;
@@ -366,7 +373,8 @@ function collectParticipantsForNewPlan(plan = null) {
             memo: member.memo || '',
             gender: member.gender || 'unknown',
             grade: parseInt(member.grade) || 0,
-            locked: !!member.locked
+            locked: !!member.locked,
+            flag: normalizePersonFlag(member.flag ?? member.driverFlag)
         });
     };
     (source.cars || []).forEach(car => {
@@ -384,8 +392,8 @@ function renderCarPlanSwitcher() {
     const activeTemplateType = normalizeCarPlanTemplateType(active.templateType);
     bar.innerHTML = `
         <div class="car-plan-template-tabs" role="tablist" aria-label="車割と班割を切り替え">
-            <button type="button" class="car-plan-template-chip${activeTemplateType === 'car' ? ' active' : ''}" data-car-plan-template="car" aria-pressed="${activeTemplateType === 'car' ? 'true' : 'false'}"><i class="fas fa-car-side" aria-hidden="true"></i><span>車割</span></button>
-            <button type="button" class="car-plan-template-chip${activeTemplateType === 'team' ? ' active' : ''}" data-car-plan-template="team" aria-pressed="${activeTemplateType === 'team' ? 'true' : 'false'}"><i class="fas fa-user-group" aria-hidden="true"></i><span>班割</span></button>
+            <button type="button" role="tab" class="car-plan-template-chip${activeTemplateType === 'car' ? ' active' : ''}" data-car-plan-template="car" aria-selected="${activeTemplateType === 'car' ? 'true' : 'false'}" tabindex="${activeTemplateType === 'car' ? '0' : '-1'}"><span>車割</span></button>
+            <button type="button" role="tab" class="car-plan-template-chip${activeTemplateType === 'team' ? ' active' : ''}" data-car-plan-template="team" aria-selected="${activeTemplateType === 'team' ? 'true' : 'false'}" tabindex="${activeTemplateType === 'team' ? '0' : '-1'}"><span>班割</span></button>
         </div>
     `;
 }
@@ -476,6 +484,19 @@ function setupCarPlanSwitcherEvents() {
         if (action === 'duplicate') duplicateActiveCarPlan();
         if (action === 'rename') renameActiveCarPlan();
         if (action === 'delete') deleteActiveCarPlan();
+    });
+    bar.addEventListener('keydown', event => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        const tabs = Array.from(bar.querySelectorAll('[data-car-plan-template]'));
+        const currentIndex = tabs.indexOf(event.target.closest('[data-car-plan-template]'));
+        if (currentIndex < 0 || tabs.length < 2) return;
+        event.preventDefault();
+        const nextIndex = event.key === 'Home' ? 0
+            : event.key === 'End' ? tabs.length - 1
+            : (currentIndex + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+        const nextType = tabs[nextIndex].dataset.carPlanTemplate;
+        updateActiveCarPlanTemplate(nextType);
+        requestAnimationFrame(() => bar.querySelector(`[data-car-plan-template="${nextType}"]`)?.focus());
     });
 }
 

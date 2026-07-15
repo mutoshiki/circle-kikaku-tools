@@ -41,7 +41,7 @@
   -webkit-overflow-scrolling: touch;
   position: relative;
   z-index: var(--z-local-popover);
-  background: var(--bg-body);
+  background-color: transparent;
 }
 
 @media (min-width: 769px) {

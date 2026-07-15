@@ -10,7 +10,7 @@ const css = readCssBundle();
 assert(templates.includes('function formatExtraLines'), 'extra costs should render as simple lines, not only chips');
 assert(templates.includes('seisan-car-summary-headline'), 'car summary should place name, payment, and edit action in one row');
 assert(templates.includes('seisan-payment-tag') && templates.includes('seisan-car-summary-total'), 'car card should show a clear payment tag and value');
-assert(css.includes('car/team toggle active state on the primary accent') && css.includes('.allocation-mode-toggle .car-plan-template-chip.active'), 'car/team active toggle should follow the primary accent');
+assert(css.includes('.allocation-mode-toggle .car-plan-template-chip.active') && css.includes('var(--content-switcher-selected-bg)'), 'car/team active toggle should use the Carbon high-contrast selected state');
 assert(css.includes('.seisan-extra-line-list') && css.includes('.seisan-extra-line'), 'extra costs should use simple line UI');
 assert(css.includes('--ui-border-soft:') && css.includes('--border-item:'), 'quiet outline tokens should be centralized');
 assert(css.includes('.seisan-card,') && css.includes('border: 1px solid var(--border-color);'), 'main card surfaces should use the shared border token');

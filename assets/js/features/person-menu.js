@@ -30,7 +30,7 @@ function openChoicePopup(title, choices, onPick) {
     closePersonMenus();
     const menu = ce('div', 'person-pop-menu choice-menu');
     menu.innerHTML = `<div class="person-pop-title">${escapeHtml(title)}</div>` + choices.map(choice => `
-        <button type="button" class="person-pop-item" data-value="${escapeHtml(choice.value)}">
+        <button type="button" class="person-pop-item" data-value="${escapeHtml(choice.value)}"${choice.flag ? ` data-flag-choice="${escapeHtml(choice.value)}"` : ''}>
             <i class="${choice.icon || 'fas fa-circle'}" aria-hidden="true"></i><span>${escapeHtml(choice.label)}</span>
         </button>
     `).join('');
@@ -89,19 +89,71 @@ function setPersonGender(person, gender) {
     save();
 }
 
+function updatePersonFlagBadge(person) {
+    if (!person) return;
+    person.dataset.flag = normalizePersonFlag(person.dataset.flag);
+    const line = $('.member-main-line, .driver-main-line', person);
+    if (!line) return;
+    line.querySelector('.person-flag')?.remove();
+    const holder = document.createElement('template');
+    holder.innerHTML = renderPersonFlag(person.dataset.flag);
+    const badge = holder.content.firstElementChild;
+    const grade = line.querySelector('.grade-badge');
+    line.insertBefore(badge, grade || line.querySelector('.member-menu-btn, .driver-menu-btn'));
+}
+
+function syncFlagAcrossPlans(name, flag) {
+    const key = normalizeParticipantKey(name);
+    syncActiveCarPlanFromDom();
+    (carPlans || []).forEach(plan => {
+        (plan.waiting || []).forEach(member => {
+            if (normalizeParticipantKey(member.name) === key) member.flag = flag;
+        });
+        (plan.cars || []).forEach(group => {
+            if (normalizeParticipantKey(group.name) === key) group.driverFlag = flag;
+            (group.members || []).forEach(member => {
+                if (normalizeParticipantKey(member.name) === key) member.flag = flag;
+            });
+        });
+    });
+}
+
+function setPersonFlag(person, value) {
+    if (!person) return;
+    const before = captureAppUndoSnapshot();
+    const flag = normalizePersonFlag(value);
+    const name = person.dataset.name || $('.member-name-text, .driver-name-disp', person)?.textContent || '';
+    $$('.member-card, .driver-seat').forEach(candidate => {
+        const candidateName = candidate.dataset.name || $('.member-name-text, .driver-name-disp', candidate)?.textContent || '';
+        if (normalizeParticipantKey(candidateName) !== normalizeParticipantKey(name)) return;
+        candidate.dataset.flag = flag;
+        updatePersonFlagBadge(candidate);
+    });
+    syncFlagAcrossPlans(name, flag);
+    updateUI();
+    save();
+    commitAppUndo(before, flag === 'none' ? `${name}のしるしを外しました` : `${name}にしるしを付けました`);
+}
+
 async function returnOrDeleteMemberCard(card) {
     if (!card) return;
     if (card.dataset.locked === 'true') {
         showAppNotice('固定されています。先に固定を解除してください。', true);
         return;
     }
+    const memberName = card.dataset.name || 'メンバー';
+    const before = captureAppUndoSnapshot();
+    let changed = false;
     if (card.parentElement?.id === 'waiting-list') {
-        if (await appConfirm('このメンバーを完全に削除しますか？', { title: 'メンバー削除', okText: '削除', danger: true })) card.remove();
+        if (await appConfirm('このメンバーを完全に削除しますか？', { title: 'メンバー削除', okText: '削除', danger: true })) { card.remove(); changed = true; }
     } else if (await appConfirm('車から降ろして未割り当てメンバーに戻しますか？', { title: '未割り当てに戻す', okText: '戻す' })) {
         $('#waiting-list')?.appendChild(card);
+        changed = true;
     }
+    if (!changed) return;
     updateUI();
     save();
+    commitAppUndo(before, `${memberName}を${card.isConnected ? '未割り当てに戻しました' : '削除しました'}`);
 }
 
 function handleCompactPersonAction(action, person = activePersonMenuTarget) {
@@ -131,6 +183,13 @@ function handleCompactPersonAction(action, person = activePersonMenuTarget) {
         { value: 'female', label: '女性', icon: 'fas fa-venus' },
         { value: 'unknown', label: '未設定', icon: 'fas fa-circle-question' }
     ], value => setPersonGender(targetPerson, value));
+    else if (action === 'flag') openChoicePopup('しるし', [
+        { value: 'none', label: 'しるしなし', icon: 'fas fa-ban', flag: true },
+        { value: 'blue', label: '青', icon: 'fas fa-flag', flag: true },
+        { value: 'purple', label: '紫', icon: 'fas fa-flag', flag: true },
+        { value: 'yellow', label: '黄', icon: 'fas fa-flag', flag: true },
+        { value: 'red', label: '赤', icon: 'fas fa-flag', flag: true }
+    ], value => setPersonFlag(targetPerson, value));
 }
 window.handleCompactPersonAction = handleCompactPersonAction;
 
@@ -147,12 +206,14 @@ function openCompactPersonMenu(trigger) {
     const actions = isDriver
         ? [
             ['memo', 'メモ', 'fas fa-sticky-note'],
+            ['flag', 'しるし', 'fas fa-flag'],
             ['grade', '学年', 'fas fa-graduation-cap'],
             ['gender', '性別', 'fas fa-venus-mars'],
             ['name', '名前変更', 'fas fa-pen']
           ]
         : [
             ['memo', 'メモ', 'fas fa-sticky-note'],
+            ['flag', 'しるし', 'fas fa-flag'],
             ['lock', locked ? '固定解除' : '固定', locked ? 'fas fa-lock-open' : 'fas fa-lock'],
             ['return', inWaiting ? '削除' : '戻す', inWaiting ? 'fas fa-trash-can' : 'fas fa-reply'],
             ['grade', '学年', 'fas fa-graduation-cap'],

@@ -198,7 +198,7 @@ function createCarFromDroppedMember(card) {
     if (!member?.name) return false;
 
     card.remove();
-    addCar(member.name, (typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3), [], member.memo, member.gender, member.grade || 0);
+    addCar(member.name, (typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3), [], member.memo, member.gender, member.grade || 0, member.flag);
     return true;
 }
 
@@ -257,7 +257,8 @@ function updateManualDragFloat(clientX, clientY) {
 
 function finishManualCardDrag(commit = true) {
     if (!manualCardDrag) return;
-    const { card, floating } = manualCardDrag;
+    const { card, floating, undoSnapshot } = manualCardDrag;
+    const memberName = card.dataset.name || 'メンバー';
     if (commit) commitManualCardDrop();
     floating?.remove();
     card.classList.remove('manual-drag-source');
@@ -270,6 +271,7 @@ function finishManualCardDrag(commit = true) {
     enforceOneCardPerSeat();
     updateUI();
     save();
+    if (commit) commitAppUndo(undoSnapshot, `${memberName}を移動しました`);
 }
 
 function startManualCardDrag(card, point) {
@@ -295,7 +297,8 @@ function startManualCardDrag(card, point) {
         pointerType: point?.pointerType || (point?.touchIdentifier != null ? 'touch' : 'mouse'),
         touchIdentifier: point?.touchIdentifier ?? null,
         offsetX: clampDragOffset(clientX - rect.left, rect.width),
-        offsetY: clampDragOffset(clientY - rect.top, rect.height)
+        offsetY: clampDragOffset(clientY - rect.top, rect.height),
+        undoSnapshot: captureAppUndoSnapshot()
     };
 
     try { if (manualCardDrag.pointerId != null) card.setPointerCapture?.(manualCardDrag.pointerId); } catch (_) {}

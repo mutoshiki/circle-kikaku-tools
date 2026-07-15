@@ -8,8 +8,8 @@ function assert(condition, message) {
 }
 
 const css = readCssBundle();
-assert(css.includes('car/team toggle active state on the primary accent'), 'car/team active-state ownership note missing');
-assert(/\.allocation-mode-toggle \.car-plan-template-chip\.active\s*\{[\s\S]*?background:\s*color-mix\(in srgb, var\(--accent-color\)/.test(css), 'car/team active toggle must use the primary accent');
+assert(css.includes('--content-switcher-selected-bg'), 'Carbon content-switcher selected token missing');
+assert(/\.allocation-mode-toggle \.car-plan-template-chip\.active\s*\{[\s\S]*?background:\s*var\(--content-switcher-selected-bg\)/.test(css), 'car/team active toggle must use the Carbon high-contrast selected state');
 assert(css.includes('summary cost tags must keep their own chip surface'), 'summary tag chip ownership note missing');
 assert(/\.seisan-cost-policy-tag\.split,[\s\S]*?--settlement-tag-bg:\s*var\(--settlement-split-bg\)/.test(css), 'summary split badge should keep split background token');
 assert(/\.seisan-cost-policy-tag\.split,[\s\S]*?--settlement-tag-line:\s*var\(--settlement-split-line\)/.test(css), 'summary split badge should keep split border token');

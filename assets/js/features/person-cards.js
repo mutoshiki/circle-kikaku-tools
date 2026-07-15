@@ -17,7 +17,13 @@ function renderGradeBadge(grade, gender = 'unknown') {
     return `<span class="grade-badge ${gradeGenderClass(gender)}" data-grade="${n}">${n}年</span>`;
 }
 
-function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), locked=false) {
+function renderPersonFlag(flag) {
+    const value = normalizePersonFlag(flag);
+    const labels = { blue: '青のしるし', purple: '紫のしるし', yellow: '黄のしるし', red: '赤のしるし', none: 'しるしなし' };
+    return `<span class="person-flag" data-flag="${value}" title="${labels[value]}" aria-label="${labels[value]}"><i class="fas fa-flag" aria-hidden="true"></i></span>`;
+}
+
+function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), locked=false, flag='none') {
     const name = String(n || '').trim();
     if(!name) return;
     
@@ -26,6 +32,7 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
     div.dataset.gender = g;
     div.dataset.grade = grade;
     div.dataset.locked = locked;
+    div.dataset.flag = normalizePersonFlag(flag);
     
     const safeName = escapeHtml(name);
     const safeMemo = escapeHtml(m || '');
@@ -34,6 +41,7 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
     div.innerHTML = `
         <div class="member-main-line">
             <div class="member-name-text">${safeName}</div>
+            ${renderPersonFlag(flag)}
             ${genderHtml}
             ${gradeHtml}
             <button type="button" class="member-menu-btn action-btn" title="メニュー" aria-label="メンバー操作メニュー"><i class="fas fa-ellipsis-vertical" aria-hidden="true"></i></button>
@@ -46,7 +54,7 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
 }
 window.addMember = addMember;
 
-function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0) {
+function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none') {
     const name = String(n || '').trim();
     const fallbackCapacity = typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3;
     const c = getInt(cap) || fallbackCapacity;
@@ -59,9 +67,10 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0) {
     const driverGenderHtml = genderBadgeHtml(dg);
     const groupSuffix = typeof getActiveGroupSuffix === 'function' ? getActiveGroupSuffix() : '車';
     let slotsHtml = `
-        <div class="driver-seat" data-gender="${dg}" data-name="${safeName}" data-grade="${dgrade || 0}">
+        <div class="driver-seat" data-gender="${dg}" data-name="${safeName}" data-grade="${dgrade || 0}" data-flag="${normalizePersonFlag(dflag)}">
             <div class="member-main-line driver-main-line">
                 <div class="driver-name-disp ">${safeName}</div>
+                ${renderPersonFlag(dflag)}
                 ${driverGenderHtml}
                 ${driverGradeHtml}
                 <button type="button" class="driver-menu-btn action-btn" title="車出しメニュー" aria-label="車出し操作メニュー"><i class="fas fa-ellipsis-vertical" aria-hidden="true"></i></button>
@@ -89,11 +98,13 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0) {
 
     $$('.seat-slot', col).forEach((slot, i) => {
         setupSortable(slot);
-        if(mems[i]) addMember(mems[i].name, mems[i].memo, mems[i].gender, mems[i].grade||0, slot, mems[i].locked);
+        if(mems[i]) addMember(mems[i].name, mems[i].memo, mems[i].gender, mems[i].grade||0, slot, mems[i].locked, mems[i].flag);
     });
     if (!isRestoringCarPlans && !window.__suspendCardUpdateUi) updateUI();
 }
 window.addCar = addCar;
+window.normalizePersonFlag = normalizePersonFlag;
+window.renderPersonFlag = renderPersonFlag;
 
 function editCapacity(el) {
     const box = el.closest('.car-box');

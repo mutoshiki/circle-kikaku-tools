@@ -23,6 +23,9 @@
   --space-8: 32px;
   --space-10: 40px;
   --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
 
   --font-size-caption: 0.75rem;
   --font-size-label: 0.875rem;
@@ -36,18 +39,20 @@
   --amount-font-weight: var(--font-weight-amount);
 
   --line-height-tight: 1.2;
-  --line-height-body: 1.55;
-  --focus-ring: color-mix(in srgb, var(--focus-accent) 18%, transparent);
+  --line-height-body: 1.4286;
+  --line-height-label: 18px;
+  --line-height-title: 22px;
+  --focus-ring: color-mix(in srgb, var(--focus-accent) 24%, transparent);
 }
 
 @supports not (color: color-mix(in srgb, red 50%, transparent)) {
-  :root { --focus-ring: rgba(98, 122, 73, 0.24); }
+  :root { --focus-ring: rgba(15, 98, 254, 0.24); }
 }
 
 :where(button, [role="button"], summary, input:not([type="hidden"]), select, textarea, .form-control, .form-select):focus-visible {
   outline: 2px solid var(--focus-accent);
-  outline-offset: -2px;
-  box-shadow: none;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px var(--surface-lowest);
 }
 
 button,

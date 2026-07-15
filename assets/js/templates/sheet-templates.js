@@ -28,7 +28,8 @@
 
   function plainMember(member, helpers = {}) {
     const grade = member.grade || 0;
-    return `${gradeBadge(grade, member.gender || 'unknown', helpers)}<span class="sheet-cell-text">${esc(member.name, helpers)}</span>`;
+    const flag = normalizePersonFlag(member.flag);
+    return `${gradeBadge(grade, member.gender || 'unknown', helpers)}<span class="sheet-cell-text">${esc(member.name, helpers)}</span>${renderPersonFlag(flag).replace('person-flag', 'sheet-person-flag')}`;
   }
 
   function memberChip(member, helpers = {}) {
@@ -36,18 +37,18 @@
     const gender = member.gender || 'unknown';
     const draggable = !!helpers.isDraggable?.(member);
     const lockIcon = member.locked ? `<i class="fas fa-lock sheet-chip-lock" aria-hidden="true"></i>` : '';
-    return `<div class="sheet-chip ${draggable ? 'draggable' : ''} ${member.locked ? 'locked' : ''}" data-name="${esc(member.name, helpers)}" data-gender="${gender}" data-locked="${member.locked ? 'true' : 'false'}">${gradeBadge(grade, gender, helpers)}<span class="sheet-chip-text">${esc(member.name, helpers)}</span>${lockIcon}</div>`;
+    const flagIcon = renderPersonFlag(member.flag).replace('person-flag', 'sheet-person-flag');
+    return `<div class="sheet-chip ${draggable ? 'draggable' : ''} ${member.locked ? 'locked' : ''}" data-name="${esc(member.name, helpers)}" data-gender="${gender}" data-locked="${member.locked ? 'true' : 'false'}">${gradeBadge(grade, gender, helpers)}<span class="sheet-chip-text">${esc(member.name, helpers)}</span>${flagIcon}${lockIcon}</div>`;
   }
 
   function empty() {
     return `
         <div class="sheet-empty-card app-empty-card">
             <div class="sheet-empty-icon"><i class="fas fa-car-side" aria-hidden="true"></i></div>
-            <div class="sheet-empty-title">まずは参加者登録から</div>
+            <div class="sheet-empty-title">共有できるデータがありません</div>
+            <div class="sheet-empty-text">参加者を登録し、車割または班割を作成すると共有画面へ反映されます。</div>
             <div class="seisan-empty-actions">
-              <button class="seisan-btn primary" type="button" data-action="switch-list"><i class="fas fa-edit me-1"></i>車割メーカーへ</button>
-              <span class="seisan-empty-or">もしくは</span>
-              <button class="seisan-btn" type="button" data-action="switch-seisan-settings"><i class="fas fa-calculator me-1" aria-hidden="true"></i>人数だけで精算</button>
+              <button class="seisan-btn primary" type="button" data-action="switch-list"><i class="fas fa-pen-to-square" aria-hidden="true"></i>車割・班割を開く</button>
             </div>
         </div>`;
   }
@@ -75,7 +76,7 @@
     const dg = car.driverGender || 'unknown';
     const dgrade = parseInt(car.driverGrade) || 0;
     html += `<div class="sheet-driver-row" data-gender="${dg}">
-        ${gradeBadge(dgrade, dg, helpers)}<span class="sheet-driver-name">${esc(car.name, helpers)}</span>
+        ${gradeBadge(dgrade, dg, helpers)}<span class="sheet-driver-name">${esc(car.name, helpers)}</span>${renderPersonFlag(car.driverFlag).replace('person-flag', 'sheet-person-flag')}
     </div>`;
 
     for (let i = 0; i < cap; i++) {

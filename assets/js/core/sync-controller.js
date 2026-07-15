@@ -71,11 +71,13 @@ function load() {
     if (!dbRef) {
         loadLocalOnly();
         updateStatus('local', 'ローカル保存');
+        hideAppLoadingSkeleton?.();
         return;
     }
 
     onValue(dbRef, (snapshot) => {
         if (isProcessingQueue) return;
+        hideAppLoadingSkeleton?.();
 
         const val = snapshot.val();
         if (val) {

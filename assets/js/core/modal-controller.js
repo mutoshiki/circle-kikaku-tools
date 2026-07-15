@@ -8,6 +8,7 @@ function initializeAppModals() {
     modals.settlementSettings = new bootstrap.Modal($('#settlementSettingsModal'));
     modals.settlementCarEdit = new bootstrap.Modal($('#settlementCarEditModal'));
     modals.history = new bootstrap.Modal($('#historyModal'));
+    modals.seatMember = new bootstrap.Modal($('#seatMemberPickerModal'));
     window.modals = modals;
     const carEditModal = $('#settlementCarEditModal');
     if (carEditModal && carEditModal.dataset.settlementModalBound !== 'true') {

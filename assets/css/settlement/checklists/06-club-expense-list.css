@@ -26,11 +26,24 @@
 }
 
 #seisan-view-area .seisan-club-expense-amount {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
   justify-self: end;
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
   text-align: right;
   white-space: nowrap;
+}
+
+#seisan-view-area .seisan-club-expense-amount .seisan-amount-sign,
+#seisan-view-area .seisan-club-expense-total .seisan-amount-sign {
+  display: inline-block;
+  width: 0.9em;
+  margin-right: 1px;
+  color: var(--text-sub);
+  font-weight: 500;
+  text-align: center;
 }
 
 #seisan-view-area .seisan-club-expense-user {
@@ -45,14 +58,17 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 3px;
-  padding: 7px 5px 3px;
-  border-top: 1px solid var(--ui-hairline-quiet);
+  margin-top: 6px;
+  padding: 12px 5px 3px;
+  border-top: 2px solid var(--border-strong);
   color: var(--text-main);
   font-weight: 600;
 }
 
 #seisan-view-area .seisan-club-expense-total strong {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
   margin-left: auto;
   font-variant-numeric: tabular-nums;
   text-align: right;

@@ -32,7 +32,7 @@
   backdrop-filter: none;
 }
 #sheet-room-name { display: none; }
-#sheet-title-bar .sheet-title-icon { color: var(--accent-color); }
+#sheet-title-bar .sheet-title-icon { color: var(--text-on-accent); }
 #sheet-title-bar #sheet-summary { color: var(--text-sub); }
 
 #sheet-canvas {
@@ -74,7 +74,7 @@
 }
 .sheet-plan-section { width: max-content; min-width: min(100%, 320px); margin-bottom: 0; }
 .sheet-plan-heading { margin: 0 0 8px 2px; color: var(--text-main); font-size: 1rem; font-weight: 600; }
-.sheet-plan-table { display: flex; align-items: stretch; gap: 8px; width: max-content; }
+.sheet-plan-table { display: flex; align-items: flex-start; gap: 8px; width: max-content; }
 
 .sheet-car-col {
   display: flex;

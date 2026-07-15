@@ -1,21 +1,20 @@
-/* Allocation command band. */
+/* Allocation commands: Carbon content switcher plus one adjacent primary action. */
 #top-area > .edit-header:first-child,
 .allocation-toolbar {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: var(--z-local-raised);
-  margin: 0 0 18px;
-  padding: 6px;
-  border: 1px solid var(--border-section);
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
   border-radius: 0;
-  background: var(--surface-lowest);
+  background: transparent;
   box-shadow: none;
   backdrop-filter: none;
 }
 
 .allocation-toolbar-inner {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 2fr) minmax(148px, 1fr);
   align-items: stretch;
   gap: 8px;
 }
@@ -27,6 +26,11 @@
 .edit-project-input-row i { color: var(--accent-color); font-size: 1rem; }
 
 @media (max-width: 520px) {
-  .allocation-toolbar-inner { grid-template-columns: minmax(0, 1fr) minmax(132px, auto); }
+  .allocation-toolbar-inner { grid-template-columns: minmax(0, 2fr) minmax(132px, 1fr); }
   #batchOpenBtn { min-width: 132px; padding-inline: 12px; }
+}
+
+@media (max-width: 390px) {
+  .allocation-toolbar-inner { grid-template-columns: minmax(0, 2fr) minmax(116px, 1fr); }
+  #batchOpenBtn { min-width: 116px; padding-inline: 8px; }
 }

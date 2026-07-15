@@ -120,8 +120,11 @@ const clubBreakdownHtml = templates.clubExpenseBreakdown({
 }, {
   yen: value => `¥${Number(value || 0).toLocaleString()}`
 });
-assert(clubBreakdownHtml.includes('集金不足の補填'), 'negative collection surplus should be labeled as a shortage, not a surplus');
-assert(!clubBreakdownHtml.includes('集金の端数余り'), 'shortage must not be described as leftover collection');
-assert(clubBreakdownHtml.includes('<strong>¥-600</strong>'), 'club breakdown total should retain the accounting sign so rows add up to the displayed total');
+assert(clubBreakdownHtml.includes('参加者集金の不足'), 'negative collection surplus should be labeled as participant collection shortage');
+assert(!clubBreakdownHtml.includes('参加者集金の余り'), 'shortage must not be described as leftover collection');
+assert(clubBreakdownHtml.includes('ドライバー分の集金控除'), 'driver collection offset should be described as a deduction');
+assert(clubBreakdownHtml.includes('<span class="seisan-amount-sign" aria-hidden="true">−</span>¥1,500'), 'negative rows should place the minus sign before the currency');
+assert(clubBreakdownHtml.includes('<span class="seisan-amount-sign" aria-hidden="true">＋</span>¥306'), 'positive rows should place the plus sign before the currency');
+assert(clubBreakdownHtml.includes('<span>部費へ戻す</span>') && clubBreakdownHtml.includes('<span class="seisan-amount-sign" aria-hidden="true">＝</span>¥600'), 'club total should explain the direction and use the same equals-sign rule as driver payment totals');
 
 console.log('Settlement template runtime check OK');

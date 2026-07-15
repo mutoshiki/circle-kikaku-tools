@@ -2,25 +2,48 @@
 html[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg-body: #161616;
-  --bg-card: #262626;
-  --surface-lowest: #262626;
-  --surface-low: #393939;
-  --surface-container: #525252;
+  /* Carbon v11 Gray 100 semantic tokens. */
+  --cds-background: #161616;
+  --cds-layer-01: #262626;
+  --cds-layer-02: #393939;
+  --cds-layer-03: #525252;
+  --cds-field-01: #393939;
+  --cds-field-02: #262626;
+  --cds-text-primary: #f4f4f4;
+  --cds-text-secondary: #c6c6c6;
+  --cds-text-placeholder: #a8a8a8;
+  --cds-border-subtle: #525252;
+  --cds-border-strong: #8d8d8d;
+  --cds-interactive: #78a9ff;
+  --cds-interactive-hover: #a6c8ff;
+  --cds-interactive-active: #4589ff;
+  --cds-focus: #ffffff;
+  --cds-disabled-bg: #525252;
+  --cds-disabled-text: #8d8d8d;
+
+  --content-switcher-selected-bg: #f4f4f4;
+  --content-switcher-selected-text: #161616;
+  --carbon-gradient-accent: linear-gradient(90deg, #78a9ff 0%, #be95ff 34%, #ff7eb6 67%, #82cfff 100%);
+
+  --bg-body: var(--cds-background);
+  --bg-card: var(--cds-layer-01);
+  --surface-lowest: var(--cds-layer-01);
+  --surface-low: var(--cds-layer-02);
+  --surface-container: var(--cds-layer-03);
   --surface-high: #6f6f6f;
   --surface-highest: #8d8d8d;
   --surface-tint: #78a9ff;
   --surface-dim: #161616;
 
-  --text-main: #f4f4f4;
-  --text-sub: #c6c6c6;
-  --text-faint: #a8a8a8;
+  --text-main: var(--cds-text-primary);
+  --text-sub: var(--cds-text-secondary);
+  --text-faint: var(--cds-text-placeholder);
   --text-strong-sub: #e0e0e0;
   --text-on-dark: #f4f4f4;
 
   --accent-color: #78a9ff;
-  --accent-hover: #a6c8ff;
-  --accent-pressed: #4589ff;
+  --accent-hover: var(--cds-interactive-hover);
+  --accent-pressed: var(--cds-interactive-active);
   --accent-soft: #001d6c;
   --accent-container: #002d9c;
   --accent-container-text: #edf5ff;
@@ -29,7 +52,7 @@ html[data-theme="dark"] {
   --accent-border-hover: #a6c8ff;
   --accent-raised: #0f62fe;
   --accent-icon: #78a9ff;
-  --focus-accent: #ffffff;
+  --focus-accent: var(--cds-focus);
   --text-on-accent: #ffffff;
   --button-primary: #0f62fe;
   --button-primary-hover: #0050e6;
@@ -98,8 +121,8 @@ html[data-theme="dark"] {
   --status-payment-border: #9f1853;
 
   --shadow-card: none;
-  --shadow-float: 0 18px 46px rgba(0, 0, 0, 0.46);
-  --shadow-modal: 0 28px 70px rgba(0, 0, 0, 0.56);
+  --shadow-float: 0 6px 16px rgba(0, 0, 0, 0.46);
+  --shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.56);
   --shadow-tray: 0 -10px 32px rgba(0, 0, 0, 0.38);
   --shadow-tray-mobile: 0 -12px 34px rgba(0, 0, 0, 0.42);
   --shadow-status: 0 10px 24px rgba(0, 0, 0, 0.36);

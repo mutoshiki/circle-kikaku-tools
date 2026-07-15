@@ -168,6 +168,8 @@ test('cards, capacity popup, overview and edit action use the shared quiet surfa
     return { assigned: pick(assigned), waiting: pick(waiting) };
   });
   expect(cards.assigned).toEqual(cards.waiting);
+  expect(cards.assigned.borderTopWidth).toBe('1px');
+  expect(cards.assigned.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
 
   await page.evaluate(() => document.querySelector('#waiting-list .member-menu-btn')?.click());
   const personMenu = page.locator('.person-pop-menu');
@@ -243,6 +245,48 @@ test('cards, capacity popup, overview and edit action use the shared quiet surfa
   expect(quickEdit.borderWidth).toBe('0px');
   expect(quickEdit.size).toBeGreaterThanOrEqual(44);
   expect(quickEdit.backgroundColor).not.toBe(quickEdit.accent);
+});
+
+test('430px allocation cards stay distinct while the command band scrolls away', async ({ page }) => {
+  await page.setViewportSize({ width: 430, height: 932 });
+  await gotoApp(page, 'ROOT-CARD-SCROLL-CONTRACT');
+  await seed(page);
+  await page.evaluate(() => window.switchView('list'));
+  await page.waitForTimeout(120);
+
+  const beforeTop = await page.locator('#top-area > .edit-header:first-child').evaluate(node => node.getBoundingClientRect().top);
+  await page.locator('#top-area').evaluate(node => node.scrollTo(0, 320));
+  await page.waitForTimeout(50);
+  const afterTop = await page.locator('#top-area > .edit-header:first-child').evaluate(node => node.getBoundingClientRect().top);
+  const state = await page.evaluate(() => {
+    const card = document.querySelector('.seat-slot .member-card');
+    const emptySeat = document.createElement('div');
+    emptySeat.className = 'seat-slot';
+    document.body.appendChild(emptySeat);
+    const cardStyle = getComputedStyle(card);
+    const emptySeatStyle = getComputedStyle(emptySeat);
+    const toolbarStyle = getComputedStyle(document.querySelector('#top-area > .edit-header:first-child'));
+    const result = {
+      cardBorder: cardStyle.borderTopWidth,
+      cardBackground: cardStyle.backgroundColor,
+      emptySeatBackground: emptySeatStyle.backgroundColor,
+      toolbarBorder: toolbarStyle.borderTopWidth,
+      toolbarBackground: toolbarStyle.backgroundColor,
+      toolbarPosition: toolbarStyle.position,
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
+    };
+    emptySeat.remove();
+    return result;
+  });
+
+  expect(state.cardBorder).toBe('1px');
+  expect(state.cardBackground).not.toBe('rgba(0, 0, 0, 0)');
+  expect(state.cardBackground).not.toBe(state.emptySeatBackground);
+  expect(state.toolbarBorder).toBe('0px');
+  expect(state.toolbarBackground).toBe('rgba(0, 0, 0, 0)');
+  expect(state.toolbarPosition).toBe('relative');
+  expect(afterTop).toBeLessThan(beforeTop - 100);
+  expect(state.overflow).toBeLessThanOrEqual(0);
 });
 
 test('swap preview hides the displaced original instead of showing two copies', async ({ page }) => {

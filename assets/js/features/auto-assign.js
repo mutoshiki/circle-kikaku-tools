@@ -170,7 +170,7 @@ function buildCarStates() {
 function placeMemberIntoState(state, member) {
     const slot = state.freeSlots.shift();
     if (!slot) return false;
-    addMember(member.name, member.memo, member.gender, member.grade || 0, slot, member.locked);
+    addMember(member.name, member.memo, member.gender, member.grade || 0, slot, member.locked, member.flag);
     state.counts.total += 1;
     if (member.gender === 'female') state.counts.female += 1;
     if (member.gender === 'male') state.counts.male += 1;
@@ -239,14 +239,17 @@ function assignBalanced(members, carStates, opts) {
 async function autoAssign(mode) {
     const opts = { f:$('#optFemale').checked, m:$('#optMale').checked, g:$('#optGrade').checked };
     let mems = [];
+    let undoSnapshot = null;
     
     if(mode === 'shuffle') {
         const items = getAutoAssignConditionItems(opts);
         const message = items.length ? `${items.join('・')}をまとめて自動割り当てします。` : 'ランダムで自動割り当てします。';
         if(!await appConfirm(message, { title: 'ランダム', okText: '実行' })) return;
+        undoSnapshot = captureAppUndoSnapshot();
         $$('.seat-slot').forEach(slot => getRealSeatCards(slot).filter(m => m.dataset.locked !== 'true').forEach(m => { mems.push(getMemData(m)); m.remove(); }));
         $$('#waiting-list .member-card:not([data-locked="true"])').forEach(m => { mems.push(getMemData(m)); m.remove(); });
     } else {
+        undoSnapshot = captureAppUndoSnapshot();
         $$('#waiting-list .member-card').forEach(m => { mems.push(getMemData(m)); m.remove(); });
     }
     
@@ -257,8 +260,9 @@ async function autoAssign(mode) {
         ? assignBalanced(mems, carStates, opts)
         : assignPureRandom(mems, carStates);
 
-    leftOvers.forEach(m => addMember(m.name, m.memo, m.gender, m.grade || 0, $('#waiting-list'), m.locked));
+    leftOvers.forEach(m => addMember(m.name, m.memo, m.gender, m.grade || 0, $('#waiting-list'), m.locked, m.flag));
     lastAutoAssignLabel = buildAutoAssignAppliedLabel(opts, mode);
     updateUI(); save();
+    commitAppUndo(undoSnapshot, mode === 'shuffle' ? 'ランダムに割り当てました' : '空席へ割り当てました');
 }
 window.autoAssign = autoAssign;

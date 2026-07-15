@@ -1,8 +1,8 @@
 .dropdown-menu {
   min-width: 220px;
-  padding: 8px;
-  border: 0;
-  border-radius: var(--radius-lg);
+  padding: 0;
+  border: 1px solid var(--border-section);
+  border-radius: 0;
   background: var(--surface-lowest);
   color: var(--text-main);
   box-shadow: var(--shadow-float);
@@ -12,13 +12,15 @@
   display: flex;
   align-items: center;
   min-height: 48px;
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  border-radius: 0;
   color: var(--text-main);
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 400;
 }
 .dropdown-item:hover,
 .dropdown-item:focus { background: var(--surface-hover); color: var(--text-main); }
+.dropdown-item:active,
+.dropdown-item.active { background: var(--accent-color); color: var(--text-on-accent); }
 .dropdown-divider { border-color: var(--border-section); }
 .dropdown-header { color: var(--text-sub); font-weight: 600; }

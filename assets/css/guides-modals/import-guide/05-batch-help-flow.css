@@ -140,7 +140,7 @@
   }
 }
 #batchImportModal .modal-content {
-  border-radius: clamp(16px, 3vw, 22px);
+  border-radius: 0;
 }
 #batchImportModal .modal-body {
   padding: 18px 16px 20px;

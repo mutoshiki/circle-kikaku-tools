@@ -293,7 +293,7 @@ async function executeBatch() {
         const driverGrade = gradeMap.get(key) || 0;
         if(existingDrivers.has(key)) {
             const oldCar = existingDrivers.get(key);
-            addCar(driverName, oldCar.capacity, [], oldCar.driverMemo, oldCar.driverGender, driverGrade || oldCar.driverGrade || 0);
+            addCar(driverName, oldCar.capacity, [], oldCar.driverMemo, oldCar.driverGender, driverGrade || oldCar.driverGrade || 0, oldCar.driverFlag);
         } else {
             addCar(driverName, (typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3), [], '', 'unknown', driverGrade);
             detectGender(driverName);
@@ -320,20 +320,20 @@ async function executeBatch() {
                 if (targetCarBox) {
                     const slots = $$('.seat-slot', targetCarBox);
                     if(slots[loc.slot] && slots[loc.slot].children.length === 0) {
-                        addMember(name, oldData.memo, oldData.gender, grade, slots[loc.slot], oldData.locked);
+                        addMember(name, oldData.memo, oldData.gender, grade, slots[loc.slot], oldData.locked, oldData.flag);
                     } else {
                         const emptySlot = Array.from(slots).find(s => s.children.length === 0);
                         if(emptySlot) {
-                             addMember(name, oldData.memo, oldData.gender, grade, emptySlot, oldData.locked);
+                             addMember(name, oldData.memo, oldData.gender, grade, emptySlot, oldData.locked, oldData.flag);
                         } else {
-                             addMember(name, oldData.memo, oldData.gender, grade, $('#waiting-list'), oldData.locked);
+                             addMember(name, oldData.memo, oldData.gender, grade, $('#waiting-list'), oldData.locked, oldData.flag);
                         }
                     }
                 } else {
-                     addMember(name, oldData.memo, oldData.gender, grade, $('#waiting-list'), oldData.locked);
+                     addMember(name, oldData.memo, oldData.gender, grade, $('#waiting-list'), oldData.locked, oldData.flag);
                 }
             } else {
-                addMember(name, oldData.memo, oldData.gender, grade, $('#waiting-list'), oldData.locked);
+                addMember(name, oldData.memo, oldData.gender, grade, $('#waiting-list'), oldData.locked, oldData.flag);
             }
         } else {
             addMember(name, '', 'unknown', grade, $('#waiting-list'));

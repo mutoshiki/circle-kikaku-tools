@@ -3,6 +3,7 @@
 
 D.addEventListener('DOMContentLoaded', async () => {
     initializeAppModals();
+    setupPlanningAssurance?.();
 
     // Event bindings are owned by assets/js/features/events.js after A cleanup.
 
@@ -12,6 +13,7 @@ D.addEventListener('DOMContentLoaded', async () => {
     // This keeps member menu buttons responsive even if remote sync is slow or blocked.
     setupCompactPersonMenu();
     ensureCompactMenuFallback();
+    setupSeatMemberPicker();
     await initFirebaseSync();
     load();
     refreshRoomTitle();

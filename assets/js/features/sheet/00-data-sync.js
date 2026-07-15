@@ -124,7 +124,8 @@ function getSheetPlanMemberRegistry(plan = {}) {
             memo: member.memo || '',
             gender: member.gender || 'unknown',
             grade: parseInt(member.grade) || 0,
-            locked: !!member.locked
+            locked: !!member.locked,
+            flag: normalizePersonFlag(member.flag ?? member.driverFlag)
         });
     };
     (plan.cars || []).forEach(car => {
@@ -133,7 +134,8 @@ function getSheetPlanMemberRegistry(plan = {}) {
             memo: car.driverMemo || '',
             gender: car.driverGender || 'unknown',
             grade: car.driverGrade || 0,
-            locked: false
+            locked: false,
+            flag: car.driverFlag || 'none'
         });
         (car.members || []).forEach(put);
     });
@@ -150,7 +152,8 @@ function getMemberFromSheetChip(chip, registry) {
         memo: base.memo || '',
         gender: base.gender || chip.dataset.gender || 'unknown',
         grade: parseInt(base.grade) || 0,
-        locked: base.locked || chip.dataset.locked === 'true'
+        locked: base.locked || chip.dataset.locked === 'true',
+        flag: normalizePersonFlag(base.flag)
     };
 }
 

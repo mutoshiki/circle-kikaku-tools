@@ -175,8 +175,8 @@
       bar.innerHTML = '<span></span><button type="button">元に戻す</button>';
       document.body.appendChild(bar);
       bar.querySelector('button').addEventListener('click', () => {
-        const undoAction = state.undoAction;
-        state.undoAction = null;
+        const undoAction = bar.undoAction;
+        bar.undoAction = null;
         hideUndoBar();
         if (typeof undoAction === 'function') undoAction();
       });
@@ -184,6 +184,9 @@
     const span = bar.querySelector('span');
     span.textContent = message || '変更しました';
     state.undoAction = onUndo;
+    // Store the current action on the persistent node as well. This keeps the
+    // handler correct if the browser restores the DOM while modules re-run.
+    bar.undoAction = onUndo;
     bar.classList.add('visible');
     clearTimeout(state.undoTimer);
     state.undoTimer = setTimeout(hideUndoBar, 9000);
