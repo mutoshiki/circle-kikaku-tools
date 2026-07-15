@@ -10,12 +10,6 @@
   padding: 12px;
 }
 
-@media (max-width: 390px) {
-  .car-layout-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
 .driver-seat,
 .seat-slot {
   position: relative;

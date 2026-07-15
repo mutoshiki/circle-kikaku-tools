@@ -101,7 +101,7 @@
   bottom: 0;
   left: 0;
   height: 3px;
-  background: var(--carbon-gradient-accent);
+  background: var(--accent-color);
 }
 .view-tab::after { display: none; }
 .view-tab-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

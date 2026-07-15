@@ -88,6 +88,11 @@
                 clearTimeout(saveTimer);
                 saveTimer = setTimeout(save, 500);
             });
+            roomNameInput.addEventListener('keydown', event => {
+                if (event.key !== 'Enter') return;
+                event.preventDefault();
+                roomNameInput.blur();
+            });
         }
 
         document.addEventListener('pointermove', e => {

@@ -86,6 +86,18 @@ test('coach mark, planning check, skeleton and responsive layout remain usable',
     expect(overflow, `${width}px viewport must not overflow`).toBeLessThanOrEqual(1);
     await expect(page.locator('.allocation-mode-toggle')).toBeVisible();
     await expect(page.locator('.car-box').first()).toBeVisible();
+    if (width === 390 || width === 430) {
+      const mobileCards = await page.evaluate(() => {
+        const grid = document.querySelector('.car-layout-grid');
+        const columns = grid ? getComputedStyle(grid).gridTemplateColumns.split(' ').length : 0;
+        const clippedNames = Array.from(document.querySelectorAll('#cars-container .member-name-text, #cars-container .driver-name-disp'))
+          .filter(node => node.offsetParent !== null && node.scrollWidth > node.clientWidth)
+          .length;
+        return { columns, clippedNames };
+      });
+      expect(mobileCards.columns).toBe(2);
+      expect(mobileCards.clippedNames).toBe(0);
+    }
   }
 });
 

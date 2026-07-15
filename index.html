@@ -48,8 +48,8 @@
     <link href="./assets/css/app-shell/edit/03-mobile-edit.css" rel="stylesheet">
     <!-- CSS: header owners: base, room/status, tabs/actions, mobile, responsive -->
     <link href="./assets/css/app-shell/header/01-header-base.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/02-room-status.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/03-tabs-actions.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/header/02-room-status.css?v=mobile-layout-fix" rel="stylesheet">
+    <link href="./assets/css/app-shell/header/03-tabs-actions.css?v=mobile-layout-fix" rel="stylesheet">
     <!-- CSS: foundations and design tokens -->
     <!-- CSS: guides and modals -->
     <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">
@@ -82,10 +82,10 @@
     <link href="./assets/css/cars-members-tray/person-card/01-person-card-shell.css?v=carbon-v11-card" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/02-person-name-grade.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/03-person-menu.css" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/person-card/04-person-mobile.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/person-card/04-person-mobile.css?v=mobile-layout-fix" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/01-card-shell.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/02-card-header.css" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/car-card/03-seat-grid.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/car-card/03-seat-grid.css?v=mobile-layout-fix" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/04-group-mode.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/05-empty-controls.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/drag-drop/01-card-drag.css" rel="stylesheet">
@@ -156,7 +156,7 @@
           <div class="app-brand app-room-control">
             <div class="app-room-field">
               <label class="app-room-kicker" for="roomNameInput">企画</label>
-              <input type="text" id="roomNameInput" class="app-room-input" placeholder="企画名を入力" autocomplete="off" aria-label="企画名">
+              <textarea id="roomNameInput" class="app-room-input" rows="1" placeholder="企画名を入力" autocomplete="off" aria-label="企画名"></textarea>
             </div>
             <div id="syncStatusBadge" class="sync-status-badge" data-status="local" aria-live="polite"><span class="sync-status-dot" aria-hidden="true"></span><span class="sync-status-label">ローカル保存</span></div>
           </div>
@@ -779,7 +779,7 @@
     <!-- JS: boot and event bindings load last because they attach to generated DOM/actions. -->
     <script src="./assets/js/app.js?v=carbon-assurance"></script>
     <script src="./assets/js/features/events/00-event-utils.js"></script>
-    <script src="./assets/js/features/events/01-core-startup-events.js"></script>
+    <script src="./assets/js/features/events/01-core-startup-events.js?v=mobile-layout-fix"></script>
     <script src="./assets/js/features/events/02-static-header-events.js"></script>
     <script src="./assets/js/features/events/03-generated-action-events.js"></script>
     <script src="./assets/js/features/events/04-settlement-input-events.js"></script>
