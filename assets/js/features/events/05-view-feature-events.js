@@ -1,4 +1,4 @@
-// View tabs, guide navigation, modal commands, and form controls.
+// View tabs, modal commands, and form controls.
 (function (global) {
     'use strict';
 
@@ -32,38 +32,14 @@
         });
     }
 
-    function setupGuideStepEvents() {
-        document.querySelectorAll('.guide-step-btn[data-guide][data-step]').forEach(btn => {
-            if (btn.dataset.eventOwnerBound === 'true') return;
-            btn.dataset.eventOwnerBound = 'true';
-            btn.addEventListener('click', event => {
-                event.preventDefault();
-                showGuideStep(btn.dataset.guide, Number(btn.dataset.step || 0));
-            });
-        });
-
-        [
-            ['globalGuidePrevBtn', 'global', -1],
-            ['globalGuideNextBtn', 'global', 1],
-            ['carGuidePrevBtn', 'car', -1],
-            ['carGuideNextBtn', 'car', 1],
-            ['seisanGuidePrevBtn', 'seisan', -1],
-            ['seisanGuideNextBtn', 'seisan', 1],
-        ].forEach(([id, guide, dir]) => bind(id, () => guideNavStep(guide, dir)));
-    }
-
     function setupViewAndFeatureEvents() {
         bind('tab-list', () => switchView('list'));
         bind('tab-sheet', () => switchView('sheet'));
         bind('tab-seisan', () => switchView('seisan'));
         bind('batchOpenBtn', () => openBatchModal());
-        bind('sheetZoomInBtn', () => zoomIn());
-        bind('sheetZoomOutBtn', () => zoomOut());
-        bind('sheetZoomResetBtn', () => resetZoom());
         bind('sheet-quick-edit-btn', () => toggleQuickEdit());
         bind('seisanRefreshBtn', () => renderSettlementView());
         bind('clearAllBtn', () => global.clearAll());
-        bind('resetAppearanceBtn', () => resetAppearanceSettings());
         bind('applyGoogleFormPasteBtn', () => global.applyGoogleFormPasteImport?.());
         bind('executeBatchBtn', () => executeBatch());
         bind('executeDebugBtn', () => global.executeDebugMode?.());
@@ -73,7 +49,6 @@
 
         setupSettlementOptionEvents();
         setupAutoAssignOptionEvents();
-        setupGuideStepEvents();
     }
 
     global.SanpoEvents = Object.freeze({

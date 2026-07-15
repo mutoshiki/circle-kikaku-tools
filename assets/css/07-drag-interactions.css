@@ -3,6 +3,38 @@
    Drag/drop tokens, manual drag floats and drop-target states.
 ========================================================= */
 
+:root {
+  --drop-accent: color-mix(in srgb, var(--accent-color) 58%, var(--color-white));
+  --drop-accent-soft: color-mix(in srgb, var(--accent-soft) 56%, transparent);
+  --drop-outline: color-mix(in srgb, var(--accent-color) 30%, transparent);
+  --drop-shadow: 0 0 0 1px var(--drop-outline), inset 0 0 0 1px var(--surface-inset-line);
+  --drop-target-bg: color-mix(in srgb, var(--accent-soft) 46%, var(--sheet-header));
+  --swap-target-bg: color-mix(in srgb, var(--color-warning) 12%, var(--sheet-header));
+  --return-target-bg: color-mix(in srgb, var(--palette-blue-40) 10%, var(--sheet-header));
+  --tray-drop-bg: color-mix(in srgb, var(--accent-soft) 20%, var(--tray-bg));
+  --tray-drop-border: color-mix(in srgb, var(--accent-color) 20%, transparent);
+  --motion-fast: 120ms;
+}
+
+@supports not (background: color-mix(in srgb, white, black)) {
+  :root {
+    --drop-accent: var(--accent-color);
+    --drop-accent-soft: var(--accent-soft);
+    --drop-outline: var(--accent-color);
+    --drop-target-bg: var(--accent-soft);
+    --swap-target-bg: rgba(245, 158, 11, 0.12);
+    --return-target-bg: rgba(156, 175, 125, 0.12);
+    --tray-drop-bg: var(--accent-soft);
+    --tray-drop-border: var(--accent-color);
+  }
+}
+
+@keyframes waitingCardNewPulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-color) 45%, transparent); transform: translateY(-2px); }
+  38% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-color) 18%, transparent); }
+  100% { box-shadow: none; transform: translateY(0); }
+}
+
 .member-card.manual-drag-source {
 visibility: hidden;
 }
@@ -72,9 +104,6 @@ touch-action: none;
     overscroll-behavior: contain;
 }
 
-:where(.member-card.manual-drag-source, .driver-seat.manual-drag-source) {
-opacity: .42;
-}
 
 .manual-drag-float {
   position: fixed;
@@ -91,7 +120,7 @@ opacity: .42;
 .seat-slot.swap-target {
 background: var(--swap-target-bg) ;
     border-color: color-mix(in srgb, var(--color-warning) 58%, var(--border-color)) ;
-    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.24), inset 0 0 0 1px rgba(var(--white-rgb), 0.28) ;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--semantic-warning) 28%, transparent), inset 0 0 0 1px rgba(var(--white-rgb), 0.28) ;
 }
 
 .seat-slot.swap-target::after {
@@ -123,29 +152,6 @@ body.manual-card-dragging .person-pop-menu, body.quick-sheet-dragging .person-po
   grid-column: 1 / -1;
 }
 
-[data-theme="dark"] :is(
-  .guide-registration-context,
-  .guide-registration-context--highlight,
-  .guide-registration-ghost,
-  .guide-registration-cta,
-  .guide-action-box,
-  .guide-action-box.primary,
-  .guide-copy-mock,
-  .guide-mini-form .field,
-  .guide-edit-card-mock,
-  .guide-edit-field,
-  .guide-ui-card,
-  .mock-form-import-ui,
-  .mock-form-import-textarea,
-  .mock-sheet-browser,
-  .mock-sheet-browser-canvas,
-  .mock-sheet-browser-sheet
-) {
-  color: var(--text-main);
-  border-color: var(--ui-saas-border, var(--border-color));
-  background-color: color-mix(in srgb, var(--bg-card) 86%, var(--color-night));
-}
-
 /* Component rules extracted from 00-base-tokens.css. */
 .swap-preview-card,
 .drag-preview-card {
@@ -175,7 +181,7 @@ position: fixed;
     right: 10px;
     z-index: var(--z-local-raised);
     padding: 8px 10px;
-    border-radius: 10px;
+    border-radius: var(--radius-main);
     background: rgba(245, 158, 11, 0.92);
     color: var(--color-ink);
     font-size: 0.75rem;

@@ -19,8 +19,10 @@
       : (p.role === 'member' && p.driverName ? formatCarLabel(p.driverName, helpers) : (p.role === 'waiting' ? '待機' : ''));
     return `<label class="seisan-check-item ${paid ? 'paid' : ''} ${excluded ? 'excluded' : ''}"${excluded ? ' aria-disabled="true"' : ''}>
             <input type="checkbox" ${paid ? 'checked' : ''} ${excluded ? 'disabled' : ''} data-settlement-paid-name="${encodeURIComponent(p.name)}">
-            <span class="seisan-check-name">${esc(p.name, helpers)}</span>
-            ${note ? `<span class="seisan-check-note">${note}</span>` : ''}
+            <span class="seisan-check-copy${note ? ' has-note' : ''}">
+              <span class="seisan-check-name">${esc(p.name, helpers)}</span>
+              ${note ? `<span class="seisan-check-note">${note}</span>` : ''}
+            </span>
         </label>`;
   }
 

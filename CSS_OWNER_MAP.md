@@ -1,43 +1,44 @@
 # CSS Owner Map
 
-## Header/App Shell
+| Responsibility | Owner |
+|---|---|
+| Light semantic colors | `assets/css/tokens/01-color-scheme.css` |
+| Dark semantic colors | `assets/css/tokens/01-theme-modes.css` |
+| Component palette aliases | `assets/css/tokens/01-component-palette.css` |
+| Radius, spacing, type and focus | `assets/css/tokens/02-radius-spacing-type.css` |
+| Bootstrap controls | `assets/css/tokens/03-bootstrap-controls.css` |
+| Form controls | `assets/css/tokens/04-forms-inputs.css` |
+| Shared control dimensions and surface hierarchy | `assets/css/tokens/05-control-surface-tokens.css` |
+| Shared button behavior | `assets/css/components/buttons/` |
+| Shared surface hierarchy and empty states | `assets/css/components/surfaces/` |
+| Header shell and layout | `assets/css/app-shell/header/01-header-base.css` |
+| Room title and sync status | `assets/css/app-shell/header/02-room-status.css` |
+| Primary navigation and header actions | `assets/css/app-shell/header/03-tabs-actions.css` |
+| App panels and responsive frame | `assets/css/app-shell/layout/` |
+| Modal, dropdown, guide and drawer | `assets/css/guides-modals/` |
+| Participant import shell and touch targets | `assets/css/guides-modals/import-guide/` |
+| Allocation cards and people | `assets/css/cars-members-tray/` |
+| Shared assigned/unassigned member surface | `assets/css/cars-members-tray/01-shared-card-primitives.css` |
+| Unassigned bottom tray | `assets/css/cars-members-tray/waiting-tray/` |
+| Settlement page hierarchy | `assets/css/settlement/page-shell/` |
+| Settlement controls and settings | `assets/css/settlement/controls/` |
+| Vehicle cost editing | `assets/css/settlement/car-inputs/` |
+| Settlement status tags | `assets/css/settlement/cost-tags/` and `payment-chip/` |
+| Shared presentation frame and scaling | `assets/css/sheet-view/layout/` and `assets/js/features/sheet/02-viewport-controls.js` |
+| Shared presentation quick edit | `assets/css/sheet-view/edit/` |
 
-| Selector/area | Owner | Notes |
-| --- | --- | --- |
-| `#app-header`, `.app-header-main` base | `assets/css/app-shell/header/01-header-base.css` | Structural header grid only. |
-| Room/status controls | `assets/css/app-shell/header/02-room-status.css` | Sole base owner for `.app-room-control`, `.app-room-field`, `.app-room-input`, and `#syncStatusBadge`; other header files may contain responsive/state deltas only. |
-| Header actions/tabs base | `assets/css/app-shell/header/03-tabs-actions.css` | Button sizing, lock state, action group baseline. |
-| Mobile header layout | `assets/css/app-shell/header/04-mobile-layout.css` | Main mobile geometry only. |
-| Mobile room/action tuning | `assets/css/app-shell/header/05-mobile-room.css` to `08-mobile-density.css` | Narrow breakpoint deltas; avoid redefining base. |
-| Edge/wide responsive caps | `assets/css/app-shell/header/09-responsive-base.css` to `12-responsive-wide.css` | Last-mile viewport fixes only. |
+## Integration Policy
 
-## Settlement Inputs
-
-| Selector/area | Owner | Notes |
-| --- | --- | --- |
-| Car form structure | `assets/css/settlement/car-inputs/01-car-form.css` | Base form and generic field layout. |
-| Distance/fuel fields | `assets/css/settlement/car-inputs/02-distance-fuel.css` | Distance/fuel styling only; do not add modal breakpoint overrides. |
-| Car edit modal mobile inputs | `assets/css/settlement/car-inputs/05-mobile-inputs.css` | Sole owner for `#settlementCarEditModal` narrow input and extra-cost grid behavior. |
-
-## Theme
-
-| Selector/area | Owner | Notes |
-| --- | --- | --- |
-| Shared line, border, and surface hierarchy | `assets/css/theme/08-border-hierarchy.css` | Owns `--app-line-*` aliases and cross-feature border/surface application. |
-| Dark border tuning | `assets/css/theme/08-dark-border-softness.css` | Dark-only border tokens and scoped softness deltas. |
-| Accent-filled labels and selected controls | `assets/css/theme/09-accent-application.css` | Accent application only; do not add generic border or surface normalization. |
+- Product-wide override、skin、visual、repair ディレクトリは禁止する。
+- 視覚変更は、構造と状態を管理する owner へ直接統合する。
+- 白・黒の固定背景ではなく semantic surface を使用する。
+- 可視のボタン、summary、アイコン操作はモバイルで48px以上を確保する。
+- 選択、エラー、完了、ロック、無効は色以外の形・文字・アイコン・ARIAも併用する。
+- `99-*`、`final-*`、`override-*` 等の包括的な修正 CSS を作らない。
 
 ## Breakpoint Policy
 
-| Tier | Query | Use |
-| --- | --- | --- |
-| Ultra-narrow | `max-width: 360px` | Last-resort control padding and single-column fallbacks. |
-| Narrow phone | `max-width: 380px`, `390px` | Proven overflow fixes for compact phone layouts. |
-| Compact component | `max-width: 420px`, `430px`, `520px` | Feature-local card, modal, and tray fit. |
-| Primary mobile | `max-width: 640px` | Main mobile layout boundary. Desktop complement starts at `min-width: 641px`. |
-| Touch/tablet | `max-width: 768px` | Touch input sizing and tablet-safe layout. Desktop complement starts at `min-width: 769px`. |
-| Wide settlement | `min-width: 860px` | Two-column settlement composition only. |
-
-- Keep responsive rules in the selector's feature owner; breakpoint tiers are policy, not a separate cascade owner.
-- Prefer an existing tier. New pixel values require a documented layout failure and an allow-list update in `tests/breakpoint-policy-check.js`.
-- Do not overlap paired boundaries (`max-width: 768px` with `min-width: 768px`).
+- Mobile rules end at `max-width: 768px`。
+- Desktop complement starts at `min-width: 769px`。
+- 狭幅補正は 360、380、390、420、430、520、640px の既存境界だけを使用する。
+- 新しい境界はレイアウト上の理由と回帰テストを伴う場合だけ追加する。

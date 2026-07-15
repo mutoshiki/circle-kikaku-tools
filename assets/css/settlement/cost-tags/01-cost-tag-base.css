@@ -99,7 +99,6 @@
 .seisan-extra-inline.split,
 .seisan-cost-policy-tag.split,
 .seisan-cost-type-badge.split,
-.seisan-mock-chip.split,
 .seisan-extra-type.split {
   --settlement-tag-ink: var(--settlement-split-ink);
   --settlement-tag-bg: var(--settlement-split-bg);
@@ -108,11 +107,23 @@
 .seisan-extra-inline.club,
 .seisan-cost-policy-tag.club,
 .seisan-cost-type-badge.club,
-.seisan-mock-chip.club,
 .seisan-extra-type.club {
   --settlement-tag-ink: var(--settlement-club-ink);
   --settlement-tag-bg: var(--settlement-club-bg);
   --settlement-tag-line: var(--settlement-club-line);
+}
+.seisan-cost-policy-tag.is-negative,
+.seisan-cost-type-badge.is-negative,
+.seisan-extra-type.split-minus,
+.seisan-extra-type.club-minus {
+  border-style: dashed;
+}
+.seisan-cost-policy-tag.pay,
+.seisan-cost-type-badge.pay,
+.seisan-payment-tag.pay {
+  --settlement-tag-ink: var(--settlement-pay-ink);
+  --settlement-tag-bg: var(--settlement-pay-bg);
+  --settlement-tag-line: var(--settlement-pay-line);
 }
 #seisan-view-area .seisan-cost-policy-tag.split,
 #seisan-view-area .seisan-cost-type-badge.split {
@@ -130,6 +141,15 @@
   background-clip: border-box;
   border-color: var(--settlement-club-line);
 }
+#seisan-view-area .seisan-cost-policy-tag.pay,
+#seisan-view-area .seisan-cost-type-badge.pay,
+#seisan-view-area .seisan-payment-tag.pay {
+  color: var(--settlement-pay-ink);
+  -webkit-text-fill-color: var(--settlement-pay-ink);
+  background: var(--settlement-pay-bg);
+  background-clip: border-box;
+  border-color: var(--settlement-pay-line);
+}
 #settlementCarEditModal .seisan-extra-type.split {
   color: var(--settlement-split-ink);
   -webkit-text-fill-color: var(--settlement-split-ink);
@@ -142,42 +162,9 @@
   background: var(--settlement-club-bg);
   border-color: var(--settlement-club-line);
 }
-body[data-theme="dark"] #settlementCarEditModal .seisan-extra-type.split,
-html[data-theme="dark"] #settlementCarEditModal .seisan-extra-type.split {
-  color: var(--settlement-split-ink);
-  -webkit-text-fill-color: var(--settlement-split-ink);
-  background: var(--settlement-split-bg);
-  border-color: var(--settlement-split-line);
-}
-body[data-theme="dark"] #settlementCarEditModal .seisan-extra-type.club,
-html[data-theme="dark"] #settlementCarEditModal .seisan-extra-type.club {
-  color: var(--settlement-club-ink);
-  -webkit-text-fill-color: var(--settlement-club-ink);
-  background: var(--settlement-club-bg);
-  border-color: var(--settlement-club-line);
-}
-body[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag.split,
-body[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.split,
-html[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag.split,
-html[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.split {
-  color: var(--settlement-split-ink);
-  -webkit-text-fill-color: var(--settlement-split-ink);
-  background: var(--settlement-split-bg);
-  border-color: var(--settlement-split-line);
-}
-body[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag.club,
-body[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.club,
-html[data-theme="dark"] #seisan-view-area .seisan-cost-policy-tag.club,
-html[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.club {
-  color: var(--settlement-club-ink);
-  -webkit-text-fill-color: var(--settlement-club-ink);
-  background: var(--settlement-club-bg);
-  border-color: var(--settlement-club-line);
-}
 #seisan-view-area .seisan-cost-policy-tag,
 #seisan-view-area .seisan-cost-type-badge,
 #seisan-view-area .seisan-extra-inline > em,
-.guide-mini-screen .seisan-mock-chip,
 .seisan-extra-type {
   display: inline-flex;
   align-items: center;
@@ -188,7 +175,7 @@ html[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.club {
   min-height: var(--settlement-tag-min-height);
   padding: var(--settlement-tag-pad-y) var(--settlement-tag-pad-x);
   border: 1px solid var(--settlement-tag-line, var(--settlement-split-line));
-  border-radius: 999px;
+  border-radius: var(--radius-xs);
   box-shadow: none;
   background: var(--settlement-tag-bg, var(--settlement-split-bg));
   background-clip: padding-box;
@@ -208,43 +195,35 @@ html[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.club {
 #seisan-view-area .seisan-extra-inline b + .seisan-cost-policy-tag {
   margin-left: 0;
 }
-.capacity-badge,
-.grade-badge,
-.gender-badge,
-.sheet-capacity-badge,
-.sync-status-badge,
 .seisan-summary-pills span,
-.seisan-cost-policy-tag,
-.seisan-cost-type-badge,
-.seisan-payment-tag,
 .waiting-inline-count {
-  border-radius: var(--ui-pill-radius);
+  border-radius: var(--radius-sm);
 }
 /* Surface borders are now owned by assets/css/components/surfaces/*.
    Keep this file focused on settlement checklist/share layout. */
 #seisan-view-area .seisan-car-summary-headline .seisan-edit-btn span {
   display: inline;
 }
-/* Cross-screen neutral surface rules moved to components/surfaces/*. */
-/* Keep settlement summary cards on their own semantic surfaces.
-   Do not flatten them to the shared neutral card background. */
-.seisan-summary-card.collect,
-.seisan-summary-card.accounting,
-.seisan-summary-card.pay,
-#seisan-view-area .seisan-summary-card.collect,
-#seisan-view-area .seisan-summary-card.accounting,
-#seisan-view-area .seisan-summary-card.pay {
-  background-clip: padding-box;
-}
-.member-card,
 .seat-slot > .member-card,
-#waiting-list .member-card,
-.sheet-driver-row,
-.sheet-seat-row,
-.sheet-wait-item,
-.seisan-car-summary-row,
-.seisan-check-item,
+#waiting-list .member-card {
+  box-shadow: var(--ui-saas-shadow-soft);
+}
 .seisan-driver-pay-row {
+  box-shadow: var(--ui-saas-shadow-soft);
+}
+.seisan-check-item {
+  box-shadow: var(--ui-saas-shadow-soft);
+}
+.seisan-car-summary-row {
+  box-shadow: var(--ui-saas-shadow-soft);
+}
+.sheet-wait-item {
+  box-shadow: var(--ui-saas-shadow-soft);
+}
+.sheet-seat-row {
+  box-shadow: var(--ui-saas-shadow-soft);
+}
+.sheet-driver-row {
   box-shadow: var(--ui-saas-shadow-soft);
 }
 #seisan-view-area .seisan-car-summary-row .seisan-cost-preview-item--no-label .seisan-extra-inline-list {
@@ -259,7 +238,7 @@ html[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.club {
 #seisan-view-area .seisan-car-summary-headline .seisan-edit-btn i {
   font-size: 0.88rem;
 }
-#seisan-view-area .seisan-cost-preview-detail-text, #seisan-view-area .seisan-extra-inline-list {
+#seisan-view-area .seisan-cost-preview-detail-text,  #seisan-view-area .seisan-extra-inline-list {
   min-width: 0;
   gap: 5px;
   line-height: 1.25;
@@ -268,4 +247,24 @@ html[data-theme="dark"] #seisan-view-area .seisan-cost-type-badge.club {
   justify-content: flex-start;
   flex-wrap: wrap;
   text-align: left;
+}
+.seisan-cost-tag {
+  border-radius: var(--radius-xs);
+  box-shadow: none;
+  font-weight: 500;
+}
+.seisan-payment-tag {
+  border-radius: var(--radius-xs);
+  box-shadow: none;
+  font-weight: 500;
+}
+.seisan-cost-policy-tag {
+  border-radius: var(--radius-xs);
+  box-shadow: none;
+  font-weight: 500;
+}
+.seisan-cost-type-badge {
+  border-radius: var(--radius-xs);
+  box-shadow: none;
+  font-weight: 500;
 }

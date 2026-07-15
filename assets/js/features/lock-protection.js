@@ -5,6 +5,29 @@ function getTrustedDeviceKey() {
     return `syawari_edit_trust_${roomId}`;
 }
 
+function normalizeEditLockScopes(scopes = editLockScopes) {
+    const source = scopes && typeof scopes === 'object' ? scopes : {};
+    return {
+        allocation: !!source.allocation,
+        settlement: !!source.settlement
+    };
+}
+
+function getLockedScopeLabels(scopes = editLockScopes) {
+    const normalized = normalizeEditLockScopes(scopes);
+    const labels = [];
+    if (normalized.allocation) labels.push('車割・班割');
+    if (normalized.settlement) labels.push('精算');
+    return labels;
+}
+
+function isEditScopeLocked(scope = 'any') {
+    if (!editLockEnabled || !editLockPassphrase) return false;
+    const scopes = normalizeEditLockScopes();
+    if (scope === 'allocation' || scope === 'settlement') return !!scopes[scope];
+    return scopes.allocation || scopes.settlement;
+}
+
 function loadTrustedEditPassphrase() {
     trustedEditPassphrase = localStorage.getItem(getTrustedDeviceKey()) || '';
 }
@@ -18,8 +41,8 @@ function rememberTrustedDevice(passphrase) {
     }
 }
 
-function hasTrustedEditAccess() {
-    return !editLockEnabled || (!!editLockPassphrase && trustedEditPassphrase === editLockPassphrase);
+function hasTrustedEditAccess(scope = 'any') {
+    return !isEditScopeLocked(scope) || (!!editLockPassphrase && trustedEditPassphrase === editLockPassphrase);
 }
 
 function updateEditLockButton() {
@@ -27,24 +50,30 @@ function updateEditLockButton() {
     if (!btn) return;
     const icon = btn.querySelector('i');
     const label = btn.querySelector('span');
-    icon.className = `fas ${editLockEnabled ? 'fa-lock' : 'fa-unlock'}`;
-    label.textContent = editLockEnabled ? 'ロック中' : 'ロック';
-    btn.classList.toggle('is-locked', editLockEnabled);
-    btn.title = editLockEnabled ? '車割メーカーと精算ツールのロックを解除' : '車割メーカーと精算ツールをロック';
+    const labels = getLockedScopeLabels();
+    const locked = labels.length > 0;
+    const partial = labels.length === 1;
+    icon.className = `fas ${locked ? 'fa-lock' : 'fa-unlock'}`;
+    label.textContent = locked ? (partial ? '一部ロック' : 'ロック中') : 'ロック';
+    btn.classList.toggle('is-locked', locked);
+    btn.classList.toggle('is-partial-lock', partial);
+    btn.title = locked
+        ? `${labels.join('・')}のロックを解除`
+        : '車割・班割と精算のロック範囲を選ぶ';
     btn.setAttribute('aria-label', btn.title);
     updateProtectedMenuItems();
     updateQuickEditButton();
 }
 
 function updateProtectedMenuItems() {
-    const locked = !!editLockEnabled;
+    const lockedForThisDevice = isEditScopeLocked('any') && !hasTrustedEditAccess('any');
     ['historyBtn', 'sampleDataBtn', 'resetDataBtn'].forEach(id => {
         const btn = byId(id);
         if (!btn) return;
-        btn.disabled = locked;
-        btn.classList.toggle('disabled', locked);
-        btn.setAttribute('aria-disabled', locked ? 'true' : 'false');
-        if (locked) {
+        btn.disabled = lockedForThisDevice;
+        btn.classList.toggle('disabled', lockedForThisDevice);
+        btn.setAttribute('aria-disabled', lockedForThisDevice ? 'true' : 'false');
+        if (lockedForThisDevice) {
             if (btn.dataset.lockTitle === undefined) btn.dataset.lockTitle = btn.title || '';
             btn.title = 'ロック中は使えません';
         } else {
@@ -55,7 +84,7 @@ function updateProtectedMenuItems() {
 }
 
 function canUseUnlockedMenuAction() {
-    if (!editLockEnabled) return true;
+    if (hasTrustedEditAccess('any')) return true;
     showAppNotice('ロック中は使えません。先にロックを解除してください。', true);
     return false;
 }
@@ -63,7 +92,7 @@ function canUseUnlockedMenuAction() {
 function updateQuickEditButton() {
     const btn = byId('sheet-quick-edit-btn');
     if (!btn) return;
-    const canQuickEdit = !editLockEnabled || hasTrustedEditAccess();
+    const canQuickEdit = hasTrustedEditAccess('allocation');
     const shouldShow = currentView === 'sheet' && canQuickEdit;
     btn.style.display = shouldShow ? 'inline-flex' : 'none';
     if (!shouldShow) quickEditMode = false;
@@ -74,7 +103,7 @@ function updateQuickEditButton() {
         : '<i class="fas fa-pen" aria-hidden="true"></i>';
     btn.title = quickEditMode ? '完了' : '編集';
     btn.setAttribute('aria-pressed', quickEditMode && shouldShow ? 'true' : 'false');
-    btn.setAttribute('aria-label', quickEditMode ? '編集内容を保存して完了' : '発表ビューを編集');
+    btn.setAttribute('aria-label', quickEditMode ? '編集内容を保存して完了' : '共有画面を編集');
 }
 
 function completeQuickEdit({ showNotice = true, rerender = true } = {}) {
@@ -154,7 +183,7 @@ function completeQuickEdit({ showNotice = true, rerender = true } = {}) {
 }
 
 function toggleQuickEdit() {
-    if (!hasTrustedEditAccess()) return;
+    if (!hasTrustedEditAccess('allocation')) return;
     if (quickEditMode) {
         completeQuickEdit({ showNotice: true, rerender: true });
         return;
@@ -178,88 +207,172 @@ window.completeQuickEdit = completeQuickEdit;
 window.SanpoApp?.exposeCompat?.('toggleQuickEdit', toggleQuickEdit);
 window.SanpoApp?.exposeCompat?.('completeQuickEdit', completeQuickEdit);
 
-function showAppNotice(message, isError = false) {
-    let toast = byId('app-notice');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'app-notice';
-        toast.className = 'app-notice';
-        document.body.appendChild(toast);
-    }
-    toast.textContent = message;
-    toast.classList.toggle('is-error', !!isError);
-    toast.classList.add('visible');
-    setTimeout(() => { toast.classList.remove('visible'); }, 2200);
+function createLockPanelBase(message) {
+    const old = byId('passphrase-panel');
+    if (old) old.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'passphrase-panel';
+    overlay.className = 'passphrase-panel';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+
+    const form = document.createElement('form');
+    form.className = 'passphrase-form';
+
+    const label = document.createElement('div');
+    label.textContent = message;
+    label.className = 'passphrase-label';
+    form.appendChild(label);
+    overlay.appendChild(form);
+    return { overlay, form };
+}
+
+function createPassphraseInput({ label, isPassword = true, autocomplete = 'off' }) {
+    const field = document.createElement('label');
+    field.className = 'passphrase-field';
+    const caption = document.createElement('span');
+    caption.className = 'passphrase-field-label';
+    caption.textContent = label;
+    const input = document.createElement('input');
+    input.type = isPassword ? 'password' : 'text';
+    input.autocomplete = autocomplete;
+    input.className = 'passphrase-input';
+    field.append(caption, input);
+    return { field, input };
+}
+
+function appendPassphraseActions(form, { cancelText = 'キャンセル', submitText = 'OK', onCancel }) {
+    const actions = document.createElement('div');
+    actions.className = 'passphrase-actions';
+
+    const cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.textContent = cancelText;
+    cancel.className = 'passphrase-cancel';
+    cancel.addEventListener('click', onCancel);
+
+    const submit = document.createElement('button');
+    submit.type = 'submit';
+    submit.textContent = submitText;
+    submit.className = 'passphrase-submit';
+
+    actions.append(cancel, submit);
+    form.appendChild(actions);
 }
 
 function requestPassphrasePanel(message, isPassword = true) {
     return new Promise(resolve => {
-        const old = byId('passphrase-panel');
-        if (old) old.remove();
-
-        const overlay = document.createElement('div');
-        overlay.id = 'passphrase-panel';
-        overlay.className = 'passphrase-panel';
-
-        const form = document.createElement('form');
-        form.className = 'passphrase-form';
-
-        const label = document.createElement('label');
-        label.textContent = message;
-        label.className = 'passphrase-label';
-
-        const input = document.createElement('input');
-        input.type = isPassword ? 'password' : 'text';
-        input.autocomplete = 'off';
-        input.className = 'passphrase-input';
-
-        const actions = document.createElement('div');
-        actions.className = 'passphrase-actions';
-
-        const cancel = document.createElement('button');
-        cancel.type = 'button';
-        cancel.textContent = 'キャンセル';
-        cancel.className = 'passphrase-cancel';
-
-        const submit = document.createElement('button');
-        submit.type = 'submit';
-        submit.textContent = 'OK';
-        submit.className = 'passphrase-submit';
+        const { overlay, form } = createLockPanelBase(message);
+        const { field, input } = createPassphraseInput({
+            label: isPassword ? '合言葉' : '入力',
+            isPassword,
+            autocomplete: isPassword ? 'current-password' : 'off'
+        });
+        form.appendChild(field);
 
         const done = value => {
             overlay.remove();
             resolve(value);
         };
-
-        cancel.addEventListener('click', () => done(null));
+        appendPassphraseActions(form, { onCancel: () => done(null) });
         overlay.addEventListener('click', event => {
             if (event.target === overlay) done(null);
+        });
+        overlay.addEventListener('keydown', event => {
+            if (event.key === 'Escape') done(null);
         });
         form.addEventListener('submit', event => {
             event.preventDefault();
             done(input.value.trim());
         });
 
-        actions.append(cancel, submit);
-        form.append(label, input, actions);
-        overlay.appendChild(form);
         document.body.appendChild(overlay);
         input.focus();
     });
 }
 
-async function requestPassphrase(message) {
-    try {
-        const value = window.prompt(message);
-        if (value === null) return null;
-        return value.trim();
-    } catch (e) {
-        return requestPassphrasePanel(message);
-    }
+function requestLockSetupPanel() {
+    return new Promise(resolve => {
+        const { overlay, form } = createLockPanelBase('ロックする範囲と合言葉を設定してください');
+        form.classList.add('passphrase-form--lock-setup');
+
+        const scopeGroup = document.createElement('fieldset');
+        scopeGroup.className = 'lock-scope-group';
+        const legend = document.createElement('legend');
+        legend.textContent = 'ロックする機能';
+        scopeGroup.appendChild(legend);
+
+        const createScopeOption = (value, label, icon) => {
+            const option = document.createElement('label');
+            option.className = 'lock-scope-option';
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.value = value;
+            input.checked = true;
+            const content = document.createElement('span');
+            content.className = 'lock-scope-option-content';
+            content.innerHTML = `<i class="fas ${icon}" aria-hidden="true"></i><span>${label}</span>`;
+            option.append(input, content);
+            return { option, input };
+        };
+
+        const allocation = createScopeOption('allocation', '車割・班割', 'fa-pen-to-square');
+        const settlement = createScopeOption('settlement', '精算', 'fa-receipt');
+        scopeGroup.append(allocation.option, settlement.option);
+        form.appendChild(scopeGroup);
+
+        const first = createPassphraseInput({ label: '合言葉', isPassword: true, autocomplete: 'new-password' });
+        const second = createPassphraseInput({ label: '合言葉（確認）', isPassword: true, autocomplete: 'new-password' });
+        form.append(first.field, second.field);
+
+        const error = document.createElement('div');
+        error.className = 'passphrase-error';
+        error.hidden = true;
+        form.appendChild(error);
+
+        const done = value => {
+            overlay.remove();
+            resolve(value);
+        };
+        appendPassphraseActions(form, { submitText: 'ロックする', onCancel: () => done(null) });
+        overlay.addEventListener('click', event => {
+            if (event.target === overlay) done(null);
+        });
+        overlay.addEventListener('keydown', event => {
+            if (event.key === 'Escape') done(null);
+        });
+        form.addEventListener('submit', event => {
+            event.preventDefault();
+            const scopes = {
+                allocation: allocation.input.checked,
+                settlement: settlement.input.checked
+            };
+            const passphrase = first.input.value.trim();
+            const confirmation = second.input.value.trim();
+            let message = '';
+            if (!scopes.allocation && !scopes.settlement) message = 'ロックする機能を1つ以上選んでください。';
+            else if (!passphrase) message = '合言葉を入力してください。';
+            else if (passphrase !== confirmation) message = '合言葉が一致しません。';
+            if (message) {
+                error.textContent = message;
+                error.hidden = false;
+                return;
+            }
+            done({ passphrase, scopes });
+        });
+
+        document.body.appendChild(overlay);
+        first.input.focus();
+    });
 }
 
-async function verifyEditPassphrase(message) {
-    if (hasTrustedEditAccess()) return true;
+async function requestPassphrase(message) {
+    return requestPassphrasePanel(message, true);
+}
+
+async function verifyEditPassphrase(message, scope = 'any', { allowTrusted = true } = {}) {
+    if (allowTrusted && hasTrustedEditAccess(scope)) return true;
     const input = await requestPassphrase(message);
     if (input === null) return false;
     if (input !== editLockPassphrase) {
@@ -267,36 +380,36 @@ async function verifyEditPassphrase(message) {
         return false;
     }
     rememberTrustedDevice(input);
+    updateProtectedMenuItems();
+    updateQuickEditButton();
     return true;
 }
 
 async function toggleEditProtection() {
-    if (!editLockEnabled) {
-        const first = await requestPassphrase('車割メーカーと精算ツールをロックする合言葉を設定してください');
-        if (first === null) return;
-        if (!first) {
-            showAppNotice('合言葉を入力してください。', true);
-            return;
-        }
-        const second = await requestPassphrase('確認のため、もう一度同じ合言葉を入力してください');
-        if (second === null) return;
-        if (first !== second) {
-            showAppNotice('合言葉が一致しません。', true);
-            return;
-        }
-        editLockEnabled = true;
-        editLockPassphrase = first;
-        rememberTrustedDevice(first);
+    if (!isEditScopeLocked('any')) {
+        const setup = await requestLockSetupPanel();
+        if (!setup) return;
+        editLockScopes = normalizeEditLockScopes(setup.scopes);
+        editLockEnabled = editLockScopes.allocation || editLockScopes.settlement;
+        editLockPassphrase = setup.passphrase;
+        rememberTrustedDevice(setup.passphrase);
         updateEditLockButton();
         save();
+        const labels = getLockedScopeLabels();
+        showAppNotice(`${labels.join('・')}をロックしました。`);
         return;
     }
 
-    if (!(await verifyEditPassphrase('ロックを解除する合言葉を入力してください'))) return;
+    if (!(await verifyEditPassphrase('ロックを解除する合言葉を入力してください', 'any', { allowTrusted: false }))) return;
     editLockEnabled = false;
     editLockPassphrase = '';
+    editLockScopes = { allocation: false, settlement: false };
     rememberTrustedDevice('');
     updateEditLockButton();
     save();
+    showAppNotice('ロックを解除しました。');
 }
+
 window.SanpoApp?.exposeCompat?.('toggleEditProtection', toggleEditProtection);
+window.SanpoApp?.exposeCompat?.('isEditScopeLocked', isEditScopeLocked);
+window.SanpoApp?.exposeCompat?.('hasTrustedEditAccess', hasTrustedEditAccess);

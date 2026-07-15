@@ -130,7 +130,7 @@ function setupManualSheetDrag() {
     const touchMoveCancel = 22;
 
     const canStartFromTarget = target => {
-        if (currentView !== 'sheet' || !quickEditMode || !hasTrustedEditAccess()) return null;
+        if (currentView !== 'sheet' || !quickEditMode || !hasTrustedEditAccess('allocation')) return null;
         const chip = target.closest?.('.sheet-chip.draggable');
         if (!chip || chip.classList.contains('manual-sheet-drag-float')) return null;
         const zone = chip.parentElement;

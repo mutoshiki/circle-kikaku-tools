@@ -29,6 +29,7 @@ function scheduleSheetSnapshotRemoteSave(snapshot) {
         trayMinimized: snapshot.trayMinimized,
         editLockEnabled: snapshot.editLockEnabled,
         editLockPassphrase: snapshot.editLockPassphrase,
+        editLockScopes: snapshot.editLockScopes,
         settlement: snapshot.settlement,
         overview: snapshot.overview,
         lastAutoAssignLabel: snapshot.lastAutoAssignLabel,

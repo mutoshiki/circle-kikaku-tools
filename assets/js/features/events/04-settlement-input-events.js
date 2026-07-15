@@ -89,8 +89,11 @@
 
             if (target.matches('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
                 if (target.matches('[data-extra-field="type"]')) {
-                    target.classList.toggle('split', target.value !== 'club');
-                    target.classList.toggle('club', target.value === 'club');
+                    const type = typeof normalizeSettlementExtraType === 'function'
+                        ? normalizeSettlementExtraType(target.value)
+                        : target.value;
+                    target.classList.remove('split', 'club', 'split-minus', 'club-minus');
+                    target.classList.add(type.startsWith('club') ? 'club' : 'split', type);
                 }
                 global.onSettlementInput?.();
                 return;

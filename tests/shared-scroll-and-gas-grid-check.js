@@ -1,0 +1,33 @@
+const fs = require('fs');
+const path = require('path');
+const root = path.resolve(__dirname, '..');
+const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+const assert = (condition, message) => { if (!condition) throw new Error(message); };
+
+const index = read('index.html');
+const sheetJs = read('assets/js/features/sheet-view.js');
+const viewportJs = read('assets/js/features/sheet/02-viewport-controls.js');
+const sheetCss = read('assets/css/sheet-view/layout/01-sheet-frame.css');
+const gestureCss = read('assets/css/sheet-view/gestures/01-touch-navigation.css');
+const template = read('assets/js/templates/settlement/03-car-cost-templates.js');
+const gasCss = read('assets/css/settlement/car-inputs/02-distance-fuel.css');
+
+assert(sheetJs.includes("content.id = 'sheet-content'"), 'shared view must render into a dedicated transform target');
+assert(sheetCss.includes('#sheet-canvas') && sheetCss.includes('overflow: hidden;'), 'shared viewport must use the legacy free-movement clipping model');
+assert(sheetCss.includes('.sheet-content') && sheetCss.includes('padding: 100px 12px calc(112px + env(safe-area-inset-bottom));'), 'shared content must preserve bottom safe-area clearance');
+assert(viewportJs.includes('content.style.transform = `translate(${sheetX}px, ${sheetY}px) scale(${sheetScale})`'), 'shared view must transform the inner content with legacy translate and scale state');
+assert(viewportJs.includes('event.touches.length === 1') && viewportJs.includes('event.touches.length === 2'), 'shared view must support legacy one-finger pan and two-finger pinch');
+assert(viewportJs.includes('sheetX = panOriginX +') && viewportJs.includes('sheetY = panOriginY +'), 'one-finger and mouse movement must freely translate the sheet');
+assert(template.includes('class="seisan-gas-field-row"') && template.includes('移動距離（km）') && template.includes('燃費（km/L）') && template.includes('ガソリン単価（円/L）'), 'distance, fuel efficiency and price wording must stay in one gas field row');
+assert(/\.seisan-gas-field-row\s*\{[\s\S]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/.test(gasCss), 'three gas inputs must remain horizontally aligned');
+assert(gasCss.includes('gap: 8px;'), 'gas fields must have a real gap so input outlines cannot overlap');
+assert(/\.seisan-gas-field-row input\s*\{[\s\S]*width:\s*100%;[\s\S]*min-width:\s*0;/.test(gasCss), 'gas input boxes must fit inside their grid columns');
+assert(/id="sheet-canvas"[^>]*role="region"[^>]*aria-label="共有画面の車割・班割・タイムテーブル"[^>]*tabindex="0"/.test(index), 'shared region must expose a keyboard-focusable accessible label');
+assert(!index.includes('id="zoom-controls"') && !index.includes('id="sheetZoomOutBtn"') && !index.includes('id="sheetZoomInBtn"'), 'shared view must not restore button-based zoom controls');
+assert(index.includes('1本指で移動 / 2本指で拡大・縮小'), 'shared view gesture guidance must describe the restored legacy gestures');
+assert(sheetJs.includes('template.sheetTitle || template.planName || template.sectionTitle'), 'shared table headings must use presentation-specific titles');
+assert(read('assets/js/core/data-state.js').includes("sheetTitle: '班割'"), 'team shared-table title must be 班割 while the editor can keep its shorter label');
+assert(viewportJs.includes('const centerX = (event.touches[0].clientX + event.touches[1].clientX) / 2 - rect.left') && viewportJs.includes('sheetX = centerX - (centerX - sheetX) * factor'), 'pinch zoom must follow the old focal-point transform calculation');
+assert(gestureCss.includes('touch-action: none;'), 'shared canvas must reserve one-finger and two-finger gestures for free movement');
+assert(/#sheet-canvas:focus-visible\s*\{[\s\S]*outline:\s*3px solid var\(--focus-accent\)/.test(gestureCss), 'shared region must show a visible keyboard focus indicator');
+console.log('Shared legacy movement and gas grid check OK');

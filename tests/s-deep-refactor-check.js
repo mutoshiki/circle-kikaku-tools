@@ -18,7 +18,7 @@ const settlementFacade = readText('assets/js/features/settlement.js');
 const carsOwner = readCssBundle();
 const settlementOwner = readCssBundle();
 const baseTokens = readCssBundle();
-const themeAppearance = readCssBundle();
+const visualSystem = readCssBundle();
 const uiSpec = readText('tests/basic-ui.spec.js');
 
 [
@@ -64,8 +64,9 @@ assert(!html.includes('01-tray-base.css') && !html.includes('02-route-helper.css
 
 assert(!baseTokens.includes('@keyframes sheetJiggle {\n {'), 'sheetJiggle still has malformed nested braces');
 assert(!baseTokens.includes('@keyframes waitingCardNewPulse {\n {'), 'waitingCardNewPulse still has malformed nested braces');
-assert(themeAppearance.includes('.theme-system-note {'), 'theme-system note selector should remain standalone');
-assert(!themeAppearance.includes('.guide-feature-card,\n.theme-system-note'), 'guide feature card should not be owned by theme appearance');
+assert(!html.includes('assets/css/visual/'), 'late visual override layer must not be linked');
+assert(!fs.existsSync(path.join(root, 'assets/css/visual')), 'late visual override directory must not exist');
+assert(visualSystem.includes('--surface-soft') && visualSystem.includes('--shadow-modal'), 'single visual system tokens are missing');
 
 assert(uiSpec.includes('critical modals stay clickable') && uiSpec.includes('settlement typing keeps focus'), 'Playwright spec must cover modal clickability and settlement typing protection');
 

@@ -22,14 +22,14 @@
 }
 
 #settlementCarEditModal .seisan-extra-candidate-chip {
-  min-height: 28px;
+  min-height: 48px;
   max-width: 100%;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 7px;
+  padding: 8px 12px;
   border: 1px solid color-mix(in srgb, var(--ui-saas-border, var(--border-color)) 72%, transparent);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-sub);
   font-size: 0.74rem;

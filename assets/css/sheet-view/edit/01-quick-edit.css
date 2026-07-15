@@ -1,213 +1,35 @@
-/* Sheet view quick edit visual states.
-   CSS architecture cleanup: keep this file focused on the responsibility in its name. */
+/* Shared-view quick edit and floating action. */
 .quick-edit-mode #sheet-view-area .sheet-seat-row:not(.sheet-label-row):not(.sheet-seat-disabled),
-.quick-edit-mode #sheet-view-area .sheet-wait-item:not(.empty) {
-    display: flex;
-    grid-template-columns: none;
-    align-items: stretch;
-    padding: 4px;
-}
+.quick-edit-mode #sheet-view-area .sheet-wait-item:not(.empty) { display: flex; align-items: stretch; padding: 5px; }
 .quick-edit-mode .sheet-dropzone,
-.quick-edit-mode .sheet-waiting-list {
-    width: 100%;
-    min-height: 34px;
-    background: transparent;
-    border: 0;
-    padding: 0;
-}
-.quick-edit-mode .sheet-chip.draggable {
-    width: 100%;
-    min-height: 32px;
-    padding: 6px 8px;
-    border-radius: 9px;
-    justify-content: flex-start;
-    cursor: grab;
-    animation: none;
-    transform-origin: center center;
-    will-change: transform;
-    touch-action: none;
-}
-.quick-edit-mode .sheet-chip.draggable:active {
-    cursor: grabbing;
-}
-.quick-edit-mode .sheet-chip-drag,
-.quick-edit-mode .manual-sheet-drag-float {
-    animation: none;
-}
-.quick-edit-mode #sheet-title-bar {
-box-shadow: inset 0 -2px 0 var(--accent-color);
-}
-#sheet-quick-edit-btn i {
-font-size: 0.95rem;
-}
-@media (max-width: 520px) {
-#sheet-quick-edit-btn {
-padding: 0;
-        min-width: 48px;
-        font-size: 1rem;
-}
-}
-[data-theme="dark"] #sheet-quick-edit-btn.active i {
-color: var(--color-white);
-}
-[data-theme="dark"] #sheet-quick-edit-btn.active:hover {
-filter: brightness(0.98);
-}
-@media (max-width: 640px) {
-#sheet-quick-edit-btn {
-border-radius: 999px;
-}
-}
-@media (max-width: 640px) {
-#sheet-quick-edit-btn {
-min-height: 48px;
-        padding: 0;
-        border-radius: 999px;
-        line-height: 1.1;
-}
+.quick-edit-mode .sheet-waiting-list { width: 100%; min-height: 40px; padding: 0; border: 0; background: transparent; }
+.quick-edit-mode .sheet-chip.draggable { width: 100%; min-height: 40px; padding: 7px 9px; justify-content: flex-start; cursor: grab; touch-action: none; }
+.quick-edit-mode .sheet-chip.draggable:active { cursor: grabbing; }
+.quick-edit-mode #sheet-title-bar { box-shadow: inset 0 -3px 0 var(--accent-color), var(--shadow-card); }
+body.quick-edit-mode #sheet-view-area .sheet-waiting-list { display: flex; flex-flow: row wrap; align-items: flex-start; gap: 8px; padding: 10px; }
+body.quick-edit-mode #sheet-view-area .sheet-waiting-list .sheet-chip.draggable { width: auto; min-width: 110px; max-width: 100%; flex: 0 0 auto; }
+
+#sheet-bottom-controls {
+  position: absolute;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: var(--z-floating);
 }
 #sheet-quick-edit-btn {
   display: none;
-  width: 48px;
-  min-width: 48px;
-  height: 48px;
-  min-height: 48px;
-  padding: 0;
-  border-radius: 999px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-card);
-  color: var(--text-main);
-  box-shadow: 0 14px 32px rgba(var(--shadow-rgb), 0.16);
-  font-size: 1rem;
-  font-weight: 500;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  width: 56px;
+  min-width: 56px;
+  height: 56px;
+  min-height: 56px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-main);
+  background: var(--accent-container);
+  color: var(--accent-container-text);
+  box-shadow: var(--shadow-float);
+  font-size: 1.05rem;
 }
-#sheet-quick-edit-btn.active {
-  background: var(--accent-color);
-  color: var(--color-white);
-  border-color: var(--accent-color);
-}
-[data-theme="dark"] #sheet-quick-edit-btn.active {
-  border-radius: var(--radius-sm);
-  background: var(--accent-color);
-  border-color: var(--accent-color);
-  color: var(--palette-night-blue);
-  box-shadow: 0 8px 22px color-mix(in srgb, var(--accent-color) 18%, transparent);
-}
-@media (max-width: 640px) {
-#sheet-view-area #sheet-title-bar {
-    border-radius: 13px;
-    box-shadow: 0 8px 18px rgba(var(--shadow-rgb), 0.065);
-  }
-
-#sheet-view-area .sheet-plan-heading {
-    margin-left: 2px;
-    margin-bottom: 7px;
-    font-size: 0.91rem;
-    font-weight: 600;
-  }
-
-#sheet-view-area .sheet-label-col {
-    min-width: 44px;
-  }
-
-#sheet-view-area .sheet-car-col,
-  #sheet-view-area .sheet-wait-block {
-    min-width: 118px;
-    margin-right: 6px;
-    border-radius: 12px;
-  }
-
-#sheet-view-area .sheet-car-header,
-  #sheet-view-area .sheet-wait-header {
-    min-height: 34px;
-    padding: 7px 7px;
-    font-size: 0.72rem;
-    font-weight: 600;
-  }
-
-#sheet-view-area .sheet-driver-row,
-  #sheet-view-area .sheet-seat-row,
-  #sheet-view-area .sheet-wait-item {
-    min-height: 34px;
-    padding: 5px 7px;
-    font-size: 0.76rem;
-  }
-
-#sheet-view-area .sheet-grade-placeholder,
-  #sheet-view-area .sheet-seat-row .grade-badge,
-  #sheet-view-area .sheet-wait-item .grade-badge,
-  #sheet-view-area .sheet-chip .grade-badge,
-  #sheet-view-area .sheet-driver-row .grade-badge {
-    flex-basis: 2.18em;
-    width: 2.18em;
-    min-width: 2.18em;
-  }
-
-#sheet-view-area .sheet-capacity-badge {
-    padding-inline: 6px;
-    font-size: 0.68rem;
-  }
-
-#sheet-view-area .sheet-timetable-section {
-    width: min(var(--sheet-plan-content-width, 520px), calc(100vw - 22px));
-  }
-
-#sheet-view-area .sheet-timetable-card {
-    border-radius: 14px;
-    box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.035), 0 8px 20px rgba(var(--shadow-rgb), 0.045);
-  }
-
-#sheet-view-area .sheet-timetable-row {
-    min-height: 34px;
-    padding: 7px 8px;
-  }
-
-#sheet-view-area .sheet-timetable-time {
-    font-size: 0.80rem;
-  }
-
-#sheet-view-area .sheet-timetable-title {
-    font-size: 0.84rem;
-  }
-
-#sheet-bottom-controls {
-    gap: 6px;
-    padding: 7px 9px;
-    border-radius: 14px;
-  }
-
-#sheet-bottom-controls button,
-  #sheet-quick-edit-btn {
-    min-height: 34px;
-  }
-}
-body[data-theme="dark"] #sheet-quick-edit-btn.active,
-html[data-theme="dark"] #sheet-quick-edit-btn.active {
-  color: var(--theme-filled-control-text);
-  -webkit-text-fill-color: var(--theme-filled-control-text);
-}
-/* 発表ビューは車割を上、班割を下に縦並びで表示する、E*/
-/* sheet summary: compact two-line car/team counts */
-/* Sheet edit mode: keep waiting members compact, readable, and editable. */
-body.quick-edit-mode #sheet-view-area .sheet-waiting-list {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 6px;
-  padding: 8px;
-}
-body.quick-edit-mode #sheet-view-area .sheet-waiting-list .sheet-chip.draggable {
-  width: auto;
-  min-width: 96px;
-  max-width: 100%;
-  flex: 0 0 auto;
-}
-body.quick-edit-mode #sheet-view-area .sheet-chip,
-body.quick-edit-mode #sheet-view-area .sheet-chip-text {
-  color: var(--text-main);
-  opacity: 1;
-}
+#sheet-quick-edit-btn:hover { background: color-mix(in srgb, var(--accent-container) 78%, var(--accent-color)); }
+#sheet-quick-edit-btn.active { background: var(--accent-color); color: var(--text-on-accent); }

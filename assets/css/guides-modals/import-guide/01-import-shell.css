@@ -1,9 +1,18 @@
-/* Google Forms import guide and mock UI rules.
-   CSS architecture cleanup: keep this file focused on the responsibility in its name. */
+/* Participant registration import layout and helper content. */
+.batch-import-helper-title {
+  color: var(--text-main);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.batch-import-helper-title i {
+  color: var(--accent-color);
+}
+
 .batch-label-muted {
 color: var(--text-sub);
 }
-.batch-spreadsheet-import {
+.batch-import-helper-card {
   border: 1px solid var(--ui-saas-border, var(--border-color));
   border-radius: var(--radius-lg);
   background: var(--ui-saas-panel, var(--bg-card));
@@ -12,12 +21,39 @@ color: var(--text-sub);
 .batch-import-help-details {
   border-color: var(--app-divider-soft, var(--border-color));
 }
+.batch-import-help-details > summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 8px 4px;
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.batch-import-help-details > summary::-webkit-details-marker {
+  display: none;
+}
+.batch-import-help-details > summary::before {
+  content: "";
+  width: 0;
+  height: 0;
+  flex: 0 0 auto;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid currentColor;
+  transform-origin: 45% 50%;
+  transition: transform var(--motion-duration-fast, 120ms) ease;
+}
+.batch-import-help-details[open] > summary::before {
+  transform: rotate(90deg);
+}
 #batchImportModal .modal-dialog,
 #commonEditModal .modal-dialog,
 #historyModal .modal-dialog,
-#debugModal .modal-dialog,
-#globalGuideModal .modal-dialog,
-#guideModal .modal-dialog {
+#debugModal .modal-dialog {
 margin-left: auto;
     margin-right: auto;
     transform: none;
@@ -57,31 +93,25 @@ max-width: 100%;
 max-width: 100%;
 }
 @media (min-width: 641px) {
-#batchImportModal .modal-dialog.modal-lg,
-#globalGuideModal .modal-dialog.modal-lg,
-#guideModal .modal-dialog.modal-lg {
+#batchImportModal .modal-dialog.modal-lg {
 width: min(920px, calc(100vw - 32px));
         max-width: min(920px, calc(100vw - 32px));
 }
 }
 @media (max-width: 640px) {
-#batchImportModal .modal-dialog,
-#globalGuideModal .modal-dialog,
-#guideModal .modal-dialog {
+#batchImportModal .modal-dialog {
 width: 100%;
         max-width: 100%;
-        height: 100dvh;
-        max-height: 100dvh;
+        height: calc(100dvh - 20px);
+        max-height: calc(100dvh - 20px);
         margin: 0;
 }
 }
 @media (max-width: 640px) {
-#batchImportModal .modal-content,
-#globalGuideModal .modal-content,
-#guideModal .modal-content {
+#batchImportModal .modal-content {
 width: 100%;
         height: 100%;
-        max-height: 100dvh;
+        max-height: calc(100dvh - 20px);
         border-radius: 0;
 }
 }
@@ -114,16 +144,16 @@ min-height: 120px;
         padding-top: 10px;
     }
 
-    .batch-spreadsheet-import {
+    .batch-import-helper-card {
         padding: 12px;
     }
 
-    .batch-spreadsheet-import .batch-spreadsheet-textarea {
+    .batch-import-helper-card .batch-spreadsheet-textarea {
         min-height: 132px;
     }
 }
 /* Google Forms spreadsheet paste import inside participant registration modal. */
-.batch-spreadsheet-import {
+.batch-import-helper-card {
     border: 1px solid color-mix(in srgb, var(--accent-color) 24%, var(--border-color));
     background: color-mix(in srgb, var(--accent-soft) 36%, var(--bg-card));
 }
@@ -187,7 +217,7 @@ min-height: 120px;
     content: "";
     position: absolute;
     background: rgba(var(--white-rgb), 0.92);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
 }
 .form-sheet-icon::before {
     width: 12px;

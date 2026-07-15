@@ -9,11 +9,11 @@
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 10px;
-  min-height: 44px;
+  min-height: 48px;
   width: 100%;
   padding: 8px 11px;
   border: 1px solid color-mix(in srgb, var(--accent-color) 24%, var(--border-color));
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--bg-card) 90%, var(--accent-color) 5%);
   color: var(--text-main);
   font-size: 0.92rem;
@@ -37,9 +37,9 @@
   width: 42px;
   height: 24px;
   border: 1px solid color-mix(in srgb, var(--text-sub) 24%, var(--border-color));
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: color-mix(in srgb, var(--bg-body) 72%, var(--bg-card));
-  transition: background 0.16s ease, border-color 0.16s ease;
+  transition: background var(--motion-medium) ease, border-color var(--motion-medium) ease;
 }
 #settlementCarEditModal .seisan-times-toggle-ui::after {
   content: '';
@@ -50,7 +50,7 @@
   height: 16px;
   border-radius: 50%;
   background: var(--text-sub);
-  transition: transform 0.16s ease, background 0.16s ease;
+  transition: transform var(--motion-medium) ease, background var(--motion-medium) ease;
 }
 #settlementCarEditModal .seisan-times-toggle input:checked + .seisan-times-toggle-ui {
   border-color: color-mix(in srgb, var(--accent-color) 58%, var(--border-color));
@@ -72,21 +72,11 @@
 #settlementCarEditModal .seisan-car-row.is-times-rental .seisan-fuel-field {
   display: none;
 }
+#settlementCarEditModal .seisan-car-row.is-times-rental .seisan-gas-field-row {
+  grid-template-columns: minmax(0, 1fr);
+}
 #settlementCarEditModal .seisan-car-row.is-times-rental .seisan-distance-field {
   grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 8px;
-}
-#settlementCarEditModal .seisan-car-row.is-times-rental .seisan-distance-field label {
-  min-width: 0;
-}
-#settlementCarEditModal .seisan-car-row.is-times-rental .seisan-distance-shortcut {
-  min-height: 40px;
-  margin: 0;
-  padding-inline: 12px;
-  white-space: nowrap;
 }
 #settlementCarEditModal .seisan-extra-delete-placeholder {
   opacity: 0.45;
@@ -94,30 +84,14 @@
 }
 #settlementCarEditModal .seisan-extra-type.split,
 #settlementCarEditModal .seisan-extra-type.club {
-  min-height: 36px;
+  min-height: 48px;
   width: 100%;
-  border-radius: 999px;
+  border-radius: var(--radius-main);
   font-weight: 500;
   text-align: center;
   text-align-last: center;
 }
-[data-theme="dark"] #settlementCarEditModal .seisan-times-toggle {
-  border-color: rgba(148, 163, 184, 0.32);
-  background: color-mix(in srgb, var(--bg-card) 78%, var(--color-night));
-  color: var(--dark-ui-text);
-}
-[data-theme="dark"] #settlementCarEditModal .seisan-times-toggle-ui {
-  border-color: rgba(148, 163, 184, 0.34);
-  background: color-mix(in srgb, var(--color-night) 72%, var(--bg-card));
-}
 @media (max-width: 380px) {
-  #settlementCarEditModal .seisan-car-row.is-times-rental .seisan-distance-field {
-    grid-template-columns: 1fr;
-  }
-  #settlementCarEditModal .seisan-car-row.is-times-rental .seisan-distance-shortcut {
-    justify-content: center;
-    width: 100%;
-  }
   #settlementCarEditModal .seisan-times-toggle {
     padding-inline: 9px;
     font-size: 0.86rem;

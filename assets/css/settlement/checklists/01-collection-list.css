@@ -1,93 +1,68 @@
-/* Collection checklist rows and per-car grouping. */
-#seisan-view-area .seisan-check-note {
-  font-size: 0.64rem;
-  font-weight: 500;
-  color: var(--text-sub);
-}
-#seisan-view-area .seisan-collection-panel .seisan-head {
-  margin-bottom: 2px;
-  padding-bottom: 0;
-}
-#seisan-view-area .seisan-collection-panel .seisan-head > div {
-  width: 100%;
-  min-width: 0;
-}
+/* Collection checklist grouped by vehicle. */
+#seisan-view-area .seisan-collection-panel .seisan-head { margin-bottom: 8px; }
+#seisan-view-area .seisan-collection-panel .seisan-head > div { width: 100%; min-width: 0; }
 #seisan-view-area #seisan-collection-note.seisan-muted {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
   width: 100%;
-  margin: 0;
-  color: var(--text-sub);
-  -webkit-text-fill-color: var(--text-sub);
-  font-size: 0.74rem;
-  font-weight: 500;
-  line-height: 1.15;
+  margin: 2px 0 0;
 }
-#seisan-view-area .seisan-collection-note-left {
-  display: flex;
-  align-items: center;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
-  gap: 2px 9px;
-  min-width: 0;
-  text-align: left;
-}
-#seisan-view-area .seisan-collection-note-left > span,
-#seisan-view-area .seisan-collection-per-person-label {
-  color: var(--text-sub);
-  -webkit-text-fill-color: var(--text-sub);
-  font-size: 0.74rem;
-  font-weight: 500;
-  letter-spacing: 0;
-  line-height: 1.15;
-}
-#seisan-view-area .seisan-collection-per-person {
-  display: inline-flex;
-  align-items: baseline;
-  justify-content: flex-end;
-  gap: 4px;
-  margin-left: auto;
-  flex: 0 0 auto;
-  min-width: max-content;
-  text-align: right;
-  white-space: nowrap;
-  line-height: 1.05;
-}
-#seisan-view-area .seisan-collection-per-person-amount {
-  color: var(--text-main);
-  -webkit-text-fill-color: var(--text-main);
-  font-size: clamp(0.98rem, 4.1vw, 1.16rem);
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
-  letter-spacing: -0.012em;
-  line-height: 1.08;
-}
-/* Collection checklist rows stay grouped by car. */
-#seisan-view-area .seisan-check-list {
+#seisan-view-area .seisan-collection-note-left { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: 2px 9px; min-width: 0; }
+#seisan-view-area .seisan-collection-per-person { display: inline-flex; align-items: baseline; gap: 4px; margin-left: auto; white-space: nowrap; }
+#seisan-view-area .seisan-collection-per-person-amount { color: var(--text-main); font-size: 1.12rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+#seisan-view-area .seisan-check-list { display: grid; grid-template-columns: 1fr; gap: 14px; }
+#seisan-view-area .seisan-collection-group { display: grid; gap: 7px; min-width: 0; }
+#seisan-view-area .seisan-collection-group-title { padding: 0 2px; color: var(--text-sub); font-size: 0.78rem; font-weight: 600; }
+#seisan-view-area .seisan-collection-group-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+
+.seisan-check-item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
   gap: 9px;
+  min-height: 52px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  color: var(--text-main);
+  box-shadow: none;
+  cursor: pointer;
 }
-#seisan-view-area .seisan-collection-group {
-  display: grid;
-  gap: 6px;
-  min-width: 0;
-}
-#seisan-view-area .seisan-collection-group-title {
+.seisan-check-item:hover { background: var(--surface-container); }
+.seisan-check-item.paid { background: var(--semantic-success-soft); color: var(--semantic-success); }
+.seisan-check-item.paid .seisan-check-name::after { content: " ✓"; font-weight: 600; }
+.seisan-check-item.excluded { cursor: not-allowed; background: var(--surface-container); color: var(--text-faint); opacity: 0.78; }
+.seisan-check-item input { width: 22px; height: 22px; margin: 0; }
+#seisan-view-area .seisan-check-copy {
   display: flex;
   align-items: center;
-  min-height: 24px;
-  padding: 0 2px;
+  gap: 8px;
+  min-width: 0;
+}
+#seisan-view-area .seisan-check-name {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#seisan-view-area .seisan-check-copy.has-note .seisan-check-name {
+  flex: 0 1 48%;
+  max-width: 48%;
+}
+#seisan-view-area .seisan-check-note {
+  flex: 1 1 52%;
+  min-width: 0;
+  overflow: hidden;
   color: var(--text-sub);
-  font-size: 0.76rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-#seisan-view-area .seisan-collection-group-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 7px;
-}
+#seisan-view-area .seisan-check-item.paid .seisan-check-note { color: currentColor; }

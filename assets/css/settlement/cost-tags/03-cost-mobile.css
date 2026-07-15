@@ -1,27 +1,12 @@
 /* summary cost tags must keep their own chip surface */
-#seisan-view-area .seisan-summary-card.collect :is(.seisan-cost-policy-tag.split, .seisan-cost-type-badge.split),
-#seisan-view-area .seisan-summary-card.accounting :is(.seisan-cost-policy-tag.club, .seisan-cost-type-badge.club) {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--settlement-tag-min-height);
-  padding: var(--settlement-tag-pad-y) var(--settlement-tag-pad-x);
-  border: 1px solid var(--settlement-tag-line, currentColor);
-  border-radius: 999px;
-  background: var(--settlement-tag-bg, var(--bg-card));
-  color: var(--settlement-tag-ink, var(--text-main));
-  -webkit-text-fill-color: var(--settlement-tag-ink, var(--text-main));
-  box-shadow: none;
-}
-/* Summary and detail chip parity alignment
-   Summary chips must not have their own washed/green theme styling.
-   Use the same component tokens as the car settlement chips, and keep payment blue with fixed tokens. */
-#seisan-view-area :is(
-  .seisan-summary-card .seisan-summary-label > .seisan-cost-policy-tag,
-  .seisan-summary-card .seisan-summary-label > .seisan-cost-type-badge,
-  .seisan-summary-card .seisan-summary-label > .seisan-payment-tag,
-  .seisan-extra-inline > .seisan-cost-policy-tag,
-  .seisan-extra-inline > .seisan-cost-type-badge
+#seisan-view-area .seisan-summary-card :is(
+  .seisan-cost-policy-tag,
+  .seisan-cost-type-badge,
+  .seisan-payment-tag
+),
+#seisan-view-area .seisan-extra-inline :is(
+  .seisan-cost-policy-tag,
+  .seisan-cost-type-badge
 ) {
   display: inline-flex;
   align-items: center;
@@ -31,10 +16,12 @@
   min-width: var(--settlement-tag-min-width, 2.4em);
   min-height: var(--settlement-tag-min-height, 1.38em);
   padding: var(--settlement-tag-pad-y, 2px) var(--settlement-tag-pad-x, 7px);
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 999px;
+  border: 1px solid var(--settlement-tag-line, currentColor);
+  border-radius: var(--radius-xs);
+  background: var(--settlement-tag-bg, var(--bg-card));
   background-image: none;
+  color: var(--settlement-tag-ink, var(--text-main));
+  -webkit-text-fill-color: var(--settlement-tag-ink, var(--text-main));
   box-shadow: none;
   filter: none;
   opacity: 1;
@@ -45,10 +32,4 @@
   letter-spacing: 0;
   white-space: nowrap;
   vertical-align: baseline;
-}
-#seisan-view-area .seisan-summary-card .seisan-summary-label > .seisan-payment-tag {
-  color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
-  -webkit-text-fill-color: var(--settlement-pay-ink-fixed, var(--settlement-pay-ink));
-  background: var(--settlement-pay-bg-fixed, var(--settlement-pay-bg));
-  border-color: var(--settlement-pay-line-fixed, var(--settlement-pay-line));
 }

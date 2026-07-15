@@ -3,13 +3,12 @@
 function initializeAppModals() {
     modals.edit = new bootstrap.Modal($('#commonEditModal'));
     modals.batch = new bootstrap.Modal($('#batchImportModal'));
-    modals.globalGuide = new bootstrap.Modal($('#globalGuideModal'));
-    modals.guide = new bootstrap.Modal($('#guideModal'));
-    modals.seisanGuide = new bootstrap.Modal($('#seisanGuideModal'));
+    modals.userGuide = new bootstrap.Modal($('#userGuideModal'));
     modals.routeDistance = new bootstrap.Modal($('#routeDistanceModal'));
     modals.settlementSettings = new bootstrap.Modal($('#settlementSettingsModal'));
     modals.settlementCarEdit = new bootstrap.Modal($('#settlementCarEditModal'));
     modals.history = new bootstrap.Modal($('#historyModal'));
+    modals.seatMember = new bootstrap.Modal($('#seatMemberPickerModal'));
     window.modals = modals;
     const carEditModal = $('#settlementCarEditModal');
     if (carEditModal && carEditModal.dataset.settlementModalBound !== 'true') {

@@ -220,6 +220,7 @@ function createSampleAppData({ missing = false, carCount = 3 } = {}) {
         trayMinimized: false,
         editLockEnabled: false,
         editLockPassphrase: '',
+        editLockScopes: { allocation: false, settlement: false },
         activeCarPlanId: carPlan.id,
         carPlans: [carPlan, teamPlan],
         lastAutoAssignLabel: carPlan.lastAutoAssignLabel || '',

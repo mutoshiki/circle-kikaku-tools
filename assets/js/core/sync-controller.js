@@ -23,6 +23,7 @@ function save() {
                 trayMinimized: d.trayMinimized,
                 editLockEnabled: d.editLockEnabled,
                 editLockPassphrase: d.editLockPassphrase,
+                editLockScopes: d.editLockScopes,
                 settlement: d.settlement,
                 overview: d.overview,
                 lastAutoAssignLabel: d.lastAutoAssignLabel,
@@ -54,6 +55,7 @@ function load() {
             $('#cars-container').innerHTML = '';
             editLockEnabled = false;
             editLockPassphrase = '';
+            editLockScopes = { allocation: false, settlement: false };
             carPlans = [];
             activeCarPlanId = 'plan-1';
             lastAutoAssignLabel = '';
@@ -123,6 +125,7 @@ function load() {
                 $('#cars-container').innerHTML = '';
                 editLockEnabled = false;
                 editLockPassphrase = '';
+                editLockScopes = { allocation: false, settlement: false };
                 carPlans = [];
                 activeCarPlanId = 'plan-1';
                 lastAutoAssignLabel = '';

@@ -1,135 +1,23 @@
-/* Site-wide surface hierarchy.
-   Purpose: one quiet rule for borders so individual feature CSS does not keep adding outlines.
-   Outer cards may have a subtle edge; inner rows should mostly rely on spacing and background. */
+/* Semantic surface hierarchy. Outer groups use shape; inner rows use spacing/dividers. */
 :root,
-body[data-theme="light"],
-html[data-theme="light"] body {
-  --ui-surface-border: color-mix(in srgb, var(--border-color) 28%, transparent);
-  --ui-surface-border-soft: color-mix(in srgb, var(--border-color) 16%, transparent);
-  --ui-surface-border-inner: color-mix(in srgb, var(--border-color) 10%, transparent);
-  --ui-surface-bg: color-mix(in srgb, var(--bg-card) 100%, var(--bg-body));
-  --ui-surface-bg-inner: color-mix(in srgb, var(--bg-card) 42%, var(--bg-body));
-  --ui-surface-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.035), 0 8px 20px rgba(var(--shadow-rgb), 0.055);
+body {
+  --ui-surface-border: var(--border-section);
+  --ui-surface-border-soft: var(--border-section);
+  --ui-surface-border-inner: var(--app-border-inner);
+  --ui-surface-bg: var(--surface-lowest);
+  --ui-surface-bg-inner: var(--surface-low);
+  --ui-surface-shadow: none;
 }
-body[data-theme="dark"],
-html[data-theme="dark"] body {
-  --ui-surface-border: color-mix(in srgb, var(--border-color) 36%, transparent);
-  --ui-surface-border-soft: color-mix(in srgb, var(--border-color) 24%, transparent);
-  --ui-surface-border-inner: color-mix(in srgb, var(--border-color) 16%, transparent);
-  --ui-surface-bg: color-mix(in srgb, var(--bg-card) 92%, var(--color-night));
-  --ui-surface-bg-inner: color-mix(in srgb, var(--bg-card) 54%, var(--color-night));
-  --ui-surface-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.035), 0 10px 26px rgba(var(--shadow-rgb), 0.28);
-}
-:is(
-  .member-card,
-  .driver-seat,
-  .seat-slot,
-  .car-box,
-  .team-box,
-  .seisan-card,
-  .seisan-toolbar-card,
-  .seisan-settings-card,
-  .seisan-panel,
-  .seisan-car-summary-row,
-  .seisan-check-item,
-  .seisan-driver-pay-row,
-  .sheet-car-col,
-  .sheet-wait-block,
-  .sheet-seat-row,
-  .sheet-driver-row,
-  .sheet-wait-item,
-  .form-sheet-howto,
-  .form-import-preview,
-  .guide-feature-card
-) {
-  border-color: var(--ui-surface-border);
-  background-clip: padding-box;
-  box-shadow: var(--ui-surface-shadow);
-}
-:is(
-  .seisan-extra-row,
-  .seisan-cost-preview-item,
-  .seisan-summary-pills span,
-  .tray-inline-row,
-  .capacity-edit-row,
-  .timetable-row,
-  .sheet-seat-row,
-  .sheet-wait-item
-) {
+
+:is(.seisan-extra-row, .seisan-cost-preview-item, .tray-inline-row, .capacity-edit-row, .timetable-row, .sheet-seat-row, .sheet-wait-item) {
   border-color: var(--ui-surface-border-soft);
   box-shadow: none;
 }
-#seisan-view-area :is(.seisan-car-summary-headline, .seisan-cost-preview-item--inline-all) {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-}
-#seisan-view-area .seisan-car-summary-headline {
-  border-bottom: 0;
-}
-#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-list {
-  margin-top: 0;
-  padding: 4px 10px 10px;
-}
-#seisan-view-area .seisan-cost-preview-item--inline-all {
-  padding: 6px 2px 0;
-}
-#seisan-view-area .seisan-cost-total-row.seisan-car-summary-payment {
-  border-top-color: var(--ui-surface-border-soft);
-}
-/* Semantic summary cards keep their own colored meaning surfaces. */
-#seisan-view-area :is(.seisan-summary-card.collect, .seisan-summary-card.accounting, .seisan-summary-card.pay) {
-  box-shadow: var(--ui-surface-shadow);
-}
-/* Controls already communicate interactivity through shape and text; keep their outlines quiet. */
-:is(.form-control, .form-select, .seisan-toggle, .tool-btn, .tray-action-btn, .header-action) {
-  border-color: var(--ui-surface-border-soft);
-}
+
 :is(.driver-seat, .seat-slot, .seisan-check-item, .seisan-driver-pay-row) {
   background: var(--ui-surface-bg-inner);
 }
-:is(
-  .member-card,
-  .seisan-cost-preview-item,
-  .seisan-summary-pills span,
-  .form-control,
-  .form-select,
-  .form-import-preview,
-  .mock-form-import-textarea
-) {
-  background-color: var(--ui-surface-bg-inner);
-}
+
 :is(.seisan-card, .seisan-settings-card, .seisan-panel, .car-box, .team-box, .waiting-tray) {
   background-color: var(--ui-surface-bg);
 }
-body[data-theme="dark"] :is(
-  .driver-seat,
-  .seat-slot,
-  .member-card,
-  .sheet-driver-row,
-  .sheet-seat-row,
-  .sheet-wait-item,
-  .seisan-car-summary-row,
-  .seisan-check-item,
-  .seisan-driver-pay-row,
-  .form-control,
-  .form-select
-),
-html[data-theme="dark"] body :is(
-  .driver-seat,
-  .seat-slot,
-  .member-card,
-  .sheet-driver-row,
-  .sheet-seat-row,
-  .sheet-wait-item,
-  .seisan-car-summary-row,
-  .seisan-check-item,
-  .seisan-driver-pay-row,
-  .form-control,
-  .form-select
-) {
-  border-color: var(--ui-surface-border-soft);
-  background-color: color-mix(in srgb, var(--bg-card) 82%, var(--color-night));
-  color: var(--text-main);
-}
-/* Surface hierarchy owns neutral borders; feature CSS should not introduce broad card/input borders. */

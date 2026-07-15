@@ -6,9 +6,10 @@ async function switchView(view) {
     if (currentView === 'sheet' && view !== 'sheet' && quickEditMode && typeof completeQuickEdit === 'function') {
         completeQuickEdit({ showNotice: false, rerender: false });
     }
-    if (view !== 'sheet' && editLockEnabled && !hasTrustedEditAccess()) {
-        const label = view === 'seisan' ? '精算' : '編集';
-        if (!(await verifyEditPassphrase(`${label}を開くには合言葉を入力してください`))) return;
+    const targetScope = view === 'list' ? 'allocation' : (view === 'seisan' ? 'settlement' : null);
+    if (targetScope && isEditScopeLocked(targetScope) && !hasTrustedEditAccess(targetScope)) {
+        const label = targetScope === 'settlement' ? '精算' : '車割・班割';
+        if (!(await verifyEditPassphrase(`${label}を開くには合言葉を入力してください`, targetScope))) return;
     }
     currentView = view;
     document.body.classList.toggle('view-mode-list', view === 'list');
@@ -68,7 +69,7 @@ function showSheetHint() {
 }
 
 function isSheetDragHandle(target) {
-    return quickEditMode && hasTrustedEditAccess() && !!target.closest('.sheet-chip.draggable, .sheet-dropzone, .sheet-waiting-list');
+    return quickEditMode && hasTrustedEditAccess('allocation') && !!target.closest('.sheet-chip.draggable, .sheet-dropzone, .sheet-waiting-list');
 }
 
 function isSheetInteractiveTarget(target) {
@@ -83,7 +84,7 @@ function renderSheetChip(member) {
     return window.SanpoApp.templates.sheet.memberChip(member, {
         escapeHtml,
         renderGradeBadge,
-        isDraggable: currentMember => !currentMember.locked && hasTrustedEditAccess() && quickEditMode
+        isDraggable: currentMember => !currentMember.locked && hasTrustedEditAccess('allocation') && quickEditMode
     });
 }
 
@@ -127,7 +128,7 @@ function renderSheetCarColumnHtml(car, maxSeats, template, isEditablePlan, group
         helpers: {
             escapeHtml,
             renderGradeBadge,
-            isDraggable: currentMember => !currentMember.locked && hasTrustedEditAccess() && quickEditMode
+            isDraggable: currentMember => !currentMember.locked && hasTrustedEditAccess('allocation') && quickEditMode
         }
     });
 }
@@ -146,7 +147,7 @@ function renderSheetWaitingHtml(data, isEditablePlan) {
         helpers: {
             escapeHtml,
             renderGradeBadge,
-            isDraggable: currentMember => !currentMember.locked && hasTrustedEditAccess() && quickEditMode
+            isDraggable: currentMember => !currentMember.locked && hasTrustedEditAccess('allocation') && quickEditMode
         }
     });
 }
@@ -161,7 +162,7 @@ function createSheetWaitingColumn(data, isEditablePlan) {
 function createSheetPlanSection(plan, index) {
     const template = typeof getCarPlanTemplateConfig === 'function'
         ? getCarPlanTemplateConfig(plan)
-        : { sectionTitle: '車割', ownerLabel: '車出し', memberLabel: '席', groupSuffix: '車', ownerIcon: 'fa-car' };
+        : { sectionTitle: '車割', sheetTitle: '車割', planName: '車割', ownerLabel: '車出し', memberLabel: '席', groupSuffix: '車', ownerIcon: 'fa-car' };
     const section = document.createElement('section');
     section.className = 'sheet-plan-section';
     section.dataset.planId = plan.id || `plan-${index}`;
@@ -169,7 +170,7 @@ function createSheetPlanSection(plan, index) {
     const displayName = String(plan.name || template.sectionTitle || '').trim() || template.sectionTitle;
     const heading = document.createElement('div');
     heading.className = 'sheet-plan-heading';
-    heading.textContent = template.sectionTitle;
+    heading.textContent = template.sheetTitle || template.planName || template.sectionTitle;
     section.appendChild(heading);
 
     const cars = Array.isArray(plan.cars) ? plan.cars : [];
@@ -344,6 +345,10 @@ function renderSheetView() {
     if (!manualSheetDrag) cleanupSheetEditArtifacts();
     clearSheetSortables();
     canvas.innerHTML = '';
+    const content = document.createElement('div');
+    content.id = 'sheet-content';
+    content.className = 'sheet-content';
+    canvas.appendChild(content);
     updateQuickEditButton();
     const data = getData({ skipDomSync: true });
     updateSheetSummary(data);
@@ -352,19 +357,41 @@ function renderSheetView() {
     const visiblePlans = plans.filter(plan => (plan.cars || []).length || (plan.waiting || []).length);
 
     if (!visiblePlans.length) {
-        canvas.innerHTML = renderSheetEmptyHtml();
+        content.innerHTML = renderSheetEmptyHtml();
+        requestAnimationFrame(fitInitialSheetScale);
         return;
     }
 
-    visiblePlans
-        .sort((a, b) => {
-            const typeA = typeof normalizeCarPlanTemplateType === 'function' ? normalizeCarPlanTemplateType(a.templateType) : 'car';
-            const typeB = typeof normalizeCarPlanTemplateType === 'function' ? normalizeCarPlanTemplateType(b.templateType) : 'car';
-            return (typeA === 'car' ? 0 : 1) - (typeB === 'car' ? 0 : 1);
-        })
-        .forEach((plan, index) => canvas.appendChild(createSheetPlanSection(plan, index)));
+    const sortedPlans = visiblePlans.sort((a, b) => {
+        const typeA = typeof normalizeCarPlanTemplateType === 'function' ? normalizeCarPlanTemplateType(a.templateType) : 'car';
+        const typeB = typeof normalizeCarPlanTemplateType === 'function' ? normalizeCarPlanTemplateType(b.templateType) : 'car';
+        return (typeA === 'car' ? 0 : 1) - (typeB === 'car' ? 0 : 1);
+    });
+    const planSections = sortedPlans.map((plan, index) => ({
+        plan,
+        type: typeof normalizeCarPlanTemplateType === 'function' ? normalizeCarPlanTemplateType(plan.templateType) : 'car',
+        section: createSheetPlanSection(plan, index)
+    }));
     const timetableSection = createSheetTimetableSection();
-    if (timetableSection) canvas.appendChild(timetableSection);
+    const primaryCarIndex = planSections.findIndex(item => item.type === 'car');
+
+    if (timetableSection && primaryCarIndex >= 0) {
+        const primaryRow = document.createElement('div');
+        primaryRow.className = 'sheet-primary-row';
+
+        const allocationStack = document.createElement('div');
+        allocationStack.className = 'sheet-allocation-stack';
+        allocationStack.appendChild(planSections[primaryCarIndex].section);
+        planSections.forEach((item, index) => {
+            if (index !== primaryCarIndex) allocationStack.appendChild(item.section);
+        });
+
+        primaryRow.append(timetableSection, allocationStack);
+        content.appendChild(primaryRow);
+    } else {
+        if (timetableSection) content.appendChild(timetableSection);
+        planSections.forEach(item => content.appendChild(item.section));
+    }
     syncSheetPlanWidths();
     requestAnimationFrame(syncSheetPlanWidths);
     requestAnimationFrame(fitInitialSheetScale);

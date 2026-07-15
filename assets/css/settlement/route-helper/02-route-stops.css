@@ -4,7 +4,8 @@
   gap: 6px;
 }
 
-#routeDistanceModal .route-stop-row {
+#routeDistanceModal .route-stop-row,
+.route-stop-row.route-stop-drag-fallback {
   position: relative;
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr) 30px;
@@ -31,7 +32,8 @@
   pointer-events: none;
 }
 
-#routeDistanceModal .route-stop-num {
+#routeDistanceModal .route-stop-num,
+.route-stop-row.route-stop-drag-fallback .route-stop-num {
   width: 30px;
   height: 38px;
   display: inline-flex;
@@ -45,7 +47,8 @@
   touch-action: none;
 }
 
-#routeDistanceModal .route-stop-num i {
+#routeDistanceModal .route-stop-num i,
+.route-stop-row.route-stop-drag-fallback .route-stop-num i {
   font-size: 0.92rem;
   line-height: 1;
   opacity: 0.68;
@@ -55,7 +58,8 @@
   cursor: grabbing;
 }
 
-#routeDistanceModal .route-stop-input {
+#routeDistanceModal .route-stop-input,
+.route-stop-row.route-stop-drag-fallback .route-stop-input {
   width: 100%;
   min-height: 38px;
   padding: 7px 10px;
@@ -68,12 +72,11 @@
 }
 
 #routeDistanceModal .route-stop-input:focus {
-  outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.13);
+  border-color: var(--focus-accent);
 }
 
-#routeDistanceModal .route-stop-delete-btn {
+#routeDistanceModal .route-stop-delete-btn,
+.route-stop-row.route-stop-drag-fallback .route-stop-delete-btn {
   width: 34px;
   min-width: 34px;
   height: 38px;
@@ -101,8 +104,32 @@
   font-size: 0.84em;
 }
 
+.route-stop-row.route-stop-drag-fallback {
+  z-index: calc(var(--z-modal, 1055) + 2);
+  padding: 6px;
+  border: 1px solid var(--ui-saas-border, var(--border-color));
+  background: var(--bg-card);
+  box-shadow: 0 12px 28px rgba(var(--shadow-rgb), 0.18);
+  opacity: 0.98;
+  pointer-events: none;
+}
+
+.route-stop-drag-ghost {
+  opacity: 0.28;
+}
+
+.route-stop-drag-chosen {
+  cursor: grabbing;
+}
+
+body.route-stop-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
 @media (max-width: 640px) {
-  #routeDistanceModal .route-stop-row {
+  #routeDistanceModal .route-stop-row,
+  .route-stop-row.route-stop-drag-fallback {
     grid-template-columns: 38px minmax(0, 1fr) 32px;
   }
 
@@ -111,15 +138,19 @@
   }
 
   #routeDistanceModal .route-stop-num,
-  #routeDistanceModal .route-stop-delete-btn {
+  #routeDistanceModal .route-stop-delete-btn,
+  .route-stop-row.route-stop-drag-fallback .route-stop-num,
+  .route-stop-row.route-stop-drag-fallback .route-stop-delete-btn {
     height: 40px;
   }
 
-  #routeDistanceModal .route-stop-num {
+  #routeDistanceModal .route-stop-num,
+  .route-stop-row.route-stop-drag-fallback .route-stop-num {
     width: 32px;
   }
 
-  #routeDistanceModal .route-stop-delete-btn {
+  #routeDistanceModal .route-stop-delete-btn,
+  .route-stop-row.route-stop-drag-fallback .route-stop-delete-btn {
     width: 38px;
     min-width: 38px;
   }
@@ -129,3 +160,4 @@
     line-height: 1.45;
   }
 }
+

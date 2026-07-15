@@ -44,6 +44,8 @@ function getCarPlanTemplateConfig(planOrType = 'car') {
         return {
             type: 'team',
             sectionTitle: '班',
+            sheetTitle: '班割',
+            planName: '班割',
             ownerLabel: '班長',
             memberLabel: '班員',
             groupSuffix: '班',
@@ -53,6 +55,8 @@ function getCarPlanTemplateConfig(planOrType = 'car') {
     return {
         type: 'car',
         sectionTitle: '車割',
+        sheetTitle: '車割',
+        planName: '車割',
         ownerLabel: '車出し',
         memberLabel: '席',
         groupSuffix: '車',
@@ -380,8 +384,8 @@ function renderCarPlanSwitcher() {
     const activeTemplateType = normalizeCarPlanTemplateType(active.templateType);
     bar.innerHTML = `
         <div class="car-plan-template-tabs" role="tablist" aria-label="車割と班割を切り替え">
-            <button type="button" class="car-plan-template-chip${activeTemplateType === 'car' ? ' active' : ''}" data-car-plan-template="car" aria-pressed="${activeTemplateType === 'car' ? 'true' : 'false'}"><i class="fas fa-car-side" aria-hidden="true"></i><span>車割</span></button>
-            <button type="button" class="car-plan-template-chip${activeTemplateType === 'team' ? ' active' : ''}" data-car-plan-template="team" aria-pressed="${activeTemplateType === 'team' ? 'true' : 'false'}"><i class="fas fa-user-group" aria-hidden="true"></i><span>班割</span></button>
+            <button type="button" role="tab" class="car-plan-template-chip${activeTemplateType === 'car' ? ' active' : ''}" data-car-plan-template="car" aria-selected="${activeTemplateType === 'car' ? 'true' : 'false'}" tabindex="${activeTemplateType === 'car' ? '0' : '-1'}"><span>車割</span></button>
+            <button type="button" role="tab" class="car-plan-template-chip${activeTemplateType === 'team' ? ' active' : ''}" data-car-plan-template="team" aria-selected="${activeTemplateType === 'team' ? 'true' : 'false'}" tabindex="${activeTemplateType === 'team' ? '0' : '-1'}"><span>班割</span></button>
         </div>
     `;
 }
@@ -473,6 +477,19 @@ function setupCarPlanSwitcherEvents() {
         if (action === 'rename') renameActiveCarPlan();
         if (action === 'delete') deleteActiveCarPlan();
     });
+    bar.addEventListener('keydown', event => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        const tabs = Array.from(bar.querySelectorAll('[data-car-plan-template]'));
+        const currentIndex = tabs.indexOf(event.target.closest('[data-car-plan-template]'));
+        if (currentIndex < 0 || tabs.length < 2) return;
+        event.preventDefault();
+        const nextIndex = event.key === 'Home' ? 0
+            : event.key === 'End' ? tabs.length - 1
+            : (currentIndex + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+        const nextType = tabs[nextIndex].dataset.carPlanTemplate;
+        updateActiveCarPlanTemplate(nextType);
+        requestAnimationFrame(() => bar.querySelector(`[data-car-plan-template="${nextType}"]`)?.focus());
+    });
 }
 
 function getData(options = {}) {
@@ -485,6 +502,7 @@ function getData(options = {}) {
                            .classList.contains("minimized"),
         editLockEnabled,
         editLockPassphrase,
+        editLockScopes: { ...editLockScopes },
         activeCarPlanId: active.id,
         carPlans: plans,
         lastAutoAssignLabel: active.lastAutoAssignLabel || '',
@@ -509,6 +527,12 @@ function restore(d) {
     $('#roomNameInput').value = d.roomName || '';
     editLockEnabled = !!d.editLockEnabled;
     editLockPassphrase = d.editLockPassphrase || '';
+    const restoredLockScopes = d.editLockScopes && typeof d.editLockScopes === 'object' ? d.editLockScopes : null;
+    editLockScopes = {
+        allocation: restoredLockScopes ? !!restoredLockScopes.allocation : editLockEnabled,
+        settlement: restoredLockScopes ? !!restoredLockScopes.settlement : editLockEnabled
+    };
+    editLockEnabled = !!editLockPassphrase && (editLockScopes.allocation || editLockScopes.settlement);
     carPlans = normalizeCarPlansFromData(d);
     const requestedActive = d.activeCarPlanId && carPlans.some(plan => plan.id === d.activeCarPlanId)
         ? d.activeCarPlanId

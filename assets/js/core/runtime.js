@@ -17,7 +17,7 @@ function bindClick(id, handler) {
 }
 
 const firebaseConfig = window.SANPO_FIREBASE_CONFIG || {};
-const APP_SCHEMA_VERSION = 3;
+const APP_SCHEMA_VERSION = 4;
 const APP_BUILD_ID = '2026-05-hardening';
 let firebaseEnabled = Boolean(firebaseConfig.apiKey && firebaseConfig.databaseURL && firebaseConfig.projectId);
 let app = null;
@@ -82,6 +82,7 @@ let saveCb;
 let genderQueue = [], isProcessingQueue = false;
 let editLockEnabled = false;
 let editLockPassphrase = '';
+let editLockScopes = { allocation: false, settlement: false };
 let trustedEditPassphrase = '';
 let isDraggingCards = false;
 let dragOriginSlot = null;
@@ -130,24 +131,6 @@ function applyRuntimeAccessibilityFixes(root = document) {
         if (!icon.hasAttribute('aria-hidden')) icon.setAttribute('aria-hidden', 'true');
     });
 }
-
-/* showMiniToast is only for one-off notifications. Save/sync state uses #syncStatusBadge. */
-function showMiniToast(message, tone = 'neutral') {
-    if (!message) return;
-    let toast = byId('mini-status-toast');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'mini-status-toast';
-        document.body.appendChild(toast);
-    }
-    toast.className = `mini-status-toast ${tone}`;
-    toast.textContent = message;
-    toast.classList.add('visible');
-    clearTimeout(showMiniToast.timer);
-    showMiniToast.timer = setTimeout(() => toast.classList.remove('visible'), 1800);
-}
-
-
 
 function appPrompt(message, defaultValue = '', options = {}) {
     const modalEl = byId('commonEditModal');

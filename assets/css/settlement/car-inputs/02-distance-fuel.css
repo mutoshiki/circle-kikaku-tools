@@ -1,195 +1,50 @@
-@media (max-width: 640px) {
-.seisan-extra-row input,
-.seisan-extra-row select {
-min-height: 38px;
-        padding: 6px 7px;
-        font-size: 0.8rem;
-        border-radius: var(--radius-sm);
-}
-}
-.seisan-field input:focus-visible,
-.seisan-field select:focus-visible,
-.seisan-extra-row input:focus-visible,
-.seisan-extra-row select:focus-visible {
-outline: 2px solid var(--accent-color);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px var(--focus-ring);
-}
-@media (max-width: 640px) {
-.seisan-car-row {
-  /* Use the unified main radius for mobile car rows */
-  border-radius: var(--radius-main);
-}
-}
-[data-theme="dark"] .seisan-car-row {
-  border-color: rgba(148, 163, 184, 0.16);
-  background: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
-  box-shadow: none;
-}
-@media (max-width: 640px) {
-.seisan-car-row {
-  /* Same unified radius for the compact car row with compact spacing. */
-  border-radius: var(--radius-main);
-  padding: 9px;
-  margin-bottom: 8px;
-}
-}
-@media (max-width: 640px) {
-.seisan-field label {
-margin-bottom: 3px;
-        font-size: 0.68rem;
-        line-height: 1.15;
-        white-space: nowrap;
-}
-}
-@media (max-width: 640px) {
-.seisan-field input,
-.seisan-field select,
-.seisan-extra-row input,
-.seisan-extra-row select {
-min-height: 38px;
-        padding: 6px 8px;
-        font-size: 0.86rem;
-        border-radius: 12px;
-}
-}
-@media (max-width: 640px) {
-.seisan-car-title {
-margin-bottom: 5px;
-}
-}
-@media (max-width: 640px) {
-.seisan-car-title strong,
-.seisan-car-total {
-font-size: 0.86rem;
-}
-}
-@media (max-width: 640px) {
-.seisan-car-inputs {
-display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 6px;
-}
-}
-@media (max-width: 640px) {
-.seisan-car-inputs input {
-min-height: 38px;
-        padding: 6px 7px;
-        font-size: 0.82rem;
-}
-}
-@media (max-width: 640px) {
-.seisan-extra-list {
-gap: 6px;
-}
-}
-@media (max-width: 640px) {
-.seisan-extra-row {
-display: grid;
-        grid-template-columns: minmax(0, 1.25fr) minmax(72px, 0.78fr) minmax(64px, 0.62fr) 34px;
-        gap: 5px;
-        align-items: center;
-        padding: 0;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
-}
-}
-@media (max-width: 390px) {
-.seisan-car-inputs,
-.seisan-extra-row {
-gap: 4px;
-}
-}
-.seisan-car-row,
-.seisan-extra-row input,
-.seisan-extra-row select {
-border-radius: var(--radius-main);
-}
-.seisan-car-total,
-.seisan-extra-type {
-border-radius: var(--radius-sm);
-}
-.seisan-field label {
-  font-size: 0.72rem;
-  font-weight: 650;
-  color: var(--text-sub);
-  margin-bottom: 4px;
-}
-.seisan-field input, .seisan-field select, .seisan-extra-row input, .seisan-extra-row select {
-  width: 100%;
-  min-height: 40px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-main);
-  background: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
-  color: var(--text-main);
-  padding: 7px 8px;
-  font-size: 0.88rem;
-  padding-left: 10px;
-  padding-right: 10px;
-  border-color: var(--hairline, var(--border-color));
-  font-weight: 500;
-}
-.seisan-field input:focus, .seisan-field select:focus, .seisan-extra-row input:focus, .seisan-extra-row select:focus {
-  outline: none;
-  border-color: color-mix(in srgb, var(--accent-color) 44%, var(--border-color));
-  box-shadow: 0 0 0 4px var(--focus-ring);
-}
-.seisan-car-row {
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 12px;
-  margin-bottom: 11px;
-  background: color-mix(in srgb, var(--bg-card) 96%, var(--bg-body));
-  min-width: 0;
-  box-sizing: border-box;
-  border-color: var(--hairline, var(--border-color));
-  box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.03);
-}
-.seisan-car-title {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  align-items: baseline;
-  margin-bottom: 7px;
-  min-width: 0;
-}
-.seisan-car-title strong {
-  color: var(--text-main);
-  font-size: 0.98rem;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-.seisan-car-total {
-  color: var(--text-main);
-  font-weight: 650;
-  font-size: 0.82rem;
-  white-space: nowrap;
-  padding: 4px 8px;
-  border: 1px solid color-mix(in srgb, var(--accent-color) 20%, var(--border-color));
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--accent-color) 7%, var(--bg-card));
-}
-.seisan-car-inputs {
+/* Distance, fuel-efficiency and route-helper composition. */
+.seisan-gas-field-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 9px;
-  align-items: start;
-}
-.seisan-subhead {
-    border-top-color: var(--hairline, var(--border-color));
-}
-.seisan-extra-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.85fr) minmax(86px, 0.72fr) 34px;
+  align-items: end;
   gap: 8px;
-  align-items: center;
+  min-width: 0;
 }
-.seisan-extra-type.split,
-.seisan-extra-type.club {
-    font-weight: 500;
+
+.seisan-distance-field,
+.seisan-fuel-field {
+  display: grid;
+  grid-template-rows: minmax(2.5em, auto) auto;
+  align-content: end;
+  min-width: 0;
+}
+
+.seisan-gas-field-row input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+.seisan-gas-field-row .seisan-mini-label {
+  align-self: end;
+  min-height: 2.5em;
+  margin-bottom: 5px;
+  overflow-wrap: anywhere;
+}
+
+.seisan-distance-shortcut {
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  padding-inline: 14px;
+  white-space: nowrap;
+}
+
+.seisan-distance-unit,
+.seisan-fuel-unit {
+  color: var(--text-sub);
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 360px) {
+  .seisan-gas-field-row { gap: 6px; }
+  .seisan-gas-field-row .seisan-mini-label { font-size: 0.64rem; }
 }

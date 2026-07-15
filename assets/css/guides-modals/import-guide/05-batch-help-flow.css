@@ -13,7 +13,7 @@
   min-width: 0;
   color: var(--text-sub);
   font-size: 0.73rem;
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1.45;
 }
 .batch-sheet-criteria i {
@@ -139,27 +139,25 @@
     grid-template-columns: 1fr;
   }
 }
-#globalGuideModal .modal-content,
-#guideModal .modal-content,
-#seisanGuideModal .modal-content,
 #batchImportModal .modal-content {
-  border-radius: clamp(16px, 3vw, 22px);
+  border-radius: 0;
 }
-#globalGuideModal .modal-body,
-#guideModal .modal-body,
-#seisanGuideModal .modal-body,
 #batchImportModal .modal-body {
   padding: 18px 16px 20px;
 }
-#globalGuideModal .modal-header,
-#guideModal .modal-header,
-#seisanGuideModal .modal-header,
 #batchImportModal .modal-header {
   padding: 14px 16px;
 }
-#globalGuideModal .modal-footer,
-#guideModal .modal-footer,
-#seisanGuideModal .modal-footer,
 #batchImportModal .modal-footer {
   padding: 12px 16px;
+}
+
+@media (max-width: 520px) {
+  .batch-auto-table-wrap {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .batch-auto-rule-table { min-width: 680px; }
 }

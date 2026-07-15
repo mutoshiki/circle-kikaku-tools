@@ -1,112 +1,54 @@
-/* Person card shell: only member-specific layout remains here.
-   Shared mobile sizing/name/action primitives live in 01-shared-card-primitives.css. */
-.member-card:active {
-  cursor: grabbing;
-}
-
-.grade-badge[data-grade="1"] {
-  background: var(--grade1-bg);
-  color: var(--grade1-text);
-  border-color: var(--grade1-border);
-}
-
-.grade-badge[data-grade="2"] {
-  background: var(--grade2-bg);
-  color: var(--grade2-text);
-  border-color: var(--grade2-border);
-}
-
-.grade-badge[data-grade="3"] {
-  background: var(--grade3-bg);
-  color: var(--grade3-text);
-  border-color: var(--grade3-border);
-}
-
-.grade-badge[data-grade="4"] {
-  background: var(--grade4-bg);
-  color: var(--grade4-text);
-  border-color: var(--grade4-border);
-}
-
-.grade-badge[data-grade="0"] {
-  display: none;
-}
-
-.member-card-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 6px;
-  align-items: center;
-}
-
-.member-inline-actions {
+/* Person-card structure and explicit interaction states. */
+.member-card {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
-}
-
-.member-inline-actions .action-btn {
-  width: 24px;
-  height: 24px;
-  display: inline-flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  padding: 0;
-}
-
-.member-main-line .grade-badge {
-  flex: 0 0 auto;
-  font-size: 0.68rem;
-  padding: 2px 7px;
-}
-
-.member-action-btn:hover {
-  background: var(--hover-bg);
-  color: var(--text-main);
-}
-
-.member-card.in-waiting .member-card-row {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 6px;
-}
-
-.member-card.in-waiting .member-inline-actions {
-  justify-content: flex-start;
-  flex-wrap: nowrap;
   min-width: 0;
-  overflow: hidden;
-}
-
-.member-card.in-waiting .member-action-row {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.member-card.in-waiting .delete-btn-overlay:hover {
-  color: var(--color-danger);
-}
-
-.member-card.in-waiting .memo-popup {
-  display: block;
-  min-height: 16px;
-  margin-top: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--text-sub);
-  font-size: 0.67rem;
-  line-height: 1.25;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.member-card.in-waiting .memo-popup:empty::before {
-  content: "";
-}
-
-[data-theme="dark"] .memo-popup {
-  background: var(--bg-card);
+  min-height: 56px;
+  padding: 8px 10px;
+  gap: 4px;
   color: var(--text-main);
+  box-sizing: border-box;
+  cursor: grab;
+  font-size: 0.9rem;
+  font-weight: 400;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition: background-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
 }
+
+.seat-slot > .member-card { width: 100%; height: 100%; margin: 0; touch-action: pan-y; }
+.member-card:hover { cursor: grab; }
+.member-card:active,
+.member-card.manual-drag-source {
+  cursor: grabbing;
+  border-color: var(--accent-color);
+  box-shadow: inset 0 0 0 1px var(--accent-color);
+}
+
+.member-card[data-locked="true"] {
+  background: var(--semantic-warning-soft);
+  color: var(--warning-on-ink);
+  box-shadow: inset 4px 0 0 var(--semantic-warning);
+}
+.member-card[data-locked="true"]::after {
+  content: "固定";
+  position: absolute;
+  right: 42px;
+  bottom: 3px;
+  color: currentColor;
+  font-size: 0.58rem;
+  font-weight: 600;
+}
+
+.member-card-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+.member-inline-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.member-inline-actions .action-btn { display: inline-flex; align-items: center; justify-content: center; width: 48px; min-width: 48px; height: 48px; padding: 0; }
+.member-card.in-waiting { min-height: 60px; }
+.member-card.in-waiting .member-card-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.member-card.in-waiting .member-inline-actions { justify-content: flex-start; min-width: 0; overflow: hidden; }
+.member-card.in-waiting .member-action-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.member-card.in-waiting .delete-btn-overlay:hover { color: var(--semantic-danger); }

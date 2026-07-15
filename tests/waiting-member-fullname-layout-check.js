@@ -12,7 +12,7 @@ function assertIncludes(fragment, message) {
 assertIncludes('#waiting-list {', 'waiting-list override is missing');
 assertIncludes('grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));', 'waiting list should avoid three narrow columns on Pro Max width');
 assertIncludes('#waiting-list .member-main-line', 'waiting member line spacing override is missing');
-assertIncludes('grid-template-columns: minmax(0, 1fr) auto 24px;', 'waiting member badge/menu columns should be compact');
+assertIncludes('grid-template-columns: minmax(0, 1fr) auto 48px;', 'waiting member badge/menu columns should reserve a 48px mobile touch target');
 assertIncludes('#waiting-list .member-name-text', 'waiting member name override is missing');
 assertIncludes('text-overflow: clip;', 'waiting member name should not use ellipsis');
 assertIncludes('white-space: normal;', 'waiting member full name should be allowed to wrap instead of truncating');

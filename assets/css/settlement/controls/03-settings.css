@@ -1,199 +1,144 @@
-@media (max-width: 360px) {
-#seisan-view-area .seisan-share-actions .seisan-btn {
-font-size: 0.68rem;
-        padding-inline: 5px;
+/* Settlement settings summary and settings-modal controls. */
+.seisan-settings-card .seisan-compact-head { margin-bottom: 10px; }
+.seisan-settings-summary { min-width: 0; }
+.seisan-title--settings i { color: var(--accent-color); }
+
+#settlementSettingsModal .settlement-edit-dialog { width: min(100%, 360px); max-width: 360px; margin-inline: auto; }
+#settlementSettingsModal .modal-body { padding: 12px 18px 18px; }
+
+.seisan-settings--modal {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: stretch;
+  gap: 12px;
 }
-}
-.seisan-btn, .seisan-toggle, .seisan-icon-btn {
-  border-radius: 999px;
-  border-color: var(--hairline, var(--border-color));
-  background: var(--bg-card);
-  color: var(--text-main);
-  box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.03);
-  font-weight: 500;
-}
-.seisan-btn:hover,
-.seisan-toggle:hover,
-.seisan-icon-btn:hover {
-    background: var(--hover-bg);
-    border-color: color-mix(in srgb, var(--accent-color) 22%, var(--border-color));
-    color: var(--text-main);
-}
-.seisan-btn.primary, .seisan-btn.active, .seisan-toggle.active {
-  background: var(--accent-color);
-  border-color: var(--accent-color);
-  color: var(--color-white);
-  box-shadow: 0 9px 20px color-mix(in srgb, var(--accent-color) 15%, transparent);
-}
-.seisan-toggle {
-  min-height: 37px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+
+.seisan-settings--modal .seisan-settings-span { grid-column: 1 / -1; }
+
+.seisan-settings-section {
+  display: grid;
   gap: 8px;
-  padding: 8px 9px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-main);
-  background: color-mix(in srgb, var(--bg-card) 82%, var(--bg-body));
-  color: var(--text-main);
-  font-size: 0.82rem;
-  font-weight: 500;
+  padding: 2px 0 12px;
 }
-.seisan-mini-label {
+
+.seisan-settings-section--standalone { padding-top: 4px; }
+
+.seisan-settings-section-title {
+  padding-inline: 2px;
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.seisan-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.seisan-settings--modal .seisan-field label {
   display: block;
+  margin-bottom: 5px;
   color: var(--text-sub);
-  font-size: 0.66rem;
-  font-weight: 500;
-  margin-bottom: 3px;
+  font-size: 0.72rem;
+  font-weight: 400;
   line-height: 1.25;
 }
-.seisan-head-actions {
-    gap: 8px;
+
+.seisan-settings-field--rounding,
+.seisan-settings-field--reward {
+  display: grid;
+  grid-template-rows: auto minmax(48px, auto);
+  align-items: start;
 }
-.seisan-icon-btn:hover {
-  color: var(--color-danger-strong);
-  border-color: color-mix(in srgb, var(--color-danger) 38%, var(--border-color));
-  background: color-mix(in srgb, var(--color-danger) 6%, var(--bg-card));
-}
-[data-theme="dark"] .seisan-btn:not(.primary):not(.active), [data-theme="dark"] .seisan-toggle:not(.active), [data-theme="dark"] .seisan-icon-btn {
-  background: color-mix(in srgb, var(--bg-card) 78%, transparent);
-  border-color: var(--hairline, var(--border-color));
-  color: var(--text-main);
-}
-[data-theme="dark"] .seisan-btn.primary, [data-theme="dark"] .seisan-btn.active, [data-theme="dark"] .seisan-toggle.active {
-  border-radius: var(--radius-sm);
-  background: var(--accent-color);
-  border-color: var(--accent-color);
-  color: var(--palette-night-blue);
-  box-shadow: 0 7px 16px color-mix(in srgb, var(--accent-color) 18%, transparent);
-}
-@media (max-width: 640px) {
-    .seisan-head-actions .seisan-btn,
-    .seisan-btn,
-    .seisan-toggle,
-    .seisan-icon-btn {
-        min-height: 40px;
-        border-radius: 13px;
-    }
-}
-/* =========================================================
-========================================================= */
-.header-action i,
-.header-action span,
-.tool-btn i,
-.tool-btn span,
-.seisan-btn i,
-.seisan-btn span,
-.tray-action-btn i,
-.tray-action-btn span {
-  color: inherit;
-}
-.header-action span,
-.tool-btn span,
-.seisan-btn span,
-.tray-action-btn span {
+
+.seisan-settings--modal .seisan-field input,
+.seisan-settings--modal .seisan-field select { min-height: 48px; }
+
+#settlementSettingsModal .seisan-standalone-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1.12;
 }
-@media (max-width: 640px) {
-.seisan-head-actions .seisan-btn {
-    min-height: 42px;
-    padding-inline: 8px;
-    font-size: 0.76rem;
-  }
-}
-.header-action:focus-visible,
-.tool-btn:focus-visible,
-.seisan-btn:focus-visible,
-.tray-action-btn:focus-visible,
-.view-tab:focus-visible,
-.car-plan-template-chip:focus-visible {
-  outline: 0;
-  box-shadow: var(--ui-focus-ring);
-}
-.car-box,
-.guide-step-panel,
-.batch-spreadsheet-import,
-.batch-import-notice,
-.seisan-settings-card,
-.empty-card {
-  border-color: transparent;
-  background: var(--bg-card);
-  box-shadow: var(--ui-surface-shadow-soft);
-}
-.seisan-head-tools-only,
-.seisan-toolbar-card {
-  padding: 12px;
-}
-.seisan-head-actions .seisan-btn {
-  min-width: 0;
-  justify-content: center;
-  min-height: 42px;
-  display: inline-flex;
-  align-items: center;
+
+#settlementSettingsModal .seisan-standalone-fields[hidden] { display: none; }
+#settlementSettingsModal .seisan-standalone-fields .seisan-field { min-width: 0; }
+#settlementSettingsModal .seisan-standalone-fields input { width: 100%; min-width: 0; }
+
+.seisan-rounding-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
-  white-space: nowrap;
+}
+
+.seisan-rounding-option {
+  position: relative;
+  min-height: 48px;
+  padding: 0 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  background: var(--surface-lowest);
+  color: var(--text-main);
+  font-size: 0.76rem;
+  font-weight: 400;
   line-height: 1;
-  width: 100%;
-  padding: 8px 8px;
-  border-radius: var(--control-radius);
-  font-size: 0.84rem;
-}
-#seisanRefreshBtn.seisan-btn {
-  width: 44px;
-  min-width: 44px;
-  padding-inline: 0;
-}
-.seisan-settings-card {
-  padding-block: 10px;
-}
-.seisan-settings-card .seisan-compact-head {
-  margin-bottom: 8px;
-}
-.seat-slot,
-.sheet-seat-row,
-.sheet-wait-item,
-.seisan-cost-preview-item,
-.seisan-settings-card,
-.seisan-summary-pills span {
-  background: color-mix(in srgb, var(--ui-panel-bg-muted) 88%, var(--bg-body));
-}
-#seisan-view-area .seisan-head-tools-only .seisan-btn {
-  width: auto;
-  flex: 0 0 auto;
-}
-@media (max-width: 640px) {
-#seisan-view-area .seisan-head-tools-only .seisan-btn {
-    min-height: 36px;
-    padding-inline: 8px;
-    font-size: 0.74rem;
-  }
-}
-#seisan-view-area .seisan-head-actions .seisan-btn {
-  width: auto;
-  min-height: 38px;
-  padding: 8px 10px;
-  border-radius: 12px;
-  font-size: 0.78rem;
-  font-weight: 500;
   white-space: nowrap;
 }
-@media (max-width: 640px) {
-#seisan-view-area .seisan-toolbar-card {
-    padding: 9px;
-  }
 
-#seisan-view-area .seisan-head-actions .seisan-btn {
-    min-height: 36px;
-    padding-inline: 8px;
-    font-size: 0.74rem;
-  }
+.seisan-rounding-option.active,
+.seisan-rounding-option[aria-pressed='true'] {
+  border-color: var(--accent-color);
+  background: var(--accent-color);
+  color: var(--text-on-accent);
+  box-shadow: none;
+}
 
-#seisan-view-area #seisanRefreshBtn.seisan-btn {
-    width: 38px;
-    min-width: 38px;
-  }
+.seisan-rounding-option[aria-pressed='true']::after {
+  content: '✓';
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  font-size: 0.62rem;
+  line-height: 1;
+}
+
+.seisan-settings--modal .seisan-toggle {
+  min-height: 48px;
+  padding: 10px 12px;
+  border-radius: 0;
+  background: var(--surface-lowest);
+}
+
+.seisan-toggle--modal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0;
+}
+
+.seisan-toggle--modal span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+#settlementSettingsModal .seisan-standalone-error {
+  grid-column: 1 / -1;
+  margin-top: -2px;
+  color: var(--semantic-danger);
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+@media (max-width: 420px) {
+  #settlementSettingsModal .modal-body { padding: 10px 14px 16px; }
+}
+
+@media (max-width: 360px) {
+  .seisan-rounding-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

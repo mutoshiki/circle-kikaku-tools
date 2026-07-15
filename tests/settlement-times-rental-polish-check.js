@@ -27,7 +27,7 @@ assert(stateJs.includes('extras: [timesTimeExtra, timesDistanceExtra, ...manualE
 assert(calcJs.includes('const timesDistanceFee = usesTimesRental ? getTimesDistanceFee(cState.dist) : 0;'), 'タイムズ移動料金は計算時に距離から再計算する');
 assert(extraTemplate.includes('data-times-extra=') && extraTemplate.includes('data-extra-field="name"') && extraTemplate.includes('data-extra-field="amount"') && extraTemplate.includes('data-extra-field="type"'), 'タイムズ料金も通常の諸経費入力行で描画する');
 assert(!extraTemplate.includes('timesDistanceFeeRow') && !extraTemplate.includes('seisan-auto-label') && !extraTemplate.includes('data-generated-extra'), 'タイムズ移動料金の専用UIは使わない');
-assert(extraTemplate.includes("const lockedAttr = isReward ?") && extraTemplate.includes("const disabledAttr = isReward ?"), '変更不可は車出し協力代だけに限定する');
+assert(extraTemplate.includes("const lockedAttr = isReward ?") && !extraTemplate.includes("const disabledAttr = isReward ?") && !/data-extra-field="type"[^>]*disabled/.test(extraTemplate), '車出し協力代は名称と金額だけ固定し、割勘・部費は変更できる');
 assert(/\.seisan-car-row\.is-times-rental \.seisan-fuel-field\s*{[\s\S]*?display:\s*none;/.test(timesCss), 'タイムズ時は燃費・ガソリン単価欄を隠す');
 assert(/\.seisan-car-row\.is-times-rental \.seisan-distance-field\s*{[\s\S]*?grid-column:\s*1 \/ -1;/.test(timesCss), 'タイムズ時は移動距離欄を広く使う');
 assert(timesCss.includes('.seisan-extra-type.split') && timesCss.includes('var(--settlement-split-bg)'), '割勘セレクトに色を付ける');

@@ -24,7 +24,8 @@ const requiredOrder = [
   'components/buttons/01-button-base.css',
   'app-shell/00-base-extracted.css',
   'app-shell/header/01-header-base.css',
-  'theme/01-theme-tokens.css',
+  'app-shell/header/02-room-status.css',
+  'app-shell/header/03-tabs-actions.css',
   'guides-modals/00-base-extracted.css',
   'cars-members-tray/00-base-extracted.css',
   'settlement/00-base-extracted.css',
@@ -44,6 +45,15 @@ for (const file of requiredOrder) {
     process.exit(1);
   }
   last = idx;
+}
+
+if (cssLinks.some(file => file.startsWith('visual/'))) {
+  console.error('Late visual override layer must not be linked');
+  process.exit(1);
+}
+if (fs.existsSync(path.join(root, 'assets', 'css', 'visual'))) {
+  console.error('Late visual override directory must not exist');
+  process.exit(1);
 }
 
 const removed = [

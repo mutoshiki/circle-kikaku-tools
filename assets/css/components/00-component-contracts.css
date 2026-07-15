@@ -1,44 +1,17 @@
 /* Component contracts for common surfaces, amounts, tags, icons, tabs and inputs. */
 :root {
-  --space-0: 0;
-  --space-1: 2px;
-  --space-2: 4px;
-  --space-3: 6px;
-  --space-4: 8px;
-  --space-5: 10px;
-  --space-6: 12px;
-  --space-8: 16px;
-  --space-10: 20px;
-  --radius-control: var(--radius-sm, 8px);
-  --radius-card: var(--radius-main, 12px);
-  --radius-panel: var(--radius-lg, 16px);
-  --font-size-caption: 0.68rem;
-  --font-size-label: 0.78rem;
-  --font-size-body: 0.9rem;
-  --font-size-title: 1rem;
-  --font-size-amount: clamp(0.94rem, 4.1vw, 1.12rem);
-  --font-weight-label: 500;
-  --font-weight-title: 600;
-  --font-weight-amount: 650;
-  /* Component-local z tokens only. Do not redefine app-level --z-modal/--z-dropdown here. */
-  --ui-z-base: 0;
-  --ui-z-raised: 10;
-  --ui-z-sticky: 50;
-  --ui-z-tray: 80;
-  --ui-z-dropdown: 200;
-  --ui-z-overlay: 800;
-  --ui-z-modal: 1000;
-  --ui-z-toast: 1200;
+  --radius-control: 0;
+  --radius-card: 0;
+  --radius-panel: 0;
   --amount-font-size: var(--font-size-amount);
-  --amount-font-weight: var(--font-weight-amount);
-  --amount-letter-spacing: -0.035em;
+  --amount-letter-spacing: 0;
   --chip-height: 1.86em;
-  --chip-radius: 999px;
+  --chip-radius: var(--radius-sm);
   --icon-muted: var(--text-sub);
   --icon-primary: var(--accent-color);
 }
 .ui-surface { border-radius: var(--radius-card); background: var(--bg-card); }
-.ui-surface--card { border: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent); box-shadow: var(--shadow-card); }
+.ui-surface--card { border: 1px solid var(--border-section); box-shadow: none; }
 .ui-surface--inset { border: 1px solid color-mix(in srgb, var(--border-color) 52%, transparent); background: color-mix(in srgb, var(--bg-card) 88%, var(--bg-body)); }
 .ui-amount,
 :where(.seisan-summary-value, .seisan-car-summary-total, .seisan-driver-amount) {

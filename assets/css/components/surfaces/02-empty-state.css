@@ -18,7 +18,7 @@
 .empty-card.app-empty-card > i {
   width: 44px;
   height: 44px;
-  border-radius: 14px;
+  border-radius: var(--radius-main);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -32,7 +32,7 @@
   display: block;
   color: var(--text-main);
   font-size: 0.95rem;
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1.45;
   margin-bottom: 10px;
 }
@@ -99,14 +99,15 @@
   }
 }
 
-#sheet-view-area:has(#sheet-canvas .sheet-empty-card) #sheet-canvas {
-  min-height: calc(100dvh - 260px);
-  display: flex;
+#sheet-view-area:has(#sheet-content .sheet-empty-card) .sheet-content {
+  width: 100%;
+  min-width: 100%;
+  min-height: 100%;
   align-items: center;
   justify-content: center;
 }
 
-#sheet-view-area:has(#sheet-canvas .sheet-empty-card) .sheet-empty-card {
+#sheet-view-area:has(#sheet-content .sheet-empty-card) .sheet-empty-card {
   margin: 0 auto;
 }
 
@@ -129,4 +130,18 @@
 
 #seisan-empty-state:not([hidden]) .app-empty-card {
   margin: 0 auto;
+}
+
+.sheet-empty-card {
+  border: 1px dashed var(--border-dashed);
+  border-radius: var(--radius-lg);
+  background: var(--surface-lowest);
+  box-shadow: none;
+}
+
+.empty-state {
+  border: 1px dashed var(--border-dashed);
+  border-radius: var(--radius-lg);
+  background: var(--surface-lowest);
+  box-shadow: none;
 }

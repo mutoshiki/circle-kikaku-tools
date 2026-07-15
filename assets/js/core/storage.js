@@ -35,6 +35,24 @@ function migrateAppData(rawData) {
         };
     }
 
+    if (version < 4) {
+        migrated.schemaVersion = 4;
+        migrated.editLockScopes = migrated.editLockEnabled
+            ? { allocation: true, settlement: true }
+            : { allocation: false, settlement: false };
+        migrated.meta = {
+            ...(migrated.meta || {}),
+            migratedAt: new Date().toISOString(),
+            migratedFrom: version
+        };
+    }
+
+    if (!migrated.editLockScopes || typeof migrated.editLockScopes !== 'object') {
+        migrated.editLockScopes = migrated.editLockEnabled
+            ? { allocation: true, settlement: true }
+            : { allocation: false, settlement: false };
+    }
+
     if (!migrated.schemaVersion) migrated.schemaVersion = APP_SCHEMA_VERSION;
     return migrated;
 }

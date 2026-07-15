@@ -1,209 +1,132 @@
-/* Sheet view base layout and car columns.
-   CSS architecture cleanup: keep this file focused on the responsibility in its name. */
-#sheet-view-area.active {
-display: flex;
+/* Shared presentation view frame.
+   発表ビューは車割を上、班割を下に縦並びで表示する。 */
+#sheet-view-area {
+  position: relative;
+  display: none;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg-body);
 }
-[data-theme="dark"] #sheet-title-bar {
-background: rgba(30,41,59,0.92);
-}
-#sheet-room-name.is-placeholder {
-color: var(--text-sub);
-    font-weight: 600;
-    opacity: 0.72;
-}
-.sheet-summary-pill strong {
-color: var(--text-main);
-    font-size: 0.69rem;
-    font-weight: 600;
-}
-.sheet-car-header {
-background: var(--sheet-header); color: var(--text-main);
-    padding: 7px 10px; font-weight: 600; font-size: 0.78rem;
-    text-align: center; position: sticky; top: 0; z-index: var(--z-local-raised);
-    border-bottom: 1px solid var(--sheet-grid);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.sheet-seat-row {
-padding: 5px 8px; border-bottom: 1px solid var(--sheet-grid);
-    font-size: 0.8rem; min-height: 36px; display: flex; align-items: center;
-    background: var(--seat-slot-bg); gap: 4px; flex-wrap: wrap;
-    color: var(--text-main);
-}
-.sheet-seat-row.empty {
-color: var(--text-sub); font-style: italic; font-size: 0.72rem;
-}
-.sheet-cell-text {
-white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-[data-theme="dark"] .sheet-chip {
-background: rgba(var(--shadow-rgb), 0.35);
-    border-color: rgba(var(--white-rgb), 0.08);
-}
-.sheet-chip.locked {
-opacity: 0.72;
-}
-.sheet-chip-text {
-white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.sheet-chip-ghost {
-opacity: 0.45;
-}
-.sheet-chip-drag {
-box-shadow: 0 8px 20px rgba(var(--black-rgb), 0.18);
-}
-#sheet-hint.visible {
-opacity: 1;
-}
-@media (max-width: 520px) {
+#sheet-view-area.active { display: flex; }
+
 #sheet-title-bar {
-padding: 8px 12px;
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  left: 12px;
+  z-index: var(--z-local-sticky);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 1200px;
+  min-height: 72px;
+  margin: 0 auto;
+  padding: 10px 12px;
+  border: 1px solid var(--border-section);
+  border-radius: 0;
+  background: var(--surface-lowest);
+  color: var(--text-main);
+  box-shadow: none;
+  backdrop-filter: none;
 }
-}
-@media (max-width: 520px) {
-/* 発表ビューは車割を上、班割を下に縦並びで表示する。 */
+#sheet-room-name { display: none; }
+#sheet-title-bar .sheet-title-icon { color: var(--text-on-accent); }
+#sheet-title-bar #sheet-summary { color: var(--text-sub); }
+
 #sheet-canvas {
-padding: 10px 10px 92px;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: var(--canvas-bg);
 }
+
+.sheet-content {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  padding: 100px 12px calc(112px + env(safe-area-inset-bottom));
+  transform-origin: top left;
 }
-@media (max-width: 520px) {
-.sheet-car-col {
-min-width: 126px;
+
+.sheet-primary-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  width: max-content;
+  min-width: 100%;
 }
+.sheet-primary-row > .sheet-plan-section,
+.sheet-primary-row > .sheet-allocation-stack { flex: 0 0 auto; }
+.sheet-allocation-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 22px;
+  width: max-content;
 }
-@media (max-width: 520px) {
-#sheet-bottom-controls {
-gap: 6px;
-        padding: 5px;
-}
-}
+.sheet-plan-section { width: max-content; min-width: min(100%, 320px); margin-bottom: 0; }
+.sheet-plan-heading { margin: 0 0 8px 2px; color: var(--text-main); font-size: 1rem; font-weight: 600; }
+.sheet-plan-table { display: flex; align-items: flex-start; gap: 8px; width: max-content; }
+
 .sheet-car-col {
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--sheet-grid);
-  border-top: 1px solid var(--sheet-grid);
-  border-bottom: 1px solid var(--sheet-grid);
-  min-width: 136px;
+  min-width: 142px;
   flex-shrink: 0;
-  background: var(--bg-card);
-}
-
-#sheet-title-bar,
-#sheet-bottom-controls,
-.sheet-empty-card,
-.sheet-car-col,
-.sheet-wait-block {
-  border-color: var(--app-border-soft);
-  outline: 0;
-}
-
-.sheet-car-header,
-.sheet-wait-header {
-  border-color: var(--app-divider-soft);
-}
-
-.sheet-driver-row,
-.sheet-seat-row,
-.sheet-wait-item {
-  border-color: var(--app-border-subtle);
-  outline: 0;
-}
-
-#sheet-title-bar > .debug-tap-target {
-color: var(--accent-color);
-}
-.sheet-chip,
-.sheet-seat-row,
-.sheet-driver-row {
-font-weight: 500;
-}
-#sheet-room-name {
-  display: none;
-  font-size: 0.94rem;
-  white-space: nowrap;
   overflow: hidden;
+  border: 1px solid var(--border-section);
+  border-radius: 0;
+  background: var(--surface-lowest);
+  box-shadow: none;
+}
+.sheet-car-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-local-raised);
+  min-height: 42px;
+  padding: 9px 10px;
+  overflow: hidden;
+  background: var(--surface-container);
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
   text-overflow: ellipsis;
-  line-height: 1.2;
+  white-space: nowrap;
 }
-#sheet-view-area,
-.sheet-empty {
-min-width: 0;
+.sheet-driver-row,
+.sheet-seat-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 7px 9px;
+  border-bottom: 1px solid var(--border-section);
+  background: var(--surface-lowest);
+  color: var(--text-main);
+  font-size: 0.84rem;
+  font-weight: 400;
 }
-[data-theme="dark"] .sheet-summary-pill {
-background: rgba(var(--shadow-rgb), 0.72);
-    border-color: rgba(148, 163, 184, 0.24);
-    color: var(--palette-slate-300);
-}
-@media (max-width: 420px) {
-.sheet-summary-pill {
-padding: 5px 8px;
-}
-}
-.sheet-empty-title {
-display: block;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text-main);
-    margin-bottom: 6px;
-}
-.sheet-empty-text {
-display: block;
-    font-size: 0.8rem;
-    margin-bottom: 12px;
-}
-.mock-sheet-table {
-display: grid;
-    grid-template-columns: 1.3fr 0.7fr 0.8fr;
-    border: 1px solid var(--palette-google-line);
-    border-radius: 4px;
-    overflow: hidden;
-    font-size: 0.68rem;
-}
-.mock-sheet-table > div {
-padding: 6px;
-    border-right: 1px solid var(--palette-google-line);
-    border-bottom: 1px solid var(--palette-google-line);
-}
-.mock-sheet-table > div:nth-child(3n) {
-border-right: 0;
-}
-.mock-sheet-table .head {
-background: var(--palette-f8fafd); font-weight: 500;
-}
-.guide-sheet-preview {
-margin-top: 10px;
-}
-[data-theme="dark"] #sheet-title-bar,
-[data-theme="dark"] #sheet-bottom-controls {
-border-color: rgba(148, 163, 184, 0.18);
-}
-.sheet-empty-actions {
-display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 10px;
-}
-@media (max-width: 640px) {
-.sheet-empty-actions {
-grid-template-columns: 1fr;
-}
-}
-.sheet-chip.draggable {
-  cursor: grab;
-  touch-action: pan-x pan-y;
-}
-.mock-sheet-top {
-min-height: 32px;
-    padding: 7px 9px;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    border-bottom: 1px solid var(--border-color);
-    background: var(--sheet-header);
-    color: var(--text-main);
-    font-size: 0.72rem;
-    font-weight: 600;
+.sheet-driver-row { background: var(--accent-container); color: var(--accent-container-text); font-weight: 600; }
+.sheet-seat-row:last-child { border-bottom: 0; }
+.sheet-seat-row.empty { color: var(--text-faint); font-size: 0.76rem; font-style: normal; }
+.sheet-cell-text,
+.sheet-chip-text,
+.sheet-driver-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sheet-chip.locked { opacity: 0.78; }
+.sheet-chip-ghost { opacity: 0.45; }
+.sheet-chip-drag { box-shadow: var(--shadow-float); }
+
+@media (min-width: 769px) {
+  #sheet-canvas { scrollbar-gutter: stable; }
+  .sheet-content { padding-inline: max(24px, calc((100vw - 1200px) / 2)); }
+  .sheet-car-col { min-width: 154px; }
 }

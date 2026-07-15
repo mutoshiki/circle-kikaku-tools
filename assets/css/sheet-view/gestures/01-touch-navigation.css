@@ -1,0 +1,44 @@
+/* Legacy direct manipulation for the shared presentation canvas. */
+#sheet-canvas {
+  touch-action: none;
+  cursor: grab;
+}
+
+#sheet-content {
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+#sheet-view-area.is-panning {
+  cursor: grabbing;
+  user-select: none;
+}
+
+#sheet-canvas:focus-visible {
+  outline: 3px solid var(--focus-accent);
+  outline-offset: -3px;
+}
+
+
+#sheet-hint {
+  position: absolute;
+  right: 16px;
+  bottom: 84px;
+  z-index: var(--z-floating);
+  max-width: calc(100% - 32px);
+  padding: 9px 12px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--surface-highest) 94%, transparent);
+  color: var(--text-main);
+  box-shadow: var(--shadow-float);
+  opacity: 0;
+  pointer-events: none;
+  font-size: var(--font-size-caption);
+  font-weight: 600;
+  white-space: nowrap;
+  backdrop-filter: var(--ui-floating-backdrop);
+}
+
+#sheet-hint.visible {
+  opacity: 1;
+}

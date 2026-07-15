@@ -131,7 +131,21 @@ function setupRouteStopSortable() {
     routeStopSortable = new Sortable(list, {
         animation: 150,
         handle: '.route-stop-num',
+        forceFallback: true,
+        fallbackOnBody: true,
+        fallbackTolerance: 4,
+        touchStartThreshold: 4,
+        ghostClass: 'route-stop-drag-ghost',
+        chosenClass: 'route-stop-drag-chosen',
+        fallbackClass: 'route-stop-drag-fallback',
+        onClone: event => {
+            const rect = event.item.getBoundingClientRect();
+            event.clone.style.width = `${rect.width}px`;
+            event.clone.style.height = `${rect.height}px`;
+        },
+        onStart: () => document.body.classList.add('route-stop-dragging'),
         onEnd: () => {
+            document.body.classList.remove('route-stop-dragging');
             refreshRouteStopHandles();
             saveRouteStopsFromModal();
         }

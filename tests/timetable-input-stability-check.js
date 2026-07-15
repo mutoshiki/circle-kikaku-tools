@@ -19,7 +19,7 @@ assert(!js.includes('focusTimetableTitleAfterTime'), 'Time input should not auto
 assert(!js.includes('lastElementChild?.querySelector(\'[data-field="time"]\')?.focus'), 'Add button should not force-focus the time input.');
 assert(js.includes('placeholder="内容"'), 'Timetable text field should use the 内容 label.');
 
-assert(css.includes('grid-template-columns: minmax(0, 76px) minmax(0, 1fr) 30px'), 'Timetable row should reserve a compact fixed time column.');
+assert(css.includes('grid-template-columns: 82px minmax(0, 1fr) 48px'), 'Timetable row should reserve a readable fixed time column and 48px delete action.');
 assert(css.includes('box-sizing: border-box'), 'Timetable inputs should include padding inside their width.');
 assert(css.includes('input[data-field="time"]'), 'Time input should have a field-specific compact rule.');
 assert(css.includes('max-width: 100%'), 'Timetable inputs should not overflow their grid columns.');

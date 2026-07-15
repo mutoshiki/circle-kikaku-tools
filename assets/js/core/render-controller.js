@@ -132,6 +132,7 @@ function updateUI() {
         b.classList.toggle('is-team-group', activeTemplateForUi.type === 'team');
         b.classList.toggle('over-capacity', n>c);
     });
+    if (typeof refreshEmptySeatAccessibility === 'function') refreshEmptySeatAccessibility();
     updateWaitingTrayState();
     renderListEmptyHint();
     updateAutoAssignSummary();

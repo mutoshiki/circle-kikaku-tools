@@ -6,7 +6,6 @@ const required = [
   '.capacity-badge.capacity-edit-btn',
   '.capacity-badge.capacity-edit-btn .capacity-count',
   '.fa-check',
-  '.seisan-mock-box-check',
   'background: transparent',
   'border: 0',
   'box-shadow: none'

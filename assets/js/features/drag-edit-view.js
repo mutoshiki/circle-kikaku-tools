@@ -59,6 +59,7 @@ function showSeatReturnPreview(card, destination, excluded = []) {
     const preview = card.cloneNode(true);
     preview.classList.add('swap-preview-card');
     preview.classList.remove('manual-drag-source', 'manual-drag-float', 'drag-preview-card', 'seat-card-will-move');
+    preview.querySelectorAll('[aria-expanded="true"]').forEach(node => node.setAttribute('aria-expanded', 'false'));
     preview.removeAttribute('id');
     preview.setAttribute('aria-hidden', 'true');
     if (destination.classList?.contains('seat-slot')) {

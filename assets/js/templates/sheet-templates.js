@@ -17,6 +17,7 @@
     return {
       type: 'car',
       sectionTitle: '車割',
+      sheetTitle: '車割',
       ownerLabel: '車出し',
       memberLabel: '席',
       groupSuffix: '車',
@@ -68,20 +69,18 @@
     const cap = parseInt(car.capacity) || 0;
     const filled = (car.members || []).filter(Boolean).length;
     const capacityClass = filled > cap ? 'is-over' : (filled === cap ? 'is-full' : '');
-    const groupTitle = cfg.type === 'team' ? `第${groupIndex + 1}班` : `${car.name}${cfg.groupSuffix}`;
+    const groupTitle = `${cfg.type === 'team' ? '班' : '車'}${groupIndex + 1}`;
     let html = `<div class="sheet-car-header">${esc(groupTitle, helpers)} <span class="sheet-capacity-badge ${capacityClass}">${filled}/${cap}</span></div>`;
 
     const dg = car.driverGender || 'unknown';
     const dgrade = parseInt(car.driverGrade) || 0;
     html += `<div class="sheet-driver-row" data-gender="${dg}">
-        <span class="sheet-driver-name">${esc(car.name, helpers)}</span>${gradeBadge(dgrade, dg, helpers)}
+        ${gradeBadge(dgrade, dg, helpers)}<span class="sheet-driver-name">${esc(car.name, helpers)}</span>
     </div>`;
 
-    for (let i = 0; i < maxSeats; i++) {
+    for (let i = 0; i < cap; i++) {
       const mem = (car.members || [])[i];
-      if (i >= cap) {
-        html += `<div class="sheet-seat-row sheet-seat-disabled"></div>`;
-      } else if (mem && mem.name) {
+      if (mem && mem.name) {
         const g = mem.gender || 'unknown';
         html += quickEditMode
           ? `<div class="sheet-seat-row" data-gender="${g}"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${esc(car.name, helpers)}" data-slot-index="${i}" data-accept-drop="${mem.locked ? 'false' : 'true'}">${memberChip(mem, helpers)}</div></div>`

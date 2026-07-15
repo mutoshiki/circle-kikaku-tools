@@ -16,17 +16,19 @@ const packageJson = JSON.parse(readText('package.json'));
 const cssFiles = listCssFiles().map(file => path.relative(path.join(root, 'assets/css'), file).replace(/\\/g, '/'));
 
 const requiredDirs = [
-  'tokens/', 'components/buttons/', 'components/surfaces/', 'theme/',
+  'tokens/', 'components/buttons/', 'components/surfaces/',
   'app-shell/layout/', 'app-shell/edit/', 'app-shell/header/',
   'guides-modals/modal/', 'guides-modals/dialog/', 'guides-modals/import-guide/', 'guides-modals/z-layer/',
   'cars-members-tray/waiting-tray/', 'cars-members-tray/person-card/', 'cars-members-tray/car-card/', 'cars-members-tray/drag-drop/',
   'settlement/page-shell/', 'settlement/summary/', 'settlement/controls/', 'settlement/car-inputs/', 'settlement/route-helper/',
   'settlement/checklists/', 'settlement/share/', 'settlement/cost-tags/', 'settlement/payment-chip/', 'settlement/car-cost-summary/',
-  'sheet-view/layout/', 'sheet-view/waiting/', 'sheet-view/timetable/', 'sheet-view/edit/', 'sheet-view/print/'
+  'sheet-view/layout/', 'sheet-view/gestures/', 'sheet-view/waiting/', 'sheet-view/timetable/', 'sheet-view/edit/'
 ];
 for (const dir of requiredDirs) {
   assert(cssFiles.some(file => file.startsWith(dir)), `missing CSS owner directory: ${dir}`);
 }
+
+assert(!cssFiles.some(file => file.startsWith('visual/')), 'late visual override owner must not exist');
 
 for (const file of cssFiles) {
   const text = fs.readFileSync(path.join(root, 'assets/css', file), 'utf8');

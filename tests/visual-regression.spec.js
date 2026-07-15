@@ -1,4 +1,38 @@
+const fs = require('fs');
+const path = require('path');
 const { test, expect } = require('@playwright/test');
+
+test.setTimeout(90000);
+
+const ROOT = path.resolve(__dirname, '..');
+function local(relativePath) {
+  return fs.readFileSync(path.join(ROOT, relativePath));
+}
+async function installOfflineAssets(page) {
+  await page.route('**/firebase-config.js', route =>
+    route.fulfill({ status: 200, contentType: 'application/javascript', body: 'window.SANPO_FIREBASE_CONFIG = {};' })
+  );
+  await page.route('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css', route =>
+    route.fulfill({ status: 200, contentType: 'text/css', body: local('node_modules/bootstrap/dist/css/bootstrap.min.css') })
+  );
+  await page.route('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js', route =>
+    route.fulfill({ status: 200, contentType: 'application/javascript', body: local('node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') })
+  );
+  await page.route('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', route =>
+    route.fulfill({ status: 200, contentType: 'text/css', body: local('node_modules/@fortawesome/fontawesome-free/css/all.min.css') })
+  );
+  await page.route('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/**', route => {
+    const filename = path.basename(new URL(route.request().url()).pathname);
+    return route.fulfill({
+      status: 200,
+      contentType: filename.endsWith('.woff2') ? 'font/woff2' : 'application/octet-stream',
+      body: local(`node_modules/@fortawesome/fontawesome-free/webfonts/${filename}`)
+    });
+  });
+  await page.route('https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js', route =>
+    route.fulfill({ status: 200, contentType: 'application/javascript', body: local('node_modules/sortablejs/Sortable.min.js') })
+  );
+}
 
 async function installOfflineBootstrapFallback(page) {
   await page.addInitScript(() => {
@@ -62,36 +96,9 @@ async function installOfflineBootstrapFallback(page) {
 }
 
 async function loadSampleData(page) {
-  await page.evaluate(() => {
-    const menu = document.querySelector('.header-more .dropdown-menu');
-    menu.classList.add('show');
-    Object.assign(menu.style, {
-      position: 'fixed',
-      top: '56px',
-      right: '8px',
-      left: 'auto',
-      maxHeight: 'calc(100vh - 64px)',
-      overflowY: 'auto'
-    });
-  });
-  await page.locator('#sampleDataBtn').click();
-  await page.evaluate(() => {
-    document.querySelector('.header-more .dropdown-menu')?.classList.remove('show');
-  });
-  await expect(page.locator('#debugModal')).toBeVisible();
-  await page.locator('#executeDebugBtn').click();
-  await page.evaluate(() => {
-    const modal = document.querySelector('#debugModal');
-    if (modal?.classList.contains('show')) {
-      modal.classList.remove('show');
-      modal.style.display = 'none';
-      modal.setAttribute('aria-hidden', 'true');
-      modal.removeAttribute('aria-modal');
-      document.querySelectorAll('.modal-backdrop').forEach(node => node.remove());
-      document.body.classList.remove('modal-open');
-    }
-  });
-  await expect(page.locator('#debugModal')).toBeHidden();
+  await page.waitForFunction(() => typeof window.executeDebugMode === 'function');
+  await page.evaluate(() => window.executeDebugMode());
+  await page.waitForTimeout(300);
 }
 
 async function openSettlementCarModal(page) {
@@ -100,16 +107,18 @@ async function openSettlementCarModal(page) {
   await expect(edit).toBeVisible();
   await edit.click();
   await expect(page.locator('#settlementCarEditModal')).toBeVisible();
+  await page.waitForFunction(() => !document.querySelector('#appStatusToast')?.classList.contains('visible'));
 }
 
 for (const scenario of [
-  { width: 380, theme: 'light' },
-  { width: 390, theme: 'dark' },
-  { width: 768, theme: 'light' },
-  { width: 769, theme: 'dark' },
-  { width: 1280, theme: 'light' }
+  { width: 360, height: 800 },
+  { width: 390, height: 844 },
+  { width: 430, height: 932 },
+  { width: 768, height: 1024 },
+  { width: 1280, height: 720 },
+  { width: 1440, height: 900 }
 ]) {
-  test(`settlement modal visual contract ${scenario.width}px ${scenario.theme}`, async ({ page }) => {
+  test(`settlement modal visual contract ${scenario.width}px`, async ({ page }) => {
     const consoleProblems = [];
     page.on('console', message => {
       if (['error', 'warning'].includes(message.type())) {
@@ -133,13 +142,7 @@ for (const scenario of [
       route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({
-          users: [{
-            localId: 'visual-test-user',
-            lastLoginAt: '0',
-            createdAt: '0'
-          }]
-        })
+        body: JSON.stringify({ users: [{ localId: 'visual-test-user', lastLoginAt: '0', createdAt: '0' }] })
       });
     });
     await page.route('https://securetoken.googleapis.com/v1/token**', route => {
@@ -158,21 +161,15 @@ for (const scenario of [
       });
     });
 
-    await page.setViewportSize({ width: scenario.width, height: scenario.width < 700 ? 844 : 720 });
+    await page.setViewportSize({ width: scenario.width, height: scenario.height });
+    await installOfflineAssets(page);
     await installOfflineBootstrapFallback(page);
     await page.goto('./index.html?visual-regression=1');
     await loadSampleData(page);
-
-    if (scenario.theme === 'dark') {
-      await page.evaluate(() => {
-        document.documentElement.dataset.theme = 'dark';
-        document.body.dataset.theme = 'dark';
-      });
-    }
-
     await openSettlementCarModal(page);
+
     await expect(page.locator('#settlementCarEditModal .modal-dialog')).toHaveScreenshot(
-      `settlement-modal-${scenario.width}-${scenario.theme}.png`,
+      `settlement-modal-${scenario.width}-saas.png`,
       {
         animations: 'disabled',
         caret: 'hide',

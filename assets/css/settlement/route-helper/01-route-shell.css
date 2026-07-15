@@ -1,4 +1,4 @@
-/* Distance route helper: modal shell, panels, titles, and private home field. */
+/* Distance route helper: modal shell, panels, and titles. */
 #routeDistanceModal .route-helper-body {
   max-height: min(66vh, 600px);
   overflow-y: auto;
@@ -112,11 +112,6 @@
   text-align: center;
 }
 
-[data-theme="dark"] #routeDistanceModal :is(.route-stop-panel, .route-candidate-panel) {
-  background: color-mix(in srgb, var(--bg-card) 88%, var(--color-night));
-  border-color: rgba(148, 163, 184, 0.16);
-}
-
 @media (max-width: 768px) {
   #routeDistanceModal .route-stop-input {
     font-size: 16px;
@@ -132,7 +127,7 @@
 
   #routeDistanceModal .modal-content {
     max-height: calc(100dvh - 24px);
-    border-radius: 18px;
+    border-radius: var(--radius-lg);
   }
 
   #routeDistanceModal .route-helper-body {

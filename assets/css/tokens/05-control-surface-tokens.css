@@ -1,146 +1,94 @@
-/* Shared control, surface, and readability tokens.
-   Formerly lived in 08-utilities.css; keep design variables in tokens/theme layers. */
-@media (max-width: 640px) {
-:root {
-    --control-radius: 9px;
-    --control-radius-compact: 7px;
-  }
-}
-
-@media (max-width: 640px) {
-:root {
-    --control-height: 40px;
-    --control-height-compact: 36px;
-    --control-icon-size: 42px;
-    --control-padding-x: 12px;
-  }
-}
-
-@media (max-width: 640px) {
-body {
-    --ui-panel-radius: 14px;
-    --ui-inner-radius: 11px;
-    --ui-panel-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.035), 0 8px 18px rgba(var(--shadow-rgb), 0.045);
-  }
-}
-
-@media (max-width: 640px) {
-body {
-    --ui-readable-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.045), 0 6px 14px rgba(var(--shadow-rgb), 0.06);
-  }
-}
-
-html,
-body {
-  font-weight: 450;
-}
-
-body {
-  --control-border: var(--ui-saas-border);
-  --control-border-strong: var(--ui-saas-border-strong);
-  --control-primary-bg: var(--accent-color);
-  --control-primary-hover: color-mix(in srgb, var(--accent-color) 88%, var(--color-black));
-  --control-primary-text: var(--color-white);
-  --control-primary-shadow: none;
-  --control-secondary-bg: color-mix(in srgb, var(--bg-card) 82%, var(--bg-body));
-  --control-secondary-hover: color-mix(in srgb, var(--accent-color) 8%, var(--bg-card));
-  --control-tertiary-bg: color-mix(in srgb, var(--bg-card) 70%, var(--bg-body));
-  --control-tertiary-hover: color-mix(in srgb, var(--accent-color) 7%, var(--bg-card));
-  --control-focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent-color) 20%, transparent);
-  --control-radius: var(--radius-main);
-  --control-radius-compact: var(--radius-sm);
-  --ui-panel-bg: color-mix(in srgb, var(--bg-card) 98%, var(--bg-body));
-  --ui-panel-bg-raised: color-mix(in srgb, var(--bg-card) 100%, var(--sheet-header));
-  --ui-panel-bg-muted: color-mix(in srgb, var(--bg-card) 70%, var(--bg-body));
-  --ui-panel-border: color-mix(in srgb, var(--border-color) 38%, transparent);
-  --ui-panel-border-strong: color-mix(in srgb, var(--border-color) 56%, var(--text-sub) 4%);
-  --ui-panel-shadow: var(--ui-surface-shadow);
-  --ui-panel-shadow-float: 0 14px 34px rgba(var(--shadow-rgb), 0.10);
-  --ui-panel-radius: 16px;
-  --ui-inner-radius: 12px;
-  --ui-pill-radius: 999px;
-  --ui-inset-line: inset 0 0 0 1px var(--ui-panel-border);
-  --ui-readable-border: color-mix(in srgb, var(--border-color) 38%, transparent);
-  --ui-readable-border-strong: color-mix(in srgb, var(--border-color) 56%, var(--text-sub) 4%);
-  --ui-readable-divider: color-mix(in srgb, var(--border-color) 30%, transparent);
-  --ui-readable-bg: color-mix(in srgb, var(--bg-card) 100%, var(--bg-body));
-  --ui-readable-inner-bg: color-mix(in srgb, var(--bg-card) 50%, var(--bg-body));
-  --ui-readable-shadow: var(--ui-surface-shadow);
-  background: var(--bg-body);
-  font-feature-settings: "palt" 1;
-  font-weight: 450;
-  letter-spacing: -0.005em;
-}
-
-:root {
-  --control-radius: 10px;
-  --control-radius-compact: 8px;
-  --control-border: color-mix(in srgb, var(--border-color) 86%, transparent);
-  --control-secondary-bg: color-mix(in srgb, var(--bg-card) 82%, var(--bg-body));
-  --control-secondary-hover: color-mix(in srgb, var(--accent-color) 9%, var(--bg-card));
-  --control-primary-shadow: none;
-  --control-height: 42px;
-  --control-height-compact: 38px;
-  --control-icon-size: 42px;
-  --control-padding-x: 14px;
-  --control-border-strong: color-mix(in srgb, var(--accent-color) 20%, var(--border-color));
-  --control-primary-bg: var(--accent-color);
-  --control-primary-hover: color-mix(in srgb, var(--accent-color) 88%, var(--color-black));
-  --control-primary-text: var(--color-white);
-  --control-tertiary-bg: color-mix(in srgb, var(--bg-card) 70%, var(--bg-body));
-  --control-tertiary-hover: color-mix(in srgb, var(--accent-color) 7%, var(--bg-card));
-  --control-focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent-color) 20%, transparent);
-  --ui-space-1: 4px;
-  --ui-space-2: 8px;
-  --ui-space-3: 12px;
-  --ui-space-4: 16px;
-  --ui-card-padding: 12px;
-  --ui-card-gap: 12px;
-  --ui-border-soft: color-mix(in srgb, var(--border-color) 44%, transparent);
-  --ui-hairline-quiet: color-mix(in srgb, var(--border-color) 20%, transparent);
-  --ui-surface-soft: color-mix(in srgb, var(--bg-card) 98%, var(--bg-body));
-  --ui-surface-muted: color-mix(in srgb, var(--sheet-header) 76%, var(--bg-card));
-  --ui-surface-sunken: color-mix(in srgb, var(--bg-body) 66%, var(--bg-card));
-  --ui-surface-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.035), 0 8px 20px rgba(var(--shadow-rgb), 0.055);
-  --ui-surface-shadow-soft: none;
-  --ui-focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent-color) 22%, transparent);
-  --ui-danger: var(--color-danger-strong);
-  --ui-danger-soft: rgba(220, 38, 38, 0.08);
-  --ui-warning: var(--palette-amber-600);
-  --ui-warning-soft: rgba(217, 119, 6, 0.11);
-  --ui-blue: var(--palette-blue-600);
-  --ui-blue-soft: var(--palette-blue-100);
-  --settlement-collect-bg: color-mix(in srgb, var(--bg-card) 94%, var(--bg-body));
-  --settlement-collect-line: var(--ui-hairline-quiet);
-  --settlement-tag-font-size: 0.64rem;
-  --settlement-tag-line-height: 1;
-  --settlement-tag-pad-y: 2px;
-  --settlement-tag-pad-x: 7px;
-  --settlement-tag-min-width: 2.4em;
-  --settlement-tag-min-height: 1.38em;
-  --settlement-split-ink: #245a3b;
-  --settlement-split-bg: #e8f5ee;
-  --settlement-split-line: rgba(55, 118, 79, 0.36);
-  --settlement-club-ink: #694816;
-  --settlement-club-bg: #f7eddb;
-  --settlement-club-line: rgba(145, 101, 35, 0.36);
-  --settlement-pay-ink: var(--palette-blue-700);
-  --settlement-pay-bg: color-mix(in srgb, var(--palette-blue-100) 72%, var(--bg-card));
-  --settlement-pay-line: color-mix(in srgb, var(--palette-blue-400) 72%, var(--border-color));
-  --settlement-pay-surface-bg: color-mix(in srgb, var(--settlement-pay-bg) 64%, var(--bg-card));
-  --settlement-pay-surface-line: color-mix(in srgb, var(--settlement-pay-line) 28%, var(--ui-saas-border, var(--border-color)));
-}
-
+/* Shared control dimensions and semantic surface hierarchy. */
 :root,
 body {
-  --settlement-pay-ink-fixed: var(--palette-blue-700);
-  --settlement-pay-bg-fixed: color-mix(in srgb, var(--palette-blue-100) 72%, var(--bg-card));
-  --settlement-pay-line-fixed: color-mix(in srgb, var(--palette-blue-400) 72%, var(--border-color));
-  --settlement-pay-surface-fixed: color-mix(in srgb, var(--settlement-pay-bg-fixed) 64%, var(--bg-card));
-  --settlement-pay-surface-line-fixed: color-mix(in srgb, var(--settlement-pay-line-fixed) 28%, var(--ui-saas-border, var(--border-color)));
-  --header-share-icon-bg: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
-  --header-share-icon-line: color-mix(in srgb, var(--border-color) 88%, transparent);
-  --header-share-icon-text: color-mix(in srgb, var(--text-main) 80%, var(--text-sub));
-  --header-share-icon-hover-bg: var(--hover-bg);
-  --header-share-icon-hover-text: var(--text-main);
+  --control-height: 48px;
+  --control-height-compact: 40px;
+  --control-icon-size: 48px;
+  --control-padding-x: 16px;
+  --control-radius: var(--radius-main);
+  --control-radius-compact: var(--radius-main);
+  --control-border: var(--border-color);
+  --control-border-strong: var(--accent-line);
+  --control-primary-bg: var(--button-primary);
+  --control-primary-hover: var(--button-primary-hover);
+  --control-primary-active: var(--button-primary-active);
+  --control-primary-text: var(--text-on-accent);
+  --control-primary-shadow: none;
+  --control-secondary-bg: var(--surface-container);
+  --control-secondary-hover: var(--surface-high);
+  --control-tertiary-bg: transparent;
+  --control-tertiary-hover: var(--surface-container);
+  --control-focus-ring: inset 0 0 0 2px var(--focus-accent), inset 0 0 0 3px var(--surface-lowest);
+
+  --ui-space-1: var(--space-1);
+  --ui-space-2: var(--space-2);
+  --ui-space-3: var(--space-3);
+  --ui-space-4: var(--space-4);
+  --ui-card-padding: var(--space-4);
+  --ui-card-gap: var(--space-3);
+  --ui-panel-bg: var(--surface-lowest);
+  --ui-panel-bg-raised: var(--surface-lowest);
+  --ui-panel-bg-muted: var(--surface-low);
+  --ui-panel-border: var(--border-section);
+  --ui-panel-border-strong: var(--border-color);
+  --ui-panel-shadow: none;
+  --ui-panel-shadow-float: var(--shadow-float);
+  --ui-floating-backdrop: none;
+  --ui-panel-radius: var(--radius-lg);
+  --ui-inner-radius: var(--radius-main);
+  --ui-inset-line: inset 0 0 0 1px var(--border-section);
+
+  --ui-readable-border: var(--border-color);
+  --ui-readable-border-strong: var(--border-strong);
+  --ui-readable-divider: var(--border-section);
+  --ui-readable-bg: var(--surface-lowest);
+  --ui-readable-inner-bg: var(--surface-low);
+  --ui-readable-shadow: var(--shadow-card);
+  --ui-border-soft: var(--border-color);
+  --ui-hairline-quiet: var(--hairline);
+  --ui-surface-soft: var(--surface-lowest);
+  --ui-surface-muted: var(--surface-low);
+  --ui-surface-sunken: var(--surface-container);
+  --ui-surface-shadow-soft: var(--shadow-card);
+  --ui-focus-ring: var(--control-focus-ring);
+
+  --ui-danger: var(--semantic-danger);
+  --ui-danger-soft: var(--semantic-danger-soft);
+  --ui-warning: var(--semantic-warning);
+  --ui-warning-soft: var(--semantic-warning-soft);
+
+  --settlement-collect-bg: var(--status-split-bg);
+  --settlement-collect-line: var(--status-split-border);
+  --settlement-tag-font-size: 0.68rem;
+  --settlement-tag-line-height: 1;
+  --settlement-tag-pad-y: 4px;
+  --settlement-tag-pad-x: 8px;
+  --settlement-tag-min-width: 2.4em;
+  --settlement-tag-min-height: 1.65em;
+  --settlement-split-ink: var(--status-split-text);
+  --settlement-split-bg: var(--status-split-bg);
+  --settlement-split-line: var(--status-split-border);
+  --settlement-club-ink: var(--status-club-text);
+  --settlement-club-bg: var(--status-club-bg);
+  --settlement-club-line: var(--status-club-border);
+
+  --header-share-icon-bg: var(--accent-color);
+  --header-share-icon-line: transparent;
+  --header-share-icon-text: var(--text-on-accent);
+  --header-share-icon-hover-bg: var(--accent-hover);
+  --header-share-icon-hover-text: var(--text-on-accent);
+
+  font-feature-settings: "palt" 1;
+}
+
+@media (max-width: 640px) {
+  :root,
+  body {
+    --control-height: 48px;
+    --control-height-compact: 44px;
+    --control-icon-size: 48px;
+    --control-padding-x: 16px;
+    --ui-panel-radius: var(--radius-lg);
+    --ui-inner-radius: var(--radius-main);
+  }
 }

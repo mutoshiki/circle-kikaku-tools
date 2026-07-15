@@ -1,79 +1,10 @@
-/* Overview drawer and overview menu rules.
-   CSS architecture cleanup: keep this file focused on the responsibility in its name. */
-.overview-drawer .overview-panel-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 0;
-  border: 0;
-}
-.overview-drawer .overview-mini-action,
-.overview-drawer .overview-copy-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-height: 34px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 76%, transparent);
-  border-radius: 9px;
-  background: transparent;
-  color: var(--text-main);
-  font-size: 0.86rem;
-  font-weight: 650;
-  box-shadow: none;
-}
-.overview-drawer .overview-mini-action {
-  padding: 0 10px;
-}
-.overview-drawer .overview-copy-action {
-  width: 100%;
-  min-height: 38px;
-  margin: 7px 0 0;
-  padding: 0 12px;
-  border-color: color-mix(in srgb, var(--border-color) 72%, transparent);
-  border-radius: 10px;
-  font-weight: 700;
-}
-.overview-drawer .overview-mini-action:hover,
-.overview-drawer .overview-copy-action:hover {
-  border-color: color-mix(in srgb, var(--accent-color) 42%, var(--border-color));
-  background: color-mix(in srgb, var(--accent-color) 5%, transparent);
-  color: var(--accent-color);
-  box-shadow: none;
-}
-.overview-drawer .overview-row-delete {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  min-width: 28px;
-  height: 36px;
-  border: 0;
-  border-radius: 9px;
-  background: transparent;
-  color: color-mix(in srgb, var(--text-sub) 84%, var(--text-main));
-  box-shadow: none;
-}
-.overview-drawer .overview-row-delete:hover {
-  color: var(--color-danger-text);
-  background: rgba(248, 113, 113, 0.1);
-}
-[data-theme="dark"] .overview-drawer {
-  background: var(--bg-card);
-  box-shadow: none;
-}
-#app-layout #app-header .header-action span,
-#app-layout #app-header #shareLinkBtn.header-action span,
-#app-layout #app-header .overview-menu-toggle span {
-  display: none;
-}
+/* Overview drawer for memo and timetable. */
 .overview-drawer-scrim {
   position: fixed;
   inset: 0;
   z-index: var(--z-modal-backdrop);
-  background: rgba(var(--shadow-rgb), 0.3);
-  backdrop-filter: blur(2px);
+  background: rgba(var(--black-rgb), 0.42);
+  backdrop-filter: none;
 }
 .overview-drawer {
   position: fixed;
@@ -82,110 +13,46 @@
   z-index: var(--z-modal);
   display: flex;
   flex-direction: column;
-  width: min(86vw, 340px);
+  width: min(92vw, 420px);
   height: 100dvh;
-  padding: 18px 16px max(18px, env(safe-area-inset-bottom));
-  border-left: 1px solid var(--app-border-soft, color-mix(in srgb, var(--border-color) 76%, transparent));
-  background: var(--bg-card);
-  color: var(--text-main);
-  box-shadow: none;
-  transform: translateX(104%);
-  transition: transform 0.24s ease;
-  outline: 0;
-}
-.overview-drawer.is-open {
-  transform: translateX(0);
-}
-.overview-drawer-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 10px;
-  border-bottom: 0;
-}
-.overview-drawer-head--compact {
-  justify-content: flex-end;
-  min-height: 0;
-}
-.overview-panel h3 {
-  margin: 0;
-  color: var(--text-main);
-  letter-spacing: 0;
-}
-.overview-drawer-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
-  border-radius: 10px;
-  background: transparent;
-  color: var(--text-main);
-  box-shadow: none;
-}
-.overview-drawer-close i {
-  font-size: 1.18rem;
-}
-.overview-drawer-body {
-  display: grid;
-  gap: 18px;
-  overflow-y: auto;
-  padding: 0 0 4px;
-  min-width: 0;
+  padding: max(14px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
   overflow-x: hidden;
   border: 0;
   border-radius: 0;
   outline: 0;
-  background: transparent;
-  box-shadow: none;
+  background: var(--surface-lowest);
+  color: var(--text-main);
+  box-shadow: var(--shadow-modal);
+  visibility: hidden;
+  transform: translateX(104%);
+  pointer-events: none;
+  transition: transform var(--motion-slow) ease, visibility 0s linear var(--motion-slow);
 }
-.overview-panel {
-  display: grid;
-  gap: 8px;
-  min-width: 0;
-  max-width: 100%;
+.overview-drawer.is-open { visibility: visible; transform: translateX(0); pointer-events: auto; transition-delay: 0s; }
+.overview-drawer-head { display: flex; align-items: center; justify-content: flex-end; min-height: 52px; padding-bottom: 8px; }
+.overview-drawer-close,
+.overview-drawer .overview-row-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
-  box-shadow: none;
-  box-sizing: border-box;
-}
-.overview-panel-title-row {
-  border-color: var(--app-divider-soft, var(--border-color));
-}
-.overview-panel h3 {
-  font-size: 0.92rem;
-  font-weight: 700;
-  line-height: 1.2;
-}
-.overview-textarea {
-  width: 100%;
-  resize: vertical;
-  min-height: 112px;
-  padding: 7px 8px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 68%, transparent);
-  border-radius: 9px;
-  background: color-mix(in srgb, var(--bg-body) 74%, var(--bg-card));
-  color: var(--text-main);
-  font: inherit;
-  font-size: 0.94rem;
-  line-height: 1.65;
+  color: var(--text-sub);
   box-shadow: none;
 }
-.overview-drawer-close:hover {
-  color: var(--accent-color);
-}
-.overview-textarea:focus {
-  border-color: color-mix(in srgb, var(--accent-color) 48%, var(--border-color));
-  outline: 0;
-  box-shadow: none;
-}
-body.overview-drawer-open {
-  overflow: hidden;
-}
-[data-theme="dark"] .overview-drawer-scrim {
-  background: rgba(2, 6, 23, 0.52);
-}
+.overview-drawer-close:hover,
+.overview-drawer .overview-row-delete:hover { background: var(--surface-hover); color: var(--text-main); }
+.overview-drawer-body { display: grid; gap: 24px; min-width: 0; padding: 0 0 8px; overflow-y: auto; }
+.overview-panel { display: grid; gap: 12px; min-width: 0; padding: 0; border: 0; background: transparent; }
+.overview-panel h3 { margin: 0; color: var(--text-main); font-size: 1rem; font-weight: 600; }
+.overview-drawer .overview-panel-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.overview-textarea { width: 100%; min-height: 144px; padding: 14px 16px; resize: vertical; border: 0; border-bottom: 1px solid var(--border-strong); border-radius: 0; background: var(--surface-low); color: var(--text-main); box-shadow: none; font: inherit; font-size: 1rem; line-height: 1.65; }
+.overview-drawer .overview-mini-action,
+.overview-drawer .overview-copy-action { min-height: 48px; border-radius: 0; background: var(--surface-container); }
+.overview-drawer .overview-copy-action { width: 100%; margin-top: 8px; background: var(--accent-container); color: var(--accent-container-text); }
+body.overview-drawer-open { overflow: hidden; }

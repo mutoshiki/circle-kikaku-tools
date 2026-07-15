@@ -33,10 +33,12 @@ const requiredLeafOwners = [
   'app-shell/layout/01-app-frame.css',
   'app-shell/edit/01-edit-base.css',
   'app-shell/header/01-header-base.css',
-  'app-shell/header/04-mobile-layout.css',
-  'theme/01-theme-tokens.css',
+  'app-shell/header/02-room-status.css',
+  'app-shell/header/03-tabs-actions.css',
   'guides-modals/modal/01-modal-base.css',
-  'guides-modals/guide/01-guide-cards.css',
+  'guides-modals/manual/01-manual-shell.css',
+  'guides-modals/manual/02-manual-media.css',
+  'guides-modals/manual/03-manual-mobile.css',
   'guides-modals/dialog/01-dialog-shell.css',
   'guides-modals/import-guide/01-import-shell.css',
   'guides-modals/notices/01-copy-lock.css',
@@ -48,6 +50,8 @@ for (const file of requiredLeafOwners) {
   assert(fs.existsSync(path.join(root, 'assets/css', file)), `${file} is missing`);
 }
 
-assert(css.includes('.guide-feature-card'), 'guide feature card styles should live in guides/modals leaf CSS');
+assert(!fs.existsSync(path.join(root, 'assets/css/visual')), 'visual override directory must not exist');
+assert(!cssLinks.some(file => file.startsWith('visual/')), 'visual override CSS must not be linked');
+assert(css.includes('.user-manual-figure'), 'user manual media styles should live in guides/modals leaf CSS');
 
 console.log('CSS fixed scope owner check OK');

@@ -21,6 +21,8 @@ assert(index.includes('modal-dialog modal-lg modal-dialog-centered route-helper-
 assert(routeTemplate.includes('title="並び替え"'), 'drag handle should have a concise sorting label');
 assert(routeTemplate.includes('fa-grip-vertical'), 'route row should include a visible drag handle icon');
 assert(!routeTemplate.includes('<b>${index + 1}</b>'), 'route rows should not display sequence numbers');
+assert(routeLogic.includes('forceFallback: true') && routeLogic.includes('fallbackOnBody: true'), 'route stop dragging should use a body-level fallback to keep the card under the finger');
+assert(routeLogic.includes("fallbackClass: 'route-stop-drag-fallback'") && routeLogic.includes('onClone: event =>'), 'route stop fallback clone should preserve the source row size');
 assert(routeLogic.includes('立ち寄る場所を1つ以上入力してください。'), 'empty stop error should use 立ち寄る場所 wording');
 assert(!routeLogic.includes('getRoutePrivateOrigin') && !routeLogic.includes('ROUTE_PRIVATE_ORIGIN_KEY'), 'home origin storage and route logic should be removed');
 assert(routeLogic.includes("setRouteHelperStatus('Google Mapを開きました。');"), 'route status should use the new Google Map wording');

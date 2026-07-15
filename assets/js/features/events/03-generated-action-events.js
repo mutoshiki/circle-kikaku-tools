@@ -27,6 +27,7 @@
             'switch-list': () => switchView('list'),
             'switch-seisan-settings': () => Promise.resolve(switchView('seisan')).then(() => global.openStandaloneSettlementSettings?.()),
             'open-settlement-settings': () => global.openSettlementSettings?.(),
+            'toggle-settlement-car-layout': () => global.toggleSettlementCarLayout?.(),
             'open-standalone-settlement-settings': () => global.openStandaloneSettlementSettings?.(),
             'save-settlement-settings': () => global.saveSettlementSettings?.(),
             'open-settlement-car-edit': ({ target }) => global.openSettlementCarEditor?.(target.dataset.driverName || ''),

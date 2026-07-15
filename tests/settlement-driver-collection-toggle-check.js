@@ -8,7 +8,7 @@ const calcText = readText('assets/js/features/settlement/02-calculator.js');
 const renderText = readText('assets/js/features/settlement/03-render.js');
 const eventsText = readText('assets/js/features/events/05-view-feature-events.js');
 const templatesText = readSettlementTemplateBundle();
-const guideText = readText('assets/js/templates/guide-content.js');
+const guideText = readText('assets/js/templates/user-guide-content.js');
 
 assert(html.includes('id="seisanDriverCollectionOffset"'), 'settings modal should expose driver collection offset toggle');
 assert(html.includes('id="seisanDriverCollectionFree"'), 'settings modal should expose separate driver collection-free toggle');
@@ -24,8 +24,8 @@ assert(calcText.includes('if (driverCollectionOffset || driverCollectionFree) dr
 assert(calcText.includes('if (driverCollectionFree) driverNames.forEach(name => shareExcludedNames.add(name));'), 'collection-free drivers should be excluded from the split');
 assert(calcText.includes('car.collectionOffset = driverCollectionOffset && driverNames.has(car.name) ? perPerson : 0;'), 'driver payment offset should be conditional');
 assert(renderText.includes('seisanDriverCollectionOffset') && eventsText.includes('seisanDriverCollectionOffset'), 'driver collection offset control should render and react to changes');
-assert(templatesText.includes('車出しの集金:') && templatesText.includes('しない（支払い額から差し引き）') && templatesText.includes("'する'"), 'settings summary should show driver collection mode');
-assert(!guideText.includes('¥1,000/台'), 'guide mock should not advertise old 1000 yen default reward');
+assert(templatesText.includes('車出しの集金:') && templatesText.includes('支払い額から差し引き済') && templatesText.includes("'する'"), 'settings summary should show driver collection mode');
+assert(!guideText.includes('¥1,000/台'), 'user guide should not advertise an obsolete fixed reward');
 
 const context = {
   console,
@@ -88,5 +88,17 @@ assert.strictEqual(normalizedDefault.driverReward, '0', 'fresh settlement state 
 assert.strictEqual(normalizedDefault.driverCollectionOffset, true, 'fresh settlement state should keep driver offset on by default');
 const noRewardCar = context.ensureDriverRewardExtra({}, normalizedDefault);
 assert.strictEqual(noRewardCar.extras.length, 0, 'zero yen default should not auto-create a reward extra row');
+
+const rewardSplitState = context.normalizeSettlementState({
+  ...base,
+  driverReward: '300',
+  cars: { Driver: { dist: '0', eco: '0', price: '0', extras: [{ name: '車出し協力代', amount: '300', type: 'split' }] } }
+});
+const rewardSplitCar = context.ensureDriverRewardExtra(rewardSplitState.cars.Driver, rewardSplitState);
+assert.strictEqual(rewardSplitCar.extras[0].type, 'split', 'driver reward should preserve a user-selected split allocation');
+const rewardSplitResult = context.calculateSettlement(data, rewardSplitState);
+assert.strictEqual(rewardSplitResult.totalSplit, 300, 'split driver reward should be included in split costs');
+assert.strictEqual(rewardSplitResult.totalClub, 0, 'split driver reward should not be forced into club costs');
+assert.strictEqual(rewardSplitResult.totalReward, 300, 'driver reward total should remain tracked independently');
 
 console.log('Settlement driver collection toggle check OK');

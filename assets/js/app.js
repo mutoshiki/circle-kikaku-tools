@@ -12,6 +12,7 @@ D.addEventListener('DOMContentLoaded', async () => {
     // This keeps member menu buttons responsive even if remote sync is slow or blocked.
     setupCompactPersonMenu();
     ensureCompactMenuFallback();
+    setupSeatMemberPicker();
     await initFirebaseSync();
     load();
     refreshRoomTitle();
@@ -19,7 +20,6 @@ D.addEventListener('DOMContentLoaded', async () => {
     setupManualCardDrag();
     setupManualSheetDrag();
 
-    setupAppearanceControls();
 
     if (firebaseEnabled && db && firebaseReady) {
         onValue(ref(db, ".info/connected"), (snap) => {

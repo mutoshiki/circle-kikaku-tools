@@ -1,5 +1,5 @@
 /* Expense preview vertical order.
-   霆雁挨繧ｵ繝槭Μ繝ｼ縺ｮ雋ｻ逕ｨ蜀・ｨｳ繧堤ｸｦ荳ｦ縺ｳ縺ｫ縺励√ぎ繧ｽ繝ｪ繝ｳ莉｣縺ｮ逶ｴ荳九↓霆雁・縺怜鵠蜉帑ｻ｣繧貞崋螳壹☆繧九・*/
+   Keep per-car expense details vertical and place shared adjustments below fuel. */
 #seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -18,7 +18,7 @@
   color: var(--text-sub);
   -webkit-text-fill-color: var(--text-sub);
   font-size: 0.66rem;
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1;
   text-align: center;
 }
@@ -31,11 +31,6 @@
 }
 #seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list .seisan-extra-plus {
   display: none;
-}
-body[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-cost-preview-sign,
-html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-cost-preview-sign {
-  color: var(--seisan-dark-muted-readable, var(--text-sub));
-  -webkit-text-fill-color: var(--seisan-dark-muted-readable, var(--text-sub));
 }
 /* Amount signs sit next to the amount, not before the item name. */
 #seisan-view-area .seisan-car-summary-row .seisan-cost-preview-line {
@@ -52,7 +47,7 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-cost-p
   margin-right: 1px;
   color: var(--text-sub);
   -webkit-text-fill-color: var(--text-sub);
-  font-weight: 650;
+  font-weight: 600;
   text-align: center;
 }
 #seisan-view-area .seisan-car-summary-row .seisan-amount-sign.is-blank {
@@ -61,11 +56,6 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-cost-p
 #seisan-view-area .seisan-car-summary-row .seisan-cost-type-badge--spacer {
   visibility: hidden;
   pointer-events: none;
-}
-body[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-amount-sign,
-html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-amount-sign {
-  color: var(--seisan-dark-muted-readable, var(--text-sub));
-  -webkit-text-fill-color: var(--seisan-dark-muted-readable, var(--text-sub));
 }
 /* Fixed amount/badge columns, reserved badge slots, payment detail lists, and compact setting chips. */
 #seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list,
@@ -138,7 +128,7 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-amount
 }
 #seisan-view-area .seisan-driver-pay-row .seisan-driver-name {
   min-width: 0;
-  font-weight: 650;
+  font-weight: 600;
 }
 #seisan-view-area .seisan-driver-pay-row .seisan-driver-amount {
   justify-self: end;
@@ -183,7 +173,7 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-amount
   flex-direction: column;
   justify-content: center;
   padding: 7px 9px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   border: 1px solid color-mix(in srgb, var(--border-color) 76%, transparent);
   background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
   box-shadow: none;
@@ -194,20 +184,20 @@ html[data-theme="dark"] #seisan-view-area .seisan-car-summary-row .seisan-amount
   margin: 0 0 3px;
   color: var(--text-sub);
   font-size: 0.60rem;
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1;
 }
 #seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--primary {
   min-height: 44px;
-  font-weight: 650;
+  font-weight: 600;
 }
 #seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--mode {
   min-height: 46px;
-  font-weight: 650;
+  font-weight: 600;
 }
 #seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--count {
   min-height: 46px;
-  font-weight: 650;
+  font-weight: 600;
 }
 #seisan-view-area .seisan-summary-pills--single > .seisan-setting-pill--subtle {
   background: color-mix(in srgb, var(--bg-card) 76%, transparent);

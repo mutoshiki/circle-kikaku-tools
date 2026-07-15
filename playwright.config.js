@@ -1,7 +1,7 @@
 const fs = require('fs');
 
-const systemChromium = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || '/usr/bin/chromium';
-const launchOptions = fs.existsSync(systemChromium)
+const systemChromium = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE;
+const launchOptions = systemChromium && fs.existsSync(systemChromium)
   ? { executablePath: systemChromium, args: ['--no-sandbox'] }
   : undefined;
 
@@ -10,6 +10,7 @@ module.exports = {
   testMatch: '**/*.spec.js',
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
+  workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI
     ? [['list'], ['html', { open: 'never' }]]
     : 'list',
