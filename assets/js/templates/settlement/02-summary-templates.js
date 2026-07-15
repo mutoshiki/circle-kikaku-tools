@@ -12,26 +12,25 @@
   function summary(result, helpers = {}) {
     // Legacy test anchor: 1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名
 
-    const accountingLabel = result.accounting >= 0 ? '部費支出' : '部費戻入';
-    const accountingNote = result.accounting >= 0 ? '支払い不足分' : '集金超過分';
+    const accountingLabel = result.accounting >= 0 ? '部費から補助' : '部費へ戻す';
     const accountingSign = result.accounting >= 0 ? '＋' : '−';
     return `
         <div class="seisan-summary-card collect ${UI_CLASS.surfaceCard}" data-summary-kind="collect">
-          <div class="seisan-summary-label"><i class="fas fa-users" aria-hidden="true"></i>参加者集金</div>
+          <div class="seisan-summary-label"><i class="fas fa-users" aria-hidden="true"></i>${formatCostBadge('split')}</div>
           <div class="seisan-summary-value ${UI_CLASS.amount}">${money(result.expectedCollected, helpers)}</div>
           <div class="seisan-summary-sub">各 ${money(result.perPerson, helpers)} × ${result.payerCount}名</div>
         </div>
         <div class="seisan-flow-arrow seisan-flow-arrow--plus" aria-hidden="true">${accountingSign}</div>
         <div class="seisan-summary-card accounting ${UI_CLASS.surfaceCard}" data-summary-kind="club">
-          <div class="seisan-summary-label"><i class="fas fa-wallet" aria-hidden="true"></i>${accountingLabel}</div>
+          <div class="seisan-summary-label"><i class="fas fa-wallet" aria-hidden="true"></i>${formatCostBadge('club')}</div>
           <div class="seisan-summary-value ${UI_CLASS.amount}">${money(getAccountingAmount(result), helpers)}</div>
-          <div class="seisan-summary-sub">${accountingNote}</div>
+          <div class="seisan-summary-sub">${accountingLabel}</div>
         </div>
         <div class="seisan-flow-arrow seisan-flow-arrow--equals" aria-hidden="true">＝</div>
         <div class="seisan-summary-card pay ${UI_CLASS.surfaceCard}" data-summary-kind="pay">
-          <div class="seisan-summary-label"><i class="fas fa-car-side" aria-hidden="true"></i>支払総額</div>
+          <div class="seisan-summary-label"><i class="fas fa-car-side" aria-hidden="true"></i>${formatPaymentBadge()}</div>
           <div class="seisan-summary-value ${UI_CLASS.amount}">${money(result.driverTotal, helpers)}</div>
-          <div class="seisan-summary-sub">ドライバー${result.cars.length}名分</div>
+          <div class="seisan-summary-sub">車出し${result.cars.length}名に渡す</div>
         </div>`;
   }
 
@@ -94,10 +93,10 @@
     const accountingTotal = Number(result.accounting || 0);
     const collectionRounding = -Number(result.surplus || 0);
     const adjustmentRows = [
-      { name: '支払い額の切り上げ', amount: Number(result.totalDriverRound || 0), user: '全体' },
-      { name: 'ドライバー分の集金控除', amount: -Number(result.totalDriverCollectionOffset || 0), user: '全体' },
+      { name: '支払い端数', amount: Number(result.totalDriverRound || 0), user: '全体' },
+      { name: '運転手の集金差し引き', amount: -Number(result.totalDriverCollectionOffset || 0), user: '全体' },
       {
-        name: collectionRounding > 0 ? '参加者集金の不足' : '参加者集金の余り',
+        name: collectionRounding > 0 ? '集金不足の補填' : '集金の端数余り',
         amount: collectionRounding,
         user: '全体'
       }
@@ -107,11 +106,10 @@
       ? rows.map(row => `<div class="seisan-club-expense-row">
           <span class="seisan-club-expense-name">${esc(row.name, helpers)}</span>
           <span class="seisan-club-expense-user">${esc(row.user, helpers)}</span>
-          <strong class="seisan-club-expense-amount"><span class="seisan-amount-sign" aria-hidden="true">${row.amount < 0 ? '−' : '＋'}</span>${money(Math.abs(row.amount), helpers)}</strong>
+          <strong class="seisan-club-expense-amount">${money(row.amount, helpers)}</strong>
         </div>`).join('')
-      : '<div class="seisan-club-expense-empty">部費の支出・調整はありません。</div>';
-    const totalLabel = accountingTotal >= 0 ? '部費から支出' : '部費へ戻す';
-    return `${details}<div class="seisan-club-expense-total"><span>${totalLabel}</span><strong><span class="seisan-amount-sign" aria-hidden="true">＝</span>${money(Math.abs(accountingTotal), helpers)}</strong></div>`;
+      : '<div class="seisan-club-expense-empty">部費の使用はありません。</div>';
+    return `${details}<div class="seisan-club-expense-total"><span>合計</span><strong>${money(accountingTotal, helpers)}</strong></div>`;
   }
 
   

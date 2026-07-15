@@ -18,8 +18,8 @@
     <meta name="twitter:description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">
     <meta name="twitter:image" content="https://mutoshiki.github.io/circle-kikaku-tools/ogp-thumbnail.png">
     <!-- CSS: vendor -->
-    <link href="./assets/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="./assets/vendor/fontawesome/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- CSS: tokens -->
     <link href="./assets/css/tokens/01-color-scheme.css" rel="stylesheet">
     <link href="./assets/css/tokens/01-component-palette.css" rel="stylesheet">
@@ -39,7 +39,7 @@
     <!-- CSS: app shell and layout -->
     <link href="./assets/css/app-shell/00-base-extracted.css" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/01-app-frame.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/layout/02-panels.css?v=carbon-v11-card" rel="stylesheet">
+    <link href="./assets/css/app-shell/layout/02-panels.css" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/03-mobile-frame.css" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/04-layering.css" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/01-edit-base.css" rel="stylesheet">
@@ -54,7 +54,6 @@
     <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/modal/01-modal-base.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/modal/02-dropdowns.css" rel="stylesheet">
-    <link href="./assets/css/guides-modals/modal/03-seat-member-picker.css?v=carbon-seat-picker-2" rel="stylesheet">
     <link href="./assets/css/guides-modals/manual/01-manual-shell.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/manual/02-manual-media.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/manual/03-manual-mobile.css" rel="stylesheet">
@@ -71,14 +70,14 @@
     <link href="./assets/css/guides-modals/z-layer/01-z-layer.css" rel="stylesheet">
     <!-- CSS: car assignment, members, and waiting tray -->
     <link href="./assets/css/cars-members-tray/00-base-extracted.css" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/01-shared-card-primitives.css?v=carbon-v11-card" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/01-shared-card-primitives.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/01-tray-shell.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/02-tray-drawer.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/03-tray-actions.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/05-tray-states.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/person-card/01-person-card-shell.css?v=carbon-v11-card" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/person-card/01-person-card-shell.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/02-person-name-grade.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/03-person-menu.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/04-person-mobile.css" rel="stylesheet">
@@ -123,7 +122,7 @@
     <link href="./assets/css/settlement/checklists/03-driver-payment-list.css" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/04-driver-payment-mobile.css" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/05-driver-payment-detail.css" rel="stylesheet">
-    <link href="./assets/css/settlement/checklists/06-club-expense-list.css?v=club-ledger" rel="stylesheet">
+    <link href="./assets/css/settlement/checklists/06-club-expense-list.css" rel="stylesheet">
     <link href="./assets/css/settlement/share/01-share-output.css" rel="stylesheet">
     <link href="./assets/css/settlement/cost-tags/01-cost-tag-base.css" rel="stylesheet">
     <link href="./assets/css/settlement/cost-tags/02-cost-breakdown.css" rel="stylesheet">
@@ -284,7 +283,7 @@
             <div class="seisan-head">
               <div class="seisan-title seisan-semantic-section-title">
                 <i class="fas fa-wallet" aria-hidden="true"></i>
-                <span><em class="seisan-cost-policy-tag seisan-cost-type-badge ui-chip club" data-cost-type="club">部費</em>の収支</span>
+                <span><em class="seisan-cost-policy-tag seisan-cost-type-badge ui-chip club" data-cost-type="club">部費</em>使用内訳</span>
               </div>
             </div>
             <div id="seisan-club-expense-list" class="seisan-club-expense-list"></div>
@@ -377,27 +376,6 @@
           </div>
           <div class="modal-footer py-1">
             <button type="button" class="btn btn-primary btn-sm w-100 btn-accent-solid" id="saveEditBtn">保存</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal" id="seatMemberPickerModal" tabindex="-1" aria-labelledby="seatMemberPickerTitle" aria-describedby="seatMemberPickerDescription" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-sm modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header">
-            <div>
-              <h5 class="modal-title" id="seatMemberPickerTitle">空席に追加</h5>
-              <p id="seatMemberPickerDescription" class="seat-member-picker-description">未割り当てメンバーを選んでください</p>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
-          </div>
-          <div class="modal-body p-0">
-            <div id="seatMemberPickerList" class="seat-member-picker-list" role="list"></div>
-            <div id="seatMemberPickerEmpty" class="seat-member-picker-empty" hidden>
-              <i class="fas fa-user-plus" aria-hidden="true"></i>
-              <strong>追加できるメンバーがいません</strong>
-              <span>参加者登録、または別の席から「待機に戻す」を行ってください。</span>
-            </div>
           </div>
         </div>
       </div>
@@ -696,8 +674,8 @@
     </div>
 
     <!-- JS: vendor and configuration -->
-    <script src="./assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
-    <script src="./assets/vendor/sortablejs/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <script src="./firebase-config.js"></script>
     <!-- JS: core namespace, runtime, persistence, and modal services -->
     <script src="./assets/js/core/app-namespace.js"></script>
@@ -707,12 +685,12 @@
     <script src="./assets/js/core/dependency-status.js"></script>
     <script src="./assets/js/core/app-status.js"></script>
     <script src="./assets/js/core/storage.js"></script>
-    <script src="./assets/js/core/render-controller.js?v=carbon-seat-picker"></script>
+    <script src="./assets/js/core/render-controller.js"></script>
     <script src="./assets/js/core/settlement-edit-guard.js"></script>
     <script src="./assets/js/core/sync-controller.js"></script>
     <script src="./assets/js/core/history-scheduler.js"></script>
-    <script src="./assets/js/core/data-state.js?v=carbon-content-switcher"></script>
-    <script src="./assets/js/core/modal-controller.js?v=carbon-seat-picker"></script>
+    <script src="./assets/js/core/data-state.js"></script>
+    <script src="./assets/js/core/modal-controller.js"></script>
     <!-- JS: shared modules -->
     <script src="./assets/js/modules/history.js"></script>
     <script src="./assets/js/modules/drag-cards.js"></script>
@@ -720,7 +698,7 @@
     <!-- JS: settlement templates and feature modules; templates must load before render/facade. -->
     <script src="./assets/js/templates/settlement/00-template-utils.js"></script>
     <script src="./assets/js/templates/settlement/01-cost-parts.js"></script>
-    <script src="./assets/js/templates/settlement/02-summary-templates.js?v=club-ledger"></script>
+    <script src="./assets/js/templates/settlement/02-summary-templates.js"></script>
     <script src="./assets/js/templates/settlement/04-extra-input-templates.js"></script>
     <script src="./assets/js/templates/settlement/03-car-cost-templates.js"></script>
     <script src="./assets/js/templates/settlement/05-collection-check-templates.js"></script>
@@ -734,7 +712,7 @@
     <script src="./assets/js/features/settlement/03-render.js"></script>
     <script src="./assets/js/features/settlement/04-route-helper.js"></script>
     <script src="./assets/js/features/settlement/05-input-actions.js"></script>
-    <script src="./assets/js/features/settlement/06-share-text.js?v=club-ledger"></script>
+    <script src="./assets/js/features/settlement/06-share-text.js"></script>
     <script src="./assets/js/features/settlement.js"></script>
     <!-- JS: user guide, share, lock, and assignment features -->
     <script src="./assets/js/templates/user-guide-content.js"></script>
@@ -744,7 +722,6 @@
     <script src="./assets/js/features/lock-protection.js"></script>
     <script src="./assets/js/features/waiting-tray.js"></script>
     <script src="./assets/js/features/person-cards.js"></script>
-    <script src="./assets/js/features/seat-member-picker.js?v=carbon-seat-picker-2"></script>
     <script src="./assets/js/templates/sheet-templates.js"></script>
     <script src="./assets/js/features/sheet/00-data-sync.js"></script>
     <script src="./assets/js/features/sheet-view.js"></script>
@@ -757,7 +734,7 @@
     <script src="./assets/js/features/batch-import.js"></script>
     <script src="./assets/js/features/sample-data-history.js"></script>
     <!-- JS: boot and event bindings load last because they attach to generated DOM/actions. -->
-    <script src="./assets/js/app.js?v=carbon-seat-picker"></script>
+    <script src="./assets/js/app.js"></script>
     <script src="./assets/js/features/events/00-event-utils.js"></script>
     <script src="./assets/js/features/events/01-core-startup-events.js"></script>
     <script src="./assets/js/features/events/02-static-header-events.js"></script>

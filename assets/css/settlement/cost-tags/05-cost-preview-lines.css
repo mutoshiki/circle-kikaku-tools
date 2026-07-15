@@ -1,5 +1,5 @@
 /* Expense preview vertical order.
-   Keep per-car expense details vertical and place shared adjustments below fuel. */
+   霆雁挨繧ｵ繝槭Μ繝ｼ縺ｮ雋ｻ逕ｨ蜀・ｨｳ繧堤ｸｦ荳ｦ縺ｳ縺ｫ縺励√ぎ繧ｽ繝ｪ繝ｳ莉｣縺ｮ逶ｴ荳九↓霆雁・縺怜鵠蜉帑ｻ｣繧貞崋螳壹☆繧九・*/
 #seisan-view-area .seisan-car-summary-row .seisan-extra-inline-list {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

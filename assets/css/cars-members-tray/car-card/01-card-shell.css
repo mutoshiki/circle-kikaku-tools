@@ -24,3 +24,7 @@
 .car-box .car-head,
 .car-box .car-header { min-width: 0; gap: 8px; }
 .driver-seat { min-width: 0; }
+
+@media (max-width: 360px) {
+  .car-layout-grid { grid-template-columns: 1fr; }
+}

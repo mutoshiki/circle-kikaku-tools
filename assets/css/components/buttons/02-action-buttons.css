@@ -57,10 +57,7 @@
 :is(.btn, .tool-btn, .tray-action-btn, .seisan-btn, button):disabled,
 :is(.btn, .tool-btn, .tray-action-btn, .seisan-btn, button)[aria-disabled="true"] {
   cursor: not-allowed;
-  border-color: transparent;
-  background: var(--cds-disabled-bg);
-  color: var(--cds-disabled-text);
-  opacity: 0.5;
+  opacity: 0.46;
   pointer-events: none;
   box-shadow: none;
 }

@@ -24,25 +24,18 @@ function copyTextWithFallback(text, successMessage) {
     });
 }
 
-function formatSignedSettlementYen(value, showPlus = true) {
-    const amount = Number(value || 0);
-    const sign = amount < 0 ? '−' : (showPlus ? '＋' : '');
-    return `${sign}${yen(Math.abs(amount))}`;
-}
-
 function formatSettlementExtraDetail(car) {
     const extras = Array.isArray(car.extras) ? car.extras : [];
     if (!extras.length) return 'なし';
     return extras
-        .map(ex => `${ex.name || '諸経費'} ${formatSignedSettlementYen(ex.amountValue)}（${ex.type === 'club' ? '部費' : '割勘'}）`)
+        .map(ex => `${ex.name || '諸経費'} ${yen(ex.amountValue)}（${ex.type === 'club' ? '部費' : '割勘'}）`)
         .join(' / ');
 }
 
 function buildSettlementOverviewText({ title, state, result }) {
     const accountingAbs = Math.abs(result.accounting || 0);
-    const accountingLabel = result.accounting >= 0 ? '部費支出' : '部費戻入';
+    const accountingLabel = result.accounting >= 0 ? '部費から出す' : '部費へ戻す';
     const formulaSign = result.accounting >= 0 ? '＋' : '−';
-    const collectionBalanceLabel = result.surplus >= 0 ? '参加者集金の余り' : '参加者集金の不足';
     const unpaid = getSettlementUnpaidNames(result, state);
     const splitExtraTotal = result.cars.reduce((sum, car) => sum + (car.splitExtras || 0), 0);
     const driverLines = result.cars.map(car => {
@@ -51,23 +44,23 @@ function buildSettlementOverviewText({ title, state, result }) {
             car.usesTimesRental ? 'ガソリン代：なし（タイムズ）' : `ガソリン代：${yen(car.gas)}`,
             `諸経費：${formatSettlementExtraDetail(car)}`
         ];
-        if (car.collectionOffset) details.push(`− ドライバー分の集金控除：${yen(car.collectionOffset)}`);
-        if (car.driverRound) details.push(`＋ 支払い額の切り上げ：${yen(car.driverRound)}`);
-        return `・${car.name}車：${yen(car.adjustedTotalPay ?? car.totalPay)}${paidMark}\n　${details.join('　')}`;
+        if (car.collectionOffset) details.push(`集金：-${yen(car.collectionOffset)}`);
+        if (car.driverRound) details.push(`支払い丸め：${yen(car.driverRound)}`);
+        return `・${car.name}車：${yen(car.adjustedTotalPay ?? car.totalPay)}${paidMark}\n　${details.join(' ＋ ')}`;
     });
 
     return [
         `【${title} 精算メモ】`,
-        `参加者集金：${yen(result.expectedCollected)}（${yen(result.perPerson)} × ${result.payerCount}名）`,
-        `${accountingLabel}：${yen(accountingAbs)}`,
-        `支払総額：${yen(result.driverTotal)}`,
-        `計算：参加者集金 ${formulaSign} ${accountingLabel} ＝ 支払総額`,
+        `集める：${yen(result.expectedCollected)}（${yen(result.perPerson)} × ${result.payerCount}名）`,
+        `部費：${yen(accountingAbs)}（${accountingLabel}）`,
+        `支払：${yen(result.driverTotal)}`,
+        `計算：集める ${formulaSign} 部費 ＝ 支払`,
         '',
         `割勘対象：${yen(result.totalSplit)}`,
         `諸経費：割勘 ${yen(splitExtraTotal)} / 部費 ${yen(result.totalClub)}`,
-        `ドライバー分の集金控除：${formatSignedSettlementYen(-result.totalDriverCollectionOffset, false)}`,
-        `${collectionBalanceLabel}：${yen(Math.abs(result.surplus))}`,
-        `集金状況：${result.paidCount}/${result.payerCount}名`,
+        `集金：-${yen(result.totalDriverCollectionOffset)}`,
+        `端数余り：${yen(result.surplus)}`,
+        `集金：${result.paidCount}/${result.payerCount}名`,
         `未回収：${unpaid.length ? unpaid.join('、') : 'なし'}`,
         '',
         '車出しへ',

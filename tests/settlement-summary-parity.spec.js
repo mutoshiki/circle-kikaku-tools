@@ -4,7 +4,7 @@ const { test, expect } = require('@playwright/test');
 
 const ROOT = path.resolve(__dirname, '..');
 const INDEX = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-const localCss = [...INDEX.matchAll(/<link href="\.\/(assets\/css\/[^"?]+)(?:\?[^"]*)?" rel="stylesheet">/g)]
+const localCss = [...INDEX.matchAll(/<link href="\.\/(assets\/css\/[^"]+)" rel="stylesheet">/g)]
   .map(match => fs.readFileSync(path.join(ROOT, match[1]), 'utf8'))
   .join('\n');
 
@@ -20,21 +20,21 @@ function componentHtml(theme) {
       <div class="seisan-head"><div class="seisan-title">全体の費用</div></div>
       <div id="seisan-summary" class="seisan-top-flow">
         <div class="seisan-summary-card collect ui-surface-card" data-summary-kind="collect">
-          <div class="seisan-summary-label"><i aria-hidden="true">●</i>参加者集金</div>
+          <div class="seisan-summary-label"><i aria-hidden="true">●</i><em class="seisan-cost-policy-tag seisan-cost-type-badge ui-chip split" data-cost-type="split">割勘</em></div>
           <div class="seisan-summary-value ui-amount">¥4,500</div>
           <div class="seisan-summary-sub">各 ¥500 × 9名</div>
         </div>
         <div class="seisan-flow-arrow seisan-flow-arrow--plus" aria-hidden="true">−</div>
         <div class="seisan-summary-card accounting ui-surface-card" data-summary-kind="club">
-          <div class="seisan-summary-label"><i aria-hidden="true">●</i>部費戻入</div>
+          <div class="seisan-summary-label"><i aria-hidden="true">●</i><em class="seisan-cost-policy-tag seisan-cost-type-badge ui-chip club" data-cost-type="club">部費</em></div>
           <div class="seisan-summary-value ui-amount">¥600</div>
-          <div class="seisan-summary-sub">集金超過分</div>
+          <div class="seisan-summary-sub">部費へ戻す</div>
         </div>
         <div class="seisan-flow-arrow seisan-flow-arrow--equals" aria-hidden="true">＝</div>
         <div class="seisan-summary-card pay ui-surface-card" data-summary-kind="pay">
-          <div class="seisan-summary-label"><i aria-hidden="true">●</i>支払総額</div>
+          <div class="seisan-summary-label"><i aria-hidden="true">●</i><em class="seisan-cost-policy-tag seisan-cost-type-badge seisan-payment-tag ui-chip pay" data-cost-type="pay">支払い</em></div>
           <div class="seisan-summary-value ui-amount">¥3,900</div>
-          <div class="seisan-summary-sub">ドライバー3名分</div>
+          <div class="seisan-summary-sub">車出し3名に渡す</div>
         </div>
       </div>
     </section>
@@ -58,13 +58,14 @@ for (const width of [360, 390, 430]) {
     expect(Math.max(...boxes.map(box => box.width)) - Math.min(...boxes.map(box => box.width))).toBeLessThanOrEqual(1);
     expect(Math.max(...boxes.map(box => box.height)) - Math.min(...boxes.map(box => box.height))).toBeLessThanOrEqual(1);
 
-    const paymentLabel = page.locator('[data-summary-kind="pay"] .seisan-summary-label');
-    const labelMetrics = await paymentLabel.evaluate(node => ({
+    const paymentBadge = page.locator('[data-summary-kind="pay"] .seisan-payment-tag');
+    const badgeMetrics = await paymentBadge.evaluate(node => ({
       clientHeight: node.clientHeight,
       scrollHeight: node.scrollHeight,
       whiteSpace: getComputedStyle(node).whiteSpace
     }));
-    expect(labelMetrics.scrollHeight).toBeLessThanOrEqual(labelMetrics.clientHeight + 1);
+    expect(badgeMetrics.scrollHeight).toBeLessThanOrEqual(badgeMetrics.clientHeight + 1);
+    expect(badgeMetrics.whiteSpace).toBe('nowrap');
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(1);

@@ -1,8 +1,8 @@
 /* Component contracts for common surfaces, amounts, tags, icons, tabs and inputs. */
 :root {
-  --radius-control: 0;
-  --radius-card: 0;
-  --radius-panel: 0;
+  --radius-control: var(--radius-sm, 8px);
+  --radius-card: var(--radius-main, 12px);
+  --radius-panel: var(--radius-lg, 16px);
   --amount-font-size: var(--font-size-amount);
   --amount-letter-spacing: 0;
   --chip-height: 1.86em;

@@ -64,7 +64,7 @@
 .seat-slot.shift-target {
   border-color: color-mix(in srgb, var(--palette-blue-40) 48%, var(--border-color));
   background: var(--return-target-bg);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-color) 18%, transparent), inset 0 0 0 1px rgba(var(--white-rgb), 0.18);
+  box-shadow: 0 0 0 1px rgba(156, 175, 125, 0.18), inset 0 0 0 1px rgba(var(--white-rgb), 0.18);
 }
 
 /* The displaced original keeps its layout slot but is visually hidden while

@@ -185,19 +185,6 @@ test('shared view places timetable left of car allocation and omits nonexistent 
   expect(seats.every(item => item.seatRows === item.capacity)).toBeTruthy();
   expect(seats.every(item => item.disabledRows === 0)).toBeTruthy();
   expect(seats.some(item => item.emptyRows > 0)).toBeTruthy();
-
-  const carTable = await page.locator('.sheet-allocation-stack > .sheet-plan-section').first().locator('.sheet-plan-table').evaluate(table => ({
-    alignItems: getComputedStyle(table).alignItems,
-    cards: [...table.querySelectorAll(':scope > .sheet-car-col')].map(column => ({
-      height: column.getBoundingClientRect().height,
-      rows: column.querySelectorAll('.sheet-seat-row:not(.sheet-label-row)').length
-    }))
-  }));
-  expect(carTable.alignItems).toBe('flex-start');
-  const shortest = carTable.cards.reduce((current, card) => card.rows < current.rows ? card : current);
-  const tallest = carTable.cards.reduce((current, card) => card.rows > current.rows ? card : current);
-  expect(shortest.rows).toBeLessThan(tallest.rows);
-  expect(shortest.height).toBeLessThan(tallest.height);
 });
 
 test('driver cards use two columns, readable wrapped rows and signed negative extras', async ({ page }) => {

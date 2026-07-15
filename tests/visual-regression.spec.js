@@ -9,9 +9,6 @@ function local(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath));
 }
 async function installOfflineAssets(page) {
-  await page.route('**/firebase-config.js', route =>
-    route.fulfill({ status: 200, contentType: 'application/javascript', body: 'window.SANPO_FIREBASE_CONFIG = {};' })
-  );
   await page.route('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css', route =>
     route.fulfill({ status: 200, contentType: 'text/css', body: local('node_modules/bootstrap/dist/css/bootstrap.min.css') })
   );

@@ -5,49 +5,25 @@
 :root {
   color-scheme: light;
 
-  /* Carbon v11 Gray 10 semantic tokens, mirrored from the Figma library. */
-  --cds-background: #f4f4f4;
-  --cds-layer-01: #ffffff;
-  --cds-layer-02: #f4f4f4;
-  --cds-layer-03: #e8e8e8;
-  --cds-field-01: #f4f4f4;
-  --cds-field-02: #ffffff;
-  --cds-text-primary: #161616;
-  --cds-text-secondary: #525252;
-  --cds-text-placeholder: #6f6f6f;
-  --cds-border-subtle: #e0e0e0;
-  --cds-border-strong: #8d8d8d;
-  --cds-interactive: #0f62fe;
-  --cds-interactive-hover: #0050e6;
-  --cds-interactive-active: #002d9c;
-  --cds-focus: #0f62fe;
-  --cds-disabled-bg: #c6c6c6;
-  --cds-disabled-text: #8d8d8d;
-
-  /* Figma: Content switcher high-contrast selection and the narrow Gradient style. */
-  --content-switcher-selected-bg: #161616;
-  --content-switcher-selected-text: #f4f4f4;
-  --carbon-gradient-accent: linear-gradient(90deg, #0f62fe 0%, #8a3ffc 34%, #d02670 67%, #33b1ff 100%);
-
-  --bg-body: var(--cds-background);
-  --bg-card: var(--cds-layer-01);
-  --surface-lowest: var(--cds-layer-01);
-  --surface-low: var(--cds-layer-02);
-  --surface-container: var(--cds-layer-03);
+  --bg-body: #f4f4f4;
+  --bg-card: #ffffff;
+  --surface-lowest: #ffffff;
+  --surface-low: #f4f4f4;
+  --surface-container: #e8e8e8;
   --surface-high: #e0e0e0;
   --surface-highest: #c6c6c6;
   --surface-tint: #0f62fe;
   --surface-dim: #e0e0e0;
 
-  --text-main: var(--cds-text-primary);
-  --text-sub: var(--cds-text-secondary);
-  --text-faint: var(--cds-text-placeholder);
+  --text-main: #161616;
+  --text-sub: #525252;
+  --text-faint: #6f6f6f;
   --text-strong-sub: #393939;
   --text-on-dark: #f4f4f4;
 
   --accent-color: #0f62fe;
-  --accent-hover: var(--cds-interactive-hover);
-  --accent-pressed: var(--cds-interactive-active);
+  --accent-hover: #0050e6;
+  --accent-pressed: #002d9c;
   --accent-soft: #edf5ff;
   --accent-container: #d0e2ff;
   --accent-container-text: #001d6c;
@@ -56,14 +32,14 @@
   --accent-border-hover: #0050e6;
   --accent-raised: #0f62fe;
   --accent-icon: #0f62fe;
-  --focus-accent: var(--cds-focus);
+  --focus-accent: #0f62fe;
   --text-on-accent: #ffffff;
   --button-primary: #0f62fe;
   --button-primary-hover: #0050e6;
   --button-primary-active: #002d9c;
 
   --border-color: #c6c6c6;
-  --border-strong: var(--cds-border-strong);
+  --border-strong: #8d8d8d;
   --border-card: #e0e0e0;
   --border-section: #e0e0e0;
   --border-item: #e0e0e0;
@@ -162,8 +138,8 @@
   --status-payment-border: #ffafd2;
 
   --shadow-card: none;
-  --shadow-float: 0 4px 12px rgba(0, 0, 0, 0.18);
-  --shadow-modal: 0 8px 24px rgba(0, 0, 0, 0.24);
+  --shadow-float: 0 12px 24px rgba(0, 0, 0, 0.18);
+  --shadow-modal: 0 24px 48px rgba(0, 0, 0, 0.24);
   --shadow-tray: 0 -8px 24px rgba(0, 0, 0, 0.14);
   --shadow-tray-mobile: 0 -10px 28px rgba(0, 0, 0, 0.18);
   --shadow-status: 0 8px 16px rgba(0, 0, 0, 0.18);
@@ -216,10 +192,10 @@ body {
   font-family: "IBM Plex Sans", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", Meiryo, "Segoe UI", sans-serif;
   font-size: 14px;
   font-weight: 400;
-  line-height: 1.4286;
+  line-height: 1.5;
   background: var(--bg-body);
   color: var(--text-main);
-  letter-spacing: 0;
+  letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }

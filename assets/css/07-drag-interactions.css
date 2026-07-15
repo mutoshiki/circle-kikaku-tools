@@ -120,7 +120,7 @@ touch-action: none;
 .seat-slot.swap-target {
 background: var(--swap-target-bg) ;
     border-color: color-mix(in srgb, var(--color-warning) 58%, var(--border-color)) ;
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--semantic-warning) 28%, transparent), inset 0 0 0 1px rgba(var(--white-rgb), 0.28) ;
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.24), inset 0 0 0 1px rgba(var(--white-rgb), 0.28) ;
 }
 
 .seat-slot.swap-target::after {

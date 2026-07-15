@@ -42,34 +42,14 @@
 #cars-container .seat-slot > .member-card,
 #waiting-list .member-card {
   width: 100%;
-  min-height: 64px;
+  min-height: 56px;
   margin: 0;
   padding: 8px 10px;
-  border: 1px solid var(--border-item);
-  background: var(--surface-low);
+  background: var(--ui-saas-panel-raised, var(--bg-card));
 }
 
-/* Assigned people are information cards; empty seats remain quiet clickable tiles. */
-#cars-container .seat-slot > .member-card {
-  border-color: var(--border-strong);
-  background: var(--surface-lowest);
-}
-
-#waiting-list .member-card:hover {
-  border-color: var(--border-hover);
-  background: var(--surface-container);
-}
-
-#cars-container .seat-slot > .member-card:hover {
-  border-color: var(--accent-border);
-  background: var(--surface-lowest);
-}
-
-#cars-container .seat-slot > .member-card:focus-within,
-#waiting-list .member-card:focus-within {
-  outline: 2px solid var(--focus-accent);
-  outline-offset: -2px;
-}
+#cars-container .seat-slot > .member-card:hover,
+#waiting-list .member-card:hover { background: var(--surface-container); }
 
 :where(.member-card, .driver-seat) :where(.member-main-line, .driver-main-line) { min-width: 0; }
 :where(.member-name-text, .driver-name-disp) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

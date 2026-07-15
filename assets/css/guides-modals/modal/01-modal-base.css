@@ -21,13 +21,12 @@
 }
 .modal-header {
   min-height: 64px;
-  padding: 8px 16px;
+  padding: 12px 18px;
   border: 0;
-  border-bottom: 1px solid var(--border-section);
   background: var(--modal-header-bg);
   color: var(--text-main);
 }
-.modal-title { color: var(--text-main); font-size: 1.125rem; font-weight: 400; line-height: 1.35; letter-spacing: 0; }
+.modal-title { color: var(--text-main); font-size: 1rem; font-weight: 600; line-height: 1.35; letter-spacing: 0; }
 .modal-title i { color: var(--accent-color); }
 .modal-header .btn-close {
   width: 48px;
@@ -47,14 +46,14 @@
   line-height: 1;
 }
 .modal-header .btn-close:hover { background-color: var(--surface-hover); opacity: 1; }
-.modal-body { padding: 16px; overflow: auto; background: var(--modal-bg); }
-.modal-footer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; padding: 0; border: 0; border-top: 1px solid var(--border-section); background: var(--modal-footer-bg); }
-.modal-footer .btn { width: 100%; min-height: 48px; margin: 0; }
+.modal-body { padding: 8px 18px 18px; overflow: auto; background: var(--modal-bg); }
+.modal-footer { padding: 12px 18px calc(16px + env(safe-area-inset-bottom)); border: 0; background: var(--modal-footer-bg); }
+.modal-footer .btn { min-height: 48px; }
 #commonEditModal .modal-content { border: 0; }
 
 @media (max-width: 640px) {
   .dropdown-item { min-height: 48px; }
   .modal-dialog:not(.modal-fullscreen-sm-down) { align-items: flex-end; min-height: 100%; margin: 0; }
-  .modal-dialog:not(.modal-fullscreen-sm-down) .modal-content { max-height: 92dvh; border-radius: 0; }
+  .modal-dialog:not(.modal-fullscreen-sm-down) .modal-content { max-height: 92dvh; border-radius: var(--radius-xl); }
   .modal-dialog.modal-fullscreen-sm-down .modal-content { border-radius: 0; }
 }
