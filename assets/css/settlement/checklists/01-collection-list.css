@@ -15,11 +15,11 @@
 #seisan-view-area .seisan-check-list { display: grid; grid-template-columns: 1fr; gap: 14px; }
 #seisan-view-area .seisan-collection-group { display: grid; gap: 7px; min-width: 0; }
 #seisan-view-area .seisan-collection-group-title { padding: 0 2px; color: var(--text-sub); font-size: 0.78rem; font-weight: 600; }
-#seisan-view-area .seisan-collection-group-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+#seisan-view-area .seisan-collection-group-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 
 .seisan-check-item {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 24px;
   align-items: center;
   gap: 9px;
   min-height: 52px;
@@ -35,11 +35,14 @@
 .seisan-check-item.paid { background: var(--semantic-success-soft); color: var(--semantic-success); }
 .seisan-check-item.paid .seisan-check-name::after { content: " ✓"; font-weight: 600; }
 .seisan-check-item.excluded { cursor: not-allowed; background: var(--surface-container); color: var(--text-faint); opacity: 0.78; }
-.seisan-check-item input { width: 22px; height: 22px; margin: 0; }
+.seisan-check-item input { grid-column: 2; grid-row: 1; width: 22px; height: 22px; margin: 0; }
 #seisan-view-area .seisan-check-copy {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  grid-column: 1;
+  grid-row: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   min-width: 0;
 }
 #seisan-view-area .seisan-check-name {
@@ -51,18 +54,20 @@
   white-space: nowrap;
 }
 #seisan-view-area .seisan-check-copy.has-note .seisan-check-name {
-  flex: 0 1 48%;
-  max-width: 48%;
+  flex: none;
+  max-width: 100%;
 }
 #seisan-view-area .seisan-check-note {
-  flex: 1 1 52%;
+  flex: none;
+  width: 100%;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   color: var(--text-sub);
   font-size: 0.78rem;
   font-weight: 600;
-  text-align: right;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-align: left;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
 }
 #seisan-view-area .seisan-check-item.paid .seisan-check-note { color: currentColor; }

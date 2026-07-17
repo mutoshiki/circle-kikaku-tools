@@ -42,9 +42,9 @@
 #cars-container .seat-slot > .member-card,
 #waiting-list .member-card {
   width: 100%;
-  min-height: 64px;
+  min-height: 56px;
   margin: 0;
-  padding: 8px 10px;
+  padding: 6px 8px;
   border: 1px solid var(--border-item);
   background: var(--surface-low);
 }

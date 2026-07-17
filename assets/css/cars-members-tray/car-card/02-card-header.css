@@ -4,9 +4,9 @@
   grid-template-columns: minmax(0, 1fr) auto 48px;
   align-items: center;
   gap: 6px;
-  min-height: 56px;
+  min-height: 48px;
   margin: 0;
-  padding: 8px 8px 8px 16px;
+  padding: 0 8px 0 16px;
   border: 0;
   background: var(--surface-low);
   color: var(--text-main);
@@ -33,9 +33,10 @@
   justify-content: center;
   gap: 6px;
   width: auto;
-  min-width: 76px;
-  min-height: 48px;
-  padding: 0 12px;
+  min-width: 64px;
+  min-height: 40px;
+  margin-block: 4px;
+  padding: 0 10px;
   border: 0;
   border-radius: 0;
   background: var(--surface-highest);

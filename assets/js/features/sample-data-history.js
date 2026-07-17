@@ -18,15 +18,14 @@ function setupHiddenDebugTap() {
 
 function createSampleTimetableItems() {
     return [
-        { time: '08:00', title: '大学集合・受付' },
-        { time: '08:15', title: '車ごとに点呼・荷物確認' },
-        { time: '08:30', title: '出発' },
-        { time: '09:25', title: 'コンビニ休憩' },
-        { time: '10:10', title: '飯綱高原到着・散策 https://maps.google.com' },
+        { time: '08:00', title: '秋名山麓 集合 https://maps.google.com' },
+        { time: '08:20', title: '車両確認・点呼' },
+        { time: '08:30', title: 'ツーリング出発' },
+        { time: '10:00', title: '赤城山 休憩' },
         { time: '12:00', title: '昼食' },
-        { time: '14:30', title: '温泉または自由時間' },
+        { time: '14:00', title: '榛名湖 自由時間' },
         { time: '16:00', title: '帰路出発' },
-        { time: '17:10', title: '大学到着・解散' }
+        { time: '17:30', title: '秋名山麓 解散' }
     ];
 }
 
@@ -91,34 +90,34 @@ function createSampleTeamPlan(participants = []) {
 
 function getSampleDrivers() {
     return [
-        { name: '高橋 健介', capacity: 3, gender: 'male', grade: 3, memo: 'ETCあり・荷物少なめ' },
-        { name: '中村 美咲', capacity: 3, gender: 'female', grade: 2, memo: '初心者運転・早め帰宅' },
-        { name: '小林 悠斗', capacity: 4, gender: 'male', grade: 4, memo: '大きめの車' },
-        { name: '松本 彩花', capacity: 3, gender: 'female', grade: 3, memo: '帰りに給油予定' },
-        { name: '山口 直人', capacity: 3, gender: 'male', grade: 2, memo: '集合場所に直行' }
+        { name: '藤原 拓海', capacity: 3, gender: 'male', grade: 3, memo: '' },
+        { name: '高橋 啓介', capacity: 3, gender: 'male', grade: 4, memo: '' },
+        { name: '高橋 涼介', capacity: 4, gender: 'male', grade: 4, memo: '' },
+        { name: '須藤 京一', capacity: 3, gender: 'male', grade: 4, memo: '' },
+        { name: '小柏 カイ', capacity: 3, gender: 'male', grade: 3, memo: '' }
     ];
 }
 
 function getSampleMembers() {
     return [
-        { name: '田中 太郎', grade: 1, gender: 'male', memo: '会計担当' },
-        { name: '佐藤 花', grade: 1, gender: 'female' },
-        { name: '鈴木 陽介', grade: 1, gender: 'male' },
-        { name: '伊藤 美月', grade: 1, gender: 'female', memo: '車酔いしやすい' },
-        { name: '渡辺 大地', grade: 1, gender: 'male' },
-        { name: '加藤 ひかり', grade: 1, gender: 'female' },
-        { name: '石井 拓海', grade: 2, gender: 'male', memo: '帰りに寄り道' },
-        { name: '岡田 真帆', grade: 3, gender: 'female', memo: '帰りに食事' },
-        { name: '山本 蓮', grade: 1, gender: 'male' },
-        { name: '井上 結衣', grade: 1, gender: 'female' },
-        { name: '木村 亮', grade: 2, gender: 'male' },
-        { name: '清水 春香', grade: 2, gender: 'female' },
-        { name: '阿部 航', grade: 2, gender: 'male' },
-        { name: '森川 さくら', grade: 2, gender: 'female' },
-        { name: '小川 悠真', grade: 3, gender: 'male' },
-        { name: '長谷川 翼', grade: 3, gender: 'male' },
-        { name: '村上 紗季', grade: 4, gender: 'female' },
-        { name: '近藤 直樹', grade: 4, gender: 'male' }
+        { name: '武内 樹', grade: 3, gender: 'male' },
+        { name: '茂木 なつき', grade: 3, gender: 'female' },
+        { name: '池谷 浩一郎', grade: 4, gender: 'male' },
+        { name: '健二', grade: 4, gender: 'male' },
+        { name: '中村 賢太', grade: 3, gender: 'male' },
+        { name: '佐藤 真子', grade: 4, gender: 'female' },
+        { name: '沙雪', grade: 4, gender: 'female' },
+        { name: '秋山 渉', grade: 4, gender: 'male' },
+        { name: '秋山 和美', grade: 3, gender: 'female' },
+        { name: '岩城 清次', grade: 4, gender: 'male' },
+        { name: '立花 祐一', grade: 4, gender: 'male' },
+        { name: '藤原 文太', grade: 4, gender: 'male' },
+        { name: '庄司 慎吾', grade: 4, gender: 'male' },
+        { name: '小柏 健', grade: 4, gender: 'male' },
+        { name: '北条 凛', grade: 4, gender: 'male' },
+        { name: '北条 豪', grade: 4, gender: 'male' },
+        { name: '皆川 英雄', grade: 4, gender: 'male' },
+        { name: '乾 信司', grade: 2, gender: 'male' }
     ];
 }
 
@@ -171,32 +170,31 @@ function createSampleCarPlan(carCount = 3) {
 
 function createSampleSettlementState(carPlan, { missing = false } = {}) {
     const normalCars = {
-        '高橋 健介': { dist: '86', eco: '13.5', price: '172', extras: [{ name: '駐車場', amount: '400', type: 'split' }] },
-        '中村 美咲': { dist: '92', eco: '15', price: '172', extras: [{ name: '有料道路', amount: '300', type: 'split' }] },
-        '小林 悠斗': { dist: '104', eco: '11.5', price: '172', extras: [{ name: '駐車場', amount: '400', type: 'split' }, { name: '部費補助', amount: '500', type: 'club' }] },
-        '松本 彩花': { dist: '97', eco: '14', price: '172', extras: [{ name: '駐車場', amount: '400', type: 'split' }] },
-        '山口 直人': { dist: '89', eco: '12.8', price: '172', extras: [{ name: '施設利用料', amount: '200', type: 'split' }] }
+        '藤原 拓海': { dist: '186', eco: '18', price: '158', rentalType: 'private', extras: [{ name: '駐車場', amount: '200', type: 'split' }] },
+        '高橋 啓介': { dist: '242', eco: '14', price: '162', rentalType: 'times', extras: [{ name: '駐車場', amount: '200', type: 'split' }] },
+        '高橋 涼介': { dist: '218', eco: '16.5', price: '160', rentalType: 'private', extras: [{ name: '駐車場', amount: '200', type: 'split' }] },
+        '須藤 京一': { dist: '295', eco: '12.5', price: '165', rentalType: 'times', extras: [{ name: '駐車場', amount: '200', type: 'split' }] },
+        '小柏 カイ': { dist: '134', eco: '20', price: '155', rentalType: 'private', extras: [{ name: '駐車場', amount: '200', type: 'split' }] }
     };
     const missingCars = {
-        '高橋 健介': { dist: '86', eco: '', price: '172', extras: [{ name: '駐車場', amount: '400', type: 'split' }] },
-        '中村 美咲': { dist: '', eco: '15', price: '172', extras: [{ name: '', amount: '300', type: 'split' }] },
-        '小林 悠斗': { dist: '104', eco: '11.5', price: '', extras: [{ name: '部費補助', amount: '', type: 'club' }] },
-        '松本 彩花': { dist: '97', eco: '14', price: '172', extras: [{ name: '駐車場', amount: '400', type: 'split' }] },
-        '山口 直人': { dist: '89', eco: '12.8', price: '172', extras: [{ name: '施設利用料', amount: '200', type: 'split' }] }
+        ...normalCars,
+        '藤原 拓海': { ...normalCars['藤原 拓海'], eco: '' },
+        '高橋 啓介': { ...normalCars['高橋 啓介'], dist: '' },
+        '高橋 涼介': { ...normalCars['高橋 涼介'], price: '' }
     };
     const source = missing ? missingCars : normalCars;
     const cars = {};
     (carPlan.cars || []).forEach(car => {
-        cars[car.name] = normalizeCarSettlementState(source[car.name] || { dist: '90', eco: '13', price: '172', extras: [{ name: '駐車場', amount: '400', type: 'split' }] });
+        cars[car.name] = normalizeCarSettlementState(source[car.name] || { dist: '180', eco: '15', price: '160', extras: [{ name: '駐車場', amount: '200', type: 'split' }] });
     });
     return normalizeSettlementState({
         rounding: '100',
         organizerFree: true,
-        organizerName: '田中 太郎',
+        organizerName: '高橋 涼介',
         driverCollectionOffset: true,
-        driverReward: '0',
+        driverReward: '1000',
         cars,
-        routeStops: ['信州大学工学部', '飯綱高原キャンプ場', 'むれ温泉 天狗の館'],
+        routeStops: ['秋名山', '赤城山', '榛名湖'],
         paid: {},
         driverPaid: {}
     });
@@ -216,7 +214,7 @@ function createSampleAppData({ missing = false, carCount = 3 } = {}) {
 
     return {
         schemaVersion: typeof APP_SCHEMA_VERSION !== 'undefined' ? APP_SCHEMA_VERSION : 3,
-        roomName: missing ? '入力漏れチェック用サンプル' : '飯綱高原 新歓ドライブ 5/12',
+        roomName: missing ? '入力漏れチェック用サンプル' : '秋名・赤城ツーリング',
         trayMinimized: false,
         editLockEnabled: false,
         editLockPassphrase: '',
@@ -230,7 +228,7 @@ function createSampleAppData({ missing = false, carCount = 3 } = {}) {
         overview: {
             memo: missing
                 ? '入力漏れや未入力欄の見え方を確認するためのサンプルです。'
-                : '新歓ドライブを想定した確認用サンプルです。車割、班割、精算、予定表をまとめて確認できます。',
+                : '頭文字Dの登場人物を使ったツーリング企画サンプルです。',
             timetableItems: createSampleTimetableItems()
         },
         lastUpdatedAt: Date.now()

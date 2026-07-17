@@ -20,7 +20,7 @@ const pageLayoutCss = read('assets/css/settlement/page-shell/01-layout.css');
 
 assert(index.includes('割勘</em>集金チェック') && !index.includes('割勘</em>支払いチェック'), 'collection section wording must be 割勘集金チェック');
 assert(collectionTemplate.includes('seisan-check-copy${note ? \' has-note\' : \'\'}') && collectionTemplate.indexOf('seisan-check-name') < collectionTemplate.indexOf('seisan-check-note'), 'collection rows must keep the name and its explanation in one readable copy row');
-assert(collectionCss.includes('.seisan-check-copy.has-note .seisan-check-name') && collectionCss.includes('flex: 1 1 52%;'), 'collection explanation must retain visible space to the right of the name');
+assert(collectionCss.includes('flex-direction: column;') && collectionCss.includes('grid-template-columns: minmax(0, 1fr) 24px;') && collectionCss.includes('grid-column: 2;'), 'collection explanation must sit below the full name with the checkbox on the right');
 assert(sheetTemplate.includes('${gradeBadge(dgrade, dg, helpers)}<span class="sheet-driver-name">'), 'representative grade badge must appear to the left like other members');
 assert(carCostCss.includes('--settlement-car-amount-size: 0.86rem;') && carCostCss.includes('--settlement-car-amount-size: 0.96rem;') && carCostCss.includes('--settlement-car-amount-size: 0.84rem;') && carCostCss.includes('--amount-font-size: var(--settlement-car-amount-size);') && !carCostCss.includes('font-size: 1.36rem;'), 'driver payment amounts must use the enlarged responsive typography scale');
 assert(!/\.seisan-car-summary-row \.seisan-extra-inline strong\s*\{[^}]*font-size/s.test(costBreakdownCss), 'generic cost-tag CSS must not override driver payment amount typography');

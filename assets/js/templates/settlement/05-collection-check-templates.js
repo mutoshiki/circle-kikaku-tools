@@ -14,13 +14,14 @@
     function collectionItem(p, state, result, helpers = {}) {
     const excluded = !!result.excludedNames?.has?.(p.name);
     const paid = !!state.paid?.[p.name];
+    const displayName = state.paidBy?.[p.name] || p.name;
     const note = excluded
       ? (p.role === 'driver' ? '支払い額から差し引き済' : (p.name === result.excludedName ? '対象外（企画者）' : '対象外'))
       : (p.role === 'member' && p.driverName ? formatCarLabel(p.driverName, helpers) : (p.role === 'waiting' ? '待機' : ''));
     return `<label class="seisan-check-item ${paid ? 'paid' : ''} ${excluded ? 'excluded' : ''}"${excluded ? ' aria-disabled="true"' : ''}>
             <input type="checkbox" ${paid ? 'checked' : ''} ${excluded ? 'disabled' : ''} data-settlement-paid-name="${encodeURIComponent(p.name)}">
             <span class="seisan-check-copy${note ? ' has-note' : ''}">
-              <span class="seisan-check-name">${esc(p.name, helpers)}</span>
+              <span class="seisan-check-name">${esc(displayName, helpers)}</span>
               ${note ? `<span class="seisan-check-note">${note}</span>` : ''}
             </span>
         </label>`;

@@ -13,8 +13,8 @@ if (/\.seisan-flow-arrow--equals\s*\{[^}]*grid-column\s*:\s*1\s*\/\s*-1/s.test(c
 if (!css.includes('grid-template-columns: minmax(0, 1fr) 14px minmax(0, 1fr) 14px minmax(0, 1fr);')) {
   throw new Error('Mobile settlement summary must keep all three cards in one equal-width row.');
 }
-if (!css.includes('min-height: 112px;')) {
-  throw new Error('Mobile settlement summary cards must share one stable height contract.');
+if (css.includes('min-height: 112px;') || !css.includes('align-content: center;')) {
+  throw new Error('Mobile settlement summary cards must avoid fixed-height bottom gaps and center their content.');
 }
 
 

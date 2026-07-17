@@ -199,9 +199,9 @@
 }
 
 #seisan-view-area #seisan-car-list.is-two-column .seisan-car-summary-headline {
-  grid-template-rows: 52px 42px;
-  min-height: 94px;
-  padding: 8px 7px 5px 9px;
+  grid-template-rows: 42px 34px;
+  min-height: 76px;
+  padding: 5px 7px 3px 9px;
   gap: 3px 5px;
 }
 
@@ -217,15 +217,15 @@
 }
 
 #seisan-view-area #seisan-car-list.is-two-column .seisan-car-summary-headline .seisan-edit-btn {
-  width: 48px;
-  min-width: 48px;
-  min-height: 48px;
+  width: 40px;
+  min-width: 40px;
+  min-height: 40px;
 }
 
 #seisan-view-area #seisan-car-list.is-two-column .seisan-car-payment-check {
   justify-content: flex-end;
   gap: 6px;
-  min-height: 38px;
+  min-height: 32px;
   padding: 0 2px;
   font-size: 0.72rem;
 }

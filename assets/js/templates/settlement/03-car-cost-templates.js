@@ -18,6 +18,11 @@
     orderDriverRewardFirstForDisplay
   } = parts;
 
+  function extraCandidateLabel(candidate, helpers = {}) {
+    const typeLabel = candidate.type === 'club' ? '部費' : '割勘';
+    return `${esc(candidate.name, helpers)} / ${money(candidate.amount, helpers)} / ${typeLabel}`;
+  }
+
   function renderIssues(issues, helpers = {}) {
     return (issues.messages || []).map(message => {
       const text = esc(message, helpers);
@@ -78,7 +83,7 @@
             <label class="seisan-fuel-field"><span class="seisan-mini-label">燃費（km/L）</span><input type="number" inputmode="decimal" data-field="eco" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'eco')}" value="${esc(cState.eco || '', helpers)}"></label>
             <label class="seisan-fuel-field"><span class="seisan-mini-label">ガソリン単価（円/L）</span><input type="number" inputmode="decimal" data-field="price" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'price')}" value="${esc(cState.price || '', helpers)}"></label>
           </div>
-          <button class="seisan-btn seisan-distance-shortcut" type="button" data-action="open-route-helper-shortcut" title="距離計算ツールを開く" aria-label="距離計算ツールを開く"><i class="fas fa-route" aria-hidden="true"></i><span>距離計算ツール</span></button>
+          <button class="seisan-btn seisan-distance-shortcut" type="button" data-action="open-route-helper-shortcut" title="距離計算ツールを開く" aria-label="距離計算ツールを開く"><i class="fas fa-up-right-from-square" aria-hidden="true"></i><span>距離計算ツール</span></button>
         </div>
         <div class="seisan-subhead"><strong>諸経費</strong></div>
         <div class="seisan-extra-list">
@@ -90,7 +95,7 @@
         ${extraCandidates.length ? `<div class="seisan-extra-candidates">
           <div class="seisan-extra-candidates-title"><i class="fas fa-lightbulb" aria-hidden="true"></i>候補</div>
           <div class="seisan-extra-candidate-list">
-            ${extraCandidates.map(candidate => `<button class="seisan-extra-candidate-chip" type="button" data-action="add-settlement-extra-candidate" data-driver-name="${encodeURIComponent(car.name)}" data-extra-candidate="${encodeURIComponent(candidate.name)}" data-extra-amount="${encodeURIComponent(candidate.amount)}" data-extra-type="${candidate.type}"><i class="fas fa-plus" aria-hidden="true"></i><span>${esc(candidate.name, helpers)}</span></button>`).join('')}
+            ${extraCandidates.map(candidate => `<button class="seisan-extra-candidate-chip" type="button" data-action="add-settlement-extra-candidate" data-driver-name="${encodeURIComponent(car.name)}" data-extra-candidate="${encodeURIComponent(candidate.name)}" data-extra-amount="${encodeURIComponent(candidate.amount)}" data-extra-type="${candidate.type}"><i class="fas fa-plus" aria-hidden="true"></i><span>${extraCandidateLabel(candidate, helpers)}</span></button>`).join('')}
           </div>
         </div>` : ''}
     </div>`;

@@ -18,6 +18,7 @@ function getDefaultSettlementState() {
         cars: {},
         routeStops: [],
         paid: {},
+        paidBy: {},
         driverPaid: {}
     };
 }
@@ -327,6 +328,7 @@ function normalizeSettlementState(state = {}) {
         cars,
         routeStops: Array.isArray(state.routeStops) ? state.routeStops.map(v => String(v ?? '').trim()).filter(Boolean) : [],
         paid: state.paid && typeof state.paid === 'object' ? state.paid : {},
+        paidBy: state.paidBy && typeof state.paidBy === 'object' ? state.paidBy : {},
         driverPaid: state.driverPaid && typeof state.driverPaid === 'object' ? state.driverPaid : {}
     };
 }

@@ -5,9 +5,9 @@
   flex-direction: column;
   justify-content: center;
   min-width: 0;
-  min-height: 56px;
-  padding: 8px 10px;
-  gap: 4px;
+  min-height: 50px;
+  padding: 6px 8px;
+  gap: 2px;
   color: var(--text-main);
   box-sizing: border-box;
   cursor: grab;
@@ -44,7 +44,7 @@
   font-weight: 600;
 }
 
-.member-card-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+.member-card-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px; align-items: center; }
 .member-inline-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 .member-inline-actions .action-btn { display: inline-flex; align-items: center; justify-content: center; width: 48px; min-width: 48px; height: 48px; padding: 0; }
 .member-card.in-waiting { min-height: 60px; }

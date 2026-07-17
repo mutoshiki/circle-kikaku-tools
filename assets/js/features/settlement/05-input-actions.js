@@ -87,15 +87,31 @@ async function confirmSettlementCheckChange(message, options = {}, input = null,
 
 async function toggleSettlementPaid(encodedName, checked, input = null) {
     const name = decodeURIComponent(encodedName);
-    const confirmed = await confirmSettlementCheckChange(
-        checked ? `${name}さんを集金済みにしますか？` : `${name}さんを未回収に戻しますか？`,
-        { title: '集金チェック', okText: checked ? '記録' : '戻す' },
-        input,
-        checked
-    );
-    if (!confirmed) return;
     const state = ensureSettlementState();
+    let confirmed = false;
+    if (checked && state.standalone?.enabled) {
+        const paidByName = await appPrompt('集金した人の名前を入力してください', state.paidBy?.[name] || '', {
+            title: '集金済みにする人',
+            okText: '記録'
+        });
+        const normalizedPaidByName = String(paidByName || '').trim();
+        if (!normalizedPaidByName) {
+            if (input) input.checked = false;
+            return;
+        }
+        state.paidBy = { ...(state.paidBy || {}), [name]: normalizedPaidByName };
+        confirmed = true;
+    } else {
+        confirmed = await confirmSettlementCheckChange(
+            checked ? `${name}さんを集金済みにしますか？` : `${name}さんを未回収に戻しますか？`,
+            { title: '集金チェック', okText: checked ? '記録' : '戻す' },
+            input,
+            checked
+        );
+    }
+    if (!confirmed) return;
     state.paid[name] = !!checked;
+    if (!checked && state.paidBy) delete state.paidBy[name];
     renderSettlementView();
     save();
 }

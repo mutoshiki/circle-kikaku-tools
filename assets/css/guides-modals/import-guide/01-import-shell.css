@@ -133,6 +133,11 @@ margin-left: 0;
 padding-left: 0;
         padding-right: 0;
 }
+
+#batchImportModal .col-6 {
+        padding-left: 5px;
+        padding-right: 5px;
+}
 }
 @media (max-width: 640px) {
 #batchImportModal textarea {

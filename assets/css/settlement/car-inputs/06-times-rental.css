@@ -37,7 +37,7 @@
   width: 42px;
   height: 24px;
   border: 1px solid color-mix(in srgb, var(--text-sub) 24%, var(--border-color));
-  border-radius: var(--radius-pill);
+  border-radius: 6px;
   background: color-mix(in srgb, var(--bg-body) 72%, var(--bg-card));
   transition: background var(--motion-medium) ease, border-color var(--motion-medium) ease;
 }
@@ -48,7 +48,7 @@
   left: 3px;
   width: 16px;
   height: 16px;
-  border-radius: 50%;
+  border-radius: 3px;
   background: var(--text-sub);
   transition: transform var(--motion-medium) ease, background var(--motion-medium) ease;
 }
