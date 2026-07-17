@@ -1,9 +1,9 @@
 /* Driver payment card rows and responsive list layouts. */
 #seisan-view-area .seisan-car-summary-row {
-  --settlement-car-amount-col: 64px;
-  --settlement-car-tag-col: 40px;
-  --settlement-car-row-gap: 8px;
-  --settlement-car-amount-size: 0.86rem;
+  --settlement-car-amount-col: minmax(82px, 0.72fr);
+  --settlement-car-tag-col: 52px;
+  --settlement-car-row-gap: 10px;
+  --settlement-car-amount-size: 1.05rem;
 }
 
 #seisan-view-area .seisan-car-summary-headline {
@@ -122,7 +122,7 @@
   min-width: 0;
   overflow: visible;
   color: var(--text-main);
-  font-size: 0.86rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: 0;
@@ -168,10 +168,10 @@
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  min-height: 20px;
+  min-height: 24px;
   margin: 0;
-  padding: 3px 2px;
-  font-size: 0.62rem;
+  padding: 4px;
+  font-size: 0.72rem;
   white-space: nowrap;
 }
 
@@ -274,7 +274,7 @@
     min-height: 38px;
   }
 
-  #seisan-view-area .seisan-car-summary-row {
+  #seisan-view-area #seisan-car-list.is-two-column .seisan-car-summary-row {
     --settlement-car-amount-col: 60px;
     --settlement-car-tag-col: 38px;
     --settlement-car-row-gap: 7px;

@@ -81,7 +81,7 @@ function calculateSettlement(data, state) {
     const expectedCollected = perPerson * payerCount;
     const surplus = expectedCollected - totalSplit;
     cars.forEach(car => {
-        car.collectionOffset = driverCollectionOffset && driverNames.has(car.name) ? perPerson : 0;
+        car.collectionOffset = driverCollectionOffset && driverNames.has(car.name) && car.name !== excludedName ? perPerson : 0;
         car.adjustedTotalPay = Math.max(0, car.totalPay - car.collectionOffset);
     });
     const totalDriverCollectionOffset = cars.reduce((sum, c) => sum + c.collectionOffset, 0);

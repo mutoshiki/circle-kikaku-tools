@@ -11,8 +11,11 @@ const template = readText('assets/js/templates/settlement/05-collection-check-te
 const css = readText('assets/css/settlement/checklists/03-driver-payment-list.css');
 
 assert(template.includes("'支払い額から差し引き済'"), 'excluded drivers should explain that the amount was already deducted');
+assert(template.includes("const preDeducted = excluded && p.role === 'driver' && result.driverCollectionOffset && p.name !== result.excludedName;"), 'only drivers with an actual collection offset should look pre-deducted');
+assert(template.includes("${checked ? 'checked' : ''}"), 'pre-deducted drivers should render a checked checkbox');
 assert(template.includes('aria-disabled="true"'), 'excluded collection rows should expose their disabled state');
 assert(css.includes('.seisan-check-item.excluded') && css.includes('cursor: not-allowed;'), 'excluded collection rows should look non-interactive');
 assert(css.includes('filter: grayscale(1);'), 'excluded checkboxes should be visibly muted');
+assert(css.includes('.seisan-check-item.excluded.pre-deducted') && css.includes('background: var(--semantic-success-soft);'), 'pre-deducted drivers should use the same success surface as checked rows');
 
 console.log('Settlement collection excluded state check OK');

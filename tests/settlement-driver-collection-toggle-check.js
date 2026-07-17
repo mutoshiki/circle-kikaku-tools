@@ -22,7 +22,7 @@ assert(stateText.includes('state.driverCollectionFree = driverCollectionFree.che
 assert(calcText.includes('const excludedNames = new Set();'), 'drivers should not be excluded unconditionally');
 assert(calcText.includes('if (driverCollectionOffset || driverCollectionFree) driverNames.forEach(name => excludedNames.add(name));'), 'drivers should be excluded for either driver collection mode');
 assert(calcText.includes('if (driverCollectionFree) driverNames.forEach(name => shareExcludedNames.add(name));'), 'collection-free drivers should be excluded from the split');
-assert(calcText.includes('car.collectionOffset = driverCollectionOffset && driverNames.has(car.name) ? perPerson : 0;'), 'driver payment offset should be conditional');
+assert(calcText.includes('car.collectionOffset = driverCollectionOffset && driverNames.has(car.name) && car.name !== excludedName ? perPerson : 0;'), 'driver payment offset should skip an exempt organizer');
 assert(renderText.includes('seisanDriverCollectionOffset') && eventsText.includes('seisanDriverCollectionOffset'), 'driver collection offset control should render and react to changes');
 assert(templatesText.includes('車出しの集金:') && templatesText.includes('支払い額から差し引き済') && templatesText.includes("'する'"), 'settings summary should show driver collection mode');
 assert(!guideText.includes('¥1,000/台'), 'user guide should not advertise an obsolete fixed reward');
@@ -65,6 +65,16 @@ assert.strictEqual(on.payerCount, 1, 'driver should not appear in collection che
 assert.strictEqual(on.cars[0].collectionOffset, 500, 'driver collection amount should be deducted from payment when offset is on');
 assert.strictEqual(on.cars[0].adjustedTotalPay, 500, 'driver payment should be reduced by their own collection amount when offset is on');
 assert(on.excludedNames.has('Driver'), 'driver should be marked excluded only when offset is on');
+
+const organizerDriver = context.calculateSettlement(data, context.normalizeSettlementState({
+  ...base,
+  organizerFree: true,
+  organizerName: 'Driver',
+  driverCollectionOffset: true
+}));
+assert.strictEqual(organizerDriver.payerCount, 1, 'an exempt organizer should stay outside the collection checklist');
+assert.strictEqual(organizerDriver.cars[0].collectionOffset, 0, 'an exempt organizer must not have collection deducted from their driver payment');
+assert.strictEqual(organizerDriver.cars[0].adjustedTotalPay, 1000, 'an exempt organizer should receive the full driver payment');
 
 const off = context.calculateSettlement(data, context.normalizeSettlementState({ ...base, driverCollectionOffset: false }));
 assert.strictEqual(off.perPerson, 500, 'per-person amount should stay the same when offset is off');

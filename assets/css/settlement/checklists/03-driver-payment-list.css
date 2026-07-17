@@ -23,3 +23,9 @@
 
 .seisan-check-item.excluded { cursor: not-allowed; }
 .seisan-check-item.excluded input { filter: grayscale(1); }
+.seisan-check-item.excluded.pre-deducted {
+  background: var(--semantic-success-soft);
+  color: var(--semantic-success);
+  opacity: 1;
+}
+.seisan-check-item.excluded.pre-deducted input { filter: none; }
