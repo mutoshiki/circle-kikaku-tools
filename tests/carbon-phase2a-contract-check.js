@@ -169,19 +169,30 @@ assert(html.indexOf('assets/js/core/tag-types.js') < html.indexOf('assets/js/fea
   assert(tagTypes.includes(`${group}: Object.freeze({`) && mappings.every(mapping => tagTypes.includes(mapping)), `${group} Tag type mapping must be centralized`);
 });
 assert(tagTypes.includes("function resolve(group, value, fallback = 'gray')"), 'Tag type adapter must remain a minimal presentation mapping');
-assert(tagTypes.includes('window.SanpoTagTypes = Object.freeze({ mappings, resolve, attributes })'), 'Tag type adapter must expose only presentation helpers');
+[
+  ["grade", "male: '男性'", "female: '女性'", "unknown: '性別不明'"],
+  ["capacity", "normal: '定員'", "over: '定員超過'"]
+].forEach(([group, ...labels]) => {
+  assert(tagTypes.includes(`${group}: Object.freeze({`) && labels.every(label => tagTypes.includes(label)), `${group} assistive label mapping must be centralized`);
+});
+assert(tagTypes.includes("function accessibleName(group, value, visibleText = '')"), 'Tag type adapter must provide a presentation-only accessible-name helper');
+assert(tagTypes.includes("return group === 'grade' ? `${text}、${label}` : `${label}、${text}`;"), 'grade and capacity accessible names must preserve their visible text');
+assert(tagTypes.includes('window.SanpoTagTypes = Object.freeze({ mappings, assistiveLabels, resolve, accessibleName, attributes })'), 'Tag type adapter must expose only presentation helpers');
 assert(!/localStorage|Firebase|save\(|calculate|addEventListener/.test(tagTypes), 'Tag type adapter must not own state, persistence, calculation, or events');
 
 assert(personCards.includes('<cds-tag class="grade-badge carbon-display-tag') && personCards.includes('data-grade="${n}"'), 'grade labels must use Carbon Tag while preserving grade-badge and data-grade');
+assert(personCards.includes("attributes('grade', gender, 'sm', gradeText)"), 'grade labels must pass their visible text to the accessible-name mapping');
 assert(personMenu.includes("ce('cds-tag', `grade-badge carbon-display-tag") && personMenu.includes("badge.dataset.grade = String(grade)"), 'dynamic grade updates must preserve the existing grade contract');
+assert((personMenu.match(/accessibleName\('grade', gender, badge\.textContent\)/g) || []).length === 2, 'dynamic grade and gender updates must refresh the accessible name');
 assert(autoAssign.includes("oldBadge.className = `grade-badge carbon-display-tag") && autoAssign.includes("oldBadge.dataset.tagValue = gender"), 'automatic assignment must only refresh grade Tag presentation metadata');
+assert(autoAssign.includes("accessibleName('grade', gender, oldBadge.textContent)"), 'automatic gender detection must refresh the grade Tag accessible name');
 assert(settlementCostParts.includes('<cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge') && settlementCostParts.includes('data-cost-type="${config.type}"'), 'settlement classifications must use Carbon Tag while preserving data-cost-type');
 assert(batchImport.includes('<cds-tag class="form-import-source-chip carbon-display-tag"') && batchImport.includes("attributes('importSource', gradeSourceKey"), 'import-source labels must use the centralized Carbon Tag mapping');
 assert(renderController.includes("document.createElement('cds-tag')") && renderController.includes("planLabel.className = 'sheet-summary-plan-label carbon-display-tag'"), 'shared sheet plan labels must use Carbon Tag and preserve their class');
-assert(sheetTemplates.includes('<cds-tag class="sheet-capacity-badge carbon-display-tag') && sheetTemplates.includes("attributes('capacity', capacityState, 'md')"), 'shared sheet capacity labels must use Carbon Tag without moving the capacity decision');
+assert(sheetTemplates.includes('<cds-tag class="sheet-capacity-badge carbon-display-tag') && sheetTemplates.includes("attributes('capacity', capacityState, 'md', capacityText)"), 'shared sheet capacity labels must expose their existing capacity decision without moving it');
 
 const migratedTagSources = [html, personCards, personMenu, autoAssign, settlementCostParts, batchImport, renderController, sheetTemplates].join('\n');
-assert(!/<cds-tag\b[^>]*\b(?:role|tabindex|aria-label)=/i.test(migratedTagSources), 'passive Carbon Tags must not gain interactive or redundant accessibility attributes');
+assert(!/<cds-tag\b[^>]*\b(?:role|tabindex)=/i.test(migratedTagSources), 'passive Carbon Tags must not gain interactive accessibility attributes');
 assert(!/<cds-tag\b[^>]*\b(?:filter|disabled|href)=/i.test(migratedTagSources), 'Phase 3C must not introduce closable, selectable, or otherwise interactive Tags');
 assert(html.includes('id="syncStatusBadge" class="sync-status-badge"'), 'local save status must remain excluded');
 assert(html.includes('id="planningCheckCount" class="planning-check-count"'), 'Button count label must remain excluded');

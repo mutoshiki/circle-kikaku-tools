@@ -408,6 +408,10 @@ test('Phase 3C passive Carbon Tags preserve renderer data, semantics, and non-in
     const audit = await page.evaluate(() => {
       const Tag = customElements.get('cds-tag');
       const tags = Array.from(document.querySelectorAll('cds-tag.carbon-display-tag'));
+      const selfDescribingText = {
+        cost: { split: '割勘', club: '部費', pay: '支払' },
+        sheetPlan: { car: '車割', team: '班割' }
+      };
       const isVisible = node => {
         const rect = node.getBoundingClientRect();
         const style = getComputedStyle(node);
@@ -425,7 +429,12 @@ test('Phase 3C passive Carbon Tags preserve renderer data, semantics, and non-in
         groups,
         allUpgraded: tags.every(tag => tag instanceof Tag && Boolean(tag.shadowRoot)),
         wrongType: tags.filter(tag => tag.type !== window.SanpoTagTypes.resolve(tag.dataset.tagGroup, tag.dataset.tagValue)).map(tag => tag.outerHTML),
-        interactiveAttributes: tags.filter(tag => tag.hasAttribute('role') || tag.hasAttribute('tabindex') || tag.hasAttribute('aria-label')).map(tag => tag.outerHTML),
+        interactiveAttributes: tags.filter(tag => tag.hasAttribute('role') || tag.hasAttribute('tabindex')).map(tag => tag.outerHTML),
+        unexpectedAriaLabels: tags.filter(tag => !['grade', 'capacity'].includes(tag.dataset.tagGroup) && tag.hasAttribute('aria-label')).map(tag => tag.outerHTML),
+        colorOnlyLabels: visible.filter(tag => {
+          const expectedText = selfDescribingText[tag.dataset.tagGroup]?.[tag.dataset.tagValue];
+          return expectedText && !tag.textContent.includes(expectedText);
+        }).map(tag => tag.outerHTML),
         tabStops: tags.filter(tag => tag.tabIndex >= 0).map(tag => tag.outerHTML),
         shadowControls: tags.filter(tag => tag.shadowRoot?.querySelector('button, a, input, select, textarea')).map(tag => tag.outerHTML),
         emptyText: tags.filter(tag => !tag.textContent.trim()).map(tag => tag.outerHTML),
@@ -443,11 +452,46 @@ test('Phase 3C passive Carbon Tags preserve renderer data, semantics, and non-in
     expect(audit.allUpgraded).toBeTruthy();
     expect(audit.wrongType).toEqual([]);
     expect(audit.interactiveAttributes).toEqual([]);
+    expect(audit.unexpectedAriaLabels).toEqual([]);
+    expect(audit.colorOnlyLabels).toEqual([]);
     expect(audit.tabStops).toEqual([]);
     expect(audit.shadowControls).toEqual([]);
     expect(audit.emptyText).toEqual([]);
     expect(audit.clippedText).toEqual([]);
     expect(audit.horizontalOverflow).toBeFalsy();
+
+    const visibleTags = page.locator('cds-tag.carbon-display-tag:visible');
+    const accessibleTagAudit = await visibleTags.evaluateAll(tags => tags.map(tag => {
+      const text = tag.textContent.trim();
+      const expectedName = window.SanpoTagTypes.accessibleName(tag.dataset.tagGroup, tag.dataset.tagValue, text) || text;
+      const assignedText = Array.from(tag.shadowRoot?.querySelectorAll('slot') || [])
+        .flatMap(slot => slot.assignedNodes({ flatten: true }))
+        .map(node => node.textContent || '')
+        .join('')
+        .trim();
+      return {
+        text,
+        expectedName,
+        group: tag.dataset.tagGroup,
+        value: tag.dataset.tagValue,
+        requiresAccessibleName: ['grade', 'capacity'].includes(tag.dataset.tagGroup),
+        ariaLabel: tag.getAttribute('aria-label'),
+        hasShadowRoot: Boolean(tag.shadowRoot),
+        assignedText
+      };
+    }));
+    for (let index = 0; index < accessibleTagAudit.length; index += 1) {
+      const detail = accessibleTagAudit[index];
+      expect(detail.hasShadowRoot).toBeTruthy();
+      expect(detail.assignedText).toContain(detail.text);
+      if (detail.requiresAccessibleName) {
+        expect(detail.ariaLabel).toBe(detail.expectedName);
+        await expect(visibleTags.nth(index)).toHaveAccessibleName(detail.expectedName);
+      } else {
+        expect(detail.text.length).toBeGreaterThan(0);
+        expect(detail.ariaLabel).toBeNull();
+      }
+    }
   }
 
   expect(visibleGroups.car.grade).toBeGreaterThan(0);
@@ -456,6 +500,57 @@ test('Phase 3C passive Carbon Tags preserve renderer data, semantics, and non-in
   expect(visibleGroups.sheet.sheetPlan).toBeGreaterThan(0);
   expect(visibleGroups.sheet.capacity).toBeGreaterThan(0);
   expect(visibleGroups.seisan.cost).toBeGreaterThan(0);
+
+  const initialGenderValues = await page.evaluate(async () => {
+    await window.switchView('list');
+    window.switchCarPlan('plan-car');
+    const values = Array.from(document.querySelectorAll('cds-tag.grade-badge')).map(tag => tag.dataset.tagValue);
+    const badge = document.querySelector('.member-card cds-tag.grade-badge');
+    const person = badge?.closest('.member-card');
+    if (!badge || !person) throw new Error('grade Tag fixture not found');
+    person.dataset.gender = 'unknown';
+    updatePersonGenderBadge(person);
+    return values;
+  });
+  expect(initialGenderValues).toEqual(expect.arrayContaining(['male', 'female']));
+  const unknownGradeTag = page.locator('.member-card cds-tag.grade-badge[data-tag-value="unknown"]').first();
+  await expect(unknownGradeTag).toBeVisible();
+  const unknownGradeText = (await unknownGradeTag.textContent()).trim();
+  await expect(unknownGradeTag).toHaveAttribute('aria-label', `${unknownGradeText}、性別不明`);
+  await expect(unknownGradeTag).toHaveAccessibleName(`${unknownGradeText}、性別不明`);
+  expect(await unknownGradeTag.evaluate(tag => Array.from(tag.shadowRoot.querySelectorAll('slot'))
+    .flatMap(slot => slot.assignedNodes({ flatten: true }))
+    .some(node => node.textContent.trim() === tag.textContent.trim()))).toBeTruthy();
+
+  await page.evaluate(() => {
+    const fixture = document.createElement('div');
+    fixture.id = 'carbon-capacity-tag-a11y-fixture';
+    fixture.innerHTML = window.SanpoApp.templates.sheet.carColumn({
+      car: {
+        name: '確認用',
+        capacity: 1,
+        members: [{ name: '参加者A' }, { name: '参加者B' }]
+      },
+      maxSeats: 1,
+      groupIndex: 0,
+      quickEditMode: false
+    });
+    document.body.appendChild(fixture);
+  });
+  const overCapacityTag = page.locator('#carbon-capacity-tag-a11y-fixture cds-tag.sheet-capacity-badge');
+  await expect(overCapacityTag).toHaveAttribute('data-tag-value', 'over');
+  await expect(overCapacityTag).toHaveAttribute('aria-label', '定員超過、2/1');
+  await expect(overCapacityTag).toHaveAccessibleName('定員超過、2/1');
+  expect(await overCapacityTag.evaluate(tag => ({
+    upgraded: tag instanceof customElements.get('cds-tag'),
+    hasShadowRoot: Boolean(tag.shadowRoot),
+    assignedText: Array.from(tag.shadowRoot.querySelectorAll('slot'))
+      .flatMap(slot => slot.assignedNodes({ flatten: true }))
+      .map(node => node.textContent || '')
+      .join('')
+      .trim()
+  }))).toEqual({ upgraded: true, hasShadowRoot: true, assignedText: '2/1' });
+  await page.evaluate(() => document.getElementById('carbon-capacity-tag-a11y-fixture')?.remove());
 
   const preservedContracts = await page.evaluate(() => ({
     grades: Array.from(document.querySelectorAll('cds-tag.grade-badge')).every(tag => tag.dataset.grade && /^\d+年$/.test(tag.textContent.trim())),

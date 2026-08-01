@@ -108,6 +108,7 @@ function applyDetectedGenderToName(name, gender) {
             oldBadge.className = `grade-badge carbon-display-tag ${gradeGenderClass(gender)}`;
             oldBadge.dataset.tagValue = gender;
             oldBadge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', gender) || 'gray');
+            oldBadge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', gender, oldBadge.textContent) || oldBadge.textContent);
         }
     });
 }

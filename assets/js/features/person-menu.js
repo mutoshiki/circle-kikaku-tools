@@ -61,6 +61,7 @@ function updatePersonGradeBadge(person) {
         badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', gender) || 'gray');
         badge.setAttribute('size', 'sm');
         badge.textContent = `${grade}年`;
+        badge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', gender, badge.textContent) || badge.textContent);
         const menuBtn = line.querySelector('.member-menu-btn, .driver-menu-btn');
         line.insertBefore(badge, menuBtn || null);
     }
@@ -78,6 +79,7 @@ function updatePersonGenderBadge(person) {
         badge.classList.add(gradeGenderClass(gender));
         badge.dataset.tagValue = gender;
         badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', gender) || 'gray');
+        badge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', gender, badge.textContent) || badge.textContent);
     }
 }
 
