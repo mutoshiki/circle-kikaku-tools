@@ -21,7 +21,11 @@ const settlementCostParts = fs.readFileSync(path.join(root, 'assets/js/templates
 const settlementSummaryTemplates = fs.readFileSync(path.join(root, 'assets/js/templates/settlement/02-summary-templates.js'), 'utf8');
 const settlementRender = fs.readFileSync(path.join(root, 'assets/js/features/settlement/03-render.js'), 'utf8');
 const sharedUi = fs.readFileSync(path.join(root, 'assets/js/modules/ui.js'), 'utf8');
+const runtime = fs.readFileSync(path.join(root, 'assets/js/core/runtime.js'), 'utf8');
+const coreStartupEvents = fs.readFileSync(path.join(root, 'assets/js/features/events/01-core-startup-events.js'), 'utf8');
 const notificationCss = fs.readFileSync(path.join(root, 'assets/css/guides-modals/notices/01-copy-lock.css'), 'utf8');
+const dialogShellCss = fs.readFileSync(path.join(root, 'assets/css/guides-modals/dialog/01-dialog-shell.css'), 'utf8');
+const importShellCss = fs.readFileSync(path.join(root, 'assets/css/guides-modals/import-guide/01-import-shell.css'), 'utf8');
 const lightThemeCss = fs.readFileSync(path.join(root, 'assets/css/tokens/01-color-scheme.css'), 'utf8');
 const darkThemeCss = fs.readFileSync(path.join(root, 'assets/css/tokens/01-theme-modes.css'), 'utf8');
 
@@ -53,8 +57,10 @@ assert(entry.includes("@carbon/web-components/es/components/icon-button/index.js
 assert(entry.includes("@carbon/web-components/es/components/content-switcher/index.js"), 'official cds-content-switcher module must be imported');
 assert(entry.includes("@carbon/web-components/es/components/notification/toast-notification.js"), 'official cds-toast-notification module must be imported');
 assert(entry.includes("@carbon/web-components/es/components/tag/index.js"), 'official cds-tag module must be imported');
+assert(entry.includes("@carbon/web-components/es/components/text-input/index.js"), 'official cds-text-input module must be imported');
+assert(entry.includes("@carbon/web-components/es/components/select/index.js"), 'official cds-select and cds-select-item modules must be imported');
 assert(entry.includes("@carbon/icons/es/"), 'official Carbon icon definitions must be imported');
-assert(/<script type="module" src="\.\/assets\/vendor\/carbon\/carbon-entry\.min\.js\?v=2\.60\.0-phase3c"><\/script>/.test(html), 'local Carbon module bundle must be loaded');
+assert(/<script type="module" src="\.\/assets\/vendor\/carbon\/carbon-entry\.min\.js\?v=2\.60\.0-phase4a"><\/script>/.test(html), 'local Carbon module bundle must be loaded');
 assert(html.includes('./assets/vendor/ibm-plex/plex.css'), 'local IBM Plex stylesheet must be loaded');
 
 const migratedButtons = html.match(/<cds-(?:icon-)?button\b/g) || [];
@@ -157,6 +163,32 @@ assert(!/shadowRoot|::part|cds--toast-notification__/.test(notificationCss), 'ap
 assert(lightThemeCss.includes('--cds-icon-inverse: #ffffff') && lightThemeCss.includes('--cds-focus-inverse: #ffffff'), 'light theme must expose inverse Toast icon and focus tokens');
 assert(darkThemeCss.includes('--cds-icon-inverse: #161616') && darkThemeCss.includes('--cds-focus-inverse: #0f62fe'), 'dark theme must expose inverse Toast icon and focus tokens');
 
+// Phase 4A: migrate only the common string editor and debug car-count selector.
+assert(/<cds-text-input\b[^>]*id="editModalInput"[^>]*type="text"[^>]*size="lg"[^>]*autocomplete="off"/.test(html), 'common edit value carrier must use an official Carbon Text Input and preserve its ID and autocomplete contract');
+assert(!/<input\b[^>]*id="editModalInput"/.test(html), 'legacy native common edit input must be removed');
+assert(/<cds-select\b[^>]*id="debugCarCount"[^>]*size="lg"[^>]*value="3"/.test(html), 'debug car count must use an official Carbon Select and preserve its default value');
+['2', '3', '4', '5'].forEach(value => {
+  assert(html.includes(`<cds-select-item value="${value}"${value === '3' ? ' selected' : ''}>${value}台</cds-select-item>`), `debug car count ${value} option must use an official Carbon Select Item`);
+});
+assert(!/<select\b[^>]*id="debugCarCount"/.test(html), 'legacy native debug select must be removed');
+assert(runtime.includes("['editModalInput', 'debugCarCount'].forEach"), 'Phase 4A accessibility bridge must remain limited to the two migrated controls');
+assert(runtime.includes("const control = host.shadowRoot.querySelector('input, select')"), 'Phase 4A bridge must forward the accessible name to the actual Shadow DOM control');
+assert(runtime.includes("if (control && label) control.setAttribute('aria-label', label)"), 'Phase 4A bridge must preserve the existing accessible name');
+assert(runtime.includes("if (!event.composed) host.dispatchEvent(new Event('change', { bubbles: true, composed: true }))"), 'Phase 4A bridge must preserve the native change event at the existing host ID');
+assert(runtime.includes("if (typeof input.select === 'function') input.select()") && runtime.includes("else input.shadowRoot?.querySelector('input')?.select()"), 'appPrompt must preserve the existing select-all behavior through a minimal Shadow DOM bridge');
+assert(coreStartupEvents.includes("$('#commonEditModal .btn-close')") && coreStartupEvents.includes("$('#saveEditBtn')"), 'common edit Text Input must bridge backward and forward Tab navigation across the Bootstrap focus trap');
+assert(coreStartupEvents.includes("$('#debugModal .btn-close')") && coreStartupEvents.includes("$('#executeDebugBtn')"), 'debug Select must bridge backward and forward Tab navigation across the Bootstrap focus trap');
+const formBridgeStart = runtime.indexOf('async function syncCarbonFormControlAccessibility');
+const formBridgeEnd = runtime.indexOf('\n}\n', formBridgeStart) + 3;
+const formBridgeSource = runtime.slice(formBridgeStart, formBridgeEnd);
+assert(formBridgeStart >= 0 && formBridgeEnd > formBridgeStart && !/\bsave\s*\(|Firebase|localStorage/.test(formBridgeSource), 'Phase 4A bridge must not own business state or persistence');
+assert(dialogShellCss.includes('--cds-layout-size-height-lg: 48px') && dialogShellCss.includes('.common-edit-text-input') && dialogShellCss.includes('.debug-car-count-select'), 'migrated form hosts must preserve the 48px control geometry');
+assert(importShellCss.includes('#commonEditModal cds-text-input'), 'common edit overflow guard must include the Carbon host');
+assert(!/::part|cds--text-input|cds--select-input/.test(`${dialogShellCss}\n${importShellCss}`), 'application CSS must not depend on Carbon form Shadow DOM internals');
+assert(/<input\b[^>]*id="seisanDriverReward"[^>]*type="number"/.test(html), 'settlement Number Input must remain excluded');
+assert(/<select\b[^>]*id="seisanOrganizerName"/.test(html), 'settlement organizer Select must remain excluded');
+assert(html.includes('id="googleFormPasteArea"'), 'participant import input must remain excluded');
+
 // Phase 3C: migrate only passive, self-describing labels and keep all business decisions in existing renderers.
 assert(html.indexOf('assets/js/core/tag-types.js') < html.indexOf('assets/js/features/person-cards.js'), 'Tag type adapter must load before display renderers');
 [
@@ -212,4 +244,4 @@ assert(settlementSummaryTemplates.includes('seisan-summary-pills'), 'settlement 
   assert(count === expected, `${token} baseline changed: expected ${expected}, found ${count}`);
 });
 
-console.log('Carbon shared static contract check OK through Phase 3C');
+console.log('Carbon shared static contract check OK through Phase 4A');

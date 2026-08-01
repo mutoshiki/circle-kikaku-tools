@@ -12,7 +12,10 @@ async function boot(page, { theme = 'light', width = 390 } = {}) {
     body: 'window.SANPO_FIREBASE_CONFIG = {};'
   }));
   await page.addInitScript(() => {
-    localStorage.clear();
+    if (!sessionStorage.getItem('sanpo_carbon_test_initialized')) {
+      localStorage.clear();
+      sessionStorage.setItem('sanpo_carbon_test_initialized', 'true');
+    }
     localStorage.setItem('sanpo_coach_seen_v1', 'true');
   });
   await page.setViewportSize({ width, height: width < 600 ? 844 : 720 });
@@ -25,6 +28,9 @@ async function boot(page, { theme = 'light', width = 390 } = {}) {
     && customElements.get('cds-content-switcher-item')
     && customElements.get('cds-toast-notification')
     && customElements.get('cds-tag')
+    && customElements.get('cds-text-input')
+    && customElements.get('cds-select')
+    && customElements.get('cds-select-item')
     && window.SanpoCarbon
     && window.SanpoIconAdapter
     && window.SanpoTagTypes
@@ -597,5 +603,257 @@ test('Phase 3C passive Carbon Tags preserve renderer data, semantics, and non-in
     shadowControl: Boolean(tag.shadowRoot?.querySelector('button, a, input, select, textarea'))
   }))).toEqual({ upgraded: true, role: null, tabindex: null, ariaLabel: null, tabIndex: -1, shadowControl: false });
 
+  expect(consoleProblems).toEqual([]);
+});
+
+test('Phase 4A Carbon Text Input and Select preserve value, events, save timing, and accessibility', async ({ page }) => {
+  const consoleProblems = [];
+  page.on('console', message => {
+    if (['error', 'warning'].includes(message.type())) consoleProblems.push(message.text());
+  });
+  page.on('pageerror', error => consoleProblems.push(error.message));
+  await boot(page, { width: 390 });
+
+  await page.evaluate(() => window.executeDebugMode());
+  await page.waitForFunction(() => document.querySelectorAll('.car-box').length >= 3);
+  await page.evaluate(async () => {
+    await window.switchView('list');
+    window.switchCarPlan('plan-car');
+    const person = document.querySelector('.member-card');
+    handleEdit('memberName', person);
+    const host = document.getElementById('editModalInput');
+    window.__phase4FormEvents = [];
+    ['input', 'change', 'blur', 'keydown'].forEach(type => {
+      host.addEventListener(type, event => {
+        window.__phase4FormEvents.push({
+          type,
+          targetId: event.target.id,
+          targetTag: event.target.tagName,
+          value: event.target.value,
+          key: event.key || ''
+        });
+      });
+    });
+    window.__phase4SaveCalls = 0;
+    const originalSave = window.save;
+    window.save = (...args) => {
+      window.__phase4SaveCalls += 1;
+      return originalSave(...args);
+    };
+    window.__phase4StorageKey = Object.keys(localStorage).find(key => key.startsWith('sampokai_v10_split_'));
+    window.__phase4StorageBeforeInput = localStorage.getItem(window.__phase4StorageKey);
+  });
+  await expect(page.locator('#commonEditModal')).toBeVisible();
+  const textHost = page.locator('#editModalInput');
+  const textControl = textHost.locator('input');
+  await expect(textControl).toHaveAccessibleName('編集内容');
+
+  const textContract = await textHost.evaluate(async host => {
+    await host.updateComplete;
+    const control = host.shadowRoot.querySelector('input');
+    const hostRect = host.getBoundingClientRect();
+    const controlRect = control.getBoundingClientRect();
+    const initialValue = host.value;
+    host.value = 'プログラム設定';
+    await host.updateComplete;
+    const programmaticValue = control.value;
+    const eventCountAfterProgrammaticSet = window.__phase4FormEvents.length;
+    host.value = initialValue;
+    await host.updateComplete;
+    return {
+      tagName: host.tagName,
+      upgraded: host instanceof customElements.get('cds-text-input'),
+      initialValue,
+      programmaticValue,
+      eventCountAfterProgrammaticSet,
+      type: control.type,
+      name: control.getAttribute('name'),
+      disabled: control.disabled,
+      readonly: control.readOnly,
+      required: control.required,
+      placeholder: control.getAttribute('placeholder'),
+      maxLength: control.maxLength,
+      autocomplete: control.autocomplete,
+      describedBy: control.getAttribute('aria-describedby'),
+      hostHeight: hostRect.height,
+      controlHeight: controlRect.height
+    };
+  });
+  expect(textContract).toEqual({
+    tagName: 'CDS-TEXT-INPUT',
+    upgraded: true,
+    initialValue: '武内 樹',
+    programmaticValue: 'プログラム設定',
+    eventCountAfterProgrammaticSet: 0,
+    type: 'text',
+    name: null,
+    disabled: false,
+    readonly: false,
+    required: false,
+    placeholder: null,
+    maxLength: -1,
+    autocomplete: 'off',
+    describedBy: null,
+    hostHeight: 48,
+    controlHeight: 48
+  });
+
+  await textControl.fill('山田 花子');
+  await textControl.press('Tab');
+  const textTabTarget = await page.evaluate(() => ({
+    activeId: document.activeElement?.id || '',
+    activeTag: document.activeElement?.tagName || '',
+    internalTag: document.activeElement?.shadowRoot?.activeElement?.tagName || ''
+  }));
+  expect(textTabTarget).toEqual({ activeId: 'saveEditBtn', activeTag: 'BUTTON', internalTag: '' });
+  const inputPhase = await page.evaluate(() => ({
+    value: document.getElementById('editModalInput').value,
+    events: window.__phase4FormEvents,
+    saveCalls: window.__phase4SaveCalls,
+    storageUnchanged: localStorage.getItem(window.__phase4StorageKey) === window.__phase4StorageBeforeInput
+  }));
+  expect(inputPhase.value).toBe('山田 花子');
+  expect(inputPhase.events.some(event => event.type === 'input' && event.targetId === 'editModalInput' && event.targetTag === 'CDS-TEXT-INPUT' && event.value === '山田 花子')).toBeTruthy();
+  expect(inputPhase.events.some(event => event.type === 'keydown' && event.key === 'Tab' && event.targetId === 'editModalInput')).toBeTruthy();
+  expect(inputPhase.events.some(event => event.type === 'change' && event.targetId === 'editModalInput' && event.value === '山田 花子')).toBeTruthy();
+  expect(inputPhase.events.some(event => event.type === 'blur' && event.targetId === 'editModalInput')).toBeTruthy();
+  expect(inputPhase.saveCalls).toBe(0);
+  expect(inputPhase.storageUnchanged).toBeTruthy();
+
+  await textControl.focus();
+  const textFocus = await textHost.evaluate(host => {
+    const control = host.shadowRoot.querySelector('input');
+    const style = getComputedStyle(control);
+    return {
+      hostFocusWithin: host.matches(':focus-within'),
+      internalFocused: host.shadowRoot.activeElement === control,
+      outlineWidth: parseFloat(style.outlineWidth || '0'),
+      outlineStyle: style.outlineStyle
+    };
+  });
+  expect(textFocus.hostFocusWithin).toBeTruthy();
+  expect(textFocus.internalFocused).toBeTruthy();
+  expect(textFocus.outlineStyle).not.toBe('none');
+  expect(textFocus.outlineWidth).toBeGreaterThanOrEqual(2);
+
+  await page.locator('#saveEditBtn').click();
+  await expect(page.locator('#commonEditModal')).toBeHidden();
+  expect(await page.evaluate(() => window.__phase4SaveCalls)).toBe(1);
+  await expect(page.locator('.member-name-text', { hasText: '山田 花子' })).toHaveCount(1);
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => document.documentElement.dataset.carbonReady === 'true' && document.querySelectorAll('.car-box').length >= 3);
+  await page.evaluate(async () => {
+    await window.switchView('list');
+    window.switchCarPlan('plan-car');
+  });
+  await expect(page.locator('.member-name-text', { hasText: '山田 花子' })).toHaveCount(1);
+
+  await page.evaluate(() => {
+    window.openDebugModal();
+    const host = document.getElementById('debugCarCount');
+    window.__phase4SelectEvents = [];
+    ['input', 'change', 'blur', 'cds-select-selected'].forEach(type => {
+      host.addEventListener(type, event => {
+        window.__phase4SelectEvents.push({
+          type,
+          targetId: event.target.id,
+          targetTag: event.target.tagName,
+          value: event.target.value,
+          detailValue: event.detail?.value || ''
+        });
+      });
+    });
+    window.__phase4SelectStorageKey = Object.keys(localStorage).find(key => key.startsWith('sampokai_v10_split_'));
+    window.__phase4SelectStorageBefore = localStorage.getItem(window.__phase4SelectStorageKey);
+  });
+  await expect(page.locator('#debugModal')).toBeVisible();
+  const selectHost = page.locator('cds-select#debugCarCount');
+  const selectControl = selectHost.locator('select');
+  await expect(selectControl).toHaveAccessibleName('サンプルデータの車の数');
+  const selectContract = await selectHost.evaluate(async host => {
+    await host.updateComplete;
+    const control = host.shadowRoot.querySelector('select');
+    const hostRect = host.getBoundingClientRect();
+    const controlRect = control.getBoundingClientRect();
+    host.value = '4';
+    await host.updateComplete;
+    const programmaticValue = control.value;
+    const eventCountAfterProgrammaticSet = window.__phase4SelectEvents.length;
+    host.value = '3';
+    await host.updateComplete;
+    return {
+      tagName: host.tagName,
+      upgraded: host instanceof customElements.get('cds-select'),
+      initialValue: '3',
+      programmaticValue,
+      displayedAfterReset: control.value,
+      eventCountAfterProgrammaticSet,
+      optionValues: Array.from(control.options).map(option => option.value),
+      selectedIndex: control.selectedIndex,
+      disabled: control.disabled,
+      required: host.required,
+      name: host.getAttribute('name'),
+      describedBy: control.getAttribute('aria-describedby'),
+      hostHeight: hostRect.height,
+      controlHeight: controlRect.height
+    };
+  });
+  expect(selectContract).toEqual({
+    tagName: 'CDS-SELECT',
+    upgraded: true,
+    initialValue: '3',
+    programmaticValue: '4',
+    displayedAfterReset: '3',
+    eventCountAfterProgrammaticSet: 0,
+    optionValues: ['2', '3', '4', '5'],
+    selectedIndex: 1,
+    disabled: false,
+    required: false,
+    name: null,
+    describedBy: null,
+    hostHeight: 48,
+    controlHeight: 48
+  });
+
+  await selectControl.selectOption('4');
+  await selectControl.press('Tab');
+  expect(await page.evaluate(() => document.activeElement?.id || '')).toBe('executeDebugBtn');
+  const selectPhase = await page.evaluate(() => ({
+    value: document.getElementById('debugCarCount').value,
+    events: window.__phase4SelectEvents,
+    storageUnchanged: localStorage.getItem(window.__phase4SelectStorageKey) === window.__phase4SelectStorageBefore
+  }));
+  expect(selectPhase.value).toBe('4');
+  expect(selectPhase.events.some(event => event.type === 'input' && event.targetId === 'debugCarCount' && event.targetTag === 'CDS-SELECT' && event.value === '4')).toBeTruthy();
+  expect(selectPhase.events.some(event => event.type === 'change' && event.targetId === 'debugCarCount' && event.value === '4')).toBeTruthy();
+  expect(selectPhase.events.some(event => event.type === 'blur' && event.targetId === 'debugCarCount')).toBeTruthy();
+  expect(selectPhase.events.some(event => event.type === 'cds-select-selected' && event.detailValue === '4')).toBeTruthy();
+  expect(selectPhase.storageUnchanged).toBeTruthy();
+
+  await selectHost.focus();
+  await expect.poll(() => selectHost.evaluate(host => ({
+    hostFocusWithin: host.matches(':focus-within'),
+    internalFocused: host.shadowRoot.activeElement === host.shadowRoot.querySelector('select')
+  }))).toEqual({ hostFocusWithin: true, internalFocused: true });
+  const selectFocus = await selectHost.evaluate(host => {
+    const control = host.shadowRoot.querySelector('select');
+    const style = getComputedStyle(control);
+    return {
+      outlineWidth: parseFloat(style.outlineWidth || '0'),
+      outlineStyle: style.outlineStyle,
+      horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth + 1
+    };
+  });
+  expect(selectFocus.outlineStyle).not.toBe('none');
+  expect(selectFocus.outlineWidth).toBeGreaterThanOrEqual(2);
+  expect(selectFocus.horizontalOverflow).toBeFalsy();
+
+  await page.locator('#executeDebugBtn').click();
+  await page.waitForFunction(() => document.querySelectorAll('.car-box').length === 4);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => document.documentElement.dataset.carbonReady === 'true');
+  await page.evaluate(() => window.openDebugModal());
+  await expect(page.locator('cds-select#debugCarCount').locator('select')).toHaveValue('3');
   expect(consoleProblems).toEqual([]);
 });

@@ -132,6 +132,28 @@ function applyRuntimeAccessibilityFixes(root = document) {
     });
 }
 
+async function syncCarbonFormControlAccessibility(host) {
+    if (!host?.shadowRoot) return;
+    await host.updateComplete;
+    const control = host.shadowRoot.querySelector('input, select');
+    const label = host.getAttribute('aria-label') || host.label || host.labelText;
+    if (control && label) control.setAttribute('aria-label', label);
+    if (control && control.dataset.sanpoChangeBridge !== 'true') {
+        control.dataset.sanpoChangeBridge = 'true';
+        control.addEventListener('change', event => {
+            if (!event.composed) host.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+        });
+    }
+}
+
+function syncPhase4CarbonFormControls() {
+    ['editModalInput', 'debugCarCount'].forEach(id => {
+        void syncCarbonFormControlAccessibility(byId(id));
+    });
+}
+
+document.addEventListener('sanpo:carbon-ready', syncPhase4CarbonFormControls, { once: true });
+
 function appPrompt(message, defaultValue = '', options = {}) {
     const modalEl = byId('commonEditModal');
     const input = byId('editModalInput');
@@ -167,11 +189,18 @@ function appPrompt(message, defaultValue = '', options = {}) {
         titleEl.textContent = String(options.title || message || '編集');
         saveBtn.textContent = String(options.okText || '保存');
         input.value = String(defaultValue || '');
-        input.setAttribute('aria-label', String(message || '入力'));
+        const inputLabel = String(message || '入力');
+        input.setAttribute('aria-label', inputLabel);
+        if ('label' in input) input.label = inputLabel;
+        void syncCarbonFormControlAccessibility(input);
         saveCb = () => finish(input.value);
         modalEl.addEventListener('hidden.bs.modal', onHidden);
         modals.edit.show();
-        setTimeout(() => { input.focus(); input.select(); }, 80);
+        setTimeout(() => {
+            input.focus();
+            if (typeof input.select === 'function') input.select();
+            else input.shadowRoot?.querySelector('input')?.select();
+        }, 80);
     });
 }
 

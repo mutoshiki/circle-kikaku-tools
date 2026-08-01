@@ -3,7 +3,17 @@
 .debug-help-text,
 .debug-label { color: var(--text-sub); font-size: 0.82rem; }
 .debug-label { font-weight: 600; }
-.debug-car-count-select { width: 88px; }
+.common-edit-text-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  --cds-layout-size-height-lg: 48px;
+}
+.debug-car-count-select {
+  width: 88px;
+  flex: 0 0 88px;
+  --cds-layout-size-height-lg: 48px;
+}
 .compact-guide-grid { max-width: 100%; box-sizing: border-box; }
 body.modal-open { padding-right: 0; }
 

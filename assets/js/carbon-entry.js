@@ -3,6 +3,8 @@ import '@carbon/web-components/es/components/icon-button/index.js';
 import '@carbon/web-components/es/components/content-switcher/index.js';
 import '@carbon/web-components/es/components/notification/toast-notification.js';
 import '@carbon/web-components/es/components/tag/index.js';
+import '@carbon/web-components/es/components/text-input/index.js';
+import '@carbon/web-components/es/components/select/index.js';
 
 import Add20 from '@carbon/icons/es/add/20.js';
 import Calculator32 from '@carbon/icons/es/calculator/32.js';

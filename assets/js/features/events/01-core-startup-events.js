@@ -78,6 +78,29 @@
         if (editModalInput) {
             editModalInput.addEventListener('keydown', e => {
                 if (e.key === 'Enter' && saveCb) saveCb();
+                if (e.key === 'Tab') {
+                    const target = e.shiftKey
+                        ? $('#commonEditModal .btn-close')
+                        : $('#saveEditBtn');
+                    if (target) {
+                        e.preventDefault();
+                        target.focus();
+                    }
+                }
+            });
+        }
+
+        const debugCarCount = $('#debugCarCount');
+        if (debugCarCount) {
+            debugCarCount.addEventListener('keydown', e => {
+                if (e.key !== 'Tab') return;
+                const target = e.shiftKey
+                    ? $('#debugModal .btn-close')
+                    : $('#executeDebugBtn');
+                if (target) {
+                    e.preventDefault();
+                    target.focus();
+                }
             });
         }
 

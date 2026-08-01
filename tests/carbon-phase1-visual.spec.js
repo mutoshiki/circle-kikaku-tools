@@ -194,11 +194,6 @@ async function closeAllModals(page) {
 
 const MODALS = [
   {
-    name: 'common-edit',
-    selector: '#commonEditModal',
-    open: () => { void window.appPrompt('参加者名を編集', '藤原 拓海', { title: '参加者を編集' }); }
-  },
-  {
     name: 'participant-import',
     selector: '#batchImportModal',
     open: () => window.openBatchModal()
@@ -235,6 +230,25 @@ const MODALS = [
       const slot = Array.from(document.querySelectorAll('.seat-slot')).find(node => !node.querySelector('.member-card'));
       window.openSeatMemberPicker(slot);
     }
+  }
+];
+
+const PHASE4_FORM_MODALS = [
+  {
+    name: 'common-edit',
+    selector: '#commonEditModal',
+    control: 'cds-text-input#editModalInput',
+    nativeControl: 'input',
+    accessibleName: '参加者名を編集',
+    open: () => { void window.appPrompt('参加者名を編集', '藤原 拓海', { title: '参加者を編集' }); }
+  },
+  {
+    name: 'debug',
+    selector: '#debugModal',
+    control: 'cds-select#debugCarCount',
+    nativeControl: 'select',
+    accessibleName: 'サンプルデータの車の数',
+    open: () => window.openDebugModal()
   }
 ];
 
@@ -298,6 +312,54 @@ for (const viewport of MODAL_VIEWPORTS) {
         expect(aria.labelledBy).toBeTruthy();
         expect(aria.ariaModal).toBe('true');
         expect(aria.hidden).not.toBe('true');
+        await expectViewportSnapshot(page, `modal-${modalCase.name}-${viewport.width}-${theme}.png`);
+      }
+
+      await closeAllModals(page);
+      expect(consoleProblems).toEqual([]);
+    });
+  }
+}
+
+for (const viewport of VIEWPORTS) {
+  for (const theme of THEMES) {
+    test(`phase 4A Carbon form modals ${viewport.width}px ${theme}`, async ({ page }) => {
+      const consoleProblems = [];
+      page.on('console', message => {
+        if (['error', 'warning'].includes(message.type())) consoleProblems.push(message.text());
+      });
+      page.on('pageerror', error => consoleProblems.push(error.message));
+      await page.setViewportSize(viewport);
+      await boot(page, { theme, seeded: true, room: `CARBON-FORMS-${viewport.width}-${theme}` });
+
+      for (const modalCase of PHASE4_FORM_MODALS) {
+        await closeAllModals(page);
+        await page.evaluate(modalCase.open);
+        const modal = page.locator(modalCase.selector);
+        const host = page.locator(modalCase.control);
+        await expect(modal).toBeVisible();
+        await expect(host).toBeVisible();
+        const audit = await host.evaluate(async (node, { nativeControl, accessibleName }) => {
+          await node.updateComplete;
+          const control = node.shadowRoot?.querySelector(nativeControl);
+          const hostRect = node.getBoundingClientRect();
+          const controlRect = control?.getBoundingClientRect();
+          return {
+            upgraded: !!node.shadowRoot,
+            actualAccessibleName: control?.getAttribute('aria-label') || '',
+            expectedAccessibleName: accessibleName,
+            hostHeight: hostRect.height,
+            controlHeight: controlRect?.height || 0,
+            overflow: document.documentElement.scrollWidth > window.innerWidth + 1
+          };
+        }, { nativeControl: modalCase.nativeControl, accessibleName: modalCase.accessibleName });
+        expect(audit).toMatchObject({
+          upgraded: true,
+          actualAccessibleName: audit.expectedAccessibleName,
+          overflow: false
+        });
+        expect(audit.hostHeight).toBeGreaterThanOrEqual(48);
+        expect(audit.controlHeight).toBeGreaterThanOrEqual(48);
         await expectViewportSnapshot(page, `modal-${modalCase.name}-${viewport.width}-${theme}.png`);
       }
 

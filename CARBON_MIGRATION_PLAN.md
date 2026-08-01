@@ -860,3 +860,70 @@ Codexアプリ内サイドブラウザで通常sampleを読み込み、390×844 
 次の低リスク候補は、業務状態を持たない静的status labelから公式Carbon Tagへ移行すること。その後、既存validation / 保存契約を先に固定してInput / Select / Toggle / Dropdownを機能単位で進める。上部navigation、Modal lifecycle、独自card / tray構造、残存iconは各関連機能のphaseまで維持する。
 
 残るリスクは、Toastの48px補正が現在のapp root 14px / 15px typographyを前提とするため将来root font-size変更時に再監査が必要なこと、互換入口が通常はneutral / errorしか渡さないためwarning / infoの本番flowが少ないこと、最新1件だけを残してstackしない従来契約、既知Playwright失敗9件、Windows system Chrome以外の未確認、Bootstrap / Font Awesome残存、ユーザーガイド画像11枚の既知不一致である。生成済みCarbon bundleのupstream template literal 2行には既知の行末空白が残る。
+
+## 17. フェーズ4A完了記録: 共通編集 / debugのText Input・Select
+
+共通編集の単純な文字列value carrier 1件と、debugの車数selector 1件だけを公式Carbon Web Componentsへ移行した。Modal本体、保存callback、sample生成、計算、保存形式、Firebase同期は変更していない。
+
+### 棚卸しと対象境界
+
+| 機能 | 対象 | 判断 |
+|---|---|---|
+| 共通編集 | `#editModalInput` | 対象。文字列の初期値設定と読み取りだけを担い、`input` / `change` / `blur`自体は保存を開始しない。保存Button / Enterの既存`saveCb`をownerとして維持する |
+| debug | `#debugCarCount` | 対象。2 / 3 / 4 / 5台の単純選択だけを担い、選択時は保存・sample生成を開始しない。既存実行Buttonがvalueを読む |
+| lock合言葉 | 動的password / text | 除外。native form submit、trim、focus管理、lock lifecycleと結合 |
+| 自動割当条件 | `#optFemale` / `#optMale` / `#optGrade` | 除外。今回はText Input / Selectだけが範囲。次候補の同一契約Checkbox群 |
+| 企画名 / 概要memo / timetable | Textarea / time / text | 除外。debounce保存、動的行、共有表示への反映契約がある |
+| 参加者import | spreadsheet / member / driver / grade Textarea | 除外。parser、import確定、Modal lifecycleと結合 |
+| 精算設定 | rounding / organizer Select、Number、Checkbox | 除外。計算、validation、動的選択肢、保存と結合 |
+| 車費用 / route helper | 動的Text / Number / Select | 除外。距離計算、Google Maps、動的行、validationと結合 |
+
+`querySelector('input')` / `querySelector('select')`、`querySelectorAll`、`instanceof`、`form.elements`、`FormData`、native validity、type selector、event delegationを検索した。対象2件には`instanceof`、form、FormData、native validity依存がなく、既存公開IDからの`.value`設定 / 読み取りだけだった。drag除外selectorはShadow eventのhost retarget後も`.modal`で保護される。
+
+### 維持したvalue / event / accessibility契約
+
+- IDは`editModalInput` / `debugCarCount`、nameなし、disabled / readonly / required=falseを維持。
+- Text Inputは`type=text`、`autocomplete=off`、placeholderなし、maxlengthなし、初期値のprogrammatic設定、select-all、日本語入力、`event.target.value`を維持。
+- Selectはdefault=`3`、選択肢`2 / 3 / 4 / 5`と表示文言、programmatic value同期、選択だけでは保存しない契約を維持。
+- `input`と`keydown`はCarbon hostへcomposed eventが届く。native `change`だけがShadow boundaryを越えないため、対象2hostに限定して同型`change`を再dispatchする最小bridgeを追加した。bridgeはsave、localStorage、Firebaseを参照しない。
+- Bootstrap focus trapがShadow内部controlをtabbableとして認識しないため、共通編集はclose ← Text Input → Save、debugはclose ← Select → ExecuteのTab / Shift+Tabだけを既存startup eventsで補完した。
+- hostとShadow内部controlのaccessible nameを実ブラウザで検証。共通編集は通常`編集内容`、`appPrompt()`利用時は既存messageへ動的更新し、debugは`サンプルデータの車の数`を維持。
+- host / Shadow内部controlはいずれも48px、focus ringあり、横overflowなし。Carbon内部class、`::part`、Shadow内部構造へ依存するapplication CSSは追加していない。
+
+### Visual / side browser / test結果
+
+Visual RegressionはPhase 4A対象だけを360 / 390 / 768 / 1280px × light / darkで追加した。既存390 / 1280pxのcommon edit基準は変更せず、common editの360 / 768px 4枚とdebugの全幅8枚、合計12枚だけを目視確認して追加した。主要画面、Toast、他Modal snapshotは更新していない。
+
+サイドブラウザは重複を抑えて390pxスマホと1280px PCの代表条件だけを目視した。light / darkの共通編集とdebugで、日本語入力、Tab、blur、保存、reload復元、4台選択と実行、reload後のdefault 3台、label / accessible name、48px、未upgrade 0、横overflow 0、console warning / error 0を確認した。
+
+| 実行 | 初回 | 最終 |
+|---|---:|---:|
+| Carbon assets build | - | 成功 |
+| CSS lint | - | 成功、error 0 |
+| 静的suite | - | **84 / 84成功** |
+| Carbon runtime | 開発中にchange / reload harness / Tab bridgeの対象失敗を検出 | **5 / 5成功**（Phase 4Aは1 / 1） |
+| Phase 4A対象Visual | accessible name期待値と新規基準未作成で失敗 | **8 / 8成功** |
+| Phase 1 Visual / quality | - | **28 / 28成功** |
+| 既存Modal Visual | - | **6 / 6成功** |
+| 全Playwright | **73成功 / 11失敗、全84件** | 失敗11件だけ再実行して**2成功 / 9失敗**。有効結果は**75成功 / 9失敗** |
+
+全Playwright初回の追加2件は、7並列時のToast timer境界とModal全件走査timeoutで、失敗限定再実行では成功した。残る9件は既知の精算note位置1、既存36〜40px touch target 1、参加者table 1、driver card typography / layout 6で、既知上限10件以内。Phase 4A runtime / Visualに失敗はない。
+
+移行数は公式Carbon Text Input **1件**、Select **1件**、Select Item **4件**。Bootstrap残存contractは`data-bs-toggle` 2、`data-bs-dismiss` 15、`bootstrap.Modal` 12、`hide.bs.modal` 2、`hidden.bs.modal` 8で変更していない。
+
+次の低リスク候補は、同一value契約を持ち、選択だけでは計算や保存を開始しない自動割当条件3件（`optFemale` / `optMale` / `optGrade`）を公式Carbon Checkboxとして機能単位でまとめること。その後は企画名 / 概要memoのTextareaをdebounce保存契約ごと、精算設定のSelect / Checkbox / Toggleを計算境界ごとに扱う。参加者import、動的費用行、Google Maps / 距離計算、Modal本体は引き続き後段とする。
+
+### 今後のフェーズの効率化方針
+
+安全性と既存機能維持の検査密度は下げず、手動と自動の重複だけを次の運用で減らす。
+
+1. フェーズ開始時に同梱Node、system Chrome、必要なPATH / executable設定を一度だけ固定し、途中で再探索しない。
+2. 棚卸し、依存検索、既存value / event / persistence / ARIA契約の固定を実装前に完了する。
+3. 実装後は同じ契約を持つ対象テストを既存contract / runtimeへ統合し、まとめて実行する。
+4. サイドブラウザは390pxスマホと1280px PCの代表画面だけを目視し、Playwright全条件を重複再現しない。
+5. viewport全幅、light / dark、保存復元、keyboard、ARIAの網羅確認はPlaywrightを主とする。
+6. 全Visual Regressionと全Playwrightは、フェーズ完了前に原則1回だけ実行する。
+7. 失敗時は失敗したtestだけを再実行し、全体を反復しない。
+8. 小さな部品単位の専用phaseを増やさず、同じ契約を持つ低リスク部品を機能単位でまとめて移行する。
+
+残るリスクは、Carbon Web Components 2.60.0ではnative `change`のcomposed=falseを小さなbridgeで補っていること、Bootstrap focus trapがShadow controlを認識しないため対象別Tab bridgeがModal移行まで必要なこと、既知Playwright失敗9件、Windows Chromium以外の未確認、Bootstrap / Font Awesome残存、ユーザーガイド画像の既知不一致である。

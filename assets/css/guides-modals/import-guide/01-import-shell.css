@@ -89,7 +89,8 @@ max-width: 100%;
 #batchImportModal select,
 #routeDistanceModal input,
 #routeDistanceModal button,
-#commonEditModal input {
+#commonEditModal input,
+#commonEditModal cds-text-input {
 max-width: 100%;
 }
 @media (min-width: 641px) {

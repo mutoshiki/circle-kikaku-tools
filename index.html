@@ -380,7 +380,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body">
-            <input type="text" id="editModalInput" class="form-control" autocomplete="off" aria-label="編集内容">
+            <cds-text-input id="editModalInput" class="common-edit-text-input" type="text" size="lg" label="編集内容" hide-label autocomplete="off" aria-label="編集内容"></cds-text-input>
           </div>
           <div class="modal-footer py-1">
             <button type="button" class="btn btn-primary btn-sm btn-accent-solid" id="saveEditBtn">保存</button>
@@ -702,12 +702,12 @@
             <p class="mb-3 debug-help-text">現在のデータをリセットして、車の席数に合う確認用サンプルを入れます。</p>
             <div class="d-flex align-items-center gap-2 mb-3">
               <label for="debugCarCount" class="mb-0 debug-label">車の数</label>
-              <select id="debugCarCount" class="form-select form-select-sm debug-car-count-select" aria-label="サンプルデータの車の数">
-                <option value="2">2台</option>
-                <option value="3" selected>3台</option>
-                <option value="4">4台</option>
-                <option value="5">5台</option>
-              </select>
+              <cds-select id="debugCarCount" class="debug-car-count-select" size="lg" value="3" label-text="サンプルデータの車の数" hide-label aria-label="サンプルデータの車の数">
+                <cds-select-item value="2">2台</cds-select-item>
+                <cds-select-item value="3" selected>3台</cds-select-item>
+                <cds-select-item value="4">4台</cds-select-item>
+                <cds-select-item value="5">5台</cds-select-item>
+              </cds-select>
             </div>
             
             <div class="d-grid gap-2">
@@ -792,6 +792,6 @@
     <script src="./assets/js/features/events/04-settlement-input-events.js"></script>
     <script src="./assets/js/features/events/05-view-feature-events.js"></script>
     <script src="./assets/js/features/events.js"></script>
-    <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=2.60.0-phase3c"></script>
+    <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=2.60.0-phase4a"></script>
   </body>
 </html>
