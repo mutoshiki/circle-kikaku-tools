@@ -67,7 +67,7 @@
   line-height: 1.25;
 }
 
-#routeDistanceModal .route-helper-title i {
+#routeDistanceModal .route-helper-title :is(i, .carbon-icon) {
   color: var(--text-sub);
   font-size: 0.86em;
 }
@@ -103,7 +103,7 @@
   font-weight: 500;
 }
 
-#routeDistanceModal .route-helper-actions .seisan-btn i {
+#routeDistanceModal .route-helper-actions .seisan-btn :is(i, .carbon-icon) {
   margin: 0;
 }
 

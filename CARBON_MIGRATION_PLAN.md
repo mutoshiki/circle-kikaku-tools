@@ -454,3 +454,217 @@ Modal、Dropdown、Toggle、精算入力、参加者importはBootstrap lifecycle
 - Chromium / WindowsとCodexアプリ内サイドブラウザで確認済み。Linux CI baseline、Firefox、WebKitは未確認。
 - 既知の10失敗と36～40px操作が残る。対象componentを移行する時にallowlistを縮小する。
 - ユーザーガイド11枚は現行UIと不一致のまま。画面の公式Carbon移行が安定した後に再生成する。
+
+## 13. フェーズ2B事前選定: 低リスクな静的iconと単純Button
+
+実装前の再集計はFont Awesome **64種類・120参照・20 icon-bearing files**、公式Carbon Button / Icon Button **4 instance**。`assets/js/core/dependency-status.js`の`fa-solid`検出文字列は実iconではないため、参照数から除外する。Bootstrapの基準値は`data-bs-toggle` 2、`data-bs-dismiss` 15、`bootstrap.Modal` 12、`hide.bs.modal` / `hidden.bs.modal` 10である。
+
+### 今回移行する静的icon
+
+| 機能 | Font Awesome | Carbon Icons | 低リスクと判断した理由 |
+|---|---|---|---|
+| header「使い方」 | `circle-question` | `help` | 装飾専用で`aria-hidden`。click、id、Modal制御は親Buttonが所有し、icon selectorはない |
+| header「この端末の履歴」 | `clock-rotate-left` | `recently-viewed` | 装飾専用で状態を持たず、lock判定や履歴表示関数から独立 |
+| header「企画チェック」 | `list-check` | `task` | 件数・状態は別spanが所有し、icon自体は固定かつ装飾専用 |
+| header「サンプルデータ」 | `wand-magic-sparkles` | `magic-wand` | 固定の装飾iconで、Modal lifecycleやsample投入処理から独立 |
+| header「全てリセット」 | `trash-can` | `trash-can` | 固定の装飾iconで、確認・削除処理は既存Button handlerが所有 |
+| overview「予定をコピー」 | `copy` | `copy` | clipboard用Button内の固定装飾で、値・保存・submit状態を持たない |
+| 共有画面title | `table-list` | `table` | 表題の装飾専用で操作対象ではない |
+| 共有画面touch案内 | `hand-pointer` | `touch--1` | gesture説明の装飾専用で、pointer / drag handlerから独立 |
+
+### 今回移行する公式Button
+
+| 機能 | 既存契約 | 低リスクと判断した理由 |
+|---|---|---|
+| `overviewTimetableCopyBtn` | 同じid、`type=button`、表示名「予定をコピー」、既存`bind` | `copyTextWithFallback`を呼ぶだけで、form submit、保存、Modal、dragを持たない |
+| 共有空状態`data-action="switch-list"` | 同じ`data-action`、`type=button`、表示名「車割・班割を開く」 | 既存delegationで`switchView('list')`を呼ぶだけ。計算、保存、Modal、dragを持たない |
+
+対象外はtheme / lockの状態icon、overview行削除、参加者登録、精算card、未割当tray、車card、座席、form submit、Bootstrap Modal内とその開閉・保存Buttonである。これらは状態変更、動的保存、drag、Modal lifecycle、または独自component境界と結合しているため後続phaseへ残す。
+
+### フェーズ2B完了記録
+
+事前選定どおり8 Font Awesome参照をCarbon Iconsへ、2 Button instanceを公式Carbon Web Componentsへ移行した。`overviewTimetableCopyBtn`は既存idと`bind`、共有空状態は既存`data-action="switch-list"`を維持した。どちらも`type="button"`、表示text由来のaccessible name、Shadow DOM内のnative Buttonによるkeyboard操作を保持している。
+
+共有空状態は共有canvasの初期scaleによりCarbon `lg` 48pxが実寸42.24pxになることをruntime testで検出した。この1 instanceだけ`xl`へ上げ、実表示のhost touch targetを48px以上にした。`overviewTimetableCopyBtn`はhost 48px、内部Button約45px。keyboard focus時はCarbonのinset focus ringを確認し、`disabled`をhostへ設定するとShadow DOM内のnative Buttonへ伝播することも検査した。
+
+#### Visual Regression
+
+snapshotを更新せずにPhase 1全16 testを先に実行し、失敗した次の2枚だけactual / expected / diffを目視確認して個別更新した。
+
+- `empty-sheet-390-light-win32.png`
+- `empty-sheet-390-dark-win32.png`
+
+差分は公式Carbon Buttonの高さ・幅・右側icon配置と、それに伴う共有空状態card内の再配置だけだった。1280px empty state、主要画面、主要Modalを含む他snapshotは更新していない。更新後はPhase 1 Visual / quality **16 / 16成功**、既存Modal Visual **6 / 6成功**。
+
+#### Side Browser監査
+
+Codexアプリ内サイドブラウザで、390×844 / 1280×720、light / dark、車割 / 班割 / 共有 / 精算の**16画面条件**を実表示した。
+
+| 契約 | 結果 |
+|---|---:|
+| document横overflow | 0 / 16 |
+| 対象見出し・Buttonの文字clip | 0 / 16 |
+| console warning / error | 0 |
+| 未描画`data-carbon-icon` | 0 / 16 |
+| visible Carbon host touch target | 最小48px |
+| 共有空状態「車割・班割を開く」 | clickで`view-mode-list`へ遷移 |
+| overview「予定をコピー」 | clickで「予定をコピーしました」statusを確認 |
+| copy Button keyboard focus | Shadow DOM内ButtonへfocusしCarbon focus ringを確認 |
+| header静的icon | 5 / 5 SVG描画、`aria-hidden=true`、accessible nameと文字表示を維持 |
+
+サイドブラウザclientの保護済み`process` binding競合は、フェーズ2Aと同じsession限定shimで接続した。検証後にviewportをresetし、検証tabをcloseし、repository外client fileも元へ戻した。
+
+#### テスト結果
+
+| 実行 | 結果 |
+|---|---:|
+| Carbon assets build | 成功 |
+| CSS lint | 成功、error 0 |
+| 静的suite | **84 / 84成功** |
+| Carbon runtime | **1 / 1成功** |
+| Phase 1 Visual / quality | **16 / 16成功** |
+| 既存Modal Visual | **6 / 6成功** |
+| 全Playwright | **57成功 / 9失敗、全66件** |
+
+全Playwrightの失敗はフェーズ2Aの既知10件を超えていない。今回はWi-Fi復帰後、既知のModal走査timeout 1件が成功したため9件となった。残る内訳は精算note位置1件、既存36〜40px touch target 1件、参加者表1件、driver card 1件、精算compact typography 5件で、今回の対象外として修正していない。
+
+#### 残存依存の再集計
+
+| 依存 | フェーズ2A後 | フェーズ2B後 | 差分 |
+|---|---:|---:|---:|
+| Font Awesome unique icon名 | 64 | **61** | -3 |
+| Font Awesome参照 | 120 | **112** | -8 |
+| Font Awesome icon-bearing files | 20 | **20** | 0 |
+| 公式Carbon Button / Icon Button | 4 | **6** | +2 |
+| Carbon Icons参照 | 14 | **22** | +8 |
+| `data-bs-toggle` | 2 | **2** | 0 |
+| `data-bs-dismiss` | 15 | **15** | 0 |
+| `bootstrap.Modal`参照 | 12 | **12** | 0 |
+| `hide.bs.modal` / `hidden.bs.modal`参照 | 10 | **10** | 0 |
+
+Bootstrap / Font Awesomeのpackage、vendor、stylesheetは残している。計算、保存形式、Firebase同期、独自component、IBM Plex種類・weight、ユーザーガイド画像は変更していない。
+
+#### 次のphase候補とリスク
+
+1. Bootstrap Modal本体は維持したまま、Modal titleやhelper内で状態を持たない装飾iconをCarbon Iconsへ移す。
+2. theme / lock / trayの状態iconは、class差し替えをCarbon icon rendererの状態adapterへ分離してから移す。
+
+## 14. フェーズ2C完了記録: 残存icon整理と状態icon adapter
+
+フェーズ2B後の基準値（Font Awesome 61種類・112参照・20 icon-bearing files、Carbon Icons 22参照、公式Carbon Button / Icon Button 6 instance）から開始した。Modal本体、Bootstrap lifecycle、既存Carbon Button、計算・保存・Firebase同期、独自component構造は変更していない。
+
+### 移行対象と除外対象
+
+Modal内は個別に小分けせず、title / heading / helperで状態を持たない装飾iconを1グループとして移行した。
+
+| 機能 | Font Awesome | Carbon Icons | 選定理由 |
+|---|---|---|---|
+| 参加者登録helper title | `table` | `table` | 説明見出しの装飾専用 |
+| 参加者登録helper notice | `circle-info` | `information` | 説明文の装飾専用 |
+| 使い方Modal title | `circle-question` | `help` | titleの装飾専用 |
+| 精算設定Modal title | `sliders` | `settings--adjust` | titleの装飾専用 |
+| 車別費用Modal title | `car-side` | `car-small` | titleの装飾専用。初期markupと名称変更を含む2つの再描画経路を同時移行 |
+| 距離計算Modal title | `route` | `roadmap` | titleの装飾専用 |
+| 距離計算helper title | `lightbulb` | `idea` | 候補見出しの装飾専用 |
+| 履歴Modal title | `history` | `recently-viewed` | titleの装飾専用 |
+| 企画チェックModal title | `list-check` | `task` | titleの装飾専用。status iconは別管理のため対象外 |
+| サンプルデータModal title | `wand-magic-sparkles` | `magic-wand` | titleの装飾専用 |
+
+次は今回の対象外とした。
+
+- 距離計算Modalの「場所を追加」「Google Map」内iconは、親Buttonの実寸がそれぞれ38px / 42pxで48px契約を満たしていない。Button寸法まで変えるとicon以外のVisual差分になるため、関連する操作部品の移行時へ残した。
+- seat picker empty、車card、座席、未割当トレイの構造、精算card内iconは独自component境界なので維持した。
+- member lock / unlock、person menuのlock / return、quick editのpen / checkは、card状態・保存・menu actionと結合しているため関連機能と一緒に移行する。
+- planning assurance、batch importのsuccess / warning / error、auto assign statusはNotification / input状態と結合しているため、各機能の公式化時へ残した。
+- route rowの削除・drag handle・候補追加、form submit、Modal close / saveは操作またはlifecycleと結合しているため対象外とした。
+
+### 状態icon adapter
+
+`assets/js/core/icon-adapter.js`は新しい状態管理基盤ではなく、既存の3つのcontrollerが持っていた「現在状態からicon名を選ぶ処理」だけを集約する小さなadapterである。storage、event、業務状態、表示label、ARIA更新は既存controllerが引き続き所有する。
+
+| 既存状態 | adapter state | Carbon Icon | accessible nameのowner |
+|---|---|---|---|
+| light theme | `theme.light` | `moon` | `theme-controller.js`の「ダークモードに切り替え」 |
+| dark theme | `theme.dark` | `sun` | `theme-controller.js`の「ライトモードに切り替え」 |
+| edit lockなし | `editLock.unlocked` | `unlocked` | `lock-protection.js`のロック範囲選択label |
+| edit lockあり | `editLock.locked` | `locked` | `lock-protection.js`の解除label |
+| 未割当tray closed | `waitingTray.closed` | `chevron--up` | 既存`#tray-handle`の「未割り当てメンバーを開閉」 |
+| 未割当tray open | `waitingTray.open` | `chevron--down` | 同上 |
+
+adapterの責務は、対応表からicon名を選ぶこと、同じstate groupの既存SVGを1つだけ残すこと、`aria-hidden="true"`とadapter metadataを新しいSVGへ渡すことだけである。`assets/js/carbon-entry.js`のlight-DOM rendererは`data-state-icon` / `data-icon-state`をSVGへ引き継ぐ。theme / lock / trayの各経路を繰り返し実行してもCarbon SVGは各1個で、placeholder残存は0だった。
+
+### テストの追加・修正
+
+フェーズ専用test fileは追加せず、既存の`tests/carbon-phase2a-contract-check.js`と`tests/carbon-phase2a.spec.js`へPhase 2C契約を統合した。
+
+- static contract: 3 mapping、controllerからの直接Font Awesome mapping除去、Modal / helper icon、`aria-hidden`、Bootstrap残存数、公式Carbon Button 6個、除外対象を検査。
+- runtime: light / dark、lock / unlock、tray open / closed、accessible name、`aria-pressed`、SVG重複0、未描画placeholder 0、48px touch target、keyboard focus、trayのEnter / Space操作を検査。
+- 既存Phase 2B contractのFont Awesome 112は「上限」とし、後続phaseで減らせる契約へ変更した。
+
+#### Visual Regression
+
+最初のPhase 1実行は13 / 16成功で、次の4画像だけをexpected / actual / diffで確認して個別更新した。
+
+- `team-360-light-win32.png`: header lockと未割当trayの状態icon差分。文字・配置の意図的変更なし。
+- `unassigned-tray-360-light-win32.png`: `chevron--up`への意図した差分のみ。
+- `modal-route-helper-390-light-win32.png`
+- `modal-route-helper-390-dark-win32.png`: title `roadmap`とhelper `idea`への意図した差分のみ。操作Button iconはFont Awesomeのまま。
+
+更新後はPhase 1 Visual / quality **16 / 16成功**、既存Modal Visual **6 / 6成功**。他snapshotは更新していない。
+
+#### Side Browser監査
+
+Codexアプリ内サイドブラウザで、sample dataを使い、390×844 / 1280×720、light / dark、車割 / 班割 / 共有 / 精算の**16画面条件**を確認した。主要Modalは390px lightでサンプル、精算設定、使い方、車別費用、距離計算、1280px lightで企画チェック、1280px darkで履歴を開いた。
+
+| 契約 | 結果 |
+|---|---:|
+| document横overflow | 0 / 16 |
+| 主要見出し・tab・titleの文字clip | 0 / 16 |
+| console warning / error | 0 |
+| 未描画`data-carbon-icon` | 0 / 16 |
+| state icon欠落 / 重複 | 0 / 16（各group 1 SVG） |
+| theme | light=`moon` / dark=`sun`、labelと`aria-pressed`更新 |
+| edit lock | unlocked=`unlocked` / locked=`locked`、解除後も1 SVG |
+| 未割当tray | closed=`chevron--up` / open=`chevron--down`、Enterで開閉 |
+| state操作領域 | theme 218×48、edit lock 48×48、tray 390×48 |
+| Modal title / helper | `aria-hidden=true`、placeholder 0、title clip 0 |
+
+サイドブラウザclientの保護済み`process` binding競合には検証中だけ互換shimを使い、viewport reset、検証tab close後にrepository外clientを元へ戻した。
+
+### テスト結果
+
+| 実行 | 結果 |
+|---|---:|
+| Carbon assets build | 成功 |
+| CSS lint | 成功、error 0 |
+| 静的suite | **84 / 84成功** |
+| Carbon runtime | **2 / 2成功** |
+| Phase 1 Visual / quality | **16 / 16成功** |
+| 既存Modal Visual | **6 / 6成功** |
+| 全Playwright | **58成功 / 9失敗、全67件** |
+
+全Playwrightは新しいadapter runtime test 1件が増えたため、フェーズ2Bの57成功 / 9失敗から58成功 / 9失敗になった。失敗数は既知上限10件を超えていない。残る9件は精算note位置1件、既存36〜40px touch target 1件、参加者表1件、driver card 1件、精算compact typography / layout 5件で、今回の対象外として修正していない。
+
+既存overview Carbon Buttonのfocus indicator検査が対象testの初回だけ失敗したが、再実行と最終全Playwrightでは成功した。今回未変更のButtonであり、継続再現しなかったため実行揺れとして記録する。`git diff --check`は生成済みCarbon bundle内のupstream template literal 2行のtrailing whitespaceを引き続き報告する。
+
+### 残存依存の再集計
+
+| 依存 | フェーズ2B後 | フェーズ2C後 | 差分 |
+|---|---:|---:|---:|
+| Font Awesome unique icon名 | 61 | **51** | -10 |
+| Font Awesome参照 | 112 | **89** | -23 |
+| Font Awesome icon-bearing files | 20 | **17** | -3 |
+| Carbon Icons参照 | 22 | **37** | +15 |
+| 公式Carbon Button / Icon Button | 6 | **6** | 0 |
+| `data-bs-toggle` | 2 | **2** | 0 |
+| `data-bs-dismiss` | 15 | **15** | 0 |
+| `bootstrap.Modal`参照 | 12 | **12** | 0 |
+| `hide.bs.modal` / `hidden.bs.modal`参照 | 10 | **10** | 0 |
+
+Bootstrap / Font Awesomeのpackage、vendor、stylesheetは残している。既存Carbon Button、IBM Plex種類・weight、ユーザーガイド画像、計算、保存形式、Firebase同期は変更していない。
+
+### 次のphase
+
+アイコン専用phaseはここで終了する。次は**車割 / 班割Content Switcherの公式Carbon Web Components化**を行う。選択状態、`role=tablist` / `tab`、arrow key、focus、mobile幅、車割 / 班割の既存切替関数を先にcontract化し、低リスクな切替shellから移行する。残るFont Awesome iconは、各機能を公式化または独自componentとして整える時に関連部品と一緒に置き換える。
+
+残るリスクは、Shadow DOM内部controlをlight DOM selectorだけでは監査できないこと、共有canvasのscaleが今後のButtonにもtouch target縮小を起こし得ること、既知9失敗、Linux / Firefox / WebKit未確認、ユーザーガイド11枚の不一致である。また生成済みCarbon bundleにはupstream template literal由来の行末空白が含まれ、`git diff --check`ではvendor bundleだけが警告対象になる。生成物を手編集せず、公式build出力として保持する。

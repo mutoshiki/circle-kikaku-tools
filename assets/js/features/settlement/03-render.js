@@ -274,7 +274,7 @@ function openSettlementCarEditor(encodedName) {
     const name = decodeURIComponent(encodedName || '');
     activeSettlementCarEditName = name;
     const title = byId('settlementCarEditModalTitle');
-    if (title) title.innerHTML = `<i class="fas fa-car-side me-2" aria-hidden="true"></i>${escapeHtml(name)}車の費用`;
+    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="me-2" aria-hidden="true"></span>${escapeHtml(name)}車の費用`;
     refreshSettlementCarEditor(name);
     if (modals.settlementCarEdit) modals.settlementCarEdit.show();
 }
@@ -293,7 +293,7 @@ function saveSettlementCarEditDraft() {
     renderSettlementView({ force: true });
     if (renamedStandaloneDriver) {
         const title = byId('settlementCarEditModalTitle');
-        if (title) title.innerHTML = `<i class="fas fa-car-side me-2" aria-hidden="true"></i>${escapeHtml(renamedStandaloneDriver)}車の費用`;
+        if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="me-2" aria-hidden="true"></span>${escapeHtml(renamedStandaloneDriver)}車の費用`;
         refreshSettlementCarEditor(renamedStandaloneDriver);
     }
     save();

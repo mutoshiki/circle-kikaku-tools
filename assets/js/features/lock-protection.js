@@ -48,12 +48,11 @@ function hasTrustedEditAccess(scope = 'any') {
 function updateEditLockButton() {
     const btn = byId('editLockBtn');
     if (!btn) return;
-    const icon = btn.querySelector('i');
-    const label = btn.querySelector('span');
+    const label = btn.querySelector(':scope > span:not([data-state-icon])');
     const labels = getLockedScopeLabels();
     const locked = labels.length > 0;
     const partial = labels.length === 1;
-    icon.className = `fas ${locked ? 'fa-lock' : 'fa-unlock'}`;
+    window.SanpoIconAdapter.setStateIcon(btn, 'editLock', locked ? 'locked' : 'unlocked');
     label.textContent = locked ? (partial ? '一部ロック' : 'ロック中') : 'ロック';
     btn.classList.toggle('is-locked', locked);
     btn.classList.toggle('is-partial-lock', partial);

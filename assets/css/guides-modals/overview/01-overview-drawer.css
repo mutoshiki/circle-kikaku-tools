@@ -54,5 +54,14 @@
 .overview-textarea { width: 100%; min-height: 144px; padding: 14px 16px; resize: vertical; border: 0; border-bottom: 1px solid var(--border-strong); border-radius: 0; background: var(--surface-low); color: var(--text-main); box-shadow: none; font: inherit; font-size: 1rem; line-height: 1.65; }
 .overview-drawer .overview-mini-action,
 .overview-drawer .overview-copy-action { min-height: 48px; border-radius: 0; background: var(--surface-container); }
-.overview-drawer .overview-copy-action { width: 100%; margin-top: 8px; background: var(--accent-container); color: var(--accent-container-text); }
+.overview-drawer cds-button.overview-copy-action {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
 body.overview-drawer-open { overflow: hidden; }

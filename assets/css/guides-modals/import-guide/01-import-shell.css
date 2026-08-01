@@ -5,7 +5,7 @@
   font-weight: 600;
 }
 
-.batch-import-helper-title i {
+.batch-import-helper-title :is(i, .carbon-icon) {
   color: var(--accent-color);
 }
 
@@ -182,7 +182,7 @@ min-height: 120px;
     line-height: 1.45;
     padding: 7px 9px;
 }
-.batch-import-notice i {
+.batch-import-notice :is(i, .carbon-icon) {
     color: var(--palette-amber-600);
     margin-top: 2px;
     flex: 0 0 auto;

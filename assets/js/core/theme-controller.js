@@ -74,9 +74,8 @@
     button.setAttribute('aria-pressed', String(isDark));
     button.setAttribute('aria-label', nextLabel);
 
-    const icon = button.querySelector('i');
     const label = button.querySelector('.theme-toggle-label');
-    if (icon) icon.className = `fas ${isDark ? 'fa-sun' : 'fa-moon'} me-2`;
+    window.SanpoIconAdapter.setStateIcon(button, 'theme', isDark ? 'dark' : 'light', { className: 'me-2' });
     if (label) label.textContent = nextLabel;
   }
 

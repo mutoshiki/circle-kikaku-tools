@@ -168,17 +168,17 @@
                 <span data-carbon-icon="overflow-menu-horizontal" aria-hidden="true"></span><span>その他</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow">
-                <li><button id="userGuideBtn" class="dropdown-item" type="button"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>使い方</button></li>
-                <li><button id="historyBtn" class="dropdown-item" type="button"><i class="fas fa-clock-rotate-left me-2" aria-hidden="true"></i>この端末の履歴</button></li>
-                <li><button id="planningCheckBtn" class="dropdown-item" type="button"><i class="fas fa-list-check me-2" aria-hidden="true"></i><span>企画チェック</span><span id="planningCheckCount" class="planning-check-count" hidden>0</span></button></li>
-                <li><button id="sampleDataBtn" class="dropdown-item" type="button"><i class="fas fa-wand-magic-sparkles me-2" aria-hidden="true"></i>サンプルデータ</button></li>
-                <li><button id="themeToggleBtn" class="dropdown-item" type="button" aria-pressed="false"><i class="fas fa-moon me-2" aria-hidden="true"></i><span class="theme-toggle-label">ダークモードに切り替え</span></button></li>
+                <li><button id="userGuideBtn" class="dropdown-item" type="button"><span data-carbon-icon="help" class="me-2" aria-hidden="true"></span>使い方</button></li>
+                <li><button id="historyBtn" class="dropdown-item" type="button"><span data-carbon-icon="recently-viewed" class="me-2" aria-hidden="true"></span>この端末の履歴</button></li>
+                <li><button id="planningCheckBtn" class="dropdown-item" type="button"><span data-carbon-icon="task" class="me-2" aria-hidden="true"></span><span>企画チェック</span><span id="planningCheckCount" class="planning-check-count" hidden>0</span></button></li>
+                <li><button id="sampleDataBtn" class="dropdown-item" type="button"><span data-carbon-icon="magic-wand" class="me-2" aria-hidden="true"></span>サンプルデータ</button></li>
+                <li><button id="themeToggleBtn" class="dropdown-item" type="button" aria-pressed="false"><span data-carbon-icon="moon" data-state-icon="theme" data-icon-state="light" class="me-2" aria-hidden="true"></span><span class="theme-toggle-label">ダークモードに切り替え</span></button></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><button id="resetDataBtn" class="dropdown-item text-danger " type="button"><i class="fas fa-trash-can me-2" aria-hidden="true"></i>全てリセット</button></li>
+                <li><button id="resetDataBtn" class="dropdown-item text-danger " type="button"><span data-carbon-icon="trash-can" class="me-2" aria-hidden="true"></span>全てリセット</button></li>
               </ul>
             </div>
             <button class="header-action" id="editLockBtn" type="button" title="車割メーカーと精算ツールの誤編集を防ぐ">
-              <i class="fas fa-unlock" aria-hidden="true"></i><span>ロック</span>
+              <span data-carbon-icon="unlocked" data-state-icon="editLock" data-icon-state="unlocked" aria-hidden="true"></span><span>ロック</span>
             </button>
             <cds-icon-button id="shareLinkBtn" class="header-action share-action" kind="ghost" size="lg" align="bottom-right" aria-label="共有リンクをコピー">
               <span data-carbon-icon="link" slot="icon" aria-hidden="true"></span>
@@ -223,9 +223,9 @@
               </cds-button>
             </div>
             <div id="overviewTimetableRows" class="overview-timetable-rows" aria-live="polite"></div>
-            <button id="overviewTimetableCopyBtn" class="overview-copy-action" type="button">
-              <i class="fas fa-copy" aria-hidden="true"></i><span>予定をコピー</span>
-            </button>
+            <cds-button id="overviewTimetableCopyBtn" class="overview-copy-action" kind="primary" size="lg" type="button">
+              <span>予定をコピー</span><span data-carbon-icon="copy" slot="icon" aria-hidden="true"></span>
+            </cds-button>
           </section>
         </div>
       </aside>
@@ -244,11 +244,11 @@
 
       <div id="sheet-view-area" class="active">
         <div id="sheet-title-bar">
-          <i class="fas fa-table-list sheet-title-icon" aria-hidden="true"></i>
+          <span data-carbon-icon="table" class="sheet-title-icon" aria-hidden="true"></span>
           <span id="sheet-summary" aria-label="車割と班割の集計">車割 車出し 0 同乗者 0 全員 0 待機 0 / 班割 班長 0 メンバー 0 全員 0 待機 0</span>
         </div>
         <div id="sheet-canvas" role="region" aria-label="共有画面の車割・班割・タイムテーブル" aria-describedby="sheet-hint" tabindex="0"></div>
-        <div id="sheet-hint"><i class="fas fa-hand-pointer me-1" aria-hidden="true"></i>1本指で移動 / 2本指で拡大・縮小</div>
+        <div id="sheet-hint"><span data-carbon-icon="touch--1" class="me-1" aria-hidden="true"></span>1本指で移動 / 2本指で拡大・縮小</div>
         <div id="sheet-bottom-controls">
           <button id="sheet-quick-edit-btn" type="button" title="編集">
             <i class="fas fa-pen" aria-hidden="true"></i>
@@ -329,7 +329,7 @@
       <div id="bottom-tray" style="display: none;">
         <div id="tray-handle" role="button" tabindex="0" aria-label="未割り当てメンバーを開閉">
           <div class="handle-bar"></div>
-          <div id="tray-toggle-label"><i class="fas fa-chevron-up" aria-hidden="true"></i><span>未割り当てメンバーを開く</span></div>
+          <div id="tray-toggle-label"><span data-carbon-icon="chevron--up" data-state-icon="waitingTray" data-icon-state="closed" aria-hidden="true"></span><span>未割り当てメンバーを開く</span></div>
         </div>
         <div id="bottom-tray-header">
           <div class="tray-inline-row">
@@ -420,14 +420,14 @@
             <div class="row g-3">
               <div class="col-12">
                 <div class="batch-import-helper-card mb-2">
-                  <div class="batch-import-helper-title mb-1"><i class="fas fa-table me-2 text-accent" aria-hidden="true"></i>スプレッドシートからまとめて登録</div>
+                  <div class="batch-import-helper-title mb-1"><span data-carbon-icon="table" class="me-2 text-accent" aria-hidden="true"></span>スプレッドシートからまとめて登録</div>
                   <div class="batch-import-help-text batch-import-help-text--compact">回答全体を貼り付けると、全員の名前・学年・車出しをまとめて読み込めます。</div>
                   <textarea id="googleFormPasteArea" class="form-control batch-spreadsheet-textarea mt-2" placeholder="例：&#10;名前&#9;学籍番号もしくは学年&#9;(車出し)&#10;藤田 陽斗&#9;24T1234A&#9;する&#10;田中太郎&#9;1年&#9;しない&#10;前田 航平&#9;23T9081A&#9;する&#10;中村 海斗&#9;2年&#9;しない&#10;…" aria-label="Googleフォーム回答スプレッドシート貼り付け欄"></textarea>
                   <button id="applyGoogleFormPasteBtn" type="button" class="btn btn-primary btn-accent-solid batch-spreadsheet-button mt-2">貼り付けた表を登録欄に読み込む</button>
                   <div id="googleFormImportPreview" class="form-import-preview" aria-live="polite" hidden></div>
                   <details class="batch-import-help-details">
                     <summary>貼り付け方を見る</summary>
-                    <div class="batch-import-notice"><i class="fas fa-circle-info" aria-hidden="true"></i><span>各項目の見出し行も一緒にコピーすると、読み取りやすくなります。</span></div>
+                    <div class="batch-import-notice"><span data-carbon-icon="information" aria-hidden="true"></span><span>各項目の見出し行も一緒にコピーすると、読み取りやすくなります。</span></div>
                     <div class="form-sheet-howto" aria-label="Googleフォームの回答をスプレッドシートで表示する方法">
                       <div class="form-sheet-howto-title">Googleフォームの回答をスプレッドシートで表示する方法</div>
                       <div class="form-sheet-howto-body">応募フォームの管理画面で「回答」を開き、右上の <span class="form-sheet-icon" aria-hidden="true"></span> 緑色のスプレッドシートアイコンを押すと、回答用スプレッドシートを作成できます。</div>
@@ -513,7 +513,7 @@
       <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="userGuideModalTitle"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>使い方</h5>
+            <h5 class="modal-title" id="userGuideModalTitle"><span data-carbon-icon="help" class="me-2" aria-hidden="true"></span>使い方</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div id="userGuideContent" class="modal-body">
@@ -528,7 +528,7 @@
       <div class="modal-dialog modal-dialog-centered modal-sm settlement-edit-dialog">
         <div class="modal-content settlement-edit-modal-content">
           <div class="modal-header py-2">
-            <h6 class="modal-title modal-title--compact" id="settlementSettingsModalTitle"><i class="fas fa-sliders me-2" aria-hidden="true"></i>精算設定</h6>
+            <h6 class="modal-title modal-title--compact" id="settlementSettingsModalTitle"><span data-carbon-icon="settings--adjust" class="me-2" aria-hidden="true"></span>精算設定</h6>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body">
@@ -607,7 +607,7 @@
       <div class="modal-dialog modal-dialog-centered modal-sm settlement-edit-dialog settlement-edit-dialog--car">
         <div class="modal-content settlement-edit-modal-content">
           <div class="modal-header py-2">
-            <h6 class="modal-title modal-title--compact" id="settlementCarEditModalTitle"><i class="fas fa-car-side me-2" aria-hidden="true"></i>車ごとの費用</h6>
+            <h6 class="modal-title modal-title--compact" id="settlementCarEditModalTitle"><span data-carbon-icon="car-small" class="me-2" aria-hidden="true"></span>車ごとの費用</h6>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body">
@@ -626,7 +626,7 @@
       <div class="modal-dialog modal-lg modal-dialog-centered route-helper-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="routeDistanceModalTitle"><i class="fas fa-route me-2" aria-hidden="true"></i>移動距離計算ツール</h5>
+            <h5 class="modal-title" id="routeDistanceModalTitle"><span data-carbon-icon="roadmap" class="me-2" aria-hidden="true"></span>移動距離計算ツール</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body route-helper-body">
@@ -639,7 +639,7 @@
 
               <div class="route-candidate-panel">
                 <div class="route-helper-title-row">
-                  <div class="seisan-title route-helper-title"><i class="fas fa-lightbulb" aria-hidden="true"></i>候補</div>
+                  <div class="seisan-title route-helper-title"><span data-carbon-icon="idea" aria-hidden="true"></span>候補</div>
                 </div>
                 <div id="routeCandidateList" class="route-candidate-list"></div>
               </div>
@@ -662,7 +662,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title modal-title--standard" id="historyModalTitle">
-              <i class="fas fa-history me-2" aria-hidden="true"></i>履歴
+              <span data-carbon-icon="recently-viewed" class="me-2" aria-hidden="true"></span>履歴
             </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
@@ -676,7 +676,7 @@
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title modal-title--standard" id="planningCheckModalTitle"><i class="fas fa-list-check me-2" aria-hidden="true"></i>企画チェック</h5>
+            <h5 class="modal-title modal-title--standard" id="planningCheckModalTitle"><span data-carbon-icon="task" class="me-2" aria-hidden="true"></span>企画チェック</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
           </div>
           <div class="modal-body planning-check-body">
@@ -694,7 +694,7 @@
             <div class="modal-content">
                 <div class="modal-header py-2">
                     <h6 class="modal-title mb-0 modal-title--debug" id="debugModalTitle">
-                        <i class="fas fa-wand-magic-sparkles me-2" aria-hidden="true"></i>サンプルデータ
+                        <span data-carbon-icon="magic-wand" class="me-2" aria-hidden="true"></span>サンプルデータ
                     </h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                 </div>
@@ -725,6 +725,7 @@
     <script src="./firebase-config.js"></script>
     <!-- JS: core namespace, runtime, persistence, and modal services -->
     <script src="./assets/js/core/app-namespace.js"></script>
+    <script src="./assets/js/core/icon-adapter.js?v=carbon-phase2c"></script>
     <script src="./assets/js/core/theme-controller.js"></script>
     <script src="./assets/js/modules/ui.js?v=carbon-assurance"></script>
     <script src="./assets/js/core/runtime.js?v=carbon-assurance"></script>

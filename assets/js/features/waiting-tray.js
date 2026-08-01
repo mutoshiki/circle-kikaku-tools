@@ -111,17 +111,24 @@ function updateTrayToggleLabel() {
     const { waitingCount: count, waitingNames } = getWaitingTrayStats();
     const summary = getWaitingTrayNameSummary(waitingNames, count);
     const suffix = summary ? `（${summary}）` : '';
+    const updatePresentation = (open, text) => {
+        window.SanpoIconAdapter.setStateIcon(label, 'waitingTray', open ? 'open' : 'closed');
+        let textNode = label.querySelector('span:not([data-state-icon])');
+        if (!textNode) {
+            textNode = document.createElement('span');
+            label.appendChild(textNode);
+        }
+        textNode.textContent = text;
+    };
     if (count === 0) {
         const open = tray.classList.contains('empty-open');
-        label.innerHTML = open
-            ? '<i class="fas fa-chevron-down" aria-hidden="true"></i><span>未割り当てメンバーを閉じる</span>'
-            : '<i class="fas fa-chevron-up" aria-hidden="true"></i><span>未割り当てメンバーを開く</span>'; 
+        updatePresentation(open, open ? '未割り当てメンバーを閉じる' : '未割り当てメンバーを開く');
         return;
     }
     const minimized = tray.classList.contains("minimized");
-    label.innerHTML = minimized
-        ? `<i class="fas fa-chevron-up" aria-hidden="true"></i><span>未割り当てメンバーを開く${suffix}</span>`
-        : `<i class="fas fa-chevron-down" aria-hidden="true"></i><span>未割り当てメンバーを閉じる${suffix}</span>`;
+    updatePresentation(!minimized, minimized
+        ? `未割り当てメンバーを開く${suffix}`
+        : `未割り当てメンバーを閉じる${suffix}`);
 }
 
 function toggleTray() {

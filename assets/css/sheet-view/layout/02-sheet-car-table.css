@@ -70,3 +70,4 @@
 .sheet-empty-title { display: block; margin-bottom: 6px; color: var(--text-main); font-size: 1.05rem; font-weight: 600; }
 .sheet-empty-text { display: block; margin-bottom: 14px; font-size: 0.82rem; }
 .sheet-empty-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+cds-button.sheet-empty-open { min-height: 48px; }

@@ -48,7 +48,7 @@
             <div class="sheet-empty-title">共有できるデータがありません</div>
             <div class="sheet-empty-text">参加者を登録し、車割または班割を作成すると共有画面へ反映されます。</div>
             <div class="seisan-empty-actions">
-              <button class="seisan-btn primary" type="button" data-action="switch-list"><span data-carbon-icon="edit" aria-hidden="true"></span>車割・班割を開く</button>
+              <cds-button class="sheet-empty-open" kind="primary" size="xl" type="button" data-action="switch-list"><span>車割・班割を開く</span><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span></cds-button>
             </div>
         </div>`;
   }
