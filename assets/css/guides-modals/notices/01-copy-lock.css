@@ -49,53 +49,39 @@
 }
 
 .app-status-toast {
+  /* The app uses a 14px type base; scale the whole official host back to Carbon's 16px rem geometry. */
+  --app-toast-scale: 1.1429;
+
   position: fixed;
   bottom: max(20px, env(safe-area-inset-bottom));
   left: 50%;
   z-index: var(--z-toast);
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: max-content;
-  max-width: min(92vw, 520px);
+  width: min(455px, calc((100vw - 24px) * 0.875));
+  max-width: calc((100vw - 24px) * 0.875);
+  min-width: 0;
   min-height: 48px;
-  padding: 12px 16px;
-  transform: translate(-50%, 8px);
-  border-left: 4px solid var(--semantic-info-inverse);
-  border-radius: 0;
-  background: var(--notification-bg);
-  color: var(--notification-text);
-  box-shadow: var(--shadow-float);
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
-  text-align: left;
-  white-space: normal;
+  margin: 0;
+  transform: translate(-50%, 8px) scale(var(--app-toast-scale));
+  transform-origin: center bottom;
+  font-size: 16px;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--motion-medium) ease, transform var(--motion-medium) ease;
 }
 
 .app-status-toast.visible {
-  transform: translate(-50%, 0);
+  transform: translate(-50%, 0) scale(var(--app-toast-scale));
   opacity: 1;
-}
-
-.app-status-toast[data-tone="success"] {
-  border-left-color: var(--semantic-success);
-  background: var(--notification-bg);
-  color: var(--notification-text);
-}
-
-.app-status-toast[data-tone="error"] {
-  border-left-color: var(--semantic-danger);
-  background: var(--notification-bg);
-  color: var(--notification-text);
+  pointer-events: auto;
 }
 
 @media (max-width: 640px) {
   .app-status-toast {
+    --app-toast-scale: 1.0667;
+
     bottom: calc(max(20px, env(safe-area-inset-bottom)) + 64px);
+    width: calc((100vw - 24px) * 0.9375);
+    max-width: calc((100vw - 24px) * 0.9375);
   }
 }
 

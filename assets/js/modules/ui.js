@@ -1,5 +1,20 @@
 (function () {
-  const state = { confirmModal: null, alertModal: null, undoTimer: null, undoAction: null, statusTimer: null };
+  const state = {
+    confirmModal: null,
+    alertModal: null,
+    undoTimer: null,
+    undoAction: null,
+    statusTimer: null,
+    statusToast: null
+  };
+
+  const STATUS_NOTIFICATIONS = Object.freeze({
+    success: Object.freeze({ kind: 'success', iconDescription: '成功' }),
+    error: Object.freeze({ kind: 'error', iconDescription: 'エラー' }),
+    warning: Object.freeze({ kind: 'warning', iconDescription: '警告' }),
+    info: Object.freeze({ kind: 'info', iconDescription: '情報' }),
+    neutral: Object.freeze({ kind: 'info', iconDescription: '情報' })
+  });
 
   function ensureConfirmModal() {
     let el = document.getElementById('appConfirmModal');
@@ -123,35 +138,53 @@
     });
   }
 
-  function ensureStatusToast() {
-    let toast = document.getElementById('appStatusToast');
-    if (toast) return toast;
-    toast = document.createElement('div');
+  function removeStatusToast(toast) {
+    if (!toast) return;
+    toast.classList.remove('visible');
+    toast.removeAttribute('open');
+    toast.remove();
+    if (state.statusToast !== toast) return;
+    state.statusToast = null;
+    if (state.statusTimer !== null) clearTimeout(state.statusTimer);
+    state.statusTimer = null;
+  }
+
+  function createStatusToast(message, tone) {
+    const notification = STATUS_NOTIFICATIONS[tone] || STATUS_NOTIFICATIONS.neutral;
+    const { kind } = notification;
+    const toast = document.createElement('cds-toast-notification');
+    const subtitle = document.createElement('span');
     toast.id = 'appStatusToast';
     toast.className = 'app-status-toast';
-    toast.setAttribute('role', 'status');
-    toast.setAttribute('aria-live', 'polite');
+    toast.dataset.tone = tone;
+    toast.setAttribute('kind', kind);
+    toast.setAttribute('open', '');
+    toast.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+    toast.setAttribute('aria-live', kind === 'error' ? 'assertive' : 'polite');
     toast.setAttribute('aria-atomic', 'true');
+    toast.ariaLabel = '通知を閉じる';
+    toast.setAttribute('status-icon-description', notification.iconDescription);
+    subtitle.slot = 'subtitle';
+    subtitle.textContent = String(message);
+    toast.appendChild(subtitle);
+    toast.addEventListener('cds-notification-closed', () => removeStatusToast(toast), { once: true });
     document.body.appendChild(toast);
     return toast;
   }
 
   function showStatus(message, options = {}) {
     if (!message) return;
-    const toast = ensureStatusToast();
-    const tone = options.tone === 'error' ? 'error' : options.tone === 'success' ? 'success' : 'neutral';
+    const requestedTone = String(options.tone || 'neutral').toLowerCase();
+    const tone = STATUS_NOTIFICATIONS[requestedTone] ? requestedTone : 'neutral';
     const duration = Number.isFinite(options.duration) ? Math.max(800, options.duration) : 2200;
-    toast.dataset.tone = tone;
-    toast.setAttribute('role', tone === 'error' ? 'alert' : 'status');
-    toast.setAttribute('aria-live', tone === 'error' ? 'assertive' : 'polite');
-    toast.classList.remove('visible');
-    toast.textContent = '';
+    removeStatusToast(state.statusToast || document.getElementById('appStatusToast'));
+    const toast = createStatusToast(message, tone);
+    state.statusToast = toast;
     requestAnimationFrame(() => {
-      toast.textContent = String(message);
+      if (state.statusToast !== toast || !toast.isConnected) return;
       toast.classList.add('visible');
     });
-    clearTimeout(state.statusTimer);
-    state.statusTimer = setTimeout(() => toast.classList.remove('visible'), duration);
+    state.statusTimer = setTimeout(() => removeStatusToast(toast), duration);
   }
 
   function setSyncStatus(kind = 'neutral', message = '') {

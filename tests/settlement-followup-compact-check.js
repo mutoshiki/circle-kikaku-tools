@@ -12,5 +12,5 @@ assert(templates.includes('seisan-cost-preview-item--gas') && templates.includes
 assert(templates.includes('seisan-cost-line ${type}') || templates.includes('seisan-extra-inline seisan-cost-line'), 'split/club status should be carried by inline cost markup');
 assert(css.includes('.seisan-summary-pills--single') && css.includes('flex-wrap: nowrap'), 'settings summary should be one compact line');
 assert(css.includes('.seisan-cost-type-badge.split') && css.includes('.seisan-cost-type-badge.club'), 'split and club colors should be clearly separated');
-assert(css.includes('.allocation-mode-toggle .car-plan-template-tabs') && css.includes('var(--content-switcher-selected-bg)'), 'edit car/team toggle should use the Carbon high-contrast content switcher surface');
+assert(css.includes('.allocation-mode-toggle cds-content-switcher.car-plan-template-tabs'), 'edit car/team toggle should use the official Carbon Content Switcher host');
 console.log('Settlement follow-up compact check OK');

@@ -13,11 +13,14 @@ async function boot(page, { theme = 'light', width = 390 } = {}) {
     localStorage.setItem('sanpo_coach_seen_v1', 'true');
   });
   await page.setViewportSize({ width, height: width < 600 ? 844 : 720 });
-  await page.goto(`./index.html?room=CARBON-PHASE2C-${width}-${theme}`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`./index.html?room=CARBON-PHASE3B-${width}-${theme}`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => (
     document.documentElement.dataset.carbonReady === 'true'
     && customElements.get('cds-button')
     && customElements.get('cds-icon-button')
+    && customElements.get('cds-content-switcher')
+    && customElements.get('cds-content-switcher-item')
+    && customElements.get('cds-toast-notification')
     && window.SanpoCarbon
     && window.SanpoIconAdapter
     && window.SanpoTheme?.applyTheme
@@ -26,7 +29,7 @@ async function boot(page, { theme = 'light', width = 390 } = {}) {
   await page.evaluate(() => document.fonts.ready);
 }
 
-test('official Carbon runtime, icons, fonts, and Phase 2C low-risk controls are active', async ({ page }) => {
+test('official Carbon runtime, icons, fonts, and Phase 3B controls are active', async ({ page }) => {
   const consoleProblems = [];
   page.on('console', message => {
     if (['error', 'warning'].includes(message.type())) consoleProblems.push(message.text());
@@ -41,6 +44,8 @@ test('official Carbon runtime, icons, fonts, and Phase 2C low-risk controls are 
     return {
       versions: window.SanpoCarbon.versions,
       carbonButtons: document.querySelectorAll('cds-button, cds-icon-button').length,
+      contentSwitchers: document.querySelectorAll('cds-content-switcher').length,
+      contentSwitcherItems: document.querySelectorAll('cds-content-switcher-item').length,
       iconCount: document.querySelectorAll('svg.carbon-icon').length,
       pendingIcons: document.querySelectorAll('[data-carbon-icon]').length,
       latinLoaded: latin.length > 0 && document.fonts.check('400 16px "IBM Plex Sans"', 'Carbon'),
@@ -57,6 +62,8 @@ test('official Carbon runtime, icons, fonts, and Phase 2C low-risk controls are 
     plexSansJp: '3.0.0'
   });
   expect(runtime.carbonButtons).toBe(6);
+  expect(runtime.contentSwitchers).toBe(1);
+  expect(runtime.contentSwitcherItems).toBe(2);
   expect(runtime.iconCount).toBeGreaterThanOrEqual(32);
   expect(runtime.pendingIcons).toBe(0);
   expect(runtime.latinLoaded).toBeTruthy();
@@ -127,7 +134,7 @@ test('official Carbon runtime, icons, fonts, and Phase 2C low-risk controls are 
   await expect(page.locator('.overview-timetable-row')).toHaveCount(beforeRows + 1);
 
   await page.locator('#overviewTimetableCopyBtn').focus();
-  const focusAudit = await page.evaluate(() => {
+  await expect.poll(() => page.evaluate(() => {
     const host = document.getElementById('overviewTimetableCopyBtn');
     const button = host.shadowRoot?.querySelector('button');
     const style = button ? getComputedStyle(button) : null;
@@ -139,10 +146,7 @@ test('official Carbon runtime, icons, fonts, and Phase 2C low-risk controls are 
         .filter(Boolean)
         .some(value => value !== 'none' && !/^rgba?\(0, 0, 0, 0\)/.test(value))
     };
-  });
-  expect(focusAudit.hostFocusWithin).toBeTruthy();
-  expect(focusAudit.internalFocused).toBeTruthy();
-  expect(focusAudit.focusIndicator).toBeTruthy();
+  })).toEqual({ hostFocusWithin: true, internalFocused: true, focusIndicator: true });
 
   await page.evaluate(() => document.getElementById('overviewTimetableCopyBtn').disabled = true);
   await expect.poll(() => page.evaluate(() => (
@@ -269,5 +273,94 @@ test('Phase 2C state icon adapter preserves theme, edit lock, and waiting tray c
   expect(decorativeAudit.length).toBeGreaterThanOrEqual(10);
   expect(decorativeAudit.every(value => value === 'true')).toBeTruthy();
 
+  expect(consoleProblems).toEqual([]);
+});
+
+test('Phase 3B Carbon Toast preserves AppUI.showStatus timing, ARIA, replacement, and dismiss contracts', async ({ page }) => {
+  const consoleProblems = [];
+  page.on('console', message => {
+    if (['error', 'warning'].includes(message.type())) consoleProblems.push(message.text());
+  });
+  page.on('pageerror', error => consoleProblems.push(error.message));
+  await boot(page);
+
+  const kinds = [
+    { tone: 'success', kind: 'success', role: 'status', live: 'polite', message: '保存しました' },
+    { tone: 'error', kind: 'error', role: 'alert', live: 'assertive', message: '保存できませんでした' },
+    { tone: 'warning', kind: 'warning', role: 'status', live: 'polite', message: '未入力の項目があります' },
+    { tone: 'info', kind: 'info', role: 'status', live: 'polite', message: '確認用のお知らせです' }
+  ];
+
+  for (const notification of kinds) {
+    await page.evaluate(value => {
+      window.AppUI.showStatus(value.message, { tone: value.tone, duration: 5000 });
+    }, notification);
+    const toast = page.locator('#appStatusToast');
+    await expect(toast).toBeVisible();
+    await expect(toast).toHaveCount(1);
+    await expect(toast).toHaveAttribute('kind', notification.kind);
+    await expect(toast).toHaveAttribute('role', notification.role);
+    await expect(toast).toHaveAttribute('aria-live', notification.live);
+    await expect(toast).toHaveAttribute('aria-atomic', 'true');
+    await expect(toast).toContainText(notification.message);
+    expect(await toast.evaluate(node => node instanceof customElements.get('cds-toast-notification'))).toBeTruthy();
+  }
+
+  await page.evaluate(() => {
+    window.AppUI.showStatus('先の通知', { tone: 'success', duration: 800 });
+    window.AppUI.showStatus('後の警告通知', { tone: 'warning', duration: 1600 });
+  });
+  await expect(page.locator('#appStatusToast')).toHaveCount(1);
+  await expect(page.locator('#appStatusToast')).toHaveAttribute('kind', 'warning');
+  await expect(page.locator('#appStatusToast')).toContainText('後の警告通知');
+  await page.waitForTimeout(950);
+  await expect(page.locator('#appStatusToast')).toHaveCount(1);
+  await expect(page.locator('#appStatusToast')).toHaveCount(0, { timeout: 1200 });
+
+  const longMessage = '参加者の入力内容を確認できませんでした。通信状態と必須項目を確認してから、もう一度操作してください。';
+  await page.evaluate(message => window.AppUI.showStatus(message, { tone: 'error', duration: 5000 }), longMessage);
+  const toast = page.locator('#appStatusToast');
+  await expect(toast).toBeVisible();
+  const toastAudit = await toast.evaluate(node => {
+    const hostRect = node.getBoundingClientRect();
+    const closeButton = node.shadowRoot?.querySelector('button');
+    const closeRect = closeButton?.getBoundingClientRect();
+    return {
+      hostLeft: hostRect.left,
+      hostRight: hostRect.right,
+      hostHeight: hostRect.height,
+      closeWidth: closeRect?.width || 0,
+      closeHeight: closeRect?.height || 0,
+      closeName: closeButton?.getAttribute('aria-label') || '',
+      documentOverflow: document.documentElement.scrollWidth > window.innerWidth + 1
+    };
+  });
+  expect(toastAudit.hostLeft).toBeGreaterThanOrEqual(0);
+  expect(toastAudit.hostRight).toBeLessThanOrEqual(390);
+  expect(toastAudit.hostHeight).toBeGreaterThanOrEqual(48);
+  expect(toastAudit.closeWidth).toBeGreaterThanOrEqual(48);
+  expect(toastAudit.closeHeight).toBeGreaterThanOrEqual(48);
+  expect(toastAudit.closeName).toBe('通知を閉じる');
+  expect(toastAudit.documentOverflow).toBeFalsy();
+
+  await toast.evaluate(node => node.shadowRoot.querySelector('button').focus());
+  await expect.poll(() => toast.evaluate(node => {
+    const button = node.shadowRoot?.querySelector('button');
+    const style = button ? getComputedStyle(button) : null;
+    return {
+      hostFocusWithin: node.matches(':focus-within'),
+      internalFocused: node.shadowRoot?.activeElement === button,
+      outlineStyle: style?.outlineStyle || '',
+      outlineWidth: parseFloat(style?.outlineWidth || '0')
+    };
+  })).toEqual({ hostFocusWithin: true, internalFocused: true, outlineStyle: 'solid', outlineWidth: 2 });
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#appStatusToast')).toHaveCount(0);
+
+  await page.evaluate(() => window.AppUI.showStatus('自動で消える通知', { tone: 'info', duration: 1 }));
+  await expect(page.locator('#appStatusToast')).toBeVisible();
+  await expect(page.locator('#appStatusToast')).toHaveCount(0, { timeout: 1300 });
+  await page.waitForTimeout(250);
+  expect(await page.locator('#appStatusToast').count()).toBe(0);
   expect(consoleProblems).toEqual([]);
 });

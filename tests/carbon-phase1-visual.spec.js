@@ -11,6 +11,7 @@ const VIEWPORTS = [
 const THEMES = ['light', 'dark'];
 const MODAL_VIEWPORTS = VIEWPORTS.filter(({ width }) => width === 390 || width === 1280);
 const EMPTY_VIEWPORTS = MODAL_VIEWPORTS;
+const TOAST_VIEWPORTS = MODAL_VIEWPORTS;
 const SNAPSHOT_OPTIONS = {
   animations: 'disabled',
   caret: 'hide',
@@ -323,6 +324,49 @@ for (const viewport of EMPTY_VIEWPORTS) {
         await expectFullPageSnapshot(page, `empty-${surface}-${viewport.width}-${theme}.png`);
       }
 
+      expect(consoleProblems).toEqual([]);
+    });
+  }
+}
+
+for (const viewport of TOAST_VIEWPORTS) {
+  for (const theme of THEMES) {
+    test(`phase 3B Toast Notification ${viewport.width}px ${theme}`, async ({ page }) => {
+      const consoleProblems = [];
+      page.on('console', message => {
+        if (['error', 'warning'].includes(message.type())) consoleProblems.push(message.text());
+      });
+      page.on('pageerror', error => consoleProblems.push(error.message));
+      await page.setViewportSize(viewport);
+      await boot(page, { theme, seeded: true, room: `CARBON-TOAST-${viewport.width}-${theme}` });
+      await setSurface(page, 'car');
+      await page.evaluate(() => {
+        window.AppUI.showStatus(
+          '参加者の入力内容を確認してください。長い日本語メッセージも画面内で折り返して表示します。',
+          { tone: 'warning', duration: 30000 }
+        );
+      });
+      const toast = page.locator('#appStatusToast');
+      await expect(toast).toBeVisible();
+      await expect(toast).toHaveAttribute('kind', 'warning');
+      const geometry = await toast.evaluate(node => {
+        const rect = node.getBoundingClientRect();
+        const closeButton = node.shadowRoot?.querySelector('button');
+        const closeRect = closeButton?.getBoundingClientRect();
+        return {
+          left: rect.left,
+          right: rect.right,
+          closeWidth: closeRect?.width || 0,
+          closeHeight: closeRect?.height || 0,
+          overflow: document.documentElement.scrollWidth > window.innerWidth + 1
+        };
+      });
+      expect(geometry.left).toBeGreaterThanOrEqual(0);
+      expect(geometry.right).toBeLessThanOrEqual(viewport.width);
+      expect(geometry.closeWidth).toBeGreaterThanOrEqual(48);
+      expect(geometry.closeHeight).toBeGreaterThanOrEqual(48);
+      expect(geometry.overflow).toBeFalsy();
+      await expect(toast).toHaveScreenshot(`toast-${viewport.width}-${theme}.png`, SNAPSHOT_OPTIONS);
       expect(consoleProblems).toEqual([]);
     });
   }

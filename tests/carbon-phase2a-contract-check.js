@@ -11,6 +11,10 @@ const themeController = fs.readFileSync(path.join(root, 'assets/js/core/theme-co
 const lockProtection = fs.readFileSync(path.join(root, 'assets/js/features/lock-protection.js'), 'utf8');
 const waitingTray = fs.readFileSync(path.join(root, 'assets/js/features/waiting-tray.js'), 'utf8');
 const settlementRender = fs.readFileSync(path.join(root, 'assets/js/features/settlement/03-render.js'), 'utf8');
+const sharedUi = fs.readFileSync(path.join(root, 'assets/js/modules/ui.js'), 'utf8');
+const notificationCss = fs.readFileSync(path.join(root, 'assets/css/guides-modals/notices/01-copy-lock.css'), 'utf8');
+const lightThemeCss = fs.readFileSync(path.join(root, 'assets/css/tokens/01-color-scheme.css'), 'utf8');
+const darkThemeCss = fs.readFileSync(path.join(root, 'assets/css/tokens/01-theme-modes.css'), 'utf8');
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -37,8 +41,10 @@ Object.entries(expectedVersions).forEach(([name, version]) => {
 
 assert(entry.includes("@carbon/web-components/es/components/button/index.js"), 'official cds-button module must be imported');
 assert(entry.includes("@carbon/web-components/es/components/icon-button/index.js"), 'official cds-icon-button module must be imported');
+assert(entry.includes("@carbon/web-components/es/components/content-switcher/index.js"), 'official cds-content-switcher module must be imported');
+assert(entry.includes("@carbon/web-components/es/components/notification/toast-notification.js"), 'official cds-toast-notification module must be imported');
 assert(entry.includes("@carbon/icons/es/"), 'official Carbon icon definitions must be imported');
-assert(/<script type="module" src="\.\/assets\/vendor\/carbon\/carbon-entry\.min\.js\?v=2\.60\.0"><\/script>/.test(html), 'local Carbon module bundle must be loaded');
+assert(/<script type="module" src="\.\/assets\/vendor\/carbon\/carbon-entry\.min\.js\?v=2\.60\.0-phase3b"><\/script>/.test(html), 'local Carbon module bundle must be loaded');
 assert(html.includes('./assets/vendor/ibm-plex/plex.css'), 'local IBM Plex stylesheet must be loaded');
 
 const migratedButtons = html.match(/<cds-(?:icon-)?button\b/g) || [];
@@ -116,6 +122,31 @@ assert(html.includes('<button id="openGoogleRouteBtn"') && html.includes('<i cla
 assert(waitingTray.includes('function toggleTray()') && waitingTray.includes('save();'), 'waiting tray lifecycle and persistence call must remain');
 assert(html.includes('class="modal fade" id="settlementSettingsModal"'), 'Bootstrap Modal structure must remain');
 
+// Phase 3B: AppUI.showStatus remains the sole public entry while the display host becomes Carbon Toast Notification.
+assert(sharedUi.includes("window.AppUI = { confirm, alert, showStatus, setSyncStatus, showUndoBar, hideUndoBar }"), 'AppUI.showStatus public API must remain unchanged');
+assert(sharedUi.includes("window.showAppNotice = (message, isError = false) => showStatus(message, { tone: isError ? 'error' : 'neutral' })"), 'showAppNotice compatibility caller must remain unchanged');
+assert(sharedUi.includes("window.showMiniToast = (message, tone = 'neutral') => showStatus(message, { tone, duration: 1800 })"), 'showMiniToast compatibility caller must remain unchanged');
+[
+  ["success", "kind: 'success'"],
+  ["error", "kind: 'error'"],
+  ["warning", "kind: 'warning'"],
+  ["info", "kind: 'info'"],
+  ["neutral", "kind: 'info'"]
+].forEach(([tone, mapping]) => {
+  assert(sharedUi.includes(`${tone}: Object.freeze({ ${mapping}`), `${tone} notification kind must be centralized`);
+});
+assert(sharedUi.includes("document.createElement('cds-toast-notification')"), 'showStatus must render an official Carbon Toast Notification');
+assert(sharedUi.includes("toast.addEventListener('cds-notification-closed'"), 'manual Carbon dismiss must clean up through the official close event');
+assert(sharedUi.includes("state.statusTimer = setTimeout(() => removeStatusToast(toast), duration)"), 'existing single auto-dismiss timer contract must remain');
+assert(sharedUi.includes("Math.max(800, options.duration) : 2200"), 'existing 800ms minimum and 2200ms default duration must remain');
+assert(!sharedUi.includes("document.createElement('div');\n    toast.id = 'appStatusToast'"), 'legacy generic toast display node must be removed');
+assert(notificationCss.includes('.app-status-toast') && notificationCss.includes('bottom: max(20px, env(safe-area-inset-bottom))'), 'Carbon Toast host must retain the existing bottom-center position');
+assert(notificationCss.includes('--app-toast-scale: 1.1429') && notificationCss.includes('--app-toast-scale: 1.0667'), 'Carbon Toast host must restore the official 48px rem geometry at desktop and mobile type scales');
+assert(notificationCss.includes('width: calc((100vw - 24px) * 0.9375)'), 'Carbon Toast host must remain responsive for long Japanese messages');
+assert(!/shadowRoot|::part|cds--toast-notification__/.test(notificationCss), 'application CSS must not depend on Carbon Toast Shadow DOM internals');
+assert(lightThemeCss.includes('--cds-icon-inverse: #ffffff') && lightThemeCss.includes('--cds-focus-inverse: #ffffff'), 'light theme must expose inverse Toast icon and focus tokens');
+assert(darkThemeCss.includes('--cds-icon-inverse: #161616') && darkThemeCss.includes('--cds-focus-inverse: #0f62fe'), 'dark theme must expose inverse Toast icon and focus tokens');
+
 [
   ['data-bs-toggle', 2],
   ['data-bs-dismiss', 15],
@@ -127,4 +158,4 @@ assert(html.includes('class="modal fade" id="settlementSettingsModal"'), 'Bootst
   assert(count === expected, `${token} baseline changed: expected ${expected}, found ${count}`);
 });
 
-console.log('Carbon shared static contract check OK through Phase 2C');
+console.log('Carbon shared static contract check OK through Phase 3B');

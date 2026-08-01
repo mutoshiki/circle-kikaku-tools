@@ -668,3 +668,195 @@ Bootstrap / Font Awesomeのpackage、vendor、stylesheetは残している。既
 アイコン専用phaseはここで終了する。次は**車割 / 班割Content Switcherの公式Carbon Web Components化**を行う。選択状態、`role=tablist` / `tab`、arrow key、focus、mobile幅、車割 / 班割の既存切替関数を先にcontract化し、低リスクな切替shellから移行する。残るFont Awesome iconは、各機能を公式化または独自componentとして整える時に関連部品と一緒に置き換える。
 
 残るリスクは、Shadow DOM内部controlをlight DOM selectorだけでは監査できないこと、共有canvasのscaleが今後のButtonにもtouch target縮小を起こし得ること、既知9失敗、Linux / Firefox / WebKit未確認、ユーザーガイド11枚の不一致である。また生成済みCarbon bundleにはupstream template literal由来の行末空白が含まれ、`git diff --check`ではvendor bundleだけが警告対象になる。生成物を手編集せず、公式build出力として保持する。
+
+## 15. フェーズ3A完了記録: 車割 / 班割Content Switcher
+
+車割画面内の2択だけを、独自`button[role=tab]`から公式Carbon Web Componentsの`cds-content-switcher` / `cds-content-switcher-item`へ移行した。上部の「車割・班割 / 共有画面 / 精算」ナビゲーション、車card、座席、未割当tray、業務ロジック、保存形式、Firebase同期は変更していない。
+
+### 移行前後の構造と維持契約
+
+| 項目 | 移行前 | フェーズ3A後 |
+|---|---|---|
+| switcher host | `div.car-plan-template-tabs[role=tablist]` | `cds-content-switcher.car-plan-template-tabs[role=tablist]` |
+| 2つの選択肢 | 独自`button.car-plan-template-chip[role=tab]` | 公式`cds-content-switcher-item` 2個 |
+| 選択値 | `data-car-plan-template`と`aria-selected` | `value` / `selected-index`と公式itemのselected状態。既存`data-car-plan-template`も維持 |
+| クリック入力 | light DOM click handler | 公式`cds-content-switcher-selected` eventから既存`updateActiveCarPlanTemplate()`を呼ぶ |
+| ArrowLeft / ArrowRight | 独自keydown handler | 公式Carbonのkeyboard実装 |
+| Home / End | 独自keydown handler | 既存handlerを維持 |
+| 画面描画 | `switchCarPlan()` | 変更なし。Carbon内部へ業務状態を移していない |
+| 保存 / 復元 | `activeCarPlanType`を既存data stateへ保存 | 変更なし。reload後に既存経路からselected itemを復元 |
+
+`aria-label="車割と班割を切り替え"`、item ID、`aria-controls="cars-container"`、`data-car-plan-template`を維持した。公式item内部controlのrole、accessible name、`aria-selected`、Shadow DOM focus indicatorもruntimeで検証した。
+
+公式itemの`target`属性は使用していない。車割と班割は別々の静的panelではなく、同じ`#cars-container`を既存関数が再描画する構造である。両itemに同じ`target`を指定するとCarbon自身のpanel表示管理が競合し、業務領域が`hidden`になるため、表示管理は従来どおり`switchCarPlan()`に限定し、アクセシビリティ上の関連だけをhostの`aria-controls`で維持した。
+
+touch targetは390pxでhost / item内部controlとも各109.5×48px、1280pxで各514.5×48pxだった。参加者登録Buttonは48pxを維持し、switcherとの重なりはなかった。CSSはlight DOM hostの幅・flex・最小高だけを指定し、CarbonのShadow DOM内部class、`::part`、内部DOM構造には依存していない。
+
+### 実装とtest
+
+- `assets/js/carbon-entry.js`: 公式Content Switcher moduleをbundle entryへ追加。
+- `assets/js/core/data-state.js`: 公式markup、selected event bridge、既存Home / End補助、rerender後のfocus復元を実装。
+- `assets/css/cars-members-tray/car-card/04-group-mode.css`: 独自chipのCarbon風CSSを削除し、公式hostの配置・48px最小高だけを保持。
+- `assets/css/tokens/01-color-scheme.css` / `assets/css/tokens/01-theme-modes.css`: 公式selected labelに必要な`--cds-layer-selected-inverse`をlight / darkで定義。
+- `assets/vendor/carbon/carbon-entry.min.js`: assets buildで公式Content Switcherを追加。
+- `index.html`: data-state asset versionをPhase 3Aへ更新。
+- 既存`tests/carbon-content-switcher-seat-picker-check.js`、`tests/carbon-phase2a-contract-check.js`、`tests/carbon-phase2a.spec.js`、`tests/carbon-switcher-seat-picker.spec.js`へcontract / runtime / interactionを統合。フェーズ専用test fileは追加していない。
+- 旧chip CSSを前提にしていた`tests/final-ui-polish-check.js`、`tests/settlement-followup-compact-check.js`、`tests/ui-followup-visual-repair-check.js`は、公式host契約を検査するよう更新。
+
+Content Switcher対象Playwrightは、360 / 390 / 430 / 768 / 1280px、通常sample / 空状態の**6 / 6成功**。click往復、ArrowLeft / ArrowRight、Home / End、Tab / Shadow focus、reload後のactive plan復元、未割当trayを開いたままの切替、参加者登録Buttonとの配置、横overflowを検証した。上部main navigationが従来の`#main-nav[role=tablist]`のままであることもstatic contractに含めた。
+
+### Visual Regression
+
+最初のPhase 1実行でContent Switcherを含む画面だけを抽出し、expected / actual / diffを確認した。次の**16枚だけ**を個別scenario単位で更新した。
+
+- `car-*` / `team-*`の360px、390px、768px、1280px × light / dark
+
+差分は公式Content Switcherの矩形、selected色、文字位置、focus可能領域だけだった。共有画面、精算、未割当tray、空状態、主要Modalのsnapshotは更新していない。更新後はPhase 1 Visual / quality **16 / 16成功**、既存Modal Visual **6 / 6成功**。
+
+### Side Browser監査
+
+Codexアプリ内サイドブラウザで通常sampleと空状態を用い、390×844 / 1280×720、light / dark、車割 / 班割を実表示した。
+
+| 契約 | 結果 |
+|---|---:|
+| Carbon component未upgrade | 0 |
+| console warning / error | 0 |
+| document横overflow | 0 |
+| switcher / 参加者登録Button文字clip | 0 |
+| click 車割→班割→車割 | 成功 |
+| ArrowLeft / ArrowRight、Home / End | 成功、selectedとfocusが同期 |
+| Tab / focus ring | hostとShadow内部controlで確認 |
+| reload後のactive plan | main navで車割画面を再表示すると班割を復元 |
+| 空状態 | 両方向へ切替、空状態表示を維持 |
+| 未割当tray | Enterで開閉し、開いたまま両方向へ切替 |
+| selected contrast | lightは黒地 / 白字、darkは白地 / 黒字 |
+
+既存契約ではreload時のmain view自体は共有画面へ戻るが、`activeCarPlanType`は保存される。reload後に上部main navigationで車割画面へ戻した時点で班割が復元することを確認し、新しいmain view保存は追加していない。
+
+### テスト結果
+
+| 実行 | 結果 |
+|---|---:|
+| Carbon assets build | 成功 |
+| CSS lint | 成功、error 0 |
+| 静的suite | **84 / 84成功** |
+| Carbon runtime | **2 / 2成功** |
+| Content Switcher対象 | **6 / 6成功** |
+| Phase 1 Visual / quality | **16 / 16成功** |
+| 既存Modal Visual | **6 / 6成功** |
+| 全Playwright初回 | **58成功 / 11失敗、全69件** |
+| 初回失敗だけの再実行 | **1成功 / 10失敗、全11件** |
+
+全Playwright初回では、フェーズ2Cの既知9件に既知の実行揺れ2件が加わり11件だった。失敗11件だけの再実行で精算入力focusの1件が成功し、残りは既知上限の10件になった。残存内訳は精算note位置1件、Modal viewport走査1件、既存36px touch target 1件、参加者表1件、driver card / compact typography・layout 6件で、Content Switcher対象6件、Carbon runtime、Visualには失敗がない。今回の実装による新規失敗は確認されなかった。
+
+最終一括実行の前に、未変更のoverview Carbon ButtonでShadow focus indicatorの取得が1回だけ先行したため、既存runtime testを即時1回の検査から`expect.poll`による実際の表示待ちへ修正した。production Buttonや判定内容は変更せず、再実行と全Playwrightでは成功した。
+
+### 発生した問題、次のphase、残存リスク
+
+実装時には、同じdynamic regionへ公式`target`を指定するとCarbonの表示管理で領域が隠れる問題と、dark themeでselected label用semantic tokenが未定義のため文字が見えない問題が見つかった。前者は`target`を外して既存表示関数を唯一のownerとし、後者はlight / darkの`--cds-layer-selected-inverse`を追加して解消した。Carbon内部構造へ依存するCSSは追加していない。
+
+次の低リスク候補は、既存`AppUI.showStatus()`を業務側の唯一の入口として維持したまま、Notification / Toastの表示shellを公式Carbonへ移行すること。その次に、静的status labelからTagを機能単位で移行する。残るiconは各機能の移行と同時に扱い、icon専用phaseは追加しない。
+
+残るリスクは、動的に再描画する共通領域のため`aria-controls`がCarbon itemのShadow内部buttonではなくitem hostにあること、reload後のmain view復元は従来どおり対象外であること、既知Playwright失敗10件、Windows Chromium以外の未確認、Bootstrap / Font Awesome残存、ユーザーガイド画像11枚の既知不一致である。生成済みCarbon bundleのupstream template literal 2行には既知の行末空白があり、`git diff --check`ではvendor bundleだけが警告対象になる。
+
+## 16. フェーズ3B完了記録: Notification / Toast
+
+既存の`window.AppUI.showStatus(message, options = {})`と、その互換入口である`showAppNotice()` / `showMiniToast()`を変更せず、表示shellだけを公式Carbon Web Componentsの`cds-toast-notification`へ移行した。通知に業務状態、保存、copy、Firebase同期を持たせず、呼び出し元も変更していない。
+
+### 既存通知契約とCarbon対応
+
+| 契約 | 移行前 | フェーズ3B後 |
+|---|---|---|
+| 公開API | `AppUI.showStatus(message, options)` | 変更なし |
+| empty message | 表示しない | 変更なし |
+| kind | `error` / `success`、その他はneutral表示 | `success` / `error` / `warning` / `info`を一元mapping、既存`neutral`は`info`へfallback |
+| default duration | 2200ms | 変更なし |
+| custom duration | finite値を800ms以上へclamp | 変更なし |
+| 連続呼び出し | 先行timerをclearし、最新1件だけ表示 | 先行ToastをDOMごと除去し、timerをclearして最新1件だけ表示 |
+| 自動消去 | visible classを外す。固定hostはDOMに残る | open / visibleを閉じ、公式hostとtimer参照をDOMから除去 |
+| 手動dismiss | なし | 公式close controlを追加。`cds-notification-closed`で同じcleanupを実行 |
+| live region | error=`alert` / assertive、その他=`status` / polite、atomic | 変更なし |
+| accessible name | messageがlive regionの内容 | messageをsubtitle slotへ保持し、closeは「通知を閉じる」 |
+| 表示位置 | desktopは画面下中央、mobileはbottom navigationの上 | 変更なし |
+
+kind対応は`assets/js/modules/ui.js`の小さな定数表だけに集約した。
+
+| App tone | Carbon `kind` | `role` / `aria-live` | status icon description |
+|---|---|---|---|
+| `success` | `success` | `status` / `polite` | 成功 |
+| `error` | `error` | `alert` / `assertive` | エラー |
+| `warning` | `warning` | `status` / `polite` | 警告 |
+| `info` | `info` | `status` / `polite` | 情報 |
+| `neutral` / unknown | `info` | `status` / `polite` | 情報 |
+
+Carbon自身の`timeout`は設定せず、従来の外部timerを唯一の時間ownerとして保持した。先行Toastのclose eventやtimerが後続Toastを消さないよう、現在のhost参照と一致する場合だけstateをclearする。dismiss後と自動消去後はhost、event対象、timer参照とも残らない。
+
+### 実装とtest
+
+- `assets/js/carbon-entry.js` / `assets/vendor/carbon/carbon-entry.min.js`: 公式Toast Notification moduleをentryへ追加し、assets buildを更新。
+- `assets/js/modules/ui.js`: kind mapping、公式host生成、単一timer、公式close eventを実装。公開APIとaliasは維持。
+- `assets/css/guides-modals/notices/01-copy-lock.css`: 独自Toast内部構造のCSSを公式hostの配置・responsive幅・transitionへ置換。Shadow DOM内部selectorは追加していない。
+- `assets/css/tokens/01-color-scheme.css` / `assets/css/tokens/01-theme-modes.css`: inverse Toastのclose icon / focus tokenをlight / darkで明示。
+- `index.html`: Carbon bundleとUI moduleのcache versionをPhase 3Bへ更新。
+- 既存`tests/carbon-phase2a-contract-check.js`、`tests/carbon-phase2a.spec.js`、`tests/carbon-phase1-visual.spec.js`へcontract / runtime / Visualを統合。フェーズ専用test fileは追加していない。
+
+runtimeでは4 kind、role / live / atomic、長い日本語、custom durationの800ms clamp、最新1件への置換、先行timer非干渉、自動消去、Enterによるdismiss、DOM / timer残留0、hostとShadow内部close、focus ring、48px領域、未upgrade / console error 0を検査した。
+
+初回のToast runtimeは既存appのroot font-sizeがdesktop 14px / mobile 15pxである影響を受け、Shadow内部closeが42px / 45pxとなり2 / 3成功だった。既存全体のfont-sizeやCarbon内部CSSは変更せず、Toast hostだけを16px基準へ戻し、host全体のscaleと外幅補正でvisual widthを維持した。再実行ではcloseが390px / 1280pxとも約48.00px、focus ring 2pxとなり3 / 3成功した。この補正は公式内部class、`::part`、Shadow DOM構造に依存しない。
+
+### Visual Regression
+
+通知専用の次の4基準だけを追加した。snapshotの一括更新、通知と無関係な主要画面snapshotの更新はしていない。
+
+- `toast-390-light-win32.png`
+- `toast-390-dark-win32.png`
+- `toast-1280-light-win32.png`
+- `toast-1280-dark-win32.png`
+
+warningの長い日本語messageを使い、light / darkのinverse surface、折返し、close位置、viewport内配置を確認した。4画像を個別に目視確認した後、Phase 1 Visual / qualityは既存16条件と合わせて**20 / 20成功**、既存Modal Visualは**6 / 6成功**。意図したToast以外の差分はない。
+
+### Side Browser監査
+
+Codexアプリ内サイドブラウザで通常sampleを読み込み、390×844 / 1280×720、light / dark、車割 / 班割 / 共有 / 精算の**16画面条件**を確認した。実際のUI操作でsample data通知、共有link copy、精算memo copyを表示し、編集lockへ安全なlocal合言葉を設定して誤入力errorも再現した。
+
+| 契約 | 結果 |
+|---|---:|
+| Carbon component未upgrade | 0 / 16 |
+| console warning / error | 0 |
+| document横overflow | 0 / 16 |
+| Toast / 主要文字clip | 0 / 16 |
+| success / error / warning / info | runtime 4種成功、side browserでinfo / errorを実操作確認 |
+| copy / sample通知 | 実操作で表示、kind / message / live regionを確認 |
+| safe error | 誤ったlock合言葉でerror / alert / assertiveを確認後、正しい合言葉で解除 |
+| 連続copy | 最新1件だけ、重複0 |
+| 自動消去 | 2500ms後にhost 0 |
+| manual dismiss | mouse / Shadow内部closeへのEnterの両方でhost 0 |
+| keyboard focus | Shadow内部closeへfocus、2px focus ring |
+| close touch target | 390px / 1280pxとも約48.00×48.00px |
+| 長い日本語 | 390pxで折返し、overflow / clip 0 |
+| 最終残留 | Toast 0、未upgrade 0、timerによる後続消去なし |
+
+検証後はviewportをresetし、専用検証tabをcloseした。repository外のscreenshot以外に状態を残していない。
+
+### テスト結果
+
+| 実行 | 初回 | 有効な再実行 / 最終 |
+|---|---:|---:|
+| Carbon assets build | Node未検出で起動不能 | 成功 |
+| CSS lint | Node未検出で起動不能 | 成功、error 0 |
+| 静的suite | Node未検出で起動不能 | **84 / 84成功** |
+| Carbon runtime | Playwright 1.61用browser未配置で起動不能 | **3 / 3成功** |
+| Phase 1 Visual / quality | 同上 | **20 / 20成功** |
+| 既存Modal Visual | 同上 | **6 / 6成功** |
+| 全Playwright | 同上（74件すべてbrowser launch前に失敗） | **65成功 / 9失敗、全74件** |
+| 失敗9件だけの再実行 | - | **0成功 / 9失敗** |
+
+初回の失敗はコード実行前の環境問題で、同梱NodeをPATHへ追加し、Playwright configが既に対応している`PLAYWRIGHT_CHROMIUM_EXECUTABLE`へsystem Chromeを指定して再実行した。最終の9失敗は再実行でも同じで、精算note位置1件、既存36〜40px touch target 1件、参加者表1件、driver card 1件、精算compact typography / layout 5件。既知上限10件以内で、今回追加したToast runtime / Visualには失敗がないため、対象外の大規模修正は行っていない。
+
+### 依存、次のphase、残存リスク
+
+フェーズ3BはFont Awesome、Bootstrap、公式Carbon Buttonを変更していない。残存値はFont Awesome 51種類 / 89参照 / 17 files、Carbon Icons 37参照、公式Carbon Button 6個、`data-bs-toggle` 2、`data-bs-dismiss` 15、`bootstrap.Modal` 12、Modal hide / hidden event 10のままである。Notificationだけが公式Carbon Toast 1系統へ増えた。
+
+次の低リスク候補は、業務状態を持たない静的status labelから公式Carbon Tagへ移行すること。その後、既存validation / 保存契約を先に固定してInput / Select / Toggle / Dropdownを機能単位で進める。上部navigation、Modal lifecycle、独自card / tray構造、残存iconは各関連機能のphaseまで維持する。
+
+残るリスクは、Toastの48px補正が現在のapp root 14px / 15px typographyを前提とするため将来root font-size変更時に再監査が必要なこと、互換入口が通常はneutral / errorしか渡さないためwarning / infoの本番flowが少ないこと、最新1件だけを残してstackしない従来契約、既知Playwright失敗9件、Windows system Chrome以外の未確認、Bootstrap / Font Awesome残存、ユーザーガイド画像11枚の既知不一致である。生成済みCarbon bundleのupstream template literal 2行には既知の行末空白が残る。

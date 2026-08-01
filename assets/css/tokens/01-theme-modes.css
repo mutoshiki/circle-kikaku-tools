@@ -12,6 +12,7 @@ html[data-theme="dark"] {
   --cds-text-primary: #f4f4f4;
   --cds-text-secondary: #c6c6c6;
   --cds-text-inverse: #161616;
+  --cds-icon-inverse: #161616;
   --cds-text-placeholder: #a8a8a8;
   --cds-icon-primary: #f4f4f4;
   --cds-icon-on-color: #ffffff;
@@ -22,12 +23,14 @@ html[data-theme="dark"] {
   --cds-background-selected: rgba(141, 141, 141, 0.24);
   --cds-background-inverse: #f4f4f4;
   --cds-background-inverse-hover: #e8e8e8;
+  --cds-layer-selected-inverse: #f4f4f4;
   --cds-border-subtle: #525252;
   --cds-border-strong: #8d8d8d;
   --cds-interactive: #78a9ff;
   --cds-interactive-hover: #a6c8ff;
   --cds-interactive-active: #4589ff;
   --cds-focus: #ffffff;
+  --cds-focus-inverse: #0f62fe;
   --cds-disabled-bg: #525252;
   --cds-disabled-text: #8d8d8d;
 

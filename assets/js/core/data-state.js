@@ -390,11 +390,12 @@ function renderCarPlanSwitcher() {
     if (!bar) return;
     const active = getActiveCarPlan();
     const activeTemplateType = normalizeCarPlanTemplateType(active.templateType);
+    const selectedIndex = activeTemplateType === 'team' ? 1 : 0;
     bar.innerHTML = `
-        <div class="car-plan-template-tabs" role="tablist" aria-label="車割と班割を切り替え">
-            <button type="button" role="tab" class="car-plan-template-chip${activeTemplateType === 'car' ? ' active' : ''}" data-car-plan-template="car" aria-selected="${activeTemplateType === 'car' ? 'true' : 'false'}" tabindex="${activeTemplateType === 'car' ? '0' : '-1'}"><span>車割</span></button>
-            <button type="button" role="tab" class="car-plan-template-chip${activeTemplateType === 'team' ? ' active' : ''}" data-car-plan-template="team" aria-selected="${activeTemplateType === 'team' ? 'true' : 'false'}" tabindex="${activeTemplateType === 'team' ? '0' : '-1'}"><span>班割</span></button>
-        </div>
+        <cds-content-switcher class="car-plan-template-tabs" role="tablist" aria-label="車割と班割を切り替え" value="${activeTemplateType}" selected-index="${selectedIndex}" size="lg">
+            <cds-content-switcher-item id="car-plan-tab-car" value="car" data-car-plan-template="car" aria-controls="cars-container"${activeTemplateType === 'car' ? ' selected' : ''}>車割</cds-content-switcher-item>
+            <cds-content-switcher-item id="car-plan-tab-team" value="team" data-car-plan-template="team" aria-controls="cars-container"${activeTemplateType === 'team' ? ' selected' : ''}>班割</cds-content-switcher-item>
+        </cds-content-switcher>
     `;
 }
 
@@ -466,6 +467,13 @@ function setupCarPlanSwitcherEvents() {
         if (event.target?.id === 'carPlanSelect') switchCarPlan(event.target.value);
         if (event.target?.id === 'carPlanTemplateSelect') updateActiveCarPlanTemplate(event.target.value);
     });
+    bar.addEventListener('cds-content-switcher-selected', event => {
+        const item = event.detail?.item;
+        if (!item || !bar.contains(item)) return;
+        const nextType = item.dataset.carPlanTemplate || item.value;
+        updateActiveCarPlanTemplate(nextType);
+        requestAnimationFrame(() => bar.querySelector(`[data-car-plan-template="${nextType}"]`)?.focus());
+    });
     bar.addEventListener('click', event => {
         const planChip = event.target.closest('[data-car-plan-id]');
         if (planChip) {
@@ -473,7 +481,7 @@ function setupCarPlanSwitcherEvents() {
             return;
         }
         const templateChip = event.target.closest('[data-car-plan-template]');
-        if (templateChip) {
+        if (templateChip && !templateChip.closest('cds-content-switcher')) {
             updateActiveCarPlanTemplate(templateChip.dataset.carPlanTemplate);
             return;
         }
@@ -486,14 +494,12 @@ function setupCarPlanSwitcherEvents() {
         if (action === 'delete') deleteActiveCarPlan();
     });
     bar.addEventListener('keydown', event => {
-        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        if (!['Home', 'End'].includes(event.key)) return;
         const tabs = Array.from(bar.querySelectorAll('[data-car-plan-template]'));
         const currentIndex = tabs.indexOf(event.target.closest('[data-car-plan-template]'));
         if (currentIndex < 0 || tabs.length < 2) return;
         event.preventDefault();
-        const nextIndex = event.key === 'Home' ? 0
-            : event.key === 'End' ? tabs.length - 1
-            : (currentIndex + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+        const nextIndex = event.key === 'Home' ? 0 : tabs.length - 1;
         const nextType = tabs[nextIndex].dataset.carPlanTemplate;
         updateActiveCarPlanTemplate(nextType);
         requestAnimationFrame(() => bar.querySelector(`[data-car-plan-template="${nextType}"]`)?.focus());

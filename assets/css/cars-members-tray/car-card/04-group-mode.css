@@ -15,56 +15,16 @@
   min-height: 48px;
   margin: 0;
 }
-.allocation-mode-toggle .car-plan-template-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.allocation-mode-toggle cds-content-switcher.car-plan-template-tabs {
+  display: flex;
   align-items: stretch;
-  gap: 0;
   width: 100%;
-  min-height: 48px;
-  padding: 0;
-  border: 1px solid var(--border-strong);
-  border-radius: 0;
-  background: transparent;
-}
-.allocation-mode-toggle .car-plan-template-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
   min-width: 0;
   min-height: 48px;
-  padding: 0 12px;
-  border: 0;
-  border-right: 1px solid var(--border-strong);
-  border-radius: 0;
-  background: transparent;
-  color: var(--text-sub);
-  box-shadow: none;
-  font-size: var(--font-size-label);
-  font-weight: 400;
-  cursor: pointer;
 }
-.allocation-mode-toggle .car-plan-template-chip:last-child { border-right: 0; }
-.allocation-mode-toggle .car-plan-template-chip:not(.active):hover { background: var(--surface-hover); color: var(--text-main); }
-.allocation-mode-toggle .car-plan-template-chip:not(.active):active { background: var(--surface-container); }
-.allocation-mode-toggle .car-plan-template-chip:focus-visible { position: relative; z-index: var(--z-local-raised); outline: 2px solid var(--focus-accent); outline-offset: -2px; }
-.allocation-mode-toggle .car-plan-template-chip.active { background: var(--content-switcher-selected-bg); color: var(--content-switcher-selected-text); box-shadow: none; }
-.allocation-mode-toggle .car-plan-template-chip:disabled { background: var(--cds-disabled-bg); color: var(--cds-disabled-text); cursor: not-allowed; }
-.allocation-mode-toggle .car-plan-template-chip i,
-.allocation-mode-toggle .car-plan-template-chip span { color: inherit; }
+.allocation-mode-toggle cds-content-switcher-item {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 48px;
+}
 .edit-header-tools-only.allocation-toolbar #car-plan-switcher { order: 1; margin-right: 0; }
-
-@media (max-width: 390px) {
-  .allocation-mode-toggle .car-plan-template-tabs {
-    gap: 0;
-    padding: 0;
-  }
-
-  .allocation-mode-toggle .car-plan-template-chip {
-    gap: 4px;
-    padding-inline: 6px;
-    font-size: 0.8rem;
-    white-space: nowrap;
-  }
-}
