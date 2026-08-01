@@ -26,7 +26,8 @@
     const text = config.baseType === 'pay' && label === '支払' ? '支払' : (label || defaultLabel);
     const paymentClass = config.baseType === 'pay' ? ' seisan-payment-tag' : '';
     const negativeClass = config.negative ? ' is-negative' : '';
-    return `<em class="seisan-cost-policy-tag seisan-cost-type-badge${paymentClass}${negativeClass} ${UI_CLASS.chip} ${config.baseType}" data-cost-type="${config.type}">${text}</em>`;
+    const tagAttributes = window.SanpoTagTypes?.attributes('cost', config.baseType, 'sm') || 'type="gray" size="sm"';
+    return `<cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge${paymentClass}${negativeClass} carbon-display-tag ${UI_CLASS.chip} ${config.baseType}" data-cost-type="${config.type}" ${tagAttributes}>${text}</cds-tag>`;
   }
 
   function formatPaymentBadge(label = '支払い') {

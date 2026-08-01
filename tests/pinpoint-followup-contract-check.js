@@ -18,7 +18,7 @@ const mobileInputsCss = read('assets/css/settlement/car-inputs/05-mobile-inputs.
 const controlsCss = read('assets/css/settlement/controls/02-toggles.css');
 const pageLayoutCss = read('assets/css/settlement/page-shell/01-layout.css');
 
-assert(index.includes('割勘</em>集金チェック') && !index.includes('割勘</em>支払いチェック'), 'collection section wording must be 割勘集金チェック');
+assert(/<cds-tag\b[^>]*>割勘<\/cds-tag>集金チェック/.test(index) && !/<cds-tag\b[^>]*>割勘<\/cds-tag>支払いチェック/.test(index), 'collection section wording must be 割勘集金チェック');
 assert(collectionTemplate.includes('seisan-check-copy${note ? \' has-note\' : \'\'}') && collectionTemplate.indexOf('seisan-check-name') < collectionTemplate.indexOf('seisan-check-note'), 'collection rows must keep the name and its explanation in one readable copy row');
 assert(collectionCss.includes('flex-direction: column;') && collectionCss.includes('grid-template-columns: minmax(0, 1fr) 24px;') && collectionCss.includes('grid-column: 2;'), 'collection explanation must sit below the full name with the checkbox on the right');
 assert(sheetTemplate.includes('${gradeBadge(dgrade, dg, helpers)}<span class="sheet-driver-name">'), 'representative grade badge must appear to the left like other members');

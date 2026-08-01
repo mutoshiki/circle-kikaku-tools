@@ -52,6 +52,8 @@ function renderGoogleFormImportPreview(result, reflected = false) {
     const gradeSourceText = result.gradeSource === 'studentId'
         ? '学籍番号から推定'
         : (result.gradeSource === 'grade' ? '学年列を使用' : '学年列なし');
+    const gradeSourceKey = ['studentId', 'grade'].includes(result.gradeSource) ? result.gradeSource : 'none';
+    const gradeSourceTagAttributes = window.SanpoTagTypes?.attributes('importSource', gradeSourceKey, 'sm') || 'type="gray" size="sm"';
 
     return `
         <div class="form-import-preview-title">読み取り結果（登録前の確認）</div>
@@ -66,7 +68,7 @@ function renderGoogleFormImportPreview(result, reflected = false) {
         </div>
         <div class="form-import-column-list">
             <div>名前列：${escapeHtml(result.columnText?.name || 'なし')}</div>
-            <div>学年：${escapeHtml(result.columnText?.grade || 'なし')}<span class="form-import-source-chip">${escapeHtml(gradeSourceText)}</span></div>
+            <div>学年：${escapeHtml(result.columnText?.grade || 'なし')}<cds-tag class="form-import-source-chip carbon-display-tag" ${gradeSourceTagAttributes}>${escapeHtml(gradeSourceText)}</cds-tag></div>
             <div>学籍番号列：${escapeHtml(result.columnText?.studentId || 'なし')}</div>
             <div>車出し列：${escapeHtml(result.columnText?.driver || 'なし')}</div>
         </div>

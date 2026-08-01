@@ -53,8 +53,13 @@ function updatePersonGradeBadge(person) {
     if (!line) return;
     line.querySelector('.grade-badge')?.remove();
     if (grade > 0) {
-        const badge = ce('span', `grade-badge ${gradeGenderClass(person.dataset.gender)}`);
+        const gender = person.dataset.gender || 'unknown';
+        const badge = ce('cds-tag', `grade-badge carbon-display-tag ${gradeGenderClass(gender)}`);
         badge.dataset.grade = String(grade);
+        badge.dataset.tagGroup = 'grade';
+        badge.dataset.tagValue = gender;
+        badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', gender) || 'gray');
+        badge.setAttribute('size', 'sm');
         badge.textContent = `${grade}年`;
         const menuBtn = line.querySelector('.member-menu-btn, .driver-menu-btn');
         line.insertBefore(badge, menuBtn || null);
@@ -69,7 +74,10 @@ function updatePersonGenderBadge(person) {
     const badge = line.querySelector('.grade-badge');
     if (badge) {
         badge.classList.remove('grade-male', 'grade-female', 'grade-unknown');
-        badge.classList.add(gradeGenderClass(person.dataset.gender));
+        const gender = person.dataset.gender || 'unknown';
+        badge.classList.add(gradeGenderClass(gender));
+        badge.dataset.tagValue = gender;
+        badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', gender) || 'gray');
     }
 }
 

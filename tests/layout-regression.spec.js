@@ -193,7 +193,7 @@ test('pinpoint settlement and shared-view fixes stay readable and operable', asy
   await page.locator('#tab-seisan').click();
   const collectionPanel = page.locator('.seisan-collection-panel');
   await expect(collectionPanel).toBeVisible();
-  await expect(collectionPanel.locator('.seisan-title')).toContainText('割勘集金チェック');
+  expect((await collectionPanel.locator('.seisan-title').innerText()).replace(/\s+/g, '')).toContain('割勘集金チェック');
 
   const describedRow = collectionPanel.locator('.seisan-check-item:has(.seisan-check-note)').first();
   await expect(describedRow).toBeVisible();

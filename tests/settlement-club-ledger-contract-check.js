@@ -9,7 +9,7 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-assert(html.includes('部費</em>の収支'), 'the section must be named as a balance, not only usage');
+assert(/<cds-tag\b[^>]*>部費<\/cds-tag>の収支/.test(html), 'the section must be named as a balance, not only usage');
 assert(!html.includes('部費負担を減らす'), 'the ledger must not show a redundant sign-explanation memo');
 assert(template.includes("'支払い額の切り上げ'"), 'payment rounding must explain why the amount exists');
 assert(template.includes("'ドライバー分の集金控除'"), 'driver collection offset must be labeled as a deduction');

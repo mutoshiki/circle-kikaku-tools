@@ -14,7 +14,8 @@ function gradeGenderClass(gender) {
 function renderGradeBadge(grade, gender = 'unknown') {
     const n = parseInt(grade) || 0;
     if (n <= 0) return '';
-    return `<span class="grade-badge ${gradeGenderClass(gender)}" data-grade="${n}">${n}年</span>`;
+    const tagAttributes = window.SanpoTagTypes?.attributes('grade', gender, 'sm') || 'type="gray" size="sm"';
+    return `<cds-tag class="grade-badge carbon-display-tag ${gradeGenderClass(gender)}" data-grade="${n}" ${tagAttributes}>${n}年</cds-tag>`;
 }
 
 function renderPersonFlag(flag) {

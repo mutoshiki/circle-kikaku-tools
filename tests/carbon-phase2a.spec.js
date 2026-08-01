@@ -3,6 +3,9 @@ const { test, expect } = require('@playwright/test');
 test.setTimeout(120000);
 
 async function boot(page, { theme = 'light', width = 390 } = {}) {
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], {
+    origin: 'http://127.0.0.1:4173'
+  });
   await page.route('**/firebase-config.js', route => route.fulfill({
     status: 200,
     contentType: 'application/javascript',
@@ -13,7 +16,7 @@ async function boot(page, { theme = 'light', width = 390 } = {}) {
     localStorage.setItem('sanpo_coach_seen_v1', 'true');
   });
   await page.setViewportSize({ width, height: width < 600 ? 844 : 720 });
-  await page.goto(`./index.html?room=CARBON-PHASE3B-${width}-${theme}`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`./index.html?room=CARBON-PHASE3C-${width}-${theme}`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => (
     document.documentElement.dataset.carbonReady === 'true'
     && customElements.get('cds-button')
@@ -21,15 +24,17 @@ async function boot(page, { theme = 'light', width = 390 } = {}) {
     && customElements.get('cds-content-switcher')
     && customElements.get('cds-content-switcher-item')
     && customElements.get('cds-toast-notification')
+    && customElements.get('cds-tag')
     && window.SanpoCarbon
     && window.SanpoIconAdapter
+    && window.SanpoTagTypes
     && window.SanpoTheme?.applyTheme
   ));
   await page.evaluate(nextTheme => window.SanpoTheme.applyTheme(nextTheme), theme);
   await page.evaluate(() => document.fonts.ready);
 }
 
-test('official Carbon runtime, icons, fonts, and Phase 3B controls are active', async ({ page }) => {
+test('official Carbon runtime, icons, fonts, and Phase 3C controls are active', async ({ page }) => {
   const consoleProblems = [];
   page.on('console', message => {
     if (['error', 'warning'].includes(message.type())) consoleProblems.push(message.text());
@@ -46,6 +51,7 @@ test('official Carbon runtime, icons, fonts, and Phase 3B controls are active', 
       carbonButtons: document.querySelectorAll('cds-button, cds-icon-button').length,
       contentSwitchers: document.querySelectorAll('cds-content-switcher').length,
       contentSwitcherItems: document.querySelectorAll('cds-content-switcher-item').length,
+      carbonTags: document.querySelectorAll('cds-tag.carbon-display-tag').length,
       iconCount: document.querySelectorAll('svg.carbon-icon').length,
       pendingIcons: document.querySelectorAll('[data-carbon-icon]').length,
       latinLoaded: latin.length > 0 && document.fonts.check('400 16px "IBM Plex Sans"', 'Carbon'),
@@ -64,6 +70,7 @@ test('official Carbon runtime, icons, fonts, and Phase 3B controls are active', 
   expect(runtime.carbonButtons).toBe(6);
   expect(runtime.contentSwitchers).toBe(1);
   expect(runtime.contentSwitcherItems).toBe(2);
+  expect(runtime.carbonTags).toBeGreaterThanOrEqual(3);
   expect(runtime.iconCount).toBeGreaterThanOrEqual(32);
   expect(runtime.pendingIcons).toBe(0);
   expect(runtime.latinLoaded).toBeTruthy();
@@ -362,5 +369,138 @@ test('Phase 3B Carbon Toast preserves AppUI.showStatus timing, ARIA, replacement
   await expect(page.locator('#appStatusToast')).toHaveCount(0, { timeout: 1300 });
   await page.waitForTimeout(250);
   expect(await page.locator('#appStatusToast').count()).toBe(0);
+  expect(consoleProblems).toEqual([]);
+});
+
+test('Phase 3C passive Carbon Tags preserve renderer data, semantics, and non-interactive behavior', async ({ page }) => {
+  const consoleProblems = [];
+  page.on('console', message => {
+    if (['error', 'warning'].includes(message.type())) consoleProblems.push(message.text());
+  });
+  page.on('pageerror', error => consoleProblems.push(error.message));
+  await boot(page, { width: 390 });
+
+  await page.evaluate(() => window.executeDebugMode());
+  await page.waitForFunction(() => document.querySelectorAll('.car-box').length >= 3);
+  await page.waitForTimeout(180);
+
+  expect(await page.evaluate(() => window.SanpoTagTypes.mappings)).toEqual({
+    grade: { male: 'blue', female: 'magenta', unknown: 'gray' },
+    cost: { split: 'blue', club: 'warm-gray', pay: 'magenta' },
+    sheetPlan: { car: 'blue', team: 'purple' },
+    capacity: { normal: 'gray', over: 'red' },
+    importSource: { studentId: 'cyan', grade: 'blue', none: 'gray' }
+  });
+
+  const visibleGroups = {};
+  for (const surface of ['car', 'team', 'sheet', 'seisan']) {
+    await page.evaluate(nextSurface => {
+      if (nextSurface === 'car' || nextSurface === 'team') {
+        window.switchView('list');
+        window.switchCarPlan(nextSurface === 'team' ? 'plan-team' : 'plan-car');
+      } else {
+        window.switchView(nextSurface);
+      }
+      window.scrollTo(0, 0);
+    }, surface);
+    await expect(page.locator('body')).toHaveClass(new RegExp(surface === 'car' || surface === 'team' ? 'view-mode-list' : `view-mode-${surface}`));
+
+    const audit = await page.evaluate(() => {
+      const Tag = customElements.get('cds-tag');
+      const tags = Array.from(document.querySelectorAll('cds-tag.carbon-display-tag'));
+      const isVisible = node => {
+        const rect = node.getBoundingClientRect();
+        const style = getComputedStyle(node);
+        return rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden';
+      };
+      const visible = tags.filter(isVisible);
+      const groups = visible.reduce((result, tag) => {
+        const group = tag.dataset.tagGroup || 'missing';
+        result[group] = (result[group] || 0) + 1;
+        return result;
+      }, {});
+      return {
+        total: tags.length,
+        visible: visible.length,
+        groups,
+        allUpgraded: tags.every(tag => tag instanceof Tag && Boolean(tag.shadowRoot)),
+        wrongType: tags.filter(tag => tag.type !== window.SanpoTagTypes.resolve(tag.dataset.tagGroup, tag.dataset.tagValue)).map(tag => tag.outerHTML),
+        interactiveAttributes: tags.filter(tag => tag.hasAttribute('role') || tag.hasAttribute('tabindex') || tag.hasAttribute('aria-label')).map(tag => tag.outerHTML),
+        tabStops: tags.filter(tag => tag.tabIndex >= 0).map(tag => tag.outerHTML),
+        shadowControls: tags.filter(tag => tag.shadowRoot?.querySelector('button, a, input, select, textarea')).map(tag => tag.outerHTML),
+        emptyText: tags.filter(tag => !tag.textContent.trim()).map(tag => tag.outerHTML),
+        clippedText: visible.filter(tag => {
+          const label = tag.shadowRoot?.querySelector('.cds--tag__label') || tag.shadowRoot?.querySelector('span');
+          return label && (label.scrollWidth > label.clientWidth + 1 || label.scrollHeight > label.clientHeight + 1);
+        }).map(tag => tag.textContent.trim()),
+        horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth + 1
+      };
+    });
+
+    visibleGroups[surface] = audit.groups;
+    expect(audit.total).toBeGreaterThanOrEqual(3);
+    expect(audit.visible).toBeGreaterThan(0);
+    expect(audit.allUpgraded).toBeTruthy();
+    expect(audit.wrongType).toEqual([]);
+    expect(audit.interactiveAttributes).toEqual([]);
+    expect(audit.tabStops).toEqual([]);
+    expect(audit.shadowControls).toEqual([]);
+    expect(audit.emptyText).toEqual([]);
+    expect(audit.clippedText).toEqual([]);
+    expect(audit.horizontalOverflow).toBeFalsy();
+  }
+
+  expect(visibleGroups.car.grade).toBeGreaterThan(0);
+  expect(visibleGroups.team.grade).toBeGreaterThan(0);
+  expect(visibleGroups.sheet.grade).toBeGreaterThan(0);
+  expect(visibleGroups.sheet.sheetPlan).toBeGreaterThan(0);
+  expect(visibleGroups.sheet.capacity).toBeGreaterThan(0);
+  expect(visibleGroups.seisan.cost).toBeGreaterThan(0);
+
+  const preservedContracts = await page.evaluate(() => ({
+    grades: Array.from(document.querySelectorAll('cds-tag.grade-badge')).every(tag => tag.dataset.grade && /^\d+年$/.test(tag.textContent.trim())),
+    costs: Array.from(document.querySelectorAll('cds-tag.seisan-cost-type-badge:not(.seisan-cost-type-badge--spacer)')).every(tag => tag.dataset.costType),
+    sheetPlans: Array.from(document.querySelectorAll('cds-tag.sheet-summary-plan-label')).every(tag => ['car', 'team'].includes(tag.dataset.tagValue)),
+    capacities: Array.from(document.querySelectorAll('cds-tag.sheet-capacity-badge')).every(tag => /^\d+\/\d+$/.test(tag.textContent.trim())),
+    excludedSyncStatus: document.getElementById('syncStatusBadge')?.tagName,
+    excludedWaitingCount: document.getElementById('waiting-count')?.tagName,
+    excludedPlanningCount: document.getElementById('planningCheckCount')?.tagName,
+    excludedCapacityEditor: document.querySelector('.capacity-edit-btn')?.tagName,
+    excludedSettlementSpacer: document.querySelector('.seisan-cost-type-badge--spacer')?.tagName
+  }));
+  expect(preservedContracts).toEqual({
+    grades: true,
+    costs: true,
+    sheetPlans: true,
+    capacities: true,
+    excludedSyncStatus: 'DIV',
+    excludedWaitingCount: 'SPAN',
+    excludedPlanningCount: 'SPAN',
+    excludedCapacityEditor: 'BUTTON',
+    excludedSettlementSpacer: 'EM'
+  });
+
+  await page.evaluate(() => window.openBatchModal());
+  await page.evaluate(() => {
+    ['batchMembers', 'batchGrade1', 'batchGrade2', 'batchGrade3', 'batchGrade4', 'batchDrivers']
+      .forEach(id => { document.getElementById(id).value = ''; });
+  });
+  await page.locator('#googleFormPasteArea').fill('名前\t学籍番号\n山田 太郎\t24T1234A');
+  await page.locator('#applyGoogleFormPasteBtn').click();
+  const importTag = page.locator('#googleFormImportPreview cds-tag.form-import-source-chip');
+  await expect(importTag).toBeVisible();
+  await expect(importTag).toHaveAttribute('data-tag-group', 'importSource');
+  await expect(importTag).toHaveAttribute('data-tag-value', 'studentId');
+  await expect(importTag).toHaveAttribute('type', 'cyan');
+  await expect(importTag).toContainText('学籍番号から推定');
+  expect(await importTag.evaluate(tag => ({
+    upgraded: tag instanceof customElements.get('cds-tag') && Boolean(tag.shadowRoot),
+    role: tag.getAttribute('role'),
+    tabindex: tag.getAttribute('tabindex'),
+    ariaLabel: tag.getAttribute('aria-label'),
+    tabIndex: tag.tabIndex,
+    shadowControl: Boolean(tag.shadowRoot?.querySelector('button, a, input, select, textarea'))
+  }))).toEqual({ upgraded: true, role: null, tabindex: null, ariaLabel: null, tabIndex: -1, shadowControl: false });
+
   expect(consoleProblems).toEqual([]);
 });

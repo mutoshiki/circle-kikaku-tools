@@ -278,7 +278,7 @@
             <div class="seisan-head">
               <div class="seisan-title seisan-semantic-section-title">
                 <i class="fas fa-car-side" aria-hidden="true"></i>
-                <span>ドライバーへの<em class="seisan-cost-policy-tag seisan-cost-type-badge seisan-payment-tag ui-chip pay" data-cost-type="pay">支払い</em></span>
+                <span>ドライバーへの<cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge seisan-payment-tag carbon-display-tag ui-chip pay" data-cost-type="pay" data-tag-group="cost" data-tag-value="pay" type="magenta" size="sm">支払い</cds-tag></span>
               </div>
               <button id="seisanCarLayoutToggle" class="seisan-car-layout-toggle" type="button" data-action="toggle-settlement-car-layout" aria-label="1列表示に切り替え" title="1列表示に切り替え" aria-pressed="true" hidden>
                 <span class="seisan-layout-grid-icon" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
@@ -291,7 +291,7 @@
             <div class="seisan-head">
               <div class="seisan-title seisan-semantic-section-title">
                 <i class="fas fa-wallet" aria-hidden="true"></i>
-                <span><em class="seisan-cost-policy-tag seisan-cost-type-badge ui-chip club" data-cost-type="club">部費</em>の収支</span>
+                <span><cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge carbon-display-tag ui-chip club" data-cost-type="club" data-tag-group="cost" data-tag-value="club" type="warm-gray" size="sm">部費</cds-tag>の収支</span>
               </div>
             </div>
             <div id="seisan-club-expense-list" class="seisan-club-expense-list"></div>
@@ -302,7 +302,7 @@
               <div>
                 <div class="seisan-title seisan-semantic-section-title">
                   <i class="fas fa-square-check" aria-hidden="true"></i>
-                  <span><em class="seisan-cost-policy-tag seisan-cost-type-badge ui-chip split" data-cost-type="split">割勘</em>集金チェック</span>
+                  <span><cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge carbon-display-tag ui-chip split" data-cost-type="split" data-tag-group="cost" data-tag-value="split" type="blue" size="sm">割勘</cds-tag>集金チェック</span>
                 </div>
                 <div id="seisan-collection-note" class="seisan-muted"></div>
               </div>
@@ -726,13 +726,14 @@
     <!-- JS: core namespace, runtime, persistence, and modal services -->
     <script src="./assets/js/core/app-namespace.js"></script>
     <script src="./assets/js/core/icon-adapter.js?v=carbon-phase2c"></script>
+    <script src="./assets/js/core/tag-types.js?v=carbon-phase3c"></script>
     <script src="./assets/js/core/theme-controller.js"></script>
     <script src="./assets/js/modules/ui.js?v=carbon-phase3b"></script>
     <script src="./assets/js/core/runtime.js?v=carbon-assurance"></script>
     <script src="./assets/js/core/dependency-status.js"></script>
     <script src="./assets/js/core/app-status.js"></script>
     <script src="./assets/js/core/storage.js"></script>
-    <script src="./assets/js/core/render-controller.js?v=carbon-assurance"></script>
+    <script src="./assets/js/core/render-controller.js?v=carbon-phase3c"></script>
     <script src="./assets/js/core/settlement-edit-guard.js"></script>
     <script src="./assets/js/core/sync-controller.js?v=carbon-assurance"></script>
     <script src="./assets/js/core/history-scheduler.js"></script>
@@ -768,17 +769,17 @@
     <script src="./assets/js/features/share-actions.js"></script>
     <script src="./assets/js/features/lock-protection.js"></script>
     <script src="./assets/js/features/waiting-tray.js"></script>
-    <script src="./assets/js/features/person-cards.js?v=carbon-assurance"></script>
+    <script src="./assets/js/features/person-cards.js?v=carbon-phase3c"></script>
     <script src="./assets/js/features/planning-assurance.js?v=carbon-assurance"></script>
     <script src="./assets/js/features/seat-member-picker.js?v=quiet-actions"></script>
-    <script src="./assets/js/templates/sheet-templates.js?v=carbon-assurance"></script>
+    <script src="./assets/js/templates/sheet-templates.js?v=carbon-phase3c"></script>
     <script src="./assets/js/features/sheet/00-data-sync.js?v=carbon-assurance"></script>
     <script src="./assets/js/features/sheet-view.js?v=carbon-assurance"></script>
     <script src="./assets/js/features/drag-edit-view.js?v=quiet-actions"></script>
     <script src="./assets/js/features/sheet/01-drag-interactions.js"></script>
     <script src="./assets/js/features/sheet/02-viewport-controls.js"></script>
-    <script src="./assets/js/features/auto-assign.js?v=quiet-actions"></script>
-    <script src="./assets/js/features/person-menu.js?v=quiet-actions"></script>
+    <script src="./assets/js/features/auto-assign.js?v=carbon-phase3c"></script>
+    <script src="./assets/js/features/person-menu.js?v=carbon-phase3c"></script>
     <script src="./assets/js/features/google-form-import-parser.js"></script>
     <script src="./assets/js/features/batch-import.js"></script>
     <script src="./assets/js/features/sample-data-history.js"></script>
@@ -791,6 +792,6 @@
     <script src="./assets/js/features/events/04-settlement-input-events.js"></script>
     <script src="./assets/js/features/events/05-view-feature-events.js"></script>
     <script src="./assets/js/features/events.js"></script>
-    <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=2.60.0-phase3b"></script>
+    <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=2.60.0-phase3c"></script>
   </body>
 </html>

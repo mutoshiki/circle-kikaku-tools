@@ -37,8 +37,13 @@ function buildSheetPlanSummaryRow(plan, updatedLabel = '') {
     ];
     const row = document.createElement('span');
     row.className = `sheet-summary-row is-${template.type || 'car'}`;
-    const planLabel = document.createElement('span');
-    planLabel.className = 'sheet-summary-plan-label';
+    const planLabel = document.createElement('cds-tag');
+    const planType = template.type === 'team' ? 'team' : 'car';
+    planLabel.className = 'sheet-summary-plan-label carbon-display-tag';
+    planLabel.dataset.tagGroup = 'sheetPlan';
+    planLabel.dataset.tagValue = planType;
+    planLabel.setAttribute('type', window.SanpoTagTypes?.resolve('sheetPlan', planType) || 'gray');
+    planLabel.setAttribute('size', 'md');
     planLabel.textContent = template.type === 'team' ? '班割' : '車割';
     row.appendChild(planLabel);
     stats.forEach(([label, value]) => {

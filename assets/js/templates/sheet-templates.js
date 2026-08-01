@@ -70,8 +70,10 @@
     const cap = parseInt(car.capacity) || 0;
     const filled = (car.members || []).filter(Boolean).length;
     const capacityClass = filled > cap ? 'is-over' : (filled === cap ? 'is-full' : '');
+    const capacityState = filled > cap ? 'over' : 'normal';
+    const capacityTagAttributes = window.SanpoTagTypes?.attributes('capacity', capacityState, 'md') || 'type="gray" size="md"';
     const groupTitle = `${cfg.type === 'team' ? '班' : '車'}${groupIndex + 1}`;
-    let html = `<div class="sheet-car-header">${esc(groupTitle, helpers)} <span class="sheet-capacity-badge ${capacityClass}">${filled}/${cap}</span></div>`;
+    let html = `<div class="sheet-car-header">${esc(groupTitle, helpers)} <cds-tag class="sheet-capacity-badge carbon-display-tag ${capacityClass}" ${capacityTagAttributes}>${filled}/${cap}</cds-tag></div>`;
 
     const dg = car.driverGender || 'unknown';
     const dgrade = parseInt(car.driverGrade) || 0;
