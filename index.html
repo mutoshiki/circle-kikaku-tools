@@ -20,6 +20,7 @@
     <!-- CSS: vendor -->
     <link href="./assets/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="./assets/vendor/fontawesome/css/all.min.css" rel="stylesheet">
+    <link href="./assets/vendor/ibm-plex/plex.css" rel="stylesheet">
     <!-- CSS: tokens -->
     <link href="./assets/css/tokens/01-color-scheme.css" rel="stylesheet">
     <link href="./assets/css/tokens/01-component-palette.css" rel="stylesheet">
@@ -31,6 +32,7 @@
     <link href="./assets/css/tokens/06-motion-tokens.css" rel="stylesheet">
     <!-- CSS: components -->
     <link href="./assets/css/components/00-component-contracts.css" rel="stylesheet">
+    <link href="./assets/css/components/icons/01-carbon-icons.css" rel="stylesheet">
     <link href="./assets/css/components/surfaces/01-surface-tokens.css" rel="stylesheet">
     <link href="./assets/css/components/surfaces/02-empty-state.css" rel="stylesheet">
     <link href="./assets/css/components/surfaces/03-surface-primitives.css" rel="stylesheet">
@@ -163,7 +165,7 @@
           <div class="header-actions">
             <div class="header-more dropdown">
               <button class="header-action dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="その他">
-                <i class="fas fa-ellipsis" aria-hidden="true"></i><span>その他</span>
+                <span data-carbon-icon="overflow-menu-horizontal" aria-hidden="true"></span><span>その他</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow">
                 <li><button id="userGuideBtn" class="dropdown-item" type="button"><i class="fas fa-circle-question me-2" aria-hidden="true"></i>使い方</button></li>
@@ -178,32 +180,35 @@
             <button class="header-action" id="editLockBtn" type="button" title="車割メーカーと精算ツールの誤編集を防ぐ">
               <i class="fas fa-unlock" aria-hidden="true"></i><span>ロック</span>
             </button>
-            <button id="shareLinkBtn" class="header-action share-action" type="button" title="共有リンクをコピー">
-              <i class="fas fa-link" aria-hidden="true"></i><span>共有</span>
-            </button>
-            <button id="overviewMenuBtn" class="header-action overview-menu-toggle" type="button" title="メモ・タイムテーブル" aria-controls="overviewDrawer" aria-expanded="false">
-              <i class="fas fa-bars" aria-hidden="true"></i><span>概要</span>
-            </button>
+            <cds-icon-button id="shareLinkBtn" class="header-action share-action" kind="ghost" size="lg" align="bottom-right" aria-label="共有リンクをコピー">
+              <span data-carbon-icon="link" slot="icon" aria-hidden="true"></span>
+              <span slot="tooltip-content">共有リンクをコピー</span>
+            </cds-icon-button>
+            <cds-icon-button id="overviewMenuBtn" class="header-action overview-menu-toggle" kind="ghost" size="lg" align="bottom-right" aria-label="メモ・タイムテーブル" aria-controls="overviewDrawer" aria-expanded="false">
+              <span data-carbon-icon="menu" slot="icon" aria-hidden="true"></span>
+              <span slot="tooltip-content">メモ・タイムテーブル</span>
+            </cds-icon-button>
           </div>
         </div>
         <div id="view-toggle-bar">
           <button class="view-tab" id="tab-list" aria-label="車割・班割">
-            <i class="fas fa-pen-to-square" aria-hidden="true"></i><span class="view-tab-label">車割・班割</span>
+            <span data-carbon-icon="edit" aria-hidden="true"></span><span class="view-tab-label">車割・班割</span>
           </button>
           <button class="view-tab active" id="tab-sheet" aria-label="共有画面">
-            <i class="fas fa-table-list" aria-hidden="true"></i><span class="view-tab-label">共有画面</span>
+            <span data-carbon-icon="table" aria-hidden="true"></span><span class="view-tab-label">共有画面</span>
           </button>
           <button class="view-tab" id="tab-seisan" aria-label="精算ツール">
-            <i class="fas fa-receipt" aria-hidden="true"></i><span class="view-tab-label">精算</span>
+            <span data-carbon-icon="receipt" aria-hidden="true"></span><span class="view-tab-label">精算</span>
           </button>
         </div>
       </header>
       <div id="overviewDrawerScrim" class="overview-drawer-scrim" hidden></div>
       <aside id="overviewDrawer" class="overview-drawer" aria-hidden="true" aria-label="メモ・タイムテーブル">
         <div class="overview-drawer-head overview-drawer-head--compact">
-          <button id="overviewDrawerCloseBtn" class="overview-drawer-close" type="button" aria-label="メニューを閉じる">
-            <i class="fas fa-xmark" aria-hidden="true"></i>
-          </button>
+          <cds-icon-button id="overviewDrawerCloseBtn" class="overview-drawer-close" kind="ghost" size="lg" align="bottom-right" aria-label="メニューを閉じる">
+            <span data-carbon-icon="close" slot="icon" aria-hidden="true"></span>
+            <span slot="tooltip-content">メニューを閉じる</span>
+          </cds-icon-button>
         </div>
         <div class="overview-drawer-body">
           <section class="overview-panel">
@@ -213,9 +218,9 @@
           <section class="overview-panel overview-timetable-panel">
             <div class="overview-panel-title-row">
               <h3>タイムテーブル</h3>
-              <button id="overviewTimetableAddBtn" class="overview-mini-action" type="button">
-                <i class="fas fa-plus" aria-hidden="true"></i><span>追加</span>
-              </button>
+              <cds-button id="overviewTimetableAddBtn" kind="ghost" size="lg" type="button">
+                <span>追加</span><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span>
+              </cds-button>
             </div>
             <div id="overviewTimetableRows" class="overview-timetable-rows" aria-live="polite"></div>
             <button id="overviewTimetableCopyBtn" class="overview-copy-action" type="button">
@@ -785,5 +790,6 @@
     <script src="./assets/js/features/events/04-settlement-input-events.js"></script>
     <script src="./assets/js/features/events/05-view-feature-events.js"></script>
     <script src="./assets/js/features/events.js"></script>
+    <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=2.60.0"></script>
   </body>
 </html>

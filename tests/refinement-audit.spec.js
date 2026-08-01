@@ -164,11 +164,14 @@ test('focus, disabled, selected and closed-drawer states remain distinct and ope
     keyboardFocus.push(await page.evaluate(() => {
       const node = document.activeElement;
       const cs = getComputedStyle(node);
+      const shadowFocus = node?.shadowRoot?.activeElement;
       return {
         tag: node?.tagName || '',
         id: node?.id || '',
         className: node?.className || '',
-        focusVisible: node?.matches?.(':focus-visible') || false,
+        focusVisible: node?.matches?.(':focus-visible')
+          || (node?.matches?.(':focus-within') && shadowFocus?.matches?.(':focus-visible'))
+          || false,
         outlineStyle: cs.outlineStyle,
         outlineWidth: parseFloat(cs.outlineWidth),
         outlineOffset: parseFloat(cs.outlineOffset)

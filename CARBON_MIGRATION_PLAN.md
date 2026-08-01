@@ -1,31 +1,34 @@
 # Carbon Design System 段階移行計画
 
 更新日: 2026-08-01  
-対象: フェーズ1「移行前の安全な土台づくり」
+対象: フェーズ1「移行前の安全な土台づくり」完了記録、およびフェーズ2A「公式Carbonの最小導入」完了記録
 
-## 1. 結論とフェーズ1の境界
+## 1. 結論とフェーズ2Aの境界
 
-このリポジトリは、Carbon v11相当の色・直線形状・余白・フォーカスを独自CSSへ取り込んでいる一方、公式Carbon Web Components、Carbon Icons、実フォントとしてのIBM Plexはまだ導入していない。したがって、評価は次の2軸に分ける。
+フェーズ1開始時、このリポジトリはCarbon v11相当の色・直線形状・余白・フォーカスを独自CSSへ取り込んでいる一方、公式Carbon Web Components、Carbon Icons、実フォントとしてのIBM Plexは未導入だった。フェーズ2Aで公式runtimeと最初の低リスク部品を導入したため、現在値は次のように再評価する。
 
-| 指標 | 現状 | 根拠 |
-|---|---:|---|
-| 公式Carbon実装率 | **0%** | 一般UI 9分類で公式Web Components 0件、Font Awesome 67種類中Carbon Icons 0件、IBM Plexの実ロード0件 |
-| Carbon視覚契約への準拠度 | **約40%（定性的）** | White / Gray 100相当のsemantic token、4/8px系余白、角丸0、フォーカストークン、ライト／ダークテーマがある。ただし実コンポーネント、フォント、操作契約はBootstrapまたは独自実装 |
+| 指標 | フェーズ1開始時 | フェーズ2A完了時 | 根拠 |
+|---|---:|---:|---|
+| 公式Web Componentsの分類着手率 | **0 / 9分類（0%）** | **1 / 9分類（11%）** | Button / Icon Button分類に4 instanceを導入。9分類すべての完了率はまだ0% |
+| Font Awesome参照の移行率 | **0 / 134参照（0%）** | **14 / 134参照（10.4%）** | 残存120参照。unique icon名は67種類から64種類へ減少 |
+| 公式フォント導入率 | **0 / 2 family（0%）** | **2 / 2 family（100%）** | IBM Plex SansとIBM Plex Sans JPをself-hostし、browser runtimeで実ロードを確認 |
+| 公式基盤の整備率 | **0 / 4項目（0%）** | **4 / 4項目（100%）** | module entry、Carbon Icons、Plex、再現可能なbuild / CI差分検査 |
+| Carbon視覚契約への準拠度 | **約40%（定性的）** | **約45%（定性的）** | 既存semantic tokenに公式component用tokenを接続し、最小範囲だけ公式の操作・focus契約へ移行 |
 
-「Carbon風の見た目」は公式Carbon化率に算入しない。今後は、公式コンポーネント・公式アイコン・実際に読み込まれたPlexフォントだけを公式実装として数える。
+「Carbon風の見た目」は公式Carbon化率に算入しない。公式コンポーネント・公式アイコン・実際に読み込まれたPlexフォントだけを公式実装として数える。分類着手率11%は一般UI全体の完了率を意味せず、Button分類も4 instanceだけの部分移行である。
 
-フェーズ1ではUIソース、計算、保存形式、Firebase同期を変更していない。Bootstrap、Font Awesome、既存CSSも残した。変更はテスト基準、テストスクリプト、計画書だけである。
+フェーズ1ではUIソース、計算、保存形式、Firebase同期を変更していない。フェーズ2Aでも計算、保存形式、Firebase同期を変更せず、Bootstrap、Font Awesome、既存CSSを残したまま、公式資産と4つの低リスク操作だけを追加した。
 
 ## 2. リポジトリの現状
 
 ### 実行構成
 
-- 単一の`index.html`とclassic script群で動く、ビルド工程のない構成。
+- 単一の`index.html`とclassic script群で動く構成を維持し、Carbon vendor生成にだけ最小build工程を追加した。
 - UI状態とDOM生成は`assets/js/core/`、`features/`、`templates/`へ分割されている。
 - CSSはowner制で、`tokens` → `components` → 画面別ownerの順に読み込む。
 - Bootstrap 5.3.0、Font Awesome 6.4.0、SortableJS 1.15.0をローカルvendorとdevDependenciesの両方で保持している。
-- `@carbon/web-components`、`@carbon/icons`、IBM Plex各パッケージは未導入。
-- `font-family`には`"IBM Plex Sans"`が書かれているが、`@font-face`、外部stylesheet、ローカルフォントファイルのいずれもなく、実際にはOSフォールバックで表示される。
+- `@carbon/web-components`、`@carbon/icons`、IBM Plex各パッケージをexact pinし、生成済みlocal vendorから配信する。
+- IBM Plex Sans / IBM Plex Sans JPは`@font-face`とlocal woff2で実ロードする。OSフォールバックはfont取得失敗時だけ使う。
 - 公式の現行パッケージは`@carbon/web-components`で、個別component moduleをimportする方式が案内されている。旧`carbon-web-components`を新規採用しない。[公式npm](https://www.npmjs.com/package/@carbon/web-components) / [Carbonリポジトリ](https://github.com/carbon-design-system/carbon)
 - 日本語を含むPlexは、IBM公式が配布する`@ibm/plex-sans-jp`を候補にする。[IBM Plex公式](https://github.com/IBM/plex)
 
@@ -317,8 +320,8 @@ snapshotは現環境のWindows / Chromium基準。既存の精算Modalについ�
 
 ## 10. 残るリスク
 
-- 現在の作業ツリーはフェーズ1開始前から多数の未コミット変更を含み、既存visual snapshotともずれている。
-- 公式Web ComponentsはES moduleで、現状はbuildなしclassic script構成。module entryとGitHub Pages配信方法を先に決める必要がある。
+- フェーズ2Aの公式資産は生成済みvendorを静的配信する。依存更新時にbundleとlicenseを再生成し忘れないCI gateが必要で、今回追加した。
+- module entryは既存classic scriptと別の`type="module"`として後段に置く。今後のcomponent追加でもclassic scriptの評価順を変えない。
 - Shadow DOMの内部は既存`.btn`, `.modal`, `.dropdown` selectorで上書きできない。Carbon component APIとCSS custom propertiesで調整する。
 - Modal lifecycleに精算draft保存、prompt Promise、seat pickerのfocus復帰が結合している。
 - generated HTML stringが多く、custom element upgrade timingとevent delegationを確認する必要がある。
@@ -326,7 +329,7 @@ snapshotは現環境のWindows / Chromium基準。既存の精算Modalについ�
 - 既知の36～42px操作領域、精算focus喪失、layout regressionが残る。
 - Windows baselineのみ追加できる。Linux CI baselineとFirefox / WebKitは未検証。
 - ガイド11枚は現行UIと不一致。移行完了前に更新すると再度陳腐化する。
-- Carbon packageのModal、Notification、Toggleなどにはversionによってfeature flagがあるため、Phase 2開始時に採用versionのStorybook/APIを固定する。
+- Carbon packageのModal、Notification、Toggleなどにはversionによってfeature flagがあるため、各component採用時に2.60.0のStorybook/APIを固定する。
 
 ## 11. フェーズごとの完了ゲート
 
@@ -338,3 +341,116 @@ snapshotは現環境のWindows / Chromium基準。既存の精算Modalについ�
 6. 横overflow、48px、新規ARIA、keyboard focusを確認する。
 7. 既知失敗を増やしていない。
 8. Bootstrap / Font Awesomeを削除するのはPhase 6だけ。
+
+## 12. フェーズ2A完了記録: 公式Carbonの最小導入
+
+### 採用方針とversion
+
+- `@carbon/web-components` **2.60.0**、`@carbon/icons` **11.85.0**、`@ibm/plex-sans` **1.1.0**、`@ibm/plex-sans-jp` **3.0.0**をexact pinした。
+- 公式componentはpackage rootを丸ごと読み込まず、ButtonとIcon Buttonの個別moduleだけを`assets/js/carbon-entry.js`からimportする。
+- 既存GitHub Pagesの静的配信を維持するため、esbuild **0.28.1**で1本のES moduleへbundleし、`assets/vendor/carbon/`へ生成する。runtime CDN、import map、`node_modules`配信には依存しない。
+- IBM PlexはRegular / SemiBoldのLatin・日本語woff2を`assets/vendor/ibm-plex/`へself-hostする。既存classic scriptの順序は変更しない。
+- `npm run build:carbon`を再生成の正規入口とし、CIでは生成後にvendor差分がないことを検査する。package licenseもvendorに同梱する。
+
+公式が案内する個別component module importに沿い、旧`carbon-web-components`は採用していない。参照: [Carbon Web Components package](https://github.com/carbon-design-system/carbon/tree/main/packages/web-components)、[Carbon Icons / Carbon repository](https://github.com/carbon-design-system/carbon)、[IBM Plex](https://github.com/IBM/plex)。
+
+### 移行した部品
+
+公式Carbon Web Componentsへ移行した4 instance:
+
+1. `shareLinkBtn`: headerの共有リンクIcon Button。
+2. `overviewMenuBtn`: 概要drawerを開くIcon Button。
+3. `overviewDrawerCloseBtn`: 概要drawerを閉じるIcon Button。
+4. `overviewTimetableAddBtn`: タイムテーブル行を追加するButton。
+
+既存id、event delegation、`aria-expanded`、`aria-controls`を維持したため、公開APIと操作結果は変更していない。Shadow DOMへ既存Bootstrap selectorを当てず、hostの寸法、semantic color、focus ringだけをowner CSSで接続した。
+
+Carbon Iconsは11種類、14参照に導入した。
+
+- header / navigation: `overflow-menu-horizontal`, `link`, `menu`, `edit`, `table`, `receipt`
+- drawer: `close`, `add`
+- 空状態: `user-multiple`, `car`, `calculator`
+- 動的template: 共有画面と精算cardの`edit`
+
+`data-carbon-icon` placeholderを公式icon definitionのSVGへ置き換える小さなrendererをmodule entryに置き、MutationObserverで既存の動的HTML生成にも追従させた。装飾iconは`aria-hidden="true"`、`focusable="false"`とし、accessible nameは操作部品側に残した。
+
+### 意図した見た目の差分
+
+- IBM Plex Sans / IBM Plex Sans JPの実適用による字幅、行高、折り返し位置の差。
+- header / main navigation / 空状態 / 一部編集操作のglyphがFont AwesomeからCarbon Iconsへ変わった差。
+- 公式Icon Buttonのhover / focusと20px icon、48px host touch targetの差。
+
+Phase 1の80枚と従来Modal 6枚を再比較し、2%の既存許容差を超えた次の8枚だけを更新した。
+
+- 精算: 360px light / dark、390px light / darkの4枚。
+- 主要Modal: participant import 390px light / dark、user guide 390px light / darkの4枚。
+
+それ以外の78枚は既存baselineのまま成功した。card構造、入力値、金額、保存data、Firebase処理を意図差分に含めていない。
+
+### Browser監査
+
+390×844と1280×720のlight / darkで、共有空状態、sample車割、sample精算を監査した。自動化Chromeでは12状態の全組み合わせ、Codexアプリ内サイドブラウザでは要件を覆う代表7状態を実表示した。
+
+| 契約 | 結果 |
+|---|---:|
+| console warning / error | 0 |
+| document横overflow | 0 / 12 |
+| 見出し・名称の非意図的clip検出 | 0 / 12 |
+| Carbon host touch target | 最小48px |
+| Carbon icon描画 | 各状態12個以上 |
+| IBM Plex Latin / Japanese runtime load | 12 / 12成功 |
+| drawer open、行追加、drawer close | 自動化4 / 4条件＋サイドブラウザ実操作で成功、行数8→9 |
+| 共有リンクIcon Button | サイドブラウザ実操作で成功noticeを確認 |
+
+Codexのアプリ内サイドブラウザは、初回client初期化時に保護された`process` bindingと競合した。clientのprocess shimをsession内だけで局所的に適用して接続し、確認後にplugin fileを元へ戻した。repository外の恒久変更は残していない。
+
+### テスト結果
+
+| 実行 | 結果 |
+|---|---:|
+| `npm run build:carbon` | 成功 |
+| CSS lint | 成功、error 0 |
+| 静的suite | **83 / 83成功** |
+| Carbon runtime専用test | **1 / 1成功** |
+| Phase 1 visual / quality | **16 / 16成功** |
+| 既存Modal Visual Regression | **6 / 6成功** |
+| 全Playwright | **56成功 / 10失敗、全66件** |
+
+全体の失敗数はフェーズ1完了時の10件を超えていない。Carbon導入直後に増えたheader Icon Buttonのfocus観測と`<i>`前提のtestは、Shadow DOM対応の可視focus ringとSVG / Web Component対応の意味ある契約へ修正し、どちらも成功した。
+
+残る10失敗は、精算note位置1件、Modal走査timeout 1件、既存36～40px touch target 1件、参加者表1件、driver card 1件、精算compact typography 5件である。いずれもフェーズ1から記録済みの領域で、今回の対象外として大規模修正していない。
+
+### 残存依存の再集計
+
+`index.html`と`assets/js/**/*.js`を再集計した。
+
+| 依存 | フェーズ1 | フェーズ2A後 | 差分 |
+|---|---:|---:|---:|
+| Font Awesome unique icon名 | 67 | **64** | -3 |
+| Font Awesome参照 | 134 | **120** | -14 |
+| Font Awesome参照ファイル | 22 | **21** | -1 |
+| `data-bs-toggle` | 2 | **2** | 0 |
+| `data-bs-dismiss` | 15 | **15** | 0 |
+| `bootstrap.Modal`参照 | 12 | **12** | 0 |
+| `hide.bs.modal` / `hidden.bs.modal`参照 | 10 | **10** | 0 |
+
+Bootstrap 5.3.0とFont Awesome 6.4.0のvendor / devDependency / stylesheetは残している。削除ゲートにはまだ到達していない。
+
+### 次の低リスク移行順
+
+1. static Font Awesomeの続き: main menu、history、theme、deleteなど、単一状態で装飾用途のicon。
+2. 単純Button / Icon Buttonの続き: form submit、drag、Modal lifecycleを持たない「開く」「コピー」「補助」操作。
+3. 車割／班割Content Switcher: 既存`role=tablist`、`aria-selected`、左右key、active plan保存を固定してから公式componentへ移行。
+4. Status / ToastをNotification adapterへ移行し、`AppUI.showStatus`の公開APIを維持。
+5. 単純Tagと共通編集のText Input / Select。
+
+Modal、Dropdown、Toggle、精算入力、参加者importはBootstrap lifecycle、value timing、保存境界との結合が強いため、上記より後に扱う。
+
+### フェーズ2A完了時のリスク
+
+- 公式Web ComponentsのShadow DOMと既存light DOM testではfocus targetが異なる。今後もhostと内部controlを両方検査する。
+- generated bundleとfontをrepositoryへ保持するため、依存更新時は`npm run build:carbon`とlicense差分の確認が必要。
+- IBM Plex JPのRegular / SemiBoldだけで約4.7MBある。GitHub Pagesの転送量と初回表示を測り、必要ならunicode-rangeやsubsetを検討する。
+- Chromium / WindowsとCodexアプリ内サイドブラウザで確認済み。Linux CI baseline、Firefox、WebKitは未確認。
+- 既知の10失敗と36～40px操作が残る。対象componentを移行する時にallowlistを縮小する。
+- ユーザーガイド11枚は現行UIと不一致のまま。画面の公式Carbon移行が安定した後に再生成する。

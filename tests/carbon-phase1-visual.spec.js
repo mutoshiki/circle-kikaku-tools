@@ -96,10 +96,13 @@ async function auditCurrentSurface(page, { checkTouchTargets }) {
     const accessibleName = node => (
       node.getAttribute('aria-label')
       || node.getAttribute('title')
+      || node.querySelector?.('[slot="tooltip-content"]')?.textContent
       || node.textContent
       || ''
     ).trim().replace(/\s+/g, ' ');
-    const visibleControls = Array.from(document.querySelectorAll('button, summary, [role="button"]')).filter(isVisible);
+    const visibleControls = Array.from(document.querySelectorAll(
+      'button, summary, [role="button"], cds-button, cds-icon-button'
+    )).filter(isVisible);
     const unnamedControls = visibleControls
       .filter(node => !accessibleName(node))
       .map(node => node.id || String(node.className));

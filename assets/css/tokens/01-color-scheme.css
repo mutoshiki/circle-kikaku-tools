@@ -14,7 +14,17 @@
   --cds-field-02: #ffffff;
   --cds-text-primary: #161616;
   --cds-text-secondary: #525252;
+  --cds-text-inverse: #ffffff;
   --cds-text-placeholder: #6f6f6f;
+  --cds-icon-primary: #161616;
+  --cds-icon-on-color: #ffffff;
+  --cds-link-primary: #0f62fe;
+  --cds-link-primary-hover: #0043ce;
+  --cds-background-hover: rgba(141, 141, 141, 0.12);
+  --cds-background-active: rgba(141, 141, 141, 0.5);
+  --cds-background-selected: rgba(141, 141, 141, 0.2);
+  --cds-background-inverse: #393939;
+  --cds-background-inverse-hover: #474747;
   --cds-border-subtle: #e0e0e0;
   --cds-border-strong: #8d8d8d;
   --cds-interactive: #0f62fe;
@@ -213,7 +223,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  font-family: "IBM Plex Sans", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", Meiryo, "Segoe UI", sans-serif;
+  font-family: "IBM Plex Sans", "IBM Plex Sans JP", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", Meiryo, "Segoe UI", sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.4286;

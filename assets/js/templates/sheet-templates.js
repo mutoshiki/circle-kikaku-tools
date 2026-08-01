@@ -44,11 +44,11 @@
   function empty() {
     return `
         <div class="sheet-empty-card app-empty-card">
-            <div class="sheet-empty-icon"><i class="fas fa-car-side" aria-hidden="true"></i></div>
+            <div class="sheet-empty-icon"><span data-carbon-icon="car" aria-hidden="true"></span></div>
             <div class="sheet-empty-title">共有できるデータがありません</div>
             <div class="sheet-empty-text">参加者を登録し、車割または班割を作成すると共有画面へ反映されます。</div>
             <div class="seisan-empty-actions">
-              <button class="seisan-btn primary" type="button" data-action="switch-list"><i class="fas fa-pen-to-square" aria-hidden="true"></i>車割・班割を開く</button>
+              <button class="seisan-btn primary" type="button" data-action="switch-list"><span data-carbon-icon="edit" aria-hidden="true"></span>車割・班割を開く</button>
             </div>
         </div>`;
   }

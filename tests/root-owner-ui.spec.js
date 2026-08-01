@@ -48,7 +48,7 @@ test('header actions share one borderless mobile icon contract', async ({ page }
 
   const styles = await page.locator('.header-actions .header-action').evaluateAll(nodes => nodes.map(node => {
     const cs = getComputedStyle(node);
-    const icon = node.querySelector('i');
+    const icon = node.querySelector('i, svg.carbon-icon');
     const iconStyle = getComputedStyle(icon);
     return {
       width: cs.width,
@@ -59,7 +59,7 @@ test('header actions share one borderless mobile icon contract', async ({ page }
       borderLeftWidth: cs.borderLeftWidth,
       backgroundColor: cs.backgroundColor,
       color: cs.color,
-      iconSize: iconStyle.fontSize
+      iconSize: icon.matches('svg') ? iconStyle.width : iconStyle.fontSize
     };
   }));
 

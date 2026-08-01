@@ -11,7 +11,17 @@ html[data-theme="dark"] {
   --cds-field-02: #262626;
   --cds-text-primary: #f4f4f4;
   --cds-text-secondary: #c6c6c6;
+  --cds-text-inverse: #161616;
   --cds-text-placeholder: #a8a8a8;
+  --cds-icon-primary: #f4f4f4;
+  --cds-icon-on-color: #ffffff;
+  --cds-link-primary: #78a9ff;
+  --cds-link-primary-hover: #a6c8ff;
+  --cds-background-hover: rgba(141, 141, 141, 0.16);
+  --cds-background-active: rgba(141, 141, 141, 0.4);
+  --cds-background-selected: rgba(141, 141, 141, 0.24);
+  --cds-background-inverse: #f4f4f4;
+  --cds-background-inverse-hover: #e8e8e8;
   --cds-border-subtle: #525252;
   --cds-border-strong: #8d8d8d;
   --cds-interactive: #78a9ff;

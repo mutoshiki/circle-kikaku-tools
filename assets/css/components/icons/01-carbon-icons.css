@@ -1,0 +1,50 @@
+/* Light-DOM bridge for official Carbon icon SVGs during the mixed-icon migration. */
+.carbon-icon {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentcolor;
+  color: inherit;
+  vertical-align: middle;
+}
+
+[data-carbon-icon] {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+cds-button:not(:defined),
+cds-icon-button:not(:defined) {
+  visibility: hidden;
+}
+
+cds-icon-button.header-action {
+  --cds-link-primary: var(--text-sub);
+  --cds-link-primary-hover: var(--text-main);
+  width: var(--header-action-size);
+  min-width: var(--header-action-size);
+  height: var(--header-action-size);
+  min-height: var(--header-action-size);
+}
+
+cds-icon-button.header-action:focus-within {
+  outline: 2px solid var(--focus-accent);
+  outline-offset: 2px;
+}
+
+cds-button#overviewTimetableAddBtn {
+  min-height: 48px;
+}
+
+.view-tab .carbon-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.app-empty-card > .carbon-icon,
+.sheet-empty-icon .carbon-icon {
+  width: 2rem;
+  height: 2rem;
+}

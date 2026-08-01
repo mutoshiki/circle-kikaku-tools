@@ -3,9 +3,11 @@
   "private": true,
   "version": "7.0.0-calm-workspace",
   "scripts": {
+    "build:carbon": "node tools/build-carbon-assets.mjs",
     "test": "node tests/run-static-tests.js",
+    "test:carbon": "playwright test tests/carbon-phase2a.spec.js",
     "lint:css": "stylelint \"assets/css/**/*.css\"",
-    "test:ui": "playwright test tests/basic-ui.spec.js && playwright test tests/root-owner-ui.spec.js && playwright test tests/layout-regression.spec.js && playwright test tests/requested-settlement-participant-shared.spec.js",
+    "test:ui": "playwright test tests/basic-ui.spec.js && playwright test tests/root-owner-ui.spec.js && playwright test tests/layout-regression.spec.js && playwright test tests/requested-settlement-participant-shared.spec.js && playwright test tests/carbon-phase2a.spec.js",
     "test:visual": "playwright test tests/visual-regression.spec.js tests/carbon-phase1-visual.spec.js",
     "test:visual:phase1": "playwright test tests/carbon-phase1-visual.spec.js",
     "test:refinement": "playwright test tests/refinement-audit.spec.js",
@@ -13,9 +15,14 @@
     "test:visual:update": "playwright test tests/visual-regression.spec.js tests/carbon-phase1-visual.spec.js --update-snapshots"
   },
   "devDependencies": {
+    "@carbon/icons": "11.85.0",
+    "@carbon/web-components": "2.60.0",
     "@fortawesome/fontawesome-free": "6.4.0",
+    "@ibm/plex-sans": "1.1.0",
+    "@ibm/plex-sans-jp": "3.0.0",
     "@playwright/test": "^1.61.0",
     "bootstrap": "5.3.0",
+    "esbuild": "0.28.1",
     "sortablejs": "1.15.0",
     "stylelint": "^17.13.0"
   }

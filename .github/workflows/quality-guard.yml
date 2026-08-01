@@ -21,6 +21,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - run: npm run build:carbon
+      - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npm run lint:css
       - run: npm test
 

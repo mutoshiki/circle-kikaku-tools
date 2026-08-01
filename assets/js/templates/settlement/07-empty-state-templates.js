@@ -6,7 +6,7 @@
 
   function emptyState() {
     return `<div class="empty-card app-empty-card">
-            <i class="fas fa-calculator" aria-hidden="true"></i>
+            <span data-carbon-icon="calculator" aria-hidden="true"></span>
             <strong>精算するデータがありません</strong>
             <span class="empty-card-text">まずは参加者登録から。参加者と車出しを登録すると、支払いと集金の計算を開始できます。</span>
             <div class="seisan-empty-actions">
