@@ -1,7 +1,7 @@
 /* Settlement settings summary and settings-modal controls. */
 .seisan-settings-card .seisan-compact-head { margin-bottom: 10px; }
 .seisan-settings-summary { min-width: 0; }
-.seisan-title--settings i { color: var(--accent-color); }
+.seisan-title--settings .carbon-icon { color: var(--accent-color); }
 
 #settlementSettingsModal .settlement-edit-dialog { width: min(100%, 360px); max-width: 360px; margin-inline: auto; }
 #settlementSettingsModal .modal-body { padding: 12px 18px 18px; }

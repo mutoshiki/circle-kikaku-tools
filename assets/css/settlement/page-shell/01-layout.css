@@ -59,8 +59,8 @@
   line-height: 1.35;
   letter-spacing: 0;
 }
-.seisan-title i,
-.seisan-section-title i { color: var(--accent-color); }
+.seisan-title .carbon-icon,
+.seisan-section-title .carbon-icon { color: var(--accent-color); }
 .seisan-muted { color: var(--text-sub); font-size: var(--font-size-label); line-height: 1.5; }
 .seisan-small { color: var(--text-sub); font-size: var(--font-size-caption); line-height: 1.4; }
 

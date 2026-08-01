@@ -32,7 +32,7 @@ function updateLastAutoAssignCondition() {
     const el = byId('lastAutoAssignCondition');
     if (!el) return;
     const text = lastAutoAssignLabel || '未実行';
-    el.innerHTML = `<i class="fas fa-dice"></i><span>${escapeHtml(text)}</span>`;
+    el.innerHTML = `<span data-carbon-icon="shuffle" aria-hidden="true"></span><span>${escapeHtml(text)}</span>`;
     el.classList.toggle('is-empty', !lastAutoAssignLabel);
 }
 

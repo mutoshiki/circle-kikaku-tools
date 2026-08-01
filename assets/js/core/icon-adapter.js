@@ -30,6 +30,20 @@
     String(className).split(/\s+/).filter(Boolean).forEach(name => node.classList.add(name));
   }
 
+  function setIcon(container, iconName, { className = '' } = {}) {
+    if (!container || !iconName) return null;
+    const current = container.querySelector('[data-carbon-icon-name], [data-carbon-icon]');
+    if (current?.dataset.carbonIconName === iconName || current?.dataset.carbonIcon === iconName) return current;
+
+    const placeholder = document.createElement('span');
+    placeholder.dataset.carbonIcon = iconName;
+    placeholder.setAttribute('aria-hidden', 'true');
+    addClassNames(placeholder, className);
+    if (current) current.replaceWith(placeholder);
+    else container.prepend(placeholder);
+    return global.SanpoCarbon?.renderCarbonIcons(placeholder)?.[0] || placeholder;
+  }
+
   function setStateIcon(container, group, state, { className = '' } = {}) {
     if (!container) return null;
     const iconName = resolveIcon(group, state);
@@ -71,5 +85,5 @@
     return global.SanpoCarbon?.renderCarbonIcons(placeholder)?.[0] || placeholder;
   }
 
-  global.SanpoIconAdapter = Object.freeze({ setStateIcon });
+  global.SanpoIconAdapter = Object.freeze({ setIcon, setStateIcon });
 })(window);

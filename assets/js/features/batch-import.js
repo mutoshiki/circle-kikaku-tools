@@ -44,10 +44,10 @@ function renderGoogleFormImportPreview(result, reflected = false) {
         ...(result.warnings || [])
     ];
     const warningHtml = warnings.length
-        ? `<div class="form-import-warnings"><div class="form-import-warnings-title"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i>確認してください</div><ul>${warnings.map(w => `<li>${escapeHtml(w)}</li>`).join('')}</ul></div>`
-        : '<div class="form-import-ok"><i class="fas fa-circle-check" aria-hidden="true"></i>大きな警告はありません。</div>';
+        ? `<div class="form-import-warnings"><div class="form-import-warnings-title"><span data-carbon-icon="warning--alt" aria-hidden="true"></span>確認してください</div><ul>${warnings.map(w => `<li>${escapeHtml(w)}</li>`).join('')}</ul></div>`
+        : '<div class="form-import-ok"><span data-carbon-icon="checkmark--filled" aria-hidden="true"></span>大きな警告はありません。</div>';
     const reflectedHtml = reflected
-        ? '<div class="form-import-reflected"><i class="fas fa-arrow-down" aria-hidden="true"></i>既存の入力欄へ反映しました。内容を確認してから「登録内容で更新」を押してください。</div>'
+        ? '<div class="form-import-reflected"><span data-carbon-icon="arrow--down" aria-hidden="true"></span>既存の入力欄へ反映しました。内容を確認してから「登録内容で更新」を押してください。</div>'
         : '';
     const gradeSourceText = result.gradeSource === 'studentId'
         ? '学籍番号から推定'

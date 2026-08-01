@@ -16,7 +16,7 @@
   font-weight: 600;
   line-height: 1.45;
 }
-.batch-sheet-criteria i {
+.batch-sheet-criteria .carbon-icon {
   flex: 0 0 auto;
   margin-top: 2px;
   color: var(--accent-color);
@@ -27,7 +27,7 @@
     grid-template-columns: 1fr;
   }
 
-  .batch-auto-flow > i {
+  .batch-auto-flow > .carbon-icon {
     transform: rotate(90deg);
     justify-self: center;
   }

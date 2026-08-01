@@ -26,7 +26,7 @@
 }
 .empty-card strong { display: block; margin-bottom: 6px; color: var(--text-main); font-size: 1rem; font-weight: 600; }
 .empty-card span { display: block; margin-bottom: 14px; font-size: var(--font-size-body); line-height: 1.5; }
-.empty-card i {
+.empty-card .carbon-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;

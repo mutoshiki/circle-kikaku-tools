@@ -47,8 +47,8 @@
   touch-action: none;
 }
 
-#routeDistanceModal .route-stop-num i,
-.route-stop-row.route-stop-drag-fallback .route-stop-num i {
+#routeDistanceModal .route-stop-num .carbon-icon,
+.route-stop-row.route-stop-drag-fallback .route-stop-num .carbon-icon {
   font-size: 0.92rem;
   line-height: 1;
   opacity: 0.68;
@@ -99,7 +99,7 @@
   color: var(--text-sub);
 }
 
-#routeDistanceModal .route-stop-help i {
+#routeDistanceModal .route-stop-help .carbon-icon {
   color: var(--text-sub);
   font-size: 0.84em;
 }
@@ -160,4 +160,3 @@ body.route-stop-dragging {
     line-height: 1.45;
   }
 }
-

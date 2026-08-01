@@ -21,7 +21,7 @@
       ownerLabel: '車出し',
       memberLabel: '席',
       groupSuffix: '車',
-      ownerIcon: 'fa-car',
+      ownerIcon: 'car-small',
       planName: '車割'
     };
   }
@@ -36,7 +36,7 @@
     const grade = member.grade || 0;
     const gender = member.gender || 'unknown';
     const draggable = !!helpers.isDraggable?.(member);
-    const lockIcon = member.locked ? `<i class="fas fa-lock sheet-chip-lock" aria-hidden="true"></i>` : '';
+    const lockIcon = member.locked ? `<span data-carbon-icon="locked" class="sheet-chip-lock" aria-hidden="true"></span>` : '';
     const flagIcon = renderPersonFlag(member.flag).replace('person-flag', 'sheet-person-flag');
     return `<div class="sheet-chip ${draggable ? 'draggable' : ''} ${member.locked ? 'locked' : ''}" data-name="${esc(member.name, helpers)}" data-gender="${gender}" data-locked="${member.locked ? 'true' : 'false'}">${gradeBadge(grade, gender, helpers)}<span class="sheet-chip-text">${esc(member.name, helpers)}</span>${flagIcon}${lockIcon}</div>`;
   }

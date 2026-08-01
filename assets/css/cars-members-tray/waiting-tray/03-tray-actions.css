@@ -17,7 +17,7 @@
   font-weight: 600;
   white-space: nowrap;
 }
-.tray-action-btn i { flex: 0 0 auto; font-size: 0.86rem; }
+.tray-action-btn .carbon-icon { flex: 0 0 auto; width: 0.86rem; height: 0.86rem; }
 .tray-action-break { display: none; }
 
 #fillEmptySeatsBtn.tray-action-btn,

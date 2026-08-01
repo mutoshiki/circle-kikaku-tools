@@ -40,7 +40,7 @@
   padding: 0;
 }
 
-#seisan-view-area .seisan-car-summary-headline .seisan-edit-btn > i {
+#seisan-view-area .seisan-car-summary-headline .seisan-edit-btn > .carbon-icon {
   order: initial;
   margin: 0;
 }

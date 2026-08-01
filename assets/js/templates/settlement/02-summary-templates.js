@@ -17,19 +17,19 @@
     const accountingSign = result.accounting >= 0 ? '＋' : '−';
     return `
         <div class="seisan-summary-card collect ${UI_CLASS.surfaceCard}" data-summary-kind="collect">
-          <div class="seisan-summary-label"><i class="fas fa-users" aria-hidden="true"></i>参加者集金</div>
+          <div class="seisan-summary-label"><span data-carbon-icon="user-multiple" aria-hidden="true"></span>参加者集金</div>
           <div class="seisan-summary-value ${UI_CLASS.amount}">${money(result.expectedCollected, helpers)}</div>
           <div class="seisan-summary-sub">各 ${money(result.perPerson, helpers)} × ${result.payerCount}名</div>
         </div>
         <div class="seisan-flow-arrow seisan-flow-arrow--plus" aria-hidden="true">${accountingSign}</div>
         <div class="seisan-summary-card accounting ${UI_CLASS.surfaceCard}" data-summary-kind="club">
-          <div class="seisan-summary-label"><i class="fas fa-wallet" aria-hidden="true"></i>${accountingLabel}</div>
+          <div class="seisan-summary-label"><span data-carbon-icon="wallet" aria-hidden="true"></span>${accountingLabel}</div>
           <div class="seisan-summary-value ${UI_CLASS.amount}">${money(getAccountingAmount(result), helpers)}</div>
           <div class="seisan-summary-sub">${accountingNote}</div>
         </div>
         <div class="seisan-flow-arrow seisan-flow-arrow--equals" aria-hidden="true">＝</div>
         <div class="seisan-summary-card pay ${UI_CLASS.surfaceCard}" data-summary-kind="pay">
-          <div class="seisan-summary-label"><i class="fas fa-car-side" aria-hidden="true"></i>支払総額</div>
+          <div class="seisan-summary-label"><span data-carbon-icon="car-small" aria-hidden="true"></span>支払総額</div>
           <div class="seisan-summary-value ${UI_CLASS.amount}">${money(result.driverTotal, helpers)}</div>
           <div class="seisan-summary-sub">ドライバー${result.cars.length}名分</div>
         </div>`;

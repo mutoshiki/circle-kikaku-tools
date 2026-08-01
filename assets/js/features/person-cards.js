@@ -22,7 +22,7 @@ function renderGradeBadge(grade, gender = 'unknown') {
 function renderPersonFlag(flag) {
     const value = normalizePersonFlag(flag);
     const labels = { blue: '青のしるし', purple: '紫のしるし', yellow: '黄のしるし', red: '赤のしるし', none: 'しるしなし' };
-    return `<span class="person-flag" data-flag="${value}" title="${labels[value]}" aria-label="${labels[value]}"><i class="fas fa-flag" aria-hidden="true"></i></span>`;
+    return `<span class="person-flag" data-flag="${value}" title="${labels[value]}" aria-label="${labels[value]}"><span data-carbon-icon="flag" aria-hidden="true"></span></span>`;
 }
 
 function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), locked=false, flag='none') {
@@ -46,7 +46,7 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
             ${renderPersonFlag(flag)}
             ${genderHtml}
             ${gradeHtml}
-            <button type="button" class="member-menu-btn action-btn" title="メニュー" aria-label="メンバー操作メニュー"><i class="fas fa-ellipsis-vertical" aria-hidden="true"></i></button>
+            <button type="button" class="member-menu-btn action-btn" title="メニュー" aria-label="メンバー操作メニュー"><span data-carbon-icon="overflow-menu-vertical" aria-hidden="true"></span></button>
         </div>
         <div class="memo-popup" style="display:${m?'block':'none'}">${safeMemo}</div>
     `;
@@ -75,7 +75,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none') {
                 ${renderPersonFlag(dflag)}
                 ${driverGenderHtml}
                 ${driverGradeHtml}
-                <button type="button" class="driver-menu-btn action-btn" title="車出しメニュー" aria-label="車出し操作メニュー"><i class="fas fa-ellipsis-vertical" aria-hidden="true"></i></button>
+                <button type="button" class="driver-menu-btn action-btn" title="車出しメニュー" aria-label="車出し操作メニュー"><span data-carbon-icon="overflow-menu-vertical" aria-hidden="true"></span></button>
             </div>
             <div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${safeMemo}</div>
         </div>
@@ -87,10 +87,10 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none') {
             <div class="car-header">
                 <span class="car-name-label">${safeName}${groupSuffix}</span>
                 <button type="button" class="capacity-badge capacity-edit-btn" data-action="edit-capacity" title="定員を変更" aria-label="定員を変更">
-                    <span class="capacity-count">0/${c}</span><i class="fas fa-pen" aria-hidden="true"></i>
+                    <span class="capacity-count">0/${c}</span><span data-carbon-icon="edit" aria-hidden="true"></span>
                 </button>
                 <button type="button" class="car-delete-btn car-return-btn action-btn delete-btn" title="車出しを解除して待機に戻す" aria-label="車出しを解除して待機に戻す">
-                    <i class="fas fa-reply" aria-hidden="true"></i>
+                    <span data-carbon-icon="undo" aria-hidden="true"></span>
                 </button>
             </div>
             <div class="car-layout-grid">${slotsHtml}</div>

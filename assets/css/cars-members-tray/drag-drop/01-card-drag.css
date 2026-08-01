@@ -99,7 +99,7 @@
   text-align: center;
 }
 
-.drop-create-lane i {
+.drop-create-lane .carbon-icon {
   color: var(--accent-color);
   font-size: 0.92rem;
 }

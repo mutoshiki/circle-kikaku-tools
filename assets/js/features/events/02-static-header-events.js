@@ -86,7 +86,7 @@
                 <input type="time" data-field="time" value="${escapeAttr(item.time || '')}" aria-label="時刻">
                 <input type="text" data-field="title" value="${escapeAttr(item.title || '')}" placeholder="内容" aria-label="内容">
                 <button type="button" class="overview-row-delete" data-action="delete-timetable-row" aria-label="行を削除">
-                  <i class="fas fa-xmark" aria-hidden="true"></i>
+                  <span data-carbon-icon="close" aria-hidden="true"></span>
                 </button>
             `;
         return row;

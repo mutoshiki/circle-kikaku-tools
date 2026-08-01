@@ -19,7 +19,6 @@
     <meta name="twitter:image" content="https://mutoshiki.github.io/circle-kikaku-tools/ogp-thumbnail.png">
     <!-- CSS: vendor -->
     <link href="./assets/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="./assets/vendor/fontawesome/css/all.min.css" rel="stylesheet">
     <link href="./assets/vendor/ibm-plex/plex.css" rel="stylesheet">
     <!-- CSS: tokens -->
     <link href="./assets/css/tokens/01-color-scheme.css" rel="stylesheet">
@@ -233,7 +232,7 @@
         <div class="edit-header edit-header-tools-only allocation-toolbar">
           <div class="edit-tools allocation-toolbar-inner">
             <button id="batchOpenBtn" class="btn tool-btn" data-priority="high" title="参加者登録">
-              <i class="fas fa-plus" aria-hidden="true"></i>
+              <span data-carbon-icon="add" aria-hidden="true"></span>
               <span>参加者登録</span>
             </button>
             <div id="car-plan-switcher" class="car-plan-bar allocation-mode-toggle" aria-label="車割と班割の切り替え"></div>
@@ -251,7 +250,7 @@
         <div id="sheet-hint"><span data-carbon-icon="touch--1" class="me-1" aria-hidden="true"></span>1本指で移動 / 2本指で拡大・縮小</div>
         <div id="sheet-bottom-controls">
           <button id="sheet-quick-edit-btn" type="button" title="編集">
-            <i class="fas fa-pen" aria-hidden="true"></i>
+            <span data-carbon-icon="edit" aria-hidden="true"></span>
           </button>
         </div>
       </div>
@@ -260,15 +259,15 @@
         <div class="seisan-wrap">
           <section class="seisan-card seisan-settings-card">
             <div class="seisan-compact-head">
-              <div class="seisan-title seisan-title--settings"><i class="fas fa-sliders" aria-hidden="true"></i>精算設定</div>
-              <button class="seisan-btn seisan-edit-btn" type="button" data-action="open-settlement-settings"><i class="fas fa-pen" aria-hidden="true"></i><span>編集</span></button>
+              <div class="seisan-title seisan-title--settings"><span data-carbon-icon="settings--adjust" aria-hidden="true"></span>精算設定</div>
+              <button class="seisan-btn seisan-edit-btn" type="button" data-action="open-settlement-settings"><span data-carbon-icon="edit" aria-hidden="true"></span><span>編集</span></button>
             </div>
             <div id="seisan-settings-summary" class="seisan-settings-summary" aria-live="polite"></div>
           </section>
 
           <section class="seisan-card seisan-toolbar-card">
             <div class="seisan-head">
-              <div class="seisan-title"><i class="fas fa-calculator" aria-hidden="true"></i>全体の費用</div>
+              <div class="seisan-title"><span data-carbon-icon="calculator" aria-hidden="true"></span>全体の費用</div>
             </div>
             <div id="seisan-summary" class="seisan-top-flow"></div>
             <div id="seisan-errors" class="seisan-alert"></div>
@@ -277,7 +276,7 @@
           <section class="seisan-card seisan-panel seisan-car-panel">
             <div class="seisan-head">
               <div class="seisan-title seisan-semantic-section-title">
-                <i class="fas fa-car-side" aria-hidden="true"></i>
+                <span data-carbon-icon="car-small" aria-hidden="true"></span>
                 <span>ドライバーへの<cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge seisan-payment-tag carbon-display-tag ui-chip pay" data-cost-type="pay" data-tag-group="cost" data-tag-value="pay" type="magenta" size="sm">支払い</cds-tag></span>
               </div>
               <button id="seisanCarLayoutToggle" class="seisan-car-layout-toggle" type="button" data-action="toggle-settlement-car-layout" aria-label="1列表示に切り替え" title="1列表示に切り替え" aria-pressed="true" hidden>
@@ -290,7 +289,7 @@
           <section class="seisan-card seisan-panel seisan-club-expense-panel">
             <div class="seisan-head">
               <div class="seisan-title seisan-semantic-section-title">
-                <i class="fas fa-wallet" aria-hidden="true"></i>
+                <span data-carbon-icon="wallet" aria-hidden="true"></span>
                 <span><cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge carbon-display-tag ui-chip club" data-cost-type="club" data-tag-group="cost" data-tag-value="club" type="warm-gray" size="sm">部費</cds-tag>の収支</span>
               </div>
             </div>
@@ -301,7 +300,7 @@
             <div class="seisan-head">
               <div>
                 <div class="seisan-title seisan-semantic-section-title">
-                  <i class="fas fa-square-check" aria-hidden="true"></i>
+                  <span data-carbon-icon="checkbox--checked" aria-hidden="true"></span>
                   <span><cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge carbon-display-tag ui-chip split" data-cost-type="split" data-tag-group="cost" data-tag-value="split" type="blue" size="sm">割勘</cds-tag>集金チェック</span>
                 </div>
                 <div id="seisan-collection-note" class="seisan-muted"></div>
@@ -313,13 +312,13 @@
           <section class="seisan-card seisan-share-card seisan-panel">
             <div class="seisan-head">
               <div>
-                <div class="seisan-title"><i class="fas fa-copy" aria-hidden="true"></i>共有用テキスト</div>
+                <div class="seisan-title"><span data-carbon-icon="copy" aria-hidden="true"></span>共有用テキスト</div>
                 <div id="seisan-share-note" class="seisan-muted">テキストのプレビュー</div>
               </div>
             </div>
             <pre id="seisan-share-preview" class="seisan-share-preview" aria-label="精算メモのプレビュー"></pre>
             <div class="seisan-share-actions" aria-label="精算結果の共有用テキスト">
-              <button class="seisan-btn" type="button" data-action="copy-settlement-text"><i class="fas fa-clipboard-check me-1" aria-hidden="true"></i>精算メモをコピー</button>
+              <button class="seisan-btn" type="button" data-action="copy-settlement-text"><span data-carbon-icon="task" class="me-1" aria-hidden="true"></span>精算メモをコピー</button>
             </div>
           </section>
 
@@ -334,9 +333,9 @@
         <div id="bottom-tray-header">
           <div class="tray-inline-row">
             <span id="waiting-count" class="waiting-inline-count" aria-live="polite">未割り当て 0人</span>
-            <button id="fillEmptySeatsBtn" class="btn btn-sm btn-outline-secondary tray-action-btn tray-action-btn--fill" title="今の配置をなるべく残して、空いている席だけ埋めます"><i class="fas fa-fill-drip" aria-hidden="true"></i><span>空席</span></button>
+            <button id="fillEmptySeatsBtn" class="btn btn-sm btn-outline-secondary tray-action-btn tray-action-btn--fill" title="今の配置をなるべく残して、空いている席だけ埋めます"><span data-carbon-icon="paint-brush--alt" aria-hidden="true"></span><span>空席</span></button>
             <div class="random-tools">
-              <button id="shuffleAssignBtn" class="btn btn-sm btn-outline-primary auto-assign-btn tray-action-btn tray-action-btn--auto" title="固定した人を残し、未固定の人をランダムに組み直します"><i class="fas fa-dice" aria-hidden="true"></i><span>ランダム</span></button>
+              <button id="shuffleAssignBtn" class="btn btn-sm btn-outline-primary auto-assign-btn tray-action-btn tray-action-btn--auto" title="固定した人を残し、未固定の人をランダムに組み直します"><span data-carbon-icon="shuffle" aria-hidden="true"></span><span>ランダム</span></button>
               <div class="dropdown tray-settings-dropdown">
                 <button class="btn btn-sm btn-secondary dropdown-toggle settings-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="割り当て条件を開く">
                   条件</button>
@@ -358,7 +357,7 @@
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <button id="clearAllBtn" class="dropdown-item text-danger">
-                      <i class="fas fa-broom me-2" aria-hidden="true"></i>全員を未割り当てに戻す</button>
+                      <span data-carbon-icon="clean" class="me-2" aria-hidden="true"></span>全員を未割り当てに戻す</button>
                   </li>
                 </ul>
               </div>
@@ -401,7 +400,7 @@
           <div class="modal-body p-0">
             <div id="seatMemberPickerList" class="seat-member-picker-list" role="list"></div>
             <div id="seatMemberPickerEmpty" class="seat-member-picker-empty" hidden>
-              <i class="fas fa-user-plus" aria-hidden="true"></i>
+              <span data-carbon-icon="user--follow" aria-hidden="true"></span>
               <strong>追加できるメンバーがいません</strong>
               <span>参加者登録、または別の席から「待機に戻す」を行ってください。</span>
             </div>
@@ -634,7 +633,7 @@
               <div class="route-stop-panel route-personal-stop-panel">
                 <p class="route-location-privacy-note">自宅などは入力せず、近くの施設などを代わりに入力してください。ドラッグで並び替えられます。</p>
                 <div id="routeStopList" class="route-stop-list"></div>
-                <button id="addRouteStopBtn" class="seisan-btn route-add-stop-btn" type="button"><i class="fas fa-plus me-1" aria-hidden="true"></i>場所を追加</button>
+                <button id="addRouteStopBtn" class="seisan-btn route-add-stop-btn" type="button"><span data-carbon-icon="add" class="me-1" aria-hidden="true"></span>場所を追加</button>
               </div>
 
               <div class="route-candidate-panel">
@@ -645,7 +644,7 @@
               </div>
 
               <div class="route-helper-actions">
-                <button id="openGoogleRouteBtn" class="seisan-btn primary" type="button"><i class="fab fa-google" aria-hidden="true"></i>Google Mapで距離を確認</button>
+                <button id="openGoogleRouteBtn" class="seisan-btn primary" type="button"><span data-carbon-icon="map" aria-hidden="true"></span>Google Mapで距離を確認</button>
               </div>
 
               <div id="routeHelperStatus" class="seisan-small route-helper-status"></div>
@@ -725,7 +724,7 @@
     <script src="./firebase-config.js"></script>
     <!-- JS: core namespace, runtime, persistence, and modal services -->
     <script src="./assets/js/core/app-namespace.js"></script>
-    <script src="./assets/js/core/icon-adapter.js?v=carbon-phase2c"></script>
+    <script src="./assets/js/core/icon-adapter.js?v=carbon-icons-complete"></script>
     <script src="./assets/js/core/tag-types.js?v=carbon-phase3c"></script>
     <script src="./assets/js/core/theme-controller.js"></script>
     <script src="./assets/js/modules/ui.js?v=carbon-phase3b"></script>
@@ -792,6 +791,6 @@
     <script src="./assets/js/features/events/04-settlement-input-events.js"></script>
     <script src="./assets/js/features/events/05-view-feature-events.js"></script>
     <script src="./assets/js/features/events.js"></script>
-    <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=2.60.0-phase4a"></script>
+    <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=2.60.0-icons-complete"></script>
   </body>
 </html>

@@ -65,8 +65,8 @@
   white-space: nowrap;
 }
 
-.app-empty-card .seisan-empty-actions .seisan-btn i,
-.app-empty-card .app-empty-actions .seisan-btn i,
+.app-empty-card .seisan-empty-actions .seisan-btn .carbon-icon,
+.app-empty-card .app-empty-actions .seisan-btn .carbon-icon,
 .app-empty-card :is(.seisan-empty-actions, .app-empty-actions) .seisan-btn .carbon-icon {
   width: auto;
   height: auto;

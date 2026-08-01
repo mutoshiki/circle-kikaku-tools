@@ -163,7 +163,7 @@ function createSheetWaitingColumn(data, isEditablePlan) {
 function createSheetPlanSection(plan, index) {
     const template = typeof getCarPlanTemplateConfig === 'function'
         ? getCarPlanTemplateConfig(plan)
-        : { sectionTitle: '車割', sheetTitle: '車割', planName: '車割', ownerLabel: '車出し', memberLabel: '席', groupSuffix: '車', ownerIcon: 'fa-car' };
+        : { sectionTitle: '車割', sheetTitle: '車割', planName: '車割', ownerLabel: '車出し', memberLabel: '席', groupSuffix: '車', ownerIcon: 'car-small' };
     const section = document.createElement('section');
     section.className = 'sheet-plan-section';
     section.dataset.planId = plan.id || `plan-${index}`;
@@ -248,7 +248,7 @@ function createSheetTimetableEditRow(item = {}) {
             <input class="sheet-timetable-input time" type="time" data-field="time" value="${time}" aria-label="時刻">
             <input class="sheet-timetable-input title" type="text" data-field="title" value="${title}" placeholder="内容" aria-label="内容">
             <button class="sheet-timetable-delete" type="button" data-action="delete-sheet-timetable-row" aria-label="行を削除">
-                <i class="fas fa-xmark" aria-hidden="true"></i>
+                <span data-carbon-icon="close" aria-hidden="true"></span>
             </button>
         </div>`;
 }
@@ -267,7 +267,7 @@ function createSheetTimetableSection() {
                     ${editItems.map(item => createSheetTimetableEditRow(item)).join('')}
                 </div>
                 <button class="sheet-timetable-add" type="button" data-action="add-sheet-timetable-row">
-                    <i class="fas fa-plus" aria-hidden="true"></i><span>行を追加</span>
+                    <span data-carbon-icon="add" aria-hidden="true"></span><span>行を追加</span>
                 </button>
             </div>`;
         return section;

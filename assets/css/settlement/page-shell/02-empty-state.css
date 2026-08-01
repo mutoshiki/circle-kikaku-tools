@@ -12,7 +12,7 @@
   box-shadow: none;
   text-align: center;
 }
-.seisan-empty i { color: var(--accent-color); font-size: 1.35rem; }
+.seisan-empty .carbon-icon { width: 1.35rem; height: 1.35rem; color: var(--accent-color); }
 .seisan-empty strong { color: var(--text-main); font-size: 1rem; font-weight: 600; }
 .seisan-empty span { max-width: 34em; font-size: var(--font-size-label); line-height: 1.55; }
 .seisan-refresh-btn span { display: none; }

@@ -6,7 +6,7 @@
   padding: 0 14px;
   flex-direction: row;
 }
-.tool-btn i { margin: 0; font-size: 1rem; }
+.tool-btn .carbon-icon { width: 1rem; height: 1rem; margin: 0; }
 .tool-btn span { font-size: 0.875rem; line-height: 18px; font-weight: 400; white-space: nowrap; }
 
 .edit-header { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin: 0 0 16px; }

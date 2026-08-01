@@ -46,7 +46,7 @@
   white-space: nowrap;
 }
 
-#routeDistanceModal .route-candidate-chip i {
+#routeDistanceModal .route-candidate-chip .carbon-icon {
   color: var(--text-sub);
   font-size: 0.62rem;
   opacity: 0.82;

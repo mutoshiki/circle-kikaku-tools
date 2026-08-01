@@ -127,11 +127,11 @@
         const success = issues.length === 0;
         summary.dataset.tone = success ? 'success' : 'warning';
         summary.innerHTML = success
-            ? '<i class="fas fa-circle-check" aria-hidden="true"></i><div><strong>共有前の確認は完了です</strong><span>現在、確認が必要な項目はありません。</span></div>'
-            : `<i class="fas fa-triangle-exclamation" aria-hidden="true"></i><div><strong>要確認 ${issues.length}件</strong><span>共有前に以下の項目を確認してください。</span></div>`;
+            ? '<span data-carbon-icon="checkmark--filled" aria-hidden="true"></span><div><strong>共有前の確認は完了です</strong><span>現在、確認が必要な項目はありません。</span></div>'
+            : `<span data-carbon-icon="warning--alt" aria-hidden="true"></span><div><strong>要確認 ${issues.length}件</strong><span>共有前に以下の項目を確認してください。</span></div>`;
         list.innerHTML = issues.map(issue => `
             <div class="planning-check-item" data-tone="${issue.tone}">
-                <i class="fas ${issue.tone === 'error' ? 'fa-circle-exclamation' : 'fa-triangle-exclamation'}" aria-hidden="true"></i>
+                <span data-carbon-icon="${issue.tone === 'error' ? 'error--filled' : 'warning--alt'}" aria-hidden="true"></span>
                 <div><strong>${escapeHtml(issue.title)}</strong><span>${escapeHtml(issue.detail || '')}</span></div>
             </div>`).join('');
     }

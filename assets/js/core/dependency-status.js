@@ -8,7 +8,7 @@ window.addEventListener('DOMContentLoaded', function reportMissingDependencies()
         console.warn('Sortable could not be loaded. Legacy drag helper is disabled.');
         document.body.classList.add('cdn-sortable-missing');
     }
-    if (!document.querySelector('.fa, .fas, .fa-solid')) {
+    if (!document.querySelector('[data-carbon-icon], [data-carbon-icon-name]')) {
         document.body.classList.add('cdn-icons-missing');
     }
 });

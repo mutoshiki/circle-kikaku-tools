@@ -46,7 +46,7 @@
   color: var(--text-sub);
 }
 .seat-member-picker-empty[hidden] { display: none; }
-.seat-member-picker-empty i { color: var(--accent-icon); font-size: 1.25rem; }
+.seat-member-picker-empty .carbon-icon { width: 1.25rem; height: 1.25rem; color: var(--accent-icon); }
 .seat-member-picker-empty strong { color: var(--text-main); }
 .seat-member-picker-empty span { max-width: 34ch; font-size: var(--font-size-caption); line-height: 1.5; }
 

@@ -113,19 +113,18 @@ function updateUI() {
     $$('.member-card').forEach(card => {
         const inWaiting = card.parentElement?.id === 'waiting-list';
         card.classList.toggle('in-waiting', inWaiting);
-        const icon = $('.delete-btn-overlay i', card);
         const btn = $('.delete-btn-overlay', card);
-        if (!icon || !btn) return;
-        icon.className = `fas ${inWaiting ? 'fa-trash-alt' : 'fa-reply'}`;
+        if (!btn) return;
+        window.SanpoIconAdapter?.setIcon(btn, inWaiting ? 'trash-can' : 'undo');
         btn.title = inWaiting ? '削除' : '待機に戻す';
-        const label = btn.querySelector('span');
+        const label = btn.querySelector('span:not([data-carbon-icon])');
         if (label) label.textContent = inWaiting ? '削除' : '戻す';
     });
     $$('.car-box').forEach(b => {
         const c = getInt(b.dataset.capacity);
         const n = Array.from($$('.seat-slot', b)).reduce((sum, slot) => sum + getRealSeatCards(slot).length, 0);
         const badge = $('.capacity-badge', b);
-        badge.innerHTML = `<span class="capacity-count">${n}/${c}</span><i class="fas fa-pen" aria-hidden="true"></i>`;
+        badge.innerHTML = `<span class="capacity-count">${n}/${c}</span><span data-carbon-icon="edit" aria-hidden="true"></span>`;
         badge.className = `capacity-badge capacity-edit-btn ${n>c?'is-over':(n===c?'is-full':'')}`;
         const label = $('.car-name-label', b);
         const driverName = $('.driver-name-disp', b)?.innerText?.trim() || '';
@@ -166,13 +165,13 @@ function renderListEmptyHint() {
     const activePlan = typeof getActiveCarPlan === 'function' ? getActiveCarPlan() : null;
     const template = typeof getCarPlanTemplateConfig === 'function'
         ? getCarPlanTemplateConfig(activePlan || 'car')
-        : { sectionTitle: '車割', ownerLabel: '車出し', groupSuffix: '車', ownerIcon: 'fa-car' };
+        : { sectionTitle: '車割', ownerLabel: '車出し', groupSuffix: '車', ownerIcon: 'car-small' };
     const ownerText = template.type === 'team'
         ? '班長にする人をここへドロップ'
         : '車出しをここへドロップ';
     const createText = template.type === 'team' ? '新しい班を作成します' : '新しい車を作成します';
     const html = waitingCount > 0
-        ? `<div class="col-12" id="list-empty-hint"><div class="drop-create-lane empty-card--drop-create"><i class="fas ${template.ownerIcon || 'fa-car'}" aria-hidden="true"></i><strong>${ownerText}</strong><span>${createText}</span></div></div>`
+        ? `<div class="col-12" id="list-empty-hint"><div class="drop-create-lane empty-card--drop-create"><span data-carbon-icon="${template.ownerIcon || 'car-small'}" aria-hidden="true"></span><strong>${ownerText}</strong><span>${createText}</span></div></div>`
         : `<div class="col-12" id="list-empty-hint"><div class="empty-card app-empty-card"><span data-carbon-icon="user-multiple" aria-hidden="true"></span><strong>参加者がまだいません</strong><span class="empty-card-text">参加者を登録すると、車割と班割をここで作成できます。</span><div class="seisan-empty-actions"><button class="seisan-btn primary" type="button" data-action="open-batch"><span data-carbon-icon="add" aria-hidden="true"></span>参加者を登録</button></div></div></div>`;
 
     if (!existing) {

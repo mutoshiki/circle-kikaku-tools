@@ -127,9 +127,6 @@ localStorage.setItem('syawari_last_room_id', roomId);
 function applyRuntimeAccessibilityFixes(root = document) {
     root.querySelectorAll('.btn-close:not([aria-label])').forEach(btn => btn.setAttribute('aria-label', '閉じる'));
     root.querySelectorAll('button[title]:not([aria-label])').forEach(btn => btn.setAttribute('aria-label', btn.getAttribute('title')));
-    root.querySelectorAll('i.fas, i.fa').forEach(icon => {
-        if (!icon.hasAttribute('aria-hidden')) icon.setAttribute('aria-hidden', 'true');
-    });
 }
 
 async function syncCarbonFormControlAccessibility(host) {

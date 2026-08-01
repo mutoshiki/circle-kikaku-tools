@@ -49,7 +49,7 @@ function getCarPlanTemplateConfig(planOrType = 'car') {
             ownerLabel: '班長',
             memberLabel: '班員',
             groupSuffix: '班',
-            ownerIcon: 'fa-user-group'
+            ownerIcon: 'user-multiple'
         };
     }
     return {
@@ -60,7 +60,7 @@ function getCarPlanTemplateConfig(planOrType = 'car') {
         ownerLabel: '車出し',
         memberLabel: '席',
         groupSuffix: '車',
-        ownerIcon: 'fa-car'
+        ownerIcon: 'car-small'
     };
 }
 
@@ -600,10 +600,9 @@ function toggleLock(el) {
     const nextLocked = !locked;
     el.dataset.locked = nextLocked;
     const btn = $('.lock-btn', el);
-    const icon = btn?.querySelector('i');
-    const label = btn?.querySelector('span');
+    const label = btn?.querySelector('span:not([data-carbon-icon])');
     if (btn) btn.classList.toggle('text-warning', nextLocked);
-    if (icon) icon.className = `fas ${nextLocked ? 'fa-lock' : 'fa-unlock'}`;
+    if (btn) window.SanpoIconAdapter?.setIcon(btn, nextLocked ? 'locked' : 'unlocked');
     if (label) label.textContent = nextLocked ? '固定中' : '固定';
     save();
 }

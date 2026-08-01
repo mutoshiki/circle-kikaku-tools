@@ -26,7 +26,7 @@
   color: var(--text-main);
 }
 .planning-check-summary[data-tone="success"] { border-left-color: var(--semantic-success); background: var(--semantic-success-soft); }
-.planning-check-summary i { padding-top: 2px; color: inherit; font-size: 1rem; }
+.planning-check-summary .carbon-icon { width: 1rem; height: 1rem; padding-top: 2px; color: inherit; }
 .planning-check-summary strong { display: block; margin-bottom: 2px; font-size: 0.95rem; }
 .planning-check-summary span { color: var(--text-sub); font-size: 0.82rem; line-height: 1.45; }
 .planning-check-list { display: grid; border-top: 1px solid var(--border-section); }
@@ -37,8 +37,8 @@
   padding: 14px 0;
   border-bottom: 1px solid var(--border-section);
 }
-.planning-check-item > i { padding-top: 3px; color: var(--semantic-warning); }
-.planning-check-item[data-tone="error"] > i { color: var(--semantic-danger); }
+.planning-check-item > .carbon-icon { padding-top: 3px; color: var(--semantic-warning); }
+.planning-check-item[data-tone="error"] > .carbon-icon { color: var(--semantic-danger); }
 .planning-check-item strong { display: block; color: var(--text-main); font-size: 0.88rem; }
 .planning-check-item span { display: block; margin-top: 2px; color: var(--text-sub); font-size: 0.78rem; line-height: 1.45; }
 
@@ -122,7 +122,7 @@
 :is(.person-flag, .sheet-person-flag)[data-flag="purple"] { --person-flag-color: var(--grade1-border); }
 :is(.person-flag, .sheet-person-flag)[data-flag="yellow"] { --person-flag-color: var(--grade3-border); }
 :is(.person-flag, .sheet-person-flag)[data-flag="red"] { --person-flag-color: var(--semantic-danger); }
-.person-pop-item[data-flag-choice] i { color: var(--person-flag-color, var(--text-sub)); }
+.person-pop-item[data-flag-choice] .carbon-icon { color: var(--person-flag-color, var(--text-sub)); }
 .person-pop-item[data-flag-choice="blue"] { --person-flag-color: var(--accent-color); }
 .person-pop-item[data-flag-choice="purple"] { --person-flag-color: var(--grade1-border); }
 .person-pop-item[data-flag-choice="yellow"] { --person-flag-color: var(--grade3-border); }

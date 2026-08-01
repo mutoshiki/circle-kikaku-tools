@@ -22,9 +22,9 @@
 .seisan-edit-btn { background: var(--accent-container); color: var(--accent-container-text); }
 .seisan-icon-btn { width: 48px; min-width: 48px; padding: 0; }
 .seisan-mini-label { display: block; margin-bottom: 5px; color: var(--text-sub); font-size: 0.7rem; font-weight: 600; line-height: 1.25; }
-.tool-btn i,
+.tool-btn .carbon-icon,
 .tool-btn span,
-.seisan-btn i,
+.seisan-btn .carbon-icon,
 .seisan-btn span,
-.tray-action-btn i,
+.tray-action-btn .carbon-icon,
 .tray-action-btn span { color: inherit; }

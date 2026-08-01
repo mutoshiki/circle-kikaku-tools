@@ -48,7 +48,7 @@
 .capacity-badge.capacity-edit-btn:hover { background: var(--accent-container); color: var(--accent-container-text); }
 .capacity-badge.capacity-edit-btn .capacity-label { display: none; }
 .capacity-badge.capacity-edit-btn .capacity-count { padding: 0; border: 0; background: transparent; color: inherit; }
-.capacity-badge.capacity-edit-btn > i { margin: 0; color: inherit; font-size: 0.8rem; opacity: 0.72; }
+.capacity-badge.capacity-edit-btn > .carbon-icon { width: 0.8rem; height: 0.8rem; margin: 0; color: inherit; opacity: 0.72; }
 .capacity-badge.capacity-edit-btn.is-over { background: var(--semantic-danger-soft); color: var(--semantic-danger); }
 
 .car-delete-btn,

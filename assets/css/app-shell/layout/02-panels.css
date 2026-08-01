@@ -23,7 +23,7 @@
 #car-plan-switcher { order: 1; min-width: 0; }
 
 .app-subtitle { display: none; }
-.edit-project-input-row i { color: var(--accent-color); font-size: 1rem; }
+.edit-project-input-row .carbon-icon { color: var(--accent-color); font-size: 1rem; }
 
 @media (max-width: 520px) {
   .allocation-toolbar-inner { grid-template-columns: minmax(0, 2fr) minmax(132px, 1fr); }

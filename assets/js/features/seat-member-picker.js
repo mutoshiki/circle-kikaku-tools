@@ -35,7 +35,7 @@ function renderSeatMemberPicker() {
         button.innerHTML = `
             <span class="seat-member-picker-name">${name}</span>
             <span class="seat-member-picker-meta">${grade > 0 ? `${grade}年` : '学年未設定'}</span>
-            <i class="fas fa-arrow-right seat-member-picker-arrow" aria-hidden="true"></i>
+            <span data-carbon-icon="arrow--right" class="seat-member-picker-arrow" aria-hidden="true"></span>
         `;
         button.addEventListener('click', () => assignWaitingMemberToSeat(card));
         item.appendChild(button);

@@ -22,5 +22,5 @@
 .action-btn:hover,
 .delete-btn-overlay:hover { background: var(--surface-hover); color: var(--text-main); }
 .delete-btn-overlay { position: static; z-index: var(--z-local-overlay); }
-.delete-btn-overlay i { margin: 0; color: inherit; font-size: 0.9rem; line-height: 1; pointer-events: none; }
+.delete-btn-overlay .carbon-icon { width: 0.9rem; height: 0.9rem; margin: 0; color: inherit; pointer-events: none; }
 .delete-btn-overlay span { color: inherit; font-size: var(--font-size-caption); line-height: 1; white-space: nowrap; pointer-events: none; }

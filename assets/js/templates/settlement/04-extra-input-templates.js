@@ -35,8 +35,8 @@
     const timesAttr = timesFeeKind ? ` data-times-extra="${timesFeeKind}"` : '';
     const lockedAttr = isReward ? ' readonly aria-readonly="true"' : '';
     const deleteControl = timesFeeKind || isReward
-      ? '<button class="seisan-icon-btn seisan-extra-delete-placeholder" type="button" tabindex="-1" aria-hidden="true"><i class="fas fa-trash-can" aria-hidden="true"></i></button>'
-      : '<button class="seisan-icon-btn" type="button" data-action="remove-settlement-extra" title="削除"><i class="fas fa-trash-can" aria-hidden="true"></i></button>';
+      ? '<button class="seisan-icon-btn seisan-extra-delete-placeholder" type="button" tabindex="-1" aria-hidden="true"><span data-carbon-icon="trash-can" aria-hidden="true"></span></button>'
+      : '<button class="seisan-icon-btn" type="button" data-action="remove-settlement-extra" title="削除"><span data-carbon-icon="trash-can" aria-hidden="true"></span></button>';
 
     return `<div class="${rowClass}" data-extra-index="${index}"${timesAttr}>
         <input type="text" data-extra-field="name" class="${extraFieldErrorClass(issues, carName, index, 'name')}" value="${esc(ex.name || '', helpers)}" placeholder="例：駐車場代"${lockedAttr}>

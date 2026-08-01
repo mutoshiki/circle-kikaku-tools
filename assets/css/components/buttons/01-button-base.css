@@ -24,7 +24,7 @@
   transition: background-color var(--motion-fast) ease, color var(--motion-fast) ease;
 }
 
-:is(.btn, .tool-btn, .tray-action-btn, .seisan-btn, .overview-mini-action, .overview-copy-action):has(> span) > i {
+:is(.btn, .tool-btn, .tray-action-btn, .seisan-btn, .overview-mini-action, .overview-copy-action):has(> span) > .carbon-icon {
   order: 2;
   margin-left: auto;
 }

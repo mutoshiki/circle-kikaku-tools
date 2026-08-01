@@ -105,7 +105,7 @@
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
-#seisan-view-area .seisan-title i {
+#seisan-view-area .seisan-title .carbon-icon {
   font-size: 0.94em;
   color: color-mix(in srgb, var(--accent-color) 72%, var(--text-sub));
   width: 1.25em;

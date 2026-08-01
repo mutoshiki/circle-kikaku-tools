@@ -98,8 +98,8 @@ function updateQuickEditButton() {
     btn.classList.toggle('active', quickEditMode && shouldShow);
     document.body.classList.toggle('quick-edit-mode', quickEditMode && shouldShow);
     btn.innerHTML = quickEditMode
-        ? '<i class="fas fa-check" aria-hidden="true"></i><span>完了</span>'
-        : '<i class="fas fa-pen" aria-hidden="true"></i>';
+        ? '<span data-carbon-icon="checkmark" aria-hidden="true"></span><span>完了</span>'
+        : '<span data-carbon-icon="edit" aria-hidden="true"></span>';
     btn.title = quickEditMode ? '完了' : '編集';
     btn.setAttribute('aria-pressed', quickEditMode && shouldShow ? 'true' : 'false');
     btn.setAttribute('aria-label', quickEditMode ? '編集内容を保存して完了' : '共有画面を編集');
@@ -311,13 +311,13 @@ function requestLockSetupPanel() {
             input.checked = true;
             const content = document.createElement('span');
             content.className = 'lock-scope-option-content';
-            content.innerHTML = `<i class="fas ${icon}" aria-hidden="true"></i><span>${label}</span>`;
+            content.innerHTML = `<span data-carbon-icon="${icon}" aria-hidden="true"></span><span>${label}</span>`;
             option.append(input, content);
             return { option, input };
         };
 
-        const allocation = createScopeOption('allocation', '車割・班割', 'fa-pen-to-square');
-        const settlement = createScopeOption('settlement', '精算', 'fa-receipt');
+        const allocation = createScopeOption('allocation', '車割・班割', 'edit');
+        const settlement = createScopeOption('settlement', '精算', 'receipt');
         scopeGroup.append(allocation.option, settlement.option);
         form.appendChild(scopeGroup);
 

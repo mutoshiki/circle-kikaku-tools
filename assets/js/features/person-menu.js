@@ -31,7 +31,7 @@ function openChoicePopup(title, choices, onPick) {
     const menu = ce('div', 'person-pop-menu choice-menu');
     menu.innerHTML = `<div class="person-pop-title">${escapeHtml(title)}</div>` + choices.map(choice => `
         <button type="button" class="person-pop-item" data-value="${escapeHtml(choice.value)}"${choice.flag ? ` data-flag-choice="${escapeHtml(choice.value)}"` : ''}>
-            <i class="${choice.icon || 'fas fa-circle'}" aria-hidden="true"></i><span>${escapeHtml(choice.label)}</span>
+            <span data-carbon-icon="${escapeHtml(choice.icon || 'circle--filled')}" aria-hidden="true"></span><span>${escapeHtml(choice.label)}</span>
         </button>
     `).join('');
     menu.addEventListener('click', event => {
@@ -177,23 +177,23 @@ function handleCompactPersonAction(action, person = activePersonMenuTarget) {
     else if (action === 'return' && card) returnOrDeleteMemberCard(card);
     else if (action === 'name') handleEdit(isDriver ? 'driverName' : 'memberName', targetPerson);
     else if (action === 'grade') openChoicePopup('学年', [
-        { value: '0', label: '未設定', icon: 'fas fa-minus' },
-        { value: '1', label: '1年', icon: 'fas fa-1' },
-        { value: '2', label: '2年', icon: 'fas fa-2' },
-        { value: '3', label: '3年', icon: 'fas fa-3' },
-        { value: '4', label: '4年', icon: 'fas fa-4' }
+        { value: '0', label: '未設定', icon: 'subtract' },
+        { value: '1', label: '1年', icon: 'number--1' },
+        { value: '2', label: '2年', icon: 'number--2' },
+        { value: '3', label: '3年', icon: 'number--3' },
+        { value: '4', label: '4年', icon: 'number--4' }
     ], value => setPersonGrade(targetPerson, value));
     else if (action === 'gender') openChoicePopup('性別', [
-        { value: 'male', label: '男性', icon: 'fas fa-mars' },
-        { value: 'female', label: '女性', icon: 'fas fa-venus' },
-        { value: 'unknown', label: '未設定', icon: 'fas fa-circle-question' }
+        { value: 'male', label: '男性', icon: 'gender--male' },
+        { value: 'female', label: '女性', icon: 'gender--female' },
+        { value: 'unknown', label: '未設定', icon: 'help' }
     ], value => setPersonGender(targetPerson, value));
     else if (action === 'flag') openChoicePopup('しるし', [
-        { value: 'none', label: 'しるしなし', icon: 'fas fa-ban', flag: true },
-        { value: 'blue', label: '青', icon: 'fas fa-flag', flag: true },
-        { value: 'purple', label: '紫', icon: 'fas fa-flag', flag: true },
-        { value: 'yellow', label: '黄', icon: 'fas fa-flag', flag: true },
-        { value: 'red', label: '赤', icon: 'fas fa-flag', flag: true }
+        { value: 'none', label: 'しるしなし', icon: 'close--outline', flag: true },
+        { value: 'blue', label: '青', icon: 'flag', flag: true },
+        { value: 'purple', label: '紫', icon: 'flag', flag: true },
+        { value: 'yellow', label: '黄', icon: 'flag', flag: true },
+        { value: 'red', label: '赤', icon: 'flag', flag: true }
     ], value => setPersonFlag(targetPerson, value));
 }
 window.handleCompactPersonAction = handleCompactPersonAction;
@@ -210,25 +210,25 @@ function openCompactPersonMenu(trigger) {
     const locked = card?.dataset.locked === 'true';
     const actions = isDriver
         ? [
-            ['memo', 'メモ', 'fas fa-sticky-note'],
-            ['flag', 'しるし', 'fas fa-flag'],
-            ['grade', '学年', 'fas fa-graduation-cap'],
-            ['gender', '性別', 'fas fa-venus-mars'],
-            ['name', '名前変更', 'fas fa-pen']
+            ['memo', 'メモ', 'notebook'],
+            ['flag', 'しるし', 'flag'],
+            ['grade', '学年', 'education'],
+            ['gender', '性別', 'user-multiple'],
+            ['name', '名前変更', 'edit']
           ]
         : [
-            ['memo', 'メモ', 'fas fa-sticky-note'],
-            ['flag', 'しるし', 'fas fa-flag'],
-            ['lock', locked ? '固定解除' : '固定', locked ? 'fas fa-lock-open' : 'fas fa-lock'],
-            ['return', inWaiting ? '削除' : '戻す', inWaiting ? 'fas fa-trash-can' : 'fas fa-reply'],
-            ['grade', '学年', 'fas fa-graduation-cap'],
-            ['gender', '性別', 'fas fa-venus-mars'],
-            ['name', '名前変更', 'fas fa-pen']
+            ['memo', 'メモ', 'notebook'],
+            ['flag', 'しるし', 'flag'],
+            ['lock', locked ? '固定解除' : '固定', locked ? 'unlocked' : 'locked'],
+            ['return', inWaiting ? '削除' : '戻す', inWaiting ? 'trash-can' : 'undo'],
+            ['grade', '学年', 'education'],
+            ['gender', '性別', 'user-multiple'],
+            ['name', '名前変更', 'edit']
           ];
     const menu = ce('div', 'person-pop-menu');
     menu.innerHTML = actions.map(([action, label, icon]) => `
         <button type="button" class="person-pop-item ${action === 'return' && inWaiting ? 'danger' : ''}" data-person-action="${action}">
-            <i class="${icon}" aria-hidden="true"></i><span>${label}</span>
+            <span data-carbon-icon="${icon}" aria-hidden="true"></span><span>${label}</span>
         </button>
     `).join('');
     menu.addEventListener('click', event => {
