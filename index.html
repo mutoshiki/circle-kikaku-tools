@@ -147,7 +147,8 @@
     <!-- CSS: interaction utilities -->
     <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
     <link href="./assets/css/08-utilities.css" rel="stylesheet">
-  </head>
+      <link href="./assets/css/99-user-fixes.css?v=20260802-1" rel="stylesheet">
+</head>
   <body class="sheet-mode view-mode-sheet">
     <div id="app-layout">
       <header id="app-header">
@@ -234,7 +235,6 @@
         <div id="sheet-canvas" role="region" aria-label="共有画面の車割・班割・タイムテーブル" aria-describedby="sheet-hint" tabindex="0"></div>
         <div id="sheet-hint"><span data-carbon-icon="touch--1" class="me-1" aria-hidden="true"></span>1本指で移動 / 2本指で拡大・縮小</div>
         <div id="sheet-bottom-controls">
-          <cds-button id="sheet-fit-btn" kind="ghost" size="lg" type="button">全体表示</cds-button>
           <cds-icon-button id="sheet-quick-edit-btn" kind="ghost" size="lg" aria-label="編集">
             <span data-carbon-icon="edit" aria-hidden="true"></span>
           </cds-icon-button>
@@ -780,5 +780,6 @@
     <script src="./assets/js/features/events/05-view-feature-events.js?v=carbon-bottom-nav-3"></script>
     <script src="./assets/js/features/events.js"></script>
     <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=2.60.0-icons-complete"></script>
-  </body>
+      <script src="./assets/js/99-user-fixes.js?v=20260802-1"></script>
+</body>
 </html>
