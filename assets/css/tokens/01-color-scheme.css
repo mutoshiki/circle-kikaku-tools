@@ -1,0 +1,251 @@
+/* Carbon Design System v11 — White theme semantic bridge.
+ * Feature owners consume these tokens; visual changes belong here rather than
+ * in late override sheets. Values follow the Carbon v11 Figma library.
+ */
+:root {
+  color-scheme: light;
+
+  /* Carbon v11 Gray 10 semantic tokens, mirrored from the Figma library. */
+  --cds-background: #f4f4f4;
+  --cds-layer-01: #ffffff;
+  --cds-layer-02: #f4f4f4;
+  --cds-layer-03: #e8e8e8;
+  --cds-field-01: #f4f4f4;
+  --cds-field-02: #ffffff;
+  --cds-text-primary: #161616;
+  --cds-text-secondary: #525252;
+  --cds-text-inverse: #ffffff;
+  --cds-icon-inverse: #ffffff;
+  --cds-text-placeholder: #6f6f6f;
+  --cds-icon-primary: #161616;
+  --cds-icon-on-color: #ffffff;
+  --cds-link-primary: #0f62fe;
+  --cds-link-primary-hover: #0043ce;
+  --cds-background-hover: rgba(141, 141, 141, 0.12);
+  --cds-background-active: rgba(141, 141, 141, 0.5);
+  --cds-background-selected: rgba(141, 141, 141, 0.2);
+  --cds-background-inverse: #393939;
+  --cds-background-inverse-hover: #474747;
+  --cds-layer-selected-inverse: #161616;
+  --cds-border-subtle: #e0e0e0;
+  --cds-border-strong: #8d8d8d;
+  --cds-interactive: #0f62fe;
+  --cds-interactive-hover: #0050e6;
+  --cds-interactive-active: #002d9c;
+  --cds-focus: #0f62fe;
+  --cds-focus-inverse: #ffffff;
+  --cds-disabled-bg: #c6c6c6;
+  --cds-disabled-text: #8d8d8d;
+
+  /* Figma: Content switcher high-contrast selection and the narrow Gradient style. */
+  --content-switcher-selected-bg: #161616;
+  --content-switcher-selected-text: #f4f4f4;
+  --carbon-gradient-accent: linear-gradient(90deg, #0f62fe 0%, #8a3ffc 34%, #d02670 67%, #33b1ff 100%);
+
+  --bg-body: var(--cds-background);
+  --bg-card: var(--cds-layer-01);
+  --surface-lowest: var(--cds-layer-01);
+  --surface-low: var(--cds-layer-02);
+  --surface-container: var(--cds-layer-03);
+  --surface-high: #e0e0e0;
+  --surface-highest: #c6c6c6;
+  --surface-tint: #0f62fe;
+  --surface-dim: #e0e0e0;
+
+  --text-main: var(--cds-text-primary);
+  --text-sub: var(--cds-text-secondary);
+  --text-faint: var(--cds-text-placeholder);
+  --text-strong-sub: #393939;
+  --text-on-dark: #f4f4f4;
+
+  --accent-color: #0f62fe;
+  --accent-hover: var(--cds-interactive-hover);
+  --accent-pressed: var(--cds-interactive-active);
+  --accent-soft: #edf5ff;
+  --accent-container: #d0e2ff;
+  --accent-container-text: #001d6c;
+  --accent-line: #78a9ff;
+  --accent-border: #0f62fe;
+  --accent-border-hover: #0050e6;
+  --accent-raised: #0f62fe;
+  --accent-icon: #0f62fe;
+  --focus-accent: var(--cds-focus);
+  --text-on-accent: #ffffff;
+  --button-primary: #0f62fe;
+  --button-primary-hover: #0050e6;
+  --button-primary-active: #002d9c;
+
+  --border-color: #c6c6c6;
+  --border-strong: var(--cds-border-strong);
+  --border-card: #e0e0e0;
+  --border-section: #e0e0e0;
+  --border-item: #e0e0e0;
+  --border-panel: #c6c6c6;
+  --border-summary: #c6c6c6;
+  --border-dashed: #8d8d8d;
+  --border-empty: #a8a8a8;
+  --border-hover: #8d8d8d;
+  --divider-strong: #c6c6c6;
+  --hairline: rgba(22, 22, 22, 0.14);
+
+  --semantic-success: #198038;
+  --semantic-success-soft: #defbe6;
+  --semantic-info-inverse: #4589ff;
+  --semantic-warning: #8e6a00;
+  --semantic-warning-soft: #fcf4d6;
+  --semantic-danger: #da1e28;
+  --semantic-danger-soft: #fff1f1;
+  --warning-on-ink: #684e00;
+
+  --surface-soft: var(--surface-low);
+  --surface-muted: var(--surface-container);
+  --surface-hover: #e8e8e8;
+  --surface-inset-line: rgba(255, 255, 255, 0.72);
+  --surface-elevated: var(--surface-lowest);
+  --surface-subtle: var(--surface-low);
+  --surface-raised: var(--surface-lowest);
+  --surface-chip: var(--surface-container);
+  --canvas-bg: var(--bg-body);
+
+  --app-surface: var(--surface-lowest);
+  --sheet-header: var(--surface-container);
+  --sheet-grid: #e0e0e0;
+  --hover-bg: var(--surface-hover);
+  --driver-bg: var(--accent-container);
+  --seat-bg: var(--surface-low);
+  --seat-slot-bg: var(--surface-lowest);
+  --tray-bg: var(--surface-lowest);
+  --modal-bg: var(--surface-lowest);
+  --modal-header-bg: var(--surface-lowest);
+  --modal-footer-bg: var(--surface-low);
+  --header-art-url: none;
+
+  --brand-ink: var(--text-main);
+  --brand-ink-soft: var(--text-strong-sub);
+  --brand-ink-muted: var(--text-sub);
+  --brand-on-ink: #ffffff;
+  --brand-on-ink-muted: #c6c6c6;
+  --brand-border: rgba(22, 22, 22, 0.12);
+  --brand-ink-border: var(--border-color);
+
+  --preview-header-bg: var(--surface-lowest);
+  --preview-header-text: var(--text-main);
+  --preview-header-border: var(--border-color);
+  --bottom-toolbar-bg: var(--surface-lowest);
+  --bottom-toolbar-text: var(--text-main);
+  --bottom-toolbar-border: var(--border-color);
+  --bottom-toolbar-muted: var(--text-sub);
+  --bottom-toolbar-hover-text: var(--text-main);
+
+  --bg-male: #edf5ff;
+  --border-male: #a6c8ff;
+  --text-male: #0043ce;
+  --bg-female: #fff0f7;
+  --border-female: #ffafd2;
+  --text-female: #9f1853;
+  --bg-unknown: var(--surface-container);
+  --border-unknown: var(--border-color);
+  --text-unknown: var(--text-sub);
+
+  --grade1-bg: #f6f2ff;
+  --grade1-border: #d4bbff;
+  --grade1-text: #6929c4;
+  --grade2-bg: #fff0f7;
+  --grade2-border: #ffafd2;
+  --grade2-text: #9f1853;
+  --grade3-bg: #fcf4d6;
+  --grade3-border: #f1c21b;
+  --grade3-text: #684e00;
+  --grade4-bg: #defbe6;
+  --grade4-border: #6fdc8c;
+  --grade4-text: #0e6027;
+  --grade1-badge: var(--grade1-bg);
+  --grade2-badge: var(--grade2-bg);
+  --grade3-badge: var(--grade3-bg);
+  --grade4-badge: var(--grade4-bg);
+
+  --status-split-text: #001d6c;
+  --status-split-bg: #edf5ff;
+  --status-split-border: #a6c8ff;
+  --status-club-text: #684e00;
+  --status-club-bg: #fcf4d6;
+  --status-club-border: #f1c21b;
+  --status-payment-text: #9f1853;
+  --status-payment-bg: #fff0f7;
+  --status-payment-border: #ffafd2;
+
+  --shadow-card: none;
+  --shadow-float: 0 4px 12px rgba(0, 0, 0, 0.18);
+  --shadow-modal: 0 8px 24px rgba(0, 0, 0, 0.24);
+  --shadow-tray: 0 -8px 24px rgba(0, 0, 0, 0.14);
+  --shadow-tray-mobile: 0 -10px 28px rgba(0, 0, 0, 0.18);
+  --shadow-status: 0 8px 16px rgba(0, 0, 0, 0.18);
+  --shadow-tab: none;
+  --status-surface: rgba(255, 255, 255, 0.96);
+  --notification-bg: #393939;
+  --notification-text: #ffffff;
+
+  --app-border-soft: rgba(22, 22, 22, 0.22);
+  --app-border-subtle: rgba(22, 22, 22, 0.14);
+  --app-divider-soft: rgba(22, 22, 22, 0.16);
+  --app-border-inner: rgba(22, 22, 22, 0.10);
+  --ui-saas-border: var(--app-border-soft);
+  --ui-saas-border-strong: rgba(15, 98, 254, 0.42);
+  --ui-saas-panel: var(--surface-lowest);
+  --ui-saas-panel-raised: var(--surface-lowest);
+  --ui-saas-inner: var(--surface-low);
+  --ui-saas-shadow-soft: var(--shadow-card);
+  --ui-unified-divider: var(--app-divider-soft);
+
+  --text-muted: var(--text-sub);
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --white-rgb: 255, 255, 255;
+  --black-rgb: 0, 0, 0;
+  --shadow-rgb: 0, 0, 0;
+
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: "IBM Plex Sans", "IBM Plex Sans JP", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", Meiryo, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4286;
+  background: var(--bg-body);
+  color: var(--text-main);
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  accent-color: var(--accent-color);
+}
+
+::selection {
+  background: var(--accent-container);
+  color: var(--accent-container-text);
+}
+
+.handle-bar {
+  width: 32px;
+  height: 4px;
+  border-radius: 0;
+  background: var(--text-faint);
+  opacity: 0.56;
+}
+
+.text-muted-readable {
+  color: var(--text-sub);
+}
+
+@keyframes sheetJiggle {
+  from { transform: rotate(-0.7deg); }
+  to { transform: rotate(0.7deg); }
+}

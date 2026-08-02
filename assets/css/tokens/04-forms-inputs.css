@@ -1,0 +1,6 @@
+/* Official Carbon form hosts. Shadow DOM owns field visuals and states. */
+cds-text-input[size="lg"],
+cds-number-input[size="lg"],
+cds-select[size="lg"] {
+  --cds-layout-size-height-lg: 48px;
+}
