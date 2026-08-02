@@ -26,7 +26,12 @@ body.modal-open { padding-right: 0; }
 @media (max-width: 640px) {
   #commonEditModal .modal-dialog,
   #historyModal .modal-dialog,
-  #debugModal .modal-dialog { width: 100%; max-width: none; }
+  #debugModal .modal-dialog {
+    width: calc(100% - 32px);
+    max-width: 460px;
+    min-height: 0;
+    margin: auto;
+  }
   #routeDistanceModal .route-helper-actions { grid-template-columns: 1fr; }
   .modal-body { line-height: 1.55; }
 }

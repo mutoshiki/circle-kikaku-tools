@@ -26,3 +26,16 @@
   #bottom-tray.waiting-empty:not(.empty-open) #waiting-list-container { display: none; }
   #bottom-tray.waiting-empty.empty-open { height: auto; min-height: 0; max-height: 190px; }
 }
+
+/* An empty tray has no useful expanded state. Keep it as a compact status bar. */
+#bottom-tray.waiting-empty,
+#bottom-tray.waiting-empty.empty-open,
+#bottom-tray.waiting-empty:not(.empty-open) {
+  height: 48px;
+  min-height: 48px;
+  max-height: 48px;
+  overflow: visible;
+}
+#bottom-tray.waiting-empty #bottom-tray-header,
+#bottom-tray.waiting-empty #waiting-list-container { display: none; }
+#bottom-tray.waiting-empty #tray-handle { height: 48px; min-height: 48px; }

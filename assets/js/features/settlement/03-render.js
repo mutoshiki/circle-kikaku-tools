@@ -1,50 +1,24 @@
 // Settlement renderer. Owns DOM rendering only.
 // Split from features/settlement.js during S-3 cleanup.
 
-const SETTLEMENT_CAR_LAYOUT_STORAGE_KEY = 'syawari_settlement_car_layout';
-
-function readSettlementCarLayoutMode(carCount = 0) {
-    try {
-        const saved = localStorage.getItem(SETTLEMENT_CAR_LAYOUT_STORAGE_KEY);
-        if (saved === 'compact' || saved === 'list') return saved;
-    } catch (error) {
-        console.warn('Settlement car layout preference could not be read:', error);
-    }
-    return carCount >= 3 ? 'compact' : 'list';
+function readSettlementCarLayoutMode() {
+    return 'list';
 }
 
-function updateSettlementCarLayoutControl(isCompact, carCount = 0) {
+function updateSettlementCarLayoutControl() {
     const button = byId('seisanCarLayoutToggle');
-    if (!button) return;
-    button.hidden = carCount < 2;
-    button.setAttribute('aria-pressed', isCompact ? 'true' : 'false');
-    const label = isCompact ? '1列表示に切り替え' : '2列の圧縮表示に切り替え';
-    button.setAttribute('aria-label', label);
-    button.title = label;
+    if (button) button.hidden = true;
 }
 
-function applySettlementCarLayout(carList, carCount = 0, mode = '') {
+function applySettlementCarLayout(carList) {
     if (!carList) return;
-    const resolvedMode = mode === 'compact' || mode === 'list'
-        ? mode
-        : readSettlementCarLayoutMode(carCount);
-    const isCompact = resolvedMode === 'compact' && carCount >= 2;
-    carList.classList.toggle('is-two-column', isCompact);
-    carList.dataset.layoutMode = isCompact ? 'compact' : 'list';
-    updateSettlementCarLayoutControl(isCompact, carCount);
+    carList.classList.remove('is-two-column');
+    carList.dataset.layoutMode = 'list';
+    updateSettlementCarLayoutControl();
 }
 
 function toggleSettlementCarLayout() {
-    const carList = byId('seisan-car-list');
-    if (!carList) return;
-    const carCount = carList.querySelectorAll(':scope > .seisan-car-summary-row').length;
-    const nextMode = carList.classList.contains('is-two-column') ? 'list' : 'compact';
-    try {
-        localStorage.setItem(SETTLEMENT_CAR_LAYOUT_STORAGE_KEY, nextMode);
-    } catch (error) {
-        console.warn('Settlement car layout preference could not be saved:', error);
-    }
-    applySettlementCarLayout(carList, carCount, nextMode);
+    applySettlementCarLayout(byId('seisan-car-list'));
 }
 
 function renderSettlementIssues(issues) {

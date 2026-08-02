@@ -268,3 +268,10 @@
   align-self: start;
   font-size: var(--settlement-car-amount-size);
 }
+
+/* Touch-first Carbon actions. */
+#seisan-view-area .seisan-car-summary-headline .seisan-edit-btn,
+#seisan-view-area .seisan-car-payment-check {
+  min-height: 48px;
+}
+#seisan-view-area .seisan-car-payment-check { padding-inline: 8px; }

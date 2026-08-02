@@ -91,7 +91,12 @@
   margin-top: 0;
 }
 
-.seisan-toggle--modal cds-checkbox { display: block; width: 100%; }
+.seisan-toggle--modal cds-checkbox {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+}
 
 #settlementSettingsModal .seisan-standalone-error {
   grid-column: 1 / -1;

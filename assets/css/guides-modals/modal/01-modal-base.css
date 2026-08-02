@@ -1,10 +1,22 @@
-/* Canonical modal, menu and overlay surfaces. */
+/* Canonical Carbon modal, menu and overlay surfaces. */
 .debug-tap-target { cursor: pointer; }
 .batch-field-note { margin: -2px 0 6px; color: var(--text-sub); font-size: 0.72rem; font-weight: 600; }
-.batch-warning { margin-top: 10px; padding: 12px 16px; border: 0; border-left: 3px solid var(--semantic-danger); border-radius: 0; background: var(--semantic-danger-soft); color: var(--semantic-danger); font-size: 0.8rem; font-weight: 400; box-shadow: none; }
+.batch-warning {
+  margin-top: 10px;
+  padding: 12px 16px;
+  border: 0;
+  border-left: 3px solid var(--semantic-danger);
+  border-radius: 0;
+  background: var(--semantic-danger-soft);
+  color: var(--semantic-danger);
+  font-size: 0.8rem;
+  font-weight: 400;
+  box-shadow: none;
+}
 .tray-actions cds-overflow-menu { width: 48px; min-width: 48px; }
 .unified-flow { margin-bottom: 14px; }
 .compact-guide-grid { grid-template-columns: 1fr; gap: 12px; }
+
 .modal-content {
   display: flex;
   flex-direction: column;
@@ -12,13 +24,13 @@
   max-height: calc(100dvh - 32px);
   overflow: hidden;
   border: 0;
-  border-radius: var(--radius-xl);
+  border-radius: 0;
   outline: 0;
   background: var(--modal-bg);
   color: var(--text-main);
   box-shadow: var(--shadow-modal);
-  backdrop-filter: var(--ui-floating-backdrop);
 }
+
 .modal-header {
   display: flex;
   align-items: center;
@@ -31,8 +43,17 @@
   background: var(--modal-header-bg);
   color: var(--text-main);
 }
-.modal-title { margin: 0; color: var(--text-main); font-size: 1.125rem; font-weight: 400; line-height: 1.35; letter-spacing: 0; }
+
+.modal-title {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
 .modal-title :is(i, .carbon-icon) { color: var(--accent-color); }
+
 .modal-header cds-modal-close-button {
   position: static;
   inset: auto;
@@ -43,20 +64,55 @@
   min-height: 48px;
   margin-left: auto;
 }
-.modal-body { padding: 16px; overflow: auto; background: var(--modal-bg); }
-.modal-footer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; padding: 0; border: 0; border-top: 1px solid var(--border-section); background: var(--modal-footer-bg); }
-.modal-footer :is(.btn, cds-button) { width: 100%; min-height: 48px; margin: 0; }
-.app-modal > .modal-dialog { display: flex; align-items: center; width: 100%; min-width: 0; max-width: 100%; min-height: 100%; margin: 0; }
-.app-modal > .modal-dialog > .modal-content { min-width: 0; }
-#commonEditModal .modal-content { border: 0; }
-#commonEditModal .modal-footer #saveEditBtn {
-  grid-column: 2;
-  justify-self: end;
-  width: 112px;
+
+.modal-body {
+  min-height: 0;
+  padding: 16px;
+  overflow: auto;
+  background: var(--modal-bg);
+  overscroll-behavior: contain;
 }
 
+/* Carbon modal actions sit flush against the dialog edge. */
+.modal-footer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  min-height: 64px;
+  padding: 0;
+  border: 0;
+  background: var(--modal-bg);
+}
+.modal-footer :is(.btn, cds-button) {
+  width: 100%;
+  min-width: 0;
+  min-height: 64px;
+  margin: 0;
+}
+.modal-footer--single :is(.btn, cds-button) { grid-column: 2; }
+
+.app-modal > .modal-dialog {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: auto;
+}
+.app-modal > .modal-dialog > .modal-content { min-width: 0; }
+#commonEditModal .modal-content { border: 0; }
+
 @media (max-width: 640px) {
-  .modal-dialog:not(.modal-fullscreen-sm-down) { display: flex; align-items: flex-end; min-height: 100%; margin: 0; }
-  .modal-dialog:not(.modal-fullscreen-sm-down) .modal-content { max-height: 92dvh; border-radius: 0; }
+  .modal-dialog:not(.modal-fullscreen-sm-down) {
+    display: flex;
+    align-items: center;
+    width: calc(100% - 32px);
+    min-height: 0;
+    margin: auto;
+  }
+  .modal-dialog:not(.modal-fullscreen-sm-down) .modal-content {
+    max-height: calc(100dvh - 32px);
+    border-radius: 0;
+  }
   .modal-dialog.modal-fullscreen-sm-down .modal-content { border-radius: 0; }
 }

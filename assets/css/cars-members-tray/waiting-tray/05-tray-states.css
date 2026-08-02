@@ -38,3 +38,10 @@
 #bottom-tray.waiting-empty #waiting-count { opacity: 0.72; }
 
 #bottom-tray.minimized { height: auto; min-height: 0; }
+
+#tray-handle[aria-disabled="true"] {
+  cursor: default;
+  background: var(--surface-low);
+}
+#tray-handle[aria-disabled="true"] .handle-bar { opacity: 0.22; }
+#bottom-tray.waiting-empty #tray-toggle-label [data-state-icon] { display: none; }

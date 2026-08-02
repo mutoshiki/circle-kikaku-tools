@@ -195,7 +195,12 @@ function appPrompt(message, defaultValue = '', options = {}) {
         titleEl.textContent = String(options.title || message || '編集');
         saveBtn.textContent = String(options.okText || '保存');
         input.value = String(defaultValue || '');
+        input.type = 'text';
+        input.inputMode = 'text';
+        input.removeAttribute('min');
+        input.removeAttribute('step');
         const inputLabel = String(message || '入力');
+        input.setAttribute('label', inputLabel);
         input.setAttribute('aria-label', inputLabel);
         if ('label' in input) input.label = inputLabel;
         void syncCarbonFormControlAccessibility(input);

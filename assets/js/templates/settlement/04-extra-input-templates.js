@@ -35,7 +35,7 @@
     const timesAttr = timesFeeKind ? ` data-times-extra="${timesFeeKind}"` : '';
     const lockedAttr = isReward ? ' readonly aria-readonly="true"' : '';
     const deleteControl = timesFeeKind || isReward
-      ? '<cds-icon-button class="seisan-icon-btn seisan-extra-delete-placeholder" kind="ghost" size="lg" type="button" tabindex="-1" aria-hidden="true"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span></cds-icon-button>'
+      ? '<span class="seisan-icon-btn seisan-extra-delete-placeholder" aria-hidden="true"></span>'
       : '<cds-icon-button class="seisan-icon-btn" kind="danger--ghost" size="lg" type="button" data-action="remove-settlement-extra" aria-label="削除"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span></cds-icon-button>';
 
     return `<div class="${rowClass}" data-extra-index="${index}"${timesAttr}>

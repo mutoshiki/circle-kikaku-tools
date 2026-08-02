@@ -312,15 +312,39 @@ function handleEdit(type, el) {
     const driver = !isCap && !card ? el.closest('.driver-seat') : null;
 
     let initialVal = '', title = '';
-    if(isCap) { title = '定員変更'; initialVal = el.val(); }
+    if(isCap) {
+        title = '定員変更';
+        initialVal = String(
+            box?.dataset.capacity
+            || box?.querySelectorAll?.('.seat-slot')?.length
+            || el.value
+            || el.getAttribute?.('value')
+            || ''
+        );
+    }
     else if (type === 'memberName' && card) { title = '名前変更'; initialVal = card.dataset.name || $('.member-name-text', card).innerText; }
     else if (type === 'driverName' && driver) { title = '名前変更'; initialVal = driver.dataset.name || $('.driver-name-disp', driver).innerText; }
     else if (card) { title = 'メモ編集'; initialVal = $('.memo-popup', card).innerText; } 
     else if (driver) { title = '車出しメモ'; initialVal = $('.driver-memo-text', driver).innerText; }
 
     const editTitleEl = $('#commonEditModalTitle');
+    const editInput = $('#editModalInput');
     if (editTitleEl) editTitleEl.innerText = title;
-    $('#editModalInput').value = initialVal;
+    if (editInput) {
+        editInput.value = initialVal;
+        editInput.label = isCap ? '定員' : (type.includes('Name') ? '名前' : 'メモ');
+        editInput.setAttribute('label', editInput.label);
+        editInput.setAttribute('aria-label', editInput.label);
+        editInput.type = isCap ? 'number' : 'text';
+        editInput.inputMode = isCap ? 'numeric' : 'text';
+        if (isCap) {
+            editInput.setAttribute('min', '1');
+            editInput.setAttribute('step', '1');
+        } else {
+            editInput.removeAttribute('min');
+            editInput.removeAttribute('step');
+        }
+    }
     
     saveCb = () => {
         const v = $('#editModalInput').value;

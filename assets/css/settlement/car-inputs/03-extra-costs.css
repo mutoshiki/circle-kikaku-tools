@@ -1,7 +1,9 @@
 /* Additional-cost rows inside the vehicle editor. This file owns row composition and add-action sizing. */
 #settlementCarEditModal .seisan-extra-list {
   display: grid;
-  gap: 12px;
+  gap: 0;
+  border-top: 1px solid var(--border-section);
+  border-bottom: 1px solid var(--border-section);
 }
 
 #settlementCarEditModal .seisan-extra-row {
@@ -10,10 +12,12 @@
   align-items: end;
   gap: 8px;
   min-width: 0;
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--surface-low);
+  padding: 12px 0;
+  border: 0;
+  border-bottom: 1px solid var(--border-section);
+  background: transparent;
 }
+#settlementCarEditModal .seisan-extra-row:last-child { border-bottom: 0; }
 
 #settlementCarEditModal .seisan-extra-field {
   display: grid;
@@ -37,8 +41,9 @@
   width: 100%;
   min-width: 0;
   min-height: 48px;
-  background: var(--surface-lowest);
-  box-shadow: inset 0 0 0 1px var(--border-strong);
+  --cds-field: var(--surface-low);
+  background: var(--surface-low);
+  box-shadow: none;
 }
 
 #settlementCarEditModal .seisan-extra-field--amount :is(cds-text-input, cds-number-input) {
@@ -65,14 +70,14 @@
   --cds-field: var(--settlement-split-bg);
   --cds-text-primary: var(--settlement-split-ink);
   --cds-icon-primary: var(--settlement-split-ink);
-  box-shadow: inset 0 0 0 1px var(--settlement-split-line);
+  box-shadow: none;
 }
 
 #settlementCarEditModal .seisan-extra-field--type.club cds-select {
   --cds-field: var(--settlement-club-bg);
   --cds-text-primary: var(--settlement-club-ink);
   --cds-icon-primary: var(--settlement-club-ink);
-  box-shadow: inset 0 0 0 1px var(--settlement-club-line);
+  box-shadow: none;
 }
 
 #settlementCarEditModal .seisan-extra-row .seisan-icon-btn {
@@ -99,7 +104,7 @@
     grid-template-columns: minmax(0, 1fr) 94px 48px;
     grid-template-rows: repeat(2, auto);
     gap: 8px 6px;
-    padding: 9px;
+    padding: 12px 0;
   }
 
   #settlementCarEditModal .seisan-extra-field--name { grid-column: 1 / 3; grid-row: 1; }
