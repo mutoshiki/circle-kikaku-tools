@@ -32,16 +32,16 @@
   max-width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  padding: 0;
-  border: 0;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--ui-saas-border, var(--border-color)) 72%, transparent);
   border-radius: 0;
-  background: transparent;
+  background: var(--surface-container);
   box-shadow: none;
 }
 
 #routeDistanceModal .route-location-privacy-note {
-  margin: 0 0 12px;
-  padding: 0;
+  margin: -1px 0 8px;
+  padding: 0 2px;
   color: var(--text-sub);
   font-size: 0.70rem;
   font-weight: 400;

@@ -49,14 +49,14 @@
   position: fixed;
   z-index: var(--z-bottom-navigation);
   right: 0;
-  bottom: 0;
+  bottom: calc(8px + env(safe-area-inset-bottom));
   left: 0;
   box-sizing: border-box;
   display: flex;
   justify-content: center;
   width: 100%;
   min-width: 0;
-  padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+  padding: 0;
   background: transparent;
   box-shadow: none;
   pointer-events: none;

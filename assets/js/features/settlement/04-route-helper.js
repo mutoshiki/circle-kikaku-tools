@@ -61,9 +61,9 @@ function routeCandidateHtml(value = '') {
 
 function refreshRouteStopHandles() {
     const rows = Array.from(document.querySelectorAll('#routeStopList .route-stop-row'));
-    rows.forEach((row, index) => {
-        const handle = row.querySelector('.route-stop-drag-handle');
-        if (handle) handle.setAttribute('aria-label', `場所${index + 1}を並び替え`);
+    rows.forEach(row => {
+        const num = row.querySelector('.route-stop-num');
+        if (num) num.setAttribute('aria-label', 'この場所を並び替え');
     });
 }
 
@@ -130,7 +130,7 @@ function setupRouteStopSortable() {
     }
     routeStopSortable = new Sortable(list, {
         animation: 150,
-        handle: '.route-stop-drag-handle',
+        handle: '.route-stop-num',
         forceFallback: true,
         fallbackOnBody: true,
         fallbackTolerance: 4,

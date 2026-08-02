@@ -7,9 +7,9 @@
 
     function routeStopRow(value = '', index = 0, helpers = {}) {
     return `<div class="route-stop-row">
-        <cds-icon-button class="route-stop-drag-handle" kind="ghost" size="lg" type="button" aria-label="場所${index + 1}を並び替え"><span data-carbon-icon="drag--vertical" slot="icon" aria-hidden="true"></span></cds-icon-button>
-        <cds-text-input size="lg" class="route-stop-input" value="${esc(value || '', helpers)}" placeholder="場所名を入力（例：飯綱高原）" label="場所${index + 1}" hide-label></cds-text-input>
-        <cds-icon-button class="seisan-icon-btn route-stop-delete-btn" kind="danger--ghost" size="lg" type="button" data-action="remove-route-stop" aria-label="場所${index + 1}を削除"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span></cds-icon-button>
+        <cds-icon-button class="seisan-icon-btn route-stop-delete-btn" kind="ghost" size="lg" type="button" data-action="remove-route-stop" aria-label="削除"><span data-carbon-icon="close" slot="icon" aria-hidden="true"></span></cds-icon-button>
+        <cds-text-input size="lg" class="route-stop-input" value="${esc(value || '', helpers)}" placeholder="例：飯綱高原、温泉、駐車場" label="場所${index + 1}" hide-label></cds-text-input>
+        <span class="route-stop-num" title="並び替え" aria-label="この場所を並び替え"><span data-carbon-icon="drag--vertical" aria-hidden="true"></span></span>
     </div>`;
   }
 
