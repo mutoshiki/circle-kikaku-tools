@@ -1,6 +1,7 @@
 /* Bottom sheet shell. */
 #bottom-tray {
   min-width: 0;
+  margin-bottom: calc(64px + env(safe-area-inset-bottom));
   border: 0;
   border-top: 1px solid var(--border-strong);
   border-radius: 0;

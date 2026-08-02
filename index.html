@@ -4,7 +4,6 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#ffffff">
     <title>サークル企画ツール</title>
     <meta name="description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">
     <meta property="og:title" content="サークル企画ツール">
@@ -42,14 +41,14 @@
     <link href="./assets/css/app-shell/layout/01-app-frame.css" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/02-panels.css?v=carbon-v11-card" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/03-mobile-frame.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/layout/04-layering.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/layout/04-layering.css?v=carbon-bottom-nav-5" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/01-edit-base.css" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/02-toolbar.css" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/03-mobile-edit.css" rel="stylesheet">
     <!-- CSS: header owners: base, room/status, tabs/actions, mobile, responsive -->
     <link href="./assets/css/app-shell/header/01-header-base.css" rel="stylesheet">
     <link href="./assets/css/app-shell/header/02-room-status.css?v=mobile-layout-fix" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/03-tabs-actions.css?v=carbon-bottom-nav-4" rel="stylesheet">
+    <link href="./assets/css/app-shell/header/03-tabs-actions.css?v=carbon-v10" rel="stylesheet">
     <!-- CSS: foundations and design tokens -->
     <!-- CSS: guides and modals -->
     <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">
@@ -73,15 +72,15 @@
     <!-- CSS: car assignment, members, and waiting tray -->
     <link href="./assets/css/cars-members-tray/00-base-extracted.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/01-shared-card-primitives.css?v=carbon-v11-card" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/waiting-tray/01-tray-shell.css?v=carbon-bottom-nav-3" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/waiting-tray/01-tray-shell.css?v=carbon-v10" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/02-tray-drawer.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/03-tray-actions.css" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css?v=carbon-bottom-nav-3" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css?v=carbon-v10" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/05-tray-states.css?v=carbon-bottom-nav-3" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/01-person-card-shell.css?v=carbon-v11-card" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/02-person-name-grade.css" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/person-card/03-person-menu.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/person-card/03-person-menu.css?v=carbon-v10" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/04-person-mobile.css?v=mobile-layout-fix" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/01-card-shell.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/02-card-header.css" rel="stylesheet">
@@ -111,13 +110,13 @@
     <link href="./assets/css/settlement/controls/04-mobile-controls.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/01-car-form.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/02-distance-fuel.css" rel="stylesheet">
-    <link href="./assets/css/settlement/car-inputs/03-extra-costs.css?v=carbon-v8" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/03-extra-costs.css?v=carbon-v10" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/04-edit-modal.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/05-mobile-inputs.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/06-times-rental.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/07-extra-candidates.css" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/01-route-shell.css" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/02-route-stops.css" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=carbon-v10" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/02-route-stops.css?v=carbon-v10" rel="stylesheet">
     <link href="./assets/css/settlement/route-helper/03-route-candidates.css" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/01-collection-list.css" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/02-collection-mobile.css" rel="stylesheet">
@@ -323,19 +322,25 @@
                   <cds-button id="traySettingsBtn" class="tray-settings-trigger" kind="tertiary" size="lg" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="autoAssignMenu">
                     <span>設定</span><span slot="icon" data-carbon-icon="settings--adjust" aria-hidden="true"></span>
                   </cds-button>
-                  <div id="autoAssignMenu" class="auto-assign-menu-body" role="dialog" aria-label="割り当て条件" hidden>
-                    <h6 class="auto-assign-menu-title">割り当て条件</h6>
-                    <div id="autoAssignSummary" class="auto-assign-menu-summary small text-muted-readable">条件：なし</div>
-                    <div class="auto-assign-option-row">
-                      <cds-checkbox id="optFemale" class="auto-assign-checkbox" label-text="女子をまとめる" aria-label="女性の配置を考慮する"></cds-checkbox>
+                  <div id="autoAssignMenu" class="auto-assign-menu-body" role="dialog" aria-modal="false" aria-labelledby="autoAssignMenuTitle" hidden>
+                    <div class="auto-assign-menu-header">
+                      <h6 id="autoAssignMenuTitle" class="auto-assign-menu-title">割り当て条件</h6>
+                      <p id="autoAssignSummary" class="auto-assign-menu-summary">条件：なし</p>
                     </div>
-                    <div class="auto-assign-option-row">
-                      <cds-checkbox id="optMale" class="auto-assign-checkbox" label-text="男子をまとめる" aria-label="男性の配置を考慮する"></cds-checkbox>
+                    <div class="auto-assign-menu-options" role="group" aria-label="ランダム割り当てで考慮する条件">
+                      <div class="auto-assign-option-row">
+                        <cds-checkbox id="optFemale" class="auto-assign-checkbox" label-text="女子をまとめる" aria-label="女性の配置を考慮する"></cds-checkbox>
+                      </div>
+                      <div class="auto-assign-option-row">
+                        <cds-checkbox id="optMale" class="auto-assign-checkbox" label-text="男子をまとめる" aria-label="男性の配置を考慮する"></cds-checkbox>
+                      </div>
+                      <div class="auto-assign-option-row">
+                        <cds-checkbox id="optGrade" class="auto-assign-checkbox" label-text="学年をまとめる" aria-label="学年の配置を考慮する"></cds-checkbox>
+                      </div>
                     </div>
-                    <div class="auto-assign-option-row">
-                      <cds-checkbox id="optGrade" class="auto-assign-checkbox" label-text="学年をまとめる" aria-label="学年の配置を考慮する"></cds-checkbox>
+                    <div class="auto-assign-menu-footer">
+                      <cds-button id="clearAllBtn" class="auto-assign-clear-btn" kind="danger--ghost" size="lg" type="button"><span data-carbon-icon="clean" slot="icon" aria-hidden="true"></span>全員を未割り当てに戻す</cds-button>
                     </div>
-                    <cds-button id="clearAllBtn" class="auto-assign-clear-btn" kind="danger--ghost" size="lg" type="button"><span data-carbon-icon="clean" slot="icon" aria-hidden="true"></span>全員を未割り当てに戻す</cds-button>
                   </div>
                 </div>
               </div>
@@ -731,18 +736,18 @@
     <script src="./assets/js/templates/settlement/00-template-utils.js"></script>
     <script src="./assets/js/templates/settlement/01-cost-parts.js"></script>
     <script src="./assets/js/templates/settlement/02-summary-templates.js?v=club-ledger"></script>
-    <script src="./assets/js/templates/settlement/04-extra-input-templates.js?v=carbon-v8"></script>
+    <script src="./assets/js/templates/settlement/04-extra-input-templates.js?v=carbon-v10"></script>
     <script src="./assets/js/templates/settlement/03-car-cost-templates.js?v=carbon-bottom-nav-5"></script>
     <script src="./assets/js/templates/settlement/05-collection-check-templates.js"></script>
     <script src="./assets/js/templates/settlement/06-driver-pay-templates.js"></script>
     <script src="./assets/js/templates/settlement/07-empty-state-templates.js"></script>
-    <script src="./assets/js/templates/settlement/08-route-helper-templates.js"></script>
+    <script src="./assets/js/templates/settlement/08-route-helper-templates.js?v=carbon-v10"></script>
     <script src="./assets/js/templates/settlement/09-register-settlement-templates.js"></script>
     <script src="./assets/js/templates/settlement-templates.js"></script>
     <script src="./assets/js/features/settlement/01-state.js"></script>
     <script src="./assets/js/features/settlement/02-calculator.js"></script>
     <script src="./assets/js/features/settlement/03-render.js?v=carbon-bottom-nav-3"></script>
-    <script src="./assets/js/features/settlement/04-route-helper.js"></script>
+    <script src="./assets/js/features/settlement/04-route-helper.js?v=carbon-v10"></script>
     <script src="./assets/js/features/settlement/05-input-actions.js"></script>
     <script src="./assets/js/features/settlement/06-share-text.js?v=club-ledger"></script>
     <script src="./assets/js/features/settlement.js"></script>
@@ -752,8 +757,8 @@
     <script src="./assets/js/core/remote-guard.js"></script>
     <script src="./assets/js/features/share-actions.js"></script>
     <script src="./assets/js/features/lock-protection.js"></script>
-    <script src="./assets/js/features/waiting-tray.js"></script>
-    <script src="./assets/js/features/person-cards.js?v=carbon-phase3c"></script>
+    <script src="./assets/js/features/waiting-tray.js?v=carbon-v10"></script>
+    <script src="./assets/js/features/person-cards.js?v=carbon-v10"></script>
     <script src="./assets/js/features/planning-assurance.js?v=carbon-menu-shortcut"></script>
     <script src="./assets/js/features/seat-member-picker.js?v=quiet-actions"></script>
     <script src="./assets/js/templates/sheet-templates.js?v=carbon-phase3c"></script>
@@ -763,7 +768,7 @@
     <script src="./assets/js/features/sheet/01-drag-interactions.js"></script>
     <script src="./assets/js/features/sheet/02-viewport-controls.js"></script>
     <script src="./assets/js/features/auto-assign.js?v=carbon-phase3c"></script>
-    <script src="./assets/js/features/person-menu.js?v=carbon-phase3c"></script>
+    <script src="./assets/js/features/person-menu.js?v=carbon-v10"></script>
     <script src="./assets/js/features/google-form-import-parser.js"></script>
     <script src="./assets/js/features/batch-import.js"></script>
     <script src="./assets/js/features/sample-data-history.js"></script>
@@ -773,7 +778,7 @@
     <script src="./assets/js/features/events/01-core-startup-events.js?v=mobile-layout-fix"></script>
     <script src="./assets/js/features/events/02-static-header-events.js"></script>
     <script src="./assets/js/features/events/03-generated-action-events.js"></script>
-    <script src="./assets/js/features/events/04-settlement-input-events.js?v=carbon-bottom-nav-3"></script>
+    <script src="./assets/js/features/events/04-settlement-input-events.js?v=carbon-v10"></script>
     <script src="./assets/js/features/events/05-view-feature-events.js?v=carbon-bottom-nav-3"></script>
     <script src="./assets/js/features/events.js"></script>
     <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=2.60.0-icons-complete"></script>

@@ -156,15 +156,45 @@ const traySettingsTriggerEl = byId('traySettingsBtn');
 const traySettingsMenuEl = byId('autoAssignMenu');
 
 function positionTraySettingsMenu() {
-    if (!traySettingsMenuEl || traySettingsMenuEl.hidden) return;
-    clearTraySettingsMenuPosition();
+    if (!traySettingsMenuEl || traySettingsMenuEl.hidden || !traySettingsTriggerEl) return;
+    const viewport = window.visualViewport;
+    const viewportLeft = viewport?.offsetLeft || 0;
+    const viewportTop = viewport?.offsetTop || 0;
+    const viewportWidth = viewport?.width || window.innerWidth;
+    const viewportHeight = viewport?.height || window.innerHeight;
+    const margin = 8;
+    const gap = 8;
+    const triggerRect = traySettingsTriggerEl.getBoundingClientRect();
+
+    traySettingsMenuEl.style.visibility = 'hidden';
+    traySettingsMenuEl.style.width = `${Math.min(320, Math.max(240, viewportWidth - 32))}px`;
+    traySettingsMenuEl.style.maxHeight = `${Math.max(160, viewportHeight - margin * 2)}px`;
+
+    requestAnimationFrame(() => {
+        if (!traySettingsMenuEl || traySettingsMenuEl.hidden) return;
+        const menuRect = traySettingsMenuEl.getBoundingClientRect();
+        const width = Math.min(menuRect.width || 320, viewportWidth - margin * 2);
+        const height = Math.min(menuRect.height || 320, viewportHeight - margin * 2);
+        const roomAbove = triggerRect.top - viewportTop - margin - gap;
+        const roomBelow = viewportTop + viewportHeight - triggerRect.bottom - margin - gap;
+        const openAbove = roomAbove >= height || roomAbove >= roomBelow;
+        let left = triggerRect.right - width;
+        let top = openAbove ? triggerRect.top - gap - height : triggerRect.bottom + gap;
+        left = Math.min(viewportLeft + viewportWidth - width - margin, Math.max(viewportLeft + margin, left));
+        top = Math.min(viewportTop + viewportHeight - height - margin, Math.max(viewportTop + margin, top));
+        traySettingsMenuEl.style.left = `${Math.round(left)}px`;
+        traySettingsMenuEl.style.top = `${Math.round(top)}px`;
+        traySettingsMenuEl.style.right = 'auto';
+        traySettingsMenuEl.style.bottom = 'auto';
+        traySettingsMenuEl.style.visibility = 'visible';
+    });
 }
 
 function clearTraySettingsMenuPosition() {
     if (!traySettingsMenuEl) return;
     [
         'inset-inline-start', 'inset-inline-end', 'inset-block-start', 'inset-block-end',
-        'top', 'right', 'bottom', 'left', 'width', 'max-height'
+        'top', 'right', 'bottom', 'left', 'width', 'max-height', 'visibility'
     ].forEach(name => traySettingsMenuEl.style.removeProperty(name));
 }
 
@@ -174,7 +204,10 @@ function setTraySettingsMenuOpen(open) {
     traySettingsMenuEl.hidden = !next;
     traySettingsMenuEl.open = next;
     traySettingsTriggerEl.setAttribute('aria-expanded', next ? 'true' : 'false');
-    if (next) positionTraySettingsMenu();
+    if (next) {
+        traySettingsMenuEl.style.visibility = 'hidden';
+        positionTraySettingsMenu();
+    }
     else clearTraySettingsMenuPosition();
 }
 

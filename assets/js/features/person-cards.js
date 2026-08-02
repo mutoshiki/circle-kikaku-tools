@@ -46,7 +46,7 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
             ${renderPersonFlag(flag)}
             ${genderHtml}
             ${gradeHtml}
-            <cds-icon-button type="button" kind="ghost" size="lg" class="member-menu-btn action-btn" title="メニュー" aria-label="メンバー操作メニュー"><span data-carbon-icon="overflow-menu-vertical" slot="icon" aria-hidden="true"></span></cds-icon-button>
+            <cds-button type="button" kind="ghost" size="lg" class="member-menu-btn action-btn" aria-label="メンバー操作メニュー"><span class="visually-hidden">メンバー操作メニュー</span><span data-carbon-icon="overflow-menu-vertical" slot="icon" aria-hidden="true"></span></cds-button>
         </div>
         <div class="memo-popup" style="display:${m?'block':'none'}">${safeMemo}</div>
     `;
@@ -75,7 +75,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none') {
                 ${renderPersonFlag(dflag)}
                 ${driverGenderHtml}
                 ${driverGradeHtml}
-                <cds-icon-button type="button" kind="ghost" size="lg" class="driver-menu-btn action-btn" title="車出しメニュー" aria-label="車出し操作メニュー"><span data-carbon-icon="overflow-menu-vertical" slot="icon" aria-hidden="true"></span></cds-icon-button>
+                <cds-button type="button" kind="ghost" size="lg" class="driver-menu-btn action-btn" aria-label="車出し操作メニュー"><span class="visually-hidden">車出し操作メニュー</span><span data-carbon-icon="overflow-menu-vertical" slot="icon" aria-hidden="true"></span></cds-button>
             </div>
             <div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${safeMemo}</div>
         </div>

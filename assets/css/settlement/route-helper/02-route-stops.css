@@ -1,7 +1,7 @@
 /* Distance route helper: stop list, stop rows, and drag/delete controls. */
 #routeDistanceModal .route-stop-list {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 #routeDistanceModal .route-stop-row,
@@ -20,41 +20,30 @@
   background: transparent;
 }
 
-#routeDistanceModal .route-stop-row:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  left: calc(48px + 6px + (100% - 48px - 48px - 12px) / 2);
-  top: 100%;
-  width: 8px;
-  height: 6px;
-  background: rgba(100, 116, 139, 0.22);
-  transform: translateX(-50%);
-  pointer-events: none;
-}
 
-#routeDistanceModal .route-stop-num,
-.route-stop-row.route-stop-drag-fallback .route-stop-num {
+#routeDistanceModal .route-stop-drag-handle,
+.route-stop-row.route-stop-drag-fallback .route-stop-drag-handle {
   width: 48px;
   height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 0;
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--text-sub) 7%, transparent);
-  color: var(--text-sub);
+  border-radius: 0;
+  background: transparent;
+  color: var(--cds-icon-secondary, var(--text-sub));
   cursor: grab;
   touch-action: none;
 }
 
-#routeDistanceModal .route-stop-num .carbon-icon,
-.route-stop-row.route-stop-drag-fallback .route-stop-num .carbon-icon {
-  font-size: 0.92rem;
-  line-height: 1;
-  opacity: 0.68;
+#routeDistanceModal .route-stop-drag-handle .carbon-icon,
+.route-stop-row.route-stop-drag-fallback .route-stop-drag-handle .carbon-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 1;
 }
 
-#routeDistanceModal .route-stop-num:active {
+#routeDistanceModal .route-stop-drag-handle:active {
   cursor: grabbing;
 }
 
@@ -124,19 +113,16 @@ body.route-stop-dragging {
     grid-template-columns: 48px minmax(0, 1fr) 48px;
   }
 
-  #routeDistanceModal .route-stop-row:not(:last-child)::after {
-    left: calc(48px + 6px + (100% - 48px - 48px - 12px) / 2);
-  }
 
-  #routeDistanceModal .route-stop-num,
+  #routeDistanceModal .route-stop-drag-handle,
   #routeDistanceModal .route-stop-delete-btn,
-  .route-stop-row.route-stop-drag-fallback .route-stop-num,
+  .route-stop-row.route-stop-drag-fallback .route-stop-drag-handle,
   .route-stop-row.route-stop-drag-fallback .route-stop-delete-btn {
     height: 48px;
   }
 
-  #routeDistanceModal .route-stop-num,
-  .route-stop-row.route-stop-drag-fallback .route-stop-num {
+  #routeDistanceModal .route-stop-drag-handle,
+  .route-stop-row.route-stop-drag-fallback .route-stop-drag-handle {
     width: 48px;
   }
 

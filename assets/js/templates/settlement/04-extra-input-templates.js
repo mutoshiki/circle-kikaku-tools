@@ -31,7 +31,8 @@
       'seisan-extra-row',
       timesFeeKind === 'time' ? 'seisan-extra-row--times-time' : '',
       timesFeeKind === 'distance' ? 'seisan-extra-row--times-distance' : '',
-      isReward ? 'seisan-extra-row--reward' : ''
+      isReward ? 'seisan-extra-row--reward' : '',
+      index === 0 ? 'seisan-extra-row--labeled' : ''
     ].filter(Boolean).join(' ');
     const timesAttr = timesFeeKind ? ` data-times-extra="${timesFeeKind}"` : '';
     const lockedAttr = isReward ? ' readonly aria-readonly="true"' : '';

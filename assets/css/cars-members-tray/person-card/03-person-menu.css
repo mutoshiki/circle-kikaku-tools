@@ -31,18 +31,17 @@
   position: fixed;
   box-sizing: border-box;
   z-index: var(--z-person-menu);
-  width: min(260px, calc(100vw - 16px));
+  width: min(224px, calc(100vw - 16px));
   max-width: calc(100vw - 16px);
   max-height: calc(100dvh - 16px);
-  padding: 8px;
+  padding: 0;
   overflow: auto;
   border: 0;
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   outline: 0;
-  background: var(--surface-lowest);
-  color: var(--text-main);
+  background: var(--cds-layer-01, var(--surface-lowest));
+  color: var(--cds-text-primary, var(--text-main));
   box-shadow: var(--shadow-float);
-  backdrop-filter: var(--ui-floating-backdrop);
 }
 .person-pop-title { padding: 10px 12px 6px; color: var(--text-sub); font-size: 0.76rem; font-weight: 600; }
 .person-pop-item {
@@ -53,14 +52,14 @@
   padding: 10px 12px;
   gap: 10px;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   background: transparent;
   color: var(--text-main);
   font-size: 0.9rem;
   font-weight: 600;
   text-align: left;
 }
-.person-pop-item:hover { background: var(--surface-hover); }
+.person-pop-item:hover { background: var(--cds-layer-hover-01, var(--surface-hover)); }
 .person-pop-item .carbon-icon { width: 20px; color: var(--text-sub); text-align: center; }
 .person-pop-item.danger,
 .person-pop-item.danger .carbon-icon { color: var(--semantic-danger); }

@@ -9,7 +9,7 @@
 #settlementCarEditModal .seisan-extra-row {
   display: grid;
   grid-template-columns: minmax(92px, 1fr) 64px 92px 48px;
-  align-items: end;
+  align-items: start;
   gap: 4px;
   min-width: 0;
   padding: 0;
@@ -19,7 +19,7 @@
 
 #settlementCarEditModal .seisan-extra-field {
   display: grid;
-  align-content: end;
+  align-content: start;
   gap: 5px;
   min-width: 0;
 }
@@ -86,10 +86,21 @@
 }
 
 #settlementCarEditModal .seisan-extra-row .seisan-icon-btn {
-  align-self: end;
+  align-self: start;
   width: 48px;
   min-width: 48px;
   height: 48px;
+}
+
+
+#settlementCarEditModal .seisan-extra-row--labeled > .seisan-icon-btn {
+  margin-top: calc(0.68rem * 1.2 + 5px);
+}
+
+/* Carbon validation text belongs to the field, but every control in the row
+ * keeps the same top edge so one invalid field cannot jump upward alone. */
+#settlementCarEditModal .seisan-extra-row :is(cds-text-input, cds-number-input, cds-select) {
+  align-self: start;
 }
 
 #settlementCarEditModal .seisan-add-row {

@@ -5,6 +5,45 @@
     const events = global.SanpoEvents || {};
     let candidateRefreshTimer = null;
 
+
+    function clearCarbonInvalidState(host) {
+        if (!host) return;
+        host.classList.remove('seisan-input-error', 'is-invalid');
+        host.invalid = false;
+        host.invalidText = '';
+        host.removeAttribute('invalid');
+        host.removeAttribute('invalid-text');
+        host.removeAttribute('aria-invalid');
+    }
+
+    function clearResolvedSettlementValidation(target) {
+        if (!target?.matches?.('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) return;
+        const value = String(target.value || '').trim();
+
+        if (target.matches('[data-field="dist"], [data-field="eco"], [data-field="price"]')) {
+            if (value && Number(value) > 0) clearCarbonInvalidState(target);
+            return;
+        }
+
+        const row = target.closest('.seisan-extra-row');
+        if (!row) return;
+        const name = row.querySelector('[data-extra-field="name"]');
+        const amount = row.querySelector('[data-extra-field="amount"]');
+        const nameValue = String(name?.value || '').trim();
+        const amountValue = String(amount?.value || '').trim();
+
+        // An entirely blank extra row is a draft, not an invalid row. Once either
+        // side of a previously invalid pair is corrected, clear Carbon's stale
+        // invalid property as well as its reflected attributes.
+        if (!nameValue && !amountValue) {
+            clearCarbonInvalidState(name);
+            clearCarbonInvalidState(amount);
+            return;
+        }
+        if (nameValue) clearCarbonInvalidState(name);
+        if (amountValue) clearCarbonInvalidState(amount);
+    }
+
     function queueSettlementCandidateRefresh(row) {
         const name = row?.dataset?.driverName || '';
         if (!name) return;
@@ -89,6 +128,7 @@
         document.addEventListener('input', event => {
             const target = event.target;
             if (target?.matches?.('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
+                clearResolvedSettlementValidation(target);
                 if (target.matches('[data-field="dist"]')) updateTimesDistanceFeeInRow(target.closest('.seisan-car-row'));
                 global.onSettlementInputDelayed?.();
                 queueSettlementCandidateRefresh(target.closest('.seisan-car-row'));
@@ -123,6 +163,7 @@
             if (commitRentalTypeChange(target)) return;
 
             if (target.matches('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
+                clearResolvedSettlementValidation(target);
                 if (target.matches('[data-extra-field="type"]')) {
                     const type = typeof normalizeSettlementExtraType === 'function'
                         ? normalizeSettlementExtraType(target.value)
