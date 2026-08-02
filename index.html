@@ -133,8 +133,6 @@
     <link href="./assets/css/settlement/cost-tags/05-cost-preview-lines.css" rel="stylesheet">
     <link href="./assets/css/settlement/payment-chip/01-payment-tokens.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-cost-summary/01-car-cost-card.css?v=carbon-bottom-nav-3" rel="stylesheet">
-    <link href="./assets/css/settlement/car-cost-summary/02-layout-toggle.css" rel="stylesheet">
-    <link href="./assets/css/settlement/car-cost-summary/03-mobile-compact.css" rel="stylesheet">
     <!-- CSS: sheet view and utilities -->
     <link href="./assets/css/sheet-view/layout/01-sheet-frame.css" rel="stylesheet">
     <link href="./assets/css/sheet-view/layout/02-sheet-car-table.css" rel="stylesheet">
@@ -266,9 +264,6 @@
                 <span data-carbon-icon="car-small" aria-hidden="true"></span>
                 <span>ドライバーへの<cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge seisan-payment-tag carbon-display-tag ui-chip pay" data-cost-type="pay" data-tag-group="cost" data-tag-value="pay" type="magenta" size="sm">支払い</cds-tag></span>
               </div>
-              <cds-icon-button id="seisanCarLayoutToggle" class="seisan-car-layout-toggle" kind="ghost" size="lg" data-action="toggle-settlement-car-layout" aria-label="1列表示に切り替え" title="1列表示に切り替え" aria-pressed="true" hidden>
-                <span class="seisan-layout-grid-icon" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
-              </cds-icon-button>
             </div>
             <div id="seisan-car-list"></div>
           </section>
@@ -313,7 +308,7 @@
       </div>
 
       <div id="bottom-tray" style="display: none;">
-        <div id="tray-handle" role="button" tabindex="0" aria-label="未割り当てメンバーを開閉">
+        <div id="tray-handle" role="button" tabindex="0" aria-label="未割り当てメンバーを開閉" aria-controls="waiting-list-container" aria-expanded="false">
           <div class="handle-bar"></div>
           <div id="tray-toggle-label"><span data-carbon-icon="chevron--up" data-state-icon="waitingTray" data-icon-state="closed" aria-hidden="true"></span><span>未割り当てメンバーを開く</span></div>
         </div>
@@ -325,24 +320,23 @@
               <div class="random-tools">
                 <cds-button id="shuffleAssignBtn" class="auto-assign-btn tray-action-btn tray-action-btn--auto" kind="primary" size="lg" type="button" title="固定した人を残し、未固定の人をランダムに組み直します"><span data-carbon-icon="shuffle" slot="icon" aria-hidden="true"></span><span>ランダム</span></cds-button>
                 <div class="tray-settings-dropdown">
-                  <button type="button" class="tray-settings-label" aria-label="割り当て条件を開く">設定</button>
-                  <cds-overflow-menu class="settings-btn" kind="ghost" size="lg" label="割り当て条件" enable-v12-overflowmenu>
-                    <span slot="icon" data-carbon-icon="settings--adjust" aria-hidden="true"></span>
-                    <cds-menu class="auto-assign-menu-body">
+                  <cds-button id="traySettingsBtn" class="tray-settings-trigger" kind="tertiary" size="lg" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="autoAssignMenu">
+                    <span>設定</span><span slot="icon" data-carbon-icon="settings--adjust" aria-hidden="true"></span>
+                  </cds-button>
+                  <div id="autoAssignMenu" class="auto-assign-menu-body" role="dialog" aria-label="割り当て条件" hidden>
                     <h6 class="auto-assign-menu-title">割り当て条件</h6>
                     <div id="autoAssignSummary" class="auto-assign-menu-summary small text-muted-readable">条件：なし</div>
-                    <div>
+                    <div class="auto-assign-option-row">
                       <cds-checkbox id="optFemale" class="auto-assign-checkbox" label-text="女子をまとめる" aria-label="女性の配置を考慮する"></cds-checkbox>
                     </div>
-                    <div>
+                    <div class="auto-assign-option-row">
                       <cds-checkbox id="optMale" class="auto-assign-checkbox" label-text="男子をまとめる" aria-label="男性の配置を考慮する"></cds-checkbox>
                     </div>
-                    <div>
+                    <div class="auto-assign-option-row">
                       <cds-checkbox id="optGrade" class="auto-assign-checkbox" label-text="学年をまとめる" aria-label="学年の配置を考慮する"></cds-checkbox>
                     </div>
-                    <cds-menu-item id="clearAllBtn" kind="danger" label="全員を未割り当てに戻す"><span data-carbon-icon="clean" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
-                    </cds-menu>
-                  </cds-overflow-menu>
+                    <cds-button id="clearAllBtn" class="auto-assign-clear-btn" kind="danger--ghost" size="lg" type="button"><span data-carbon-icon="clean" slot="icon" aria-hidden="true"></span>全員を未割り当てに戻す</cds-button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -376,9 +370,9 @@
             <cds-modal-close-button data-modal-close close-button-label="閉じる"></cds-modal-close-button>
           </div>
           <div class="modal-body">
-            <cds-text-input id="editModalInput" class="common-edit-text-input" type="text" size="lg" label="編集内容" hide-label autocomplete="off" aria-label="編集内容"></cds-text-input>
+            <cds-text-input id="editModalInput" class="common-edit-text-input" type="text" size="lg" label="編集内容" autocomplete="off" aria-label="編集内容"></cds-text-input>
           </div>
-          <div class="modal-footer py-1">
+          <div class="modal-footer modal-footer--single">
             <cds-button type="button" kind="primary" size="lg" id="saveEditBtn">保存</cds-button>
           </div>
         </div>
@@ -405,8 +399,8 @@
         </div>
       </div>
     </cds-modal>
-    <cds-modal class="app-modal" id="batchImportModal" size="lg" aria-label="参加者登録" aria-labelledby="batchImportModalTitle" has-scrolling-content>
-      <div class="modal-dialog modal-fullscreen-sm-down modal-lg modal-dialog-centered">
+    <cds-modal class="app-modal" id="batchImportModal" size="lg" aria-label="参加者登録" aria-labelledby="batchImportModalTitle">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title modal-title--standard" id="batchImportModalTitle">参加者登録</h5>
@@ -505,8 +499,8 @@
     </cds-modal>
 
     <!-- User guide -->
-    <cds-modal class="app-modal" id="userGuideModal" size="md" aria-label="使い方" aria-labelledby="userGuideModalTitle" has-scrolling-content>
-      <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable">
+    <cds-modal class="app-modal" id="userGuideModal" size="md" aria-label="使い方" aria-labelledby="userGuideModalTitle">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="userGuideModalTitle"><span data-carbon-icon="help" class="me-2" aria-hidden="true"></span>使い方</h5>
@@ -520,7 +514,7 @@
     </cds-modal>
 
     <!-- Settlement edit modals -->
-    <cds-modal class="app-modal" id="settlementSettingsModal" size="xs" aria-label="精算設定" aria-labelledby="settlementSettingsModalTitle" has-scrolling-content>
+    <cds-modal class="app-modal" id="settlementSettingsModal" size="xs" aria-label="精算設定" aria-labelledby="settlementSettingsModalTitle">
       <div class="modal-dialog modal-dialog-centered modal-sm settlement-edit-dialog">
         <div class="modal-content settlement-edit-modal-content">
           <div class="modal-header py-2">
@@ -553,7 +547,7 @@
                   </div>
                   <div class="seisan-field seisan-settings-field--reward">
                     <label>車出し協力代（1台）</label>
-                    <cds-number-input id="seisanDriverReward" size="lg" inputmode="numeric" value="0" label="車出し協力代" hide-label hide-steppers aria-label="車出し協力代"></cds-number-input>
+                    <cds-text-input id="seisanDriverReward" type="text" size="lg" inputmode="numeric" pattern="[0-9]*" value="0" label="車出し協力代" hide-label aria-label="車出し協力代"></cds-text-input>
                   </div>
                 </div>
               </div>
@@ -592,14 +586,14 @@
               </div>
             </div>
           </div>
-          <div class="modal-footer py-2">
+          <div class="modal-footer modal-footer--single">
             <cds-button kind="primary" size="lg" type="button" data-action="save-settlement-settings">保存</cds-button>
           </div>
         </div>
       </div>
     </cds-modal>
 
-    <cds-modal class="app-modal" id="settlementCarEditModal" size="sm" aria-label="車ごとの費用" aria-labelledby="settlementCarEditModalTitle" has-scrolling-content>
+    <cds-modal class="app-modal" id="settlementCarEditModal" size="sm" aria-label="車ごとの費用" aria-labelledby="settlementCarEditModalTitle">
       <div class="modal-dialog modal-dialog-centered modal-sm settlement-edit-dialog settlement-edit-dialog--car">
         <div class="modal-content settlement-edit-modal-content">
           <div class="modal-header py-2">
@@ -609,7 +603,7 @@
           <div class="modal-body">
             <div id="settlementCarEditBody"></div>
           </div>
-          <div class="modal-footer py-2">
+          <div class="modal-footer modal-footer--single">
             <cds-button kind="primary" size="lg" type="button" data-action="save-settlement-car-edit">保存</cds-button>
           </div>
         </div>
@@ -618,7 +612,7 @@
 
 
     <!-- Utility modals -->
-    <cds-modal class="app-modal" id="routeDistanceModal" size="lg" aria-label="移動距離計算ツール" aria-labelledby="routeDistanceModalTitle" has-scrolling-content>
+    <cds-modal class="app-modal" id="routeDistanceModal" size="lg" aria-label="移動距離計算ツール" aria-labelledby="routeDistanceModalTitle">
       <div class="modal-dialog modal-lg modal-dialog-centered route-helper-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -647,13 +641,10 @@
               <div id="routeHelperStatus" class="seisan-small route-helper-status"></div>
             </div>
           </div>
-          <div class="modal-footer">
-            <cds-button type="button" kind="secondary" size="lg" data-modal-close>閉じる</cds-button>
-          </div>
         </div>
       </div>
     </cds-modal>
-    <cds-modal class="app-modal" id="historyModal" size="md" aria-label="履歴" aria-labelledby="historyModalTitle" has-scrolling-content>
+    <cds-modal class="app-modal" id="historyModal" size="md" aria-label="履歴" aria-labelledby="historyModalTitle">
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
@@ -668,7 +659,7 @@
         </div>
       </div>
     </cds-modal>
-    <cds-modal class="app-modal" id="planningCheckModal" size="md" aria-label="企画チェック" aria-labelledby="planningCheckModalTitle" has-scrolling-content>
+    <cds-modal class="app-modal" id="planningCheckModal" size="md" aria-label="企画チェック" aria-labelledby="planningCheckModalTitle">
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
@@ -679,8 +670,8 @@
             <div id="planningCheckSummary" class="planning-check-summary" role="status" aria-live="polite"></div>
             <div id="planningCheckList" class="planning-check-list"></div>
           </div>
-          <div class="modal-footer">
-            <cds-button type="button" kind="primary" size="lg" data-modal-close>確認しました</cds-button>
+          <div class="modal-footer modal-footer--single">
+            <cds-button type="button" kind="primary" size="lg" data-modal-close>閉じる</cds-button>
           </div>
         </div>
       </div>

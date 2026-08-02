@@ -29,9 +29,11 @@
 
 .person-pop-menu {
   position: fixed;
+  box-sizing: border-box;
   z-index: var(--z-person-menu);
-  width: min(260px, calc(100vw - 24px));
-  max-height: min(480px, calc(100dvh - 32px));
+  width: min(260px, calc(100vw - 16px));
+  max-width: calc(100vw - 16px);
+  max-height: calc(100dvh - 16px);
   padding: 8px;
   overflow: auto;
   border: 0;

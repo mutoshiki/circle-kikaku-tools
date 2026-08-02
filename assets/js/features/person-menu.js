@@ -14,16 +14,45 @@ function getActivePersonMenuTarget() {
 window.getActivePersonMenuTarget = getActivePersonMenuTarget;
 
 function positionPersonMenu(menu, anchor = null) {
+    if (!menu?.isConnected) return;
+    const viewport = window.visualViewport;
+    const viewportLeft = viewport?.offsetLeft || 0;
+    const viewportTop = viewport?.offsetTop || 0;
+    const viewportWidth = viewport?.width || window.innerWidth;
+    const viewportHeight = viewport?.height || window.innerHeight;
     const margin = 8;
-    let left = Math.max(margin, Math.round((window.innerWidth - menu.offsetWidth) / 2));
-    let top = Math.max(margin, Math.round((window.innerHeight - menu.offsetHeight) / 2));
-    if (anchor) {
+    const gap = 6;
+    const maxWidth = Math.max(0, viewportWidth - margin * 2);
+    const maxHeight = Math.max(120, viewportHeight - margin * 2);
+
+    menu.style.maxWidth = `${Math.round(maxWidth)}px`;
+    menu.style.maxHeight = `${Math.round(maxHeight)}px`;
+
+    const width = Math.min(menu.offsetWidth || 260, maxWidth);
+    const height = Math.min(menu.offsetHeight || menu.scrollHeight || 0, maxHeight);
+    let left = viewportLeft + Math.max(margin, (viewportWidth - width) / 2);
+    let top = viewportTop + Math.max(margin, (viewportHeight - height) / 2);
+
+    if (anchor?.isConnected) {
         const rect = anchor.getBoundingClientRect();
-        left = Math.min(window.innerWidth - menu.offsetWidth - margin, Math.max(margin, rect.right - menu.offsetWidth));
-        top = Math.min(window.innerHeight - menu.offsetHeight - margin, Math.max(margin, rect.bottom + 6));
+        const availableBelow = viewportTop + viewportHeight - rect.bottom - margin - gap;
+        const availableAbove = rect.top - viewportTop - margin - gap;
+        const openBelow = availableBelow >= height || availableBelow >= availableAbove;
+        left = rect.right - width;
+        top = openBelow ? rect.bottom + gap : rect.top - gap - height;
     }
-    menu.style.left = `${left}px`;
-    menu.style.top = `${top}px`;
+
+    left = Math.min(viewportLeft + viewportWidth - width - margin, Math.max(viewportLeft + margin, left));
+    top = Math.min(viewportTop + viewportHeight - height - margin, Math.max(viewportTop + margin, top));
+    menu.style.left = `${Math.round(left)}px`;
+    menu.style.top = `${Math.round(top)}px`;
+}
+
+function settlePersonMenuPosition(menu, anchor = null) {
+    const controls = Array.from(menu?.querySelectorAll?.('cds-button') || []);
+    Promise.all(controls.map(control => Promise.resolve(control.updateComplete))).then(() => {
+        requestAnimationFrame(() => requestAnimationFrame(() => positionPersonMenu(menu, anchor)));
+    });
 }
 
 function openChoicePopup(title, choices, onPick) {
@@ -44,6 +73,7 @@ function openChoicePopup(title, choices, onPick) {
     });
     document.body.appendChild(menu);
     positionPersonMenu(menu);
+    settlePersonMenuPosition(menu);
 }
 
 function updatePersonGradeBadge(person) {
@@ -240,6 +270,7 @@ function openCompactPersonMenu(trigger) {
     });
     document.body.appendChild(menu);
     positionPersonMenu(menu, trigger);
+    settlePersonMenuPosition(menu, trigger);
 }
 
 function shouldKeepPersonMenuForTarget(target) {
@@ -312,15 +343,39 @@ function handleEdit(type, el) {
     const driver = !isCap && !card ? el.closest('.driver-seat') : null;
 
     let initialVal = '', title = '';
-    if(isCap) { title = '定員変更'; initialVal = el.val(); }
+    if(isCap) {
+        title = '定員変更';
+        initialVal = String(
+            box?.dataset.capacity
+            || box?.querySelectorAll?.('.seat-slot')?.length
+            || el.value
+            || el.getAttribute?.('value')
+            || ''
+        );
+    }
     else if (type === 'memberName' && card) { title = '名前変更'; initialVal = card.dataset.name || $('.member-name-text', card).innerText; }
     else if (type === 'driverName' && driver) { title = '名前変更'; initialVal = driver.dataset.name || $('.driver-name-disp', driver).innerText; }
     else if (card) { title = 'メモ編集'; initialVal = $('.memo-popup', card).innerText; } 
     else if (driver) { title = '車出しメモ'; initialVal = $('.driver-memo-text', driver).innerText; }
 
     const editTitleEl = $('#commonEditModalTitle');
+    const editInput = $('#editModalInput');
     if (editTitleEl) editTitleEl.innerText = title;
-    $('#editModalInput').value = initialVal;
+    if (editInput) {
+        editInput.value = initialVal;
+        editInput.label = isCap ? '定員' : (type.includes('Name') ? '名前' : 'メモ');
+        editInput.setAttribute('label', editInput.label);
+        editInput.setAttribute('aria-label', editInput.label);
+        editInput.type = isCap ? 'number' : 'text';
+        editInput.inputMode = isCap ? 'numeric' : 'text';
+        if (isCap) {
+            editInput.setAttribute('min', '1');
+            editInput.setAttribute('step', '1');
+        } else {
+            editInput.removeAttribute('min');
+            editInput.removeAttribute('step');
+        }
+    }
     
     saveCb = () => {
         const v = $('#editModalInput').value;

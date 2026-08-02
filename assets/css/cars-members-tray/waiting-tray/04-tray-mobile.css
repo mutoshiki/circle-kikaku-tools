@@ -1,6 +1,11 @@
-/* Bottom-sheet handle and participant grid. */
+/* Bottom-sheet handle, unified settings trigger, and participant grid. */
 .handle-bar { width: 34px; height: 4px; opacity: 0.5; }
-#waiting-list-container { flex: 1; overflow-y: auto; padding: 12px 16px calc(18px + env(safe-area-inset-bottom)); -webkit-overflow-scrolling: touch; }
+#waiting-list-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px calc(18px + env(safe-area-inset-bottom));
+  -webkit-overflow-scrolling: touch;
+}
 #waiting-list {
   position: relative;
   display: grid;
@@ -9,31 +14,60 @@
   min-height: 100px;
   overscroll-behavior: contain;
 }
-.random-tools .tray-settings-dropdown {
-  display: grid;
-  grid-template-columns: auto var(--mobile-touch);
-  align-items: center;
+
+.tray-settings-dropdown {
+  position: relative;
   width: auto;
-  min-width: 82px;
-  height: var(--mobile-touch);
-  background: var(--surface-container);
-  --cds-icon-primary: var(--interactive);
+  min-width: 96px;
 }
-.tray-settings-label {
-  align-self: stretch;
-  padding: 0 0 0 12px;
-  border: 0;
-  background: transparent;
+.tray-settings-trigger {
+  display: block;
+  width: 100%;
+  min-width: 96px;
+  min-height: 48px;
+}
+.tray-settings-dropdown .auto-assign-menu-body {
+  position: absolute;
+  top: auto;
+  right: 0;
+  bottom: calc(100% + 8px);
+  left: auto;
+  z-index: var(--z-dropdown);
+  width: min(280px, calc(100vw - 32px));
+  min-width: 0;
+  max-height: min(420px, calc(100dvh - 160px));
+  overflow-y: auto;
+  border: 1px solid var(--border-section);
+  background: var(--surface-lowest);
+  box-shadow: var(--shadow-float);
+}
+.tray-settings-dropdown .auto-assign-menu-body[hidden] { display: none !important; }
+
+.tray-settings-dropdown .auto-assign-menu-title {
+  margin: 0;
+  padding: 16px 16px 4px;
   color: var(--text-main);
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.78rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  line-height: 1;
-  text-align: left;
-  white-space: nowrap;
 }
-.tray-settings-label:focus-visible {
-  outline: 2px solid var(--focus-accent);
-  outline-offset: -2px;
+
+.tray-settings-dropdown .auto-assign-menu-summary {
+  padding: 0 16px 8px;
+  color: var(--text-sub);
+  font-size: 0.75rem;
+}
+
+.tray-settings-dropdown .auto-assign-option-row {
+  min-height: 48px;
+  border-top: 1px solid var(--border-section);
+}
+
+.tray-settings-dropdown .auto-assign-checkbox {
+  margin: 0;
+}
+
+.tray-settings-dropdown .auto-assign-clear-btn {
+  width: 100%;
+  min-height: 48px;
+  border-top: 1px solid var(--border-section);
 }

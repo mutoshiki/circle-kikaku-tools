@@ -6,8 +6,8 @@
 }
 
 #routeDistanceModal .route-helper-dialog {
-  width: min(620px, calc(100vw - 28px));
-  max-width: min(620px, calc(100vw - 28px));
+  width: min(620px, calc(100vw - 32px));
+  max-width: min(620px, calc(100vw - 32px));
   margin-inline: auto;
 }
 
@@ -34,8 +34,8 @@
   box-sizing: border-box;
   padding: 10px;
   border: 1px solid color-mix(in srgb, var(--ui-saas-border, var(--border-color)) 72%, transparent);
-  border-radius: var(--radius-main);
-  background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-body));
+  border-radius: 0;
+  background: var(--surface-low);
   box-shadow: none;
 }
 
@@ -94,7 +94,7 @@
 
 #routeDistanceModal .route-helper-actions .seisan-btn {
   width: 100%;
-  min-height: 42px;
+  min-height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -113,14 +113,14 @@
 
 @media (max-width: 640px) {
   #routeDistanceModal .route-helper-dialog {
-    width: calc(100vw - 24px);
-    max-width: calc(100vw - 24px);
-    margin: 12px auto;
+    width: calc(100vw - 32px);
+    max-width: calc(100vw - 32px);
+    margin: 16px auto;
   }
 
   #routeDistanceModal .modal-content {
-    max-height: calc(100dvh - 24px);
-    border-radius: var(--radius-lg);
+    max-height: calc(100dvh - 32px);
+    border-radius: 0;
   }
 
   #routeDistanceModal .route-helper-body {

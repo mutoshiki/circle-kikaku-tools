@@ -1,13 +1,19 @@
 /* Timetable editor in overview and quick-edit mode. */
 .overview-drawer .overview-timetable-rows { display: grid; gap: 8px; }
-.overview-drawer .overview-timetable-row { display: grid; grid-template-columns: 82px minmax(0, 1fr) 48px; gap: 8px; align-items: center; width: 100%; }
+.overview-drawer .overview-timetable-row { display: grid; grid-template-columns: 108px minmax(0, 1fr) 48px; gap: 8px; align-items: center; width: 100%; }
 .overview-drawer .overview-timetable-row cds-text-input { --cds-field: var(--surface-low); display: block; box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; min-height: 48px; color: var(--text-main); }
-.overview-drawer .overview-timetable-row cds-text-input[data-field="time"] { width: 82px; font-variant-numeric: tabular-nums; }
+.overview-drawer .overview-timetable-row cds-text-input[data-field="time"] { width: 108px; font-variant-numeric: tabular-nums; }
 .sheet-timetable-card--edit { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
 .sheet-timetable-edit-list { display: flex; flex-direction: column; gap: 8px; }
-.sheet-timetable-edit-row { display: grid; grid-template-columns: 92px minmax(160px, 1fr) 48px; align-items: center; gap: 8px; }
+.sheet-timetable-edit-row { display: grid; grid-template-columns: 108px minmax(160px, 1fr) 48px; align-items: center; gap: 8px; }
 .sheet-timetable-input { --cds-field: var(--surface-low); display: block; min-height: 48px; color: var(--text-main); }
 .sheet-timetable-delete,
 .sheet-timetable-add { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; border: 0; border-radius: var(--radius-pill); background: var(--surface-container); color: var(--text-main); font-size: 0.78rem; font-weight: 600; }
 .sheet-timetable-add { align-self: flex-start; padding: 0 14px; }
 #sheet-view-area .sheet-timetable-card:not(.sheet-timetable-card--edit) :where(input, button.sheet-timetable-delete, button.sheet-timetable-add) { display: none; }
+
+@media (max-width: 390px) {
+  .overview-drawer .overview-timetable-row { grid-template-columns: 100px minmax(0, 1fr) 48px; gap: 6px; }
+  .overview-drawer .overview-timetable-row cds-text-input[data-field="time"] { width: 100px; }
+  .sheet-timetable-edit-row { grid-template-columns: 100px minmax(0, 1fr) 48px; gap: 6px; }
+}

@@ -8,7 +8,7 @@
 .route-stop-row.route-stop-drag-fallback {
   position: relative;
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) 30px;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
   gap: 6px;
   align-items: center;
   max-width: 100%;
@@ -23,7 +23,7 @@
 #routeDistanceModal .route-stop-row:not(:last-child)::after {
   content: "";
   position: absolute;
-  left: calc(34px + 6px + (100% - 34px - 30px - 12px) / 2);
+  left: calc(48px + 6px + (100% - 48px - 48px - 12px) / 2);
   top: 100%;
   width: 8px;
   height: 6px;
@@ -34,8 +34,8 @@
 
 #routeDistanceModal .route-stop-num,
 .route-stop-row.route-stop-drag-fallback .route-stop-num {
-  width: 30px;
-  height: 38px;
+  width: 48px;
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -68,15 +68,15 @@
 
 #routeDistanceModal .route-stop-delete-btn,
 .route-stop-row.route-stop-drag-fallback .route-stop-delete-btn {
-  width: 34px;
-  min-width: 34px;
-  height: 38px;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
 }
 
 #routeDistanceModal .route-add-stop-btn {
   width: 100%;
   margin-top: 7px;
-  min-height: 38px;
+  min-height: 48px;
 }
 
 #routeDistanceModal .route-stop-help {
@@ -121,29 +121,29 @@ body.route-stop-dragging {
 @media (max-width: 640px) {
   #routeDistanceModal .route-stop-row,
   .route-stop-row.route-stop-drag-fallback {
-    grid-template-columns: 38px minmax(0, 1fr) 32px;
+    grid-template-columns: 48px minmax(0, 1fr) 48px;
   }
 
   #routeDistanceModal .route-stop-row:not(:last-child)::after {
-    left: calc(38px + 6px + (100% - 38px - 32px - 12px) / 2);
+    left: calc(48px + 6px + (100% - 48px - 48px - 12px) / 2);
   }
 
   #routeDistanceModal .route-stop-num,
   #routeDistanceModal .route-stop-delete-btn,
   .route-stop-row.route-stop-drag-fallback .route-stop-num,
   .route-stop-row.route-stop-drag-fallback .route-stop-delete-btn {
-    height: 40px;
+    height: 48px;
   }
 
   #routeDistanceModal .route-stop-num,
   .route-stop-row.route-stop-drag-fallback .route-stop-num {
-    width: 32px;
+    width: 48px;
   }
 
   #routeDistanceModal .route-stop-delete-btn,
   .route-stop-row.route-stop-drag-fallback .route-stop-delete-btn {
-    width: 38px;
-    min-width: 38px;
+    width: 48px;
+    min-width: 48px;
   }
 
   #routeDistanceModal .route-stop-help {

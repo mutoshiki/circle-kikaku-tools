@@ -42,3 +42,31 @@
 #sheet-hint.visible {
   opacity: 1;
 }
+
+/* Persistent, low-noise pan affordance. */
+#sheet-view-area.sheet-needs-pan #sheet-canvas::before,
+#sheet-view-area.sheet-needs-pan #sheet-canvas::after {
+  content: "";
+  position: absolute;
+  top: 76px;
+  bottom: 72px;
+  z-index: var(--z-local-sticky);
+  width: 24px;
+  pointer-events: none;
+}
+#sheet-view-area.sheet-needs-pan #sheet-canvas::before {
+  left: 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--bg-body) 86%, transparent), transparent);
+}
+#sheet-view-area.sheet-needs-pan #sheet-canvas::after {
+  right: 0;
+  background: linear-gradient(270deg, color-mix(in srgb, var(--bg-body) 86%, transparent), transparent);
+}
+#sheet-view-area.sheet-fit-active #sheet-hint {
+  opacity: 1;
+}
+#sheet-bottom-controls {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}

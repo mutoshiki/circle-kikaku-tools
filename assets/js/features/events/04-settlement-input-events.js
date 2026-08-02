@@ -46,6 +46,20 @@
         return true;
     }
 
+    function focusSettlementExtraAmountField(target) {
+        const field = target?.closest?.('[data-extra-amount-field]');
+        if (!field) return false;
+        const host = field.querySelector('[data-extra-field="amount"]');
+        if (!host || host.hasAttribute('readonly') || host.disabled) return false;
+        const focusInnerControl = () => {
+            const control = host.shadowRoot?.querySelector('input:not([disabled]):not([readonly])');
+            if (control) control.focus({ preventScroll: true });
+            else host.focus?.({ preventScroll: true });
+        };
+        Promise.resolve(host.updateComplete).then(() => requestAnimationFrame(focusInnerControl));
+        return true;
+    }
+
     function setupSettlementInputEvents() {
         if (document.documentElement.dataset.settlementInputEventsBound === 'true') return;
         document.documentElement.dataset.settlementInputEventsBound = 'true';
@@ -162,6 +176,12 @@
             if (target.matches('#routeStopList .route-stop-input')) {
                 global.onRouteStopsChanged?.();
             }
+        });
+
+        document.addEventListener('pointerdown', event => {
+            if (!focusSettlementExtraAmountField(event.target)) return;
+            // Keep the native click for the Carbon input itself; only prevent selection on the wrapper label.
+            if (!event.target.closest?.('[data-extra-field="amount"]')) event.preventDefault();
         });
 
         document.addEventListener('click', event => {

@@ -37,11 +37,11 @@ function getSheetContentWidth(content = getSheetTransformTarget()) {
 }
 
 function getInitialSheetX(area, contentWidth, scale) {
-    if (!area || area.clientWidth <= 640) return 0;
+    if (!area) return 0;
     return Math.max(0, Math.round((area.clientWidth - contentWidth * scale) / 2));
 }
 
-function fitInitialSheetScale() {
+function fitInitialSheetScale({ fitAll = false } = {}) {
     const area = byId('sheet-view-area');
     const content = getSheetTransformTarget();
     if (!area || !content || !content.children.length) return;
@@ -57,16 +57,21 @@ function fitInitialSheetScale() {
     const availableWidth = Math.max(0, area.clientWidth - 20);
     if (!contentWidth || !availableWidth) return;
     const isCompact = area.clientWidth <= 640;
-    const minScale = isCompact ? 0.74 : 0.92;
-    const maxScale = isCompact ? 0.88 : 1;
-    sheetScale = Math.min(1, Math.min(maxScale, Math.max(minScale, availableWidth / contentWidth)));
+    const maxScale = isCompact ? 0.9 : 1;
+    const minScale = fitAll ? (isCompact ? 0.42 : 0.72) : (isCompact ? 0.66 : 0.84);
+    const fitScale = availableWidth / contentWidth;
+    sheetScale = Math.min(maxScale, Math.max(minScale, fitScale));
     sheetX = getInitialSheetX(area, contentWidth, sheetScale);
     sheetY = 0;
+    area.classList.toggle('sheet-needs-pan', contentWidth * sheetScale > availableWidth + 4);
+    area.classList.add('sheet-fit-active');
     applySheetTransform();
 }
 
 function markSheetAdjusted() {
     sheetUserAdjusted = true;
+    const area = byId('sheet-view-area');
+    area?.classList.remove('sheet-fit-active');
 }
 
 D.addEventListener('DOMContentLoaded', () => {
@@ -205,3 +210,4 @@ D.addEventListener('DOMContentLoaded', () => {
         if (!sheetUserAdjusted) requestAnimationFrame(fitInitialSheetScale);
     });
 });
+
