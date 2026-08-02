@@ -30,9 +30,9 @@ function openChoicePopup(title, choices, onPick) {
     closePersonMenus();
     const menu = ce('div', 'person-pop-menu choice-menu');
     menu.innerHTML = `<div class="person-pop-title">${escapeHtml(title)}</div>` + choices.map(choice => `
-        <button type="button" class="person-pop-item" data-value="${escapeHtml(choice.value)}"${choice.flag ? ` data-flag-choice="${escapeHtml(choice.value)}"` : ''}>
+        <cds-button type="button" kind="ghost" size="lg" class="person-pop-item" data-value="${escapeHtml(choice.value)}"${choice.flag ? ` data-flag-choice="${escapeHtml(choice.value)}"` : ''}>
             <span data-carbon-icon="${escapeHtml(choice.icon || 'circle--filled')}" aria-hidden="true"></span><span>${escapeHtml(choice.label)}</span>
-        </button>
+        </cds-button>
     `).join('');
     menu.addEventListener('click', event => {
         const item = event.target.closest('.person-pop-item');
@@ -227,9 +227,9 @@ function openCompactPersonMenu(trigger) {
           ];
     const menu = ce('div', 'person-pop-menu');
     menu.innerHTML = actions.map(([action, label, icon]) => `
-        <button type="button" class="person-pop-item ${action === 'return' && inWaiting ? 'danger' : ''}" data-person-action="${action}">
+        <cds-button type="button" kind="ghost" size="lg" class="person-pop-item ${action === 'return' && inWaiting ? 'danger' : ''}" data-person-action="${action}">
             <span data-carbon-icon="${icon}" aria-hidden="true"></span><span>${label}</span>
-        </button>
+        </cds-button>
     `).join('');
     menu.addEventListener('click', event => {
         const item = event.target.closest('.person-pop-item');

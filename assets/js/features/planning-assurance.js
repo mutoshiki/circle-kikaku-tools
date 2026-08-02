@@ -111,11 +111,10 @@
     }
 
     function refreshPlanningCheckCount() {
-        const badge = document.getElementById('planningCheckCount');
-        if (!badge) return [];
+        const menuItem = document.getElementById('planningCheckBtn');
+        if (!menuItem) return [];
         const issues = collectPlanningIssues();
-        badge.textContent = String(issues.length);
-        badge.hidden = issues.length === 0;
+        menuItem.shortcut = issues.length === 0 ? '' : String(issues.length);
         return issues;
     }
 
@@ -139,8 +138,8 @@
     function openPlanningCheck() {
         renderPlanningCheck();
         const modalEl = document.getElementById('planningCheckModal');
-        if (!modalEl || !global.bootstrap) return;
-        checkModal ||= new bootstrap.Modal(modalEl);
+        if (!modalEl || !global.AppModalAdapter) return;
+        checkModal ||= global.AppModalAdapter.getOrCreateInstance(modalEl);
         checkModal.show();
     }
 
@@ -156,8 +155,8 @@
             <h2 id="appCoachmarkTitle"></h2>
             <p></p>
             <div class="app-coachmark-actions">
-                <button type="button" class="app-coachmark-skip">スキップ</button>
-                <button type="button" class="app-coachmark-next">次へ</button>
+                <cds-button type="button" kind="ghost" size="lg" class="app-coachmark-skip">スキップ</cds-button>
+                <cds-button type="button" kind="primary" size="lg" class="app-coachmark-next">次へ</cds-button>
             </div>`;
         coachEl.querySelector('.app-coachmark-skip').addEventListener('click', finishCoachmark);
         coachEl.querySelector('.app-coachmark-next').addEventListener('click', () => {

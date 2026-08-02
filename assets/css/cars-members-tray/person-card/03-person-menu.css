@@ -25,7 +25,7 @@
   touch-action: manipulation;
 }
 :where(.member-menu-btn, .driver-menu-btn):hover { background: var(--surface-hover); color: var(--text-main); }
-:where(.member-menu-btn, .driver-menu-btn) .carbon-icon { width: 1rem; height: 1rem; pointer-events: none; }
+:where(.member-menu-btn, .driver-menu-btn) .carbon-icon { width: 1.5rem; height: 1.5rem; pointer-events: none; }
 
 .person-pop-menu {
   position: fixed;

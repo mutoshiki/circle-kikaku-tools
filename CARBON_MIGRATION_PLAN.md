@@ -927,3 +927,85 @@ Visual RegressionはPhase 4A対象だけを360 / 390 / 768 / 1280px × light / d
 8. 小さな部品単位の専用phaseを増やさず、同じ契約を持つ低リスク部品を機能単位でまとめて移行する。
 
 残るリスクは、Carbon Web Components 2.60.0ではnative `change`のcomposed=falseを小さなbridgeで補っていること、Bootstrap focus trapがShadow controlを認識しないため対象別Tab bridgeがModal移行まで必要なこと、既知Playwright失敗9件、Windows Chromium以外の未確認、Bootstrap / Font Awesome残存、ユーザーガイド画像の既知不一致である。
+
+## 18. 継続移行メモ: 自動割当条件Checkboxとmenu開閉契約
+
+自動割当条件の`optFemale` / `optMale` / `optGrade`は、同一のchecked value carrier契約を持つ3件として公式Carbon Checkboxへまとめて移行した。自動割当の計算は従来どおり実行Button側が現在のchecked値を読むため、Checkbox hostには計算、保存、Firebase同期を持たせていない。
+
+menuの正しい開閉契約は「複数条件を連続選択できる」と決定した。根拠は、移行前の3件がBootstrap dropdown内のnative `input[type=checkbox]`であり、Bootstrap 5の既定処理はmenu内のinput clickでは閉じないこと、既存rendererが3条件を独立して同時保持し、`条件：女子・男子`のように複数値を結合表示すること、実行時に3件すべてのchecked値を一括取得することにある。選択ごとに閉じるという資料、コード、テスト上の契約は見つからなかった。
+
+公式Carbon v12 Overflow Menu / Menuへの移行時に、暫定`data-bs-auto-close="outside"`、`data-bs-toggle`、Bootstrap Dropdown依存を削除した。最終DOMの`data-bs-*`は0件。Carbon MenuのE2Eへ「menuを1回開き、複数Checkboxをpointer / Spaceで連続選択できる」契約を移管し、1件目と2件目の選択後もmenu open、checked、summary、accessible name、48px、保存0回を確認する。
+
+Carbon CheckboxがSpace更新時にShadow内部inputを再描画してfocusを失う差だけは、既存event owner内の最小bridgeで補った。Spaceはhostの`checked`を反転し、従来と同型のcomposed `change`を1回発火して更新完了後に内部inputへfocusを戻す。Tab / Shift+Tabは同じ3Checkbox内だけを移動する。計算、保存、Firebase、menu状態をbridgeへ持たせていない。Bootstrap暫定設定は残っておらず、最終Carbon Menu E2Eは成功している。
+
+## 19. フェーズ4B〜6 最終完了記録
+
+一般UI、form、menu、navigation、Modal、iconの移行を完了した。実行時のBootstrap / Font Awesome / native form要素は0で、一般UIのCarbon化率は**100%**。車card、座席、班card、未割当tray、精算card、共有画面、動的費用行は業務構造を変えず、Carbon token / spacing / typography / state / focus / ARIAへ準拠する独自componentとして維持した。
+
+### 最終component inventory
+
+| 公式Carbon host | instance |
+|---|---:|
+| Button | 40 |
+| Icon Button | 13 |
+| Text Input | 9 |
+| Textarea | 8 |
+| Number Input | 7 |
+| Select / Select Item | 4 / 12 |
+| Checkbox / Toggle | 10 / 1 |
+| Content Switcher / Item | 4 / 9 |
+| Tag | 7 |
+| Toast Notification | 1系統（動的host） |
+| Overflow Menu / Menu / Menu Item | 2 / 2 / 7 |
+| Modal / Modal Close Button | 10 / 12 |
+
+静的source上の公式hostは157 instance。Carbon Iconsは、動的な状態・選択肢iconも含めてbundleへ**58種類**を限定importし、source上の描画参照は90件。`index.html` / `assets/js`のnative `<button>` / `<input>` / `<select>` / `<textarea>`、`<i>` icon wrapperはいずれも0件。
+
+### 残存依存と削除結果
+
+| 指標 | 移行前 | 最終 |
+|---|---:|---:|
+| Font Awesome参照 | 134 | **0** |
+| `data-bs-toggle` | 2 | **0** |
+| `data-bs-dismiss` | 15 | **0** |
+| `bootstrap.Modal` | 12 | **0** |
+| `hide.bs.modal` / `hidden.bs.modal` | 10 | **0** |
+| Bootstrap vendor file | 2 | **0 existing** |
+| Font Awesome vendor file | 9 | **0 existing** |
+| Bootstrap / Font Awesome package / lockfile参照 | 有 | **0** |
+
+Bootstrap 2 fileとFont Awesome 9 fileはworktreeで削除済み。stylesheet、JavaScript、package、vendor、test fallback、`data-bs-*`、lifecycle eventを残していない。移行履歴内の説明文字列だけは残す。
+
+### 維持した業務契約
+
+- 計算式、端数処理、ガソリン代、レンタカー代、部費 / 支払い分類、同一fixtureの精算結果を変更していない。
+- 保存object、参加者 / 車 / 班 / 精算data構造、localStorage keyと意味、共有URL形式を変更していない。
+- Firebase data構造、同期の意味、呼び出しtimingを変更していない。
+- form hostは既存ID、value、checked、input / change / blur、IME composition、debounce、focus、save回数を維持。必要な箇所だけ最小event / value bridgeを使用する。
+- `AppModalAdapter`はopen / close、Promise、Esc、backdrop、scroll lock、focus trap / restore、validation、save timingを所有する最小adapter。Bootstrap lifecycle依存は0。
+- header Menu itemは選択後に閉じる。自動割当条件Menuだけは複数Checkboxを連続選択できる契約を維持する。closed Carbon Menu hostの2px hit areaは`pointer-events:none`として隣接Buttonを遮らない。
+
+### 独自component最終監査
+
+360 / 390 / 768 / 1280px、light / darkで車割、班割、共有、精算、未割当tray、空状態を検査した。document横overflow 0、主要操作48px以上、visible focus、keyboard、accessible name / ARIA、色だけに依存しない状態表現を確認した。mobileの氏名はellipsisをやめて折り返し、精算空状態CTAは430px以下で縦積み、中央Modalのclose Buttonはheader内へ固定した。
+
+### IBM Plex / asset最適化
+
+IBM Plex Sans / IBM Plex Sans JPはRegular / SemiBoldだけを維持。Latin 2 fileをpreloadし、日本語2 weightは公式unicode-rangeに沿う124 fileずつのsplit WOFF2へ変更した。初期画面の実測font loadは55 request、encoded **1,786,376 bytes（約1.70 MiB）**で、従来約4.7MB一括loadから約62%削減。日本語fallbackとglyph範囲は削っていない。
+
+Carbon bundleは使用component / iconだけをimportして再生成し、Web Components 2.60.0、Icons 11.85.0、Plex Sans 1.1.0 / Sans JP 3.0.0、Apache-2.0 / OFL licenseを維持した。
+
+### Visual / guide / test結果
+
+- Windows snapshotだけを名前付きscenario単位で確認・更新。Linux snapshot、Toastの無関係基準、一括updateは未変更。
+- Phase 1 Visual / quality: **28 / 28成功**。車割、班割、共有、精算、tray、空状態、form、主要Modal、Toastを360 / 390 / 768 / 1280px、light / darkで確認。
+- 既存Modal Visual: **6 / 6成功**。
+- ユーザーガイド`01-navigation.webp`〜`11-settlement-checks.webp`の11枚を、個人情報を含まない390px lightの現行Carbon UIへ更新。
+- Carbon assets build成功、CSS lint error 0、静的suite **84 / 84成功**、Carbon runtimeは初回成功6 + 失敗1の失敗限定再実行成功で有効 **7 / 7成功**。
+- 全Playwright初回は**71成功 / 15失敗（全86件）**。失敗は曖昧なtab locator 6、Shadow dialog配下scope 5、header Menu closed hostのpointer遮断2、coach key誤値1、mobile氏名clip1へ整理。各失敗testだけを修正・再実行し**15 / 15成功**、有効最終結果は**86 / 86成功**。全suiteの重複再実行はしていない。
+
+### ブラウザ確認と残存リスク
+
+Windows system Chromeでruntime、Visual、keyboard、focus、ARIA、48px、console warning / error、overflowを確認した。Playwright Chromium binaryも存在する。Firefox / WebKit binaryは環境に存在せず未確認。Linux ChromiumはWindows hostのため未確認。side browser integrationは最終確認時にautomation sessionへ所属するtabを取得できず、同じ390 / 1280px代表画面をWindows ChromeのPlaywright screenshotで目視した。
+
+残存リスクは、Carbon Web Components 2.60.0でnative eventがcomposedされない箇所の最小bridge、未確認のFirefox / WebKit / Linux Chromium、生成Carbon bundle内upstream template literal由来の既知行末空白だけ。計算、保存形式、Firebase同期、URL、独自component業務構造に既知差分はない。commit、push、PRは行っていない。

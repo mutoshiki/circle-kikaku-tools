@@ -80,11 +80,12 @@
                 if (e.key === 'Enter' && saveCb) saveCb();
                 if (e.key === 'Tab') {
                     const target = e.shiftKey
-                        ? $('#commonEditModal .btn-close')
+                        ? $('#commonEditModal cds-modal-close-button')
                         : $('#saveEditBtn');
                     if (target) {
                         e.preventDefault();
-                        target.focus();
+                        e.stopPropagation();
+                        queueMicrotask(() => target.focus());
                     }
                 }
             });
@@ -95,19 +96,21 @@
             debugCarCount.addEventListener('keydown', e => {
                 if (e.key !== 'Tab') return;
                 const target = e.shiftKey
-                    ? $('#debugModal .btn-close')
+                    ? $('#debugModal cds-modal-close-button')
                     : $('#executeDebugBtn');
                 if (target) {
                     e.preventDefault();
-                    target.focus();
+                    e.stopPropagation();
+                    queueMicrotask(() => target.focus());
                 }
             });
         }
 
         const roomNameInput = $('#roomNameInput');
         if (roomNameInput) {
-            roomNameInput.addEventListener('input', () => {
+            roomNameInput.addEventListener('input', event => {
                 refreshRoomTitle();
+                if (event.isComposing) return;
                 clearTimeout(saveTimer);
                 saveTimer = setTimeout(save, 500);
             });

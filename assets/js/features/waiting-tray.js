@@ -156,11 +156,19 @@ trayHandleEl?.addEventListener('keydown', e => {
     }
 });
 
+const traySettingsLabelEl = document.querySelector('.tray-settings-label');
+const traySettingsMenuEl = document.querySelector('.tray-settings-dropdown .settings-btn');
+traySettingsLabelEl?.addEventListener('click', event => {
+    event.preventDefault();
+    if (!traySettingsMenuEl || traySettingsMenuEl.disabled) return;
+    traySettingsMenuEl.open = !traySettingsMenuEl.open;
+});
+
 function updateTrayMenuDirection() {
     const tray = byId("bottom-tray");
     const menuWrap = tray?.querySelector('.tray-settings-dropdown');
     if (!tray || !menuWrap) return;
-    menuWrap.classList.toggle('dropup', tray.classList.contains('minimized'));
+    menuWrap.classList.toggle('is-dropup', tray.classList.contains('minimized'));
     updateTrayToggleLabel();
 }
 

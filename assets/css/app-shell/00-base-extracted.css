@@ -1,3 +1,8 @@
+/* App-owned reset previously supplied by the legacy CSS framework. */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
 /* Grade selectors and compact condition summaries shared by editor flows. */
 #roomNameInput { min-width: 0; }
 
@@ -47,6 +52,4 @@
 .auto-condition-pill span { min-width: 0; }
 .auto-condition-pill.is-empty { background: var(--surface-container); color: var(--text-faint); }
 .tool-help-btn .carbon-icon { color: currentColor; }
-.btn-sm,
-.badge,
 .auto-condition-pill { border-radius: var(--radius-sm); }

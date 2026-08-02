@@ -233,10 +233,14 @@ function createPassphraseInput({ label, isPassword = true, autocomplete = 'off' 
     const caption = document.createElement('span');
     caption.className = 'passphrase-field-label';
     caption.textContent = label;
-    const input = document.createElement('input');
+    const input = document.createElement('cds-text-input');
     input.type = isPassword ? 'password' : 'text';
     input.autocomplete = autocomplete;
     input.className = 'passphrase-input';
+    input.size = 'lg';
+    input.label = label;
+    input.hideLabel = true;
+    input.setAttribute('aria-label', label);
     field.append(caption, input);
     return { field, input };
 }
@@ -245,16 +249,21 @@ function appendPassphraseActions(form, { cancelText = 'キャンセル', submitT
     const actions = document.createElement('div');
     actions.className = 'passphrase-actions';
 
-    const cancel = document.createElement('button');
+    const cancel = document.createElement('cds-button');
     cancel.type = 'button';
+    cancel.kind = 'secondary';
+    cancel.size = 'lg';
     cancel.textContent = cancelText;
     cancel.className = 'passphrase-cancel';
     cancel.addEventListener('click', onCancel);
 
-    const submit = document.createElement('button');
-    submit.type = 'submit';
+    const submit = document.createElement('cds-button');
+    submit.type = 'button';
+    submit.kind = 'primary';
+    submit.size = 'lg';
     submit.textContent = submitText;
     submit.className = 'passphrase-submit';
+    submit.addEventListener('click', () => form.requestSubmit());
 
     actions.append(cancel, submit);
     form.appendChild(actions);

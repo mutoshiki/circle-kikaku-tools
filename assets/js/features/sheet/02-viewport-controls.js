@@ -101,6 +101,7 @@ D.addEventListener('DOMContentLoaded', () => {
 
     area.addEventListener('input', event => {
         if (!event.target.closest?.('.sheet-timetable-input')) return;
+        if (event.isComposing) return;
         syncSheetTimetableToOverview();
         clearTimeout(window.__sheetTimetableSaveTimer);
         window.__sheetTimetableSaveTimer = setTimeout(() => {

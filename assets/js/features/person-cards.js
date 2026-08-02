@@ -46,7 +46,7 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
             ${renderPersonFlag(flag)}
             ${genderHtml}
             ${gradeHtml}
-            <button type="button" class="member-menu-btn action-btn" title="メニュー" aria-label="メンバー操作メニュー"><span data-carbon-icon="overflow-menu-vertical" aria-hidden="true"></span></button>
+            <cds-icon-button type="button" kind="ghost" size="lg" class="member-menu-btn action-btn" title="メニュー" aria-label="メンバー操作メニュー"><span data-carbon-icon="overflow-menu-vertical" slot="icon" aria-hidden="true"></span></cds-icon-button>
         </div>
         <div class="memo-popup" style="display:${m?'block':'none'}">${safeMemo}</div>
     `;
@@ -75,7 +75,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none') {
                 ${renderPersonFlag(dflag)}
                 ${driverGenderHtml}
                 ${driverGradeHtml}
-                <button type="button" class="driver-menu-btn action-btn" title="車出しメニュー" aria-label="車出し操作メニュー"><span data-carbon-icon="overflow-menu-vertical" aria-hidden="true"></span></button>
+                <cds-icon-button type="button" kind="ghost" size="lg" class="driver-menu-btn action-btn" title="車出しメニュー" aria-label="車出し操作メニュー"><span data-carbon-icon="overflow-menu-vertical" slot="icon" aria-hidden="true"></span></cds-icon-button>
             </div>
             <div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${safeMemo}</div>
         </div>
@@ -86,12 +86,12 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none') {
         <div class="car-box" data-capacity="${c}">
             <div class="car-header">
                 <span class="car-name-label">${safeName}${groupSuffix}</span>
-                <button type="button" class="capacity-badge capacity-edit-btn" data-action="edit-capacity" title="定員を変更" aria-label="定員を変更">
+                <cds-button type="button" kind="ghost" size="lg" class="capacity-badge capacity-edit-btn" data-action="edit-capacity" title="定員を変更" aria-label="定員を変更">
                     <span class="capacity-count">0/${c}</span><span data-carbon-icon="edit" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="car-delete-btn car-return-btn action-btn delete-btn" title="車出しを解除して待機に戻す" aria-label="車出しを解除して待機に戻す">
+                </cds-button>
+                <cds-icon-button type="button" kind="danger--ghost" size="lg" class="car-delete-btn car-return-btn action-btn delete-btn" title="車出しを解除して待機に戻す" aria-label="車出しを解除して待機に戻す">
                     <span data-carbon-icon="undo" aria-hidden="true"></span>
-                </button>
+                </cds-icon-button>
             </div>
             <div class="car-layout-grid">${slotsHtml}</div>
         </div>

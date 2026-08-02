@@ -1,6 +1,6 @@
-// Core runtime/bootstrap globals
+// Core runtime globals
 // Extracted from app.js during S cleanup.
-// Owns DOM helpers, Firebase bootstrapping, shared state, room id, and small UI wrappers.
+// Owns DOM helpers, Firebase initialization, shared state, room id, and small UI wrappers.
 
 function byId(id) {
     return document.getElementById(id);
@@ -125,14 +125,13 @@ localStorage.setItem('syawari_last_room_id', roomId);
 
 
 function applyRuntimeAccessibilityFixes(root = document) {
-    root.querySelectorAll('.btn-close:not([aria-label])').forEach(btn => btn.setAttribute('aria-label', '閉じる'));
     root.querySelectorAll('button[title]:not([aria-label])').forEach(btn => btn.setAttribute('aria-label', btn.getAttribute('title')));
 }
 
 async function syncCarbonFormControlAccessibility(host) {
     if (!host?.shadowRoot) return;
     await host.updateComplete;
-    const control = host.shadowRoot.querySelector('input, select');
+    const control = host.shadowRoot.querySelector('input, select, textarea');
     const label = host.getAttribute('aria-label') || host.label || host.labelText;
     if (control && label) control.setAttribute('aria-label', label);
     if (control && control.dataset.sanpoChangeBridge !== 'true') {
@@ -143,20 +142,30 @@ async function syncCarbonFormControlAccessibility(host) {
     }
 }
 
-function syncPhase4CarbonFormControls() {
-    ['editModalInput', 'debugCarCount'].forEach(id => {
-        void syncCarbonFormControlAccessibility(byId(id));
-    });
+function syncCarbonFormControls(root = document) {
+    const selector = 'cds-text-input, cds-textarea, cds-number-input, cds-select, cds-checkbox, cds-toggle';
+    const hosts = [];
+    if (root?.matches?.(selector)) hosts.push(root);
+    root?.querySelectorAll?.(selector).forEach(host => hosts.push(host));
+    hosts.forEach(host => void syncCarbonFormControlAccessibility(host));
 }
 
-document.addEventListener('sanpo:carbon-ready', syncPhase4CarbonFormControls, { once: true });
+document.addEventListener('sanpo:carbon-ready', () => {
+    syncCarbonFormControls(document);
+    const observer = new MutationObserver(records => {
+        records.forEach(record => record.addedNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) syncCarbonFormControls(node);
+        }));
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+}, { once: true });
 
 function appPrompt(message, defaultValue = '', options = {}) {
     const modalEl = byId('commonEditModal');
     const input = byId('editModalInput');
     const titleEl = byId('commonEditModalTitle');
     const saveBtn = byId('saveEditBtn');
-    if (!window.bootstrap || !modals?.edit || !modalEl || !input || !titleEl || !saveBtn) {
+    if (!window.AppModalAdapter || !modals?.edit || !modalEl || !input || !titleEl || !saveBtn) {
         return Promise.resolve(window.prompt(String(message || ''), String(defaultValue || '')));
     }
     return new Promise(resolve => {
@@ -165,7 +174,7 @@ function appPrompt(message, defaultValue = '', options = {}) {
         const previousButtonText = saveBtn.textContent;
         let settled = false;
         function cleanup() {
-            modalEl.removeEventListener('hidden.bs.modal', onHidden);
+            modalEl.removeEventListener('sanpo:modal-hidden', onHidden);
             titleEl.textContent = previousTitle || '編集';
             saveBtn.textContent = previousButtonText || '保存';
             saveCb = previousSaveCb;
@@ -191,7 +200,7 @@ function appPrompt(message, defaultValue = '', options = {}) {
         if ('label' in input) input.label = inputLabel;
         void syncCarbonFormControlAccessibility(input);
         saveCb = () => finish(input.value);
-        modalEl.addEventListener('hidden.bs.modal', onHidden);
+        modalEl.addEventListener('sanpo:modal-hidden', onHidden);
         modals.edit.show();
         setTimeout(() => {
             input.focus();

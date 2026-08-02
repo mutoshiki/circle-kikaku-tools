@@ -92,6 +92,9 @@ function syncSettlementControls(state, participants) {
     if (rewardEl) rewardEl.value = state.driverReward ?? '0';
     const standalone = normalizeStandaloneSettlementState(state.standalone || {});
     const roundingValue = String(state.rounding || '100');
+    document.querySelectorAll('.seisan-rounding-row').forEach(switcher => {
+        if (switcher.querySelector(`[data-rounding-value="${CSS.escape(roundingValue)}"]`)) switcher.value = roundingValue;
+    });
     if (standaloneEnabledEl) standaloneEnabledEl.checked = standalone.enabled;
     if (standaloneDriverCountEl) standaloneDriverCountEl.value = standalone.driverCount || '';
     if (standaloneMemberCountEl) standaloneMemberCountEl.value = standalone.memberCount || '';
@@ -99,13 +102,20 @@ function syncSettlementControls(state, participants) {
     roundingOptions.forEach(option => {
         const active = option.dataset.roundingValue === roundingValue;
         option.classList.toggle('active', active);
+        option.selected = active;
         option.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
     if (organizerField) organizerField.hidden = state.organizerFree === false;
     if (organizerEl) {
         const current = state.organizerName || '';
-        const placeholder = new Option('未選択', '');
-        const options = participants.map(p => new Option(p.name, p.name));
+        const createItem = (label, value) => {
+            const item = document.createElement('cds-select-item');
+            item.value = value;
+            item.textContent = label;
+            return item;
+        };
+        const placeholder = createItem('未選択', '');
+        const options = participants.map(p => createItem(p.name, p.name));
         organizerEl.replaceChildren(placeholder, ...options);
         organizerEl.value = participants.some(p => p.name === current) ? current : '';
         state.organizerName = organizerEl.value;
@@ -205,6 +215,23 @@ function refreshSettlementCarEditor(name = activeSettlementCarEditName) {
     applyRuntimeAccessibilityFixes(body);
 }
 
+function refreshSettlementCarEditorCandidates(name = activeSettlementCarEditName) {
+    const body = byId('settlementCarEditBody');
+    const currentRow = body?.querySelector('.seisan-car-row');
+    if (!body || !currentRow || !name) return;
+
+    const template = document.createElement('template');
+    template.innerHTML = getSettlementCarEditHtml(name);
+    const nextCandidates = template.content.querySelector('.seisan-extra-candidates');
+    const currentCandidates = currentRow.querySelector('.seisan-extra-candidates');
+
+    if (currentCandidates && nextCandidates) currentCandidates.replaceWith(nextCandidates);
+    else if (nextCandidates) currentRow.appendChild(nextCandidates);
+    else currentCandidates?.remove();
+
+    if (nextCandidates) applyRuntimeAccessibilityFixes(nextCandidates);
+}
+
 function openSettlementSettings() {
     syncSettlementStateFromDOM();
     const data = getRoomDataOnly();
@@ -249,6 +276,8 @@ function validateStandaloneSettlementSettings(showErrors = true) {
     fields.forEach(field => {
         const invalid = showErrors && invalidFields.includes(field);
         field.classList.toggle('is-invalid', invalid);
+        field.invalid = invalid;
+        field.invalidText = invalid ? '人数を入力してください' : '';
         field.setAttribute('aria-invalid', invalid ? 'true' : 'false');
     });
     if (message) {
@@ -315,6 +344,8 @@ window.SanpoApp?.exposeCompat?.('openStandaloneSettlementSettings', openStandalo
 window.SanpoApp?.exposeCompat?.('saveSettlementSettingsDraft', saveSettlementSettingsDraft);
 window.SanpoApp?.exposeCompat?.('saveSettlementSettings', saveSettlementSettings);
 window.SanpoApp?.exposeCompat?.('openSettlementCarEditor', openSettlementCarEditor);
+window.SanpoApp?.exposeCompat?.('refreshSettlementCarEditor', refreshSettlementCarEditor);
+window.SanpoApp?.exposeCompat?.('refreshSettlementCarEditorCandidates', refreshSettlementCarEditorCandidates);
 window.SanpoApp?.exposeCompat?.('saveSettlementCarEditDraft', saveSettlementCarEditDraft);
 window.SanpoApp?.exposeCompat?.('saveSettlementCarEdit', saveSettlementCarEdit);
 window.SanpoApp?.exposeCompat?.('clearSettlementCarEditor', clearSettlementCarEditor);

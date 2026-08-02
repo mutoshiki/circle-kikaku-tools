@@ -39,22 +39,19 @@
   background: var(--surface-low);
 }
 
-#settlementSettingsModal .modal-footer .btn,
-#settlementCarEditModal .modal-footer .btn {
+#settlementSettingsModal .modal-footer cds-button,
+#settlementCarEditModal .modal-footer cds-button {
   min-width: 112px;
   min-height: 48px;
-  border-radius: var(--radius-pill);
-  font-size: 0.92rem;
-  font-weight: 600;
 }
 
-#settlementCarEditModal .modal-footer .btn {
+#settlementCarEditModal .modal-footer cds-button {
   grid-column: 2;
   justify-self: end;
   width: 112px;
 }
 
-#settlementSettingsModal .modal-footer .btn {
+#settlementSettingsModal .modal-footer cds-button {
   grid-column: 2;
   justify-self: end;
   width: 112px;

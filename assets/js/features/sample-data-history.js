@@ -3,10 +3,6 @@
 
 window.openDebugModal = function() {
     if (!window.modals) return;
-    if (!window.modals.debug) {
-        const el = byId('debugModal');
-        window.modals.debug = new bootstrap.Modal(el);
-    }
     window.modals.debug.show();
 };
 
@@ -281,8 +277,10 @@ window.showHistory = () => {
         hist.forEach((h) => {
             const d = new Date(h.time);
             const timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
-            const btn = document.createElement('button');
+            const btn = document.createElement('cds-button');
             btn.type = 'button';
+            btn.kind = 'ghost';
+            btn.size = 'lg';
             btn.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-2';
             const meta = document.createElement('span');
             meta.className = 'history-meta';
@@ -293,8 +291,8 @@ window.showHistory = () => {
             const cars = h.data?.cars?.length || 0;
             sub.textContent = `${timeStr}・車 ${cars}台・未割り当て ${waiting}人`;
             meta.append(title, sub);
-            const badge = document.createElement('span');
-            badge.className = 'badge bg-primary rounded-pill';
+            const badge = document.createElement('cds-tag');
+            badge.type = 'blue';
             badge.textContent = '復元';
             btn.append(meta, badge);
             btn.addEventListener('click', async () => {

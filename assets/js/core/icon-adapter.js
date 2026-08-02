@@ -38,6 +38,8 @@
     const placeholder = document.createElement('span');
     placeholder.dataset.carbonIcon = iconName;
     placeholder.setAttribute('aria-hidden', 'true');
+    const slotName = current?.getAttribute('slot');
+    if (slotName) placeholder.setAttribute('slot', slotName);
     addClassNames(placeholder, className);
     if (current) current.replaceWith(placeholder);
     else container.prepend(placeholder);
@@ -72,6 +74,8 @@
     placeholder.dataset.stateIcon = group;
     placeholder.dataset.iconState = state;
     placeholder.setAttribute('aria-hidden', 'true');
+    const slotName = current?.getAttribute('slot');
+    if (slotName) placeholder.setAttribute('slot', slotName);
     addClassNames(placeholder, className);
 
     if (current) {

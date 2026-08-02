@@ -2,6 +2,14 @@
 // Owns view switching, announcement sheet rendering, quick edit drag, pan and zoom.
 
 let currentView = 'sheet';
+function syncMainViewSwitcher(view) {
+    const switcher = byId('view-toggle-bar');
+    if (switcher) switcher.value = view;
+    [['tab-list', 'list'], ['tab-sheet', 'sheet'], ['tab-seisan', 'seisan']].forEach(([id, value]) => {
+        const item = byId(id);
+        if (item) item.selected = value === view;
+    });
+}
 async function switchView(view) {
     if (currentView === 'sheet' && view !== 'sheet' && quickEditMode && typeof completeQuickEdit === 'function') {
         completeQuickEdit({ showNotice: false, rerender: false });
@@ -9,7 +17,10 @@ async function switchView(view) {
     const targetScope = view === 'list' ? 'allocation' : (view === 'seisan' ? 'settlement' : null);
     if (targetScope && isEditScopeLocked(targetScope) && !hasTrustedEditAccess(targetScope)) {
         const label = targetScope === 'settlement' ? '精算' : '車割・班割';
-        if (!(await verifyEditPassphrase(`${label}を開くには合言葉を入力してください`, targetScope))) return;
+        if (!(await verifyEditPassphrase(`${label}を開くには合言葉を入力してください`, targetScope))) {
+            syncMainViewSwitcher(currentView);
+            return;
+        }
     }
     currentView = view;
     document.body.classList.toggle('view-mode-list', view === 'list');
@@ -22,6 +33,7 @@ async function switchView(view) {
     const tabSheet = byId('tab-sheet');
     const tabSeisan = byId('tab-seisan');
     const seisanArea = byId('seisan-view-area');
+    syncMainViewSwitcher(view);
 
     if (view === 'seisan') {
         document.body.classList.remove('sheet-mode');
@@ -74,7 +86,7 @@ function isSheetDragHandle(target) {
 }
 
 function isSheetInteractiveTarget(target) {
-    return !!target?.closest?.('button, a, input, textarea, select, [role="button"]');
+    return !!target?.closest?.('button, cds-button, cds-icon-button, cds-content-switcher-item, a, input, textarea, select, cds-text-input, cds-textarea, cds-number-input, cds-select, cds-checkbox, cds-toggle, [role="button"]');
 }
 
 function renderSheetPlain(member) {
@@ -245,11 +257,11 @@ function createSheetTimetableEditRow(item = {}) {
     const title = escapeHtml(String(item?.title || ''));
     return `
         <div class="sheet-timetable-edit-row">
-            <input class="sheet-timetable-input time" type="time" data-field="time" value="${time}" aria-label="時刻">
-            <input class="sheet-timetable-input title" type="text" data-field="title" value="${title}" placeholder="内容" aria-label="内容">
-            <button class="sheet-timetable-delete" type="button" data-action="delete-sheet-timetable-row" aria-label="行を削除">
+            <cds-text-input class="sheet-timetable-input time" type="time" size="lg" data-field="time" value="${time}" label="時刻" hide-label></cds-text-input>
+            <cds-text-input class="sheet-timetable-input title" type="text" size="lg" data-field="title" value="${title}" placeholder="内容" label="内容" hide-label></cds-text-input>
+            <cds-icon-button class="sheet-timetable-delete" kind="ghost" size="lg" type="button" data-action="delete-sheet-timetable-row" aria-label="行を削除">
                 <span data-carbon-icon="close" aria-hidden="true"></span>
-            </button>
+            </cds-icon-button>
         </div>`;
 }
 
@@ -266,9 +278,9 @@ function createSheetTimetableSection() {
                 <div class="sheet-timetable-edit-list">
                     ${editItems.map(item => createSheetTimetableEditRow(item)).join('')}
                 </div>
-                <button class="sheet-timetable-add" type="button" data-action="add-sheet-timetable-row">
+                <cds-button class="sheet-timetable-add" kind="ghost" size="lg" type="button" data-action="add-sheet-timetable-row">
                     <span data-carbon-icon="add" aria-hidden="true"></span><span>行を追加</span>
-                </button>
+                </cds-button>
             </div>`;
         return section;
     }

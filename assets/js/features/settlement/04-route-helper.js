@@ -178,7 +178,7 @@ window.openRouteDistanceHelper = function() {
 
 window.openRouteDistanceHelperFromShortcut = function() {
     const editor = byId('settlementCarEditModal');
-    if (editor?.classList.contains('show') && modals.settlementCarEdit) {
+    if (editor?.open && modals.settlementCarEdit) {
         modals.settlementCarEdit.hide();
         setTimeout(() => window.openRouteDistanceHelper?.(), 180);
         return;

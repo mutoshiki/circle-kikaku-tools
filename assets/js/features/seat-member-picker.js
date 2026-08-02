@@ -27,8 +27,10 @@ function renderSeatMemberPicker() {
         const item = document.createElement('div');
         item.className = 'seat-member-picker-item';
         item.setAttribute('role', 'listitem');
-        const button = document.createElement('button');
+        const button = document.createElement('cds-button');
         button.type = 'button';
+        button.kind = 'ghost';
+        button.size = 'lg';
         button.className = 'seat-member-picker-option';
         const name = escapeHtml(card.dataset.name || '名前未設定');
         const grade = parseInt(card.dataset.grade) || 0;
@@ -81,7 +83,7 @@ function setupSeatMemberPicker() {
         event.preventDefault();
         openSeatMemberPicker(slot);
     });
-    modal?.addEventListener('hidden.bs.modal', () => {
+    modal?.addEventListener('sanpo:modal-hidden', () => {
         const target = seatMemberPickerTarget;
         seatMemberPickerTarget = null;
         if (target?.isConnected && getRealSeatCards(target).length === 0) target.focus();

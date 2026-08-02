@@ -5,7 +5,7 @@
 }
 
 #userGuideModal .modal-content {
-  max-height: min(92vh, 900px);
+  max-height: min(calc(100dvh - 120px), 900px);
 }
 
 #userGuideModal .modal-body {

@@ -1,19 +1,4 @@
 /* Carbon v11 feedback surfaces: inline notification, toggletip, skeleton and person flags. */
-.planning-check-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  min-height: 24px;
-  margin-left: auto;
-  padding-inline: 7px;
-  border-radius: 999px;
-  background: var(--semantic-danger);
-  color: var(--text-on-accent);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
 .planning-check-body { display: grid; gap: 16px; }
 .planning-check-summary {
   display: grid;

@@ -1,36 +1,41 @@
 /* Canonical modal stacking and viewport positioning. */
-.modal-backdrop {
-  z-index: var(--z-modal-backdrop);
-}
-
-.modal {
+.app-modal {
   z-index: var(--z-modal);
-  padding: 12px;
+  padding: 0;
 }
 
-.modal.show .modal-dialog,
-.modal.fade .modal-dialog {
+.app-modal[open] > .modal-dialog {
   display: flex;
-  width: min(100%, 720px);
-  min-height: calc(100dvh - 32px);
+  width: min(calc(100% - 32px), 720px);
+  min-height: 0;
   margin: auto;
   align-items: center;
   max-width: calc(100vw - 32px);
+  max-height: calc(84dvh - 2px);
   transform: none;
 }
 
+.app-modal[open] > .modal-dialog > .modal-content {
+  max-height: inherit;
+}
+
+.app-modal[open][size="xs"] > .modal-dialog { max-height: calc(48dvh - 2px); }
+.app-modal[open][size="sm"] > .modal-dialog { max-height: calc(72dvh - 2px); }
+.app-modal[open][size="lg"] > .modal-dialog { max-height: calc(91dvh - 2px); }
+
 @media (max-width: 640px) {
-  .modal {
-    padding: 10px;
+  .app-modal {
+    padding: 0;
   }
 
-  .modal.show .modal-dialog,
-  .modal.fade .modal-dialog,
+  .app-modal[open] > .modal-dialog,
+  .app-modal[open][size] > .modal-dialog,
   .modal-dialog.modal-lg,
   .modal-dialog.modal-xl {
-    width: 100%;
+    width: calc(100% - 20px);
     min-height: calc(100dvh - 20px);
     max-width: calc(100vw - 20px);
+    max-height: calc(100dvh - 20px);
   }
 
   .modal-content {

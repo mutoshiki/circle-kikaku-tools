@@ -3,11 +3,8 @@
 
 .tool-btn {
   min-width: 48px;
-  padding: 0 14px;
   flex-direction: row;
 }
-.tool-btn .carbon-icon { width: 1rem; height: 1rem; margin: 0; }
-.tool-btn span { font-size: 0.875rem; line-height: 18px; font-weight: 400; white-space: nowrap; }
 
 .edit-header { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin: 0 0 16px; }
 .edit-project-block { padding: 16px; border: 1px solid var(--border-section); border-radius: 0; background: var(--surface-lowest); box-shadow: none; }

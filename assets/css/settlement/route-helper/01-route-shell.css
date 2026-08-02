@@ -98,13 +98,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-#routeDistanceModal .route-helper-actions .seisan-btn :is(i, .carbon-icon) {
-  margin: 0;
 }
 
 #routeDistanceModal .route-helper-status {

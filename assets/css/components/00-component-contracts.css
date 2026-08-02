@@ -31,9 +31,7 @@
   justify-content: center;
   line-height: 1;
 }
-.ui-input,
-:where(input, select, textarea).form-control,
-:where(input, select, textarea).form-select {
+.ui-input {
   border-radius: var(--radius-control);
 }
 .ui-tab,

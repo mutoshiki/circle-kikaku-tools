@@ -38,6 +38,5 @@
 
 @media (max-width: 640px) {
   .edit-tools { gap: 8px; }
-  .edit-tools .tool-btn { padding-inline: 10px; }
   .edit-tools .tool-help-btn { display: inline-flex; flex-direction: row; gap: 6px; }
 }

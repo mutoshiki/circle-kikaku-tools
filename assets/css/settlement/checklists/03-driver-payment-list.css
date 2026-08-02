@@ -17,15 +17,15 @@
 .seisan-driver-pay-row:hover { background: var(--surface-container); }
 .seisan-driver-pay-row.done { background: var(--semantic-success-soft); color: var(--semantic-success); }
 .seisan-driver-pay-row.done .seisan-driver-name::after { content: " ✓"; font-weight: 600; }
-.seisan-driver-pay-row input { width: 22px; height: 22px; margin: 0; }
+.seisan-driver-pay-row cds-checkbox { min-width: 48px; min-height: 48px; margin: -13px -13px -13px 0; }
 .seisan-driver-amount { color: inherit; font-weight: 600; font-variant-numeric: tabular-nums; }
 .seisan-driver-detail { color: var(--text-sub); }
 
 .seisan-check-item.excluded { cursor: not-allowed; }
-.seisan-check-item.excluded input { filter: grayscale(1); }
+.seisan-check-item.excluded cds-checkbox { filter: grayscale(1); }
 .seisan-check-item.excluded.pre-deducted {
   background: var(--semantic-success-soft);
   color: var(--semantic-success);
   opacity: 1;
 }
-.seisan-check-item.excluded.pre-deducted input { filter: none; }
+.seisan-check-item.excluded.pre-deducted cds-checkbox { filter: none; }

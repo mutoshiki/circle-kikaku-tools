@@ -2,7 +2,7 @@
 .seisan-compact-head { min-height: 48px; }
 .seisan-head-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
 .seisan-head-actions .seisan-btn { min-height: 48px; width: auto; }
-#seisanRefreshBtn.seisan-btn { width: 48px; min-width: 48px; padding-inline: 0; }
+#seisanRefreshBtn.seisan-btn { width: 48px; min-width: 48px; }
 .seisan-head-tools-only { justify-content: flex-end; margin-bottom: 10px; }
 
 .seisan-car-summary-row {

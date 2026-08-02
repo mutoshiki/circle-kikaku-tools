@@ -15,20 +15,25 @@ function showCopyFallback(message, text) {
     label.className = 'copy-fallback-label';
     label.textContent = message;
 
-    const textarea = document.createElement('textarea');
+    const textarea = document.createElement('cds-textarea');
     textarea.className = 'copy-fallback-textarea';
     textarea.readOnly = true;
     textarea.value = text;
+    textarea.label = 'コピーする内容';
+    textarea.hideLabel = true;
+    textarea.setAttribute('aria-label', 'コピーする内容');
 
-    const close = document.createElement('button');
+    const close = document.createElement('cds-button');
     close.type = 'button';
+    close.kind = 'secondary';
+    close.size = 'lg';
     close.className = 'copy-fallback-close';
     close.textContent = '閉じる';
     close.addEventListener('click', () => box.remove());
 
     box.append(label, textarea, close);
     textarea.focus();
-    textarea.select();
+    void textarea.updateComplete.then(() => textarea.shadowRoot?.querySelector('textarea')?.select());
 }
 
 function copyUrl() {

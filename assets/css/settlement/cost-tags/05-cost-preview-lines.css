@@ -137,7 +137,7 @@
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
-#seisan-view-area .seisan-driver-pay-row input {
+#seisan-view-area .seisan-driver-pay-row cds-checkbox {
   grid-column: 3;
   grid-row: 1;
   justify-self: end;

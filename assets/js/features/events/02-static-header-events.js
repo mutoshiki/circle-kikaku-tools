@@ -83,11 +83,11 @@
         const row = document.createElement('div');
         row.className = 'overview-timetable-row';
         row.innerHTML = `
-                <input type="time" data-field="time" value="${escapeAttr(item.time || '')}" aria-label="時刻">
-                <input type="text" data-field="title" value="${escapeAttr(item.title || '')}" placeholder="内容" aria-label="内容">
-                <button type="button" class="overview-row-delete" data-action="delete-timetable-row" aria-label="行を削除">
+                <cds-text-input type="time" size="lg" data-field="time" value="${escapeAttr(item.time || '')}" label="時刻" hide-label></cds-text-input>
+                <cds-text-input type="text" size="lg" data-field="title" value="${escapeAttr(item.title || '')}" placeholder="内容" label="内容" hide-label></cds-text-input>
+                <cds-icon-button type="button" class="overview-row-delete" kind="ghost" size="lg" data-action="delete-timetable-row" aria-label="行を削除">
                   <span data-carbon-icon="close" aria-hidden="true"></span>
-                </button>
+                </cds-icon-button>
             `;
         return row;
     }
@@ -150,8 +150,12 @@
         bind('overviewDrawerScrim', () => setOverviewDrawerOpen(false));
         bind('overviewTimetableAddBtn', () => addTimetableRow());
         bind('overviewTimetableCopyBtn', () => copyTextWithFallback(buildTimetableText(), '予定をコピーしました'));
-        memo?.addEventListener('input', saveOverviewDraft);
-        byId('overviewTimetableRows')?.addEventListener('input', saveOverviewDraft);
+        memo?.addEventListener('input', event => {
+            if (!event.isComposing) saveOverviewDraft();
+        });
+        byId('overviewTimetableRows')?.addEventListener('input', event => {
+            if (!event.isComposing) saveOverviewDraft();
+        });
         byId('overviewTimetableRows')?.addEventListener('click', event => {
             const button = event.target.closest?.('[data-action="delete-timetable-row"]');
             if (!button) return;
@@ -170,6 +174,12 @@
 
     function setupStaticHeaderEvents() {
         setupOverviewMenuFields();
+        const headerOverflow = document.querySelector('.header-more cds-overflow-menu');
+        headerOverflow?.addEventListener('click', event => {
+            if (event.composedPath().some(node => node?.tagName === 'CDS-MENU-ITEM')) {
+                headerOverflow.open = false;
+            }
+        });
         bind('userGuideBtn', () => global.modals?.userGuide?.show());
         bind('historyBtn', () => { if (canUseUnlockedMenuAction()) global.showHistory?.(); });
         bind('sampleDataBtn', () => { if (canUseUnlockedMenuAction()) global.openDebugModal?.(); });

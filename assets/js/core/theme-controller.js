@@ -73,10 +73,10 @@
     const nextLabel = isDark ? 'ライトモードに切り替え' : 'ダークモードに切り替え';
     button.setAttribute('aria-pressed', String(isDark));
     button.setAttribute('aria-label', nextLabel);
+    button.label = nextLabel;
+    button.setAttribute('label', nextLabel);
 
-    const label = button.querySelector('.theme-toggle-label');
-    window.SanpoIconAdapter.setStateIcon(button, 'theme', isDark ? 'dark' : 'light', { className: 'me-2' });
-    if (label) label.textContent = nextLabel;
+    window.SanpoIconAdapter.setStateIcon(button, 'theme', isDark ? 'dark' : 'light');
   }
 
   function updateThemeColor(theme) {

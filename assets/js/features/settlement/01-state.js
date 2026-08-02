@@ -461,7 +461,7 @@ function syncSettlementStateFromDOM() {
             timesFeeKind: exRow.dataset.timesExtra === 'time' || exRow.dataset.timesExtra === 'distance' ? exRow.dataset.timesExtra : ''
         }));
         const rentalField = row.querySelector('[data-field="rentalType"]');
-        const rentalType = rentalField?.type === 'checkbox'
+        const rentalType = rentalField?.type === 'checkbox' || rentalField?.tagName === 'CDS-TOGGLE'
             ? (rentalField.checked ? TIMES_RENTAL_TYPE : TIMES_PRIVATE_TYPE)
             : (rentalField?.value || TIMES_PRIVATE_TYPE);
         state.cars[name] = ensureDriverRewardExtra({

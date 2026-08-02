@@ -25,10 +25,10 @@
         formatDriverCollectionOffsetInline(car, helpers),
         formatDriverRoundInline(car, helpers)
       ]);
-      return `<label class="seisan-driver-pay-row ${done ? 'done' : ''}">
+      return `<label class="seisan-driver-pay-row ${done ? 'done' : ''}" data-carbon-checkbox-row>
             <span class="seisan-driver-name">${esc(car.name, helpers)}</span>
             <span class="seisan-driver-amount"><span class="seisan-amount-sign" aria-hidden="true">＝</span>${money(car.adjustedTotalPay ?? car.totalPay, helpers)}</span>
-            <input type="checkbox" ${done ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}">
+            <cds-checkbox ${done ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" aria-label="${esc(car.name, helpers)}車への支払いチェック"></cds-checkbox>
             <div class="seisan-driver-detail seisan-driver-detail-list" aria-label="支払い内訳">${costDetails}</div>
         </label>`;
     }).join('');

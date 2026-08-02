@@ -60,19 +60,10 @@
 
 #routeDistanceModal .route-stop-input,
 .route-stop-row.route-stop-drag-fallback .route-stop-input {
+  --cds-field: var(--bg-card);
+  display: block;
   width: 100%;
-  min-height: 38px;
-  padding: 7px 10px;
-  border: 1px solid color-mix(in srgb, var(--ui-saas-border, var(--border-color)) 78%, transparent);
-  border-radius: var(--radius-sm);
-  background: var(--bg-card);
-  color: var(--text-main);
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-#routeDistanceModal .route-stop-input:focus {
-  border-color: var(--focus-accent);
+  min-height: 48px;
 }
 
 #routeDistanceModal .route-stop-delete-btn,

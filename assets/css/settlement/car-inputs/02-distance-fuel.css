@@ -15,7 +15,8 @@
   min-width: 0;
 }
 
-.seisan-gas-field-row input {
+.seisan-gas-field-row :is(cds-text-input, cds-number-input, input) {
+  display: block;
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
@@ -32,8 +33,6 @@
   width: 100%;
   min-height: 48px;
   margin: 0;
-  padding-inline: 14px;
-  white-space: nowrap;
 }
 
 .seisan-distance-unit,

@@ -104,7 +104,7 @@ function getCarCreateDropTarget(clientX, clientY, el) {
     const carsContainer = byId('cars-container');
     const topArea = byId('top-area');
     if (!carsContainer || !topArea || currentView !== 'list') return null;
-    if (el?.closest?.('.car-box, .edit-header, #bottom-tray, .modal, .dropdown-menu, button, input, textarea, select')) return null;
+    if (el?.closest?.('.car-box, .edit-header, #bottom-tray, .app-modal, cds-menu, button, cds-button, cds-icon-button, input, textarea, select, cds-text-input, cds-textarea, cds-number-input, cds-select, cds-checkbox, cds-toggle')) return null;
 
     const topRect = topArea.getBoundingClientRect();
     if (!isPointInsideRect(clientX, clientY, topRect)) return null;
@@ -317,7 +317,7 @@ function setupManualCardDrag() {
         const card = target.closest?.('.member-card');
         if (!card || card.classList.contains('manual-drag-float') || card.classList.contains('swap-preview-card') || card.classList.contains('drag-preview-card')) return null;
         if (card.dataset.locked === 'true') return null;
-        if (window.SanpoDrag?.isInteractiveTarget(target) || target.closest?.('.action-btn, .delete-btn-overlay, button, input, textarea, select, .memo-popup, .person-pop-menu')) return null;
+        if (window.SanpoDrag?.isInteractiveTarget(target) || target.closest?.('.action-btn, .delete-btn-overlay, button, cds-button, cds-icon-button, input, textarea, select, cds-text-input, cds-textarea, cds-number-input, cds-select, cds-checkbox, cds-toggle, .memo-popup, .person-pop-menu')) return null;
         const parent = card.parentElement;
         if (!(parent?.classList?.contains('seat-slot') || parent?.id === 'waiting-list')) return null;
         return card;

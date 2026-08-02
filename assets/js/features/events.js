@@ -1,4 +1,4 @@
-// App event bootstrap.
+// App event startup.
 // Individual event owners live in assets/js/features/events/ to keep this file from becoming a catch-all.
 (function (global) {
     'use strict';

@@ -4,4 +4,4 @@
 #settlementCarEditModal .seisan-mini-label { min-height: 1.3em; margin-bottom: 5px; color: var(--text-sub); font-size: 0.68rem; font-weight: 600; white-space: nowrap; }
 #settlementCarEditModal .seisan-subhead { margin-top: 18px; padding-top: 14px; }
 #settlementCarEditModal .seisan-standalone-driver-name-field { display: grid; gap: 5px; margin: 2px 0 12px; }
-#settlementCarEditModal .seisan-standalone-driver-name-field input { width: 100%; min-height: 48px; padding: 9px 11px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--surface-lowest); color: var(--text-main); font-size: 16px; font-weight: 600; }
+#settlementCarEditModal .seisan-standalone-driver-name-field cds-text-input { --cds-field: var(--surface-lowest); display: block; width: 100%; min-height: 48px; }

@@ -19,59 +19,55 @@
   function ensureConfirmModal() {
     let el = document.getElementById('appConfirmModal');
     if (!el) {
-      el = document.createElement('div');
+      el = document.createElement('cds-modal');
       el.id = 'appConfirmModal';
-      el.className = 'modal fade app-decision-modal';
-      el.tabIndex = -1;
-      el.setAttribute('role', 'dialog');
-      el.setAttribute('aria-modal', 'true');
-      el.setAttribute('aria-labelledby', 'appConfirmModalTitle');
+      el.className = 'app-modal app-decision-modal';
+      el.setAttribute('size', 'xs');
+      el.setAttribute('aria-label', '確認');
       el.innerHTML = `
         <div class="modal-dialog modal-dialog-centered modal-sm">
           <div class="modal-content">
             <div class="modal-header py-2">
               <h6 class="modal-title mb-0" id="appConfirmModalTitle">確認</h6>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+              <cds-modal-close-button data-modal-close close-button-label="閉じる"></cds-modal-close-button>
             </div>
             <div class="modal-body"><div class="app-decision-message"></div></div>
             <div class="modal-footer py-2">
-              <button type="button" class="btn btn-outline-secondary btn-sm" data-role="cancel">キャンセル</button>
-              <button type="button" class="btn btn-primary btn-sm " data-role="ok">実行</button>
+              <cds-button type="button" kind="secondary" size="lg" data-role="cancel">キャンセル</cds-button>
+              <cds-button type="button" kind="primary" size="lg" data-role="ok">実行</cds-button>
             </div>
           </div>
         </div>`;
       document.body.appendChild(el);
     }
-    if (!state.confirmModal && window.bootstrap) state.confirmModal = new bootstrap.Modal(el);
+    if (!state.confirmModal && window.AppModalAdapter) state.confirmModal = window.AppModalAdapter.getOrCreateInstance(el);
     return el;
   }
 
   function ensureAlertModal() {
     let el = document.getElementById('appAlertModal');
     if (!el) {
-      el = document.createElement('div');
+      el = document.createElement('cds-modal');
       el.id = 'appAlertModal';
-      el.className = 'modal fade app-decision-modal';
-      el.tabIndex = -1;
-      el.setAttribute('role', 'dialog');
-      el.setAttribute('aria-modal', 'true');
-      el.setAttribute('aria-labelledby', 'appAlertModalTitle');
+      el.className = 'app-modal app-decision-modal';
+      el.setAttribute('size', 'xs');
+      el.setAttribute('aria-label', 'お知らせ');
       el.innerHTML = `
         <div class="modal-dialog modal-dialog-centered modal-sm">
           <div class="modal-content">
             <div class="modal-header py-2">
               <h6 class="modal-title mb-0" id="appAlertModalTitle">お知らせ</h6>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+              <cds-modal-close-button data-modal-close close-button-label="閉じる"></cds-modal-close-button>
             </div>
             <div class="modal-body"><div class="app-decision-message"></div></div>
             <div class="modal-footer py-2">
-              <button type="button" class="btn btn-primary btn-sm " data-role="ok">OK</button>
+              <cds-button type="button" kind="primary" size="lg" data-role="ok">OK</cds-button>
             </div>
           </div>
         </div>`;
       document.body.appendChild(el);
     }
-    if (!state.alertModal && window.bootstrap) state.alertModal = new bootstrap.Modal(el);
+    if (!state.alertModal && window.AppModalAdapter) state.alertModal = window.AppModalAdapter.getOrCreateInstance(el);
     return el;
   }
 
@@ -81,15 +77,16 @@
   }
 
   function confirm(message, options = {}) {
-    if (!window.bootstrap) return Promise.resolve(window.confirm(String(message || '')));
+    if (!window.AppModalAdapter) return Promise.resolve(window.confirm(String(message || '')));
     const el = ensureConfirmModal();
     const title = el.querySelector('.modal-title');
     const ok = el.querySelector('[data-role="ok"]');
     const cancel = el.querySelector('[data-role="cancel"]');
     title.textContent = options.title || '確認';
+    el.setAttribute('aria-label', title.textContent);
     ok.textContent = options.okText || '実行';
     cancel.textContent = options.cancelText || 'キャンセル';
-    ok.className = `btn btn-sm ${options.danger ? 'btn-danger' : 'btn-primary'}`;
+    ok.kind = options.danger ? 'danger' : 'primary';
     setMessage(el, '.app-decision-message', message);
 
     return new Promise(resolve => {
@@ -99,7 +96,7 @@
         done = true;
         ok.removeEventListener('click', onOk);
         cancel.removeEventListener('click', onCancel);
-        el.removeEventListener('hidden.bs.modal', onHidden);
+        el.removeEventListener('sanpo:modal-hidden', onHidden);
         resolve(value);
       };
       const onOk = () => { state.confirmModal.hide(); finish(true); };
@@ -107,17 +104,18 @@
       const onHidden = () => finish(false);
       ok.addEventListener('click', onOk);
       cancel.addEventListener('click', onCancel);
-      el.addEventListener('hidden.bs.modal', onHidden, { once: true });
+      el.addEventListener('sanpo:modal-hidden', onHidden, { once: true });
       state.confirmModal.show();
     });
   }
 
   function alert(message, options = {}) {
-    if (!window.bootstrap) { window.alert(String(message || '')); return Promise.resolve(); }
+    if (!window.AppModalAdapter) { window.alert(String(message || '')); return Promise.resolve(); }
     const el = ensureAlertModal();
     const title = el.querySelector('.modal-title');
     const ok = el.querySelector('[data-role="ok"]');
     title.textContent = options.title || 'お知らせ';
+    el.setAttribute('aria-label', title.textContent);
     ok.textContent = options.okText || 'OK';
     setMessage(el, '.app-decision-message', message);
 
@@ -127,13 +125,13 @@
         if (done) return;
         done = true;
         ok.removeEventListener('click', onOk);
-        el.removeEventListener('hidden.bs.modal', onHidden);
+        el.removeEventListener('sanpo:modal-hidden', onHidden);
         resolve();
       };
       const onOk = () => { state.alertModal.hide(); finish(); };
       const onHidden = () => finish();
       ok.addEventListener('click', onOk);
-      el.addEventListener('hidden.bs.modal', onHidden, { once: true });
+      el.addEventListener('sanpo:modal-hidden', onHidden, { once: true });
       state.alertModal.show();
     });
   }
@@ -205,9 +203,9 @@
     if (!bar) {
       bar = document.createElement('div');
       bar.id = 'appUndoBar';
-      bar.innerHTML = '<span></span><button type="button">元に戻す</button>';
+      bar.innerHTML = '<span></span><cds-button type="button" kind="ghost" size="lg">元に戻す</cds-button>';
       document.body.appendChild(bar);
-      bar.querySelector('button').addEventListener('click', () => {
+      bar.querySelector('cds-button').addEventListener('click', () => {
         const undoAction = bar.undoAction;
         bar.undoAction = null;
         hideUndoBar();

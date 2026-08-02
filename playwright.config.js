@@ -4,6 +4,8 @@ const systemChromium = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE;
 const launchOptions = systemChromium && fs.existsSync(systemChromium)
   ? { executablePath: systemChromium, args: ['--no-sandbox'] }
   : undefined;
+const testPort = Number(process.env.PLAYWRIGHT_TEST_PORT || 4173);
+const testOrigin = `http://127.0.0.1:${testPort}`;
 
 module.exports = {
   testDir: './tests',
@@ -16,12 +18,12 @@ module.exports = {
     : 'list',
   webServer: {
     command: 'node tests/serve-static.js',
-    url: 'http://127.0.0.1:4173/index.html',
+    url: `${testOrigin}/index.html`,
     reuseExistingServer: true,
     timeout: 10000
   },
   use: {
-    baseURL: 'http://127.0.0.1:4173/',
+    baseURL: `${testOrigin}/`,
     viewport: { width: 390, height: 844 },
     browserName: 'chromium',
     screenshot: 'only-on-failure',

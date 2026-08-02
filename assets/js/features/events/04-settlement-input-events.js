@@ -3,12 +3,24 @@
     'use strict';
 
     const events = global.SanpoEvents || {};
+    let candidateRefreshTimer = null;
+
+    function queueSettlementCandidateRefresh(row) {
+        const name = row?.dataset?.driverName || '';
+        if (!name) return;
+        clearTimeout(candidateRefreshTimer);
+        candidateRefreshTimer = setTimeout(() => {
+            global.refreshSettlementCarEditorCandidates?.(name);
+        }, 120);
+    }
 
 
     function isTimesRentalInput(row) {
         const rentalField = row?.querySelector?.('[data-field="rentalType"]');
         if (!rentalField) return false;
-        return rentalField.type === 'checkbox' ? rentalField.checked : rentalField.value === 'times';
+        return rentalField.type === 'checkbox' || rentalField.tagName === 'CDS-TOGGLE'
+            ? rentalField.checked
+            : rentalField.value === 'times';
     }
 
     function updateTimesDistanceFeeInRow(row) {
@@ -21,6 +33,17 @@
         });
         const amountInput = distanceRow?.querySelector?.('[data-extra-field="amount"]');
         if (amountInput && amountInput.value !== amount) amountInput.value = amount;
+    }
+
+    function commitRentalTypeChange(target) {
+        if (!target?.matches?.('.seisan-car-row [data-field="rentalType"]')) return false;
+        syncSettlementStateFromDOM?.();
+        const row = target.closest('.seisan-car-row');
+        const name = row?.dataset?.driverName || '';
+        if (name) global.refreshSettlementCarEditor?.(name);
+        renderSettlementView?.({ force: true });
+        save?.();
+        return true;
     }
 
     function setupSettlementInputEvents() {
@@ -44,6 +67,7 @@
             if (isSettlementCostField(event.target)) {
                 settlementCompositionActive = false;
                 global.onSettlementInputDelayed?.();
+                queueSettlementCandidateRefresh(event.target.closest?.('.seisan-car-row'));
                 releaseSettlementEditingSoon(320);
             }
         });
@@ -53,6 +77,7 @@
             if (target?.matches?.('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
                 if (target.matches('[data-field="dist"]')) updateTimesDistanceFeeInRow(target.closest('.seisan-car-row'));
                 global.onSettlementInputDelayed?.();
+                queueSettlementCandidateRefresh(target.closest('.seisan-car-row'));
                 return;
             }
             if (target?.matches?.('#seisanStandaloneDriverCount, #seisanStandaloneMemberCount')) {
@@ -73,28 +98,30 @@
             }
         });
 
+        document.addEventListener('cds-toggle-changed', event => {
+            commitRentalTypeChange(event.target);
+        });
+
         document.addEventListener('change', event => {
             const target = event.target;
             if (!target?.matches) return;
 
-            if (target.matches('.seisan-car-row [data-field="rentalType"]')) {
-                syncSettlementStateFromDOM?.();
-                const row = target.closest('.seisan-car-row');
-                const name = row?.dataset?.driverName || '';
-                if (name && typeof refreshSettlementCarEditor === 'function') refreshSettlementCarEditor(name);
-                renderSettlementView?.({ force: true });
-                save?.();
-                return;
-            }
+            if (commitRentalTypeChange(target)) return;
 
             if (target.matches('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
                 if (target.matches('[data-extra-field="type"]')) {
                     const type = typeof normalizeSettlementExtraType === 'function'
                         ? normalizeSettlementExtraType(target.value)
                         : target.value;
+                    const baseType = type.startsWith('club') ? 'club' : 'split';
                     target.classList.remove('split', 'club', 'split-minus', 'club-minus');
-                    target.classList.add(type.startsWith('club') ? 'club' : 'split', type);
+                    target.classList.add(baseType, type);
+                    const typeField = target.closest('.seisan-extra-field--type');
+                    typeField?.classList.remove('split', 'club', 'split-minus', 'club-minus');
+                    typeField?.classList.add(baseType, type);
                 }
+                syncSettlementStateFromDOM?.();
+                global.refreshSettlementCarEditorCandidates?.(target.closest('.seisan-car-row')?.dataset?.driverName || '');
                 global.onSettlementInput?.();
                 return;
             }
@@ -138,6 +165,16 @@
         });
 
         document.addEventListener('click', event => {
+            const checkboxRow = event.target.closest?.('[data-carbon-checkbox-row]');
+            if (checkboxRow && !event.target.closest?.('cds-checkbox')) {
+                const checkbox = checkboxRow.querySelector('cds-checkbox');
+                const control = checkbox?.shadowRoot?.querySelector('input[type="checkbox"]');
+                if (control && !control.disabled) {
+                    event.preventDefault();
+                    control.click();
+                }
+                return;
+            }
             const option = event.target.closest?.('[data-rounding-value]');
             if (!option) return;
             const rounding = document.getElementById('seisanRounding');

@@ -205,19 +205,6 @@
   --black-rgb: 0, 0, 0;
   --shadow-rgb: 0, 0, 0;
 
-  --bs-body-bg: var(--bg-body);
-  --bs-body-color: var(--text-main);
-  --bs-secondary-color: var(--text-sub);
-  --bs-border-color: var(--border-color);
-  --bs-tertiary-bg: var(--surface-container);
-  --bs-modal-bg: var(--modal-bg);
-  --bs-dropdown-bg: var(--surface-lowest);
-  --bs-dropdown-color: var(--text-main);
-  --bs-dropdown-link-color: var(--text-main);
-  --bs-dropdown-link-hover-color: var(--text-main);
-  --bs-dropdown-link-hover-bg: var(--surface-hover);
-  --bs-form-control-bg: var(--surface-lowest);
-  --bs-form-control-color: var(--text-main);
 }
 
 html,

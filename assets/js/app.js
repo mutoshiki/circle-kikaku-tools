@@ -1,4 +1,4 @@
-// Main app bootstrap after S-4 cleanup.
+// Main app startup after S-4 cleanup.
 // Persistence, render, settlement edit guard, and history scheduling live in assets/js/core/.
 
 D.addEventListener('DOMContentLoaded', async () => {

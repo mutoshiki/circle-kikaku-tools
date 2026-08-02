@@ -174,7 +174,6 @@ opacity: 1; box-shadow: 0 4px 12px rgba(var(--black-rgb), 0.15);
 display: none;
 }
 
-.cdn-bootstrap-missing::before,
 .cdn-sortable-missing::after {
 position: fixed;
     left: 10px;

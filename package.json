@@ -17,11 +17,9 @@
   "devDependencies": {
     "@carbon/icons": "11.85.0",
     "@carbon/web-components": "2.60.0",
-    "@fortawesome/fontawesome-free": "6.4.0",
     "@ibm/plex-sans": "1.1.0",
     "@ibm/plex-sans-jp": "3.0.0",
     "@playwright/test": "^1.61.0",
-    "bootstrap": "5.3.0",
     "esbuild": "0.28.1",
     "sortablejs": "1.15.0",
     "stylelint": "^17.13.0"

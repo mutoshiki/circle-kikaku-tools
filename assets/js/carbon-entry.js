@@ -5,6 +5,12 @@ import '@carbon/web-components/es/components/notification/toast-notification.js'
 import '@carbon/web-components/es/components/tag/index.js';
 import '@carbon/web-components/es/components/text-input/index.js';
 import '@carbon/web-components/es/components/select/index.js';
+import '@carbon/web-components/es/components/checkbox/index.js';
+import '@carbon/web-components/es/components/textarea/index.js';
+import '@carbon/web-components/es/components/number-input/index.js';
+import '@carbon/web-components/es/components/toggle/index.js';
+import '@carbon/web-components/es/components/modal/index.js';
+import '@carbon/web-components/es/components/overflow-menu/index.js';
 
 import Add20 from '@carbon/icons/es/add/20.js';
 import ArrowDown20 from '@carbon/icons/es/arrow--down/20.js';
@@ -155,6 +161,7 @@ function renderCarbonIcon(placeholder) {
     const value = placeholder.getAttribute(attribute);
     if (value) icon.setAttribute(attribute, value);
   });
+  if (!icon.hasAttribute('slot') && placeholder.parentElement?.matches('cds-button, cds-icon-button')) icon.setAttribute('slot', 'icon');
   placeholder.replaceWith(icon);
   return icon;
 }

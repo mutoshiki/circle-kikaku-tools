@@ -28,7 +28,7 @@
 .edit-capacity-wrap span { color: var(--text-sub); font-size: var(--font-size-label); font-weight: 600; }
 .edit-capacity-wrap input { width: 80px; }
 
-#cars-container { --bs-gutter-x: 16px; --bs-gutter-y: 16px; }
+#cars-container { --app-gutter-x: 16px; --app-gutter-y: 16px; }
 
 :where(.member-card, .driver-seat) {
   min-width: 0;

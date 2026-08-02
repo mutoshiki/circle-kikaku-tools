@@ -49,7 +49,7 @@
   :root { --focus-ring: rgba(15, 98, 254, 0.24); }
 }
 
-:where(button, [role="button"], summary, input:not([type="hidden"]), select, textarea, .form-control, .form-select):focus-visible {
+:where(button, [role="button"], summary, cds-button, cds-icon-button, cds-overflow-menu):focus-visible {
   outline: 2px solid var(--focus-accent);
   outline-offset: 2px;
   box-shadow: 0 0 0 1px var(--surface-lowest);
@@ -60,9 +60,6 @@ button,
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
-
-.form-check-input { border-radius: 0; }
-.form-check-input[type="radio"] { border-radius: 50%; }
 
 @media (max-width: 640px) {
   html,
@@ -76,9 +73,8 @@ button,
 }
 
 @media (max-width: 768px) {
-  input:not([type="checkbox"]):not([type="radio"]),
-  select,
-  textarea,
-  .form-control,
-  .form-select { font-size: 16px; }
+  cds-text-input,
+  cds-textarea,
+  cds-number-input,
+  cds-select { font-size: 16px; }
 }

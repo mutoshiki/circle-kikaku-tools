@@ -10,9 +10,9 @@
             <strong>精算するデータがありません</strong>
             <span class="empty-card-text">まずは参加者登録から。参加者と車出しを登録すると、支払いと集金の計算を開始できます。</span>
             <div class="seisan-empty-actions">
-              <button class="seisan-btn primary" type="button" data-action="open-batch">参加者登録を開く</button>
+              <cds-button class="seisan-btn primary" kind="primary" size="lg" type="button" data-action="open-batch">参加者登録を開く</cds-button>
               <span class="seisan-empty-or">もしくは</span>
-              <button class="seisan-btn" type="button" data-action="open-standalone-settlement-settings">人数だけで精算</button>
+              <cds-button class="seisan-btn" kind="secondary" size="lg" type="button" data-action="open-standalone-settlement-settings">人数だけで精算</cds-button>
             </div>
         </div>`;
   }

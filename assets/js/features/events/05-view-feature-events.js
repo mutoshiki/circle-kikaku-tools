@@ -23,13 +23,47 @@
     }
 
     function setupAutoAssignOptionEvents() {
-        ['optFemale', 'optMale', 'optGrade'].forEach(id => {
+        const ids = ['optFemale', 'optMale', 'optGrade'];
+        ids.forEach(id => {
             const el = byId(id);
             if (el && el.dataset.eventOwnerBound !== 'true') {
                 el.dataset.eventOwnerBound = 'true';
                 el.addEventListener('change', () => updateAutoAssignSummary());
             }
         });
+        const overflow = document.querySelector('.tray-settings-dropdown cds-overflow-menu');
+        if (overflow && overflow.dataset.outsideCloseBound !== 'true') {
+            overflow.dataset.outsideCloseBound = 'true';
+            document.addEventListener('pointerdown', event => {
+                if (!(overflow.open || overflow.hasAttribute('open'))) return;
+                if (event.composedPath().includes(overflow)) return;
+                overflow.open = false;
+            });
+        }
+        if (document.documentElement.dataset.autoAssignTabBound !== 'true') {
+            document.documentElement.dataset.autoAssignTabBound = 'true';
+            global.addEventListener('keydown', event => {
+                const host = event.composedPath().find(node => node instanceof HTMLElement && ids.includes(node.id));
+                if (event.key === ' ' && host) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    host.checked = !host.checked;
+                    host.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+                    Promise.resolve(host.updateComplete).then(() => {
+                        host.shadowRoot?.querySelector('input')?.focus({ preventScroll: true });
+                    });
+                    return;
+                }
+                if (event.key !== 'Tab') return;
+                const index = host ? ids.indexOf(host.id) : -1;
+                const nextIndex = index + (event.shiftKey ? -1 : 1);
+                const next = byId(ids[nextIndex])?.shadowRoot?.querySelector('input');
+                if (index < 0 || !next) return;
+                event.preventDefault();
+                event.stopPropagation();
+                queueMicrotask(() => next.focus());
+            }, true);
+        }
     }
 
     function setupViewAndFeatureEvents() {

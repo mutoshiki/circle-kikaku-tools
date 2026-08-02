@@ -48,20 +48,3 @@
     --app-header-main-padding: 8px 10px 6px 16px;
   }
 }
-
-@media (max-width: 390px) {
-  :root {
-    --app-header-main-display: grid;
-    --app-header-main-columns: minmax(0, 1fr);
-    --app-header-main-gap: 0;
-    --app-header-main-padding: 8px 8px 0;
-    --app-header-actions-justify: flex-end;
-    --app-header-actions-width: 100%;
-    --app-header-actions-margin: 0;
-  }
-
-  .app-header-main > .app-brand {
-    width: 100%;
-    padding-inline: 8px;
-  }
-}

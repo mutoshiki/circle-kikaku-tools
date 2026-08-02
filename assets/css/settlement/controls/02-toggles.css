@@ -1,8 +1,6 @@
 /* Toggle and compact icon control states. */
 .seisan-toggle { box-sizing: border-box; justify-content: space-between; }
-.seisan-toggle.active,
-.seisan-btn.active,
-.seisan-btn.primary { background: var(--accent-color); color: var(--text-on-accent); }
+.seisan-toggle.active { background: var(--accent-color); color: var(--text-on-accent); }
 .seisan-toggle input { flex: 0 0 auto; width: 22px; height: 22px; margin: 0; }
 
 @media (max-width: 640px) {

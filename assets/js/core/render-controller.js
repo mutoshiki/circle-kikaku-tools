@@ -172,7 +172,7 @@ function renderListEmptyHint() {
     const createText = template.type === 'team' ? '新しい班を作成します' : '新しい車を作成します';
     const html = waitingCount > 0
         ? `<div class="col-12" id="list-empty-hint"><div class="drop-create-lane empty-card--drop-create"><span data-carbon-icon="${template.ownerIcon || 'car-small'}" aria-hidden="true"></span><strong>${ownerText}</strong><span>${createText}</span></div></div>`
-        : `<div class="col-12" id="list-empty-hint"><div class="empty-card app-empty-card"><span data-carbon-icon="user-multiple" aria-hidden="true"></span><strong>参加者がまだいません</strong><span class="empty-card-text">参加者を登録すると、車割と班割をここで作成できます。</span><div class="seisan-empty-actions"><button class="seisan-btn primary" type="button" data-action="open-batch"><span data-carbon-icon="add" aria-hidden="true"></span>参加者を登録</button></div></div></div>`;
+        : `<div class="col-12" id="list-empty-hint"><div class="empty-card app-empty-card"><span data-carbon-icon="user-multiple" aria-hidden="true"></span><strong>参加者がまだいません</strong><span class="empty-card-text">参加者を登録すると、車割と班割をここで作成できます。</span><div class="seisan-empty-actions"><cds-button class="seisan-btn primary" kind="primary" size="lg" type="button" data-action="open-batch"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span>参加者を登録</cds-button></div></div></div>`;
 
     if (!existing) {
         container.insertAdjacentHTML('afterbegin', html);

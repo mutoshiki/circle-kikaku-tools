@@ -34,7 +34,8 @@
   gap: 6px;
   width: auto;
   min-width: 64px;
-  min-height: 40px;
+  height: 48px;
+  min-height: 48px;
   margin-block: 4px;
   padding: 0 10px;
   border: 0;

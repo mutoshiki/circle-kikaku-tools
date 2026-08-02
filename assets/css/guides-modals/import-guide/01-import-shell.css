@@ -84,10 +84,8 @@ max-width: 100%;
     min-width: 0;
     box-sizing: border-box;
 }
-#batchImportModal textarea,
-#batchImportModal input,
-#batchImportModal select,
-#routeDistanceModal input,
+#batchImportModal :is(cds-text-input, cds-textarea, cds-number-input, cds-select, cds-checkbox),
+#routeDistanceModal :is(cds-text-input, cds-number-input, cds-select, cds-checkbox, cds-toggle),
 #routeDistanceModal button,
 #commonEditModal input,
 #commonEditModal cds-text-input {
@@ -141,7 +139,7 @@ padding-left: 0;
 }
 }
 @media (max-width: 640px) {
-#batchImportModal textarea {
+#batchImportModal cds-textarea {
 min-height: 120px;
 }
 }

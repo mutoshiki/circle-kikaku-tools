@@ -3,17 +3,19 @@
   --settlement-car-amount-col: minmax(82px, 0.72fr);
   --settlement-car-tag-col: 52px;
   --settlement-car-row-gap: 10px;
-  --settlement-car-amount-size: 1.05rem;
+  --settlement-car-amount-size: 1.1rem;
 }
 
 #seisan-view-area .seisan-car-summary-headline {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 48px;
+  grid-template-columns: minmax(0, 1fr) minmax(72px, max-content);
   grid-template-rows: minmax(48px, auto) 44px;
   align-items: center;
   gap: 4px 8px;
   min-height: 96px;
   padding: 10px 10px 7px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--ui-saas-border) 58%, transparent);
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--accent-soft));
 }
 
 #seisan-view-area .seisan-car-summary-name {
@@ -33,20 +35,18 @@
   grid-column: 2;
   grid-row: 1;
   align-self: center;
+  justify-self: end;
   justify-content: center;
-  width: 48px;
-  min-width: 48px;
-  min-height: 48px;
+  width: auto;
+  min-width: 72px;
+  max-width: 100%;
+  min-height: 40px;
   padding: 0;
 }
 
 #seisan-view-area .seisan-car-summary-headline .seisan-edit-btn > .carbon-icon {
   order: initial;
   margin: 0;
-}
-
-#seisan-view-area .seisan-car-summary-headline .seisan-edit-btn span {
-  display: none;
 }
 
 #seisan-view-area .seisan-car-payment-check {
@@ -74,7 +74,7 @@
   font-weight: 600;
 }
 
-#seisan-view-area .seisan-car-payment-check input {
+#seisan-view-area .seisan-car-payment-check cds-checkbox {
   flex: 0 0 22px;
   width: 22px;
   height: 22px;
@@ -153,6 +153,10 @@
   font-feature-settings: "tnum" 1;
 }
 
+#seisan-view-area .seisan-car-summary-row .seisan-cost-preview-line .seisan-cost-line-amount {
+  font-size: var(--settlement-car-amount-size);
+}
+
 #seisan-view-area .seisan-amount-sign {
   display: inline-flex;
   flex: 0 0 0.9em;
@@ -195,7 +199,7 @@
   --settlement-car-amount-col: 68px;
   --settlement-car-tag-col: 32px;
   --settlement-car-row-gap: 3px;
-  --settlement-car-amount-size: 0.96rem;
+  --settlement-car-amount-size: 1rem;
 }
 
 #seisan-view-area #seisan-car-list.is-two-column .seisan-car-summary-headline {
@@ -217,8 +221,8 @@
 }
 
 #seisan-view-area #seisan-car-list.is-two-column .seisan-car-summary-headline .seisan-edit-btn {
-  width: 40px;
-  min-width: 40px;
+  width: auto;
+  min-width: 72px;
   min-height: 40px;
 }
 
@@ -249,6 +253,9 @@
   font-size: 0.78rem;
   line-height: 1.32;
 }
+#seisan-view-area #seisan-car-list.is-two-column .seisan-cost-preview-line .seisan-cost-line-amount {
+  font-size: var(--settlement-car-amount-size);
+}
 
 #seisan-view-area #seisan-car-list.is-two-column :is(.seisan-cost-type-badge, .seisan-payment-tag) {
   align-self: start;
@@ -259,50 +266,5 @@
 
 #seisan-view-area #seisan-car-list.is-two-column .seisan-car-summary-total {
   align-self: start;
-}
-
-@media (max-width: 640px) {
-  #seisan-view-area .seisan-car-panel {
-    padding-inline: 10px;
-  }
-
-  #seisan-view-area .seisan-car-layout-toggle {
-    flex-basis: 38px;
-    width: 38px;
-    min-width: 38px;
-    height: 38px;
-    min-height: 38px;
-  }
-
-  #seisan-view-area #seisan-car-list.is-two-column .seisan-car-summary-row {
-    --settlement-car-amount-col: 60px;
-    --settlement-car-tag-col: 38px;
-    --settlement-car-row-gap: 7px;
-  }
-}
-
-@media (max-width: 360px) {
-  #seisan-view-area #seisan-car-list.is-two-column {
-    gap: 6px;
-  }
-
-  #seisan-view-area #seisan-car-list.is-two-column .seisan-car-summary-row {
-    --settlement-car-amount-col: 60px;
-    --settlement-car-tag-col: 26px;
-    --settlement-car-row-gap: 2px;
-    --settlement-car-amount-size: 0.84rem;
-  }
-
-  #seisan-view-area #seisan-car-list.is-two-column .seisan-car-summary-row .seisan-cost-preview-list {
-    padding-inline: 2px;
-  }
-
-  #seisan-view-area #seisan-car-list.is-two-column .seisan-cost-line > span:first-child,
-  #seisan-view-area #seisan-car-list.is-two-column .seisan-cost-total-label {
-    font-size: 0.7rem;
-  }
-
-  #seisan-view-area #seisan-car-list.is-two-column :is(.seisan-cost-type-badge, .seisan-payment-tag) {
-    font-size: 0.5rem;
-  }
+  font-size: var(--settlement-car-amount-size);
 }

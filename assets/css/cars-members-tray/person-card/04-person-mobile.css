@@ -6,15 +6,15 @@
 #cars-container :where(.member-menu-btn, .driver-menu-btn) { border: 0; background: transparent; box-shadow: none; }
 #cars-container .memo-popup { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-@media (max-width: 430px) {
+@media (max-width: 520px) {
   #cars-container .member-name-text,
   #cars-container .driver-name-disp { font-size: 0.9rem; }
 
   #cars-container :is(.member-main-line, .driver-main-line),
   .manual-drag-float .member-main-line {
-    grid-template-columns: auto minmax(0, 1fr) auto 36px;
-    grid-template-rows: minmax(36px, auto);
-    min-height: 36px;
+    grid-template-columns: auto minmax(0, 1fr) auto 48px;
+    grid-template-rows: minmax(48px, auto);
+    min-height: 48px;
     column-gap: 4px;
     row-gap: 0;
   }
@@ -23,6 +23,10 @@
   .manual-drag-float .member-name-text {
     grid-column: 2;
     grid-row: 1;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   #cars-container .person-flag,
@@ -43,10 +47,10 @@
   .manual-drag-float .member-menu-btn {
     grid-column: 4;
     grid-row: 1;
-    width: 36px;
-    min-width: 36px;
-    height: 36px;
-    min-height: 36px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    min-height: 48px;
   }
 
   .manual-drag-float {

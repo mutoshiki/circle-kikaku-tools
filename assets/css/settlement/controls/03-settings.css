@@ -53,8 +53,8 @@
   align-items: start;
 }
 
-.seisan-settings--modal .seisan-field input,
-.seisan-settings--modal .seisan-field select { min-height: 48px; }
+.seisan-settings--modal .seisan-field :is(cds-text-input, cds-number-input, cds-select) { display: block; width: 100%; min-height: 48px; }
+#settlementSettingsModal #seisanRounding[hidden] { display: none; }
 
 #settlementSettingsModal .seisan-standalone-fields {
   display: grid;
@@ -65,45 +65,18 @@
 
 #settlementSettingsModal .seisan-standalone-fields[hidden] { display: none; }
 #settlementSettingsModal .seisan-standalone-fields .seisan-field { min-width: 0; }
-#settlementSettingsModal .seisan-standalone-fields input { width: 100%; min-width: 0; }
+#settlementSettingsModal .seisan-standalone-fields cds-number-input { display: block; width: 100%; min-width: 0; }
 
 .seisan-rounding-options {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
 }
+.seisan-rounding-row { width: 100%; min-width: 0; }
 
 .seisan-rounding-option {
-  position: relative;
-  display: grid;
-  place-items: center;
+  min-width: 0;
   min-height: 48px;
-  padding: 0 4px;
-  border: 1px solid var(--border-color);
-  border-radius: 0;
-  background: var(--surface-lowest);
-  color: var(--text-main);
-  font-size: 0.76rem;
-  font-weight: 400;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.seisan-rounding-option.active,
-.seisan-rounding-option[aria-pressed='true'] {
-  border-color: var(--accent-color);
-  background: var(--accent-color);
-  color: var(--text-on-accent);
-  box-shadow: none;
-}
-
-.seisan-rounding-option[aria-pressed='true']::after {
-  content: '✓';
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  font-size: 0.62rem;
-  line-height: 1;
 }
 
 .seisan-settings--modal .seisan-toggle {
@@ -114,19 +87,11 @@
 }
 
 .seisan-toggle--modal {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
+  display: block;
   margin-top: 0;
 }
 
-.seisan-toggle--modal span {
-  min-width: 0;
-  overflow-wrap: anywhere;
-  line-height: 1.35;
-  white-space: normal;
-}
+.seisan-toggle--modal cds-checkbox { display: block; width: 100%; }
 
 #settlementSettingsModal .seisan-standalone-error {
   grid-column: 1 / -1;
@@ -139,8 +104,4 @@
 
 @media (max-width: 420px) {
   #settlementSettingsModal .modal-body { padding: 10px 14px 16px; }
-}
-
-@media (max-width: 360px) {
-  .seisan-rounding-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
