@@ -6,41 +6,39 @@
 
 .app-modal[open] > .modal-dialog {
   display: flex;
-  align-items: center;
   width: min(calc(100% - 32px), 720px);
-  min-width: 0;
   min-height: 0;
+  margin: auto;
+  align-items: center;
   max-width: calc(100vw - 32px);
-  max-height: calc(100dvh - 32px);
-  position: fixed;
-  top: 50dvh;
-  left: 50vw;
-  margin: 0;
-  transform: translate(-50%, -50%);
+  max-height: calc(84dvh - 2px);
+  transform: none;
 }
-.app-modal[open] > .modal-dialog > .modal-content { max-height: inherit; }
-.app-modal[open][size="xs"] > .modal-dialog { width: min(calc(100% - 32px), 460px); max-height: min(72dvh, 520px); }
-.app-modal[open][size="sm"] > .modal-dialog { width: min(calc(100% - 32px), 560px); max-height: min(86dvh, 760px); }
-.app-modal[open][size="lg"] > .modal-dialog { width: min(calc(100% - 32px), 920px); }
 
-/* Hide the underlying mobile destination switcher while a modal owns focus. */
-body.app-modal-open #app-view-navigation,
-body.app-modal-open #bottom-tray {
-  visibility: hidden;
-  pointer-events: none;
+.app-modal[open] > .modal-dialog > .modal-content {
+  max-height: inherit;
 }
+
+.app-modal[open][size="xs"] > .modal-dialog { max-height: calc(48dvh - 2px); }
+.app-modal[open][size="sm"] > .modal-dialog { max-height: calc(72dvh - 2px); }
+.app-modal[open][size="lg"] > .modal-dialog { max-height: calc(91dvh - 2px); }
 
 @media (max-width: 640px) {
-  .app-modal { padding: 0; }
+  .app-modal {
+    padding: 0;
+  }
+
   .app-modal[open] > .modal-dialog,
   .app-modal[open][size] > .modal-dialog,
   .modal-dialog.modal-lg,
   .modal-dialog.modal-xl {
-    width: calc(100% - 32px);
-    min-height: 0;
-    max-width: calc(100vw - 32px);
-    max-height: calc(100dvh - 32px);
-    margin: auto;
+    width: calc(100% - 20px);
+    min-height: calc(100dvh - 20px);
+    max-width: calc(100vw - 20px);
+    max-height: calc(100dvh - 20px);
   }
-  .modal-content { max-height: calc(100dvh - 32px); }
+
+  .modal-content {
+    max-height: calc(100dvh - 20px);
+  }
 }
