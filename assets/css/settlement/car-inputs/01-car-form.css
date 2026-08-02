@@ -73,7 +73,7 @@
 
 .seisan-field :is(cds-text-input, cds-number-input, cds-select),
 .seisan-extra-row :is(cds-text-input, cds-number-input, cds-select) {
-  --cds-field: var(--surface-lowest);
+  --cds-field: var(--cds-field-01);
   box-sizing: border-box;
   display: block;
   width: 100%;

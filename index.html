@@ -370,7 +370,7 @@
             <cds-modal-close-button data-modal-close close-button-label="閉じる"></cds-modal-close-button>
           </div>
           <div class="modal-body">
-            <cds-text-input id="editModalInput" class="common-edit-text-input" type="text" size="lg" label="編集内容" autocomplete="off" aria-label="編集内容"></cds-text-input>
+            <cds-text-input id="editModalInput" class="common-edit-text-input" type="text" size="lg" placeholder="入力してください" label="編集内容" autocomplete="off" aria-label="編集内容"></cds-text-input>
           </div>
           <div class="modal-footer modal-footer--single">
             <cds-button type="button" kind="primary" size="lg" id="saveEditBtn">保存</cds-button>
@@ -469,23 +469,23 @@
               </div>
               <div class="col-6 col-md-3">
                 <label class="form-label small batch-label-muted">車出し</label>
-                <cds-textarea id="batchDrivers" class="batch-import-textarea" label="車出し可能な参加者" hide-label aria-label="車出し可能な参加者"></cds-textarea>
+                <cds-textarea id="batchDrivers" class="batch-import-textarea" label="車出し可能な参加者" hide-label placeholder="（例）&#10;藤原 拓海&#10;高橋 啓介" aria-label="車出し可能な参加者"></cds-textarea>
               </div>
               <div class="col-6 col-md-3">
                 <label class="form-label small batch-label-grade1">1年生</label>
-                <cds-textarea id="batchGrade1" class="batch-import-textarea" label="1年生の表記" hide-label aria-label="1年生の表記"></cds-textarea>
+                <cds-textarea id="batchGrade1" class="batch-import-textarea" label="1年生の表記" hide-label placeholder="（例）&#10;1年生の参加者名" aria-label="1年生の表記"></cds-textarea>
               </div>
               <div class="col-6 col-md-3">
                 <label class="form-label small batch-label-grade2">2年生</label>
-                <cds-textarea id="batchGrade2" class="batch-import-textarea" label="2年生の表記" hide-label aria-label="2年生の表記"></cds-textarea>
+                <cds-textarea id="batchGrade2" class="batch-import-textarea" label="2年生の表記" hide-label placeholder="（例）&#10;2年生の参加者名" aria-label="2年生の表記"></cds-textarea>
               </div>
               <div class="col-6 col-md-3">
                 <label class="form-label small batch-label-grade3">3年生</label>
-                <cds-textarea id="batchGrade3" class="batch-import-textarea" label="3年生の表記" hide-label aria-label="3年生の表記"></cds-textarea>
+                <cds-textarea id="batchGrade3" class="batch-import-textarea" label="3年生の表記" hide-label placeholder="（例）&#10;3年生の参加者名" aria-label="3年生の表記"></cds-textarea>
               </div>
               <div class="col-6 col-md-3">
                 <label class="form-label small batch-label-grade4">4年生</label>
-                <cds-textarea id="batchGrade4" class="batch-import-textarea" label="4年生の表記" hide-label aria-label="4年生の表記"></cds-textarea>
+                <cds-textarea id="batchGrade4" class="batch-import-textarea" label="4年生の表記" hide-label placeholder="（例）&#10;4年生の参加者名" aria-label="4年生の表記"></cds-textarea>
               </div>
             </div>
             <div id="batchDuplicateWarning" class="batch-warning" hidden></div>
@@ -529,11 +529,9 @@
                   <div class="seisan-field seisan-settings-field--rounding">
                     <label>端数処理</label>
                     <div class="seisan-rounding-options" role="radiogroup" aria-label="端数処理">
-                      <cds-content-switcher class="seisan-rounding-row" value="100" size="lg">
+                      <cds-content-switcher class="seisan-rounding-row" value="100" size="lg" aria-label="端数処理">
                         <cds-content-switcher-item class="seisan-rounding-option" value="100" data-rounding-value="100" selected>100円</cds-content-switcher-item>
                         <cds-content-switcher-item class="seisan-rounding-option" value="50" data-rounding-value="50">50円</cds-content-switcher-item>
-                      </cds-content-switcher>
-                      <cds-content-switcher class="seisan-rounding-row" value="" size="lg">
                         <cds-content-switcher-item class="seisan-rounding-option" value="10" data-rounding-value="10">10円</cds-content-switcher-item>
                         <cds-content-switcher-item class="seisan-rounding-option" value="1" data-rounding-value="1">1円</cds-content-switcher-item>
                       </cds-content-switcher>
@@ -547,7 +545,7 @@
                   </div>
                   <div class="seisan-field seisan-settings-field--reward">
                     <label>車出し協力代（1台）</label>
-                    <cds-text-input id="seisanDriverReward" type="text" size="lg" inputmode="numeric" pattern="[0-9]*" value="0" label="車出し協力代" hide-label aria-label="車出し協力代"></cds-text-input>
+                    <cds-text-input id="seisanDriverReward" type="text" size="lg" inputmode="numeric" pattern="[0-9]*" value="0" placeholder="例：1000" label="車出し協力代" hide-label aria-label="車出し協力代"></cds-text-input>
                   </div>
                 </div>
               </div>

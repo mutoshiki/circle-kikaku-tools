@@ -1,6 +1,26 @@
-/* Official Carbon form hosts. Shadow DOM owns field visuals and states. */
-cds-text-input[size="lg"],
-cds-number-input[size="lg"],
-cds-select[size="lg"] {
+/* Official Carbon form hosts. Shadow DOM owns field visuals and states.
+ * Feature owners control only layout. Enabled, focus, invalid, warning,
+ * read-only and disabled appearances remain Carbon-owned. */
+:where(cds-text-input, cds-textarea, cds-number-input, cds-select) {
+  --cds-field: var(--cds-field-01);
+  --cds-text-placeholder: var(--text-faint);
+  --cds-support-error: var(--semantic-danger);
+  --cds-support-warning: var(--semantic-warning);
+  box-sizing: border-box;
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
+:where(cds-text-input, cds-textarea, cds-number-input, cds-select)[size="lg"] {
   --cds-layout-size-height-lg: 48px;
+}
+
+:where(cds-text-input, cds-textarea, cds-number-input, cds-select)[readonly],
+:where(cds-text-input, cds-textarea, cds-number-input, cds-select)[read-only] {
+  --cds-field: var(--cds-layer-01);
+}
+
+:where(cds-text-input, cds-textarea, cds-number-input, cds-select)[disabled] {
+  cursor: not-allowed;
 }

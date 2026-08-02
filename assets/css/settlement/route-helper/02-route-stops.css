@@ -60,7 +60,7 @@
 
 #routeDistanceModal .route-stop-input,
 .route-stop-row.route-stop-drag-fallback .route-stop-input {
-  --cds-field: var(--bg-card);
+  --cds-field: var(--cds-field-01);
   display: block;
   width: 100%;
   min-height: 48px;

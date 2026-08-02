@@ -26,6 +26,7 @@
   -webkit-overflow-scrolling: touch;
 }
 
+#batchImportModal .modal-header { border-bottom: 0; }
 #batchImportModal .modal-footer { padding: 0; }
 #batchImportModal .row { max-width: 100%; margin-inline: 0; }
 #batchImportModal [class*="col-"] { min-width: 0; max-width: 100%; box-sizing: border-box; }
@@ -157,16 +158,16 @@
 
 @media (max-width: 640px) {
   #batchImportModal .modal-dialog {
-    width: 100vw;
-    max-width: 100vw;
+    width: calc(100vw - 32px);
+    max-width: calc(100vw - 32px);
     max-height: calc(100dvh - 32px);
-    margin-inline: 0;
+    margin-inline: auto;
   }
   #batchImportModal .modal-content { max-height: calc(100dvh - 32px); }
-  #batchImportModal .modal-body { padding: 0; }
+  #batchImportModal .modal-body { padding: 16px; }
   #batchImportModal cds-textarea { min-height: 120px; }
   #batchImportModal .batch-import-helper-card { padding: 16px; }
-  #batchImportModal .modal-body > .row { padding: 0 10px 16px; }
+  #batchImportModal .modal-body > .row { padding: 0 0 16px; }
   .batch-import-helper-card .batch-spreadsheet-textarea { min-height: 132px; }
 }
 

@@ -74,3 +74,11 @@
     border-radius: 0;
   }
 }
+
+@media (max-width: 360px) {
+  #settlementCarEditModal .modal-dialog,
+  #settlementCarEditModal .settlement-edit-dialog--car {
+    width: calc(100% - 16px);
+    max-width: calc(100vw - 16px);
+  }
+}

@@ -40,8 +40,12 @@
 
 .seisan-settings-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 132px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
+}
+
+.seisan-settings-field--reward {
+  width: min(100%, 176px);
 }
 
 .seisan-settings--modal .seisan-field label {
@@ -75,9 +79,8 @@
 #settlementSettingsModal .seisan-standalone-fields cds-number-input { display: block; width: 100%; min-width: 0; }
 
 .seisan-rounding-options {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 4px;
+  display: block;
+  min-width: 0;
 }
 .seisan-rounding-row { width: 100%; min-width: 0; }
 
@@ -89,6 +92,8 @@
 .seisan-settings--modal .seisan-toggle {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
+  width: 100%;
   min-height: 48px;
   padding: 0 2px;
   border: 0;
@@ -98,16 +103,21 @@
 }
 
 .seisan-toggle--modal {
-  display: block;
   margin-top: 0;
 }
 
 .seisan-toggle--modal cds-checkbox {
-  display: flex;
+  display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
-  width: 100%;
+  align-self: flex-start;
+  justify-self: start;
+  width: fit-content;
+  max-width: 100%;
+  inline-size: fit-content;
   min-height: 48px;
   margin: 0;
+  text-align: left;
 }
 
 #settlementSettingsModal .seisan-standalone-error {
@@ -134,7 +144,7 @@
   }
 
   .seisan-settings-grid {
-    grid-template-columns: minmax(0, 1fr) 128px;
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
   }
 }
