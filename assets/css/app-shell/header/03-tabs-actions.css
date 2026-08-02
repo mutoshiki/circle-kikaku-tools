@@ -46,20 +46,25 @@
 }
 
 #app-view-navigation {
-  position: relative;
+  position: fixed;
   z-index: var(--z-header);
+  right: 0;
+  bottom: 0;
+  left: 0;
   box-sizing: border-box;
   display: flex;
-  flex: 0 0 auto;
   justify-content: center;
   width: 100%;
   min-width: 0;
   padding: 8px max(12px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
   background: transparent;
+  box-shadow: none;
+  pointer-events: none;
 }
 
 #view-toggle-bar {
   display: flex;
+  pointer-events: auto;
   width: min(100%, 640px);
   min-height: 48px;
   margin: 0 auto;

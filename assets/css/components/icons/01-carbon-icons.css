@@ -21,8 +21,11 @@ cds-icon-button:not(:defined) {
 }
 
 cds-icon-button.header-action {
-  --cds-link-primary: var(--text-sub);
-  --cds-link-primary-hover: var(--text-main);
+  --cds-icon-primary: var(--accent-color);
+  --cds-icon-secondary: var(--accent-color);
+  --cds-link-primary: var(--accent-color);
+  --cds-link-primary-hover: var(--accent-hover);
+  color: var(--accent-color);
   width: var(--header-action-size);
   min-width: var(--header-action-size);
   height: var(--header-action-size);
