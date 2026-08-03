@@ -974,32 +974,30 @@
     }
 
     function buildCircleMarkerSvg(label = 'A') {
-        return svgDataUrl(`<svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 38 38"><circle cx="19" cy="19" r="16" fill="#161616" stroke="#f4f4f4" stroke-width="3"/><text x="19" y="24" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#f4f4f4">${String(label || '').replace(/[<&>]/g, '')}</text></svg>`);
+        return svgDataUrl(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#ffffff" stroke="#161616" stroke-width="3"/><text x="20" y="26" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#161616">${String(label || '').replace(/[<&>]/g, '')}</text></svg>`);
     }
 
-    function buildPinMarkerSvg(label = '') {
-        const clean = String(label || '').replace(/[<&>]/g, '');
-        const text = clean ? `<text x="22" y="21" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#ffffff">${clean}</text>` : '';
-        return svgDataUrl(`<svg xmlns="http://www.w3.org/2000/svg" width="44" height="56" viewBox="0 0 44 56"><path d="M22 3C11.5 3 3 11.4 3 21.9c0 13.4 15.2 26.7 18 30.7.7 1 2.2 1 2.9 0 2.8-4 18-17.3 18-30.7C41 11.4 32.5 3 22 3z" fill="#fa4d56" stroke="#ffffff" stroke-width="2"/>${text}</svg>`);
+    function buildPinMarkerSvg() {
+        return svgDataUrl(`<svg xmlns="http://www.w3.org/2000/svg" width="44" height="56" viewBox="0 0 44 56"><path d="M22 3C11.5 3 3 11.4 3 21.9c0 13.4 15.2 26.7 18 30.7.7 1 2.2 1 2.9 0 2.8-4 18-17.3 18-30.7C41 11.4 32.5 3 22 3z" fill="#fa4d56" stroke="#ffffff" stroke-width="2"/></svg>`);
     }
 
     function createMarker(place, index, total) {
         if (!runtime.map || !place || !global.google?.maps?.Marker) return;
         const position = { lat: place.latitude, lng: place.longitude };
-        const letter = index === 0 ? 'O' : String(templates().formatRouteStopLetter?.(index - 1) || index);
+        const isOrigin = index === 0;
         const isDestination = index === total - 1;
-        const isLastWaypoint = total > 2 && index === total - 2;
-        const isPin = isDestination || isLastWaypoint;
+        const markerText = isOrigin ? 'O' : String(templates().formatRouteStopLetter?.(index - 1) || 'A');
         const marker = new global.google.maps.Marker({
             map: runtime.map,
             position,
             title: place.name,
             icon: {
-                url: isPin ? buildPinMarkerSvg(isDestination ? '' : letter) : buildCircleMarkerSvg(letter),
-                scaledSize: new global.google.maps.Size(isPin ? 44 : 38, isPin ? 56 : 38),
-                anchor: new global.google.maps.Point(isPin ? 22 : 19, isPin ? 53 : 19)
+                url: isDestination ? buildPinMarkerSvg() : buildCircleMarkerSvg(markerText),
+                scaledSize: new global.google.maps.Size(isDestination ? 44 : 40, isDestination ? 56 : 40),
+                anchor: new global.google.maps.Point(isDestination ? 22 : 20, isDestination ? 53 : 20)
             },
-            optimized: true
+            optimized: true,
+            zIndex: isDestination ? 40 : 35
         });
         runtime.markers.push(marker);
     }
@@ -1020,11 +1018,12 @@
         const length = Math.hypot(dx, dy) || 1;
         const nx = (-dy / length) || 0;
         const ny = (dx / length) || -1;
-        const side = segmentIndex % 2 === 0 ? 1 : -1;
-        const base = 48 + (routeIndex * 22);
+        const side = routeIndex % 2 === 0 ? 1 : -1;
+        const normalDistance = 18 + (routeIndex * 10);
+        const lateralDistance = routeIndex === 0 ? 0 : (routeIndex === 1 ? 16 : -16);
         return {
-            x: Math.round(nx * base * side + (routeIndex - 1) * 18),
-            y: Math.round(ny * base * side - 28 - (routeIndex * 6))
+            x: Math.round((nx * normalDistance * side) + lateralDistance),
+            y: Math.round((ny * normalDistance * side) - 8 - (segmentIndex % 2) * 2)
         };
     }
 
@@ -1041,21 +1040,24 @@
             ? anchor.point
             : new global.google.maps.LatLng(Number(anchor.point.lat), Number(anchor.point.lng));
         const offset = labelOffsetForPath(path, anchor.index, options.segmentIndex || 0, routeIndex);
-        const button = document.createElement('cds-button');
-        button.setAttribute('kind', 'ghost');
-        button.setAttribute('size', 'sm');
-        button.setAttribute('type', 'button');
+        const button = document.createElement('div');
         button.className = 'route-map-route-label';
         button.dataset.selected = options.selected ? 'true' : 'false';
         button.dataset.segmentIndex = String(options.segmentIndex || 0);
         button.dataset.routeIndex = String(routeIndex);
+        button.setAttribute('role', 'button');
+        button.setAttribute('tabindex', '0');
         const durationText = templates().formatRouteDuration?.(route.durationSeconds) || `${Math.round((Number(route.durationSeconds) || 0) / 60)}分`;
-        button.textContent = `${route.label || `ルート${routeIndex + 1}`}・${durationText}`;
-        button.setAttribute('aria-label', `${options.fromName || ''}から${options.toName || ''}まで、${route.label || `ルート${routeIndex + 1}`}、${durationText}`);
-        button.addEventListener('click', event => {
+        button.textContent = durationText;
+        button.setAttribute('aria-label', `${options.fromName || ''}から${options.toName || ''}まで、所要時間 ${durationText}`);
+        const activate = event => {
             event.preventDefault();
             event.stopPropagation();
             selectRoute(routeIndex, options.segmentIndex);
+        };
+        button.addEventListener('click', activate);
+        button.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') activate(event);
         });
         class RouteLabelOverlay extends runtime.maps.OverlayView {
             onAdd() { this.getPanes()?.floatPane?.appendChild(button); }

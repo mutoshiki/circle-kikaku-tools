@@ -169,51 +169,67 @@
 }
 
 
-/* Compact Carbon route labels rendered directly over the map. */
+/* Route labels rendered directly over the map. */
 .route-map-route-label {
-  --route-label-background: var(--accent-soft);
+  --route-label-background: var(--layer-01);
   --route-label-border: var(--accent-line);
-  --route-label-text: var(--accent-container-text);
+  --route-label-text: var(--text-main);
   position: absolute;
-  min-width: 132px;
-  color: var(--route-label-text);
-  transform: translate(-50%, calc(-100% - 10px));
-}
-.route-map-route-label::part(button) {
   box-sizing: border-box;
-  min-width: 132px;
-  min-height: 0;
-  padding: 7px 10px;
+  min-width: 96px;
+  padding: 8px 12px;
   border: 2px solid var(--route-label-border);
   background: var(--route-label-background);
   color: var(--route-label-text);
   box-shadow: var(--shadow-float);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.2;
-  justify-content: center;
+  text-align: center;
   white-space: nowrap;
+  transform: translate(-50%, calc(-100% - 16px));
+  cursor: pointer;
+  z-index: 1;
 }
+
+.route-map-route-label::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  width: 2px;
+  height: 10px;
+  background: var(--route-label-border);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
 .route-map-route-label::after {
   content: "";
   position: absolute;
   left: 50%;
-  bottom: -6px;
-  width: 12px;
-  height: 12px;
-  border-right: 2px solid var(--route-label-border);
-  border-bottom: 2px solid var(--route-label-border);
-  background: var(--route-label-background);
-  transform: translateX(-50%) rotate(45deg);
+  bottom: -15px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--route-label-border);
+  transform: translateX(-50%);
   pointer-events: none;
 }
+
 .route-map-route-label[data-selected="true"] {
   --route-label-background: var(--accent-color);
   --route-label-border: var(--accent-color);
   --route-label-text: var(--text-on-accent);
   z-index: 2;
 }
-.route-map-route-label:focus-visible { outline: 2px solid var(--focus-accent); outline-offset: 2px; }
+
+.route-map-route-label:focus-visible {
+  outline: 2px solid var(--focus-accent);
+  outline-offset: 2px;
+}
+
 
 
 #routeDistanceModal .route-candidate-group {
@@ -239,19 +255,3 @@
   font-size: 0.75rem;
 }
 
-.route-map-route-label {
-  appearance: none;
-  border: 2px solid var(--route-label-border);
-  background: var(--route-label-background);
-  color: var(--route-label-text);
-  border-radius: 0;
-  min-width: 132px;
-  min-height: 0;
-  padding: 8px 12px;
-  box-shadow: var(--shadow-float);
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.2;
-  white-space: nowrap;
-  cursor: pointer;
-}
