@@ -1,0 +1,20 @@
+/* Shared motion contract. Components consume these tokens instead of owning timings. */
+:root {
+  --motion-fast: 120ms;
+  --motion-control: 140ms;
+  --motion-medium: 180ms;
+  --motion-slow: 220ms;
+  --motion-emphasis: 1450ms;
+  --motion-scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 1ms;
+    --motion-control: 1ms;
+    --motion-medium: 1ms;
+    --motion-slow: 1ms;
+    --motion-emphasis: 1ms;
+    --motion-scroll-behavior: auto;
+  }
+}

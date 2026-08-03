@@ -1,0 +1,5 @@
+/* Global layer order. The Carbon modal owns its backdrop and viewport
+   positioning; application chrome remains visible beneath the backdrop. */
+.app-modal { z-index: var(--z-modal); }
+body.app-modal-open { overflow: hidden; }
+body.app-modal-open #app-view-navigation { z-index: var(--z-bottom-navigation); }

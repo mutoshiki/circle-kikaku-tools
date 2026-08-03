@@ -1,0 +1,174 @@
+/* Participant registration modal and spreadsheet import helper. */
+#batchImportModal > .app-modal-body {
+  min-height: 0;
+  max-width: 100%;
+  padding: 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+#batchImportModal .batch-import-layout { max-width: 100%; margin-inline: 0; }
+#batchImportModal .batch-import-column { min-width: 0; max-width: 100%; box-sizing: border-box; }
+#batchImportModal :is(cds-text-input, cds-textarea, cds-number-input, cds-select, cds-checkbox) { max-width: 100%; }
+
+.batch-import-helper-title {
+  color: var(--text-main);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.batch-import-helper-title :is(i, .carbon-icon) { color: var(--accent-color); }
+.batch-label-muted { color: var(--text-sub); }
+
+.batch-import-helper-card {
+  padding: 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.batch-import-help-details { border-top: 1px solid var(--border-section); }
+.batch-import-help-details > summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 8px 4px;
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.batch-import-help-details > summary::-webkit-details-marker { display: none; }
+.batch-import-help-details > summary::before {
+  content: "";
+  width: 0;
+  height: 0;
+  flex: 0 0 auto;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid currentColor;
+  transform-origin: 45% 50%;
+  transition: transform var(--motion-duration-fast, 120ms) ease;
+}
+.batch-import-help-details[open] > summary::before { transform: rotate(90deg); }
+
+.batch-spreadsheet-textarea {
+  min-height: 118px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.batch-import-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 7px 9px;
+  border: 1px solid color-mix(in srgb, var(--color-warning) 32%, var(--border-color));
+  border-radius: 0;
+  background: color-mix(in srgb, var(--color-warning) 11%, var(--bg-card));
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.45;
+  box-shadow: none;
+}
+.batch-import-notice :is(i, .carbon-icon) {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--palette-amber-600);
+}
+
+.form-sheet-howto {
+  margin-top: 10px;
+  padding: 9px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--bg-card) 84%, var(--accent-soft));
+  box-shadow: none;
+}
+.form-sheet-howto-title {
+  margin-bottom: 4px;
+  color: var(--text-main);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.form-sheet-howto-body {
+  color: var(--text-sub);
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.form-sheet-icon {
+  position: relative;
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  margin: 0 2px;
+  border-radius: 5px;
+  background: var(--palette-green-600);
+  vertical-align: -6px;
+  box-shadow: inset 0 0 0 1px rgba(var(--white-rgb), 0.26), 0 1px 2px rgba(var(--shadow-rgb), 0.12);
+}
+.form-sheet-icon::before,
+.form-sheet-icon::after {
+  content: "";
+  position: absolute;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--surface-lowest) 92%, transparent);
+}
+.form-sheet-icon::before { top: 8px; left: 7px; width: 12px; height: 2px; }
+.form-sheet-icon::after { top: 3px; left: 12px; width: 2px; height: 12px; }
+
+.batch-paste-label {
+  display: inline-block;
+  margin-top: 11px;
+  color: var(--text-main);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.form-import-preview { border-radius: 0; box-shadow: none; }
+
+@media (max-width: 640px) {
+  #batchImportModal > .app-modal-body { padding: 16px; }
+  #batchImportModal cds-textarea { min-height: 120px; }
+  #batchImportModal .batch-import-helper-card { padding: 16px; }
+  #batchImportModal > .app-modal-body > .batch-import-layout { padding: 0 0 16px; }
+  .batch-import-helper-card .batch-spreadsheet-textarea { min-height: 132px; }
+}
+
+
+
+.batch-import-layout {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  width: 100%;
+  min-width: 0;
+}
+.batch-import-column { min-width: 0; }
+.batch-import-column--full { grid-column: 1 / -1; }
+.batch-import-column--half { grid-column: span 1; }
+.batch-import-field-label {
+  display: block;
+  margin: 0 0 var(--space-2);
+  color: var(--text-sub);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+}
+.batch-import-helper-icon { width: 20px; height: 20px; margin-inline-end: var(--space-2); color: var(--accent-color); }
+.batch-spreadsheet-textarea,
+.batch-spreadsheet-button { margin-top: var(--space-2); }
+@media (max-width: 640px) {
+  .batch-import-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .batch-import-column--full { grid-column: 1 / -1; }
+  .batch-import-column--half { grid-column: span 1; }
+}

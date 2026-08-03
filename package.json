@@ -1,0 +1,25 @@
+{
+  "name": "circle-kikaku-tools",
+  "private": true,
+  "version": "7.0.0-calm-workspace",
+  "scripts": {
+    "build:carbon": "node tools/build-carbon-assets.mjs",
+    "test": "node tests/run-static-tests.mjs",
+    "lint:css": "stylelint \"assets/css/**/*.css\" --config stylelint.config.mjs",
+    "test:carbon": "playwright test tests/carbon-complete.spec.js",
+    "test:ui": "playwright test tests/carbon-complete.spec.js",
+    "test:visual": "playwright test tests/carbon-complete.visual.spec.js",
+    "test:carbon:complete": "playwright test tests/carbon-complete.spec.js tests/carbon-complete.visual.spec.js",
+    "test:guard": "npm run build:carbon && npm run lint:css && npm test && npm run test:carbon:complete"
+  },
+  "devDependencies": {
+    "@carbon/icons": "11.85.0",
+    "@carbon/web-components": "2.60.0",
+    "@ibm/plex-sans": "1.1.0",
+    "@ibm/plex-sans-jp": "3.0.0",
+    "@playwright/test": "^1.61.0",
+    "esbuild": "0.28.1",
+    "sortablejs": "1.15.0",
+    "stylelint": "^17.13.0"
+  }
+}

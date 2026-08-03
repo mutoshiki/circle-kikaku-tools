@@ -1,0 +1,88 @@
+/* Official Carbon modal contract. Visual shell, focus trap, overlay, actions and
+   responsive placement are owned by @carbon/web-components. Feature owners only
+   style the content placed inside the modal body. */
+.debug-tap-target { cursor: pointer; }
+.batch-field-note { margin: 0 0 var(--space-2); color: var(--text-sub); font-size: var(--font-size-caption); }
+
+.app-modal {
+  z-index: var(--z-modal);
+  color: var(--text-main);
+  --cds-text-primary: var(--text-main);
+  --cds-text-secondary: var(--text-sub);
+  --cds-layer: var(--surface-lowest);
+  --cds-layer-01: var(--surface-lowest);
+  --cds-layer-02: var(--surface-low);
+  --cds-border-subtle: var(--border-section);
+}
+
+.app-modal[hidden] { display: none; }
+
+.app-modal-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-main);
+  font-size: var(--font-size-title);
+  font-weight: 400;
+  line-height: 1.35;
+}
+.app-modal-heading:focus { outline: 0; }
+.app-modal-heading .carbon-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  color: var(--accent-color);
+}
+
+.app-modal-body {
+  min-width: 0;
+  color: var(--text-main);
+  line-height: 1.55;
+  overscroll-behavior: contain;
+}
+
+.app-modal-footer { min-width: 0; }
+
+/* Carbon footer buttons own the flush 50/50 action layout. Single actions stay
+   in the right action cell through the native modal footer component. */
+.app-modal-footer--single cds-modal-footer-button { grid-column: 2; }
+
+.app-decision-message {
+  max-width: 48ch;
+  color: var(--text-main);
+  font-size: var(--font-size-body);
+  line-height: 1.6;
+}
+
+.batch-warning {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-3);
+}
+.batch-warning[hidden] { display: none; }
+#batchDuplicateWarningBody ul { margin: var(--space-1) 0 0; padding-inline-start: var(--space-5); }
+#batchDuplicateWarningBody li + li { margin-top: var(--space-1); }
+
+
+.tray-actions cds-overflow-menu { width: 48px; min-width: 48px; }
+.unified-flow { margin-bottom: var(--space-4); }
+.compact-guide-grid { grid-template-columns: 1fr; gap: var(--space-3); }
+
+/* Carbon Web Components make modals full-screen on narrow viewports. This app
+ * keeps a small viewport gutter so the dialog still reads as a modal while the
+ * Carbon component continues to own focus trapping, overlay and scrolling. */
+@media (max-width: 640px) {
+  .app-modal::part(dialog) {
+    width: calc(100vw - 32px);
+    max-width: calc(100vw - 32px);
+    height: auto;
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+  }
+
+  .app-modal--compact::part(dialog),
+  .app-decision-modal::part(dialog) {
+    width: min(100vw - 32px, 420px);
+  }
+}

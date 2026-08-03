@@ -1,0 +1,41 @@
+/* Official Carbon form hosts. Shadow DOM owns field visuals and states.
+ * Feature owners control only layout. Enabled, focus, invalid, warning,
+ * read-only and disabled appearances remain Carbon-owned. */
+:where(cds-text-input, cds-textarea, cds-number-input, cds-select) {
+  --cds-field: var(--cds-field-01);
+  --cds-text-placeholder: var(--text-faint);
+  --cds-support-error: var(--semantic-danger);
+  --cds-support-warning: var(--semantic-warning);
+  box-sizing: border-box;
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
+:where(cds-text-input, cds-textarea, cds-number-input, cds-select)[size="lg"] {
+  --cds-layout-size-height-lg: 48px;
+}
+
+:where(cds-text-input, cds-textarea, cds-number-input, cds-select)[readonly],
+:where(cds-text-input, cds-textarea, cds-number-input, cds-select)[read-only] {
+  --cds-field: var(--cds-layer-01);
+}
+
+:where(cds-text-input, cds-textarea, cds-number-input, cds-select)[disabled] {
+  cursor: not-allowed;
+}
+
+
+/* iOS Safari zooms focused form controls whose rendered type is below 16px.
+ * Keep the official Carbon fields and raise only their type token on touch iOS,
+ * rather than disabling user zoom in the viewport meta tag. */
+@media (pointer: coarse), (max-width: 768px) {
+  :where(cds-text-input, cds-textarea, cds-number-input, cds-select) {
+    --cds-body-compact-01-font-size: 16px;
+    --cds-body-01-font-size: 16px;
+  }
+
+  :where(input, textarea, select, [contenteditable="true"]) {
+    font-size: 16px;
+  }
+}

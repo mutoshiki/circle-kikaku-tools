@@ -1,0 +1,30 @@
+/* Settlement editors use native Carbon modal anatomy. This owner only controls
+   the vehicle/settings form content and responsive density. */
+#seisan-view-area .seisan-extra-slash,
+#seisan-view-area .seisan-extra-plus { display: none; }
+#seisan-view-area .seisan-car-summary-row :is(.seisan-extra-slash, .seisan-extra-plus),
+#seisan-view-area .seisan-driver-detail .seisan-extra-plus {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-sub);
+  font-size: var(--font-size-caption);
+}
+
+#settlementCarEditModal .app-modal-body {
+  max-height: min(68dvh, 620px);
+  overflow-y: auto;
+}
+#settlementCarEditModal .app-modal-heading {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#settlementCarEditModal .seisan-car-row {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+#settlementCarEditModal .seisan-car-title { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+#settlementCarEditModal .seisan-car-title strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

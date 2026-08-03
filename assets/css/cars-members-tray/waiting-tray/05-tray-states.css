@@ -1,0 +1,65 @@
+/* Bottom-sheet open/minimized states. */
+#bottom-tray {
+  position: relative;
+  z-index: var(--z-local-popover);
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  height: 40%;
+  min-height: 220px;
+  transition: height var(--motion-slow) ease, min-height var(--motion-slow) ease;
+}
+#tray-handle {
+  order: -1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  align-self: center;
+  box-sizing: border-box;
+  width: auto;
+  max-width: calc(100% - 24px);
+  min-height: 48px;
+  margin: 0 auto;
+  padding-inline: 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+#tray-toggle-label { display: inline-flex; align-items: center; gap: 6px; color: var(--text-sub); font-size: 0.74rem; font-weight: 600; }
+#bottom-tray-header { flex-shrink: 0; padding: 4px 16px 12px; }
+#bottom-tray-header .tray-inline-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; min-width: 0; }
+#waiting-count.waiting-inline-count { flex: 1 1 96px; min-width: 0; color: var(--text-sub); font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+#bottom-tray-header #fillEmptySeatsBtn { flex: 0 0 auto; }
+#bottom-tray-header .random-tools { flex: 0 0 auto; }
+#bottom-tray.waiting-empty #waiting-count { opacity: 0.72; }
+
+#bottom-tray.minimized { height: auto; min-height: 0; }
+
+#tray-handle:focus-visible {
+  outline: 2px solid var(--focus-accent);
+  outline-offset: -2px;
+}
+
+#tray-handle[aria-disabled="true"] {
+  cursor: default;
+  background: transparent;
+}
+#tray-handle[aria-disabled="true"] .handle-bar { opacity: 0.22; }
+
+/* Empty state keeps the disclosure and actions without reserving an unused 40% sheet. */
+#bottom-tray.waiting-empty:not(.minimized) {
+  height: auto;
+  min-height: 0;
+}
+#bottom-tray.waiting-empty:not(.minimized) #waiting-list-container {
+  flex: 0 0 auto;
+  padding-bottom: 16px;
+}
+#bottom-tray.waiting-empty:not(.minimized) #waiting-list {
+  min-height: 64px;
+}

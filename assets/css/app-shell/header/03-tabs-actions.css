@@ -1,0 +1,98 @@
+/* Header actions and three primary destinations. */
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
+  --header-action-size: 48px;
+  --header-icon-size: 20px;
+  --cds-icon-primary: var(--accent-color);
+  --cds-link-primary: var(--accent-color);
+  --cds-link-primary-hover: var(--accent-hover);
+}
+
+.header-more { display: flex; flex: 0 0 auto; align-items: center; }
+
+.header-action {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--header-action-size);
+  min-width: var(--header-action-size);
+  height: var(--header-action-size);
+  min-height: var(--header-action-size);
+  color: var(--accent-color);
+}
+
+.header-action > span:not([slot]),
+.header-action.dropdown-toggle::after { display: none; }
+
+.header-action :is(i, .carbon-icon) {
+  width: var(--header-icon-size);
+  height: var(--header-icon-size);
+  margin: 0;
+  color: inherit;
+  font-size: var(--header-icon-size);
+  line-height: 1;
+  text-align: center;
+}
+
+.header-action.is-locked,
+#editLockBtn.header-action.is-locked,
+.header-action.is-partial-lock {
+  color: var(--accent-color);
+}
+
+#app-view-navigation {
+  position: fixed;
+  z-index: var(--z-bottom-navigation);
+  right: 0;
+  bottom: calc(8px + env(safe-area-inset-bottom));
+  left: 0;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+#view-toggle-bar {
+  display: flex;
+  pointer-events: auto;
+  width: min(560px, calc(100% - 40px - env(safe-area-inset-left) - env(safe-area-inset-right)));
+  min-height: 48px;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.view-tab {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.view-tab-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .header-actions { gap: 0; --header-action-size: 48px; --header-icon-size: 20px; }
+  #view-toggle-bar { width: calc(100% - 40px - env(safe-area-inset-left) - env(safe-area-inset-right)); min-height: 48px; }
+}

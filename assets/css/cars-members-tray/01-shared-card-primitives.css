@@ -1,0 +1,80 @@
+/* Shared member, driver and occupied-seat primitives. */
+.card-bottom-row,
+.swap-preview-card .card-actions,
+.drag-preview-card .card-actions { display: none; }
+
+.card.bg-light-subtle {
+  border: 1px solid var(--border-section);
+  background: var(--surface-lowest);
+  box-shadow: var(--shadow-card);
+}
+
+.edit-driver-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--control-height);
+  padding: 9px 12px;
+  border: 1px solid var(--border-item);
+  border-left-width: 1px;
+  border-radius: 0;
+  background: var(--ui-saas-panel-raised, var(--bg-card));
+  color: var(--text-main);
+  font-size: var(--font-size-body);
+  font-weight: 400;
+}
+
+.edit-capacity-wrap { display: flex; align-items: center; gap: 10px; }
+.edit-capacity-wrap span { color: var(--text-sub); font-size: var(--font-size-label); font-weight: 600; }
+.edit-capacity-wrap input { width: 80px; }
+
+#cars-container { --app-gutter-x: 16px; --app-gutter-y: 16px; }
+
+:where(.member-card, .driver-seat) {
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--surface-low);
+  color: var(--text-main);
+  box-shadow: none;
+}
+
+#cars-container .seat-slot > .member-card,
+#waiting-list .member-card {
+  width: 100%;
+  min-height: 56px;
+  margin: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--border-item);
+  background: var(--surface-low);
+}
+
+/* People keep one card surface wherever they are; empty seats remain quiet action tiles. */
+#cars-container .seat-slot > .member-card,
+#waiting-list .member-card {
+  border-color: var(--border-strong);
+  background: var(--surface-lowest);
+}
+
+#waiting-list .member-card:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-container);
+}
+
+#cars-container .seat-slot > .member-card:hover {
+  border-color: var(--accent-border);
+  background: var(--surface-lowest);
+}
+
+#cars-container .seat-slot > .member-card:focus-within,
+#waiting-list .member-card:focus-within {
+  outline: 2px solid var(--focus-accent);
+  outline-offset: -2px;
+}
+
+:where(.member-card, .driver-seat) :where(.member-main-line, .driver-main-line) { min-width: 0; }
+:where(.member-name-text, .driver-name-disp) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:where(.member-card, .driver-seat) .memo-popup { overflow-wrap: anywhere; }
+.gender-badge,
+.card,
+.waiting-tray { border-radius: 0; }

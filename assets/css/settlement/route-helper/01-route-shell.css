@@ -1,0 +1,104 @@
+/* Distance route helper content. Carbon owns the modal shell. */
+#routeDistanceModal .route-helper-body { max-height: min(70dvh, 680px); overflow-y: auto; }
+#routeDistanceModal .route-helper-panel {
+  display: grid;
+  gap: 10px;
+}
+
+#routeDistanceModal :is(.route-stop-panel, .route-candidate-panel) {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--ui-saas-border, var(--border-color)) 72%, transparent);
+  border-radius: 0;
+  background: var(--cds-layer-02, var(--surface-container));
+  box-shadow: none;
+}
+
+#routeDistanceModal .route-location-privacy-note {
+  margin: -1px 0 8px;
+  padding: 0 2px;
+  color: var(--text-sub);
+  font-size: 0.70rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+#routeDistanceModal .route-helper-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+#routeDistanceModal .route-helper-title {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+#routeDistanceModal .route-helper-title :is(i, .carbon-icon) {
+  color: var(--text-sub);
+  font-size: 0.86em;
+}
+
+#routeDistanceModal .route-helper-subtitle {
+  color: var(--text-sub);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: normal;
+  text-align: right;
+}
+
+#routeDistanceModal .route-helper-note {
+  color: var(--text-sub);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+#routeDistanceModal .route-helper-actions {
+  margin-top: 2px;
+}
+
+#routeDistanceModal .route-helper-actions .seisan-btn {
+  width: 100%;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#routeDistanceModal .route-helper-status { display: block; width: 100%; margin-top: var(--space-2); }
+#routeDistanceModal .route-helper-status[hidden] { display: none; }
+
+@media (max-width: 768px) {
+  #routeDistanceModal .route-stop-input {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+#routeDistanceModal .route-helper-panel {
+    gap: 9px;
+  }
+
+  #routeDistanceModal .route-helper-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  #routeDistanceModal .route-helper-subtitle {
+    text-align: left;
+  }
+
+}

@@ -1,0 +1,50 @@
+/* App bar and destination navigation. */
+#app-header {
+  position: relative;
+  z-index: var(--z-header);
+  display: grid;
+  flex: 0 0 auto;
+  gap: 0;
+  width: 100%;
+  min-width: 0;
+  padding-top: env(safe-area-inset-top);
+  border: 0;
+  border-bottom: 1px solid var(--border-section);
+  background: var(--surface-lowest);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.app-header-main {
+  display: var(--app-header-main-display, flex);
+  grid-template-columns: var(--app-header-main-columns, none);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-header-main-gap, var(--space-3));
+  width: 100%;
+  max-width: 1200px;
+  min-width: 0;
+  min-height: 64px;
+  margin-inline: auto;
+  padding: var(--app-header-main-padding, 8px 16px);
+  background: transparent;
+}
+
+.app-header-main > .app-brand {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.app-header-main > .header-actions {
+  flex: 0 0 auto;
+  justify-content: var(--app-header-actions-justify, initial);
+  width: var(--app-header-actions-width, auto);
+  margin: var(--app-header-actions-margin, 0 0 0 auto);
+}
+
+@media (max-width: 640px) {
+  :root {
+    --app-header-main-gap: 6px;
+    --app-header-main-padding: 8px 10px 6px 16px;
+  }
+}

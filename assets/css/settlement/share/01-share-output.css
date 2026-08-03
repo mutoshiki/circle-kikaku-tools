@@ -1,0 +1,18 @@
+/* Share preview as a readable text surface with a clear commit action. */
+.seisan-share-preview {
+  max-height: 360px;
+  margin: 0 0 12px;
+  padding: 14px;
+  overflow: auto;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-lowest);
+  color: var(--text-main);
+  box-shadow: inset 0 0 0 1px var(--border-section);
+  font-family: inherit;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+#seisan-view-area .seisan-share-actions .seisan-btn { min-height: 48px; }
