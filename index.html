@@ -115,9 +115,9 @@
     <link href="./assets/css/settlement/car-inputs/05-mobile-inputs.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/06-times-rental.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/07-extra-candidates.css?v=ui-fix-2" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=route-ui-v6" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/02-route-stops.css?v=route-ui-v5" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/03-route-candidates.css?v=route-ui-v5" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=route-ui-v7" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/02-route-stops.css?v=route-ui-v7" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/03-route-candidates.css?v=route-ui-v7" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/01-collection-list.css" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/02-collection-mobile.css" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/03-driver-payment-list.css" rel="stylesheet">
@@ -580,25 +580,26 @@
           <section class="route-planner-controls" aria-label="地点とルート設定">
             <div id="routePlaceStack" class="route-place-stack">
               <div id="routeStopList" class="route-stop-list" aria-label="ルート地点"></div>
-              <cds-button id="addRouteWaypointBtn" kind="tertiary" size="lg" type="button"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span>経由地を追加</cds-button>
             </div>
-            <div class="route-planner-options" role="group" aria-labelledby="routePlannerOptionsTitle">
-              <h6 id="routePlannerOptionsTitle">ルート設定</h6>
-              <cds-checkbox id="routeAvoidTolls" label-text="有料道路を避ける" checked></cds-checkbox>
-              <cds-checkbox id="routeAvoidHighways" label-text="高速道路を避ける" checked></cds-checkbox>
-              <cds-checkbox id="routeAvoidFerries" label-text="フェリーを避ける"></cds-checkbox>
-              <cds-checkbox id="routeRoundTrip" label-text="往復距離として適用する"></cds-checkbox>
-            </div>
+            <cds-accordion class="route-settings-accordion" alignment="end">
+              <cds-accordion-item title="ルート設定">
+                <div class="route-planner-options" role="group" aria-label="ルート設定">
+                  <cds-checkbox id="routeAvoidTolls" label-text="有料道路を避ける" checked></cds-checkbox>
+                  <cds-checkbox id="routeAvoidHighways" label-text="高速道路を避ける" checked></cds-checkbox>
+                  <cds-checkbox id="routeAvoidFerries" label-text="フェリーを避ける"></cds-checkbox>
+                  <cds-checkbox id="routeRoundTrip" label-text="往復距離として適用する"></cds-checkbox>
+                </div>
+              </cds-accordion-item>
+            </cds-accordion>
             <cds-inline-notification id="routePlannerNotice" kind="info" title="" subtitle="" low-contrast hide-close-button hidden></cds-inline-notification>
             <div id="routePlannerRetry" class="route-planner-retry" hidden><cds-button id="routePlannerRetryBtn" type="button" kind="tertiary" size="lg"><span data-carbon-icon="undo" slot="icon" aria-hidden="true"></span>再試行</cds-button></div>
             <div id="routePlannerLoading" class="route-planner-loading" hidden><cds-inline-loading status="active" description="ルート候補を取得しています"></cds-inline-loading></div>
           </section>
-          <section class="route-planner-map-panel" aria-labelledby="routePlannerMapTitle">
-            <div class="route-planner-section-heading route-planner-map-heading"><div><h6 id="routePlannerMapTitle">地図プレビュー</h6></div></div>
+          <section class="route-planner-map-panel" aria-label="ルート地図">
             <div class="route-map-frame"><div id="routeMapSkeleton" class="route-map-skeleton" aria-hidden="true"><span></span><span></span><span></span></div><div id="routeMap" class="route-map" role="application" aria-label="ルート候補の地図"></div><div id="routeMapEmpty" class="route-map-empty">出発地と目的地を候補から選択してください。</div></div>
           </section>
           <section class="route-planner-results" aria-labelledby="routePlannerResultsTitle">
-            <div class="route-planner-section-heading"><div><h6 id="routePlannerResultsTitle">ルート候補</h6><p id="routePlannerCalculatedAt">地点を選択すると自動で取得します。</p></div></div>
+            <div class="route-planner-section-heading"><div><h6 id="routePlannerResultsTitle">ルート候補</h6></div></div>
             <div id="routeCandidateList" class="route-candidate-list" role="radiogroup" aria-label="ルート候補"></div>
             <div id="routeLegSummary" class="route-leg-summary"></div>
           </section>
@@ -671,13 +672,13 @@
     <script src="./assets/js/templates/settlement/05-collection-check-templates.js"></script>
     <script src="./assets/js/templates/settlement/06-driver-pay-templates.js"></script>
     <script src="./assets/js/templates/settlement/07-empty-state-templates.js"></script>
-    <script src="./assets/js/templates/settlement/08-route-helper-templates.js?v=route-ui-v5"></script>
-    <script src="./assets/js/templates/settlement/09-register-settlement-templates.js?v=route-ui-v5"></script>
+    <script src="./assets/js/templates/settlement/08-route-helper-templates.js?v=route-ui-v7"></script>
+    <script src="./assets/js/templates/settlement/09-register-settlement-templates.js?v=route-ui-v7"></script>
     <script src="./assets/js/templates/settlement-templates.js"></script>
-    <script src="./assets/js/features/settlement/01-state.js?v=route-ui-v5"></script>
+    <script src="./assets/js/features/settlement/01-state.js?v=route-ui-v7"></script>
     <script src="./assets/js/features/settlement/02-calculator.js"></script>
     <script src="./assets/js/features/settlement/03-render.js?v=carbon-bottom-nav-3"></script>
-    <script src="./assets/js/features/settlement/04-route-helper.js?v=route-ui-v6"></script>
+    <script src="./assets/js/features/settlement/04-route-helper.js?v=route-ui-v7"></script>
     <script src="./assets/js/features/settlement/05-input-actions.js"></script>
     <script src="./assets/js/features/settlement/06-share-text.js?v=club-ledger"></script>
     <script src="./assets/js/features/settlement.js"></script>
@@ -712,5 +713,6 @@
     <script src="./assets/js/features/events/05-view-feature-events.js?v=carbon-bottom-nav-3"></script>
     <script src="./assets/js/features/events.js"></script>
     <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=2.60.0-icons-complete"></script>
+    <script type="module">if (!customElements.get('cds-accordion')) import('https://1.www.s81c.com/common/carbon/web-components/version/v2.60.0/accordion.min.js');</script>
   </body>
 </html>

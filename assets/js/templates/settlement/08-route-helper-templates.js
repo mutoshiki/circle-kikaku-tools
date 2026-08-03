@@ -35,16 +35,28 @@
   }
 
   function routeStopRow(item = {}, index = 0, total = 2, helpers = {}) {
-    const role = item.role === 'origin' || item.role === 'destination' ? item.role : 'waypoint';
+    const rawRole = String(item.role || 'waypoint');
+    const role = ['origin', 'destination', 'waypoint', 'append'].includes(rawRole) ? rawRole : 'waypoint';
+    const isAppend = role === 'append';
     const id = String(item.id || role || `waypoint-${index}`);
     const value = item.place?.name || '';
-    const placeholder = role === 'origin' ? '出発地を検索' : role === 'destination' ? '目的地を検索' : '経由地を追加';
+    const placeholder = role === 'origin' ? '出発地を追加' : '経由地を追加';
     const accessibleIndex = Math.max(1, index + 1);
-    return `<div class="route-stop-row route-stop-row--${role}" data-route-stop-id="${esc(id, helpers)}" data-route-role="${role}"${role === 'waypoint' ? ` data-route-waypoint-id="${esc(id, helpers)}"` : ''}>
-      <span class="route-stop-marker" aria-hidden="true">${esc(stopLetter(index), helpers)}</span>
-      <div class="route-stop-field"><span class="route-stop-search-icon" aria-hidden="true"><svg class="route-search-svg" viewBox="0 0 32 32" aria-hidden="true"><path d="M29,27.5859l-7.5527-7.5527a11.017,11.017,0,1,0-1.4141,1.4141L27.5859,29ZM4,13a9,9,0,1,1,9,9A9.01,9.01,0,0,1,4,13Z"></path></svg></span><cds-text-input class="route-stop-input" type="text" size="lg" label="${placeholder}" hide-label placeholder="${placeholder}" value="${esc(value, helpers)}" readonly data-action="open-route-place-search" data-route-role="${role}"${role === 'waypoint' ? ` data-route-waypoint-id="${esc(id, helpers)}"` : ''} aria-label="${placeholder}"></cds-text-input></div>
-      <cds-button class="route-stop-drag" kind="ghost" size="lg" type="button" aria-label="地点${accessibleIndex}を並び替え"><span data-carbon-icon="drag--vertical" slot="icon" aria-hidden="true"></span><span class="visually-hidden">地点${accessibleIndex}を並び替え</span></cds-button>
-      <cds-button class="route-stop-delete" kind="ghost" size="lg" type="button" data-action="remove-route-stop" data-route-role="${role}"${role === 'waypoint' ? ` data-route-waypoint-id="${esc(id, helpers)}"` : ''} aria-label="${placeholder}を削除"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span><span class="visually-hidden">${placeholder}を削除</span></cds-button>
+    const marker = role === 'origin'
+      ? '<span class="route-stop-marker route-stop-marker--origin" aria-hidden="true">O</span>'
+      : `<span class="route-stop-marker" aria-hidden="true">${esc(stopLetter(Math.max(0, index - 1)), helpers)}</span>`;
+    const waypointAttr = role === 'waypoint' ? ` data-route-waypoint-id="${esc(id, helpers)}"` : '';
+    const drag = isAppend
+      ? '<span class="route-stop-drag route-stop-drag--placeholder" aria-hidden="true"><span data-carbon-icon="drag--vertical"></span></span>'
+      : `<cds-button class="route-stop-drag" kind="ghost" size="lg" type="button" aria-label="地点${accessibleIndex}を並び替え"><span data-carbon-icon="drag--vertical" slot="icon" aria-hidden="true"></span><span class="visually-hidden">地点${accessibleIndex}を並び替え</span></cds-button>`;
+    const remove = isAppend
+      ? '<span class="route-stop-action-spacer" aria-hidden="true"></span>'
+      : `<cds-button class="route-stop-delete" kind="ghost" size="lg" type="button" data-action="remove-route-stop" data-route-role="${role}"${waypointAttr} aria-label="この地点を削除"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span><span class="visually-hidden">この地点を削除</span></cds-button>`;
+    return `<div class="route-stop-row route-stop-row--${role}" data-route-stop-id="${esc(id, helpers)}" data-route-role="${role}"${waypointAttr}${isAppend ? ' data-route-add-slot="true"' : ''}>
+      ${marker}
+      <div class="route-stop-field"><span class="route-stop-search-icon" aria-hidden="true"><svg class="route-search-svg" viewBox="0 0 32 32" aria-hidden="true"><path d="M29,27.5859l-7.5527-7.5527a11.017,11.017,0,1,0-1.4141,1.4141L27.5859,29ZM4,13a9,9,0,1,1,9,9A9.01,9.01,0,0,1,4,13Z"></path></svg></span><cds-text-input class="route-stop-input" type="text" size="lg" label="${placeholder}" hide-label placeholder="${placeholder}" value="${esc(value, helpers)}" readonly data-action="open-route-place-search" data-route-role="${role}"${waypointAttr} aria-label="${placeholder}"></cds-text-input></div>
+      ${drag}
+      ${remove}
     </div>`;
   }
 

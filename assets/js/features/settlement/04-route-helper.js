@@ -17,6 +17,10 @@
         'warnings'
     ];
     const MAX_WAYPOINTS = 25;
+    const MAX_SEGMENT_ROUTES = 3;
+    const MAX_PARTIAL_COMBINATIONS = 9;
+    const MAX_FINAL_ROUTES = 3;
+    const SEGMENT_CACHE_TTL = 5 * 60 * 1000;
     const PLACE_HISTORY_KEY = 'sanpo.routePlannerPlaceHistory.v1';
     const JAPAN_SEARCH_BIAS = Object.freeze({ north: 45.8, south: 20.0, east: 154.0, west: 122.0 });
     const HIGHWAY_PATTERN = /(高速|自動車道|expressway|motorway|highway|\bE\d{1,3}\b|\bC\d{1,3}\b|JCT|IC)/i;
@@ -64,7 +68,8 @@
         returnAfterClose: false,
         applyInProgress: false,
         themeObserver: null,
-        routeRequestTimer: null
+        routeRequestTimer: null,
+        segmentRouteCache: new Map()
     };
 
     function plannerState() {
@@ -258,11 +263,11 @@
         return index >= 0 ? index : 0;
     }
 
-    function serializeRoute(route, index, places) {
-        const path = Array.from(route.path || []).map(normalizeLatLng).filter(Boolean);
-        const pathForEncoding = path.map(point => ({ lat: point.latitude, lng: point.longitude }));
+    function serializeRouteData(route, index, places, idPrefix = 'route') {
+        const normalizedPath = Array.from(route.path || []).map(normalizeLatLng).filter(Boolean);
+        const path = normalizedPath.map(point => ({ lat: point.latitude, lng: point.longitude }));
         let polyline = '';
-        try { polyline = runtime.geometry?.encoding?.encodePath?.(pathForEncoding) || ''; } catch (error) {}
+        try { polyline = runtime.geometry?.encoding?.encodePath?.(path) || ''; } catch (error) {}
         const roads = extractRoadNames(route);
         const routeTollInfo = route.travelAdvisory?.tollInfo || null;
         const legTollInfos = (route.legs || []).map(leg => leg.travelAdvisory?.tollInfo).filter(Boolean);
@@ -279,21 +284,134 @@
             fromName: places[legIndex]?.name || '',
             toName: places[legIndex + 1]?.name || ''
         }));
-        const id = String(route.routeToken || `route-${Date.now()}-${index}`);
-        runtime.routePaths.set(id, pathForEncoding);
+        const sourceId = String(route.routeToken || `${Date.now()}-${index}`).replace(/[^a-zA-Z0-9_-]+/g, '-');
+        const id = `${idPrefix}-${sourceId}-${index}`;
         return {
-            id,
-            label: routeLabel(route, index, hasHighways),
-            distanceMeters: Math.max(0, Number(route.distanceMeters) || 0),
-            durationSeconds: Math.max(0, Number(route.durationMillis) || 0) / 1000,
-            legs,
-            viewport: normalizeViewport(route.viewport),
-            polyline,
-            hasTolls,
-            hasHighways,
-            tollPrice: Array.from(new Set(tollPrices.map(formatMoney).filter(Boolean))).join(' / '),
-            mainRoads: roads
+            path,
+            route: {
+                id,
+                label: routeLabel(route, index, hasHighways),
+                distanceMeters: Math.max(0, Number(route.distanceMeters) || 0),
+                durationSeconds: Math.max(0, Number(route.durationMillis) || 0) / 1000,
+                legs,
+                viewport: normalizeViewport(route.viewport),
+                polyline,
+                hasTolls,
+                hasHighways,
+                tollPrice: Array.from(new Set(tollPrices.map(formatMoney).filter(Boolean))).join(' / '),
+                mainRoads: roads
+            }
         };
+    }
+
+    function serializeRoute(route, index, places) {
+        const serialized = serializeRouteData(route, index, places, 'route');
+        runtime.routePaths.set(serialized.route.id, serialized.path);
+        return serialized.route;
+    }
+
+    function appendRoutePath(current = [], next = []) {
+        if (!current.length) return next.slice();
+        if (!next.length) return current.slice();
+        const last = current[current.length - 1];
+        const first = next[0];
+        const samePoint = Math.abs(Number(last.lat) - Number(first.lat)) < 1e-7
+            && Math.abs(Number(last.lng) - Number(first.lng)) < 1e-7;
+        return samePoint ? current.concat(next.slice(1)) : current.concat(next);
+    }
+
+    function viewportFromPath(path = []) {
+        if (!path.length) return null;
+        const latitudes = path.map(point => Number(point.lat)).filter(Number.isFinite);
+        const longitudes = path.map(point => Number(point.lng)).filter(Number.isFinite);
+        if (!latitudes.length || !longitudes.length) return null;
+        return {
+            north: Math.max(...latitudes),
+            south: Math.min(...latitudes),
+            east: Math.max(...longitudes),
+            west: Math.min(...longitudes)
+        };
+    }
+
+    function splitTollPrices(value = '') {
+        return String(value || '').split(' / ').map(item => item.trim()).filter(Boolean);
+    }
+
+    function combineSegmentRoutes(segmentGroups = []) {
+        let combinations = [{
+            idParts: [],
+            distanceMeters: 0,
+            durationSeconds: 0,
+            legs: [],
+            path: [],
+            hasTolls: false,
+            hasHighways: false,
+            tollPrices: [],
+            mainRoads: []
+        }];
+        segmentGroups.forEach(group => {
+            const choices = group.slice()
+                .sort((left, right) => left.route.durationSeconds - right.route.durationSeconds || left.route.distanceMeters - right.route.distanceMeters)
+                .slice(0, MAX_SEGMENT_ROUTES);
+            const expanded = [];
+            combinations.forEach(partial => {
+                choices.forEach(choice => {
+                    expanded.push({
+                        idParts: partial.idParts.concat(choice.route.id),
+                        distanceMeters: partial.distanceMeters + choice.route.distanceMeters,
+                        durationSeconds: partial.durationSeconds + choice.route.durationSeconds,
+                        legs: partial.legs.concat(choice.route.legs),
+                        path: appendRoutePath(partial.path, choice.path),
+                        hasTolls: partial.hasTolls || choice.route.hasTolls,
+                        hasHighways: partial.hasHighways || choice.route.hasHighways,
+                        tollPrices: Array.from(new Set(partial.tollPrices.concat(splitTollPrices(choice.route.tollPrice)))),
+                        mainRoads: Array.from(new Set(partial.mainRoads.concat(choice.route.mainRoads || []))).slice(0, 5)
+                    });
+                });
+            });
+            const seen = new Set();
+            combinations = expanded
+                .sort((left, right) => left.durationSeconds - right.durationSeconds || left.distanceMeters - right.distanceMeters)
+                .filter(item => {
+                    const signature = item.idParts.join('|');
+                    if (seen.has(signature)) return false;
+                    seen.add(signature);
+                    return true;
+                })
+                .slice(0, MAX_PARTIAL_COMBINATIONS);
+        });
+        return combinations.slice(0, MAX_FINAL_ROUTES).map((combination, index) => {
+            const id = `combined-${combination.idParts.join('-').replace(/[^a-zA-Z0-9_-]+/g, '-').slice(0, 180)}-${index}`;
+            runtime.routePaths.set(id, combination.path);
+            let polyline = '';
+            try { polyline = runtime.geometry?.encoding?.encodePath?.(combination.path) || ''; } catch (error) {}
+            const label = index === 0 ? 'おすすめ' : (!combination.hasHighways && index === 1 ? '一般道中心' : `別ルート ${index}`);
+            return {
+                id,
+                label,
+                distanceMeters: combination.distanceMeters,
+                durationSeconds: combination.durationSeconds,
+                legs: combination.legs,
+                viewport: viewportFromPath(combination.path),
+                polyline,
+                hasTolls: combination.hasTolls,
+                hasHighways: combination.hasHighways,
+                tollPrice: combination.tollPrices.join(' / '),
+                mainRoads: combination.mainRoads
+            };
+        });
+    }
+
+    function cloneSegmentRoutes(routes = []) {
+        return routes.map(item => ({
+            path: item.path.map(point => ({ ...point })),
+            route: {
+                ...item.route,
+                legs: item.route.legs.map(leg => ({ ...leg, start: leg.start ? { ...leg.start } : null, end: leg.end ? { ...leg.end } : null })),
+                viewport: item.route.viewport ? { ...item.route.viewport } : null,
+                mainRoads: Array.from(item.route.mainRoads || [])
+            }
+        }));
     }
 
     function renderPlaceSummary() {
@@ -352,23 +470,24 @@
         }).slice(0, 12);
     }
 
-    function renderPlaceHistory() {
-        const list = byId('routePlaceHistoryList');
-        if (!list) return;
-        runtime.placeHistoryEntries = recentPlaces();
-        list.innerHTML = runtime.placeHistoryEntries.length
-            ? runtime.placeHistoryEntries.map((place, index) => templates().routeHistoryItem(place, index, { escapeHtml })).join('')
-            : '<div class="route-place-history-empty">候補はまだありません。</div>';
-        applyRuntimeAccessibilityFixes(list);
-    }
-
     function getStopItems() {
         const state = plannerState();
-        return [
+        const items = [
             { id: 'origin', role: 'origin', place: state.origin },
-            ...runtime.waypointRows.map(row => ({ id: row.id, role: 'waypoint', place: row.place })),
-            { id: 'destination', role: 'destination', place: state.destination }
+            ...runtime.waypointRows.filter(row => row.place).map(row => ({ id: row.id, role: 'waypoint', place: row.place }))
         ];
+        if (state.destination) items.push({ id: 'destination', role: 'destination', place: state.destination });
+        items.push({ id: 'append', role: 'append', place: null });
+        return items;
+    }
+
+    function preventTouchCallout(handle) {
+        if (!(handle instanceof HTMLElement) || handle.dataset.routeTouchBound === 'true') return;
+        handle.dataset.routeTouchBound = 'true';
+        handle.addEventListener('touchstart', event => {
+            if (event.cancelable) event.preventDefault();
+        }, { passive: false });
+        handle.addEventListener('contextmenu', event => event.preventDefault());
     }
 
     function renderStopEditor() {
@@ -377,11 +496,7 @@
         const items = getStopItems();
         list.innerHTML = items.map((item, index) => templates().routeStopRow(item, index, items.length, { escapeHtml })).join('');
         applyRuntimeAccessibilityFixes(list);
-        const addButton = byId('addRouteWaypointBtn');
-        if (addButton) {
-            addButton.disabled = runtime.waypointRows.length >= MAX_WAYPOINTS;
-            addButton.toggleAttribute('disabled', addButton.disabled);
-        }
+        list.querySelectorAll('.route-stop-drag:not([disabled])').forEach(preventTouchCallout);
         setupStopSortable();
     }
 
@@ -389,7 +504,11 @@
         const state = plannerState();
         if (role === 'origin') state.origin = place;
         else if (role === 'destination') state.destination = place;
-        else {
+        else if (role === 'append') {
+            if (!place) return;
+            if (state.destination) runtime.waypointRows.push({ id: createWaypointId(), place: state.destination });
+            state.destination = place;
+        } else {
             const row = runtime.waypointRows.find(item => item.id === waypointId);
             if (row) row.place = place;
         }
@@ -408,7 +527,7 @@
     }
 
     function searchPlaceholder(role) {
-        return role === 'origin' ? '出発地を検索' : role === 'destination' ? '目的地を検索' : '経由地を検索';
+        return role === 'origin' ? '出発地を追加' : '経由地を追加';
     }
 
     function placeSearchInput() {
@@ -525,11 +644,16 @@
         requestAnimationFrame(() => {
             if (!previousTarget?.role) return;
             const selector = `[data-action="open-route-place-search"][data-route-role="${CSS.escape(previousTarget.role)}"]${previousTarget.waypointId ? `[data-route-waypoint-id="${CSS.escape(previousTarget.waypointId)}"]` : ''}`;
-            document.querySelector(selector)?.focus?.({ preventScroll: true });
+            const target = document.querySelector(selector);
+            if (target instanceof HTMLElement) target.focus({ preventScroll: true });
         });
     }
 
     function openPlaceSearch(role, waypointId = '') {
+        if (role === 'append' && runtime.waypointRows.length >= MAX_WAYPOINTS) {
+            setNotice('warning', '経由地は25件までです', 'Google Routes APIの上限に合わせています。');
+            return;
+        }
         const surface = byId('routePlaceSearchSurface');
         const modal = byId('routeDistanceModal');
         const widget = createPlaceSearchWidget();
@@ -634,6 +758,7 @@
     function itemForRenderedStop(row) {
         const role = row?.dataset?.routeRole || '';
         const waypointId = row?.dataset?.routeWaypointId || '';
+        if (role === 'append') return null;
         if (role === 'origin') return { id: 'origin', role, place: plannerState().origin };
         if (role === 'destination') return { id: 'destination', role, place: plannerState().destination };
         const waypoint = runtime.waypointRows.find(item => item.id === waypointId);
@@ -668,16 +793,26 @@
         }
         runtime.stopSortable = new Sortable(list, {
             animation: 150,
-            handle: '.route-stop-drag',
+            handle: '.route-stop-drag:not([disabled])',
+            draggable: '.route-stop-row:not(.route-stop-row--append)',
+            filter: '.route-stop-row--append',
+            preventOnFilter: false,
             forceFallback: true,
-            fallbackOnBody: true,
+            fallbackOnBody: false,
+            fallbackTolerance: 4,
+            delay: 120,
+            delayOnTouchOnly: true,
+            touchStartThreshold: 5,
             ghostClass: 'route-stop-drag-ghost',
             chosenClass: 'route-stop-drag-chosen',
             fallbackClass: 'route-stop-drag-fallback',
-            onStart: () => document.body.classList.add('route-stop-dragging'),
+            onStart: () => {
+                closePlaceSearch();
+                document.body.classList.add('route-stop-dragging');
+            },
             onEnd: () => {
                 document.body.classList.remove('route-stop-dragging');
-                applyRenderedStopOrder(Array.from(list.querySelectorAll('.route-stop-row')), 'stops-drag-reordered');
+                applyRenderedStopOrder(Array.from(list.querySelectorAll('.route-stop-row:not(.route-stop-row--append)')), 'stops-drag-reordered');
             }
         });
     }
@@ -687,7 +822,6 @@
         const list = byId('routeCandidateList');
         const summary = byId('routeLegSummary');
         const apply = byId('applyRouteDistanceBtn');
-        const calculatedAt = byId('routePlannerCalculatedAt');
         const selected = getSelectedRoute(state);
         if (list) {
             list.innerHTML = state.routes.length
@@ -696,12 +830,18 @@
         }
         if (summary) summary.innerHTML = selected ? templates().routeLegSummary(selected, getOrderedPlaces(state), state.roundTrip, { escapeHtml }) : '';
         if (apply) apply.disabled = !selected || !state.targetCarName;
-        if (calculatedAt) {
-            calculatedAt.textContent = state.calculatedAt
-                ? `${new Date(state.calculatedAt).toLocaleString('ja-JP')} に取得・選択中: ${selected?.label || 'なし'}`
-                : '地点を選択すると自動で取得します。';
-        }
         if (list) applyRuntimeAccessibilityFixes(list);
+    }
+
+    function resolveSemanticColor(tokenName, fallback) {
+        const rootStyles = getComputedStyle(document.documentElement);
+        const modalStyles = byId('routeDistanceModal') ? getComputedStyle(byId('routeDistanceModal')) : null;
+        const candidates = [
+            modalStyles?.getPropertyValue(tokenName),
+            rootStyles.getPropertyValue(tokenName)
+        ];
+        const value = candidates.map(item => String(item || '').trim()).find(item => /^(?:#|rgb\(|rgba\(|hsl\(|hsla\()/i.test(item));
+        return value || fallback;
     }
 
     function clearMapOverlays() {
@@ -726,7 +866,7 @@
     function createMarker(place, index, total) {
         if (!runtime.map || !place) return;
         const position = { lat: place.latitude, lng: place.longitude };
-        const label = index === 0 ? 'A' : index === total - 1 ? 'B' : String(index);
+        const label = index === 0 ? 'O' : String(templates().formatRouteStopLetter?.(index - 1) || index);
         let marker;
         if (runtime.marker?.AdvancedMarkerElement && global.SanpoGoogleMaps?.getConfig().mapId) {
             marker = new runtime.marker.AdvancedMarkerElement({ map: runtime.map, position, title: place.name });
@@ -751,7 +891,9 @@
                 map: runtime.map,
                 path,
                 clickable: true,
-                strokeColor: selected ? '#0f62fe' : '#8d8d8d',
+                strokeColor: selected
+                    ? resolveSemanticColor('--accent-color', '#0f62fe')
+                    : resolveSemanticColor('--text-sub', '#8d8d8d'),
                 strokeOpacity: selected ? 1 : 0.55,
                 strokeWeight: selected ? 7 : 5,
                 zIndex: selected ? 20 : 10
@@ -847,21 +989,20 @@
         return runtime.initializing;
     }
 
-    function routeRequest(state) {
-        const location = place => {
-            if (runtime.places?.Place && place?.placeId) {
-                try { return new runtime.places.Place({ id: place.placeId }); } catch (error) {}
-            }
-            return { lat: place.latitude, lng: place.longitude };
-        };
-        const waypoint = place => ({ location: location(place), vehicleStopover: true });
-        const request = {
-            origin: location(state.origin),
-            destination: location(state.destination),
-            intermediates: state.waypoints.map(waypoint),
+    function routeLocation(place) {
+        if (runtime.places?.Place && place?.placeId) {
+            try { return new runtime.places.Place({ id: place.placeId }); } catch (error) {}
+        }
+        return { lat: place.latitude, lng: place.longitude };
+    }
+
+    function segmentRouteRequest(state, origin, destination) {
+        return {
+            origin: routeLocation(origin),
+            destination: routeLocation(destination),
             travelMode: 'DRIVING',
             routingPreference: 'TRAFFIC_AWARE',
-            computeAlternativeRoutes: state.waypoints.length === 0,
+            computeAlternativeRoutes: true,
             routeModifiers: {
                 avoidTolls: state.avoidTolls,
                 avoidHighways: state.avoidHighways,
@@ -873,8 +1014,43 @@
             extraComputations: ['TOLLS'],
             fields: ROUTE_FIELDS
         };
-        if (!request.intermediates.length) delete request.intermediates;
-        return request;
+    }
+
+    function segmentCacheKey(state, origin, destination) {
+        return JSON.stringify({
+            origin: origin.placeId,
+            destination: destination.placeId,
+            avoidTolls: state.avoidTolls,
+            avoidHighways: state.avoidHighways,
+            avoidFerries: state.avoidFerries
+        });
+    }
+
+    async function computeRoutesWithFallback(request) {
+        try {
+            return await runtime.routes.Route.computeRoutes(request);
+        } catch (initialError) {
+            if (!canRetryWithoutTolls(initialError)) throw initialError;
+            const basicRequest = { ...request };
+            delete basicRequest.extraComputations;
+            basicRequest.fields = ROUTE_FIELDS.filter(field => field !== 'travelAdvisory');
+            return runtime.routes.Route.computeRoutes(basicRequest);
+        }
+    }
+
+    async function loadSegmentRoutes(state, origin, destination, segmentIndex) {
+        const key = segmentCacheKey(state, origin, destination);
+        const cached = runtime.segmentRouteCache.get(key);
+        if (cached && cached.expiresAt > Date.now()) return { routes: cloneSegmentRoutes(cached.routes), fallbackInfo: null };
+        const response = await computeRoutesWithFallback(segmentRouteRequest(state, origin, destination));
+        const rawRoutes = Array.from(response.routes || []);
+        if (!rawRoutes.length) throw new Error(`No routes returned for segment ${segmentIndex + 1}.`);
+        const routes = rawRoutes
+            .map((route, index) => serializeRouteData(route, index, [origin, destination], `segment-${segmentIndex}`))
+            .sort((left, right) => left.route.durationSeconds - right.route.durationSeconds || left.route.distanceMeters - right.route.distanceMeters)
+            .slice(0, MAX_SEGMENT_ROUTES);
+        runtime.segmentRouteCache.set(key, { expiresAt: Date.now() + SEGMENT_CACHE_TTL, routes: cloneSegmentRoutes(routes) });
+        return { routes, fallbackInfo: response.fallbackInfo || null };
     }
 
     async function requestRoutesIfReady(reason = '') {
@@ -888,42 +1064,36 @@
             renderRoutes();
             renderMapRoutes();
             setLoading(false);
+            setNotice('', '', '');
             return;
         }
         await initializeGoogleFeatures();
         const requestId = ++runtime.requestSequence;
-        setLoading(true);
-        setNotice('info', 'ルート候補を取得しています', '地点と回避設定をGoogle Routes APIへ送信しています。');
+        const places = getOrderedPlaces(state);
+        const segmentCount = Math.max(0, places.length - 1);
+        setLoading(true, segmentCount > 1 ? `区間 1/${segmentCount} の候補を取得しています` : 'ルート候補を取得しています');
+        setNotice('', '', '');
         try {
-            const initialRequest = routeRequest(state);
-            let response;
-            try {
-                response = await runtime.routes.Route.computeRoutes(initialRequest);
-            } catch (initialError) {
-                if (!canRetryWithoutTolls(initialError)) throw initialError;
-                const basicRequest = { ...initialRequest };
-                delete basicRequest.extraComputations;
-                basicRequest.fields = ROUTE_FIELDS.filter(field => field !== 'travelAdvisory');
-                response = await runtime.routes.Route.computeRoutes(basicRequest);
+            const segmentGroups = [];
+            let usedFallback = false;
+            for (let index = 0; index < segmentCount; index += 1) {
+                if (requestId !== runtime.requestSequence) return;
+                setLoading(true, segmentCount > 1 ? `区間 ${index + 1}/${segmentCount} の候補を取得しています` : 'ルート候補を取得しています');
+                const result = await loadSegmentRoutes(state, places[index], places[index + 1], index);
+                if (requestId !== runtime.requestSequence) return;
+                segmentGroups.push(result.routes);
+                usedFallback = usedFallback || Boolean(result.fallbackInfo);
             }
-            if (requestId !== runtime.requestSequence) return;
-            const rawRoutes = Array.from(response.routes || []);
-            if (!rawRoutes.length) throw new Error('No routes returned.');
             runtime.routePaths.clear();
-            const places = getOrderedPlaces(state);
-            state.routes = rawRoutes.map((route, index) => serializeRoute(route, index, places));
-            state.selectedRouteIndex = defaultRouteIndex(rawRoutes);
+            state.routes = combineSegmentRoutes(segmentGroups);
+            if (!state.routes.length) throw new Error('No combined routes returned.');
+            state.selectedRouteIndex = 0;
             state.calculatedAt = Date.now();
             persistPlannerState();
             renderRoutes();
             renderMapRoutes();
-            if (state.waypoints.length) {
-                setNotice('info', '経由地を含むルートは1件表示される場合があります', 'Google Routes APIは中間経由地を含むリクエストでは代替ルートを返しません。');
-            } else if (response.fallbackInfo) {
-                setNotice('warning', '別の計算方式で取得しました', 'Google側でルート計算がフォールバックされました。');
-            } else {
-                setNotice('', '', '');
-            }
+            if (usedFallback) setNotice('warning', '別の計算方式で取得しました', 'Google側で一部区間のルート計算がフォールバックされました。');
+            else setNotice('', '', '');
         } catch (error) {
             if (requestId !== runtime.requestSequence) return;
             state.routes = [];
@@ -961,7 +1131,7 @@
     function moveStop(id, direction) {
         const list = byId('routeStopList');
         if (!list) return;
-        const rows = Array.from(list.querySelectorAll('.route-stop-row'));
+        const rows = Array.from(list.querySelectorAll('.route-stop-row:not(.route-stop-row--append)'));
         const index = rows.findIndex(row => row.dataset.routeStopId === id);
         if (index < 0) return;
         const targetIndex = direction === 'first'
@@ -984,11 +1154,7 @@
             setNotice('warning', '経由地は25件までです', 'Google Routes APIの上限に合わせています。');
             return;
         }
-        runtime.waypointRows.push({ id: createWaypointId(), place: null });
-        renderStopEditor();
-        persistPlannerState();
-        const last = runtime.waypointRows[runtime.waypointRows.length - 1];
-        openPlaceSearch('waypoint', last.id);
+        openPlaceSearch('append');
     }
 
     function removeWaypoint(id) {
@@ -1000,14 +1166,29 @@
     }
 
     function removeStop(role, waypointId = '') {
+        const state = plannerState();
         if (role === 'waypoint') {
             removeWaypoint(waypointId);
             return;
         }
-        if (role === 'origin' || role === 'destination') {
+        if (role === 'origin') {
             if (runtime.activePlaceSearch?.role === role) closePlaceSearch();
-            setRolePlace(role, null);
-            scheduleRouteRequest(`${role}-cleared`, 120);
+            setRolePlace('origin', null);
+            scheduleRouteRequest('origin-cleared', 120);
+            return;
+        }
+        if (role === 'destination') {
+            if (runtime.activePlaceSearch?.role === role) closePlaceSearch();
+            const previous = runtime.waypointRows.pop() || null;
+            state.destination = previous?.place || null;
+            state.routes = [];
+            state.selectedRouteIndex = 0;
+            state.calculatedAt = 0;
+            persistPlannerState();
+            renderStopEditor();
+            renderRoutes();
+            renderMapRoutes();
+            scheduleRouteRequest('destination-removed', 120);
         }
     }
 
@@ -1038,7 +1219,11 @@
     }
 
     function initializeWaypointRows() {
-        runtime.waypointRows = plannerState().waypoints.map(place => ({ id: createWaypointId(), place }));
+        const state = plannerState();
+        const places = Array.from(state.waypoints || []);
+        if (!state.destination && places.length) state.destination = places.pop();
+        runtime.waypointRows = places.map(place => ({ id: createWaypointId(), place }));
+        persistPlannerState();
     }
 
     function pushRouteHistoryState() {
@@ -1218,7 +1403,6 @@
                 global.openRouteDistanceHelperFromShortcut?.();
             });
         }
-        byId('addRouteWaypointBtn')?.addEventListener('click', addWaypoint);
         byId('routePlaceSearchBackBtn')?.addEventListener('click', closePlaceSearch);
         byId('routePlaceStack')?.addEventListener('click', event => {
             const path = event.composedPath?.() || [];

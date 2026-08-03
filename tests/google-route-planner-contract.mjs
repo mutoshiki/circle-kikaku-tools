@@ -33,7 +33,10 @@ assert.match(modal + templates, /<cds-(?:icon-)?button/, 'route actions use Carb
 assert.match(route, /MAX_WAYPOINTS\s*=\s*25/, 'waypoint count respects the Routes limit');
 assert.match(route, /stops-keyboard-reordered/, 'stops support keyboard reordering');
 assert.match(route, /Route\.computeRoutes/, 'Routes API is used');
-assert.match(route, /computeAlternativeRoutes/, 'alternative routes are requested');
+assert.match(route, /segmentRouteRequest[\s\S]*computeAlternativeRoutes:\s*true/, 'every segment requests alternative routes');
+assert.match(route, /combineSegmentRoutes/, 'segment alternatives are combined into full-route candidates');
+assert.match(route, /MAX_PARTIAL_COMBINATIONS/, 'candidate combinations are pruned at every stage');
+assert.match(route, /MAX_FINAL_ROUTES\s*=\s*3/, 'final route candidates are capped at three');
 assert.match(route, /avoidTolls[\s\S]*avoidHighways[\s\S]*avoidFerries/, 'route modifiers are sent');
 assert.doesNotMatch(route, /\bunits\s*:/, 'the incompatible UnitSystem field is omitted');
 assert.match(route, /requestSequence/, 'stale route responses are rejected');
@@ -45,6 +48,11 @@ assert.match(route, /Polyline[\s\S]*addListener\(['"]click['"]/, 'map routes are
 assert.match(route, /popstate/, 'browser back closes the planner');
 assert.doesNotMatch(route, /DirectionsService|DistanceMatrixService|AutocompleteService/, 'legacy APIs are absent');
 assert.match(route, /retryRoutePlanner/, 'Google failures expose retry');
+assert.doesNotMatch(modal, /id="addRouteWaypointBtn"/, 'the permanent empty stop row replaces the add button');
+assert.match(modal, /<cds-accordion[\s\S]*<cds-accordion-item[^>]*title="ルート設定"/, 'route settings use the official Carbon Accordion');
+assert.doesNotMatch(modal, /地図プレビュー|地点を選択すると自動で取得します/, 'redundant planner copy is removed');
+assert.match(templates, /route-stop-row--\$\{role\}/, 'all route points share the same stop-row anatomy');
+assert.match(templates, /data-route-add-slot/, 'one permanent empty append slot is rendered');
 for (const id of ['routeStopList','routePlaceSearchInput','routePlaceHistoryList','routePlannerRetryBtn','routeMap','routeCandidateList','applyRouteDistanceBtn']) {
   assert.match(modal, new RegExp(`id="${id}"`));
 }
