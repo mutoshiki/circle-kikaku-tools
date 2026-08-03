@@ -7,20 +7,47 @@
 #routeDistanceModal .route-waypoint-row,
 .route-waypoint-row.route-waypoint-drag-fallback {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  grid-template-columns: 32px minmax(0, 1fr) 40px 40px;
   gap: 8px;
-  align-items: end;
+  align-items: center;
   min-width: 0;
+}
+
+#routeDistanceModal .route-waypoint-stop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#routeDistanceModal .route-waypoint-stop-letter {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--cds-text-primary, var(--text-main));
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--cds-text-primary, var(--text-main));
+  background: var(--cds-layer-01, var(--bg-card));
+}
+
+#routeDistanceModal .route-waypoint-main {
+  min-width: 0;
+  display: grid;
+}
+
+#routeDistanceModal .route-waypoint-handle,
+.route-waypoint-row.route-waypoint-drag-fallback .route-waypoint-handle,
+#routeDistanceModal .route-waypoint-delete {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
 }
 
 #routeDistanceModal .route-waypoint-handle,
 .route-waypoint-row.route-waypoint-drag-fallback .route-waypoint-handle {
-  width: 48px;
-  min-width: 48px;
-  height: 48px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   border: 0;
   background: transparent;
   color: var(--cds-icon-secondary, var(--text-sub));
@@ -29,39 +56,6 @@
 }
 
 #routeDistanceModal .route-waypoint-handle:active { cursor: grabbing; }
-
-#routeDistanceModal .route-waypoint-main {
-  min-width: 0;
-  display: grid;
-  gap: 6px;
-}
-
-#routeDistanceModal .route-waypoint-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--cds-text-primary, var(--text-main));
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-#routeDistanceModal .route-waypoint-index {
-  width: 20px;
-  height: 20px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--cds-support-info, #0043ce);
-  color: #fff;
-  font-size: 0.75rem;
-  line-height: 1;
-}
-
-#routeDistanceModal .route-waypoint-delete {
-  width: 48px;
-  min-width: 48px;
-  height: 48px;
-}
 
 .route-waypoint-row.route-waypoint-drag-fallback {
   z-index: calc(var(--z-modal, 1055) + 4);
@@ -79,8 +73,7 @@ body.route-waypoint-dragging { cursor: grabbing; user-select: none; }
 @media (max-width: 390px) {
   #routeDistanceModal .route-waypoint-row,
   .route-waypoint-row.route-waypoint-drag-fallback {
-    grid-template-columns: 48px minmax(0, 1fr) 48px;
+    grid-template-columns: 28px minmax(0, 1fr) 36px 36px;
     gap: 6px;
   }
-  #routeDistanceModal .route-waypoint-handle { width: 48px; min-width: 48px; }
 }

@@ -563,17 +563,17 @@
       <cds-modal-body class="app-modal-body route-helper-body" no-fade>
         <div class="route-planner-shell">
           <section class="route-planner-controls" aria-labelledby="routePlannerPlacesTitle">
-            <div class="route-planner-section-heading"><div><h6 id="routePlannerPlacesTitle">地点を設定</h6><p id="routePlannerContext" class="route-planner-context">車ごとの費用から開くと、選択した距離をその車へ反映できます。</p></div></div>
+            
             <div class="route-place-stack">
-              <div class="route-place-field" data-route-place-role="origin"><div class="route-place-label"><span class="route-place-marker route-place-marker--origin" aria-hidden="true"></span><span>出発地</span></div><div id="routeOriginAutocomplete" class="route-place-autocomplete"></div><div id="routeOriginSummary" class="route-place-summary" hidden></div></div>
+              <div class="route-place-field route-place-field--origin" data-route-place-role="origin"><div class="route-place-label"><span class="route-place-marker route-place-marker--origin" aria-hidden="true"></span><span>出発地</span></div><div id="routeOriginAutocomplete" class="route-place-autocomplete"></div><div id="routeOriginSummary" class="route-place-summary" hidden></div></div>
               <div id="routeWaypointList" class="route-waypoint-list" aria-label="経由地"></div>
               <cds-button id="addRouteWaypointBtn" kind="tertiary" size="lg" type="button"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span>経由地を追加</cds-button>
-              <div class="route-place-field" data-route-place-role="destination"><div class="route-place-label"><span class="route-place-marker route-place-marker--destination" aria-hidden="true"></span><span>目的地</span></div><div id="routeDestinationAutocomplete" class="route-place-autocomplete"></div><div id="routeDestinationSummary" class="route-place-summary" hidden></div></div>
+              <div class="route-place-field route-place-field--destination" data-route-place-role="destination"><div class="route-place-label"><span class="route-place-marker route-place-marker--destination" aria-hidden="true"></span><span>目的地</span></div><div id="routeDestinationAutocomplete" class="route-place-autocomplete"></div><div id="routeDestinationSummary" class="route-place-summary" hidden></div></div>
             </div>
             <div class="route-planner-options" role="group" aria-labelledby="routePlannerOptionsTitle">
               <h6 id="routePlannerOptionsTitle">ルート設定</h6>
-              <cds-checkbox id="routeAvoidTolls" label-text="有料道路を避ける"></cds-checkbox>
-              <cds-checkbox id="routeAvoidHighways" label-text="高速道路を避ける"></cds-checkbox>
+              <cds-checkbox id="routeAvoidTolls" label-text="有料道路を避ける" checked></cds-checkbox>
+              <cds-checkbox id="routeAvoidHighways" label-text="高速道路を避ける" checked></cds-checkbox>
               <cds-checkbox id="routeAvoidFerries" label-text="フェリーを避ける"></cds-checkbox>
               <cds-checkbox id="routeRoundTrip" label-text="往復距離として適用する"></cds-checkbox>
             </div>
@@ -582,7 +582,7 @@
             <div id="routePlannerLoading" class="route-planner-loading" hidden><cds-inline-loading status="active" description="ルート候補を取得しています"></cds-inline-loading></div>
           </section>
           <section class="route-planner-map-panel" aria-labelledby="routePlannerMapTitle">
-            <div class="route-planner-section-heading route-planner-map-heading"><div><h6 id="routePlannerMapTitle">地図プレビュー</h6><p>地図上のルートを選択できます。</p></div></div>
+            <div class="route-planner-section-heading route-planner-map-heading"><div><h6 id="routePlannerMapTitle">地図プレビュー</h6></div></div>
             <div class="route-map-frame"><div id="routeMapSkeleton" class="route-map-skeleton" aria-hidden="true"><span></span><span></span><span></span></div><div id="routeMap" class="route-map" role="application" aria-label="ルート候補の地図"></div><div id="routeMapEmpty" class="route-map-empty">出発地と目的地をGoogle候補から選択してください。</div></div>
           </section>
           <section class="route-planner-results" aria-labelledby="routePlannerResultsTitle">

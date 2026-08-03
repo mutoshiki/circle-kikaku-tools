@@ -47,6 +47,7 @@
         markers: [],
         routePaths: new Map(),
         autocompleteWidgets: new Map(),
+        searchDismissHandlers: new Map(),
         waypointRows: [],
         waypointSortable: null,
         requestSequence: 0,
@@ -291,15 +292,7 @@
     }
 
     function renderPlaceSummary(role, place, waypointId = '') {
-        const selector = role === 'origin'
-            ? '#routeOriginSummary'
-            : role === 'destination'
-                ? '#routeDestinationSummary'
-                : `[data-route-waypoint-summary="${CSS.escape(waypointId)}"]`;
-        const summary = document.querySelector(selector);
-        if (!summary) return;
-        summary.toggleAttribute('hidden', !place);
-        summary.innerHTML = place ? templates().routePlaceSummary(place, { escapeHtml }) : '';
+        // Compact route editor: selected place is shown directly in the input field.
     }
 
     function updateContextLabel() {
@@ -315,11 +308,71 @@
         return role === 'waypoint' ? `waypoint:${waypointId}` : role;
     }
 
+    function routeInputPlaceholder(role) {
+        return role === 'origin' ? '出発地を検索' : role === 'destination' ? '目的地を検索' : '経由地を追加';
+    }
+
+    function routeInputValue(place) {
+        return place ? String(place.name || '') : '';
+    }
+
+    function stopLetter(index = 0) {
+        const value = Math.max(0, Number(index) || 0);
+        const first = String.fromCharCode(65 + (value % 26));
+        const repeat = Math.floor(value / 26);
+        return repeat > 0 ? `${first}${repeat}` : first;
+    }
+
+    function readPlaceHistory() {
+        try {
+            const raw = JSON.parse(localStorage.getItem('sanpo.routePlannerPlaceHistory.v1') || '[]');
+            return Array.isArray(raw) ? raw.map(normalizeRoutePlannerPlace).filter(Boolean) : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function writePlaceHistory(list = []) {
+        try {
+            localStorage.setItem('sanpo.routePlannerPlaceHistory.v1', JSON.stringify(list.slice(0, 24)));
+        } catch (error) {}
+    }
+
+    function rememberPlace(place) {
+        const normalized = normalizeRoutePlannerPlace(place);
+        if (!normalized) return;
+        const history = readPlaceHistory().filter(item => item.placeId !== normalized.placeId);
+        history.unshift(normalized);
+        writePlaceHistory(history);
+    }
+
+    function recentPlaces() {
+        const current = getOrderedPlaces(plannerState()).map(normalizeRoutePlannerPlace).filter(Boolean);
+        const merged = [...current, ...readPlaceHistory()];
+        const seen = new Set();
+        return merged.filter(place => {
+            if (!place?.placeId || seen.has(place.placeId)) return false;
+            seen.add(place.placeId);
+            return true;
+        }).slice(0, 12);
+    }
+
     function getRolePlace(role, waypointId = '') {
         const state = plannerState();
         if (role === 'origin') return state.origin;
         if (role === 'destination') return state.destination;
         return runtime.waypointRows.find(row => row.id === waypointId)?.place || null;
+    }
+
+    function updateFieldView(role, waypointId = '') {
+        const widget = runtime.autocompleteWidgets.get(routeWidgetKey(role, waypointId));
+        if (!widget) return;
+        const place = getRolePlace(role, waypointId);
+        const displayValue = routeInputValue(place);
+        widget.input.value = displayValue;
+        widget.input.dataset.selectedPlaceId = place?.placeId || '';
+        widget.input.dataset.selectedValue = displayValue;
+        widget.clear.hidden = !displayValue;
     }
 
     function setRolePlace(role, place, waypointId = '') {
@@ -330,43 +383,39 @@
             const row = runtime.waypointRows.find(item => item.id === waypointId);
             if (row) row.place = place;
         }
+        if (place) rememberPlace(place);
         state.routes = [];
         state.selectedRouteIndex = 0;
         state.calculatedAt = 0;
-        const widget = runtime.autocompleteWidgets.get(routeWidgetKey(role, waypointId));
-        if (widget) {
-            const displayValue = place ? `${place.name}${place.address ? `（${place.address}）` : ''}` : '';
-            if (place && widget.value !== displayValue) widget.value = displayValue;
-            widget.dataset.selectedPlaceId = place?.placeId || '';
-            widget.dataset.selectedValue = displayValue;
-        }
+        updateFieldView(role, waypointId);
         renderPlaceSummary(role, place, waypointId);
         persistPlannerState();
         renderRoutes();
         renderMapRoutes();
     }
 
-    async function resolvePrediction(event, role, waypointId = '') {
-        const prediction = event?.placePrediction || event?.detail?.placePrediction;
-        if (!prediction?.toPlace) return;
+    async function resolvePrediction(prediction, role, waypointId = '') {
+        const placePrediction = prediction?.placePrediction || prediction;
+        if (!placePrediction?.toPlace) return;
         const key = routeWidgetKey(role, waypointId);
         const sequence = (runtime.selectionSequence.get(key) || 0) + 1;
         runtime.selectionSequence.set(key, sequence);
         try {
             setNotice('info', '場所の情報を取得しています', 'Google候補の選択内容を確認しています。');
-            const place = prediction.toPlace();
+            const place = placePrediction.toPlace();
             await place.fetchFields({ fields: ['id', 'displayName', 'formattedAddress', 'location', 'viewport'] });
             if (runtime.selectionSequence.get(key) !== sequence) return;
             const point = normalizeLatLng(place.location);
             if (!point || !place.id) throw new Error('選択した場所の座標を取得できませんでした。');
             const selected = {
                 placeId: String(place.id),
-                name: String(place.displayName || prediction.mainText?.text || prediction.text?.text || '選択した場所'),
+                name: String(place.displayName || placePrediction.mainText?.text || placePrediction.text?.text || '選択した場所'),
                 address: String(place.formattedAddress || ''),
                 latitude: point.latitude,
                 longitude: point.longitude
             };
             setRolePlace(role, selected, waypointId);
+            closeSuggestionPanel(key);
             setNotice('', '', '');
             await requestRoutesIfReady('place-selected');
         } catch (error) {
@@ -375,47 +424,206 @@
         }
     }
 
-    function handleAutocompleteInput(role, waypointId, widget) {
-        const key = routeWidgetKey(role, waypointId);
-        const currentPlace = getRolePlace(role, waypointId);
-        if (!currentPlace) return;
-        const sequence = (runtime.selectionSequence.get(key) || 0) + 1;
-        runtime.selectionSequence.set(key, sequence);
+    function scrollFieldIntoView(widget) {
+        const body = document.querySelector('#routeDistanceModal .route-helper-body');
+        const field = widget?.container?.closest?.('.route-waypoint-row, .route-place-field') || widget?.container;
+        if (!body || !field) return;
         setTimeout(() => {
-            if (runtime.selectionSequence.get(key) !== sequence) return;
-            const value = String(widget.value || '').trim();
-            const selectedValue = String(widget.dataset.selectedValue || '').trim();
-            if (value !== selectedValue) {
-                setRolePlace(role, null, waypointId);
-                setNotice('warning', 'Google候補から場所を選択してください', '文字を入力しただけではルート計算を行いません。');
-                setMapEmpty('出発地と目的地をGoogle候補から選択してください。');
+            try { field.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (error) {}
+        }, 140);
+    }
+
+    function closeSuggestionPanel(key) {
+        const widget = runtime.autocompleteWidgets.get(key);
+        if (!widget) return;
+        widget.panel.hidden = true;
+        widget.panel.innerHTML = '';
+        widget.suggestions = [];
+    }
+
+    function closeAllSuggestionPanels(exceptKey = '') {
+        Array.from(runtime.autocompleteWidgets.keys()).forEach(key => {
+            if (key !== exceptKey) closeSuggestionPanel(key);
+        });
+    }
+
+    function renderSuggestionPanel(key, entries = [], mode = 'recent') {
+        const widget = runtime.autocompleteWidgets.get(key);
+        if (!widget) return;
+        widget.suggestions = entries;
+        if (!entries.length) {
+            widget.panel.hidden = false;
+            widget.panel.innerHTML = `<div class="route-suggestion-group"><div class="route-suggestion-title">${mode === 'recent' ? '候補' : '検索結果'}</div><div class="route-suggestion-empty">${mode === 'recent' ? '候補はまだありません。' : '一致する候補がありません。'}</div></div>`;
+            return;
+        }
+        const title = mode === 'recent' ? '候補' : '検索結果';
+        widget.panel.hidden = false;
+        widget.panel.innerHTML = `<div class="route-suggestion-group"><div class="route-suggestion-title">${title}</div>${entries.map((entry, index) => `
+            <button type="button" class="route-suggestion-item" data-route-suggestion-index="${index}">
+                <span class="route-suggestion-icon" aria-hidden="true">${entry.kind === 'recent' ? '<span data-carbon-icon="recently-viewed"></span>' : '<span data-carbon-icon="location"></span>'}</span>
+                <span class="route-suggestion-text"><strong>${escapeHtml(entry.title || '')}</strong>${entry.subtitle ? `<span>${escapeHtml(entry.subtitle)}</span>` : ''}</span>
+            </button>`).join('')}</div>`;
+        applyRuntimeAccessibilityFixes(widget.panel);
+    }
+
+    async function fetchGoogleSuggestions(query) {
+        if (!query) return [];
+        await initializeGoogleFeatures();
+        const request = {
+            input: query,
+            includedRegionCodes: ['jp'],
+            language: 'ja',
+            region: 'JP',
+            locationBias: JAPAN_SEARCH_BIAS
+        };
+        if (!runtime.places?.AutocompleteSuggestion?.fetchAutocompleteSuggestions) throw new Error('Google候補APIを利用できませんでした。');
+        const response = await runtime.places.AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+        const seen = new Set();
+        return Array.from(response?.suggestions || []).map(item => item.placePrediction).filter(Boolean).filter(prediction => {
+            const key = String(prediction.placeId || prediction.text?.text || prediction.mainText?.text || '');
+            if (!key || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        }).slice(0, 8).map(prediction => ({
+            kind: 'prediction',
+            prediction,
+            title: String(prediction.mainText?.text || prediction.text?.text || '候補'),
+            subtitle: String(prediction.secondaryText?.text || prediction.text?.text || '')
+        }));
+    }
+
+    function showRecentSuggestions(role, waypointId = '') {
+        const key = routeWidgetKey(role, waypointId);
+        const items = recentPlaces().map(place => ({
+            kind: 'recent',
+            place,
+            title: place.name,
+            subtitle: place.address
+        }));
+        renderSuggestionPanel(key, items, 'recent');
+    }
+
+    function handleSuggestionInput(role, waypointId = '', immediate = false) {
+        const key = routeWidgetKey(role, waypointId);
+        const widget = runtime.autocompleteWidgets.get(key);
+        if (!widget) return;
+        const currentPlace = getRolePlace(role, waypointId);
+        const rawValue = String(widget.input.value || '').trim();
+        widget.clear.hidden = !rawValue;
+        if (currentPlace && rawValue !== String(widget.input.dataset.selectedValue || '').trim()) {
+            setRolePlace(role, null, waypointId);
+            setNotice('warning', '候補から場所を選択してください', '文字を入力しただけではルート計算を行いません。');
+            setMapEmpty('出発地と目的地を候補から選択してください。');
+        }
+        if (!rawValue) {
+            showRecentSuggestions(role, waypointId);
+            return;
+        }
+        if (widget.fetchTimer) clearTimeout(widget.fetchTimer);
+        const perform = async () => {
+            const token = (widget.fetchToken || 0) + 1;
+            widget.fetchToken = token;
+            try {
+                const suggestions = await fetchGoogleSuggestions(rawValue);
+                if (widget.fetchToken !== token) return;
+                renderSuggestionPanel(key, suggestions, 'search');
+            } catch (error) {
+                const info = classifyGoogleError(error);
+                setNotice(info.kind, '場所候補を取得できませんでした', info.subtitle, { retryable: true });
             }
-        }, 120);
+        };
+        if (immediate) void perform();
+        else widget.fetchTimer = setTimeout(() => void perform(), 180);
+    }
+
+    function bindDismissHandler(key, widget) {
+        if (runtime.searchDismissHandlers.has(key)) return;
+        const handler = event => {
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+            if (widget.container.contains(target)) return;
+            closeSuggestionPanel(key);
+        };
+        document.addEventListener('pointerdown', handler);
+        runtime.searchDismissHandlers.set(key, handler);
     }
 
     function createAutocomplete(container, role, waypointId = '') {
-        if (!container || !runtime.places?.PlaceAutocompleteElement) return null;
+        if (!container) return null;
         const key = routeWidgetKey(role, waypointId);
-        container.innerHTML = '';
-        const widget = new runtime.places.PlaceAutocompleteElement();
-        widget.locationBias = JAPAN_SEARCH_BIAS;
-        widget.requestedLanguage = 'ja';
-        widget.requestedRegion = 'jp';
-        widget.placeholder = role === 'origin' ? '出発地を検索' : role === 'destination' ? '目的地を検索' : '経由地を検索';
-        widget.description = `${widget.placeholder}。Googleの候補から選択してください。`;
-        widget.setAttribute('aria-label', widget.placeholder);
-        const selected = getRolePlace(role, waypointId);
-        if (selected) widget.value = `${selected.name}${selected.address ? `（${selected.address}）` : ''}`;
-        widget.dataset.selectedPlaceId = selected?.placeId || '';
-        widget.dataset.selectedValue = String(widget.value || '');
-        widget.addEventListener('gmp-select', event => void resolvePrediction(event, role, waypointId));
-        widget.addEventListener('gmp-error', event => {
-            const info = classifyGoogleError(event?.error || event);
-            setNotice(info.kind, '場所候補を取得できませんでした', info.subtitle, { retryable: true });
-        });
-        ['input', 'change', 'paste'].forEach(type => widget.addEventListener(type, () => handleAutocompleteInput(role, waypointId, widget)));
-        container.appendChild(widget);
+        container.innerHTML = `
+            <div class="route-search-shell">
+                <label class="route-search-input-wrap">
+                    <span class="route-search-leading" aria-hidden="true"><span data-carbon-icon="search"></span></span>
+                    <input class="route-search-input" type="text" inputmode="search" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(routeInputPlaceholder(role))}" aria-label="${escapeHtml(routeInputPlaceholder(role))}">
+                    <button class="route-search-clear" type="button" aria-label="入力をクリア" hidden><span data-carbon-icon="close"></span></button>
+                </label>
+                <div class="route-suggestion-panel" hidden></div>
+            </div>`;
+        const input = container.querySelector('.route-search-input');
+        const clear = container.querySelector('.route-search-clear');
+        const panel = container.querySelector('.route-suggestion-panel');
+        const widget = {
+            key,
+            role,
+            waypointId,
+            container,
+            input,
+            clear,
+            panel,
+            suggestions: [],
+            fetchTimer: null,
+            fetchToken: 0,
+            focus(options = {}) { input?.focus(options); }
+        };
         runtime.autocompleteWidgets.set(key, widget);
+        updateFieldView(role, waypointId);
+        bindDismissHandler(key, widget);
+        input?.addEventListener('focus', () => {
+            closeAllSuggestionPanels(key);
+            scrollFieldIntoView(widget);
+            handleSuggestionInput(role, waypointId, true);
+        });
+        input?.addEventListener('input', () => handleSuggestionInput(role, waypointId));
+        input?.addEventListener('keydown', event => {
+            if (event.key === 'Escape') {
+                closeSuggestionPanel(key);
+                return;
+            }
+            if (event.key === 'Enter') {
+                const first = widget.suggestions[0];
+                if (!first) return;
+                event.preventDefault();
+                if (first.kind === 'recent') {
+                    setRolePlace(role, first.place, waypointId);
+                    closeSuggestionPanel(key);
+                    void requestRoutesIfReady('recent-place-selected');
+                } else {
+                    void resolvePrediction(first.prediction, role, waypointId);
+                }
+            }
+        });
+        clear?.addEventListener('click', () => {
+            input.value = '';
+            setRolePlace(role, null, waypointId);
+            input.focus({ preventScroll: false });
+            showRecentSuggestions(role, waypointId);
+        });
+        panel?.addEventListener('click', event => {
+            const button = event.target.closest?.('[data-route-suggestion-index]');
+            if (!button) return;
+            const index = Number(button.dataset.routeSuggestionIndex || -1);
+            const selected = widget.suggestions[index];
+            if (!selected) return;
+            if (selected.kind === 'recent') {
+                setRolePlace(role, selected.place, waypointId);
+                closeSuggestionPanel(key);
+                void requestRoutesIfReady('recent-place-selected');
+            } else {
+                void resolvePrediction(selected.prediction, role, waypointId);
+            }
+        });
+        applyRuntimeAccessibilityFixes(container);
         return widget;
     }
 
@@ -431,6 +639,8 @@
             createAutocomplete(container, 'waypoint', item.id);
             renderPlaceSummary('waypoint', item.place, item.id);
         });
+        const destinationLabel = document.querySelector('#routeDistanceModal .route-place-field--destination .route-place-label span:last-child');
+        if (destinationLabel) destinationLabel.textContent = `目的地 (${stopLetter(runtime.waypointRows.length)})`;
         applyRuntimeAccessibilityFixes(list);
         const addButton = byId('addRouteWaypointBtn');
         if (addButton) {
@@ -476,7 +686,7 @@
         if (list) {
             list.innerHTML = state.routes.length
                 ? state.routes.map((route, index) => templates().routeCandidateCard(route, index, index === state.selectedRouteIndex, state.roundTrip, { escapeHtml })).join('')
-                : '<div class="route-candidate-empty">出発地と目的地を選ぶと、Google Routes APIの候補を表示します。</div>';
+                : '<div class="route-candidate-empty">出発地と目的地を選ぶと、ルート候補を表示します。</div>';
         }
         if (summary) summary.innerHTML = selected ? templates().routeLegSummary(selected, getOrderedPlaces(state), state.roundTrip, { escapeHtml }) : '';
         if (apply) apply.disabled = !selected || !state.targetCarName;
@@ -549,7 +759,7 @@
             bounds.extend({ lat: place.latitude, lng: place.longitude });
         });
         if (!bounds.isEmpty()) runtime.map.fitBounds(bounds, 48);
-        setMapEmpty(state.routes.length ? '' : '出発地と目的地をGoogle候補から選択してください。');
+        setMapEmpty(state.routes.length ? '' : '出発地と目的地を候補から選択してください。');
     }
 
     function applyMapTheme() {
@@ -596,9 +806,6 @@
             runtime.geometry = libraries.geometry;
             runtime.marker = libraries.marker;
             await initializeMap();
-            createAutocomplete(byId('routeOriginAutocomplete'), 'origin');
-            createAutocomplete(byId('routeDestinationAutocomplete'), 'destination');
-            renderWaypoints();
             return libraries;
         })().catch(error => {
             runtime.initializing = null;
@@ -750,6 +957,7 @@
         const last = runtime.waypointRows[runtime.waypointRows.length - 1];
         const widget = runtime.autocompleteWidgets.get(routeWidgetKey('waypoint', last.id));
         widget?.focus?.({ preventScroll: false });
+        showRecentSuggestions('waypoint', last.id);
     }
 
     function removeWaypoint(id) {
@@ -901,7 +1109,7 @@
             if (plannerState().origin && plannerState().destination) await requestRoutesIfReady('manual-retry');
             else {
                 setMapSkeleton(false);
-                setMapEmpty('出発地と目的地をGoogle候補から選択してください。');
+                setMapEmpty('出発地と目的地を候補から選択してください。');
                 setNotice('', '', '');
             }
         } catch (error) {

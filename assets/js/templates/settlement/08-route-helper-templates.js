@@ -23,15 +23,23 @@
     return `<strong>${esc(place.name || '', helpers)}</strong><span>${esc(place.address || '', helpers)}</span>`;
   }
 
+
+  function formatStopLetter(index = 0) {
+    const value = Math.max(0, Number(index) || 0);
+    const first = String.fromCharCode(65 + (value % 26));
+    const repeat = Math.floor(value / 26);
+    return repeat > 0 ? `${first}${repeat}` : first;
+  }
+
   function routeWaypointRow(item = {}, index = 0, helpers = {}) {
     const id = String(item.id || `waypoint-${index}`);
+    const letter = formatStopLetter(index);
     return `<div class="route-waypoint-row" data-route-waypoint-id="${esc(id, helpers)}">
-      <cds-button class="route-waypoint-handle" kind="ghost" size="lg" type="button" aria-label="経由地${index + 1}を並び替え"><span data-carbon-icon="drag--vertical" slot="icon" aria-hidden="true"></span><span class="visually-hidden">経由地${index + 1}を並び替え</span></cds-button>
+      <div class="route-waypoint-stop"><span class="route-waypoint-stop-letter">${esc(letter, helpers)}</span></div>
       <div class="route-waypoint-main">
-        <div class="route-waypoint-label"><span class="route-waypoint-index">${index + 1}</span><span>経由地</span></div>
         <div class="route-place-autocomplete" data-route-waypoint-autocomplete="${esc(id, helpers)}"></div>
-        <div class="route-place-summary" data-route-waypoint-summary="${esc(id, helpers)}" ${item.place ? '' : 'hidden'}>${placeSummary(item.place, helpers)}</div>
       </div>
+      <cds-button class="route-waypoint-handle" kind="ghost" size="lg" type="button" aria-label="経由地${index + 1}を並び替え"><span data-carbon-icon="drag--vertical" slot="icon" aria-hidden="true"></span><span class="visually-hidden">経由地${index + 1}を並び替え</span></cds-button>
       <cds-icon-button class="route-waypoint-delete" kind="ghost" size="lg" type="button" data-action="remove-route-waypoint" data-route-waypoint-id="${esc(id, helpers)}" aria-label="経由地${index + 1}を削除"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span></cds-icon-button>
     </div>`;
   }
@@ -74,6 +82,7 @@
     routeCandidateCard,
     routeLegSummary,
     formatRouteDistance: formatDistance,
-    formatRouteDuration: formatDuration
+    formatRouteDuration: formatDuration,
+    formatRouteStopLetter: formatStopLetter
   });
 })();
