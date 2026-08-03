@@ -50,7 +50,6 @@
         map: null,
         polylines: [],
         markers: [],
-        routeLabels: [],
         routePaths: new Map(),
         placeSearchWidget: null,
         activePlaceSearch: null,
@@ -956,8 +955,6 @@
             marker.setMap?.(null);
         });
         runtime.markers = [];
-        runtime.routeLabels.forEach(label => label.setMap?.(null));
-        runtime.routeLabels = [];
     }
 
     function routePath(route) {
@@ -973,6 +970,17 @@
         return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(markup)}`;
     }
 
+    function formatMapStopLetter(index = 0) {
+        let number = Math.max(0, Number(index) || 0) + 1;
+        let label = '';
+        while (number > 0) {
+            number -= 1;
+            label = String.fromCharCode(65 + (number % 26)) + label;
+            number = Math.floor(number / 26);
+        }
+        return label || 'A';
+    }
+
     function buildCircleMarkerSvg(label = 'A') {
         return svgDataUrl(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#ffffff" stroke="#161616" stroke-width="3"/><text x="20" y="26" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#161616">${String(label || '').replace(/[<&>]/g, '')}</text></svg>`);
     }
@@ -986,7 +994,7 @@
         const position = { lat: place.latitude, lng: place.longitude };
         const isOrigin = index === 0;
         const isDestination = index === total - 1;
-        const markerText = isOrigin ? 'O' : String(templates().formatRouteStopLetter?.(index - 1) || 'A');
+        const markerText = isOrigin ? 'O' : formatMapStopLetter(index - 1);
         const marker = new global.google.maps.Marker({
             map: runtime.map,
             position,
@@ -1000,79 +1008,6 @@
             zIndex: isDestination ? 40 : 35
         });
         runtime.markers.push(marker);
-    }
-
-    function pointAlongPath(path = [], fraction = 0.5) {
-        if (!path.length) return null;
-        const clamped = Math.min(0.9, Math.max(0.1, Number(fraction) || 0.5));
-        const index = Math.min(path.length - 1, Math.max(0, Math.round((path.length - 1) * clamped)));
-        return { point: path[index], index };
-    }
-
-    function labelOffsetForPath(path = [], pointIndex = 0, segmentIndex = 0, routeIndex = 0) {
-        const current = path[pointIndex] || path[path.length - 1] || { lat: 0, lng: 0 };
-        const previous = path[Math.max(0, pointIndex - 1)] || current;
-        const next = path[Math.min(path.length - 1, pointIndex + 1)] || current;
-        const dx = Number(next.lng) - Number(previous.lng);
-        const dy = Number(next.lat) - Number(previous.lat);
-        const length = Math.hypot(dx, dy) || 1;
-        const nx = (-dy / length) || 0;
-        const ny = (dx / length) || -1;
-        const side = routeIndex % 2 === 0 ? 1 : -1;
-        const normalDistance = 18 + (routeIndex * 10);
-        const lateralDistance = routeIndex === 0 ? 0 : (routeIndex === 1 ? 16 : -16);
-        return {
-            x: Math.round((nx * normalDistance * side) + lateralDistance),
-            y: Math.round((ny * normalDistance * side) - 8 - (segmentIndex % 2) * 2)
-        };
-    }
-
-    function createRouteMapLabel(route, options = {}) {
-        if (!runtime.map || !runtime.maps?.OverlayView) return;
-        const path = options.path || [];
-        if (!path.length) return;
-        const totalRoutes = Math.max(1, Number(options.totalRoutes) || 1);
-        const routeIndex = Math.max(0, Number(options.routeIndex) || 0);
-        const anchorFractions = totalRoutes >= 3 ? [0.3, 0.52, 0.74] : totalRoutes === 2 ? [0.38, 0.64] : [0.52];
-        const anchor = pointAlongPath(path, anchorFractions[Math.min(routeIndex, anchorFractions.length - 1)]);
-        if (!anchor?.point) return;
-        const position = anchor.point?.lat instanceof Function
-            ? anchor.point
-            : new global.google.maps.LatLng(Number(anchor.point.lat), Number(anchor.point.lng));
-        const offset = labelOffsetForPath(path, anchor.index, options.segmentIndex || 0, routeIndex);
-        const button = document.createElement('div');
-        button.className = 'route-map-route-label';
-        button.dataset.selected = options.selected ? 'true' : 'false';
-        button.dataset.segmentIndex = String(options.segmentIndex || 0);
-        button.dataset.routeIndex = String(routeIndex);
-        button.setAttribute('role', 'button');
-        button.setAttribute('tabindex', '0');
-        const durationText = templates().formatRouteDuration?.(route.durationSeconds) || `${Math.round((Number(route.durationSeconds) || 0) / 60)}分`;
-        button.textContent = durationText;
-        button.setAttribute('aria-label', `${options.fromName || ''}から${options.toName || ''}まで、所要時間 ${durationText}`);
-        const activate = event => {
-            event.preventDefault();
-            event.stopPropagation();
-            selectRoute(routeIndex, options.segmentIndex);
-        };
-        button.addEventListener('click', activate);
-        button.addEventListener('keydown', event => {
-            if (event.key === 'Enter' || event.key === ' ') activate(event);
-        });
-        class RouteLabelOverlay extends runtime.maps.OverlayView {
-            onAdd() { this.getPanes()?.floatPane?.appendChild(button); }
-            draw() {
-                const pixel = this.getProjection()?.fromLatLngToDivPixel(position);
-                if (!pixel) return;
-                button.style.left = `${pixel.x + offset.x}px`;
-                button.style.top = `${pixel.y + offset.y}px`;
-                button.style.position = 'absolute';
-            }
-            onRemove() { button.remove(); }
-        }
-        const overlay = new RouteLabelOverlay();
-        overlay.setMap(runtime.map);
-        runtime.routeLabels.push(overlay);
     }
 
     function renderMapRoutes() {
@@ -1108,15 +1043,6 @@
                 });
                 polyline.addListener('click', () => selectRoute(index, Array.isArray(state.segmentRouteGroups) && state.segmentRouteGroups.length ? segmentIndex : undefined));
                 runtime.polylines.push(polyline);
-                createRouteMapLabel(route, {
-                    segmentIndex,
-                    routeIndex: index,
-                    totalRoutes: group.length,
-                    path,
-                    selected,
-                    fromName: places[segmentIndex]?.name || '',
-                    toName: places[segmentIndex + 1]?.name || ''
-                });
             });
         });
         places.forEach((place, index) => {

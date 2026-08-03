@@ -25,7 +25,9 @@ assert.match(route, /sharedPlaceCatalog/, 'default place candidates come from th
 assert.doesNotMatch(route, /routePlannerPlaceHistory/, 'global cross-room place history is not used');
 assert.match(route, /gestureHandling:\s*['"]greedy['"]/, 'mobile map gestures avoid the cooperative two-finger warning');
 assert.match(route, /routeOrder[\s\S]*selectedIndex[\s\S]*zIndex:\s*selected\s*\?\s*30/, 'the selected route is redrawn above alternatives');
-assert.match(route, /createRouteMapLabel/, 'route distance and duration are rendered over the map');
+assert.doesNotMatch(route, /createRouteMapLabel|route-map-route-label/, 'map route balloons are removed');
+assert.match(route, /function\s+formatMapStopLetter[\s\S]*String\.fromCharCode\(65/, 'map waypoint markers generate A, B, C and later letters deterministically');
+assert.match(route, /isDestination\s*\?\s*buildPinMarkerSvg\(\)\s*:\s*buildCircleMarkerSvg\(markerText\)/, 'only the final destination uses a red pin');
 assert.match(route, /waitForPlannerCloseCompletion/, 'rapid route-modal reopening waits for the prior close lifecycle');
 assert.match(modal, /入力した場所はルーム内で候補として共有されます/, 'the route privacy notice is visible at the top');
 assert.match(carTemplates, /type="number"[\s\S]*data-field="dist"/, 'distance uses a numeric input');
