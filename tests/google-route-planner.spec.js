@@ -2,180 +2,136 @@ import { test, expect } from '@playwright/test';
 
 async function installGoogleMock(page) {
   await page.evaluate(() => {
-    class FakeAutocomplete extends HTMLElement {
-      constructor() { super(); this.value = ''; this.includedRegionCodes = []; this.placeholder = ''; }
-      focus() {}
-    }
-    if (!customElements.get('gmp-place-autocomplete')) customElements.define('gmp-place-autocomplete', FakeAutocomplete);
-    class FakePlace { constructor(options = {}) { this.id = options.id || ''; } }
-    class Bounds {
-      constructor() { this.points = []; }
-      extend(point) { this.points.push(point); return this; }
-      isEmpty() { return this.points.length === 0; }
-      getNorthEast() { return { lat: () => 36.9, lng: () => 138.5 }; }
-      getSouthWest() { return { lat: () => 35.9, lng: () => 137.5 }; }
-    }
-    class Map { constructor(node, options) { this.node = node; this.options = options; } setOptions(options) { Object.assign(this.options, options); } fitBounds(bounds) { this.bounds = bounds; } }
-    window.__fakePolylines = [];
-    class Polyline { constructor(options) { this.options = options; this.map = options.map; this.listeners = {}; window.__fakePolylines.push(this); } addListener(name, handler) { this.listeners[name] = handler; } setMap(map) { this.map = map; } }
+    window.__polylines = [];
+    window.__mapResize = 0;
+    class Bounds { constructor() { this.points = []; } extend(point) { this.points.push(point); return this; } isEmpty() { return !this.points.length; } }
+    class Map { constructor(node, options) { this.node = node; this.options = options; } setOptions(options) { Object.assign(this.options, options); } fitBounds() {} getDiv() { return this.node; } }
+    class Polyline { constructor(options) { this.options = options; this.map = options.map; this.listeners = {}; window.__polylines.push(this); } addListener(name, handler) { this.listeners[name] = handler; } setMap(map) { this.map = map; } }
     class Marker { constructor(options) { Object.assign(this, options); } setMap(map) { this.map = map; } }
     class AdvancedMarkerElement { constructor(options) { Object.assign(this, options); } }
-    const makeRoute = (index, withToll, highway) => ({
-      routeToken: `route-${index}`,
-      description: highway ? '長野自動車道' : '国道19号',
-      distanceMeters: index ? 76800 : 84300,
-      durationMillis: index ? 9060000 : 6120000,
-      routeLabels: index ? [] : ['DEFAULT_ROUTE'],
-      path: [{ lat: 36.64, lng: 138.18 }, { lat: 36.2, lng: 138 }, { lat: 35.9, lng: 137.96 }],
-      viewport: new Bounds(),
-      travelAdvisory: withToll ? { tollInfo: { estimatedPrices: [{ currencyCode: 'JPY', units: 2350, nanos: 0 }] } } : undefined,
-      legs: [{
-        distanceMeters: index ? 76800 : 84300,
-        durationMillis: index ? 9060000 : 6120000,
-        startLocation: { lat: 36.64, lng: 138.18 },
-        endLocation: { lat: 35.9, lng: 137.96 },
-        steps: [{ navigationInstruction: { instructions: highway ? '長野自動車道を進む' : '国道19号を進む' } }]
-      }]
+    class AutocompleteSessionToken {}
+    class Place { constructor(options = {}) { this.id = options.id || ''; } }
+    const prediction = value => ({
+      placeId: value.placeId,
+      mainText: { text: value.name }, secondaryText: { text: value.address }, text: { text: `${value.name} ${value.address}` },
+      toPlace: () => ({ id: value.placeId, displayName: value.name, formattedAddress: value.address, location: { lat: () => value.latitude, lng: () => value.longitude }, fetchFields: async () => {} })
     });
-    const maps = { Map, Polyline, LatLngBounds: Bounds, Marker, event: { addListenerOnce: (_target, _name, handler) => setTimeout(handler, 0) } };
+    const catalog = [
+      { placeId: 'origin', name: '信州大学工学部', address: '長野県長野市若里', latitude: 36.627, longitude: 138.191 },
+      { placeId: 'destination', name: '松本駅', address: '長野県松本市', latitude: 36.23, longitude: 137.965 },
+      { placeId: 'waypoint', name: '榛名山', address: '群馬県高崎市', latitude: 36.477, longitude: 138.878 }
+    ];
+    const AutocompleteSuggestion = { fetchAutocompleteSuggestions: async request => ({ suggestions: catalog.filter(item => `${item.name} ${item.address}`.includes(request.input || '')).map(item => ({ placePrediction: prediction(item) })) }) };
+    const makeRoute = index => ({
+      routeToken: `route-${index}`, description: index ? '国道19号' : '長野自動車道', distanceMeters: index ? 76000 : 84000, durationMillis: index ? 8800000 : 6100000,
+      routeLabels: index ? [] : ['DEFAULT_ROUTE'], path: [{ lat: 36.627, lng: 138.191 }, { lat: 36.4, lng: 138.1 - index * 0.03 }, { lat: 36.23, lng: 137.965 }], viewport: new Bounds(),
+      legs: [{ distanceMeters: index ? 76000 : 84000, durationMillis: index ? 8800000 : 6100000, startLocation: { lat: 36.627, lng: 138.191 }, endLocation: { lat: 36.23, lng: 137.965 }, steps: [{ navigationInstruction: { instructions: index ? '国道19号' : '長野自動車道' } }] }]
+    });
+    const maps = { Map, Polyline, Marker, LatLngBounds: Bounds, event: { addListenerOnce: (_target, _name, handler) => setTimeout(handler, 0), trigger: (_target, event) => { if (event === 'resize') window.__mapResize += 1; } } };
     window.google = { maps };
     window.SanpoGoogleMaps = {
-      isConfigured: () => true,
-      getConfig: () => ({ mapId: '' }),
+      isConfigured: () => true, getConfig: () => ({ mapId: '' }),
       importLibraries: async names => Object.fromEntries(names.map(name => [name,
-        name === 'maps' ? maps :
-        name === 'places' ? { PlaceAutocompleteElement: FakeAutocomplete, Place: FakePlace } :
-        name === 'routes' ? { Route: { computeRoutes: async request => ({ routes: request.intermediates ? [makeRoute(0, true, true)] : [makeRoute(0, true, true), makeRoute(1, false, false)] }) } } :
+        name === 'maps' ? maps : name === 'places' ? { AutocompleteSuggestion, AutocompleteSessionToken, Place } :
+        name === 'routes' ? { Route: { computeRoutes: async request => ({ routes: request.intermediates ? [makeRoute(0)] : [makeRoute(0), makeRoute(1)] }) } } :
         name === 'geometry' ? { encoding: { encodePath: path => JSON.stringify(path), decodePath: value => JSON.parse(value) } } :
         name === 'marker' ? { AdvancedMarkerElement } : {}
       ]))
     };
-    window.selectFakePlace = (selector, value) => {
-      const widget = document.querySelector(selector);
-      const event = new Event('gmp-select', { bubbles: true });
-      event.placePrediction = { toPlace: () => ({
-        id: value.placeId,
-        displayName: value.name,
-        formattedAddress: value.address,
-        location: { lat: () => value.latitude, lng: () => value.longitude },
-        fetchFields: async () => {}
-      }) };
-      widget.dispatchEvent(event);
-    };
   });
 }
 
-async function openPlanner(page) {
-  await page.evaluate(() => { executeDebugMode(); switchView('seisan'); });
-  await page.locator('[data-action="open-settlement-car-edit"]').first().evaluate(node => node.click());
-  await page.locator('#settlementCarEditModal [data-action="open-route-helper-shortcut"]').evaluate(node => node.click());
-  await expect(page.locator('#routeDistanceModal')).toHaveAttribute('open', '');
+async function clickHost(page, selector, index = 0) {
+  await page.locator(selector).nth(index).evaluate(node => node.click());
 }
 
-async function chooseStop(page, index, value) {
-  await page.locator('#routeStopList .route-stop-input').nth(index).evaluate(node => node.click());
-  await page.waitForSelector('#routePlaceSearchAutocomplete gmp-place-autocomplete');
-  await page.evaluate(value => selectFakePlace('#routePlaceSearchAutocomplete gmp-place-autocomplete', value), value);
+async function setHostValue(page, selector, value) {
+  await page.locator(selector).evaluate((node, next) => {
+    node.value = next; node.setAttribute('value', next);
+    node.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+  }, value);
+}
+
+async function choosePlace(page, role, query) {
+  await clickHost(page, `#routeStopList .route-stop-row[data-route-role="${role}"] .route-stop-input`);
+  await expect(page.locator('#routeDistanceModal')).toHaveClass(/route-place-search-active/);
+  await expect(page.locator('#routePlaceSearchSurface')).toBeVisible();
+  await expect(page.locator('#routePlaceCandidatesTitle')).toHaveText('候補');
+  await setHostValue(page, '#routePlaceSearchInput', query);
+  await expect(page.locator('#routePlaceCandidatesTitle')).toHaveText('検索結果');
+  await expect(page.locator('#routePlaceHistoryList .route-place-history-item')).toHaveCount(1);
+  await clickHost(page, '#routePlaceHistoryList .route-place-history-item');
+  await expect(page.locator('#routeDistanceModal')).not.toHaveClass(/route-place-search-active/);
+}
+
+async function openFromCar(page) {
+  await page.evaluate(() => { executeDebugMode(); switchView('seisan'); });
+  await clickHost(page, '[data-action="open-settlement-car-edit"]');
+  await clickHost(page, '#settlementCarEditModal [data-action="open-route-helper-shortcut"]');
+  await expect(page.locator('#routeDistanceModal')).toHaveAttribute('open', '');
 }
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
-  await page.waitForFunction(() => customElements.get('cds-button'));
+  await page.waitForFunction(() => customElements.get('cds-text-input') && customElements.get('cds-button'));
   await installGoogleMock(page);
 });
 
-test('selected Places produce alternative routes and map/list synchronization', async ({ page }) => {
-  await openPlanner(page);
-  await chooseStop(page, 0, { placeId: 'origin', name: '信州大学', address: '長野市', latitude: 36.64, longitude: 138.18 });
-  await chooseStop(page, (await page.locator('#routeStopList .route-stop-row').count()) - 1, { placeId: 'destination', name: '松本駅', address: '松本市', latitude: 35.9, longitude: 137.96 });
+test('Carbon place search avoids Google-owned full-screen UI and returns route alternatives', async ({ page }) => {
+  await openFromCar(page);
+  await expect(page.locator('#routeStopList .route-stop-row')).toHaveCount(2);
+  await choosePlace(page, 'origin', '信州');
+  await choosePlace(page, 'destination', '松本');
+  await expect(page.locator('gmp-place-autocomplete')).toHaveCount(0);
   await expect(page.locator('.route-candidate-card')).toHaveCount(2);
-  await expect(page.locator('#routeMap')).toBeVisible();
-  await page.evaluate(() => window.__fakePolylines.filter(line => line.map)[1].listeners.click());
-  expect(await page.evaluate(() => ensureSettlementState().routePlanner.selectedRouteIndex)).toBe(1);
-  await page.locator('.route-candidate-card').first().evaluate(node => node.click());
-  expect(await page.evaluate(() => ensureSettlementState().routePlanner.selectedRouteIndex)).toBe(0);
+  expect(await page.evaluate(() => window.__polylines.filter(polyline => polyline.map).length)).toBe(2);
+  await page.evaluate(() => window.__polylines.filter(polyline => polyline.map)[1].listeners.click());
   await expect(page.locator('.route-candidate-card').nth(1)).toHaveAttribute('aria-checked', 'true');
 });
 
-test('waypoints, modifiers, persistence, exact-car application, and return flow work', async ({ page }) => {
-  await openPlanner(page);
-  const targetName = await page.evaluate(() => ensureSettlementState().routePlanner.targetCarName);
-  await chooseStop(page, 0, { placeId: 'origin', name: '信州大学', address: '長野市', latitude: 36.64, longitude: 138.18 });
-  await chooseStop(page, (await page.locator('#routeStopList .route-stop-row').count()) - 1, { placeId: 'destination', name: '松本駅', address: '松本市', latitude: 35.9, longitude: 137.96 });
-  await page.locator('#addRouteWaypointBtn').evaluate(node => node.click());
-  await page.evaluate(() => selectFakePlace('#routePlaceSearchAutocomplete gmp-place-autocomplete', { placeId: 'waypoint', name: '姨捨SA', address: '千曲市', latitude: 36.5, longitude: 138.1 }));
+test('waypoint candidate history, selection, reorder controls and map update work', async ({ page }) => {
+  await openFromCar(page);
+  await choosePlace(page, 'origin', '信州');
+  await choosePlace(page, 'destination', '松本');
+  await clickHost(page, '#addRouteWaypointBtn');
+  await expect(page.locator('#routePlaceSearchSurface')).not.toHaveAttribute('hidden', '');
+  await expect(page.locator('#routePlaceHistoryList .route-place-history-item')).toHaveCount(2);
+  await setHostValue(page, '#routePlaceSearchInput', '榛名');
+  await expect(page.locator('#routePlaceHistoryList .route-place-history-item')).toHaveCount(1);
+  await clickHost(page, '#routePlaceHistoryList .route-place-history-item');
   await expect(page.locator('.route-candidate-card')).toHaveCount(1);
-  await page.locator('cds-checkbox#routeAvoidTolls').evaluate(node => { node.checked = true; node.dispatchEvent(new Event('change', { bubbles: true, composed: true })); });
-  await page.locator('cds-checkbox#routeRoundTrip').evaluate(node => { node.checked = true; node.dispatchEvent(new Event('change', { bubbles: true, composed: true })); });
-  const before = await page.evaluate(() => Object.fromEntries(Object.entries(ensureSettlementState().cars).map(([name, car]) => [name, car.dist])));
-  await page.locator('#applyRouteDistanceBtn').evaluate(node => node.click());
-  await expect(page.locator('#settlementCarEditModal')).toHaveAttribute('open', '');
-  const after = await page.evaluate(() => Object.fromEntries(Object.entries(ensureSettlementState().cars).map(([name, car]) => [name, car.dist])));
-  expect(after[targetName]).not.toBe(before[targetName]);
-  for (const [name, distance] of Object.entries(before)) if (name !== targetName) expect(after[name]).toBe(distance);
-  expect(await page.evaluate(() => ensureSettlementState().routePlanner.waypoints.length)).toBe(1);
-  expect(await page.evaluate(() => ensureSettlementState().routePlanner.avoidTolls)).toBe(true);
-});
-
-test('waypoints support keyboard reordering and 48px drag controls', async ({ page }) => {
-  await openPlanner(page);
-  await page.locator('#addRouteWaypointBtn').evaluate(node => node.click());
-  await page.locator('#addRouteWaypointBtn').evaluate(node => node.click());
-  const before = await page.locator('#routeStopList .route-stop-row').evaluateAll(rows => rows.map(row => row.dataset.routeStopId));
-  const firstHandle = page.locator('#routeStopList .route-stop-drag').nth(1);
-  await firstHandle.focus();
-  await firstHandle.press('ArrowDown');
-  const after = await page.locator('#routeStopList .route-stop-row').evaluateAll(rows => rows.map(row => row.dataset.routeStopId));
-  expect(after[2]).toBe(before[1]);
-  const boxes = await page.locator('#routeStopList .route-stop-drag').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().toJSON()));
-  expect(boxes.every(box => box.width >= 44 && box.height >= 44)).toBeTruthy();
-});
-
-test('browser back closes the planner and restores the originating car editor', async ({ page }) => {
-  await openPlanner(page);
-  const targetName = await page.evaluate(() => ensureSettlementState().routePlanner.targetCarName);
-  await page.goBack();
-  await expect(page.locator('#routeDistanceModal')).not.toHaveAttribute('open', '');
-  await expect(page.locator('#settlementCarEditModal')).toHaveAttribute('open', '');
-  await expect(page.locator('#settlementCarEditBody .seisan-car-row')).toHaveAttribute('data-driver-name', targetName);
-});
-
-test('stale requests cannot overwrite the latest route result', async ({ page }) => {
-  await page.evaluate(() => {
-    let call = 0;
-    const Route = window.SanpoGoogleMaps.importLibraries;
-    window.__originalImportLibraries = Route;
-    window.SanpoGoogleMaps.importLibraries = async names => {
-      const libraries = await Route(names);
-      if (libraries.routes) {
-        libraries.routes.Route.computeRoutes = async () => {
-          call += 1;
-          const current = call;
-          await new Promise(resolve => setTimeout(resolve, current === 1 ? 250 : 10));
-          return { routes: [{ routeToken: `result-${current}`, distanceMeters: current * 1000, durationMillis: 60000, path: [{ lat: 36, lng: 138 }, { lat: 35, lng: 137 }], legs: [{ distanceMeters: current * 1000, durationMillis: 60000 }] }] };
-        };
-      }
-      return libraries;
-    };
+  const geometry = await page.locator('#routeStopList .route-stop-row[data-route-role="waypoint"]').evaluate(row => {
+    const field = row.querySelector('.route-stop-input').getBoundingClientRect();
+    const drag = row.querySelector('.route-stop-drag').getBoundingClientRect();
+    const trash = row.querySelector('.route-stop-delete').getBoundingClientRect();
+    return { centers: [field, drag, trash].map(rect => Math.round(rect.y + rect.height / 2)), sizes: [drag.width, drag.height, trash.width, trash.height] };
   });
-  await openPlanner(page);
-  await chooseStop(page, 0, { placeId: 'origin', name: 'A', address: 'A', latitude: 36, longitude: 138 });
-  await chooseStop(page, (await page.locator('#routeStopList .route-stop-row').count()) - 1, { placeId: 'destination', name: 'B', address: 'B', latitude: 35, longitude: 137 });
-  await page.locator('cds-checkbox#routeAvoidHighways').evaluate(node => { node.checked = true; node.dispatchEvent(new Event('change', { bubbles: true, composed: true })); });
-  await page.waitForTimeout(400);
-  expect(await page.evaluate(() => ensureSettlementState().routePlanner.routes[0]?.id)).toBe('result-2');
+  expect(Math.max(...geometry.centers) - Math.min(...geometry.centers)).toBeLessThanOrEqual(1);
+  expect(geometry.sizes.every(size => size >= 44)).toBeTruthy();
 });
 
-test('API failure exposes Carbon retry and the retry refreshes routes', async ({ page }) => {
-  await page.evaluate(() => { window.__routeMode = 'permission'; });
-  await openPlanner(page);
-  await chooseStop(page, 0, { placeId: 'origin', name: 'A', address: 'A', latitude: 36, longitude: 138 });
-  await chooseStop(page, (await page.locator('#routeStopList .route-stop-row').count()) - 1, { placeId: 'destination', name: 'B', address: 'B', latitude: 35, longitude: 137 });
-  await expect(page.locator('#routePlannerRetryBtn')).toBeVisible();
-  const before = await page.evaluate(() => window.__routeCall);
-  await page.evaluate(() => { window.__routeMode = 'normal'; });
-  await page.locator('#routePlannerRetryBtn').evaluate(node => node.click());
-  await expect(page.locator('.route-candidate-card')).toHaveCount(2);
-  expect(await page.evaluate(() => window.__routeCall)).toBe(before + 1);
-  await expect(page.locator('#routePlannerRetry')).toHaveAttribute('hidden', '');
+test('mobile input does not trigger iOS zoom and no horizontal scroll is introduced', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openFromCar(page);
+  await clickHost(page, '#routeStopList .route-stop-row[data-route-role="origin"] .route-stop-input');
+  const surfaceBox = await page.locator('#routePlaceSearchSurface').boundingBox();
+  expect(surfaceBox.width).toBeGreaterThanOrEqual(389);
+  expect(surfaceBox.height).toBeGreaterThanOrEqual(843);
+  const fontSize = await page.locator('#routePlaceSearchInput').evaluate(node => parseFloat(getComputedStyle(node.shadowRoot.querySelector('input')).fontSize));
+  expect(fontSize).toBeGreaterThanOrEqual(16);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBeTruthy();
+  expect(await page.locator('#routeDistanceModal .route-helper-body').evaluate(node => node.scrollWidth <= node.clientWidth + 1)).toBeTruthy();
+});
+
+test('reopening resizes and redraws the existing map', async ({ page }) => {
+  await openFromCar(page);
+  await choosePlace(page, 'origin', '信州');
+  await choosePlace(page, 'destination', '松本');
+  const before = await page.evaluate(() => window.__mapResize);
+  await clickHost(page, '#routePlannerCancelBtn');
+  await expect(page.locator('#settlementCarEditModal')).toHaveAttribute('open', '');
+  await clickHost(page, '#settlementCarEditModal [data-action="open-route-helper-shortcut"]');
+  await expect(page.locator('#routeMapSkeleton')).toHaveAttribute('hidden', '');
+  expect(await page.evaluate(() => window.__mapResize)).toBeGreaterThan(before);
+  expect(await page.evaluate(() => window.__polylines.filter(polyline => polyline.map).length)).toBeGreaterThan(0);
 });

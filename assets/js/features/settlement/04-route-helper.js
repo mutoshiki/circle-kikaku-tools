@@ -50,7 +50,9 @@
         placeSearchWidget: null,
         activePlaceSearch: null,
         placeHistoryEntries: [],
-        placeSearchFontObserver: null,
+        placeSearchSessionToken: null,
+        placeSearchTimer: null,
+        placeSearchSequence: 0,
         waypointRows: [],
         stopSortable: null,
         requestSequence: 0,
@@ -405,106 +407,172 @@
         return runtime.activePlaceSearch || { role: '', waypointId: '' };
     }
 
-    function enforceAutocompleteFontSize(widget) {
-        if (!widget) return;
-        widget.style.fontSize = '16px';
-        widget.style.setProperty('--gmpx-font-size-base', '16px');
-        const apply = () => {
-            const root = widget.shadowRoot;
-            if (!root) return;
-            root.querySelectorAll('input, textarea').forEach(input => {
-                input.style.setProperty('font-size', '16px', 'important');
-                input.style.setProperty('line-height', '1.5', 'important');
-            });
-        };
-        Promise.resolve(widget.updateComplete).then(() => requestAnimationFrame(apply));
-        setTimeout(apply, 80);
-        setTimeout(apply, 320);
-        if (widget.shadowRoot) {
-            runtime.placeSearchFontObserver?.disconnect?.();
-            runtime.placeSearchFontObserver = new MutationObserver(apply);
-            runtime.placeSearchFontObserver.observe(widget.shadowRoot, { childList: true, subtree: true });
-        }
-    }
-
     function searchPlaceholder(role) {
         return role === 'origin' ? '出発地を検索' : role === 'destination' ? '目的地を検索' : '経由地を検索';
     }
 
+    function placeSearchInput() {
+        return byId('routePlaceSearchInput');
+    }
+
+    function placeSearchNativeInput() {
+        return placeSearchInput()?.shadowRoot?.querySelector('input') || null;
+    }
+
+    function resetPlaceSearchSession() {
+        runtime.placeSearchSessionToken = runtime.places?.AutocompleteSessionToken
+            ? new runtime.places.AutocompleteSessionToken()
+            : null;
+    }
+
     function createPlaceSearchWidget() {
-        const container = byId('routePlaceSearchAutocomplete');
-        if (!container || !runtime.places?.PlaceAutocompleteElement) return null;
-        if (runtime.placeSearchWidget?.isConnected) return runtime.placeSearchWidget;
-        container.innerHTML = '';
-        const widget = new runtime.places.PlaceAutocompleteElement();
-        widget.locationBias = JAPAN_SEARCH_BIAS;
-        widget.requestedLanguage = 'ja';
-        widget.requestedRegion = 'jp';
-        widget.setAttribute('aria-label', '場所を検索');
-        widget.addEventListener('gmp-select', event => {
-            const target = activeSearchTarget();
-            void resolvePrediction(event, target.role, target.waypointId);
-        });
-        widget.addEventListener('gmp-error', event => {
-            const info = classifyGoogleError(event?.error || event);
-            setNotice(info.kind, '場所候補を取得できませんでした', info.subtitle, { retryable: true });
-        });
-        ['input', 'change', 'paste'].forEach(type => widget.addEventListener(type, () => handlePlaceSearchInput(widget)));
-        container.appendChild(widget);
+        const widget = placeSearchInput();
+        if (!widget) return null;
+        if (runtime.placeSearchWidget === widget) return widget;
         runtime.placeSearchWidget = widget;
-        enforceAutocompleteFontSize(widget);
+        widget.addEventListener('input', () => handlePlaceSearchInput(widget));
+        widget.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closePlaceSearch();
+            if (event.key === 'Enter' && runtime.placeHistoryEntries.length) {
+                event.preventDefault();
+                selectPlaceSearchEntry(0);
+            }
+        });
+        byId('routePlaceSearchClearBtn')?.addEventListener('click', () => {
+            widget.value = '';
+            widget.setAttribute('value', '');
+            widget.dataset.selectedValue = '';
+            updatePlaceSearchClearButton();
+            renderPlaceHistory();
+            placeSearchNativeInput()?.focus({ preventScroll: true });
+        });
         return widget;
+    }
+
+    function updatePlaceSearchClearButton() {
+        const clear = byId('routePlaceSearchClearBtn');
+        if (clear) clear.hidden = !String(placeSearchInput()?.value || '').trim();
+    }
+
+    function predictionEntries(predictions = []) {
+        return predictions.map(prediction => ({
+            kind: 'prediction',
+            prediction,
+            title: String(prediction.mainText?.text || prediction.text?.text || '候補'),
+            subtitle: String(prediction.secondaryText?.text || prediction.text?.text || '')
+        }));
+    }
+
+    function setPlaceSearchHeading(mode = 'history') {
+        const title = byId('routePlaceCandidatesTitle');
+        if (title) title.textContent = mode === 'search' ? '検索結果' : '候補';
+    }
+
+    function renderPlaceEntries(entries = [], mode = 'history') {
+        const list = byId('routePlaceHistoryList');
+        if (!list) return;
+        setPlaceSearchHeading(mode);
+        runtime.placeHistoryEntries = entries;
+        list.innerHTML = entries.length
+            ? entries.map((entry, index) => templates().routeHistoryItem(entry, index, { escapeHtml })).join('')
+            : `<div class="route-place-history-empty">${mode === 'search' ? '一致する場所がありません。' : '候補はまだありません。'}</div>`;
+        applyRuntimeAccessibilityFixes(list);
+    }
+
+    function renderPlaceHistory() {
+        renderPlaceEntries(recentPlaces().map(place => ({ kind: 'recent', place, title: place.name, subtitle: place.address })), 'history');
+    }
+
+    async function fetchPlaceSuggestions(query) {
+        await initializeGoogleFeatures();
+        if (!runtime.places?.AutocompleteSuggestion?.fetchAutocompleteSuggestions) {
+            throw new Error('Places候補APIを利用できません。');
+        }
+        if (!runtime.placeSearchSessionToken) resetPlaceSearchSession();
+        const request = {
+            input: query,
+            locationBias: JAPAN_SEARCH_BIAS,
+            language: 'ja',
+            region: 'jp'
+        };
+        if (runtime.placeSearchSessionToken) request.sessionToken = runtime.placeSearchSessionToken;
+        const response = await runtime.places.AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+        const seen = new Set();
+        return Array.from(response?.suggestions || [])
+            .map(item => item.placePrediction)
+            .filter(Boolean)
+            .filter(prediction => {
+                const identity = String(prediction.placeId || prediction.text?.text || prediction.mainText?.text || '');
+                if (!identity || seen.has(identity)) return false;
+                seen.add(identity);
+                return true;
+            })
+            .slice(0, 8);
     }
 
     function closePlaceSearch() {
         const surface = byId('routePlaceSearchSurface');
+        const modal = byId('routeDistanceModal');
+        const previousTarget = runtime.activePlaceSearch;
         if (surface) surface.hidden = true;
+        modal?.classList.remove('route-place-search-active');
+        if (runtime.placeSearchTimer) clearTimeout(runtime.placeSearchTimer);
+        runtime.placeSearchTimer = null;
+        runtime.placeSearchSequence += 1;
         runtime.activePlaceSearch = null;
+        runtime.placeSearchSessionToken = null;
         document.body.classList.remove('route-place-search-open');
+        requestAnimationFrame(() => {
+            if (!previousTarget?.role) return;
+            const selector = `[data-action="open-route-place-search"][data-route-role="${CSS.escape(previousTarget.role)}"]${previousTarget.waypointId ? `[data-route-waypoint-id="${CSS.escape(previousTarget.waypointId)}"]` : ''}`;
+            document.querySelector(selector)?.focus?.({ preventScroll: true });
+        });
     }
 
     function openPlaceSearch(role, waypointId = '') {
         const surface = byId('routePlaceSearchSurface');
-        if (!surface || !role) return;
-        runtime.activePlaceSearch = { role, waypointId };
+        const modal = byId('routeDistanceModal');
         const widget = createPlaceSearchWidget();
-        if (!widget) {
-            setNotice('error', '場所検索を開けませんでした', 'Google Placesの読み込み後にもう一度お試しください。', { retryable: true });
-            return;
-        }
-        const place = getRolePlace(role, waypointId);
+        if (!surface || !widget || !role) return;
+        runtime.activePlaceSearch = { role, waypointId };
+        resetPlaceSearchSession();
         const placeholder = searchPlaceholder(role);
         widget.placeholder = placeholder;
-        widget.description = `${placeholder}。Googleの候補から選択してください。`;
+        widget.setAttribute('placeholder', placeholder);
         widget.setAttribute('aria-label', placeholder);
-        widget.value = place ? `${place.name}${place.address ? `（${place.address}）` : ''}` : '';
-        widget.dataset.selectedPlaceId = place?.placeId || '';
-        widget.dataset.selectedValue = String(widget.value || '');
+        widget.value = '';
+        widget.setAttribute('value', '');
+        widget.dataset.selectedPlaceId = '';
+        widget.dataset.selectedValue = '';
+        updatePlaceSearchClearButton();
         renderPlaceHistory();
+        surface.scrollTop = 0;
         surface.hidden = false;
+        modal?.classList.add('route-place-search-active');
         document.body.classList.add('route-place-search-open');
         requestAnimationFrame(() => {
-            enforceAutocompleteFontSize(widget);
-            widget.focus?.({ preventScroll: true });
+            const input = placeSearchNativeInput();
+            input?.focus({ preventScroll: true });
+            input?.setSelectionRange?.(0, 0);
         });
     }
 
-    async function resolvePrediction(event, role, waypointId = '') {
-        const prediction = event?.placePrediction || event?.detail?.placePrediction;
-        if (!prediction?.toPlace || !role) return;
+    async function resolvePrediction(prediction, role, waypointId = '') {
+        const placePrediction = prediction?.placePrediction || prediction;
+        if (!placePrediction?.toPlace || !role) return;
         const key = routeWidgetKey(role, waypointId);
         const sequence = (runtime.selectionSequence.get(key) || 0) + 1;
         runtime.selectionSequence.set(key, sequence);
         try {
-            setNotice('info', '場所の情報を取得しています', 'Google候補の選択内容を確認しています。');
-            const place = prediction.toPlace();
+            setNotice('info', '場所の情報を取得しています', '選択した候補を確認しています。');
+            const place = placePrediction.toPlace();
             await place.fetchFields({ fields: ['id', 'displayName', 'formattedAddress', 'location', 'viewport'] });
             if (runtime.selectionSequence.get(key) !== sequence) return;
             const point = normalizeLatLng(place.location);
             if (!point || !place.id) throw new Error('選択した場所の座標を取得できませんでした。');
             const selected = {
                 placeId: String(place.id),
-                name: String(place.displayName || prediction.mainText?.text || prediction.text?.text || '選択した場所'),
+                name: String(place.displayName || placePrediction.mainText?.text || placePrediction.text?.text || '選択した場所'),
                 address: String(place.formattedAddress || ''),
                 latitude: point.latitude,
                 longitude: point.longitude
@@ -519,24 +587,48 @@
         }
     }
 
+    function selectPlaceSearchEntry(index) {
+        const entry = runtime.placeHistoryEntries[Number(index)];
+        const target = activeSearchTarget();
+        if (!entry || !target.role) return;
+        if (entry.kind === 'prediction') {
+            void resolvePrediction(entry.prediction, target.role, target.waypointId);
+            return;
+        }
+        const place = entry.place || entry;
+        setRolePlace(target.role, place, target.waypointId);
+        closePlaceSearch();
+        void requestRoutesIfReady('history-place-selected');
+    }
+
     function handlePlaceSearchInput(widget) {
         const target = activeSearchTarget();
         if (!target.role) return;
+        const value = String(widget.value || '').trim();
+        updatePlaceSearchClearButton();
         const currentPlace = getRolePlace(target.role, target.waypointId);
-        if (!currentPlace) return;
-        const key = routeWidgetKey(target.role, target.waypointId);
-        const sequence = (runtime.selectionSequence.get(key) || 0) + 1;
-        runtime.selectionSequence.set(key, sequence);
-        setTimeout(() => {
-            if (runtime.selectionSequence.get(key) !== sequence) return;
-            const value = String(widget.value || '').trim();
-            const selectedValue = String(widget.dataset.selectedValue || '').trim();
-            if (value !== selectedValue) {
-                setRolePlace(target.role, null, target.waypointId);
-                setNotice('warning', 'Google候補から場所を選択してください', '文字を入力しただけではルート計算を行いません。');
-                setMapEmpty('出発地と目的地を候補から選択してください。');
+        if (currentPlace && value !== String(widget.dataset.selectedValue || '').trim()) {
+            setRolePlace(target.role, null, target.waypointId);
+            setNotice('warning', '候補から場所を選択してください', '文字を入力しただけではルート計算を行いません。');
+            setMapEmpty('出発地と目的地を候補から選択してください。');
+        }
+        if (!value) {
+            renderPlaceHistory();
+            return;
+        }
+        if (runtime.placeSearchTimer) clearTimeout(runtime.placeSearchTimer);
+        const requestId = ++runtime.placeSearchSequence;
+        runtime.placeSearchTimer = setTimeout(async () => {
+            try {
+                const predictions = await fetchPlaceSuggestions(value);
+                if (requestId !== runtime.placeSearchSequence) return;
+                renderPlaceEntries(predictionEntries(predictions), 'search');
+            } catch (error) {
+                if (requestId !== runtime.placeSearchSequence) return;
+                const info = classifyGoogleError(error);
+                setNotice(info.kind, '場所候補を取得できませんでした', info.subtitle, { retryable: true });
             }
-        }, 120);
+        }, 180);
     }
 
     function itemForRenderedStop(row) {
@@ -896,7 +988,7 @@
         renderStopEditor();
         persistPlannerState();
         const last = runtime.waypointRows[runtime.waypointRows.length - 1];
-        void initializeGoogleFeatures().then(() => openPlaceSearch('waypoint', last.id));
+        openPlaceSearch('waypoint', last.id);
     }
 
     function removeWaypoint(id) {
@@ -1142,7 +1234,7 @@
             );
             if (!field) return;
             event.preventDefault();
-            void initializeGoogleFeatures().then(() => openPlaceSearch(field.dataset.routeRole || '', field.dataset.routeWaypointId || ''));
+            openPlaceSearch(field.dataset.routeRole || '', field.dataset.routeWaypointId || '');
         });
         byId('routePlaceStack')?.addEventListener('keydown', event => {
             if (!['Enter', ' '].includes(event.key)) return;
@@ -1151,19 +1243,14 @@
             );
             if (!field) return;
             event.preventDefault();
-            void initializeGoogleFeatures().then(() => openPlaceSearch(field.dataset.routeRole || '', field.dataset.routeWaypointId || ''));
+            openPlaceSearch(field.dataset.routeRole || '', field.dataset.routeWaypointId || '');
         });
         byId('routePlaceHistoryList')?.addEventListener('click', event => {
             const item = event.composedPath?.().find(node =>
                 node instanceof Element && node.matches?.('[data-route-history-index]')
             );
             if (!item) return;
-            const place = runtime.placeHistoryEntries[Number(item.dataset.routeHistoryIndex)];
-            const target = activeSearchTarget();
-            if (!place || !target.role) return;
-            setRolePlace(target.role, place, target.waypointId);
-            closePlaceSearch();
-            void requestRoutesIfReady('history-place-selected');
+            selectPlaceSearchEntry(Number(item.dataset.routeHistoryIndex));
         });
         byId('routeStopList')?.addEventListener('keydown', event => {
             const handle = event.composedPath?.().find(node => node instanceof Element && node.matches?.('.route-stop-drag'));

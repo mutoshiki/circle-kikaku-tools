@@ -115,7 +115,7 @@
     <link href="./assets/css/settlement/car-inputs/05-mobile-inputs.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/06-times-rental.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/07-extra-candidates.css?v=ui-fix-2" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=route-ui-v5" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=route-ui-v6" rel="stylesheet">
     <link href="./assets/css/settlement/route-helper/02-route-stops.css?v=route-ui-v5" rel="stylesheet">
     <link href="./assets/css/settlement/route-helper/03-route-candidates.css?v=route-ui-v5" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/01-collection-list.css" rel="stylesheet">
@@ -561,21 +561,26 @@
         <cds-modal-close-button close-button-label="元の車へ戻る" data-modal-close></cds-modal-close-button>
       </cds-modal-header>
       <cds-modal-body class="app-modal-body route-helper-body" no-fade>
+        <div id="routePlaceSearchSurface" class="route-place-search-surface" hidden aria-labelledby="routePlaceSearchTitle">
+          <h5 id="routePlaceSearchTitle" class="visually-hidden">場所を検索</h5>
+          <div class="route-place-search-toolbar">
+            <cds-button id="routePlaceSearchBackBtn" kind="ghost" size="lg" type="button">戻る</cds-button>
+            <div id="routePlaceSearchAutocomplete" class="route-place-search-autocomplete">
+              <span class="route-place-search-icon" aria-hidden="true"><svg class="route-search-svg" viewBox="0 0 32 32" aria-hidden="true"><path d="M29,27.5859l-7.5527-7.5527a11.017,11.017,0,1,0-1.4141,1.4141L27.5859,29ZM4,13a9,9,0,1,1,9,9A9.01,9.01,0,0,1,4,13Z"></path></svg></span>
+              <cds-text-input id="routePlaceSearchInput" class="route-place-search-input" type="text" size="lg" label="場所を検索" hide-label placeholder="場所を検索" autocomplete="off" aria-label="場所を検索"></cds-text-input>
+              <cds-icon-button id="routePlaceSearchClearBtn" class="route-place-search-clear" kind="ghost" size="lg" type="button" aria-label="検索文字を消去" hidden><span data-carbon-icon="close" slot="icon" aria-hidden="true"></span></cds-icon-button>
+            </div>
+          </div>
+          <section class="route-place-candidates" aria-labelledby="routePlaceCandidatesTitle">
+            <h6 id="routePlaceCandidatesTitle">候補</h6>
+            <div id="routePlaceHistoryList" class="route-place-history-list"></div>
+          </section>
+        </div>
         <div class="route-planner-shell">
           <section class="route-planner-controls" aria-label="地点とルート設定">
             <div id="routePlaceStack" class="route-place-stack">
               <div id="routeStopList" class="route-stop-list" aria-label="ルート地点"></div>
               <cds-button id="addRouteWaypointBtn" kind="tertiary" size="lg" type="button"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span>経由地を追加</cds-button>
-            </div>
-            <div id="routePlaceSearchSurface" class="route-place-search-surface" hidden aria-label="場所を検索">
-              <div class="route-place-search-toolbar">
-                <cds-button id="routePlaceSearchBackBtn" kind="ghost" size="lg" type="button">戻る</cds-button>
-                <div id="routePlaceSearchAutocomplete" class="route-place-search-autocomplete"></div>
-              </div>
-              <section class="route-place-candidates" aria-labelledby="routePlaceCandidatesTitle">
-                <h6 id="routePlaceCandidatesTitle">候補</h6>
-                <div id="routePlaceHistoryList" class="route-place-history-list"></div>
-              </section>
             </div>
             <div class="route-planner-options" role="group" aria-labelledby="routePlannerOptionsTitle">
               <h6 id="routePlannerOptionsTitle">ルート設定</h6>
@@ -672,7 +677,7 @@
     <script src="./assets/js/features/settlement/01-state.js?v=route-ui-v5"></script>
     <script src="./assets/js/features/settlement/02-calculator.js"></script>
     <script src="./assets/js/features/settlement/03-render.js?v=carbon-bottom-nav-3"></script>
-    <script src="./assets/js/features/settlement/04-route-helper.js?v=route-ui-v5"></script>
+    <script src="./assets/js/features/settlement/04-route-helper.js?v=route-ui-v6"></script>
     <script src="./assets/js/features/settlement/05-input-actions.js"></script>
     <script src="./assets/js/features/settlement/06-share-text.js?v=club-ledger"></script>
     <script src="./assets/js/features/settlement.js"></script>

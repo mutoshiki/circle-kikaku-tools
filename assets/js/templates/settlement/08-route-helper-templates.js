@@ -42,7 +42,7 @@
     const accessibleIndex = Math.max(1, index + 1);
     return `<div class="route-stop-row route-stop-row--${role}" data-route-stop-id="${esc(id, helpers)}" data-route-role="${role}"${role === 'waypoint' ? ` data-route-waypoint-id="${esc(id, helpers)}"` : ''}>
       <span class="route-stop-marker" aria-hidden="true">${esc(stopLetter(index), helpers)}</span>
-      <cds-text-input class="route-stop-input" type="text" size="lg" label="${placeholder}" hide-label placeholder="${placeholder}" value="${esc(value, helpers)}" readonly data-action="open-route-place-search" data-route-role="${role}"${role === 'waypoint' ? ` data-route-waypoint-id="${esc(id, helpers)}"` : ''} aria-label="${placeholder}"></cds-text-input>
+      <div class="route-stop-field"><span class="route-stop-search-icon" aria-hidden="true"><svg class="route-search-svg" viewBox="0 0 32 32" aria-hidden="true"><path d="M29,27.5859l-7.5527-7.5527a11.017,11.017,0,1,0-1.4141,1.4141L27.5859,29ZM4,13a9,9,0,1,1,9,9A9.01,9.01,0,0,1,4,13Z"></path></svg></span><cds-text-input class="route-stop-input" type="text" size="lg" label="${placeholder}" hide-label placeholder="${placeholder}" value="${esc(value, helpers)}" readonly data-action="open-route-place-search" data-route-role="${role}"${role === 'waypoint' ? ` data-route-waypoint-id="${esc(id, helpers)}"` : ''} aria-label="${placeholder}"></cds-text-input></div>
       <cds-button class="route-stop-drag" kind="ghost" size="lg" type="button" aria-label="地点${accessibleIndex}を並び替え"><span data-carbon-icon="drag--vertical" slot="icon" aria-hidden="true"></span><span class="visually-hidden">地点${accessibleIndex}を並び替え</span></cds-button>
       <cds-button class="route-stop-delete" kind="ghost" size="lg" type="button" data-action="remove-route-stop" data-route-role="${role}"${role === 'waypoint' ? ` data-route-waypoint-id="${esc(id, helpers)}"` : ''} aria-label="${placeholder}を削除"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span><span class="visually-hidden">${placeholder}を削除</span></cds-button>
     </div>`;
@@ -52,11 +52,14 @@
     return routeStopRow({ ...item, role: 'waypoint' }, index + 1, index + 3, helpers);
   }
 
-  function routeHistoryItem(place = {}, index = 0, helpers = {}) {
+  function routeHistoryItem(item = {}, index = 0, helpers = {}) {
+    const title = item.title || item.place?.name || item.name || '';
+    const subtitle = item.subtitle || item.place?.address || item.address || '';
+    const icon = item.kind === 'prediction' ? 'location' : 'recently-viewed';
     return `<cds-button class="route-place-history-item" kind="ghost" size="lg" type="button" data-route-history-index="${index}">
       <span class="route-place-history-layout">
-        <span class="route-place-history-icon" aria-hidden="true"><span data-carbon-icon="recently-viewed"></span></span>
-        <span class="route-place-history-text"><strong>${esc(place.name || '', helpers)}</strong>${place.address ? `<span>${esc(place.address, helpers)}</span>` : ''}</span>
+        <span class="route-place-history-icon" aria-hidden="true"><span data-carbon-icon="${icon}"></span></span>
+        <span class="route-place-history-text"><strong>${esc(title, helpers)}</strong>${subtitle ? `<span>${esc(subtitle, helpers)}</span>` : ''}</span>
       </span>
     </cds-button>`;
   }
