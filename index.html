@@ -41,7 +41,7 @@
     <link href="./assets/css/app-shell/layout/01-app-frame.css?v=carbon-complete-2" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/02-panels.css?v=carbon-v11-card" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/03-mobile-frame.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/layout/04-layering.css?v=carbon-complete-2" rel="stylesheet">
+    <link href="./assets/css/app-shell/layout/04-layering.css?v=ui-fix-2" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/01-edit-base.css" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/02-toolbar.css" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/03-mobile-edit.css" rel="stylesheet">
@@ -52,7 +52,7 @@
     <!-- CSS: foundations and design tokens -->
     <!-- CSS: guides and modals -->
     <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">
-    <link href="./assets/css/guides-modals/modal/01-modal-base.css?v=ui-fix-1" rel="stylesheet">
+    <link href="./assets/css/guides-modals/modal/01-modal-base.css?v=ui-fix-2" rel="stylesheet">
     <link href="./assets/css/guides-modals/modal/02-dropdowns.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/modal/03-seat-member-picker.css?v=carbon-seat-picker-2" rel="stylesheet">
     <link href="./assets/css/guides-modals/manual/01-manual-shell.css" rel="stylesheet">
@@ -75,7 +75,7 @@
     <link href="./assets/css/cars-members-tray/waiting-tray/01-tray-shell.css?v=carbon-v10" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/02-tray-drawer.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/03-tray-actions.css" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css?v=carbon-v10" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css?v=ui-fix-2" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/05-tray-states.css?v=carbon-complete-2" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/01-person-card-shell.css?v=carbon-v11-card" rel="stylesheet">
@@ -485,7 +485,7 @@
 </cds-modal-body></cds-modal>
 
     <!-- Settlement edit modals -->
-    <cds-modal aria-label="精算設定" aria-labelledby="settlementSettingsModalTitle" class="app-modal settlement-edit-modal settlement-settings-modal" id="settlementSettingsModal" size="xs"><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementSettingsModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="settings--adjust"></span>精算設定</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body">
+    <cds-modal aria-label="精算設定" aria-labelledby="settlementSettingsModalTitle" class="app-modal app-modal--scroll settlement-edit-modal settlement-settings-modal" id="settlementSettingsModal" size="xs" has-scrolling-content><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementSettingsModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="settings--adjust"></span>精算設定</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" no-fade>
 <div class="seisan-settings seisan-settings--modal">
 <div class="seisan-settings-section seisan-settings-section--basic seisan-settings-span">
 <div class="seisan-settings-section-title">基本設定</div>
@@ -549,7 +549,7 @@
 </div>
 </cds-modal-body><cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button data-action="save-settlement-settings" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
 
-    <cds-modal aria-label="車ごとの費用" aria-labelledby="settlementCarEditModalTitle" class="app-modal settlement-edit-modal settlement-edit-modal--car" id="settlementCarEditModal" size="sm"><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementCarEditModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="car-small"></span>車ごとの費用</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body">
+    <cds-modal aria-label="車ごとの費用" aria-labelledby="settlementCarEditModalTitle" class="app-modal app-modal--scroll settlement-edit-modal settlement-edit-modal--car" id="settlementCarEditModal" size="sm" has-scrolling-content><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementCarEditModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="car-small"></span>車ごとの費用</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" no-fade>
 <div id="settlementCarEditBody"></div>
 </cds-modal-body><cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button data-action="save-settlement-car-edit" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
 
@@ -560,7 +560,7 @@
         <cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="routeDistanceModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="roadmap"></span>移動距離計算ツール</cds-modal-heading>
         <cds-modal-close-button close-button-label="元の車へ戻る" data-modal-close></cds-modal-close-button>
       </cds-modal-header>
-      <cds-modal-body class="app-modal-body route-helper-body">
+      <cds-modal-body class="app-modal-body route-helper-body" no-fade>
         <div class="route-planner-shell">
           <section class="route-planner-controls" aria-labelledby="routePlannerPlacesTitle">
             <div class="route-planner-section-heading"><div><h6 id="routePlannerPlacesTitle">地点を設定</h6><p id="routePlannerContext" class="route-planner-context">車ごとの費用から開くと、選択した距離をその車へ反映できます。</p></div></div>
@@ -645,7 +645,7 @@
     <script src="./assets/js/core/sync-controller.js?v=carbon-assurance"></script>
     <script src="./assets/js/core/history-scheduler.js"></script>
     <script src="./assets/js/core/data-state.js?v=carbon-phase3a"></script>
-    <script src="./assets/js/core/modal-controller.js?v=carbon-seat-picker"></script>
+    <script src="./assets/js/core/modal-controller.js?v=ui-fix-2"></script>
     <!-- JS: shared modules -->
     <script src="./assets/js/modules/history.js"></script>
     <script src="./assets/js/modules/drag-cards.js"></script>
@@ -665,7 +665,7 @@
     <script src="./assets/js/features/settlement/01-state.js"></script>
     <script src="./assets/js/features/settlement/02-calculator.js"></script>
     <script src="./assets/js/features/settlement/03-render.js?v=carbon-bottom-nav-3"></script>
-    <script src="./assets/js/features/settlement/04-route-helper.js?v=google-routes-route-only"></script>
+    <script src="./assets/js/features/settlement/04-route-helper.js?v=ui-fix-2"></script>
     <script src="./assets/js/features/settlement/05-input-actions.js"></script>
     <script src="./assets/js/features/settlement/06-share-text.js?v=club-ledger"></script>
     <script src="./assets/js/features/settlement.js"></script>
@@ -675,7 +675,7 @@
     <script src="./assets/js/core/remote-guard.js"></script>
     <script src="./assets/js/features/share-actions.js"></script>
     <script src="./assets/js/features/lock-protection.js"></script>
-    <script src="./assets/js/features/waiting-tray.js?v=carbon-complete-2"></script>
+    <script src="./assets/js/features/waiting-tray.js?v=ui-fix-2"></script>
     <script src="./assets/js/features/person-cards.js?v=ui-fix-1"></script>
     <script src="./assets/js/features/planning-assurance.js?v=carbon-menu-shortcut"></script>
     <script src="./assets/js/features/seat-member-picker.js?v=quiet-actions"></script>
@@ -695,7 +695,7 @@
     <script src="./assets/js/features/events/00-event-utils.js"></script>
     <script src="./assets/js/features/events/01-core-startup-events.js?v=mobile-layout-fix"></script>
     <script src="./assets/js/features/events/02-static-header-events.js"></script>
-    <script src="./assets/js/features/events/03-generated-action-events.js"></script>
+    <script src="./assets/js/features/events/03-generated-action-events.js?v=ui-fix-2"></script>
     <script src="./assets/js/features/events/04-settlement-input-events.js?v=carbon-v10"></script>
     <script src="./assets/js/features/events/05-view-feature-events.js?v=carbon-bottom-nav-3"></script>
     <script src="./assets/js/features/events.js"></script>

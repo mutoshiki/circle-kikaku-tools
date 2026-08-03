@@ -45,7 +45,15 @@
 .app-modal--scroll > .app-modal-body {
   min-height: 0;
   overflow-y: auto;
+  padding-block-end: var(--space-5);
+  scroll-padding-block-end: var(--space-5);
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
+  /* Carbon's default scrolling-content mask fades the final 48–80 px. In this
+   * app the footer is already separated, so the fade obscures real controls. */
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
 .app-modal-footer { min-width: 0; }
@@ -79,16 +87,29 @@
  * keeps a small viewport gutter so the dialog still reads as a modal while the
  * Carbon component continues to own focus trapping, overlay and scrolling. */
 @media (max-width: 640px) {
+  /* Carbon's mobile modal defaults to block-start: 0. Keep the official
+   * dialog/focus/overlay implementation, but center the dialog inside the
+   * currently visible Safari viewport instead of pinning it to the top. */
   .app-modal::part(dialog) {
+    inset: auto;
+    top: 50%;
+    left: 50%;
     width: calc(100vw - 32px);
     max-width: calc(100vw - 32px);
     height: auto;
-    max-height: calc(100dvh - 32px);
-    margin: auto;
+    max-height: min(calc(100svh - 32px), calc(100dvh - 32px));
+    margin: 0;
+    transform: translate(-50%, -50%);
   }
 
   .app-modal--compact::part(dialog),
   .app-decision-modal::part(dialog) {
-    width: min(100vw - 32px, 420px);
+    width: min(calc(100vw - 32px), 420px);
+    max-height: min(calc(100svh - 48px), calc(100dvh - 48px));
+  }
+
+  .app-modal--scroll > .app-modal-body {
+    padding-block-end: var(--space-6);
+    scroll-padding-block-end: var(--space-6);
   }
 }

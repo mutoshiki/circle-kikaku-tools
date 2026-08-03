@@ -927,8 +927,23 @@
             return;
         }
         global.saveSettlementCarEditDraft?.();
-        modals.settlementCarEdit?.hide();
-        setTimeout(() => void openPlanner({ targetCarName: targetName }), 120);
+        const carModal = byId('settlementCarEditModal');
+        let launched = false;
+        const launchPlanner = () => {
+            if (launched) return;
+            launched = true;
+            void openPlanner({ targetCarName: targetName });
+        };
+        if (carModal?.open) {
+            carModal.addEventListener('sanpo:modal-hidden', launchPlanner, { once: true });
+            modals.settlementCarEdit?.hide();
+            // Defensive fallback for browsers that suppress a transition event.
+            setTimeout(() => {
+                if (!carModal.open) launchPlanner();
+            }, 320);
+        } else {
+            launchPlanner();
+        }
     };
 
     global.addRouteWaypoint = addWaypoint;
@@ -940,6 +955,19 @@
     global.retryGoogleRoutePlanner = retryRoutePlanner;
 
     function bindPlannerEvents() {
+        const carEditModal = byId('settlementCarEditModal');
+        if (carEditModal && carEditModal.dataset.routeShortcutBound !== 'true') {
+            carEditModal.dataset.routeShortcutBound = 'true';
+            carEditModal.addEventListener('click', event => {
+                const shortcut = event.composedPath?.().find(node =>
+                    node instanceof Element && node.matches?.('[data-action="open-route-helper-shortcut"]')
+                );
+                if (!shortcut) return;
+                event.preventDefault();
+                event.stopPropagation();
+                global.openRouteDistanceHelperFromShortcut?.();
+            });
+        }
         byId('addRouteWaypointBtn')?.addEventListener('click', addWaypoint);
         byId('routeWaypointList')?.addEventListener('keydown', event => {
             const handle = event.target.closest?.('.route-waypoint-handle');
