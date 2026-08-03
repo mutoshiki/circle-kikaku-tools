@@ -11,13 +11,11 @@ function createDefaultRoutePlannerState() {
         avoidTolls: true,
         avoidHighways: true,
         avoidFerries: false,
-        optionsVersion: 1,
         targetCarId: '',
         targetCarName: '',
         returnTo: '',
         roundTrip: false,
-        calculatedAt: 0,
-        history: []
+        calculatedAt: 0
     };
 }
 
@@ -42,16 +40,16 @@ function normalizeRoutePlannerViewport(raw = null) {
 }
 
 function normalizeRoutePlannerLeg(raw = {}) {
-    const point = value => {
-        const latitude = Number(value?.latitude);
-        const longitude = Number(value?.longitude);
+    const normalizePoint = point => {
+        const latitude = Number(point?.latitude);
+        const longitude = Number(point?.longitude);
         return Number.isFinite(latitude) && Number.isFinite(longitude) ? { latitude, longitude } : null;
     };
     return {
         distanceMeters: Math.max(0, Number(raw.distanceMeters) || 0),
         durationSeconds: Math.max(0, Number(raw.durationSeconds) || 0),
-        start: point(raw.start),
-        end: point(raw.end),
+        start: normalizePoint(raw.start),
+        end: normalizePoint(raw.end),
         fromName: String(raw.fromName || ''),
         toName: String(raw.toName || '')
     };
@@ -75,22 +73,8 @@ function normalizeRoutePlannerRoute(raw = {}, index = 0) {
 
 function normalizeRoutePlannerState(raw = {}) {
     const base = createDefaultRoutePlannerState();
-    const routes = Array.isArray(raw.routes)
-        ? raw.routes.map(normalizeRoutePlannerRoute).filter(route => route.distanceMeters > 0)
-        : [];
-    const selectedRouteIndex = routes.length
-        ? Math.min(Math.max(0, Number(raw.selectedRouteIndex) || 0), routes.length - 1)
-        : 0;
-    const history = Array.isArray(raw.history)
-        ? raw.history.map(normalizeRoutePlannerPlace).filter(Boolean)
-        : [];
-    const uniqueHistory = [];
-    const seen = new Set();
-    history.forEach(place => {
-        if (seen.has(place.placeId)) return;
-        seen.add(place.placeId);
-        uniqueHistory.push(place);
-    });
+    const routes = Array.isArray(raw.routes) ? raw.routes.map(normalizeRoutePlannerRoute).filter(route => route.distanceMeters > 0) : [];
+    const selectedRouteIndex = routes.length ? Math.min(Math.max(0, Number(raw.selectedRouteIndex) || 0), routes.length - 1) : 0;
     return {
         ...base,
         origin: normalizeRoutePlannerPlace(raw.origin),
@@ -98,16 +82,14 @@ function normalizeRoutePlannerState(raw = {}) {
         destination: normalizeRoutePlannerPlace(raw.destination),
         routes,
         selectedRouteIndex,
-        avoidTolls: Number(raw.optionsVersion) >= 1 ? raw.avoidTolls === true : true,
-        avoidHighways: Number(raw.optionsVersion) >= 1 ? raw.avoidHighways === true : true,
+        avoidTolls: raw.avoidTolls === undefined ? true : raw.avoidTolls === true,
+        avoidHighways: raw.avoidHighways === undefined ? true : raw.avoidHighways === true,
         avoidFerries: raw.avoidFerries === true,
-        optionsVersion: 1,
         targetCarId: String(raw.targetCarId || ''),
         targetCarName: String(raw.targetCarName || ''),
         returnTo: raw.returnTo === 'carSettlement' ? 'carSettlement' : '',
         roundTrip: raw.roundTrip === true,
-        calculatedAt: Math.max(0, Number(raw.calculatedAt) || 0),
-        history: uniqueHistory.slice(0, 24)
+        calculatedAt: Math.max(0, Number(raw.calculatedAt) || 0)
     };
 }
 

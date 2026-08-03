@@ -33,6 +33,10 @@
   overflow: visible;
 }
 
+#app-layout #bottom-tray.tray-settings-open {
+  z-index: var(--z-floating);
+}
+
 #app-layout #bottom-tray .tray-settings-dropdown {
   position: relative;
   overflow: visible;

@@ -11,8 +11,12 @@
 }
 
 #settlementCarEditModal .app-modal-body {
+  min-height: 0;
   max-height: min(68dvh, 620px);
   overflow-y: auto;
+  padding-bottom: 24px;
+  scroll-padding-bottom: 24px;
+  -webkit-overflow-scrolling: touch;
 }
 #settlementCarEditModal .app-modal-heading {
   overflow: hidden;

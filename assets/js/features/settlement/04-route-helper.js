@@ -1,841 +1,1237 @@
-// Google Maps route planner integrated with settlement state and Carbon modals.
+// Google Maps / Places (New) / Routes integration for per-car settlement distance.
 (function (global) {
-  'use strict';
+    'use strict';
 
-  const MAX_WAYPOINTS = 8;
-  const JAPAN_BIAS = Object.freeze({ north: 45.75, south: 24.0, east: 153.99, west: 122.9 });
-  const ROUTE_FIELDS = Object.freeze([
-    'path',
-    'legs',
-    'distanceMeters',
-    'durationMillis',
-    'viewport',
-    'description',
-    'travelAdvisory',
-    'routeLabels'
-  ]);
-
-  let googleLibrariesPromise = null;
-  let googleLibraries = null;
-  let map = null;
-  let mapPolylines = [];
-  let mapMarkers = [];
-  let sequenceSortable = null;
-  let placeAutocomplete = null;
-  let activePlaceTarget = null;
-  let routeRequestSequence = 0;
-  let routeRequestTimer = null;
-  let routeReturnSuppressed = false;
-  let routeFeatureBound = false;
-
-  const byIdSafe = id => document.getElementById(id);
-  const templates = () => global.SanpoApp?.templates?.settlement || {};
-
-  function normalizePlanner(raw) {
-    return typeof global.normalizeRoutePlannerState === 'function'
-      ? global.normalizeRoutePlannerState(raw || {})
-      : raw || {};
-  }
-
-  function getPlannerState() {
-    const settlement = global.ensureSettlementState?.();
-    if (!settlement) return null;
-    settlement.routePlanner = normalizePlanner(settlement.routePlanner || {});
-    return settlement.routePlanner;
-  }
-
-  function commitPlanner({ shared = false } = {}) {
-    if (shared) global.save?.();
-    else global.saveLocalDraftOnly?.();
-  }
-
-  function allPlaces(planner = getPlannerState()) {
-    if (!planner) return [];
-    return [planner.origin, ...(planner.waypoints || []), planner.destination].filter(Boolean);
-  }
-
-  function placeName(place, fallback = '') {
-    return String(place?.name || fallback || '').trim();
-  }
-
-  function toLatLngLiteral(place) {
-    return { lat: Number(place.latitude), lng: Number(place.longitude) };
-  }
-
-  function parseStoredPath(value) {
-    if (Array.isArray(value)) return value;
-    if (!value) return [];
-    try {
-      const parsed = JSON.parse(String(value));
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (error) {
-      return [];
-    }
-  }
-
-  function latLngLiteral(value) {
-    const source = value?.location || value;
-    const lat = typeof source?.lat === 'function' ? source.lat() : Number(source?.lat ?? source?.latitude);
-    const lng = typeof source?.lng === 'function' ? source.lng() : Number(source?.lng ?? source?.longitude);
-    return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
-  }
-
-  function viewportLiteral(value) {
-    if (!value) return null;
-    if (typeof value.toJSON === 'function') return value.toJSON();
-    const north = typeof value.getNorthEast === 'function' ? value.getNorthEast().lat() : Number(value.north);
-    const east = typeof value.getNorthEast === 'function' ? value.getNorthEast().lng() : Number(value.east);
-    const south = typeof value.getSouthWest === 'function' ? value.getSouthWest().lat() : Number(value.south);
-    const west = typeof value.getSouthWest === 'function' ? value.getSouthWest().lng() : Number(value.west);
-    return [north, south, east, west].every(Number.isFinite) ? { north, south, east, west } : null;
-  }
-
-  function formatTollPrice(route) {
-    const prices = route?.travelAdvisory?.tollInfo?.estimatedPrice;
-    if (!Array.isArray(prices) || !prices.length) return '';
-    const money = prices[0] || {};
-    const units = Number(money.units || 0);
-    const nanos = Number(money.nanos || 0) / 1e9;
-    const value = units + nanos;
-    if (!Number.isFinite(value)) return '';
-    const currency = String(money.currencyCode || 'JPY');
-    try {
-      return new Intl.NumberFormat('ja-JP', { style: 'currency', currency, maximumFractionDigits: currency === 'JPY' ? 0 : 2 }).format(value);
-    } catch (error) {
-      return `${Math.round(value).toLocaleString('ja-JP')} ${currency}`;
-    }
-  }
-
-  function extractMainRoads(route) {
-    const candidates = [];
-    const description = String(route?.description || '').trim();
-    if (description) {
-      description.split(/\s*(?:、|,|\/|・|→|via)\s*/i).forEach(value => {
-        const text = value.trim();
-        if (text && !candidates.includes(text)) candidates.push(text);
-      });
-    }
-    for (const leg of route?.legs || []) {
-      for (const step of leg?.steps || []) {
-        const instruction = String(step?.instructions || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-        const match = instruction.match(/(?:国道\s*\d+号|県道\s*\d+号|[^、。]{1,28}(?:高速道路|自動車道|街道|バイパス|線|通り|Road|Route|Expressway))/i);
-        if (match?.[0] && !candidates.includes(match[0])) candidates.push(match[0]);
-        if (candidates.length >= 5) break;
-      }
-      if (candidates.length >= 5) break;
-    }
-    return candidates.slice(0, 5);
-  }
-
-  function normalizeRouteResult(route, index, planner) {
-    const sequence = allPlaces(planner);
-    const path = Array.from(route?.path || []).map(latLngLiteral).filter(Boolean);
-    const legs = Array.from(route?.legs || []).map((leg, legIndex) => ({
-      distanceMeters: Math.max(0, Number(leg?.distanceMeters) || 0),
-      durationSeconds: Math.max(0, Number(leg?.durationMillis) || 0) / 1000,
-      start: latLngLiteral(leg?.startLocation),
-      end: latLngLiteral(leg?.endLocation),
-      fromName: placeName(sequence[legIndex], `地点${legIndex + 1}`),
-      toName: placeName(sequence[legIndex + 1], `地点${legIndex + 2}`)
-    }));
-    const distanceMeters = Math.max(0, Number(route?.distanceMeters) || legs.reduce((sum, leg) => sum + leg.distanceMeters, 0));
-    const durationSeconds = Math.max(0, Number(route?.durationMillis) || legs.reduce((sum, leg) => sum + leg.durationSeconds * 1000, 0)) / 1000;
-    const tollPrice = formatTollPrice(route);
-    const mainRoads = extractMainRoads(route);
-    const highwayText = [route?.description, ...mainRoads].filter(Boolean).join(' ');
-    const hasTolls = Boolean(route?.travelAdvisory?.tollInfo || tollPrice);
-    const hasHighways = /(高速道路|自動車道|Expressway|Motorway|高速|E\d{1,3})/i.test(highwayText);
-    const labels = Array.from(route?.routeLabels || []).map(String);
-    return {
-      id: String(route?.routeToken || `route-${index}-${Math.round(distanceMeters)}-${Math.round(durationSeconds)}`),
-      label: labels.some(label => /DEFAULT_ROUTE|DEFAULT/i.test(label)) || index === 0 ? 'おすすめ' : `別ルート ${index}`,
-      distanceMeters,
-      durationSeconds,
-      legs,
-      viewport: viewportLiteral(route?.viewport),
-      polyline: JSON.stringify(path),
-      hasTolls,
-      hasHighways,
-      tollPrice,
-      mainRoads
-    };
-  }
-
-  function setNotice({ title = '', message = '', kind = 'info', retry = false } = {}) {
-    const notice = byIdSafe('routePlannerNotice');
-    const retryWrap = byIdSafe('routePlannerRetry');
-    if (notice) {
-      notice.hidden = !(title || message);
-      notice.kind = kind;
-      notice.setAttribute('kind', kind);
-      notice.title = title;
-      notice.subtitle = message;
-      notice.setAttribute('title', title);
-      notice.setAttribute('subtitle', message);
-    }
-    if (retryWrap) retryWrap.hidden = !retry;
-  }
-
-  function setLoading(active) {
-    const loading = byIdSafe('routePlannerLoading');
-    if (loading) loading.hidden = !active;
-  }
-
-  function classifyRouteError(error) {
-    const base = global.SanpoGoogleMaps?.classifyError?.(error);
-    if (base) return base;
-    const text = String(error?.message || error || '');
-    if (/ZERO_RESULTS|NOT_FOUND|route/i.test(text)) return { title: 'ルートが見つかりません', message: '地点や回避設定を変更してください。', kind: 'warning' };
-    return { title: 'ルート候補を取得できませんでした', message: text || '時間をおいて再試行してください。', kind: 'error' };
-  }
-
-  async function ensureGoogleLibraries({ force = false } = {}) {
-    if (force) {
-      googleLibrariesPromise = null;
-      googleLibraries = null;
-    }
-    if (googleLibraries) return googleLibraries;
-    if (!googleLibrariesPromise) {
-      googleLibrariesPromise = global.SanpoGoogleMaps.importLibraries(['maps', 'places', 'routes', 'marker'])
-        .then(result => {
-          googleLibraries = result;
-          return result;
-        })
-        .catch(error => {
-          googleLibrariesPromise = null;
-          throw error;
-        });
-    }
-    return googleLibrariesPromise;
-  }
-
-  function renderSequence() {
-    const list = byIdSafe('routeSequenceList');
-    const planner = getPlannerState();
-    if (!list || !planner) return;
-    const rows = [];
-    let index = 0;
-    rows.push(templates().routePlaceRow?.({ place: planner.origin, index, role: 'origin', removable: Boolean(planner.origin), draggable: Boolean(planner.origin) }, { escapeHtml: global.escapeHtml }) || '');
-    index += 1;
-    (planner.waypoints || []).forEach(place => {
-      rows.push(templates().routePlaceRow?.({ place, index, role: 'waypoint', removable: true, draggable: true }, { escapeHtml: global.escapeHtml }) || '');
-      index += 1;
-    });
-    rows.push(templates().routePlaceRow?.({ place: planner.destination, index, role: 'destination', removable: Boolean(planner.destination), draggable: Boolean(planner.destination) }, { escapeHtml: global.escapeHtml }) || '');
-    index += 1;
-    if ((planner.waypoints || []).length < MAX_WAYPOINTS) {
-      rows.push(templates().routeAddWaypointRow?.(index) || '');
-    }
-    list.innerHTML = rows.join('');
-    global.SanpoCarbon?.renderCarbonIcons?.(list);
-    setupSequenceSortable();
-  }
-
-  function renderHistory() {
-    const list = byIdSafe('routePlaceHistoryList');
-    const planner = getPlannerState();
-    if (!list || !planner) return;
-    const history = Array.isArray(planner.history) ? planner.history : [];
-    list.innerHTML = history.length
-      ? history.map(place => templates().routeHistoryItem?.(place, { escapeHtml: global.escapeHtml }) || '').join('')
-      : '<div class="route-place-candidates-empty">共有された候補はまだありません。</div>';
-    global.SanpoCarbon?.renderCarbonIcons?.(list);
-  }
-
-  function selectedRoute(planner = getPlannerState()) {
-    if (!planner?.routes?.length) return null;
-    return planner.routes[Math.min(Math.max(0, Number(planner.selectedRouteIndex) || 0), planner.routes.length - 1)] || null;
-  }
-
-  function renderRouteResults() {
-    const planner = getPlannerState();
-    const list = byIdSafe('routeCandidateList');
-    const summary = byIdSafe('routeLegSummary');
-    const calculated = byIdSafe('routePlannerCalculatedAt');
-    if (!planner || !list || !summary) return;
-    list.innerHTML = (planner.routes || []).map((route, index) => templates().routeCandidateCard?.(route, index, index === planner.selectedRouteIndex, { escapeHtml: global.escapeHtml }) || '').join('');
-    const route = selectedRoute(planner);
-    summary.innerHTML = route ? (templates().routeLegSummary?.({
-      legs: route.legs,
-      totalDistanceMeters: route.distanceMeters,
-      totalDurationSeconds: route.durationSeconds,
-      roundTrip: planner.roundTrip
-    }, { escapeHtml: global.escapeHtml }) || '') : '';
-    if (calculated) calculated.textContent = planner.calculatedAt ? new Date(planner.calculatedAt).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-    global.SanpoCarbon?.renderCarbonIcons?.(list);
-    updateApplyButton();
-  }
-
-  function syncOptionControls() {
-    const planner = getPlannerState();
-    if (!planner) return;
-    const pairs = [
-      ['routeAvoidTolls', planner.avoidTolls],
-      ['routeAvoidHighways', planner.avoidHighways],
-      ['routeAvoidFerries', planner.avoidFerries],
-      ['routeRoundTrip', planner.roundTrip]
+    const templates = () => global.SanpoApp?.templates?.settlement || {};
+    const ROUTE_FIELDS = [
+        'description',
+        'distanceMeters',
+        'durationMillis',
+        'legs',
+        'localizedValues',
+        'path',
+        'routeLabels',
+        'routeToken',
+        'travelAdvisory',
+        'viewport',
+        'warnings'
     ];
-    pairs.forEach(([id, checked]) => {
-      const control = byIdSafe(id);
-      if (!control) return;
-      control.checked = Boolean(checked);
-      control.toggleAttribute('checked', Boolean(checked));
-    });
-  }
+    const MAX_WAYPOINTS = 25;
+    const PLACE_HISTORY_KEY = 'sanpo.routePlannerPlaceHistory.v1';
+    const JAPAN_SEARCH_BIAS = Object.freeze({ north: 45.8, south: 20.0, east: 154.0, west: 122.0 });
+    const HIGHWAY_PATTERN = /(高速|自動車道|expressway|motorway|highway|\bE\d{1,3}\b|\bC\d{1,3}\b|JCT|IC)/i;
+    const DARK_MAP_STYLES = [
+        { elementType: 'geometry', stylers: [{ color: '#1f1f1f' }] },
+        { elementType: 'labels.text.stroke', stylers: [{ color: '#1f1f1f' }] },
+        { elementType: 'labels.text.fill', stylers: [{ color: '#c6c6c6' }] },
+        { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#525252' }] },
+        { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#262626' }] },
+        { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#a8a8a8' }] },
+        { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#393939' }] },
+        { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#161616' }] },
+        { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#c6c6c6' }] },
+        { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#525252' }] },
+        { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#262626' }] },
+        { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0f3b57' }] },
+        { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#78a9ff' }] }
+    ];
 
-  function updateApplyButton() {
-    const planner = getPlannerState();
-    const button = byIdSafe('applyRouteDistanceBtn');
-    if (!button || !planner) return;
-    const enabled = Boolean(selectedRoute(planner) && planner.targetCarName);
-    button.disabled = !enabled;
-    button.toggleAttribute('disabled', !enabled);
-  }
-
-  function clearMapObjects() {
-    mapPolylines.forEach(polyline => polyline?.setMap?.(null));
-    mapMarkers.forEach(marker => {
-      if ('map' in marker) marker.map = null;
-      marker?.setMap?.(null);
-    });
-    mapPolylines = [];
-    mapMarkers = [];
-  }
-
-  function mapThemeOptions() {
-    const dark = document.documentElement.dataset.theme === 'dark';
-    const mapId = String(global.SanpoGoogleMaps?.getConfig?.().mapId || '').trim();
-    const options = {
-      center: { lat: 36.2, lng: 138.2 },
-      zoom: 6,
-      mapTypeControl: false,
-      streetViewControl: false,
-      fullscreenControl: false,
-      gestureHandling: 'greedy'
+    /** @type {any} */
+    const runtime = {
+        maps: null,
+        places: null,
+        routes: null,
+        geometry: null,
+        marker: null,
+        map: null,
+        polylines: [],
+        markers: [],
+        routePaths: new Map(),
+        placeSearchWidget: null,
+        activePlaceSearch: null,
+        placeHistoryEntries: [],
+        placeSearchFontObserver: null,
+        waypointRows: [],
+        stopSortable: null,
+        requestSequence: 0,
+        selectionSequence: new Map(),
+        initializing: null,
+        historyActive: false,
+        historyClosing: false,
+        suppressPopstate: false,
+        returnAfterClose: false,
+        applyInProgress: false,
+        themeObserver: null,
+        routeRequestTimer: null
     };
-    if (mapId) options.mapId = mapId;
-    if (global.google?.maps?.ColorScheme) options.colorScheme = dark ? global.google.maps.ColorScheme.DARK : global.google.maps.ColorScheme.LIGHT;
-    return options;
-  }
 
-  async function ensureMap() {
-    const container = byIdSafe('routeMap');
-    if (!container) return null;
-    const libs = await ensureGoogleLibraries();
-    if (!map) map = new libs.maps.Map(container, mapThemeOptions());
-    return map;
-  }
-
-  function createMapMarker(position, label) {
-    if (!map || !position) return null;
-    const AdvancedMarker = googleLibraries?.marker?.AdvancedMarkerElement;
-    const mapId = String(global.SanpoGoogleMaps?.getConfig?.().mapId || '').trim();
-    if (AdvancedMarker && mapId) {
-      return new AdvancedMarker({ map, position, title: label });
+    function plannerState() {
+        const state = ensureSettlementState();
+        state.routePlanner = normalizeRoutePlannerState(state.routePlanner || {});
+        return state.routePlanner;
     }
-    const Marker = global.google?.maps?.Marker;
-    return Marker ? new Marker({ map, position, label }) : null;
-  }
 
-  async function renderMap() {
-    const empty = byIdSafe('routeMapEmpty');
-    const skeleton = byIdSafe('routeMapSkeleton');
-    try {
-      await ensureMap();
-      clearMapObjects();
-      const planner = getPlannerState();
-      const places = allPlaces(planner);
-      const bounds = new googleLibraries.maps.LatLngBounds();
-      places.forEach((place, index) => {
-        const position = toLatLngLiteral(place);
-        bounds.extend(position);
-        const marker = createMapMarker(position, String.fromCharCode(65 + index));
-        if (marker) mapMarkers.push(marker);
-      });
-      (planner?.routes || []).forEach((route, index) => {
-        const path = parseStoredPath(route.polyline);
-        if (!path.length) return;
-        path.forEach(point => bounds.extend(point));
-        const selected = index === planner.selectedRouteIndex;
-        const polyline = new googleLibraries.maps.Polyline({
-          map,
-          path,
-          clickable: true,
-          strokeColor: selected ? '#0f62fe' : '#8d8d8d',
-          strokeOpacity: selected ? 0.95 : 0.38,
-          strokeWeight: selected ? 7 : 4,
-          zIndex: selected ? 20 : 10
+    function createWaypointId() {
+        if (global.crypto?.randomUUID) return global.crypto.randomUUID();
+        return `waypoint-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    }
+
+    function getTargetCarId(name = '') {
+        const planId = typeof activeCarPlanId !== 'undefined' ? activeCarPlanId : 'plan-1';
+        return `${String(planId || 'plan-1')}:${encodeURIComponent(String(name || ''))}`;
+    }
+
+    function getSelectedRoute(state = plannerState()) {
+        return state.routes[state.selectedRouteIndex] || null;
+    }
+
+    function getOrderedPlaces(state = plannerState()) {
+        return [state.origin, ...state.waypoints, state.destination].filter(Boolean);
+    }
+
+    function persistPlannerState() {
+        const state = ensureSettlementState();
+        const current = plannerState();
+        current.waypoints = runtime.waypointRows.map(row => row.place).filter(Boolean);
+        state.routePlanner = normalizeRoutePlannerState(current);
+        if (typeof saveLocalDraftOnly === 'function') saveLocalDraftOnly();
+        return state.routePlanner;
+    }
+
+    function setRetryVisible(visible) {
+        const retry = byId('routePlannerRetry');
+        if (retry) retry.hidden = !visible;
+    }
+
+    function setNotice(kind = 'info', title = '', subtitle = '', options = {}) {
+        const notice = byId('routePlannerNotice');
+        if (!notice) return;
+        setRetryVisible(options.retryable === true);
+        if (!title && !subtitle) {
+            notice.hidden = true;
+            return;
+        }
+        notice.hidden = false;
+        notice.kind = kind;
+        notice.setAttribute('kind', kind);
+        notice.title = title;
+        notice.setAttribute('title', title);
+        notice.subtitle = subtitle;
+        notice.setAttribute('subtitle', subtitle);
+    }
+
+    function setLoading(loading, description = 'ルート候補を取得しています') {
+        const container = byId('routePlannerLoading');
+        const control = container?.querySelector('cds-inline-loading');
+        if (container) container.hidden = !loading;
+        if (control) {
+            control.status = loading ? 'active' : 'finished';
+            control.setAttribute('status', loading ? 'active' : 'finished');
+            control.description = description;
+            control.setAttribute('description', description);
+        }
+        const apply = byId('applyRouteDistanceBtn');
+        if (apply) apply.disabled = loading || !getSelectedRoute();
+    }
+
+    function setMapSkeleton(visible) {
+        const skeleton = byId('routeMapSkeleton');
+        if (skeleton) skeleton.hidden = !visible;
+    }
+
+    function setMapEmpty(message = '') {
+        const empty = byId('routeMapEmpty');
+        if (!empty) return;
+        empty.hidden = !message;
+        empty.textContent = message;
+    }
+
+    function googleErrorText(error) {
+        return [error?.code, error?.status, error?.name, error?.message, error].filter(Boolean).map(String).join(' ');
+    }
+
+    function classifyGoogleError(error) {
+        const message = googleErrorText(error);
+        if (/UNAUTHENTICATED|PERMISSION_DENIED|referer|referrer|api key|denied|permission|forbidden|403/i.test(message)) {
+            return { kind: 'error', title: 'Google APIの利用が拒否されました', subtitle: 'HTTPリファラー制限、API制限、請求先設定を確認してください。' };
+        }
+        if (/RESOURCE_EXHAUSTED|quota|429|limit/i.test(message)) {
+            return { kind: 'error', title: 'Google APIの利用上限に達しました', subtitle: 'しばらく待ってから再度お試しください。' };
+        }
+        if (/UNAVAILABLE|DEADLINE_EXCEEDED|network|fetch|load|timeout|offline/i.test(message)) {
+            return { kind: 'error', title: '通信に失敗しました', subtitle: 'ネットワーク接続を確認して、もう一度お試しください。' };
+        }
+        if (/ZERO_RESULTS|zero|no route|not found/i.test(message)) {
+            return { kind: 'warning', title: 'ルートが見つかりません', subtitle: '地点または回避設定を変更してください。' };
+        }
+        return { kind: 'error', title: 'ルート候補を取得できませんでした', subtitle: String(error?.message || '') || '時間をおいてもう一度お試しください。' };
+    }
+
+    function canRetryWithoutTolls(error) {
+        return /INVALID_ARGUMENT|UNIMPLEMENTED|unsupported|not supported|extraComputations|TOLLS/i.test(googleErrorText(error));
+    }
+
+    function normalizeLatLng(value) {
+        if (!value) return null;
+        const latitude = Number(typeof value.lat === 'function' ? value.lat() : (value.lat ?? value.latitude));
+        const longitude = Number(typeof value.lng === 'function' ? value.lng() : (value.lng ?? value.longitude));
+        return Number.isFinite(latitude) && Number.isFinite(longitude) ? { latitude, longitude } : null;
+    }
+
+    function normalizeViewport(value) {
+        if (!value) return null;
+        const northEast = value.getNorthEast?.();
+        const southWest = value.getSouthWest?.();
+        const north = Number(value.north ?? northEast?.lat?.());
+        const east = Number(value.east ?? northEast?.lng?.());
+        const south = Number(value.south ?? southWest?.lat?.());
+        const west = Number(value.west ?? southWest?.lng?.());
+        return [north, south, east, west].every(Number.isFinite) ? { north, south, east, west } : null;
+    }
+
+    function stripHtml(value = '') {
+        const node = document.createElement('div');
+        node.innerHTML = String(value || '');
+        return String(node.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function extractRoadNames(route) {
+        const names = [];
+        const push = value => {
+            const text = stripHtml(value).replace(/^(?:そのまま|右折して|左折して|斜め[右左]方向に|ロータリーを).*?/, '').trim();
+            if (!text) return;
+            const lowered = text.toLowerCase();
+            if (names.some(item => {
+                const existing = item.toLowerCase();
+                return existing === lowered || existing.includes(lowered) || lowered.includes(existing);
+            })) return;
+            names.push(text);
+        };
+        const extract = value => {
+            const text = stripHtml(value);
+            if (!text) return;
+            const chunks = text.split(/[・、,／/]/).map(item => item.trim()).filter(Boolean);
+            chunks.forEach(chunk => {
+                const matches = chunk.match(/(?:国道|県道|都道|府道|道道)\s*\d+号(?:線)?|[^。()（）]{1,28}(?:自動車道|高速道路|バイパス|街道)|\b[EC]\d{1,3}[A-Z]?\b/gi);
+                if (matches?.length) matches.forEach(push);
+                else if (chunk.length <= 36) push(chunk);
+            });
+        };
+        extract(route.description);
+        (route.legs || []).forEach(leg => {
+            (leg.steps || []).forEach(step => extract(step.navigationInstruction?.instructions || step.instructions));
         });
-        polyline.addListener?.('click', () => selectRoute(index));
-        mapPolylines.push(polyline);
-      });
-      if (places.length) map.fitBounds(bounds, 48);
-      if (empty) empty.hidden = places.length > 0;
-      if (skeleton) skeleton.hidden = true;
-    } catch (error) {
-      if (skeleton) skeleton.hidden = true;
-      if (empty) {
-        empty.hidden = false;
-        empty.textContent = '地図を読み込めませんでした。';
-      }
-      const info = classifyRouteError(error);
-      setNotice({ title: info.title, message: info.message, kind: 'error', retry: true });
+        return names.slice(0, 4);
     }
-  }
 
-  function renderPlanner() {
-    renderSequence();
-    renderHistory();
-    syncOptionControls();
-    renderRouteResults();
-    void renderMap();
-  }
+    function formatMoney(money = {}) {
+        const currency = String(money.currencyCode || money.currency || 'JPY');
+        const units = Number(money.units || 0);
+        const nanos = Number(money.nanos || 0);
+        const amount = units + nanos / 1e9;
+        if (!Number.isFinite(amount) || amount <= 0) return '';
+        try {
+            return new Intl.NumberFormat('ja-JP', { style: 'currency', currency, maximumFractionDigits: currency === 'JPY' ? 0 : 2 }).format(amount);
+        } catch (error) {
+            return `${Math.round(amount).toLocaleString()} ${currency}`;
+        }
+    }
 
-  function setupSequenceSortable() {
-    const list = byIdSafe('routeSequenceList');
-    if (!list || typeof global.Sortable === 'undefined') return;
-    sequenceSortable?.destroy?.();
-    sequenceSortable = new global.Sortable(list, {
-      animation: 150,
-      handle: '.route-sequence-drag',
-      draggable: '.route-sequence-row[data-route-place-id]:not([data-route-place-id=""])',
-      filter: '.route-sequence-row--add',
-      ghostClass: 'route-sequence-ghost',
-      chosenClass: 'route-sequence-chosen',
-      dragClass: 'route-sequence-dragging',
-      forceFallback: true,
-      fallbackOnBody: true,
-      onEnd: () => {
-        const planner = getPlannerState();
-        const ids = Array.from(list.querySelectorAll('.route-sequence-row[data-route-place-id]:not([data-route-place-id=""])')).map(row => row.dataset.routePlaceId);
-        const lookup = new Map(allPlaces(planner).map(place => [place.placeId, place]));
-        const ordered = ids.map(id => lookup.get(id)).filter(Boolean);
-        if (ordered.length >= 2) {
-          planner.origin = ordered[0];
-          planner.destination = ordered[ordered.length - 1];
-          planner.waypoints = ordered.slice(1, -1);
-          invalidateRoutes(planner);
-          commitPlanner({ shared: true });
-          renderPlanner();
-          scheduleRouteRequest();
-        } else renderSequence();
-      }
-    });
-  }
+    function inferHighway(route, roads) {
+        if (HIGHWAY_PATTERN.test(String(route.description || ''))) return true;
+        if (roads.some(name => HIGHWAY_PATTERN.test(name))) return true;
+        return (route.legs || []).some(leg => (leg.steps || []).some(step => HIGHWAY_PATTERN.test(stripHtml(step.navigationInstruction?.instructions || step.instructions || ''))));
+    }
 
-  function invalidateRoutes(planner = getPlannerState()) {
-    if (!planner) return;
-    planner.routes = [];
-    planner.selectedRouteIndex = 0;
-    planner.calculatedAt = 0;
-    routeRequestSequence += 1;
-    renderRouteResults();
-  }
+    function routeLabel(route, index, hasHighways) {
+        const labels = Array.from(route.routeLabels || []).map(String);
+        if (labels.includes('DEFAULT_ROUTE') || (!labels.length && index === 0)) return 'おすすめ';
+        if (labels.includes('FUEL_EFFICIENT')) return '燃費重視';
+        if (!hasHighways) return '一般道中心';
+        return `別ルート ${index}`;
+    }
 
-  function recordHistory(place) {
-    const planner = getPlannerState();
-    if (!planner || !place?.placeId) return;
-    planner.history = [place, ...(planner.history || []).filter(item => item.placeId !== place.placeId)].slice(0, 24);
-  }
+    function defaultRouteIndex(routes = []) {
+        const index = routes.findIndex(route => Array.from(route.routeLabels || []).map(String).includes('DEFAULT_ROUTE'));
+        return index >= 0 ? index : 0;
+    }
 
-  function applyPlaceSelection(place) {
-    const planner = getPlannerState();
-    const target = activePlaceTarget;
-    if (!planner || !target || !place) return;
-    if (target.role === 'origin') planner.origin = place;
-    else if (target.role === 'destination') planner.destination = place;
-    else if (target.role === 'waypoint') planner.waypoints[target.index] = place;
-    else if (target.role === 'new-waypoint' && planner.waypoints.length < MAX_WAYPOINTS) planner.waypoints.splice(target.index, 0, place);
-    recordHistory(place);
-    invalidateRoutes(planner);
-    commitPlanner({ shared: true });
-    closePlacePicker();
-    renderPlanner();
-    scheduleRouteRequest(40);
-  }
+    function serializeRoute(route, index, places) {
+        const path = Array.from(route.path || []).map(normalizeLatLng).filter(Boolean);
+        const pathForEncoding = path.map(point => ({ lat: point.latitude, lng: point.longitude }));
+        let polyline = '';
+        try { polyline = runtime.geometry?.encoding?.encodePath?.(pathForEncoding) || ''; } catch (error) {}
+        const roads = extractRoadNames(route);
+        const routeTollInfo = route.travelAdvisory?.tollInfo || null;
+        const legTollInfos = (route.legs || []).map(leg => leg.travelAdvisory?.tollInfo).filter(Boolean);
+        const tollPrices = routeTollInfo?.estimatedPrices?.length
+            ? Array.from(routeTollInfo.estimatedPrices)
+            : legTollInfos.flatMap(info => Array.from(info.estimatedPrices || []));
+        const hasTolls = Boolean(routeTollInfo) || legTollInfos.length > 0;
+        const hasHighways = inferHighway(route, roads);
+        const legs = Array.from(route.legs || []).map((leg, legIndex) => ({
+            distanceMeters: Math.max(0, Number(leg.distanceMeters) || 0),
+            durationSeconds: Math.max(0, Number(leg.durationMillis) || 0) / 1000,
+            start: normalizeLatLng(leg.startLocation),
+            end: normalizeLatLng(leg.endLocation),
+            fromName: places[legIndex]?.name || '',
+            toName: places[legIndex + 1]?.name || ''
+        }));
+        const id = String(route.routeToken || `route-${Date.now()}-${index}`);
+        runtime.routePaths.set(id, pathForEncoding);
+        return {
+            id,
+            label: routeLabel(route, index, hasHighways),
+            distanceMeters: Math.max(0, Number(route.distanceMeters) || 0),
+            durationSeconds: Math.max(0, Number(route.durationMillis) || 0) / 1000,
+            legs,
+            viewport: normalizeViewport(route.viewport),
+            polyline,
+            hasTolls,
+            hasHighways,
+            tollPrice: Array.from(new Set(tollPrices.map(formatMoney).filter(Boolean))).join(' / '),
+            mainRoads: roads
+        };
+    }
 
-  function normalizeGooglePlace(place) {
-    const location = latLngLiteral(place?.location);
-    const placeId = String(place?.id || place?.placeId || '').trim();
-    const displayName = typeof place?.displayName === 'string' ? place.displayName : String(place?.displayName?.text || '');
-    const name = displayName.trim() || String(place?.formattedAddress || '').trim();
-    if (!placeId || !name || !location) return null;
-    return {
-      placeId,
-      name,
-      address: String(place?.formattedAddress || '').trim(),
-      latitude: location.lat,
-      longitude: location.lng
+    function renderPlaceSummary() {
+        // The compact editor shows selected place names directly in Carbon fields.
+    }
+
+    function updateContextLabel() {
+        // The target car remains in state; promotional copy is intentionally omitted.
+    }
+
+    function routeWidgetKey(role, waypointId = '') {
+        return role === 'waypoint' ? `waypoint:${waypointId}` : role;
+    }
+
+    function getRolePlace(role, waypointId = '') {
+        const state = plannerState();
+        if (role === 'origin') return state.origin;
+        if (role === 'destination') return state.destination;
+        return runtime.waypointRows.find(row => row.id === waypointId)?.place || null;
+    }
+
+    function normalizeStoredPlace(raw = null) {
+        if (!raw || typeof raw !== 'object') return null;
+        const placeId = String(raw.placeId || '').trim();
+        const name = String(raw.name || '').trim();
+        const address = String(raw.address || '').trim();
+        const latitude = Number(raw.latitude);
+        const longitude = Number(raw.longitude);
+        if (!placeId || !name || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+        return { placeId, name, address, latitude, longitude };
+    }
+
+    function readPlaceHistory() {
+        try {
+            const raw = JSON.parse(localStorage.getItem(PLACE_HISTORY_KEY) || '[]');
+            return Array.isArray(raw) ? raw.map(normalizeStoredPlace).filter(Boolean) : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function rememberPlace(place) {
+        const normalized = normalizeStoredPlace(place);
+        if (!normalized) return;
+        const next = [normalized, ...readPlaceHistory().filter(item => item.placeId !== normalized.placeId)].slice(0, 24);
+        try { localStorage.setItem(PLACE_HISTORY_KEY, JSON.stringify(next)); } catch (error) {}
+    }
+
+    function recentPlaces() {
+        const selected = getOrderedPlaces(plannerState()).map(normalizeStoredPlace).filter(Boolean);
+        const seen = new Set();
+        return [...selected, ...readPlaceHistory()].filter(place => {
+            if (!place?.placeId || seen.has(place.placeId)) return false;
+            seen.add(place.placeId);
+            return true;
+        }).slice(0, 12);
+    }
+
+    function renderPlaceHistory() {
+        const list = byId('routePlaceHistoryList');
+        if (!list) return;
+        runtime.placeHistoryEntries = recentPlaces();
+        list.innerHTML = runtime.placeHistoryEntries.length
+            ? runtime.placeHistoryEntries.map((place, index) => templates().routeHistoryItem(place, index, { escapeHtml })).join('')
+            : '<div class="route-place-history-empty">候補はまだありません。</div>';
+        applyRuntimeAccessibilityFixes(list);
+    }
+
+    function getStopItems() {
+        const state = plannerState();
+        return [
+            { id: 'origin', role: 'origin', place: state.origin },
+            ...runtime.waypointRows.map(row => ({ id: row.id, role: 'waypoint', place: row.place })),
+            { id: 'destination', role: 'destination', place: state.destination }
+        ];
+    }
+
+    function renderStopEditor() {
+        const list = byId('routeStopList');
+        if (!list) return;
+        const items = getStopItems();
+        list.innerHTML = items.map((item, index) => templates().routeStopRow(item, index, items.length, { escapeHtml })).join('');
+        applyRuntimeAccessibilityFixes(list);
+        const addButton = byId('addRouteWaypointBtn');
+        if (addButton) {
+            addButton.disabled = runtime.waypointRows.length >= MAX_WAYPOINTS;
+            addButton.toggleAttribute('disabled', addButton.disabled);
+        }
+        setupStopSortable();
+    }
+
+    function setRolePlace(role, place, waypointId = '') {
+        const state = plannerState();
+        if (role === 'origin') state.origin = place;
+        else if (role === 'destination') state.destination = place;
+        else {
+            const row = runtime.waypointRows.find(item => item.id === waypointId);
+            if (row) row.place = place;
+        }
+        if (place) rememberPlace(place);
+        state.routes = [];
+        state.selectedRouteIndex = 0;
+        state.calculatedAt = 0;
+        persistPlannerState();
+        renderStopEditor();
+        renderRoutes();
+        renderMapRoutes();
+    }
+
+    function activeSearchTarget() {
+        return runtime.activePlaceSearch || { role: '', waypointId: '' };
+    }
+
+    function enforceAutocompleteFontSize(widget) {
+        if (!widget) return;
+        widget.style.fontSize = '16px';
+        widget.style.setProperty('--gmpx-font-size-base', '16px');
+        const apply = () => {
+            const root = widget.shadowRoot;
+            if (!root) return;
+            root.querySelectorAll('input, textarea').forEach(input => {
+                input.style.setProperty('font-size', '16px', 'important');
+                input.style.setProperty('line-height', '1.5', 'important');
+            });
+        };
+        Promise.resolve(widget.updateComplete).then(() => requestAnimationFrame(apply));
+        setTimeout(apply, 80);
+        setTimeout(apply, 320);
+        if (widget.shadowRoot) {
+            runtime.placeSearchFontObserver?.disconnect?.();
+            runtime.placeSearchFontObserver = new MutationObserver(apply);
+            runtime.placeSearchFontObserver.observe(widget.shadowRoot, { childList: true, subtree: true });
+        }
+    }
+
+    function searchPlaceholder(role) {
+        return role === 'origin' ? '出発地を検索' : role === 'destination' ? '目的地を検索' : '経由地を検索';
+    }
+
+    function createPlaceSearchWidget() {
+        const container = byId('routePlaceSearchAutocomplete');
+        if (!container || !runtime.places?.PlaceAutocompleteElement) return null;
+        if (runtime.placeSearchWidget?.isConnected) return runtime.placeSearchWidget;
+        container.innerHTML = '';
+        const widget = new runtime.places.PlaceAutocompleteElement();
+        widget.locationBias = JAPAN_SEARCH_BIAS;
+        widget.requestedLanguage = 'ja';
+        widget.requestedRegion = 'jp';
+        widget.setAttribute('aria-label', '場所を検索');
+        widget.addEventListener('gmp-select', event => {
+            const target = activeSearchTarget();
+            void resolvePrediction(event, target.role, target.waypointId);
+        });
+        widget.addEventListener('gmp-error', event => {
+            const info = classifyGoogleError(event?.error || event);
+            setNotice(info.kind, '場所候補を取得できませんでした', info.subtitle, { retryable: true });
+        });
+        ['input', 'change', 'paste'].forEach(type => widget.addEventListener(type, () => handlePlaceSearchInput(widget)));
+        container.appendChild(widget);
+        runtime.placeSearchWidget = widget;
+        enforceAutocompleteFontSize(widget);
+        return widget;
+    }
+
+    function closePlaceSearch() {
+        const surface = byId('routePlaceSearchSurface');
+        if (surface) surface.hidden = true;
+        runtime.activePlaceSearch = null;
+        document.body.classList.remove('route-place-search-open');
+    }
+
+    function openPlaceSearch(role, waypointId = '') {
+        const surface = byId('routePlaceSearchSurface');
+        if (!surface || !role) return;
+        runtime.activePlaceSearch = { role, waypointId };
+        const widget = createPlaceSearchWidget();
+        if (!widget) {
+            setNotice('error', '場所検索を開けませんでした', 'Google Placesの読み込み後にもう一度お試しください。', { retryable: true });
+            return;
+        }
+        const place = getRolePlace(role, waypointId);
+        const placeholder = searchPlaceholder(role);
+        widget.placeholder = placeholder;
+        widget.description = `${placeholder}。Googleの候補から選択してください。`;
+        widget.setAttribute('aria-label', placeholder);
+        widget.value = place ? `${place.name}${place.address ? `（${place.address}）` : ''}` : '';
+        widget.dataset.selectedPlaceId = place?.placeId || '';
+        widget.dataset.selectedValue = String(widget.value || '');
+        renderPlaceHistory();
+        surface.hidden = false;
+        document.body.classList.add('route-place-search-open');
+        requestAnimationFrame(() => {
+            enforceAutocompleteFontSize(widget);
+            widget.focus?.({ preventScroll: true });
+        });
+    }
+
+    async function resolvePrediction(event, role, waypointId = '') {
+        const prediction = event?.placePrediction || event?.detail?.placePrediction;
+        if (!prediction?.toPlace || !role) return;
+        const key = routeWidgetKey(role, waypointId);
+        const sequence = (runtime.selectionSequence.get(key) || 0) + 1;
+        runtime.selectionSequence.set(key, sequence);
+        try {
+            setNotice('info', '場所の情報を取得しています', 'Google候補の選択内容を確認しています。');
+            const place = prediction.toPlace();
+            await place.fetchFields({ fields: ['id', 'displayName', 'formattedAddress', 'location', 'viewport'] });
+            if (runtime.selectionSequence.get(key) !== sequence) return;
+            const point = normalizeLatLng(place.location);
+            if (!point || !place.id) throw new Error('選択した場所の座標を取得できませんでした。');
+            const selected = {
+                placeId: String(place.id),
+                name: String(place.displayName || prediction.mainText?.text || prediction.text?.text || '選択した場所'),
+                address: String(place.formattedAddress || ''),
+                latitude: point.latitude,
+                longitude: point.longitude
+            };
+            setRolePlace(role, selected, waypointId);
+            closePlaceSearch();
+            setNotice('', '', '');
+            await requestRoutesIfReady('place-selected');
+        } catch (error) {
+            const info = classifyGoogleError(error);
+            setNotice(info.kind, info.title, info.subtitle);
+        }
+    }
+
+    function handlePlaceSearchInput(widget) {
+        const target = activeSearchTarget();
+        if (!target.role) return;
+        const currentPlace = getRolePlace(target.role, target.waypointId);
+        if (!currentPlace) return;
+        const key = routeWidgetKey(target.role, target.waypointId);
+        const sequence = (runtime.selectionSequence.get(key) || 0) + 1;
+        runtime.selectionSequence.set(key, sequence);
+        setTimeout(() => {
+            if (runtime.selectionSequence.get(key) !== sequence) return;
+            const value = String(widget.value || '').trim();
+            const selectedValue = String(widget.dataset.selectedValue || '').trim();
+            if (value !== selectedValue) {
+                setRolePlace(target.role, null, target.waypointId);
+                setNotice('warning', 'Google候補から場所を選択してください', '文字を入力しただけではルート計算を行いません。');
+                setMapEmpty('出発地と目的地を候補から選択してください。');
+            }
+        }, 120);
+    }
+
+    function itemForRenderedStop(row) {
+        const role = row?.dataset?.routeRole || '';
+        const waypointId = row?.dataset?.routeWaypointId || '';
+        if (role === 'origin') return { id: 'origin', role, place: plannerState().origin };
+        if (role === 'destination') return { id: 'destination', role, place: plannerState().destination };
+        const waypoint = runtime.waypointRows.find(item => item.id === waypointId);
+        return waypoint ? { id: waypoint.id, role: 'waypoint', place: waypoint.place } : null;
+    }
+
+    function applyRenderedStopOrder(rows, reason = 'stops-reordered') {
+        const items = rows.map(itemForRenderedStop).filter(Boolean);
+        if (items.length < 2) return;
+        const state = plannerState();
+        state.origin = items[0]?.place || null;
+        state.destination = items[items.length - 1]?.place || null;
+        runtime.waypointRows = items.slice(1, -1).map(item => ({
+            id: item.role === 'waypoint' ? item.id : createWaypointId(),
+            place: item.place || null
+        }));
+        state.routes = [];
+        state.selectedRouteIndex = 0;
+        state.calculatedAt = 0;
+        renderStopEditor();
+        persistPlannerState();
+        renderRoutes();
+        renderMapRoutes();
+        scheduleRouteRequest(reason, 120);
+    }
+
+    function setupStopSortable() {
+        const list = byId('routeStopList');
+        if (!list || typeof Sortable === 'undefined') return;
+        if (runtime.stopSortable) {
+            try { runtime.stopSortable.destroy(); } catch (error) {}
+        }
+        runtime.stopSortable = new Sortable(list, {
+            animation: 150,
+            handle: '.route-stop-drag',
+            forceFallback: true,
+            fallbackOnBody: true,
+            ghostClass: 'route-stop-drag-ghost',
+            chosenClass: 'route-stop-drag-chosen',
+            fallbackClass: 'route-stop-drag-fallback',
+            onStart: () => document.body.classList.add('route-stop-dragging'),
+            onEnd: () => {
+                document.body.classList.remove('route-stop-dragging');
+                applyRenderedStopOrder(Array.from(list.querySelectorAll('.route-stop-row')), 'stops-drag-reordered');
+            }
+        });
+    }
+
+    function renderRoutes() {
+        const state = plannerState();
+        const list = byId('routeCandidateList');
+        const summary = byId('routeLegSummary');
+        const apply = byId('applyRouteDistanceBtn');
+        const calculatedAt = byId('routePlannerCalculatedAt');
+        const selected = getSelectedRoute(state);
+        if (list) {
+            list.innerHTML = state.routes.length
+                ? state.routes.map((route, index) => templates().routeCandidateCard(route, index, index === state.selectedRouteIndex, state.roundTrip, { escapeHtml })).join('')
+                : '<div class="route-candidate-empty">出発地と目的地を選ぶと、ルート候補を表示します。</div>';
+        }
+        if (summary) summary.innerHTML = selected ? templates().routeLegSummary(selected, getOrderedPlaces(state), state.roundTrip, { escapeHtml }) : '';
+        if (apply) apply.disabled = !selected || !state.targetCarName;
+        if (calculatedAt) {
+            calculatedAt.textContent = state.calculatedAt
+                ? `${new Date(state.calculatedAt).toLocaleString('ja-JP')} に取得・選択中: ${selected?.label || 'なし'}`
+                : '地点を選択すると自動で取得します。';
+        }
+        if (list) applyRuntimeAccessibilityFixes(list);
+    }
+
+    function clearMapOverlays() {
+        runtime.polylines.forEach(polyline => polyline.setMap?.(null));
+        runtime.polylines = [];
+        runtime.markers.forEach(marker => {
+            if ('map' in marker) marker.map = null;
+            marker.setMap?.(null);
+        });
+        runtime.markers = [];
+    }
+
+    function routePath(route) {
+        const runtimePath = runtime.routePaths.get(route.id);
+        if (runtimePath?.length) return runtimePath;
+        if (route.polyline && runtime.geometry?.encoding?.decodePath) {
+            try { return runtime.geometry.encoding.decodePath(route.polyline); } catch (error) {}
+        }
+        return [];
+    }
+
+    function createMarker(place, index, total) {
+        if (!runtime.map || !place) return;
+        const position = { lat: place.latitude, lng: place.longitude };
+        const label = index === 0 ? 'A' : index === total - 1 ? 'B' : String(index);
+        let marker;
+        if (runtime.marker?.AdvancedMarkerElement && global.SanpoGoogleMaps?.getConfig().mapId) {
+            marker = new runtime.marker.AdvancedMarkerElement({ map: runtime.map, position, title: place.name });
+        } else if (global.google?.maps?.Marker) {
+            marker = new global.google.maps.Marker({ map: runtime.map, position, label, title: place.name });
+        }
+        if (marker) runtime.markers.push(marker);
+    }
+
+    function renderMapRoutes() {
+        const state = plannerState();
+        if (!runtime.map) return;
+        clearMapOverlays();
+        const bounds = new global.google.maps.LatLngBounds();
+        const selectedIndex = state.selectedRouteIndex;
+        state.routes.forEach((route, index) => {
+            const path = routePath(route);
+            if (!path?.length) return;
+            path.forEach(point => bounds.extend(point));
+            const selected = index === selectedIndex;
+            const polyline = new global.google.maps.Polyline({
+                map: runtime.map,
+                path,
+                clickable: true,
+                strokeColor: selected ? '#0f62fe' : '#8d8d8d',
+                strokeOpacity: selected ? 1 : 0.55,
+                strokeWeight: selected ? 7 : 5,
+                zIndex: selected ? 20 : 10
+            });
+            polyline.addListener('click', () => selectRoute(index));
+            runtime.polylines.push(polyline);
+        });
+        const places = getOrderedPlaces(state);
+        places.forEach((place, index) => {
+            createMarker(place, index, places.length);
+            bounds.extend({ lat: place.latitude, lng: place.longitude });
+        });
+        if (!bounds.isEmpty()) runtime.map.fitBounds(bounds, 48);
+        setMapEmpty(state.routes.length ? '' : '出発地と目的地を候補から選択してください。');
+    }
+
+    function applyMapTheme() {
+        if (!runtime.map) return;
+        const dark = document.documentElement.dataset.theme === 'dark';
+        runtime.map.setOptions({ styles: dark ? DARK_MAP_STYLES : null });
+        renderMapRoutes();
+    }
+
+    function refreshMapAfterOpen() {
+        if (!runtime.map || !byId('routeDistanceModal')?.open) return;
+        const refresh = () => {
+            if (!runtime.map || !byId('routeDistanceModal')?.open) return;
+            try { global.google?.maps?.event?.trigger?.(runtime.map, 'resize'); } catch (error) {}
+            setMapSkeleton(false);
+            renderMapRoutes();
+        };
+        requestAnimationFrame(() => requestAnimationFrame(refresh));
+        setTimeout(refresh, 120);
+        setTimeout(refresh, 320);
+    }
+
+    async function initializeMap() {
+        const mapNode = byId('routeMap');
+        if (!mapNode) throw new Error('地図の表示領域が見つかりません。');
+        if (runtime.map) {
+            const currentNode = runtime.map.getDiv?.();
+            if (!currentNode || currentNode === mapNode) {
+                setMapSkeleton(false);
+                refreshMapAfterOpen();
+                return runtime.map;
+            }
+            clearMapOverlays();
+            runtime.map = null;
+        }
+        setMapSkeleton(true);
+        const config = global.SanpoGoogleMaps.getConfig();
+        runtime.map = new runtime.maps.Map(mapNode, {
+            center: { lat: 36.2048, lng: 138.2529 },
+            zoom: 5,
+            mapId: config.mapId || undefined,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false,
+            clickableIcons: true,
+            gestureHandling: matchMedia('(pointer: coarse)').matches ? 'cooperative' : 'greedy'
+        });
+        applyMapTheme();
+        global.google.maps.event.addListenerOnce(runtime.map, 'idle', () => {
+            setMapSkeleton(false);
+            refreshMapAfterOpen();
+        });
+        if (!runtime.themeObserver) {
+            runtime.themeObserver = new MutationObserver(applyMapTheme);
+            runtime.themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+        }
+        renderMapRoutes();
+        return runtime.map;
+    }
+
+    async function initializeGoogleFeatures() {
+        if (runtime.initializing) return runtime.initializing;
+        runtime.initializing = (async () => {
+            if (!global.SanpoGoogleMaps?.isConfigured()) throw new Error('Google Maps APIキーが設定されていません。');
+            const libraries = await global.SanpoGoogleMaps.importLibraries(['maps', 'places', 'routes', 'geometry', 'marker']);
+            runtime.maps = libraries.maps;
+            runtime.places = libraries.places;
+            runtime.routes = libraries.routes;
+            runtime.geometry = libraries.geometry;
+            runtime.marker = libraries.marker;
+            await initializeMap();
+            createPlaceSearchWidget();
+            renderStopEditor();
+            return libraries;
+        })().catch(error => {
+            runtime.initializing = null;
+            throw error;
+        });
+        return runtime.initializing;
+    }
+
+    function routeRequest(state) {
+        const location = place => {
+            if (runtime.places?.Place && place?.placeId) {
+                try { return new runtime.places.Place({ id: place.placeId }); } catch (error) {}
+            }
+            return { lat: place.latitude, lng: place.longitude };
+        };
+        const waypoint = place => ({ location: location(place), vehicleStopover: true });
+        const request = {
+            origin: location(state.origin),
+            destination: location(state.destination),
+            intermediates: state.waypoints.map(waypoint),
+            travelMode: 'DRIVING',
+            routingPreference: 'TRAFFIC_AWARE',
+            computeAlternativeRoutes: state.waypoints.length === 0,
+            routeModifiers: {
+                avoidTolls: state.avoidTolls,
+                avoidHighways: state.avoidHighways,
+                avoidFerries: state.avoidFerries
+            },
+            language: 'ja-JP',
+            region: 'JP',
+            polylineQuality: 'HIGH_QUALITY',
+            extraComputations: ['TOLLS'],
+            fields: ROUTE_FIELDS
+        };
+        if (!request.intermediates.length) delete request.intermediates;
+        return request;
+    }
+
+    async function requestRoutesIfReady(reason = '') {
+        const state = persistPlannerState();
+        if (!state.origin || !state.destination) {
+            runtime.requestSequence += 1;
+            state.routes = [];
+            state.selectedRouteIndex = 0;
+            state.calculatedAt = 0;
+            persistPlannerState();
+            renderRoutes();
+            renderMapRoutes();
+            setLoading(false);
+            return;
+        }
+        await initializeGoogleFeatures();
+        const requestId = ++runtime.requestSequence;
+        setLoading(true);
+        setNotice('info', 'ルート候補を取得しています', '地点と回避設定をGoogle Routes APIへ送信しています。');
+        try {
+            const initialRequest = routeRequest(state);
+            let response;
+            try {
+                response = await runtime.routes.Route.computeRoutes(initialRequest);
+            } catch (initialError) {
+                if (!canRetryWithoutTolls(initialError)) throw initialError;
+                const basicRequest = { ...initialRequest };
+                delete basicRequest.extraComputations;
+                basicRequest.fields = ROUTE_FIELDS.filter(field => field !== 'travelAdvisory');
+                response = await runtime.routes.Route.computeRoutes(basicRequest);
+            }
+            if (requestId !== runtime.requestSequence) return;
+            const rawRoutes = Array.from(response.routes || []);
+            if (!rawRoutes.length) throw new Error('No routes returned.');
+            runtime.routePaths.clear();
+            const places = getOrderedPlaces(state);
+            state.routes = rawRoutes.map((route, index) => serializeRoute(route, index, places));
+            state.selectedRouteIndex = defaultRouteIndex(rawRoutes);
+            state.calculatedAt = Date.now();
+            persistPlannerState();
+            renderRoutes();
+            renderMapRoutes();
+            if (state.waypoints.length) {
+                setNotice('info', '経由地を含むルートは1件表示される場合があります', 'Google Routes APIは中間経由地を含むリクエストでは代替ルートを返しません。');
+            } else if (response.fallbackInfo) {
+                setNotice('warning', '別の計算方式で取得しました', 'Google側でルート計算がフォールバックされました。');
+            } else {
+                setNotice('', '', '');
+            }
+        } catch (error) {
+            if (requestId !== runtime.requestSequence) return;
+            state.routes = [];
+            state.selectedRouteIndex = 0;
+            state.calculatedAt = 0;
+            persistPlannerState();
+            renderRoutes();
+            renderMapRoutes();
+            const info = classifyGoogleError(error);
+            setNotice(info.kind, info.title, info.subtitle, { retryable: true });
+            console.error('Google Routes request failed:', error);
+        } finally {
+            if (requestId === runtime.requestSequence) setLoading(false);
+        }
+    }
+
+    function scheduleRouteRequest(reason = '', delay = 220) {
+        if (runtime.routeRequestTimer) clearTimeout(runtime.routeRequestTimer);
+        runtime.routeRequestTimer = setTimeout(() => {
+            runtime.routeRequestTimer = null;
+            void requestRoutesIfReady(reason);
+        }, Math.max(0, Number(delay) || 0));
+    }
+
+    function selectRoute(index) {
+        const state = plannerState();
+        const next = Number(index);
+        if (!Number.isInteger(next) || next < 0 || next >= state.routes.length) return;
+        state.selectedRouteIndex = next;
+        persistPlannerState();
+        renderRoutes();
+        renderMapRoutes();
+    }
+
+    function moveStop(id, direction) {
+        const list = byId('routeStopList');
+        if (!list) return;
+        const rows = Array.from(list.querySelectorAll('.route-stop-row'));
+        const index = rows.findIndex(row => row.dataset.routeStopId === id);
+        if (index < 0) return;
+        const targetIndex = direction === 'first'
+            ? 0
+            : direction === 'last'
+                ? rows.length - 1
+                : Math.min(rows.length - 1, Math.max(0, index + Number(direction || 0)));
+        if (targetIndex === index) return;
+        const [row] = rows.splice(index, 1);
+        rows.splice(targetIndex, 0, row);
+        applyRenderedStopOrder(rows, 'stops-keyboard-reordered');
+        requestAnimationFrame(() => {
+            const moved = document.querySelector(`[data-route-stop-id="${CSS.escape(id)}"] .route-stop-drag`);
+            if (moved instanceof HTMLElement) moved.focus({ preventScroll: true });
+        });
+    }
+
+    function addWaypoint() {
+        if (runtime.waypointRows.length >= MAX_WAYPOINTS) {
+            setNotice('warning', '経由地は25件までです', 'Google Routes APIの上限に合わせています。');
+            return;
+        }
+        runtime.waypointRows.push({ id: createWaypointId(), place: null });
+        renderStopEditor();
+        persistPlannerState();
+        const last = runtime.waypointRows[runtime.waypointRows.length - 1];
+        void initializeGoogleFeatures().then(() => openPlaceSearch('waypoint', last.id));
+    }
+
+    function removeWaypoint(id) {
+        if (runtime.activePlaceSearch?.role === 'waypoint' && runtime.activePlaceSearch?.waypointId === id) closePlaceSearch();
+        runtime.waypointRows = runtime.waypointRows.filter(row => row.id !== id);
+        renderStopEditor();
+        persistPlannerState();
+        scheduleRouteRequest('waypoint-removed', 120);
+    }
+
+    function removeStop(role, waypointId = '') {
+        if (role === 'waypoint') {
+            removeWaypoint(waypointId);
+            return;
+        }
+        if (role === 'origin' || role === 'destination') {
+            if (runtime.activePlaceSearch?.role === role) closePlaceSearch();
+            setRolePlace(role, null);
+            scheduleRouteRequest(`${role}-cleared`, 120);
+        }
+    }
+
+    function updateOptionsFromControls() {
+        const state = plannerState();
+        state.avoidTolls = Boolean(byId('routeAvoidTolls')?.checked);
+        state.avoidHighways = Boolean(byId('routeAvoidHighways')?.checked);
+        state.avoidFerries = Boolean(byId('routeAvoidFerries')?.checked);
+        state.roundTrip = Boolean(byId('routeRoundTrip')?.checked);
+        persistPlannerState();
+        renderRoutes();
+    }
+
+    function syncControlsFromState() {
+        const state = plannerState();
+        const controls = {
+            routeAvoidTolls: state.avoidTolls,
+            routeAvoidHighways: state.avoidHighways,
+            routeAvoidFerries: state.avoidFerries,
+            routeRoundTrip: state.roundTrip
+        };
+        Object.entries(controls).forEach(([id, checked]) => {
+            const control = byId(id);
+            if (!control) return;
+            control.checked = checked;
+            control.toggleAttribute('checked', checked);
+        });
+    }
+
+    function initializeWaypointRows() {
+        runtime.waypointRows = plannerState().waypoints.map(place => ({ id: createWaypointId(), place }));
+    }
+
+    function pushRouteHistoryState() {
+        if (runtime.historyActive) return;
+        try {
+            history.pushState({ ...(history.state || {}), sanpoRoutePlanner: true }, '', location.href);
+            runtime.historyActive = true;
+        } catch (error) {}
+    }
+
+    function removeRouteHistoryState() {
+        if (!runtime.historyActive || runtime.historyClosing) return;
+        runtime.suppressPopstate = true;
+        runtime.historyActive = false;
+        try { history.back(); } catch (error) { runtime.suppressPopstate = false; }
+    }
+
+    function closePlanner({ apply = false, fromPopstate = false } = {}) {
+        if (runtime.routeRequestTimer) { clearTimeout(runtime.routeRequestTimer); runtime.routeRequestTimer = null; }
+        runtime.applyInProgress = apply;
+        runtime.returnAfterClose = plannerState().returnTo === 'carSettlement' && Boolean(plannerState().targetCarName);
+        runtime.historyClosing = fromPopstate;
+        if (!fromPopstate) removeRouteHistoryState();
+        modals.routeDistance?.hide();
+    }
+
+    function restoreTargetCarEditor() {
+        const state = plannerState();
+        if (!runtime.returnAfterClose || !state.targetCarName) return;
+        const name = state.targetCarName;
+        runtime.returnAfterClose = false;
+        setTimeout(() => global.openSettlementCarEditor?.(encodeURIComponent(name)), 100);
+    }
+
+    function applySelectedDistance() {
+        const state = plannerState();
+        const route = getSelectedRoute(state);
+        const targetName = state.targetCarName;
+        if (!route || !targetName || state.targetCarId !== getTargetCarId(targetName)) {
+            setNotice('error', '距離を反映できません', '元の車を特定できませんでした。車ごとの費用画面から開き直してください。');
+            return;
+        }
+        const settlement = ensureSettlementState();
+        if (!settlement.cars[targetName]) {
+            setNotice('error', '対象の車が見つかりません', '車割または車名が変更されています。車ごとの費用画面から開き直してください。');
+            return;
+        }
+        const totalMeters = route.distanceMeters * (state.roundTrip ? 2 : 1);
+        const kilometers = Math.round((totalMeters / 1000) * 10) / 10;
+        settlement.cars[targetName].dist = String(kilometers);
+        settlement.routePlanner = normalizeRoutePlannerState(state);
+        renderSettlementView({ force: true });
+        save();
+        runtime.applyInProgress = true;
+        runtime.returnAfterClose = true;
+        closePlanner({ apply: true });
+    }
+
+    async function openPlanner(options = {}) {
+        const state = plannerState();
+        if (options.targetCarName) {
+            state.targetCarName = String(options.targetCarName);
+            state.targetCarId = getTargetCarId(state.targetCarName);
+            state.returnTo = 'carSettlement';
+        } else if (!options.preserveTarget) {
+            state.targetCarName = '';
+            state.targetCarId = '';
+            state.returnTo = '';
+        }
+        initializeWaypointRows();
+        syncControlsFromState();
+        closePlaceSearch();
+        renderStopEditor();
+        renderRoutes();
+        setNotice('', '', '');
+        setMapEmpty(runtime.map ? '' : 'Google Mapsを読み込んでいます。');
+        setMapSkeleton(!runtime.map);
+        modals.routeDistance?.show();
+        pushRouteHistoryState();
+        try {
+            await initializeGoogleFeatures();
+            createPlaceSearchWidget();
+            renderStopEditor();
+            renderRoutes();
+            renderMapRoutes();
+            refreshMapAfterOpen();
+            if (state.origin && state.destination && !state.routes.length) void requestRoutesIfReady('open');
+            else setNotice('', '', '');
+        } catch (error) {
+            setMapSkeleton(false);
+            setMapEmpty('地図を読み込めませんでした。');
+            const info = classifyGoogleError(error);
+            setNotice(info.kind, '地図を読み込めませんでした', info.subtitle, { retryable: true });
+            console.error('Google Maps initialization failed:', error);
+        }
+    }
+
+    async function retryRoutePlanner() {
+        setRetryVisible(false);
+        setNotice('info', '再試行しています', 'Google Mapsとルート候補をもう一度取得しています。');
+        try {
+            if (!runtime.map || !runtime.maps || !runtime.places || !runtime.routes) {
+                runtime.initializing = null;
+                await initializeGoogleFeatures();
+            }
+            createPlaceSearchWidget();
+            renderStopEditor();
+            refreshMapAfterOpen();
+            if (plannerState().origin && plannerState().destination) await requestRoutesIfReady('manual-retry');
+            else {
+                setMapSkeleton(false);
+                setMapEmpty('出発地と目的地を候補から選択してください。');
+                setNotice('', '', '');
+            }
+        } catch (error) {
+            setMapSkeleton(false);
+            setMapEmpty('地図を読み込めませんでした。');
+            const info = classifyGoogleError(error);
+            setNotice(info.kind, info.title, info.subtitle, { retryable: true });
+            console.error('Google Maps retry failed:', error);
+        }
+    }
+
+    global.openRouteDistanceHelper = function() {
+        syncSettlementStateFromDOM();
+        void openPlanner({ preserveTarget: false });
     };
-  }
 
-  function syncPlacePickerViewport() {
-    const modal = byIdSafe('routePlacePickerModal');
-    if (!modal) return;
-    const viewport = global.visualViewport;
-    modal.style.setProperty('--route-visual-top', `${viewport?.offsetTop || 0}px`);
-    modal.style.setProperty('--route-visual-height', `${viewport?.height || global.innerHeight}px`);
-  }
-
-  function readPlaceSearchQuery() {
-    if (!placeAutocomplete) return '';
-    const inner = placeAutocomplete.shadowRoot?.querySelector('input');
-    return String(inner?.value ?? placeAutocomplete.value ?? '').trim();
-  }
-
-  function syncHistoryVisibility() {
-    const panel = byIdSafe('routePlaceCandidates');
-    if (panel) panel.hidden = Boolean(readPlaceSearchQuery());
-  }
-
-  function bindPlaceInputBridge() {
-    const bind = () => {
-      const input = placeAutocomplete?.shadowRoot?.querySelector('input');
-      if (!input || input.dataset.sanpoRouteBound === 'true') return;
-      input.dataset.sanpoRouteBound = 'true';
-      input.addEventListener('input', syncHistoryVisibility);
-      input.addEventListener('focus', () => {
-        syncPlacePickerViewport();
-        byIdSafe('routePlacePickerModal')?.scrollIntoView?.({ block: 'start' });
-      });
+    global.openRouteDistanceHelperFromShortcut = function() {
+        const targetName = typeof global.getActiveSettlementCarEditName === 'function'
+            ? global.getActiveSettlementCarEditName()
+            : (typeof activeSettlementCarEditName !== 'undefined' ? activeSettlementCarEditName : '');
+        if (!targetName) {
+            setNotice('warning', '車を特定できません', '車ごとの費用画面から距離計算ツールを開いてください。');
+            return;
+        }
+        global.saveSettlementCarEditDraft?.();
+        const carModal = byId('settlementCarEditModal');
+        let launched = false;
+        const launchPlanner = () => {
+            if (launched) return;
+            launched = true;
+            void openPlanner({ targetCarName: targetName });
+        };
+        if (carModal?.open) {
+            carModal.addEventListener('sanpo:modal-hidden', launchPlanner, { once: true });
+            modals.settlementCarEdit?.hide();
+            // Defensive fallback for browsers that suppress a transition event.
+            setTimeout(() => {
+                if (!carModal.open) launchPlanner();
+            }, 320);
+        } else {
+            launchPlanner();
+        }
     };
-    Promise.resolve(placeAutocomplete?.updateComplete).then(() => requestAnimationFrame(() => requestAnimationFrame(bind)));
-  }
 
-  async function createPlaceAutocomplete() {
-    const host = byIdSafe('routePlaceSearchHost');
-    if (!host || !activePlaceTarget) return;
-    host.innerHTML = '';
-    const libs = await ensureGoogleLibraries();
-    const Widget = libs.places.PlaceAutocompleteElement;
-    placeAutocomplete = new Widget();
-    const roleLabel = activePlaceTarget.role === 'origin' ? '出発地' : activePlaceTarget.role === 'destination' ? '目的地' : '経由地';
-    placeAutocomplete.placeholder = `${roleLabel}を検索`;
-    placeAutocomplete.locationBias = JAPAN_BIAS;
-    placeAutocomplete.requestedLanguage = 'ja';
-    placeAutocomplete.requestedRegion = 'jp';
-    placeAutocomplete.setAttribute('aria-label', `${roleLabel}を検索`);
-    const selectPlace = async event => {
-      const prediction = event.placePrediction || event.detail?.placePrediction;
-      const place = prediction?.toPlace ? prediction.toPlace() : event.place || event.detail?.place;
-      if (!place) return;
-      try {
-        await place.fetchFields?.({ fields: ['id', 'displayName', 'formattedAddress', 'location'] });
-        const normalized = normalizeGooglePlace(place);
-        if (!normalized) throw new Error('選択した地点の位置情報を取得できませんでした。');
-        applyPlaceSelection(normalized);
-      } catch (error) {
-        const info = classifyRouteError(error);
-        setPlacePickerMessage(info.message || info.title, true);
-      }
-    };
-    placeAutocomplete.addEventListener('gmp-select', selectPlace);
-    placeAutocomplete.addEventListener('gmp-placeselect', selectPlace);
-    placeAutocomplete.addEventListener('input', syncHistoryVisibility);
-    host.appendChild(placeAutocomplete);
-    bindPlaceInputBridge();
-    requestAnimationFrame(() => {
-      placeAutocomplete?.focus?.({ preventScroll: true });
-      placeAutocomplete?.shadowRoot?.querySelector('input')?.focus?.({ preventScroll: true });
-    });
-  }
+    global.addRouteWaypoint = addWaypoint;
+    global.removeRouteWaypoint = removeWaypoint;
+    global.removeRouteStop = removeStop;
+    global.selectGoogleRoute = selectRoute;
+    global.applySelectedRouteDistance = applySelectedDistance;
+    global.closeRoutePlanner = () => closePlanner();
+    global.refreshGoogleRoutes = () => requestRoutesIfReady('manual');
+    global.retryGoogleRoutePlanner = retryRoutePlanner;
 
-  function setPlacePickerMessage(message = '', isError = false) {
-    const messageEl = byIdSafe('routePlacePickerMessage');
-    if (!messageEl) return;
-    messageEl.hidden = !message;
-    messageEl.kind = isError ? 'error' : 'info';
-    messageEl.setAttribute('kind', messageEl.kind);
-    messageEl.title = isError ? '場所を選択できませんでした' : '候補';
-    messageEl.subtitle = message;
-    messageEl.setAttribute('title', messageEl.title);
-    messageEl.setAttribute('subtitle', message);
-  }
-
-  function openPlacePicker(target) {
-    activePlaceTarget = target;
-    renderHistory();
-    setPlacePickerMessage('');
-    const title = byIdSafe('routePlacePickerTitle');
-    const roleLabel = target.role === 'origin' ? '出発地' : target.role === 'destination' ? '目的地' : '経由地';
-    if (title) title.textContent = `${roleLabel}を選択`;
-    syncPlacePickerViewport();
-    modals.routePlacePicker?.show();
-    void createPlaceAutocomplete().catch(error => {
-      const info = classifyRouteError(error);
-      setPlacePickerMessage(info.message || info.title, true);
-    });
-  }
-
-  function closePlacePicker() {
-    modals.routePlacePicker?.hide();
-    placeAutocomplete = null;
-    activePlaceTarget = null;
-  }
-
-  function clearPlace(row) {
-    const planner = getPlannerState();
-    if (!planner || !row) return;
-    const role = row.dataset.routeRole;
-    const index = Number(row.dataset.routeIndex);
-    if (role === 'origin') planner.origin = null;
-    else if (role === 'destination') planner.destination = null;
-    else if (role === 'waypoint' && Number.isInteger(index)) {
-      const waypointIndex = index - 1;
-      if (waypointIndex >= 0) planner.waypoints.splice(waypointIndex, 1);
+    function bindPlannerEvents() {
+        const carEditModal = byId('settlementCarEditModal');
+        if (carEditModal && carEditModal.dataset.routeShortcutBound !== 'true') {
+            carEditModal.dataset.routeShortcutBound = 'true';
+            carEditModal.addEventListener('click', event => {
+                const shortcut = event.composedPath?.().find(node =>
+                    node instanceof Element && node.matches?.('[data-action="open-route-helper-shortcut"]')
+                );
+                if (!shortcut) return;
+                event.preventDefault();
+                event.stopPropagation();
+                global.openRouteDistanceHelperFromShortcut?.();
+            });
+        }
+        byId('addRouteWaypointBtn')?.addEventListener('click', addWaypoint);
+        byId('routePlaceSearchBackBtn')?.addEventListener('click', closePlaceSearch);
+        byId('routePlaceStack')?.addEventListener('click', event => {
+            const path = event.composedPath?.() || [];
+            const remove = path.find(node => node instanceof Element && node.matches?.('[data-action="remove-route-stop"]'));
+            if (remove) {
+                event.preventDefault();
+                event.stopPropagation();
+                removeStop(remove.dataset.routeRole || '', remove.dataset.routeWaypointId || '');
+                return;
+            }
+            const field = path.find(node =>
+                node instanceof Element && node.matches?.('[data-action="open-route-place-search"]')
+            );
+            if (!field) return;
+            event.preventDefault();
+            void initializeGoogleFeatures().then(() => openPlaceSearch(field.dataset.routeRole || '', field.dataset.routeWaypointId || ''));
+        });
+        byId('routePlaceStack')?.addEventListener('keydown', event => {
+            if (!['Enter', ' '].includes(event.key)) return;
+            const field = event.composedPath?.().find(node =>
+                node instanceof Element && node.matches?.('[data-action="open-route-place-search"]')
+            );
+            if (!field) return;
+            event.preventDefault();
+            void initializeGoogleFeatures().then(() => openPlaceSearch(field.dataset.routeRole || '', field.dataset.routeWaypointId || ''));
+        });
+        byId('routePlaceHistoryList')?.addEventListener('click', event => {
+            const item = event.composedPath?.().find(node =>
+                node instanceof Element && node.matches?.('[data-route-history-index]')
+            );
+            if (!item) return;
+            const place = runtime.placeHistoryEntries[Number(item.dataset.routeHistoryIndex)];
+            const target = activeSearchTarget();
+            if (!place || !target.role) return;
+            setRolePlace(target.role, place, target.waypointId);
+            closePlaceSearch();
+            void requestRoutesIfReady('history-place-selected');
+        });
+        byId('routeStopList')?.addEventListener('keydown', event => {
+            const handle = event.composedPath?.().find(node => node instanceof Element && node.matches?.('.route-stop-drag'));
+            const row = handle?.closest?.('[data-route-stop-id]');
+            if (!handle || !row) return;
+            if (!['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
+            event.preventDefault();
+            moveStop(row.dataset.routeStopId, event.key === 'ArrowUp' ? -1 : event.key === 'ArrowDown' ? 1 : event.key === 'Home' ? 'first' : 'last');
+        });
+        byId('routeCandidateList')?.addEventListener('keydown', event => {
+            const card = event.target.closest?.('.route-candidate-card');
+            if (!card || !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+            const state = plannerState();
+            if (!state.routes.length) return;
+            event.preventDefault();
+            const current = Number(card.dataset.routeIndex || state.selectedRouteIndex || 0);
+            const next = event.key === 'Home'
+                ? 0
+                : event.key === 'End'
+                    ? state.routes.length - 1
+                    : Math.min(state.routes.length - 1, Math.max(0, current + (['ArrowUp', 'ArrowLeft'].includes(event.key) ? -1 : 1)));
+            selectRoute(next);
+            requestAnimationFrame(() => {
+                const nextCard = document.querySelector(`.route-candidate-card[data-route-index="${next}"]`);
+                if (nextCard instanceof HTMLElement) nextCard.focus({ preventScroll: true });
+            });
+        });
+        byId('applyRouteDistanceBtn')?.addEventListener('click', applySelectedDistance);
+        byId('routePlannerRetryBtn')?.addEventListener('click', () => void retryRoutePlanner());
+        byId('routePlannerCancelBtn')?.addEventListener('click', () => closePlanner());
+        ['routeAvoidTolls', 'routeAvoidHighways', 'routeAvoidFerries'].forEach(id => {
+            byId(id)?.addEventListener('change', () => {
+                updateOptionsFromControls();
+                scheduleRouteRequest('modifier-changed', 250);
+            });
+        });
+        byId('routeRoundTrip')?.addEventListener('change', () => {
+            updateOptionsFromControls();
+            renderRoutes();
+        });
+        const modal = byId('routeDistanceModal');
+        if (modal && modal.dataset.googleRoutesBound !== 'true') {
+            modal.dataset.googleRoutesBound = 'true';
+            modal.addEventListener('sanpo:modal-shown', refreshMapAfterOpen);
+            modal.addEventListener('sanpo:modal-hiding', () => {
+                closePlaceSearch();
+                runtime.requestSequence += 1;
+                const state = plannerState();
+                if (state.returnTo === 'carSettlement' && state.targetCarName) runtime.returnAfterClose = true;
+                if (!runtime.historyClosing) removeRouteHistoryState();
+            });
+            modal.addEventListener('sanpo:modal-hidden', () => {
+                runtime.historyClosing = false;
+                restoreTargetCarEditor();
+            });
+        }
+        global.addEventListener('popstate', () => {
+            if (runtime.suppressPopstate) {
+                runtime.suppressPopstate = false;
+                return;
+            }
+            if (byId('routeDistanceModal')?.open && runtime.historyActive) {
+                runtime.historyActive = false;
+                closePlanner({ fromPopstate: true });
+            }
+        });
     }
-    invalidateRoutes(planner);
-    commitPlanner({ shared: true });
-    renderPlanner();
-  }
 
-  function selectRoute(index) {
-    const planner = getPlannerState();
-    if (!planner?.routes?.[index]) return;
-    planner.selectedRouteIndex = index;
-    commitPlanner();
-    renderRouteResults();
-    void renderMap();
-  }
-
-  function createRouteRequest(planner) {
-    const routesLibrary = googleLibraries?.routes || {};
-    const request = {
-      origin: toLatLngLiteral(planner.origin),
-      destination: toLatLngLiteral(planner.destination),
-      intermediates: (planner.waypoints || []).map(place => ({ location: toLatLngLiteral(place) })),
-      travelMode: routesLibrary.RouteTravelMode?.DRIVING || 'DRIVING',
-      routingPreference: routesLibrary.RoutingPreference?.TRAFFIC_AWARE_OPTIMAL || 'TRAFFIC_AWARE_OPTIMAL',
-      computeAlternativeRoutes: !(planner.waypoints || []).length,
-      routeModifiers: {
-        avoidTolls: Boolean(planner.avoidTolls),
-        avoidHighways: Boolean(planner.avoidHighways),
-        avoidFerries: Boolean(planner.avoidFerries)
-      },
-      polylineQuality: routesLibrary.PolylineQuality?.HIGH_QUALITY || 'HIGH_QUALITY',
-      fields: ROUTE_FIELDS
-    };
-    const tolls = routesLibrary.ComputeRoutesExtraComputation?.TOLLS || 'TOLLS';
-    request.extraComputations = [tolls];
-    // Intentionally omit ComputeRoutesRequest.units. Google infers display units
-    // from the origin, while distanceMeters remains meters in every locale.
-    return request;
-  }
-
-  async function requestRoutes({ force = false } = {}) {
-    const planner = getPlannerState();
-    if (!planner) return;
-    if (!planner.origin || !planner.destination) {
-      invalidateRoutes(planner);
-      setNotice({});
-      setLoading(false);
-      void renderMap();
-      return;
-    }
-    const requestId = ++routeRequestSequence;
-    setLoading(true);
-    setNotice({});
-    try {
-      const libs = await ensureGoogleLibraries({ force });
-      const request = createRouteRequest(planner);
-      const result = await libs.routes.Route.computeRoutes(request);
-      if (requestId !== routeRequestSequence) return;
-      const rawRoutes = Array.isArray(result) ? result : Array.from(result?.routes || []);
-      if (!rawRoutes.length) throw new Error('ZERO_RESULTS');
-      planner.routes = rawRoutes.map((route, index) => normalizeRouteResult(route, index, planner)).filter(route => route.distanceMeters > 0);
-      if (!planner.routes.length) throw new Error('ZERO_RESULTS');
-      planner.selectedRouteIndex = 0;
-      planner.calculatedAt = Date.now();
-      commitPlanner();
-      renderRouteResults();
-      await renderMap();
-    } catch (error) {
-      if (requestId !== routeRequestSequence) return;
-      planner.routes = [];
-      planner.selectedRouteIndex = 0;
-      planner.calculatedAt = 0;
-      renderRouteResults();
-      const info = classifyRouteError(error);
-      setNotice({ title: info.title, message: info.message, kind: info.kind === 'warning' ? 'warning' : 'error', retry: true });
-    } finally {
-      if (requestId === routeRequestSequence) setLoading(false);
-    }
-  }
-
-  function scheduleRouteRequest(delay = 180) {
-    clearTimeout(routeRequestTimer);
-    routeRequestTimer = setTimeout(() => void requestRoutes(), delay);
-  }
-
-  function readCheckbox(id) {
-    return Boolean(byIdSafe(id)?.checked);
-  }
-
-  function onRouteOptionChanged(event) {
-    const target = event.currentTarget || event.target;
-    if (!target?.id) return;
-    const planner = getPlannerState();
-    if (!planner) return;
-    if (target.id === 'routeAvoidTolls') planner.avoidTolls = readCheckbox(target.id);
-    else if (target.id === 'routeAvoidHighways') planner.avoidHighways = readCheckbox(target.id);
-    else if (target.id === 'routeAvoidFerries') planner.avoidFerries = readCheckbox(target.id);
-    else if (target.id === 'routeRoundTrip') {
-      planner.roundTrip = readCheckbox(target.id);
-      commitPlanner();
-      renderRouteResults();
-      return;
-    }
-    invalidateRoutes(planner);
-    commitPlanner({ shared: true });
-    scheduleRouteRequest();
-  }
-
-  function applySelectedDistance() {
-    const planner = getPlannerState();
-    const route = selectedRoute(planner);
-    const targetName = String(planner?.targetCarName || '').trim();
-    if (!planner || !route || !targetName) return;
-    const meters = route.distanceMeters * (planner.roundTrip ? 2 : 1);
-    const km = Number((meters / 1000).toFixed(1)).toString();
-    const settlement = global.ensureSettlementState?.();
-    if (!settlement) return;
-    settlement.cars[targetName] = { ...(settlement.cars[targetName] || {}), dist: km };
-    global.save?.();
-    global.renderSettlementView?.({ force: true });
-    modals.routeDistance?.hide();
-  }
-
-  function reopenTargetCarAfterRouteClose() {
-    if (routeReturnSuppressed) return;
-    const planner = getPlannerState();
-    const name = String(planner?.targetCarName || '').trim();
-    const shouldReturn = planner?.returnTo === 'carSettlement' && name;
-    if (!shouldReturn) return;
-    planner.returnTo = '';
-    commitPlanner();
-    requestAnimationFrame(() => global.openSettlementCarEditor?.(encodeURIComponent(name)));
-  }
-
-  function showRoutePlanner({ targetCarName = '' } = {}) {
-    const planner = getPlannerState();
-    if (!planner) return;
-    if (targetCarName) {
-      planner.targetCarId = targetCarName;
-      planner.targetCarName = targetCarName;
-      planner.returnTo = 'carSettlement';
-    } else {
-      planner.targetCarId = '';
-      planner.targetCarName = '';
-      planner.returnTo = '';
-    }
-    commitPlanner();
-    renderPlanner();
-    setNotice({});
-    modals.routeDistance?.show();
-    void ensureGoogleLibraries().then(() => {
-      void renderMap();
-      if (planner.origin && planner.destination && !planner.routes.length) scheduleRouteRequest(40);
-    }).catch(error => {
-      const info = classifyRouteError(error);
-      setNotice({ title: info.title, message: info.message, kind: 'error', retry: true });
-    });
-  }
-
-  function openRouteDistanceHelperFromShortcut(targetCarName = '') {
-    const rowName = String(targetCarName || '').trim();
-    global.saveSettlementCarEditDraft?.();
-    const carModal = byIdSafe('settlementCarEditModal');
-    const launch = () => showRoutePlanner({ targetCarName: rowName });
-    if (carModal?.open) {
-      let launched = false;
-      const once = () => {
-        if (launched) return;
-        launched = true;
-        launch();
-      };
-      carModal.addEventListener('sanpo:modal-hidden', once, { once: true });
-      modals.settlementCarEdit?.hide();
-      setTimeout(() => { if (!carModal.open) once(); }, 320);
-    } else launch();
-  }
-
-  function handleSequenceClick(event) {
-    const path = event.composedPath?.() || [];
-    const find = selector => path.find(node => node instanceof Element && node.matches?.(selector));
-    const history = find('[data-route-history-place-id]');
-    if (history) {
-      const planner = getPlannerState();
-      const place = planner?.history?.find(item => item.placeId === history.dataset.routeHistoryPlaceId);
-      if (place) applyPlaceSelection(place);
-      return;
-    }
-    const routeCard = find('.route-candidate-card[data-route-index]');
-    if (routeCard) {
-      selectRoute(Number(routeCard.dataset.routeIndex));
-      return;
-    }
-    const clear = find('[data-route-clear-place]');
-    if (clear) {
-      clearPlace(clear.closest('[data-route-sequence-row]'));
-      return;
-    }
-    const add = find('[data-route-add-waypoint]') || find('[data-route-add-row]');
-    if (add) {
-      const planner = getPlannerState();
-      openPlacePicker({ role: 'new-waypoint', index: planner?.waypoints?.length || 0 });
-      return;
-    }
-    const edit = find('[data-route-edit-place]');
-    if (edit) {
-      const row = edit.closest('[data-route-sequence-row]');
-      const role = row?.dataset.routeRole || '';
-      const sequenceIndex = Number(row?.dataset.routeIndex);
-      const waypointIndex = role === 'waypoint' ? sequenceIndex - 1 : -1;
-      openPlacePicker({ role, index: waypointIndex });
-    }
-  }
-
-  function bindRouteFeature() {
-    if (routeFeatureBound) return;
-    routeFeatureBound = true;
-    const sequenceList = byIdSafe('routeSequenceList');
-    sequenceList?.addEventListener('click', handleSequenceClick);
-    if (sequenceList) sequenceList.dataset.routeFeatureBound = 'true';
-    byIdSafe('routeCandidateList')?.addEventListener('click', handleSequenceClick);
-    byIdSafe('routePlaceHistoryList')?.addEventListener('click', handleSequenceClick);
-    byIdSafe('routePlannerRetryBtn')?.addEventListener('click', () => void requestRoutes({ force: true }));
-    byIdSafe('routePlannerCancelBtn')?.addEventListener('click', () => modals.routeDistance?.hide());
-    byIdSafe('applyRouteDistanceBtn')?.addEventListener('click', applySelectedDistance);
-    ['routeAvoidTolls', 'routeAvoidHighways', 'routeAvoidFerries', 'routeRoundTrip'].forEach(id => {
-      const control = byIdSafe(id);
-      control?.addEventListener('change', onRouteOptionChanged);
-      control?.addEventListener('cds-checkbox-changed', onRouteOptionChanged);
-    });
-    byIdSafe('routeDistanceModal')?.addEventListener('sanpo:modal-hidden', reopenTargetCarAfterRouteClose);
-    byIdSafe('routePlacePickerModal')?.addEventListener('sanpo:modal-hidden', () => {
-      placeAutocomplete = null;
-      activePlaceTarget = null;
-    });
-    global.visualViewport?.addEventListener('resize', syncPlacePickerViewport);
-    global.visualViewport?.addEventListener('scroll', syncPlacePickerViewport);
-    global.addEventListener('resize', syncPlacePickerViewport);
-  }
-
-  global.openRouteDistanceHelper = () => showRoutePlanner({});
-  global.openRouteDistanceHelperFromShortcut = openRouteDistanceHelperFromShortcut;
-  global.selectGoogleRoute = selectRoute;
-  global.removeRouteWaypoint = index => {
-    const planner = getPlannerState();
-    if (!planner || !Number.isInteger(Number(index))) return;
-    planner.waypoints.splice(Number(index), 1);
-    invalidateRoutes(planner);
-    commitPlanner({ shared: true });
-    renderPlanner();
-    scheduleRouteRequest();
-  };
-
-  // This script is loaded after the route modal markup. Bind immediately so
-  // iOS Safari cannot miss the delegated tap handlers while module scripts are
-  // still delaying DOMContentLoaded.
-  bindRouteFeature();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindPlannerEvents, { once: true });
+    else bindPlannerEvents();
 })(window);

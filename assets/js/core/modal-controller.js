@@ -123,7 +123,6 @@
         modals.batch = attach('batchImportModal');
         modals.userGuide = attach('userGuideModal');
         modals.routeDistance = attach('routeDistanceModal');
-        modals.routePlacePicker = attach('routePlacePickerModal');
         modals.settlementSettings = attach('settlementSettingsModal');
         modals.settlementCarEdit = attach('settlementCarEditModal');
         modals.history = attach('historyModal');

@@ -15,8 +15,9 @@
     'breakdown',
     'clubExpenseBreakdown',
     'emptyState',
-    'routePlaceRow',
-    'routeAddWaypointRow',
+    'routePlaceSummary',
+    'routeStopRow',
+    'routeWaypointRow',
     'routeHistoryItem',
     'routeCandidateCard',
     'routeLegSummary'
