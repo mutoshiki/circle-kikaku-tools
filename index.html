@@ -48,11 +48,11 @@
     <!-- CSS: header owners: base, room/status, tabs/actions, mobile, responsive -->
     <link href="./assets/css/app-shell/header/01-header-base.css" rel="stylesheet">
     <link href="./assets/css/app-shell/header/02-room-status.css?v=mobile-layout-fix" rel="stylesheet">
-    <link href="./assets/css/app-shell/header/03-tabs-actions.css?v=carbon-complete" rel="stylesheet">
+    <link href="./assets/css/app-shell/header/03-tabs-actions.css?v=ui-fix-1" rel="stylesheet">
     <!-- CSS: foundations and design tokens -->
     <!-- CSS: guides and modals -->
     <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">
-    <link href="./assets/css/guides-modals/modal/01-modal-base.css?v=carbon-complete" rel="stylesheet">
+    <link href="./assets/css/guides-modals/modal/01-modal-base.css?v=ui-fix-1" rel="stylesheet">
     <link href="./assets/css/guides-modals/modal/02-dropdowns.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/modal/03-seat-member-picker.css?v=carbon-seat-picker-2" rel="stylesheet">
     <link href="./assets/css/guides-modals/manual/01-manual-shell.css" rel="stylesheet">
@@ -80,7 +80,7 @@
     <link href="./assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/01-person-card-shell.css?v=carbon-v11-card" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/02-person-name-grade.css" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/person-card/03-person-menu.css?v=carbon-complete" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/person-card/03-person-menu.css?v=ui-fix-1" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/04-person-mobile.css?v=mobile-layout-fix" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/01-card-shell.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/02-card-header.css" rel="stylesheet">
@@ -91,7 +91,7 @@
     <link href="./assets/css/cars-members-tray/drag-drop/02-drop-targets.css" rel="stylesheet">
     <!-- CSS: settlement feature -->
     <link href="./assets/css/settlement/00-base-extracted.css" rel="stylesheet">
-    <link href="./assets/css/settlement/page-shell/01-layout.css?v=carbon-complete-2" rel="stylesheet">
+    <link href="./assets/css/settlement/page-shell/01-layout.css?v=ui-fix-1" rel="stylesheet">
     <link href="./assets/css/settlement/page-shell/02-empty-state.css?v=carbon-complete" rel="stylesheet">
     <link href="./assets/css/settlement/page-shell/03-car-summary-base.css" rel="stylesheet">
     <link href="./assets/css/settlement/page-shell/04-mobile-layout.css" rel="stylesheet">
@@ -106,18 +106,18 @@
     <link href="./assets/css/settlement/summary/05-summary-surfaces.css" rel="stylesheet">
     <link href="./assets/css/settlement/controls/01-control-shell.css" rel="stylesheet">
     <link href="./assets/css/settlement/controls/02-toggles.css" rel="stylesheet">
-    <link href="./assets/css/settlement/controls/03-settings.css" rel="stylesheet">
+    <link href="./assets/css/settlement/controls/03-settings.css?v=ui-fix-1" rel="stylesheet">
     <link href="./assets/css/settlement/controls/04-mobile-controls.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/01-car-form.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/02-distance-fuel.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/03-extra-costs.css?v=carbon-v10" rel="stylesheet">
-    <link href="./assets/css/settlement/car-inputs/04-edit-modal.css" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/04-edit-modal.css?v=ui-fix-1" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/05-mobile-inputs.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/06-times-rental.css" rel="stylesheet">
-    <link href="./assets/css/settlement/car-inputs/07-extra-candidates.css" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=maps-v3" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/02-route-stops.css?v=maps-v3" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/03-route-candidates.css?v=maps-v3" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/07-extra-candidates.css?v=ui-fix-2" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=google-routes-route-only" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/02-route-stops.css?v=google-routes-route-only" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/03-route-candidates.css?v=google-routes-route-only" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/01-collection-list.css" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/02-collection-mobile.css" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/03-driver-payment-list.css" rel="stylesheet">
@@ -555,110 +555,46 @@
 
 
     <!-- Utility modals -->
-    <cds-modal aria-label="Google Maps 距離計算" aria-labelledby="routeDistanceModalTitle" class="app-modal route-helper-modal app-modal--wide" id="routeDistanceModal" size="lg">
+    <cds-modal aria-label="移動距離計算ツール" aria-labelledby="routeDistanceModalTitle" class="app-modal route-helper-modal app-modal--wide app-modal--scroll" id="routeDistanceModal" size="lg" has-scrolling-content>
       <cds-modal-header>
-        <cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="routeDistanceModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="roadmap"></span>Google Maps 距離計算</cds-modal-heading>
-        <cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button>
+        <cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="routeDistanceModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="roadmap"></span>移動距離計算ツール</cds-modal-heading>
+        <cds-modal-close-button close-button-label="元の車へ戻る" data-modal-close></cds-modal-close-button>
       </cds-modal-header>
       <cds-modal-body class="app-modal-body route-helper-body">
-        <div class="route-helper-shell">
-          <section class="route-helper-map-section" aria-label="ルート地図">
-            <div class="route-map-frame">
-              <div class="route-map" id="routeMap" role="application" aria-label="Googleマップのルート候補"></div>
-              <div class="route-map-placeholder" id="routeMapPlaceholder" aria-live="polite">
-                <div class="route-map-skeleton" aria-hidden="true">
-                  <cds-text-input-skeleton></cds-text-input-skeleton>
-                  <cds-text-input-skeleton></cds-text-input-skeleton>
-                  <cds-text-input-skeleton></cds-text-input-skeleton>
-                </div>
-                <span>地図を読み込んでいます</span>
-              </div>
+        <div class="route-planner-shell">
+          <section class="route-planner-controls" aria-labelledby="routePlannerPlacesTitle">
+            <div class="route-planner-section-heading"><div><h6 id="routePlannerPlacesTitle">地点を設定</h6><p id="routePlannerContext" class="route-planner-context">車ごとの費用から開くと、選択した距離をその車へ反映できます。</p></div></div>
+            <div class="route-place-stack">
+              <div class="route-place-field" data-route-place-role="origin"><div class="route-place-label"><span class="route-place-marker route-place-marker--origin" aria-hidden="true"></span><span>出発地</span></div><div id="routeOriginAutocomplete" class="route-place-autocomplete"></div><div id="routeOriginSummary" class="route-place-summary" hidden></div></div>
+              <div id="routeWaypointList" class="route-waypoint-list" aria-label="経由地"></div>
+              <cds-button id="addRouteWaypointBtn" kind="tertiary" size="lg" type="button"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span>経由地を追加</cds-button>
+              <div class="route-place-field" data-route-place-role="destination"><div class="route-place-label"><span class="route-place-marker route-place-marker--destination" aria-hidden="true"></span><span>目的地</span></div><div id="routeDestinationAutocomplete" class="route-place-autocomplete"></div><div id="routeDestinationSummary" class="route-place-summary" hidden></div></div>
             </div>
-            <div class="route-map-legend" aria-label="ルート線の凡例">
-              <span><i class="route-legend-line is-selected" aria-hidden="true"></i>選択中</span>
-              <span><i class="route-legend-line" aria-hidden="true"></i>その他</span>
+            <div class="route-planner-options" role="group" aria-labelledby="routePlannerOptionsTitle">
+              <h6 id="routePlannerOptionsTitle">ルート設定</h6>
+              <cds-checkbox id="routeAvoidTolls" label-text="有料道路を避ける"></cds-checkbox>
+              <cds-checkbox id="routeAvoidHighways" label-text="高速道路を避ける"></cds-checkbox>
+              <cds-checkbox id="routeAvoidFerries" label-text="フェリーを避ける"></cds-checkbox>
+              <cds-checkbox id="routeRoundTrip" label-text="往復距離として適用する"></cds-checkbox>
             </div>
+            <cds-inline-notification id="routePlannerNotice" kind="info" title="" subtitle="" low-contrast hide-close-button hidden></cds-inline-notification>
+            <div id="routePlannerRetry" class="route-planner-retry" hidden><cds-button id="routePlannerRetryBtn" type="button" kind="tertiary" size="lg"><span data-carbon-icon="undo" slot="icon" aria-hidden="true"></span>再試行</cds-button></div>
+            <div id="routePlannerLoading" class="route-planner-loading" hidden><cds-inline-loading status="active" description="ルート候補を取得しています"></cds-inline-loading></div>
           </section>
-
-          <section class="route-helper-controls" aria-label="地点とルート設定">
-            <div class="route-target-car" id="routeTargetCar" hidden></div>
-            <cds-inline-notification id="routeHelperStatus" class="route-helper-status" kind="info" low-contrast hide-close-button hidden>
-              <span slot="title" id="routeHelperStatusTitle">Google Maps 距離計算</span>
-              <span slot="subtitle" id="routeHelperStatusMessage"></span>
-            </cds-inline-notification>
-
-            <div class="route-location-stack">
-              <div class="route-location-field" data-route-role="origin">
-                <div class="route-location-marker" aria-hidden="true">A</div>
-                <div class="route-location-content">
-                  <label class="route-location-label" id="routeOriginLabel" for="routeOriginAutocompleteHost">出発地</label>
-                  <div class="route-place-host" id="routeOriginAutocompleteHost"><cds-text-input-skeleton aria-hidden="true"></cds-text-input-skeleton></div>
-                  <div class="route-place-detail" id="routeOriginDetail" hidden></div>
-                </div>
-              </div>
-
-              <div class="route-waypoint-list" id="routeWaypointList" aria-label="経由地"></div>
-
-              <cds-button class="route-add-waypoint" id="routeAddWaypointBtn" kind="ghost" size="lg" type="button"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span>経由地を追加</cds-button>
-
-              <div class="route-location-field" data-route-role="destination">
-                <div class="route-location-marker is-destination" aria-hidden="true">B</div>
-                <div class="route-location-content">
-                  <label class="route-location-label" id="routeDestinationLabel" for="routeDestinationAutocompleteHost">目的地</label>
-                  <div class="route-place-host" id="routeDestinationAutocompleteHost"><cds-text-input-skeleton aria-hidden="true"></cds-text-input-skeleton></div>
-                  <div class="route-place-detail" id="routeDestinationDetail" hidden></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="route-options-panel">
-              <div class="route-section-heading">ルート設定</div>
-              <div class="route-option-grid">
-                <cds-checkbox id="routeAvoidTolls" label-text="有料道路を避ける"></cds-checkbox>
-                <cds-checkbox id="routeAvoidHighways" label-text="高速道路を避ける"></cds-checkbox>
-                <cds-checkbox id="routeAvoidFerries" label-text="フェリーを避ける"></cds-checkbox>
-                <cds-checkbox id="routeRoundTrip" label-text="往復距離として適用"></cds-checkbox>
-              </div>
-            </div>
-
-            <div class="route-loading" id="routeLoading" hidden>
-              <cds-inline-loading status="active">ルート候補を取得しています</cds-inline-loading>
-            </div>
-
-            <section class="route-results-section" aria-labelledby="routeResultsTitle">
-              <div class="route-results-heading-row">
-                <div>
-                  <h3 class="route-section-heading" id="routeResultsTitle">ルート候補</h3>
-                  <p class="route-results-note" id="routeResultsNote" aria-live="polite">出発地と目的地をGoogle候補から選択してください。</p>
-                </div>
-                <cds-button id="routeRefreshBtn" kind="ghost" size="md" type="button" disabled><span data-carbon-icon="recently-viewed" slot="icon" aria-hidden="true"></span>再取得</cds-button>
-              </div>
-              <div class="route-result-skeleton" id="routeResultSkeleton" aria-hidden="true" hidden>
-                <cds-text-input-skeleton></cds-text-input-skeleton>
-                <cds-text-input-skeleton></cds-text-input-skeleton>
-                <cds-text-input-skeleton></cds-text-input-skeleton>
-              </div>
-              <div class="route-result-list" id="routeResultList" role="radiogroup" aria-label="ルート候補"></div>
-            </section>
-
-            <section class="route-summary" id="routeSummary" aria-label="選択中ルートの距離" hidden>
-              <div class="route-summary-primary">
-                <span>選択中ルート</span>
-                <strong id="routeSummaryName">おすすめ</strong>
-              </div>
-              <dl class="route-summary-values">
-                <div><dt>合計距離</dt><dd id="routeSummaryDistance">--</dd></div>
-                <div><dt>合計時間</dt><dd id="routeSummaryDuration">--</dd></div>
-                <div><dt>往復距離</dt><dd id="routeSummaryRoundTrip">--</dd></div>
-              </dl>
-              <div class="route-leg-list" id="routeLegList"></div>
-            </section>
+          <section class="route-planner-map-panel" aria-labelledby="routePlannerMapTitle">
+            <div class="route-planner-section-heading route-planner-map-heading"><div><h6 id="routePlannerMapTitle">地図プレビュー</h6><p>地図上のルートを選択できます。</p></div></div>
+            <div class="route-map-frame"><div id="routeMapSkeleton" class="route-map-skeleton" aria-hidden="true"><span></span><span></span><span></span></div><div id="routeMap" class="route-map" role="application" aria-label="ルート候補の地図"></div><div id="routeMapEmpty" class="route-map-empty">出発地と目的地をGoogle候補から選択してください。</div></div>
+          </section>
+          <section class="route-planner-results" aria-labelledby="routePlannerResultsTitle">
+            <div class="route-planner-section-heading"><div><h6 id="routePlannerResultsTitle">ルート候補</h6><p id="routePlannerCalculatedAt">地点を選択すると自動で取得します。</p></div></div>
+            <div id="routeCandidateList" class="route-candidate-list" role="radiogroup" aria-label="ルート候補"></div>
+            <div id="routeLegSummary" class="route-leg-summary"></div>
           </section>
         </div>
       </cds-modal-body>
-      <cds-modal-footer class="app-modal-footer route-helper-footer">
-        <cds-modal-footer-button id="routeCancelBtn" kind="secondary" type="button">キャンセル</cds-modal-footer-button>
-        <cds-modal-footer-button id="routeApplyBtn" kind="primary" type="button" aria-label="この距離を適用" disabled><span class="route-apply-label route-apply-label--full">この距離を適用</span><span class="route-apply-label route-apply-label--short" aria-hidden="true">距離を適用</span></cds-modal-footer-button>
+      <cds-modal-footer class="app-modal-footer route-planner-footer">
+        <cds-modal-footer-button id="routePlannerCancelBtn" type="button" kind="secondary">戻る</cds-modal-footer-button>
+        <cds-modal-footer-button id="applyRouteDistanceBtn" type="button" kind="primary" disabled>この距離を適用</cds-modal-footer-button>
       </cds-modal-footer>
     </cds-modal>
     <cds-modal aria-label="履歴" aria-labelledby="historyModalTitle" class="app-modal app-modal--scroll history-modal" id="historyModal" size="md"><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="historyModalTitle" tabindex="-1">
@@ -692,9 +628,10 @@
     <!-- JS: vendor and configuration -->
     <script src="./assets/vendor/sortablejs/Sortable.min.js"></script>
     <script src="./firebase-config.js"></script>
-    <script src="./maps-config.js"></script>
     <!-- JS: core namespace, runtime, persistence, and modal services -->
     <script src="./assets/js/core/app-namespace.js"></script>
+    <script src="./maps-config.js?v=google-routes-route-only"></script>
+    <script src="./assets/js/core/google-maps-loader.js?v=google-routes-route-only"></script>
     <script src="./assets/js/core/icon-adapter.js?v=carbon-menu-slots-2"></script>
     <script src="./assets/js/core/tag-types.js?v=carbon-phase3c"></script>
     <script src="./assets/js/core/theme-controller.js?v=carbon-menu-label"></script>
@@ -718,22 +655,17 @@
     <script src="./assets/js/templates/settlement/01-cost-parts.js"></script>
     <script src="./assets/js/templates/settlement/02-summary-templates.js?v=club-ledger"></script>
     <script src="./assets/js/templates/settlement/04-extra-input-templates.js?v=carbon-v10"></script>
-    <script src="./assets/js/templates/settlement/03-car-cost-templates.js?v=carbon-bottom-nav-5"></script>
+    <script src="./assets/js/templates/settlement/03-car-cost-templates.js?v=ui-fix-1"></script>
     <script src="./assets/js/templates/settlement/05-collection-check-templates.js"></script>
     <script src="./assets/js/templates/settlement/06-driver-pay-templates.js"></script>
     <script src="./assets/js/templates/settlement/07-empty-state-templates.js"></script>
-    <script src="./assets/js/templates/settlement/08-route-helper-templates.js?v=maps-v3"></script>
+    <script src="./assets/js/templates/settlement/08-route-helper-templates.js?v=google-routes-route-only"></script>
     <script src="./assets/js/templates/settlement/09-register-settlement-templates.js"></script>
     <script src="./assets/js/templates/settlement-templates.js"></script>
     <script src="./assets/js/features/settlement/01-state.js"></script>
     <script src="./assets/js/features/settlement/02-calculator.js"></script>
     <script src="./assets/js/features/settlement/03-render.js?v=carbon-bottom-nav-3"></script>
-    <script src="./assets/js/features/settlement/route-helper/01-model.js?v=maps-v3"></script>
-    <script src="./assets/js/features/settlement/route-helper/02-google-loader.js?v=maps-v3"></script>
-    <script src="./assets/js/features/settlement/route-helper/03-route-service.js?v=maps-v3"></script>
-    <script src="./assets/js/features/settlement/route-helper/04-map-view.js?v=maps-v3"></script>
-    <script src="./assets/js/features/settlement/route-helper/05-controller.js?v=maps-v3"></script>
-    <script src="./assets/js/features/settlement/04-route-helper.js?v=maps-v3"></script>
+    <script src="./assets/js/features/settlement/04-route-helper.js?v=google-routes-route-only"></script>
     <script src="./assets/js/features/settlement/05-input-actions.js"></script>
     <script src="./assets/js/features/settlement/06-share-text.js?v=club-ledger"></script>
     <script src="./assets/js/features/settlement.js"></script>
@@ -744,7 +676,7 @@
     <script src="./assets/js/features/share-actions.js"></script>
     <script src="./assets/js/features/lock-protection.js"></script>
     <script src="./assets/js/features/waiting-tray.js?v=carbon-complete-2"></script>
-    <script src="./assets/js/features/person-cards.js?v=carbon-v10"></script>
+    <script src="./assets/js/features/person-cards.js?v=ui-fix-1"></script>
     <script src="./assets/js/features/planning-assurance.js?v=carbon-menu-shortcut"></script>
     <script src="./assets/js/features/seat-member-picker.js?v=quiet-actions"></script>
     <script src="./assets/js/templates/sheet-templates.js?v=carbon-phase3c"></script>
@@ -754,7 +686,7 @@
     <script src="./assets/js/features/sheet/01-drag-interactions.js"></script>
     <script src="./assets/js/features/sheet/02-viewport-controls.js?v=carbon-complete"></script>
     <script src="./assets/js/features/auto-assign.js?v=carbon-phase3c"></script>
-    <script src="./assets/js/features/person-menu.js?v=carbon-complete"></script>
+    <script src="./assets/js/features/person-menu.js?v=ui-fix-1"></script>
     <script src="./assets/js/features/google-form-import-parser.js"></script>
     <script src="./assets/js/features/batch-import.js"></script>
     <script src="./assets/js/features/sample-data-history.js"></script>

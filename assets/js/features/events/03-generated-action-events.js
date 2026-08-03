@@ -42,8 +42,8 @@
             'remove-settlement-extra': ({ target }) => global.removeSettlementExtra?.(target),
             'copy-settlement-text': () => global.copySettlementText?.(),
             'open-route-helper-shortcut': () => global.openRouteDistanceHelperFromShortcut?.(),
-            'remove-route-stop': ({ target }) => global.removeRouteStop?.(target),
-            'add-route-candidate-to-personal': ({ target }) => global.addRouteCandidateToPersonal?.(target.dataset.routeCandidate || '')
+            'remove-route-waypoint': ({ target }) => global.removeRouteWaypoint?.(target.dataset.routeWaypointId || ''),
+            'select-google-route': ({ target }) => global.selectGoogleRoute?.(Number(target.dataset.routeIndex))
         };
         global.SanpoApp?.registerActions?.(generatedActionHandlers);
 

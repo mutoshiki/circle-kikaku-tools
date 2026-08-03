@@ -3,22 +3,19 @@
     "allowJs": true,
     "checkJs": true,
     "noEmit": true,
-    "target": "ES2022",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "skipLibCheck": true,
     "strict": false,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": []
   },
   "files": [
-    "types/route-helper.d.ts",
-    "assets/js/features/settlement/route-helper/01-model.js",
-    "assets/js/features/settlement/route-helper/02-google-loader.js",
-    "assets/js/features/settlement/route-helper/03-route-service.js",
-    "assets/js/features/settlement/route-helper/04-map-view.js",
-    "assets/js/features/settlement/route-helper/05-controller.js"
+    "types/google-route-planner.d.ts",
+    "types/google-route-planner-globals.d.ts",
+    "assets/js/core/google-maps-loader.js",
+    "assets/js/templates/settlement/08-route-helper-templates.js",
+    "assets/js/features/settlement/04-route-helper.js"
   ]
 }

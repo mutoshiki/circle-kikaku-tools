@@ -1,48 +1,50 @@
-/* Settlement car editor: shared extra-name candidates and locked generated rows. */
+/* Settlement car editor: compact reusable extra-cost candidates. */
 #settlementCarEditModal .seisan-extra-candidates {
   display: grid;
-  gap: 5px;
-  margin-top: 10px;
-  padding: 2px;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 0;
 }
 
 #settlementCarEditModal .seisan-extra-candidates-title {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   color: var(--text-sub);
   font-size: 0.78rem;
   font-weight: 500;
 }
 
 #settlementCarEditModal .seisan-extra-candidate-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
+  min-width: 0;
 }
 
 #settlementCarEditModal .seisan-extra-candidate-chip {
-  min-height: 48px;
-  max-width: 100%;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
-  border: 1px solid color-mix(in srgb, var(--ui-saas-border, var(--border-color)) 72%, transparent);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text-sub);
-  font-size: 0.74rem;
-  font-weight: 500;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  min-height: 40px;
+  --cds-button-tertiary: var(--accent-color);
+  --cds-button-tertiary-hover: var(--accent-hover);
+}
+
+#settlementCarEditModal .seisan-extra-candidate-chip::part(button) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding-inline: 8px;
+  justify-content: flex-start;
+  font-size: 0.75rem;
   line-height: 1.25;
 }
 
-#settlementCarEditModal .seisan-extra-candidate-chip:hover {
-  border-color: color-mix(in srgb, var(--accent-color) 36%, var(--ui-saas-border, var(--border-color)));
-  background: color-mix(in srgb, var(--accent-color) 9%, var(--bg-card));
-}
-
-#settlementCarEditModal .seisan-extra-candidate-chip span {
+#settlementCarEditModal .seisan-extra-candidate-chip > span:not([slot]) {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -52,4 +54,14 @@
 #settlementCarEditModal .seisan-extra-row--reward :is(input[readonly], select:disabled) {
   cursor: default;
   opacity: 0.76;
+}
+
+@media (min-width: 600px) {
+  #settlementCarEditModal .seisan-extra-candidate-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 340px) {
+  #settlementCarEditModal .seisan-extra-candidate-list { grid-template-columns: minmax(0, 1fr); }
 }

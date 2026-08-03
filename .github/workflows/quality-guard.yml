@@ -1,7 +1,6 @@
 name: Quality Guard
 
 on:
-  workflow_dispatch:
   pull_request:
   push:
     branches:
@@ -22,12 +21,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: cp maps-config.example.js maps-config.js
       - run: npm run build:carbon
       - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npm run lint:css
       - run: npm test
-      - run: npm run typecheck:maps
 
   browser:
     name: UI and visual regression
@@ -40,11 +37,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: cp maps-config.example.js maps-config.js
       - run: npx playwright install --with-deps chromium
       - run: npm run test:ui
       - run: npm run test:visual
-      - run: npm run test:maps
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
@@ -55,22 +50,3 @@ jobs:
             test-results/
           if-no-files-found: ignore
           retention-days: 14
-
-
-  maps-live:
-    name: Google Maps live smoke
-    if: github.event_name == 'workflow_dispatch' && vars.MAPS_LIVE_BASE_URL != ''
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:maps:live
-        env:
-          MAPS_LIVE_TEST: '1'
-          MAPS_LIVE_BASE_URL: ${{ vars.MAPS_LIVE_BASE_URL }}

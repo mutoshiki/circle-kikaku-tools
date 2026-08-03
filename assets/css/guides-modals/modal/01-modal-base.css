@@ -42,6 +42,12 @@
   overscroll-behavior: contain;
 }
 
+.app-modal--scroll > .app-modal-body {
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .app-modal-footer { min-width: 0; }
 
 /* Carbon footer buttons own the flush 50/50 action layout. Single actions stay

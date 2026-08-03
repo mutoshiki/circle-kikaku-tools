@@ -172,10 +172,6 @@ function renderSettlementSettingSummaryHtml(state, result) {
 
 let activeSettlementCarEditName = '';
 
-function getActiveSettlementCarEditName() {
-    return activeSettlementCarEditName;
-}
-
 function getSettlementCarEditHtml(name) {
     const data = getRoomDataOnly();
     const state = ensureSettlementState();
@@ -317,7 +313,6 @@ function clearSettlementCarEditor() {
     activeSettlementCarEditName = '';
 }
 
-window.SanpoApp?.exposeCompat?.('getActiveSettlementCarEditName', getActiveSettlementCarEditName);
 window.SanpoApp?.exposeCompat?.('openSettlementSettings', openSettlementSettings);
 window.SanpoApp?.exposeCompat?.('openStandaloneSettlementSettings', openStandaloneSettlementSettings);
 window.SanpoApp?.exposeCompat?.('saveSettlementSettingsDraft', saveSettlementSettingsDraft);

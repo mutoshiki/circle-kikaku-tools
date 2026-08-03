@@ -1,251 +1,315 @@
-/* Google Maps route planner. Carbon owns the modal shell and footer actions. */
-#routeDistanceModal {
-  --route-map-height: clamp(260px, 44vh, 520px);
-  --route-panel-gap: var(--space-5, 24px);
-}
-
+/* Google Routes planner: content inside the official Carbon modal shell. */
 #routeDistanceModal::part(dialog) {
-  width: min(1180px, calc(100vw - 48px));
-  max-width: min(1180px, calc(100vw - 48px));
+  width: min(1120px, calc(100vw - 32px));
+  max-width: min(1120px, calc(100vw - 32px));
 }
 
 #routeDistanceModal .route-helper-body {
   max-height: min(76dvh, 820px);
   overflow: auto;
   padding: 0;
+  background: var(--cds-background, var(--bg-body));
 }
 
-#routeDistanceModal .route-helper-shell {
+#routeDistanceModal .route-planner-shell {
   display: grid;
-  grid-template-columns: minmax(360px, 1.05fr) minmax(360px, 0.95fr);
-  min-width: 0;
-  min-height: min(68dvh, 720px);
-  background: var(--cds-layer-01, var(--surface-lowest));
+  grid-template-columns: minmax(300px, 0.9fr) minmax(360px, 1.25fr);
+  grid-template-areas:
+    "controls map"
+    "results map";
+  align-items: start;
+  min-height: 620px;
 }
 
-#routeDistanceModal .route-helper-map-section,
-#routeDistanceModal .route-helper-controls {
+#routeDistanceModal .route-planner-controls,
+#routeDistanceModal .route-planner-results,
+#routeDistanceModal .route-planner-map-panel {
   min-width: 0;
   box-sizing: border-box;
 }
 
-#routeDistanceModal .route-helper-map-section {
+#routeDistanceModal .route-planner-controls {
+  grid-area: controls;
+  padding: 20px;
+  border-right: 1px solid var(--cds-border-subtle-01, var(--border-color));
+  background: var(--cds-layer-01, var(--bg-card));
+}
+
+#routeDistanceModal .route-planner-results {
+  grid-area: results;
+  padding: 20px;
+  border-top: 1px solid var(--cds-border-subtle-01, var(--border-color));
+  border-right: 1px solid var(--cds-border-subtle-01, var(--border-color));
+  background: var(--cds-layer-01, var(--bg-card));
+}
+
+#routeDistanceModal .route-planner-map-panel {
+  grid-area: map;
   position: sticky;
   top: 0;
-  align-self: start;
-  display: grid;
-  grid-template-rows: minmax(var(--route-map-height), 1fr) auto;
-  min-height: min(68dvh, 720px);
+  padding: 20px;
   background: var(--cds-layer-02, var(--surface-low));
-  border-inline-end: 1px solid var(--cds-border-subtle, var(--border-section));
+}
+
+#routeDistanceModal .route-planner-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+#routeDistanceModal .route-planner-section-heading h6 {
+  margin: 0;
+  color: var(--cds-text-primary, var(--text-main));
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.375;
+}
+
+#routeDistanceModal .route-planner-section-heading p,
+#routeDistanceModal .route-planner-context {
+  margin: 4px 0 0;
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: 0.75rem;
+  line-height: 1.34;
+}
+
+#routeDistanceModal .route-place-stack {
+  display: grid;
+  gap: 12px;
+}
+
+#routeDistanceModal .route-place-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+#routeDistanceModal .route-place-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cds-text-primary, var(--text-main));
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+#routeDistanceModal .route-place-marker {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border: 2px solid var(--cds-layer-01, var(--bg-card));
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px currentColor;
+}
+
+#routeDistanceModal .route-place-marker--origin { color: var(--cds-support-success, #198038); background: currentColor; }
+#routeDistanceModal .route-place-marker--waypoint { color: var(--cds-support-info, #0043ce); background: currentColor; }
+#routeDistanceModal .route-place-marker--destination { color: var(--cds-support-error, #da1e28); background: currentColor; }
+
+#routeDistanceModal .route-place-autocomplete {
+  min-width: 0;
+  min-height: 48px;
+}
+
+#routeDistanceModal .route-place-autocomplete > gmp-place-autocomplete,
+#routeDistanceModal .route-place-autocomplete > * {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  color-scheme: light;
+}
+
+[data-theme="dark"] #routeDistanceModal .route-place-autocomplete > gmp-place-autocomplete,
+[data-theme="dark"] #routeDistanceModal .route-place-autocomplete > * {
+  color-scheme: dark;
+}
+
+#routeDistanceModal .route-place-summary {
+  min-width: 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--cds-border-interactive, var(--accent-color));
+  background: var(--cds-layer-02, var(--surface-low));
+}
+
+#routeDistanceModal .route-place-summary strong,
+#routeDistanceModal .route-place-summary span {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+#routeDistanceModal .route-place-summary strong {
+  color: var(--cds-text-primary, var(--text-main));
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+
+#routeDistanceModal .route-place-summary span {
+  margin-top: 2px;
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+#routeDistanceModal #addRouteWaypointBtn {
+  width: 100%;
+  min-height: 48px;
+}
+
+#routeDistanceModal .route-planner-options {
+  display: grid;
+  gap: 0;
+  margin-top: 20px;
+  border-top: 1px solid var(--cds-border-subtle-01, var(--border-color));
+}
+
+#routeDistanceModal .route-planner-options h6 {
+  margin: 16px 0 8px;
+  color: var(--cds-text-primary, var(--text-main));
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+#routeDistanceModal .route-planner-options cds-checkbox {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+#routeDistanceModal #routePlannerNotice {
+  display: block;
+  margin-top: 16px;
+}
+
+#routeDistanceModal .route-planner-retry {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 8px;
+}
+
+#routeDistanceModal .route-planner-retry[hidden] { display: none; }
+
+#routeDistanceModal .route-planner-retry cds-button { min-height: 48px; }
+
+#routeDistanceModal .route-planner-loading {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
 }
 
 #routeDistanceModal .route-map-frame {
   position: relative;
-  min-width: 0;
-  min-height: var(--route-map-height);
+  min-height: 580px;
   overflow: hidden;
-  background: var(--cds-layer-02, var(--surface-low));
+  border: 1px solid var(--cds-border-subtle-01, var(--border-color));
+  background: var(--cds-layer-01, var(--bg-card));
 }
 
 #routeDistanceModal .route-map {
-  width: 100%;
-  height: 100%;
-  min-height: var(--route-map-height);
-}
-
-#routeDistanceModal .route-map-placeholder {
   position: absolute;
   inset: 0;
-  z-index: 2;
-  display: grid;
-  place-content: center;
-  gap: var(--space-4, 16px);
-  padding: var(--space-6, 32px);
-  background: var(--cds-layer-02, var(--surface-low));
-  color: var(--cds-text-secondary, var(--text-sub));
-  text-align: center;
+  min-height: 100%;
 }
 
-#routeDistanceModal .route-map-placeholder[hidden] { display: none; }
+#routeDistanceModal .route-map-empty {
+  position: absolute;
+  inset: auto 16px 16px;
+  z-index: 3;
+  padding: 12px 16px;
+  border-left: 3px solid var(--cds-border-interactive, var(--accent-color));
+  background: color-mix(in srgb, var(--cds-layer-01, var(--bg-card)) 94%, transparent);
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: 0.75rem;
+  line-height: 1.4;
+  backdrop-filter: blur(8px);
+}
 
 #routeDistanceModal .route-map-skeleton {
-  display: grid;
-  width: min(320px, 72vw);
-  gap: var(--space-3, 12px);
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  background: var(--cds-layer-01, var(--bg-card));
 }
 
-#routeDistanceModal .route-map-skeleton cds-text-input-skeleton {
-  width: 100%;
-}
+#routeDistanceModal .route-map-skeleton[hidden] { display: none; }
 
-#routeDistanceModal .route-map-skeleton cds-text-input-skeleton:nth-child(2) { width: 82%; }
-#routeDistanceModal .route-map-skeleton cds-text-input-skeleton:nth-child(3) { width: 64%; }
-
-#routeDistanceModal .route-map-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4, 16px);
-  min-height: 48px;
-  align-items: center;
-  padding: 0 var(--space-5, 24px);
-  border-top: 1px solid var(--cds-border-subtle, var(--border-section));
-  background: var(--cds-layer-01, var(--surface-lowest));
-  color: var(--cds-text-secondary, var(--text-sub));
-  font-size: var(--font-size-caption, .75rem);
-}
-
-#routeDistanceModal .route-map-legend span { display: inline-flex; align-items: center; gap: 8px; }
-#routeDistanceModal .route-legend-line { width: 32px; height: 4px; background: #8d8d8d; }
-#routeDistanceModal .route-legend-line.is-selected { height: 6px; background: #0f62fe; }
-
-#routeDistanceModal .route-helper-controls {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5, 24px);
-  padding: var(--space-5, 24px);
-  background: var(--cds-layer-01, var(--surface-lowest));
-}
-
-#routeDistanceModal .route-target-car {
-  min-height: 32px;
-  display: flex;
-  align-items: center;
-  padding: 0 var(--space-3, 12px);
-  border-inline-start: 4px solid var(--cds-interactive, #0f62fe);
-  background: var(--cds-layer-02, var(--surface-low));
-  color: var(--cds-text-primary, var(--text-main));
-  font-size: var(--font-size-caption, .75rem);
-  font-weight: 600;
-}
-
-#routeDistanceModal .route-target-car[hidden] { display: none; }
-#routeDistanceModal .route-helper-status { display: block; width: 100%; }
-#routeDistanceModal .route-helper-status[hidden] { display: none; }
-
-#routeDistanceModal .route-section-heading {
-  margin: 0;
-  color: var(--cds-text-primary, var(--text-main));
-  font-size: var(--font-size-body, .875rem);
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-#routeDistanceModal .route-options-panel,
-#routeDistanceModal .route-results-section,
-#routeDistanceModal .route-summary {
-  display: grid;
-  gap: var(--space-3, 12px);
-  min-width: 0;
-}
-
-#routeDistanceModal .route-options-panel {
-  padding-block: var(--space-4, 16px);
-  border-block: 1px solid var(--cds-border-subtle, var(--border-section));
-}
-
-#routeDistanceModal .route-option-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3, 12px) var(--space-5, 24px);
-}
-
-#routeDistanceModal .route-option-grid cds-checkbox { min-height: 48px; }
-
-#routeDistanceModal .route-loading {
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-}
-#routeDistanceModal .route-loading[hidden] { display: none; }
-
-#routeDistanceModal .route-result-skeleton {
-  display: grid;
-  gap: var(--space-2, 8px);
-}
-#routeDistanceModal .route-result-skeleton[hidden] { display: none; }
-#routeDistanceModal .route-result-skeleton cds-text-input-skeleton {
+#routeDistanceModal .route-map-skeleton span {
+  position: absolute;
   display: block;
-  width: 100%;
-  min-height: 88px;
-  background: var(--cds-layer-02, var(--surface-low));
+  height: 12px;
+  background: var(--cds-skeleton-background, #e8e8e8);
+  animation: route-skeleton-pulse 1.4s ease-in-out infinite alternate;
 }
 
-#routeDistanceModal .route-results-heading-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-3, 12px);
+#routeDistanceModal .route-map-skeleton span:nth-child(1) { top: 24%; left: -8%; width: 116%; transform: rotate(-8deg); }
+#routeDistanceModal .route-map-skeleton span:nth-child(2) { top: 52%; left: -5%; width: 108%; transform: rotate(13deg); }
+#routeDistanceModal .route-map-skeleton span:nth-child(3) { top: 76%; left: 7%; width: 96%; transform: rotate(-15deg); }
+
+@keyframes route-skeleton-pulse {
+  from { opacity: 0.35; }
+  to { opacity: 0.8; }
 }
 
-#routeDistanceModal .route-results-heading-row > div { min-width: 0; }
-#routeDistanceModal .route-results-note {
-  margin: var(--space-1, 4px) 0 0;
-  color: var(--cds-text-secondary, var(--text-sub));
-  font-size: var(--font-size-caption, .75rem);
-  line-height: 1.45;
-}
-
-#routeDistanceModal .route-summary {
-  padding: var(--space-4, 16px);
-  background: var(--cds-layer-02, var(--surface-low));
-}
-#routeDistanceModal .route-summary[hidden] { display: none; }
-#routeDistanceModal .route-summary-primary { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
-#routeDistanceModal .route-summary-primary span { color: var(--cds-text-secondary, var(--text-sub)); font-size: .75rem; }
-#routeDistanceModal .route-summary-primary strong { color: var(--cds-text-primary, var(--text-main)); font-size: 1rem; }
-#routeDistanceModal .route-summary-values {
+#routeDistanceModal .route-planner-footer {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1px;
-  margin: 0;
-  background: var(--cds-border-subtle, var(--border-section));
-}
-#routeDistanceModal .route-summary-values > div { min-width: 0; padding: 12px; background: var(--cds-layer-01, var(--surface-lowest)); }
-#routeDistanceModal .route-summary-values dt { color: var(--cds-text-secondary, var(--text-sub)); font-size: .75rem; }
-#routeDistanceModal .route-summary-values dd { margin: 4px 0 0; color: var(--cds-text-primary, var(--text-main)); font-size: 1rem; font-weight: 600; }
-
-#routeDistanceModal .route-helper-footer { min-width: 0; }
-#routeDistanceModal .route-apply-label--short { display: none; }
-#routeDistanceModal .route-helper-footer cds-modal-footer-button::part(button) {
-  min-width: 0;
-  padding-inline: var(--space-5, 24px);
-  white-space: nowrap;
+  grid-template-columns: 1fr 1fr;
+  padding: 0;
 }
 
+#routeDistanceModal .route-planner-footer :is(cds-modal-footer-button, cds-button) {
+  width: 100%;
+  min-height: 64px;
+}
 
-@media (max-width: 900px) {
+@media (max-width: 760px) {
   #routeDistanceModal::part(dialog) {
-    width: calc(100vw - 32px);
-    max-width: calc(100vw - 32px);
-    max-height: calc(100dvh - 32px);
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
   }
-  #routeDistanceModal .route-helper-shell { grid-template-columns: 1fr; min-height: 0; }
-  #routeDistanceModal .route-helper-map-section {
-    position: relative;
+
+  #routeDistanceModal .route-helper-body {
+    max-height: calc(100dvh - 168px);
+  }
+
+  #routeDistanceModal .route-planner-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "controls"
+      "map"
+      "results";
     min-height: 0;
-    grid-template-rows: 260px auto;
-    border-inline-end: 0;
-    border-block-end: 1px solid var(--cds-border-subtle, var(--border-section));
   }
-  #routeDistanceModal .route-map-frame,
-  #routeDistanceModal .route-map { min-height: 260px; }
-  #routeDistanceModal .route-helper-controls { padding: 20px 16px 24px; }
+
+  #routeDistanceModal .route-planner-controls,
+  #routeDistanceModal .route-planner-results,
+  #routeDistanceModal .route-planner-map-panel {
+    padding: 16px;
+    border-right: 0;
+  }
+
+  #routeDistanceModal .route-planner-map-panel {
+    position: static;
+    border-top: 1px solid var(--cds-border-subtle-01, var(--border-color));
+  }
+
+  #routeDistanceModal .route-map-frame {
+    min-height: 360px;
+  }
 }
 
-@media (max-width: 520px) {
-  #routeDistanceModal { --route-map-height: 220px; }
-  #routeDistanceModal .route-helper-map-section { grid-template-rows: 220px auto; }
-  #routeDistanceModal .route-map-frame,
-  #routeDistanceModal .route-map { min-height: 220px; }
-  #routeDistanceModal .route-option-grid { grid-template-columns: 1fr; gap: 4px; }
-  #routeDistanceModal .route-summary-values { grid-template-columns: 1fr 1fr; }
-  #routeDistanceModal .route-summary-values > div:last-child { grid-column: 1 / -1; }
-  #routeDistanceModal .route-results-heading-row { align-items: stretch; }
-  #routeDistanceModal .route-results-heading-row cds-button { flex: 0 0 auto; }
-  #routeDistanceModal .route-helper-footer cds-modal-footer-button::part(button) {
-    padding-inline: var(--space-3, 12px);
-  }
-  #routeDistanceModal .route-apply-label--full { display: none; }
-  #routeDistanceModal .route-apply-label--short { display: inline; }
+@media (prefers-reduced-motion: reduce) {
+  #routeDistanceModal .route-map-skeleton span { animation: none; }
+}
+
+#routeDistanceModal .route-planner-options cds-checkbox {
+  width: auto;
+  max-width: 100%;
+  justify-self: start;
 }

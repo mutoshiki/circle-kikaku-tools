@@ -1,6 +1,98 @@
 // Settlement state and DOM snapshot helpers.
 // Split from features/settlement.js during S-3 cleanup.
 
+function createDefaultRoutePlannerState() {
+    return {
+        origin: null,
+        waypoints: [],
+        destination: null,
+        routes: [],
+        selectedRouteIndex: 0,
+        avoidTolls: false,
+        avoidHighways: false,
+        avoidFerries: false,
+        targetCarId: '',
+        targetCarName: '',
+        returnTo: '',
+        roundTrip: false,
+        calculatedAt: 0
+    };
+}
+
+function normalizeRoutePlannerPlace(raw = null) {
+    if (!raw || typeof raw !== 'object') return null;
+    const placeId = String(raw.placeId || '').trim();
+    const name = String(raw.name || '').trim();
+    const address = String(raw.address || '').trim();
+    const latitude = Number(raw.latitude);
+    const longitude = Number(raw.longitude);
+    if (!placeId || !name || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+    return { placeId, name, address, latitude, longitude };
+}
+
+function normalizeRoutePlannerViewport(raw = null) {
+    if (!raw || typeof raw !== 'object') return null;
+    const north = Number(raw.north);
+    const south = Number(raw.south);
+    const east = Number(raw.east);
+    const west = Number(raw.west);
+    return [north, south, east, west].every(Number.isFinite) ? { north, south, east, west } : null;
+}
+
+function normalizeRoutePlannerLeg(raw = {}) {
+    const normalizePoint = point => {
+        const latitude = Number(point?.latitude);
+        const longitude = Number(point?.longitude);
+        return Number.isFinite(latitude) && Number.isFinite(longitude) ? { latitude, longitude } : null;
+    };
+    return {
+        distanceMeters: Math.max(0, Number(raw.distanceMeters) || 0),
+        durationSeconds: Math.max(0, Number(raw.durationSeconds) || 0),
+        start: normalizePoint(raw.start),
+        end: normalizePoint(raw.end),
+        fromName: String(raw.fromName || ''),
+        toName: String(raw.toName || '')
+    };
+}
+
+function normalizeRoutePlannerRoute(raw = {}, index = 0) {
+    return {
+        id: String(raw.id || `route-${index}`),
+        label: String(raw.label || (index === 0 ? 'おすすめ' : `別ルート ${index}`)),
+        distanceMeters: Math.max(0, Number(raw.distanceMeters) || 0),
+        durationSeconds: Math.max(0, Number(raw.durationSeconds) || 0),
+        legs: Array.isArray(raw.legs) ? raw.legs.map(normalizeRoutePlannerLeg) : [],
+        viewport: normalizeRoutePlannerViewport(raw.viewport),
+        polyline: String(raw.polyline || ''),
+        hasTolls: raw.hasTolls === true,
+        hasHighways: raw.hasHighways === true,
+        tollPrice: String(raw.tollPrice || ''),
+        mainRoads: Array.isArray(raw.mainRoads) ? raw.mainRoads.map(value => String(value || '').trim()).filter(Boolean).slice(0, 5) : []
+    };
+}
+
+function normalizeRoutePlannerState(raw = {}) {
+    const base = createDefaultRoutePlannerState();
+    const routes = Array.isArray(raw.routes) ? raw.routes.map(normalizeRoutePlannerRoute).filter(route => route.distanceMeters > 0) : [];
+    const selectedRouteIndex = routes.length ? Math.min(Math.max(0, Number(raw.selectedRouteIndex) || 0), routes.length - 1) : 0;
+    return {
+        ...base,
+        origin: normalizeRoutePlannerPlace(raw.origin),
+        waypoints: Array.isArray(raw.waypoints) ? raw.waypoints.map(normalizeRoutePlannerPlace).filter(Boolean) : [],
+        destination: normalizeRoutePlannerPlace(raw.destination),
+        routes,
+        selectedRouteIndex,
+        avoidTolls: raw.avoidTolls === true,
+        avoidHighways: raw.avoidHighways === true,
+        avoidFerries: raw.avoidFerries === true,
+        targetCarId: String(raw.targetCarId || ''),
+        targetCarName: String(raw.targetCarName || ''),
+        returnTo: raw.returnTo === 'carSettlement' ? 'carSettlement' : '',
+        roundTrip: raw.roundTrip === true,
+        calculatedAt: Math.max(0, Number(raw.calculatedAt) || 0)
+    };
+}
+
 function getDefaultSettlementState() {
     return {
         rounding: '100',
@@ -17,7 +109,7 @@ function getDefaultSettlementState() {
         },
         cars: {},
         routeStops: [],
-        routePlanner: typeof createDefaultRoutePlannerState === 'function' ? createDefaultRoutePlannerState() : { origin: null, waypoints: [], destination: null, routes: [], selectedRouteIndex: 0, avoidTolls: false, avoidHighways: false, avoidFerries: false, targetCarId: '', returnTo: 'carSettlement', roundTrip: false, calculatedAt: 0 },
+        routePlanner: createDefaultRoutePlannerState(),
         paid: {},
         paidBy: {},
         driverPaid: {}
@@ -329,7 +421,7 @@ function normalizeSettlementState(state = {}) {
         standalone: normalizeStandaloneSettlementState(state.standalone || base.standalone),
         cars,
         routeStops: Array.isArray(state.routeStops) ? state.routeStops.map(v => String(v ?? '').trim()).filter(Boolean) : [],
-        routePlanner: typeof normalizeRoutePlannerState === 'function' ? normalizeRoutePlannerState(state.routePlanner || base.routePlanner) : (state.routePlanner || base.routePlanner),
+        routePlanner: normalizeRoutePlannerState(state.routePlanner || base.routePlanner),
         paid: state.paid && typeof state.paid === 'object' ? state.paid : {},
         paidBy: state.paidBy && typeof state.paidBy === 'object' ? state.paidBy : {},
         driverPaid: state.driverPaid && typeof state.driverPaid === 'object' ? state.driverPaid : {}

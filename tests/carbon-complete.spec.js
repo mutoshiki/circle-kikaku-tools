@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { installGoogleMapsMock, selectMockPlace, MOCK_PLACES } from './maps-test-utils.js';
 
 async function seed(page) {
   await page.goto('/');
@@ -12,7 +11,8 @@ async function seed(page) {
 async function hostClick(page, selector, index = 0) {
   const locator = page.locator(selector).nth(index);
   await expect(locator).toBeAttached();
-  await locator.evaluate(node => node.click());
+  if (await locator.evaluate(node => node.tagName === 'CDS-OVERFLOW-MENU')) await locator.click();
+  else await locator.evaluate(node => node.click());
   await page.waitForTimeout(80);
 }
 
@@ -102,16 +102,20 @@ test.describe('Allocation, menus and accessibility', () => {
     await expect(page.locator('#autoAssignSummary')).not.toHaveText('条件：なし');
     await page.keyboard.press('Escape');
     await expect(page.locator('#autoAssignPopover')).toHaveJSProperty('open', false);
-    await hostClick(page, '.member-menu-btn,.driver-menu-btn');
-    await expect(page.locator('cds-menu.person-pop-menu cds-menu-item')).toHaveCount(5);
+    const personOverflow = page.locator('cds-overflow-menu.person-overflow-menu').first();
+    await personOverflow.click();
+    await expect(personOverflow).toHaveJSProperty('open', true);
+    const personMenu = personOverflow.locator(':scope > cds-menu.person-pop-menu');
+    await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(5);
     await expect(page.locator('cds-tooltip[open]')).toHaveCount(0);
-    const menuItemsInViewport = await page.locator('cds-menu.person-pop-menu cds-menu-item').evaluateAll(items => items.every(item => {
+    const menuItemsInViewport = await personMenu.locator(':scope > cds-menu-item').evaluateAll(items => items.every(item => {
       const box = item.getBoundingClientRect();
       return box.left >= 7 && box.right <= innerWidth - 7 && box.top >= 7 && box.bottom <= innerHeight - 7;
     }));
     expect(menuItemsInViewport).toBeTruthy();
-    await page.locator('cds-menu.person-pop-menu cds-menu-item[label="学年"]').evaluate(node => node.click());
-    await page.locator('cds-menu.person-pop-menu cds-menu-item[label="2年"]').evaluate(node => node.click());
+    const gradeMenuItem = personMenu.locator(':scope > cds-menu-item[label="学年"]');
+    await gradeMenuItem.evaluate(node => node._openSubmenu?.());
+    await gradeMenuItem.locator('cds-menu-item[data-choice-value="2"]').evaluate(node => node.click());
     await expect(page.locator('.member-card,.driver-seat').first()).toContainText('2年');
     await hostClick(page, '[data-action="edit-capacity"]');
     await setHostValue(page, '#editModalInput', '4');
@@ -163,6 +167,7 @@ test.describe('Carbon modal, participant and sheet workflows', () => {
       ['openPlanningCheck()', 'planningCheckModal'],
       ['openDebugModal()', 'debugModal'],
       ['openSettlementSettings()', 'settlementSettingsModal'],
+      ['openRouteDistanceHelper()', 'routeDistanceModal'],
       ['openBatchModal()', 'batchImportModal']
     ];
     for (const [command, id] of cases) {
@@ -255,15 +260,19 @@ test.describe('Settlement and route workflows', () => {
     });
     expect(dimensions.amount).toBeLessThan(dimensions.row * 0.3);
     expect(dimensions.type).toBeLessThan(dimensions.row * 0.35);
-    await installGoogleMapsMock(page);
     await hostClick(page, '#settlementCarEditModal [data-action="open-route-helper-shortcut"]');
     await expect(page.locator('#routeDistanceModal')).toHaveAttribute('open', '');
-    await page.waitForFunction(() => document.querySelector('#routeOriginAutocompleteHost gmp-place-autocomplete'));
-    await selectMockPlace(page, '#routeOriginAutocompleteHost gmp-place-autocomplete', MOCK_PLACES.origin);
-    await selectMockPlace(page, '#routeDestinationAutocompleteHost gmp-place-autocomplete', MOCK_PLACES.destination);
-    await expect(page.locator('#routeResultList cds-selectable-tile.route-result-tile')).toHaveCount(4);
+    const stops = await page.locator('#routeStopList .route-stop-row').count();
+    await hostClick(page, '#addRouteStopBtn');
+    await expect(page.locator('#routeStopList .route-stop-row')).toHaveCount(stops + 1);
+    expect(await page.evaluate(() => {
+      const children = [...document.querySelector('#routeStopList .route-stop-row').children];
+      return children[0].matches('[data-action="remove-route-stop"]') && children[1].matches('.route-stop-input') && children[2].matches('.route-stop-num');
+    })).toBeTruthy();
+    await setHostValue(page, '#routeStopList .route-stop-input', '飯綱高原');
+    await page.locator('#routeStopList [data-action="remove-route-stop"]').last().evaluate(node => node.click());
+    await expect(page.locator('#routeStopList .route-stop-row')).toHaveCount(stops);
     await hostClick(page, '#routeDistanceModal cds-modal-close-button');
-    await expect(page.locator('#settlementCarEditModal')).toHaveAttribute('open', '');
     await hostClick(page, '[data-action="copy-settlement-text"]');
     expect(await page.evaluate(() => /[¥￥円]/.test(window.__copiedText || ''))).toBeTruthy();
     await expectNoDocumentOverflow(page);

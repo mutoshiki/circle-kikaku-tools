@@ -149,11 +149,3 @@
 | **合計** | **365** | **0** |
 
 詳細は`test-results/verification-summary.json`、`test-results/carbon-complete-runtime.json`、各group JSON、`static-results.json`、`javascript-syntax.json`、`css-parse.json`に保存した。
-
-## Google Maps距離計算統合（2026-08-03）
-
-各車の車両費Modalから開く距離計算を、Places API (New) の`PlaceAutocompleteElement`、Maps JavaScript API Routes libraryの`Route.computeRoutes()`、Maps JavaScript API mapへ移行した。旧Places、Directions Legacy、Distance Matrix Legacyは使用しない。
-
-検索地点、経由地、route候補、選択、回避設定、往復、対象車、計算時刻を既存settlement stateへ保存する。全routeをmapへ表示し、Selectable TileとPolylineの選択を同期する。選択距離は開く前の車だけへ反映し、既存精算計算と保存を再実行する。X／キャンセル／Escape／browser Backでは同じ車の車両費Modalへ戻る。
-
-詳細は`GOOGLE_MAPS_INTEGRATION_REPORT.md`、設定は`GOOGLE_MAPS_SETUP.md`、要件適合表は`GOOGLE_MAPS_REQUIREMENTS_MATRIX.md`を参照。Maps追加後の専用実操作228件、全アプリ結合132件、既存全画面回帰220件はいずれも失敗0件である。
