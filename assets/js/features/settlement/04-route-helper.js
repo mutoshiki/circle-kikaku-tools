@@ -168,6 +168,18 @@
         empty.textContent = message;
     }
 
+
+    function readSemanticToken(tokenName, fallback = '') {
+        const token = String(tokenName || '').trim();
+        if (!token) return fallback;
+        try {
+            const value = global.getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+            return value || fallback;
+        } catch (error) {
+            return fallback;
+        }
+    }
+
     function googleErrorText(error) {
         return [error?.code, error?.status, error?.name, error?.message, error].filter(Boolean).map(String).join(' ');
     }
@@ -1071,23 +1083,23 @@
             : [state.routes];
         const places = getOrderedPlaces(state);
         segmentGroups.forEach((group, segmentIndex) => {
-            const selectedRouteIndex = Array.isArray(state.segmentRouteGroups) && state.segmentRouteGroups.length
+            const selectedIndex = Array.isArray(state.segmentRouteGroups) && state.segmentRouteGroups.length
                 ? (state.segmentSelectionIndices?.[segmentIndex] || 0)
                 : state.selectedRouteIndex;
             const routeOrder = group.map((route, index) => ({ route, index }))
-                .sort((left, right) => Number(left.index === selectedRouteIndex) - Number(right.index === selectedRouteIndex));
+                .sort((left, right) => Number(left.index === selectedIndex) - Number(right.index === selectedIndex));
             routeOrder.forEach(({ route, index }) => {
                 const path = routePath(route);
                 if (!path?.length) return;
                 path.forEach(point => bounds.extend(point));
-                const selected = index === selectedRouteIndex;
+                const selected = index === selectedIndex;
                 const polyline = new global.google.maps.Polyline({
                     map: runtime.map,
                     path,
                     clickable: true,
                     strokeColor: selected
-                        ? resolveSemanticColor('--accent-color', '#0f62fe')
-                        : resolveSemanticColor('--accent-line', '#9ec5ff'),
+                        ? readSemanticToken('--accent-color', '#0f62fe')
+                        : readSemanticToken('--accent-line', '#78a9ff'),
                     strokeOpacity: selected ? 0.98 : 0.82,
                     strokeWeight: selected ? 7 : 5,
                     zIndex: selected ? 30 : 10
