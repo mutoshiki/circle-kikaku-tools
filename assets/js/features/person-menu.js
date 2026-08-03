@@ -5,6 +5,7 @@ let activePersonMenuTarget = null;
 let activePersonMenuTrigger = null;
 
 function closePersonMenus() {
+    document.body.classList.remove('person-menu-open');
     document.querySelectorAll('cds-overflow-menu.person-overflow-menu').forEach(menu => {
         menu.open = false;
         menu.removeAttribute('open');
@@ -77,6 +78,7 @@ function syncPersonMenuContext(trigger) {
     }
     activePersonMenuTarget = person;
     activePersonMenuTrigger = trigger;
+    document.body.classList.add('person-menu-open');
     return person;
 }
 
@@ -220,6 +222,7 @@ function handleCompactPersonAction(action, person = activePersonMenuTarget, choi
         trigger.open = false;
         trigger.removeAttribute('open');
     }
+    document.body.classList.remove('person-menu-open');
 
     if (action === 'memo') handleEdit(isDriver ? 'driverMemo' : 'memo', targetPerson);
     else if (action === 'lock' && card) toggleLock(card);
@@ -263,7 +266,13 @@ function setupCompactPersonMenu() {
     }, true);
 
     D.addEventListener('click', event => {
+        const overflowTrigger = personOverflowFromEvent(event);
         const item = personMenuItemFromEvent(event);
+        if (overflowTrigger && !item) {
+            queueMicrotask(() => {
+                document.body.classList.toggle('person-menu-open', overflowTrigger.open === true || overflowTrigger.hasAttribute('open'));
+            });
+        }
         if (!item) return;
         const trigger = item.closest?.('cds-overflow-menu.person-overflow-menu');
         if (!trigger) return;
@@ -279,6 +288,23 @@ function setupCompactPersonMenu() {
     D.addEventListener('keydown', event => {
         if (event.key === 'Escape') closePersonMenus();
     }, true);
+
+    D.addEventListener('cds-popover-closed', event => {
+        const path = event.composedPath?.() || [];
+        if (path.some(node => node?.matches?.('cds-overflow-menu.person-overflow-menu'))) closePersonMenus();
+    }, true);
+
+    const menuStateObserver = new MutationObserver(records => {
+        if (!records.some(record => record.target?.matches?.('cds-overflow-menu.person-overflow-menu'))) return;
+        const anyOpen = !!D.querySelector('cds-overflow-menu.person-overflow-menu[open]');
+        D.body.classList.toggle('person-menu-open', anyOpen);
+        if (!anyOpen) {
+            activePersonMenuTarget = null;
+            activePersonMenuTrigger = null;
+        }
+    });
+    menuStateObserver.observe(D.body, { subtree: true, attributes: true, attributeFilter: ['open'] });
+    setupCompactPersonMenu.menuStateObserver = menuStateObserver;
 
     window.addEventListener('orientationchange', closePersonMenus, { passive: true });
 }

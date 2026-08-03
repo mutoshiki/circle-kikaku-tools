@@ -1,6 +1,11 @@
 // Settlement edit protection. Prevents re-render/sync from stealing mobile keyboard focus.
 // Split from app.js during S-4 cleanup.
 
+
+function isSettlementCarEditorOpen() {
+    return !!document.getElementById('settlementCarEditModal')?.open;
+}
+
 function isSettlementCostField(target = document.activeElement) {
     return !!(target?.matches?.('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]'));
 }
@@ -53,8 +58,8 @@ function commitSettlementAfterKeyboardSettles() {
 
     settlementCommitTimer = setTimeout(() => {
         syncSettlementStateFromDOM();
-        if (isEditingSettlementCostField() || settlementCompositionActive) {
-            protectSettlementEditing();
+        if (isEditingSettlementCostField() || settlementCompositionActive || isSettlementCarEditorOpen()) {
+            if (isEditingSettlementCostField() || settlementCompositionActive) protectSettlementEditing();
             settlementRenderDeferred = true;
             saveLocalDraftOnly();
             return;

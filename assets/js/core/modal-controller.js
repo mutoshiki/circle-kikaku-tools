@@ -134,7 +134,14 @@
         const carEditModal = document.getElementById('settlementCarEditModal');
         if (carEditModal && carEditModal.dataset.settlementModalBound !== 'true') {
             carEditModal.dataset.settlementModalBound = 'true';
-            carEditModal.addEventListener('sanpo:modal-hiding', () => global.saveSettlementCarEditDraft?.());
+            carEditModal.addEventListener('sanpo:modal-hiding', event => {
+                const validateAndSave = global.validateAndSaveSettlementCarEditBeforeClose;
+                if (typeof validateAndSave === 'function') {
+                    if (!validateAndSave()) event.preventDefault();
+                    return;
+                }
+                global.saveSettlementCarEditDraft?.();
+            });
             carEditModal.addEventListener('sanpo:modal-hidden', () => global.clearSettlementCarEditor?.());
         }
         const settingsModal = document.getElementById('settlementSettingsModal');

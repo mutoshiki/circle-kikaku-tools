@@ -1360,7 +1360,8 @@
             setNotice('warning', '車を特定できません', '車ごとの費用画面から距離計算ツールを開いてください。');
             return;
         }
-        global.saveSettlementCarEditDraft?.();
+        if (typeof global.prepareSettlementCarEditTransition === 'function'
+            && !global.prepareSettlementCarEditTransition()) return;
         const carModal = byId('settlementCarEditModal');
         let launched = false;
         const launchPlanner = () => {

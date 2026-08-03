@@ -10,7 +10,7 @@
 
 - `maps-config.js`: ブラウザAPIキー、language、region、version、mapIdの唯一の設定owner。
 - `assets/js/core/google-maps-loader.js`: Maps JavaScript API scriptの唯一の生成owner。遅延読み込み、Promise共有、タイムアウト、ネットワーク失敗、`gm_authFailure`、再試行を管理する。
-- Places: `PlaceAutocompleteElement`と`gmp-select`。選択後に`Place.fetchFields()`でID・名称・住所・座標を取得する。
+- Places: `AutocompleteSuggestion.fetchAutocompleteSuggestions()`で候補データを取得し、Carbon Text Inputを使う検索サブ画面へ表示する。選択後に`PlacePrediction.toPlace()`と`Place.fetchFields()`でID・名称・住所・座標を取得する。
 - Routes: Maps JavaScript APIの`google.maps.routes.Route.computeRoutes()`。文字列ではなく選択済みPlaceまたは座標を渡す。
 - Map: Maps JavaScript API `Map`、`Polyline`、Marker/AdvancedMarkerで全候補と全地点を描画する。
 
@@ -55,13 +55,15 @@
 - 空の経由地追加や文字入力中は取得しない。
 - `requestSequence`で古いレスポンスを破棄する。
 - 経由地は最大25件。11件以上はGoogle側の課金区分が変わり得るため、追加数を増やす設計変更時は料金も再確認する。
-- Googleの仕様上、中間経由地を含むリクエストでは代替ルートが返らないため、その場合はUIで通知する。
+- Googleの仕様上、中間経由地を含む単一リクエストでは代替ルートが返らない。そのため、地点間を区間へ分割し、各区間を`computeAlternativeRoutes: true`で取得する。
+- 各区間の候補は所要時間順の上位3件へ制限し、組み合わせ段階ごとに上位候補だけを残す。最終候補は距離・時間・legs・polylineを合算して最大3件へ制限する。
+- 区間リクエストは回避条件と地点IDを含む短時間キャッシュを利用し、同一条件の不要な再取得を抑制する。
 
 ## Carbon UI owner
 
-- `index.html`: Carbon Modal、Button、Icon Button、Checkbox、Inline Loading、Inline Notificationの構造。
+- `index.html`: Carbon Modal、Accordion、Button、Icon Button、Text Input、Checkbox、Inline Loading、Inline Notificationの構造。
 - `assets/css/settlement/route-helper/01-route-shell.css`: モーダル、地図、responsive layout。
-- `02-route-stops.css`: waypoint row、drag state、48px controls。
+- `02-route-stops.css`: origin/waypoint/destinationの同率地点行、常設追加枠、縦コネクター、drag state、48px controls。
 - `03-route-candidates.css`: route selection rows、metrics、leg/total summaries。
 - `assets/js/templates/settlement/08-route-helper-templates.js`: waypoint、route candidates、leg summary。
 

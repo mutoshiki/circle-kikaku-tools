@@ -82,8 +82,7 @@
         const row = target.closest('.seisan-car-row');
         const name = row?.dataset?.driverName || '';
         if (name) global.refreshSettlementCarEditor?.(name);
-        renderSettlementView?.({ force: true });
-        save?.();
+        saveLocalDraftOnly?.();
         return true;
     }
 

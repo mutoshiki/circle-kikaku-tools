@@ -21,6 +21,10 @@ function toggleSettlementCarLayout() {
     applySettlementCarLayout(byId('seisan-car-list'));
 }
 
+function createEmptySettlementIssues() {
+    return { messages: [], fields: new Set(), rows: new Set() };
+}
+
 function renderSettlementIssues(issues) {
     const box = byId('seisan-errors');
     if (!box) return;
@@ -171,12 +175,29 @@ function renderSettlementSettingSummaryHtml(state, result) {
 }
 
 let activeSettlementCarEditName = '';
+let settlementCarEditValidationActive = false;
+let settlementCarEditClosePrepared = false;
+
+function getSettlementCarEditIssues(name) {
+    const data = getRoomDataOnly();
+    const state = ensureSettlementState();
+    const result = calculateSettlement(data, state);
+    const issues = getSettlementIssues(data, state, result);
+    const fieldPrefix = `${name}:`;
+    return {
+        messages: issues.messages.filter(message => String(message || '').startsWith(`${name}車の`)),
+        fields: new Set([...issues.fields].filter(key => String(key).startsWith(fieldPrefix))),
+        rows: new Set(issues.rows.has(name) ? [name] : [])
+    };
+}
 
 function getSettlementCarEditHtml(name) {
     const data = getRoomDataOnly();
     const state = ensureSettlementState();
     const result = calculateSettlement(data, state);
-    const issues = getSettlementIssues(data, state, result);
+    const issues = settlementCarEditValidationActive
+        ? getSettlementCarEditIssues(name)
+        : createEmptySettlementIssues();
     const car = (data.cars || []).find(c => c.name === name);
     if (!car) return '<div class="seisan-empty">この車が見つかりません。</div>';
     return renderSettlementCarRowHtml(car, state, result, issues);
@@ -204,6 +225,48 @@ function refreshSettlementCarEditorCandidates(name = activeSettlementCarEditName
     else currentCandidates?.remove();
 
     if (nextCandidates) applyRuntimeAccessibilityFixes(nextCandidates);
+}
+
+
+function focusFirstSettlementCarValidationError() {
+    const body = byId('settlementCarEditBody');
+    const host = body?.querySelector('[invalid], .seisan-input-error');
+    if (!host) return;
+    const apply = () => {
+        host.scrollIntoView?.({ block: 'center', inline: 'nearest' });
+        const control = host.shadowRoot?.querySelector('input, select, textarea, button');
+        (control || host).focus?.({ preventScroll: true });
+    };
+    Promise.resolve(host.updateComplete).then(() => requestAnimationFrame(() => requestAnimationFrame(apply)));
+}
+
+function validateActiveSettlementCarEditor(showErrors = true) {
+    if (!activeSettlementCarEditName) return true;
+    syncSettlementStateFromDOM();
+    const issues = getSettlementCarEditIssues(activeSettlementCarEditName);
+    const valid = issues.fields.size === 0;
+    if (!showErrors) return valid;
+    settlementCarEditValidationActive = !valid;
+    refreshSettlementCarEditor(activeSettlementCarEditName);
+    if (!valid) focusFirstSettlementCarValidationError();
+    return valid;
+}
+
+function validateAndSaveSettlementCarEditBeforeClose() {
+    if (settlementCarEditClosePrepared) {
+        settlementCarEditClosePrepared = false;
+        return true;
+    }
+    if (!validateActiveSettlementCarEditor(true)) return false;
+    saveSettlementCarEditDraft();
+    return true;
+}
+
+function prepareSettlementCarEditTransition() {
+    if (!validateActiveSettlementCarEditor(true)) return false;
+    saveSettlementCarEditDraft();
+    settlementCarEditClosePrepared = true;
+    return true;
 }
 
 function openSettlementSettings() {
@@ -274,6 +337,8 @@ function saveSettlementSettings() {
 
 function openSettlementCarEditor(encodedName) {
     syncSettlementStateFromDOM();
+    settlementCarEditValidationActive = false;
+    settlementCarEditClosePrepared = false;
     const name = decodeURIComponent(encodedName || '');
     activeSettlementCarEditName = name;
     const title = byId('settlementCarEditModalTitle');
@@ -303,11 +368,12 @@ function saveSettlementCarEditDraft() {
 }
 
 function saveSettlementCarEdit() {
-    saveSettlementCarEditDraft();
     if (modals.settlementCarEdit) modals.settlementCarEdit.hide();
 }
 
 function clearSettlementCarEditor() {
+    settlementCarEditValidationActive = false;
+    settlementCarEditClosePrepared = false;
     const body = byId('settlementCarEditBody');
     if (body) body.innerHTML = '';
     activeSettlementCarEditName = '';
@@ -322,6 +388,8 @@ window.SanpoApp?.exposeCompat?.('refreshSettlementCarEditor', refreshSettlementC
 window.SanpoApp?.exposeCompat?.('refreshSettlementCarEditorCandidates', refreshSettlementCarEditorCandidates);
 window.SanpoApp?.exposeCompat?.('saveSettlementCarEditDraft', saveSettlementCarEditDraft);
 window.SanpoApp?.exposeCompat?.('saveSettlementCarEdit', saveSettlementCarEdit);
+window.SanpoApp?.exposeCompat?.('validateAndSaveSettlementCarEditBeforeClose', validateAndSaveSettlementCarEditBeforeClose);
+window.SanpoApp?.exposeCompat?.('prepareSettlementCarEditTransition', prepareSettlementCarEditTransition);
 window.SanpoApp?.exposeCompat?.('clearSettlementCarEditor', clearSettlementCarEditor);
 
 function toggleSettlementEmptyState(area, isEmpty) {
@@ -363,8 +431,8 @@ function renderSettlementView() {
     syncSettlementControls(state, participants);
 
     const result = calculateSettlement(data, state);
-    const issues = getSettlementIssues(data, state, result);
-    renderSettlementIssues(issues);
+    const summaryIssues = createEmptySettlementIssues();
+    renderSettlementIssues(summaryIssues);
 
     const settingsSummary = byId('seisan-settings-summary');
     if (settingsSummary) settingsSummary.innerHTML = renderSettlementSettingSummaryHtml(state, result);
@@ -374,7 +442,7 @@ function renderSettlementView() {
 
     const carList = byId('seisan-car-list');
     if (carList) {
-        carList.innerHTML = renderSettlementCarsHtml(data, state, result, issues);
+        carList.innerHTML = renderSettlementCarsHtml(data, state, result, summaryIssues);
         applySettlementCarLayout(carList, (data.cars || []).length);
     }
 

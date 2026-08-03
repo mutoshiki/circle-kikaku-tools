@@ -26,8 +26,7 @@ function addSettlementExtra(encodedName) {
     car.extras.push({ name: '', amount: '', type: 'split', pending: true });
     state.cars[name] = car;
     if (typeof refreshSettlementCarEditor === 'function') refreshSettlementCarEditor(name);
-    renderSettlementView({ force: true });
-    save();
+    saveLocalDraftOnly();
 }
 
 function addSettlementExtraCandidate(encodedName, encodedCandidate, encodedAmount = '', type = 'split') {
@@ -49,8 +48,7 @@ function addSettlementExtraCandidate(encodedName, encodedCandidate, encodedAmoun
     }
     state.cars[name] = car;
     if (typeof refreshSettlementCarEditor === 'function') refreshSettlementCarEditor(name);
-    renderSettlementView({ force: true });
-    save();
+    saveLocalDraftOnly();
 }
 
 async function removeSettlementExtra(button) {
@@ -75,8 +73,7 @@ async function removeSettlementExtra(button) {
 
     row.remove();
     syncSettlementStateFromDOM();
-    renderSettlementView();
-    save();
+    saveLocalDraftOnly();
 }
 
 async function confirmSettlementCheckChange(message, options = {}, input = null, checked = false) {
