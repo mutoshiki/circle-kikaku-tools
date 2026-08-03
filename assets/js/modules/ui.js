@@ -32,7 +32,7 @@
               <cds-modal-close-button data-modal-close close-button-label="閉じる"></cds-modal-close-button>
             </div>
             <div class="modal-body"><div class="app-decision-message"></div></div>
-            <div class="modal-footer">
+            <div class="modal-footer py-2">
               <cds-button type="button" kind="secondary" size="lg" data-role="cancel">キャンセル</cds-button>
               <cds-button type="button" kind="primary" size="lg" data-role="ok">実行</cds-button>
             </div>
@@ -60,7 +60,7 @@
               <cds-modal-close-button data-modal-close close-button-label="閉じる"></cds-modal-close-button>
             </div>
             <div class="modal-body"><div class="app-decision-message"></div></div>
-            <div class="modal-footer modal-footer--single">
+            <div class="modal-footer py-2">
               <cds-button type="button" kind="primary" size="lg" data-role="ok">OK</cds-button>
             </div>
           </div>

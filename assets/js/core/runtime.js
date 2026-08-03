@@ -128,41 +128,9 @@ function applyRuntimeAccessibilityFixes(root = document) {
     root.querySelectorAll('button[title]:not([aria-label])').forEach(btn => btn.setAttribute('aria-label', btn.getAttribute('title')));
 }
 
-function syncCarbonFormControlState(host) {
-    if (!host) return;
-    const invalidText = host.dataset.invalidText || host.getAttribute('invalid-text') || '';
-    const warningText = host.dataset.warningText || host.getAttribute('warn-text') || '';
-    if (host.classList.contains('seisan-input-error') && !host.hasAttribute('invalid')) {
-        host.invalid = true;
-        host.setAttribute('invalid', '');
-        host.invalidText = invalidText || '入力内容を確認してください';
-        host.setAttribute('invalid-text', host.invalidText);
-        host.setAttribute('aria-invalid', 'true');
-    }
-    if (warningText) {
-        host.warn = true;
-        host.setAttribute('warn', '');
-        host.warnText = warningText;
-        host.setAttribute('warn-text', warningText);
-    }
-    if (host.hasAttribute('readonly') || host.hasAttribute('read-only')) {
-        host.readOnly = true;
-        host.setAttribute('aria-readonly', 'true');
-    }
-    if (host.hasAttribute('disabled')) {
-        host.disabled = true;
-        host.setAttribute('aria-disabled', 'true');
-    }
-}
-
 async function syncCarbonFormControlAccessibility(host) {
-    if (!host) return;
-    syncCarbonFormControlState(host);
-    if (!host.shadowRoot && host.localName?.includes('-')) {
-        await customElements.whenDefined(host.localName);
-    }
+    if (!host?.shadowRoot) return;
     await host.updateComplete;
-    if (!host.shadowRoot) return;
     const control = host.shadowRoot.querySelector('input, select, textarea');
     const label = host.getAttribute('aria-label') || host.label || host.labelText;
     if (control && label) control.setAttribute('aria-label', label);
@@ -227,12 +195,7 @@ function appPrompt(message, defaultValue = '', options = {}) {
         titleEl.textContent = String(options.title || message || '編集');
         saveBtn.textContent = String(options.okText || '保存');
         input.value = String(defaultValue || '');
-        input.type = 'text';
-        input.inputMode = 'text';
-        input.removeAttribute('min');
-        input.removeAttribute('step');
         const inputLabel = String(message || '入力');
-        input.setAttribute('label', inputLabel);
         input.setAttribute('aria-label', inputLabel);
         if ('label' in input) input.label = inputLabel;
         void syncCarbonFormControlAccessibility(input);

@@ -1,4 +1,6 @@
-test-results/
+
+dist/
+node_modules/
 playwright-report/
 server-*.log
-node_modules/
+test-results/

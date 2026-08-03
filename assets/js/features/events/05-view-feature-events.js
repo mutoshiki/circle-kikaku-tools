@@ -78,8 +78,6 @@
         bind('executeBatchBtn', () => executeBatch());
         bind('executeDebugBtn', () => global.executeDebugMode?.());
         bind('executeDebugMissingBtn', () => global.executeDebugMissingCostMode?.());
-        bind('addRouteStopBtn', () => global.addRouteStop?.());
-        bind('openGoogleRouteBtn', () => global.openGoogleRoute?.());
 
         setupSettlementOptionEvents();
         setupAutoAssignOptionEvents();

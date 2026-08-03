@@ -5,7 +5,9 @@ const launchOptions = systemChromium && fs.existsSync(systemChromium)
   ? { executablePath: systemChromium, args: ['--no-sandbox'] }
   : undefined;
 const testPort = Number(process.env.PLAYWRIGHT_TEST_PORT || 4173);
-const testOrigin = `http://127.0.0.1:${testPort}`;
+const localOrigin = `http://127.0.0.1:${testPort}`;
+const externalBaseURL = String(process.env.GOOGLE_MAPS_LIVE_BASE_URL || '').replace(/\/+$/, '');
+const baseURL = externalBaseURL ? `${externalBaseURL}/` : `${localOrigin}/`;
 
 module.exports = {
   testDir: './tests',
@@ -16,14 +18,14 @@ module.exports = {
   reporter: process.env.CI
     ? [['list'], ['html', { open: 'never' }]]
     : 'list',
-  webServer: {
+  webServer: externalBaseURL ? undefined : {
     command: 'node tests/serve-static.js',
-    url: `${testOrigin}/index.html`,
+    url: `${localOrigin}/index.html`,
     reuseExistingServer: true,
     timeout: 10000
   },
   use: {
-    baseURL: `${testOrigin}/`,
+    baseURL,
     viewport: { width: 390, height: 844 },
     browserName: 'chromium',
     screenshot: 'only-on-failure',

@@ -1,0 +1,790 @@
+{
+  "date": "2026-08-03",
+  "feature": "Google Maps / Places API (New) / Maps JavaScript Routes integration",
+  "browser_mock_maps": {
+    "total": 72,
+    "passed": 72,
+    "failed": 0,
+    "sections": [
+      {
+        "name": "core-routes-and-car-integration",
+        "total": 29,
+        "passed": 29,
+        "failed": 0,
+        "failures": [],
+        "results": [
+          {
+            "name": "modal opens from car",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "Places uses Japan soft bias",
+            "ok": true,
+            "detail": {
+              "bias": {
+                "north": 45.8,
+                "south": 20,
+                "east": 154,
+                "west": 122
+              },
+              "region": "jp",
+              "language": "ja",
+              "restricted": false
+            }
+          },
+          {
+            "name": "typing alone makes no route request",
+            "ok": true,
+            "detail": 0
+          },
+          {
+            "name": "origin alone makes no route request",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "alternatives returned",
+            "ok": true,
+            "detail": 3
+          },
+          {
+            "name": "all map routes rendered",
+            "ok": true,
+            "detail": 3
+          },
+          {
+            "name": "default route initially selected",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "route shows toll and highway data",
+            "ok": true,
+            "detail": "おすすめ\n84.3km\n1時間42分\n長野自動車道・中央自動車道\n有料道路・￥2,350\n高速道路を使用\n片道 84.3km"
+          },
+          {
+            "name": "map click selects route",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "list selection syncs map",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "markers A and B",
+            "ok": true,
+            "detail": [
+              "A",
+              "B"
+            ]
+          },
+          {
+            "name": "no runtime errors core",
+            "ok": true,
+            "detail": []
+          },
+          {
+            "name": "waypoint creates ordered intermediates",
+            "ok": true,
+            "detail": {
+              "origin": {
+                "id": "o"
+              },
+              "destination": {
+                "id": "d"
+              },
+              "intermediates": [
+                {
+                  "location": {
+                    "id": "w"
+                  },
+                  "vehicleStopover": true
+                }
+              ],
+              "travelMode": "DRIVING",
+              "routingPreference": "TRAFFIC_AWARE",
+              "computeAlternativeRoutes": false,
+              "routeModifiers": {
+                "avoidTolls": false,
+                "avoidHighways": false,
+                "avoidFerries": false
+              },
+              "language": "ja-JP",
+              "region": "JP",
+              "units": "METRIC",
+              "polylineQuality": "HIGH_QUALITY",
+              "extraComputations": [
+                "TOLLS"
+              ],
+              "fields": [
+                "description",
+                "distanceMeters",
+                "durationMillis",
+                "legs",
+                "localizedValues",
+                "path",
+                "routeLabels",
+                "routeToken",
+                "travelAdvisory",
+                "viewport",
+                "warnings"
+              ]
+            }
+          },
+          {
+            "name": "waypoint route has two legs",
+            "ok": true,
+            "detail": 2
+          },
+          {
+            "name": "modifier changes coalesced to one request",
+            "ok": true,
+            "detail": {
+              "before": 2,
+              "after": 3
+            }
+          },
+          {
+            "name": "all route modifiers sent",
+            "ok": true,
+            "detail": {
+              "avoidTolls": true,
+              "avoidHighways": true,
+              "avoidFerries": true
+            }
+          },
+          {
+            "name": "waypoint keyboard reorder",
+            "ok": true,
+            "detail": {
+              "before": [
+                "waypoint-1785722240131-g5mvk5i",
+                "waypoint-1785722241160-of2n6vu"
+              ],
+              "after": [
+                "waypoint-1785722241160-of2n6vu",
+                "waypoint-1785722240131-g5mvk5i"
+              ]
+            }
+          },
+          {
+            "name": "waypoint remove",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "no runtime errors waypoint",
+            "ok": true,
+            "detail": []
+          },
+          {
+            "name": "applies distance only to source car",
+            "ok": true,
+            "detail": {
+              "target": "藤原 拓海",
+              "before": {
+                "藤原 拓海": "186",
+                "高橋 啓介": "242",
+                "高橋 涼介": "218"
+              },
+              "after": {
+                "藤原 拓海": "168.6",
+                "高橋 啓介": "242",
+                "高橋 涼介": "218"
+              }
+            }
+          },
+          {
+            "name": "round trip distance applied",
+            "ok": true,
+            "detail": 168.6
+          },
+          {
+            "name": "settlement gas recalculated",
+            "ok": true,
+            "detail": {
+              "before": 1633,
+              "after": 1480
+            }
+          },
+          {
+            "name": "returns to originating car editor",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "no runtime errors apply",
+            "ok": true,
+            "detail": []
+          },
+          {
+            "name": "browser back closes planner",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "browser back restores car editor",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "stale response cannot overwrite latest",
+            "ok": true,
+            "detail": "stale-2"
+          },
+          {
+            "name": "unsupported toll computation retries once",
+            "ok": true,
+            "detail": 2
+          },
+          {
+            "name": "retry still returns routes",
+            "ok": true,
+            "detail": null
+          }
+        ]
+      },
+      {
+        "name": "errors-and-responsive",
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "failures": [],
+        "results": [
+          {
+            "name": "permission error not retried",
+            "ok": true,
+            "detail": 1
+          },
+          {
+            "name": "permission error shown",
+            "ok": true,
+            "detail": "Google APIの利用が拒否されました HTTPリファラー制限、API制限、請求先設定を確認してください。"
+          },
+          {
+            "name": "quota error not retried",
+            "ok": true,
+            "detail": 1
+          },
+          {
+            "name": "quota error shown",
+            "ok": true,
+            "detail": "Google APIの利用上限に達しました しばらく待ってから再度お試しください。"
+          },
+          {
+            "name": "no-route error not retried",
+            "ok": true,
+            "detail": 1
+          },
+          {
+            "name": "no-route error shown",
+            "ok": true,
+            "detail": "ルートが見つかりません 地点または回避設定を変更してください。"
+          },
+          {
+            "name": "390 light no page overflow",
+            "ok": true,
+            "detail": [
+              390,
+              390
+            ]
+          },
+          {
+            "name": "390 light map/list visible",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "390 dark no page overflow",
+            "ok": true,
+            "detail": [
+              390,
+              390
+            ]
+          },
+          {
+            "name": "390 dark map/list visible",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "390 controls at least 44px",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "390 no runtime errors",
+            "ok": true,
+            "detail": []
+          },
+          {
+            "name": "768 light no page overflow",
+            "ok": true,
+            "detail": [
+              768,
+              768
+            ]
+          },
+          {
+            "name": "768 light map/list visible",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "768 dark no page overflow",
+            "ok": true,
+            "detail": [
+              768,
+              768
+            ]
+          },
+          {
+            "name": "768 dark map/list visible",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "768 controls at least 44px",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "768 no runtime errors",
+            "ok": true,
+            "detail": []
+          },
+          {
+            "name": "1280 light no page overflow",
+            "ok": true,
+            "detail": [
+              1280,
+              1280
+            ]
+          },
+          {
+            "name": "1280 light map/list visible",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "1280 dark no page overflow",
+            "ok": true,
+            "detail": [
+              1280,
+              1280
+            ]
+          },
+          {
+            "name": "1280 dark map/list visible",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "1280 controls at least 44px",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "1280 no runtime errors",
+            "ok": true,
+            "detail": []
+          }
+        ]
+      },
+      {
+        "name": "state-keyboard-loader-recovery",
+        "total": 14,
+        "passed": 14,
+        "failed": 0,
+        "failures": [],
+        "results": [
+          {
+            "name": "route keyboard changes selection",
+            "ok": true,
+            "detail": 1
+          },
+          {
+            "name": "route keyboard moves focus",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "cancel restores target car",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "places persist after close",
+            "ok": true,
+            "detail": {
+              "origin": {
+                "placeId": "o",
+                "name": "信州大学",
+                "address": "信州大学住所",
+                "latitude": 36.64,
+                "longitude": 138.18
+              },
+              "destination": {
+                "placeId": "d",
+                "name": "松本駅",
+                "address": "松本駅住所",
+                "latitude": 35.9,
+                "longitude": 137.96
+              }
+            }
+          },
+          {
+            "name": "route selection persists",
+            "ok": true,
+            "detail": 0
+          },
+          {
+            "name": "modifiers and round trip persist",
+            "ok": true,
+            "detail": {
+              "avoidTolls": true,
+              "avoidFerries": true,
+              "roundTrip": true
+            }
+          },
+          {
+            "name": "target car identity persists",
+            "ok": true,
+            "detail": {
+              "name": "藤原 拓海",
+              "id": "plan-car:%E8%97%A4%E5%8E%9F%20%E6%8B%93%E6%B5%B7"
+            }
+          },
+          {
+            "name": "editing selected text invalidates place",
+            "ok": true,
+            "detail": {
+              "origin": null,
+              "routes": 0
+            }
+          },
+          {
+            "name": "editing selected text does not call Routes",
+            "ok": true,
+            "detail": {
+              "before": 2,
+              "after": 2
+            }
+          },
+          {
+            "name": "additional flow has no runtime errors",
+            "ok": true,
+            "detail": []
+          },
+          {
+            "name": "loader network error classification",
+            "ok": true,
+            "detail": "NETWORK_ERROR"
+          },
+          {
+            "name": "loader network retries cleanly",
+            "ok": true,
+            "detail": 2
+          },
+          {
+            "name": "loader auth error classification",
+            "ok": true,
+            "detail": "AUTH_FAILURE"
+          },
+          {
+            "name": "loader auth retries cleanly",
+            "ok": true,
+            "detail": 2
+          }
+        ]
+      },
+      {
+        "name": "explicit-carbon-retry",
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "failures": [],
+        "results": [
+          {
+            "name": "retry button shown after API error",
+            "ok": true,
+            "detail": {
+              "hidden": null
+            }
+          },
+          {
+            "name": "retry issues new route request",
+            "ok": true,
+            "detail": {
+              "before": 1,
+              "after": 2
+            }
+          },
+          {
+            "name": "retry restores candidates",
+            "ok": true,
+            "detail": 3
+          },
+          {
+            "name": "retry action hides after success",
+            "ok": true,
+            "detail": null
+          },
+          {
+            "name": "no runtime errors",
+            "ok": true,
+            "detail": []
+          }
+        ]
+      }
+    ]
+  },
+  "existing_feature_regression": {
+    "name": "existing-feature-regression",
+    "total": 28,
+    "passed": 28,
+    "failed": 0,
+    "failures": [],
+    "results": [
+      {
+        "name": "390 app starts",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "390 list view visible",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "390 list no page overflow",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "390 sheet view visible",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "390 sheet no page overflow",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "390 seisan view visible",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "390 seisan no page overflow",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "390 theme toggles",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "390 participant modal opens",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "390 person menu opens",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "390 assignment menu opens",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "390 settlement settings opens",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "390 car cost editor opens",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "390 no runtime errors",
+        "ok": true,
+        "detail": []
+      },
+      {
+        "name": "1280 app starts",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "1280 list view visible",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "1280 list no page overflow",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "1280 sheet view visible",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "1280 sheet no page overflow",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "1280 seisan view visible",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "1280 seisan no page overflow",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "1280 theme toggles",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "1280 participant modal opens",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "1280 person menu opens",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "1280 assignment menu opens",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "1280 settlement settings opens",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "1280 car cost editor opens",
+        "ok": true,
+        "detail": null
+      },
+      {
+        "name": "1280 no runtime errors",
+        "ok": true,
+        "detail": []
+      }
+    ]
+  },
+  "browser_mock_overall": {
+    "total": 100,
+    "passed": 100,
+    "failed": 0
+  },
+  "static_verification": {
+    "google_route_contract": "PASS",
+    "maps_feature_lint": "PASS",
+    "static_references": {
+      "count": 190,
+      "missing": 0
+    },
+    "javascript_syntax": "PASS",
+    "typescript_checkjs": "PASS",
+    "css_parse": {
+      "files": 119,
+      "errors": 0
+    },
+    "api_key_literal_source_files": 1,
+    "api_key_owner": "maps-config.js",
+    "legacy_google_runtime_references": 0,
+    "late_override_files": 0,
+    "static_app_build": "PASS",
+    "source_dist_hashes": {
+      "index.html": {
+        "source": "ad5a81c22f2f1b3100e0198e854a8ec02b8efd73c1b626d45af4eaef6516db72",
+        "dist": "ad5a81c22f2f1b3100e0198e854a8ec02b8efd73c1b626d45af4eaef6516db72",
+        "match": true
+      },
+      "maps-config.js": {
+        "source": "5701c533b90c4c9a7b1600e331d6a4f73dba2f4ea651e41ee10525d3cd904c03",
+        "dist": "5701c533b90c4c9a7b1600e331d6a4f73dba2f4ea651e41ee10525d3cd904c03",
+        "match": true
+      },
+      "assets/js/core/google-maps-loader.js": {
+        "source": "7667cff447b537dfba4b126e676e354aba1b77617eda4b92c1898c9601d8e879",
+        "dist": "7667cff447b537dfba4b126e676e354aba1b77617eda4b92c1898c9601d8e879",
+        "match": true
+      },
+      "assets/js/features/settlement/01-state.js": {
+        "source": "c02a98a4d04f164163a53011f30b52122e78302e1e815ab836916808df8046d2",
+        "dist": "c02a98a4d04f164163a53011f30b52122e78302e1e815ab836916808df8046d2",
+        "match": true
+      },
+      "assets/js/features/settlement/04-route-helper.js": {
+        "source": "e0a9661820281a36195adeedd492bb602f47b2293cebbc2cd7af813f177c033c",
+        "dist": "e0a9661820281a36195adeedd492bb602f47b2293cebbc2cd7af813f177c033c",
+        "match": true
+      },
+      "assets/js/templates/settlement/08-route-helper-templates.js": {
+        "source": "4a4089cc66e2408e3d78ca1dc42f416d290fc52fdd76e0976e0b5eeb66c16d2c",
+        "dist": "4a4089cc66e2408e3d78ca1dc42f416d290fc52fdd76e0976e0b5eeb66c16d2c",
+        "match": true
+      },
+      "assets/css/settlement/route-helper/01-route-shell.css": {
+        "source": "6fcb734f19d3c5b1afdd84ab2625e30b4b1ceb3d68f3946edc67f5afa3eab5b5",
+        "dist": "6fcb734f19d3c5b1afdd84ab2625e30b4b1ceb3d68f3946edc67f5afa3eab5b5",
+        "match": true
+      },
+      "assets/css/settlement/route-helper/02-route-stops.css": {
+        "source": "85cca1f19234a5f81ea8599443151097ac5986339c527a7be4fc6fd5fc8bce5d",
+        "dist": "85cca1f19234a5f81ea8599443151097ac5986339c527a7be4fc6fd5fc8bce5d",
+        "match": true
+      },
+      "assets/css/settlement/route-helper/03-route-candidates.css": {
+        "source": "ea41bf2d7d6be2d0544c70c7f174ac56eda0a99498462ece0d79e408e0208cf9",
+        "dist": "ea41bf2d7d6be2d0544c70c7f174ac56eda0a99498462ece0d79e408e0208cf9",
+        "match": true
+      },
+      "assets/vendor/carbon/carbon-entry.min.js": {
+        "source": "d1f724d95a4d1860d319fed296c6fcff356ed837b36a77291b94a453d7f8db9c",
+        "dist": "d1f724d95a4d1860d319fed296c6fcff356ed837b36a77291b94a453d7f8db9c",
+        "match": true
+      }
+    },
+    "node_dependency_restore": {
+      "status": "BLOCKED_BY_EXECUTION_ENVIRONMENT",
+      "reason": "Internal npm proxy returned 404 for @carbon/web-components@2.60.0 and @playwright/test@1.61.0. Existing pinned local Carbon bundle and Python Playwright browser tests were used without modifying lockfiles."
+    }
+  },
+  "live_api_verification": {
+    "status": "BLOCKED_BY_EXECUTION_ENVIRONMENT",
+    "details": [
+      "maps.googleapis.com DNS resolution failed",
+      "mutoshiki.github.io DNS resolution failed"
+    ],
+    "project_test": "tests/google-route-planner-live.spec.js",
+    "command": "GOOGLE_MAPS_LIVE=1 GOOGLE_MAPS_LIVE_BASE_URL=https://<allowed-referrer> npm run test:maps:live"
+  },
+  "known_google_platform_behavior": {
+    "alternatives_without_intermediates": "Default route plus available alternatives; Google may return fewer candidates.",
+    "alternatives_with_intermediates": "No alternative routes are returned when intermediate waypoints are present.",
+    "maximum_intermediates": 25,
+    "avoid_modifiers": "Preferences; they do not guarantee complete exclusion of the feature.",
+    "toll_price": "Displayed only when Google returns estimated toll pricing."
+  }
+}

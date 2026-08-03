@@ -90,8 +90,7 @@ function updateWaitingTrayState() {
     }
 
     if (count === 0) {
-        tray.classList.remove('is-drop-ready', 'empty-open');
-        if (!initialized) tray.classList.add('minimized');
+        tray.classList.remove('is-drop-ready');
     }
 
     updateTrayToggleLabel();
@@ -112,8 +111,7 @@ function updateTrayToggleLabel() {
     const { waitingCount: count, waitingNames } = getWaitingTrayStats();
     const summary = getWaitingTrayNameSummary(waitingNames, count);
     const suffix = summary ? `（${summary}）` : '';
-    const handle = byId('tray-handle');
-    const updatePresentation = (open, text, disabled = false) => {
+    const updatePresentation = (open, text) => {
         window.SanpoIconAdapter.setStateIcon(label, 'waitingTray', open ? 'open' : 'closed');
         let textNode = label.querySelector('span:not([data-state-icon])');
         if (!textNode) {
@@ -121,23 +119,29 @@ function updateTrayToggleLabel() {
             label.appendChild(textNode);
         }
         textNode.textContent = text;
-        handle?.setAttribute('aria-expanded', open ? 'true' : 'false');
-        handle?.setAttribute('aria-disabled', disabled ? 'true' : 'false');
-        if (handle) handle.tabIndex = disabled ? -1 : 0;
     };
+    if (count === 0) {
+        const open = tray.classList.contains('empty-open');
+        updatePresentation(open, open ? '未割り当てメンバーを閉じる' : '未割り当てメンバーを開く');
+        return;
+    }
     const minimized = tray.classList.contains("minimized");
-    const emptySuffix = count === 0 ? '（0人）' : suffix;
     updatePresentation(!minimized, minimized
-        ? `未割り当てメンバーを開く${emptySuffix}`
-        : `未割り当てメンバーを閉じる${emptySuffix}`);
+        ? `未割り当てメンバーを開く${suffix}`
+        : `未割り当てメンバーを閉じる${suffix}`);
 }
 
 function toggleTray() {
   const tray = byId("bottom-tray");
   if (!tray) return;
-  tray.classList.toggle("minimized");
-  tray.classList.remove('empty-open');
-  tray.dataset.userMinimized = tray.classList.contains('minimized') ? 'true' : 'false';
+  if (tray.classList.contains('waiting-empty')) {
+    tray.classList.toggle('empty-open');
+    tray.dataset.userMinimized = tray.classList.contains('empty-open') ? 'false' : 'true';
+  } else {
+    tray.classList.toggle("minimized");
+    tray.classList.remove('empty-open');
+    tray.dataset.userMinimized = tray.classList.contains('minimized') ? 'true' : 'false';
+  }
   updateTrayMenuDirection();
   updateTrayToggleLabel();
   save();
@@ -152,97 +156,11 @@ trayHandleEl?.addEventListener('keydown', e => {
     }
 });
 
-const traySettingsTriggerEl = byId('traySettingsBtn');
-const traySettingsMenuEl = byId('autoAssignMenu');
-
-function positionTraySettingsMenu() {
-    if (!traySettingsMenuEl || traySettingsMenuEl.hidden || !traySettingsTriggerEl) return;
-    const viewport = window.visualViewport;
-    const viewportLeft = viewport?.offsetLeft || 0;
-    const viewportTop = viewport?.offsetTop || 0;
-    const viewportWidth = viewport?.width || window.innerWidth;
-    const viewportHeight = viewport?.height || window.innerHeight;
-    const margin = 8;
-    const gap = 8;
-    const triggerRect = traySettingsTriggerEl.getBoundingClientRect();
-
-    traySettingsMenuEl.style.visibility = 'hidden';
-    traySettingsMenuEl.style.width = `${Math.min(320, Math.max(240, viewportWidth - 32))}px`;
-    traySettingsMenuEl.style.maxHeight = `${Math.max(160, viewportHeight - margin * 2)}px`;
-
-    requestAnimationFrame(() => {
-        if (!traySettingsMenuEl || traySettingsMenuEl.hidden) return;
-        const menuRect = traySettingsMenuEl.getBoundingClientRect();
-        const width = Math.min(menuRect.width || 320, viewportWidth - margin * 2);
-        const height = Math.min(menuRect.height || 320, viewportHeight - margin * 2);
-        const roomAbove = triggerRect.top - viewportTop - margin - gap;
-        const roomBelow = viewportTop + viewportHeight - triggerRect.bottom - margin - gap;
-        const openAbove = roomAbove >= height || roomAbove >= roomBelow;
-        let left = triggerRect.right - width;
-        let top = openAbove ? triggerRect.top - gap - height : triggerRect.bottom + gap;
-        left = Math.min(viewportLeft + viewportWidth - width - margin, Math.max(viewportLeft + margin, left));
-        top = Math.min(viewportTop + viewportHeight - height - margin, Math.max(viewportTop + margin, top));
-        traySettingsMenuEl.style.left = `${Math.round(left)}px`;
-        traySettingsMenuEl.style.top = `${Math.round(top)}px`;
-        traySettingsMenuEl.style.right = 'auto';
-        traySettingsMenuEl.style.bottom = 'auto';
-        traySettingsMenuEl.style.visibility = 'visible';
-    });
-}
-
-function clearTraySettingsMenuPosition() {
-    if (!traySettingsMenuEl) return;
-    [
-        'inset-inline-start', 'inset-inline-end', 'inset-block-start', 'inset-block-end',
-        'top', 'right', 'bottom', 'left', 'width', 'max-height', 'visibility'
-    ].forEach(name => traySettingsMenuEl.style.removeProperty(name));
-}
-
-function setTraySettingsMenuOpen(open) {
-    if (!traySettingsTriggerEl || !traySettingsMenuEl) return;
-    const next = !!open;
-    traySettingsMenuEl.hidden = !next;
-    traySettingsMenuEl.open = next;
-    traySettingsTriggerEl.setAttribute('aria-expanded', next ? 'true' : 'false');
-    if (next) {
-        traySettingsMenuEl.style.visibility = 'hidden';
-        positionTraySettingsMenu();
-    }
-    else clearTraySettingsMenuPosition();
-}
-
-traySettingsTriggerEl?.addEventListener('click', event => {
-    event.preventDefault();
-    setTraySettingsMenuOpen(traySettingsMenuEl?.hidden !== false);
-});
-
-window.addEventListener('resize', () => {
-    if (traySettingsMenuEl?.hidden === false) positionTraySettingsMenu();
-});
-window.visualViewport?.addEventListener('resize', () => {
-    if (traySettingsMenuEl?.hidden === false) positionTraySettingsMenu();
-});
-window.visualViewport?.addEventListener('scroll', () => {
-    if (traySettingsMenuEl?.hidden === false) positionTraySettingsMenu();
-});
-
-document.addEventListener('pointerdown', event => {
-    if (event.target.closest?.('.tray-settings-dropdown')) return;
-    setTraySettingsMenuOpen(false);
-}, true);
-
-document.addEventListener('keydown', event => {
-    if (event.key !== 'Escape' || traySettingsMenuEl?.hidden !== false) return;
-    setTraySettingsMenuOpen(false);
-    traySettingsTriggerEl?.focus?.();
-}, true);
-
 function updateTrayMenuDirection() {
     const tray = byId("bottom-tray");
     const menuWrap = tray?.querySelector('.tray-settings-dropdown');
     if (!tray || !menuWrap) return;
-    menuWrap.classList.toggle('is-dropup', true);
-    if (tray.classList.contains('minimized')) setTraySettingsMenuOpen(false);
+    menuWrap.classList.toggle('is-dropup', tray.classList.contains('minimized'));
     updateTrayToggleLabel();
 }
 

@@ -5,45 +5,6 @@
     const events = global.SanpoEvents || {};
     let candidateRefreshTimer = null;
 
-
-    function clearCarbonInvalidState(host) {
-        if (!host) return;
-        host.classList.remove('seisan-input-error', 'is-invalid');
-        host.invalid = false;
-        host.invalidText = '';
-        host.removeAttribute('invalid');
-        host.removeAttribute('invalid-text');
-        host.removeAttribute('aria-invalid');
-    }
-
-    function clearResolvedSettlementValidation(target) {
-        if (!target?.matches?.('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) return;
-        const value = String(target.value || '').trim();
-
-        if (target.matches('[data-field="dist"], [data-field="eco"], [data-field="price"]')) {
-            if (value && Number(value) > 0) clearCarbonInvalidState(target);
-            return;
-        }
-
-        const row = target.closest('.seisan-extra-row');
-        if (!row) return;
-        const name = row.querySelector('[data-extra-field="name"]');
-        const amount = row.querySelector('[data-extra-field="amount"]');
-        const nameValue = String(name?.value || '').trim();
-        const amountValue = String(amount?.value || '').trim();
-
-        // An entirely blank extra row is a draft, not an invalid row. Once either
-        // side of a previously invalid pair is corrected, clear Carbon's stale
-        // invalid property as well as its reflected attributes.
-        if (!nameValue && !amountValue) {
-            clearCarbonInvalidState(name);
-            clearCarbonInvalidState(amount);
-            return;
-        }
-        if (nameValue) clearCarbonInvalidState(name);
-        if (amountValue) clearCarbonInvalidState(amount);
-    }
-
     function queueSettlementCandidateRefresh(row) {
         const name = row?.dataset?.driverName || '';
         if (!name) return;
@@ -85,20 +46,6 @@
         return true;
     }
 
-    function focusSettlementExtraAmountField(target) {
-        const field = target?.closest?.('[data-extra-amount-field]');
-        if (!field) return false;
-        const host = field.querySelector('[data-extra-field="amount"]');
-        if (!host || host.hasAttribute('readonly') || host.disabled) return false;
-        const focusInnerControl = () => {
-            const control = host.shadowRoot?.querySelector('input:not([disabled]):not([readonly])');
-            if (control) control.focus({ preventScroll: true });
-            else host.focus?.({ preventScroll: true });
-        };
-        Promise.resolve(host.updateComplete).then(() => requestAnimationFrame(focusInnerControl));
-        return true;
-    }
-
     function setupSettlementInputEvents() {
         if (document.documentElement.dataset.settlementInputEventsBound === 'true') return;
         document.documentElement.dataset.settlementInputEventsBound = 'true';
@@ -128,7 +75,6 @@
         document.addEventListener('input', event => {
             const target = event.target;
             if (target?.matches?.('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
-                clearResolvedSettlementValidation(target);
                 if (target.matches('[data-field="dist"]')) updateTimesDistanceFeeInRow(target.closest('.seisan-car-row'));
                 global.onSettlementInputDelayed?.();
                 queueSettlementCandidateRefresh(target.closest('.seisan-car-row'));
@@ -138,9 +84,6 @@
                 syncSettlementStateFromDOM?.();
                 validateStandaloneSettlementSettings?.(true);
                 return;
-            }
-            if (target?.matches?.('#routeStopList .route-stop-input')) {
-                global.onRouteStopsChangedDelayed?.();
             }
         });
 
@@ -163,17 +106,12 @@
             if (commitRentalTypeChange(target)) return;
 
             if (target.matches('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
-                clearResolvedSettlementValidation(target);
                 if (target.matches('[data-extra-field="type"]')) {
                     const type = typeof normalizeSettlementExtraType === 'function'
                         ? normalizeSettlementExtraType(target.value)
                         : target.value;
-                    const baseType = type.startsWith('club') ? 'club' : 'split';
                     target.classList.remove('split', 'club', 'split-minus', 'club-minus');
-                    target.classList.add(baseType, type);
-                    const typeField = target.closest('.seisan-extra-field--type');
-                    typeField?.classList.remove('split', 'club', 'split-minus', 'club-minus');
-                    typeField?.classList.add(baseType, type);
+                    target.classList.add(type.startsWith('club') ? 'club' : 'split', type);
                 }
                 syncSettlementStateFromDOM?.();
                 global.refreshSettlementCarEditorCandidates?.(target.closest('.seisan-car-row')?.dataset?.driverName || '');
@@ -214,15 +152,6 @@
                 return;
             }
 
-            if (target.matches('#routeStopList .route-stop-input')) {
-                global.onRouteStopsChanged?.();
-            }
-        });
-
-        document.addEventListener('pointerdown', event => {
-            if (!focusSettlementExtraAmountField(event.target)) return;
-            // Keep the native click for the Carbon input itself; only prevent selection on the wrapper label.
-            if (!event.target.closest?.('[data-extra-field="amount"]')) event.preventDefault();
         });
 
         document.addEventListener('click', event => {

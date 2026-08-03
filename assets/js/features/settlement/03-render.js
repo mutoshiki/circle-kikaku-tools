@@ -1,24 +1,50 @@
 // Settlement renderer. Owns DOM rendering only.
 // Split from features/settlement.js during S-3 cleanup.
 
-function readSettlementCarLayoutMode() {
-    return 'list';
+const SETTLEMENT_CAR_LAYOUT_STORAGE_KEY = 'syawari_settlement_car_layout';
+
+function readSettlementCarLayoutMode(carCount = 0) {
+    try {
+        const saved = localStorage.getItem(SETTLEMENT_CAR_LAYOUT_STORAGE_KEY);
+        if (saved === 'compact' || saved === 'list') return saved;
+    } catch (error) {
+        console.warn('Settlement car layout preference could not be read:', error);
+    }
+    return carCount >= 3 ? 'compact' : 'list';
 }
 
-function updateSettlementCarLayoutControl() {
+function updateSettlementCarLayoutControl(isCompact, carCount = 0) {
     const button = byId('seisanCarLayoutToggle');
-    if (button) button.hidden = true;
+    if (!button) return;
+    button.hidden = carCount < 2;
+    button.setAttribute('aria-pressed', isCompact ? 'true' : 'false');
+    const label = isCompact ? '1列表示に切り替え' : '2列の圧縮表示に切り替え';
+    button.setAttribute('aria-label', label);
+    button.title = label;
 }
 
-function applySettlementCarLayout(carList) {
+function applySettlementCarLayout(carList, carCount = 0, mode = '') {
     if (!carList) return;
-    carList.classList.remove('is-two-column');
-    carList.dataset.layoutMode = 'list';
-    updateSettlementCarLayoutControl();
+    const resolvedMode = mode === 'compact' || mode === 'list'
+        ? mode
+        : readSettlementCarLayoutMode(carCount);
+    const isCompact = resolvedMode === 'compact' && carCount >= 2;
+    carList.classList.toggle('is-two-column', isCompact);
+    carList.dataset.layoutMode = isCompact ? 'compact' : 'list';
+    updateSettlementCarLayoutControl(isCompact, carCount);
 }
 
 function toggleSettlementCarLayout() {
-    applySettlementCarLayout(byId('seisan-car-list'));
+    const carList = byId('seisan-car-list');
+    if (!carList) return;
+    const carCount = carList.querySelectorAll(':scope > .seisan-car-summary-row').length;
+    const nextMode = carList.classList.contains('is-two-column') ? 'list' : 'compact';
+    try {
+        localStorage.setItem(SETTLEMENT_CAR_LAYOUT_STORAGE_KEY, nextMode);
+    } catch (error) {
+        console.warn('Settlement car layout preference could not be saved:', error);
+    }
+    applySettlementCarLayout(carList, carCount, nextMode);
 }
 
 function renderSettlementIssues(issues) {
@@ -317,6 +343,7 @@ window.SanpoApp?.exposeCompat?.('openSettlementSettings', openSettlementSettings
 window.SanpoApp?.exposeCompat?.('openStandaloneSettlementSettings', openStandaloneSettlementSettings);
 window.SanpoApp?.exposeCompat?.('saveSettlementSettingsDraft', saveSettlementSettingsDraft);
 window.SanpoApp?.exposeCompat?.('saveSettlementSettings', saveSettlementSettings);
+window.SanpoApp?.exposeCompat?.('getActiveSettlementCarEditName', () => activeSettlementCarEditName);
 window.SanpoApp?.exposeCompat?.('openSettlementCarEditor', openSettlementCarEditor);
 window.SanpoApp?.exposeCompat?.('refreshSettlementCarEditor', refreshSettlementCarEditor);
 window.SanpoApp?.exposeCompat?.('refreshSettlementCarEditorCandidates', refreshSettlementCarEditorCandidates);

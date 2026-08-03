@@ -1,145 +1,332 @@
-/* Distance route helper: modal shell, panels, and titles. */
-#routeDistanceModal .route-helper-body {
-  max-height: min(66vh, 600px);
-  overflow-y: auto;
-  padding: 12px;
-}
-
+/* Google Routes planner: Carbon modal shell, responsive panels, and map. */
 #routeDistanceModal .route-helper-dialog {
-  width: min(620px, calc(100vw - 32px));
-  max-width: min(620px, calc(100vw - 32px));
+  width: min(1120px, calc(100vw - 32px));
+  max-width: min(1120px, calc(100vw - 32px));
   margin-inline: auto;
 }
 
-#routeDistanceModal .modal-content {
-  max-height: min(82vh, 720px);
+#routeDistanceModal .route-planner-content {
+  max-height: min(92dvh, 920px);
+  background: var(--cds-layer-01, var(--bg-card));
 }
 
-#routeDistanceModal .modal-header {
-  border-bottom: 0;
-}
-
+#routeDistanceModal .modal-header,
 #routeDistanceModal .modal-footer {
-  border-top: 0;
+  border: 0;
 }
 
-#routeDistanceModal .route-helper-panel {
+#routeDistanceModal .route-helper-body {
+  max-height: calc(min(92dvh, 920px) - 112px);
+  overflow: auto;
+  padding: 0;
+  background: var(--cds-background, var(--bg-body));
+}
+
+#routeDistanceModal .route-planner-shell {
   display: grid;
-  gap: 10px;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(360px, 1.25fr);
+  grid-template-areas:
+    "controls map"
+    "results map";
+  align-items: start;
+  min-height: 620px;
 }
 
-#routeDistanceModal :is(.route-stop-panel, .route-candidate-panel) {
-  max-width: 100%;
+#routeDistanceModal .route-planner-controls,
+#routeDistanceModal .route-planner-results,
+#routeDistanceModal .route-planner-map-panel {
   min-width: 0;
   box-sizing: border-box;
-  padding: 10px;
-  border: 1px solid color-mix(in srgb, var(--ui-saas-border, var(--border-color)) 72%, transparent);
-  border-radius: 0;
-  background: var(--surface-container);
-  box-shadow: none;
 }
 
-#routeDistanceModal .route-location-privacy-note {
-  margin: -1px 0 8px;
-  padding: 0 2px;
-  color: var(--text-sub);
-  font-size: 0.70rem;
-  font-weight: 400;
-  line-height: 1.4;
+#routeDistanceModal .route-planner-controls {
+  grid-area: controls;
+  padding: 20px;
+  border-right: 1px solid var(--cds-border-subtle-01, var(--border-color));
+  background: var(--cds-layer-01, var(--bg-card));
 }
 
-#routeDistanceModal .route-helper-title-row {
+#routeDistanceModal .route-planner-results {
+  grid-area: results;
+  padding: 20px;
+  border-top: 1px solid var(--cds-border-subtle-01, var(--border-color));
+  border-right: 1px solid var(--cds-border-subtle-01, var(--border-color));
+  background: var(--cds-layer-01, var(--bg-card));
+}
+
+#routeDistanceModal .route-planner-map-panel {
+  grid-area: map;
+  position: sticky;
+  top: 0;
+  padding: 20px;
+  background: var(--cds-layer-02, var(--surface-low));
+}
+
+#routeDistanceModal .route-planner-section-heading {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
-#routeDistanceModal .route-helper-title {
+#routeDistanceModal .route-planner-section-heading h6 {
   margin: 0;
-  display: inline-flex;
-  align-items: center;
+  color: var(--cds-text-primary, var(--text-main));
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.375;
+}
+
+#routeDistanceModal .route-planner-section-heading p,
+#routeDistanceModal .route-planner-context {
+  margin: 4px 0 0;
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: 0.75rem;
+  line-height: 1.34;
+}
+
+#routeDistanceModal .route-place-stack {
+  display: grid;
+  gap: 12px;
+}
+
+#routeDistanceModal .route-place-field {
+  display: grid;
   gap: 6px;
-  color: var(--text-main);
-  font-size: 0.9rem;
+  min-width: 0;
+}
+
+#routeDistanceModal .route-place-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cds-text-primary, var(--text-main));
+  font-size: 0.75rem;
   font-weight: 600;
-  line-height: 1.25;
 }
 
-#routeDistanceModal .route-helper-title :is(i, .carbon-icon) {
-  color: var(--text-sub);
-  font-size: 0.86em;
+#routeDistanceModal .route-place-marker {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border: 2px solid var(--cds-layer-01, var(--bg-card));
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px currentColor;
 }
 
-#routeDistanceModal .route-helper-subtitle {
-  color: var(--text-sub);
-  font-size: 0.72rem;
-  font-weight: 600;
-  line-height: 1.25;
-  white-space: normal;
-  text-align: right;
+#routeDistanceModal .route-place-marker--origin { color: var(--cds-support-success, #198038); background: currentColor; }
+#routeDistanceModal .route-place-marker--waypoint { color: var(--cds-support-info, #0043ce); background: currentColor; }
+#routeDistanceModal .route-place-marker--destination { color: var(--cds-support-error, #da1e28); background: currentColor; }
+
+#routeDistanceModal .route-place-autocomplete {
+  min-width: 0;
+  min-height: 48px;
 }
 
-#routeDistanceModal .route-helper-note {
-  color: var(--text-sub);
-  font-size: 0.78rem;
-  font-weight: 500;
-  line-height: 1.45;
+#routeDistanceModal .route-place-autocomplete > gmp-place-autocomplete,
+#routeDistanceModal .route-place-autocomplete > * {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  color-scheme: light;
 }
 
-#routeDistanceModal .route-helper-actions {
+[data-theme="dark"] #routeDistanceModal .route-place-autocomplete > gmp-place-autocomplete,
+[data-theme="dark"] #routeDistanceModal .route-place-autocomplete > * {
+  color-scheme: dark;
+}
+
+#routeDistanceModal .route-place-summary {
+  min-width: 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--cds-border-interactive, var(--accent-color));
+  background: var(--cds-layer-02, var(--surface-low));
+}
+
+#routeDistanceModal .route-place-summary strong,
+#routeDistanceModal .route-place-summary span {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+#routeDistanceModal .route-place-summary strong {
+  color: var(--cds-text-primary, var(--text-main));
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+
+#routeDistanceModal .route-place-summary span {
   margin-top: 2px;
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: 0.75rem;
+  line-height: 1.35;
 }
 
-#routeDistanceModal .route-helper-actions .seisan-btn {
+#routeDistanceModal #addRouteWaypointBtn {
   width: 100%;
   min-height: 48px;
-  display: inline-flex;
+}
+
+#routeDistanceModal .route-planner-options {
+  display: grid;
+  gap: 0;
+  margin-top: 20px;
+  border-top: 1px solid var(--cds-border-subtle-01, var(--border-color));
+}
+
+#routeDistanceModal .route-planner-options h6 {
+  margin: 16px 0 8px;
+  color: var(--cds-text-primary, var(--text-main));
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+#routeDistanceModal .route-planner-options cds-checkbox {
+  min-height: 48px;
+  display: flex;
   align-items: center;
-  justify-content: center;
 }
 
-#routeDistanceModal .route-helper-status {
-  min-height: 1.2em;
-  text-align: center;
+#routeDistanceModal #routePlannerNotice {
+  display: block;
+  margin-top: 16px;
 }
 
-@media (max-width: 768px) {
-  #routeDistanceModal .route-stop-input {
-    font-size: 16px;
-  }
+#routeDistanceModal .route-planner-retry {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 8px;
 }
 
-@media (max-width: 640px) {
+#routeDistanceModal .route-planner-retry[hidden] { display: none; }
+
+#routeDistanceModal .route-planner-retry cds-button { min-height: 48px; }
+
+#routeDistanceModal .route-planner-loading {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+}
+
+#routeDistanceModal .route-map-frame {
+  position: relative;
+  min-height: 580px;
+  overflow: hidden;
+  border: 1px solid var(--cds-border-subtle-01, var(--border-color));
+  background: var(--cds-layer-01, var(--bg-card));
+}
+
+#routeDistanceModal .route-map {
+  position: absolute;
+  inset: 0;
+  min-height: 100%;
+}
+
+#routeDistanceModal .route-map-empty {
+  position: absolute;
+  inset: auto 16px 16px;
+  z-index: 3;
+  padding: 12px 16px;
+  border-left: 3px solid var(--cds-border-interactive, var(--accent-color));
+  background: color-mix(in srgb, var(--cds-layer-01, var(--bg-card)) 94%, transparent);
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: 0.75rem;
+  line-height: 1.4;
+  backdrop-filter: blur(8px);
+}
+
+#routeDistanceModal .route-map-skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  background: var(--cds-layer-01, var(--bg-card));
+}
+
+#routeDistanceModal .route-map-skeleton[hidden] { display: none; }
+
+#routeDistanceModal .route-map-skeleton span {
+  position: absolute;
+  display: block;
+  height: 12px;
+  background: var(--cds-skeleton-background, #e8e8e8);
+  animation: route-skeleton-pulse 1.4s ease-in-out infinite alternate;
+}
+
+#routeDistanceModal .route-map-skeleton span:nth-child(1) { top: 24%; left: -8%; width: 116%; transform: rotate(-8deg); }
+#routeDistanceModal .route-map-skeleton span:nth-child(2) { top: 52%; left: -5%; width: 108%; transform: rotate(13deg); }
+#routeDistanceModal .route-map-skeleton span:nth-child(3) { top: 76%; left: 7%; width: 96%; transform: rotate(-15deg); }
+
+@keyframes route-skeleton-pulse {
+  from { opacity: 0.35; }
+  to { opacity: 0.8; }
+}
+
+#routeDistanceModal .route-planner-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0;
+}
+
+#routeDistanceModal .route-planner-footer cds-button {
+  width: 100%;
+  min-height: 64px;
+}
+
+@media (max-width: 760px) {
   #routeDistanceModal .route-helper-dialog {
-    width: calc(100vw - 32px);
-    max-width: calc(100vw - 32px);
-    margin: 16px auto;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    margin: 0;
   }
 
-  #routeDistanceModal .modal-content {
-    max-height: calc(100dvh - 32px);
-    border-radius: 0;
+  #routeDistanceModal .route-planner-content {
+    max-height: 100dvh;
+    min-height: 100dvh;
   }
 
   #routeDistanceModal .route-helper-body {
-    max-height: calc(100dvh - 164px);
-    padding: 10px;
+    max-height: calc(100dvh - 112px);
   }
 
-  #routeDistanceModal .route-helper-panel {
-    gap: 9px;
+  #routeDistanceModal .route-planner-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "controls"
+      "map"
+      "results";
+    min-height: 0;
   }
 
-  #routeDistanceModal .route-helper-title-row {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 2px;
+  #routeDistanceModal .route-planner-controls,
+  #routeDistanceModal .route-planner-results,
+  #routeDistanceModal .route-planner-map-panel {
+    padding: 16px;
+    border-right: 0;
   }
 
-  #routeDistanceModal .route-helper-subtitle {
-    text-align: left;
+  #routeDistanceModal .route-planner-map-panel {
+    position: static;
+    border-top: 1px solid var(--cds-border-subtle-01, var(--border-color));
   }
 
+  #routeDistanceModal .route-map-frame {
+    min-height: 360px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #routeDistanceModal .route-map-skeleton span { animation: none; }
+}
+
+#routeDistanceModal .route-planner-options cds-checkbox {
+  width: auto;
+  max-width: 100%;
+  justify-self: start;
 }

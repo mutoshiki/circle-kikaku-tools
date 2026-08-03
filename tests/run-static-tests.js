@@ -1,0 +1,14 @@
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const root = process.cwd();
+const index = fs.readFileSync(path.join(root,'index.html'),'utf8');
+const refs = [...index.matchAll(/(?:src|href)="(\.\/[^"?#]+)/g)].map(match=>match[1].slice(2));
+const missing = refs.filter(ref=>!fs.existsSync(path.join(root,ref)));
+assert.deepStrictEqual(missing,[],`Missing local references: ${missing.join(', ')}`);
+for (const component of ['cds-modal','cds-button','cds-icon-button','cds-checkbox','cds-inline-loading','cds-inline-notification']) assert(index.includes(`<${component}`),`${component} must be present`);
+assert(index.includes('./maps-config.js'),'maps-config.js must be loaded');
+assert(index.includes('./assets/js/core/google-maps-loader.js'),'Google Maps loader must be loaded');
+const route = fs.readFileSync(path.join(root,'assets/js/features/settlement/04-route-helper.js'),'utf8');
+assert(!/DirectionsService|DistanceMatrixService|AutocompleteService/.test(route),'Legacy Google APIs are forbidden');
+console.log(`Static tests: PASS (${refs.length} local references)`);

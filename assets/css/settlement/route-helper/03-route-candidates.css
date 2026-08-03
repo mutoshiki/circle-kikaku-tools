@@ -1,78 +1,141 @@
-/* Distance route helper: shared destination candidates. */
-#routeDistanceModal .route-candidate-panel {
-  padding: 4px 2px 0;
-  border: 0;
-  background: transparent;
-}
-
-#routeDistanceModal .route-candidate-panel .route-helper-title-row {
-  margin-bottom: 5px;
-}
-
-#routeDistanceModal .route-candidate-panel .route-helper-title {
-  color: var(--text-sub);
-  font-size: 0.78rem;
-  font-weight: 500;
-}
-
+/* Google Routes planner: Carbon selection rows, summaries, and segment details. */
 #routeDistanceModal .route-candidate-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: flex-start;
+  display: grid;
+  gap: 1px;
+  background: var(--cds-border-subtle-01, var(--border-color));
 }
 
-#routeDistanceModal .route-candidate-chip {
-  min-height: 28px;
-  max-width: 100%;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 7px;
-  border: 1px solid color-mix(in srgb, var(--ui-saas-border, var(--border-color)) 64%, transparent);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text-sub);
-  font-size: 0.74rem;
-  font-weight: 500;
-  line-height: 1.25;
-  box-shadow: none;
+#routeDistanceModal .route-candidate-empty {
+  min-height: 96px;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: var(--cds-layer-02, var(--surface-low));
+  color: var(--cds-text-secondary, var(--text-sub));
+  text-align: center;
+  font-size: 0.875rem;
 }
 
-#routeDistanceModal .route-candidate-chip span {
+#routeDistanceModal .route-candidate-card {
+  width: 100%;
+  min-height: 112px;
+  --cds-button-ghost: var(--cds-layer-01, var(--bg-card));
+  --cds-button-ghost-hover: var(--cds-layer-hover-01, color-mix(in srgb, var(--bg-card) 92%, var(--text-main)));
+  --cds-button-ghost-active: var(--cds-layer-selected-01, color-mix(in srgb, var(--accent-color) 10%, var(--bg-card)));
+  --cds-button-ghost-color: var(--cds-text-primary, var(--text-main));
+  border-left: 4px solid transparent;
+  text-align: left;
+}
+
+#routeDistanceModal .route-candidate-layout {
+  width: 100%;
   min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding-block: 8px;
+}
+
+#routeDistanceModal .route-candidate-card:focus-visible {
+  outline: 2px solid var(--cds-focus, var(--accent-color));
+  outline-offset: -2px;
+}
+
+#routeDistanceModal .route-candidate-card[aria-checked="true"] {
+  border-left-color: var(--cds-border-interactive, var(--accent-color));
+  --cds-button-ghost: var(--cds-layer-selected-01, color-mix(in srgb, var(--accent-color) 10%, var(--bg-card)));
+}
+
+#routeDistanceModal .route-candidate-main { min-width: 0; }
+
+#routeDistanceModal .route-candidate-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+#routeDistanceModal .route-candidate-label {
   overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-#routeDistanceModal .route-candidate-chip .carbon-icon {
-  color: var(--text-sub);
-  font-size: 0.62rem;
-  opacity: 0.82;
+#routeDistanceModal .route-candidate-check {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  border: 1px solid var(--cds-icon-secondary, var(--text-sub));
+  border-radius: 50%;
 }
 
-#routeDistanceModal .route-candidate-chip:hover {
-  border-color: color-mix(in srgb, var(--accent-color) 36%, var(--ui-saas-border, var(--border-color)));
-  background: color-mix(in srgb, var(--accent-color) 9%, var(--bg-card));
+#routeDistanceModal .route-candidate-card[aria-checked="true"] .route-candidate-check {
+  border: 5px solid var(--cds-icon-primary, var(--accent-color));
 }
 
-#routeDistanceModal .route-candidate-empty {
-  width: 100%;
-  min-height: 32px;
+#routeDistanceModal .route-candidate-metrics {
   display: flex;
-  align-items: center;
-  padding: 2px 0;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text-sub);
-  font-size: 0.82rem;
+  gap: 12px;
+  margin-top: 8px;
+  color: var(--cds-text-primary, var(--text-main));
+  font-size: 1rem;
+  font-weight: 600;
 }
 
-@media (max-width: 640px) {
-  #routeDistanceModal .route-candidate-chip {
-    min-height: 30px;
-    font-size: 0.76rem;
-  }
+#routeDistanceModal .route-candidate-roads,
+#routeDistanceModal .route-candidate-flags {
+  margin-top: 6px;
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+#routeDistanceModal .route-candidate-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#routeDistanceModal .route-candidate-distance {
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+#routeDistanceModal .route-leg-summary {
+  display: grid;
+  gap: 1px;
+  margin-top: 16px;
+  background: var(--cds-border-subtle-01, var(--border-color));
+}
+
+#routeDistanceModal .route-total-summary,
+#routeDistanceModal .route-leg-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--cds-layer-02, var(--surface-low));
+}
+
+#routeDistanceModal .route-total-summary {
+  border-left: 4px solid var(--cds-border-interactive, var(--accent-color));
+  font-weight: 600;
+}
+
+#routeDistanceModal .route-leg-row strong,
+#routeDistanceModal .route-leg-row span,
+#routeDistanceModal .route-total-summary strong,
+#routeDistanceModal .route-total-summary span {
+  overflow-wrap: anywhere;
+}
+
+#routeDistanceModal .route-leg-row span,
+#routeDistanceModal .route-total-summary span {
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: 0.75rem;
+  text-align: right;
 }
