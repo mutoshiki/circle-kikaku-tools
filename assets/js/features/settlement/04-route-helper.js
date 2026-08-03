@@ -629,7 +629,7 @@
             },
             language: 'ja-JP',
             region: 'JP',
-            units: 'METRIC',
+            units: google.maps.UnitSystem.METRIC,
             polylineQuality: 'HIGH_QUALITY',
             extraComputations: ['TOLLS'],
             fields: ROUTE_FIELDS
