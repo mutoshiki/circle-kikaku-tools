@@ -11,8 +11,7 @@ async function seed(page) {
 async function hostClick(page, selector, index = 0) {
   const locator = page.locator(selector).nth(index);
   await expect(locator).toBeAttached();
-  if (await locator.evaluate(node => node.tagName === 'CDS-OVERFLOW-MENU')) await locator.click();
-  else await locator.evaluate(node => node.click());
+  await locator.evaluate(node => node.click());
   await page.waitForTimeout(80);
 }
 
@@ -102,20 +101,16 @@ test.describe('Allocation, menus and accessibility', () => {
     await expect(page.locator('#autoAssignSummary')).not.toHaveText('条件：なし');
     await page.keyboard.press('Escape');
     await expect(page.locator('#autoAssignPopover')).toHaveJSProperty('open', false);
-    const personOverflow = page.locator('cds-overflow-menu.person-overflow-menu').first();
-    await personOverflow.click();
-    await expect(personOverflow).toHaveJSProperty('open', true);
-    const personMenu = personOverflow.locator(':scope > cds-menu.person-pop-menu');
-    await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(5);
+    await hostClick(page, '.member-menu-btn,.driver-menu-btn');
+    await expect(page.locator('cds-menu.person-pop-menu cds-menu-item')).toHaveCount(5);
     await expect(page.locator('cds-tooltip[open]')).toHaveCount(0);
-    const menuItemsInViewport = await personMenu.locator(':scope > cds-menu-item').evaluateAll(items => items.every(item => {
+    const menuItemsInViewport = await page.locator('cds-menu.person-pop-menu cds-menu-item').evaluateAll(items => items.every(item => {
       const box = item.getBoundingClientRect();
       return box.left >= 7 && box.right <= innerWidth - 7 && box.top >= 7 && box.bottom <= innerHeight - 7;
     }));
     expect(menuItemsInViewport).toBeTruthy();
-    const gradeMenuItem = personMenu.locator(':scope > cds-menu-item[label="学年"]');
-    await gradeMenuItem.evaluate(node => node._openSubmenu?.());
-    await gradeMenuItem.locator('cds-menu-item[data-choice-value="2"]').evaluate(node => node.click());
+    await page.locator('cds-menu.person-pop-menu cds-menu-item[label="学年"]').evaluate(node => node.click());
+    await page.locator('cds-menu.person-pop-menu cds-menu-item[label="2年"]').evaluate(node => node.click());
     await expect(page.locator('.member-card,.driver-seat').first()).toContainText('2年');
     await hostClick(page, '[data-action="edit-capacity"]');
     await setHostValue(page, '#editModalInput', '4');

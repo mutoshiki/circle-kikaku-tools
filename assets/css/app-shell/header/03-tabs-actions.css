@@ -71,11 +71,8 @@
   padding: 0;
   border: 0;
   border-radius: 0;
-  background: var(--surface-lowest);
-  box-shadow: 0 0 0 1px var(--border-strong, var(--border-section));
-  --cds-layer: var(--surface-lowest);
-  --cds-layer-01: var(--surface-lowest);
-  --cds-background: var(--surface-lowest);
+  background: transparent;
+  box-shadow: none;
 }
 
 .view-tab {

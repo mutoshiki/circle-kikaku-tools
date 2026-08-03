@@ -10,13 +10,7 @@
     "test:ui": "playwright test tests/carbon-complete.spec.js",
     "test:visual": "playwright test tests/carbon-complete.visual.spec.js",
     "test:carbon:complete": "playwright test tests/carbon-complete.spec.js tests/carbon-complete.visual.spec.js",
-    "test:guard": "npm run build:carbon && npm run lint:css && npm test && npm run test:carbon:complete",
-    "lint:maps": "node tools/lint-google-route-planner.mjs",
-    "typecheck:maps": "tsc -p tsconfig.maps.json",
-    "test:maps:contract": "node tests/google-route-planner-contract.mjs",
-    "test:maps": "playwright test tests/google-maps-loader.spec.js tests/google-route-planner.spec.js",
-    "test:maps:live": "playwright test tests/google-route-planner-live.spec.js",
-    "verify:maps": "npm run lint:maps && npm run typecheck:maps && npm run test:maps:contract && npm run test:maps"
+    "test:guard": "npm run build:carbon && npm run lint:css && npm test && npm run test:carbon:complete"
   },
   "devDependencies": {
     "@carbon/icons": "11.85.0",

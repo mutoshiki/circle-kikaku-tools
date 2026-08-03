@@ -141,9 +141,6 @@
                 validateStandaloneSettlementSettings?.(true);
                 return;
             }
-            if (target?.matches?.('#routeStopList .route-stop-input')) {
-                global.onRouteStopsChangedDelayed?.();
-            }
         });
 
         document.addEventListener('focusout', event => {
@@ -216,9 +213,6 @@
                 return;
             }
 
-            if (target.matches('#routeStopList .route-stop-input')) {
-                global.onRouteStopsChanged?.();
-            }
         });
 
         document.addEventListener('pointerdown', event => {

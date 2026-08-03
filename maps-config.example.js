@@ -1,5 +1,5 @@
 window.SANPO_GOOGLE_MAPS_CONFIG = Object.freeze({
-  apiKey: 'AIzaSyCdeEkbZSgzkb1cWB88VmZduE-KQWT5ihg',
+  apiKey: '',
   language: 'ja',
   region: 'JP',
   version: 'weekly',

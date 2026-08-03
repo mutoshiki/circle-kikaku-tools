@@ -1,0 +1,46 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const read = rel => fs.readFileSync(path.join(root, rel), 'utf8');
+const html = read('index.html');
+const state = read('assets/js/features/settlement/01-state.js');
+const route = read('assets/js/features/settlement/04-route-helper.js');
+const templates = read('assets/js/templates/settlement/08-route-helper-templates.js');
+const shell = read('assets/css/settlement/route-helper/01-route-shell.css');
+const stops = read('assets/css/settlement/route-helper/02-route-stops.css');
+
+assert.doesNotMatch(route, /\bunits\s*:|UnitSystem|\bMETRIC\b/, 'ComputeRoutesRequest must not send units');
+assert.match(route, /Intentionally omit ComputeRoutesRequest\.units/, 'units omission must remain documented at request owner');
+assert.match(state, /avoidTolls:\s*true/);
+assert.match(state, /avoidHighways:\s*true/);
+assert.match(state, /optionsVersion:\s*1/);
+assert.match(html, /id="routeAvoidTolls"\s+checked/);
+assert.match(html, /id="routeAvoidHighways"\s+checked/);
+assert.match(html, /id="routePlacePickerModal"/);
+assert.match(html, /id="routePlaceCandidatesTitle"[^>]*>候補</);
+assert.doesNotMatch(html, />地点を設定</);
+assert.doesNotMatch(html, /の移動距離へ反映します/);
+assert.doesNotMatch(html, />\s*\d+\s*経由地\s*</);
+assert.match(templates, /route-sequence-marker--origin/);
+assert.match(templates, /route-place-field-search/);
+assert.match(templates, /経由地を追加/);
+assert.doesNotMatch(templates, /route-place-summary|formatted-address-card/);
+assert.match(route, /PlaceAutocompleteElement/);
+assert.match(route, /planner\.history/);
+assert.match(route, /gmp-select/);
+assert.match(route, /fetchFields/);
+assert.match(route, /locationBias\s*=\s*JAPAN_BIAS/);
+assert.match(route, /renderHistory\(\)/);
+assert.match(route, /rows\.push\(templates\(\)\.routePlaceRow\?\.\(\{ place: planner\.destination/);
+assert.ok(route.indexOf("role: 'destination'") < route.indexOf('routeAddWaypointRow'), 'add row must be after the current destination');
+assert.match(shell, /--route-visual-height/);
+assert.match(shell, /route-place-picker-modal::part\(dialog\)/);
+assert.match(stops, /var\(--surface-low\)/);
+assert.match(stops, /var\(--text-main\)/);
+assert.match(stops, /var\(--border-strong\)/);
+assert.match(html, /route-planner-v7/);
+
+console.log('PASS route planner redesign contract');

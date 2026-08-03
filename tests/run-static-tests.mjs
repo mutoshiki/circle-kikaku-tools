@@ -63,13 +63,10 @@ check('Header icon-only controls use Carbon Icon Button or Overflow Menu', () =>
 check('Waiting tray disclosure uses a Carbon button', () => {
   assert.match(read('index.html'), /<cds-button\b[^>]*id="tray-handle"/i);
 });
-check('Person actions use official Carbon Overflow Menu and Menu', () => {
-  const cards = read('assets/js/features/person-cards.js');
-  const menu = read('assets/js/features/person-menu.js');
-  assert.match(cards, /<cds-overflow-menu\b[^>]*person-overflow-menu/);
-  assert.match(cards, /<cds-menu\b[^>]*person-pop-menu/);
-  assert.match(cards, /<cds-menu-item-group\b[^>]*slot="submenu"/);
-  assert.doesNotMatch(menu, /positionPersonMenu|style\.setProperty\(['"]inset-/);
+check('Person actions use official Carbon Menu', () => {
+  const js = read('assets/js/features/person-menu.js');
+  assert.match(js, /(?:createElement|ce)\(['"]cds-menu['"]/);
+  assert.match(js, /(?:createElement|ce)\(['"]cds-menu-item['"]/);
 });
 check('No automatic blocking coachmark remains', () => {
   assert.doesNotMatch(read('assets/js/features/sheet-view.js'), /maybeShowPlanningCoach/);

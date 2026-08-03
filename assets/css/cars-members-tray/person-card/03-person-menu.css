@@ -1,6 +1,4 @@
-/* Person-card overflow actions use Carbon's overflow menu composition.
- * Carbon owns trigger hit area, menu placement, focus, keyboard navigation,
- * viewport flipping and submenu positioning. */
+/* Member overflow trigger and official Carbon Menu positioning. */
 .member-main-line,
 .driver-main-line {
   display: grid;
@@ -27,60 +25,33 @@
 
 :where(.member-menu-btn, .driver-menu-btn) {
   grid-area: menu;
-  box-sizing: border-box;
-  display: block;
-  flex: 0 0 48px;
-  width: 48px;
-  min-width: 48px;
-  height: 48px;
-  min-height: 48px;
-  padding: 0;
-  color: var(--accent-color);
-  touch-action: manipulation;
-  --cds-icon-primary: var(--accent-color);
-  --cds-layer: var(--surface-lowest);
-  --cds-layer-01: var(--surface-lowest);
-  --cds-layer-02: var(--surface-low);
-  --cds-background: var(--surface-lowest);
-}
-
-:where(.member-menu-btn, .driver-menu-btn)::part(button) {
-  box-sizing: border-box;
-  width: 48px;
-  min-width: 48px;
-  height: 48px;
-  min-height: 48px;
-  padding: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-sub);
+  touch-action: manipulation;
 }
+:where(.member-menu-btn, .driver-menu-btn):hover { background: var(--cds-background-hover); color: var(--text-main); }
+:where(.member-menu-btn, .driver-menu-btn) .carbon-icon { width: 1.25rem; height: 1.25rem; pointer-events: none; }
 
-:where(.member-menu-btn, .driver-menu-btn) > .carbon-icon {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  pointer-events: none;
-}
-
-/* Keep every menu surface opaque while the Carbon component owns its shadow,
- * elevation, selected, focus, danger and submenu states. */
-.person-overflow-menu > cds-menu.person-pop-menu,
-.person-overflow-menu cds-menu {
+/* The Menu component owns focus, item states and keyboard behavior; x/y are supplied by its feature owner. */
+cds-menu.person-pop-menu {
+  position: fixed;
   z-index: var(--z-person-menu);
-  max-width: min(224px, calc(100vw - 16px));
   max-height: calc(100dvh - 16px);
-  --cds-layer: var(--surface-lowest);
-  --cds-layer-01: var(--surface-lowest);
-  --cds-layer-02: var(--surface-low);
-  --cds-background: var(--surface-lowest);
-  --cds-text-primary: var(--text-main);
-  --cds-text-secondary: var(--text-sub);
-  --cds-icon-primary: var(--text-sub);
+  --cds-layer: var(--cds-layer-01);
 }
-
 .person-pop-item { min-width: 0; }
-.person-pop-item[data-flag-choice] [data-carbon-icon],
-.person-pop-item[data-flag-choice] .carbon-icon { color: var(--person-flag-color, var(--cds-icon-primary)); }
+.person-pop-item[data-flag-choice] [data-carbon-icon] { color: var(--person-flag-color, var(--cds-icon-primary)); }
 .person-pop-item[data-flag-choice="blue"] { --person-flag-color: var(--accent-color); }
 .person-pop-item[data-flag-choice="purple"] { --person-flag-color: var(--grade1-border); }
 .person-pop-item[data-flag-choice="yellow"] { --person-flag-color: var(--grade3-border); }

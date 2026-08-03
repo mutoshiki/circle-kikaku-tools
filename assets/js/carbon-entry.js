@@ -11,6 +11,8 @@ import '@carbon/web-components/es/components/number-input/index.js';
 import '@carbon/web-components/es/components/toggle/index.js';
 import '@carbon/web-components/es/components/modal/index.js';
 import '@carbon/web-components/es/components/overflow-menu/index.js';
+import '@carbon/web-components/es/components/inline-loading/index.js';
+import '@carbon/web-components/es/components/notification/inline-notification.js';
 
 import Add20 from '@carbon/icons/es/add/20.js';
 import ArrowDown20 from '@carbon/icons/es/arrow--down/20.js';

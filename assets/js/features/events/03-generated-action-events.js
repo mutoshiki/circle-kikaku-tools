@@ -41,9 +41,7 @@
             ),
             'remove-settlement-extra': ({ target }) => global.removeSettlementExtra?.(target),
             'copy-settlement-text': () => global.copySettlementText?.(),
-            'open-route-helper-shortcut': () => global.openRouteDistanceHelperFromShortcut?.(),
-            'remove-route-waypoint': ({ target }) => global.removeRouteWaypoint?.(target.dataset.routeWaypointId || ''),
-            'select-google-route': ({ target }) => global.selectGoogleRoute?.(Number(target.dataset.routeIndex))
+            'open-route-helper-shortcut': ({ target }) => global.openRouteDistanceHelperFromShortcut?.(target.closest?.('.seisan-car-row')?.dataset?.driverName || '')
         };
         global.SanpoApp?.registerActions?.(generatedActionHandlers);
 

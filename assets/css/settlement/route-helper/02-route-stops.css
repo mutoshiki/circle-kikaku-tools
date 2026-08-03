@@ -1,79 +1,206 @@
-/* Google Routes planner: selected waypoints and drag controls. */
-#routeDistanceModal .route-waypoint-list {
+/* A/B/C route sequence editor and shared place history. */
+.route-sequence-list {
+  position: relative;
   display: grid;
-  gap: 12px;
+  gap: var(--space-2);
 }
 
-#routeDistanceModal .route-waypoint-row,
-.route-waypoint-row.route-waypoint-drag-fallback {
+.route-sequence-row {
+  position: relative;
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) 40px 40px;
-  gap: 8px;
-  align-items: center;
+  grid-template-columns: 40px minmax(0, 1fr) 48px 48px;
+  grid-template-areas: "marker field drag delete";
+  align-items: stretch;
   min-width: 0;
 }
 
-#routeDistanceModal .route-waypoint-stop {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#routeDistanceModal .route-waypoint-stop-letter {
-  width: 28px;
-  height: 28px;
-  border: 2px solid var(--cds-text-primary, var(--text-main));
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--cds-text-primary, var(--text-main));
-  background: var(--cds-layer-01, var(--bg-card));
-}
-
-#routeDistanceModal .route-waypoint-main {
-  min-width: 0;
-  display: grid;
-}
-
-#routeDistanceModal .route-waypoint-handle,
-.route-waypoint-row.route-waypoint-drag-fallback .route-waypoint-handle,
-#routeDistanceModal .route-waypoint-delete {
-  width: 40px;
-  min-width: 40px;
-  height: 40px;
-}
-
-#routeDistanceModal .route-waypoint-handle,
-.route-waypoint-row.route-waypoint-drag-fallback .route-waypoint-handle {
-  border: 0;
-  background: transparent;
-  color: var(--cds-icon-secondary, var(--text-sub));
-  cursor: grab;
-  touch-action: none;
-}
-
-#routeDistanceModal .route-waypoint-handle:active { cursor: grabbing; }
-
-.route-waypoint-row.route-waypoint-drag-fallback {
-  z-index: calc(var(--z-modal, 1055) + 4);
-  padding: 8px;
-  border: 1px solid var(--cds-border-interactive, var(--accent-color));
-  background: var(--cds-layer-01, var(--bg-card));
-  box-shadow: 0 8px 24px rgba(var(--shadow-rgb), 0.2);
+.route-sequence-row:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 19px;
+  width: 2px;
+  height: calc(56px + var(--space-2));
+  margin-block-start: 28px;
+  border-inline-start: 2px dotted var(--border-strong);
   pointer-events: none;
 }
 
-.route-waypoint-drag-ghost { opacity: 0.28; }
-.route-waypoint-drag-chosen { cursor: grabbing; }
-body.route-waypoint-dragging { cursor: grabbing; user-select: none; }
+.route-sequence-marker {
+  position: relative;
+  z-index: 1;
+  grid-area: marker;
+  align-self: center;
+  justify-self: center;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 2px solid var(--text-main);
+  border-radius: 50%;
+  color: var(--text-main);
+  font-weight: 600;
+  line-height: 1;
+  background: var(--surface-lowest);
+}
 
-@media (max-width: 390px) {
-  #routeDistanceModal .route-waypoint-row,
-  .route-waypoint-row.route-waypoint-drag-fallback {
-    grid-template-columns: 28px minmax(0, 1fr) 36px 36px;
-    gap: 6px;
+.route-sequence-marker--origin {
+  border-color: transparent;
+  background: transparent;
+}
+
+.route-origin-dot {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border: 4px solid var(--surface-lowest);
+  border-radius: 50%;
+  background: var(--accent-color);
+  box-shadow: 0 0 0 2px var(--accent-soft-strong, var(--accent-soft));
+}
+
+.route-place-field-button {
+  grid-area: field;
+  width: 100%;
+  min-width: 0;
+  min-height: 56px;
+  color: var(--text-main);
+  text-align: start;
+  background: var(--surface-low);
+  border-block-end: 1px solid var(--border-strong);
+  --cds-button-ghost: var(--surface-low);
+  --cds-button-ghost-hover: var(--surface-container);
+  --cds-button-ghost-active: var(--surface-container-high);
+  --cds-link-primary: var(--text-main);
+  --cds-link-primary-hover: var(--text-main);
+}
+
+.route-place-field-button--add {
+  color: var(--text-sub);
+  background: var(--surface-lowest);
+  border: 1px solid var(--border-strong);
+  --cds-button-ghost: var(--surface-lowest);
+  --cds-link-primary: var(--text-sub);
+  --cds-link-primary-hover: var(--text-main);
+}
+
+.route-place-field-content {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.route-place-field-search {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--text-sub);
+  fill: currentcolor;
+}
+
+.route-place-field-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+.route-sequence-drag,
+.route-sequence-delete {
+  align-self: stretch;
+  width: 48px;
+  min-width: 48px;
+  min-height: 56px;
+}
+
+.route-sequence-drag {
+  grid-area: drag;
+  cursor: grab;
+  color: var(--text-main);
+}
+
+.route-sequence-drag:active { cursor: grabbing; }
+
+.route-sequence-delete {
+  grid-area: delete;
+  color: var(--accent-color);
+}
+
+.route-sequence-row--add {
+  grid-template-areas: "marker field field field";
+}
+
+.route-place-display--add cds-text-input::part(input) {
+  color: var(--text-sub);
+  background: var(--surface-lowest);
+  border: 1px solid var(--border-strong);
+}
+
+.route-sequence-ghost { opacity: 0.32; }
+.route-sequence-chosen { background: var(--accent-soft); }
+.route-sequence-dragging { cursor: grabbing; }
+
+.route-history-list {
+  display: grid;
+  gap: 1px;
+  background: var(--border-section);
+}
+
+.route-history-item {
+  width: 100%;
+  min-height: 72px;
+  justify-content: flex-start;
+  text-align: start;
+  background: var(--surface-lowest);
+}
+
+.route-history-item-content {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.route-history-item-content > .carbon-icon {
+  flex: 0 0 20px;
+  color: var(--text-sub);
+}
+
+.route-history-copy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+  text-align: start;
+}
+
+.route-history-copy strong,
+.route-history-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.route-history-copy strong {
+  color: var(--text-main);
+  font-size: var(--font-size-body);
+  font-weight: 600;
+}
+
+.route-history-copy small {
+  color: var(--text-sub);
+  font-size: var(--font-size-caption);
+}
+
+@media (max-width: 420px) {
+  .route-sequence-row {
+    grid-template-columns: 36px minmax(0, 1fr) 44px 44px;
   }
+
+  .route-sequence-row:not(:last-child)::before { inset-inline-start: 17px; }
+  .route-sequence-marker { width: 30px; height: 30px; }
+  .route-sequence-drag,
+  .route-sequence-delete { width: 44px; min-width: 44px; }
 }
