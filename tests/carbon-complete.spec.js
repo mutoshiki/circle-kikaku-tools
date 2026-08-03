@@ -289,6 +289,9 @@ test.describe('First-run rendering and submit regression', () => {
       savedCars: 3,
       settlementCars: 3
     });
+    await page.reload();
+    await page.waitForFunction(() => typeof window.getData === 'function' && window.getData({ skipDomSync: true }).cars.length === 3);
+    expect(await page.evaluate(() => window.getData({ skipDomSync: true }).cars.length)).toBe(3);
   });
 });
 
@@ -360,62 +363,5 @@ test.describe('Settlement and route workflows', () => {
     expect(await page.evaluate(() => /[¥￥円]/.test(window.__copiedText || ''))).toBeTruthy();
     await expectNoDocumentOverflow(page);
     expect(errors).toEqual([]);
-  });
-});
-
-test.describe('First-run rendering and modal save regressions', () => {
-  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
-
-  test('the default tool renders immediately and every empty view shows only the two entry choices', async ({ page }) => {
-    const room = `EMPTY-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    await page.goto(`/?room=${room}`);
-    await page.waitForFunction(() => customElements.get('cds-button') && typeof window.switchView === 'function');
-
-    await expect(page.locator('#top-area')).toBeVisible();
-    expect(await page.evaluate(() => window.currentView || currentView)).toBe('list');
-
-    for (const [view, root] of [['list', '#top-area'], ['sheet', '#sheet-view-area'], ['seisan', '#seisan-view-area']]) {
-      await page.evaluate(next => window.switchView(next), view);
-      await expect(page.locator(root)).toBeVisible();
-      await expect(page.locator(`${root} .app-entry-choice cds-button`)).toHaveText([
-        '参加者登録(推奨)',
-        '人数だけで精算'
-      ]);
-      await expect(page.locator(`${root} .app-entry-choice [data-carbon-icon]`)).toHaveCount(0);
-      await expect(page.locator(root)).not.toContainText('参加者がまだいません');
-      await expect(page.locator(root)).not.toContainText('共有できるデータがありません');
-      await expect(page.locator(root)).not.toContainText('精算するデータがありません');
-    }
-  });
-
-  test('sample data persists and participant/settings save buttons close their Carbon modals', async ({ page }) => {
-    const room = `SAVE-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    await page.goto(`/?room=${room}`);
-    await page.waitForFunction(() => customElements.get('cds-modal') && typeof window.executeDebugMode === 'function');
-
-    await page.evaluate(() => window.openDebugModal());
-    await hostClick(page, '#executeDebugBtn');
-    await expect(page.locator('#debugModal')).not.toHaveAttribute('open', '');
-    expect(await page.evaluate(() => {
-      const data = window.getData({ skipDomSync: true });
-      return {
-        roomName: data.roomName,
-        carCount: data.cars.length,
-        planCount: data.carPlans.length,
-        error: window.__sampleDataLastError || null
-      };
-    })).toEqual({ roomName: '秋名・赤城ツーリング', carCount: 3, planCount: 2, error: null });
-
-    await page.evaluate(() => window.openSettlementSettings());
-    await hostClick(page, '#saveSettlementSettingsBtn');
-    await expect(page.locator('#settlementSettingsModal')).not.toHaveAttribute('open', '');
-
-    await page.evaluate(() => window.openBatchModal());
-    await hostClick(page, '#executeBatchBtn');
-    await expect(page.locator('#batchImportModal')).not.toHaveAttribute('open', '');
-
-    await page.reload();
-    await page.waitForFunction(() => typeof window.getData === 'function');
-    expect(await page.evaluate(() => window.getData({ skipDomSync: true }).cars.length)).toBe(3);
   });
 });

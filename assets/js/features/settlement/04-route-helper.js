@@ -105,7 +105,7 @@
     }
 
     function getSelectedRoute(state = plannerState()) {
-        return state.routes[state.selectedRouteIndex] || null;
+        return state.routes[0] || state.routes[state.selectedRouteIndex] || null;
     }
 
     function getOrderedPlaces(state = plannerState()) {
@@ -352,6 +352,90 @@
         return String(value || '').split(' / ').map(item => item.trim()).filter(Boolean);
     }
 
+
+    function segmentSelectionLabel(index = 0) {
+        return index === 0 ? 'おすすめ' : `ルート${index + 1}`;
+    }
+
+    function decorateSegmentRoute(route = {}, segmentIndex = 0, routeIndex = 0) {
+        return {
+            ...route,
+            segmentIndex,
+            segmentRouteIndex: routeIndex,
+            label: segmentSelectionLabel(routeIndex)
+        };
+    }
+
+    function clearComputedRoutes(state = plannerState()) {
+        state.routes = [];
+        state.segmentRouteGroups = [];
+        state.segmentSelectionIndices = [];
+        state.selectedRouteIndex = 0;
+        state.calculatedAt = 0;
+        return state;
+    }
+
+    function clampSegmentSelections(state = plannerState()) {
+        const groups = Array.isArray(state.segmentRouteGroups) ? state.segmentRouteGroups : [];
+        state.segmentSelectionIndices = groups.map((group, index) => {
+            const value = Array.isArray(state.segmentSelectionIndices) ? Number(state.segmentSelectionIndices[index]) : 0;
+            return Number.isInteger(value) && value >= 0 ? Math.min(value, Math.max(0, group.length - 1)) : 0;
+        });
+        return state.segmentSelectionIndices;
+    }
+
+    function buildAggregateFromSelections(state = plannerState()) {
+        const groups = Array.isArray(state.segmentRouteGroups) ? state.segmentRouteGroups : [];
+        if (!groups.length) return null;
+        clampSegmentSelections(state);
+        const selectedRoutes = groups.map((group, index) => group[state.segmentSelectionIndices[index]] || group[0]).filter(Boolean);
+        if (!selectedRoutes.length) return null;
+        let distanceMeters = 0;
+        let durationSeconds = 0;
+        let path = [];
+        let legs = [];
+        let hasTolls = false;
+        let hasHighways = false;
+        let tollPrices = [];
+        let mainRoads = [];
+        const idParts = [];
+        selectedRoutes.forEach(route => {
+            distanceMeters += Number(route.distanceMeters) || 0;
+            durationSeconds += Number(route.durationSeconds) || 0;
+            legs = legs.concat(route.legs || []);
+            path = appendRoutePath(path, routePath(route));
+            hasTolls = hasTolls || route.hasTolls === true;
+            hasHighways = hasHighways || route.hasHighways === true;
+            tollPrices = Array.from(new Set(tollPrices.concat(splitTollPrices(route.tollPrice))));
+            mainRoads = Array.from(new Set(mainRoads.concat(route.mainRoads || []))).slice(0, 5);
+            idParts.push(route.id);
+        });
+        const id = `selected-${idParts.join('-').replace(/[^a-zA-Z0-9_-]+/g, '-').slice(0, 180)}`;
+        runtime.routePaths.set(id, path);
+        let polyline = '';
+        try { polyline = runtime.geometry?.encoding?.encodePath?.(path) || ''; } catch (error) {}
+        return {
+            id,
+            label: '選択中のルート',
+            distanceMeters,
+            durationSeconds,
+            legs,
+            viewport: viewportFromPath(path),
+            polyline,
+            hasTolls,
+            hasHighways,
+            tollPrice: tollPrices.join(' / '),
+            mainRoads
+        };
+    }
+
+    function refreshAggregateRouteState(state = plannerState()) {
+        const aggregate = buildAggregateFromSelections(state);
+        state.routes = aggregate ? [aggregate] : [];
+        state.selectedRouteIndex = 0;
+        return aggregate;
+    }
+
     function combineSegmentRoutes(segmentGroups = []) {
         let combinations = [{
             idParts: [],
@@ -524,9 +608,7 @@
             if (row) row.place = place;
         }
         if (place) rememberPlace(place);
-        state.routes = [];
-        state.selectedRouteIndex = 0;
-        state.calculatedAt = 0;
+        clearComputedRoutes(state);
         persistPlannerState();
         renderStopEditor();
         renderRoutes();
@@ -789,9 +871,7 @@
             id: item.role === 'waypoint' ? item.id : createWaypointId(),
             place: item.place || null
         }));
-        state.routes = [];
-        state.selectedRouteIndex = 0;
-        state.calculatedAt = 0;
+        clearComputedRoutes(state);
         renderStopEditor();
         persistPlannerState();
         renderRoutes();
@@ -837,25 +917,23 @@
         const summary = byId('routeLegSummary');
         const apply = byId('applyRouteDistanceBtn');
         const selected = getSelectedRoute(state);
+        const places = getOrderedPlaces(state);
         if (list) {
-            list.innerHTML = state.routes.length
-                ? state.routes.map((route, index) => templates().routeCandidateCard(route, index, index === state.selectedRouteIndex, state.roundTrip, { escapeHtml })).join('')
-                : '<div class="route-candidate-empty">出発地と目的地を選ぶと、ルート候補を表示します。</div>';
+            if (Array.isArray(state.segmentRouteGroups) && state.segmentRouteGroups.length) {
+                list.innerHTML = state.segmentRouteGroups.map((group, segmentIndex) => {
+                    const from = places[segmentIndex]?.name || `地点${segmentIndex + 1}`;
+                    const to = places[segmentIndex + 1]?.name || `地点${segmentIndex + 2}`;
+                    return `<section class="route-candidate-group"><div class="route-candidate-group-heading"><strong>区間 ${segmentIndex + 1}</strong><span>${escapeHtml(from)} → ${escapeHtml(to)}</span></div>${group.map((route, routeIndex) => templates().routeCandidateCard(route, routeIndex, routeIndex === (state.segmentSelectionIndices?.[segmentIndex] || 0), false, { escapeHtml }, { segmentIndex, routeIndex, prefixLabel: `区間${segmentIndex + 1}`, distancePrefix: '区間' })).join('')}</section>`;
+                }).join('');
+            } else {
+                list.innerHTML = state.routes.length
+                    ? state.routes.map((route, index) => templates().routeCandidateCard(route, index, index === state.selectedRouteIndex, state.roundTrip, { escapeHtml })).join('')
+                    : '<div class="route-candidate-empty">出発地と目的地を選ぶと、ルート候補を表示します。</div>';
+            }
         }
-        if (summary) summary.innerHTML = selected ? templates().routeLegSummary(selected, getOrderedPlaces(state), state.roundTrip, { escapeHtml }) : '';
-        if (apply) apply.disabled = !selected || !state.targetCarName;
-        if (list) applyRuntimeAccessibilityFixes(list);
-    }
-
-    function resolveSemanticColor(tokenName, fallback) {
-        const rootStyles = getComputedStyle(document.documentElement);
-        const modalStyles = byId('routeDistanceModal') ? getComputedStyle(byId('routeDistanceModal')) : null;
-        const candidates = [
-            modalStyles?.getPropertyValue(tokenName),
-            rootStyles.getPropertyValue(tokenName)
-        ];
-        const value = candidates.map(item => String(item || '').trim()).find(item => /^(?:#|rgb\(|rgba\(|hsl\(|hsla\()/i.test(item));
-        return value || fallback;
+        if (summary) summary.innerHTML = selected ? templates().routeLegSummary(selected, places, state.roundTrip, { escapeHtml }) : '';
+        if (apply) apply.disabled = !selected;
+        applyRuntimeAccessibilityFixes(list);
     }
 
     function clearMapOverlays() {
@@ -879,53 +957,101 @@
         return [];
     }
 
+    function svgDataUrl(markup = '') {
+        return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(markup)}`;
+    }
+
+    function buildCircleMarkerSvg(label = 'A') {
+        return svgDataUrl(`<svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 38 38"><circle cx="19" cy="19" r="16" fill="#161616" stroke="#f4f4f4" stroke-width="3"/><text x="19" y="24" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#f4f4f4">${String(label || '').replace(/[<&>]/g, '')}</text></svg>`);
+    }
+
+    function buildPinMarkerSvg(label = '') {
+        const clean = String(label || '').replace(/[<&>]/g, '');
+        const text = clean ? `<text x="22" y="21" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#ffffff">${clean}</text>` : '';
+        return svgDataUrl(`<svg xmlns="http://www.w3.org/2000/svg" width="44" height="56" viewBox="0 0 44 56"><path d="M22 3C11.5 3 3 11.4 3 21.9c0 13.4 15.2 26.7 18 30.7.7 1 2.2 1 2.9 0 2.8-4 18-17.3 18-30.7C41 11.4 32.5 3 22 3z" fill="#fa4d56" stroke="#ffffff" stroke-width="2"/>${text}</svg>`);
+    }
+
     function createMarker(place, index, total) {
-        if (!runtime.map || !place) return;
+        if (!runtime.map || !place || !global.google?.maps?.Marker) return;
         const position = { lat: place.latitude, lng: place.longitude };
-        const label = index === 0 ? 'O' : String(templates().formatRouteStopLetter?.(index - 1) || index);
-        let marker;
-        if (runtime.marker?.AdvancedMarkerElement && global.SanpoGoogleMaps?.getConfig().mapId) {
-            marker = new runtime.marker.AdvancedMarkerElement({ map: runtime.map, position, title: place.name });
-        } else if (global.google?.maps?.Marker) {
-            marker = new global.google.maps.Marker({ map: runtime.map, position, label, title: place.name });
-        }
-        if (marker) runtime.markers.push(marker);
+        const letter = index === 0 ? 'O' : String(templates().formatRouteStopLetter?.(index - 1) || index);
+        const isDestination = index === total - 1;
+        const isLastWaypoint = total > 2 && index === total - 2;
+        const isPin = isDestination || isLastWaypoint;
+        const marker = new global.google.maps.Marker({
+            map: runtime.map,
+            position,
+            title: place.name,
+            icon: {
+                url: isPin ? buildPinMarkerSvg(isDestination ? '' : letter) : buildCircleMarkerSvg(letter),
+                scaledSize: new global.google.maps.Size(isPin ? 44 : 38, isPin ? 56 : 38),
+                anchor: new global.google.maps.Point(isPin ? 22 : 19, isPin ? 53 : 19)
+            },
+            optimized: true
+        });
+        runtime.markers.push(marker);
     }
 
-    function formatMapRouteLabel(route, roundTrip = false) {
-        const distance = (Number(route?.distanceMeters) || 0) * (roundTrip ? 2 : 1);
-        const duration = (Number(route?.durationSeconds) || 0) * (roundTrip ? 2 : 1);
-        const distanceText = templates().formatRouteDistance?.(distance) || `${Math.round(distance / 100) / 10}km`;
-        const durationText = templates().formatRouteDuration?.(duration) || `${Math.round(duration / 60)}分`;
-        return `${distanceText}・${durationText}`;
+    function pointAlongPath(path = [], fraction = 0.5) {
+        if (!path.length) return null;
+        const clamped = Math.min(0.9, Math.max(0.1, Number(fraction) || 0.5));
+        const index = Math.min(path.length - 1, Math.max(0, Math.round((path.length - 1) * clamped)));
+        return { point: path[index], index };
     }
 
-    function createRouteMapLabel(route, index, path, selected) {
-        if (!runtime.map || !runtime.maps?.OverlayView || !path?.length) return;
-        const point = path[Math.floor(path.length / 2)];
-        const position = point?.lat instanceof Function
-            ? point
-            : new global.google.maps.LatLng(Number(point.lat), Number(point.lng));
+    function labelOffsetForPath(path = [], pointIndex = 0, segmentIndex = 0, routeIndex = 0) {
+        const current = path[pointIndex] || path[path.length - 1] || { lat: 0, lng: 0 };
+        const previous = path[Math.max(0, pointIndex - 1)] || current;
+        const next = path[Math.min(path.length - 1, pointIndex + 1)] || current;
+        const dx = Number(next.lng) - Number(previous.lng);
+        const dy = Number(next.lat) - Number(previous.lat);
+        const length = Math.hypot(dx, dy) || 1;
+        const nx = (-dy / length) || 0;
+        const ny = (dx / length) || -1;
+        const side = segmentIndex % 2 === 0 ? 1 : -1;
+        const base = 48 + (routeIndex * 22);
+        return {
+            x: Math.round(nx * base * side + (routeIndex - 1) * 18),
+            y: Math.round(ny * base * side - 28 - (routeIndex * 6))
+        };
+    }
+
+    function createRouteMapLabel(route, options = {}) {
+        if (!runtime.map || !runtime.maps?.OverlayView) return;
+        const path = options.path || [];
+        if (!path.length) return;
+        const totalRoutes = Math.max(1, Number(options.totalRoutes) || 1);
+        const routeIndex = Math.max(0, Number(options.routeIndex) || 0);
+        const anchorFractions = totalRoutes >= 3 ? [0.3, 0.52, 0.74] : totalRoutes === 2 ? [0.38, 0.64] : [0.52];
+        const anchor = pointAlongPath(path, anchorFractions[Math.min(routeIndex, anchorFractions.length - 1)]);
+        if (!anchor?.point) return;
+        const position = anchor.point?.lat instanceof Function
+            ? anchor.point
+            : new global.google.maps.LatLng(Number(anchor.point.lat), Number(anchor.point.lng));
+        const offset = labelOffsetForPath(path, anchor.index, options.segmentIndex || 0, routeIndex);
         const button = document.createElement('cds-button');
         button.setAttribute('kind', 'ghost');
         button.setAttribute('size', 'sm');
         button.setAttribute('type', 'button');
         button.className = 'route-map-route-label';
-        button.dataset.selected = selected ? 'true' : 'false';
-        button.setAttribute('aria-label', `${route.label || `ルート ${index + 1}`}、${formatMapRouteLabel(route, plannerState().roundTrip)}`);
-        button.textContent = formatMapRouteLabel(route, plannerState().roundTrip);
+        button.dataset.selected = options.selected ? 'true' : 'false';
+        button.dataset.segmentIndex = String(options.segmentIndex || 0);
+        button.dataset.routeIndex = String(routeIndex);
+        const durationText = templates().formatRouteDuration?.(route.durationSeconds) || `${Math.round((Number(route.durationSeconds) || 0) / 60)}分`;
+        button.textContent = `${route.label || `ルート${routeIndex + 1}`}・${durationText}`;
+        button.setAttribute('aria-label', `${options.fromName || ''}から${options.toName || ''}まで、${route.label || `ルート${routeIndex + 1}`}、${durationText}`);
         button.addEventListener('click', event => {
             event.preventDefault();
             event.stopPropagation();
-            selectRoute(index);
+            selectRoute(routeIndex, options.segmentIndex);
         });
         class RouteLabelOverlay extends runtime.maps.OverlayView {
             onAdd() { this.getPanes()?.floatPane?.appendChild(button); }
             draw() {
                 const pixel = this.getProjection()?.fromLatLngToDivPixel(position);
                 if (!pixel) return;
-                button.style.left = `${pixel.x}px`;
-                button.style.top = `${pixel.y}px`;
+                button.style.left = `${pixel.x + offset.x}px`;
+                button.style.top = `${pixel.y + offset.y}px`;
                 button.style.position = 'absolute';
             }
             onRemove() { button.remove(); }
@@ -940,36 +1066,52 @@
         if (!runtime.map) return;
         clearMapOverlays();
         const bounds = new global.google.maps.LatLngBounds();
-        const selectedIndex = state.selectedRouteIndex;
-        const routeOrder = state.routes.map((route, index) => ({ route, index }))
-            .sort((left, right) => Number(left.index === selectedIndex) - Number(right.index === selectedIndex));
-        routeOrder.forEach(({ route, index }) => {
-            const path = routePath(route);
-            if (!path?.length) return;
-            path.forEach(point => bounds.extend(point));
-            const selected = index === selectedIndex;
-            const polyline = new global.google.maps.Polyline({
-                map: runtime.map,
-                path,
-                clickable: true,
-                strokeColor: selected
-                    ? resolveSemanticColor('--accent-color', '#0f62fe')
-                    : resolveSemanticColor('--accent-line', '#78a9ff'),
-                strokeOpacity: selected ? 1 : 0.78,
-                strokeWeight: selected ? 7 : 5,
-                zIndex: selected ? 30 : 10
-            });
-            polyline.addListener('click', () => selectRoute(index));
-            runtime.polylines.push(polyline);
-            createRouteMapLabel(route, index, path, selected);
-        });
+        const segmentGroups = Array.isArray(state.segmentRouteGroups) && state.segmentRouteGroups.length
+            ? state.segmentRouteGroups
+            : [state.routes];
         const places = getOrderedPlaces(state);
+        segmentGroups.forEach((group, segmentIndex) => {
+            const selectedRouteIndex = Array.isArray(state.segmentRouteGroups) && state.segmentRouteGroups.length
+                ? (state.segmentSelectionIndices?.[segmentIndex] || 0)
+                : state.selectedRouteIndex;
+            const routeOrder = group.map((route, index) => ({ route, index }))
+                .sort((left, right) => Number(left.index === selectedRouteIndex) - Number(right.index === selectedRouteIndex));
+            routeOrder.forEach(({ route, index }) => {
+                const path = routePath(route);
+                if (!path?.length) return;
+                path.forEach(point => bounds.extend(point));
+                const selected = index === selectedRouteIndex;
+                const polyline = new global.google.maps.Polyline({
+                    map: runtime.map,
+                    path,
+                    clickable: true,
+                    strokeColor: selected
+                        ? resolveSemanticColor('--accent-color', '#0f62fe')
+                        : resolveSemanticColor('--accent-line', '#9ec5ff'),
+                    strokeOpacity: selected ? 0.98 : 0.82,
+                    strokeWeight: selected ? 7 : 5,
+                    zIndex: selected ? 30 : 10
+                });
+                polyline.addListener('click', () => selectRoute(index, Array.isArray(state.segmentRouteGroups) && state.segmentRouteGroups.length ? segmentIndex : undefined));
+                runtime.polylines.push(polyline);
+                createRouteMapLabel(route, {
+                    segmentIndex,
+                    routeIndex: index,
+                    totalRoutes: group.length,
+                    path,
+                    selected,
+                    fromName: places[segmentIndex]?.name || '',
+                    toName: places[segmentIndex + 1]?.name || ''
+                });
+            });
+        });
         places.forEach((place, index) => {
             createMarker(place, index, places.length);
             bounds.extend({ lat: place.latitude, lng: place.longitude });
         });
         if (!bounds.isEmpty()) runtime.map.fitBounds(bounds, 48);
-        setMapEmpty(state.routes.length ? '' : '出発地と目的地を候補から選択してください。');
+        const hasAnyRoutes = segmentGroups.some(group => Array.isArray(group) && group.length);
+        setMapEmpty(hasAnyRoutes ? '' : '出発地と目的地を候補から選択してください。');
     }
 
     function applyMapTheme() {
@@ -1119,9 +1261,7 @@
         const state = persistPlannerState();
         if (!state.origin || !state.destination) {
             runtime.requestSequence += 1;
-            state.routes = [];
-            state.selectedRouteIndex = 0;
-            state.calculatedAt = 0;
+            clearComputedRoutes(state);
             persistPlannerState();
             renderRoutes();
             renderMapRoutes();
@@ -1147,9 +1287,12 @@
                 usedFallback = usedFallback || Boolean(result.fallbackInfo);
             }
             runtime.routePaths.clear();
-            state.routes = combineSegmentRoutes(segmentGroups);
-            if (!state.routes.length) throw new Error('No combined routes returned.');
-            state.selectedRouteIndex = 0;
+            state.segmentRouteGroups = segmentGroups.map((group, segmentIndex) => group.map((item, routeIndex) => {
+                runtime.routePaths.set(item.route.id, item.path);
+                return decorateSegmentRoute(item.route, segmentIndex, routeIndex);
+            }));
+            clampSegmentSelections(state);
+            if (!refreshAggregateRouteState(state)) throw new Error('No segment routes returned.');
             state.calculatedAt = Date.now();
             persistPlannerState();
             renderRoutes();
@@ -1158,9 +1301,7 @@
             else setNotice('', '', '');
         } catch (error) {
             if (requestId !== runtime.requestSequence) return;
-            state.routes = [];
-            state.selectedRouteIndex = 0;
-            state.calculatedAt = 0;
+            clearComputedRoutes(state);
             persistPlannerState();
             renderRoutes();
             renderMapRoutes();
@@ -1180,9 +1321,20 @@
         }, Math.max(0, Number(delay) || 0));
     }
 
-    function selectRoute(index) {
+    function selectRoute(index, segmentIndex) {
         const state = plannerState();
         const next = Number(index);
+        if (Number.isInteger(Number(segmentIndex)) && Array.isArray(state.segmentRouteGroups) && state.segmentRouteGroups.length) {
+            const targetSegment = Number(segmentIndex);
+            const group = state.segmentRouteGroups[targetSegment] || [];
+            if (!Number.isInteger(next) || next < 0 || next >= group.length) return;
+            state.segmentSelectionIndices[targetSegment] = next;
+            refreshAggregateRouteState(state);
+            persistPlannerState();
+            renderRoutes();
+            renderMapRoutes();
+            return;
+        }
         if (!Number.isInteger(next) || next < 0 || next >= state.routes.length) return;
         state.selectedRouteIndex = next;
         persistPlannerState();
@@ -1243,9 +1395,7 @@
             if (runtime.activePlaceSearch?.role === role) closePlaceSearch();
             const previous = runtime.waypointRows.pop() || null;
             state.destination = previous?.place || null;
-            state.routes = [];
-            state.selectedRouteIndex = 0;
-            state.calculatedAt = 0;
+            clearComputedRoutes(state);
             persistPlannerState();
             renderStopEditor();
             renderRoutes();

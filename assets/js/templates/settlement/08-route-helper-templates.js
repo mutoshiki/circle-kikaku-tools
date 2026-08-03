@@ -76,17 +76,22 @@
     </cds-button>`;
   }
 
-  function routeCandidateCard(route = {}, index = 0, selected = false, roundTrip = false, helpers = {}) {
+  function routeCandidateCard(route = {}, index = 0, selected = false, roundTrip = false, helpers = {}, options = {}) {
     const distance = Number(route.distanceMeters) || 0;
     const duration = Number(route.durationSeconds) || 0;
     const displayDistance = roundTrip ? distance * 2 : distance;
     const displayDuration = duration * (roundTrip ? 2 : 1);
-    return `<cds-button class="route-candidate-card" kind="ghost" size="lg" type="button" role="radio" aria-checked="${selected ? 'true' : 'false'}" tabindex="${selected ? '0' : '-1'}" data-action="select-google-route" data-route-index="${index}">
+    const routeIndex = Number.isInteger(options.routeIndex) ? options.routeIndex : index;
+    const attrs = [`data-action="select-google-route"`, `data-route-index="${routeIndex}"`];
+    if (Number.isInteger(options.segmentIndex)) attrs.push(`data-route-segment-index="${options.segmentIndex}"`);
+    const prefixLabel = options.prefixLabel ? `${options.prefixLabel} ` : '';
+    const sideLabel = options.distancePrefix || (roundTrip ? '往復' : '片道');
+    return `<cds-button class="route-candidate-card" kind="ghost" size="lg" type="button" role="radio" aria-checked="${selected ? 'true' : 'false'}" tabindex="${selected ? '0' : '-1'}" ${attrs.join(' ')}>
       <span class="route-candidate-layout"><span class="route-candidate-main">
-        <span class="route-candidate-label-row"><span class="route-candidate-check" aria-hidden="true"></span><span class="route-candidate-label">${esc(route.label || `ルート ${index + 1}`, helpers)}</span></span>
+        <span class="route-candidate-label-row"><span class="route-candidate-check" aria-hidden="true"></span><span class="route-candidate-label">${esc(prefixLabel + (route.label || `ルート ${routeIndex + 1}`), helpers)}</span></span>
         <span class="route-candidate-metrics"><span>${formatDistance(displayDistance)}</span><span>${formatDuration(displayDuration)}</span></span>
       </span>
-      <span class="route-candidate-distance">${roundTrip ? '往復' : '片道'} ${formatDistance(displayDistance)}</span></span>
+      <span class="route-candidate-distance">${sideLabel} ${formatDistance(displayDistance)}</span></span>
     </cds-button>`;
   }
 

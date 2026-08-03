@@ -7,6 +7,8 @@ function createDefaultRoutePlannerState() {
         waypoints: [],
         destination: null,
         routes: [],
+        segmentRouteGroups: [],
+        segmentSelectionIndices: [],
         selectedRouteIndex: 0,
         avoidTolls: true,
         avoidHighways: true,
@@ -67,20 +69,37 @@ function normalizeRoutePlannerRoute(raw = {}, index = 0) {
         hasTolls: raw.hasTolls === true,
         hasHighways: raw.hasHighways === true,
         tollPrice: String(raw.tollPrice || ''),
-        mainRoads: Array.isArray(raw.mainRoads) ? raw.mainRoads.map(value => String(value || '').trim()).filter(Boolean).slice(0, 5) : []
+        mainRoads: Array.isArray(raw.mainRoads) ? raw.mainRoads.map(value => String(value || '').trim()).filter(Boolean).slice(0, 5) : [],
+        segmentIndex: Math.max(0, Number(raw.segmentIndex) || 0),
+        segmentRouteIndex: Math.max(0, Number(raw.segmentRouteIndex) || 0)
     };
 }
 
 function normalizeRoutePlannerState(raw = {}) {
     const base = createDefaultRoutePlannerState();
+    const segmentRouteGroups = Array.isArray(raw.segmentRouteGroups)
+        ? raw.segmentRouteGroups
+            .map((group, groupIndex) => Array.isArray(group)
+                ? group
+                    .map((route, routeIndex) => normalizeRoutePlannerRoute({ ...route, segmentIndex: groupIndex, segmentRouteIndex: routeIndex }, routeIndex))
+                    .filter(route => route.distanceMeters > 0)
+                : [])
+            .filter(group => group.length)
+        : [];
     const routes = Array.isArray(raw.routes) ? raw.routes.map(normalizeRoutePlannerRoute).filter(route => route.distanceMeters > 0) : [];
     const selectedRouteIndex = routes.length ? Math.min(Math.max(0, Number(raw.selectedRouteIndex) || 0), routes.length - 1) : 0;
+    const segmentSelectionIndices = segmentRouteGroups.map((group, index) => {
+        const value = Array.isArray(raw.segmentSelectionIndices) ? Number(raw.segmentSelectionIndices[index]) : 0;
+        return Number.isInteger(value) && value >= 0 ? Math.min(value, Math.max(0, group.length - 1)) : 0;
+    });
     return {
         ...base,
         origin: normalizeRoutePlannerPlace(raw.origin),
         waypoints: Array.isArray(raw.waypoints) ? raw.waypoints.map(normalizeRoutePlannerPlace).filter(Boolean) : [],
         destination: normalizeRoutePlannerPlace(raw.destination),
         routes,
+        segmentRouteGroups,
+        segmentSelectionIndices,
         selectedRouteIndex,
         avoidTolls: raw.avoidTolls === undefined ? true : raw.avoidTolls === true,
         avoidHighways: raw.avoidHighways === undefined ? true : raw.avoidHighways === true,
