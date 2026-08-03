@@ -23,7 +23,7 @@ assert.match(route, /LOCAL_PLANNER_KEY_PREFIX/, 'route construction uses device-
 assert.match(route, /localPlannerStorageKey[\s\S]*roomId/, 'device-local route state is scoped by room');
 assert.match(route, /sharedPlaceCatalog/, 'default place candidates come from the room catalog');
 assert.doesNotMatch(route, /routePlannerPlaceHistory/, 'global cross-room place history is not used');
-assert.match(route, /gestureHandling:\s*['"]greedy['"]/, 'mobile map gestures avoid the cooperative two-finger warning');
+assert.match(route, /gestureHandling:\s*['"]none['"][\s\S]*draggable:\s*false[\s\S]*touches\.length\s*>=\s*2/, 'one finger cannot move the map and two fingers explicitly enable map gestures');
 assert.match(route, /routeOrder[\s\S]*selectedIndex[\s\S]*zIndex:\s*selected\s*\?\s*30/, 'the selected route is redrawn above alternatives');
 assert.doesNotMatch(route, /createRouteMapLabel|route-map-route-label/, 'map route balloons are removed');
 assert.match(route, /function\s+formatMapStopLetter[\s\S]*String\.fromCharCode\(65/, 'map waypoint markers generate A, B, C and later letters deterministically');
@@ -55,10 +55,8 @@ assert.match(modal + templates, /<cds-(?:icon-)?button/, 'route actions use Carb
 assert.match(route, /MAX_WAYPOINTS\s*=\s*25/, 'waypoint count respects the Routes limit');
 assert.match(route, /stops-keyboard-reordered/, 'stops support keyboard reordering');
 assert.match(route, /Route\.computeRoutes/, 'Routes API is used');
-assert.match(route, /segmentRouteRequest[\s\S]*computeAlternativeRoutes:\s*true/, 'every segment requests alternative routes');
-assert.match(route, /combineSegmentRoutes/, 'segment alternatives are combined into full-route candidates');
-assert.match(route, /MAX_PARTIAL_COMBINATIONS/, 'candidate combinations are pruned at every stage');
-assert.match(route, /MAX_FINAL_ROUTES\s*=\s*3/, 'final route candidates are capped at three');
+assert.match(route, /wholeRouteRequest[\s\S]*intermediates:[\s\S]*computeAlternativeRoutes:\s*true/, 'one whole-route request includes all waypoints and asks for normal alternative routes');
+assert.match(route, /rawRoutes\.slice\(0, 3\)/, 'whole-route candidates are capped at three');
 assert.match(route, /avoidTolls[\s\S]*avoidHighways[\s\S]*avoidFerries/, 'route modifiers are sent');
 assert.doesNotMatch(route, /\bunits\s*:/, 'the incompatible UnitSystem field is omitted');
 assert.match(route, /requestSequence/, 'stale route responses are rejected');

@@ -930,17 +930,9 @@
         const selected = getSelectedRoute(state);
         const places = getOrderedPlaces(state);
         if (list) {
-            if (Array.isArray(state.segmentRouteGroups) && state.segmentRouteGroups.length) {
-                list.innerHTML = state.segmentRouteGroups.map((group, segmentIndex) => {
-                    const from = places[segmentIndex]?.name || `地点${segmentIndex + 1}`;
-                    const to = places[segmentIndex + 1]?.name || `地点${segmentIndex + 2}`;
-                    return `<section class="route-candidate-group"><div class="route-candidate-group-heading"><strong>区間 ${segmentIndex + 1}</strong><span>${escapeHtml(from)} → ${escapeHtml(to)}</span></div>${group.map((route, routeIndex) => templates().routeCandidateCard(route, routeIndex, routeIndex === (state.segmentSelectionIndices?.[segmentIndex] || 0), false, { escapeHtml }, { segmentIndex, routeIndex, prefixLabel: `区間${segmentIndex + 1}`, distancePrefix: '区間' })).join('')}</section>`;
-                }).join('');
-            } else {
-                list.innerHTML = state.routes.length
-                    ? state.routes.map((route, index) => templates().routeCandidateCard(route, index, index === state.selectedRouteIndex, state.roundTrip, { escapeHtml })).join('')
-                    : '<div class="route-candidate-empty">出発地と目的地を選ぶと、ルート候補を表示します。</div>';
-            }
+            list.innerHTML = state.routes.length
+                ? state.routes.map((route, index) => templates().routeCandidateCard(route, index, index === state.selectedRouteIndex, state.roundTrip, { escapeHtml })).join('')
+                : '<div class="route-candidate-empty">出発地と目的地を選ぶと、ルート候補を表示します。</div>';
         }
         if (summary) summary.innerHTML = selected ? templates().routeLegSummary(selected, places, state.roundTrip, { escapeHtml }) : '';
         if (apply) apply.disabled = !selected;
@@ -1015,43 +1007,33 @@
         if (!runtime.map) return;
         clearMapOverlays();
         const bounds = new global.google.maps.LatLngBounds();
-        const segmentGroups = Array.isArray(state.segmentRouteGroups) && state.segmentRouteGroups.length
-            ? state.segmentRouteGroups
-            : [state.routes];
-        const places = getOrderedPlaces(state);
-        segmentGroups.forEach((group, segmentIndex) => {
-            const selectedIndex = Array.isArray(state.segmentRouteGroups) && state.segmentRouteGroups.length
-                ? (state.segmentSelectionIndices?.[segmentIndex] || 0)
-                : state.selectedRouteIndex;
-            const routeOrder = group.map((route, index) => ({ route, index }))
-                .sort((left, right) => Number(left.index === selectedIndex) - Number(right.index === selectedIndex));
-            routeOrder.forEach(({ route, index }) => {
-                const path = routePath(route);
-                if (!path?.length) return;
-                path.forEach(point => bounds.extend(point));
-                const selected = index === selectedIndex;
-                const polyline = new global.google.maps.Polyline({
-                    map: runtime.map,
-                    path,
-                    clickable: true,
-                    strokeColor: selected
-                        ? readSemanticToken('--accent-color', '#0f62fe')
-                        : readSemanticToken('--accent-line', '#78a9ff'),
-                    strokeOpacity: selected ? 0.98 : 0.82,
-                    strokeWeight: selected ? 7 : 5,
-                    zIndex: selected ? 30 : 10
-                });
-                polyline.addListener('click', () => selectRoute(index, Array.isArray(state.segmentRouteGroups) && state.segmentRouteGroups.length ? segmentIndex : undefined));
-                runtime.polylines.push(polyline);
+        const selectedIndex = state.selectedRouteIndex;
+        const routeOrder = state.routes.map((route, index) => ({ route, index }))
+            .sort((left, right) => Number(left.index === selectedIndex) - Number(right.index === selectedIndex));
+        routeOrder.forEach(({ route, index }) => {
+            const path = routePath(route);
+            if (!path?.length) return;
+            path.forEach(point => bounds.extend(point));
+            const selected = index === selectedIndex;
+            const polyline = new global.google.maps.Polyline({
+                map: runtime.map,
+                path,
+                clickable: true,
+                strokeColor: selected ? readSemanticToken('--accent-color', '#0f62fe') : readSemanticToken('--accent-line', '#78a9ff'),
+                strokeOpacity: selected ? 0.98 : 0.82,
+                strokeWeight: selected ? 7 : 5,
+                zIndex: selected ? 30 : 10
             });
+            polyline.addListener('click', () => selectRoute(index));
+            runtime.polylines.push(polyline);
         });
+        const places = getOrderedPlaces(state);
         places.forEach((place, index) => {
             createMarker(place, index, places.length);
             bounds.extend({ lat: place.latitude, lng: place.longitude });
         });
         if (!bounds.isEmpty()) runtime.map.fitBounds(bounds, 48);
-        const hasAnyRoutes = segmentGroups.some(group => Array.isArray(group) && group.length);
-        setMapEmpty(hasAnyRoutes ? '' : '出発地と目的地を候補から選択してください。');
+        setMapEmpty(state.routes.length ? '' : '出発地と目的地を候補から選択してください。');
     }
 
     function applyMapTheme() {
@@ -1097,8 +1079,20 @@
             streetViewControl: false,
             fullscreenControl: false,
             clickableIcons: true,
-            gestureHandling: 'greedy'
+            gestureHandling: 'none',
+            draggable: false
         });
+        if (mapNode.dataset.twoFingerMapBound !== 'true') {
+            mapNode.dataset.twoFingerMapBound = 'true';
+            const setTwoFingerMode = enabled => runtime.map?.setOptions({
+                gestureHandling: enabled ? 'greedy' : 'none',
+                draggable: enabled
+            });
+            mapNode.addEventListener('touchstart', event => setTwoFingerMode(event.touches.length >= 2), { passive: true, capture: true });
+            mapNode.addEventListener('touchmove', event => setTwoFingerMode(event.touches.length >= 2), { passive: true, capture: true });
+            mapNode.addEventListener('touchend', event => setTwoFingerMode(event.touches.length >= 2), { passive: true, capture: true });
+            mapNode.addEventListener('touchcancel', () => setTwoFingerMode(false), { passive: true, capture: true });
+        }
         applyMapTheme();
         global.google.maps.event.addListenerOnce(runtime.map, 'idle', () => {
             setMapSkeleton(false);
@@ -1140,10 +1134,11 @@
         return { lat: place.latitude, lng: place.longitude };
     }
 
-    function segmentRouteRequest(state, origin, destination) {
+    function wholeRouteRequest(state, places) {
         return {
-            origin: routeLocation(origin),
-            destination: routeLocation(destination),
+            origin: routeLocation(places[0]),
+            destination: routeLocation(places[places.length - 1]),
+            intermediates: places.slice(1, -1).map(place => ({ location: routeLocation(place) })),
             travelMode: 'DRIVING',
             routingPreference: 'TRAFFIC_AWARE',
             computeAlternativeRoutes: true,
@@ -1186,7 +1181,7 @@
         const key = segmentCacheKey(state, origin, destination);
         const cached = runtime.segmentRouteCache.get(key);
         if (cached && cached.expiresAt > Date.now()) return { routes: cloneSegmentRoutes(cached.routes), fallbackInfo: null };
-        const response = await computeRoutesWithFallback(segmentRouteRequest(state, origin, destination));
+        const response = await computeRoutesWithFallback(wholeRouteRequest(state, [origin, destination]));
         const rawRoutes = Array.from(response.routes || []);
         if (!rawRoutes.length) throw new Error(`No routes returned for segment ${segmentIndex + 1}.`);
         const routes = rawRoutes
@@ -1212,33 +1207,23 @@
         await initializeGoogleFeatures();
         const requestId = ++runtime.requestSequence;
         const places = getOrderedPlaces(state);
-        const segmentCount = Math.max(0, places.length - 1);
-        setLoading(true, segmentCount > 1 ? `区間 1/${segmentCount} の候補を取得しています` : 'ルート候補を取得しています');
+        setLoading(true, 'ルート候補を取得しています');
         setNotice('', '', '');
         try {
-            const segmentGroups = [];
-            let usedFallback = false;
-            for (let index = 0; index < segmentCount; index += 1) {
-                if (requestId !== runtime.requestSequence) return;
-                setLoading(true, segmentCount > 1 ? `区間 ${index + 1}/${segmentCount} の候補を取得しています` : 'ルート候補を取得しています');
-                const result = await loadSegmentRoutes(state, places[index], places[index + 1], index);
-                if (requestId !== runtime.requestSequence) return;
-                segmentGroups.push(result.routes);
-                usedFallback = usedFallback || Boolean(result.fallbackInfo);
-            }
+            const response = await computeRoutesWithFallback(wholeRouteRequest(state, places));
+            if (requestId !== runtime.requestSequence) return;
+            const rawRoutes = Array.from(response.routes || []);
+            if (!rawRoutes.length) throw new Error('No routes returned.');
             runtime.routePaths.clear();
-            state.segmentRouteGroups = segmentGroups.map((group, segmentIndex) => group.map((item, routeIndex) => {
-                runtime.routePaths.set(item.route.id, item.path);
-                return decorateSegmentRoute(item.route, segmentIndex, routeIndex);
-            }));
-            clampSegmentSelections(state);
-            if (!refreshAggregateRouteState(state)) throw new Error('No segment routes returned.');
+            state.routes = rawRoutes.slice(0, 3).map((route, index) => serializeRoute(route, index, places));
+            state.segmentRouteGroups = [];
+            state.segmentSelectionIndices = [];
+            state.selectedRouteIndex = 0;
             state.calculatedAt = Date.now();
             persistPlannerState();
             renderRoutes();
             renderMapRoutes();
-            if (usedFallback) setNotice('warning', '別の計算方式で取得しました', 'Google側で一部区間のルート計算がフォールバックされました。');
-            else setNotice('', '', '');
+            setNotice('', '', '');
         } catch (error) {
             if (requestId !== runtime.requestSequence) return;
             clearComputedRoutes(state);
@@ -1261,20 +1246,9 @@
         }, Math.max(0, Number(delay) || 0));
     }
 
-    function selectRoute(index, segmentIndex) {
+    function selectRoute(index) {
         const state = plannerState();
         const next = Number(index);
-        if (Number.isInteger(Number(segmentIndex)) && Array.isArray(state.segmentRouteGroups) && state.segmentRouteGroups.length) {
-            const targetSegment = Number(segmentIndex);
-            const group = state.segmentRouteGroups[targetSegment] || [];
-            if (!Number.isInteger(next) || next < 0 || next >= group.length) return;
-            state.segmentSelectionIndices[targetSegment] = next;
-            refreshAggregateRouteState(state);
-            persistPlannerState();
-            renderRoutes();
-            renderMapRoutes();
-            return;
-        }
         if (!Number.isInteger(next) || next < 0 || next >= state.routes.length) return;
         state.selectedRouteIndex = next;
         persistPlannerState();
