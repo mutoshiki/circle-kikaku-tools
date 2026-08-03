@@ -1,89 +1,87 @@
-/* Google Routes planner: ordered Carbon stop rows and touch-safe drag actions. */
+/* Google Routes planner: Carbon layer-based stop rows and touch-safe ordering. */
 #routeDistanceModal .route-stop-list {
   display: grid;
-  gap: 12px;
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  overflow: visible;
+  gap: var(--space-5, 24px);
 }
 
 #routeDistanceModal .route-stop-row,
 .route-stop-row.route-stop-drag-fallback {
   position: relative;
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) 44px 44px;
-  gap: 8px;
+  grid-template-columns: 40px minmax(0, 1fr) 48px 48px;
+  gap: var(--space-2, 8px);
   align-items: center;
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  min-height: 48px;
+  min-height: 72px;
+  padding: var(--space-2, 8px);
+  border: 1px solid var(--cds-border-subtle-01, var(--border-section));
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
-/* Three dots communicate the order between origin and A/B/C stops. */
 #routeDistanceModal .route-stop-row:not(:last-child)::after {
   content: "";
   position: absolute;
-  left: 14px;
-  bottom: -10px;
-  width: 3px;
-  height: 3px;
+  z-index: 1;
+  left: 27px;
+  top: calc(100% + 2px);
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: var(--cds-icon-secondary, var(--text-sub));
-  box-shadow: 0 5px 0 var(--cds-icon-secondary, var(--text-sub)), 0 10px 0 var(--cds-icon-secondary, var(--text-sub));
+  box-shadow:
+    0 8px 0 var(--cds-icon-secondary, var(--text-sub)),
+    0 16px 0 var(--cds-icon-secondary, var(--text-sub));
   pointer-events: none;
 }
 
 #routeDistanceModal .route-stop-marker {
+  position: relative;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   justify-self: center;
   box-sizing: border-box;
-  width: 28px;
-  height: 28px;
-  border: 2px solid var(--cds-text-primary, var(--text-main));
-  border-radius: 999px;
-  background: var(--cds-layer-01, var(--bg-card));
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--cds-icon-primary, var(--text-main));
+  border-radius: 50%;
+  background: var(--cds-layer-02, var(--surface-low));
   color: var(--cds-text-primary, var(--text-main));
-  font-size: .875rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1;
 }
 
-#routeDistanceModal .route-stop-marker--origin {
-  background: var(--cds-layer-01, var(--bg-card));
+#routeDistanceModal .route-stop-row--append .route-stop-marker {
+  border-color: var(--cds-border-subtle-selected-01, var(--border-section));
+  color: var(--cds-text-secondary, var(--text-sub));
 }
 
 #routeDistanceModal .route-stop-field {
-  position: relative;
-  width: 100%;
+  display: grid;
   min-width: 0;
+  gap: 2px;
 }
 
-#routeDistanceModal .route-stop-search-icon {
-  position: absolute;
-  inset: 0 auto 0 0;
-  z-index: 2;
-  width: 48px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--cds-icon-secondary, var(--text-sub));
-  pointer-events: none;
-}
-
-#routeDistanceModal .route-search-svg {
-  width: 20px;
-  height: 20px;
-  fill: currentColor;
+#routeDistanceModal .route-stop-role-label {
+  overflow: hidden;
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: var(--font-size-caption, .75rem);
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 #routeDistanceModal .route-stop-input {
+  --cds-field: var(--cds-field-02, var(--surface-low));
   --cds-body-compact-01-font-size: 1rem;
-  --cds-layout-density-padding-inline-normal: 48px;
   display: block;
   width: 100%;
   min-width: 0;
@@ -92,7 +90,16 @@
 }
 
 #routeDistanceModal .route-stop-input[readonly] {
-  --cds-field: var(--cds-field-01, #f4f4f4);
+  --cds-field: var(--cds-field-02, var(--surface-low));
+}
+
+#routeDistanceModal .route-stop-row--append {
+  border-style: dashed;
+  background: var(--cds-layer-02, var(--surface-low));
+}
+
+#routeDistanceModal .route-stop-row--append .route-stop-input {
+  --cds-field: var(--cds-field-01, var(--surface-lowest));
 }
 
 #routeDistanceModal .route-stop-drag,
@@ -103,8 +110,8 @@
   box-sizing: border-box;
   align-self: center;
   justify-self: center;
-  width: 44px;
-  min-width: 44px;
+  width: 48px;
+  min-width: 48px;
   height: 48px;
   min-height: 48px;
 }
@@ -120,18 +127,19 @@
 }
 
 #routeDistanceModal .route-stop-drag:active { cursor: grabbing; }
-#routeDistanceModal .route-stop-row--append .route-stop-drag { opacity: .58; cursor: default; }
-#routeDistanceModal .route-stop-drag--placeholder { display: inline-flex; align-items: center; justify-content: center; color: var(--cds-icon-secondary, var(--text-sub)); }
-#routeDistanceModal .route-stop-row--append .route-stop-input { --cds-field: var(--cds-layer-01, var(--bg-card)); }
+#routeDistanceModal .route-stop-row--append .route-stop-drag { opacity: .56; cursor: default; }
+#routeDistanceModal .route-stop-drag--placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cds-icon-secondary, var(--text-sub));
+}
 
-/* Keep the Sortable fallback inside the list and at the source row's scale. */
 .route-stop-row.route-stop-drag-fallback {
   z-index: calc(var(--z-modal, 1055) + 4);
   margin: 0;
-  padding: 0;
-  border: 1px solid var(--cds-border-interactive, var(--accent-color));
-  background: var(--cds-layer-01, var(--bg-card));
-  box-shadow: 0 4px 12px rgba(var(--shadow-rgb), .18);
+  border-color: var(--cds-border-interactive, var(--accent-color));
+  box-shadow: var(--shadow-float);
   pointer-events: none;
   transform-origin: center;
   -webkit-user-select: none;
@@ -147,26 +155,32 @@ body.route-stop-dragging * {
   -webkit-touch-callout: none;
 }
 
-@media (max-width: 390px) {
+@media (max-width: 480px) {
   #routeDistanceModal .route-stop-row,
   .route-stop-row.route-stop-drag-fallback {
-    grid-template-columns: 28px minmax(0, 1fr) 40px 40px;
-    gap: 6px;
+    grid-template-columns: 36px minmax(0, 1fr) 44px 44px;
+    gap: var(--space-1, 4px);
+    min-height: 68px;
+    padding-inline: var(--space-1, 4px);
+  }
+
+  #routeDistanceModal .route-stop-marker {
+    width: 32px;
+    height: 32px;
+    font-size: .9375rem;
+  }
+
+  #routeDistanceModal .route-stop-row:not(:last-child)::after {
+    left: 20px;
   }
 
   #routeDistanceModal .route-stop-drag,
   #routeDistanceModal .route-stop-delete,
   #routeDistanceModal .route-stop-action-spacer {
-    width: 40px;
-    min-width: 40px;
+    width: 44px;
+    min-width: 44px;
   }
-
-  #routeDistanceModal .route-stop-row:not(:last-child)::after { left: 12px; }
 }
 
-/* Sortable fallback keeps the same compact geometry even while temporarily detached. */
 .route-stop-row.route-stop-drag-fallback .route-stop-field { min-width: 0; overflow: hidden; }
-.route-stop-row.route-stop-drag-fallback .route-stop-search-icon { position: absolute; inset: 0 auto 0 0; width: 48px; display: inline-flex; align-items: center; justify-content: center; pointer-events: none; }
-.route-stop-row.route-stop-drag-fallback .route-search-svg { width: 20px; height: 20px; max-width: 20px; max-height: 20px; fill: currentColor; }
 .route-stop-row.route-stop-drag-fallback .route-stop-input { display: block; width: 100%; min-width: 0; max-width: 100%; }
-.route-stop-row.route-stop-drag-fallback .route-stop-marker { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 2px solid currentColor; border-radius: 999px; font-size: .875rem; font-weight: 600; }

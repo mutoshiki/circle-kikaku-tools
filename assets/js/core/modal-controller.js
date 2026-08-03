@@ -20,6 +20,35 @@
         });
     }
 
+
+    function updateModalScrollAffordance(modal) {
+        const body = modal?.querySelector?.(':scope > cds-modal-body.app-modal-body');
+        if (!body) return;
+        const maxScroll = Math.max(0, body.scrollHeight - body.clientHeight);
+        const scrollable = maxScroll > 2;
+        const atBottom = !scrollable || body.scrollTop >= maxScroll - 2;
+        body.toggleAttribute('data-scrollable', scrollable);
+        body.toggleAttribute('data-scroll-more', scrollable && !atBottom);
+    }
+
+    function bindModalScrollAffordance(modal) {
+        const body = modal?.querySelector?.(':scope > cds-modal-body.app-modal-body');
+        if (!body || body.dataset.scrollAffordanceBound === 'true') return;
+        body.dataset.scrollAffordanceBound = 'true';
+        const update = () => updateModalScrollAffordance(modal);
+        body.addEventListener('scroll', update, { passive: true });
+        if (global.ResizeObserver) {
+            const observer = new ResizeObserver(update);
+            observer.observe(body);
+            Array.from(body.children).forEach(child => observer.observe(child));
+        }
+        modal.addEventListener('sanpo:modal-shown', () => {
+            requestAnimationFrame(() => requestAnimationFrame(update));
+            setTimeout(update, 180);
+        });
+        update();
+    }
+
     function resolveModalInitialFocus(modal) {
         if (!modal) return null;
         const explicit = modal.querySelector('[data-modal-primary-focus]');
@@ -55,6 +84,7 @@
             this.closed = true;
             this.programmaticClose = false;
             this.element.hidden = !this.element.open;
+            bindModalScrollAffordance(this.element);
             this.element.querySelectorAll('[data-modal-close]').forEach(control => {
                 control.addEventListener('click', event => {
                     event.preventDefault();
@@ -86,6 +116,7 @@
             removeUnnamedModalBodyStop(this.element);
             focusModalStart(this.element);
             this.element.dispatchEvent(new CustomEvent('sanpo:modal-shown'));
+            updateModalScrollAffordance(this.element);
         }
 
         hide(options = {}) {

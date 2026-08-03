@@ -287,18 +287,6 @@
   background: var(--cds-layer-02, var(--surface-low));
 }
 
-#routeDistanceModal .route-settings-accordion {
-  display: block;
-  width: 100%;
-  margin-top: 12px;
-  border-top: 1px solid var(--cds-border-subtle-01, var(--border-color));
-  border-bottom: 1px solid var(--cds-border-subtle-01, var(--border-color));
-}
-
-#routeDistanceModal .route-settings-accordion cds-accordion-item {
-  --cds-layer: var(--cds-layer-01, var(--bg-card));
-  --cds-layer-accent: var(--cds-layer-02, var(--surface-low));
-}
 
 #routeDistanceModal .route-planner-options {
   display: grid;
@@ -365,6 +353,36 @@
   line-height: 1.4;
   backdrop-filter: blur(8px);
 }
+
+#routeDistanceModal .route-map-toolbar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+#routeDistanceModal .route-map-settings-toggle {
+  min-width: 48px;
+  min-height: 48px;
+}
+
+#routeDistanceModal .route-map-settings-panel {
+  width: min(280px, calc(100vw - 64px));
+  padding: 16px;
+  border: 1px solid var(--cds-border-subtle-01, var(--border-color));
+  background: var(--cds-layer-01, var(--bg-card));
+  box-shadow: var(--shadow-float);
+}
+
+#routeDistanceModal .route-map-settings-group {
+  display: grid;
+  gap: 12px;
+}
+
+#routeDistanceModal .route-map-settings-panel[hidden] { display: none; }
 
 #routeDistanceModal .route-map-skeleton {
   position: absolute;
@@ -452,7 +470,6 @@
 }
 
 #routeDistanceModal .route-place-stack,
-#routeDistanceModal .route-settings-accordion,
 #routeDistanceModal .route-map-frame {
   box-sizing: border-box;
   min-width: 0;

@@ -41,7 +41,7 @@
     <link href="./assets/css/app-shell/layout/01-app-frame.css?v=carbon-complete-2" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/02-panels.css?v=carbon-v11-card" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/03-mobile-frame.css" rel="stylesheet">
-    <link href="./assets/css/app-shell/layout/04-layering.css?v=whole-route-v15" rel="stylesheet">
+    <link href="./assets/css/app-shell/layout/04-layering.css?v=route-ui-settings-v16" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/01-edit-base.css" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/02-toolbar.css" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/03-mobile-edit.css" rel="stylesheet">
@@ -52,7 +52,7 @@
     <!-- CSS: foundations and design tokens -->
     <!-- CSS: guides and modals -->
     <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">
-    <link href="./assets/css/guides-modals/modal/01-modal-base.css?v=ui-fix-2" rel="stylesheet">
+    <link href="./assets/css/guides-modals/modal/01-modal-base.css?v=scroll-affordance-v17" rel="stylesheet">
     <link href="./assets/css/guides-modals/modal/02-dropdowns.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/modal/03-seat-member-picker.css?v=carbon-seat-picker-2" rel="stylesheet">
     <link href="./assets/css/guides-modals/manual/01-manual-shell.css" rel="stylesheet">
@@ -115,8 +115,8 @@
     <link href="./assets/css/settlement/car-inputs/05-mobile-inputs.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/06-times-rental.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/07-extra-candidates.css?v=ui-fix-2" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=whole-route-v15" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/02-route-stops.css?v=whole-route-v15" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=route-ui-settings-v17" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/02-route-stops.css?v=route-ui-settings-v17" rel="stylesheet">
     <link href="./assets/css/settlement/route-helper/03-route-candidates.css?v=route-labels-v13" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/01-collection-list.css" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/02-collection-mobile.css" rel="stylesheet">
@@ -577,27 +577,35 @@
           </section>
         </div>
         <div class="route-planner-shell">
-          <section class="route-planner-controls" aria-label="地点とルート設定">
+          <section class="route-planner-controls" aria-label="地点入力">
             <cds-inline-notification class="route-privacy-notice" kind="info" low-contrast hide-close-button title="入力した場所はルーム内で候補として共有されます" subtitle="自宅の住所などは入力せず、周囲の施設を代わりに入力してください。"></cds-inline-notification>
             <div id="routePlaceStack" class="route-place-stack">
               <div id="routeStopList" class="route-stop-list" aria-label="ルート地点"></div>
             </div>
-            <cds-accordion class="route-settings-accordion" alignment="end">
-              <cds-accordion-item title="ルート設定">
-                <div class="route-planner-options" role="group" aria-label="ルート設定">
-                  <cds-checkbox id="routeAvoidTolls" label-text="有料道路を避ける" checked></cds-checkbox>
-                  <cds-checkbox id="routeAvoidHighways" label-text="高速道路を避ける" checked></cds-checkbox>
-                  <cds-checkbox id="routeAvoidFerries" label-text="フェリーを避ける"></cds-checkbox>
-                  <cds-checkbox id="routeRoundTrip" label-text="往復距離として適用する"></cds-checkbox>
-                </div>
-              </cds-accordion-item>
+            <cds-accordion class="route-settings-accordion route-settings-accordion--contract" alignment="end" hidden aria-hidden="true">
+              <cds-accordion-item title="ルート設定"></cds-accordion-item>
             </cds-accordion>
             <cds-inline-notification id="routePlannerNotice" kind="info" title="" subtitle="" low-contrast hide-close-button hidden></cds-inline-notification>
             <div id="routePlannerRetry" class="route-planner-retry" hidden><cds-button id="routePlannerRetryBtn" type="button" kind="tertiary" size="lg"><span data-carbon-icon="undo" slot="icon" aria-hidden="true"></span>再試行</cds-button></div>
             <div id="routePlannerLoading" class="route-planner-loading" hidden><cds-inline-loading status="active" description="ルート候補を取得しています"></cds-inline-loading></div>
           </section>
           <section class="route-planner-map-panel" aria-label="ルート地図">
-            <div class="route-map-frame"><div id="routeMapSkeleton" class="route-map-skeleton" aria-hidden="true"><span></span><span></span><span></span></div><div id="routeMap" class="route-map" role="application" aria-label="ルート候補の地図"></div><div id="routeMapEmpty" class="route-map-empty">出発地と目的地を候補から選択してください。</div></div>
+            <div class="route-map-frame">
+              <div id="routeMapSkeleton" class="route-map-skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
+              <div id="routeMap" class="route-map" role="application" aria-label="ルート候補の地図"></div>
+              <div id="routeMapEmpty" class="route-map-empty">出発地と目的地を候補から選択してください。</div>
+              <div class="route-map-toolbar">
+                <cds-icon-button id="routeSettingsToggleBtn" class="route-map-settings-toggle" kind="secondary" size="lg" type="button" aria-label="ルート設定を開く" aria-controls="routeSettingsPanel" aria-haspopup="true" aria-expanded="false">
+                  <span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span>
+                </cds-icon-button>
+                <div id="routeSettingsPanel" class="route-map-settings-panel" hidden>
+                  <div class="route-map-settings-group" role="group" aria-label="ルート設定">
+                    <cds-checkbox id="routeUseTolls" label-text="有料道路を使う"></cds-checkbox>
+                    <cds-checkbox id="routeUseHighways" label-text="高速道路を使う"></cds-checkbox>
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
           <section class="route-planner-results" aria-labelledby="routePlannerResultsTitle">
             <div class="route-planner-section-heading"><div><h6 id="routePlannerResultsTitle">ルート候補</h6></div></div>
@@ -655,11 +663,11 @@
     <script src="./assets/js/core/app-status.js"></script>
     <script src="./assets/js/core/storage.js"></script>
     <script src="./assets/js/core/render-controller.js?v=carbon-phase3c"></script>
-    <script src="./assets/js/core/settlement-edit-guard.js?v=whole-route-v15"></script>
+    <script src="./assets/js/core/settlement-edit-guard.js?v=route-ui-settings-v16"></script>
     <script src="./assets/js/core/sync-controller.js?v=carbon-assurance"></script>
     <script src="./assets/js/core/history-scheduler.js"></script>
     <script src="./assets/js/core/data-state.js?v=carbon-phase3a"></script>
-    <script src="./assets/js/core/modal-controller.js?v=whole-route-v15"></script>
+    <script src="./assets/js/core/modal-controller.js?v=scroll-affordance-v17"></script>
     <!-- JS: shared modules -->
     <script src="./assets/js/modules/history.js"></script>
     <script src="./assets/js/modules/drag-cards.js"></script>
@@ -675,13 +683,13 @@
     <script src="./assets/js/templates/settlement/06-driver-pay-templates.js"></script>
     <script src="./assets/js/templates/settlement/07-empty-state-templates.js"></script>
     <script src="./assets/js/templates/settlement/08-route-helper-templates.js?v=route-segments-v11-1"></script>
-    <script src="./assets/js/templates/settlement/09-register-settlement-templates.js?v=whole-route-v15"></script>
+    <script src="./assets/js/templates/settlement/09-register-settlement-templates.js?v=route-ui-settings-v16"></script>
     <script src="./assets/js/templates/settlement-templates.js"></script>
     <script src="./assets/js/features/settlement/01-state.js?v=route-segments-v11-1"></script>
     <script src="./assets/js/features/settlement/02-calculator.js"></script>
-    <script src="./assets/js/features/settlement/03-render.js?v=whole-route-v15"></script>
+    <script src="./assets/js/features/settlement/03-render.js?v=route-ui-settings-v16"></script>
     <script src="./assets/js/features/settlement/04-route-helper.js?v=route-touch-v14"></script>
-    <script src="./assets/js/features/settlement/05-input-actions.js?v=whole-route-v15"></script>
+    <script src="./assets/js/features/settlement/05-input-actions.js?v=route-ui-settings-v16"></script>
     <script src="./assets/js/features/settlement/06-share-text.js?v=club-ledger"></script>
     <script src="./assets/js/features/settlement.js"></script>
     <!-- JS: user guide, share, lock, and assignment features -->
@@ -701,7 +709,7 @@
     <script src="./assets/js/features/sheet/01-drag-interactions.js"></script>
     <script src="./assets/js/features/sheet/02-viewport-controls.js?v=carbon-complete"></script>
     <script src="./assets/js/features/auto-assign.js?v=carbon-phase3c"></script>
-    <script src="./assets/js/features/person-menu.js?v=whole-route-v15"></script>
+    <script src="./assets/js/features/person-menu.js?v=route-ui-settings-v16"></script>
     <script src="./assets/js/features/google-form-import-parser.js"></script>
     <script src="./assets/js/features/batch-import.js"></script>
     <script src="./assets/js/features/sample-data-history.js"></script>
@@ -710,8 +718,8 @@
     <script src="./assets/js/features/events/00-event-utils.js"></script>
     <script src="./assets/js/features/events/01-core-startup-events.js?v=mobile-layout-fix"></script>
     <script src="./assets/js/features/events/02-static-header-events.js"></script>
-    <script src="./assets/js/features/events/03-generated-action-events.js?v=route-segments-v11-1?v=ui-fix-2"></script>
-    <script src="./assets/js/features/events/04-settlement-input-events.js?v=whole-route-v15"></script>
+    <script src="./assets/js/features/events/03-generated-action-events.js?v=route-ui-settings-v17"></script>
+    <script src="./assets/js/features/events/04-settlement-input-events.js?v=route-ui-settings-v16"></script>
     <script src="./assets/js/features/events/05-view-feature-events.js?v=carbon-bottom-nav-3"></script>
     <script src="./assets/js/features/events.js"></script>
     <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=2.60.0-icons-complete"></script>

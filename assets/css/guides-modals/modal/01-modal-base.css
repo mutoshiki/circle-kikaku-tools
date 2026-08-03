@@ -45,13 +45,26 @@
 .app-modal--scroll > .app-modal-body {
   min-height: 0;
   overflow-y: auto;
-  padding-block-end: var(--space-5);
-  scroll-padding-block-end: var(--space-5);
+  padding-block-end: var(--space-7, 64px);
+  scroll-padding-block-end: var(--space-7, 64px);
   overscroll-behavior-y: contain;
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
-  /* Carbon's default scrolling-content mask fades the final 48–80 px. In this
-   * app the footer is already separated, so the fade obscures real controls. */
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+
+
+/* Carbon-style scroll affordance. The mask only exists while more content is
+ * below the viewport, and is removed at the bottom so the final controls remain
+ * completely visible. State is owned by modal-controller.js. */
+.app-modal--scroll > .app-modal-body[data-scroll-more] {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 40px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 40px), transparent 100%);
+}
+
+.app-modal--scroll > .app-modal-body[data-scrollable]:not([data-scroll-more]) {
   -webkit-mask-image: none;
   mask-image: none;
 }
@@ -109,7 +122,7 @@
   }
 
   .app-modal--scroll > .app-modal-body {
-    padding-block-end: var(--space-6);
-    scroll-padding-block-end: var(--space-6);
+    padding-block-end: var(--space-7, 64px);
+    scroll-padding-block-end: var(--space-7, 64px);
   }
 }

@@ -71,7 +71,8 @@
         routeRequestTimer: null,
         segmentRouteCache: new Map(),
         localPlannerState: null,
-        openingPromise: null
+        openingPromise: null,
+        routeSettingsOpen: false
     };
 
     function localPlannerStorageKey() {
@@ -1215,7 +1216,7 @@
             const rawRoutes = Array.from(response.routes || []);
             if (!rawRoutes.length) throw new Error('No routes returned.');
             runtime.routePaths.clear();
-            state.routes = rawRoutes.slice(0, 3).map((route, index) => serializeRoute(route, index, places));
+            state.routes = sortRoutesForState(rawRoutes.slice(0, 3).map((route, index) => serializeRoute(route, index, places)), state);
             state.segmentRouteGroups = [];
             state.segmentSelectionIndices = [];
             state.selectedRouteIndex = 0;
@@ -1318,12 +1319,42 @@
         }
     }
 
+    function setRouteSettingsOpen(open) {
+        const panel = byId('routeSettingsPanel');
+        const button = byId('routeSettingsToggleBtn');
+        const next = open === true;
+        runtime.routeSettingsOpen = next;
+        if (panel) panel.hidden = !next;
+        if (button) {
+            button.setAttribute('aria-expanded', next ? 'true' : 'false');
+            button.setAttribute('aria-label', next ? 'ルート設定を閉じる' : 'ルート設定を開く');
+        }
+    }
+
+    function routePreferenceScore(route, state) {
+        let score = 0;
+        if (!state.avoidTolls && route.hasTolls) score += 2;
+        if (!state.avoidHighways && route.hasHighways) score += 2;
+        if (route.label === 'おすすめ') score += 1;
+        return score;
+    }
+
+    function sortRoutesForState(routes = [], state = plannerState()) {
+        return Array.from(routes).sort((left, right) => {
+            const scoreDiff = routePreferenceScore(right, state) - routePreferenceScore(left, state);
+            if (scoreDiff) return scoreDiff;
+            const durationDiff = (Number(left.durationSeconds) || 0) - (Number(right.durationSeconds) || 0);
+            if (durationDiff) return durationDiff;
+            return (Number(left.distanceMeters) || 0) - (Number(right.distanceMeters) || 0);
+        });
+    }
+
     function updateOptionsFromControls() {
         const state = plannerState();
-        state.avoidTolls = Boolean(byId('routeAvoidTolls')?.checked);
-        state.avoidHighways = Boolean(byId('routeAvoidHighways')?.checked);
-        state.avoidFerries = Boolean(byId('routeAvoidFerries')?.checked);
-        state.roundTrip = Boolean(byId('routeRoundTrip')?.checked);
+        state.avoidTolls = !Boolean(byId('routeUseTolls')?.checked);
+        state.avoidHighways = !Boolean(byId('routeUseHighways')?.checked);
+        state.avoidFerries = false;
+        state.roundTrip = false;
         persistPlannerState();
         renderRoutes();
     }
@@ -1331,10 +1362,8 @@
     function syncControlsFromState() {
         const state = plannerState();
         const controls = {
-            routeAvoidTolls: state.avoidTolls,
-            routeAvoidHighways: state.avoidHighways,
-            routeAvoidFerries: state.avoidFerries,
-            routeRoundTrip: state.roundTrip
+            routeUseTolls: !state.avoidTolls,
+            routeUseHighways: !state.avoidHighways
         };
         Object.entries(controls).forEach(([id, checked]) => {
             const control = byId(id);
@@ -1473,6 +1502,7 @@
     }
 
     function openPlanner(options = {}) {
+        setRouteSettingsOpen(false);
         if (runtime.openingPromise) return runtime.openingPromise;
         runtime.openingPromise = performOpenPlanner(options).finally(() => {
             runtime.openingPromise = null;
@@ -1626,15 +1656,28 @@
         byId('applyRouteDistanceBtn')?.addEventListener('click', applySelectedDistance);
         byId('routePlannerRetryBtn')?.addEventListener('click', () => void retryRoutePlanner());
         byId('routePlannerCancelBtn')?.addEventListener('click', () => closePlanner());
-        ['routeAvoidTolls', 'routeAvoidHighways', 'routeAvoidFerries'].forEach(id => {
+        ['routeUseTolls', 'routeUseHighways'].forEach(id => {
             byId(id)?.addEventListener('change', () => {
                 updateOptionsFromControls();
                 scheduleRouteRequest('modifier-changed', 250);
             });
         });
-        byId('routeRoundTrip')?.addEventListener('change', () => {
-            updateOptionsFromControls();
-            renderRoutes();
+        byId('routeSettingsToggleBtn')?.addEventListener('click', event => {
+            event.preventDefault();
+            event.stopPropagation();
+            setRouteSettingsOpen(!runtime.routeSettingsOpen);
+        });
+        byId('routeSettingsPanel')?.addEventListener('click', event => {
+            event.stopPropagation();
+        });
+        document.addEventListener('click', event => {
+            if (!runtime.routeSettingsOpen) return;
+            const toolbar = document.querySelector('.route-map-toolbar');
+            if (toolbar instanceof Element && event.target instanceof Node && toolbar.contains(event.target)) return;
+            setRouteSettingsOpen(false);
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && runtime.routeSettingsOpen) setRouteSettingsOpen(false);
         });
         const modal = byId('routeDistanceModal');
         if (modal && modal.dataset.googleRoutesBound !== 'true') {
@@ -1642,6 +1685,7 @@
             modal.addEventListener('sanpo:modal-shown', refreshMapAfterOpen);
             modal.addEventListener('sanpo:modal-hiding', () => {
                 closePlaceSearch();
+                setRouteSettingsOpen(false);
                 runtime.requestSequence += 1;
                 const state = plannerState();
                 if (state.returnTo === 'carSettlement' && state.targetCarName) runtime.returnAfterClose = true;

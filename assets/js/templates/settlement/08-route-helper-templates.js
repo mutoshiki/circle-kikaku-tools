@@ -40,7 +40,11 @@
     const isAppend = role === 'append';
     const id = String(item.id || role || `waypoint-${index}`);
     const value = item.place?.name || '';
-    const placeholder = role === 'origin' ? '出発地を追加' : '経由地を追加';
+    const placeholder = role === 'origin'
+      ? '出発地を追加'
+      : role === 'destination'
+        ? '目的地を追加'
+        : '経由地を追加';
     const accessibleIndex = Math.max(1, index + 1);
     const marker = role === 'origin'
       ? '<span class="route-stop-marker route-stop-marker--origin" aria-hidden="true">O</span>'
@@ -52,9 +56,13 @@
     const remove = isAppend
       ? '<span class="route-stop-action-spacer" aria-hidden="true"></span>'
       : `<cds-button class="route-stop-delete" kind="ghost" size="lg" type="button" data-action="remove-route-stop" data-route-role="${role}"${waypointAttr} aria-label="この地点を削除"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span><span class="visually-hidden">この地点を削除</span></cds-button>`;
+    const roleLabel = role === 'origin' ? '出発地' : role === 'destination' ? '目的地' : isAppend ? '地点を追加' : `経由地 ${stopLetter(Math.max(0, index - 1))}`;
     return `<div class="route-stop-row route-stop-row--${role}" data-route-stop-id="${esc(id, helpers)}" data-route-role="${role}"${waypointAttr}${isAppend ? ' data-route-add-slot="true"' : ''}>
       ${marker}
-      <div class="route-stop-field"><span class="route-stop-search-icon" aria-hidden="true"><svg class="route-search-svg" viewBox="0 0 32 32" aria-hidden="true"><path d="M29,27.5859l-7.5527-7.5527a11.017,11.017,0,1,0-1.4141,1.4141L27.5859,29ZM4,13a9,9,0,1,1,9,9A9.01,9.01,0,0,1,4,13Z"></path></svg></span><cds-text-input class="route-stop-input" type="text" size="lg" label="${placeholder}" hide-label placeholder="${placeholder}" value="${esc(value, helpers)}" readonly data-action="open-route-place-search" data-route-role="${role}"${waypointAttr} aria-label="${placeholder}"></cds-text-input></div>
+      <div class="route-stop-field">
+        <span class="route-stop-role-label">${esc(roleLabel, helpers)}</span>
+        <cds-text-input class="route-stop-input" type="text" size="lg" label="${placeholder}" hide-label placeholder="${placeholder}" value="${esc(value, helpers)}" readonly data-action="open-route-place-search" data-route-role="${role}"${waypointAttr} aria-label="${roleLabel}、${placeholder}"></cds-text-input>
+      </div>
       ${drag}
       ${remove}
     </div>`;
