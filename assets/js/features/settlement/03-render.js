@@ -262,8 +262,9 @@ function validateAndSaveSettlementCarEditBeforeClose() {
     return true;
 }
 
-function prepareSettlementCarEditTransition() {
-    if (!validateActiveSettlementCarEditor(true)) return false;
+function prepareSettlementCarEditTransition(options = {}) {
+    const allowInvalid = options?.allowInvalid === true;
+    if (!allowInvalid && !validateActiveSettlementCarEditor(true)) return false;
     saveSettlementCarEditDraft();
     settlementCarEditClosePrepared = true;
     return true;

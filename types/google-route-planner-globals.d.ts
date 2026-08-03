@@ -1,4 +1,5 @@
 declare var activeCarPlanId: string;
+declare var roomId: string;
 declare var activeSettlementCarEditName: string;
 declare var modals: Record<string, { show(): void; hide(): void } | null>;
 declare const Sortable: new (element: Element, options?: Record<string, unknown>) => { destroy(): void };

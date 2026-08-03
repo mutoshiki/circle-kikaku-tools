@@ -80,19 +80,13 @@
     const distance = Number(route.distanceMeters) || 0;
     const duration = Number(route.durationSeconds) || 0;
     const displayDistance = roundTrip ? distance * 2 : distance;
-    const flags = [];
-    if (route.hasTolls) flags.push(route.tollPrice ? `有料道路・${route.tollPrice}` : '有料道路を使用');
-    else flags.push('有料道路なし');
-    flags.push(route.hasHighways ? '高速道路を使用' : '高速道路の利用なし');
-    const roads = Array.isArray(route.mainRoads) && route.mainRoads.length ? route.mainRoads.join('・') : '主な道路名は取得できませんでした';
+    const displayDuration = duration * (roundTrip ? 2 : 1);
     return `<cds-button class="route-candidate-card" kind="ghost" size="lg" type="button" role="radio" aria-checked="${selected ? 'true' : 'false'}" tabindex="${selected ? '0' : '-1'}" data-action="select-google-route" data-route-index="${index}">
       <span class="route-candidate-layout"><span class="route-candidate-main">
         <span class="route-candidate-label-row"><span class="route-candidate-check" aria-hidden="true"></span><span class="route-candidate-label">${esc(route.label || `ルート ${index + 1}`, helpers)}</span></span>
-        <span class="route-candidate-metrics"><span>${formatDistance(displayDistance)}</span><span>${formatDuration(duration * (roundTrip ? 2 : 1))}</span></span>
-        <span class="route-candidate-roads">${esc(roads, helpers)}</span>
-        <span class="route-candidate-flags">${flags.map(flag => `<span>${esc(flag, helpers)}</span>`).join('')}</span>
+        <span class="route-candidate-metrics"><span>${formatDistance(displayDistance)}</span><span>${formatDuration(displayDuration)}</span></span>
       </span>
-      <span class="route-candidate-distance">片道 ${formatDistance(distance)}</span></span>
+      <span class="route-candidate-distance">${roundTrip ? '往復' : '片道'} ${formatDistance(displayDistance)}</span></span>
     </cds-button>`;
   }
 

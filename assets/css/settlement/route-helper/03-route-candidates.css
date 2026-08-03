@@ -18,7 +18,7 @@
 
 #routeDistanceModal .route-candidate-card {
   width: 100%;
-  min-height: 112px;
+  min-height: 64px;
   --cds-button-ghost: var(--cds-layer-01, var(--bg-card));
   --cds-button-ghost-hover: var(--cds-layer-hover-01, color-mix(in srgb, var(--bg-card) 92%, var(--text-main)));
   --cds-button-ghost-active: var(--cds-layer-selected-01, color-mix(in srgb, var(--accent-color) 10%, var(--bg-card)));
@@ -34,7 +34,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: start;
-  padding-block: 8px;
+  padding-block: 4px;
 }
 
 #routeDistanceModal .route-candidate-card:focus-visible {
@@ -167,3 +167,50 @@
     text-align: left;
   }
 }
+
+
+/* Compact Carbon route labels rendered directly over the map. */
+.route-map-route-label {
+  --route-label-background: var(--accent-soft);
+  --route-label-border: var(--accent-line);
+  --route-label-text: var(--accent-container-text);
+  position: absolute;
+  min-width: 92px;
+  color: var(--route-label-text);
+  transform: translate(-50%, calc(-100% - 10px));
+}
+.route-map-route-label::part(button) {
+  box-sizing: border-box;
+  min-width: 92px;
+  min-height: 0;
+  padding: 7px 10px;
+  border: 2px solid var(--route-label-border);
+  background: var(--route-label-background);
+  color: var(--route-label-text);
+  box-shadow: var(--shadow-float);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  justify-content: center;
+  white-space: nowrap;
+}
+.route-map-route-label::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid var(--route-label-border);
+  border-bottom: 2px solid var(--route-label-border);
+  background: var(--route-label-background);
+  transform: translateX(-50%) rotate(45deg);
+  pointer-events: none;
+}
+.route-map-route-label[data-selected="true"] {
+  --route-label-background: var(--accent-color);
+  --route-label-border: var(--accent-color);
+  --route-label-text: var(--text-on-accent);
+  z-index: 2;
+}
+.route-map-route-label:focus-visible { outline: 2px solid var(--focus-accent); outline-offset: 2px; }

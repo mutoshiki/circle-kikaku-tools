@@ -109,6 +109,7 @@ function getDefaultSettlementState() {
         },
         cars: {},
         routeStops: [],
+        routePlaceCatalog: [],
         routePlanner: createDefaultRoutePlannerState(),
         paid: {},
         paidBy: {},
@@ -421,6 +422,7 @@ function normalizeSettlementState(state = {}) {
         standalone: normalizeStandaloneSettlementState(state.standalone || base.standalone),
         cars,
         routeStops: Array.isArray(state.routeStops) ? state.routeStops.map(v => String(v ?? '').trim()).filter(Boolean) : [],
+        routePlaceCatalog: Array.isArray(state.routePlaceCatalog) ? state.routePlaceCatalog.map(normalizeRoutePlannerPlace).filter(Boolean).slice(0, 48) : [],
         routePlanner: normalizeRoutePlannerState(state.routePlanner || base.routePlanner),
         paid: state.paid && typeof state.paid === 'object' ? state.paid : {},
         paidBy: state.paidBy && typeof state.paidBy === 'object' ? state.paidBy : {},
@@ -580,5 +582,8 @@ function getSettlementSnapshot() {
     const state = ensureSettlementState();
     const settlementArea = byId('seisan-view-area');
     if (settlementArea && settlementArea.classList.contains('active')) syncSettlementStateFromDOM();
-    return JSON.parse(JSON.stringify(state));
+    const snapshot = JSON.parse(JSON.stringify(state));
+    // Route construction is device-local. Only the room's reusable place catalog is shared.
+    delete snapshot.routePlanner;
+    return snapshot;
 }

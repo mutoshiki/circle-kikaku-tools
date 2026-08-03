@@ -1,13 +1,15 @@
 /* Times rental fee support */
 #settlementCarEditModal .seisan-times-toggle-field {
   grid-column: 1 / -1;
-  display: grid;
+  display: flex;
+  justify-content: flex-end;
   gap: 6px;
 }
 #settlementCarEditModal .seisan-times-toggle {
   display: block;
   min-height: 48px;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
 }
 #settlementCarEditModal .seisan-car-row.is-times-rental .seisan-fuel-field {
   display: none;

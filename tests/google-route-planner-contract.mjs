@@ -4,6 +4,9 @@ const read = file => fs.readFileSync(file, 'utf8');
 const state = read('assets/js/features/settlement/01-state.js');
 const route = read('assets/js/features/settlement/04-route-helper.js');
 const templates = read('assets/js/templates/settlement/08-route-helper-templates.js');
+const carTemplates = read('assets/js/templates/settlement/03-car-cost-templates.js');
+const extraTemplates = read('assets/js/templates/settlement/04-extra-input-templates.js');
+const settlementRender = read('assets/js/features/settlement/03-render.js');
 const modal = read('index.html');
 const loader = read('assets/js/core/google-maps-loader.js');
 const config = read('maps-config.js');
@@ -13,6 +16,23 @@ for (const field of ['origin','waypoints','destination','routes','selectedRouteI
 }
 assert.match(state, /avoidTolls:\s*true/, 'tolls are avoided by default');
 assert.match(state, /avoidHighways:\s*true/, 'highways are avoided by default');
+
+assert.match(state, /routePlaceCatalog:\s*\[\]/, 'room state owns a shared route place catalog');
+assert.match(state, /delete\s+snapshot\.routePlanner/, 'route construction is excluded from the shared settlement snapshot');
+assert.match(route, /LOCAL_PLANNER_KEY_PREFIX/, 'route construction uses device-local storage');
+assert.match(route, /localPlannerStorageKey[\s\S]*roomId/, 'device-local route state is scoped by room');
+assert.match(route, /sharedPlaceCatalog/, 'default place candidates come from the room catalog');
+assert.doesNotMatch(route, /routePlannerPlaceHistory/, 'global cross-room place history is not used');
+assert.match(route, /gestureHandling:\s*['"]greedy['"]/, 'mobile map gestures avoid the cooperative two-finger warning');
+assert.match(route, /routeOrder[\s\S]*selectedIndex[\s\S]*zIndex:\s*selected\s*\?\s*30/, 'the selected route is redrawn above alternatives');
+assert.match(route, /createRouteMapLabel/, 'route distance and duration are rendered over the map');
+assert.match(route, /waitForPlannerCloseCompletion/, 'rapid route-modal reopening waits for the prior close lifecycle');
+assert.match(modal, /入力した場所はルーム内で候補として共有されます/, 'the route privacy notice is visible at the top');
+assert.match(carTemplates, /type="number"[\s\S]*data-field="dist"/, 'distance uses a numeric input');
+assert.match(carTemplates, /type="number"[\s\S]*data-field="eco"/, 'fuel economy uses a numeric input');
+assert.match(carTemplates, /type="number"[\s\S]*data-field="price"/, 'fuel price uses a numeric input');
+assert.match(extraTemplates, /columnLabel\(['"]名目['"]\)/, 'extra-cost name is labeled 名目');
+assert.match(settlementRender, /allowInvalid[\s\S]*settlementCarEditClosePrepared/, 'the route shortcut may transition away while validation warnings remain');
 assert.match(loader, /data\.sanpoGoogleMaps|dataset\.sanpoGoogleMaps/, 'loader owns one Google script');
 assert.match(config, /SANPO_GOOGLE_MAPS_CONFIG/, 'config follows the window config pattern');
 assert.match(loader, /gm_authFailure/, 'loader surfaces authentication failures');

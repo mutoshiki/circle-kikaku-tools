@@ -21,7 +21,7 @@
     const MAX_PARTIAL_COMBINATIONS = 9;
     const MAX_FINAL_ROUTES = 3;
     const SEGMENT_CACHE_TTL = 5 * 60 * 1000;
-    const PLACE_HISTORY_KEY = 'sanpo.routePlannerPlaceHistory.v1';
+    const LOCAL_PLANNER_KEY_PREFIX = 'sanpo.routePlannerState.v2';
     const JAPAN_SEARCH_BIAS = Object.freeze({ north: 45.8, south: 20.0, east: 154.0, west: 122.0 });
     const HIGHWAY_PATTERN = /(高速|自動車道|expressway|motorway|highway|\bE\d{1,3}\b|\bC\d{1,3}\b|JCT|IC)/i;
     const DARK_MAP_STYLES = [
@@ -50,6 +50,7 @@
         map: null,
         polylines: [],
         markers: [],
+        routeLabels: [],
         routePaths: new Map(),
         placeSearchWidget: null,
         activePlaceSearch: null,
@@ -69,13 +70,28 @@
         applyInProgress: false,
         themeObserver: null,
         routeRequestTimer: null,
-        segmentRouteCache: new Map()
+        segmentRouteCache: new Map(),
+        localPlannerState: null,
+        openingPromise: null
     };
 
+    function localPlannerStorageKey() {
+        const id = typeof roomId !== 'undefined' && roomId ? String(roomId) : 'local';
+        return `${LOCAL_PLANNER_KEY_PREFIX}:${id}`;
+    }
+
+    function readLocalPlannerState() {
+        try {
+            return normalizeRoutePlannerState(JSON.parse(localStorage.getItem(localPlannerStorageKey()) || '{}'));
+        } catch (error) {
+            return normalizeRoutePlannerState({});
+        }
+    }
+
     function plannerState() {
-        const state = ensureSettlementState();
-        state.routePlanner = normalizeRoutePlannerState(state.routePlanner || {});
-        return state.routePlanner;
+        if (!runtime.localPlannerState) runtime.localPlannerState = readLocalPlannerState();
+        runtime.localPlannerState = normalizeRoutePlannerState(runtime.localPlannerState);
+        return runtime.localPlannerState;
     }
 
     function createWaypointId() {
@@ -97,12 +113,11 @@
     }
 
     function persistPlannerState() {
-        const state = ensureSettlementState();
         const current = plannerState();
         current.waypoints = runtime.waypointRows.map(row => row.place).filter(Boolean);
-        state.routePlanner = normalizeRoutePlannerState(current);
-        if (typeof saveLocalDraftOnly === 'function') saveLocalDraftOnly();
-        return state.routePlanner;
+        runtime.localPlannerState = normalizeRoutePlannerState(current);
+        try { localStorage.setItem(localPlannerStorageKey(), JSON.stringify(runtime.localPlannerState)); } catch (error) {}
+        return runtime.localPlannerState;
     }
 
     function setRetryVisible(visible) {
@@ -444,30 +459,26 @@
         return { placeId, name, address, latitude, longitude };
     }
 
-    function readPlaceHistory() {
-        try {
-            const raw = JSON.parse(localStorage.getItem(PLACE_HISTORY_KEY) || '[]');
-            return Array.isArray(raw) ? raw.map(normalizeStoredPlace).filter(Boolean) : [];
-        } catch (error) {
-            return [];
-        }
+    function sharedPlaceCatalog() {
+        const state = ensureSettlementState();
+        return Array.isArray(state.routePlaceCatalog)
+            ? state.routePlaceCatalog.map(normalizeStoredPlace).filter(Boolean)
+            : [];
     }
 
     function rememberPlace(place) {
         const normalized = normalizeStoredPlace(place);
         if (!normalized) return;
-        const next = [normalized, ...readPlaceHistory().filter(item => item.placeId !== normalized.placeId)].slice(0, 24);
-        try { localStorage.setItem(PLACE_HISTORY_KEY, JSON.stringify(next)); } catch (error) {}
+        const state = ensureSettlementState();
+        const current = sharedPlaceCatalog();
+        const next = [normalized, ...current.filter(item => item.placeId !== normalized.placeId)].slice(0, 48);
+        const changed = next.length !== current.length || next.some((item, index) => item.placeId !== current[index]?.placeId || item.name !== current[index]?.name || item.address !== current[index]?.address);
+        state.routePlaceCatalog = next;
+        if (changed && typeof save === 'function') save();
     }
 
     function recentPlaces() {
-        const selected = getOrderedPlaces(plannerState()).map(normalizeStoredPlace).filter(Boolean);
-        const seen = new Set();
-        return [...selected, ...readPlaceHistory()].filter(place => {
-            if (!place?.placeId || seen.has(place.placeId)) return false;
-            seen.add(place.placeId);
-            return true;
-        }).slice(0, 12);
+        return sharedPlaceCatalog().slice(0, 12);
     }
 
     function getStopItems() {
@@ -674,11 +685,14 @@
         surface.hidden = false;
         modal?.classList.add('route-place-search-active');
         document.body.classList.add('route-place-search-open');
-        requestAnimationFrame(() => {
+        const focusSearch = () => {
             const input = placeSearchNativeInput();
-            input?.focus({ preventScroll: true });
+            (input || widget).focus?.({ preventScroll: true });
             input?.setSelectionRange?.(0, 0);
-        });
+        };
+        // Keep the focus call in the original tap event so iOS opens the keyboard immediately.
+        focusSearch();
+        requestAnimationFrame(() => requestAnimationFrame(focusSearch));
     }
 
     async function resolvePrediction(prediction, role, waypointId = '') {
@@ -852,6 +866,8 @@
             marker.setMap?.(null);
         });
         runtime.markers = [];
+        runtime.routeLabels.forEach(label => label.setMap?.(null));
+        runtime.routeLabels = [];
     }
 
     function routePath(route) {
@@ -876,13 +892,58 @@
         if (marker) runtime.markers.push(marker);
     }
 
+    function formatMapRouteLabel(route, roundTrip = false) {
+        const distance = (Number(route?.distanceMeters) || 0) * (roundTrip ? 2 : 1);
+        const duration = (Number(route?.durationSeconds) || 0) * (roundTrip ? 2 : 1);
+        const distanceText = templates().formatRouteDistance?.(distance) || `${Math.round(distance / 100) / 10}km`;
+        const durationText = templates().formatRouteDuration?.(duration) || `${Math.round(duration / 60)}分`;
+        return `${distanceText}・${durationText}`;
+    }
+
+    function createRouteMapLabel(route, index, path, selected) {
+        if (!runtime.map || !runtime.maps?.OverlayView || !path?.length) return;
+        const point = path[Math.floor(path.length / 2)];
+        const position = point?.lat instanceof Function
+            ? point
+            : new global.google.maps.LatLng(Number(point.lat), Number(point.lng));
+        const button = document.createElement('cds-button');
+        button.setAttribute('kind', 'ghost');
+        button.setAttribute('size', 'sm');
+        button.setAttribute('type', 'button');
+        button.className = 'route-map-route-label';
+        button.dataset.selected = selected ? 'true' : 'false';
+        button.setAttribute('aria-label', `${route.label || `ルート ${index + 1}`}、${formatMapRouteLabel(route, plannerState().roundTrip)}`);
+        button.textContent = formatMapRouteLabel(route, plannerState().roundTrip);
+        button.addEventListener('click', event => {
+            event.preventDefault();
+            event.stopPropagation();
+            selectRoute(index);
+        });
+        class RouteLabelOverlay extends runtime.maps.OverlayView {
+            onAdd() { this.getPanes()?.floatPane?.appendChild(button); }
+            draw() {
+                const pixel = this.getProjection()?.fromLatLngToDivPixel(position);
+                if (!pixel) return;
+                button.style.left = `${pixel.x}px`;
+                button.style.top = `${pixel.y}px`;
+                button.style.position = 'absolute';
+            }
+            onRemove() { button.remove(); }
+        }
+        const overlay = new RouteLabelOverlay();
+        overlay.setMap(runtime.map);
+        runtime.routeLabels.push(overlay);
+    }
+
     function renderMapRoutes() {
         const state = plannerState();
         if (!runtime.map) return;
         clearMapOverlays();
         const bounds = new global.google.maps.LatLngBounds();
         const selectedIndex = state.selectedRouteIndex;
-        state.routes.forEach((route, index) => {
+        const routeOrder = state.routes.map((route, index) => ({ route, index }))
+            .sort((left, right) => Number(left.index === selectedIndex) - Number(right.index === selectedIndex));
+        routeOrder.forEach(({ route, index }) => {
             const path = routePath(route);
             if (!path?.length) return;
             path.forEach(point => bounds.extend(point));
@@ -893,13 +954,14 @@
                 clickable: true,
                 strokeColor: selected
                     ? resolveSemanticColor('--accent-color', '#0f62fe')
-                    : resolveSemanticColor('--text-sub', '#8d8d8d'),
-                strokeOpacity: selected ? 1 : 0.55,
+                    : resolveSemanticColor('--accent-line', '#78a9ff'),
+                strokeOpacity: selected ? 1 : 0.78,
                 strokeWeight: selected ? 7 : 5,
-                zIndex: selected ? 20 : 10
+                zIndex: selected ? 30 : 10
             });
             polyline.addListener('click', () => selectRoute(index));
             runtime.polylines.push(polyline);
+            createRouteMapLabel(route, index, path, selected);
         });
         const places = getOrderedPlaces(state);
         places.forEach((place, index) => {
@@ -953,7 +1015,7 @@
             streetViewControl: false,
             fullscreenControl: false,
             clickableIcons: true,
-            gestureHandling: matchMedia('(pointer: coarse)').matches ? 'cooperative' : 'greedy'
+            gestureHandling: 'greedy'
         });
         applyMapTheme();
         global.google.maps.event.addListenerOnce(runtime.map, 'idle', () => {
@@ -1274,7 +1336,6 @@
         const totalMeters = route.distanceMeters * (state.roundTrip ? 2 : 1);
         const kilometers = Math.round((totalMeters / 1000) * 10) / 10;
         settlement.cars[targetName].dist = String(kilometers);
-        settlement.routePlanner = normalizeRoutePlannerState(state);
         renderSettlementView({ force: true });
         save();
         runtime.applyInProgress = true;
@@ -1282,7 +1343,31 @@
         closePlanner({ apply: true });
     }
 
-    async function openPlanner(options = {}) {
+    async function waitForPlannerLayout() {
+        const modal = byId('routeDistanceModal');
+        await Promise.resolve(modal?.updateComplete);
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    }
+
+    async function waitForPlannerCloseCompletion() {
+        const modal = byId('routeDistanceModal');
+        if (!modal || modal.open || modal.hidden) return;
+        await new Promise(resolve => {
+            let settled = false;
+            const finish = () => {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timeoutId);
+                modal.removeEventListener('sanpo:modal-hidden', finish);
+                resolve();
+            };
+            const timeoutId = setTimeout(finish, 400);
+            modal.addEventListener('sanpo:modal-hidden', finish, { once: true });
+        });
+    }
+
+    async function performOpenPlanner(options = {}) {
+        await waitForPlannerCloseCompletion();
         const state = plannerState();
         if (options.targetCarName) {
             state.targetCarName = String(options.targetCarName);
@@ -1301,8 +1386,10 @@
         setNotice('', '', '');
         setMapEmpty(runtime.map ? '' : 'Google Mapsを読み込んでいます。');
         setMapSkeleton(!runtime.map);
+        runtime.historyClosing = false;
         modals.routeDistance?.show();
         pushRouteHistoryState();
+        await waitForPlannerLayout();
         try {
             await initializeGoogleFeatures();
             createPlaceSearchWidget();
@@ -1319,6 +1406,14 @@
             setNotice(info.kind, '地図を読み込めませんでした', info.subtitle, { retryable: true });
             console.error('Google Maps initialization failed:', error);
         }
+    }
+
+    function openPlanner(options = {}) {
+        if (runtime.openingPromise) return runtime.openingPromise;
+        runtime.openingPromise = performOpenPlanner(options).finally(() => {
+            runtime.openingPromise = null;
+        });
+        return runtime.openingPromise;
     }
 
     async function retryRoutePlanner() {
@@ -1361,7 +1456,7 @@
             return;
         }
         if (typeof global.prepareSettlementCarEditTransition === 'function'
-            && !global.prepareSettlementCarEditTransition()) return;
+            && !global.prepareSettlementCarEditTransition({ allowInvalid: true })) return;
         const carModal = byId('settlementCarEditModal');
         let launched = false;
         const launchPlanner = () => {
@@ -1389,6 +1484,7 @@
     global.closeRoutePlanner = () => closePlanner();
     global.refreshGoogleRoutes = () => requestRoutesIfReady('manual');
     global.retryGoogleRoutePlanner = retryRoutePlanner;
+    global.getLocalRoutePlannerState = () => normalizeRoutePlannerState(plannerState());
 
     function bindPlannerEvents() {
         const carEditModal = byId('settlementCarEditModal');
