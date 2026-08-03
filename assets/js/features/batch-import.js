@@ -354,7 +354,8 @@ async function executeBatch() {
         }
     }
 
-    save(); 
-    modals.batch.hide();
+    updateUI();
+    save();
+    modals.batch.hide({ reason: 'submit' });
 }
 window.SanpoApp?.exposeCompat?.('executeBatch', executeBatch);

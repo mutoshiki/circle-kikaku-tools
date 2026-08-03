@@ -15,6 +15,18 @@
         });
     }
 
+
+    function bindModalSubmit(id, handler) {
+        const el = byId(id);
+        if (!el || el.dataset.modalSubmitBound === 'true') return;
+        el.dataset.modalSubmitBound = 'true';
+        el.addEventListener('click', event => {
+            event.preventDefault();
+            event.stopPropagation();
+            handler(event);
+        });
+    }
+
     function bindOnce(target, ownerKey, setup) {
         if (!target || target.dataset?.[ownerKey] === 'true') return false;
         if (target.dataset) target.dataset[ownerKey] = 'true';
@@ -25,6 +37,7 @@
     global.SanpoEvents = Object.freeze({
         ...events,
         bind,
+        bindModalSubmit,
         bindOnce
     });
 })(window);

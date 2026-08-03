@@ -1,7 +1,7 @@
 // Sheet view feature
 // Owns view switching, announcement sheet rendering, quick edit drag, pan and zoom.
 
-let currentView = 'sheet';
+let currentView = 'list';
 function syncMainViewSwitcher(view) {
     const switcher = byId('view-toggle-bar');
     if (switcher) switcher.value = view;
@@ -34,6 +34,9 @@ async function switchView(view) {
     const tabSeisan = byId('tab-seisan');
     const seisanArea = byId('seisan-view-area');
     syncMainViewSwitcher(view);
+    if (listArea) listArea.hidden = view !== 'list';
+    if (sheetArea) sheetArea.hidden = view !== 'sheet';
+    if (seisanArea) seisanArea.hidden = view !== 'seisan';
 
     if (view === 'seisan') {
         document.body.classList.remove('sheet-mode');
@@ -367,6 +370,10 @@ function renderSheetView() {
 
     const plans = typeof getCarPlansSnapshot === 'function' ? getCarPlansSnapshot({ skipDomSync: true }) : [data];
     const visiblePlans = plans.filter(plan => (plan.cars || []).length || (plan.waiting || []).length);
+    const bottomControls = byId('sheet-bottom-controls');
+    const hint = byId('sheet-hint');
+    if (bottomControls) bottomControls.hidden = visiblePlans.length === 0;
+    if (hint) hint.hidden = visiblePlans.length === 0;
 
     if (!visiblePlans.length) {
         content.innerHTML = renderSheetEmptyHtml();

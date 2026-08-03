@@ -155,13 +155,20 @@ function renderListEmptyHint() {
     const container = byId('cars-container');
     if (!container) return;
     const hasCar = !!container.querySelector('.car-box');
+    const waitingCount = $$('#waiting-list .member-card').length;
+    const hasParticipants = hasCar || waitingCount > 0;
+    const toolbar = document.querySelector('.allocation-toolbar');
+    const bottomTray = byId('bottom-tray');
+    if (toolbar) toolbar.hidden = !hasParticipants;
+    if (bottomTray) bottomTray.hidden = !hasParticipants;
+    document.body.classList.toggle('allocation-empty-state', !hasParticipants);
+
     const existing = byId('list-empty-hint');
     if (hasCar) {
         existing?.remove();
         return;
     }
 
-    const waitingCount = $$('#waiting-list .member-card').length;
     const activePlan = typeof getActiveCarPlan === 'function' ? getActiveCarPlan() : null;
     const template = typeof getCarPlanTemplateConfig === 'function'
         ? getCarPlanTemplateConfig(activePlan || 'car')
@@ -170,9 +177,13 @@ function renderListEmptyHint() {
         ? '班長にする人をここへドロップ'
         : '車出しをここへドロップ';
     const createText = template.type === 'team' ? '新しい班を作成します' : '新しい車を作成します';
+    const entryChoice = window.SanpoApp?.templates?.common?.entryChoice;
+    const emptyChoice = typeof entryChoice === 'function'
+        ? entryChoice({ className: 'allocation-entry-choice' })
+        : '<div class="app-empty-card empty-card app-entry-choice"><div class="seisan-empty-actions"><cds-button kind="primary" size="lg" type="button" data-action="open-batch">参加者登録(推奨)</cds-button><span class="seisan-empty-or">もしくは</span><cds-button kind="secondary" size="lg" type="button" data-action="switch-seisan-settings">人数だけで精算</cds-button></div></div>';
     const html = waitingCount > 0
         ? `<div class="allocation-grid-item allocation-grid-item--full" id="list-empty-hint"><div class="drop-create-lane empty-card--drop-create"><span data-carbon-icon="${template.ownerIcon || 'car-small'}" aria-hidden="true"></span><strong>${ownerText}</strong><span>${createText}</span></div></div>`
-        : `<div class="allocation-grid-item allocation-grid-item--full" id="list-empty-hint"><div class="empty-card app-empty-card"><span data-carbon-icon="user-multiple" aria-hidden="true"></span><strong>参加者がまだいません</strong><span class="empty-card-text">参加者を登録すると、車割と班割をここで作成できます。</span><div class="seisan-empty-actions"><cds-button class="seisan-btn primary" kind="primary" size="lg" type="button" data-action="open-batch"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span>参加者を登録</cds-button></div></div></div>`;
+        : `<div class="allocation-grid-item allocation-grid-item--full" id="list-empty-hint">${emptyChoice}</div>`;
 
     if (!existing) {
         container.insertAdjacentHTML('afterbegin', html);

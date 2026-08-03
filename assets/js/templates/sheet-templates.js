@@ -42,15 +42,10 @@
   }
 
   function empty() {
-    return `
-        <div class="sheet-empty-card app-empty-card">
-            <div class="sheet-empty-icon"><span data-carbon-icon="car" aria-hidden="true"></span></div>
-            <div class="sheet-empty-title">共有できるデータがありません</div>
-            <div class="sheet-empty-text">参加者を登録し、車割または班割を作成すると共有画面へ反映されます。</div>
-            <div class="seisan-empty-actions">
-              <cds-button class="sheet-empty-open" kind="primary" size="xl" type="button" data-action="switch-list"><span>車割・班割を開く</span><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span></cds-button>
-            </div>
-        </div>`;
+    const shared = window.SanpoApp?.templates?.common?.entryChoice;
+    return typeof shared === 'function'
+      ? shared({ className: 'sheet-empty-card' })
+      : '<div class="sheet-empty-card app-empty-card empty-card app-entry-choice"><div class="seisan-empty-actions"><cds-button kind="primary" size="lg" type="button" data-action="open-batch">参加者登録(推奨)</cds-button><span class="seisan-empty-or">もしくは</span><cds-button kind="secondary" size="lg" type="button" data-action="switch-seisan-settings">人数だけで精算</cds-button></div></div>';
   }
 
   function labelColumn(maxSeats, template = {}) {

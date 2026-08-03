@@ -147,7 +147,7 @@
     <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
     <link href="./assets/css/08-utilities.css" rel="stylesheet">
   </head>
-  <body class="sheet-mode view-mode-sheet">
+  <body class="view-mode-list">
     <div id="app-layout">
       <header id="app-header">
         <div class="app-header-main">
@@ -214,7 +214,7 @@
           </section>
         </div>
       </aside>
-      <div id="top-area" style="display: none;">
+      <div id="top-area">
         <div class="edit-header edit-header-tools-only allocation-toolbar">
           <div class="edit-tools allocation-toolbar-inner">
             <cds-button id="batchOpenBtn" class="tool-btn" kind="primary" size="lg" type="button" data-priority="high" title="参加者登録">
@@ -227,7 +227,7 @@
         <div id="cars-container" class="allocation-grid"></div>
       </div>
 
-      <div id="sheet-view-area" class="active">
+      <div id="sheet-view-area" hidden>
         <div id="sheet-title-bar">
           <span id="sheet-summary" aria-label="車割と班割の集計">車割 車出し 0 同乗者 0 全員 0 待機 0 / 班割 班長 0 メンバー 0 全員 0 待機 0</span>
         </div>
@@ -240,7 +240,7 @@
         </div>
       </div>
 
-      <div id="seisan-view-area">
+      <div id="seisan-view-area" hidden>
         <div class="seisan-wrap">
           <section class="seisan-card seisan-settings-card">
             <div class="seisan-compact-head">
@@ -307,7 +307,7 @@
         </div>
       </div>
 
-      <div id="bottom-tray" style="display: none;">
+      <div id="bottom-tray" hidden>
         <cds-button id="tray-handle" kind="ghost" size="lg" type="button" aria-label="未割り当てメンバーを開閉" aria-controls="waiting-list-container" aria-expanded="false">
           <span class="handle-bar" aria-hidden="true"></span>
           <span id="tray-toggle-label"><span data-carbon-icon="chevron--up" data-state-icon="waitingTray" data-icon-state="closed" aria-hidden="true"></span><span>未割り当てメンバーを開く</span></span>
@@ -353,11 +353,11 @@
         </div>
       </div>
       <nav id="app-view-navigation" aria-label="メイン画面">
-        <cds-content-switcher id="view-toggle-bar" value="sheet" size="lg" aria-label="メイン画面">
-          <cds-content-switcher-item class="view-tab" id="tab-list" value="list" target="top-area" aria-label="車割・班割">
+        <cds-content-switcher id="view-toggle-bar" value="list" size="lg" aria-label="メイン画面">
+          <cds-content-switcher-item class="view-tab active" id="tab-list" value="list" target="top-area" selected aria-label="車割・班割">
             <span class="view-tab-label">車割・班割</span>
           </cds-content-switcher-item>
-          <cds-content-switcher-item class="view-tab active" id="tab-sheet" value="sheet" target="sheet-view-area" selected aria-label="共有画面">
+          <cds-content-switcher-item class="view-tab" id="tab-sheet" value="sheet" target="sheet-view-area" aria-label="共有画面">
             <span class="view-tab-label">共有画面</span>
           </cds-content-switcher-item>
           <cds-content-switcher-item class="view-tab" id="tab-seisan" value="seisan" target="seisan-view-area" aria-label="精算ツール">
@@ -547,7 +547,7 @@
 </div>
 </div>
 </div>
-</cds-modal-body><cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button data-action="save-settlement-settings" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
+</cds-modal-body><cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button id="saveSettlementSettingsBtn" data-action="save-settlement-settings" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
 
     <cds-modal aria-label="車ごとの費用" aria-labelledby="settlementCarEditModalTitle" class="app-modal app-modal--scroll settlement-edit-modal settlement-edit-modal--car" id="settlementCarEditModal" size="sm" has-scrolling-content><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementCarEditModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="car-small"></span>車ごとの費用</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" no-fade>
 <div id="settlementCarEditBody"></div>
@@ -665,6 +665,7 @@
     <script src="./assets/js/modules/drag-cards.js"></script>
     <script src="./assets/js/modules/settlement.js"></script>
     <!-- JS: settlement templates and feature modules; templates must load before render/facade. -->
+    <script src="./assets/js/templates/common-empty-state.js?v=first-run-v10"></script>
     <script src="./assets/js/templates/settlement/00-template-utils.js"></script>
     <script src="./assets/js/templates/settlement/01-cost-parts.js"></script>
     <script src="./assets/js/templates/settlement/02-summary-templates.js?v=club-ledger"></script>

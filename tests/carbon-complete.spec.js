@@ -209,6 +209,89 @@ test.describe('Carbon modal, participant and sheet workflows', () => {
   });
 });
 
+
+test.describe('First-run rendering and submit regression', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test('first meaningful screen renders immediately and all three empty views use the same two choices', async ({ page }) => {
+    const room = `FIRST-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    await page.goto(`/?room=${room}`, { waitUntil: 'domcontentloaded' });
+
+    await expect(page.locator('body')).toHaveClass(/view-mode-list/);
+    await expect(page.locator('#list-empty-hint')).toContainText('参加者登録(推奨)');
+
+    const cases = [
+      ['list', '#list-empty-hint .app-entry-choice'],
+      ['sheet', '#sheet-content .app-entry-choice'],
+      ['seisan', '#seisan-empty-state .app-entry-choice']
+    ];
+    for (const [view, selector] of cases) {
+      await page.evaluate(next => window.switchView(next), view);
+      const empty = page.locator(selector);
+      await expect(empty).toBeVisible();
+      await expect(empty.locator('cds-button')).toHaveCount(2);
+      await expect(empty).toContainText('参加者登録(推奨)');
+      await expect(empty).toContainText('もしくは');
+      await expect(empty).toContainText('人数だけで精算');
+      await expect(empty.locator('[data-carbon-icon]')).toHaveCount(0);
+      await expect(empty).not.toContainText('参加者がまだいません');
+      await expect(empty).not.toContainText('共有できるデータがありません');
+      await expect(empty).not.toContainText('精算するデータがありません');
+    }
+  });
+
+  test('participant and settlement settings submit buttons close their Carbon modals', async ({ page }) => {
+    const room = `SUBMIT-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    await page.goto(`/?room=${room}`);
+    await page.waitForFunction(() => customElements.get('cds-modal'));
+
+    await page.evaluate(() => window.switchView('list'));
+    await hostClick(page, '#list-empty-hint [data-action="open-batch"]');
+    await expect(page.locator('#batchImportModal')).toHaveAttribute('open', '');
+    await setHostValue(page, '#batchMembers', '山田 太郎');
+    await hostClick(page, '#executeBatchBtn');
+    await expect(page.locator('#batchImportModal')).not.toHaveAttribute('open', '');
+    await expect(page.locator('.member-card')).toHaveCount(1);
+
+    await page.evaluate(() => { window.switchView('seisan'); window.openStandaloneSettlementSettings(); });
+    await expect(page.locator('#settlementSettingsModal')).toHaveAttribute('open', '');
+    await setHostValue(page, '#seisanStandaloneDriverCount', '1');
+    await setHostValue(page, '#seisanStandaloneMemberCount', '3');
+    await hostClick(page, '#saveSettlementSettingsBtn');
+    await expect(page.locator('#settlementSettingsModal')).not.toHaveAttribute('open', '');
+  });
+
+  test('sample data is restored, rendered, persisted and closes the sample modal', async ({ page }) => {
+    const room = `SAMPLE-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    await page.goto(`/?room=${room}`);
+    await page.waitForFunction(() => customElements.get('cds-modal') && typeof window.executeDebugMode === 'function');
+    await page.evaluate(() => window.openDebugModal());
+    await expect(page.locator('#debugModal')).toHaveAttribute('open', '');
+    await hostClick(page, '#executeDebugBtn');
+    await expect(page.locator('#debugModal')).not.toHaveAttribute('open', '');
+    await expect(page.locator('.car-box')).toHaveCount(3);
+    expect(await page.evaluate(() => {
+      const data = window.getData();
+      const saved = JSON.parse(localStorage.getItem(`sampokai_v10_split_${new URLSearchParams(location.search).get('room')}`) || '{}');
+      return {
+        error: window.__sampleDataLastError || '',
+        roomName: data.roomName,
+        plans: data.carPlans.length,
+        cars: data.cars.length,
+        savedCars: saved.cars?.length || 0,
+        settlementCars: Object.keys(data.settlement?.cars || {}).length
+      };
+    })).toEqual({
+      error: '',
+      roomName: '秋名・赤城ツーリング',
+      plans: 2,
+      cars: 3,
+      savedCars: 3,
+      settlementCars: 3
+    });
+  });
+});
+
 test.describe('Settlement and route workflows', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
@@ -277,5 +360,62 @@ test.describe('Settlement and route workflows', () => {
     expect(await page.evaluate(() => /[¥￥円]/.test(window.__copiedText || ''))).toBeTruthy();
     await expectNoDocumentOverflow(page);
     expect(errors).toEqual([]);
+  });
+});
+
+test.describe('First-run rendering and modal save regressions', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+
+  test('the default tool renders immediately and every empty view shows only the two entry choices', async ({ page }) => {
+    const room = `EMPTY-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    await page.goto(`/?room=${room}`);
+    await page.waitForFunction(() => customElements.get('cds-button') && typeof window.switchView === 'function');
+
+    await expect(page.locator('#top-area')).toBeVisible();
+    expect(await page.evaluate(() => window.currentView || currentView)).toBe('list');
+
+    for (const [view, root] of [['list', '#top-area'], ['sheet', '#sheet-view-area'], ['seisan', '#seisan-view-area']]) {
+      await page.evaluate(next => window.switchView(next), view);
+      await expect(page.locator(root)).toBeVisible();
+      await expect(page.locator(`${root} .app-entry-choice cds-button`)).toHaveText([
+        '参加者登録(推奨)',
+        '人数だけで精算'
+      ]);
+      await expect(page.locator(`${root} .app-entry-choice [data-carbon-icon]`)).toHaveCount(0);
+      await expect(page.locator(root)).not.toContainText('参加者がまだいません');
+      await expect(page.locator(root)).not.toContainText('共有できるデータがありません');
+      await expect(page.locator(root)).not.toContainText('精算するデータがありません');
+    }
+  });
+
+  test('sample data persists and participant/settings save buttons close their Carbon modals', async ({ page }) => {
+    const room = `SAVE-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    await page.goto(`/?room=${room}`);
+    await page.waitForFunction(() => customElements.get('cds-modal') && typeof window.executeDebugMode === 'function');
+
+    await page.evaluate(() => window.openDebugModal());
+    await hostClick(page, '#executeDebugBtn');
+    await expect(page.locator('#debugModal')).not.toHaveAttribute('open', '');
+    expect(await page.evaluate(() => {
+      const data = window.getData({ skipDomSync: true });
+      return {
+        roomName: data.roomName,
+        carCount: data.cars.length,
+        planCount: data.carPlans.length,
+        error: window.__sampleDataLastError || null
+      };
+    })).toEqual({ roomName: '秋名・赤城ツーリング', carCount: 3, planCount: 2, error: null });
+
+    await page.evaluate(() => window.openSettlementSettings());
+    await hostClick(page, '#saveSettlementSettingsBtn');
+    await expect(page.locator('#settlementSettingsModal')).not.toHaveAttribute('open', '');
+
+    await page.evaluate(() => window.openBatchModal());
+    await hostClick(page, '#executeBatchBtn');
+    await expect(page.locator('#batchImportModal')).not.toHaveAttribute('open', '');
+
+    await page.reload();
+    await page.waitForFunction(() => typeof window.getData === 'function');
+    expect(await page.evaluate(() => window.getData({ skipDomSync: true }).cars.length)).toBe(3);
   });
 });

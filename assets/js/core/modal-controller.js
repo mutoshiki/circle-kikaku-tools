@@ -59,7 +59,7 @@
                 control.addEventListener('click', event => {
                     event.preventDefault();
                     event.stopPropagation();
-                    this.hide();
+                    this.hide({ reason: 'dismiss' });
                 });
             });
             this.element.addEventListener('cds-modal-beingclosed', event => {
@@ -70,8 +70,12 @@
             this.element.addEventListener('cds-modal-closed', () => this.finishClose());
         }
 
+        isOpen() {
+            return !!(this.element && (this.element.open || this.element.hasAttribute('open')));
+        }
+
         show() {
-            if (!this.element || this.element.open) return;
+            if (!this.element || this.isOpen()) return;
             global.dismissPlanningCoach?.();
             this.returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
             this.closed = false;
@@ -84,12 +88,17 @@
             this.element.dispatchEvent(new CustomEvent('sanpo:modal-shown'));
         }
 
-        hide() {
-            if (!this.element || !this.element.open) return;
-            const before = new CustomEvent('sanpo:modal-hiding', { cancelable: true });
+        hide(options = {}) {
+            if (!this.element || !this.isOpen()) return;
+            const reason = String(options.reason || 'programmatic');
+            const before = new CustomEvent('sanpo:modal-hiding', {
+                cancelable: true,
+                detail: { reason }
+            });
             if (!this.element.dispatchEvent(before)) return;
             this.programmaticClose = true;
             this.element.open = false;
+            this.element.removeAttribute('open');
             queueMicrotask(() => this.finishClose());
         }
 
@@ -147,7 +156,9 @@
         const settingsModal = document.getElementById('settlementSettingsModal');
         if (settingsModal && settingsModal.dataset.settlementModalBound !== 'true') {
             settingsModal.dataset.settlementModalBound = 'true';
-            settingsModal.addEventListener('sanpo:modal-hiding', () => global.saveSettlementSettingsDraft?.());
+            settingsModal.addEventListener('sanpo:modal-hiding', event => {
+                if (event.detail?.reason !== 'submit') global.saveSettlementSettingsDraft?.();
+            });
         }
         applyRuntimeAccessibilityFixes();
     }

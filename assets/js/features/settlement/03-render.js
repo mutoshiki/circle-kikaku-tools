@@ -333,7 +333,7 @@ function saveSettlementSettingsDraft() {
 function saveSettlementSettings() {
     if (!validateStandaloneSettlementSettings(true)) return;
     saveSettlementSettingsDraft();
-    if (modals.settlementSettings) modals.settlementSettings.hide();
+    if (modals.settlementSettings) modals.settlementSettings.hide({ reason: 'submit' });
 }
 
 function openSettlementCarEditor(encodedName) {

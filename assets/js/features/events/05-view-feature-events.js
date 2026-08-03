@@ -4,6 +4,7 @@
 
     const events = global.SanpoEvents || {};
     const bind = events.bind;
+    const bindModalSubmit = events.bindModalSubmit;
 
     function setupSettlementOptionEvents() {
         ['seisanRounding', 'seisanOrganizerName', 'seisanOrganizerFree', 'seisanDriverCollectionOffset'].forEach(id => {
@@ -41,7 +42,8 @@
         bind('seisanRefreshBtn', () => renderSettlementView());
         bind('clearAllBtn', () => global.clearAll());
         bind('applyGoogleFormPasteBtn', () => global.applyGoogleFormPasteImport?.());
-        bind('executeBatchBtn', () => executeBatch());
+        bindModalSubmit('executeBatchBtn', () => executeBatch());
+        bindModalSubmit('saveSettlementSettingsBtn', () => global.saveSettlementSettings?.());
         bind('executeDebugBtn', () => global.executeDebugMode?.());
         bind('executeDebugMissingBtn', () => global.executeDebugMissingCostMode?.());
         bind('addRouteStopBtn', () => global.addRouteStop?.());

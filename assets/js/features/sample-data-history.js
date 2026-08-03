@@ -233,8 +233,17 @@ function createSampleAppData({ missing = false, carCount = 3 } = {}) {
 
 function seedDebugData({ missing = false } = {}) {
     try {
+        window.__sampleDataLastError = null;
         const carCount = parseInt(byId('debugCarCount')?.value, 10) || 3;
         const sampleData = createSampleAppData({ missing, carCount });
+        sampleData.lastUpdatedAt = Date.now();
+        sampleData.lastUpdatedBy = myClientId;
+        lastUpdatedAt = sampleData.lastUpdatedAt;
+        pendingRemoteSettlementData = null;
+
+        // Persist the complete sample snapshot before a delayed Firebase callback can
+        // re-apply an older empty room. restore() then paints the same snapshot locally.
+        L.setItem(CFG.STORE + '_' + roomId, J.stringify(sampleData));
         const previousCardSuspend = !!window.__suspendCardUpdateUi;
         const previousDomSyncSuspend = !!window.__suspendActiveDomPlanSync;
         window.__suspendCardUpdateUi = true;
@@ -248,12 +257,9 @@ function seedDebugData({ missing = false } = {}) {
         updateUI();
         save();
 
-        if (window.modals && window.modals.debug) window.modals.debug.hide();
+        if (window.modals?.debug) window.modals.debug.hide({ reason: 'submit' });
         showAppNotice?.(missing ? '入力漏れサンプルを入れました' : '通常サンプルを入れました');
-
-        setTimeout(() => {
-            switchView('seisan');
-        }, 120);
+        requestAnimationFrame(() => { void switchView('seisan'); });
     } catch (error) {
         console.error('Failed to seed sample data:', error);
         window.__sampleDataLastError = String(error?.stack || error?.message || error);

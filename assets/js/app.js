@@ -14,13 +14,20 @@ D.addEventListener('DOMContentLoaded', async () => {
     setupCompactPersonMenu();
     ensureCompactMenuFallback();
     setupSeatMemberPicker();
-    await initFirebaseSync();
+
+    // Paint the local/default state before any Firebase import or authentication wait.
+    // Carbon's content switcher also manages target[hidden], so normalize the selected
+    // panel explicitly during boot instead of waiting for the first tab interaction.
     load();
+    await switchView(currentView);
+
+    const remoteReady = await initFirebaseSync();
+    if (remoteReady) load();
+
     refreshRoomTitle();
     updateEditLockButton();
     setupManualCardDrag();
     setupManualSheetDrag();
-
 
     if (firebaseEnabled && db && firebaseReady) {
         onValue(ref(db, ".info/connected"), (snap) => {
