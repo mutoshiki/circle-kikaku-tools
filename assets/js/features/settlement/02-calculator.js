@@ -19,6 +19,7 @@ function calculateSettlement(data, state) {
     const shareCount = participants.filter(p => !shareExcludedNames.has(p.name)).length;
     const rounding = getNumberValue(state.rounding) || 100;
     const reward = getDriverRewardAmount(state);
+    const driverRewardType = getDriverRewardType(state);
 
     let totalSplit = 0;
     let totalClub = 0;
@@ -107,6 +108,7 @@ function calculateSettlement(data, state) {
         shareCount,
         rounding,
         reward,
+        driverRewardType,
         cars,
         totalSplit,
         totalClub,
@@ -159,7 +161,7 @@ function getSettlementIssues(data, state, result) {
                 }
             }
         }
-        cState.extras.forEach((ex, i) => {
+        cState.extras.filter(ex => !isDriverRewardExtra(ex)).forEach((ex, i) => {
             const hasName = String(ex.name ?? '').trim();
             const hasAmount = String(ex.amount ?? '').trim();
             if (ex.pending === true && !hasName && !hasAmount) {

@@ -59,6 +59,7 @@ function syncSettlementControls(state, participants) {
     const driverCollectionOffsetEl = byId('seisanDriverCollectionOffset');
     const driverCollectionFreeEl = byId('seisanDriverCollectionFree');
     const rewardEl = byId('seisanDriverReward');
+    const rewardTypeEl = byId('seisanDriverRewardType');
     const standaloneEnabledEl = byId('seisanStandaloneEnabled');
     const standaloneDriverCountEl = byId('seisanStandaloneDriverCount');
     const standaloneMemberCountEl = byId('seisanStandaloneMemberCount');
@@ -68,6 +69,13 @@ function syncSettlementControls(state, participants) {
     if (driverCollectionOffsetEl) driverCollectionOffsetEl.checked = state.driverCollectionOffset !== false;
     if (driverCollectionFreeEl) driverCollectionFreeEl.checked = state.driverCollectionFree === true;
     if (rewardEl) rewardEl.value = state.driverReward ?? '0';
+    if (rewardTypeEl) {
+        const rewardType = getDriverRewardType(state);
+        rewardTypeEl.value = rewardType;
+        rewardTypeEl.querySelectorAll('cds-content-switcher-item').forEach(item => {
+            item.selected = item.value === rewardType;
+        });
+    }
     const standalone = normalizeStandaloneSettlementState(state.standalone || {});
     const roundingValue = String(state.rounding || '100');
     document.querySelectorAll('.seisan-rounding-row').forEach(switcher => {
@@ -108,7 +116,8 @@ function renderSettlementCarRowHtml(car, state, result, issues) {
     const cState = ensureDriverRewardExtra(state.cars?.[car.name] || {}, state);
     state.cars[car.name] = cState;
     const calc = result.cars.find(c => c.name === car.name) || { totalPay: 0, gas: 0, extras: [] };
-    const extras = cState.extras.length ? cState.extras.map(normalizeExtraItem) : [{ name: '', amount: '', type: 'split' }];
+    const editableExtras = cState.extras.map(normalizeExtraItem).filter(ex => !isDriverRewardExtra(ex));
+    const extras = editableExtras.length ? editableExtras : [{ name: '', amount: '', type: 'split' }];
     const extraCandidateMap = new Map();
     Object.values(state.cars || {})
         .flatMap(carState => normalizeCarSettlementState(carState || {}).extras || [])

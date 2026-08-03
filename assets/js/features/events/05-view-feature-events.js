@@ -15,6 +15,27 @@
             }
         });
 
+        const rewardType = byId('seisanDriverRewardType');
+        if (rewardType && rewardType.dataset.eventOwnerBound !== 'true') {
+            rewardType.dataset.eventOwnerBound = 'true';
+            const commitRewardType = value => {
+                const next = value === 'club' ? 'club' : 'split';
+                rewardType.value = next;
+                rewardType.querySelectorAll('cds-content-switcher-item').forEach(item => {
+                    item.selected = item.value === next;
+                });
+                const state = ensureSettlementState();
+                state.driverRewardType = next;
+                global.onSettlementInput?.();
+            };
+            rewardType.addEventListener('change', () => commitRewardType(rewardType.value));
+            rewardType.addEventListener('cds-content-switcher-selected', event => {
+                const item = event.detail?.item;
+                if (!item || !rewardType.contains(item)) return;
+                commitRewardType(item.value);
+            });
+        }
+
         const reward = byId('seisanDriverReward');
         if (reward && reward.dataset.eventOwnerBound !== 'true') {
             reward.dataset.eventOwnerBound = 'true';

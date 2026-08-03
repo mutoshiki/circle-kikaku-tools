@@ -50,7 +50,7 @@
         </div>
         <label class="seisan-extra-field seisan-extra-field--amount" data-extra-amount-field>
           ${columnLabel('金額')}
-          <cds-text-input type="text" size="lg" density="condensed" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-extra-field="amount" class="${extraFieldErrorClass(issues, carName, index, 'amount')}" value="${esc(ex.amount || '', helpers)}" placeholder="1000" label="金額" hide-label${invalidAttr('amount', '金額を入力してください')}${lockedAttr}></cds-text-input>
+          <cds-text-input type="text" size="lg" density="condensed" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-extra-field="amount" class="${extraFieldErrorClass(issues, carName, index, 'amount')}" value="${esc(ex.amount || '', helpers)}" placeholder="金額" label="金額" hide-label${invalidAttr('amount', '金額を入力してください')}${lockedAttr}></cds-text-input>
         </label>
         <div class="seisan-extra-field seisan-extra-field--type ${baseType} ${type}">
           ${columnLabel('負担')}

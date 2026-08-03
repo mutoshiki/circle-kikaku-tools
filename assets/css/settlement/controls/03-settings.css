@@ -49,7 +49,7 @@
 }
 
 .seisan-settings-field--reward {
-  width: min(100%, 176px);
+  width: 100%;
 }
 
 .seisan-settings--modal .seisan-field label {
@@ -66,6 +66,23 @@
   display: grid;
   grid-template-rows: auto minmax(48px, auto);
   align-items: start;
+}
+
+.seisan-driver-reward-policy {
+  display: grid;
+  gap: 5px;
+  margin-top: 12px;
+}
+
+.seisan-driver-reward-policy-label {
+  color: var(--text-sub);
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+
+#seisanDriverRewardType {
+  width: 100%;
+  min-width: 0;
 }
 
 .seisan-settings--modal .seisan-field :is(cds-text-input, cds-number-input, cds-select) { display: block; width: 100%; min-height: 48px; }

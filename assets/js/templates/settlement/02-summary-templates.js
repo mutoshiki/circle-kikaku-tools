@@ -45,6 +45,7 @@
     const organizerFreeDisplay = `${organizerFreeLabel}${organizerNote}`;
     const standalone = result.isStandaloneSettlement ? result.standaloneCounts : null;
     const reward = Number(result.reward || 0);
+    const rewardTypeLabel = result.driverRewardType === 'club' ? '部費' : '割勘';
     const standalonePill = standalone
       ? `<span class="seisan-setting-pill--mode"><small>入力方法</small>精算だけ</span><span class="seisan-setting-pill--count"><small>人数</small>車出し${standalone.driverCount}名＋その他${standalone.memberCount}名</span>`
       : '';
@@ -55,7 +56,7 @@
       ? `<span class="seisan-setting-pill--subtle"><small>運転手から集金:</small>${esc(driverFreeLabel, helpers)}</span>`
       : '';
     const rewardPill = reward > 0
-      ? `<span class="seisan-setting-pill--subtle"><small>車出し協力代</small>1台 ${money(reward, helpers)}</span>`
+      ? `<span class="seisan-setting-pill--subtle"><small>車出し協力代</small>1台 ${money(reward, helpers)}・${rewardTypeLabel}</span>`
       : '';
     const organizerPills = state.organizerFree
       ? `<span class="seisan-setting-pill--subtle"><small>企画者の集金</small>${organizerFreeDisplay}</span>`
@@ -76,7 +77,7 @@
         <div class="seisan-break-row"><span>集金予定</span><span>${money(result.expectedCollected, helpers)}</span></div>
         <div class="seisan-break-row"><span>端数余り</span><span>${money(result.surplus, helpers)}</span></div>
         <div class="seisan-break-row"><span>部費から</span><span>${money(result.totalClub, helpers)}</span></div>
-        <div class="seisan-break-row"><span>うち車出し協力代</span><span>${money(result.totalReward, helpers)}</span></div>
+        <div class="seisan-break-row"><span>車出し協力代合計</span><span>${money(result.totalReward, helpers)}</span></div>
         <div class="seisan-break-row"><span>集金</span><span>-${money(result.totalDriverCollectionOffset, helpers)}</span></div>
         <div class="seisan-break-row"><span>支払い丸め</span><span>${money(result.totalDriverRound, helpers)}</span></div>`;
   }

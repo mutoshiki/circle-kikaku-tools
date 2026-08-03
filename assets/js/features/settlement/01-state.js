@@ -120,6 +120,7 @@ function getDefaultSettlementState() {
         driverCollectionOffset: true,
         driverCollectionFree: false,
         driverReward: '0',
+        driverRewardType: 'split',
         standalone: {
             enabled: false,
             driverCount: '',
@@ -362,6 +363,14 @@ function getDriverRewardAmount(state = ensureSettlementState()) {
     return Math.max(0, getNumberValue(state?.driverReward ?? getDefaultSettlementState().driverReward));
 }
 
+function normalizeDriverRewardType(value = 'split') {
+    return value === 'club' ? 'club' : 'split';
+}
+
+function getDriverRewardType(state = ensureSettlementState()) {
+    return normalizeDriverRewardType(state?.driverRewardType ?? getDefaultSettlementState().driverRewardType);
+}
+
 function isDriverCollectionOffsetEnabled(state = ensureSettlementState()) {
     return state?.driverCollectionOffset !== false;
 }
@@ -373,6 +382,7 @@ function isDriverCollectionFreeEnabled(state = ensureSettlementState()) {
 function ensureDriverRewardExtra(carState = {}, state = ensureSettlementState()) {
     const normalized = ensureTimesRentalExtras(carState || {});
     const rewardAmount = getDriverRewardAmount(state);
+    const rewardType = getDriverRewardType(state);
     let rewardUsed = false;
     const extras = normalized.extras
         .map(normalizeExtraItem)
@@ -383,12 +393,12 @@ function ensureDriverRewardExtra(carState = {}, state = ensureSettlementState())
             rewardUsed = true;
             ex.name = ex.name || DRIVER_REWARD_EXTRA_NAME;
             ex.amount = String(rewardAmount);
-            ex.type = getSettlementExtraBaseType(ex.type);
+            ex.type = rewardType;
             return true;
         });
 
     if (rewardAmount > 0 && !rewardUsed) {
-        extras.push({ name: DRIVER_REWARD_EXTRA_NAME, amount: String(rewardAmount), type: 'club' });
+        extras.push({ name: DRIVER_REWARD_EXTRA_NAME, amount: String(rewardAmount), type: rewardType });
     }
 
     return { ...normalized, extras: orderDriverRewardExtrasFirst(extras) };
@@ -438,6 +448,7 @@ function normalizeSettlementState(state = {}) {
         driverCollectionOffset: state.driverCollectionOffset !== undefined ? !!state.driverCollectionOffset : true,
         driverCollectionFree: state.driverCollectionFree === true,
         driverReward: String(state.driverReward ?? base.driverReward),
+        driverRewardType: normalizeDriverRewardType(state.driverRewardType ?? base.driverRewardType),
         standalone: normalizeStandaloneSettlementState(state.standalone || base.standalone),
         cars,
         routeStops: Array.isArray(state.routeStops) ? state.routeStops.map(v => String(v ?? '').trim()).filter(Boolean) : [],
@@ -531,6 +542,7 @@ function syncSettlementStateFromDOM() {
     const driverCollectionOffset = byId('seisanDriverCollectionOffset');
     const driverCollectionFree = byId('seisanDriverCollectionFree');
     const driverReward = byId('seisanDriverReward');
+    const driverRewardType = byId('seisanDriverRewardType');
     const standaloneEnabled = byId('seisanStandaloneEnabled');
     const standaloneDriverCount = byId('seisanStandaloneDriverCount');
     const standaloneMemberCount = byId('seisanStandaloneMemberCount');
@@ -541,6 +553,7 @@ function syncSettlementStateFromDOM() {
     if (driverCollectionOffset) state.driverCollectionOffset = driverCollectionOffset.checked;
     if (driverCollectionFree) state.driverCollectionFree = driverCollectionFree.checked;
     if (driverReward) state.driverReward = driverReward.value;
+    if (driverRewardType) state.driverRewardType = normalizeDriverRewardType(driverRewardType.value);
     state.standalone = normalizeStandaloneSettlementState({
         enabled: standaloneEnabled ? standaloneEnabled.checked : state.standalone?.enabled,
         driverCount: standaloneDriverCount ? standaloneDriverCount.value : state.standalone?.driverCount,

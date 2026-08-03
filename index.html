@@ -20,9 +20,9 @@
     <link rel="preload" href="./assets/vendor/ibm-plex/fonts/IBMPlexSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <link href="./assets/vendor/ibm-plex/plex.css" rel="stylesheet">
     <!-- CSS: tokens -->
-    <link href="./assets/css/tokens/01-color-scheme.css?v=carbon-complete-3" rel="stylesheet">
+    <link href="./assets/css/tokens/01-color-scheme.css?v=route-dark-v17" rel="stylesheet">
     <link href="./assets/css/tokens/01-component-palette.css" rel="stylesheet">
-    <link href="./assets/css/tokens/01-theme-modes.css" rel="stylesheet">
+    <link href="./assets/css/tokens/01-theme-modes.css?v=route-dark-v17" rel="stylesheet">
     <link href="./assets/css/tokens/02-radius-spacing-type.css?v=carbon-complete-3" rel="stylesheet">
     <link href="./assets/css/tokens/04-forms-inputs.css?v=carbon-v8" rel="stylesheet">
     <link href="./assets/css/tokens/05-control-surface-tokens.css" rel="stylesheet">
@@ -106,17 +106,17 @@
     <link href="./assets/css/settlement/summary/05-summary-surfaces.css" rel="stylesheet">
     <link href="./assets/css/settlement/controls/01-control-shell.css" rel="stylesheet">
     <link href="./assets/css/settlement/controls/02-toggles.css" rel="stylesheet">
-    <link href="./assets/css/settlement/controls/03-settings.css?v=ui-fix-1" rel="stylesheet">
+    <link href="./assets/css/settlement/controls/03-settings.css?v=driver-reward-policy-v18" rel="stylesheet">
     <link href="./assets/css/settlement/controls/04-mobile-controls.css" rel="stylesheet">
-    <link href="./assets/css/settlement/car-inputs/01-car-form.css" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/01-car-form.css?v=driver-reward-layout-v18" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/02-distance-fuel.css" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/03-extra-costs.css?v=carbon-v10" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/04-edit-modal.css?v=ui-fix-1" rel="stylesheet">
-    <link href="./assets/css/settlement/car-inputs/05-mobile-inputs.css" rel="stylesheet">
-    <link href="./assets/css/settlement/car-inputs/06-times-rental.css" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/05-mobile-inputs.css?v=driver-reward-layout-v18" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/06-times-rental.css?v=driver-reward-layout-v18" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/07-extra-candidates.css?v=ui-fix-2" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=route-ui-settings-v17" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/02-route-stops.css?v=route-ui-settings-v17" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=route-ui-settings-v18" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/02-route-stops.css?v=route-ui-settings-v18" rel="stylesheet">
     <link href="./assets/css/settlement/route-helper/03-route-candidates.css?v=route-labels-v13" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/01-collection-list.css" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/02-collection-mobile.css" rel="stylesheet">
@@ -510,6 +510,13 @@
 <div class="seisan-field seisan-settings-field--reward">
 <label>車出し協力代（1台）</label>
 <cds-text-input aria-label="車出し協力代" hide-label="" id="seisanDriverReward" inputmode="numeric" label="車出し協力代" pattern="[0-9]*" placeholder="例：1000" size="lg" type="text" value="0"></cds-text-input>
+<div class="seisan-driver-reward-policy">
+<span class="seisan-driver-reward-policy-label">負担</span>
+<cds-content-switcher aria-label="車出し協力代の負担" id="seisanDriverRewardType" size="lg" value="split">
+<cds-content-switcher-item selected="" value="split">割勘</cds-content-switcher-item>
+<cds-content-switcher-item value="club">部費</cds-content-switcher-item>
+</cds-content-switcher>
+</div>
 </div>
 </div>
 </div>
@@ -676,19 +683,19 @@
     <script src="./assets/js/templates/common-empty-state.js?v=first-run-v10"></script>
     <script src="./assets/js/templates/settlement/00-template-utils.js"></script>
     <script src="./assets/js/templates/settlement/01-cost-parts.js"></script>
-    <script src="./assets/js/templates/settlement/02-summary-templates.js?v=club-ledger"></script>
-    <script src="./assets/js/templates/settlement/04-extra-input-templates.js?v=carbon-v10"></script>
-    <script src="./assets/js/templates/settlement/03-car-cost-templates.js?v=ui-fix-1"></script>
+    <script src="./assets/js/templates/settlement/02-summary-templates.js?v=driver-reward-policy-v18"></script>
+    <script src="./assets/js/templates/settlement/04-extra-input-templates.js?v=driver-reward-policy-v18-1"></script>
+    <script src="./assets/js/templates/settlement/03-car-cost-templates.js?v=driver-reward-layout-v18"></script>
     <script src="./assets/js/templates/settlement/05-collection-check-templates.js"></script>
     <script src="./assets/js/templates/settlement/06-driver-pay-templates.js"></script>
     <script src="./assets/js/templates/settlement/07-empty-state-templates.js"></script>
-    <script src="./assets/js/templates/settlement/08-route-helper-templates.js?v=route-segments-v11-1"></script>
+    <script src="./assets/js/templates/settlement/08-route-helper-templates.js?v=route-ui-settings-v18"></script>
     <script src="./assets/js/templates/settlement/09-register-settlement-templates.js?v=route-ui-settings-v16"></script>
     <script src="./assets/js/templates/settlement-templates.js"></script>
-    <script src="./assets/js/features/settlement/01-state.js?v=route-segments-v11-1"></script>
-    <script src="./assets/js/features/settlement/02-calculator.js"></script>
-    <script src="./assets/js/features/settlement/03-render.js?v=route-ui-settings-v16"></script>
-    <script src="./assets/js/features/settlement/04-route-helper.js?v=route-touch-v14"></script>
+    <script src="./assets/js/features/settlement/01-state.js?v=driver-reward-policy-v18"></script>
+    <script src="./assets/js/features/settlement/02-calculator.js?v=driver-reward-policy-v18"></script>
+    <script src="./assets/js/features/settlement/03-render.js?v=driver-reward-layout-v18"></script>
+    <script src="./assets/js/features/settlement/04-route-helper.js?v=route-ui-settings-v18"></script>
     <script src="./assets/js/features/settlement/05-input-actions.js?v=route-ui-settings-v16"></script>
     <script src="./assets/js/features/settlement/06-share-text.js?v=club-ledger"></script>
     <script src="./assets/js/features/settlement.js"></script>
@@ -720,7 +727,7 @@
     <script src="./assets/js/features/events/02-static-header-events.js"></script>
     <script src="./assets/js/features/events/03-generated-action-events.js?v=route-ui-settings-v17"></script>
     <script src="./assets/js/features/events/04-settlement-input-events.js?v=route-ui-settings-v16"></script>
-    <script src="./assets/js/features/events/05-view-feature-events.js?v=carbon-bottom-nav-3"></script>
+    <script src="./assets/js/features/events/05-view-feature-events.js?v=driver-reward-layout-v18"></script>
     <script src="./assets/js/features/events.js"></script>
     <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=2.60.0-icons-complete"></script>
     <script type="module">if (!customElements.get('cds-accordion')) import('https://1.www.s81c.com/common/carbon/web-components/version/v2.60.0/accordion.min.js');</script>

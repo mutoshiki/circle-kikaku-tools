@@ -54,12 +54,31 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  gap: 10px;
+  gap: 8px;
 }
 
 .seisan-field,
 .seisan-car-inputs label,
 .seisan-extra-row > * { min-width: 0; }
+
+.seisan-gas-section-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  min-width: 0;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.seisan-gas-section-head .seisan-subhead {
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 2px;
+  border: 0;
+}
 
 .seisan-field label,
 .seisan-mini-label {
@@ -87,8 +106,8 @@
 }
 
 .seisan-subhead {
-  margin-top: 18px;
-  padding-top: 14px;
+  margin-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid var(--border-color);
   color: var(--text-main);
   font-size: 0.78rem;

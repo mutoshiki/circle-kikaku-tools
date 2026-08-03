@@ -87,6 +87,9 @@ html[data-theme="dark"] {
   --semantic-success: #42be65;
   --semantic-success-soft: #044317;
   --semantic-info-inverse: #4589ff;
+  --cds-support-info: var(--accent-line);
+  --cds-support-info-inverse: var(--semantic-info-inverse);
+  --cds-notification-background-info: var(--accent-soft);
   --semantic-warning: #f1c21b;
   --semantic-warning-soft: #3a2b00;
   --semantic-danger: #ff8389;

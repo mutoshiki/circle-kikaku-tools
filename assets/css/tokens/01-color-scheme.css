@@ -91,6 +91,9 @@
   --semantic-success: #198038;
   --semantic-success-soft: #defbe6;
   --semantic-info-inverse: #4589ff;
+  --cds-support-info: #0043ce;
+  --cds-support-info-inverse: var(--semantic-info-inverse);
+  --cds-notification-background-info: var(--accent-soft);
   --semantic-warning: #8e6a00;
   --semantic-warning-soft: #fcf4d6;
   --semantic-danger: #da1e28;

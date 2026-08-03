@@ -14,6 +14,7 @@
     "lint:maps": "node tools/lint-google-route-planner.mjs",
     "typecheck:maps": "tsc -p tsconfig.maps.json",
     "test:maps:contract": "node tests/google-route-planner-contract.mjs",
+    "test:driver-reward": "node tests/driver-reward-policy-contract.mjs",
     "test:maps": "playwright test tests/google-maps-loader.spec.js tests/google-route-planner.spec.js",
     "test:maps:live": "playwright test tests/google-route-planner-live.spec.js",
     "verify:maps": "npm run lint:maps && npm run typecheck:maps && npm run test:maps:contract && npm run test:maps"

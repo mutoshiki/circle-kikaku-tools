@@ -81,10 +81,12 @@
     const standaloneNameField = standaloneIndex == null ? '' : `<label class="seisan-standalone-driver-name-field"><span class="seisan-mini-label">車出し名</span><cds-text-input size="lg" data-field="standaloneDriverName" value="${esc(car.name, helpers)}" placeholder="車出し${standaloneIndex + 1}" autocomplete="off" label="車出し名" hide-label></cds-text-input></label>`;
     const rentalType = usesTimesRental ? 'times' : 'private';
     return `<div class="seisan-car-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}"${standaloneData}>
-        <div class="seisan-subhead"><strong>ガソリン代</strong></div>
         ${standaloneNameField}
-        <div class="seisan-car-inputs">
+        <div class="seisan-gas-section-head">
+          <div class="seisan-subhead seisan-subhead--gas"><strong>ガソリン代</strong></div>
           <div class="seisan-times-toggle-field"><cds-toggle class="seisan-times-toggle" data-field="rentalType" value="times" ${rentalType === 'times' ? 'checked' : ''} label-text="レンタカー（タイムズ）" label-a="タイムズ" label-b="自家用車" aria-label="レンタカー（タイムズ）"></cds-toggle></div>
+        </div>
+        <div class="seisan-car-inputs">
           <div class="seisan-gas-field-row" role="group" aria-label="ガソリン代の計算条件">
             <label class="seisan-distance-field"><span class="seisan-mini-label">移動距離（km）</span><cds-text-input type="number" size="lg" inputmode="decimal" min="0" step="any" data-field="dist" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'dist')}" value="${esc(cState.dist || '', helpers)}" placeholder="例：186" label="移動距離（km）" hide-label${invalidAttr('dist', '0より大きい移動距離を入力してください')}></cds-text-input></label>
             <label class="seisan-fuel-field"><span class="seisan-mini-label">燃費（km/L）</span><cds-text-input type="number" size="lg" inputmode="decimal" min="0" step="any" data-field="eco" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'eco')}" value="${esc(cState.eco || '', helpers)}" placeholder="例：18" label="燃費（km/L）" hide-label${invalidAttr('eco', '0より大きい燃費を入力してください')}></cds-text-input></label>
