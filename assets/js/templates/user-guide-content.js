@@ -73,10 +73,11 @@ window.SanpoUserGuideContent = `
         <img loading="lazy" src="./assets/images/user-guide/08-car-cost.webp" alt="スマホの車ごとの費用入力画面" width="390" height="844">
       </figure>
 
-      <h3>移動距離</h3>
-      <p>移動距離計算ツールからGoogleマップを開き、往復距離を確認します。自宅住所ではなく、近くの施設などを使います。</p>
+      <h3>Google Mapsで移動距離を計算</h3>
+      <p>車の費用画面から距離計算ツールを開きます。出発地・経由地・目的地は文字を入力しただけではなく、必ずGoogleの検索候補から選択してください。</p>
+      <p>地図と一覧に表示されたルート候補から使用するルートを選び、「この距離を適用」を押すと、開く前に編集していた車へだけ距離が反映されます。キャンセルや戻る操作では、その車の費用画面へ戻ります。</p>
       <figure class="user-manual-figure">
-        <img loading="lazy" src="./assets/images/user-guide/09-route-helper.webp" alt="スマホの移動距離計算ツール" width="390" height="844">
+        <img loading="lazy" src="./assets/images/user-guide/09-route-helper.webp" alt="Google Mapsのルート候補を選択する距離計算ツール" width="390" height="844">
       </figure>
 
       <h3>結果</h3>

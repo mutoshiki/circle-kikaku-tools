@@ -17,6 +17,7 @@ function getDefaultSettlementState() {
         },
         cars: {},
         routeStops: [],
+        routePlanner: typeof createDefaultRoutePlannerState === 'function' ? createDefaultRoutePlannerState() : { origin: null, waypoints: [], destination: null, routes: [], selectedRouteIndex: 0, avoidTolls: false, avoidHighways: false, avoidFerries: false, targetCarId: '', returnTo: 'carSettlement', roundTrip: false, calculatedAt: 0 },
         paid: {},
         paidBy: {},
         driverPaid: {}
@@ -328,6 +329,7 @@ function normalizeSettlementState(state = {}) {
         standalone: normalizeStandaloneSettlementState(state.standalone || base.standalone),
         cars,
         routeStops: Array.isArray(state.routeStops) ? state.routeStops.map(v => String(v ?? '').trim()).filter(Boolean) : [],
+        routePlanner: typeof normalizeRoutePlannerState === 'function' ? normalizeRoutePlannerState(state.routePlanner || base.routePlanner) : (state.routePlanner || base.routePlanner),
         paid: state.paid && typeof state.paid === 'object' ? state.paid : {},
         paidBy: state.paidBy && typeof state.paidBy === 'object' ? state.paidBy : {},
         driverPaid: state.driverPaid && typeof state.driverPaid === 'object' ? state.driverPaid : {}

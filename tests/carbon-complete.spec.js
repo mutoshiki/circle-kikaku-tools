@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { installGoogleMapsMock, selectMockPlace, MOCK_PLACES } from './maps-test-utils.js';
 
 async function seed(page) {
   await page.goto('/');
@@ -162,7 +163,6 @@ test.describe('Carbon modal, participant and sheet workflows', () => {
       ['openPlanningCheck()', 'planningCheckModal'],
       ['openDebugModal()', 'debugModal'],
       ['openSettlementSettings()', 'settlementSettingsModal'],
-      ['openRouteDistanceHelper()', 'routeDistanceModal'],
       ['openBatchModal()', 'batchImportModal']
     ];
     for (const [command, id] of cases) {
@@ -255,19 +255,15 @@ test.describe('Settlement and route workflows', () => {
     });
     expect(dimensions.amount).toBeLessThan(dimensions.row * 0.3);
     expect(dimensions.type).toBeLessThan(dimensions.row * 0.35);
+    await installGoogleMapsMock(page);
     await hostClick(page, '#settlementCarEditModal [data-action="open-route-helper-shortcut"]');
     await expect(page.locator('#routeDistanceModal')).toHaveAttribute('open', '');
-    const stops = await page.locator('#routeStopList .route-stop-row').count();
-    await hostClick(page, '#addRouteStopBtn');
-    await expect(page.locator('#routeStopList .route-stop-row')).toHaveCount(stops + 1);
-    expect(await page.evaluate(() => {
-      const children = [...document.querySelector('#routeStopList .route-stop-row').children];
-      return children[0].matches('[data-action="remove-route-stop"]') && children[1].matches('.route-stop-input') && children[2].matches('.route-stop-num');
-    })).toBeTruthy();
-    await setHostValue(page, '#routeStopList .route-stop-input', '飯綱高原');
-    await page.locator('#routeStopList [data-action="remove-route-stop"]').last().evaluate(node => node.click());
-    await expect(page.locator('#routeStopList .route-stop-row')).toHaveCount(stops);
+    await page.waitForFunction(() => document.querySelector('#routeOriginAutocompleteHost gmp-place-autocomplete'));
+    await selectMockPlace(page, '#routeOriginAutocompleteHost gmp-place-autocomplete', MOCK_PLACES.origin);
+    await selectMockPlace(page, '#routeDestinationAutocompleteHost gmp-place-autocomplete', MOCK_PLACES.destination);
+    await expect(page.locator('#routeResultList cds-selectable-tile.route-result-tile')).toHaveCount(4);
     await hostClick(page, '#routeDistanceModal cds-modal-close-button');
+    await expect(page.locator('#settlementCarEditModal')).toHaveAttribute('open', '');
     await hostClick(page, '[data-action="copy-settlement-text"]');
     expect(await page.evaluate(() => /[¥￥円]/.test(window.__copiedText || ''))).toBeTruthy();
     await expectNoDocumentOverflow(page);

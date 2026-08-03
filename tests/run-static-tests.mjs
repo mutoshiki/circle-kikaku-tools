@@ -81,12 +81,59 @@ check('All required Carbon component modules are registered by the entry', () =>
   const entry = read('assets/js/carbon-entry.js');
   [
     'button/index.js', 'icon-button/index.js', 'content-switcher/index.js',
-    'notification/toast-notification.js', 'tag/index.js', 'text-input/index.js',
+    'notification/toast-notification.js', 'notification/inline-notification.js',
+    'inline-loading/index.js', 'tile/index.js', 'tag/index.js', 'text-input/index.js',
     'select/index.js', 'checkbox/index.js', 'textarea/index.js',
     'number-input/index.js', 'toggle/index.js', 'modal/index.js',
     'overflow-menu/index.js'
   ].forEach(moduleName => assert.match(entry, new RegExp(moduleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))));
 });
+
+check('Google Maps integration uses only current APIs and one centralized browser key', () => {
+  const configPath = fs.existsSync(path.join(root, 'maps-config.js')) ? 'maps-config.js' : 'maps-config.example.js';
+  const config = read(configPath);
+  const mapsFiles = [
+    'assets/js/features/settlement/route-helper/02-google-loader.js',
+    'assets/js/features/settlement/route-helper/03-route-service.js',
+    'assets/js/features/settlement/route-helper/05-controller.js'
+  ].map(read).join('\n');
+  const sourceFiles = ['index.html', 'maps-config.example.js', ...walk('assets/js').filter(f => f.endsWith('.js'))];
+  const sourceText = sourceFiles.map(read).join('\n');
+  assert.equal((sourceText.match(/AIzaSy[A-Za-z0-9_-]{30,}/g) || []).length, 0);
+  if (fs.existsSync(path.join(root, 'maps-config.js'))) {
+    const configuredKeys = read('maps-config.js').match(/AIzaSy[A-Za-z0-9_-]{30,}/g) || [];
+    assert.ok(configuredKeys.length <= 1, 'The browser key must exist in at most one generated config file.');
+  }
+  assert.match(config, /SANPO_GOOGLE_MAPS_CONFIG/);
+  assert.match(mapsFiles, /PlaceAutocompleteElement/);
+  assert.match(mapsFiles, /locationBias/);
+  assert.doesNotMatch(mapsFiles, /includedRegionCodes/);
+  assert.match(mapsFiles, /gmp-select/);
+  assert.match(mapsFiles, /fetchFields\(\{\s*fields:\s*\['id', 'displayName', 'formattedAddress', 'location'\]/);
+  assert.match(mapsFiles, /Route\.computeRoutes/);
+  assert.match(mapsFiles, /computeAlternativeRoutes/);
+  assert.match(mapsFiles, /avoidTolls/);
+  assert.match(mapsFiles, /avoidHighways/);
+  assert.match(mapsFiles, /avoidFerries/);
+  assert.doesNotMatch(mapsFiles, /DirectionsService|DistanceMatrixService|AutocompleteService|places\.Autocomplete\b/);
+});
+check('Route helper is car-scoped and uses Carbon route controls', () => {
+  const html = read('index.html');
+  const controller = read('assets/js/features/settlement/route-helper/05-controller.js');
+  const templates = read('assets/js/templates/settlement/08-route-helper-templates.js');
+  assert.match(html, /<cds-modal\b[^>]*id="routeDistanceModal"/);
+  assert.match(html, /<cds-inline-notification\b[^>]*id="routeHelperStatus"/);
+  assert.match(html, /<cds-inline-loading\b/);
+  assert.match(html, /<cds-(?:text-input-)?skeleton(?:-text)?\b/);
+  assert.match(templates, /<cds-selectable-tile class=\"route-result-tile\"/);
+  assert.match(controller, /targetCarId/);
+  assert.match(controller, /returnToSourceCar/);
+  assert.match(controller, /route\.distanceMeters \* multiplier \/ 1000/);
+  assert.match(controller, /requestSequence/);
+  assert.match(controller, /pendingRequestKey/);
+  assert.match(controller, /getActiveSettlementCarEditName/);
+});
+
 check('Lockfiles do not retain Bootstrap or Font Awesome', () => {
   const locks = ['package-lock.json', 'pnpm-lock.yaml'].filter(rel => fs.existsSync(path.join(root, rel))).map(read).join('\n');
   assert.doesNotMatch(locks, /(?:bootstrap|fontawesome|font-awesome)/i);
@@ -115,7 +162,7 @@ check('Build manifest is deterministic and matches exact versions', () => {
 check('Package scripts only reference available project test tools', () => {
   const pkg = JSON.parse(read('package.json'));
   ['test','test:ui','test:visual','test:carbon:complete','test:guard'].forEach(name => assert.ok(pkg.scripts[name], name));
-  ['tests/run-static-tests.mjs','tests/carbon-complete.spec.js','tests/carbon-complete.visual.spec.js','tools/serve-static.mjs','playwright.config.js','stylelint.config.mjs'].forEach(rel => assert.ok(fs.existsSync(path.join(root, rel)), rel));
+  ['tests/run-static-tests.mjs','tests/carbon-complete.spec.js','tests/carbon-complete.visual.spec.js','tools/serve-static.mjs','playwright.config.js','stylelint.config.mjs','tsconfig.maps.json','tests/maps-route-helper.spec.js','tests/maps-route-helper.live.spec.js'].forEach(rel => assert.ok(fs.existsSync(path.join(root, rel)), rel));
 });
 
 check('Index IDs are unique', () => {

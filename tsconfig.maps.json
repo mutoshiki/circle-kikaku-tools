@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "skipLibCheck": true,
+    "strict": false,
+    "types": []
+  },
+  "files": [
+    "types/route-helper.d.ts",
+    "assets/js/features/settlement/route-helper/01-model.js",
+    "assets/js/features/settlement/route-helper/02-google-loader.js",
+    "assets/js/features/settlement/route-helper/03-route-service.js",
+    "assets/js/features/settlement/route-helper/04-map-view.js",
+    "assets/js/features/settlement/route-helper/05-controller.js"
+  ]
+}

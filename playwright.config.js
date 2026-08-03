@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const port = Number(process.env.PLAYWRIGHT_TEST_PORT || 4173);
+const liveBaseURL = String(process.env.MAPS_LIVE_BASE_URL || '').trim();
 export default defineConfig({
   testDir: './tests',
   timeout: 30_000,
@@ -9,12 +10,12 @@ export default defineConfig({
   workers: 1,
   reporter: [['line'], ['html', { open: 'never' }]],
   use: {
-    baseURL: `http://127.0.0.1:${port}`,
+    baseURL: liveBaseURL || `http://127.0.0.1:${port}`,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'off'
   },
-  webServer: {
+  webServer: liveBaseURL ? undefined : {
     command: 'node tools/serve-static.mjs',
     url: `http://127.0.0.1:${port}`,
     reuseExistingServer: true,

@@ -1023,3 +1023,16 @@ Carbon bundleは使用component / iconだけをimportして再生成し、Web Co
 Windows system Chromeでruntime、Visual、keyboard、focus、ARIA、48px、console warning / error、overflowを確認した。Playwright Chromium binaryも存在する。Firefox / WebKit binaryは環境に存在せず未確認。Linux ChromiumはWindows hostのため未確認。side browser integrationは最終確認時にautomation sessionへ所属するtabを取得できず、同じ390 / 1280px代表画面をWindows ChromeのPlaywright screenshotで目視した。
 
 残存リスクは、Carbon Web Components 2.60.0でnative eventがcomposedされない箇所の最小bridge、未確認のFirefox / WebKit / Linux Chromium、生成Carbon bundle内upstream template literal由来の既知行末空白だけ。計算、保存形式、Firebase同期、URL、独自component業務構造に既知差分はない。commit、push、PRは行っていない。
+
+## 20. Google Maps距離計算のCarbon統合完了（2026-08-03）
+
+- Places API (New) `PlaceAutocompleteElement`へ移行。
+- Maps JavaScript API Routes library `Route.computeRoutes()`へ移行。
+- 旧Places／Directions Legacy／Distance Matrix Legacyは0参照。
+- 出発地、経由地、目的地はPlace ID、名称、住所、緯度、経度を保持。
+- waypoint追加・削除・並び替え、toll／highway／ferry回避、複数候補、全Polyline、route list／map同期を実装。
+- route helperは車両費Modalからのみ対象車ID付きで開き、選択距離を同じ車だけへ適用。
+- X／キャンセル／Escape／browser historyから同じ車の車両費Modalへ復帰。
+- state永続化、request dedupe、debounce、stale response破棄、Carbon loading／skeleton／notificationを実装。
+- 静的23、Maps専用220、全アプリ結合132、既存回帰220、型1、JS71、CSS119、参照192、計978項目成功。
+- 外部Google実応答はHTTP referrer許可済み本番originで`tests/maps-route-helper.live.spec.js`を実行する。
