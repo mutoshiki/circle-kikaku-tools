@@ -51,7 +51,7 @@ function showCopyFallback(message, text) {
     });
 }
 
-const SHARE_PREVIEW_VERSION = 'd2521288ce9c-fe381f46c9bc';
+const SHARE_PREVIEW_VERSION = '824cb76665ac-c4a994eef616';
 
 const SHARE_LINK_TYPES = Object.freeze({
     presentation: Object.freeze({
