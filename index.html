@@ -49,6 +49,7 @@
     <link href="./assets/css/app-shell/header/01-header-base.css" rel="stylesheet">
     <link href="./assets/css/app-shell/header/02-room-status.css?v=mobile-layout-fix" rel="stylesheet">
     <link href="./assets/css/app-shell/header/03-tabs-actions.css?v=ui-fix-1" rel="stylesheet">
+    <link href="./assets/css/app-shell/share/01-share-link-modal.css?v=share-links-v19" rel="stylesheet">
     <!-- CSS: foundations and design tokens -->
     <!-- CSS: guides and modals -->
     <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">
@@ -176,9 +177,9 @@
               <span data-carbon-icon="unlocked" data-state-icon="editLock" data-icon-state="unlocked" slot="icon" aria-hidden="true"></span>
               <span slot="tooltip-content" class="edit-lock-tooltip">車割・班割と精算のロック範囲を選ぶ</span>
             </cds-icon-button>
-            <cds-icon-button id="shareLinkBtn" class="header-action share-action" kind="ghost" size="lg" align="bottom-right" aria-label="共有リンクをコピー">
+            <cds-icon-button id="shareLinkBtn" class="header-action share-action" kind="ghost" size="lg" align="bottom-right" aria-label="共有リンク">
               <span data-carbon-icon="link" slot="icon" aria-hidden="true"></span>
-              <span slot="tooltip-content">共有リンクをコピー</span>
+              <span slot="tooltip-content">共有リンク</span>
             </cds-icon-button>
             <cds-icon-button id="overviewMenuBtn" class="header-action overview-menu-toggle" kind="ghost" size="lg" align="bottom-right" aria-label="メモ・タイムテーブル" aria-controls="overviewDrawer" aria-expanded="false">
               <span data-carbon-icon="menu" slot="icon" aria-hidden="true"></span>
@@ -703,7 +704,7 @@
     <script src="./assets/js/templates/user-guide-content.js"></script>
     <script src="./assets/js/features/user-guide.js"></script>
     <script src="./assets/js/core/remote-guard.js"></script>
-    <script src="./assets/js/features/share-actions.js"></script>
+    <script src="./assets/js/features/share-actions.js?v=share-links-v19"></script>
     <script src="./assets/js/features/lock-protection.js"></script>
     <script src="./assets/js/features/waiting-tray.js?v=ui-fix-2"></script>
     <script src="./assets/js/features/person-cards.js?v=ui-fix-1"></script>

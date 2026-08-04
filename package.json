@@ -1,7 +1,7 @@
 {
   "name": "circle-kikaku-tools",
   "private": true,
-  "version": "7.0.0-calm-workspace",
+  "version": "7.1.0-share-thumbnails",
   "scripts": {
     "build:carbon": "node tools/build-carbon-assets.mjs",
     "test": "node tests/run-static-tests.mjs",
@@ -17,7 +17,9 @@
     "test:driver-reward": "node tests/driver-reward-policy-contract.mjs",
     "test:maps": "playwright test tests/google-maps-loader.spec.js tests/google-route-planner.spec.js",
     "test:maps:live": "playwright test tests/google-route-planner-live.spec.js",
-    "verify:maps": "npm run lint:maps && npm run typecheck:maps && npm run test:maps:contract && npm run test:maps"
+    "verify:maps": "npm run lint:maps && npm run typecheck:maps && npm run test:maps:contract && npm run test:maps",
+    "capture:ogp": "node tools/capture-ogp-thumbnails.mjs",
+    "test:share": "node tests/share-links-contract.mjs"
   },
   "devDependencies": {
     "@carbon/icons": "11.85.0",

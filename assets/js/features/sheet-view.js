@@ -1,7 +1,8 @@
 // Sheet view feature
 // Owns view switching, announcement sheet rendering, quick edit drag, pan and zoom.
 
-let currentView = 'list';
+const requestedInitialView = new URLSearchParams(window.location.search).get('view');
+let currentView = ['list', 'sheet', 'seisan'].includes(requestedInitialView) ? requestedInitialView : 'list';
 function syncMainViewSwitcher(view) {
     const switcher = byId('view-toggle-bar');
     if (switcher) switcher.value = view;
