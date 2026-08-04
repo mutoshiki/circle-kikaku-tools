@@ -54,9 +54,10 @@ body {
 }
 
 .ogp-copy-panel {
-  width: 392px;
+  position: relative;
+  width: 454px;
   height: 630px;
-  padding: 48px 34px 40px 64px;
+  padding: 48px 40px 40px 72px;
   background: var(--cds-layer-01);
 }
 
@@ -89,7 +90,10 @@ body {
 }
 
 .ogp-heading-group {
-  margin-top: 98px;
+  position: absolute;
+  left: 72px;
+  right: 40px;
+  top: 214px;
 }
 
 .ogp-mode-tag {
@@ -104,7 +108,7 @@ body {
 
 .ogp-title {
   margin: 0;
-  font-size: 64px;
+  font-size: 74px;
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.045em;
@@ -113,7 +117,7 @@ body {
 
 .ogp-copy-footer {
   position: absolute;
-  left: 64px;
+  left: 72px;
   bottom: 44px;
   color: var(--cds-text-helper);
   font-size: 17px;
@@ -131,16 +135,16 @@ body {
 
 .ogp-visual-panel {
   position: relative;
-  width: 808px;
+  width: 746px;
   height: 630px;
-  padding: 56px 46px;
+  padding: 52px 30px;
   color: var(--cds-text-on-color);
   background: var(--cds-layer-dark-01);
 }
 
 .ogp-app-frame {
-  width: 716px;
-  min-height: 518px;
+  width: 686px;
+  min-height: 526px;
   border-top: 5px solid var(--cds-interactive);
   background: var(--cds-layer-dark-02);
 }
@@ -179,7 +183,7 @@ body {
 }
 
 .ogp-app-frame-body {
-  padding: 28px 30px 30px;
+  padding: 30px 28px 30px;
   clear: both;
 }
 
@@ -197,7 +201,7 @@ body {
 
 .ogp-allocation-card {
   display: inline-block;
-  width: 319px;
+  width: 306px;
   min-height: 170px;
   vertical-align: top;
   border: 1px solid var(--cds-border-dark);
@@ -265,7 +269,7 @@ body {
 
 .ogp-name-line {
   height: 10px;
-  width: 220px;
+  width: 206px;
 }
 
 .ogp-name-line.short { width: 170px; }
@@ -277,7 +281,7 @@ body {
 
 .ogp-team-card {
   display: inline-block;
-  width: 319px;
+  width: 306px;
   vertical-align: top;
   border-left: 4px solid var(--cds-interactive);
   background: var(--cds-layer-dark-03);
@@ -307,13 +311,13 @@ body {
 
 .ogp-settlement-left {
   display: inline-block;
-  width: 404px;
+  width: 386px;
   vertical-align: top;
 }
 
 .ogp-settlement-right {
   display: inline-block;
-  width: 232px;
+  width: 256px;
   margin-left: 16px;
   vertical-align: top;
 }
@@ -330,7 +334,7 @@ body {
 .ogp-input-row:first-child { margin-top: 0; }
 
 .ogp-input-label {
-  width: 176px;
+  width: 162px;
   padding: 30px 18px;
   color: var(--cds-text-on-color);
   font-size: 22px;
@@ -352,14 +356,14 @@ body {
 }
 
 .ogp-input-surface {
-  width: 226px;
+  width: 222px;
   padding: 20px 16px;
   border-left: 1px solid var(--cds-border-dark);
   background: var(--cds-layer-dark-02);
 }
 
 .ogp-input-ghost {
-  width: 192px;
+  width: 188px;
   height: 46px;
   border: 1px solid #6f6f6f;
   background: #525252;
@@ -393,7 +397,7 @@ body {
 }
 
 .ogp-summary-line {
-  width: 180px;
+  width: 194px;
   height: 16px;
   margin-top: 12px;
   background: rgba(0, 67, 206, 0.32);
@@ -424,7 +428,7 @@ body {
 }
 
 .ogp-mini-line {
-  width: 164px;
+  width: 180px;
   height: 12px;
 }
 
