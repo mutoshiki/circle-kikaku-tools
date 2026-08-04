@@ -28,11 +28,17 @@
   line-height: 1.35;
 }
 .app-modal-heading:focus { outline: 0; }
-.app-modal-heading .carbon-icon {
+.app-modal cds-modal-heading:focus,
+.app-modal cds-modal-heading:focus-visible {
+  outline: 0;
+  box-shadow: none;
+}
+.app-modal-heading .carbon-icon,
+.app-modal-heading-icon {
   width: 20px;
   height: 20px;
   flex: 0 0 auto;
-  color: var(--accent-color);
+  color: var(--cds-icon-primary, var(--text-main));
 }
 
 .app-modal-body {

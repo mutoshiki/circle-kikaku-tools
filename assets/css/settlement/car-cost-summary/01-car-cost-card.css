@@ -15,7 +15,7 @@
   min-height: 96px;
   padding: 10px 10px 7px 14px;
   border-bottom: 1px solid color-mix(in srgb, var(--ui-saas-border) 58%, transparent);
-  background: color-mix(in srgb, var(--bg-card) 92%, var(--accent-soft));
+  background: var(--surface-low);
 }
 
 #seisan-view-area .seisan-car-summary-name {
@@ -261,7 +261,7 @@
   align-self: start;
   min-height: 19px;
   padding-inline: 2px;
-  font-size: 0.58rem;
+  font-size: var(--font-size-micro);
 }
 
 #seisan-view-area #seisan-car-list.is-two-column .seisan-car-summary-total {

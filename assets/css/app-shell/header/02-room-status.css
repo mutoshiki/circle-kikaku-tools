@@ -17,9 +17,9 @@
 .app-room-kicker {
   display: block;
   color: var(--text-sub);
-  font-size: 0.68rem;
+  font-size: var(--font-size-caption);
   font-weight: 400;
-  line-height: 1.1;
+  line-height: 1.3333;
 }
 
 .app-room-input {
@@ -52,7 +52,7 @@
 #appUndoBar {
   position: fixed;
   left: 50%;
-  bottom: max(18px, env(safe-area-inset-bottom));
+  bottom: calc(var(--bottom-navigation-clearance) + 16px + env(safe-area-inset-bottom));
   z-index: var(--z-drag);
   display: inline-flex;
   align-items: center;
@@ -73,15 +73,11 @@
 
 #appUndoBar.visible { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
 
-#appUndoBar button {
+#appUndoBar cds-button {
   min-height: 40px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 0;
-  background: var(--accent-container);
-  color: var(--accent-container-text);
-  font-size: 0.8rem;
-  font-weight: 600;
+  --cds-button-ghost: transparent;
+  --cds-button-ghost-hover: rgba(var(--white-rgb), 0.14);
+  --cds-button-ghost-color: currentColor;
 }
 
 @media (max-width: 640px) {

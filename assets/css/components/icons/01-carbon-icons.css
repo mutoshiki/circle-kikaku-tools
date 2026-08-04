@@ -21,11 +21,11 @@ cds-icon-button:not(:defined) {
 }
 
 cds-icon-button.header-action {
-  --cds-icon-primary: var(--accent-color);
-  --cds-icon-secondary: var(--accent-color);
-  --cds-link-primary: var(--accent-color);
-  --cds-link-primary-hover: var(--accent-hover);
-  color: var(--accent-color);
+  --cds-icon-primary: var(--app-accent-icon);
+  --cds-icon-secondary: var(--app-accent-icon);
+  --cds-link-primary: var(--app-accent-text);
+  --cds-link-primary-hover: var(--app-accent-text-hover);
+  color: var(--app-accent-icon);
   width: var(--header-action-size);
   min-width: var(--header-action-size);
   height: var(--header-action-size);

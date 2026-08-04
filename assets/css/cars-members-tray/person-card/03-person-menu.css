@@ -35,9 +35,11 @@
   height: 48px;
   min-height: 48px;
   padding: 0;
-  color: var(--accent-color);
+  color: var(--cds-icon-primary, var(--text-main));
   touch-action: manipulation;
-  --cds-icon-primary: var(--accent-color);
+  --cds-icon-primary: var(--text-sub);
+  --cds-link-primary: var(--text-sub);
+  --cds-link-primary-hover: var(--text-main);
   --cds-layer: var(--surface-lowest);
   --cds-layer-01: var(--surface-lowest);
   --cds-layer-02: var(--surface-low);
@@ -81,7 +83,7 @@
 .person-pop-item { min-width: 0; }
 .person-pop-item[data-flag-choice] [data-carbon-icon],
 .person-pop-item[data-flag-choice] .carbon-icon { color: var(--person-flag-color, var(--cds-icon-primary)); }
-.person-pop-item[data-flag-choice="blue"] { --person-flag-color: var(--accent-color); }
+.person-pop-item[data-flag-choice="blue"] { --person-flag-color: var(--app-accent-text); }
 .person-pop-item[data-flag-choice="purple"] { --person-flag-color: var(--grade1-border); }
 .person-pop-item[data-flag-choice="yellow"] { --person-flag-color: var(--grade3-border); }
 .person-pop-item[data-flag-choice="red"] { --person-flag-color: var(--semantic-danger); }

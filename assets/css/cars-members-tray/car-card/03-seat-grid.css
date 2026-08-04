@@ -28,8 +28,9 @@
 .driver-seat {
   justify-content: center;
   padding: 7px 10px;
-  background: var(--accent-container);
-  color: var(--accent-container-text);
+  border-left: 4px solid var(--app-accent-border);
+  background: var(--app-accent-surface);
+  color: var(--app-accent-surface-text);
 }
 .driver-seat .driver-name-disp { color: inherit; }
 
@@ -44,7 +45,7 @@
 .seat-slot::before {
   content: "空席\A メンバーを追加";
   display: block;
-  padding: 10px 34px 10px 12px;
+  padding: 10px 42px 10px 12px;
   color: var(--text-sub);
   font-size: var(--font-size-label);
   font-weight: 400;
@@ -53,20 +54,18 @@
   white-space: pre-line;
   pointer-events: none;
 }
-.seat-slot::after {
-  content: "→";
+.seat-slot-icon {
   position: absolute;
   right: 12px;
-  bottom: 10px;
-  color: var(--accent-icon);
-  font-size: 1rem;
-  line-height: 20px;
+  bottom: 12px;
+  width: 16px;
+  height: 16px;
+  color: var(--app-accent-icon);
   pointer-events: none;
 }
 .seat-slot:has(> .member-card) { min-height: 0; border: 0; outline: 0; background: transparent; cursor: default; }
 .seat-slot:has(> .member-card)::before,
-.seat-slot:has(> .member-card)::after { display: none; }
-.driver-seat:hover,
-.seat-slot:not(:has(> .member-card)):hover { border-color: var(--accent-border); background: var(--surface-hover); }
+.seat-slot:has(> .member-card) > .seat-slot-icon { display: none; }
+.seat-slot:not(:has(> .member-card)):hover { border-color: var(--app-accent-border); background: var(--surface-hover); }
 .seat-slot:not(:has(> .member-card)):active { background: var(--surface-container); }
 .seat-slot:not(:has(> .member-card)):focus-visible { outline: 2px solid var(--focus-accent); outline-offset: -2px; }

@@ -52,7 +52,7 @@
 /* People keep one card surface wherever they are; empty seats remain quiet action tiles. */
 #cars-container .seat-slot > .member-card,
 #waiting-list .member-card {
-  border-color: var(--border-strong);
+  border-color: var(--border-item);
   background: var(--surface-lowest);
 }
 
@@ -62,7 +62,7 @@
 }
 
 #cars-container .seat-slot > .member-card:hover {
-  border-color: var(--accent-border);
+  border-color: var(--app-accent-border);
   background: var(--surface-lowest);
 }
 

@@ -22,7 +22,7 @@
   justify-content: space-between;
   gap: var(--app-header-main-gap, var(--space-3));
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--layout-content-max, 1200px);
   min-width: 0;
   min-height: 64px;
   margin-inline: auto;

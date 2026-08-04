@@ -19,7 +19,7 @@
   font-weight: 600;
 }
 
-.batch-import-helper-title :is(i, .carbon-icon) { color: var(--accent-color); }
+.batch-import-helper-title :is(i, .carbon-icon) { color: var(--app-accent-icon); }
 .batch-label-muted { color: var(--text-sub); }
 
 .batch-import-helper-card {
@@ -90,7 +90,7 @@
   padding: 9px 10px;
   border: 1px solid var(--border-color);
   border-radius: 0;
-  background: color-mix(in srgb, var(--bg-card) 84%, var(--accent-soft));
+  background: color-mix(in srgb, var(--bg-card) 88%, var(--app-accent-surface));
   box-shadow: none;
 }
 .form-sheet-howto-title {
@@ -164,7 +164,7 @@
   font-size: var(--font-size-label);
   font-weight: 600;
 }
-.batch-import-helper-icon { width: 20px; height: 20px; margin-inline-end: var(--space-2); color: var(--accent-color); }
+.batch-import-helper-icon { width: 20px; height: 20px; margin-inline-end: var(--space-2); color: var(--app-accent-icon); }
 .batch-spreadsheet-textarea,
 .batch-spreadsheet-button { margin-top: var(--space-2); }
 @media (max-width: 640px) {

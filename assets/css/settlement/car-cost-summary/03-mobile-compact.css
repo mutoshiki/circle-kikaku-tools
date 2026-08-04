@@ -18,6 +18,6 @@
   }
   #seisan-view-area #seisan-car-list.is-two-column .seisan-car-summary-row .seisan-cost-preview-list { padding-inline: 2px; }
   #seisan-view-area #seisan-car-list.is-two-column .seisan-cost-line > span:first-child,
-  #seisan-view-area #seisan-car-list.is-two-column .seisan-cost-total-label { font-size: 0.7rem; }
-  #seisan-view-area #seisan-car-list.is-two-column :is(.seisan-cost-type-badge, .seisan-payment-tag) { font-size: 0.5rem; }
+  #seisan-view-area #seisan-car-list.is-two-column .seisan-cost-total-label { font-size: var(--font-size-caption); }
+  #seisan-view-area #seisan-car-list.is-two-column :is(.seisan-cost-type-badge, .seisan-payment-tag) { font-size: var(--font-size-micro); }
 }

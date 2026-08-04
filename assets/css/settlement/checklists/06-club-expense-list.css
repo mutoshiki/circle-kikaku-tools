@@ -49,7 +49,7 @@
 #seisan-view-area .seisan-club-expense-user {
   justify-self: end;
   color: var(--text-sub);
-  font-size: 0.7rem;
+  font-size: var(--font-size-caption);
   text-align: right;
 }
 

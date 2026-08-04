@@ -138,7 +138,7 @@
 .route-stop-row.route-stop-drag-fallback {
   z-index: calc(var(--z-modal, 1055) + 4);
   margin: 0;
-  border-color: var(--cds-border-interactive, var(--accent-color));
+  border-color: var(--app-accent-fill);
   box-shadow: var(--shadow-float);
   pointer-events: none;
   transform-origin: center;

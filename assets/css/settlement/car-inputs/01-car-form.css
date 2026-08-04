@@ -40,9 +40,9 @@
 .seisan-car-total {
   flex: 0 0 auto;
   padding: 5px 9px;
-  border: 1px solid color-mix(in srgb, var(--accent-color) 24%, var(--border-color));
+  border: 1px solid color-mix(in srgb, var(--app-accent-border) 24%, var(--border-color));
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--accent-color) 8%, var(--surface-lowest));
+  background: color-mix(in srgb, var(--app-accent-surface) 28%, var(--surface-lowest));
   color: var(--text-main);
   font-size: 0.8rem;
   font-weight: 600;

@@ -32,6 +32,12 @@
   --cds-interactive: #0f62fe;
   --cds-interactive-hover: #0050e6;
   --cds-interactive-active: #002d9c;
+  --cds-button-primary: var(--cds-interactive);
+  --cds-button-primary-hover: var(--cds-interactive-hover);
+  --cds-button-primary-active: var(--cds-interactive-active);
+  --cds-border-interactive: var(--cds-interactive);
+  --cds-text-on-color: #ffffff;
+  --cds-icon-secondary: #525252;
   --cds-focus: #0f62fe;
   --cds-focus-inverse: #ffffff;
   --cds-disabled-bg: #c6c6c6;
@@ -75,6 +81,20 @@
   --button-primary-hover: #0050e6;
   --button-primary-active: #002d9c;
 
+
+  /* Product accent roles. Owners use these roles instead of inventing shades. */
+  --app-accent-fill: var(--button-primary);
+  --app-accent-fill-hover: var(--button-primary-hover);
+  --app-accent-fill-active: var(--button-primary-active);
+  --app-accent-text: var(--cds-link-primary);
+  --app-accent-text-hover: var(--cds-link-primary-hover);
+  --app-accent-icon: var(--cds-link-primary);
+  --app-accent-border: var(--cds-link-primary);
+  --app-accent-surface: var(--cds-notification-background-info);
+  --app-accent-surface-strong: var(--accent-container);
+  --app-accent-surface-text: var(--accent-container-text);
+  --app-accent-on-fill: var(--text-on-accent);
+
   --border-color: #c6c6c6;
   --border-strong: var(--cds-border-strong);
   --border-card: #e0e0e0;
@@ -91,13 +111,19 @@
   --semantic-success: #198038;
   --semantic-success-soft: #defbe6;
   --semantic-info-inverse: #4589ff;
+  --cds-support-success: var(--semantic-success);
   --cds-support-info: #0043ce;
+  --cds-support-warning: #8e6a00;
+  --cds-support-error: #da1e28;
   --cds-support-info-inverse: var(--semantic-info-inverse);
+  --cds-notification-background-success: var(--semantic-success-soft);
   --cds-notification-background-info: var(--accent-soft);
-  --semantic-warning: #8e6a00;
-  --semantic-warning-soft: #fcf4d6;
-  --semantic-danger: #da1e28;
-  --semantic-danger-soft: #fff1f1;
+  --cds-notification-background-warning: #fcf4d6;
+  --cds-notification-background-error: #fff1f1;
+  --semantic-warning: var(--cds-support-warning);
+  --semantic-warning-soft: var(--cds-notification-background-warning);
+  --semantic-danger: var(--cds-support-error);
+  --semantic-danger-soft: var(--cds-notification-background-error);
   --warning-on-ink: #684e00;
 
   --surface-soft: var(--surface-low);

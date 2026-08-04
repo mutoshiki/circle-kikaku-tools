@@ -10,6 +10,9 @@
 .app-status-toast {
   /* The app uses a 14px type base; scale the whole official host back to Carbon's 16px rem geometry. */
   --app-toast-scale: 1;
+  --cds-support-info: var(--app-accent-text);
+  --cds-link-primary: var(--app-accent-text);
+  --cds-link-primary-hover: var(--app-accent-text-hover);
 
   position: fixed;
   bottom: calc(env(safe-area-inset-bottom) + 72px);

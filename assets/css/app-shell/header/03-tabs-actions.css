@@ -7,9 +7,9 @@
   min-width: 0;
   --header-action-size: 48px;
   --header-icon-size: 20px;
-  --cds-icon-primary: var(--accent-color);
-  --cds-link-primary: var(--accent-color);
-  --cds-link-primary-hover: var(--accent-hover);
+  --cds-icon-primary: var(--text-main);
+  --cds-link-primary: var(--text-main);
+  --cds-link-primary-hover: var(--text-main);
 }
 
 .header-more { display: flex; flex: 0 0 auto; align-items: center; }
@@ -23,7 +23,15 @@
   min-width: var(--header-action-size);
   height: var(--header-action-size);
   min-height: var(--header-action-size);
-  color: var(--accent-color);
+  color: var(--text-main);
+}
+
+cds-icon-button.header-action,
+cds-overflow-menu.header-action {
+  --cds-icon-primary: var(--text-main);
+  --cds-link-primary: var(--text-main);
+  --cds-link-primary-hover: var(--text-main);
+  color: var(--text-main);
 }
 
 .header-action > span:not([slot]),
@@ -39,10 +47,24 @@
   text-align: center;
 }
 
-.header-action.is-locked,
+#shareLinkBtn.header-action {
+  --cds-icon-primary: var(--app-accent-text);
+  --cds-link-primary: var(--app-accent-text);
+  --cds-link-primary-hover: var(--app-accent-text-hover);
+  color: var(--app-accent-text);
+}
+
+cds-icon-button.header-action.is-locked,
 #editLockBtn.header-action.is-locked,
-.header-action.is-partial-lock {
-  color: var(--accent-color);
+cds-icon-button.header-action.is-partial-lock {
+  --cds-icon-primary: var(--app-accent-text);
+  --cds-link-primary: var(--app-accent-text);
+  --cds-link-primary-hover: var(--app-accent-text-hover);
+  color: var(--app-accent-text);
+}
+
+.header-action:not(#shareLinkBtn):not(.is-locked):not(.is-partial-lock):hover {
+  color: var(--text-main);
 }
 
 #app-view-navigation {

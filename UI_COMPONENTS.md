@@ -2,7 +2,7 @@
 
 ## Navigation
 
-画面下部の「車割・班割」「共有画面」「精算」は公式Carbon Content Switcherです。現在位置は選択面、文字ウェイト、ARIA状態で示します。外側のsafe-areaは塗りつぶさず、バー本体だけを画面下端から浮かせます。ヘッダーの共有、ロック、その他、概要は公式Carbon Icon Button／Overflow Menuです。
+画面下部の「車割・班割」「共有画面」「精算」は公式Carbon Content Switcherです。現在位置は選択面、文字ウェイト、ARIA状態で示します。外側のsafe-areaは塗りつぶさず、バー本体だけを画面下端から浮かせます。ヘッダーの共有、ロック、その他、概要は公式Carbon Icon Button／Overflow Menuです。通常のユーティリティは中性色、共有と明示的なロック状態だけをアクセント色で示します。
 
 ## Surface
 
@@ -37,7 +37,7 @@ Text Input、Number Input、Textarea、Select、Checkbox、Toggle、Content Swit
 
 ## Allocation card
 
-車カードの見出し、定員、戻す操作の位置関係を維持します。運転者は選択面、同乗者は静かな面とし、学年Tag、メモ、Carbon Menuの優先順位を分けます。未割当は下部トレイに保持し、0人時は不要な面積を確保しません。
+車カードの見出し、定員、戻す操作の位置関係を維持します。運転者は選択面、同乗者は静かな面とし、学年Tag、メモ、Carbon Menuの優先順位を分けます。未割当は下部トレイに保持し、0人時は不要な面積を確保しません。空席の追加操作は文字記号ではなく公式Carbon Addアイコンを使います。
 
 ## Shared presentation
 

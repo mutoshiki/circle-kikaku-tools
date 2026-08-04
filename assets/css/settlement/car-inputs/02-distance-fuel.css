@@ -45,5 +45,5 @@
 
 @media (max-width: 360px) {
   .seisan-gas-field-row { gap: 6px; }
-  .seisan-gas-field-row .seisan-mini-label { font-size: 0.64rem; }
+  .seisan-gas-field-row .seisan-mini-label { min-height: 3em; font-size: var(--font-size-caption); line-height: 1.25; }
 }

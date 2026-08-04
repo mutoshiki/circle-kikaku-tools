@@ -34,8 +34,8 @@
   height: 48px;
   margin-bottom: 12px;
   border-radius: var(--radius-main);
-  background: var(--accent-container);
-  color: var(--accent-container-text);
+  background: var(--app-accent-surface-strong);
+  color: var(--app-accent-surface-text);
   font-size: 1.15rem;
 }
 .global-flow-screen { margin-top: 0; }

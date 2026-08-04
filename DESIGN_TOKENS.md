@@ -9,13 +9,25 @@
 - `--surface-low` / `--surface-container` / `--surface-high`: Carbon layer階層
 - `--text-main` / `--text-sub` / `--text-faint`: text-primary／secondary／placeholder相当
 - `--border-color` / `--border-section`: border-subtle／strong相当
-- `--accent-color` / `--accent-container`: Blue 60を中心とした主要操作と選択状態
+- `--app-accent-fill`: Primary Buttonや選択確定など、塗りのある主要操作
+- `--app-accent-text` / `--app-accent-icon` / `--app-accent-border`: リンク、情報アイコン、選択境界
+- `--app-accent-surface` / `--app-accent-surface-strong`: 低コントラスト通知や選択面
+- `--accent-*`: 既存機能との互換用。新規オーナーCSSからは直接使用しない
 - `--semantic-success` / `--semantic-warning` / `--semantic-danger`: 成功・注意・危険
 - `--status-split-*`: 割勘
 - `--status-club-*`: 部費
 - `--status-payment-*`: 支払
 
 精算区分は色だけで区別せず、ラベル・アイコン・配置も維持します。ライトは`tokens/01-color-scheme.css`、ダークは`tokens/01-theme-modes.css`が所有します。
+
+### ダークモードの青
+
+Gray 100では、見えている青を次の2系統に限定します。
+
+- 塗りのある主要操作: Carbon Blue 60
+- 文字・アイコン・境界: Carbon Blue 40
+
+通知や選択面は上記の色から導く暗いsurfaceを使います。機能CSSやモーダルCSSにBlue 40／50／60を直接記述せず、`--app-accent-*`または公式`--cds-*`トークンを使用します。
 
 ## Shape and spacing
 
@@ -51,7 +63,8 @@ Carbonに合わせ、入力、カード、ダイアログ、Tagを直線的な�
 
 - Carbon標準のデスクトップ入力文字: 14px
 - 768px以下の編集可能入力文字: 16px（iOS Safariの自動入力ズーム防止）
-- caption: `--font-size-caption`
+- caption: `--font-size-caption`（常時表示する補足・Tagの基準）
+- micro: `--font-size-micro`（固定表示など、ごく短い補助表示に限定）
 - label: `--font-size-label`
 - body: `--font-size-body`
 - title: `--font-size-title`

@@ -32,7 +32,7 @@
   border-radius: 0;
   background: transparent;
   font-style: normal;
-  font-size: 0.68rem;
+  font-size: var(--font-size-caption);
   font-weight: 500;
 }
 .seisan-extra-line-list {

@@ -57,8 +57,8 @@
           <cds-select size="lg" density="condensed" data-extra-field="type" class="seisan-extra-type ${UI_CLASS.input} ${baseType} ${type}" label-text="費用分類" hide-label>
               <cds-select-item value="split" ${type === 'split' ? 'selected' : ''}>割勘</cds-select-item>
               <cds-select-item value="club" ${type === 'club' ? 'selected' : ''}>部費</cds-select-item>
-              <cds-select-item value="split-minus" ${type === 'split-minus' ? 'selected' : ''}>割勘（マイナス）</cds-select-item>
-              <cds-select-item value="club-minus" ${type === 'club-minus' ? 'selected' : ''}>部費（マイナス）</cds-select-item>
+              <cds-select-item value="split-minus" ${type === 'split-minus' ? 'selected' : ''}>割勘 −</cds-select-item>
+              <cds-select-item value="club-minus" ${type === 'club-minus' ? 'selected' : ''}>部費 −</cds-select-item>
           </cds-select>
         </div>
         ${deleteControl}

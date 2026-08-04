@@ -20,7 +20,7 @@
   display: flex;
   align-items: flex-start;
   gap: 0;
-  max-width: 1200px;
+  max-width: var(--layout-content-max, 1200px);
   min-height: 72px;
   margin: 0 auto;
   padding: 10px 12px;
@@ -95,7 +95,7 @@
   overflow: hidden;
   background: var(--surface-container);
   color: var(--text-main);
-  font-size: 0.82rem;
+  font-size: var(--font-size-label);
   font-weight: 600;
   text-align: center;
   text-overflow: ellipsis;
@@ -111,12 +111,12 @@
   border-bottom: 1px solid var(--border-section);
   background: var(--surface-lowest);
   color: var(--text-main);
-  font-size: 0.84rem;
+  font-size: var(--font-size-label);
   font-weight: 400;
 }
 .sheet-driver-row { background: var(--accent-container); color: var(--accent-container-text); font-weight: 600; }
 .sheet-seat-row:last-child { border-bottom: 0; }
-.sheet-seat-row.empty { color: var(--text-faint); font-size: 0.76rem; font-style: normal; }
+.sheet-seat-row.empty { color: var(--text-faint); font-size: var(--font-size-caption); font-style: normal; }
 .sheet-cell-text,
 .sheet-chip-text,
 .sheet-driver-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

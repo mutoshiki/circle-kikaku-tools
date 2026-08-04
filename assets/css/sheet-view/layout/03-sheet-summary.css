@@ -3,17 +3,6 @@
 .sheet-summary-updated { margin-left: 2px; padding-left: 7px; border-left: 1px solid var(--border-section); color: var(--text-sub); justify-self: start; }
 .sheet-summary-stat,
 .sheet-summary-updated { display: inline-flex; align-items: baseline; justify-content: flex-start; gap: 3px; min-width: 0; }
-#sheet-view-area.active::after {
-  content: "";
-  position: absolute;
-  top: 96px;
-  right: 0;
-  bottom: 0;
-  z-index: var(--z-local-raised);
-  width: 28px;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--bg-body) 88%, transparent));
-}
 
 @media (max-width: 640px) {
   #sheet-title-bar { min-height: 76px; }

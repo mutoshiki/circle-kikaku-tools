@@ -135,7 +135,7 @@ body #app-layout #seisan-view-area .seisan-driver-detail-list :is(.seisan-cost-p
   min-height: 18px;
   padding: 0 4px;
   border-radius: var(--settlement-tag-radius, var(--radius-xs));
-  font-size: 0.64rem;
+  font-size: var(--font-size-micro);
   line-height: 1;
   transform: none;
 }

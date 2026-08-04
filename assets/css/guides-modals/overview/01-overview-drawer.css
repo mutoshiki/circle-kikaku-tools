@@ -15,7 +15,7 @@
   flex-direction: column;
   width: min(92vw, 420px);
   height: 100dvh;
-  padding: max(14px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
+  padding: max(16px, env(safe-area-inset-top)) var(--space-5) max(20px, env(safe-area-inset-bottom));
   overflow-x: hidden;
   border: 0;
   border-radius: 0;
@@ -47,7 +47,7 @@
 }
 .overview-drawer-close:hover,
 .overview-drawer .overview-row-delete:hover { background: var(--surface-hover); color: var(--text-main); }
-.overview-drawer-body { display: grid; gap: 24px; min-width: 0; padding: 0 0 8px; overflow-y: auto; }
+.overview-drawer-body { display: grid; gap: var(--space-6); min-width: 0; padding: 0 0 8px; overflow-y: auto; }
 .overview-panel { display: grid; gap: 12px; min-width: 0; padding: 0; border: 0; background: transparent; }
 .overview-panel h3 { margin: 0; color: var(--text-main); font-size: 1rem; font-weight: 600; }
 .overview-drawer .overview-panel-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }

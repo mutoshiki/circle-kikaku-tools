@@ -15,8 +15,8 @@
 
 .seisan-wrap {
   display: grid;
-  gap: 16px;
-  max-width: 980px;
+  gap: var(--section-gap);
+  max-width: var(--layout-reading-max, 980px);
   min-width: 0;
   margin: 0 auto;
 }
@@ -28,7 +28,7 @@
   min-width: 0;
   box-sizing: border-box;
   margin: 0;
-  padding: 16px;
+  padding: var(--panel-padding);
   overflow: hidden;
   border: 1px solid var(--border-section);
   border-radius: 0;
@@ -64,7 +64,7 @@
   letter-spacing: 0;
 }
 .seisan-title .carbon-icon,
-.seisan-section-title .carbon-icon { color: var(--accent-color); }
+.seisan-section-title .carbon-icon { color: var(--cds-icon-primary, var(--text-main)); }
 .seisan-muted { color: var(--text-sub); font-size: var(--font-size-label); line-height: 1.5; }
 .seisan-small { color: var(--text-sub); font-size: var(--font-size-caption); line-height: 1.4; }
 
@@ -93,7 +93,7 @@
 .seisan-empty { padding: 30px 16px; border-radius: 0; background: var(--surface-low); color: var(--text-sub); text-align: center; }
 .seisan-driver-name { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .seisan-driver-amount { white-space: nowrap; }
-.seisan-driver-detail { grid-column: 1 / -1; color: var(--text-sub); font-size: 0.72rem; line-height: 1.4; }
+.seisan-driver-detail { grid-column: 1 / -1; color: var(--text-sub); font-size: var(--font-size-caption); line-height: 1.4; }
 .seisan-detail { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-section); }
 .seisan-detail summary { min-height: 48px; color: var(--text-sub); cursor: pointer; font-size: var(--font-size-label); font-weight: 600; }
 .seisan-break-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-section); font-size: var(--font-size-label); }
@@ -104,11 +104,11 @@
     padding: 12px 12px calc(var(--bottom-navigation-clearance) + 64px);
     scroll-padding-bottom: calc(var(--bottom-navigation-clearance) + 64px);
   }
-  .seisan-wrap { gap: 12px; }
+  .seisan-wrap { gap: var(--section-gap-mobile); }
   .seisan-card,
   .seisan-panel,
   .seisan-toolbar-card,
-  .seisan-settings-card { padding: 14px; }
+  .seisan-settings-card { padding: var(--panel-padding-mobile); }
   .seisan-alert-item { grid-template-columns: 1fr; }
   .seisan-alert-action { width: 100%; }
 }

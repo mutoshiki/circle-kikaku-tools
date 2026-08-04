@@ -27,8 +27,16 @@
   --space-20: 80px;
   --space-24: 96px;
 
+  --layout-content-max: 1200px;
+  --layout-reading-max: 980px;
+  --section-gap: var(--space-4);
+  --section-gap-mobile: var(--space-3);
+  --panel-padding: var(--space-4);
+  --panel-padding-mobile: 14px;
+
   --font-size-caption: 0.75rem;
   --font-size-label: 0.875rem;
+  --font-size-micro: 0.6875rem;
   --font-size-body: 0.875rem;
   --font-size-title: 1rem;
   --font-size-headline: 1.25rem;
@@ -47,6 +55,7 @@
 
 @supports not (color: color-mix(in srgb, red 50%, transparent)) {
   :root { --focus-ring: rgba(15, 98, 254, 0.24); }
+  html[data-theme="dark"] { --focus-ring: rgba(255, 255, 255, 0.32); }
 }
 
 :where(button, [role="button"], summary, cds-button, cds-icon-button, cds-overflow-menu):focus-visible {

@@ -1,4 +1,9 @@
 .share-links-modal-body {
+  --cds-layer: var(--surface-lowest);
+  --cds-layer-01: var(--surface-lowest);
+  --cds-layer-02: var(--surface-low);
+  --cds-text-primary: var(--text-main);
+  --cds-text-secondary: var(--text-sub);
   display: grid;
   gap: var(--space-4, 16px);
   padding-block-end: var(--space-5, 24px);
@@ -9,10 +14,10 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--space-4, 16px);
   align-items: center;
-  min-height: 88px;
+  min-height: 80px;
   padding: var(--space-4, 16px);
-  border: 1px solid var(--border-subtle, var(--cds-border-subtle-01, #c6c6c6));
-  background: var(--layer-01, var(--cds-layer-01, #ffffff));
+  border: 1px solid var(--cds-border-subtle, var(--border-section));
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
 .share-link-option-title {
@@ -20,7 +25,7 @@
   align-items: center;
   gap: var(--space-3, 12px);
   min-width: 0;
-  color: var(--text-primary, var(--cds-text-primary, #161616));
+  color: var(--cds-text-primary, var(--text-main));
   font-size: var(--type-body-02-size, 1rem);
   font-weight: 600;
   line-height: 1.4;
@@ -31,6 +36,7 @@
   width: 20px;
   height: 20px;
   fill: currentColor;
+  color: var(--cds-icon-primary, var(--text-main));
 }
 
 .share-link-option-actions {

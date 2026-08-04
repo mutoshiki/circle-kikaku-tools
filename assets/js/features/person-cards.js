@@ -125,7 +125,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none') {
             <div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${safeMemo}</div>
         </div>
     `;
-    for(let i=0; i<c; i++) slotsHtml += `<div class="seat-slot"></div>`;
+    for(let i=0; i<c; i++) slotsHtml += `<div class="seat-slot"><span class="seat-slot-icon" data-carbon-icon="add" aria-hidden="true"></span></div>`;
 
     col.innerHTML = `
         <div class="car-box" data-capacity="${c}">

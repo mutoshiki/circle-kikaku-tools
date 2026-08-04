@@ -59,7 +59,7 @@ body {
 
   --settlement-collect-bg: var(--status-split-bg);
   --settlement-collect-line: var(--status-split-border);
-  --settlement-tag-font-size: 0.68rem;
+  --settlement-tag-font-size: var(--font-size-caption);
   --settlement-tag-line-height: 1;
   --settlement-tag-pad-y: 4px;
   --settlement-tag-pad-x: 8px;

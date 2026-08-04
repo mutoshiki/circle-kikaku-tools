@@ -8,6 +8,7 @@
   margin: 0;
   padding: 0 8px 0 16px;
   border: 0;
+  border-bottom: 1px solid var(--border-section);
   background: var(--surface-low);
   color: var(--text-main);
 }
@@ -40,13 +41,17 @@
   padding: 0 10px;
   border: 0;
   border-radius: 0;
-  background: var(--surface-highest);
+  --cds-button-ghost: var(--surface-low);
+  --cds-button-ghost-hover: var(--surface-container);
+  --cds-button-ghost-active: var(--surface-high);
+  --cds-button-ghost-color: var(--text-main);
+  background: var(--surface-low);
   color: var(--text-main);
   box-shadow: none;
   font-size: var(--font-size-label);
   font-weight: 600;
 }
-.capacity-badge.capacity-edit-btn:hover { background: var(--accent-container); color: var(--accent-container-text); }
+.capacity-badge.capacity-edit-btn:hover { background: var(--surface-container); color: var(--text-main); }
 .capacity-badge.capacity-edit-btn .capacity-label { display: none; }
 .capacity-badge.capacity-edit-btn .capacity-count { padding: 0; border: 0; background: transparent; color: inherit; }
 .capacity-badge.capacity-edit-btn > .carbon-icon { width: 0.8rem; height: 0.8rem; margin: 0; color: inherit; opacity: 0.72; }
@@ -68,7 +73,7 @@
   box-shadow: none;
 }
 .car-delete-btn:hover,
-.car-header .delete-btn:hover { background: var(--accent-container); color: var(--accent-container-text); }
+.car-header .delete-btn:hover { background: var(--semantic-danger-soft); color: var(--semantic-danger); }
 
 .driver-main-line {
   display: grid;

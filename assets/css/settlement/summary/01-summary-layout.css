@@ -12,7 +12,8 @@
   gap: 7px;
   min-width: 0;
   padding: 14px 12px;
-  border: 0;
+  border: 1px solid var(--border-section);
+  border-top: 3px solid var(--settlement-summary-line, var(--border-strong));
   border-radius: var(--radius-main);
   box-shadow: none;
 }

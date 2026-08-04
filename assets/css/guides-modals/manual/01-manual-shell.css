@@ -56,9 +56,9 @@
 
 .user-manual-nav a:hover,
 .user-manual-nav a:focus-visible {
-  border-color: var(--accent-color);
-  color: var(--accent-color);
-  background: var(--accent-soft);
+  border-color: var(--app-accent-border);
+  color: var(--app-accent-text);
+  background: color-mix(in srgb, var(--app-accent-surface) 44%, transparent);
 }
 
 .user-manual-section {
@@ -86,7 +86,7 @@
   place-items: center;
   border-radius: 50%;
   color: var(--text-on-accent);
-  background: var(--accent-color);
+  background: var(--app-accent-fill);
   font-size: 0.76rem;
   font-weight: 600;
 }

@@ -8,7 +8,7 @@
 
 #settlementCarEditModal .seisan-extra-row {
   display: grid;
-  grid-template-columns: minmax(84px, 1fr) 72px 92px 48px;
+  grid-template-columns: minmax(72px, 1fr) 72px 112px 48px;
   align-items: start;
   gap: 4px;
   min-width: 0;
@@ -28,7 +28,7 @@
   min-width: 0;
   overflow: hidden;
   color: var(--text-sub);
-  font-size: 0.68rem;
+  font-size: var(--font-size-caption);
   font-weight: 600;
   line-height: 1.2;
   text-overflow: ellipsis;
@@ -58,13 +58,13 @@
 }
 
 #settlementCarEditModal .seisan-extra-field--type {
-  width: 92px;
-  max-width: 92px;
+  width: 112px;
+  max-width: 112px;
 }
 
 #settlementCarEditModal .seisan-extra-field--type cds-select {
-  width: 92px;
-  max-width: 92px;
+  width: 112px;
+  max-width: 112px;
   --cds-layout-density-padding-inline-condensed: 0.5rem;
 }
 
@@ -117,7 +117,7 @@
 
 @media (max-width: 360px) {
   #settlementCarEditModal .seisan-extra-row {
-    grid-template-columns: minmax(46px, 1fr) 68px 88px 48px;
+    grid-template-columns: minmax(44px, 1fr) 68px 104px 48px;
     gap: 3px;
   }
 
@@ -129,7 +129,7 @@
 
   #settlementCarEditModal .seisan-extra-field--type,
   #settlementCarEditModal .seisan-extra-field--type cds-select {
-    width: 88px;
-    max-width: 88px;
+    width: 104px;
+    max-width: 104px;
   }
 }

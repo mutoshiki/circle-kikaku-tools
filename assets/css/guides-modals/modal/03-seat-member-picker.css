@@ -34,7 +34,7 @@
 .seat-member-picker-item:last-child .seat-member-picker-option { border-bottom: 0; }
 .seat-member-picker-name { min-width: 0; overflow-wrap: anywhere; font-weight: 600; }
 .seat-member-picker-meta { color: var(--text-sub); font-size: var(--font-size-caption); white-space: nowrap; }
-.seat-member-picker-arrow { color: var(--accent-icon); font-size: 1rem; text-align: right; }
+.seat-member-picker-arrow { color: var(--cds-icon-secondary, var(--text-sub)); font-size: 1rem; text-align: right; }
 
 .seat-member-picker-empty {
   display: grid;
@@ -46,7 +46,7 @@
   color: var(--text-sub);
 }
 .seat-member-picker-empty[hidden] { display: none; }
-.seat-member-picker-empty .carbon-icon { width: 1.25rem; height: 1.25rem; color: var(--accent-icon); }
+.seat-member-picker-empty .carbon-icon { width: 1.25rem; height: 1.25rem; color: var(--app-accent-icon); }
 .seat-member-picker-empty strong { color: var(--text-main); }
 .seat-member-picker-empty span { max-width: 34ch; font-size: var(--font-size-caption); line-height: 1.5; }
 

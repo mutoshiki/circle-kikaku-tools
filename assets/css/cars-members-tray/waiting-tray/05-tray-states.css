@@ -30,10 +30,10 @@
   cursor: pointer;
   touch-action: manipulation;
 }
-#tray-toggle-label { display: inline-flex; align-items: center; gap: 6px; color: var(--text-sub); font-size: 0.74rem; font-weight: 600; }
+#tray-toggle-label { display: inline-flex; align-items: center; gap: 6px; color: var(--text-sub); font-size: var(--font-size-caption); font-weight: 600; }
 #bottom-tray-header { flex-shrink: 0; padding: 4px 16px 12px; }
 #bottom-tray-header .tray-inline-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; min-width: 0; }
-#waiting-count.waiting-inline-count { flex: 1 1 96px; min-width: 0; color: var(--text-sub); font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+#waiting-count.waiting-inline-count { flex: 1 1 96px; min-width: 0; color: var(--text-sub); font-size: var(--font-size-caption); font-weight: 600; white-space: nowrap; }
 #bottom-tray-header #fillEmptySeatsBtn { flex: 0 0 auto; }
 #bottom-tray-header .random-tools { flex: 0 0 auto; }
 #bottom-tray.waiting-empty #waiting-count { opacity: 0.72; }
