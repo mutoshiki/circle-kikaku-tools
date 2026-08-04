@@ -60,8 +60,8 @@ const SHARE_LINK_TYPES = Object.freeze({
     }),
     settlement: Object.freeze({
         path: 'share/settlement/',
-        title: '精算入力',
-        modalLabel: '精算入力用リンク',
+        title: '精算',
+        modalLabel: '精算用リンク',
         icon: 'calculator'
     })
 });

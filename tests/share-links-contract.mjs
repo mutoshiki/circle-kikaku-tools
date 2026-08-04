@@ -28,16 +28,16 @@ const settlementSource = await text('ogp/settlement/index.html');
 expect(presentationShare.includes('og:title" content="車割・班割｜サークル企画ツール'), '発表用OGタイトルがありません');
 expect(presentationShare.includes('/assets/images/ogp/presentation.png'), '発表用OG画像がありません');
 expect(presentationShare.includes("target.searchParams.set('view', 'sheet')"), '発表用リンクがsheetへ遷移しません');
-expect(settlementShare.includes('og:title" content="精算入力｜サークル企画ツール'), '精算用OGタイトルがありません');
+expect(settlementShare.includes('og:title" content="精算｜サークル企画ツール'), '精算用OGタイトルがありません');
 expect(settlementShare.includes('/assets/images/ogp/settlement.png'), '精算用OG画像がありません');
 expect(settlementShare.includes("target.searchParams.set('view', 'seisan')"), '精算用リンクがseisanへ遷移しません');
 expect(shareActions.includes('車割・班割（発表用リンク）'), '共有モーダルの発表用文言がありません');
-expect(shareActions.includes('精算入力用リンク'), '共有モーダルの精算用文言がありません');
+expect(shareActions.includes('精算用リンク'), '共有モーダルの精算用文言がありません');
 expect(shareActions.includes("path: 'share/presentation/'"), '発表用リンクパスがありません');
 expect(shareActions.includes("path: 'share/settlement/'"), '精算用リンクパスがありません');
 expect(sheetView.includes("['list', 'sheet', 'seisan'].includes(requestedInitialView)"), 'viewクエリの初期画面処理がありません');
-expect(presentationSource.includes('決定した車・班を'), '発表用サムネイルの本文がありません');
-expect(settlementSource.includes('徴収額を決定'), '精算用サムネイルの本文がありません');
+expect(presentationSource.includes('<h1 class="ogp-title">車割・班割</h1>'), '発表用サムネイルのタイトルがありません');
+expect(settlementSource.includes('<h1 class="ogp-title">精算</h1>'), '精算用サムネイルのタイトルがありません');
 
 for (const name of ['presentation', 'settlement']) {
   const path = resolve(root, `assets/images/ogp/${name}.png`);
