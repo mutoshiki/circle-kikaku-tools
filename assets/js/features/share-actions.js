@@ -51,6 +51,8 @@ function showCopyFallback(message, text) {
     });
 }
 
+const SHARE_PREVIEW_VERSION = 'd2521288ce9c-fe381f46c9bc';
+
 const SHARE_LINK_TYPES = Object.freeze({
     presentation: Object.freeze({
         path: 'share/presentation/',
@@ -78,6 +80,7 @@ function createPurposeShareUrl(type) {
     if (!config) throw new Error(`Unknown share link type: ${type}`);
 
     const url = new URL(config.path, getAppBaseUrl());
+    url.searchParams.set('preview', SHARE_PREVIEW_VERSION);
     const activeRoomId = typeof roomId === 'string' && roomId
         ? roomId
         : new URLSearchParams(window.location.search).get('room');

@@ -1,7 +1,7 @@
 {
   "name": "circle-kikaku-tools",
   "private": true,
-  "version": "7.1.0-share-thumbnails",
+  "version": "7.1.1-share-cache-bust",
   "scripts": {
     "build:carbon": "node tools/build-carbon-assets.mjs",
     "test": "node tests/run-static-tests.mjs",
