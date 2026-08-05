@@ -1,11 +1,11 @@
 /* Timetable editor in overview and quick-edit mode. */
 .overview-drawer .overview-timetable-rows { display: grid; gap: 8px; }
-.overview-drawer .overview-timetable-row { display: grid; grid-template-columns: 116px minmax(0, 1fr) 48px; gap: 8px; align-items: center; width: 100%; }
-.overview-drawer .overview-timetable-row cds-text-input { --cds-field: var(--surface-low); display: block; box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; min-height: 48px; color: var(--text-main); }
+.overview-drawer .overview-timetable-row { display: grid; grid-template-columns: 116px minmax(0, 1fr) 48px; gap: 8px; align-items: start; width: 100%; }
+.overview-drawer .overview-timetable-row :is(cds-text-input, cds-textarea) { --cds-field: var(--surface-low); display: block; box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; min-height: 48px; color: var(--text-main); }
 .overview-drawer .overview-timetable-row cds-text-input[data-field="time"] { width: 116px; font-variant-numeric: tabular-nums; }
 .sheet-timetable-card--edit { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
 .sheet-timetable-edit-list { display: flex; flex-direction: column; gap: 8px; }
-.sheet-timetable-edit-row { display: grid; grid-template-columns: 108px minmax(160px, 1fr) 48px; align-items: center; gap: 8px; }
+.sheet-timetable-edit-row { display: grid; grid-template-columns: 108px minmax(160px, 1fr) 48px; align-items: start; gap: 8px; }
 .sheet-timetable-input { --cds-field: var(--surface-low); display: block; min-height: 48px; color: var(--text-main); }
 .sheet-timetable-delete,
 .sheet-timetable-add { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; border: 0; border-radius: var(--radius-pill); background: var(--surface-container); color: var(--text-main); font-size: 0.78rem; font-weight: 600; }
@@ -27,3 +27,24 @@
   color: var(--text-main);
 }
 .sheet-memo-input::part(textarea) { min-height: 120px; resize: vertical; }
+
+
+.overview-timetable-title-input::part(textarea),
+.sheet-timetable-input.title::part(textarea) {
+  box-sizing: border-box;
+  min-height: 48px;
+  max-height: 48px;
+  overflow-y: hidden;
+  resize: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  transition: max-height var(--motion-fast) ease, min-height var(--motion-fast) ease;
+}
+.overview-timetable-title-input.is-expanded::part(textarea),
+.overview-timetable-title-input:focus-within::part(textarea),
+.sheet-timetable-input.title.is-expanded::part(textarea),
+.sheet-timetable-input.title:focus-within::part(textarea) {
+  min-height: 104px;
+  max-height: 160px;
+  overflow-y: auto;
+}

@@ -202,6 +202,11 @@
   left: 0;
   color: var(--cds-icon-secondary, var(--text-sub));
 }
+#routeDistanceModal .route-place-search-icon .carbon-icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
 
 #routeDistanceModal .route-place-search-clear {
   right: 0;
