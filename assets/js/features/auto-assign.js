@@ -24,7 +24,7 @@ window.updateAutoAssignSummary = updateAutoAssignSummary;
 
 function buildAutoAssignAppliedLabel(opts, mode) {
     const items = getAutoAssignConditionItems(opts);
-    if (mode === 'fill') return '空席';
+    if (mode === 'fill') return '埋める';
     return items.length ? `${items.join('・')}` : 'ランダム';
 }
 

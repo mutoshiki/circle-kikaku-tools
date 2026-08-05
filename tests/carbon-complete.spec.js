@@ -283,7 +283,7 @@ test.describe('First-run rendering and submit regression', () => {
       };
     })).toEqual({
       error: '',
-      roomName: '秋名・赤城ツーリング',
+      roomName: '秋名山登山企画',
       plans: 2,
       cars: 3,
       savedCars: 3,

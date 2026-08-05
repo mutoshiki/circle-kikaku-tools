@@ -70,15 +70,23 @@
 
 .seisan-driver-reward-policy {
   display: grid;
-  gap: 5px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+}
+
+.seisan-driver-reward-policy-heading {
+  display: grid;
+  gap: 3px;
 }
 
 .seisan-driver-reward-policy-label {
-  color: var(--text-sub);
-  font-size: 0.72rem;
-  line-height: 1.25;
+  color: var(--text-main);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  line-height: 1.35;
 }
+
 
 #seisanDriverRewardType {
   width: 100%;

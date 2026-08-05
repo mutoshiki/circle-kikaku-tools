@@ -116,7 +116,6 @@ function updateUI() {
         const btn = $('.delete-btn-overlay', card);
         if (!btn) return;
         window.SanpoIconAdapter?.setIcon(btn, inWaiting ? 'trash-can' : 'undo');
-        btn.title = inWaiting ? '削除' : '待機に戻す';
         const label = btn.querySelector('span:not([data-carbon-icon])');
         if (label) label.textContent = inWaiting ? '削除' : '戻す';
     });

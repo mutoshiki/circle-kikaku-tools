@@ -29,7 +29,7 @@ window.SanpoUserGuideContent = `
 
     <section id="manual-car" class="user-manual-section">
       <div class="user-manual-heading"><span>2</span><h2>車割を作る</h2></div>
-      <p>車出しにした人ごとに車が作られます。未割り当ての人をドラッグするか、「空席」「ランダム」で自動配置します。固定した人は動きません。</p>
+      <p>車出しにした人ごとに車が作られます。未割り当ての人をドラッグするか、「埋める」「ランダム」で自動配置します。固定した人は動きません。</p>
       <figure class="user-manual-figure">
         <img loading="lazy" src="./assets/images/user-guide/03-car-allocation.webp" alt="スマホの車割画面" width="390" height="844">
       </figure>
@@ -45,7 +45,7 @@ window.SanpoUserGuideContent = `
 
     <section id="manual-share-view" class="user-manual-section">
       <div class="user-manual-heading"><span>4</span><h2>共有画面を整える</h2></div>
-      <p>車割・班割・タイムテーブルが参加者向けに表示されます。右下の鉛筆から直し、「完了」で保存します。表は横に動かしたり、ピンチで拡大できます。</p>
+      <p>車割・班割・タイムテーブル・メモが参加者向けに表示されます。右下の鉛筆から直し、「完了」で保存します。表は横に動かしたり、ピンチで拡大できます。</p>
       <figure class="user-manual-figure">
         <img loading="lazy" src="./assets/images/user-guide/05-shared-screen.webp" alt="スマホの共有画面" width="390" height="844">
       </figure>
@@ -53,7 +53,7 @@ window.SanpoUserGuideContent = `
 
     <section id="manual-overview" class="user-manual-section">
       <div class="user-manual-heading"><span>5</span><h2>予定を入れて共有する</h2></div>
-      <p>「概要」でメモとタイムテーブルを編集します。タイムテーブルは共有画面にも表示されます。</p>
+      <p>「概要」でメモとタイムテーブルを編集します。タイムテーブルとメモは共有画面にも表示されます。</p>
       <figure class="user-manual-figure">
         <img loading="lazy" src="./assets/images/user-guide/06-overview.webp" alt="スマホの概要画面" width="390" height="844">
       </figure>

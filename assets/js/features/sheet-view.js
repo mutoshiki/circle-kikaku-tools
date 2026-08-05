@@ -65,7 +65,6 @@ async function switchView(view) {
         tabSheet.classList.add('active');
         updateQuickEditButton();
         renderSheetView();
-        showSheetHint();
     } else {
         document.body.classList.remove('sheet-mode');
         listArea.style.display = '';
@@ -78,11 +77,6 @@ async function switchView(view) {
 }
 window.switchView = switchView;
 
-function showSheetHint() {
-    const hint = byId('sheet-hint');
-    hint.classList.add('visible');
-    setTimeout(() => hint.classList.remove('visible'), 3000);
-}
 
 function isSheetDragHandle(target) {
     return quickEditMode && hasTrustedEditAccess('allocation') && !!target.closest('.sheet-chip.draggable, .sheet-dropzone, .sheet-waiting-list');
@@ -229,6 +223,11 @@ function getSheetTimetableItems() {
         .filter(item => item.time || item.title);
 }
 
+function getSheetMemoText() {
+    const snapshot = window.SanpoOverview?.getSnapshot?.() || window.SanpoApp?.state?.getSnapshot?.()?.overview || {};
+    return String(snapshot.memo || '');
+}
+
 function linkifySheetTimetableText(value = '') {
     const text = String(value || '');
     const urlPattern = /https?:\/\/[^\s<>"]+/gi;
@@ -308,6 +307,43 @@ function getSheetTimetableDraftItems() {
     })).filter(item => item.time || item.title);
 }
 
+function createSheetMemoSection() {
+    const memo = getSheetMemoText();
+    if (!quickEditMode && !memo.trim()) return null;
+    const section = document.createElement('section');
+    section.className = 'sheet-plan-section sheet-memo-section';
+    if (quickEditMode) {
+        section.innerHTML = `
+            <div class="sheet-plan-heading sheet-memo-heading">メモ</div>
+            <div class="sheet-memo-card sheet-memo-card--edit">
+                <cds-textarea id="sheetMemoEditInput" class="sheet-memo-input" size="lg" label="メモ" hide-label placeholder="参加者へ共有するメモ"></cds-textarea>
+            </div>`;
+        const input = section.querySelector('#sheetMemoEditInput');
+        if (input) input.value = memo;
+        return section;
+    }
+    section.innerHTML = `
+        <div class="sheet-plan-heading sheet-memo-heading">メモ</div>
+        <div class="sheet-memo-card">
+            <div class="sheet-memo-text">${linkifySheetTimetableText(memo).replace(/\n/g, '<br>')}</div>
+        </div>`;
+    return section;
+}
+
+function getSheetMemoDraftText() {
+    return String(byId('sheetMemoEditInput')?.value || '');
+}
+
+function syncSheetMemoToOverview() {
+    const input = byId('sheetMemoEditInput');
+    if (!input) return;
+    const current = window.SanpoOverview?.getSnapshot?.() || window.SanpoApp?.state?.getSnapshot?.()?.overview || {};
+    window.SanpoOverview?.applySnapshot?.({
+        ...current,
+        memo: getSheetMemoDraftText()
+    }, { skipRender: true });
+}
+
 function syncSheetTimetableToOverview() {
     const section = document.querySelector('.sheet-timetable-section');
     if (!section || !section.querySelector('.sheet-timetable-edit-row')) return;
@@ -372,9 +408,7 @@ function renderSheetView() {
     const plans = typeof getCarPlansSnapshot === 'function' ? getCarPlansSnapshot({ skipDomSync: true }) : [data];
     const visiblePlans = plans.filter(plan => (plan.cars || []).length || (plan.waiting || []).length);
     const bottomControls = byId('sheet-bottom-controls');
-    const hint = byId('sheet-hint');
     if (bottomControls) bottomControls.hidden = visiblePlans.length === 0;
-    if (hint) hint.hidden = visiblePlans.length === 0;
 
     if (!visiblePlans.length) {
         content.innerHTML = renderSheetEmptyHtml();
@@ -393,9 +427,14 @@ function renderSheetView() {
         section: createSheetPlanSection(plan, index)
     }));
     const timetableSection = createSheetTimetableSection();
+    const memoSection = createSheetMemoSection();
     const primaryCarIndex = planSections.findIndex(item => item.type === 'car');
+    const overviewStack = document.createElement('div');
+    overviewStack.className = 'sheet-overview-stack';
+    if (timetableSection) overviewStack.appendChild(timetableSection);
+    if (memoSection) overviewStack.appendChild(memoSection);
 
-    if (timetableSection && primaryCarIndex >= 0) {
+    if (overviewStack.childElementCount && primaryCarIndex >= 0) {
         const primaryRow = document.createElement('div');
         primaryRow.className = 'sheet-primary-row';
 
@@ -406,10 +445,10 @@ function renderSheetView() {
             if (index !== primaryCarIndex) allocationStack.appendChild(item.section);
         });
 
-        primaryRow.append(timetableSection, allocationStack);
+        primaryRow.append(overviewStack, allocationStack);
         content.appendChild(primaryRow);
     } else {
-        if (timetableSection) content.appendChild(timetableSection);
+        if (overviewStack.childElementCount) content.appendChild(overviewStack);
         planSections.forEach(item => content.appendChild(item.section));
     }
     syncSheetPlanWidths();

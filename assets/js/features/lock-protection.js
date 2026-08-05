@@ -48,7 +48,6 @@ function hasTrustedEditAccess(scope = 'any') {
 function updateEditLockButton() {
     const btn = byId('editLockBtn');
     if (!btn) return;
-    const label = btn.querySelector('.edit-lock-tooltip, [slot="tooltip-content"]');
     const labels = getLockedScopeLabels();
     const locked = labels.length > 0;
     const partial = labels.length === 1;
@@ -59,7 +58,6 @@ function updateEditLockButton() {
         ? `${labels.join('・')}のロックを解除`
         : '車割・班割と精算のロック範囲を選ぶ';
     btn.setAttribute('aria-label', accessibleLabel);
-    if (label) label.textContent = accessibleLabel;
     updateProtectedMenuItems();
     updateQuickEditButton();
 }
@@ -72,13 +70,6 @@ function updateProtectedMenuItems() {
         btn.disabled = lockedForThisDevice;
         btn.classList.toggle('disabled', lockedForThisDevice);
         btn.setAttribute('aria-disabled', lockedForThisDevice ? 'true' : 'false');
-        if (lockedForThisDevice) {
-            if (btn.dataset.lockTitle === undefined) btn.dataset.lockTitle = btn.title || '';
-            btn.title = 'ロック中は使えません';
-        } else {
-            btn.title = btn.dataset.lockTitle || '';
-            delete btn.dataset.lockTitle;
-        }
     });
 }
 
@@ -100,7 +91,6 @@ function updateQuickEditButton() {
     btn.innerHTML = quickEditMode
         ? '<span data-carbon-icon="checkmark" aria-hidden="true"></span><span>完了</span>'
         : '<span data-carbon-icon="edit" aria-hidden="true"></span>';
-    btn.title = quickEditMode ? '完了' : '編集';
     btn.setAttribute('aria-pressed', quickEditMode && shouldShow ? 'true' : 'false');
     btn.setAttribute('aria-label', quickEditMode ? '編集内容を保存して完了' : '共有画面を編集');
 }

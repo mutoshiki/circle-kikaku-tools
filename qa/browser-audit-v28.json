@@ -1,0 +1,42 @@
+[
+  {
+    "viewport": {"width": 390, "height": 844},
+    "theme": "dark",
+    "random_label": "ランダム",
+    "random_icon": "shuffle",
+    "random_icon_source": "Carbon icon registry",
+    "driver_reward_heading": "車出し協力代の負担方法",
+    "driver_reward_helper_count": 0,
+    "removed_helper_text_present": false,
+    "settings_modal_open": true,
+    "settings_dialog": {"x": 15, "y": 40.59375, "width": 360, "height": 762.8125, "bottom": 803.40625}
+  },
+  {
+    "viewport": {"width": 390, "height": 844},
+    "theme": "light",
+    "random_label": "ランダム",
+    "random_icon": "shuffle",
+    "random_icon_source": "Carbon icon registry",
+    "driver_reward_heading": "車出し協力代の負担方法",
+    "driver_reward_helper_count": 0,
+    "removed_helper_text_present": false,
+    "settings_modal_open": true,
+    "settings_dialog": {"x": 15, "y": 40.59375, "width": 360, "height": 762.8125, "bottom": 803.40625}
+  },
+  {
+    "viewport": {"width": 360, "height": 800},
+    "theme": "dark",
+    "random_label": "ランダム",
+    "random_icon": "shuffle",
+    "driver_reward_helper_count": 0,
+    "settings_dialog": {"x": 15, "y": 32.203125, "width": 330, "height": 735.59375, "bottom": 767.796875}
+  },
+  {
+    "viewport": {"width": 1440, "height": 900},
+    "theme": "dark",
+    "random_label": "ランダム",
+    "random_icon": "shuffle",
+    "driver_reward_helper_count": 0,
+    "settings_dialog": {"x": 546.203125, "y": 233, "width": 347.59375, "height": 434, "bottom": 667}
+  }
+]

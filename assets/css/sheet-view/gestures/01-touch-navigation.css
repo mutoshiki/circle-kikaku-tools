@@ -20,29 +20,6 @@
 }
 
 
-#sheet-hint {
-  position: absolute;
-  right: 16px;
-  bottom: 84px;
-  z-index: var(--z-floating);
-  max-width: calc(100% - 32px);
-  padding: 9px 12px;
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--surface-highest) 94%, transparent);
-  color: var(--text-main);
-  box-shadow: var(--shadow-float);
-  opacity: 0;
-  pointer-events: none;
-  font-size: var(--font-size-caption);
-  font-weight: 600;
-  white-space: nowrap;
-  backdrop-filter: var(--ui-floating-backdrop);
-}
-
-#sheet-hint.visible {
-  opacity: 1;
-}
-
 /* Persistent, low-noise pan affordance. */
 #sheet-view-area.sheet-needs-pan #sheet-canvas::before,
 #sheet-view-area.sheet-needs-pan #sheet-canvas::after {
@@ -61,9 +38,6 @@
 #sheet-view-area.sheet-needs-pan #sheet-canvas::after {
   right: 0;
   background: linear-gradient(270deg, color-mix(in srgb, var(--bg-body) 86%, transparent), transparent);
-}
-#sheet-view-area.sheet-fit-active #sheet-hint {
-  opacity: 1;
 }
 #sheet-bottom-controls {
   display: flex;

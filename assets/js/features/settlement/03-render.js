@@ -186,6 +186,9 @@ function renderSettlementSettingSummaryHtml(state, result) {
 let activeSettlementCarEditName = '';
 let settlementCarEditValidationActive = false;
 let settlementCarEditClosePrepared = false;
+let settlementCarEditOpeningSnapshot = null;
+let settlementCarEditDiscardPromptActive = false;
+let settlementCarEditPreserveOnHidden = false;
 
 function getSettlementCarEditIssues(name) {
     const data = getRoomDataOnly();
@@ -261,21 +264,74 @@ function validateActiveSettlementCarEditor(showErrors = true) {
     return valid;
 }
 
+function restoreSettlementCarEditOpeningSnapshot() {
+    if (!settlementCarEditOpeningSnapshot) return;
+    settlementState = normalizeSettlementState(cloneData(settlementCarEditOpeningSnapshot));
+}
+
+function waitForSettlementCarModalHidden() {
+    const modal = byId('settlementCarEditModal');
+    if (!modal || !modal.open) return Promise.resolve();
+    return new Promise(resolve => modal.addEventListener('sanpo:modal-hidden', resolve, { once: true }));
+}
+
+async function promptDiscardInvalidSettlementCarEdit() {
+    if (settlementCarEditDiscardPromptActive || !activeSettlementCarEditName) return;
+    settlementCarEditDiscardPromptActive = true;
+    settlementCarEditPreserveOnHidden = true;
+    settlementCarEditClosePrepared = true;
+    const name = activeSettlementCarEditName;
+    const hidden = waitForSettlementCarModalHidden();
+    modals.settlementCarEdit?.hide({ reason: 'discard-prompt' });
+    await hidden;
+
+    const discard = await appConfirm(
+        '未入力または正しくない項目があります。変更を破棄して車ごとの費用を閉じますか？',
+        {
+            title: '入力内容を破棄',
+            okText: '破棄して閉じる',
+            cancelText: '編集を続ける',
+            danger: true
+        }
+    );
+
+    settlementCarEditDiscardPromptActive = false;
+    settlementCarEditPreserveOnHidden = false;
+    if (discard) {
+        restoreSettlementCarEditOpeningSnapshot();
+        clearSettlementCarEditor();
+        renderSettlementView({ force: true });
+        save();
+        return;
+    }
+
+    activeSettlementCarEditName = name;
+    settlementCarEditValidationActive = true;
+    refreshSettlementCarEditor(name);
+    modals.settlementCarEdit?.show();
+    focusFirstSettlementCarValidationError();
+}
+
 function validateAndSaveSettlementCarEditBeforeClose() {
     if (settlementCarEditClosePrepared) {
         settlementCarEditClosePrepared = false;
         return true;
     }
-    if (!validateActiveSettlementCarEditor(true)) return false;
+    if (!validateActiveSettlementCarEditor(true)) {
+        queueMicrotask(promptDiscardInvalidSettlementCarEdit);
+        return false;
+    }
     saveSettlementCarEditDraft();
     return true;
 }
 
 function prepareSettlementCarEditTransition(options = {}) {
     const allowInvalid = options?.allowInvalid === true;
+    const preserveSession = options?.preserveSession === true;
     if (!allowInvalid && !validateActiveSettlementCarEditor(true)) return false;
     saveSettlementCarEditDraft();
     settlementCarEditClosePrepared = true;
+    if (preserveSession) settlementCarEditPreserveOnHidden = true;
     return true;
 }
 
@@ -349,8 +405,24 @@ function openSettlementCarEditor(encodedName) {
     syncSettlementStateFromDOM();
     settlementCarEditValidationActive = false;
     settlementCarEditClosePrepared = false;
+    settlementCarEditDiscardPromptActive = false;
+    settlementCarEditPreserveOnHidden = false;
+    settlementCarEditOpeningSnapshot = cloneData(ensureSettlementState());
     const name = decodeURIComponent(encodedName || '');
     activeSettlementCarEditName = name;
+    const title = byId('settlementCarEditModalTitle');
+    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用`;
+    refreshSettlementCarEditor(name);
+    if (modals.settlementCarEdit) modals.settlementCarEdit.show();
+}
+
+function resumeSettlementCarEditor(encodedName) {
+    const name = decodeURIComponent(encodedName || '');
+    if (!name) return;
+    activeSettlementCarEditName = name;
+    settlementCarEditClosePrepared = false;
+    settlementCarEditDiscardPromptActive = false;
+    settlementCarEditPreserveOnHidden = false;
     const title = byId('settlementCarEditModalTitle');
     if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用`;
     refreshSettlementCarEditor(name);
@@ -378,12 +450,22 @@ function saveSettlementCarEditDraft() {
 }
 
 function saveSettlementCarEdit() {
-    if (modals.settlementCarEdit) modals.settlementCarEdit.hide();
+    if (!validateActiveSettlementCarEditor(true)) return;
+    saveSettlementCarEditDraft();
+    settlementCarEditClosePrepared = true;
+    if (modals.settlementCarEdit) modals.settlementCarEdit.hide({ reason: 'submit' });
+}
+
+function shouldPreserveSettlementCarEditorOnHidden() {
+    return settlementCarEditPreserveOnHidden;
 }
 
 function clearSettlementCarEditor() {
+    if (settlementCarEditPreserveOnHidden) return;
     settlementCarEditValidationActive = false;
     settlementCarEditClosePrepared = false;
+    settlementCarEditOpeningSnapshot = null;
+    settlementCarEditDiscardPromptActive = false;
     const body = byId('settlementCarEditBody');
     if (body) body.innerHTML = '';
     activeSettlementCarEditName = '';
@@ -394,12 +476,14 @@ window.SanpoApp?.exposeCompat?.('openStandaloneSettlementSettings', openStandalo
 window.SanpoApp?.exposeCompat?.('saveSettlementSettingsDraft', saveSettlementSettingsDraft);
 window.SanpoApp?.exposeCompat?.('saveSettlementSettings', saveSettlementSettings);
 window.SanpoApp?.exposeCompat?.('openSettlementCarEditor', openSettlementCarEditor);
+window.SanpoApp?.exposeCompat?.('resumeSettlementCarEditor', resumeSettlementCarEditor);
 window.SanpoApp?.exposeCompat?.('refreshSettlementCarEditor', refreshSettlementCarEditor);
 window.SanpoApp?.exposeCompat?.('refreshSettlementCarEditorCandidates', refreshSettlementCarEditorCandidates);
 window.SanpoApp?.exposeCompat?.('saveSettlementCarEditDraft', saveSettlementCarEditDraft);
 window.SanpoApp?.exposeCompat?.('saveSettlementCarEdit', saveSettlementCarEdit);
 window.SanpoApp?.exposeCompat?.('validateAndSaveSettlementCarEditBeforeClose', validateAndSaveSettlementCarEditBeforeClose);
 window.SanpoApp?.exposeCompat?.('prepareSettlementCarEditTransition', prepareSettlementCarEditTransition);
+window.SanpoApp?.exposeCompat?.('shouldPreserveSettlementCarEditorOnHidden', shouldPreserveSettlementCarEditorOnHidden);
 window.SanpoApp?.exposeCompat?.('clearSettlementCarEditor', clearSettlementCarEditor);
 
 function toggleSettlementEmptyState(area, isEmpty) {

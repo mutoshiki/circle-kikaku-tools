@@ -124,9 +124,65 @@ if (!roomId) {
 localStorage.setItem('syawari_last_room_id', roomId);
 
 
+const CARBON_TOOLTIP_POLICY_STYLE = 'carbon-tooltip-policy-style';
+let carbonTooltipPolicyObserver = null;
+
+function hideCarbonTooltipPopover(tooltip) {
+    if (!tooltip) return;
+    tooltip.open = false;
+    tooltip.defaultOpen = false;
+    tooltip.enterDelayMs = 2147483647;
+    tooltip.leaveDelayMs = 0;
+    tooltip.removeAttribute?.('default-open');
+    Promise.resolve(tooltip.updateComplete).then(() => {
+        const shadow = tooltip.shadowRoot;
+        if (!shadow || shadow.getElementById(CARBON_TOOLTIP_POLICY_STYLE)) return;
+        const style = document.createElement('style');
+        style.id = CARBON_TOOLTIP_POLICY_STYLE;
+        style.textContent = '.cds--popover, .cds--tooltip-content { display: none !important; visibility: hidden !important; }';
+        shadow.appendChild(style);
+    });
+}
+
+function applyCarbonTooltipPolicy(root = document) {
+    if (!root?.querySelectorAll) return;
+    root.querySelectorAll('[slot="tooltip-content"]').forEach(node => node.remove());
+    const hosts = [];
+    if (root instanceof Element && root.matches('cds-icon-button, cds-modal-close-button, cds-dialog-close-button, cds-tooltip')) hosts.push(root);
+    hosts.push(...root.querySelectorAll('cds-icon-button, cds-modal-close-button, cds-dialog-close-button, cds-tooltip'));
+    hosts.forEach(host => {
+        if (host.localName === 'cds-tooltip') hideCarbonTooltipPopover(host);
+        Promise.resolve(host.updateComplete).then(() => {
+            const shadow = host.shadowRoot;
+            if (!shadow) return;
+            shadow.querySelectorAll('[slot="tooltip-content"]').forEach(node => node.remove());
+            shadow.querySelectorAll('cds-tooltip').forEach(hideCarbonTooltipPopover);
+            shadow.querySelectorAll('cds-icon-button, cds-modal-close-button, cds-dialog-close-button').forEach(applyCarbonTooltipPolicy);
+        });
+    });
+}
+
+function initializeCarbonTooltipPolicy() {
+    applyCarbonTooltipPolicy(document);
+    if (carbonTooltipPolicyObserver || !window.MutationObserver) return;
+    carbonTooltipPolicyObserver = new MutationObserver(records => {
+        records.forEach(record => record.addedNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) applyCarbonTooltipPolicy(node);
+        }));
+    });
+    carbonTooltipPolicyObserver.observe(document.documentElement, { childList: true, subtree: true });
+}
+
 function applyRuntimeAccessibilityFixes(root = document) {
     root.querySelectorAll('button[title]:not([aria-label])').forEach(btn => btn.setAttribute('aria-label', btn.getAttribute('title')));
+    applyCarbonTooltipPolicy(root);
 }
+
+document.addEventListener('sanpo:carbon-ready', () => applyCarbonTooltipPolicy(document));
+customElements.whenDefined('cds-icon-button').then(() => applyCarbonTooltipPolicy(document));
+customElements.whenDefined('cds-modal-close-button').then(() => applyCarbonTooltipPolicy(document));
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initializeCarbonTooltipPolicy, { once: true });
+else initializeCarbonTooltipPolicy();
 
 function syncCarbonFormControlState(host) {
     if (!host) return;

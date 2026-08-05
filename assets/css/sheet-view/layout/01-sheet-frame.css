@@ -129,3 +129,15 @@
   .sheet-content { padding-inline: max(24px, calc((100vw - 1200px) / 2)); }
   .sheet-car-col { min-width: 154px; }
 }
+
+/* Overview information stays to the left of the unchanged allocation stack. */
+.sheet-primary-row > .sheet-overview-stack,
+.sheet-primary-row > .sheet-allocation-stack { flex: 0 0 auto; }
+.sheet-overview-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 22px;
+  width: min(380px, calc(100vw - 24px));
+}
+.sheet-overview-stack > .sheet-plan-section { width: 100%; min-width: 0; }

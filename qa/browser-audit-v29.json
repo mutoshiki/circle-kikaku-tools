@@ -1,0 +1,94 @@
+[
+  {
+    "name": "settlement-settings-390-dark",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "dark": true,
+    "policy": {
+      "borderTopStyle": "none",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(244, 244, 244)",
+      "paddingTop": "12px",
+      "top": 313.3828125,
+      "width": 330
+    },
+    "dialog": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844
+    },
+    "errors": []
+  },
+  {
+    "name": "settlement-settings-390-light",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "dark": false,
+    "policy": {
+      "borderTopStyle": "none",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(22, 22, 22)",
+      "paddingTop": "12px",
+      "top": 313.3828125,
+      "width": 330
+    },
+    "dialog": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844
+    },
+    "errors": []
+  },
+  {
+    "name": "settlement-settings-360-dark",
+    "viewport": {
+      "width": 360,
+      "height": 800
+    },
+    "dark": true,
+    "policy": {
+      "borderTopStyle": "none",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(244, 244, 244)",
+      "paddingTop": "12px",
+      "top": 291.3828125,
+      "width": 300
+    },
+    "dialog": {
+      "x": 0,
+      "y": 0,
+      "w": 360,
+      "h": 800
+    },
+    "errors": []
+  },
+  {
+    "name": "settlement-settings-1440-dark",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "dark": true,
+    "policy": {
+      "borderTopStyle": "none",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(244, 244, 244)",
+      "paddingTop": "12px",
+      "top": 473.59375,
+      "width": 309.59375
+    },
+    "dialog": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 900
+    },
+    "errors": []
+  }
+]

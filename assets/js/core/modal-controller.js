@@ -182,7 +182,9 @@
                 }
                 global.saveSettlementCarEditDraft?.();
             });
-            carEditModal.addEventListener('sanpo:modal-hidden', () => global.clearSettlementCarEditor?.());
+            carEditModal.addEventListener('sanpo:modal-hidden', () => {
+                if (!global.shouldPreserveSettlementCarEditorOnHidden?.()) global.clearSettlementCarEditor?.();
+            });
         }
         const settingsModal = document.getElementById('settlementSettingsModal');
         if (settingsModal && settingsModal.dataset.settlementModalBound !== 'true') {

@@ -229,6 +229,7 @@ function syncSheetToMainData({ refresh = true, persist = true } = {}) {
         // 非表示の通常編集画面DOMは古いことがあるため、先に発表ビューDOMを carPlans へ確定する。
         sections.forEach(syncSheetSectionToPlan);
         syncSheetTimetableToOverview();
+        syncSheetMemoToOverview();
 
         if (hadPlanContent && !hasSheetPlanContent(carPlans)) {
             throw new Error('Sheet quick edit commit produced an empty plan set.');

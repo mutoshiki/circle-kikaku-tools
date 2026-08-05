@@ -17,3 +17,13 @@
   .overview-drawer .overview-timetable-row cds-text-input[data-field="time"] { width: 112px; }
   .sheet-timetable-edit-row { grid-template-columns: 112px minmax(0, 1fr) 48px; gap: 6px; }
 }
+
+.sheet-memo-card--edit { padding: 10px; }
+.sheet-memo-input {
+  --cds-field: var(--surface-low);
+  display: block;
+  width: 100%;
+  min-height: 120px;
+  color: var(--text-main);
+}
+.sheet-memo-input::part(textarea) { min-height: 120px; resize: vertical; }

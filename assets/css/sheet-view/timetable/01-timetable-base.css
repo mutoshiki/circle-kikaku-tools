@@ -26,3 +26,24 @@
   }
   .sheet-timetable-link { min-height: 104px; }
 }
+
+/* Shared memo, positioned directly below the timetable. */
+.sheet-memo-card {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 280px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-lowest);
+}
+.sheet-memo-text {
+  color: var(--text-main);
+  font-size: var(--font-size-body);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.sheet-memo-text:empty::before {
+  color: var(--text-faint);
+  content: 'メモはありません';
+}

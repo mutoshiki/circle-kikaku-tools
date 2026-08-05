@@ -1410,7 +1410,7 @@
         if (!runtime.returnAfterClose || !state.targetCarName) return;
         const name = state.targetCarName;
         runtime.returnAfterClose = false;
-        setTimeout(() => global.openSettlementCarEditor?.(encodeURIComponent(name)), 100);
+        setTimeout(() => (global.resumeSettlementCarEditor || global.openSettlementCarEditor)?.(encodeURIComponent(name)), 100);
     }
 
     function applySelectedDistance() {
@@ -1550,7 +1550,7 @@
             return;
         }
         if (typeof global.prepareSettlementCarEditTransition === 'function'
-            && !global.prepareSettlementCarEditTransition({ allowInvalid: true })) return;
+            && !global.prepareSettlementCarEditTransition({ allowInvalid: true, preserveSession: true })) return;
         const carModal = byId('settlementCarEditModal');
         let launched = false;
         const launchPlanner = () => {

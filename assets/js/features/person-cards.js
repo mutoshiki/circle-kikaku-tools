@@ -22,7 +22,7 @@ function renderGradeBadge(grade, gender = 'unknown') {
 function renderPersonFlag(flag) {
     const value = normalizePersonFlag(flag);
     const labels = { blue: '青のしるし', purple: '紫のしるし', yellow: '黄のしるし', red: '赤のしるし', none: 'しるしなし' };
-    return `<span class="person-flag" data-flag="${value}" title="${labels[value]}" aria-label="${labels[value]}"><span data-carbon-icon="flag" aria-hidden="true"></span></span>`;
+    return `<span class="person-flag" data-flag="${value}" aria-label="${labels[value]}"><span data-carbon-icon="flag" aria-hidden="true"></span></span>`;
 }
 
 function renderPersonMenuIcon(icon) {
@@ -131,10 +131,10 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none') {
         <div class="car-box" data-capacity="${c}">
             <div class="car-header">
                 <span class="car-name-label">${safeName}${groupSuffix}</span>
-                <cds-button type="button" kind="ghost" size="lg" class="capacity-badge capacity-edit-btn" data-action="edit-capacity" title="定員を変更" aria-label="定員を変更">
+                <cds-button type="button" kind="ghost" size="lg" class="capacity-badge capacity-edit-btn" data-action="edit-capacity" aria-label="定員を変更">
                     <span class="capacity-count">0/${c}</span><span data-carbon-icon="edit" aria-hidden="true"></span>
                 </cds-button>
-                <cds-icon-button type="button" kind="danger--ghost" size="lg" class="car-delete-btn car-return-btn action-btn delete-btn" title="車出しを解除して待機に戻す" aria-label="車出しを解除して待機に戻す">
+                <cds-icon-button type="button" kind="danger--ghost" size="lg" class="car-delete-btn car-return-btn action-btn delete-btn" aria-label="車出しを解除して待機に戻す">
                     <span data-carbon-icon="undo" aria-hidden="true"></span>
                 </cds-icon-button>
             </div>

@@ -92,7 +92,7 @@
             <label class="seisan-fuel-field"><span class="seisan-mini-label">燃費（km/L）</span><cds-text-input type="number" size="lg" inputmode="decimal" min="0" step="any" data-field="eco" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'eco')}" value="${esc(cState.eco || '', helpers)}" placeholder="例：18" label="燃費（km/L）" hide-label${invalidAttr('eco', '0より大きい燃費を入力してください')}></cds-text-input></label>
             <label class="seisan-fuel-field"><span class="seisan-mini-label">ガソリン単価（円/L）</span><cds-text-input type="number" size="lg" inputmode="decimal" min="0" step="any" data-field="price" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'price')}" value="${esc(cState.price || '', helpers)}" placeholder="例：158" label="ガソリン単価（円/L）" hide-label${invalidAttr('price', '0より大きいガソリン単価を入力してください')}></cds-text-input></label>
           </div>
-          <cds-button class="seisan-btn seisan-distance-shortcut" kind="tertiary" size="lg" type="button" data-action="open-route-helper-shortcut" title="距離計算ツールを開く" aria-label="距離計算ツールを開く"><span data-carbon-icon="launch" slot="icon" aria-hidden="true"></span><span>距離計算ツール</span></cds-button>
+          <cds-button class="seisan-btn seisan-distance-shortcut" kind="tertiary" size="lg" type="button" data-action="open-route-helper-shortcut" aria-label="距離計算ツールを開く"><span data-carbon-icon="launch" slot="icon" aria-hidden="true"></span><span>距離計算ツール</span></cds-button>
         </div>
         <div class="seisan-subhead"><strong>諸経費</strong></div>
         <div class="seisan-extra-list">
