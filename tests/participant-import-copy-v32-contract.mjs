@@ -10,7 +10,7 @@ const oldCopy = '各項目の見出し行も一緒にコピーすると、読み
 const leadIndex = html.indexOf(lead);
 const instructionIndex = html.indexOf(instruction);
 const textareaIndex = html.indexOf('id="googleFormPasteArea"');
-const detailsIndex = html.indexOf('<details class="batch-import-help-details">');
+const accordionIndex = html.indexOf('<cds-accordion class="batch-import-help-accordion"');
 
 if (leadIndex < 0) throw new Error('Lead help copy is missing.');
 if (instructionIndex < 0) throw new Error('Required spreadsheet-heading instruction is missing.');
@@ -18,8 +18,8 @@ if (html.includes(oldCopy)) throw new Error('Obsolete inaccurate help copy remai
 if (!(leadIndex < instructionIndex && instructionIndex < textareaIndex)) {
   throw new Error('The instruction must be directly below the lead copy and before the spreadsheet textarea.');
 }
-if (!(instructionIndex < detailsIndex)) {
-  throw new Error('The instruction must not remain inside the expandable help details.');
+if (!(instructionIndex < accordionIndex)) {
+  throw new Error('The instruction must remain above the Carbon Accordion help content.');
 }
 if (!html.includes('class="batch-import-help-copy"')) {
   throw new Error('The paired helper copy wrapper is missing.');

@@ -40,7 +40,7 @@ expect((ui.match(/state\.confirmModal\.show\(\);/g) || []).length === 1, 'Confir
 expect(personMenuCss.includes('z-index: calc(var(--z-person-menu) - 2)'), 'Waiting tray is not lowered while a person menu is open');
 expect(personMenuCss.includes('.person-overflow-menu[open]'), 'Open person card does not receive a raised stacking context');
 expect(copyCss.includes('box-shadow: inset 0 0 0 1px var(--app-accent-border)'), 'Dark settlement copy action lacks a visible Carbon tertiary boundary');
-expect(carHeaderCss.includes('width: 1.5rem; height: 1.5rem'), 'Capacity edit icon is still undersized');
+expect(carHeaderCss.includes('width: 1.25rem; height: 1.25rem'), 'Capacity edit icon is not balanced with the capacity count');
 
 expect(overviewEvents.includes('syncTimetableTextareaExpansion'), 'Overview timetable expansion behavior is missing');
 expect(overviewEvents.includes("host.rows = shouldExpand ? 4 : 1"), 'Overview timetable textarea does not change official rows');

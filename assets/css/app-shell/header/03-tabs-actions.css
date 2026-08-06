@@ -121,3 +121,20 @@ cds-icon-button.header-action.is-partial-lock {
   .header-actions { gap: 0; --header-action-size: 48px; --header-icon-size: 20px; }
   #view-toggle-bar { width: calc(100% - 40px - env(safe-area-inset-left) - env(safe-area-inset-right)); min-height: 48px; }
 }
+
+
+.view-tab-label {
+  gap: var(--space-1);
+}
+
+.view-tab-lock {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+}
+
+.view-tab-lock[hidden] { display: none; }
+.view-tab-lock .carbon-icon { width: 16px; height: 16px; }
+.view-tab--locked { --cds-icon-primary: currentColor; }

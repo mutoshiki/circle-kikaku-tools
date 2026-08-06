@@ -16,4 +16,4 @@
 }
 .seisan-toggle:not(cds-toggle):hover { background: var(--surface-high); color: var(--text-main); }
 .seisan-icon-btn { width: 48px; min-width: 48px; }
-.seisan-mini-label { display: block; margin-bottom: 5px; color: var(--text-sub); font-size: 0.7rem; font-weight: 600; line-height: 1.25; }
+.seisan-mini-label { display: block; margin-bottom: 5px; color: var(--text-sub); font-size: var(--font-size-micro); font-weight: 600; line-height: 1.25; }

@@ -51,6 +51,10 @@ body.person-menu-open #top-area {
   z-index: var(--z-dropdown);
 }
 
-cds-overflow-menu > cds-menu:not([open]) {
+cds-overflow-menu:not([open]) > cds-menu {
   pointer-events: none;
+}
+
+cds-overflow-menu[open] > cds-menu {
+  pointer-events: auto;
 }

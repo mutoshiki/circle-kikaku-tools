@@ -1,10 +1,10 @@
 {
   "name": "circle-kikaku-tools",
   "private": true,
-  "version": "7.4.1-participant-import-copy",
+  "version": "7.4.0-ui-fixes",
   "scripts": {
     "build:carbon": "node tools/build-carbon-assets.mjs",
-    "test": "node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs && node tests/menu-search-v31-contract.mjs && node tests/participant-import-copy-v32-contract.mjs",
+    "test": "node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs && node tests/menu-search-v31-contract.mjs && node tests/participant-import-copy-v32-contract.mjs && node tests/usability-consistency-v33-contract.mjs && node tests/ui-fixes-v34-contract.mjs",
     "lint:css": "stylelint \"assets/css/**/*.css\" --config stylelint.config.mjs",
     "test:carbon": "playwright test tests/carbon-complete.spec.js",
     "test:ui": "playwright test tests/carbon-complete.spec.js",

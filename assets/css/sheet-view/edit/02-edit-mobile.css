@@ -9,6 +9,6 @@ body.quick-edit-mode #sheet-view-area .sheet-chip.draggable { background: var(--
   #sheet-view-area .sheet-car-header { min-height: 40px; padding: 8px; }
   #sheet-view-area .sheet-driver-row,
   #sheet-view-area .sheet-seat-row,
-  #sheet-view-area .sheet-wait-item { min-height: 40px; padding: 6px 8px; font-size: 0.82rem; }
+  #sheet-view-area .sheet-wait-item { min-height: 40px; padding: 6px 8px; font-size: var(--font-size-caption); }
   #sheet-quick-edit-btn { display: inline-flex; }
 }

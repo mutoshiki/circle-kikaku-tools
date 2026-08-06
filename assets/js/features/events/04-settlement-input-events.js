@@ -238,13 +238,6 @@
                 }
                 return;
             }
-            const option = event.target.closest?.('[data-rounding-value]');
-            if (!option) return;
-            const rounding = document.getElementById('seisanRounding');
-            if (!rounding) return;
-            rounding.value = option.dataset.roundingValue || '100';
-            syncSettlementStateFromDOM?.();
-            syncSettlementControls?.(ensureSettlementState(), getParticipantList(getRoomDataOnly()));
         });
     }
 

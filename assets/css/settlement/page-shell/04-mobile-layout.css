@@ -9,5 +9,5 @@
   #seisan-view-area .seisan-extra-row :is(cds-text-input, cds-number-input, cds-select),
   #seisan-view-area .seisan-car-inputs :is(cds-text-input, cds-number-input, cds-select, cds-toggle) { min-height: 48px; font-size: 16px; }
   #seisan-view-area .seisan-car-row { padding: 14px; margin-bottom: 10px; border-radius: var(--radius-lg); }
-  #seisan-view-area .seisan-driver-detail { font-size: 0.72rem; line-height: 1.4; }
+  #seisan-view-area .seisan-driver-detail { font-size: var(--font-size-micro); line-height: 1.4; }
 }
