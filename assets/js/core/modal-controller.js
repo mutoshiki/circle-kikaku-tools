@@ -3,50 +3,6 @@
     'use strict';
 
     const instances = new WeakMap();
-    let keyboardInteraction = false;
-
-    function setKeyboardInteraction(next) {
-        keyboardInteraction = next === true;
-        document.body?.classList.toggle('app-keyboard-navigation', keyboardInteraction);
-    }
-
-    document.addEventListener('keydown', event => {
-        if (event.metaKey || event.ctrlKey || event.altKey) return;
-        setKeyboardInteraction(true);
-    }, true);
-    document.addEventListener('pointerdown', () => setKeyboardInteraction(false), true);
-    document.addEventListener('touchstart', () => setKeyboardInteraction(false), { capture: true, passive: true });
-
-    function deepestActiveElement(root) {
-        let active = root?.activeElement || null;
-        while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
-        return active;
-    }
-
-    function clearPointerFocus(target) {
-        if (keyboardInteraction) return;
-        requestAnimationFrame(() => {
-            const documentActive = deepestActiveElement(document);
-            const targetActive = deepestActiveElement(target?.shadowRoot);
-            targetActive?.blur?.();
-            if (target && (documentActive === target || target.contains?.(documentActive) || target.shadowRoot?.contains?.(documentActive))) {
-                documentActive?.blur?.();
-            }
-            target?.blur?.();
-        });
-    }
-
-    global.SanpoFocusModality = Object.freeze({
-        isKeyboard: () => keyboardInteraction,
-        clearPointerFocus
-    });
-
-    document.addEventListener('cds-popover-closed', event => {
-        const path = event.composedPath?.() || [];
-        const trigger = path.find(node => node?.matches?.('cds-overflow-menu, cds-popover'));
-        clearPointerFocus(trigger);
-    }, true);
-
 
     function syncModalPageState(forceOpen) {
         const hasOpenModal = typeof forceOpen === 'boolean'
@@ -125,7 +81,6 @@
         constructor(element) {
             this.element = element;
             this.returnFocus = null;
-            this.restoreFocusForKeyboard = false;
             this.closed = true;
             this.programmaticClose = false;
             this.element.hidden = !this.element.open;
@@ -153,7 +108,6 @@
             if (!this.element || this.isOpen()) return;
             global.dismissPlanningCoach?.();
             this.returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-            this.restoreFocusForKeyboard = keyboardInteraction;
             this.closed = false;
             this.element.hidden = false;
             this.element.open = true;
@@ -188,12 +142,8 @@
             syncModalPageState();
             this.element.dispatchEvent(new CustomEvent('sanpo:modal-hidden'));
             const target = this.returnFocus;
-            const restoreForKeyboard = this.restoreFocusForKeyboard;
             this.returnFocus = null;
-            this.restoreFocusForKeyboard = false;
-            if (target?.isConnected && restoreForKeyboard) requestAnimationFrame(() => target.focus({ preventScroll: true }));
-            else clearPointerFocus(target);
-
+            if (target?.isConnected) requestAnimationFrame(() => target.focus({ preventScroll: true }));
         }
 
         static getOrCreateInstance(element) {
@@ -240,14 +190,8 @@
         if (settingsModal && settingsModal.dataset.settlementModalBound !== 'true') {
             settingsModal.dataset.settlementModalBound = 'true';
             settingsModal.addEventListener('sanpo:modal-hiding', event => {
-                const validateAndSave = global.validateAndSaveSettlementSettingsBeforeClose;
-                if (typeof validateAndSave === 'function') {
-                    if (!validateAndSave(event.detail?.reason || 'dismiss')) event.preventDefault();
-                    return;
-                }
                 if (event.detail?.reason !== 'submit') global.saveSettlementSettingsDraft?.();
             });
-            settingsModal.addEventListener('sanpo:modal-hidden', () => global.clearSettlementSettingsEditor?.());
         }
         applyRuntimeAccessibilityFixes();
     }

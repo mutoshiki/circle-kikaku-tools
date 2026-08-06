@@ -13,15 +13,6 @@ let panOriginY = 0;
 let lastPinchDist = 0;
 let sheetUserAdjusted = false;
 
-function syncSheetTimetableTextareaExpansion(host, forceActive = false) {
-    if (!host?.matches?.('cds-textarea.sheet-timetable-input.title')) return;
-    const value = String(host.value || host.getAttribute('value') || '');
-    const shouldExpand = forceActive || value.includes('\n') || value.length > 18;
-    host.classList.toggle('is-expanded', shouldExpand);
-    host.rows = shouldExpand ? 4 : 1;
-    host.setAttribute('rows', shouldExpand ? '4' : '1');
-}
-
 function getSheetTransformTarget() {
     return byId('sheet-content');
 }
@@ -113,19 +104,8 @@ D.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    area.addEventListener('focusin', event => {
-        const titleField = event.target.closest?.('.sheet-timetable-input.title');
-        if (titleField) syncSheetTimetableTextareaExpansion(titleField, true);
-    });
-
-    area.addEventListener('focusout', event => {
-        const titleField = event.target.closest?.('.sheet-timetable-input.title');
-        if (titleField) syncSheetTimetableTextareaExpansion(titleField, false);
-    });
-
     area.addEventListener('input', event => {
         if (!event.target.closest?.('.sheet-timetable-input')) return;
-        if (event.target.matches?.('.sheet-timetable-input.title')) syncSheetTimetableTextareaExpansion(event.target, true);
         if (event.isComposing) return;
         syncSheetTimetableToOverview();
         clearTimeout(window.__sheetTimetableSaveTimer);

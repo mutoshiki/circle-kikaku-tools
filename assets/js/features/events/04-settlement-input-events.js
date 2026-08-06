@@ -189,10 +189,9 @@
                 return;
             }
 
-            if (target.matches('#seisanOrganizerFree, #seisanOrganizerName')) {
+            if (target.matches('#seisanOrganizerFree')) {
                 syncSettlementStateFromDOM?.();
                 syncSettlementControls?.(ensureSettlementState(), getParticipantList(getRoomDataOnly()));
-                validateSettlementSettings?.(false);
                 return;
             }
 

@@ -5,7 +5,6 @@ let activePersonMenuTarget = null;
 let activePersonMenuTrigger = null;
 
 function closePersonMenus() {
-    const triggerToBlur = activePersonMenuTrigger;
     document.body.classList.remove('person-menu-open');
     document.querySelectorAll('cds-overflow-menu.person-overflow-menu').forEach(menu => {
         menu.open = false;
@@ -13,7 +12,6 @@ function closePersonMenus() {
     });
     activePersonMenuTarget = null;
     activePersonMenuTrigger = null;
-    window.SanpoFocusModality?.clearPointerFocus?.(triggerToBlur);
 }
 
 function getActivePersonMenuTarget() {
@@ -225,7 +223,6 @@ function handleCompactPersonAction(action, person = activePersonMenuTarget, choi
         trigger.removeAttribute('open');
     }
     document.body.classList.remove('person-menu-open');
-    window.SanpoFocusModality?.clearPointerFocus?.(trigger);
 
     if (action === 'memo') handleEdit(isDriver ? 'driverMemo' : 'memo', targetPerson);
     else if (action === 'lock' && card) toggleLock(card);

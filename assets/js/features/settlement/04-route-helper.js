@@ -750,9 +750,7 @@
             if (!previousTarget?.role) return;
             const selector = `[data-action="open-route-place-search"][data-route-role="${CSS.escape(previousTarget.role)}"]${previousTarget.waypointId ? `[data-route-waypoint-id="${CSS.escape(previousTarget.waypointId)}"]` : ''}`;
             const target = document.querySelector(selector);
-            if (!(target instanceof HTMLElement)) return;
-            if (global.SanpoFocusModality?.isKeyboard?.()) target.focus({ preventScroll: true });
-            else global.SanpoFocusModality?.clearPointerFocus?.(target);
+            if (target instanceof HTMLElement) target.focus({ preventScroll: true });
         });
     }
 
@@ -779,7 +777,6 @@
         renderPlaceHistory();
         surface.scrollTop = 0;
         surface.hidden = false;
-        global.SanpoCarbon?.renderCarbonIcons?.(surface);
         modal?.classList.add('route-place-search-active');
         document.body.classList.add('route-place-search-open');
         const focusSearch = () => {
@@ -1331,7 +1328,6 @@
         if (button) {
             button.setAttribute('aria-expanded', next ? 'true' : 'false');
             button.setAttribute('aria-label', next ? 'ルート設定を閉じる' : 'ルート設定を開く');
-            if (!next) global.SanpoFocusModality?.clearPointerFocus?.(button);
         }
     }
 

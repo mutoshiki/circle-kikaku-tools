@@ -260,7 +260,7 @@ function createSheetTimetableEditRow(item = {}) {
     return `
         <div class="sheet-timetable-edit-row">
             <cds-text-input class="sheet-timetable-input time" type="time" size="lg" data-field="time" value="${time}" label="時刻" hide-label></cds-text-input>
-            <cds-textarea class="sheet-timetable-input title${String(item?.title || '').length > 18 || String(item?.title || '').includes('\n') ? ' is-expanded' : ''}" rows="${String(item?.title || '').length > 18 || String(item?.title || '').includes('\n') ? 4 : 1}" size="lg" data-field="title" value="${title}" placeholder="内容" label="内容" hide-label></cds-textarea>
+            <cds-text-input class="sheet-timetable-input title" type="text" size="lg" data-field="title" value="${title}" placeholder="内容" label="内容" hide-label></cds-text-input>
             <cds-icon-button class="sheet-timetable-delete" kind="ghost" size="lg" type="button" data-action="delete-sheet-timetable-row" aria-label="行を削除">
                 <span data-carbon-icon="close" aria-hidden="true"></span>
             </cds-icon-button>
