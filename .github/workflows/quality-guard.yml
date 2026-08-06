@@ -25,7 +25,22 @@ jobs:
         shell: bash
         run: |
           test "$(npm config get registry)" = "https://registry.npmjs.org/"
-          test "$(npm config get replace-registry-host)" = "https://packages.applied-caas-gateway1.internal.api.openai.org/artifactory/api/npm/npm-public/"
+      - name: Normalize lockfile registry URLs
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = 'package-lock.json';
+          const internal = 'https://packages.applied-caas-gateway1.internal.api.openai.org/artifactory/api/npm/npm-public/';
+          const publicRegistry = 'https://registry.npmjs.org/';
+          const original = fs.readFileSync(path, 'utf8');
+          const normalized = original.split(internal).join(publicRegistry);
+          if (normalized.includes('internal.api.openai.org')) {
+            throw new Error('An unsupported internal package registry URL remains in package-lock.json');
+          }
+          fs.writeFileSync(path, normalized);
+          console.log(`Normalized ${(original.length - normalized.length) ? 'internal registry URLs' : '0 registry URLs'}.`);
+          NODE
       - run: npm ci --no-audit --no-fund
       - run: npm run build:carbon
       - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
@@ -47,7 +62,22 @@ jobs:
         shell: bash
         run: |
           test "$(npm config get registry)" = "https://registry.npmjs.org/"
-          test "$(npm config get replace-registry-host)" = "https://packages.applied-caas-gateway1.internal.api.openai.org/artifactory/api/npm/npm-public/"
+      - name: Normalize lockfile registry URLs
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = 'package-lock.json';
+          const internal = 'https://packages.applied-caas-gateway1.internal.api.openai.org/artifactory/api/npm/npm-public/';
+          const publicRegistry = 'https://registry.npmjs.org/';
+          const original = fs.readFileSync(path, 'utf8');
+          const normalized = original.split(internal).join(publicRegistry);
+          if (normalized.includes('internal.api.openai.org')) {
+            throw new Error('An unsupported internal package registry URL remains in package-lock.json');
+          }
+          fs.writeFileSync(path, normalized);
+          console.log(`Normalized ${(original.length - normalized.length) ? 'internal registry URLs' : '0 registry URLs'}.`);
+          NODE
       - run: npm ci --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
       - run: npm run test:ui
