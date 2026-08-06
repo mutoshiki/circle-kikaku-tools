@@ -25,7 +25,7 @@ expect(settlement.includes('promptDiscardInvalidSettlementSettings'), 'Settlemen
 expect(settlement.includes("title: '入力内容を破棄'"), 'Settlement settings discard modal title is missing');
 expect(settlementEvents.includes("#seisanOrganizerFree, #seisanOrganizerName"), 'Organizer controls do not refresh validation state');
 
-expect(index.includes('class="route-place-search-icon" data-carbon-icon="search"'), 'Route search does not request the official Carbon Search icon');
+expect(index.includes('class="route-place-search-icon" aria-hidden="true"><span data-carbon-icon="search"></span>'), 'Route search does not request the official Carbon Search icon');
 expect(carbonSource.includes("@carbon/icons/es/search/20.js"), 'Carbon Search icon is not imported from the pinned official package');
 expect(carbonSource.includes('search: Search20'), 'Carbon Search icon is not registered');
 expect(carbonBundle.includes('name:"search"'), 'Built Carbon bundle does not contain Search');

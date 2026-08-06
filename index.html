@@ -61,7 +61,7 @@
     <link href="./assets/css/guides-modals/manual/03-manual-mobile.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/dialog/01-dialog-shell.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/dialog/02-dialog-content.css" rel="stylesheet">
-    <link href="./assets/css/guides-modals/import-guide/01-import-shell.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/guides-modals/import-guide/01-import-shell.css?v=participant-import-copy-v32" rel="stylesheet">
     <link href="./assets/css/guides-modals/import-guide/02-import-table.css?v=design-polish-v25" rel="stylesheet">
     <link href="./assets/css/guides-modals/import-guide/03-import-preview.css" rel="stylesheet">
     <link href="./assets/css/guides-modals/import-guide/04-import-mobile.css" rel="stylesheet">
@@ -81,10 +81,10 @@
     <link href="./assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/01-person-card-shell.css?v=design-polish-v25" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/02-person-name-grade.css?v=design-polish-v25" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/person-card/03-person-menu.css?v=feature-fixes-v30" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/person-card/03-person-menu.css?v=menu-layer-v31" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/04-person-mobile.css?v=mobile-layout-fix" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/01-card-shell.css?v=design-polish-v25" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/car-card/02-card-header.css?v=feature-fixes-v30" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/car-card/02-card-header.css?v=capacity-balance-v31" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/03-seat-grid.css?v=design-polish-v25" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/04-group-mode.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/05-empty-controls.css" rel="stylesheet">
@@ -116,8 +116,8 @@
     <link href="./assets/css/settlement/car-inputs/05-mobile-inputs.css?v=design-polish-v25" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/06-times-rental.css?v=driver-reward-layout-v18" rel="stylesheet">
     <link href="./assets/css/settlement/car-inputs/07-extra-candidates.css?v=ui-fix-2" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=feature-fixes-v30" rel="stylesheet">
-    <link href="./assets/css/settlement/route-helper/02-route-stops.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=search-icon-v31" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/02-route-stops.css?v=search-icon-v31" rel="stylesheet">
     <link href="./assets/css/settlement/route-helper/03-route-candidates.css?v=design-polish-v25" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/01-collection-list.css" rel="stylesheet">
     <link href="./assets/css/settlement/checklists/02-collection-mobile.css" rel="stylesheet">
@@ -380,7 +380,10 @@
 <div class="batch-import-column batch-import-column--full">
 <div class="batch-import-helper-card">
 <div class="batch-import-helper-title"><span aria-hidden="true" class="batch-import-helper-icon" data-carbon-icon="table"></span>スプレッドシートからまとめて登録</div>
-<div class="batch-import-help-text batch-import-help-text--compact">回答全体を貼り付けると、全員の名前・学年・車出しをまとめて読み込めます。</div>
+<div class="batch-import-help-copy">
+<p class="batch-import-help-text batch-import-help-text--compact">回答全体を貼り付けると、全員の名前・学年・車出しをまとめて読み込めます。</p>
+<p class="batch-import-help-text batch-import-help-text--instruction">スプレッドシートの各項目の見出しの行も一緒にコピーしてください。</p>
+</div>
 <cds-textarea aria-label="Googleフォーム回答スプレッドシート貼り付け欄" class="batch-spreadsheet-textarea" hide-label="" id="googleFormPasteArea" label="Googleフォーム回答スプレッドシート貼り付け欄" placeholder="例：
 名前	学籍番号もしくは学年	(車出し)
 藤田 陽斗	24T1234A	する
@@ -392,7 +395,7 @@
 <div aria-live="polite" class="form-import-preview" hidden="" id="googleFormImportPreview"></div>
 <details class="batch-import-help-details">
 <summary>貼り付け方を見る</summary>
-<div class="batch-import-notice"><span aria-hidden="true" data-carbon-icon="information"></span><span>各項目の見出し行も一緒にコピーすると、読み取りやすくなります。</span></div>
+
 <div aria-label="Googleフォームの回答をスプレッドシートで表示する方法" class="form-sheet-howto">
 <div class="form-sheet-howto-title">Googleフォームの回答をスプレッドシートで表示する方法</div>
 <div class="form-sheet-howto-body">応募フォームの管理画面で「回答」を開き、右上の <span aria-hidden="true" class="form-sheet-icon"></span> 緑色のスプレッドシートアイコンを押すと、回答用スプレッドシートを作成できます。</div>
@@ -571,7 +574,7 @@
           <div class="route-place-search-toolbar">
             <cds-button id="routePlaceSearchBackBtn" kind="ghost" size="lg" type="button">戻る</cds-button>
             <div id="routePlaceSearchAutocomplete" class="route-place-search-autocomplete">
-              <span class="route-place-search-icon" data-carbon-icon="search" aria-hidden="true"></span>
+              <span class="route-place-search-icon" aria-hidden="true"><span data-carbon-icon="search"></span></span>
               <cds-text-input id="routePlaceSearchInput" class="route-place-search-input" type="text" size="lg" label="場所を検索" hide-label placeholder="場所を検索" autocomplete="off" aria-label="場所を検索"></cds-text-input>
               <cds-icon-button id="routePlaceSearchClearBtn" class="route-place-search-clear" kind="ghost" size="lg" type="button" aria-label="検索文字を消去" hidden><span data-carbon-icon="close" slot="icon" aria-hidden="true"></span></cds-icon-button>
             </div>
@@ -687,7 +690,7 @@
     <script src="./assets/js/templates/settlement/05-collection-check-templates.js"></script>
     <script src="./assets/js/templates/settlement/06-driver-pay-templates.js"></script>
     <script src="./assets/js/templates/settlement/07-empty-state-templates.js"></script>
-    <script src="./assets/js/templates/settlement/08-route-helper-templates.js?v=route-ui-settings-v18"></script>
+    <script src="./assets/js/templates/settlement/08-route-helper-templates.js?v=search-icon-v31"></script>
     <script src="./assets/js/templates/settlement/09-register-settlement-templates.js?v=route-ui-settings-v16"></script>
     <script src="./assets/js/templates/settlement-templates.js"></script>
     <script src="./assets/js/features/settlement/01-state.js?v=driver-reward-policy-v18"></script>
@@ -704,7 +707,7 @@
     <script src="./assets/js/features/share-actions.js?v=share-links-v19"></script>
     <script src="./assets/js/features/lock-protection.js?v=feature-polish-v27"></script>
     <script src="./assets/js/features/waiting-tray.js?v=ui-fix-2"></script>
-    <script src="./assets/js/features/person-cards.js?v=feature-polish-v27"></script>
+    <script src="./assets/js/features/person-cards.js?v=menu-placement-v31"></script>
     <script src="./assets/js/features/planning-assurance.js?v=carbon-menu-shortcut"></script>
     <script src="./assets/js/features/seat-member-picker.js?v=quiet-actions"></script>
     <script src="./assets/js/templates/sheet-templates.js?v=carbon-phase3c"></script>
@@ -714,7 +717,7 @@
     <script src="./assets/js/features/sheet/01-drag-interactions.js"></script>
     <script src="./assets/js/features/sheet/02-viewport-controls.js?v=feature-fixes-v30"></script>
     <script src="./assets/js/features/auto-assign.js?v=feature-polish-v27"></script>
-    <script src="./assets/js/features/person-menu.js?v=feature-fixes-v30"></script>
+    <script src="./assets/js/features/person-menu.js?v=menu-placement-v31"></script>
     <script src="./assets/js/features/google-form-import-parser.js"></script>
     <script src="./assets/js/features/batch-import.js"></script>
     <script src="./assets/js/features/sample-data-history.js?v=feature-polish-v27"></script>

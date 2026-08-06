@@ -67,15 +67,25 @@
 
 .person-overflow-menu {
   position: relative;
+  z-index: auto;
+}
+
+.person-overflow-menu[open] {
   z-index: var(--z-person-menu);
 }
 
 .person-overflow-menu::part(popover-container) {
+  position: fixed;
   z-index: var(--z-person-menu);
 }
 
 body.person-menu-open #app-layout #bottom-tray {
   z-index: calc(var(--z-person-menu) - 2);
+  /* backdrop-filter creates a containing block for fixed descendants on iOS.
+   * Remove it only while a person menu is open so Carbon's fixed menu surface
+   * is positioned against the viewport instead of the bottom tray. */
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 body.person-menu-open #cars-container,
@@ -90,7 +100,7 @@ body.person-menu-open .car-box:has(.person-overflow-menu[open]) {
 .person-overflow-menu cds-menu {
   z-index: var(--z-person-menu);
   max-width: min(224px, calc(100vw - 16px));
-  max-height: calc(100dvh - 16px);
+  max-height: min(var(--person-menu-available-height, calc(100dvh - 16px)), calc(100dvh - 16px));
   --cds-layer: var(--surface-lowest);
   --cds-layer-01: var(--surface-lowest);
   --cds-layer-02: var(--surface-low);
@@ -98,6 +108,8 @@ body.person-menu-open .car-box:has(.person-overflow-menu[open]) {
   --cds-text-primary: var(--text-main);
   --cds-text-secondary: var(--text-sub);
   --cds-icon-primary: var(--text-sub);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .person-pop-item { min-width: 0; }
