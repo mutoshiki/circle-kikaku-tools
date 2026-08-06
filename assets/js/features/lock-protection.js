@@ -58,16 +58,21 @@ function updateEditLockButton() {
         ? `${labels.join('・')}のロックを解除`
         : '車割・班割と精算のロック範囲を選ぶ';
     btn.setAttribute('aria-label', accessibleLabel);
-    const statusTag = byId('editLockStatusTag');
-    if (statusTag) {
-        const state = !locked ? 'unlocked' : partial ? 'partial' : 'locked';
-        const labelsByState = { unlocked: '編集可', partial: '一部ロック', locked: '全体ロック' };
-        const typesByState = { unlocked: 'gray', partial: 'blue', locked: 'red' };
-        statusTag.dataset.lockState = state;
-        statusTag.textContent = labelsByState[state];
-        statusTag.type = typesByState[state];
-        statusTag.setAttribute('type', typesByState[state]);
-    }
+    const scopeState = normalizeEditLockScopes();
+    [
+        ['allocation', byId('tab-list'), '車割・班割'],
+        ['settlement', byId('tab-seisan'), '精算']
+    ].forEach(([scope, tab, baseLabel]) => {
+        if (!tab) return;
+        const scopeLocked = locked && !!scopeState[scope];
+        const indicator = tab.querySelector(`[data-view-lock-scope="${scope}"]`);
+        if (indicator) {
+            indicator.hidden = !scopeLocked;
+            indicator.setAttribute('aria-hidden', scopeLocked ? 'false' : 'true');
+        }
+        tab.classList.toggle('view-tab--locked', scopeLocked);
+        tab.setAttribute('aria-label', scopeLocked ? `${baseLabel}（ロック中）` : baseLabel);
+    });
     updateProtectedMenuItems();
     updateQuickEditButton();
 }

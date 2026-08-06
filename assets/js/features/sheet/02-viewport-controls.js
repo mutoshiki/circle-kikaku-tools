@@ -50,12 +50,12 @@ function getInitialSheetX(area, contentWidth, scale) {
     return Math.max(0, Math.round((area.clientWidth - contentWidth * scale) / 2));
 }
 
-function syncSheetFitControl(active = false) {
-    const button = byId('sheet-fit-view-btn');
-    if (!button) return;
-    button.setAttribute('aria-pressed', active ? 'true' : 'false');
-    const label = button.querySelector('[data-sheet-fit-label]');
-    if (label) label.textContent = active ? '全体表示中' : '全体表示';
+function syncSheetGestureHint({ needsPan = false, force = false } = {}) {
+    const hint = byId('sheet-gesture-hint');
+    if (!hint) return;
+    const shouldShow = force || (needsPan && !sheetUserAdjusted);
+    hint.hidden = !shouldShow;
+    hint.classList.toggle('is-visible', shouldShow);
 }
 
 function fitInitialSheetScale({ fitAll = false } = {}) {
@@ -86,16 +86,14 @@ function fitInitialSheetScale({ fitAll = false } = {}) {
     sheetY = 0;
     const fullyFits = contentWidth * sheetScale <= availableWidth + 1;
     area.classList.toggle('sheet-needs-pan', !fullyFits);
-    area.classList.toggle('sheet-fit-active', fitAll && fullyFits);
-    syncSheetFitControl(fitAll && fullyFits);
+    syncSheetGestureHint({ needsPan: !fullyFits });
     applySheetTransform();
 }
 
 function markSheetAdjusted() {
     sheetUserAdjusted = true;
     const area = byId('sheet-view-area');
-    area?.classList.remove('sheet-fit-active');
-    syncSheetFitControl(false);
+    syncSheetGestureHint({ needsPan: false });
 }
 
 function resetSheetViewport({ fitAll = true } = {}) {

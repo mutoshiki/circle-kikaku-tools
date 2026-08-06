@@ -93,14 +93,3 @@
   #appUndoBar { width: calc(100vw - 24px); justify-content: space-between; }
 }
 
-.edit-lock-status-badge {
-  flex: 0 0 auto;
-  min-height: 24px;
-  white-space: nowrap;
-  --cds-layer: var(--cds-layer-01);
-}
-
-@media (max-width: 760px) {
-  .app-room-statuses { display: flex; align-items: center; }
-  .edit-lock-status-badge[data-lock-state="unlocked"] { display: none; }
-}

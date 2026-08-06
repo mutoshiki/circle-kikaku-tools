@@ -14,9 +14,9 @@ const routeShell = read('assets/css/settlement/route-helper/01-route-shell.css')
 const routeStops = read('assets/css/settlement/route-helper/02-route-stops.css');
 const routeTemplate = read('assets/js/templates/settlement/08-route-helper-templates.js');
 
-expect(cardHeader.includes('font-size: 1.5rem'), 'Capacity count is not sized to 24px');
-expect(cardHeader.includes('width: 1.5rem; height: 1.5rem'), 'Capacity edit icon is not sized to 24px');
-expect(cardHeader.includes('min-width: 76px'), 'Capacity edit control does not reserve balanced width');
+expect(cardHeader.includes('font-size: 1.25rem'), 'Capacity count is not sized to 20px');
+expect(cardHeader.includes('width: 1.25rem; height: 1.25rem'), 'Capacity edit icon is not sized to 20px');
+expect(cardHeader.includes('min-width: 68px'), 'Capacity edit control does not reserve balanced width');
 
 expect(personCards.includes('enable-v12-overflowmenu autoalign menu-alignment="bottom-end"'), 'Person actions do not use Carbon V12 Overflow Menu auto alignment');
 expect(personMenuJs.includes('positionPersonMenuSurface'), 'Person menu viewport/tray constraint is missing');
@@ -28,7 +28,8 @@ expect(personMenuCss.includes('.person-overflow-menu[open]'), 'Only the open per
 expect(personMenuCss.includes('z-index: auto'), 'Closed person menu triggers retain an elevated stacking context');
 expect(personMenuCss.includes('body.person-menu-open #app-layout #bottom-tray'), 'Waiting tray layering is not lowered while a person menu is open');
 expect(personMenuCss.includes('backdrop-filter: none'), 'iOS fixed-menu containing block mitigation is missing');
-expect(personMenuCss.includes('max-height: min(var(--person-menu-available-height'), 'Person menu does not constrain height to available space');
+expect(personMenuJs.includes('maxHeight: `${Math.floor(availableHeight)}px`'), 'Person menu does not constrain the rendered Carbon surface to available space');
+expect(personMenuCss.includes('overflow: visible'), 'Zero-size Carbon menu host can clip the floating surface');
 
 expect(routeTemplate.includes('route-stop-search-icon'), 'Route stop input is missing its Search icon wrapper');
 expect(routeTemplate.includes('data-carbon-icon="search"'), 'Route stop input does not request the official Carbon Search icon');
@@ -38,6 +39,6 @@ expect(routeStops.includes('width: 20px') && routeStops.includes('height: 20px')
 expect(routeStops.includes('--cds-layout-density-padding-inline-normal: 48px'), 'Route stop text does not clear the Search icon area');
 expect(routeShell.includes('.route-place-search-icon > .carbon-icon'), 'Search-page icon selector does not target the rendered Carbon icon');
 
-expect(index.includes('usability-v33'), 'Unified application cache-busting token is missing.');
+expect(index.includes('ui-fixes-v34'), 'Unified application cache-busting token is missing.');
 
 console.log('PASS v31 menu, capacity and search contract');

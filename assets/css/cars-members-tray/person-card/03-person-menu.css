@@ -100,7 +100,6 @@ body.person-menu-open .car-box:has(.person-overflow-menu[open]) {
 .person-overflow-menu cds-menu {
   z-index: var(--z-person-menu);
   max-width: min(224px, calc(100vw - 16px));
-  max-height: min(var(--person-menu-available-height, calc(100dvh - 16px)), calc(100dvh - 16px));
   --cds-layer: var(--surface-lowest);
   --cds-layer-01: var(--surface-lowest);
   --cds-layer-02: var(--surface-low);
@@ -108,8 +107,7 @@ body.person-menu-open .car-box:has(.person-overflow-menu[open]) {
   --cds-text-primary: var(--text-main);
   --cds-text-secondary: var(--text-sub);
   --cds-icon-primary: var(--text-sub);
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  overflow: visible;
 }
 
 .person-pop-item { min-width: 0; }

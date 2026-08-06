@@ -19,11 +19,10 @@ const summaryCss = read('assets/css/settlement/summary/03-summary-colors.css');
 const typeCss = read('assets/css/tokens/02-radius-spacing-type.css');
 const drawerCss = read('assets/css/guides-modals/overview/01-overview-drawer.css');
 
-assert.match(html, /id="sheet-fit-view-btn"[\s\S]*data-sheet-fit-label[\s\S]*全体表示/);
-assert.match(viewport, /function resetSheetViewport[\s\S]*fitInitialSheetScale\(\{ fitAll \}\)/);
-assert.match(viewport, /sheetScale = fitAll[\s\S]*Math\.min\(maxScale, fitScale\)/);
-assert.match(viewport, /syncSheetFitControl[\s\S]*全体表示中/);
-assert.match(events, /sheet-fit-view-btn/);
+assert.doesNotMatch(html, /id="sheet-fit-view-btn"/);
+assert.match(html, /id="sheet-gesture-hint"/);
+assert.match(viewport, /syncSheetGestureHint/);
+assert.doesNotMatch(events, /sheet-fit-view-btn/);
 
 assert.match(ui, /function createModalStatus/);
 assert.match(ui, /getOpenAppModalBody/);
@@ -36,9 +35,10 @@ assert.match(events, /cds-content-switcher-selected/);
 
 assert.match(routeCss, /min-height:\s*clamp\(300px, 44dvh, 460px\)/);
 
-assert.match(html, /id="editLockStatusTag"/);
-assert.match(lock, /一部ロック/);
-assert.match(lock, /全体ロック/);
+assert.doesNotMatch(html, /id="editLockStatusTag"/);
+assert.match(html, /data-view-lock-scope="allocation"/);
+assert.match(html, /data-view-lock-scope="settlement"/);
+assert.match(lock, /view-tab--locked/);
 
 assert.match(typeCss, /--font-size-caption:\s*0\.8125rem/);
 assert.match(typeCss, /--font-size-micro:\s*0\.75rem/);
@@ -88,6 +88,6 @@ assert.match(read('assets/js/templates/common-empty-state.js'), /app-entry-recom
 
 const appAssetRefs = [...html.matchAll(/(?:href|src)="(\.\/assets\/(?:css|js)\/[^"?]+)(?:\?v=([^" ]+))?"/g)];
 assert.ok(appAssetRefs.length > 50);
-for (const [, ref, version] of appAssetRefs) assert.equal(version, 'usability-v33', `${ref} has a mixed cache key`);
+for (const [, ref, version] of appAssetRefs) assert.equal(version, 'ui-fixes-v34', `${ref} has a mixed cache key`);
 
-console.log('PASS usability and visual consistency v33 contract');
+console.log('PASS usability and visual consistency current contract');

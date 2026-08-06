@@ -78,6 +78,60 @@ function renderGoogleFormImportPreview(result, reflected = false) {
 }
 
 
+function syncBatchAutoTableScrollAffordance() {
+    const region = document.querySelector('[data-horizontal-scroll-region]');
+    const container = region?.closest('.batch-auto-simple');
+    if (!region || !container) return;
+    const maxScroll = Math.max(0, region.scrollWidth - region.clientWidth);
+    const overflow = maxScroll > 2;
+    const atStart = region.scrollLeft <= 2;
+    const atEnd = region.scrollLeft >= maxScroll - 2;
+    container.toggleAttribute('data-horizontal-overflow', overflow);
+    container.toggleAttribute('data-horizontal-at-start', overflow && atStart);
+    container.toggleAttribute('data-horizontal-at-end', overflow && atEnd);
+    container.toggleAttribute('data-horizontal-middle', overflow && !atStart && !atEnd);
+}
+
+function initializeBatchAutoTableScrollAffordance() {
+    const region = document.querySelector('[data-horizontal-scroll-region]');
+    if (!region || region.dataset.scrollAffordanceBound === 'true') return;
+    region.dataset.scrollAffordanceBound = 'true';
+
+    let frame = 0;
+    const scheduleSync = () => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => {
+            frame = 0;
+            syncBatchAutoTableScrollAffordance();
+        });
+    };
+
+    region.addEventListener('scroll', scheduleSync, { passive: true });
+    window.addEventListener('resize', scheduleSync, { passive: true });
+
+    const accordionItem = region.closest('cds-accordion-item');
+    if (accordionItem && window.MutationObserver) {
+        new MutationObserver(scheduleSync).observe(accordionItem, {
+            attributes: true,
+            attributeFilter: ['open']
+        });
+    }
+    if (window.ResizeObserver) {
+        const observer = new ResizeObserver(scheduleSync);
+        observer.observe(region);
+        const table = region.querySelector('table');
+        if (table) observer.observe(table);
+    }
+
+    scheduleSync();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeBatchAutoTableScrollAffordance, { once: true });
+} else {
+    initializeBatchAutoTableScrollAffordance();
+}
+
 function setBatchRegistrationMode(mode = 'spreadsheet', { focus = false } = {}) {
     const next = mode === 'manual' ? 'manual' : 'spreadsheet';
     const switcher = byId('batchRegistrationMode');
@@ -186,6 +240,7 @@ function openBatchModal() {
     setBatchRegistrationMode('spreadsheet');
     
     modals.batch.show();
+    requestAnimationFrame(() => requestAnimationFrame(syncBatchAutoTableScrollAffordance));
 }
 window.SanpoApp?.exposeCompat?.('openBatchModal', openBatchModal);
 
