@@ -25,7 +25,7 @@ jobs:
         shell: bash
         run: |
           test "$(npm config get registry)" = "https://registry.npmjs.org/"
-          test "$(npm config get replace-registry-host)" = "always"
+          test "$(npm config get replace-registry-host)" = "https://packages.applied-caas-gateway1.internal.api.openai.org/artifactory/api/npm/npm-public/"
       - run: npm ci --no-audit --no-fund
       - run: npm run build:carbon
       - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: |
           test "$(npm config get registry)" = "https://registry.npmjs.org/"
-          test "$(npm config get replace-registry-host)" = "always"
+          test "$(npm config get replace-registry-host)" = "https://packages.applied-caas-gateway1.internal.api.openai.org/artifactory/api/npm/npm-public/"
       - run: npm ci --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
       - run: npm run test:ui
