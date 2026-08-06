@@ -1,0 +1,108 @@
+[
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "scheme": "dark",
+    "checks": {
+      "page_identity": {
+        "url": "about:blank?room=QA30",
+        "title": "サークル企画ツール"
+      },
+      "not_blank": true,
+      "horizontal_overflow": 0,
+      "organizer_validation": {
+        "open": true,
+        "invalid": true,
+        "text": "企画者を選択してください"
+      },
+      "organizer_discard": "企画者が選択されていません。変更を破棄して精算設定を閉じますか？",
+      "search_icon": {
+        "surfaceVisible": true,
+        "name": "search",
+        "width": 48,
+        "height": 48
+      },
+      "lock_focus_cleared": {
+        "documentActive": false,
+        "deepActive": false,
+        "focusVisible": false,
+        "keyboardClass": false
+      },
+      "person_menu_layer": {
+        "bodyOpen": true,
+        "triggerZ": "800",
+        "trayZ": "798",
+        "menuZ": "800"
+      },
+      "copy_button": {
+        "kind": "tertiary",
+        "color": "rgb(120, 169, 255)",
+        "background": "rgb(38, 38, 38)",
+        "boxShadow": "rgb(120, 169, 255) 0px 0px 0px 1px inset",
+        "width": 336
+      },
+      "capacity_icon": {
+        "width": 24,
+        "height": 24
+      },
+      "timetable_expand": {
+        "rows": "4",
+        "expanded": true,
+        "height": 114.375,
+        "scrollHeight": 113,
+        "whiteSpace": "pre-wrap"
+      }
+    },
+    "errors": []
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "scheme": "light",
+    "checks": {
+      "page_identity": {
+        "url": "about:blank?room=QA30",
+        "title": "サークル企画ツール"
+      },
+      "not_blank": true,
+      "horizontal_overflow": 0
+    },
+    "errors": []
+  },
+  {
+    "viewport": {
+      "width": 360,
+      "height": 800
+    },
+    "scheme": "dark",
+    "checks": {
+      "page_identity": {
+        "url": "about:blank?room=QA30",
+        "title": "サークル企画ツール"
+      },
+      "not_blank": true,
+      "horizontal_overflow": 0
+    },
+    "errors": []
+  },
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "scheme": "dark",
+    "checks": {
+      "page_identity": {
+        "url": "about:blank?room=QA30",
+        "title": "サークル企画ツール"
+      },
+      "not_blank": true,
+      "horizontal_overflow": 0
+    },
+    "errors": []
+  }
+]
