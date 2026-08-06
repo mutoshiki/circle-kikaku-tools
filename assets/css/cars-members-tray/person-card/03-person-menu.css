@@ -64,6 +64,29 @@
   pointer-events: none;
 }
 
+<<<<<<< HEAD
+=======
+
+.person-overflow-menu {
+  position: relative;
+  z-index: var(--z-person-menu);
+}
+
+.person-overflow-menu::part(popover-container) {
+  z-index: var(--z-person-menu);
+}
+
+body.person-menu-open #app-layout #bottom-tray {
+  z-index: calc(var(--z-person-menu) - 2);
+}
+
+body.person-menu-open #cars-container,
+body.person-menu-open .car-box:has(.person-overflow-menu[open]) {
+  position: relative;
+  z-index: calc(var(--z-person-menu) - 1);
+}
+
+>>>>>>> parent of ec9d6ae (sehserthesthte)
 /* Keep every menu surface opaque while the Carbon component owns its shadow,
  * elevation, selected, focus, danger and submenu states. */
 .person-overflow-menu > cds-menu.person-pop-menu,
