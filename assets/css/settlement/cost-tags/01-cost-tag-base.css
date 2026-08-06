@@ -49,7 +49,7 @@
   gap: 6px;
   min-height: 24px;
   color: var(--text-main);
-  font-size: 0.76rem;
+  font-size: var(--font-size-caption);
 }
 .seisan-extra-line span {
   min-width: 0;

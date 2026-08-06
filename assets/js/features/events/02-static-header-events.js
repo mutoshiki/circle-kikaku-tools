@@ -2,10 +2,20 @@
 (function (global) {
     'use strict';
 
+    function syncTimetableTextareaExpansion(host, forceActive = false) {
+        if (!host?.matches?.('cds-textarea.overview-timetable-title-input')) return;
+        const value = String(host.value || host.getAttribute('value') || '');
+        const shouldExpand = forceActive || value.includes('\n') || value.length > 18;
+        host.classList.toggle('is-expanded', shouldExpand);
+        host.rows = shouldExpand ? 4 : 1;
+        host.setAttribute('rows', shouldExpand ? '4' : '1');
+    }
+
     const events = global.SanpoEvents || {};
     const bind = events.bind;
     const OVERVIEW_STORAGE_KEY = 'sanpoOverviewDraft:v1';
     let applyingOverviewSnapshot = false;
+    let overviewReturnFocus = null;
 
     function getOverviewStorageKey() {
         const room = new URLSearchParams(global.location.search).get('room') || 'local';
@@ -84,7 +94,7 @@
         row.className = 'overview-timetable-row';
         row.innerHTML = `
                 <cds-text-input type="time" size="lg" data-field="time" value="${escapeAttr(item.time || '')}" label="時刻" hide-label></cds-text-input>
-                <cds-text-input type="text" size="lg" data-field="title" value="${escapeAttr(item.title || '')}" placeholder="内容" label="内容" hide-label></cds-text-input>
+                <cds-textarea class="overview-timetable-title-input${item.title ? ' is-expanded' : ''}" rows="${String(item.title || '').length > 18 || String(item.title || '').includes('\n') ? 4 : 1}" size="lg" data-field="title" value="${escapeAttr(item.title || '')}" placeholder="内容" label="内容" hide-label></cds-textarea>
                 <cds-icon-button type="button" class="overview-row-delete" kind="ghost" size="lg" data-action="delete-timetable-row" aria-label="行を削除">
                   <span data-carbon-icon="close" aria-hidden="true"></span>
                 </cds-icon-button>
@@ -133,11 +143,20 @@
         const scrim = byId('overviewDrawerScrim');
         const trigger = byId('overviewMenuBtn');
         if (!drawer || !scrim || !trigger) return;
+        if (open) overviewReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : trigger;
         drawer.classList.toggle('is-open', open);
         drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
         trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
         scrim.hidden = !open;
         document.body.classList.toggle('overview-drawer-open', open);
+        if (open) {
+            requestAnimationFrame(() => byId('overviewDrawerTitle')?.focus?.({ preventScroll: true }));
+        } else {
+            const target = overviewReturnFocus;
+            overviewReturnFocus = null;
+            if (global.SanpoFocusModality?.isKeyboard?.() && target?.isConnected) requestAnimationFrame(() => target.focus?.({ preventScroll: true }));
+            else global.SanpoFocusModality?.clearPointerFocus?.(target);
+        }
     }
 
     function setupOverviewMenuFields() {
@@ -154,7 +173,14 @@
             if (!event.isComposing) saveOverviewDraft();
         });
         byId('overviewTimetableRows')?.addEventListener('input', event => {
+            if (event.target.matches?.('[data-field="title"]')) syncTimetableTextareaExpansion(event.target, true);
             if (!event.isComposing) saveOverviewDraft();
+        });
+        byId('overviewTimetableRows')?.addEventListener('focusin', event => {
+            if (event.target.matches?.('[data-field="title"]')) syncTimetableTextareaExpansion(event.target, true);
+        });
+        byId('overviewTimetableRows')?.addEventListener('focusout', event => {
+            if (event.target.matches?.('[data-field="title"]')) syncTimetableTextareaExpansion(event.target, false);
         });
         byId('overviewTimetableRows')?.addEventListener('click', event => {
             const button = event.target.closest?.('[data-action="delete-timetable-row"]');
@@ -167,7 +193,26 @@
         if (document.body.dataset.overviewEscapeBound !== 'true') {
             document.body.dataset.overviewEscapeBound = 'true';
             document.addEventListener('keydown', event => {
-                if (event.key === 'Escape') setOverviewDrawerOpen(false);
+                const drawer = byId('overviewDrawer');
+                if (!drawer?.classList.contains('is-open')) return;
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    setOverviewDrawerOpen(false);
+                    return;
+                }
+                if (event.key !== 'Tab') return;
+                const focusable = Array.from(drawer.querySelectorAll('cds-icon-button, cds-button, cds-text-input, cds-textarea, button, [href], [tabindex]:not([tabindex="-1"])'))
+                    .filter(el => !el.hidden && !el.disabled && el.getAttribute('aria-hidden') !== 'true');
+                if (!focusable.length) return;
+                const first = focusable[0];
+                const last = focusable.at(-1);
+                if (event.shiftKey && document.activeElement === first) {
+                    event.preventDefault();
+                    last.focus();
+                } else if (!event.shiftKey && document.activeElement === last) {
+                    event.preventDefault();
+                    first.focus();
+                }
             });
         }
     }
@@ -178,6 +223,7 @@
         headerOverflow?.addEventListener('click', event => {
             if (event.composedPath().some(node => node?.tagName === 'CDS-MENU-ITEM')) {
                 headerOverflow.open = false;
+                global.SanpoFocusModality?.clearPointerFocus?.(headerOverflow);
             }
         });
         bind('userGuideBtn', () => global.modals?.userGuide?.show());

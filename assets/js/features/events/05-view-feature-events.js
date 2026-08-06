@@ -18,21 +18,10 @@
         const rewardType = byId('seisanDriverRewardType');
         if (rewardType && rewardType.dataset.eventOwnerBound !== 'true') {
             rewardType.dataset.eventOwnerBound = 'true';
-            const commitRewardType = value => {
-                const next = value === 'club' ? 'club' : 'split';
-                rewardType.value = next;
-                rewardType.querySelectorAll('cds-content-switcher-item').forEach(item => {
-                    item.selected = item.value === next;
-                });
+            rewardType.addEventListener('change', () => {
                 const state = ensureSettlementState();
-                state.driverRewardType = next;
+                state.driverRewardType = rewardType.value === 'club' ? 'club' : 'split';
                 global.onSettlementInput?.();
-            };
-            rewardType.addEventListener('change', () => commitRewardType(rewardType.value));
-            rewardType.addEventListener('cds-content-switcher-selected', event => {
-                const item = event.detail?.item;
-                if (!item || !rewardType.contains(item)) return;
-                commitRewardType(item.value);
             });
         }
 
@@ -69,6 +58,18 @@
         bind('executeDebugMissingBtn', () => global.executeDebugMissingCostMode?.());
         bind('addRouteStopBtn', () => global.addRouteStop?.());
         bind('openGoogleRouteBtn', () => global.openGoogleRoute?.());
+
+
+        const registrationMode = byId('batchRegistrationMode');
+        if (registrationMode && registrationMode.dataset.eventOwnerBound !== 'true') {
+            registrationMode.dataset.eventOwnerBound = 'true';
+            const commitMode = value => global.setBatchRegistrationMode?.(value, { focus: true });
+            registrationMode.addEventListener('change', () => commitMode(registrationMode.value));
+            registrationMode.addEventListener('cds-content-switcher-selected', event => {
+                const item = event.detail?.item;
+                if (item && registrationMode.contains(item)) commitMode(item.value);
+            });
+        }
 
         setupSettlementOptionEvents();
         setupAutoAssignOptionEvents();

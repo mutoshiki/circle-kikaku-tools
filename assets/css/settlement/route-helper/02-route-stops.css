@@ -70,6 +70,32 @@
   gap: 2px;
 }
 
+#routeDistanceModal .route-stop-input-shell {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+#routeDistanceModal .route-stop-search-icon {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: var(--cds-icon-secondary, var(--text-sub));
+  pointer-events: none;
+}
+
+#routeDistanceModal .route-stop-search-icon > .carbon-icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
 #routeDistanceModal .route-stop-role-label {
   overflow: hidden;
   color: var(--cds-text-secondary, var(--text-sub));
@@ -80,6 +106,7 @@
 }
 
 #routeDistanceModal .route-stop-input {
+  --cds-layout-density-padding-inline-normal: 48px;
   --cds-field: var(--cds-field-02, var(--surface-low));
   --cds-body-compact-01-font-size: 1rem;
   display: block;

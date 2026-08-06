@@ -13,7 +13,7 @@
   background: var(--cds-layer-02, var(--surface-low));
   color: var(--cds-text-secondary, var(--text-sub));
   text-align: center;
-  font-size: 0.875rem;
+  font-size: var(--font-size-label);
 }
 
 #routeDistanceModal .route-candidate-card {
@@ -58,7 +58,7 @@
 
 #routeDistanceModal .route-candidate-label {
   overflow: hidden;
-  font-size: 0.875rem;
+  font-size: var(--font-size-label);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -89,7 +89,7 @@
 #routeDistanceModal .route-candidate-flags {
   margin-top: 6px;
   color: var(--cds-text-secondary, var(--text-sub));
-  font-size: 0.75rem;
+  font-size: var(--font-size-caption);
   line-height: 1.35;
 }
 
@@ -101,7 +101,7 @@
 
 #routeDistanceModal .route-candidate-distance {
   color: var(--cds-text-secondary, var(--text-sub));
-  font-size: 0.75rem;
+  font-size: var(--font-size-caption);
   white-space: nowrap;
 }
 
@@ -136,7 +136,7 @@
 #routeDistanceModal .route-leg-row span,
 #routeDistanceModal .route-total-summary span {
   color: var(--cds-text-secondary, var(--text-sub));
-  font-size: 0.75rem;
+  font-size: var(--font-size-caption);
   text-align: right;
 }
 
@@ -187,11 +187,11 @@
 }
 
 #routeDistanceModal .route-candidate-group-heading strong {
-  font-size: 0.875rem;
+  font-size: var(--font-size-label);
 }
 
 #routeDistanceModal .route-candidate-group-heading span {
   color: var(--cds-text-secondary, var(--text-sub));
-  font-size: 0.75rem;
+  font-size: var(--font-size-caption);
 }
 

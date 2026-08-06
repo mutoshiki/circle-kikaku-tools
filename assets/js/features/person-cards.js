@@ -67,7 +67,7 @@ function renderPersonOverflowMenu({ name, isDriver = false, inWaiting = false, l
       { value: 'unknown', label: '未設定', icon: 'help' }
     ] }));
     common.push(`<cds-menu-item class="person-pop-item" label="名前変更" data-person-action="name">${renderPersonMenuIcon('edit')}</cds-menu-item>`);
-    return `<cds-overflow-menu type="button" kind="ghost" size="lg" class="${isDriver ? 'driver-menu-btn' : 'member-menu-btn'} person-overflow-menu action-btn" label="${safeLabel}" aria-label="${safeLabel}" enable-v12-overflowmenu enter-delay-ms="86400000" leave-delay-ms="0">
+    return `<cds-overflow-menu type="button" kind="ghost" size="lg" class="${isDriver ? 'driver-menu-btn' : 'member-menu-btn'} person-overflow-menu action-btn" label="${safeLabel}" aria-label="${safeLabel}" enable-v12-overflowmenu autoalign menu-alignment="bottom-end" enter-delay-ms="86400000" leave-delay-ms="0">
         <span data-carbon-icon="overflow-menu-vertical" slot="icon" aria-hidden="true"></span>
         <cds-menu class="person-pop-menu" aria-label="${safeLabel}">${common.join('')}</cds-menu>
       </cds-overflow-menu>`;

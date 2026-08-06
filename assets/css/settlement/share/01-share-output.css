@@ -10,9 +10,22 @@
   color: var(--text-main);
   box-shadow: inset 0 0 0 1px var(--border-section);
   font-family: inherit;
-  font-size: 0.82rem;
+  font-size: var(--font-size-caption);
   line-height: 1.65;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 #seisan-view-area .seisan-share-actions .seisan-btn { min-height: 48px; }
+
+
+#seisan-view-area .seisan-share-actions .seisan-copy-btn {
+  width: 100%;
+  min-width: 0;
+  --cds-button-tertiary: var(--app-accent-border);
+  --cds-button-tertiary-hover: var(--app-accent-surface-strong);
+  --cds-button-tertiary-active: var(--app-accent-surface);
+  --cds-button-tertiary-color: var(--app-accent-text);
+  color: var(--app-accent-text);
+  background: var(--surface-lowest);
+  box-shadow: inset 0 0 0 1px var(--app-accent-border);
+}

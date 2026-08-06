@@ -52,7 +52,6 @@ function renderExtraRowHtml(carName, ex, index, issues) {
 
 function syncSettlementControls(state, participants) {
     const roundingEl = byId('seisanRounding');
-    const roundingOptions = Array.from(document.querySelectorAll('[data-rounding-value]'));
     const organizerFreeEl = byId('seisanOrganizerFree');
     const organizerEl = byId('seisanOrganizerName');
     const organizerField = byId('seisanOrganizerField');
@@ -72,25 +71,13 @@ function syncSettlementControls(state, participants) {
     if (rewardTypeEl) {
         const rewardType = getDriverRewardType(state);
         rewardTypeEl.value = rewardType;
-        rewardTypeEl.querySelectorAll('cds-content-switcher-item').forEach(item => {
-            item.selected = item.value === rewardType;
-        });
     }
     const standalone = normalizeStandaloneSettlementState(state.standalone || {});
     const roundingValue = String(state.rounding || '100');
-    document.querySelectorAll('.seisan-rounding-row').forEach(switcher => {
-        if (switcher.querySelector(`[data-rounding-value="${CSS.escape(roundingValue)}"]`)) switcher.value = roundingValue;
-    });
     if (standaloneEnabledEl) standaloneEnabledEl.checked = standalone.enabled;
     if (standaloneDriverCountEl) standaloneDriverCountEl.value = standalone.driverCount || '';
     if (standaloneMemberCountEl) standaloneMemberCountEl.value = standalone.memberCount || '';
     if (standaloneFieldsEl) standaloneFieldsEl.hidden = !standalone.enabled;
-    roundingOptions.forEach(option => {
-        const active = option.dataset.roundingValue === roundingValue;
-        option.classList.toggle('active', active);
-        option.selected = active;
-        option.setAttribute('aria-pressed', active ? 'true' : 'false');
-    });
     if (organizerField) organizerField.hidden = state.organizerFree === false;
     if (organizerEl) {
         const current = state.organizerName || '';
@@ -189,6 +176,10 @@ let settlementCarEditClosePrepared = false;
 let settlementCarEditOpeningSnapshot = null;
 let settlementCarEditDiscardPromptActive = false;
 let settlementCarEditPreserveOnHidden = false;
+let settlementSettingsOpeningSnapshot = null;
+let settlementSettingsClosePrepared = false;
+let settlementSettingsDiscardPromptActive = false;
+let settlementSettingsPreserveOnHidden = false;
 
 function getSettlementCarEditIssues(name) {
     const data = getRoomDataOnly();
@@ -339,14 +330,22 @@ function openSettlementSettings() {
     syncSettlementStateFromDOM();
     const data = getRoomDataOnly();
     const state = ensureSettlementState();
+    settlementSettingsOpeningSnapshot = cloneData(state);
+    settlementSettingsClosePrepared = false;
+    settlementSettingsDiscardPromptActive = false;
+    settlementSettingsPreserveOnHidden = false;
     syncSettlementControls(state, getParticipantList(data));
-    validateStandaloneSettlementSettings(false);
+    validateSettlementSettings(false);
     if (modals.settlementSettings) modals.settlementSettings.show();
 }
 
 function openStandaloneSettlementSettings() {
     syncSettlementStateFromDOM();
     const state = ensureSettlementState();
+    settlementSettingsOpeningSnapshot = cloneData(state);
+    settlementSettingsClosePrepared = false;
+    settlementSettingsDiscardPromptActive = false;
+    settlementSettingsPreserveOnHidden = false;
     state.standalone = normalizeStandaloneSettlementState({
         ...(state.standalone || {}),
         enabled: true
@@ -366,7 +365,7 @@ function openStandaloneSettlementSettings() {
     if (driverCollectionOffset) driverCollectionOffset.checked = false;
     if (driverCollectionFree) driverCollectionFree.checked = false;
     if (organizerFree) organizerFree.checked = false;
-    validateStandaloneSettlementSettings(false);
+    validateSettlementSettings(false);
     if (modals.settlementSettings) modals.settlementSettings.show();
 }
 
@@ -389,6 +388,108 @@ function validateStandaloneSettlementSettings(showErrors = true) {
     return invalidFields.length === 0;
 }
 
+
+function validateOrganizerSettlementSettings(showErrors = true) {
+    const organizerFree = byId('seisanOrganizerFree');
+    const organizer = byId('seisanOrganizerName');
+    const organizerField = byId('seisanOrganizerField');
+    const invalid = !!organizerFree?.checked && !String(organizer?.value || '').trim();
+    if (organizerField) organizerField.hidden = !organizerFree?.checked;
+    if (organizer) {
+        organizer.invalid = showErrors && invalid;
+        organizer.invalidText = showErrors && invalid ? '企画者を選択してください' : '';
+        organizer.setAttribute('aria-invalid', showErrors && invalid ? 'true' : 'false');
+    }
+    return !invalid;
+}
+
+function focusFirstSettlementSettingsValidationError() {
+    const modal = byId('settlementSettingsModal');
+    const host = modal?.querySelector('[invalid], .is-invalid, [aria-invalid="true"]');
+    if (!host) return;
+    const apply = () => {
+        host.scrollIntoView?.({ block: 'center', inline: 'nearest' });
+        const control = host.shadowRoot?.querySelector('input, select, textarea, button');
+        (control || host).focus?.({ preventScroll: true });
+    };
+    Promise.resolve(host.updateComplete).then(() => requestAnimationFrame(() => requestAnimationFrame(apply)));
+}
+
+function validateSettlementSettings(showErrors = true) {
+    const standaloneValid = validateStandaloneSettlementSettings(showErrors);
+    const organizerValid = validateOrganizerSettlementSettings(showErrors);
+    const valid = standaloneValid && organizerValid;
+    if (showErrors && !valid) focusFirstSettlementSettingsValidationError();
+    return valid;
+}
+
+function restoreSettlementSettingsOpeningSnapshot() {
+    if (!settlementSettingsOpeningSnapshot) return;
+    settlementState = normalizeSettlementState(cloneData(settlementSettingsOpeningSnapshot));
+}
+
+function waitForSettlementSettingsModalHidden() {
+    const modal = byId('settlementSettingsModal');
+    if (!modal || !modal.open) return Promise.resolve();
+    return new Promise(resolve => modal.addEventListener('sanpo:modal-hidden', resolve, { once: true }));
+}
+
+async function promptDiscardInvalidSettlementSettings() {
+    if (settlementSettingsDiscardPromptActive) return;
+    settlementSettingsDiscardPromptActive = true;
+    settlementSettingsPreserveOnHidden = true;
+    settlementSettingsClosePrepared = true;
+    const hidden = waitForSettlementSettingsModalHidden();
+    modals.settlementSettings?.hide({ reason: 'discard-prompt' });
+    await hidden;
+
+    const discard = await appConfirm(
+        '企画者が選択されていません。変更を破棄して精算設定を閉じますか？',
+        {
+            title: '入力内容を破棄',
+            okText: '破棄して閉じる',
+            cancelText: '編集を続ける',
+            danger: true
+        }
+    );
+
+    settlementSettingsDiscardPromptActive = false;
+    settlementSettingsPreserveOnHidden = false;
+    if (discard) {
+        restoreSettlementSettingsOpeningSnapshot();
+        clearSettlementSettingsEditor();
+        renderSettlementView({ force: true });
+        save();
+        return;
+    }
+
+    const data = getRoomDataOnly();
+    syncSettlementControls(ensureSettlementState(), getParticipantList(data));
+    modals.settlementSettings?.show();
+    validateSettlementSettings(true);
+}
+
+function validateAndSaveSettlementSettingsBeforeClose(reason = 'dismiss') {
+    if (settlementSettingsClosePrepared) {
+        settlementSettingsClosePrepared = false;
+        return true;
+    }
+    if (reason === 'submit') return true;
+    if (!validateSettlementSettings(true)) {
+        queueMicrotask(promptDiscardInvalidSettlementSettings);
+        return false;
+    }
+    saveSettlementSettingsDraft();
+    return true;
+}
+
+function clearSettlementSettingsEditor() {
+    if (settlementSettingsPreserveOnHidden) return;
+    settlementSettingsOpeningSnapshot = null;
+    settlementSettingsClosePrepared = false;
+    settlementSettingsDiscardPromptActive = false;
+}
+
 function saveSettlementSettingsDraft() {
     syncSettlementStateFromDOM();
     renderSettlementView({ force: true });
@@ -396,8 +497,9 @@ function saveSettlementSettingsDraft() {
 }
 
 function saveSettlementSettings() {
-    if (!validateStandaloneSettlementSettings(true)) return;
+    if (!validateSettlementSettings(true)) return;
     saveSettlementSettingsDraft();
+    settlementSettingsClosePrepared = true;
     if (modals.settlementSettings) modals.settlementSettings.hide({ reason: 'submit' });
 }
 
@@ -411,7 +513,7 @@ function openSettlementCarEditor(encodedName) {
     const name = decodeURIComponent(encodedName || '');
     activeSettlementCarEditName = name;
     const title = byId('settlementCarEditModalTitle');
-    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用`;
+    if (title) title.innerHTML = `${escapeHtml(name)}車の費用`;
     refreshSettlementCarEditor(name);
     if (modals.settlementCarEdit) modals.settlementCarEdit.show();
 }
@@ -424,7 +526,7 @@ function resumeSettlementCarEditor(encodedName) {
     settlementCarEditDiscardPromptActive = false;
     settlementCarEditPreserveOnHidden = false;
     const title = byId('settlementCarEditModalTitle');
-    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用`;
+    if (title) title.innerHTML = `${escapeHtml(name)}車の費用`;
     refreshSettlementCarEditor(name);
     if (modals.settlementCarEdit) modals.settlementCarEdit.show();
 }
@@ -443,7 +545,7 @@ function saveSettlementCarEditDraft() {
     renderSettlementView({ force: true });
     if (renamedStandaloneDriver) {
         const title = byId('settlementCarEditModalTitle');
-        if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(renamedStandaloneDriver)}車の費用`;
+        if (title) title.innerHTML = `${escapeHtml(renamedStandaloneDriver)}車の費用`;
         refreshSettlementCarEditor(renamedStandaloneDriver);
     }
     save();
@@ -475,6 +577,9 @@ window.SanpoApp?.exposeCompat?.('openSettlementSettings', openSettlementSettings
 window.SanpoApp?.exposeCompat?.('openStandaloneSettlementSettings', openStandaloneSettlementSettings);
 window.SanpoApp?.exposeCompat?.('saveSettlementSettingsDraft', saveSettlementSettingsDraft);
 window.SanpoApp?.exposeCompat?.('saveSettlementSettings', saveSettlementSettings);
+window.SanpoApp?.exposeCompat?.('validateSettlementSettings', validateSettlementSettings);
+window.SanpoApp?.exposeCompat?.('validateAndSaveSettlementSettingsBeforeClose', validateAndSaveSettlementSettingsBeforeClose);
+window.SanpoApp?.exposeCompat?.('clearSettlementSettingsEditor', clearSettlementSettingsEditor);
 window.SanpoApp?.exposeCompat?.('openSettlementCarEditor', openSettlementCarEditor);
 window.SanpoApp?.exposeCompat?.('resumeSettlementCarEditor', resumeSettlementCarEditor);
 window.SanpoApp?.exposeCompat?.('refreshSettlementCarEditor', refreshSettlementCarEditor);

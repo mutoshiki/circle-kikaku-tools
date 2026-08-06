@@ -189,9 +189,10 @@
                 return;
             }
 
-            if (target.matches('#seisanOrganizerFree')) {
+            if (target.matches('#seisanOrganizerFree, #seisanOrganizerName')) {
                 syncSettlementStateFromDOM?.();
                 syncSettlementControls?.(ensureSettlementState(), getParticipantList(getRoomDataOnly()));
+                validateSettlementSettings?.(false);
                 return;
             }
 
@@ -237,13 +238,6 @@
                 }
                 return;
             }
-            const option = event.target.closest?.('[data-rounding-value]');
-            if (!option) return;
-            const rounding = document.getElementById('seisanRounding');
-            if (!rounding) return;
-            rounding.value = option.dataset.roundingValue || '100';
-            syncSettlementStateFromDOM?.();
-            syncSettlementControls?.(ensureSettlementState(), getParticipantList(getRoomDataOnly()));
         });
     }
 

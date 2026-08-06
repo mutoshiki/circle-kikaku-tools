@@ -13,6 +13,15 @@ let panOriginY = 0;
 let lastPinchDist = 0;
 let sheetUserAdjusted = false;
 
+function syncSheetTimetableTextareaExpansion(host, forceActive = false) {
+    if (!host?.matches?.('cds-textarea.sheet-timetable-input.title')) return;
+    const value = String(host.value || host.getAttribute('value') || '');
+    const shouldExpand = forceActive || value.includes('\n') || value.length > 18;
+    host.classList.toggle('is-expanded', shouldExpand);
+    host.rows = shouldExpand ? 4 : 1;
+    host.setAttribute('rows', shouldExpand ? '4' : '1');
+}
+
 function getSheetTransformTarget() {
     return byId('sheet-content');
 }
@@ -41,6 +50,14 @@ function getInitialSheetX(area, contentWidth, scale) {
     return Math.max(0, Math.round((area.clientWidth - contentWidth * scale) / 2));
 }
 
+function syncSheetGestureHint({ needsPan = false, force = false } = {}) {
+    const hint = byId('sheet-gesture-hint');
+    if (!hint) return;
+    const shouldShow = force || (needsPan && !sheetUserAdjusted);
+    hint.hidden = !shouldShow;
+    hint.classList.toggle('is-visible', shouldShow);
+}
+
 function fitInitialSheetScale({ fitAll = false } = {}) {
     const area = byId('sheet-view-area');
     const content = getSheetTransformTarget();
@@ -58,21 +75,37 @@ function fitInitialSheetScale({ fitAll = false } = {}) {
     if (!contentWidth || !availableWidth) return;
     const isCompact = area.clientWidth <= 640;
     const maxScale = isCompact ? 0.9 : 1;
-    const minScale = fitAll ? (isCompact ? 0.62 : 0.72) : (isCompact ? 0.9 : 0.84);
     const fitScale = availableWidth / contentWidth;
-    sheetScale = Math.min(maxScale, Math.max(minScale, fitScale));
+    const defaultMinScale = isCompact ? 0.9 : 0.84;
+    // A requested fit must genuinely include the whole presentation. The normal
+    // opening scale stays readable and intentionally allows horizontal panning.
+    sheetScale = fitAll
+        ? Math.min(maxScale, fitScale)
+        : Math.min(maxScale, Math.max(defaultMinScale, fitScale));
     sheetX = getInitialSheetX(area, contentWidth, sheetScale);
     sheetY = 0;
-    area.classList.toggle('sheet-needs-pan', contentWidth * sheetScale > availableWidth + 4);
-    area.classList.add('sheet-fit-active');
+    const fullyFits = contentWidth * sheetScale <= availableWidth + 1;
+    area.classList.toggle('sheet-needs-pan', !fullyFits);
+    syncSheetGestureHint({ needsPan: !fullyFits });
     applySheetTransform();
 }
 
 function markSheetAdjusted() {
     sheetUserAdjusted = true;
     const area = byId('sheet-view-area');
-    area?.classList.remove('sheet-fit-active');
+    syncSheetGestureHint({ needsPan: false });
 }
+
+function resetSheetViewport({ fitAll = true } = {}) {
+    sheetUserAdjusted = false;
+    sheetScale = 1;
+    sheetX = 0;
+    sheetY = 0;
+    const area = byId('sheet-view-area');
+    area?.classList.remove('is-panning');
+    requestAnimationFrame(() => fitInitialSheetScale({ fitAll }));
+}
+window.SanpoApp?.exposeCompat?.('resetSheetViewport', resetSheetViewport);
 
 D.addEventListener('DOMContentLoaded', () => {
     const area = byId('sheet-view-area');
@@ -104,8 +137,19 @@ D.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    area.addEventListener('focusin', event => {
+        const titleField = event.target.closest?.('.sheet-timetable-input.title');
+        if (titleField) syncSheetTimetableTextareaExpansion(titleField, true);
+    });
+
+    area.addEventListener('focusout', event => {
+        const titleField = event.target.closest?.('.sheet-timetable-input.title');
+        if (titleField) syncSheetTimetableTextareaExpansion(titleField, false);
+    });
+
     area.addEventListener('input', event => {
         if (!event.target.closest?.('.sheet-timetable-input')) return;
+        if (event.target.matches?.('.sheet-timetable-input.title')) syncSheetTimetableTextareaExpansion(event.target, true);
         if (event.isComposing) return;
         syncSheetTimetableToOverview();
         clearTimeout(window.__sheetTimetableSaveTimer);
