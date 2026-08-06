@@ -1,0 +1,733 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>サークル企画ツール</title>
+    <meta name="description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">
+    <meta property="og:title" content="サークル企画ツール">
+    <meta property="og:description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mutoshiki.github.io/circle-kikaku-tools/">
+    <meta property="og:image" content="https://mutoshiki.github.io/circle-kikaku-tools/ogp-thumbnail.png">
+    <meta property="og:site_name" content="サークル企画ツール">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="サークル企画ツール">
+    <meta name="twitter:description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">
+    <meta name="twitter:image" content="https://mutoshiki.github.io/circle-kikaku-tools/ogp-thumbnail.png">
+    <!-- CSS: local fonts -->
+    <link rel="preload" href="./assets/vendor/ibm-plex/fonts/IBMPlexSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link href="./assets/vendor/ibm-plex/plex.css" rel="stylesheet">
+    <!-- CSS: tokens -->
+    <link href="./assets/css/tokens/01-color-scheme.css?v=rendered-qa-v26" rel="stylesheet">
+    <link href="./assets/css/tokens/01-component-palette.css" rel="stylesheet">
+    <link href="./assets/css/tokens/01-theme-modes.css?v=rendered-qa-v26" rel="stylesheet">
+    <link href="./assets/css/tokens/02-radius-spacing-type.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/tokens/04-forms-inputs.css?v=carbon-v8" rel="stylesheet">
+    <link href="./assets/css/tokens/05-control-surface-tokens.css" rel="stylesheet">
+    <link href="./assets/css/tokens/06-motion-tokens.css" rel="stylesheet">
+    <!-- CSS: components -->
+    <link href="./assets/css/components/00-component-contracts.css" rel="stylesheet">
+    <link href="./assets/css/components/icons/01-carbon-icons.css?v=feature-fixes-v30" rel="stylesheet">
+    <link href="./assets/css/components/surfaces/01-surface-tokens.css" rel="stylesheet">
+    <link href="./assets/css/components/surfaces/02-empty-state.css?v=carbon-complete" rel="stylesheet">
+    <link href="./assets/css/components/surfaces/03-surface-primitives.css" rel="stylesheet">
+    <link href="./assets/css/components/feedback/01-assurance.css?v=carbon-assurance" rel="stylesheet">
+    <link href="./assets/css/components/buttons/01-button-base.css" rel="stylesheet">
+    <link href="./assets/css/components/buttons/02-action-buttons.css" rel="stylesheet">
+    <!-- CSS: app shell and layout -->
+    <link href="./assets/css/app-shell/00-base-extracted.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/layout/01-app-frame.css?v=carbon-complete-2" rel="stylesheet">
+    <link href="./assets/css/app-shell/layout/02-panels.css?v=carbon-v11-card" rel="stylesheet">
+    <link href="./assets/css/app-shell/layout/03-mobile-frame.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/layout/04-layering.css?v=route-ui-settings-v16" rel="stylesheet">
+    <link href="./assets/css/app-shell/edit/01-edit-base.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/edit/02-toolbar.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/edit/03-mobile-edit.css" rel="stylesheet">
+    <!-- CSS: header owners: base, room/status, tabs/actions, mobile, responsive -->
+    <link href="./assets/css/app-shell/header/01-header-base.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/app-shell/header/02-room-status.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/app-shell/header/03-tabs-actions.css?v=rendered-qa-v26" rel="stylesheet">
+    <link href="./assets/css/app-shell/share/01-share-link-modal.css?v=design-polish-v25" rel="stylesheet">
+    <!-- CSS: foundations and design tokens -->
+    <!-- CSS: guides and modals -->
+    <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/modal/01-modal-base.css?v=rendered-qa-v26" rel="stylesheet">
+    <link href="./assets/css/guides-modals/modal/02-dropdowns.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/guides-modals/modal/03-seat-member-picker.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/guides-modals/manual/01-manual-shell.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/guides-modals/manual/02-manual-media.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/manual/03-manual-mobile.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/dialog/01-dialog-shell.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/dialog/02-dialog-content.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/import-guide/01-import-shell.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/guides-modals/import-guide/02-import-table.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/guides-modals/import-guide/03-import-preview.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/import-guide/04-import-mobile.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/import-guide/05-batch-help-flow.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/guides-modals/notices/01-copy-lock.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/guides-modals/overview/01-overview-drawer.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/guides-modals/overview/02-overview-mobile.css" rel="stylesheet">
+    <link href="./assets/css/guides-modals/z-layer/01-z-layer.css" rel="stylesheet">
+    <!-- CSS: car assignment, members, and waiting tray -->
+    <link href="./assets/css/cars-members-tray/00-base-extracted.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/01-shared-card-primitives.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/waiting-tray/01-tray-shell.css?v=carbon-v10" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/waiting-tray/02-tray-drawer.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/waiting-tray/03-tray-actions.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css?v=ui-fix-2" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/waiting-tray/05-tray-states.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/person-card/01-person-card-shell.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/person-card/02-person-name-grade.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/person-card/03-person-menu.css?v=feature-fixes-v30" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/person-card/04-person-mobile.css?v=mobile-layout-fix" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/car-card/01-card-shell.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/car-card/02-card-header.css?v=feature-fixes-v30" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/car-card/03-seat-grid.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/car-card/04-group-mode.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/car-card/05-empty-controls.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/drag-drop/01-card-drag.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/drag-drop/02-drop-targets.css" rel="stylesheet">
+    <!-- CSS: settlement feature -->
+    <link href="./assets/css/settlement/00-base-extracted.css" rel="stylesheet">
+    <link href="./assets/css/settlement/page-shell/01-layout.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/page-shell/02-empty-state.css?v=carbon-complete" rel="stylesheet">
+    <link href="./assets/css/settlement/page-shell/03-car-summary-base.css" rel="stylesheet">
+    <link href="./assets/css/settlement/page-shell/04-mobile-layout.css" rel="stylesheet">
+    <link href="./assets/css/settlement/page-shell/05-error-states.css?v=rendered-qa-v26" rel="stylesheet">
+    <link href="./assets/css/settlement/page-shell/06-density.css" rel="stylesheet">
+    <link href="./assets/css/settlement/page-shell/07-payment-tag-surfaces.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/page-shell/08-density-balance.css" rel="stylesheet">
+    <link href="./assets/css/settlement/summary/01-summary-layout.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/summary/02-summary-values.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/summary/03-summary-colors.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/summary/04-summary-pills.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/summary/05-summary-surfaces.css" rel="stylesheet">
+    <link href="./assets/css/settlement/controls/01-control-shell.css" rel="stylesheet">
+    <link href="./assets/css/settlement/controls/02-toggles.css" rel="stylesheet">
+    <link href="./assets/css/settlement/controls/03-settings.css?v=feature-polish-v29" rel="stylesheet">
+    <link href="./assets/css/settlement/controls/04-mobile-controls.css" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/01-car-form.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/02-distance-fuel.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/03-extra-costs.css?v=rendered-qa-v26" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/04-edit-modal.css?v=ui-fix-1" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/05-mobile-inputs.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/06-times-rental.css?v=driver-reward-layout-v18" rel="stylesheet">
+    <link href="./assets/css/settlement/car-inputs/07-extra-candidates.css?v=ui-fix-2" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/01-route-shell.css?v=feature-fixes-v30" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/02-route-stops.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/route-helper/03-route-candidates.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/checklists/01-collection-list.css" rel="stylesheet">
+    <link href="./assets/css/settlement/checklists/02-collection-mobile.css" rel="stylesheet">
+    <link href="./assets/css/settlement/checklists/03-driver-payment-list.css" rel="stylesheet">
+    <link href="./assets/css/settlement/checklists/04-driver-payment-mobile.css" rel="stylesheet">
+    <link href="./assets/css/settlement/checklists/05-driver-payment-detail.css" rel="stylesheet">
+    <link href="./assets/css/settlement/checklists/06-club-expense-list.css?v=rendered-qa-v26" rel="stylesheet">
+    <link href="./assets/css/settlement/share/01-share-output.css?v=feature-fixes-v30" rel="stylesheet">
+    <link href="./assets/css/settlement/cost-tags/01-cost-tag-base.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/cost-tags/02-cost-breakdown.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/settlement/cost-tags/03-cost-mobile.css" rel="stylesheet">
+    <link href="./assets/css/settlement/cost-tags/04-chip-parity.css" rel="stylesheet">
+    <link href="./assets/css/settlement/cost-tags/05-cost-preview-lines.css?v=rendered-qa-v26" rel="stylesheet">
+    <link href="./assets/css/settlement/payment-chip/01-payment-tokens.css" rel="stylesheet">
+    <link href="./assets/css/settlement/car-cost-summary/01-car-cost-card.css?v=design-polish-v25" rel="stylesheet">
+    <!-- CSS: sheet view and utilities -->
+    <link href="./assets/css/sheet-view/layout/01-sheet-frame.css?v=feature-polish-v27" rel="stylesheet">
+    <link href="./assets/css/sheet-view/layout/02-sheet-car-table.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/sheet-view/layout/03-sheet-summary.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/sheet-view/gestures/01-touch-navigation.css?v=feature-polish-v27" rel="stylesheet">
+    <link href="./assets/css/sheet-view/waiting/01-sheet-waiting.css" rel="stylesheet">
+    <link href="./assets/css/sheet-view/waiting/02-sheet-waiting-mobile.css" rel="stylesheet">
+    <link href="./assets/css/sheet-view/timetable/01-timetable-base.css?v=feature-polish-v27" rel="stylesheet">
+    <link href="./assets/css/sheet-view/timetable/02-timetable-edit.css?v=feature-fixes-v30" rel="stylesheet">
+    <link href="./assets/css/sheet-view/edit/01-quick-edit.css?v=design-polish-v25" rel="stylesheet">
+    <link href="./assets/css/sheet-view/edit/02-edit-mobile.css" rel="stylesheet">
+    <!-- CSS: interaction utilities -->
+    <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
+    <link href="./assets/css/08-utilities.css" rel="stylesheet">
+  </head>
+  <body class="view-mode-list">
+    <div id="app-layout">
+      <header id="app-header">
+        <div class="app-header-main">
+          <div class="app-brand app-room-control">
+            <div class="app-room-field">
+              <label class="app-room-kicker" for="roomNameInput">企画</label>
+              <cds-text-input id="roomNameInput" class="app-room-input" type="text" size="lg" label="企画名" hide-label placeholder="企画名を入力" autocomplete="off" aria-label="企画名"></cds-text-input>
+            </div>
+            <cds-tag id="syncStatusBadge" class="sync-status-badge" data-status="local" type="blue" size="sm" aria-live="polite"><span class="sync-status-label">ローカル保存</span></cds-tag>
+          </div>
+          <div class="header-actions">
+            <div class="header-more">
+              <cds-overflow-menu class="header-action" kind="ghost" size="lg" label="その他" enable-v12-overflowmenu>
+                <span slot="icon" data-carbon-icon="overflow-menu-vertical" aria-hidden="true"></span>
+                <cds-menu class="header-overflow-body">
+                  <cds-menu-item id="userGuideBtn" label="使い方"><span data-carbon-icon="help" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
+                  <cds-menu-item id="historyBtn" label="この端末の履歴"><span data-carbon-icon="recently-viewed" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
+                  <cds-menu-item id="planningCheckBtn" label="企画チェック"><span data-carbon-icon="task" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
+                  <cds-menu-item id="sampleDataBtn" label="サンプルデータ"><span data-carbon-icon="magic-wand" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
+                  <cds-menu-item id="themeToggleBtn" label="ダークモードに切り替え" aria-pressed="false"><span data-carbon-icon="moon" data-state-icon="theme" data-icon-state="light" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
+                  <cds-menu-item id="resetDataBtn" label="全てリセット" danger><span data-carbon-icon="trash-can" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
+                </cds-menu>
+              </cds-overflow-menu>
+            </div>
+            <cds-icon-button class="header-action" id="editLockBtn" type="button" kind="ghost" size="lg" align="bottom-right" aria-label="車割・班割と精算のロック範囲を選ぶ">
+              <span data-carbon-icon="unlocked" data-state-icon="editLock" data-icon-state="unlocked" slot="icon" aria-hidden="true"></span>
+            </cds-icon-button>
+            <cds-icon-button id="shareLinkBtn" class="header-action share-action" kind="ghost" size="lg" align="bottom-right" aria-label="共有リンク">
+              <span data-carbon-icon="link" slot="icon" aria-hidden="true"></span>
+            </cds-icon-button>
+            <cds-icon-button id="overviewMenuBtn" class="header-action overview-menu-toggle" kind="ghost" size="lg" align="bottom-right" aria-label="メモ・タイムテーブル" aria-controls="overviewDrawer" aria-expanded="false">
+              <span data-carbon-icon="menu" slot="icon" aria-hidden="true"></span>
+            </cds-icon-button>
+          </div>
+        </div>
+      </header>
+      <div id="overviewDrawerScrim" class="overview-drawer-scrim" hidden></div>
+      <aside id="overviewDrawer" class="overview-drawer" aria-hidden="true" aria-label="メモ・タイムテーブル">
+        <div class="overview-drawer-head overview-drawer-head--compact">
+          <cds-icon-button id="overviewDrawerCloseBtn" class="overview-drawer-close" kind="ghost" size="lg" align="bottom-right" aria-label="メニューを閉じる">
+            <span data-carbon-icon="close" slot="icon" aria-hidden="true"></span>
+          </cds-icon-button>
+        </div>
+        <div class="overview-drawer-body">
+          <section class="overview-panel">
+            <h3>メモ</h3>
+            <cds-textarea id="overviewMemoInput" class="overview-textarea" rows="5" label="企画メモ" hide-label placeholder="企画メモ" aria-label="企画メモ"></cds-textarea>
+          </section>
+          <section class="overview-panel overview-timetable-panel">
+            <div class="overview-panel-title-row">
+              <h3>タイムテーブル</h3>
+              <cds-button id="overviewTimetableAddBtn" kind="ghost" size="lg" type="button">
+                <span>追加</span><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span>
+              </cds-button>
+            </div>
+            <div id="overviewTimetableRows" class="overview-timetable-rows" aria-live="polite"></div>
+            <cds-button id="overviewTimetableCopyBtn" class="overview-copy-action" kind="primary" size="lg" type="button">
+              <span>予定をコピー</span><span data-carbon-icon="copy" slot="icon" aria-hidden="true"></span>
+            </cds-button>
+          </section>
+        </div>
+      </aside>
+      <div id="top-area">
+        <div class="edit-header edit-header-tools-only allocation-toolbar">
+          <div class="edit-tools allocation-toolbar-inner">
+            <cds-button id="batchOpenBtn" class="tool-btn" kind="primary" size="lg" type="button" data-priority="high">
+              <span data-carbon-icon="add" aria-hidden="true"></span>
+              <span>参加者登録</span>
+            </cds-button>
+            <div id="car-plan-switcher" class="car-plan-bar allocation-mode-toggle" aria-label="車割と班割の切り替え"></div>
+          </div>
+        </div>
+        <div id="cars-container" class="allocation-grid"></div>
+      </div>
+
+      <div id="sheet-view-area" hidden>
+        <div id="sheet-title-bar">
+          <span id="sheet-summary" aria-label="車割と班割の集計">車割 車出し 0 同乗者 0 全員 0 待機 0 / 班割 班長 0 メンバー 0 全員 0 待機 0</span>
+        </div>
+        <div id="sheet-canvas" role="region" aria-label="共有画面の車割・班割・タイムテーブル" tabindex="0"></div>
+        <div id="sheet-bottom-controls">
+          <cds-icon-button id="sheet-quick-edit-btn" kind="primary" size="lg" aria-label="編集">
+            <span data-carbon-icon="edit" aria-hidden="true"></span>
+          </cds-icon-button>
+        </div>
+      </div>
+
+      <div id="seisan-view-area" hidden>
+        <div class="seisan-wrap">
+          <section class="seisan-card seisan-settings-card">
+            <div class="seisan-compact-head">
+              <div class="seisan-title seisan-title--settings"><span data-carbon-icon="settings--adjust" aria-hidden="true"></span>精算設定</div>
+              <cds-button class="seisan-btn seisan-edit-btn" kind="tertiary" size="lg" type="button" data-action="open-settlement-settings"><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span><span>編集</span></cds-button>
+            </div>
+            <div id="seisan-settings-summary" class="seisan-settings-summary" aria-live="polite"></div>
+          </section>
+
+          <section class="seisan-card seisan-toolbar-card">
+            <div class="seisan-head">
+              <div class="seisan-title"><span data-carbon-icon="calculator" aria-hidden="true"></span>全体の費用</div>
+            </div>
+            <div id="seisan-summary" class="seisan-top-flow"></div>
+            <div id="seisan-errors" class="seisan-alert"></div>
+          </section>
+
+          <section class="seisan-card seisan-panel seisan-car-panel">
+            <div class="seisan-head">
+              <div class="seisan-title seisan-semantic-section-title">
+                <span data-carbon-icon="car-small" aria-hidden="true"></span>
+                <span>ドライバーへの<cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge seisan-payment-tag carbon-display-tag ui-chip pay" data-cost-type="pay" data-tag-group="cost" data-tag-value="pay" type="magenta" size="sm">支払い</cds-tag></span>
+              </div>
+            </div>
+            <div id="seisan-car-list"></div>
+          </section>
+
+          <section class="seisan-card seisan-panel seisan-club-expense-panel">
+            <div class="seisan-head">
+              <div class="seisan-title seisan-semantic-section-title">
+                <span data-carbon-icon="wallet" aria-hidden="true"></span>
+                <span><cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge carbon-display-tag ui-chip club" data-cost-type="club" data-tag-group="cost" data-tag-value="club" type="warm-gray" size="sm">部費</cds-tag>の収支</span>
+              </div>
+            </div>
+            <div id="seisan-club-expense-list" class="seisan-club-expense-list"></div>
+          </section>
+
+          <section class="seisan-card seisan-panel seisan-collection-panel">
+            <div class="seisan-head">
+              <div>
+                <div class="seisan-title seisan-semantic-section-title">
+                  <span data-carbon-icon="checkbox--checked" aria-hidden="true"></span>
+                  <span><cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge carbon-display-tag ui-chip split" data-cost-type="split" data-tag-group="cost" data-tag-value="split" type="blue" size="sm">割勘</cds-tag>集金チェック</span>
+                </div>
+                <div id="seisan-collection-note" class="seisan-muted"></div>
+              </div>
+            </div>
+            <div id="seisan-collection-list" class="seisan-check-list"></div>
+          </section>
+
+          <section class="seisan-card seisan-share-card seisan-panel">
+            <div class="seisan-head">
+              <div>
+                <div class="seisan-title"><span data-carbon-icon="copy" aria-hidden="true"></span>共有用テキスト</div>
+                <div id="seisan-share-note" class="seisan-muted">テキストのプレビュー</div>
+              </div>
+            </div>
+            <pre id="seisan-share-preview" class="seisan-share-preview" aria-label="精算メモのプレビュー"></pre>
+            <div class="seisan-share-actions" aria-label="精算結果の共有用テキスト">
+              <cds-button class="seisan-btn seisan-copy-btn" kind="tertiary" size="lg" type="button" data-action="copy-settlement-text"><span data-carbon-icon="task" slot="icon" aria-hidden="true"></span>精算メモをコピー</cds-button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <div id="bottom-tray" hidden>
+        <cds-button id="tray-handle" kind="ghost" size="lg" type="button" aria-label="未割り当てメンバーを開閉" aria-controls="waiting-list-container" aria-expanded="false">
+          <span class="handle-bar" aria-hidden="true"></span>
+          <span id="tray-toggle-label"><span data-carbon-icon="chevron--up" data-state-icon="waitingTray" data-icon-state="closed" aria-hidden="true"></span><span>未割り当てメンバーを開く</span></span>
+        </cds-button>
+        <div id="bottom-tray-header">
+          <div class="tray-inline-row">
+            <span id="waiting-count" class="waiting-inline-count" aria-live="polite">未割り当て 0人</span>
+            <div class="tray-actions" aria-label="未割り当てメンバーの自動配置">
+              <cds-button id="fillEmptySeatsBtn" class="tray-action-btn tray-action-btn--fill" kind="tertiary" size="lg" type="button"><span data-carbon-icon="user--follow" slot="icon" aria-hidden="true"></span><span>埋める</span></cds-button>
+              <div class="random-tools">
+                <cds-button id="shuffleAssignBtn" class="auto-assign-btn tray-action-btn tray-action-btn--auto" kind="primary" size="lg" type="button"><span>ランダム</span><span data-carbon-icon="shuffle" slot="icon" aria-hidden="true"></span></cds-button>
+                <cds-popover id="autoAssignPopover" class="tray-settings-dropdown" autoalign align="top-end" border dropshadow>
+                  <cds-button id="traySettingsBtn" class="tray-settings-trigger" kind="tertiary" size="lg" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="autoAssignMenu">
+                    <span>設定</span><span slot="icon" data-carbon-icon="settings--adjust" aria-hidden="true"></span>
+                  </cds-button>
+                  <cds-popover-content id="autoAssignMenu" class="auto-assign-menu-body" slot="content" aria-labelledby="autoAssignMenuTitle">
+                    <div class="auto-assign-menu-header">
+                      <h6 id="autoAssignMenuTitle" class="auto-assign-menu-title">割り当て条件</h6>
+                      <p id="autoAssignSummary" class="auto-assign-menu-summary">条件：なし</p>
+                    </div>
+                    <div class="auto-assign-menu-options" role="group" aria-label="ランダム割り当てで考慮する条件">
+                      <div class="auto-assign-option-row">
+                        <cds-checkbox id="optFemale" class="auto-assign-checkbox" label-text="女子をまとめる" aria-label="女性の配置を考慮する"></cds-checkbox>
+                      </div>
+                      <div class="auto-assign-option-row">
+                        <cds-checkbox id="optMale" class="auto-assign-checkbox" label-text="男子をまとめる" aria-label="男性の配置を考慮する"></cds-checkbox>
+                      </div>
+                      <div class="auto-assign-option-row">
+                        <cds-checkbox id="optGrade" class="auto-assign-checkbox" label-text="学年をまとめる" aria-label="学年の配置を考慮する"></cds-checkbox>
+                      </div>
+                    </div>
+                    <div class="auto-assign-menu-footer">
+                      <cds-button id="clearAllBtn" class="auto-assign-clear-btn" kind="danger--ghost" size="lg" type="button"><span data-carbon-icon="clean" slot="icon" aria-hidden="true"></span>全員を未割り当てに戻す</cds-button>
+                    </div>
+                  </cds-popover-content>
+                </cds-popover>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="waiting-list-container">
+          <div id="waiting-list" class="shared-sortable"></div>
+        </div>
+      </div>
+      <nav id="app-view-navigation" aria-label="メイン画面">
+        <cds-content-switcher id="view-toggle-bar" value="list" size="lg" aria-label="メイン画面">
+          <cds-content-switcher-item class="view-tab active" id="tab-list" value="list" target="top-area" selected aria-label="車割・班割">
+            <span class="view-tab-label">車割・班割</span>
+          </cds-content-switcher-item>
+          <cds-content-switcher-item class="view-tab" id="tab-sheet" value="sheet" target="sheet-view-area" aria-label="共有画面">
+            <span class="view-tab-label">共有画面</span>
+          </cds-content-switcher-item>
+          <cds-content-switcher-item class="view-tab" id="tab-seisan" value="seisan" target="seisan-view-area" aria-label="精算ツール">
+            <span class="view-tab-label">精算</span>
+          </cds-content-switcher-item>
+        </cds-content-switcher>
+      </nav>
+    </div>
+
+    <!-- Edit and import modals -->
+    <cds-modal aria-label="編集" aria-labelledby="commonEditModalTitle" class="app-modal app-modal--compact" id="commonEditModal" size="xs"><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="commonEditModalTitle" tabindex="-1">編集</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body">
+<cds-text-input aria-label="編集内容" autocomplete="off" class="common-edit-text-input" id="editModalInput" label="編集内容" placeholder="入力してください" size="lg" type="text"></cds-text-input>
+</cds-modal-body><cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button id="saveEditBtn" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
+    <cds-modal aria-describedby="seatMemberPickerDescription" aria-label="空席に追加" aria-labelledby="seatMemberPickerTitle" class="app-modal app-modal--scroll" id="seatMemberPickerModal" size="xs"><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="seatMemberPickerTitle" tabindex="-1">空席に追加</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body">
+<div class="seat-member-picker-list" id="seatMemberPickerList" role="list"></div>
+<div class="seat-member-picker-empty" hidden="" id="seatMemberPickerEmpty">
+<span aria-hidden="true" data-carbon-icon="user--follow"></span>
+<strong>追加できるメンバーがいません</strong>
+<span>参加者登録、または別の席から「待機に戻す」を行ってください。</span>
+</div>
+</cds-modal-body></cds-modal>
+    <cds-modal aria-label="参加者登録" aria-labelledby="batchImportModalTitle" class="app-modal app-modal--wide app-modal--scroll" id="batchImportModal" size="lg"><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="batchImportModalTitle" tabindex="-1">参加者登録</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body">
+<div class="batch-import-layout">
+<div class="batch-import-column batch-import-column--full">
+<div class="batch-import-helper-card">
+<div class="batch-import-helper-title"><span aria-hidden="true" class="batch-import-helper-icon" data-carbon-icon="table"></span>スプレッドシートからまとめて登録</div>
+<div class="batch-import-help-text batch-import-help-text--compact">回答全体を貼り付けると、全員の名前・学年・車出しをまとめて読み込めます。</div>
+<cds-textarea aria-label="Googleフォーム回答スプレッドシート貼り付け欄" class="batch-spreadsheet-textarea" hide-label="" id="googleFormPasteArea" label="Googleフォーム回答スプレッドシート貼り付け欄" placeholder="例：
+名前	学籍番号もしくは学年	(車出し)
+藤田 陽斗	24T1234A	する
+田中太郎	1年	しない
+前田 航平	23T9081A	する
+中村 海斗	2年	しない
+…"></cds-textarea>
+<cds-button class="batch-spreadsheet-button" id="applyGoogleFormPasteBtn" kind="primary" size="lg" type="button">貼り付けた表を登録欄に読み込む</cds-button>
+<div aria-live="polite" class="form-import-preview" hidden="" id="googleFormImportPreview"></div>
+<details class="batch-import-help-details">
+<summary>貼り付け方を見る</summary>
+<div class="batch-import-notice"><span aria-hidden="true" data-carbon-icon="information"></span><span>各項目の見出し行も一緒にコピーすると、読み取りやすくなります。</span></div>
+<div aria-label="Googleフォームの回答をスプレッドシートで表示する方法" class="form-sheet-howto">
+<div class="form-sheet-howto-title">Googleフォームの回答をスプレッドシートで表示する方法</div>
+<div class="form-sheet-howto-body">応募フォームの管理画面で「回答」を開き、右上の <span aria-hidden="true" class="form-sheet-icon"></span> 緑色のスプレッドシートアイコンを押すと、回答用スプレッドシートを作成できます。</div>
+</div>
+</details>
+<details class="batch-import-help-details batch-import-auto-details">
+<summary>自動判定の仕組み</summary>
+<div class="batch-auto-simple">
+<p class="batch-auto-lead">自動判定では、名前、学年または学籍番号、車出しの有無の3つを使います。列の順番は自由です。見出しと回答の文言から、それぞれの列を判定します。</p>
+<div aria-label="自動判定に使う情報と読み取れる文言の例" class="batch-auto-table-wrap">
+<table class="batch-auto-rule-table">
+<thead>
+<tr>
+<th scope="col">項目</th>
+<th scope="col">名前</th>
+<th scope="col">学年、または学籍番号</th>
+<th scope="col">車出しの有無</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">質問名として読み取れる例</th>
+<td>名前、氏名、お名前、参加者名、フルネーム、Name、name</td>
+<td>学年、年、年次、grade、Grade、学籍番号、学生番号、学籍、番号、student id、studentId、id</td>
+<td>車出し、車、運転、配車、車を出せる、車出し可、自家用車、driver、car</td>
+</tr>
+<tr>
+<th scope="row">回答として読み取れる例</th>
+<td>入力された名前</td>
+<td>1、1年、1年生、一年、一年生、壱年、B1、学部1年、1回生など。2〜4年も同じ形式で判定できます。学籍番号の場合は、24T1234A、24t1234a、２４Ｔ１２３４Ａなど。</td>
+<td>あり：true、1、yes、y、○、◯、〇、はい、する、出す、出せる、出せます、できます、出来ます、可能、可、車出し可、運転可、自家用車あり、車あり、あり、有<br/>なし：false、0、no、n、×、✕、x、いいえ、しない、出さない、出せない、出せません、できない、できません、出来ない、出来ません、不可、無理、車出し不可、運転不可、自家用車なし、車なし、なし、無し、無</td>
+</tr>
+<tr>
+<th scope="row">補足</th>
+<td>空欄の行は読み込み対象外です。同じ名前が複数行にある場合は、1人にまとまります。</td>
+<td>学年がある場合は、その値を使います。学籍番号の場合は、先頭2桁を入学年度として学年を推定します。</td>
+<td>同じ人に複数の回答がある場合は、車出しありを優先します。</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+</div>
+</div>
+<div class="batch-import-column batch-import-column--half">
+<label class="batch-import-field-label batch-label-accent">同乗者（改行区切り）</label>
+<cds-textarea aria-label="参加者名一覧" class="batch-import-textarea" hide-label="" id="batchMembers" label="参加者名一覧" placeholder="（例）
+田中 太郎
+佐藤 花子
+鈴木 次郎"></cds-textarea>
+</div>
+<div class="batch-import-column batch-import-column--half">
+<label class="batch-import-field-label batch-label-muted">車出し</label>
+<cds-textarea aria-label="車出し可能な参加者" class="batch-import-textarea" hide-label="" id="batchDrivers" label="車出し可能な参加者" placeholder="（例）
+藤原 拓海
+高橋 啓介"></cds-textarea>
+</div>
+<div class="batch-import-column batch-import-column--half">
+<label class="batch-import-field-label batch-label-grade1">1年生</label>
+<cds-textarea aria-label="1年生の表記" class="batch-import-textarea" hide-label="" id="batchGrade1" label="1年生の表記" placeholder="（例）
+1年生の参加者名"></cds-textarea>
+</div>
+<div class="batch-import-column batch-import-column--half">
+<label class="batch-import-field-label batch-label-grade2">2年生</label>
+<cds-textarea aria-label="2年生の表記" class="batch-import-textarea" hide-label="" id="batchGrade2" label="2年生の表記" placeholder="（例）
+2年生の参加者名"></cds-textarea>
+</div>
+<div class="batch-import-column batch-import-column--half">
+<label class="batch-import-field-label batch-label-grade3">3年生</label>
+<cds-textarea aria-label="3年生の表記" class="batch-import-textarea" hide-label="" id="batchGrade3" label="3年生の表記" placeholder="（例）
+3年生の参加者名"></cds-textarea>
+</div>
+<div class="batch-import-column batch-import-column--half">
+<label class="batch-import-field-label batch-label-grade4">4年生</label>
+<cds-textarea aria-label="4年生の表記" class="batch-import-textarea" hide-label="" id="batchGrade4" label="4年生の表記" placeholder="（例）
+4年生の参加者名"></cds-textarea>
+</div>
+</div>
+<cds-inline-notification id="batchDuplicateWarning" class="batch-warning" kind="warning" low-contrast hide-close-button hidden><span slot="title" id="batchDuplicateWarningTitle">入力内容を確認してください</span><div slot="subtitle" id="batchDuplicateWarningBody"></div></cds-inline-notification>
+</cds-modal-body><cds-modal-footer class="app-modal-footer"><cds-modal-footer-button data-modal-close="" kind="secondary" type="button">キャンセル</cds-modal-footer-button><cds-modal-footer-button id="executeBatchBtn" kind="primary" type="button">登録する</cds-modal-footer-button></cds-modal-footer></cds-modal>
+
+    <!-- User guide -->
+    <cds-modal aria-label="使い方" aria-labelledby="userGuideModalTitle" class="app-modal app-modal--scroll user-guide-modal" id="userGuideModal" size="md"><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="userGuideModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="help"></span>使い方</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" id="userGuideContent">
+<p class="user-guide-loading">使い方を読み込んでいます。</p>
+</cds-modal-body></cds-modal>
+
+    <!-- Settlement edit modals -->
+    <cds-modal aria-label="精算設定" aria-labelledby="settlementSettingsModalTitle" class="app-modal app-modal--scroll settlement-edit-modal settlement-settings-modal" id="settlementSettingsModal" size="xs" has-scrolling-content><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementSettingsModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="settings--adjust"></span>精算設定</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" no-fade>
+<div class="seisan-settings seisan-settings--modal">
+<div class="seisan-settings-section seisan-settings-section--basic seisan-settings-span">
+<div class="seisan-settings-section-title">基本設定</div>
+<div class="seisan-settings-grid">
+<div class="seisan-field seisan-settings-field--rounding">
+<label>端数処理</label>
+<div aria-label="端数処理" class="seisan-rounding-options" role="radiogroup">
+<cds-content-switcher aria-label="端数処理" class="seisan-rounding-row" size="lg" value="100">
+<cds-content-switcher-item class="seisan-rounding-option" data-rounding-value="100" selected="" value="100">100円</cds-content-switcher-item>
+<cds-content-switcher-item class="seisan-rounding-option" data-rounding-value="50" value="50">50円</cds-content-switcher-item>
+<cds-content-switcher-item class="seisan-rounding-option" data-rounding-value="10" value="10">10円</cds-content-switcher-item>
+<cds-content-switcher-item class="seisan-rounding-option" data-rounding-value="1" value="1">1円</cds-content-switcher-item>
+</cds-content-switcher>
+</div>
+<cds-select aria-label="端数処理" hidden="" hide-label="" id="seisanRounding" label-text="端数処理">
+<cds-select-item value="100">100円</cds-select-item>
+<cds-select-item value="50">50円</cds-select-item>
+<cds-select-item value="10">10円</cds-select-item>
+<cds-select-item value="1">1円</cds-select-item>
+</cds-select>
+</div>
+<div class="seisan-field seisan-settings-field--reward">
+<label>車出し協力代（1台）</label>
+<cds-text-input aria-label="車出し協力代" hide-label="" id="seisanDriverReward" inputmode="numeric" label="車出し協力代" pattern="[0-9]*" placeholder="例：1000" size="lg" type="text" value="0"></cds-text-input>
+<div class="seisan-driver-reward-policy">
+<div class="seisan-driver-reward-policy-heading">
+<label class="seisan-driver-reward-policy-label" id="seisanDriverRewardTypeLabel">車出し協力代の負担方法</label>
+</div>
+<cds-content-switcher aria-labelledby="seisanDriverRewardTypeLabel" id="seisanDriverRewardType" size="lg" value="split">
+<cds-content-switcher-item selected="" value="split">割勘</cds-content-switcher-item>
+<cds-content-switcher-item value="club">部費</cds-content-switcher-item>
+</cds-content-switcher>
+</div>
+</div>
+</div>
+</div>
+<div class="seisan-settings-section seisan-settings-section--standalone seisan-settings-span">
+<div class="seisan-settings-section-title">人数だけで精算</div>
+<div class="seisan-toggle seisan-toggle--modal seisan-standalone-toggle seisan-settings-span">
+<cds-checkbox aria-label="人数だけで精算する" id="seisanStandaloneEnabled" label-text="人数だけで精算する"></cds-checkbox>
+</div>
+<div class="seisan-standalone-fields seisan-settings-span" hidden="" id="seisanStandaloneFields">
+<div class="seisan-field">
+<label>車出し人数</label>
+<cds-number-input aria-label="車出し人数" hide-label="" id="seisanStandaloneDriverCount" inputmode="numeric" label="車出し人数" max="99" min="0" placeholder="例：3" size="lg"></cds-number-input>
+</div>
+<div class="seisan-field">
+<label>それ以外の人数</label>
+<cds-number-input aria-label="それ以外の人数" hide-label="" id="seisanStandaloneMemberCount" inputmode="numeric" label="それ以外の人数" max="99" min="0" placeholder="例：8" size="lg"></cds-number-input>
+</div>
+<div class="seisan-standalone-error" hidden="" id="seisanStandaloneError">車出し人数とそれ以外の人数を入力してください。</div>
+</div>
+</div>
+<div class="seisan-settings-section seisan-settings-section--detail seisan-settings-span">
+<div class="seisan-settings-section-title">詳細オプション</div>
+<div class="seisan-toggle seisan-toggle--modal seisan-settings-span">
+<cds-checkbox aria-label="運転手の集金を支払いから差し引く" checked="" id="seisanDriverCollectionOffset" label-text="運転手の集金を支払いから差し引く"></cds-checkbox>
+</div>
+<div class="seisan-toggle seisan-toggle--modal seisan-settings-span">
+<cds-checkbox aria-label="企画者から集金しない" checked="" id="seisanOrganizerFree" label-text="企画者から集金しない"></cds-checkbox>
+</div>
+<div class="seisan-toggle seisan-toggle--modal seisan-settings-span">
+<cds-checkbox aria-label="運転手から集金しない" id="seisanDriverCollectionFree" label-text="運転手から集金しない"></cds-checkbox>
+</div>
+<div class="seisan-field seisan-settings-span seisan-organizer-field" hidden="" id="seisanOrganizerField">
+<label>企画者</label>
+<cds-select aria-label="企画者名" hide-label="" id="seisanOrganizerName" label-text="企画者名" size="lg"></cds-select>
+</div>
+</div>
+</div>
+</cds-modal-body><cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button id="saveSettlementSettingsBtn" data-action="save-settlement-settings" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
+
+    <cds-modal aria-label="車ごとの費用" aria-labelledby="settlementCarEditModalTitle" class="app-modal app-modal--scroll settlement-edit-modal settlement-edit-modal--car" id="settlementCarEditModal" size="sm" has-scrolling-content><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementCarEditModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="car-small"></span>車ごとの費用</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" no-fade>
+<div id="settlementCarEditBody"></div>
+</cds-modal-body><cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button data-action="save-settlement-car-edit" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
+
+
+    <!-- Utility modals -->
+    <cds-modal aria-label="移動距離計算ツール" aria-labelledby="routeDistanceModalTitle" class="app-modal route-helper-modal app-modal--wide app-modal--scroll" id="routeDistanceModal" size="lg" has-scrolling-content>
+      <cds-modal-header>
+        <cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="routeDistanceModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="roadmap"></span>移動距離計算ツール</cds-modal-heading>
+        <cds-modal-close-button close-button-label="元の車へ戻る" data-modal-close></cds-modal-close-button>
+      </cds-modal-header>
+      <cds-modal-body class="app-modal-body route-helper-body" no-fade>
+        <div id="routePlaceSearchSurface" class="route-place-search-surface" hidden aria-labelledby="routePlaceSearchTitle">
+          <h5 id="routePlaceSearchTitle" class="visually-hidden">場所を検索</h5>
+          <div class="route-place-search-toolbar">
+            <cds-button id="routePlaceSearchBackBtn" kind="ghost" size="lg" type="button">戻る</cds-button>
+            <div id="routePlaceSearchAutocomplete" class="route-place-search-autocomplete">
+              <span class="route-place-search-icon" data-carbon-icon="search" aria-hidden="true"></span>
+              <cds-text-input id="routePlaceSearchInput" class="route-place-search-input" type="text" size="lg" label="場所を検索" hide-label placeholder="場所を検索" autocomplete="off" aria-label="場所を検索"></cds-text-input>
+              <cds-icon-button id="routePlaceSearchClearBtn" class="route-place-search-clear" kind="ghost" size="lg" type="button" aria-label="検索文字を消去" hidden><span data-carbon-icon="close" slot="icon" aria-hidden="true"></span></cds-icon-button>
+            </div>
+          </div>
+          <section class="route-place-candidates" aria-labelledby="routePlaceCandidatesTitle">
+            <h6 id="routePlaceCandidatesTitle">候補</h6>
+            <div id="routePlaceHistoryList" class="route-place-history-list"></div>
+          </section>
+        </div>
+        <div class="route-planner-shell">
+          <section class="route-planner-controls" aria-label="地点入力">
+            <cds-inline-notification class="route-privacy-notice" kind="info" low-contrast hide-close-button title="入力した場所はルーム内で候補として共有されます" subtitle="自宅の住所などは入力せず、周囲の施設を代わりに入力してください。"></cds-inline-notification>
+            <div id="routePlaceStack" class="route-place-stack">
+              <div id="routeStopList" class="route-stop-list" aria-label="ルート地点"></div>
+            </div>
+            <cds-accordion class="route-settings-accordion route-settings-accordion--contract" alignment="end" hidden aria-hidden="true">
+              <cds-accordion-item title="ルート設定"></cds-accordion-item>
+            </cds-accordion>
+            <cds-inline-notification id="routePlannerNotice" kind="info" title="" subtitle="" low-contrast hide-close-button hidden></cds-inline-notification>
+            <div id="routePlannerRetry" class="route-planner-retry" hidden><cds-button id="routePlannerRetryBtn" type="button" kind="tertiary" size="lg"><span data-carbon-icon="undo" slot="icon" aria-hidden="true"></span>再試行</cds-button></div>
+            <div id="routePlannerLoading" class="route-planner-loading" hidden><cds-inline-loading status="active" description="ルート候補を取得しています"></cds-inline-loading></div>
+          </section>
+          <section class="route-planner-map-panel" aria-label="ルート地図">
+            <div class="route-map-frame">
+              <div id="routeMapSkeleton" class="route-map-skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
+              <div id="routeMap" class="route-map" role="application" aria-label="ルート候補の地図"></div>
+              <div id="routeMapEmpty" class="route-map-empty">出発地と目的地を候補から選択してください。</div>
+              <div class="route-map-toolbar">
+                <cds-icon-button id="routeSettingsToggleBtn" class="route-map-settings-toggle" kind="secondary" size="lg" type="button" aria-label="ルート設定を開く" aria-controls="routeSettingsPanel" aria-haspopup="true" aria-expanded="false">
+                  <span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span>
+                </cds-icon-button>
+                <div id="routeSettingsPanel" class="route-map-settings-panel" hidden>
+                  <div class="route-map-settings-group" role="group" aria-label="ルート設定">
+                    <cds-checkbox id="routeUseTolls" label-text="有料道路を使う"></cds-checkbox>
+                    <cds-checkbox id="routeUseHighways" label-text="高速道路を使う"></cds-checkbox>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="route-planner-results" aria-labelledby="routePlannerResultsTitle">
+            <div class="route-planner-section-heading"><div><h6 id="routePlannerResultsTitle">ルート候補</h6></div></div>
+            <div id="routeCandidateList" class="route-candidate-list" role="radiogroup" aria-label="ルート候補"></div>
+            <div id="routeLegSummary" class="route-leg-summary"></div>
+          </section>
+        </div>
+      </cds-modal-body>
+      <cds-modal-footer class="app-modal-footer route-planner-footer">
+        <cds-modal-footer-button id="routePlannerCancelBtn" type="button" kind="secondary">戻る</cds-modal-footer-button>
+        <cds-modal-footer-button id="applyRouteDistanceBtn" type="button" kind="primary" disabled>この距離を適用</cds-modal-footer-button>
+      </cds-modal-footer>
+    </cds-modal>
+    <cds-modal aria-label="履歴" aria-labelledby="historyModalTitle" class="app-modal app-modal--scroll history-modal" id="historyModal" size="md"><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="historyModalTitle" tabindex="-1">
+<span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="recently-viewed"></span>履歴
+            </cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body">
+<div class="history-list" id="history-list"></div>
+</cds-modal-body></cds-modal>
+    <cds-modal aria-label="企画チェック" aria-labelledby="planningCheckModalTitle" class="app-modal app-modal--scroll planning-check-modal" id="planningCheckModal" size="md"><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="planningCheckModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="task"></span>企画チェック</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body planning-check-body">
+<cds-inline-notification aria-live="polite" class="planning-check-summary" id="planningCheckSummary" kind="warning" low-contrast hide-close-button></cds-inline-notification>
+<div class="planning-check-list" id="planningCheckList"></div>
+</cds-modal-body><cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button data-modal-close="" kind="primary" type="button">閉じる</cds-modal-footer-button></cds-modal-footer></cds-modal>
+    <cds-modal aria-label="サンプルデータ" aria-labelledby="debugModalTitle" class="app-modal app-modal--compact debug-modal" id="debugModal" size="xs"><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="debugModalTitle" tabindex="-1">
+<span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="magic-wand"></span>サンプルデータ
+                    </cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body">
+<p class="debug-help-text">現在のデータをリセットして、車の席数に合う確認用サンプルを入れます。</p>
+<div class="debug-form-row">
+<label class="debug-label" for="debugCarCount">車の数</label>
+<cds-select aria-label="サンプルデータの車の数" class="debug-car-count-select" hide-label="" id="debugCarCount" label-text="サンプルデータの車の数" size="lg" value="3">
+<cds-select-item value="2">2台</cds-select-item>
+<cds-select-item selected="" value="3">3台</cds-select-item>
+<cds-select-item value="4">4台</cds-select-item>
+<cds-select-item value="5">5台</cds-select-item>
+</cds-select>
+</div>
+<div class="debug-action-stack">
+<cds-button id="executeDebugBtn" kind="primary" size="lg" type="button">通常サンプルを入れる</cds-button>
+<cds-button id="executeDebugMissingBtn" kind="secondary" size="lg" type="button">入力漏れサンプルを入れる</cds-button>
+</div>
+</cds-modal-body></cds-modal>
+
+    <!-- JS: vendor and configuration -->
+    <script src="./assets/vendor/sortablejs/Sortable.min.js"></script>
+    <script src="./firebase-config.js"></script>
+    <!-- JS: core namespace, runtime, persistence, and modal services -->
+    <script src="./assets/js/core/app-namespace.js"></script>
+    <script src="./maps-config.js?v=google-routes-route-only"></script>
+    <script src="./assets/js/core/google-maps-loader.js?v=google-routes-route-only"></script>
+    <script src="./assets/js/core/icon-adapter.js?v=carbon-menu-slots-2"></script>
+    <script src="./assets/js/core/tag-types.js?v=carbon-phase3c"></script>
+    <script src="./assets/js/core/theme-controller.js?v=carbon-menu-label"></script>
+    <script src="./assets/js/modules/ui.js?v=feature-fixes-v30"></script>
+    <script src="./assets/js/core/runtime.js?v=feature-polish-v27"></script>
+    <script src="./assets/js/core/dependency-status.js"></script>
+    <script src="./assets/js/core/app-status.js"></script>
+    <script src="./assets/js/core/storage.js"></script>
+    <script src="./assets/js/core/render-controller.js?v=feature-polish-v27"></script>
+    <script src="./assets/js/core/settlement-edit-guard.js?v=route-ui-settings-v16"></script>
+    <script src="./assets/js/core/sync-controller.js?v=carbon-assurance"></script>
+    <script src="./assets/js/core/history-scheduler.js"></script>
+    <script src="./assets/js/core/data-state.js?v=carbon-phase3a"></script>
+    <script src="./assets/js/core/modal-controller.js?v=feature-fixes-v30"></script>
+    <!-- JS: shared modules -->
+    <script src="./assets/js/modules/history.js"></script>
+    <script src="./assets/js/modules/drag-cards.js"></script>
+    <script src="./assets/js/modules/settlement.js"></script>
+    <!-- JS: settlement templates and feature modules; templates must load before render/facade. -->
+    <script src="./assets/js/templates/common-empty-state.js?v=first-run-v10"></script>
+    <script src="./assets/js/templates/settlement/00-template-utils.js"></script>
+    <script src="./assets/js/templates/settlement/01-cost-parts.js"></script>
+    <script src="./assets/js/templates/settlement/02-summary-templates.js?v=driver-reward-policy-v18"></script>
+    <script src="./assets/js/templates/settlement/04-extra-input-templates.js?v=driver-reward-policy-v18-1"></script>
+    <script src="./assets/js/templates/settlement/03-car-cost-templates.js?v=feature-polish-v27"></script>
+    <script src="./assets/js/templates/settlement/05-collection-check-templates.js"></script>
+    <script src="./assets/js/templates/settlement/06-driver-pay-templates.js"></script>
+    <script src="./assets/js/templates/settlement/07-empty-state-templates.js"></script>
+    <script src="./assets/js/templates/settlement/08-route-helper-templates.js?v=route-ui-settings-v18"></script>
+    <script src="./assets/js/templates/settlement/09-register-settlement-templates.js?v=route-ui-settings-v16"></script>
+    <script src="./assets/js/templates/settlement-templates.js"></script>
+    <script src="./assets/js/features/settlement/01-state.js?v=driver-reward-policy-v18"></script>
+    <script src="./assets/js/features/settlement/02-calculator.js?v=driver-reward-policy-v18"></script>
+    <script src="./assets/js/features/settlement/03-render.js?v=feature-fixes-v30"></script>
+    <script src="./assets/js/features/settlement/04-route-helper.js?v=feature-fixes-v30"></script>
+    <script src="./assets/js/features/settlement/05-input-actions.js?v=route-ui-settings-v16"></script>
+    <script src="./assets/js/features/settlement/06-share-text.js?v=club-ledger"></script>
+    <script src="./assets/js/features/settlement.js"></script>
+    <!-- JS: user guide, share, lock, and assignment features -->
+    <script src="./assets/js/templates/user-guide-content.js?v=feature-polish-v27"></script>
+    <script src="./assets/js/features/user-guide.js"></script>
+    <script src="./assets/js/core/remote-guard.js"></script>
+    <script src="./assets/js/features/share-actions.js?v=share-links-v19"></script>
+    <script src="./assets/js/features/lock-protection.js?v=feature-polish-v27"></script>
+    <script src="./assets/js/features/waiting-tray.js?v=ui-fix-2"></script>
+    <script src="./assets/js/features/person-cards.js?v=feature-polish-v27"></script>
+    <script src="./assets/js/features/planning-assurance.js?v=carbon-menu-shortcut"></script>
+    <script src="./assets/js/features/seat-member-picker.js?v=quiet-actions"></script>
+    <script src="./assets/js/templates/sheet-templates.js?v=carbon-phase3c"></script>
+    <script src="./assets/js/features/sheet/00-data-sync.js?v=feature-polish-v27"></script>
+    <script src="./assets/js/features/sheet-view.js?v=feature-fixes-v30"></script>
+    <script src="./assets/js/features/drag-edit-view.js?v=quiet-actions"></script>
+    <script src="./assets/js/features/sheet/01-drag-interactions.js"></script>
+    <script src="./assets/js/features/sheet/02-viewport-controls.js?v=feature-fixes-v30"></script>
+    <script src="./assets/js/features/auto-assign.js?v=feature-polish-v27"></script>
+    <script src="./assets/js/features/person-menu.js?v=feature-fixes-v30"></script>
+    <script src="./assets/js/features/google-form-import-parser.js"></script>
+    <script src="./assets/js/features/batch-import.js"></script>
+    <script src="./assets/js/features/sample-data-history.js?v=feature-polish-v27"></script>
+    <!-- JS: boot and event bindings load last because they attach to generated DOM/actions. -->
+    <script src="./assets/js/app.js?v=carbon-assurance"></script>
+    <script src="./assets/js/features/events/00-event-utils.js"></script>
+    <script src="./assets/js/features/events/01-core-startup-events.js?v=mobile-layout-fix"></script>
+    <script src="./assets/js/features/events/02-static-header-events.js?v=feature-fixes-v30"></script>
+    <script src="./assets/js/features/events/03-generated-action-events.js?v=route-ui-settings-v17"></script>
+    <script src="./assets/js/features/events/04-settlement-input-events.js?v=feature-fixes-v30"></script>
+    <script src="./assets/js/features/events/05-view-feature-events.js?v=driver-reward-layout-v18"></script>
+    <script src="./assets/js/features/events.js"></script>
+    <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=2.60.0-icons-search-v30"></script>
+    <script type="module">if (!customElements.get('cds-accordion')) import('https://1.www.s81c.com/common/carbon/web-components/version/v2.60.0/accordion.min.js');</script>
+  </body>
+</html>

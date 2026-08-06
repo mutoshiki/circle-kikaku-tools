@@ -1,0 +1,35 @@
+{
+  "name": "circle-kikaku-tools",
+  "private": true,
+  "version": "7.3.0-feature-fixes",
+  "scripts": {
+    "build:carbon": "node tools/build-carbon-assets.mjs",
+    "test": "node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs",
+    "lint:css": "stylelint \"assets/css/**/*.css\" --config stylelint.config.mjs",
+    "test:carbon": "playwright test tests/carbon-complete.spec.js",
+    "test:ui": "playwright test tests/carbon-complete.spec.js",
+    "test:visual": "playwright test tests/carbon-complete.visual.spec.js",
+    "test:carbon:complete": "playwright test tests/carbon-complete.spec.js tests/carbon-complete.visual.spec.js",
+    "test:guard": "npm run build:carbon && npm run lint:css && npm test && npm run test:carbon:complete",
+    "lint:maps": "node tools/lint-google-route-planner.mjs",
+    "typecheck:maps": "tsc -p tsconfig.maps.json",
+    "test:maps:contract": "node tests/google-route-planner-contract.mjs",
+    "test:driver-reward": "node tests/driver-reward-policy-contract.mjs",
+    "test:maps": "playwright test tests/google-maps-loader.spec.js tests/google-route-planner.spec.js",
+    "test:maps:live": "playwright test tests/google-route-planner-live.spec.js",
+    "verify:maps": "npm run lint:maps && npm run typecheck:maps && npm run test:maps:contract && npm run test:maps",
+    "capture:ogp": "node tools/capture-ogp-thumbnails.mjs",
+    "test:share": "node tests/share-links-contract.mjs",
+    "test:dark-accent": "node tests/dark-accent-contract.mjs"
+  },
+  "devDependencies": {
+    "@carbon/icons": "11.85.0",
+    "@carbon/web-components": "2.60.0",
+    "@ibm/plex-sans": "1.1.0",
+    "@ibm/plex-sans-jp": "3.0.0",
+    "@playwright/test": "^1.61.0",
+    "esbuild": "0.28.1",
+    "sortablejs": "1.15.0",
+    "stylelint": "^17.13.0"
+  }
+}

@@ -1,0 +1,137 @@
+/* Person-card overflow actions use Carbon's overflow menu composition.
+ * Carbon owns trigger hit area, menu placement, focus, keyboard navigation,
+ * viewport flipping and submenu positioning. */
+.member-main-line,
+.driver-main-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 48px;
+  grid-template-areas: "name meta menu";
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  min-height: 48px;
+}
+
+.member-main-line > :is(.member-name-text, .driver-name-disp),
+.driver-main-line > :is(.member-name-text, .driver-name-disp) { grid-area: name; }
+
+.person-meta {
+  grid-area: meta;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+  gap: var(--space-1);
+}
+.person-meta:empty { display: none; }
+
+:where(.member-menu-btn, .driver-menu-btn) {
+  grid-area: menu;
+  box-sizing: border-box;
+  display: block;
+  flex: 0 0 48px;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
+  color: var(--cds-icon-primary, var(--text-main));
+  touch-action: manipulation;
+  --cds-icon-primary: var(--text-sub);
+  --cds-link-primary: var(--text-sub);
+  --cds-link-primary-hover: var(--text-main);
+  --cds-layer: var(--surface-lowest);
+  --cds-layer-01: var(--surface-lowest);
+  --cds-layer-02: var(--surface-low);
+  --cds-background: var(--surface-lowest);
+}
+
+:where(.member-menu-btn, .driver-menu-btn)::part(button) {
+  box-sizing: border-box;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+:where(.member-menu-btn, .driver-menu-btn) > .carbon-icon {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  pointer-events: none;
+}
+
+
+.person-overflow-menu {
+  position: relative;
+  z-index: var(--z-person-menu);
+}
+
+.person-overflow-menu::part(popover-container) {
+  z-index: var(--z-person-menu);
+}
+
+body.person-menu-open #app-layout #bottom-tray {
+  z-index: calc(var(--z-person-menu) - 2);
+}
+
+body.person-menu-open #cars-container,
+body.person-menu-open .car-box:has(.person-overflow-menu[open]) {
+  position: relative;
+  z-index: calc(var(--z-person-menu) - 1);
+}
+
+/* Keep every menu surface opaque while the Carbon component owns its shadow,
+ * elevation, selected, focus, danger and submenu states. */
+.person-overflow-menu > cds-menu.person-pop-menu,
+.person-overflow-menu cds-menu {
+  z-index: var(--z-person-menu);
+  max-width: min(224px, calc(100vw - 16px));
+  max-height: calc(100dvh - 16px);
+  --cds-layer: var(--surface-lowest);
+  --cds-layer-01: var(--surface-lowest);
+  --cds-layer-02: var(--surface-low);
+  --cds-background: var(--surface-lowest);
+  --cds-text-primary: var(--text-main);
+  --cds-text-secondary: var(--text-sub);
+  --cds-icon-primary: var(--text-sub);
+}
+
+.person-pop-item { min-width: 0; }
+.person-pop-item[data-flag-choice] [data-carbon-icon],
+.person-pop-item[data-flag-choice] .carbon-icon { color: var(--person-flag-color, var(--cds-icon-primary)); }
+.person-pop-item[data-flag-choice="blue"] { --person-flag-color: var(--app-accent-text); }
+.person-pop-item[data-flag-choice="purple"] { --person-flag-color: var(--grade1-border); }
+.person-pop-item[data-flag-choice="yellow"] { --person-flag-color: var(--grade3-border); }
+.person-pop-item[data-flag-choice="red"] { --person-flag-color: var(--semantic-danger); }
+
+@media (max-width: 520px) {
+  #cars-container :is(.member-main-line, .driver-main-line),
+  .manual-drag-float .member-main-line {
+    grid-template-columns: minmax(0, 1fr) 48px;
+    grid-template-rows: minmax(26px, auto) minmax(22px, auto);
+    grid-template-areas:
+      "name menu"
+      "meta menu";
+    min-height: 56px;
+    column-gap: var(--space-1);
+    row-gap: 0;
+  }
+
+  #cars-container :is(.member-name-text, .driver-name-disp),
+  .manual-drag-float .member-name-text {
+    align-self: end;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #cars-container .person-meta,
+  .manual-drag-float .person-meta {
+    align-self: start;
+    justify-content: flex-start;
+  }
+}

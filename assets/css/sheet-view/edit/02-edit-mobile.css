@@ -1,0 +1,14 @@
+/* Quick sheet edit readability.
+    Quick editing never dims participant content. */
+body.quick-edit-mode #sheet-view-area :where(.sheet-chip, .sheet-chip-text) { color: var(--text-main); -webkit-text-fill-color: var(--text-main); opacity: 1; filter: none; }
+body.quick-edit-mode #sheet-view-area .sheet-chip.locked { opacity: 1; background: var(--semantic-warning-soft); color: var(--semantic-warning); }
+body.quick-edit-mode #sheet-view-area .sheet-chip.draggable { background: var(--surface-low); }
+
+@media (max-width: 640px) {
+  #sheet-view-area .sheet-car-col { min-width: 128px; }
+  #sheet-view-area .sheet-car-header { min-height: 40px; padding: 8px; }
+  #sheet-view-area .sheet-driver-row,
+  #sheet-view-area .sheet-seat-row,
+  #sheet-view-area .sheet-wait-item { min-height: 40px; padding: 6px 8px; font-size: 0.82rem; }
+  #sheet-quick-edit-btn { display: inline-flex; }
+}

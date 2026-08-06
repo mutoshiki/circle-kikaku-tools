@@ -1,0 +1,134 @@
+/* Official Carbon modal contract. Visual shell, focus trap, overlay, actions and
+   responsive placement are owned by @carbon/web-components. Feature owners only
+   style the content placed inside the modal body. */
+.debug-tap-target { cursor: pointer; }
+.batch-field-note { margin: 0 0 var(--space-2); color: var(--text-sub); font-size: var(--font-size-caption); }
+
+.app-modal {
+  z-index: var(--z-modal);
+  color: var(--text-main);
+  --cds-text-primary: var(--text-main);
+  --cds-text-secondary: var(--text-sub);
+  --cds-layer: var(--surface-lowest);
+  --cds-layer-01: var(--surface-lowest);
+  --cds-layer-02: var(--surface-low);
+  --cds-border-subtle: var(--border-section);
+}
+
+.app-modal[hidden] { display: none; }
+
+.app-modal-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-main);
+  font-size: var(--font-size-title);
+  font-weight: 400;
+  line-height: 1.35;
+}
+.app-modal-heading:focus { outline: 0; }
+.app-modal cds-modal-heading:focus,
+.app-modal cds-modal-heading:focus-visible {
+  outline: 0;
+  box-shadow: none;
+}
+.app-modal-heading .carbon-icon,
+.app-modal-heading-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  color: var(--cds-icon-primary, var(--text-main));
+}
+
+.app-modal-body {
+  min-width: 0;
+  color: var(--text-main);
+  line-height: 1.55;
+  overscroll-behavior: contain;
+}
+
+.app-modal--scroll > .app-modal-body {
+  min-height: 0;
+  overflow-y: auto;
+  padding-block-end: var(--space-7, 64px);
+  scroll-padding-block-end: var(--space-7, 64px);
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+
+
+/* Carbon-style scroll affordance. The mask only exists while more content is
+ * below the viewport, and is removed at the bottom so the final controls remain
+ * completely visible. State is owned by modal-controller.js. */
+.app-modal--scroll > .app-modal-body[data-scroll-more] {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 40px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 40px), transparent 100%);
+}
+
+.app-modal--scroll > .app-modal-body[data-scrollable]:not([data-scroll-more]) {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.app-modal-footer { min-width: 0; }
+
+/* Carbon footer buttons own the flush 50/50 action layout. Single actions stay
+   in the right action cell through the native modal footer component. */
+.app-modal-footer--single cds-modal-footer-button { grid-column: 2; }
+
+.app-decision-message {
+  max-width: 48ch;
+  color: var(--text-main);
+  font-size: var(--font-size-body);
+  line-height: 1.6;
+}
+
+.batch-warning {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-3);
+}
+.batch-warning[hidden] { display: none; }
+#batchDuplicateWarningBody ul { margin: var(--space-1) 0 0; padding-inline-start: var(--space-5); }
+#batchDuplicateWarningBody li + li { margin-top: var(--space-1); }
+
+
+.tray-actions cds-overflow-menu { width: 48px; min-width: 48px; }
+.unified-flow { margin-bottom: var(--space-4); }
+.compact-guide-grid { grid-template-columns: 1fr; gap: var(--space-3); }
+
+/* Carbon Web Components make modals full-screen on narrow viewports. This app
+ * keeps a small viewport gutter so the dialog still reads as a modal while the
+ * Carbon component continues to own focus trapping, overlay and scrolling. */
+@media (max-width: 640px) {
+  /* Carbon's mobile modal defaults to block-start: 0. Keep the official
+   * dialog/focus/overlay implementation, but center the dialog inside the
+   * currently visible Safari viewport instead of pinning it to the top. */
+  .app-modal::part(dialog) {
+    inset: auto;
+    top: 50%;
+    left: 50%;
+    width: calc(100vw - 32px);
+    max-width: calc(100vw - 32px);
+    height: auto;
+    max-height: min(calc(100svh - 32px), calc(100dvh - 32px));
+    margin: 0;
+    transform: translate(-50%, -50%);
+  }
+
+  .app-modal--compact::part(dialog),
+  .app-decision-modal::part(dialog) {
+    width: min(calc(100vw - 32px), 420px);
+    max-height: min(calc(100svh - 48px), calc(100dvh - 48px));
+  }
+
+  .app-modal--scroll > .app-modal-body {
+    padding-block-end: var(--space-7, 64px);
+    scroll-padding-block-end: var(--space-7, 64px);
+  }
+}

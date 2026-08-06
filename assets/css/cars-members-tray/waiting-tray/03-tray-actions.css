@@ -1,0 +1,23 @@
+/* Bottom-sheet action priority. */
+#bottom-tray.minimized .auto-assign-menu-body { margin-bottom: 8px; }
+.tray-actions { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.tray-header-main,
+.tray-header-meta,
+.tray-actions,
+.tray-status { display: contents; }
+
+.tray-actions cds-button,
+.tray-inline-row .tray-action-btn {
+  min-width: 0;
+  min-height: var(--mobile-touch);
+}
+.tray-action-break { display: none; }
+
+.auto-assign-checkbox {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--mobile-touch);
+  min-height: var(--mobile-touch);
+  padding: 14px 16px;
+}

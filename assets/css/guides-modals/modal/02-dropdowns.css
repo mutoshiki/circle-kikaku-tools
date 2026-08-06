@@ -1,0 +1,21 @@
+.header-overflow-body,
+.auto-assign-menu-body {
+  min-width: 220px;
+  --cds-layer: var(--surface-lowest);
+  --cds-layer-hover: var(--surface-hover);
+  --cds-text-primary: var(--text-main);
+  --cds-text-secondary: var(--text-sub);
+  --cds-icon-primary: var(--text-main);
+  --cds-icon-secondary: var(--text-sub);
+  --cds-link-primary: var(--app-accent-text);
+  --cds-link-primary-hover: var(--app-accent-text-hover);
+}
+
+.auto-assign-menu-title {
+  margin: 0;
+  padding: 12px 16px 4px;
+  color: var(--text-sub);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.auto-assign-menu-summary { padding: 4px 16px 8px; }
