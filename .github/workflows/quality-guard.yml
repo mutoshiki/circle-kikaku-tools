@@ -20,6 +20,12 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          registry-url: https://registry.npmjs.org
+      - name: Verify npm registry configuration
+        shell: bash
+        run: |
+          test "$(npm config get registry)" = "https://registry.npmjs.org/"
+          test "$(npm config get replace-registry-host)" = "always"
       - run: npm ci --no-audit --no-fund
       - run: npm run build:carbon
       - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
@@ -36,6 +42,12 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          registry-url: https://registry.npmjs.org
+      - name: Verify npm registry configuration
+        shell: bash
+        run: |
+          test "$(npm config get registry)" = "https://registry.npmjs.org/"
+          test "$(npm config get replace-registry-host)" = "always"
       - run: npm ci --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
       - run: npm run test:ui
