@@ -1,0 +1,271 @@
+{
+  "mobile": {
+    "first_tap": {
+      "name": "藤原 拓海",
+      "open": true,
+      "visible": true,
+      "rect": {
+        "x": 8,
+        "y": 287,
+        "width": 192,
+        "height": 248,
+        "top": 287,
+        "right": 200,
+        "bottom": 535,
+        "left": 8
+      }
+    },
+    "no_click": {
+      "name": "藤原 拓海",
+      "open": true,
+      "visible": true,
+      "rect": {
+        "x": 8,
+        "y": 287,
+        "width": 192,
+        "height": 248,
+        "top": 287,
+        "right": 200,
+        "bottom": 535,
+        "left": 8
+      }
+    },
+    "second_tap_closed": true,
+    "all": [
+      {
+        "name": "藤原 拓海",
+        "open": true,
+        "visible": true,
+        "rect": {
+          "x": 8,
+          "y": 287,
+          "width": 192,
+          "height": 248,
+          "top": 287,
+          "right": 200,
+          "bottom": 535,
+          "left": 8
+        },
+        "index": 0,
+        "error": null
+      },
+      {
+        "name": "武内 樹",
+        "open": true,
+        "visible": true,
+        "rect": {
+          "x": 164,
+          "y": 287,
+          "width": 192,
+          "height": 253,
+          "top": 287,
+          "right": 356,
+          "bottom": 540,
+          "left": 164
+        },
+        "index": 1,
+        "error": null
+      },
+      {
+        "name": "茂木 なつき",
+        "open": true,
+        "visible": true,
+        "rect": {
+          "x": 8,
+          "y": 89.828125,
+          "width": 192,
+          "height": 226,
+          "top": 89.828125,
+          "right": 200,
+          "bottom": 315.828125,
+          "left": 8
+        },
+        "index": 2,
+        "error": null
+      },
+      {
+        "name": "池谷 浩一郎",
+        "open": true,
+        "visible": true,
+        "rect": {
+          "x": 164,
+          "y": 89.828125,
+          "width": 192,
+          "height": 226,
+          "top": 89.828125,
+          "right": 356,
+          "bottom": 315.828125,
+          "left": 164
+        },
+        "index": 3,
+        "error": null
+      },
+      {
+        "name": "高橋 啓介",
+        "open": true,
+        "visible": true,
+        "rect": {
+          "x": 8,
+          "y": 234,
+          "width": 192,
+          "height": 248,
+          "top": 234,
+          "right": 200,
+          "bottom": 482,
+          "left": 8
+        },
+        "index": 4,
+        "error": null
+      },
+      {
+        "name": "健二",
+        "open": true,
+        "visible": true,
+        "rect": {
+          "x": 164,
+          "y": 138,
+          "width": 192,
+          "height": 344,
+          "top": 138,
+          "right": 356,
+          "bottom": 482,
+          "left": 164
+        },
+        "index": 5,
+        "error": null
+      },
+      {
+        "name": "中村 賢太",
+        "open": true,
+        "visible": true,
+        "rect": {
+          "x": 8,
+          "y": 339,
+          "width": 192,
+          "height": 201,
+          "top": 339,
+          "right": 200,
+          "bottom": 540,
+          "left": 8
+        },
+        "index": 6,
+        "error": null
+      },
+      {
+        "name": "佐藤 真子",
+        "open": true,
+        "visible": true,
+        "rect": {
+          "x": 164,
+          "y": 339,
+          "width": 192,
+          "height": 201,
+          "top": 339,
+          "right": 356,
+          "bottom": 540,
+          "left": 164
+        },
+        "index": 7,
+        "error": null
+      },
+      {
+        "name": "高橋 涼介",
+        "open": true,
+        "visible": true,
+        "rect": {
+          "x": 8,
+          "y": 208,
+          "width": 192,
+          "height": 248,
+          "top": 208,
+          "right": 200,
+          "bottom": 456,
+          "left": 8
+        },
+        "index": 8,
+        "error": null
+      },
+      {
+        "name": "沙雪",
+        "open": true,
+        "visible": true,
+        "rect": {
+          "x": 164,
+          "y": 112,
+          "width": 192,
+          "height": 344,
+          "top": 112,
+          "right": 356,
+          "bottom": 456,
+          "left": 164
+        },
+        "index": 9,
+        "error": null
+      },
+      {
+        "name": "秋山 渉",
+        "open": true,
+        "visible": true,
+        "rect": {
+          "x": 8,
+          "y": 156,
+          "width": 192,
+          "height": 344,
+          "top": 156,
+          "right": 200,
+          "bottom": 500,
+          "left": 8
+        },
+        "index": 10,
+        "error": null
+      },
+      {
+        "name": "秋山 和美",
+        "open": true,
+        "visible": true,
+        "rect": {
+          "x": 164,
+          "y": 156,
+          "width": 192,
+          "height": 344,
+          "top": 156,
+          "right": 356,
+          "bottom": 500,
+          "left": 164
+        },
+        "index": 11,
+        "error": null
+      },
+      {
+        "name": "岩城 清次",
+        "open": true,
+        "visible": true,
+        "rect": {
+          "x": 8,
+          "y": 89.328125,
+          "width": 192,
+          "height": 202,
+          "top": 89.328125,
+          "right": 200,
+          "bottom": 291.328125,
+          "left": 8
+        },
+        "index": 12,
+        "error": null
+      }
+    ],
+    "errors": [],
+    "overflow": 0
+  },
+  "desktop": {
+    "keyboard": {
+      "open": true,
+      "visible": true
+    },
+    "mouse": {
+      "open": true,
+      "visible": true
+    },
+    "errors": []
+  }
+}

@@ -3,6 +3,8 @@
 
 let activePersonMenuTarget = null;
 let activePersonMenuTrigger = null;
+let personMenuPointerGesture = null;
+const suppressedPersonMenuClicks = new WeakSet();
 
 function resetPersonMenuSurface(menu) {
     const surface = menu?.shadowRoot?.querySelector('.cds--menu');
@@ -356,13 +358,61 @@ function setupCompactPersonMenu() {
 
     D.addEventListener('pointerdown', event => {
         const trigger = personOverflowFromEvent(event);
+        const item = personMenuItemFromEvent(event);
         if (trigger) {
             closePersonMenus({ except: trigger });
             syncPersonMenuContext(trigger);
+            if (!item && event.isPrimary !== false && (event.pointerType === 'touch' || event.pointerType === 'pen')) {
+                personMenuPointerGesture = {
+                    trigger,
+                    pointerId: event.pointerId,
+                    startX: event.clientX,
+                    startY: event.clientY,
+                    startedAt: performance.now(),
+                    wasOpen: trigger.open === true || trigger.hasAttribute('open')
+                };
+            }
             return;
         }
+        personMenuPointerGesture = null;
         if (shouldKeepPersonMenuForTarget(event.target)) return;
         closePersonMenus();
+    }, true);
+
+    D.addEventListener('pointerup', event => {
+        const gesture = personMenuPointerGesture;
+        personMenuPointerGesture = null;
+        if (!gesture || gesture.pointerId !== event.pointerId) return;
+        if (personMenuItemFromEvent(event)) return;
+        const trigger = personOverflowFromEvent(event);
+        if (trigger !== gesture.trigger) return;
+        const moved = Math.hypot(event.clientX - gesture.startX, event.clientY - gesture.startY);
+        const elapsed = performance.now() - gesture.startedAt;
+        if (moved > 10 || elapsed > 900) return;
+
+        // iOS can suppress the synthetic click when Sortable observes the same
+        // touch sequence. Complete the touch activation here and suppress only
+        // the duplicate click, while leaving Carbon's mouse and keyboard paths
+        // untouched.
+        if (event.cancelable) event.preventDefault();
+        event.stopImmediatePropagation();
+        suppressedPersonMenuClicks.add(trigger);
+        window.setTimeout(() => suppressedPersonMenuClicks.delete(trigger), 900);
+        if (gesture.wasOpen) closePersonMenus();
+        else openCompactPersonMenu(trigger);
+    }, true);
+
+    D.addEventListener('pointercancel', () => {
+        personMenuPointerGesture = null;
+    }, true);
+
+    D.addEventListener('click', event => {
+        const suppressedTrigger = personOverflowFromEvent(event);
+        if (suppressedTrigger && suppressedPersonMenuClicks.has(suppressedTrigger) && !personMenuItemFromEvent(event)) {
+            suppressedPersonMenuClicks.delete(suppressedTrigger);
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }
     }, true);
 
     D.addEventListener('click', event => {

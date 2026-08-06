@@ -88,6 +88,6 @@ assert.match(read('assets/js/templates/common-empty-state.js'), /app-entry-recom
 
 const appAssetRefs = [...html.matchAll(/(?:href|src)="(\.\/assets\/(?:css|js)\/[^"?]+)(?:\?v=([^" ]+))?"/g)];
 assert.ok(appAssetRefs.length > 50);
-for (const [, ref, version] of appAssetRefs) assert.equal(version, 'ui-fixes-v34', `${ref} has a mixed cache key`);
+for (const [, ref, version] of appAssetRefs) assert.equal(version, 'person-menu-touch-v35', `${ref} has a mixed cache key`);
 
 console.log('PASS usability and visual consistency current contract');

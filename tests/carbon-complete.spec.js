@@ -75,6 +75,36 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
 test.describe('Allocation, menus and accessibility', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
+  test('first person menu opens when a touch sequence has no synthetic click', async ({ page }) => {
+    await seed(page);
+    await page.evaluate(() => window.switchView('list'));
+    const firstMenu = page.locator('cds-overflow-menu.person-overflow-menu').first();
+    await firstMenu.scrollIntoViewIfNeeded();
+    await firstMenu.evaluate(element => {
+      const rect = element.getBoundingClientRect();
+      const clientX = rect.left + rect.width / 2;
+      const clientY = rect.top + rect.height / 2;
+      element.dispatchEvent(new PointerEvent('pointerdown', {
+        bubbles: true, composed: true, cancelable: true,
+        pointerId: 71, pointerType: 'touch', isPrimary: true,
+        clientX, clientY, button: 0, buttons: 1
+      }));
+      element.dispatchEvent(new PointerEvent('pointerup', {
+        bubbles: true, composed: true, cancelable: true,
+        pointerId: 71, pointerType: 'touch', isPrimary: true,
+        clientX, clientY, button: 0, buttons: 0
+      }));
+    });
+    await expect(firstMenu).toHaveJSProperty('open', true);
+    const visible = await firstMenu.evaluate(element => {
+      const surface = element.querySelector(':scope > cds-menu.person-pop-menu')?.shadowRoot?.querySelector('.cds--menu');
+      const rect = surface?.getBoundingClientRect();
+      const style = surface ? getComputedStyle(surface) : null;
+      return !!(rect && rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden');
+    });
+    expect(visible).toBeTruthy();
+  });
+
   test('allocation switches, tray controls and official menus work in the viewport', async ({ page }) => {
     const errors = [];
     page.on('pageerror', error => errors.push(String(error)));

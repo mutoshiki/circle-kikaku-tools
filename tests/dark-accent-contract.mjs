@@ -49,7 +49,7 @@ const popupOwners = [modalBase, dropdowns, personMenu, shareModal, importShell, 
 expect(!/#4589ff/i.test(popupOwners), 'Popup owners must not hard-code Carbon blue 50.');
 expect(!/var\(--accent-line\)/.test(popupOwners), 'Popup owners must not consume the ambiguous legacy accent-line token.');
 
-expect(index.includes('ui-fixes-v34'), 'Dark theme cache-buster was not updated.');
-expect(index.includes('ui-fixes-v34'), 'Popup owner cache-busters were not updated.');
+expect(index.includes('person-menu-touch-v35'), 'Dark theme cache-buster was not updated.');
+expect(index.includes('person-menu-touch-v35'), 'Popup owner cache-busters were not updated.');
 
 console.log('PASS dark accent and popup semantic contract');
