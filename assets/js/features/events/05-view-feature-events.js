@@ -49,6 +49,7 @@
         bind('tab-seisan', () => switchView('seisan'));
         bind('batchOpenBtn', () => openBatchModal());
         bind('sheet-quick-edit-btn', () => toggleQuickEdit());
+        bind('sheet-fit-view-btn', () => global.resetSheetViewport?.({ fitAll: true }));
         bind('seisanRefreshBtn', () => renderSettlementView());
         bind('clearAllBtn', () => global.clearAll());
         bind('applyGoogleFormPasteBtn', () => global.applyGoogleFormPasteImport?.());

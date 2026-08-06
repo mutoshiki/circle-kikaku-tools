@@ -4,33 +4,15 @@
 let activePersonMenuTarget = null;
 let activePersonMenuTrigger = null;
 
-function resetPersonMenuSurface(menu) {
-    const surface = menu?.shadowRoot?.querySelector('.cds--menu');
-    if (surface) {
-        ['position', 'left', 'top', 'right', 'bottom', 'transform', 'translate',
-         'maxWidth', 'maxHeight', 'overflowY', 'zIndex', 'visibility']
-            .forEach(property => surface.style[property] = '');
-    }
-    if (menu) menu.style.zIndex = '';
-}
-
-function closePersonMenus({ except = null } = {}) {
-    const triggerToBlur = activePersonMenuTrigger && activePersonMenuTrigger !== except
-        ? activePersonMenuTrigger
-        : null;
+function closePersonMenus() {
+    const triggerToBlur = activePersonMenuTrigger;
+    document.body.classList.remove('person-menu-open');
     document.querySelectorAll('cds-overflow-menu.person-overflow-menu').forEach(menu => {
-        if (menu === except) return;
         menu.open = false;
         menu.removeAttribute('open');
-        menu.removeAttribute('data-menu-placement');
-        resetPersonMenuSurface(menu.querySelector(':scope > cds-menu.person-pop-menu'));
     });
-    const anyOpen = !!document.querySelector('cds-overflow-menu.person-overflow-menu[open]');
-    document.body.classList.toggle('person-menu-open', anyOpen);
-    if (!anyOpen) {
-        activePersonMenuTarget = null;
-        activePersonMenuTrigger = null;
-    }
+    activePersonMenuTarget = null;
+    activePersonMenuTrigger = null;
     window.SanpoFocusModality?.clearPointerFocus?.(triggerToBlur);
 }
 
@@ -61,21 +43,6 @@ function replacePersonMenuItemIcon(item, iconName) {
     window.SanpoCarbon?.renderCarbonIcons?.(placeholder);
 }
 
-
-function getPersonMenuViewportBounds(triggerRect) {
-    const visualTop = Number(window.visualViewport?.offsetTop) || 0;
-    const visualHeight = Number(window.visualViewport?.height) || window.innerHeight;
-    const topAreaRect = document.getElementById('top-area')?.getBoundingClientRect();
-    const tray = document.getElementById('bottom-tray');
-    const trayRect = tray && !tray.hidden ? tray.getBoundingClientRect() : null;
-    const top = Math.max(8, visualTop + 8, (topAreaRect?.top || 0) + 8);
-    const visualBottom = Math.min(window.innerHeight - 8, visualTop + visualHeight - 8);
-    const bottom = trayRect && trayRect.top > triggerRect.bottom
-        ? Math.min(visualBottom, trayRect.top - 8)
-        : visualBottom;
-    return { top, bottom };
-}
-
 async function positionPersonMenuSurface(trigger) {
     if (!trigger || !trigger.open) return;
     await trigger.updateComplete;
@@ -92,7 +59,9 @@ async function positionPersonMenuSurface(trigger) {
     if (!surface) return;
 
     const triggerRect = trigger.getBoundingClientRect();
-    const { top: viewportTop, bottom: viewportBottom } = getPersonMenuViewportBounds(triggerRect);
+    const trayRect = document.getElementById('bottom-tray')?.getBoundingClientRect();
+    const viewportTop = 8;
+    const viewportBottom = Math.min(window.innerHeight - 8, trayRect?.top > triggerRect.bottom ? trayRect.top - 8 : window.innerHeight - 8);
     const menuWidth = Math.min(surface.scrollWidth || 224, window.innerWidth - 16);
     const naturalHeight = surface.scrollHeight || surface.getBoundingClientRect().height || 336;
     const above = Math.max(0, triggerRect.top - viewportTop);
@@ -123,7 +92,16 @@ async function positionPersonMenuSurface(trigger) {
 function configurePersonMenuPlacement(trigger) {
     if (!trigger) return;
     const rect = trigger.getBoundingClientRect();
-    const { top: viewportTop, bottom: safeBottom } = getPersonMenuViewportBounds(rect);
+    const tray = document.getElementById('bottom-tray');
+    const trayRect = tray && !tray.hidden ? tray.getBoundingClientRect() : null;
+    const viewportTop = Math.max(8, Number(window.visualViewport?.offsetTop) || 0);
+    const viewportBottom = Math.min(
+        window.innerHeight - 8,
+        (Number(window.visualViewport?.offsetTop) || 0) + (Number(window.visualViewport?.height) || window.innerHeight) - 8
+    );
+    const safeBottom = trayRect && trayRect.top > rect.bottom
+        ? Math.min(viewportBottom, trayRect.top - 8)
+        : viewportBottom;
     const estimatedMenuHeight = 7 * 48 + 8;
     const spaceAbove = Math.max(0, rect.top - viewportTop);
     const spaceBelow = Math.max(0, safeBottom - rect.bottom);
@@ -332,7 +310,6 @@ function handleCompactPersonAction(action, person = activePersonMenuTarget, choi
 window.handleCompactPersonAction = handleCompactPersonAction;
 
 function openCompactPersonMenu(trigger) {
-    closePersonMenus({ except: trigger });
     const person = syncPersonMenuContext(trigger);
     if (!person) return;
     trigger.open = true;
@@ -357,7 +334,6 @@ function setupCompactPersonMenu() {
     D.addEventListener('pointerdown', event => {
         const trigger = personOverflowFromEvent(event);
         if (trigger) {
-            closePersonMenus({ except: trigger });
             syncPersonMenuContext(trigger);
             return;
         }
