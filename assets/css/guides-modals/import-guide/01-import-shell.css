@@ -15,31 +15,12 @@
 
 .batch-import-helper-title {
   color: var(--text-main);
-  font-size: var(--font-size-label);
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
 .batch-import-helper-title :is(i, .carbon-icon) { color: var(--app-accent-icon); }
 .batch-label-muted { color: var(--text-sub); }
-
-.batch-import-help-copy {
-  display: grid;
-  gap: var(--space-2, 8px);
-  margin-top: var(--space-3, 12px);
-  margin-bottom: var(--space-4, 16px);
-}
-
-.batch-import-help-text {
-  margin: 0;
-  color: var(--text-sub);
-  font-size: var(--font-size-caption);
-  line-height: 1.5;
-}
-
-.batch-import-help-text--instruction {
-  color: var(--text-main);
-  font-weight: 500;
-}
 
 .batch-import-helper-card {
   padding: 16px;
@@ -49,12 +30,59 @@
   box-shadow: none;
 }
 
+.batch-import-help-details { border-top: 1px solid var(--border-section); }
+.batch-import-help-details > summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 8px 4px;
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.batch-import-help-details > summary::-webkit-details-marker { display: none; }
+.batch-import-help-details > summary::before {
+  content: "";
+  width: 0;
+  height: 0;
+  flex: 0 0 auto;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid currentColor;
+  transform-origin: 45% 50%;
+  transition: transform var(--motion-duration-fast, 120ms) ease;
+}
+.batch-import-help-details[open] > summary::before { transform: rotate(90deg); }
 
 .batch-spreadsheet-textarea {
   min-height: 118px;
-  font-size: var(--font-size-label);
+  font-size: 0.88rem;
   line-height: 1.45;
   resize: vertical;
+}
+
+.batch-import-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 7px 9px;
+  border: 1px solid color-mix(in srgb, var(--color-warning) 32%, var(--border-color));
+  border-radius: 0;
+  background: color-mix(in srgb, var(--color-warning) 11%, var(--bg-card));
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.45;
+  box-shadow: none;
+}
+.batch-import-notice :is(i, .carbon-icon) {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--palette-amber-600);
 }
 
 .form-sheet-howto {
@@ -68,12 +96,12 @@
 .form-sheet-howto-title {
   margin-bottom: 4px;
   color: var(--text-main);
-  font-size: var(--font-size-caption);
+  font-size: 0.8rem;
   font-weight: 600;
 }
 .form-sheet-howto-body {
   color: var(--text-sub);
-  font-size: var(--font-size-caption);
+  font-size: 0.76rem;
   font-weight: 600;
   line-height: 1.55;
 }
@@ -103,7 +131,7 @@
   display: inline-block;
   margin-top: 11px;
   color: var(--text-main);
-  font-size: var(--font-size-caption);
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
@@ -143,26 +171,4 @@
   .batch-import-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .batch-import-column--full { grid-column: 1 / -1; }
   .batch-import-column--half { grid-column: span 1; }
-}
-
-.batch-registration-mode {
-  width: 100%;
-  margin: 0 0 var(--space-4);
-}
-#batchRegistrationMode { width: min(100%, 560px); }
-.batch-registration-panel[hidden] { display: none; }
-.batch-registration-panel { grid-column: 1 / -1; min-width: 0; }
-.batch-registration-panel--manual {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
-}
-.batch-import-help-accordion {
-  display: block;
-  margin-top: var(--space-4);
-  border-top: 1px solid var(--border-section);
-}
-@media (max-width: 640px) {
-  .batch-registration-panel--manual { grid-template-columns: minmax(0, 1fr); }
-  #batchRegistrationMode { width: 100%; }
 }

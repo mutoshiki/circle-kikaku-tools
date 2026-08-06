@@ -34,9 +34,9 @@
   --panel-padding: var(--space-4);
   --panel-padding-mobile: 14px;
 
-  --font-size-caption: 0.8125rem;
+  --font-size-caption: 0.75rem;
   --font-size-label: 0.875rem;
-  --font-size-micro: 0.75rem;
+  --font-size-micro: 0.6875rem;
   --font-size-body: 0.875rem;
   --font-size-title: 1rem;
   --font-size-headline: 1.25rem;

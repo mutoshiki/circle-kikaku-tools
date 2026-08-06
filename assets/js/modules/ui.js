@@ -5,8 +5,7 @@
     undoTimer: null,
     undoAction: null,
     statusTimer: null,
-    statusToast: null,
-    modalStatus: null
+    statusToast: null
   };
 
   const STATUS_NOTIFICATIONS = Object.freeze({
@@ -163,57 +162,12 @@
     return toast;
   }
 
-  function removeModalStatus(notification = state.modalStatus) {
-    if (!notification) return;
-    notification.remove();
-    if (state.modalStatus === notification) state.modalStatus = null;
-  }
-
-  function getOpenAppModalBody() {
-    const modals = Array.from(document.querySelectorAll('.app-modal[open]'));
-    const modal = modals.at(-1);
-    return modal?.querySelector(':scope > cds-modal-body.app-modal-body') || null;
-  }
-
-  function createModalStatus(message, tone, body) {
-    const notification = STATUS_NOTIFICATIONS[tone] || STATUS_NOTIFICATIONS.neutral;
-    const inline = document.createElement('cds-inline-notification');
-    const title = document.createElement('span');
-    const subtitle = document.createElement('span');
-    inline.className = 'app-modal-status';
-    inline.dataset.tone = tone;
-    inline.setAttribute('kind', notification.kind);
-    inline.setAttribute('low-contrast', '');
-    inline.setAttribute('hide-close-button', '');
-    inline.setAttribute('role', notification.kind === 'error' ? 'alert' : 'status');
-    inline.setAttribute('aria-live', notification.kind === 'error' ? 'assertive' : 'polite');
-    title.slot = 'title';
-    title.textContent = notification.iconDescription;
-    subtitle.slot = 'subtitle';
-    subtitle.textContent = String(message);
-    inline.append(title, subtitle);
-    body.prepend(inline);
-    return inline;
-  }
-
   function showStatus(message, options = {}) {
     if (!message) return;
     const requestedTone = String(options.tone || 'neutral').toLowerCase();
     const tone = STATUS_NOTIFICATIONS[requestedTone] ? requestedTone : 'neutral';
     const duration = Number.isFinite(options.duration) ? Math.max(800, options.duration) : 2200;
-    if (state.statusTimer !== null) clearTimeout(state.statusTimer);
-    state.statusTimer = null;
     removeStatusToast(state.statusToast || document.getElementById('appStatusToast'));
-    removeModalStatus();
-
-    const modalBody = getOpenAppModalBody();
-    if (modalBody) {
-      const inline = createModalStatus(message, tone, modalBody);
-      state.modalStatus = inline;
-      state.statusTimer = setTimeout(() => removeModalStatus(inline), duration);
-      return;
-    }
-
     const toast = createStatusToast(message, tone);
     state.statusToast = toast;
     requestAnimationFrame(() => {

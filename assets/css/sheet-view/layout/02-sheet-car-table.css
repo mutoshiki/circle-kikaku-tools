@@ -46,7 +46,7 @@
   border-radius: 0;
   background: var(--surface-low);
   color: var(--text-main);
-  font-size: var(--font-size-caption);
+  font-size: 0.8rem;
   font-weight: 600;
   user-select: none;
 }
@@ -55,6 +55,6 @@
 
 .sheet-empty-card { width: min(520px, calc(100vw - 40px)); margin: 32px auto; padding: 28px 20px; border: 1px solid var(--border-section); border-radius: 0; background: var(--surface-lowest); color: var(--text-sub); box-shadow: none; text-align: center; }
 .sheet-empty-title { display: block; margin-bottom: 6px; color: var(--text-main); font-size: 1.05rem; font-weight: 600; }
-.sheet-empty-text { display: block; margin-bottom: 14px; font-size: var(--font-size-caption); }
+.sheet-empty-text { display: block; margin-bottom: 14px; font-size: 0.82rem; }
 .sheet-empty-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
 cds-button.sheet-empty-open { min-height: 48px; }

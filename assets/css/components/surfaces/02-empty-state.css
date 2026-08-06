@@ -110,14 +110,3 @@
   .empty-card.app-empty-card .seisan-empty-actions .seisan-btn { width: 100%; }
   .empty-card.app-empty-card .seisan-empty-or { justify-self: center; }
 }
-
-.empty-card .app-entry-recommended-action {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--space-2);
-  width: 100%;
-  min-width: 0;
-}
-.empty-card .app-entry-recommended-action .seisan-btn { width: 100%; min-width: 0; }
-.empty-card .app-entry-recommended-tag { display: inline-flex; align-self: center; justify-self: end; margin: 0; }

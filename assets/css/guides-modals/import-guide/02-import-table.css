@@ -9,7 +9,7 @@
     background: color-mix(in srgb, var(--bg-card) 88%, var(--app-accent-surface));
     padding: 10px;
     color: var(--text-main);
-    font-size: var(--font-size-caption);
+    font-size: 0.8rem;
 }
 .form-import-preview--success {
     border-color: color-mix(in srgb, var(--app-accent-border) 40%, var(--border-color));

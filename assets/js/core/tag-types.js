@@ -3,8 +3,8 @@
 
   const mappings = Object.freeze({
     grade: Object.freeze({
-      male: 'cool-gray',
-      female: 'warm-gray',
+      male: 'blue',
+      female: 'magenta',
       unknown: 'gray'
     }),
     cost: Object.freeze({

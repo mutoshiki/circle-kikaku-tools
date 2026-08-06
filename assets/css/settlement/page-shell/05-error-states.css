@@ -23,7 +23,7 @@
 .seisan-car-summary-row .seisan-cost-preview-label {
   align-self: baseline;
   color: var(--text-sub);
-  font-size: var(--font-size-micro);
+  font-size: 0.70rem;
   font-weight: 600;
   line-height: 1.45;
   white-space: nowrap;
@@ -34,7 +34,7 @@
   text-overflow: clip;
   white-space: normal;
   color: var(--text-sub);
-  font-size: var(--font-size-micro);
+  font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.45;
   text-align: left;

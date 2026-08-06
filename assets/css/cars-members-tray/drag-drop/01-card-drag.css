@@ -107,7 +107,7 @@
 .drop-create-lane strong {
   display: block;
   color: var(--text-main);
-  font-size: var(--font-size-label);
+  font-size: 0.86rem;
   font-weight: 600;
   line-height: 1.35;
 }
@@ -115,7 +115,7 @@
 .drop-create-lane span {
   display: block;
   color: var(--text-sub);
-  font-size: var(--font-size-caption);
+  font-size: 0.76rem;
   font-weight: 500;
   line-height: 1.3;
 }

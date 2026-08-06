@@ -117,12 +117,12 @@ html[data-theme="dark"] {
   --notification-bg: #f4f4f4;
   --notification-text: #161616;
 
-  --bg-male: #343a3f;
-  --border-male: #697077;
-  --text-male: #f2f4f8;
-  --bg-female: #3d3535;
-  --border-female: #796b67;
-  --text-female: #f7f3f2;
+  --bg-male: #001d6c;
+  --border-male: #0043ce;
+  --text-male: #d0e2ff;
+  --bg-female: #510224;
+  --border-female: #9f1853;
+  --text-female: #ffd6e8;
   --bg-unknown: #393939;
   --border-unknown: #6f6f6f;
   --text-unknown: #c6c6c6;

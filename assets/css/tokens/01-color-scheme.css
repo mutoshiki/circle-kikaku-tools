@@ -166,12 +166,12 @@
   --bottom-toolbar-muted: var(--text-sub);
   --bottom-toolbar-hover-text: var(--text-main);
 
-  --bg-male: #f2f4f8;
-  --border-male: #c1c7cd;
-  --text-male: #343a3f;
-  --bg-female: #f7f3f2;
-  --border-female: #d8c9c5;
-  --text-female: #4d3b3b;
+  --bg-male: #edf5ff;
+  --border-male: #a6c8ff;
+  --text-male: #0043ce;
+  --bg-female: #fff0f7;
+  --border-female: #ffafd2;
+  --text-female: #9f1853;
   --bg-unknown: var(--surface-container);
   --border-unknown: var(--border-color);
   --text-unknown: var(--text-sub);

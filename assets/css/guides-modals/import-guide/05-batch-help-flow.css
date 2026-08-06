@@ -49,7 +49,7 @@
 .batch-auto-lead {
   margin: 0;
   color: var(--text-sub);
-  font-size: var(--font-size-caption);
+  font-size: 0.76rem;
   font-weight: 500;
   line-height: 1.55;
 }
@@ -118,13 +118,13 @@
 }
 .batch-required-columns strong {
   color: var(--text-main);
-  font-size: var(--font-size-caption);
+  font-size: 0.8rem;
   font-weight: 500;
   line-height: 1.35;
 }
 .batch-required-columns span {
   color: var(--text-sub);
-  font-size: var(--font-size-micro);
+  font-size: 0.7rem;
   font-weight: 500;
   line-height: 1.35;
 }
@@ -155,37 +155,4 @@
 
 #batchImportModal > .app-modal-body > .batch-import-layout {
   padding: 0 0 16px;
-}
-
-
-.batch-auto-scroll-hint {
-  display: none;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-1);
-  margin: 0 0 var(--space-1);
-  color: var(--text-sub);
-  font-size: var(--font-size-micro);
-  font-weight: 500;
-}
-.batch-auto-scroll-hint .carbon-icon { width: 16px; height: 16px; }
-.batch-auto-simple[data-horizontal-overflow] .batch-auto-scroll-hint { display: flex; }
-.batch-auto-simple[data-horizontal-at-end] .batch-auto-scroll-hint { opacity: 0; }
-.batch-auto-table-wrap {
-  position: relative;
-  scrollbar-color: var(--border-strong) var(--surface-low);
-  scrollbar-width: thin;
-}
-.batch-auto-simple[data-horizontal-overflow] .batch-auto-table-wrap {
-  box-shadow: inset -18px 0 18px -20px var(--app-accent-border);
-}
-.batch-auto-simple[data-horizontal-at-start] .batch-auto-table-wrap {
-  box-shadow: inset -18px 0 18px -20px var(--app-accent-border);
-}
-.batch-auto-simple[data-horizontal-at-end] .batch-auto-table-wrap {
-  box-shadow: inset 18px 0 18px -20px var(--app-accent-border);
-}
-.batch-auto-simple[data-horizontal-middle] .batch-auto-table-wrap {
-  box-shadow: inset 18px 0 18px -20px var(--app-accent-border),
-              inset -18px 0 18px -20px var(--app-accent-border);
 }

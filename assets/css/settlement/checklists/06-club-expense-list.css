@@ -77,5 +77,5 @@
 #seisan-view-area .seisan-club-expense-empty {
   padding: 9px;
   color: var(--text-sub);
-  font-size: var(--font-size-caption);
+  font-size: 0.78rem;
 }

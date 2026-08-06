@@ -11,7 +11,7 @@
   align-items: center;
   gap: 6px;
   color: var(--text-sub);
-  font-size: var(--font-size-caption);
+  font-size: 0.78rem;
   font-weight: 500;
 }
 
@@ -40,7 +40,7 @@
   min-height: 40px;
   padding-inline: 8px;
   justify-content: flex-start;
-  font-size: var(--font-size-caption);
+  font-size: 0.75rem;
   line-height: 1.25;
 }
 

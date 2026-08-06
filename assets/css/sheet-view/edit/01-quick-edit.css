@@ -15,4 +15,4 @@ body.quick-edit-mode #sheet-view-area .sheet-waiting-list .sheet-chip.draggable 
   bottom: calc(72px + env(safe-area-inset-bottom));
   z-index: var(--z-floating);
 }
-#sheet-quick-edit-btn { display: none; min-width: 112px; }
+#sheet-quick-edit-btn { display: none; }

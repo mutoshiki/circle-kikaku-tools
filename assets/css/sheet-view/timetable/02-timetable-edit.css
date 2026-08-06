@@ -8,7 +8,7 @@
 .sheet-timetable-edit-row { display: grid; grid-template-columns: 108px minmax(160px, 1fr) 48px; align-items: start; gap: 8px; }
 .sheet-timetable-input { --cds-field: var(--surface-low); display: block; min-height: 48px; color: var(--text-main); }
 .sheet-timetable-delete,
-.sheet-timetable-add { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; border: 0; border-radius: var(--radius-pill); background: var(--surface-container); color: var(--text-main); font-size: var(--font-size-caption); font-weight: 600; }
+.sheet-timetable-add { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; border: 0; border-radius: var(--radius-pill); background: var(--surface-container); color: var(--text-main); font-size: 0.78rem; font-weight: 600; }
 .sheet-timetable-add { align-self: flex-start; padding: 0 14px; }
 #sheet-view-area .sheet-timetable-card:not(.sheet-timetable-card--edit) :where(input, button.sheet-timetable-delete, button.sheet-timetable-add) { display: none; }
 

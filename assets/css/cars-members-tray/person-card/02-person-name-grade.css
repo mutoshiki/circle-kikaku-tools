@@ -13,7 +13,7 @@
 .driver-name-disp { color: var(--text-main); font-weight: 600; }
 .member-card .memo-popup,
 .person-note,
-.driver-note { color: var(--text-sub); font-size: var(--font-size-caption); line-height: 1.35; }
+.driver-note { color: var(--text-sub); font-size: 0.75rem; line-height: 1.35; }
 
 .memo-popup {
   display: none;
@@ -56,7 +56,7 @@
 .grade-badge.grade-female { background: var(--bg-female); color: var(--text-female); }
 .gender-badge,
 .legend-chip { border-radius: var(--radius-pill); font-weight: 600; box-shadow: none; }
-.legend-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border: 0; font-size: var(--font-size-micro); }
+.legend-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border: 0; font-size: 0.72rem; }
 .legend-chip.male { background: var(--bg-male); color: var(--text-male); }
 .legend-chip.female { background: var(--bg-female); color: var(--text-female); }
 .legend-chip.unknown { background: var(--bg-unknown); color: var(--text-unknown); }
@@ -78,7 +78,7 @@
   background: transparent;
   color: var(--text-sub);
   cursor: pointer;
-  font-size: var(--font-size-micro);
+  font-size: 0.72rem;
   font-weight: 600;
 }
 .member-action-btn:hover,

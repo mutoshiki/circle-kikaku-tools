@@ -15,7 +15,6 @@
     const bind = events.bind;
     const OVERVIEW_STORAGE_KEY = 'sanpoOverviewDraft:v1';
     let applyingOverviewSnapshot = false;
-    let overviewReturnFocus = null;
 
     function getOverviewStorageKey() {
         const room = new URLSearchParams(global.location.search).get('room') || 'local';
@@ -143,20 +142,11 @@
         const scrim = byId('overviewDrawerScrim');
         const trigger = byId('overviewMenuBtn');
         if (!drawer || !scrim || !trigger) return;
-        if (open) overviewReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : trigger;
         drawer.classList.toggle('is-open', open);
         drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
         trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
         scrim.hidden = !open;
         document.body.classList.toggle('overview-drawer-open', open);
-        if (open) {
-            requestAnimationFrame(() => byId('overviewDrawerTitle')?.focus?.({ preventScroll: true }));
-        } else {
-            const target = overviewReturnFocus;
-            overviewReturnFocus = null;
-            if (global.SanpoFocusModality?.isKeyboard?.() && target?.isConnected) requestAnimationFrame(() => target.focus?.({ preventScroll: true }));
-            else global.SanpoFocusModality?.clearPointerFocus?.(target);
-        }
     }
 
     function setupOverviewMenuFields() {
@@ -193,26 +183,7 @@
         if (document.body.dataset.overviewEscapeBound !== 'true') {
             document.body.dataset.overviewEscapeBound = 'true';
             document.addEventListener('keydown', event => {
-                const drawer = byId('overviewDrawer');
-                if (!drawer?.classList.contains('is-open')) return;
-                if (event.key === 'Escape') {
-                    event.preventDefault();
-                    setOverviewDrawerOpen(false);
-                    return;
-                }
-                if (event.key !== 'Tab') return;
-                const focusable = Array.from(drawer.querySelectorAll('cds-icon-button, cds-button, cds-text-input, cds-textarea, button, [href], [tabindex]:not([tabindex="-1"])'))
-                    .filter(el => !el.hidden && !el.disabled && el.getAttribute('aria-hidden') !== 'true');
-                if (!focusable.length) return;
-                const first = focusable[0];
-                const last = focusable.at(-1);
-                if (event.shiftKey && document.activeElement === first) {
-                    event.preventDefault();
-                    last.focus();
-                } else if (!event.shiftKey && document.activeElement === last) {
-                    event.preventDefault();
-                    first.focus();
-                }
+                if (event.key === 'Escape') setOverviewDrawerOpen(false);
             });
         }
     }

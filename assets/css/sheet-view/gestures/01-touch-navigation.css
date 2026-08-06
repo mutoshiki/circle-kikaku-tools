@@ -42,43 +42,5 @@
 #sheet-bottom-controls {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-}
-
-
-
-.sheet-gesture-hint {
-  position: absolute;
-  left: 50%;
-  bottom: calc(132px + env(safe-area-inset-bottom));
-  z-index: var(--z-floating);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  max-width: calc(100% - 32px);
-  min-height: 40px;
-  padding: 8px 12px;
-  border: 1px solid var(--border-strong);
-  background: var(--surface-lowest);
-  color: var(--text-main);
-  box-shadow: var(--shadow-float);
-  font-size: var(--font-size-caption);
-  font-weight: 500;
-  line-height: 1.35;
-  pointer-events: none;
-  transform: translateX(-50%);
-}
-.sheet-gesture-hint[hidden] { display: none; }
-.sheet-gesture-hint .carbon-icon { width: 20px; height: 20px; flex: 0 0 auto; color: var(--app-accent-icon); }
-
-#sheet-view-area.sheet-needs-pan #sheet-canvas {
-  box-shadow: inset 18px 0 20px -22px var(--app-accent-border),
-              inset -18px 0 20px -22px var(--app-accent-border);
-}
-
-@media (max-width: 640px) {
-  .sheet-gesture-hint {
-    bottom: calc(128px + env(safe-area-inset-bottom));
-    font-size: var(--font-size-micro);
-  }
+  gap: 0;
 }

@@ -7,7 +7,7 @@
   #seisan-view-area .seisan-summary-pills--single > span {
     min-height: 48px;
     padding: 7px 8px;
-    font-size: var(--font-size-micro);
+    font-size: 0.72rem;
   }
 
   #seisan-view-area .seisan-driver-pay-row {
@@ -17,7 +17,7 @@
 
   #seisan-view-area .seisan-driver-detail-list {
     padding-top: 5px;
-    font-size: var(--font-size-caption);
+    font-size: 0.75rem;
   }
 
   #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline {
@@ -155,12 +155,12 @@ body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-cost-type-
   body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline--offset {
     grid-template-columns: minmax(0, 1fr) max-content 30px;
     column-gap: 7px;
-    font-size: var(--font-size-caption);
+    font-size: 0.76rem;
   }
 
   body #app-layout #seisan-view-area .seisan-driver-detail-list .seisan-extra-inline strong {
     width: auto;
     min-width: max-content;
-    font-size: var(--font-size-label);
+    font-size: 0.84rem;
   }
 }

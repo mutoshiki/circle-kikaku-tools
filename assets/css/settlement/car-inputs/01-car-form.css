@@ -44,7 +44,7 @@
   border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--app-accent-surface) 28%, var(--surface-lowest));
   color: var(--text-main);
-  font-size: var(--font-size-caption);
+  font-size: 0.8rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -85,7 +85,7 @@
   display: block;
   margin-bottom: 5px;
   color: var(--text-sub);
-  font-size: var(--font-size-micro);
+  font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.25;
 }
@@ -110,7 +110,7 @@
   padding-top: 12px;
   border-top: 1px solid var(--border-color);
   color: var(--text-main);
-  font-size: var(--font-size-caption);
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.01em;
 }

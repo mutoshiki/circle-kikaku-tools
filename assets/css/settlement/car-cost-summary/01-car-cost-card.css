@@ -60,7 +60,7 @@
   margin: 0;
   padding: 0 4px;
   color: var(--text-sub);
-  font-size: var(--font-size-caption);
+  font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
 }
@@ -175,7 +175,7 @@
   min-height: 24px;
   margin: 0;
   padding: 4px;
-  font-size: var(--font-size-micro);
+  font-size: 0.72rem;
   white-space: nowrap;
 }
 
@@ -212,7 +212,7 @@
 #seisan-view-area #seisan-car-list.is-two-column .seisan-car-summary-name {
   display: -webkit-box;
   overflow: hidden;
-  font-size: var(--font-size-label);
+  font-size: 0.88rem;
   line-height: 1.35;
   overflow-wrap: anywhere;
   white-space: normal;
@@ -231,7 +231,7 @@
   gap: 6px;
   min-height: 32px;
   padding: 0 2px;
-  font-size: var(--font-size-micro);
+  font-size: 0.72rem;
 }
 
 #seisan-view-area #seisan-car-list.is-two-column .seisan-car-summary-row .seisan-cost-preview-list {
@@ -250,7 +250,7 @@
 
 #seisan-view-area #seisan-car-list.is-two-column .seisan-cost-line > span:first-child,
 #seisan-view-area #seisan-car-list.is-two-column .seisan-cost-total-label {
-  font-size: var(--font-size-caption);
+  font-size: 0.78rem;
   line-height: 1.32;
 }
 #seisan-view-area #seisan-car-list.is-two-column .seisan-cost-preview-line .seisan-cost-line-amount {

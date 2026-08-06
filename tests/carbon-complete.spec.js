@@ -304,8 +304,7 @@ test.describe('Settlement and route workflows', () => {
     await seed(page);
     await page.evaluate(() => window.switchView('seisan'));
     await hostClick(page, '[data-action="open-settlement-settings"]');
-    await expect(page.locator('#settlementSettingsModal cds-content-switcher')).toHaveCount(0);
-    await expect(page.locator('#settlementSettingsModal cds-select')).toHaveCount(3);
+    await expect(page.locator('#settlementSettingsModal cds-content-switcher')).toHaveCount(1);
     for (const id of ['seisanStandaloneEnabled', 'seisanDriverCollectionOffset', 'seisanOrganizerFree', 'seisanDriverCollectionFree']) {
       const checkbox = page.locator(`cds-checkbox#${id}`);
       if (await checkbox.count()) {
