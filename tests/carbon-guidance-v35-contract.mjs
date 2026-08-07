@@ -3,6 +3,7 @@ import fs from 'node:fs';
 const index = fs.readFileSync('index.html', 'utf8');
 const tray = fs.readFileSync('assets/js/features/waiting-tray.js', 'utf8');
 const trayCss = fs.readFileSync('assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css', 'utf8');
+const sheetView = fs.readFileSync('assets/js/features/sheet-view.js', 'utf8');
 
 function expect(condition, message) {
   if (!condition) throw new Error(message);
@@ -20,5 +21,6 @@ expect(!tray.includes("traySettingsTriggerEl?.addEventListener('click', async"),
 expect(tray.includes("traySettingsPopoverEl.align = 'top-end'"), 'The Carbon Popover must be pinned to the requested north-facing placement.');
 expect(/\.auto-assign-menu-body\s*\{[^}]*display:\s*block/.test(trayCss), 'The Popover content host must not carry the panel width used by Carbon static alignment.');
 expect(/\.auto-assign-menu-body::part\(content\)\s*\{[^}]*width:\s*min\(320px/.test(trayCss), 'The panel width must live on Carbon PopoverContent itself so top-end anchors to the trigger without horizontal overflow.');
+expect(sheetView.includes('const FIRST_VIEW_GUIDANCE_DELAY_MS = 3000;'), 'Both first-view guidance notices must appear 3 seconds after the eligible view opens.');
 
 console.log('Carbon guidance v35 contract: PASS');

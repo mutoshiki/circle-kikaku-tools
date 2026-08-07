@@ -14,7 +14,7 @@ const FIRST_VIEW_GUIDANCE = Object.freeze({
         message: '1本指で移動、2本指で拡大・縮小できます。'
     })
 });
-const FIRST_VIEW_GUIDANCE_DELAY_MS = 6000;
+const FIRST_VIEW_GUIDANCE_DELAY_MS = 3000;
 let firstViewGuidanceTimer = null;
 let firstViewGuidancePendingView = null;
 
