@@ -104,6 +104,10 @@
         if (document.documentElement.dataset.settlementInputEventsBound === 'true') return;
         document.documentElement.dataset.settlementInputEventsBound = 'true';
 
+        document.getElementById('settlementCarEditModal')?.addEventListener('sanpo:modal-shown', () => {
+            global.fitSettlementExtraNameFields?.(document.getElementById('settlementCarEditBody'));
+        });
+
         document.addEventListener('focusin', event => {
             if (isSettlementCostField(event.target)) {
                 protectSettlementEditing();
@@ -131,6 +135,7 @@
             if (target?.matches?.('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
                 clearResolvedSettlementValidation(target);
                 if (target.matches('[data-field="dist"]')) updateTimesDistanceFeeInRow(target.closest('.seisan-car-row'));
+                if (target.matches('[data-extra-field="name"]')) global.fitSettlementExtraNameField?.(target);
                 global.onSettlementInputDelayed?.();
                 queueSettlementCandidateRefresh(target.closest('.seisan-car-row'));
                 return;

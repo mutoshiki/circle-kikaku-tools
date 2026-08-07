@@ -41,6 +41,36 @@
         clearPointerFocus
     });
 
+    // Carbon keeps real focus after a pointer/touch selection so keyboard users can
+    // continue from the control. On touch Safari that same focus can leave the
+    // Carbon field's focused surface visible after the choice is already committed.
+    // Keep Carbon's focus behavior for keyboard interaction, but release focus after
+    // pointer-driven discrete choices. Text-entry controls are intentionally excluded.
+    const POINTER_COMMIT_CONTROLS = [
+        'cds-select',
+        'cds-dropdown',
+        'cds-combo-box',
+        'cds-checkbox',
+        'cds-radio-button',
+        'cds-radio-button-group',
+        'cds-toggle',
+        'cds-content-switcher-item'
+    ].join(', ');
+
+    function pointerCommittedControl(event) {
+        if (keyboardInteraction) return null;
+        const path = event.composedPath?.() || [];
+        return path.find(node => node instanceof Element && node.matches?.(POINTER_COMMIT_CONTROLS)) || null;
+    }
+
+    function releasePointerCommittedFocus(event) {
+        const control = pointerCommittedControl(event);
+        if (control) clearPointerFocus(control);
+    }
+
+    document.addEventListener('change', releasePointerCommittedFocus, true);
+    document.addEventListener('cds-content-switcher-selected', releasePointerCommittedFocus, true);
+
     document.addEventListener('cds-popover-closed', event => {
         const path = event.composedPath?.() || [];
         const trigger = path.find(node => node?.matches?.('cds-overflow-menu, cds-popover'));

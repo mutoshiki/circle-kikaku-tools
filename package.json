@@ -1,10 +1,10 @@
 {
   "name": "circle-kikaku-tools",
   "private": true,
-  "version": "7.3.6-carbon-guidance-timing",
+  "version": "7.3.8-carbon-feedback-focus-fit",
   "scripts": {
     "build:carbon": "node tools/build-carbon-assets.mjs",
-    "test": "node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs && node tests/person-card-interaction-contract.mjs && node tests/carbon-guidance-v35-contract.mjs",
+    "test": "node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs && node tests/person-card-interaction-contract.mjs && node tests/carbon-guidance-v35-contract.mjs && node tests/route-distance-apply-v37-contract.mjs && node tests/carbon-feedback-focus-fit-v38-contract.mjs",
     "lint:css": "stylelint \"assets/css/**/*.css\" --config stylelint.config.mjs",
     "test:carbon": "playwright test tests/carbon-complete.spec.js",
     "test:ui": "playwright test tests/carbon-complete.spec.js",

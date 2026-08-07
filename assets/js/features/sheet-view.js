@@ -6,11 +6,11 @@ let currentView = ['list', 'sheet', 'seisan'].includes(requestedInitialView) ? r
 
 const FIRST_VIEW_GUIDANCE = Object.freeze({
     list: Object.freeze({
-        storageKey: 'syawari_guidance_allocation_drag_v2',
+        keyPart: 'allocation_drag',
         message: 'カードはドラッグして移動できます。'
     }),
     sheet: Object.freeze({
-        storageKey: 'syawari_guidance_sheet_gestures_v2',
+        keyPart: 'sheet_gestures',
         message: '1本指で移動、2本指で拡大・縮小できます。'
     })
 });
@@ -18,12 +18,18 @@ const FIRST_VIEW_GUIDANCE_DELAY_MS = 3000;
 let firstViewGuidanceTimer = null;
 let firstViewGuidancePendingView = null;
 
-function getParticipantRegistrationGuidanceReadyKey() {
-    return `syawari_guidance_registration_ready_${roomId || 'local'}_v1`;
+function getFirstViewGuidanceStorageKey(view) {
+    const guidance = FIRST_VIEW_GUIDANCE[view];
+    if (!guidance) return '';
+    // localStorage is device-local; room scoping makes the guidance independent for each room.
+    return `syawari_guidance_${guidance.keyPart}_${roomId || 'local'}_v3`;
 }
 
-function isParticipantRegistrationGuidanceReady() {
-    return safeLocalGet(getParticipantRegistrationGuidanceReadyKey(), false) === true;
+function roomHasRegisteredParticipants() {
+    if (typeof getParticipantList === 'function') {
+        try { return getParticipantList().length > 0; } catch (error) {}
+    }
+    return Boolean(document.querySelector('#waiting-list .member-card, #cars-container .driver-seat, #cars-container .seat-slot .member-card'));
 }
 
 function cancelFirstViewGuidanceTimer() {
@@ -34,7 +40,8 @@ function cancelFirstViewGuidanceTimer() {
 
 function showFirstViewGuidance(view) {
     const guidance = FIRST_VIEW_GUIDANCE[view];
-    if (!guidance || !isParticipantRegistrationGuidanceReady() || safeLocalGet(guidance.storageKey, false) === true) {
+    const storageKey = getFirstViewGuidanceStorageKey(view);
+    if (!guidance || !storageKey || !roomHasRegisteredParticipants() || safeLocalGet(storageKey, false) === true) {
         if (firstViewGuidancePendingView === view) cancelFirstViewGuidanceTimer();
         return;
     }
@@ -45,16 +52,23 @@ function showFirstViewGuidance(view) {
     firstViewGuidanceTimer = window.setTimeout(() => {
         firstViewGuidanceTimer = null;
         firstViewGuidancePendingView = null;
-        if (currentView !== view || !isParticipantRegistrationGuidanceReady()) return;
-        if (safeLocalGet(guidance.storageKey, false) === true) return;
-        safeLocalSet(guidance.storageKey, true);
+        if (currentView !== view || !roomHasRegisteredParticipants()) return;
+        if (safeLocalGet(storageKey, false) === true) return;
+        safeLocalSet(storageKey, true);
         window.AppUI?.showStatus?.(guidance.message, { tone: 'info', duration: 4200 });
     }, FIRST_VIEW_GUIDANCE_DELAY_MS);
 }
 
-function markParticipantRegistrationGuidanceReady() {
-    safeLocalSet(getParticipantRegistrationGuidanceReadyKey(), true);
+function refreshFirstViewGuidanceEligibility() {
     if (currentView === 'list' || currentView === 'sheet') showFirstViewGuidance(currentView);
+    else cancelFirstViewGuidanceTimer();
+}
+window.refreshFirstViewGuidanceEligibility = refreshFirstViewGuidanceEligibility;
+
+// Compatibility hook for the participant-registration flow. Eligibility is now derived from
+// actual room participants, so this no longer writes a separate "registration complete" flag.
+function markParticipantRegistrationGuidanceReady() {
+    refreshFirstViewGuidanceEligibility();
 }
 window.markParticipantRegistrationGuidanceReady = markParticipantRegistrationGuidanceReady;
 

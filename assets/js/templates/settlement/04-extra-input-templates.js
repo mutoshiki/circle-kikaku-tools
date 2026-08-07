@@ -46,7 +46,7 @@
     return `<div class="${rowClass}" data-extra-index="${index}"${timesAttr}${pendingAttr}>
         <div class="seisan-extra-field seisan-extra-field--name">
           ${columnLabel('名目')}
-          <cds-text-input size="lg" data-extra-field="name" class="${extraFieldErrorClass(issues, carName, index, 'name')}" value="${esc(ex.name || '', helpers)}" placeholder="例：駐車場代" label="名目" hide-label${invalidAttr('name', '名目を入力してください')}${lockedAttr}></cds-text-input>
+          <cds-text-input size="lg" density="condensed" data-extra-field="name" class="${extraFieldErrorClass(issues, carName, index, 'name')}" value="${esc(ex.name || '', helpers)}" placeholder="例：駐車場代" label="名目" hide-label${invalidAttr('name', '名目を入力してください')}${lockedAttr}></cds-text-input>
         </div>
         <label class="seisan-extra-field seisan-extra-field--amount" data-extra-amount-field>
           ${columnLabel('金額')}

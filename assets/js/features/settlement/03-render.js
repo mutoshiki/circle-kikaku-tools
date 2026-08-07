@@ -207,6 +207,53 @@ function getSettlementCarEditIssues(name) {
     };
 }
 
+const SETTLEMENT_EXTRA_NAME_MIN_FONT_PX = 8;
+
+function fitSettlementExtraNameField(host) {
+    if (!host?.matches?.('#settlementCarEditModal [data-extra-field="name"]')) return;
+
+    const applyFit = () => {
+        const input = host.shadowRoot?.querySelector('input');
+        if (!input) return;
+
+        // Always return to Carbon's own type size first so deleting text grows the
+        // value back naturally. Only the internal value text is adjusted; the
+        // official Carbon field geometry, label, focus and validation remain intact.
+        input.style.removeProperty('font-size');
+        const value = String(host.value ?? input.value ?? '');
+        if (!value) return;
+
+        const width = input.clientWidth;
+        if (width <= 0) return;
+        const baseSize = Number.parseFloat(getComputedStyle(input).fontSize) || 16;
+        const contentWidth = input.scrollWidth;
+        if (contentWidth <= width + 1) return;
+
+        let nextSize = Math.max(SETTLEMENT_EXTRA_NAME_MIN_FONT_PX, baseSize * (width / contentWidth) * 0.96);
+        input.style.fontSize = `${nextSize.toFixed(2)}px`;
+
+        // Browser font metrics can round differently on iOS. Step down only as
+        // much as needed until the complete value fits inside the unchanged field.
+        let guard = 0;
+        while (input.scrollWidth > input.clientWidth + 1 && nextSize > SETTLEMENT_EXTRA_NAME_MIN_FONT_PX && guard < 12) {
+            nextSize = Math.max(SETTLEMENT_EXTRA_NAME_MIN_FONT_PX, nextSize - 0.5);
+            input.style.fontSize = `${nextSize.toFixed(2)}px`;
+            guard += 1;
+        }
+    };
+
+    const schedule = () => Promise.resolve(host.updateComplete).then(() => {
+        requestAnimationFrame(() => requestAnimationFrame(applyFit));
+    });
+
+    if (!host.shadowRoot) customElements.whenDefined('cds-text-input').then(schedule);
+    else schedule();
+}
+
+function fitSettlementExtraNameFields(root = byId('settlementCarEditBody')) {
+    root?.querySelectorAll?.('[data-extra-field="name"]').forEach(fitSettlementExtraNameField);
+}
+
 function getSettlementCarEditHtml(name) {
     const data = getRoomDataOnly();
     const state = ensureSettlementState();
@@ -224,6 +271,7 @@ function refreshSettlementCarEditor(name = activeSettlementCarEditName) {
     if (!body || !name) return;
     body.innerHTML = getSettlementCarEditHtml(name);
     applyRuntimeAccessibilityFixes(body);
+    fitSettlementExtraNameFields(body);
 }
 
 function refreshSettlementCarEditorCandidates(name = activeSettlementCarEditName) {
@@ -690,4 +738,6 @@ function renderSettlementView() {
     if (breakdown) breakdown.innerHTML = renderSettlementBreakdownHtml(result);
 }
 
+window.SanpoApp?.exposeCompat?.('fitSettlementExtraNameField', fitSettlementExtraNameField);
+window.SanpoApp?.exposeCompat?.('fitSettlementExtraNameFields', fitSettlementExtraNameFields);
 window.SanpoApp?.exposeCompat?.('toggleSettlementCarLayout', toggleSettlementCarLayout);

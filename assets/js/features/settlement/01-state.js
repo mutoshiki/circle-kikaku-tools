@@ -534,6 +534,21 @@ function getParticipantList(data = null) {
     return list;
 }
 
+function getSettlementCarRowsForDomSync() {
+    // The settlement list is the canonical DOM surface while the per-car editor is closed.
+    // The editor body is intentionally preserved while the route helper is open, so reading
+    // every `.seisan-car-row` in the document would let that hidden, stale editor overwrite
+    // a distance just applied by the route helper. Only include the editor while its modal is
+    // actually open; when open, append it last so the user's active edit remains authoritative.
+    const rows = Array.from(document.querySelectorAll('#seisan-car-list .seisan-car-row'));
+    const editorModal = byId('settlementCarEditModal');
+    if (editorModal && (editorModal.open || editorModal.hasAttribute('open'))) {
+        const editorBody = byId('settlementCarEditBody');
+        if (editorBody) rows.push(...editorBody.querySelectorAll('.seisan-car-row'));
+    }
+    return rows;
+}
+
 function syncSettlementStateFromDOM() {
     const state = ensureSettlementState();
     const rounding = byId('seisanRounding');
@@ -574,7 +589,7 @@ function syncSettlementStateFromDOM() {
     }
     const standaloneDriverNames = getStandaloneDriverNames(state.standalone, state.standalone.driverCount);
 
-    document.querySelectorAll('.seisan-car-row').forEach(row => {
+    getSettlementCarRowsForDomSync().forEach(row => {
         const originalName = row.dataset.driverName;
         if (!originalName) return;
         const standaloneIndex = Number(row.dataset.standaloneDriverIndex);

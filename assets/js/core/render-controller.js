@@ -148,6 +148,10 @@ function updateUI() {
         renderSettlementView();
     }
     if (typeof refreshPlanningCheckCount === 'function') refreshPlanningCheckCount();
+    // Participant data can arrive by registration, room restore, or remote sync. Re-evaluate
+    // first-view guidance after every UI refresh so a room that already contains people still
+    // gets its one-time, per-device guidance.
+    window.refreshFirstViewGuidanceEligibility?.();
 }
 
 function renderListEmptyHint() {

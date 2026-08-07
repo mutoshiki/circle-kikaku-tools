@@ -1435,6 +1435,14 @@
         settlement.cars[targetName].dist = String(kilometers);
         renderSettlementView({ force: true });
         save();
+        if (global.AppUI?.showStatus) {
+            global.AppUI.showStatus(`移動距離に${kilometers.toLocaleString('ja-JP', { maximumFractionDigits: 1 })}kmを適用しました`, {
+                tone: 'success',
+                duration: 2600
+            });
+        } else if (typeof global.showAppNotice === 'function') {
+            global.showAppNotice(`移動距離に${kilometers.toLocaleString('ja-JP', { maximumFractionDigits: 1 })}kmを適用しました`);
+        }
         runtime.applyInProgress = true;
         runtime.returnAfterClose = true;
         closePlanner({ apply: true });
