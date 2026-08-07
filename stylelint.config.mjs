@@ -3,7 +3,6 @@ export default {
     'block-no-empty': true,
     'color-no-invalid-hex': true,
     'declaration-block-no-duplicate-properties': [true, { ignore: ['consecutive-duplicates-with-different-values'] }],
-    'declaration-block-trailing-semicolon': null,
     'font-family-no-duplicate-names': true,
     'function-calc-no-unspaced-operator': true,
     'no-duplicate-at-import-rules': true,
