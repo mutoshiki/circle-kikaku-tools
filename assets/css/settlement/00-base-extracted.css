@@ -1,0 +1,9 @@
+/* Settlement semantic helpers and route-helper composition. */
+.c-collect { background: var(--settlement-collect-bg); color: var(--text-main); }
+.c-account { background: var(--settlement-club-bg); color: var(--settlement-club-ink); }
+.c-pay { background: var(--settlement-pay-bg); color: var(--settlement-pay-ink); }
+.c-error { background: var(--semantic-danger-soft); color: var(--semantic-danger); }
+.route-helper-panel { display: grid; gap: 12px; }
+.route-helper-title { margin-bottom: 8px; }
+.route-helper-note { color: var(--text-sub); font-size: var(--font-size-label); line-height: 1.5; }
+.route-helper-actions { display: grid; grid-template-columns: 1fr; gap: 8px; }

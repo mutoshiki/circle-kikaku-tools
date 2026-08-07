@@ -1,0 +1,8 @@
+.route-helper-panel,
+.route-stop-panel,
+.batch-warning,
+.empty-card {
+    border-color: var(--hairline, var(--border-color));
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1px 0 rgba(var(--shadow-rgb), 0.03);
+}

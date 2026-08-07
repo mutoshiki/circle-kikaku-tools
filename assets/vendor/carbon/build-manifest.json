@@ -1,0 +1,10 @@
+{
+  "versions": {
+    "webComponents": "2.60.0",
+    "icons": "11.85.0",
+    "plexSans": "1.1.0",
+    "plexSansJp": "3.0.0"
+  },
+  "entry": "assets/js/carbon-entry.js",
+  "output": "assets/vendor/carbon/carbon-entry.min.js"
+}

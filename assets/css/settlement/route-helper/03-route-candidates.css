@@ -1,0 +1,197 @@
+/* Google Routes planner: Carbon selection rows, summaries, and segment details. */
+#routeDistanceModal .route-candidate-list {
+  display: grid;
+  gap: 1px;
+  background: var(--cds-border-subtle-01, var(--border-color));
+}
+
+#routeDistanceModal .route-candidate-empty {
+  min-height: 96px;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: var(--cds-layer-02, var(--surface-low));
+  color: var(--cds-text-secondary, var(--text-sub));
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+#routeDistanceModal .route-candidate-card {
+  width: 100%;
+  min-height: 64px;
+  --cds-button-ghost: var(--cds-layer-01, var(--bg-card));
+  --cds-button-ghost-hover: var(--cds-layer-hover-01, color-mix(in srgb, var(--bg-card) 92%, var(--text-main)));
+  --cds-button-ghost-active: var(--cds-layer-selected-01, color-mix(in srgb, var(--app-accent-surface) 34%, var(--bg-card)));
+  --cds-button-ghost-color: var(--cds-text-primary, var(--text-main));
+  border-left: 4px solid transparent;
+  text-align: left;
+}
+
+#routeDistanceModal .route-candidate-layout {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding-block: 4px;
+}
+
+#routeDistanceModal .route-candidate-card:focus-visible {
+  outline: 2px solid var(--cds-focus, var(--focus-accent));
+  outline-offset: -2px;
+}
+
+#routeDistanceModal .route-candidate-card[aria-checked="true"] {
+  border-left-color: var(--app-accent-fill);
+  --cds-button-ghost: var(--cds-layer-selected-01, color-mix(in srgb, var(--app-accent-surface) 34%, var(--bg-card)));
+}
+
+#routeDistanceModal .route-candidate-main { min-width: 0; }
+
+#routeDistanceModal .route-candidate-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+#routeDistanceModal .route-candidate-label {
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#routeDistanceModal .route-candidate-check {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  border: 1px solid var(--cds-icon-secondary, var(--text-sub));
+  border-radius: 50%;
+}
+
+#routeDistanceModal .route-candidate-card[aria-checked="true"] .route-candidate-check {
+  border: 5px solid var(--app-accent-fill);
+}
+
+#routeDistanceModal .route-candidate-metrics {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  color: var(--cds-text-primary, var(--text-main));
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+#routeDistanceModal .route-candidate-roads,
+#routeDistanceModal .route-candidate-flags {
+  margin-top: 6px;
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+#routeDistanceModal .route-candidate-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#routeDistanceModal .route-candidate-distance {
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+#routeDistanceModal .route-leg-summary {
+  display: grid;
+  gap: 1px;
+  margin-top: 16px;
+  background: var(--cds-border-subtle-01, var(--border-color));
+}
+
+#routeDistanceModal .route-total-summary,
+#routeDistanceModal .route-leg-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--cds-layer-02, var(--surface-low));
+}
+
+#routeDistanceModal .route-total-summary {
+  border-left: 4px solid var(--app-accent-fill);
+  font-weight: 600;
+}
+
+#routeDistanceModal .route-leg-row strong,
+#routeDistanceModal .route-leg-row span,
+#routeDistanceModal .route-total-summary strong,
+#routeDistanceModal .route-total-summary span {
+  overflow-wrap: anywhere;
+}
+
+#routeDistanceModal .route-leg-row span,
+#routeDistanceModal .route-total-summary span {
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: 0.75rem;
+  text-align: right;
+}
+
+/* Route candidates never create a secondary horizontal scroll area. */
+#routeDistanceModal .route-candidate-list,
+#routeDistanceModal .route-candidate-card,
+#routeDistanceModal .route-candidate-layout,
+#routeDistanceModal .route-leg-summary,
+#routeDistanceModal .route-total-summary,
+#routeDistanceModal .route-leg-row {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+@media (max-width: 480px) {
+  #routeDistanceModal .route-candidate-layout,
+  #routeDistanceModal .route-total-summary,
+  #routeDistanceModal .route-leg-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #routeDistanceModal .route-candidate-distance,
+  #routeDistanceModal .route-leg-row span,
+  #routeDistanceModal .route-total-summary span {
+    white-space: normal;
+    text-align: left;
+  }
+}
+
+
+
+
+
+#routeDistanceModal .route-candidate-group {
+  display: grid;
+  gap: 1px;
+  background: var(--cds-border-subtle-01, var(--border-color));
+  margin-bottom: 16px;
+}
+
+#routeDistanceModal .route-candidate-group-heading {
+  display: grid;
+  gap: 4px;
+  padding: 12px 16px;
+  background: var(--cds-layer-02, var(--surface-low));
+}
+
+#routeDistanceModal .route-candidate-group-heading strong {
+  font-size: 0.875rem;
+}
+
+#routeDistanceModal .route-candidate-group-heading span {
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: 0.75rem;
+}
+

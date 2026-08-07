@@ -1,0 +1,31 @@
+/* Driver payment checklist. */
+.seisan-driver-pay-list { display: grid; gap: 8px; }
+.seisan-driver-pay-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 24px;
+  align-items: center;
+  gap: 8px 10px;
+  min-height: 56px;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  color: var(--text-main);
+  box-shadow: none;
+  cursor: pointer;
+}
+.seisan-driver-pay-row:hover { background: var(--surface-container); }
+.seisan-driver-pay-row.done { background: var(--semantic-success-soft); color: var(--semantic-success); }
+.seisan-driver-pay-row.done .seisan-driver-name::after { content: " ✓"; font-weight: 600; }
+.seisan-driver-pay-row cds-checkbox { min-width: 48px; min-height: 48px; margin: -13px -13px -13px 0; }
+.seisan-driver-amount { color: inherit; font-weight: 600; font-variant-numeric: tabular-nums; }
+.seisan-driver-detail { color: var(--text-sub); }
+
+.seisan-check-item.excluded { cursor: not-allowed; }
+.seisan-check-item.excluded cds-checkbox { filter: grayscale(1); }
+.seisan-check-item.excluded.pre-deducted {
+  background: var(--semantic-success-soft);
+  color: var(--semantic-success);
+  opacity: 1;
+}
+.seisan-check-item.excluded.pre-deducted cds-checkbox { filter: none; }
