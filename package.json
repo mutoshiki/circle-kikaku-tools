@@ -1,7 +1,7 @@
 {
   "name": "circle-kikaku-tools",
   "private": true,
-  "version": "7.3.0-feature-fixes",
+  "version": "7.3.1-person-menu-layer",
   "scripts": {
     "build:carbon": "node tools/build-carbon-assets.mjs",
     "test": "node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs",

@@ -14,6 +14,8 @@ const route = read('assets/js/features/settlement/04-route-helper.js');
 const carbonSource = read('assets/js/carbon-entry.js');
 const carbonBundle = read('assets/vendor/carbon/carbon-entry.min.js');
 const personMenuCss = read('assets/css/cars-members-tray/person-card/03-person-menu.css');
+const personMenuJs = read('assets/js/features/person-menu.js');
+const layeringCss = read('assets/css/app-shell/layout/04-layering.css');
 const copyCss = read('assets/css/settlement/share/01-share-output.css');
 const carHeaderCss = read('assets/css/cars-members-tray/car-card/02-card-header.css');
 const overviewEvents = read('assets/js/features/events/02-static-header-events.js');
@@ -37,8 +39,13 @@ expect(iconCss.includes('body.app-keyboard-navigation cds-icon-button.header-act
 expect(!iconCss.includes('\ncds-icon-button.header-action:focus-within {'), 'Pointer-only header focus ring rule remains');
 expect((ui.match(/state\.confirmModal\.show\(\);/g) || []).length === 1, 'Confirmation modal is opened more than once');
 
-expect(personMenuCss.includes('z-index: calc(var(--z-person-menu) - 2)'), 'Waiting tray is not lowered while a person menu is open');
-expect(personMenuCss.includes('.person-overflow-menu[open]'), 'Open person card does not receive a raised stacking context');
+expect(personMenuJs.includes('trigger.showPopover()'), 'Person menus are not promoted to the browser top layer');
+expect(personMenuJs.includes('person-menu-top-layer-placeholder'), 'Person-menu top-layer promotion does not preserve card layout');
+expect(personMenuJs.includes('syncPersonMenuTopLayerPosition'), 'Person-menu anchor is not synchronized during viewport movement');
+expect(personMenuCss.includes(':popover-open'), 'Person-menu top-layer geometry is missing');
+expect(personMenuCss.includes('person-menu-top-layer-placeholder'), 'Person-menu placeholder styling is missing');
+expect(personMenuCss.includes(':not(.person-menu-top-layer-open)'), 'Person-menu z-index fallback is not isolated from the top-layer path');
+expect(layeringCss.includes(':not(.person-menu-top-layer-open) #top-area'), 'Top-area stacking fallback still runs while the menu is in the top layer');
 expect(copyCss.includes('box-shadow: inset 0 0 0 1px var(--app-accent-border)'), 'Dark settlement copy action lacks a visible Carbon tertiary boundary');
 expect(carHeaderCss.includes('width: 1.5rem; height: 1.5rem'), 'Capacity edit icon is still undersized');
 

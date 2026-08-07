@@ -4,17 +4,182 @@
 let activePersonMenuTarget = null;
 let activePersonMenuTrigger = null;
 
+// An open person menu is promoted to the browser top layer. A z-index can only
+// compete inside its current stacking context; the Popover API removes that
+// limitation while Carbon continues to own placement, focus and submenus.
+const personMenuAnchorRects = new WeakMap();
+const personMenuPlaceholders = new WeakMap();
+const personMenuNativeToggleBound = new WeakSet();
+let personMenuPositionFrame = 0;
+
+function supportsPersonMenuTopLayer() {
+    return typeof HTMLElement !== 'undefined'
+        && typeof HTMLElement.prototype.showPopover === 'function'
+        && typeof HTMLElement.prototype.hidePopover === 'function';
+}
+
+function isPersonMenuInTopLayer(trigger) {
+    if (!trigger || !supportsPersonMenuTopLayer()) return false;
+    try { return trigger.matches(':popover-open'); }
+    catch { return false; }
+}
+
+function capturePersonMenuAnchor(trigger) {
+    if (!trigger || isPersonMenuInTopLayer(trigger)) return;
+    const rect = trigger.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) personMenuAnchorRects.set(trigger, rect);
+}
+
+function setPersonMenuAnchorPosition(trigger, rect) {
+    if (!trigger || !rect) return;
+    trigger.style.setProperty('--person-menu-anchor-left', `${Math.round(rect.left)}px`);
+    trigger.style.setProperty('--person-menu-anchor-top', `${Math.round(rect.top)}px`);
+    trigger.style.setProperty('--person-menu-anchor-width', `${Math.max(1, Math.round(rect.width))}px`);
+    trigger.style.setProperty('--person-menu-anchor-height', `${Math.max(1, Math.round(rect.height))}px`);
+}
+
+function ensurePersonMenuPlaceholder(trigger, rect) {
+    let placeholder = personMenuPlaceholders.get(trigger);
+    if (placeholder?.isConnected) return placeholder;
+    placeholder = document.createElement('span');
+    placeholder.className = 'person-menu-top-layer-placeholder';
+    placeholder.setAttribute('aria-hidden', 'true');
+    placeholder.style.width = `${Math.max(1, Math.round(rect.width))}px`;
+    placeholder.style.height = `${Math.max(1, Math.round(rect.height))}px`;
+    trigger.before(placeholder);
+    personMenuPlaceholders.set(trigger, placeholder);
+    return placeholder;
+}
+
+function getOpenPersonMenuTrigger() {
+    if (activePersonMenuTrigger
+        && (activePersonMenuTrigger.open === true || activePersonMenuTrigger.hasAttribute('open'))) {
+        return activePersonMenuTrigger;
+    }
+    return document.querySelector('cds-overflow-menu.person-overflow-menu[data-person-menu-top-layer="true"], cds-overflow-menu.person-overflow-menu[open]');
+}
+
+function syncPersonMenuTopLayerPosition(trigger = getOpenPersonMenuTrigger()) {
+    if (!trigger || !isPersonMenuInTopLayer(trigger)) return;
+    const placeholder = personMenuPlaceholders.get(trigger);
+    const rect = placeholder?.isConnected
+        ? placeholder.getBoundingClientRect()
+        : personMenuAnchorRects.get(trigger);
+    if (!rect) return;
+    const viewportWidth = window.visualViewport?.width || window.innerWidth;
+    const viewportHeight = window.visualViewport?.height || window.innerHeight;
+    if (rect.bottom < 0 || rect.top > viewportHeight || rect.right < 0 || rect.left > viewportWidth) {
+        closePersonMenus();
+        return;
+    }
+    setPersonMenuAnchorPosition(trigger, rect);
+}
+
+function schedulePersonMenuTopLayerPosition() {
+    const trigger = getOpenPersonMenuTrigger();
+    if (!trigger || personMenuPositionFrame) return;
+    personMenuPositionFrame = requestAnimationFrame(() => {
+        personMenuPositionFrame = 0;
+        syncPersonMenuTopLayerPosition(trigger);
+    });
+}
+
+function handlePersonMenuNativeToggle(event) {
+    const trigger = event.currentTarget;
+    if (event.newState !== 'closed' || !trigger) return;
+    if (trigger.open === true || trigger.hasAttribute('open')) {
+        trigger.open = false;
+        trigger.removeAttribute('open');
+    }
+    demotePersonMenuFromTopLayer(trigger);
+    if (activePersonMenuTrigger === trigger) {
+        const nextTrigger = getOpenPersonMenuTrigger();
+        activePersonMenuTrigger = nextTrigger || null;
+        activePersonMenuTarget = nextTrigger?.closest('.member-card, .driver-seat') || null;
+        document.body.classList.toggle('person-menu-open', !!nextTrigger);
+    }
+}
+
+function promotePersonMenuToTopLayer(trigger) {
+    if (!trigger || !supportsPersonMenuTopLayer()) return false;
+    if (isPersonMenuInTopLayer(trigger)) {
+        syncPersonMenuTopLayerPosition(trigger);
+        return true;
+    }
+    const rect = personMenuAnchorRects.get(trigger) || trigger.getBoundingClientRect();
+    if (!(rect.width > 0 && rect.height > 0)) return false;
+    ensurePersonMenuPlaceholder(trigger, rect);
+    setPersonMenuAnchorPosition(trigger, rect);
+    try {
+        if (!personMenuNativeToggleBound.has(trigger)) {
+            trigger.addEventListener('toggle', handlePersonMenuNativeToggle);
+            personMenuNativeToggleBound.add(trigger);
+        }
+        trigger.dataset.personMenuTopLayer = 'true';
+        trigger.setAttribute('popover', 'manual');
+        trigger.showPopover();
+        document.body.classList.add('person-menu-top-layer-open');
+        schedulePersonMenuTopLayerPosition();
+        return true;
+    } catch (error) {
+        trigger.removeAttribute('popover');
+        trigger.removeAttribute('data-person-menu-top-layer');
+        personMenuPlaceholders.get(trigger)?.remove();
+        personMenuPlaceholders.delete(trigger);
+        console.warn('Person menu top-layer promotion failed; using stacking fallback.', error);
+        return false;
+    }
+}
+
+function demotePersonMenuFromTopLayer(trigger) {
+    if (!trigger) return;
+    if (isPersonMenuInTopLayer(trigger)) {
+        try { trigger.hidePopover(); }
+        catch { /* The Carbon menu may already have closed it. */ }
+    }
+    trigger.removeAttribute('popover');
+    trigger.removeAttribute('data-person-menu-top-layer');
+    trigger.style.removeProperty('--person-menu-anchor-left');
+    trigger.style.removeProperty('--person-menu-anchor-top');
+    trigger.style.removeProperty('--person-menu-anchor-width');
+    trigger.style.removeProperty('--person-menu-anchor-height');
+    personMenuPlaceholders.get(trigger)?.remove();
+    personMenuPlaceholders.delete(trigger);
+    personMenuAnchorRects.delete(trigger);
+    const anyTopLayerMenu = Array.from(document.querySelectorAll('cds-overflow-menu.person-overflow-menu'))
+        .some(isPersonMenuInTopLayer);
+    document.body.classList.toggle('person-menu-top-layer-open', anyTopLayerMenu);
+}
+
+function closeOtherPersonMenus(keepTrigger) {
+    document.querySelectorAll('cds-overflow-menu.person-overflow-menu').forEach(menu => {
+        if (menu === keepTrigger) return;
+        menu.open = false;
+        menu.removeAttribute('open');
+        demotePersonMenuFromTopLayer(menu);
+    });
+}
+
 function closePersonMenus() {
     const triggerToBlur = activePersonMenuTrigger;
     document.body.classList.remove('person-menu-open');
     document.querySelectorAll('cds-overflow-menu.person-overflow-menu').forEach(menu => {
         menu.open = false;
         menu.removeAttribute('open');
+        demotePersonMenuFromTopLayer(menu);
     });
+    document.body.classList.remove('person-menu-top-layer-open');
     activePersonMenuTarget = null;
     activePersonMenuTrigger = null;
     window.SanpoFocusModality?.clearPointerFocus?.(triggerToBlur);
 }
+
+window.SanpoPersonMenuLayer = Object.freeze({
+    promote: promotePersonMenuToTopLayer,
+    demote: demotePersonMenuFromTopLayer,
+    syncPosition: syncPersonMenuTopLayerPosition,
+    isTopLayer: isPersonMenuInTopLayer
+});
 
 function getActivePersonMenuTarget() {
     return activePersonMenuTarget;
@@ -223,6 +388,7 @@ function handleCompactPersonAction(action, person = activePersonMenuTarget, choi
     if (trigger) {
         trigger.open = false;
         trigger.removeAttribute('open');
+        demotePersonMenuFromTopLayer(trigger);
     }
     document.body.classList.remove('person-menu-open');
     window.SanpoFocusModality?.clearPointerFocus?.(trigger);
@@ -238,6 +404,8 @@ function handleCompactPersonAction(action, person = activePersonMenuTarget, choi
 window.handleCompactPersonAction = handleCompactPersonAction;
 
 function openCompactPersonMenu(trigger) {
+    closeOtherPersonMenus(trigger);
+    capturePersonMenuAnchor(trigger);
     const person = syncPersonMenuContext(trigger);
     if (!person) return;
     trigger.open = true;
@@ -261,6 +429,8 @@ function setupCompactPersonMenu() {
     D.addEventListener('pointerdown', event => {
         const trigger = personOverflowFromEvent(event);
         if (trigger) {
+            closeOtherPersonMenus(trigger);
+            capturePersonMenuAnchor(trigger);
             syncPersonMenuContext(trigger);
             return;
         }
@@ -273,7 +443,10 @@ function setupCompactPersonMenu() {
         const item = personMenuItemFromEvent(event);
         if (overflowTrigger && !item) {
             queueMicrotask(() => {
-                document.body.classList.toggle('person-menu-open', overflowTrigger.open === true || overflowTrigger.hasAttribute('open'));
+                const open = overflowTrigger.open === true || overflowTrigger.hasAttribute('open');
+                document.body.classList.toggle('person-menu-open', open);
+                if (open) promotePersonMenuToTopLayer(overflowTrigger);
+                else demotePersonMenuFromTopLayer(overflowTrigger);
             });
         }
         if (!item) return;
@@ -298,17 +471,33 @@ function setupCompactPersonMenu() {
     }, true);
 
     const menuStateObserver = new MutationObserver(records => {
-        if (!records.some(record => record.target?.matches?.('cds-overflow-menu.person-overflow-menu'))) return;
+        const menuRecords = records.filter(record => record.target?.matches?.('cds-overflow-menu.person-overflow-menu'));
+        if (!menuRecords.length) return;
+        menuRecords.forEach(record => {
+            const trigger = record.target;
+            const open = trigger.open === true || trigger.hasAttribute('open');
+            if (open) promotePersonMenuToTopLayer(trigger);
+            else demotePersonMenuFromTopLayer(trigger);
+        });
         const anyOpen = !!D.querySelector('cds-overflow-menu.person-overflow-menu[open]');
         D.body.classList.toggle('person-menu-open', anyOpen);
         if (!anyOpen) {
             activePersonMenuTarget = null;
             activePersonMenuTrigger = null;
+        } else if (!activePersonMenuTrigger
+            || !(activePersonMenuTrigger.open === true || activePersonMenuTrigger.hasAttribute('open'))) {
+            const nextTrigger = D.querySelector('cds-overflow-menu.person-overflow-menu[open]');
+            activePersonMenuTrigger = nextTrigger || null;
+            activePersonMenuTarget = nextTrigger?.closest('.member-card, .driver-seat') || null;
         }
     });
     menuStateObserver.observe(D.body, { subtree: true, attributes: true, attributeFilter: ['open'] });
     setupCompactPersonMenu.menuStateObserver = menuStateObserver;
 
+    D.addEventListener('scroll', schedulePersonMenuTopLayerPosition, { capture: true, passive: true });
+    window.addEventListener('resize', schedulePersonMenuTopLayerPosition, { passive: true });
+    window.visualViewport?.addEventListener('resize', schedulePersonMenuTopLayerPosition, { passive: true });
+    window.visualViewport?.addEventListener('scroll', schedulePersonMenuTopLayerPosition, { passive: true });
     window.addEventListener('orientationchange', closePersonMenus, { passive: true });
 }
 

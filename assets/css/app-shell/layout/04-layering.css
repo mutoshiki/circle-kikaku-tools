@@ -27,7 +27,7 @@
   z-index: var(--z-local-base);
 }
 
-body.person-menu-open #top-area {
+body.person-menu-open:not(.person-menu-top-layer-open) #top-area {
   z-index: var(--z-person-menu);
 }
 

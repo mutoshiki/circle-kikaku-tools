@@ -105,6 +105,12 @@ test.describe('Allocation, menus and accessibility', () => {
     const personOverflow = page.locator('cds-overflow-menu.person-overflow-menu').first();
     await personOverflow.click();
     await expect(personOverflow).toHaveJSProperty('open', true);
+    await expect.poll(() => personOverflow.evaluate(node => ({
+      topLayer: node.matches?.(':popover-open') === true,
+      promoted: node.dataset.personMenuTopLayer === 'true',
+      placeholder: node.previousElementSibling?.classList.contains('person-menu-top-layer-placeholder') === true
+    }))).toEqual({ topLayer: true, promoted: true, placeholder: true });
+    expect(await page.evaluate(() => document.body.classList.contains('person-menu-top-layer-open'))).toBeTruthy();
     const personMenu = personOverflow.locator(':scope > cds-menu.person-pop-menu');
     await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(5);
     await expect(page.locator('cds-tooltip[open]')).toHaveCount(0);
@@ -117,6 +123,11 @@ test.describe('Allocation, menus and accessibility', () => {
     await gradeMenuItem.evaluate(node => node._openSubmenu?.());
     await gradeMenuItem.locator('cds-menu-item[data-choice-value="2"]').evaluate(node => node.click());
     await expect(page.locator('.member-card,.driver-seat').first()).toContainText('2年');
+    await expect.poll(() => personOverflow.evaluate(node => ({
+      topLayer: node.matches?.(':popover-open') === true,
+      popover: node.hasAttribute('popover'),
+      placeholder: node.previousElementSibling?.classList.contains('person-menu-top-layer-placeholder') === true
+    }))).toEqual({ topLayer: false, popover: false, placeholder: false });
     await hostClick(page, '[data-action="edit-capacity"]');
     await setHostValue(page, '#editModalInput', '4');
     await hostClick(page, '#saveEditBtn');
