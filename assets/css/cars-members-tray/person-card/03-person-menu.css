@@ -64,6 +64,7 @@
   pointer-events: none;
 }
 
+
 .person-overflow-menu {
   position: relative;
   z-index: auto;
@@ -116,39 +117,6 @@ body.person-menu-open .car-box:has(.person-overflow-menu[open]) {
 .person-pop-item[data-flag-choice="purple"] { --person-flag-color: var(--grade1-border); }
 .person-pop-item[data-flag-choice="yellow"] { --person-flag-color: var(--grade3-border); }
 .person-pop-item[data-flag-choice="red"] { --person-flag-color: var(--semantic-danger); }
-
-/* A passive Carbon-token cue makes clipped menu content discoverable without
- * replacing the official menu, scrollbar, focus ring or submenu behavior. */
-.person-menu-scroll-hint {
-  position: fixed;
-  z-index: calc(var(--z-person-menu) + 1);
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 32px;
-  padding: 0 var(--space-4);
-  border-top: 1px solid var(--cds-border-subtle-01, var(--border-strong));
-  background: var(--surface-lowest);
-  color: var(--text-sub);
-  font-size: var(--font-size-caption);
-  font-weight: 400;
-  line-height: 1;
-  pointer-events: none;
-}
-
-.person-menu-scroll-hint[data-direction="up"] {
-  border-top: 0;
-  border-bottom: 1px solid var(--cds-border-subtle-01, var(--border-strong));
-}
-
-.person-menu-scroll-hint[hidden] { display: none; }
-
-.person-menu-scroll-hint__icon {
-  margin-left: var(--space-2);
-  font-size: 16px;
-  line-height: 1;
-}
 
 @media (max-width: 520px) {
   #cars-container :is(.member-main-line, .driver-main-line),
