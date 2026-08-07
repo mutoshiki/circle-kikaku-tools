@@ -7,7 +7,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   static:
@@ -34,14 +34,17 @@ jobs:
           fi
       - run: npm ci --no-audit --no-fund
       - run: npm run build:carbon
-      - name: Capture generated asset diff
-        run: git diff --binary -- assets/vendor/carbon assets/vendor/ibm-plex > carbon-assets.diff
-      - name: Upload generated asset diff
-        uses: actions/upload-artifact@v4
-        with:
-          name: carbon-assets-diff
-          path: carbon-assets.diff
-          retention-days: 2
+      - name: Synchronize generated Carbon assets
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          if ! git diff --quiet -- assets/vendor/carbon assets/vendor/ibm-plex; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add assets/vendor/carbon assets/vendor/ibm-plex
+            git commit -m 'Sync generated Carbon assets'
+            git push
+          fi
       - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npm run lint:css
       - run: npm test
