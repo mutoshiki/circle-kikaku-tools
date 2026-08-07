@@ -67,25 +67,15 @@
 
 .person-overflow-menu {
   position: relative;
-  z-index: auto;
-}
-
-.person-overflow-menu[open] {
   z-index: var(--z-person-menu);
 }
 
 .person-overflow-menu::part(popover-container) {
-  position: fixed;
   z-index: var(--z-person-menu);
 }
 
 body.person-menu-open #app-layout #bottom-tray {
   z-index: calc(var(--z-person-menu) - 2);
-  /* backdrop-filter creates a containing block for fixed descendants on iOS.
-   * Remove it only while a person menu is open so Carbon's fixed menu surface
-   * is positioned against the viewport instead of the bottom tray. */
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
 }
 
 body.person-menu-open #cars-container,
@@ -100,6 +90,7 @@ body.person-menu-open .car-box:has(.person-overflow-menu[open]) {
 .person-overflow-menu cds-menu {
   z-index: var(--z-person-menu);
   max-width: min(224px, calc(100vw - 16px));
+  max-height: calc(100dvh - 16px);
   --cds-layer: var(--surface-lowest);
   --cds-layer-01: var(--surface-lowest);
   --cds-layer-02: var(--surface-low);
@@ -107,7 +98,6 @@ body.person-menu-open .car-box:has(.person-overflow-menu[open]) {
   --cds-text-primary: var(--text-main);
   --cds-text-secondary: var(--text-sub);
   --cds-icon-primary: var(--text-sub);
-  overflow: visible;
 }
 
 .person-pop-item { min-width: 0; }
@@ -145,26 +135,3 @@ body.person-menu-open .car-box:has(.person-overflow-menu[open]) {
     justify-content: flex-start;
   }
 }
-
-/* A touch-visible affordance for constrained menus. The root menu remains the
- * official Carbon menu; this strip only communicates that more actions are
- * available below the current viewport. */
-.person-menu-scroll-indicator {
-  position: fixed;
-  z-index: calc(var(--z-person-menu) + 3);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: var(--space-1);
-  height: 30px;
-  padding: 10px 8px 4px;
-  box-sizing: border-box;
-  background: linear-gradient(to bottom, transparent, var(--surface-lowest) 58%);
-  color: var(--text-sub);
-  font-size: var(--font-size-micro);
-  font-weight: 500;
-  line-height: 1;
-  pointer-events: none;
-}
-.person-menu-scroll-indicator[hidden] { display: none; }
-.person-menu-scroll-indicator .carbon-icon { width: 14px; height: 14px; }

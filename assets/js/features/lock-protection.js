@@ -58,21 +58,6 @@ function updateEditLockButton() {
         ? `${labels.join('・')}のロックを解除`
         : '車割・班割と精算のロック範囲を選ぶ';
     btn.setAttribute('aria-label', accessibleLabel);
-    const scopeState = normalizeEditLockScopes();
-    [
-        ['allocation', byId('tab-list'), '車割・班割'],
-        ['settlement', byId('tab-seisan'), '精算']
-    ].forEach(([scope, tab, baseLabel]) => {
-        if (!tab) return;
-        const scopeLocked = locked && !!scopeState[scope];
-        const indicator = tab.querySelector(`[data-view-lock-scope="${scope}"]`);
-        if (indicator) {
-            indicator.hidden = !scopeLocked;
-            indicator.setAttribute('aria-hidden', scopeLocked ? 'false' : 'true');
-        }
-        tab.classList.toggle('view-tab--locked', scopeLocked);
-        tab.setAttribute('aria-label', scopeLocked ? `${baseLabel}（ロック中）` : baseLabel);
-    });
     updateProtectedMenuItems();
     updateQuickEditButton();
 }
@@ -105,7 +90,7 @@ function updateQuickEditButton() {
     document.body.classList.toggle('quick-edit-mode', quickEditMode && shouldShow);
     btn.innerHTML = quickEditMode
         ? '<span data-carbon-icon="checkmark" aria-hidden="true"></span><span>完了</span>'
-        : '<span data-carbon-icon="edit" aria-hidden="true"></span><span>編集</span>';
+        : '<span data-carbon-icon="edit" aria-hidden="true"></span>';
     btn.setAttribute('aria-pressed', quickEditMode && shouldShow ? 'true' : 'false');
     btn.setAttribute('aria-label', quickEditMode ? '編集内容を保存して完了' : '共有画面を編集');
 }

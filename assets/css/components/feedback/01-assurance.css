@@ -14,8 +14,8 @@
 }
 .planning-check-item > .carbon-icon { padding-top: 3px; color: var(--semantic-warning); }
 .planning-check-item[data-tone="error"] > .carbon-icon { color: var(--semantic-danger); }
-.planning-check-item strong { display: block; color: var(--text-main); font-size: var(--font-size-label); }
-.planning-check-item span { display: block; margin-top: 2px; color: var(--text-sub); font-size: var(--font-size-caption); line-height: 1.45; }
+.planning-check-item strong { display: block; color: var(--text-main); font-size: 0.88rem; }
+.planning-check-item span { display: block; margin-top: 2px; color: var(--text-sub); font-size: 0.78rem; line-height: 1.45; }
 
 .app-loading-skeleton {
   position: fixed;
@@ -57,7 +57,7 @@
   min-width: 20px;
   height: 20px;
   color: var(--person-flag-color, var(--accent-color));
-  font-size: var(--font-size-caption);
+  font-size: 0.78rem;
 }
 .person-flag[data-flag="none"],
 .sheet-person-flag[data-flag="none"] { display: none; }

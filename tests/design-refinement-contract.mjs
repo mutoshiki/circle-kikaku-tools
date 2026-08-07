@@ -27,7 +27,7 @@ const clubExpense = await read('assets/css/settlement/checklists/06-club-expense
 const tagTokens = await read('assets/css/tokens/05-control-surface-tokens.css');
 const summary = await read('assets/css/settlement/summary/01-summary-layout.css');
 
-expect(index.includes('ui-consistency-v36'), 'Changed design owners need the v26 cache-buster.');
+expect(index.includes('rendered-qa-v26'), 'Changed design owners need the v26 cache-buster.');
 expect(header.includes('cds-icon-button.header-action'), 'Header Carbon icon-button hosts need an explicit neutral utility contract.');
 expect(header.includes('#shareLinkBtn.header-action'), 'Only the explicit share action should retain the link accent.');
 expect(header.includes('--cds-icon-primary: var(--text-main);'), 'Routine header utilities must use neutral Carbon icon color.');

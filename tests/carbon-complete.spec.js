@@ -75,36 +75,6 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
 test.describe('Allocation, menus and accessibility', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('first person menu opens when a touch sequence has no synthetic click', async ({ page }) => {
-    await seed(page);
-    await page.evaluate(() => window.switchView('list'));
-    const firstMenu = page.locator('cds-overflow-menu.person-overflow-menu').first();
-    await firstMenu.scrollIntoViewIfNeeded();
-    await firstMenu.evaluate(element => {
-      const rect = element.getBoundingClientRect();
-      const clientX = rect.left + rect.width / 2;
-      const clientY = rect.top + rect.height / 2;
-      element.dispatchEvent(new PointerEvent('pointerdown', {
-        bubbles: true, composed: true, cancelable: true,
-        pointerId: 71, pointerType: 'touch', isPrimary: true,
-        clientX, clientY, button: 0, buttons: 1
-      }));
-      element.dispatchEvent(new PointerEvent('pointerup', {
-        bubbles: true, composed: true, cancelable: true,
-        pointerId: 71, pointerType: 'touch', isPrimary: true,
-        clientX, clientY, button: 0, buttons: 0
-      }));
-    });
-    await expect(firstMenu).toHaveJSProperty('open', true);
-    const visible = await firstMenu.evaluate(element => {
-      const surface = element.querySelector(':scope > cds-menu.person-pop-menu')?.shadowRoot?.querySelector('.cds--menu');
-      const rect = surface?.getBoundingClientRect();
-      const style = surface ? getComputedStyle(surface) : null;
-      return !!(rect && rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden');
-    });
-    expect(visible).toBeTruthy();
-  });
-
   test('allocation switches, tray controls and official menus work in the viewport', async ({ page }) => {
     const errors = [];
     page.on('pageerror', error => errors.push(String(error)));
@@ -144,10 +114,8 @@ test.describe('Allocation, menus and accessibility', () => {
     }));
     expect(menuItemsInViewport).toBeTruthy();
     const gradeMenuItem = personMenu.locator(':scope > cds-menu-item[label="学年"]');
-    await gradeMenuItem.click();
-    await expect(personOverflow).toHaveJSProperty('open', true);
-    await expect(gradeMenuItem).toHaveAttribute('aria-expanded', 'true');
-    await gradeMenuItem.locator('cds-menu-item[data-choice-value="2"]').click();
+    await gradeMenuItem.evaluate(node => node._openSubmenu?.());
+    await gradeMenuItem.locator('cds-menu-item[data-choice-value="2"]').evaluate(node => node.click());
     await expect(page.locator('.member-card,.driver-seat').first()).toContainText('2年');
     await hostClick(page, '[data-action="edit-capacity"]');
     await setHostValue(page, '#editModalInput', '4');
@@ -336,8 +304,7 @@ test.describe('Settlement and route workflows', () => {
     await seed(page);
     await page.evaluate(() => window.switchView('seisan'));
     await hostClick(page, '[data-action="open-settlement-settings"]');
-    await expect(page.locator('#settlementSettingsModal cds-content-switcher')).toHaveCount(0);
-    await expect(page.locator('#settlementSettingsModal cds-select')).toHaveCount(3);
+    await expect(page.locator('#settlementSettingsModal cds-content-switcher')).toHaveCount(1);
     for (const id of ['seisanStandaloneEnabled', 'seisanDriverCollectionOffset', 'seisanOrganizerFree', 'seisanDriverCollectionFree']) {
       const checkbox = page.locator(`cds-checkbox#${id}`);
       if (await checkbox.count()) {

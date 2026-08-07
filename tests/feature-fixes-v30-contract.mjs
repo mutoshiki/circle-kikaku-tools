@@ -25,7 +25,7 @@ expect(settlement.includes('promptDiscardInvalidSettlementSettings'), 'Settlemen
 expect(settlement.includes("title: '入力内容を破棄'"), 'Settlement settings discard modal title is missing');
 expect(settlementEvents.includes("#seisanOrganizerFree, #seisanOrganizerName"), 'Organizer controls do not refresh validation state');
 
-expect(index.includes('class="route-place-search-icon" aria-hidden="true"><span data-carbon-icon="search"></span>'), 'Route search does not request the official Carbon Search icon');
+expect(index.includes('class="route-place-search-icon" data-carbon-icon="search"'), 'Route search does not request the official Carbon Search icon');
 expect(carbonSource.includes("@carbon/icons/es/search/20.js"), 'Carbon Search icon is not imported from the pinned official package');
 expect(carbonSource.includes('search: Search20'), 'Carbon Search icon is not registered');
 expect(carbonBundle.includes('name:"search"'), 'Built Carbon bundle does not contain Search');
@@ -40,7 +40,7 @@ expect((ui.match(/state\.confirmModal\.show\(\);/g) || []).length === 1, 'Confir
 expect(personMenuCss.includes('z-index: calc(var(--z-person-menu) - 2)'), 'Waiting tray is not lowered while a person menu is open');
 expect(personMenuCss.includes('.person-overflow-menu[open]'), 'Open person card does not receive a raised stacking context');
 expect(copyCss.includes('box-shadow: inset 0 0 0 1px var(--app-accent-border)'), 'Dark settlement copy action lacks a visible Carbon tertiary boundary');
-expect(carHeaderCss.includes('width: 1.25rem; height: 1.25rem'), 'Capacity edit icon is not balanced with the capacity count');
+expect(carHeaderCss.includes('width: 1.5rem; height: 1.5rem'), 'Capacity edit icon is still undersized');
 
 expect(overviewEvents.includes('syncTimetableTextareaExpansion'), 'Overview timetable expansion behavior is missing');
 expect(overviewEvents.includes("host.rows = shouldExpand ? 4 : 1"), 'Overview timetable textarea does not change official rows');

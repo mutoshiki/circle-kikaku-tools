@@ -61,10 +61,7 @@
       ${marker}
       <div class="route-stop-field">
         <span class="route-stop-role-label">${esc(roleLabel, helpers)}</span>
-        <span class="route-stop-input-shell">
-          <span class="route-stop-search-icon" aria-hidden="true"><span data-carbon-icon="search"></span></span>
-          <cds-text-input class="route-stop-input" type="text" size="lg" label="${placeholder}" hide-label placeholder="${placeholder}" value="${esc(value, helpers)}" readonly data-action="open-route-place-search" data-route-role="${role}"${waypointAttr} aria-label="${roleLabel}、${placeholder}"></cds-text-input>
-        </span>
+        <cds-text-input class="route-stop-input" type="text" size="lg" label="${placeholder}" hide-label placeholder="${placeholder}" value="${esc(value, helpers)}" readonly data-action="open-route-place-search" data-route-role="${role}"${waypointAttr} aria-label="${roleLabel}、${placeholder}"></cds-text-input>
       </div>
       ${drag}
       ${remove}

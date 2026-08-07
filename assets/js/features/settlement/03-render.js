@@ -52,6 +52,7 @@ function renderExtraRowHtml(carName, ex, index, issues) {
 
 function syncSettlementControls(state, participants) {
     const roundingEl = byId('seisanRounding');
+    const roundingOptions = Array.from(document.querySelectorAll('[data-rounding-value]'));
     const organizerFreeEl = byId('seisanOrganizerFree');
     const organizerEl = byId('seisanOrganizerName');
     const organizerField = byId('seisanOrganizerField');
@@ -71,13 +72,25 @@ function syncSettlementControls(state, participants) {
     if (rewardTypeEl) {
         const rewardType = getDriverRewardType(state);
         rewardTypeEl.value = rewardType;
+        rewardTypeEl.querySelectorAll('cds-content-switcher-item').forEach(item => {
+            item.selected = item.value === rewardType;
+        });
     }
     const standalone = normalizeStandaloneSettlementState(state.standalone || {});
     const roundingValue = String(state.rounding || '100');
+    document.querySelectorAll('.seisan-rounding-row').forEach(switcher => {
+        if (switcher.querySelector(`[data-rounding-value="${CSS.escape(roundingValue)}"]`)) switcher.value = roundingValue;
+    });
     if (standaloneEnabledEl) standaloneEnabledEl.checked = standalone.enabled;
     if (standaloneDriverCountEl) standaloneDriverCountEl.value = standalone.driverCount || '';
     if (standaloneMemberCountEl) standaloneMemberCountEl.value = standalone.memberCount || '';
     if (standaloneFieldsEl) standaloneFieldsEl.hidden = !standalone.enabled;
+    roundingOptions.forEach(option => {
+        const active = option.dataset.roundingValue === roundingValue;
+        option.classList.toggle('active', active);
+        option.selected = active;
+        option.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
     if (organizerField) organizerField.hidden = state.organizerFree === false;
     if (organizerEl) {
         const current = state.organizerName || '';
@@ -513,7 +526,7 @@ function openSettlementCarEditor(encodedName) {
     const name = decodeURIComponent(encodedName || '');
     activeSettlementCarEditName = name;
     const title = byId('settlementCarEditModalTitle');
-    if (title) title.innerHTML = `${escapeHtml(name)}車の費用`;
+    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用`;
     refreshSettlementCarEditor(name);
     if (modals.settlementCarEdit) modals.settlementCarEdit.show();
 }
@@ -526,7 +539,7 @@ function resumeSettlementCarEditor(encodedName) {
     settlementCarEditDiscardPromptActive = false;
     settlementCarEditPreserveOnHidden = false;
     const title = byId('settlementCarEditModalTitle');
-    if (title) title.innerHTML = `${escapeHtml(name)}車の費用`;
+    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用`;
     refreshSettlementCarEditor(name);
     if (modals.settlementCarEdit) modals.settlementCarEdit.show();
 }
@@ -545,7 +558,7 @@ function saveSettlementCarEditDraft() {
     renderSettlementView({ force: true });
     if (renamedStandaloneDriver) {
         const title = byId('settlementCarEditModalTitle');
-        if (title) title.innerHTML = `${escapeHtml(renamedStandaloneDriver)}車の費用`;
+        if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(renamedStandaloneDriver)}車の費用`;
         refreshSettlementCarEditor(renamedStandaloneDriver);
     }
     save();

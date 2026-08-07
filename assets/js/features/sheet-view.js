@@ -241,10 +241,7 @@ function linkifySheetTimetableText(value = '') {
             const parsed = new URL(url);
             if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
                 const safeUrl = escapeHtml(url);
-                const host = parsed.hostname.toLowerCase();
-                const isMap = host.includes('google.') || host === 'maps.app.goo.gl' || host.includes('maps.google');
-                const label = isMap ? '地図を開く' : 'リンクを開く';
-                html += `<a class="sheet-timetable-link" href="${safeUrl}" target="_blank" rel="noopener noreferrer" title="${safeUrl}" aria-label="${escapeHtml(label)}（新しいタブ）">${escapeHtml(label)}</a>`;
+                html += `<a class="sheet-timetable-link" href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a>`;
             } else {
                 html += escapeHtml(url);
             }

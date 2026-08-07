@@ -2,5 +2,5 @@
   .user-manual-intro,
   .user-manual-section { padding: 20px 16px; }
   .user-manual-nav { padding-inline: 12px; }
-  .user-manual p { font-size: var(--font-size-label); }
+  .user-manual p { font-size: 0.875rem; }
 }

@@ -15,23 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          registry-url: https://registry.npmjs.org
-      - name: Reject private registry URLs in lockfiles
-        shell: bash
-        run: |
-          lockfiles=()
-          for file in package-lock.json npm-shrinkwrap.json pnpm-lock.yaml yarn.lock; do
-            [[ -f "$file" ]] && lockfiles+=("$file")
-          done
-          if ((${#lockfiles[@]})) && grep -HnE 'internal\.api\.openai\.org|applied-caas-gateway' "${lockfiles[@]}"; then
-            echo 'Lockfile contains a private registry URL that GitHub-hosted runners cannot access.'
-            exit 1
-          fi
       - run: npm ci --no-audit --no-fund
       - run: npm run build:carbon
       - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
@@ -43,30 +31,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          registry-url: https://registry.npmjs.org
-      - name: Reject private registry URLs in lockfiles
-        shell: bash
-        run: |
-          lockfiles=()
-          for file in package-lock.json npm-shrinkwrap.json pnpm-lock.yaml yarn.lock; do
-            [[ -f "$file" ]] && lockfiles+=("$file")
-          done
-          if ((${#lockfiles[@]})) && grep -HnE 'internal\.api\.openai\.org|applied-caas-gateway' "${lockfiles[@]}"; then
-            echo 'Lockfile contains a private registry URL that GitHub-hosted runners cannot access.'
-            exit 1
-          fi
       - run: npm ci --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
       - run: npm run test:ui
       - run: npm run test:visual
       - name: Upload Playwright report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: |

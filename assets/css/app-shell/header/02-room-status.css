@@ -33,8 +33,6 @@
   color: var(--text-main);
 }
 
-.app-room-statuses { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
-
 .sync-status-badge {
   flex: 0 0 auto;
   max-width: 132px;
@@ -65,7 +63,7 @@
   background: var(--text-main);
   color: var(--surface-lowest);
   box-shadow: var(--shadow-float);
-  font-size: var(--font-size-caption);
+  font-size: 0.82rem;
   font-weight: 600;
   opacity: 0;
   pointer-events: none;
@@ -83,13 +81,10 @@
 }
 
 @media (max-width: 640px) {
-  .app-room-statuses { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
-
-.sync-status-badge { display: none; }
+  .sync-status-badge { display: none; }
   .app-room-input { font-size: 1rem; }
 }
 
 @media (max-width: 520px) {
   #appUndoBar { width: calc(100vw - 24px); justify-content: space-between; }
 }
-

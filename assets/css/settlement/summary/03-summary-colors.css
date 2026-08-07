@@ -1,9 +1,21 @@
-/* Semantic categories use a restrained line and label; all cards share one neutral surface. */
-#seisan-view-area .seisan-summary-card.collect { --settlement-summary-line: var(--settlement-split-line); --settlement-summary-label: var(--settlement-split-ink); }
-#seisan-view-area .seisan-summary-card.accounting { --settlement-summary-line: var(--settlement-club-line); --settlement-summary-label: var(--settlement-club-ink); }
+/* Split, club, and payment use the same surface algorithm. */
+#seisan-view-area .seisan-summary-card.collect {
+  --settlement-summary-bg: var(--settlement-collect-bg);
+  --settlement-summary-line: var(--settlement-split-line);
+  background: var(--settlement-summary-bg);
+  color: var(--settlement-split-ink);
+}
+#seisan-view-area .seisan-summary-card.accounting {
+  --settlement-summary-bg: var(--settlement-club-bg);
+  --settlement-summary-line: var(--settlement-club-line);
+  background: var(--settlement-summary-bg);
+  color: var(--settlement-club-ink);
+}
 #seisan-view-area .seisan-summary-card.pay,
-#seisan-view-area .seisan-summary-card.payment { --settlement-summary-line: var(--settlement-pay-line); --settlement-summary-label: var(--settlement-pay-ink); }
-#seisan-view-area .seisan-summary-card { background: var(--surface-low); color: var(--text-main); }
-#seisan-view-area .seisan-summary-card .seisan-summary-label { color: var(--settlement-summary-label, var(--text-sub)); }
-#seisan-view-area .seisan-summary-card :is(.seisan-summary-value, .seisan-summary-sub) { color: var(--text-main); }
-#seisan-view-area .seisan-summary-card .seisan-summary-sub { color: var(--text-sub); }
+#seisan-view-area .seisan-summary-card.payment {
+  --settlement-summary-bg: var(--settlement-pay-bg);
+  --settlement-summary-line: var(--settlement-pay-line);
+  background: var(--settlement-summary-bg);
+  color: var(--settlement-pay-ink);
+}
+#seisan-view-area .seisan-summary-card :is(.seisan-summary-label, .seisan-summary-value, .seisan-summary-sub) { color: inherit; }

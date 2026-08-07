@@ -1,10 +1,10 @@
 /* Timetable cards in shared view. */
 .sheet-timetable-card { overflow: hidden; border: 1px solid var(--border-color); border-radius: 0; background: var(--surface-lowest); box-shadow: none; }
-.sheet-timetable-card-title { padding: 8px 10px; border-bottom: 1px solid var(--border-section); color: var(--text-main); font-size: var(--font-size-label); font-weight: 600; }
+.sheet-timetable-card-title { padding: 8px 10px; border-bottom: 1px solid var(--border-section); color: var(--text-main); font-size: 0.88rem; font-weight: 600; }
 .sheet-timetable-row { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 8px; align-items: start; padding: 8px 10px; border-bottom: 1px solid var(--border-section); }
 .sheet-timetable-row:last-child { border-bottom: 0; }
-.sheet-timetable-time { color: var(--text-sub); font-size: var(--font-size-caption); font-weight: 600; line-height: 1.5; white-space: nowrap; }
-.sheet-timetable-title { min-width: 0; color: var(--text-main); font-size: var(--font-size-label); font-weight: 550; line-height: 1.5; overflow-wrap: anywhere; }
+.sheet-timetable-time { color: var(--text-sub); font-size: 0.82rem; font-weight: 600; line-height: 1.5; white-space: nowrap; }
+.sheet-timetable-title { min-width: 0; color: var(--text-main); font-size: 0.88rem; font-weight: 550; line-height: 1.5; overflow-wrap: anywhere; }
 .sheet-timetable-link {
   display: inline-flex;
   align-items: center;
@@ -15,9 +15,17 @@
   text-decoration: underline;
   text-underline-offset: 0.18em;
   overflow-wrap: anywhere;
-  white-space: nowrap;
 }
 
+@media (max-width: 640px) {
+  /* The shared canvas starts zoomed to fit; reserve enough unscaled height so
+     the map link still has a physical 48px touch target after scaling. */
+  .sheet-timetable-row:has(.sheet-timetable-link) {
+    min-height: 104px;
+    align-items: center;
+  }
+  .sheet-timetable-link { min-height: 104px; }
+}
 
 /* Shared memo, positioned directly below the timetable. */
 .sheet-memo-card {

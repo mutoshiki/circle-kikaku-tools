@@ -66,8 +66,8 @@
   background: var(--surface-lowest);
 }
 
-body.app-keyboard-navigation #cars-container .seat-slot > .member-card:focus-within,
-body.app-keyboard-navigation #waiting-list .member-card:focus-within {
+#cars-container .seat-slot > .member-card:focus-within,
+#waiting-list .member-card:focus-within {
   outline: 2px solid var(--focus-accent);
   outline-offset: -2px;
 }

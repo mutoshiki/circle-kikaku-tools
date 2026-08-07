@@ -17,8 +17,8 @@ assert.match(state, /function normalizeDriverRewardType/, 'driver reward policy 
 assert.match(state, /ex\.type = rewardType/, 'generated driver reward extra must follow the selected policy');
 assert.match(render, /filter\(ex => !isDriverRewardExtra\(ex\)\)/, 'driver reward must be hidden from per-car editor');
 assert.match(calculator, /driverRewardType,/, 'calculation result must expose the selected policy');
-assert.match(html, /<cds-select[^>]*id="seisanDriverRewardType"[^>]*value="split"/, 'settings must contain the default split Carbon Select');
-assert.match(events, /rewardType\.addEventListener\('change'/, 'Carbon Select change must be handled');
+assert.match(html, /id="seisanDriverRewardType"[^>]*value="split"/, 'settings must contain the default split switcher');
+assert.match(events, /cds-content-switcher-selected/, 'Carbon content switcher selection must be handled');
 assert.match(inputs, /data-extra-field="amount"[^>]*placeholder="金額"/, 'per-car amount placeholder must be 金額');
 assert.doesNotMatch(inputs, /data-extra-field="amount"[^>]*placeholder="1000"/, 'old amount placeholder must be removed');
 

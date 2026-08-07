@@ -1,6 +1,6 @@
 /* Responsive labels and standalone-driver fields inside the vehicle editor. */
 #settlementCarEditModal > .app-modal-body { overflow-x: hidden; }
-#settlementCarEditModal .seisan-small { margin-bottom: 12px; color: var(--text-sub); font-size: var(--font-size-caption); font-weight: 600; line-height: 1.45; }
+#settlementCarEditModal .seisan-small { margin-bottom: 12px; color: var(--text-sub); font-size: 0.74rem; font-weight: 600; line-height: 1.45; }
 #settlementCarEditModal .seisan-mini-label { min-height: 1.3em; margin-bottom: 5px; color: var(--text-sub); font-size: var(--font-size-caption); font-weight: 600; line-height: 1.25; white-space: normal; }
 #settlementCarEditModal .seisan-subhead { margin-top: 14px; padding-top: 12px; }
 #settlementCarEditModal .seisan-gas-section-head .seisan-subhead { margin: 0; padding: 0 0 2px; }

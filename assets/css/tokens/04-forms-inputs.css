@@ -39,19 +39,3 @@
     font-size: 16px;
   }
 }
-
-
-/* Carbon select hosts keep the field surface after pointer selection.
- * This prevents iOS Safari from retaining the inverse/selected surface while
- * preserving Carbon's focus outline and native menu behavior. */
-:where(cds-select) {
-  --cds-field: var(--cds-field-01);
-  --cds-text-primary: var(--text-main);
-  --cds-text-secondary: var(--text-sub);
-  --cds-icon-primary: var(--text-main);
-  --cds-border-strong: var(--border-strong);
-}
-:where(cds-select):focus-within {
-  --cds-field: var(--cds-field-01);
-  --cds-text-primary: var(--text-main);
-}

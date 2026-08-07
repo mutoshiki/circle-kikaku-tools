@@ -50,14 +50,6 @@ function getInitialSheetX(area, contentWidth, scale) {
     return Math.max(0, Math.round((area.clientWidth - contentWidth * scale) / 2));
 }
 
-function syncSheetGestureHint({ needsPan = false, force = false } = {}) {
-    const hint = byId('sheet-gesture-hint');
-    if (!hint) return;
-    const shouldShow = force || (needsPan && !sheetUserAdjusted);
-    hint.hidden = !shouldShow;
-    hint.classList.toggle('is-visible', shouldShow);
-}
-
 function fitInitialSheetScale({ fitAll = false } = {}) {
     const area = byId('sheet-view-area');
     const content = getSheetTransformTarget();
@@ -75,37 +67,21 @@ function fitInitialSheetScale({ fitAll = false } = {}) {
     if (!contentWidth || !availableWidth) return;
     const isCompact = area.clientWidth <= 640;
     const maxScale = isCompact ? 0.9 : 1;
+    const minScale = fitAll ? (isCompact ? 0.62 : 0.72) : (isCompact ? 0.9 : 0.84);
     const fitScale = availableWidth / contentWidth;
-    const defaultMinScale = isCompact ? 0.9 : 0.84;
-    // A requested fit must genuinely include the whole presentation. The normal
-    // opening scale stays readable and intentionally allows horizontal panning.
-    sheetScale = fitAll
-        ? Math.min(maxScale, fitScale)
-        : Math.min(maxScale, Math.max(defaultMinScale, fitScale));
+    sheetScale = Math.min(maxScale, Math.max(minScale, fitScale));
     sheetX = getInitialSheetX(area, contentWidth, sheetScale);
     sheetY = 0;
-    const fullyFits = contentWidth * sheetScale <= availableWidth + 1;
-    area.classList.toggle('sheet-needs-pan', !fullyFits);
-    syncSheetGestureHint({ needsPan: !fullyFits });
+    area.classList.toggle('sheet-needs-pan', contentWidth * sheetScale > availableWidth + 4);
+    area.classList.add('sheet-fit-active');
     applySheetTransform();
 }
 
 function markSheetAdjusted() {
     sheetUserAdjusted = true;
     const area = byId('sheet-view-area');
-    syncSheetGestureHint({ needsPan: false });
+    area?.classList.remove('sheet-fit-active');
 }
-
-function resetSheetViewport({ fitAll = true } = {}) {
-    sheetUserAdjusted = false;
-    sheetScale = 1;
-    sheetX = 0;
-    sheetY = 0;
-    const area = byId('sheet-view-area');
-    area?.classList.remove('is-panning');
-    requestAnimationFrame(() => fitInitialSheetScale({ fitAll }));
-}
-window.SanpoApp?.exposeCompat?.('resetSheetViewport', resetSheetViewport);
 
 D.addEventListener('DOMContentLoaded', () => {
     const area = byId('sheet-view-area');

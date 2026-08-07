@@ -8,7 +8,7 @@
   background: var(--surface-lowest);
   box-shadow: var(--shadow-card);
 }
-.sheet-wait-header { min-height: 42px; padding: 10px 12px; background: var(--surface-container); color: var(--text-main); font-size: var(--font-size-caption); font-weight: 600; }
+.sheet-wait-header { min-height: 42px; padding: 10px 12px; background: var(--surface-container); color: var(--text-main); font-size: 0.82rem; font-weight: 600; }
 .sheet-wait-body { display: grid; grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 0; }
-.sheet-wait-item { display: flex; align-items: center; gap: 5px; min-height: 42px; padding: 7px 9px; border-right: 1px solid var(--border-section); border-bottom: 1px solid var(--border-section); color: var(--text-main); font-size: var(--font-size-caption); }
+.sheet-wait-item { display: flex; align-items: center; gap: 5px; min-height: 42px; padding: 7px 9px; border-right: 1px solid var(--border-section); border-bottom: 1px solid var(--border-section); color: var(--text-main); font-size: 0.82rem; }
 .sheet-waiting-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; }
