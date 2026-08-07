@@ -34,6 +34,14 @@ jobs:
           fi
       - run: npm ci --no-audit --no-fund
       - run: npm run build:carbon
+      - name: Capture generated asset diff
+        run: git diff --binary -- assets/vendor/carbon assets/vendor/ibm-plex > carbon-assets.diff
+      - name: Upload generated asset diff
+        uses: actions/upload-artifact@v4
+        with:
+          name: carbon-assets-diff
+          path: carbon-assets.diff
+          retention-days: 2
       - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npm run lint:css
       - run: npm test
