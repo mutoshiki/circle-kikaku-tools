@@ -19,7 +19,6 @@
   outline-offset: -3px;
 }
 
-
 /* Persistent, low-noise pan affordance. */
 #sheet-view-area.sheet-needs-pan #sheet-canvas::before,
 #sheet-view-area.sheet-needs-pan #sheet-canvas::after {
@@ -45,8 +44,6 @@
   gap: var(--space-2);
 }
 
-
-
 .sheet-gesture-hint {
   position: absolute;
   left: 50%;
@@ -70,11 +67,6 @@
 }
 .sheet-gesture-hint[hidden] { display: none; }
 .sheet-gesture-hint .carbon-icon { width: 20px; height: 20px; flex: 0 0 auto; color: var(--app-accent-icon); }
-
-#sheet-view-area.sheet-needs-pan #sheet-canvas {
-  box-shadow: inset 18px 0 20px -22px var(--app-accent-border),
-              inset -18px 0 20px -22px var(--app-accent-border);
-}
 
 @media (max-width: 640px) {
   .sheet-gesture-hint {
