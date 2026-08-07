@@ -65,7 +65,7 @@ test.describe('Mobile person menu regression', () => {
 
     const gradeItem = trigger.locator('cds-menu-item[label="学年"]');
     await touchTap(page, gradeItem, 102);
-    expect(await gradeItem.evaluate(item => item.open === true || item.hasAttribute('open'))).toBeTruthy();
+    await expect(gradeItem).toHaveJSProperty('submenuOpen', true);
 
     const secondGrade = gradeItem.locator('cds-menu-item[data-choice-value="2"]');
     await touchTap(page, secondGrade, 103);
