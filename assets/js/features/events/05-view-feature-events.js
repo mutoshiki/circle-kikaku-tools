@@ -154,13 +154,28 @@
         global.visualViewport?.addEventListener('resize', schedulePersonMenuScrollHint, { passive: true });
     }
 
-    function syncCarbonIconButtonLabels() {
+    function applyCarbonIconButtonLabels() {
         document.querySelectorAll('cds-icon-button[aria-label]').forEach(button => {
             const label = button.getAttribute('aria-label')?.trim();
             if (!label) return;
-            button.label = label;
-            button.setAttribute('label', label);
+
+            let tooltipContent = button.querySelector(':scope > [slot="tooltip-content"]');
+            if (!tooltipContent) {
+                tooltipContent = document.createElement('span');
+                tooltipContent.slot = 'tooltip-content';
+                button.appendChild(tooltipContent);
+            }
+            tooltipContent.textContent = label;
+            button.requestUpdate?.();
         });
+    }
+
+    function syncCarbonIconButtonLabels() {
+        if (customElements.get('cds-icon-button')) {
+            applyCarbonIconButtonLabels();
+            return;
+        }
+        customElements.whenDefined('cds-icon-button').then(applyCarbonIconButtonLabels);
     }
 
     function setupSettlementOptionEvents() {
