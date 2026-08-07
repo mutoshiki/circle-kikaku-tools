@@ -7,7 +7,7 @@ on:
       - main
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   static:
@@ -15,8 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -34,17 +34,6 @@ jobs:
           fi
       - run: npm ci --no-audit --no-fund
       - run: npm run build:carbon
-      - name: Synchronize generated Carbon assets
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        shell: bash
-        run: |
-          if ! git diff --quiet -- assets/vendor/carbon assets/vendor/ibm-plex; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add assets/vendor/carbon assets/vendor/ibm-plex
-            git commit -m 'Sync generated Carbon assets'
-            git push
-          fi
       - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npm run lint:css
       - run: npm test
@@ -54,8 +43,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
