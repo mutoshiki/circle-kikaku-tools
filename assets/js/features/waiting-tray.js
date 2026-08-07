@@ -149,45 +149,78 @@ window.toggleTray = toggleTray;
 
 const traySettingsTriggerEl = byId('traySettingsBtn');
 const traySettingsPopoverEl = byId('autoAssignPopover');
+const traySettingsPopoverTag = 'cds-popover';
+
+function isTraySettingsMenuOpen() {
+    if (!traySettingsPopoverEl) return false;
+    // Once Carbon is defined its reactive property is the source of truth.
+    // During a close event the reflected attribute can lag one update behind,
+    // so reading the attribute first would leave aria-expanded stuck at true.
+    if (customElements.get(traySettingsPopoverTag)) return traySettingsPopoverEl.open === true;
+    return traySettingsPopoverEl.hasAttribute('open');
+}
 
 function syncTraySettingsMenuState() {
     if (!traySettingsTriggerEl || !traySettingsPopoverEl) return;
-    const open = traySettingsPopoverEl.open === true;
+    const open = isTraySettingsMenuOpen();
     traySettingsTriggerEl.setAttribute('aria-expanded', open ? 'true' : 'false');
     byId('bottom-tray')?.classList.toggle('tray-settings-open', open);
 }
 
 function setTraySettingsMenuOpen(open) {
     if (!traySettingsPopoverEl) return;
-    traySettingsPopoverEl.open = !!open;
+    const next = !!open;
+
+    // Keep state safe while Carbon is still upgrading: the reflected attribute
+    // works before definition, then the public Carbon property takes over.
+    traySettingsPopoverEl.toggleAttribute('open', next);
+
+    // Once Carbon is defined, use its public reactive property as well so the
+    // component update is immediate.
+    if (customElements.get(traySettingsPopoverTag)) {
+        traySettingsPopoverEl.open = next;
+    }
     syncTraySettingsMenuState();
 }
 
-async function ensureTraySettingsCarbonReady() {
-    await Promise.all([
-        customElements.whenDefined('cds-popover'),
-        customElements.whenDefined('cds-popover-content'),
-        customElements.whenDefined('cds-icon-button')
-    ]);
+function initializeTraySettingsPopover() {
     if (!traySettingsPopoverEl) return;
-    // Prefer the site-north placement while Carbon handles viewport collision safely.
-    traySettingsPopoverEl.autoalign = true;
-    traySettingsPopoverEl.autoAlignBoundary = '#app-layout';
+
+    // Defensive cleanup for any pre-upgrade property left by an older cached
+    // controller. Carbon/Lit normally upgrades this safely, but normalizing it
+    // here keeps a single reactive state owner.
+    if (Object.prototype.hasOwnProperty.call(traySettingsPopoverEl, 'open')) {
+        const pendingOpen = traySettingsPopoverEl.open === true || traySettingsPopoverEl.hasAttribute('open');
+        delete traySettingsPopoverEl.open;
+        traySettingsPopoverEl.toggleAttribute('open', pendingOpen);
+        traySettingsPopoverEl.open = pendingOpen;
+    }
+
+    // Root cause of the invisible menu was Carbon auto-align's floating `hide`
+    // calculation marking this fixed bottom-tray reference as hidden on the iOS
+    // layout. The Popover was actually `open`, but its content received
+    // `visibility: hidden`. The requested placement is always north-facing, so
+    // use Carbon's stable static top-end alignment instead of auto-align.
+    traySettingsPopoverEl.autoalign = false;
+    traySettingsPopoverEl.removeAttribute('autoalign');
+    traySettingsPopoverEl.removeAttribute('autoalign-boundary');
     traySettingsPopoverEl.align = 'top-end';
-    await traySettingsPopoverEl.updateComplete;
     syncTraySettingsMenuState();
 }
 
-traySettingsTriggerEl?.addEventListener('click', async event => {
+traySettingsTriggerEl?.addEventListener('click', event => {
     event.preventDefault();
-    await ensureTraySettingsCarbonReady();
-    setTraySettingsMenuOpen(!traySettingsPopoverEl?.open);
+    // Keep this controller synchronous. Carbon itself owns focus, Escape and
+    // outside-click dismissal after `open` changes.
+    setTraySettingsMenuOpen(!isTraySettingsMenuOpen());
 });
 
 // Carbon Popover owns outside-click and Escape dismissal. We only mirror its state
 // to the trigger aria attribute and the tray stacking context.
 traySettingsPopoverEl?.addEventListener('cds-popover-closed', syncTraySettingsMenuState);
-ensureTraySettingsCarbonReady();
+
+customElements.whenDefined(traySettingsPopoverTag).then(initializeTraySettingsPopover);
+syncTraySettingsMenuState();
 
 function updateTrayMenuDirection() {
     const tray = byId("bottom-tray");
