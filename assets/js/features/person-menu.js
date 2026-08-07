@@ -304,6 +304,8 @@ function setPersonGrade(person, gradeValue) {
     save();
 }
 
+// Gender is changed only by an explicit Carbon menu-item choice. Person names
+// and card surfaces are intentionally non-interactive for this state.
 function setPersonGender(person, gender) {
     const next = ['male', 'female', 'unknown'].includes(gender) ? gender : 'unknown';
     person.dataset.gender = next;

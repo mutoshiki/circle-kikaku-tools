@@ -10,11 +10,8 @@
 
         D.body.addEventListener('click', async e => {
             const t = e.target;
-            const nameTrigger = t.closest('.member-name-text, .driver-name-disp');
-            if (nameTrigger) {
-                toggleStatus(nameTrigger.closest('.member-card') || nameTrigger.closest('.driver-seat'));
-                return;
-            }
+            // Participant names are display text. Editable state changes are handled only
+            // by the official Carbon overflow-menu actions beside each person.
             const editTrigger = t.closest('.edit-btn');
             if (editTrigger) {
                 handleEdit(editTrigger.closest('.driver-seat') ? 'driverMemo' : 'memo', editTrigger);

@@ -583,17 +583,6 @@ window.SanpoApp?.registerActions?.({
     'clear-all': () => clearAll()
 });
 
-function toggleStatus(el) {
-    const g = el.dataset.gender;
-    let nG = 'male';
-    if (g==='male') { nG='female'; }
-    else if (g==='female') { nG='unknown'; }
-    else { nG='male'; }
-    el.dataset.gender = nG;
-    updatePersonGenderBadge(el);
-    save();
-}
-
 function toggleLock(el) {
     if (!el) return;
     const locked = el.dataset.locked === 'true';

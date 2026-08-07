@@ -102,7 +102,12 @@ test.describe('Allocation, menus and accessibility', () => {
     await expect(page.locator('#autoAssignSummary')).not.toHaveText('条件：なし');
     await page.keyboard.press('Escape');
     await expect(page.locator('#autoAssignPopover')).toHaveJSProperty('open', false);
-    const personOverflow = page.locator('cds-overflow-menu.person-overflow-menu').first();
+    const firstPerson = page.locator('.member-card,.driver-seat').first();
+    const genderBeforeNameTap = await firstPerson.getAttribute('data-gender');
+    await firstPerson.locator('.member-name-text,.driver-name-disp').click();
+    await expect(firstPerson).toHaveAttribute('data-gender', genderBeforeNameTap || 'unknown');
+
+    const personOverflow = firstPerson.locator('cds-overflow-menu.person-overflow-menu');
     await personOverflow.click();
     await expect(personOverflow).toHaveJSProperty('open', true);
     await expect.poll(() => personOverflow.evaluate(node => ({
@@ -111,6 +116,11 @@ test.describe('Allocation, menus and accessibility', () => {
       placeholder: node.previousElementSibling?.classList.contains('person-menu-top-layer-placeholder') === true
     }))).toEqual({ topLayer: true, promoted: true, placeholder: true });
     expect(await page.evaluate(() => document.body.classList.contains('person-menu-top-layer-open'))).toBeTruthy();
+    await page.mouse.click(8, 96);
+    await expect(personOverflow).toHaveJSProperty('open', false);
+    expect(await firstPerson.evaluate(node => getComputedStyle(node).outlineStyle)).toBe('none');
+    await personOverflow.click();
+    await expect(personOverflow).toHaveJSProperty('open', true);
     const personMenu = personOverflow.locator(':scope > cds-menu.person-pop-menu');
     await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(5);
     await expect(page.locator('cds-tooltip[open]')).toHaveCount(0);
