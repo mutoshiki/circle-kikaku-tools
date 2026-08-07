@@ -57,6 +57,7 @@ import PaintBrushAlt20 from '@carbon/icons/es/paint-brush--alt/20.js';
 import RecentlyViewed20 from '@carbon/icons/es/recently-viewed/20.js';
 import Receipt20 from '@carbon/icons/es/receipt/20.js';
 import Roadmap20 from '@carbon/icons/es/roadmap/20.js';
+import Search20 from '@carbon/icons/es/search/20.js';
 import SettingsAdjust20 from '@carbon/icons/es/settings--adjust/20.js';
 import Shuffle20 from '@carbon/icons/es/shuffle/20.js';
 import Subtract20 from '@carbon/icons/es/subtract/20.js';
@@ -117,6 +118,7 @@ const ICONS = Object.freeze({
   'recently-viewed': RecentlyViewed20,
   receipt: Receipt20,
   roadmap: Roadmap20,
+  search: Search20,
   'settings--adjust': SettingsAdjust20,
   shuffle: Shuffle20,
   subtract: Subtract20,
