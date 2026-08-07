@@ -145,3 +145,26 @@ body.person-menu-open .car-box:has(.person-overflow-menu[open]) {
     justify-content: flex-start;
   }
 }
+
+/* A touch-visible affordance for constrained menus. The root menu remains the
+ * official Carbon menu; this strip only communicates that more actions are
+ * available below the current viewport. */
+.person-menu-scroll-indicator {
+  position: fixed;
+  z-index: calc(var(--z-person-menu) + 3);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--space-1);
+  height: 30px;
+  padding: 10px 8px 4px;
+  box-sizing: border-box;
+  background: linear-gradient(to bottom, transparent, var(--surface-lowest) 58%);
+  color: var(--text-sub);
+  font-size: var(--font-size-micro);
+  font-weight: 500;
+  line-height: 1;
+  pointer-events: none;
+}
+.person-menu-scroll-indicator[hidden] { display: none; }
+.person-menu-scroll-indicator .carbon-icon { width: 14px; height: 14px; }

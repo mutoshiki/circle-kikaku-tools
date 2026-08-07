@@ -14,7 +14,7 @@
   user-select: none;
 }
 
-#sheet-canvas:focus-visible {
+body.app-keyboard-navigation #sheet-canvas:focus-visible {
   outline: 3px solid var(--focus-accent);
   outline-offset: -3px;
 }
@@ -72,8 +72,7 @@
 .sheet-gesture-hint .carbon-icon { width: 20px; height: 20px; flex: 0 0 auto; color: var(--app-accent-icon); }
 
 #sheet-view-area.sheet-needs-pan #sheet-canvas {
-  box-shadow: inset 18px 0 20px -22px var(--app-accent-border),
-              inset -18px 0 20px -22px var(--app-accent-border);
+  box-shadow: none;
 }
 
 @media (max-width: 640px) {
@@ -81,4 +80,10 @@
     bottom: calc(128px + env(safe-area-inset-bottom));
     font-size: var(--font-size-micro);
   }
+}
+
+/* Pointer/touch focus is tracked for gesture handling, but must not render the
+   browser's default ring. Keyboard focus remains covered by the rule above. */
+body:not(.app-keyboard-navigation) #sheet-canvas:focus {
+  outline: none;
 }

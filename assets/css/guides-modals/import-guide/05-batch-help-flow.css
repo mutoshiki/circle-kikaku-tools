@@ -177,15 +177,15 @@
   scrollbar-width: thin;
 }
 .batch-auto-simple[data-horizontal-overflow] .batch-auto-table-wrap {
-  box-shadow: inset -18px 0 18px -20px var(--app-accent-border);
+  box-shadow: inset -18px 0 18px -20px color-mix(in srgb, var(--text-sub) 42%, transparent);
 }
 .batch-auto-simple[data-horizontal-at-start] .batch-auto-table-wrap {
-  box-shadow: inset -18px 0 18px -20px var(--app-accent-border);
+  box-shadow: inset -18px 0 18px -20px color-mix(in srgb, var(--text-sub) 42%, transparent);
 }
 .batch-auto-simple[data-horizontal-at-end] .batch-auto-table-wrap {
-  box-shadow: inset 18px 0 18px -20px var(--app-accent-border);
+  box-shadow: inset 18px 0 18px -20px color-mix(in srgb, var(--text-sub) 42%, transparent);
 }
 .batch-auto-simple[data-horizontal-middle] .batch-auto-table-wrap {
-  box-shadow: inset 18px 0 18px -20px var(--app-accent-border),
-              inset -18px 0 18px -20px var(--app-accent-border);
+  box-shadow: inset 18px 0 18px -20px color-mix(in srgb, var(--text-sub) 42%, transparent),
+              inset -18px 0 18px -20px color-mix(in srgb, var(--text-sub) 42%, transparent);
 }

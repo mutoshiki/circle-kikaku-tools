@@ -4,16 +4,78 @@
 let activePersonMenuTarget = null;
 let activePersonMenuTrigger = null;
 let personMenuPointerGesture = null;
-const suppressedPersonMenuClicks = new WeakSet();
+let pendingPersonMenuActivation = null;
+let activePersonMenuScrollSurface = null;
+
+function getPersonMenuScrollIndicator() {
+    let indicator = document.getElementById('personMenuScrollIndicator');
+    if (indicator) return indicator;
+    indicator = document.createElement('div');
+    indicator.id = 'personMenuScrollIndicator';
+    indicator.className = 'person-menu-scroll-indicator';
+    indicator.hidden = true;
+    indicator.setAttribute('aria-hidden', 'true');
+    indicator.innerHTML = '<span>下に続きます</span><span data-carbon-icon="chevron--down"></span>';
+    document.body.appendChild(indicator);
+    window.SanpoCarbon?.renderCarbonIcons?.(indicator);
+    return indicator;
+}
+
+function updatePersonMenuScrollAffordance(menu, surface) {
+    const indicator = getPersonMenuScrollIndicator();
+    const maxScroll = Math.max(0, (surface?.scrollHeight || 0) - (surface?.clientHeight || 0));
+    const scrollable = maxScroll > 2;
+    const moreBelow = scrollable && surface.scrollTop < maxScroll - 2;
+    menu?.toggleAttribute('data-menu-scrollable', scrollable);
+    menu?.toggleAttribute('data-menu-scroll-more', moreBelow);
+    if (!surface || !moreBelow || !menu?.closest('cds-overflow-menu.person-overflow-menu[open]')) {
+        indicator.hidden = true;
+        if (activePersonMenuScrollSurface === surface) activePersonMenuScrollSurface = null;
+        return;
+    }
+    const rect = surface.getBoundingClientRect();
+    indicator.hidden = false;
+    indicator.style.left = `${Math.round(rect.left)}px`;
+    indicator.style.top = `${Math.round(Math.max(rect.top, rect.bottom - 30))}px`;
+    indicator.style.width = `${Math.round(rect.width)}px`;
+    activePersonMenuScrollSurface = surface;
+}
+
+function bindPersonMenuScrollAffordance(menu, surface) {
+    if (!menu || !surface) return;
+    if (menu.__personMenuScrollSurface !== surface) {
+        menu.__personMenuScrollSurface?.removeEventListener('scroll', menu.__personMenuScrollUpdate);
+        menu.__personMenuScrollSurface = surface;
+        menu.__personMenuScrollUpdate = () => updatePersonMenuScrollAffordance(menu, surface);
+        surface.addEventListener('scroll', menu.__personMenuScrollUpdate, { passive: true });
+    }
+    updatePersonMenuScrollAffordance(menu, surface);
+}
+
+function closePersonSubmenus(trigger) {
+    trigger?.querySelectorAll('cds-menu-item.person-pop-item--submenu').forEach(item => {
+        item.setAttribute('aria-expanded', 'false');
+        const childMenu = item.shadowRoot?.querySelector('cds-menu');
+        if (!childMenu) return;
+        childMenu.open = false;
+        childMenu.removeAttribute('open');
+    });
+}
 
 function resetPersonMenuSurface(menu) {
     const surface = menu?.shadowRoot?.querySelector('.cds--menu');
     if (surface) {
         ['position', 'left', 'top', 'right', 'bottom', 'transform', 'translate',
-         'maxWidth', 'maxHeight', 'overflowY', 'zIndex', 'visibility']
+         'maxWidth', 'maxHeight', 'overflowX', 'overflowY', 'overscrollBehavior',
+         'touchAction', 'scrollbarColor', 'scrollbarGutter', 'zIndex', 'visibility']
             .forEach(property => surface.style[property] = '');
     }
+    menu?.removeAttribute('data-menu-scrollable');
+    menu?.removeAttribute('data-menu-scroll-more');
     if (menu) menu.style.zIndex = '';
+    const indicator = document.getElementById('personMenuScrollIndicator');
+    if (indicator) indicator.hidden = true;
+    if (activePersonMenuScrollSurface === surface) activePersonMenuScrollSurface = null;
 }
 
 function closePersonMenus({ except = null } = {}) {
@@ -25,6 +87,7 @@ function closePersonMenus({ except = null } = {}) {
         menu.open = false;
         menu.removeAttribute('open');
         menu.removeAttribute('data-menu-placement');
+        closePersonSubmenus(menu);
         resetPersonMenuSurface(menu.querySelector(':scope > cds-menu.person-pop-menu'));
     });
     const anyOpen = !!document.querySelector('cds-overflow-menu.person-overflow-menu[open]');
@@ -109,7 +172,9 @@ async function positionPersonMenuSurface(trigger) {
         position: 'fixed', left: `${Math.round(left)}px`, top: `${Math.round(top)}px`,
         right: 'auto', bottom: 'auto', transform: 'none', translate: 'none',
         maxWidth: `${window.innerWidth - 16}px`, maxHeight: `${Math.floor(availableHeight)}px`,
-        overflowY: naturalHeight > availableHeight ? 'auto' : '', zIndex: '802', visibility: 'visible'
+        overflowX: 'hidden', overflowY: naturalHeight > availableHeight ? 'auto' : 'visible',
+        overscrollBehavior: 'contain', touchAction: 'pan-y', scrollbarColor: 'var(--border-strong) transparent',
+        scrollbarGutter: naturalHeight > availableHeight ? 'stable' : 'auto', zIndex: '802', visibility: 'visible'
     });
     await new Promise(resolve => requestAnimationFrame(resolve));
     const measured = surface.getBoundingClientRect();
@@ -119,6 +184,7 @@ async function positionPersonMenuSurface(trigger) {
     if (Math.abs(deltaY) > 0.5) surface.style.top = `${Math.round(top + deltaY)}px`;
     menu.style.zIndex = '802';
     trigger.dataset.menuPlacement = openAbove ? 'top-end' : 'bottom-end';
+    bindPersonMenuScrollAffordance(menu, surface);
 }
 
 
@@ -352,6 +418,30 @@ function ensureCompactMenuFallback() {
 }
 window.ensureCompactMenuFallback = ensureCompactMenuFallback;
 
+function cancelPendingPersonMenuActivation(trigger = null) {
+    if (!pendingPersonMenuActivation) return;
+    if (trigger && pendingPersonMenuActivation.trigger !== trigger) return;
+    clearTimeout(pendingPersonMenuActivation.timer);
+    pendingPersonMenuActivation = null;
+}
+
+function openPersonChoiceSubmenu(item, trigger) {
+    if (!item || !trigger) return;
+    closePersonSubmenus(trigger);
+    syncPersonMenuContext(trigger);
+    trigger.open = true;
+    trigger.setAttribute('open', '');
+    item.setAttribute('aria-expanded', 'true');
+    item._openSubmenu?.();
+    requestAnimationFrame(() => {
+        if (!trigger.isConnected) return;
+        trigger.open = true;
+        trigger.setAttribute('open', '');
+        item.setAttribute('aria-expanded', 'true');
+        void positionPersonMenuSurface(trigger);
+    });
+}
+
 function setupCompactPersonMenu() {
     if (setupCompactPersonMenu.bound === true) return;
     setupCompactPersonMenu.bound = true;
@@ -390,29 +480,48 @@ function setupCompactPersonMenu() {
         const elapsed = performance.now() - gesture.startedAt;
         if (moved > 10 || elapsed > 900) return;
 
-        // iOS can suppress the synthetic click when Sortable observes the same
-        // touch sequence. Complete the touch activation here and suppress only
-        // the duplicate click, while leaving Carbon's mouse and keyboard paths
-        // untouched.
-        if (event.cancelable) event.preventDefault();
-        event.stopImmediatePropagation();
-        suppressedPersonMenuClicks.add(trigger);
-        window.setTimeout(() => suppressedPersonMenuClicks.delete(trigger), 900);
-        if (gesture.wasOpen) closePersonMenus();
-        else openCompactPersonMenu(trigger);
+        // Let Carbon receive the normal click first. If iOS omits that click
+        // because Sortable observed the same gesture, complete the activation
+        // on the next task without double-toggling the official component.
+        cancelPendingPersonMenuActivation();
+        const pending = { trigger, wasOpen: gesture.wasOpen, timer: 0 };
+        pending.timer = window.setTimeout(() => {
+            if (pendingPersonMenuActivation !== pending) return;
+            pendingPersonMenuActivation = null;
+            const isOpen = trigger.open === true || trigger.hasAttribute('open');
+            if (pending.wasOpen) {
+                if (isOpen) closePersonMenus();
+            } else if (!isOpen) {
+                openCompactPersonMenu(trigger);
+            }
+        }, 0);
+        pendingPersonMenuActivation = pending;
     }, true);
 
     D.addEventListener('pointercancel', () => {
         personMenuPointerGesture = null;
+        cancelPendingPersonMenuActivation();
     }, true);
 
     D.addEventListener('click', event => {
-        const suppressedTrigger = personOverflowFromEvent(event);
-        if (suppressedTrigger && suppressedPersonMenuClicks.has(suppressedTrigger) && !personMenuItemFromEvent(event)) {
-            suppressedPersonMenuClicks.delete(suppressedTrigger);
-            event.preventDefault();
-            event.stopImmediatePropagation();
+        const trigger = personOverflowFromEvent(event);
+        const item = personMenuItemFromEvent(event);
+        if (trigger && !item) cancelPendingPersonMenuActivation(trigger);
+        if (!trigger || !item) return;
+
+        const choiceAction = item.dataset.personChoice || '';
+        const isSubmenuParent = item.classList.contains('person-pop-item--submenu') && !choiceAction;
+        if (!choiceAction && !isSubmenuParent) return;
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const person = syncPersonMenuContext(trigger);
+        if (isSubmenuParent) {
+            openPersonChoiceSubmenu(item, trigger);
+            return;
         }
+        const value = item.dataset.choiceValue || '';
+        queueMicrotask(() => handleCompactPersonAction(choiceAction, person, value));
     }, true);
 
     D.addEventListener('click', event => {
@@ -447,7 +556,15 @@ function setupCompactPersonMenu() {
     }, true);
 
     const menuStateObserver = new MutationObserver(records => {
-        if (!records.some(record => record.target?.matches?.('cds-overflow-menu.person-overflow-menu'))) return;
+        const triggerRecords = records.filter(record => record.target?.matches?.('cds-overflow-menu.person-overflow-menu'));
+        if (!triggerRecords.length) return;
+        triggerRecords.forEach(record => {
+            const trigger = record.target;
+            if (trigger.hasAttribute('open')) return;
+            closePersonSubmenus(trigger);
+            trigger.removeAttribute('data-menu-placement');
+            resetPersonMenuSurface(trigger.querySelector(':scope > cds-menu.person-pop-menu'));
+        });
         const anyOpen = !!D.querySelector('cds-overflow-menu.person-overflow-menu[open]');
         D.body.classList.toggle('person-menu-open', anyOpen);
         if (anyOpen) {

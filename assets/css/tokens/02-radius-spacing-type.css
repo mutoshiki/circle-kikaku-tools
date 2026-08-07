@@ -58,7 +58,7 @@
   html[data-theme="dark"] { --focus-ring: rgba(255, 255, 255, 0.32); }
 }
 
-:where(button, [role="button"], summary, cds-button, cds-icon-button, cds-overflow-menu):focus-visible {
+body.app-keyboard-navigation :where(button, [role="button"], summary, cds-button, cds-icon-button, cds-overflow-menu):focus-visible {
   outline: 2px solid var(--focus-accent);
   outline-offset: 2px;
   box-shadow: 0 0 0 1px var(--surface-lowest);

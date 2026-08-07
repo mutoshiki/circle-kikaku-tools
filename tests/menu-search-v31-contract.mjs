@@ -39,6 +39,6 @@ expect(routeStops.includes('width: 20px') && routeStops.includes('height: 20px')
 expect(routeStops.includes('--cds-layout-density-padding-inline-normal: 48px'), 'Route stop text does not clear the Search icon area');
 expect(routeShell.includes('.route-place-search-icon > .carbon-icon'), 'Search-page icon selector does not target the rendered Carbon icon');
 
-expect(index.includes('person-menu-touch-v35'), 'Unified application cache-busting token is missing.');
+expect(index.includes('ui-consistency-v36'), 'Unified application cache-busting token is missing.');
 
 console.log('PASS v31 menu, capacity and search contract');

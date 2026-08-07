@@ -144,8 +144,10 @@ test.describe('Allocation, menus and accessibility', () => {
     }));
     expect(menuItemsInViewport).toBeTruthy();
     const gradeMenuItem = personMenu.locator(':scope > cds-menu-item[label="学年"]');
-    await gradeMenuItem.evaluate(node => node._openSubmenu?.());
-    await gradeMenuItem.locator('cds-menu-item[data-choice-value="2"]').evaluate(node => node.click());
+    await gradeMenuItem.click();
+    await expect(personOverflow).toHaveJSProperty('open', true);
+    await expect(gradeMenuItem).toHaveAttribute('aria-expanded', 'true');
+    await gradeMenuItem.locator('cds-menu-item[data-choice-value="2"]').click();
     await expect(page.locator('.member-card,.driver-seat').first()).toContainText('2年');
     await hostClick(page, '[data-action="edit-capacity"]');
     await setHostValue(page, '#editModalInput', '4');
