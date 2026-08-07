@@ -3,6 +3,31 @@
 
 const requestedInitialView = new URLSearchParams(window.location.search).get('view');
 let currentView = ['list', 'sheet', 'seisan'].includes(requestedInitialView) ? requestedInitialView : 'list';
+
+const FIRST_VIEW_GUIDANCE = Object.freeze({
+    list: Object.freeze({
+        storageKey: 'syawari_guidance_allocation_drag_v1',
+        message: 'カードはドラッグして移動できます。'
+    }),
+    sheet: Object.freeze({
+        storageKey: 'syawari_guidance_sheet_gestures_v1',
+        message: '1本指で移動、2本指で拡大・縮小できます。'
+    })
+});
+
+function showFirstViewGuidance(view) {
+    // The app may first load without a room and immediately replace the URL.
+    // Do not consume one-time guidance during that transient bootstrap document.
+    if (!new URLSearchParams(window.location.search).has('room')) return;
+    const guidance = FIRST_VIEW_GUIDANCE[view];
+    if (!guidance || safeLocalGet(guidance.storageKey, false) === true) return;
+    // Persist before displaying so repeated renders and rapid view switches cannot duplicate it.
+    safeLocalSet(guidance.storageKey, true);
+    window.setTimeout(() => {
+        window.AppUI?.showStatus?.(guidance.message, { tone: 'info', duration: 4200 });
+    }, 180);
+}
+
 function syncMainViewSwitcher(view) {
     const switcher = byId('view-toggle-bar');
     if (switcher) switcher.value = view;
@@ -65,6 +90,7 @@ async function switchView(view) {
         tabSheet.classList.add('active');
         updateQuickEditButton();
         renderSheetView();
+        showFirstViewGuidance('sheet');
     } else {
         document.body.classList.remove('sheet-mode');
         listArea.style.display = '';
@@ -73,6 +99,7 @@ async function switchView(view) {
         tabList.classList.add('active');
         tabSheet.classList.remove('active');
         updateQuickEditButton();
+        showFirstViewGuidance('list');
     }
 }
 window.switchView = switchView;

@@ -151,78 +151,37 @@ const traySettingsTriggerEl = byId('traySettingsBtn');
 const traySettingsPopoverEl = byId('autoAssignPopover');
 const traySettingsMenuEl = byId('autoAssignMenu');
 
-function clampTraySettingsPopover() {
-    const applyClamp = () => {
-        if (!traySettingsPopoverEl?.open || !traySettingsMenuEl?.shadowRoot) return;
-        const content = traySettingsMenuEl.shadowRoot.querySelector('[part="content"]');
-        if (!(content instanceof HTMLElement)) return;
-        content.style.removeProperty('transform');
-        const viewport = window.visualViewport;
-        const viewportLeft = viewport?.offsetLeft || 0;
-        const viewportTop = viewport?.offsetTop || 0;
-        const viewportWidth = viewport?.width || window.innerWidth;
-        const viewportHeight = viewport?.height || window.innerHeight;
-        const gutter = 8;
-        const minLeft = viewportLeft + gutter;
-        const maxRight = viewportLeft + viewportWidth - gutter;
-        const minTop = viewportTop + gutter;
-        const maxBottom = viewportTop + viewportHeight - gutter;
-        const rect = content.getBoundingClientRect();
-        let shiftX = 0;
-        let shiftY = 0;
-        if (rect.left < minLeft) shiftX = minLeft - rect.left;
-        else if (rect.right > maxRight) shiftX = maxRight - rect.right;
-        if (rect.top < minTop) shiftY = minTop - rect.top;
-        else if (rect.bottom > maxBottom) shiftY = maxBottom - rect.bottom;
-        if (shiftX || shiftY) content.style.transform = `translate(${shiftX}px, ${shiftY}px)`;
-    };
-    requestAnimationFrame(() => requestAnimationFrame(applyClamp));
-    // Carbon's auto-align can finish after the first paint on Safari.
-    // Recheck after its placement pass and after the visual viewport settles.
-    setTimeout(applyClamp, 80);
-    setTimeout(applyClamp, 220);
-}
-
-function setTraySettingsMenuOpen(open) {
+function setTraySettingsMenuOpen(open, { returnFocus = false } = {}) {
     if (!traySettingsTriggerEl || !traySettingsPopoverEl) return;
     const next = !!open;
     traySettingsPopoverEl.open = next;
     traySettingsPopoverEl.toggleAttribute('open', next);
     traySettingsTriggerEl.setAttribute('aria-expanded', next ? 'true' : 'false');
     byId('bottom-tray')?.classList.toggle('tray-settings-open', next);
-    if (next) clampTraySettingsPopover();
-    else {
-        const content = traySettingsMenuEl?.shadowRoot?.querySelector('[part="content"]');
-        if (content instanceof HTMLElement) content.style.removeProperty('transform');
-    }
+    if (!next && returnFocus) traySettingsTriggerEl.focus({ preventScroll: true });
 }
 
 traySettingsTriggerEl?.addEventListener('click', event => {
     event.preventDefault();
+    event.stopPropagation();
     setTraySettingsMenuOpen(!traySettingsPopoverEl?.open);
 });
+
+document.addEventListener('pointerdown', event => {
+    if (!traySettingsPopoverEl?.open) return;
+    const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
+    if (path.includes(traySettingsPopoverEl)) return;
+    setTraySettingsMenuOpen(false);
+}, true);
 
 document.addEventListener('keydown', event => {
     if (event.key !== 'Escape' || !traySettingsPopoverEl?.open) return;
     event.preventDefault();
-    setTraySettingsMenuOpen(false);
-    traySettingsTriggerEl?.focus({ preventScroll: true });
+    setTraySettingsMenuOpen(false, { returnFocus: true });
 });
 
 traySettingsPopoverEl?.addEventListener('cds-popover-closed', () => {
     setTraySettingsMenuOpen(false);
-});
-
-window.visualViewport?.addEventListener('resize', clampTraySettingsPopover);
-window.visualViewport?.addEventListener('scroll', clampTraySettingsPopover);
-window.addEventListener('resize', clampTraySettingsPopover);
-
-traySettingsPopoverEl?.addEventListener('focusout', () => {
-    requestAnimationFrame(() => {
-        if (!traySettingsPopoverEl.contains(document.activeElement)) {
-            traySettingsTriggerEl?.setAttribute('aria-expanded', traySettingsPopoverEl.open ? 'true' : 'false');
-        }
-    });
 });
 
 function updateTrayMenuDirection() {

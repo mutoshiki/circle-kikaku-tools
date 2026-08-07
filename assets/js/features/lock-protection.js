@@ -45,6 +45,23 @@ function hasTrustedEditAccess(scope = 'any') {
     return !isEditScopeLocked(scope) || (!!editLockPassphrase && trustedEditPassphrase === editLockPassphrase);
 }
 
+
+function updateBottomNavigationLockIndicators() {
+    const scopes = normalizeEditLockScopes();
+    const configs = [
+        { scope: 'allocation', tabId: 'tab-list', baseLabel: '車割/班割' },
+        { scope: 'settlement', tabId: 'tab-seisan', baseLabel: '精算' }
+    ];
+    configs.forEach(({ scope, tabId, baseLabel }) => {
+        const locked = !!scopes[scope] && isEditScopeLocked(scope);
+        const tab = byId(tabId);
+        const indicator = tab?.querySelector(`.view-tab-lock-indicator[data-lock-scope="${scope}"]`);
+        if (indicator) indicator.hidden = !locked;
+        tab?.classList.toggle('is-scope-locked', locked);
+        tab?.setAttribute('aria-label', locked ? `${baseLabel}（ロック中）` : baseLabel);
+    });
+}
+
 function updateEditLockButton() {
     const btn = byId('editLockBtn');
     if (!btn) return;
@@ -59,6 +76,7 @@ function updateEditLockButton() {
         : '車割・班割と精算のロック範囲を選ぶ';
     btn.setAttribute('aria-label', accessibleLabel);
     updateProtectedMenuItems();
+    updateBottomNavigationLockIndicators();
     updateQuickEditButton();
 }
 

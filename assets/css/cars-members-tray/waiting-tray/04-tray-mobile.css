@@ -17,14 +17,14 @@
 
 .tray-settings-dropdown {
   display: block;
-  width: auto;
-  min-width: 96px;
-  --cds-popover-offset: 4px;
+  width: 48px;
+  min-width: 48px;
+  --cds-popover-offset: 8px;
 }
 .tray-settings-trigger {
   display: block;
-  width: 100%;
-  min-width: 96px;
+  width: 48px;
+  min-width: 48px;
   min-height: 48px;
   touch-action: manipulation;
 }

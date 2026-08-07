@@ -51,7 +51,7 @@ function buildSheetPlanSummaryRow(plan, updatedLabel = '') {
         item.className = 'sheet-summary-stat';
         item.append(document.createTextNode(label));
         const strong = document.createElement('strong');
-        strong.textContent = String(value);
+        strong.textContent = `${value}名`;
         item.appendChild(strong);
         row.appendChild(item);
     });

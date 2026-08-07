@@ -76,7 +76,7 @@
     <link href="./assets/css/cars-members-tray/waiting-tray/01-tray-shell.css?v=carbon-v10" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/02-tray-drawer.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/03-tray-actions.css" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css?v=ui-fix-2" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css?v=carbon-guidance-v33" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/05-tray-states.css?v=design-polish-v25" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/person-card/01-person-card-shell.css?v=design-polish-v25" rel="stylesheet">
@@ -144,6 +144,7 @@
     <link href="./assets/css/sheet-view/timetable/02-timetable-edit.css?v=feature-fixes-v30" rel="stylesheet">
     <link href="./assets/css/sheet-view/edit/01-quick-edit.css?v=design-polish-v25" rel="stylesheet">
     <link href="./assets/css/sheet-view/edit/02-edit-mobile.css" rel="stylesheet">
+    <link href="./assets/css/app-shell/header/04-bottom-lock-indicators.css?v=carbon-guidance-v33" rel="stylesheet">
     <!-- CSS: interaction utilities -->
     <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
     <link href="./assets/css/08-utilities.css" rel="stylesheet">
@@ -315,10 +316,10 @@
               <cds-button id="fillEmptySeatsBtn" class="tray-action-btn tray-action-btn--fill" kind="tertiary" size="lg" type="button"><span data-carbon-icon="user--follow" slot="icon" aria-hidden="true"></span><span>埋める</span></cds-button>
               <div class="random-tools">
                 <cds-button id="shuffleAssignBtn" class="auto-assign-btn tray-action-btn tray-action-btn--auto" kind="primary" size="lg" type="button"><span>ランダム</span><span data-carbon-icon="shuffle" slot="icon" aria-hidden="true"></span></cds-button>
-                <cds-popover id="autoAssignPopover" class="tray-settings-dropdown" autoalign align="top-end" border dropshadow>
-                  <cds-button id="traySettingsBtn" class="tray-settings-trigger" kind="tertiary" size="lg" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="autoAssignMenu">
-                    <span>設定</span><span slot="icon" data-carbon-icon="settings--adjust" aria-hidden="true"></span>
-                  </cds-button>
+                <cds-popover id="autoAssignPopover" class="tray-settings-dropdown" autoalign align="top-end" caret border dropshadow>
+                  <cds-icon-button id="traySettingsBtn" class="tray-settings-trigger" kind="tertiary" size="lg" type="button" align="top-right" aria-label="割り当て条件" aria-haspopup="dialog" aria-expanded="false" aria-controls="autoAssignMenu">
+                    <span slot="icon" data-carbon-icon="settings--adjust" aria-hidden="true"></span>
+                  </cds-icon-button>
                   <cds-popover-content id="autoAssignMenu" class="auto-assign-menu-body" slot="content" aria-labelledby="autoAssignMenuTitle">
                     <div class="auto-assign-menu-header">
                       <h6 id="autoAssignMenuTitle" class="auto-assign-menu-title">割り当て条件</h6>
@@ -350,14 +351,14 @@
       </div>
       <nav id="app-view-navigation" aria-label="メイン画面">
         <cds-content-switcher id="view-toggle-bar" value="list" size="lg" aria-label="メイン画面">
-          <cds-content-switcher-item class="view-tab active" id="tab-list" value="list" target="top-area" selected aria-label="車割・班割">
-            <span class="view-tab-label">車割・班割</span>
+          <cds-content-switcher-item class="view-tab active" id="tab-list" value="list" target="top-area" selected aria-label="車割/班割">
+            <span class="view-tab-label">車割/班割<span class="view-tab-lock-indicator" data-lock-scope="allocation" hidden aria-hidden="true"><span data-carbon-icon="locked" aria-hidden="true"></span></span></span>
           </cds-content-switcher-item>
           <cds-content-switcher-item class="view-tab" id="tab-sheet" value="sheet" target="sheet-view-area" aria-label="共有画面">
             <span class="view-tab-label">共有画面</span>
           </cds-content-switcher-item>
           <cds-content-switcher-item class="view-tab" id="tab-seisan" value="seisan" target="seisan-view-area" aria-label="精算ツール">
-            <span class="view-tab-label">精算</span>
+            <span class="view-tab-label">精算<span class="view-tab-lock-indicator" data-lock-scope="settlement" hidden aria-hidden="true"><span data-carbon-icon="locked" aria-hidden="true"></span></span></span>
           </cds-content-switcher-item>
         </cds-content-switcher>
       </nav>
@@ -392,7 +393,7 @@
 <div aria-live="polite" class="form-import-preview" hidden="" id="googleFormImportPreview"></div>
 <details class="batch-import-help-details">
 <summary>貼り付け方を見る</summary>
-<div class="batch-import-notice"><span aria-hidden="true" data-carbon-icon="information"></span><span>各項目の見出し行も一緒にコピーすると、読み取りやすくなります。</span></div>
+<div class="batch-import-notice"><span aria-hidden="true" data-carbon-icon="information"></span><span>各項目の見出しの行も必ず一緒にコピーしてください。</span></div>
 <div aria-label="Googleフォームの回答をスプレッドシートで表示する方法" class="form-sheet-howto">
 <div class="form-sheet-howto-title">Googleフォームの回答をスプレッドシートで表示する方法</div>
 <div class="form-sheet-howto-body">応募フォームの管理画面で「回答」を開き、右上の <span aria-hidden="true" class="form-sheet-icon"></span> 緑色のスプレッドシートアイコンを押すと、回答用スプレッドシートを作成できます。</div>
@@ -447,29 +448,23 @@
 </div>
 <div class="batch-import-column batch-import-column--half">
 <label class="batch-import-field-label batch-label-muted">車出し</label>
-<cds-textarea aria-label="車出し可能な参加者" class="batch-import-textarea" hide-label="" id="batchDrivers" label="車出し可能な参加者" placeholder="（例）
-藤原 拓海
-高橋 啓介"></cds-textarea>
+<cds-textarea aria-label="車出し可能な参加者" class="batch-import-textarea" hide-label="" id="batchDrivers" label="車出し可能な参加者"></cds-textarea>
 </div>
 <div class="batch-import-column batch-import-column--half">
 <label class="batch-import-field-label batch-label-grade1">1年生</label>
-<cds-textarea aria-label="1年生の表記" class="batch-import-textarea" hide-label="" id="batchGrade1" label="1年生の表記" placeholder="（例）
-1年生の参加者名"></cds-textarea>
+<cds-textarea aria-label="1年生の表記" class="batch-import-textarea" hide-label="" id="batchGrade1" label="1年生の表記"></cds-textarea>
 </div>
 <div class="batch-import-column batch-import-column--half">
 <label class="batch-import-field-label batch-label-grade2">2年生</label>
-<cds-textarea aria-label="2年生の表記" class="batch-import-textarea" hide-label="" id="batchGrade2" label="2年生の表記" placeholder="（例）
-2年生の参加者名"></cds-textarea>
+<cds-textarea aria-label="2年生の表記" class="batch-import-textarea" hide-label="" id="batchGrade2" label="2年生の表記"></cds-textarea>
 </div>
 <div class="batch-import-column batch-import-column--half">
 <label class="batch-import-field-label batch-label-grade3">3年生</label>
-<cds-textarea aria-label="3年生の表記" class="batch-import-textarea" hide-label="" id="batchGrade3" label="3年生の表記" placeholder="（例）
-3年生の参加者名"></cds-textarea>
+<cds-textarea aria-label="3年生の表記" class="batch-import-textarea" hide-label="" id="batchGrade3" label="3年生の表記"></cds-textarea>
 </div>
 <div class="batch-import-column batch-import-column--half">
 <label class="batch-import-field-label batch-label-grade4">4年生</label>
-<cds-textarea aria-label="4年生の表記" class="batch-import-textarea" hide-label="" id="batchGrade4" label="4年生の表記" placeholder="（例）
-4年生の参加者名"></cds-textarea>
+<cds-textarea aria-label="4年生の表記" class="batch-import-textarea" hide-label="" id="batchGrade4" label="4年生の表記"></cds-textarea>
 </div>
 </div>
 <cds-inline-notification id="batchDuplicateWarning" class="batch-warning" kind="warning" low-contrast hide-close-button hidden><span slot="title" id="batchDuplicateWarningTitle">入力内容を確認してください</span><div slot="subtitle" id="batchDuplicateWarningBody"></div></cds-inline-notification>
@@ -667,7 +662,7 @@
     <script src="./assets/js/core/dependency-status.js"></script>
     <script src="./assets/js/core/app-status.js"></script>
     <script src="./assets/js/core/storage.js"></script>
-    <script src="./assets/js/core/render-controller.js?v=feature-polish-v27"></script>
+    <script src="./assets/js/core/render-controller.js?v=carbon-guidance-v33"></script>
     <script src="./assets/js/core/settlement-edit-guard.js?v=route-ui-settings-v16"></script>
     <script src="./assets/js/core/sync-controller.js?v=carbon-assurance"></script>
     <script src="./assets/js/core/history-scheduler.js"></script>
@@ -702,14 +697,14 @@
     <script src="./assets/js/features/user-guide.js"></script>
     <script src="./assets/js/core/remote-guard.js"></script>
     <script src="./assets/js/features/share-actions.js?v=share-links-v19"></script>
-    <script src="./assets/js/features/lock-protection.js?v=feature-polish-v27"></script>
-    <script src="./assets/js/features/waiting-tray.js?v=ui-fix-2"></script>
+    <script src="./assets/js/features/lock-protection.js?v=carbon-guidance-v33"></script>
+    <script src="./assets/js/features/waiting-tray.js?v=carbon-guidance-v33"></script>
     <script src="./assets/js/features/person-cards.js?v=feature-polish-v27"></script>
     <script src="./assets/js/features/planning-assurance.js?v=carbon-menu-shortcut"></script>
     <script src="./assets/js/features/seat-member-picker.js?v=quiet-actions"></script>
     <script src="./assets/js/templates/sheet-templates.js?v=carbon-phase3c"></script>
     <script src="./assets/js/features/sheet/00-data-sync.js?v=feature-polish-v27"></script>
-    <script src="./assets/js/features/sheet-view.js?v=feature-fixes-v30"></script>
+    <script src="./assets/js/features/sheet-view.js?v=carbon-guidance-v33"></script>
     <script src="./assets/js/features/drag-edit-view.js?v=quiet-actions"></script>
     <script src="./assets/js/features/sheet/01-drag-interactions.js"></script>
     <script src="./assets/js/features/sheet/02-viewport-controls.js?v=feature-fixes-v30"></script>
