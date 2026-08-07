@@ -23,7 +23,8 @@ assert.match(featureEvents, /personMenuItemFromEvent\(event\) !== gesture\.item/
 assert.match(featureEvents, /moved > 18 \|\| elapsed > 900/, 'menu-item fallback does not distinguish taps from menu scrolling');
 assert.match(featureEvents, /gesture\.item\.click\(\)/, 'Carbon menu item activation is not replayed after an iOS tap');
 assert.match(featureEvents, /event\.isTrusted/, 'duplicate native menu clicks are not guarded');
-assert.match(featureEvents, /syncCarbonIconButtonLabels/, 'Carbon icon button labels are not normalized');
+assert.match(featureEvents, /slot = 'tooltip-content'/, 'Carbon icon buttons do not use the official tooltip-content slot');
+assert.doesNotMatch(featureEvents, /button\.setAttribute\('label'/, 'an unsupported icon-button label override remains');
 assert.match(menuCss, /\.person-menu-scroll-hint/, 'the clipped menu has no visible scroll affordance');
 assert.match(menuCss, /pointer-events: none/, 'the scroll affordance can block menu interaction');
 assert.doesNotMatch(sheetGestureCss, /box-shadow:\s*inset[^;]+app-accent-border/s, 'the decorative blue sheet glow remains');
