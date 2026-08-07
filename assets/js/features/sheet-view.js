@@ -6,27 +6,57 @@ let currentView = ['list', 'sheet', 'seisan'].includes(requestedInitialView) ? r
 
 const FIRST_VIEW_GUIDANCE = Object.freeze({
     list: Object.freeze({
-        storageKey: 'syawari_guidance_allocation_drag_v1',
+        storageKey: 'syawari_guidance_allocation_drag_v2',
         message: 'カードはドラッグして移動できます。'
     }),
     sheet: Object.freeze({
-        storageKey: 'syawari_guidance_sheet_gestures_v1',
+        storageKey: 'syawari_guidance_sheet_gestures_v2',
         message: '1本指で移動、2本指で拡大・縮小できます。'
     })
 });
+const FIRST_VIEW_GUIDANCE_DELAY_MS = 6000;
+let firstViewGuidanceTimer = null;
+let firstViewGuidancePendingView = null;
+
+function getParticipantRegistrationGuidanceReadyKey() {
+    return `syawari_guidance_registration_ready_${roomId || 'local'}_v1`;
+}
+
+function isParticipantRegistrationGuidanceReady() {
+    return safeLocalGet(getParticipantRegistrationGuidanceReadyKey(), false) === true;
+}
+
+function cancelFirstViewGuidanceTimer() {
+    if (firstViewGuidanceTimer !== null) window.clearTimeout(firstViewGuidanceTimer);
+    firstViewGuidanceTimer = null;
+    firstViewGuidancePendingView = null;
+}
 
 function showFirstViewGuidance(view) {
-    // The app may first load without a room and immediately replace the URL.
-    // Do not consume one-time guidance during that transient bootstrap document.
-    if (!new URLSearchParams(window.location.search).has('room')) return;
     const guidance = FIRST_VIEW_GUIDANCE[view];
-    if (!guidance || safeLocalGet(guidance.storageKey, false) === true) return;
-    // Persist before displaying so repeated renders and rapid view switches cannot duplicate it.
-    safeLocalSet(guidance.storageKey, true);
-    window.setTimeout(() => {
+    if (!guidance || !isParticipantRegistrationGuidanceReady() || safeLocalGet(guidance.storageKey, false) === true) {
+        if (firstViewGuidancePendingView === view) cancelFirstViewGuidanceTimer();
+        return;
+    }
+    if (firstViewGuidancePendingView === view && firstViewGuidanceTimer !== null) return;
+
+    cancelFirstViewGuidanceTimer();
+    firstViewGuidancePendingView = view;
+    firstViewGuidanceTimer = window.setTimeout(() => {
+        firstViewGuidanceTimer = null;
+        firstViewGuidancePendingView = null;
+        if (currentView !== view || !isParticipantRegistrationGuidanceReady()) return;
+        if (safeLocalGet(guidance.storageKey, false) === true) return;
+        safeLocalSet(guidance.storageKey, true);
         window.AppUI?.showStatus?.(guidance.message, { tone: 'info', duration: 4200 });
-    }, 180);
+    }, FIRST_VIEW_GUIDANCE_DELAY_MS);
 }
+
+function markParticipantRegistrationGuidanceReady() {
+    safeLocalSet(getParticipantRegistrationGuidanceReadyKey(), true);
+    if (currentView === 'list' || currentView === 'sheet') showFirstViewGuidance(currentView);
+}
+window.markParticipantRegistrationGuidanceReady = markParticipantRegistrationGuidanceReady;
 
 function syncMainViewSwitcher(view) {
     const switcher = byId('view-toggle-bar');
@@ -65,6 +95,7 @@ async function switchView(view) {
     if (seisanArea) seisanArea.hidden = view !== 'seisan';
 
     if (view === 'seisan') {
+        cancelFirstViewGuidanceTimer();
         document.body.classList.remove('sheet-mode');
         listArea.style.display = 'none';
         bottomTray.style.display = 'none';

@@ -357,5 +357,6 @@ async function executeBatch() {
     updateUI();
     save();
     modals.batch.hide({ reason: 'submit' });
+    window.markParticipantRegistrationGuidanceReady?.();
 }
 window.SanpoApp?.exposeCompat?.('executeBatch', executeBatch);

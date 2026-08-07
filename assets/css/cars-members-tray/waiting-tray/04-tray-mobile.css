@@ -1,5 +1,4 @@
 /* Bottom-sheet handle, unified settings trigger, and participant grid. */
-.handle-bar { width: 34px; height: 4px; opacity: 0.5; }
 #waiting-list-container {
   flex: 1;
   overflow-y: auto;
@@ -29,7 +28,7 @@
   touch-action: manipulation;
 }
 
-/* Carbon Popover owns viewport collision detection, focus and outside-click dismissal. */
+/* Carbon Popover owns the north-facing placement, focus handling, and dismissal lifecycle. */
 
 .tray-settings-dropdown::part(popover-container) {
   z-index: var(--z-floating);

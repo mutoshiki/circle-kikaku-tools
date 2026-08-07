@@ -149,40 +149,45 @@ window.toggleTray = toggleTray;
 
 const traySettingsTriggerEl = byId('traySettingsBtn');
 const traySettingsPopoverEl = byId('autoAssignPopover');
-const traySettingsMenuEl = byId('autoAssignMenu');
 
-function setTraySettingsMenuOpen(open, { returnFocus = false } = {}) {
+function syncTraySettingsMenuState() {
     if (!traySettingsTriggerEl || !traySettingsPopoverEl) return;
-    const next = !!open;
-    traySettingsPopoverEl.open = next;
-    traySettingsPopoverEl.toggleAttribute('open', next);
-    traySettingsTriggerEl.setAttribute('aria-expanded', next ? 'true' : 'false');
-    byId('bottom-tray')?.classList.toggle('tray-settings-open', next);
-    if (!next && returnFocus) traySettingsTriggerEl.focus({ preventScroll: true });
+    const open = traySettingsPopoverEl.open === true;
+    traySettingsTriggerEl.setAttribute('aria-expanded', open ? 'true' : 'false');
+    byId('bottom-tray')?.classList.toggle('tray-settings-open', open);
 }
 
-traySettingsTriggerEl?.addEventListener('click', event => {
+function setTraySettingsMenuOpen(open) {
+    if (!traySettingsPopoverEl) return;
+    traySettingsPopoverEl.open = !!open;
+    syncTraySettingsMenuState();
+}
+
+async function ensureTraySettingsCarbonReady() {
+    await Promise.all([
+        customElements.whenDefined('cds-popover'),
+        customElements.whenDefined('cds-popover-content'),
+        customElements.whenDefined('cds-icon-button')
+    ]);
+    if (!traySettingsPopoverEl) return;
+    // Prefer the site-north placement while Carbon handles viewport collision safely.
+    traySettingsPopoverEl.autoalign = true;
+    traySettingsPopoverEl.autoAlignBoundary = '#app-layout';
+    traySettingsPopoverEl.align = 'top-end';
+    await traySettingsPopoverEl.updateComplete;
+    syncTraySettingsMenuState();
+}
+
+traySettingsTriggerEl?.addEventListener('click', async event => {
     event.preventDefault();
-    event.stopPropagation();
+    await ensureTraySettingsCarbonReady();
     setTraySettingsMenuOpen(!traySettingsPopoverEl?.open);
 });
 
-document.addEventListener('pointerdown', event => {
-    if (!traySettingsPopoverEl?.open) return;
-    const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
-    if (path.includes(traySettingsPopoverEl)) return;
-    setTraySettingsMenuOpen(false);
-}, true);
-
-document.addEventListener('keydown', event => {
-    if (event.key !== 'Escape' || !traySettingsPopoverEl?.open) return;
-    event.preventDefault();
-    setTraySettingsMenuOpen(false, { returnFocus: true });
-});
-
-traySettingsPopoverEl?.addEventListener('cds-popover-closed', () => {
-    setTraySettingsMenuOpen(false);
-});
+// Carbon Popover owns outside-click and Escape dismissal. We only mirror its state
+// to the trigger aria attribute and the tray stacking context.
+traySettingsPopoverEl?.addEventListener('cds-popover-closed', syncTraySettingsMenuState);
+ensureTraySettingsCarbonReady();
 
 function updateTrayMenuDirection() {
     const tray = byId("bottom-tray");

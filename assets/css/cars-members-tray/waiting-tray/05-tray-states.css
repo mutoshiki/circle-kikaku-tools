@@ -49,7 +49,6 @@
   cursor: default;
   background: transparent;
 }
-#tray-handle[aria-disabled="true"] .handle-bar { opacity: 0.22; }
 
 /* Empty state keeps the disclosure and actions without reserving an unused 40% sheet. */
 #bottom-tray.waiting-empty:not(.minimized) {
