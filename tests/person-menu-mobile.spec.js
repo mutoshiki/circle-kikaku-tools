@@ -8,7 +8,7 @@ async function seed(page) {
   await page.evaluate(() => window.switchView('list'));
 }
 
-async function touchTap(locator, pointerId) {
+async function touchTap(page, locator, pointerId) {
   await locator.evaluate((element, id) => {
     const rect = element.getBoundingClientRect();
     const clientX = rect.left + Math.min(rect.width / 2, 24);
@@ -48,7 +48,7 @@ test.describe('Mobile person menu regression', () => {
     await seed(page);
     const trigger = page.locator('cds-overflow-menu.person-overflow-menu').first();
     await trigger.scrollIntoViewIfNeeded();
-    await touchTap(trigger, 101);
+    await touchTap(page, trigger, 101);
     await expect(trigger).toHaveJSProperty('open', true);
 
     await page.waitForTimeout(250);
@@ -64,11 +64,11 @@ test.describe('Mobile person menu regression', () => {
     await expect(page.locator('.person-menu-scroll-hint')).toContainText('下に項目があります');
 
     const gradeItem = trigger.locator('cds-menu-item[label="学年"]');
-    await touchTap(gradeItem, 102);
+    await touchTap(page, gradeItem, 102);
     expect(await gradeItem.evaluate(item => item.open === true || item.hasAttribute('open'))).toBeTruthy();
 
     const secondGrade = gradeItem.locator('cds-menu-item[data-choice-value="2"]');
-    await touchTap(secondGrade, 103);
+    await touchTap(page, secondGrade, 103);
     await expect(page.locator('.member-card,.driver-seat').first()).toContainText('2年');
   });
 });
