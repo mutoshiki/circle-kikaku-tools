@@ -5,6 +5,37 @@
     const events = global.SanpoEvents || {};
     let candidateRefreshTimer = null;
 
+    function installSettlementModalSyncPriority() {
+        if (document.documentElement.dataset.settlementModalSyncPriority === 'true') return;
+        const originalSync = global.syncSettlementStateFromDOM;
+        if (typeof originalSync !== 'function') return;
+        document.documentElement.dataset.settlementModalSyncPriority = 'true';
+
+        global.syncSettlementStateFromDOM = function syncSettlementStateFromActiveEditor() {
+            const modal = document.getElementById('settlementCarEditModal');
+            const editorBody = document.getElementById('settlementCarEditBody');
+            const editorRows = modal?.open
+                ? Array.from(editorBody?.querySelectorAll('.seisan-car-row') || [])
+                : [];
+            if (!editorRows.length) return originalSync();
+
+            const editorNames = new Set(editorRows.map(row => row.dataset.driverName).filter(Boolean));
+            const detachedRows = [];
+            document.querySelectorAll('.seisan-car-row').forEach(row => {
+                if (editorBody.contains(row) || !editorNames.has(row.dataset.driverName)) return;
+                const marker = document.createComment('settlement-background-row');
+                row.parentNode?.insertBefore(marker, row);
+                row.remove();
+                detachedRows.push({ marker, row });
+            });
+
+            try {
+                return originalSync();
+            } finally {
+                detachedRows.forEach(({ marker, row }) => marker.replaceWith(row));
+            }
+        };
+    }
 
     function clearCarbonInvalidState(host) {
         if (!host) return;
@@ -55,7 +86,6 @@
         }, 120);
     }
 
-
     function isTimesRentalInput(row) {
         const rentalField = row?.querySelector?.('[data-field="rentalType"]');
         if (!rentalField) return false;
@@ -101,6 +131,7 @@
     }
 
     function setupSettlementInputEvents() {
+        installSettlementModalSyncPriority();
         if (document.documentElement.dataset.settlementInputEventsBound === 'true') return;
         document.documentElement.dataset.settlementInputEventsBound = 'true';
 
