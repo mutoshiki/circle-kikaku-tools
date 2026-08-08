@@ -38,7 +38,10 @@
 #bottom-tray-header .random-tools { flex: 0 0 auto; }
 #bottom-tray.waiting-empty #waiting-count { opacity: 0.72; }
 
-#bottom-tray.minimized { height: auto; min-height: 0; }
+#bottom-tray.minimized,
+#bottom-tray.drag-transient-minimized { height: auto; min-height: 0; }
+#bottom-tray.drag-transient-minimized { overflow: visible; }
+#bottom-tray.drag-transient-minimized #waiting-list-container { display: none; }
 
 #tray-handle:focus-visible {
   outline: 2px solid var(--focus-accent);
