@@ -50,7 +50,24 @@ function highlightNewWaitingMembers(previousNames = []) {
         card.classList.add('waiting-card-new');
         setTimeout(() => card.classList.remove('waiting-card-new'), 1600);
     });
-    targets[0]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+
+    // Keep guidance scrolling inside the tray. Element.scrollIntoView() walks every
+    // scrollable ancestor and, on iOS Safari, can reset #top-area when a card has
+    // just been reparented. The waiting drawer owns its own scroll container, so
+    // only that container is allowed to move.
+    const target = targets[0];
+    const scroller = byId('waiting-list-container');
+    const tray = byId('bottom-tray');
+    if (!target || !scroller || !tray || tray.classList.contains('minimized')) return;
+    const targetTop = target.offsetTop;
+    const targetBottom = targetTop + target.offsetHeight;
+    const viewTop = scroller.scrollTop;
+    const viewBottom = viewTop + scroller.clientHeight;
+    if (targetTop < viewTop) {
+        scroller.scrollTo({ top: targetTop, behavior: 'smooth' });
+    } else if (targetBottom > viewBottom) {
+        scroller.scrollTo({ top: Math.max(0, targetBottom - scroller.clientHeight), behavior: 'smooth' });
+    }
 }
 
 function updateWaitingTrayState() {
@@ -238,29 +255,14 @@ function prepareWaitingTrayForDrag() {
     const fromWaiting = manualCardDrag?.currentContainer?.id === 'waiting-list';
     const wasClosed = tray.classList.contains('minimized') || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
     tray.dataset.dragStartedMinimized = wasClosed ? 'true' : 'false';
+    tray.dataset.dragSource = fromWaiting ? 'waiting' : 'seat';
 
-    // ドラッグ中は待機欄を一時的に閉じ、座席側の作業面を広く保つ。
-    // もともと開いていた場合だけ、ドロップ後に元の開いた状態へ戻す。
-    if (!wasClosed) {
-        tray.dataset.closedDuringDrag = 'true';
-    } else {
-        delete tray.dataset.closedDuringDrag;
-    }
-
-    tray.classList.add('minimized');
-    tray.classList.remove('empty-open', 'is-drop-near');
-    tray.dataset.userMinimized = 'true';
-
-    if (fromWaiting) {
-        // 待機メンバーから持ち上げたカードは、同じドラッグ中に自動再展開しない。
-        tray.classList.remove('is-drop-ready');
-        tray.dataset.closedByWaitingDrag = 'true';
-    } else {
-        // 車側から戻すときだけ、閉じたタブへのドロップ先として控えめに準備する。
-        tray.classList.add('is-drop-ready');
-        delete tray.dataset.closedByWaitingDrag;
-    }
-
+    // Do not resize the flex layout while a card is being dragged. #bottom-tray is
+    // a sibling of the scrollable #top-area, so minimizing/reopening it changes the
+    // scroll container height. iOS Safari can then re-anchor #top-area at the top
+    // when the dragged node is reparented. Preserve the user's tray state instead.
+    tray.classList.remove('is-drop-near');
+    tray.classList.toggle('is-drop-ready', !fromWaiting && wasClosed);
     updateTrayMenuDirection();
     updateTrayToggleLabel();
 }
@@ -270,9 +272,7 @@ function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
     const waitingList = byId('waiting-list');
     if (!tray || !waitingList || currentView !== 'list' || !manualCardDrag) return;
 
-    // 待機欄からドラッグを始めた場合は、閉じたタブの上を通っても再展開しない。
-    // これにより「持ち上げた瞬間に閉じたのに、すぐ開き直す」挙動を防ぐ。
-    if (tray.dataset.closedByWaitingDrag === 'true' || manualCardDrag.currentContainer?.id === 'waiting-list') {
+    if (manualCardDrag.currentContainer?.id === 'waiting-list') {
         tray.classList.remove('is-drop-near');
         return;
     }
@@ -283,8 +283,9 @@ function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
         return;
     }
 
-    // 自動で開くのは、カードが「閉じているタブ本体」に触れたときだけ。
-    // 以前のように画面下に近づいただけでは開かない。
+    // A closed tray already accepts a drop through its handle in
+    // getManualCardDropTarget(). Highlight that handle, but do not open the drawer
+    // mid-drag: opening it would resize #top-area and disturb the current scroll.
     const handle = byId('tray-handle');
     const targetRect = (handle || tray).getBoundingClientRect();
     const margin = 10;
@@ -295,47 +296,18 @@ function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
         clientY <= targetRect.bottom + margin;
 
     tray.classList.toggle('is-drop-near', touchingClosedTab);
-    if (!touchingClosedTab) return;
-
-    tray.classList.remove('minimized');
-    if (tray.classList.contains('waiting-empty')) tray.classList.add('empty-open');
-    tray.dataset.openedByDrag = 'true';
-    tray.classList.add('is-drop-ready');
-    updateTrayMenuDirection();
-    updateTrayToggleLabel();
 }
 
 function finishWaitingTrayDragState() {
     const tray = byId('bottom-tray');
     if (!tray) return;
-    const droppedToWaiting = manualCardDrag?.dropTarget?.id === 'waiting-list';
-    const closedByWaitingDrag = tray.dataset.closedByWaitingDrag === 'true';
-    const closedDuringDrag = tray.dataset.closedDuringDrag === 'true';
-    const wasMinimizedBeforeDrag = tray.dataset.dragStartedMinimized === 'true';
+
+    // Dragging never owns the drawer's open/minimized state. Clean up only the
+    // transient drop affordances so the main scroll container keeps identical
+    // geometry before and after a move or exchange.
     tray.classList.remove('is-drop-ready', 'is-drop-near');
-
-    if (closedByWaitingDrag || closedDuringDrag) {
-        if (!wasMinimizedBeforeDrag || droppedToWaiting) {
-            // ドラッグ中だけ閉じた場合は、ドロップ後に元の開いた状態へ戻す。
-            tray.classList.remove('minimized');
-            tray.classList.remove('empty-open');
-            tray.dataset.userMinimized = 'false';
-        } else {
-            tray.classList.add('minimized');
-            tray.classList.remove('empty-open');
-            tray.dataset.userMinimized = 'true';
-        }
-    } else if (tray.dataset.openedByDrag === 'true' && tray.dataset.userMinimized === 'true' && !droppedToWaiting) {
-        tray.classList.add('minimized');
-        tray.classList.remove('empty-open');
-    } else if (droppedToWaiting) {
-        tray.dataset.userMinimized = 'false';
-    }
-
-    delete tray.dataset.openedByDrag;
     delete tray.dataset.dragStartedMinimized;
-    delete tray.dataset.closedByWaitingDrag;
-    delete tray.dataset.closedDuringDrag;
+    delete tray.dataset.dragSource;
     updateTrayMenuDirection();
     updateTrayToggleLabel();
 }

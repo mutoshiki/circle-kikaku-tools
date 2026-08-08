@@ -42,24 +42,16 @@
   background: var(--surface-low);
   cursor: pointer;
 }
-.seat-slot::before {
-  content: "空席\A メンバーを追加";
-  display: block;
-  padding: 10px 42px 10px 12px;
-  color: var(--text-sub);
-  font-size: var(--font-size-label);
-  font-weight: 400;
-  line-height: 20px;
-  text-align: left;
-  white-space: pre-line;
-  pointer-events: none;
+.seat-slot::before { content: none; }
+.seat-slot:not(:has(> .member-card)) {
+  align-items: center;
+  justify-content: center;
 }
 .seat-slot-icon {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  width: 16px;
-  height: 16px;
+  position: static;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
   color: var(--app-accent-icon);
   pointer-events: none;
 }
