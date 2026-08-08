@@ -31,6 +31,7 @@ let ref = null;
 let set = null;
 let update = null;
 let onValue = null;
+let runTransaction = null;
 let getAuth = null;
 let signInAnonymously = null;
 
@@ -49,6 +50,7 @@ async function initFirebaseSync() {
         set = databaseModule.set;
         update = databaseModule.update;
         onValue = databaseModule.onValue;
+        runTransaction = databaseModule.runTransaction;
         getAuth = authModule.getAuth;
         signInAnonymously = authModule.signInAnonymously;
 
@@ -77,6 +79,10 @@ const myClientId = Math.random().toString(36).substring(2) + Date.now().toString
 
 let isRemoteUpdate = false;
 let saveTimer = null;
+let saveRequestVersion = 0;
+let syncWriteInFlight = false;
+let lastSyncedData = null;
+let lastSyncedRevision = 0;
 let modals = {}; 
 let saveCb;
 let genderQueue = [], isProcessingQueue = false;
