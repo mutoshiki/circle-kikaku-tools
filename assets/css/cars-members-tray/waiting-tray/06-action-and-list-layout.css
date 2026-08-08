@@ -24,6 +24,11 @@
 #waiting-list .member-menu-btn { width: 48px; min-width: 48px; height: 48px; min-height: 48px; }
 
 @media (max-width: 640px) {
+  /* Mobile is deliberately a stable two-column participant grid. auto-fill +
+     minmax(px) could collapse to one column on iPhones with a narrower visual
+     viewport or larger text settings. */
+  #waiting-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #waiting-list > .member-card { min-width: 0; }
   #bottom-tray-header .tray-inline-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -42,7 +47,7 @@
 }
 
 @media (max-width: 390px) {
-  #waiting-list { grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); }
+  #waiting-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   #bottom-tray-header .tray-inline-row { gap: 6px; }
   #bottom-tray-header .tray-actions { grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.08fr) 48px; }
   #bottom-tray-header .tray-settings-dropdown,
