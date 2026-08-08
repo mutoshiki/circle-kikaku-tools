@@ -18,34 +18,12 @@ function writeSheetSnapshotToLocal(snapshot) {
 }
 
 function scheduleSheetSnapshotRemoteSave(snapshot) {
-    if (isRemoteUpdate || !dbRef || typeof update !== 'function') return;
-    clearTimeout(saveTimer);
-    const payload = {
-        roomName: snapshot.roomName,
-        waiting: snapshot.waiting,
-        cars: snapshot.cars,
-        activeCarPlanId: snapshot.activeCarPlanId,
-        carPlans: snapshot.carPlans,
-        trayMinimized: snapshot.trayMinimized,
-        editLockEnabled: snapshot.editLockEnabled,
-        editLockPassphrase: snapshot.editLockPassphrase,
-        editLockScopes: snapshot.editLockScopes,
-        settlement: snapshot.settlement,
-        overview: snapshot.overview,
-        lastAutoAssignLabel: snapshot.lastAutoAssignLabel,
-        schemaVersion: snapshot.schemaVersion,
-        lastUpdatedBy: snapshot.lastUpdatedBy,
-        lastUpdatedAt: snapshot.lastUpdatedAt
-    };
+    if (isRemoteUpdate || !dbRef) return;
     updateStatus('saving', '保存中...');
-    saveTimer = setTimeout(() => {
-        update(dbRef, payload).then(() => {
-            updateStatus('connected', '同期完了');
-        }).catch(error => {
-            console.error(error);
-            updateStatus('error', '保存失敗');
-        });
-    }, 80);
+    // Use the same transaction / three-way merge path as every other editor.
+    // The former direct update(dbRef, wholeRoom) could restore stale participants or
+    // overwrite another person's settlement changes while quick editing the shared sheet.
+    queueRemoteSnapshotSave(snapshot, 80);
 }
 
 function persistSheetCommittedSnapshot() {
