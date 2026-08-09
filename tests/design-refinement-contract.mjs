@@ -15,6 +15,7 @@ const carHeader = await read('assets/css/cars-members-tray/car-card/02-card-head
 const seatGrid = await read('assets/css/cars-members-tray/car-card/03-seat-grid.css');
 const personMenu = await read('assets/css/cars-members-tray/person-card/03-person-menu.css');
 const people = await read('assets/js/features/person-cards.js');
+const sheetView = await read('assets/js/features/sheet-view.js');
 const tagTypes = await read('assets/js/core/tag-types.js');
 const sheetTemplates = await read('assets/js/templates/sheet-templates.js');
 const sheetSummary = await read('assets/css/sheet-view/layout/03-sheet-summary.css');
@@ -64,7 +65,9 @@ expect(carCostTemplates.includes('<cds-structured-list') && carCostTemplates.inc
 expect(carCostCard.includes('.seisan-cost-structured-list') && carCostCard.includes('font-weight: 400;'), 'Regular driver cost rows must use one consistent body typography.');
 expect(index.includes('id="batchOpenBtn" class="tool-btn" kind="secondary"') && index.includes('id="shuffleAssignBtn"') && index.includes('kind="primary"'), 'Allocation must keep one primary action and lower participant registration emphasis.');
 expect(index.includes('id="sheet-quick-edit-btn" kind="ghost"') && !index.includes('<cds-icon-button id="sheet-quick-edit-btn"'), 'Shared edit must be a normal Ghost Button in the title area.');
+expect(sheetView.includes('updateSheetSummary({ ...data, carPlans: plans })'), 'Shared-view counts must use the same complete plan snapshot as the rendered allocations.');
 expect(people.includes('<cds-tag class="capacity-badge') && people.includes('class="capacity-edit-btn"'), 'Capacity information and its edit action must be separate Carbon components.');
+expect(people.includes('<cds-icon-button type="button" kind="danger--ghost"') && people.includes('class="car-delete-btn car-return-btn delete-btn"'), 'The vehicle return action must remain a Carbon icon button instead of a large custom tile.');
 expect(index.includes('<span>ドライバーへの支払い</span>') && !index.includes('seisan-payment-tag carbon-display-tag ui-chip pay'), 'Driver payment heading must not use a decorative payment tag.');
 
 for (const [source, mode] of [[lightTokens, 'light'], [darkTokens, 'dark']]) {
