@@ -28,7 +28,7 @@ assert.match(batchSource, /three-way intent editor/i, 'participant registration 
 assert.match(batchSource, /__suspendActiveDomPlanSync = true/, 'batch submit saves canonical state without re-sampling the modal-underlay DOM');
 assert.match(renderSource, /renderSettlementAfterModalCommit/, 'settlement submit renders only after Carbon modal close');
 assert.match(dragSource, /BEFORE seat hit-testing/, 'collapsed waiting tray is resolved before underlying seat hit-testing');
-assert.match(index, /remote-guard\.js\?v=collab-modal-sync-v46/, 'remote guard is cache-busted');
+assert.match(index, /remote-guard\.js\?v=collab-interaction-delete-v47/, 'remote guard is cache-busted');
 for (const path of [
   'core/runtime.js', 'core/storage.js', 'core/settlement-edit-guard.js', 'core/entity-state-v5.js',
   'core/sync-controller.js', 'core/data-state.js', 'core/modal-controller.js',
@@ -41,12 +41,24 @@ for (const path of [
   const start = index.indexOf(marker);
   assert.notEqual(start, -1, `${path} is referenced`);
   const tail = index.slice(start, start + marker.length + 120);
-  assert.match(tail, /collab-modal-sync-v46/, `${path} is cache-busted as one coherent collaborative build`);
+  assert.match(tail, /collab-interaction-delete-v47/, `${path} is cache-busted as one coherent collaborative build`);
 }
 assert.doesNotMatch(syncSource, /onValue\(dbRef,[\s\S]{0,160}if \(isProcessingQueue\) return/, 'gender queue must queue remote snapshots, never drop them');
 assert.match(syncSource, /\|\| !!isProcessingQueue/, 'gender detection participates in the remote UI transaction guard');
 assert.match(autoAssignSource, /SanpoRemoteGuard\?\.requestPendingApply/, 'gender queue releases queued remote snapshots after its final save');
 assert.match(batchSource, /openingByName\.get\(key\)[\s\S]{0,240}canonical\.participants\?\.\[openingEntry\.id\]/, 'participant registration resolves unchanged driver lines by opening participant ID across remote renames');
+assert.match(remoteGuard, /'appConfirmModal'/, 'delete confirmation is protected as a collaborative write transaction');
+assert.match(remoteGuard, /function isPersonMenuOpen/, 'open person menu blocks remote DOM repaint');
+assert.match(remoteGuard, /inPersonInteraction[\s\S]{0,420}markLocalEditing\(650\)/, 'person pointerdown is bridged until Carbon reflects menu open state');
+assert.match(entitySource, /if \(preferred && tombstones\[preferred\]\) return '';/, 'a stale explicit tombstoned DOM identity cannot be reminted');
+assert.match(batchSource, /\[\.\.\.m, \.\.\.g1, \.\.\.g2, \.\.\.g3, \.\.\.g4\]\.forEach/, 'participant roster excludes the driver-role field');
+assert.doesNotMatch(batchSource, /\[\.\.\.m, \.\.\.g1, \.\.\.g2, \.\.\.g3, \.\.\.g4, \.\.\.d\]\.forEach/, 'driver field alone cannot preserve a removed participant');
+const waitingTraySource = read('assets/js/features/waiting-tray.js');
+const waitingDragCss = read('assets/css/cars-members-tray/drag-drop/01-card-drag.css');
+assert.match(waitingTraySource, /ここにドロップして未割り当てに戻す/, 'waiting tray announces the active return drop target');
+assert.match(waitingTraySource, /wasNear !== touchingClosedStrip[\s\S]{0,100}updateTrayToggleLabel/, 'waiting tray label changes exactly when pointer enters/leaves the drop strip');
+assert.match(waitingDragCss, /#bottom-tray\.is-drop-near #tray-handle[\s\S]{0,180}box-shadow:[^;]*var\(--drop-accent\)/, 'waiting tray hover has a stronger visual target state');
+assert.match(index, /01-card-drag\.css\?v=collab-interaction-delete-v47/, 'waiting tray drag CSS is cache-busted with v47');
 
 const ctx = vm.createContext({
   window: {}, SanpoClock: { now: () => Date.now(), isServerAligned: () => true }, console, Date, JSON, Math, Object, Array, Set, Map, String, Number, parseInt,
@@ -143,6 +155,19 @@ function roomWithAliceBob() {
   assert.ok(entity.get().participantTombstones[aliceId]);
 }
 
+// A stale card/plan carrying a deleted explicit ID must be ignored rather than
+// resurrected under a newly generated suffix ID.
+{
+  const { room, aliceId } = roomWithAliceBob();
+  entity.set(room);
+  const staleAlice = entity.projectAllocation(entity.get(), 'car').waiting.find(p => p.participantId === aliceId);
+  entity.deleteParticipant(aliceId);
+  entity.captureFromDom(entity.get(), { cars: [], waiting: [staleAlice] }, 'car');
+  assert.equal(Object.values(entity.get().participants).some(p => p.name === 'Alice'), false, 'stale DOM card cannot resurrect Alice');
+  entity.applyProjectedPlan(entity.get(), { name: 'Car', cars: [], waiting: [staleAlice] }, 'car');
+  assert.equal(Object.values(entity.get().participants).some(p => p.name === 'Alice'), false, 'stale projected plan cannot resurrect Alice');
+}
+
 
 // Remote snapshots arriving during the local gender queue are retained, never discarded.
 {
@@ -177,4 +202,4 @@ function roomWithAliceBob() {
   assert.equal(sync.compareSyncVersions(newerTransaction, skewedOldTransaction) > 0, true);
 }
 
-console.log('Collaborative modal + whole-site sync v46 contract: PASS');
+console.log('Collaborative interaction + deletion sync v47 contract: PASS');

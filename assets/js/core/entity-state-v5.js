@@ -466,6 +466,10 @@ function updateCanonicalFromActiveDom(room, domAllocation, activeType = room?.ac
     const resolveId = raw => {
         const preferred = String(raw?.participantId || raw?.id || '').trim();
         const name = normalizeCanonicalName(raw?.name || '');
+        // An explicit ID on a DOM card is identity, not a suggestion. If that ID
+        // has a tombstone this is a stale projection left behind by an interrupted
+        // render. Never mint a new participant from it under a suffix ID.
+        if (preferred && tombstones[preferred]) return '';
         let id = preferred && participants[preferred] && !tombstones[preferred]
             ? preferred
             : existingNameIndex.get(canonicalNameKey(name));
@@ -712,6 +716,10 @@ function applyProjectedPlanToCanonical(room, plan = {}, type = 'car') {
         const preferred = String(raw?.participantId || raw?.id || '').trim();
         const name = normalizeCanonicalName(raw?.name || '');
         const tombstones = canonical.participantTombstones || (canonical.participantTombstones = {});
+        // A projected plan carrying a deleted explicit participant ID is stale.
+        // Skipping it is required so an old phone cannot resurrect the person as
+        // a newly generated participant after a tombstone has already won.
+        if (preferred && tombstones[preferred]) return '';
         let id = preferred && canonical.participants?.[preferred] && !tombstones[preferred]
             ? preferred
             : findCanonicalParticipantIdByName(canonical.participants || {}, name);

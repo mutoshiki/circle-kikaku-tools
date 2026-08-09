@@ -19,7 +19,11 @@
         'settlementSettingsModal',
         'settlementCarEditModal',
         'routeDistanceModal',
-        'planningCheckModal'
+        'planningCheckModal',
+        // A delete/return confirmation is part of the same collaborative write
+        // transaction as the card action that opened it. Without this boundary a
+        // remote repaint can replace the card while the user is deciding.
+        'appConfirmModal'
     ]);
 
     const EDITABLE_SELECTOR = [
@@ -65,6 +69,15 @@
         return Array.from(document.querySelectorAll('.app-modal')).some(modalOwnsLocalWrite);
     }
 
+    function isPersonMenuOpen() {
+        // Person menus live outside write modals and, when supported, are promoted
+        // to the browser Top Layer. Their open state still represents a local UI
+        // transaction: replacing the allocation DOM here destroys the Carbon menu
+        // host and causes the visible open/close flicker.
+        return document.body?.classList?.contains('person-menu-open')
+            || !!document.querySelector?.('cds-overflow-menu.person-overflow-menu[open]');
+    }
+
     function isEditableControlFocused() {
         const active = deepestActiveElement(document);
         if (!active) return false;
@@ -93,6 +106,7 @@
 
     function isBusy() {
         return isCollaborativeEditModalOpen()
+            || isPersonMenuOpen()
             || isEditableControlFocused()
             || compositionDepth > 0
             || pointerTransactionDepth > 0
@@ -115,7 +129,16 @@
 
     function beginPointerTransaction(event) {
         const path = event.composedPath?.() || [];
-        const inWriteModal = path.some(node => node instanceof Element && node.classList?.contains('app-modal') && modalOwnsLocalWrite(node));
+        const isElement = node => typeof Element !== 'undefined' && node instanceof Element;
+        const inWriteModal = path.some(node => isElement(node) && node.classList?.contains('app-modal') && modalOwnsLocalWrite(node));
+        const inPersonInteraction = path.some(node => isElement(node) && (
+            node.matches?.('cds-overflow-menu.person-overflow-menu, cds-menu.person-pop-menu')
+            || node.classList?.contains('member-card')
+            || node.classList?.contains('driver-seat')
+        ));
+        // Bridge pointerdown -> Carbon's reflected `open` state. The persistent
+        // isPersonMenuOpen() guard takes over as soon as the menu opens.
+        if (inPersonInteraction) markLocalEditing(650);
         if (!inWriteModal) return;
         pointerTransactionDepth += 1;
         markLocalEditing(450);
@@ -163,6 +186,7 @@
     global.SanpoRemoteGuard = Object.freeze({
         isBusy,
         isModalOpen: isCollaborativeEditModalOpen,
+        isPersonMenuOpen,
         isEditableControlFocused,
         markLocalEditing,
         requestPendingApply,

@@ -53,7 +53,7 @@
                     const driverGrade = parseInt(driver?.dataset?.grade) || 0;
                     const waitingList = $('#waiting-list');
 
-                    if (driverName && waitingList) addMember(driverName, driverMemo, driverGender, driverGrade, waitingList, false, driver?.dataset.flag);
+                    if (driverName && waitingList) addMember(driverName, driverMemo, driverGender, driverGrade, waitingList, false, driver?.dataset.flag, driver?.dataset.participantId || '');
                     $$('.member-card', box).forEach(m => waitingList?.appendChild(m));
                     if (settlementState?.cars && driverName) delete settlementState.cars[driverName];
                     if (settlementState?.driverPaid && driverName) delete settlementState.driverPaid[driverName];

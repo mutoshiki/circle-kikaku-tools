@@ -293,7 +293,10 @@ async function executeBatch() {
     m.forEach(name => { if (!gradeMap.has(normalize(name))) gradeMap.set(normalize(name), 0); });
 
     const requestedNames = [];
-    [...m, ...g1, ...g2, ...g3, ...g4, ...d].forEach(name => {
+    // The participant/grade fields are the master roster. `車出し` is only a
+    // role selector for people who are still on that roster; leaving an old name
+    // in the driver field must not silently keep a participant the user deleted.
+    [...m, ...g1, ...g2, ...g3, ...g4].forEach(name => {
         const key = normalize(name);
         if (key && !requestedNames.some(item => item.key === key)) requestedNames.push({ key, name });
     });

@@ -160,6 +160,10 @@ function updateTrayToggleLabel() {
             handle.tabIndex = disabled ? -1 : 0;
         }
     };
+    if (tray.classList.contains('is-drop-near')) {
+        updatePresentation(false, 'ここにドロップして未割り当てに戻す');
+        return;
+    }
     const minimized = isWaitingTrayCollapsed(tray);
     const emptySuffix = count === 0 ? '（0人）' : suffix;
     updatePresentation(!minimized, minimized
@@ -295,13 +299,17 @@ function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
     if (!tray || !waitingList || currentView !== 'list' || !manualCardDrag) return;
 
     if (manualCardDrag.currentContainer?.id === 'waiting-list') {
+        const changed = tray.classList.contains('is-drop-near');
         tray.classList.remove('is-drop-near');
+        if (changed) updateTrayToggleLabel();
         return;
     }
 
     const closed = isWaitingTrayCollapsed(tray) || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
     if (!closed) {
+        const changed = tray.classList.contains('is-drop-near');
         tray.classList.remove('is-drop-near');
+        if (changed) updateTrayToggleLabel();
         return;
     }
 
@@ -319,7 +327,9 @@ function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
         && clientY >= stripTop
         && clientY <= stripBottom;
 
+    const wasNear = tray.classList.contains('is-drop-near');
     tray.classList.toggle('is-drop-near', touchingClosedStrip);
+    if (wasNear !== touchingClosedStrip) updateTrayToggleLabel();
 }
 
 function finishWaitingTrayDragState() {
