@@ -25,6 +25,8 @@ function calculateSettlement(data, state) {
     let totalClub = 0;
     let totalReward = 0;
     let totalDriverRound = 0;
+    let totalSplitRound = 0;
+    let totalClubRound = 0;
     const cars = (data.cars || []).map(car => {
         const cState = ensureDriverRewardExtra(state.cars?.[car.name] || {}, state);
         const dist = getNumberValue(cState.dist);
@@ -56,12 +58,18 @@ function calculateSettlement(data, state) {
         const rewardAmount = extras.filter(ex => ex.isDriverReward).reduce((sum, ex) => sum + ex.amountValue, 0);
         const split = gas + splitExtras;
         const rawPay = split + clubExtras;
-        const totalPay = roundUp(rawPay, 100);
-        const driverRound = totalPay - rawPay;
+        const splitPay = roundUp(split, 100);
+        const clubPay = roundUp(clubExtras, 100);
+        const splitRound = splitPay - split;
+        const clubRound = clubPay - clubExtras;
+        const totalPay = splitPay + clubPay;
+        const driverRound = splitRound + clubRound;
         totalSplit += split;
         totalClub += clubExtras;
         totalReward += rewardAmount;
         totalDriverRound += driverRound;
+        totalSplitRound += splitRound;
+        totalClubRound += clubRound;
         return {
             name: car.name,
             gas,
@@ -73,6 +81,10 @@ function calculateSettlement(data, state) {
             clubExtras,
             reward: rewardAmount,
             rawPay,
+            splitPay,
+            clubPay,
+            splitRound,
+            clubRound,
             totalPay,
             driverRound
         };
@@ -83,14 +95,17 @@ function calculateSettlement(data, state) {
     const surplus = expectedCollected - totalSplit;
     cars.forEach(car => {
         car.collectionOffset = driverCollectionOffset && driverNames.has(car.name) && car.name !== excludedName ? perPerson : 0;
-        car.adjustedTotalPay = car.totalPay - car.collectionOffset;
+        car.adjustedSplitPay = car.splitPay - car.collectionOffset;
+        car.adjustedClubPay = car.clubPay;
+        car.adjustedTotalPay = car.adjustedSplitPay + car.adjustedClubPay;
     });
     const totalDriverCollectionOffset = cars.reduce((sum, c) => sum + c.collectionOffset, 0);
     const driverTotal = cars.reduce((sum, c) => sum + c.adjustedTotalPay, 0);
-    const splitPaymentTotal = driverTotal - totalClub;
-    const splitPaymentAdjustment = splitPaymentTotal - totalSplit;
-    const clubPaymentTotal = totalClub;
-    const clubPaymentAdjustment = clubPaymentTotal - totalClub;
+    const splitBasePaymentTotal = totalSplit - totalDriverCollectionOffset;
+    const splitPaymentTotal = cars.reduce((sum, c) => sum + c.adjustedSplitPay, 0);
+    const clubPaymentTotal = cars.reduce((sum, c) => sum + c.adjustedClubPay, 0);
+    const splitPaymentAdjustment = totalSplitRound;
+    const clubPaymentAdjustment = totalClubRound;
     const paymentAdjustmentTotal = splitPaymentAdjustment + clubPaymentAdjustment;
     const accounting = driverTotal - expectedCollected;
     const paidCount = participants.filter(p => {
@@ -119,10 +134,13 @@ function calculateSettlement(data, state) {
         totalClub,
         totalReward,
         totalDriverRound,
+        totalSplitRound,
+        totalClubRound,
         perPerson,
         expectedCollected,
         surplus,
         driverTotal,
+        splitBasePaymentTotal,
         splitPaymentTotal,
         splitPaymentAdjustment,
         clubPaymentTotal,

@@ -47,6 +47,21 @@
   border-top: 2px solid var(--border-strong);
 }
 
+#seisan-view-area .seisan-cost-structured-row--section {
+  border-top: 1px solid var(--border-strong);
+  background: var(--surface-low);
+}
+
+#seisan-view-area .seisan-cost-structured-row--section .seisan-cost-name,
+#seisan-view-area .seisan-cost-structured-row--subtotal .seisan-cost-name,
+#seisan-view-area .seisan-cost-structured-row--total .seisan-cost-name {
+  font-weight: 600;
+}
+
+#seisan-view-area .seisan-cost-structured-row--subtotal {
+  border-top: 1px solid var(--border-section);
+}
+
 #seisan-view-area .seisan-cost-name,
 #seisan-view-area .seisan-cost-category,
 #seisan-view-area .seisan-cost-amount {

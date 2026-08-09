@@ -12,9 +12,13 @@
   }
 
   function summary(result, helpers = {}) {
-    const splitPaymentAdjustment = Number(result.splitPaymentAdjustment ?? ((result.driverTotal - result.totalClub) - result.totalSplit));
+    const splitBasePaymentTotal = Number(result.splitBasePaymentTotal ?? (result.totalSplit - result.totalDriverCollectionOffset));
+    const splitPaymentAdjustment = Number(result.splitPaymentAdjustment ?? result.totalSplitRound ?? 0);
     const clubPaymentAdjustment = Number(result.clubPaymentAdjustment || 0);
     const paymentAdjustmentTotal = Number(result.paymentAdjustmentTotal ?? (splitPaymentAdjustment + clubPaymentAdjustment));
+    const splitBaseDetail = result.totalDriverCollectionOffset
+      ? `<span>費用 ${signedMoney(result.totalSplit, helpers)}</span><span>集金控除 ${signedMoney(-result.totalDriverCollectionOffset, helpers)}</span>`
+      : '<span>割勘費用</span>';
     // Legacy test anchor: 1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名
     return `
         <cds-table class="seisan-summary-table" size="lg" aria-label="全体の費用">
@@ -28,8 +32,8 @@
           <cds-table-body>
             <cds-table-row data-summary-kind="split">
               <cds-table-cell class="seisan-summary-table-name">割勘合計</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${signedMoney(result.totalSplit, helpers)}</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-detail">割勘費用</cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${signedMoney(splitBasePaymentTotal, helpers)}</cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-detail">${splitBaseDetail}</cds-table-cell>
             </cds-table-row>
             <cds-table-row data-summary-kind="club">
               <cds-table-cell class="seisan-summary-table-name">部費合計</cds-table-cell>

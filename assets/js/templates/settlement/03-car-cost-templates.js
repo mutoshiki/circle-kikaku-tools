@@ -9,12 +9,6 @@
     esc,
     money,
     extraRow,
-    formatGasInline,
-    formatExtraInline,
-    formatDriverCollectionOffsetInline,
-    formatDriverRoundInline,
-    formatCostDetailRows,
-    formatPaymentTotalRow,
     formatCostBadge,
     orderDriverRewardFirstForDisplay
   } = parts;
@@ -49,39 +43,58 @@
     }).join('');
   }
 
-  function structuredCostRow({ label, amount, type = 'split', sign = '', total = false }, helpers = {}) {
-    const category = total ? '' : (String(type).startsWith('club') ? 'club' : 'split');
-    const amountContent = `<span class="seisan-amount-sign${sign ? '' : ' is-blank'}" aria-hidden="true">${sign || '＋'}</span>${money(Math.abs(Number(amount) || 0), helpers)}`;
-    return `<cds-structured-list-row condensed class="seisan-cost-structured-row${total ? ' seisan-cost-structured-row--total' : ''}">
+  function structuredCostRow({ label, amount = 0, type = '', sign = '', rowType = 'detail' }, helpers = {}) {
+    const numericAmount = Number(amount) || 0;
+    const category = type ? (String(type).startsWith('club') ? 'club' : 'split') : '';
+    const operator = sign || (rowType === 'total' ? '＝' : '');
+    const formattedAmount = operator ? money(Math.abs(numericAmount), helpers) : money(numericAmount, helpers);
+    const amountContent = rowType === 'section'
+      ? ''
+      : `<span class="seisan-amount-sign${operator ? '' : ' is-blank'}" aria-hidden="true">${operator || '＋'}</span>${formattedAmount}`;
+    const emphasized = ['subtotal', 'total'].includes(rowType);
+    return `<cds-structured-list-row condensed class="seisan-cost-structured-row seisan-cost-structured-row--${rowType}">
       <cds-structured-list-cell class="seisan-cost-name">${esc(label, helpers)}</cds-structured-list-cell>
       <cds-structured-list-cell class="seisan-cost-category">${category ? formatCostBadge(category) : ''}</cds-structured-list-cell>
-      <cds-structured-list-cell class="seisan-cost-amount">${total ? `<strong>${amountContent}</strong>` : amountContent}</cds-structured-list-cell>
+      <cds-structured-list-cell class="seisan-cost-amount">${emphasized ? `<strong>${amountContent}</strong>` : amountContent}</cds-structured-list-cell>
     </cds-structured-list-row>`;
   }
 
   function structuredCostRows(calc, extras, helpers = {}) {
-    const rows = [];
+    const splitRows = [];
+    const clubRows = [];
+    const adjustmentSign = value => Number(value || 0) === 0 ? '' : (Number(value) < 0 ? '−' : '＋');
     if (!calc.usesTimesRental) {
-      rows.push({ label: 'ガソリン代', amount: calc.gas || 0, type: 'split', sign: '' });
+      splitRows.push({ label: 'ガソリン代', amount: calc.gas || 0, type: 'split' });
     }
     extras.forEach(extra => {
       const rawAmount = Number(extra.amountValue ?? extra.amount ?? 0);
       const isMinus = rawAmount < 0 || String(extra.type || '').endsWith('-minus');
-      rows.push({
+      const targetRows = String(extra.type || '').startsWith('club') ? clubRows : splitRows;
+      targetRows.push({
         label: extra.name || '費用',
         amount: rawAmount,
         type: extra.type,
-        sign: rows.length === 0 && !isMinus ? '' : (isMinus ? '−' : '＋')
+        sign: targetRows.length === 0 && !isMinus ? '' : (isMinus ? '−' : '＋')
       });
     });
+    splitRows.push({ label: '端数調整', amount: calc.splitRound || 0, type: 'split', sign: adjustmentSign(calc.splitRound) });
     if (calc.collectionOffset) {
-      rows.push({ label: '集金', amount: calc.collectionOffset, type: 'split', sign: '−' });
+      splitRows.push({ label: '集金控除', amount: calc.collectionOffset, type: 'split', sign: '−' });
     }
-    if (calc.driverRound) {
-      rows.push({ label: '端数処理分', amount: calc.driverRound, type: 'split', sign: rows.length ? '＋' : '' });
-    }
-    rows.push({ label: '合計', amount: calc.adjustedTotalPay ?? calc.totalPay ?? 0, sign: '＝', total: true });
-    return rows.map(row => structuredCostRow(row, helpers)).join('');
+    clubRows.push({ label: '端数調整', amount: calc.clubRound || 0, type: 'club', sign: adjustmentSign(calc.clubRound) });
+
+    return [
+      structuredCostRow({ label: '割勘による内訳', rowType: 'section' }, helpers),
+      ...splitRows.map(row => structuredCostRow(row, helpers)),
+      structuredCostRow({ label: '割勘合計', amount: calc.adjustedSplitPay ?? calc.splitPay ?? 0, rowType: 'subtotal' }, helpers),
+      structuredCostRow({ label: '部費による内訳', rowType: 'section' }, helpers),
+      ...clubRows.map(row => structuredCostRow(row, helpers)),
+      structuredCostRow({ label: '部費合計', amount: calc.adjustedClubPay ?? calc.clubPay ?? 0, rowType: 'subtotal' }, helpers),
+      structuredCostRow({ label: '支払い合計', rowType: 'section' }, helpers),
+      structuredCostRow({ label: '割勘', amount: calc.adjustedSplitPay ?? calc.splitPay ?? 0, rowType: 'summary' }, helpers),
+      structuredCostRow({ label: '部費', amount: calc.adjustedClubPay ?? calc.clubPay ?? 0, rowType: 'summary' }, helpers),
+      structuredCostRow({ label: '合計', amount: calc.adjustedTotalPay ?? calc.totalPay ?? 0, rowType: 'total' }, helpers)
+    ].join('');
   }
 
 

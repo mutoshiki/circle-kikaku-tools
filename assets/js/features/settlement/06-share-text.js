@@ -41,6 +41,7 @@ function formatSettlementExtraDetail(car) {
 function buildSettlementOverviewText({ title, state, result }) {
     const collectionBalanceLabel = result.surplus >= 0 ? '参加者集金の余り' : '参加者集金の不足';
     const splitPaymentTotal = Number(result.splitPaymentTotal ?? (result.driverTotal - result.totalClub));
+    const clubPaymentTotal = Number(result.clubPaymentTotal ?? result.totalClub);
     const unpaid = getSettlementUnpaidNames(result, state);
     const splitExtraTotal = result.cars.reduce((sum, car) => sum + (car.splitExtras || 0), 0);
     const driverLines = result.cars.map(car => {
@@ -50,7 +51,10 @@ function buildSettlementOverviewText({ title, state, result }) {
             `諸経費：${formatSettlementExtraDetail(car)}`
         ];
         if (car.collectionOffset) details.push(`− ドライバー分の集金控除：${yen(car.collectionOffset)}`);
-        if (car.driverRound) details.push(`＋ 支払い額の切り上げ：${yen(car.driverRound)}`);
+        if (car.splitRound) details.push(`＋ 割勘の端数調整：${yen(car.splitRound)}`);
+        if (car.clubRound) details.push(`＋ 部費の端数調整：${yen(car.clubRound)}`);
+        details.push(`割勘：${yen(car.adjustedSplitPay ?? car.splitPay)}`);
+        details.push(`部費：${yen(car.adjustedClubPay ?? car.clubPay)}`);
         return `・${car.name}車：${yen(car.adjustedTotalPay ?? car.totalPay)}${paidMark}\n　${details.join('　')}`;
     });
 
@@ -58,9 +62,10 @@ function buildSettlementOverviewText({ title, state, result }) {
         `【${title} 精算メモ】`,
         `参加者集金：${yen(result.expectedCollected)}（${yen(result.perPerson)} × ${result.payerCount}名）`,
         `割勘合計：${yen(splitPaymentTotal)}`,
-        `部費合計：${yen(result.totalClub)}`,
+        `部費合計：${yen(clubPaymentTotal)}`,
+        `端数調整：割勘 ${formatSignedSettlementYen(result.splitPaymentAdjustment)} / 部費 ${formatSignedSettlementYen(result.clubPaymentAdjustment)}`,
         `支払総額：${yen(result.driverTotal)}`,
-        `計算：${yen(splitPaymentTotal)} ＋ ${yen(result.totalClub)} ＝ ${yen(result.driverTotal)}`,
+        `計算：${yen(splitPaymentTotal)} ＋ ${yen(clubPaymentTotal)} ＝ ${yen(result.driverTotal)}`,
         '',
         `割勘対象：${yen(result.totalSplit)}`,
         `諸経費：割勘 ${yen(splitExtraTotal)} / 部費 ${yen(result.totalClub)}`,

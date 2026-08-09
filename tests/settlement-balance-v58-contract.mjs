@@ -43,21 +43,28 @@ vm.runInNewContext(`${calculator}\nresult = calculateSettlement({
   organizerName: '', organizerFree: false, driverCollectionOffset: true, driverCollectionFree: false,
   rounding: 100, paid: {}, cars: {
     A: { extras: [{ name: '少額', amount: 50, type: 'split' }] },
-    B: { extras: [{ name: '多額', amount: 950, type: 'split' }] }
+    B: { extras: [{ name: '多額', amount: 950, type: 'split' }, { name: '部費項目', amount: 333, type: 'club' }] }
   }
 });`, context);
 
 assert.equal(context.result.cars[0].adjustedTotalPay, -300, 'A negative driver payment must remain negative.');
-assert.equal(context.result.splitPaymentTotal + context.result.totalClub, context.result.driverTotal, 'The three overall totals must reconcile exactly.');
-assert.equal(context.result.splitPaymentAdjustment, context.result.splitPaymentTotal - context.result.totalSplit);
-assert.equal(context.result.clubPaymentAdjustment, context.result.clubPaymentTotal - context.result.totalClub);
-assert.equal(context.result.totalSplit + context.result.totalClub + context.result.paymentAdjustmentTotal, context.result.driverTotal, 'Base costs plus the consolidated rounding row must reconcile to driver payments.');
+assert.equal(context.result.cars[1].clubRound, 67, 'Club expenses must be rounded independently from split expenses.');
+assert.equal(context.result.cars[1].totalPay, context.result.cars[1].splitPay + context.result.cars[1].clubPay, 'Each driver total must be the sum of independently rounded category totals.');
+assert.equal(context.result.splitPaymentTotal + context.result.clubPaymentTotal, context.result.driverTotal, 'The two category payment totals must reconcile exactly.');
+assert.equal(context.result.splitPaymentAdjustment, context.result.totalSplitRound);
+assert.equal(context.result.clubPaymentAdjustment, context.result.totalClubRound);
+assert.equal(context.result.splitBasePaymentTotal + context.result.totalClub + context.result.paymentAdjustmentTotal, context.result.driverTotal, 'Base costs plus category rounding must reconcile to driver payments.');
 assert.doesNotMatch(calculator, /adjustedTotalPay\s*=\s*Math\.max\(0/);
 assert.match(summary, /paymentAdjustmentTotal/);
 assert.match(summary, /extra\.baseType === 'club'/);
 assert.match(summary, /data-summary-kind="rounding"[\s\S]*割勘[\s\S]*部費[\s\S]*data-summary-kind="pay"/, 'The consolidated split/club rounding row must appear immediately before payments.');
+assert.match(read('assets/js/templates/settlement/03-car-cost-templates.js'), /割勘による内訳[\s\S]*割勘合計[\s\S]*部費による内訳[\s\S]*部費合計[\s\S]*支払い合計/, 'Driver cards must show split details, club details, then their combined payment total.');
 assert.doesNotMatch(summary, /ドライバー分の集金控除|参加者集金の不足/);
 assert.doesNotMatch(shareText, /accountingLabel|部費支出.*accounting/);
+assert.match(shareText, /割勘の端数調整/);
+assert.match(shareText, /部費の端数調整/);
+assert.match(shareText, /clubPaymentTotal/);
+assert.doesNotMatch(shareText, /支払い額の切り上げ/);
 assert.match(costParts, /isReward \|\| isTimesFeeExtraForDisplay\(ex\)/, 'Driver rewards and Times fees must use the supporting display tone.');
 assert.match(costParts, /タイムズ時間料金.*タイムズ移動料金/, 'Both Times fee names must be recognized.');
 
