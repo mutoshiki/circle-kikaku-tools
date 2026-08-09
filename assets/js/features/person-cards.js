@@ -74,12 +74,13 @@ function renderPersonOverflowMenu({ name, isDriver = false, inWaiting = false, l
 }
 window.renderPersonOverflowMenu = renderPersonOverflowMenu;
 
-function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), locked=false, flag='none') {
+function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), locked=false, flag='none', participantId='') {
     const name = String(n || '').trim();
     if(!name) return;
     
     const div = ce('div', 'member-card');
     div.dataset.name = name;
+    if (participantId) div.dataset.participantId = String(participantId);
     div.dataset.gender = g;
     div.dataset.grade = grade;
     div.dataset.locked = locked;
@@ -103,20 +104,21 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
 }
 window.addMember = addMember;
 
-function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none') {
+function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none', participantId='', groupId='') {
     const name = String(n || '').trim();
     const fallbackCapacity = typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3;
     const c = getInt(cap) || fallbackCapacity;
     if(!name) return;
 
     const col = ce('div', 'allocation-grid-item');
+    if (participantId) col.dataset.participantId = String(participantId);
     const safeName = escapeHtml(name);
     const safeMemo = escapeHtml(dm || '');
     const driverGradeHtml = renderGradeBadge(dgrade, dg);
     const driverGenderHtml = genderBadgeHtml(dg);
     const groupSuffix = typeof getActiveGroupSuffix === 'function' ? getActiveGroupSuffix() : '車';
     let slotsHtml = `
-        <div class="driver-seat" data-gender="${dg}" data-name="${safeName}" data-grade="${dgrade || 0}" data-flag="${normalizePersonFlag(dflag)}">
+        <div class="driver-seat" data-gender="${dg}" data-name="${safeName}" data-participant-id="${escapeHtml(participantId || '')}" data-grade="${dgrade || 0}" data-flag="${normalizePersonFlag(dflag)}">
             <div class="member-main-line driver-main-line">
                 <div class="driver-name-disp ">${safeName}</div>
                 <div class="person-meta">${renderPersonFlag(dflag)}${driverGenderHtml}${driverGradeHtml}</div>
@@ -128,7 +130,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none') {
     for(let i=0; i<c; i++) slotsHtml += `<div class="seat-slot"><span class="seat-slot-icon" data-carbon-icon="add" aria-hidden="true"></span></div>`;
 
     col.innerHTML = `
-        <div class="car-box" data-capacity="${c}">
+        <div class="car-box" data-capacity="${c}" data-group-id="${escapeHtml(groupId || '')}">
             <div class="car-header">
                 <span class="car-name-label">${safeName}${groupSuffix}</span>
                 <cds-button type="button" kind="ghost" size="lg" class="capacity-badge capacity-edit-btn" data-action="edit-capacity" aria-label="定員を変更">
@@ -145,7 +147,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none') {
 
     $$('.seat-slot', col).forEach((slot, i) => {
         setupSortable(slot);
-        if(mems[i]) addMember(mems[i].name, mems[i].memo, mems[i].gender, mems[i].grade||0, slot, mems[i].locked, mems[i].flag);
+        if(mems[i]) addMember(mems[i].name, mems[i].memo, mems[i].gender, mems[i].grade||0, slot, mems[i].locked, mems[i].flag, mems[i].participantId || mems[i].id || '');
     });
     if (!isRestoringCarPlans && !window.__suspendCardUpdateUi) updateUI();
 }

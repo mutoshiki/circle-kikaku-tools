@@ -125,7 +125,7 @@ function getManualCardDropTarget(clientX, clientY) {
     if (seat) return seat;
 
     if (waitingList && tray && tray.isConnected) {
-        const trayIsOpen = !tray.classList.contains('minimized') && !(tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
+        const trayIsOpen = !tray.classList.contains('minimized') && !tray.classList.contains('drag-transient-minimized') && !(tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
 
         // 開いているときは、待機欄の中に入った場合だけ戻し先にする。
         if (trayIsOpen && el?.closest?.('#waiting-list, #waiting-list-container')) {
@@ -198,7 +198,7 @@ function createCarFromDroppedMember(card) {
     if (!member?.name) return false;
 
     card.remove();
-    addCar(member.name, (typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3), [], member.memo, member.gender, member.grade || 0, member.flag);
+    addCar(member.name, (typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3), [], member.memo, member.gender, member.grade || 0, member.flag, member.participantId || '');
     return true;
 }
 

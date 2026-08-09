@@ -19,7 +19,15 @@
   } = parts;
 
   function extraCandidateLabel(candidate, helpers = {}) {
-    const typeLabel = candidate.type === 'club' ? '部費' : '割勘';
+    const type = typeof window.normalizeSettlementExtraType === 'function'
+      ? window.normalizeSettlementExtraType(candidate.type)
+      : candidate.type;
+    const typeLabel = ({
+      split: '割勘',
+      club: '部費',
+      'split-minus': '割勘 −',
+      'club-minus': '部費 −'
+    })[type] || '割勘';
     return `${esc(candidate.name, helpers)} / ${money(candidate.amount, helpers)} / ${typeLabel}`;
   }
 

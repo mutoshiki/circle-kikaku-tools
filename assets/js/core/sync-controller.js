@@ -1,38 +1,48 @@
-// App persistence and remote sync controller.
-// Split from app.js during S-4 cleanup.
+// Schema v5 persistence and collaborative sync.
 //
-// Multi-user rule:
-// - A client must never write fields it did not actually change since its last synced snapshot.
-// - Settlement is merged recursively inside a Firebase RTDB transaction so edits to different
-//   cars / payment checks can coexist instead of the last writer replacing the whole settlement.
-// - Remote updates received while a settlement field is focused are queued and folded into the
-//   next transaction, then painted after the local edit is committed.
+// The remote room is an entity tree, not a whole-page snapshot:
+//   participants/{participantId}
+//   allocations/{car|team}/groups/{groupId}
+//   allocations/{car|team}/placements/{participantId}
+//   settlement/carsByParticipantId/{participantId}
+//   settlement/paidByParticipantId/{participantId}
+//
+// UI projections (waiting/cars/carPlans) never cross the persistence boundary. This makes
+// participant deletion authoritative and prevents a stale phone from resurrecting somebody
+// simply because it still holds an older card array.
 
-const ROOM_SYNC_FIELDS = [
+const ROOM_META_FIELDS = [
     'roomName',
-    'waiting',
-    'cars',
-    'activeCarPlanId',
-    'carPlans',
+    'activeAllocationType',
     'trayMinimized',
     'editLockEnabled',
     'editLockPassphrase',
     'editLockScopes',
-    'settlement',
     'overview',
-    'lastAutoAssignLabel',
     'schemaVersion'
 ];
+const SETTLEMENT_ENTITY_MAPS = [
+    'carsByParticipantId',
+    'carsByName',
+    'paidByParticipantId',
+    'paidByName',
+    'paidCollectorByParticipantId',
+    'paidCollectorByName',
+    'driverPaidByParticipantId',
+    'driverPaidByName'
+];
+const SETTLEMENT_SCALAR_OR_OBJECT_FIELDS = [
+    'rounding', 'organizerFree', 'organizerParticipantId', 'organizerNameFallback',
+    'driverCollectionOffset', 'driverCollectionFree', 'driverReward', 'driverRewardType',
+    'standalone', 'routeStops', 'routePlaceCatalog'
+];
+const LEGACY_REMOTE_FIELDS = ['waiting', 'cars', 'carPlans', 'activeCarPlanId', 'lastAutoAssignLabel'];
 
-const ROOM_DEEP_MERGE_FIELDS = new Set(['settlement', 'overview', 'editLockScopes']);
+let pendingRemoteRoomData = null;
 
 function cloneSyncValue(value) {
     if (value === undefined) return undefined;
     return JSON.parse(JSON.stringify(value));
-}
-
-function isPlainSyncObject(value) {
-    return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
 function syncValuesEqual(a, b) {
@@ -42,46 +52,14 @@ function syncValuesEqual(a, b) {
     catch (_) { return false; }
 }
 
-// Three-way merge: remote is authoritative for paths untouched on this client;
-// local wins only for paths that changed from base -> local.
-function mergeConcurrentValue(remoteValue, baseValue, localValue) {
-    if (syncValuesEqual(localValue, baseValue)) return cloneSyncValue(remoteValue);
-
-    if (isPlainSyncObject(localValue) && isPlainSyncObject(baseValue)) {
-        const remoteObject = isPlainSyncObject(remoteValue) ? remoteValue : {};
-        const result = cloneSyncValue(remoteObject) || {};
-        const keys = new Set([...Object.keys(baseValue), ...Object.keys(localValue)]);
-
-        keys.forEach(key => {
-            const localHas = Object.prototype.hasOwnProperty.call(localValue, key);
-            const baseHas = Object.prototype.hasOwnProperty.call(baseValue, key);
-
-            if (!localHas && baseHas) {
-                delete result[key];
-                return;
-            }
-            if (!localHas) return;
-            if (!baseHas) {
-                result[key] = cloneSyncValue(localValue[key]);
-                return;
-            }
-            result[key] = mergeConcurrentValue(remoteObject[key], baseValue[key], localValue[key]);
-        });
-        return result;
-    }
-
-    // Arrays are treated as one logical value. This is intentional for an individual
-    // car's extras and route stops. Different cars still merge independently one level up.
-    return cloneSyncValue(localValue);
-}
-
 function getSyncBaseStorageKey() {
     return `${CFG.STORE}_sync_base_${roomId}`;
 }
 
 function readStoredSyncBase() {
     try {
-        return safeJsonParse(L.getItem(getSyncBaseStorageKey()), null);
+        const value = safeJsonParse(L.getItem(getSyncBaseStorageKey()), null);
+        return value ? migrateAppData(value) : null;
     } catch (_) {
         return null;
     }
@@ -89,43 +67,180 @@ function readStoredSyncBase() {
 
 function rememberSyncedData(data) {
     if (!data || typeof data !== 'object') return;
-    lastSyncedData = cloneSyncValue(data);
-    lastSyncedRevision = Number(data.revision || 0);
+    const canonical = migrateAppData(data);
+    lastSyncedData = cloneSyncValue(canonical);
+    lastSyncedRevision = Number(canonical.revision || 0);
     try { L.setItem(getSyncBaseStorageKey(), J.stringify(lastSyncedData)); }
     catch (error) { console.warn('Failed to persist sync base:', error); }
 }
 
+function setPatchValue(patch, path, value) {
+    patch[path] = value === undefined ? null : cloneSyncValue(value);
+}
+
+function diffEntityMap(patch, prefix, baseMap = {}, localMap = {}) {
+    const base = baseMap && typeof baseMap === 'object' ? baseMap : {};
+    const local = localMap && typeof localMap === 'object' ? localMap : {};
+    const ids = new Set([...Object.keys(base), ...Object.keys(local)]);
+    ids.forEach(id => {
+        const baseHas = Object.prototype.hasOwnProperty.call(base, id);
+        const localHas = Object.prototype.hasOwnProperty.call(local, id);
+        const path = `${prefix}/${id}`;
+        if (!localHas && baseHas) setPatchValue(patch, path, null);
+        else if (localHas && (!baseHas || !syncValuesEqual(base[id], local[id]))) setPatchValue(patch, path, local[id]);
+    });
+}
+
+function diffObjectFields(patch, prefix, baseValue = {}, localValue = {}) {
+    const base = baseValue && typeof baseValue === 'object' && !Array.isArray(baseValue) ? baseValue : {};
+    const local = localValue && typeof localValue === 'object' && !Array.isArray(localValue) ? localValue : {};
+    const keys = new Set([...Object.keys(base), ...Object.keys(local)]);
+    keys.forEach(key => {
+        const baseHas = Object.prototype.hasOwnProperty.call(base, key);
+        const localHas = Object.prototype.hasOwnProperty.call(local, key);
+        const path = `${prefix}/${key}`;
+        if (!localHas && baseHas) {
+            setPatchValue(patch, path, null);
+            return;
+        }
+        if (!localHas) return;
+        const b = base[key];
+        const l = local[key];
+        if (b && l && typeof b === 'object' && typeof l === 'object' && !Array.isArray(b) && !Array.isArray(l)) {
+            diffObjectFields(patch, path, b, l);
+        } else if (!baseHas || !syncValuesEqual(b, l)) {
+            setPatchValue(patch, path, l);
+        }
+    });
+}
+
+function diffParticipantMap(patch, baseMap = {}, localMap = {}) {
+    const base = baseMap && typeof baseMap === 'object' ? baseMap : {};
+    const local = localMap && typeof localMap === 'object' ? localMap : {};
+    const ids = new Set([...Object.keys(base), ...Object.keys(local)]);
+    ids.forEach(id => {
+        const baseHas = Object.prototype.hasOwnProperty.call(base, id);
+        const localHas = Object.prototype.hasOwnProperty.call(local, id);
+        const prefix = `participants/${id}`;
+        if (!localHas && baseHas) setPatchValue(patch, prefix, null);
+        else if (localHas && !baseHas) setPatchValue(patch, prefix, local[id]);
+        else if (localHas) diffObjectFields(patch, prefix, base[id], local[id]);
+    });
+}
+
+function diffSettlementCars(patch, baseMap = {}, localMap = {}) {
+    const base = baseMap && typeof baseMap === 'object' ? baseMap : {};
+    const local = localMap && typeof localMap === 'object' ? localMap : {};
+    const ids = new Set([...Object.keys(base), ...Object.keys(local)]);
+    ids.forEach(id => {
+        const baseHas = Object.prototype.hasOwnProperty.call(base, id);
+        const localHas = Object.prototype.hasOwnProperty.call(local, id);
+        const prefix = `settlement/carsByParticipantId/${id}`;
+        if (!localHas && baseHas) setPatchValue(patch, prefix, null);
+        else if (localHas && !baseHas) setPatchValue(patch, prefix, local[id]);
+        else if (localHas) diffObjectFields(patch, prefix, base[id], local[id]);
+    });
+}
+
+function diffAllocation(patch, type, baseAllocation = {}, localAllocation = {}) {
+    const prefix = `allocations/${type}`;
+    ['id', 'type', 'name', 'lastAutoAssignLabel', 'updatedAt'].forEach(field => {
+        if (!syncValuesEqual(baseAllocation?.[field], localAllocation?.[field])) {
+            setPatchValue(patch, `${prefix}/${field}`, localAllocation?.[field]);
+        }
+    });
+    diffEntityMap(patch, `${prefix}/groups`, baseAllocation?.groups, localAllocation?.groups);
+    diffEntityMap(patch, `${prefix}/placements`, baseAllocation?.placements, localAllocation?.placements);
+}
+
+function diffSettlement(patch, baseSettlement = {}, localSettlement = {}) {
+    const base = baseSettlement && typeof baseSettlement === 'object' ? baseSettlement : {};
+    const local = localSettlement && typeof localSettlement === 'object' ? localSettlement : {};
+    SETTLEMENT_SCALAR_OR_OBJECT_FIELDS.forEach(field => {
+        if (!syncValuesEqual(base[field], local[field])) setPatchValue(patch, `settlement/${field}`, local[field]);
+    });
+    SETTLEMENT_ENTITY_MAPS.forEach(field => {
+        if (field === 'carsByParticipantId') diffSettlementCars(patch, base[field], local[field]);
+        else diffEntityMap(patch, `settlement/${field}`, base[field], local[field]);
+    });
+
+    // Future settlement fields remain forward compatible. Unknown keys are treated as a
+    // single field, but the collaborative entity maps above stay independently writable.
+    const known = new Set([...SETTLEMENT_SCALAR_OR_OBJECT_FIELDS, ...SETTLEMENT_ENTITY_MAPS]);
+    const extraFields = new Set([...Object.keys(base), ...Object.keys(local)]);
+    extraFields.forEach(field => {
+        if (known.has(field)) return;
+        if (!syncValuesEqual(base[field], local[field])) setPatchValue(patch, `settlement/${field}`, local[field]);
+    });
+}
+
+function buildEntityPatch(baseRaw = {}, localRaw = {}, { forceCanonical = false } = {}) {
+    const local = migrateAppData(localRaw || {});
+    const patch = {};
+
+    if (forceCanonical) {
+        // Firebase multi-location updates cannot contain an ancestor and descendant path
+        // in the same request. A one-time v4 -> v5 migration therefore writes canonical
+        // roots as whole values, then removes all legacy mirror roots atomically.
+        ROOM_META_FIELDS.forEach(field => setPatchValue(patch, field, local[field]));
+        setPatchValue(patch, 'participants', local.participants || {});
+        setPatchValue(patch, 'participantTombstones', local.participantTombstones || {});
+        setPatchValue(patch, 'allocations', local.allocations || {});
+        setPatchValue(patch, 'settlement', local.settlement || {});
+        LEGACY_REMOTE_FIELDS.forEach(field => setPatchValue(patch, field, null));
+        setPatchValue(patch, 'lastUpdatedAt', Number(local.lastUpdatedAt || Date.now()));
+        setPatchValue(patch, 'lastUpdatedBy', local.lastUpdatedBy || myClientId);
+        setPatchValue(patch, 'revision', Number(local.revision || 0));
+        return patch;
+    }
+
+    const base = migrateAppData(baseRaw || {});
+    ROOM_META_FIELDS.forEach(field => {
+        if (!syncValuesEqual(base[field], local[field])) setPatchValue(patch, field, local[field]);
+    });
+    diffParticipantMap(patch, base.participants, local.participants);
+    diffEntityMap(patch, 'participantTombstones', base.participantTombstones, local.participantTombstones);
+    diffAllocation(patch, 'car', base.allocations?.car, local.allocations?.car);
+    diffAllocation(patch, 'team', base.allocations?.team, local.allocations?.team);
+    diffSettlement(patch, base.settlement, local.settlement);
+
+    setPatchValue(patch, 'lastUpdatedAt', Number(local.lastUpdatedAt || Date.now()));
+    setPatchValue(patch, 'lastUpdatedBy', local.lastUpdatedBy || myClientId);
+    setPatchValue(patch, 'revision', Number(local.revision || 0));
+    return patch;
+}
+
+function patchHasDomainChanges(patch = {}) {
+    return Object.keys(patch).some(path => !['lastUpdatedAt', 'lastUpdatedBy', 'revision'].includes(path));
+}
+
 function hasLocalChangesSinceBase(localData, baseData = lastSyncedData) {
     if (!localData || !baseData) return true;
-    return ROOM_SYNC_FIELDS.some(field => !syncValuesEqual(localData[field], baseData[field]));
+    return patchHasDomainChanges(buildEntityPatch(baseData, localData));
+}
+
+// Compatibility/testing helper. It applies the same entity patch semantics in-memory.
+function applyEntityPatchToObject(baseRaw = {}, patch = {}) {
+    const result = cloneSyncValue(baseRaw || {}) || {};
+    Object.entries(patch).forEach(([path, value]) => {
+        const parts = path.split('/').filter(Boolean);
+        if (!parts.length) return;
+        let cursor = result;
+        for (let i = 0; i < parts.length - 1; i += 1) {
+            const key = parts[i];
+            if (!cursor[key] || typeof cursor[key] !== 'object') cursor[key] = {};
+            cursor = cursor[key];
+        }
+        const key = parts[parts.length - 1];
+        if (value === null) delete cursor[key];
+        else cursor[key] = cloneSyncValue(value);
+    });
+    return result;
 }
 
 function buildConcurrentRoomMerge(remoteRaw, baseRaw, localRaw) {
-    const remote = remoteRaw && typeof remoteRaw === 'object' ? remoteRaw : {};
-    const base = baseRaw && typeof baseRaw === 'object' ? baseRaw : {};
-    const local = localRaw && typeof localRaw === 'object' ? localRaw : {};
-    const merged = cloneSyncValue(remote) || {};
-
-    ROOM_SYNC_FIELDS.forEach(field => {
-        const localValue = local[field];
-        const baseValue = base[field];
-        if (ROOM_DEEP_MERGE_FIELDS.has(field)) {
-            const next = mergeConcurrentValue(remote[field], baseValue, localValue);
-            if (next === undefined) delete merged[field];
-            else merged[field] = next;
-            return;
-        }
-        if (!syncValuesEqual(localValue, baseValue)) {
-            if (localValue === undefined) delete merged[field];
-            else merged[field] = cloneSyncValue(localValue);
-        }
-    });
-
-    merged.schemaVersion = Number(local.schemaVersion || merged.schemaVersion || APP_SCHEMA_VERSION);
-    merged.lastUpdatedBy = local.lastUpdatedBy || myClientId;
-    merged.lastUpdatedAt = Number(local.lastUpdatedAt || Date.now());
-    merged.revision = Math.max(0, Number(remote.revision || 0)) + 1;
-    return merged;
+    const patch = buildEntityPatch(baseRaw, localRaw);
+    return migrateAppData(applyEntityPatchToObject(migrateAppData(remoteRaw || {}), patch));
 }
 
 function applyAuthoritativeRemoteData(data, { rememberLocal = true } = {}) {
@@ -138,230 +253,169 @@ function applyAuthoritativeRemoteData(data, { rememberLocal = true } = {}) {
     if (rememberLocal) L.setItem(CFG.STORE + '_' + roomId, J.stringify(migrated));
 }
 
-async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVersion, capturedBase = null) {
+function rememberPendingRemoteData(data) {
+    if (!data || typeof data !== 'object') return;
+    const next = migrateAppData(data);
+    const currentTime = Number(pendingRemoteRoomData?.lastUpdatedAt || 0);
+    const nextTime = Number(next.lastUpdatedAt || 0);
+    if (!pendingRemoteRoomData || nextTime >= currentTime) {
+        pendingRemoteRoomData = cloneSyncValue(next);
+        pendingRemoteSettlementData = pendingRemoteRoomData;
+    }
+}
+
+async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVersion, capturedBase = null, options = {}) {
     if (isRemoteUpdate || !dbRef) return null;
+    const localSnapshot = migrateAppData(snapshot || {});
+    const baseAtWrite = migrateAppData(capturedBase || lastSyncedData || readStoredSyncBase() || {});
+    const patch = buildEntityPatch(baseAtWrite, localSnapshot, { forceCanonical: options.forceCanonical === true });
+    if (!patchHasDomainChanges(patch) && options.forceCanonical !== true) {
+        updateStatus('connected', '同期完了');
+        return localSnapshot;
+    }
 
-    const localSnapshot = cloneSyncValue(snapshot);
-    const baseAtWrite = cloneSyncValue(capturedBase || lastSyncedData || readStoredSyncBase() || {});
     syncWriteInFlight = true;
-
     try {
-        let committed;
-        if (typeof runTransaction === 'function') {
-            const result = await runTransaction(dbRef, currentRemote => {
-                return buildConcurrentRoomMerge(currentRemote || {}, baseAtWrite, localSnapshot);
-            }, { applyLocally: false });
-            if (!result.committed) throw new Error('Firebase transaction was not committed');
-            committed = migrateAppData(result.snapshot.val() || {});
-        } else {
-            // Compatibility fallback. Firebase 10.7.1 exposes runTransaction, so this should
-            // normally never be used. It still avoids writing untouched top-level fields.
-            const patch = {};
-            ROOM_SYNC_FIELDS.forEach(field => {
-                if (!syncValuesEqual(localSnapshot[field], baseAtWrite[field])) {
-                    patch[field] = cloneSyncValue(localSnapshot[field]);
-                }
-            });
-            patch.lastUpdatedBy = localSnapshot.lastUpdatedBy || myClientId;
-            patch.lastUpdatedAt = localSnapshot.lastUpdatedAt || Date.now();
-            await update(dbRef, patch);
-            committed = { ...(lastSyncedData || {}), ...patch };
-        }
+        await update(dbRef, patch);
+        // Preserve untouched server entities from our last base while immediately advancing
+        // the paths we wrote. The onValue snapshot that follows becomes the authoritative base.
+        const optimistic = migrateAppData(applyEntityPatchToObject(baseAtWrite, patch));
+        rememberSyncedData(optimistic);
+        L.setItem(CFG.STORE + '_' + roomId, J.stringify(optimistic));
 
-        rememberSyncedData(committed);
-
-        const committedRevision = Number(committed.revision || 0);
-        const pendingRevision = Number(pendingRemoteSettlementData?.revision || 0);
-        const pendingTime = Number(pendingRemoteSettlementData?.lastUpdatedAt || 0);
-        const committedTime = Number(committed.lastUpdatedAt || 0);
-        if (pendingRemoteSettlementData
-            && pendingRevision <= committedRevision
-            && (!pendingTime || !committedTime || pendingTime <= committedTime)) {
+        const pendingTime = Number(pendingRemoteRoomData?.lastUpdatedAt || 0);
+        const localTime = Number(localSnapshot.lastUpdatedAt || 0);
+        if (pendingRemoteRoomData && pendingTime && pendingTime <= localTime) {
+            pendingRemoteRoomData = null;
             pendingRemoteSettlementData = null;
         }
-
-        const isLatestRequest = requestVersion === saveRequestVersion;
-        if (isLatestRequest && !isSettlementInputProtected()) {
-            // If the transaction merged another person's concurrent work, paint that merged
-            // state now. When nothing else changed remotely, avoid an unnecessary full render.
-            if (!syncValuesEqual(
-                ROOM_SYNC_FIELDS.reduce((acc, field) => { acc[field] = committed[field]; return acc; }, {}),
-                ROOM_SYNC_FIELDS.reduce((acc, field) => { acc[field] = localSnapshot[field]; return acc; }, {})
-            )) {
-                applyAuthoritativeRemoteData(committed);
-            } else {
-                L.setItem(CFG.STORE + '_' + roomId, J.stringify(committed));
-            }
-        }
-
         updateStatus('connected', '同期完了');
-        return committed;
+        return optimistic;
     } catch (error) {
         console.error(error);
         updateStatus('error', '保存失敗');
         return null;
     } finally {
         syncWriteInFlight = false;
-        if (!isSettlementInputProtected()) queueMicrotask(applyPendingRemoteSettlementData);
+        if (!isSettlementInputProtected()) queueMicrotask(applyPendingRemoteRoomData);
     }
 }
 
-function queueRemoteSnapshotSave(snapshot, delay = 500) {
+function queueRemoteSnapshotSave(snapshot, delay = 180, options = {}) {
     if (isRemoteUpdate || !dbRef) return;
     clearTimeout(saveTimer);
     const requestVersion = ++saveRequestVersion;
-    // Capture the base at the moment the local action is made. A remote update may arrive
-    // during the debounce window; using a newer base would misclassify that remote change as
-    // a local change and could overwrite it.
     const capturedBase = cloneSyncValue(lastSyncedData || readStoredSyncBase() || {});
     saveTimer = setTimeout(() => {
         saveTimer = null;
-        void commitSnapshotToRemote(snapshot, requestVersion, capturedBase);
+        void commitSnapshotToRemote(snapshot, requestVersion, capturedBase, options);
     }, Math.max(0, Number(delay) || 0));
 }
 
 function save() {
     updateStatus('saving', '保存中...');
-
     lastUpdatedAt = Date.now();
     const d = getData({ skipDomSync: !!window.__suspendActiveDomPlanSync });
     d.lastUpdatedBy = myClientId;
     d.lastUpdatedAt = lastUpdatedAt;
+    d.revision = Math.max(Number(lastSyncedData?.revision || 0), Number(d.revision || 0)) + 1;
+    const canonical = window.SanpoCanonicalState?.set?.(d) || d;
+    L.setItem(CFG.STORE + '_' + roomId, J.stringify(canonical));
 
-    L.setItem(CFG.STORE + '_' + roomId, J.stringify(d));
+    if (!isRemoteUpdate && dbRef) queueRemoteSnapshotSave(canonical, 180);
+    else if (!isRemoteUpdate) setTimeout(() => updateStatus('local', 'ローカル保存済み'), 120);
+}
 
-    if (!isRemoteUpdate && dbRef) {
-        queueRemoteSnapshotSave(d, 500);
-    } else if (!isRemoteUpdate) {
-        setTimeout(() => updateStatus('local', 'ローカル保存済み'), 180);
-    }
+function resetEmptyLocalRoom() {
+    const empty = window.SanpoCanonicalState?.set?.({ schemaVersion: APP_SCHEMA_VERSION }) || {};
+    isRemoteUpdate = true;
+    restore(empty);
+    isRemoteUpdate = false;
+    rememberTrustedDevice('');
+    updateEditLockButton();
+    refreshRoomTitle();
+    updateUI();
+    L.removeItem(CFG.STORE + '_' + roomId);
 }
 
 function load() {
-    const loadLocalOnly = () => {
-        const localDataStr = L.getItem(CFG.STORE + '_' + roomId);
-        if (localDataStr) {
-            isRemoteUpdate = true;
-            restore(migrateAppData(JSON.parse(localDataStr)));
-            isRemoteUpdate = false;
-        } else {
-            $('#roomNameInput').value = '';
-            $('#waiting-list').innerHTML = '';
-            $('#cars-container').innerHTML = '';
-            editLockEnabled = false;
-            editLockPassphrase = '';
-            editLockScopes = { allocation: false, settlement: false };
-            carPlans = [];
-            activeCarPlanId = 'plan-1';
-            lastAutoAssignLabel = '';
-            renderCarPlanSwitcher?.();
-            rememberTrustedDevice('');
-            updateEditLockButton();
-            refreshRoomTitle();
-            updateUI();
-            L.removeItem(CFG.STORE + '_' + roomId);
-        }
-    };
+    const localDataStr = L.getItem(CFG.STORE + '_' + roomId);
+    const localData = localDataStr ? migrateAppData(safeJsonParse(localDataStr, {})) : null;
 
     if (!dbRef) {
-        if (!lastSyncedData) lastSyncedData = readStoredSyncBase();
-        loadLocalOnly();
+        if (localData) {
+            isRemoteUpdate = true;
+            restore(localData);
+            isRemoteUpdate = false;
+            rememberSyncedData(localData);
+        } else resetEmptyLocalRoom();
         updateStatus('local', 'ローカル保存');
         hideAppLoadingSkeleton?.();
         return;
     }
 
-    onValue(dbRef, (snapshot) => {
+    onValue(dbRef, snapshot => {
         if (isProcessingQueue) return;
         hideAppLoadingSkeleton?.();
-
-        const val = snapshot.val();
-        if (val) {
-            const migrated = migrateAppData(val);
-            const localDataStr = L.getItem(CFG.STORE + '_' + roomId);
-            const localData = localDataStr ? safeJsonParse(localDataStr, null) : null;
-            const localTime = Number(localData?.lastUpdatedAt || 0);
-            const remoteTime = Number(migrated.lastUpdatedAt || 0);
-
-            // If this tab has an unsynced local draft after a reload, compare it to the
-            // *previous synced base*, not the newest remote snapshot. This lets the transaction
-            // send only the actual draft changes and preserves changes made by other devices.
-            if (!lastSyncedData) lastSyncedData = cloneSyncValue(readStoredSyncBase() || migrated);
-            if (!lastSyncedRevision) lastSyncedRevision = Number(lastSyncedData?.revision || 0);
-
-            if (localData && localTime > remoteTime && !syncWriteInFlight) {
-                isRemoteUpdate = true;
-                restore(migrateAppData(localData));
-                isRemoteUpdate = false;
-                updateStatus('saving', 'ローカル変更を同期中...');
-                save();
-                return;
-            }
-
-            if (migrated.lastUpdatedBy === myClientId) {
-                rememberSyncedData(migrated);
-                return;
-            }
-
-            if (currentView === 'seisan' && isSettlementInputProtected()) {
-                pendingRemoteSettlementData = migrated;
-                updateStatus('local', '入力中のため同期保留');
-                return;
-            }
-
-            applyAuthoritativeRemoteData(migrated);
-        } else {
-            const localDataStr = L.getItem(CFG.STORE + '_' + roomId);
+        const raw = snapshot.val();
+        if (!raw) {
             if (localDataStr) {
-                if (!lastSyncedData) lastSyncedData = readStoredSyncBase() || {};
+                const canonicalLocal = migrateAppData(safeJsonParse(localDataStr, {}));
                 isRemoteUpdate = true;
-                restore(migrateAppData(JSON.parse(localDataStr)));
+                restore(canonicalLocal);
                 isRemoteUpdate = false;
-                save();
-            } else {
-                $('#roomNameInput').value = '';
-                $('#waiting-list').innerHTML = '';
-                $('#cars-container').innerHTML = '';
-                editLockEnabled = false;
-                editLockPassphrase = '';
-                editLockScopes = { allocation: false, settlement: false };
-                carPlans = [];
-                activeCarPlanId = 'plan-1';
-                lastAutoAssignLabel = '';
-                renderCarPlanSwitcher?.();
-                updateLastAutoAssignCondition();
-                rememberTrustedDevice('');
-                updateEditLockButton();
-                refreshRoomTitle();
-                updateUI();
-                L.removeItem(CFG.STORE + '_' + roomId);
-            }
+                rememberSyncedData({});
+                queueRemoteSnapshotSave(canonicalLocal, 0, { forceCanonical: true });
+            } else resetEmptyLocalRoom();
+            return;
+        }
+
+        const wasLegacy = Number(raw.schemaVersion || 1) < APP_SCHEMA_VERSION || !raw.participants || !raw.allocations;
+        const remote = migrateAppData(raw);
+        if (!lastSyncedData) rememberSyncedData(remote);
+
+        // A local edit in progress owns the visible UI. Incoming snapshots are queued until
+        // the local entity patch has been written; they are never painted over the gesture/input.
+        if (saveTimer || syncWriteInFlight || isSettlementInputProtected() || isDraggingCards || manualCardDrag) {
+            rememberPendingRemoteData(remote);
+            updateStatus('local', isSettlementInputProtected() ? '入力中のため同期保留' : '変更を同期中...');
+            return;
+        }
+
+        const storedLocal = safeJsonParse(L.getItem(CFG.STORE + '_' + roomId), null);
+        if (storedLocal && hasLocalChangesSinceBase(migrateAppData(storedLocal), lastSyncedData)) {
+            rememberPendingRemoteData(remote);
+            isRemoteUpdate = true;
+            restore(migrateAppData(storedLocal));
+            isRemoteUpdate = false;
+            save();
+            return;
+        }
+
+        applyAuthoritativeRemoteData(remote);
+        if (wasLegacy) {
+            // One-time schema migration. Canonical entities are written and all duplicated
+            // v4 allocation mirrors are deleted from Firebase in the same multi-location update.
+            queueRemoteSnapshotSave(remote, 0, { forceCanonical: true });
         }
     });
 }
 
-function applyPendingRemoteSettlementData() {
-    if (!pendingRemoteSettlementData || isSettlementInputProtected() || syncWriteInFlight || saveTimer) return;
-
-    const pending = pendingRemoteSettlementData;
-    const pendingRevision = Number(pending.revision || 0);
-    const pendingTime = Number(pending.lastUpdatedAt || 0);
-    const baseTime = Number(lastSyncedData?.lastUpdatedAt || 0);
-    if (pendingRevision < lastSyncedRevision
-        || (pendingRevision === lastSyncedRevision && pendingTime && baseTime && pendingTime <= baseTime)) {
-        pendingRemoteSettlementData = null;
-        return;
-    }
-
+function applyPendingRemoteRoomData() {
+    const pending = pendingRemoteRoomData || pendingRemoteSettlementData;
+    if (!pending || isSettlementInputProtected() || syncWriteInFlight || saveTimer || isDraggingCards || manualCardDrag) return;
     const local = getData({ skipDomSync: !!window.__suspendActiveDomPlanSync });
     if (hasLocalChangesSinceBase(local)) {
-        // Do not choose between local and remote here. The transaction is the merge point.
         save();
         return;
     }
-
+    pendingRemoteRoomData = null;
     pendingRemoteSettlementData = null;
     applyAuthoritativeRemoteData(pending);
+}
+
+function applyPendingRemoteSettlementData() {
+    applyPendingRemoteRoomData();
 }
 
 window.resetData = async () => {
@@ -374,7 +428,5 @@ window.resetData = async () => {
     L.removeItem(getTrustedDeviceKey());
     if (dbRef) {
         set(dbRef, null).then(() => { location.reload(); }).catch(err => { console.error(err); showAppNotice('リセットに失敗しました。', true); });
-    } else {
-        location.reload();
-    }
+    } else location.reload();
 };

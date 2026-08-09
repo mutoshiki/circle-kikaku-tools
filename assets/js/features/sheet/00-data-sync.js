@@ -206,6 +206,14 @@ function syncSheetToMainData({ refresh = true, persist = true } = {}) {
         // 発表ビュー上の並びを唯一の正として、車割・班割の両方を carPlans に直接反映する。
         // 非表示の通常編集画面DOMは古いことがあるため、先に発表ビューDOMを carPlans へ確定する。
         sections.forEach(syncSheetSectionToPlan);
+        const canonical = window.SanpoCanonicalState?.get?.();
+        if (canonical) {
+            (carPlans || []).forEach(plan => {
+                const type = normalizeCarPlanTemplateType(plan?.templateType || 'car');
+                window.SanpoCanonicalState.applyProjectedPlan(canonical, plan, type);
+            });
+            carPlans = window.SanpoCanonicalState.projectPlans(canonical);
+        }
         syncSheetTimetableToOverview();
         syncSheetMemoToOverview();
 

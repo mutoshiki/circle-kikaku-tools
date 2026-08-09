@@ -11,6 +11,21 @@ function getWaitingCards() {
     );
 }
 
+function isWaitingTrayCollapsed(tray = byId('bottom-tray')) {
+    return !!tray && (tray.classList.contains('minimized') || tray.classList.contains('drag-transient-minimized'));
+}
+
+function preserveTopAreaScrollAcrossTrayResize(mutator) {
+    const topArea = byId('top-area');
+    const scrollTop = topArea?.scrollTop || 0;
+    mutator?.();
+    if (!topArea) return;
+    topArea.scrollTop = scrollTop;
+    requestAnimationFrame(() => {
+        if (topArea.isConnected) topArea.scrollTop = scrollTop;
+    });
+}
+
 function getWaitingTrayStats() {
     const waitingCards = getWaitingCards();
     let seatsTotal = 0;
@@ -145,7 +160,7 @@ function updateTrayToggleLabel() {
             handle.tabIndex = disabled ? -1 : 0;
         }
     };
-    const minimized = tray.classList.contains("minimized");
+    const minimized = isWaitingTrayCollapsed(tray);
     const emptySuffix = count === 0 ? '（0人）' : suffix;
     updatePresentation(!minimized, minimized
         ? `未割り当てメンバーを開く${emptySuffix}`
@@ -256,13 +271,19 @@ function prepareWaitingTrayForDrag() {
     const wasClosed = tray.classList.contains('minimized') || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
     tray.dataset.dragStartedMinimized = wasClosed ? 'true' : 'false';
     tray.dataset.dragSource = fromWaiting ? 'waiting' : 'seat';
+    const topArea = byId('top-area');
+    const waitingScroller = byId('waiting-list-container');
+    tray.dataset.dragWaitingScrollTop = String(waitingScroller?.scrollTop || 0);
+    tray.dataset.dragTopAreaOverflowAnchor = topArea?.style.overflowAnchor || '';
+    if (topArea) topArea.style.overflowAnchor = 'none';
 
-    // Do not resize the flex layout while a card is being dragged. #bottom-tray is
-    // a sibling of the scrollable #top-area, so minimizing/reopening it changes the
-    // scroll container height. iOS Safari can then re-anchor #top-area at the top
-    // when the dragged node is reparented. Preserve the user's tray state instead.
+    // The tray is visually collapsed only for the drag lifecycle. Do NOT toggle
+    // the canonical `minimized` class or userMinimized flag: those are persisted
+    // room settings. A dedicated transient class avoids accidental sync while the
+    // captured scroll position prevents iOS Safari from re-anchoring the page.
+    preserveTopAreaScrollAcrossTrayResize(() => tray.classList.add('drag-transient-minimized'));
     tray.classList.remove('is-drop-near');
-    tray.classList.toggle('is-drop-ready', !fromWaiting && wasClosed);
+    tray.classList.add('is-drop-ready');
     updateTrayMenuDirection();
     updateTrayToggleLabel();
 }
@@ -277,7 +298,7 @@ function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
         return;
     }
 
-    const closed = tray.classList.contains('minimized') || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
+    const closed = isWaitingTrayCollapsed(tray) || (tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
     if (!closed) {
         tray.classList.remove('is-drop-near');
         return;
@@ -301,13 +322,23 @@ function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
 function finishWaitingTrayDragState() {
     const tray = byId('bottom-tray');
     if (!tray) return;
+    const topArea = byId('top-area');
+    const waitingScroller = byId('waiting-list-container');
+    const waitingScrollTop = Number(tray.dataset.dragWaitingScrollTop || 0);
+    const previousOverflowAnchor = tray.dataset.dragTopAreaOverflowAnchor || '';
 
-    // Dragging never owns the drawer's open/minimized state. Clean up only the
-    // transient drop affordances so the main scroll container keeps identical
-    // geometry before and after a move or exchange.
+    // Expand back to exactly the user's pre-drag state. Capture the current
+    // #top-area scroll position *after any intentional drag auto-scroll*, then
+    // preserve that position while the tray regains its normal height.
+    preserveTopAreaScrollAcrossTrayResize(() => tray.classList.remove('drag-transient-minimized'));
+    if (waitingScroller) waitingScroller.scrollTop = waitingScrollTop;
+    if (topArea) topArea.style.overflowAnchor = previousOverflowAnchor;
+
     tray.classList.remove('is-drop-ready', 'is-drop-near');
     delete tray.dataset.dragStartedMinimized;
     delete tray.dataset.dragSource;
+    delete tray.dataset.dragWaitingScrollTop;
+    delete tray.dataset.dragTopAreaOverflowAnchor;
     updateTrayMenuDirection();
     updateTrayToggleLabel();
 }

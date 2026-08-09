@@ -60,7 +60,8 @@ async function removeSettlementExtra(button) {
     const amountRaw = row.querySelector('[data-extra-field="amount"]')?.value.trim();
     const amountNumber = Number(amountRaw || 0);
     const amountText = amountRaw ? `${amountNumber.toLocaleString('ja-JP')}円` : '金額未入力';
-    const typeValue = row.querySelector('[data-extra-field="type"]')?.value === 'club' ? '部費' : '割勘';
+    const type = normalizeSettlementExtraType(row.querySelector('[data-extra-field="type"]')?.value || 'split');
+    const typeValue = ({ split: '割勘', club: '部費', 'split-minus': '割勘 −', 'club-minus': '部費 −' })[type] || '割勘';
 
     const message = `以下の諸経費を削除しますか？
 

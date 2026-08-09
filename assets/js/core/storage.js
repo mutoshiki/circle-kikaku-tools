@@ -53,6 +53,18 @@ function migrateAppData(rawData) {
             : { allocation: false, settlement: false };
     }
 
+    // Schema v5 removes the duplicated participant/allocation snapshots. The canonical
+    // state helper is loaded before sync starts, so every persisted/local/remote payload
+    // is normalized through the same migration boundary.
+    if (Number(migrated.schemaVersion || 1) < 5 || !migrated.participants || !migrated.allocations) {
+        const canonical = window.SanpoCanonicalState?.migrate?.(migrated);
+        if (canonical) return canonical;
+    }
+
+    if (Number(migrated.schemaVersion || 0) >= 5 && migrated.participants && migrated.allocations) {
+        const canonical = window.SanpoCanonicalState?.migrate?.(migrated);
+        if (canonical) return canonical;
+    }
     if (!migrated.schemaVersion) migrated.schemaVersion = APP_SCHEMA_VERSION;
     return migrated;
 }

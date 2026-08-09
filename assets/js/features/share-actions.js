@@ -51,7 +51,7 @@ function showCopyFallback(message, text) {
     });
 }
 
-const SHARE_PREVIEW_VERSION = '824cb76665ac-c4a994eef616';
+const SHARE_PREVIEW_VERSION = 'f41c0ab12de3-6b8d9ea40127';
 
 const SHARE_LINK_TYPES = Object.freeze({
     presentation: Object.freeze({
@@ -81,6 +81,11 @@ function createPurposeShareUrl(type) {
 
     const url = new URL(config.path, getAppBaseUrl());
     url.searchParams.set('preview', SHARE_PREVIEW_VERSION);
+    // LINE officially recognizes this query parameter and hands the HTTPS link to
+    // the device's external/default browser instead of LINE's in-app browser.
+    // Other browsers ignore the unknown parameter, so the shared URL stays a
+    // normal portable HTTPS link.
+    url.searchParams.set('openExternalBrowser', '1');
     const activeRoomId = typeof roomId === 'string' && roomId
         ? roomId
         : new URLSearchParams(window.location.search).get('room');

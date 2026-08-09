@@ -130,28 +130,26 @@ async function applyGoogleFormPasteImport() {
 window.SanpoApp?.exposeCompat?.('applyGoogleFormPasteImport', applyGoogleFormPasteImport);
 
 function openBatchModal() {
-    const data = getData();
-    
-    let members = [];
-    let grade1 = [], grade2 = [], grade3 = [], grade4 = [];
-    let drivers = [];
+    const canonical = window.SanpoCanonicalState?.get?.();
+    const participants = canonical?.participants || {};
+    const carAllocation = canonical?.allocations?.car;
+    const driverIds = new Set(Object.values(carAllocation?.groups || {}).map(group => group?.ownerId).filter(Boolean));
+    const members = [];
+    const grade1 = [], grade2 = [], grade3 = [], grade4 = [];
+    const drivers = [];
 
-    function pushGradeName(name, grade) {
+    const pushGradeName = (name, grade) => {
         if (grade === 1) grade1.push(name);
         else if (grade === 2) grade2.push(name);
         else if (grade === 3) grade3.push(name);
         else if (grade === 4) grade4.push(name);
         else members.push(name);
-    }
+    };
 
-    data.waiting.forEach(m => pushGradeName(m.name, m.grade));
-
-    data.cars.forEach(c => {
-        drivers.push(c.name);
-        if (c.driverGrade) pushGradeName(c.name, parseInt(c.driverGrade) || 0);
-        c.members.forEach(m => {
-            if(m && m.name) pushGradeName(m.name, m.grade);
-        });
+    Object.entries(participants).forEach(([id, participant]) => {
+        if (!participant?.name) return;
+        pushGradeName(participant.name, parseInt(participant.grade) || 0);
+        if (driverIds.has(id)) drivers.push(participant.name);
     });
 
     $('#batchMembers').value = members.join('\n');
@@ -161,7 +159,6 @@ function openBatchModal() {
     $('#batchGrade4').value = grade4.join('\n');
     $('#batchDrivers').value = drivers.join('\n');
     clearBatchPasteUi();
-    
     modals.batch.show();
 }
 window.SanpoApp?.exposeCompat?.('openBatchModal', openBatchModal);
@@ -264,99 +261,95 @@ async function executeBatch() {
         });
         if (!proceed) return;
     }
-    
-    const currentData = getData();
-    
-    const existingMembers = new Map();
-    const existingDrivers = new Map();
-    const memberLocations = new Map();
 
-    currentData.waiting.forEach(mem => {
-        const key = normalize(mem.name);
-        existingMembers.set(key, mem);
-        memberLocations.set(key, {type: 'waiting'});
-    });
-
-    currentData.cars.forEach(car => {
-        const carKey = normalize(car.name);
-        existingDrivers.set(carKey, car);
-        car.members.forEach((mem, index) => {
-             if(mem && mem.name) {
-                 const key = normalize(mem.name);
-                 existingMembers.set(key, mem);
-                 memberLocations.set(key, {type: 'car', carName: car.name, slot: index});
-             }
-        });
-    });
-
-    const newDriversList = new Set(d.map(normalize));
-
-    $('#waiting-list').innerHTML = '';
-    $('#cars-container').innerHTML = '';
-
+    const canonical = window.SanpoCanonicalState?.get?.() || window.SanpoCanonicalState?.set?.({});
+    const oldParticipants = { ...(canonical.participants || {}) };
+    const oldByName = new Map(Object.entries(oldParticipants).map(([id, participant]) => [normalize(participant?.name), { id, participant }]));
     const gradeMap = new Map();
-    g1.forEach(n => gradeMap.set(normalize(n), 1));
-    g2.forEach(n => gradeMap.set(normalize(n), 2));
-    g3.forEach(n => gradeMap.set(normalize(n), 3));
-    g4.forEach(n => gradeMap.set(normalize(n), 4));
-    m.forEach(n => { if(!gradeMap.has(normalize(n))) gradeMap.set(normalize(n), 0); });
+    g1.forEach(name => gradeMap.set(normalize(name), 1));
+    g2.forEach(name => gradeMap.set(normalize(name), 2));
+    g3.forEach(name => gradeMap.set(normalize(name), 3));
+    g4.forEach(name => gradeMap.set(normalize(name), 4));
+    m.forEach(name => { if (!gradeMap.has(normalize(name))) gradeMap.set(normalize(name), 0); });
 
-    d.forEach(driverName => {
-        const key = normalize(driverName);
-        const driverGrade = gradeMap.get(key) || 0;
-        if(existingDrivers.has(key)) {
-            const oldCar = existingDrivers.get(key);
-            addCar(driverName, oldCar.capacity, [], oldCar.driverMemo, oldCar.driverGender, driverGrade || oldCar.driverGrade || 0, oldCar.driverFlag);
-        } else {
-            addCar(driverName, (typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3), [], '', 'unknown', driverGrade);
-            detectGender(driverName);
-        }
-    });
-
-    const carBoxes = Array.from($$('.car-box'));
-    const gradeNames = [...m, ...g1, ...g2, ...g3, ...g4]
-        .filter(name => !newDriversList.has(normalize(name)));
-
-    gradeNames.forEach(name => {
-        placeMember(name, gradeMap.get(normalize(name)) || 0);
-    });
-
-    function placeMember(name, grade) {
+    const requestedNames = [];
+    [...m, ...g1, ...g2, ...g3, ...g4, ...d].forEach(name => {
         const key = normalize(name);
-        if (existingMembers.has(key)) {
-            const oldData = existingMembers.get(key);
-            const loc = memberLocations.get(key);
-            oldData.grade = grade;
+        if (key && !requestedNames.some(item => item.key === key)) requestedNames.push({ key, name });
+    });
+    const newParticipants = {};
+    const newParticipantIds = [];
+    requestedNames.forEach(({ key, name }) => {
+        const previous = oldByName.get(key);
+        const existing = previous?.participant || {};
+        const id = window.SanpoCanonicalState.ensureParticipant(newParticipants, {
+            name,
+            memo: existing.memo || '',
+            gender: existing.gender || 'unknown',
+            grade: gradeMap.get(key) || existing.grade || 0,
+            locked: !!existing.locked,
+            flag: normalizePersonFlag(existing.flag)
+        }, previous?.id || '');
+        if (!previous && id) newParticipantIds.push(id);
+    });
+    canonical.participants = newParticipants;
 
-            if (loc.type === 'car' && newDriversList.has(normalize(loc.carName))) {
-                const targetCarBox = carBoxes.find(b => normalize($('.driver-name-disp', b).innerText) === normalize(loc.carName));
-                if (targetCarBox) {
-                    const slots = $$('.seat-slot', targetCarBox);
-                    if(slots[loc.slot] && slots[loc.slot].children.length === 0) {
-                        addMember(name, oldData.memo, oldData.gender, grade, slots[loc.slot], oldData.locked, oldData.flag);
-                    } else {
-                        const emptySlot = Array.from(slots).find(s => s.children.length === 0);
-                        if(emptySlot) {
-                             addMember(name, oldData.memo, oldData.gender, grade, emptySlot, oldData.locked, oldData.flag);
-                        } else {
-                             addMember(name, oldData.memo, oldData.gender, grade, $('#waiting-list'), oldData.locked, oldData.flag);
-                        }
-                    }
-                } else {
-                     addMember(name, oldData.memo, oldData.gender, grade, $('#waiting-list'), oldData.locked, oldData.flag);
-                }
-            } else {
-                addMember(name, oldData.memo, oldData.gender, grade, $('#waiting-list'), oldData.locked, oldData.flag);
-            }
+    const driverIds = new Set(d.map(name => window.SanpoCanonicalState.findParticipantIdByName(newParticipants, name)).filter(Boolean));
+    const carAllocation = canonical.allocations?.car || { id: 'plan-car', type: 'car', name: '車割', groups: {}, placements: {}, lastAutoAssignLabel: '' };
+    const existingGroups = carAllocation.groups || {};
+    const existingPlacements = carAllocation.placements || {};
+    const nextGroups = {};
+    const nextPlacements = {};
+    let groupOrder = 0;
+
+    driverIds.forEach(id => {
+        const existingGroup = Object.values(existingGroups).find(group => group?.ownerId === id);
+        const groupId = existingGroup?.id || `g_car_${id}`;
+        nextGroups[groupId] = {
+            id: groupId,
+            ownerId: id,
+            capacity: Math.max(1, parseInt(existingGroup?.capacity) || 3),
+            order: groupOrder++,
+            createdAt: Number(existingGroup?.createdAt || Date.now()),
+            updatedAt: Date.now()
+        };
+        nextPlacements[id] = { kind: 'driver', groupId, order: nextGroups[groupId].order, updatedAt: Date.now() };
+    });
+
+    let waitingOrder = 0;
+    Object.keys(newParticipants).forEach(id => {
+        if (driverIds.has(id)) return;
+        const previous = existingPlacements[id];
+        const previousGroup = previous?.groupId && nextGroups[previous.groupId];
+        if (previous?.kind === 'member' && previousGroup) {
+            nextPlacements[id] = { kind: 'member', groupId: previous.groupId, order: Number(previous.order) || 0, updatedAt: Date.now() };
         } else {
-            addMember(name, '', 'unknown', grade, $('#waiting-list'));
-            detectGender(name);
+            nextPlacements[id] = { kind: 'waiting', groupId: '', order: waitingOrder++, updatedAt: Date.now() };
         }
-    }
+    });
+    carAllocation.groups = nextGroups;
+    carAllocation.placements = nextPlacements;
+    carAllocation.updatedAt = Date.now();
+    canonical.allocations.car = carAllocation;
 
+    // 班割は同じ参加者マスターを参照するだけ。削除されたIDを除き、新規参加者だけ未割り当てへ加える。
+    window.SanpoCanonicalState.ensureAllParticipantsPlaced(canonical.allocations.team, newParticipants);
+    canonical.settlement = window.SanpoCanonicalState.settlementToStorage(
+        window.SanpoCanonicalState.settlementToUi(canonical.settlement || {}, oldParticipants),
+        newParticipants
+    );
+
+    carPlans = window.SanpoCanonicalState.projectPlans(canonical);
+    renderActiveCarPlanToDom();
     updateUI();
     save();
     modals.batch.hide({ reason: 'submit' });
     window.markParticipantRegistrationGuidanceReady?.();
+
+    // New participants are visible in either allocation because both project the same roster.
+    newParticipantIds.forEach(id => {
+        const name = newParticipants[id]?.name;
+        if (name) detectGender(name);
+    });
 }
 window.SanpoApp?.exposeCompat?.('executeBatch', executeBatch);

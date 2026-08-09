@@ -367,13 +367,18 @@ async function returnOrDeleteMemberCard(card) {
         return;
     }
     let changed = false;
-    if (card.parentElement?.id === 'waiting-list') {
-        if (await appConfirm('このメンバーを完全に削除しますか？', { title: 'メンバー削除', okText: '削除', danger: true })) { card.remove(); changed = true; }
+    const deletingFromWaiting = card.parentElement?.id === 'waiting-list';
+    if (deletingFromWaiting) {
+        if (await appConfirm('このメンバーを完全に削除しますか？', { title: 'メンバー削除', okText: '削除', danger: true })) {
+            card.remove();
+            changed = true;
+        }
     } else if (await appConfirm('車から降ろして未割り当てメンバーに戻しますか？', { title: '未割り当てに戻す', okText: '戻す' })) {
         $('#waiting-list')?.appendChild(card);
         changed = true;
     }
     if (!changed) return;
+    if (deletingFromWaiting) window.synchronizeParticipantRosterFromCurrentDom?.();
     updateUI();
     save();
 }

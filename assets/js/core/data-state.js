@@ -77,8 +77,12 @@ function getActiveGroupSuffix() {
 
 function getMemData(el) {
     return {
-        name: el.dataset.name, memo: $('.memo-popup', el).innerText,
-        gender: el.dataset.gender, grade: parseInt(el.dataset.grade)||0, locked: el.dataset.locked === 'true',
+        participantId: String(el?.dataset?.participantId || '').trim(),
+        name: el.dataset.name,
+        memo: $('.memo-popup', el).innerText,
+        gender: el.dataset.gender,
+        grade: parseInt(el.dataset.grade)||0,
+        locked: el.dataset.locked === 'true',
         flag: normalizePersonFlag(el.dataset.flag)
     };
 }
@@ -86,15 +90,20 @@ function getMemData(el) {
 function getCurrentAllocationFromDom() {
     return {
         waiting: Array.from($$('#waiting-list .member-card')).map(getMemData),
-        cars: Array.from($$('.car-box')).map(c => ({
-            name: $('.driver-name-disp', c).innerText,
-            capacity: c.dataset.capacity,
-            driverMemo: $('.driver-memo-text', c).innerText,
-            driverGender: $('.driver-seat', c).dataset.gender,
-            driverGrade: parseInt($('.driver-seat', c).dataset.grade)||0,
-            driverFlag: normalizePersonFlag($('.driver-seat', c).dataset.flag),
-            members: Array.from($$('.seat-slot', c)).flatMap(s => getRealSeatCards(s).map(getMemData))
-        }))
+        cars: Array.from($$('.car-box')).map(c => {
+            const driverSeat = $('.driver-seat', c);
+            return {
+                participantId: String(driverSeat?.dataset?.participantId || '').trim(),
+                groupId: String(c.dataset.groupId || '').trim(),
+                name: $('.driver-name-disp', c).innerText,
+                capacity: c.dataset.capacity,
+                driverMemo: $('.driver-memo-text', c).innerText,
+                driverGender: driverSeat?.dataset.gender || 'unknown',
+                driverGrade: parseInt(driverSeat?.dataset.grade)||0,
+                driverFlag: normalizePersonFlag(driverSeat?.dataset.flag),
+                members: Array.from($$('.seat-slot', c)).flatMap(slot => getRealSeatCards(slot).map(getMemData))
+            };
+        })
     };
 }
 
@@ -305,56 +314,101 @@ function ensureSingleCarPlans({ sourcePlan = null, useActiveRoster = false } = {
     return carPlans;
 }
 
+function pruneSettlementStateToRegisteredParticipants() {
+    if (!settlementState || settlementState?.standalone?.enabled === true) return;
+    const canonical = window.SanpoCanonicalState?.get?.();
+    if (!canonical) return;
+    const participantKeys = new Set(Object.values(canonical.participants || {}).map(participant => normalizeParticipantKey(participant?.name)).filter(Boolean));
+    const carPlan = window.SanpoCanonicalState.projectAllocation(canonical, 'car');
+    const driverKeys = new Set((carPlan.cars || []).map(car => normalizeParticipantKey(car?.name)).filter(Boolean));
+    const pruneObject = (object, allowedKeys) => {
+        if (!object || typeof object !== 'object') return {};
+        const next = {};
+        Object.entries(object).forEach(([name, value]) => {
+            if (allowedKeys.has(normalizeParticipantKey(name))) next[name] = value;
+        });
+        return next;
+    };
+    settlementState.paid = pruneObject(settlementState.paid, participantKeys);
+    settlementState.paidBy = pruneObject(settlementState.paidBy, participantKeys);
+    settlementState.driverPaid = pruneObject(settlementState.driverPaid, driverKeys);
+    settlementState.cars = pruneObject(settlementState.cars, driverKeys);
+    if (settlementState.organizerName && !participantKeys.has(normalizeParticipantKey(settlementState.organizerName))) settlementState.organizerName = '';
+    window.SanpoCanonicalState.setSettlementFromUi(settlementState);
+}
+
+function synchronizeParticipantRosterFromCurrentDom() {
+    const active = syncActiveCarPlanFromDom();
+    pruneSettlementStateToRegisteredParticipants();
+    return active;
+}
+
+window.synchronizeParticipantRosterFromCurrentDom = synchronizeParticipantRosterFromCurrentDom;
+window.pruneSettlementStateToRegisteredParticipants = pruneSettlementStateToRegisteredParticipants;
+
 function getActiveCarPlan() {
+    const canonical = window.SanpoCanonicalState?.get?.();
+    if (canonical) {
+        const type = canonical.activeAllocationType === 'team' ? 'team' : 'car';
+        activeCarPlanId = getSinglePlanId(type);
+        const plan = window.SanpoCanonicalState.projectAllocation(canonical, type);
+        carPlans = window.SanpoCanonicalState.projectPlans(canonical);
+        return plan;
+    }
     if (!Array.isArray(carPlans) || !carPlans.length) {
         const dom = getCurrentAllocationFromDom();
         carPlans = normalizeSingleCarPlansFromData({
             activeCarPlanId: activeCarPlanId || SINGLE_CAR_PLAN_ID,
             carPlans: [{ id: SINGLE_CAR_PLAN_ID, name: '車割', ...dom, lastAutoAssignLabel, templateType: 'car' }]
         });
-    } else {
-        ensureSingleCarPlans();
     }
-    let plan = carPlans.find(p => p.id === activeCarPlanId);
-    if (!plan) {
-        activeCarPlanId = SINGLE_CAR_PLAN_ID;
-        plan = carPlans.find(p => p.id === activeCarPlanId) || carPlans[0];
-    }
-    return plan;
+    return carPlans.find(p => p.id === activeCarPlanId) || carPlans[0];
 }
 
 function syncActiveCarPlanFromDom() {
     if (isRestoringCarPlans || window.__suspendActiveDomPlanSync) return getActiveCarPlan();
-    const plan = getActiveCarPlan();
-    const dom = getCurrentAllocationFromDom();
-    plan.waiting = cloneData(dom.waiting);
-    plan.cars = cloneData(dom.cars);
-    plan.lastAutoAssignLabel = lastAutoAssignLabel || '';
-    plan.updatedAt = Date.now();
-    ensureSingleCarPlans({ sourcePlan: plan, useActiveRoster: true });
-    return carPlans.find(p => p.id === activeCarPlanId) || plan;
+    const canonical = window.SanpoCanonicalState?.get?.();
+    if (!canonical) return getActiveCarPlan();
+    const type = canonical.activeAllocationType === 'team' ? 'team' : 'car';
+    window.SanpoCanonicalState.captureFromDom(canonical, getCurrentAllocationFromDom(), type);
+    const allocation = canonical.allocations?.[type];
+    if (allocation) allocation.lastAutoAssignLabel = String(lastAutoAssignLabel || allocation.lastAutoAssignLabel || '');
+    carPlans = window.SanpoCanonicalState.projectPlans(canonical);
+    activeCarPlanId = getSinglePlanId(type);
+    return carPlans.find(plan => plan.id === activeCarPlanId) || carPlans[0];
 }
 
 function getCarPlansSnapshot(options = {}) {
+    const canonical = window.SanpoCanonicalState?.get?.();
+    if (canonical) {
+        if (!options.skipDomSync) syncActiveCarPlanFromDom();
+        carPlans = window.SanpoCanonicalState.projectPlans(canonical);
+        return cloneData(carPlans);
+    }
     if (!options.skipDomSync) syncActiveCarPlanFromDom();
-    ensureSingleCarPlans();
     return carPlans.map((plan, index) => normalizeCarPlan(plan, index));
 }
 
 function renderActiveCarPlanToDom(options = {}) {
-    const plan = getActiveCarPlan();
+    const canonical = window.SanpoCanonicalState?.get?.();
+    const type = canonical?.activeAllocationType === 'team' ? 'team' : 'car';
+    const plan = canonical
+        ? window.SanpoCanonicalState.projectAllocation(canonical, type)
+        : getActiveCarPlan();
     const previousCardUpdateSuspend = !!window.__suspendCardUpdateUi;
     isRestoringCarPlans = true;
     window.__suspendCardUpdateUi = true;
     try {
         $('#waiting-list').innerHTML = '';
         $('#cars-container').innerHTML = '';
-        (plan.waiting || []).forEach(m => addMember(m.name, m.memo, m.gender, m.grade||0, $('#waiting-list'), m.locked, m.flag));
-        (plan.cars || []).forEach(c => addCar(c.name, c.capacity, c.members, c.driverMemo, c.driverGender, c.driverGrade || 0, c.driverFlag));
+        (plan.waiting || []).forEach(m => addMember(m.name, m.memo, m.gender, m.grade||0, $('#waiting-list'), m.locked, m.flag, m.participantId));
+        (plan.cars || []).forEach(c => addCar(c.name, c.capacity, c.members, c.driverMemo, c.driverGender, c.driverGrade || 0, c.driverFlag, c.participantId, c.groupId));
     } finally {
         isRestoringCarPlans = false;
         window.__suspendCardUpdateUi = previousCardUpdateSuspend;
     }
+    activeCarPlanId = getSinglePlanId(type);
+    carPlans = canonical ? window.SanpoCanonicalState.projectPlans(canonical) : carPlans;
     lastAutoAssignLabel = plan.lastAutoAssignLabel || '';
     renderCarPlanSwitcher();
     if (!options.skipUpdate) updateUI();
@@ -400,14 +454,24 @@ function renderCarPlanSwitcher() {
 }
 
 function switchCarPlan(id, { persist = true } = {}) {
-    const nextId = id === SINGLE_TEAM_PLAN_ID || normalizeCarPlanTemplateType(id) === 'team' ? SINGLE_TEAM_PLAN_ID : SINGLE_CAR_PLAN_ID;
+    const canonical = window.SanpoCanonicalState?.get?.();
+    const nextType = id === SINGLE_TEAM_PLAN_ID || normalizeCarPlanTemplateType(id) === 'team' ? 'team' : 'car';
+    if (canonical) {
+        const currentType = canonical.activeAllocationType === 'team' ? 'team' : 'car';
+        if (currentType === nextType) return;
+        syncActiveCarPlanFromDom();
+        canonical.activeAllocationType = nextType;
+        activeCarPlanId = getSinglePlanId(nextType);
+        const next = window.SanpoCanonicalState.projectAllocation(canonical, nextType);
+        lastAutoAssignLabel = next.lastAutoAssignLabel || '';
+        renderActiveCarPlanToDom();
+        if (persist) save();
+        return;
+    }
+    const nextId = getSinglePlanId(nextType);
     const target = carPlans.find(plan => plan.id === nextId);
     if (!target || target.id === activeCarPlanId) return;
-    syncActiveCarPlanFromDom();
-    ensureSingleCarPlans({ sourcePlan: carPlans.find(plan => plan.id === activeCarPlanId), useActiveRoster: true });
     activeCarPlanId = nextId;
-    const next = getActiveCarPlan();
-    lastAutoAssignLabel = next.lastAutoAssignLabel || '';
     renderActiveCarPlanToDom();
     if (persist) save();
 }
@@ -425,14 +489,18 @@ function duplicateActiveCarPlan() {
 async function renameActiveCarPlan() {
     if (typeof canUseUnlockedMenuAction === 'function' && !canUseUnlockedMenuAction()) return;
     syncActiveCarPlanFromDom();
+    const canonical = window.SanpoCanonicalState?.get?.();
     const active = getActiveCarPlan();
     const config = getCarPlanTemplateConfig(active);
     const nextName = await appPrompt(`${config.sectionTitle}名を入力してください`, active.name || config.sectionTitle, { title: `${config.sectionTitle}名を変更`, okText: '保存' });
     if (nextName == null) return;
     const trimmed = nextName.trim();
     if (!trimmed) return;
-    active.name = trimmed;
-    active.updatedAt = Date.now();
+    if (canonical) {
+        const type = canonical.activeAllocationType === 'team' ? 'team' : 'car';
+        canonical.allocations[type].name = trimmed;
+        canonical.allocations[type].updatedAt = Date.now();
+    }
     renderCarPlanSwitcher();
     updateUI();
     save();
@@ -447,16 +515,8 @@ async function deleteActiveCarPlan() {
 
 function updateActiveCarPlanTemplate(templateType) {
     if (typeof canUseUnlockedMenuAction === 'function' && !canUseUnlockedMenuAction()) return;
-    syncActiveCarPlanFromDom();
     const nextType = normalizeCarPlanTemplateType(templateType);
-    const nextId = getSinglePlanId(nextType);
-    ensureSingleCarPlans({ sourcePlan: carPlans.find(plan => plan.id === activeCarPlanId), useActiveRoster: true });
-    if (activeCarPlanId === nextId) return;
-    activeCarPlanId = nextId;
-    const next = getActiveCarPlan();
-    lastAutoAssignLabel = next.lastAutoAssignLabel || '';
-    renderActiveCarPlanToDom();
-    save();
+    switchCarPlan(getSinglePlanId(nextType));
 }
 
 function setupCarPlanSwitcherEvents() {
@@ -507,68 +567,58 @@ function setupCarPlanSwitcherEvents() {
 }
 
 function getData(options = {}) {
-    const plans = getCarPlansSnapshot({ skipDomSync: !!options.skipDomSync });
-    const active = plans.find(plan => plan.id === activeCarPlanId) || plans[0];
-    const snapshot = {
-        schemaVersion: APP_SCHEMA_VERSION,
+    const canonical = window.SanpoCanonicalState?.get?.() || window.SanpoCanonicalState?.set?.({});
+    const activeType = canonical?.activeAllocationType === 'team' ? 'team' : 'car';
+    const domAllocation = options.skipDomSync ? null : getCurrentAllocationFromDom();
+    const snapshot = window.SanpoCanonicalState.createSnapshotFromUi({
         roomName: $('#roomNameInput').value,
-        trayMinimized: byId("bottom-tray")
-                           .classList.contains("minimized"),
+        trayMinimized: byId('bottom-tray')?.classList.contains('minimized') || false,
         editLockEnabled,
         editLockPassphrase,
         editLockScopes: { ...editLockScopes },
-        activeCarPlanId: active.id,
-        carPlans: plans,
-        lastAutoAssignLabel: active.lastAutoAssignLabel || '',
-
-        waiting: cloneData(active.waiting || []),
-        cars: cloneData(active.cars || []),
         settlement: getSettlementSnapshot(),
         overview: window.SanpoOverview?.getSnapshot?.() || window.SanpoApp?.state?.getSnapshot?.()?.overview || {},
-        lastUpdatedAt
-    };
+        activeType,
+        domAllocation,
+        lastAutoAssignLabel
+    });
+    snapshot.lastUpdatedAt = lastUpdatedAt || snapshot.lastUpdatedAt || Date.now();
     window.SanpoApp?.state?.setSnapshot?.(snapshot);
     return snapshot;
 }
 
 function restore(d) {
-    window.SanpoApp?.state?.setSnapshot?.(d);
-    lastUpdatedAt = Number(d.lastUpdatedAt || 0) || lastUpdatedAt;
-    settlementState = normalizeSettlementState(d.settlement || settlementState || {});
-    if (Object.prototype.hasOwnProperty.call(d, 'overview')) {
-        window.SanpoOverview?.applySnapshot?.(d.overview || {});
+    const canonical = window.SanpoCanonicalState?.set?.(d) || d;
+    window.SanpoApp?.state?.setSnapshot?.(canonical);
+    lastUpdatedAt = Number(canonical.lastUpdatedAt || 0) || lastUpdatedAt;
+    settlementState = normalizeSettlementState(window.SanpoCanonicalState?.settlementToUi?.(canonical.settlement || {}, canonical.participants || {}) || canonical.settlement || {});
+    if (Object.prototype.hasOwnProperty.call(canonical, 'overview')) {
+        window.SanpoOverview?.applySnapshot?.(canonical.overview || {});
     }
-    $('#roomNameInput').value = d.roomName || '';
-    editLockEnabled = !!d.editLockEnabled;
-    editLockPassphrase = d.editLockPassphrase || '';
-    const restoredLockScopes = d.editLockScopes && typeof d.editLockScopes === 'object' ? d.editLockScopes : null;
+    $('#roomNameInput').value = canonical.roomName || '';
+    editLockEnabled = !!canonical.editLockEnabled;
+    editLockPassphrase = canonical.editLockPassphrase || '';
+    const restoredLockScopes = canonical.editLockScopes && typeof canonical.editLockScopes === 'object' ? canonical.editLockScopes : null;
     editLockScopes = {
         allocation: restoredLockScopes ? !!restoredLockScopes.allocation : editLockEnabled,
         settlement: restoredLockScopes ? !!restoredLockScopes.settlement : editLockEnabled
     };
     editLockEnabled = !!editLockPassphrase && (editLockScopes.allocation || editLockScopes.settlement);
-    carPlans = normalizeCarPlansFromData(d);
-    const requestedActive = d.activeCarPlanId && carPlans.some(plan => plan.id === d.activeCarPlanId)
-        ? d.activeCarPlanId
-        : (normalizeCarPlanTemplateType((d.carPlans || []).find(plan => plan.id === d.activeCarPlanId)?.templateType) === 'team' ? SINGLE_TEAM_PLAN_ID : SINGLE_CAR_PLAN_ID);
-    activeCarPlanId = requestedActive && carPlans.some(plan => plan.id === requestedActive) ? requestedActive : SINGLE_CAR_PLAN_ID;
-    const active = getActiveCarPlan();
-    lastAutoAssignLabel = active.lastAutoAssignLabel || d.lastAutoAssignLabel || '';
+    const activeType = canonical.activeAllocationType === 'team' ? 'team' : 'car';
+    activeCarPlanId = getSinglePlanId(activeType);
+    carPlans = window.SanpoCanonicalState?.projectPlans?.(canonical) || [];
+    const active = window.SanpoCanonicalState?.projectAllocation?.(canonical, activeType) || carPlans.find(plan => plan.id === activeCarPlanId) || carPlans[0];
+    lastAutoAssignLabel = active?.lastAutoAssignLabel || '';
     updateLastAutoAssignCondition();
     loadTrustedEditPassphrase();
-    if (editLockPassphrase && trustedEditPassphrase && trustedEditPassphrase !== editLockPassphrase) {
-        rememberTrustedDevice('');
-    }
+    if (editLockPassphrase && trustedEditPassphrase && trustedEditPassphrase !== editLockPassphrase) rememberTrustedDevice('');
     updateEditLockButton();
     refreshRoomTitle();
-    const tray = byId("bottom-tray");
-    if (d.trayMinimized) {
-      tray.classList.add("minimized");
-    } else {
-      tray.classList.remove("minimized");
+    const tray = byId('bottom-tray');
+    if (tray) {
+        tray.classList.toggle('minimized', canonical.trayMinimized === true);
+        tray.dataset.userMinimized = canonical.trayMinimized ? 'true' : 'false';
     }
-    tray.dataset.userMinimized = d.trayMinimized ? 'true' : 'false';
-
     renderActiveCarPlanToDom();
     if (currentView === 'seisan') renderSettlementView();
 }

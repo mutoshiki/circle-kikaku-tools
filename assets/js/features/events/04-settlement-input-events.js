@@ -86,6 +86,28 @@
         return true;
     }
 
+    function commitSettlementExtraTypeSelection(target, rawValue = target?.value) {
+        if (!target?.matches?.('.seisan-car-row [data-extra-field="type"]')) return false;
+        const type = typeof normalizeSettlementExtraType === 'function'
+            ? normalizeSettlementExtraType(rawValue)
+            : (['split', 'club', 'split-minus', 'club-minus'].includes(rawValue) ? rawValue : 'split');
+        const baseType = type.startsWith('club') ? 'club' : 'split';
+
+        // Carbon Select's official selection event is cds-select-selected. Set the
+        // host value from that event before reading the DOM so the signed type is
+        // never replaced by a stale pre-selection value on iOS.
+        target.value = type;
+        target.classList.remove('split', 'club', 'split-minus', 'club-minus');
+        target.classList.add(baseType, type);
+        const typeField = target.closest('.seisan-extra-field--type');
+        typeField?.classList.remove('split', 'club', 'split-minus', 'club-minus');
+        typeField?.classList.add(baseType, type);
+        syncSettlementStateFromDOM?.();
+        global.refreshSettlementCarEditorCandidates?.(target.closest('.seisan-car-row')?.dataset?.driverName || '');
+        global.onSettlementInput?.();
+        return true;
+    }
+
     function focusSettlementExtraAmountField(target) {
         const field = target?.closest?.('[data-extra-amount-field]');
         if (!field) return false;
@@ -162,6 +184,13 @@
             commitRentalTypeChange(event.target);
         });
 
+        document.addEventListener('cds-select-selected', event => {
+            const target = event.target;
+            if (!target?.matches?.('.seisan-car-row [data-extra-field="type"]')) return;
+            const selectedValue = event.detail?.value ?? event.detail?.item?.value ?? target.value;
+            commitSettlementExtraTypeSelection(target, selectedValue);
+        });
+
         document.addEventListener('change', event => {
             const target = event.target;
             if (!target?.matches) return;
@@ -171,15 +200,8 @@
             if (target.matches('.seisan-car-row [data-field], .seisan-car-row [data-extra-field]')) {
                 clearResolvedSettlementValidation(target);
                 if (target.matches('[data-extra-field="type"]')) {
-                    const type = typeof normalizeSettlementExtraType === 'function'
-                        ? normalizeSettlementExtraType(target.value)
-                        : target.value;
-                    const baseType = type.startsWith('club') ? 'club' : 'split';
-                    target.classList.remove('split', 'club', 'split-minus', 'club-minus');
-                    target.classList.add(baseType, type);
-                    const typeField = target.closest('.seisan-extra-field--type');
-                    typeField?.classList.remove('split', 'club', 'split-minus', 'club-minus');
-                    typeField?.classList.add(baseType, type);
+                    commitSettlementExtraTypeSelection(target, target.value);
+                    return;
                 }
                 syncSettlementStateFromDOM?.();
                 global.refreshSettlementCarEditorCandidates?.(target.closest('.seisan-car-row')?.dataset?.driverName || '');
