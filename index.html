@@ -550,7 +550,7 @@
 
     <cds-modal aria-label="車ごとの費用" aria-labelledby="settlementCarEditModalTitle" class="app-modal app-modal--scroll settlement-edit-modal settlement-edit-modal--car" id="settlementCarEditModal" size="sm" has-scrolling-content><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementCarEditModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="car-small"></span>車ごとの費用</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" no-fade>
 <div id="settlementCarEditBody"></div>
-</cds-modal-body><cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button data-action="save-settlement-car-edit" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
+</cds-modal-body><cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button id="saveSettlementCarEditBtn" data-action="save-settlement-car-edit" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
 
 
     <!-- Utility modals -->
@@ -664,7 +664,7 @@
     <script src="./assets/js/core/entity-state-v5.js?v=root-stability-v44-collab-interaction-delete-v47"></script>
     <script src="./assets/js/core/render-controller.js?v=route-apply-v37"></script>
     <script src="./assets/js/core/settlement-edit-guard.js?v=route-ui-settings-v16-collab-interaction-delete-v47"></script>
-    <script src="./assets/js/core/sync-controller.js?v=collab-interaction-delete-v47"></script>
+    <script src="./assets/js/core/sync-controller.js?v=settlement-concurrent-save-v49"></script>
     <script src="./assets/js/core/history-scheduler.js"></script>
     <script src="./assets/js/core/data-state.js?v=collab-interaction-delete-v47"></script>
     <script src="./assets/js/core/modal-controller.js?v=collab-interaction-delete-v47"></script>
@@ -687,7 +687,7 @@
     <script src="./assets/js/templates/settlement-templates.js"></script>
     <script src="./assets/js/features/settlement/01-state.js?v=route-apply-v37"></script>
     <script src="./assets/js/features/settlement/02-calculator.js?v=driver-reward-policy-v18"></script>
-    <script src="./assets/js/features/settlement/03-render.js?v=collab-interaction-delete-v47"></script>
+    <script src="./assets/js/features/settlement/03-render.js?v=settlement-concurrent-save-v49"></script>
     <script src="./assets/js/features/settlement/04-route-helper.js?v=carbon-feedback-v38"></script>
     <script src="./assets/js/features/settlement/05-input-actions.js?v=collaboration-fixes-v41"></script>
     <script src="./assets/js/features/settlement/06-share-text.js?v=club-ledger"></script>

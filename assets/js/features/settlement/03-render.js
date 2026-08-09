@@ -187,9 +187,13 @@ let activeSettlementCarEditName = '';
 let settlementCarEditValidationActive = false;
 let settlementCarEditClosePrepared = false;
 let settlementCarEditOpeningSnapshot = null;
+let settlementCarEditOpeningRoomSnapshot = null;
+let settlementCarEditSyncBaseSnapshot = null;
 let settlementCarEditDiscardPromptActive = false;
 let settlementCarEditPreserveOnHidden = false;
 let settlementSettingsOpeningSnapshot = null;
+let settlementSettingsOpeningRoomSnapshot = null;
+let settlementSettingsSyncBaseSnapshot = null;
 let settlementSettingsClosePrepared = false;
 let settlementSettingsDiscardPromptActive = false;
 let settlementSettingsPreserveOnHidden = false;
@@ -396,6 +400,8 @@ function openSettlementSettings() {
     const data = getRoomDataOnly();
     const state = ensureSettlementState();
     settlementSettingsOpeningSnapshot = cloneData(state);
+    settlementSettingsOpeningRoomSnapshot = cloneData(getData({ skipDomSync: !!window.__suspendActiveDomPlanSync }));
+    settlementSettingsSyncBaseSnapshot = cloneData(lastSyncedData || settlementSettingsOpeningRoomSnapshot);
     settlementSettingsClosePrepared = false;
     settlementSettingsDiscardPromptActive = false;
     settlementSettingsPreserveOnHidden = false;
@@ -408,6 +414,8 @@ function openStandaloneSettlementSettings() {
     syncSettlementStateFromDOM();
     const state = ensureSettlementState();
     settlementSettingsOpeningSnapshot = cloneData(state);
+    settlementSettingsOpeningRoomSnapshot = cloneData(getData({ skipDomSync: !!window.__suspendActiveDomPlanSync }));
+    settlementSettingsSyncBaseSnapshot = cloneData(lastSyncedData || settlementSettingsOpeningRoomSnapshot);
     settlementSettingsClosePrepared = false;
     settlementSettingsDiscardPromptActive = false;
     settlementSettingsPreserveOnHidden = false;
@@ -560,6 +568,8 @@ function validateAndSaveSettlementSettingsBeforeClose(reason = 'dismiss') {
 function clearSettlementSettingsEditor() {
     if (settlementSettingsPreserveOnHidden) return;
     settlementSettingsOpeningSnapshot = null;
+    settlementSettingsOpeningRoomSnapshot = null;
+    settlementSettingsSyncBaseSnapshot = null;
     settlementSettingsClosePrepared = false;
     settlementSettingsDiscardPromptActive = false;
 }
@@ -582,12 +592,29 @@ function saveSettlementSettingsDraft({ render = true } = {}) {
     if (render) renderSettlementAfterModalCommit('settlementSettingsModal');
 }
 
-function saveSettlementSettings() {
-    if (!validateSettlementSettings(true)) return;
-    saveSettlementSettingsDraft({ render: false });
+async function saveSettlementSettings() {
+    if (!validateSettlementSettings(true)) return false;
+    syncSettlementStateFromDOM();
+    const currentRoom = cloneData(getData({ skipDomSync: !!window.__suspendActiveDomPlanSync }));
+    const openingRoom = cloneData(settlementSettingsOpeningRoomSnapshot || lastSyncedData || currentRoom);
+    const syncBase = cloneData(settlementSettingsSyncBaseSnapshot || lastSyncedData || openingRoom);
+    const preExistingPatch = window.SanpoEntitySyncTest?.buildEntityPatch?.(syncBase, openingRoom) || {};
+    const intentPatch = window.SanpoSync?.buildSettlementSettingsIntentPatch?.(openingRoom, currentRoom)
+        || window.SanpoSync?.buildSettlementIntentPatch?.(openingRoom, currentRoom)
+        || {};
+    const commitPatch = { ...preExistingPatch, ...intentPatch };
+    const saveButton = byId('saveSettlementSettingsBtn');
+    if (saveButton) saveButton.disabled = true;
+    const committed = await window.SanpoSync?.saveImmediate?.({ snapshot: currentRoom, baseSnapshot: syncBase, patchOverride: commitPatch });
+    if (saveButton) saveButton.disabled = false;
+    if (!committed) {
+        window.showAppNotice?.('保存できませんでした。入力内容は残しています。もう一度保存してください。', true);
+        return false;
+    }
     settlementSettingsClosePrepared = true;
     if (modals.settlementSettings) modals.settlementSettings.hide({ reason: 'submit' });
     renderSettlementAfterModalCommit('settlementSettingsModal');
+    return true;
 }
 
 function openSettlementCarEditor(encodedName) {
@@ -597,6 +624,8 @@ function openSettlementCarEditor(encodedName) {
     settlementCarEditDiscardPromptActive = false;
     settlementCarEditPreserveOnHidden = false;
     settlementCarEditOpeningSnapshot = cloneData(ensureSettlementState());
+    settlementCarEditOpeningRoomSnapshot = cloneData(getData({ skipDomSync: !!window.__suspendActiveDomPlanSync }));
+    settlementCarEditSyncBaseSnapshot = cloneData(lastSyncedData || settlementCarEditOpeningRoomSnapshot);
     const name = decodeURIComponent(encodedName || '');
     activeSettlementCarEditName = name;
     const title = byId('settlementCarEditModalTitle');
@@ -639,12 +668,31 @@ function saveSettlementCarEditDraft({ render = true, refreshEditor = false } = {
     if (render) renderSettlementAfterModalCommit('settlementCarEditModal');
 }
 
-function saveSettlementCarEdit() {
-    if (!validateActiveSettlementCarEditor(true)) return;
-    saveSettlementCarEditDraft({ render: false, refreshEditor: false });
+async function saveSettlementCarEdit() {
+    if (!validateActiveSettlementCarEditor(true)) return false;
+    syncSettlementStateFromDOM();
+    const currentRoom = cloneData(getData({ skipDomSync: !!window.__suspendActiveDomPlanSync }));
+    const openingRoom = cloneData(settlementCarEditOpeningRoomSnapshot || lastSyncedData || currentRoom);
+    const syncBase = cloneData(settlementCarEditSyncBaseSnapshot || lastSyncedData || openingRoom);
+    const preExistingPatch = window.SanpoEntitySyncTest?.buildEntityPatch?.(syncBase, openingRoom) || {};
+    const participantId = window.SanpoCanonicalState?.findParticipantIdByName?.(openingRoom.participants || currentRoom.participants || {}, activeSettlementCarEditName) || '';
+    const intentPatch = window.SanpoSync?.buildSettlementCarIntentPatch?.(openingRoom, currentRoom, {
+        participantId,
+        name: activeSettlementCarEditName
+    }) || {};
+    const commitPatch = { ...preExistingPatch, ...intentPatch };
+    const saveButton = byId('saveSettlementCarEditBtn');
+    if (saveButton) saveButton.disabled = true;
+    const committed = await window.SanpoSync?.saveImmediate?.({ snapshot: currentRoom, baseSnapshot: syncBase, patchOverride: commitPatch });
+    if (saveButton) saveButton.disabled = false;
+    if (!committed) {
+        window.showAppNotice?.('保存できませんでした。入力内容は残しています。もう一度保存してください。', true);
+        return false;
+    }
     settlementCarEditClosePrepared = true;
     if (modals.settlementCarEdit) modals.settlementCarEdit.hide({ reason: 'submit' });
     renderSettlementAfterModalCommit('settlementCarEditModal');
+    return true;
 }
 
 function shouldPreserveSettlementCarEditorOnHidden() {
@@ -656,6 +704,8 @@ function clearSettlementCarEditor() {
     settlementCarEditValidationActive = false;
     settlementCarEditClosePrepared = false;
     settlementCarEditOpeningSnapshot = null;
+    settlementCarEditOpeningRoomSnapshot = null;
+    settlementCarEditSyncBaseSnapshot = null;
     settlementCarEditDiscardPromptActive = false;
     const body = byId('settlementCarEditBody');
     if (body) body.innerHTML = '';
@@ -716,7 +766,7 @@ function renderSettlementView() {
         return;
     }
 
-    syncSettlementControls(state, participants);
+    if (!options.preserveSettingsControls) syncSettlementControls(state, participants);
 
     const result = calculateSettlement(data, state);
     const summaryIssues = createEmptySettlementIssues();
