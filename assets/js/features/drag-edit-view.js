@@ -255,8 +255,27 @@ function updateManualDragFloat(clientX, clientY) {
     manualCardDrag.floating.style.transform = 'scale(1.03)';
 }
 
+function restoreScrollAfterManualCardMutation(topArea, topScroll, winX, winY) {
+    const apply = () => {
+        if (topArea?.isConnected) topArea.scrollTop = topScroll;
+        if (Number.isFinite(winX) && Number.isFinite(winY)) window.scrollTo(winX, winY);
+    };
+    // iOS can run scroll anchoring after the synchronous DOM move and again after layout/paint.
+    // Own the scroll position through those phases instead of trying to fix individual callers.
+    apply();
+    requestAnimationFrame(() => {
+        apply();
+        requestAnimationFrame(apply);
+    });
+    setTimeout(apply, 80);
+}
+
 function finishManualCardDrag(commit = true) {
     if (!manualCardDrag) return;
+    const topArea = byId('top-area');
+    const topScroll = Number(topArea?.scrollTop || 0);
+    const winX = Number(window.scrollX || 0);
+    const winY = Number(window.scrollY || 0);
     const { card, floating } = manualCardDrag;
     if (commit) commitManualCardDrop();
     floating?.remove();
@@ -270,6 +289,7 @@ function finishManualCardDrag(commit = true) {
     enforceOneCardPerSeat();
     updateUI();
     save();
+    restoreScrollAfterManualCardMutation(topArea, topScroll, winX, winY);
 }
 
 function startManualCardDrag(card, point) {

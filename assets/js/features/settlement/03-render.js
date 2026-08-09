@@ -306,13 +306,17 @@ function focusFirstSettlementCarValidationError() {
 
 function validateActiveSettlementCarEditor(showErrors = true) {
     if (!activeSettlementCarEditName) return true;
+    // Commit the live Carbon controls first. Validation must never rebuild a valid editor:
+    // rebuilding replaces upgraded cds-select hosts and can reset their public value before save.
     syncSettlementStateFromDOM();
     const issues = getSettlementCarEditIssues(activeSettlementCarEditName);
     const valid = issues.fields.size === 0;
     if (!showErrors) return valid;
     settlementCarEditValidationActive = !valid;
-    refreshSettlementCarEditor(activeSettlementCarEditName);
-    if (!valid) focusFirstSettlementCarValidationError();
+    if (!valid) {
+        refreshSettlementCarEditor(activeSettlementCarEditName);
+        focusFirstSettlementCarValidationError();
+    }
     return valid;
 }
 
@@ -454,14 +458,23 @@ function validateOrganizerSettlementSettings(showErrors = true) {
     const organizerFree = byId('seisanOrganizerFree');
     const organizer = byId('seisanOrganizerName');
     const organizerField = byId('seisanOrganizerField');
-    const invalid = !!organizerFree?.checked && !String(organizer?.value || '').trim();
+    const missing = !!organizerFree?.checked && !String(organizer?.value || '').trim();
     if (organizerField) organizerField.hidden = !organizerFree?.checked;
     if (organizer) {
-        organizer.invalid = showErrors && invalid;
-        organizer.invalidText = showErrors && invalid ? '企画者を選択してください' : '';
-        organizer.setAttribute('aria-invalid', showErrors && invalid ? 'true' : 'false');
+        // Missing organizer is guidance, not a save-blocking data error. The calculator already
+        // treats this condition as informational; the settings modal must follow the same rule.
+        organizer.invalid = false;
+        organizer.invalidText = '';
+        organizer.removeAttribute('invalid');
+        organizer.removeAttribute('invalid-text');
+        organizer.setAttribute('aria-invalid', 'false');
+        organizer.warn = showErrors && missing;
+        organizer.warnText = showErrors && missing ? '企画者を選ぶと、集金対象外を正確にできます' : '';
+        organizer.toggleAttribute('warn', showErrors && missing);
+        if (organizer.warnText) organizer.setAttribute('warn-text', organizer.warnText);
+        else organizer.removeAttribute('warn-text');
     }
-    return !invalid;
+    return true;
 }
 
 function focusFirstSettlementSettingsValidationError() {

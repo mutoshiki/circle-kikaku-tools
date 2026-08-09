@@ -249,6 +249,30 @@ function ensureAllParticipantsPlaced(allocation, participants) {
             allocation.placements[id] = { kind: 'waiting', groupId: '', order: Number.MAX_SAFE_INTEGER, updatedAt: canonicalNow() };
         }
     });
+
+    // Capacity is a room invariant, not just a UI check. Two phones can both see the
+    // final free seat and commit different members. Keep the earliest accepted placements
+    // and deterministically return overflow members to waiting so every client converges.
+    Object.entries(allocation.groups || {}).forEach(([groupId, group]) => {
+        const capacity = Math.max(1, parseInt(group?.capacity) || (allocation.type === 'team' ? 5 : 3));
+        const members = Object.entries(allocation.placements || {})
+            .filter(([, placement]) => placement?.kind === 'member' && placement.groupId === groupId)
+            .sort(([idA, a], [idB, b]) => {
+                const timeDiff = (Number(a?.updatedAt) || 0) - (Number(b?.updatedAt) || 0);
+                if (timeDiff) return timeDiff;
+                const orderDiff = (Number(a?.order) || 0) - (Number(b?.order) || 0);
+                return orderDiff || String(idA).localeCompare(String(idB));
+            });
+        members.slice(capacity).forEach(([id, placement]) => {
+            allocation.placements[id] = {
+                kind: 'waiting',
+                groupId: '',
+                order: Number.MAX_SAFE_INTEGER,
+                updatedAt: Math.max(Number(placement?.updatedAt || 0), canonicalNow())
+            };
+        });
+    });
+
     let order = Object.values(allocation.placements || {})
         .filter(p => p?.kind === 'waiting')
         .reduce((max, p) => Math.max(max, Number(p.order) || 0), -1) + 1;

@@ -26,6 +26,6 @@ assert.doesNotMatch(finish, /classList\.(?:add|remove)\('minimized'\)/, 'drag fi
 assert.doesNotMatch(tray, /targets\[0\]\?\.scrollIntoView/, 'waiting-card highlighting must not scroll ancestor containers');
 assert.match(tray, /const scroller = byId\('waiting-list-container'\)[\s\S]*scroller\.scrollTo/, 'waiting-card reveal is isolated to the tray scroller');
 
-assert.match(index, /waiting-tray\.js\?v=collaboration-fixes-v41/, 'drag-related tray controller is cache-busted');
+assert.match(index, /waiting-tray\.js\?v=root-stability-v44/, 'drag-related tray controller is cache-busted');
 
 console.log('Card add affordance + transient drag tray contract: PASS');
