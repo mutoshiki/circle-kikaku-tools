@@ -23,10 +23,10 @@
 #waiting-list .member-name-text { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; }
 #waiting-list .member-menu-btn { width: 48px; min-width: 48px; height: 48px; min-height: 48px; }
 
-@media (max-width: 640px) {
-  /* Mobile is deliberately a stable two-column participant grid. auto-fill +
-     minmax(px) could collapse to one column on iPhones with a narrower visual
-     viewport or larger text settings. */
+@media (max-width: 768px), (pointer: coarse) and (max-width: 1024px) {
+  /* Phone and touch-tablet trays are deliberately a stable two-column grid.
+     The previous 640px viewport cutoff made the result depend on browser UI,
+     landscape orientation and display scaling. */
   #waiting-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #waiting-list > .member-card { min-width: 0; }
   #bottom-tray-header .tray-inline-row {
@@ -47,7 +47,7 @@
 }
 
 @media (max-width: 390px) {
-  #waiting-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  #waiting-list { gap: 8px; }
   #bottom-tray-header .tray-inline-row { gap: 6px; }
   #bottom-tray-header .tray-actions { grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.08fr) 48px; }
   #bottom-tray-header .tray-settings-dropdown,

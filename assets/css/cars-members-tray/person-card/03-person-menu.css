@@ -74,6 +74,11 @@
   z-index: var(--z-person-menu);
 }
 
+/* Carbon keeps slotted menu items measurable while a menu is closed. In a
+ * narrow two-column tray those off-surface items otherwise enlarge the card's
+ * scroll overflow and can make the grid appear as one card per row. */
+.person-overflow-menu:not([open]) > .person-pop-menu { display: none; }
+
 /* The open overflow host itself enters the browser top layer. This is the only
  * layer that is not constrained by app stacking contexts, transformed panels
  * or the waiting tray. The invisible placeholder preserves the card grid. */
