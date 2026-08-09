@@ -42,7 +42,7 @@ expect(header.includes('--cds-icon-primary: var(--text-main);'), 'Routine header
 expect(personMenu.includes('--cds-link-primary: var(--text-sub);'), 'Person overflow triggers must stay neutral rather than inherit the blue link token.');
 expect(room.includes('#appUndoBar cds-button'), 'Undo action must style the official Carbon button host.');
 expect(cards.includes('background: var(--cds-layer-02, var(--surface-low));'), 'Person cards should use a Carbon layer instead of a nested outline.');
-expect(carHeader.includes('background: var(--semantic-danger-soft); color: var(--semantic-danger);'), 'Destructive vehicle action must use danger feedback instead of blue.');
+expect(!carHeader.includes('.car-delete-btn:hover'), 'Vehicle return must rely on the standard Carbon ghost icon-button state instead of a custom tile hover.');
 expect(seatGrid.includes('.seat-slot-icon'), 'Empty seats must use a real Carbon icon.');
 expect(!seatGrid.includes('content: "→"'), 'Text glyph arrows are not allowed for empty-seat actions.');
 expect(people.includes('data-carbon-icon="add"'), 'Empty-seat markup must request the official Carbon add icon.');
@@ -66,8 +66,9 @@ expect(carCostCard.includes('.seisan-cost-structured-list') && carCostCard.inclu
 expect(index.includes('id="batchOpenBtn" class="tool-btn" kind="secondary"') && index.includes('id="shuffleAssignBtn"') && index.includes('kind="primary"'), 'Allocation must keep one primary action and lower participant registration emphasis.');
 expect(index.includes('id="sheet-quick-edit-btn" kind="ghost"') && !index.includes('<cds-icon-button id="sheet-quick-edit-btn"'), 'Shared edit must be a normal Ghost Button in the title area.');
 expect(sheetView.includes('updateSheetSummary({ ...data, carPlans: plans })'), 'Shared-view counts must use the same complete plan snapshot as the rendered allocations.');
-expect(people.includes('<cds-tag class="capacity-badge') && people.includes('class="capacity-edit-btn"'), 'Capacity information and its edit action must be separate Carbon components.');
-expect(people.includes('<cds-icon-button type="button" kind="danger--ghost"') && people.includes('class="car-delete-btn car-return-btn delete-btn"'), 'The vehicle return action must remain a Carbon icon button instead of a large custom tile.');
+expect(people.includes('<cds-button type="button" kind="ghost" size="sm" class="capacity-badge capacity-edit-btn capacity-edit-pill"') && people.includes('class="capacity-count"'), 'Capacity information and its edit icon must share one compact Carbon action pill.');
+expect(people.includes('<cds-icon-button type="button" kind="ghost" size="md"') && people.includes('class="car-delete-btn car-return-btn delete-btn"'), 'The vehicle return action must use a regular Carbon ghost icon button.');
+expect(carHeader.includes('.car-header {\n  display: grid;\n  grid-template-columns: minmax(0, 1fr) auto auto;') && !carHeader.includes('.car-delete-btn:hover'), 'The vehicle return action must not retain the old fixed tile geometry.');
 expect(index.includes('<span>ドライバーへの支払い</span>') && !index.includes('seisan-payment-tag carbon-display-tag ui-chip pay'), 'Driver payment heading must not use a decorative payment tag.');
 
 for (const [source, mode] of [[lightTokens, 'light'], [darkTokens, 'dark']]) {

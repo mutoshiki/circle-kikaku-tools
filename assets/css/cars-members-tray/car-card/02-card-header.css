@@ -1,7 +1,7 @@
 /* Group title, capacity state and return action. */
 .car-header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 48px;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 6px;
   min-height: 48px;
@@ -30,36 +30,23 @@
 .car-capacity-actions {
   display: inline-flex;
   align-items: center;
-  gap: 0;
 }
 
-.car-capacity-actions .capacity-badge {
-  min-width: 42px;
+.car-capacity-actions .capacity-edit-pill {
+  min-width: 0;
+  min-height: 32px;
   margin: 0;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--surface-highest);
+  color: var(--text-sub);
   font-variant-numeric: tabular-nums;
 }
-
-.car-capacity-actions .capacity-edit-btn {
-  flex: 0 0 48px;
-  width: 48px;
-  height: 48px;
-}
-.car-capacity-actions .capacity-edit-btn > .carbon-icon { width: 1.5rem; height: 1.5rem; }
+.car-capacity-actions .capacity-edit-pill.is-over { background: var(--semantic-danger-soft); color: var(--semantic-danger); }
+.car-capacity-actions .capacity-edit-pill > .carbon-icon { width: 1rem; height: 1rem; }
 
 .car-delete-btn,
-.car-header .delete-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  min-width: 48px;
-  height: 48px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-}
-.car-delete-btn:hover,
-.car-header .delete-btn:hover { background: var(--semantic-danger-soft); color: var(--semantic-danger); }
+.car-header .delete-btn { align-self: center; }
 
 .driver-main-line {
   display: grid;

@@ -130,12 +130,12 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none', pa
             <div class="car-header">
                 <span class="car-name-label">${safeName}${groupSuffix}</span>
                 <div class="car-capacity-actions">
-                    <cds-tag class="capacity-badge carbon-display-tag" type="gray" size="md"><span class="capacity-count">0/${c}</span></cds-tag>
-                    <cds-icon-button type="button" kind="ghost" size="lg" class="capacity-edit-btn" data-action="edit-capacity" aria-label="定員を変更">
+                    <cds-button type="button" kind="ghost" size="sm" class="capacity-badge capacity-edit-btn capacity-edit-pill" data-action="edit-capacity" aria-label="定員0/${c}を変更">
+                        <span class="capacity-count">0/${c}</span>
                         <span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span>
-                    </cds-icon-button>
+                    </cds-button>
                 </div>
-                <cds-icon-button type="button" kind="danger--ghost" size="lg" class="car-delete-btn car-return-btn delete-btn" aria-label="車出しを解除して待機に戻す">
+                <cds-icon-button type="button" kind="ghost" size="md" class="car-delete-btn car-return-btn delete-btn" aria-label="車出しを解除して待機に戻す">
                     <span data-carbon-icon="undo" aria-hidden="true"></span>
                 </cds-icon-button>
             </div>

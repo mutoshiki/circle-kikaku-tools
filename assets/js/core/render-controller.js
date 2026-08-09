@@ -125,8 +125,10 @@ function updateUI() {
         const badge = $('.capacity-badge', b);
         const capacityCount = $('.capacity-count', badge);
         if (capacityCount) capacityCount.textContent = `${n}/${c}`;
-        badge.className = `capacity-badge carbon-display-tag ${n>c?'is-over':(n===c?'is-full':'')}`;
-        badge.setAttribute('type', n > c ? 'red' : 'gray');
+        badge.classList.toggle('is-over', n > c);
+        badge.classList.toggle('is-full', n === c);
+        badge.setAttribute('kind', n > c ? 'danger--ghost' : 'ghost');
+        badge.setAttribute('aria-label', `定員${n}/${c}を変更`);
         const label = $('.car-name-label', b);
         const driverName = $('.driver-name-disp', b)?.innerText?.trim() || '';
         if (label && driverName) {

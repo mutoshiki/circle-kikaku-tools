@@ -47,7 +47,7 @@ expect(personMenuCss.includes('person-menu-top-layer-placeholder'), 'Person-menu
 expect(personMenuCss.includes(':not(.person-menu-top-layer-open)'), 'Person-menu z-index fallback is not isolated from the top-layer path');
 expect(layeringCss.includes(':not(.person-menu-top-layer-open) #top-area'), 'Top-area stacking fallback still runs while the menu is in the top layer');
 expect(copyCss.includes('box-shadow: inset 0 0 0 1px var(--app-accent-border)'), 'Dark settlement copy action lacks a visible Carbon tertiary boundary');
-expect(carHeaderCss.includes('width: 1.5rem; height: 1.5rem'), 'Capacity edit icon is still undersized');
+expect(carHeaderCss.includes('.capacity-edit-pill > .carbon-icon { width: 1rem; height: 1rem; }'), 'Capacity edit pill must keep a balanced Carbon icon size');
 
 expect(overviewEvents.includes('syncTimetableTextareaExpansion'), 'Overview timetable expansion behavior is missing');
 expect(overviewEvents.includes("host.rows = shouldExpand ? 4 : 1"), 'Overview timetable textarea does not change official rows');
