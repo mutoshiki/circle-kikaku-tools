@@ -88,9 +88,11 @@
 
     function commitSettlementExtraTypeSelection(target, rawValue = target?.value) {
         if (!target?.matches?.('.seisan-car-row [data-extra-field="type"]')) return false;
-        const type = typeof normalizeSettlementExtraType === 'function'
-            ? normalizeSettlementExtraType(rawValue)
-            : (['split', 'club', 'split-minus', 'club-minus'].includes(rawValue) ? rawValue : 'split');
+        const type = typeof readSettlementExtraTypeControlValue === 'function'
+            ? readSettlementExtraTypeControlValue(target, rawValue)
+            : (typeof normalizeSettlementExtraType === 'function'
+                ? normalizeSettlementExtraType(rawValue)
+                : (['split', 'club', 'split-minus', 'club-minus'].includes(rawValue) ? rawValue : 'split'));
         const baseType = type.startsWith('club') ? 'club' : 'split';
 
         // Carbon Select's official selection event is cds-select-selected. Set the

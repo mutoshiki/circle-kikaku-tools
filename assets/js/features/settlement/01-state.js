@@ -151,6 +151,16 @@ function normalizeSettlementExtraType(value = 'split') {
     return SETTLEMENT_EXTRA_TYPES.has(type) ? type : 'split';
 }
 
+function readSettlementExtraTypeControlValue(control, preferredValue) {
+    // Carbon mirrors a native select element inside its shadow root. On touch browsers the native
+    // value can lead the host property by one event turn, so saving from the host alone can
+    // miss a just-selected signed type.
+    const nativeValue = control?.shadowRoot?.querySelector?.('select')?.value;
+    const candidates = [preferredValue, nativeValue, control?.value, control?.getAttribute?.('value')];
+    const selected = candidates.find(value => SETTLEMENT_EXTRA_TYPES.has(String(value || '')));
+    return normalizeSettlementExtraType(selected || 'split');
+}
+
 function getSettlementExtraBaseType(value = 'split') {
     return normalizeSettlementExtraType(value).startsWith('club') ? 'club' : 'split';
 }
@@ -604,7 +614,7 @@ function syncSettlementStateFromDOM() {
             return normalizeExtraItem({
                 name: nameValue,
                 amount: amountValue,
-                type: exRow.querySelector('[data-extra-field="type"]')?.value || 'split',
+                type: readSettlementExtraTypeControlValue(exRow.querySelector('[data-extra-field="type"]')),
                 pending: exRow.dataset.extraPending === 'true' && (!String(nameValue).trim() || !String(amountValue).trim()),
                 timesFeeKind: exRow.dataset.timesExtra === 'time' || exRow.dataset.timesExtra === 'distance' ? exRow.dataset.timesExtra : ''
             });

@@ -308,10 +308,18 @@ function focusFirstSettlementCarValidationError() {
     Promise.resolve(host.updateComplete).then(() => requestAnimationFrame(() => requestAnimationFrame(apply)));
 }
 
+function commitLiveSettlementExtraTypeControls(root = byId('settlementCarEditBody')) {
+    root?.querySelectorAll?.('[data-extra-field="type"]').forEach(control => {
+        const type = readSettlementExtraTypeControlValue(control);
+        if (control.value !== type) control.value = type;
+    });
+}
+
 function validateActiveSettlementCarEditor(showErrors = true) {
     if (!activeSettlementCarEditName) return true;
     // Commit the live Carbon controls first. Validation must never rebuild a valid editor:
     // rebuilding replaces upgraded cds-select hosts and can reset their public value before save.
+    commitLiveSettlementExtraTypeControls();
     syncSettlementStateFromDOM();
     const issues = getSettlementCarEditIssues(activeSettlementCarEditName);
     const valid = issues.fields.size === 0;

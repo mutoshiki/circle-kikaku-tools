@@ -46,6 +46,21 @@ test.describe('v50 live Firebase collaboration', () => {
     await expect(pages[0].locator('#saveSettlementCarEditBtn')).toBeEnabled();
     await saveCar(pages[0]);
 
+    // Carbon's shadow-native select can update ahead of its host on touch devices. Both
+    // signed expense types must be finalized by Save and persisted to Firebase.
+    await openCar(pages[0], 0);
+    await pages[0].locator('[data-extra-field="type"] select').first().selectOption('split-minus');
+    await saveCar(pages[0]);
+    await openCar(pages[1], 0);
+    await expect(pages[1].locator('[data-extra-field="type"] select').first()).toHaveValue('split-minus');
+    await pages[1].locator('[data-extra-field="type"] select').first().selectOption('club-minus');
+    await saveCar(pages[1]);
+    await expect.poll(async () => {
+      const roomData = await snapshot(pages[0]);
+      return Object.values(roomData.settlement?.carsByParticipantId || {})
+        .some(car => car.extras?.some(extra => extra.type === 'club-minus'));
+    }).toBe(true);
+
     // An explicit offline save survives page loss and replays its original narrow intent.
     await openCar(pages[2], 2);
     await fill(pages[2], 'eco', 23);
