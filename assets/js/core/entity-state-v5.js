@@ -289,7 +289,10 @@ function ensureAllParticipantsPlaced(allocation, participants) {
 }
 
 function migrateToCanonicalRoom(raw = {}) {
-    if (raw && Number(raw.schemaVersion) >= CANONICAL_SCHEMA_VERSION && raw.participants && raw.allocations) {
+    // Realtime Database omits empty objects. A valid v5 room with zero participants
+    // therefore has no `participants` property, and empty group/placement maps are
+    // absent too. Schema + allocation roots are the canonical marker.
+    if (raw && Number(raw.schemaVersion) >= CANONICAL_SCHEMA_VERSION && raw.allocations) {
         const canonical = { ...emptyCanonicalRoom(), ...cloneCanonical(raw) };
         canonical.schemaVersion = CANONICAL_SCHEMA_VERSION;
         canonical.participants = {};
@@ -435,6 +438,7 @@ function reconcileSettlementParticipantNames(room, oldParticipants = {}) {
 
 function updateCanonicalFromActiveDom(room, domAllocation, activeType = room?.activeAllocationType || 'car') {
     const canonical = room || emptyCanonicalRoom();
+    const previousRoomUpdatedAt = Number(canonical.lastUpdatedAt || 0);
     const oldParticipants = cloneCanonical(canonical.participants || {});
     const participants = canonical.participants || (canonical.participants = {});
     const tombstones = canonical.participantTombstones || (canonical.participantTombstones = {});
@@ -462,6 +466,12 @@ function updateCanonicalFromActiveDom(room, domAllocation, activeType = room?.ac
         && String(a.ownerId || '') === String(b.ownerId || '')
         && Number(a.capacity || 0) === Number(b.capacity || 0)
         && Number(a.order || 0) === Number(b.order || 0);
+    const entityMapEqual = (a = {}, b = {}, recordEqual) => {
+        const aKeys = Object.keys(a || {}).sort();
+        const bKeys = Object.keys(b || {}).sort();
+        return aKeys.length === bKeys.length
+            && aKeys.every((key, index) => key === bKeys[index] && recordEqual(a[key], b[key]));
+    };
 
     const resolveId = raw => {
         const preferred = String(raw?.participantId || raw?.id || '').trim();
@@ -552,14 +562,19 @@ function updateCanonicalFromActiveDom(room, domAllocation, activeType = room?.ac
     // A generic save (for example settlement settings) must not rewrite every participant,
     // group and placement just because getData() sampled the DOM. Preserve entity timestamps
     // unless semantic content actually changed so Firebase patches stay narrowly scoped.
-    const allocationChanged = JSON.stringify(previousPlacements) !== JSON.stringify(allocation.placements || {})
-        || JSON.stringify(previousGroups) !== JSON.stringify(allocation.groups || {});
+    // Maps are rebuilt in visual order. JSON string comparison made key insertion order look
+    // like a collaborative edit, causing every unrelated save to rewrite allocation timestamps.
+    const allocationChanged = !entityMapEqual(previousPlacements, allocation.placements || {}, placementEqual)
+        || !entityMapEqual(previousGroups, allocation.groups || {}, groupEqual);
+    const participantsChanged = !entityMapEqual(oldParticipants, participants, participantEqual);
     allocation.updatedAt = allocationChanged ? canonicalNow() : previousAllocationUpdatedAt;
 
     reconcileSettlementParticipantNames(canonical, oldParticipants);
     canonical.schemaVersion = CANONICAL_SCHEMA_VERSION;
     canonical.activeAllocationType = activeType;
-    canonical.lastUpdatedAt = canonicalNow();
+    canonical.lastUpdatedAt = (allocationChanged || participantsChanged)
+        ? canonicalNow()
+        : previousRoomUpdatedAt;
     return canonical;
 }
 

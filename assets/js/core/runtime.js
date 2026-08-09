@@ -79,12 +79,9 @@ async function initFirebaseSync() {
         // ahead used to make its same-field edits dominate every other device.
         try {
             const offsetRef = ref(db, '.info/serverTimeOffset');
-            const offsetSnapshot = await get(offsetRef);
-            const offset = Number(offsetSnapshot?.val?.() || 0);
-            if (Number.isFinite(offset)) {
-                firebaseServerTimeOffsetMs = offset;
-                firebaseServerTimeOffsetReady = true;
-            }
+            // Firebase documents `.info` as a streaming metadata endpoint. `get()`
+            // rejects this path in the deployed SDK, while `onValue()` supplies both
+            // the initial offset and subsequent changes.
             onValue(offsetRef, snapshot => {
                 const next = Number(snapshot.val() || 0);
                 if (!Number.isFinite(next)) return;

@@ -37,7 +37,6 @@ const SETTLEMENT_SCALAR_OR_OBJECT_FIELDS = [
 const LEGACY_REMOTE_FIELDS = ['waiting', 'cars', 'carPlans', 'activeCarPlanId', 'lastAutoAssignLabel', 'activeAllocationType', 'trayMinimized'];
 
 let pendingRemoteRoomData = null;
-let pendingRemoteAcknowledgedRequestVersion = 0;
 
 
 function isRemoteUiBlocked() {
@@ -133,6 +132,43 @@ function readStoredSyncBase() {
     } catch (_) {
         return null;
     }
+}
+
+function getSyncOutboxStorageKey() {
+    return `${CFG.STORE}_sync_outbox_${roomId}`;
+}
+
+function readStoredSyncOutbox() {
+    try {
+        const value = safeJsonParse(L.getItem(getSyncOutboxStorageKey()), null);
+        if (!value || typeof value !== 'object' || !value.snapshot || !value.patch) return null;
+        return value;
+    } catch (_) {
+        return null;
+    }
+}
+
+function rememberSyncOutbox(snapshot, baseSnapshot, patch, requestVersion, options = {}) {
+    if (!patchHasDomainChanges(patch) && options.forceCanonical !== true) return '';
+    const id = `${myClientId}:${Number(requestVersion || 0)}:${Date.now()}`;
+    const payload = {
+        id,
+        requestVersion: Number(requestVersion || 0),
+        snapshot: cloneSyncValue(snapshot),
+        baseSnapshot: cloneSyncValue(baseSnapshot || {}),
+        patch: cloneSyncValue(patch || {}),
+        forceCanonical: options.forceCanonical === true,
+        createdAt: Date.now()
+    };
+    try { L.setItem(getSyncOutboxStorageKey(), J.stringify(payload)); }
+    catch (error) { console.warn('Failed to persist sync outbox:', error); }
+    return id;
+}
+
+function clearSyncOutbox(id = '') {
+    const current = readStoredSyncOutbox();
+    if (!current || (id && current.id !== id)) return;
+    L.removeItem(getSyncOutboxStorageKey());
 }
 
 function rememberSyncedData(data) {
@@ -390,7 +426,13 @@ function applyPatchPathInPlace(result, path, value) {
 }
 
 function applyVersionedEntityPatch(remoteRaw = {}, baseRaw = {}, localRaw = {}, patch = {}, requestVersion = 0) {
-    const remote = cloneSyncValue(remoteRaw || {}) || {};
+    // A user can act before the first empty-room onValue/cleanup transaction finishes.
+    // Applying entity paths to a raw `{}` and only then migrating loses those paths because
+    // the legacy migrator has no schema marker. Start a genuinely empty remote as a v5 room.
+    const hasRemoteRoom = remoteRaw && typeof remoteRaw === 'object' && Object.keys(remoteRaw).length > 0;
+    const remote = hasRemoteRoom
+        ? (cloneSyncValue(remoteRaw) || {})
+        : migrateAppData({});
     const base = cloneSyncValue(baseRaw || {}) || {};
     const local = cloneSyncValue(localRaw || {}) || {};
     remote.pathVersions = cloneSyncValue(remote.pathVersions || {}) || {};
@@ -466,7 +508,7 @@ function applyAuthoritativeRemoteData(data, { rememberLocal = true, preserveView
     if (viewport) restoreRemotePaintViewport(viewport);
 }
 
-function rememberPendingRemoteData(data, { acknowledgedRequestVersion = 0 } = {}) {
+function rememberPendingRemoteData(data) {
     if (!data || typeof data !== 'object') return;
     const next = migrateAppData(data);
     const currentRevision = Number(pendingRemoteRoomData?.revision || 0);
@@ -480,13 +522,6 @@ function rememberPendingRemoteData(data, { acknowledgedRequestVersion = 0 } = {}
         pendingRemoteRoomData = cloneSyncValue(next);
         pendingRemoteSettlementData = pendingRemoteRoomData;
     }
-    // A transaction result produced by this client already contains that local request.
-    // Keep this acknowledgement even if a slightly newer onValue snapshot replaces the
-    // pending payload: the newer room necessarily descends from the committed revision.
-    pendingRemoteAcknowledgedRequestVersion = Math.max(
-        pendingRemoteAcknowledgedRequestVersion,
-        Number(acknowledgedRequestVersion || 0)
-    );
 }
 
 async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVersion, capturedBase = null, options = {}) {
@@ -497,6 +532,7 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
         ? cloneSyncValue(options.patchOverride)
         : buildEntityPatch(baseAtWrite, localSnapshot, { forceCanonical: options.forceCanonical === true });
     if (!patchHasDomainChanges(patch) && options.forceCanonical !== true) {
+        if (options.outboxId) clearSyncOutbox(options.outboxId);
         updateStatus('connected', '同期完了');
         return localSnapshot;
     }
@@ -506,6 +542,19 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
         let committed;
         if (typeof runTransaction === 'function') {
             const result = await runTransaction(dbRef, currentRemote => {
+                if (options.forceCanonical === true) {
+                    // Canonical cleanup is derived from the value currently locked by
+                    // RTDB. A captured blank-device snapshot must never replace data
+                    // registered by another device while this transaction was queued.
+                    const hasCurrentRemote = currentRemote && typeof currentRemote === 'object'
+                        && Object.keys(currentRemote).length > 0;
+                    const canonicalCurrent = migrateAppData(hasCurrentRemote ? currentRemote : localSnapshot);
+                    LEGACY_REMOTE_FIELDS.forEach(field => { delete canonicalCurrent[field]; });
+                    canonicalCurrent.lastUpdatedAt = Number(canonicalCurrent.lastUpdatedAt || (window.SanpoClock?.now?.() ?? Date.now()));
+                    canonicalCurrent.lastUpdatedBy = String(canonicalCurrent.lastUpdatedBy || myClientId || '');
+                    canonicalCurrent.revision = Math.max(0, Number(currentRemote?.revision || canonicalCurrent.revision || 0)) + 1;
+                    return canonicalCurrent;
+                }
                 return applyVersionedEntityPatch(currentRemote || {}, baseAtWrite, localSnapshot, patch, requestVersion);
             }, { applyLocally: false });
             if (!result.committed) throw new Error('Firebase entity transaction was not committed');
@@ -517,20 +566,20 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
         }
         rememberSyncedData(committed);
         L.setItem(CFG.STORE + '_' + roomId, J.stringify(committed));
+        if (options.outboxId) clearSyncOutbox(options.outboxId);
 
         const pendingRevision = Number(pendingRemoteRoomData?.revision || 0);
         const committedRevision = Number(committed.revision || 0);
         if (pendingRemoteRoomData && pendingRevision <= committedRevision) {
             pendingRemoteRoomData = null;
             pendingRemoteSettlementData = null;
-            pendingRemoteAcknowledgedRequestVersion = 0;
         }
 
         // The transaction result contains both this client's patch and any concurrent remote
         // entities.  Repaint only after the write surface is idle; otherwise queue the merged
         // authoritative state so a second edit cannot be based on a stale model.
         if (isRemoteUiBlocked()) {
-            rememberPendingRemoteData(committed, { acknowledgedRequestVersion: requestVersion });
+            rememberPendingRemoteData(committed);
             window.SanpoRemoteGuard?.requestPendingApply?.(0);
         } else {
             applyAuthoritativeRemoteData(committed);
@@ -553,9 +602,17 @@ function queueRemoteSnapshotSave(snapshot, delay = 180, options = {}) {
     clearTimeout(saveTimer);
     const requestVersion = ++saveRequestVersion;
     const capturedBase = cloneSyncValue(lastSyncedData || readStoredSyncBase() || {});
+    const patch = options.patchOverride && typeof options.patchOverride === 'object'
+        ? cloneSyncValue(options.patchOverride)
+        : buildEntityPatch(capturedBase, snapshot, { forceCanonical: options.forceCanonical === true });
+    const outboxId = rememberSyncOutbox(snapshot, capturedBase, patch, requestVersion, options);
     saveTimer = setTimeout(() => {
         saveTimer = null;
-        void commitSnapshotToRemote(snapshot, requestVersion, capturedBase, options);
+        void commitSnapshotToRemote(snapshot, requestVersion, capturedBase, {
+            ...options,
+            patchOverride: patch,
+            outboxId
+        });
     }, Math.max(0, Number(delay) || 0));
 }
 
@@ -599,99 +656,6 @@ function buildSettlementSettingsIntentPatch(baseRaw = {}, localRaw = {}) {
     return Object.fromEntries(Object.entries(fullPatch).filter(([path]) => SETTLEMENT_SETTINGS_PATH_PREFIXES.some(prefix => syncPathMatchesPrefix(path, prefix))));
 }
 
-function getActiveSettlementRemoteProtection() {
-    if (typeof document === 'undefined') return null;
-    const carModal = document.getElementById('settlementCarEditModal');
-    if (carModal?.open || carModal?.hasAttribute?.('open')) {
-        const name = String(typeof activeSettlementCarEditName === 'string' ? activeSettlementCarEditName : '').trim();
-        const canonical = window.SanpoCanonicalState?.get?.();
-        const participantId = name
-            ? (window.SanpoCanonicalState?.findParticipantIdByName?.(canonical?.participants || {}, name) || '')
-            : '';
-        const prefixes = [];
-        if (participantId) prefixes.push(`settlement/carsByParticipantId/${participantId}`);
-        if (name) prefixes.push(`settlement/carsByName/${name}`);
-        return { kind: 'car', name, participantId, prefixes };
-    }
-
-    const settingsModal = document.getElementById('settlementSettingsModal');
-    if (settingsModal?.open || settingsModal?.hasAttribute?.('open')) {
-        return { kind: 'settings', prefixes: [...SETTLEMENT_SETTINGS_PATH_PREFIXES] };
-    }
-
-    const focusedRow = document.activeElement?.closest?.('.seisan-car-row');
-    const name = String(focusedRow?.dataset?.driverName || '').trim();
-    if (name && isSettlementInputProtected()) {
-        const canonical = window.SanpoCanonicalState?.get?.();
-        const participantId = window.SanpoCanonicalState?.findParticipantIdByName?.(canonical?.participants || {}, name) || '';
-        const prefixes = [];
-        if (participantId) prefixes.push(`settlement/carsByParticipantId/${participantId}`);
-        prefixes.push(`settlement/carsByName/${name}`);
-        return { kind: 'car', name, participantId, prefixes };
-    }
-    return null;
-}
-
-function copyAcceptedPathVersions(target, remote, acceptedPaths = []) {
-    if (!target || !remote || !acceptedPaths.length) return target;
-    target.pathVersions = cloneSyncValue(target.pathVersions || {}) || {};
-    const remoteVersions = remote.pathVersions || {};
-    acceptedPaths.forEach(path => {
-        const key = syncPathVersionKey(path);
-        if (Object.prototype.hasOwnProperty.call(remoteVersions, key)) {
-            target.pathVersions[key] = cloneSyncValue(remoteVersions[key]);
-        }
-    });
-    target.syncClock = Math.max(Number(target.syncClock || 0), Number(remote.syncClock || 0));
-    target.revision = Math.max(Number(target.revision || 0), Number(remote.revision || 0));
-    target.lastUpdatedAt = Math.max(Number(target.lastUpdatedAt || 0), Number(remote.lastUpdatedAt || 0));
-    if (Number(remote.lastUpdatedAt || 0) >= Number(target.lastUpdatedAt || 0)) target.lastUpdatedBy = String(remote.lastUpdatedBy || target.lastUpdatedBy || '');
-    return target;
-}
-
-function applyRemoteSettlementWhileEditing(remoteRaw) {
-    const protection = getActiveSettlementRemoteProtection();
-    if (!protection) return false;
-    const base = migrateAppData(lastSyncedData || readStoredSyncBase() || {});
-    const remote = migrateAppData(remoteRaw || {});
-    // Capture the live Carbon values before touching the canonical background state.
-    const local = migrateAppData(getData({ skipDomSync: true }));
-    const remotePatch = buildSettlementIntentPatch(base, remote);
-    const acceptedPatch = {};
-    Object.entries(remotePatch).forEach(([path, value]) => {
-        const conflictsWithActiveEditor = protection.prefixes.some(prefix => syncPathMatchesPrefix(path, prefix));
-        if (!conflictsWithActiveEditor) acceptedPatch[path] = cloneSyncValue(value);
-    });
-    const acceptedPaths = Object.keys(acceptedPatch);
-    if (!acceptedPaths.length) return false;
-
-    // Rebase only non-conflicting settlement paths. The active A-car/settings draft stays local,
-    // while a B-car save becomes authoritative immediately instead of waiting for A to close.
-    const rebasedLocal = migrateAppData(applyEntityPatchToObject(local, acceptedPatch));
-    const hybridBase = migrateAppData(applyEntityPatchToObject(base, acceptedPatch));
-    copyAcceptedPathVersions(rebasedLocal, remote, acceptedPaths);
-    copyAcceptedPathVersions(hybridBase, remote, acceptedPaths);
-
-    window.SanpoCanonicalState?.set?.(rebasedLocal);
-    settlementState = normalizeSettlementState(
-        window.SanpoCanonicalState?.settlementToUi?.(rebasedLocal.settlement || {}, rebasedLocal.participants || {})
-        || rebasedLocal.settlement || {}
-    );
-    window.SanpoApp?.state?.setSnapshot?.(rebasedLocal);
-    rememberSyncedDataInMemory(hybridBase);
-    L.setItem(CFG.STORE + '_' + roomId, J.stringify(rebasedLocal));
-
-    // Keep the complete remote room queued because participant/allocation changes are still
-    // deferred until the modal closes. Only settlement paths unrelated to the active editor
-    // are painted now.
-    rememberPendingRemoteData(remote);
-    if (typeof currentView === 'string' && currentView === 'seisan') {
-        renderSettlementView({ force: true, preserveSettingsControls: protection.kind === 'settings' });
-    }
-    updateStatus('connected', protection.kind === 'car' ? '他の車の変更を同期しました' : '他の精算変更を同期しました');
-    return true;
-}
-
 async function saveImmediate({ snapshot = null, baseSnapshot = null, patchOverride = null } = {}) {
     updateStatus('saving', '保存中...');
     lastUpdatedAt = (window.SanpoClock?.now?.() ?? Date.now());
@@ -711,8 +675,13 @@ async function saveImmediate({ snapshot = null, baseSnapshot = null, patchOverri
     saveTimer = null;
     const requestVersion = ++saveRequestVersion;
     const capturedBase = cloneSyncValue(baseSnapshot || lastSyncedData || readStoredSyncBase() || {});
+    const patch = patchOverride && typeof patchOverride === 'object'
+        ? cloneSyncValue(patchOverride)
+        : buildEntityPatch(capturedBase, canonical);
+    const outboxId = rememberSyncOutbox(canonical, capturedBase, patch, requestVersion);
     return await commitSnapshotToRemote(canonical, requestVersion, capturedBase, {
-        patchOverride: patchOverride && typeof patchOverride === 'object' ? patchOverride : undefined
+        patchOverride: patch,
+        outboxId
     });
 }
 
@@ -773,32 +742,45 @@ function load() {
             return;
         }
 
-        const wasLegacy = Number(raw.schemaVersion || 1) < APP_SCHEMA_VERSION || !raw.participants || !raw.allocations;
+        // RTDB omits empty maps, so a missing participants property is a valid
+        // zero-participant v5 room and must not trigger whole-root migration.
+        const wasLegacy = Number(raw.schemaVersion || 1) < APP_SCHEMA_VERSION
+            || !raw.allocations?.car
+            || !raw.allocations?.team;
         const hasSharedPresentationLegacy = Object.prototype.hasOwnProperty.call(raw, 'activeAllocationType')
             || Object.prototype.hasOwnProperty.call(raw, 'trayMinimized');
         const remote = migrateAppData(raw);
         if (!lastSyncedData) rememberSyncedData(remote);
 
-        // Settlement editing protects only the path being edited. A different car must keep
-        // receiving saves in real time; otherwise A-car input makes B-car saves look lost and
-        // leaves the local canonical model stale until A closes the modal.
-        if (!syncWriteInFlight && applyRemoteSettlementWhileEditing(remote)) return;
-
-        // Other local interactions still own the visible UI. Queue their remote paint until
-        // the interaction completes.
-        if (isRemoteUiBlocked()) {
-            rememberPendingRemoteData(remote);
-            updateStatus('local', window.SanpoRemoteGuard?.isModalOpen?.() ? '編集中のため同期保留' : (isSettlementInputProtected() ? '入力中のため同期保留' : '変更を同期中...'));
+        // Only an explicitly saved operation enters the durable outbox. On reconnect/reload,
+        // replay that original narrow intent against the latest transaction state; never infer
+        // intent by diffing a rendered/localStorage snapshot against Firebase.
+        const outbox = readStoredSyncOutbox();
+        if (outbox && !syncWriteInFlight && !saveTimer) {
+            saveRequestVersion = Math.max(saveRequestVersion, Number(outbox.requestVersion || 0));
+            isRemoteUpdate = true;
+            restore(migrateAppData(outbox.snapshot));
+            isRemoteUpdate = false;
+            rememberSyncedDataInMemory(remote);
+            void commitSnapshotToRemote(
+                outbox.snapshot,
+                Number(outbox.requestVersion || saveRequestVersion),
+                outbox.baseSnapshot || {},
+                {
+                    patchOverride: outbox.patch,
+                    forceCanonical: outbox.forceCanonical === true,
+                    outboxId: outbox.id
+                }
+            );
             return;
         }
 
-        const storedLocal = safeJsonParse(L.getItem(CFG.STORE + '_' + roomId), null);
-        if (storedLocal && hasLocalChangesSinceBase(migrateAppData(storedLocal), lastSyncedData)) {
+        // The editor DOM owns the draft until its UI transaction ends. Remote snapshots are
+        // queued as complete authoritative rooms; the save path emits a narrow intent patch,
+        // so disjoint edits still merge without rebuilding an open Carbon surface.
+        if (isRemoteUiBlocked()) {
             rememberPendingRemoteData(remote);
-            isRemoteUpdate = true;
-            restore(migrateAppData(storedLocal));
-            isRemoteUpdate = false;
-            save();
+            updateStatus('local', window.SanpoRemoteGuard?.isModalOpen?.() ? '編集中のため同期保留' : (isSettlementInputProtected() ? '入力中のため同期保留' : '変更を同期中...'));
             return;
         }
 
@@ -815,29 +797,12 @@ function applyPendingRemoteRoomData() {
     const pending = pendingRemoteRoomData || pendingRemoteSettlementData;
     if (!pending || isRemoteUiBlocked()) return;
 
-    // If this pending room came from (or descends from) our own completed request and no
-    // newer local save was queued, it already contains the local modal/drag action. Applying
-    // it is a rebase, not a conflict. The previous code compared the still-unpainted local UI
-    // against the newly advanced sync base, misclassified missing remote fields as local edits,
-    // and immediately wrote stale UI back over other phones.
-    const pendingAcknowledgesCurrentLocal = pendingRemoteAcknowledgedRequestVersion > 0
-        && saveRequestVersion <= pendingRemoteAcknowledgedRequestVersion;
-    if (pendingAcknowledgesCurrentLocal) {
-        pendingRemoteRoomData = null;
-        pendingRemoteSettlementData = null;
-        pendingRemoteAcknowledgedRequestVersion = 0;
-        applyAuthoritativeRemoteData(pending);
-        return;
-    }
-
-    const local = getData({ skipDomSync: !!window.__suspendActiveDomPlanSync });
-    if (hasLocalChangesSinceBase(local)) {
-        save();
-        return;
-    }
+    // Debounced and in-flight local writes are part of isRemoteUiBlocked(). Once this
+    // boundary is idle, the newest pending transaction result/onValue snapshot is already
+    // authoritative. Never infer another write from rendered DOM or localStorage here;
+    // that feedback loop repeatedly re-saved stale projections after remote notifications.
     pendingRemoteRoomData = null;
     pendingRemoteSettlementData = null;
-    pendingRemoteAcknowledgedRequestVersion = 0;
     applyAuthoritativeRemoteData(pending);
 }
 
@@ -850,6 +815,7 @@ window.resetData = async () => {
     if (input !== 'リセット') return;
     L.removeItem(CFG.STORE + '_' + roomId);
     L.removeItem(getSyncBaseStorageKey());
+    L.removeItem(getSyncOutboxStorageKey());
     L.removeItem('syawari_history_' + roomId);
     L.removeItem('sanpoOverviewDraft:v1:' + roomId);
     if (window.SanpoDeviceRoomUi) L.removeItem(`sanpoRoomUi:v1:${roomId}`);
