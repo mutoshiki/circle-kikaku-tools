@@ -1,0 +1,15 @@
+/* Bottom Content Switcher lock state: the lock belongs to the feature label, not to selection state. */
+.view-tab-label { gap: 6px; }
+
+.view-tab-lock-indicator {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+}
+
+.view-tab-lock-indicator[hidden] { display: none; }
+.view-tab-lock-indicator .carbon-icon { width: 16px; height: 16px; }

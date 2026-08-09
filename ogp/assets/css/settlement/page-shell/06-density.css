@@ -1,0 +1,16 @@
+/* Canonical settlement density and action layout. */
+.seisan-compact-head { min-height: 48px; }
+.seisan-head-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.seisan-head-actions .seisan-btn { min-height: 48px; width: auto; }
+#seisanRefreshBtn.seisan-btn { width: 48px; min-width: 48px; }
+.seisan-head-tools-only { justify-content: flex-end; margin-bottom: 10px; }
+
+.seisan-car-summary-row {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--surface-low);
+  box-shadow: none;
+}

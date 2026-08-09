@@ -1,0 +1,35 @@
+/* summary cost tags must keep their own chip surface */
+#seisan-view-area .seisan-summary-card :is(
+  .seisan-cost-policy-tag,
+  .seisan-cost-type-badge,
+  .seisan-payment-tag
+),
+#seisan-view-area .seisan-extra-inline :is(
+  .seisan-cost-policy-tag,
+  .seisan-cost-type-badge
+) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  min-width: var(--settlement-tag-min-width, 2.4em);
+  min-height: var(--settlement-tag-min-height, 1.38em);
+  padding: var(--settlement-tag-pad-y, 2px) var(--settlement-tag-pad-x, 7px);
+  border: 1px solid var(--settlement-tag-line, currentColor);
+  border-radius: var(--radius-xs);
+  background: var(--settlement-tag-bg, var(--bg-card));
+  background-image: none;
+  color: var(--settlement-tag-ink, var(--text-main));
+  -webkit-text-fill-color: var(--settlement-tag-ink, var(--text-main));
+  box-shadow: none;
+  filter: none;
+  opacity: 1;
+  font-size: var(--settlement-tag-font-size, 0.64rem);
+  font-style: normal;
+  font-weight: 500;
+  line-height: var(--settlement-tag-line-height, 1);
+  letter-spacing: 0;
+  white-space: nowrap;
+  vertical-align: baseline;
+}

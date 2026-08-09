@@ -1,0 +1,636 @@
+// Settlement state and DOM snapshot helpers.
+// Split from features/settlement.js during S-3 cleanup.
+
+function createDefaultRoutePlannerState() {
+    return {
+        origin: null,
+        waypoints: [],
+        destination: null,
+        routes: [],
+        segmentRouteGroups: [],
+        segmentSelectionIndices: [],
+        selectedRouteIndex: 0,
+        avoidTolls: true,
+        avoidHighways: true,
+        avoidFerries: false,
+        targetCarId: '',
+        targetCarName: '',
+        returnTo: '',
+        roundTrip: false,
+        calculatedAt: 0
+    };
+}
+
+function normalizeRoutePlannerPlace(raw = null) {
+    if (!raw || typeof raw !== 'object') return null;
+    const placeId = String(raw.placeId || '').trim();
+    const name = String(raw.name || '').trim();
+    const address = String(raw.address || '').trim();
+    const latitude = Number(raw.latitude);
+    const longitude = Number(raw.longitude);
+    if (!placeId || !name || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+    return { placeId, name, address, latitude, longitude };
+}
+
+function normalizeRoutePlannerViewport(raw = null) {
+    if (!raw || typeof raw !== 'object') return null;
+    const north = Number(raw.north);
+    const south = Number(raw.south);
+    const east = Number(raw.east);
+    const west = Number(raw.west);
+    return [north, south, east, west].every(Number.isFinite) ? { north, south, east, west } : null;
+}
+
+function normalizeRoutePlannerLeg(raw = {}) {
+    const normalizePoint = point => {
+        const latitude = Number(point?.latitude);
+        const longitude = Number(point?.longitude);
+        return Number.isFinite(latitude) && Number.isFinite(longitude) ? { latitude, longitude } : null;
+    };
+    return {
+        distanceMeters: Math.max(0, Number(raw.distanceMeters) || 0),
+        durationSeconds: Math.max(0, Number(raw.durationSeconds) || 0),
+        start: normalizePoint(raw.start),
+        end: normalizePoint(raw.end),
+        fromName: String(raw.fromName || ''),
+        toName: String(raw.toName || '')
+    };
+}
+
+function normalizeRoutePlannerRoute(raw = {}, index = 0) {
+    return {
+        id: String(raw.id || `route-${index}`),
+        label: String(raw.label || (index === 0 ? 'おすすめ' : `別ルート ${index}`)),
+        distanceMeters: Math.max(0, Number(raw.distanceMeters) || 0),
+        durationSeconds: Math.max(0, Number(raw.durationSeconds) || 0),
+        legs: Array.isArray(raw.legs) ? raw.legs.map(normalizeRoutePlannerLeg) : [],
+        viewport: normalizeRoutePlannerViewport(raw.viewport),
+        polyline: String(raw.polyline || ''),
+        hasTolls: raw.hasTolls === true,
+        hasHighways: raw.hasHighways === true,
+        tollPrice: String(raw.tollPrice || ''),
+        mainRoads: Array.isArray(raw.mainRoads) ? raw.mainRoads.map(value => String(value || '').trim()).filter(Boolean).slice(0, 5) : [],
+        segmentIndex: Math.max(0, Number(raw.segmentIndex) || 0),
+        segmentRouteIndex: Math.max(0, Number(raw.segmentRouteIndex) || 0)
+    };
+}
+
+function normalizeRoutePlannerState(raw = {}) {
+    const base = createDefaultRoutePlannerState();
+    const segmentRouteGroups = Array.isArray(raw.segmentRouteGroups)
+        ? raw.segmentRouteGroups
+            .map((group, groupIndex) => Array.isArray(group)
+                ? group
+                    .map((route, routeIndex) => normalizeRoutePlannerRoute({ ...route, segmentIndex: groupIndex, segmentRouteIndex: routeIndex }, routeIndex))
+                    .filter(route => route.distanceMeters > 0)
+                : [])
+            .filter(group => group.length)
+        : [];
+    const routes = Array.isArray(raw.routes) ? raw.routes.map(normalizeRoutePlannerRoute).filter(route => route.distanceMeters > 0) : [];
+    const selectedRouteIndex = routes.length ? Math.min(Math.max(0, Number(raw.selectedRouteIndex) || 0), routes.length - 1) : 0;
+    const segmentSelectionIndices = segmentRouteGroups.map((group, index) => {
+        const value = Array.isArray(raw.segmentSelectionIndices) ? Number(raw.segmentSelectionIndices[index]) : 0;
+        return Number.isInteger(value) && value >= 0 ? Math.min(value, Math.max(0, group.length - 1)) : 0;
+    });
+    return {
+        ...base,
+        origin: normalizeRoutePlannerPlace(raw.origin),
+        waypoints: Array.isArray(raw.waypoints) ? raw.waypoints.map(normalizeRoutePlannerPlace).filter(Boolean) : [],
+        destination: normalizeRoutePlannerPlace(raw.destination),
+        routes,
+        segmentRouteGroups,
+        segmentSelectionIndices,
+        selectedRouteIndex,
+        avoidTolls: raw.avoidTolls === undefined ? true : raw.avoidTolls === true,
+        avoidHighways: raw.avoidHighways === undefined ? true : raw.avoidHighways === true,
+        avoidFerries: raw.avoidFerries === true,
+        targetCarId: String(raw.targetCarId || ''),
+        targetCarName: String(raw.targetCarName || ''),
+        returnTo: raw.returnTo === 'carSettlement' ? 'carSettlement' : '',
+        roundTrip: raw.roundTrip === true,
+        calculatedAt: Math.max(0, Number(raw.calculatedAt) || 0)
+    };
+}
+
+function getDefaultSettlementState() {
+    return {
+        rounding: '100',
+        organizerFree: true,
+        organizerName: '',
+        driverCollectionOffset: true,
+        driverCollectionFree: false,
+        driverReward: '0',
+        driverRewardType: 'split',
+        standalone: {
+            enabled: false,
+            driverCount: '',
+            memberCount: '',
+            driverNames: []
+        },
+        cars: {},
+        routeStops: [],
+        routePlaceCatalog: [],
+        routePlanner: createDefaultRoutePlannerState(),
+        paid: {},
+        paidBy: {},
+        driverPaid: {}
+    };
+}
+
+const DRIVER_REWARD_EXTRA_NAME = '車出し協力代';
+const TIMES_RENTAL_TYPE = 'times';
+const TIMES_PRIVATE_TYPE = 'private';
+const TIMES_TIME_FEE_NAME = 'タイムズ時間料金';
+const TIMES_DISTANCE_FEE_NAME = 'タイムズ移動料金';
+const TIMES_DISTANCE_FREE_KM = 20;
+const TIMES_DISTANCE_UNIT_PRICE = 20;
+const SETTLEMENT_EXTRA_TYPES = new Set(['split', 'club', 'split-minus', 'club-minus']);
+
+function normalizeSettlementExtraType(value = 'split') {
+    const type = String(value || 'split');
+    return SETTLEMENT_EXTRA_TYPES.has(type) ? type : 'split';
+}
+
+function getSettlementExtraBaseType(value = 'split') {
+    return normalizeSettlementExtraType(value).startsWith('club') ? 'club' : 'split';
+}
+
+function isNegativeSettlementExtraType(value = 'split') {
+    return normalizeSettlementExtraType(value).endsWith('-minus');
+}
+
+function getSignedSettlementExtraAmount(ex = {}) {
+    const amount = getNumberValue(ex.amount);
+    return isNegativeSettlementExtraType(ex.type) ? -Math.abs(amount) : amount;
+}
+
+function normalizeRentalType(value = '') {
+    return value === TIMES_RENTAL_TYPE ? TIMES_RENTAL_TYPE : TIMES_PRIVATE_TYPE;
+}
+
+function isTimesRentalCar(carState = {}) {
+    return normalizeRentalType(carState?.rentalType ?? carState?.vehicleType) === TIMES_RENTAL_TYPE;
+}
+
+function normalizeSettlementExtraName(value = '') {
+    return String(value ?? '').replace(/\s+/g, '').replace(/[（）()]/g, '');
+}
+
+function isTimesTimeFeeExtra(ex = {}) {
+    return ex.timesFeeKind === 'time' || normalizeSettlementExtraName(ex.name || '') === normalizeSettlementExtraName(TIMES_TIME_FEE_NAME);
+}
+
+function isTimesDistanceFeeExtra(ex = {}) {
+    return ex.timesFeeKind === 'distance' || normalizeSettlementExtraName(ex.name || '') === normalizeSettlementExtraName(TIMES_DISTANCE_FEE_NAME);
+}
+
+function getTimesDistanceFee(distanceValue) {
+    const dist = getNumberValue(distanceValue);
+    if (dist <= TIMES_DISTANCE_FREE_KM) return 0;
+    return Math.round((dist - TIMES_DISTANCE_FREE_KM) * TIMES_DISTANCE_UNIT_PRICE);
+}
+
+function getTimesDistanceFeeExtra(carState = {}, sourceExtra = {}) {
+    const amount = getTimesDistanceFee(carState.dist);
+    return {
+        name: String(sourceExtra.name || TIMES_DISTANCE_FEE_NAME),
+        amount: String(amount),
+        type: normalizeSettlementExtraType(sourceExtra.type),
+        timesFeeKind: 'distance',
+        amountValue: amount,
+        isTimesDistanceFee: true,
+        autoGenerated: true
+    };
+}
+
+function ensureTimesRentalExtras(carState = {}) {
+    const normalized = normalizeCarSettlementState(carState || {});
+    const rentalType = normalizeRentalType(normalized.rentalType);
+    const sourceExtras = (Array.isArray(normalized.extras) ? normalized.extras : [])
+        .map(normalizeExtraItem);
+
+    if (rentalType !== TIMES_RENTAL_TYPE) {
+        return {
+            ...normalized,
+            rentalType,
+            extras: sourceExtras.filter(ex => !isTimesTimeFeeExtra(ex) && !isTimesDistanceFeeExtra(ex))
+        };
+    }
+
+    const timeFeeSource = sourceExtras.find(isTimesTimeFeeExtra) || {};
+    const distanceFeeSource = sourceExtras.find(isTimesDistanceFeeExtra) || {};
+    const manualExtras = sourceExtras.filter(ex => !isTimesTimeFeeExtra(ex) && !isTimesDistanceFeeExtra(ex));
+    const timesTimeExtra = {
+        name: String(timeFeeSource.name || TIMES_TIME_FEE_NAME),
+        amount: String(timeFeeSource.amount || ''),
+        type: normalizeSettlementExtraType(timeFeeSource.type || 'club'),
+        timesFeeKind: 'time',
+        autoGenerated: true
+    };
+    const timesDistanceExtra = getTimesDistanceFeeExtra(normalized, distanceFeeSource);
+    return {
+        ...normalized,
+        rentalType,
+        extras: [timesTimeExtra, timesDistanceExtra, ...manualExtras]
+    };
+}
+
+function normalizeExtraItem(ex = {}) {
+    const type = normalizeSettlementExtraType(ex.type);
+    const item = {
+        name: String(ex.name ?? '').trim(),
+        amount: String(ex.amount ?? ''),
+        type
+    };
+    if (ex.pending === true) item.pending = true;
+    if (ex.timesFeeKind === 'time' || ex.timesFeeKind === 'distance') {
+        item.timesFeeKind = ex.timesFeeKind;
+        item.autoGenerated = ex.autoGenerated === true;
+    }
+    return item;
+}
+
+function normalizeRewardExtraName(value = '') {
+    return normalizeSettlementExtraName(value);
+}
+
+function clampStandaloneCount(value) {
+    const raw = String(value ?? '').trim();
+    if (!raw) return '';
+    const parsed = Math.floor(Number(raw));
+    if (!Number.isFinite(parsed) || parsed < 0) return '';
+    return String(Math.min(parsed, 99));
+}
+
+function normalizeStandaloneDriverName(value, index = 0) {
+    const fallback = `車出し${Number(index) + 1}`;
+    const normalized = String(value ?? '').replace(/\s+/g, ' ').trim();
+    return normalized || fallback;
+}
+
+function getStandaloneDriverNames(raw = {}, countValue = raw.driverCount) {
+    const count = getStandaloneCount(countValue);
+    const source = Array.isArray(raw.driverNames) ? raw.driverNames : [];
+    const used = new Map();
+    return Array.from({ length: count }, (_, index) => {
+        const base = normalizeStandaloneDriverName(source[index], index);
+        const seen = used.get(base) || 0;
+        used.set(base, seen + 1);
+        return seen ? `${base}${seen + 1}` : base;
+    });
+}
+
+function normalizeStandaloneSettlementState(raw = {}) {
+    const driverCount = clampStandaloneCount(raw.driverCount);
+    const driverNames = getStandaloneDriverNames(raw, driverCount);
+    return {
+        enabled: raw.enabled === true,
+        driverCount,
+        memberCount: clampStandaloneCount(raw.memberCount),
+        driverNames
+    };
+}
+
+function getStandaloneCount(value) {
+    const parsed = Number(clampStandaloneCount(value));
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function hasStandaloneSettlementCounts(state = ensureSettlementState()) {
+    const standalone = normalizeStandaloneSettlementState(state?.standalone || {});
+    return standalone.enabled && (getStandaloneCount(standalone.driverCount) > 0 || getStandaloneCount(standalone.memberCount) > 0);
+}
+
+function createStandaloneMembers(count, driverCount, driverNames = []) {
+    const members = [];
+    for (let i = 0; i < count; i += 1) {
+        members.push({
+            name: `参加者${i + 1}`,
+            grade: 0,
+            gender: '',
+            memo: ''
+        });
+    }
+    if (driverCount <= 0) return { waiting: members, cars: [] };
+    const names = getStandaloneDriverNames({ driverNames }, driverCount);
+    const cars = Array.from({ length: driverCount }, (_, i) => ({
+        name: names[i] || `車出し${i + 1}`,
+        standaloneIndex: i,
+        capacity: '',
+        driverMemo: '',
+        driverGender: '',
+        driverGrade: 0,
+        members: []
+    }));
+    members.forEach((member, index) => {
+        cars[index % driverCount].members.push(member);
+    });
+    return { waiting: [], cars };
+}
+
+function createStandaloneSettlementData(state = ensureSettlementState(), roomName = '') {
+    const standalone = normalizeStandaloneSettlementState(state?.standalone || {});
+    const driverCount = getStandaloneCount(standalone.driverCount);
+    const memberCount = getStandaloneCount(standalone.memberCount);
+    const driverNames = getStandaloneDriverNames(standalone, driverCount);
+    const { waiting, cars } = createStandaloneMembers(memberCount, driverCount, driverNames);
+    return {
+        roomName,
+        settlementPlanName: '精算だけ',
+        isStandaloneSettlement: true,
+        standaloneCounts: { driverCount, memberCount },
+        waiting,
+        cars
+    };
+}
+
+function isDriverRewardExtra(ex = {}) {
+    const name = normalizeRewardExtraName(ex.name || '');
+    return name === '車出し協力代' || name === '車出し協力代1台' || name === '運転協力代' || name === '運転協力代1台' || name === '協力代';
+}
+
+function orderDriverRewardExtrasFirst(extras = []) {
+    const list = Array.isArray(extras) ? extras : [];
+    const rewardExtras = [];
+    const otherExtras = [];
+    list.forEach(ex => {
+        (isDriverRewardExtra(ex) ? rewardExtras : otherExtras).push(ex);
+    });
+    return rewardExtras.concat(otherExtras);
+}
+
+function getDriverRewardAmount(state = ensureSettlementState()) {
+    return Math.max(0, getNumberValue(state?.driverReward ?? getDefaultSettlementState().driverReward));
+}
+
+function normalizeDriverRewardType(value = 'split') {
+    return value === 'club' ? 'club' : 'split';
+}
+
+function getDriverRewardType(state = ensureSettlementState()) {
+    return normalizeDriverRewardType(state?.driverRewardType ?? getDefaultSettlementState().driverRewardType);
+}
+
+function isDriverCollectionOffsetEnabled(state = ensureSettlementState()) {
+    return state?.driverCollectionOffset !== false;
+}
+
+function isDriverCollectionFreeEnabled(state = ensureSettlementState()) {
+    return state?.driverCollectionFree === true;
+}
+
+function ensureDriverRewardExtra(carState = {}, state = ensureSettlementState()) {
+    const normalized = ensureTimesRentalExtras(carState || {});
+    const rewardAmount = getDriverRewardAmount(state);
+    const rewardType = getDriverRewardType(state);
+    let rewardUsed = false;
+    const extras = normalized.extras
+        .map(normalizeExtraItem)
+        .filter(ex => {
+            if (!isDriverRewardExtra(ex)) return true;
+            if (rewardAmount <= 0) return false;
+            if (rewardUsed) return false;
+            rewardUsed = true;
+            ex.name = ex.name || DRIVER_REWARD_EXTRA_NAME;
+            ex.amount = String(rewardAmount);
+            ex.type = rewardType;
+            return true;
+        });
+
+    if (rewardAmount > 0 && !rewardUsed) {
+        extras.push({ name: DRIVER_REWARD_EXTRA_NAME, amount: String(rewardAmount), type: rewardType });
+    }
+
+    return { ...normalized, extras: orderDriverRewardExtrasFirst(extras) };
+}
+
+function getDriverRewardExtraAmount(carState = {}, state = ensureSettlementState()) {
+    const car = ensureDriverRewardExtra(carState, state);
+    const rewardExtra = car.extras.find(isDriverRewardExtra);
+    return rewardExtra ? getNumberValue(rewardExtra.amount) : 0;
+}
+
+function hasMeaningfulExtra(ex = {}) {
+    return Boolean(String(ex.name ?? '').trim() || String(ex.amount ?? '').trim());
+}
+
+function normalizeCarSettlementState(raw = {}) {
+    // 入力中の空行も保持する。
+    // ここで空行を消すと、「諸経費を追加」直後に再描画で行が消えるため。
+    const extras = Array.isArray(raw.extras) ? raw.extras.map(normalizeExtraItem) : [];
+    if (!extras.length) {
+        if (String(raw.splitExtra ?? '').trim()) extras.push({ name: '諸経費', amount: String(raw.splitExtra), type: 'split' });
+        if (String(raw.clubExtra ?? '').trim()) extras.push({ name: '部費負担', amount: String(raw.clubExtra), type: 'club' });
+    }
+    return {
+        dist: String(raw.dist ?? ''),
+        eco: String(raw.eco ?? ''),
+        price: String(raw.price ?? ''),
+        rentalType: normalizeRentalType(raw.rentalType ?? raw.vehicleType),
+        extras
+    };
+}
+
+function normalizeSettlementState(state = {}) {
+    const base = getDefaultSettlementState();
+    const cars = {};
+    if (state.cars && typeof state.cars === 'object') {
+        Object.entries(state.cars).forEach(([name, car]) => {
+            cars[name] = normalizeCarSettlementState(car || {});
+        });
+    }
+    return {
+        ...base,
+        ...state,
+        rounding: String(state.rounding ?? base.rounding),
+        organizerFree: state.organizerFree !== undefined ? !!state.organizerFree : true,
+        organizerName: state.organizerName || '',
+        driverCollectionOffset: state.driverCollectionOffset !== undefined ? !!state.driverCollectionOffset : true,
+        driverCollectionFree: state.driverCollectionFree === true,
+        driverReward: String(state.driverReward ?? base.driverReward),
+        driverRewardType: normalizeDriverRewardType(state.driverRewardType ?? base.driverRewardType),
+        standalone: normalizeStandaloneSettlementState(state.standalone || base.standalone),
+        cars,
+        routeStops: Array.isArray(state.routeStops) ? state.routeStops.map(v => String(v ?? '').trim()).filter(Boolean) : [],
+        routePlaceCatalog: Array.isArray(state.routePlaceCatalog) ? state.routePlaceCatalog.map(normalizeRoutePlannerPlace).filter(Boolean).slice(0, 48) : [],
+        routePlanner: normalizeRoutePlannerState(state.routePlanner || base.routePlanner),
+        paid: state.paid && typeof state.paid === 'object' ? state.paid : {},
+        paidBy: state.paidBy && typeof state.paidBy === 'object' ? state.paidBy : {},
+        driverPaid: state.driverPaid && typeof state.driverPaid === 'object' ? state.driverPaid : {}
+    };
+}
+
+function ensureSettlementState() {
+    if (!settlementState) settlementState = normalizeSettlementState({});
+    return settlementState;
+}
+
+function getNumberValue(value) {
+    const n = Number(String(value ?? '').replace(/,/g, ''));
+    return Number.isFinite(n) ? n : 0;
+}
+
+function roundUp(value, unit) {
+    const u = Math.max(1, Number(unit) || 1);
+    return Math.ceil(value / u) * u;
+}
+
+function yen(value) {
+    return window.SanpoSettlement?.yen ? window.SanpoSettlement.yen(value) : ('¥' + Math.round(value || 0).toLocaleString());
+}
+
+function getRoomDataOnly() {
+    const roomName = $('#roomNameInput')?.value || '';
+    const state = ensureSettlementState();
+    if (hasStandaloneSettlementCounts(state)) {
+        return createStandaloneSettlementData(state, roomName);
+    }
+    if (typeof getCarPlansSnapshot === 'function' && typeof normalizeCarPlanTemplateType === 'function') {
+        const plans = getCarPlansSnapshot();
+        const active = plans.find(plan => plan.id === activeCarPlanId);
+        const target = active && normalizeCarPlanTemplateType(active.templateType) === 'car'
+            ? active
+            : plans.find(plan => normalizeCarPlanTemplateType(plan.templateType) === 'car');
+        if (target) {
+            return {
+                roomName,
+                settlementPlanName: target.name || '車割',
+                waiting: cloneData(target.waiting || []),
+                cars: cloneData(target.cars || [])
+            };
+        }
+    }
+    return {
+        roomName,
+        settlementPlanName: '',
+        waiting: Array.from($$('#waiting-list .member-card')).map(getMemData),
+        cars: Array.from($$('.car-box')).map(c => ({
+            name: $('.driver-name-disp', c).innerText,
+            capacity: c.dataset.capacity,
+            driverMemo: $('.driver-memo-text', c).innerText,
+            driverGender: $('.driver-seat', c).dataset.gender,
+            driverGrade: parseInt($('.driver-seat', c).dataset.grade)||0,
+            members: Array.from($$('.seat-slot', c)).flatMap(s => getRealSeatCards(s).map(getMemData))
+        }))
+    };
+}
+
+function getParticipantList(data = null) {
+    const source = data || getRoomDataOnly();
+    const seen = new Set();
+    const list = [];
+    const push = (name, role, meta = {}) => {
+        const key = String(name || '').trim();
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        list.push({ name: key, role, ...meta });
+    };
+    (source.cars || []).forEach(car => {
+        const driverName = String(car?.name || '').trim();
+        push(driverName, 'driver');
+        (car.members || []).forEach(m => push(m?.name, 'member', { driverName }));
+    });
+    (source.waiting || []).forEach(m => push(m?.name, 'waiting'));
+    return list;
+}
+
+function getSettlementCarRowsForDomSync() {
+    // The settlement list is the canonical DOM surface while the per-car editor is closed.
+    // The editor body is intentionally preserved while the route helper is open, so reading
+    // every `.seisan-car-row` in the document would let that hidden, stale editor overwrite
+    // a distance just applied by the route helper. Only include the editor while its modal is
+    // actually open; when open, append it last so the user's active edit remains authoritative.
+    const rows = Array.from(document.querySelectorAll('#seisan-car-list .seisan-car-row'));
+    const editorModal = byId('settlementCarEditModal');
+    if (editorModal && (editorModal.open || editorModal.hasAttribute('open'))) {
+        const editorBody = byId('settlementCarEditBody');
+        if (editorBody) rows.push(...editorBody.querySelectorAll('.seisan-car-row'));
+    }
+    return rows;
+}
+
+function syncSettlementStateFromDOM() {
+    const state = ensureSettlementState();
+    const rounding = byId('seisanRounding');
+    const organizerFree = byId('seisanOrganizerFree');
+    const organizerName = byId('seisanOrganizerName');
+    const driverCollectionOffset = byId('seisanDriverCollectionOffset');
+    const driverCollectionFree = byId('seisanDriverCollectionFree');
+    const driverReward = byId('seisanDriverReward');
+    const driverRewardType = byId('seisanDriverRewardType');
+    const standaloneEnabled = byId('seisanStandaloneEnabled');
+    const standaloneDriverCount = byId('seisanStandaloneDriverCount');
+    const standaloneMemberCount = byId('seisanStandaloneMemberCount');
+
+    if (rounding) state.rounding = rounding.value || '100';
+    if (organizerFree) state.organizerFree = organizerFree.checked;
+    if (organizerName) state.organizerName = organizerName.value || '';
+    if (driverCollectionOffset) state.driverCollectionOffset = driverCollectionOffset.checked;
+    if (driverCollectionFree) state.driverCollectionFree = driverCollectionFree.checked;
+    if (driverReward) state.driverReward = driverReward.value;
+    if (driverRewardType) state.driverRewardType = normalizeDriverRewardType(driverRewardType.value);
+    state.standalone = normalizeStandaloneSettlementState({
+        enabled: standaloneEnabled ? standaloneEnabled.checked : state.standalone?.enabled,
+        driverCount: standaloneDriverCount ? standaloneDriverCount.value : state.standalone?.driverCount,
+        memberCount: standaloneMemberCount ? standaloneMemberCount.value : state.standalone?.memberCount,
+        driverNames: state.standalone?.driverNames || []
+    });
+
+    const standaloneRows = Array.from(document.querySelectorAll('.seisan-car-row[data-standalone-driver-index]'));
+    if (state.standalone.enabled && standaloneRows.length) {
+        const driverNames = getStandaloneDriverNames(state.standalone, state.standalone.driverCount);
+        standaloneRows.forEach(row => {
+            const index = Number(row.dataset.standaloneDriverIndex);
+            if (!Number.isInteger(index) || index < 0) return;
+            const input = row.querySelector('[data-field="standaloneDriverName"]');
+            driverNames[index] = normalizeStandaloneDriverName(input?.value || row.dataset.driverName, index);
+        });
+        state.standalone = normalizeStandaloneSettlementState({ ...state.standalone, driverNames });
+    }
+    const standaloneDriverNames = getStandaloneDriverNames(state.standalone, state.standalone.driverCount);
+
+    getSettlementCarRowsForDomSync().forEach(row => {
+        const originalName = row.dataset.driverName;
+        if (!originalName) return;
+        const standaloneIndex = Number(row.dataset.standaloneDriverIndex);
+        const isStandaloneRow = state.standalone.enabled && Number.isInteger(standaloneIndex) && standaloneIndex >= 0;
+        const name = isStandaloneRow
+            ? (standaloneDriverNames[standaloneIndex] || normalizeStandaloneDriverName(originalName, standaloneIndex))
+            : originalName;
+        // 入力途中の空行も保持する。計算時だけ空行を除外する。
+        const extras = Array.from(row.querySelectorAll('.seisan-extra-row:not([data-generated-extra])')).map(exRow => {
+            const nameValue = exRow.querySelector('[data-extra-field="name"]')?.value || '';
+            const amountValue = exRow.querySelector('[data-extra-field="amount"]')?.value || '';
+            return normalizeExtraItem({
+                name: nameValue,
+                amount: amountValue,
+                type: exRow.querySelector('[data-extra-field="type"]')?.value || 'split',
+                pending: exRow.dataset.extraPending === 'true' && (!String(nameValue).trim() || !String(amountValue).trim()),
+                timesFeeKind: exRow.dataset.timesExtra === 'time' || exRow.dataset.timesExtra === 'distance' ? exRow.dataset.timesExtra : ''
+            });
+        });
+        const rentalField = row.querySelector('[data-field="rentalType"]');
+        const rentalType = rentalField?.type === 'checkbox' || rentalField?.tagName === 'CDS-TOGGLE'
+            ? (rentalField.checked ? TIMES_RENTAL_TYPE : TIMES_PRIVATE_TYPE)
+            : (rentalField?.value || TIMES_PRIVATE_TYPE);
+        state.cars[name] = ensureDriverRewardExtra({
+            dist: row.querySelector('[data-field="dist"]')?.value || '',
+            eco: row.querySelector('[data-field="eco"]')?.value || '',
+            price: row.querySelector('[data-field="price"]')?.value || '',
+            rentalType,
+            extras
+        }, state);
+        if (isStandaloneRow && originalName !== name && state.cars[originalName]) delete state.cars[originalName];
+    });
+    return state;
+}
+
+function getSettlementSnapshot() {
+    const state = ensureSettlementState();
+    const settlementArea = byId('seisan-view-area');
+    if (settlementArea && settlementArea.classList.contains('active')) syncSettlementStateFromDOM();
+    const snapshot = JSON.parse(JSON.stringify(state));
+    // Route construction is device-local. Only the room's reusable place catalog is shared.
+    delete snapshot.routePlanner;
+    return snapshot;
+}

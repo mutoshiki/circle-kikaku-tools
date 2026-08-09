@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": []
+  },
+  "files": [
+    "types/google-route-planner.d.ts",
+    "types/google-route-planner-globals.d.ts",
+    "assets/js/core/google-maps-loader.js",
+    "assets/js/templates/settlement/08-route-helper-templates.js",
+    "assets/js/features/settlement/04-route-helper.js"
+  ]
+}
