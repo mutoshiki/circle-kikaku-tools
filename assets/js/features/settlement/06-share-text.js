@@ -34,15 +34,13 @@ function formatSettlementExtraDetail(car) {
     const extras = Array.isArray(car.extras) ? car.extras : [];
     if (!extras.length) return 'なし';
     return extras
-        .map(ex => `${ex.name || '諸経費'} ${formatSignedSettlementYen(ex.amountValue)}（${ex.type === 'club' ? '部費' : '割勘'}）`)
+        .map(ex => `${ex.name || '諸経費'} ${formatSignedSettlementYen(ex.amountValue)}（${ex.baseType === 'club' ? '部費' : '割勘'}）`)
         .join(' / ');
 }
 
 function buildSettlementOverviewText({ title, state, result }) {
-    const accountingAbs = Math.abs(result.accounting || 0);
-    const accountingLabel = result.accounting >= 0 ? '部費支出' : '部費戻入';
-    const formulaSign = result.accounting >= 0 ? '＋' : '−';
     const collectionBalanceLabel = result.surplus >= 0 ? '参加者集金の余り' : '参加者集金の不足';
+    const splitPaymentTotal = Number(result.splitPaymentTotal ?? (result.driverTotal - result.totalClub));
     const unpaid = getSettlementUnpaidNames(result, state);
     const splitExtraTotal = result.cars.reduce((sum, car) => sum + (car.splitExtras || 0), 0);
     const driverLines = result.cars.map(car => {
@@ -59,9 +57,10 @@ function buildSettlementOverviewText({ title, state, result }) {
     return [
         `【${title} 精算メモ】`,
         `参加者集金：${yen(result.expectedCollected)}（${yen(result.perPerson)} × ${result.payerCount}名）`,
-        `${accountingLabel}：${yen(accountingAbs)}`,
+        `割勘合計：${yen(splitPaymentTotal)}`,
+        `部費合計：${yen(result.totalClub)}`,
         `支払総額：${yen(result.driverTotal)}`,
-        `計算：参加者集金 ${formulaSign} ${accountingLabel} ＝ 支払総額`,
+        `計算：${yen(splitPaymentTotal)} ＋ ${yen(result.totalClub)} ＝ ${yen(result.driverTotal)}`,
         '',
         `割勘対象：${yen(result.totalSplit)}`,
         `諸経費：割勘 ${yen(splitExtraTotal)} / 部費 ${yen(result.totalClub)}`,

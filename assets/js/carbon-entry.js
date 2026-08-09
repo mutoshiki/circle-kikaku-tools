@@ -11,6 +11,7 @@ import '@carbon/web-components/es/components/checkbox/index.js';
 import '@carbon/web-components/es/components/textarea/index.js';
 import '@carbon/web-components/es/components/number-input/index.js';
 import '@carbon/web-components/es/components/toggle/index.js';
+import '@carbon/web-components/es/components/structured-list/index.js';
 import '@carbon/web-components/es/components/modal/index.js';
 import '@carbon/web-components/es/components/overflow-menu/index.js';
 import '@carbon/web-components/es/components/popover/index.js';

@@ -31,6 +31,7 @@ const tagTokens = await read('assets/css/tokens/05-control-surface-tokens.css');
 const summary = await read('assets/css/settlement/summary/01-summary-layout.css');
 const summaryTemplate = await read('assets/js/templates/settlement/02-summary-templates.js');
 const costParts = await read('assets/js/templates/settlement/01-cost-parts.js');
+const carCostTemplates = await read('assets/js/templates/settlement/03-car-cost-templates.js');
 const carCostCard = await read('assets/css/settlement/car-cost-summary/01-car-cost-card.css');
 
 expect(index.includes('rendered-qa-v26'), 'Changed design owners need the v26 cache-buster.');
@@ -53,13 +54,18 @@ expect(summary.includes('.seisan-summary-table') && summary.includes('var(--cds-
 expect(summaryTemplate.includes('<cds-table') && summaryTemplate.includes('割勘合計') && summaryTemplate.includes('部費合計') && summaryTemplate.includes('支払合計'), 'Settlement totals must render as the requested three-row Carbon table.');
 expect(summaryTemplate.includes('<cds-table-header-cell>名目</cds-table-header-cell>') && summaryTemplate.includes('<cds-table-header-cell>金額</cds-table-header-cell>') && summaryTemplate.includes('<cds-table-header-cell>詳細</cds-table-header-cell>'), 'Settlement total columns must be item, amount, and detail.');
 expect(index.indexOf('seisan-car-panel') < index.indexOf('seisan-toolbar-card'), 'Driver payments must precede the overall cost table.');
+expect(index.indexOf('seisan-club-expense-panel') < index.indexOf('seisan-toolbar-card'), 'Club balance must precede the overall cost table.');
 expect(sheetFrame.includes('width: max-content;') && sheetFrame.includes('min-width: max-content;'), 'Shared-view columns must follow the longest rendered name.');
 expect(!sheetTemplates.includes('renderGradeBadge') && !sheetTemplates.includes('renderPersonFlag'), 'Shared presentation view must omit grade tags and person flags.');
 expect(people.includes('person-drag-affordance') && people.includes('data-carbon-icon="draggable"'), 'Draggable person cards need a quiet Carbon drag affordance.');
 expect(tagTypes.includes("male: 'blue'") && tagTypes.includes("female: 'magenta'"), 'Allocation grade tags must retain the requested gender colors.');
 expect(people.includes('renderGradeBadge(grade, g)') && people.includes('renderGradeBadge(dgrade, dg)'), 'Member and driver grade tags must receive their gender value.');
-expect(costParts.includes('seisan-cost-line--supporting'), 'Calculated non-extra driver costs need an explicit supporting-information marker.');
-expect(carCostCard.includes('.seisan-cost-line--supporting') && carCostCard.includes('var(--cds-text-secondary, var(--text-sub))'), 'Supporting driver costs must use Carbon secondary text in display mode.');
+expect(carCostTemplates.includes('<cds-structured-list') && carCostTemplates.includes('<cds-toggle'), 'Driver payment cards must use Carbon Structured List and Toggle.');
+expect(carCostCard.includes('.seisan-cost-structured-list') && carCostCard.includes('font-weight: 400;'), 'Regular driver cost rows must use one consistent body typography.');
+expect(index.includes('id="batchOpenBtn" class="tool-btn" kind="secondary"') && index.includes('id="shuffleAssignBtn"') && index.includes('kind="primary"'), 'Allocation must keep one primary action and lower participant registration emphasis.');
+expect(index.includes('id="sheet-quick-edit-btn" kind="ghost"') && !index.includes('<cds-icon-button id="sheet-quick-edit-btn"'), 'Shared edit must be a normal Ghost Button in the title area.');
+expect(people.includes('<cds-tag class="capacity-badge') && people.includes('class="capacity-edit-btn"'), 'Capacity information and its edit action must be separate Carbon components.');
+expect(index.includes('<span>ドライバーへの支払い</span>') && !index.includes('seisan-payment-tag carbon-display-tag ui-chip pay'), 'Driver payment heading must not use a decorative payment tag.');
 
 for (const [source, mode] of [[lightTokens, 'light'], [darkTokens, 'dark']]) {
   expect(source.includes('--cds-support-success:'), `${mode} theme needs Carbon success support token.`);

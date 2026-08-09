@@ -101,14 +101,14 @@ function updateQuickEditButton() {
     const btn = byId('sheet-quick-edit-btn');
     if (!btn) return;
     const canQuickEdit = hasTrustedEditAccess('allocation');
-    const shouldShow = currentView === 'sheet' && canQuickEdit;
+    const shouldShow = document.body.classList.contains('view-mode-sheet') && canQuickEdit;
     btn.style.display = shouldShow ? 'inline-flex' : 'none';
     if (!shouldShow) quickEditMode = false;
     btn.classList.toggle('active', quickEditMode && shouldShow);
     document.body.classList.toggle('quick-edit-mode', quickEditMode && shouldShow);
     btn.innerHTML = quickEditMode
-        ? '<span data-carbon-icon="checkmark" aria-hidden="true"></span><span>完了</span>'
-        : '<span data-carbon-icon="edit" aria-hidden="true"></span>';
+        ? '<span>完了</span><span data-carbon-icon="checkmark" slot="icon" aria-hidden="true"></span>'
+        : '<span>編集</span><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span>';
     btn.setAttribute('aria-pressed', quickEditMode && shouldShow ? 'true' : 'false');
     btn.setAttribute('aria-label', quickEditMode ? '編集内容を保存して完了' : '共有画面を編集');
 }

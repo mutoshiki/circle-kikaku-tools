@@ -481,8 +481,11 @@ function renderSheetView() {
 
     const plans = typeof getCarPlansSnapshot === 'function' ? getCarPlansSnapshot({ skipDomSync: true }) : [data];
     const visiblePlans = plans.filter(plan => (plan.cars || []).length || (plan.waiting || []).length);
+    const titleBar = byId('sheet-title-bar');
+    if (titleBar) titleBar.hidden = visiblePlans.length === 0;
     const bottomControls = byId('sheet-bottom-controls');
     if (bottomControls) bottomControls.hidden = visiblePlans.length === 0;
+    updateQuickEditButton();
 
     if (!visiblePlans.length) {
         content.innerHTML = renderSheetEmptyHtml();

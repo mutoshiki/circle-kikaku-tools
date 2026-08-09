@@ -90,16 +90,25 @@
     return list.filter(isRewardExtraForDisplay).concat(list.filter(ex => !isRewardExtraForDisplay(ex)));
   }
 
+    function isTimesFeeExtraForDisplay(ex = {}) {
+    if (typeof window.isTimesTimeFeeExtra === 'function' && window.isTimesTimeFeeExtra(ex)) return true;
+    if (typeof window.isTimesDistanceFeeExtra === 'function' && window.isTimesDistanceFeeExtra(ex)) return true;
+    const name = String(ex?.name || '').replace(/\s+/g, '');
+    return name === 'タイムズ時間料金' || name === 'タイムズ移動料金';
+  }
+
     function formatExtraInline(ex, helpers = {}) {
     const config = normalizeDisplayExtraType(ex.type);
     const rawAmount = Number(ex.amountValue ?? ex.amount ?? 0);
     const isMinus = rawAmount < 0 || config.negative;
     const amount = Math.abs(rawAmount);
-    const rewardClass = isRewardExtraForDisplay(ex) ? ' seisan-extra-inline--driver-reward' : '';
+    const isReward = isRewardExtraForDisplay(ex);
+    const supportingClass = isReward || isTimesFeeExtraForDisplay(ex) ? ' seisan-cost-line--supporting' : '';
+    const rewardClass = isReward ? ' seisan-extra-inline--driver-reward' : '';
     const negativeClass = isMinus ? ' is-negative' : '';
     return {
       op: isMinus ? '−' : '＋',
-      html: `<span class="seisan-extra-inline seisan-cost-line ${config.baseType}${negativeClass}${rewardClass}"><span>${esc(ex.name || '費用', helpers)}</span>${formatCostBadge(config.type)}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(amount, helpers)}</strong></span>`
+      html: `<span class="seisan-extra-inline seisan-cost-line ${config.baseType}${negativeClass}${rewardClass}${supportingClass}"><span>${esc(ex.name || '費用', helpers)}</span>${formatCostBadge(config.type)}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(amount, helpers)}</strong></span>`
     };
   }
 
@@ -150,6 +159,7 @@
     formatDriverRoundInline,
     isRewardExtraForDisplay,
     orderDriverRewardFirstForDisplay,
+    isTimesFeeExtraForDisplay,
     formatExtraInline,
     formatExtraSlash,
     normalizeCostPart,

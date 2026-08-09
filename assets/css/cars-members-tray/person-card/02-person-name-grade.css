@@ -36,19 +36,8 @@
 .member-card.in-waiting .member-name-text { width: 100%; padding-right: 2px; }
 
 .grade-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 22px;
-  padding: 2px 7px;
-  border: 0;
-  border-radius: var(--radius-pill);
-  background: var(--cds-layer-03, var(--surface-container));
-  color: var(--text-sub);
+  margin: 0;
   box-shadow: none;
-  font-size: var(--font-size-caption);
-  font-weight: 600;
-  line-height: 1;
   white-space: nowrap;
 }
 .grade-badge[data-grade="0"] { display: none; }

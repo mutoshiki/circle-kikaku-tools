@@ -79,7 +79,10 @@ async function removeSettlementExtra(button) {
 
 async function confirmSettlementCheckChange(message, options = {}, input = null, checked = false) {
     const ok = await appConfirm(message, options);
-    if (!ok && input) input.checked = !checked;
+    if (!ok && input) {
+        input.checked = !checked;
+        if ('toggled' in input) input.toggled = !checked;
+    }
     return ok;
 }
 

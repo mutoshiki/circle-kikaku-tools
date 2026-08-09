@@ -2,7 +2,8 @@
 (function () {
   window.SanpoSettlement = {
     yen(value) {
-      return '¥' + Math.round(Number(value) || 0).toLocaleString();
+      const amount = Math.round(Number(value) || 0);
+      return `${amount < 0 ? '−' : ''}¥${Math.abs(amount).toLocaleString()}`;
     },
     number(value, fallback = 0) {
       const parsed = Number(value);

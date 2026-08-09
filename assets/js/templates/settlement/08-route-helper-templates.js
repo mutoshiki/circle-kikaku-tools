@@ -51,8 +51,8 @@
       : `<span class="route-stop-marker" aria-hidden="true">${esc(stopLetter(Math.max(0, index - 1)), helpers)}</span>`;
     const waypointAttr = role === 'waypoint' ? ` data-route-waypoint-id="${esc(id, helpers)}"` : '';
     const drag = isAppend
-      ? '<span class="route-stop-drag route-stop-drag--placeholder" aria-hidden="true"><span data-carbon-icon="drag--vertical"></span></span>'
-      : `<cds-button class="route-stop-drag" kind="ghost" size="lg" type="button" aria-label="地点${accessibleIndex}を並び替え"><span data-carbon-icon="drag--vertical" slot="icon" aria-hidden="true"></span><span class="visually-hidden">地点${accessibleIndex}を並び替え</span></cds-button>`;
+      ? '<span class="route-stop-drag route-stop-drag--placeholder" aria-hidden="true"><span data-carbon-icon="draggable"></span></span>'
+      : `<cds-button class="route-stop-drag" kind="ghost" size="lg" type="button" aria-label="地点${accessibleIndex}を並び替え"><span data-carbon-icon="draggable" slot="icon" aria-hidden="true"></span><span class="visually-hidden">地点${accessibleIndex}を並び替え</span></cds-button>`;
     const remove = isAppend
       ? '<span class="route-stop-action-spacer" aria-hidden="true"></span>'
       : `<cds-button class="route-stop-delete" kind="ghost" size="lg" type="button" data-action="remove-route-stop" data-route-role="${role}"${waypointAttr} aria-label="この地点を削除"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span><span class="visually-hidden">この地点を削除</span></cds-button>`;

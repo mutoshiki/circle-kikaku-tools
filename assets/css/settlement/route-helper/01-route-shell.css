@@ -342,6 +342,7 @@
 #routeDistanceModal .route-map {
   position: absolute;
   inset: 0;
+  z-index: 0;
   min-width: 0;
   min-height: 100%;
 }
@@ -363,13 +364,17 @@
   position: absolute;
   top: 16px;
   right: 16px;
-  z-index: 5;
+  z-index: 6;
   display: grid;
   justify-items: end;
   gap: 8px;
+  pointer-events: auto;
 }
 
 #routeDistanceModal .route-map-settings-toggle {
+  position: relative;
+  z-index: 1;
+  display: block;
   min-width: 48px;
   min-height: 48px;
 }

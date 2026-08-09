@@ -5,7 +5,16 @@
   const parts = window.SanpoApp?.settlementTemplateParts || {};
   const { UI_CLASS, esc, money, formatCostBadge, formatPaymentBadge, formatExtraLines } = parts;
 
+  function signedMoney(value, helpers = {}, showPlus = false) {
+    const amount = Number(value || 0);
+    const sign = amount < 0 ? '−' : (showPlus && amount > 0 ? '＋' : '');
+    return `${sign}${money(Math.abs(amount), helpers)}`;
+  }
+
   function summary(result, helpers = {}) {
+    const splitPaymentAdjustment = Number(result.splitPaymentAdjustment ?? ((result.driverTotal - result.totalClub) - result.totalSplit));
+    const clubPaymentAdjustment = Number(result.clubPaymentAdjustment || 0);
+    const paymentAdjustmentTotal = Number(result.paymentAdjustmentTotal ?? (splitPaymentAdjustment + clubPaymentAdjustment));
     // Legacy test anchor: 1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名
     return `
         <cds-table class="seisan-summary-table" size="lg" aria-label="全体の費用">
@@ -19,17 +28,22 @@
           <cds-table-body>
             <cds-table-row data-summary-kind="split">
               <cds-table-cell class="seisan-summary-table-name">割勘合計</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${money(result.totalSplit, helpers)}</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-detail"><span>対象${result.shareCount}名</span><span>1人 ${money(result.perPerson, helpers)}</span></cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${signedMoney(result.totalSplit, helpers)}</cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-detail">割勘費用</cds-table-cell>
             </cds-table-row>
             <cds-table-row data-summary-kind="club">
               <cds-table-cell class="seisan-summary-table-name">部費合計</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${money(result.totalClub, helpers)}</cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${signedMoney(result.totalClub, helpers)}</cds-table-cell>
               <cds-table-cell class="seisan-summary-table-detail">部費負担分</cds-table-cell>
+            </cds-table-row>
+            <cds-table-row data-summary-kind="rounding">
+              <cds-table-cell class="seisan-summary-table-name">端数調整</cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${signedMoney(paymentAdjustmentTotal, helpers, true)}</cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-detail"><span>割勘 ${signedMoney(splitPaymentAdjustment, helpers, true)}</span><span>部費 ${signedMoney(clubPaymentAdjustment, helpers, true)}</span></cds-table-cell>
             </cds-table-row>
             <cds-table-row data-summary-kind="pay">
               <cds-table-cell class="seisan-summary-table-name">支払合計</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${money(result.driverTotal, helpers)}</cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${signedMoney(result.driverTotal, helpers)}</cds-table-cell>
               <cds-table-cell class="seisan-summary-table-detail">ドライバー${result.cars.length}名分</cds-table-cell>
             </cds-table-row>
           </cds-table-body>
@@ -86,34 +100,23 @@
   function clubExpenseBreakdown(result, helpers = {}) {
     const expenseRows = (result.cars || []).flatMap(car =>
       (car.extras || [])
-        .filter(extra => extra.type === 'club' && Number(extra.amountValue || 0) !== 0)
+        .filter(extra => extra.baseType === 'club' && Number(extra.amountValue || 0) !== 0)
         .map(extra => ({
           name: extra.name || '名目未入力',
           amount: Number(extra.amountValue || 0),
           user: car.name
         }))
     );
-    const accountingTotal = Number(result.accounting || 0);
-    const collectionRounding = -Number(result.surplus || 0);
-    const adjustmentRows = [
-      { name: '支払い額の切り上げ', amount: Number(result.totalDriverRound || 0), user: '全体' },
-      { name: 'ドライバー分の集金控除', amount: -Number(result.totalDriverCollectionOffset || 0), user: '全体' },
-      {
-        name: collectionRounding > 0 ? '参加者集金の不足' : '参加者集金の余り',
-        amount: collectionRounding,
-        user: '全体'
-      }
-    ].filter(row => row.amount !== 0);
-    const rows = [...expenseRows, ...adjustmentRows];
-    const details = rows.length
-      ? rows.map(row => `<div class="seisan-club-expense-row">
+    const clubTotal = Number(result.totalClub || 0);
+    const details = expenseRows.length
+      ? expenseRows.map(row => `<div class="seisan-club-expense-row">
           <span class="seisan-club-expense-name">${esc(row.name, helpers)}</span>
           <span class="seisan-club-expense-user">${esc(row.user, helpers)}</span>
           <strong class="seisan-club-expense-amount"><span class="seisan-amount-sign" aria-hidden="true">${row.amount < 0 ? '−' : '＋'}</span>${money(Math.abs(row.amount), helpers)}</strong>
         </div>`).join('')
-      : '<div class="seisan-club-expense-empty">部費の支出・調整はありません。</div>';
-    const totalLabel = accountingTotal >= 0 ? '部費から支出' : '部費へ戻す';
-    return `${details}<div class="seisan-club-expense-total"><span>${totalLabel}</span><strong><span class="seisan-amount-sign" aria-hidden="true">＝</span>${money(Math.abs(accountingTotal), helpers)}</strong></div>`;
+      : '<div class="seisan-club-expense-empty">部費の収支はありません。</div>';
+    const totalLabel = clubTotal > 0 ? '部費から支出' : (clubTotal < 0 ? '部費へ戻す' : '部費収支');
+    return `${details}<div class="seisan-club-expense-total"><span>${totalLabel}</span><strong>${signedMoney(clubTotal, helpers)}</strong></div>`;
   }
 
   

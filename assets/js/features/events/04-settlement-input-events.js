@@ -183,7 +183,12 @@
         });
 
         document.addEventListener('cds-toggle-changed', event => {
-            commitRentalTypeChange(event.target);
+            const target = event.target;
+            if (commitRentalTypeChange(target)) return;
+            if (target?.matches?.('[data-settlement-driver-paid-name]')) {
+                const toggled = event.detail?.toggled ?? event.detail?.checked ?? target.toggled ?? target.checked;
+                global.toggleSettlementDriverPaid?.(target.dataset.settlementDriverPaidName || '', !!toggled, target);
+            }
         });
 
         document.addEventListener('cds-select-selected', event => {

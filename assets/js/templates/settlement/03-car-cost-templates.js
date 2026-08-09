@@ -15,6 +15,7 @@
     formatDriverRoundInline,
     formatCostDetailRows,
     formatPaymentTotalRow,
+    formatCostBadge,
     orderDriverRewardFirstForDisplay
   } = parts;
 
@@ -48,31 +49,55 @@
     }).join('');
   }
 
+  function structuredCostRow({ label, amount, type = 'split', sign = '', total = false }, helpers = {}) {
+    const category = total ? '' : (String(type).startsWith('club') ? 'club' : 'split');
+    const amountContent = `<span class="seisan-amount-sign${sign ? '' : ' is-blank'}" aria-hidden="true">${sign || '＋'}</span>${money(Math.abs(Number(amount) || 0), helpers)}`;
+    return `<cds-structured-list-row condensed class="seisan-cost-structured-row${total ? ' seisan-cost-structured-row--total' : ''}">
+      <cds-structured-list-cell class="seisan-cost-name">${esc(label, helpers)}</cds-structured-list-cell>
+      <cds-structured-list-cell class="seisan-cost-category">${category ? formatCostBadge(category) : ''}</cds-structured-list-cell>
+      <cds-structured-list-cell class="seisan-cost-amount">${total ? `<strong>${amountContent}</strong>` : amountContent}</cds-structured-list-cell>
+    </cds-structured-list-row>`;
+  }
+
+  function structuredCostRows(calc, extras, helpers = {}) {
+    const rows = [];
+    if (!calc.usesTimesRental) {
+      rows.push({ label: 'ガソリン代', amount: calc.gas || 0, type: 'split', sign: '' });
+    }
+    extras.forEach(extra => {
+      const rawAmount = Number(extra.amountValue ?? extra.amount ?? 0);
+      const isMinus = rawAmount < 0 || String(extra.type || '').endsWith('-minus');
+      rows.push({
+        label: extra.name || '費用',
+        amount: rawAmount,
+        type: extra.type,
+        sign: rows.length === 0 && !isMinus ? '' : (isMinus ? '−' : '＋')
+      });
+    });
+    if (calc.collectionOffset) {
+      rows.push({ label: '集金', amount: calc.collectionOffset, type: 'split', sign: '−' });
+    }
+    if (calc.driverRound) {
+      rows.push({ label: '端数処理分', amount: calc.driverRound, type: 'split', sign: rows.length ? '＋' : '' });
+    }
+    rows.push({ label: '合計', amount: calc.adjustedTotalPay ?? calc.totalPay ?? 0, sign: '＝', total: true });
+    return rows.map(row => structuredCostRow(row, helpers)).join('');
+  }
+
 
     function carSummary({ car, calc, issues, paid = false, helpers = {} }) {
     const rowClass = issues.rows.has(car.name) ? ' has-error' : '';
     const extras = orderDriverRewardFirstForDisplay(Array.isArray(calc.extras) ? calc.extras : []);
-    const costDetails = formatCostDetailRows([
-      formatGasInline(calc, helpers),
-      ...extras.map(ex => formatExtraInline(ex, helpers)),
-      formatDriverCollectionOffsetInline(calc, helpers),
-      formatDriverRoundInline(calc, helpers)
-    ]);
+    const costDetails = structuredCostRows(calc, extras, helpers);
     return `<article class="seisan-car-summary-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}">
         <div class="seisan-car-summary-headline">
           <strong class="seisan-car-summary-name">${esc(car.name, helpers)}車${calc.usesTimesRental ? '（レンタカー）' : ''}</strong>
           <cds-button class="seisan-btn seisan-edit-btn" kind="ghost" size="md" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span><span>編集</span></cds-button>
-          <label class="seisan-car-payment-check ${paid ? 'done' : ''}" data-carbon-checkbox-row>
-            <span>${paid ? '支払済み' : '支払済みにする'}</span>
-            <cds-checkbox ${paid ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" aria-label="${esc(car.name, helpers)}車への支払いチェック"></cds-checkbox>
-          </label>
+          <cds-toggle class="seisan-car-payment-toggle" size="sm" ${paid ? 'toggled' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="支払済み" label-a="支払済み" label-b="未払い" aria-label="${esc(car.name, helpers)}車への支払い状態"></cds-toggle>
         </div>
-        <div class="seisan-cost-preview-list" aria-label="費用内訳">
-          <div class="seisan-cost-preview-item seisan-cost-preview-item--gas seisan-cost-preview-item--extras seisan-cost-preview-item--inline-all ${UI_CLASS.surfaceInset}">
-            <span class="seisan-cost-preview-detail-text seisan-extra-inline-list">${costDetails}</span>
-            ${formatPaymentTotalRow(calc, helpers)}
-          </div>
-        </div>
+        <cds-structured-list condensed class="seisan-cost-structured-list" aria-label="費用内訳">
+          <cds-structured-list-body>${costDetails}</cds-structured-list-body>
+        </cds-structured-list>
     </article>`;
   }
 

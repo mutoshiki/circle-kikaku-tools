@@ -83,10 +83,15 @@ function calculateSettlement(data, state) {
     const surplus = expectedCollected - totalSplit;
     cars.forEach(car => {
         car.collectionOffset = driverCollectionOffset && driverNames.has(car.name) && car.name !== excludedName ? perPerson : 0;
-        car.adjustedTotalPay = Math.max(0, car.totalPay - car.collectionOffset);
+        car.adjustedTotalPay = car.totalPay - car.collectionOffset;
     });
     const totalDriverCollectionOffset = cars.reduce((sum, c) => sum + c.collectionOffset, 0);
     const driverTotal = cars.reduce((sum, c) => sum + c.adjustedTotalPay, 0);
+    const splitPaymentTotal = driverTotal - totalClub;
+    const splitPaymentAdjustment = splitPaymentTotal - totalSplit;
+    const clubPaymentTotal = totalClub;
+    const clubPaymentAdjustment = clubPaymentTotal - totalClub;
+    const paymentAdjustmentTotal = splitPaymentAdjustment + clubPaymentAdjustment;
     const accounting = driverTotal - expectedCollected;
     const paidCount = participants.filter(p => {
         if (excludedNames.has(p.name)) return false;
@@ -118,6 +123,11 @@ function calculateSettlement(data, state) {
         expectedCollected,
         surplus,
         driverTotal,
+        splitPaymentTotal,
+        splitPaymentAdjustment,
+        clubPaymentTotal,
+        clubPaymentAdjustment,
+        paymentAdjustmentTotal,
         totalDriverCollectionOffset,
         accounting,
         paidCount,
