@@ -4,13 +4,33 @@
 .member-main-line,
 .driver-main-line {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 48px;
-  grid-template-areas: "name meta menu";
   align-items: center;
   gap: var(--space-1);
   min-width: 0;
   min-height: 48px;
 }
+.member-main-line {
+  grid-template-columns: 20px minmax(0, 1fr) auto 48px;
+  grid-template-areas: "handle name meta menu";
+}
+.driver-main-line {
+  grid-template-columns: minmax(0, 1fr) auto 48px;
+  grid-template-areas: "name meta menu";
+}
+
+.person-drag-affordance {
+  grid-area: handle;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 32px;
+  color: var(--cds-icon-secondary, var(--text-sub));
+  opacity: 0.48;
+  pointer-events: none;
+  transition: opacity var(--motion-fast) ease;
+}
+.person-drag-affordance .carbon-icon { width: 16px; height: 16px; }
+.member-card:is(:hover, :active, .manual-drag-source) .person-drag-affordance { opacity: 0.9; }
 
 .member-main-line > :is(.member-name-text, .driver-name-disp),
 .driver-main-line > :is(.member-name-text, .driver-name-disp) { grid-area: name; }
@@ -148,8 +168,19 @@ body.person-menu-open:not(.person-menu-top-layer-open) .car-box:has(.person-over
 .person-pop-item[data-flag-choice="red"] { --person-flag-color: var(--semantic-danger); }
 
 @media (max-width: 520px) {
-  #cars-container :is(.member-main-line, .driver-main-line),
+  #cars-container .member-main-line,
   .manual-drag-float .member-main-line {
+    grid-template-columns: 20px minmax(0, 1fr) 48px;
+    grid-template-rows: minmax(26px, auto) minmax(22px, auto);
+    grid-template-areas:
+      "handle name menu"
+      "handle meta menu";
+    min-height: 56px;
+    column-gap: var(--space-1);
+    row-gap: 0;
+  }
+
+  #cars-container .driver-main-line {
     grid-template-columns: minmax(0, 1fr) 48px;
     grid-template-rows: minmax(26px, auto) minmax(22px, auto);
     grid-template-areas:

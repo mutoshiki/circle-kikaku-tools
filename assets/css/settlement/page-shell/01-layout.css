@@ -30,15 +30,15 @@
   margin: 0;
   padding: var(--panel-padding);
   overflow: hidden;
-  border: 1px solid var(--border-section);
+  border: 0;
   border-radius: 0;
   outline: 0;
-  background: var(--surface-lowest);
+  background: var(--cds-layer-01, var(--surface-lowest));
   box-shadow: none;
 }
 
-.seisan-settings-card { background: var(--surface-low); box-shadow: none; }
-.seisan-share-card { background: var(--surface-low); box-shadow: none; }
+.seisan-settings-card,
+.seisan-share-card { background: var(--cds-layer-01, var(--surface-lowest)); box-shadow: none; }
 
 .seisan-head,
 .seisan-compact-head {

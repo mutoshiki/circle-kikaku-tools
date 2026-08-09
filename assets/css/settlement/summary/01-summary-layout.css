@@ -9,12 +9,12 @@
 .seisan-summary-card {
   display: grid;
   align-content: center;
-  gap: 7px;
+  gap: 8px;
   min-width: 0;
-  padding: 14px 12px;
-  border: 1px solid var(--border-section);
-  border-top: 3px solid var(--settlement-summary-line, var(--border-strong));
+  padding: 16px;
+  border: 0;
   border-radius: var(--radius-main);
+  background: var(--cds-layer-02, var(--surface-low));
   box-shadow: none;
 }
 
@@ -33,15 +33,22 @@
 
 @media (max-width: 640px) {
   .seisan-top-flow {
-    grid-template-columns: minmax(0, 1fr) 14px minmax(0, 1fr) 14px minmax(0, 1fr);
-    gap: 3px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
   }
 
   .seisan-summary-card {
-    padding: 10px 8px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 5px 12px;
+    padding: 14px 16px;
   }
 
   .seisan-flow-arrow {
+    min-height: 28px;
     font-size: 1rem;
   }
+
+  .seisan-summary-card .seisan-summary-value { grid-column: 2; grid-row: 1; text-align: right; }
+  .seisan-summary-card .seisan-summary-sub { grid-column: 1 / -1; }
 }

@@ -18,6 +18,7 @@ import Add20 from '@carbon/icons/es/add/20.js';
 import ArrowDown20 from '@carbon/icons/es/arrow--down/20.js';
 import ArrowRight20 from '@carbon/icons/es/arrow--right/20.js';
 import Calculator32 from '@carbon/icons/es/calculator/32.js';
+import Calculator20 from '@carbon/icons/es/calculator/20.js';
 import Car20 from '@carbon/icons/es/car/20.js';
 import Car32 from '@carbon/icons/es/car/32.js';
 import CheckboxChecked20 from '@carbon/icons/es/checkbox--checked/20.js';
@@ -30,7 +31,7 @@ import Clean20 from '@carbon/icons/es/clean/20.js';
 import Close20 from '@carbon/icons/es/close/20.js';
 import CloseOutline20 from '@carbon/icons/es/close--outline/20.js';
 import Copy20 from '@carbon/icons/es/copy/20.js';
-import DragVertical20 from '@carbon/icons/es/drag--vertical/20.js';
+import Draggable20 from '@carbon/icons/es/draggable/20.js';
 import Edit20 from '@carbon/icons/es/edit/20.js';
 import Education20 from '@carbon/icons/es/education/20.js';
 import ErrorFilled20 from '@carbon/icons/es/error--filled/20.js';
@@ -79,6 +80,7 @@ const ICONS = Object.freeze({
   'arrow--down': ArrowDown20,
   'arrow--right': ArrowRight20,
   calculator: Calculator32,
+  'calculator-small': Calculator20,
   car: Car32,
   'car-small': Car20,
   'checkbox--checked': CheckboxChecked20,
@@ -91,7 +93,7 @@ const ICONS = Object.freeze({
   close: Close20,
   'close--outline': CloseOutline20,
   copy: Copy20,
-  'drag--vertical': DragVertical20,
+  draggable: Draggable20,
   edit: Edit20,
   education: Education20,
   'error--filled': ErrorFilled20,

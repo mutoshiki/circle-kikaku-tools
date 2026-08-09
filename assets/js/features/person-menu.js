@@ -267,15 +267,14 @@ function updatePersonGradeBadge(person) {
     const meta = ensurePersonMeta(line);
     meta?.querySelector('.grade-badge')?.remove();
     if (grade > 0 && meta) {
-        const gender = person.dataset.gender || 'unknown';
-        const badge = ce('cds-tag', `grade-badge carbon-display-tag ${gradeGenderClass(gender)}`);
+        const badge = ce('cds-tag', 'grade-badge carbon-display-tag');
         badge.dataset.grade = String(grade);
         badge.dataset.tagGroup = 'grade';
-        badge.dataset.tagValue = gender;
-        badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', gender) || 'gray');
+        badge.dataset.tagValue = 'default';
+        badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', 'default') || 'gray');
         badge.setAttribute('size', 'sm');
         badge.textContent = `${grade}年`;
-        badge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', gender, badge.textContent) || badge.textContent);
+        badge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', 'default', badge.textContent) || badge.textContent);
         meta.appendChild(badge);
     }
 }
@@ -288,11 +287,9 @@ function updatePersonGenderBadge(person) {
     const badge = line.querySelector('.grade-badge');
     if (badge) {
         badge.classList.remove('grade-male', 'grade-female', 'grade-unknown');
-        const gender = person.dataset.gender || 'unknown';
-        badge.classList.add(gradeGenderClass(gender));
-        badge.dataset.tagValue = gender;
-        badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', gender) || 'gray');
-        badge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', gender, badge.textContent) || badge.textContent);
+        badge.dataset.tagValue = 'default';
+        badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', 'default') || 'gray');
+        badge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', 'default', badge.textContent) || badge.textContent);
     }
 }
 

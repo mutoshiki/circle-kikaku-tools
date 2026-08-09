@@ -45,25 +45,22 @@
   min-height: 56px;
   margin: 0;
   padding: 6px 8px;
-  border: 1px solid var(--border-item);
+  border: 0;
   background: var(--surface-low);
 }
 
 /* People keep one card surface wherever they are; empty seats remain quiet action tiles. */
 #cars-container .seat-slot > .member-card,
 #waiting-list .member-card {
-  border-color: var(--border-item);
-  background: var(--surface-lowest);
+  background: var(--cds-layer-02, var(--surface-low));
 }
 
 #waiting-list .member-card:hover {
-  border-color: var(--border-hover);
-  background: var(--surface-container);
+  background: var(--cds-layer-hover-02, var(--surface-container));
 }
 
 #cars-container .seat-slot > .member-card:hover {
-  border-color: var(--app-accent-border);
-  background: var(--surface-lowest);
+  background: var(--cds-layer-hover-02, var(--surface-container));
 }
 
 /* The card is a draggable surface, not a button. Do not synthesize a card-wide

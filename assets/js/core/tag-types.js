@@ -3,8 +3,9 @@
 
   const mappings = Object.freeze({
     grade: Object.freeze({
-      male: 'blue',
-      female: 'magenta',
+      default: 'gray',
+      male: 'gray',
+      female: 'gray',
       unknown: 'gray'
     }),
     cost: Object.freeze({
@@ -28,11 +29,7 @@
   });
 
   const assistiveLabels = Object.freeze({
-    grade: Object.freeze({
-      male: '男性',
-      female: '女性',
-      unknown: '性別不明'
-    }),
+    grade: Object.freeze({ default: '学年' }),
     capacity: Object.freeze({
       normal: '定員',
       over: '定員超過'
@@ -47,7 +44,7 @@
     const text = String(visibleText).trim();
     const label = assistiveLabels[group]?.[value];
     if (!text || !label) return '';
-    return group === 'grade' ? `${text}、${label}` : `${label}、${text}`;
+    return `${label}、${text}`;
   }
 
   function escapeAttribute(value) {

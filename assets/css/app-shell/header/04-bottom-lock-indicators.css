@@ -1,4 +1,4 @@
-/* Bottom Content Switcher lock state: the lock belongs to the feature label, not to selection state. */
+/* Bottom navigation lock state: the lock belongs to the feature label, not to selection state. */
 .view-tab-label { gap: 6px; }
 
 .view-tab-lock-indicator {

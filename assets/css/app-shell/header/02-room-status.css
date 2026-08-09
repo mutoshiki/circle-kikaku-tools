@@ -52,7 +52,7 @@
 #appUndoBar {
   position: fixed;
   left: 50%;
-  bottom: calc(var(--bottom-navigation-clearance) + 16px + env(safe-area-inset-bottom));
+  bottom: calc(var(--bottom-navigation-clearance) + 16px);
   z-index: var(--z-drag);
   display: inline-flex;
   align-items: center;

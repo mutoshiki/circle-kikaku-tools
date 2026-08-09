@@ -5,18 +5,12 @@ function genderBadgeHtml(gender) {
     return '';
 }
 
-function gradeGenderClass(gender) {
-    if (gender === 'male') return 'grade-male';
-    if (gender === 'female') return 'grade-female';
-    return 'grade-unknown';
-}
-
-function renderGradeBadge(grade, gender = 'unknown') {
+function renderGradeBadge(grade) {
     const n = parseInt(grade) || 0;
     if (n <= 0) return '';
     const gradeText = `${n}年`;
-    const tagAttributes = window.SanpoTagTypes?.attributes('grade', gender, 'sm', gradeText) || 'type="gray" size="sm"';
-    return `<cds-tag class="grade-badge carbon-display-tag ${gradeGenderClass(gender)}" data-grade="${n}" ${tagAttributes}>${gradeText}</cds-tag>`;
+    const tagAttributes = window.SanpoTagTypes?.attributes('grade', 'default', 'sm', gradeText) || 'type="gray" size="sm"';
+    return `<cds-tag class="grade-badge carbon-display-tag" data-grade="${n}" ${tagAttributes}>${gradeText}</cds-tag>`;
 }
 
 function renderPersonFlag(flag) {
@@ -88,10 +82,11 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
     
     const safeName = escapeHtml(name);
     const safeMemo = escapeHtml(m || '');
-    const gradeHtml = renderGradeBadge(grade, g);
+    const gradeHtml = renderGradeBadge(grade);
     const genderHtml = genderBadgeHtml(g);
     div.innerHTML = `
         <div class="member-main-line">
+            <span class="person-drag-affordance" aria-hidden="true"><span data-carbon-icon="draggable"></span></span>
             <div class="member-name-text">${safeName}</div>
             <div class="person-meta">${renderPersonFlag(flag)}${genderHtml}${gradeHtml}</div>
             ${renderPersonOverflowMenu({ name, isDriver: false, inWaiting: parent?.id === 'waiting-list', locked })}
@@ -114,7 +109,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none', pa
     if (participantId) col.dataset.participantId = String(participantId);
     const safeName = escapeHtml(name);
     const safeMemo = escapeHtml(dm || '');
-    const driverGradeHtml = renderGradeBadge(dgrade, dg);
+    const driverGradeHtml = renderGradeBadge(dgrade);
     const driverGenderHtml = genderBadgeHtml(dg);
     const groupSuffix = typeof getActiveGroupSuffix === 'function' ? getActiveGroupSuffix() : '車';
     let slotsHtml = `

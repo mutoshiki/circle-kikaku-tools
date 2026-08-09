@@ -43,7 +43,7 @@
   padding: 2px 7px;
   border: 0;
   border-radius: var(--radius-pill);
-  background: var(--surface-highest);
+  background: var(--cds-layer-03, var(--surface-container));
   color: var(--text-sub);
   box-shadow: none;
   font-size: var(--font-size-caption);
@@ -52,8 +52,6 @@
   white-space: nowrap;
 }
 .grade-badge[data-grade="0"] { display: none; }
-.grade-badge.grade-male { background: var(--bg-male); color: var(--text-male); }
-.grade-badge.grade-female { background: var(--bg-female); color: var(--text-female); }
 .gender-badge,
 .legend-chip { border-radius: var(--radius-pill); font-weight: 600; box-shadow: none; }
 .legend-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border: 0; font-size: 0.72rem; }

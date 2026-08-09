@@ -73,11 +73,13 @@ function markParticipantRegistrationGuidanceReady() {
 window.markParticipantRegistrationGuidanceReady = markParticipantRegistrationGuidanceReady;
 
 function syncMainViewSwitcher(view) {
-    const switcher = byId('view-toggle-bar');
-    if (switcher) switcher.value = view;
     [['tab-list', 'list'], ['tab-sheet', 'sheet'], ['tab-seisan', 'seisan']].forEach(([id, value]) => {
         const item = byId(id);
-        if (item) item.selected = value === view;
+        if (!item) return;
+        const active = value === view;
+        item.classList.toggle('active', active);
+        if (active) item.setAttribute('aria-current', 'page');
+        else item.removeAttribute('aria-current');
     });
 }
 async function switchView(view) {

@@ -1,21 +1,17 @@
-/* Split, club, and payment use the same surface algorithm. */
+/* Summary surfaces stay neutral; semantic color remains on tags and status rows. */
 #seisan-view-area .seisan-summary-card.collect {
-  --settlement-summary-bg: var(--settlement-collect-bg);
-  --settlement-summary-line: var(--settlement-split-line);
-  background: var(--settlement-summary-bg);
-  color: var(--settlement-split-ink);
+  background: var(--cds-layer-02, var(--surface-low));
+  color: var(--text-main);
 }
 #seisan-view-area .seisan-summary-card.accounting {
-  --settlement-summary-bg: var(--settlement-club-bg);
-  --settlement-summary-line: var(--settlement-club-line);
-  background: var(--settlement-summary-bg);
-  color: var(--settlement-club-ink);
+  background: var(--cds-layer-02, var(--surface-low));
+  color: var(--text-main);
 }
 #seisan-view-area .seisan-summary-card.pay,
 #seisan-view-area .seisan-summary-card.payment {
-  --settlement-summary-bg: var(--settlement-pay-bg);
-  --settlement-summary-line: var(--settlement-pay-line);
-  background: var(--settlement-summary-bg);
-  color: var(--settlement-pay-ink);
+  background: var(--cds-layer-02, var(--surface-low));
+  color: var(--text-main);
 }
-#seisan-view-area .seisan-summary-card :is(.seisan-summary-label, .seisan-summary-value, .seisan-summary-sub) { color: inherit; }
+#seisan-view-area .seisan-summary-card .seisan-summary-label,
+#seisan-view-area .seisan-summary-card .seisan-summary-sub { color: var(--text-sub); }
+#seisan-view-area .seisan-summary-card .seisan-summary-value { color: var(--text-main); }

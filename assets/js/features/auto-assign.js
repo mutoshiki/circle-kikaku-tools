@@ -105,10 +105,10 @@ function applyDetectedGenderToName(name, gender) {
         const grade = parseInt(person.dataset.grade) || 0;
         const oldBadge = person.querySelector('.grade-badge');
         if (oldBadge && grade > 0) {
-            oldBadge.className = `grade-badge carbon-display-tag ${gradeGenderClass(gender)}`;
-            oldBadge.dataset.tagValue = gender;
-            oldBadge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', gender) || 'gray');
-            oldBadge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', gender, oldBadge.textContent) || oldBadge.textContent);
+            oldBadge.className = 'grade-badge carbon-display-tag';
+            oldBadge.dataset.tagValue = 'default';
+            oldBadge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', 'default') || 'gray');
+            oldBadge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', 'default', oldBadge.textContent) || oldBadge.textContent);
         }
     });
 }

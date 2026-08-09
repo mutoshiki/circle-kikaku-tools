@@ -33,7 +33,7 @@ expect(header.includes('#shareLinkBtn.header-action'), 'Only the explicit share 
 expect(header.includes('--cds-icon-primary: var(--text-main);'), 'Routine header utilities must use neutral Carbon icon color.');
 expect(personMenu.includes('--cds-link-primary: var(--text-sub);'), 'Person overflow triggers must stay neutral rather than inherit the blue link token.');
 expect(room.includes('#appUndoBar cds-button'), 'Undo action must style the official Carbon button host.');
-expect(cards.includes('border-color: var(--border-item);'), 'Person cards should use subtle Carbon borders.');
+expect(cards.includes('background: var(--cds-layer-02, var(--surface-low));'), 'Person cards should use a Carbon layer instead of a nested outline.');
 expect(carHeader.includes('background: var(--semantic-danger-soft); color: var(--semantic-danger);'), 'Destructive vehicle action must use danger feedback instead of blue.');
 expect(seatGrid.includes('.seat-slot-icon'), 'Empty seats must use a real Carbon icon.');
 expect(!seatGrid.includes('content: "→"'), 'Text glyph arrows are not allowed for empty-seat actions.');
@@ -43,7 +43,9 @@ expect(!sheetSummary.includes('#sheet-view-area.active::after'), 'Shared view mu
 expect(settlement.includes('var(--cds-icon-primary, var(--text-main))'), 'Base settlement heading icons must be neutral.');
 expect(settlementStates.includes('var(--cds-icon-secondary, var(--text-sub))'), 'Late settlement state owner must not re-blue heading icons.');
 expect(tagTokens.includes('--settlement-tag-font-size: var(--font-size-caption);'), 'Settlement tags must use the readable caption size.');
-expect(summary.includes('border-top: 3px solid var(--settlement-summary-line'), 'Settlement equation cards need a non-color-only category rail.');
+expect(summary.includes('grid-template-columns: minmax(0, 1fr);'), 'Settlement equation must stack at the mobile breakpoint.');
+expect(summary.includes('background: var(--cds-layer-02, var(--surface-low));'), 'Settlement equation cards must use neutral Carbon layers.');
+expect(people.includes('person-drag-affordance') && people.includes('data-carbon-icon="draggable"'), 'Draggable person cards need a quiet Carbon drag affordance.');
 
 for (const [source, mode] of [[lightTokens, 'light'], [darkTokens, 'dark']]) {
   expect(source.includes('--cds-support-success:'), `${mode} theme needs Carbon success support token.`);

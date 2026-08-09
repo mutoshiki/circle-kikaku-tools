@@ -52,22 +52,22 @@
   box-shadow: var(--ui-readable-shadow);
 }
 .seisan-cost-type-badge {
-  border-width: 1px;
+  border-width: 0;
 }
 .seisan-cost-policy-tag {
-  border-width: 1px;
+  border-width: 0;
 }
 .seisan-payment-tag {
-  border-width: 1px;
+  border-width: 0;
 }
 .gender-badge {
-  border-width: 1px;
+  border-width: 0;
 }
 .grade-badge {
-  border-width: 1px;
+  border-width: 0;
 }
 .capacity-badge {
-  border-width: 1px;
+  border-width: 0;
 }
 #seisan-view-area .seisan-head-tools-only .seisan-head-actions {
   display: flex;

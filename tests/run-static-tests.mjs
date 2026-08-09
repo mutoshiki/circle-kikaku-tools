@@ -34,8 +34,9 @@ check('No catch-all override files exist', () => {
   const bad = walk('.').filter(f => /(?:^|\/)(?:99-|override-|final-fix)/i.test(f));
   assert.deepEqual(bad, []);
 });
-check('No native generic form controls are emitted by app source', () => {
-  const htmlAndJs = ['index.html', ...walk('assets/js').filter(f => f.endsWith('.js'))].map(read).join('\n');
+check('No native generic form controls are emitted outside the app navigation', () => {
+  const indexWithoutAppNavigation = read('index.html').replace(/<nav\b[^>]*id="app-view-navigation"[\s\S]*?<\/nav>/i, '');
+  const htmlAndJs = [indexWithoutAppNavigation, ...walk('assets/js').filter(f => f.endsWith('.js')).map(read)].join('\n');
   assert.doesNotMatch(htmlAndJs, /<(?:input|select|textarea|button)\b/i);
   assert.doesNotMatch(htmlAndJs, /createElement\(['"](?:input|select|textarea|button)['"]\)/i);
 });
@@ -50,9 +51,11 @@ check('Every modal uses Carbon anatomy and a non-button primary focus target', (
     assert.match(modal, /<cds-modal-body\b/i, `body ${index}`);
   });
 });
-check('Primary navigation and allocation mode use Carbon Content Switcher', () => {
+check('Primary navigation uses destination buttons while allocation mode uses Carbon Content Switcher', () => {
   const html = read('index.html');
-  assert.match(html, /<cds-content-switcher\b[^>]*id="view-toggle-bar"/i);
+  assert.match(html, /<nav\b[^>]*id="app-view-navigation"/i);
+  assert.match(html, /<button\b[^>]*id="tab-list"[^>]*aria-current="page"/i);
+  assert.doesNotMatch(html, /<cds-content-switcher\b[^>]*id="view-toggle-bar"/i);
   assert.match(read('assets/js/core/data-state.js'), /<cds-content-switcher class="car-plan-template-tabs"/);
 });
 check('Header icon-only controls use Carbon Icon Button or Overflow Menu', () => {
