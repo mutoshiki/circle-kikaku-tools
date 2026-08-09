@@ -4,8 +4,8 @@
   const mappings = Object.freeze({
     grade: Object.freeze({
       default: 'gray',
-      male: 'gray',
-      female: 'gray',
+      male: 'blue',
+      female: 'magenta',
       unknown: 'gray'
     }),
     cost: Object.freeze({
@@ -29,7 +29,7 @@
   });
 
   const assistiveLabels = Object.freeze({
-    grade: Object.freeze({ default: '学年' }),
+    grade: Object.freeze({ default: '学年', male: '学年', female: '学年', unknown: '学年' }),
     capacity: Object.freeze({
       normal: '定員',
       over: '定員超過'

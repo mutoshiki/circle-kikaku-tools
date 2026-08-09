@@ -5,34 +5,35 @@
   const parts = window.SanpoApp?.settlementTemplateParts || {};
   const { UI_CLASS, esc, money, formatCostBadge, formatPaymentBadge, formatExtraLines } = parts;
 
-  function getAccountingAmount(result = {}) {
-    return Math.abs(Number(result.accounting || 0));
-  }
-
   function summary(result, helpers = {}) {
     // Legacy test anchor: 1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名
-
-    const accountingLabel = result.accounting >= 0 ? '部費支出' : '部費戻入';
-    const accountingNote = result.accounting >= 0 ? '支払い不足分' : '集金超過分';
-    const accountingSign = result.accounting >= 0 ? '＋' : '−';
     return `
-        <div class="seisan-summary-card collect ${UI_CLASS.surfaceCard}" data-summary-kind="collect">
-          <div class="seisan-summary-label"><span data-carbon-icon="user-multiple" aria-hidden="true"></span>参加者集金</div>
-          <div class="seisan-summary-value ${UI_CLASS.amount}">${money(result.expectedCollected, helpers)}</div>
-          <div class="seisan-summary-sub">各 ${money(result.perPerson, helpers)} × ${result.payerCount}名</div>
-        </div>
-        <div class="seisan-flow-arrow seisan-flow-arrow--plus" aria-hidden="true">${accountingSign}</div>
-        <div class="seisan-summary-card accounting ${UI_CLASS.surfaceCard}" data-summary-kind="club">
-          <div class="seisan-summary-label"><span data-carbon-icon="wallet" aria-hidden="true"></span>${accountingLabel}</div>
-          <div class="seisan-summary-value ${UI_CLASS.amount}">${money(getAccountingAmount(result), helpers)}</div>
-          <div class="seisan-summary-sub">${accountingNote}</div>
-        </div>
-        <div class="seisan-flow-arrow seisan-flow-arrow--equals" aria-hidden="true">＝</div>
-        <div class="seisan-summary-card pay ${UI_CLASS.surfaceCard}" data-summary-kind="pay">
-          <div class="seisan-summary-label"><span data-carbon-icon="car-small" aria-hidden="true"></span>支払総額</div>
-          <div class="seisan-summary-value ${UI_CLASS.amount}">${money(result.driverTotal, helpers)}</div>
-          <div class="seisan-summary-sub">ドライバー${result.cars.length}名分</div>
-        </div>`;
+        <cds-table class="seisan-summary-table" size="lg" aria-label="全体の費用">
+          <cds-table-head>
+            <cds-table-header-row>
+              <cds-table-header-cell>名目</cds-table-header-cell>
+              <cds-table-header-cell>金額</cds-table-header-cell>
+              <cds-table-header-cell>詳細</cds-table-header-cell>
+            </cds-table-header-row>
+          </cds-table-head>
+          <cds-table-body>
+            <cds-table-row data-summary-kind="split">
+              <cds-table-cell class="seisan-summary-table-name">割勘合計</cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${money(result.totalSplit, helpers)}</cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-detail"><span>対象${result.shareCount}名</span><span>1人 ${money(result.perPerson, helpers)}</span></cds-table-cell>
+            </cds-table-row>
+            <cds-table-row data-summary-kind="club">
+              <cds-table-cell class="seisan-summary-table-name">部費合計</cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${money(result.totalClub, helpers)}</cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-detail">部費負担分</cds-table-cell>
+            </cds-table-row>
+            <cds-table-row data-summary-kind="pay">
+              <cds-table-cell class="seisan-summary-table-name">支払合計</cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${money(result.driverTotal, helpers)}</cds-table-cell>
+              <cds-table-cell class="seisan-summary-table-detail">ドライバー${result.cars.length}名分</cds-table-cell>
+            </cds-table-row>
+          </cds-table-body>
+        </cds-table>`;
   }
 
     function settingSummary({ state, result, helpers = {} }) {

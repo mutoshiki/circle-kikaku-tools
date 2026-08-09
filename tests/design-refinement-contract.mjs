@@ -15,7 +15,10 @@ const carHeader = await read('assets/css/cars-members-tray/car-card/02-card-head
 const seatGrid = await read('assets/css/cars-members-tray/car-card/03-seat-grid.css');
 const personMenu = await read('assets/css/cars-members-tray/person-card/03-person-menu.css');
 const people = await read('assets/js/features/person-cards.js');
+const tagTypes = await read('assets/js/core/tag-types.js');
+const sheetTemplates = await read('assets/js/templates/sheet-templates.js');
 const sheetSummary = await read('assets/css/sheet-view/layout/03-sheet-summary.css');
+const sheetFrame = await read('assets/css/sheet-view/layout/01-sheet-frame.css');
 const timetable = await read('assets/css/sheet-view/timetable/02-timetable-edit.css');
 const modal = await read('assets/css/guides-modals/modal/01-modal-base.css');
 const settlement = await read('assets/css/settlement/page-shell/01-layout.css');
@@ -26,6 +29,9 @@ const costPreview = await read('assets/css/settlement/cost-tags/05-cost-preview-
 const clubExpense = await read('assets/css/settlement/checklists/06-club-expense-list.css');
 const tagTokens = await read('assets/css/tokens/05-control-surface-tokens.css');
 const summary = await read('assets/css/settlement/summary/01-summary-layout.css');
+const summaryTemplate = await read('assets/js/templates/settlement/02-summary-templates.js');
+const costParts = await read('assets/js/templates/settlement/01-cost-parts.js');
+const carCostCard = await read('assets/css/settlement/car-cost-summary/01-car-cost-card.css');
 
 expect(index.includes('rendered-qa-v26'), 'Changed design owners need the v26 cache-buster.');
 expect(header.includes('cds-icon-button.header-action'), 'Header Carbon icon-button hosts need an explicit neutral utility contract.');
@@ -43,9 +49,17 @@ expect(!sheetSummary.includes('#sheet-view-area.active::after'), 'Shared view mu
 expect(settlement.includes('var(--cds-icon-primary, var(--text-main))'), 'Base settlement heading icons must be neutral.');
 expect(settlementStates.includes('var(--cds-icon-secondary, var(--text-sub))'), 'Late settlement state owner must not re-blue heading icons.');
 expect(tagTokens.includes('--settlement-tag-font-size: var(--font-size-caption);'), 'Settlement tags must use the readable caption size.');
-expect(summary.includes('grid-template-columns: minmax(0, 1fr);'), 'Settlement equation must stack at the mobile breakpoint.');
-expect(summary.includes('background: var(--cds-layer-02, var(--surface-low));'), 'Settlement equation cards must use neutral Carbon layers.');
+expect(summary.includes('.seisan-summary-table') && summary.includes('var(--cds-layer-02, var(--surface-low))'), 'Settlement totals must use a neutral Carbon table layer.');
+expect(summaryTemplate.includes('<cds-table') && summaryTemplate.includes('割勘合計') && summaryTemplate.includes('部費合計') && summaryTemplate.includes('支払合計'), 'Settlement totals must render as the requested three-row Carbon table.');
+expect(summaryTemplate.includes('<cds-table-header-cell>名目</cds-table-header-cell>') && summaryTemplate.includes('<cds-table-header-cell>金額</cds-table-header-cell>') && summaryTemplate.includes('<cds-table-header-cell>詳細</cds-table-header-cell>'), 'Settlement total columns must be item, amount, and detail.');
+expect(index.indexOf('seisan-car-panel') < index.indexOf('seisan-toolbar-card'), 'Driver payments must precede the overall cost table.');
+expect(sheetFrame.includes('width: max-content;') && sheetFrame.includes('min-width: max-content;'), 'Shared-view columns must follow the longest rendered name.');
+expect(!sheetTemplates.includes('renderGradeBadge') && !sheetTemplates.includes('renderPersonFlag'), 'Shared presentation view must omit grade tags and person flags.');
 expect(people.includes('person-drag-affordance') && people.includes('data-carbon-icon="draggable"'), 'Draggable person cards need a quiet Carbon drag affordance.');
+expect(tagTypes.includes("male: 'blue'") && tagTypes.includes("female: 'magenta'"), 'Allocation grade tags must retain the requested gender colors.');
+expect(people.includes('renderGradeBadge(grade, g)') && people.includes('renderGradeBadge(dgrade, dg)'), 'Member and driver grade tags must receive their gender value.');
+expect(costParts.includes('seisan-cost-line--supporting'), 'Calculated non-extra driver costs need an explicit supporting-information marker.');
+expect(carCostCard.includes('.seisan-cost-line--supporting') && carCostCard.includes('var(--cds-text-secondary, var(--text-sub))'), 'Supporting driver costs must use Carbon secondary text in display mode.');
 
 for (const [source, mode] of [[lightTokens, 'light'], [darkTokens, 'dark']]) {
   expect(source.includes('--cds-support-success:'), `${mode} theme needs Carbon success support token.`);

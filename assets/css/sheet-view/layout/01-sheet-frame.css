@@ -78,7 +78,8 @@
 .sheet-car-col {
   display: flex;
   flex-direction: column;
-  min-width: 142px;
+  width: max-content;
+  min-width: 0;
   flex-shrink: 0;
   overflow: hidden;
   border: 1px solid var(--border-section);
@@ -90,6 +91,8 @@
   position: sticky;
   top: 0;
   z-index: var(--z-local-raised);
+  width: 0;
+  min-width: 100%;
   min-height: 42px;
   padding: 9px 10px;
   overflow: hidden;
@@ -120,6 +123,12 @@
 .sheet-cell-text,
 .sheet-chip-text,
 .sheet-driver-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+body:not(.quick-edit-mode) #sheet-view-area :is(.sheet-cell-text, .sheet-driver-name) {
+  min-width: max-content;
+  overflow: visible;
+  text-overflow: clip;
+}
 .sheet-chip.locked { opacity: 0.78; }
 .sheet-chip-ghost { opacity: 0.45; }
 .sheet-chip-drag { box-shadow: var(--shadow-float); }
@@ -127,7 +136,7 @@
 @media (min-width: 769px) {
   #sheet-canvas { scrollbar-gutter: stable; }
   .sheet-content { padding-inline: max(24px, calc((100vw - 1200px) / 2)); }
-  .sheet-car-col { min-width: 154px; }
+  .sheet-car-col { min-width: 0; }
 }
 
 /* Overview information stays to the left of the unchanged allocation stack. */

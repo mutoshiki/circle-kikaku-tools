@@ -1,54 +1,48 @@
-/* Equation-like summary: collect plus/minus club equals driver payments. */
+/* Carbon data table summary: item, amount, and detail. */
 .seisan-top-flow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1fr);
-  align-items: stretch;
-  gap: 6px;
+  display: block;
+  min-width: 0;
+  overflow-x: auto;
 }
 
-.seisan-summary-card {
-  display: grid;
-  align-content: center;
-  gap: 8px;
+.seisan-summary-table {
+  width: 100%;
   min-width: 0;
-  padding: 16px;
-  border: 0;
-  border-radius: var(--radius-main);
   background: var(--cds-layer-02, var(--surface-low));
-  box-shadow: none;
 }
 
-#seisan-view-area .seisan-summary-card:not(.collect):not(.accounting):not(.pay) {
-  background: var(--surface-low);
+.seisan-summary-table :is(cds-table-header-cell, cds-table-cell):first-child { width: 27%; }
+.seisan-summary-table :is(cds-table-header-cell, cds-table-cell):nth-child(2) { width: 29%; text-align: right; }
+.seisan-summary-table :is(cds-table-header-cell, cds-table-cell):last-child { width: 44%; }
+
+.seisan-summary-table-name {
+  color: var(--cds-text-primary, var(--text-main));
+  font-weight: 600;
 }
 
-.seisan-flow-arrow {
-  display: grid;
-  place-items: center;
-  min-width: 0;
-  color: var(--text-faint);
-  font-size: 1.2rem;
-  font-weight: 500;
+.seisan-summary-table-amount {
+  color: var(--cds-text-primary, var(--text-main));
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
+
+.seisan-summary-table-detail {
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: var(--font-size-caption);
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.seisan-summary-table-detail > span { display: block; white-space: nowrap; }
 
 @media (max-width: 640px) {
-  .seisan-top-flow {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-  }
-
-  .seisan-summary-card {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 5px 12px;
-    padding: 14px 16px;
-  }
-
-  .seisan-flow-arrow {
-    min-height: 28px;
-    font-size: 1rem;
-  }
-
-  .seisan-summary-card .seisan-summary-value { grid-column: 2; grid-row: 1; text-align: right; }
-  .seisan-summary-card .seisan-summary-sub { grid-column: 1 / -1; }
+  .seisan-summary-table :is(cds-table-header-cell, cds-table-cell) { padding-inline: 10px; }
+  .seisan-summary-table :is(cds-table-header-cell, cds-table-cell):first-child { width: 29%; }
+  .seisan-summary-table :is(cds-table-header-cell, cds-table-cell):nth-child(2) { width: 28%; }
+  .seisan-summary-table :is(cds-table-header-cell, cds-table-cell):last-child { width: 43%; }
+  .seisan-summary-table-amount { font-size: 1rem; }
 }

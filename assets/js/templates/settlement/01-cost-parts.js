@@ -66,17 +66,17 @@
 
     function formatGasInline(calc, helpers = {}) {
     if (calc?.usesTimesRental) return '';
-    return `<span class="seisan-extra-inline seisan-cost-line seisan-extra-inline--gas split"><span>ガソリン代</span>${formatCostBadge('split')}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.gas || 0, helpers)}</strong></span>`;
+    return `<span class="seisan-extra-inline seisan-cost-line seisan-cost-line--supporting seisan-extra-inline--gas split"><span>ガソリン代</span>${formatCostBadge('split')}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.gas || 0, helpers)}</strong></span>`;
   }
 
     function formatDriverCollectionOffsetInline(calc, helpers = {}) {
     if (!calc.collectionOffset) return '';
-    return { op: '−', html: `<span class="seisan-extra-inline seisan-cost-line seisan-extra-inline--offset" data-cost-type="offset"><span>集金</span><em class="seisan-cost-type-badge seisan-cost-type-badge--spacer" aria-hidden="true">割勘</em><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.collectionOffset, helpers)}</strong></span>` };
+    return { op: '−', html: `<span class="seisan-extra-inline seisan-cost-line seisan-cost-line--supporting seisan-extra-inline--offset" data-cost-type="offset"><span>集金</span><em class="seisan-cost-type-badge seisan-cost-type-badge--spacer" aria-hidden="true">割勘</em><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.collectionOffset, helpers)}</strong></span>` };
   }
 
     function formatDriverRoundInline(calc, helpers = {}) {
     if (!calc.driverRound) return '';
-    return { op: '＋', html: `<span class="seisan-extra-inline seisan-cost-line seisan-extra-inline--rounding split" data-cost-type="rounding"><span>端数処理分</span>${formatCostBadge('split')}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.driverRound, helpers)}</strong></span>` };
+    return { op: '＋', html: `<span class="seisan-extra-inline seisan-cost-line seisan-cost-line--supporting seisan-extra-inline--rounding split" data-cost-type="rounding"><span>端数処理分</span>${formatCostBadge('split')}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.driverRound, helpers)}</strong></span>` };
   }
 
     function isRewardExtraForDisplay(ex = {}) {

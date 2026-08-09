@@ -5,7 +5,7 @@ body.quick-edit-mode #sheet-view-area .sheet-chip.locked { opacity: 1; backgroun
 body.quick-edit-mode #sheet-view-area .sheet-chip.draggable { background: var(--surface-low); }
 
 @media (max-width: 640px) {
-  #sheet-view-area .sheet-car-col { min-width: 128px; }
+  body.quick-edit-mode #sheet-view-area .sheet-car-col { min-width: 128px; }
   #sheet-view-area .sheet-car-header { min-height: 40px; padding: 8px; }
   #sheet-view-area .sheet-driver-row,
   #sheet-view-area .sheet-seat-row,

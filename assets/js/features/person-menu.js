@@ -267,14 +267,15 @@ function updatePersonGradeBadge(person) {
     const meta = ensurePersonMeta(line);
     meta?.querySelector('.grade-badge')?.remove();
     if (grade > 0 && meta) {
+        const tagValue = ['male', 'female'].includes(person.dataset.gender) ? person.dataset.gender : 'unknown';
         const badge = ce('cds-tag', 'grade-badge carbon-display-tag');
         badge.dataset.grade = String(grade);
         badge.dataset.tagGroup = 'grade';
-        badge.dataset.tagValue = 'default';
-        badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', 'default') || 'gray');
+        badge.dataset.tagValue = tagValue;
+        badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', tagValue) || 'gray');
         badge.setAttribute('size', 'sm');
         badge.textContent = `${grade}年`;
-        badge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', 'default', badge.textContent) || badge.textContent);
+        badge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', tagValue, badge.textContent) || badge.textContent);
         meta.appendChild(badge);
     }
 }
@@ -286,10 +287,11 @@ function updatePersonGenderBadge(person) {
     line.querySelector('.gender-badge')?.remove();
     const badge = line.querySelector('.grade-badge');
     if (badge) {
+        const tagValue = ['male', 'female'].includes(person.dataset.gender) ? person.dataset.gender : 'unknown';
         badge.classList.remove('grade-male', 'grade-female', 'grade-unknown');
-        badge.dataset.tagValue = 'default';
-        badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', 'default') || 'gray');
-        badge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', 'default', badge.textContent) || badge.textContent);
+        badge.dataset.tagValue = tagValue;
+        badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', tagValue) || 'gray');
+        badge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', tagValue, badge.textContent) || badge.textContent);
     }
 }
 

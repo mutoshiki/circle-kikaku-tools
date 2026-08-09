@@ -5,11 +5,12 @@ function genderBadgeHtml(gender) {
     return '';
 }
 
-function renderGradeBadge(grade) {
+function renderGradeBadge(grade, gender = 'unknown') {
     const n = parseInt(grade) || 0;
     if (n <= 0) return '';
     const gradeText = `${n}年`;
-    const tagAttributes = window.SanpoTagTypes?.attributes('grade', 'default', 'sm', gradeText) || 'type="gray" size="sm"';
+    const tagValue = ['male', 'female'].includes(gender) ? gender : 'unknown';
+    const tagAttributes = window.SanpoTagTypes?.attributes('grade', tagValue, 'sm', gradeText) || 'type="gray" size="sm"';
     return `<cds-tag class="grade-badge carbon-display-tag" data-grade="${n}" ${tagAttributes}>${gradeText}</cds-tag>`;
 }
 
@@ -82,7 +83,7 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
     
     const safeName = escapeHtml(name);
     const safeMemo = escapeHtml(m || '');
-    const gradeHtml = renderGradeBadge(grade);
+    const gradeHtml = renderGradeBadge(grade, g);
     const genderHtml = genderBadgeHtml(g);
     div.innerHTML = `
         <div class="member-main-line">
@@ -109,7 +110,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none', pa
     if (participantId) col.dataset.participantId = String(participantId);
     const safeName = escapeHtml(name);
     const safeMemo = escapeHtml(dm || '');
-    const driverGradeHtml = renderGradeBadge(dgrade);
+    const driverGradeHtml = renderGradeBadge(dgrade, dg);
     const driverGenderHtml = genderBadgeHtml(dg);
     const groupSuffix = typeof getActiveGroupSuffix === 'function' ? getActiveGroupSuffix() : '車';
     let slotsHtml = `

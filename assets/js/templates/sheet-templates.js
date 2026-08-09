@@ -6,12 +6,6 @@
     return (helpers?.escapeHtml || window.escapeHtml || (v => String(v ?? '')))(value);
   }
 
-  function gradeBadge(grade, gender, helpers) {
-    const n = parseInt(grade) || 0;
-    if (n <= 0) return '<span class="sheet-grade-placeholder" aria-hidden="true"></span>';
-    return (helpers?.renderGradeBadge || (() => ''))(grade, gender);
-  }
-
   function normalizeTemplate(template = {}) {
     if (template && typeof template === 'object' && template.ownerLabel) return template;
     return {
@@ -27,18 +21,14 @@
   }
 
   function plainMember(member, helpers = {}) {
-    const grade = member.grade || 0;
-    const flag = normalizePersonFlag(member.flag);
-    return `${gradeBadge(grade, member.gender || 'unknown', helpers)}<span class="sheet-cell-text">${esc(member.name, helpers)}</span>${renderPersonFlag(flag).replace('person-flag', 'sheet-person-flag')}`;
+    return `<span class="sheet-cell-text">${esc(member.name, helpers)}</span>`;
   }
 
   function memberChip(member, helpers = {}) {
-    const grade = member.grade || 0;
     const gender = member.gender || 'unknown';
     const draggable = !!helpers.isDraggable?.(member);
     const lockIcon = member.locked ? `<span data-carbon-icon="locked" class="sheet-chip-lock" aria-hidden="true"></span>` : '';
-    const flagIcon = renderPersonFlag(member.flag).replace('person-flag', 'sheet-person-flag');
-    return `<div class="sheet-chip ${draggable ? 'draggable' : ''} ${member.locked ? 'locked' : ''}" data-name="${esc(member.name, helpers)}" data-gender="${gender}" data-locked="${member.locked ? 'true' : 'false'}">${gradeBadge(grade, gender, helpers)}<span class="sheet-chip-text">${esc(member.name, helpers)}</span>${flagIcon}${lockIcon}</div>`;
+    return `<div class="sheet-chip ${draggable ? 'draggable' : ''} ${member.locked ? 'locked' : ''}" data-name="${esc(member.name, helpers)}" data-gender="${gender}" data-locked="${member.locked ? 'true' : 'false'}"><span class="sheet-chip-text">${esc(member.name, helpers)}</span>${lockIcon}</div>`;
   }
 
   function empty() {
@@ -72,9 +62,8 @@
     let html = `<div class="sheet-car-header">${esc(groupTitle, helpers)} <cds-tag class="sheet-capacity-badge carbon-display-tag ${capacityClass}" ${capacityTagAttributes}>${capacityText}</cds-tag></div>`;
 
     const dg = car.driverGender || 'unknown';
-    const dgrade = parseInt(car.driverGrade) || 0;
     html += `<div class="sheet-driver-row" data-gender="${dg}">
-        ${gradeBadge(dgrade, dg, helpers)}<span class="sheet-driver-name">${esc(car.name, helpers)}</span>${renderPersonFlag(car.driverFlag).replace('person-flag', 'sheet-person-flag')}
+        <span class="sheet-driver-name">${esc(car.name, helpers)}</span>
     </div>`;
 
     for (let i = 0; i < cap; i++) {

@@ -157,6 +157,17 @@
   font-size: var(--settlement-car-amount-size);
 }
 
+#seisan-view-area .seisan-car-summary-row .seisan-cost-line--supporting > span:first-child,
+#seisan-view-area .seisan-car-summary-row .seisan-cost-line--supporting .seisan-cost-line-amount {
+  color: var(--cds-text-secondary, var(--text-sub));
+  -webkit-text-fill-color: var(--cds-text-secondary, var(--text-sub));
+  font-weight: 500;
+}
+
+#seisan-view-area .seisan-car-summary-row .seisan-cost-line--supporting :is(.seisan-cost-type-badge, .seisan-cost-policy-tag) {
+  opacity: 0.72;
+}
+
 #seisan-view-area .seisan-amount-sign {
   display: inline-flex;
   flex: 0 0 0.9em;
