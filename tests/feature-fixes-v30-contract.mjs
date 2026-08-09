@@ -22,7 +22,7 @@ const overviewEvents = read('assets/js/features/events/02-static-header-events.j
 const sheetViewport = read('assets/js/features/sheet/02-viewport-controls.js');
 const ui = read('assets/js/modules/ui.js');
 
-expect(settlement.includes('Missing organizer is guidance, not a save-blocking data error'), 'Organizer guidance must not block settings save');
+expect(settlement.includes("invalidText = showErrors && invalid ? '企画者を選択してください'"), 'Organizer-required validation copy is missing');
 expect(settlement.includes('promptDiscardInvalidSettlementSettings'), 'Settlement settings discard-confirm flow is missing');
 expect(settlement.includes("title: '入力内容を破棄'"), 'Settlement settings discard modal title is missing');
 expect(settlementEvents.includes("#seisanOrganizerFree, #seisanOrganizerName"), 'Organizer controls do not refresh validation state');

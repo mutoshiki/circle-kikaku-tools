@@ -238,109 +238,6 @@ function applyEntityPatchToObject(baseRaw = {}, patch = {}) {
     return result;
 }
 
-
-function getSyncPathValue(root, path) {
-    return String(path || '').split('/').filter(Boolean).reduce((value, key) => value == null ? undefined : value[key], root);
-}
-
-function syncPathVersionKey(path) {
-    return encodeURIComponent(String(path || '')).replace(/\./g, '%2E');
-}
-
-function syncVersionsEqual(a, b) {
-    if (!a && !b) return true;
-    if (!a || !b) return false;
-    return Number(a.clock || 0) === Number(b.clock || 0)
-        && Number(a.time || 0) === Number(b.time || 0)
-        && String(a.clientId || '') === String(b.clientId || '')
-        && Number(a.seq || 0) === Number(b.seq || 0);
-}
-
-function compareSyncVersions(a, b) {
-    if (!b) return 1;
-    if (!a) return -1;
-    for (const key of ['clock', 'time']) {
-        const diff = Number(a[key] || 0) - Number(b[key] || 0);
-        if (diff) return diff > 0 ? 1 : -1;
-    }
-    const clientDiff = String(a.clientId || '').localeCompare(String(b.clientId || ''));
-    if (clientDiff) return clientDiff > 0 ? 1 : -1;
-    const seqDiff = Number(a.seq || 0) - Number(b.seq || 0);
-    return seqDiff === 0 ? 0 : (seqDiff > 0 ? 1 : -1);
-}
-
-function syncEntityTimeForPath(local, path) {
-    const parts = String(path || '').split('/').filter(Boolean);
-    if (parts[0] === 'participants' && parts[1]) return Number(local?.participants?.[parts[1]]?.updatedAt || local?.lastUpdatedAt || 0);
-    if (parts[0] === 'participantTombstones' && parts[1]) return Number(local?.participantTombstones?.[parts[1]]?.deletedAt || local?.lastUpdatedAt || 0);
-    if (parts[0] === 'allocations' && parts[1]) {
-        if (parts[2] === 'groups' && parts[3]) return Number(local?.allocations?.[parts[1]]?.groups?.[parts[3]]?.updatedAt || local?.lastUpdatedAt || 0);
-        if (parts[2] === 'placements' && parts[3]) return Number(local?.allocations?.[parts[1]]?.placements?.[parts[3]]?.updatedAt || local?.lastUpdatedAt || 0);
-        return Number(local?.allocations?.[parts[1]]?.updatedAt || local?.lastUpdatedAt || 0);
-    }
-    if (parts[0] === 'settlement' && parts[1] === 'carsByParticipantId' && parts[2]) {
-        return Number(local?.settlement?.carsByParticipantId?.[parts[2]]?.updatedAt || local?.lastUpdatedAt || 0);
-    }
-    return Number(local?.lastUpdatedAt || 0);
-}
-
-function applyPatchPathInPlace(result, path, value) {
-    const parts = String(path || '').split('/').filter(Boolean);
-    if (!parts.length) return;
-    let cursor = result;
-    for (let i = 0; i < parts.length - 1; i += 1) {
-        const key = parts[i];
-        if (!cursor[key] || typeof cursor[key] !== 'object') cursor[key] = {};
-        cursor = cursor[key];
-    }
-    const key = parts[parts.length - 1];
-    if (value === null) delete cursor[key];
-    else cursor[key] = cloneSyncValue(value);
-}
-
-function applyVersionedEntityPatch(remoteRaw = {}, baseRaw = {}, localRaw = {}, patch = {}, requestVersion = 0) {
-    const remote = cloneSyncValue(remoteRaw || {}) || {};
-    const base = cloneSyncValue(baseRaw || {}) || {};
-    const local = cloneSyncValue(localRaw || {}) || {};
-    remote.pathVersions = cloneSyncValue(remote.pathVersions || {}) || {};
-    const baseVersions = base.pathVersions || {};
-    const baseClock = Math.max(Number(base.syncClock || 0), ...Object.values(baseVersions).map(v => Number(v?.clock || 0)), 0);
-    const candidateClock = baseClock + 1;
-    let applied = 0;
-
-    Object.entries(patch).forEach(([path, value]) => {
-        if (['lastUpdatedAt', 'lastUpdatedBy', 'revision'].includes(path)) return;
-        const key = syncPathVersionKey(path);
-        const remoteVersion = remote.pathVersions[key] || null;
-        const baseVersion = baseVersions[key] || null;
-        const candidate = {
-            clock: candidateClock,
-            time: syncEntityTimeForPath(local, path),
-            clientId: String(local.lastUpdatedBy || myClientId || ''),
-            seq: Number(requestVersion || 0)
-        };
-        const concurrent = !syncVersionsEqual(remoteVersion, baseVersion);
-        if (concurrent && compareSyncVersions(candidate, remoteVersion) <= 0) return;
-        applyPatchPathInPlace(remote, path, value);
-        remote.pathVersions[key] = candidate;
-        applied += 1;
-    });
-
-    if (!applied) return migrateAppData(remote);
-    remote.syncClock = Math.max(Number(remote.syncClock || 0), candidateClock);
-    remote.lastUpdatedAt = Number(local.lastUpdatedAt || Date.now());
-    remote.lastUpdatedBy = String(local.lastUpdatedBy || myClientId || '');
-    remote.revision = Math.max(0, Number(remote.revision || 0)) + 1;
-    // Canonicalization enforces participant tombstones, orphan cleanup and capacity.
-    const normalized = migrateAppData(remote);
-    normalized.pathVersions = remote.pathVersions;
-    normalized.syncClock = remote.syncClock;
-    normalized.lastUpdatedAt = remote.lastUpdatedAt;
-    normalized.lastUpdatedBy = remote.lastUpdatedBy;
-    normalized.revision = remote.revision;
-    return normalized;
-}
-
 function buildConcurrentRoomMerge(remoteRaw, baseRaw, localRaw) {
     const patch = buildEntityPatch(baseRaw, localRaw);
     return migrateAppData(applyEntityPatchToObject(migrateAppData(remoteRaw || {}), patch));
@@ -379,20 +276,12 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
 
     syncWriteInFlight = true;
     try {
-        let committed;
-        if (typeof runTransaction === 'function') {
-            const result = await runTransaction(dbRef, currentRemote => {
-                return applyVersionedEntityPatch(currentRemote || {}, baseAtWrite, localSnapshot, patch, requestVersion);
-            }, { applyLocally: false });
-            if (!result.committed) throw new Error('Firebase entity transaction was not committed');
-            committed = migrateAppData(result.snapshot.val() || {});
-        } else {
-            // Compatibility fallback for environments without RTDB transactions.
-            await update(dbRef, patch);
-            committed = migrateAppData(applyEntityPatchToObject(baseAtWrite, patch));
-        }
-        rememberSyncedData(committed);
-        L.setItem(CFG.STORE + '_' + roomId, J.stringify(committed));
+        await update(dbRef, patch);
+        // Preserve untouched server entities from our last base while immediately advancing
+        // the paths we wrote. The onValue snapshot that follows becomes the authoritative base.
+        const optimistic = migrateAppData(applyEntityPatchToObject(baseAtWrite, patch));
+        rememberSyncedData(optimistic);
+        L.setItem(CFG.STORE + '_' + roomId, J.stringify(optimistic));
 
         const pendingTime = Number(pendingRemoteRoomData?.lastUpdatedAt || 0);
         const localTime = Number(localSnapshot.lastUpdatedAt || 0);
@@ -401,7 +290,7 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
             pendingRemoteSettlementData = null;
         }
         updateStatus('connected', '同期完了');
-        return committed;
+        return optimistic;
     } catch (error) {
         console.error(error);
         updateStatus('error', '保存失敗');
@@ -541,5 +430,3 @@ window.resetData = async () => {
         set(dbRef, null).then(() => { location.reload(); }).catch(err => { console.error(err); showAppNotice('リセットに失敗しました。', true); });
     } else location.reload();
 };
-
-window.SanpoEntitySyncTest = Object.freeze({ buildEntityPatch, applyEntityPatchToObject, applyVersionedEntityPatch, compareSyncVersions, syncPathVersionKey });

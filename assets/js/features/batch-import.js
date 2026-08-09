@@ -277,7 +277,17 @@ async function executeBatch() {
         const key = normalize(name);
         if (key && !requestedNames.some(item => item.key === key)) requestedNames.push({ key, name });
     });
+    // Deleted participant ids are reserved forever for this room. Participant ids are
+    // the foreign keys used by allocations and settlement, so reusing a tombstoned id
+    // would let a delayed write from an old phone attach itself to a newly registered
+    // person with the same display name. Reserve tombstones while allocating ids, then
+    // record every roster removal before replacing the participant master.
+    const tombstones = canonical.participantTombstones || (canonical.participantTombstones = {});
     const newParticipants = {};
+    const tombstonePlaceholders = new Set(Object.keys(tombstones));
+    tombstonePlaceholders.forEach(id => {
+        newParticipants[id] = { id, name: '__deleted__', updatedAt: Number(tombstones[id]?.deletedAt || 0) };
+    });
     const newParticipantIds = [];
     requestedNames.forEach(({ key, name }) => {
         const previous = oldByName.get(key);
@@ -291,6 +301,13 @@ async function executeBatch() {
             flag: normalizePersonFlag(existing.flag)
         }, previous?.id || '');
         if (!previous && id) newParticipantIds.push(id);
+    });
+    tombstonePlaceholders.forEach(id => {
+        if (newParticipants[id]?.name === '__deleted__') delete newParticipants[id];
+    });
+    const deletionTime = Date.now();
+    Object.keys(oldParticipants).forEach(id => {
+        if (!newParticipants[id]) tombstones[id] = { deletedAt: deletionTime };
     });
     canonical.participants = newParticipants;
 
