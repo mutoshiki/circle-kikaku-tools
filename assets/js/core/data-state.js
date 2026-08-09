@@ -1,12 +1,43 @@
 // Data/state feature
 // Owns app snapshot serialization, restoration, car-plan switching, and small card state toggles.
 
+// Which allocation tab a person is viewing and whether their waiting tray is collapsed are
+// device presentation preferences, not room collaboration data.  Keeping these local prevents
+// one phone from switching every other phone from 車割 to 班割 (or collapsing their tray) and
+// removes a major source of remote repaint races while a modal is open.
+function getDeviceRoomUiStateKey() {
+    return `sanpoRoomUi:v1:${roomId}`;
+}
+
+function readDeviceRoomUiState() {
+    const stored = safeJsonParse(localStorage.getItem(getDeviceRoomUiStateKey()), {}) || {};
+    return {
+        activeAllocationType: stored.activeAllocationType === 'team' ? 'team' : (stored.activeAllocationType === 'car' ? 'car' : ''),
+        trayMinimized: typeof stored.trayMinimized === 'boolean' ? stored.trayMinimized : null
+    };
+}
+
+function writeDeviceRoomUiState(patch = {}) {
+    const current = readDeviceRoomUiState();
+    const next = { ...current, ...patch };
+    if (next.activeAllocationType !== 'team') next.activeAllocationType = 'car';
+    if (typeof next.trayMinimized !== 'boolean') delete next.trayMinimized;
+    try { localStorage.setItem(getDeviceRoomUiStateKey(), JSON.stringify(next)); }
+    catch (error) { console.warn('Failed to save device room UI state:', error); }
+    return next;
+}
+
+window.SanpoDeviceRoomUi = Object.freeze({
+    read: readDeviceRoomUiState,
+    write: writeDeviceRoomUiState
+});
+
 function cloneData(value) {
     return JSON.parse(JSON.stringify(value ?? null));
 }
 
 function createCarPlanId() {
-    return `plan-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    return `plan-${(window.SanpoClock?.now?.() ?? Date.now()).toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 const SINGLE_CAR_PLAN_ID = 'plan-car';
@@ -118,8 +149,8 @@ function normalizeCarPlan(plan = {}, index = 0) {
         cars: Array.isArray(plan.cars) ? cloneData(plan.cars) : [],
         templateType,
         lastAutoAssignLabel: String(plan.lastAutoAssignLabel || ''),
-        createdAt: Number(plan.createdAt || Date.now()) || Date.now(),
-        updatedAt: Number(plan.updatedAt || Date.now()) || Date.now()
+        createdAt: Number(plan.createdAt || (window.SanpoClock?.now?.() ?? Date.now())) || (window.SanpoClock?.now?.() ?? Date.now()),
+        updatedAt: Number(plan.updatedAt || (window.SanpoClock?.now?.() ?? Date.now())) || (window.SanpoClock?.now?.() ?? Date.now())
     };
 }
 
@@ -461,6 +492,7 @@ function switchCarPlan(id, { persist = true } = {}) {
         if (currentType === nextType) return;
         syncActiveCarPlanFromDom();
         canonical.activeAllocationType = nextType;
+        writeDeviceRoomUiState({ activeAllocationType: nextType });
         activeCarPlanId = getSinglePlanId(nextType);
         const next = window.SanpoCanonicalState.projectAllocation(canonical, nextType);
         lastAutoAssignLabel = next.lastAutoAssignLabel || '';
@@ -499,7 +531,7 @@ async function renameActiveCarPlan() {
     if (canonical) {
         const type = canonical.activeAllocationType === 'team' ? 'team' : 'car';
         canonical.allocations[type].name = trimmed;
-        canonical.allocations[type].updatedAt = Date.now();
+        canonical.allocations[type].updatedAt = (window.SanpoClock?.now?.() ?? Date.now());
     }
     renderCarPlanSwitcher();
     updateUI();
@@ -570,6 +602,10 @@ function getData(options = {}) {
     const canonical = window.SanpoCanonicalState?.get?.() || window.SanpoCanonicalState?.set?.({});
     const activeType = canonical?.activeAllocationType === 'team' ? 'team' : 'car';
     const domAllocation = options.skipDomSync ? null : getCurrentAllocationFromDom();
+    writeDeviceRoomUiState({
+        activeAllocationType: activeType,
+        trayMinimized: byId('bottom-tray')?.classList.contains('minimized') || false
+    });
     const snapshot = window.SanpoCanonicalState.createSnapshotFromUi({
         roomName: $('#roomNameInput').value,
         trayMinimized: byId('bottom-tray')?.classList.contains('minimized') || false,
@@ -582,7 +618,7 @@ function getData(options = {}) {
         domAllocation,
         lastAutoAssignLabel
     });
-    snapshot.lastUpdatedAt = lastUpdatedAt || snapshot.lastUpdatedAt || Date.now();
+    snapshot.lastUpdatedAt = lastUpdatedAt || snapshot.lastUpdatedAt || (window.SanpoClock?.now?.() ?? Date.now());
     window.SanpoApp?.state?.setSnapshot?.(snapshot);
     return snapshot;
 }
@@ -604,7 +640,10 @@ function restore(d) {
         settlement: restoredLockScopes ? !!restoredLockScopes.settlement : editLockEnabled
     };
     editLockEnabled = !!editLockPassphrase && (editLockScopes.allocation || editLockScopes.settlement);
-    const activeType = canonical.activeAllocationType === 'team' ? 'team' : 'car';
+    const deviceUi = readDeviceRoomUiState();
+    const activeType = deviceUi.activeAllocationType || (canonical.activeAllocationType === 'team' ? 'team' : 'car');
+    canonical.activeAllocationType = activeType;
+    writeDeviceRoomUiState({ activeAllocationType: activeType });
     activeCarPlanId = getSinglePlanId(activeType);
     carPlans = window.SanpoCanonicalState?.projectPlans?.(canonical) || [];
     const active = window.SanpoCanonicalState?.projectAllocation?.(canonical, activeType) || carPlans.find(plan => plan.id === activeCarPlanId) || carPlans[0];
@@ -616,8 +655,11 @@ function restore(d) {
     refreshRoomTitle();
     const tray = byId('bottom-tray');
     if (tray) {
-        tray.classList.toggle('minimized', canonical.trayMinimized === true);
-        tray.dataset.userMinimized = canonical.trayMinimized ? 'true' : 'false';
+        const trayMinimized = deviceUi.trayMinimized == null ? canonical.trayMinimized === true : deviceUi.trayMinimized;
+        canonical.trayMinimized = trayMinimized;
+        writeDeviceRoomUiState({ trayMinimized });
+        tray.classList.toggle('minimized', trayMinimized);
+        tray.dataset.userMinimized = trayMinimized ? 'true' : 'false';
     }
     renderActiveCarPlanToDom();
     if (currentView === 'seisan') renderSettlementView();

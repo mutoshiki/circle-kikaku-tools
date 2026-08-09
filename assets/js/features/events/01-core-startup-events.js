@@ -37,6 +37,8 @@
 
                 if (card.parentElement.id === 'waiting-list') {
                     if (await appConfirm('このメンバーを完全に削除しますか？', { title: 'メンバー削除', okText: '削除', danger: true })) {
+                        const participantKey = card.dataset.participantId || card.dataset.name || '';
+                        window.SanpoCanonicalState?.deleteParticipant?.(participantKey);
                         card.remove();
                     }
                 } else if (await appConfirm('車から降ろして未割り当てメンバーに戻しますか？', { title: '未割り当てに戻す', okText: '戻す' })) {
@@ -64,7 +66,7 @@
                 }
             }
             updateUI();
-            global.__lastLocalUpdatedAt = Date.now();
+            global.__lastLocalUpdatedAt = (window.SanpoClock?.now?.() ?? Date.now());
             save();
         });
 

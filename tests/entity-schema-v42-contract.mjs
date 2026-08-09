@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 const entitySource = fs.readFileSync(new URL('../assets/js/core/entity-state-v5.js', import.meta.url), 'utf8');
-const entityContext = vm.createContext({ window: {}, console, Date, JSON, Math, Object, Array, Set, Map, String, Number, parseInt });
+const entityContext = vm.createContext({ window: { SanpoClock: { now: () => Date.now(), isServerAligned: () => true } }, console, Date, JSON, Math, Object, Array, Set, Map, String, Number, parseInt });
 vm.runInContext(`${entitySource}\n;globalThis.__entity = window.SanpoCanonicalState;`, entityContext);
 const entity = entityContext.__entity;
 
@@ -31,14 +31,20 @@ const carProjection = entity.projectAllocation(entity.get(), 'car');
 const alice = carProjection.waiting.find(p => p.name === 'Alice');
 assert.ok(alice?.participantId, 'UI projection carries stable participant id');
 
-// Deleting Alice from the complete active roster is globally authoritative.
+// A temporarily missing DOM card is not deletion. DOM is only a projection of canonical state.
+const aliceId = alice.participantId;
 const domWithoutAlice = {
   waiting: [],
   cars: carProjection.cars.map(car => ({ ...car, members: car.members.filter(member => member.name !== 'Alice') }))
 };
 entity.captureFromDom(entity.get(), domWithoutAlice, 'car');
+assert.ok(entity.get().participants[aliceId], 'transient DOM absence must not delete a participant');
+
+// Explicit deletion is globally authoritative and tombstoned.
+assert.equal(entity.deleteParticipant(aliceId), true);
 const afterDelete = entity.get();
 assert.equal(Object.values(afterDelete.participants).some(p => p.name === 'Alice'), false, 'deleted participant cannot remain in participant master');
+assert.ok(afterDelete.participantTombstones[aliceId], 'explicit participant deletion creates a tombstone');
 assert.equal(entity.projectAllocation(afterDelete, 'team').waiting.some(p => p.name === 'Alice'), false, 'deleted participant cannot resurrect from another allocation');
 assert.equal(Object.keys(afterDelete.settlement.paidByParticipantId || {}).some(id => !afterDelete.participants[id]), false, 'settlement references are pruned with participant deletion');
 
@@ -99,7 +105,7 @@ assert.equal(merged.participants[aliceId2], undefined, 'Alice remains deleted');
 assert.equal(merged.allocations.car.placements[bobId2].kind, 'waiting', 'concurrent Bob move survives');
 
 const index = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-assert.match(index, /entity-state-v5\.js\?v=entity-schema-v42/);
+assert.match(index, /entity-state-v5\.js\?v=root-stability-v44/);
 assert.doesNotMatch(index, /core\/runtime\.js\?v=multi-user-sync-v40/);
 
 console.log('Entity schema v42 canonical state + entity sync contract: PASS');

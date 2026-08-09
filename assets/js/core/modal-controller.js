@@ -187,6 +187,7 @@
             this.closed = false;
             this.element.hidden = false;
             this.element.open = true;
+            global.SanpoRemoteGuard?.markLocalEditing?.(240);
             syncModalPageState(true);
             requestAnimationFrame(() => syncModalPageState());
             removeUnnamedModalBodyStop(this.element);
@@ -217,6 +218,7 @@
             this.element.hidden = true;
             syncModalPageState();
             this.element.dispatchEvent(new CustomEvent('sanpo:modal-hidden'));
+            global.SanpoRemoteGuard?.requestPendingApply?.(0);
             const target = this.returnFocus;
             const restoreForKeyboard = this.restoreFocusForKeyboard;
             this.returnFocus = null;
@@ -266,23 +268,6 @@
                 if (!global.shouldPreserveSettlementCarEditorOnHidden?.()) global.clearSettlementCarEditor?.();
             });
         }
-        // Static Carbon modal footer buttons have a single, direct event owner.
-        // They used to rely on document-level generated-HTML delegation, which is the
-        // wrong ownership boundary for controls that already exist in index.html and is
-        // especially fragile around shadow-DOM retargeting on mobile Safari.
-        const bindStaticSettlementSave = (id, handlerName) => {
-            const button = document.getElementById(id);
-            if (!button || button.dataset.directSaveBound === 'true') return;
-            button.dataset.directSaveBound = 'true';
-            button.addEventListener('click', event => {
-                event.preventDefault();
-                event.stopPropagation();
-                global[handlerName]?.();
-            });
-        };
-        bindStaticSettlementSave('saveSettlementSettingsBtn', 'saveSettlementSettings');
-        bindStaticSettlementSave('saveSettlementCarEditBtn', 'saveSettlementCarEdit');
-
         const settingsModal = document.getElementById('settlementSettingsModal');
         if (settingsModal && settingsModal.dataset.settlementModalBound !== 'true') {
             settingsModal.dataset.settlementModalBound = 'true';

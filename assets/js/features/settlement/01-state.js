@@ -549,19 +549,6 @@ function getSettlementCarRowsForDomSync() {
     return rows;
 }
 
-function readSettlementSelectValue(host, fallback = '') {
-    if (!host) return fallback;
-    const hostValue = String(host.value ?? '').trim();
-    if (hostValue) return hostValue;
-    // During the first microtask after Carbon re-renders, <cds-select> can still
-    // expose an empty host value while the selected <cds-select-item> is already
-    // correct. Never downgrade a signed expense type to its default in that gap.
-    const selected = host.querySelector?.('cds-select-item[selected]')
-        || Array.from(host.querySelectorAll?.('cds-select-item') || []).find(item => item.selected === true);
-    const selectedValue = String(selected?.value ?? selected?.getAttribute?.('value') ?? '').trim();
-    return selectedValue || fallback;
-}
-
 function syncSettlementStateFromDOM() {
     const state = ensureSettlementState();
     const rounding = byId('seisanRounding');
@@ -575,13 +562,13 @@ function syncSettlementStateFromDOM() {
     const standaloneDriverCount = byId('seisanStandaloneDriverCount');
     const standaloneMemberCount = byId('seisanStandaloneMemberCount');
 
-    if (rounding) state.rounding = readSettlementSelectValue(rounding, state.rounding || '100');
+    if (rounding) state.rounding = rounding.value || '100';
     if (organizerFree) state.organizerFree = organizerFree.checked;
     if (organizerName) state.organizerName = organizerName.value || '';
     if (driverCollectionOffset) state.driverCollectionOffset = driverCollectionOffset.checked;
     if (driverCollectionFree) state.driverCollectionFree = driverCollectionFree.checked;
     if (driverReward) state.driverReward = driverReward.value;
-    if (driverRewardType) state.driverRewardType = normalizeDriverRewardType(readSettlementSelectValue(driverRewardType, state.driverRewardType || 'split'));
+    if (driverRewardType) state.driverRewardType = normalizeDriverRewardType(driverRewardType.value);
     state.standalone = normalizeStandaloneSettlementState({
         enabled: standaloneEnabled ? standaloneEnabled.checked : state.standalone?.enabled,
         driverCount: standaloneDriverCount ? standaloneDriverCount.value : state.standalone?.driverCount,
@@ -617,7 +604,7 @@ function syncSettlementStateFromDOM() {
             return normalizeExtraItem({
                 name: nameValue,
                 amount: amountValue,
-                type: readSettlementSelectValue(exRow.querySelector('[data-extra-field="type"]'), 'split'),
+                type: exRow.querySelector('[data-extra-field="type"]')?.value || 'split',
                 pending: exRow.dataset.extraPending === 'true' && (!String(nameValue).trim() || !String(amountValue).trim()),
                 timesFeeKind: exRow.dataset.timesExtra === 'time' || exRow.dataset.timesExtra === 'distance' ? exRow.dataset.timesExtra : ''
             });
@@ -625,7 +612,7 @@ function syncSettlementStateFromDOM() {
         const rentalField = row.querySelector('[data-field="rentalType"]');
         const rentalType = rentalField?.type === 'checkbox' || rentalField?.tagName === 'CDS-TOGGLE'
             ? (rentalField.checked ? TIMES_RENTAL_TYPE : TIMES_PRIVATE_TYPE)
-            : readSettlementSelectValue(rentalField, TIMES_PRIVATE_TYPE);
+            : (rentalField?.value || TIMES_PRIVATE_TYPE);
         state.cars[name] = ensureDriverRewardExtra({
             dist: row.querySelector('[data-field="dist"]')?.value || '',
             eco: row.querySelector('[data-field="eco"]')?.value || '',

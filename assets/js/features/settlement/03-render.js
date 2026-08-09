@@ -306,24 +306,17 @@ function focusFirstSettlementCarValidationError() {
 
 function validateActiveSettlementCarEditor(showErrors = true) {
     if (!activeSettlementCarEditName) return true;
+    // Commit the live Carbon controls first. Validation must never rebuild a valid editor:
+    // rebuilding replaces upgraded cds-select hosts and can reset their public value before save.
     syncSettlementStateFromDOM();
     const issues = getSettlementCarEditIssues(activeSettlementCarEditName);
     const valid = issues.fields.size === 0;
     if (!showErrors) return valid;
     settlementCarEditValidationActive = !valid;
-<<<<<<< HEAD
-    // Re-render only to expose Carbon validation when invalid. Reconstructing a
-    // valid editor immediately before Save replaces upgraded Carbon fields with
-    // fresh hosts whose reactive values have not settled yet (notably cds-select),
-    // which could silently turn "割勘 − / 部費 −" back into the default.
     if (!valid) {
         refreshSettlementCarEditor(activeSettlementCarEditName);
         focusFirstSettlementCarValidationError();
     }
-=======
-    refreshSettlementCarEditor(activeSettlementCarEditName);
-    if (!valid) focusFirstSettlementCarValidationError();
->>>>>>> parent of 5187dd7 (rhrdbdbrb)
     return valid;
 }
 
@@ -384,7 +377,7 @@ function validateAndSaveSettlementCarEditBeforeClose() {
         queueMicrotask(promptDiscardInvalidSettlementCarEdit);
         return false;
     }
-    saveSettlementCarEditDraft();
+    saveSettlementCarEditDraft({ render: true, refreshEditor: false });
     return true;
 }
 
@@ -392,7 +385,7 @@ function prepareSettlementCarEditTransition(options = {}) {
     const allowInvalid = options?.allowInvalid === true;
     const preserveSession = options?.preserveSession === true;
     if (!allowInvalid && !validateActiveSettlementCarEditor(true)) return false;
-    saveSettlementCarEditDraft();
+    saveSettlementCarEditDraft({ render: false, refreshEditor: preserveSession });
     settlementCarEditClosePrepared = true;
     if (preserveSession) settlementCarEditPreserveOnHidden = true;
     return true;
@@ -465,14 +458,23 @@ function validateOrganizerSettlementSettings(showErrors = true) {
     const organizerFree = byId('seisanOrganizerFree');
     const organizer = byId('seisanOrganizerName');
     const organizerField = byId('seisanOrganizerField');
-    const invalid = !!organizerFree?.checked && !String(organizer?.value || '').trim();
+    const missing = !!organizerFree?.checked && !String(organizer?.value || '').trim();
     if (organizerField) organizerField.hidden = !organizerFree?.checked;
     if (organizer) {
-        organizer.invalid = showErrors && invalid;
-        organizer.invalidText = showErrors && invalid ? '企画者を選択してください' : '';
-        organizer.setAttribute('aria-invalid', showErrors && invalid ? 'true' : 'false');
+        // Missing organizer is guidance, not a save-blocking data error. The calculator already
+        // treats this condition as informational; the settings modal must follow the same rule.
+        organizer.invalid = false;
+        organizer.invalidText = '';
+        organizer.removeAttribute('invalid');
+        organizer.removeAttribute('invalid-text');
+        organizer.setAttribute('aria-invalid', 'false');
+        organizer.warn = showErrors && missing;
+        organizer.warnText = showErrors && missing ? '企画者を選ぶと、集金対象外を正確にできます' : '';
+        organizer.toggleAttribute('warn', showErrors && missing);
+        if (organizer.warnText) organizer.setAttribute('warn-text', organizer.warnText);
+        else organizer.removeAttribute('warn-text');
     }
-    return !invalid;
+    return true;
 }
 
 function focusFirstSettlementSettingsValidationError() {
@@ -562,34 +564,30 @@ function clearSettlementSettingsEditor() {
     settlementSettingsDiscardPromptActive = false;
 }
 
-function persistSettlementEditLocallyAndQueueSync() {
-    try {
-        // Save the canonical state before any render can replace the live Carbon
-        // form controls. Remote persistence remains queued by save(), while this
-        // synchronous local commit determines whether it is safe to close the modal.
-        save();
-        return true;
-    } catch (error) {
-        console.error('Settlement save failed:', error);
-        showAppNotice?.('精算内容を保存できませんでした。入力内容は閉じずに保持しています。', true);
-        return false;
-    }
+function renderSettlementAfterModalCommit(modalId) {
+    const modal = byId(modalId);
+    const render = () => {
+        if (modal?.open) return;
+        renderSettlementView({ force: true });
+    };
+    // Carbon closes asynchronously.  Render the underlying screen after the top-layer modal
+    // is gone so a remote/UI rebuild cannot invalidate the footer click that initiated save.
+    queueMicrotask(render);
+    requestAnimationFrame(render);
 }
 
-function saveSettlementSettingsDraft({ renderAfter = true } = {}) {
+function saveSettlementSettingsDraft({ render = true } = {}) {
     syncSettlementStateFromDOM();
-    const saved = persistSettlementEditLocallyAndQueueSync();
-    if (saved && renderAfter) renderSettlementView({ force: true });
-    return saved;
+    save();
+    if (render) renderSettlementAfterModalCommit('settlementSettingsModal');
 }
 
 function saveSettlementSettings() {
-    if (!validateSettlementSettings(true)) return false;
-    if (!saveSettlementSettingsDraft({ renderAfter: false })) return false;
+    if (!validateSettlementSettings(true)) return;
+    saveSettlementSettingsDraft({ render: false });
     settlementSettingsClosePrepared = true;
-    modals.settlementSettings?.hide({ reason: 'submit' });
-    renderSettlementView({ force: true });
-    return true;
+    if (modals.settlementSettings) modals.settlementSettings.hide({ reason: 'submit' });
+    renderSettlementAfterModalCommit('settlementSettingsModal');
 }
 
 function openSettlementCarEditor(encodedName) {
@@ -620,7 +618,7 @@ function resumeSettlementCarEditor(encodedName) {
     if (modals.settlementCarEdit) modals.settlementCarEdit.show();
 }
 
-function saveSettlementCarEditDraft({ renderAfter = true, refreshRenamedEditor = renderAfter } = {}) {
+function saveSettlementCarEditDraft({ render = true, refreshEditor = false } = {}) {
     const body = byId('settlementCarEditBody');
     const standaloneRow = body?.querySelector?.('.seisan-car-row[data-standalone-driver-index]');
     let renamedStandaloneDriver = '';
@@ -631,24 +629,22 @@ function saveSettlementCarEditDraft({ renderAfter = true, refreshRenamedEditor =
     }
     syncSettlementStateFromDOM();
     if (renamedStandaloneDriver) activeSettlementCarEditName = renamedStandaloneDriver;
-    const saved = persistSettlementEditLocallyAndQueueSync();
-    if (!saved) return false;
-    if (renderAfter) renderSettlementView({ force: true });
-    if (renamedStandaloneDriver && refreshRenamedEditor) {
+    save();
+
+    if (renamedStandaloneDriver && refreshEditor) {
         const title = byId('settlementCarEditModalTitle');
         if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(renamedStandaloneDriver)}車の費用`;
         refreshSettlementCarEditor(renamedStandaloneDriver);
     }
-    return true;
+    if (render) renderSettlementAfterModalCommit('settlementCarEditModal');
 }
 
 function saveSettlementCarEdit() {
-    if (!validateActiveSettlementCarEditor(true)) return false;
-    if (!saveSettlementCarEditDraft({ renderAfter: false, refreshRenamedEditor: false })) return false;
+    if (!validateActiveSettlementCarEditor(true)) return;
+    saveSettlementCarEditDraft({ render: false, refreshEditor: false });
     settlementCarEditClosePrepared = true;
-    modals.settlementCarEdit?.hide({ reason: 'submit' });
-    renderSettlementView({ force: true });
-    return true;
+    if (modals.settlementCarEdit) modals.settlementCarEdit.hide({ reason: 'submit' });
+    renderSettlementAfterModalCommit('settlementCarEditModal');
 }
 
 function shouldPreserveSettlementCarEditorOnHidden() {

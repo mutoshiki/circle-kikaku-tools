@@ -134,6 +134,10 @@ async function processGenderQueue() {
         save();
     } finally {
         isProcessingQueue = false;
+        // Gender detection is a local write transaction. Remote snapshots received while the
+        // queue was running are retained by sync-controller and can be rebased only after the
+        // final local save has been queued; never drop those snapshots outright.
+        window.SanpoRemoteGuard?.requestPendingApply?.(0);
     }
 }
 

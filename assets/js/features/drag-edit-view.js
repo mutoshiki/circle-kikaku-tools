@@ -121,26 +121,43 @@ function getManualCardDropTarget(clientX, clientY) {
     const el = document.elementFromPoint(clientX, clientY);
     const waitingList = byId('waiting-list');
     const tray = byId('bottom-tray');
-    const seat = el?.closest?.('.seat-slot');
-    if (seat) return seat;
 
     if (waitingList && tray && tray.isConnected) {
-        const trayIsOpen = !tray.classList.contains('minimized') && !tray.classList.contains('drag-transient-minimized') && !(tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
+        const trayIsOpen = !tray.classList.contains('minimized')
+            && !tray.classList.contains('drag-transient-minimized')
+            && !(tray.classList.contains('waiting-empty') && !tray.classList.contains('empty-open'));
 
-        // 開いているときは、待機欄の中に入った場合だけ戻し先にする。
-        if (trayIsOpen && el?.closest?.('#waiting-list, #waiting-list-container')) {
-            return waitingList;
+        if (trayIsOpen && el?.closest?.('#waiting-list, #waiting-list-container')) return waitingList;
+
+        // The waiting strip is a primary drop zone while transiently collapsed. Resolve this
+        // BEFORE seat hit-testing: on iOS elementFromPoint() can report an underlying seat while
+        // the fixed/flex tray is visually above it during the height transition. Geometry is the
+        // stable source of truth for this full-width destination.
+        if (!trayIsOpen) {
+            const handle = byId('tray-handle');
+            const trayRect = tray.getBoundingClientRect();
+            const handleRect = handle?.getBoundingClientRect?.();
+            const viewportWidth = window.visualViewport?.width || window.innerWidth;
+            const visibleTop = Math.min(
+                Number.isFinite(trayRect.top) ? trayRect.top : Infinity,
+                Number.isFinite(handleRect?.top) ? handleRect.top : Infinity
+            );
+            const visibleBottom = Math.max(
+                Number.isFinite(trayRect.bottom) ? trayRect.bottom : 0,
+                Number.isFinite(handleRect?.bottom) ? handleRect.bottom : 0
+            );
+            const stripTop = visibleTop - 40;
+            const stripBottom = visibleBottom + 32;
+            const touchingClosedStrip = clientX >= -12
+                && clientX <= viewportWidth + 12
+                && clientY >= stripTop
+                && clientY <= stripBottom;
+            if (touchingClosedStrip) return waitingList;
         }
-
-        // 閉じているときは、閉じたタブ本体に触れたときだけ戻し先扱いにする。
-        const handle = byId('tray-handle');
-        const targetRect = (handle || tray).getBoundingClientRect();
-        const margin = 12;
-        const touchingClosedTab = isPointInsideRect(clientX, clientY, targetRect, margin);
-
-        if (!trayIsOpen && touchingClosedTab) return waitingList;
     }
 
+    const seat = el?.closest?.('.seat-slot');
+    if (seat) return seat;
     return getCarCreateDropTarget(clientX, clientY, el);
 }
 
@@ -255,19 +272,33 @@ function updateManualDragFloat(clientX, clientY) {
     manualCardDrag.floating.style.transform = 'scale(1.03)';
 }
 
+function restoreScrollAfterManualCardMutation(topArea, topScroll, winX, winY) {
+    const apply = () => {
+        if (topArea?.isConnected) topArea.scrollTop = topScroll;
+        if (Number.isFinite(winX) && Number.isFinite(winY)) window.scrollTo(winX, winY);
+    };
+    // iOS can run scroll anchoring after the synchronous DOM move and again after layout/paint.
+    // Own the scroll position through those phases instead of trying to fix individual callers.
+    apply();
+    requestAnimationFrame(() => {
+        apply();
+        requestAnimationFrame(apply);
+    });
+    setTimeout(apply, 80);
+}
+
 function finishManualCardDrag(commit = true) {
     if (!manualCardDrag) return;
+    const topArea = byId('top-area');
+    const topScroll = Number(topArea?.scrollTop || 0);
+    const winX = Number(window.scrollX || 0);
+    const winY = Number(window.scrollY || 0);
     const { card, floating } = manualCardDrag;
-    // The desired viewport is the position at finger/pointer release, including
-    // any intentional edge auto-scroll. Preserve that position across reparenting,
-    // tray expansion, updateUI and Carbon layout work as one atomic visual mutation.
-    const viewport = captureTopAreaViewportForCardMutation?.();
-    window.SanpoFocusModality?.clearPointerFocus?.(card);
     if (commit) commitManualCardDrop();
     floating?.remove();
     card.classList.remove('manual-drag-source');
     D.body.classList.remove('manual-card-dragging');
-    finishWaitingTrayDragState({ deferViewportRestore: true });
+    finishWaitingTrayDragState();
     manualCardDrag = null;
     isDraggingCards = false;
     clearSeatDropPreview();
@@ -275,10 +306,7 @@ function finishManualCardDrag(commit = true) {
     enforceOneCardPerSeat();
     updateUI();
     save();
-<<<<<<< HEAD
-    restoreTopAreaViewportAfterCardMutation?.(viewport);
-=======
->>>>>>> parent of 5187dd7 (rhrdbdbrb)
+    restoreScrollAfterManualCardMutation(topArea, topScroll, winX, winY);
 }
 
 function startManualCardDrag(card, point) {

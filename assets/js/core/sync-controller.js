@@ -13,8 +13,6 @@
 
 const ROOM_META_FIELDS = [
     'roomName',
-    'activeAllocationType',
-    'trayMinimized',
     'editLockEnabled',
     'editLockPassphrase',
     'editLockScopes',
@@ -36,9 +34,81 @@ const SETTLEMENT_SCALAR_OR_OBJECT_FIELDS = [
     'driverCollectionOffset', 'driverCollectionFree', 'driverReward', 'driverRewardType',
     'standalone', 'routeStops', 'routePlaceCatalog'
 ];
-const LEGACY_REMOTE_FIELDS = ['waiting', 'cars', 'carPlans', 'activeCarPlanId', 'lastAutoAssignLabel'];
+const LEGACY_REMOTE_FIELDS = ['waiting', 'cars', 'carPlans', 'activeCarPlanId', 'lastAutoAssignLabel', 'activeAllocationType', 'trayMinimized'];
 
 let pendingRemoteRoomData = null;
+let pendingRemoteAcknowledgedRequestVersion = 0;
+
+
+function isRemoteUiBlocked() {
+    const guardBusy = window.SanpoRemoteGuard?.isBusy?.() === true;
+    return guardBusy
+        || isSettlementInputProtected()
+        || syncWriteInFlight
+        || !!saveTimer
+        || !!isDraggingCards
+        || !!manualCardDrag
+        || !!manualSheetDrag
+        || !!isProcessingQueue;
+}
+
+function captureRemotePaintViewport() {
+    const topArea = byId('top-area');
+    const waitingScroller = byId('waiting-list-container');
+    return {
+        currentView: typeof currentView === 'string' ? currentView : '',
+        windowX: Number(window.scrollX || 0),
+        windowY: Number(window.scrollY || 0),
+        topScrollTop: Number(topArea?.scrollTop || 0),
+        topScrollLeft: Number(topArea?.scrollLeft || 0),
+        waitingScrollTop: Number(waitingScroller?.scrollTop || 0)
+    };
+}
+
+function restoreRemotePaintViewport(snapshot) {
+    if (!snapshot || snapshot.currentView !== (typeof currentView === 'string' ? currentView : '')) return;
+    const apply = () => {
+        const topArea = byId('top-area');
+        const waitingScroller = byId('waiting-list-container');
+        if (topArea?.isConnected) {
+            topArea.scrollTop = snapshot.topScrollTop;
+            topArea.scrollLeft = snapshot.topScrollLeft;
+        }
+        if (waitingScroller?.isConnected) waitingScroller.scrollTop = snapshot.waitingScrollTop;
+        if (Number.isFinite(snapshot.windowX) && Number.isFinite(snapshot.windowY)) {
+            window.scrollTo(snapshot.windowX, snapshot.windowY);
+        }
+    };
+    apply();
+    requestAnimationFrame(() => {
+        apply();
+        requestAnimationFrame(apply);
+    });
+    // WebKit scroll anchoring can run after paint; own the position through that phase too.
+    setTimeout(apply, 90);
+}
+
+function canonicalDomainSnapshot(value) {
+    const room = migrateAppData(value || {});
+    return {
+        schemaVersion: room.schemaVersion,
+        roomName: room.roomName,
+        participants: room.participants,
+        participantTombstones: room.participantTombstones,
+        allocations: room.allocations,
+        editLockEnabled: room.editLockEnabled,
+        editLockPassphrase: room.editLockPassphrase,
+        editLockScopes: room.editLockScopes,
+        settlement: room.settlement,
+        overview: room.overview
+    };
+}
+
+function currentCanonicalMatchesRemote(remote) {
+    const current = window.SanpoCanonicalState?.get?.();
+    if (!current) return false;
+    return syncValuesEqual(canonicalDomainSnapshot(current), canonicalDomainSnapshot(remote));
+}
 
 function cloneSyncValue(value) {
     if (value === undefined) return undefined;
@@ -188,7 +258,7 @@ function buildEntityPatch(baseRaw = {}, localRaw = {}, { forceCanonical = false 
         setPatchValue(patch, 'allocations', local.allocations || {});
         setPatchValue(patch, 'settlement', local.settlement || {});
         LEGACY_REMOTE_FIELDS.forEach(field => setPatchValue(patch, field, null));
-        setPatchValue(patch, 'lastUpdatedAt', Number(local.lastUpdatedAt || Date.now()));
+        setPatchValue(patch, 'lastUpdatedAt', Number(local.lastUpdatedAt || (window.SanpoClock?.now?.() ?? Date.now())));
         setPatchValue(patch, 'lastUpdatedBy', local.lastUpdatedBy || myClientId);
         setPatchValue(patch, 'revision', Number(local.revision || 0));
         return patch;
@@ -204,7 +274,7 @@ function buildEntityPatch(baseRaw = {}, localRaw = {}, { forceCanonical = false 
     diffAllocation(patch, 'team', base.allocations?.team, local.allocations?.team);
     diffSettlement(patch, base.settlement, local.settlement);
 
-    setPatchValue(patch, 'lastUpdatedAt', Number(local.lastUpdatedAt || Date.now()));
+    setPatchValue(patch, 'lastUpdatedAt', Number(local.lastUpdatedAt || (window.SanpoClock?.now?.() ?? Date.now())));
     setPatchValue(patch, 'lastUpdatedBy', local.lastUpdatedBy || myClientId);
     setPatchValue(patch, 'revision', Number(local.revision || 0));
     return patch;
@@ -238,30 +308,178 @@ function applyEntityPatchToObject(baseRaw = {}, patch = {}) {
     return result;
 }
 
+
+function getSyncPathValue(root, path) {
+    return String(path || '').split('/').filter(Boolean).reduce((value, key) => value == null ? undefined : value[key], root);
+}
+
+function syncPathVersionKey(path) {
+    return encodeURIComponent(String(path || '')).replace(/\./g, '%2E');
+}
+
+function syncVersionsEqual(a, b) {
+    if (!a && !b) return true;
+    if (!a || !b) return false;
+    return Number(a.clock || 0) === Number(b.clock || 0)
+        && Number(a.time || 0) === Number(b.time || 0)
+        && String(a.clientId || '') === String(b.clientId || '')
+        && Number(a.seq || 0) === Number(b.seq || 0);
+}
+
+function compareSyncVersions(a, b) {
+    if (!b) return 1;
+    if (!a) return -1;
+    // Same-path edits need two properties at once:
+    // 1) a genuinely older delayed packet must not revert a newer edit;
+    // 2) a device with a bad wall clock must not dominate collaboration forever.
+    // Firebase `.info/serverTimeOffset` aligns action timestamps across devices. Use those
+    // timestamps only when *both* versions explicitly confirm server alignment; otherwise
+    // fall back to the RTDB-serialized Lamport clock.
+    const sameClient = String(a.clientId || '') && String(a.clientId || '') === String(b.clientId || '');
+    if (sameClient) {
+        const seqDiff = Number(a.seq || 0) - Number(b.seq || 0);
+        if (seqDiff) return seqDiff > 0 ? 1 : -1;
+    }
+    const bothServerAligned = a.serverAligned === true && b.serverAligned === true;
+    if (bothServerAligned) {
+        const timeDiff = Number(a.time || 0) - Number(b.time || 0);
+        if (timeDiff) return timeDiff > 0 ? 1 : -1;
+    }
+    const clockDiff = Number(a.clock || 0) - Number(b.clock || 0);
+    if (clockDiff) return clockDiff > 0 ? 1 : -1;
+    const clientDiff = String(a.clientId || '').localeCompare(String(b.clientId || ''));
+    if (clientDiff) return clientDiff > 0 ? 1 : -1;
+    const seqDiff = Number(a.seq || 0) - Number(b.seq || 0);
+    return seqDiff === 0 ? 0 : (seqDiff > 0 ? 1 : -1);
+}
+
+function syncEntityTimeForPath(local, path) {
+    const parts = String(path || '').split('/').filter(Boolean);
+    if (parts[0] === 'participants' && parts[1]) return Number(local?.participants?.[parts[1]]?.updatedAt || local?.lastUpdatedAt || 0);
+    if (parts[0] === 'participantTombstones' && parts[1]) return Number(local?.participantTombstones?.[parts[1]]?.deletedAt || local?.lastUpdatedAt || 0);
+    if (parts[0] === 'allocations' && parts[1]) {
+        if (parts[2] === 'groups' && parts[3]) return Number(local?.allocations?.[parts[1]]?.groups?.[parts[3]]?.updatedAt || local?.lastUpdatedAt || 0);
+        if (parts[2] === 'placements' && parts[3]) return Number(local?.allocations?.[parts[1]]?.placements?.[parts[3]]?.updatedAt || local?.lastUpdatedAt || 0);
+        return Number(local?.allocations?.[parts[1]]?.updatedAt || local?.lastUpdatedAt || 0);
+    }
+    if (parts[0] === 'settlement' && parts[1] === 'carsByParticipantId' && parts[2]) {
+        return Number(local?.settlement?.carsByParticipantId?.[parts[2]]?.updatedAt || local?.lastUpdatedAt || 0);
+    }
+    return Number(local?.lastUpdatedAt || 0);
+}
+
+function applyPatchPathInPlace(result, path, value) {
+    const parts = String(path || '').split('/').filter(Boolean);
+    if (!parts.length) return;
+    let cursor = result;
+    for (let i = 0; i < parts.length - 1; i += 1) {
+        const key = parts[i];
+        if (!cursor[key] || typeof cursor[key] !== 'object') cursor[key] = {};
+        cursor = cursor[key];
+    }
+    const key = parts[parts.length - 1];
+    if (value === null) delete cursor[key];
+    else cursor[key] = cloneSyncValue(value);
+}
+
+function applyVersionedEntityPatch(remoteRaw = {}, baseRaw = {}, localRaw = {}, patch = {}, requestVersion = 0) {
+    const remote = cloneSyncValue(remoteRaw || {}) || {};
+    const base = cloneSyncValue(baseRaw || {}) || {};
+    const local = cloneSyncValue(localRaw || {}) || {};
+    remote.pathVersions = cloneSyncValue(remote.pathVersions || {}) || {};
+    const baseVersions = base.pathVersions || {};
+    const remoteVersions = remote.pathVersions || {};
+    const baseClock = Math.max(Number(base.syncClock || 0), ...Object.values(baseVersions).map(v => Number(v?.clock || 0)), 0);
+    // A stale client must still be able to make a *new* edit.  The previous code derived
+    // the candidate clock only from its stale base, so any path changed by another phone
+    // after that base could reject this user's later action forever.  The RTDB transaction
+    // serializes commits; allocate the next Lamport clock from the current remote tree.
+    const remoteClock = Math.max(Number(remote.syncClock || 0), ...Object.values(remoteVersions).map(v => Number(v?.clock || 0)), 0);
+    const candidateClock = Math.max(baseClock, remoteClock) + 1;
+    let applied = 0;
+
+    Object.entries(patch).forEach(([path, value]) => {
+        if (['lastUpdatedAt', 'lastUpdatedBy', 'revision'].includes(path)) return;
+        const key = syncPathVersionKey(path);
+        const remoteVersion = remote.pathVersions[key] || null;
+        const baseVersion = baseVersions[key] || null;
+        const candidate = {
+            clock: candidateClock,
+            time: syncEntityTimeForPath(local, path),
+            serverAligned: window.SanpoClock?.isServerAligned?.() === true,
+            clientId: String(local.lastUpdatedBy || myClientId || ''),
+            seq: Number(requestVersion || 0)
+        };
+        const concurrent = !syncVersionsEqual(remoteVersion, baseVersion);
+        if (concurrent && compareSyncVersions(candidate, remoteVersion) <= 0) return;
+        applyPatchPathInPlace(remote, path, value);
+        remote.pathVersions[key] = candidate;
+        applied += 1;
+    });
+
+    if (!applied) return migrateAppData(remote);
+    remote.syncClock = Math.max(Number(remote.syncClock || 0), candidateClock);
+    remote.lastUpdatedAt = Number(local.lastUpdatedAt || (window.SanpoClock?.now?.() ?? Date.now()));
+    remote.lastUpdatedBy = String(local.lastUpdatedBy || myClientId || '');
+    remote.revision = Math.max(0, Number(remote.revision || 0)) + 1;
+    // Canonicalization enforces participant tombstones, orphan cleanup and capacity.
+    const normalized = migrateAppData(remote);
+    normalized.pathVersions = remote.pathVersions;
+    normalized.syncClock = remote.syncClock;
+    normalized.lastUpdatedAt = remote.lastUpdatedAt;
+    normalized.lastUpdatedBy = remote.lastUpdatedBy;
+    normalized.revision = remote.revision;
+    return normalized;
+}
+
 function buildConcurrentRoomMerge(remoteRaw, baseRaw, localRaw) {
     const patch = buildEntityPatch(baseRaw, localRaw);
     return migrateAppData(applyEntityPatchToObject(migrateAppData(remoteRaw || {}), patch));
 }
 
-function applyAuthoritativeRemoteData(data, { rememberLocal = true } = {}) {
+function applyAuthoritativeRemoteData(data, { rememberLocal = true, preserveViewport = true } = {}) {
     if (!data || typeof data !== 'object') return;
     const migrated = migrateAppData(data);
+
+    // If the in-memory canonical model already equals the remote domain, only advance the
+    // sync base.  Avoiding a redundant DOM rebuild is important on iOS because reparenting
+    // every card can trigger scroll anchoring even when the data did not actually change.
+    if (currentCanonicalMatchesRemote(migrated)) {
+        rememberSyncedData(migrated);
+        if (rememberLocal) L.setItem(CFG.STORE + '_' + roomId, J.stringify(migrated));
+        return;
+    }
+
+    const viewport = preserveViewport ? captureRemotePaintViewport() : null;
     isRemoteUpdate = true;
     restore(migrated);
     isRemoteUpdate = false;
     rememberSyncedData(migrated);
     if (rememberLocal) L.setItem(CFG.STORE + '_' + roomId, J.stringify(migrated));
+    if (viewport) restoreRemotePaintViewport(viewport);
 }
 
-function rememberPendingRemoteData(data) {
+function rememberPendingRemoteData(data, { acknowledgedRequestVersion = 0 } = {}) {
     if (!data || typeof data !== 'object') return;
     const next = migrateAppData(data);
-    const currentTime = Number(pendingRemoteRoomData?.lastUpdatedAt || 0);
-    const nextTime = Number(next.lastUpdatedAt || 0);
-    if (!pendingRemoteRoomData || nextTime >= currentTime) {
+    const currentRevision = Number(pendingRemoteRoomData?.revision || 0);
+    const nextRevision = Number(next.revision || 0);
+    const currentClock = Number(pendingRemoteRoomData?.syncClock || 0);
+    const nextClock = Number(next.syncClock || 0);
+    const newer = !pendingRemoteRoomData
+        || nextRevision > currentRevision
+        || (nextRevision === currentRevision && nextClock >= currentClock);
+    if (newer) {
         pendingRemoteRoomData = cloneSyncValue(next);
         pendingRemoteSettlementData = pendingRemoteRoomData;
     }
+    // A transaction result produced by this client already contains that local request.
+    // Keep this acknowledgement even if a slightly newer onValue snapshot replaces the
+    // pending payload: the newer room necessarily descends from the committed revision.
+    pendingRemoteAcknowledgedRequestVersion = Math.max(
+        pendingRemoteAcknowledgedRequestVersion,
+        Number(acknowledgedRequestVersion || 0)
+    );
 }
 
 async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVersion, capturedBase = null, options = {}) {
@@ -276,28 +494,48 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
 
     syncWriteInFlight = true;
     try {
-        await update(dbRef, patch);
-        // Preserve untouched server entities from our last base while immediately advancing
-        // the paths we wrote. The onValue snapshot that follows becomes the authoritative base.
-        const optimistic = migrateAppData(applyEntityPatchToObject(baseAtWrite, patch));
-        rememberSyncedData(optimistic);
-        L.setItem(CFG.STORE + '_' + roomId, J.stringify(optimistic));
+        let committed;
+        if (typeof runTransaction === 'function') {
+            const result = await runTransaction(dbRef, currentRemote => {
+                return applyVersionedEntityPatch(currentRemote || {}, baseAtWrite, localSnapshot, patch, requestVersion);
+            }, { applyLocally: false });
+            if (!result.committed) throw new Error('Firebase entity transaction was not committed');
+            committed = migrateAppData(result.snapshot.val() || {});
+        } else {
+            // Compatibility fallback for environments without RTDB transactions.
+            await update(dbRef, patch);
+            committed = migrateAppData(applyEntityPatchToObject(baseAtWrite, patch));
+        }
+        rememberSyncedData(committed);
+        L.setItem(CFG.STORE + '_' + roomId, J.stringify(committed));
 
-        const pendingTime = Number(pendingRemoteRoomData?.lastUpdatedAt || 0);
-        const localTime = Number(localSnapshot.lastUpdatedAt || 0);
-        if (pendingRemoteRoomData && pendingTime && pendingTime <= localTime) {
+        const pendingRevision = Number(pendingRemoteRoomData?.revision || 0);
+        const committedRevision = Number(committed.revision || 0);
+        if (pendingRemoteRoomData && pendingRevision <= committedRevision) {
             pendingRemoteRoomData = null;
             pendingRemoteSettlementData = null;
+            pendingRemoteAcknowledgedRequestVersion = 0;
+        }
+
+        // The transaction result contains both this client's patch and any concurrent remote
+        // entities.  Repaint only after the write surface is idle; otherwise queue the merged
+        // authoritative state so a second edit cannot be based on a stale model.
+        if (isRemoteUiBlocked()) {
+            rememberPendingRemoteData(committed, { acknowledgedRequestVersion: requestVersion });
+            window.SanpoRemoteGuard?.requestPendingApply?.(0);
+        } else {
+            applyAuthoritativeRemoteData(committed);
         }
         updateStatus('connected', '同期完了');
-        return optimistic;
+        return committed;
     } catch (error) {
         console.error(error);
         updateStatus('error', '保存失敗');
         return null;
     } finally {
         syncWriteInFlight = false;
-        if (!isSettlementInputProtected()) queueMicrotask(applyPendingRemoteRoomData);
+        window.SanpoRemoteGuard?.requestPendingApply?.(0);
+        if (!window.SanpoRemoteGuard && !isSettlementInputProtected()) queueMicrotask(applyPendingRemoteRoomData);
     }
 }
 
@@ -314,7 +552,7 @@ function queueRemoteSnapshotSave(snapshot, delay = 180, options = {}) {
 
 function save() {
     updateStatus('saving', '保存中...');
-    lastUpdatedAt = Date.now();
+    lastUpdatedAt = (window.SanpoClock?.now?.() ?? Date.now());
     const d = getData({ skipDomSync: !!window.__suspendActiveDomPlanSync });
     d.lastUpdatedBy = myClientId;
     d.lastUpdatedAt = lastUpdatedAt;
@@ -355,7 +593,6 @@ function load() {
     }
 
     onValue(dbRef, snapshot => {
-        if (isProcessingQueue) return;
         hideAppLoadingSkeleton?.();
         const raw = snapshot.val();
         if (!raw) {
@@ -371,14 +608,16 @@ function load() {
         }
 
         const wasLegacy = Number(raw.schemaVersion || 1) < APP_SCHEMA_VERSION || !raw.participants || !raw.allocations;
+        const hasSharedPresentationLegacy = Object.prototype.hasOwnProperty.call(raw, 'activeAllocationType')
+            || Object.prototype.hasOwnProperty.call(raw, 'trayMinimized');
         const remote = migrateAppData(raw);
         if (!lastSyncedData) rememberSyncedData(remote);
 
         // A local edit in progress owns the visible UI. Incoming snapshots are queued until
         // the local entity patch has been written; they are never painted over the gesture/input.
-        if (saveTimer || syncWriteInFlight || isSettlementInputProtected() || isDraggingCards || manualCardDrag) {
+        if (isRemoteUiBlocked()) {
             rememberPendingRemoteData(remote);
-            updateStatus('local', isSettlementInputProtected() ? '入力中のため同期保留' : '変更を同期中...');
+            updateStatus('local', window.SanpoRemoteGuard?.isModalOpen?.() ? '編集中のため同期保留' : (isSettlementInputProtected() ? '入力中のため同期保留' : '変更を同期中...'));
             return;
         }
 
@@ -393,9 +632,9 @@ function load() {
         }
 
         applyAuthoritativeRemoteData(remote);
-        if (wasLegacy) {
-            // One-time schema migration. Canonical entities are written and all duplicated
-            // v4 allocation mirrors are deleted from Firebase in the same multi-location update.
+        if (wasLegacy || hasSharedPresentationLegacy) {
+            // One-time canonical cleanup. Entity data is written and duplicated v4 mirrors plus
+            // device-only presentation fields are removed from Firebase.
             queueRemoteSnapshotSave(remote, 0, { forceCanonical: true });
         }
     });
@@ -403,7 +642,23 @@ function load() {
 
 function applyPendingRemoteRoomData() {
     const pending = pendingRemoteRoomData || pendingRemoteSettlementData;
-    if (!pending || isSettlementInputProtected() || syncWriteInFlight || saveTimer || isDraggingCards || manualCardDrag) return;
+    if (!pending || isRemoteUiBlocked()) return;
+
+    // If this pending room came from (or descends from) our own completed request and no
+    // newer local save was queued, it already contains the local modal/drag action. Applying
+    // it is a rebase, not a conflict. The previous code compared the still-unpainted local UI
+    // against the newly advanced sync base, misclassified missing remote fields as local edits,
+    // and immediately wrote stale UI back over other phones.
+    const pendingAcknowledgesCurrentLocal = pendingRemoteAcknowledgedRequestVersion > 0
+        && saveRequestVersion <= pendingRemoteAcknowledgedRequestVersion;
+    if (pendingAcknowledgesCurrentLocal) {
+        pendingRemoteRoomData = null;
+        pendingRemoteSettlementData = null;
+        pendingRemoteAcknowledgedRequestVersion = 0;
+        applyAuthoritativeRemoteData(pending);
+        return;
+    }
+
     const local = getData({ skipDomSync: !!window.__suspendActiveDomPlanSync });
     if (hasLocalChangesSinceBase(local)) {
         save();
@@ -411,6 +666,7 @@ function applyPendingRemoteRoomData() {
     }
     pendingRemoteRoomData = null;
     pendingRemoteSettlementData = null;
+    pendingRemoteAcknowledgedRequestVersion = 0;
     applyAuthoritativeRemoteData(pending);
 }
 
@@ -425,8 +681,11 @@ window.resetData = async () => {
     L.removeItem(getSyncBaseStorageKey());
     L.removeItem('syawari_history_' + roomId);
     L.removeItem('sanpoOverviewDraft:v1:' + roomId);
+    if (window.SanpoDeviceRoomUi) L.removeItem(`sanpoRoomUi:v1:${roomId}`);
     L.removeItem(getTrustedDeviceKey());
     if (dbRef) {
         set(dbRef, null).then(() => { location.reload(); }).catch(err => { console.error(err); showAppNotice('リセットに失敗しました。', true); });
     } else location.reload();
 };
+
+window.SanpoEntitySyncTest = Object.freeze({ buildEntityPatch, applyEntityPatchToObject, applyVersionedEntityPatch, compareSyncVersions, syncPathVersionKey });

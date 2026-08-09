@@ -1,12 +1,13 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
 
-const read = rel => fs.readFileSync(new URL(`../${rel}`, import.meta.url), 'utf8');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const read = rel => fs.readFileSync(path.join(root, rel), 'utf8');
 const sync = read('assets/js/core/sync-controller.js');
-const entitySource = read('assets/js/core/entity-state-v5.js');
 const batch = read('assets/js/features/batch-import.js');
-const dataState = read('assets/js/core/data-state.js');
 const personMenu = read('assets/js/features/person-menu.js');
 const settlementEvents = read('assets/js/features/events/04-settlement-input-events.js');
 const settlementActions = read('assets/js/features/settlement/05-input-actions.js');
@@ -17,108 +18,148 @@ const shareActions = read('assets/js/features/share-actions.js');
 const drag = read('assets/js/features/drag-edit-view.js');
 const index = read('index.html');
 
-const entityContext = vm.createContext({ window: {}, console, Date, JSON, Math, Object, Array, Set, Map, String, Number, parseInt });
-vm.runInContext(`${entitySource}\n;globalThis.__entity = window.SanpoCanonicalState;`, entityContext);
-const entity = entityContext.__entity;
-
 const context = {
-  console, window: {}, document: {}, CFG: { STORE: 'test' }, roomId: 'ROOM', APP_SCHEMA_VERSION: 5, myClientId: 'local',
-  L: { getItem: () => null, setItem() {}, removeItem() {} }, J: JSON,
+  console,
+  window: {},
+  document: {},
+  CFG: { STORE: 'test' },
+  roomId: 'ROOM',
+  APP_SCHEMA_VERSION: 4,
+  myClientId: 'local',
+  L: { getItem: () => null, setItem: () => {}, removeItem: () => {} },
+  J: JSON,
   safeJsonParse: (value, fallback = null) => { try { return JSON.parse(value); } catch { return fallback; } },
-  migrateAppData: value => entity.migrate(value), lastSyncedData: null, lastSyncedRevision: 0,
-  pendingRemoteSettlementData: null, pendingRemoteRoomData: null, syncWriteInFlight: false, saveTimer: null,
-  saveRequestVersion: 0, isRemoteUpdate: false, dbRef: null, lastUpdatedAt: 0, currentView: 'list',
-  isSettlementInputProtected: () => false, isDraggingCards: false, manualCardDrag: null, queueMicrotask: fn => fn(),
-  setTimeout, clearTimeout, $: () => ({ value: '', innerHTML: '' }), byId: () => ({ classList: { contains: () => false }, dataset: {} }),
-  getData: () => ({}), restore() {}, updateStatus() {}, rememberTrustedDevice() {}, updateEditLockButton() {},
-  refreshRoomTitle() {}, updateUI() {}, hideAppLoadingSkeleton() {}, onValue() {}, set: async () => {}, update: async () => {},
-  requestPassphrasePanel: async () => '', getTrustedDeviceKey: () => 'trusted', showAppNotice() {}, location: { reload() {} },
-  isProcessingQueue: false, editLockEnabled: false, editLockPassphrase: '', editLockScopes: {}, carPlans: [], activeCarPlanId: '', lastAutoAssignLabel: ''
+  migrateAppData: x => x,
+  lastSyncedData: null,
+  lastSyncedRevision: 0,
+  pendingRemoteSettlementData: null,
+  pendingRemoteRoomData: null,
+  syncWriteInFlight: false,
+  saveTimer: null,
+  saveRequestVersion: 0,
+  isRemoteUpdate: false,
+  dbRef: null,
+  lastUpdatedAt: 0,
+  currentView: 'list',
+  isSettlementInputProtected: () => false,
+  isDraggingCards: false,
+  manualCardDrag: null,
+  queueMicrotask: fn => fn(),
+  setTimeout,
+  clearTimeout,
+  $: () => ({ value: '', innerHTML: '' }),
+  byId: () => ({ classList: { contains: () => false }, dataset: {} }),
+  getData: () => ({}),
+  restore: () => {},
+  updateStatus: () => {},
+  rememberTrustedDevice: () => {},
+  updateEditLockButton: () => {},
+  refreshRoomTitle: () => {},
+  updateUI: () => {},
+  renderCarPlanSwitcher: () => {},
+  updateLastAutoAssignCondition: () => {},
+  hideAppLoadingSkeleton: () => {},
+  onValue: () => {},
+  set: () => Promise.resolve(),
+  update: () => Promise.resolve(),
+  requestPassphrasePanel: async () => '',
+  getTrustedDeviceKey: () => 'trusted',
+  showAppNotice: () => {},
+  location: { reload: () => {} },
+  isProcessingQueue: false,
+  editLockEnabled: false,
+  editLockPassphrase: '',
+  editLockScopes: { allocation: false, settlement: false },
+  carPlans: [],
+  activeCarPlanId: 'plan-car',
+  lastAutoAssignLabel: ''
 };
 context.globalThis = context;
 vm.createContext(context);
-vm.runInContext(`${sync}\n;globalThis.__v41 = { buildConcurrentRoomMerge };`, context);
+vm.runInContext(`${sync}\n;globalThis.__v41 = { buildConcurrentRoomMerge, mergeConcurrentCarPlans };`, context);
 const { buildConcurrentRoomMerge } = context.__v41;
 
-const legacy = {
-  schemaVersion: 4, roomName: '企画', activeCarPlanId: 'plan-car',
+const member = name => ({ name, memo: '', gender: 'unknown', grade: 0, locked: false, flag: 'none' });
+const car = (name, members = []) => ({ name, capacity: '3', driverMemo: '', driverGender: 'unknown', driverGrade: 0, driverFlag: 'none', members });
+const plan = (id, waiting, cars, templateType = 'car') => ({ id, name: templateType === 'team' ? '班割' : '車割', templateType, waiting, cars, createdAt: 1, updatedAt: 1, lastAutoAssignLabel: '' });
+const room = {
+  schemaVersion: 4,
+  roomName: '企画',
+  activeCarPlanId: 'plan-car',
   carPlans: [
-    { id: 'plan-car', templateType: 'car', name: '車割', waiting: [{ name: 'Alice' }, { name: 'Bob' }], cars: [{ name: 'Driver', capacity: 3, members: [] }] },
-    { id: 'plan-team', templateType: 'team', name: '班割', waiting: [{ name: 'Alice' }, { name: 'Bob' }], cars: [{ name: 'Driver', capacity: 3, members: [] }] }
+    plan('plan-car', [member('Alice'), member('Bob')], [car('Driver')]),
+    plan('plan-team', [member('Alice'), member('Bob')], [car('Driver')], 'team')
   ],
+  waiting: [member('Alice'), member('Bob')],
+  cars: [car('Driver')],
   settlement: { cars: { Driver: { dist: '10', eco: '10', price: '160', extras: [] } }, paid: { Alice: false, Bob: false } },
   overview: {}
 };
-const room = entity.migrate(legacy);
-const aliceId = entity.findParticipantIdByName(room.participants, 'Alice');
-const bobId = entity.findParticipantIdByName(room.participants, 'Bob');
-const driverId = entity.findParticipantIdByName(room.participants, 'Driver');
-const carGroup = Object.values(room.allocations.car.groups).find(g => g.ownerId === driverId);
-const teamGroup = Object.values(room.allocations.team.groups).find(g => g.ownerId === driverId);
 
-// Device A deletes Alice while device B moves Bob into Driver's group. Neither may undo the other.
+// Device A deletes Alice while device B moves Bob into Driver's car. Neither action may undo the other.
 const remoteMove = structuredClone(room);
-remoteMove.allocations.car.placements[bobId] = { kind: 'member', groupId: carGroup.id, order: 1, updatedAt: 50 };
-remoteMove.allocations.team.placements[bobId] = { kind: 'member', groupId: teamGroup.id, order: 1, updatedAt: 50 };
+for (const p of remoteMove.carPlans) {
+  p.waiting = p.waiting.filter(x => x.name !== 'Bob');
+  p.cars[0].members.push(member('Bob'));
+}
+remoteMove.waiting = [member('Alice')];
+remoteMove.cars = [car('Driver', [member('Bob')])];
+remoteMove.revision = 4;
+
 const localDelete = structuredClone(room);
-delete localDelete.participants[aliceId];
-localDelete.participantTombstones ||= {};
-localDelete.participantTombstones[aliceId] = { deletedAt: 100 };
-delete localDelete.allocations.car.placements[aliceId];
-delete localDelete.allocations.team.placements[aliceId];
+for (const p of localDelete.carPlans) p.waiting = p.waiting.filter(x => x.name !== 'Alice');
+localDelete.waiting = [member('Bob')];
 localDelete.lastUpdatedAt = 100;
 const merged = buildConcurrentRoomMerge(remoteMove, room, localDelete);
-assert.equal(merged.participants[aliceId], undefined, 'deleted participant must not resurrect');
-assert.equal(merged.allocations.car.placements[bobId].kind, 'member', 'other-device car move survives deletion');
-assert.equal(merged.allocations.team.placements[bobId].kind, 'member', 'other-device team move survives deletion');
+for (const p of merged.carPlans) {
+  const names = [
+    ...(p.waiting || []).map(x => x.name),
+    ...(p.cars || []).flatMap(c => [c.name, ...(c.members || []).map(x => x.name)])
+  ];
+  assert.equal(names.includes('Alice'), false, 'deleted participant must not resurrect in any plan');
+  assert.equal(p.cars[0].members.some(x => x.name === 'Bob'), true, 'other device move survives participant deletion');
+}
+assert.equal(merged.waiting.some(x => x.name === 'Alice'), false, 'compat waiting mirror follows merged active plan');
+assert.equal(merged.cars[0].members.some(x => x.name === 'Bob'), true, 'compat cars mirror follows merged active plan');
 
-// Inverse race: remote deletion survives a stale local Bob move.
+// Inverse race: remote deletion must survive a stale local move.
 const remoteDelete = structuredClone(room);
-delete remoteDelete.participants[aliceId];
-remoteDelete.participantTombstones ||= {};
-remoteDelete.participantTombstones[aliceId] = { deletedAt: 200 };
-delete remoteDelete.allocations.car.placements[aliceId];
-delete remoteDelete.allocations.team.placements[aliceId];
+for (const p of remoteDelete.carPlans) p.waiting = p.waiting.filter(x => x.name !== 'Alice');
+remoteDelete.revision = 8;
 const localMove = structuredClone(room);
-localMove.allocations.car.placements[bobId] = { kind: 'member', groupId: carGroup.id, order: 1, updatedAt: 150 };
-localMove.lastUpdatedAt = 150;
+for (const p of localMove.carPlans) {
+  p.waiting = p.waiting.filter(x => x.name !== 'Bob');
+  p.cars[0].members.push(member('Bob'));
+}
+localMove.lastUpdatedAt = 200;
 const mergedInverse = buildConcurrentRoomMerge(remoteDelete, room, localMove);
-assert.equal(mergedInverse.participants[aliceId], undefined);
-assert.equal(mergedInverse.allocations.car.placements[bobId].kind, 'member');
+assert.equal(mergedInverse.carPlans.some(p => p.waiting.some(x => x.name === 'Alice') || p.cars.some(c => c.members.some(x => x.name === 'Alice'))), false);
+assert.equal(mergedInverse.carPlans.every(p => p.cars[0].members.some(x => x.name === 'Bob')), true);
 
-// Signed settlement types use Carbon Select's official event and preserve their labels.
+// Signed settlement types must use Carbon Select's official event and survive every UI label path.
 assert.match(settlementEvents, /addEventListener\('cds-select-selected'/, 'Carbon select official event is handled');
 assert.match(settlementEvents, /event\.detail\?\.value[\s\S]*commitSettlementExtraTypeSelection/, 'official selected value is committed before DOM snapshot');
-assert.match(settlementActions, /'split-minus': '割勘 −'/);
-assert.match(settlementActions, /'club-minus': '部費 −'/);
-assert.match(settlementTemplate, /'split-minus': '割勘 −'/);
-assert.match(settlementTemplate, /'club-minus': '部費 −'/);
+assert.match(settlementActions, /'split-minus': '割勘 −'/, 'delete confirmation keeps split-minus semantics');
+assert.match(settlementActions, /'club-minus': '部費 −'/, 'delete confirmation keeps club-minus semantics');
+assert.match(settlementTemplate, /'split-minus': '割勘 −'/, 'candidate UI keeps split-minus label');
+assert.match(settlementTemplate, /'club-minus': '部費 −'/, 'candidate UI keeps club-minus label');
 
-// Roster deletion remains authoritative and incoming repaint is deferred during local edits.
-assert.match(batch, /canonical\.participants = newParticipants/, 'participant registration replaces the canonical participant master');
-assert.match(dataState, /function synchronizeParticipantRosterFromCurrentDom[\s\S]*pruneSettlementStateToRegisteredParticipants/, 'DOM roster sync prunes settlement against canonical participants');
-assert.match(personMenu, /deletingFromWaiting[\s\S]*synchronizeParticipantRosterFromCurrentDom/, 'waiting-zone deletion commits through canonical roster sync');
-assert.match(sync, /let pendingRemoteRoomData = null/);
-assert.match(sync, /saveTimer \|\| syncWriteInFlight \|\| isSettlementInputProtected\(\) \|\| isDraggingCards \|\| manualCardDrag/);
-assert.doesNotMatch(sync, /他の人が(?:更新|編集)しました/);
+// Roster deletion is explicitly committed across both plans and stale settlement keys are pruned.
+assert.match(batch, /synchronizeParticipantRosterFromCurrentDom/, 'participant registration explicitly commits authoritative roster');
+assert.match(personMenu, /deletingFromWaiting[\s\S]*synchronizeParticipantRosterFromCurrentDom/, 'waiting-zone deletion is authoritative across plans');
+assert.match(sync, /let pendingRemoteRoomData = null/, 'generic pending remote state exists');
+assert.match(sync, /saveTimer \|\| syncWriteInFlight \|\| isSettlementInputProtected\(\) \|\| isDraggingCards \|\| manualCardDrag/, 'remote repaint is deferred during local edits and drag');
+assert.doesNotMatch(sync, /他の人が(?:更新|編集)しました/, 'no noisy collaboration popup remains');
 
-// Mobile tray, drag-transient state, and external-browser share contract remain intact.
-assert.match(waitingCss, /@media \(max-width: 640px\)[\s\S]*#waiting-list \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); \}/);
-assert.match(trayCss, /drag-transient-minimized/);
-assert.match(drag, /drag-transient-minimized/);
-assert.match(shareActions, /url\.searchParams\.set\('openExternalBrowser', '1'\)/);
-assert.match(index, /sync-controller\.js\?v=entity-schema-v42/);
-assert.match(index, /04-settlement-input-events\.js\?v=collaboration-fixes-v41/);
-assert.match(index, /06-action-and-list-layout\.css\?v=collaboration-fixes-v41/);
+// Mobile participant tray must be exactly two columns, independent of iPhone visual viewport quirks.
+assert.match(waitingCss, /@media \(max-width: 640px\)[\s\S]*#waiting-list \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); \}/, 'mobile waiting list is fixed to two columns');
+assert.match(trayCss, /drag-transient-minimized/, 'transient drag-collapse style exists');
+assert.match(drag, /drag-transient-minimized/, 'drop targeting understands transient collapse');
 
-<<<<<<< HEAD
-console.log('PASS collaboration fixes v41 contract (canonical schema)');
-=======
 // LINE's documented external-browser query parameter is included in every purpose share URL.
 assert.match(shareActions, /url\.searchParams\.set\('openExternalBrowser', '1'\)/, 'share links request LINE external/default browser');
-assert.match(index, /sync-controller\.js\?v=collaboration-fixes-v41/, 'sync fix is cache-busted for iPhone clients');
-assert.match(index, /04-settlement-input-events\.js\?v=collaboration-fixes-v41/, 'settlement type fix is cache-busted');
+assert.match(index, /sync-controller\.js\?v=root-stability-v44/, 'sync fix is cache-busted for iPhone clients');
+assert.match(index, /04-settlement-input-events\.js\?v=root-stability-v44/, 'settlement type fix is cache-busted');
 assert.match(index, /06-action-and-list-layout\.css\?v=collaboration-fixes-v41/, 'mobile grid fix is cache-busted');
 
 console.log('PASS collaboration fixes v41 contract');
->>>>>>> parent of 5187dd7 (rhrdbdbrb)

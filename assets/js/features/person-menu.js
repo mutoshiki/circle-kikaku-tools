@@ -370,6 +370,8 @@ async function returnOrDeleteMemberCard(card) {
     const deletingFromWaiting = card.parentElement?.id === 'waiting-list';
     if (deletingFromWaiting) {
         if (await appConfirm('このメンバーを完全に削除しますか？', { title: 'メンバー削除', okText: '削除', danger: true })) {
+            const participantKey = card.dataset.participantId || card.dataset.name || '';
+            window.SanpoCanonicalState?.deleteParticipant?.(participantKey);
             card.remove();
             changed = true;
         }
@@ -378,7 +380,6 @@ async function returnOrDeleteMemberCard(card) {
         changed = true;
     }
     if (!changed) return;
-    if (deletingFromWaiting) window.synchronizeParticipantRosterFromCurrentDom?.();
     updateUI();
     save();
 }

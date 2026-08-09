@@ -74,7 +74,7 @@ function stampSchemaVersion(data) {
     return {
         ...data,
         schemaVersion: APP_SCHEMA_VERSION,
-        updatedAt: Date.now(),
+        updatedAt: (window.SanpoClock?.now?.() ?? Date.now()),
         updatedBy: (typeof myClientId !== 'undefined' ? myClientId : 'local')
     };
 }

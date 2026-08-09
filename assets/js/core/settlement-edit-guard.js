@@ -34,7 +34,7 @@ function isSettlementInputProtected() {
 
 function saveLocalDraftOnly() {
     try {
-        lastUpdatedAt = Date.now();
+        lastUpdatedAt = (window.SanpoClock?.now?.() ?? Date.now());
         const d = getData();
         d.lastUpdatedBy = myClientId;
         d.lastUpdatedAt = lastUpdatedAt;

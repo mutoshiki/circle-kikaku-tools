@@ -12,7 +12,7 @@ function cloneCanonical(value) {
 }
 
 function canonicalNow() {
-    return Date.now();
+    return window.SanpoClock?.now?.() ?? Date.now();
 }
 
 function normalizeCanonicalName(value = '') {
@@ -141,13 +141,18 @@ function findCanonicalParticipantIdByName(participants = {}, name = '') {
     return Object.keys(participants).find(id => canonicalNameKey(participants[id]?.name) === key) || '';
 }
 
-function ensureCanonicalParticipant(participants, raw = {}, preferredId = '') {
+function ensureCanonicalParticipant(participants, raw = {}, preferredId = '', tombstones = {}) {
     const record = participantRecordFromLegacy(raw);
     if (!record) return '';
-    const existingId = preferredId && participants[preferredId]
+    const existingId = preferredId && participants[preferredId] && !tombstones?.[preferredId]
         ? preferredId
         : findCanonicalParticipantIdByName(participants, record.name);
-    const id = existingId || preferredId || makeCanonicalParticipantId(record.name, participants);
+    const reserved = { ...(participants || {}) };
+    Object.keys(tombstones || {}).forEach(id => {
+        if (!reserved[id]) reserved[id] = { name: '__deleted__' };
+    });
+    const safePreferred = preferredId && !tombstones?.[preferredId] ? preferredId : '';
+    const id = existingId || safePreferred || makeCanonicalParticipantId(record.name, reserved);
     participants[id] = mergeParticipantRecord(participants[id], { ...record, id }, id);
     return id;
 }
@@ -249,6 +254,30 @@ function ensureAllParticipantsPlaced(allocation, participants) {
             allocation.placements[id] = { kind: 'waiting', groupId: '', order: Number.MAX_SAFE_INTEGER, updatedAt: canonicalNow() };
         }
     });
+
+    // Capacity is a room invariant, not just a UI check. Two phones can both see the
+    // final free seat and commit different members. Keep the earliest accepted placements
+    // and deterministically return overflow members to waiting so every client converges.
+    Object.entries(allocation.groups || {}).forEach(([groupId, group]) => {
+        const capacity = Math.max(1, parseInt(group?.capacity) || (allocation.type === 'team' ? 5 : 3));
+        const members = Object.entries(allocation.placements || {})
+            .filter(([, placement]) => placement?.kind === 'member' && placement.groupId === groupId)
+            .sort(([idA, a], [idB, b]) => {
+                const timeDiff = (Number(a?.updatedAt) || 0) - (Number(b?.updatedAt) || 0);
+                if (timeDiff) return timeDiff;
+                const orderDiff = (Number(a?.order) || 0) - (Number(b?.order) || 0);
+                return orderDiff || String(idA).localeCompare(String(idB));
+            });
+        members.slice(capacity).forEach(([id, placement]) => {
+            allocation.placements[id] = {
+                kind: 'waiting',
+                groupId: '',
+                order: Number.MAX_SAFE_INTEGER,
+                updatedAt: Math.max(Number(placement?.updatedAt || 0), canonicalNow())
+            };
+        });
+    });
+
     let order = Object.values(allocation.placements || {})
         .filter(p => p?.kind === 'waiting')
         .reduce((max, p) => Math.max(max, Number(p.order) || 0), -1) + 1;
@@ -413,27 +442,56 @@ function updateCanonicalFromActiveDom(room, domAllocation, activeType = room?.ac
     if (!canonical.allocations) canonical.allocations = { car: emptyCanonicalAllocation('car'), team: emptyCanonicalAllocation('team') };
     canonical.allocations[activeType] = allocation;
 
-    const seen = new Set();
+    const previousGroups = cloneCanonical(allocation.groups || {}) || {};
+    const previousPlacements = cloneCanonical(allocation.placements || {}) || {};
+    const previousAllocationUpdatedAt = Number(allocation.updatedAt || 0);
     const newGroups = {};
     const newPlacements = {};
     const existingNameIndex = new Map(Object.entries(participants).map(([id, p]) => [canonicalNameKey(p.name), id]));
+    const participantFields = ['name', 'memo', 'gender', 'grade', 'locked', 'flag'];
+    const participantEqual = (a, b) => !!a && !!b && participantFields.every(field => {
+        if (field === 'grade') return Number(a[field] || 0) === Number(b[field] || 0);
+        if (field === 'locked') return !!a[field] === !!b[field];
+        return String(a[field] ?? '') === String(b[field] ?? '');
+    });
+    const placementEqual = (a, b) => !!a && !!b
+        && String(a.kind || '') === String(b.kind || '')
+        && String(a.groupId || '') === String(b.groupId || '')
+        && Number(a.order || 0) === Number(b.order || 0);
+    const groupEqual = (a, b) => !!a && !!b
+        && String(a.ownerId || '') === String(b.ownerId || '')
+        && Number(a.capacity || 0) === Number(b.capacity || 0)
+        && Number(a.order || 0) === Number(b.order || 0);
 
     const resolveId = raw => {
         const preferred = String(raw?.participantId || raw?.id || '').trim();
         const name = normalizeCanonicalName(raw?.name || '');
-        let id = preferred && participants[preferred] && !tombstones[preferred] ? preferred : existingNameIndex.get(canonicalNameKey(name));
+        let id = preferred && participants[preferred] && !tombstones[preferred]
+            ? preferred
+            : existingNameIndex.get(canonicalNameKey(name));
         if (id && tombstones[id]) id = '';
         if (!id) {
             const reserved = { ...participants };
-            Object.keys(tombstones).forEach(tombstoneId => { if (!reserved[tombstoneId]) reserved[tombstoneId] = { name: '__deleted__' }; });
+            Object.keys(tombstones).forEach(tombstoneId => {
+                if (!reserved[tombstoneId]) reserved[tombstoneId] = { name: '__deleted__' };
+            });
             id = (preferred && !tombstones[preferred]) ? preferred : makeCanonicalParticipantId(name, reserved);
         }
         const next = participantFromDomRecord(raw, participants[id]);
         if (!next) return '';
-        participants[id] = { ...next, id, updatedAt: canonicalNow() };
+        const previous = participants[id];
+        participants[id] = participantEqual(previous, next)
+            ? { ...previous, id }
+            : { ...next, id, updatedAt: canonicalNow() };
         existingNameIndex.set(canonicalNameKey(participants[id].name), id);
-        seen.add(id);
         return id;
+    };
+
+    const setPlacement = (id, shape) => {
+        const previous = allocation.placements?.[id];
+        newPlacements[id] = placementEqual(previous, shape)
+            ? { ...previous, kind: shape.kind, groupId: shape.groupId, order: shape.order }
+            : { ...shape, updatedAt: canonicalNow() };
     };
 
     (Array.isArray(domAllocation?.cars) ? domAllocation.cars : []).forEach((car, groupIndex) => {
@@ -450,46 +508,50 @@ function updateCanonicalFromActiveDom(room, domAllocation, activeType = room?.ac
         let groupId = String(car.groupId || '').trim();
         if (!groupId || newGroups[groupId]) groupId = makeCanonicalGroupId(activeType, ownerId, { ...(allocation.groups || {}), ...newGroups });
         const previousGroup = allocation.groups?.[groupId] || {};
-        newGroups[groupId] = {
+        const groupShape = {
             id: groupId,
             ownerId,
             capacity: Math.max(1, parseInt(car.capacity) || (activeType === 'team' ? 5 : 3)),
-            order: groupIndex,
-            updatedAt: canonicalNow(),
-            createdAt: Number(previousGroup.createdAt || canonicalNow())
+            order: groupIndex
         };
-        newPlacements[ownerId] = { kind: 'driver', groupId, order: groupIndex, updatedAt: canonicalNow() };
+        newGroups[groupId] = groupEqual(previousGroup, groupShape)
+            ? { ...previousGroup, ...groupShape, createdAt: Number(previousGroup.createdAt || canonicalNow()) }
+            : { ...groupShape, updatedAt: canonicalNow(), createdAt: Number(previousGroup.createdAt || canonicalNow()) };
+        setPlacement(ownerId, { kind: 'driver', groupId, order: groupIndex });
         (Array.isArray(car.members) ? car.members : []).forEach((member, memberIndex) => {
             const id = resolveId(member || {});
             if (!id || newPlacements[id]) return;
-            newPlacements[id] = { kind: 'member', groupId, order: memberIndex, updatedAt: canonicalNow() };
+            setPlacement(id, { kind: 'member', groupId, order: memberIndex });
         });
     });
 
     (Array.isArray(domAllocation?.waiting) ? domAllocation.waiting : []).forEach((member, waitingIndex) => {
         const id = resolveId(member || {});
         if (!id || newPlacements[id]) return;
-        newPlacements[id] = { kind: 'waiting', groupId: '', order: waitingIndex, updatedAt: canonicalNow() };
+        setPlacement(id, { kind: 'waiting', groupId: '', order: waitingIndex });
     });
 
-    // The active allocation always renders the complete room roster. Absence therefore means an explicit deletion.
-    Object.keys(participants).forEach(id => {
-        if (!seen.has(id)) {
-            tombstones[id] = { deletedAt: canonicalNow() };
-            delete participants[id];
-        }
-    });
+    // DOM is a projection, never the participant master. A card can be temporarily absent
+    // during drag, Carbon modal editing, remote repaint, or a partial mobile render. Absence
+    // must therefore NEVER mean deletion. Deletion is an explicit canonical mutation which
+    // creates a participant tombstone.
     allocation.groups = newGroups;
     allocation.placements = newPlacements;
-    allocation.updatedAt = canonicalNow();
+    ensureAllParticipantsPlaced(allocation, participants);
 
-    // Other allocation is a projection over the same roster: prune deleted ids and append new ids to waiting.
     ALLOCATION_TYPES.filter(type => type !== activeType).forEach(type => {
         const other = canonical.allocations[type] || emptyCanonicalAllocation(type);
         canonical.allocations[type] = other;
         ensureAllParticipantsPlaced(other, participants);
     });
-    ensureAllParticipantsPlaced(allocation, participants);
+
+    // A generic save (for example settlement settings) must not rewrite every participant,
+    // group and placement just because getData() sampled the DOM. Preserve entity timestamps
+    // unless semantic content actually changed so Firebase patches stay narrowly scoped.
+    const allocationChanged = JSON.stringify(previousPlacements) !== JSON.stringify(allocation.placements || {})
+        || JSON.stringify(previousGroups) !== JSON.stringify(allocation.groups || {});
+    allocation.updatedAt = allocationChanged ? canonicalNow() : previousAllocationUpdatedAt;
+
     reconcileSettlementParticipantNames(canonical, oldParticipants);
     canonical.schemaVersion = CANONICAL_SCHEMA_VERSION;
     canonical.activeAllocationType = activeType;
@@ -690,6 +752,49 @@ function applyProjectedPlanToCanonical(room, plan = {}, type = 'car') {
     return allocation;
 }
 
+function deleteCanonicalParticipant(participantIdOrName, { deletedAt = canonicalNow() } = {}) {
+    if (!canonicalRoomState) return false;
+    const participants = canonicalRoomState.participants || (canonicalRoomState.participants = {});
+    const raw = String(participantIdOrName || '').trim();
+    const id = participants[raw] ? raw : findCanonicalParticipantIdByName(participants, raw);
+    if (!id || !participants[id]) return false;
+
+    canonicalRoomState.participantTombstones = canonicalRoomState.participantTombstones || {};
+    canonicalRoomState.participantTombstones[id] = {
+        ...(canonicalRoomState.participantTombstones[id] || {}),
+        deletedAt: Math.max(Number(canonicalRoomState.participantTombstones[id]?.deletedAt || 0), Number(deletedAt || canonicalNow()))
+    };
+    delete participants[id];
+
+    ALLOCATION_TYPES.forEach(type => {
+        const allocation = canonicalRoomState.allocations?.[type];
+        if (!allocation) return;
+        delete allocation.placements?.[id];
+        const ownedGroups = Object.entries(allocation.groups || {})
+            .filter(([, group]) => group?.ownerId === id)
+            .map(([groupId]) => groupId);
+        ownedGroups.forEach(groupId => {
+            delete allocation.groups[groupId];
+            Object.entries(allocation.placements || {}).forEach(([memberId, placement]) => {
+                if (placement?.groupId !== groupId) return;
+                allocation.placements[memberId] = {
+                    kind: 'waiting',
+                    groupId: '',
+                    order: Number.MAX_SAFE_INTEGER,
+                    updatedAt: Number(deletedAt || canonicalNow())
+                };
+            });
+        });
+        ensureAllParticipantsPlaced(allocation, participants);
+        allocation.updatedAt = Number(deletedAt || canonicalNow());
+    });
+
+    reconcileSettlementParticipantNames(canonicalRoomState, {});
+    canonicalRoomState.lastUpdatedAt = Number(deletedAt || canonicalNow());
+    canonicalRoomState.schemaVersion = CANONICAL_SCHEMA_VERSION;
+    return true;
+}
+
 window.SanpoCanonicalState = Object.freeze({
     SCHEMA_VERSION: CANONICAL_SCHEMA_VERSION,
     emptyRoom: emptyCanonicalRoom,
@@ -705,6 +810,7 @@ window.SanpoCanonicalState = Object.freeze({
     setSettlementFromUi: setCanonicalSettlementFromUi,
     findParticipantIdByName: findCanonicalParticipantIdByName,
     ensureParticipant: ensureCanonicalParticipant,
+    deleteParticipant: deleteCanonicalParticipant,
     ensureAllParticipantsPlaced,
     applyProjectedPlan: applyProjectedPlanToCanonical,
     normalizeNameKey: canonicalNameKey

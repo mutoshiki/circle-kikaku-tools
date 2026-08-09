@@ -227,7 +227,7 @@ function createSampleAppData({ missing = false, carCount = 3 } = {}) {
                 : 'サンプルデータ',
             timetableItems: createSampleTimetableItems()
         },
-        lastUpdatedAt: Date.now()
+        lastUpdatedAt: (window.SanpoClock?.now?.() ?? Date.now())
     };
 }
 
@@ -236,7 +236,7 @@ function seedDebugData({ missing = false } = {}) {
         window.__sampleDataLastError = null;
         const carCount = parseInt(byId('debugCarCount')?.value, 10) || 3;
         const sampleData = createSampleAppData({ missing, carCount });
-        sampleData.lastUpdatedAt = Date.now();
+        sampleData.lastUpdatedAt = (window.SanpoClock?.now?.() ?? Date.now());
         sampleData.lastUpdatedBy = myClientId;
         lastUpdatedAt = sampleData.lastUpdatedAt;
         pendingRemoteSettlementData = null;

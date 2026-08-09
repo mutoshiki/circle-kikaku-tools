@@ -2,7 +2,7 @@
 
 function buildSheetCommittedSnapshot() {
     const snapshot = getData({ skipDomSync: true });
-    lastUpdatedAt = Date.now();
+    lastUpdatedAt = (window.SanpoClock?.now?.() ?? Date.now());
     snapshot.lastUpdatedBy = myClientId;
     snapshot.lastUpdatedAt = lastUpdatedAt;
     window.SanpoApp?.state?.setSnapshot?.(snapshot);
@@ -170,7 +170,7 @@ function syncSheetSectionToPlan(section) {
 
     plan.cars = cloneData(nextCars);
     plan.waiting = cloneData(nextWaiting);
-    plan.updatedAt = Date.now();
+    plan.updatedAt = (window.SanpoClock?.now?.() ?? Date.now());
 }
 
 function hasSheetPlanContent(plans = carPlans) {

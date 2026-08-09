@@ -1,6 +1,21 @@
 // Batch import feature
 // Owns participant registration modal reset, Google Forms paste reflection, and bulk import execution.
 
+let batchOpeningCanonicalSnapshot = null;
+
+function cloneBatchCanonical(value) {
+    return JSON.parse(JSON.stringify(value ?? null));
+}
+
+function getBatchParticipantIndex(canonical = {}) {
+    const normalize = getBatchNameNormalizer();
+    return new Map(Object.entries(canonical.participants || {}).map(([id, participant]) => [normalize(participant?.name), { id, participant }]));
+}
+
+function getBatchDriverIds(canonical = {}) {
+    return new Set(Object.values(canonical.allocations?.car?.groups || {}).map(group => group?.ownerId).filter(Boolean));
+}
+
 function getBatchNameNormalizer() {
     return window.SanpoFormImportParser?.normalizeNameForCompare || (value => String(value || '').replace(/[\s\u3000\t\r\n]+/g, '').trim());
 }
@@ -159,6 +174,10 @@ function openBatchModal() {
     $('#batchGrade4').value = grade4.join('\n');
     $('#batchDrivers').value = drivers.join('\n');
     clearBatchPasteUi();
+    // Capture the collaborative base represented by the fields. Submit computes *intent*
+    // against this snapshot instead of replacing the room roster/allocation wholesale. Remote
+    // additions and unrelated card moves made while this modal is open therefore survive.
+    batchOpeningCanonicalSnapshot = cloneBatchCanonical(canonical);
     modals.batch.show();
 }
 window.SanpoApp?.exposeCompat?.('openBatchModal', openBatchModal);
@@ -263,8 +282,9 @@ async function executeBatch() {
     }
 
     const canonical = window.SanpoCanonicalState?.get?.() || window.SanpoCanonicalState?.set?.({});
-    const oldParticipants = { ...(canonical.participants || {}) };
-    const oldByName = new Map(Object.entries(oldParticipants).map(([id, participant]) => [normalize(participant?.name), { id, participant }]));
+    const opening = batchOpeningCanonicalSnapshot || cloneBatchCanonical(canonical) || {};
+    const openingByName = getBatchParticipantIndex(opening);
+    const openingDrivers = getBatchDriverIds(opening);
     const gradeMap = new Map();
     g1.forEach(name => gradeMap.set(normalize(name), 1));
     g2.forEach(name => gradeMap.set(normalize(name), 2));
@@ -277,95 +297,120 @@ async function executeBatch() {
         const key = normalize(name);
         if (key && !requestedNames.some(item => item.key === key)) requestedNames.push({ key, name });
     });
-    // Deleted participant ids are reserved forever for this room. Participant ids are
-    // the foreign keys used by allocations and settlement, so reusing a tombstoned id
-    // would let a delayed write from an old phone attach itself to a newly registered
-    // person with the same display name. Reserve tombstones while allocating ids, then
-    // record every roster removal before replacing the participant master.
-    const tombstones = canonical.participantTombstones || (canonical.participantTombstones = {});
-    const newParticipants = {};
-    const tombstonePlaceholders = new Set(Object.keys(tombstones));
-    tombstonePlaceholders.forEach(id => {
-        newParticipants[id] = { id, name: '__deleted__', updatedAt: Number(tombstones[id]?.deletedAt || 0) };
-    });
+    const requestedByKey = new Map(requestedNames.map(item => [item.key, item]));
+    const requestedDriverKeys = new Set(d.map(normalize).filter(Boolean));
+    const now = (window.SanpoClock?.now?.() ?? Date.now());
     const newParticipantIds = [];
+
+    // Participant registration is a three-way intent editor. Only people that were visible in
+    // the opening snapshot and were explicitly removed are deleted. A participant another
+    // phone added while this modal was open is absent from both the opening form and this
+    // client's patch, so Firebase keeps that remote participant.
+    openingByName.forEach(({ id }, key) => {
+        if (requestedByKey.has(key)) return;
+        window.SanpoCanonicalState?.deleteParticipant?.(id, { deletedAt: now });
+    });
+
     requestedNames.forEach(({ key, name }) => {
-        const previous = oldByName.get(key);
-        const existing = previous?.participant || {};
-        const id = window.SanpoCanonicalState.ensureParticipant(newParticipants, {
-            name,
-            memo: existing.memo || '',
-            gender: existing.gender || 'unknown',
-            grade: gradeMap.get(key) || existing.grade || 0,
-            locked: !!existing.locked,
-            flag: normalizePersonFlag(existing.flag)
-        }, previous?.id || '');
-        if (!previous && id) newParticipantIds.push(id);
-    });
-    tombstonePlaceholders.forEach(id => {
-        if (newParticipants[id]?.name === '__deleted__') delete newParticipants[id];
-    });
-    const deletionTime = Date.now();
-    Object.keys(oldParticipants).forEach(id => {
-        if (!newParticipants[id]) tombstones[id] = { deletedAt: deletionTime };
-    });
-    canonical.participants = newParticipants;
-
-    const driverIds = new Set(d.map(name => window.SanpoCanonicalState.findParticipantIdByName(newParticipants, name)).filter(Boolean));
-    const carAllocation = canonical.allocations?.car || { id: 'plan-car', type: 'car', name: '車割', groups: {}, placements: {}, lastAutoAssignLabel: '' };
-    const existingGroups = carAllocation.groups || {};
-    const existingPlacements = carAllocation.placements || {};
-    const nextGroups = {};
-    const nextPlacements = {};
-    let groupOrder = 0;
-
-    driverIds.forEach(id => {
-        const existingGroup = Object.values(existingGroups).find(group => group?.ownerId === id);
-        const groupId = existingGroup?.id || `g_car_${id}`;
-        nextGroups[groupId] = {
-            id: groupId,
-            ownerId: id,
-            capacity: Math.max(1, parseInt(existingGroup?.capacity) || 3),
-            order: groupOrder++,
-            createdAt: Number(existingGroup?.createdAt || Date.now()),
-            updatedAt: Date.now()
-        };
-        nextPlacements[id] = { kind: 'driver', groupId, order: nextGroups[groupId].order, updatedAt: Date.now() };
-    });
-
-    let waitingOrder = 0;
-    Object.keys(newParticipants).forEach(id => {
-        if (driverIds.has(id)) return;
-        const previous = existingPlacements[id];
-        const previousGroup = previous?.groupId && nextGroups[previous.groupId];
-        if (previous?.kind === 'member' && previousGroup) {
-            nextPlacements[id] = { kind: 'member', groupId: previous.groupId, order: Number(previous.order) || 0, updatedAt: Date.now() };
-        } else {
-            nextPlacements[id] = { kind: 'waiting', groupId: '', order: waitingOrder++, updatedAt: Date.now() };
+        const openingEntry = openingByName.get(key);
+        let id = openingEntry?.id || window.SanpoCanonicalState?.findParticipantIdByName?.(canonical.participants || {}, name) || '';
+        if (!id) {
+            id = window.SanpoCanonicalState.ensureParticipant(canonical.participants, {
+                name, memo: '', gender: 'unknown', grade: gradeMap.get(key) || 0, locked: false, flag: 'none'
+            }, '', canonical.participantTombstones || {});
+            if (id) newParticipantIds.push(id);
+            return;
+        }
+        const participant = canonical.participants?.[id];
+        if (!participant) return;
+        const desiredGrade = gradeMap.has(key) ? Number(gradeMap.get(key) || 0) : Number(participant.grade || 0);
+        const cleanName = cleanBatchDisplayName(name);
+        const openingParticipant = openingEntry?.participant || participant;
+        const nameChanged = cleanBatchDisplayName(openingParticipant.name) !== cleanName;
+        const gradeChanged = Number(openingParticipant.grade || 0) !== desiredGrade;
+        if (nameChanged || gradeChanged) {
+            canonical.participants[id] = { ...participant, id, name: cleanName, grade: desiredGrade, updatedAt: now };
         }
     });
-    carAllocation.groups = nextGroups;
-    carAllocation.placements = nextPlacements;
-    carAllocation.updatedAt = Date.now();
-    canonical.allocations.car = carAllocation;
 
-    // 班割は同じ参加者マスターを参照するだけ。削除されたIDを除き、新規参加者だけ未割り当てへ加える。
-    window.SanpoCanonicalState.ensureAllParticipantsPlaced(canonical.allocations.team, newParticipants);
+    const carAllocation = canonical.allocations?.car;
+    if (carAllocation) {
+        carAllocation.groups = carAllocation.groups || {};
+        carAllocation.placements = carAllocation.placements || {};
+        let allocationChanged = false;
+        const requestedDriverIds = new Set([...requestedDriverKeys].map(key => {
+            // Resolve through the participant represented by the opening form first. A different
+            // phone may rename that participant while this modal remains open; the unchanged
+            // driver line still refers to the same participant ID, not a new/unknown name.
+            const openingEntry = openingByName.get(key);
+            if (openingEntry?.id && canonical.participants?.[openingEntry.id]) return openingEntry.id;
+            const requested = requestedByKey.get(key);
+            return requested ? window.SanpoCanonicalState.findParticipantIdByName(canonical.participants || {}, requested.name) : '';
+        }).filter(Boolean));
+
+        // Driver status is also intent-based: only a status that differs from the opening form
+        // is changed. Unrelated remote moves/groups are not regenerated or timestamped.
+        const openingParticipantIds = new Set(Object.keys(opening.participants || {}));
+        const allRelevantIds = new Set([...openingParticipantIds, ...requestedDriverIds]);
+        allRelevantIds.forEach(id => {
+            if (!canonical.participants?.[id]) return;
+            const wasDriver = openingDrivers.has(id);
+            const wantsDriver = requestedDriverIds.has(id);
+            if (wasDriver === wantsDriver) return;
+
+            const ownedGroupEntry = Object.entries(carAllocation.groups).find(([, group]) => group?.ownerId === id);
+            if (wantsDriver) {
+                const groupId = ownedGroupEntry?.[0] || `g_car_${id}`;
+                const previousGroup = ownedGroupEntry?.[1];
+                carAllocation.groups[groupId] = previousGroup || {
+                    id: groupId, ownerId: id, capacity: 3, order: Object.keys(carAllocation.groups).length, createdAt: now, updatedAt: now
+                };
+                if (previousGroup) carAllocation.groups[groupId] = { ...previousGroup, ownerId: id, updatedAt: now };
+                carAllocation.placements[id] = { kind: 'driver', groupId, order: Number(carAllocation.groups[groupId].order || 0), updatedAt: now };
+                allocationChanged = true;
+                return;
+            }
+
+            if (ownedGroupEntry) {
+                const [groupId] = ownedGroupEntry;
+                delete carAllocation.groups[groupId];
+                Object.entries(carAllocation.placements).forEach(([memberId, placement]) => {
+                    if (placement?.groupId !== groupId || memberId === id) return;
+                    carAllocation.placements[memberId] = { kind: 'waiting', groupId: '', order: Number.MAX_SAFE_INTEGER, updatedAt: now };
+                });
+            }
+            carAllocation.placements[id] = { kind: 'waiting', groupId: '', order: Number.MAX_SAFE_INTEGER, updatedAt: now };
+            allocationChanged = true;
+        });
+
+        window.SanpoCanonicalState.ensureAllParticipantsPlaced(carAllocation, canonical.participants || {});
+        if (allocationChanged) carAllocation.updatedAt = now;
+    }
+    window.SanpoCanonicalState.ensureAllParticipantsPlaced(canonical.allocations?.team, canonical.participants || {});
     canonical.settlement = window.SanpoCanonicalState.settlementToStorage(
-        window.SanpoCanonicalState.settlementToUi(canonical.settlement || {}, oldParticipants),
-        newParticipants
+        window.SanpoCanonicalState.settlementToUi(canonical.settlement || {}, canonical.participants || {}),
+        canonical.participants || {}
     );
 
     carPlans = window.SanpoCanonicalState.projectPlans(canonical);
-    renderActiveCarPlanToDom();
-    updateUI();
-    save();
+    // Canonical state is already complete.  Do not rebuild the allocation DOM underneath an
+    // open Carbon modal before its footer click finishes; save the model first, close the modal,
+    // then project the canonical state back to the screen.
+    const previousSuspend = !!window.__suspendActiveDomPlanSync;
+    window.__suspendActiveDomPlanSync = true;
+    try { save(); }
+    finally { window.__suspendActiveDomPlanSync = previousSuspend; }
     modals.batch.hide({ reason: 'submit' });
+    batchOpeningCanonicalSnapshot = null;
+    queueMicrotask(() => {
+        renderActiveCarPlanToDom();
+        updateUI();
+    });
     window.markParticipantRegistrationGuidanceReady?.();
 
     // New participants are visible in either allocation because both project the same roster.
     newParticipantIds.forEach(id => {
-        const name = newParticipants[id]?.name;
+        const name = canonical.participants?.[id]?.name;
         if (name) detectGender(name);
     });
 }

@@ -32,8 +32,22 @@ let set = null;
 let update = null;
 let onValue = null;
 let runTransaction = null;
+let get = null;
+let firebaseServerTimeOffsetMs = 0;
+let firebaseServerTimeOffsetReady = false;
 let getAuth = null;
 let signInAnonymously = null;
+
+
+function collaborativeNow() {
+    return Date.now() + (firebaseServerTimeOffsetReady ? firebaseServerTimeOffsetMs : 0);
+}
+
+window.SanpoClock = Object.freeze({
+    now: collaborativeNow,
+    isServerAligned: () => firebaseServerTimeOffsetReady,
+    getServerOffsetMs: () => firebaseServerTimeOffsetMs
+});
 
 async function initFirebaseSync() {
     if (!firebaseEnabled) return false;
@@ -51,6 +65,7 @@ async function initFirebaseSync() {
         update = databaseModule.update;
         onValue = databaseModule.onValue;
         runTransaction = databaseModule.runTransaction;
+        get = databaseModule.get;
         getAuth = authModule.getAuth;
         signInAnonymously = authModule.signInAnonymously;
 
@@ -58,6 +73,28 @@ async function initFirebaseSync() {
         auth = getAuth(app);
         db = getDatabase(app);
         await signInAnonymously(auth);
+
+        // Align collaboration timestamps to Firebase server time before room sync starts.
+        // Client wall clocks are not a safe distributed ordering source; a phone set minutes
+        // ahead used to make its same-field edits dominate every other device.
+        try {
+            const offsetRef = ref(db, '.info/serverTimeOffset');
+            const offsetSnapshot = await get(offsetRef);
+            const offset = Number(offsetSnapshot?.val?.() || 0);
+            if (Number.isFinite(offset)) {
+                firebaseServerTimeOffsetMs = offset;
+                firebaseServerTimeOffsetReady = true;
+            }
+            onValue(offsetRef, snapshot => {
+                const next = Number(snapshot.val() || 0);
+                if (!Number.isFinite(next)) return;
+                firebaseServerTimeOffsetMs = next;
+                firebaseServerTimeOffsetReady = true;
+            });
+        } catch (clockError) {
+            console.warn('Firebase server time alignment unavailable; using transaction order fallback.', clockError);
+        }
+
         dbRef = ref(db, 'rooms/' + roomId);
         firebaseReady = true;
         return true;
@@ -277,8 +314,11 @@ function appPrompt(message, defaultValue = '', options = {}) {
             if (settled) return;
             settled = true;
             cleanup();
-            modals.edit.hide();
+            // Resolve the edit intent before queuing Carbon's final hidden lifecycle. Callers
+            // resume in the promise microtask and commit their model/DOM mutation before the
+            // modal-hidden boundary is allowed to paint queued remote state.
             resolve(value);
+            modals.edit.hide({ reason: 'submit' });
         }
         function onHidden() {
             if (settled) return;

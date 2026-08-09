@@ -26,39 +26,6 @@ function preserveTopAreaScrollAcrossTrayResize(mutator) {
     });
 }
 
-function captureTopAreaViewportForCardMutation() {
-    const topArea = byId('top-area');
-    const tray = byId('bottom-tray');
-    if (!topArea) return null;
-    const previousOverflowAnchor = tray?.dataset.dragTopAreaOverflowAnchor ?? topArea.style.overflowAnchor ?? '';
-    topArea.style.overflowAnchor = 'none';
-    return { topArea, scrollTop: topArea.scrollTop, previousOverflowAnchor };
-}
-
-function restoreTopAreaViewportAfterCardMutation(snapshot) {
-    const topArea = snapshot?.topArea;
-    if (!topArea?.isConnected) return;
-    const desired = Number(snapshot.scrollTop || 0);
-    const restore = () => {
-        if (topArea.isConnected && Math.abs(topArea.scrollTop - desired) > 0.5) topArea.scrollTop = desired;
-    };
-    restore();
-    queueMicrotask(restore);
-    requestAnimationFrame(() => {
-        restore();
-        requestAnimationFrame(() => {
-            restore();
-            if (topArea.isConnected) topArea.style.overflowAnchor = snapshot.previousOverflowAnchor || '';
-        });
-    });
-    // iOS can perform one more scroll anchoring pass after custom-element/layout
-    // updates. Guard that pass without pinning the viewport beyond the gesture.
-    setTimeout(() => {
-        restore();
-        if (topArea.isConnected) topArea.style.overflowAnchor = snapshot.previousOverflowAnchor || '';
-    }, 80);
-}
-
 function getWaitingTrayStats() {
     const waitingCards = getWaitingCards();
     let seatsTotal = 0;
@@ -206,6 +173,7 @@ function toggleTray() {
   tray.classList.toggle("minimized");
   tray.classList.remove('empty-open');
   tray.dataset.userMinimized = tray.classList.contains('minimized') ? 'true' : 'false';
+  window.SanpoDeviceRoomUi?.write?.({ trayMinimized: tray.classList.contains('minimized') });
   updateTrayMenuDirection();
   updateTrayToggleLabel();
   save();
@@ -341,18 +309,20 @@ function maybeOpenWaitingTrayNearPointer(clientX, clientY) {
     // getManualCardDropTarget(). Highlight that handle, but do not open the drawer
     // mid-drag: opening it would resize #top-area and disturb the current scroll.
     const handle = byId('tray-handle');
-    const targetRect = (handle || tray).getBoundingClientRect();
-    const margin = 10;
-    const touchingClosedTab =
-        clientX >= targetRect.left - margin &&
-        clientX <= targetRect.right + margin &&
-        clientY >= targetRect.top - margin &&
-        clientY <= targetRect.bottom + margin;
+    const trayRect = tray.getBoundingClientRect();
+    const handleRect = handle?.getBoundingClientRect?.();
+    const viewportWidth = window.visualViewport?.width || window.innerWidth;
+    const stripTop = Math.min(trayRect.top || Infinity, handleRect?.top ?? Infinity) - 40;
+    const stripBottom = Math.max(trayRect.bottom || 0, handleRect?.bottom ?? 0) + 32;
+    const touchingClosedStrip = clientX >= -12
+        && clientX <= viewportWidth + 12
+        && clientY >= stripTop
+        && clientY <= stripBottom;
 
-    tray.classList.toggle('is-drop-near', touchingClosedTab);
+    tray.classList.toggle('is-drop-near', touchingClosedStrip);
 }
 
-function finishWaitingTrayDragState(options = {}) {
+function finishWaitingTrayDragState() {
     const tray = byId('bottom-tray');
     if (!tray) return;
     const topArea = byId('top-area');
@@ -360,12 +330,12 @@ function finishWaitingTrayDragState(options = {}) {
     const waitingScrollTop = Number(tray.dataset.dragWaitingScrollTop || 0);
     const previousOverflowAnchor = tray.dataset.dragTopAreaOverflowAnchor || '';
 
-    // Keep scroll anchoring disabled through the *entire* card mutation/updateUI
-    // transaction. Restoring it here used to let Safari re-anchor while the moved
-    // card and tray layout were still settling, which is why a swap could jump to 0.
-    tray.classList.remove('drag-transient-minimized');
+    // Expand back to exactly the user's pre-drag state. Capture the current
+    // #top-area scroll position *after any intentional drag auto-scroll*, then
+    // preserve that position while the tray regains its normal height.
+    preserveTopAreaScrollAcrossTrayResize(() => tray.classList.remove('drag-transient-minimized'));
     if (waitingScroller) waitingScroller.scrollTop = waitingScrollTop;
-    if (topArea && options.deferViewportRestore !== true) topArea.style.overflowAnchor = previousOverflowAnchor;
+    if (topArea) topArea.style.overflowAnchor = previousOverflowAnchor;
 
     tray.classList.remove('is-drop-ready', 'is-drop-near');
     delete tray.dataset.dragStartedMinimized;

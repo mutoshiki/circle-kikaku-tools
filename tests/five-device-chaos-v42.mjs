@@ -117,13 +117,11 @@ function check(room,label){
   return c;
 }
 
-const scenarioTarget = Math.max(1, Number(process.env.CHAOS_SCENARIOS || 50));
-const stepsPerScenario = Math.max(1, Number(process.env.CHAOS_STEPS || 100));
 let scenarios=0, operations=0, commits=0;
-for(let seed=1; seed<=scenarioTarget; seed++){
+for(let seed=1; seed<=50; seed++){
   const r=rngFor(seed*7919); let server=normalize(legacyRoom(12));
   const clients=Array.from({length:5},(_,i)=>({id:`D${i+1}`,base:clone(server),local:clone(server),offline:false,dirty:false}));
-  for(let step=0;step<stepsPerScenario;step++){
+  for(let step=0;step<100;step++){
     // Random network state changes and 1-5 concurrent local actions.
     if(r()<.08){ const c=pick(r,clients); c.offline=!c.offline; }
     const actors=[...clients].sort(()=>r()-.5).slice(0,1+Math.floor(r()*5));
