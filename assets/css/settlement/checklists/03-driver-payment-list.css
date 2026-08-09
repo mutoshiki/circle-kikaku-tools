@@ -24,8 +24,8 @@
 .seisan-check-item.excluded { cursor: not-allowed; }
 .seisan-check-item.excluded cds-checkbox { filter: grayscale(1); }
 .seisan-check-item.excluded.pre-deducted {
-  background: var(--semantic-success-soft);
-  color: var(--semantic-success);
+  background: transparent;
+  color: var(--text-main);
   opacity: 1;
 }
 .seisan-check-item.excluded.pre-deducted cds-checkbox { filter: none; }

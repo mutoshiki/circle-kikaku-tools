@@ -86,7 +86,85 @@ async function confirmSettlementCheckChange(message, options = {}, input = null,
     return ok;
 }
 
+function captureSettlementScrollPosition() {
+    const area = byId('seisan-view-area');
+    const layout = byId('app-layout');
+    return {
+        top: Number(area?.scrollTop || 0),
+        left: Number(area?.scrollLeft || 0),
+        windowY: Number(window.scrollY || 0),
+        documentTop: Number(document.scrollingElement?.scrollTop || 0),
+        documentElementTop: Number(document.documentElement?.scrollTop || 0),
+        bodyTop: Number(document.body?.scrollTop || 0),
+        layoutTop: Number(layout?.scrollTop || 0)
+    };
+}
+
+function consumeSettlementCheckScrollPosition() {
+    const snapshot = window.__settlementCheckScrollSnapshot || captureSettlementScrollPosition();
+    window.__settlementCheckScrollSnapshot = null;
+    return snapshot;
+}
+
+function restoreSettlementScrollPosition(snapshot) {
+    const area = byId('seisan-view-area');
+    const layout = byId('app-layout');
+    if (!snapshot) return;
+    if (area?.isConnected) {
+        area.scrollTop = snapshot.top;
+        area.scrollLeft = snapshot.left;
+    }
+    window.scrollTo({ top: snapshot.windowY, left: 0, behavior: 'auto' });
+    if (document.scrollingElement) document.scrollingElement.scrollTop = snapshot.documentTop;
+    if (document.documentElement) document.documentElement.scrollTop = snapshot.documentElementTop;
+    if (document.body) document.body.scrollTop = snapshot.bodyTop;
+    if (layout?.isConnected) layout.scrollTop = snapshot.layoutTop;
+}
+
+function stabilizeSettlementScrollPosition(snapshot) {
+    const restore = () => restoreSettlementScrollPosition(snapshot);
+    restore();
+    requestAnimationFrame(restore);
+    [0, 80, 240, 800].forEach(delay => setTimeout(restore, delay));
+}
+
+function renderSettlementViewPreservingScroll(snapshot = captureSettlementScrollPosition()) {
+    renderSettlementView();
+    stabilizeSettlementScrollPosition(snapshot);
+}
+
+function refreshSettlementCollectionStatus(encodedName, name, checked, state) {
+    const input = Array.from(document.querySelectorAll('[data-settlement-paid-name]'))
+        .find(candidate => candidate.dataset.settlementPaidName === encodedName);
+    if (input) {
+        input.checked = !!checked;
+        input.closest('.seisan-check-item')?.classList.toggle('paid', !!checked);
+        const displayName = state.paidBy?.[name] || name;
+        const nameEl = input.closest('.seisan-check-item')?.querySelector('.seisan-check-name');
+        if (nameEl) nameEl.textContent = displayName;
+        input.setAttribute('aria-label', `${displayName}の支払いチェック`);
+    }
+
+    const data = getRoomDataOnly();
+    const result = calculateSettlement(data, state);
+    const note = byId('seisan-collection-note');
+    if (note) {
+        note.innerHTML = `<span class="seisan-collection-note-left"><span>集金済み ${result.paidCount}/${result.payerCount}名</span><span>未回収 ${yen(result.unpaidAmount)}</span></span><span class="seisan-collection-per-person"><span class="seisan-collection-per-person-label">1人あたり /</span><strong class="seisan-collection-per-person-amount">${yen(result.perPerson)}</strong></span>`;
+    }
+    const sharePreview = byId('seisan-share-preview');
+    if (sharePreview && typeof buildSettlementOverviewText === 'function') {
+        sharePreview.textContent = buildSettlementOverviewText({
+            data,
+            state,
+            result,
+            title: (data.roomName || '企画名未設定').trim()
+        });
+    }
+}
+
 async function toggleSettlementPaid(encodedName, checked, input = null) {
+    const scrollSnapshot = consumeSettlementCheckScrollPosition();
+    input?.focus?.({ preventScroll: true });
     const name = decodeURIComponent(encodedName);
     const state = ensureSettlementState();
     let confirmed = false;
@@ -110,14 +188,18 @@ async function toggleSettlementPaid(encodedName, checked, input = null) {
             checked
         );
     }
+    restoreSettlementScrollPosition(scrollSnapshot);
     if (!confirmed) return;
     state.paid[name] = !!checked;
     if (!checked && state.paidBy) delete state.paidBy[name];
-    renderSettlementView();
+    refreshSettlementCollectionStatus(encodedName, name, checked, state);
+    stabilizeSettlementScrollPosition(scrollSnapshot);
     save();
 }
 
 async function toggleSettlementDriverPaid(encodedName, checked, input = null) {
+    const scrollSnapshot = consumeSettlementCheckScrollPosition();
+    input?.focus?.({ preventScroll: true });
     const name = decodeURIComponent(encodedName);
     const confirmed = await confirmSettlementCheckChange(
         checked ? `${name}さんへの支払いを完了にしますか？` : `${name}さんへの支払いを未払いに戻しますか？`,
@@ -125,10 +207,11 @@ async function toggleSettlementDriverPaid(encodedName, checked, input = null) {
         input,
         checked
     );
+    restoreSettlementScrollPosition(scrollSnapshot);
     if (!confirmed) return;
     const state = ensureSettlementState();
     state.driverPaid[name] = !!checked;
-    renderSettlementView();
+    renderSettlementViewPreservingScroll(scrollSnapshot);
     save();
 }
 
@@ -137,5 +220,6 @@ window.SanpoApp?.exposeCompat?.('onSettlementInputDelayed', onSettlementInputDel
 window.SanpoApp?.exposeCompat?.('addSettlementExtra', addSettlementExtra);
 window.SanpoApp?.exposeCompat?.('addSettlementExtraCandidate', addSettlementExtraCandidate);
 window.SanpoApp?.exposeCompat?.('removeSettlementExtra', removeSettlementExtra);
+window.SanpoApp?.exposeCompat?.('captureSettlementScrollPosition', captureSettlementScrollPosition);
 window.SanpoApp?.exposeCompat?.('toggleSettlementPaid', toggleSettlementPaid);
 window.SanpoApp?.exposeCompat?.('toggleSettlementDriverPaid', toggleSettlementDriverPaid);

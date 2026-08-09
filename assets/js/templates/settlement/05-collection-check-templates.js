@@ -20,13 +20,13 @@
     const note = excluded
       ? (preDeducted ? '支払い額から差し引き済' : (p.name === result.excludedName ? '対象外（企画者）' : '対象外'))
       : (p.role === 'member' && p.driverName ? formatCarLabel(p.driverName, helpers) : (p.role === 'waiting' ? '待機' : ''));
-    return `<label class="seisan-check-item ${checked ? 'paid' : ''} ${excluded ? 'excluded' : ''} ${preDeducted ? 'pre-deducted' : ''}" data-carbon-checkbox-row${excluded ? ' aria-disabled="true"' : ''}>
+    return `<div class="seisan-check-item ${checked ? 'paid' : ''} ${excluded ? 'excluded' : ''} ${preDeducted ? 'pre-deducted' : ''}" data-carbon-checkbox-row${excluded ? ' aria-disabled="true"' : ''}>
             <cds-checkbox ${checked ? 'checked' : ''} ${excluded ? 'disabled' : ''} data-settlement-paid-name="${encodeURIComponent(p.name)}" label-text="" aria-label="${esc(displayName, helpers)}の支払いチェック"></cds-checkbox>
             <span class="seisan-check-copy${note ? ' has-note' : ''}">
               <span class="seisan-check-name">${esc(displayName, helpers)}</span>
               ${note ? `<span class="seisan-check-note">${note}</span>` : ''}
             </span>
-        </label>`;
+        </div>`;
   }
 
     function buildCollectionGroups({ data = {}, participants = [] } = {}) {

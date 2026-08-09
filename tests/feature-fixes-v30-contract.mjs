@@ -18,6 +18,11 @@ const personMenuJs = read('assets/js/features/person-menu.js');
 const layeringCss = read('assets/css/app-shell/layout/04-layering.css');
 const copyCss = read('assets/css/settlement/share/01-share-output.css');
 const carHeaderCss = read('assets/css/cars-members-tray/car-card/02-card-header.css');
+const collectionCss = read('assets/css/settlement/checklists/01-collection-list.css');
+const collectionMobileCss = read('assets/css/settlement/checklists/02-collection-mobile.css');
+const collectionStateCss = read('assets/css/settlement/checklists/03-driver-payment-list.css');
+const collectionTemplate = read('assets/js/templates/settlement/05-collection-check-templates.js');
+const settlementActions = read('assets/js/features/settlement/05-input-actions.js');
 const overviewEvents = read('assets/js/features/events/02-static-header-events.js');
 const sheetViewport = read('assets/js/features/sheet/02-viewport-controls.js');
 const ui = read('assets/js/modules/ui.js');
@@ -34,10 +39,13 @@ expect(carbonBundle.includes('name:"search"'), 'Built Carbon bundle does not con
 expect(route.includes('renderCarbonIcons?.(surface)'), 'Dynamic route search surface does not render Carbon icons');
 
 expect(modal.includes('function deepestActiveElement'), 'Recursive pointer focus cleanup is missing');
+expect(modal.includes('target.focus({ preventScroll: true });') && modal.includes('if (!restoreForKeyboard) requestAnimationFrame(() => clearPointerFocus(target));'), 'Modal close must return focus without scrolling before clearing pointer focus');
 expect(modal.includes("app-keyboard-navigation"), 'Input modality class is missing');
 expect(iconCss.includes('body.app-keyboard-navigation cds-icon-button.header-action:focus-within'), 'Header focus ring is not keyboard-only');
 expect(!iconCss.includes('\ncds-icon-button.header-action:focus-within {'), 'Pointer-only header focus ring rule remains');
 expect((ui.match(/state\.confirmModal\.show\(\);/g) || []).length === 1, 'Confirmation modal is opened more than once');
+expect(ui.includes('const onHidden = () => finish(requestedValue);'), 'Confirmation results must wait for Carbon modal cleanup before updating the page');
+expect((ui.match(/queueMicrotask\(\(\) => state\.confirmModal\.hide\(\)\)/g) || []).length === 2, 'Confirmation modal must close after the activating click finishes to prevent backdrop click-through');
 
 expect(personMenuJs.includes('trigger.showPopover()'), 'Person menus are not promoted to the browser top layer');
 expect(personMenuJs.includes('person-menu-top-layer-placeholder'), 'Person-menu top-layer promotion does not preserve card layout');
@@ -48,6 +56,15 @@ expect(personMenuCss.includes(':not(.person-menu-top-layer-open)'), 'Person-menu
 expect(layeringCss.includes(':not(.person-menu-top-layer-open) #top-area'), 'Top-area stacking fallback still runs while the menu is in the top layer');
 expect(copyCss.includes('box-shadow: inset 0 0 0 1px var(--app-accent-border)'), 'Dark settlement copy action lacks a visible Carbon tertiary boundary');
 expect(carHeaderCss.includes('.capacity-edit-pill > .carbon-icon { width: 1rem; height: 1rem; }'), 'Capacity edit pill must keep a balanced Carbon icon size');
+expect(collectionCss.includes('grid-template-columns: repeat(2, minmax(0, 1fr))'), 'Collection checks must render two people per row');
+expect(!collectionMobileCss.includes('grid-template-columns: minmax(0, 1fr);'), 'Narrow collection checks must not collapse back to one person per row');
+expect(collectionCss.includes('grid-template-columns: 24px minmax(0, 1fr)') && collectionTemplate.includes('<cds-checkbox'), 'Collection checks must use Carbon checkbox-left anatomy');
+expect(collectionStateCss.includes('.seisan-check-item.excluded.pre-deducted') && collectionStateCss.includes('background: transparent;'), 'Pre-deducted collection state must not restore the old green tile surface');
+expect(collectionCss.includes('overflow-wrap: anywhere') && collectionCss.includes('flex-direction: column'), 'Collection names and details must stack and wrap safely');
+expect(settlementEvents.includes('__settlementCheckScrollSnapshot') && settlementActions.includes('consumeSettlementCheckScrollPosition') && settlementActions.includes('refreshSettlementCollectionStatus(encodedName, name, checked, state)'), 'Collection checks must update in place instead of replacing the focused checklist DOM');
+expect((settlementActions.match(/input\?\.focus\?\.\(\{ preventScroll: true \}\);/g) || []).length === 2, 'Settlement confirmations must explicitly return focus to the operated Carbon control');
+expect(!/state\.paid\[name\][\s\S]{0,220}renderSettlementViewPreservingScroll/.test(settlementActions), 'Collection check changes must not rerender the whole settlement view');
+expect(settlementActions.includes('[0, 80, 240, 800].forEach') && settlementActions.includes('layout.scrollTop = snapshot.layoutTop'), 'Collection scroll restoration must outlast Carbon modal focus cleanup across app scroll containers');
 
 expect(overviewEvents.includes('syncTimetableTextareaExpansion'), 'Overview timetable expansion behavior is missing');
 expect(overviewEvents.includes("host.rows = shouldExpand ? 4 : 1"), 'Overview timetable textarea does not change official rows');

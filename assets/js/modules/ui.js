@@ -83,6 +83,7 @@
 
     return new Promise(resolve => {
       let done = false;
+      let requestedValue = false;
       const finish = value => {
         if (done) return;
         done = true;
@@ -91,9 +92,15 @@
         el.removeEventListener('sanpo:modal-hidden', onHidden);
         resolve(value);
       };
-      const onOk = () => { state.confirmModal.hide(); finish(true); };
-      const onCancel = () => { state.confirmModal.hide(); finish(false); };
-      const onHidden = () => finish(false);
+      const onOk = () => {
+        requestedValue = true;
+        queueMicrotask(() => state.confirmModal.hide());
+      };
+      const onCancel = () => {
+        requestedValue = false;
+        queueMicrotask(() => state.confirmModal.hide());
+      };
+      const onHidden = () => finish(requestedValue);
       ok.addEventListener('click', onOk);
       cancel.addEventListener('click', onCancel);
       el.addEventListener('sanpo:modal-hidden', onHidden, { once: true });

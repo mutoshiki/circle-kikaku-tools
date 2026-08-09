@@ -256,6 +256,10 @@
         });
 
         document.addEventListener('pointerdown', event => {
+            const checkRow = event.target.closest?.('[data-carbon-checkbox-row], .seisan-driver-pay-row');
+            if (checkRow?.querySelector?.('[data-settlement-paid-name], [data-settlement-driver-paid-name]')) {
+                global.__settlementCheckScrollSnapshot = global.captureSettlementScrollPosition?.() || null;
+            }
             if (!focusSettlementExtraAmountField(event.target)) return;
             // Keep the native click for the Carbon input itself; only prevent selection on the wrapper label.
             if (!event.target.closest?.('[data-extra-field="amount"]')) event.preventDefault();

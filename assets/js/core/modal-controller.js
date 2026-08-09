@@ -223,8 +223,14 @@
             const restoreForKeyboard = this.restoreFocusForKeyboard;
             this.returnFocus = null;
             this.restoreFocusForKeyboard = false;
-            if (target?.isConnected && restoreForKeyboard) requestAnimationFrame(() => target.focus({ preventScroll: true }));
-            else clearPointerFocus(target);
+            if (target?.isConnected) {
+                requestAnimationFrame(() => {
+                    target.focus({ preventScroll: true });
+                    if (!restoreForKeyboard) requestAnimationFrame(() => clearPointerFocus(target));
+                });
+            } else {
+                clearPointerFocus(target);
+            }
 
         }
 
