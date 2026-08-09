@@ -1,10 +1,17 @@
 {
   "name": "circle-kikaku-tools",
   "private": true,
+<<<<<<< HEAD
   "version": "8.0.1-settlement-save-scroll-v44",
   "scripts": {
     "build:carbon": "node tools/build-carbon-assets.mjs",
     "test": "node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs && node tests/person-card-interaction-contract.mjs && node tests/carbon-guidance-v35-contract.mjs && node tests/route-distance-apply-v37-contract.mjs && node tests/carbon-feedback-focus-fit-v38-contract.mjs && node tests/card-drag-stability-v39-contract.mjs && node tests/entity-schema-v42-contract.mjs && node tests/settlement-save-scroll-v44-contract.mjs && node tests/collaboration-fixes-v41-contract.mjs && node tests/multi-user-sync-v40-contract.mjs && node tests/driver-reward-policy-contract.mjs && node tests/google-route-planner-contract.mjs && node tests/share-links-contract.mjs && node tests/five-device-chaos-v42.mjs",
+=======
+  "version": "8.0.0-entity-schema-v42",
+  "scripts": {
+    "build:carbon": "node tools/build-carbon-assets.mjs",
+    "test": "node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs && node tests/person-card-interaction-contract.mjs && node tests/carbon-guidance-v35-contract.mjs && node tests/route-distance-apply-v37-contract.mjs && node tests/carbon-feedback-focus-fit-v38-contract.mjs && node tests/card-drag-stability-v39-contract.mjs && node tests/entity-schema-v42-contract.mjs",
+>>>>>>> parent of 5187dd7 (rhrdbdbrb)
     "lint:css": "stylelint \"assets/css/**/*.css\" --config stylelint.config.mjs",
     "test:carbon": "playwright test tests/carbon-complete.spec.js",
     "test:ui": "playwright test tests/carbon-complete.spec.js",

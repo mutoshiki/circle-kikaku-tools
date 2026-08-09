@@ -311,6 +311,7 @@ function validateActiveSettlementCarEditor(showErrors = true) {
     const valid = issues.fields.size === 0;
     if (!showErrors) return valid;
     settlementCarEditValidationActive = !valid;
+<<<<<<< HEAD
     // Re-render only to expose Carbon validation when invalid. Reconstructing a
     // valid editor immediately before Save replaces upgraded Carbon fields with
     // fresh hosts whose reactive values have not settled yet (notably cds-select),
@@ -319,6 +320,10 @@ function validateActiveSettlementCarEditor(showErrors = true) {
         refreshSettlementCarEditor(activeSettlementCarEditName);
         focusFirstSettlementCarValidationError();
     }
+=======
+    refreshSettlementCarEditor(activeSettlementCarEditName);
+    if (!valid) focusFirstSettlementCarValidationError();
+>>>>>>> parent of 5187dd7 (rhrdbdbrb)
     return valid;
 }
 

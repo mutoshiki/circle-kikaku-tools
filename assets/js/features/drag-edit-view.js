@@ -275,7 +275,10 @@ function finishManualCardDrag(commit = true) {
     enforceOneCardPerSeat();
     updateUI();
     save();
+<<<<<<< HEAD
     restoreTopAreaViewportAfterCardMutation?.(viewport);
+=======
+>>>>>>> parent of 5187dd7 (rhrdbdbrb)
 }
 
 function startManualCardDrag(card, point) {

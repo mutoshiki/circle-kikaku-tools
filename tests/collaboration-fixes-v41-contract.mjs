@@ -111,4 +111,14 @@ assert.match(index, /sync-controller\.js\?v=entity-schema-v42/);
 assert.match(index, /04-settlement-input-events\.js\?v=collaboration-fixes-v41/);
 assert.match(index, /06-action-and-list-layout\.css\?v=collaboration-fixes-v41/);
 
+<<<<<<< HEAD
 console.log('PASS collaboration fixes v41 contract (canonical schema)');
+=======
+// LINE's documented external-browser query parameter is included in every purpose share URL.
+assert.match(shareActions, /url\.searchParams\.set\('openExternalBrowser', '1'\)/, 'share links request LINE external/default browser');
+assert.match(index, /sync-controller\.js\?v=collaboration-fixes-v41/, 'sync fix is cache-busted for iPhone clients');
+assert.match(index, /04-settlement-input-events\.js\?v=collaboration-fixes-v41/, 'settlement type fix is cache-busted');
+assert.match(index, /06-action-and-list-layout\.css\?v=collaboration-fixes-v41/, 'mobile grid fix is cache-busted');
+
+console.log('PASS collaboration fixes v41 contract');
+>>>>>>> parent of 5187dd7 (rhrdbdbrb)
