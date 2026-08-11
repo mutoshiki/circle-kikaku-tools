@@ -12,8 +12,8 @@ assert.match(state, /shadowRoot\?\.querySelector\?\.\('select'\)\?\.value/);
 assert.match(state, /type: readSettlementExtraTypeControlValue\(exRow\.querySelector/);
 assert.match(render, /commitLiveSettlementExtraTypeControls\(\);\s*syncSettlementStateFromDOM\(\);/);
 assert.match(events, /readSettlementExtraTypeControlValue\(target, rawValue\)/);
-assert.match(index, /01-state\.js\?v=settlement-negative-extra-save-v51/);
+assert.match(index, /01-state\.js\?v=(?:settlement-negative-extra-save-v51|settlement-extra-concurrent-v66)/);
 assert.match(index, /03-render\.js\?v=settlement-negative-extra-save-v51/);
-assert.match(index, /04-settlement-input-events\.js\?v=settlement-negative-extra-save-v51/);
+assert.match(index, /04-settlement-input-events\.js\?v=(?:settlement-negative-extra-save-v51|collection-carbon-v65)/);
 
 console.log('Settlement negative extra save v51 contract: PASS');

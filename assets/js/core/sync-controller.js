@@ -356,6 +356,105 @@ function getSyncPathValue(root, path) {
     return String(path || '').split('/').filter(Boolean).reduce((value, key) => value == null ? undefined : value[key], root);
 }
 
+function isSettlementExtrasPath(path) {
+    const parts = String(path || '').split('/').filter(Boolean);
+    return parts[0] === 'settlement'
+        && (parts[1] === 'carsByParticipantId' || parts[1] === 'carsByName')
+        && parts[3] === 'extras';
+}
+
+function settlementExtraMergeId(extra, index, baseExtras = [], scope = '', used = new Set()) {
+    const preferred = String(extra?.id || '').trim();
+    if (preferred && !used.has(preferred)) {
+        used.add(preferred);
+        return preferred;
+    }
+    const baseId = String(baseExtras[index]?.id || '').trim();
+    if (baseId && !used.has(baseId)) {
+        used.add(baseId);
+        return baseId;
+    }
+    const fingerprint = JSON.stringify({
+        name: String(extra?.name ?? ''), amount: String(extra?.amount ?? ''),
+        type: String(extra?.type ?? ''), timesFeeKind: String(extra?.timesFeeKind ?? '')
+    });
+    const compactScope = String(scope || 'extra').replace(/[^a-zA-Z0-9_-]/g, '_');
+    let id = `x_${compactScope}_${index}_${fingerprint.length.toString(36)}`;
+    let suffix = 2;
+    while (used.has(id)) id = `x_${compactScope}_${index}_${fingerprint.length.toString(36)}_${suffix++}`;
+    used.add(id);
+    return id;
+}
+
+function normalizeSettlementExtrasForMerge(value, baseValue = [], scope = '') {
+    const baseExtras = Array.isArray(baseValue) ? baseValue : [];
+    const extras = Array.isArray(value) ? value : [];
+    const used = new Set();
+    return extras.map((raw, index) => {
+        const extra = cloneSyncValue(raw || {}) || {};
+        extra.id = settlementExtraMergeId(extra, index, baseExtras, scope, used);
+        return extra;
+    });
+}
+
+function mergeConcurrentSettlementExtra(before, remoteExtra, localExtra, preferLocal) {
+    if (!before || !remoteExtra || !localExtra) return preferLocal ? localExtra : remoteExtra;
+    const merged = {};
+    const keys = new Set([...Object.keys(before), ...Object.keys(remoteExtra), ...Object.keys(localExtra)]);
+    keys.forEach(key => {
+        const baseValue = before[key];
+        const remoteValue = remoteExtra[key];
+        const localValue = localExtra[key];
+        const remoteChanged = !syncValuesEqual(remoteValue, baseValue);
+        const localChanged = !syncValuesEqual(localValue, baseValue);
+        if (remoteChanged && localChanged && !syncValuesEqual(remoteValue, localValue)) {
+            merged[key] = cloneSyncValue(preferLocal ? localValue : remoteValue);
+        } else if (localChanged) merged[key] = cloneSyncValue(localValue);
+        else if (remoteChanged) merged[key] = cloneSyncValue(remoteValue);
+        else merged[key] = cloneSyncValue(baseValue);
+    });
+    return merged;
+}
+
+function mergeConcurrentSettlementExtras(baseValue, remoteValue, localValue, preferLocal, scope = '') {
+    const base = normalizeSettlementExtrasForMerge(baseValue, [], scope);
+    const remote = normalizeSettlementExtrasForMerge(remoteValue, base, scope);
+    const local = normalizeSettlementExtrasForMerge(localValue, base, scope);
+    const toMap = extras => new Map(extras.map(extra => [extra.id, extra]));
+    const baseMap = toMap(base);
+    const remoteMap = toMap(remote);
+    const localMap = toMap(local);
+    const ids = [
+        ...base.map(extra => extra.id),
+        ...local.map(extra => extra.id).filter(id => !baseMap.has(id)),
+        ...remote.map(extra => extra.id).filter(id => !baseMap.has(id) && !localMap.has(id))
+    ];
+    const merged = [];
+    ids.forEach(id => {
+        const before = baseMap.get(id);
+        const remoteExtra = remoteMap.get(id);
+        const localExtra = localMap.get(id);
+        let selected;
+        if (!before) {
+            selected = remoteExtra && localExtra
+                ? (syncValuesEqual(remoteExtra, localExtra) ? localExtra : (preferLocal ? localExtra : remoteExtra))
+                : (localExtra || remoteExtra);
+        } else {
+            const remoteChanged = !syncValuesEqual(remoteExtra, before);
+            const localChanged = !syncValuesEqual(localExtra, before);
+            if (remoteChanged && localChanged) {
+                selected = syncValuesEqual(remoteExtra, localExtra)
+                    ? localExtra
+                    : mergeConcurrentSettlementExtra(before, remoteExtra, localExtra, preferLocal);
+            } else if (localChanged) selected = localExtra;
+            else if (remoteChanged) selected = remoteExtra;
+            else selected = before;
+        }
+        if (selected) merged.push(cloneSyncValue(selected));
+    });
+    return merged;
+}
+
 function syncPathVersionKey(path) {
     return encodeURIComponent(String(path || '')).replace(/\./g, '%2E');
 }
@@ -460,8 +559,18 @@ function applyVersionedEntityPatch(remoteRaw = {}, baseRaw = {}, localRaw = {}, 
             seq: Number(requestVersion || 0)
         };
         const concurrent = !syncVersionsEqual(remoteVersion, baseVersion);
-        if (concurrent && compareSyncVersions(candidate, remoteVersion) <= 0) return;
-        applyPatchPathInPlace(remote, path, value);
+        const candidateWins = compareSyncVersions(candidate, remoteVersion) > 0;
+        if (concurrent && !candidateWins) return;
+        const nextValue = concurrent && isSettlementExtrasPath(path)
+            ? mergeConcurrentSettlementExtras(
+                getSyncPathValue(base, path),
+                getSyncPathValue(remote, path),
+                value,
+                candidateWins,
+                path
+            )
+            : value;
+        applyPatchPathInPlace(remote, path, nextValue);
         remote.pathVersions[key] = candidate;
         applied += 1;
     });
@@ -825,5 +934,5 @@ window.resetData = async () => {
     } else location.reload();
 };
 
-window.SanpoEntitySyncTest = Object.freeze({ buildEntityPatch, buildSettlementIntentPatch, buildSettlementCarIntentPatch, buildSettlementSettingsIntentPatch, applyEntityPatchToObject, applyVersionedEntityPatch, compareSyncVersions, syncPathVersionKey });
+window.SanpoEntitySyncTest = Object.freeze({ buildEntityPatch, buildSettlementIntentPatch, buildSettlementCarIntentPatch, buildSettlementSettingsIntentPatch, applyEntityPatchToObject, applyVersionedEntityPatch, compareSyncVersions, syncPathVersionKey, mergeConcurrentSettlementExtras });
 window.SanpoSync = Object.freeze({ saveImmediate, buildSettlementIntentPatch, buildSettlementCarIntentPatch, buildSettlementSettingsIntentPatch });

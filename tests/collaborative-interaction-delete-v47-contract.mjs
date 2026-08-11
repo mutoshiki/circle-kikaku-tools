@@ -41,7 +41,7 @@ for (const path of [
   const start = index.indexOf(marker);
   assert.notEqual(start, -1, `${path} is referenced`);
   const tail = index.slice(start, start + marker.length + 120);
-  assert.match(tail, /collab-interaction-delete-v47|settlement-concurrent-save-v48|settlement-concurrent-save-v49|collaborative-sync-foundation-v50|settlement-negative-extra-save-v51/, `${path} is cache-busted as a compatible collaborative build`);
+  assert.match(tail, /collab-interaction-delete-v47|settlement-concurrent-save-v48|settlement-concurrent-save-v49|collaborative-sync-foundation-v50|settlement-negative-extra-save-v51|collection-carbon-v65|settlement-extra-concurrent-v66/, `${path} is cache-busted as a compatible collaborative build`);
 }
 assert.doesNotMatch(syncSource, /onValue\(dbRef,[\s\S]{0,160}if \(isProcessingQueue\) return/, 'gender queue must queue remote snapshots, never drop them');
 assert.match(syncSource, /\|\| !!isProcessingQueue/, 'gender detection participates in the remote UI transaction guard');

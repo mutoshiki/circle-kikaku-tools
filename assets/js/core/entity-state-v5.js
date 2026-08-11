@@ -23,6 +23,36 @@ function canonicalNameKey(value = '') {
     return normalizeCanonicalName(value).toLowerCase();
 }
 
+function makeCanonicalSettlementExtraId(scope = '', index = 0, extra = {}, used = new Set()) {
+    const fingerprint = JSON.stringify({
+        name: String(extra?.name ?? ''),
+        amount: String(extra?.amount ?? ''),
+        type: String(extra?.type ?? ''),
+        timesFeeKind: String(extra?.timesFeeKind ?? '')
+    });
+    const base = `x_${hashCanonicalString(`${scope}:${index}:${fingerprint}`)}`;
+    let id = base;
+    let suffix = 2;
+    while (used.has(id)) id = `${base}_${suffix++}`;
+    used.add(id);
+    return id;
+}
+
+function normalizeCanonicalSettlementCar(raw = {}, scope = '') {
+    const car = cloneCanonical(raw || {}) || {};
+    if (!Array.isArray(car.extras)) return car;
+    const used = new Set();
+    car.extras = car.extras.map((extra, index) => {
+        const next = cloneCanonical(extra || {}) || {};
+        const preferred = String(next.id || '').trim();
+        next.id = preferred && !used.has(preferred)
+            ? (used.add(preferred), preferred)
+            : makeCanonicalSettlementExtraId(scope, index, next, used);
+        return next;
+    });
+    return car;
+}
+
 function normalizeCanonicalFlag(value = 'none') {
     return ['blue', 'purple', 'yellow', 'red'].includes(value) ? value : 'none';
 }
@@ -629,7 +659,7 @@ function canonicalizeSettlementForStorage(uiState = {}, participants = {}) {
     delete next.paidBy;
     delete next.driverPaid;
     delete next.organizerName;
-    return next;
+    return normalizeCanonicalSettlement(next, participants);
 }
 
 function normalizeCanonicalSettlement(raw = {}, participants = {}) {
@@ -643,6 +673,13 @@ function normalizeCanonicalSettlement(raw = {}, participants = {}) {
     source.paidCollectorByName = cloneCanonical(source.paidCollectorByName || {});
     source.driverPaidByParticipantId = cloneCanonical(source.driverPaidByParticipantId || {});
     source.driverPaidByName = cloneCanonical(source.driverPaidByName || {});
+
+    Object.entries(source.carsByParticipantId).forEach(([id, car]) => {
+        source.carsByParticipantId[id] = normalizeCanonicalSettlementCar(car, `participant:${id}`);
+    });
+    Object.entries(source.carsByName).forEach(([name, car]) => {
+        source.carsByName[name] = normalizeCanonicalSettlementCar(car, `name:${name}`);
+    });
 
     // ID-keyed settlement entries are dependent entities of participants. A stale
     // device can finish a settlement edit after another device deleted that person;

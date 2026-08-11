@@ -43,7 +43,7 @@
     const showColumnLabels = index === 0;
     const columnLabel = text => showColumnLabels ? `<span class="seisan-extra-field-label">${text}</span>` : '';
 
-    return `<div class="${rowClass}" data-extra-index="${index}"${timesAttr}${pendingAttr}>
+    return `<div class="${rowClass}" data-extra-index="${index}" data-extra-id="${esc(ex.id || '')}"${timesAttr}${pendingAttr}>
         <div class="seisan-extra-field seisan-extra-field--name">
           ${columnLabel('名目')}
           <cds-text-input size="lg" density="condensed" data-extra-field="name" class="${extraFieldErrorClass(issues, carName, index, 'name')}" value="${esc(ex.name || '', helpers)}" placeholder="例：駐車場代" label="名目" hide-label${invalidAttr('name', '名目を入力してください')}${lockedAttr}></cds-text-input>

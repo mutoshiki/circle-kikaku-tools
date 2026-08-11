@@ -105,7 +105,7 @@ assert.equal(merged.participants[aliceId2], undefined, 'Alice remains deleted');
 assert.equal(merged.allocations.car.placements[bobId2].kind, 'waiting', 'concurrent Bob move survives');
 
 const index = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-assert.match(index, /entity-state-v5\.js\?v=(?:root-stability-v44|collaborative-sync-foundation-v50)/);
+assert.match(index, /entity-state-v5\.js\?v=(?:root-stability-v44|collaborative-sync-foundation-v50|settlement-extra-concurrent-v66)/);
 assert.doesNotMatch(index, /core\/runtime\.js\?v=multi-user-sync-v40/);
 
 console.log('Entity schema v42 canonical state + entity sync contract: PASS');

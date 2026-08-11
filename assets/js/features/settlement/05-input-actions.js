@@ -23,7 +23,7 @@ function addSettlementExtra(encodedName) {
     const name = decodeURIComponent(encodedName);
     const state = ensureSettlementState();
     const car = normalizeCarSettlementState(state.cars[name] || {});
-    car.extras.push({ name: '', amount: '', type: 'split', pending: true });
+    car.extras.push({ id: createSettlementExtraId(), name: '', amount: '', type: 'split', pending: true });
     state.cars[name] = car;
     if (typeof refreshSettlementCarEditor === 'function') refreshSettlementCarEditor(name);
     saveLocalDraftOnly();
@@ -44,7 +44,7 @@ function addSettlementExtraCandidate(encodedName, encodedCandidate, encodedAmoun
         blankExtra.amount = amount;
         blankExtra.type = normalizedType;
     } else {
-        car.extras.push({ name: candidate, amount, type: normalizedType });
+        car.extras.push({ id: createSettlementExtraId(), name: candidate, amount, type: normalizedType });
     }
     state.cars[name] = car;
     if (typeof refreshSettlementCarEditor === 'function') refreshSettlementCarEditor(name);
