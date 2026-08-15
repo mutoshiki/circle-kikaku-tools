@@ -1,5 +1,5 @@
 import { build } from 'esbuild';
-import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { chmod, copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
@@ -34,7 +34,11 @@ const licenseCopies = [
   ['node_modules/@ibm/plex-sans-jp/LICENSE.txt', 'assets/vendor/ibm-plex/LICENSE-jp.txt']
 ];
 for (const [source, target] of licenseCopies) {
-  await copyFile(resolve(root, source), resolve(root, target));
+  const targetPath = resolve(root, target);
+  await copyFile(resolve(root, source), targetPath);
+  // npm package archives may mark license text executable on Linux. Keep generated
+  // vendor assets reproducible regardless of the install platform.
+  await chmod(targetPath, 0o644);
 }
 const manifest = { versions, entry: 'assets/js/carbon-entry.js', output: 'assets/vendor/carbon/carbon-entry.min.js' };
 await writeFile(resolve(root, 'assets/vendor/carbon/build-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
