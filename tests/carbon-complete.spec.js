@@ -239,6 +239,26 @@ test.describe('Carbon modal, participant and sheet workflows', () => {
 test.describe('First-run rendering and submit regression', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
+  test('mobile sync status temporarily overlays the room-name field', async ({ page }) => {
+    await page.goto(`/?room=SYNC-STATUS-${Date.now()}`, { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => typeof window.showSaveStatus === 'function');
+    await page.evaluate(() => window.showSaveStatus('共有同期中', 'connected'));
+    const badge = page.locator('#syncStatusBadge');
+    await expect(badge).toHaveClass(/is-visible/);
+    await expect(badge).toContainText('共有同期中');
+    const bounds = await page.evaluate(() => {
+      const badgeBox = document.querySelector('#syncStatusBadge')?.getBoundingClientRect();
+      const inputBox = document.querySelector('#roomNameInput')?.getBoundingClientRect();
+      return { badgeBox, inputBox };
+    });
+    expect(bounds.badgeBox.left).toBeLessThanOrEqual(bounds.inputBox.left + 1);
+    expect(bounds.badgeBox.right).toBeGreaterThanOrEqual(bounds.inputBox.right - 1);
+    expect(bounds.badgeBox.top).toBeLessThanOrEqual(bounds.inputBox.top + 1);
+    expect(bounds.badgeBox.bottom).toBeGreaterThanOrEqual(bounds.inputBox.bottom - 1);
+    await page.waitForTimeout(2800);
+    await expect(badge).not.toHaveClass(/is-visible/);
+  });
+
   test('first meaningful screen renders immediately and all three empty views use the same two choices', async ({ page }) => {
     const room = `FIRST-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     await page.goto(`/?room=${room}`, { waitUntil: 'domcontentloaded' });

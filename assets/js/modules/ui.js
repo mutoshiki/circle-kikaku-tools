@@ -189,15 +189,20 @@
     if (!badge) return;
     const label = badge.querySelector('.sync-status-label');
     const tagTypes = { saving: 'warm-gray', connected: 'green', local: 'blue', error: 'red', neutral: 'gray' };
+    const nextMessage = message || '保存済み';
+    const statusChanged = badge.dataset.status !== kind || label?.textContent !== nextMessage;
     badge.dataset.status = kind;
     badge.type = tagTypes[kind] || 'gray';
     badge.setAttribute('type', badge.type);
-    if (label) label.textContent = message || '保存済み';
+    if (label) label.textContent = nextMessage;
+    // On mobile the badge is a temporary overlay. Repeated snapshots carrying the
+    // same status must not keep extending its lifetime indefinitely.
+    if (!statusChanged) return;
     badge.classList.add('is-visible');
     clearTimeout(state.syncStatusTimer);
     state.syncStatusTimer = setTimeout(() => {
       if (!badge.matches(':hover, :focus-within')) badge.classList.remove('is-visible');
-    }, 1700);
+    }, 2600);
   }
 
   function showUndoBar(message, onUndo) {
