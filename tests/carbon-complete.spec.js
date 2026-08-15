@@ -141,7 +141,17 @@ test.describe('Allocation, menus and accessibility', () => {
       placeholder: node.previousElementSibling?.classList.contains('person-menu-top-layer-placeholder') === true
     }))).toEqual({ topLayer: false, popover: false, placeholder: false });
     await hostClick(page, '[data-action="edit-capacity"]');
-    await setHostValue(page, '#editModalInput', '4');
+    // cds-number-input keeps its native control in shadow DOM. Update that
+    // control so the component's public value is updated through its normal
+    // input/change path, just as a user edit would.
+    await page.locator('#editModalInput').evaluate((node, next) => {
+      const control = node.shadowRoot?.querySelector('input');
+      if (!(control instanceof HTMLInputElement)) throw new Error('Carbon number input not found');
+      control.value = next;
+      control.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      control.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    }, '4');
+    await expect(page.locator('#editModalInput')).toHaveJSProperty('value', '4');
     await hostClick(page, '#saveEditBtn');
     await expect(page.locator('.car-box').first()).toHaveAttribute('data-capacity', '4');
     await hostClick(page, '#shuffleAssignBtn');
@@ -251,10 +261,10 @@ test.describe('First-run rendering and submit regression', () => {
       const inputBox = document.querySelector('#roomNameInput')?.getBoundingClientRect();
       return { badgeBox, inputBox };
     });
-    expect(bounds.badgeBox.left).toBeLessThanOrEqual(bounds.inputBox.left + 1);
-    expect(bounds.badgeBox.right).toBeGreaterThanOrEqual(bounds.inputBox.right - 1);
-    expect(bounds.badgeBox.top).toBeLessThanOrEqual(bounds.inputBox.top + 1);
-    expect(bounds.badgeBox.bottom).toBeGreaterThanOrEqual(bounds.inputBox.bottom - 1);
+    expect(bounds.badgeBox.width).toBeLessThan(bounds.inputBox.width);
+    expect(Math.abs((bounds.badgeBox.left + bounds.badgeBox.right) / 2 - (bounds.inputBox.left + bounds.inputBox.right) / 2)).toBeLessThanOrEqual(1);
+    expect(bounds.badgeBox.top).toBeGreaterThanOrEqual(bounds.inputBox.top - 1);
+    expect(bounds.badgeBox.bottom).toBeLessThanOrEqual(bounds.inputBox.bottom + 1);
     await page.waitForTimeout(2800);
     await expect(badge).not.toHaveClass(/is-visible/);
   });
@@ -385,7 +395,9 @@ test.describe('Settlement and route workflows', () => {
     await expect(page.locator('#routeDistanceModal')).toHaveAttribute('open', '');
     const appendRouteStop = page.locator('#routeStopList .route-stop-row--append [data-action="open-route-place-search"]');
     await expect(appendRouteStop).toBeAttached();
-    await appendRouteStop.evaluate(node => node.click());
+    // Exercise the Carbon text input through a real pointer interaction. Its
+    // host .click() can bypass the composed event that opens place search.
+    await appendRouteStop.click();
     await expect(page.locator('#routePlaceSearchSurface')).not.toHaveAttribute('hidden', '');
     await hostClick(page, '#routePlaceSearchBackBtn');
     await expect(page.locator('#routePlaceSearchSurface')).toHaveAttribute('hidden', '');

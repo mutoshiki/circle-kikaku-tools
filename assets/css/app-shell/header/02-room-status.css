@@ -84,23 +84,25 @@
 @media (max-width: 640px) {
   .sync-status-badge {
     position: absolute;
-    inset: 18px 0 0;
+    top: calc(50% + 9px);
+    left: 50%;
     z-index: 1;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    max-width: none;
-    min-height: 48px;
+    width: fit-content;
+    max-width: calc(100% - 20px);
+    min-height: 24px;
     pointer-events: none;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-2px);
+    transform: translate(-50%, -50%) translateY(-2px);
     transition: opacity var(--motion-fast) ease, transform var(--motion-fast) ease, visibility 0s linear var(--motion-fast);
   }
   .sync-status-badge.is-visible {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translate(-50%, -50%);
     transition-delay: 0s;
   }
   .app-room-input { font-size: 1rem; }
