@@ -104,7 +104,9 @@ D.addEventListener('DOMContentLoaded', () => {
         if (action === 'add-sheet-timetable-row') {
             event.preventDefault();
             addSheetTimetableEditRow();
-            syncSheetToMainData({ refresh: false, persist: true });
+            // A newly-added empty row is an editing affordance, not persisted data.
+            // Persisting it immediately normalizes the empty item away and re-renders
+            // the sheet, making the row disappear before the user can type into it.
         }
         if (action === 'delete-sheet-timetable-row') {
             event.preventDefault();
@@ -230,4 +232,3 @@ D.addEventListener('DOMContentLoaded', () => {
         if (!sheetUserAdjusted) requestAnimationFrame(fitInitialSheetScale);
     });
 });
-
