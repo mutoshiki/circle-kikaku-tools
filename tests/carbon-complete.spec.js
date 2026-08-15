@@ -141,7 +141,17 @@ test.describe('Allocation, menus and accessibility', () => {
       placeholder: node.previousElementSibling?.classList.contains('person-menu-top-layer-placeholder') === true
     }))).toEqual({ topLayer: false, popover: false, placeholder: false });
     await hostClick(page, '[data-action="edit-capacity"]');
-    await setHostValue(page, '#editModalInput', '4');
+    // cds-number-input keeps its native control in shadow DOM. Update that
+    // control so the component's public value is updated through its normal
+    // input/change path, just as a user edit would.
+    await page.locator('#editModalInput').evaluate((node, next) => {
+      const control = node.shadowRoot?.querySelector('input');
+      if (!(control instanceof HTMLInputElement)) throw new Error('Carbon number input not found');
+      control.value = next;
+      control.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      control.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    }, '4');
+    await expect(page.locator('#editModalInput')).toHaveJSProperty('value', '4');
     await hostClick(page, '#saveEditBtn');
     await expect(page.locator('.car-box').first()).toHaveAttribute('data-capacity', '4');
     await hostClick(page, '#shuffleAssignBtn');
