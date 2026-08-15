@@ -395,7 +395,9 @@ test.describe('Settlement and route workflows', () => {
     await expect(page.locator('#routeDistanceModal')).toHaveAttribute('open', '');
     const appendRouteStop = page.locator('#routeStopList .route-stop-row--append [data-action="open-route-place-search"]');
     await expect(appendRouteStop).toBeAttached();
-    await appendRouteStop.evaluate(node => node.click());
+    // Exercise the Carbon text input through a real pointer interaction. Its
+    // host .click() can bypass the composed event that opens place search.
+    await appendRouteStop.click();
     await expect(page.locator('#routePlaceSearchSurface')).not.toHaveAttribute('hidden', '');
     await hostClick(page, '#routePlaceSearchBackBtn');
     await expect(page.locator('#routePlaceSearchSurface')).toHaveAttribute('hidden', '');
