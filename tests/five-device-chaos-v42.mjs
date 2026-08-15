@@ -10,7 +10,7 @@ const entity = entityContext.__entity;
 const syncSource = fs.readFileSync(new URL('../assets/js/core/sync-controller.js', import.meta.url), 'utf8');
 const syncContext = vm.createContext({
   window: { SanpoCanonicalState: entity }, console, JSON, Object, Array, Set, String, Number, Date, Math,
-  APP_SCHEMA_VERSION: 5, CFG: { STORE: 'test' }, roomId: 'ROOM', myClientId: 'sim',
+  APP_SCHEMA_VERSION: 6, CFG: { STORE: 'test' }, roomId: 'ROOM', myClientId: 'sim',
   migrateAppData: v => entity.migrate(v), safeJsonParse: JSON.parse,
   L: { getItem: () => null, setItem() {}, removeItem() {} }, J: JSON,
   isRemoteUpdate: false, dbRef: null, lastSyncedData: null, lastSyncedRevision: 0,
@@ -104,7 +104,7 @@ function mutate(room,r,seq){
   ensurePlacements(room); return op;
 }
 function check(room,label){
-  const c=normalize(room); assert.equal(c.schemaVersion,5,`${label}: schema`); assert.equal('carPlans' in c,false,`${label}: legacy carPlans leaked`); assert.equal('waiting' in c,false,`${label}: legacy waiting leaked`); assert.equal('cars' in c,false,`${label}: legacy cars leaked`);
+  const c=normalize(room); assert.equal(c.schemaVersion,6,`${label}: schema`); assert.equal('carPlans' in c,false,`${label}: legacy carPlans leaked`); assert.equal('waiting' in c,false,`${label}: legacy waiting leaked`); assert.equal('cars' in c,false,`${label}: legacy cars leaked`);
   const ids=new Set(keys(c.participants));
   for(const type of ['car','team']){
     const a=c.allocations[type];

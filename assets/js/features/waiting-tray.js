@@ -242,6 +242,18 @@ function initializeTraySettingsPopover() {
     traySettingsPopoverEl.removeAttribute('autoalign');
     traySettingsPopoverEl.removeAttribute('autoalign-boundary');
     traySettingsPopoverEl.align = 'top-end';
+    // Some browser/Shadow DOM combinations do not deliver Escape from a
+    // checkbox inside the popover to Carbon's host listener. Mirror the
+    // component's documented dismissal behavior at the document boundary.
+    if (traySettingsPopoverEl.dataset.escapeDismissBound !== 'true') {
+        traySettingsPopoverEl.dataset.escapeDismissBound = 'true';
+        document.addEventListener('keydown', event => {
+            if (event.key !== 'Escape' || !isTraySettingsMenuOpen()) return;
+            event.preventDefault();
+            setTraySettingsMenuOpen(false);
+            traySettingsTriggerEl?.focus({ preventScroll: true });
+        });
+    }
     syncTraySettingsMenuState();
 }
 

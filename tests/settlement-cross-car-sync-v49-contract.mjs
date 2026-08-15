@@ -11,6 +11,6 @@ assert.match(sync, /function buildSettlementSettingsIntentPatch/);
 assert.match(render, /buildSettlementCarIntentPatch/);
 assert.match(render, /buildSettlementSettingsIntentPatch/);
 assert.match(render, /if \(!options\.preserveSettingsControls\) syncSettlementControls/);
-assert.match(index, /sync-controller\.js\?v=(?:collaborative-sync-foundation-v50|settlement-extra-concurrent-v66)/);
+assert.match(index, /sync-controller\.js\?v=(?:collaborative-sync-foundation-v50|settlement-extra-concurrent-v66|sync-reliability-v67|sync-protocol-v68)/);
 assert.match(index, /features\/settlement\/03-render\.js\?v=(?:settlement-concurrent-save-v49|settlement-negative-extra-save-v51)/);
 console.log('Settlement cross-car live sync v49 contract: PASS');

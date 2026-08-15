@@ -18,7 +18,7 @@ const legacy = {
   settlement: { cars: { Bob: { dist: '100' } }, paid: { Alice: true }, driverPaid: { Bob: false } }
 };
 const migrated = entity.migrate(legacy);
-assert.equal(migrated.schemaVersion, 5);
+assert.equal(migrated.schemaVersion, 6);
 assert.equal(Object.keys(migrated.participants).length, 3, 'participants must exist once globally');
 assert.ok(migrated.allocations.car && migrated.allocations.team);
 assert.equal('carPlans' in migrated, false, 'canonical migration must not persist legacy plan arrays');
@@ -73,7 +73,7 @@ assert.ok(team.waiting.some(p => p.participantId === daveId), 'new participant m
 const syncSource = fs.readFileSync(new URL('../assets/js/core/sync-controller.js', import.meta.url), 'utf8');
 const syncContext = vm.createContext({
   window: {}, console, JSON, Object, Array, Set, String, Number, Date, Math,
-  APP_SCHEMA_VERSION: 5,
+  APP_SCHEMA_VERSION: 6,
   CFG: { STORE: 'test' }, roomId: 'ROOM', myClientId: 'client',
   migrateAppData: value => value,
   safeJsonParse: JSON.parse,
@@ -105,7 +105,7 @@ assert.equal(merged.participants[aliceId2], undefined, 'Alice remains deleted');
 assert.equal(merged.allocations.car.placements[bobId2].kind, 'waiting', 'concurrent Bob move survives');
 
 const index = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-assert.match(index, /entity-state-v5\.js\?v=(?:root-stability-v44|collaborative-sync-foundation-v50|settlement-extra-concurrent-v66)/);
+assert.match(index, /entity-state-v5\.js\?v=(?:root-stability-v44|collaborative-sync-foundation-v50|settlement-extra-concurrent-v66|sync-protocol-v68)/);
 assert.doesNotMatch(index, /core\/runtime\.js\?v=multi-user-sync-v40/);
 
 console.log('Entity schema v42 canonical state + entity sync contract: PASS');

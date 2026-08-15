@@ -4,7 +4,7 @@
   "version": "8.3.2-waiting-grid-v52",
   "scripts": {
     "build:carbon": "node tools/build-carbon-assets.mjs",
-    "test": "node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs && node tests/person-card-interaction-contract.mjs && node tests/carbon-guidance-v35-contract.mjs && node tests/route-distance-apply-v37-contract.mjs && node tests/carbon-feedback-focus-fit-v38-contract.mjs && node tests/card-drag-stability-v39-contract.mjs && node tests/entity-schema-v42-contract.mjs && node tests/root-stability-v44-contract.mjs && node tests/collaborative-interaction-delete-v47-contract.mjs && node tests/settlement-concurrent-save-v48-contract.mjs && node tests/settlement-cross-car-sync-v49-contract.mjs && node tests/collaborative-sync-foundation-v50-contract.mjs && node tests/settlement-negative-extra-save-v51-contract.mjs && node tests/waiting-grid-v52-contract.mjs && node tests/settlement-balance-v58-contract.mjs && node tests/settlement-extra-concurrent-v66-contract.mjs && node tests/five-device-domain-sync-v46.mjs",
+    "test": "node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs && node tests/person-card-interaction-contract.mjs && node tests/carbon-guidance-v35-contract.mjs && node tests/route-distance-apply-v37-contract.mjs && node tests/carbon-feedback-focus-fit-v38-contract.mjs && node tests/card-drag-stability-v39-contract.mjs && node tests/entity-schema-v42-contract.mjs && node tests/root-stability-v44-contract.mjs && node tests/collaborative-interaction-delete-v47-contract.mjs && node tests/settlement-concurrent-save-v48-contract.mjs && node tests/settlement-cross-car-sync-v49-contract.mjs && node tests/collaborative-sync-foundation-v50-contract.mjs && node tests/settlement-negative-extra-save-v51-contract.mjs && node tests/waiting-grid-v52-contract.mjs && node tests/settlement-balance-v58-contract.mjs && node tests/settlement-extra-concurrent-v66-contract.mjs && node tests/sync-reliability-v67-contract.mjs && node tests/sync-protocol-v68-contract.mjs && node tests/sync-outbox-rejection-v68-contract.mjs && node tests/five-device-domain-sync-v46.mjs",
     "test:waiting-grid": "playwright test waiting-grid-v52",
     "lint:css": "stylelint \"assets/css/**/*.css\" --config stylelint.config.mjs",
     "test:carbon": "playwright test tests/carbon-complete.spec.js",
@@ -25,16 +25,21 @@
     "test:collab:chaos": "node tests/five-device-chaos-v42.mjs",
     "test:collab:deep": "node tests/deep-five-device-suite.mjs",
     "test:collab:soak": "node tests/five-device-network-soak-v46.mjs",
+    "test:collab:protocol": "node tests/sync-protocol-chaos-v68.mjs",
     "test:collab:firebase": "playwright test tests/collaborative-sync-v50.firebase.spec.js",
-    "test:collab:full": "npm test && npm run test:collab:chaos && npm run test:collab:deep && npm run test:collab:soak"
+    "test:firebase:emulator": "firebase emulators:exec --only database --project demo-circle-kikaku-tools \"node tests/firebase-rules-emulator-v67.mjs\"",
+    "test:collab:full": "npm test && npm run test:collab:chaos && npm run test:collab:deep && npm run test:collab:soak && npm run test:collab:protocol"
   },
   "devDependencies": {
     "@carbon/icons": "11.85.0",
     "@carbon/web-components": "2.60.0",
+    "@firebase/rules-unit-testing": "^5.0.1",
     "@ibm/plex-sans": "1.1.0",
     "@ibm/plex-sans-jp": "3.0.0",
     "@playwright/test": "^1.61.0",
     "esbuild": "0.28.1",
+    "firebase": "^12.17.1",
+    "firebase-tools": "^15.27.0",
     "sortablejs": "1.15.0",
     "stylelint": "^17.13.0"
   }

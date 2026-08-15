@@ -270,6 +270,25 @@ function seedDebugData({ missing = false } = {}) {
 window.executeDebugMode = function() { seedDebugData({ missing: false }); };
 window.executeDebugMissingCostMode = function() { seedDebugData({ missing: true }); };
 
+function appendSyncDiagnostics(container) {
+    const entries = window.SanpoSyncDiagnostics?.read?.() || [];
+    if (!entries.length) return;
+    const section = document.createElement('section');
+    section.className = 'history-sync-diagnostics';
+    const heading = document.createElement('h6');
+    heading.textContent = 'この端末の同期ログ';
+    section.appendChild(heading);
+    entries.slice(0, 12).forEach(entry => {
+        const line = document.createElement('p');
+        const time = new Date(Number(entry.time || Date.now())).toLocaleTimeString();
+        const suffix = Array.isArray(entry.paths) && entry.paths.length ? `（${entry.paths.length}件）` : '';
+        line.textContent = `${time} ${entry.message || '同期'}${suffix}`;
+        if (entry.kind === 'adjusted' || entry.kind === 'failed') line.classList.add('is-warning');
+        section.appendChild(line);
+    });
+    container.appendChild(section);
+}
+
 window.showHistory = () => {
     const hist = window.SanpoHistory?.read(roomId) || safeLocalGet('syawari_history_' + roomId, []);
     const container = byId('history-list');
@@ -319,6 +338,7 @@ window.showHistory = () => {
             container.appendChild(btn);
         });
     }
+    appendSyncDiagnostics(container);
     applyRuntimeAccessibilityFixes(container);
     modals.history.show();
 };

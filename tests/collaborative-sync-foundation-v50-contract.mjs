@@ -10,7 +10,7 @@ const runtimeSource = read('assets/js/core/runtime.js');
 const context = vm.createContext({
   window: {}, console, Date, JSON, Math, Object, Array, Set, Map, String, Number,
   parseInt, encodeURIComponent, decodeURIComponent,
-  APP_SCHEMA_VERSION: 5,
+  APP_SCHEMA_VERSION: 6,
   CFG: { STORE: 'test' }, roomId: 'ROOM', myClientId: 'client-A',
   safeJsonParse: JSON.parse,
   L: { getItem: () => null, setItem() {}, removeItem() {} }, J: JSON,
@@ -45,7 +45,7 @@ const copy = value => structuredClone(value);
   encoded.roomName = 'empty-v5';
   delete encoded.participants;
   const decoded = entity.migrate(encoded);
-  assert.equal(decoded.schemaVersion, 5);
+  assert.equal(decoded.schemaVersion, 6);
   assert.equal(decoded.roomName, 'empty-v5');
   assert.ok(decoded.allocations.car && decoded.allocations.team);
   assert.deepEqual(Object.keys(decoded.participants), []);
