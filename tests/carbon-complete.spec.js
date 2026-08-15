@@ -251,10 +251,10 @@ test.describe('First-run rendering and submit regression', () => {
       const inputBox = document.querySelector('#roomNameInput')?.getBoundingClientRect();
       return { badgeBox, inputBox };
     });
-    expect(bounds.badgeBox.left).toBeLessThanOrEqual(bounds.inputBox.left + 1);
-    expect(bounds.badgeBox.right).toBeGreaterThanOrEqual(bounds.inputBox.right - 1);
-    expect(bounds.badgeBox.top).toBeLessThanOrEqual(bounds.inputBox.top + 1);
-    expect(bounds.badgeBox.bottom).toBeGreaterThanOrEqual(bounds.inputBox.bottom - 1);
+    expect(bounds.badgeBox.width).toBeLessThan(bounds.inputBox.width);
+    expect(Math.abs((bounds.badgeBox.left + bounds.badgeBox.right) / 2 - (bounds.inputBox.left + bounds.inputBox.right) / 2)).toBeLessThanOrEqual(1);
+    expect(bounds.badgeBox.top).toBeGreaterThanOrEqual(bounds.inputBox.top - 1);
+    expect(bounds.badgeBox.bottom).toBeLessThanOrEqual(bounds.inputBox.bottom + 1);
     await page.waitForTimeout(2800);
     await expect(badge).not.toHaveClass(/is-visible/);
   });
