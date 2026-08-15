@@ -1,8 +1,9 @@
-// Canonical room state (Schema v5).
+// Canonical room state (Schema v6).
 // Participants are the single source of truth. Allocation surfaces only reference participant ids.
 // UI-oriented waiting/cars/carPlans shapes are projections and are never persisted remotely.
 
-const CANONICAL_SCHEMA_VERSION = 5;
+const CANONICAL_SCHEMA_VERSION = 6;
+const MIN_CANONICAL_SCHEMA_VERSION = 5;
 const ALLOCATION_TYPES = Object.freeze(['car', 'team']);
 let canonicalRoomState = null;
 
@@ -159,6 +160,11 @@ function emptyCanonicalRoom() {
         settlement: {},
         overview: {},
         meta: {},
+        // Incremented instead of deleting a room root. Stale queued writes from before a
+        // reset are rejected by sync-controller rather than recreating old data.
+        resetGeneration: 0,
+        // Transport-only bounded idempotency journal. UI never reads this field.
+        syncOperations: {},
         lastUpdatedAt: 0,
         lastUpdatedBy: '',
         revision: 0
@@ -322,7 +328,9 @@ function migrateToCanonicalRoom(raw = {}) {
     // Realtime Database omits empty objects. A valid v5 room with zero participants
     // therefore has no `participants` property, and empty group/placement maps are
     // absent too. Schema + allocation roots are the canonical marker.
-    if (raw && Number(raw.schemaVersion) >= CANONICAL_SCHEMA_VERSION && raw.allocations) {
+    // v5 already uses canonical entity roots. Preserve it structurally, then upgrade its
+    // protocol marker to v6. A newer marker is handled by sync-controller before this path.
+    if (raw && Number(raw.schemaVersion) >= MIN_CANONICAL_SCHEMA_VERSION && raw.allocations) {
         const canonical = { ...emptyCanonicalRoom(), ...cloneCanonical(raw) };
         canonical.schemaVersion = CANONICAL_SCHEMA_VERSION;
         canonical.participants = {};

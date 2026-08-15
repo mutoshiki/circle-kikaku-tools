@@ -1,4 +1,6 @@
 test-results/
 playwright-report/
 server-*.log
+database-debug.log
+backups/
 node_modules/

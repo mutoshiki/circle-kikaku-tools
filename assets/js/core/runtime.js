@@ -17,7 +17,7 @@ function bindClick(id, handler) {
 }
 
 const firebaseConfig = window.SANPO_FIREBASE_CONFIG || {};
-const APP_SCHEMA_VERSION = 5;
+const APP_SCHEMA_VERSION = 6;
 const APP_BUILD_ID = '2026-05-hardening';
 let firebaseEnabled = Boolean(firebaseConfig.apiKey && firebaseConfig.databaseURL && firebaseConfig.projectId);
 let app = null;

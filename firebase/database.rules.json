@@ -1,0 +1,27 @@
+{
+  "rules": {
+    "rooms": {
+      "$roomId": {
+        ".read": "auth != null && $roomId.matches(/^[A-Za-z0-9_-]{6,80}$/)",
+        ".write": "auth != null && $roomId.matches(/^[A-Za-z0-9_-]{6,80}$/) && (!newData.exists() || (newData.child('schemaVersion').val() == 6 && (!data.exists() || newData.child('resetGeneration').val() > data.child('resetGeneration').val() || !data.child('participantTombstones').hasChildren() || newData.child('participantTombstones').hasChildren())))",
+        ".validate": "!newData.exists() || (newData.hasChildren(['schemaVersion', 'allocations', 'activeAllocationType', 'resetGeneration', 'lastUpdatedAt', 'lastUpdatedBy', 'revision']) && newData.child('schemaVersion').val() == 6 && newData.child('allocations').child('car').child('type').val() == 'car' && newData.child('allocations').child('team').child('type').val() == 'team' && (newData.child('activeAllocationType').val() == 'car' || newData.child('activeAllocationType').val() == 'team') && newData.child('resetGeneration').isNumber() && newData.child('resetGeneration').val() >= 0 && newData.child('lastUpdatedBy').isString() && (!newData.child('participants').exists() || newData.child('participants').hasChildren()) && (!newData.child('participantTombstones').exists() || newData.child('participantTombstones').hasChildren()) && (!newData.child('syncOperations').exists() || newData.child('syncOperations').hasChildren()) && (!newData.child('settlement').exists() || newData.child('settlement').hasChildren()) && (!newData.child('overview').exists() || newData.child('overview').hasChildren()) && (!newData.child('meta').exists() || newData.child('meta').hasChildren()))",
+        "participants": {
+          "$participantId": {
+            ".validate": "!newData.exists() || !data.parent().parent().child('participantTombstones').child($participantId).exists()"
+          }
+        },
+        "participantTombstones": {
+          "$participantId": {
+            ".validate": "!data.exists() || newData.exists() || newData.parent().parent().child('resetGeneration').val() > data.parent().parent().child('resetGeneration').val()"
+          }
+        },
+        "lastUpdatedAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "revision": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() >= data.val())"
+        }
+      }
+    }
+  }
+}

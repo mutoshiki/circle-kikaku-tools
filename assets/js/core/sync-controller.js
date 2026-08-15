@@ -17,8 +17,11 @@ const ROOM_META_FIELDS = [
     'editLockPassphrase',
     'editLockScopes',
     'overview',
+    'resetGeneration',
     'schemaVersion'
 ];
+const MAX_SYNC_OPERATION_JOURNAL = 256;
+const MAX_SYNC_OUTBOX_AGE_MS = 24 * 60 * 60 * 1000;
 const SETTLEMENT_ENTITY_MAPS = [
     'carsByParticipantId',
     'carsByName',
@@ -99,7 +102,8 @@ function canonicalDomainSnapshot(value) {
         editLockPassphrase: room.editLockPassphrase,
         editLockScopes: room.editLockScopes,
         settlement: room.settlement,
-        overview: room.overview
+        overview: room.overview,
+        resetGeneration: Number(room.resetGeneration || 0)
     };
 }
 
@@ -112,6 +116,33 @@ function currentCanonicalMatchesRemote(remote) {
 function cloneSyncValue(value) {
     if (value === undefined) return undefined;
     return JSON.parse(JSON.stringify(value));
+}
+
+function createSyncOperationId(requestVersion = 0) {
+    const client = String(myClientId || 'local').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 48) || 'local';
+    return `op_${client}_${Number(requestVersion || 0)}_${Date.now().toString(36)}`;
+}
+
+function isSyncOperationApplied(room, operationId = '') {
+    return !!operationId && !!room?.syncOperations?.[operationId];
+}
+
+function rememberAppliedSyncOperation(room, operationId = '', clock = 0) {
+    if (!operationId || !room || typeof room !== 'object') return;
+    const operations = room.syncOperations && typeof room.syncOperations === 'object'
+        ? room.syncOperations
+        : (room.syncOperations = {});
+    operations[operationId] = { clock: Number(clock || 0), clientId: String(myClientId || ''), appliedAt: Date.now() };
+    const retained = Object.entries(operations)
+        .sort(([, a], [, b]) => Number(a?.clock || 0) - Number(b?.clock || 0) || Number(a?.appliedAt || 0) - Number(b?.appliedAt || 0));
+    while (retained.length > MAX_SYNC_OPERATION_JOURNAL) {
+        const [oldest] = retained.shift();
+        delete operations[oldest];
+    }
+}
+
+function isUnsupportedRemoteSchema(room) {
+    return Number(room?.schemaVersion || 0) > Number(APP_SCHEMA_VERSION || 0);
 }
 
 function syncValuesEqual(a, b) {
@@ -148,11 +179,28 @@ function readStoredSyncOutbox() {
     }
 }
 
+function isExpiredSyncOutbox(outbox, now = Date.now()) {
+    const createdAt = Number(outbox?.createdAt || 0);
+    return !!createdAt && Number(now) - createdAt > MAX_SYNC_OUTBOX_AGE_MS;
+}
+
+function isPermanentSyncError(error) {
+    const code = String(error?.code || '').toLowerCase();
+    const message = String(error?.message || error || '').toLowerCase();
+    return code.includes('permission_denied')
+        || code.includes('permission-denied')
+        || message.includes('permission_denied')
+        || message.includes('permission denied')
+        || message.includes('remote schema')
+        || message.includes('transaction support is required');
+}
+
 function rememberSyncOutbox(snapshot, baseSnapshot, patch, requestVersion, options = {}) {
     if (!patchHasDomainChanges(patch) && options.forceCanonical !== true) return '';
-    const id = `${myClientId}:${Number(requestVersion || 0)}:${Date.now()}`;
+    const id = String(options.operationId || createSyncOperationId(requestVersion));
     const payload = {
         id,
+        operationId: id,
         requestVersion: Number(requestVersion || 0),
         snapshot: cloneSyncValue(snapshot),
         baseSnapshot: cloneSyncValue(baseSnapshot || {}),
@@ -325,6 +373,33 @@ function buildEntityPatch(baseRaw = {}, localRaw = {}, { forceCanonical = false 
 
 function patchHasDomainChanges(patch = {}) {
     return Object.keys(patch).some(path => !['lastUpdatedAt', 'lastUpdatedBy', 'revision'].includes(path));
+}
+
+function syncDiagnosticPathLabel(path = '') {
+    const value = String(path || '');
+    if (value.includes('/placements/')) return '車割・班割の配置';
+    if (value.includes('/groups/')) return '車・班の設定';
+    if (value.includes('/extras')) return '精算の追加費目';
+    if (value.startsWith('settlement/')) return '精算';
+    if (value.startsWith('participants/')) return '参加者情報';
+    return '共有データ';
+}
+
+function normalizeComparableSyncValue(value) {
+    return value === null ? undefined : value;
+}
+
+function summarizeSyncOutcome(patch = {}, intended = {}, committed = {}) {
+    const changedPaths = Object.keys(patch).filter(path => !['lastUpdatedAt', 'lastUpdatedBy', 'revision'].includes(path));
+    const adjustedPaths = changedPaths.filter(path => !syncValuesEqual(
+        normalizeComparableSyncValue(patch[path]),
+        normalizeComparableSyncValue(getSyncPathValue(committed, path))
+    ));
+    return {
+        changedPaths,
+        adjustedPaths,
+        labels: [...new Set(adjustedPaths.map(syncDiagnosticPathLabel))]
+    };
 }
 
 function hasLocalChangesSinceBase(localData, baseData = lastSyncedData) {
@@ -524,7 +599,7 @@ function applyPatchPathInPlace(result, path, value) {
     else cursor[key] = cloneSyncValue(value);
 }
 
-function applyVersionedEntityPatch(remoteRaw = {}, baseRaw = {}, localRaw = {}, patch = {}, requestVersion = 0) {
+function applyVersionedEntityPatch(remoteRaw = {}, baseRaw = {}, localRaw = {}, patch = {}, requestVersion = 0, operationId = '') {
     // A user can act before the first empty-room onValue/cleanup transaction finishes.
     // Applying entity paths to a raw `{}` and only then migrating loses those paths because
     // the legacy migrator has no schema marker. Start a genuinely empty remote as a v5 room.
@@ -534,6 +609,10 @@ function applyVersionedEntityPatch(remoteRaw = {}, baseRaw = {}, localRaw = {}, 
         : migrateAppData({});
     const base = cloneSyncValue(baseRaw || {}) || {};
     const local = cloneSyncValue(localRaw || {}) || {};
+    // A reset keeps an empty canonical room instead of deleting its root. Any packet
+    // based on an earlier generation is stale by definition and must not recreate data.
+    if (Number(remote.resetGeneration || 0) !== Number(base.resetGeneration || 0)) return migrateAppData(remote);
+    if (isSyncOperationApplied(remote, operationId)) return migrateAppData(remote);
     remote.pathVersions = cloneSyncValue(remote.pathVersions || {}) || {};
     const baseVersions = base.pathVersions || {};
     const remoteVersions = remote.pathVersions || {};
@@ -575,14 +654,19 @@ function applyVersionedEntityPatch(remoteRaw = {}, baseRaw = {}, localRaw = {}, 
         applied += 1;
     });
 
-    if (!applied) return migrateAppData(remote);
+    if (!applied) {
+        rememberAppliedSyncOperation(remote, operationId, remoteClock);
+        return migrateAppData(remote);
+    }
     remote.syncClock = Math.max(Number(remote.syncClock || 0), candidateClock);
     remote.lastUpdatedAt = Number(local.lastUpdatedAt || (window.SanpoClock?.now?.() ?? Date.now()));
     remote.lastUpdatedBy = String(local.lastUpdatedBy || myClientId || '');
     remote.revision = Math.max(0, Number(remote.revision || 0)) + 1;
+    rememberAppliedSyncOperation(remote, operationId, remote.syncClock);
     // Canonicalization enforces participant tombstones, orphan cleanup and capacity.
     const normalized = migrateAppData(remote);
     normalized.pathVersions = remote.pathVersions;
+    normalized.syncOperations = remote.syncOperations;
     normalized.syncClock = remote.syncClock;
     normalized.lastUpdatedAt = remote.lastUpdatedAt;
     normalized.lastUpdatedBy = remote.lastUpdatedBy;
@@ -637,20 +721,34 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
     if (isRemoteUpdate || !dbRef) return null;
     const localSnapshot = migrateAppData(snapshot || {});
     const baseAtWrite = migrateAppData(capturedBase || lastSyncedData || readStoredSyncBase() || {});
+    const operationId = String(options.operationId || options.outboxId || createSyncOperationId(requestVersion));
     const patch = options.patchOverride && typeof options.patchOverride === 'object'
         ? cloneSyncValue(options.patchOverride)
         : buildEntityPatch(baseAtWrite, localSnapshot, { forceCanonical: options.forceCanonical === true });
-    if (!patchHasDomainChanges(patch) && options.forceCanonical !== true) {
-        if (options.outboxId) clearSyncOutbox(options.outboxId);
-        updateStatus('connected', '同期完了');
-        return localSnapshot;
+        if (!patchHasDomainChanges(patch) && options.forceCanonical !== true) {
+            if (options.outboxId) clearSyncOutbox(options.outboxId);
+            updateStatus('connected', '同期完了');
+            return localSnapshot;
     }
 
     syncWriteInFlight = true;
     try {
         let committed;
         if (typeof runTransaction === 'function') {
+            let duplicateOperation = false;
+            let resetInvalidated = false;
             const result = await runTransaction(dbRef, currentRemote => {
+                if (isUnsupportedRemoteSchema(currentRemote)) {
+                    throw new Error(`Remote schema ${currentRemote.schemaVersion} is newer than this client`);
+                }
+                if (Number(currentRemote?.resetGeneration || 0) !== Number(baseAtWrite?.resetGeneration || 0)) {
+                    resetInvalidated = true;
+                    return;
+                }
+                if (isSyncOperationApplied(currentRemote, operationId)) {
+                    duplicateOperation = true;
+                    return;
+                }
                 if (options.forceCanonical === true) {
                     // Canonical cleanup is derived from the value currently locked by
                     // RTDB. A captured blank-device snapshot must never replace data
@@ -662,20 +760,43 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
                     canonicalCurrent.lastUpdatedAt = Number(canonicalCurrent.lastUpdatedAt || (window.SanpoClock?.now?.() ?? Date.now()));
                     canonicalCurrent.lastUpdatedBy = String(canonicalCurrent.lastUpdatedBy || myClientId || '');
                     canonicalCurrent.revision = Math.max(0, Number(currentRemote?.revision || canonicalCurrent.revision || 0)) + 1;
+                    rememberAppliedSyncOperation(canonicalCurrent, operationId, Number(canonicalCurrent.syncClock || 0));
                     return canonicalCurrent;
                 }
-                return applyVersionedEntityPatch(currentRemote || {}, baseAtWrite, localSnapshot, patch, requestVersion);
+                return applyVersionedEntityPatch(currentRemote || {}, baseAtWrite, localSnapshot, patch, requestVersion, operationId);
             }, { applyLocally: false });
-            if (!result.committed) throw new Error('Firebase entity transaction was not committed');
+            if (!result.committed && !duplicateOperation && !resetInvalidated) throw new Error('Firebase entity transaction was not committed');
             committed = migrateAppData(result.snapshot.val() || {});
+            if (resetInvalidated) {
+                if (options.outboxId) clearSyncOutbox(options.outboxId);
+                applyAuthoritativeRemoteData(committed);
+                window.SanpoSyncDiagnostics?.record?.({
+                    kind: 'adjusted', message: 'リセット後の古い保存を破棄', paths: Object.keys(patch || {}), revision: Number(committed.revision || 0)
+                });
+                return committed;
+            }
         } else {
-            // Compatibility fallback for environments without RTDB transactions.
-            await update(dbRef, patch);
-            committed = migrateAppData(applyEntityPatchToObject(baseAtWrite, patch));
+            // Entity sync relies on a serializable transaction for operation-id
+            // idempotency, reset generations and monotonic revisions. A blind update
+            // would reintroduce duplicate/reordered write bugs, so fail closed.
+            throw new Error('Firebase Realtime Database transaction support is required for shared sync');
         }
         rememberSyncedData(committed);
         L.setItem(CFG.STORE + '_' + roomId, J.stringify(committed));
         if (options.outboxId) clearSyncOutbox(options.outboxId);
+
+        const outcome = summarizeSyncOutcome(patch, localSnapshot, committed);
+        if (outcome.adjustedPaths.length) {
+            const message = `同時編集を調整: ${outcome.labels.join('・') || '共有データ'}`;
+            window.SanpoSyncDiagnostics?.record?.({
+                kind: 'adjusted', message, paths: outcome.adjustedPaths, revision: committed.revision
+            });
+            window.showAppNotice?.(`${message}。この端末の履歴で確認できます。`);
+        } else if (outcome.changedPaths.length) {
+            window.SanpoSyncDiagnostics?.record?.({
+                kind: 'saved', message: '共有データを保存', paths: outcome.changedPaths, revision: committed.revision
+            });
+        }
 
         const pendingRevision = Number(pendingRemoteRoomData?.revision || 0);
         const committedRevision = Number(committed.revision || 0);
@@ -697,7 +818,18 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
         return committed;
     } catch (error) {
         console.error(error);
-        updateStatus('error', '保存失敗');
+        const rejected = isPermanentSyncError(error);
+        if (rejected && options.outboxId) {
+            clearSyncOutbox(options.outboxId);
+            window.SanpoSyncDiagnostics?.record?.({
+                kind: 'rejected', message: '共有保存を拒否されたため再送を停止', paths: Object.keys(patch || {}), revision: Number(lastSyncedRevision || 0)
+            });
+            window.showAppNotice?.('共有保存を拒否されました。古い再送データを破棄しました。アプリを更新して再確認してください。', true);
+        }
+        window.SanpoSyncDiagnostics?.record?.({
+            kind: rejected ? 'rejected' : 'failed', message: rejected ? '共有保存を拒否、再送停止' : '共有データの保存に失敗', paths: Object.keys(patch || {}), revision: Number(lastSyncedRevision || 0)
+        });
+        updateStatus('error', rejected ? '保存を拒否、再送停止' : '保存失敗');
         return null;
     } finally {
         syncWriteInFlight = false;
@@ -714,13 +846,15 @@ function queueRemoteSnapshotSave(snapshot, delay = 180, options = {}) {
     const patch = options.patchOverride && typeof options.patchOverride === 'object'
         ? cloneSyncValue(options.patchOverride)
         : buildEntityPatch(capturedBase, snapshot, { forceCanonical: options.forceCanonical === true });
-    const outboxId = rememberSyncOutbox(snapshot, capturedBase, patch, requestVersion, options);
+    const operationId = String(options.operationId || createSyncOperationId(requestVersion));
+    const outboxId = rememberSyncOutbox(snapshot, capturedBase, patch, requestVersion, { ...options, operationId });
     saveTimer = setTimeout(() => {
         saveTimer = null;
         void commitSnapshotToRemote(snapshot, requestVersion, capturedBase, {
             ...options,
             patchOverride: patch,
-            outboxId
+            outboxId,
+            operationId
         });
     }, Math.max(0, Number(delay) || 0));
 }
@@ -765,7 +899,7 @@ function buildSettlementSettingsIntentPatch(baseRaw = {}, localRaw = {}) {
     return Object.fromEntries(Object.entries(fullPatch).filter(([path]) => SETTLEMENT_SETTINGS_PATH_PREFIXES.some(prefix => syncPathMatchesPrefix(path, prefix))));
 }
 
-async function saveImmediate({ snapshot = null, baseSnapshot = null, patchOverride = null } = {}) {
+async function saveImmediate({ snapshot = null, baseSnapshot = null, patchOverride = null, operationId: requestedOperationId = '' } = {}) {
     updateStatus('saving', '保存中...');
     lastUpdatedAt = (window.SanpoClock?.now?.() ?? Date.now());
     const d = migrateAppData(snapshot || getData({ skipDomSync: !!window.__suspendActiveDomPlanSync }) || {});
@@ -787,10 +921,14 @@ async function saveImmediate({ snapshot = null, baseSnapshot = null, patchOverri
     const patch = patchOverride && typeof patchOverride === 'object'
         ? cloneSyncValue(patchOverride)
         : buildEntityPatch(capturedBase, canonical);
-    const outboxId = rememberSyncOutbox(canonical, capturedBase, patch, requestVersion);
+    // Callers normally omit this. Keeping an explicit ID through a retry lets the
+    // transaction journal make a transport duplicate a no-op instead of a second edit.
+    const operationId = String(requestedOperationId || createSyncOperationId(requestVersion));
+    const outboxId = rememberSyncOutbox(canonical, capturedBase, patch, requestVersion, { operationId });
     return await commitSnapshotToRemote(canonical, requestVersion, capturedBase, {
         patchOverride: patch,
-        outboxId
+        outboxId,
+        operationId
     });
 }
 
@@ -851,6 +989,14 @@ function load() {
             return;
         }
 
+        // Never down-migrate or write a room made by a future client. Rules block old
+        // writers as well, but this local gate prevents an unsafe queued outbox replay.
+        if (isUnsupportedRemoteSchema(raw)) {
+            updateStatus('error', 'この端末は共有データの新版に未対応です');
+            window.showAppNotice?.('共有データが新しい版へ更新されています。アプリを更新してから再接続してください。', true);
+            return;
+        }
+
         // RTDB omits empty maps, so a missing participants property is a valid
         // zero-participant v5 room and must not trigger whole-root migration.
         const wasLegacy = Number(raw.schemaVersion || 1) < APP_SCHEMA_VERSION
@@ -866,6 +1012,23 @@ function load() {
         // intent by diffing a rendered/localStorage snapshot against Firebase.
         const outbox = readStoredSyncOutbox();
         if (outbox && !syncWriteInFlight && !saveTimer) {
+            if (isExpiredSyncOutbox(outbox)) {
+                clearSyncOutbox(outbox.id);
+                window.SanpoSyncDiagnostics?.record?.({
+                    kind: 'rejected', message: '期限切れの未送信データを破棄', paths: Object.keys(outbox.patch || {}), revision: Number(remote.revision || 0)
+                });
+                window.showAppNotice?.('24時間を超えた未送信データを安全のため破棄しました。', true);
+                applyAuthoritativeRemoteData(remote);
+                return;
+            }
+            if (Number(outbox.baseSnapshot?.resetGeneration || 0) !== Number(remote.resetGeneration || 0)) {
+                clearSyncOutbox(outbox.id);
+                window.SanpoSyncDiagnostics?.record?.({
+                    kind: 'adjusted', message: 'リセット後の古い保存を破棄', paths: Object.keys(outbox.patch || {}), revision: Number(remote.revision || 0)
+                });
+                applyAuthoritativeRemoteData(remote);
+                return;
+            }
             saveRequestVersion = Math.max(saveRequestVersion, Number(outbox.requestVersion || 0));
             isRemoteUpdate = true;
             restore(migrateAppData(outbox.snapshot));
@@ -878,7 +1041,8 @@ function load() {
                 {
                     patchOverride: outbox.patch,
                     forceCanonical: outbox.forceCanonical === true,
-                    outboxId: outbox.id
+                    outboxId: outbox.id,
+                    operationId: outbox.operationId || outbox.id
                 }
             );
             return;
@@ -926,13 +1090,24 @@ window.resetData = async () => {
     L.removeItem(getSyncBaseStorageKey());
     L.removeItem(getSyncOutboxStorageKey());
     L.removeItem('syawari_history_' + roomId);
+    window.SanpoSyncDiagnostics?.clear?.();
     L.removeItem('sanpoOverviewDraft:v1:' + roomId);
     if (window.SanpoDeviceRoomUi) L.removeItem(`sanpoRoomUi:v1:${roomId}`);
     L.removeItem(getTrustedDeviceKey());
     if (dbRef) {
-        set(dbRef, null).then(() => { location.reload(); }).catch(err => { console.error(err); showAppNotice('リセットに失敗しました。', true); });
+        const resetOperationId = createSyncOperationId(++saveRequestVersion);
+        runTransaction(dbRef, currentRemote => {
+            if (isUnsupportedRemoteSchema(currentRemote)) throw new Error('Remote schema is newer than this client');
+            const empty = migrateAppData({});
+            empty.resetGeneration = Math.max(0, Number(currentRemote?.resetGeneration || 0)) + 1;
+            empty.lastUpdatedBy = myClientId;
+            empty.lastUpdatedAt = (window.SanpoClock?.now?.() ?? Date.now());
+            empty.revision = Math.max(0, Number(currentRemote?.revision || 0)) + 1;
+            rememberAppliedSyncOperation(empty, resetOperationId, Number(currentRemote?.syncClock || 0) + 1);
+            return empty;
+        }, { applyLocally: false }).then(() => { location.reload(); }).catch(err => { console.error(err); showAppNotice('リセットに失敗しました。', true); });
     } else location.reload();
 };
 
-window.SanpoEntitySyncTest = Object.freeze({ buildEntityPatch, buildSettlementIntentPatch, buildSettlementCarIntentPatch, buildSettlementSettingsIntentPatch, applyEntityPatchToObject, applyVersionedEntityPatch, compareSyncVersions, syncPathVersionKey, mergeConcurrentSettlementExtras });
+window.SanpoEntitySyncTest = Object.freeze({ buildEntityPatch, buildSettlementIntentPatch, buildSettlementCarIntentPatch, buildSettlementSettingsIntentPatch, applyEntityPatchToObject, applyVersionedEntityPatch, compareSyncVersions, syncPathVersionKey, mergeConcurrentSettlementExtras, summarizeSyncOutcome, isUnsupportedRemoteSchema, isExpiredSyncOutbox, isPermanentSyncError });
 window.SanpoSync = Object.freeze({ saveImmediate, buildSettlementIntentPatch, buildSettlementCarIntentPatch, buildSettlementSettingsIntentPatch });
