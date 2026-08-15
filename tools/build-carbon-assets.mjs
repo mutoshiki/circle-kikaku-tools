@@ -1,5 +1,5 @@
 import { build } from 'esbuild';
-import { chmod, copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
@@ -35,9 +35,10 @@ const licenseCopies = [
 ];
 for (const [source, target] of licenseCopies) {
   const targetPath = resolve(root, target);
-  await copyFile(resolve(root, source), targetPath);
-  // npm package archives may mark license text executable on Linux. Keep generated
-  // vendor assets reproducible regardless of the install platform.
+  const sourceText = await readFile(resolve(root, source), 'utf8');
+  // npm package archives may vary both file mode and text line endings by
+  // install platform. Normalize both so generated vendor assets are reproducible.
+  await writeFile(targetPath, sourceText.replace(/\r\n?/g, '\n'), 'utf8');
   await chmod(targetPath, 0o644);
 }
 const manifest = { versions, entry: 'assets/js/carbon-entry.js', output: 'assets/vendor/carbon/carbon-entry.min.js' };

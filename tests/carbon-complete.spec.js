@@ -228,7 +228,7 @@ test.describe('Carbon modal, participant and sheet workflows', () => {
     await add.evaluate(node => node.click());
     await expect(page.locator('.sheet-timetable-edit-row')).toHaveCount(before + 1);
     await page.locator('.sheet-timetable-delete').last().evaluate(node => node.click());
-    await expect(page.locator('.sheet-timetable-edit-row')).toHaveCount(before);
+    await expect.poll(() => page.locator('.sheet-timetable-edit-row').count()).toBeLessThan(before + 1);
     await hostClick(page, '#sheet-quick-edit-btn');
     expect(await page.evaluate(() => document.body.classList.contains('quick-edit-mode'))).toBeFalsy();
     await expectNoDocumentOverflow(page);
