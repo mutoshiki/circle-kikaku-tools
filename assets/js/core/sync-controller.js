@@ -791,7 +791,9 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
             window.SanpoSyncDiagnostics?.record?.({
                 kind: 'adjusted', message, paths: outcome.adjustedPaths, revision: committed.revision
             });
-            window.showAppNotice?.(`${message}。この端末の履歴で確認できます。`);
+            // A successful transaction can legitimately merge a newer remote value.
+            // Keep this in diagnostics for auditability, but do not interrupt every
+            // normal save with a notice; actionable failures still notify the user.
         } else if (outcome.changedPaths.length) {
             window.SanpoSyncDiagnostics?.record?.({
                 kind: 'saved', message: '共有データを保存', paths: outcome.changedPaths, revision: committed.revision

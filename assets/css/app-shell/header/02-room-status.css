@@ -1,5 +1,6 @@
 /* Project identity plus persistent save feedback. */
 .app-room-control {
+  position: relative;
   display: flex;
   flex: 1 1 auto;
   align-items: center;
@@ -81,7 +82,27 @@
 }
 
 @media (max-width: 640px) {
-  .sync-status-badge { display: none; }
+  .sync-status-badge {
+    position: absolute;
+    inset: 18px 0 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: none;
+    min-height: 48px;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-2px);
+    transition: opacity var(--motion-fast) ease, transform var(--motion-fast) ease, visibility 0s linear var(--motion-fast);
+  }
+  .sync-status-badge.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition-delay: 0s;
+  }
   .app-room-input { font-size: 1rem; }
 }
 
