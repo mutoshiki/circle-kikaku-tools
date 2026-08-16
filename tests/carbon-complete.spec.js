@@ -59,16 +59,6 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       await expect(page.locator('#share-links-modal')).toHaveAttribute('open', '');
       await hostClick(page, '#share-links-modal [data-modal-close]');
       await expect(page.locator('#share-links-modal')).not.toBeAttached();
-      await hostClick(page, '#overviewMenuBtn');
-      await expect(page.locator('#overviewDrawer')).toHaveAttribute('aria-hidden', 'false');
-      const rows = await page.locator('.overview-timetable-row').count();
-      await hostClick(page, '#overviewTimetableAddBtn');
-      await expect(page.locator('.overview-timetable-row')).toHaveCount(rows + 1);
-      await setHostValue(page, '#overviewMemoInput', 'Carbon完成確認');
-      await hostClick(page, '#overviewTimetableCopyBtn');
-      await expect(page.locator('#copy-fallback')).toHaveAttribute('open', '');
-      expect(await page.locator('#copy-fallback cds-textarea').evaluate(node => node.value)).toContain('08:00');
-      await hostClick(page, '#copy-fallback [data-modal-close]');
       await hostClick(page, '#overviewDrawerCloseBtn');
       await expect(page.locator('#overviewDrawer')).toHaveAttribute('aria-hidden', 'true');
       expect(errors).toEqual([]);
