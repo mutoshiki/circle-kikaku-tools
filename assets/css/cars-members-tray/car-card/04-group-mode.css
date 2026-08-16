@@ -24,4 +24,4 @@
   min-width: 0;
   min-height: 48px;
 }
-.edit-header-tools-only.allocation-toolbar #car-plan-switcher { order: 1; margin-right: 0; }
+.edit-header-tools-only.allocation-toolbar #car-plan-switcher { order: 2; margin-right: 0; }

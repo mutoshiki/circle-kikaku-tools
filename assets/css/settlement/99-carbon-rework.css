@@ -74,6 +74,11 @@ html[data-theme="dark"] .car-capacity-actions .capacity-edit-pill {
   --cds-button-ghost-color: #f4f4f4;
   color: #f4f4f4;
 }
+html[data-theme="dark"] .car-capacity-actions .capacity-edit-pill::part(button) {
+  background: #393939;
+  color: #f4f4f4;
+}
+html[data-theme="dark"] .car-capacity-actions .capacity-edit-pill::part(button):hover { background: #474747; }
 #seisan-view-area .seisan-summary-detail-list {
   display: grid;
   gap: 4px;
@@ -110,15 +115,6 @@ html[data-theme="dark"] .car-capacity-actions .capacity-edit-pill {
   --cds-icon-primary: var(--text-main);
   --cds-link-primary: var(--text-main);
   color: var(--text-main);
-}
-
-/* Driver status is a Carbon tag, distinct from the passenger card without adding decoration. */
-.driver-seat .person-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
-.driver-seat .driver-role-tag {
-  --cds-tag-background-blue: #001d6c;
-  --cds-tag-color-blue: #d0e2ff;
-  --cds-tag-hover-blue: #002d9c;
-  min-height: 20px;
 }
 
 @media (max-width: 640px) {

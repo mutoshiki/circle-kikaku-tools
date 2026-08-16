@@ -100,18 +100,18 @@
     return `<article class="seisan-car-summary-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}">
         <div class="seisan-car-summary-headline">
           <strong class="seisan-car-summary-name">${esc(car.name, helpers)}車${calc.usesTimesRental ? '（レンタカー）' : ''}</strong>
-          <cds-toggle class="seisan-car-payment-toggle" size="sm" ${paid ? 'toggled' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" label-a="" label-b="未払い" aria-label="${esc(car.name, helpers)}車への支払い状態"></cds-toggle>
+          <cds-toggle class="seisan-car-payment-toggle" size="sm" ${paid ? 'toggled' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" label-a="支払済み" label-b="未払い" aria-label="${esc(car.name, helpers)}車への支払い状態"></cds-toggle>
           <cds-button class="seisan-btn seisan-edit-btn" kind="ghost" size="md" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span><span>編集</span></cds-button>
         </div>
         <cds-accordion class="seisan-car-accordion" alignment="start">
           <cds-accordion-item>
-            <span slot="title" class="seisan-accordion-total"><span>割勘</span><strong>${money(costDetails.splitTotal, helpers)}</strong></span>
+            <span slot="title" class="seisan-accordion-total"><span>割勘合計</span><strong>${money(costDetails.splitTotal, helpers)}</strong></span>
             <cds-structured-list condensed class="seisan-cost-structured-list" aria-label="費用内訳">
               <cds-structured-list-body>${costDetails.split}</cds-structured-list-body>
             </cds-structured-list>
           </cds-accordion-item>
           <cds-accordion-item>
-            <span slot="title" class="seisan-accordion-total"><span>部費</span><strong>${money(costDetails.clubTotal, helpers)}</strong></span>
+            <span slot="title" class="seisan-accordion-total"><span>部費合計</span><strong>${money(costDetails.clubTotal, helpers)}</strong></span>
             <cds-structured-list condensed class="seisan-cost-structured-list" aria-label="部費の内訳">
               <cds-structured-list-body>${costDetails.club}</cds-structured-list-body>
             </cds-structured-list>

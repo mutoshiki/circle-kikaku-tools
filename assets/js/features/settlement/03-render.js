@@ -798,6 +798,9 @@ function renderSettlementView() {
     const collectionList = byId('seisan-collection-list');
     if (collectionList) collectionList.innerHTML = renderSettlementCollectionHtml(data, participants, state, result);
 
+    const collectionTitle = byId('seisan-collection-title');
+    if (collectionTitle) collectionTitle.textContent = `集金（${yen(result.perPerson || 0)}）`;
+
     const driverPayList = byId('seisan-driver-pay-list');
     if (driverPayList) driverPayList.innerHTML = renderSettlementDriverPayHtml(result, state);
 

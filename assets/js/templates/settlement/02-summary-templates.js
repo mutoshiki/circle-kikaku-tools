@@ -17,6 +17,7 @@
     // data-summary-kind="rounding" 割勘 部費 data-summary-kind="pay"
     const splitBasePaymentTotal = Number(result.splitBasePaymentTotal ?? (result.totalSplit - result.totalDriverCollectionOffset));
     const splitPaymentAdjustment = Number(result.splitPaymentAdjustment ?? result.totalSplitRound ?? 0);
+    const splitPaymentTotal = splitBasePaymentTotal + splitPaymentAdjustment;
     const clubPaymentAdjustment = Number(result.clubPaymentAdjustment || 0);
     const paymentAdjustmentTotal = Number(result.paymentAdjustmentTotal ?? (splitPaymentAdjustment + clubPaymentAdjustment));
     const splitBaseDetail = result.totalDriverCollectionOffset
@@ -26,7 +27,7 @@
     return `
     <cds-accordion class="seisan-summary-accordion" alignment="start" aria-label="全体の費用の内訳">
       <cds-accordion-item>
-        <span slot="title" class="seisan-accordion-total"><span>割勘合計</span><strong>${signedMoney(splitBasePaymentTotal, helpers)}</strong></span>
+        <span slot="title" class="seisan-accordion-total"><span>割勘合計</span><strong>${signedMoney(splitPaymentTotal, helpers)}</strong></span>
         <div class="seisan-summary-detail-list">${splitBaseDetail}<span>端数調整 ${signedMoney(splitPaymentAdjustment, helpers, true)}</span></div>
       </cds-accordion-item>
       <cds-accordion-item>
