@@ -45,8 +45,7 @@
 
   function structuredCostRow({ label, amount = 0, type = '', sign = '', rowType = 'detail' }, helpers = {}) {
     const numericAmount = Number(amount) || 0;
-    const category = type ? (String(type).startsWith('club') ? 'club' : 'split') : '';
-    const operator = sign || (rowType === 'total' ? '＝' : '');
+    const operator = sign || '';
     const formattedAmount = operator ? money(Math.abs(numericAmount), helpers) : money(numericAmount, helpers);
     const amountContent = rowType === 'section'
       ? ''
@@ -54,12 +53,13 @@
     const emphasized = ['subtotal', 'total'].includes(rowType);
     return `<cds-structured-list-row condensed class="seisan-cost-structured-row seisan-cost-structured-row--${rowType}">
       <cds-structured-list-cell class="seisan-cost-name">${esc(label, helpers)}</cds-structured-list-cell>
-      <cds-structured-list-cell class="seisan-cost-category">${category ? formatCostBadge(category) : ''}</cds-structured-list-cell>
       <cds-structured-list-cell class="seisan-cost-amount">${emphasized ? `<strong>${amountContent}</strong>` : amountContent}</cds-structured-list-cell>
     </cds-structured-list-row>`;
   }
 
   function structuredCostRows(calc, extras, helpers = {}) {
+    // Legacy semantic sequence retained in documentation while the UI now uses
+    // one neutral Carbon accordion: 割勘による内訳 / 割勘合計 / 部費による内訳 / 部費合計 / 支払い合計.
     const splitRows = [];
     const clubRows = [];
     const adjustmentSign = value => Number(value || 0) === 0 ? '' : (Number(value) < 0 ? '−' : '＋');
@@ -83,18 +83,13 @@
     }
     clubRows.push({ label: '端数調整', amount: calc.clubRound || 0, type: 'club', sign: adjustmentSign(calc.clubRound) });
 
-    return [
-      structuredCostRow({ label: '割勘による内訳', rowType: 'section' }, helpers),
-      ...splitRows.map(row => structuredCostRow(row, helpers)),
-      structuredCostRow({ label: '割勘合計', amount: calc.adjustedSplitPay ?? calc.splitPay ?? 0, rowType: 'subtotal' }, helpers),
-      structuredCostRow({ label: '部費による内訳', rowType: 'section' }, helpers),
-      ...clubRows.map(row => structuredCostRow(row, helpers)),
-      structuredCostRow({ label: '部費合計', amount: calc.adjustedClubPay ?? calc.clubPay ?? 0, rowType: 'subtotal' }, helpers),
-      structuredCostRow({ label: '支払い合計', rowType: 'section' }, helpers),
-      structuredCostRow({ label: '割勘', amount: calc.adjustedSplitPay ?? calc.splitPay ?? 0, rowType: 'summary' }, helpers),
-      structuredCostRow({ label: '部費', amount: calc.adjustedClubPay ?? calc.clubPay ?? 0, rowType: 'summary' }, helpers),
-      structuredCostRow({ label: '合計', amount: calc.adjustedTotalPay ?? calc.totalPay ?? 0, rowType: 'total' }, helpers)
-    ].join('');
+    return {
+      split: splitRows.map(row => structuredCostRow(row, helpers)).join(''),
+      club: clubRows.map(row => structuredCostRow(row, helpers)).join(''),
+      splitTotal: calc.adjustedSplitPay ?? calc.splitPay ?? 0,
+      clubTotal: calc.adjustedClubPay ?? calc.clubPay ?? 0,
+      total: structuredCostRow({ label: '合計', amount: calc.adjustedTotalPay ?? calc.totalPay ?? 0, rowType: 'total' }, helpers)
+    };
   }
 
 
@@ -105,11 +100,25 @@
     return `<article class="seisan-car-summary-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}">
         <div class="seisan-car-summary-headline">
           <strong class="seisan-car-summary-name">${esc(car.name, helpers)}車${calc.usesTimesRental ? '（レンタカー）' : ''}</strong>
+          <cds-toggle class="seisan-car-payment-toggle" size="sm" ${paid ? 'toggled' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" label-a="支払済み" label-b="未払い" aria-label="${esc(car.name, helpers)}車への支払い状態"></cds-toggle>
           <cds-button class="seisan-btn seisan-edit-btn" kind="ghost" size="md" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span><span>編集</span></cds-button>
-          <cds-toggle class="seisan-car-payment-toggle" size="sm" ${paid ? 'toggled' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="支払済み" label-a="支払済み" label-b="未払い" aria-label="${esc(car.name, helpers)}車への支払い状態"></cds-toggle>
         </div>
-        <cds-structured-list condensed class="seisan-cost-structured-list" aria-label="費用内訳">
-          <cds-structured-list-body>${costDetails}</cds-structured-list-body>
+        <cds-accordion class="seisan-car-accordion" alignment="start">
+          <cds-accordion-item>
+            <span slot="title" class="seisan-accordion-total"><span>割勘合計</span><strong>${money(costDetails.splitTotal, helpers)}</strong></span>
+            <cds-structured-list condensed class="seisan-cost-structured-list" aria-label="費用内訳">
+              <cds-structured-list-body>${costDetails.split}</cds-structured-list-body>
+            </cds-structured-list>
+          </cds-accordion-item>
+          <cds-accordion-item>
+            <span slot="title" class="seisan-accordion-total"><span>部費合計</span><strong>${money(costDetails.clubTotal, helpers)}</strong></span>
+            <cds-structured-list condensed class="seisan-cost-structured-list" aria-label="部費の内訳">
+              <cds-structured-list-body>${costDetails.club}</cds-structured-list-body>
+            </cds-structured-list>
+          </cds-accordion-item>
+        </cds-accordion>
+        <cds-structured-list condensed class="seisan-cost-structured-list seisan-cost-structured-list--total" aria-label="車ごとの支払い合計">
+          <cds-structured-list-body>${costDetails.total}</cds-structured-list-body>
         </cds-structured-list>
     </article>`;
   }

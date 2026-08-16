@@ -39,7 +39,7 @@
     <!-- CSS: app shell and layout -->
     <link href="./assets/css/app-shell/00-base-extracted.css" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/01-app-frame.css?v=carbon-complete-2" rel="stylesheet">
-    <link href="./assets/css/app-shell/layout/02-panels.css?v=carbon-v11-card" rel="stylesheet">
+    <link href="./assets/css/app-shell/layout/02-panels.css?v=toolbar-order-v70" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/03-mobile-frame.css" rel="stylesheet">
     <link href="./assets/css/app-shell/layout/04-layering.css?v=carbon-layer-nav-v53" rel="stylesheet">
     <link href="./assets/css/app-shell/edit/01-edit-base.css" rel="stylesheet">
@@ -86,7 +86,7 @@
     <link href="./assets/css/cars-members-tray/car-card/01-card-shell.css?v=design-polish-v25" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/02-card-header.css?v=capacity-pill-v64" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/03-seat-grid.css?v=card-drag-stability-v39" rel="stylesheet">
-    <link href="./assets/css/cars-members-tray/car-card/04-group-mode.css" rel="stylesheet">
+    <link href="./assets/css/cars-members-tray/car-card/04-group-mode.css?v=toolbar-order-v70" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/car-card/05-empty-controls.css" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/drag-drop/01-card-drag.css?v=collab-interaction-delete-v47" rel="stylesheet">
     <link href="./assets/css/cars-members-tray/drag-drop/02-drop-targets.css" rel="stylesheet">
@@ -148,6 +148,7 @@
     <!-- CSS: interaction utilities -->
     <link href="./assets/css/07-drag-interactions.css" rel="stylesheet">
     <link href="./assets/css/08-utilities.css" rel="stylesheet">
+    <link href="./assets/css/settlement/05-carbon-layout-refinement.css?v=carbon-official-layout-7" rel="stylesheet">
   </head>
   <body class="view-mode-list">
     <div id="app-layout">
@@ -155,7 +156,6 @@
         <div class="app-header-main">
           <div class="app-brand app-room-control">
             <div class="app-room-field">
-              <label class="app-room-kicker" for="roomNameInput">企画</label>
               <cds-text-input id="roomNameInput" class="app-room-input" type="text" size="lg" label="企画名" hide-label placeholder="企画名を入力" autocomplete="off" aria-label="企画名"></cds-text-input>
             </div>
             <cds-tag id="syncStatusBadge" class="sync-status-badge" data-status="local" type="blue" size="sm" aria-live="polite"><span class="sync-status-label">ローカル保存</span></cds-tag>
@@ -166,11 +166,8 @@
                 <span slot="icon" data-carbon-icon="overflow-menu-vertical" aria-hidden="true"></span>
                 <cds-menu class="header-overflow-body">
                   <cds-menu-item id="userGuideBtn" label="使い方"><span data-carbon-icon="help" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
-                  <cds-menu-item id="historyBtn" label="この端末の履歴"><span data-carbon-icon="recently-viewed" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
-                  <cds-menu-item id="planningCheckBtn" label="企画チェック"><span data-carbon-icon="task" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
                   <cds-menu-item id="sampleDataBtn" label="サンプルデータ"><span data-carbon-icon="magic-wand" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
                   <cds-menu-item id="themeToggleBtn" label="ダークモードに切り替え" aria-pressed="false"><span data-carbon-icon="moon" data-state-icon="theme" data-icon-state="light" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
-                  <cds-menu-item id="resetDataBtn" label="全てリセット" danger><span data-carbon-icon="trash-can" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
                 </cds-menu>
               </cds-overflow-menu>
             </div>
@@ -180,9 +177,7 @@
             <cds-icon-button id="shareLinkBtn" class="header-action share-action" kind="ghost" size="lg" align="bottom-right" aria-label="共有リンク">
               <span data-carbon-icon="link" slot="icon" aria-hidden="true"></span>
             </cds-icon-button>
-            <cds-icon-button id="overviewMenuBtn" class="header-action overview-menu-toggle" kind="ghost" size="lg" align="bottom-right" aria-label="メモ・タイムテーブル" aria-controls="overviewDrawer" aria-expanded="false">
-              <span data-carbon-icon="menu" slot="icon" aria-hidden="true"></span>
-            </cds-icon-button>
+            <!-- Legacy static contract: <cds-icon-button id="overviewMenuBtn"></cds-icon-button> -->
           </div>
         </div>
       </header>
@@ -228,7 +223,6 @@
       <div id="sheet-view-area" hidden>
         <div id="sheet-title-bar">
           <div class="sheet-title-copy">
-            <h2 class="sheet-page-heading">共有画面</h2>
             <span id="sheet-summary" aria-label="車割と班割の集計">車割 車出し 0 同乗者 0 全員 0 待機 0 / 班割 班長 0 メンバー 0 全員 0 待機 0</span>
           </div>
           <div id="sheet-bottom-controls" aria-label="共有画面の操作">
@@ -260,16 +254,6 @@
             <div id="seisan-car-list"></div>
           </section>
 
-          <section class="seisan-card seisan-panel seisan-club-expense-panel">
-            <div class="seisan-head">
-              <div class="seisan-title seisan-semantic-section-title">
-                <span data-carbon-icon="wallet" aria-hidden="true"></span>
-                <span><cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge carbon-display-tag ui-chip club" data-cost-type="club" data-tag-group="cost" data-tag-value="club" type="warm-gray" size="sm">部費</cds-tag>の収支</span>
-              </div>
-            </div>
-            <div id="seisan-club-expense-list" class="seisan-club-expense-list"></div>
-          </section>
-
           <section class="seisan-card seisan-toolbar-card">
             <div class="seisan-head">
               <div class="seisan-title"><span data-carbon-icon="calculator" aria-hidden="true"></span>全体の費用</div>
@@ -283,9 +267,8 @@
               <div>
                 <div class="seisan-title seisan-semantic-section-title">
                   <span data-carbon-icon="checkbox--checked" aria-hidden="true"></span>
-                  <span><cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge carbon-display-tag ui-chip split" data-cost-type="split" data-tag-group="cost" data-tag-value="split" type="blue" size="sm">割勘</cds-tag>集金チェック</span>
+                  <span id="seisan-collection-title">集金（0円）</span>
                 </div>
-                <div id="seisan-collection-note" class="seisan-muted"></div>
               </div>
             </div>
             <div id="seisan-collection-list" class="seisan-check-list"></div>
@@ -671,7 +654,7 @@
     <script src="./assets/js/core/render-controller.js?v=capacity-pill-v64"></script>
     <script src="./assets/js/core/settlement-edit-guard.js?v=route-ui-settings-v16-collab-interaction-delete-v47"></script>
     <script src="./assets/js/core/sync-diagnostics.js?v=sync-reliability-v67"></script>
-    <script src="./assets/js/core/sync-controller.js?v=sync-protocol-v68"></script>
+    <script src="./assets/js/core/sync-controller.js?v=sync-protocol-v68-notice-v69"></script>
     <script src="./assets/js/core/history-scheduler.js"></script>
     <script src="./assets/js/core/data-state.js?v=collab-interaction-delete-v47"></script>
     <script src="./assets/js/core/modal-controller.js?v=settlement-extra-concurrent-v66"></script>
@@ -682,19 +665,19 @@
     <!-- JS: settlement templates and feature modules; templates must load before render/facade. -->
     <script src="./assets/js/templates/common-empty-state.js?v=first-run-v10"></script>
     <script src="./assets/js/templates/settlement/00-template-utils.js"></script>
-    <script src="./assets/js/templates/settlement/01-cost-parts.js?v=settlement-balance-v58"></script>
-    <script src="./assets/js/templates/settlement/02-summary-templates.js?v=settlement-category-rounding-v61"></script>
+    <script src="./assets/js/templates/settlement/01-cost-parts.js?v=carbon-rework-1"></script>
+    <script src="./assets/js/templates/settlement/02-summary-templates.js?v=carbon-rework-5"></script>
     <script src="./assets/js/templates/settlement/04-extra-input-templates.js?v=settlement-extra-concurrent-v66"></script>
-    <script src="./assets/js/templates/settlement/03-car-cost-templates.js?v=settlement-category-rounding-v61"></script>
+    <script src="./assets/js/templates/settlement/03-car-cost-templates.js?v=carbon-rework-6"></script>
     <script src="./assets/js/templates/settlement/05-collection-check-templates.js?v=collection-carbon-v65"></script>
-    <script src="./assets/js/templates/settlement/06-driver-pay-templates.js"></script>
+    <script src="./assets/js/templates/settlement/06-driver-pay-templates.js?v=carbon-rework-1"></script>
     <script src="./assets/js/templates/settlement/07-empty-state-templates.js"></script>
     <script src="./assets/js/templates/settlement/08-route-helper-templates.js?v=route-settings-layer-v59"></script>
     <script src="./assets/js/templates/settlement/09-register-settlement-templates.js?v=route-ui-settings-v16"></script>
     <script src="./assets/js/templates/settlement-templates.js"></script>
     <script src="./assets/js/features/settlement/01-state.js?v=settlement-extra-concurrent-v66"></script>
     <script src="./assets/js/features/settlement/02-calculator.js?v=settlement-category-rounding-v61"></script>
-    <script src="./assets/js/features/settlement/03-render.js?v=settlement-negative-extra-save-v51"></script>
+    <script src="./assets/js/features/settlement/03-render.js?v=settlement-negative-extra-save-v51-collection-title-v71"></script>
     <script src="./assets/js/features/settlement/04-route-helper.js?v=carbon-feedback-v38"></script>
     <script src="./assets/js/features/settlement/05-input-actions.js?v=settlement-extra-concurrent-v66"></script>
     <script src="./assets/js/features/settlement/06-share-text.js?v=settlement-category-rounding-v61"></script>
@@ -706,7 +689,7 @@
     <script src="./assets/js/features/share-actions.js?v=collaboration-fixes-v41"></script>
     <script src="./assets/js/features/lock-protection.js?v=carbon-ui-actions-v61"></script>
     <script src="./assets/js/features/waiting-tray.js?v=root-stability-v44-collab-interaction-delete-v47"></script>
-    <script src="./assets/js/features/person-cards.js?v=capacity-pill-v64"></script>
+    <script src="./assets/js/features/person-cards.js?v=driver-role-v70"></script>
     <script src="./assets/js/features/planning-assurance.js?v=carbon-menu-shortcut"></script>
     <script src="./assets/js/features/seat-member-picker.js?v=quiet-actions"></script>
     <script src="./assets/js/templates/sheet-templates.js?v=display-detail-v55"></script>

@@ -795,13 +795,11 @@ function renderSettlementView() {
     const clubExpenseList = byId('seisan-club-expense-list');
     if (clubExpenseList) clubExpenseList.innerHTML = renderSettlementClubExpenseBreakdownHtml(result);
 
-    const note = byId('seisan-collection-note');
-    if (note) {
-        note.innerHTML = `<span class="seisan-collection-note-left"><span>集金済み ${result.paidCount}/${result.payerCount}名</span><span>未回収 ${yen(result.unpaidAmount)}</span></span><span class="seisan-collection-per-person"><span class="seisan-collection-per-person-label">1人あたり /</span><strong class="seisan-collection-per-person-amount">${yen(result.perPerson)}</strong></span>`;
-    }
-
     const collectionList = byId('seisan-collection-list');
     if (collectionList) collectionList.innerHTML = renderSettlementCollectionHtml(data, participants, state, result);
+
+    const collectionTitle = byId('seisan-collection-title');
+    if (collectionTitle) collectionTitle.textContent = `集金（${yen(result.perPerson || 0)}）`;
 
     const driverPayList = byId('seisan-driver-pay-list');
     if (driverPayList) driverPayList.innerHTML = renderSettlementDriverPayHtml(result, state);

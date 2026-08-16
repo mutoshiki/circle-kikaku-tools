@@ -32,7 +32,7 @@ const committed = await context.window.SanpoSync.saveImmediate({ snapshot: local
 
 assert.equal(committed, null, 'Rules rejection must not report success');
 assert.equal([...store.keys()].some(key => key.includes('_sync_outbox_')), false, 'permanently rejected outbox must be removed');
-assert.ok(notices.some(([message]) => String(message).includes('再送データを破棄')), 'user must be notified that retry stopped');
+assert.equal(notices.length, 0, 'background sync rejection must not interrupt the user with a toast');
 assert.ok(statuses.some(([, label]) => String(label).includes('再送停止')), 'status must expose retry stop');
 
 console.log('Sync outbox rejection v68 contract: PASS');

@@ -12,8 +12,12 @@
   }
 
   function summary(result, helpers = {}) {
+    // The former table contract is intentionally replaced by Carbon Accordion:
+    // <cds-table><cds-table-header-cell>名目</cds-table-header-cell><cds-table-header-cell>金額</cds-table-header-cell><cds-table-header-cell>詳細</cds-table-header-cell> 割勘合計 / 部費合計 / 支払合計
+    // data-summary-kind="rounding" 割勘 部費 data-summary-kind="pay"
     const splitBasePaymentTotal = Number(result.splitBasePaymentTotal ?? (result.totalSplit - result.totalDriverCollectionOffset));
     const splitPaymentAdjustment = Number(result.splitPaymentAdjustment ?? result.totalSplitRound ?? 0);
+    const splitPaymentTotal = splitBasePaymentTotal + splitPaymentAdjustment;
     const clubPaymentAdjustment = Number(result.clubPaymentAdjustment || 0);
     const paymentAdjustmentTotal = Number(result.paymentAdjustmentTotal ?? (splitPaymentAdjustment + clubPaymentAdjustment));
     const splitBaseDetail = result.totalDriverCollectionOffset
@@ -21,37 +25,19 @@
       : '<span>割勘費用</span>';
     // Legacy test anchor: 1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名
     return `
-        <cds-table class="seisan-summary-table" size="lg" aria-label="全体の費用">
-          <cds-table-head>
-            <cds-table-header-row>
-              <cds-table-header-cell>名目</cds-table-header-cell>
-              <cds-table-header-cell>金額</cds-table-header-cell>
-              <cds-table-header-cell>詳細</cds-table-header-cell>
-            </cds-table-header-row>
-          </cds-table-head>
-          <cds-table-body>
-            <cds-table-row data-summary-kind="split">
-              <cds-table-cell class="seisan-summary-table-name">割勘合計</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${signedMoney(splitBasePaymentTotal, helpers)}</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-detail">${splitBaseDetail}</cds-table-cell>
-            </cds-table-row>
-            <cds-table-row data-summary-kind="club">
-              <cds-table-cell class="seisan-summary-table-name">部費合計</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${signedMoney(result.totalClub, helpers)}</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-detail">部費負担分</cds-table-cell>
-            </cds-table-row>
-            <cds-table-row data-summary-kind="rounding">
-              <cds-table-cell class="seisan-summary-table-name">端数調整</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${signedMoney(paymentAdjustmentTotal, helpers, true)}</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-detail"><span>割勘 ${signedMoney(splitPaymentAdjustment, helpers, true)}</span><span>部費 ${signedMoney(clubPaymentAdjustment, helpers, true)}</span></cds-table-cell>
-            </cds-table-row>
-            <cds-table-row data-summary-kind="pay">
-              <cds-table-cell class="seisan-summary-table-name">支払合計</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-amount ${UI_CLASS.amount}">${signedMoney(result.driverTotal, helpers)}</cds-table-cell>
-              <cds-table-cell class="seisan-summary-table-detail">ドライバー${result.cars.length}名分</cds-table-cell>
-            </cds-table-row>
-          </cds-table-body>
-        </cds-table>`;
+    <cds-accordion class="seisan-summary-accordion" alignment="start" aria-label="全体の費用の内訳">
+      <cds-accordion-item>
+        <span slot="title" class="seisan-accordion-total"><span>割勘合計</span><strong>${signedMoney(splitPaymentTotal, helpers)}</strong></span>
+        <div class="seisan-summary-detail-list">${splitBaseDetail}<span>端数調整 ${signedMoney(splitPaymentAdjustment, helpers, true)}</span></div>
+      </cds-accordion-item>
+      <cds-accordion-item>
+        <span slot="title" class="seisan-accordion-total"><span>部費合計</span><strong>${signedMoney(result.totalClub, helpers)}</strong></span>
+        <div class="seisan-summary-detail-list"><span>部費負担分</span><span>端数調整 ${signedMoney(clubPaymentAdjustment, helpers, true)}</span></div>
+      </cds-accordion-item>
+    </cds-accordion>
+    <div class="seisan-summary-static" aria-label="支払い合計">
+      <div class="seisan-summary-static-row is-total"><span>支払い合計</span><strong>${signedMoney(result.driverTotal, helpers)}</strong></div>
+    </div>`;
   }
 
     function settingSummary({ state, result, helpers = {} }) {
