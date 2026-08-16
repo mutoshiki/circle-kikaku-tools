@@ -117,7 +117,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none', pa
         <div class="driver-seat" data-gender="${dg}" data-name="${safeName}" data-participant-id="${escapeHtml(participantId || '')}" data-grade="${dgrade || 0}" data-flag="${normalizePersonFlag(dflag)}">
             <div class="member-main-line driver-main-line">
                 <div class="driver-name-disp ">${safeName}</div>
-                <div class="person-meta">${renderPersonFlag(dflag)}${driverGenderHtml}${driverGradeHtml}</div>
+                <div class="person-meta"><cds-tag class="driver-role-tag carbon-display-tag" type="blue" size="sm">運転手</cds-tag>${renderPersonFlag(dflag)}${driverGenderHtml}${driverGradeHtml}</div>
                 ${renderPersonOverflowMenu({ name, isDriver: true })}
             </div>
             <div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${safeMemo}</div>

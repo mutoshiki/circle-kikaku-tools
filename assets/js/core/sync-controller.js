@@ -826,7 +826,6 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
             window.SanpoSyncDiagnostics?.record?.({
                 kind: 'rejected', message: '共有保存を拒否されたため再送を停止', paths: Object.keys(patch || {}), revision: Number(lastSyncedRevision || 0)
             });
-            window.showAppNotice?.('共有保存を拒否されました。古い再送データを破棄しました。アプリを更新して再確認してください。', true);
         }
         window.SanpoSyncDiagnostics?.record?.({
             kind: rejected ? 'rejected' : 'failed', message: rejected ? '共有保存を拒否、再送停止' : '共有データの保存に失敗', paths: Object.keys(patch || {}), revision: Number(lastSyncedRevision || 0)

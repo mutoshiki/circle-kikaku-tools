@@ -17,17 +17,8 @@
   }
 
   function formatCostBadge(type = 'split', label = '') {
-    const config = normalizeDisplayExtraType(type);
-    const defaultLabel = config.baseType === 'club'
-      ? (config.negative ? '部費−' : '部費')
-      : config.baseType === 'pay'
-        ? '支払い'
-        : (config.negative ? '割勘−' : '割勘');
-    const text = config.baseType === 'pay' && label === '支払' ? '支払' : (label || defaultLabel);
-    const paymentClass = config.baseType === 'pay' ? ' seisan-payment-tag' : '';
-    const negativeClass = config.negative ? ' is-negative' : '';
-    const tagAttributes = window.SanpoTagTypes?.attributes('cost', config.baseType, 'sm') || 'type="gray" size="sm"';
-    return `<cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge${paymentClass}${negativeClass} carbon-display-tag ${UI_CLASS.chip} ${config.baseType}" data-cost-type="${config.type}" ${tagAttributes}>${text}</cds-tag>`;
+    // Cost policy is conveyed by the row/accordion context, not a colored badge.
+    return '';
   }
 
   function formatPaymentBadge(label = '支払い') {
@@ -39,7 +30,7 @@
     return extras.map(ex => {
       const config = normalizeDisplayExtraType(ex.type);
       const amount = Number(ex.amountValue ?? ex.amount ?? 0);
-      return `<span class="seisan-extra-chip ${config.baseType}${config.negative ? ' is-negative' : ''}"><strong>${esc(ex.name || '費用', helpers)}</strong><b>${money(amount, helpers)}</b>${formatCostBadge(config.type)}</span>`;
+      return `<span class="seisan-extra-chip${config.negative ? ' is-negative' : ''}"><strong>${esc(ex.name || '費用', helpers)}</strong><b>${money(amount, helpers)}</b></span>`;
     }).join('');
   }
 
@@ -48,7 +39,7 @@
     return extras.map(ex => {
       const config = normalizeDisplayExtraType(ex.type);
       const amount = Number(ex.amountValue ?? ex.amount ?? 0);
-      return `<div class="seisan-extra-line ${config.baseType}${config.negative ? ' is-negative' : ''}"><span>${esc(ex.name || '費用', helpers)}</span><strong>${money(amount, helpers)}</strong>${formatCostBadge(config.type)}</div>`;
+      return `<div class="seisan-extra-line${config.negative ? ' is-negative' : ''}"><span>${esc(ex.name || '費用', helpers)}</span><strong>${money(amount, helpers)}</strong></div>`;
     }).join('');
   }
 
@@ -66,17 +57,17 @@
 
     function formatGasInline(calc, helpers = {}) {
     if (calc?.usesTimesRental) return '';
-    return `<span class="seisan-extra-inline seisan-cost-line seisan-cost-line--supporting seisan-extra-inline--gas split"><span>ガソリン代</span>${formatCostBadge('split')}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.gas || 0, helpers)}</strong></span>`;
+    return `<span class="seisan-extra-inline seisan-cost-line seisan-cost-line--supporting seisan-extra-inline--gas"><span>ガソリン代</span><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.gas || 0, helpers)}</strong></span>`;
   }
 
     function formatDriverCollectionOffsetInline(calc, helpers = {}) {
     if (!calc.collectionOffset) return '';
-    return { op: '−', html: `<span class="seisan-extra-inline seisan-cost-line seisan-cost-line--supporting seisan-extra-inline--offset" data-cost-type="offset"><span>集金</span><em class="seisan-cost-type-badge seisan-cost-type-badge--spacer" aria-hidden="true">割勘</em><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.collectionOffset, helpers)}</strong></span>` };
+    return { op: '−', html: `<span class="seisan-extra-inline seisan-cost-line seisan-cost-line--supporting seisan-extra-inline--offset" data-cost-type="offset"><span>集金</span><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.collectionOffset, helpers)}</strong></span>` };
   }
 
     function formatDriverRoundInline(calc, helpers = {}) {
     if (!calc.driverRound) return '';
-    return { op: '＋', html: `<span class="seisan-extra-inline seisan-cost-line seisan-cost-line--supporting seisan-extra-inline--rounding split" data-cost-type="rounding"><span>端数処理分</span>${formatCostBadge('split')}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.driverRound, helpers)}</strong></span>` };
+    return { op: '＋', html: `<span class="seisan-extra-inline seisan-cost-line seisan-cost-line--supporting seisan-extra-inline--rounding" data-cost-type="rounding"><span>端数処理分</span><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.driverRound, helpers)}</strong></span>` };
   }
 
     function isRewardExtraForDisplay(ex = {}) {
@@ -108,7 +99,7 @@
     const negativeClass = isMinus ? ' is-negative' : '';
     return {
       op: isMinus ? '−' : '＋',
-      html: `<span class="seisan-extra-inline seisan-cost-line ${config.baseType}${negativeClass}${rewardClass}${supportingClass}"><span>${esc(ex.name || '費用', helpers)}</span>${formatCostBadge(config.type)}<strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(amount, helpers)}</strong></span>`
+      html: `<span class="seisan-extra-inline seisan-cost-line${negativeClass}${rewardClass}${supportingClass}"><span>${esc(ex.name || '費用', helpers)}</span><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(amount, helpers)}</strong></span>`
     };
   }
 
@@ -144,7 +135,7 @@
 
     function formatPaymentTotalRow(calc, helpers = {}) {
     const amount = calc.adjustedTotalPay ?? calc.totalPay ?? 0;
-    return `<div class="seisan-car-summary-payment seisan-cost-total-row" aria-label="車主への支払い金額"><span class="seisan-cost-total-label">合計</span>${formatPaymentBadge('支払')}<strong class="seisan-car-summary-total ${UI_CLASS.amount}"><span class="seisan-amount-sign" aria-hidden="true">＝</span>${money(amount, helpers)}</strong></div>`;
+    return `<div class="seisan-car-summary-payment seisan-cost-total-row" aria-label="車主への支払い金額"><span class="seisan-cost-total-label">合計</span><strong class="seisan-car-summary-total ${UI_CLASS.amount}"><span class="seisan-amount-sign" aria-hidden="true">＝</span>${money(amount, helpers)}</strong></div>`;
   }
 
   

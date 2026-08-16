@@ -147,10 +147,6 @@ function refreshSettlementCollectionStatus(encodedName, name, checked, state) {
 
     const data = getRoomDataOnly();
     const result = calculateSettlement(data, state);
-    const note = byId('seisan-collection-note');
-    if (note) {
-        note.innerHTML = `<span class="seisan-collection-note-left"><span>集金済み ${result.paidCount}/${result.payerCount}名</span><span>未回収 ${yen(result.unpaidAmount)}</span></span><span class="seisan-collection-per-person"><span class="seisan-collection-per-person-label">1人あたり /</span><strong class="seisan-collection-per-person-amount">${yen(result.perPerson)}</strong></span>`;
-    }
     const sharePreview = byId('seisan-share-preview');
     if (sharePreview && typeof buildSettlementOverviewText === 'function') {
         sharePreview.textContent = buildSettlementOverviewText({
