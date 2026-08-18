@@ -1,9 +1,9 @@
-/* Header actions and three primary destinations. */
+/* Header actions and primary in-page view navigation. */
 .header-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
+  gap: 0;
   min-width: 0;
   --header-action-size: 48px;
   --header-icon-size: 20px;
@@ -67,48 +67,54 @@ cds-icon-button.header-action.is-partial-lock {
   color: var(--text-main);
 }
 
+/*
+ * Primary destinations are related views inside one product context.
+ * Treat them like Carbon line tabs: inline, auto-width, and directly below
+ * the shell header. They are intentionally not viewport-fixed navigation.
+ */
 #app-view-navigation {
-  position: fixed;
-  z-index: var(--z-bottom-navigation);
-  right: 0;
-  bottom: 0;
-  left: 0;
+  position: relative;
+  z-index: var(--z-view-navigation);
+  order: 1;
+  flex: 0 0 auto;
   box-sizing: border-box;
   display: flex;
   justify-content: center;
   width: 100%;
   min-width: 0;
-  padding: 0 max(env(safe-area-inset-right), 0px) env(safe-area-inset-bottom) max(env(safe-area-inset-left), 0px);
-  border-top: 1px solid var(--cds-border-subtle, var(--border-section));
-  background: var(--cds-layer-01, var(--surface-lowest));
+  min-height: var(--view-navigation-height);
+  padding-inline: max(16px, env(safe-area-inset-left));
+  border: 0;
+  border-bottom: 1px solid var(--cds-border-subtle, var(--border-section));
+  background: var(--cds-background, var(--surface-lowest));
   box-shadow: none;
 }
 
 #view-toggle-bar {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  width: min(560px, 100%);
-  min-height: var(--bottom-navigation-height);
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  width: min(var(--layout-content-max, 1200px), 100%);
+  min-width: 0;
+  min-height: var(--view-navigation-height);
   margin: 0 auto;
   padding: 0;
   border: 0;
-  border-radius: 0;
   background: transparent;
-  box-shadow: none;
 }
 
 .view-tab {
   position: relative;
   appearance: none;
-  display: grid;
-  grid-template-rows: 24px auto;
-  place-items: center;
-  align-content: center;
-  gap: 2px;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   min-width: 0;
-  min-height: var(--bottom-navigation-height);
+  min-height: var(--view-navigation-height);
   margin: 0;
-  padding: 6px 8px 5px;
+  padding: 0 16px;
   border: 0;
   background: transparent;
   color: var(--cds-text-secondary, var(--text-sub));
@@ -117,21 +123,31 @@ cds-icon-button.header-action.is-partial-lock {
   -webkit-tap-highlight-color: transparent;
 }
 
-.view-tab:hover { background: var(--cds-layer-hover-01, var(--surface-hover)); color: var(--cds-text-primary, var(--text-main)); }
-.view-tab:active { background: var(--cds-layer-active-01, var(--surface-container)); }
+.view-tab:hover {
+  background: var(--cds-background-hover, var(--surface-hover));
+  color: var(--cds-text-primary, var(--text-main));
+}
+
+.view-tab:active { background: var(--cds-background-active, var(--surface-container)); }
 .view-tab:focus-visible { outline: 2px solid var(--cds-focus, var(--focus-accent)); outline-offset: -2px; }
-.view-tab[aria-current="page"] { color: var(--cds-link-primary, var(--app-accent-text)); }
-.view-tab[aria-current="page"]::before {
+.view-tab[aria-current="page"] { color: var(--cds-text-primary, var(--text-main)); }
+
+.view-tab[aria-current="page"]::after {
   content: "";
   position: absolute;
-  top: 0;
-  right: 12px;
-  left: 12px;
+  right: 0;
+  bottom: 0;
+  left: 0;
   height: 2px;
   background: var(--cds-border-interactive, var(--app-accent-border));
 }
+
 .view-tab-icon,
-.view-tab-icon.carbon-icon { width: 20px; height: 20px; color: currentColor; }
+.view-tab-icon.carbon-icon {
+  width: 16px;
+  height: 16px;
+  color: currentColor;
+}
 
 .view-tab-label {
   display: inline-flex;
@@ -139,14 +155,18 @@ cds-icon-button.header-action.is-partial-lock {
   align-items: center;
   justify-content: center;
   color: currentColor;
-  font-size: var(--font-size-caption);
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: var(--font-size-body);
+  font-weight: 400;
+  line-height: 1.2857;
   text-align: center;
   white-space: nowrap;
 }
 
 @media (max-width: 640px) {
-  .header-actions { gap: 0; --header-action-size: 48px; --header-icon-size: 20px; }
-  #view-toggle-bar { width: 100%; }
+  #app-view-navigation { padding-inline: 0; }
+  #view-toggle-bar { width: 100%; overflow-x: auto; scrollbar-width: none; }
+  #view-toggle-bar::-webkit-scrollbar { display: none; }
+  .view-tab { padding-inline: 16px; }
+  .view-tab-icon,
+  .view-tab-icon.carbon-icon { display: none; }
 }
