@@ -6,6 +6,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     await page.goto('/');
     await page.waitForFunction(() => customElements.get('cds-button'));
     await page.evaluate(() => window.executeDebugMode?.());
+    await page.evaluate(() => window.switchView('list'));
 
     const shellGeometry = await page.evaluate(() => {
       const header = document.querySelector('#app-header');
