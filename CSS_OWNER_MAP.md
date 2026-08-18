@@ -12,8 +12,7 @@
 | Shared layer, empty-state and feedback surfaces | `assets/css/components/surfaces/` and `assets/css/components/feedback/` |
 | Header shell and layout | `assets/css/app-shell/header/01-header-base.css` |
 | Room title and sync status | `assets/css/app-shell/header/02-room-status.css` |
-| Header Carbon actions | `assets/css/app-shell/header/03-tabs-actions.css` |
-| Bottom Carbon Content Switcher navigation | `assets/css/app-shell/layout/03-bottom-navigation.css` |
+| Header Carbon actions and primary view tabs | `assets/css/app-shell/header/03-tabs-actions.css` |
 | App panels, safe areas and layer order | `assets/css/app-shell/layout/` |
 | Carbon modal shell and dynamic dialog lifecycle | `assets/css/guides-modals/modal/` and `assets/js/core/modal-controller.js` |
 | Header overflow and local Carbon menus | `assets/css/guides-modals/modal/02-dropdowns.css` and feature owners |

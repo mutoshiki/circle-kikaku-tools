@@ -28,18 +28,28 @@
   display: flex;
   flex-direction: column;
   height: 100dvh;
+  min-height: 0;
   background: var(--bg-body);
 }
 
+#top-area,
+#sheet-view-area,
+#seisan-view-area {
+  order: 2;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 #top-area {
-  flex: 1;
   overflow-y: auto;
-  padding: 16px max(16px, env(safe-area-inset-right)) calc(var(--bottom-navigation-clearance) + 36px) max(16px, env(safe-area-inset-left));
+  padding: 16px max(16px, env(safe-area-inset-right)) 36px max(16px, env(safe-area-inset-left));
   -webkit-overflow-scrolling: touch;
   position: relative;
   z-index: var(--z-local-popover);
   background-color: transparent;
 }
+
+#bottom-tray { order: 3; }
 
 @media (min-width: 769px) {
   .edit-header { grid-template-columns: minmax(220px, 1fr) minmax(340px, 1.2fr); }
