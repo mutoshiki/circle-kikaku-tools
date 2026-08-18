@@ -6,6 +6,30 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     await page.goto('/');
     await page.waitForFunction(() => customElements.get('cds-button'));
     await page.evaluate(() => window.executeDebugMode?.());
+
+    const shellGeometry = await page.evaluate(() => {
+      const header = document.querySelector('#app-header');
+      const nav = document.querySelector('#app-view-navigation');
+      const firstView = document.querySelector('#top-area');
+      const headerRect = header.getBoundingClientRect();
+      const navRect = nav.getBoundingClientRect();
+      const firstViewRect = firstView.getBoundingClientRect();
+      return {
+        navPosition: getComputedStyle(nav).position,
+        headerBottom: headerRect.bottom,
+        navTop: navRect.top,
+        navBottom: navRect.bottom,
+        firstViewTop: firstViewRect.top,
+        navHeight: navRect.height,
+      };
+    });
+
+    expect(shellGeometry.navPosition).not.toBe('fixed');
+    expect(Math.abs(shellGeometry.navTop - shellGeometry.headerBottom)).toBeLessThanOrEqual(1);
+    expect(shellGeometry.navHeight).toBeGreaterThanOrEqual(47);
+    expect(shellGeometry.navHeight).toBeLessThanOrEqual(49);
+    expect(shellGeometry.firstViewTop).toBeGreaterThanOrEqual(shellGeometry.navBottom - 1);
+
     for (const theme of ['light', 'dark']) {
       await page.evaluate(next => window.SanpoTheme.applyTheme(next), theme);
       for (const view of ['list', 'sheet', 'seisan']) {
