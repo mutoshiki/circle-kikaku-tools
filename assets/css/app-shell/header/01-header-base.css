@@ -4,6 +4,7 @@
   z-index: var(--z-header);
   display: grid;
   flex: 0 0 auto;
+  order: 0;
   gap: 0;
   width: 100%;
   min-width: 0;
@@ -24,9 +25,9 @@
   width: 100%;
   max-width: var(--layout-content-max, 1200px);
   min-width: 0;
-  min-height: 64px;
+  min-height: 48px;
   margin-inline: auto;
-  padding: var(--app-header-main-padding, 8px 16px);
+  padding: var(--app-header-main-padding, 0 16px);
   background: transparent;
 }
 
@@ -44,7 +45,7 @@
 
 @media (max-width: 640px) {
   :root {
-    --app-header-main-gap: 6px;
-    --app-header-main-padding: 8px 10px 6px 16px;
+    --app-header-main-gap: 4px;
+    --app-header-main-padding: 0 8px 0 16px;
   }
 }
