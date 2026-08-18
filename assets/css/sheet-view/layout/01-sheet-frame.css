@@ -54,7 +54,7 @@
   width: max-content;
   min-width: 100%;
   min-height: 100%;
-  padding: 100px 12px calc(var(--bottom-navigation-clearance) + 32px);
+  padding: 100px 12px 32px;
   transform-origin: top left;
 }
 
