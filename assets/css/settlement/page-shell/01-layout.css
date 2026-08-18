@@ -8,8 +8,8 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 16px max(16px, env(safe-area-inset-right)) calc(var(--bottom-navigation-clearance) + 56px) max(16px, env(safe-area-inset-left));
-  scroll-padding-bottom: calc(var(--bottom-navigation-clearance) + 56px);
+  padding: 16px max(16px, env(safe-area-inset-right)) 56px max(16px, env(safe-area-inset-left));
+  scroll-padding-bottom: 56px;
   background: var(--bg-body);
 }
 
@@ -101,8 +101,8 @@
 
 @media (max-width: 640px) {
   #seisan-view-area {
-    padding: 12px 12px calc(var(--bottom-navigation-clearance) + 64px);
-    scroll-padding-bottom: calc(var(--bottom-navigation-clearance) + 64px);
+    padding: 12px 12px 64px;
+    scroll-padding-bottom: 64px;
   }
   .seisan-wrap { gap: var(--section-gap-mobile); }
   .seisan-card,
