@@ -2,7 +2,7 @@
  * only the grid; Carbon Web Components own field visuals and interaction states. */
 #settlementCarEditModal .seisan-extra-list {
   display: grid;
-  gap: 8px;
+  gap: var(--space-2);
   border: 0;
 }
 
@@ -10,7 +10,7 @@
   display: grid;
   grid-template-columns: minmax(72px, 1fr) 72px 112px 48px;
   align-items: start;
-  gap: 4px;
+  gap: var(--space-1);
   min-width: 0;
   padding: 0;
   border: 0;
@@ -20,14 +20,14 @@
 #settlementCarEditModal .seisan-extra-field {
   display: grid;
   align-content: start;
-  gap: 5px;
+  gap: var(--space-1);
   min-width: 0;
 }
 
 #settlementCarEditModal .seisan-extra-field-label {
   min-width: 0;
   overflow: hidden;
-  color: var(--text-sub);
+  color: var(--cds-text-secondary, var(--text-sub));
   font-size: var(--font-size-caption);
   font-weight: 600;
   line-height: 1.2;
@@ -37,6 +37,8 @@
 
 #settlementCarEditModal .seisan-extra-field :is(cds-text-input, cds-number-input, cds-select) {
   --cds-field: var(--cds-field-01);
+  --cds-text-primary: var(--text-main);
+  --cds-icon-primary: var(--text-main);
   box-sizing: border-box;
   display: block;
   width: 100%;
@@ -68,21 +70,14 @@
   --cds-layout-density-padding-inline-condensed: 0.5rem;
 }
 
-#settlementCarEditModal .seisan-extra-field--type.split { color: var(--settlement-split-ink); }
-#settlementCarEditModal .seisan-extra-field--type.club { color: var(--settlement-club-ink); }
-#settlementCarEditModal .seisan-extra-field--type.split .seisan-extra-field-label { color: var(--settlement-split-ink); }
-#settlementCarEditModal .seisan-extra-field--type.club .seisan-extra-field-label { color: var(--settlement-club-ink); }
-
-#settlementCarEditModal .seisan-extra-field--type.split cds-select {
-  --cds-field: var(--settlement-split-bg);
-  --cds-text-primary: var(--settlement-split-ink);
-  --cds-icon-primary: var(--settlement-split-ink);
-}
-
-#settlementCarEditModal .seisan-extra-field--type.club cds-select {
-  --cds-field: var(--settlement-club-bg);
-  --cds-text-primary: var(--settlement-club-ink);
-  --cds-icon-primary: var(--settlement-club-ink);
+/* split/club classes are state hooks used by the settlement logic. They do not
+ * create a second color system: burden is conveyed by the selected text itself. */
+#settlementCarEditModal .seisan-extra-field--type :is(cds-select),
+#settlementCarEditModal .seisan-extra-field--type.split :is(cds-select),
+#settlementCarEditModal .seisan-extra-field--type.club :is(cds-select) {
+  --cds-field: var(--cds-field-01);
+  --cds-text-primary: var(--text-main);
+  --cds-icon-primary: var(--text-main);
 }
 
 #settlementCarEditModal .seisan-extra-row .seisan-icon-btn {
@@ -92,9 +87,8 @@
   height: 48px;
 }
 
-
 #settlementCarEditModal .seisan-extra-row--labeled > .seisan-icon-btn {
-  margin-top: calc(0.68rem * 1.2 + 5px);
+  margin-top: calc(var(--font-size-caption) * 1.2 + var(--space-1));
 }
 
 /* Carbon validation text belongs to the field, but every control in the row
@@ -106,7 +100,7 @@
 #settlementCarEditModal .seisan-add-row {
   display: flex;
   justify-content: flex-end;
-  margin-top: 10px;
+  margin-top: var(--space-3);
 }
 
 #settlementCarEditModal .seisan-add-row .seisan-btn {
