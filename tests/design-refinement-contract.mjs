@@ -37,8 +37,8 @@ const carCostCard = await read('assets/css/settlement/car-cost-summary/01-car-co
 
 expect(index.includes('rendered-qa-v26'), 'Changed design owners need the v26 cache-buster.');
 expect(header.includes('cds-icon-button.header-action'), 'Header Carbon icon-button hosts need an explicit neutral utility contract.');
-expect(header.includes('#shareLinkBtn.header-action'), 'Only the explicit share action should retain the link accent.');
-expect(header.includes('--cds-icon-primary: var(--text-main);'), 'Routine header utilities must use neutral Carbon icon color.');
+expect(header.includes('#shareLinkBtn.header-action'), 'Share action needs an explicit shell-action contract.');
+expect(header.includes('--cds-icon-primary: #f4f4f4;'), 'Persistent g100 header utilities must use Carbon Gray 10 foreground.');
 expect(personMenu.includes('--cds-link-primary: var(--text-sub);'), 'Person overflow triggers must stay neutral rather than inherit the blue link token.');
 expect(room.includes('#appUndoBar cds-button'), 'Undo action must style the official Carbon button host.');
 expect(cards.includes('background: var(--cds-layer-02, var(--surface-low));'), 'Person cards should use a Carbon layer instead of a nested outline.');

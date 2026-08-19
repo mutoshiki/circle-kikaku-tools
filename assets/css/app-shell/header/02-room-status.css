@@ -1,45 +1,58 @@
-/* Project identity plus persistent save feedback. */
+/* The header now presents the product identity. The room-name field remains in
+ * the DOM only as a persistence compatibility input and is not user-facing. */
 .app-room-control {
   position: relative;
   display: flex;
   flex: 1 1 auto;
   align-items: center;
-  gap: 10px;
   min-width: 0;
 }
 
 .app-room-field {
-  display: grid;
-  flex: 1 1 auto;
+  position: absolute;
+  inset: 0;
   min-width: 0;
-  gap: 1px;
+  visibility: hidden;
+  pointer-events: none;
 }
 
-.app-room-kicker {
-  display: block;
-  color: var(--text-sub);
-  font-size: var(--font-size-caption);
-  font-weight: 400;
-  line-height: 1.3333;
-}
+.app-room-kicker { display: none; }
 
 .app-room-input {
-  --cds-field: var(--cds-field-01);
   width: 100%;
   min-width: 0;
   min-height: 48px;
-  padding: 0;
-  border: 0;
-  background: var(--cds-field-01);
-  color: var(--text-main);
+  opacity: 0;
+  pointer-events: none;
 }
 
+/* Save/sync feedback stays available as a short-lived status announcement, but
+ * no longer occupies a permanent slot in the Carbon shell. */
 .sync-status-badge {
-  flex: 0 0 auto;
-  max-width: 132px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: calc(100% - 16px);
   min-height: 24px;
   overflow: hidden;
-  --cds-layer: var(--cds-layer-01);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -50%) translateY(-2px);
+  transition: opacity var(--motion-fast) ease, transform var(--motion-fast) ease, visibility 0s linear var(--motion-fast);
+  --cds-layer: #393939;
+}
+
+.sync-status-badge.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%);
+  transition-delay: 0s;
 }
 
 .sync-status-label {
@@ -82,32 +95,34 @@
 }
 
 @media (max-width: 640px) {
+  /* Preserve the short-lived compact sync pill on phones while the old room
+   * field itself remains visually absent from the shell. */
   .sync-status-badge {
-    position: absolute;
-    top: calc(50% + 9px);
-    left: 50%;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     width: fit-content;
-    max-width: calc(100% - 20px);
-    min-height: 24px;
-    pointer-events: none;
-    opacity: 0;
-    visibility: hidden;
-    transform: translate(-50%, -50%) translateY(-2px);
-    transition: opacity var(--motion-fast) ease, transform var(--motion-fast) ease, visibility 0s linear var(--motion-fast);
+    max-width: calc(100% - 16px);
   }
+
   .sync-status-badge.is-visible {
     opacity: 1;
     visibility: visible;
-    transform: translate(-50%, -50%);
-    transition-delay: 0s;
   }
-  .app-room-input { font-size: 1rem; }
 }
 
 @media (max-width: 520px) {
   #appUndoBar { width: calc(100vw - 24px); justify-content: space-between; }
+}
+
+@media (max-width: 360px) {
+  /* At very narrow widths the product title and two 48px shell actions should
+   * never compete with transient status text. Keep the same status component,
+   * but float it immediately below the two-row shell until it dismisses. */
+  .sync-status-badge {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 104px);
+    left: 50%;
+    max-width: calc(100vw - 24px);
+    transform: translate(-50%, -2px);
+  }
+
+  .sync-status-badge.is-visible { transform: translate(-50%, 0); }
 }

@@ -1,21 +1,7 @@
-/* Compatibility rules for shared/header presentation that have not yet moved to
- * their canonical owners. Settlement presentation must live in settlement
- * page-shell, summary, controls, car-inputs, checklists and car-cost-summary. */
-#app-header .app-header-main { min-height: 48px; padding-block: 2px; }
-#app-header .app-room-control { gap: 6px; }
-#app-header .app-room-input { min-height: 40px; }
-#app-header .sync-status-badge { min-height: 20px; }
-
-/* Keep every header action in the same neutral Carbon ghost treatment. */
-#shareLinkBtn.header-action {
-  --cds-icon-primary: var(--text-main);
-  --cds-link-primary: var(--text-main);
-  color: var(--text-main);
-}
-
-@media (max-width: 640px) {
-  #app-header .app-header-main { padding-inline: 10px; }
-}
+/* Compatibility rules that have not yet moved to their canonical owners.
+ * Header presentation now lives entirely in app-shell/header/. Settlement
+ * presentation lives in its page-shell, summary, controls, car-inputs,
+ * checklists and car-cost-summary owners. */
 
 /* Shared view: a compact Carbon information bar with a dedicated action column. */
 #sheet-title-bar {

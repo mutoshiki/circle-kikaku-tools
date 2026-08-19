@@ -1,4 +1,4 @@
-/* Header actions and primary in-page view navigation. */
+/* Carbon shell actions and primary in-page navigation. */
 .header-actions {
   display: flex;
   align-items: center;
@@ -7,9 +7,9 @@
   min-width: 0;
   --header-action-size: 48px;
   --header-icon-size: 20px;
-  --cds-icon-primary: var(--text-main);
-  --cds-link-primary: var(--text-main);
-  --cds-link-primary-hover: var(--text-main);
+  --cds-icon-primary: #f4f4f4;
+  --cds-link-primary: #f4f4f4;
+  --cds-link-primary-hover: #f4f4f4;
 }
 
 .header-more { display: flex; flex: 0 0 auto; align-items: center; }
@@ -23,15 +23,15 @@
   min-width: var(--header-action-size);
   height: var(--header-action-size);
   min-height: var(--header-action-size);
-  color: var(--text-main);
+  color: #f4f4f4;
 }
 
 cds-icon-button.header-action,
 cds-overflow-menu.header-action {
-  --cds-icon-primary: var(--text-main);
-  --cds-link-primary: var(--text-main);
-  --cds-link-primary-hover: var(--text-main);
-  color: var(--text-main);
+  --cds-icon-primary: #f4f4f4;
+  --cds-link-primary: #f4f4f4;
+  --cds-link-primary-hover: #f4f4f4;
+  color: #f4f4f4;
 }
 
 .header-action > span:not([slot]),
@@ -47,31 +47,51 @@ cds-overflow-menu.header-action {
   text-align: center;
 }
 
+/* The share-link action occupies the same shell action slot as Search in the
+ * Carbon reference header. It intentionally uses the neutral shell icon color. */
 #shareLinkBtn.header-action {
-  --cds-icon-primary: var(--app-accent-text);
-  --cds-link-primary: var(--app-accent-text);
-  --cds-link-primary-hover: var(--app-accent-text-hover);
-  color: var(--app-accent-text);
+  --cds-icon-primary: #f4f4f4;
+  --cds-link-primary: #f4f4f4;
+  --cds-link-primary-hover: #f4f4f4;
+  color: #f4f4f4;
 }
 
-cds-icon-button.header-action.is-locked,
-#editLockBtn.header-action.is-locked,
-cds-icon-button.header-action.is-partial-lock {
-  --cds-icon-primary: var(--app-accent-text);
-  --cds-link-primary: var(--app-accent-text);
-  --cds-link-primary-hover: var(--app-accent-text-hover);
-  color: var(--app-accent-text);
+.header-action:hover,
+#shareLinkBtn.header-action:hover { color: #f4f4f4; }
+
+/* Carbon's app switcher is a 3x3 point grid. The trigger itself remains the
+ * official Carbon Overflow Menu; the nine points are CSS, not an image asset. */
+.app-switcher-glyph {
+  position: relative;
+  display: block;
+  width: 20px;
+  height: 20px;
+  color: #f4f4f4;
 }
 
-.header-action:not(#shareLinkBtn):not(.is-locked):not(.is-partial-lock):hover {
-  color: var(--text-main);
+.app-switcher-glyph::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 3px;
+  height: 3px;
+  background: currentColor;
+  box-shadow:
+    7px 0 currentColor,
+    14px 0 currentColor,
+    0 7px currentColor,
+    7px 7px currentColor,
+    14px 7px currentColor,
+    0 14px currentColor,
+    7px 14px currentColor,
+    14px 14px currentColor;
 }
 
-/*
- * Primary destinations are related views inside one product context.
- * Treat them like Carbon line tabs: inline, auto-width, and directly below
- * the shell header. They are intentionally not viewport-fixed navigation.
- */
+.header-app-switcher { --cds-icon-primary: #f4f4f4; }
+
+/* Carbon documentation uses a g100 shell with a black secondary navigation,
+ * Gray 80 selected surface, and Blue 60 top indicator. */
 #app-view-navigation {
   position: relative;
   z-index: var(--z-view-navigation);
@@ -79,28 +99,35 @@ cds-icon-button.header-action.is-partial-lock {
   flex: 0 0 auto;
   box-sizing: border-box;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
   min-width: 0;
   min-height: var(--view-navigation-height);
-  padding-inline: max(16px, env(safe-area-inset-left));
+  padding: 0;
   border: 0;
-  border-bottom: 1px solid var(--cds-border-subtle, var(--border-section));
-  background: var(--cds-background, var(--surface-lowest));
+  border-bottom: 1px solid #393939;
+  background: #000000;
   box-shadow: none;
+  --cds-background: #000000;
+  --cds-background-hover: #262626;
+  --cds-background-active: #393939;
+  --cds-text-primary: #f4f4f4;
+  --cds-text-secondary: #c6c6c6;
+  --cds-border-interactive: #0f62fe;
+  --cds-focus: #0f62fe;
 }
 
 #view-toggle-bar {
   display: flex;
   align-items: stretch;
   justify-content: flex-start;
-  width: min(var(--layout-content-max, 1200px), 100%);
+  width: 100%;
   min-width: 0;
   min-height: var(--view-navigation-height);
-  margin: 0 auto;
+  margin: 0;
   padding: 0;
   border: 0;
-  background: transparent;
+  background: #000000;
 }
 
 .view-tab {
@@ -110,44 +137,48 @@ cds-icon-button.header-action.is-partial-lock {
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-width: 0;
+  gap: 6px;
+  min-width: 128px;
   min-height: var(--view-navigation-height);
   margin: 0;
-  padding: 0 16px;
+  padding: 0 32px;
   border: 0;
-  background: transparent;
-  color: var(--cds-text-secondary, var(--text-sub));
+  background: #000000;
+  color: #f4f4f4;
   cursor: pointer;
   font: inherit;
   -webkit-tap-highlight-color: transparent;
 }
 
 .view-tab:hover {
-  background: var(--cds-background-hover, var(--surface-hover));
-  color: var(--cds-text-primary, var(--text-main));
+  background: #262626;
+  color: #f4f4f4;
 }
 
-.view-tab:active { background: var(--cds-background-active, var(--surface-container)); }
-.view-tab:focus-visible { outline: 2px solid var(--cds-focus, var(--focus-accent)); outline-offset: -2px; }
-.view-tab[aria-current="page"] { color: var(--cds-text-primary, var(--text-main)); }
+.view-tab:active { background: #393939; }
+.view-tab:focus-visible { outline: 2px solid #0f62fe; outline-offset: -2px; }
 
-.view-tab[aria-current="page"]::after {
+.view-tab.active,
+.view-tab[aria-current="page"] {
+  background: #393939;
+  color: #f4f4f4;
+}
+
+.view-tab.active::before,
+.view-tab[aria-current="page"]::before {
   content: "";
   position: absolute;
+  top: 0;
   right: 0;
-  bottom: 0;
   left: 0;
-  height: 2px;
-  background: var(--cds-border-interactive, var(--app-accent-border));
+  height: 3px;
+  background: #0f62fe;
 }
 
+.view-tab::after { display: none; }
+
 .view-tab-icon,
-.view-tab-icon.carbon-icon {
-  width: 16px;
-  height: 16px;
-  color: currentColor;
-}
+.view-tab-icon.carbon-icon { display: none; }
 
 .view-tab-label {
   display: inline-flex;
@@ -162,11 +193,17 @@ cds-icon-button.header-action.is-partial-lock {
   white-space: nowrap;
 }
 
+/* The allocation mode switcher remains as a hidden compatibility control for
+ * existing state/event code. 車割 and 班割 are now first-class shell tabs. */
+#car-plan-switcher { display: none; }
+
 @media (max-width: 640px) {
-  #app-view-navigation { padding-inline: 0; }
-  #view-toggle-bar { width: 100%; overflow-x: auto; scrollbar-width: none; }
-  #view-toggle-bar::-webkit-scrollbar { display: none; }
-  .view-tab { padding-inline: 16px; }
-  .view-tab-icon,
-  .view-tab-icon.carbon-icon { display: none; }
+  #view-toggle-bar { overflow: hidden; }
+  .view-tab {
+    flex: 1 1 25%;
+    width: 25%;
+    min-width: 0;
+    padding-inline: 8px;
+  }
+  .view-tab-label { font-size: 0.875rem; }
 }

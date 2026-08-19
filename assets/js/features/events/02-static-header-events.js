@@ -2,6 +2,175 @@
 (function (global) {
     'use strict';
 
+    function createCarbonShellIconButton(id, label, iconName) {
+        const button = document.createElement('cds-icon-button');
+        button.id = id;
+        button.className = 'app-shell-menu-button';
+        button.kind = 'ghost';
+        button.size = 'lg';
+        button.type = 'button';
+        button.setAttribute('aria-label', label);
+        button.setAttribute('align', 'bottom-left');
+        const icon = document.createElement('span');
+        icon.slot = 'icon';
+        icon.dataset.carbonIcon = iconName;
+        icon.setAttribute('aria-hidden', 'true');
+        button.appendChild(icon);
+        return button;
+    }
+
+    function ensureCarbonShellHeader() {
+        const main = document.querySelector('#app-header .app-header-main');
+        const brand = main?.querySelector('.app-brand');
+        const actions = main?.querySelector('.header-actions');
+        if (!main || !brand || !actions) return;
+
+        let overviewButton = byId('overviewMenuBtn');
+        if (!overviewButton) {
+            overviewButton = createCarbonShellIconButton('overviewMenuBtn', 'メモ・タイムテーブルを開く', 'menu');
+            main.insertBefore(overviewButton, brand);
+        }
+
+        let title = brand.querySelector('.app-brand-title');
+        if (!title) {
+            title = document.createElement('span');
+            title.className = 'app-brand-title';
+            title.textContent = 'サークル企画ツール';
+            brand.prepend(title);
+        }
+
+        const roomField = brand.querySelector('.app-room-field');
+        roomField?.setAttribute('aria-hidden', 'true');
+        const roomInput = byId('roomNameInput');
+        if (roomInput) {
+            roomInput.tabIndex = -1;
+            roomInput.setAttribute('aria-hidden', 'true');
+        }
+
+        const headerMore = actions.querySelector('.header-more');
+        const overflow = headerMore?.querySelector('cds-overflow-menu');
+        const menu = overflow?.querySelector('cds-menu');
+        const share = byId('shareLinkBtn');
+
+        if (overflow) {
+            overflow.classList.add('header-app-switcher');
+            overflow.setAttribute('label', 'アプリメニュー');
+            overflow.setAttribute('aria-label', 'アプリメニュー');
+            overflow.setAttribute('align', 'bottom-end');
+            overflow.querySelector('[slot="icon"]')?.remove();
+            if (!overflow.querySelector('.app-switcher-glyph')) {
+                const glyph = document.createElement('span');
+                glyph.className = 'app-switcher-glyph';
+                glyph.slot = 'icon';
+                glyph.setAttribute('aria-hidden', 'true');
+                overflow.prepend(glyph);
+            }
+        }
+
+        if (menu) {
+            const guide = byId('userGuideBtn');
+            const sample = byId('sampleDataBtn');
+            const theme = byId('themeToggleBtn');
+            const currentLock = byId('editLockBtn');
+            let lockItem = currentLock?.tagName === 'CDS-MENU-ITEM' ? currentLock : null;
+            if (!lockItem) {
+                lockItem = document.createElement('cds-menu-item');
+                lockItem.id = 'editLockBtn';
+                lockItem.setAttribute('label', 'ロック');
+                lockItem.innerHTML = '<span data-carbon-icon="unlocked" data-state-icon="editLock" data-icon-state="unlocked" slot="render-icon" aria-hidden="true"></span>';
+                currentLock?.remove();
+            }
+            [guide, sample, theme, lockItem].filter(Boolean).forEach(item => menu.appendChild(item));
+        }
+
+        if (share && headerMore) actions.replaceChildren(share, headerMore);
+        global.SanpoCarbon?.renderCarbonIcons?.(main);
+    }
+
+    function readCurrentShellView() {
+        if (document.body.classList.contains('view-mode-sheet')) return 'sheet';
+        if (document.body.classList.contains('view-mode-seisan')) return 'seisan';
+        return 'list';
+    }
+
+    let syncingCarbonPrimaryNavigation = false;
+    function syncCarbonPrimaryNavigationState() {
+        if (syncingCarbonPrimaryNavigation) return;
+        syncingCarbonPrimaryNavigation = true;
+        try {
+            const view = typeof currentView !== 'undefined' ? currentView : readCurrentShellView();
+            const allocationType = document.body.dataset.activePlanTemplate === 'team' ? 'team' : 'car';
+            const states = [
+                ['tab-sheet', view === 'sheet'],
+                ['tab-seisan', view === 'seisan'],
+                ['tab-list', view === 'list' && allocationType === 'car'],
+                ['tab-team', view === 'list' && allocationType === 'team']
+            ];
+            states.forEach(([id, active]) => {
+                const tab = byId(id);
+                if (!tab) return;
+                tab.classList.toggle('active', active);
+                if (active) tab.setAttribute('aria-current', 'page');
+                else tab.removeAttribute('aria-current');
+            });
+
+            const carTab = byId('tab-list');
+            const teamTab = byId('tab-team');
+            const allocationLocked = !!carTab?.classList.contains('is-scope-locked');
+            const teamIndicator = teamTab?.querySelector('.view-tab-lock-indicator[data-lock-scope="allocation"]');
+            if (teamIndicator) teamIndicator.hidden = !allocationLocked;
+            teamTab?.classList.toggle('is-scope-locked', allocationLocked);
+            if (teamTab) teamTab.setAttribute('aria-label', allocationLocked ? '班割（ロック中）' : '班割');
+        } finally {
+            syncingCarbonPrimaryNavigation = false;
+        }
+    }
+
+    function setDestinationLabel(tab, text) {
+        if (!tab) return;
+        tab.querySelector('.view-tab-icon')?.remove();
+        const label = tab.querySelector('.view-tab-label');
+        if (!label) return;
+        const lockIndicator = label.querySelector('.view-tab-lock-indicator');
+        label.replaceChildren(document.createTextNode(text));
+        if (lockIndicator) label.appendChild(lockIndicator);
+    }
+
+    function ensureCarbonPrimaryNavigation() {
+        const bar = byId('view-toggle-bar');
+        if (!bar || bar.dataset.carbonFourViewNav === 'true') return;
+        const sheetTab = byId('tab-sheet');
+        const settlementTab = byId('tab-seisan');
+        const carTab = byId('tab-list');
+        if (!sheetTab || !settlementTab || !carTab) return;
+
+        const teamTab = carTab.cloneNode(true);
+        teamTab.id = 'tab-team';
+        teamTab.dataset.view = 'list';
+        teamTab.dataset.allocationType = 'team';
+        teamTab.classList.remove('active');
+        teamTab.removeAttribute('aria-current');
+        teamTab.setAttribute('aria-label', '班割');
+        carTab.dataset.allocationType = 'car';
+        carTab.setAttribute('aria-label', '車割');
+
+        setDestinationLabel(sheetTab, '共有画面');
+        setDestinationLabel(settlementTab, '精算');
+        setDestinationLabel(carTab, '車割');
+        setDestinationLabel(teamTab, '班割');
+        bar.replaceChildren(sheetTab, settlementTab, carTab, teamTab);
+        bar.dataset.carbonFourViewNav = 'true';
+        global.SanpoCarbon?.renderCarbonIcons?.(bar);
+        syncCarbonPrimaryNavigationState();
+
+        const observer = new MutationObserver(() => syncCarbonPrimaryNavigationState());
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class', 'data-active-plan-template'] });
+        observer.observe(carTab, { attributes: true, attributeFilter: ['class'] });
+        global.__carbonPrimaryNavigationObserver = observer;
+    }
+
+    global.syncCarbonPrimaryNavigationState = syncCarbonPrimaryNavigationState;
+
     function syncTimetableTextareaExpansion(host, forceActive = false) {
         if (!host?.matches?.('cds-textarea.overview-timetable-title-input')) return;
         const value = String(host.value || host.getAttribute('value') || '');
@@ -189,6 +358,8 @@
     }
 
     function setupStaticHeaderEvents() {
+        ensureCarbonShellHeader();
+        ensureCarbonPrimaryNavigation();
         setupOverviewMenuFields();
         const headerOverflow = document.querySelector('.header-more cds-overflow-menu');
         headerOverflow?.addEventListener('click', event => {
@@ -206,6 +377,8 @@
         bind('fillEmptySeatsBtn', () => autoAssign('fill'));
         bind('shuffleAssignBtn', () => autoAssign('shuffle'));
         bind('tray-handle', () => toggleTray());
+        global.updateEditLockButton?.();
+        syncCarbonPrimaryNavigationState();
     }
 
     global.SanpoOverview = Object.freeze({

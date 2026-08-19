@@ -54,10 +54,18 @@
         });
     }
 
+    async function openAllocationDestination(templateType) {
+        await switchView('list');
+        if (typeof currentView !== 'undefined' && currentView !== 'list') return;
+        if (typeof updateActiveCarPlanTemplate === 'function') updateActiveCarPlanTemplate(templateType);
+        global.syncCarbonPrimaryNavigationState?.();
+    }
+
     function setupViewAndFeatureEvents() {
-        bind('tab-list', () => switchView('list'));
         bind('tab-sheet', () => switchView('sheet'));
         bind('tab-seisan', () => switchView('seisan'));
+        bind('tab-list', () => openAllocationDestination('car'));
+        bind('tab-team', () => openAllocationDestination('team'));
         bind('batchOpenBtn', () => openBatchModal());
         bind('sheet-quick-edit-btn', () => toggleQuickEdit());
         bind('seisanRefreshBtn', () => renderSettlementView());
