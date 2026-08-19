@@ -111,3 +111,18 @@
 @media (max-width: 520px) {
   #appUndoBar { width: calc(100vw - 24px); justify-content: space-between; }
 }
+
+@media (max-width: 360px) {
+  /* At very narrow widths the product title and two 48px shell actions should
+   * never compete with transient status text. Keep the same status component,
+   * but float it immediately below the two-row shell until it dismisses. */
+  .sync-status-badge {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 104px);
+    left: 50%;
+    max-width: calc(100vw - 24px);
+    transform: translate(-50%, -2px);
+  }
+
+  .sync-status-badge.is-visible { transform: translate(-50%, 0); }
+}
