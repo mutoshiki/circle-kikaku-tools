@@ -14,5 +14,5 @@
 }
 
 .edit-header-tools-only { display: block; }
-.edit-header-tools-only .edit-tools { grid-template-columns: minmax(0, 1fr) auto; }
+.edit-header-tools-only .edit-tools:not(.allocation-toolbar-inner) { grid-template-columns: minmax(0, 1fr) auto; }
 .app-subtitle { display: none; }
