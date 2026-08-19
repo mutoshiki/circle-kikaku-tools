@@ -56,11 +56,13 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     await expect(page.locator('#tab-list')).toHaveAttribute('aria-current', 'page');
     expect(await page.evaluate(() => document.body.dataset.activePlanTemplate)).toBe('car');
 
-    await page.locator('.header-app-switcher').click();
-    await expect(page.locator('.header-app-switcher > cds-menu')).toBeVisible();
+    const appSwitcher = page.locator('.header-app-switcher');
+    await appSwitcher.click();
+    await expect(appSwitcher).toHaveJSProperty('open', true);
     const menuLabels = await page.locator('.header-app-switcher > cds-menu > cds-menu-item').evaluateAll(items => items.map(item => item.getAttribute('label')));
     expect(menuLabels).toEqual(['使い方', 'サンプルデータ', expect.any(String), 'ロック']);
     await page.keyboard.press('Escape');
+    await expect(appSwitcher).toHaveJSProperty('open', false);
 
     for (const theme of ['light', 'dark']) {
       await page.evaluate(next => window.SanpoTheme.applyTheme(next), theme);
