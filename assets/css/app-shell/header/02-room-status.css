@@ -1,45 +1,58 @@
-/* Project identity plus persistent save feedback. */
+/* The header now presents the product identity. The room-name field remains in
+ * the DOM only as a persistence compatibility input and is not user-facing. */
 .app-room-control {
   position: relative;
   display: flex;
   flex: 1 1 auto;
   align-items: center;
-  gap: 10px;
   min-width: 0;
 }
 
 .app-room-field {
-  display: grid;
-  flex: 1 1 auto;
+  position: absolute;
+  inset: 0;
   min-width: 0;
-  gap: 1px;
+  visibility: hidden;
+  pointer-events: none;
 }
 
-.app-room-kicker {
-  display: block;
-  color: var(--text-sub);
-  font-size: var(--font-size-caption);
-  font-weight: 400;
-  line-height: 1.3333;
-}
+.app-room-kicker { display: none; }
 
 .app-room-input {
-  --cds-field: var(--cds-field-01);
   width: 100%;
   min-width: 0;
   min-height: 48px;
-  padding: 0;
-  border: 0;
-  background: var(--cds-field-01);
-  color: var(--text-main);
+  opacity: 0;
+  pointer-events: none;
 }
 
+/* Save/sync feedback stays available as a short-lived status announcement, but
+ * no longer occupies a permanent slot in the Carbon shell. */
 .sync-status-badge {
-  flex: 0 0 auto;
-  max-width: 132px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: calc(100% - 16px);
   min-height: 24px;
   overflow: hidden;
-  --cds-layer: var(--cds-layer-01);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -50%) translateY(-2px);
+  transition: opacity var(--motion-fast) ease, transform var(--motion-fast) ease, visibility 0s linear var(--motion-fast);
+  --cds-layer: #393939;
+}
+
+.sync-status-badge.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%);
+  transition-delay: 0s;
 }
 
 .sync-status-label {
@@ -79,33 +92,6 @@
   --cds-button-ghost: transparent;
   --cds-button-ghost-hover: rgba(var(--white-rgb), 0.14);
   --cds-button-ghost-color: currentColor;
-}
-
-@media (max-width: 640px) {
-  .sync-status-badge {
-    position: absolute;
-    top: calc(50% + 9px);
-    left: 50%;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: fit-content;
-    max-width: calc(100% - 20px);
-    min-height: 24px;
-    pointer-events: none;
-    opacity: 0;
-    visibility: hidden;
-    transform: translate(-50%, -50%) translateY(-2px);
-    transition: opacity var(--motion-fast) ease, transform var(--motion-fast) ease, visibility 0s linear var(--motion-fast);
-  }
-  .sync-status-badge.is-visible {
-    opacity: 1;
-    visibility: visible;
-    transform: translate(-50%, -50%);
-    transition-delay: 0s;
-  }
-  .app-room-input { font-size: 1rem; }
 }
 
 @media (max-width: 520px) {
