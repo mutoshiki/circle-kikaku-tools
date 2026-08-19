@@ -1,114 +1,10 @@
-/* Carbon-first settlement presentation: structure and labels, never policy colors. */
+/* Compatibility rules for shared/header presentation that have not yet moved to
+ * their canonical owners. Settlement presentation must live in settlement
+ * page-shell, summary, controls, car-inputs, checklists and car-cost-summary. */
 #app-header .app-header-main { min-height: 48px; padding-block: 2px; }
 #app-header .app-room-control { gap: 6px; }
 #app-header .app-room-input { min-height: 40px; }
 #app-header .sync-status-badge { min-height: 20px; }
-
-#seisan-view-area .seisan-cost-category,
-#seisan-view-area .seisan-cost-policy-tag,
-#seisan-view-area .seisan-cost-type-badge,
-#seisan-view-area .seisan-payment-tag { display: none !important; }
-#seisan-view-area .seisan-extra-inline,
-#seisan-view-area .seisan-extra-chip {
-  border-color: transparent !important;
-  background: transparent !important;
-  color: var(--text-main) !important;
-  box-shadow: none !important;
-}
-#seisan-view-area .seisan-extra-inline.split,
-#seisan-view-area .seisan-extra-inline.club,
-#seisan-view-area .seisan-extra-inline.is-negative { border-color: transparent !important; }
-
-#seisan-view-area .seisan-car-accordion,
-#seisan-view-area .seisan-driver-accordion,
-#seisan-view-area .seisan-summary-accordion {
-  --cds-layout-size-height: 40px;
-  --cds-layout-density-padding-inline: 0;
-  display: block;
-  width: 100%;
-  border: 0;
-  background: transparent;
-}
-#seisan-view-area .seisan-car-accordion cds-accordion-item,
-#seisan-view-area .seisan-driver-accordion cds-accordion-item,
-#seisan-view-area .seisan-summary-accordion cds-accordion-item {
-  border-color: var(--cds-border-subtle, var(--border-section));
-}
-#seisan-view-area .seisan-car-accordion .seisan-cost-structured-list { margin-top: 2px; }
-#seisan-view-area .seisan-cost-structured-list--total { border-block-start: 1px solid var(--cds-border-strong, var(--border-strong)); }
-
-#seisan-view-area .seisan-accordion-total {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  width: 100%;
-  color: var(--text-main);
-  font-size: var(--font-size-label);
-  font-weight: 600;
-}
-#seisan-view-area .seisan-accordion-total strong {
-  font-size: 1rem;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-#seisan-view-area .seisan-summary-static { display: grid; }
-#seisan-view-area .seisan-summary-static-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  min-height: 44px;
-  padding: 10px 0;
-  color: var(--text-main);
-  border-block: 1px solid var(--cds-border-strong, var(--border-strong));
-}
-#seisan-view-area .seisan-summary-static-row strong { font-size: 1.125rem; font-variant-numeric: tabular-nums; }
-#seisan-view-area .seisan-summary-static-row.is-total { font-weight: 600; }
-#seisan-view-area .seisan-cost-structured-list--total .seisan-cost-amount strong { font-size: 1rem; font-weight: 600; }
-
-html[data-theme="dark"] .car-capacity-actions .capacity-edit-pill {
-  --cds-button-ghost: #393939;
-  --cds-button-ghost-hover: #474747;
-  --cds-button-ghost-color: #f4f4f4;
-  color: #f4f4f4;
-}
-html[data-theme="dark"] .car-capacity-actions .capacity-edit-pill::part(button) {
-  background: #393939;
-  color: #f4f4f4;
-}
-html[data-theme="dark"] .car-capacity-actions .capacity-edit-pill::part(button):hover { background: #474747; }
-#seisan-view-area .seisan-summary-detail-list {
-  display: grid;
-  gap: 4px;
-  padding: 4px 0 8px;
-  color: var(--text-sub);
-  font-size: var(--font-size-caption);
-}
-#seisan-view-area .seisan-summary-detail-list span { display: block; }
-
-#seisan-view-area .seisan-driver-accordion { grid-column: 1 / -1; }
-#seisan-view-area .seisan-driver-accordion cds-accordion-item { border-block-end: 0; }
-#seisan-view-area .seisan-driver-accordion .seisan-driver-detail-list { margin-top: 0; padding-top: 6px; border-top: 0; }
-
-/* A compact Carbon tile header keeps the car name, edit action, and payment state in one scan line. */
-#seisan-view-area .seisan-car-summary-headline {
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  grid-template-rows: auto;
-  gap: 8px;
-  min-height: 56px;
-  padding: 8px 12px;
-}
-#seisan-view-area .seisan-car-summary-headline .seisan-edit-btn { min-width: auto; }
-#seisan-view-area .seisan-car-payment-toggle {
-  grid-column: auto;
-  justify-self: end;
-  min-height: 0;
-  margin: 0;
-}
-#seisan-view-area .seisan-summary-accordion cds-accordion-item { border-block-start-color: var(--cds-border-subtle, var(--border-section)); }
-#seisan-view-area .seisan-summary-static-row { border-block-start: 0; }
 
 /* Keep every header action in the same neutral Carbon ghost treatment. */
 #shareLinkBtn.header-action {
@@ -119,7 +15,6 @@ html[data-theme="dark"] .car-capacity-actions .capacity-edit-pill::part(button):
 
 @media (max-width: 640px) {
   #app-header .app-header-main { padding-inline: 10px; }
-  #seisan-view-area .seisan-summary-static-row strong { font-size: 1rem; }
 }
 
 /* Shared view: a compact Carbon information bar with a dedicated action column. */
@@ -157,7 +52,6 @@ html[data-theme="dark"] .car-capacity-actions .capacity-edit-pill::part(button):
   min-height: 40px;
 }
 
-
 /* Carbon Gray 90/80/10 and Blue 90/20 keep compact tags readable in dark mode. */
 html[data-theme="dark"] {
   --cds-tag-background-blue: #001d6c;
@@ -191,5 +85,4 @@ html[data-theme="dark"] :is(.grade-badge, .sheet-capacity-badge) {
   .sheet-summary-row { gap: 1px 7px; font-size: 0.72rem; line-height: 1.35; }
   .sheet-summary-plan-label { min-height: 22px; padding-inline: 6px; }
   .sheet-content { padding-top: 100px; }
-  #seisan-view-area .seisan-car-summary-headline { gap: 6px; padding-inline: 10px; }
 }
