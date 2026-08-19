@@ -1,4 +1,4 @@
-/* App bar and destination navigation. */
+/* Carbon UI shell header: a persistent g100 shell zone in both app themes. */
 #app-header {
   position: relative;
   z-index: var(--z-header);
@@ -10,42 +10,77 @@
   min-width: 0;
   padding-top: env(safe-area-inset-top);
   border: 0;
-  border-bottom: 1px solid var(--border-section);
-  background: var(--surface-lowest);
+  border-bottom: 1px solid #393939;
+  background: #161616;
+  color: #f4f4f4;
   box-shadow: none;
   backdrop-filter: none;
+  --cds-background: #161616;
+  --cds-background-hover: #262626;
+  --cds-background-active: #393939;
+  --cds-layer: #262626;
+  --cds-layer-01: #262626;
+  --cds-layer-02: #393939;
+  --cds-text-primary: #f4f4f4;
+  --cds-text-secondary: #c6c6c6;
+  --cds-icon-primary: #f4f4f4;
+  --cds-icon-secondary: #c6c6c6;
+  --cds-border-subtle: #393939;
+  --cds-border-interactive: #0f62fe;
+  --cds-focus: #0f62fe;
 }
 
 .app-header-main {
-  display: var(--app-header-main-display, flex);
-  grid-template-columns: var(--app-header-main-columns, none);
+  display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--app-header-main-gap, var(--space-3));
+  justify-content: flex-start;
+  gap: 0;
   width: 100%;
-  max-width: var(--layout-content-max, 1200px);
+  max-width: none;
   min-width: 0;
   min-height: 48px;
-  margin-inline: auto;
-  padding: var(--app-header-main-padding, 0 16px);
-  background: transparent;
+  margin: 0;
+  padding: 0;
+  background: #161616;
+}
+
+.app-shell-menu-button {
+  flex: 0 0 48px;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  min-height: 48px;
+  color: #f4f4f4;
+  --cds-icon-primary: #f4f4f4;
 }
 
 .app-header-main > .app-brand {
+  display: flex;
   flex: 1 1 auto;
+  align-items: center;
   min-width: 0;
+  min-height: 48px;
+  padding-inline: 16px;
+}
+
+.app-brand-title {
+  min-width: 0;
+  overflow: hidden;
+  color: #f4f4f4;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.375;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-header-main > .header-actions {
   flex: 0 0 auto;
-  justify-content: var(--app-header-actions-justify, initial);
-  width: var(--app-header-actions-width, auto);
-  margin: var(--app-header-actions-margin, 0 0 0 auto);
+  width: auto;
+  margin: 0 0 0 auto;
 }
 
 @media (max-width: 640px) {
-  :root {
-    --app-header-main-gap: 4px;
-    --app-header-main-padding: 0 8px 0 16px;
-  }
+  .app-header-main > .app-brand { padding-inline: 12px; }
+  .app-brand-title { font-size: 1rem; }
 }
