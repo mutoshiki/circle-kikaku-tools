@@ -63,6 +63,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     expect(menuLabels).toEqual(['使い方', 'サンプルデータ', expect.any(String), 'ロック']);
     await page.keyboard.press('Escape');
     await expect(appSwitcher).toHaveJSProperty('open', false);
+    await expect(page.locator('#syncStatusBadge')).not.toHaveClass(/is-visible/, { timeout: 5000 });
 
     for (const theme of ['light', 'dark']) {
       await page.evaluate(next => window.SanpoTheme.applyTheme(next), theme);
