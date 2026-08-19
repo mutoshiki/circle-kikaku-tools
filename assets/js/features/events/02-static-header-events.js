@@ -126,30 +126,46 @@
         }
     }
 
+    function setDestinationLabel(tab, text) {
+        if (!tab) return;
+        tab.querySelector('.view-tab-icon')?.remove();
+        const label = tab.querySelector('.view-tab-label');
+        if (!label) return;
+        const lockIndicator = label.querySelector('.view-tab-lock-indicator');
+        label.replaceChildren(document.createTextNode(text));
+        if (lockIndicator) label.appendChild(lockIndicator);
+    }
+
     function ensureCarbonPrimaryNavigation() {
         const bar = byId('view-toggle-bar');
         if (!bar || bar.dataset.carbonFourViewNav === 'true') return;
+        const sheetTab = byId('tab-sheet');
+        const settlementTab = byId('tab-seisan');
+        const carTab = byId('tab-list');
+        if (!sheetTab || !settlementTab || !carTab) return;
+
+        const teamTab = carTab.cloneNode(true);
+        teamTab.id = 'tab-team';
+        teamTab.dataset.view = 'list';
+        teamTab.dataset.allocationType = 'team';
+        teamTab.classList.remove('active');
+        teamTab.removeAttribute('aria-current');
+        teamTab.setAttribute('aria-label', '班割');
+        carTab.dataset.allocationType = 'car';
+        carTab.setAttribute('aria-label', '車割');
+
+        setDestinationLabel(sheetTab, '共有画面');
+        setDestinationLabel(settlementTab, '精算');
+        setDestinationLabel(carTab, '車割');
+        setDestinationLabel(teamTab, '班割');
+        bar.replaceChildren(sheetTab, settlementTab, carTab, teamTab);
         bar.dataset.carbonFourViewNav = 'true';
-        bar.innerHTML = `
-          <button class="view-tab" id="tab-sheet" type="button" data-view="sheet" aria-label="共有画面">
-            <span class="view-tab-label">共有画面</span>
-          </button>
-          <button class="view-tab" id="tab-seisan" type="button" data-view="seisan" aria-label="精算">
-            <span class="view-tab-label">精算<span class="view-tab-lock-indicator" data-lock-scope="settlement" hidden aria-hidden="true"><span data-carbon-icon="locked" aria-hidden="true"></span></span></span>
-          </button>
-          <button class="view-tab" id="tab-list" type="button" data-view="list" data-allocation-type="car" aria-label="車割">
-            <span class="view-tab-label">車割<span class="view-tab-lock-indicator" data-lock-scope="allocation" hidden aria-hidden="true"><span data-carbon-icon="locked" aria-hidden="true"></span></span></span>
-          </button>
-          <button class="view-tab" id="tab-team" type="button" data-view="list" data-allocation-type="team" aria-label="班割">
-            <span class="view-tab-label">班割<span class="view-tab-lock-indicator" data-lock-scope="allocation" hidden aria-hidden="true"><span data-carbon-icon="locked" aria-hidden="true"></span></span></span>
-          </button>`;
         global.SanpoCarbon?.renderCarbonIcons?.(bar);
         syncCarbonPrimaryNavigationState();
 
         const observer = new MutationObserver(() => syncCarbonPrimaryNavigationState());
         observer.observe(document.body, { attributes: true, attributeFilter: ['class', 'data-active-plan-template'] });
-        const carTab = byId('tab-list');
-        if (carTab) observer.observe(carTab, { attributes: true, attributeFilter: ['class'] });
+        observer.observe(carTab, { attributes: true, attributeFilter: ['class'] });
         global.__carbonPrimaryNavigationObserver = observer;
     }
 
