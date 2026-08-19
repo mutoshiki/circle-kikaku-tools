@@ -63,7 +63,14 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     expect(menuLabels).toEqual(['使い方', 'サンプルデータ', expect.any(String), 'ロック']);
     await page.keyboard.press('Escape');
     await expect(appSwitcher).toHaveJSProperty('open', false);
+    await page.mouse.move(Math.min(viewport.width - 24, 200), 140);
+    await page.evaluate(() => {
+      const active = document.activeElement;
+      active?.blur?.();
+      document.querySelector('.header-app-switcher')?.blur?.();
+    });
     await expect(page.locator('#syncStatusBadge')).not.toHaveClass(/is-visible/, { timeout: 5000 });
+    await page.waitForTimeout(250);
 
     for (const theme of ['light', 'dark']) {
       await page.evaluate(next => window.SanpoTheme.applyTheme(next), theme);
