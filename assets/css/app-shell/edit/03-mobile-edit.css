@@ -6,7 +6,7 @@
   margin: 0;
 }
 
-.edit-header-tools-only .edit-tools {
+.edit-header-tools-only .edit-tools:not(.allocation-toolbar-inner) {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;

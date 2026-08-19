@@ -4,19 +4,18 @@
 .drag-preview-card .card-actions { display: none; }
 
 .card.bg-light-subtle {
-  border: 1px solid var(--border-section);
-  background: var(--surface-lowest);
-  box-shadow: var(--shadow-card);
+  border: 1px solid var(--cds-border-subtle, var(--border-section));
+  background: var(--cds-layer-01, var(--surface-lowest));
+  box-shadow: none;
 }
 
 .edit-driver-toggle {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2);
   min-height: var(--control-height);
-  padding: 9px 12px;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--border-item);
-  border-left-width: 1px;
   border-radius: 0;
   background: var(--ui-saas-panel-raised, var(--bg-card));
   color: var(--text-main);
@@ -24,17 +23,17 @@
   font-weight: 400;
 }
 
-.edit-capacity-wrap { display: flex; align-items: center; gap: 10px; }
+.edit-capacity-wrap { display: flex; align-items: center; gap: var(--space-2); }
 .edit-capacity-wrap span { color: var(--text-sub); font-size: var(--font-size-label); font-weight: 600; }
 .edit-capacity-wrap input { width: 80px; }
 
-#cars-container { --app-gutter-x: 16px; --app-gutter-y: 16px; }
+#cars-container { --app-gutter-x: var(--space-4); --app-gutter-y: var(--space-4); }
 
 :where(.member-card, .driver-seat) {
   min-width: 0;
   border: 0;
   border-radius: 0;
-  background: var(--surface-low);
+  background: var(--cds-layer-02, var(--surface-low));
   color: var(--text-main);
   box-shadow: none;
 }
@@ -42,32 +41,20 @@
 #cars-container .seat-slot > .member-card,
 #waiting-list .member-card {
   width: 100%;
-  min-height: 56px;
+  min-height: 64px;
   margin: 0;
-  padding: 6px 8px;
+  padding: var(--space-2) var(--space-3);
   border: 0;
-  background: var(--surface-low);
-}
-
-/* People keep one card surface wherever they are; empty seats remain quiet action tiles. */
-#cars-container .seat-slot > .member-card,
-#waiting-list .member-card {
   background: var(--cds-layer-02, var(--surface-low));
 }
 
-#waiting-list .member-card:hover {
-  background: var(--cds-layer-hover-02, var(--surface-container));
-}
-
+#waiting-list .member-card:hover,
 #cars-container .seat-slot > .member-card:hover {
-  background: var(--cds-layer-hover-02, var(--surface-container));
+  background: var(--cds-layer-hover-02, var(--surface-hover));
 }
 
-/* The card is a draggable surface, not a button. Do not synthesize a card-wide
- * focus ring from a focused descendant: the Carbon overflow-menu trigger owns
- * keyboard focus indication and Carbon may intentionally restore focus to it
- * after dismissal. Pointer taps therefore cannot leave a false selected state. */
-
+/* The card is a draggable surface, not a button. The Carbon overflow-menu
+ * trigger owns keyboard focus indication. */
 :where(.member-card, .driver-seat) :where(.member-main-line, .driver-main-line) { min-width: 0; }
 :where(.member-name-text, .driver-name-disp) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 :where(.member-card, .driver-seat) .memo-popup { overflow-wrap: anywhere; }
