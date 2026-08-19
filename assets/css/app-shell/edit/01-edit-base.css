@@ -5,7 +5,7 @@
 #top-area,
 .edit-header,
 .edit-tools { min-width: 0; }
-.edit-tools { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.edit-tools:not(.allocation-toolbar-inner) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .edit-tools .tool-btn { min-width: 0; min-height: var(--mobile-touch); justify-content: center; }
 .edit-tools .tool-btn span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
@@ -37,6 +37,6 @@
 }
 
 @media (max-width: 640px) {
-  .edit-tools { gap: 8px; }
+  .edit-tools:not(.allocation-toolbar-inner) { gap: 8px; }
   .edit-tools .tool-help-btn { display: inline-flex; flex-direction: row; gap: 6px; }
 }
