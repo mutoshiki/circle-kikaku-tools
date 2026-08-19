@@ -12,8 +12,8 @@
 #cars-container :where(.car-box, .team-box) {
   width: 100%;
   min-width: 0;
-  border: 1px solid var(--ui-surface-border-soft, var(--border-section));
-  background: var(--surface-lowest);
+  border: 1px solid var(--cds-border-subtle, var(--border-section));
+  background: var(--cds-layer-01, var(--surface-lowest));
   box-shadow: none;
 }
 @media (max-width: 1080px) {
