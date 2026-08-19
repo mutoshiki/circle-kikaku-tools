@@ -1,4 +1,5 @@
-/* Carbon data table summary: item, amount, and detail. */
+/* Settlement total hierarchy. Legacy table selectors remain for compatibility;
+ * the current renderer uses Carbon Accordion plus a static total row. */
 .seisan-top-flow {
   display: block;
   min-width: 0;
@@ -39,10 +40,57 @@
 
 .seisan-summary-table-detail > span { display: block; white-space: nowrap; }
 
+#seisan-view-area .seisan-summary-accordion {
+  --cds-layout-size-height: 48px;
+  --cds-layout-density-padding-inline: 0;
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+}
+
+#seisan-view-area .seisan-summary-accordion cds-accordion-item {
+  border-color: var(--cds-border-subtle-01, var(--border-section));
+}
+
+#seisan-view-area .seisan-summary-detail-list {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-1) 0 var(--space-2);
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: var(--font-size-caption);
+  line-height: 1.4;
+}
+
+#seisan-view-area .seisan-summary-detail-list span { display: block; }
+
+#seisan-view-area .seisan-summary-static { display: grid; }
+
+#seisan-view-area .seisan-summary-static-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 48px;
+  padding: var(--space-3) 0;
+  color: var(--cds-text-primary, var(--text-main));
+  border-block-end: 1px solid var(--cds-border-strong-01, var(--border-strong));
+}
+
+#seisan-view-area .seisan-summary-static-row strong {
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+#seisan-view-area .seisan-summary-static-row.is-total { font-weight: 600; }
+
 @media (max-width: 640px) {
   .seisan-summary-table :is(cds-table-header-cell, cds-table-cell) { padding-inline: 10px; }
   .seisan-summary-table :is(cds-table-header-cell, cds-table-cell):first-child { width: 29%; }
   .seisan-summary-table :is(cds-table-header-cell, cds-table-cell):nth-child(2) { width: 28%; }
   .seisan-summary-table :is(cds-table-header-cell, cds-table-cell):last-child { width: 43%; }
-  .seisan-summary-table-amount { font-size: 1rem; }
+  .seisan-summary-table-amount,
+  #seisan-view-area .seisan-summary-static-row strong { font-size: var(--font-size-title); }
 }

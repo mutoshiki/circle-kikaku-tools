@@ -1,4 +1,49 @@
-/* Current settings are readable rows rather than miniature cards. */
+/* Current settlement settings are read-only related values, rendered with
+ * Carbon Structured List. Legacy summary-pills selectors remain harmless for
+ * older room markup during cache transitions. */
+.seisan-settings-structured-list {
+  display: block;
+  width: 100%;
+  margin: 0;
+  background: var(--cds-layer-02, var(--surface-low));
+  color: var(--cds-text-primary, var(--text-main));
+}
+
+.seisan-settings-structured-list cds-structured-list-body {
+  display: grid;
+  width: 100%;
+}
+
+.seisan-settings-structured-list .seisan-setting-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  min-height: 48px;
+  border-bottom: 1px solid var(--cds-border-subtle-02, var(--border-section));
+}
+
+.seisan-settings-structured-list .seisan-setting-label,
+.seisan-settings-structured-list .seisan-setting-value {
+  display: block;
+  min-width: 0;
+  width: auto;
+  padding: var(--space-2) var(--space-3);
+  color: var(--cds-text-primary, var(--text-main));
+  font-size: var(--font-size-label);
+  line-height: var(--line-height-body);
+  vertical-align: middle;
+}
+
+.seisan-settings-structured-list .seisan-setting-label {
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-weight: 600;
+}
+
+.seisan-settings-structured-list .seisan-setting-value {
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
 .seisan-summary-pills {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -10,17 +55,25 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-content: center;
-  gap: 2px;
+  gap: var(--space-1);
   min-height: 56px;
-  padding: 9px 12px;
+  padding: var(--space-2) var(--space-3);
   border: 0;
   border-bottom: 1px solid var(--cds-border-subtle-02, var(--border-section));
   border-radius: 0;
   background: transparent;
-  color: var(--text-main);
+  color: var(--cds-text-primary, var(--text-main));
   box-shadow: none;
-  font-size: 0.82rem;
+  font-size: var(--font-size-label);
   font-weight: 400;
-  line-height: 1.35;
+  line-height: var(--line-height-body);
 }
-.seisan-summary-pills small { display: block; margin: 0; color: var(--text-sub); font-size: var(--font-size-caption); font-weight: 600; }
+.seisan-summary-pills small { display: block; margin: 0; color: var(--cds-text-secondary, var(--text-sub)); font-size: var(--font-size-caption); font-weight: 600; }
+
+@media (max-width: 420px) {
+  .seisan-settings-structured-list .seisan-setting-row {
+    grid-template-columns: minmax(112px, 0.8fr) minmax(0, 1.2fr);
+  }
+  .seisan-settings-structured-list .seisan-setting-label,
+  .seisan-settings-structured-list .seisan-setting-value { padding-inline: var(--space-2); }
+}

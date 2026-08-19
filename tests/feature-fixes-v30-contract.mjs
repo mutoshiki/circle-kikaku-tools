@@ -56,8 +56,8 @@ expect(personMenuCss.includes(':not(.person-menu-top-layer-open)'), 'Person-menu
 expect(layeringCss.includes(':not(.person-menu-top-layer-open) #top-area'), 'Top-area stacking fallback still runs while the menu is in the top layer');
 expect(copyCss.includes('box-shadow: inset 0 0 0 1px var(--app-accent-border)'), 'Dark settlement copy action lacks a visible Carbon tertiary boundary');
 expect(carHeaderCss.includes('.capacity-edit-pill > .carbon-icon { width: 1rem; height: 1rem; }'), 'Capacity edit pill must keep a balanced Carbon icon size');
-expect(collectionCss.includes('grid-template-columns: repeat(2, minmax(0, 1fr))'), 'Collection checks must render two people per row');
-expect(!collectionMobileCss.includes('grid-template-columns: minmax(0, 1fr);'), 'Narrow collection checks must not collapse back to one person per row');
+expect(collectionCss.includes('grid-template-columns: repeat(2, minmax(0, 1fr))'), 'Collection checks must keep an efficient two-column desktop layout');
+expect(collectionMobileCss.includes('grid-template-columns: minmax(0, 1fr);'), 'Mobile collection checks must stack vertically for Carbon checkbox scanning and label wrapping');
 expect(collectionCss.includes('grid-template-columns: 24px minmax(0, 1fr)') && collectionTemplate.includes('<cds-checkbox'), 'Collection checks must use Carbon checkbox-left anatomy');
 expect(collectionStateCss.includes('.seisan-check-item.excluded.pre-deducted') && collectionStateCss.includes('background: transparent;'), 'Pre-deducted collection state must not restore the old green tile surface');
 expect(collectionCss.includes('overflow-wrap: anywhere') && collectionCss.includes('flex-direction: column'), 'Collection names and details must stack and wrap safely');

@@ -1,21 +1,21 @@
-/* Settlement editors use native Carbon modal anatomy. This owner only controls
-   the vehicle/settings form content and responsive density. */
+/* Settlement vehicle editor uses native Carbon modal anatomy. This owner only
+ * controls form content; shared modal CSS owns dialog geometry and scrolling. */
 #seisan-view-area .seisan-extra-slash,
 #seisan-view-area .seisan-extra-plus { display: none; }
 #seisan-view-area .seisan-car-summary-row :is(.seisan-extra-slash, .seisan-extra-plus),
 #seisan-view-area .seisan-driver-detail .seisan-extra-plus {
   display: inline-flex;
   align-items: center;
-  color: var(--text-sub);
+  color: var(--cds-text-secondary, var(--text-sub));
   font-size: var(--font-size-caption);
 }
 
 #settlementCarEditModal .app-modal-body {
   min-height: 0;
-  max-height: min(68dvh, 620px);
-  overflow-y: auto;
-  padding-bottom: 24px;
-  scroll-padding-bottom: 24px;
+  padding-bottom: var(--space-6);
+  scroll-padding-bottom: var(--space-6);
+  background: var(--modal-bg, var(--cds-layer-01, var(--surface-lowest)));
+  color: var(--cds-text-primary, var(--text-main));
   -webkit-overflow-scrolling: touch;
 }
 #settlementCarEditModal .app-modal-heading {
@@ -32,3 +32,10 @@
 }
 #settlementCarEditModal .seisan-car-title { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
 #settlementCarEditModal .seisan-car-title strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 640px) {
+  #settlementCarEditModal .app-modal-body {
+    padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
+    scroll-padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
+  }
+}

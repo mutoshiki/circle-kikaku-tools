@@ -1,5 +1,6 @@
-/* Settlement settings summary and settings-modal controls. */
-.seisan-settings-card .seisan-compact-head { margin-bottom: 10px; }
+/* Settlement settings summary and settings-modal controls. Carbon Modal owns
+ * dialog geometry, focus, overlay, scrolling and footer; this file owns form content. */
+.seisan-settings-card .seisan-compact-head { margin-bottom: var(--space-3); }
 .seisan-settings-summary { min-width: 0; }
 .seisan-title--settings .carbon-icon { color: var(--cds-icon-primary, var(--text-main)); }
 
@@ -8,57 +9,57 @@
   max-width: 420px;
   margin-inline: auto;
 }
+
 #settlementSettingsModal > .app-modal-body {
   min-height: 0;
-  max-height: min(66dvh, 600px);
-  overflow-y: auto;
-  padding: 12px 18px 24px;
-  scroll-padding-bottom: 24px;
+  padding: var(--space-3) var(--space-4) var(--space-6);
+  scroll-padding-bottom: var(--space-6);
+  background: var(--modal-bg, var(--cds-layer-01, var(--surface-lowest)));
+  color: var(--cds-text-primary, var(--text-main));
   -webkit-overflow-scrolling: touch;
 }
 
 .seisan-settings--modal {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  gap: 8px;
+  gap: var(--space-4);
 }
 
 .seisan-settings--modal .seisan-settings-span { grid-column: 1 / -1; }
 
 .seisan-settings-section {
   display: grid;
-  gap: 5px;
-  padding: 0 0 8px;
+  gap: var(--space-2);
+  padding: 0;
 }
 
-.seisan-settings-section--standalone { padding-top: 2px; }
+.seisan-settings-section + .seisan-settings-section { padding-top: var(--space-2); }
+.seisan-settings-section--standalone { padding-top: 0; }
 
 .seisan-settings-section-title {
-  padding-inline: 2px;
-  color: var(--text-main);
-  font-size: 0.78rem;
+  padding-inline: 0;
+  color: var(--cds-text-primary, var(--text-main));
+  font-size: var(--font-size-label);
   font-weight: 600;
-  line-height: 1.3;
+  line-height: var(--line-height-label);
 }
 
 .seisan-settings-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
+  gap: var(--space-4);
 }
 
-.seisan-settings-field--reward {
-  width: 100%;
-}
+.seisan-settings-field--reward { width: 100%; }
 
 .seisan-settings--modal .seisan-field label {
   display: block;
-  margin-bottom: 5px;
-  color: var(--text-sub);
-  font-size: 0.72rem;
+  margin-bottom: var(--space-1);
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: var(--font-size-caption);
   font-weight: 400;
-  line-height: 1.25;
+  line-height: 1.35;
 }
 
 .seisan-settings-field--rounding,
@@ -70,36 +71,33 @@
 
 .seisan-driver-reward-policy {
   display: grid;
-  gap: 8px;
-  margin-top: 14px;
-  padding-top: 12px;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding-top: 0;
 }
 
-.seisan-driver-reward-policy-heading {
-  display: grid;
-  gap: 3px;
-}
+.seisan-driver-reward-policy-heading { display: grid; gap: var(--space-1); }
 
 .seisan-driver-reward-policy-label {
-  color: var(--text-main);
+  color: var(--cds-text-primary, var(--text-main));
   font-size: var(--font-size-label);
   font-weight: 600;
-  line-height: 1.35;
+  line-height: var(--line-height-label);
 }
 
+#seisanDriverRewardType { width: 100%; min-width: 0; }
 
-#seisanDriverRewardType {
+.seisan-settings--modal .seisan-field :is(cds-text-input, cds-number-input, cds-select) {
+  display: block;
   width: 100%;
-  min-width: 0;
+  min-height: 48px;
 }
-
-.seisan-settings--modal .seisan-field :is(cds-text-input, cds-number-input, cds-select) { display: block; width: 100%; min-height: 48px; }
 #settlementSettingsModal #seisanRounding[hidden] { display: none; }
 
 #settlementSettingsModal .seisan-standalone-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: var(--space-3);
   min-width: 0;
 }
 
@@ -107,16 +105,9 @@
 #settlementSettingsModal .seisan-standalone-fields .seisan-field { min-width: 0; }
 #settlementSettingsModal .seisan-standalone-fields cds-number-input { display: block; width: 100%; min-width: 0; }
 
-.seisan-rounding-options {
-  display: block;
-  min-width: 0;
-}
+.seisan-rounding-options { display: block; min-width: 0; }
 .seisan-rounding-row { width: 100%; min-width: 0; }
-
-.seisan-rounding-option {
-  min-width: 0;
-  min-height: 48px;
-}
+.seisan-rounding-option { min-width: 0; min-height: 48px; }
 
 .seisan-settings--modal .seisan-toggle {
   display: flex;
@@ -124,15 +115,14 @@
   justify-content: flex-start;
   width: 100%;
   min-height: 48px;
-  padding: 0 2px;
+  padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
 }
 
-.seisan-toggle--modal {
-  margin-top: 0;
-}
+.seisan-toggle--modal { margin-top: 0; }
+.seisan-toggle--modal + .seisan-toggle--modal { margin-top: var(--space-2); }
 
 .seisan-toggle--modal cds-checkbox {
   display: inline-flex;
@@ -150,30 +140,24 @@
 
 #settlementSettingsModal .seisan-standalone-error {
   grid-column: 1 / -1;
-  margin-top: -2px;
+  margin-top: 0;
   color: var(--semantic-danger);
-  font-size: 0.74rem;
+  font-size: var(--font-size-caption);
   font-weight: 600;
   line-height: 1.45;
 }
 
-#settlementSettingsModal .seisan-settings-section--detail {
-  gap: 0;
-}
+#settlementSettingsModal .seisan-settings-section--detail { gap: var(--space-1); }
+#settlementSettingsModal .seisan-organizer-field { padding-top: var(--space-2); }
 
-#settlementSettingsModal .seisan-organizer-field {
-  padding-top: 8px;
+@media (max-width: 640px) {
+  #settlementSettingsModal > .app-modal-body {
+    padding: var(--space-3) var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom));
+    scroll-padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
+  }
 }
 
 @media (max-width: 420px) {
-  #settlementSettingsModal > .app-modal-body {
-    max-height: calc(100dvh - 176px);
-    padding: 10px 14px 24px;
-    scroll-padding-bottom: 24px;
-  }
-
-  .seisan-settings-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
-  }
+  .seisan-settings-grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+  #settlementSettingsModal .seisan-standalone-fields { gap: var(--space-2); }
 }

@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: end;
-  gap: 8px;
+  gap: var(--space-2);
   min-width: 0;
 }
 
@@ -25,7 +25,7 @@
 .seisan-gas-field-row .seisan-mini-label {
   align-self: end;
   min-height: 2.5em;
-  margin-bottom: 5px;
+  margin-bottom: var(--space-1);
   overflow-wrap: anywhere;
 }
 
@@ -37,13 +37,13 @@
 
 .seisan-distance-unit,
 .seisan-fuel-unit {
-  color: var(--text-sub);
-  font-size: 0.74rem;
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: var(--font-size-caption);
   font-weight: 600;
   white-space: nowrap;
 }
 
 @media (max-width: 360px) {
-  .seisan-gas-field-row { gap: 6px; }
+  .seisan-gas-field-row { gap: var(--space-1); }
   .seisan-gas-field-row .seisan-mini-label { min-height: 3em; font-size: var(--font-size-caption); line-height: 1.25; }
 }

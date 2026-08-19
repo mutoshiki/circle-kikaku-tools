@@ -1,39 +1,44 @@
 /* Collection checklist grouped by vehicle. */
-#seisan-view-area .seisan-collection-panel .seisan-head { margin-bottom: 8px; }
+#seisan-view-area .seisan-collection-panel .seisan-head { margin-bottom: var(--space-2); }
 #seisan-view-area .seisan-collection-panel .seisan-head > div { width: 100%; min-width: 0; }
 #seisan-view-area #seisan-collection-note.seisan-muted {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-3);
   width: 100%;
-  margin: 2px 0 0;
+  margin: var(--space-1) 0 0;
 }
-#seisan-view-area .seisan-collection-note-left { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: 2px 9px; min-width: 0; }
-#seisan-view-area .seisan-collection-per-person { display: inline-flex; align-items: baseline; gap: 4px; margin-left: auto; white-space: nowrap; }
-#seisan-view-area .seisan-collection-per-person-amount { color: var(--text-main); font-size: 1.12rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-#seisan-view-area .seisan-check-list { display: grid; grid-template-columns: 1fr; gap: 14px; }
-#seisan-view-area .seisan-collection-group { display: grid; gap: 7px; min-width: 0; }
-#seisan-view-area .seisan-collection-group-title { padding: 0 2px; color: var(--text-sub); font-size: 0.78rem; font-weight: 600; }
-#seisan-view-area .seisan-collection-group-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+#seisan-view-area .seisan-collection-note-left { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: var(--space-1) var(--space-2); min-width: 0; }
+#seisan-view-area .seisan-collection-per-person { display: inline-flex; align-items: baseline; gap: var(--space-1); margin-left: auto; white-space: nowrap; }
+#seisan-view-area .seisan-collection-per-person-amount { color: var(--cds-text-primary, var(--text-main)); font-size: 1.125rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+#seisan-view-area .seisan-check-list { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
+#seisan-view-area .seisan-collection-group { display: grid; gap: var(--space-2); min-width: 0; }
+#seisan-view-area .seisan-collection-group-title { padding: 0; color: var(--cds-text-secondary, var(--text-sub)); font-size: var(--font-size-label); font-weight: 600; }
+#seisan-view-area .seisan-collection-group-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-4); }
 
 .seisan-check-item {
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr);
   align-items: start;
-  gap: 9px;
+  gap: var(--space-2);
   min-width: 0;
   min-height: 48px;
-  padding: 10px 8px;
-  border-block-end: 1px solid var(--border-section);
+  padding: var(--space-2) var(--space-1);
+  border-block-end: 1px solid var(--cds-border-subtle-01, var(--border-section));
   background: transparent;
-  color: var(--text-main);
+  color: var(--cds-text-primary, var(--text-main));
   box-shadow: none;
   cursor: pointer;
 }
-.seisan-check-item:hover { background: var(--cds-layer-hover-01, var(--surface-container)); }
-.seisan-check-item.paid .seisan-check-name { color: var(--text-main); }
-.seisan-check-item.excluded { cursor: not-allowed; color: var(--text-faint); opacity: 0.78; }
+.seisan-check-item:hover { background: var(--cds-layer-hover-01, var(--surface-hover)); }
+.seisan-check-item.paid .seisan-check-name { color: var(--cds-text-primary, var(--text-main)); }
+.seisan-check-item.excluded {
+  cursor: not-allowed;
+  color: var(--cds-disabled-text, var(--text-faint));
+  opacity: 1;
+}
+.seisan-check-item.excluded:hover { background: transparent; }
 .seisan-check-item cds-checkbox { grid-column: 1; grid-row: 1; min-width: 24px; margin: 1px 0 0; }
 #seisan-view-area .seisan-check-copy {
   display: flex;
@@ -41,26 +46,27 @@
   grid-row: 1;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
+  gap: var(--space-1);
   min-width: 0;
 }
 #seisan-view-area .seisan-check-name {
   min-width: 0;
-  font-size: 0.88rem;
+  font-size: var(--font-size-label);
   font-weight: 600;
-  line-height: 1.35;
+  line-height: var(--line-height-label);
   overflow-wrap: anywhere;
   white-space: normal;
 }
 #seisan-view-area .seisan-check-note {
   width: 100%;
   min-width: 0;
-  color: var(--text-sub);
-  font-size: 0.78rem;
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: var(--font-size-caption);
   font-weight: 400;
   line-height: 1.4;
   text-align: left;
   overflow-wrap: anywhere;
   white-space: normal;
 }
-#seisan-view-area .seisan-check-item.paid .seisan-check-note { color: var(--text-sub); }
+#seisan-view-area .seisan-check-item.paid .seisan-check-note { color: var(--cds-text-secondary, var(--text-sub)); }
+#seisan-view-area .seisan-check-item.excluded :is(.seisan-check-name, .seisan-check-note) { color: var(--cds-disabled-text, var(--text-faint)); }
