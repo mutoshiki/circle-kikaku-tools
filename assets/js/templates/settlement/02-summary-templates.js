@@ -40,7 +40,7 @@
     </div>`;
   }
 
-    function settingSummary({ state, result, helpers = {} }) {
+  function settingSummary({ state, result, helpers = {} }) {
     const organizerFreeLabel = state.organizerFree ? 'しない' : 'する';
     const organizerNote = state.organizerFree && state.organizerName && !result.isStandaloneSettlement
       ? `（${esc(state.organizerName, helpers)}）`
@@ -51,32 +51,28 @@
     const standalone = result.isStandaloneSettlement ? result.standaloneCounts : null;
     const reward = Number(result.reward || 0);
     const rewardTypeLabel = result.driverRewardType === 'club' ? '部費' : '割勘';
-    const standalonePill = standalone
-      ? `<span class="seisan-setting-pill--mode"><small>入力方法</small>精算だけ</span><span class="seisan-setting-pill--count"><small>人数</small>車出し${standalone.driverCount}名＋その他${standalone.memberCount}名</span>`
-      : '';
-    const driverOffsetPill = result.driverCollectionOffset
-      ? `<span class="seisan-setting-pill--subtle"><small>車出しの集金:</small>${esc(driverOffsetLabel, helpers)}</span>`
-      : '';
-    const driverFreePill = result.driverCollectionFree
-      ? `<span class="seisan-setting-pill--subtle"><small>運転手から集金:</small>${esc(driverFreeLabel, helpers)}</span>`
-      : '';
-    const rewardPill = reward > 0
-      ? `<span class="seisan-setting-pill--subtle"><small>車出し協力代</small>1台 ${money(reward, helpers)}・${rewardTypeLabel}</span>`
-      : '';
-    const organizerPills = state.organizerFree
-      ? `<span class="seisan-setting-pill--subtle"><small>企画者の集金</small>${organizerFreeDisplay}</span>`
-      : '';
-    return `<div class="seisan-summary-pills seisan-summary-pills--single" aria-label="現在の精算設定">
-        ${standalonePill}
-        ${driverOffsetPill}
-        ${driverFreePill}
-        ${organizerPills}
-        <span class="seisan-setting-pill--subtle"><small>端数処理</small>${esc(state.rounding || '100', helpers)}円単位</span>
-        ${rewardPill}
-    </div>`;
+    const rows = [];
+    const row = (label, value) => `<cds-structured-list-row condensed class="seisan-setting-row">
+      <cds-structured-list-cell class="seisan-setting-label">${label}</cds-structured-list-cell>
+      <cds-structured-list-cell class="seisan-setting-value">${value}</cds-structured-list-cell>
+    </cds-structured-list-row>`;
+
+    if (standalone) {
+      rows.push(row('入力方法', '精算だけ'));
+      rows.push(row('人数', `車出し${standalone.driverCount}名＋その他${standalone.memberCount}名`));
+    }
+    if (result.driverCollectionOffset) rows.push(row('車出しの集金', esc(driverOffsetLabel, helpers)));
+    if (result.driverCollectionFree) rows.push(row('運転手の集金', esc(driverFreeLabel, helpers)));
+    if (state.organizerFree) rows.push(row('企画者の集金', organizerFreeDisplay));
+    rows.push(row('端数処理', `${esc(state.rounding || '100', helpers)}円単位`));
+    if (reward > 0) rows.push(row('車出し協力代', `1台 ${money(reward, helpers)}・${rewardTypeLabel}`));
+
+    return `<cds-structured-list condensed class="seisan-settings-structured-list" aria-label="現在の精算設定">
+      <cds-structured-list-body>${rows.join('')}</cds-structured-list-body>
+    </cds-structured-list>`;
   }
 
-    function breakdown(result, helpers = {}) {
+  function breakdown(result, helpers = {}) {
     return `
         <div class="seisan-break-row"><span>割勘対象</span><span>${money(result.totalSplit, helpers)}</span></div>
         <div class="seisan-break-row"><span>集金予定</span><span>${money(result.expectedCollected, helpers)}</span></div>
@@ -109,6 +105,5 @@
     return `${details}<div class="seisan-club-expense-total"><span>${totalLabel}</span><strong>${signedMoney(clubTotal, helpers)}</strong></div>`;
   }
 
-  
   Object.assign(parts, { summary, settingSummary, breakdown, clubExpenseBreakdown });
 })();
