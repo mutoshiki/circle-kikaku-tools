@@ -1,5 +1,5 @@
 /* Settlement settings summary and settings-modal controls. Carbon Modal owns
- * dialog geometry, focus, overlay and footer; this file owns only form content. */
+ * dialog geometry, focus, overlay, scrolling and footer; this file owns form content. */
 .seisan-settings-card .seisan-compact-head { margin-bottom: var(--space-3); }
 .seisan-settings-summary { min-width: 0; }
 .seisan-title--settings .carbon-icon { color: var(--cds-icon-primary, var(--text-main)); }
@@ -32,10 +32,7 @@
   padding: 0;
 }
 
-.seisan-settings-section + .seisan-settings-section {
-  padding-top: var(--space-2);
-}
-
+.seisan-settings-section + .seisan-settings-section { padding-top: var(--space-2); }
 .seisan-settings-section--standalone { padding-top: 0; }
 
 .seisan-settings-section-title {
@@ -152,21 +149,6 @@
 #settlementSettingsModal .seisan-organizer-field { padding-top: var(--space-2); }
 
 @media (max-width: 640px) {
-  /* Carbon supports full-screen mobile modals for form-heavy tasks. These two
-   * settlement forms use that model so the scroll body never disappears behind
-   * Safari chrome or the fixed transactional footer. */
-  #settlementSettingsModal::part(dialog) {
-    inset: 0;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    max-width: 100vw;
-    height: 100dvh;
-    max-height: 100dvh;
-    margin: 0;
-    transform: none;
-  }
-
   #settlementSettingsModal > .app-modal-body {
     padding: var(--space-3) var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom));
     scroll-padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
