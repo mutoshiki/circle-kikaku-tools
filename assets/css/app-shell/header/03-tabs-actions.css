@@ -60,15 +60,32 @@ cds-overflow-menu.header-action {
 #shareLinkBtn.header-action:hover { color: #f4f4f4; }
 
 /* Carbon's app switcher is a 3x3 point grid. The trigger itself remains the
- * official Carbon Overflow Menu; only the glyph is drawn here. */
+ * official Carbon Overflow Menu; the nine points are CSS, not an image asset. */
 .app-switcher-glyph {
+  position: relative;
   display: block;
   width: 20px;
   height: 20px;
   color: #f4f4f4;
-  background-image: radial-gradient(circle, currentColor 1.7px, transparent 1.9px);
-  background-position: 0 0;
-  background-size: 7px 7px;
+}
+
+.app-switcher-glyph::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 3px;
+  height: 3px;
+  background: currentColor;
+  box-shadow:
+    7px 0 currentColor,
+    14px 0 currentColor,
+    0 7px currentColor,
+    7px 7px currentColor,
+    14px 7px currentColor,
+    0 14px currentColor,
+    7px 14px currentColor,
+    14px 14px currentColor;
 }
 
 .header-app-switcher { --cds-icon-primary: #f4f4f4; }
