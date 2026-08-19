@@ -94,6 +94,20 @@
   --cds-button-ghost-color: currentColor;
 }
 
+@media (max-width: 640px) {
+  /* Preserve the short-lived compact sync pill on phones while the old room
+   * field itself remains visually absent from the shell. */
+  .sync-status-badge {
+    width: fit-content;
+    max-width: calc(100% - 16px);
+  }
+
+  .sync-status-badge.is-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
 @media (max-width: 520px) {
   #appUndoBar { width: calc(100vw - 24px); justify-content: space-between; }
 }
