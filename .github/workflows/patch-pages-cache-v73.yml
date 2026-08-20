@@ -1,0 +1,68 @@
+name: Patch Pages Cache V73
+
+on:
+  push:
+    branches:
+      - fix/pages-cache-bust-v73
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/pages-cache-bust-v73
+      - name: Update asset cache keys and regression contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          index = Path('index.html')
+          source = index.read_text(encoding='utf-8')
+          replacements = {
+              './assets/css/app-shell/layout/01-app-frame.css?v=carbon-complete-2': './assets/css/app-shell/layout/01-app-frame.css?v=project-title-nav-v73',
+              './assets/css/app-shell/header/01-header-base.css?v=design-polish-v25-mobile-fix-v71': './assets/css/app-shell/header/01-header-base.css?v=project-title-nav-v73',
+              './assets/css/app-shell/header/02-room-status.css?v=carbon-layer-nav-v53': './assets/css/app-shell/header/02-room-status.css?v=project-title-nav-v73',
+              './assets/css/app-shell/header/03-tabs-actions.css?v=carbon-layer-nav-v53-mobile-fix-v71': './assets/css/app-shell/header/03-tabs-actions.css?v=project-title-nav-v73',
+              './assets/css/guides-modals/overview/01-overview-drawer.css?v=design-polish-v25': './assets/css/guides-modals/overview/01-overview-drawer.css?v=project-title-nav-v73',
+              './assets/css/guides-modals/overview/02-overview-mobile.css': './assets/css/guides-modals/overview/02-overview-mobile.css?v=project-title-nav-v73',
+              './assets/js/features/events/02-static-header-events.js?v=feature-fixes-v30': './assets/js/features/events/02-static-header-events.js?v=project-title-nav-v73',
+          }
+          for before, after in replacements.items():
+              count = source.count(before)
+              if count != 1:
+                  raise SystemExit(f'index.html expected exactly one {before!r}, found {count}')
+              source = source.replace(before, after)
+          index.write_text(source, encoding='utf-8')
+
+          contract = Path('tests/shell-project-title-navigation-v73-contract.mjs')
+          test_source = contract.read_text(encoding='utf-8')
+          marker = "console.log('PASS shell project title and application navigation contract');"
+          if test_source.count(marker) != 1:
+              raise SystemExit('contract marker not found exactly once')
+          assets = [
+              './assets/css/app-shell/layout/01-app-frame.css?v=project-title-nav-v73',
+              './assets/css/app-shell/header/01-header-base.css?v=project-title-nav-v73',
+              './assets/css/app-shell/header/02-room-status.css?v=project-title-nav-v73',
+              './assets/css/app-shell/header/03-tabs-actions.css?v=project-title-nav-v73',
+              './assets/css/guides-modals/overview/01-overview-drawer.css?v=project-title-nav-v73',
+              './assets/css/guides-modals/overview/02-overview-mobile.css?v=project-title-nav-v73',
+              './assets/js/features/events/02-static-header-events.js?v=project-title-nav-v73',
+          ]
+          block = "\n".join(f"assert.ok(html.includes({asset!r}), 'cache-bust must track v73 owner: {asset}');" for asset in assets)
+          test_source = test_source.replace(marker, block + '\n' + marker)
+          contract.write_text(test_source, encoding='utf-8')
+          PY
+      - run: git diff --check
+      - name: Commit cache-bust fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html tests/shell-project-title-navigation-v73-contract.mjs
+          git commit -m "Fix GitHub Pages cache bust for v73 shell assets"
+          git push
