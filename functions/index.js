@@ -1,13 +1,19 @@
+const { randomUUID } = require('node:crypto');
 const { onValueCreated } = require('firebase-functions/database');
 const { defineSecret } = require('firebase-functions/params');
 const logger = require('firebase-functions/logger');
 const { initializeApp } = require('firebase-admin/app');
+const {
+  SEND_LEASE_MS,
+  acquireLeaseState,
+  sentState,
+  failedState
+} = require('./notification-state');
 
 initializeApp();
 
-const RESEND_API_KEY = defineSecret('RESEND_API_KEY');
-const BUG_REPORT_NOTIFY_TO = defineSecret('BUG_REPORT_NOTIFY_TO');
-const BUG_REPORT_NOTIFY_FROM = defineSecret('BUG_REPORT_NOTIFY_FROM');
+const BUG_REPORT_MAIL_WEBHOOK_URL = defineSecret('BUG_REPORT_MAIL_WEBHOOK_URL');
+const BUG_REPORT_MAIL_WEBHOOK_SECRET = defineSecret('BUG_REPORT_MAIL_WEBHOOK_SECRET');
 
 const SUBJECT = '【サークル企画ツール】新しいバグ報告';
 
@@ -48,11 +54,54 @@ function buildMailBody(report) {
   return lines.join('\n');
 }
 
+async function acquireSendLease(statusRef, eventId) {
+  const now = Date.now();
+  const leaseToken = `${clean(eventId, 160)}:${randomUUID()}`;
+  const result = await statusRef.transaction(current => acquireLeaseState(current, {
+    now,
+    leaseToken,
+    eventId: clean(eventId, 200)
+  }), undefined, false);
+  const state = result.snapshot.val();
+  return {
+    acquired: result.committed === true && state?.leaseToken === leaseToken,
+    leaseToken,
+    state
+  };
+}
+
+async function callMailWebhook({ reportId, report, secret, url }) {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      secret,
+      reportId,
+      subject: SUBJECT,
+      body: buildMailBody(report)
+    })
+  });
+
+  const text = await response.text();
+  let payload = {};
+  try {
+    payload = text ? JSON.parse(text) : {};
+  } catch {
+    payload = {};
+  }
+
+  if (!response.ok || payload.ok !== true) {
+    throw new Error(`Mail webhook failed: ${clean(payload.error || text || response.statusText, 500)}`);
+  }
+  return payload;
+}
+
 exports.notifyBugReport = onValueCreated({
   ref: '/bugReports/{reportId}',
   region: 'us-central1',
   retry: true,
-  secrets: [RESEND_API_KEY, BUG_REPORT_NOTIFY_TO, BUG_REPORT_NOTIFY_FROM]
+  timeoutSeconds: 120,
+  secrets: [BUG_REPORT_MAIL_WEBHOOK_URL, BUG_REPORT_MAIL_WEBHOOK_SECRET]
 }, async (event) => {
   const reportId = clean(event.params.reportId, 160);
   const report = event.data.val() || {};
@@ -60,79 +109,67 @@ exports.notifyBugReport = onValueCreated({
 
   if (!reportId || !clean(report.message, 2000)) {
     logger.warn('Ignoring malformed bug report event', { reportId, eventId: event.id });
-    await statusRef.set({
-      status: 'invalid',
-      eventId: clean(event.id, 200),
-      updatedAt: Date.now()
+    await statusRef.transaction(current => {
+      if (current?.status === 'sent') return;
+      return {
+        status: 'invalid',
+        eventId: clean(event.id, 200),
+        updatedAt: Date.now()
+      };
+    }, undefined, false);
+    return;
+  }
+
+  const lease = await acquireSendLease(statusRef, event.id);
+  if (!lease.acquired) {
+    logger.info('Bug report notification lease not acquired', {
+      reportId,
+      eventId: event.id,
+      status: lease.state?.status || null,
+      leaseExpiresAt: lease.state?.leaseExpiresAt || null
     });
     return;
   }
 
-  const existing = (await statusRef.get()).val();
-  if (existing?.status === 'sent') {
-    logger.info('Bug report email already sent', { reportId, eventId: event.id });
-    return;
-  }
-
-  const apiKey = RESEND_API_KEY.value();
-  const to = BUG_REPORT_NOTIFY_TO.value();
-  const from = BUG_REPORT_NOTIFY_FROM.value();
-  const mail = {
-    from,
-    to: [to],
-    subject: SUBJECT,
-    text: buildMailBody(report)
-  };
-  const idempotencyKey = `circle-kikaku-bug-report/${reportId}`;
-
-  await statusRef.set({
-    status: 'sending',
-    eventId: clean(event.id, 200),
-    updatedAt: Date.now()
+  logger.info('Bug report notification lease acquired', {
+    reportId,
+    eventId: event.id,
+    leaseMs: SEND_LEASE_MS
   });
 
   try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'Idempotency-Key': idempotencyKey
-      },
-      body: JSON.stringify(mail)
+    const result = await callMailWebhook({
+      reportId,
+      report,
+      url: BUG_REPORT_MAIL_WEBHOOK_URL.value(),
+      secret: BUG_REPORT_MAIL_WEBHOOK_SECRET.value()
     });
 
-    const responseText = await response.text();
-    let payload = {};
-    try {
-      payload = responseText ? JSON.parse(responseText) : {};
-    } catch {
-      payload = {};
-    }
-
-    if (!response.ok) {
-      throw new Error(`Resend ${response.status}: ${clean(payload.message || responseText || response.statusText, 500)}`);
-    }
-
-    await statusRef.set({
-      status: 'sent',
+    const now = Date.now();
+    const sentResult = await statusRef.transaction(current => sentState(current, {
+      now,
+      leaseToken: lease.leaseToken,
       eventId: clean(event.id, 200),
-      provider: 'resend',
-      providerMessageId: clean(payload.id, 200),
-      idempotencyKey,
-      sentAt: Date.now(),
-      updatedAt: Date.now()
+      duplicate: result.duplicate === true
+    }), undefined, false);
+
+    if (!sentResult.committed && sentResult.snapshot.val()?.status !== 'sent') {
+      throw new Error('Notification lease was lost before sent acknowledgement');
+    }
+
+    logger.info('Bug report notification sent', {
+      reportId,
+      eventId: event.id,
+      duplicateRecovered: result.duplicate === true
     });
-    logger.info('Bug report notification sent', { reportId, eventId: event.id, providerMessageId: payload.id || null });
   } catch (error) {
-    await statusRef.set({
-      status: 'failed',
+    const now = Date.now();
+    await statusRef.transaction(current => failedState(current, {
+      now,
+      leaseToken: lease.leaseToken,
       eventId: clean(event.id, 200),
-      idempotencyKey,
-      failedAt: Date.now(),
-      updatedAt: Date.now(),
       error: clean(error?.message || error, 500)
-    });
+    }), undefined, false);
     logger.error('Bug report notification failed', { reportId, eventId: event.id, error });
     throw error;
   }
