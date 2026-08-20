@@ -3,9 +3,9 @@
     'use strict';
 
     const APP_NAVIGATION_LINKS = Object.freeze([
-        ['山歩会フォームメイカー', 'https://script.google.com/macros/s/AKfycbwveM99euD8V5dxB6xLPYlpHuIc-KJlaaP8LHffh6ZMQBnAmO6XwX_ijQG-brUgqZmj/exec'],
-        ['提出書類作成ツール', 'https://github.com/mutoshiki/sampokai-submission-builder/releases'],
-        ['山歩会企画ポータル', 'https://mutoshiki.github.io/sanpokai-kikaku-portal/']
+        ['山歩会フォームメーカー', 'https://script.google.com/macros/s/AKfycbw0R5VgBdSLS8aRDJDw7GUIEfHlXRZ6rPrOgjXmO2N7LvhuoGyS_opUCFTCSiUiDZw5/exec'],
+        ['学務提出書類作成ツール', 'https://github.com/mutoshiki/sampokai-submission-builder/releases'],
+        ['山歩会企画ツール一覧', 'https://mutoshiki.github.io/sanpokai-kikaku-portal/']
     ]);
     const PROJECT_TITLE_SCROLL_THRESHOLD = 8;
     const PROJECT_TITLE_PULL_THRESHOLD = 16;
