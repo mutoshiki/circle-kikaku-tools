@@ -1,14 +1,15 @@
-name: Carbon refresh worktree export
+name: Apply Carbon refresh
 on:
   push:
     branches:
       - carbon-full-ui-refresh-20260820
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  apply-build:
+  apply:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
@@ -20,23 +21,29 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Apply verified UI patches
-        run: |
-          patch --dry-run -p1 < .github/carbon-refresh-part-1.patch
-          patch --dry-run -p1 < .github/carbon-refresh-part-2.patch
-          patch --dry-run -p1 < .github/carbon-refresh-part-3.patch
-          patch --dry-run -p1 < .github/carbon-refresh-part-4.patch
-          patch -p1 < .github/carbon-refresh-part-1.patch
-          patch -p1 < .github/carbon-refresh-part-2.patch
-          patch -p1 < .github/carbon-refresh-part-3.patch
-          patch -p1 < .github/carbon-refresh-part-4.patch
       - run: npm ci --no-audit --no-fund
+      - name: Apply queued Carbon patches
+        run: |
+          for p in .github/carbon-refresh-part-{1,2,3,4}.patch; do
+            git apply --check -p1 "$p"
+            git apply -p1 "$p"
+          done
       - run: npm run build:carbon
-      - name: Commit built application changes
+      - run: npm run test:static
+      - run: git diff --check
+      - name: Commit applied refactor
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html assets/
           git diff --cached --check
-          git commit -m "Apply Carbon responsive UI refresh"
+          git commit -m "Apply Carbon responsive UI refactor"
           git push origin HEAD:carbon-full-ui-refresh-20260820
+      - uses: actions/upload-artifact@v4
+        with:
+          name: carbon-refresh-worktree
+          path: |
+            .
+            !node_modules/**
+            !.git/**
+          retention-days: 2
