@@ -1,4 +1,4 @@
-name: Apply Carbon refresh
+name: Validate Carbon refresh
 on:
   push:
     branches:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  apply:
+  validate:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
@@ -21,16 +21,16 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Apply and build queued Carbon refactor
-        id: apply
+      - name: Validate current branch
+        id: validate
         shell: bash
         run: |
           set +e
           STATUS=.github/carbon-apply-status.log
           : > "$STATUS"
           echo "head=$(git rev-parse HEAD)" >> "$STATUS"
+          echo "run_id=${{ github.run_id }}" >> "$STATUS"
           echo "started=$(date -u +%FT%TZ)" >> "$STATUS"
-
           run_checked() {
             echo "" >> "$STATUS"
             echo "## $*" >> "$STATUS"
@@ -39,71 +39,24 @@ jobs:
             echo "exit=$code" >> "$STATUS"
             return $code
           }
-
           ok=1
           run_checked npm ci --no-audit --no-fund || ok=0
-          if [ "$ok" -eq 1 ]; then
-            for p in .github/carbon-refresh-part-{1,2,3,4}.patch; do
-              echo "" >> "$STATUS"
-              echo "## check $p" >> "$STATUS"
-              git apply --check -p1 "$p" >> "$STATUS" 2>&1
-              code=$?
-              echo "exit=$code" >> "$STATUS"
-              if [ "$code" -ne 0 ]; then ok=0; break; fi
-              echo "## apply $p" >> "$STATUS"
-              git apply -p1 "$p" >> "$STATUS" 2>&1
-              code=$?
-              echo "exit=$code" >> "$STATUS"
-              if [ "$code" -ne 0 ]; then ok=0; break; fi
-            done
-          fi
           if [ "$ok" -eq 1 ]; then run_checked npm run build:carbon || ok=0; fi
+          if [ "$ok" -eq 1 ]; then run_checked git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked npm run lint:css || ok=0; fi
-          if [ "$ok" -eq 1 ]; then
-            python - <<'PY' >> "$STATUS" 2>&1
-          from pathlib import Path
-          import subprocess
-          changed = subprocess.check_output(['git', 'diff', '--name-only'], text=True).splitlines()
-          for name in changed:
-              if not name.startswith('assets/') or name.startswith('assets/vendor/'):
-                  continue
-              if not name.endswith(('.css', '.js')):
-                  continue
-              path = Path(name)
-              text = path.read_text(encoding='utf-8')
-              path.write_text(text.rstrip() + '\n', encoding='utf-8')
-              print(f'normalized EOF: {name}')
-          PY
-            code=$?
-            echo "eof-normalize-exit=$code" >> "$STATUS"
-            if [ "$code" -ne 0 ]; then ok=0; fi
-          fi
-          if [ "$ok" -eq 1 ]; then
-            echo "" >> "$STATUS"
-            echo "## git diff --check (excluding generated Carbon bundle)" >> "$STATUS"
-            git diff --check -- . ':(exclude)assets/vendor/carbon/carbon-entry.min.js' >> "$STATUS" 2>&1
-            code=$?
-            echo "exit=$code" >> "$STATUS"
-            if [ "$code" -ne 0 ]; then ok=0; fi
-          fi
+          if [ "$ok" -eq 1 ]; then run_checked npm test || ok=0; fi
           echo "" >> "$STATUS"
           echo "result=$([ "$ok" -eq 1 ] && echo success || echo failure)" >> "$STATUS"
           echo "finished=$(date -u +%FT%TZ)" >> "$STATUS"
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
           exit 0
-      - name: Commit applied source and diagnostics
+      - name: Commit validation status
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .github/carbon-apply-status.log
-          if [ "${{ steps.apply.outputs.ok }}" = "1" ]; then
-            git add index.html assets/
-            git diff --cached --check -- . ':(exclude)assets/vendor/carbon/carbon-entry.min.js'
-            git commit -m "Apply Carbon responsive UI refactor"
-          else
-            git commit -m "Record Carbon patch application failure"
-          fi
+          git commit -m "Record Carbon validation status"
           git push origin HEAD:carbon-full-ui-refresh-20260820
       - uses: actions/upload-artifact@v4
         if: always()
