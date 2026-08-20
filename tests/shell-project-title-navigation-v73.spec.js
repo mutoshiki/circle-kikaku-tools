@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 const expectedLinks = [
-  ['山歩会フォームメイカー', 'https://script.google.com/macros/s/AKfycbwveM99euD8V5dxB6xLPYlpHuIc-KJlaaP8LHffh6ZMQBnAmO6XwX_ijQG-brUgqZmj/exec'],
-  ['提出書類作成ツール', 'https://github.com/mutoshiki/sampokai-submission-builder/releases'],
-  ['山歩会企画ポータル', 'https://mutoshiki.github.io/sanpokai-kikaku-portal/']
+  ['山歩会フォームメーカー', 'https://script.google.com/macros/s/AKfycbw0R5VgBdSLS8aRDJDw7GUIEfHlXRZ6rPrOgjXmO2N7LvhuoGyS_opUCFTCSiUiDZw5/exec'],
+  ['学務提出書類作成ツール', 'https://github.com/mutoshiki/sampokai-submission-builder/releases'],
+  ['山歩会企画ツール一覧', 'https://mutoshiki.github.io/sanpokai-kikaku-portal/']
 ];
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 }]) {
@@ -52,8 +52,21 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     await expect(menu).toHaveAttribute('aria-expanded', 'true');
     await expect(page.locator('#overviewMemoInput')).toHaveCount(0);
     await expect(page.locator('#overviewTimetableRows')).toHaveCount(0);
-    const actualLinks = await drawer.locator('.app-nav-link').evaluateAll(links => links.map(link => [link.textContent.trim(), link.href, link.target, link.rel]));
+    const actualLinks = await drawer.locator('.app-nav-link[target="_blank"]').evaluateAll(links => links.map(link => [link.textContent.trim(), link.href, link.target, link.rel]));
     expect(actualLinks).toEqual(expectedLinks.map(([label, href]) => [label, href, '_blank', 'noopener noreferrer']));
+
+    const reportLink = drawer.locator('#bugReportMenuItem');
+    await expect(reportLink).toHaveText('バグを報告する');
+    await reportLink.click();
+    await expect(drawer).toHaveAttribute('aria-hidden', 'true');
+    const reportModal = page.locator('#bugReportModal');
+    await expect(reportModal).toHaveAttribute('open', '');
+    await expect(reportModal.locator('cds-modal-heading')).toHaveText('バグを報告する');
+    await expect(reportModal.locator('#bugReportMessage')).toHaveAttribute('label', 'バグの内容');
+    await expect(reportModal.locator('#bugReportSubmitBtn')).toHaveText('送信');
+    await reportModal.locator('cds-modal-close-button').click();
+
+    await menu.click();
     await page.keyboard.press('Escape');
     await expect(drawer).toHaveAttribute('aria-hidden', 'true');
     await expect(menu).toHaveAttribute('aria-expanded', 'false');
