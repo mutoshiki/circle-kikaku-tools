@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 
-const require = createRequire(import.meta.url);
-const { SEND_LEASE_MS, acquireLeaseState, sentState, failedState } = require('../functions/notification-state.js');
+const stateContext = vm.createContext({ Math, Number, String });
+vm.runInContext(readFileSync(new URL('../apps-script/bug-report-mailer/State.gs', import.meta.url), 'utf8'), stateContext);
+const SEND_LEASE_MS = stateContext.BUG_REPORT_SEND_LEASE_MS;
+const acquireLeaseState = (current, { now, leaseToken, eventId }) => stateContext.acquireBugReportLeaseState_(current, now, leaseToken, eventId);
+const sentState = (current, { now, leaseToken, eventId, duplicate = false }) => stateContext.sentBugReportNotificationState_(current, now, leaseToken, eventId, duplicate);
+const failedState = (current, { now, leaseToken, eventId, error }) => stateContext.failedBugReportNotificationState_(current, now, leaseToken, eventId, error);
 const rules = readFileSync(new URL('../firebase/database.rules.json', import.meta.url), 'utf8');
 const projectId = 'demo-circle-kikaku-tools';
 const validRoomId = 'RULES67A';
@@ -117,8 +121,9 @@ try {
     await mustFail('client notification status read', () => owner.ref('bugReportNotifications/REPORT001').once('value'));
     await mustFail('client notification status write', () => owner.ref('bugReportNotifications/REPORT001').set({ status: 'sent' }));
 
-    // Server-side notification state uses a transaction lease. Two near-simultaneous
-    // executions must not both obtain permission to send the same report.
+    // The Apps Script worker uses the same state machine with Firebase ETag CAS.
+    // This RTDB transaction test verifies the intended atomic outcome under true contention:
+    // two near-simultaneous workers cannot both obtain permission to send one report.
     await env.withSecurityRulesDisabled(async context => {
         const server = context.database();
         const now = Date.now();
