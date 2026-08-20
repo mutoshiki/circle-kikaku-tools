@@ -1,5 +1,5 @@
-/* Allocation commands: one Carbon page action. Allocation type is selected
- * only from the primary Carbon Tabs, so this toolbar does not duplicate it. */
+/* Allocation commands: one Carbon page action. The primary Carbon Tabs own
+ * car/team view selection, so this toolbar intentionally does not duplicate it. */
 #top-area > .edit-header:first-child,
 .allocation-toolbar {
   position: relative;
