@@ -1,4 +1,4 @@
-name: Validate Carbon refresh
+name: Apply Carbon follow-up
 on:
   push:
     branches:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  validate:
+  apply-followup:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Validate current branch
+      - name: Apply and validate follow-up
         id: validate
         shell: bash
         run: |
@@ -41,6 +41,8 @@ jobs:
           }
           ok=1
           run_checked npm ci --no-audit --no-fund || ok=0
+          if [ "$ok" -eq 1 ]; then run_checked git apply --check -p1 .github/carbon-followup.patch || ok=0; fi
+          if [ "$ok" -eq 1 ]; then run_checked git apply -p1 .github/carbon-followup.patch || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked npm run build:carbon || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked npm run lint:css || ok=0; fi
@@ -50,13 +52,18 @@ jobs:
           echo "finished=$(date -u +%FT%TZ)" >> "$STATUS"
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
           exit 0
-      - name: Commit validation status
+      - name: Commit follow-up and status
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .github/carbon-apply-status.log
-          git commit -m "Record Carbon validation status"
+          if [ "${{ steps.validate.outputs.ok }}" = "1" ]; then
+            git add assets/ tests/
+            git commit -m "Finish Carbon responsive UI contracts"
+          else
+            git commit -m "Record Carbon follow-up validation failure"
+          fi
           git push origin HEAD:carbon-full-ui-refresh-20260820
       - uses: actions/upload-artifact@v4
         if: always()
