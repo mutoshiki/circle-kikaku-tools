@@ -40,10 +40,4 @@ replace_once(
     """    if (viewport.width <= 390) {\n      await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 180, pointerId: 1, isPrimary: true });\n      await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 148, pointerId: 1, isPrimary: true });\n      await page.dispatchEvent('#top-area', 'pointerup', { pointerType: 'touch', clientY: 148, pointerId: 1, isPrimary: true });\n    } else {\n      await page.dispatchEvent('#top-area', 'wheel', { deltaY: 120 });\n    }\n    await expect(title).toHaveAttribute('data-state', 'collapsed');\n    await expect.poll(() => title.evaluate(node => node.getBoundingClientRect().height)).toBeLessThanOrEqual(1);\n\n    if (viewport.width <= 390) {\n      await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 120, pointerId: 2, isPrimary: true });\n      await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 152, pointerId: 2, isPrimary: true });\n      await page.dispatchEvent('#top-area', 'pointerup', { pointerType: 'touch', clientY: 152, pointerId: 2, isPrimary: true });\n    } else {\n      await page.dispatchEvent('#top-area', 'wheel', { deltaY: -120 });\n    }\n    await expect(title).toHaveAttribute('data-state', 'expanded');"""
 )
 
-replace_once(
-    'tests/shell-project-title-navigation-v73-contract.mjs',
-    """assert.match(js, /setProjectTitleExpanded\\(false\\)/);\nassert.match(js, /event\\.pointerType === 'touch'/);\nassert.match(js, /event\\.deltaY < -PROJECT_TITLE_SCROLL_THRESHOLD/);""",
-    """assert.match(js, /setProjectTitleExpanded\\(false\\)/);\nassert.match(js, /event\\.pointerType === 'touch'/);\nassert.match(js, /deltaY <= -PROJECT_TITLE_PULL_THRESHOLD/);\nassert.match(js, /event\\.deltaY > PROJECT_TITLE_SCROLL_THRESHOLD/);\nassert.match(js, /event\\.deltaY < -PROJECT_TITLE_SCROLL_THRESHOLD/);"""
-)
-
 print('Applied v73 interaction regression fixes.')
