@@ -1,5 +1,5 @@
-head=158d3c1c75d020edb77735c549f98ef3678450e5
-started=2026-08-20T05:52:14Z
+head=5891e47f9c4232d63d6a836c4051c385f7ef714c
+started=2026-08-20T05:53:59Z
 
 ## npm ci --no-audit --no-fund
 npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
@@ -38,16 +38,154 @@ exit=0
 Built Carbon assets: {"webComponents":"2.60.0","icons":"11.85.0","plexSans":"1.1.0","plexSansJp":"3.0.0"}
 exit=0
 
-## npm run test:static
-npm error Missing script: "test:static"
-npm error
-npm error Did you mean this?
-npm error   npm run test:share # run the "test:share" package script
-npm error
-npm error To see a list of scripts, run:
-npm error   npm run
-npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-08-20T05_52_41_591Z-debug-0.log
+## npm run lint:css
+
+> circle-kikaku-tools@8.3.2-waiting-grid-v52 lint:css
+> stylelint "assets/css/**/*.css" --config stylelint.config.mjs
+
+exit=0
+
+## npm test
+
+> circle-kikaku-tools@8.3.2-waiting-grid-v52 test
+> node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs && node tests/person-card-interaction-contract.mjs && node tests/carbon-guidance-v35-contract.mjs && node tests/route-distance-apply-v37-contract.mjs && node tests/carbon-feedback-focus-fit-v38-contract.mjs && node tests/card-drag-stability-v39-contract.mjs && node tests/entity-schema-v42-contract.mjs && node tests/root-stability-v44-contract.mjs && node tests/collaborative-interaction-delete-v47-contract.mjs && node tests/settlement-concurrent-save-v48-contract.mjs && node tests/settlement-cross-car-sync-v49-contract.mjs && node tests/collaborative-sync-foundation-v50-contract.mjs && node tests/settlement-negative-extra-save-v51-contract.mjs && node tests/waiting-grid-v52-contract.mjs && node tests/settlement-balance-v58-contract.mjs && node tests/settlement-extra-concurrent-v66-contract.mjs && node tests/sync-reliability-v67-contract.mjs && node tests/sync-protocol-v68-contract.mjs && node tests/sync-outbox-rejection-v68-contract.mjs && node tests/five-device-domain-sync-v46.mjs
+
+PASS Carbon package versions are exact
+PASS Carbon runtime and IBM Plex assets exist
+PASS No Bootstrap or Font Awesome runtime dependency remains
+PASS No catch-all override files exist
+PASS No native generic form controls are emitted outside the app navigation
+PASS Every modal uses Carbon anatomy and a non-button primary focus target
+FAIL Primary navigation uses destination buttons while allocation mode uses Carbon Content Switcher: The input did not match the regular expression /<button\b[^>]*id="tab-list"[^>]*aria-current="page"/i. Input:
+
+'\n' +
+  '<!DOCTYPE html>\n' +
+  '<html lang="ja">\n' +
+  '  <head>\n' +
+  '    <meta charset="utf-8">\n' +
+  '    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">\n' +
+  '    <title>サークル企画ツール</title>\n' +
+  '    <meta name="description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">\n' +
+  '    <meta property="og:title" content="サークル企画ツール">\n' +
+  '    <meta property="og:description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">\n' +
+  '    <meta property="og:type" content="website">\n' +
+  '    <meta property="og:url" content="https://mutoshiki.github.io/circle-kikaku-tools/">\n' +
+  '    <meta property="og:image" content="https://mutoshiki.github.io/circle-kikaku-tools/ogp-thumbnail.png">\n' +
+  '    <meta property="og:site_name" content="サークル企画ツール">\n' +
+  '    <meta name="twitter:card" content="summary_large_image">\n' +
+  '    <meta name="twitter:title" content="サークル企画ツール">\n' +
+  '    <meta name="twitter:description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">\n' +
+  '    <meta name="twitter:image" content="https://mutoshiki.github.io/circle-kikaku-tools/ogp-thumbnail.png">\n' +
+  '    <!-- CSS: local fonts -->\n' +
+  '    <link rel="preload" href="./assets/vendor/ibm-plex/fonts/IBMPlexSans-Regular.woff2" as="font" type="font/woff2" crossorigin>\n' +
+  '    <link href="./assets/vendor/ibm-plex/plex.css" rel="stylesheet">\n' +
+  '    <!-- CSS: tokens -->\n' +
+  '    <link href="./assets/css/tokens/01-color-scheme.css?v=rendered-qa-v26" rel="stylesheet">\n' +
+  '    <link href="./assets/css/tokens/01-component-palette.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/tokens/01-theme-modes.css?v=rendered-qa-v26" rel="stylesheet">\n' +
+  '    <link href="./assets/css/tokens/02-radius-spacing-type.css?v=design-polish-v25" rel="stylesheet">\n' +
+  '    <link href="./assets/css/tokens/04-forms-inputs.css?v=carbon-v8" rel="stylesheet">\n' +
+  '    <link href="./assets/css/tokens/05-control-surface-tokens.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/tokens/06-motion-tokens.css" rel="stylesheet">\n' +
+  '    <!-- CSS: components -->\n' +
+  '    <link href="./assets/css/components/00-component-contracts.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/components/icons/01-carbon-icons.css?v=feature-fixes-v30" rel="stylesheet">\n' +
+  '    <link href="./assets/css/components/surfaces/01-surface-tokens.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/components/surfaces/02-empty-state.css?v=carbon-complete" rel="stylesheet">\n' +
+  '    <link href="./assets/css/components/surfaces/03-surface-primitives.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/components/feedback/01-assurance.css?v=carbon-assurance" rel="stylesheet">\n' +
+  '    <link href="./assets/css/components/buttons/01-button-base.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/components/buttons/02-action-buttons.css" rel="stylesheet">\n' +
+  '    <!-- CSS: app shell and layout -->\n' +
+  '    <link href="./assets/css/app-shell/00-base-extracted.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/app-shell/layout/01-app-frame.css?v=carbon-complete-2" rel="stylesheet">\n' +
+  '    <link href="./assets/css/app-shell/layout/02-panels.css?v=toolbar-order-v70" rel="stylesheet">\n' +
+  '    <link href="./assets/css/app-shell/layout/03-mobile-frame.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/app-shell/layout/04-layering.css?v=carbon-layer-nav-v53" rel="stylesheet">\n' +
+  '    <link href="./assets/css/app-shell/edit/01-edit-base.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/app-shell/edit/02-toolbar.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/app-shell/edit/03-mobile-edit.css" rel="stylesheet">\n' +
+  '    <!-- CSS: header owners: base, room/status, tabs/actions, mobile, responsive -->\n' +
+  '    <link href="./assets/css/app-shell/header/01-header-base.css?v=design-polish-v25" rel="stylesheet">\n' +
+  '    <link href="./assets/css/app-shell/header/02-room-status.css?v=carbon-layer-nav-v53" rel="stylesheet">\n' +
+  '    <link href="./assets/css/app-shell/header/03-tabs-actions.css?v=carbon-layer-nav-v53" rel="stylesheet">\n' +
+  '    <link href="./assets/css/app-shell/share/01-share-link-modal.css?v=design-polish-v25" rel="stylesheet">\n' +
+  '    <!-- CSS: foundations and design tokens -->\n' +
+  '    <!-- CSS: guides and modals -->\n' +
+  '    <link href="./assets/css/guides-modals/00-base-extracted.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/modal/01-modal-base.css?v=rendered-qa-v26" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/modal/02-dropdowns.css?v=design-polish-v25" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/modal/03-seat-member-picker.css?v=design-polish-v25" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/manual/01-manual-shell.css?v=design-polish-v25" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/manual/02-manual-media.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/manual/03-manual-mobile.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/dialog/01-dialog-shell.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/dialog/02-dialog-content.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/import-guide/01-import-shell.css?v=design-polish-v25" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/import-guide/02-import-table.css?v=design-polish-v25" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/import-guide/03-import-preview.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/import-guide/04-import-mobile.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/import-guide/05-batch-help-flow.css?v=design-polish-v25" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/notices/01-copy-lock.css?v=design-polish-v25" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/overview/01-overview-drawer.css?v=design-polish-v25" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/overview/02-overview-mobile.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/guides-modals/z-layer/01-z-layer.css" rel="stylesheet">\n' +
+  '    <!-- CSS: car assignment, members, and waiting tray -->\n' +
+  '    <link href="./assets/css/cars-members-tray/00-base-extracted.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/01-shared-card-primitives.css?v=carbon-layer-nav-v53" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/waiting-tray/01-tray-shell.css?v=carbon-layer-nav-v53" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/waiting-tray/02-tray-drawer.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/waiting-tray/03-tray-actions.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/waiting-tray/04-tray-mobile.css?v=carbon-guidance-v35" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/waiting-tray/05-tray-states.css?v=collaboration-fixes-v41" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css?v=waiting-grid-v52-carbon-layer-nav-v53" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/person-card/01-person-card-shell.css?v=carbon-layer-nav-v53" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/person-card/02-person-name-grade.css?v=settlement-balance-v58" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/person-card/03-person-menu.css?v=waiting-grid-v52-carbon-layer-nav-v53" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/person-card/04-person-mobile.css?v=mobile-layout-fix" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/car-card/01-card-shell.css?v=design-polish-v25" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/car-card/02-card-header.css?v=capacity-pill-v64" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/car-card/03-seat-grid.css?v=card-drag-stability-v39" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/car-card/04-group-mode.css?v=toolbar-order-v70" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/car-card/05-empty-controls.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/drag-drop/01-card-drag.css?v=collab-interaction-delete-v47" rel="stylesheet">\n' +
+  '    <link href="./assets/css/cars-members-tray/drag-drop/02-drop-targets.css" rel="stylesheet">\n' +
+  '    <!-- CSS: settlement feature -->\n' +
+  '    <link href="./assets/css/settlement/00-base-extracted.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/page-shell/01-layout.css?v=carbon-layer-nav-v53" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/page-shell/02-empty-state.css?v=carbon-complete" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/page-shell/03-car-summary-base.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/page-shell/04-mobile-layout.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/page-shell/05-error-states.css?v=carbon-layer-nav-v53" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/page-shell/06-density.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/page-shell/07-payment-tag-surfaces.css?v=design-polish-v25" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/page-shell/08-density-balance.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/summary/01-summary-layout.css?v=display-detail-v57" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/summary/02-summary-values.css?v=carbon-layer-nav-v53" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/summary/03-summary-colors.css?v=carbon-layer-nav-v53" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/summary/04-summary-pills.css?v=carbon-layer-nav-v53" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/summary/05-summary-surfaces.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/controls/01-control-shell.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/controls/02-toggles.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/controls/03-settings.css?v=feature-polish-v29" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/controls/04-mobile-controls.css" rel="stylesheet">\n' +
+  '    <link href="./assets/css/settlement/car-inputs/01-car-form.css?v=design-poli'... 46624 more characters
+
+PASS Header icon-only controls use Carbon Icon Button or Overflow Menu
+PASS Waiting tray disclosure uses a Carbon button
+PASS Person actions use official Carbon Overflow Menu and Menu
+PASS No automatic blocking coachmark remains
+PASS Input state owner includes Carbon invalid, warning, readonly and disabled contracts
+PASS All required Carbon component modules are registered by the entry
+PASS Lockfiles do not retain Bootstrap or Font Awesome
+PASS No inline JavaScript event handlers remain
+PASS Root Carbon geometry and mobile input zoom contract exist
+PASS User guide screenshots are complete and current assets exist
+PASS Build manifest is deterministic and matches exact versions
+PASS Package scripts only reference available project test tools
+PASS Index IDs are unique
+PASS All local index references exist
 exit=1
 
 result=failure
-finished=2026-08-20T05:52:41Z
+finished=2026-08-20T05:54:31Z
