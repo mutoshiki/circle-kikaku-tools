@@ -43,3 +43,5 @@ jobs:
           git add index.html assets tests
           git commit -m "Fix mobile shared, allocation, and settlement UI"
           git push origin HEAD:fix-mobile-share-allocation-settlement-20260820
+
+# Trigger the prepared owner-file applicator after handoff.
