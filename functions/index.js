@@ -1,6 +1,6 @@
-const { onValueCreated } = require('firebase-functions/v2/database');
+const { onValueCreated } = require('firebase-functions/database');
 const { defineSecret } = require('firebase-functions/params');
-const { logger } = require('firebase-functions');
+const logger = require('firebase-functions/logger');
 const { initializeApp } = require('firebase-admin/app');
 
 initializeApp();
