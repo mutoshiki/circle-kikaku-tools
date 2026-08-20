@@ -49,6 +49,25 @@
         submit.toggleAttribute('disabled', disabled);
     }
 
+    function readBugReportView() {
+        if (document.body.classList.contains('view-mode-sheet')) return '共有画面';
+        if (document.body.classList.contains('view-mode-seisan')) return '精算';
+        return document.body.dataset.activePlanTemplate === 'team' ? '班割' : '車割';
+    }
+
+    function readBugReportProjectTitle() {
+        return String(
+            document.getElementById('projectTitleEditor')?.textContent
+            || document.getElementById('roomNameInput')?.value
+            || ''
+        ).trim().slice(0, 200);
+    }
+
+    function readBugReportPlatform() {
+        const nav = global.navigator;
+        return String(nav?.userAgentData?.platform || nav?.platform || '').slice(0, 160);
+    }
+
     async function submitBugReport(modal) {
         if (bugReportSubmitting) return;
         const input = modal?.querySelector('#bugReportMessage');
@@ -72,10 +91,14 @@
             const buildId = typeof APP_BUILD_ID !== 'undefined' ? String(APP_BUILD_ID || '') : '';
             await databaseModule.set(reportRef, {
                 message: message.slice(0, BUG_REPORT_MAX_LENGTH),
-                roomId: currentRoomId,
+                roomId: currentRoomId.slice(0, 80),
                 pageUrl: String(global.location.href || '').slice(0, 2048),
                 createdAt,
-                buildId: buildId.slice(0, 120)
+                buildId: buildId.slice(0, 120),
+                projectTitle: readBugReportProjectTitle(),
+                currentView: readBugReportView().slice(0, 40),
+                userAgent: String(global.navigator?.userAgent || '').slice(0, 512),
+                platform: readBugReportPlatform()
             });
 
             input.value = '';
