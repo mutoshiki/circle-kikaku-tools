@@ -1,6 +1,9 @@
 name: Apply Shell V73
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - feat/carbon-project-title-navigation-v73
@@ -10,7 +13,7 @@ permissions:
 
 jobs:
   apply:
-    if: github.actor != 'github-actions[bot]' && contains(github.event.head_commit.message, 'temporary v73 implementation runner trigger')
+    if: github.actor != 'github-actions[bot]' && (github.event_name == 'pull_request' || contains(github.event.head_commit.message, 'temporary v73 implementation runner trigger'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
