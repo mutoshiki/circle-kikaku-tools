@@ -27,6 +27,7 @@
     "test:collab:soak": "node tests/five-device-network-soak-v46.mjs",
     "test:collab:protocol": "node tests/sync-protocol-chaos-v68.mjs",
     "test:collab:firebase": "playwright test tests/collaborative-sync-v50.firebase.spec.js",
+    "test:bug-report:staging": "playwright test tests/bug-report-staging.firebase.spec.js",
     "test:firebase:emulator": "firebase emulators:exec --only database --project demo-circle-kikaku-tools \"node tests/firebase-rules-emulator-v67.mjs\"",
     "test:collab:full": "npm test && npm run test:collab:chaos && npm run test:collab:deep && npm run test:collab:soak && npm run test:collab:protocol"
   },
