@@ -179,3 +179,5 @@ test.describe('Allocation, menus and accessibility', () => {
             tests/carbon-complete.spec.js
           git commit -m "Fix shared-view native touch scrolling"
           git push origin HEAD:fix-shared-touch-scroll-cue-20260820
+
+# Trigger verification after workflow creation.
