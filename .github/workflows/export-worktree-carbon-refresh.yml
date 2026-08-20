@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Validate final browser contract
+      - name: Validate final Carbon layout
         id: validate
         shell: bash
         run: |
@@ -44,6 +44,8 @@ jobs:
           run_checked npm ci --no-audit --no-fund || ok=0
           if [ "$ok" -eq 1 ]; then run_checked git apply --check -p1 .github/browser-test-followup.patch || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked git apply -p1 .github/browser-test-followup.patch || ok=0; fi
+          if [ "$ok" -eq 1 ]; then run_checked git apply --check -p1 .github/carbon-nav-final.patch || ok=0; fi
+          if [ "$ok" -eq 1 ]; then run_checked git apply -p1 .github/carbon-nav-final.patch || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked npm run build:carbon || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked npm run lint:css || ok=0; fi
@@ -56,17 +58,22 @@ jobs:
           echo "finished=$(date -u +%FT%TZ)" >> "$STATUS"
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
           exit 0
-      - name: Commit validated browser contract and status
+      - name: Commit validated Carbon layout and status
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .github/carbon-apply-status.log
           if [ "${{ steps.validate.outputs.ok }}" = "1" ]; then
-            git add tests/carbon-complete.spec.js
-            git commit -m "Validate final Carbon browser interactions"
+            git add \
+              assets/css/app-shell/layout/04-layering.css \
+              assets/css/app-shell/header/03-tabs-actions.css \
+              index.html \
+              tests/carbon-complete.spec.js \
+              tests/carbon-complete.visual.spec.js
+            git commit -m "Finish Carbon responsive tab navigation"
           else
-            git commit -m "Record final Carbon browser validation failure"
+            git commit -m "Record final Carbon layout validation failure"
           fi
           git push origin HEAD:carbon-full-ui-refresh-20260820
       - uses: actions/upload-artifact@v4
