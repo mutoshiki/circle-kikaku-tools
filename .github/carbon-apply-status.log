@@ -1,6 +1,6 @@
-head=94f4390c0961e3453ce6ef608d444db0470427ab
-run_id=32338032264
-started=2026-08-20T06:04:07Z
+head=193085a0aed0b6d20a02beab3767cb01b6702510
+run_id=32338550238
+started=2026-08-20T06:11:42Z
 
 ## npm ci --no-audit --no-fund
 npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
@@ -8,7 +8,13 @@ npm warn deprecated json-ptr@3.1.1: Package no longer supported. Contact Support
 npm warn deprecated uuid@9.0.1: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
 npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
-added 866 packages in 30s
+added 866 packages in 29s
+exit=0
+
+## git apply --check -p1 .github/carbon-followup.patch
+exit=0
+
+## git apply -p1 .github/carbon-followup.patch
 exit=0
 
 ## npm run build:carbon
@@ -56,16 +62,29 @@ PASS Package scripts only reference available project test tools
 PASS Index IDs are unique
 PASS All local index references exist
 PASS dark accent and popup semantic contract
-file:///home/runner/work/circle-kikaku-tools/circle-kikaku-tools/tests/design-refinement-contract.mjs:6
-const expect = (condition, message) => { if (!condition) throw new Error(message); };
-                                                               ^
+PASS comprehensive rendered design refinement contract
+PASS comprehensive feature polish contract
+PASS feature fixes v30 contract
+person-card-interaction-contract: PASS
+Carbon guidance v35 contract: PASS
+Route distance apply + room guidance contract: PASS
+Carbon feedback + pointer focus + expense-name auto-fit contract: PASS
+Card add affordance + transient drag tray contract: PASS
+Entity schema v42 canonical state + entity sync contract: PASS
+Root stability v44 contract: PASS
+Collaborative interaction + deletion sync v47 contract: PASS
+Settlement concurrent explicit-save v48: PASS
+Settlement cross-car live sync v49 contract: PASS
+Collaborative sync foundation v50 contract: PASS
+Settlement negative extra save v51 contract: PASS
+PASS waiting grid v52 contract
+Settlement balance v58 contract: PASS
+Settlement concurrent extras v66: PASS
+Sync reliability v67 contract: PASS
+Sync protocol v68 contract: PASS
+Sync outbox rejection v68 contract: PASS
+Five-device domain + modal sync v46: PASS
+exit=0
 
-Error: Empty seats must use a real Carbon icon.
-    at expect (file:///home/runner/work/circle-kikaku-tools/circle-kikaku-tools/tests/design-refinement-contract.mjs:6:64)
-    at file:///home/runner/work/circle-kikaku-tools/circle-kikaku-tools/tests/design-refinement-contract.mjs:46:1
-
-Node.js v22.23.2
-exit=1
-
-result=failure
-finished=2026-08-20T06:04:43Z
+result=success
+finished=2026-08-20T06:12:19Z

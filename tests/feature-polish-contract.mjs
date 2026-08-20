@@ -24,11 +24,11 @@ expect(runtime.includes('applyCarbonTooltipPolicy'), 'Global Carbon tooltip remo
 expect(runtime.includes("'.cds--popover, .cds--tooltip-content { display: none !important"), 'Tooltip popover suppression is missing');
 expect(runtime.includes("document.addEventListener('sanpo:carbon-ready'"), 'Tooltip policy is not reapplied after Carbon upgrade');
 
-expect(index.includes('>埋める</span>'), 'Fill-empty button label is not 埋める');
+expect(index.includes('>空きを埋める</span>'), 'Fill-empty button label must describe the result clearly.');
 expect(index.match(/id="shuffleAssignBtn"[\s\S]{0,220}data-carbon-icon="shuffle"/), 'Random action does not use the official Carbon shuffle icon');
 expect(!index.includes('carbon-dice-icon'), 'Legacy dice icon remains');
-expect(autoAssign.includes("if (mode === 'fill') return '埋める';"), 'Auto-assignment result label is not 埋める');
-expect(userGuide.includes('「埋める」「ランダム」'), 'User guide still documents the old 空席 label');
+expect(autoAssign.includes("if (mode === 'fill') return '空きを埋める';"), 'Auto-assignment result label must match the visible action.');
+expect(userGuide.includes('「空きを埋める」「ランダム割当」'), 'User guide must document the current allocation actions.');
 
 expect(index.includes('車出し協力代の負担方法'), 'Driver reward burden heading is unclear');
 expect(!index.includes('1台あたりの協力代をどこから支払うか選択'), 'Removed driver reward helper copy remains');

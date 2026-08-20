@@ -24,8 +24,8 @@ window.updateAutoAssignSummary = updateAutoAssignSummary;
 
 function buildAutoAssignAppliedLabel(opts, mode) {
     const items = getAutoAssignConditionItems(opts);
-    if (mode === 'fill') return '埋める';
-    return items.length ? `${items.join('・')}` : 'ランダム';
+    if (mode === 'fill') return '空きを埋める';
+    return items.length ? `${items.join('・')}` : 'ランダム割当';
 }
 
 function updateLastAutoAssignCondition() {
@@ -251,7 +251,7 @@ async function autoAssign(mode) {
     if(mode === 'shuffle') {
         const items = getAutoAssignConditionItems(opts);
         const message = items.length ? `${items.join('・')}をまとめて自動割り当てします。` : 'ランダムで自動割り当てします。';
-        if(!await appConfirm(message, { title: 'ランダム', okText: '実行' })) return;
+        if(!await appConfirm(message, { title: 'ランダム割当', okText: '実行' })) return;
         $$('.seat-slot').forEach(slot => getRealSeatCards(slot).filter(m => m.dataset.locked !== 'true').forEach(m => { mems.push(getMemData(m)); m.remove(); }));
         $$('#waiting-list .member-card:not([data-locked="true"])').forEach(m => { mems.push(getMemData(m)); m.remove(); });
     } else {
