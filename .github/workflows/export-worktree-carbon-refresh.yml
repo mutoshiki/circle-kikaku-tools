@@ -21,25 +21,66 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci --no-audit --no-fund
-      - name: Apply queued Carbon patches
+      - name: Apply and validate queued Carbon refactor
+        id: apply
+        shell: bash
         run: |
-          for p in .github/carbon-refresh-part-{1,2,3,4}.patch; do
-            git apply --check -p1 "$p"
-            git apply -p1 "$p"
-          done
-      - run: npm run build:carbon
-      - run: npm run test:static
-      - run: git diff --check
-      - name: Commit applied refactor
+          set +e
+          STATUS=.github/carbon-apply-status.log
+          : > "$STATUS"
+          echo "head=$(git rev-parse HEAD)" >> "$STATUS"
+          echo "started=$(date -u +%FT%TZ)" >> "$STATUS"
+
+          run_checked() {
+            echo "" >> "$STATUS"
+            echo "## $*" >> "$STATUS"
+            "$@" >> "$STATUS" 2>&1
+            code=$?
+            echo "exit=$code" >> "$STATUS"
+            return $code
+          }
+
+          ok=1
+          run_checked npm ci --no-audit --no-fund || ok=0
+          if [ "$ok" -eq 1 ]; then
+            for p in .github/carbon-refresh-part-{1,2,3,4}.patch; do
+              echo "" >> "$STATUS"
+              echo "## check $p" >> "$STATUS"
+              git apply --check -p1 "$p" >> "$STATUS" 2>&1
+              code=$?
+              echo "exit=$code" >> "$STATUS"
+              if [ "$code" -ne 0 ]; then ok=0; break; fi
+              echo "## apply $p" >> "$STATUS"
+              git apply -p1 "$p" >> "$STATUS" 2>&1
+              code=$?
+              echo "exit=$code" >> "$STATUS"
+              if [ "$code" -ne 0 ]; then ok=0; break; fi
+            done
+          fi
+          if [ "$ok" -eq 1 ]; then run_checked npm run build:carbon || ok=0; fi
+          if [ "$ok" -eq 1 ]; then run_checked npm run test:static || ok=0; fi
+          if [ "$ok" -eq 1 ]; then run_checked git diff --check || ok=0; fi
+          echo "" >> "$STATUS"
+          echo "result=$([ "$ok" -eq 1 ] && echo success || echo failure)" >> "$STATUS"
+          echo "finished=$(date -u +%FT%TZ)" >> "$STATUS"
+          echo "ok=$ok" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Commit result and diagnostics
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html assets/
-          git diff --cached --check
-          git commit -m "Apply Carbon responsive UI refactor"
+          git add .github/carbon-apply-status.log
+          if [ "${{ steps.apply.outputs.ok }}" = "1" ]; then
+            git add index.html assets/
+            git diff --cached --check
+            git commit -m "Apply Carbon responsive UI refactor"
+          else
+            git commit -m "Record Carbon patch application failure"
+          fi
           git push origin HEAD:carbon-full-ui-refresh-20260820
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: carbon-refresh-worktree
           path: |
