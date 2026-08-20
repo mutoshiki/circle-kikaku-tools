@@ -199,6 +199,39 @@
   .sheet-plan-table { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
+@media (max-width: 1055px) {
+  /* On responsive layouts the shared view is one continuous vertical scroll
+   * region. The summary is part of normal flow instead of a fixed overlay, so
+   * a touch beginning anywhere in the shared view scrolls the same surface. */
+  #sheet-view-area {
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+  #sheet-title-bar {
+    position: relative;
+    top: auto;
+    right: auto;
+    left: auto;
+    flex: 0 0 auto;
+    width: auto;
+    margin: var(--space-3) var(--space-4) 0;
+  }
+  #sheet-canvas {
+    flex: 0 0 auto;
+    min-height: 0;
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
+  .sheet-content {
+    min-height: 0;
+    padding-top: var(--space-5);
+  }
+}
+
 @media (min-width: 1056px) {
   #sheet-canvas { scrollbar-gutter: stable; }
   .sheet-content { padding-inline: var(--space-6); }
