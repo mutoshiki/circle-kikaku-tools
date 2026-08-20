@@ -1,6 +1,6 @@
-head=05dfa702848773b1657dd16493cbb169fde93217
-run_id=32338655734
-started=2026-08-20T06:13:16Z
+head=2174b6fa9c7712885f771c1756951e0b522bfef0
+run_id=32339604980
+started=2026-08-20T06:26:45Z
 
 ## npm ci --no-audit --no-fund
 npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
@@ -8,47 +8,100 @@ npm warn deprecated json-ptr@3.1.1: Package no longer supported. Contact Support
 npm warn deprecated uuid@9.0.1: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
 npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
-added 866 packages in 23s
+added 866 packages in 29s
+exit=0
+
+## git apply --check -p1 .github/browser-test-followup.patch
+exit=0
+
+## git apply -p1 .github/browser-test-followup.patch
+exit=0
+
+## npm test
+
+> circle-kikaku-tools@8.3.2-waiting-grid-v52 test
+> node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs && node tests/person-card-interaction-contract.mjs && node tests/carbon-guidance-v35-contract.mjs && node tests/route-distance-apply-v37-contract.mjs && node tests/carbon-feedback-focus-fit-v38-contract.mjs && node tests/card-drag-stability-v39-contract.mjs && node tests/entity-schema-v42-contract.mjs && node tests/root-stability-v44-contract.mjs && node tests/collaborative-interaction-delete-v47-contract.mjs && node tests/settlement-concurrent-save-v48-contract.mjs && node tests/settlement-cross-car-sync-v49-contract.mjs && node tests/collaborative-sync-foundation-v50-contract.mjs && node tests/settlement-negative-extra-save-v51-contract.mjs && node tests/waiting-grid-v52-contract.mjs && node tests/settlement-balance-v58-contract.mjs && node tests/settlement-extra-concurrent-v66-contract.mjs && node tests/sync-reliability-v67-contract.mjs && node tests/sync-protocol-v68-contract.mjs && node tests/sync-outbox-rejection-v68-contract.mjs && node tests/five-device-domain-sync-v46.mjs
+
+PASS Carbon package versions are exact
+PASS Carbon runtime and IBM Plex assets exist
+PASS No Bootstrap or Font Awesome runtime dependency remains
+PASS No catch-all override files exist
+PASS No native generic form controls are emitted outside the app navigation
+PASS Every modal uses Carbon anatomy and a non-button primary focus target
+PASS Primary navigation uses Carbon Tabs while allocation mode uses Carbon Content Switcher
+PASS Header icon-only controls use Carbon Icon Button or Overflow Menu
+PASS Waiting tray disclosure uses a Carbon button
+PASS Person actions use official Carbon Overflow Menu and Menu
+PASS No automatic blocking coachmark remains
+PASS Input state owner includes Carbon invalid, warning, readonly and disabled contracts
+PASS All required Carbon component modules are registered by the entry
+PASS Lockfiles do not retain Bootstrap or Font Awesome
+PASS No inline JavaScript event handlers remain
+PASS Root Carbon geometry and mobile input zoom contract exist
+PASS User guide screenshots are complete and current assets exist
+PASS Build manifest is deterministic and matches exact versions
+PASS Package scripts only reference available project test tools
+PASS Index IDs are unique
+PASS All local index references exist
+PASS dark accent and popup semantic contract
+PASS comprehensive rendered design refinement contract
+PASS comprehensive feature polish contract
+PASS feature fixes v30 contract
+person-card-interaction-contract: PASS
+Carbon guidance v35 contract: PASS
+Route distance apply + room guidance contract: PASS
+Carbon feedback + pointer focus + expense-name auto-fit contract: PASS
+Card add affordance + transient drag tray contract: PASS
+Entity schema v42 canonical state + entity sync contract: PASS
+Root stability v44 contract: PASS
+Collaborative interaction + deletion sync v47 contract: PASS
+Settlement concurrent explicit-save v48: PASS
+Settlement cross-car live sync v49 contract: PASS
+Collaborative sync foundation v50 contract: PASS
+Settlement negative extra save v51 contract: PASS
+PASS waiting grid v52 contract
+Settlement balance v58 contract: PASS
+Settlement concurrent extras v66: PASS
+Sync reliability v67 contract: PASS
+Sync protocol v68 contract: PASS
+Sync outbox rejection v68 contract: PASS
+Five-device domain + modal sync v46: PASS
 exit=0
 
 ## npx playwright install --with-deps chromium
 Installing dependencies...
 Switching to root user to install dependencies...
 Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
-Get:6 https://dl.google.com/linux/chrome-stable/deb stable InRelease [2548 B]
+Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
+Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+Get:8 https://dl.google.com/linux/chrome-stable/deb stable InRelease [2548 B]
+Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [376 kB]
 Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
-Get:7 https://packages.microsoft.com/repos/azure-cli noble InRelease [3564 B]
-Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
 Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+Get:10 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [331 kB]
 Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
 Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
-Get:9 https://dl.google.com/linux/chrome-stable/deb stable/main amd64 Packages [1413 B]
-Get:10 https://packages.microsoft.com/repos/azure-cli noble/main amd64 Packages [2452 B]
-Get:11 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [376 kB]
-Get:12 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [12.4 kB]
-Get:13 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [331 kB]
-Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1216 kB]
-Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [285 kB]
-Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [180 kB]
-Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1683 kB]
-Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [336 kB]
-Get:19 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [388 kB]
-Get:20 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1463 kB]
-Get:21 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [334 kB]
-Get:22 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [12.6 kB]
-Get:23 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
-Get:24 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [5776 B]
-Get:25 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [12.6 kB]
-Get:26 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [952 kB]
-Get:27 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [204 kB]
-Get:28 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [46.4 kB]
-Get:29 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1201 kB]
-Get:30 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [240 kB]
-Get:31 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [76.2 kB]
-Get:32 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1357 kB]
-Get:33 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [312 kB]
-Get:34 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [10.9 kB]
-Fetched 11.4 MB in 3s (3550 kB/s)
+Get:11 https://dl.google.com/linux/chrome-stable/deb stable/main amd64 Packages [1413 B]
+Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1216 kB]
+Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [285 kB]
+Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [180 kB]
+Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1683 kB]
+Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [336 kB]
+Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [388 kB]
+Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1463 kB]
+Get:19 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [334 kB]
+Get:20 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+Get:21 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [5776 B]
+Get:22 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [12.6 kB]
+Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [952 kB]
+Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [204 kB]
+Get:25 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [46.4 kB]
+Get:26 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1201 kB]
+Get:27 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [240 kB]
+Get:28 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [76.2 kB]
+Get:29 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1357 kB]
+Get:30 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [312 kB]
+Fetched 11.4 MB in 2s (5199 kB/s)
 Reading package lists...
 Reading package lists...
 Building dependency tree...
@@ -111,7 +164,7 @@ The following NEW packages will be installed:
   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
   xfonts-utils
-0 upgraded, 9 newly installed, 0 to remove and 24 not upgraded.
+0 upgraded, 9 newly installed, 0 to remove and 17 not upgraded.
 Need to get 21.1 MB of archives.
 After this operation, 79.5 MB of additional disk space will be used.
 Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
@@ -124,9 +177,9 @@ Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings a
 Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
 Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
 Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
-Fetched 21.1 MB in 0s (77.7 MB/s)
+Fetched 21.1 MB in 0s (67.1 MB/s)
 Selecting previously unselected package fonts-ipafont-gothic.
-(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 203139 files and directories currently installed.)
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 203124 files and directories currently installed.)
 Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
 Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
 Selecting previously unselected package fonts-freefont-ttf.
@@ -228,68 +281,29 @@ Running 11 tests using 1 worker
 [1/11] [chromium] › tests/carbon-complete.spec.js:37:9 › 390px Carbon shell › primary views, theme, navigation and overview remain operable
 [2/11] [chromium] › tests/carbon-complete.spec.js:37:9 › 1280px Carbon shell › primary views, theme, navigation and overview remain operable
 [3/11] [chromium] › tests/carbon-complete.spec.js:72:7 › Allocation, menus and accessibility › allocation switches, tray controls and official menus work in the viewport
-  1) [chromium] › tests/carbon-complete.spec.js:72:7 › Allocation, menus and accessibility › allocation switches, tray controls and official menus work in the viewport 
+[4/11] [chromium] › tests/carbon-complete.spec.js:178:7 › Carbon modal, participant and sheet workflows › participant spreadsheet import creates participants
+[5/11] [chromium] › tests/carbon-complete.spec.js:191:7 › Carbon modal, participant and sheet workflows › major and dynamic modals avoid button autofocus and close correctly
+[6/11] [chromium] › tests/carbon-complete.spec.js:222:7 › Carbon modal, participant and sheet workflows › shared view quick edit adds and removes timetable rows
+[7/11] [chromium] › tests/carbon-complete.spec.js:245:7 › First-run rendering and submit regression › mobile sync status temporarily overlays the room-name field
+[8/11] [chromium] › tests/carbon-complete.spec.js:265:7 › First-run rendering and submit regression › first meaningful screen renders immediately and all three empty views use the same two choices
+[9/11] [chromium] › tests/carbon-complete.spec.js:292:7 › First-run rendering and submit regression › participant and settlement settings submit buttons close their Carbon modals
+[10/11] [chromium] › tests/carbon-complete.spec.js:313:7 › First-run rendering and submit regression › sample data is restored, rendered, persisted and closes the sample modal
+[11/11] [chromium] › tests/carbon-complete.spec.js:350:7 › Settlement and route workflows › settings, vehicle cost validation and route helper remain functional
+  1) [chromium] › tests/carbon-complete.spec.js:350:7 › Settlement and route workflows › settings, vehicle cost validation and route helper remain functional 
 
-    Error: expect(locator).toHaveAttribute(expected) failed
+    Error: expect(received).toBeLessThan(expected)
 
-    Locator:  locator('.car-box').first()
-    Expected: "4"
-    Received: "3"
-    Timeout:  7000ms
+    Expected: < 107.39999999999999
+    Received:   168
 
-    Call log:
-      - Expect "toHaveAttribute" with timeout 7000ms
-      - waiting for locator('.car-box').first()
-        18 × locator resolved to <div class="car-box" data-capacity="3" data-group-id="g_car_p_ua7asu">…</div>
-           - unexpected value "3"
-
-
-      144 |     await expect(page.locator('#editModalInput')).toHaveJSProperty('value', '4');
-      145 |     await hostClick(page, '#saveEditBtn');
-    > 146 |     await expect(page.locator('.car-box').first()).toHaveAttribute('data-capacity', '4');
-          |                                                    ^
-      147 |     await hostClick(page, '#shuffleAssignBtn');
-      148 |     expect(await page.evaluate(() => window.getActiveCarPlan().cars.every(car => car.members.length <= car.capacity))).toBeTruthy();
-      149 |     const quality = await page.evaluate(() => {
-        at /home/runner/work/circle-kikaku-tools/circle-kikaku-tools/tests/carbon-complete.spec.js:146:52
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    test-results/carbon-complete-Allocation-0a9ee--menus-work-in-the-viewport-chromium/test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: test-results/carbon-complete-Allocation-0a9ee--menus-work-in-the-viewport-chromium/error-context.md
-
-    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
-    test-results/carbon-complete-Allocation-0a9ee--menus-work-in-the-viewport-chromium/trace.zip
-    Usage:
-
-        npx playwright show-trace test-results/carbon-complete-Allocation-0a9ee--menus-work-in-the-viewport-chromium/trace.zip
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-
-[4/11] [chromium] › tests/carbon-complete.spec.js:175:7 › Carbon modal, participant and sheet workflows › participant spreadsheet import creates participants
-[5/11] [chromium] › tests/carbon-complete.spec.js:188:7 › Carbon modal, participant and sheet workflows › major and dynamic modals avoid button autofocus and close correctly
-[6/11] [chromium] › tests/carbon-complete.spec.js:219:7 › Carbon modal, participant and sheet workflows › shared view quick edit adds and removes timetable rows
-[7/11] [chromium] › tests/carbon-complete.spec.js:242:7 › First-run rendering and submit regression › mobile sync status temporarily overlays the room-name field
-[8/11] [chromium] › tests/carbon-complete.spec.js:262:7 › First-run rendering and submit regression › first meaningful screen renders immediately and all three empty views use the same two choices
-[9/11] [chromium] › tests/carbon-complete.spec.js:289:7 › First-run rendering and submit regression › participant and settlement settings submit buttons close their Carbon modals
-[10/11] [chromium] › tests/carbon-complete.spec.js:310:7 › First-run rendering and submit regression › sample data is restored, rendered, persisted and closes the sample modal
-[11/11] [chromium] › tests/carbon-complete.spec.js:347:7 › Settlement and route workflows › settings, vehicle cost validation and route helper remain functional
-  2) [chromium] › tests/carbon-complete.spec.js:347:7 › Settlement and route workflows › settings, vehicle cost validation and route helper remain functional 
-
-    Error: expect(received).not.toBe(expected) // Object.is equality
-
-    Expected: not undefined
-
-      362 |       node.dispatchEvent(new Event('cds-toggle-changed', { bubbles: true, composed: true }));
-      363 |     });
-    > 364 |     expect(await rental.evaluate(node => node.checked)).not.toBe(rentalBefore);
-          |                                                             ^
-      365 |     await rental.evaluate(node => {
-      366 |       node.checked = false;
-      367 |       node.dispatchEvent(new Event('cds-toggle-changed', { bubbles: true, composed: true }));
-        at /home/runner/work/circle-kikaku-tools/circle-kikaku-tools/tests/carbon-complete.spec.js:364:61
+      378 |       return { amount: amount.width, type: type.width, row: row.getBoundingClientRect().width };
+      379 |     });
+    > 380 |     expect(dimensions.amount).toBeLessThan(dimensions.row * 0.3);
+          |                               ^
+      381 |     expect(dimensions.type).toBeLessThan(dimensions.row * 0.35);
+      382 |     await hostClick(page, '#settlementCarEditModal [data-action="open-route-helper-shortcut"]');
+      383 |     await expect(page.locator('#routeDistanceModal')).toHaveAttribute('open', '');
+        at /home/runner/work/circle-kikaku-tools/circle-kikaku-tools/tests/carbon-complete.spec.js:380:31
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     test-results/carbon-complete-Settlement-1b988-te-helper-remain-functional-chromium/test-failed-1.png
@@ -306,11 +320,10 @@ Running 11 tests using 1 worker
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
 
-  2 failed
-    [chromium] › tests/carbon-complete.spec.js:72:7 › Allocation, menus and accessibility › allocation switches, tray controls and official menus work in the viewport 
-    [chromium] › tests/carbon-complete.spec.js:347:7 › Settlement and route workflows › settings, vehicle cost validation and route helper remain functional 
-  9 passed (59.7s)
+  1 failed
+    [chromium] › tests/carbon-complete.spec.js:350:7 › Settlement and route workflows › settings, vehicle cost validation and route helper remain functional 
+  10 passed (58.6s)
 exit=1
 
 result=failure
-finished=2026-08-20T06:15:10Z
+finished=2026-08-20T06:28:46Z
