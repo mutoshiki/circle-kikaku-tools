@@ -19,7 +19,7 @@
 #bottom-tray-header .tray-action-btn span { white-space: nowrap; }
 
 #waiting-list { grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); }
-#waiting-list .member-main-line { grid-template-columns: 44px minmax(0, 1fr) auto 48px; gap: var(--space-1); }
+#waiting-list .member-main-line { grid-template-columns: minmax(0, 1fr) auto 48px; gap: var(--space-1); }
 #waiting-list .member-name-text { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; }
 #waiting-list .member-menu-btn { width: 48px; min-width: 48px; height: 48px; min-height: 48px; }
 
