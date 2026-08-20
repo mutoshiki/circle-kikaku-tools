@@ -56,7 +56,7 @@
 /* The card is a draggable surface, not a button. The Carbon overflow-menu
  * trigger owns keyboard focus indication. */
 :where(.member-card, .driver-seat) :where(.member-main-line, .driver-main-line) { min-width: 0; }
-:where(.member-name-text, .driver-name-disp) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:where(.member-name-text, .driver-name-disp) { min-width: 0; overflow: visible; overflow-wrap: anywhere; text-overflow: clip; white-space: normal; }
 :where(.member-card, .driver-seat) .memo-popup { overflow-wrap: anywhere; }
 .gender-badge,
 .card,
