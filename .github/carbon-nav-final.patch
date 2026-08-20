@@ -52,7 +52,7 @@
        return {
          navPosition: getComputedStyle(nav).position,
          headerBottom: headerRect.bottom,
-@@ -31,13 +32,17 @@
+@@ -31,14 +32,18 @@
          labels: tabs.map(tab => tab.querySelector('.view-tab-label')?.textContent?.trim() || ''),
          shareSize: share ? { width: share.getBoundingClientRect().width, height: share.getBoundingClientRect().height } : null,
          switcherSize: switcher ? { width: switcher.getBoundingClientRect().width, height: switcher.getBoundingClientRect().height } : null,
