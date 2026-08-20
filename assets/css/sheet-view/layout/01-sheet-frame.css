@@ -1,5 +1,7 @@
 /* Shared presentation view frame.
-   発表ビューは車割を上、班割を下に縦並びで表示する。 */
+ * The read-only presentation follows Carbon's responsive grid instead of a
+ * desktop-width canvas. Quick-edit still reuses the same DOM and interaction
+ * handlers; only the layout ownership changes here. */
 #sheet-view-area {
   position: relative;
   display: none;
@@ -13,20 +15,20 @@
 
 #sheet-title-bar {
   position: absolute;
-  top: 10px;
-  right: 12px;
-  left: 12px;
+  top: var(--space-3);
+  right: var(--space-4);
+  left: var(--space-4);
   z-index: var(--z-local-sticky);
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: var(--space-3);
   max-width: var(--layout-content-max, 1200px);
   min-height: 72px;
   margin: 0 auto;
-  padding: 10px 12px;
-  border: 1px solid var(--border-section);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--cds-border-subtle, var(--border-section));
   border-radius: 0;
-  background: var(--surface-lowest);
+  background: var(--cds-layer-01, var(--surface-lowest));
   color: var(--text-main);
   box-shadow: none;
   backdrop-filter: none;
@@ -34,14 +36,15 @@
 #sheet-room-name { display: none; }
 #sheet-title-bar #sheet-summary { color: var(--text-sub); }
 #sheet-title-bar #sheet-quick-edit-btn { min-width: max-content; }
-.sheet-title-copy { display: flex; flex: 1 1 auto; flex-direction: column; gap: 4px; min-width: 0; }
+.sheet-title-copy { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; }
 .sheet-page-heading { margin: 0; color: var(--text-main); font-size: var(--font-size-title); font-weight: 600; line-height: 1.3; }
 
 #sheet-canvas {
   flex: 1;
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   overscroll-behavior: contain;
   background: var(--canvas-bg);
 }
@@ -50,106 +53,157 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 22px;
-  width: max-content;
-  min-width: 100%;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: var(--layout-content-max, 1200px);
+  min-width: 0;
   min-height: 100%;
-  padding: 100px 12px 32px;
+  margin: 0 auto;
+  padding: 108px var(--space-4) var(--space-8);
   transform-origin: top left;
 }
 
+/* Carbon 2x grid: small = one four-column region; large = overview and
+ * allocation regions sharing a 16-column page grid. */
 .sheet-primary-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 22px;
-  width: max-content;
-  min-width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-6);
+  width: 100%;
+  min-width: 0;
 }
 .sheet-primary-row > .sheet-plan-section,
-.sheet-primary-row > .sheet-allocation-stack { flex: 0 0 auto; }
+.sheet-primary-row > .sheet-overview-stack,
+.sheet-primary-row > .sheet-allocation-stack { min-width: 0; }
+
+.sheet-overview-stack,
 .sheet-allocation-stack {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 22px;
-  width: max-content;
+  align-items: stretch;
+  gap: var(--space-6);
+  width: 100%;
+  min-width: 0;
 }
-.sheet-plan-section { width: max-content; min-width: min(100%, 320px); margin-bottom: 0; }
-.sheet-plan-heading { margin: 0 0 8px 2px; color: var(--text-main); font-size: 1rem; font-weight: 600; }
-.sheet-plan-table { display: flex; align-items: flex-start; gap: 8px; width: max-content; }
+
+.sheet-plan-section {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+.sheet-plan-heading {
+  margin: 0 0 var(--space-3);
+  color: var(--text-main);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.375;
+}
+
+.sheet-plan-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  align-items: stretch;
+  gap: var(--space-3);
+  width: 100%;
+  min-width: 0;
+}
 
 .sheet-car-col {
   display: flex;
   flex-direction: column;
-  width: max-content;
+  width: 100%;
   min-width: 0;
-  flex-shrink: 0;
   overflow: hidden;
-  border: 1px solid var(--border-section);
+  border: 1px solid var(--cds-border-subtle, var(--border-section));
   border-radius: 0;
-  background: var(--surface-lowest);
+  background: var(--cds-layer-01, var(--surface-lowest));
   box-shadow: none;
 }
+
 .sheet-car-header {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-local-raised);
-  width: max-content;
-  min-width: 100%;
-  min-height: 42px;
-  padding: 9px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: var(--space-3) var(--space-4);
   overflow: hidden;
-  background: var(--surface-container);
+  border-bottom: 1px solid var(--cds-border-subtle, var(--border-section));
+  background: var(--cds-layer-02, var(--surface-container));
   color: var(--text-main);
   font-size: var(--font-size-label);
   font-weight: 600;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-align: left;
 }
+
 .sheet-driver-row,
 .sheet-seat-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-height: 42px;
-  padding: 7px 9px;
-  border-bottom: 1px solid var(--border-section);
-  background: var(--surface-lowest);
+  gap: var(--space-2);
+  min-width: 0;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--cds-border-subtle, var(--border-section));
+  background: var(--cds-layer-01, var(--surface-lowest));
   color: var(--text-main);
   font-size: var(--font-size-label);
   font-weight: 400;
 }
-.sheet-driver-row { background: var(--accent-container); color: var(--accent-container-text); font-weight: 600; }
+
+.sheet-driver-row {
+  min-height: 52px;
+  background: var(--cds-layer-01, var(--surface-lowest));
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.sheet-driver-row .sheet-role-tag { flex: 0 0 auto; }
 .sheet-seat-row:last-child { border-bottom: 0; }
-.sheet-seat-row.empty { color: var(--text-faint); font-size: var(--font-size-caption); font-style: normal; }
+.sheet-seat-row.empty {
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: var(--font-size-caption);
+  font-style: normal;
+}
+.sheet-seat-row.sheet-seat-capacity { background: var(--cds-layer-01, var(--surface-lowest)); }
+
 .sheet-cell-text,
 .sheet-chip-text,
-.sheet-driver-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-body:not(.quick-edit-mode) #sheet-view-area :is(.sheet-cell-text, .sheet-driver-name) {
-  min-width: max-content;
-  overflow: visible;
-  text-overflow: clip;
+.sheet-driver-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
 .sheet-chip.locked { opacity: 0.78; }
 .sheet-chip-ghost { opacity: 0.45; }
 .sheet-chip-drag { box-shadow: var(--shadow-float); }
 
-@media (min-width: 769px) {
-  #sheet-canvas { scrollbar-gutter: stable; }
-  .sheet-content { padding-inline: max(24px, calc((100vw - 1200px) / 2)); }
-  .sheet-car-col { min-width: 0; }
+@media (max-width: 640px) {
+  #sheet-title-bar {
+    right: var(--space-4);
+    left: var(--space-4);
+    min-height: 88px;
+    padding: var(--space-3);
+  }
+  .sheet-content { gap: var(--space-5); padding-top: 124px; }
+  .sheet-plan-table { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* Overview information stays to the left of the unchanged allocation stack. */
-.sheet-primary-row > .sheet-overview-stack,
-.sheet-primary-row > .sheet-allocation-stack { flex: 0 0 auto; }
-.sheet-overview-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 22px;
-  width: min(380px, calc(100vw - 24px));
+@media (min-width: 672px) {
+  .sheet-plan-table { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-.sheet-overview-stack > .sheet-plan-section { width: 100%; min-width: 0; }
+
+@media (min-width: 1056px) {
+  #sheet-canvas { scrollbar-gutter: stable; }
+  .sheet-content { padding-inline: var(--space-6); }
+  .sheet-primary-row { grid-template-columns: repeat(16, minmax(0, 1fr)); }
+  .sheet-overview-stack { grid-column: span 5; }
+  .sheet-allocation-stack { grid-column: span 11; }
+  .sheet-plan-table { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+}
