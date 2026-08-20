@@ -1,0 +1,271 @@
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/js/features/seat-member-picker.js carbon-refresh-worktree/assets/js/features/seat-member-picker.js
+--- carbon-refresh-base/assets/js/features/seat-member-picker.js	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/js/features/seat-member-picker.js	2026-08-20 03:01:04.413482934 +0000
+@@ -4,14 +4,14 @@
+ function refreshEmptySeatAccessibility() {
+     $$('.seat-slot').forEach(slot => {
+         const empty = getRealSeatCards(slot).length === 0;
+-        if (empty) {
+-            slot.setAttribute('role', 'button');
+-            slot.setAttribute('tabindex', '0');
+-            slot.setAttribute('aria-label', '空席に未割り当てメンバーを追加');
+-        } else {
+-            slot.removeAttribute('role');
+-            slot.removeAttribute('tabindex');
+-            slot.removeAttribute('aria-label');
++        const button = slot.querySelector('.seat-add-btn');
++        slot.removeAttribute('role');
++        slot.removeAttribute('tabindex');
++        slot.removeAttribute('aria-label');
++        if (button) {
++            button.tabIndex = empty ? 0 : -1;
++            button.hidden = !empty;
++            button.setAttribute('aria-label', 'メンバーを追加');
+         }
+     });
+ }
+@@ -72,21 +72,14 @@
+     if (!container || container.dataset.seatPickerBound === 'true') return;
+     container.dataset.seatPickerBound = 'true';
+     container.addEventListener('click', event => {
+-        if (event.target.closest('.member-card')) return;
++        if (!event.target.closest('.seat-add-btn')) return;
+         const slot = event.target.closest('.seat-slot');
+         if (slot) openSeatMemberPicker(slot);
+     });
+-    container.addEventListener('keydown', event => {
+-        if (!['Enter', ' '].includes(event.key)) return;
+-        const slot = event.target.closest('.seat-slot');
+-        if (!slot || getRealSeatCards(slot).length > 0) return;
+-        event.preventDefault();
+-        openSeatMemberPicker(slot);
+-    });
+     modal?.addEventListener('sanpo:modal-hidden', () => {
+         const target = seatMemberPickerTarget;
+         seatMemberPickerTarget = null;
+-        if (target?.isConnected && getRealSeatCards(target).length === 0) target.focus();
++        if (target?.isConnected && getRealSeatCards(target).length === 0) target.querySelector('.seat-add-btn')?.focus();
+     });
+     refreshEmptySeatAccessibility();
+ }
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/js/features/settlement/03-render.js carbon-refresh-worktree/assets/js/features/settlement/03-render.js
+--- carbon-refresh-base/assets/js/features/settlement/03-render.js	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/js/features/settlement/03-render.js	2026-08-20 02:47:47.630589444 +0000
+@@ -380,16 +380,18 @@
+     focusFirstSettlementCarValidationError();
+ }
+ 
+-function validateAndSaveSettlementCarEditBeforeClose() {
++function validateAndSaveSettlementCarEditBeforeClose(reason = 'dismiss') {
+     if (settlementCarEditClosePrepared) {
+         settlementCarEditClosePrepared = false;
+         return true;
+     }
+-    if (!validateActiveSettlementCarEditor(true)) {
+-        queueMicrotask(promptDiscardInvalidSettlementCarEdit);
+-        return false;
+-    }
+-    saveSettlementCarEditDraft({ render: true, refreshEditor: false });
++    if (reason === 'submit') return true;
++
++    // Transactional Carbon modal semantics: X, Escape and Cancel discard the
++    // uncommitted editor snapshot. The explicit Save action is the only commit.
++    restoreSettlementCarEditOpeningSnapshot();
++    saveLocalDraftOnly?.();
++    renderSettlementView({ force: true });
+     return true;
+ }
+ 
+@@ -637,7 +639,7 @@
+     const name = decodeURIComponent(encodedName || '');
+     activeSettlementCarEditName = name;
+     const title = byId('settlementCarEditModalTitle');
+-    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用`;
++    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用を編集`;
+     refreshSettlementCarEditor(name);
+     if (modals.settlementCarEdit) modals.settlementCarEdit.show();
+ }
+@@ -650,7 +652,7 @@
+     settlementCarEditDiscardPromptActive = false;
+     settlementCarEditPreserveOnHidden = false;
+     const title = byId('settlementCarEditModalTitle');
+-    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用`;
++    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用を編集`;
+     refreshSettlementCarEditor(name);
+     if (modals.settlementCarEdit) modals.settlementCarEdit.show();
+ }
+@@ -670,7 +672,7 @@
+ 
+     if (renamedStandaloneDriver && refreshEditor) {
+         const title = byId('settlementCarEditModalTitle');
+-        if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(renamedStandaloneDriver)}車の費用`;
++        if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(renamedStandaloneDriver)}車の費用を編集`;
+         refreshSettlementCarEditor(renamedStandaloneDriver);
+     }
+     if (render) renderSettlementAfterModalCommit('settlementCarEditModal');
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/js/features/sheet/02-viewport-controls.js carbon-refresh-worktree/assets/js/features/sheet/02-viewport-controls.js
+--- carbon-refresh-base/assets/js/features/sheet/02-viewport-controls.js	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/js/features/sheet/02-viewport-controls.js	2026-08-20 02:59:41.228415514 +0000
+@@ -13,6 +13,10 @@
+ let lastPinchDist = 0;
+ let sheetUserAdjusted = false;
+ 
++function usesResponsiveSheetViewport(area = byId('sheet-view-area')) {
++    return !!area && area.clientWidth < 1056;
++}
++
+ function syncSheetTimetableTextareaExpansion(host, forceActive = false) {
+     if (!host?.matches?.('cds-textarea.sheet-timetable-input.title')) return;
+     const value = String(host.value || host.getAttribute('value') || '');
+@@ -55,6 +59,17 @@
+     const content = getSheetTransformTarget();
+     if (!area || !content || !content.children.length) return;
+ 
++    if (usesResponsiveSheetViewport(area)) {
++        sheetScale = 1;
++        sheetX = 0;
++        sheetY = 0;
++        sheetUserAdjusted = false;
++        area.classList.remove('sheet-needs-pan', 'sheet-fit-active', 'is-panning');
++        content.style.zoom = '';
++        content.style.transform = 'none';
++        return;
++    }
++
+     // The old implementation transformed the persistent canvas, so a re-render
+     // kept the user's position. Reapply the same state to the replaced inner node.
+     if (sheetUserAdjusted) {
+@@ -137,7 +152,7 @@
+     });
+ 
+     area.addEventListener('mousedown', event => {
+-        if (event.button !== 0 || isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
++        if (usesResponsiveSheetViewport(area) || event.button !== 0 || isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
+         markSheetAdjusted();
+         isPanning = true;
+         panStartX = event.clientX;
+@@ -161,7 +176,7 @@
+     });
+ 
+     area.addEventListener('wheel', event => {
+-        if (isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
++        if (usesResponsiveSheetViewport(area) || isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
+         event.preventDefault();
+         markSheetAdjusted();
+         const factor = event.deltaY < 0 ? 1.1 : 0.9;
+@@ -175,7 +190,7 @@
+     }, { passive: false });
+ 
+     area.addEventListener('touchstart', event => {
+-        if (isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
++        if (usesResponsiveSheetViewport(area) || isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
+         markSheetAdjusted();
+         if (event.touches.length === 1) {
+             isPanning = true;
+@@ -195,7 +210,7 @@
+     }, { passive: true });
+ 
+     area.addEventListener('touchmove', event => {
+-        if (isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
++        if (usesResponsiveSheetViewport(area) || isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
+         event.preventDefault();
+         if (event.touches.length === 1 && isPanning) {
+             sheetX = panOriginX + (event.touches[0].clientX - panStartX);
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/js/features/sheet-view.js carbon-refresh-worktree/assets/js/features/sheet-view.js
+--- carbon-refresh-base/assets/js/features/sheet-view.js	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/js/features/sheet-view.js	2026-08-20 02:59:41.227970474 +0000
+@@ -78,9 +78,11 @@
+         if (!item) return;
+         const active = value === view;
+         item.classList.toggle('active', active);
++        item.toggleAttribute('selected', active);
+         if (active) item.setAttribute('aria-current', 'page');
+         else item.removeAttribute('aria-current');
+     });
++    window.syncCarbonPrimaryNavigationState?.();
+ }
+ async function switchView(view) {
+     if (currentView === 'sheet' && view !== 'sheet' && quickEditMode && typeof completeQuickEdit === 'function') {
+@@ -446,22 +448,14 @@
+ }
+ 
+ function syncSheetPlanWidths() {
+-    let widestPlanWidth = 0;
++    // Responsive shared-view sections are grid-owned. Clear the legacy fixed-width
++    // presentation measurements so a desktop canvas width can never leak into a
++    // phone viewport after a room restore or resize.
+     document.querySelectorAll('.sheet-plan-section:not(.sheet-timetable-section)').forEach(section => {
+-        const table = section.querySelector('.sheet-plan-table');
+-        const waitBlock = section.querySelector('.sheet-wait-block');
+-        if (!table || !waitBlock) return;
+-        const width = Math.ceil(table.scrollWidth || table.offsetWidth || 0);
+-        if (width > 0) {
+-            widestPlanWidth = Math.max(widestPlanWidth, width);
+-            section.style.setProperty('--sheet-plan-width', `${width}px`);
+-            waitBlock.style.width = `${width}px`;
+-        }
++        section.style.removeProperty('--sheet-plan-width');
++        section.querySelector('.sheet-wait-block')?.style.removeProperty('width');
+     });
+-    const canvas = byId('sheet-canvas');
+-    if (canvas && widestPlanWidth > 0) {
+-        canvas.style.setProperty('--sheet-plan-content-width', `${widestPlanWidth}px`);
+-    }
++    byId('sheet-canvas')?.style.removeProperty('--sheet-plan-content-width');
+ }
+ 
+ function renderSheetView() {
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/js/templates/settlement/02-summary-templates.js carbon-refresh-worktree/assets/js/templates/settlement/02-summary-templates.js
+--- carbon-refresh-base/assets/js/templates/settlement/02-summary-templates.js	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/js/templates/settlement/02-summary-templates.js	2026-08-20 02:46:28.351969079 +0000
+@@ -25,7 +25,7 @@
+       : '<span>割勘費用</span>';
+     // Legacy test anchor: 1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名
+     return `
+-    <cds-accordion class="seisan-summary-accordion" alignment="start" aria-label="全体の費用の内訳">
++    <cds-accordion class="seisan-summary-accordion" aria-label="全体の費用の内訳">
+       <cds-accordion-item>
+         <span slot="title" class="seisan-accordion-total"><span>割勘合計</span><strong>${signedMoney(splitPaymentTotal, helpers)}</strong></span>
+         <div class="seisan-summary-detail-list">${splitBaseDetail}<span>端数調整 ${signedMoney(splitPaymentAdjustment, helpers, true)}</span></div>
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/js/templates/settlement/03-car-cost-templates.js carbon-refresh-worktree/assets/js/templates/settlement/03-car-cost-templates.js
+--- carbon-refresh-base/assets/js/templates/settlement/03-car-cost-templates.js	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/js/templates/settlement/03-car-cost-templates.js	2026-08-20 02:47:47.629665835 +0000
+@@ -23,7 +23,7 @@
+       'split-minus': '割勘 −',
+       'club-minus': '部費 −'
+     })[type] || '割勘';
+-    return `${esc(candidate.name, helpers)} / ${money(candidate.amount, helpers)} / ${typeLabel}`;
++    return `${esc(candidate.name, helpers)} ${money(candidate.amount, helpers)}（${typeLabel}）を追加`;
+   }
+ 
+   function renderIssues(issues, helpers = {}) {
+@@ -103,7 +103,7 @@
+           <cds-toggle class="seisan-car-payment-toggle" size="sm" ${paid ? 'toggled' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" label-a="支払済み" label-b="未払い" aria-label="${esc(car.name, helpers)}車への支払い状態"></cds-toggle>
+           <cds-button class="seisan-btn seisan-edit-btn" kind="ghost" size="md" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span><span>編集</span></cds-button>
+         </div>
+-        <cds-accordion class="seisan-car-accordion" alignment="start">
++        <cds-accordion class="seisan-car-accordion">
+           <cds-accordion-item>
+             <span slot="title" class="seisan-accordion-total"><span>割勘合計</span><strong>${money(costDetails.splitTotal, helpers)}</strong></span>
+             <cds-structured-list condensed class="seisan-cost-structured-list" aria-label="費用内訳">
+@@ -139,7 +139,10 @@
+         ${standaloneNameField}
+         <div class="seisan-gas-section-head">
+           <div class="seisan-subhead seisan-subhead--gas"><strong>ガソリン代</strong></div>
+-          <div class="seisan-times-toggle-field"><cds-toggle class="seisan-times-toggle" data-field="rentalType" value="times" ${rentalType === 'times' ? 'checked' : ''} label-text="レンタカー（タイムズ）" label-a="タイムズ" label-b="自家用車" aria-label="レンタカー（タイムズ）"></cds-toggle></div>
++          <cds-radio-button-group class="seisan-rental-type-group" data-field="rentalType" name="rental-type-${encodeURIComponent(car.name)}" value="${rentalType}" orientation="horizontal" legend-text="車両種別">
++            <cds-radio-button value="private" label-text="自家用車"></cds-radio-button>
++            <cds-radio-button value="times" label-text="レンタカー（タイムズ）"></cds-radio-button>
++          </cds-radio-button-group>
+         </div>
+         <div class="seisan-car-inputs">
+           <div class="seisan-gas-field-row" role="group" aria-label="ガソリン代の計算条件">
+@@ -147,7 +150,7 @@
+             <label class="seisan-fuel-field"><span class="seisan-mini-label">燃費（km/L）</span><cds-text-input type="number" size="lg" inputmode="decimal" min="0" step="any" data-field="eco" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'eco')}" value="${esc(cState.eco || '', helpers)}" placeholder="例：18" label="燃費（km/L）" hide-label${invalidAttr('eco', '0より大きい燃費を入力してください')}></cds-text-input></label>
+             <label class="seisan-fuel-field"><span class="seisan-mini-label">ガソリン単価（円/L）</span><cds-text-input type="number" size="lg" inputmode="decimal" min="0" step="any" data-field="price" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'price')}" value="${esc(cState.price || '', helpers)}" placeholder="例：158" label="ガソリン単価（円/L）" hide-label${invalidAttr('price', '0より大きいガソリン単価を入力してください')}></cds-text-input></label>
+           </div>
+-          <cds-button class="seisan-btn seisan-distance-shortcut" kind="tertiary" size="lg" type="button" data-action="open-route-helper-shortcut" aria-label="距離計算ツールを開く"><span data-carbon-icon="launch" slot="icon" aria-hidden="true"></span><span>距離計算ツール</span></cds-button>
++          <a class="seisan-distance-shortcut" href="#route-distance-helper" data-action="open-route-helper-shortcut" aria-label="距離計算ツールを開く"><span>距離計算ツール</span><span data-carbon-icon="launch" aria-hidden="true"></span></a>
+         </div>
+         <div class="seisan-subhead"><strong>諸経費</strong></div>
+         <div class="seisan-extra-list">
