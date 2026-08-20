@@ -1,0 +1,26 @@
+name: Carbon refresh worktree export
+on:
+  push:
+    branches:
+      - carbon-full-ui-refresh-20260820
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build:carbon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: carbon-refresh-worktree
+          path: |
+            .
+            !node_modules/**
+            !.git/**
+          retention-days: 2
