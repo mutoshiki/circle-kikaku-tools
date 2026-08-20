@@ -58,7 +58,8 @@ jobs:
             done
           fi
           if [ "$ok" -eq 1 ]; then run_checked npm run build:carbon || ok=0; fi
-          if [ "$ok" -eq 1 ]; then run_checked npm run test:static || ok=0; fi
+          if [ "$ok" -eq 1 ]; then run_checked npm run lint:css || ok=0; fi
+          if [ "$ok" -eq 1 ]; then run_checked npm test || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked git diff --check || ok=0; fi
           echo "" >> "$STATUS"
           echo "result=$([ "$ok" -eq 1 ] && echo success || echo failure)" >> "$STATUS"
