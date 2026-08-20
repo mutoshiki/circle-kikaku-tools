@@ -32,6 +32,20 @@ function canonicalRoom() {
     };
 }
 
+function canonicalBugReport() {
+    return {
+        message: '精算画面で金額が反映されない',
+        createdAt: Date.now(),
+        roomId: validRoomId,
+        pageUrl: `https://example.test/?room=${validRoomId}`,
+        buildId: 'test-build',
+        projectTitle: 'テスト企画',
+        currentView: '精算',
+        userAgent: 'Mozilla/5.0 test',
+        platform: 'TestOS'
+    };
+}
+
 async function mustPass(label, action) {
     try {
         return await action();
@@ -88,6 +102,18 @@ try {
         'participantTombstones/deleted-user': null
     }));
 
+    // Bug reports are private, append-only client submissions. Notification status is server-only.
+    const reportRef = owner.ref('bugReports/REPORT001');
+    await mustPass('authenticated bug report create', () => reportRef.set(canonicalBugReport()));
+    await mustFail('authenticated bug report read', () => reportRef.once('value'));
+    await mustFail('unauthenticated bug report create', () => stranger.ref('bugReports/REPORT002').set(canonicalBugReport()));
+    await mustFail('bug report update after creation', () => reportRef.update({ message: '上書き' }));
+    await mustFail('bug report extra field', () => owner.ref('bugReports/REPORT003').set({ ...canonicalBugReport(), injected: true }));
+    await mustFail('bug report empty message', () => owner.ref('bugReports/REPORT004').set({ ...canonicalBugReport(), message: '' }));
+    await mustFail('bug report oversized message', () => owner.ref('bugReports/REPORT005').set({ ...canonicalBugReport(), message: 'x'.repeat(2001) }));
+    await mustFail('client notification status read', () => owner.ref('bugReportNotifications/REPORT001').once('value'));
+    await mustFail('client notification status write', () => owner.ref('bugReportNotifications/REPORT001').set({ status: 'sent' }));
+
     // Five devices update distinct entity paths concurrently. Every write must survive.
     const fiveClients = Array.from({ length: 5 }, (_, index) => env.authenticatedContext(`device-${index + 1}`).database());
     await mustPass('five-device concurrent participant writes', () => Promise.all(
@@ -131,7 +157,7 @@ try {
     const afterReset = await roomRef.once('value');
     assert.equal(afterReset.exists(), false, 'reset must remove room');
 
-    console.log('Firebase Emulator Rules v67: PASS (normal, 5-device, conflict, offline recovery, reset, allow/deny)');
+    console.log('Firebase Emulator Rules v67: PASS (rooms + private append-only bug reports + notification isolation)');
 } finally {
     await env.cleanup();
 }
