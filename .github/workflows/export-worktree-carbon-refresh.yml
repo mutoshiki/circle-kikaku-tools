@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Run browser validation
+      - name: Apply and validate follow-up
         id: validate
         shell: bash
         run: |
@@ -42,8 +42,13 @@ jobs:
           }
           ok=1
           run_checked npm ci --no-audit --no-fund || ok=0
+          if [ "$ok" -eq 1 ]; then run_checked git apply --check -p1 .github/carbon-followup.patch || ok=0; fi
+          if [ "$ok" -eq 1 ]; then run_checked git apply -p1 .github/carbon-followup.patch || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked git apply --check -p1 .github/browser-test-followup.patch || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked git apply -p1 .github/browser-test-followup.patch || ok=0; fi
+          if [ "$ok" -eq 1 ]; then run_checked npm run build:carbon || ok=0; fi
+          if [ "$ok" -eq 1 ]; then run_checked git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex || ok=0; fi
+          if [ "$ok" -eq 1 ]; then run_checked npm run lint:css || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked npm test || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked npx playwright install --with-deps chromium || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked npm run test:ui || ok=0; fi
@@ -53,17 +58,25 @@ jobs:
           echo "finished=$(date -u +%FT%TZ)" >> "$STATUS"
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
           exit 0
-      - name: Commit validated browser contract and status
+      - name: Commit validated follow-up and status
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .github/carbon-apply-status.log
           if [ "${{ steps.validate.outputs.ok }}" = "1" ]; then
-            git add tests/carbon-complete.spec.js
-            git commit -m "Validate Carbon browser interactions"
+            git add \
+              assets/js/core/tag-types.js \
+              assets/js/features/auto-assign.js \
+              assets/js/templates/user-guide-content.js \
+              tests/design-refinement-contract.mjs \
+              tests/feature-polish-contract.mjs \
+              tests/card-drag-stability-v39-contract.mjs \
+              tests/settlement-balance-v58-contract.mjs \
+              tests/carbon-complete.spec.js
+            git commit -m "Apply validated Carbon follow-up"
           else
-            git commit -m "Record Carbon browser validation failure"
+            git commit -m "Record Carbon follow-up validation failure"
           fi
           git push origin HEAD:carbon-full-ui-refresh-20260820
       - uses: actions/upload-artifact@v4
