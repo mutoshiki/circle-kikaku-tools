@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = rel => fs.readFileSync(path.join(root, rel), 'utf8');
+const header = read('assets/js/features/events/02-static-header-events.js');
 const events = read('assets/js/features/events.js');
 const rules = read('firebase/database.rules.json');
 const functions = read('functions/index.js');
@@ -15,15 +16,16 @@ for (const [label, url] of [
   ['学務提出書類作成ツール', 'https://github.com/mutoshiki/sampokai-submission-builder/releases'],
   ['山歩会企画ツール一覧', 'https://mutoshiki.github.io/sanpokai-kikaku-portal/']
 ]) {
-  assert.ok(events.includes(label), label);
-  assert.ok(events.includes(url), url);
+  assert.ok(header.includes(label), label);
+  assert.ok(header.includes(url), url);
 }
 
 assert.match(events, /バグを報告する/);
 assert.match(events, /label="バグの内容"/);
 assert.match(events, />送信<\/cds-modal-footer-button>/);
 assert.match(events, /databaseModule\.ref\(activeDb, 'bugReports'\)/);
-for (const field of ['message', 'createdAt', 'roomId', 'pageUrl', 'buildId', 'projectTitle', 'currentView', 'userAgent', 'platform']) {
+assert.match(events, /createdAt: databaseModule\.serverTimestamp\(\)/);
+for (const field of ['message', 'roomId', 'pageUrl', 'buildId', 'projectTitle', 'currentView', 'userAgent', 'platform']) {
   assert.match(events, new RegExp(`${field}:`), `client bug report field: ${field}`);
 }
 
@@ -37,6 +39,7 @@ assert.match(rules, /"bugReportNotifications"[\s\S]*"\.read": false[\s\S]*"\.wri
 assert.equal(firebase.functions.source, 'functions');
 assert.match(functions, /onValueCreated/);
 assert.match(functions, /ref: '\/bugReports\/\{reportId\}'/);
+assert.match(functions, /region: 'us-central1'/);
 assert.match(functions, /retry: true/);
 for (const secret of ['RESEND_API_KEY', 'BUG_REPORT_NOTIFY_TO', 'BUG_REPORT_NOTIFY_FROM']) {
   assert.match(functions, new RegExp(`defineSecret\\('${secret}'\\)`), secret);
