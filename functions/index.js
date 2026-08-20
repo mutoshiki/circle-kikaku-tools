@@ -2,7 +2,6 @@ const { onValueCreated } = require('firebase-functions/v2/database');
 const { defineSecret } = require('firebase-functions/params');
 const { logger } = require('firebase-functions');
 const { initializeApp } = require('firebase-admin/app');
-const { getDatabase } = require('firebase-admin/database');
 
 initializeApp();
 
@@ -57,7 +56,7 @@ exports.notifyBugReport = onValueCreated({
 }, async (event) => {
   const reportId = clean(event.params.reportId, 160);
   const report = event.data.val() || {};
-  const statusRef = getDatabase().ref(`bugReportNotifications/${reportId}`);
+  const statusRef = event.data.ref.root.child('bugReportNotifications').child(reportId);
 
   if (!reportId || !clean(report.message, 2000)) {
     logger.warn('Ignoring malformed bug report event', { reportId, eventId: event.id });
