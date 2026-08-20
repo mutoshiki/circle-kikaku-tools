@@ -33,6 +33,7 @@ jobs:
       - name: Commit applied files
         shell: bash
         run: |
+          # This workflow is temporary; it only applies already browser-checked owner-file changes.
           if git diff --quiet; then
             echo "No changes to commit"
             exit 0
