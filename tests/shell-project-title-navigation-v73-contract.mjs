@@ -24,9 +24,9 @@ assert.match(js, /drawer\.replaceChildren\(nav\)/);
 assert.match(js, /drawer\.getAttribute\('aria-hidden'\) === 'true'/);
 assert.doesNotMatch(js, /setupOverviewMenuFields\(\);/);
 for (const [label, url] of [
-  ['山歩会フォームメイカー', 'https://script.google.com/macros/s/AKfycbwveM99euD8V5dxB6xLPYlpHuIc-KJlaaP8LHffh6ZMQBnAmO6XwX_ijQG-brUgqZmj/exec'],
-  ['提出書類作成ツール', 'https://github.com/mutoshiki/sampokai-submission-builder/releases'],
-  ['山歩会企画ポータル', 'https://mutoshiki.github.io/sanpokai-kikaku-portal/']
+  ['山歩会フォームメーカー', 'https://script.google.com/macros/s/AKfycbw0R5VgBdSLS8aRDJDw7GUIEfHlXRZ6rPrOgjXmO2N7LvhuoGyS_opUCFTCSiUiDZw5/exec'],
+  ['学務提出書類作成ツール', 'https://github.com/mutoshiki/sampokai-submission-builder/releases'],
+  ['山歩会企画ツール一覧', 'https://mutoshiki.github.io/sanpokai-kikaku-portal/']
 ]) {
   assert.ok(js.includes(label), label);
   assert.ok(js.includes(url), url);
@@ -43,5 +43,6 @@ assert.ok(html.includes('./assets/css/app-shell/header/02-room-status.css?v=proj
 assert.ok(html.includes('./assets/css/app-shell/header/03-tabs-actions.css?v=project-title-nav-v73'), 'cache-bust must track v73 owner: ./assets/css/app-shell/header/03-tabs-actions.css?v=project-title-nav-v73');
 assert.ok(html.includes('./assets/css/guides-modals/overview/01-overview-drawer.css?v=project-title-nav-v73'), 'cache-bust must track v73 owner: ./assets/css/guides-modals/overview/01-overview-drawer.css?v=project-title-nav-v73');
 assert.ok(html.includes('./assets/css/guides-modals/overview/02-overview-mobile.css?v=project-title-nav-v73'), 'cache-bust must track v73 owner: ./assets/css/guides-modals/overview/02-overview-mobile.css?v=project-title-nav-v73');
-assert.ok(html.includes('./assets/js/features/events/02-static-header-events.js?v=project-title-nav-v73'), 'cache-bust must track v73 owner: ./assets/js/features/events/02-static-header-events.js?v=project-title-nav-v73');
+assert.ok(html.includes('./assets/js/features/events/02-static-header-events.js?v=bug-report-nav-v74'), 'cache-bust must track v74 owner: ./assets/js/features/events/02-static-header-events.js?v=bug-report-nav-v74');
+assert.ok(html.includes('./assets/js/features/events.js?v=bug-report-nav-v74'), 'cache-bust must track v74 bug report owner: ./assets/js/features/events.js?v=bug-report-nav-v74');
 console.log('PASS shell project title and application navigation contract');
