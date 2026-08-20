@@ -1,5 +1,6 @@
-head=6e35b8957b67cb47efbfd9a9c1c50ae163157055
-started=2026-08-20T06:01:23Z
+head=94f4390c0961e3453ce6ef608d444db0470427ab
+run_id=32338032264
+started=2026-08-20T06:04:07Z
 
 ## npm ci --no-audit --no-fund
 npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
@@ -10,26 +11,6 @@ npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and con
 added 866 packages in 30s
 exit=0
 
-## check .github/carbon-refresh-part-1.patch
-exit=0
-## apply .github/carbon-refresh-part-1.patch
-exit=0
-
-## check .github/carbon-refresh-part-2.patch
-exit=0
-## apply .github/carbon-refresh-part-2.patch
-exit=0
-
-## check .github/carbon-refresh-part-3.patch
-exit=0
-## apply .github/carbon-refresh-part-3.patch
-exit=0
-
-## check .github/carbon-refresh-part-4.patch
-exit=0
-## apply .github/carbon-refresh-part-4.patch
-exit=0
-
 ## npm run build:carbon
 
 > circle-kikaku-tools@8.3.2-waiting-grid-v52 build:carbon
@@ -38,45 +19,53 @@ exit=0
 Built Carbon assets: {"webComponents":"2.60.0","icons":"11.85.0","plexSans":"1.1.0","plexSansJp":"3.0.0"}
 exit=0
 
+## git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
+exit=0
+
 ## npm run lint:css
 
 > circle-kikaku-tools@8.3.2-waiting-grid-v52 lint:css
 > stylelint "assets/css/**/*.css" --config stylelint.config.mjs
 
 exit=0
-normalized EOF: assets/css/app-shell/header/03-tabs-actions.css
-normalized EOF: assets/css/cars-members-tray/car-card/02-card-header.css
-normalized EOF: assets/css/cars-members-tray/car-card/03-seat-grid.css
-normalized EOF: assets/css/cars-members-tray/person-card/03-person-menu.css
-normalized EOF: assets/css/cars-members-tray/person-card/04-person-mobile.css
-normalized EOF: assets/css/cars-members-tray/waiting-tray/05-tray-states.css
-normalized EOF: assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css
-normalized EOF: assets/css/settlement/car-inputs/01-car-form.css
-normalized EOF: assets/css/settlement/car-inputs/02-distance-fuel.css
-normalized EOF: assets/css/settlement/car-inputs/03-extra-costs.css
-normalized EOF: assets/css/settlement/car-inputs/04-edit-modal.css
-normalized EOF: assets/css/settlement/car-inputs/05-mobile-inputs.css
-normalized EOF: assets/css/settlement/car-inputs/06-times-rental.css
-normalized EOF: assets/css/settlement/car-inputs/07-extra-candidates.css
-normalized EOF: assets/css/settlement/page-shell/05-error-states.css
-normalized EOF: assets/js/carbon-entry.js
-normalized EOF: assets/js/core/modal-controller.js
-normalized EOF: assets/js/features/events/02-static-header-events.js
-normalized EOF: assets/js/features/events/04-settlement-input-events.js
-normalized EOF: assets/js/features/lock-protection.js
-normalized EOF: assets/js/features/person-cards.js
-normalized EOF: assets/js/features/seat-member-picker.js
-normalized EOF: assets/js/features/settlement/03-render.js
-normalized EOF: assets/js/features/sheet-view.js
-normalized EOF: assets/js/features/sheet/02-viewport-controls.js
-normalized EOF: assets/js/templates/settlement/02-summary-templates.js
-normalized EOF: assets/js/templates/settlement/03-car-cost-templates.js
-normalized EOF: assets/js/templates/settlement/04-extra-input-templates.js
-normalized EOF: assets/js/templates/settlement/06-driver-pay-templates.js
-eof-normalize-exit=0
 
-## git diff --check (excluding generated Carbon bundle)
-exit=0
+## npm test
 
-result=success
-finished=2026-08-20T06:01:57Z
+> circle-kikaku-tools@8.3.2-waiting-grid-v52 test
+> node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs && node tests/person-card-interaction-contract.mjs && node tests/carbon-guidance-v35-contract.mjs && node tests/route-distance-apply-v37-contract.mjs && node tests/carbon-feedback-focus-fit-v38-contract.mjs && node tests/card-drag-stability-v39-contract.mjs && node tests/entity-schema-v42-contract.mjs && node tests/root-stability-v44-contract.mjs && node tests/collaborative-interaction-delete-v47-contract.mjs && node tests/settlement-concurrent-save-v48-contract.mjs && node tests/settlement-cross-car-sync-v49-contract.mjs && node tests/collaborative-sync-foundation-v50-contract.mjs && node tests/settlement-negative-extra-save-v51-contract.mjs && node tests/waiting-grid-v52-contract.mjs && node tests/settlement-balance-v58-contract.mjs && node tests/settlement-extra-concurrent-v66-contract.mjs && node tests/sync-reliability-v67-contract.mjs && node tests/sync-protocol-v68-contract.mjs && node tests/sync-outbox-rejection-v68-contract.mjs && node tests/five-device-domain-sync-v46.mjs
+
+PASS Carbon package versions are exact
+PASS Carbon runtime and IBM Plex assets exist
+PASS No Bootstrap or Font Awesome runtime dependency remains
+PASS No catch-all override files exist
+PASS No native generic form controls are emitted outside the app navigation
+PASS Every modal uses Carbon anatomy and a non-button primary focus target
+PASS Primary navigation uses Carbon Tabs while allocation mode uses Carbon Content Switcher
+PASS Header icon-only controls use Carbon Icon Button or Overflow Menu
+PASS Waiting tray disclosure uses a Carbon button
+PASS Person actions use official Carbon Overflow Menu and Menu
+PASS No automatic blocking coachmark remains
+PASS Input state owner includes Carbon invalid, warning, readonly and disabled contracts
+PASS All required Carbon component modules are registered by the entry
+PASS Lockfiles do not retain Bootstrap or Font Awesome
+PASS No inline JavaScript event handlers remain
+PASS Root Carbon geometry and mobile input zoom contract exist
+PASS User guide screenshots are complete and current assets exist
+PASS Build manifest is deterministic and matches exact versions
+PASS Package scripts only reference available project test tools
+PASS Index IDs are unique
+PASS All local index references exist
+PASS dark accent and popup semantic contract
+file:///home/runner/work/circle-kikaku-tools/circle-kikaku-tools/tests/design-refinement-contract.mjs:6
+const expect = (condition, message) => { if (!condition) throw new Error(message); };
+                                                               ^
+
+Error: Empty seats must use a real Carbon icon.
+    at expect (file:///home/runner/work/circle-kikaku-tools/circle-kikaku-tools/tests/design-refinement-contract.mjs:6:64)
+    at file:///home/runner/work/circle-kikaku-tools/circle-kikaku-tools/tests/design-refinement-contract.mjs:46:1
+
+Node.js v22.23.2
+exit=1
+
+result=failure
+finished=2026-08-20T06:04:43Z
