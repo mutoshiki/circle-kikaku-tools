@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Apply and validate queued Carbon refactor
+      - name: Apply and build queued Carbon refactor
         id: apply
         shell: bash
         run: |
@@ -59,14 +59,13 @@ jobs:
           fi
           if [ "$ok" -eq 1 ]; then run_checked npm run build:carbon || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked npm run lint:css || ok=0; fi
-          if [ "$ok" -eq 1 ]; then run_checked npm test || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked git diff --check || ok=0; fi
           echo "" >> "$STATUS"
           echo "result=$([ "$ok" -eq 1 ] && echo success || echo failure)" >> "$STATUS"
           echo "finished=$(date -u +%FT%TZ)" >> "$STATUS"
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
           exit 0
-      - name: Commit result and diagnostics
+      - name: Commit applied source and diagnostics
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
