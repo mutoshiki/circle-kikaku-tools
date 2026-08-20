@@ -1,9 +1,10 @@
 /* Person name, note and compact metadata. */
 .member-name-text {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
   color: var(--text-main);
   font-size: var(--font-size-body);
   font-weight: 600;
