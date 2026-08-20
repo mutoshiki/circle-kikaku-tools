@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   apply:
-    if: github.actor != 'github-actions[bot]' && (github.event_name == 'pull_request' || contains(github.event.head_commit.message, 'temporary v73 implementation runner trigger'))
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -23,6 +23,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - run: python3 tools/fix-apply-shell-v73.py
       - run: node tools/apply-shell-v73.mjs
       - run: git diff --check
       - name: Commit implementation
