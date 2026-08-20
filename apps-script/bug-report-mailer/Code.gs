@@ -1,6 +1,7 @@
 const BUG_REPORT_SUBJECT = '【サークル企画ツール】新しいバグ報告';
 const PROP_WEBHOOK_SECRET = 'BUG_REPORT_WEBHOOK_SECRET';
 const PROP_NOTIFY_TO = 'BUG_REPORT_NOTIFY_TO';
+const SENT_PROPERTY_PREFIX = 'BUG_SENT_';
 
 function json_(value) {
   return ContentService
@@ -33,7 +34,12 @@ function markerForReport_(reportId) {
   return `circle-kikaku-bug-report-${clean_(reportId, 160)}`;
 }
 
-function wasAlreadySent_(marker) {
+function sentPropertyKey_(reportId) {
+  return `${SENT_PROPERTY_PREFIX}${clean_(reportId, 160)}`;
+}
+
+function wasAlreadySent_(properties, reportId, marker) {
+  if (properties.getProperty(sentPropertyKey_(reportId))) return true;
   const escaped = String(marker).replace(/"/g, '');
   return GmailApp.search(`in:sent "${escaped}"`, 0, 1).length > 0;
 }
@@ -64,10 +70,13 @@ function doPost(e) {
   try {
     lock.waitLock(30000);
 
-    // Covers the ambiguous case where Gmail accepted the message but the caller
-    // did not receive our response. A retry sees the deterministic marker in Sent
-    // and acknowledges success without sending a second copy.
-    if (wasAlreadySent_(marker)) return json_({ ok: true, duplicate: true });
+    // First use Script Properties for a fast durable acknowledgement. Gmail Sent
+    // search is the recovery path for the narrow crash window after MailApp accepted
+    // the message but before this script could persist that acknowledgement.
+    if (wasAlreadySent_(properties, reportId, marker)) {
+      properties.setProperty(sentPropertyKey_(reportId), String(Date.now()));
+      return json_({ ok: true, duplicate: true });
+    }
 
     MailApp.sendEmail({
       to: notifyTo,
@@ -75,6 +84,7 @@ function doPost(e) {
       body: `${body}\n\n報告ID: ${marker}`,
       name: 'サークル企画ツール'
     });
+    properties.setProperty(sentPropertyKey_(reportId), String(Date.now()));
 
     return json_({ ok: true, duplicate: false });
   } catch (error) {
