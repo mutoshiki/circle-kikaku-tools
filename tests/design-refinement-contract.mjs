@@ -76,7 +76,7 @@ expect(index.includes('id="sheet-quick-edit-btn" kind="ghost"') && !index.includ
 expect(!sheetView.includes('updateSheetSummary({ ...data, carPlans: plans })'), 'Removed shared-view counts must not be rendered or recomputed by the presentation view.');
 expect(people.includes('<cds-button type="button" kind="ghost" size="sm" class="capacity-badge capacity-edit-btn capacity-edit-pill"') && people.includes('class="capacity-count"'), 'Capacity information and its edit icon must share one compact Carbon action pill.');
 expect(people.includes('<cds-icon-button type="button" kind="ghost" size="md"') && people.includes('class="car-delete-btn car-return-btn delete-btn"'), 'The vehicle return action must use a regular Carbon ghost icon button.');
-expect(carHeader.includes('.car-header {\n  display: grid;\n  grid-template-columns: minmax(0, 1fr) auto auto;') && !carHeader.includes('.car-delete-btn:hover'), 'The vehicle return action must not retain the old fixed tile geometry.');
+expect(/\.car-header\s*\{\s*display:\s*grid;\s*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto\s+auto;/.test(carHeader) && !carHeader.includes('.car-delete-btn:hover'), 'The vehicle return action must not retain the old fixed tile geometry.');
 expect(index.includes('<span>ドライバーへの支払い</span>') && !index.includes('seisan-payment-tag carbon-display-tag ui-chip pay'), 'Driver payment heading must not use a decorative payment tag.');
 
 for (const [source, mode] of [[lightTokens, 'light'], [darkTokens, 'dark']]) {
