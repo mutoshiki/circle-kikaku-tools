@@ -1,0 +1,450 @@
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/css/app-shell/header/03-tabs-actions.css carbon-refresh-worktree/assets/css/app-shell/header/03-tabs-actions.css
+--- carbon-refresh-base/assets/css/app-shell/header/03-tabs-actions.css	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/css/app-shell/header/03-tabs-actions.css	2026-08-20 02:57:29.242724876 +0000
+@@ -57,40 +57,19 @@
+ .header-action:hover,
+ #shareLinkBtn.header-action:hover { color: #f4f4f4; }
+ 
+-/* The existing Carbon Overflow Menu trigger carries the product switcher mark.
+- * This mark is temporary until the runtime icon registry exposes Carbon Switcher. */
+-.app-switcher-glyph {
+-  position: relative;
+-  display: block;
+-  width: 20px;
+-  height: 20px;
++/* The app switcher uses Carbon Icons' current Switcher glyph. */
++.app-switcher-icon,
++.app-switcher-icon.carbon-icon {
++  width: var(--header-icon-size);
++  height: var(--header-icon-size);
+   color: #f4f4f4;
+ }
+ 
+-.app-switcher-glyph::before {
+-  content: "";
+-  position: absolute;
+-  top: 1px;
+-  left: 1px;
+-  width: 3px;
+-  height: 3px;
+-  background: currentColor;
+-  box-shadow:
+-    7px 0 currentColor,
+-    14px 0 currentColor,
+-    0 7px currentColor,
+-    7px 7px currentColor,
+-    14px 7px currentColor,
+-    0 14px currentColor,
+-    7px 14px currentColor,
+-    14px 14px currentColor;
+-}
+-
+ .header-app-switcher { --cds-icon-primary: #f4f4f4; }
+ 
+-/* Four related views are page tabs. Keep the shell band dark, but use Carbon's
+- * line-tab interaction model: the selected tab is identified by the interaction
+- * indicator rather than a large custom selected tile. */
++/* Four related views are the official Carbon Tabs component. The surrounding
++ * band stays in the g100 shell palette; Carbon owns selected, hover, focus,
++ * keyboard navigation and overflow scrolling inside its shadow DOM. */
+ #app-view-navigation {
+   position: relative;
+   z-index: var(--z-view-navigation);
+@@ -110,98 +89,53 @@
+   --cds-background: #000000;
+   --cds-background-hover: #262626;
+   --cds-background-active: #393939;
++  --cds-layer: #000000;
++  --cds-layer-hover: #262626;
++  --cds-layer-active: #393939;
+   --cds-text-primary: #f4f4f4;
+   --cds-text-secondary: #c6c6c6;
++  --cds-icon-primary: #f4f4f4;
++  --cds-border-subtle: #393939;
+   --cds-border-interactive: #0f62fe;
+   --cds-focus: #0f62fe;
+ }
+ 
+ #view-toggle-bar {
+-  display: flex;
+-  align-items: stretch;
+-  justify-content: flex-start;
++  display: block;
+   width: 100%;
+   min-width: 0;
+   min-height: var(--view-navigation-height);
+   margin: 0;
+   padding: 0;
+-  overflow-x: auto;
+-  overflow-y: hidden;
+-  border: 0;
+   background: #000000;
+-  scrollbar-width: none;
+-  -webkit-overflow-scrolling: touch;
++  color: #f4f4f4;
+ }
+-#view-toggle-bar::-webkit-scrollbar { display: none; }
+ 
+ .view-tab {
+-  position: relative;
+-  appearance: none;
+-  display: inline-flex;
+-  flex: 0 0 auto;
+-  align-items: center;
+-  justify-content: center;
+-  gap: 6px;
++  box-sizing: border-box;
+   min-width: 112px;
+   min-height: var(--view-navigation-height);
+-  margin: 0;
+-  padding: 0 16px;
+-  border: 0;
+-  background: transparent;
+-  color: #c6c6c6;
+-  cursor: pointer;
+-  font: inherit;
+-  -webkit-tap-highlight-color: transparent;
+-}
+-
+-.view-tab:hover { background: #262626; color: #f4f4f4; }
+-.view-tab:active { background: #393939; }
+-.view-tab:focus-visible { outline: 2px solid #0f62fe; outline-offset: -2px; }
+-
+-.view-tab.active,
+-.view-tab[aria-current="page"] {
+-  background: transparent;
+   color: #f4f4f4;
++  --cds-text-primary: #f4f4f4;
++  --cds-text-secondary: #c6c6c6;
++  --cds-border-interactive: #0f62fe;
++  --cds-focus: #0f62fe;
+ }
+ 
+-.view-tab.active::after,
+-.view-tab[aria-current="page"]::after {
+-  content: "";
+-  position: absolute;
+-  right: 16px;
+-  bottom: 0;
+-  left: 16px;
+-  height: 2px;
+-  background: #0f62fe;
+-}
+-
+-.view-tab::before { display: none; }
+-.view-tab-icon,
+-.view-tab-icon.carbon-icon { display: none; }
+-
+ .view-tab-label {
+   display: inline-flex;
+   min-width: 0;
+   align-items: center;
+-  justify-content: center;
+-  color: currentColor;
+-  font-size: var(--font-size-body);
+-  font-weight: 400;
+-  line-height: 1.2857;
+-  text-align: center;
++  gap: var(--space-1);
++  color: inherit;
+   white-space: nowrap;
+ }
+ 
++@media (max-width: 640px) {
++  .view-tab { min-width: 104px; }
++}
++
+ /* 車割 / 班割 remain visible in the allocation toolbar as the Carbon Content
+  * Switcher for switching two formats of the same allocation content. */
+ #car-plan-switcher { display: flex; }
+ 
+-@media (max-width: 640px) {
+-  .view-tab {
+-    flex: 0 0 auto;
+-    width: auto;
+-    min-width: 104px;
+-    padding-inline: 16px;
+-  }
+-  .view-tab-label { font-size: 0.875rem; }
+-}
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/css/cars-members-tray/car-card/02-card-header.css carbon-refresh-worktree/assets/css/cars-members-tray/car-card/02-card-header.css
+--- carbon-refresh-base/assets/css/cars-members-tray/car-card/02-card-header.css	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/css/cars-members-tray/car-card/02-card-header.css	2026-08-20 02:54:01.594722935 +0000
+@@ -42,7 +42,7 @@
+   overflow: hidden;
+   border-radius: 0;
+   background: transparent;
+-  color: var(--cds-link-primary, var(--accent-color));
++  color: var(--cds-text-secondary, var(--text-sub));
+   font-variant-numeric: tabular-nums;
+ }
+ .car-capacity-actions .capacity-edit-pill.is-over { color: var(--semantic-danger); }
+@@ -57,7 +57,10 @@
+ 
+ .driver-main-line {
+   display: grid;
+-  grid-template-columns: minmax(0, 1fr) auto 48px;
++  grid-template-columns: minmax(0, 1fr) 48px;
++  grid-template-areas:
++    "name menu"
++    "meta menu";
+   align-items: center;
+   gap: var(--space-1);
+   min-width: 0;
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/css/cars-members-tray/car-card/03-seat-grid.css carbon-refresh-worktree/assets/css/cars-members-tray/car-card/03-seat-grid.css
+--- carbon-refresh-base/assets/css/cars-members-tray/car-card/03-seat-grid.css	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/css/cars-members-tray/car-card/03-seat-grid.css	2026-08-20 03:00:49.728788782 +0000
+@@ -25,12 +25,12 @@
+   transition: background-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
+ }
+ 
+-/* Driver is a role within the same card system, not a separate blue card family.
+- * The interactive rail keeps the role scannable without creating a competing surface. */
++/* Driver/leader role is conveyed by the explicit neutral role Tag in the card,
++ * so this surface does not use interaction blue as a decorative role marker. */
+ .driver-seat {
+   justify-content: center;
+   padding: var(--space-2) var(--space-3);
+-  border-left: 4px solid var(--cds-border-interactive, var(--app-accent-border));
++  border-left: 0;
+   background: var(--cds-layer-02, var(--surface-low));
+   color: var(--text-main);
+ }
+@@ -40,24 +40,29 @@
+   padding: 0;
+   justify-content: space-between;
+   outline: 0;
+-  cursor: pointer;
++  cursor: default;
+ }
+ .seat-slot::before { content: none; }
+ .seat-slot:not(:has(> .member-card)) {
+   align-items: center;
+   justify-content: center;
+ }
+-.seat-slot-icon {
+-  position: static;
++.seat-add-btn {
++  display: block;
+   flex: 0 0 auto;
+-  width: 20px;
+-  height: 20px;
+-  color: var(--cds-icon-interactive, var(--app-accent-icon));
+-  pointer-events: none;
++  width: 48px;
++  min-width: 48px;
++  height: 48px;
++  min-height: 48px;
++  color: var(--cds-icon-primary, var(--text-main));
+ }
++.seat-add-btn > .carbon-icon { width: 20px; height: 20px; }
+ .seat-slot:has(> .member-card) { min-height: 0; outline: 0; background: transparent; cursor: default; }
+ .seat-slot:has(> .member-card)::before,
+-.seat-slot:has(> .member-card) > .seat-slot-icon { display: none; }
+-.seat-slot:not(:has(> .member-card)):hover { background: var(--cds-layer-hover-02, var(--surface-hover)); }
+-.seat-slot:not(:has(> .member-card)):active { background: var(--cds-layer-active-02, var(--surface-container)); }
+-.seat-slot:not(:has(> .member-card)):focus-visible { outline: 2px solid var(--focus-accent); outline-offset: -2px; }
++.seat-slot:has(> .member-card) > .seat-add-btn { display: none; }
++.seat-slot:not(:has(> .member-card)):has(.seat-add-btn:hover) { background: var(--cds-layer-hover-02, var(--surface-hover)); }
++.seat-slot:not(:has(> .member-card)):has(.seat-add-btn:active) { background: var(--cds-layer-active-02, var(--surface-container)); }
++
++@media (max-width: 340px) {
++  .car-layout-grid { grid-template-columns: minmax(0, 1fr); }
++}
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/css/cars-members-tray/person-card/03-person-menu.css carbon-refresh-worktree/assets/css/cars-members-tray/person-card/03-person-menu.css
+--- carbon-refresh-base/assets/css/cars-members-tray/person-card/03-person-menu.css	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/css/cars-members-tray/person-card/03-person-menu.css	2026-08-20 02:54:01.595098399 +0000
+@@ -10,20 +10,25 @@
+   min-height: 48px;
+ }
+ .member-main-line {
+-  grid-template-columns: 20px minmax(0, 1fr) auto 48px;
++  grid-template-columns: 44px minmax(0, 1fr) auto 48px;
+   grid-template-areas: "handle name meta menu";
+ }
+ .driver-main-line {
+-  grid-template-columns: minmax(0, 1fr) auto 48px;
+-  grid-template-areas: "name meta menu";
++  grid-template-columns: minmax(0, 1fr) 48px;
++  grid-template-areas:
++    "name menu"
++    "meta menu";
++  row-gap: var(--space-1);
+ }
+ 
+ .person-drag-affordance {
+   grid-area: handle;
+   display: grid;
+   place-items: center;
+-  width: 20px;
+-  height: 32px;
++  width: 44px;
++  min-width: 44px;
++  height: 44px;
++  min-height: 44px;
+   color: var(--cds-icon-secondary, var(--text-sub));
+   opacity: 0.48;
+   pointer-events: none;
+@@ -170,7 +175,7 @@
+ @media (max-width: 520px) {
+   #cars-container .member-main-line,
+   .manual-drag-float .member-main-line {
+-    grid-template-columns: 20px minmax(0, 1fr) 48px;
++    grid-template-columns: 44px minmax(0, 1fr) 48px;
+     grid-template-rows: minmax(26px, auto) minmax(22px, auto);
+     grid-template-areas:
+       "handle name menu"
+@@ -205,3 +210,6 @@
+     justify-content: flex-start;
+   }
+ }
++
++.driver-role-tag { flex: 0 0 auto; }
++.driver-main-line .person-meta { justify-content: flex-start; flex-wrap: wrap; }
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/css/cars-members-tray/person-card/04-person-mobile.css carbon-refresh-worktree/assets/css/cars-members-tray/person-card/04-person-mobile.css
+--- carbon-refresh-base/assets/css/cars-members-tray/person-card/04-person-mobile.css	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/css/cars-members-tray/person-card/04-person-mobile.css	2026-08-20 02:53:25.898720704 +0000
+@@ -1,7 +1,7 @@
+ /* Context alignment inside group and waiting surfaces. */
+ #cars-container .seat-slot > .member-card { width: 100%; height: 100%; margin: 0; }
+ #cars-container .driver-seat,
+-#cars-container .seat-slot { border-radius: var(--radius-sm); box-shadow: none; }
++#cars-container .seat-slot { border-radius: 0; box-shadow: none; }
+ #cars-container .seat-slot:has(> .member-card) { align-self: stretch; min-height: 0; padding: 0; border: 0; background: transparent; box-shadow: none; opacity: 1; }
+ #cars-container :where(.member-menu-btn, .driver-menu-btn) { border: 0; background: transparent; box-shadow: none; }
+ #cars-container .memo-popup { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/css/cars-members-tray/waiting-tray/05-tray-states.css carbon-refresh-worktree/assets/css/cars-members-tray/waiting-tray/05-tray-states.css
+--- carbon-refresh-base/assets/css/cars-members-tray/waiting-tray/05-tray-states.css	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/css/cars-members-tray/waiting-tray/05-tray-states.css	2026-08-20 02:53:25.898844933 +0000
+@@ -30,7 +30,15 @@
+   cursor: pointer;
+   touch-action: manipulation;
+ }
+-#tray-toggle-label { display: inline-flex; align-items: center; gap: 6px; color: var(--text-sub); font-size: var(--font-size-caption); font-weight: 600; }
++#tray-toggle-label {
++  display: inline-flex;
++  align-items: center;
++  gap: var(--space-2);
++  color: var(--text-sub);
++  font-size: var(--font-size-caption);
++  font-weight: 600;
++}
++#tray-toggle-label [data-state-icon] { order: 2; }
+ #bottom-tray-header { flex-shrink: 0; padding: 4px 16px 12px; }
+ #bottom-tray-header .tray-inline-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; min-width: 0; }
+ #waiting-count.waiting-inline-count { flex: 1 1 96px; min-width: 0; color: var(--text-sub); font-size: var(--font-size-caption); font-weight: 600; white-space: nowrap; }
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css carbon-refresh-worktree/assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css
+--- carbon-refresh-base/assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css	2026-08-20 02:53:25.898879245 +0000
+@@ -19,7 +19,7 @@
+ #bottom-tray-header .tray-action-btn span { white-space: nowrap; }
+ 
+ #waiting-list { grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); }
+-#waiting-list .member-main-line { grid-template-columns: 20px minmax(0, 1fr) auto 48px; gap: 4px; }
++#waiting-list .member-main-line { grid-template-columns: 44px minmax(0, 1fr) auto 48px; gap: var(--space-1); }
+ #waiting-list .member-name-text { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; }
+ #waiting-list .member-menu-btn { width: 48px; min-width: 48px; height: 48px; min-height: 48px; }
+ 
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/css/settlement/car-inputs/01-car-form.css carbon-refresh-worktree/assets/css/settlement/car-inputs/01-car-form.css
+--- carbon-refresh-base/assets/css/settlement/car-inputs/01-car-form.css	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/css/settlement/car-inputs/01-car-form.css	2026-08-20 02:50:39.699581907 +0000
+@@ -64,13 +64,13 @@
+ .seisan-gas-section-head {
+   display: grid;
+   grid-template-columns: minmax(0, 1fr) auto;
+-  gap: var(--space-3);
+-  align-items: end;
++  gap: var(--space-4);
++  align-items: start;
+   min-width: 0;
+-  margin-top: var(--space-3);
+-  margin-bottom: var(--space-2);
+-  padding-top: var(--space-3);
+-  border-top: 1px solid var(--cds-border-subtle-01, var(--border-color));
++  margin-top: 0;
++  margin-bottom: var(--space-4);
++  padding-top: 0;
++  border-top: 0;
+ }
+ 
+ .seisan-gas-section-head .seisan-subhead {
+@@ -106,9 +106,9 @@
+ }
+ 
+ .seisan-subhead {
+-  margin-top: var(--space-4);
+-  padding-top: var(--space-3);
+-  border-top: 1px solid var(--cds-border-subtle-01, var(--border-color));
++  margin-top: var(--space-6);
++  padding-top: 0;
++  border-top: 0;
+   color: var(--cds-text-primary, var(--text-main));
+   font-size: var(--font-size-label);
+   font-weight: 600;
+@@ -118,4 +118,8 @@
+ @media (max-width: 640px) {
+   .seisan-car-row { padding: var(--space-4); }
+   .seisan-car-title { align-items: flex-start; }
++  .seisan-gas-section-head {
++    grid-template-columns: minmax(0, 1fr);
++    gap: var(--space-3);
++  }
+ }
+diff -ruN '--exclude=assets/vendor/carbon/carbon-entry.min.js' '--exclude=.git' carbon-refresh-base/assets/css/settlement/car-inputs/02-distance-fuel.css carbon-refresh-worktree/assets/css/settlement/car-inputs/02-distance-fuel.css
+--- carbon-refresh-base/assets/css/settlement/car-inputs/02-distance-fuel.css	2026-08-20 02:39:08.000000000 +0000
++++ carbon-refresh-worktree/assets/css/settlement/car-inputs/02-distance-fuel.css	2026-08-20 02:50:39.699445790 +0000
+@@ -3,7 +3,7 @@
+   display: grid;
+   grid-template-columns: repeat(3, minmax(0, 1fr));
+   align-items: end;
+-  gap: var(--space-2);
++  gap: var(--space-3);
+   min-width: 0;
+ }
+ 
+@@ -29,11 +29,27 @@
+   overflow-wrap: anywhere;
+ }
+ 
++/* The route helper navigates into another tool, so this is a Carbon-style
++ * standalone link rather than a full-width action button. */
+ .seisan-distance-shortcut {
+-  width: 100%;
+-  min-height: 48px;
++  display: inline-flex;
++  align-items: center;
++  justify-self: start;
++  gap: var(--space-2);
++  width: fit-content;
++  min-height: 44px;
+   margin: 0;
++  color: var(--cds-link-primary, var(--accent-color));
++  font-size: var(--font-size-body);
++  line-height: 1.2857;
++  text-decoration: none;
++}
++.seisan-distance-shortcut:hover { text-decoration: underline; }
++.seisan-distance-shortcut:focus-visible {
++  outline: 2px solid var(--cds-focus, var(--focus-accent));
++  outline-offset: 2px;
+ }
++.seisan-distance-shortcut .carbon-icon { width: 1rem; height: 1rem; flex: 0 0 auto; color: currentColor; }
+ 
+ .seisan-distance-unit,
+ .seisan-fuel-unit {
+@@ -43,7 +59,12 @@
+   white-space: nowrap;
+ }
+ 
+-@media (max-width: 360px) {
+-  .seisan-gas-field-row { gap: var(--space-1); }
+-  .seisan-gas-field-row .seisan-mini-label { min-height: 3em; font-size: var(--font-size-caption); line-height: 1.25; }
++@media (max-width: 640px) {
++  .seisan-gas-field-row {
++    grid-template-columns: minmax(0, 1fr);
++    gap: var(--space-3);
++  }
++  .seisan-distance-field,
++  .seisan-fuel-field { grid-template-rows: auto auto; }
++  .seisan-gas-field-row .seisan-mini-label { min-height: 0; }
+ }
