@@ -4,3 +4,5 @@ server-*.log
 database-debug.log
 backups/
 node_modules/
+firebase-service-account*.json
+*service-account-key*.json
