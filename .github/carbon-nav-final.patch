@@ -1,0 +1,84 @@
+--- a/assets/css/app-shell/layout/04-layering.css
++++ b/assets/css/app-shell/layout/04-layering.css
+@@ -11,7 +11,7 @@
+   --z-local-popover: 20;
+   --z-view-navigation: 80;
+   --z-header: 100;
+   --z-tray: 300;
+-  --view-navigation-height: 48px;
++  --view-navigation-height: 40px;
+   --z-dropdown: 600;
+   --z-person-menu: 800;
+   --z-floating: 900;
+--- a/assets/css/app-shell/header/03-tabs-actions.css
++++ b/assets/css/app-shell/header/03-tabs-actions.css
+@@ -111,7 +111,6 @@
+ 
+ .view-tab {
+   box-sizing: border-box;
+-  min-width: 112px;
+   min-height: var(--view-navigation-height);
+   color: #f4f4f4;
+   --cds-text-primary: #f4f4f4;
+@@ -130,10 +129,6 @@
+   white-space: nowrap;
+ }
+ 
+-@media (max-width: 640px) {
+-  .view-tab { min-width: 104px; }
+-}
+-
+ /* 車割 / 班割 remain visible in the allocation toolbar as the Carbon Content
+  * Switcher for switching two formats of the same allocation content. */
+ #car-plan-switcher { display: flex; }
+--- a/index.html
++++ b/index.html
+@@ -335,7 +335,7 @@
+         </div>
+       </div>
+       <nav id="app-view-navigation" aria-label="メイン画面">
+-        <cds-tabs id="view-toggle-bar" value="car" size="lg" trigger-content="画面を選択" aria-label="主要画面">
++        <cds-tabs id="view-toggle-bar" value="car" size="md" trigger-content="画面を選択" aria-label="主要画面">
+           <cds-tab class="view-tab" id="tab-list" value="car" data-view="list" data-allocation-type="car" selected aria-label="車割">
+             <span class="view-tab-label">車割<span class="view-tab-lock-indicator" data-lock-scope="allocation" hidden aria-hidden="true"><span data-carbon-icon="locked" aria-hidden="true"></span></span></span>
+           </cds-tab>
+--- a/tests/carbon-complete.visual.spec.js
++++ b/tests/carbon-complete.visual.spec.js
+@@ -19,6 +19,7 @@
+       const share = document.querySelector('#shareLinkBtn');
+       const switcher = document.querySelector('.header-app-switcher');
+       const roomInput = document.querySelector('#roomNameInput');
++      const tabShadow = document.querySelector('#view-toggle-bar')?.shadowRoot;
+       return {
+         navPosition: getComputedStyle(nav).position,
+         headerBottom: headerRect.bottom,
+@@ -31,13 +32,17 @@
+         labels: tabs.map(tab => tab.querySelector('.view-tab-label')?.textContent?.trim() || ''),
+         shareSize: share ? { width: share.getBoundingClientRect().width, height: share.getBoundingClientRect().height } : null,
+         switcherSize: switcher ? { width: switcher.getBoundingClientRect().width, height: switcher.getBoundingClientRect().height } : null,
+-        roomInputVisibility: roomInput ? getComputedStyle(roomInput.closest('.app-room-field')).visibility : 'missing'
++        roomInputVisibility: roomInput ? getComputedStyle(roomInput.closest('.app-room-field')).visibility : 'missing',
++        visibleOverflowButtons: [...(tabShadow?.querySelectorAll('.cds--tab--overflow-nav-button') || [])].filter(button => {
++          const box = button.getBoundingClientRect();
++          return getComputedStyle(button).display !== 'none' && box.width > 0 && box.height > 0;
++        }).length
+       };
+     });
+ 
+     expect(shellGeometry.navPosition).not.toBe('fixed');
+     expect(Math.abs(shellGeometry.navTop - shellGeometry.headerBottom)).toBeLessThanOrEqual(1);
+-    expect(shellGeometry.navHeight).toBeGreaterThanOrEqual(47);
+-    expect(shellGeometry.navHeight).toBeLessThanOrEqual(49);
++    expect(shellGeometry.navHeight).toBeGreaterThanOrEqual(40);
++    expect(shellGeometry.navHeight).toBeLessThanOrEqual(42);
+     expect(shellGeometry.firstViewContentTop).toBeGreaterThanOrEqual(shellGeometry.navBottom);
+     expect(shellGeometry.headerBackground).toBe('rgb(22, 22, 22)');
+     expect(shellGeometry.navBackground).toBe('rgb(0, 0, 0)');
+@@ -47,6 +52,7 @@
+     expect(shellGeometry.shareSize).toEqual({ width: 48, height: 48 });
+     expect(shellGeometry.switcherSize).toEqual({ width: 48, height: 48 });
+     expect(shellGeometry.roomInputVisibility).toBe('hidden');
++    expect(shellGeometry.visibleOverflowButtons).toBe(0);
+ 
+     await page.locator('#tab-team').evaluate(node => node.click());
+     await expect(page.locator('#tab-team')).toHaveAttribute('aria-current', 'page');
