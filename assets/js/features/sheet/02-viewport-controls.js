@@ -1,6 +1,6 @@
-// Shared-view pan and zoom interactions.
-// The movement model intentionally follows the legacy presentation view:
-// free one-finger/mouse translation and focal-point pinch/wheel scaling.
+// Shared-view pan, zoom, and vertical-scroll affordances.
+// Desktop retains the legacy direct manipulation canvas. Responsive layouts
+// use the browser's native vertical scroll path instead of transformed panning.
 
 let sheetScale = 1;
 let sheetX = 0;
@@ -16,6 +16,24 @@ let sheetUserAdjusted = false;
 function usesResponsiveSheetViewport(area = byId('sheet-view-area')) {
     return !!area && area.clientWidth < 1056;
 }
+
+function getSheetVerticalScrollHost(area = byId('sheet-view-area')) {
+    if (!area) return null;
+    return usesResponsiveSheetViewport(area) ? area : byId('sheet-canvas');
+}
+
+function updateSheetScrollAffordance(area = byId('sheet-view-area')) {
+    if (!area) return;
+    const host = getSheetVerticalScrollHost(area);
+    if (!host || !area.classList.contains('active')) {
+        area.classList.remove('sheet-has-more-below');
+        return;
+    }
+    const maxScrollTop = Math.max(0, host.scrollHeight - host.clientHeight);
+    const hasMoreBelow = maxScrollTop > 8 && host.scrollTop < maxScrollTop - 8;
+    area.classList.toggle('sheet-has-more-below', hasMoreBelow);
+}
+window.updateSheetScrollAffordance = updateSheetScrollAffordance;
 
 function syncSheetTimetableTextareaExpansion(host, forceActive = false) {
     if (!host?.matches?.('cds-textarea.sheet-timetable-input.title')) return;
@@ -67,6 +85,7 @@ function fitInitialSheetScale({ fitAll = false } = {}) {
         area.classList.remove('sheet-needs-pan', 'sheet-fit-active', 'is-panning');
         content.style.zoom = '';
         content.style.transform = 'none';
+        requestAnimationFrame(() => updateSheetScrollAffordance(area));
         return;
     }
 
@@ -74,6 +93,7 @@ function fitInitialSheetScale({ fitAll = false } = {}) {
     // kept the user's position. Reapply the same state to the replaced inner node.
     if (sheetUserAdjusted) {
         applySheetTransform();
+        requestAnimationFrame(() => updateSheetScrollAffordance(area));
         return;
     }
 
@@ -90,6 +110,7 @@ function fitInitialSheetScale({ fitAll = false } = {}) {
     area.classList.toggle('sheet-needs-pan', contentWidth * sheetScale > availableWidth + 4);
     area.classList.add('sheet-fit-active');
     applySheetTransform();
+    requestAnimationFrame(() => updateSheetScrollAffordance(area));
 }
 
 function markSheetAdjusted() {
@@ -101,6 +122,17 @@ function markSheetAdjusted() {
 D.addEventListener('DOMContentLoaded', () => {
     const area = byId('sheet-view-area');
     if (!area) return;
+
+    const canvas = byId('sheet-canvas');
+    const updateScrollAffordance = () => updateSheetScrollAffordance(area);
+    area.addEventListener('scroll', updateScrollAffordance, { passive: true });
+    canvas?.addEventListener('scroll', updateScrollAffordance, { passive: true });
+    if (typeof ResizeObserver === 'function') {
+        const scrollAffordanceObserver = new ResizeObserver(() => requestAnimationFrame(updateScrollAffordance));
+        scrollAffordanceObserver.observe(area);
+        if (canvas) scrollAffordanceObserver.observe(canvas);
+    }
+    requestAnimationFrame(updateScrollAffordance);
 
     const preventSheetTextSelection = event => {
         if (isSheetDragHandle(event.target)) event.preventDefault();
@@ -245,5 +277,6 @@ D.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('resize', () => {
         if (!sheetUserAdjusted) requestAnimationFrame(fitInitialSheetScale);
+        requestAnimationFrame(updateScrollAffordance);
     });
 });

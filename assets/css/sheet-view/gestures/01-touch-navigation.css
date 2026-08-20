@@ -1,7 +1,26 @@
-/* Legacy direct manipulation for the shared presentation canvas. */
+/* Shared-view gesture ownership. Desktop keeps the legacy direct pan/zoom
+ * canvas; responsive layouts return one-finger vertical movement to the
+ * browser so the shared view behaves like a native scroll surface. */
 #sheet-canvas {
-  touch-action: none;
   cursor: grab;
+}
+
+@media (min-width: 1056px) {
+  #sheet-canvas { touch-action: none; }
+}
+
+@media (max-width: 1055px) {
+  #sheet-view-area,
+  #sheet-canvas { touch-action: pan-y; }
+
+  #sheet-canvas { cursor: auto; }
+
+  /* Carbon overflow guidance uses a visible content fade to communicate that
+   * more content continues below the fold. The class is removed at the end. */
+  #sheet-view-area.sheet-has-more-below {
+    -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 48px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 48px), transparent 100%);
+  }
 }
 
 #sheet-content {
@@ -19,8 +38,7 @@
   outline-offset: -3px;
 }
 
-
-/* Persistent, low-noise pan affordance. */
+/* Persistent, low-noise horizontal pan affordance for the desktop canvas. */
 #sheet-view-area.sheet-needs-pan #sheet-canvas::before,
 #sheet-view-area.sheet-needs-pan #sheet-canvas::after {
   content: "";
