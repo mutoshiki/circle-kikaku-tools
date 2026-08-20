@@ -68,10 +68,9 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     expect(shellGeometry.roomInputVisibility).toBe('absolute');
     expect(shellGeometry.visibleOverflowButtons).toBe(0);
 
-    await page.locator('#top-area').evaluate(node => { node.scrollTop = 64; node.dispatchEvent(new Event('scroll')); });
+    await page.dispatchEvent('#top-area', 'wheel', { deltaY: 120 });
     await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'collapsed');
-    await page.locator('#top-area').evaluate(node => { node.scrollTop = 0; node.dispatchEvent(new Event('scroll')); });
-    await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'collapsed');
+    await expect.poll(() => page.locator('#projectTitleRegion').evaluate(node => node.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
     await page.dispatchEvent('#top-area', 'wheel', { deltaY: -120 });
     await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'expanded');
 

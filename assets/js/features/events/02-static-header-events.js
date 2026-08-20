@@ -444,6 +444,10 @@
         }, { passive: true }));
 
         document.addEventListener('wheel', event => {
+            if (event.deltaY > PROJECT_TITLE_SCROLL_THRESHOLD) {
+                setProjectTitleExpanded(false);
+                return;
+            }
             if (event.deltaY < -PROJECT_TITLE_SCROLL_THRESHOLD && getActiveProjectTitleScrollTop() <= 0) setProjectTitleExpanded(true);
         }, { passive: true });
         document.addEventListener('pointerdown', event => {
@@ -451,7 +455,13 @@
         }, { passive: true });
         document.addEventListener('pointermove', event => {
             if (event.pointerType !== 'touch' || projectTitlePointerStartY === null) return;
-            if (getActiveProjectTitleScrollTop() <= 0 && event.clientY - projectTitlePointerStartY >= PROJECT_TITLE_PULL_THRESHOLD) {
+            const deltaY = event.clientY - projectTitlePointerStartY;
+            if (deltaY <= -PROJECT_TITLE_PULL_THRESHOLD) {
+                setProjectTitleExpanded(false);
+                projectTitlePointerStartY = event.clientY;
+                return;
+            }
+            if (getActiveProjectTitleScrollTop() <= 0 && deltaY >= PROJECT_TITLE_PULL_THRESHOLD) {
                 setProjectTitleExpanded(true);
                 projectTitlePointerStartY = event.clientY;
             }
@@ -513,7 +523,7 @@
     function setupAppNavigationDrawer() {
         const drawer = createAppNavigationDrawer();
         if (!drawer) return;
-        bind('overviewMenuBtn', () => setAppNavigationDrawerOpen(drawer.getAttribute('aria-hidden') !== 'true'));
+        bind('overviewMenuBtn', () => setAppNavigationDrawerOpen(drawer.getAttribute('aria-hidden') === 'true'));
         bind('overviewDrawerScrim', () => setAppNavigationDrawerOpen(false, { restoreFocus: true }));
         drawer.addEventListener('click', event => {
             if (event.target.closest?.('.app-nav-link')) setAppNavigationDrawerOpen(false);

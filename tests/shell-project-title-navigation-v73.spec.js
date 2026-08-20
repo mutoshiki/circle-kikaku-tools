@@ -26,23 +26,20 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     await expect.poll(() => page.locator('#roomNameInput').evaluate(node => node.value)).toBe('紅葉ハイク');
     expect((await editor.textContent())?.trim()).toBe('紅葉ハイク');
 
-    await page.locator('#top-area').evaluate(node => {
-      node.scrollTop = 80;
-      node.dispatchEvent(new Event('scroll'));
-    });
+    if (viewport.width <= 390) {
+      await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 180, pointerId: 1, isPrimary: true });
+      await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 148, pointerId: 1, isPrimary: true });
+      await page.dispatchEvent('#top-area', 'pointerup', { pointerType: 'touch', clientY: 148, pointerId: 1, isPrimary: true });
+    } else {
+      await page.dispatchEvent('#top-area', 'wheel', { deltaY: 120 });
+    }
     await expect(title).toHaveAttribute('data-state', 'collapsed');
-    expect(await title.evaluate(node => node.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
-
-    await page.locator('#top-area').evaluate(node => {
-      node.scrollTop = 0;
-      node.dispatchEvent(new Event('scroll'));
-    });
-    await expect(title).toHaveAttribute('data-state', 'collapsed');
+    await expect.poll(() => title.evaluate(node => node.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
 
     if (viewport.width <= 390) {
-      await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 120, pointerId: 1, isPrimary: true });
-      await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 152, pointerId: 1, isPrimary: true });
-      await page.dispatchEvent('#top-area', 'pointerup', { pointerType: 'touch', clientY: 152, pointerId: 1, isPrimary: true });
+      await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 120, pointerId: 2, isPrimary: true });
+      await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 152, pointerId: 2, isPrimary: true });
+      await page.dispatchEvent('#top-area', 'pointerup', { pointerType: 'touch', clientY: 152, pointerId: 2, isPrimary: true });
     } else {
       await page.dispatchEvent('#top-area', 'wheel', { deltaY: -120 });
     }
