@@ -113,7 +113,6 @@ cds-overflow-menu.header-action {
 
 .view-tab {
   box-sizing: border-box;
-  min-width: 112px;
   min-height: var(--view-navigation-height);
   color: #f4f4f4;
   --cds-text-primary: #f4f4f4;
@@ -129,10 +128,6 @@ cds-overflow-menu.header-action {
   gap: var(--space-1);
   color: inherit;
   white-space: nowrap;
-}
-
-@media (max-width: 640px) {
-  .view-tab { min-width: 104px; }
 }
 
 /* 車割 / 班割 remain visible in the allocation toolbar as the Carbon Content
