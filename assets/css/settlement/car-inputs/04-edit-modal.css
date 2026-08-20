@@ -18,6 +18,9 @@
   color: var(--cds-text-primary, var(--text-main));
   -webkit-overflow-scrolling: touch;
 }
+#settlementCarEditModal .app-modal-body > * + * {
+  margin-top: var(--space-5);
+}
 #settlementCarEditModal .app-modal-heading {
   overflow: hidden;
   text-overflow: ellipsis;

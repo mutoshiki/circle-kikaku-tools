@@ -1,42 +1,6 @@
 /* Compatibility rules that have not yet moved to their canonical owners.
- * Header presentation now lives entirely in app-shell/header/. Settlement
- * presentation lives in its page-shell, summary, controls, car-inputs,
- * checklists and car-cost-summary owners. */
-
-/* Shared view: a compact Carbon information bar with a dedicated action column. */
-#sheet-title-bar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  min-height: 0;
-  padding: 8px 12px;
-}
-.sheet-title-copy { gap: 0; }
-#sheet-summary { gap: 6px; }
-.sheet-summary-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 2px 10px;
-  overflow: visible;
-  white-space: normal;
-}
-.sheet-summary-plan-label,
-.sheet-capacity-badge {
-  --cds-tag-background-gray: #393939;
-  --cds-tag-color-gray: #f4f4f4;
-  --cds-tag-hover-gray: #474747;
-}
-#sheet-bottom-controls { align-self: center; }
-#sheet-title-bar #sheet-quick-edit-btn {
-  --cds-button-ghost: transparent;
-  --cds-button-ghost-hover: var(--cds-layer-hover-01, #353535);
-  --cds-button-ghost-active: var(--cds-layer-active-01, #474747);
-  --cds-button-ghost-color: var(--cds-link-primary, #78a9ff);
-  color: var(--cds-link-primary, #78a9ff);
-  min-height: 40px;
-}
+ * Shared-view geometry is owned by sheet-view/layout/; this late file must not
+ * override the removed participant summary or the responsive scroll owner. */
 
 /* Carbon Gray 90/80/10 and Blue 90/20 keep compact tags readable in dark mode. */
 html[data-theme="dark"] {
@@ -57,18 +21,4 @@ html[data-theme="dark"] :is(.grade-badge, .sheet-capacity-badge) {
   --cds-tag-background-gray: #393939;
   --cds-tag-color-gray: #f4f4f4;
   --cds-tag-hover-gray: #474747;
-}
-
-@media (max-width: 640px) {
-  #sheet-title-bar {
-    top: 12px;
-    right: 12px;
-    left: 12px;
-    gap: 8px;
-    min-height: 64px;
-    padding: 8px 10px;
-  }
-  .sheet-summary-row { gap: 1px 7px; font-size: 0.72rem; line-height: 1.35; }
-  .sheet-summary-plan-label { min-height: 22px; padding-inline: 6px; }
-  .sheet-content { padding-top: 100px; }
 }

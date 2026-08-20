@@ -262,6 +262,16 @@
         const carEditModal = document.getElementById('settlementCarEditModal');
         if (carEditModal && carEditModal.dataset.settlementModalBound !== 'true') {
             carEditModal.dataset.settlementModalBound = 'true';
+            carEditModal.addEventListener('sanpo:modal-shown', () => {
+                const body = carEditModal.querySelector(':scope > cds-modal-body.app-modal-body, :scope > .app-modal-body');
+                if (!body) return;
+                body.scrollTop = 0;
+                body.scrollLeft = 0;
+                requestAnimationFrame(() => {
+                    body.scrollTop = 0;
+                    body.scrollLeft = 0;
+                });
+            });
             carEditModal.addEventListener('sanpo:modal-hiding', event => {
                 const validateAndSave = global.validateAndSaveSettlementCarEditBeforeClose;
                 if (typeof validateAndSave === 'function') {

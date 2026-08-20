@@ -47,6 +47,8 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       expect(registered).toBeTruthy();
       await expect(page.locator('#app-layout')).toBeVisible();
       await expect(page.locator('#view-toggle-bar')).toBeVisible();
+      const menuColor = await page.locator('#overviewMenuBtn').evaluate(node => getComputedStyle(node).color);
+      expect(menuColor).toBe('rgb(244, 244, 244)');
       for (const view of ['list', 'sheet', 'seisan']) {
         await page.evaluate(next => window.switchView(next), view);
         await expect(page.locator('#app-view-navigation')).toBeVisible();
@@ -74,9 +76,10 @@ test.describe('Allocation, menus and accessibility', () => {
     page.on('pageerror', error => errors.push(String(error)));
     await seed(page);
     await page.evaluate(() => window.switchView('list'));
-    await hostClick(page, '#car-plan-switcher cds-content-switcher-item[value="team"]');
+    await expect(page.locator('#car-plan-switcher')).toHaveCount(0);
+    await hostClick(page, '#tab-team');
     expect(await page.evaluate(() => window.getActiveCarPlan().templateType)).toBe('team');
-    await hostClick(page, '#car-plan-switcher cds-content-switcher-item[value="car"]');
+    await hostClick(page, '#tab-list');
     expect(await page.evaluate(() => window.getActiveCarPlan().templateType)).toBe('car');
     const expanded = await page.locator('#tray-handle').getAttribute('aria-expanded');
     await hostClick(page, '#tray-handle');
@@ -222,7 +225,7 @@ test.describe('Carbon modal, participant and sheet workflows', () => {
   test('shared view quick edit adds and removes timetable rows', async ({ page }) => {
     await seed(page);
     await page.evaluate(() => window.switchView('sheet'));
-    await expect(page.locator('#sheet-summary')).not.toContainText('全員 0');
+    await expect(page.locator('#sheet-summary')).toHaveCount(0);
     await expect(page.locator('#sheet-quick-edit-btn')).toBeVisible();
     await hostClick(page, '#sheet-quick-edit-btn');
     expect(await page.evaluate(() => document.body.classList.contains('quick-edit-mode'))).toBeTruthy();
