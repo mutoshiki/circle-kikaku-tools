@@ -1,24 +1,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = rel => fs.readFileSync(path.join(root, rel), 'utf8');
-const require = createRequire(import.meta.url);
 const header = read('assets/js/features/events/02-static-header-events.js');
 const events = read('assets/js/features/events.js');
 const rules = read('firebase/database.rules.json');
-const functions = read('functions/index.js');
 const appsScript = read('apps-script/bug-report-mailer/Code.gs');
+const stateSource = read('apps-script/bug-report-mailer/State.gs');
+const manifest = JSON.parse(read('apps-script/bug-report-mailer/appsscript.json'));
 const firebase = JSON.parse(read('firebase.json'));
-const {
-  SEND_LEASE_MS,
-  acquireLeaseState,
-  sentState,
-  failedState
-} = require('../functions/notification-state.js');
 
 for (const [label, url] of [
   ['山歩会フォームメーカー', 'https://script.google.com/macros/s/AKfycbw0R5VgBdSLS8aRDJDw7GUIEfHlXRZ6rPrOgjXmO2N7LvhuoGyS_opUCFTCSiUiDZw5/exec'],
@@ -45,56 +39,59 @@ assert.match(rules, /newData\.val\(\)\.length <= 2000/);
 assert.match(rules, /"\$other"[\s\S]*"\.validate": false/);
 assert.match(rules, /"bugReportNotifications"[\s\S]*"\.read": false[\s\S]*"\.write": false/);
 
-assert.equal(firebase.functions.source, 'functions');
-assert.match(functions, /onValueCreated/);
-assert.match(functions, /ref: '\/bugReports\/\{reportId\}'/);
-assert.match(functions, /region: 'us-central1'/);
-assert.match(functions, /retry: true/);
-assert.match(functions, /timeoutSeconds: 120/);
-for (const secret of ['BUG_REPORT_MAIL_WEBHOOK_URL', 'BUG_REPORT_MAIL_WEBHOOK_SECRET']) {
-  assert.match(functions, new RegExp(`defineSecret\\('${secret}'\\)`), secret);
-}
-assert.doesNotMatch(functions, /RESEND|resend\.com|Idempotency-Key/i, 'Resend must not be used');
-assert.match(functions, /statusRef\.transaction/);
-assert.match(functions, /acquireLeaseState/);
-assert.match(functions, /sentState/);
-assert.match(functions, /failedState/);
-assert.match(functions, /bugReportNotifications/);
-assert.match(functions, /【サークル企画ツール】新しいバグ報告/);
-assert.doesNotMatch(functions, /['"][^'"\s]+@gmail\.com['"]/i, 'Gmail destination must not be hard-coded');
-assert.doesNotMatch(functions, /rooms\//, 'notification function must not touch room sync paths');
-for (const label of ['バグ内容:', '送信日時:', 'room ID:', 'URL:', 'build ID:', '企画名:', '現在の画面:', '端末\/ブラウザ:']) {
-  assert.match(functions, new RegExp(label));
-}
-
+assert.equal(firebase.functions, undefined, 'Cloud Functions must not be required for the free notification path');
+assert.doesNotMatch(appsScript, /RESEND|resend\.com|Cloud Functions|defineSecret/i);
+assert.match(appsScript, /FIREBASE_SERVICE_ACCOUNT_JSON/);
+assert.match(appsScript, /FIREBASE_DATABASE_URL/);
+assert.match(appsScript, /BUG_REPORT_NOTIFY_TO/);
+assert.match(appsScript, /https:\/\/oauth2\.googleapis\.com\/token/);
+assert.match(appsScript, /https:\/\/www\.googleapis\.com\/auth\/firebase\.database/);
+assert.match(appsScript, /X-Firebase-ETag/);
+assert.match(appsScript, /if-match/);
+assert.match(appsScript, /code === 412/);
+assert.match(appsScript, /notificationTransaction_/);
+assert.match(appsScript, /LockService\.getScriptLock/);
+assert.match(appsScript, /everyMinutes\(1\)/);
 assert.match(appsScript, /MailApp\.sendEmail/);
 assert.match(appsScript, /GmailApp\.search/);
-assert.match(appsScript, /LockService\.getScriptLock/);
 assert.match(appsScript, /PropertiesService\.getScriptProperties/);
-assert.match(appsScript, /BUG_REPORT_WEBHOOK_SECRET/);
-assert.match(appsScript, /BUG_REPORT_NOTIFY_TO/);
 assert.match(appsScript, /circle-kikaku-bug-report-/);
-assert.doesNotMatch(appsScript, /['"][^'"\s]+@gmail\.com['"]/i, 'Apps Script destination must not be hard-coded');
+assert.doesNotMatch(appsScript, /['"][^'"\s]+@gmail\.com['"]/i, 'Gmail destination must not be hard-coded');
+assert.doesNotMatch(appsScript, /rooms\//, 'notification worker must not touch room sync paths');
+for (const label of ['バグ内容:', '送信日時:', 'room ID:', 'URL:', 'build ID:', '企画名:', '現在の画面:', '端末\/ブラウザ:']) {
+  assert.match(appsScript, new RegExp(label));
+}
 
+for (const scope of [
+  'https://www.googleapis.com/auth/script.scriptapp',
+  'https://www.googleapis.com/auth/script.external_request',
+  'https://www.googleapis.com/auth/script.send_mail',
+  'https://mail.google.com/'
+]) {
+  assert.ok(manifest.oauthScopes.includes(scope), scope);
+}
+
+const context = vm.createContext({ Math, Number, String });
+vm.runInContext(stateSource, context);
 const now = 1_000_000;
-const first = acquireLeaseState(null, { now, leaseToken: 'lease-a', eventId: 'event-a' });
+const first = context.acquireBugReportLeaseState_(null, now, 'lease-a', 'event-a');
 assert.equal(first.status, 'sending');
-assert.equal(first.leaseExpiresAt, now + SEND_LEASE_MS);
+assert.equal(first.leaseExpiresAt, now + context.BUG_REPORT_SEND_LEASE_MS);
 assert.equal(first.attemptCount, 1);
-assert.equal(acquireLeaseState(first, { now: now + 1, leaseToken: 'lease-b', eventId: 'event-b' }), undefined, 'fresh sending lease blocks a second sender');
+assert.equal(context.acquireBugReportLeaseState_(first, now + 1, 'lease-b', 'event-b'), null, 'fresh sending lease blocks a second sender');
 
-const failed = failedState(first, { now: now + 2, leaseToken: 'lease-a', eventId: 'event-a', error: 'network' });
+const failed = context.failedBugReportNotificationState_(first, now + 2, 'lease-a', 'event-a', 'network');
 assert.equal(failed.status, 'failed');
-const retry = acquireLeaseState(failed, { now: now + 3, leaseToken: 'lease-b', eventId: 'event-b' });
+const retry = context.acquireBugReportLeaseState_(failed, now + 3, 'lease-b', 'event-b');
 assert.equal(retry.status, 'sending', 'failed delivery is retryable');
 assert.equal(retry.attemptCount, 2);
 
-const sent = sentState(retry, { now: now + 4, leaseToken: 'lease-b', eventId: 'event-b' });
+const sent = context.sentBugReportNotificationState_(retry, now + 4, 'lease-b', 'event-b', false);
 assert.equal(sent.status, 'sent');
-assert.equal(acquireLeaseState(sent, { now: now + (25 * 60 * 60 * 1000), leaseToken: 'lease-c', eventId: 'event-c' }), undefined, 'sent remains terminal after 24 hours');
+assert.equal(context.acquireBugReportLeaseState_(sent, now + (25 * 60 * 60 * 1000), 'lease-c', 'event-c'), null, 'sent remains terminal after 24 hours');
 
 const expired = { ...first, leaseExpiresAt: now - 1 };
-const recovered = acquireLeaseState(expired, { now, leaseToken: 'lease-c', eventId: 'event-c' });
+const recovered = context.acquireBugReportLeaseState_(expired, now, 'lease-c', 'event-c');
 assert.equal(recovered.status, 'sending', 'expired in-flight lease is retryable');
 
-console.log('PASS bug report storage, atomic lease, and free Gmail notification contract');
+console.log('PASS bug report storage, atomic CAS lease, and Spark-compatible Gmail notification contract');
