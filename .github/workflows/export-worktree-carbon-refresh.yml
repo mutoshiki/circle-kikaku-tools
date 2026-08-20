@@ -3,27 +3,40 @@ on:
   push:
     branches:
       - carbon-full-ui-refresh-20260820
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  export:
+  apply-build:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: carbon-full-ui-refresh-20260820
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+      - name: Apply verified UI patches
+        run: |
+          patch --dry-run -p1 < .github/carbon-refresh-part-1.patch
+          patch --dry-run -p1 < .github/carbon-refresh-part-2.patch
+          patch --dry-run -p1 < .github/carbon-refresh-part-3.patch
+          patch --dry-run -p1 < .github/carbon-refresh-part-4.patch
+          patch -p1 < .github/carbon-refresh-part-1.patch
+          patch -p1 < .github/carbon-refresh-part-2.patch
+          patch -p1 < .github/carbon-refresh-part-3.patch
+          patch -p1 < .github/carbon-refresh-part-4.patch
       - run: npm ci --no-audit --no-fund
       - run: npm run build:carbon
-      - uses: actions/upload-artifact@v4
-        with:
-          name: carbon-refresh-worktree
-          path: |
-            .
-            !node_modules/**
-            !.git/**
-          retention-days: 2
+      - name: Commit built application changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html assets/
+          git diff --cached --check
+          git commit -m "Apply Carbon responsive UI refresh"
+          git push origin HEAD:carbon-full-ui-refresh-20260820
