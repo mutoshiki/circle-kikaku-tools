@@ -53,38 +53,47 @@
   function carColumn({ car, maxSeats, groupIndex = 0, quickEditMode, helpers = {}, template = {} }) {
     const cfg = normalizeTemplate(template);
     const cap = parseInt(car.capacity) || 0;
-    const filled = (car.members || []).filter(Boolean).length;
+    const members = (car.members || []).filter(member => member?.name);
+    const filled = members.length;
     const capacityClass = filled > cap ? 'is-over' : (filled === cap ? 'is-full' : '');
     const capacityState = filled > cap ? 'over' : 'normal';
     const capacityText = `${filled}/${cap}`;
-    const capacityTagAttributes = window.SanpoTagTypes?.attributes('capacity', capacityState, 'md', capacityText) || 'type="gray" size="md"';
+    const capacityTagAttributes = window.SanpoTagTypes?.attributes('capacity', capacityState, 'sm', capacityText) || 'type="gray" size="sm"';
     const groupTitle = `${cfg.type === 'team' ? '班' : '車'}${groupIndex + 1}`;
-    let html = `<div class="sheet-car-header">${esc(groupTitle, helpers)} <cds-tag class="sheet-capacity-badge carbon-display-tag ${capacityClass}" ${capacityTagAttributes}>${capacityText}</cds-tag></div>`;
+    const roleLabel = cfg.type === 'team' ? (cfg.ownerLabel || '班長') : '運転手';
+    let html = `<div class="sheet-car-header"><span>${esc(groupTitle, helpers)}</span><cds-tag class="sheet-capacity-badge carbon-display-tag ${capacityClass}" ${capacityTagAttributes}>${capacityText}</cds-tag></div>`;
 
     const dg = car.driverGender || 'unknown';
     html += `<div class="sheet-driver-row" data-gender="${dg}">
+        <cds-tag class="sheet-role-tag" type="gray" size="sm">${esc(roleLabel, helpers)}</cds-tag>
         <span class="sheet-driver-name">${esc(car.name, helpers)}</span>
     </div>`;
 
-    for (let i = 0; i < cap; i++) {
-      const mem = (car.members || [])[i];
-      if (mem && mem.name) {
-        const g = mem.gender || 'unknown';
-        html += quickEditMode
-          ? `<div class="sheet-seat-row" data-gender="${g}"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${esc(car.name, helpers)}" data-slot-index="${i}" data-accept-drop="${mem.locked ? 'false' : 'true'}">${memberChip(mem, helpers)}</div></div>`
-          : `<div class="sheet-seat-row" data-gender="${g}">${plainMember(mem, helpers)}</div>`;
-      } else {
-        html += quickEditMode
-          ? `<div class="sheet-seat-row empty"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${esc(car.name, helpers)}" data-slot-index="${i}" data-accept-drop="true">空き</div></div>`
-          : `<div class="sheet-seat-row empty">空き</div>`;
+    if (quickEditMode) {
+      for (let i = 0; i < cap; i++) {
+        const mem = (car.members || [])[i];
+        if (mem && mem.name) {
+          const g = mem.gender || 'unknown';
+          html += `<div class="sheet-seat-row" data-gender="${g}"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${esc(car.name, helpers)}" data-slot-index="${i}" data-accept-drop="${mem.locked ? 'false' : 'true'}">${memberChip(mem, helpers)}</div></div>`;
+        } else {
+          html += `<div class="sheet-seat-row empty"><div class="sheet-dropzone" data-zone-type="seat" data-car-name="${esc(car.name, helpers)}" data-slot-index="${i}" data-accept-drop="true">空き</div></div>`;
+        }
       }
+      return html;
     }
+
+    members.forEach(mem => {
+      const g = mem.gender || 'unknown';
+      html += `<div class="sheet-seat-row" data-gender="${g}">${plainMember(mem, helpers)}</div>`;
+    });
+    const vacancyCount = Math.max(0, cap - filled);
+    if (vacancyCount) html += `<div class="sheet-seat-row empty sheet-seat-capacity">空き ${vacancyCount}名</div>`;
     return html;
   }
 
   function waitingColumn({ data, quickEditMode, helpers = {} }) {
     const waiting = Array.isArray(data?.waiting) ? data.waiting : [];
-    let html = `<div class="sheet-wait-header">未割り当て (${waiting.length})</div>`;
+    let html = `<div class="sheet-wait-header">未割り当て ${waiting.length}名</div>`;
     if (quickEditMode) {
       html += `<div class="sheet-wait-body"><div class="sheet-waiting-list" data-zone-type="waiting" data-accept-drop="true">${waiting.map(member => memberChip(member, helpers)).join('')}</div></div>`;
     } else {

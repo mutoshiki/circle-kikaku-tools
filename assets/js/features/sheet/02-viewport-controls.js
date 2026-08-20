@@ -13,6 +13,10 @@ let panOriginY = 0;
 let lastPinchDist = 0;
 let sheetUserAdjusted = false;
 
+function usesResponsiveSheetViewport(area = byId('sheet-view-area')) {
+    return !!area && area.clientWidth < 1056;
+}
+
 function syncSheetTimetableTextareaExpansion(host, forceActive = false) {
     if (!host?.matches?.('cds-textarea.sheet-timetable-input.title')) return;
     const value = String(host.value || host.getAttribute('value') || '');
@@ -54,6 +58,17 @@ function fitInitialSheetScale({ fitAll = false } = {}) {
     const area = byId('sheet-view-area');
     const content = getSheetTransformTarget();
     if (!area || !content || !content.children.length) return;
+
+    if (usesResponsiveSheetViewport(area)) {
+        sheetScale = 1;
+        sheetX = 0;
+        sheetY = 0;
+        sheetUserAdjusted = false;
+        area.classList.remove('sheet-needs-pan', 'sheet-fit-active', 'is-panning');
+        content.style.zoom = '';
+        content.style.transform = 'none';
+        return;
+    }
 
     // The old implementation transformed the persistent canvas, so a re-render
     // kept the user's position. Reapply the same state to the replaced inner node.
@@ -137,7 +152,7 @@ D.addEventListener('DOMContentLoaded', () => {
     });
 
     area.addEventListener('mousedown', event => {
-        if (event.button !== 0 || isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
+        if (usesResponsiveSheetViewport(area) || event.button !== 0 || isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
         markSheetAdjusted();
         isPanning = true;
         panStartX = event.clientX;
@@ -161,7 +176,7 @@ D.addEventListener('DOMContentLoaded', () => {
     });
 
     area.addEventListener('wheel', event => {
-        if (isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
+        if (usesResponsiveSheetViewport(area) || isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
         event.preventDefault();
         markSheetAdjusted();
         const factor = event.deltaY < 0 ? 1.1 : 0.9;
@@ -175,7 +190,7 @@ D.addEventListener('DOMContentLoaded', () => {
     }, { passive: false });
 
     area.addEventListener('touchstart', event => {
-        if (isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
+        if (usesResponsiveSheetViewport(area) || isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
         markSheetAdjusted();
         if (event.touches.length === 1) {
             isPanning = true;
@@ -195,7 +210,7 @@ D.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 
     area.addEventListener('touchmove', event => {
-        if (isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
+        if (usesResponsiveSheetViewport(area) || isSheetInteractiveTarget(event.target) || isSheetDragHandle(event.target)) return;
         event.preventDefault();
         if (event.touches.length === 1 && isPanning) {
             sheetX = panOriginX + (event.touches[0].clientX - panStartX);

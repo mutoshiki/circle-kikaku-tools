@@ -182,6 +182,13 @@
             }
         });
 
+        document.addEventListener('cds-radio-button-group-changed', event => {
+            const target = event.target;
+            if (!target?.matches?.('.seisan-car-row [data-field="rentalType"]')) return;
+            target.value = event.detail?.value ?? target.value;
+            commitRentalTypeChange(target);
+        });
+
         document.addEventListener('cds-toggle-changed', event => {
             const target = event.target;
             if (commitRentalTypeChange(target)) return;

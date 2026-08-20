@@ -10,20 +10,25 @@
   min-height: 48px;
 }
 .member-main-line {
-  grid-template-columns: 20px minmax(0, 1fr) auto 48px;
+  grid-template-columns: 44px minmax(0, 1fr) auto 48px;
   grid-template-areas: "handle name meta menu";
 }
 .driver-main-line {
-  grid-template-columns: minmax(0, 1fr) auto 48px;
-  grid-template-areas: "name meta menu";
+  grid-template-columns: minmax(0, 1fr) 48px;
+  grid-template-areas:
+    "name menu"
+    "meta menu";
+  row-gap: var(--space-1);
 }
 
 .person-drag-affordance {
   grid-area: handle;
   display: grid;
   place-items: center;
-  width: 20px;
-  height: 32px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
   color: var(--cds-icon-secondary, var(--text-sub));
   opacity: 0.48;
   pointer-events: none;
@@ -170,7 +175,7 @@ body.person-menu-open:not(.person-menu-top-layer-open) .car-box:has(.person-over
 @media (max-width: 520px) {
   #cars-container .member-main-line,
   .manual-drag-float .member-main-line {
-    grid-template-columns: 20px minmax(0, 1fr) 48px;
+    grid-template-columns: 44px minmax(0, 1fr) 48px;
     grid-template-rows: minmax(26px, auto) minmax(22px, auto);
     grid-template-areas:
       "handle name menu"
@@ -205,3 +210,6 @@ body.person-menu-open:not(.person-menu-top-layer-open) .car-box:has(.person-over
     justify-content: flex-start;
   }
 }
+
+.driver-role-tag { flex: 0 0 auto; }
+.driver-main-line .person-meta { justify-content: flex-start; flex-wrap: wrap; }

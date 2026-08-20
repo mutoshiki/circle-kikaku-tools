@@ -74,7 +74,7 @@ assert.equal(moduleContext.window.SanpoSettlement.yen(-300), '−¥300');
 
 const gradeRule = gradeCss.match(/\.grade-badge\s*\{([^}]*)\}/)?.[1] || '';
 assert.doesNotMatch(gradeRule, /background\s*:|color\s*:/, 'Grade badges must not override Carbon tag colors.');
-assert.match(sheetCss, /\.sheet-car-header\s*\{[\s\S]*?width:\s*max-content;/, 'Shared columns must be at least as wide as their header content.');
+assert.match(sheetCss, /\.sheet-plan-table\s*\{[\s\S]*?grid-template-columns:\s*repeat\(auto-fit,[\s\S]*?width:\s*100%;/, 'Shared allocations must use a responsive grid that stays inside the viewport.');
 assert.match(routeCss, /\.route-map\s*\{[\s\S]*?z-index:\s*0;/, 'The map must form a lower stacking layer.');
 assert.match(routeCss, /\.route-map-toolbar\s*\{[\s\S]*?z-index:\s*6;/, 'The route settings toolbar must stay above map and skeleton layers.');
 assert.match(routeCss, /\.route-map-settings-toggle\s*\{[\s\S]*?display:\s*block;/, 'The route settings button must remain rendered.');

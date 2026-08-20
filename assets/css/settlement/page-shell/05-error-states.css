@@ -48,9 +48,7 @@
   border-color: color-mix(in srgb, var(--ui-danger, var(--color-danger)) 54%, var(--ui-panel-border));
   background: color-mix(in srgb, var(--semantic-danger-soft) 68%, var(--ui-panel-bg));
 }
-.seisan-car-summary-row {
-  box-shadow: var(--ui-readable-shadow);
-}
+.seisan-car-summary-row { box-shadow: none; }
 .seisan-cost-type-badge {
   border-width: 0;
 }

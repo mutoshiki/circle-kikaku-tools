@@ -8,7 +8,7 @@ const index = fs.readFileSync('index.html', 'utf8');
 assert.doesNotMatch(css, /content:\s*"空席\\A\s*メンバーを追加"/, 'empty seats must not render the old two-line copy');
 assert.match(css, /\.seat-slot::before\s*\{\s*content:\s*none;\s*\}/, 'empty-seat pseudo copy is explicitly removed');
 assert.match(css, /\.seat-slot:not\(:has\(> \.member-card\)\)[\s\S]*align-items:\s*center[\s\S]*justify-content:\s*center/, 'empty-seat add affordance is centered');
-assert.match(css, /\.seat-slot-icon[\s\S]*width:\s*20px[\s\S]*height:\s*20px/, 'Carbon add icon uses a balanced 20px size');
+assert.match(css, /\.seat-add-btn > \.carbon-icon \{ width:\s*20px; height:\s*20px; \}/, 'Carbon add icon uses a balanced 20px size inside the icon button');
 
 // v41 intentionally collapses the waiting tray only during drag, but the persisted
 // `minimized` state must remain owned by the user. A transient class keeps those

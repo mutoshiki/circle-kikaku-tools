@@ -1,14 +1,10 @@
-/* Times rental fee support */
-#settlementCarEditModal .seisan-times-toggle-field {
-  display: flex;
+/* Times rental fee support. The vehicle type is a mutually-exclusive Carbon
+ * radio group rather than an on/off toggle. */
+#settlementCarEditModal .seisan-rental-type-group {
+  display: block;
   align-self: start;
   justify-self: end;
-  justify-content: flex-end;
   min-width: 0;
-}
-#settlementCarEditModal .seisan-times-toggle {
-  display: block;
-  width: auto;
   max-width: 100%;
 }
 #settlementCarEditModal .seisan-car-row.is-times-rental .seisan-fuel-field {

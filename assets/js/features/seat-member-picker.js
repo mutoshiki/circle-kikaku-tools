@@ -4,14 +4,14 @@ let seatMemberPickerTarget = null;
 function refreshEmptySeatAccessibility() {
     $$('.seat-slot').forEach(slot => {
         const empty = getRealSeatCards(slot).length === 0;
-        if (empty) {
-            slot.setAttribute('role', 'button');
-            slot.setAttribute('tabindex', '0');
-            slot.setAttribute('aria-label', '空席に未割り当てメンバーを追加');
-        } else {
-            slot.removeAttribute('role');
-            slot.removeAttribute('tabindex');
-            slot.removeAttribute('aria-label');
+        const button = slot.querySelector('.seat-add-btn');
+        slot.removeAttribute('role');
+        slot.removeAttribute('tabindex');
+        slot.removeAttribute('aria-label');
+        if (button) {
+            button.tabIndex = empty ? 0 : -1;
+            button.hidden = !empty;
+            button.setAttribute('aria-label', 'メンバーを追加');
         }
     });
 }
@@ -72,21 +72,14 @@ function setupSeatMemberPicker() {
     if (!container || container.dataset.seatPickerBound === 'true') return;
     container.dataset.seatPickerBound = 'true';
     container.addEventListener('click', event => {
-        if (event.target.closest('.member-card')) return;
+        if (!event.target.closest('.seat-add-btn')) return;
         const slot = event.target.closest('.seat-slot');
         if (slot) openSeatMemberPicker(slot);
-    });
-    container.addEventListener('keydown', event => {
-        if (!['Enter', ' '].includes(event.key)) return;
-        const slot = event.target.closest('.seat-slot');
-        if (!slot || getRealSeatCards(slot).length > 0) return;
-        event.preventDefault();
-        openSeatMemberPicker(slot);
     });
     modal?.addEventListener('sanpo:modal-hidden', () => {
         const target = seatMemberPickerTarget;
         seatMemberPickerTarget = null;
-        if (target?.isConnected && getRealSeatCards(target).length === 0) target.focus();
+        if (target?.isConnected && getRealSeatCards(target).length === 0) target.querySelector('.seat-add-btn')?.focus();
     });
     refreshEmptySeatAccessibility();
 }

@@ -29,7 +29,7 @@ window.SanpoUserGuideContent = `
 
     <section id="manual-car" class="user-manual-section">
       <div class="user-manual-heading"><span>2</span><h2>車割を作る</h2></div>
-      <p>車出しにした人ごとに車が作られます。未割り当ての人をドラッグするか、「埋める」「ランダム」で自動配置します。固定した人は動きません。</p>
+      <p>車出しにした人ごとに車が作られます。未割り当ての人をドラッグするか、「空きを埋める」「ランダム割当」で自動配置します。固定した人は動きません。</p>
       <figure class="user-manual-figure">
         <img loading="lazy" src="./assets/images/user-guide/03-car-allocation.webp" alt="スマホの車割画面" width="390" height="844">
       </figure>

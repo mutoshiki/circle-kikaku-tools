@@ -39,3 +39,20 @@
     scroll-padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
   }
 }
+
+@media (max-width: 640px) {
+  /* Vehicle-cost editing is transactional and form-heavy; on Carbon's small
+   * breakpoint it uses the full available viewport rather than a floating
+   * desktop-dialog gutter. Header/body/footer remain the native Carbon modal. */
+  #settlementCarEditModal::part(dialog) {
+    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    transform: none;
+  }
+}

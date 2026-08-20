@@ -29,7 +29,7 @@
             <span class="seisan-driver-name">${esc(car.name, helpers)}</span>
             <span class="seisan-driver-amount"><span class="seisan-amount-sign" aria-hidden="true">＝</span>${money(car.adjustedTotalPay ?? car.totalPay, helpers)}</span>
             <cds-checkbox ${done ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" aria-label="${esc(car.name, helpers)}車への支払いチェック"></cds-checkbox>
-            <cds-accordion class="seisan-driver-accordion" alignment="start">
+            <cds-accordion class="seisan-driver-accordion">
               <cds-accordion-item title="内訳を表示">
                 <div class="seisan-driver-detail seisan-driver-detail-list" aria-label="支払い内訳">${costDetails}</div>
               </cds-accordion-item>

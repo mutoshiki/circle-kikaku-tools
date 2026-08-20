@@ -5,9 +5,11 @@ import '@carbon/web-components/es/components/content-switcher/index.js';
 import '@carbon/web-components/es/components/data-table/index.js';
 import '@carbon/web-components/es/components/notification/toast-notification.js';
 import '@carbon/web-components/es/components/tag/index.js';
+import '@carbon/web-components/es/components/tabs/index.js';
 import '@carbon/web-components/es/components/text-input/index.js';
 import '@carbon/web-components/es/components/select/index.js';
 import '@carbon/web-components/es/components/checkbox/index.js';
+import '@carbon/web-components/es/components/radio-button/index.js';
 import '@carbon/web-components/es/components/textarea/index.js';
 import '@carbon/web-components/es/components/number-input/index.js';
 import '@carbon/web-components/es/components/toggle/index.js';
@@ -66,6 +68,7 @@ import SettingsAdjust20 from '@carbon/icons/es/settings--adjust/20.js';
 import Shuffle20 from '@carbon/icons/es/shuffle/20.js';
 import Subtract20 from '@carbon/icons/es/subtract/20.js';
 import Sun20 from '@carbon/icons/es/sun/20.js';
+import Switcher20 from '@carbon/icons/es/switcher/20.js';
 import Table20 from '@carbon/icons/es/table/20.js';
 import Task20 from '@carbon/icons/es/task/20.js';
 import Touch120 from '@carbon/icons/es/touch--1/20.js';
@@ -128,6 +131,7 @@ const ICONS = Object.freeze({
   shuffle: Shuffle20,
   subtract: Subtract20,
   sun: Sun20,
+  switcher: Switcher20,
   table: Table20,
   task: Task20,
   'touch--1': Touch120,

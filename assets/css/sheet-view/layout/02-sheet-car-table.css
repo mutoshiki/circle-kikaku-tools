@@ -1,60 +1,73 @@
-/* Presentation table metadata and chips. */
+/* Shared-view metadata and compact edit chips. */
 .sheet-label-header,
-.sheet-label-row { background: var(--surface-container); color: var(--text-sub); }
-.sheet-seat-disabled { background: var(--surface-container); opacity: 0.5; }
+.sheet-label-row { background: var(--cds-layer-02, var(--surface-container)); color: var(--text-sub); }
+.sheet-seat-disabled { background: var(--cds-layer-02, var(--surface-container)); opacity: 0.5; }
 .sheet-driver-icon { font-size: var(--font-size-caption); opacity: 0.72; }
 .sheet-driver-name { font-weight: 600; color: inherit; }
 .sheet-chip-lock { font-size: var(--font-size-micro); opacity: 0.72; }
+
+/* Carbon Tag owns capacity geometry and status styling. */
 .sheet-summary-plan-label,
-.sheet-capacity-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 24px;
-  padding: 3px 8px;
-  border: 0;
-  border-radius: 0;
-  background: var(--surface-highest);
-  color: var(--text-sub);
-  font-size: var(--font-size-caption);
-  font-weight: 600;
-  line-height: 1;
-}
-.sheet-capacity-badge.is-over { background: var(--semantic-danger-soft); color: var(--semantic-danger); }
-#sheet-summary { display: flex; flex: 1 1 auto; flex-direction: column; gap: 4px; min-width: 0; margin: 0; }
-.sheet-summary-row {
-  display: grid;
-  grid-template-columns: 44px repeat(4, minmax(46px, 1fr)) minmax(60px, auto);
-  align-items: center;
-  column-gap: 7px;
+.sheet-capacity-badge { flex: 0 0 auto; margin: 0; }
+.sheet-capacity-badge.is-over { --cds-tag-background-red: var(--semantic-danger-soft); }
+
+#sheet-summary {
+  display: block;
+  flex: 1 1 auto;
   min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  line-height: 1.15;
+  margin: 0;
 }
-.sheet-summary-pill { display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 4px 8px; border: 0; border-radius: 0; background: var(--surface-low); font-size: var(--font-size-caption); }
-.sheet-summary-pill strong { color: var(--text-main); font-size: var(--font-size-caption); font-weight: 600; }
+
+.sheet-summary-list { width: 100%; min-width: 0; }
+.sheet-summary-row { min-width: 0; }
+.sheet-summary-label { width: 72px; min-width: 72px; color: var(--text-main); }
+.sheet-summary-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+  min-width: 0;
+  color: var(--text-sub);
+}
+.sheet-summary-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  min-width: max-content;
+}
+.sheet-summary-stat strong { color: var(--text-main); font-weight: 600; }
+.sheet-summary-updated { margin-left: auto; color: var(--text-sub); font-size: var(--font-size-caption); }
 
 .sheet-chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--space-1);
   max-width: 100%;
-  min-height: 34px;
-  padding: 5px 8px;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
   border: 0;
   border-radius: 0;
-  background: var(--surface-low);
+  background: var(--cds-layer-02, var(--surface-low));
   color: var(--text-main);
-  font-size: 0.8rem;
+  font-size: var(--font-size-label);
   font-weight: 600;
   user-select: none;
 }
-.sheet-chip.draggable:hover { background: var(--surface-container); }
+.sheet-chip.draggable:hover { background: var(--cds-layer-hover-02, var(--surface-container)); }
 .sheet-chip.draggable { cursor: grab; touch-action: pan-x pan-y; }
 
-.sheet-empty-card { width: min(520px, calc(100vw - 40px)); margin: 32px auto; padding: 28px 20px; border: 1px solid var(--border-section); border-radius: 0; background: var(--surface-lowest); color: var(--text-sub); box-shadow: none; text-align: center; }
-.sheet-empty-title { display: block; margin-bottom: 6px; color: var(--text-main); font-size: 1.05rem; font-weight: 600; }
-.sheet-empty-text { display: block; margin-bottom: 14px; font-size: 0.82rem; }
-.sheet-empty-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.sheet-empty-card {
+  width: min(520px, 100%);
+  margin: var(--space-8) auto;
+  padding: var(--space-6) var(--space-5);
+  border: 1px solid var(--cds-border-subtle, var(--border-section));
+  border-radius: 0;
+  background: var(--cds-layer-01, var(--surface-lowest));
+  color: var(--text-sub);
+  box-shadow: none;
+  text-align: center;
+}
+.sheet-empty-title { display: block; margin-bottom: var(--space-2); color: var(--text-main); font-size: 1.05rem; font-weight: 600; }
+.sheet-empty-text { display: block; margin-bottom: var(--space-4); font-size: 0.82rem; }
+.sheet-empty-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin-top: var(--space-4); }
 cds-button.sheet-empty-open { min-height: 48px; }

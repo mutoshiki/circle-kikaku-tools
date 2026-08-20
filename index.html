@@ -210,7 +210,7 @@
       <div id="top-area">
         <div class="edit-header edit-header-tools-only allocation-toolbar">
           <div class="edit-tools allocation-toolbar-inner">
-            <cds-button id="batchOpenBtn" class="tool-btn" kind="secondary" size="lg" type="button">
+            <cds-button id="batchOpenBtn" class="tool-btn" kind="tertiary" size="lg" type="button">
               <span data-carbon-icon="add" aria-hidden="true"></span>
               <span>参加者登録</span>
             </cds-button>
@@ -292,15 +292,15 @@
 
       <div id="bottom-tray" hidden>
         <cds-button id="tray-handle" kind="ghost" size="lg" type="button" aria-label="未割り当てメンバーを開閉" aria-controls="waiting-list-container" aria-expanded="false">
-          <span id="tray-toggle-label"><span data-carbon-icon="chevron--up" data-state-icon="waitingTray" data-icon-state="closed" aria-hidden="true"></span><span>未割り当てメンバーを開く</span></span>
+          <span id="tray-toggle-label"><span>未割り当てメンバーを開く</span><span data-carbon-icon="chevron--up" data-state-icon="waitingTray" data-icon-state="closed" aria-hidden="true"></span></span>
         </cds-button>
         <div id="bottom-tray-header">
           <div class="tray-inline-row">
             <span id="waiting-count" class="waiting-inline-count" aria-live="polite">未割り当て 0人</span>
             <div class="tray-actions" aria-label="未割り当てメンバーの自動配置">
-              <cds-button id="fillEmptySeatsBtn" class="tray-action-btn tray-action-btn--fill" kind="tertiary" size="lg" type="button"><span data-carbon-icon="user--follow" slot="icon" aria-hidden="true"></span><span>埋める</span></cds-button>
+              <cds-button id="fillEmptySeatsBtn" class="tray-action-btn tray-action-btn--fill" kind="tertiary" size="lg" type="button"><span data-carbon-icon="user--follow" slot="icon" aria-hidden="true"></span><span>空きを埋める</span></cds-button>
               <div class="random-tools">
-                <cds-button id="shuffleAssignBtn" class="auto-assign-btn tray-action-btn tray-action-btn--auto" kind="primary" size="lg" type="button"><span>ランダム</span><span data-carbon-icon="shuffle" slot="icon" aria-hidden="true"></span></cds-button>
+                <cds-button id="shuffleAssignBtn" class="auto-assign-btn tray-action-btn tray-action-btn--auto" kind="primary" size="lg" type="button"><span>ランダム割当</span><span data-carbon-icon="shuffle" slot="icon" aria-hidden="true"></span></cds-button>
                 <cds-popover id="autoAssignPopover" class="tray-settings-dropdown" align="top-end" caret border dropshadow>
                   <cds-icon-button id="traySettingsBtn" class="tray-settings-trigger" kind="ghost" size="lg" type="button" align="top-right" aria-label="割り当て条件" aria-haspopup="dialog" aria-expanded="false" aria-controls="autoAssignMenu">
                     <span slot="icon" data-carbon-icon="settings--adjust" aria-hidden="true"></span>
@@ -335,20 +335,17 @@
         </div>
       </div>
       <nav id="app-view-navigation" aria-label="メイン画面">
-        <div id="view-toggle-bar" aria-label="主要画面">
-          <button class="view-tab active" id="tab-list" type="button" data-view="list" aria-current="page" aria-label="車割/班割">
-            <span class="view-tab-icon" data-carbon-icon="car-small" aria-hidden="true"></span>
-            <span class="view-tab-label">車割/班割<span class="view-tab-lock-indicator" data-lock-scope="allocation" hidden aria-hidden="true"><span data-carbon-icon="locked" aria-hidden="true"></span></span></span>
-          </button>
-          <button class="view-tab" id="tab-sheet" type="button" data-view="sheet" aria-label="共有画面">
-            <span class="view-tab-icon" data-carbon-icon="table" aria-hidden="true"></span>
+        <cds-tabs id="view-toggle-bar" value="car" size="md" trigger-content="画面を選択" aria-label="主要画面">
+          <cds-tab class="view-tab" id="tab-list" value="car" data-view="list" data-allocation-type="car" selected aria-label="車割">
+            <span class="view-tab-label">車割<span class="view-tab-lock-indicator" data-lock-scope="allocation" hidden aria-hidden="true"><span data-carbon-icon="locked" aria-hidden="true"></span></span></span>
+          </cds-tab>
+          <cds-tab class="view-tab" id="tab-sheet" value="sheet" data-view="sheet" aria-label="共有画面">
             <span class="view-tab-label">共有画面</span>
-          </button>
-          <button class="view-tab" id="tab-seisan" type="button" data-view="seisan" aria-label="精算">
-            <span class="view-tab-icon" data-carbon-icon="calculator-small" aria-hidden="true"></span>
+          </cds-tab>
+          <cds-tab class="view-tab" id="tab-seisan" value="seisan" data-view="seisan" aria-label="精算">
             <span class="view-tab-label">精算<span class="view-tab-lock-indicator" data-lock-scope="settlement" hidden aria-hidden="true"><span data-carbon-icon="locked" aria-hidden="true"></span></span></span>
-          </button>
-        </div>
+          </cds-tab>
+        </cds-tabs>
       </nav>
     </div>
 
@@ -537,9 +534,9 @@
 </div>
 </cds-modal-body><cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button id="saveSettlementSettingsBtn" data-action="save-settlement-settings" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
 
-    <cds-modal aria-label="車ごとの費用" aria-labelledby="settlementCarEditModalTitle" class="app-modal app-modal--scroll settlement-edit-modal settlement-edit-modal--car" id="settlementCarEditModal" size="sm" has-scrolling-content><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementCarEditModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="car-small"></span>車ごとの費用</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" no-fade>
+    <cds-modal aria-label="車ごとの費用" aria-labelledby="settlementCarEditModalTitle" class="app-modal app-modal--scroll settlement-edit-modal settlement-edit-modal--car" id="settlementCarEditModal" size="sm" has-scrolling-content><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementCarEditModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="car-small"></span>費用を編集</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" no-fade>
 <div id="settlementCarEditBody"></div>
-</cds-modal-body><cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button id="saveSettlementCarEditBtn" data-action="save-settlement-car-edit" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
+</cds-modal-body><cds-modal-footer class="app-modal-footer"><cds-modal-footer-button data-modal-close kind="secondary" type="button">キャンセル</cds-modal-footer-button><cds-modal-footer-button id="saveSettlementCarEditBtn" data-action="save-settlement-car-edit" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
 
 
     <!-- Utility modals -->

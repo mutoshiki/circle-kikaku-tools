@@ -19,6 +19,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
       const share = document.querySelector('#shareLinkBtn');
       const switcher = document.querySelector('.header-app-switcher');
       const roomInput = document.querySelector('#roomNameInput');
+      const tabShadow = document.querySelector('#view-toggle-bar')?.shadowRoot;
       return {
         navPosition: getComputedStyle(nav).position,
         headerBottom: headerRect.bottom,
@@ -32,14 +33,18 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
         labels: tabs.map(tab => tab.querySelector('.view-tab-label')?.textContent?.trim() || ''),
         shareSize: share ? { width: share.getBoundingClientRect().width, height: share.getBoundingClientRect().height } : null,
         switcherSize: switcher ? { width: switcher.getBoundingClientRect().width, height: switcher.getBoundingClientRect().height } : null,
-        roomInputVisibility: roomInput ? getComputedStyle(roomInput.closest('.app-room-field')).visibility : 'missing'
+        roomInputVisibility: roomInput ? getComputedStyle(roomInput.closest('.app-room-field')).visibility : 'missing',
+        visibleOverflowButtons: [...(tabShadow?.querySelectorAll('.cds--tab--overflow-nav-button') || [])].filter(button => {
+          const box = button.getBoundingClientRect();
+          return getComputedStyle(button).display !== 'none' && box.width > 0 && box.height > 0;
+        }).length
       };
     });
 
     expect(shellGeometry.navPosition).not.toBe('fixed');
     expect(Math.abs(shellGeometry.navTop - shellGeometry.headerBottom)).toBeLessThanOrEqual(1);
-    expect(shellGeometry.navHeight).toBeGreaterThanOrEqual(47);
-    expect(shellGeometry.navHeight).toBeLessThanOrEqual(49);
+    expect(shellGeometry.navHeight).toBeGreaterThanOrEqual(40);
+    expect(shellGeometry.navHeight).toBeLessThanOrEqual(42);
     expect(shellGeometry.firstViewContentTop).toBeGreaterThanOrEqual(shellGeometry.navBottom);
     expect(shellGeometry.headerBackground).toBe('rgb(22, 22, 22)');
     expect(shellGeometry.navBackground).toBe('rgb(0, 0, 0)');
@@ -48,6 +53,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     expect(shellGeometry.shareSize).toEqual({ width: 48, height: 48 });
     expect(shellGeometry.switcherSize).toEqual({ width: 48, height: 48 });
     expect(shellGeometry.roomInputVisibility).toBe('hidden');
+    expect(shellGeometry.visibleOverflowButtons).toBe(0);
 
     await page.locator('#tab-team').evaluate(node => node.click());
     await expect(page.locator('#tab-team')).toHaveAttribute('aria-current', 'page');

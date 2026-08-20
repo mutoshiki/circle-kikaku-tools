@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: end;
-  gap: var(--space-2);
+  gap: var(--space-3);
   min-width: 0;
 }
 
@@ -29,11 +29,27 @@
   overflow-wrap: anywhere;
 }
 
+/* The route helper navigates into another tool, so this is a Carbon-style
+ * standalone link rather than a full-width action button. */
 .seisan-distance-shortcut {
-  width: 100%;
-  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: var(--space-2);
+  width: fit-content;
+  min-height: 44px;
   margin: 0;
+  color: var(--cds-link-primary, var(--accent-color));
+  font-size: var(--font-size-body);
+  line-height: 1.2857;
+  text-decoration: none;
 }
+.seisan-distance-shortcut:hover { text-decoration: underline; }
+.seisan-distance-shortcut:focus-visible {
+  outline: 2px solid var(--cds-focus, var(--focus-accent));
+  outline-offset: 2px;
+}
+.seisan-distance-shortcut .carbon-icon { width: 1rem; height: 1rem; flex: 0 0 auto; color: currentColor; }
 
 .seisan-distance-unit,
 .seisan-fuel-unit {
@@ -43,7 +59,12 @@
   white-space: nowrap;
 }
 
-@media (max-width: 360px) {
-  .seisan-gas-field-row { gap: var(--space-1); }
-  .seisan-gas-field-row .seisan-mini-label { min-height: 3em; font-size: var(--font-size-caption); line-height: 1.25; }
+@media (max-width: 640px) {
+  .seisan-gas-field-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+  .seisan-distance-field,
+  .seisan-fuel-field { grid-template-rows: auto auto; }
+  .seisan-gas-field-row .seisan-mini-label { min-height: 0; }
 }

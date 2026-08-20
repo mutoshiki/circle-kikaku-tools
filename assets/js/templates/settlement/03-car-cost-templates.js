@@ -23,7 +23,7 @@
       'split-minus': '割勘 −',
       'club-minus': '部費 −'
     })[type] || '割勘';
-    return `${esc(candidate.name, helpers)} / ${money(candidate.amount, helpers)} / ${typeLabel}`;
+    return `${esc(candidate.name, helpers)} ${money(candidate.amount, helpers)}（${typeLabel}）を追加`;
   }
 
   function renderIssues(issues, helpers = {}) {
@@ -103,7 +103,7 @@
           <cds-toggle class="seisan-car-payment-toggle" size="sm" ${paid ? 'toggled' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" label-a="支払済み" label-b="未払い" aria-label="${esc(car.name, helpers)}車への支払い状態"></cds-toggle>
           <cds-button class="seisan-btn seisan-edit-btn" kind="ghost" size="md" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span><span>編集</span></cds-button>
         </div>
-        <cds-accordion class="seisan-car-accordion" alignment="start">
+        <cds-accordion class="seisan-car-accordion">
           <cds-accordion-item>
             <span slot="title" class="seisan-accordion-total"><span>割勘合計</span><strong>${money(costDetails.splitTotal, helpers)}</strong></span>
             <cds-structured-list condensed class="seisan-cost-structured-list" aria-label="費用内訳">
@@ -139,7 +139,10 @@
         ${standaloneNameField}
         <div class="seisan-gas-section-head">
           <div class="seisan-subhead seisan-subhead--gas"><strong>ガソリン代</strong></div>
-          <div class="seisan-times-toggle-field"><cds-toggle class="seisan-times-toggle" data-field="rentalType" value="times" ${rentalType === 'times' ? 'checked' : ''} label-text="レンタカー（タイムズ）" label-a="タイムズ" label-b="自家用車" aria-label="レンタカー（タイムズ）"></cds-toggle></div>
+          <cds-radio-button-group class="seisan-rental-type-group" data-field="rentalType" name="rental-type-${encodeURIComponent(car.name)}" value="${rentalType}" orientation="horizontal" legend-text="車両種別">
+            <cds-radio-button value="private" label-text="自家用車"></cds-radio-button>
+            <cds-radio-button value="times" label-text="レンタカー（タイムズ）"></cds-radio-button>
+          </cds-radio-button-group>
         </div>
         <div class="seisan-car-inputs">
           <div class="seisan-gas-field-row" role="group" aria-label="ガソリン代の計算条件">
@@ -147,7 +150,7 @@
             <label class="seisan-fuel-field"><span class="seisan-mini-label">燃費（km/L）</span><cds-text-input type="number" size="lg" inputmode="decimal" min="0" step="any" data-field="eco" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'eco')}" value="${esc(cState.eco || '', helpers)}" placeholder="例：18" label="燃費（km/L）" hide-label${invalidAttr('eco', '0より大きい燃費を入力してください')}></cds-text-input></label>
             <label class="seisan-fuel-field"><span class="seisan-mini-label">ガソリン単価（円/L）</span><cds-text-input type="number" size="lg" inputmode="decimal" min="0" step="any" data-field="price" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'price')}" value="${esc(cState.price || '', helpers)}" placeholder="例：158" label="ガソリン単価（円/L）" hide-label${invalidAttr('price', '0より大きいガソリン単価を入力してください')}></cds-text-input></label>
           </div>
-          <cds-button class="seisan-btn seisan-distance-shortcut" kind="tertiary" size="lg" type="button" data-action="open-route-helper-shortcut" aria-label="距離計算ツールを開く"><span data-carbon-icon="launch" slot="icon" aria-hidden="true"></span><span>距離計算ツール</span></cds-button>
+          <a class="seisan-distance-shortcut" href="#route-distance-helper" data-action="open-route-helper-shortcut" aria-label="距離計算ツールを開く"><span>距離計算ツール</span><span data-carbon-icon="launch" aria-hidden="true"></span></a>
         </div>
         <div class="seisan-subhead"><strong>諸経費</strong></div>
         <div class="seisan-extra-list">

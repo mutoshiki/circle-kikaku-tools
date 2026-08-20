@@ -51,11 +51,14 @@ check('Every modal uses Carbon anatomy and a non-button primary focus target', (
     assert.match(modal, /<cds-modal-body\b/i, `body ${index}`);
   });
 });
-check('Primary navigation uses destination buttons while allocation mode uses Carbon Content Switcher', () => {
+check('Primary navigation uses Carbon Tabs while allocation mode uses Carbon Content Switcher', () => {
   const html = read('index.html');
+  const headerEvents = read('assets/js/features/events/02-static-header-events.js');
   assert.match(html, /<nav\b[^>]*id="app-view-navigation"/i);
-  assert.match(html, /<button\b[^>]*id="tab-list"[^>]*aria-current="page"/i);
-  assert.doesNotMatch(html, /<cds-content-switcher\b[^>]*id="view-toggle-bar"/i);
+  assert.match(html, /<cds-tabs\b[^>]*id="view-toggle-bar"/i);
+  assert.match(html, /<cds-tab\b[^>]*id="tab-list"[^>]*selected/i);
+  assert.match(headerEvents, /teamTab\.id\s*=\s*['"]tab-team['"]/);
+  assert.match(headerEvents, /teamTab\.setAttribute\(['"]value['"],\s*['"]team['"]\)/);
   assert.match(read('assets/js/core/data-state.js'), /<cds-content-switcher class="car-plan-template-tabs"/);
 });
 check('Header icon-only controls use Carbon Icon Button or Overflow Menu', () => {
@@ -87,9 +90,9 @@ check('All required Carbon component modules are registered by the entry', () =>
   const entry = read('assets/js/carbon-entry.js');
   [
     'button/index.js', 'icon-button/index.js', 'content-switcher/index.js',
-    'notification/toast-notification.js', 'tag/index.js', 'text-input/index.js',
-    'select/index.js', 'checkbox/index.js', 'textarea/index.js',
-    'number-input/index.js', 'toggle/index.js', 'modal/index.js',
+    'notification/toast-notification.js', 'tag/index.js', 'tabs/index.js',
+    'text-input/index.js', 'select/index.js', 'checkbox/index.js', 'textarea/index.js',
+    'number-input/index.js', 'toggle/index.js', 'radio-button/index.js', 'modal/index.js',
     'overflow-menu/index.js'
   ].forEach(moduleName => assert.match(entry, new RegExp(moduleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))));
 });

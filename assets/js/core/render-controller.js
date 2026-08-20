@@ -35,25 +35,27 @@ function buildSheetPlanSummaryRow(plan, updatedLabel = '') {
         ['全員', totalCount],
         ['待機', waitingCount]
     ];
-    const row = document.createElement('span');
+
+    const row = document.createElement('cds-structured-list-row');
     row.className = `sheet-summary-row is-${template.type || 'car'}`;
-    const planLabel = document.createElement('cds-tag');
-    const planType = template.type === 'team' ? 'team' : 'car';
-    planLabel.className = 'sheet-summary-plan-label carbon-display-tag';
-    planLabel.dataset.tagGroup = 'sheetPlan';
-    planLabel.dataset.tagValue = planType;
-    planLabel.setAttribute('type', window.SanpoTagTypes?.resolve('sheetPlan', planType) || 'gray');
-    planLabel.setAttribute('size', 'md');
-    planLabel.textContent = template.type === 'team' ? '班割' : '車割';
-    row.appendChild(planLabel);
-    stats.forEach(([label, value]) => {
+    row.setAttribute('condensed', '');
+
+    const labelCell = document.createElement('cds-structured-list-cell');
+    labelCell.className = 'sheet-summary-label';
+    const label = document.createElement('strong');
+    label.textContent = template.type === 'team' ? '班割' : '車割';
+    labelCell.appendChild(label);
+
+    const metricsCell = document.createElement('cds-structured-list-cell');
+    metricsCell.className = 'sheet-summary-metrics';
+    stats.forEach(([statLabel, value]) => {
         const item = document.createElement('span');
         item.className = 'sheet-summary-stat';
-        item.append(document.createTextNode(label));
+        item.append(document.createTextNode(statLabel));
         const strong = document.createElement('strong');
         strong.textContent = `${value}名`;
         item.appendChild(strong);
-        row.appendChild(item);
+        metricsCell.appendChild(item);
     });
     if (updatedLabel) {
         const updated = document.createElement('span');
@@ -62,8 +64,10 @@ function buildSheetPlanSummaryRow(plan, updatedLabel = '') {
         const strong = document.createElement('strong');
         strong.textContent = updatedLabel;
         updated.appendChild(strong);
-        row.appendChild(updated);
+        metricsCell.appendChild(updated);
     }
+
+    row.append(labelCell, metricsCell);
     return row;
 }
 
@@ -96,10 +100,18 @@ function updateSheetSummary(data = getData()) {
     const carPlan = findPlanByType('car') || { cars: [], waiting: [], templateType: 'car' };
     const teamPlan = findPlanByType('team') || { cars: [], waiting: [], templateType: 'team' };
     const updated = formatUpdatedAt(data.lastUpdatedAt);
-    summaryEl.replaceChildren(
+
+    const list = document.createElement('cds-structured-list');
+    list.className = 'sheet-summary-list';
+    list.setAttribute('condensed', '');
+    list.setAttribute('aria-label', '車割と班割の集計');
+    const body = document.createElement('cds-structured-list-body');
+    body.append(
         buildSheetPlanSummaryRow(carPlan),
         buildSheetPlanSummaryRow(teamPlan, updated)
     );
+    list.appendChild(body);
+    summaryEl.replaceChildren(list);
 }
 
 // Large UI features are split into assets/js/features/*.js.
