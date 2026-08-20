@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - carbon-full-ui-refresh-20260820
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
