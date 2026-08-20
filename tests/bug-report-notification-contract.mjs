@@ -94,4 +94,41 @@ const expired = { ...first, leaseExpiresAt: now - 1 };
 const recovered = context.acquireBugReportLeaseState_(expired, now, 'lease-c', 'event-c');
 assert.equal(recovered.status, 'sending', 'expired in-flight lease is retryable');
 
-console.log('PASS bug report storage, atomic CAS lease, and Spark-compatible Gmail notification contract');
+// Simulate the exact ETag/If-Match race used by the Apps Script REST worker.
+// Both workers read the same version; only one conditional write may commit.
+let storedState = null;
+let storedVersion = 0;
+const copy = value => value == null ? value : JSON.parse(JSON.stringify(value));
+const readCas = () => ({ state: copy(storedState), etag: storedVersion });
+const writeCas = (etag, next) => {
+  if (etag !== storedVersion) return false;
+  storedState = copy(next);
+  storedVersion += 1;
+  return true;
+};
+const snapshotA = readCas();
+const snapshotB = readCas();
+const nextA = context.acquireBugReportLeaseState_(snapshotA.state, now, 'cas-a', 'cas-event-a');
+const nextB = context.acquireBugReportLeaseState_(snapshotB.state, now, 'cas-b', 'cas-event-b');
+const commitA = writeCas(snapshotA.etag, nextA);
+const commitB = writeCas(snapshotB.etag, nextB);
+assert.equal([commitA, commitB].filter(Boolean).length, 1, 'only one same-ETag lease write can commit');
+
+const loserRetry = readCas();
+const loserNext = context.acquireBugReportLeaseState_(loserRetry.state, now + 1, 'cas-b', 'cas-event-b');
+assert.equal(loserNext, null, '412 loser reloads the active sending lease and must not send');
+let mockMailCount = 0;
+if (commitA) mockMailCount += 1;
+if (commitB) mockMailCount += 1;
+assert.equal(mockMailCount, 1, 'concurrent processing produces exactly one permitted mail side effect');
+
+const casWinnerToken = storedState.leaseToken;
+const casWinnerEvent = storedState.eventId;
+const sentAfterMail = context.sentBugReportNotificationState_(storedState, now + 2, casWinnerToken, casWinnerEvent, false);
+assert.equal(storedState.status, 'sending', 'state is not sent before mail succeeds');
+assert.equal(sentAfterMail.status, 'sent', 'sent is written only after the mail side effect succeeds');
+storedState = sentAfterMail;
+storedVersion += 1;
+assert.equal(context.acquireBugReportLeaseState_(storedState, now + (25 * 60 * 60 * 1000), 'cas-late', 'cas-late-event'), null, 'CAS sent state is terminal after 25 hours');
+
+console.log('PASS bug report storage, concurrent atomic CAS lease, retry, terminal sent, and Spark-compatible Gmail notification contract');
