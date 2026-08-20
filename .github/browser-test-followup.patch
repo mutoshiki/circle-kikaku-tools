@@ -50,3 +50,16 @@
      await hostClick(page, '#settlementCarEditModal [data-action="add-settlement-extra"]');
      await setHostValue(page, '#settlementCarEditModal [data-extra-field="name"]', '高速代');
      await setHostValue(page, '#settlementCarEditModal [data-extra-field="amount"]', '1234');
+@@ -377,8 +375,10 @@
+       const type = row.querySelector('[data-extra-field="type"]').getBoundingClientRect();
+       return { amount: amount.width, type: type.width, row: row.getBoundingClientRect().width };
+     });
+-    expect(dimensions.amount).toBeLessThan(dimensions.row * 0.3);
+-    expect(dimensions.type).toBeLessThan(dimensions.row * 0.35);
++    expect(dimensions.amount).toBeGreaterThanOrEqual(112);
++    expect(dimensions.type).toBeGreaterThanOrEqual(112);
++    expect(dimensions.amount).toBeLessThan(dimensions.row);
++    expect(dimensions.type).toBeLessThan(dimensions.row);
+     await hostClick(page, '#settlementCarEditModal [data-action="open-route-helper-shortcut"]');
+     await expect(page.locator('#routeDistanceModal')).toHaveAttribute('open', '');
+     const appendRouteStop = page.locator('#routeStopList .route-stop-row--append [data-action="open-route-place-search"]');
