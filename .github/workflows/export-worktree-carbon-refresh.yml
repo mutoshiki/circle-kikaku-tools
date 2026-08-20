@@ -59,7 +59,33 @@ jobs:
           fi
           if [ "$ok" -eq 1 ]; then run_checked npm run build:carbon || ok=0; fi
           if [ "$ok" -eq 1 ]; then run_checked npm run lint:css || ok=0; fi
-          if [ "$ok" -eq 1 ]; then run_checked git diff --check || ok=0; fi
+          if [ "$ok" -eq 1 ]; then
+            python - <<'PY' >> "$STATUS" 2>&1
+          from pathlib import Path
+          import subprocess
+          changed = subprocess.check_output(['git', 'diff', '--name-only'], text=True).splitlines()
+          for name in changed:
+              if not name.startswith('assets/') or name.startswith('assets/vendor/'):
+                  continue
+              if not name.endswith(('.css', '.js')):
+                  continue
+              path = Path(name)
+              text = path.read_text(encoding='utf-8')
+              path.write_text(text.rstrip() + '\n', encoding='utf-8')
+              print(f'normalized EOF: {name}')
+          PY
+            code=$?
+            echo "eof-normalize-exit=$code" >> "$STATUS"
+            if [ "$code" -ne 0 ]; then ok=0; fi
+          fi
+          if [ "$ok" -eq 1 ]; then
+            echo "" >> "$STATUS"
+            echo "## git diff --check (excluding generated Carbon bundle)" >> "$STATUS"
+            git diff --check -- . ':(exclude)assets/vendor/carbon/carbon-entry.min.js' >> "$STATUS" 2>&1
+            code=$?
+            echo "exit=$code" >> "$STATUS"
+            if [ "$code" -ne 0 ]; then ok=0; fi
+          fi
           echo "" >> "$STATUS"
           echo "result=$([ "$ok" -eq 1 ] && echo success || echo failure)" >> "$STATUS"
           echo "finished=$(date -u +%FT%TZ)" >> "$STATUS"
@@ -73,7 +99,7 @@ jobs:
           git add .github/carbon-apply-status.log
           if [ "${{ steps.apply.outputs.ok }}" = "1" ]; then
             git add index.html assets/
-            git diff --cached --check
+            git diff --cached --check -- . ':(exclude)assets/vendor/carbon/carbon-entry.min.js'
             git commit -m "Apply Carbon responsive UI refactor"
           else
             git commit -m "Record Carbon patch application failure"
