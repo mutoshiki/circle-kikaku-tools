@@ -49,7 +49,7 @@ function hasTrustedEditAccess(scope = 'any') {
 function updateBottomNavigationLockIndicators() {
     const scopes = normalizeEditLockScopes();
     const configs = [
-        { scope: 'allocation', tabId: 'tab-list', baseLabel: '車割/班割' },
+        { scope: 'allocation', tabId: 'tab-list', baseLabel: '車割' },
         { scope: 'settlement', tabId: 'tab-seisan', baseLabel: '精算' }
     ];
     configs.forEach(({ scope, tabId, baseLabel }) => {

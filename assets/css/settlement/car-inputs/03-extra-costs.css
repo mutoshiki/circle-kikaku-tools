@@ -109,21 +109,31 @@
   min-height: 48px;
 }
 
-@media (max-width: 360px) {
+@media (max-width: 640px) {
   #settlementCarEditModal .seisan-extra-row {
-    grid-template-columns: minmax(44px, 1fr) 68px 104px 48px;
-    gap: 3px;
+    grid-template-columns: minmax(0, 1fr) minmax(112px, 0.75fr) 48px;
+    gap: var(--space-2);
   }
 
+  #settlementCarEditModal .seisan-extra-field:first-child { grid-column: 1 / -1; }
   #settlementCarEditModal .seisan-extra-field--amount,
-  #settlementCarEditModal .seisan-extra-field--amount :is(cds-text-input, cds-number-input) {
-    width: 68px;
-    max-width: 68px;
-  }
-
+  #settlementCarEditModal .seisan-extra-field--amount :is(cds-text-input, cds-number-input),
   #settlementCarEditModal .seisan-extra-field--type,
   #settlementCarEditModal .seisan-extra-field--type cds-select {
-    width: 104px;
-    max-width: 104px;
+    width: 100%;
+    max-width: none;
   }
+
+  #settlementCarEditModal .seisan-extra-row--labeled > .seisan-icon-btn {
+    margin-top: calc(var(--font-size-caption) * 1.2 + var(--space-1));
+  }
+}
+
+@media (max-width: 360px) {
+  #settlementCarEditModal .seisan-extra-row {
+    grid-template-columns: minmax(0, 1fr) 48px;
+  }
+  #settlementCarEditModal .seisan-extra-field--type { grid-column: 1 / 2; }
+  #settlementCarEditModal .seisan-extra-field--amount { grid-column: 1 / 2; }
+  #settlementCarEditModal .seisan-extra-row .seisan-icon-btn { grid-column: 2; grid-row: 2; }
 }

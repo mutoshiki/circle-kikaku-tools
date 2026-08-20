@@ -9,9 +9,7 @@ function renderGradeBadge(grade, gender = 'unknown') {
     const n = parseInt(grade) || 0;
     if (n <= 0) return '';
     const gradeText = `${n}年`;
-    const tagValue = ['male', 'female'].includes(gender) ? gender : 'unknown';
-    const tagAttributes = window.SanpoTagTypes?.attributes('grade', tagValue, 'sm', gradeText) || 'type="gray" size="sm"';
-    return `<cds-tag class="grade-badge carbon-display-tag" data-grade="${n}" ${tagAttributes}>${gradeText}</cds-tag>`;
+    return `<cds-tag class="grade-badge carbon-display-tag" data-grade="${n}" type="gray" size="sm">${gradeText}</cds-tag>`;
 }
 
 function renderPersonFlag(flag) {
@@ -87,7 +85,7 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
     const genderHtml = genderBadgeHtml(g);
     div.innerHTML = `
         <div class="member-main-line">
-            <span class="person-drag-affordance" aria-hidden="true"><span data-carbon-icon="draggable"></span></span>
+            <span class="person-drag-affordance" role="img" aria-label="ドラッグして移動"><span data-carbon-icon="draggable" aria-hidden="true"></span></span>
             <div class="member-name-text">${safeName}</div>
             <div class="person-meta">${renderPersonFlag(flag)}${genderHtml}${gradeHtml}</div>
             ${renderPersonOverflowMenu({ name, isDriver: false, inWaiting: parent?.id === 'waiting-list', locked })}
@@ -113,17 +111,18 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none', pa
     const driverGradeHtml = renderGradeBadge(dgrade, dg);
     const driverGenderHtml = genderBadgeHtml(dg);
     const groupSuffix = typeof getActiveGroupSuffix === 'function' ? getActiveGroupSuffix() : '車';
+    const driverRoleLabel = document.body.dataset.activePlanTemplate === 'team' ? '班長' : '運転手';
     let slotsHtml = `
         <div class="driver-seat" data-gender="${dg}" data-name="${safeName}" data-participant-id="${escapeHtml(participantId || '')}" data-grade="${dgrade || 0}" data-flag="${normalizePersonFlag(dflag)}">
             <div class="member-main-line driver-main-line">
                 <div class="driver-name-disp ">${safeName}</div>
-                <div class="person-meta">${renderPersonFlag(dflag)}${driverGenderHtml}${driverGradeHtml}</div>
+                <div class="person-meta"><cds-tag class="driver-role-tag" type="gray" size="sm">${driverRoleLabel}</cds-tag>${renderPersonFlag(dflag)}${driverGenderHtml}${driverGradeHtml}</div>
                 ${renderPersonOverflowMenu({ name, isDriver: true })}
             </div>
             <div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${safeMemo}</div>
         </div>
     `;
-    for(let i=0; i<c; i++) slotsHtml += `<div class="seat-slot"><span class="seat-slot-icon" data-carbon-icon="add" aria-hidden="true"></span></div>`;
+    for(let i=0; i<c; i++) slotsHtml += `<div class="seat-slot"><cds-icon-button class="seat-add-btn" type="button" kind="ghost" size="lg" aria-label="メンバーを追加" align="top"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span></cds-icon-button></div>`;
 
     col.innerHTML = `
         <div class="car-box" data-capacity="${c}" data-group-id="${escapeHtml(groupId || '')}">

@@ -78,9 +78,11 @@ function syncMainViewSwitcher(view) {
         if (!item) return;
         const active = value === view;
         item.classList.toggle('active', active);
+        item.toggleAttribute('selected', active);
         if (active) item.setAttribute('aria-current', 'page');
         else item.removeAttribute('aria-current');
     });
+    window.syncCarbonPrimaryNavigationState?.();
 }
 async function switchView(view) {
     if (currentView === 'sheet' && view !== 'sheet' && quickEditMode && typeof completeQuickEdit === 'function') {
@@ -446,22 +448,14 @@ function deleteSheetTimetableEditRow(button) {
 }
 
 function syncSheetPlanWidths() {
-    let widestPlanWidth = 0;
+    // Responsive shared-view sections are grid-owned. Clear the legacy fixed-width
+    // presentation measurements so a desktop canvas width can never leak into a
+    // phone viewport after a room restore or resize.
     document.querySelectorAll('.sheet-plan-section:not(.sheet-timetable-section)').forEach(section => {
-        const table = section.querySelector('.sheet-plan-table');
-        const waitBlock = section.querySelector('.sheet-wait-block');
-        if (!table || !waitBlock) return;
-        const width = Math.ceil(table.scrollWidth || table.offsetWidth || 0);
-        if (width > 0) {
-            widestPlanWidth = Math.max(widestPlanWidth, width);
-            section.style.setProperty('--sheet-plan-width', `${width}px`);
-            waitBlock.style.width = `${width}px`;
-        }
+        section.style.removeProperty('--sheet-plan-width');
+        section.querySelector('.sheet-wait-block')?.style.removeProperty('width');
     });
-    const canvas = byId('sheet-canvas');
-    if (canvas && widestPlanWidth > 0) {
-        canvas.style.setProperty('--sheet-plan-content-width', `${widestPlanWidth}px`);
-    }
+    byId('sheet-canvas')?.style.removeProperty('--sheet-plan-content-width');
 }
 
 function renderSheetView() {

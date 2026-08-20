@@ -9,13 +9,14 @@
 
 @media (max-width: 420px) {
   #settlementCarEditModal .seisan-gas-section-head {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 8px;
-    margin-top: 8px;
-    padding-top: 10px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    margin-top: 0;
+    padding-top: 0;
   }
 
-  #settlementCarEditModal .seisan-times-toggle {
-    max-width: 196px;
+  #settlementCarEditModal .seisan-rental-type-group {
+    width: 100%;
+    max-width: none;
   }
 }

@@ -39,7 +39,7 @@
     const lockedAttr = isReward ? ' readonly aria-readonly="true"' : '';
     const deleteControl = timesFeeKind || isReward
       ? '<span class="seisan-icon-btn seisan-extra-delete-placeholder" aria-hidden="true"></span>'
-      : '<cds-icon-button class="seisan-icon-btn" kind="danger--ghost" size="lg" type="button" data-action="remove-settlement-extra" aria-label="削除"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span></cds-icon-button>';
+      : `<cds-icon-button class="seisan-icon-btn" kind="danger--ghost" size="lg" type="button" data-action="remove-settlement-extra" aria-label="${esc(ex.name || '諸経費', helpers)}を削除"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span></cds-icon-button>`;
     const showColumnLabels = index === 0;
     const columnLabel = text => showColumnLabels ? `<span class="seisan-extra-field-label">${text}</span>` : '';
 

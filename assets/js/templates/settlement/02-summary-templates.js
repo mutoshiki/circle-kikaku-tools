@@ -25,7 +25,7 @@
       : '<span>割勘費用</span>';
     // Legacy test anchor: 1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名
     return `
-    <cds-accordion class="seisan-summary-accordion" alignment="start" aria-label="全体の費用の内訳">
+    <cds-accordion class="seisan-summary-accordion" aria-label="全体の費用の内訳">
       <cds-accordion-item>
         <span slot="title" class="seisan-accordion-total"><span>割勘合計</span><strong>${signedMoney(splitPaymentTotal, helpers)}</strong></span>
         <div class="seisan-summary-detail-list">${splitBaseDetail}<span>端数調整 ${signedMoney(splitPaymentAdjustment, helpers, true)}</span></div>

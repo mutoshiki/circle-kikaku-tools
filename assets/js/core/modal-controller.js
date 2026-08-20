@@ -265,7 +265,7 @@
             carEditModal.addEventListener('sanpo:modal-hiding', event => {
                 const validateAndSave = global.validateAndSaveSettlementCarEditBeforeClose;
                 if (typeof validateAndSave === 'function') {
-                    if (!validateAndSave()) event.preventDefault();
+                    if (!validateAndSave(event.detail?.reason || 'dismiss')) event.preventDefault();
                     return;
                 }
                 global.saveSettlementCarEditDraft?.();

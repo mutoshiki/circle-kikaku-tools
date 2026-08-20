@@ -5,6 +5,7 @@ import '@carbon/web-components/es/components/content-switcher/index.js';
 import '@carbon/web-components/es/components/data-table/index.js';
 import '@carbon/web-components/es/components/notification/toast-notification.js';
 import '@carbon/web-components/es/components/tag/index.js';
+import '@carbon/web-components/es/components/tabs/index.js';
 import '@carbon/web-components/es/components/text-input/index.js';
 import '@carbon/web-components/es/components/select/index.js';
 import '@carbon/web-components/es/components/checkbox/index.js';

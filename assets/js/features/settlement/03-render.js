@@ -380,16 +380,18 @@ async function promptDiscardInvalidSettlementCarEdit() {
     focusFirstSettlementCarValidationError();
 }
 
-function validateAndSaveSettlementCarEditBeforeClose() {
+function validateAndSaveSettlementCarEditBeforeClose(reason = 'dismiss') {
     if (settlementCarEditClosePrepared) {
         settlementCarEditClosePrepared = false;
         return true;
     }
-    if (!validateActiveSettlementCarEditor(true)) {
-        queueMicrotask(promptDiscardInvalidSettlementCarEdit);
-        return false;
-    }
-    saveSettlementCarEditDraft({ render: true, refreshEditor: false });
+    if (reason === 'submit') return true;
+
+    // Transactional Carbon modal semantics: X, Escape and Cancel discard the
+    // uncommitted editor snapshot. The explicit Save action is the only commit.
+    restoreSettlementCarEditOpeningSnapshot();
+    saveLocalDraftOnly?.();
+    renderSettlementView({ force: true });
     return true;
 }
 
@@ -637,7 +639,7 @@ function openSettlementCarEditor(encodedName) {
     const name = decodeURIComponent(encodedName || '');
     activeSettlementCarEditName = name;
     const title = byId('settlementCarEditModalTitle');
-    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用`;
+    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用を編集`;
     refreshSettlementCarEditor(name);
     if (modals.settlementCarEdit) modals.settlementCarEdit.show();
 }
@@ -650,7 +652,7 @@ function resumeSettlementCarEditor(encodedName) {
     settlementCarEditDiscardPromptActive = false;
     settlementCarEditPreserveOnHidden = false;
     const title = byId('settlementCarEditModalTitle');
-    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用`;
+    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用を編集`;
     refreshSettlementCarEditor(name);
     if (modals.settlementCarEdit) modals.settlementCarEdit.show();
 }
@@ -670,7 +672,7 @@ function saveSettlementCarEditDraft({ render = true, refreshEditor = false } = {
 
     if (renamedStandaloneDriver && refreshEditor) {
         const title = byId('settlementCarEditModalTitle');
-        if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(renamedStandaloneDriver)}車の費用`;
+        if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(renamedStandaloneDriver)}車の費用を編集`;
         refreshSettlementCarEditor(renamedStandaloneDriver);
     }
     if (render) renderSettlementAfterModalCommit('settlementCarEditModal');

@@ -58,10 +58,11 @@
             overflow.setAttribute('aria-label', 'アプリメニュー');
             overflow.setAttribute('align', 'bottom-end');
             overflow.querySelector('[slot="icon"]')?.remove();
-            if (!overflow.querySelector('.app-switcher-glyph')) {
+            if (!overflow.querySelector('[data-carbon-icon="switcher"]')) {
                 const glyph = document.createElement('span');
-                glyph.className = 'app-switcher-glyph';
+                glyph.className = 'app-switcher-icon';
                 glyph.slot = 'icon';
+                glyph.dataset.carbonIcon = 'switcher';
                 glyph.setAttribute('aria-hidden', 'true');
                 overflow.prepend(glyph);
             }
@@ -106,13 +107,24 @@
                 ['tab-list', view === 'list' && allocationType === 'car'],
                 ['tab-team', view === 'list' && allocationType === 'team']
             ];
+            let selectedValue = 'car';
             states.forEach(([id, active]) => {
                 const tab = byId(id);
                 if (!tab) return;
                 tab.classList.toggle('active', active);
-                if (active) tab.setAttribute('aria-current', 'page');
-                else tab.removeAttribute('aria-current');
+                tab.toggleAttribute('selected', active);
+                if (active) {
+                    tab.setAttribute('aria-current', 'page');
+                    selectedValue = tab.getAttribute('value') || selectedValue;
+                } else {
+                    tab.removeAttribute('aria-current');
+                }
             });
+            const tabBar = byId('view-toggle-bar');
+            if (tabBar) {
+                tabBar.setAttribute('value', selectedValue);
+                if (customElements.get('cds-tabs')) tabBar.value = selectedValue;
+            }
 
             const carTab = byId('tab-list');
             const teamTab = byId('tab-team');
@@ -148,10 +160,12 @@
         teamTab.id = 'tab-team';
         teamTab.dataset.view = 'list';
         teamTab.dataset.allocationType = 'team';
+        teamTab.setAttribute('value', 'team');
         teamTab.classList.remove('active');
         teamTab.removeAttribute('aria-current');
         teamTab.setAttribute('aria-label', '班割');
         carTab.dataset.allocationType = 'car';
+        carTab.setAttribute('value', 'car');
         carTab.setAttribute('aria-label', '車割');
 
         setDestinationLabel(sheetTab, '共有画面');

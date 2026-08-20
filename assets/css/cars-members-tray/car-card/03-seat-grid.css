@@ -25,12 +25,12 @@
   transition: background-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
 }
 
-/* Driver is a role within the same card system, not a separate blue card family.
- * The interactive rail keeps the role scannable without creating a competing surface. */
+/* Driver/leader role is conveyed by the explicit neutral role Tag in the card,
+ * so this surface does not use interaction blue as a decorative role marker. */
 .driver-seat {
   justify-content: center;
   padding: var(--space-2) var(--space-3);
-  border-left: 4px solid var(--cds-border-interactive, var(--app-accent-border));
+  border-left: 0;
   background: var(--cds-layer-02, var(--surface-low));
   color: var(--text-main);
 }
@@ -40,24 +40,29 @@
   padding: 0;
   justify-content: space-between;
   outline: 0;
-  cursor: pointer;
+  cursor: default;
 }
 .seat-slot::before { content: none; }
 .seat-slot:not(:has(> .member-card)) {
   align-items: center;
   justify-content: center;
 }
-.seat-slot-icon {
-  position: static;
+.seat-add-btn {
+  display: block;
   flex: 0 0 auto;
-  width: 20px;
-  height: 20px;
-  color: var(--cds-icon-interactive, var(--app-accent-icon));
-  pointer-events: none;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  min-height: 48px;
+  color: var(--cds-icon-primary, var(--text-main));
 }
+.seat-add-btn > .carbon-icon { width: 20px; height: 20px; }
 .seat-slot:has(> .member-card) { min-height: 0; outline: 0; background: transparent; cursor: default; }
 .seat-slot:has(> .member-card)::before,
-.seat-slot:has(> .member-card) > .seat-slot-icon { display: none; }
-.seat-slot:not(:has(> .member-card)):hover { background: var(--cds-layer-hover-02, var(--surface-hover)); }
-.seat-slot:not(:has(> .member-card)):active { background: var(--cds-layer-active-02, var(--surface-container)); }
-.seat-slot:not(:has(> .member-card)):focus-visible { outline: 2px solid var(--focus-accent); outline-offset: -2px; }
+.seat-slot:has(> .member-card) > .seat-add-btn { display: none; }
+.seat-slot:not(:has(> .member-card)):has(.seat-add-btn:hover) { background: var(--cds-layer-hover-02, var(--surface-hover)); }
+.seat-slot:not(:has(> .member-card)):has(.seat-add-btn:active) { background: var(--cds-layer-active-02, var(--surface-container)); }
+
+@media (max-width: 340px) {
+  .car-layout-grid { grid-template-columns: minmax(0, 1fr); }
+}
