@@ -1,0 +1,53 @@
+head=158d3c1c75d020edb77735c549f98ef3678450e5
+started=2026-08-20T05:52:14Z
+
+## npm ci --no-audit --no-fund
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+npm warn deprecated json-ptr@3.1.1: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+npm warn deprecated uuid@9.0.1: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+
+added 866 packages in 25s
+exit=0
+
+## check .github/carbon-refresh-part-1.patch
+exit=0
+## apply .github/carbon-refresh-part-1.patch
+exit=0
+
+## check .github/carbon-refresh-part-2.patch
+exit=0
+## apply .github/carbon-refresh-part-2.patch
+exit=0
+
+## check .github/carbon-refresh-part-3.patch
+exit=0
+## apply .github/carbon-refresh-part-3.patch
+exit=0
+
+## check .github/carbon-refresh-part-4.patch
+exit=0
+## apply .github/carbon-refresh-part-4.patch
+exit=0
+
+## npm run build:carbon
+
+> circle-kikaku-tools@8.3.2-waiting-grid-v52 build:carbon
+> node tools/build-carbon-assets.mjs
+
+Built Carbon assets: {"webComponents":"2.60.0","icons":"11.85.0","plexSans":"1.1.0","plexSansJp":"3.0.0"}
+exit=0
+
+## npm run test:static
+npm error Missing script: "test:static"
+npm error
+npm error Did you mean this?
+npm error   npm run test:share # run the "test:share" package script
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-08-20T05_52_41_591Z-debug-0.log
+exit=1
+
+result=failure
+finished=2026-08-20T05:52:41Z
