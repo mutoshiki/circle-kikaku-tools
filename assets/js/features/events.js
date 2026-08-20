@@ -3,11 +3,6 @@
 (function (global) {
     'use strict';
 
-    const APP_NAVIGATION_LINKS = Object.freeze([
-        ['山歩会フォームメーカー', 'https://script.google.com/macros/s/AKfycbw0R5VgBdSLS8aRDJDw7GUIEfHlXRZ6rPrOgjXmO2N7LvhuoGyS_opUCFTCSiUiDZw5/exec'],
-        ['学務提出書類作成ツール', 'https://github.com/mutoshiki/sampokai-submission-builder/releases'],
-        ['山歩会企画ツール一覧', 'https://mutoshiki.github.io/sanpokai-kikaku-portal/']
-    ]);
     const BUG_REPORT_MAX_LENGTH = 2000;
     let bugReportModalAdapter = null;
     let bugReportSubmitting = false;
@@ -86,14 +81,13 @@
 
             const databaseModule = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js');
             const reportRef = databaseModule.push(databaseModule.ref(activeDb, 'bugReports'));
-            const createdAt = typeof collaborativeNow === 'function' ? collaborativeNow() : Date.now();
             const currentRoomId = typeof roomId !== 'undefined' ? String(roomId || '') : '';
             const buildId = typeof APP_BUILD_ID !== 'undefined' ? String(APP_BUILD_ID || '') : '';
             await databaseModule.set(reportRef, {
                 message: message.slice(0, BUG_REPORT_MAX_LENGTH),
+                createdAt: databaseModule.serverTimestamp(),
                 roomId: currentRoomId.slice(0, 80),
                 pageUrl: String(global.location.href || '').slice(0, 2048),
-                createdAt,
                 buildId: buildId.slice(0, 120),
                 projectTitle: readBugReportProjectTitle(),
                 currentView: readBugReportView().slice(0, 40),
@@ -122,36 +116,27 @@
     }
 
     function setupBugReportNavigation() {
-        const drawer = document.getElementById('overviewDrawer');
-        const list = drawer?.querySelector('.app-nav-drawer-list');
-        if (!drawer || !list) return;
+        const list = document.querySelector('#overviewDrawer .app-nav-drawer-list');
+        if (!list) return;
 
-        list.replaceChildren();
-        APP_NAVIGATION_LINKS.forEach(([label, href]) => {
-            const item = document.createElement('li');
-            const link = document.createElement('a');
-            link.className = 'app-nav-link';
-            link.href = href;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            link.textContent = label;
-            item.appendChild(link);
-            list.appendChild(item);
-        });
-
-        const reportItem = document.createElement('li');
-        const reportLink = document.createElement('a');
-        reportLink.id = 'bugReportMenuItem';
-        reportLink.className = 'app-nav-link';
-        reportLink.href = '#bug-report';
-        reportLink.textContent = 'バグを報告する';
-        reportItem.appendChild(reportLink);
-        list.appendChild(reportItem);
-
-        reportLink.addEventListener('click', event => {
-            event.preventDefault();
-            queueMicrotask(openBugReportModal);
-        });
+        let reportLink = document.getElementById('bugReportMenuItem');
+        if (!reportLink) {
+            const reportItem = document.createElement('li');
+            reportLink = document.createElement('a');
+            reportLink.id = 'bugReportMenuItem';
+            reportLink.className = 'app-nav-link';
+            reportLink.href = '#bug-report';
+            reportLink.textContent = 'バグを報告する';
+            reportItem.appendChild(reportLink);
+            list.appendChild(reportItem);
+        }
+        if (reportLink.dataset.bugReportBound !== 'true') {
+            reportLink.dataset.bugReportBound = 'true';
+            reportLink.addEventListener('click', event => {
+                event.preventDefault();
+                queueMicrotask(openBugReportModal);
+            });
+        }
 
         const modal = ensureBugReportModal();
         const input = modal.querySelector('#bugReportMessage');
