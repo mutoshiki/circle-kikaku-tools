@@ -1,5 +1,5 @@
-head=1f120a170b17b6dda3c5b6b58350146d615441ee
-started=2026-08-20T05:56:57Z
+head=baee4d2114723097610ba5be5688eab91a417260
+started=2026-08-20T05:59:43Z
 
 ## npm ci --no-audit --no-fund
 npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
@@ -7,7 +7,7 @@ npm warn deprecated json-ptr@3.1.1: Package no longer supported. Contact Support
 npm warn deprecated uuid@9.0.1: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
 npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
-added 866 packages in 30s
+added 866 packages in 22s
 exit=0
 
 ## check .github/carbon-refresh-part-1.patch
@@ -45,43 +45,13 @@ exit=0
 
 exit=0
 
-## npm test
-
-> circle-kikaku-tools@8.3.2-waiting-grid-v52 test
-> node tests/run-static-tests.mjs && node tests/dark-accent-contract.mjs && node tests/design-refinement-contract.mjs && node tests/feature-polish-contract.mjs && node tests/feature-fixes-v30-contract.mjs && node tests/person-card-interaction-contract.mjs && node tests/carbon-guidance-v35-contract.mjs && node tests/route-distance-apply-v37-contract.mjs && node tests/carbon-feedback-focus-fit-v38-contract.mjs && node tests/card-drag-stability-v39-contract.mjs && node tests/entity-schema-v42-contract.mjs && node tests/root-stability-v44-contract.mjs && node tests/collaborative-interaction-delete-v47-contract.mjs && node tests/settlement-concurrent-save-v48-contract.mjs && node tests/settlement-cross-car-sync-v49-contract.mjs && node tests/collaborative-sync-foundation-v50-contract.mjs && node tests/settlement-negative-extra-save-v51-contract.mjs && node tests/waiting-grid-v52-contract.mjs && node tests/settlement-balance-v58-contract.mjs && node tests/settlement-extra-concurrent-v66-contract.mjs && node tests/sync-reliability-v67-contract.mjs && node tests/sync-protocol-v68-contract.mjs && node tests/sync-outbox-rejection-v68-contract.mjs && node tests/five-device-domain-sync-v46.mjs
-
-PASS Carbon package versions are exact
-PASS Carbon runtime and IBM Plex assets exist
-PASS No Bootstrap or Font Awesome runtime dependency remains
-PASS No catch-all override files exist
-PASS No native generic form controls are emitted outside the app navigation
-PASS Every modal uses Carbon anatomy and a non-button primary focus target
-PASS Primary navigation uses Carbon Tabs while allocation mode uses Carbon Content Switcher
-PASS Header icon-only controls use Carbon Icon Button or Overflow Menu
-PASS Waiting tray disclosure uses a Carbon button
-PASS Person actions use official Carbon Overflow Menu and Menu
-PASS No automatic blocking coachmark remains
-PASS Input state owner includes Carbon invalid, warning, readonly and disabled contracts
-PASS All required Carbon component modules are registered by the entry
-PASS Lockfiles do not retain Bootstrap or Font Awesome
-PASS No inline JavaScript event handlers remain
-PASS Root Carbon geometry and mobile input zoom contract exist
-PASS User guide screenshots are complete and current assets exist
-PASS Build manifest is deterministic and matches exact versions
-PASS Package scripts only reference available project test tools
-PASS Index IDs are unique
-PASS All local index references exist
-PASS dark accent and popup semantic contract
-file:///home/runner/work/circle-kikaku-tools/circle-kikaku-tools/tests/design-refinement-contract.mjs:6
-const expect = (condition, message) => { if (!condition) throw new Error(message); };
-                                                               ^
-
-Error: Empty seats must use a real Carbon icon.
-    at expect (file:///home/runner/work/circle-kikaku-tools/circle-kikaku-tools/tests/design-refinement-contract.mjs:6:64)
-    at file:///home/runner/work/circle-kikaku-tools/circle-kikaku-tools/tests/design-refinement-contract.mjs:46:1
-
-Node.js v22.23.2
-exit=1
+## git diff --check
+assets/css/app-shell/header/03-tabs-actions.css:141: new blank line at EOF.
+assets/vendor/carbon/carbon-entry.min.js:62: trailing whitespace.
++`;var Jc=(c,e,o)=>Array.prototype.filter.call(c,e,o);var lr=(c,e,o)=>Array.prototype.find.call(c,e,o),V=(c,e,o)=>Array.prototype.forEach.call(c,e,o),Lo=(c,e)=>Array.prototype.indexOf.call(c,e);var pr=globalThis,vr=pr.ShadowRoot&&(pr.ShadyCSS===void 0||pr.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,tc=Symbol(),ed=new WeakMap,js=class{constructor(e,o,t){if(this._$cssResult$=!0,t!==tc)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=e,this.t=o}get styleSheet(){let e=this.o,o=this.t;if(vr&&e===void 0){let t=o!==void 0&&o.length===1;t&&(e=ed.get(o)),e===void 0&&((this.o=e=new CSSStyleSheet).replaceSync(this.cssText),t&&ed.set(o,e))}return e}toString(){return this.cssText}},od=c=>new js(typeof c=="string"?c:c+"",void 0,tc),L=(c,...e)=>{let o=c.length===1?c[0]:e.reduce((t,r,d)=>t+(a=>{if(a._$cssResult$===!0)return a.cssText;if(typeof a=="number")return a;throw Error("Value passed to 'css' function must be a 'css' function result: "+a+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(r)+c[d+1],c[0]);return new js(o,c,tc)},Se=(c,e)=>{if(vr)c.adoptedStyleSheets=e.map(o=>o instanceof CSSStyleSheet?o:o.styleSheet);else for(let o of e){let t=document.createElement("style"),r=pr.litNonce;r!==void 0&&t.setAttribute("nonce",r),t.textContent=o.cssText,c.appendChild(t)}},sc=vr?c=>c:c=>c instanceof CSSStyleSheet?(e=>{let o="";for(let t of e.cssRules)o+=t.cssText;return od(o)})(c):c;var{is:Fi,defineProperty:Ni,getOwnPropertyDescriptor:Vi,getOwnPropertyNames:Pi,getOwnPropertySymbols:Xi,getPrototypeOf:ji}=Object,bo=globalThis,td=bo.trustedTypes,Ui=td?td.emptyScript:"",Wi=bo.reactiveElementPolyfillSupport,Us=(c,e)=>c,Ws={toAttribute(c,e){switch(e){case Boolean:c=c?Ui:null;break;case Object:case Array:c=c==null?c:JSON.stringify(c)}return c},fromAttribute(c,e){let o=c;switch(e){case Boolean:o=c!==null;break;case Number:o=c===null?null:Number(c);break;case Object:case Array:try{o=JSON.parse(c)}catch{o=null}}return o}},br=(c,e)=>!Fi(c,e),sd={attribute:!0,type:String,converter:Ws,reflect:!1,useDefault:!1,hasChanged:br};Symbol.metadata??(Symbol.metadata=Symbol("metadata")),bo.litPropertyMetadata??(bo.litPropertyMetadata=new WeakMap);var to=class extends HTMLElement{static addInitializer(e){this._$Ei(),(this.l??(this.l=[])).push(e)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(e,o=sd){if(o.state&&(o.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(e)&&((o=Object.create(o)).wrapped=!0),this.elementProperties.set(e,o),!o.noAccessor){let t=Symbol(),r=this.getPropertyDescriptor(e,t,o);r!==void 0&&Ni(this.prototype,e,r)}}static getPropertyDescriptor(e,o,t){let{get:r,set:d}=Vi(this.prototype,e)??{get(){return this[o]},set(a){this[o]=a}};return{get:r,set(a){let l=r?.call(this);d?.call(this,a),this.requestUpdate(e,l,t)},configurable:!0,enumerable:!0}}static getPropertyOptions(e){return this.elementProperties.get(e)??sd}static _$Ei(){if(this.hasOwnProperty(Us("elementProperties")))return;let e=ji(this);e.finalize(),e.l!==void 0&&(this.l=[...e.l]),this.elementProperties=new Map(e.elementProperties)}static finalize(){if(this.hasOwnProperty(Us("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(Us("properties"))){let o=this.properties,t=[...Pi(o),...Xi(o)];for(let r of t)this.createProperty(r,o[r])}let e=this[Symbol.metadata];if(e!==null){let o=litPropertyMetadata.get(e);if(o!==void 0)for(let[t,r]of o)this.elementProperties.set(t,r)}this._$Eh=new Map;for(let[o,t]of this.elementProperties){let r=this._$Eu(o,t);r!==void 0&&this._$Eh.set(r,o)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(e){let o=[];if(Array.isArray(e)){let t=new Set(e.flat(1/0).reverse());for(let r of t)o.unshift(sc(r))}else e!==void 0&&o.push(sc(e));return o}static _$Eu(e,o){let t=o.attribute;return t===!1?void 0:typeof t=="string"?t:typeof e=="string"?e.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(e=>this.enableUpdating=e),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(e=>e(this))}addController(e){(this._$EO??(this._$EO=new Set)).add(e),this.renderRoot!==void 0&&this.isConnected&&e.hostConnected?.()}removeController(e){this._$EO?.delete(e)}_$E_(){let e=new Map,o=this.constructor.elementProperties;for(let t of o.keys())this.hasOwnProperty(t)&&(e.set(t,this[t]),delete this[t]);e.size>0&&(this._$Ep=e)}createRenderRoot(){let e=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return Se(e,this.constructor.elementStyles),e}connectedCallback(){this.renderRoot??(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),this._$EO?.forEach(e=>e.hostConnected?.())}enableUpdating(e){}disconnectedCallback(){this._$EO?.forEach(e=>e.hostDisconnected?.())}attributeChangedCallback(e,o,t){this._$AK(e,t)}_$ET(e,o){let t=this.constructor.elementProperties.get(e),r=this.constructor._$Eu(e,t);if(r!==void 0&&t.reflect===!0){let d=(t.converter?.toAttribute!==void 0?t.converter:Ws).toAttribute(o,t.type);this._$Em=e,d==null?this.removeAttribute(r):this.setAttribute(r,d),this._$Em=null}}_$AK(e,o){let t=this.constructor,r=t._$Eh.get(e);if(r!==void 0&&this._$Em!==r){let d=t.getPropertyOptions(r),a=typeof d.converter=="function"?{fromAttribute:d.converter}:d.converter?.fromAttribute!==void 0?d.converter:Ws;this._$Em=r;let l=a.fromAttribute(o,d.type);this[r]=l??this._$Ej?.get(r)??l,this._$Em=null}}requestUpdate(e,o,t,r=!1,d){if(e!==void 0){let a=this.constructor;if(r===!1&&(d=this[e]),t??(t=a.getPropertyOptions(e)),!((t.hasChanged??br)(d,o)||t.useDefault&&t.reflect&&d===this._$Ej?.get(e)&&!this.hasAttribute(a._$Eu(e,t))))return;this.C(e,o,t)}this.isUpdatePending===!1&&(this._$ES=this._$EP())}C(e,o,{useDefault:t,reflect:r,wrapped:d},a){t&&!(this._$Ej??(this._$Ej=new Map)).has(e)&&(this._$Ej.set(e,a??o??this[e]),d!==!0||a!==void 0)||(this._$AL.has(e)||(this.hasUpdated||t||(o=void 0),this._$AL.set(e,o)),r===!0&&this._$Em!==e&&(this._$Eq??(this._$Eq=new Set)).add(e))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(o){Promise.reject(o)}let e=this.scheduleUpdate();return e!=null&&await e,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??(this.renderRoot=this.createRenderRoot()),this._$Ep){for(let[r,d]of this._$Ep)this[r]=d;this._$Ep=void 0}let t=this.constructor.elementProperties;if(t.size>0)for(let[r,d]of t){let{wrapped:a}=d,l=this[r];a!==!0||this._$AL.has(r)||l===void 0||this.C(r,void 0,d,l)}}let e=!1,o=this._$AL;try{e=this.shouldUpdate(o),e?(this.willUpdate(o),this._$EO?.forEach(t=>t.hostUpdate?.()),this.update(o)):this._$EM()}catch(t){throw e=!1,this._$EM(),t}e&&this._$AE(o)}willUpdate(e){}_$AE(e){this._$EO?.forEach(o=>o.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(e)),this.updated(e)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(e){return!0}update(e){this._$Eq&&(this._$Eq=this._$Eq.forEach(o=>this._$ET(o,this[o]))),this._$EM()}updated(e){}firstUpdated(e){}};to.elementStyles=[],to.shadowRootOptions={mode:"open"},to[Us("elementProperties")]=new Map,to[Us("finalized")]=new Map,Wi?.({ReactiveElement:to}),(bo.reactiveElementVersions??(bo.reactiveElementVersions=[])).push("2.1.2");var Gs=globalThis,rd=c=>c,ur=Gs.trustedTypes,cd=ur?ur.createPolicy("lit-html",{createHTML:c=>c}):void 0,pd="$lit$",uo=`lit$${Math.random().toFixed(9).slice(2)}$`,vd="?"+uo,Zi=`<${vd}>`,Io=document,Ks=()=>Io.createComment(""),Ys=c=>c===null||typeof c!="object"&&typeof c!="function",lc=Array.isArray,Gi=c=>lc(c)||typeof c?.[Symbol.iterator]=="function",rc=`[ 	
+assets/vendor/carbon/carbon-entry.min.js:63: trailing whitespace.
++\f\r]`,Zs=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,dd=/-->/g,nd=/>/g,Bo=RegExp(`>|${rc}(?:([^\\s"'>=/]+)(${rc}*=${rc}*(?:[^ 	
+exit=2
 
 result=failure
-finished=2026-08-20T05:57:33Z
+finished=2026-08-20T06:00:09Z
