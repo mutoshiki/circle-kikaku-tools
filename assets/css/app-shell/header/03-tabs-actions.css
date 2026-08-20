@@ -73,7 +73,7 @@ cds-overflow-menu.header-action {
 #app-view-navigation {
   position: relative;
   z-index: var(--z-view-navigation);
-  order: 1;
+  order: 2;
   flex: 0 0 auto;
   box-sizing: border-box;
   display: flex;

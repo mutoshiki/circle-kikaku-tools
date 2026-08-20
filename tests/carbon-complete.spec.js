@@ -34,7 +34,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
   test.describe(`${viewport.width}px Carbon shell`, () => {
     test.use({ viewport });
 
-    test('primary views, theme, navigation and overview remain operable', async ({ page }) => {
+    test('primary views, theme, navigation and app drawer remain operable', async ({ page }) => {
       const errors = [];
       page.on('pageerror', error => errors.push(String(error)));
       await seed(page);
@@ -61,7 +61,10 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       await expect(page.locator('#share-links-modal')).toHaveAttribute('open', '');
       await hostClick(page, '#share-links-modal [data-modal-close]');
       await expect(page.locator('#share-links-modal')).not.toBeAttached();
-      await hostClick(page, '#overviewDrawerCloseBtn');
+      await hostClick(page, '#overviewMenuBtn');
+      await expect(page.locator('#overviewDrawer')).toHaveAttribute('aria-hidden', 'false');
+      await expect(page.locator('#overviewDrawer .app-nav-link')).toHaveCount(3);
+      await page.keyboard.press('Escape');
       await expect(page.locator('#overviewDrawer')).toHaveAttribute('aria-hidden', 'true');
       expect(errors).toEqual([]);
     });
@@ -245,7 +248,7 @@ test.describe('Carbon modal, participant and sheet workflows', () => {
 test.describe('First-run rendering and submit regression', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('mobile sync status temporarily overlays the room-name field', async ({ page }) => {
+  test('mobile sync status temporarily overlays the product-title slot', async ({ page }) => {
     await page.goto(`/?room=SYNC-STATUS-${Date.now()}`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => typeof window.showSaveStatus === 'function');
     await page.evaluate(() => window.showSaveStatus('共有同期中', 'connected'));
@@ -254,13 +257,13 @@ test.describe('First-run rendering and submit regression', () => {
     await expect(badge).toContainText('共有同期中');
     const bounds = await page.evaluate(() => {
       const badgeBox = document.querySelector('#syncStatusBadge')?.getBoundingClientRect();
-      const inputBox = document.querySelector('#roomNameInput')?.getBoundingClientRect();
-      return { badgeBox, inputBox };
+      const brandBox = document.querySelector('.app-brand')?.getBoundingClientRect();
+      return { badgeBox, brandBox };
     });
-    expect(bounds.badgeBox.width).toBeLessThan(bounds.inputBox.width);
-    expect(Math.abs((bounds.badgeBox.left + bounds.badgeBox.right) / 2 - (bounds.inputBox.left + bounds.inputBox.right) / 2)).toBeLessThanOrEqual(1);
-    expect(bounds.badgeBox.top).toBeGreaterThanOrEqual(bounds.inputBox.top - 1);
-    expect(bounds.badgeBox.bottom).toBeLessThanOrEqual(bounds.inputBox.bottom + 1);
+    expect(bounds.badgeBox.width).toBeLessThan(bounds.brandBox.width);
+    expect(Math.abs((bounds.badgeBox.left + bounds.badgeBox.right) / 2 - (bounds.brandBox.left + bounds.brandBox.right) / 2)).toBeLessThanOrEqual(1);
+    expect(bounds.badgeBox.top).toBeGreaterThanOrEqual(bounds.brandBox.top - 1);
+    expect(bounds.badgeBox.bottom).toBeLessThanOrEqual(bounds.brandBox.bottom + 1);
     await page.waitForTimeout(2800);
     await expect(badge).not.toHaveClass(/is-visible/);
   });

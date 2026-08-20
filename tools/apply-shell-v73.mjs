@@ -733,7 +733,7 @@ assert.match(header, /max-width:\s*768px[\s\S]*height:\s*240px/);
 assert.match(header, /\.app-nav-link[\s\S]*min-height:\s*48px/);
 assert.match(header, /\.app-nav-link:focus-visible/);
 assert.match(room, /\.project-title-editor:empty::before[\s\S]*content:\s*attr\(data-placeholder\)/);
-assert.doesNotMatch(`${header}\n${room}`, /!important/);
+assert.doesNotMatch(header + '\\n' + room, /!important/);
 console.log('PASS shell project title and application navigation contract');
 `);
 
@@ -746,7 +746,7 @@ const expectedLinks = [
 ];
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 }]) {
-  test(`${viewport.width}px title reveal and application navigation`, async ({ page }) => {
+  test(String(viewport.width) + 'px title reveal and application navigation', async ({ page }) => {
     await page.setViewportSize(viewport);
     const errors = [];
     page.on('pageerror', error => errors.push(String(error)));
@@ -811,6 +811,6 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
 `);
 
 replaceOnce('package.json', 'node tests/shared-touch-scroll-v72-contract.mjs && node tests/five-device-domain-sync-v46.mjs', 'node tests/shared-touch-scroll-v72-contract.mjs && node tests/shell-project-title-navigation-v73-contract.mjs && node tests/five-device-domain-sync-v46.mjs');
-replaceOnce('package.json', 'playwright test tests/carbon-complete.spec.js tests/shared-touch-scroll-v72.spec.js', 'playwright test tests/carbon-complete.spec.js tests/shared-touch-scroll-v72.spec.js tests/shell-project-title-navigation-v73.spec.js');
+replaceOnce('package.json', '    \"test:ui\": \"playwright test tests/carbon-complete.spec.js tests/shared-touch-scroll-v72.spec.js\",', '    \"test:ui\": \"playwright test tests/carbon-complete.spec.js tests/shared-touch-scroll-v72.spec.js tests/shell-project-title-navigation-v73.spec.js\",');
 
 console.log('Applied Carbon project-title reveal and application-navigation v73 changes.');

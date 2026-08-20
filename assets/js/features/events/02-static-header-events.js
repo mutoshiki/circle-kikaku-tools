@@ -2,6 +2,15 @@
 (function (global) {
     'use strict';
 
+    const APP_NAVIGATION_LINKS = Object.freeze([
+        ['山歩会フォームメイカー', 'https://script.google.com/macros/s/AKfycbwveM99euD8V5dxB6xLPYlpHuIc-KJlaaP8LHffh6ZMQBnAmO6XwX_ijQG-brUgqZmj/exec'],
+        ['提出書類作成ツール', 'https://github.com/mutoshiki/sampokai-submission-builder/releases'],
+        ['山歩会企画ポータル', 'https://mutoshiki.github.io/sanpokai-kikaku-portal/']
+    ]);
+    const PROJECT_TITLE_SCROLL_THRESHOLD = 8;
+    const PROJECT_TITLE_PULL_THRESHOLD = 16;
+    let projectTitlePointerStartY = null;
+
     function createCarbonShellIconButton(id, label, iconName) {
         const button = document.createElement('cds-icon-button');
         button.id = id;
@@ -19,17 +28,105 @@
         return button;
     }
 
+    function dispatchRoomTitleInput(roomInput) {
+        roomInput.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+    }
+
+    function normalizeProjectTitleEditor(editor) {
+        const value = String(editor.textContent || '').replace(/[\r\n]+/g, '');
+        if (!value && editor.childNodes.length) editor.replaceChildren();
+        else if (editor.textContent !== value) editor.textContent = value;
+        return value;
+    }
+
+    function createProjectTitleEditor(roomInput) {
+        const editor = document.createElement('div');
+        editor.id = 'projectTitleEditor';
+        editor.className = 'project-title-editor';
+        editor.setAttribute('contenteditable', 'plaintext-only');
+        editor.setAttribute('role', 'textbox');
+        editor.setAttribute('aria-label', '企画名');
+        editor.setAttribute('aria-placeholder', '企画名を入力');
+        editor.setAttribute('aria-multiline', 'false');
+        editor.setAttribute('data-placeholder', '企画名を入力');
+        editor.setAttribute('spellcheck', 'false');
+        editor.tabIndex = 0;
+
+        const syncFromSource = () => {
+            if (document.activeElement === editor) return;
+            const next = String(roomInput.value || '');
+            if (editor.textContent !== next) editor.textContent = next;
+            if (!next && editor.childNodes.length) editor.replaceChildren();
+        };
+        const syncToSource = () => {
+            const next = normalizeProjectTitleEditor(editor);
+            if (roomInput.value !== next) roomInput.value = next;
+            roomInput.setAttribute('value', next);
+            dispatchRoomTitleInput(roomInput);
+        };
+
+        editor.addEventListener('beforeinput', event => {
+            if (event.inputType === 'insertParagraph' || event.inputType === 'insertLineBreak') event.preventDefault();
+        });
+        editor.addEventListener('keydown', event => {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            editor.blur();
+        });
+        editor.addEventListener('input', event => {
+            if (!event.isComposing) syncToSource();
+        });
+        editor.addEventListener('compositionend', syncToSource);
+        editor.addEventListener('blur', syncFromSource);
+
+        new MutationObserver(syncFromSource).observe(roomInput, { attributes: true, attributeFilter: ['value'] });
+        syncFromSource();
+        return editor;
+    }
+
+    function ensureProjectTitleRegion(brand) {
+        const roomField = brand.querySelector('.app-room-field');
+        const roomInput = byId('roomNameInput');
+        const header = byId('app-header');
+        if (!roomField || !roomInput || !header) return;
+
+        let region = byId('projectTitleRegion');
+        if (!region) {
+            region = document.createElement('section');
+            region.id = 'projectTitleRegion';
+            region.className = 'project-title-region';
+            region.dataset.state = 'expanded';
+            region.setAttribute('aria-label', '企画名');
+            header.insertAdjacentElement('afterend', region);
+        }
+
+        let editor = byId('projectTitleEditor');
+        if (!editor) {
+            editor = createProjectTitleEditor(roomInput);
+            region.appendChild(editor);
+        }
+
+        roomField.classList.add('project-title-source');
+        roomField.setAttribute('aria-hidden', 'true');
+        roomInput.tabIndex = -1;
+        roomInput.setAttribute('aria-hidden', 'true');
+        region.appendChild(roomField);
+        setProjectTitleExpanded(true);
+    }
+
     function ensureCarbonShellHeader() {
         const main = document.querySelector('#app-header .app-header-main');
         const brand = main?.querySelector('.app-brand');
         const actions = main?.querySelector('.header-actions');
         if (!main || !brand || !actions) return;
 
-        let overviewButton = byId('overviewMenuBtn');
-        if (!overviewButton) {
-            overviewButton = createCarbonShellIconButton('overviewMenuBtn', 'メモ・タイムテーブルを開く', 'menu');
-            main.insertBefore(overviewButton, brand);
+        let navigationButton = byId('overviewMenuBtn');
+        if (!navigationButton) {
+            navigationButton = createCarbonShellIconButton('overviewMenuBtn', 'ナビゲーションを開く', 'menu');
+            main.insertBefore(navigationButton, brand);
         }
+        navigationButton.setAttribute('aria-controls', 'overviewDrawer');
+        navigationButton.setAttribute('aria-expanded', 'false');
 
         let title = brand.querySelector('.app-brand-title');
         if (!title) {
@@ -39,13 +136,7 @@
             brand.prepend(title);
         }
 
-        const roomField = brand.querySelector('.app-room-field');
-        roomField?.setAttribute('aria-hidden', 'true');
-        const roomInput = byId('roomNameInput');
-        if (roomInput) {
-            roomInput.tabIndex = -1;
-            roomInput.setAttribute('aria-hidden', 'true');
-        }
+        ensureProjectTitleRegion(brand);
 
         const headerMore = actions.querySelector('.header-more');
         const overflow = headerMore?.querySelector('cds-overflow-menu');
@@ -320,7 +411,91 @@
         }
     }
 
-    function setOverviewDrawerOpen(open) {
+    function setProjectTitleExpanded(expanded) {
+        const region = byId('projectTitleRegion');
+        const editor = byId('projectTitleEditor');
+        if (!region || !editor) return;
+        const nextState = expanded ? 'expanded' : 'collapsed';
+        if (region.dataset.state === nextState) return;
+        if (!expanded && document.activeElement === editor) editor.blur();
+        region.dataset.state = nextState;
+        editor.inert = !expanded;
+        editor.tabIndex = expanded ? 0 : -1;
+    }
+
+    function getActiveProjectTitleScrollNodes() {
+        if (document.body.classList.contains('view-mode-sheet')) {
+            return [byId('sheet-view-area'), byId('sheet-canvas')].filter(Boolean);
+        }
+        if (document.body.classList.contains('view-mode-seisan')) return [byId('seisan-view-area')].filter(Boolean);
+        return [byId('top-area')].filter(Boolean);
+    }
+
+    function getActiveProjectTitleScrollTop() {
+        return Math.max(0, ...getActiveProjectTitleScrollNodes().map(node => Number(node.scrollTop || 0)));
+    }
+
+    function setupProjectTitleReveal() {
+        if (document.documentElement.dataset.projectTitleRevealBound === 'true') return;
+        document.documentElement.dataset.projectTitleRevealBound = 'true';
+        const scrollNodes = [byId('top-area'), byId('sheet-view-area'), byId('sheet-canvas'), byId('seisan-view-area')].filter(Boolean);
+        scrollNodes.forEach(node => node.addEventListener('scroll', () => {
+            if (Number(node.scrollTop || 0) > PROJECT_TITLE_SCROLL_THRESHOLD) setProjectTitleExpanded(false);
+        }, { passive: true }));
+
+        document.addEventListener('wheel', event => {
+            if (event.deltaY < -PROJECT_TITLE_SCROLL_THRESHOLD && getActiveProjectTitleScrollTop() <= 0) setProjectTitleExpanded(true);
+        }, { passive: true });
+        document.addEventListener('pointerdown', event => {
+            if (event.pointerType === 'touch') projectTitlePointerStartY = event.clientY;
+        }, { passive: true });
+        document.addEventListener('pointermove', event => {
+            if (event.pointerType !== 'touch' || projectTitlePointerStartY === null) return;
+            if (getActiveProjectTitleScrollTop() <= 0 && event.clientY - projectTitlePointerStartY >= PROJECT_TITLE_PULL_THRESHOLD) {
+                setProjectTitleExpanded(true);
+                projectTitlePointerStartY = event.clientY;
+            }
+        }, { passive: true });
+        ['pointerup', 'pointercancel'].forEach(type => document.addEventListener(type, () => {
+            projectTitlePointerStartY = null;
+        }, { passive: true }));
+        document.addEventListener('keydown', event => {
+            if (!['ArrowUp', 'PageUp', 'Home'].includes(event.key)) return;
+            if (getActiveProjectTitleScrollTop() <= 0) setProjectTitleExpanded(true);
+        });
+    }
+
+    function createAppNavigationDrawer() {
+        const drawer = byId('overviewDrawer');
+        const scrim = byId('overviewDrawerScrim');
+        if (!drawer || !scrim) return null;
+        drawer.className = 'app-nav-drawer';
+        drawer.setAttribute('aria-hidden', 'true');
+        drawer.setAttribute('aria-label', '山歩会ツール');
+        scrim.className = 'app-nav-drawer-scrim';
+
+        const nav = document.createElement('nav');
+        nav.className = 'app-nav-drawer-nav';
+        nav.setAttribute('aria-label', '山歩会ツール');
+        const list = document.createElement('ul');
+        list.className = 'app-nav-drawer-list';
+        APP_NAVIGATION_LINKS.forEach(([label, href]) => {
+            const item = document.createElement('li');
+            const link = document.createElement('a');
+            link.className = 'app-nav-link';
+            link.href = href;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = label;
+            item.appendChild(link);
+            list.appendChild(item);
+        });
+        nav.appendChild(list);
+        drawer.replaceChildren(nav);
+        return drawer;
+    }
+
+    function setAppNavigationDrawerOpen(open, { restoreFocus = false } = {}) {
         const drawer = byId('overviewDrawer');
         const scrim = byId('overviewDrawerScrim');
         const trigger = byId('overviewMenuBtn');
@@ -328,45 +503,27 @@
         drawer.classList.toggle('is-open', open);
         drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
         trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        trigger.setAttribute('aria-label', open ? 'ナビゲーションを閉じる' : 'ナビゲーションを開く');
         scrim.hidden = !open;
-        document.body.classList.toggle('overview-drawer-open', open);
+        document.body.classList.toggle('app-nav-drawer-open', open);
+        if (open) queueMicrotask(() => drawer.querySelector('.app-nav-link')?.focus());
+        else if (restoreFocus) queueMicrotask(() => trigger.focus());
     }
 
-    function setupOverviewMenuFields() {
-        const draft = normalizeOverviewSnapshot(global.SanpoApp?.state?.getSnapshot?.()?.overview || loadOverviewDraft());
-        const memo = byId('overviewMemoInput');
-        if (memo) memo.value = draft.memo || '';
-        renderTimetableRows(getTimetableItems(draft));
-        bind('overviewMenuBtn', () => setOverviewDrawerOpen(true));
-        bind('overviewDrawerCloseBtn', () => setOverviewDrawerOpen(false));
-        bind('overviewDrawerScrim', () => setOverviewDrawerOpen(false));
-        bind('overviewTimetableAddBtn', () => addTimetableRow());
-        bind('overviewTimetableCopyBtn', () => copyTextWithFallback(buildTimetableText(), '予定をコピーしました'));
-        memo?.addEventListener('input', event => {
-            if (!event.isComposing) saveOverviewDraft();
+    function setupAppNavigationDrawer() {
+        const drawer = createAppNavigationDrawer();
+        if (!drawer) return;
+        bind('overviewMenuBtn', () => setAppNavigationDrawerOpen(drawer.getAttribute('aria-hidden') !== 'true'));
+        bind('overviewDrawerScrim', () => setAppNavigationDrawerOpen(false, { restoreFocus: true }));
+        drawer.addEventListener('click', event => {
+            if (event.target.closest?.('.app-nav-link')) setAppNavigationDrawerOpen(false);
         });
-        byId('overviewTimetableRows')?.addEventListener('input', event => {
-            if (event.target.matches?.('[data-field="title"]')) syncTimetableTextareaExpansion(event.target, true);
-            if (!event.isComposing) saveOverviewDraft();
-        });
-        byId('overviewTimetableRows')?.addEventListener('focusin', event => {
-            if (event.target.matches?.('[data-field="title"]')) syncTimetableTextareaExpansion(event.target, true);
-        });
-        byId('overviewTimetableRows')?.addEventListener('focusout', event => {
-            if (event.target.matches?.('[data-field="title"]')) syncTimetableTextareaExpansion(event.target, false);
-        });
-        byId('overviewTimetableRows')?.addEventListener('click', event => {
-            const button = event.target.closest?.('[data-action="delete-timetable-row"]');
-            if (!button) return;
-            const row = button.closest('.overview-timetable-row');
-            row?.remove();
-            if (!document.querySelector('.overview-timetable-row')) renderTimetableRows([{ time: '', title: '' }]);
-            saveOverviewDraft();
-        });
-        if (document.body.dataset.overviewEscapeBound !== 'true') {
-            document.body.dataset.overviewEscapeBound = 'true';
+        if (document.body.dataset.appNavigationEscapeBound !== 'true') {
+            document.body.dataset.appNavigationEscapeBound = 'true';
             document.addEventListener('keydown', event => {
-                if (event.key === 'Escape') setOverviewDrawerOpen(false);
+                if (event.key === 'Escape' && drawer.getAttribute('aria-hidden') === 'false') {
+                    setAppNavigationDrawerOpen(false, { restoreFocus: true });
+                }
             });
         }
     }
@@ -374,7 +531,8 @@
     function setupStaticHeaderEvents() {
         ensureCarbonShellHeader();
         ensureCarbonPrimaryNavigation();
-        setupOverviewMenuFields();
+        setupAppNavigationDrawer();
+        setupProjectTitleReveal();
         const headerOverflow = document.querySelector('.header-more cds-overflow-menu');
         headerOverflow?.addEventListener('click', event => {
             if (event.composedPath().some(node => node?.tagName === 'CDS-MENU-ITEM')) {
