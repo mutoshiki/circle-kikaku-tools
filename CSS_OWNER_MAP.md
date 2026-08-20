@@ -10,14 +10,14 @@
 | Shared control dimensions and surface hierarchy | `assets/css/tokens/05-control-surface-tokens.css` |
 | Shared Carbon button placement and labels | `assets/css/components/buttons/` |
 | Shared layer, empty-state and feedback surfaces | `assets/css/components/surfaces/` and `assets/css/components/feedback/` |
-| Header shell and layout | `assets/css/app-shell/header/01-header-base.css` |
-| Room title and sync status | `assets/css/app-shell/header/02-room-status.css` |
+| Header shell, page-title reveal and application navigation | `assets/css/app-shell/header/01-header-base.css` and `assets/js/features/events/02-static-header-events.js` |
+| Project-title editor, persisted room-title source and sync status | `assets/css/app-shell/header/02-room-status.css` |
 | Header Carbon actions and primary view tabs | `assets/css/app-shell/header/03-tabs-actions.css` |
 | App panels, safe areas and layer order | `assets/css/app-shell/layout/` |
 | Carbon modal shell and dynamic dialog lifecycle | `assets/css/guides-modals/modal/` and `assets/js/core/modal-controller.js` |
 | Header overflow and local Carbon menus | `assets/css/guides-modals/modal/02-dropdowns.css` and feature owners |
 | Participant import shell and fields | `assets/css/guides-modals/import-guide/` and `assets/js/features/batch-import.js` |
-| Overview drawer and timetable | `assets/css/guides-modals/overview/` and `assets/js/features/overview-drawer.js` |
+| Legacy overview markup concealment and overview snapshot compatibility | `assets/css/guides-modals/overview/` and `assets/js/features/events/02-static-header-events.js` |
 | Allocation cards and people | `assets/css/cars-members-tray/` |
 | Person Carbon Menu lifecycle | `assets/css/cars-members-tray/person-card/03-person-menu.css` and `assets/js/features/person-menu.js` |
 | Shared assigned/unassigned member surface | `assets/css/cars-members-tray/01-shared-card-primitives.css` |

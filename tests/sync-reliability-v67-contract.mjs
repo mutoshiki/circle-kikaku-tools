@@ -21,7 +21,8 @@ assert.doesNotMatch(syncSource, /showAppNotice\?\.\(`\$\{message\}。この端�
 assert.match(uiSource, /const statusChanged = badge\.dataset\.status !== kind \|\| label\?\.textContent !== nextMessage/, 'repeated sync snapshots must not extend the mobile status overlay');
 assert.match(uiSource, /if \(!statusChanged\) return;/, 'only a changed sync status may restart the overlay timer');
 assert.match(uiSource, /\}, 2600\);/, 'the mobile sync overlay must auto-hide after a short unchanged interval');
-assert.match(roomStatusCss, /@media \(max-width: 640px\)[\s\S]*width: fit-content;[\s\S]*\.sync-status-badge\.is-visible/, 'mobile status must overlay the room-name field as a compact pill only while visible');
+assert.match(roomStatusCss, /\.sync-status-badge\s*\{[\s\S]*position:\s*absolute;[\s\S]*top:\s*50%;[\s\S]*left:\s*50%;[\s\S]*width:\s*fit-content;/, 'sync status must remain a compact overlay in the shell title slot');
+assert.match(roomStatusCss, /@media \(max-width: 768px\)[\s\S]*\.sync-status-badge\s*\{\s*width:\s*fit-content;\s*max-width:\s*calc\(100% - 16px\);\s*\}[\s\S]*\.sync-status-badge\.is-visible/, 'mobile status must retain the compact visible-state contract at the app shell breakpoint');
 assert.match(diagnosticsSource, /MAX_ENTRIES = 60/);
 assert.match(diagnosticsSource, /syawari_sync_diagnostics_/);
 assert.match(historySource, /appendSyncDiagnostics/);

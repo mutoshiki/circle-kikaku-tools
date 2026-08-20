@@ -19,10 +19,18 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
       const share = document.querySelector('#shareLinkBtn');
       const switcher = document.querySelector('.header-app-switcher');
       const roomInput = document.querySelector('#roomNameInput');
+      const projectTitle = document.querySelector('#projectTitleRegion');
+      const projectTitleEditor = document.querySelector('#projectTitleEditor');
       const tabShadow = document.querySelector('#view-toggle-bar')?.shadowRoot;
       return {
         navPosition: getComputedStyle(nav).position,
         headerBottom: headerRect.bottom,
+        projectTitleTop: projectTitle?.getBoundingClientRect().top ?? -1,
+        projectTitleBottom: projectTitle?.getBoundingClientRect().bottom ?? -1,
+        projectTitleHeight: projectTitle?.getBoundingClientRect().height ?? 0,
+        projectTitleState: projectTitle?.dataset.state || '',
+        projectTitleEditorText: projectTitleEditor?.textContent || '',
+        projectTitlePlaceholder: projectTitleEditor?.dataset.placeholder || '',
         navTop: navRect.top,
         navBottom: navRect.bottom,
         firstViewContentTop: firstViewContentRect.top,
@@ -33,7 +41,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
         labels: tabs.map(tab => tab.querySelector('.view-tab-label')?.textContent?.trim() || ''),
         shareSize: share ? { width: share.getBoundingClientRect().width, height: share.getBoundingClientRect().height } : null,
         switcherSize: switcher ? { width: switcher.getBoundingClientRect().width, height: switcher.getBoundingClientRect().height } : null,
-        roomInputVisibility: roomInput ? getComputedStyle(roomInput.closest('.app-room-field')).visibility : 'missing',
+        roomInputVisibility: roomInput ? getComputedStyle(roomInput.closest('.app-room-field')).position : 'missing',
         visibleOverflowButtons: [...(tabShadow?.querySelectorAll('.cds--tab--overflow-nav-button') || [])].filter(button => {
           const box = button.getBoundingClientRect();
           return getComputedStyle(button).display !== 'none' && box.width > 0 && box.height > 0;
@@ -42,7 +50,12 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     });
 
     expect(shellGeometry.navPosition).not.toBe('fixed');
-    expect(Math.abs(shellGeometry.navTop - shellGeometry.headerBottom)).toBeLessThanOrEqual(1);
+    expect(Math.abs(shellGeometry.projectTitleTop - shellGeometry.headerBottom)).toBeLessThanOrEqual(1);
+    expect(Math.abs(shellGeometry.navTop - shellGeometry.projectTitleBottom)).toBeLessThanOrEqual(1);
+    expect(shellGeometry.projectTitleHeight).toBeGreaterThanOrEqual(200);
+    expect(shellGeometry.projectTitleState).toBe('expanded');
+    expect(shellGeometry.projectTitleEditorText).toBe('秋名山登山企画');
+    expect(shellGeometry.projectTitlePlaceholder).toBe('企画名を入力');
     expect(shellGeometry.navHeight).toBeGreaterThanOrEqual(40);
     expect(shellGeometry.navHeight).toBeLessThanOrEqual(42);
     expect(shellGeometry.firstViewContentTop).toBeGreaterThanOrEqual(shellGeometry.navBottom);
@@ -52,8 +65,14 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     expect(shellGeometry.labels).toEqual(['共有画面', '精算', '車割', '班割']);
     expect(shellGeometry.shareSize).toEqual({ width: 48, height: 48 });
     expect(shellGeometry.switcherSize).toEqual({ width: 48, height: 48 });
-    expect(shellGeometry.roomInputVisibility).toBe('hidden');
+    expect(shellGeometry.roomInputVisibility).toBe('absolute');
     expect(shellGeometry.visibleOverflowButtons).toBe(0);
+
+    await page.dispatchEvent('#top-area', 'wheel', { deltaY: 120 });
+    await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'collapsed');
+    await expect.poll(() => page.locator('#projectTitleRegion').evaluate(node => node.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
+    await page.dispatchEvent('#top-area', 'wheel', { deltaY: -120 });
+    await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'expanded');
 
     await page.locator('#tab-team').evaluate(node => node.click());
     await expect(page.locator('#tab-team')).toHaveAttribute('aria-current', 'page');

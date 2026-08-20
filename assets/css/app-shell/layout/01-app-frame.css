@@ -35,7 +35,7 @@
 #top-area,
 #sheet-view-area,
 #seisan-view-area {
-  order: 2;
+  order: 3;
   flex: 1 1 auto;
   min-height: 0;
 }
@@ -49,7 +49,7 @@
   background-color: transparent;
 }
 
-#bottom-tray { order: 3; }
+#bottom-tray { order: 4; }
 
 @media (min-width: 769px) {
   .edit-header { grid-template-columns: minmax(220px, 1fr) minmax(340px, 1.2fr); }
