@@ -1,4 +1,5 @@
-/* Allocation commands: one Carbon action plus a content-driven Content Switcher. */
+/* Allocation commands: one Carbon page action. The primary Carbon Tabs own
+ * car/team view selection, so this toolbar intentionally does not duplicate it. */
 #top-area > .edit-header:first-child,
 .allocation-toolbar {
   position: relative;
@@ -14,37 +15,20 @@
 
 .allocation-toolbar-inner {
   display: grid;
-  grid-template-columns: minmax(120px, 1fr) minmax(160px, 224px);
+  grid-template-columns: minmax(0, 320px);
   align-items: stretch;
-  gap: var(--space-2);
+  gap: 0;
   min-width: 0;
 }
 
 #batchOpenBtn {
-  order: 1;
   min-width: 0;
-}
-
-#car-plan-switcher {
-  order: 2;
   width: 100%;
-  min-width: 0;
-  max-width: 224px;
-  justify-self: end;
 }
 
 .app-subtitle { display: none; }
 .edit-project-input-row .carbon-icon { color: var(--accent-color); font-size: 1rem; }
 
-@media (max-width: 390px) {
-  .allocation-toolbar-inner {
-    grid-template-columns: minmax(112px, 1fr) minmax(152px, 184px);
-  }
-}
-
-/* At very narrow phone widths the action label and icon cannot share the row
- * without growing the Carbon control above 48px. Stack the two 48px controls. */
-@media (max-width: 360px) {
+@media (max-width: 520px) {
   .allocation-toolbar-inner { grid-template-columns: minmax(0, 1fr); }
-  #car-plan-switcher { max-width: none; justify-self: stretch; }
 }

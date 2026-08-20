@@ -17,26 +17,24 @@
   position: absolute;
   top: var(--space-3);
   right: var(--space-4);
-  left: var(--space-4);
+  left: auto;
   z-index: var(--z-local-sticky);
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  max-width: var(--layout-content-max, 1200px);
-  min-height: 72px;
-  margin: 0 auto;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--cds-border-subtle, var(--border-section));
+  justify-content: flex-end;
+  width: fit-content;
+  min-height: 48px;
+  margin: 0;
+  padding: 0;
+  border: 0;
   border-radius: 0;
-  background: var(--cds-layer-01, var(--surface-lowest));
+  background: transparent;
   color: var(--text-main);
   box-shadow: none;
   backdrop-filter: none;
 }
 #sheet-room-name { display: none; }
-#sheet-title-bar #sheet-summary { color: var(--text-sub); }
 #sheet-title-bar #sheet-quick-edit-btn { min-width: max-content; }
-.sheet-title-copy { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; }
 .sheet-page-heading { margin: 0; color: var(--text-main); font-size: var(--font-size-title); font-weight: 600; line-height: 1.3; }
 
 #sheet-canvas {
@@ -59,7 +57,7 @@
   min-width: 0;
   min-height: 100%;
   margin: 0 auto;
-  padding: 108px var(--space-4) var(--space-8);
+  padding: 76px var(--space-4) var(--space-8);
   transform-origin: top left;
 }
 
@@ -187,16 +185,48 @@
 @media (max-width: 640px) {
   #sheet-title-bar {
     right: var(--space-4);
-    left: var(--space-4);
-    min-height: 88px;
-    padding: var(--space-3);
+    min-height: 48px;
+    padding: 0;
   }
-  .sheet-content { gap: var(--space-5); padding-top: 124px; }
+  .sheet-content { gap: var(--space-5); padding-top: var(--space-4); }
   .sheet-plan-table { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (min-width: 672px) {
   .sheet-plan-table { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1055px) {
+  /* On responsive layouts the shared view is one continuous vertical scroll
+   * region. The summary is part of normal flow instead of a fixed overlay, so
+   * a touch beginning anywhere in the shared view scrolls the same surface. */
+  #sheet-view-area {
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+  #sheet-title-bar {
+    position: relative;
+    top: auto;
+    right: auto;
+    left: auto;
+    flex: 0 0 auto;
+    width: fit-content;
+    margin: var(--space-3) var(--space-4) 0 auto;
+  }
+  #sheet-canvas {
+    flex: 0 0 auto;
+    min-height: 0;
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
+  .sheet-content {
+    min-height: 0;
+    padding-top: var(--space-5);
+  }
 }
 
 @media (min-width: 1056px) {

@@ -85,7 +85,6 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
     const genderHtml = genderBadgeHtml(g);
     div.innerHTML = `
         <div class="member-main-line">
-            <span class="person-drag-affordance" role="img" aria-label="ドラッグして移動"><span data-carbon-icon="draggable" aria-hidden="true"></span></span>
             <div class="member-name-text">${safeName}</div>
             <div class="person-meta">${renderPersonFlag(flag)}${genderHtml}${gradeHtml}</div>
             ${renderPersonOverflowMenu({ name, isDriver: false, inWaiting: parent?.id === 'waiting-list', locked })}

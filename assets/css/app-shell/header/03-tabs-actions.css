@@ -129,7 +129,3 @@ cds-overflow-menu.header-action {
   color: inherit;
   white-space: nowrap;
 }
-
-/* 車割 / 班割 remain visible in the allocation toolbar as the Carbon Content
- * Switcher for switching two formats of the same allocation content. */
-#car-plan-switcher { display: flex; }

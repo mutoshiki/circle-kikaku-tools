@@ -53,6 +53,14 @@
   --cds-icon-primary: #f4f4f4;
 }
 
+#overviewMenuBtn.app-shell-menu-button,
+#overviewMenuBtn.app-shell-menu-button > :is([slot="icon"], .carbon-icon),
+#overviewMenuBtn.app-shell-menu-button::part(button) {
+  color: #f4f4f4;
+  --cds-icon-primary: #f4f4f4;
+  --cds-link-primary: #f4f4f4;
+}
+
 .app-header-main > .app-brand {
   display: flex;
   flex: 1 1 auto;

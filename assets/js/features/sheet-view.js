@@ -472,11 +472,6 @@ function renderSheetView() {
     updateQuickEditButton();
     const data = getData({ skipDomSync: true });
     const plans = typeof getCarPlansSnapshot === 'function' ? getCarPlansSnapshot({ skipDomSync: true }) : [data];
-    // getData() can expose only the active allocation in the normalized room schema.
-    // Feed the complete plan snapshot to the shared-view header so its car/team counts
-    // stay visible and agree with the sections rendered directly below it.
-    updateSheetSummary({ ...data, carPlans: plans });
-
     const visiblePlans = plans.filter(plan => (plan.cars || []).length || (plan.waiting || []).length);
     const titleBar = byId('sheet-title-bar');
     if (titleBar) titleBar.hidden = visiblePlans.length === 0;
