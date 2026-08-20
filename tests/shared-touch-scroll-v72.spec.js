@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Shared view native touch scrolling', () => {
-  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
   test('one-finger swipe scrolls and the Carbon overflow fade clears at the bottom', async ({ page }) => {
     await page.goto('/');
@@ -24,22 +24,17 @@ test.describe('Shared view native touch scrolling', () => {
     const box = await canvas.boundingBox();
     if (!box) throw new Error('shared canvas has no bounding box');
     const x = Math.round(box.x + box.width * 0.5);
-    const startY = Math.round(Math.min(box.y + box.height - 96, 720));
-    const endY = Math.round(Math.max(box.y + 120, startY - 300));
+    const y = Math.round(Math.min(Math.max(box.y + 160, 220), 640));
     const cdp = await page.context().newCDPSession(page);
 
-    await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchStart',
-      touchPoints: [{ x, y: startY, radiusX: 6, radiusY: 6, force: 1 }]
+    await cdp.send('Input.synthesizeScrollGesture', {
+      x,
+      y,
+      yDistance: -320,
+      speed: 900,
+      gestureSourceType: 'touch',
+      preventFling: true
     });
-    for (let step = 1; step <= 6; step += 1) {
-      const y = Math.round(startY + ((endY - startY) * step) / 6);
-      await cdp.send('Input.dispatchTouchEvent', {
-        type: 'touchMove',
-        touchPoints: [{ x, y, radiusX: 6, radiusY: 6, force: 1 }]
-      });
-    }
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
 
     await expect.poll(() => area.evaluate(node => node.scrollTop)).toBeGreaterThan(20);
 
