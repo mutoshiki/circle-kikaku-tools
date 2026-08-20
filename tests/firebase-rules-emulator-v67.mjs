@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 
+const require = createRequire(import.meta.url);
+const { SEND_LEASE_MS, acquireLeaseState, sentState, failedState } = require('../functions/notification-state.js');
 const rules = readFileSync(new URL('../firebase/database.rules.json', import.meta.url), 'utf8');
 const projectId = 'demo-circle-kikaku-tools';
 const validRoomId = 'RULES67A';
@@ -114,6 +117,89 @@ try {
     await mustFail('client notification status read', () => owner.ref('bugReportNotifications/REPORT001').once('value'));
     await mustFail('client notification status write', () => owner.ref('bugReportNotifications/REPORT001').set({ status: 'sent' }));
 
+    // Server-side notification state uses a transaction lease. Two near-simultaneous
+    // executions must not both obtain permission to send the same report.
+    await env.withSecurityRulesDisabled(async context => {
+        const server = context.database();
+        const now = Date.now();
+        const notificationRef = server.ref('bugReportNotifications/ATOMIC001');
+        const acquire = (token, eventId, at = now) => notificationRef.transaction(current => acquireLeaseState(current, {
+            now: at,
+            leaseToken: token,
+            eventId
+        }), undefined, false);
+
+        const [first, second] = await Promise.all([
+            acquire('lease-a', 'event-a'),
+            acquire('lease-b', 'event-b')
+        ]);
+        const acquired = [first, second].filter(result => result.committed);
+        assert.equal(acquired.length, 1, 'exactly one concurrent sender must acquire the lease');
+        const winnerState = acquired[0].snapshot.val();
+        assert.equal(winnerState.status, 'sending');
+        assert.equal(winnerState.leaseExpiresAt, now + SEND_LEASE_MS);
+
+        const winnerToken = winnerState.leaseToken;
+        const winnerEvent = winnerState.eventId;
+        const sentResult = await notificationRef.transaction(current => sentState(current, {
+            now: now + 100,
+            leaseToken: winnerToken,
+            eventId: winnerEvent
+        }), undefined, false);
+        assert.equal(sentResult.committed, true, 'lease owner can mark sent only after delivery succeeds');
+        assert.equal(sentResult.snapshot.val().status, 'sent');
+        assert.equal(sentResult.snapshot.val().sentAt, now + 100);
+
+        const [after24hA, after24hB] = await Promise.all([
+            acquire('lease-c', 'event-c', now + (25 * 60 * 60 * 1000)),
+            acquire('lease-d', 'event-d', now + (25 * 60 * 60 * 1000))
+        ]);
+        assert.equal(after24hA.committed, false, 'sent is terminal after 24h');
+        assert.equal(after24hB.committed, false, 'sent is terminal for every later execution');
+        assert.equal((await notificationRef.once('value')).val().status, 'sent');
+
+        // A delivery failure releases the sending state into a retryable failed state.
+        const retryRef = server.ref('bugReportNotifications/ATOMIC002');
+        const leaseOne = await retryRef.transaction(current => acquireLeaseState(current, {
+            now,
+            leaseToken: 'retry-a',
+            eventId: 'retry-event-a'
+        }), undefined, false);
+        assert.equal(leaseOne.committed, true);
+        const failed = await retryRef.transaction(current => failedState(current, {
+            now: now + 1,
+            leaseToken: 'retry-a',
+            eventId: 'retry-event-a',
+            error: 'mail transport failed'
+        }), undefined, false);
+        assert.equal(failed.committed, true);
+        assert.equal(failed.snapshot.val().status, 'failed');
+        const retryLease = await retryRef.transaction(current => acquireLeaseState(current, {
+            now: now + 2,
+            leaseToken: 'retry-b',
+            eventId: 'retry-event-b'
+        }), undefined, false);
+        assert.equal(retryLease.committed, true, 'failed send must be retryable');
+        assert.equal(retryLease.snapshot.val().attemptCount, 2);
+
+        // If an execution disappears while sending, only an expired lease can be reclaimed.
+        const staleRef = server.ref('bugReportNotifications/ATOMIC003');
+        await staleRef.set({
+            status: 'sending',
+            eventId: 'stale-event',
+            leaseToken: 'stale-lease',
+            leaseStartedAt: now - SEND_LEASE_MS - 10,
+            leaseExpiresAt: now - 10,
+            attemptCount: 1,
+            updatedAt: now - 10
+        });
+        const [staleA, staleB] = await Promise.all([
+            staleRef.transaction(current => acquireLeaseState(current, { now, leaseToken: 'stale-a', eventId: 'stale-a' }), undefined, false),
+            staleRef.transaction(current => acquireLeaseState(current, { now, leaseToken: 'stale-b', eventId: 'stale-b' }), undefined, false)
+        ]);
+        assert.equal([staleA, staleB].filter(result => result.committed).length, 1, 'expired lease is reclaimed by only one retry');
+    });
+
     // Five devices update distinct entity paths concurrently. Every write must survive.
     const fiveClients = Array.from({ length: 5 }, (_, index) => env.authenticatedContext(`device-${index + 1}`).database());
     await mustPass('five-device concurrent participant writes', () => Promise.all(
@@ -157,7 +243,7 @@ try {
     const afterReset = await roomRef.once('value');
     assert.equal(afterReset.exists(), false, 'reset must remove room');
 
-    console.log('Firebase Emulator Rules v67: PASS (rooms + private append-only bug reports + notification isolation)');
+    console.log('Firebase Emulator Rules v67: PASS (rooms + private bug reports + atomic notification lease + retry + terminal sent)');
 } finally {
     await env.cleanup();
 }
