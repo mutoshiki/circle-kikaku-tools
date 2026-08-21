@@ -27,17 +27,14 @@
 
     function setSettlementGasSettingsOpen(open, trigger = null) {
         const row = trigger?.closest?.('.seisan-car-row') || document.querySelector('#settlementCarEditBody .seisan-car-row');
-        const panel = row?.querySelector?.('#settlementGasEditPanel');
+        const popover = row?.querySelector?.('cds-popover.seisan-gas-settings-popover');
         const opener = row?.querySelector?.('[data-action="open-settlement-gas-settings"]');
-        if (!panel || !opener) return false;
-        panel.hidden = !open;
+        if (!popover || !opener) return false;
+        popover.open = !!open;
+        popover.toggleAttribute('open', !!open);
         opener.setAttribute('aria-expanded', open ? 'true' : 'false');
-        row.classList.toggle('is-gas-settings-open', open);
-        if (open) {
-            requestAnimationFrame(() => panel.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }));
-        } else {
-            queueMicrotask(() => opener.focus?.({ preventScroll: true }));
-        }
+        row.classList.toggle('is-gas-settings-open', !!open);
+        if (!open) queueMicrotask(() => opener.focus?.({ preventScroll: true }));
         return true;
     }
 
