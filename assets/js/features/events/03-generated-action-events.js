@@ -25,32 +25,64 @@
         return true;
     }
 
-    function setSettlementGasSettingsOpen(open, trigger = null) {
-        const row = trigger?.closest?.('.seisan-car-row') || document.querySelector('#settlementCarEditBody .seisan-car-row');
-        const popover = row?.querySelector?.('cds-popover.seisan-gas-settings-popover');
-        const opener = row?.querySelector?.('[data-action="open-settlement-gas-settings"]');
-        if (!popover || !opener) return false;
-        popover.open = !!open;
-        popover.toggleAttribute('open', !!open);
-        opener.setAttribute('aria-expanded', open ? 'true' : 'false');
-        row.classList.toggle('is-gas-settings-open', !!open);
-        if (!open) queueMicrotask(() => opener.focus?.({ preventScroll: true }));
-        return true;
+    function gasModalDriverName(modal) {
+        try { return decodeURIComponent(modal?.dataset?.driverName || ''); } catch (_) { return modal?.dataset?.driverName || ''; }
+    }
+
+    function commitGasModalFields(modal) {
+        if (!modal) return;
+        const name = gasModalDriverName(modal);
+        if (!name || typeof global.ensureSettlementState !== 'function') return;
+        const state = global.ensureSettlementState();
+        const current = typeof global.normalizeCarSettlementState === 'function'
+            ? global.normalizeCarSettlementState(state.cars?.[name] || {})
+            : { ...(state.cars?.[name] || {}) };
+        const rentalType = modal.querySelector('[data-field="rentalType"]')?.value === 'times' ? 'times' : 'private';
+        const read = key => String(modal.querySelector(`[data-field="${key}"]`)?.value ?? current[key] ?? '');
+        current.rentalType = rentalType;
+        current.dist = read('dist');
+        current.eco = read('eco');
+        current.price = read('price');
+        state.cars = state.cars || {};
+        state.cars[name] = typeof global.ensureTimesRentalExtras === 'function'
+            ? global.ensureTimesRentalExtras(current)
+            : current;
+        global.saveLocalDraftOnly?.();
     }
 
     function syncGasVehicleType(target, value) {
-        if (!target?.matches?.('#settlementCarEditBody [data-field="rentalType"]')) return false;
+        const modal = target?.closest?.('#settlementGasEditModal');
+        if (!modal) return false;
         target.value = value === 'times' ? 'times' : 'private';
-        const row = target.closest('.seisan-car-row');
-        const name = row?.dataset?.driverName || '';
-        row?.classList.toggle('is-times-rental', target.value === 'times');
-        global.syncSettlementStateFromDOM?.();
-        global.saveLocalDraftOnly?.();
-        if (name) {
-            global.refreshSettlementCarEditor?.(name);
-            requestAnimationFrame(() => requestAnimationFrame(() => setSettlementGasSettingsOpen(true)));
-        }
+        modal.querySelectorAll('[data-private-fuel]').forEach(field => { field.hidden = target.value === 'times'; });
+        const helper = modal.querySelector('[data-times-helper]');
+        if (helper) helper.hidden = target.value !== 'times';
+        commitGasModalFields(modal);
         return true;
+    }
+
+    function openSettlementGasSettings(target) {
+        const parentModal = document.getElementById('settlementCarEditModal');
+        const modal = parentModal?.querySelector?.('#settlementGasEditModal');
+        if (!modal) return;
+        const driverName = target?.dataset?.driverName || modal.dataset.driverName || '';
+        modal.dataset.driverName = driverName;
+        parentModal.inert = true;
+        document.body.appendChild(modal);
+        if (modal.dataset.settlementGasBound !== 'true') {
+            modal.dataset.settlementGasBound = 'true';
+            modal.addEventListener('sanpo:modal-hiding', () => commitGasModalFields(modal));
+            modal.addEventListener('sanpo:modal-hidden', () => {
+                const name = gasModalDriverName(modal);
+                modal.remove();
+                parentModal.inert = false;
+                if (name) global.refreshSettlementCarEditor?.(name);
+                requestAnimationFrame(() => {
+                    document.querySelector('#settlementCarEditModal [data-action="open-settlement-gas-settings"]')?.focus?.({ preventScroll: true });
+                });
+            }, { once: true });
+        }
+        global.AppModalAdapter?.getOrCreateInstance?.(modal)?.show();
     }
 
     function setupGeneratedHtmlEventDelegation() {
@@ -66,8 +98,20 @@
 
         document.addEventListener('cds-radio-button-group-changed', event => {
             const target = event.target;
-            if (!target?.matches?.('#settlementCarEditBody [data-field="rentalType"]')) return;
+            if (!target?.matches?.('#settlementGasEditModal [data-field="rentalType"]')) return;
             if (syncGasVehicleType(target, event.detail?.value ?? target.value)) event.stopImmediatePropagation();
+        }, true);
+
+        document.addEventListener('input', event => {
+            const target = event.target;
+            if (!target?.matches?.('#settlementGasEditModal [data-field="dist"], #settlementGasEditModal [data-field="eco"], #settlementGasEditModal [data-field="price"]')) return;
+            commitGasModalFields(target.closest('#settlementGasEditModal'));
+        }, true);
+
+        document.addEventListener('change', event => {
+            const target = event.target;
+            if (!target?.matches?.('#settlementGasEditModal [data-field="dist"], #settlementGasEditModal [data-field="eco"], #settlementGasEditModal [data-field="price"]')) return;
+            commitGasModalFields(target.closest('#settlementGasEditModal'));
         }, true);
 
         document.addEventListener('click', event => {
@@ -75,10 +119,7 @@
             if (!personActionTarget) return;
             event.preventDefault();
             event.stopPropagation();
-            global.handleCompactPersonAction?.(
-                personActionTarget.dataset.personAction || '',
-                global.getActivePersonMenuTarget?.() || null
-            );
+            global.handleCompactPersonAction?.(personActionTarget.dataset.personAction || '', global.getActivePersonMenuTarget?.() || null);
         }, true);
 
         const generatedActionHandlers = {
@@ -91,16 +132,10 @@
             'open-standalone-settlement-settings': () => global.openStandaloneSettlementSettings?.(),
             'save-settlement-settings': () => global.saveSettlementSettings?.(),
             'open-settlement-car-edit': ({ target }) => global.openSettlementCarEditor?.(target.dataset.driverName || ''),
-            'open-settlement-gas-settings': ({ target }) => setSettlementGasSettingsOpen(true, target),
-            'close-settlement-gas-settings': ({ target }) => setSettlementGasSettingsOpen(false, target),
+            'open-settlement-gas-settings': ({ target }) => openSettlementGasSettings(target),
             'save-settlement-car-edit': () => global.saveSettlementCarEdit?.(),
             'add-settlement-extra': ({ target }) => global.addSettlementExtra?.(target.dataset.driverName || ''),
-            'add-settlement-extra-candidate': ({ target }) => global.addSettlementExtraCandidate?.(
-                target.dataset.driverName || '',
-                target.dataset.extraCandidate || '',
-                target.dataset.extraAmount || '',
-                target.dataset.extraType || 'split'
-            ),
+            'add-settlement-extra-candidate': ({ target }) => global.addSettlementExtraCandidate?.(target.dataset.driverName || '', target.dataset.extraCandidate || '', target.dataset.extraAmount || '', target.dataset.extraType || 'split'),
             'remove-settlement-extra': ({ target }) => global.removeSettlementExtra?.(target),
             'copy-settlement-text': () => global.copySettlementText?.(),
             'open-route-helper-shortcut': () => global.openRouteDistanceHelperFromShortcut?.(),
@@ -111,8 +146,7 @@
 
         document.addEventListener('click', event => {
             const actionTarget = event.target.closest?.('[data-action]');
-            if (!actionTarget) return;
-            if (actionTarget.closest?.('.person-pop-menu')) return;
+            if (!actionTarget || actionTarget.closest?.('.person-pop-menu')) return;
             const action = actionTarget.dataset.action;
             const handled = global.SanpoApp?.runAction?.(action, { event, target: actionTarget, action });
             if (!handled) return;
@@ -120,8 +154,5 @@
         });
     }
 
-    global.SanpoEvents = Object.freeze({
-        ...events,
-        setupGeneratedHtmlEventDelegation
-    });
+    global.SanpoEvents = Object.freeze({ ...events, setupGeneratedHtmlEventDelegation });
 })(window);
