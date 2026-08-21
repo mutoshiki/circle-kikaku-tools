@@ -37,10 +37,10 @@
                     && next === editorValue;
 
                 // The visible contenteditable is the source of a local title edit. Accept
-                // every keystroke from it, even while an earlier character is still waiting
-                // for the shared-room acknowledgement. Otherwise the pending guard would
-                // freeze the hidden source input after the first typed character.
-                if (editorOwnsWrite) {
+                // every changed value from it, even while an earlier character is still
+                // waiting for the shared-room acknowledgement. A same-value assignment is
+                // instead the shared echo acknowledging the pending local title.
+                if (editorOwnsWrite && next !== current) {
                     valueDescriptor.set.call(this, next);
                     pendingLocalTitle = next;
                     return;
@@ -120,7 +120,7 @@
                     const driverGrade = parseInt(driver?.dataset?.grade) || 0;
                     const waitingList = $('#waiting-list');
 
-                    if (driverName && waitingList) addMember(driverName, driverMemo, driverGender, driverGrade, waitingList, false, driver?.dataset.flag, driver?.dataset.participantId || '');
+                    if (driverName && waitingList) addMember(driverName, driverMemo, driverGender, driverGrade, waitingList, false, driver?.dataset.flag, driver?.dataset?.participantId || '');
                     $$('.member-card', box).forEach(m => waitingList?.appendChild(m));
                     if (settlementState?.cars && driverName) delete settlementState.cars[driverName];
                     if (settlementState?.driverPaid && driverName) delete settlementState.driverPaid[driverName];
