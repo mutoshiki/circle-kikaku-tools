@@ -33,7 +33,7 @@ expect(userGuide.includes('「空きを埋める」「ランダム割当」'), '
 expect(index.includes('車出し協力代の負担方法'), 'Driver reward burden heading is unclear');
 expect(!index.includes('1台あたりの協力代をどこから支払うか選択'), 'Removed driver reward helper copy remains');
 expect(index.includes('aria-labelledby="seisanDriverRewardTypeLabel"'), 'Driver reward switcher is not programmatically labelled');
-expect(!/\.seisan-driver-reward-policy\s*\{[\s\S]*?border-top\s*:/.test(settlementSettingsCss), 'Unnecessary divider remains between driver reward amount and burden method');
+expect(!/\.seisan-driver-reward-policy\s*\{[^}]*border-top\s*:/.test(settlementSettingsCss), 'Unnecessary divider remains between driver reward amount and burden method');
 
 expect(sample.includes("roomName: missing ? '入力漏れチェック用サンプル' : '秋名山登山企画'"), 'Sample room title was not updated');
 expect(sample.includes(": 'サンプルデータ'"), 'Sample memo was not updated');

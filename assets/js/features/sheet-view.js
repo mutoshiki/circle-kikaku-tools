@@ -11,7 +11,7 @@ const FIRST_VIEW_GUIDANCE = Object.freeze({
     }),
     sheet: Object.freeze({
         keyPart: 'sheet_gestures',
-        message: '1本指で移動、2本指で拡大・縮小できます。'
+        message: '下にスワイプできます。'
     })
 });
 const FIRST_VIEW_GUIDANCE_DELAY_MS = 3000;
