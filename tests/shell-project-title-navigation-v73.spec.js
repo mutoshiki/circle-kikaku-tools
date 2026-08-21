@@ -26,15 +26,15 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     await expect.poll(() => page.locator('#roomNameInput').evaluate(node => node.value)).toBe('紅葉ハイク');
     expect((await editor.textContent())?.trim()).toBe('紅葉ハイク');
 
-    // A stale remote echo (including the initial empty room name) must not erase a
-    // locally edited title before that title is acknowledged by shared sync.
+    // The exact value that existed before the local edit is a stale remote echo and must
+    // not erase the title during its short debounce/write window.
     await page.evaluate(() => { document.getElementById('roomNameInput').value = ''; });
     await expect.poll(() => page.locator('#roomNameInput').evaluate(node => node.value)).toBe('紅葉ハイク');
     await expect(editor).toHaveText('紅葉ハイク');
 
-    // The matching remote echo acknowledges the local title. Later remote edits must
-    // then flow back into the visible project-title editor on this device.
-    await page.evaluate(() => { document.getElementById('roomNameInput').value = '紅葉ハイク'; });
+    // Once editing focus is released, a genuinely different shared title is a concurrent
+    // remote edit and must flow through even if this client never received a same-value echo
+    // for its own save. The stale-echo guard must never become a permanent remote-write lock.
     await editor.evaluate(node => node.blur());
     await page.evaluate(() => { document.getElementById('roomNameInput').value = '共有された企画名'; });
     await expect.poll(() => page.locator('#roomNameInput').evaluate(node => node.value)).toBe('共有された企画名');

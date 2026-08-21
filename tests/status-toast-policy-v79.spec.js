@@ -37,7 +37,8 @@ test.describe('Status toast policy v79', () => {
       kind: 'success'
     });
 
-    // Navigation/settings-only interactions explicitly suppress the same status flow.
+    // Navigation/settings-only interactions may suppress their own incidental save, but
+    // that suppression must be consumed by that one save cycle instead of muting later edits.
     await page.evaluate(() => {
       window.AppUI.suppressSyncFeedback(1000);
       window.showSaveStatus('保存中...', 'saving');
@@ -45,7 +46,18 @@ test.describe('Status toast policy v79', () => {
     });
     await page.waitForTimeout(100);
     await expect(page.locator('#appSyncStatusToast')).toHaveCount(0);
-    await page.evaluate(() => window.AppUI.resumeSyncFeedback());
+
+    // A following real save is immediately eligible for feedback without waiting for the
+    // old time window to expire and without an explicit resume call.
+    await page.evaluate(() => window.showSaveStatus('保存中...', 'saving'));
+    await page.waitForTimeout(80);
+    await page.evaluate(() => window.showSaveStatus('同期完了', 'connected'));
+    await expect(syncToast).toBeVisible();
+    expect(await toastCopy(page)).toEqual({
+      title: '保存しました',
+      subtitle: '変更内容を反映しました。',
+      kind: 'success'
+    });
 
     // Transport initialization/retry wording is internal implementation detail and
     // must not surface as a scary permanent-rejection message on first load.

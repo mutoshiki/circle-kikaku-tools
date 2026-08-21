@@ -14,7 +14,10 @@
     syncVisible: false,
     syncVisibleKind: '',
     syncHadPendingState: false,
-    syncSuppressUntil: 0
+    syncSuppressTimer: null,
+    syncSuppressNextSaveCycle: false,
+    syncCurrentSaveSuppressed: false,
+    syncSavePending: false
   };
 
   const STATUS_NOTIFICATIONS = Object.freeze({
@@ -191,8 +194,6 @@
     toast.setAttribute('aria-atomic', 'true');
     toast.ariaLabel = '通知を閉じる';
     toast.setAttribute('status-icon-description', notification.iconDescription);
-    // Carbon's toast already renders the slotted title. The native HTML title
-    // attribute/property must stay empty or some versions render the heading twice.
     toast.removeAttribute('title');
     toast.title = '';
     const titleNode = document.createElement('span');
@@ -275,15 +276,26 @@
     if (!persistent) state.syncTimer = setTimeout(() => removeToast(toast, 'sync'), DEFAULT_TOAST_DURATION);
   }
 
-  function suppressSyncFeedback(duration = 1800) {
-    state.syncSuppressUntil = Math.max(state.syncSuppressUntil, Date.now() + Math.max(0, Number(duration) || 0));
+  function suppressSyncFeedback(duration = 600) {
+    clearTimeout(state.syncSuppressTimer);
+    state.syncSuppressNextSaveCycle = true;
+    state.syncCurrentSaveSuppressed = false;
+    state.syncSavePending = false;
     clearTimeout(state.syncDelayTimer);
     state.syncDelayTimer = null;
     removeToast(state.syncToast || document.getElementById('appSyncStatusToast'), 'sync');
+    state.syncSuppressTimer = setTimeout(() => {
+      state.syncSuppressNextSaveCycle = false;
+      state.syncSuppressTimer = null;
+    }, Math.max(0, Number(duration) || 0));
   }
 
   function resumeSyncFeedback() {
-    state.syncSuppressUntil = 0;
+    clearTimeout(state.syncSuppressTimer);
+    state.syncSuppressTimer = null;
+    state.syncSuppressNextSaveCycle = false;
+    state.syncCurrentSaveSuppressed = false;
+    state.syncSavePending = false;
   }
 
   function setSyncStatus(kind = 'neutral', message = '') {
@@ -292,23 +304,45 @@
     const previousKind = state.syncKind;
     const previousVisible = state.syncVisible;
     const previousVisibleKind = state.syncVisibleKind;
+
+    if (kind === 'saving') {
+      const suppressThisCycle = state.syncSuppressNextSaveCycle;
+      if (suppressThisCycle) {
+        state.syncSuppressNextSaveCycle = false;
+        clearTimeout(state.syncSuppressTimer);
+        state.syncSuppressTimer = null;
+        state.syncCurrentSaveSuppressed = true;
+        state.syncSavePending = false;
+      } else {
+        state.syncCurrentSaveSuppressed = false;
+        state.syncSavePending = true;
+      }
+    }
+
     const changed = previousKind !== kind || state.syncMessage !== nextMessage;
     state.syncKind = kind;
     state.syncMessage = nextMessage;
-    if (!changed) return;
+    if (!changed && !(kind === 'connected' && (state.syncSavePending || state.syncCurrentSaveSuppressed))) return;
 
     clearTimeout(state.syncDelayTimer);
     state.syncDelayTimer = null;
 
-    if (Date.now() < state.syncSuppressUntil) {
-      if (kind === 'connected') state.syncHadPendingState = false;
+    if (kind === 'saving' && state.syncCurrentSaveSuppressed) {
+      removeToast(state.syncToast || document.getElementById('appSyncStatusToast'), 'sync');
+      return;
+    }
+
+    if (kind === 'connected' && state.syncCurrentSaveSuppressed) {
+      state.syncCurrentSaveSuppressed = false;
+      state.syncSavePending = false;
+      state.syncHadPendingState = false;
       removeToast(state.syncToast || document.getElementById('appSyncStatusToast'), 'sync');
       return;
     }
 
     if (kind === 'saving') {
       state.syncDelayTimer = setTimeout(() => {
-        if (state.syncKind !== 'saving' || Date.now() < state.syncSuppressUntil) return;
+        if (state.syncKind !== 'saving' || state.syncCurrentSaveSuppressed) return;
         showSyncToast('saving', nextMessage, { persistent: true });
       }, SYNC_PROGRESS_DELAY);
       return;
@@ -316,9 +350,10 @@
 
     if (kind === 'connected') {
       const recoveredFromProblem = state.syncHadPendingState || ['local', 'error'].includes(previousVisibleKind);
-      const completedSave = previousKind === 'saving';
+      const completedSave = state.syncSavePending || previousKind === 'saving';
       const explicitReplay = /再送|保留/.test(nextMessage);
       state.syncHadPendingState = false;
+      state.syncSavePending = false;
       if (explicitReplay || recoveredFromProblem) {
         showSyncToast('connected', explicitReplay ? nextMessage : '保留していた変更を反映しました');
       } else if (completedSave) {
@@ -337,6 +372,7 @@
         removeToast(state.syncToast, 'sync');
         return;
       }
+      state.syncCurrentSaveSuppressed = false;
       const compatibilityProblem = /新版|未対応/.test(nextMessage);
       const permissionProblem = /permission[_ -]?denied|権限/i.test(nextMessage);
       const actualConnectionProblem = /network|offline|disconnected|通信|接続[^。]*(切|失|不可)|タイムアウト|timeout/i.test(nextMessage);
@@ -351,6 +387,7 @@
     }
 
     if (kind === 'local') {
+      state.syncCurrentSaveSuppressed = false;
       const actualConnectionProblem = /network|offline|disconnected|通信|接続[^。]*(切|失|不可)|タイムアウト|timeout/i.test(nextMessage);
       if (actualConnectionProblem) {
         state.syncHadPendingState = true;
@@ -397,7 +434,7 @@
     const quietInteraction = event.target?.closest?.(
       '#tray-handle, #app-view-navigation cds-tab, #app-view-navigation [role="tab"], [data-action="open-settlement-gas-settings"]'
     );
-    if (quietInteraction) suppressSyncFeedback(1800);
+    if (quietInteraction) suppressSyncFeedback(450);
   }, true);
 
   ensureNotificationRegion();
