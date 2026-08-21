@@ -57,10 +57,17 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       const before = await page.evaluate(() => document.documentElement.dataset.theme);
       await hostClick(page, '#themeToggleBtn');
       expect(await page.evaluate(() => document.documentElement.dataset.theme)).not.toBe(before);
+      await page.evaluate(() => {
+        Object.defineProperty(navigator, 'clipboard', {
+          configurable: true,
+          value: { writeText: async value => { window.__copiedShareUrl = value; } }
+        });
+      });
       await hostClick(page, '#shareLinkBtn');
-      await expect(page.locator('#share-links-modal')).toHaveAttribute('open', '');
-      await hostClick(page, '#share-links-modal [data-modal-close]');
-      await expect(page.locator('#share-links-modal')).not.toBeAttached();
+      await expect(page.locator('.app-status-toast')).toContainText('リンクをコピーしました');
+      const copiedShareUrl = await page.evaluate(() => window.__copiedShareUrl || '');
+      expect(new URL(copiedShareUrl).searchParams.get('view')).toBe('sheet');
+      await expect(page.locator('#share-links-modal')).toHaveCount(0);
       await hostClick(page, '#overviewMenuBtn');
       await expect(page.locator('#overviewDrawer')).toHaveAttribute('aria-hidden', 'false');
       await expect(page.locator('#overviewDrawer .app-nav-link')).toHaveCount(4);
@@ -139,8 +146,6 @@ test.describe('Allocation, menus and accessibility', () => {
     const capacityAction = page.locator('[data-action="edit-capacity"]').first();
     await capacityAction.click();
     await expect(page.locator('#commonEditModal')).toHaveAttribute('open', '');
-    // The shared editor is a Carbon text input whose type changes to number for
-    // capacity. Exercise the native field with real input/change events.
     await page.locator('#editModalInput').evaluate((node, next) => {
       const control = node.shadowRoot?.querySelector('input');
       if (!(control instanceof HTMLInputElement)) throw new Error('Carbon number input not found');
@@ -164,8 +169,6 @@ test.describe('Allocation, menus and accessibility', () => {
       const controls = [...document.querySelectorAll('cds-button,cds-icon-button,cds-overflow-menu,cds-content-switcher-item,cds-checkbox,cds-toggle,a,[role="button"]')].filter(visible);
       return {
         unnamed: controls.filter(element => !(element.getAttribute('aria-label') || element.getAttribute('label') || element.getAttribute('label-text') || element.textContent.trim() || element.title)).length,
-        // Compact capacity/edit actions are deliberately grouped inside a 48px
-        // card-header action area; assess every standalone control here.
         small: controls.filter(element => {
           const box = element.getBoundingClientRect();
           return (box.width < 44 || box.height < 44)
@@ -363,17 +366,20 @@ test.describe('Settlement and route workflows', () => {
     await hostClick(page, '#settlementSettingsModal [data-action="save-settlement-settings"]');
     await hostClick(page, '[data-action="open-settlement-car-edit"]');
     await hostClick(page, '#settlementCarEditModal [data-action="open-settlement-gas-settings"]');
-    await expect(page.locator('#settlementGasEditModal')).toHaveJSProperty('open', true);
-    const placeholders = await Promise.all(['dist', 'eco', 'price'].map(field => page.locator(`#settlementGasEditModal [data-field="${field}"]`).getAttribute('placeholder')));
+    const gasPanel = page.locator('#settlementGasEditPanel');
+    await expect(gasPanel).toBeVisible();
+    const placeholders = await Promise.all(['dist', 'eco', 'price'].map(field => gasPanel.locator(`[data-field="${field}"]`).getAttribute('placeholder')));
     expect(placeholders).toEqual(['例：186', '例：18', '例：158']);
-    const rental = page.locator('#settlementGasEditModal [data-field="rentalType"]');
+    const rental = gasPanel.locator('[data-field="rentalType"]');
     await expect(rental).toHaveJSProperty('value', 'private');
     await rental.locator('cds-radio-button[value="times"]').click();
-    await expect(rental).toHaveJSProperty('value', 'times');
-    await rental.locator('cds-radio-button[value="private"]').click();
-    await expect(rental).toHaveJSProperty('value', 'private');
-    await hostClick(page, '#settlementGasEditModal cds-modal-close-button');
-    await expect(page.locator('#settlementGasEditModal')).not.toHaveJSProperty('open', true);
+    await expect(page.locator('#settlementGasEditPanel [data-field="rentalType"]')).toHaveJSProperty('value', 'times');
+    await expect(page.locator('#settlementGasEditPanel [data-field="eco"]')).toHaveCount(0);
+    await expect(page.locator('#settlementGasEditPanel [data-field="price"]')).toHaveCount(0);
+    await page.locator('#settlementGasEditPanel [data-field="rentalType"] cds-radio-button[value="private"]').click();
+    await expect(page.locator('#settlementGasEditPanel [data-field="rentalType"]')).toHaveJSProperty('value', 'private');
+    await hostClick(page, '#settlementGasEditPanel [data-action="close-settlement-gas-settings"]');
+    await expect(gasPanel).toBeHidden();
     await hostClick(page, '#settlementCarEditModal [data-action="add-settlement-extra"]');
     await setHostValue(page, '#settlementCarEditModal [data-extra-field="name"]', '高速代');
     await setHostValue(page, '#settlementCarEditModal [data-extra-field="amount"]', '1234');
@@ -392,18 +398,16 @@ test.describe('Settlement and route workflows', () => {
     expect(dimensions.amount).toBeLessThan(dimensions.row);
     expect(dimensions.type).toBeLessThan(dimensions.row);
     await hostClick(page, '#settlementCarEditModal [data-action="open-settlement-gas-settings"]');
-    await hostClick(page, '#settlementGasEditModal [data-action="open-route-helper-shortcut"]');
+    await hostClick(page, '#settlementGasEditPanel [data-action="open-route-helper-shortcut"]');
     await expect(page.locator('#routeDistanceModal')).toHaveAttribute('open', '');
     const appendRouteStop = page.locator('#routeStopList .route-stop-row--append [data-action="open-route-place-search"]');
     await expect(appendRouteStop).toBeAttached();
-    // Exercise the Carbon text input through a real pointer interaction. Its
-    // host .click() can bypass the composed event that opens place search.
     await appendRouteStop.click();
     await expect(page.locator('#routePlaceSearchSurface')).not.toHaveAttribute('hidden', '');
     await hostClick(page, '#routePlaceSearchBackBtn');
     await expect(page.locator('#routePlaceSearchSurface')).toHaveAttribute('hidden', '');
     await hostClick(page, '#routeDistanceModal cds-modal-close-button');
-    await hostClick(page, '#settlementGasEditModal cds-modal-close-button');
+    await hostClick(page, '#settlementGasEditPanel [data-action="close-settlement-gas-settings"]');
     await hostClick(page, '[data-action="copy-settlement-text"]');
     await expect(page.locator('#copy-fallback')).toHaveAttribute('open', '');
     expect(await page.locator('#copy-fallback cds-textarea').evaluate(node => node.value)).toMatch(/[¥￥円]/);
