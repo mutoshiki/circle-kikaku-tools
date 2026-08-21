@@ -6,6 +6,21 @@
     const bind = events.bind;
     const bindModalSubmit = events.bindModalSubmit;
 
+    function persistMainView(view) {
+        if (!['list', 'sheet', 'seisan'].includes(view)) return;
+        const url = new URL(global.location.href);
+        if (view === 'list') url.searchParams.delete('view');
+        else url.searchParams.set('view', view);
+        global.history.replaceState(global.history.state, '', `${url.pathname}${url.search}${url.hash}`);
+    }
+
+    async function switchViewRemembering(view) {
+        await switchView(view);
+        if (typeof currentView === 'undefined' || currentView !== view) return false;
+        persistMainView(view);
+        return true;
+    }
+
     function setupSettlementOptionEvents() {
         ['seisanRounding', 'seisanOrganizerName', 'seisanOrganizerFree', 'seisanDriverCollectionOffset'].forEach(id => {
             const el = byId(id);
@@ -55,15 +70,14 @@
     }
 
     async function openAllocationDestination(templateType) {
-        await switchView('list');
-        if (typeof currentView !== 'undefined' && currentView !== 'list') return;
+        if (!(await switchViewRemembering('list'))) return;
         if (typeof updateActiveCarPlanTemplate === 'function') updateActiveCarPlanTemplate(templateType);
         global.syncCarbonPrimaryNavigationState?.();
     }
 
     function setupViewAndFeatureEvents() {
-        bind('tab-sheet', () => switchView('sheet'));
-        bind('tab-seisan', () => switchView('seisan'));
+        bind('tab-sheet', () => switchViewRemembering('sheet'));
+        bind('tab-seisan', () => switchViewRemembering('seisan'));
         bind('tab-list', () => openAllocationDestination('car'));
         bind('tab-team', () => openAllocationDestination('team'));
         bind('batchOpenBtn', () => openBatchModal());
