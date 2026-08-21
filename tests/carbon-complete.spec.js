@@ -64,7 +64,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
         });
       });
       await hostClick(page, '#shareLinkBtn');
-      await expect(page.locator('.app-status-toast')).toContainText('リンクをコピーしました');
+      await expect(page.locator('#appStatusToast')).toContainText('リンクをコピーしました');
       const copiedShareUrl = await page.evaluate(() => window.__copiedShareUrl || '');
       expect(new URL(copiedShareUrl).searchParams.get('view')).toBe('sheet');
       await expect(page.locator('#share-links-modal')).toHaveCount(0);
@@ -251,24 +251,35 @@ test.describe('Carbon modal, participant and sheet workflows', () => {
 test.describe('First-run rendering and submit regression', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('mobile sync status temporarily overlays the product-title slot', async ({ page }) => {
+  test('mobile sync status uses Carbon toast feedback without occupying the product-title slot', async ({ page }) => {
     await page.goto(`/?room=SYNC-STATUS-${Date.now()}`, { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => typeof window.showSaveStatus === 'function');
-    await page.evaluate(() => window.showSaveStatus('共有同期中', 'connected'));
-    const badge = page.locator('#syncStatusBadge');
-    await expect(badge).toHaveClass(/is-visible/);
-    await expect(badge).toContainText('共有同期中');
-    const bounds = await page.evaluate(() => {
-      const badgeBox = document.querySelector('#syncStatusBadge')?.getBoundingClientRect();
-      const brandBox = document.querySelector('.app-brand')?.getBoundingClientRect();
-      return { badgeBox, brandBox };
+    await page.waitForFunction(() => typeof window.showSaveStatus === 'function' && window.AppUI?.setSyncStatus);
+    await page.evaluate(() => window.AppUI.setSyncStatus('neutral', '準備'));
+
+    await page.evaluate(() => window.showSaveStatus('保存中...', 'saving'));
+    await page.waitForTimeout(300);
+    await expect(page.locator('#appSyncStatusToast')).toHaveCount(0);
+    await page.evaluate(() => window.showSaveStatus('同期完了', 'connected'));
+    await page.waitForTimeout(100);
+    await expect(page.locator('#appSyncStatusToast')).toHaveCount(0);
+
+    await page.evaluate(() => window.showSaveStatus('保存中...', 'saving'));
+    await page.waitForTimeout(750);
+    const toast = page.locator('#appSyncStatusToast');
+    await expect(toast).toBeVisible();
+    await expect(toast).toContainText('保存中...');
+    const placement = await page.evaluate(() => {
+      const region = document.querySelector('#appNotificationRegion')?.getBoundingClientRect();
+      const title = document.querySelector('#projectTitleRegion')?.getBoundingClientRect();
+      return { region, title, width: innerWidth };
     });
-    expect(bounds.badgeBox.width).toBeLessThan(bounds.brandBox.width);
-    expect(Math.abs((bounds.badgeBox.left + bounds.badgeBox.right) / 2 - (bounds.brandBox.left + bounds.brandBox.right) / 2)).toBeLessThanOrEqual(1);
-    expect(bounds.badgeBox.top).toBeGreaterThanOrEqual(bounds.brandBox.top - 1);
-    expect(bounds.badgeBox.bottom).toBeLessThanOrEqual(bounds.brandBox.bottom + 1);
-    await page.waitForTimeout(2800);
-    await expect(badge).not.toHaveClass(/is-visible/);
+    expect(placement.region.right).toBeLessThanOrEqual(placement.width);
+    expect(placement.region.top).toBeGreaterThanOrEqual(0);
+    if (placement.title) expect(placement.region.left).toBeGreaterThan(placement.title.left);
+
+    await page.evaluate(() => window.showSaveStatus('同期完了', 'connected'));
+    await expect(toast).toContainText('同期完了');
+    await expect(toast).toHaveAttribute('kind', 'success');
   });
 
   test('first meaningful screen renders immediately and all three empty views use the same two choices', async ({ page }) => {
