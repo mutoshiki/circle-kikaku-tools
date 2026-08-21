@@ -48,7 +48,7 @@
         global.saveLocalDraftOnly?.();
         if (name) {
             global.refreshSettlementCarEditor?.(name);
-            queueMicrotask(() => setSettlementGasSettingsOpen(true));
+            requestAnimationFrame(() => requestAnimationFrame(() => setSettlementGasSettingsOpen(true)));
         }
         return true;
     }
