@@ -3,6 +3,7 @@
 
 let settlementProjectTitleState = null;
 let settlementProjectTitleObserver = null;
+let settlementBackgroundScrollSnapshot = null;
 
 function isSettlementCarEditorOpen() {
     return !!document.getElementById('settlementCarEditModal')?.open;
@@ -23,10 +24,37 @@ function applySettlementProjectTitleState(state) {
     editor.tabIndex = expanded ? 0 : -1;
 }
 
+function captureSettlementBackgroundScroll() {
+    const ids = ['seisan-view-area', 'top-area', 'sheet-view-area', 'sheet-canvas'];
+    const nodes = ids.map(id => document.getElementById(id)).filter(Boolean);
+    settlementBackgroundScrollSnapshot = {
+        windowX: window.scrollX,
+        windowY: window.scrollY,
+        nodes: nodes.map(node => ({ node, top: node.scrollTop, left: node.scrollLeft }))
+    };
+}
+
+function restoreSettlementBackgroundScroll() {
+    const snapshot = settlementBackgroundScrollSnapshot;
+    settlementBackgroundScrollSnapshot = null;
+    if (!snapshot) return;
+    const restore = () => {
+        snapshot.nodes.forEach(({ node, top, left }) => {
+            if (!node?.isConnected) return;
+            node.scrollTop = top;
+            node.scrollLeft = left;
+        });
+        window.scrollTo(snapshot.windowX, snapshot.windowY);
+    };
+    restore();
+    requestAnimationFrame(() => requestAnimationFrame(restore));
+}
+
 function lockSettlementProjectTitleState() {
     const region = document.getElementById('projectTitleRegion');
     if (!region) return;
     settlementProjectTitleState = readSettlementProjectTitleState();
+    captureSettlementBackgroundScroll();
     settlementProjectTitleObserver?.disconnect();
     settlementProjectTitleObserver = new MutationObserver(() => {
         if (!isSettlementCarEditorOpen() || !settlementProjectTitleState) return;
@@ -42,6 +70,7 @@ function releaseSettlementProjectTitleState() {
     settlementProjectTitleObserver = null;
     if (settlementProjectTitleState) applySettlementProjectTitleState(settlementProjectTitleState);
     settlementProjectTitleState = null;
+    restoreSettlementBackgroundScroll();
 }
 
 function bindSettlementProjectTitleGuard() {
