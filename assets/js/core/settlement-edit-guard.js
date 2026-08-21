@@ -3,10 +3,20 @@
 
 let settlementProjectTitleState = null;
 let settlementProjectTitleObserver = null;
-let settlementBackgroundScrollSnapshot = null;
+let settlementEditViewportSnapshot = null;
 
 function isSettlementCarEditorOpen() {
     return !!document.getElementById('settlementCarEditModal')?.open;
+}
+
+function isSettlementEditSessionActive() {
+    const carEditor = document.getElementById('settlementCarEditModal');
+    const movementEditor = document.getElementById('settlementGasEditModal');
+    return !!(
+        carEditor?.open
+        || movementEditor?.open
+        || window.shouldPreserveSettlementCarEditorOnHidden?.()
+    );
 }
 
 function readSettlementProjectTitleState() {
@@ -24,40 +34,58 @@ function applySettlementProjectTitleState(state) {
     editor.tabIndex = expanded ? 0 : -1;
 }
 
-function captureSettlementBackgroundScroll() {
-    const ids = ['seisan-view-area', 'top-area', 'sheet-view-area', 'sheet-canvas'];
+function captureSettlementViewportState() {
+    const ids = ['seisan-view-area', 'app-layout', 'top-area', 'sheet-view-area', 'sheet-canvas'];
     const nodes = ids.map(id => document.getElementById(id)).filter(Boolean);
-    settlementBackgroundScrollSnapshot = {
-        windowX: window.scrollX,
-        windowY: window.scrollY,
-        nodes: nodes.map(node => ({ node, top: node.scrollTop, left: node.scrollLeft }))
+    return {
+        titleState: readSettlementProjectTitleState(),
+        windowX: Number(window.scrollX || 0),
+        windowY: Number(window.scrollY || 0),
+        documentTop: Number(document.scrollingElement?.scrollTop || 0),
+        documentElementTop: Number(document.documentElement?.scrollTop || 0),
+        bodyTop: Number(document.body?.scrollTop || 0),
+        nodes: nodes.map(node => ({ node, top: Number(node.scrollTop || 0), left: Number(node.scrollLeft || 0) }))
     };
 }
 
-function restoreSettlementBackgroundScroll() {
-    const snapshot = settlementBackgroundScrollSnapshot;
-    settlementBackgroundScrollSnapshot = null;
+function restoreSettlementViewportState(snapshot) {
     if (!snapshot) return;
-    const restore = () => {
-        snapshot.nodes.forEach(({ node, top, left }) => {
-            if (!node?.isConnected) return;
-            node.scrollTop = top;
-            node.scrollLeft = left;
-        });
-        window.scrollTo(snapshot.windowX, snapshot.windowY);
-    };
+    if (snapshot.titleState) applySettlementProjectTitleState(snapshot.titleState);
+    (snapshot.nodes || []).forEach(({ node, top, left }) => {
+        if (!node?.isConnected) return;
+        node.scrollTop = Number(top || 0);
+        node.scrollLeft = Number(left || 0);
+    });
+    window.scrollTo(Number(snapshot.windowX || 0), Number(snapshot.windowY || 0));
+    if (document.scrollingElement) document.scrollingElement.scrollTop = Number(snapshot.documentTop || 0);
+    if (document.documentElement) document.documentElement.scrollTop = Number(snapshot.documentElementTop || 0);
+    if (document.body) document.body.scrollTop = Number(snapshot.bodyTop || 0);
+}
+
+function stabilizeSettlementViewportState(snapshot, delays = [0, 80, 240, 800]) {
+    if (!snapshot) return;
+    const restore = () => restoreSettlementViewportState(snapshot);
     restore();
     requestAnimationFrame(() => requestAnimationFrame(restore));
+    delays.forEach(delay => setTimeout(restore, delay));
 }
 
 function lockSettlementProjectTitleState() {
     const region = document.getElementById('projectTitleRegion');
     if (!region) return;
-    settlementProjectTitleState = readSettlementProjectTitleState();
-    captureSettlementBackgroundScroll();
+
+    // A movement-settings modal temporarily hides the car editor. That is still the
+    // same editing session, so never replace the opening viewport snapshot during
+    // the child-modal transition or when the parent editor resumes.
+    if (!settlementProjectTitleState) {
+        settlementProjectTitleState = readSettlementProjectTitleState();
+        settlementEditViewportSnapshot = captureSettlementViewportState();
+    }
+    applySettlementProjectTitleState(settlementProjectTitleState);
+
     settlementProjectTitleObserver?.disconnect();
     settlementProjectTitleObserver = new MutationObserver(() => {
-        if (!isSettlementCarEditorOpen() || !settlementProjectTitleState) return;
+        if (!isSettlementEditSessionActive() || !settlementProjectTitleState) return;
         if (readSettlementProjectTitleState() !== settlementProjectTitleState) {
             applySettlementProjectTitleState(settlementProjectTitleState);
         }
@@ -69,8 +97,15 @@ function releaseSettlementProjectTitleState() {
     settlementProjectTitleObserver?.disconnect();
     settlementProjectTitleObserver = null;
     if (settlementProjectTitleState) applySettlementProjectTitleState(settlementProjectTitleState);
+    const snapshot = settlementEditViewportSnapshot;
     settlementProjectTitleState = null;
-    restoreSettlementBackgroundScroll();
+    settlementEditViewportSnapshot = null;
+    stabilizeSettlementViewportState(snapshot);
+}
+
+function maybeReleaseSettlementProjectTitleState() {
+    if (window.shouldPreserveSettlementCarEditorOnHidden?.()) return;
+    releaseSettlementProjectTitleState();
 }
 
 function bindSettlementProjectTitleGuard() {
@@ -78,7 +113,7 @@ function bindSettlementProjectTitleGuard() {
     if (!modal || modal.dataset.projectTitleGuardBound === 'true') return;
     modal.dataset.projectTitleGuardBound = 'true';
     modal.addEventListener('sanpo:modal-shown', lockSettlementProjectTitleState);
-    modal.addEventListener('sanpo:modal-hidden', releaseSettlementProjectTitleState);
+    modal.addEventListener('sanpo:modal-hidden', maybeReleaseSettlementProjectTitleState);
 }
 
 if (document.readyState === 'loading') {
@@ -149,7 +184,7 @@ function commitSettlementAfterKeyboardSettles() {
 
     settlementCommitTimer = setTimeout(() => {
         syncSettlementStateFromDOM();
-        if (isEditingSettlementCostField() || settlementCompositionActive || isSettlementCarEditorOpen()) {
+        if (isEditingSettlementCostField() || settlementCompositionActive || isSettlementEditSessionActive()) {
             if (isEditingSettlementCostField() || settlementCompositionActive) protectSettlementEditing();
             settlementRenderDeferred = true;
             saveLocalDraftOnly();
