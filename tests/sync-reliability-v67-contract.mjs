@@ -19,13 +19,15 @@ assert.match(syncSource, /function summarizeSyncOutcome/);
 assert.match(syncSource, /SanpoSyncDiagnostics\?\.record/);
 assert.match(syncSource, /同時編集を調整/);
 assert.doesNotMatch(syncSource, /showAppNotice\?\.\(`\$\{message\}。この端末の履歴で確認できます。`\)/, 'normal merge adjustments must stay in diagnostics without a popup');
-assert.match(uiSource, /const changed = previousKind !== kind \|\| state\.syncMessage !== nextMessage/, 'repeated sync snapshots must not restart notification timing');
-assert.match(uiSource, /if \(!changed\) return;/, 'unchanged sync states are deduplicated before display control');
+assert.match(uiSource, /const changed = previousKind !== kind \|\| state\.syncMessage !== nextMessage/, 'repeated sync snapshots still use status equality as their first deduplication signal');
+assert.match(uiSource, /if \(!changed && !\(kind === 'connected' && state\.syncSavePending\)\) return;/, 'unchanged connected snapshots may still close an explicitly tracked real save cycle');
+assert.match(uiSource, /syncSavePending:\s*false/, 'real save feedback is tracked independently from unrelated sync status chatter');
+assert.match(uiSource, /kind === 'saving' && !suppressed\) state\.syncSavePending = true/, 'an unsuppressed save explicitly opens a feedback cycle');
 assert.match(uiSource, /const SYNC_PROGRESS_DELAY = 650;/, 'save progress is delayed so fast saves skip the noisy in-progress toast');
 assert.match(uiSource, /kind === 'saving'[\s\S]*setTimeout[\s\S]*showSyncToast\('saving'[\s\S]*persistent: true/, 'long-running saves use a persistent Carbon progress toast');
 assert.match(uiSource, /kind === 'error'[\s\S]*showSyncToast\(kind, nextMessage, \{ persistent: copy\.tone === 'error' \}\)/, 'actionable sync errors remain visible while transport-readiness warnings may resolve automatically');
 assert.match(uiSource, /kind === 'connected'[\s\S]*recoveredFromProblem[\s\S]*completedSave[\s\S]*explicitReplay[\s\S]*if \(explicitReplay \|\| recoveredFromProblem\)[\s\S]*else if \(completedSave\)/, 'a real save completion remains visible even when progress was too fast to show, while explicitly suppressed UI-only interactions stay quiet');
-assert.match(uiSource, /Date\.now\(\) < state\.syncSuppressUntil[\s\S]*removeToast/, 'UI-only interactions can suppress save feedback without changing persistence itself');
+assert.match(uiSource, /Date\.now\(\) < state\.syncSuppressUntil[\s\S]*syncSuppressedSaveCycle[\s\S]*syncSuppressUntil = 0/, 'UI-only suppression is consumed by its own incidental save cycle instead of muting later real saves');
 assert.match(uiSource, /document\.createElement\('cds-toast-notification'\)/, 'save and sync feedback uses the Carbon toast component');
 assert.match(uiSource, /id = slot === 'sync' \? 'appSyncStatusToast' : 'appStatusToast'/, 'sync and general feedback share one Carbon notification owner while retaining distinct slots');
 assert.match(uiSource, /aria-live'[\s\S]*assertive[\s\S]*polite/, 'notification urgency is reflected in accessible live-region behavior');
@@ -68,7 +70,7 @@ vm.runInContext(syncSource, context);
 const outcome = context.window.SanpoEntitySyncTest.summarizeSyncOutcome(
   { 'allocations/car/placements/p1': { kind: 'member', groupId: 'g1' }, revision: 2 },
   {},
-  { allocations: { car: { placements: { p1: { kind: 'waiting', groupId: '' } } } } }
+  { allocations: { car: { placements: { p1: { kind: 'waiting', groupId: '' } } } }
 );
 assert.equal(outcome.adjustedPaths.length, 1);
 assert.deepEqual([...outcome.labels], ['車割・班割の配置']);
