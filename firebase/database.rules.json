@@ -22,6 +22,47 @@
           ".validate": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() >= data.val())"
         }
       }
+    },
+    "bugReports": {
+      ".read": false,
+      "$reportId": {
+        ".write": "auth != null && !data.exists() && newData.exists()",
+        ".validate": "newData.hasChildren(['message', 'createdAt', 'roomId', 'pageUrl', 'buildId', 'projectTitle', 'currentView', 'userAgent', 'platform'])",
+        "message": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 2000"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber() && newData.val() > 0"
+        },
+        "roomId": {
+          ".validate": "newData.isString() && newData.val().length <= 80"
+        },
+        "pageUrl": {
+          ".validate": "newData.isString() && newData.val().length <= 2048"
+        },
+        "buildId": {
+          ".validate": "newData.isString() && newData.val().length <= 120"
+        },
+        "projectTitle": {
+          ".validate": "newData.isString() && newData.val().length <= 200"
+        },
+        "currentView": {
+          ".validate": "newData.isString() && newData.val().length <= 40"
+        },
+        "userAgent": {
+          ".validate": "newData.isString() && newData.val().length <= 512"
+        },
+        "platform": {
+          ".validate": "newData.isString() && newData.val().length <= 160"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "bugReportNotifications": {
+      ".read": false,
+      ".write": false
     }
   }
 }

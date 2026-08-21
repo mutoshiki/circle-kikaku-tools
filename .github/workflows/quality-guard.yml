@@ -11,20 +11,25 @@ permissions:
 
 jobs:
   static:
-    name: CSS lint and static contracts
+    name: CSS lint, static contracts, and Firebase rules
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
       - run: npm ci --no-audit --no-fund
       - run: npm run build:carbon
       - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npm run lint:css
       - run: npm test
+      - run: npm run test:firebase:emulator
 
   browser:
     name: UI and visual regression
