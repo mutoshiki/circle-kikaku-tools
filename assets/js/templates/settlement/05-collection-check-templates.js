@@ -5,12 +5,6 @@
   const parts = window.SanpoApp?.settlementTemplateParts || {};
   const { esc, money } = parts;
 
-  function formatCarLabel(name = '', helpers = {}) {
-    const text = String(name || '').trim();
-    if (!text) return '';
-    return `${esc(text, helpers)}車`;
-  }
-
   function collectionItem(p, state, result, helpers = {}) {
     const excluded = !!result.excludedNames?.has?.(p.name);
     const paid = !!state.paid?.[p.name];
@@ -70,5 +64,5 @@
     }).join('');
   }
 
-  Object.assign(parts, { formatCarLabel, collectionItem, buildCollectionGroups, collection });
+  Object.assign(parts, { collectionItem, buildCollectionGroups, collection });
 })();
