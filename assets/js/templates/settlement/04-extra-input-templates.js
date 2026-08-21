@@ -41,7 +41,9 @@
     ].filter(Boolean).join(' ');
     const timesAttr = timesFeeKind ? ` data-times-extra="${timesFeeKind}"` : '';
     const pendingAttr = ex.pending === true ? ' data-extra-pending="true"' : '';
-    const lockedAttr = isReward ? ' readonly aria-readonly="true"' : '';
+    const fixedName = !!timesFeeKind || isReward;
+    const nameLockedAttr = fixedName ? ' readonly aria-readonly="true"' : '';
+    const amountLockedAttr = isReward ? ' readonly aria-readonly="true"' : '';
     const costName = esc(ex.name || '諸経費', helpers);
     const deleteControl = timesFeeKind || isReward
       ? '<span class="seisan-icon-btn seisan-extra-delete-placeholder" aria-hidden="true"></span>'
@@ -49,10 +51,10 @@
 
     return `<div class="${rowClass}" data-extra-index="${index}" data-extra-id="${esc(ex.id || '')}"${timesAttr}${pendingAttr}>
         <div class="seisan-extra-field seisan-extra-field--name">
-          <cds-text-input size="md" density="condensed" data-extra-field="name" class="${extraFieldErrorClass(issues, carName, index, 'name')}" value="${esc(ex.name || '', helpers)}" placeholder="例：駐車場代" label="名目" hide-label${invalidAttr('name', '名目を入力してください')}${lockedAttr}></cds-text-input>
+          <cds-text-input size="md" density="condensed" data-extra-field="name" class="${extraFieldErrorClass(issues, carName, index, 'name')}" value="${esc(ex.name || '', helpers)}" placeholder="例：駐車場代" label="名目" hide-label${invalidAttr('name', '名目を入力してください')}${nameLockedAttr}></cds-text-input>
         </div>
         <div class="seisan-extra-field seisan-extra-field--amount" data-extra-amount-field>
-          <cds-text-input type="text" size="md" density="condensed" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-extra-field="amount" class="${extraFieldErrorClass(issues, carName, index, 'amount')}" value="${esc(ex.amount || '', helpers)}" placeholder="金額" label="金額" hide-label${invalidAttr('amount', '金額を入力してください')}${lockedAttr}></cds-text-input>
+          <cds-text-input type="text" size="md" density="condensed" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-extra-field="amount" class="${extraFieldErrorClass(issues, carName, index, 'amount')}" value="${esc(ex.amount || '', helpers)}" placeholder="金額" label="金額" hide-label${invalidAttr('amount', '金額を入力してください')}${amountLockedAttr}></cds-text-input>
         </div>
         <div class="seisan-extra-field seisan-extra-field--type ${baseType} ${type}">
           <cds-toggle size="sm" data-extra-field="type" data-extra-negative="${isNegative ? 'true' : 'false'}" value="${type}" ${baseType === 'club' ? 'toggled' : ''} class="seisan-extra-type ${UI_CLASS.input} ${baseType} ${type}" label-text="" label-a="" label-b="" aria-label="${costName}を部費で処理"></cds-toggle>
