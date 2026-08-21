@@ -26,6 +26,20 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     await expect.poll(() => page.locator('#roomNameInput').evaluate(node => node.value)).toBe('紅葉ハイク');
     expect((await editor.textContent())?.trim()).toBe('紅葉ハイク');
 
+    // A stale remote echo (including the initial empty room name) must not erase a
+    // locally edited title before that title is acknowledged by shared sync.
+    await page.evaluate(() => { document.getElementById('roomNameInput').value = ''; });
+    await expect.poll(() => page.locator('#roomNameInput').evaluate(node => node.value)).toBe('紅葉ハイク');
+    await expect(editor).toHaveText('紅葉ハイク');
+
+    // The matching remote echo acknowledges the local title. Later remote edits must
+    // then flow back into the visible project-title editor on this device.
+    await page.evaluate(() => { document.getElementById('roomNameInput').value = '紅葉ハイク'; });
+    await editor.evaluate(node => node.blur());
+    await page.evaluate(() => { document.getElementById('roomNameInput').value = '共有された企画名'; });
+    await expect.poll(() => page.locator('#roomNameInput').evaluate(node => node.value)).toBe('共有された企画名');
+    await expect(editor).toHaveText('共有された企画名');
+
     if (viewport.width <= 390) {
       await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 180, pointerId: 1, isPrimary: true });
       await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 148, pointerId: 1, isPrimary: true });
