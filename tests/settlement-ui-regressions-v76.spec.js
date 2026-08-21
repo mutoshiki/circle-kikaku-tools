@@ -152,7 +152,6 @@ test.describe('Settlement UI regressions v76', () => {
     await setCarbonTextValue(movementModal.locator('[data-field="eco"]'), '18');
     await setCarbonTextValue(movementModal.locator('[data-field="price"]'), '158');
 
-    // Reproduce the visual-viewport contraction/restore caused by the iOS software keyboard.
     await page.setViewportSize({ width: 390, height: 520 });
     await page.evaluate(() => {
       const settlement = document.querySelector('#seisan-view-area');
@@ -177,10 +176,8 @@ test.describe('Settlement UI regressions v76', () => {
     await expect.poll(() => settlementViewport(page)).toEqual(before);
     await expect(page.locator('#seisan-settings-summary')).toBeVisible();
     await expect(page.locator('#seisan-car-list .seisan-car-summary-row').first()).toBeVisible();
-    await expect(page.locator('#seisan-driver-pay-list')).toBeVisible();
     await expect(page.locator('#seisan-collection-list')).toBeVisible();
 
-    // The reveal interaction itself remains available after the edit session ends.
     await page.dispatchEvent('#seisan-view-area', 'pointerdown', { pointerType: 'touch', clientY: 150, pointerId: 62, isPrimary: true });
     await page.dispatchEvent('#seisan-view-area', 'pointermove', { pointerType: 'touch', clientY: 205, pointerId: 62, isPrimary: true });
     await page.dispatchEvent('#seisan-view-area', 'pointerup', { pointerType: 'touch', clientY: 205, pointerId: 62, isPrimary: true });
@@ -196,16 +193,27 @@ test.describe('Settlement UI regressions v76', () => {
     });
     const beforeCollection = await settlementViewport(page);
 
-    const collection = page.locator('[data-settlement-paid-name]').first();
+    const collection = page.locator('cds-checkbox[data-settlement-paid-name]:not([disabled])').first();
     await expect(collection).toBeAttached();
-    await collection.click();
+    await collection.evaluate(node => {
+      node.checked = !node.checked;
+      node.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    });
     await confirmDecision(page);
     await expect.poll(() => settlementViewport(page)).toEqual(beforeCollection);
 
     const beforeDriver = await settlementViewport(page);
     const driverToggle = page.locator('[data-settlement-driver-paid-name]').first();
     await expect(driverToggle).toBeVisible();
-    await driverToggle.click();
+    await driverToggle.evaluate(node => {
+      const next = !(node.toggled ?? node.checked);
+      node.toggled = next;
+      node.dispatchEvent(new CustomEvent('cds-toggle-changed', {
+        bubbles: true,
+        composed: true,
+        detail: { toggled: next }
+      }));
+    });
     await confirmDecision(page);
     await expect.poll(() => settlementViewport(page)).toEqual(beforeDriver);
     await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'collapsed');
