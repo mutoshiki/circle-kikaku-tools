@@ -14,8 +14,9 @@
     syncVisible: false,
     syncVisibleKind: '',
     syncHadPendingState: false,
-    syncSuppressUntil: 0,
-    syncSuppressedSaveCycle: false,
+    syncSuppressTimer: null,
+    syncSuppressNextSaveCycle: false,
+    syncCurrentSaveSuppressed: false,
     syncSavePending: false
   };
 
@@ -276,17 +277,24 @@
   }
 
   function suppressSyncFeedback(duration = 600) {
-    state.syncSuppressUntil = Math.max(state.syncSuppressUntil, Date.now() + Math.max(0, Number(duration) || 0));
-    state.syncSuppressedSaveCycle = false;
+    clearTimeout(state.syncSuppressTimer);
+    state.syncSuppressNextSaveCycle = true;
+    state.syncCurrentSaveSuppressed = false;
     state.syncSavePending = false;
     clearTimeout(state.syncDelayTimer);
     state.syncDelayTimer = null;
     removeToast(state.syncToast || document.getElementById('appSyncStatusToast'), 'sync');
+    state.syncSuppressTimer = setTimeout(() => {
+      state.syncSuppressNextSaveCycle = false;
+      state.syncSuppressTimer = null;
+    }, Math.max(0, Number(duration) || 0));
   }
 
   function resumeSyncFeedback() {
-    state.syncSuppressUntil = 0;
-    state.syncSuppressedSaveCycle = false;
+    clearTimeout(state.syncSuppressTimer);
+    state.syncSuppressTimer = null;
+    state.syncSuppressNextSaveCycle = false;
+    state.syncCurrentSaveSuppressed = false;
     state.syncSavePending = false;
   }
 
@@ -296,36 +304,45 @@
     const previousKind = state.syncKind;
     const previousVisible = state.syncVisible;
     const previousVisibleKind = state.syncVisibleKind;
-    const suppressed = Date.now() < state.syncSuppressUntil;
-    if (kind === 'saving' && !suppressed) state.syncSavePending = true;
+
+    if (kind === 'saving') {
+      const suppressThisCycle = state.syncSuppressNextSaveCycle;
+      if (suppressThisCycle) {
+        state.syncSuppressNextSaveCycle = false;
+        clearTimeout(state.syncSuppressTimer);
+        state.syncSuppressTimer = null;
+        state.syncCurrentSaveSuppressed = true;
+        state.syncSavePending = false;
+      } else {
+        state.syncCurrentSaveSuppressed = false;
+        state.syncSavePending = true;
+      }
+    }
+
     const changed = previousKind !== kind || state.syncMessage !== nextMessage;
     state.syncKind = kind;
     state.syncMessage = nextMessage;
-    if (!changed && !(kind === 'connected' && state.syncSavePending)) return;
+    if (!changed && !(kind === 'connected' && (state.syncSavePending || state.syncCurrentSaveSuppressed))) return;
 
     clearTimeout(state.syncDelayTimer);
     state.syncDelayTimer = null;
 
-    if (suppressed) {
-      if (kind === 'saving') {
-        state.syncSuppressedSaveCycle = true;
-        state.syncSavePending = false;
-      }
-      if (kind === 'connected') {
-        state.syncHadPendingState = false;
-        state.syncSavePending = false;
-        if (state.syncSuppressedSaveCycle) {
-          state.syncSuppressedSaveCycle = false;
-          state.syncSuppressUntil = 0;
-        }
-      }
+    if (kind === 'saving' && state.syncCurrentSaveSuppressed) {
+      removeToast(state.syncToast || document.getElementById('appSyncStatusToast'), 'sync');
+      return;
+    }
+
+    if (kind === 'connected' && state.syncCurrentSaveSuppressed) {
+      state.syncCurrentSaveSuppressed = false;
+      state.syncSavePending = false;
+      state.syncHadPendingState = false;
       removeToast(state.syncToast || document.getElementById('appSyncStatusToast'), 'sync');
       return;
     }
 
     if (kind === 'saving') {
       state.syncDelayTimer = setTimeout(() => {
-        if (state.syncKind !== 'saving' || Date.now() < state.syncSuppressUntil) return;
+        if (state.syncKind !== 'saving' || state.syncCurrentSaveSuppressed) return;
         showSyncToast('saving', nextMessage, { persistent: true });
       }, SYNC_PROGRESS_DELAY);
       return;
@@ -355,7 +372,7 @@
         removeToast(state.syncToast, 'sync');
         return;
       }
-      state.syncSavePending = false;
+      state.syncCurrentSaveSuppressed = false;
       const compatibilityProblem = /新版|未対応/.test(nextMessage);
       const permissionProblem = /permission[_ -]?denied|権限/i.test(nextMessage);
       const actualConnectionProblem = /network|offline|disconnected|通信|接続[^。]*(切|失|不可)|タイムアウト|timeout/i.test(nextMessage);
@@ -370,7 +387,7 @@
     }
 
     if (kind === 'local') {
-      state.syncSavePending = false;
+      state.syncCurrentSaveSuppressed = false;
       const actualConnectionProblem = /network|offline|disconnected|通信|接続[^。]*(切|失|不可)|タイムアウト|timeout/i.test(nextMessage);
       if (actualConnectionProblem) {
         state.syncHadPendingState = true;
