@@ -67,7 +67,7 @@ async function copyUrl() {
     const url = createSharedViewUrl();
     try {
         await navigator.clipboard.writeText(url);
-        showAppNotice('リンクをコピーしました');
+        showAppToast('リンクをコピーしました');
     } catch (_) {
         showCopyFallback('リンクをコピー', url);
     }
