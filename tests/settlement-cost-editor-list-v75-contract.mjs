@@ -44,9 +44,10 @@ assert.match(settingsCss, /width: calc\(100vw - 2rem\)/, 'settlement settings ke
 assert.doesNotMatch(settingsCss, /!important/, 'settings owner CSS does not use force overrides');
 
 assert.match(shareActions, /url\.searchParams\.set\('view', 'sheet'\)/, 'canonical copied URL opens the shared view');
+assert.match(shareActions, /navigator\.clipboard\?\.writeText/, 'canonical share uses the browser Clipboard API directly from the header action');
 assert.match(shareActions, /showShareCopyStatus\('リンクをコピーしました', 'success'\)/, 'successful copy uses concise Carbon toast feedback');
-assert.match(shareActions, /legacyCopyText/, 'clipboard API failure has a direct copy fallback without opening a modal');
-assert.doesNotMatch(shareActions, /showCopyFallback|copy-fallback|share-links-modal|車割・班割\(発表用リンク\)|精算用リンク/, 'copy and share actions no longer open legacy dialogs');
+assert.match(shareActions, /showShareCopyStatus\('リンクをコピーできませんでした', 'error'\)/, 'copy failure remains non-modal and uses Carbon feedback');
+assert.doesNotMatch(shareActions, /showCopyFallback|copy-fallback|createElement\(['"](?:input|textarea|button)['"]\)|share-links-modal|車割・班割\(発表用リンク\)|精算用リンク/, 'copy and share actions no longer open legacy dialogs or native fallback controls');
 assert.match(app, /requestedView[\s\S]*await switchView\(initialView\)/, 'view query parameter is applied during startup');
 assert.match(sheetView, /message: '下にスワイプできます。'/, 'shared-view guidance uses the requested swipe message');
 assert.doesNotMatch(sheetView, /1本指で移動、2本指で拡大・縮小できます。/, 'legacy gesture guidance is removed');
