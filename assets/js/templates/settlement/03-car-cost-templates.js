@@ -136,7 +136,7 @@
     return `<cds-popover class="seisan-gas-settings-popover" align="bottom" drop-shadow>
       <cds-icon-button class="seisan-gas-settings-trigger" kind="ghost" size="lg" type="button" data-action="open-settlement-gas-settings" data-driver-name="${encodeURIComponent(car.name)}" aria-expanded="false" aria-haspopup="dialog" aria-label="${movementLabel}の設定を開く"><span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span></cds-icon-button>
       <cds-popover-content>
-        <section class="seisan-gas-settings-surface" role="dialog" aria-label="${movementLabel}の設定">
+        <section id="settlementGasEditPanel" class="seisan-gas-settings-surface" role="dialog" aria-label="${movementLabel}の設定">
           <div class="seisan-gas-settings-panel-head">
             <h4>${movementLabel}の設定</h4>
             <cds-icon-button kind="ghost" size="lg" type="button" data-action="close-settlement-gas-settings" aria-label="設定を閉じる"><span data-carbon-icon="close" slot="icon" aria-hidden="true"></span></cds-icon-button>
