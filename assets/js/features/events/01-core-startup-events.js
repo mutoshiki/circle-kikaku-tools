@@ -3,6 +3,7 @@
     'use strict';
 
     const events = global.SanpoEvents || {};
+    const PROJECT_TITLE_STALE_ECHO_GUARD_MS = 2200;
 
     function installRoomTitleValueBridge(roomNameInput) {
         if (!roomNameInput || roomNameInput.dataset.projectTitleValueBridge === 'true') return;
@@ -12,7 +13,14 @@
         if (!valueDescriptor?.get || !valueDescriptor?.set) return;
 
         let pendingLocalTitle = '';
+        let pendingBaseTitle = '';
+        let pendingUntil = 0;
         const normalizeTitle = value => String(value ?? '').replace(/[\r\n]+/g, '');
+        const clearPending = () => {
+            pendingLocalTitle = '';
+            pendingBaseTitle = '';
+            pendingUntil = 0;
+        };
         const syncEditor = value => {
             const editor = byId('projectTitleEditor');
             if (!editor || document.activeElement === editor) return;
@@ -36,24 +44,30 @@
                     && document.activeElement === editor
                     && next === editorValue;
 
-                // The visible contenteditable is the source of a local title edit. Accept
-                // every changed value from it, even while an earlier character is still
-                // waiting for the shared-room acknowledgement. A same-value assignment is
-                // instead the shared echo acknowledging the pending local title.
                 if (editorOwnsWrite && next !== current) {
+                    if (!pendingLocalTitle) pendingBaseTitle = current;
                     valueDescriptor.set.call(this, next);
                     pendingLocalTitle = next;
+                    pendingUntil = Date.now() + PROJECT_TITLE_STALE_ECHO_GUARD_MS;
                     return;
                 }
 
-                // A remote snapshot can arrive between the local input event and its
-                // debounced save. Do not let an older/empty roomName erase the title
-                // that is still waiting to be acknowledged by the shared room.
-                if (pendingLocalTitle && next !== pendingLocalTitle) return;
-                if (pendingLocalTitle && next === pendingLocalTitle) pendingLocalTitle = '';
+                if (pendingLocalTitle) {
+                    if (next === pendingLocalTitle) {
+                        clearPending();
+                    } else if (Date.now() <= pendingUntil && next === pendingBaseTitle) {
+                        // Ignore only the exact value that was on the shared room when the
+                        // local edit started. This is the stale echo that used to erase a
+                        // freshly typed title before its debounced save completed.
+                        return;
+                    } else {
+                        // A genuinely different remote title is a concurrent edit, not a
+                        // stale echo. Let the canonical sync result flow through instead of
+                        // holding a local title indefinitely.
+                        clearPending();
+                    }
+                }
 
-                // While the contenteditable editor owns focus, reject remote repaint values
-                // that do not match the currently edited text.
                 if (editor && document.activeElement === editor && next !== current) return;
 
                 valueDescriptor.set.call(this, next);
@@ -65,9 +79,11 @@
         roomNameInput.addEventListener('input', event => {
             if (event.isComposing) return;
             pendingLocalTitle = normalizeTitle(valueDescriptor.get.call(roomNameInput));
+            pendingUntil = Date.now() + PROJECT_TITLE_STALE_ECHO_GUARD_MS;
         });
         roomNameInput.addEventListener('compositionend', () => {
             pendingLocalTitle = normalizeTitle(valueDescriptor.get.call(roomNameInput));
+            pendingUntil = Date.now() + PROJECT_TITLE_STALE_ECHO_GUARD_MS;
         });
     }
 
@@ -178,8 +194,9 @@
             roomNameInput.addEventListener('input', event => {
                 refreshRoomTitle();
                 if (event.isComposing) return;
+                global.__lastLocalUpdatedAt = (window.SanpoClock?.now?.() ?? Date.now());
                 clearTimeout(saveTimer);
-                saveTimer = setTimeout(save, 500);
+                saveTimer = setTimeout(save, 250);
             });
             roomNameInput.addEventListener('keydown', event => {
                 if (event.key !== 'Enter') return;
