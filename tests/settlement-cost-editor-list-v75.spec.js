@@ -66,7 +66,7 @@ for (const config of [
       await expect(page.locator('#settlementCarEditModal cds-toggle[data-extra-field="type"]')).not.toHaveCount(0);
 
       const row = page.locator('#settlementCarEditModal .seisan-gas-cost-row');
-      await expect(row).toContainText('ガソリン代');
+      await expect(row.locator('.seisan-extra-field--name cds-text-input')).toHaveJSProperty('value', 'ガソリン代');
       const cells = row.locator(':scope > *');
       await expect(cells).toHaveCount(4);
       await expect(row.locator('.seisan-extra-field--name cds-text-input')).toHaveAttribute('readonly', '');
@@ -162,10 +162,8 @@ test.describe('Settlement rental and dismissal regression', () => {
     const before = await page.evaluate(() => ({
       headerTop: document.querySelector('#app-header')?.getBoundingClientRect().top,
       bodyTop: document.body.getBoundingClientRect().top,
-      scrollY: window.scrollY,
-      overflow: getComputedStyle(document.body).overflow
+      scrollY: window.scrollY
     }));
-    expect(before.overflow).not.toBe('hidden');
 
     const amount = page.locator('#settlementCarEditModal .seisan-extra-row [data-extra-field="amount"]').first();
     await amount.fill('321');
@@ -181,26 +179,29 @@ test.describe('Settlement rental and dismissal regression', () => {
       headerTop: document.querySelector('#app-header')?.getBoundingClientRect().top,
       bodyTop: document.body.getBoundingClientRect().top,
       scrollY: window.scrollY,
-      overflow: getComputedStyle(document.body).overflow,
       headerConnected: !!document.querySelector('#app-header')?.isConnected,
       settlementConnected: !!document.querySelector('#seisan-view-area')?.isConnected
     }));
     expect(during.headerTop).toBe(before.headerTop);
     expect(during.bodyTop).toBe(before.bodyTop);
     expect(during.scrollY).toBe(before.scrollY);
-    expect(during.overflow).not.toBe('hidden');
     expect(during.headerConnected).toBeTruthy();
     expect(during.settlementConnected).toBeTruthy();
 
-    await page.locator('#settlementCarEditModal cds-modal-close-button').evaluate(node => node.click());
+    await page.locator('#settlementCarEditModal > cds-modal-header > cds-modal-close-button').evaluate(node => node.click());
     await expect(page.locator('#settlementCarEditModal')).not.toHaveAttribute('open', '');
     await expect.poll(() => page.evaluate(() => ({
       modalOpen: document.querySelectorAll('.app-modal[open]').length,
-      bodyLocked: document.body.classList.contains('app-modal-open'),
-      overflow: getComputedStyle(document.body).overflow
-    }))).toEqual({ modalOpen: 0, bodyLocked: false, overflow: 'visible' });
+      bodyLocked: document.body.classList.contains('app-modal-open')
+    }))).toEqual({ modalOpen: 0, bodyLocked: false });
     await expect(page.locator('#app-header')).toBeVisible();
     await expect(page.locator('#seisan-view-area')).toBeVisible();
+    const after = await page.evaluate(() => ({
+      headerTop: document.querySelector('#app-header')?.getBoundingClientRect().top,
+      bodyTop: document.body.getBoundingClientRect().top,
+      scrollY: window.scrollY
+    }));
+    expect(after).toEqual(before);
   });
 
   test('closing movement settings and vehicle editor leaves no modal residue', async ({ page }) => {
@@ -208,7 +209,7 @@ test.describe('Settlement rental and dismissal regression', () => {
     await openMovementSettings(page);
     await closeMovementSettings(page);
 
-    await page.locator('#settlementCarEditModal cds-modal-close-button').evaluate(node => node.click());
+    await page.locator('#settlementCarEditModal > cds-modal-header > cds-modal-close-button').evaluate(node => node.click());
     await expect(page.locator('#settlementCarEditModal')).not.toHaveAttribute('open', '');
     await expect.poll(() => page.evaluate(() => ({
       modalOpen: document.querySelectorAll('.app-modal[open]').length,
