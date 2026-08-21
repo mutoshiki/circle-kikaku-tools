@@ -297,14 +297,17 @@
     }
 
     if (kind === 'connected') {
-      const recoveredFromProblem = state.syncHadPendingState || ['local', 'error'].includes(previousKind) || ['local', 'error'].includes(previousVisibleKind);
+      const recoveredFromProblem = state.syncHadPendingState || ['local', 'error'].includes(previousVisibleKind);
+      const completedVisibleSave = previousVisible && previousVisibleKind === 'saving';
       const explicitReplay = /再送|保留/.test(nextMessage);
       state.syncHadPendingState = false;
-      // A routine autosave can be triggered by navigation, opening a settings modal, or a
-      // no-op projection update. Do not announce those. Success is only useful after an
-      // actual pending/error state or an explicit replay of queued changes.
-      if (recoveredFromProblem || explicitReplay) {
+      // Navigation, tab changes, opening settings, and no-op projection saves usually finish
+      // before progress becomes visible, so they stay silent. A completion is useful only
+      // after visible progress or after a real pending/error state has recovered.
+      if (explicitReplay || recoveredFromProblem) {
         showSyncToast('connected', explicitReplay ? nextMessage : '保留していた変更を再送しました');
+      } else if (completedVisibleSave) {
+        showSyncToast('connected', nextMessage);
       } else {
         removeToast(state.syncToast, 'sync');
       }
