@@ -34,6 +34,14 @@ async function closeMovementSettings(page) {
   await expect.poll(() => page.evaluate(() => document.querySelectorAll('.app-modal[open]').length)).toBe(1);
 }
 
+async function setCarbonTextValue(locator, value) {
+  await locator.evaluate((node, next) => {
+    node.value = next;
+    node.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+    node.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+  }, value);
+}
+
 for (const config of [
   { name: 'mobile light', width: 390, height: 844, dark: false },
   { name: 'mobile dark', width: 390, height: 844, dark: true },
@@ -71,11 +79,12 @@ for (const config of [
       await expect(cells).toHaveCount(4);
       await expect(row.locator('.seisan-extra-field--name cds-text-input')).toHaveAttribute('readonly', '');
       await expect(row.locator('.seisan-extra-field--amount cds-text-input')).toHaveAttribute('readonly', '');
-      await expect(row.locator('[data-carbon-icon="settings--adjust"], [data-carbon-icon-name="settings--adjust"]')).toHaveCount(1);
-      await expect(row.locator('cds-toggle')).toHaveCount(1);
-      await expect(row.locator('cds-toggle')).toHaveAttribute('disabled', '');
-      await expect(row.locator('cds-toggle')).toHaveAttribute('aria-disabled', 'true');
-      await expect(row.locator('.seisan-extra-field--action cds-icon-button')).toHaveAttribute('disabled', '');
+      await expect(row.locator('.seisan-extra-field--amount [data-action="open-settlement-gas-settings"]')).toHaveCount(0);
+      await expect(row.locator('.seisan-extra-field--action [data-action="open-settlement-gas-settings"]')).toHaveCount(1);
+      await expect(row.locator('.seisan-extra-field--action [data-carbon-icon="settings--adjust"], .seisan-extra-field--action [data-carbon-icon-name="settings--adjust"]')).toHaveCount(1);
+      await expect(row.locator('.seisan-extra-field--action [data-carbon-icon="trash-can"], .seisan-extra-field--action [data-carbon-icon-name="trash-can"]')).toHaveCount(0);
+      await expect(row.locator('cds-toggle[data-extra-field="type"]')).toHaveCount(1);
+      await expect(row.locator('cds-toggle[data-extra-field="type"]')).not.toHaveAttribute('disabled', '');
 
       const geometry = await row.evaluate(node => {
         const rowBox = node.getBoundingClientRect();
@@ -85,25 +94,31 @@ for (const config of [
         });
         const toggle = node.querySelector('cds-toggle')?.getBoundingClientRect();
         const amount = node.querySelector('.seisan-extra-field--amount cds-text-input')?.getBoundingClientRect();
+        const action = node.querySelector('.seisan-extra-field--action cds-icon-button')?.getBoundingClientRect();
         return {
           height: rowBox.height,
           cells,
           toggleCenterY: toggle ? (toggle.top + toggle.bottom) / 2 : null,
-          amountCenterY: amount ? (amount.top + amount.bottom) / 2 : null
+          amountCenterY: amount ? (amount.top + amount.bottom) / 2 : null,
+          actionSize: action ? { width: action.width, height: action.height } : null
         };
       });
       expect(geometry.height).toBeLessThanOrEqual(64);
       expect(Math.max(...geometry.cells.map(cell => cell.centerY)) - Math.min(...geometry.cells.map(cell => cell.centerY))).toBeLessThanOrEqual(1);
       expect(Math.abs(geometry.toggleCenterY - geometry.amountCenterY)).toBeLessThanOrEqual(2);
       expect(geometry.cells.every((cell, index, all) => index === 0 || cell.left >= all[index - 1].right)).toBeTruthy();
+      expect(geometry.actionSize.width).toBeGreaterThanOrEqual(44);
+      expect(geometry.actionSize.height).toBeGreaterThanOrEqual(44);
 
-      const normalAmount = page.locator('#settlementCarEditModal .seisan-extra-row [data-extra-field="amount"]').first();
+      const normalAmount = page.locator('#settlementCarEditModal .seisan-extra-list .seisan-extra-row [data-extra-field="amount"]').first();
       const movementAmount = row.locator('.seisan-calculated-amount-input');
-      const amountBoxes = await Promise.all([
-        normalAmount.evaluate(node => node.getBoundingClientRect().toJSON()),
-        movementAmount.evaluate(node => node.getBoundingClientRect().toJSON())
-      ]);
-      expect(Math.abs(amountBoxes[0].height - amountBoxes[1].height)).toBeLessThanOrEqual(1);
+      if (await normalAmount.count()) {
+        const amountBoxes = await Promise.all([
+          normalAmount.evaluate(node => node.getBoundingClientRect().toJSON()),
+          movementAmount.evaluate(node => node.getBoundingClientRect().toJSON())
+        ]);
+        expect(Math.abs(amountBoxes[0].height - amountBoxes[1].height)).toBeLessThanOrEqual(1);
+      }
 
       const { modal, surface } = await openMovementSettings(page);
       await expect(surface.locator('[data-field="rentalType"]')).toHaveJSProperty('value', 'private');
@@ -130,7 +145,47 @@ for (const config of [
 test.describe('Settlement rental and dismissal regression', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
-  test('Times rental shows movement fee then editable time fee with fixed name', async ({ page }) => {
+  test('automatic movement amount is visible, read-only, and its club toggle changes accounting', async ({ page }) => {
+    await seedSettlement(page);
+    const { surface } = await openMovementSettings(page);
+    await setCarbonTextValue(surface.locator('[data-field="dist"]'), '100');
+    await setCarbonTextValue(surface.locator('[data-field="eco"]'), '10');
+    await setCarbonTextValue(surface.locator('[data-field="price"]'), '150');
+    await closeMovementSettings(page);
+
+    const row = page.locator('#settlementCarEditModal .seisan-gas-cost-row');
+    const amount = row.locator('[data-extra-field="amount"]');
+    await expect(amount).toHaveJSProperty('value', '1500');
+    await expect(amount).toHaveAttribute('readonly', '');
+
+    const toggle = row.locator('cds-toggle[data-extra-field="type"]');
+    const before = await page.evaluate(() => {
+      const data = getRoomDataOnly();
+      const state = ensureSettlementState();
+      const calc = calculateSettlement(data, state).cars[0];
+      return { movementBaseType: calc.movementBaseType, splitPay: calc.splitPay, clubPay: calc.clubPay };
+    });
+    expect(before.movementBaseType).toBe('split');
+
+    await toggle.click();
+    await expect.poll(() => page.evaluate(() => {
+      const data = getRoomDataOnly();
+      const state = ensureSettlementState();
+      const calc = calculateSettlement(data, state).cars[0];
+      return { movementBaseType: calc.movementBaseType, splitPay: calc.splitPay, clubPay: calc.clubPay };
+    })).toEqual(expect.objectContaining({ movementBaseType: 'club' }));
+
+    const after = await page.evaluate(() => {
+      const data = getRoomDataOnly();
+      const state = ensureSettlementState();
+      const calc = calculateSettlement(data, state).cars[0];
+      return { movementBaseType: calc.movementBaseType, splitPay: calc.splitPay, clubPay: calc.clubPay };
+    });
+    expect(after.clubPay).toBeGreaterThan(before.clubPay);
+    expect(after.splitPay).toBeLessThan(before.splitPay);
+  });
+
+  test('Times rental shows movement fee then editable time fee with fixed name and no trash', async ({ page }) => {
     await seedSettlement(page);
     const { surface } = await openMovementSettings(page);
     const rental = surface.locator('[data-field="rentalType"]');
@@ -142,20 +197,27 @@ test.describe('Settlement rental and dismissal regression', () => {
     await expect(surface.locator('[data-field="dist"]')).toBeAttached();
     await expect(surface.locator('[data-field="eco"]')).toBeHidden();
     await expect(surface.locator('[data-field="price"]')).toBeHidden();
+    await setCarbonTextValue(surface.locator('[data-field="dist"]'), '100');
 
     await closeMovementSettings(page);
 
     const rows = page.locator('#settlementCarEditModal .seisan-cost-edit-row');
-    const movementName = rows.first().locator('.seisan-extra-field--name cds-text-input');
+    const movementRow = rows.first();
+    const movementName = movementRow.locator('.seisan-extra-field--name cds-text-input');
     await expect(movementName).toHaveJSProperty('value', 'タイムズ移動料金');
     await expect(movementName).toHaveAttribute('readonly', '');
+    await expect(movementRow.locator('[data-extra-field="amount"]')).toHaveJSProperty('value', '1600');
+    await expect(movementRow.locator('[data-extra-field="amount"]')).toHaveAttribute('readonly', '');
+    await expect(movementRow.locator('[data-extra-field="type"]')).not.toHaveAttribute('disabled', '');
+    await expect(movementRow.locator('.seisan-extra-field--action [data-action="open-settlement-gas-settings"]')).toHaveCount(1);
+    await expect(movementRow.locator('.seisan-extra-field--action [data-carbon-icon="trash-can"]')).toHaveCount(0);
 
     const timeRow = page.locator('#settlementCarEditModal .seisan-extra-row--times-time');
     await expect(timeRow.locator('[data-extra-field="name"]')).toHaveJSProperty('value', 'タイムズ時間料金');
     await expect(timeRow.locator('[data-extra-field="name"]')).toHaveAttribute('readonly', '');
     await expect(timeRow.locator('[data-extra-field="amount"]')).not.toHaveAttribute('readonly', '');
     await expect(timeRow.locator('[data-extra-field="type"]')).not.toHaveAttribute('disabled', '');
-    await expect(timeRow.locator('.seisan-extra-field--action cds-icon-button')).toHaveAttribute('disabled', '');
+    await expect(timeRow.locator('.seisan-extra-field--action cds-icon-button')).toHaveCount(0);
   });
 
   test('keyboard viewport resize does not move the app shell or leave a white-gap state', async ({ page }) => {
@@ -166,7 +228,7 @@ test.describe('Settlement rental and dismissal regression', () => {
       scrollY: window.scrollY
     }));
 
-    const amount = page.locator('#settlementCarEditModal .seisan-extra-row [data-extra-field="amount"]').first();
+    const amount = page.locator('#settlementCarEditModal .seisan-extra-list .seisan-extra-row [data-extra-field="amount"]').first();
     await amount.evaluate(node => {
       node.value = '321';
       node.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
