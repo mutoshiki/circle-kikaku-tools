@@ -28,6 +28,15 @@ function releaseSettlementEditingSoon(delay = 320) {
     }, delay);
 }
 
+function resetSettlementEditingAfterEditorClose() {
+    clearTimeout(settlementEditingLockTimer);
+    clearTimeout(settlementRenderTimer);
+    clearTimeout(settlementCommitTimer);
+    settlementEditingLock = false;
+    settlementCompositionActive = false;
+    settlementRenderDeferred = false;
+}
+
 function isSettlementInputProtected() {
     return settlementEditingLock || settlementCompositionActive || isEditingSettlementCostField();
 }
