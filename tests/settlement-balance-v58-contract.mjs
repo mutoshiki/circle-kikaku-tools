@@ -58,7 +58,7 @@ assert.doesNotMatch(calculator, /adjustedTotalPay\s*=\s*Math\.max\(0/);
 assert.match(summary, /paymentAdjustmentTotal/);
 assert.match(summary, /extra\.baseType === 'club'/);
 assert.match(summary, /data-summary-kind="rounding"[\s\S]*割勘[\s\S]*部費[\s\S]*data-summary-kind="pay"/, 'The consolidated split/club rounding row must appear immediately before payments.');
-assert.match(read('assets/js/templates/settlement/03-car-cost-templates.js'), /割勘による内訳[\s\S]*割勘合計[\s\S]*部費による内訳[\s\S]*部費合計[\s\S]*支払い合計/, 'Driver cards must show split details, club details, then their combined payment total.');
+assert.match(read('assets/js/templates/settlement/03-car-cost-templates.js'), /割勘合計[\s\S]*費用内訳[\s\S]*部費合計[\s\S]*部費の内訳[\s\S]*車ごとの支払い合計/, 'Driver cards must show split details, club details, then their combined payment total.');
 assert.doesNotMatch(summary, /ドライバー分の集金控除|参加者集金の不足/);
 assert.doesNotMatch(shareText, /accountingLabel|部費支出.*accounting/);
 assert.match(shareText, /割勘の端数調整/);
