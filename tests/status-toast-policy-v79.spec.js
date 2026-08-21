@@ -16,7 +16,7 @@ async function toastCopy(page, selector = '#appSyncStatusToast') {
 test.describe('Status toast policy v79', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('routine saves and internal retry states stay quiet while useful feedback remains clear', async ({ page }) => {
+  test('real saves show concise completion feedback while quiet interactions and internal retry states stay silent', async ({ page }) => {
     await page.goto('/');
     await waitForApp(page);
     await page.evaluate(() => {
@@ -24,13 +24,28 @@ test.describe('Status toast policy v79', () => {
       window.AppUI.setSyncStatus('neutral', 'reset');
     });
 
-    // Routine autosave completion is intentionally quiet. Opening views/settings can
-    // trigger these saves, so announcing every completion would be notification noise.
+    // A real save must still give feedback even when it finishes before the delayed
+    // progress toast appears. The user should never end up with no save/sync feedback.
     await page.evaluate(() => window.showSaveStatus('保存中...', 'saving'));
     await page.waitForTimeout(120);
     await page.evaluate(() => window.showSaveStatus('同期完了', 'connected'));
+    const syncToast = page.locator('#appSyncStatusToast');
+    await expect(syncToast).toBeVisible();
+    expect(await toastCopy(page)).toEqual({
+      title: '保存しました',
+      subtitle: '変更内容を反映しました。',
+      kind: 'success'
+    });
+
+    // Navigation/settings-only interactions explicitly suppress the same status flow.
+    await page.evaluate(() => {
+      window.AppUI.suppressSyncFeedback(1000);
+      window.showSaveStatus('保存中...', 'saving');
+      window.showSaveStatus('同期完了', 'connected');
+    });
     await page.waitForTimeout(100);
     await expect(page.locator('#appSyncStatusToast')).toHaveCount(0);
+    await page.evaluate(() => window.AppUI.resumeSyncFeedback());
 
     // Transport initialization/retry wording is internal implementation detail and
     // must not surface as a scary permanent-rejection message on first load.

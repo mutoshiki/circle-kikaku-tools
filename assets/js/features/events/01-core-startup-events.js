@@ -4,6 +4,73 @@
 
     const events = global.SanpoEvents || {};
 
+    function installRoomTitleValueBridge(roomNameInput) {
+        if (!roomNameInput || roomNameInput.dataset.projectTitleValueBridge === 'true') return;
+        const prototype = Object.getPrototypeOf(roomNameInput);
+        const valueDescriptor = Object.getOwnPropertyDescriptor(prototype, 'value')
+            || Object.getOwnPropertyDescriptor(global.HTMLInputElement?.prototype || {}, 'value');
+        if (!valueDescriptor?.get || !valueDescriptor?.set) return;
+
+        let pendingLocalTitle = '';
+        const normalizeTitle = value => String(value ?? '').replace(/[\r\n]+/g, '');
+        const syncEditor = value => {
+            const editor = byId('projectTitleEditor');
+            if (!editor || document.activeElement === editor) return;
+            const next = normalizeTitle(value);
+            if (editor.textContent !== next) editor.textContent = next;
+            if (!next && editor.childNodes.length) editor.replaceChildren();
+        };
+
+        Object.defineProperty(roomNameInput, 'value', {
+            configurable: true,
+            enumerable: valueDescriptor.enumerable,
+            get() {
+                return valueDescriptor.get.call(this);
+            },
+            set(value) {
+                const next = normalizeTitle(value);
+                const current = normalizeTitle(valueDescriptor.get.call(this));
+                const editor = byId('projectTitleEditor');
+                const editorValue = normalizeTitle(editor?.textContent || '');
+                const editorOwnsWrite = !!editor
+                    && document.activeElement === editor
+                    && next === editorValue;
+
+                // The visible contenteditable is the source of a local title edit. Accept
+                // every changed value from it, even while an earlier character is still
+                // waiting for the shared-room acknowledgement. A same-value assignment is
+                // instead the shared echo acknowledging the pending local title.
+                if (editorOwnsWrite && next !== current) {
+                    valueDescriptor.set.call(this, next);
+                    pendingLocalTitle = next;
+                    return;
+                }
+
+                // A remote snapshot can arrive between the local input event and its
+                // debounced save. Do not let an older/empty roomName erase the title
+                // that is still waiting to be acknowledged by the shared room.
+                if (pendingLocalTitle && next !== pendingLocalTitle) return;
+                if (pendingLocalTitle && next === pendingLocalTitle) pendingLocalTitle = '';
+
+                // While the contenteditable editor owns focus, reject remote repaint values
+                // that do not match the currently edited text.
+                if (editor && document.activeElement === editor && next !== current) return;
+
+                valueDescriptor.set.call(this, next);
+                syncEditor(next);
+            }
+        });
+        roomNameInput.dataset.projectTitleValueBridge = 'true';
+
+        roomNameInput.addEventListener('input', event => {
+            if (event.isComposing) return;
+            pendingLocalTitle = normalizeTitle(valueDescriptor.get.call(roomNameInput));
+        });
+        roomNameInput.addEventListener('compositionend', () => {
+            pendingLocalTitle = normalizeTitle(valueDescriptor.get.call(roomNameInput));
+        });
+    }
+
     function bindCoreStartupEvents() {
         if (document.documentElement.dataset.coreStartupEventsBound === 'true') return;
         document.documentElement.dataset.coreStartupEventsBound = 'true';
@@ -53,7 +120,7 @@
                     const driverGrade = parseInt(driver?.dataset?.grade) || 0;
                     const waitingList = $('#waiting-list');
 
-                    if (driverName && waitingList) addMember(driverName, driverMemo, driverGender, driverGrade, waitingList, false, driver?.dataset.flag, driver?.dataset.participantId || '');
+                    if (driverName && waitingList) addMember(driverName, driverMemo, driverGender, driverGrade, waitingList, false, driver?.dataset.flag, driver?.dataset?.participantId || '');
                     $$('.member-card', box).forEach(m => waitingList?.appendChild(m));
                     if (settlementState?.cars && driverName) delete settlementState.cars[driverName];
                     if (settlementState?.driverPaid && driverName) delete settlementState.driverPaid[driverName];
@@ -107,6 +174,7 @@
 
         const roomNameInput = $('#roomNameInput');
         if (roomNameInput) {
+            installRoomTitleValueBridge(roomNameInput);
             roomNameInput.addEventListener('input', event => {
                 refreshRoomTitle();
                 if (event.isComposing) return;
