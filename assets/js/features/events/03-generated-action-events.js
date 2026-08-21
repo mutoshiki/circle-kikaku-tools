@@ -133,6 +133,7 @@
     async function openSettlementGasSettings(target) {
         const parentModal = document.getElementById('settlementCarEditModal');
         if (!parentModal) return;
+        global.AppUI?.suppressSyncFeedback?.(2200);
         const encodedDriverName = target?.dataset?.driverName || '';
         const parentBody = parentModal.querySelector(':scope > cds-modal-body.app-modal-body');
         const parentScrollTop = Number(parentBody?.scrollTop || 0);
@@ -180,6 +181,11 @@
         const modal = target?.closest?.('#settlementGasEditModal') || document.querySelector('body > #settlementGasEditModal');
         if (!modal) return;
         commitGasModalFields(modal);
+        // Opening/moving between nested editors is deliberately quiet. The explicit
+        // Done action is the commit boundary: resume feedback and save the completed
+        // gas settings to the shared room here.
+        global.AppUI?.resumeSyncFeedback?.();
+        global.save?.();
         global.AppModalAdapter?.getOrCreateInstance?.(modal)?.hide({ reason: 'done' });
     }
 
@@ -189,6 +195,7 @@
             global.openRouteDistanceHelperFromShortcut?.();
             return;
         }
+        global.AppUI?.suppressSyncFeedback?.(2200);
         commitGasModalFields(gasModal);
         gasModal.dataset.routeTransition = 'true';
         global.AppModalAdapter?.getOrCreateInstance?.(gasModal)?.hide({ reason: 'route-helper' });
