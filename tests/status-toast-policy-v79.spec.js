@@ -73,7 +73,7 @@ test.describe('Status toast policy v79', () => {
       const toast = document.getElementById('appSyncStatusToast');
       return {
         title: toast?.querySelector('[slot="title"]')?.textContent?.trim() || '',
-        subtitle: toast?.querySelector('[slot="subtitle"]').textContent?.trim() || '',
+        subtitle: toast?.querySelector('[slot="subtitle"]')?.textContent?.trim() || '',
         kind: toast?.getAttribute('kind') || '',
         titleSlots: toast?.querySelectorAll('[slot="title"]').length || 0,
         subtitleSlots: toast?.querySelectorAll('[slot="subtitle"]').length || 0,
