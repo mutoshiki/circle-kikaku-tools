@@ -4,6 +4,11 @@
 function updateStatus(kind = 'neutral', message = '') {
     if (!message) return;
     setPersistentSaveStatus(kind, message);
+    // AppUI is the single visual owner for save/sync feedback. Keep the existing
+    // persistent status bookkeeping intact, but route the same state through the
+    // Carbon notification controller here so callers of showSaveStatus cannot
+    // bypass its quiet-interaction, retry-state, timing, and copy policies.
+    window.AppUI?.setSyncStatus?.(kind, message);
 }
 
 // Backward-compatible status API used by extracted core modules.
