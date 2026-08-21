@@ -3,6 +3,7 @@
     'use strict';
 
     const events = global.SanpoEvents || {};
+    const privateFuelFields = new WeakMap();
 
     function refreshSettlementExtraTypeClasses(target, type) {
         const baseType = type.startsWith('club') ? 'club' : 'split';
@@ -38,7 +39,9 @@
             ? global.normalizeCarSettlementState(state.cars?.[name] || {})
             : { ...(state.cars?.[name] || {}) };
         const rentalType = modal.querySelector('[data-field="rentalType"]')?.value === 'times' ? 'times' : 'private';
-        const read = key => String(modal.querySelector(`[data-field="${key}"]`)?.value ?? current[key] ?? '');
+        const parked = privateFuelFields.get(modal)?.fields || [];
+        const findField = key => modal.querySelector(`[data-field="${key}"]`) || parked.find(field => field.querySelector?.(`[data-field="${key}"]`))?.querySelector?.(`[data-field="${key}"]`);
+        const read = key => String(findField(key)?.value ?? current[key] ?? '');
         current.rentalType = rentalType;
         current.dist = read('dist');
         current.eco = read('eco');
@@ -48,6 +51,29 @@
             ? global.ensureTimesRentalExtras(current)
             : current;
         global.saveLocalDraftOnly?.();
+    }
+
+    function syncPrivateFuelDisclosure(modal, times) {
+        const row = modal?.querySelector('.seisan-gas-field-row');
+        if (!row) return;
+        if (times) {
+            const fields = [...row.querySelectorAll(':scope > [data-private-fuel]')];
+            if (fields.length) {
+                privateFuelFields.set(modal, { fields });
+                fields.forEach(field => field.remove());
+            }
+            row.classList.add('is-times');
+            return;
+        }
+        const parked = privateFuelFields.get(modal);
+        if (parked?.fields?.length) {
+            parked.fields.forEach(field => {
+                field.hidden = false;
+                row.appendChild(field);
+            });
+            privateFuelFields.delete(modal);
+        }
+        row.classList.remove('is-times');
     }
 
     function syncGasVehicleType(target, value) {
@@ -61,7 +87,7 @@
             radio.checked = selected;
             radio.toggleAttribute('checked', selected);
         });
-        modal.querySelectorAll('[data-private-fuel]').forEach(field => { field.hidden = nextValue === 'times'; });
+        syncPrivateFuelDisclosure(modal, nextValue === 'times');
         const helper = modal.querySelector('[data-times-helper]');
         if (helper) helper.hidden = nextValue !== 'times';
         commitGasModalFields(modal);
@@ -101,8 +127,6 @@
         const parentBody = parentModal.querySelector(':scope > cds-modal-body.app-modal-body');
         const parentScrollTop = Number(parentBody?.scrollTop || 0);
 
-        // Carbon dialog guidance forbids nested modals. Preserve the current car-edit
-        // transaction, close it, then show the movement settings as the only active modal.
         if (typeof global.prepareSettlementCarEditTransition === 'function'
             && !global.prepareSettlementCarEditTransition({ allowInvalid: true, preserveSession: true })) return;
 
@@ -124,6 +148,7 @@
             const name = gasModalDriverName(modal);
             const routeTransition = modal.dataset.routeTransition === 'true';
             const scrollTop = Number(modal.dataset.returnScrollTop || 0);
+            privateFuelFields.delete(modal);
             modal.remove();
 
             if (routeTransition) {
@@ -138,6 +163,13 @@
         }, { once: true });
 
         global.AppModalAdapter?.getOrCreateInstance?.(modal)?.show();
+    }
+
+    function closeSettlementGasSettings(target) {
+        const modal = target?.closest?.('#settlementGasEditModal') || document.querySelector('body > #settlementGasEditModal');
+        if (!modal) return;
+        commitGasModalFields(modal);
+        global.AppModalAdapter?.getOrCreateInstance?.(modal)?.hide({ reason: 'done' });
     }
 
     function openRouteHelperShortcut(target) {
@@ -168,9 +200,6 @@
             if (syncGasVehicleType(target, event.detail?.value ?? target.value)) event.stopImmediatePropagation();
         }, true);
 
-        // Carbon's radio-button host click is the reliable composed event on touch Safari.
-        // Keep the official radio group as the semantic owner, but synchronise its public
-        // value immediately so both touch and pointer interaction commit the same state.
         document.addEventListener('click', event => {
             commitGasVehicleRadioFromEvent(event);
         }, true);
@@ -207,6 +236,7 @@
             'save-settlement-settings': () => global.saveSettlementSettings?.(),
             'open-settlement-car-edit': ({ target }) => global.openSettlementCarEditor?.(target.dataset.driverName || ''),
             'open-settlement-gas-settings': ({ target }) => openSettlementGasSettings(target),
+            'close-settlement-gas-settings': ({ target }) => closeSettlementGasSettings(target),
             'save-settlement-car-edit': () => global.saveSettlementCarEdit?.(),
             'add-settlement-extra': ({ target }) => global.addSettlementExtra?.(target.dataset.driverName || ''),
             'add-settlement-extra-candidate': ({ target }) => global.addSettlementExtraCandidate?.(target.dataset.driverName || '', target.dataset.extraCandidate || '', target.dataset.extraAmount || '', target.dataset.extraType || 'split'),
