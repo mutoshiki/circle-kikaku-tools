@@ -57,7 +57,7 @@
           <cds-text-input type="text" size="md" density="condensed" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-extra-field="amount" class="${extraFieldErrorClass(issues, carName, index, 'amount')}" value="${esc(ex.amount || '', helpers)}" placeholder="金額" label="金額" hide-label${invalidAttr('amount', '金額を入力してください')}${amountLockedAttr}></cds-text-input>
         </div>
         <div class="seisan-extra-field seisan-extra-field--type ${baseType} ${type}">
-          <cds-toggle size="sm" data-extra-field="type" data-extra-negative="${isNegative ? 'true' : 'false'}" value="${type}" ${baseType === 'club' ? 'toggled' : ''} ${timesFeeKind || isReward ? 'disabled' : ''} class="seisan-extra-type ${UI_CLASS.input} ${baseType} ${type}" label-text="" label-a="" label-b="" aria-label="${timesFeeKind || isReward ? `${costName}の部費設定は変更できません` : `${costName}を部費で処理`}"></cds-toggle>
+          <cds-toggle size="sm" hide-label data-extra-field="type" data-extra-negative="${isNegative ? 'true' : 'false'}" value="${type}" ${baseType === 'club' ? 'toggled' : ''} ${timesFeeKind || isReward ? 'disabled' : ''} class="seisan-extra-type ${UI_CLASS.input} ${baseType} ${type}" label-text="" label-a="" label-b="" aria-label="${timesFeeKind || isReward ? `${costName}の部費設定は変更できません` : `${costName}を部費で処理`}"></cds-toggle>
         </div>
         <div class="seisan-extra-field seisan-extra-field--action">${deleteControl}</div>
     </div>`;
