@@ -178,6 +178,9 @@ test.describe('Settlement UI regressions v76', () => {
     await expect(page.locator('#seisan-car-list .seisan-car-summary-row').first()).toBeVisible();
     await expect(page.locator('#seisan-collection-list')).toBeVisible();
 
+    // The reveal interaction is valid only at the active view's top edge. The edit
+    // session must preserve the user's previous scroll position rather than faking that state.
+    await page.locator('#seisan-view-area').evaluate(node => { node.scrollTop = 0; });
     await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 120, pointerId: 62, isPrimary: true });
     await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 152, pointerId: 62, isPrimary: true });
     await page.dispatchEvent('#top-area', 'pointerup', { pointerType: 'touch', clientY: 152, pointerId: 62, isPrimary: true });
