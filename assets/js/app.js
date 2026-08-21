@@ -15,11 +15,16 @@ D.addEventListener('DOMContentLoaded', async () => {
     ensureCompactMenuFallback();
     setupSeatMemberPicker();
 
+    // A copied room link may explicitly request one of the primary views. Keep
+    // this as a presentation-only URL concern; it does not enter persisted room state.
+    const requestedView = new URLSearchParams(window.location.search).get('view');
+    const initialView = ['list', 'sheet', 'seisan'].includes(requestedView) ? requestedView : currentView;
+
     // Paint the local/default state before any Firebase import or authentication wait.
     // Carbon's content switcher also manages target[hidden], so normalize the selected
     // panel explicitly during boot instead of waiting for the first tab interaction.
     load();
-    await switchView(currentView);
+    await switchView(initialView);
 
     const remoteReady = await initFirebaseSync();
     if (remoteReady) load();
