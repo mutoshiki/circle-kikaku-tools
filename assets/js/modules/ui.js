@@ -316,12 +316,12 @@
 
     if (kind === 'connected') {
       const recoveredFromProblem = state.syncHadPendingState || ['local', 'error'].includes(previousVisibleKind);
-      const completedVisibleSave = previousVisible && previousVisibleKind === 'saving';
+      const completedSave = previousKind === 'saving';
       const explicitReplay = /再送|保留/.test(nextMessage);
       state.syncHadPendingState = false;
       if (explicitReplay || recoveredFromProblem) {
         showSyncToast('connected', explicitReplay ? nextMessage : '保留していた変更を反映しました');
-      } else if (completedVisibleSave) {
+      } else if (completedSave) {
         showSyncToast('connected', nextMessage);
       } else {
         removeToast(state.syncToast, 'sync');
