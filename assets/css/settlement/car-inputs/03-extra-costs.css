@@ -84,6 +84,8 @@
 
 #settlementCarEditModal .seisan-extra-field--type cds-toggle {
   flex: 0 0 auto;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 #settlementCarEditModal .seisan-extra-field--action .seisan-icon-btn {
