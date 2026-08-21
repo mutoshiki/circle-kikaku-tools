@@ -13,7 +13,8 @@
     syncMessage: '',
     syncVisible: false,
     syncVisibleKind: '',
-    syncHadPendingState: false
+    syncHadPendingState: false,
+    syncSuppressUntil: 0
   };
 
   const STATUS_NOTIFICATIONS = Object.freeze({
@@ -23,7 +24,7 @@
     info: Object.freeze({ kind: 'info', iconDescription: '情報' }),
     neutral: Object.freeze({ kind: 'info', iconDescription: '情報' })
   });
-  const DEFAULT_TOAST_DURATION = 3200;
+  const DEFAULT_TOAST_DURATION = 2400;
   const SYNC_PROGRESS_DELAY = 650;
 
   function ensureNotificationRegion() {
@@ -190,6 +191,10 @@
     toast.setAttribute('aria-atomic', 'true');
     toast.ariaLabel = '通知を閉じる';
     toast.setAttribute('status-icon-description', notification.iconDescription);
+    // Carbon's toast already renders the slotted title. The native HTML title
+    // attribute/property must stay empty or some versions render the heading twice.
+    toast.removeAttribute('title');
+    toast.title = '';
     const titleNode = document.createElement('span');
     titleNode.slot = 'title';
     titleNode.textContent = title;
@@ -244,7 +249,7 @@
     }
     if (kind === 'local') {
       if (/通信|オフライン|接続/.test(raw)) {
-        return { title: '接続を待っています', subtitle: '変更はこの端末に残り、接続が戻ると自動で反映されます。', tone: 'warning' };
+        return { title: '接続を待っています', subtitle: '変更はこの端末に残っています。接続が戻ると自動で反映されます。', tone: 'warning' };
       }
       return { title: 'この端末に保存しました', subtitle: '変更内容は端末に残っています。', tone: 'info' };
     }
@@ -252,10 +257,10 @@
       if (/新版|未対応/.test(raw)) {
         return { title: 'この共有データを開けません', subtitle: 'アプリを更新してから、もう一度開いてください。', tone: 'error' };
       }
-      if (/拒否|権限|permission/i.test(raw)) {
-        return { title: '保存できませんでした', subtitle: '共有リンクの編集権限を確認してください。', tone: 'error' };
+      if (/permission[_ -]?denied|権限/i.test(raw)) {
+        return { title: '保存できませんでした', subtitle: 'この共有データを編集できるか確認してください。', tone: 'error' };
       }
-      return { title: '接続が不安定です', subtitle: '変更はこの端末に残り、接続が戻ると自動で反映されます。', tone: 'warning' };
+      return { title: '接続を待っています', subtitle: '変更はこの端末に残っています。接続が戻ると自動で反映されます。', tone: 'warning' };
     }
     return { title: 'お知らせ', subtitle: raw, tone: 'info' };
   }
@@ -268,6 +273,17 @@
     state.syncVisible = true;
     state.syncVisibleKind = kind;
     if (!persistent) state.syncTimer = setTimeout(() => removeToast(toast, 'sync'), DEFAULT_TOAST_DURATION);
+  }
+
+  function suppressSyncFeedback(duration = 1800) {
+    state.syncSuppressUntil = Math.max(state.syncSuppressUntil, Date.now() + Math.max(0, Number(duration) || 0));
+    clearTimeout(state.syncDelayTimer);
+    state.syncDelayTimer = null;
+    removeToast(state.syncToast || document.getElementById('appSyncStatusToast'), 'sync');
+  }
+
+  function resumeSyncFeedback() {
+    state.syncSuppressUntil = 0;
   }
 
   function setSyncStatus(kind = 'neutral', message = '') {
@@ -284,9 +300,15 @@
     clearTimeout(state.syncDelayTimer);
     state.syncDelayTimer = null;
 
+    if (Date.now() < state.syncSuppressUntil) {
+      if (kind === 'connected') state.syncHadPendingState = false;
+      removeToast(state.syncToast || document.getElementById('appSyncStatusToast'), 'sync');
+      return;
+    }
+
     if (kind === 'saving') {
       state.syncDelayTimer = setTimeout(() => {
-        if (state.syncKind !== 'saving') return;
+        if (state.syncKind !== 'saving' || Date.now() < state.syncSuppressUntil) return;
         showSyncToast('saving', nextMessage, { persistent: true });
       }, SYNC_PROGRESS_DELAY);
       return;
@@ -298,7 +320,7 @@
       const explicitReplay = /再送|保留/.test(nextMessage);
       state.syncHadPendingState = false;
       if (explicitReplay || recoveredFromProblem) {
-        showSyncToast('connected', explicitReplay ? nextMessage : '保留していた変更を再送しました');
+        showSyncToast('connected', explicitReplay ? nextMessage : '保留していた変更を反映しました');
       } else if (completedVisibleSave) {
         showSyncToast('connected', nextMessage);
       } else {
@@ -308,9 +330,17 @@
     }
 
     if (kind === 'error') {
-      const transportStarting = /transaction|準備|初期化|support is required/i.test(nextMessage) || window.__sanpoSyncWaitingForTransport;
-      if (transportStarting) {
+      const internalRetryState = /transaction|準備|初期化|support is required|保存を拒否|再送停止|outbox|retry/i.test(nextMessage)
+        || window.__sanpoSyncWaitingForTransport;
+      if (internalRetryState) {
         state.syncHadPendingState = false;
+        removeToast(state.syncToast, 'sync');
+        return;
+      }
+      const compatibilityProblem = /新版|未対応/.test(nextMessage);
+      const permissionProblem = /permission[_ -]?denied|権限/i.test(nextMessage);
+      const actualConnectionProblem = /network|offline|disconnected|通信|接続[^。]*(切|失|不可)|タイムアウト|timeout/i.test(nextMessage);
+      if (!compatibilityProblem && !permissionProblem && !actualConnectionProblem) {
         removeToast(state.syncToast, 'sync');
         return;
       }
@@ -321,7 +351,7 @@
     }
 
     if (kind === 'local') {
-      const actualConnectionProblem = /通信|オフライン|接続/.test(nextMessage);
+      const actualConnectionProblem = /network|offline|disconnected|通信|接続[^。]*(切|失|不可)|タイムアウト|timeout/i.test(nextMessage);
       if (actualConnectionProblem) {
         state.syncHadPendingState = true;
         showSyncToast('local', nextMessage, { persistent: true });
@@ -362,8 +392,15 @@
     if (bar) bar.classList.remove('visible');
   }
 
+  document.addEventListener('click', event => {
+    const quietInteraction = event.target?.closest?.(
+      '#tray-handle, #app-view-navigation cds-tab, #app-view-navigation [role="tab"], [data-action="open-settlement-gas-settings"]'
+    );
+    if (quietInteraction) suppressSyncFeedback(1800);
+  }, true);
+
   ensureNotificationRegion();
-  window.AppUI = { confirm, alert, showStatus, setSyncStatus, showUndoBar, hideUndoBar };
+  window.AppUI = { confirm, alert, showStatus, setSyncStatus, suppressSyncFeedback, resumeSyncFeedback, showUndoBar, hideUndoBar };
   window.showAppNotice = (message, isError = false) => showStatus(message, { tone: isError ? 'error' : 'neutral' });
   window.showMiniToast = (message, tone = 'neutral') => showStatus(message, { tone, duration: DEFAULT_TOAST_DURATION });
 })();
