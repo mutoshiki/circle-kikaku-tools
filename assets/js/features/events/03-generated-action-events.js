@@ -4,6 +4,13 @@
 
     const events = global.SanpoEvents || {};
 
+    function openSettlementGasSettings(target) {
+        const modal = document.getElementById('settlementGasEditModal');
+        if (!modal) return;
+        const adapter = global.AppModalAdapter?.getOrCreateInstance?.(modal);
+        adapter?.show();
+    }
+
     function setupGeneratedHtmlEventDelegation() {
         if (document.documentElement.dataset.generatedEventsBound === 'true') return;
         document.documentElement.dataset.generatedEventsBound = 'true';
@@ -31,6 +38,7 @@
             'open-standalone-settlement-settings': () => global.openStandaloneSettlementSettings?.(),
             'save-settlement-settings': () => global.saveSettlementSettings?.(),
             'open-settlement-car-edit': ({ target }) => global.openSettlementCarEditor?.(target.dataset.driverName || ''),
+            'open-settlement-gas-settings': ({ target }) => openSettlementGasSettings(target),
             'save-settlement-car-edit': () => global.saveSettlementCarEdit?.(),
             'add-settlement-extra': ({ target }) => global.addSettlementExtra?.(target.dataset.driverName || ''),
             'add-settlement-extra-candidate': ({ target }) => global.addSettlementExtraCandidate?.(
