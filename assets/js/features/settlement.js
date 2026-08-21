@@ -5,6 +5,14 @@
 // Rendering still uses window.SanpoApp.templates.settlement.
 
 (function registerSettlementFeature(global) {
+    function removeObsoleteSettlementSections() {
+        ['seisan-summary', 'seisan-share-preview'].forEach(id => {
+            document.getElementById(id)?.closest('.seisan-card')?.remove();
+        });
+    }
+
+    removeObsoleteSettlementSections();
+
     const settlementApi = {
         getDefaultSettlementState,
         normalizeExtraItem,
