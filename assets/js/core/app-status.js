@@ -66,14 +66,13 @@ function installDynamicCarbonValidationSync() {
     observer.observe(document.documentElement, {
         subtree: true,
         attributes: true,
+        // Observe the application-owned inputs to Carbon state. The sync routine reflects
+        // them to warn/invalid attributes; observing those reflected attributes as well
+        // creates a MutationObserver feedback loop that can starve timers and rendering.
         attributeFilter: [
             'class',
             'data-warning-text',
-            'warn-text',
-            'warn',
-            'data-invalid-text',
-            'invalid-text',
-            'invalid'
+            'data-invalid-text'
         ]
     });
 }

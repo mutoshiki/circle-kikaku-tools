@@ -93,3 +93,26 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     expect(errors).toEqual([]);
   });
 }
+
+test('390px title expands as the active scroll container reaches the top', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.waitForFunction(() => document.querySelector('#projectTitleRegion'));
+
+  const title = page.locator('#projectTitleRegion');
+  await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 180, pointerId: 11, isPrimary: true });
+  await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 148, pointerId: 11, isPrimary: true });
+  await page.dispatchEvent('#top-area', 'pointerup', { pointerType: 'touch', clientY: 148, pointerId: 11, isPrimary: true });
+  await expect(title).toHaveAttribute('data-state', 'collapsed');
+
+  await page.evaluate(() => {
+    const scroller = document.getElementById('top-area');
+    Object.defineProperty(scroller, 'scrollTop', { configurable: true, writable: true, value: 24 });
+    scroller.dispatchEvent(new Event('scroll'));
+    scroller.scrollTop = 0;
+    scroller.dispatchEvent(new Event('scroll'));
+  });
+
+  await expect(title).toHaveAttribute('data-state', 'expanded');
+  await expect.poll(() => title.evaluate(node => node.getBoundingClientRect().height)).toBeGreaterThan(1);
+});
