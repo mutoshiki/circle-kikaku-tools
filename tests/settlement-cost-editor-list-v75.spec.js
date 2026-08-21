@@ -77,12 +77,13 @@ for (const config of [
       expect(geometry.cells.every((cell, index, all) => index === 0 || cell.left >= all[index - 1].right)).toBeTruthy();
 
       const popup = await openMovementSettings(page);
+      await expect(popup).toHaveAttribute('id', 'settlementGasEditPanel');
       await expect(popup.locator('[data-field="rentalType"]')).toHaveJSProperty('value', 'private');
       await expect(popup.locator('[data-field="dist"]')).toBeAttached();
       await expect(popup.locator('[data-field="eco"]')).toBeAttached();
       await expect(popup.locator('[data-field="price"]')).toBeAttached();
       await expect(popup.locator('[data-action="open-route-helper-shortcut"]')).toBeAttached();
-      await expect(page.locator('#settlementGasEditPanel, #settlementGasEditModal')).toHaveCount(0);
+      await expect(page.locator('#settlementGasEditModal')).toHaveCount(0);
 
       if (config.width <= 390) {
         const dialogBox = await page.locator('#settlementCarEditModal').evaluate(node => node.shadowRoot?.querySelector('[part="dialog"]')?.getBoundingClientRect() || node.getBoundingClientRect());
@@ -105,7 +106,7 @@ test.describe('Settlement rental and dismissal regression', () => {
     const rental = popup.locator('[data-field="rentalType"]');
     await rental.locator('cds-radio-button[value="times"]').click();
 
-    popup = page.locator('#settlementCarEditModal .seisan-gas-settings-surface');
+    popup = page.locator('#settlementCarEditModal #settlementGasEditPanel');
     await expect(popup).toBeVisible();
     await expect(popup.locator('[data-field="rentalType"]')).toHaveJSProperty('value', 'times');
     await expect(popup.locator('[data-field="dist"]')).toBeAttached();
