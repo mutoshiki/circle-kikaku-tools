@@ -46,7 +46,7 @@
     const amountLockedAttr = isReward ? ' readonly aria-readonly="true"' : '';
     const costName = esc(ex.name || '諸経費', helpers);
     const deleteControl = timesFeeKind || isReward
-      ? '<span class="seisan-icon-btn seisan-extra-delete-placeholder" aria-hidden="true"></span>'
+      ? `<cds-icon-button class="seisan-icon-btn" kind="danger--ghost" size="lg" type="button" disabled aria-label="${costName}は削除できません"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span></cds-icon-button>`
       : `<cds-icon-button class="seisan-icon-btn" kind="danger--ghost" size="lg" type="button" data-action="remove-settlement-extra" aria-label="${costName}を削除"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span></cds-icon-button>`;
 
     return `<div class="${rowClass}" data-extra-index="${index}" data-extra-id="${esc(ex.id || '')}"${timesAttr}${pendingAttr}>
@@ -57,7 +57,7 @@
           <cds-text-input type="text" size="md" density="condensed" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-extra-field="amount" class="${extraFieldErrorClass(issues, carName, index, 'amount')}" value="${esc(ex.amount || '', helpers)}" placeholder="金額" label="金額" hide-label${invalidAttr('amount', '金額を入力してください')}${amountLockedAttr}></cds-text-input>
         </div>
         <div class="seisan-extra-field seisan-extra-field--type ${baseType} ${type}">
-          <cds-toggle size="sm" data-extra-field="type" data-extra-negative="${isNegative ? 'true' : 'false'}" value="${type}" ${baseType === 'club' ? 'toggled' : ''} class="seisan-extra-type ${UI_CLASS.input} ${baseType} ${type}" label-text="" label-a="" label-b="" aria-label="${costName}を部費で処理"></cds-toggle>
+          <cds-toggle size="sm" data-extra-field="type" data-extra-negative="${isNegative ? 'true' : 'false'}" value="${type}" ${baseType === 'club' ? 'toggled' : ''} ${timesFeeKind || isReward ? 'disabled' : ''} class="seisan-extra-type ${UI_CLASS.input} ${baseType} ${type}" label-text="" label-a="" label-b="" aria-label="${timesFeeKind || isReward ? `${costName}の部費設定は変更できません` : `${costName}を部費で処理`}"></cds-toggle>
         </div>
         <div class="seisan-extra-field seisan-extra-field--action">${deleteControl}</div>
     </div>`;
