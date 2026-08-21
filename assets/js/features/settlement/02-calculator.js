@@ -1,8 +1,10 @@
 // Settlement calculation and validation helpers.
 // Split from features/settlement.js during S-3 cleanup.
 
+const SETTLEMENT_AUTO_GAS_EXTRA_ID = 'settlement-auto-gas';
+
 function isGasMovementFeeExtra(ex = {}) {
-    return normalizeSettlementExtraName(ex?.name || '') === normalizeSettlementExtraName('ガソリン代');
+    return String(ex?.id || '') === SETTLEMENT_AUTO_GAS_EXTRA_ID;
 }
 
 function calculateSettlement(data, state) {
@@ -203,29 +205,28 @@ function getSettlementIssues(data, state, result) {
                 }
             }
         }
-        cState.extras
-            .filter(ex => !isDriverRewardExtra(ex) && !isTimesDistanceFeeExtra(ex) && !isGasMovementFeeExtra(ex))
-            .forEach((ex, i) => {
-                const hasName = String(ex.name ?? '').trim();
-                const hasAmount = String(ex.amount ?? '').trim();
-                if (ex.pending === true && !hasName && !hasAmount) {
+        cState.extras.forEach((ex, i) => {
+            if (isDriverRewardExtra(ex) || isTimesDistanceFeeExtra(ex) || isGasMovementFeeExtra(ex)) return;
+            const hasName = String(ex.name ?? '').trim();
+            const hasAmount = String(ex.amount ?? '').trim();
+            if (ex.pending === true && !hasName && !hasAmount) {
+                fields.add(`${car.name}:extra:${i}:name`);
+                fields.add(`${car.name}:extra:${i}:amount`);
+                rows.add(car.name);
+                messages.push(`${car.name}車の追加した諸経費が未入力です。`);
+            } else {
+                if (hasAmount && !hasName) {
                     fields.add(`${car.name}:extra:${i}:name`);
+                    rows.add(car.name);
+                    messages.push(`${car.name}車の諸経費に名目が空の行があります。`);
+                }
+                if (hasName && !hasAmount && !isTimesTimeFeeExtra(ex)) {
                     fields.add(`${car.name}:extra:${i}:amount`);
                     rows.add(car.name);
-                    messages.push(`${car.name}車の追加した諸経費が未入力です。`);
-                } else {
-                    if (hasAmount && !hasName) {
-                        fields.add(`${car.name}:extra:${i}:name`);
-                        rows.add(car.name);
-                        messages.push(`${car.name}車の諸経費に名目が空の行があります。`);
-                    }
-                    if (hasName && !hasAmount && !isTimesTimeFeeExtra(ex)) {
-                        fields.add(`${car.name}:extra:${i}:amount`);
-                        rows.add(car.name);
-                        messages.push(`${car.name}車の「${hasName}」の金額が空です。`);
-                    }
+                    messages.push(`${car.name}車の「${hasName}」の金額が空です。`);
                 }
-            });
+            }
+        });
     });
     return { messages: [...new Set(messages)], fields, rows };
 }
