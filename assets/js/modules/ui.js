@@ -393,6 +393,7 @@
   }
 
   document.addEventListener('click', event => {
+    if (!event.isTrusted) return;
     const quietInteraction = event.target?.closest?.(
       '#tray-handle, #app-view-navigation cds-tab, #app-view-navigation [role="tab"], [data-action="open-settlement-gas-settings"]'
     );
