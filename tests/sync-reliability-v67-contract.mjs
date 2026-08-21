@@ -68,7 +68,7 @@ vm.runInContext(syncSource, context);
 const outcome = context.window.SanpoEntitySyncTest.summarizeSyncOutcome(
   { 'allocations/car/placements/p1': { kind: 'member', groupId: 'g1' }, revision: 2 },
   {},
-  { allocations: { car: { placements: { p1: { kind: 'waiting', groupId: '' } } } }
+  { allocations: { car: { placements: { p1: { kind: 'waiting', groupId: '' } } } } }
 );
 assert.equal(outcome.adjustedPaths.length, 1);
 assert.deepEqual([...outcome.labels], ['車割・班割の配置']);
