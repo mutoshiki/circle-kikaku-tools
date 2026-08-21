@@ -49,7 +49,11 @@
     const splitRows = [];
     const clubRows = [];
     const adjustmentSign = value => Number(value || 0) < 0 ? '−' : '';
-    if (!calc.usesTimesRental) splitRows.push({ label: 'ガソリン代', amount: calc.gas || 0 });
+    const movementRows = calc.movementBaseType === 'club' ? clubRows : splitRows;
+    movementRows.push({
+      label: calc.usesTimesRental ? 'タイムズ移動料金' : 'ガソリン代',
+      amount: calc.movementAmount ?? (calc.usesTimesRental ? calc.timesDistanceFee : calc.gas) ?? 0
+    });
     extras.forEach(extra => {
       const rawAmount = Number(extra.amountValue ?? extra.amount ?? 0);
       const isMinus = rawAmount < 0 || String(extra.type || '').endsWith('-minus');
@@ -130,32 +134,46 @@
     const standaloneData = standaloneIndex == null ? '' : ` data-standalone-driver-index="${standaloneIndex}"`;
     const standaloneNameField = standaloneIndex == null ? '' : `<label class="seisan-standalone-driver-name-field"><span class="seisan-mini-label">車出し名</span><cds-text-input size="md" density="condensed" data-field="standaloneDriverName" value="${esc(car.name, helpers)}" placeholder="車出し${standaloneIndex + 1}" autocomplete="off" label="車出し名" hide-label></cds-text-input></label>`;
     const movementLabel = usesTimesRental ? 'タイムズ移動料金' : 'ガソリン代';
+    const normalizedName = value => String(value || '').replace(/\s+/g, '').replace(/[（）()]/g, '');
+    const movementSourceIndex = cState.extras.findIndex(ex => usesTimesRental
+      ? (ex.timesFeeKind === 'distance' || normalizedName(ex.name) === 'タイムズ移動料金')
+      : normalizedName(ex.name) === 'ガソリン代');
+    const movementSource = movementSourceIndex >= 0 ? cState.extras[movementSourceIndex] : {};
+    const movementType = typeof window.normalizeSettlementExtraType === 'function'
+      ? window.normalizeSettlementExtraType(calc.movementType || movementSource.type || 'split')
+      : (String(calc.movementType || movementSource.type || 'split').startsWith('club') ? 'club' : 'split');
+    const movementClub = String(movementType).startsWith('club');
+    const movementAmount = String(calc.movementAmount ?? (usesTimesRental ? calc.timesDistanceFee : calc.gas) ?? 0);
     const visibleExtras = extras
       .map((ex, index) => ({ ex, index }))
       .filter(({ ex }) => {
-        const normalizedName = String(ex?.name || '').replace(/\s+/g, '');
-        const isTimesDistance = normalizedName === 'タイムズ移動料金'
+        const name = normalizedName(ex?.name);
+        const isGasMovement = name === 'ガソリン代';
+        const isTimesDistance = name === 'タイムズ移動料金'
           || (typeof window.isTimesDistanceFeeExtra === 'function' && window.isTimesDistanceFeeExtra(ex));
-        const isTimesTime = normalizedName === 'タイムズ時間料金';
-        return usesTimesRental ? !isTimesDistance : !(isTimesDistance || isTimesTime);
+        const isTimesTime = name === 'タイムズ時間料金';
+        return usesTimesRental ? !isTimesDistance && !isGasMovement : !(isGasMovement || isTimesDistance || isTimesTime);
       });
+    const visibleCandidates = extraCandidates.filter(candidate => normalizedName(candidate?.name) !== 'ガソリン代');
+    const movementTimesAttr = usesTimesRental ? ' data-times-extra="distance"' : '';
     return `<div class="seisan-car-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}"${standaloneData}>
       ${standaloneNameField}
       <div class="seisan-cost-edit-list" role="group" aria-label="費用一覧">
         <div class="seisan-cost-edit-header" aria-hidden="true"><span>名目</span><span>金額</span><span>部費</span><span>操作</span></div>
-        <div class="seisan-cost-edit-row seisan-gas-cost-row">
-          <div class="seisan-extra-field seisan-extra-field--name"><cds-text-input size="md" density="condensed" value="${movementLabel}" label="名目" hide-label readonly aria-readonly="true"></cds-text-input></div>
+        <div class="seisan-extra-row seisan-cost-edit-row seisan-gas-cost-row" data-extra-index="${Math.max(0, movementSourceIndex)}" data-extra-id="${esc(movementSource.id || '')}" data-movement-extra="${usesTimesRental ? 'distance' : 'gas'}"${movementTimesAttr}>
+          <div class="seisan-extra-field seisan-extra-field--name"><cds-text-input size="md" density="condensed" data-extra-field="name" value="${movementLabel}" label="名目" hide-label readonly aria-readonly="true"></cds-text-input></div>
           <div class="seisan-extra-field seisan-extra-field--amount seisan-calculated-amount-field" data-extra-amount-field>
-            <cds-text-input class="seisan-calculated-amount-input" size="md" density="condensed" value="" label="金額" hide-label readonly aria-readonly="true" aria-label="${movementLabel}は設定から自動計算されます"></cds-text-input>
-            <cds-icon-button class="seisan-gas-settings-trigger" kind="ghost" size="md" type="button" data-action="open-settlement-gas-settings" data-driver-name="${encodeURIComponent(car.name)}" aria-haspopup="dialog" aria-controls="settlementGasEditModal" aria-label="${movementLabel}の設定を開く"><span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span></cds-icon-button>
+            <cds-text-input class="seisan-calculated-amount-input" type="text" size="md" density="condensed" inputmode="numeric" data-extra-field="amount" value="${esc(movementAmount, helpers)}" label="金額" hide-label readonly aria-readonly="true" aria-label="${movementLabel}は設定から自動計算されます"></cds-text-input>
           </div>
-          <div class="seisan-extra-field seisan-extra-field--type is-fixed"><cds-toggle size="sm" hide-label disabled label-text="" label-a="" label-b="" aria-label="${movementLabel}の部費設定は変更できません"></cds-toggle></div>
-          <div class="seisan-extra-field seisan-extra-field--action"><cds-icon-button class="seisan-icon-btn" kind="danger--ghost" size="lg" type="button" disabled aria-label="${movementLabel}は削除できません"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span></cds-icon-button></div>
+          <div class="seisan-extra-field seisan-extra-field--type ${movementClub ? 'club' : 'split'} ${movementClub ? 'club' : 'split'}">
+            <cds-toggle size="sm" hide-label data-extra-field="type" data-extra-negative="false" value="${movementClub ? 'club' : 'split'}" ${movementClub ? 'toggled' : ''} class="seisan-extra-type ${UI_CLASS.input} ${movementClub ? 'club' : 'split'}" label-text="" label-a="" label-b="" aria-label="${movementLabel}を部費で処理"></cds-toggle>
+          </div>
+          <div class="seisan-extra-field seisan-extra-field--action"><cds-icon-button class="seisan-icon-btn seisan-gas-settings-trigger" kind="ghost" size="lg" type="button" data-action="open-settlement-gas-settings" data-driver-name="${encodeURIComponent(car.name)}" aria-haspopup="dialog" aria-controls="settlementGasEditModal" aria-label="${movementLabel}の設定を開く"><span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span></cds-icon-button></div>
         </div>
         <div class="seisan-extra-list">${visibleExtras.map(({ ex, index }) => extraRow({ carName: car.name, ex, index, issues, helpers })).join('')}</div>
       </div>
       <div class="seisan-add-row"><cds-button class="seisan-btn" kind="tertiary" size="lg" type="button" data-action="add-settlement-extra" data-driver-name="${encodeURIComponent(car.name)}"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span><span>費用を追加</span></cds-button></div>
-      ${extraCandidates.length ? `<div class="seisan-extra-candidates"><div class="seisan-extra-candidates-title"><span data-carbon-icon="idea" aria-hidden="true"></span>候補</div><div class="seisan-extra-candidate-list">${extraCandidates.map(candidate => `<cds-button class="seisan-extra-candidate-chip" kind="tertiary" size="md" type="button" data-action="add-settlement-extra-candidate" data-driver-name="${encodeURIComponent(car.name)}" data-extra-candidate="${encodeURIComponent(candidate.name)}" data-extra-amount="${encodeURIComponent(candidate.amount)}" data-extra-type="${candidate.type}"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span><span>${extraCandidateLabel(candidate, helpers)}</span></cds-button>`).join('')}</div></div>` : ''}
+      ${visibleCandidates.length ? `<div class="seisan-extra-candidates"><div class="seisan-extra-candidates-title"><span data-carbon-icon="idea" aria-hidden="true"></span>候補</div><div class="seisan-extra-candidate-list">${visibleCandidates.map(candidate => `<cds-button class="seisan-extra-candidate-chip" kind="tertiary" size="md" type="button" data-action="add-settlement-extra-candidate" data-driver-name="${encodeURIComponent(car.name)}" data-extra-candidate="${encodeURIComponent(candidate.name)}" data-extra-amount="${encodeURIComponent(candidate.amount)}" data-extra-type="${candidate.type}"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span><span>${extraCandidateLabel(candidate, helpers)}</span></cds-button>`).join('')}</div></div>` : ''}
       ${gasSettingsModal({ car, cState, issues, movementLabel, helpers })}
     </div>`;
   }

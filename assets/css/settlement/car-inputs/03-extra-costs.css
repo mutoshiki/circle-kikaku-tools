@@ -109,10 +109,9 @@
   font-size: var(--font-size-body);
 }
 
-/* Automatic movement fees use the same Carbon text-input component as every
- * other amount cell. The icon button simply sits over the empty readonly field. */
+/* Automatic movement fees are visible readonly Carbon text inputs. Configuration
+ * lives in the dedicated action column instead of covering the amount value. */
 #settlementCarEditModal .seisan-calculated-amount-field {
-  position: relative;
   width: 100%;
   min-width: 0;
 }
@@ -120,17 +119,6 @@
 #settlementCarEditModal .seisan-calculated-amount-input {
   width: 100%;
   pointer-events: none;
-}
-
-#settlementCarEditModal .seisan-gas-settings-trigger {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 40px;
-  min-width: 40px;
-  height: 40px;
-  min-height: 40px;
-  margin: auto;
 }
 
 #settlementCarEditModal .seisan-add-row {

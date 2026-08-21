@@ -10,6 +10,8 @@ const editModalCss = fs.readFileSync('assets/css/settlement/car-inputs/04-edit-m
 const settingsCss = fs.readFileSync('assets/css/settlement/controls/03-settings.css', 'utf8');
 const layerCss = fs.readFileSync('assets/css/guides-modals/z-layer/01-z-layer.css', 'utf8');
 const generatedEvents = fs.readFileSync('assets/js/features/events/03-generated-action-events.js', 'utf8');
+const inputActions = fs.readFileSync('assets/js/features/settlement/05-input-actions.js', 'utf8');
+const calculator = fs.readFileSync('assets/js/features/settlement/02-calculator.js', 'utf8');
 const viewEvents = fs.readFileSync('assets/js/features/events/05-view-feature-events.js', 'utf8');
 const modalController = fs.readFileSync('assets/js/core/modal-controller.js', 'utf8');
 const settlementGuard = fs.readFileSync('assets/js/core/settlement-edit-guard.js', 'utf8');
@@ -20,21 +22,26 @@ const sheetView = fs.readFileSync('assets/js/features/sheet-view.js', 'utf8');
 
 assert.match(carTemplate, /seisan-cost-edit-header[\s\S]*名目[\s\S]*金額[\s\S]*部費[\s\S]*操作/, 'cost list has one shared column header');
 assert.match(carTemplate, /seisan-gas-cost-row/, 'movement cost is rendered as a normal row in the shared list');
-assert.match(carTemplate, /seisan-gas-cost-row[\s\S]*cds-text-input[\s\S]*readonly[\s\S]*seisan-calculated-amount-field/, 'movement fee name uses the same Carbon input geometry while remaining read-only');
-assert.match(carTemplate, /seisan-calculated-amount-field[\s\S]*seisan-calculated-amount-input[\s\S]*readonly/, 'movement amount keeps the same readonly Carbon input surface as normal amounts');
-assert.match(carTemplate, /data-action="open-settlement-gas-settings"[\s\S]*data-carbon-icon="settings--adjust"/, 'movement amount field adds a settings-adjust action rather than a displayed amount');
-assert.doesNotMatch(carTemplate, /data-settlement-gas-amount/, 'calculated movement amount is not duplicated in the editor');
+assert.match(carTemplate, /seisan-gas-cost-row[\s\S]*data-extra-field="name"[\s\S]*readonly[\s\S]*seisan-calculated-amount-field/, 'movement fee name uses the same Carbon input geometry while remaining read-only');
+assert.match(carTemplate, /seisan-calculated-amount-input[\s\S]*data-extra-field="amount"[\s\S]*value="\$\{esc\(movementAmount/, 'movement amount displays the calculated value in the editor');
+assert.match(carTemplate, /seisan-calculated-amount-input[\s\S]*readonly aria-readonly="true"/, 'movement amount remains read-only');
+assert.match(carTemplate, /seisan-extra-field--action[\s\S]*data-action="open-settlement-gas-settings"[\s\S]*data-carbon-icon="settings--adjust"/, 'movement settings action lives in the operation column');
+assert.doesNotMatch(carTemplate, /seisan-calculated-amount-field[\s\S]{0,600}data-action="open-settlement-gas-settings"/, 'movement settings no longer overlays the amount cell');
+assert.match(carTemplate, /data-movement-extra=/, 'automatic movement fee row has explicit DOM ownership metadata');
+assert.match(carTemplate, /cds-toggle size="sm" hide-label data-extra-field="type"[\s\S]*aria-label="\$\{movementLabel\}を部費で処理"/, 'movement fee uses the normal editable Carbon small toggle');
+assert.doesNotMatch(carTemplate, /seisan-gas-cost-row[\s\S]{0,1800}<cds-toggle[^>]*disabled/, 'movement burden toggle is no longer disabled');
+assert.doesNotMatch(carTemplate, /seisan-gas-cost-row[\s\S]{0,2200}trash-can/, 'movement row no longer renders a trash action');
 assert.match(carTemplate, /movementLabel = usesTimesRental \? 'タイムズ移動料金' : 'ガソリン代'/, 'rental mode renames the movement fee');
 assert.match(carTemplate, /isTimesDistanceFeeExtra[\s\S]*visibleExtras/, 'generated Times distance fee is represented by the movement row instead of duplicated');
-assert.match(carTemplate, /map\(\(ex, index\) => \(\{ ex, index \}\)\)[\s\S]*visibleExtras\.map\(\(\{ ex, index \}\)/, 'filtered Times-only rows preserve original extra indices for editing');
-assert.match(carTemplate, /seisan-extra-field--type is-fixed[\s\S]*<cds-toggle size="sm" hide-label disabled/, 'fixed movement burden is expressed as a disabled Carbon small toggle');
-assert.match(carTemplate, /seisan-extra-field--action[\s\S]*cds-icon-button[^>]*disabled[\s\S]*trash-can/, 'fixed movement deletion is expressed as a disabled Carbon trash action');
+assert.match(carTemplate, /visibleCandidates = extraCandidates\.filter[\s\S]*ガソリン代/, 'automatic gas marker cannot leak into expense candidates');
 assert.match(carTemplate, /<cds-modal[\s\S]*id="settlementGasEditModal"[\s\S]*size="sm"[\s\S]*rentalType[\s\S]*data-field="dist"[\s\S]*open-route-helper-shortcut/, 'movement settings use a separate small Carbon modal');
 assert.doesNotMatch(carTemplate, /<cds-popover|seisan-gas-settings-popover|seisan-gas-settings-surface/, 'movement settings no longer use an anchored popover or inline expansion');
 assert.match(carTemplate, /label-text="自家用車"[\s\S]*label-text="タイムズ"/, 'vehicle type wording is concise and specific');
 assert.match(carTemplate, /移動距離から移動料金を自動で計算できます。/, 'Times helper copy explains the automatic distance calculation naturally');
 assert.match(carTemplate, /data-private-fuel[\s\S]*data-field="eco"[\s\S]*data-private-fuel[\s\S]*data-field="price"/, 'fuel efficiency and unit price remain private-car-only fields');
-assert.match(carTemplate, /data-field="price"[\s\S]*inputmode="numeric"|inputmode="numeric"[\s\S]*data-field="price"/, 'gasoline unit price uses the same numeric keyboard contract as normal expense amounts');
+assert.match(carTemplate, /data-field="dist"[\s\S]*inputmode="numeric"|inputmode="numeric"[\s\S]*data-field="dist"/, 'distance uses the numeric keyboard contract');
+assert.match(carTemplate, /data-field="eco"[\s\S]*inputmode="numeric"|inputmode="numeric"[\s\S]*data-field="eco"/, 'fuel economy uses the numeric keyboard contract');
+assert.match(carTemplate, /data-field="price"[\s\S]*inputmode="numeric"|inputmode="numeric"[\s\S]*data-field="price"/, 'gasoline unit price uses the numeric keyboard contract');
 assert.match(carTemplate, /data-modal-close kind="primary" type="button">完了<\/cds-modal-footer-button>/, 'movement settings complete action uses the requested 完了 label');
 assert.doesNotMatch(carTemplate, />費用編集に戻る</, 'legacy movement settings return wording is removed');
 assert.match(carTemplate, /const operator = sign === '−' \? '−' : ''/, 'driver cost rows preserve only negative signs');
@@ -45,10 +52,15 @@ assert.doesNotMatch(carTemplate, /<div class="seisan-subhead"><strong>諸経費<
 assert.match(extraTemplate, /fixedName = !!timesFeeKind \|\| isReward/, 'Times fee names remain fixed without changing their row layout');
 assert.match(extraTemplate, /amountLockedAttr = isReward/, 'Times time fee amount remains editable like a normal expense');
 assert.match(extraTemplate, /typeLocked = isReward/, 'Times time fee keeps the normal editable club toggle');
+assert.match(extraTemplate, /const deleteControl = timesFeeKind[\s\S]*\? ''/, 'Times automatic fee rows intentionally render no trash control');
 assert.match(extraTemplate, /<cds-toggle size="sm" hide-label data-extra-field="type"/, 'club burden uses a centered Carbon small toggle without a visible row label');
 assert.doesNotMatch(extraTemplate, /<cds-select[^>]*data-extra-field="type"/, 'legacy burden select is removed');
 assert.doesNotMatch(extraTemplate, /seisan-extra-field-label/, 'row-level repeated column labels are removed');
 assert.match(extraTemplate, /data-extra-negative=/, 'signed extra type metadata is preserved without schema changes');
+
+assert.match(calculator, /movementBaseType === 'split' \? movementAmount : 0[\s\S]*movementBaseType === 'club' \? movementAmount : 0/, 'automatic movement fee follows its split/club toggle in calculation');
+assert.match(calculator, /filter\(ex => !isTimesDistanceFeeExtra\(ex\) && !isGasMovementFeeExtra\(ex\)\)/, 'automatic movement rows are excluded from manual extras to prevent double counting');
+assert.match(calculator, /totalClub \+= club/, 'club total includes movement fees when their toggle is on');
 
 assert.match(collectionTemplate, /集金する金額 \$\{money\(result\.perPerson \|\| 0, helpers\)\}/, 'collection rows show the amount instead of repeating the car name');
 assert.match(collectionTemplate, /支払い額から差し引き済み \$\{zeroAmount\}/, 'pre-deducted drivers explicitly show zero yen');
@@ -63,7 +75,8 @@ assert.match(generatedEvents, /cds-toggle-changed[\s\S]*data-extra-field=\\?"typ
 assert.match(generatedEvents, /split-minus[\s\S]*club-minus|extraNegative/, 'negative extra semantics survive base burden toggles');
 assert.match(rowCss, /grid-template-columns:[^;]+64px 48px/, 'desktop rows share four aligned columns');
 assert.match(rowCss, /seisan-calculated-amount-input[\s\S]*pointer-events: none/, 'automatic amount keeps a real Carbon field surface without becoming a second editable control');
-assert.match(rowCss, /seisan-gas-settings-trigger[\s\S]*position: absolute[\s\S]*margin: auto/, 'settings affordance is centered inside the standard amount field');
+assert.doesNotMatch(rowCss, /seisan-gas-settings-trigger[\s\S]*position: absolute/, 'settings action no longer overlays the amount field');
+assert.match(rowCss, /seisan-extra-field--action \.seisan-icon-btn[\s\S]*width: 48px[\s\S]*height: 48px/, 'operation-column settings action keeps a Carbon-sized touch target');
 assert.match(rowCss, /seisan-extra-field--type cds-toggle[\s\S]*align-items: center[\s\S]*margin: auto/, 'small burden toggles are vertically centered in every cost row');
 assert.match(rowCss, /#settlementGasEditModal \.seisan-gas-settings-fields/, 'small movement modal has one Carbon-token layout owner');
 assert.match(rowCss, /@media \(max-width: 640px\)[\s\S]*grid-template-columns:/, 'mobile keeps a responsive one-row list');
@@ -75,6 +88,13 @@ assert.match(editModalCss, /width: calc\(100vw - 2rem\)/, 'vehicle editor keeps 
 assert.match(settingsCss, /width: calc\(100vw - 2rem\)/, 'settlement settings keeps viewport margins on mobile instead of fullscreen');
 assert.doesNotMatch(settingsCss, /!important/, 'settings owner CSS does not use force overrides');
 
+assert.match(settlementGuard, /isSettlementEditSessionActive[\s\S]*settlementGasEditModal[\s\S]*shouldPreserveSettlementCarEditorOnHidden/, 'project-title guard remains active through nested movement settings');
+assert.match(settlementGuard, /function captureSettlementViewportState[\s\S]*titleState[\s\S]*documentTop/, 'one shared viewport snapshot owns title and document scroll state');
+assert.match(settlementGuard, /const ids = \['seisan-view-area', 'app-layout', 'top-area', 'sheet-view-area', 'sheet-canvas'\]/, 'the shared viewport snapshot owns the settlement and shell scrollers');
+assert.match(settlementGuard, /maybeReleaseSettlementProjectTitleState[\s\S]*shouldPreserveSettlementCarEditorOnHidden/, 'parent modal transition does not prematurely release the viewport guard');
+assert.match(inputActions, /captureSettlementScrollPosition[\s\S]*captureSettlementViewportState/, 'settlement checks delegate viewport capture to the shared guard owner');
+assert.match(inputActions, /toggleSettlementPaid[\s\S]*stabilizeSettlementScrollPosition[\s\S]*save\(\)[\s\S]*stabilizeSettlementScrollPosition/, 'collection checks preserve viewport around async confirmation and save');
+assert.match(inputActions, /toggleSettlementDriverPaid[\s\S]*renderSettlementViewPreservingScroll[\s\S]*save\(\)[\s\S]*stabilizeSettlementScrollPosition/, 'driver payment toggles preserve viewport across rerender and save');
 assert.match(settlementGuard, /resetSettlementEditingAfterEditorClose[\s\S]*clearTimeout\(settlementCommitTimer\)[\s\S]*settlementEditingLock = false[\s\S]*settlementRenderDeferred = false/, 'closing an edited vehicle cancels delayed input work and releases the render guard');
 assert.match(modalController, /sanpo:modal-hidden[\s\S]*resetSettlementEditingAfterEditorClose[\s\S]*clearSettlementCarEditor[\s\S]*renderSettlementView\?\.\(\{ force: true \}\)/, 'vehicle editor rerenders only from a clean post-close state');
 assert.match(modalController, /\['wheel', 'pointerdown', 'pointermove'\][\s\S]*stopPropagation/, 'modal scrolling and touch gestures cannot drive the background project-title reveal');

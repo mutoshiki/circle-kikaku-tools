@@ -9,6 +9,7 @@ const index = read('index.html');
 const settlement = read('assets/js/features/settlement/03-render.js');
 const settlementEvents = read('assets/js/features/events/04-settlement-input-events.js');
 const modal = read('assets/js/core/modal-controller.js');
+const settlementGuard = read('assets/js/core/settlement-edit-guard.js');
 const iconCss = read('assets/css/components/icons/01-carbon-icons.css');
 const route = read('assets/js/features/settlement/04-route-helper.js');
 const carbonSource = read('assets/js/carbon-entry.js');
@@ -64,7 +65,9 @@ expect(collectionCss.includes('overflow-wrap: anywhere') && collectionCss.includ
 expect(settlementEvents.includes('__settlementCheckScrollSnapshot') && settlementActions.includes('consumeSettlementCheckScrollPosition') && settlementActions.includes('refreshSettlementCollectionStatus(encodedName, name, checked, state)'), 'Collection checks must update in place instead of replacing the focused checklist DOM');
 expect((settlementActions.match(/input\?\.focus\?\.\(\{ preventScroll: true \}\);/g) || []).length === 2, 'Settlement confirmations must explicitly return focus to the operated Carbon control');
 expect(!/state\.paid\[name\][\s\S]{0,220}renderSettlementViewPreservingScroll/.test(settlementActions), 'Collection check changes must not rerender the whole settlement view');
-expect(settlementActions.includes('[0, 80, 240, 800].forEach') && settlementActions.includes('layout.scrollTop = snapshot.layoutTop'), 'Collection scroll restoration must outlast Carbon modal focus cleanup across app scroll containers');
+expect(settlementActions.includes('captureSettlementViewportState') && settlementActions.includes('stabilizeSettlementViewportState'), 'Settlement checks must delegate viewport ownership to the shared guard');
+expect(settlementGuard.includes('function stabilizeSettlementViewportState') && settlementGuard.includes('delays = [0, 80, 240, 800]') && settlementGuard.includes("'seisan-view-area', 'app-layout'"), 'Collection scroll restoration must outlast Carbon modal focus cleanup across app scroll containers');
+expect(settlementGuard.includes('titleState: readSettlementProjectTitleState()'), 'Shared settlement viewport restoration must preserve the project-title reveal state too');
 
 expect(overviewEvents.includes('syncTimetableTextareaExpansion'), 'Overview timetable expansion behavior is missing');
 expect(overviewEvents.includes("host.rows = shouldExpand ? 4 : 1"), 'Overview timetable textarea does not change official rows');

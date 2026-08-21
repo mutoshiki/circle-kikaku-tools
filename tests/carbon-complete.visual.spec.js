@@ -93,8 +93,10 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
       const active = document.activeElement;
       active?.blur?.();
       document.querySelector('.header-app-switcher')?.blur?.();
+      document.querySelectorAll('.app-status-toast').forEach(node => node.remove());
     });
-    await expect(page.locator('#syncStatusBadge')).not.toHaveClass(/is-visible/, { timeout: 5000 });
+    await expect(page.locator('#syncStatusBadge')).toHaveCount(0);
+    await expect(page.locator('.app-status-toast')).toHaveCount(0);
     await page.waitForTimeout(250);
 
     for (const theme of ['light', 'dark']) {
