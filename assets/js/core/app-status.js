@@ -32,6 +32,52 @@ window.showSaveStatus = function showSaveStatus(message, kind = 'neutral') {
     updateStatus(kind, message);
 };
 
+function installDynamicCarbonValidationSync() {
+    if (window.__sanpoDynamicCarbonValidationSyncInstalled || !window.MutationObserver) return;
+    window.__sanpoDynamicCarbonValidationSyncInstalled = true;
+
+    const selector = 'cds-text-input, cds-textarea, cds-number-input, cds-select, cds-checkbox, cds-toggle';
+    const pending = new Set();
+    let flushQueued = false;
+
+    const queueSync = host => {
+        if (!host?.matches?.(selector)) return;
+        pending.add(host);
+        if (flushQueued) return;
+        flushQueued = true;
+        queueMicrotask(() => {
+            flushQueued = false;
+            const hosts = Array.from(pending);
+            pending.clear();
+            hosts.forEach(host => {
+                if (!host.isConnected) return;
+                if (typeof window.syncCarbonFormControlAccessibility === 'function') {
+                    void window.syncCarbonFormControlAccessibility(host);
+                } else if (typeof syncCarbonFormControlAccessibility === 'function') {
+                    void syncCarbonFormControlAccessibility(host);
+                }
+            });
+        });
+    };
+
+    const observer = new MutationObserver(records => {
+        records.forEach(record => queueSync(record.target));
+    });
+    observer.observe(document.documentElement, {
+        subtree: true,
+        attributes: true,
+        attributeFilter: [
+            'class',
+            'data-warning-text',
+            'warn-text',
+            'warn',
+            'data-invalid-text',
+            'invalid-text',
+            'invalid'
+        ]
+    });
+}
+
 function scheduleSyncTransportRetry() {
     if (window.__sanpoSyncTransportRetryScheduled) return;
     window.__sanpoSyncTransportRetryScheduled = true;
@@ -83,8 +129,13 @@ function installSyncTransportReadinessGuard() {
     };
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', installSyncTransportReadinessGuard, { once: true });
-} else {
+function installAppStatusGuards() {
+    installDynamicCarbonValidationSync();
     installSyncTransportReadinessGuard();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', installAppStatusGuards, { once: true });
+} else {
+    installAppStatusGuards();
 }
