@@ -62,7 +62,6 @@
 }
 
 #settlementCarEditModal .seisan-extra-field--amount {
-  position: relative;
   width: 100%;
 }
 
@@ -82,6 +81,8 @@
   align-self: stretch;
 }
 
+/* Compact toggles use Carbon's hidden-label mode so the invisible label row does
+ * not reserve vertical space. The switch itself stays centered against the input. */
 #settlementCarEditModal .seisan-extra-field--type cds-toggle {
   display: flex;
   align-items: center;
@@ -89,8 +90,9 @@
   flex: 0 0 auto;
   width: 44px;
   min-width: 44px;
-  min-height: 44px;
+  min-height: 40px;
   margin: auto;
+  align-self: center;
 }
 
 #settlementCarEditModal .seisan-extra-field--action .seisan-icon-btn {
@@ -98,6 +100,7 @@
   min-width: 48px;
   height: 48px;
   margin: auto;
+  align-self: center;
 }
 
 #settlementCarEditModal .seisan-fixed-cell {
@@ -106,28 +109,30 @@
   font-size: var(--font-size-body);
 }
 
-/* Automatic movement fees use the same Carbon text-input surface as every other
- * amount cell. The only difference is a centered settings action over the readonly
- * field, so the row does not become a visually special component. */
-#settlementCarEditModal .seisan-calculated-amount-field {
-  position: relative;
+/* Automatic movement fees keep the exact same field surface as editable amount
+ * cells. Only the centered settings action replaces the numeric value. */
+#settlementCarEditModal .seisan-calculated-amount-field,
+#settlementCarEditModal .seisan-calculated-amount-surface {
+  box-sizing: border-box;
   width: 100%;
   min-width: 0;
+  height: 40px;
+  min-height: 40px;
 }
 
-#settlementCarEditModal .seisan-calculated-amount-input {
-  width: 100%;
-  pointer-events: none;
+#settlementCarEditModal .seisan-calculated-amount-surface {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--cds-border-strong-01, var(--cds-border-strong));
+  background: var(--cds-field-01);
 }
 
 #settlementCarEditModal .seisan-gas-settings-trigger {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
   width: 40px;
   min-width: 40px;
   height: 40px;
-  margin: auto;
+  min-height: 40px;
 }
 
 #settlementCarEditModal .seisan-add-row {
@@ -146,20 +151,20 @@
   align-self: center;
 }
 
-/* Movement settings are a separate Carbon small modal rather than inline content
- * or a popover inside the cost table. This keeps the list scannable and gives the
- * form a stable focus/scroll boundary on mobile. */
+/* Movement settings are a separate Carbon small modal. This owner only controls
+ * form spacing; Carbon owns dialog geometry, overlay, focus trap and interaction. */
 #settlementGasEditModal .seisan-gas-settings-body {
   min-height: 0;
 }
 
 #settlementGasEditModal .seisan-gas-settings-fields {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 #settlementGasEditModal .seisan-gas-settings-helper {
   margin: calc(var(--space-2) * -1) 0 0;
+  max-width: 80%;
   color: var(--cds-text-secondary, var(--text-sub));
   font-size: var(--font-size-caption);
   line-height: 1.45;
@@ -168,7 +173,7 @@
 #settlementGasEditModal .seisan-gas-field-row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 #settlementGasEditModal .seisan-gas-field-row > label[hidden],
@@ -209,6 +214,13 @@
 
   #settlementCarEditModal .seisan-extra-field--amount :is(cds-text-input, cds-number-input) {
     --cds-layout-density-padding-inline-condensed: 0.375rem;
+  }
+
+  #settlementGasEditModal::part(dialog) {
+    width: calc(100vw - 2rem);
+    max-width: 30rem;
+    max-height: calc(100dvh - 2rem - env(safe-area-inset-bottom));
+    margin-inline: auto;
   }
 }
 
