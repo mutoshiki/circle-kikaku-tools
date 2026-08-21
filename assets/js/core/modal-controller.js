@@ -160,6 +160,12 @@
             this.programmaticClose = false;
             this.element.hidden = !this.element.open;
             bindModalScrollAffordance(this.element);
+            // Modal gestures must stay inside the modal. In particular, the page-title
+            // pull/reveal gesture is document-level, so letting wheel/pointer movement
+            // escape a dialog can move the application shell behind it.
+            ['wheel', 'pointerdown', 'pointermove'].forEach(type => {
+                this.element.addEventListener(type, event => event.stopPropagation(), { passive: true });
+            });
             this.element.querySelectorAll('[data-modal-close]').forEach(control => {
                 control.addEventListener('click', event => {
                     event.preventDefault();
@@ -281,7 +287,10 @@
                 global.saveSettlementCarEditDraft?.();
             });
             carEditModal.addEventListener('sanpo:modal-hidden', () => {
-                if (!global.shouldPreserveSettlementCarEditorOnHidden?.()) global.clearSettlementCarEditor?.();
+                if (global.shouldPreserveSettlementCarEditorOnHidden?.()) return;
+                global.resetSettlementEditingAfterEditorClose?.();
+                global.clearSettlementCarEditor?.();
+                global.renderSettlementView?.({ force: true });
             });
         }
         const settingsModal = document.getElementById('settlementSettingsModal');
