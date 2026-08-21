@@ -1,9 +1,61 @@
 // Settlement edit protection. Prevents re-render/sync from stealing mobile keyboard focus.
 // Split from app.js during S-4 cleanup.
 
+let settlementProjectTitleState = null;
+let settlementProjectTitleObserver = null;
 
 function isSettlementCarEditorOpen() {
     return !!document.getElementById('settlementCarEditModal')?.open;
+}
+
+function readSettlementProjectTitleState() {
+    const region = document.getElementById('projectTitleRegion');
+    return region?.dataset?.state === 'collapsed' ? 'collapsed' : 'expanded';
+}
+
+function applySettlementProjectTitleState(state) {
+    const region = document.getElementById('projectTitleRegion');
+    const editor = document.getElementById('projectTitleEditor');
+    if (!region || !editor) return;
+    const expanded = state !== 'collapsed';
+    region.dataset.state = expanded ? 'expanded' : 'collapsed';
+    editor.inert = !expanded;
+    editor.tabIndex = expanded ? 0 : -1;
+}
+
+function lockSettlementProjectTitleState() {
+    const region = document.getElementById('projectTitleRegion');
+    if (!region) return;
+    settlementProjectTitleState = readSettlementProjectTitleState();
+    settlementProjectTitleObserver?.disconnect();
+    settlementProjectTitleObserver = new MutationObserver(() => {
+        if (!isSettlementCarEditorOpen() || !settlementProjectTitleState) return;
+        if (readSettlementProjectTitleState() !== settlementProjectTitleState) {
+            applySettlementProjectTitleState(settlementProjectTitleState);
+        }
+    });
+    settlementProjectTitleObserver.observe(region, { attributes: true, attributeFilter: ['data-state'] });
+}
+
+function releaseSettlementProjectTitleState() {
+    settlementProjectTitleObserver?.disconnect();
+    settlementProjectTitleObserver = null;
+    if (settlementProjectTitleState) applySettlementProjectTitleState(settlementProjectTitleState);
+    settlementProjectTitleState = null;
+}
+
+function bindSettlementProjectTitleGuard() {
+    const modal = document.getElementById('settlementCarEditModal');
+    if (!modal || modal.dataset.projectTitleGuardBound === 'true') return;
+    modal.dataset.projectTitleGuardBound = 'true';
+    modal.addEventListener('sanpo:modal-shown', lockSettlementProjectTitleState);
+    modal.addEventListener('sanpo:modal-hidden', releaseSettlementProjectTitleState);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindSettlementProjectTitleGuard, { once: true });
+} else {
+    bindSettlementProjectTitleGuard();
 }
 
 function isSettlementCostField(target = document.activeElement) {
@@ -35,6 +87,7 @@ function resetSettlementEditingAfterEditorClose() {
     settlementEditingLock = false;
     settlementCompositionActive = false;
     settlementRenderDeferred = false;
+    releaseSettlementProjectTitleState();
 }
 
 function isSettlementInputProtected() {
