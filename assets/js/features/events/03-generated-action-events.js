@@ -53,12 +53,32 @@
     function syncGasVehicleType(target, value) {
         const modal = target?.closest?.('#settlementGasEditModal');
         if (!modal) return false;
-        target.value = value === 'times' ? 'times' : 'private';
-        modal.querySelectorAll('[data-private-fuel]').forEach(field => { field.hidden = target.value === 'times'; });
+        const nextValue = value === 'times' ? 'times' : 'private';
+        target.value = nextValue;
+        target.setAttribute('value', nextValue);
+        target.querySelectorAll('cds-radio-button[value]').forEach(radio => {
+            const selected = radio.value === nextValue || radio.getAttribute('value') === nextValue;
+            radio.checked = selected;
+            radio.toggleAttribute('checked', selected);
+        });
+        modal.querySelectorAll('[data-private-fuel]').forEach(field => { field.hidden = nextValue === 'times'; });
         const helper = modal.querySelector('[data-times-helper]');
-        if (helper) helper.hidden = target.value !== 'times';
+        if (helper) helper.hidden = nextValue !== 'times';
         commitGasModalFields(modal);
         return true;
+    }
+
+    function gasVehicleRadioFromEvent(event) {
+        const path = event.composedPath?.() || [];
+        return path.find(node => node instanceof Element && node.matches?.('#settlementGasEditModal cds-radio-button[value]')) || null;
+    }
+
+    function commitGasVehicleRadioFromEvent(event) {
+        const radio = gasVehicleRadioFromEvent(event);
+        if (!radio) return false;
+        const group = radio.closest('cds-radio-button-group[data-field="rentalType"]');
+        if (!group) return false;
+        return syncGasVehicleType(group, radio.value || radio.getAttribute('value'));
     }
 
     function waitForModalHidden(modal) {
@@ -148,13 +168,21 @@
             if (syncGasVehicleType(target, event.detail?.value ?? target.value)) event.stopImmediatePropagation();
         }, true);
 
-        document.addEventListener('input', event => {
+        // Carbon's radio-button host click is the reliable composed event on touch Safari.
+        // Keep the official radio group as the semantic owner, but synchronise its public
+        // value immediately so both touch and pointer interaction commit the same state.
+        document.addEventListener('click', event => {
+            commitGasVehicleRadioFromEvent(event);
+        }, true);
+
+        document.addEventListener('change', event => {
+            if (commitGasVehicleRadioFromEvent(event)) return;
             const target = event.target;
             if (!target?.matches?.('#settlementGasEditModal [data-field="dist"], #settlementGasEditModal [data-field="eco"], #settlementGasEditModal [data-field="price"]')) return;
             commitGasModalFields(target.closest('#settlementGasEditModal'));
         }, true);
 
-        document.addEventListener('change', event => {
+        document.addEventListener('input', event => {
             const target = event.target;
             if (!target?.matches?.('#settlementGasEditModal [data-field="dist"], #settlementGasEditModal [data-field="eco"], #settlementGasEditModal [data-field="price"]')) return;
             commitGasModalFields(target.closest('#settlementGasEditModal'));
