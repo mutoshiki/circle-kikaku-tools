@@ -63,13 +63,7 @@ async function removeSettlementExtra(button) {
     const type = normalizeSettlementExtraType(row.querySelector('[data-extra-field="type"]')?.value || 'split');
     const typeValue = ({ split: '割勘', club: '部費', 'split-minus': '割勘 −', 'club-minus': '部費 −' })[type] || '割勘';
 
-    const message = `以下の諸経費を削除しますか？
-
-名目：${extraName}
-金額：${amountText}
-扱い：${typeValue}
-
-入力内容は元に戻せません。`;
+    const message = `以下の諸経費を削除しますか？\n\n名目：${extraName}\n金額：${amountText}\n扱い：${typeValue}\n\n入力内容は元に戻せません。`;
     if (!await appConfirm(message, { title: '諸経費を削除', okText: '削除', danger: true })) return;
 
     row.remove();
@@ -87,17 +81,9 @@ async function confirmSettlementCheckChange(message, options = {}, input = null,
 }
 
 function captureSettlementScrollPosition() {
-    const area = byId('seisan-view-area');
-    const layout = byId('app-layout');
-    return {
-        top: Number(area?.scrollTop || 0),
-        left: Number(area?.scrollLeft || 0),
-        windowY: Number(window.scrollY || 0),
-        documentTop: Number(document.scrollingElement?.scrollTop || 0),
-        documentElementTop: Number(document.documentElement?.scrollTop || 0),
-        bodyTop: Number(document.body?.scrollTop || 0),
-        layoutTop: Number(layout?.scrollTop || 0)
-    };
+    return typeof captureSettlementViewportState === 'function'
+        ? captureSettlementViewportState()
+        : null;
 }
 
 function consumeSettlementCheckScrollPosition() {
@@ -107,25 +93,17 @@ function consumeSettlementCheckScrollPosition() {
 }
 
 function restoreSettlementScrollPosition(snapshot) {
-    const area = byId('seisan-view-area');
-    const layout = byId('app-layout');
-    if (!snapshot) return;
-    if (area?.isConnected) {
-        area.scrollTop = snapshot.top;
-        area.scrollLeft = snapshot.left;
+    if (typeof restoreSettlementViewportState === 'function') {
+        restoreSettlementViewportState(snapshot);
     }
-    window.scrollTo({ top: snapshot.windowY, left: 0, behavior: 'auto' });
-    if (document.scrollingElement) document.scrollingElement.scrollTop = snapshot.documentTop;
-    if (document.documentElement) document.documentElement.scrollTop = snapshot.documentElementTop;
-    if (document.body) document.body.scrollTop = snapshot.bodyTop;
-    if (layout?.isConnected) layout.scrollTop = snapshot.layoutTop;
 }
 
 function stabilizeSettlementScrollPosition(snapshot) {
-    const restore = () => restoreSettlementScrollPosition(snapshot);
-    restore();
-    requestAnimationFrame(restore);
-    [0, 80, 240, 800].forEach(delay => setTimeout(restore, delay));
+    if (typeof stabilizeSettlementViewportState === 'function') {
+        stabilizeSettlementViewportState(snapshot);
+        return;
+    }
+    restoreSettlementScrollPosition(snapshot);
 }
 
 function renderSettlementViewPreservingScroll(snapshot = captureSettlementScrollPosition()) {
@@ -172,6 +150,7 @@ async function toggleSettlementPaid(encodedName, checked, input = null) {
         const normalizedPaidByName = String(paidByName || '').trim();
         if (!normalizedPaidByName) {
             if (input) input.checked = false;
+            stabilizeSettlementScrollPosition(scrollSnapshot);
             return;
         }
         state.paidBy = { ...(state.paidBy || {}), [name]: normalizedPaidByName };
@@ -184,13 +163,13 @@ async function toggleSettlementPaid(encodedName, checked, input = null) {
             checked
         );
     }
-    restoreSettlementScrollPosition(scrollSnapshot);
+    stabilizeSettlementScrollPosition(scrollSnapshot);
     if (!confirmed) return;
     state.paid[name] = !!checked;
     if (!checked && state.paidBy) delete state.paidBy[name];
     refreshSettlementCollectionStatus(encodedName, name, checked, state);
-    stabilizeSettlementScrollPosition(scrollSnapshot);
     save();
+    stabilizeSettlementScrollPosition(scrollSnapshot);
 }
 
 async function toggleSettlementDriverPaid(encodedName, checked, input = null) {
@@ -203,12 +182,13 @@ async function toggleSettlementDriverPaid(encodedName, checked, input = null) {
         input,
         checked
     );
-    restoreSettlementScrollPosition(scrollSnapshot);
+    stabilizeSettlementScrollPosition(scrollSnapshot);
     if (!confirmed) return;
     const state = ensureSettlementState();
     state.driverPaid[name] = !!checked;
     renderSettlementViewPreservingScroll(scrollSnapshot);
     save();
+    stabilizeSettlementScrollPosition(scrollSnapshot);
 }
 
 window.SanpoApp?.exposeCompat?.('onSettlementInput', onSettlementInput);
