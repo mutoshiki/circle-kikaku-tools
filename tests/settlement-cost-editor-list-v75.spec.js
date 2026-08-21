@@ -47,8 +47,17 @@ for (const config of [
       const row = page.locator('#settlementCarEditModal .seisan-gas-cost-row');
       const cells = row.locator(':scope > *');
       await expect(cells).toHaveCount(4);
-      const boxes = await cells.evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect()).map(box => ({ top: box.top, bottom: box.bottom })));
-      expect(Math.max(...boxes.map(box => box.top)) - Math.min(...boxes.map(box => box.top))).toBeLessThan(12);
+      const geometry = await row.evaluate(node => {
+        const rowBox = node.getBoundingClientRect();
+        const cells = [...node.children].map(child => {
+          const box = child.getBoundingClientRect();
+          return { left: box.left, right: box.right, centerY: (box.top + box.bottom) / 2 };
+        });
+        return { height: rowBox.height, cells };
+      });
+      expect(geometry.height).toBeLessThanOrEqual(64);
+      expect(Math.max(...geometry.cells.map(cell => cell.centerY)) - Math.min(...geometry.cells.map(cell => cell.centerY))).toBeLessThanOrEqual(1);
+      expect(geometry.cells.every((cell, index, all) => index === 0 || cell.left >= all[index - 1].right)).toBeTruthy();
 
       const settings = row.locator('[data-action="open-settlement-gas-settings"]');
       await settings.evaluate(node => node.click());
@@ -59,6 +68,8 @@ for (const config of [
       await expect(gasModal.locator('[data-field="eco"]')).toBeAttached();
       await expect(gasModal.locator('[data-field="price"]')).toBeAttached();
       await expect(gasModal.locator('[data-action="open-route-helper-shortcut"]')).toBeAttached();
+      await gasModal.locator('cds-modal-close-button').evaluate(node => node.click());
+      await expect(gasModal).not.toHaveJSProperty('open', true);
 
       const toggle = page.locator('#settlementCarEditModal cds-toggle[data-extra-field="type"]').first();
       const before = await toggle.evaluate(node => node.value);
