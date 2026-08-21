@@ -1,4 +1,4 @@
-/* Project-title editor and transient save/sync status. */
+/* Project-title editor and room control. Save/sync status now uses Carbon toast notifications. */
 .app-room-control {
   position: relative;
   display: flex;
@@ -54,42 +54,6 @@
   outline-offset: 2px;
 }
 
-/* Save/sync feedback stays a short-lived status announcement in the shell. */
-.sync-status-badge {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-  max-width: calc(100% - 16px);
-  min-height: 24px;
-  overflow: hidden;
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transform: translate(-50%, -50%) translateY(-2px);
-  transition: opacity var(--motion-fast) ease, transform var(--motion-fast) ease, visibility 0s linear var(--motion-fast);
-  --cds-layer: #393939;
-}
-
-.sync-status-badge.is-visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translate(-50%, -50%);
-  transition-delay: 0s;
-}
-
-.sync-status-label {
-  display: block;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 #appUndoBar {
   position: fixed;
   left: 50%;
@@ -128,22 +92,8 @@
     font-size: 2.625rem;
     line-height: 1.1;
   }
-
-  .sync-status-badge { width: fit-content; max-width: calc(100% - 16px); }
-  .sync-status-badge.is-visible { opacity: 1; visibility: visible; }
 }
 
 @media (max-width: 520px) {
   #appUndoBar { width: calc(100vw - 24px); justify-content: space-between; }
-}
-
-@media (max-width: 360px) {
-  .sync-status-badge {
-    position: fixed;
-    top: calc(env(safe-area-inset-top) + 104px);
-    left: 50%;
-    max-width: calc(100vw - 24px);
-    transform: translate(-50%, -2px);
-  }
-  .sync-status-badge.is-visible { transform: translate(-50%, 0); }
 }
