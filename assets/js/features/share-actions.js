@@ -1,5 +1,5 @@
 // Share and small selection helpers
-// Owns the canonical room link, resilient clipboard copy, and grade selection.
+// Owns the canonical room link, clipboard copy, and grade selection.
 
 function createSharedViewUrl() {
     const url = new URL('./', window.location.href);
@@ -21,42 +21,17 @@ function showShareCopyStatus(message, tone = 'neutral') {
     window.showMiniToast?.(message, tone);
 }
 
-function legacyCopyText(text) {
-    const textarea = document.createElement('textarea');
-    textarea.value = String(text || '');
-    textarea.setAttribute('readonly', '');
-    textarea.setAttribute('aria-hidden', 'true');
-    textarea.style.position = 'fixed';
-    textarea.style.inset = '0 auto auto -9999px';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    textarea.setSelectionRange(0, textarea.value.length);
-    let copied = false;
-    try { copied = document.execCommand('copy'); }
-    catch (_) { copied = false; }
-    textarea.remove();
-    return copied;
-}
-
 async function copyUrl() {
     const url = createSharedViewUrl();
-    let copied = false;
     try {
-        if (navigator.clipboard?.writeText) {
-            await navigator.clipboard.writeText(url);
-            copied = true;
-        }
-    } catch (_) {
-        copied = false;
-    }
-    if (!copied) copied = legacyCopyText(url);
-    if (copied) {
+        if (!navigator.clipboard?.writeText) throw new Error('Clipboard API unavailable');
+        await navigator.clipboard.writeText(url);
         showShareCopyStatus('リンクをコピーしました', 'success');
         return true;
+    } catch (_) {
+        showShareCopyStatus('リンクをコピーできませんでした', 'error');
+        return false;
     }
-    showShareCopyStatus('リンクをコピーできませんでした', 'error');
-    return false;
 }
 
 function selectGrade(btn) {
