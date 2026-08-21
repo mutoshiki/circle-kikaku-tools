@@ -251,23 +251,17 @@ test.describe('Carbon modal, participant and sheet workflows', () => {
 test.describe('First-run rendering and submit regression', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('mobile sync status uses Carbon toast feedback without occupying the product-title slot', async ({ page }) => {
+  test('Carbon toast feedback stays concise without occupying the product-title slot', async ({ page }) => {
     await page.goto(`/?room=SYNC-STATUS-${Date.now()}`, { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => typeof window.showSaveStatus === 'function' && window.AppUI?.setSyncStatus);
-    await page.evaluate(() => window.AppUI.setSyncStatus('neutral', '準備'));
+    await page.waitForFunction(() => typeof window.showMiniToast === 'function' && customElements.get('cds-toast-notification'));
 
-    await page.evaluate(() => window.showSaveStatus('保存中...', 'saving'));
-    await page.waitForTimeout(300);
-    await expect(page.locator('#appSyncStatusToast')).toHaveCount(0);
-    await page.evaluate(() => window.showSaveStatus('同期完了', 'connected'));
-    await page.waitForTimeout(100);
-    await expect(page.locator('#appSyncStatusToast')).toHaveCount(0);
-
-    await page.evaluate(() => window.showSaveStatus('保存中...', 'saving'));
-    await page.waitForTimeout(750);
-    const toast = page.locator('#appSyncStatusToast');
+    await page.evaluate(() => window.showMiniToast('リンクをコピーしました', 'success'));
+    const toast = page.locator('#appStatusToast');
     await expect(toast).toBeVisible();
-    await expect(toast).toContainText('保存中...');
+    await expect(toast.locator('[slot="title"]')).toHaveText('完了しました');
+    await expect(toast.locator('[slot="subtitle"]')).toHaveText('リンクをコピーしました');
+    await expect(toast.locator('[slot="title"]')).toHaveCount(1);
+    expect((await toast.getAttribute('title')) || '').toBe('');
     const placement = await page.evaluate(() => {
       const region = document.querySelector('#appNotificationRegion')?.getBoundingClientRect();
       const title = document.querySelector('#projectTitleRegion')?.getBoundingClientRect();
@@ -276,10 +270,8 @@ test.describe('First-run rendering and submit regression', () => {
     expect(placement.region.right).toBeLessThanOrEqual(placement.width);
     expect(placement.region.top).toBeGreaterThanOrEqual(0);
     if (placement.title) expect(placement.region.left).toBeGreaterThan(placement.title.left);
-
-    await page.evaluate(() => window.showSaveStatus('同期完了', 'connected'));
-    await expect(toast).toContainText('同期完了');
-    await expect(toast).toHaveAttribute('kind', 'success');
+    await page.waitForTimeout(2600);
+    await expect(page.locator('#appStatusToast')).toHaveCount(0);
   });
 
   test('first meaningful screen renders immediately and all three empty views use the same two choices', async ({ page }) => {

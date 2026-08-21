@@ -11,7 +11,10 @@
     syncToast: null,
     syncKind: 'neutral',
     syncMessage: '',
-    syncVisible: false
+    syncVisible: false,
+    syncVisibleKind: '',
+    syncHadPendingState: false,
+    syncSuppressUntil: 0
   };
 
   const STATUS_NOTIFICATIONS = Object.freeze({
@@ -21,7 +24,7 @@
     info: Object.freeze({ kind: 'info', iconDescription: '情報' }),
     neutral: Object.freeze({ kind: 'info', iconDescription: '情報' })
   });
-  const DEFAULT_TOAST_DURATION = 5000;
+  const DEFAULT_TOAST_DURATION = 2400;
   const SYNC_PROGRESS_DELAY = 650;
 
   function ensureNotificationRegion() {
@@ -169,15 +172,15 @@
     if (slot === 'sync' && state.syncToast === toast) {
       state.syncToast = null;
       state.syncVisible = false;
+      state.syncVisibleKind = '';
       clearTimeout(state.syncTimer);
       state.syncTimer = null;
     }
   }
 
-  function createStatusToast(message, tone, slot = 'status') {
+  function createStatusToast({ title = 'お知らせ', subtitle = '', tone = 'neutral', slot = 'status' } = {}) {
     const notification = STATUS_NOTIFICATIONS[tone] || STATUS_NOTIFICATIONS.neutral;
     const toast = document.createElement('cds-toast-notification');
-    const subtitle = document.createElement('span');
     toast.id = slot === 'sync' ? 'appSyncStatusToast' : 'appStatusToast';
     toast.className = `app-status-toast app-status-toast--${slot}`;
     toast.dataset.tone = tone;
@@ -188,13 +191,17 @@
     toast.setAttribute('aria-atomic', 'true');
     toast.ariaLabel = '通知を閉じる';
     toast.setAttribute('status-icon-description', notification.iconDescription);
-    toast.setAttribute('title', slot === 'sync' ? '保存と同期' : 'お知らせ');
-    const title = document.createElement('span');
-    title.slot = 'title';
-    title.textContent = slot === 'sync' ? '保存と同期' : 'お知らせ';
-    subtitle.slot = 'subtitle';
-    subtitle.textContent = String(message);
-    toast.append(title, subtitle);
+    // Carbon's toast already renders the slotted title. The native HTML title
+    // attribute/property must stay empty or some versions render the heading twice.
+    toast.removeAttribute('title');
+    toast.title = '';
+    const titleNode = document.createElement('span');
+    titleNode.slot = 'title';
+    titleNode.textContent = title;
+    const subtitleNode = document.createElement('span');
+    subtitleNode.slot = 'subtitle';
+    subtitleNode.textContent = subtitle;
+    toast.append(titleNode, subtitleNode);
     toast.addEventListener('cds-notification-closed', () => removeToast(toast, slot), { once: true });
     ensureNotificationRegion().prepend(toast);
     requestAnimationFrame(() => {
@@ -203,37 +210,88 @@
     return toast;
   }
 
+  function genericToastCopy(message, tone, options = {}) {
+    if (options.title || options.subtitle) {
+      return {
+        title: String(options.title || 'お知らせ'),
+        subtitle: String(options.subtitle || message || '')
+      };
+    }
+    const text = String(message || '');
+    if (tone === 'success') return { title: '完了しました', subtitle: text };
+    if (tone === 'error') return { title: '操作を完了できませんでした', subtitle: text };
+    if (tone === 'warning') return { title: '確認してください', subtitle: text };
+    return { title: 'お知らせ', subtitle: text };
+  }
+
   function showStatus(message, options = {}) {
-    if (!message) return;
+    if (!message && !options.title && !options.subtitle) return;
     const requestedTone = String(options.tone || 'neutral').toLowerCase();
     const tone = STATUS_NOTIFICATIONS[requestedTone] ? requestedTone : 'neutral';
     const duration = Number.isFinite(options.duration) ? Math.max(800, options.duration) : DEFAULT_TOAST_DURATION;
     removeToast(state.statusToast || document.getElementById('appStatusToast'), 'status');
-    const toast = createStatusToast(message, tone, 'status');
+    const copy = genericToastCopy(message, tone, options);
+    const toast = createStatusToast({ ...copy, tone, slot: 'status' });
     state.statusToast = toast;
     state.statusTimer = setTimeout(() => removeToast(toast, 'status'), duration);
   }
 
-  function syncTone(kind, message) {
-    if (kind === 'error') return 'error';
-    if (kind === 'connected') return 'success';
-    if (String(message).includes('保留')) return 'warning';
-    return 'info';
+  function syncCopy(kind, message) {
+    const raw = String(message || '');
+    if (kind === 'saving') {
+      return { title: '保存しています', subtitle: '変更内容を保存しています。', tone: 'info' };
+    }
+    if (kind === 'connected') {
+      if (/再送|保留/.test(raw)) {
+        return { title: '保存しました', subtitle: '保留していた変更も反映されました。', tone: 'success' };
+      }
+      return { title: '保存しました', subtitle: '変更内容を反映しました。', tone: 'success' };
+    }
+    if (kind === 'local') {
+      if (/通信|オフライン|接続/.test(raw)) {
+        return { title: '接続を待っています', subtitle: '変更はこの端末に残っています。接続が戻ると自動で反映されます。', tone: 'warning' };
+      }
+      return { title: 'この端末に保存しました', subtitle: '変更内容は端末に残っています。', tone: 'info' };
+    }
+    if (kind === 'error') {
+      if (/新版|未対応/.test(raw)) {
+        return { title: 'この共有データを開けません', subtitle: 'アプリを更新してから、もう一度開いてください。', tone: 'error' };
+      }
+      if (/permission[_ -]?denied|権限/i.test(raw)) {
+        return { title: '保存できませんでした', subtitle: 'この共有データを編集できるか確認してください。', tone: 'error' };
+      }
+      return { title: '接続を待っています', subtitle: '変更はこの端末に残っています。接続が戻ると自動で反映されます。', tone: 'warning' };
+    }
+    return { title: 'お知らせ', subtitle: raw, tone: 'info' };
   }
 
   function showSyncToast(kind, message, { persistent = false } = {}) {
     removeToast(state.syncToast || document.getElementById('appSyncStatusToast'), 'sync');
-    const toast = createStatusToast(message, syncTone(kind, message), 'sync');
+    const copy = syncCopy(kind, message);
+    const toast = createStatusToast({ ...copy, slot: 'sync' });
     state.syncToast = toast;
     state.syncVisible = true;
+    state.syncVisibleKind = kind;
     if (!persistent) state.syncTimer = setTimeout(() => removeToast(toast, 'sync'), DEFAULT_TOAST_DURATION);
+  }
+
+  function suppressSyncFeedback(duration = 1800) {
+    state.syncSuppressUntil = Math.max(state.syncSuppressUntil, Date.now() + Math.max(0, Number(duration) || 0));
+    clearTimeout(state.syncDelayTimer);
+    state.syncDelayTimer = null;
+    removeToast(state.syncToast || document.getElementById('appSyncStatusToast'), 'sync');
+  }
+
+  function resumeSyncFeedback() {
+    state.syncSuppressUntil = 0;
   }
 
   function setSyncStatus(kind = 'neutral', message = '') {
     ensureNotificationRegion();
-    const nextMessage = String(message || '保存済み');
+    const nextMessage = String(message || '');
     const previousKind = state.syncKind;
     const previousVisible = state.syncVisible;
+    const previousVisibleKind = state.syncVisibleKind;
     const changed = previousKind !== kind || state.syncMessage !== nextMessage;
     state.syncKind = kind;
     state.syncMessage = nextMessage;
@@ -242,20 +300,28 @@
     clearTimeout(state.syncDelayTimer);
     state.syncDelayTimer = null;
 
+    if (Date.now() < state.syncSuppressUntil) {
+      if (kind === 'connected') state.syncHadPendingState = false;
+      removeToast(state.syncToast || document.getElementById('appSyncStatusToast'), 'sync');
+      return;
+    }
+
     if (kind === 'saving') {
-      // Routine saves are usually shorter than a perceptible notification. Carbon warns
-      // against excessive notifications, so only surface progress when it lasts long enough.
       state.syncDelayTimer = setTimeout(() => {
-        if (state.syncKind !== 'saving') return;
+        if (state.syncKind !== 'saving' || Date.now() < state.syncSuppressUntil) return;
         showSyncToast('saving', nextMessage, { persistent: true });
       }, SYNC_PROGRESS_DELAY);
       return;
     }
 
     if (kind === 'connected') {
-      // Do not announce every fast autosave. Completion is useful only when progress was
-      // actually visible or the app is recovering from a non-connected state.
-      if (previousVisible || ['error', 'local', 'saving'].includes(previousKind) && previousKind !== 'saving') {
+      const recoveredFromProblem = state.syncHadPendingState || ['local', 'error'].includes(previousVisibleKind);
+      const completedVisibleSave = previousVisible && previousVisibleKind === 'saving';
+      const explicitReplay = /再送|保留/.test(nextMessage);
+      state.syncHadPendingState = false;
+      if (explicitReplay || recoveredFromProblem) {
+        showSyncToast('connected', explicitReplay ? nextMessage : '保留していた変更を反映しました');
+      } else if (completedVisibleSave) {
         showSyncToast('connected', nextMessage);
       } else {
         removeToast(state.syncToast, 'sync');
@@ -264,17 +330,38 @@
     }
 
     if (kind === 'error') {
-      showSyncToast('error', nextMessage, { persistent: true });
+      const internalRetryState = /transaction|準備|初期化|support is required|保存を拒否|再送停止|outbox|retry/i.test(nextMessage)
+        || window.__sanpoSyncWaitingForTransport;
+      if (internalRetryState) {
+        state.syncHadPendingState = false;
+        removeToast(state.syncToast, 'sync');
+        return;
+      }
+      const compatibilityProblem = /新版|未対応/.test(nextMessage);
+      const permissionProblem = /permission[_ -]?denied|権限/i.test(nextMessage);
+      const actualConnectionProblem = /network|offline|disconnected|通信|接続[^。]*(切|失|不可)|タイムアウト|timeout/i.test(nextMessage);
+      if (!compatibilityProblem && !permissionProblem && !actualConnectionProblem) {
+        removeToast(state.syncToast, 'sync');
+        return;
+      }
+      state.syncHadPendingState = true;
+      const copy = syncCopy(kind, nextMessage);
+      showSyncToast(kind, nextMessage, { persistent: copy.tone === 'error' });
       return;
     }
 
     if (kind === 'local') {
-      const isDeferred = /保留|同期中/.test(nextMessage);
-      showSyncToast('local', nextMessage, { persistent: isDeferred });
+      const actualConnectionProblem = /network|offline|disconnected|通信|接続[^。]*(切|失|不可)|タイムアウト|timeout/i.test(nextMessage);
+      if (actualConnectionProblem) {
+        state.syncHadPendingState = true;
+        showSyncToast('local', nextMessage, { persistent: true });
+      } else {
+        removeToast(state.syncToast, 'sync');
+      }
       return;
     }
 
-    removeToast(state.syncToast, 'sync');
+    if (previousVisible) removeToast(state.syncToast, 'sync');
   }
 
   function showUndoBar(message, onUndo) {
@@ -305,8 +392,16 @@
     if (bar) bar.classList.remove('visible');
   }
 
+  document.addEventListener('click', event => {
+    if (!event.isTrusted) return;
+    const quietInteraction = event.target?.closest?.(
+      '#tray-handle, #app-view-navigation cds-tab, #app-view-navigation [role="tab"], [data-action="open-settlement-gas-settings"]'
+    );
+    if (quietInteraction) suppressSyncFeedback(1800);
+  }, true);
+
   ensureNotificationRegion();
-  window.AppUI = { confirm, alert, showStatus, setSyncStatus, showUndoBar, hideUndoBar };
+  window.AppUI = { confirm, alert, showStatus, setSyncStatus, suppressSyncFeedback, resumeSyncFeedback, showUndoBar, hideUndoBar };
   window.showAppNotice = (message, isError = false) => showStatus(message, { tone: isError ? 'error' : 'neutral' });
   window.showMiniToast = (message, tone = 'neutral') => showStatus(message, { tone, duration: DEFAULT_TOAST_DURATION });
 })();
