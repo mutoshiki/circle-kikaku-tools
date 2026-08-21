@@ -378,8 +378,9 @@ test.describe('Settlement and route workflows', () => {
     await expect(page.locator('#settlementGasEditPanel [data-field="price"]')).toHaveCount(0);
     await page.locator('#settlementGasEditPanel [data-field="rentalType"] cds-radio-button[value="private"]').click();
     await expect(page.locator('#settlementGasEditPanel [data-field="rentalType"]')).toHaveJSProperty('value', 'private');
-    await hostClick(page, '#settlementGasEditPanel [data-action="close-settlement-gas-settings"]');
-    await expect(gasPanel).toBeHidden();
+    await page.locator('body > #settlementGasEditModal cds-modal-footer-button[data-modal-close]').evaluate(node => node.click());
+    await expect(page.locator('body > #settlementGasEditModal')).toHaveCount(0);
+    await expect(page.locator('#settlementCarEditModal')).toHaveJSProperty('open', true);
     await hostClick(page, '#settlementCarEditModal [data-action="add-settlement-extra"]');
     await setHostValue(page, '#settlementCarEditModal [data-extra-field="name"]', '高速代');
     await setHostValue(page, '#settlementCarEditModal [data-extra-field="amount"]', '1234');
@@ -407,10 +408,16 @@ test.describe('Settlement and route workflows', () => {
     await hostClick(page, '#routePlaceSearchBackBtn');
     await expect(page.locator('#routePlaceSearchSurface')).toHaveAttribute('hidden', '');
     await hostClick(page, '#routeDistanceModal cds-modal-close-button');
-    await hostClick(page, '#settlementGasEditPanel [data-action="close-settlement-gas-settings"]');
+    await expect(page.locator('#settlementCarEditModal')).toHaveJSProperty('open', true);
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: { writeText: async value => { window.__copiedSettlementText = value; } }
+      });
+    });
     await hostClick(page, '[data-action="copy-settlement-text"]');
-    await expect(page.locator('#copy-fallback')).toHaveAttribute('open', '');
-    expect(await page.locator('#copy-fallback cds-textarea').evaluate(node => node.value)).toMatch(/[¥￥円]/);
+    expect(await page.evaluate(() => window.__copiedSettlementText || '')).toMatch(/[¥￥円]/);
+    await expect(page.locator('#copy-fallback')).toHaveCount(0);
     await expectNoDocumentOverflow(page);
     expect(errors).toEqual([]);
   });

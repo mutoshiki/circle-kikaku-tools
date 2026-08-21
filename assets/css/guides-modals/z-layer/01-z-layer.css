@@ -1,5 +1,6 @@
-/* Global layer order. The Carbon modal owns its backdrop and viewport
-   positioning; application chrome remains visible beneath the backdrop. */
+/* Global layer order. Carbon Modal owns its own backdrop, focus trap and viewport
+   behavior. Do not add a second body-level overflow lock here: on iOS Safari,
+   changing body overflow while the software keyboard resizes the visual viewport
+   can move the document and leave a persistent white gap after editing. */
 .app-modal { z-index: var(--z-modal); }
-body.app-modal-open { overflow: hidden; }
 body.app-modal-open #app-view-navigation { z-index: var(--z-bottom-navigation); }
