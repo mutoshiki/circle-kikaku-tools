@@ -32,6 +32,19 @@
                 const current = normalizeTitle(valueDescriptor.get.call(this));
                 const editor = byId('projectTitleEditor');
                 const editorValue = normalizeTitle(editor?.textContent || '');
+                const editorOwnsWrite = !!editor
+                    && document.activeElement === editor
+                    && next === editorValue;
+
+                // The visible contenteditable is the source of a local title edit. Accept
+                // every keystroke from it, even while an earlier character is still waiting
+                // for the shared-room acknowledgement. Otherwise the pending guard would
+                // freeze the hidden source input after the first typed character.
+                if (editorOwnsWrite) {
+                    valueDescriptor.set.call(this, next);
+                    pendingLocalTitle = next;
+                    return;
+                }
 
                 // A remote snapshot can arrive between the local input event and its
                 // debounced save. Do not let an older/empty roomName erase the title
@@ -39,10 +52,9 @@
                 if (pendingLocalTitle && next !== pendingLocalTitle) return;
                 if (pendingLocalTitle && next === pendingLocalTitle) pendingLocalTitle = '';
 
-                // While the contenteditable editor owns focus, only accept the value it
-                // is currently writing itself. A remote repaint must not replace a title
-                // midway through composition/typing.
-                if (editor && document.activeElement === editor && next !== editorValue && next !== current) return;
+                // While the contenteditable editor owns focus, reject remote repaint values
+                // that do not match the currently edited text.
+                if (editor && document.activeElement === editor && next !== current) return;
 
                 valueDescriptor.set.call(this, next);
                 syncEditor(next);
