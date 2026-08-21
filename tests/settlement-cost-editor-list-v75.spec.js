@@ -73,8 +73,9 @@ for (const config of [
       await expect(row.locator('.seisan-extra-field--amount cds-text-input')).toHaveAttribute('readonly', '');
       await expect(row.locator('[data-carbon-icon="settings--adjust"], [data-carbon-icon-name="settings--adjust"]')).toHaveCount(1);
       await expect(row.locator('cds-toggle')).toHaveCount(1);
-      await expect(row.locator('cds-toggle')).toBeDisabled();
-      await expect(row.locator('.seisan-extra-field--action cds-icon-button')).toBeDisabled();
+      await expect(row.locator('cds-toggle')).toHaveAttribute('disabled', '');
+      await expect(row.locator('cds-toggle')).toHaveAttribute('aria-disabled', 'true');
+      await expect(row.locator('.seisan-extra-field--action cds-icon-button')).toHaveAttribute('disabled', '');
 
       const geometry = await row.evaluate(node => {
         const rowBox = node.getBoundingClientRect();
@@ -153,8 +154,8 @@ test.describe('Settlement rental and dismissal regression', () => {
     await expect(timeRow.locator('[data-extra-field="name"]')).toHaveJSProperty('value', 'タイムズ時間料金');
     await expect(timeRow.locator('[data-extra-field="name"]')).toHaveAttribute('readonly', '');
     await expect(timeRow.locator('[data-extra-field="amount"]')).not.toHaveAttribute('readonly', '');
-    await expect(timeRow.locator('[data-extra-field="type"]')).not.toBeDisabled();
-    await expect(timeRow.locator('.seisan-extra-field--action cds-icon-button')).toBeDisabled();
+    await expect(timeRow.locator('[data-extra-field="type"]')).not.toHaveAttribute('disabled', '');
+    await expect(timeRow.locator('.seisan-extra-field--action cds-icon-button')).toHaveAttribute('disabled', '');
   });
 
   test('keyboard viewport resize does not move the app shell or leave a white-gap state', async ({ page }) => {
@@ -166,8 +167,12 @@ test.describe('Settlement rental and dismissal regression', () => {
     }));
 
     const amount = page.locator('#settlementCarEditModal .seisan-extra-row [data-extra-field="amount"]').first();
-    await amount.fill('321');
-    await amount.dispatchEvent('input');
+    await amount.evaluate(node => {
+      node.value = '321';
+      node.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      node.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    });
+    await expect(amount).toHaveJSProperty('value', '321');
     await page.waitForTimeout(120);
 
     await page.setViewportSize({ width: 390, height: 520 });
