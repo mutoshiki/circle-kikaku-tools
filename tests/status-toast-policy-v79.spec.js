@@ -37,8 +37,11 @@ test.describe('Status toast policy v79', () => {
     });
 
     await page.evaluate(() => window.showSaveStatus('同期完了', 'connected'));
-    await page.waitForTimeout(100);
-    await expect(page.locator('#appSyncStatusToast')).toHaveCount(0);
+    expect(await toastCopy(page)).toEqual({
+      title: '保存しました',
+      subtitle: '変更内容は最新の状態です。',
+      kind: 'success'
+    });
 
     await page.evaluate(() => window.showSaveStatus('入力中のため同期保留', 'local'));
     await expect(page.locator('#appSyncStatusToast')).toBeVisible();
