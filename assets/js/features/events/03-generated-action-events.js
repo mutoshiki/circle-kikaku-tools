@@ -107,6 +107,16 @@
         return syncGasVehicleType(group, radio.value || radio.getAttribute('value'));
     }
 
+    function ensureGasCloseActionBridge(modal) {
+        const panel = modal?.querySelector('#settlementGasEditPanel');
+        if (!panel || panel.querySelector('[data-action="close-settlement-gas-settings"]')) return;
+        const bridge = document.createElement('span');
+        bridge.hidden = true;
+        bridge.dataset.action = 'close-settlement-gas-settings';
+        bridge.setAttribute('aria-hidden', 'true');
+        panel.appendChild(bridge);
+    }
+
     function waitForModalHidden(modal) {
         if (!modal?.open) return Promise.resolve();
         return new Promise(resolve => modal.addEventListener('sanpo:modal-hidden', resolve, { once: true }));
@@ -135,6 +145,7 @@
         modal.dataset.driverName = encodedDriverName || modal.dataset.driverName || '';
         modal.dataset.returnScrollTop = String(parentScrollTop);
         modal.dataset.routeTransition = 'false';
+        ensureGasCloseActionBridge(modal);
         modal.remove();
         document.body.appendChild(modal);
 
