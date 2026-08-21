@@ -89,7 +89,8 @@ assert.match(settingsCss, /width: calc\(100vw - 2rem\)/, 'settlement settings ke
 assert.doesNotMatch(settingsCss, /!important/, 'settings owner CSS does not use force overrides');
 
 assert.match(settlementGuard, /isSettlementEditSessionActive[\s\S]*settlementGasEditModal[\s\S]*shouldPreserveSettlementCarEditorOnHidden/, 'project-title guard remains active through nested movement settings');
-assert.match(settlementGuard, /captureSettlementViewportState[\s\S]*titleState[\s\S]*documentTop[\s\S]*app-layout/, 'one shared viewport snapshot owns title and scroll state');
+assert.match(settlementGuard, /function captureSettlementViewportState[\s\S]*titleState[\s\S]*documentTop/, 'one shared viewport snapshot owns title and document scroll state');
+assert.match(settlementGuard, /const ids = \['seisan-view-area', 'app-layout', 'top-area', 'sheet-view-area', 'sheet-canvas'\]/, 'the shared viewport snapshot owns the settlement and shell scrollers');
 assert.match(settlementGuard, /maybeReleaseSettlementProjectTitleState[\s\S]*shouldPreserveSettlementCarEditorOnHidden/, 'parent modal transition does not prematurely release the viewport guard');
 assert.match(inputActions, /captureSettlementScrollPosition[\s\S]*captureSettlementViewportState/, 'settlement checks delegate viewport capture to the shared guard owner');
 assert.match(inputActions, /toggleSettlementPaid[\s\S]*stabilizeSettlementScrollPosition[\s\S]*save\(\)[\s\S]*stabilizeSettlementScrollPosition/, 'collection checks preserve viewport around async confirmation and save');
