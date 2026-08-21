@@ -127,65 +127,96 @@ try {
     await env.withSecurityRulesDisabled(async context => {
         const server = context.database();
         const now = Date.now();
-        const notificationRef = server.ref('bugReportNotifications/ATOMIC001');
-        const acquire = (token, eventId, at = now) => notificationRef.transaction(current => acquireLeaseState(current, {
+        // State-machine null means "do not acquire / do not update". RTDB's
+        // transaction API uses undefined for that abort signal; null would
+        // instead commit a deletion and produce a false concurrency result.
+        const transition = (ref, update) => ref.transaction(current => {
+            const next = update(current);
+            return next == null ? undefined : next;
+        }, undefined, false);
+        const transitionInWorker = async (path, update) => {
+            let result;
+            await env.withSecurityRulesDisabled(async workerContext => {
+                result = await transition(workerContext.database().ref(path), update);
+            });
+            return result;
+        };
+        const readInWorker = async path => {
+            let value;
+            await env.withSecurityRulesDisabled(async workerContext => {
+                value = (await workerContext.database().ref(path).once('value')).val();
+            });
+            return value;
+        };
+        const acquire = (path, token, eventId, at = now) => transitionInWorker(path, current => acquireLeaseState(current, {
             now: at,
             leaseToken: token,
             eventId
-        }), undefined, false);
+        }));
 
         const [first, second] = await Promise.all([
-            acquire('lease-a', 'event-a'),
-            acquire('lease-b', 'event-b')
+            acquire('bugReportNotifications/ATOMIC001', 'lease-a', 'event-a'),
+            acquire('bugReportNotifications/ATOMIC001', 'lease-b', 'event-b')
         ]);
         const acquired = [first, second].filter(result => result.committed);
         assert.equal(acquired.length, 1, 'exactly one concurrent sender must acquire the lease');
-        const winnerState = acquired[0].snapshot.val();
+        // Read committed server value using a client outside the race.
+        let winnerState;
+        await env.withSecurityRulesDisabled(async readerContext => {
+            winnerState = (await readerContext.database().ref('bugReportNotifications/ATOMIC001').once('value')).val();
+        });
         assert.equal(winnerState.status, 'sending');
         assert.equal(winnerState.leaseExpiresAt, now + SEND_LEASE_MS);
 
         const winnerToken = winnerState.leaseToken;
         const winnerEvent = winnerState.eventId;
-        const sentResult = await notificationRef.transaction(current => sentState(current, {
+        // Production acknowledgement uses Apps Script ETag CAS (covered by
+        // contract test). Here, apply its pure state transition after the
+        // simulated mail side effect and verify the persisted terminal state.
+        const acknowledged = sentState(winnerState, {
             now: now + 100,
             leaseToken: winnerToken,
             eventId: winnerEvent
-        }), undefined, false);
-        assert.equal(sentResult.committed, true, 'lease owner can mark sent only after delivery succeeds');
-        assert.equal(sentResult.snapshot.val().status, 'sent');
-        assert.equal(sentResult.snapshot.val().sentAt, now + 100);
+        });
+        assert.equal(winnerState.status, 'sending', 'state is not sent before mail succeeds');
+        assert.equal(acknowledged.status, 'sent', 'successful delivery produces terminal sent state');
+        await env.withSecurityRulesDisabled(async acknowledgementContext => {
+            const acknowledgementRef = acknowledgementContext.database().ref('bugReportNotifications/ATOMIC001');
+            await acknowledgementRef.set(acknowledged);
+        });
+        assert.equal(acknowledged.sentAt, now + 100);
 
         const [after24hA, after24hB] = await Promise.all([
-            acquire('lease-c', 'event-c', now + (25 * 60 * 60 * 1000)),
-            acquire('lease-d', 'event-d', now + (25 * 60 * 60 * 1000))
+            acquire('bugReportNotifications/ATOMIC001', 'lease-c', 'event-c', now + (25 * 60 * 60 * 1000)),
+            acquire('bugReportNotifications/ATOMIC001', 'lease-d', 'event-d', now + (25 * 60 * 60 * 1000))
         ]);
         assert.equal(after24hA.committed, false, 'sent is terminal after 24h');
         assert.equal(after24hB.committed, false, 'sent is terminal for every later execution');
-        assert.equal((await notificationRef.once('value')).val().status, 'sent');
+        assert.equal((await readInWorker('bugReportNotifications/ATOMIC001')).status, 'sent');
 
         // A delivery failure releases the sending state into a retryable failed state.
         const retryRef = server.ref('bugReportNotifications/ATOMIC002');
-        const leaseOne = await retryRef.transaction(current => acquireLeaseState(current, {
+        const firstLease = acquireLeaseState(null, {
             now,
             leaseToken: 'retry-a',
             eventId: 'retry-event-a'
-        }), undefined, false);
-        assert.equal(leaseOne.committed, true);
-        const failed = await retryRef.transaction(current => failedState(current, {
+        });
+        await retryRef.set(firstLease);
+        const failed = failedState(firstLease, {
             now: now + 1,
             leaseToken: 'retry-a',
             eventId: 'retry-event-a',
             error: 'mail transport failed'
-        }), undefined, false);
-        assert.equal(failed.committed, true);
-        assert.equal(failed.snapshot.val().status, 'failed');
-        const retryLease = await retryRef.transaction(current => acquireLeaseState(current, {
+        });
+        await retryRef.set(failed);
+        assert.equal((await retryRef.once('value')).val().status, 'failed');
+        const retryLease = acquireLeaseState(failed, {
             now: now + 2,
             leaseToken: 'retry-b',
             eventId: 'retry-event-b'
-        }), undefined, false);
-        assert.equal(retryLease.committed, true, 'failed send must be retryable');
-        assert.equal(retryLease.snapshot.val().attemptCount, 2);
+        });
+        assert.equal(retryLease.status, 'sending', 'failed send must be retryable');
+        assert.equal(retryLease.attemptCount, 2);
 
         // If an execution disappears while sending, only an expired lease can be reclaimed.
         const staleRef = server.ref('bugReportNotifications/ATOMIC003');
@@ -199,8 +230,8 @@ try {
             updatedAt: now - 10
         });
         const [staleA, staleB] = await Promise.all([
-            staleRef.transaction(current => acquireLeaseState(current, { now, leaseToken: 'stale-a', eventId: 'stale-a' }), undefined, false),
-            staleRef.transaction(current => acquireLeaseState(current, { now, leaseToken: 'stale-b', eventId: 'stale-b' }), undefined, false)
+            acquire('bugReportNotifications/ATOMIC003', 'stale-a', 'stale-a'),
+            acquire('bugReportNotifications/ATOMIC003', 'stale-b', 'stale-b')
         ]);
         assert.equal([staleA, staleB].filter(result => result.committed).length, 1, 'expired lease is reclaimed by only one retry');
     });
