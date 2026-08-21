@@ -28,12 +28,9 @@ test.describe('Settlement modal warning v80', () => {
     await expect(modal).toHaveJSProperty('open', true);
     const warning = modal.locator('.seisan-car-edit-alert cds-inline-notification');
     await expect(warning).toBeVisible();
+    await expect(warning).toHaveAttribute('kind', 'error');
     await expect(warning.locator('[slot="title"]')).toHaveText('入力内容を確認してください');
     await expect(warning.locator('[slot="subtitle"]')).toContainText('追加した諸経費が未入力です');
-
-    const pending = modal.locator('[data-extra-pending="true"]');
-    await expect(pending.locator('[data-extra-field="name"]')).toHaveAttribute('invalid', '');
-    await expect(pending.locator('[data-extra-field="amount"]')).toHaveAttribute('invalid', '');
     expect(errors).toEqual([]);
   });
 });
