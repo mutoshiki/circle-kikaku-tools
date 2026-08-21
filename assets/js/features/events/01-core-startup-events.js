@@ -4,6 +4,61 @@
 
     const events = global.SanpoEvents || {};
 
+    function installRoomTitleValueBridge(roomNameInput) {
+        if (!roomNameInput || roomNameInput.dataset.projectTitleValueBridge === 'true') return;
+        const prototype = Object.getPrototypeOf(roomNameInput);
+        const valueDescriptor = Object.getOwnPropertyDescriptor(prototype, 'value')
+            || Object.getOwnPropertyDescriptor(global.HTMLInputElement?.prototype || {}, 'value');
+        if (!valueDescriptor?.get || !valueDescriptor?.set) return;
+
+        let pendingLocalTitle = '';
+        const normalizeTitle = value => String(value ?? '').replace(/[\r\n]+/g, '');
+        const syncEditor = value => {
+            const editor = byId('projectTitleEditor');
+            if (!editor || document.activeElement === editor) return;
+            const next = normalizeTitle(value);
+            if (editor.textContent !== next) editor.textContent = next;
+            if (!next && editor.childNodes.length) editor.replaceChildren();
+        };
+
+        Object.defineProperty(roomNameInput, 'value', {
+            configurable: true,
+            enumerable: valueDescriptor.enumerable,
+            get() {
+                return valueDescriptor.get.call(this);
+            },
+            set(value) {
+                const next = normalizeTitle(value);
+                const current = normalizeTitle(valueDescriptor.get.call(this));
+                const editor = byId('projectTitleEditor');
+                const editorValue = normalizeTitle(editor?.textContent || '');
+
+                // A remote snapshot can arrive between the local input event and its
+                // debounced save. Do not let an older/empty roomName erase the title
+                // that is still waiting to be acknowledged by the shared room.
+                if (pendingLocalTitle && next !== pendingLocalTitle) return;
+                if (pendingLocalTitle && next === pendingLocalTitle) pendingLocalTitle = '';
+
+                // While the contenteditable editor owns focus, only accept the value it
+                // is currently writing itself. A remote repaint must not replace a title
+                // midway through composition/typing.
+                if (editor && document.activeElement === editor && next !== editorValue && next !== current) return;
+
+                valueDescriptor.set.call(this, next);
+                syncEditor(next);
+            }
+        });
+        roomNameInput.dataset.projectTitleValueBridge = 'true';
+
+        roomNameInput.addEventListener('input', event => {
+            if (event.isComposing) return;
+            pendingLocalTitle = normalizeTitle(valueDescriptor.get.call(roomNameInput));
+        });
+        roomNameInput.addEventListener('compositionend', () => {
+            pendingLocalTitle = normalizeTitle(valueDescriptor.get.call(roomNameInput));
+        });
+    }
+
     function bindCoreStartupEvents() {
         if (document.documentElement.dataset.coreStartupEventsBound === 'true') return;
         document.documentElement.dataset.coreStartupEventsBound = 'true';
@@ -107,6 +162,7 @@
 
         const roomNameInput = $('#roomNameInput');
         if (roomNameInput) {
+            installRoomTitleValueBridge(roomNameInput);
             roomNameInput.addEventListener('input', event => {
                 refreshRoomTitle();
                 if (event.isComposing) return;
