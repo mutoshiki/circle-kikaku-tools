@@ -10,7 +10,7 @@ const extraTemplate = read('assets/js/templates/settlement/04-extra-input-templa
 const dragSource = read('assets/js/features/drag-edit-view.js');
 const traySource = read('assets/js/features/waiting-tray.js');
 
-assert.match(extraTemplate, /data-extra-field="type" value="\$\{type\}"/, 'Carbon expense select host must carry the canonical value');
+assert.match(extraTemplate, /data-extra-field="type"[^>]*value="\$\{type\}"/, 'Carbon expense toggle host must carry the canonical value');
 assert.match(renderSource, /Validation must never rebuild a valid editor/, 'valid car-save validation must preserve live Carbon controls');
 assert.match(renderSource, /Missing organizer is guidance, not a save-blocking data error/, 'missing organizer must not deadlock settings save');
 assert.match(dragSource, /restoreScrollAfterManualCardMutation/, 'drag completion must own scroll restoration through layout frames');

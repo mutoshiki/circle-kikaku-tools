@@ -90,10 +90,10 @@ for (const [source, mode] of [[lightTokens, 'light'], [darkTokens, 'dark']]) {
 expect(modal.includes('.app-modal cds-modal-heading:focus-visible'), 'Dynamic Carbon modal headings must suppress the browser focus rectangle.');
 expect(timetable.includes('grid-template-columns: 116px minmax(0, 1fr) 48px'), 'Overview timetable needs enough width for full HH:MM values.');
 expect(timetable.includes('grid-template-columns: 112px minmax(0, 1fr) 48px'), 'Narrow mobile timetable still needs a readable time column.');
-expect(extraCosts.includes('72px 112px 48px'), 'Extra-cost burden select needs a readable Carbon select column.');
-expect(extraCosts.includes('grid-template-columns: minmax(0, 1fr) minmax(112px, 0.75fr) 48px') && extraCosts.includes('grid-template-columns: minmax(0, 1fr) 48px'), 'Mobile extra-cost rows must reflow instead of squeezing four controls into one line.');
-expect(extraTemplate.includes('割勘 −') && extraTemplate.includes('部費 −'), 'Negative burden labels must be concise in the closed select.');
-expect(extraTemplate.includes('size="md" density="condensed" data-extra-field="name"') && extraTemplate.includes('size="md" density="condensed" inputmode="numeric"'), 'Long settlement forms should use Carbon medium fields for denser, readable mobile entry.');
+expect(extraCosts.includes('minmax(104px, 132px) 64px 48px'), 'Extra-cost rows need readable amount, small-toggle and action columns.');
+expect(extraCosts.includes('@media (max-width: 640px)') && extraCosts.includes('minmax(88px, 108px) 52px 48px'), 'Mobile extra-cost rows must preserve the single four-column scan line without squeezing touch actions.');
+expect(extraTemplate.includes('<cds-toggle size="sm" data-extra-field="type"') && !extraTemplate.includes('<cds-select size="md" density="condensed" data-extra-field="type"'), 'Extra burden must use a compact Carbon small toggle rather than the legacy select.');
+expect(extraTemplate.includes('data-extra-negative=') && extraTemplate.includes('size="md" density="condensed" data-extra-field="name"') && extraTemplate.includes('size="md" density="condensed" inputmode="numeric"'), 'Existing signed extra semantics and dense Carbon fields must remain compatible.');
 expect(!costPreview.includes('font-size: 0.60rem'), 'Persistent settlement labels must not fall below Carbon caption size.');
 expect(clubExpense.includes('font-size: var(--font-size-caption);'), 'Club expense user labels must use Carbon caption size.');
 expect(index.includes('>登録する</cds-modal-footer-button>'), 'Batch import primary action must stay on one line.');

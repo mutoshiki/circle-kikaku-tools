@@ -4,9 +4,70 @@
 
     const events = global.SanpoEvents || {};
 
+    function refreshSettlementExtraTypeClasses(target, type) {
+        const baseType = type.startsWith('club') ? 'club' : 'split';
+        target.value = type;
+        target.classList.remove('split', 'club', 'split-minus', 'club-minus');
+        target.classList.add(baseType, type);
+        const field = target.closest('.seisan-extra-field--type');
+        field?.classList.remove('split', 'club', 'split-minus', 'club-minus');
+        field?.classList.add(baseType, type);
+    }
+
+    function commitSettlementClubToggle(target, toggled) {
+        if (!target?.matches?.('.seisan-car-row cds-toggle[data-extra-field="type"]')) return false;
+        const negative = target.dataset.extraNegative === 'true' || String(target.value || '').endsWith('-minus');
+        const type = `${toggled ? 'club' : 'split'}${negative ? '-minus' : ''}`;
+        refreshSettlementExtraTypeClasses(target, type);
+        global.syncSettlementStateFromDOM?.();
+        global.refreshSettlementCarEditorCandidates?.(target.closest('.seisan-car-row')?.dataset?.driverName || '');
+        global.onSettlementInput?.();
+        return true;
+    }
+
+    function syncGasVehicleType(target, value) {
+        if (!target?.matches?.('#settlementGasEditModal [data-field="rentalType"]')) return false;
+        target.value = value === 'times' ? 'times' : 'private';
+        const row = target.closest('.seisan-car-row');
+        row?.classList.toggle('is-times-rental', target.value === 'times');
+        global.syncSettlementStateFromDOM?.();
+        global.saveLocalDraftOnly?.();
+        return true;
+    }
+
+    function openSettlementGasSettings(target) {
+        const modal = document.getElementById('settlementGasEditModal');
+        if (!modal) return;
+        if (modal.dataset.settlementGasBound !== 'true') {
+            modal.dataset.settlementGasBound = 'true';
+            modal.addEventListener('sanpo:modal-hidden', () => {
+                const row = document.querySelector('#settlementCarEditBody .seisan-car-row');
+                const name = row?.dataset?.driverName || target?.dataset?.driverName || '';
+                if (name) global.refreshSettlementCarEditor?.(name);
+            });
+        }
+        global.AppModalAdapter?.getOrCreateInstance?.(modal)?.show();
+    }
+
     function setupGeneratedHtmlEventDelegation() {
         if (document.documentElement.dataset.generatedEventsBound === 'true') return;
         document.documentElement.dataset.generatedEventsBound = 'true';
+
+        // These two compact controls live in generated settlement rows. Capture
+        // their official Carbon events here before the legacy select/radio fallback
+        // handlers so one control has one semantic owner.
+        document.addEventListener('cds-toggle-changed', event => {
+            const target = event.target;
+            if (!target?.matches?.('.seisan-car-row cds-toggle[data-extra-field="type"]')) return;
+            const toggled = event.detail?.toggled ?? event.detail?.checked ?? target.toggled ?? target.checked;
+            if (commitSettlementClubToggle(target, !!toggled)) event.stopImmediatePropagation();
+        }, true);
+
+        document.addEventListener('cds-radio-button-group-changed', event => {
+            const target = event.target;
+            if (!target?.matches?.('#settlementGasEditModal [data-field="rentalType"]')) return;
+            if (syncGasVehicleType(target, event.detail?.value ?? target.value)) event.stopImmediatePropagation();
+        }, true);
 
         // Robust fallback for floating person menus.
         // The menu DOM is appended to <body>, so handle its item clicks globally.
@@ -31,6 +92,7 @@
             'open-standalone-settlement-settings': () => global.openStandaloneSettlementSettings?.(),
             'save-settlement-settings': () => global.saveSettlementSettings?.(),
             'open-settlement-car-edit': ({ target }) => global.openSettlementCarEditor?.(target.dataset.driverName || ''),
+            'open-settlement-gas-settings': ({ target }) => openSettlementGasSettings(target),
             'save-settlement-car-edit': () => global.saveSettlementCarEdit?.(),
             'add-settlement-extra': ({ target }) => global.addSettlementExtra?.(target.dataset.driverName || ''),
             'add-settlement-extra-candidate': ({ target }) => global.addSettlementExtraCandidate?.(
