@@ -14,7 +14,8 @@
     syncVisible: false,
     syncVisibleKind: '',
     syncHadPendingState: false,
-    syncSuppressUntil: 0
+    syncSuppressUntil: 0,
+    syncSuppressedSaveCycle: false
   };
 
   const STATUS_NOTIFICATIONS = Object.freeze({
@@ -191,8 +192,6 @@
     toast.setAttribute('aria-atomic', 'true');
     toast.ariaLabel = '通知を閉じる';
     toast.setAttribute('status-icon-description', notification.iconDescription);
-    // Carbon's toast already renders the slotted title. The native HTML title
-    // attribute/property must stay empty or some versions render the heading twice.
     toast.removeAttribute('title');
     toast.title = '';
     const titleNode = document.createElement('span');
@@ -275,8 +274,9 @@
     if (!persistent) state.syncTimer = setTimeout(() => removeToast(toast, 'sync'), DEFAULT_TOAST_DURATION);
   }
 
-  function suppressSyncFeedback(duration = 1800) {
+  function suppressSyncFeedback(duration = 600) {
     state.syncSuppressUntil = Math.max(state.syncSuppressUntil, Date.now() + Math.max(0, Number(duration) || 0));
+    state.syncSuppressedSaveCycle = false;
     clearTimeout(state.syncDelayTimer);
     state.syncDelayTimer = null;
     removeToast(state.syncToast || document.getElementById('appSyncStatusToast'), 'sync');
@@ -284,6 +284,7 @@
 
   function resumeSyncFeedback() {
     state.syncSuppressUntil = 0;
+    state.syncSuppressedSaveCycle = false;
   }
 
   function setSyncStatus(kind = 'neutral', message = '') {
@@ -301,7 +302,14 @@
     state.syncDelayTimer = null;
 
     if (Date.now() < state.syncSuppressUntil) {
-      if (kind === 'connected') state.syncHadPendingState = false;
+      if (kind === 'saving') state.syncSuppressedSaveCycle = true;
+      if (kind === 'connected') {
+        state.syncHadPendingState = false;
+        if (state.syncSuppressedSaveCycle) {
+          state.syncSuppressedSaveCycle = false;
+          state.syncSuppressUntil = 0;
+        }
+      }
       removeToast(state.syncToast || document.getElementById('appSyncStatusToast'), 'sync');
       return;
     }
@@ -397,7 +405,7 @@
     const quietInteraction = event.target?.closest?.(
       '#tray-handle, #app-view-navigation cds-tab, #app-view-navigation [role="tab"], [data-action="open-settlement-gas-settings"]'
     );
-    if (quietInteraction) suppressSyncFeedback(1800);
+    if (quietInteraction) suppressSyncFeedback(450);
   }, true);
 
   ensureNotificationRegion();
