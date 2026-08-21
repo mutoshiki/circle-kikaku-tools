@@ -409,15 +409,8 @@ test.describe('Settlement and route workflows', () => {
     await expect(page.locator('#routePlaceSearchSurface')).toHaveAttribute('hidden', '');
     await hostClick(page, '#routeDistanceModal cds-modal-close-button');
     await expect(page.locator('#settlementCarEditModal')).toHaveJSProperty('open', true);
-    await page.evaluate(() => {
-      Object.defineProperty(navigator, 'clipboard', {
-        configurable: true,
-        value: { writeText: async value => { window.__copiedSettlementText = value; } }
-      });
-    });
-    await hostClick(page, '[data-action="copy-settlement-text"]');
-    expect(await page.evaluate(() => window.__copiedSettlementText || '')).toMatch(/[¥￥円]/);
-    await expect(page.locator('#copy-fallback')).toHaveCount(0);
+    await expect(page.locator('#seisan-share-preview')).toHaveCount(0);
+    await expect(page.locator('[data-action="copy-settlement-text"]')).toHaveCount(0);
     await expectNoDocumentOverflow(page);
     expect(errors).toEqual([]);
   });
