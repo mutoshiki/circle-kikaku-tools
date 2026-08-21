@@ -27,6 +27,7 @@ async function setProjectTitleCollapsed(page) {
   await page.dispatchEvent('#seisan-view-area', 'pointermove', { pointerType: 'touch', clientY: 170, pointerId: 51, isPrimary: true });
   await page.dispatchEvent('#seisan-view-area', 'pointerup', { pointerType: 'touch', clientY: 170, pointerId: 51, isPrimary: true });
   await expect(region).toHaveAttribute('data-state', 'collapsed');
+  await expect.poll(() => region.evaluate(node => node.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
 }
 
 test.describe('Settlement UI regressions v76', () => {
@@ -102,7 +103,9 @@ test.describe('Settlement UI regressions v76', () => {
       titleState: document.querySelector('#projectTitleRegion')?.dataset.state,
       headerTop: document.querySelector('#app-header')?.getBoundingClientRect().top,
       navTop: document.querySelector('#app-view-navigation')?.getBoundingClientRect().top,
-      settlementTop: document.querySelector('#seisan-view-area')?.getBoundingClientRect().top
+      settlementTop: document.querySelector('#seisan-view-area')?.getBoundingClientRect().top,
+      settlementScrollTop: document.querySelector('#seisan-view-area')?.scrollTop,
+      windowScrollY: window.scrollY
     }));
     await openFirstCarEditor(page);
 
@@ -118,16 +121,23 @@ test.describe('Settlement UI regressions v76', () => {
     await modalBody.dispatchEvent('pointermove', { pointerType: 'touch', clientY: 330, pointerId: 61, isPrimary: true });
     await modalBody.dispatchEvent('pointerup', { pointerType: 'touch', clientY: 330, pointerId: 61, isPrimary: true });
     await modalBody.dispatchEvent('wheel', { deltaY: -120 });
+    await page.evaluate(() => {
+      const settlement = document.querySelector('#seisan-view-area');
+      if (settlement) settlement.scrollTop += 40;
+    });
     await page.waitForTimeout(50);
     await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'collapsed');
 
     await page.locator('#settlementCarEditModal > cds-modal-header > cds-modal-close-button').evaluate(node => node.click());
     await expect(page.locator('#settlementCarEditModal')).not.toHaveAttribute('open', '');
+    await page.waitForTimeout(80);
     const after = await page.evaluate(() => ({
       titleState: document.querySelector('#projectTitleRegion')?.dataset.state,
       headerTop: document.querySelector('#app-header')?.getBoundingClientRect().top,
       navTop: document.querySelector('#app-view-navigation')?.getBoundingClientRect().top,
-      settlementTop: document.querySelector('#seisan-view-area')?.getBoundingClientRect().top
+      settlementTop: document.querySelector('#seisan-view-area')?.getBoundingClientRect().top,
+      settlementScrollTop: document.querySelector('#seisan-view-area')?.scrollTop,
+      windowScrollY: window.scrollY
     }));
     expect(after).toEqual(before);
 
