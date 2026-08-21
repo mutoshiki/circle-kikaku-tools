@@ -1,10 +1,8 @@
 // Settlement calculation and validation helpers.
 // Split from features/settlement.js during S-3 cleanup.
 
-const SETTLEMENT_AUTO_GAS_EXTRA_ID = 'settlement-auto-gas';
-
 function isGasMovementFeeExtra(ex = {}) {
-    return String(ex?.id || '') === SETTLEMENT_AUTO_GAS_EXTRA_ID;
+    return String(ex?.name || '').replace(/\s+/g, '').replace(/[（）()]/g, '') === 'ガソリン代';
 }
 
 function calculateSettlement(data, state) {
