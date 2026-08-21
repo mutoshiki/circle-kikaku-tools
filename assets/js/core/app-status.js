@@ -1,9 +1,30 @@
 // App save/sync status facade.
 // Split from app.js during S-4 cleanup.
 
+let saveFeedbackCycle = 0;
+let activeSaveFeedbackCycle = 0;
+
+function statusMessageForCycle(kind, message) {
+    const text = String(message || '');
+    if (kind === 'saving') {
+        activeSaveFeedbackCycle = ++saveFeedbackCycle;
+        return `${text}\u2063${activeSaveFeedbackCycle}`;
+    }
+    if (kind === 'connected' && activeSaveFeedbackCycle) {
+        const cycle = activeSaveFeedbackCycle;
+        activeSaveFeedbackCycle = 0;
+        return `${text}\u2063${cycle}`;
+    }
+    if (kind === 'error' || kind === 'local') activeSaveFeedbackCycle = 0;
+    return text;
+}
+
 function updateStatus(kind = 'neutral', message = '') {
     if (!message) return;
-    setPersistentSaveStatus(kind, message);
+    // Every real save is a distinct UI feedback cycle even when consecutive saves use
+    // the same human-readable status text. The invisible separator keeps AppUI's
+    // duplicate-status guard from accidentally swallowing a later save completion.
+    setPersistentSaveStatus(kind, statusMessageForCycle(kind, message));
 }
 
 // Backward-compatible status API used by extracted core modules.
