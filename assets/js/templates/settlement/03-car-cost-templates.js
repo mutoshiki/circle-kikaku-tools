@@ -144,11 +144,10 @@
         <div class="seisan-cost-edit-row seisan-gas-cost-row">
           <div class="seisan-extra-field seisan-extra-field--name"><cds-text-input size="md" density="condensed" value="${movementLabel}" label="名目" hide-label readonly aria-readonly="true"></cds-text-input></div>
           <div class="seisan-extra-field seisan-extra-field--amount seisan-calculated-amount-field" data-extra-amount-field>
-            <div class="seisan-calculated-amount-surface" role="group" aria-label="${movementLabel}の金額設定">
-              <cds-icon-button class="seisan-gas-settings-trigger" kind="ghost" size="lg" type="button" data-action="open-settlement-gas-settings" data-driver-name="${encodeURIComponent(car.name)}" aria-haspopup="dialog" aria-controls="settlementGasEditModal" aria-label="${movementLabel}の設定を開く"><span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span></cds-icon-button>
-            </div>
+            <cds-text-input class="seisan-calculated-amount-input" size="md" density="condensed" value="" label="金額" hide-label readonly aria-readonly="true" aria-label="${movementLabel}は設定から自動計算されます"></cds-text-input>
+            <cds-icon-button class="seisan-gas-settings-trigger" kind="ghost" size="md" type="button" data-action="open-settlement-gas-settings" data-driver-name="${encodeURIComponent(car.name)}" aria-haspopup="dialog" aria-controls="settlementGasEditModal" aria-label="${movementLabel}の設定を開く"><span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span></cds-icon-button>
           </div>
-          <div class="seisan-extra-field seisan-extra-field--type is-fixed"><cds-toggle size="sm" disabled label-text="" label-a="" label-b="" aria-label="${movementLabel}の部費設定は変更できません"></cds-toggle></div>
+          <div class="seisan-extra-field seisan-extra-field--type is-fixed"><cds-toggle size="sm" hide-label disabled label-text="" label-a="" label-b="" aria-label="${movementLabel}の部費設定は変更できません"></cds-toggle></div>
           <div class="seisan-extra-field seisan-extra-field--action"><cds-icon-button class="seisan-icon-btn" kind="danger--ghost" size="lg" type="button" disabled aria-label="${movementLabel}は削除できません"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span></cds-icon-button></div>
         </div>
         <div class="seisan-extra-list">${visibleExtras.map(({ ex, index }) => extraRow({ carName: car.name, ex, index, issues, helpers })).join('')}</div>
