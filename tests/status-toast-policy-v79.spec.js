@@ -73,7 +73,7 @@ test.describe('Status toast policy v79', () => {
       const toast = document.getElementById('appSyncStatusToast');
       return {
         title: toast?.querySelector('[slot="title"]')?.textContent?.trim() || '',
-        subtitle: toast?.querySelector('[slot="subtitle"]')?.textContent?.trim() || '',
+        subtitle: toast?.querySelector('[slot="subtitle"]').textContent?.trim() || '',
         kind: toast?.getAttribute('kind') || '',
         titleSlots: toast?.querySelectorAll('[slot="title"]').length || 0,
         subtitleSlots: toast?.querySelectorAll('[slot="subtitle"]').length || 0,
@@ -102,6 +102,35 @@ test.describe('Status toast policy v79', () => {
     expect((await statusToast.getAttribute('title')) || '').toBe('');
     await page.waitForTimeout(2600);
     await expect(page.locator('#appStatusToast')).toHaveCount(0);
+  });
+
+  test('dynamic Carbon warning state is rendered after an already-mounted field changes', async ({ page }) => {
+    await page.goto('/');
+    await waitForApp(page);
+
+    const result = await page.evaluate(async () => {
+      const host = document.createElement('cds-text-input');
+      host.id = 'dynamicWarningProbe';
+      host.setAttribute('label', '金額');
+      document.body.appendChild(host);
+      await customElements.whenDefined('cds-text-input');
+      await host.updateComplete;
+
+      host.classList.add('is-warning');
+      host.setAttribute('data-warning-text', '入力内容を確認してください');
+      await new Promise(resolve => setTimeout(resolve, 50));
+      await host.updateComplete;
+
+      return {
+        warn: host.hasAttribute('warn'),
+        warnText: host.getAttribute('warn-text'),
+        shadowText: host.shadowRoot?.textContent || ''
+      };
+    });
+
+    expect(result.warn).toBeTruthy();
+    expect(result.warnText).toBe('入力内容を確認してください');
+    expect(result.shadowText).toContain('入力内容を確認してください');
   });
 
   test('transaction transport readiness is retryable instead of a permanent rejection', async ({ page }) => {
