@@ -24,7 +24,7 @@ assert.match(uiSource, /if \(!changed\) return;/, 'unchanged sync states are ded
 assert.match(uiSource, /const SYNC_PROGRESS_DELAY = 650;/, 'routine save progress is delayed so fast autosaves do not create notification noise');
 assert.match(uiSource, /kind === 'saving'[\s\S]*setTimeout[\s\S]*showSyncToast\('saving'[\s\S]*persistent: true/, 'long-running saves use a persistent Carbon progress toast');
 assert.match(uiSource, /kind === 'error'[\s\S]*showSyncToast\(kind, nextMessage, \{ persistent: copy\.tone === 'error' \}\)/, 'actionable sync errors remain visible while transport-readiness warnings may resolve automatically');
-assert.match(uiSource, /kind === 'connected'[\s\S]*recoveredFromProblem[\s\S]*explicitReplay[\s\S]*if \(recoveredFromProblem \|\| explicitReplay\)/, 'routine autosave completion stays quiet and recovery/replay completion is announced');
+assert.match(uiSource, /kind === 'connected'[\s\S]*recoveredFromProblem[\s\S]*completedVisibleSave[\s\S]*explicitReplay[\s\S]*if \(explicitReplay \|\| recoveredFromProblem\)[\s\S]*else if \(completedVisibleSave\)/, 'routine autosave completion stays quiet while recovery, replay, or a previously visible long save can announce completion');
 assert.match(uiSource, /document\.createElement\('cds-toast-notification'\)/, 'save and sync feedback uses the Carbon toast component');
 assert.match(uiSource, /id = slot === 'sync' \? 'appSyncStatusToast' : 'appStatusToast'/, 'sync and general feedback share one Carbon notification owner while retaining distinct slots');
 assert.match(uiSource, /aria-live'[\s\S]*assertive[\s\S]*polite/, 'notification urgency is reflected in accessible live-region behavior');
