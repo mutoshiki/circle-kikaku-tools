@@ -267,7 +267,8 @@ test.describe('First-run rendering and submit regression', () => {
     await page.waitForTimeout(750);
     const toast = page.locator('#appSyncStatusToast');
     await expect(toast).toBeVisible();
-    await expect(toast).toContainText('保存中...');
+    await expect(toast.locator('[slot="title"]')).toHaveText('保存しています');
+    await expect(toast.locator('[slot="subtitle"]')).toHaveText('変更内容を共有データへ保存しています。');
     const placement = await page.evaluate(() => {
       const region = document.querySelector('#appNotificationRegion')?.getBoundingClientRect();
       const title = document.querySelector('#projectTitleRegion')?.getBoundingClientRect();
@@ -278,7 +279,8 @@ test.describe('First-run rendering and submit regression', () => {
     if (placement.title) expect(placement.region.left).toBeGreaterThan(placement.title.left);
 
     await page.evaluate(() => window.showSaveStatus('同期完了', 'connected'));
-    await expect(toast).toContainText('同期完了');
+    await expect(toast.locator('[slot="title"]')).toHaveText('保存しました');
+    await expect(toast.locator('[slot="subtitle"]')).toHaveText('変更内容は最新の状態です。');
     await expect(toast).toHaveAttribute('kind', 'success');
   });
 
