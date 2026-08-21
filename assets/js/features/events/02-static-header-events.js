@@ -440,7 +440,12 @@
         document.documentElement.dataset.projectTitleRevealBound = 'true';
         const scrollNodes = [byId('top-area'), byId('sheet-view-area'), byId('sheet-canvas'), byId('seisan-view-area')].filter(Boolean);
         scrollNodes.forEach(node => node.addEventListener('scroll', () => {
-            if (Number(node.scrollTop || 0) > PROJECT_TITLE_SCROLL_THRESHOLD) setProjectTitleExpanded(false);
+            const scrollTop = Number(node.scrollTop || 0);
+            if (scrollTop > PROJECT_TITLE_SCROLL_THRESHOLD) {
+                setProjectTitleExpanded(false);
+                return;
+            }
+            if (scrollTop <= 0) setProjectTitleExpanded(true);
         }, { passive: true }));
 
         document.addEventListener('wheel', event => {
