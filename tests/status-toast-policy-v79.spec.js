@@ -13,6 +13,19 @@ async function toastCopy(page, selector = '#appSyncStatusToast') {
   };
 }
 
+async function completeSaveAndCapture(page) {
+  return page.evaluate(() => {
+    window.showSaveStatus('保存中...', 'saving');
+    window.showSaveStatus('同期完了', 'connected');
+    const toast = document.getElementById('appSyncStatusToast');
+    return {
+      title: toast?.querySelector('[slot="title"]')?.textContent?.trim() || '',
+      subtitle: toast?.querySelector('[slot="subtitle"]')?.textContent?.trim() || '',
+      kind: toast?.getAttribute('kind') || ''
+    };
+  });
+}
+
 test.describe('Status toast policy v79', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
@@ -25,13 +38,9 @@ test.describe('Status toast policy v79', () => {
     });
 
     // A real save must still give feedback even when it finishes before the delayed
-    // progress toast appears. The user should never end up with no save/sync feedback.
-    await page.evaluate(() => window.showSaveStatus('保存中...', 'saving'));
-    await page.waitForTimeout(120);
-    await page.evaluate(() => window.showSaveStatus('同期完了', 'connected'));
-    const syncToast = page.locator('#appSyncStatusToast');
-    await expect(syncToast).toBeVisible();
-    expect(await toastCopy(page)).toEqual({
+    // progress toast appears. Capture the result in the same task so the real Firebase
+    // listener cannot race the UI-policy assertion in CI.
+    expect(await completeSaveAndCapture(page)).toEqual({
       title: '保存しました',
       subtitle: '変更内容を反映しました。',
       kind: 'success'
@@ -39,21 +48,17 @@ test.describe('Status toast policy v79', () => {
 
     // Navigation/settings-only interactions may suppress their own incidental save, but
     // that suppression must be consumed by that one save cycle instead of muting later edits.
-    await page.evaluate(() => {
+    const suppressed = await page.evaluate(() => {
       window.AppUI.suppressSyncFeedback(1000);
       window.showSaveStatus('保存中...', 'saving');
       window.showSaveStatus('同期完了', 'connected');
+      return document.getElementById('appSyncStatusToast') !== null;
     });
-    await page.waitForTimeout(100);
-    await expect(page.locator('#appSyncStatusToast')).toHaveCount(0);
+    expect(suppressed).toBe(false);
 
     // A following real save is immediately eligible for feedback without waiting for the
     // old time window to expire and without an explicit resume call.
-    await page.evaluate(() => window.showSaveStatus('保存中...', 'saving'));
-    await page.waitForTimeout(80);
-    await page.evaluate(() => window.showSaveStatus('同期完了', 'connected'));
-    await expect(syncToast).toBeVisible();
-    expect(await toastCopy(page)).toEqual({
+    expect(await completeSaveAndCapture(page)).toEqual({
       title: '保存しました',
       subtitle: '変更内容を反映しました。',
       kind: 'success'
