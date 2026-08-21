@@ -178,9 +178,9 @@ test.describe('Settlement UI regressions v76', () => {
     await expect(page.locator('#seisan-car-list .seisan-car-summary-row').first()).toBeVisible();
     await expect(page.locator('#seisan-collection-list')).toBeVisible();
 
-    await page.dispatchEvent('#seisan-view-area', 'pointerdown', { pointerType: 'touch', clientY: 150, pointerId: 62, isPrimary: true });
-    await page.dispatchEvent('#seisan-view-area', 'pointermove', { pointerType: 'touch', clientY: 205, pointerId: 62, isPrimary: true });
-    await page.dispatchEvent('#seisan-view-area', 'pointerup', { pointerType: 'touch', clientY: 205, pointerId: 62, isPrimary: true });
+    await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 120, pointerId: 62, isPrimary: true });
+    await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 152, pointerId: 62, isPrimary: true });
+    await page.dispatchEvent('#top-area', 'pointerup', { pointerType: 'touch', clientY: 152, pointerId: 62, isPrimary: true });
     await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'expanded');
   });
 

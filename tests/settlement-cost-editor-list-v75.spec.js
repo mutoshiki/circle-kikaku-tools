@@ -157,7 +157,6 @@ test.describe('Settlement rental and dismissal regression', () => {
     const amount = row.locator('[data-extra-field="amount"]');
     await expect(amount).toHaveJSProperty('value', '1500');
     await expect(amount).toHaveAttribute('readonly', '');
-
     const toggle = row.locator('cds-toggle[data-extra-field="type"]');
     const before = await page.evaluate(() => {
       const data = getRoomDataOnly();
@@ -297,7 +296,7 @@ test.describe('Canonical share link', () => {
     await page.goto(`/?room=${room}`);
     await page.waitForFunction(() => typeof window.copyUrl === 'function');
     await page.locator('#shareLinkBtn').evaluate(node => node.click());
-    await expect(page.locator('.app-status-toast')).toContainText('リンクをコピーしました');
+    await expect(page.locator('#appStatusToast')).toContainText('リンクをコピーしました');
     await expect(page.locator('#copy-fallback')).toHaveCount(0);
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     const url = new URL(copied);
