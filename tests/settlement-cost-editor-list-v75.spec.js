@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 async function seedSettlement(page) {
   await page.goto('/');
-  await page.waitForFunction(() => customElements.get('cds-button') && customElements.get('cds-modal') && customElements.get('cds-toggle') && customElements.get('cds-popover'));
+  await page.waitForFunction(() => customElements.get('cds-button') && customElements.get('cds-modal') && customElements.get('cds-toggle'));
   await page.evaluate(() => window.executeDebugMode?.());
   await page.waitForTimeout(250);
   await page.evaluate(() => window.switchView('seisan'));
@@ -16,11 +16,12 @@ async function seedSettlement(page) {
 async function openMovementSettings(page) {
   const action = page.locator('#settlementCarEditModal [data-action="open-settlement-gas-settings"]');
   await action.evaluate(node => node.click());
-  const popover = page.locator('#settlementCarEditModal cds-popover.seisan-gas-settings-popover');
-  await expect(popover).toHaveJSProperty('open', true);
-  const surface = popover.locator('.seisan-gas-settings-surface');
+  const modal = page.locator('body > #settlementGasEditModal');
+  await expect(modal).toHaveCount(1);
+  await expect(modal).toHaveJSProperty('open', true);
+  const surface = modal.locator('#settlementGasEditPanel');
   await expect(surface).toBeVisible();
-  return surface;
+  return { modal, surface };
 }
 
 for (const config of [
@@ -32,7 +33,7 @@ for (const config of [
   test.describe(config.name, () => {
     test.use({ viewport: { width: config.width, height: config.height }, hasTouch: config.width <= 390 });
 
-    test('cost list stays scannable and movement settings use a Carbon popover', async ({ page }) => {
+    test('cost list stays scannable and movement settings use a small Carbon modal', async ({ page }) => {
       const errors = [];
       page.on('pageerror', error => errors.push(String(error)));
       await seedSettlement(page);
@@ -59,10 +60,11 @@ for (const config of [
       const cells = row.locator(':scope > *');
       await expect(cells).toHaveCount(4);
       await expect(row.locator('.seisan-extra-field--name cds-text-input')).toHaveAttribute('readonly', '');
+      await expect(row.locator('.seisan-extra-field--amount cds-text-input')).toHaveAttribute('readonly', '');
       await expect(row.locator('[data-carbon-icon="settings--adjust"], [data-carbon-icon-name="settings--adjust"]')).toHaveCount(1);
-      await expect(row.locator('[data-settlement-gas-amount]')).toHaveCount(0);
-      await expect(row.locator('cds-toggle')).toHaveCount(0);
-      await expect(row.locator('.seisan-fixed-cell')).toHaveCount(2);
+      await expect(row.locator('cds-toggle')).toHaveCount(1);
+      await expect(row.locator('cds-toggle')).toBeDisabled();
+      await expect(row.locator('.seisan-extra-field--action cds-icon-button')).toBeDisabled();
 
       const geometry = await row.evaluate(node => {
         const rowBox = node.getBoundingClientRect();
@@ -76,17 +78,18 @@ for (const config of [
       expect(Math.max(...geometry.cells.map(cell => cell.centerY)) - Math.min(...geometry.cells.map(cell => cell.centerY))).toBeLessThanOrEqual(1);
       expect(geometry.cells.every((cell, index, all) => index === 0 || cell.left >= all[index - 1].right)).toBeTruthy();
 
-      const popup = await openMovementSettings(page);
-      await expect(popup).toHaveAttribute('id', 'settlementGasEditPanel');
-      await expect(popup.locator('[data-field="rentalType"]')).toHaveJSProperty('value', 'private');
-      await expect(popup.locator('[data-field="dist"]')).toBeAttached();
-      await expect(popup.locator('[data-field="eco"]')).toBeAttached();
-      await expect(popup.locator('[data-field="price"]')).toBeAttached();
-      await expect(popup.locator('[data-action="open-route-helper-shortcut"]')).toBeAttached();
-      await expect(page.locator('#settlementGasEditModal')).toHaveCount(0);
+      const { modal, surface } = await openMovementSettings(page);
+      await expect(surface.locator('[data-field="rentalType"]')).toHaveJSProperty('value', 'private');
+      await expect(surface.locator('cds-radio-button[value="private"]')).toHaveAttribute('label-text', '自家用車');
+      await expect(surface.locator('cds-radio-button[value="times"]')).toHaveAttribute('label-text', 'タイムズ');
+      await expect(surface.locator('[data-field="dist"]')).toBeAttached();
+      await expect(surface.locator('[data-field="eco"]')).toBeVisible();
+      await expect(surface.locator('[data-field="price"]')).toBeVisible();
+      await expect(surface.locator('[data-action="open-route-helper-shortcut"]')).toBeAttached();
+      await expect(page.locator('#settlementCarEditModal cds-popover.seisan-gas-settings-popover')).toHaveCount(0);
 
       if (config.width <= 390) {
-        const dialogBox = await page.locator('#settlementCarEditModal').evaluate(node => node.shadowRoot?.querySelector('[part="dialog"]')?.getBoundingClientRect() || node.getBoundingClientRect());
+        const dialogBox = await modal.evaluate(node => node.shadowRoot?.querySelector('[part="dialog"]')?.getBoundingClientRect() || node.getBoundingClientRect());
         expect(dialogBox.width).toBeLessThan(config.width);
         expect(dialogBox.height).toBeLessThan(config.height);
       }
@@ -102,16 +105,20 @@ test.describe('Settlement rental and dismissal regression', () => {
 
   test('Times rental shows movement fee then editable time fee with fixed names', async ({ page }) => {
     await seedSettlement(page);
-    let popup = await openMovementSettings(page);
-    const rental = popup.locator('[data-field="rentalType"]');
+    const { modal, surface } = await openMovementSettings(page);
+    const rental = surface.locator('[data-field="rentalType"]');
     await rental.locator('cds-radio-button[value="times"]').click();
 
-    popup = page.locator('#settlementCarEditModal #settlementGasEditPanel');
-    await expect(popup).toBeVisible();
-    await expect(popup.locator('[data-field="rentalType"]')).toHaveJSProperty('value', 'times');
-    await expect(popup.locator('[data-field="dist"]')).toBeAttached();
-    await expect(popup.locator('[data-field="eco"]')).toHaveCount(0);
-    await expect(popup.locator('[data-field="price"]')).toHaveCount(0);
+    await expect(surface.locator('[data-field="rentalType"]')).toHaveJSProperty('value', 'times');
+    await expect(surface.locator('[data-times-helper]')).toContainText('移動距離から移動料金を自動で計算できます。');
+    await expect(surface.locator('[data-times-helper]')).toBeVisible();
+    await expect(surface.locator('[data-field="dist"]')).toBeAttached();
+    await expect(surface.locator('[data-field="eco"]')).toBeHidden();
+    await expect(surface.locator('[data-field="price"]')).toBeHidden();
+
+    await modal.locator('cds-modal-footer-button[data-modal-close]').evaluate(node => node.click());
+    await expect(modal).not.toHaveAttribute('open', '');
+    await expect(page.locator('#settlementCarEditModal')).toHaveJSProperty('inert', false);
 
     const rows = page.locator('#settlementCarEditModal .seisan-cost-edit-row');
     const movementName = rows.first().locator('.seisan-extra-field--name cds-text-input');
@@ -124,11 +131,42 @@ test.describe('Settlement rental and dismissal regression', () => {
     await expect(timeRow.locator('[data-extra-field="amount"]')).not.toHaveAttribute('readonly', '');
   });
 
+  test('keyboard-style editing does not move the app shell or leave modal residue', async ({ page }) => {
+    await seedSettlement(page);
+    const before = await page.evaluate(() => ({
+      headerTop: document.querySelector('#app-header')?.getBoundingClientRect().top,
+      bodyTop: document.body.getBoundingClientRect().top,
+      scrollY: window.scrollY
+    }));
+
+    const amount = page.locator('#settlementCarEditModal .seisan-extra-row [data-extra-field="amount"]').first();
+    await amount.fill('321');
+    await amount.dispatchEvent('input');
+    await page.waitForTimeout(120);
+
+    const during = await page.evaluate(() => ({
+      headerTop: document.querySelector('#app-header')?.getBoundingClientRect().top,
+      bodyTop: document.body.getBoundingClientRect().top,
+      scrollY: window.scrollY
+    }));
+    expect(during).toEqual(before);
+
+    await page.locator('#settlementCarEditModal cds-modal-close-button').evaluate(node => node.click());
+    await expect(page.locator('#settlementCarEditModal')).not.toHaveAttribute('open', '');
+    await expect.poll(() => page.evaluate(() => ({
+      modalOpen: document.querySelectorAll('.app-modal[open]').length,
+      bodyLocked: document.body.classList.contains('app-modal-open')
+    }))).toEqual({ modalOpen: 0, bodyLocked: false });
+    await expect(page.locator('#app-header')).toBeVisible();
+    await expect(page.locator('#seisan-view-area')).toBeVisible();
+  });
+
   test('closing movement settings and vehicle editor leaves no modal residue', async ({ page }) => {
     await seedSettlement(page);
-    const popup = await openMovementSettings(page);
-    await popup.locator('[data-action="close-settlement-gas-settings"]').evaluate(node => node.click());
-    await expect(page.locator('#settlementCarEditModal cds-popover.seisan-gas-settings-popover')).toHaveJSProperty('open', false);
+    const { modal } = await openMovementSettings(page);
+    await modal.locator('cds-modal-close-button[data-modal-close]').evaluate(node => node.click());
+    await expect(modal).not.toHaveAttribute('open', '');
+    await expect(page.locator('#settlementCarEditModal')).toHaveJSProperty('inert', false);
 
     await page.locator('#settlementCarEditModal cds-modal-close-button').evaluate(node => node.click());
     await expect(page.locator('#settlementCarEditModal')).not.toHaveAttribute('open', '');
