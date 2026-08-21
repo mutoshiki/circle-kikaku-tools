@@ -21,7 +21,7 @@ assert.doesNotMatch(carTemplate, /data-settlement-gas-amount/, 'calculated movem
 assert.match(carTemplate, /movementLabel = usesTimesRental \? 'タイムズ移動料金' : 'ガソリン代'/, 'rental mode renames the movement fee');
 assert.match(carTemplate, /isTimesDistanceFeeExtra[\s\S]*visibleExtras/, 'generated Times distance fee is represented by the movement row instead of duplicated');
 assert.match(carTemplate, /map\(\(ex, index\) => \(\{ ex, index \}\)\)[\s\S]*visibleExtras\.map\(\(\{ ex, index \}\)/, 'filtered Times-only rows preserve original extra indices for editing');
-assert.match(carTemplate, /seisan-extra-field--type is-fixed[\s\S]*<cds-toggle size="sm"[^>]*disabled/, 'fixed movement burden is expressed as a disabled Carbon small toggle');
+assert.match(carTemplate, /seisan-extra-field--type is-fixed[\s\S]*<cds-toggle size="sm" hide-label disabled/, 'fixed movement burden is expressed as a disabled Carbon small toggle');
 assert.match(carTemplate, /seisan-extra-field--action[\s\S]*cds-icon-button[^>]*disabled[\s\S]*trash-can/, 'fixed movement deletion is expressed as a disabled Carbon trash action');
 assert.match(carTemplate, /<cds-modal[\s\S]*id="settlementGasEditModal"[\s\S]*size="sm"[\s\S]*rentalType[\s\S]*data-field="dist"[\s\S]*open-route-helper-shortcut/, 'movement settings use a separate small Carbon modal');
 assert.doesNotMatch(carTemplate, /<cds-popover|seisan-gas-settings-popover|seisan-gas-settings-surface/, 'movement settings no longer use an anchored popover or inline expansion');
@@ -32,13 +32,15 @@ assert.doesNotMatch(carTemplate, /<div class="seisan-subhead"><strong>諸経費<
 
 assert.match(extraTemplate, /fixedName = !!timesFeeKind \|\| isReward/, 'Times fee names remain fixed without changing their row layout');
 assert.match(extraTemplate, /amountLockedAttr = isReward/, 'Times time fee amount remains editable like a normal expense');
-assert.match(extraTemplate, /<cds-toggle size="sm" data-extra-field="type"/, 'club burden uses Carbon small toggle for editable expenses');
+assert.match(extraTemplate, /typeLocked = isReward/, 'Times time fee keeps the normal editable club toggle');
+assert.match(extraTemplate, /<cds-toggle size="sm" hide-label data-extra-field="type"/, 'club burden uses a centered Carbon small toggle without a visible row label');
 assert.doesNotMatch(extraTemplate, /<cds-select[^>]*data-extra-field="type"/, 'legacy burden select is removed');
 assert.doesNotMatch(extraTemplate, /seisan-extra-field-label/, 'row-level repeated column labels are removed');
 assert.match(extraTemplate, /data-extra-negative=/, 'signed extra type metadata is preserved without schema changes');
 
-assert.match(generatedEvents, /function openSettlementGasSettings[\s\S]*document\.body\.appendChild\(modal\)[\s\S]*AppModalAdapter[\s\S]*\.show\(\)/, 'movement settings are promoted to a separate Carbon modal layer before opening');
-assert.match(generatedEvents, /parentModal\.inert = true[\s\S]*sanpo:modal-hidden[\s\S]*parentModal\.inert = false/, 'nested modal interaction cleanly disables and restores the parent editor');
+assert.match(generatedEvents, /prepareSettlementCarEditTransition\(\{ allowInvalid: true, preserveSession: true \}\)/, 'movement settings preserve the current edit transaction before switching dialogs');
+assert.match(generatedEvents, /settlementCarEdit\?\.hide\?\.\(\{ reason: 'movement-settings' \}\)[\s\S]*await hidden[\s\S]*getOrCreateInstance\?\.\(modal\)\?\.show/, 'the parent editor closes before the movement settings modal opens');
+assert.match(generatedEvents, /resumeSettlementCarEditor[\s\S]*restoreCarEditorScroll/, 'closing movement settings restores the car editor and its prior scroll position');
 assert.match(generatedEvents, /data-private-fuel[\s\S]*data-times-helper/, 'vehicle type change progressively discloses only relevant calculation fields');
 assert.match(generatedEvents, /cds-toggle-changed[\s\S]*data-extra-field=\\?"type/, 'official Carbon toggle event commits the compact burden control');
 assert.match(generatedEvents, /split-minus[\s\S]*club-minus|extraNegative/, 'negative extra semantics survive base burden toggles');
