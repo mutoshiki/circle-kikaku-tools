@@ -20,8 +20,8 @@ assert.doesNotMatch(carTemplate, /data-settlement-gas-amount/, 'calculated movem
 assert.match(carTemplate, /movementLabel = usesTimesRental \? 'タイムズ移動料金' : 'ガソリン代'/, 'rental mode renames the movement fee');
 assert.match(carTemplate, /isTimesDistanceFeeExtra[\s\S]*visibleExtras/, 'generated Times distance fee is represented by the movement row instead of duplicated');
 assert.match(carTemplate, /seisan-fixed-cell/, 'fixed movement policy uses neutral cells instead of fake disabled controls');
-assert.match(carTemplate, /cds-popover[\s\S]*cds-popover-content[\s\S]*rentalType[\s\S]*data-field="dist"[\s\S]*open-route-helper-shortcut/, 'movement settings use a Carbon popover instead of inline expansion');
-assert.doesNotMatch(carTemplate, /settlementGasEditPanel|settlementGasEditModal/, 'movement settings no longer use an inline panel or nested modal');
+assert.match(carTemplate, /cds-popover[\s\S]*cds-popover-content[\s\S]*id="settlementGasEditPanel"[\s\S]*rentalType[\s\S]*data-field="dist"[\s\S]*open-route-helper-shortcut/, 'movement settings live inside a Carbon popover rather than inline expansion');
+assert.doesNotMatch(carTemplate, /settlementGasEditModal/, 'movement settings no longer use a nested modal');
 assert.match(carTemplate, /rentalType === 'private'[\s\S]*data-field="eco"[\s\S]*data-field="price"/, 'fuel efficiency and unit price belong only to private-car calculation');
 assert.doesNotMatch(carTemplate, /<div class="seisan-subhead"><strong>諸経費<\/strong>/, 'gas and extras are not split by legacy subheads');
 
@@ -33,6 +33,7 @@ assert.doesNotMatch(extraTemplate, /seisan-extra-field-label/, 'row-level repeat
 assert.match(extraTemplate, /data-extra-negative=/, 'signed extra type metadata is preserved without schema changes');
 
 assert.match(generatedEvents, /setSettlementGasSettingsOpen[\s\S]*popover\.open = !!open[\s\S]*toggleAttribute\('open'/, 'movement settings are opened through the Carbon popover owner');
+assert.match(generatedEvents, /requestAnimationFrame\(\(\) => requestAnimationFrame\(\(\) => setSettlementGasSettingsOpen\(true\)\)\)/, 'vehicle-type refresh reopens the new popover after Carbon finishes the old interaction');
 assert.match(generatedEvents, /cds-toggle-changed[\s\S]*data-extra-field=\\?"type/, 'official Carbon toggle event commits the compact burden control');
 assert.match(generatedEvents, /split-minus[\s\S]*club-minus|extraNegative/, 'negative extra semantics survive base burden toggles');
 assert.match(rowCss, /grid-template-columns:[^;]+64px 48px/, 'desktop rows share four aligned columns');
