@@ -11,25 +11,26 @@
     return `${esc(text, helpers)}車`;
   }
 
-    function collectionItem(p, state, result, helpers = {}) {
+  function collectionItem(p, state, result, helpers = {}) {
     const excluded = !!result.excludedNames?.has?.(p.name);
     const paid = !!state.paid?.[p.name];
     const preDeducted = excluded && p.role === 'driver' && result.driverCollectionOffset && p.name !== result.excludedName;
     const checked = paid || preDeducted;
     const displayName = state.paidBy?.[p.name] || p.name;
+    const zeroAmount = money(0, helpers);
     const note = excluded
-      ? (preDeducted ? '支払い額から差し引き済' : (p.name === result.excludedName ? '対象外（企画者）' : '対象外'))
-      : (p.role === 'member' && p.driverName ? formatCarLabel(p.driverName, helpers) : (p.role === 'waiting' ? '待機' : ''));
+      ? (preDeducted ? `支払い額から差し引き済み ${zeroAmount}` : (p.name === result.excludedName ? `対象外（企画者） ${zeroAmount}` : `対象外 ${zeroAmount}`))
+      : `集金する金額 ${money(result.perPerson || 0, helpers)}`;
     return `<div class="seisan-check-item ${checked ? 'paid' : ''} ${excluded ? 'excluded' : ''} ${preDeducted ? 'pre-deducted' : ''}" data-carbon-checkbox-row${excluded ? ' aria-disabled="true"' : ''}>
             <cds-checkbox ${checked ? 'checked' : ''} ${excluded ? 'disabled' : ''} data-settlement-paid-name="${encodeURIComponent(p.name)}" label-text="" aria-label="${esc(displayName, helpers)}の支払いチェック"></cds-checkbox>
-            <span class="seisan-check-copy${note ? ' has-note' : ''}">
+            <span class="seisan-check-copy has-note">
               <span class="seisan-check-name">${esc(displayName, helpers)}</span>
-              ${note ? `<span class="seisan-check-note">${note}</span>` : ''}
+              <span class="seisan-check-note">${note}</span>
             </span>
         </div>`;
   }
 
-    function buildCollectionGroups({ data = {}, participants = [] } = {}) {
+  function buildCollectionGroups({ data = {}, participants = [] } = {}) {
     const byName = new Map(participants.map(p => [p.name, p]));
     const used = new Set();
     const groups = [];
@@ -56,7 +57,7 @@
     return groups.length ? groups : [{ title: '', items: participants }];
   }
 
-    function collection({ participants, state, result, data = {}, helpers = {} }) {
+  function collection({ participants, state, result, data = {}, helpers = {} }) {
     if (!participants.length) return `<div class="seisan-empty">名簿を登録すると表示されます。</div>`;
     return buildCollectionGroups({ data, participants }).map(group => {
       const title = group.title ? `<div class="seisan-collection-group-title">${esc(group.title, helpers)}</div>` : '';
@@ -69,6 +70,5 @@
     }).join('');
   }
 
-  
   Object.assign(parts, { formatCarLabel, collectionItem, buildCollectionGroups, collection });
 })();
