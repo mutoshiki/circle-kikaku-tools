@@ -64,10 +64,25 @@ function restoreSettlementViewportState(snapshot) {
 
 function stabilizeSettlementViewportState(snapshot, delays = [0, 80, 240, 800]) {
     if (!snapshot) return;
-    const restore = () => restoreSettlementViewportState(snapshot);
+    let cancelled = false;
+    const cancel = () => { cancelled = true; cleanup(); };
+    const cleanup = () => {
+        document.removeEventListener('pointerdown', cancel, true);
+        document.removeEventListener('touchstart', cancel, true);
+        document.removeEventListener('wheel', cancel, true);
+        document.removeEventListener('keydown', cancel, true);
+    };
+    const restore = () => {
+        if (!cancelled) restoreSettlementViewportState(snapshot);
+    };
+    document.addEventListener('pointerdown', cancel, true);
+    document.addEventListener('touchstart', cancel, true);
+    document.addEventListener('wheel', cancel, true);
+    document.addEventListener('keydown', cancel, true);
     restore();
     requestAnimationFrame(() => requestAnimationFrame(restore));
     delays.forEach(delay => setTimeout(restore, delay));
+    setTimeout(cleanup, Math.max(...delays, 0) + 80);
 }
 
 function lockSettlementProjectTitleState() {
