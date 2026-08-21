@@ -24,9 +24,7 @@
   line-height: 1.2;
 }
 
-#settlementCarEditModal .seisan-cost-edit-header > span:nth-child(2),
-#settlementCarEditModal .seisan-cost-edit-header > span:nth-child(3),
-#settlementCarEditModal .seisan-cost-edit-header > span:nth-child(4) {
+#settlementCarEditModal .seisan-cost-edit-header > span:nth-child(n + 2) {
   text-align: center;
 }
 
@@ -80,7 +78,8 @@
 
 #settlementCarEditModal .seisan-extra-field--type,
 #settlementCarEditModal .seisan-extra-field--action,
-#settlementCarEditModal .seisan-gas-amount-control {
+#settlementCarEditModal .seisan-gas-amount-control,
+#settlementCarEditModal .seisan-fixed-cell {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -107,9 +106,6 @@
   white-space: nowrap;
 }
 
-/* The calculated movement amount is intentionally not repeated in the editor.
- * Its amount column behaves like every other column and contains only the
- * calculator entry point. */
 #settlementCarEditModal .seisan-gas-amount-control {
   min-height: 48px;
   background: transparent;
@@ -121,14 +117,10 @@
   height: 48px;
 }
 
-#settlementCarEditModal .seisan-extra-field--type.is-fixed {
-  opacity: 0.7;
-}
-
-#settlementCarEditModal .seisan-fixed-action-placeholder {
-  display: block;
-  width: 48px;
-  height: 48px;
+#settlementCarEditModal .seisan-fixed-cell {
+  min-height: 44px;
+  color: var(--cds-text-placeholder, var(--text-sub));
+  font-size: var(--font-size-body);
 }
 
 #settlementCarEditModal .seisan-add-row {
@@ -143,14 +135,10 @@
   min-height: 40px;
 }
 
-/* Progressive disclosure keeps the calculation task inside the owning modal.
- * A nested modal caused Safari/Carbon top-layer backdrops to occasionally remain
- * active after dismissal. */
 #settlementCarEditModal .seisan-gas-settings-panel {
   margin-top: var(--space-4);
   padding: var(--space-4);
-  border-top: 1px solid var(--cds-border-subtle-01, var(--border-subtle));
-  background: var(--cds-layer-01, var(--surface-lowest));
+  background: var(--cds-layer-02, var(--surface-raised));
 }
 
 #settlementCarEditModal .seisan-gas-settings-panel[hidden] {
@@ -159,7 +147,7 @@
 
 #settlementCarEditModal .seisan-gas-settings-panel-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
   margin-bottom: var(--space-4);
@@ -167,19 +155,22 @@
 
 #settlementCarEditModal .seisan-gas-settings-panel-head h4 {
   margin: 0;
+  color: var(--cds-text-primary, var(--text-main));
   font-size: var(--font-size-body);
+  font-weight: 600;
   line-height: var(--line-height-body);
-}
-
-#settlementCarEditModal .seisan-gas-settings-panel-head p {
-  margin: var(--space-1) 0 0;
-  color: var(--cds-text-secondary, var(--text-sub));
-  font-size: var(--font-size-caption);
 }
 
 #settlementCarEditModal .seisan-gas-settings-fields {
   display: grid;
   gap: var(--space-4);
+}
+
+#settlementCarEditModal .seisan-gas-settings-helper {
+  margin: calc(var(--space-2) * -1) 0 0;
+  color: var(--cds-text-secondary, var(--text-sub));
+  font-size: var(--font-size-caption);
+  line-height: 1.45;
 }
 
 #settlementCarEditModal .seisan-gas-field-row {
@@ -188,12 +179,15 @@
   gap: var(--space-3);
 }
 
+#settlementCarEditModal .seisan-gas-field-row.is-times {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 20rem;
+}
+
 #settlementCarEditModal .seisan-distance-shortcut {
   justify-self: start;
 }
 
-/* Carbon validation text belongs to the field. Row alignment stays anchored at
- * the control so an invalid field does not create a second label/header row. */
 #settlementCarEditModal .seisan-extra-row :is(cds-text-input, cds-number-input) {
   align-self: center;
 }
@@ -221,12 +215,14 @@
   }
 
   #settlementCarEditModal .seisan-gas-settings-panel {
-    margin-inline: calc(var(--space-3) * -1);
-    padding: var(--space-4) var(--space-3);
+    margin-inline: 0;
+    padding: var(--space-4);
   }
 
-  #settlementCarEditModal .seisan-gas-field-row {
+  #settlementCarEditModal .seisan-gas-field-row,
+  #settlementCarEditModal .seisan-gas-field-row.is-times {
     grid-template-columns: 1fr;
+    max-width: none;
     gap: var(--space-3);
   }
 }
