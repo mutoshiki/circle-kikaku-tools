@@ -61,28 +61,74 @@
         return true;
     }
 
-    function openSettlementGasSettings(target) {
+    function waitForModalHidden(modal) {
+        if (!modal?.open) return Promise.resolve();
+        return new Promise(resolve => modal.addEventListener('sanpo:modal-hidden', resolve, { once: true }));
+    }
+
+    function restoreCarEditorScroll(scrollTop) {
+        const modalBody = document.querySelector('#settlementCarEditModal > cds-modal-body.app-modal-body');
+        if (!modalBody) return;
+        const restore = () => { modalBody.scrollTop = Math.max(0, Number(scrollTop) || 0); };
+        restore();
+        requestAnimationFrame(() => requestAnimationFrame(restore));
+    }
+
+    async function openSettlementGasSettings(target) {
         const parentModal = document.getElementById('settlementCarEditModal');
-        const modal = parentModal?.querySelector?.('#settlementGasEditModal');
+        if (!parentModal) return;
+        const encodedDriverName = target?.dataset?.driverName || '';
+        const parentBody = parentModal.querySelector(':scope > cds-modal-body.app-modal-body');
+        const parentScrollTop = Number(parentBody?.scrollTop || 0);
+
+        // Carbon dialog guidance forbids nested modals. Preserve the current car-edit
+        // transaction, close it, then show the movement settings as the only active modal.
+        if (typeof global.prepareSettlementCarEditTransition === 'function'
+            && !global.prepareSettlementCarEditTransition({ allowInvalid: true, preserveSession: true })) return;
+
+        const modal = parentModal.querySelector('#settlementGasEditModal');
         if (!modal) return;
-        const driverName = target?.dataset?.driverName || modal.dataset.driverName || '';
-        modal.dataset.driverName = driverName;
-        parentModal.inert = true;
+        modal.dataset.driverName = encodedDriverName || modal.dataset.driverName || '';
+        modal.dataset.returnScrollTop = String(parentScrollTop);
+        modal.dataset.routeTransition = 'false';
+        modal.remove();
         document.body.appendChild(modal);
-        if (modal.dataset.settlementGasBound !== 'true') {
-            modal.dataset.settlementGasBound = 'true';
-            modal.addEventListener('sanpo:modal-hiding', () => commitGasModalFields(modal));
-            modal.addEventListener('sanpo:modal-hidden', () => {
-                const name = gasModalDriverName(modal);
-                modal.remove();
-                parentModal.inert = false;
-                if (name) global.refreshSettlementCarEditor?.(name);
-                requestAnimationFrame(() => {
-                    document.querySelector('#settlementCarEditModal [data-action="open-settlement-gas-settings"]')?.focus?.({ preventScroll: true });
-                });
-            }, { once: true });
-        }
+
+        const hidden = waitForModalHidden(parentModal);
+        global.modals?.settlementCarEdit?.hide?.({ reason: 'movement-settings' });
+        await hidden;
+
+        modal.addEventListener('sanpo:modal-hiding', () => commitGasModalFields(modal));
+        modal.addEventListener('sanpo:modal-hidden', () => {
+            commitGasModalFields(modal);
+            const name = gasModalDriverName(modal);
+            const routeTransition = modal.dataset.routeTransition === 'true';
+            const scrollTop = Number(modal.dataset.returnScrollTop || 0);
+            modal.remove();
+
+            if (routeTransition) {
+                global.openRouteDistanceHelperFromShortcut?.();
+                return;
+            }
+
+            if (name) {
+                global.resumeSettlementCarEditor?.(encodeURIComponent(name));
+                restoreCarEditorScroll(scrollTop);
+            }
+        }, { once: true });
+
         global.AppModalAdapter?.getOrCreateInstance?.(modal)?.show();
+    }
+
+    function openRouteHelperShortcut(target) {
+        const gasModal = target?.closest?.('#settlementGasEditModal');
+        if (!gasModal) {
+            global.openRouteDistanceHelperFromShortcut?.();
+            return;
+        }
+        commitGasModalFields(gasModal);
+        gasModal.dataset.routeTransition = 'true';
+        global.AppModalAdapter?.getOrCreateInstance?.(gasModal)?.hide({ reason: 'route-helper' });
     }
 
     function setupGeneratedHtmlEventDelegation() {
@@ -138,7 +184,7 @@
             'add-settlement-extra-candidate': ({ target }) => global.addSettlementExtraCandidate?.(target.dataset.driverName || '', target.dataset.extraCandidate || '', target.dataset.extraAmount || '', target.dataset.extraType || 'split'),
             'remove-settlement-extra': ({ target }) => global.removeSettlementExtra?.(target),
             'copy-settlement-text': () => global.copySettlementText?.(),
-            'open-route-helper-shortcut': () => global.openRouteDistanceHelperFromShortcut?.(),
+            'open-route-helper-shortcut': ({ target }) => openRouteHelperShortcut(target),
             'remove-route-waypoint': ({ target }) => global.removeRouteWaypoint?.(target.dataset.routeWaypointId || ''),
             'select-google-route': ({ target }) => global.selectGoogleRoute?.(Number(target.dataset.routeIndex), target.dataset.routeSegmentIndex === undefined ? undefined : Number(target.dataset.routeSegmentIndex))
         };
