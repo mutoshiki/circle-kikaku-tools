@@ -186,21 +186,20 @@ function getSettlementIssues(data, state, result) {
             if (!distRaw || getNumberValue(distRaw) <= 0) {
                 fields.add(`${car.name}:dist`);
                 rows.add(car.name);
-                messages.push(`${car.name}車のタイムズ移動料金に移動距離が必要です。`);
+                messages.push(`${car.name}車のタイムズ移動料金を計算するため、移動距離を入力してください。`);
             }
         } else {
-            const hasAnyFuel = ['dist','eco','price'].some(k => String(cState[k] ?? '').trim());
-            if (hasAnyFuel) {
-                ['dist','eco','price'].forEach(k => {
-                    const raw = String(cState[k] ?? '').trim();
-                    if (!raw || getNumberValue(raw) <= 0) {
-                        fields.add(`${car.name}:${k}`);
-                        rows.add(car.name);
-                    }
-                });
-                if (fields.has(`${car.name}:dist`) || fields.has(`${car.name}:eco`) || fields.has(`${car.name}:price`)) {
-                    messages.push(`${car.name}車のガソリン計算に未入力または0があります。`);
+            const missingFuelFields = [];
+            [['dist', '移動距離'], ['eco', '燃費'], ['price', 'ガソリン単価']].forEach(([key, label]) => {
+                const raw = String(cState[key] ?? '').trim();
+                if (!raw || getNumberValue(raw) <= 0) {
+                    fields.add(`${car.name}:${key}`);
+                    rows.add(car.name);
+                    missingFuelFields.push(label);
                 }
+            });
+            if (missingFuelFields.length) {
+                messages.push(`${car.name}車のガソリン代を計算するため、${missingFuelFields.join('・')}を入力してください。`);
             }
         }
         cState.extras.forEach((ex, i) => {
