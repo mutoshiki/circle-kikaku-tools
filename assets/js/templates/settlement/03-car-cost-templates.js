@@ -165,13 +165,15 @@
     const standaloneData = standaloneIndex == null ? '' : ` data-standalone-driver-index="${standaloneIndex}"`;
     const standaloneNameField = standaloneIndex == null ? '' : `<label class="seisan-standalone-driver-name-field"><span class="seisan-mini-label">車出し名</span><cds-text-input size="md" density="condensed" data-field="standaloneDriverName" value="${esc(car.name, helpers)}" placeholder="車出し${standaloneIndex + 1}" autocomplete="off" label="車出し名" hide-label></cds-text-input></label>`;
     const movementLabel = usesTimesRental ? 'タイムズ移動料金' : 'ガソリン代';
-    const visibleExtras = extras.filter(ex => {
-      const normalizedName = String(ex?.name || '').replace(/\s+/g, '');
-      const isTimesDistance = normalizedName === 'タイムズ移動料金'
-        || (typeof window.isTimesDistanceFeeExtra === 'function' && window.isTimesDistanceFeeExtra(ex));
-      const isTimesTime = normalizedName === 'タイムズ時間料金';
-      return usesTimesRental ? !isTimesDistance : !(isTimesDistance || isTimesTime);
-    });
+    const visibleExtras = extras
+      .map((ex, index) => ({ ex, index }))
+      .filter(({ ex }) => {
+        const normalizedName = String(ex?.name || '').replace(/\s+/g, '');
+        const isTimesDistance = normalizedName === 'タイムズ移動料金'
+          || (typeof window.isTimesDistanceFeeExtra === 'function' && window.isTimesDistanceFeeExtra(ex));
+        const isTimesTime = normalizedName === 'タイムズ時間料金';
+        return usesTimesRental ? !isTimesDistance : !(isTimesDistance || isTimesTime);
+      });
     return `<div class="seisan-car-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}"${standaloneData}>
         ${standaloneNameField}
         <div class="seisan-cost-edit-list" role="group" aria-label="費用一覧">
@@ -189,7 +191,7 @@
             <div class="seisan-fixed-cell" aria-hidden="true">—</div>
           </div>
           <div class="seisan-extra-list">
-            ${visibleExtras.map((ex, i) => extraRow({ carName: car.name, ex, index: i, issues, helpers })).join('')}
+            ${visibleExtras.map(({ ex, index }) => extraRow({ carName: car.name, ex, index, issues, helpers })).join('')}
           </div>
         </div>
         <div class="seisan-add-row">
