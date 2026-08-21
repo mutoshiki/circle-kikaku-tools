@@ -23,7 +23,7 @@
     info: Object.freeze({ kind: 'info', iconDescription: '情報' }),
     neutral: Object.freeze({ kind: 'info', iconDescription: '情報' })
   });
-  const DEFAULT_TOAST_DURATION = 5000;
+  const DEFAULT_TOAST_DURATION = 3200;
   const SYNC_PROGRESS_DELAY = 650;
 
   function ensureNotificationRegion() {
@@ -190,7 +190,6 @@
     toast.setAttribute('aria-atomic', 'true');
     toast.ariaLabel = '通知を閉じる';
     toast.setAttribute('status-icon-description', notification.iconDescription);
-    toast.setAttribute('title', title);
     const titleNode = document.createElement('span');
     titleNode.slot = 'title';
     titleNode.textContent = title;
@@ -235,31 +234,28 @@
   function syncCopy(kind, message) {
     const raw = String(message || '');
     if (kind === 'saving') {
-      return { title: '保存しています', subtitle: '変更内容を共有データへ保存しています。', tone: 'info' };
+      return { title: '保存しています', subtitle: '変更内容を保存しています。', tone: 'info' };
     }
     if (kind === 'connected') {
       if (/再送|保留/.test(raw)) {
-        return { title: '保存を再開しました', subtitle: '保留していた変更を保存しました。', tone: 'success' };
+        return { title: '保存しました', subtitle: '保留していた変更も反映されました。', tone: 'success' };
       }
-      return { title: '保存しました', subtitle: '変更内容は最新の状態です。', tone: 'success' };
+      return { title: '保存しました', subtitle: '変更内容を反映しました。', tone: 'success' };
     }
     if (kind === 'local') {
-      if (/保留|入力中|編集中|再試行|通信|同期中/.test(raw)) {
-        return { title: '変更を一時的に保留しています', subtitle: '操作が終わるか接続が戻ると、自動で同期します。', tone: 'warning' };
+      if (/通信|オフライン|接続/.test(raw)) {
+        return { title: '接続を待っています', subtitle: '変更はこの端末に残り、接続が戻ると自動で反映されます。', tone: 'warning' };
       }
-      return { title: 'この端末に保存しました', subtitle: '共有先にはまだ送信していません。', tone: 'info' };
+      return { title: 'この端末に保存しました', subtitle: '変更内容は端末に残っています。', tone: 'info' };
     }
     if (kind === 'error') {
       if (/新版|未対応/.test(raw)) {
         return { title: 'この共有データを開けません', subtitle: 'アプリを更新してから、もう一度開いてください。', tone: 'error' };
       }
       if (/拒否|権限|permission/i.test(raw)) {
-        return { title: 'この変更を保存できません', subtitle: '共有リンクの編集権限を確認してください。', tone: 'error' };
+        return { title: '保存できませんでした', subtitle: '共有リンクの編集権限を確認してください。', tone: 'error' };
       }
-      if (/transaction|準備|初期化/i.test(raw) || window.__sanpoSyncWaitingForTransport) {
-        return { title: '同期の準備をしています', subtitle: '準備が整い次第、変更を自動で保存します。', tone: 'warning' };
-      }
-      return { title: '変更を保存できませんでした', subtitle: '接続を確認すると、自動で再試行します。', tone: 'error' };
+      return { title: '接続が不安定です', subtitle: '変更はこの端末に残り、接続が戻ると自動で反映されます。', tone: 'warning' };
     }
     return { title: 'お知らせ', subtitle: raw, tone: 'info' };
   }
@@ -301,9 +297,6 @@
       const completedVisibleSave = previousVisible && previousVisibleKind === 'saving';
       const explicitReplay = /再送|保留/.test(nextMessage);
       state.syncHadPendingState = false;
-      // Navigation, tab changes, opening settings, and no-op projection saves usually finish
-      // before progress becomes visible, so they stay silent. A completion is useful only
-      // after visible progress or after a real pending/error state has recovered.
       if (explicitReplay || recoveredFromProblem) {
         showSyncToast('connected', explicitReplay ? nextMessage : '保留していた変更を再送しました');
       } else if (completedVisibleSave) {
@@ -315,6 +308,12 @@
     }
 
     if (kind === 'error') {
+      const transportStarting = /transaction|準備|初期化|support is required/i.test(nextMessage) || window.__sanpoSyncWaitingForTransport;
+      if (transportStarting) {
+        state.syncHadPendingState = false;
+        removeToast(state.syncToast, 'sync');
+        return;
+      }
       state.syncHadPendingState = true;
       const copy = syncCopy(kind, nextMessage);
       showSyncToast(kind, nextMessage, { persistent: copy.tone === 'error' });
@@ -322,8 +321,8 @@
     }
 
     if (kind === 'local') {
-      const isDeferred = /保留|入力中|編集中|再試行|通信|同期中/.test(nextMessage);
-      if (isDeferred) {
+      const actualConnectionProblem = /通信|オフライン|接続/.test(nextMessage);
+      if (actualConnectionProblem) {
         state.syncHadPendingState = true;
         showSyncToast('local', nextMessage, { persistent: true });
       } else {
