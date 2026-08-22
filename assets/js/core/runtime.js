@@ -35,7 +35,10 @@ let runTransaction = null;
 let get = null;
 let firebaseServerTimeOffsetMs = 0;
 let firebaseServerTimeOffsetReady = false;
-let getAuth = null;
+let initializeAuth = null;
+let browserLocalPersistence = null;
+let browserSessionPersistence = null;
+let inMemoryPersistence = null;
 let signInAnonymously = null;
 
 
@@ -53,9 +56,9 @@ async function initFirebaseSync() {
     if (!firebaseEnabled) return false;
     try {
         const [appModule, databaseModule, authModule] = await Promise.all([
-            import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"),
-            import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"),
-            import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js")
+            import("https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js"),
+            import("https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js"),
+            import("https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js")
         ]);
 
         initializeApp = appModule.initializeApp;
@@ -66,11 +69,21 @@ async function initFirebaseSync() {
         onValue = databaseModule.onValue;
         runTransaction = databaseModule.runTransaction;
         get = databaseModule.get;
-        getAuth = authModule.getAuth;
+        initializeAuth = authModule.initializeAuth;
+        browserLocalPersistence = authModule.browserLocalPersistence;
+        browserSessionPersistence = authModule.browserSessionPersistence;
+        inMemoryPersistence = authModule.inMemoryPersistence;
         signInAnonymously = authModule.signInAnonymously;
 
         app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
+        // This app only uses anonymous auth and never popup/redirect sign-in. Avoid the
+        // default IndexedDB auth dependency: WebKit/Safari can leave IndexedDB-backed
+        // Firebase services waiting indefinitely after tab/process suspension. The ordered
+        // persistence fallback keeps the anonymous session stable where storage is usable,
+        // while private/restricted browsing can still sync with in-memory auth.
+        auth = initializeAuth(app, {
+            persistence: [browserLocalPersistence, browserSessionPersistence, inMemoryPersistence]
+        });
         db = getDatabase(app);
         await signInAnonymously(auth);
 
