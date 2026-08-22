@@ -26,19 +26,47 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     await expect.poll(() => page.locator('#roomNameInput').evaluate(node => node.value)).toBe('紅葉ハイク');
     expect((await editor.textContent())?.trim()).toBe('紅葉ハイク');
 
-    // The exact value that existed before the local edit is a stale remote echo and must
-    // not erase the title during its short debounce/write window.
-    await page.evaluate(() => { document.getElementById('roomNameInput').value = ''; });
-    await expect.poll(() => page.locator('#roomNameInput').evaluate(node => node.value)).toBe('紅葉ハイク');
-    await expect(editor).toHaveText('紅葉ハイク');
+    // WebKit can blur the contenteditable before the final compositionend. Simulate that
+    // ordering: the visible title is still the local draft and blur must commit it instead
+    // of restoring the older hidden persistence value over the user's text.
+    const compositionBlur = await page.evaluate(() => {
+      const visible = document.getElementById('projectTitleEditor');
+      const source = document.getElementById('roomNameInput');
+      visible.focus();
+      visible.textContent = '紅葉ハイク最終版';
+      const composing = new InputEvent('input', {
+        bubbles: true,
+        composed: true,
+        inputType: 'insertCompositionText',
+        data: '版',
+        isComposing: true
+      });
+      visible.dispatchEvent(composing);
+      visible.blur();
+      visible.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: '版' }));
+      return {
+        source: source.value,
+        visible: visible.textContent,
+        snapshot: getData({ skipDomSync: true }).roomName
+      };
+    });
+    expect(compositionBlur).toEqual({
+      source: '紅葉ハイク最終版',
+      visible: '紅葉ハイク最終版',
+      snapshot: '紅葉ハイク最終版'
+    });
 
-    // Once editing focus is released, a genuinely different shared title is a concurrent
-    // remote edit and must flow through even if this client never received a same-value echo
-    // for its own save. The stale-echo guard must never become a permanent remote-write lock.
-    await editor.evaluate(node => node.blur());
-    await page.evaluate(() => { document.getElementById('roomNameInput').value = '共有された企画名'; });
+    // roomName is the actual shared snapshot field. A remote/restore write must flow from
+    // that canonical source back into the visible page-title editor without a second state
+    // machine or a stale-echo timeout.
+    await page.evaluate(() => {
+      const snapshot = getData({ skipDomSync: true });
+      snapshot.roomName = '共有された企画名';
+      restore(snapshot);
+    });
     await expect.poll(() => page.locator('#roomNameInput').evaluate(node => node.value)).toBe('共有された企画名');
     await expect(editor).toHaveText('共有された企画名');
+    expect(await page.evaluate(() => getData({ skipDomSync: true }).roomName)).toBe('共有された企画名');
 
     if (viewport.width <= 390) {
       await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 180, pointerId: 1, isPrimary: true });
