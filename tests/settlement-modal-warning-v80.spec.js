@@ -1,14 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Settlement modal warning v80', () => {
+test.describe('Settlement field validation v80', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
-  test('invalid added cost shows a visible Carbon warning inside the open vehicle editor', async ({ page }) => {
+  test('invalid added cost stays in the modal and uses Carbon field-level validation only', async ({ page }) => {
     const errors = [];
     page.on('pageerror', error => errors.push(String(error)));
 
     await page.goto('/');
-    await page.waitForFunction(() => customElements.get('cds-modal') && customElements.get('cds-inline-notification'));
+    await page.waitForFunction(() => customElements.get('cds-modal') && customElements.get('cds-text-input'));
     await page.evaluate(() => window.executeDebugMode?.());
     await page.waitForTimeout(250);
     await page.evaluate(() => window.switchView('seisan'));
@@ -26,11 +26,28 @@ test.describe('Settlement modal warning v80', () => {
     await page.locator('#saveSettlementCarEditBtn').evaluate(node => node.click());
 
     await expect(modal).toHaveJSProperty('open', true);
-    const warning = modal.locator('.seisan-car-edit-alert cds-inline-notification');
-    await expect(warning).toBeVisible();
-    await expect(warning).toHaveAttribute('kind', 'error');
-    await expect(warning.locator('[slot="title"]')).toHaveText('入力内容を確認してください');
-    await expect(warning.locator('[slot="subtitle"]')).toContainText('追加した諸経費が未入力です');
+    await expect(modal.locator('.seisan-car-edit-alert')).toHaveCount(0);
+
+    const pending = modal.locator('[data-extra-pending="true"]');
+    const name = pending.locator('[data-extra-field="name"]');
+    const amount = pending.locator('[data-extra-field="amount"]');
+    await expect(name).toHaveAttribute('invalid', '');
+    await expect(name).toHaveAttribute('invalid-text', '名目を入力してください');
+    await expect(amount).toHaveAttribute('invalid', '');
+    await expect(amount).toHaveAttribute('invalid-text', '金額を入力してください');
+
+    await name.evaluate(host => {
+      host.value = '駐車場';
+      host.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      host.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    });
+    await page.locator('#saveSettlementCarEditBtn').evaluate(node => node.click());
+
+    const updatedPending = modal.locator('[data-extra-pending="true"]');
+    await expect(updatedPending.locator('[data-extra-field="name"]')).not.toHaveAttribute('invalid', '');
+    await expect(updatedPending.locator('[data-extra-field="amount"]')).toHaveAttribute('invalid', '');
+    await expect(updatedPending.locator('[data-extra-field="amount"]')).toHaveAttribute('invalid-text', '金額を入力してください');
+    await expect(modal.locator('.seisan-car-edit-alert')).toHaveCount(0);
     expect(errors).toEqual([]);
   });
 });
