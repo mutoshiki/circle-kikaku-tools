@@ -42,9 +42,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
       - run: npm run test:ui
       - run: npm run test:visual
+      - run: npm run test:safari-sync
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
