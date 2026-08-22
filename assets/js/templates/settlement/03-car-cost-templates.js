@@ -31,18 +31,6 @@
     }).join('');
   }
 
-  function renderCarEditIssues(issues, helpers = {}) {
-    const messages = [...new Set(issues.messages || [])];
-    if (!messages.length) return '';
-    const text = messages.map(message => esc(message, helpers)).join(' / ');
-    return `<div class="seisan-alert-item seisan-car-edit-alert" role="status" aria-live="polite">
-      <cds-inline-notification kind="error" low-contrast hide-close-button>
-        <span slot="title">入力内容を確認してください</span>
-        <span slot="subtitle">${text}</span>
-      </cds-inline-notification>
-    </div>`;
-  }
-
   function structuredCostRow({ label, amount = 0, sign = '', rowType = 'detail' }, helpers = {}) {
     const numericAmount = Number(amount) || 0;
     const operator = sign === '−' ? '−' : '';
@@ -168,10 +156,8 @@
       });
     const visibleCandidates = extraCandidates.filter(candidate => normalizedName(candidate?.name) !== 'ガソリン代');
     const movementTimesAttr = usesTimesRental ? ' data-times-extra="distance"' : '';
-    const editIssues = renderCarEditIssues(issues, helpers);
     return `<div class="seisan-car-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}"${standaloneData}>
       ${standaloneNameField}
-      ${editIssues}
       <div class="seisan-cost-edit-list" role="group" aria-label="費用一覧">
         <div class="seisan-cost-edit-header" aria-hidden="true"><span>名目</span><span>金額</span><span>部費</span><span>操作</span></div>
         <div class="seisan-extra-row seisan-cost-edit-row seisan-gas-cost-row" data-extra-index="${Math.max(0, movementSourceIndex)}" data-extra-id="${esc(movementSource.id || '')}" data-movement-extra="${usesTimesRental ? 'distance' : 'gas'}"${movementTimesAttr}>
