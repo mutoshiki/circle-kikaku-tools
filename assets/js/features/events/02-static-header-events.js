@@ -77,9 +77,11 @@
             if (!event.isComposing) syncToSource();
         });
         editor.addEventListener('compositionend', syncToSource);
-        editor.addEventListener('blur', syncFromSource);
+        // WebKit can blur a contenteditable before it emits the final compositionend.
+        // The visible editor owns the local draft, so blur must commit it to the persisted
+        // roomName source instead of pulling a stale/empty source value back into the editor.
+        editor.addEventListener('blur', syncToSource);
 
-        new MutationObserver(syncFromSource).observe(roomInput, { attributes: true, attributeFilter: ['value'] });
         syncFromSource();
         return editor;
     }
