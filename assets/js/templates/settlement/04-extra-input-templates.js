@@ -29,7 +29,8 @@
     const baseType = type.startsWith('club') ? 'club' : 'split';
     const isNegative = type.endsWith('-minus');
     const extraFieldErrorClass = helpers.extraFieldErrorClass || (() => '');
-    const pendingFieldInvalid = key => ex.pending === true && !String(ex[key] ?? '').trim();
+    const validationActive = !!issues?.rows?.has?.(carName);
+    const pendingFieldInvalid = key => validationActive && ex.pending === true && !String(ex[key] ?? '').trim();
     const fieldInvalid = key => !!extraFieldErrorClass(issues, carName, index, key) || pendingFieldInvalid(key);
     const invalidAttr = (key, message) => fieldInvalid(key)
       ? ` invalid invalid-text="${message}" aria-invalid="true"`
