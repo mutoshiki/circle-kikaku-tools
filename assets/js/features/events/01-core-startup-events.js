@@ -3,7 +3,6 @@
     'use strict';
 
     const events = global.SanpoEvents || {};
-    const PROJECT_TITLE_STALE_ECHO_GUARD_MS = 2200;
 
     function installRoomTitleValueBridge(roomNameInput) {
         if (!roomNameInput || roomNameInput.dataset.projectTitleValueBridge === 'true') return;
@@ -12,15 +11,7 @@
             || Object.getOwnPropertyDescriptor(global.HTMLInputElement?.prototype || {}, 'value');
         if (!valueDescriptor?.get || !valueDescriptor?.set) return;
 
-        let pendingLocalTitle = '';
-        let pendingBaseTitle = '';
-        let pendingUntil = 0;
         const normalizeTitle = value => String(value ?? '').replace(/[\r\n]+/g, '');
-        const clearPending = () => {
-            pendingLocalTitle = '';
-            pendingBaseTitle = '';
-            pendingUntil = 0;
-        };
         const syncEditor = value => {
             const editor = byId('projectTitleEditor');
             if (!editor || document.activeElement === editor) return;
@@ -37,54 +28,11 @@
             },
             set(value) {
                 const next = normalizeTitle(value);
-                const current = normalizeTitle(valueDescriptor.get.call(this));
-                const editor = byId('projectTitleEditor');
-                const editorValue = normalizeTitle(editor?.textContent || '');
-                const editorOwnsWrite = !!editor
-                    && document.activeElement === editor
-                    && next === editorValue;
-
-                if (editorOwnsWrite && next !== current) {
-                    if (!pendingLocalTitle) pendingBaseTitle = current;
-                    valueDescriptor.set.call(this, next);
-                    pendingLocalTitle = next;
-                    pendingUntil = Date.now() + PROJECT_TITLE_STALE_ECHO_GUARD_MS;
-                    return;
-                }
-
-                if (pendingLocalTitle) {
-                    if (next === pendingLocalTitle) {
-                        clearPending();
-                    } else if (Date.now() <= pendingUntil && next === pendingBaseTitle) {
-                        // Ignore only the exact value that was on the shared room when the
-                        // local edit started. This is the stale echo that used to erase a
-                        // freshly typed title before its debounced save completed.
-                        return;
-                    } else {
-                        // A genuinely different remote title is a concurrent edit, not a
-                        // stale echo. Let the canonical sync result flow through instead of
-                        // holding a local title indefinitely.
-                        clearPending();
-                    }
-                }
-
-                if (editor && document.activeElement === editor && next !== current) return;
-
                 valueDescriptor.set.call(this, next);
                 syncEditor(next);
             }
         });
         roomNameInput.dataset.projectTitleValueBridge = 'true';
-
-        roomNameInput.addEventListener('input', event => {
-            if (event.isComposing) return;
-            pendingLocalTitle = normalizeTitle(valueDescriptor.get.call(roomNameInput));
-            pendingUntil = Date.now() + PROJECT_TITLE_STALE_ECHO_GUARD_MS;
-        });
-        roomNameInput.addEventListener('compositionend', () => {
-            pendingLocalTitle = normalizeTitle(valueDescriptor.get.call(roomNameInput));
-            pendingUntil = Date.now() + PROJECT_TITLE_STALE_ECHO_GUARD_MS;
-        });
     }
 
     function bindCoreStartupEvents() {
