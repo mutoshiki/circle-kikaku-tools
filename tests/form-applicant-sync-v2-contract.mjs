@@ -44,6 +44,7 @@ assert.doesNotMatch(feature, /__carbonPrimaryNavigationObserver\?\.disconnect/);
 assert.doesNotMatch(feature, /participantAwarePrimaryNavigationSync/);
 assert.match(navigation, /view-mode-participants/);
 assert.match(navigation, /\['tab-participants', view === 'participants'\]/);
+assert.match(navigation, /document\.body\.classList\.contains\('view-mode-participants'\)[\s\S]*?\? 'participants'/);
 
 // Existing selections remain editable; removals use canonical deletion and Carbon confirmation.
 assert.match(feature, /data-manual-participant-id/);

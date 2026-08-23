@@ -193,7 +193,9 @@
         if (syncingCarbonPrimaryNavigation) return;
         syncingCarbonPrimaryNavigation = true;
         try {
-            const view = typeof currentView !== 'undefined' ? currentView : readCurrentShellView();
+            const view = document.body.classList.contains('view-mode-participants')
+                ? 'participants'
+                : (typeof currentView !== 'undefined' ? currentView : readCurrentShellView());
             const allocationType = document.body.dataset.activePlanTemplate === 'team' ? 'team' : 'car';
             const states = [
                 ['tab-sheet', view === 'sheet'],
