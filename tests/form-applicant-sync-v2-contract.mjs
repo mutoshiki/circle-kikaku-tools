@@ -35,6 +35,10 @@ assert.match(feature, /shadowRoot\?\.querySelector\?\.\(['"]input\[type=/);
 assert.match(feature, /participantTab\.selected = true/);
 assert.match(feature, /bar\.value = ['"]participants['"]/);
 assert.match(feature, /requestAnimationFrame\(syncParticipantNavigationState\)/);
+assert.match(feature, /cds-checkbox-changed/);
+assert.match(feature, /event\.detail\?\.checked/);
+assert.match(feature, /applicantSelectionDraft/);
+assert.match(feature, /manualSelectionDraft/);
 
 // Existing selections remain editable; removals use canonical deletion and Carbon confirmation.
 assert.match(feature, /data-manual-participant-id/);

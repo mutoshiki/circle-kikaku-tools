@@ -13,6 +13,8 @@
   let liveApplicationSync = null;
   let applicationUnsubscribe = null;
   let selectionDirty = false;
+  const applicantSelectionDraft = new Map();
+  const manualSelectionDraft = new Map();
   let baseSwitchView = null;
   let participantNavObserver = null;
 
@@ -101,11 +103,43 @@
   }
 
   function markSelectionDirty(event) {
-    if (!participantCheckboxFromEvent(event)) return;
+    const checkbox = participantCheckboxFromEvent(event);
+    if (!checkbox) return;
+
+    // Carbon emits cds-checkbox-changed only after synchronizing its public checked
+    // property with the native shadow input. Own the organizer draft from that event
+    // instead of re-reading transient DOM state during a later render.
+    const checked = typeof event.detail?.checked === 'boolean'
+      ? event.detail.checked
+      : checkboxChecked(checkbox);
+    const applicantKey = String(checkbox.dataset.formApplicantKey || '');
+    const manualId = String(checkbox.dataset.manualParticipantId || '');
+    if (applicantKey) applicantSelectionDraft.set(applicantKey, checked);
+    if (manualId) manualSelectionDraft.set(manualId, checked);
+    if (!applicantKey && !manualId) return;
+
     selectionDirty = true;
     updateApplyButton();
     queueMicrotask(syncParticipantNavigationState);
     requestAnimationFrame(syncParticipantNavigationState);
+  }
+
+  function clearSelectionDraft() {
+    applicantSelectionDraft.clear();
+    manualSelectionDraft.clear();
+    selectionDirty = false;
+  }
+
+  function applicantDraftChecked(room, responseKey, applicant) {
+    return applicantSelectionDraft.has(responseKey)
+      ? applicantSelectionDraft.get(responseKey)
+      : Boolean(participantIdForApplicant(room, applicant));
+  }
+
+  function manualDraftChecked(participantId) {
+    return manualSelectionDraft.has(participantId)
+      ? manualSelectionDraft.get(participantId)
+      : true;
   }
 
   function ensureParticipantViewArea() {
@@ -147,7 +181,7 @@
       window.openBatchModal?.();
     });
     const list = byIdSafe('formApplicantList');
-    list?.addEventListener('change', markSelectionDirty);
+    // Use Carbon's documented post-change event as the single owner of checkbox draft state.
     list?.addEventListener('cds-checkbox-changed', markSelectionDirty);
     return area;
   }
@@ -337,7 +371,6 @@
     if (!force && key === lastRenderKey) return;
     lastRenderKey = key;
 
-    const draft = selectionDirty ? captureDraftSelection() : { applicant: new Map(), manual: new Map() };
     const description = byIdSafe('participantsViewDescription');
     if (description) description.textContent = sync
       ? '応募者を確認して、当選者を選んでください。'
@@ -358,9 +391,7 @@
 
     entries.forEach(([responseKey, applicant]) => {
       const participantId = participantIdForApplicant(room, applicant);
-      const checked = selectionDirty && draft.applicant.has(responseKey)
-        ? draft.applicant.get(responseKey)
-        : Boolean(participantId);
+      const checked = applicantDraftChecked(room, responseKey, applicant);
       const row = document.createElement('div');
       row.className = 'form-applicant-sync__row';
       row.innerHTML = `
@@ -372,9 +403,7 @@
     });
 
     manualEntries.forEach(([participantId, participant]) => {
-      const checked = selectionDirty && draft.manual.has(participantId)
-        ? draft.manual.get(participantId)
-        : true;
+      const checked = manualDraftChecked(participantId);
       const meta = participantMeta(participant);
       const row = document.createElement('div');
       row.className = 'form-applicant-sync__row';
@@ -495,16 +524,14 @@
     if (!room) return;
     const sync = applicationSync(room);
     const selectedApplicantKeys = new Set(
-      [...document.querySelectorAll('#formApplicantList cds-checkbox[data-form-applicant-key]')]
-        .filter(checkboxChecked)
-        .map(checkbox => String(checkbox.dataset.formApplicantKey || ''))
-        .filter(Boolean)
+      applicantEntries(sync)
+        .filter(([responseKey, applicant]) => applicantDraftChecked(room, responseKey, applicant))
+        .map(([responseKey]) => responseKey)
     );
+    const acceptedIds = currentApplicantParticipantIds(room, sync);
     const selectedManualIds = new Set(
-      [...document.querySelectorAll('#formApplicantList cds-checkbox[data-manual-participant-id]')]
-        .filter(checkboxChecked)
-        .map(checkbox => String(checkbox.dataset.manualParticipantId || ''))
-        .filter(Boolean)
+      Object.keys(room.participants || {})
+        .filter(id => !acceptedIds.has(id) && manualDraftChecked(id))
     );
 
     const removals = [];
@@ -512,9 +539,8 @@
       const participantId = participantIdForApplicant(room, applicant);
       if (participantId && !selectedApplicantKeys.has(responseKey)) removals.push(participantId);
     });
-    document.querySelectorAll('#formApplicantList cds-checkbox[data-manual-participant-id]').forEach(checkbox => {
-      const id = String(checkbox.dataset.manualParticipantId || '');
-      if (id && room.participants?.[id] && !selectedManualIds.has(id)) removals.push(id);
+    Object.keys(room.participants || {}).forEach(id => {
+      if (!acceptedIds.has(id) && !selectedManualIds.has(id)) removals.push(id);
     });
 
     if (!await confirmParticipantRemovals(room, [...new Set(removals)])) return;
@@ -553,7 +579,7 @@
 
       window.SanpoCanonicalState.ensureAllParticipantsPlaced(room.allocations?.car, room.participants);
       window.SanpoCanonicalState.ensureAllParticipantsPlaced(room.allocations?.team, room.participants);
-      selectionDirty = false;
+      clearSelectionDraft();
       persist(room);
       newParticipantIds.forEach(id => {
         const name = room.participants?.[id]?.name;
