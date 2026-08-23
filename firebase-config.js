@@ -30,12 +30,6 @@ window.SANPO_FIREBASE_CONFIG = {
       script.dataset.sanpoApplicantSync = 'true';
       document.head.appendChild(script);
     }
-    if (!document.querySelector('script[data-sanpo-carbon-checkbox-state-bridge]')) {
-      const bridge = document.createElement('script');
-      bridge.src = './assets/js/features/carbon-checkbox-state-bridge.js?v=participants-tab-v84';
-      bridge.dataset.sanpoCarbonCheckboxStateBridge = 'true';
-      document.head.appendChild(bridge);
-    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load, { once: true });
