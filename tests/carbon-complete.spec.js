@@ -279,7 +279,7 @@ test.describe('First-run rendering and submit regression', () => {
     await page.goto(`/?room=${room}`, { waitUntil: 'domcontentloaded' });
 
     await expect(page.locator('body')).toHaveClass(/view-mode-list/);
-    await expect(page.locator('#list-empty-hint')).toContainText('参加者登録(推奨)');
+    await expect(page.locator('#list-empty-hint')).toContainText('参加者');
 
     const cases = [
       ['list', '#list-empty-hint .app-entry-choice'],
@@ -291,9 +291,11 @@ test.describe('First-run rendering and submit regression', () => {
       const empty = page.locator(selector);
       await expect(empty).toBeVisible();
       await expect(empty.locator('cds-button')).toHaveCount(2);
-      await expect(empty).toContainText('参加者登録(推奨)');
-      await expect(empty).toContainText('もしくは');
+      await expect(empty).toContainText('参加者');
+      await expect(empty).not.toContainText('参加者登録(推奨)');
+      await expect(empty).not.toContainText('もしくは');
       await expect(empty).toContainText('人数だけで精算');
+      await expect(empty.locator('[data-action="open-participants"]')).toHaveCount(1);
       await expect(empty.locator('[data-carbon-icon]')).toHaveCount(0);
       await expect(empty).not.toContainText('参加者がまだいません');
       await expect(empty).not.toContainText('共有できるデータがありません');
@@ -304,14 +306,18 @@ test.describe('First-run rendering and submit regression', () => {
   test('participant and settlement settings submit buttons close their Carbon modals', async ({ page }) => {
     const room = `SUBMIT-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     await page.goto(`/?room=${room}`);
-    await page.waitForFunction(() => customElements.get('cds-modal'));
+    await page.waitForFunction(() => customElements.get('cds-modal') && window.SanpoApplicantSync);
 
     await page.evaluate(() => window.switchView('list'));
-    await hostClick(page, '#list-empty-hint [data-action="open-batch"]');
+    await hostClick(page, '#list-empty-hint [data-action="open-participants"]');
+    await expect(page.locator('#participants-view-area')).toBeVisible();
+    await expect(page.locator('#participantManualAddBtn')).toBeVisible();
+    await hostClick(page, '#participantManualAddBtn');
     await expect(page.locator('#batchImportModal')).toHaveAttribute('open', '');
     await setHostValue(page, '#batchMembers', '山田 太郎');
     await hostClick(page, '#executeBatchBtn');
     await expect(page.locator('#batchImportModal')).not.toHaveAttribute('open', '');
+    await page.evaluate(() => window.switchView('list'));
     await expect(page.locator('.member-card')).toHaveCount(1);
 
     await page.evaluate(() => { window.switchView('seisan'); window.openStandaloneSettlementSettings(); });
