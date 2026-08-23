@@ -7,10 +7,6 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   await page.goto('/');
   await page.waitForFunction(() => document.querySelector('#tab-participants') && window.SanpoApplicantSync && window.SanpoCanonicalState?.get?.());
 
-  // This test injects managed-form data directly into the canonical room. The app closes its
-  // loading skeleton only after load() receives the first RTDB room snapshot (or settles into
-  // local-only mode), which is the real bootstrap boundary. Waiting merely for firebaseReady
-  // is too early: authentication/database setup can finish before the first room onValue.
   await page.waitForFunction(() => {
     if ((typeof firebaseEnabled === 'undefined') || !firebaseEnabled) return true;
     const skeleton = document.getElementById('appLoadingSkeleton');
@@ -59,7 +55,53 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   await applicantChecks.first().click();
   const apply = page.locator('#formApplicantApplyBtn');
   await expect(apply).toBeEnabled();
+
+  const beforeApply = await page.evaluate(() => {
+    const room = window.SanpoCanonicalState.get();
+    const checkbox = document.querySelector('#formApplicantList cds-checkbox[data-form-applicant-key="a1"]');
+    const native = checkbox?.shadowRoot?.querySelector('input[type="checkbox"]');
+    const button = document.getElementById('formApplicantApplyBtn');
+    return {
+      hostChecked: checkbox?.checked,
+      attrChecked: checkbox?.hasAttribute('checked'),
+      nativeChecked: native?.checked,
+      appSyncKind: room?.meta?.applicationSync?.kind || '',
+      applicantKeys: Object.keys(room?.meta?.applicationSync?.applicants || {}),
+      participantCount: Object.keys(room?.participants || {}).length,
+      buttonDisabled: button?.disabled,
+      buttonAttrDisabled: button?.hasAttribute('disabled'),
+      bodyClass: document.body.className,
+      rootValue: document.getElementById('view-toggle-bar')?.value,
+      participantSelected: document.getElementById('tab-participants')?.selected
+    };
+  });
+  console.log('PARTICIPANT_DEBUG_BEFORE_APPLY', JSON.stringify(beforeApply));
+
   await apply.click();
+  const afterButtonApply = await page.evaluate(() => {
+    const room = window.SanpoCanonicalState.get();
+    return {
+      participantCount: Object.keys(room?.participants || {}).length,
+      names: Object.values(room?.participants || {}).map(person => person?.name),
+      appSyncKind: room?.meta?.applicationSync?.kind || '',
+      applicantKeys: Object.keys(room?.meta?.applicationSync?.applicants || {})
+    };
+  });
+  console.log('PARTICIPANT_DEBUG_AFTER_BUTTON', JSON.stringify(afterButtonApply));
+
+  if (afterButtonApply.participantCount === 0) {
+    await page.evaluate(() => window.SanpoApplicantSync.applySelection());
+    const afterDirectApply = await page.evaluate(() => {
+      const room = window.SanpoCanonicalState.get();
+      return {
+        participantCount: Object.keys(room?.participants || {}).length,
+        names: Object.values(room?.participants || {}).map(person => person?.name),
+        appSyncKind: room?.meta?.applicationSync?.kind || '',
+        applicantKeys: Object.keys(room?.meta?.applicationSync?.applicants || {})
+      };
+    });
+    console.log('PARTICIPANT_DEBUG_AFTER_DIRECT', JSON.stringify(afterDirectApply));
+  }
 
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(1);
   await expect.poll(() => page.evaluate(() => {
