@@ -2,14 +2,16 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const feature = fs.readFileSync(new URL('../assets/js/features/form-applicant-sync-v2.js', import.meta.url), 'utf8');
+const participantUi = fs.readFileSync(new URL('../assets/js/features/participants-ui.js', import.meta.url), 'utf8');
 const loader = fs.readFileSync(new URL('../firebase-config.js', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../assets/css/guides-modals/import-guide/07-form-applicant-sync.css', import.meta.url), 'utf8');
 const settlementEmpty = fs.readFileSync(new URL('../assets/js/templates/settlement/07-empty-state-templates.js', import.meta.url), 'utf8');
 const commonEmpty = fs.readFileSync(new URL('../assets/js/templates/common-empty-state.js', import.meta.url), 'utf8');
 const navigation = fs.readFileSync(new URL('../assets/js/features/events/02-static-header-events.js', import.meta.url), 'utf8');
 
-assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-tab-v88/);
-assert.match(loader, /07-form-applicant-sync\.css\?v=participants-tab-v88/);
+assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-carbon-v89/);
+assert.match(loader, /participants-ui\.js\?v=participants-carbon-v89/);
+assert.match(loader, /07-form-applicant-sync\.css\?v=participants-carbon-v89/);
 assert.doesNotMatch(loader, /form-link-sync\.js/);
 assert.doesNotMatch(loader, /06-form-auto-link\.css/);
 assert.doesNotMatch(loader, /carbon-checkbox-state-bridge/);
@@ -55,6 +57,22 @@ assert.match(css, /\.participants-view-area\s*\{[\s\S]*?flex:\s*1 1 auto;/);
 
 // The selected tab already names the view; the semantic page heading must not repeat visually.
 assert.match(css, /\.participants-page__title\s*\{[\s\S]*?display:\s*none;/);
+
+// The presentation owner makes applicant -> winner state explicit without changing selection semantics.
+assert.match(participantUi, /participants-summary__label[^`]*応募者/);
+assert.match(participantUi, /participants-summary__label[^`]*当選者/);
+assert.match(participantUi, /参加者を確定/);
+assert.match(participantUi, /参加者を更新/);
+assert.match(participantUi, /aria-label['"], sync \? ['"]当選者を選択/);
+assert.match(css, /\.participants-page__summary\s*\{[\s\S]*?grid-template-columns:/);
+assert.match(css, /\.form-applicant-sync__row\.is-selected/);
+assert.match(css, /var\(--cds-layer-selected-01/);
+assert.match(css, /position:\s*sticky;/);
+
+// Participant registration belongs only to the dedicated Participants view, not car/team allocation.
+assert.match(participantUi, /batchOpenBtn/);
+assert.match(participantUi, /removeAllocationRegistrationAction/);
+assert.match(participantUi, /button\.remove\(\)/);
 
 // Returning from Participants to allocation must re-project canonical state, not stale hidden DOM.
 assert.match(feature, /restoreAllocationVisibility[\s\S]*?renderActiveCarPlanToDom/);
