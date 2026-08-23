@@ -212,7 +212,11 @@
     const hasParticipants = Object.keys(room?.participants || {}).length > 0;
     const bottomTray = byIdSafe('bottom-tray');
     if (bottomTray) bottomTray.hidden = !hasParticipants;
-    window.updateUI?.();
+    // The Participants view edits canonical state without using the allocation DOM.
+    // Re-project canonical allocation before showing list mode so manual additions,
+    // winner changes, and remote participant updates cannot leave stale cards behind.
+    if (typeof window.renderActiveCarPlanToDom === 'function') window.renderActiveCarPlanToDom();
+    else window.updateUI?.();
   }
 
   async function showParticipantsView() {
