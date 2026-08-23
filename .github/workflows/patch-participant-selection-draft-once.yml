@@ -1,0 +1,102 @@
+name: Patch participant selection draft once
+
+on:
+  push:
+    branches:
+      - feat/participants-tab
+    paths:
+      - .github/workflows/patch-participant-selection-draft-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/participants-tab
+      - name: Patch Carbon checkbox draft ownership
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          feature_path = Path('assets/js/features/form-applicant-sync-v2.js')
+          s = feature_path.read_text(encoding='utf-8')
+
+          replacements = [
+            (
+              "  let selectionDirty = false;\n  let baseSwitchView = null;",
+              "  let selectionDirty = false;\n  const applicantSelectionDraft = new Map();\n  const manualSelectionDraft = new Map();\n  let baseSwitchView = null;"
+            ),
+            (
+              "  function markSelectionDirty(event) {\n    if (!participantCheckboxFromEvent(event)) return;\n    selectionDirty = true;\n    updateApplyButton();\n    queueMicrotask(syncParticipantNavigationState);\n    requestAnimationFrame(syncParticipantNavigationState);\n  }",
+              "  function markSelectionDirty(event) {\n    const checkbox = participantCheckboxFromEvent(event);\n    if (!checkbox) return;\n\n    // Carbon emits cds-checkbox-changed only after synchronizing its public checked\n    // property with the native shadow input. Own the organizer draft from that event\n    // instead of re-reading transient DOM state during a later render.\n    const checked = typeof event.detail?.checked === 'boolean'\n      ? event.detail.checked\n      : checkboxChecked(checkbox);\n    const applicantKey = String(checkbox.dataset.formApplicantKey || '');\n    const manualId = String(checkbox.dataset.manualParticipantId || '');\n    if (applicantKey) applicantSelectionDraft.set(applicantKey, checked);\n    if (manualId) manualSelectionDraft.set(manualId, checked);\n    if (!applicantKey && !manualId) return;\n\n    selectionDirty = true;\n    updateApplyButton();\n    queueMicrotask(syncParticipantNavigationState);\n    requestAnimationFrame(syncParticipantNavigationState);\n  }\n\n  function clearSelectionDraft() {\n    applicantSelectionDraft.clear();\n    manualSelectionDraft.clear();\n    selectionDirty = false;\n  }\n\n  function applicantDraftChecked(room, responseKey, applicant) {\n    return applicantSelectionDraft.has(responseKey)\n      ? applicantSelectionDraft.get(responseKey)\n      : Boolean(participantIdForApplicant(room, applicant));\n  }\n\n  function manualDraftChecked(participantId) {\n    return manualSelectionDraft.has(participantId)\n      ? manualSelectionDraft.get(participantId)\n      : true;\n  }"
+            ),
+            (
+              "    const list = byIdSafe('formApplicantList');\n    list?.addEventListener('change', markSelectionDirty);\n    list?.addEventListener('cds-checkbox-changed', markSelectionDirty);",
+              "    const list = byIdSafe('formApplicantList');\n    // Use Carbon's documented post-change event as the single owner of checkbox draft state.\n    list?.addEventListener('cds-checkbox-changed', markSelectionDirty);"
+            ),
+            (
+              "    const draft = selectionDirty ? captureDraftSelection() : { applicant: new Map(), manual: new Map() };\n    const description = byIdSafe('participantsViewDescription');",
+              "    const description = byIdSafe('participantsViewDescription');"
+            ),
+            (
+              "      const checked = selectionDirty && draft.applicant.has(responseKey)\n        ? draft.applicant.get(responseKey)\n        : Boolean(participantId);",
+              "      const checked = applicantDraftChecked(room, responseKey, applicant);"
+            ),
+            (
+              "      const checked = selectionDirty && draft.manual.has(participantId)\n        ? draft.manual.get(participantId)\n        : true;",
+              "      const checked = manualDraftChecked(participantId);"
+            ),
+            (
+              "    const selectedApplicantKeys = new Set(\n      [...document.querySelectorAll('#formApplicantList cds-checkbox[data-form-applicant-key]')]\n        .filter(checkboxChecked)\n        .map(checkbox => String(checkbox.dataset.formApplicantKey || ''))\n        .filter(Boolean)\n    );\n    const selectedManualIds = new Set(\n      [...document.querySelectorAll('#formApplicantList cds-checkbox[data-manual-participant-id]')]\n        .filter(checkboxChecked)\n        .map(checkbox => String(checkbox.dataset.manualParticipantId || ''))\n        .filter(Boolean)\n    );",
+              "    const selectedApplicantKeys = new Set(\n      applicantEntries(sync)\n        .filter(([responseKey, applicant]) => applicantDraftChecked(room, responseKey, applicant))\n        .map(([responseKey]) => responseKey)\n    );\n    const acceptedIds = currentApplicantParticipantIds(room, sync);\n    const selectedManualIds = new Set(\n      Object.keys(room.participants || {})\n        .filter(id => !acceptedIds.has(id) && manualDraftChecked(id))\n    );"
+            ),
+            (
+              "    document.querySelectorAll('#formApplicantList cds-checkbox[data-manual-participant-id]').forEach(checkbox => {\n      const id = String(checkbox.dataset.manualParticipantId || '');\n      if (id && room.participants?.[id] && !selectedManualIds.has(id)) removals.push(id);\n    });",
+              "    Object.keys(room.participants || {}).forEach(id => {\n      if (!acceptedIds.has(id) && !selectedManualIds.has(id)) removals.push(id);\n    });"
+            ),
+            (
+              "      selectionDirty = false;\n      persist(room);",
+              "      clearSelectionDraft();\n      persist(room);"
+            ),
+          ]
+
+          for old, new in replacements:
+            if old not in s:
+              raise SystemExit(f'Expected feature block not found:\n{old[:240]}')
+            s = s.replace(old, new, 1)
+
+          feature_path.write_text(s, encoding='utf-8')
+
+          test_path = Path('tests/participants-tab-v83.spec.js')
+          t = test_path.read_text(encoding='utf-8')
+          debug_start = "  const beforeApply = await page.evaluate(() => {"
+          debug_end = "\n  await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(1);"
+          if debug_start not in t or debug_end not in t:
+            raise SystemExit('Expected participant diagnostic block not found')
+          prefix, rest = t.split(debug_start, 1)
+          _, suffix = rest.split(debug_end, 1)
+          replacement = "  await expect.poll(() => applicantChecks.first().evaluate(checkbox => checkbox.checked)).toBe(true);\n  await apply.click();" + debug_end
+          t = prefix + replacement + suffix
+          test_path.write_text(t, encoding='utf-8')
+
+          contract_path = Path('tests/form-applicant-sync-v2-contract.mjs')
+          c = contract_path.read_text(encoding='utf-8')
+          anchor = "assert.match(feature, /requestAnimationFrame\\(syncParticipantNavigationState\\)/);"
+          addition = "\nassert.match(feature, /cds-checkbox-changed/);\nassert.match(feature, /event\\.detail\\?\\.checked/);\nassert.match(feature, /applicantSelectionDraft/);\nassert.match(feature, /manualSelectionDraft/);"
+          if anchor not in c:
+            raise SystemExit('Expected participant contract anchor not found')
+          c = c.replace(anchor, anchor + addition, 1)
+          contract_path.write_text(c, encoding='utf-8')
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/js/features/form-applicant-sync-v2.js tests/participants-tab-v83.spec.js tests/form-applicant-sync-v2-contract.mjs
+          git diff --cached --check
+          git commit -m "Carbon Checkboxの選択ドラフトをイベント状態で保持"
+          git push origin HEAD:feat/participants-tab
