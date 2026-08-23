@@ -62,7 +62,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     expect(shellGeometry.headerBackground).toBe('rgb(22, 22, 22)');
     expect(shellGeometry.navBackground).toBe('rgb(0, 0, 0)');
     expect(shellGeometry.brand).toBe('サークル企画ツール');
-    expect(shellGeometry.labels).toEqual(['共有画面', '精算', '車割', '班割']);
+    expect(shellGeometry.labels).toEqual(['共有画面', '精算', '車割', '班割', '参加者']);
     expect(shellGeometry.shareSize).toEqual({ width: 48, height: 48 });
     expect(shellGeometry.switcherSize).toEqual({ width: 48, height: 48 });
     expect(shellGeometry.roomInputVisibility).toBe('absolute');
