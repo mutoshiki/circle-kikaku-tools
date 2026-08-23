@@ -11,7 +11,9 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     const shellGeometry = await page.evaluate(() => {
       const header = document.querySelector('#app-header');
       const nav = document.querySelector('#app-view-navigation');
-      const firstViewContent = document.querySelector('#top-area > .edit-header');
+      // Participant registration now lives only in the Participants view, so allocation may
+      // legitimately start directly with the grid instead of the removed edit-header toolbar.
+      const firstViewContent = document.querySelector('#top-area > .edit-header, #top-area > #cars-container');
       const headerRect = header.getBoundingClientRect();
       const navRect = nav.getBoundingClientRect();
       const firstViewContentRect = firstViewContent.getBoundingClientRect();
