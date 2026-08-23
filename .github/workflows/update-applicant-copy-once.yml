@@ -1,0 +1,46 @@
+name: Update Applicant Copy Once
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/update-applicant-copy-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-copy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update applicant description and contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          feature = Path('assets/js/features/form-applicant-sync-v2.js')
+          s = feature.read_text(encoding='utf-8')
+          old = '応募フォームの回答は自動でここに届きます。当選者だけを選ぶと、車割・班割・精算で共通して使う参加者になります。'
+          new = '応募者を確認して、当選者を選んでください。'
+          if old not in s:
+              raise SystemExit('old applicant description not found')
+          feature.write_text(s.replace(old, new), encoding='utf-8')
+
+          contract = Path('tests/form-applicant-sync-v2-contract.mjs')
+          t = contract.read_text(encoding='utf-8')
+          old_assert = "assert.match(feature, /応募フォームの回答は自動でここに届きます/);"
+          new_assert = "assert.match(feature, /応募者を確認して、当選者を選んでください/);"
+          if old_assert not in t:
+              raise SystemExit('old contract assertion not found')
+          contract.write_text(t.replace(old_assert, new_assert), encoding='utf-8')
+          PY
+      - name: Remove one-time workflow and commit
+        run: |
+          rm .github/workflows/update-applicant-copy-once.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add assets/js/features/form-applicant-sync-v2.js tests/form-applicant-sync-v2-contract.mjs .github/workflows/update-applicant-copy-once.yml
+          git commit -m "応募者選択の説明文を簡潔化"
+          git push
