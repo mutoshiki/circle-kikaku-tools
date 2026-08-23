@@ -1,6 +1,6 @@
 // Direct form applicant sync (v2).
-// Forms created by the form maker are attached to a planning room immediately.
-// Answers are applicants first; only organizer-selected applicants become canonical participants.
+// Managed forms are attached to a planning room when they are created. Form answers
+// live as applicants; only organizer-selected applicants become canonical participants.
 
 (() => {
   'use strict';
@@ -9,7 +9,7 @@
   const APPLICATION_VERSION = 2;
   const POLL_MS = 1200;
   let lastRenderKey = '';
-  let applying = false;
+  let syncingAcceptedDrivers = false;
 
   const byIdSafe = id => document.getElementById(id);
 
@@ -21,27 +21,6 @@
     const sync = room?.meta?.applicationSync;
     if (!sync || sync.kind !== APPLICATION_KIND || Number(sync.version || 0) !== APPLICATION_VERSION) return null;
     return sync;
-  }
-
-  function selectionState(room, create = false) {
-    if (!room) return null;
-    if (!room.meta) {
-      if (!create) return null;
-      room.meta = {};
-    }
-    if (!room.meta.applicationSelection && create) {
-      room.meta.applicationSelection = {
-        version: 1,
-        acceptedResponses: {},
-        driverCapacities: {},
-        updatedAt: 0
-      };
-    }
-    return room.meta.applicationSelection || null;
-  }
-
-  function acceptedMap(room = canonical()) {
-    return selectionState(room)?.acceptedResponses || {};
   }
 
   function escapeHtml(value) {
@@ -70,9 +49,14 @@
     return Object.entries(sync?.applicants || {})
       .filter(([, applicant]) => applicant?.name)
       .sort(([, a], [, b]) => {
-        const timestampDiff = Number(a?.updatedAt || 0) - Number(b?.updatedAt || 0);
-        return timestampDiff || String(a?.name || '').localeCompare(String(b?.name || ''), 'ja');
+        const timeDiff = Number(a?.updatedAt || 0) - Number(b?.updatedAt || 0);
+        return timeDiff || String(a?.name || '').localeCompare(String(b?.name || ''), 'ja');
       });
+  }
+
+  function participantIdForApplicant(room, applicant) {
+    if (!room || !applicant?.name) return '';
+    return window.SanpoCanonicalState?.findParticipantIdByName?.(room.participants || {}, applicant.name) || '';
   }
 
   function ensureUi() {
@@ -112,8 +96,14 @@
     const modal = byIdSafe('batchImportModal');
     if (!modal) return;
     modal.dataset.formApplicantMode = enabled ? 'true' : 'false';
+
     const title = byIdSafe('batchImportModalTitle');
     if (title) title.textContent = enabled ? '応募者' : '参加者登録';
+
+    const openButton = byIdSafe('batchOpenBtn');
+    const openLabel = openButton?.querySelector('span:last-child');
+    if (openLabel) openLabel.textContent = enabled ? '応募者' : '参加者登録';
+
     const execute = byIdSafe('executeBatchBtn');
     if (execute) execute.hidden = enabled;
     const secondary = execute?.parentElement?.querySelector('[data-modal-close]');
@@ -143,6 +133,7 @@
     const sync = applicationSync(room);
     const managed = Boolean(sync);
     setManagedMode(managed);
+
     const panel = byIdSafe('formApplicantPanel');
     if (panel) panel.hidden = !managed;
     if (!managed) {
@@ -150,12 +141,12 @@
       return;
     }
 
-    const accepted = acceptedMap(room);
     const entries = applicantEntries(sync);
+    const acceptedIds = entries.map(([, applicant]) => participantIdForApplicant(room, applicant)).filter(Boolean);
     const key = JSON.stringify({
       syncedAt: Number(sync.syncedAt || 0),
       responseCount: Number(sync.responseCount || 0),
-      accepted: Object.keys(accepted).sort(),
+      acceptedIds: acceptedIds.sort(),
       revision: Number(room?.revision || 0)
     });
     if (!force && key === lastRenderKey) return;
@@ -174,23 +165,23 @@
       list.appendChild(empty);
     } else {
       entries.forEach(([responseKey, applicant]) => {
-        const acceptedEntry = accepted[responseKey];
+        const accepted = Boolean(participantIdForApplicant(room, applicant));
         const row = document.createElement('div');
-        row.className = `form-applicant-sync__row${acceptedEntry ? ' is-accepted' : ''}`;
+        row.className = `form-applicant-sync__row${accepted ? ' is-accepted' : ''}`;
         row.setAttribute('role', 'listitem');
         row.innerHTML = `
-          <cds-checkbox data-form-applicant-key="${escapeHtml(responseKey)}" label-text="${escapeHtml(applicant.name)}" ${acceptedEntry ? 'checked disabled' : ''}></cds-checkbox>
+          <cds-checkbox data-form-applicant-key="${escapeHtml(responseKey)}" label-text="${escapeHtml(applicant.name)}" ${accepted ? 'checked disabled' : ''}></cds-checkbox>
           <div class="form-applicant-sync__person">
             <div class="form-applicant-sync__name">${escapeHtml(applicant.name)}</div>
             <div class="form-applicant-sync__meta">${escapeHtml(applicantMeta(applicant))}</div>
           </div>
-          <span class="form-applicant-sync__state">${acceptedEntry ? '参加者' : '未確定'}</span>
+          <span class="form-applicant-sync__state">${accepted ? '参加者' : '未確定'}</span>
         `;
         list.appendChild(row);
       });
     }
 
-    const acceptedCount = entries.filter(([key]) => accepted[key]).length;
+    const acceptedCount = entries.filter(([, applicant]) => participantIdForApplicant(room, applicant)).length;
     setStatus(`応募 ${entries.length}人 / 参加者 ${acceptedCount}人 / 未確定 ${Math.max(0, entries.length - acceptedCount)}人`, 'success');
   }
 
@@ -219,51 +210,51 @@
     return `g_car_${String(participantId || '').replace(/[^A-Za-z0-9_-]/g, '_')}`;
   }
 
-  function ensureDriver(room, participantId, applicant, responseKey, now) {
+  function ensureDriver(room, participantId, applicant, now) {
     if (!applicant?.canDrive || !participantId) return false;
     const allocation = room.allocations?.car;
     if (!allocation) return false;
     allocation.groups = allocation.groups || {};
     allocation.placements = allocation.placements || {};
 
-    const selection = selectionState(room, true);
-    selection.driverCapacities = selection.driverCapacities || {};
-    const incoming = Math.max(1, Math.min(20, parseInt(applicant.capacity, 10) || 3));
-    const previousSource = Math.max(0, parseInt(selection.driverCapacities[responseKey], 10) || 0);
+    const incomingCapacity = Math.max(1, Math.min(20, parseInt(applicant.capacity, 10) || 3));
     const owned = Object.entries(allocation.groups).find(([, group]) => group?.ownerId === participantId);
     const groupId = owned?.[0] || makeDriverGroupId(participantId);
     const existing = owned?.[1] || allocation.groups[groupId];
+    let changed = false;
 
     if (existing) {
-      const currentCapacity = Math.max(1, parseInt(existing.capacity, 10) || 3);
-      const followsForm = !previousSource || currentCapacity === previousSource;
+      if (Number(existing.capacity || 0) !== incomingCapacity || existing.ownerId !== participantId) changed = true;
       allocation.groups[groupId] = {
         ...existing,
         ownerId: participantId,
-        capacity: followsForm ? incoming : currentCapacity,
-        updatedAt: Math.max(Number(existing.updatedAt || 0), now)
+        capacity: incomingCapacity,
+        updatedAt: changed ? now : Number(existing.updatedAt || now)
       };
     } else {
       allocation.groups[groupId] = {
         id: groupId,
         ownerId: participantId,
-        capacity: incoming,
+        capacity: incomingCapacity,
         order: Object.keys(allocation.groups).length,
         createdAt: now,
         updatedAt: now
       };
+      changed = true;
     }
 
-    selection.driverCapacities[responseKey] = incoming;
     const previousPlacement = allocation.placements[participantId];
-    allocation.placements[participantId] = {
-      kind: 'driver',
-      groupId,
-      order: Number(allocation.groups[groupId].order || 0),
-      updatedAt: Math.max(Number(previousPlacement?.updatedAt || 0), now)
-    };
-    allocation.updatedAt = now;
-    return true;
+    if (!previousPlacement || previousPlacement.kind !== 'driver' || previousPlacement.groupId !== groupId) {
+      allocation.placements[participantId] = {
+        kind: 'driver',
+        groupId,
+        order: Number(allocation.groups[groupId].order || 0),
+        updatedAt: now
+      };
+      changed = true;
+    }
+    if (changed) allocation.updatedAt = now;
+    return changed;
   }
 
   function persist(room) {
@@ -288,6 +279,7 @@
       setStatus('参加者にする応募者を選択してください。', 'warning');
       return;
     }
+
     const room = canonical();
     const sync = applicationSync(room);
     if (!room || !sync) return;
@@ -296,44 +288,34 @@
     try {
       room.participants = room.participants || {};
       room.participantTombstones = room.participantTombstones || {};
-      const selection = selectionState(room, true);
-      selection.acceptedResponses = selection.acceptedResponses || {};
       const now = window.SanpoClock?.now?.() ?? Date.now();
       const newParticipantIds = [];
       let acceptedNow = 0;
 
       keys.forEach(responseKey => {
-        if (selection.acceptedResponses[responseKey]) return;
         const applicant = sync.applicants?.[responseKey];
-        if (!applicant?.name) return;
-        let participantId = window.SanpoCanonicalState.findParticipantIdByName(room.participants, applicant.name);
-        if (!participantId) {
-          participantId = window.SanpoCanonicalState.ensureParticipant(
-            room.participants,
-            {
-              name: applicant.name,
-              memo: '',
-              gender: 'unknown',
-              grade: Math.max(0, Math.min(4, parseInt(applicant.grade, 10) || 0)),
-              locked: false,
-              flag: 'none'
-            },
-            '',
-            room.participantTombstones
-          );
-          if (participantId) newParticipantIds.push(participantId);
-        }
+        if (!applicant?.name || participantIdForApplicant(room, applicant)) return;
+
+        const participantId = window.SanpoCanonicalState.ensureParticipant(
+          room.participants,
+          {
+            name: applicant.name,
+            memo: '',
+            gender: 'unknown',
+            grade: Math.max(0, Math.min(4, parseInt(applicant.grade, 10) || 0)),
+            locked: false,
+            flag: 'none'
+          },
+          '',
+          room.participantTombstones
+        );
         if (!participantId) return;
-        ensureDriver(room, participantId, applicant, responseKey, now);
-        selection.acceptedResponses[responseKey] = {
-          participantId,
-          acceptedAt: now,
-          sourceUpdatedAt: Number(applicant.updatedAt || 0)
-        };
+
+        newParticipantIds.push(participantId);
+        ensureDriver(room, participantId, applicant, now);
         acceptedNow += 1;
       });
 
-      selection.updatedAt = now;
       window.SanpoCanonicalState.ensureAllParticipantsPlaced(room.allocations?.car, room.participants);
       window.SanpoCanonicalState.ensureAllParticipantsPlaced(room.allocations?.team, room.participants);
       persist(room);
@@ -351,57 +333,42 @@
     }
   }
 
-  function syncAcceptedChanges() {
-    if (applying) return;
+  function syncAcceptedDriverCapacities() {
+    if (syncingAcceptedDrivers) return;
     const room = canonical();
     const sync = applicationSync(room);
-    const selection = selectionState(room);
-    if (!room || !sync || !selection?.acceptedResponses) return;
+    if (!room || !sync) return;
 
     const now = window.SanpoClock?.now?.() ?? Date.now();
     let changed = false;
-    Object.entries(selection.acceptedResponses).forEach(([responseKey, accepted]) => {
-      const applicant = sync.applicants?.[responseKey];
-      const participantId = String(accepted?.participantId || '');
-      const participant = room.participants?.[participantId];
-      if (!applicant || !participant) return;
+    applicantEntries(sync).forEach(([, applicant]) => {
+      const participantId = participantIdForApplicant(room, applicant);
+      if (!participantId) return;
 
+      const participant = room.participants?.[participantId];
       const grade = Math.max(0, Math.min(4, parseInt(applicant.grade, 10) || 0));
-      if (!Number(participant.grade) && grade) {
+      if (participant && !Number(participant.grade) && grade) {
         participant.grade = grade;
         participant.updatedAt = now;
         changed = true;
       }
-
-      if (applicant.canDrive) {
-        const beforeCapacity = Object.values(room.allocations?.car?.groups || {}).find(group => group?.ownerId === participantId)?.capacity;
-        ensureDriver(room, participantId, applicant, responseKey, now);
-        const afterCapacity = Object.values(room.allocations?.car?.groups || {}).find(group => group?.ownerId === participantId)?.capacity;
-        if (Number(beforeCapacity || 0) !== Number(afterCapacity || 0)) changed = true;
-      }
-
-      const sourceUpdatedAt = Number(applicant.updatedAt || 0);
-      if (Number(accepted.sourceUpdatedAt || 0) !== sourceUpdatedAt) {
-        accepted.sourceUpdatedAt = sourceUpdatedAt;
-        changed = true;
-      }
+      if (applicant.canDrive && ensureDriver(room, participantId, applicant, now)) changed = true;
     });
 
     if (!changed) return;
-    applying = true;
+    syncingAcceptedDrivers = true;
     try {
-      selection.updatedAt = now;
       window.SanpoCanonicalState.ensureAllParticipantsPlaced(room.allocations?.car, room.participants || {});
       window.SanpoCanonicalState.ensureAllParticipantsPlaced(room.allocations?.team, room.participants || {});
       persist(room);
     } finally {
-      applying = false;
+      syncingAcceptedDrivers = false;
     }
   }
 
   function tick() {
     if (!ensureUi()) return;
-    syncAcceptedChanges();
+    syncAcceptedDriverCapacities();
     render();
   }
 
