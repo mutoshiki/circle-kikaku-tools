@@ -8,8 +8,8 @@ const settlementEmpty = fs.readFileSync(new URL('../assets/js/templates/settleme
 const commonEmpty = fs.readFileSync(new URL('../assets/js/templates/common-empty-state.js', import.meta.url), 'utf8');
 const navigation = fs.readFileSync(new URL('../assets/js/features/events/02-static-header-events.js', import.meta.url), 'utf8');
 
-assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-tab-v86/);
-assert.match(loader, /07-form-applicant-sync\.css\?v=participants-tab-v86/);
+assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-tab-v87/);
+assert.match(loader, /07-form-applicant-sync\.css\?v=participants-tab-v87/);
 assert.doesNotMatch(loader, /form-link-sync\.js/);
 assert.doesNotMatch(loader, /06-form-auto-link\.css/);
 assert.doesNotMatch(loader, /carbon-checkbox-state-bridge/);
@@ -48,6 +48,10 @@ assert.match(navigation, /\['tab-participants', view === 'participants'\]/);
 assert.match(navigation, /document\.body\.classList\.contains\('view-mode-participants'\)[\s\S]*?\? 'participants'/);
 assert.match(navigation, /tab\.toggleAttribute\('selected', active\)/);
 assert.match(navigation, /tabBar\.value = selectedValue/);
+
+// Participants must occupy the same flex slot as the other primary views, below the tab bar.
+assert.match(css, /\.participants-view-area\s*\{[\s\S]*?order:\s*3;/);
+assert.match(css, /\.participants-view-area\s*\{[\s\S]*?flex:\s*1 1 auto;/);
 
 // Returning from Participants to allocation must re-project canonical state, not stale hidden DOM.
 assert.match(feature, /restoreAllocationVisibility[\s\S]*?renderActiveCarPlanToDom/);
