@@ -1,0 +1,77 @@
+name: Patch participant navigation owner once
+
+on:
+  push:
+    branches:
+      - feat/participants-tab
+    paths:
+      - .github/workflows/patch-participant-navigation-owner-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/participants-tab
+      - name: Integrate participants into navigation owner and fix interaction test
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          nav = Path('assets/js/features/events/02-static-header-events.js')
+          s = nav.read_text(encoding='utf-8')
+
+          old = """    function readCurrentShellView() {\n        if (document.body.classList.contains('view-mode-sheet')) return 'sheet';\n        if (document.body.classList.contains('view-mode-seisan')) return 'seisan';\n        return 'list';\n    }"""
+          new = """    function readCurrentShellView() {\n        if (document.body.classList.contains('view-mode-participants')) return 'participants';\n        if (document.body.classList.contains('view-mode-sheet')) return 'sheet';\n        if (document.body.classList.contains('view-mode-seisan')) return 'seisan';\n        return 'list';\n    }"""
+          if old not in s: raise SystemExit('readCurrentShellView block not found')
+          s = s.replace(old, new, 1)
+
+          old = """            const view = typeof currentView !== 'undefined' ? currentView : readCurrentShellView();\n            const allocationType = document.body.dataset.activePlanTemplate === 'team' ? 'team' : 'car';\n            const states = [\n                ['tab-sheet', view === 'sheet'],\n                ['tab-seisan', view === 'seisan'],\n                ['tab-list', view === 'list' && allocationType === 'car'],\n                ['tab-team', view === 'list' && allocationType === 'team']\n            ];"""
+          new = """            const shellView = readCurrentShellView();\n            const view = shellView === 'participants'\n                ? 'participants'\n                : (typeof currentView !== 'undefined' ? currentView : shellView);\n            const allocationType = document.body.dataset.activePlanTemplate === 'team' ? 'team' : 'car';\n            const states = [\n                ['tab-sheet', view === 'sheet'],\n                ['tab-seisan', view === 'seisan'],\n                ['tab-list', view === 'list' && allocationType === 'car'],\n                ['tab-team', view === 'list' && allocationType === 'team'],\n                ['tab-participants', view === 'participants']\n            ];"""
+          if old not in s: raise SystemExit('primary navigation state block not found')
+          s = s.replace(old, new, 1)
+          nav.write_text(s, encoding='utf-8')
+
+          test = Path('tests/participants-tab-v83.spec.js')
+          t = test.read_text(encoding='utf-8')
+          old = """  await applicantChecks.first().click();\n  const apply = page.locator('#formApplicantApplyBtn');\n  await expect(apply).toBeEnabled();\n  await expect.poll(() => applicantChecks.first().evaluate(checkbox => checkbox.checked)).toBe(true);\n  await apply.click();"""
+          new = """  const tanakaCheckbox = page.getByRole('checkbox', { name: '田中太郎' });\n  await tanakaCheckbox.click();\n  await expect(tanakaCheckbox).toBeChecked();\n  const apply = page.locator('#formApplicantApplyBtn');\n  await expect(apply).not.toHaveAttribute('disabled', '');\n  await expect(participantTab).toHaveAttribute('selected', '');\n  await expect(page.locator('#tab-list')).not.toHaveAttribute('selected', '');\n  await apply.click();"""
+          if old not in t: raise SystemExit('first checkbox interaction block not found')
+          t = t.replace(old, new, 1)
+
+          old = """  await applicantChecks.first().click();\n  await apply.click();"""
+          new = """  await tanakaCheckbox.click();\n  await expect(tanakaCheckbox).not.toBeChecked();\n  await expect(apply).not.toHaveAttribute('disabled', '');\n  await apply.click();"""
+          if old not in t: raise SystemExit('second checkbox interaction block not found')
+          t = t.replace(old, new, 1)
+          test.write_text(t, encoding='utf-8')
+
+          contract = Path('tests/form-applicant-sync-v2-contract.mjs')
+          c = contract.read_text(encoding='utf-8')
+          if "02-static-header-events.js" not in c:
+              c = c.replace(
+                  "const feature = readFileSync(join(root, 'assets/js/features/form-applicant-sync-v2.js'), 'utf8');",
+                  "const feature = readFileSync(join(root, 'assets/js/features/form-applicant-sync-v2.js'), 'utf8');\nconst headerEvents = readFileSync(join(root, 'assets/js/features/events/02-static-header-events.js'), 'utf8');",
+                  1
+              )
+          anchor = "assert.match(feature, /requestAnimationFrame\\(syncParticipantNavigationState\\)/);"
+          addition = "\nassert.match(headerEvents, /view-mode-participants/);\nassert.match(headerEvents, /\\['tab-participants', view === 'participants'\\]/);"
+          if addition.strip() not in c:
+              if anchor not in c: raise SystemExit('contract anchor not found')
+              c = c.replace(anchor, anchor + addition, 1)
+          contract.write_text(c, encoding='utf-8')
+          PY
+      - name: Verify patch
+        run: |
+          git diff --check
+          node tests/form-applicant-sync-v2-contract.mjs
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/js/features/events/02-static-header-events.js tests/participants-tab-v83.spec.js tests/form-applicant-sync-v2-contract.mjs
+          git commit -m "参加者画面をCarbonナビゲーションownerへ統合"
+          git push origin HEAD:feat/participants-tab
