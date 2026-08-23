@@ -16,6 +16,7 @@
   const applicantSelectionDraft = new Map();
   const manualSelectionDraft = new Map();
   let baseSwitchView = null;
+  let basePrimaryNavigationSync = null;
   let participantNavObserver = null;
 
   const byIdSafe = id => document.getElementById(id);
@@ -84,18 +85,6 @@
     return Boolean(checkbox?.hasAttribute?.('checked'));
   }
 
-  function captureDraftSelection() {
-    const applicant = new Map();
-    document.querySelectorAll('#formApplicantList cds-checkbox[data-form-applicant-key]').forEach(checkbox => {
-      applicant.set(String(checkbox.dataset.formApplicantKey || ''), checkboxChecked(checkbox));
-    });
-    const manual = new Map();
-    document.querySelectorAll('#formApplicantList cds-checkbox[data-manual-participant-id]').forEach(checkbox => {
-      manual.set(String(checkbox.dataset.manualParticipantId || ''), checkboxChecked(checkbox));
-    });
-    return { applicant, manual };
-  }
-
   function participantCheckboxFromEvent(event) {
     const selector = 'cds-checkbox[data-form-applicant-key], cds-checkbox[data-manual-participant-id]';
     if (event.target?.matches?.(selector)) return event.target;
@@ -106,9 +95,9 @@
     const checkbox = participantCheckboxFromEvent(event);
     if (!checkbox) return;
 
-    // Carbon emits cds-checkbox-changed only after synchronizing its public checked
-    // property with the native shadow input. Own the organizer draft from that event
-    // instead of re-reading transient DOM state during a later render.
+    // Carbon emits cds-checkbox-changed after synchronizing its public checked state.
+    // Keep the organizer's uncommitted selection as feature state instead of re-reading
+    // a transient projection later during a render/save boundary.
     const checked = typeof event.detail?.checked === 'boolean'
       ? event.detail.checked
       : checkboxChecked(checkbox);
@@ -181,7 +170,6 @@
       window.openBatchModal?.();
     });
     const list = byIdSafe('formApplicantList');
-    // Use Carbon's documented post-change event as the single owner of checkbox draft state.
     list?.addEventListener('cds-checkbox-changed', markSelectionDirty);
     return area;
   }
@@ -282,7 +270,7 @@
     const url = new URL(window.location.href);
     url.searchParams.set('view', 'participants');
     window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`);
-    syncParticipantNavigationState();
+    window.syncCarbonPrimaryNavigationState?.();
     render(true);
   }
 
@@ -297,9 +285,30 @@
         return result;
       };
     }
+
+    // The existing Carbon navigation owner knows the original four destinations. Replace
+    // its observer with one participant-aware owner instead of letting two observers fight
+    // over the selected tab. Non-participant views still delegate to the original owner.
+    if (!basePrimaryNavigationSync && typeof window.syncCarbonPrimaryNavigationState === 'function') {
+      basePrimaryNavigationSync = window.syncCarbonPrimaryNavigationState;
+      window.__carbonPrimaryNavigationObserver?.disconnect?.();
+      window.syncCarbonPrimaryNavigationState = function participantAwarePrimaryNavigationSync() {
+        if (document.body.classList.contains('view-mode-participants')) {
+          syncParticipantNavigationState();
+          return;
+        }
+        basePrimaryNavigationSync();
+      };
+    }
+
     if (!participantNavObserver) {
-      participantNavObserver = new MutationObserver(() => syncParticipantNavigationState());
-      participantNavObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+      participantNavObserver = new MutationObserver(() => window.syncCarbonPrimaryNavigationState?.());
+      participantNavObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'data-active-plan-template']
+      });
+      const carTab = byIdSafe('tab-list');
+      if (carTab) participantNavObserver.observe(carTab, { attributes: true, attributeFilter: ['class'] });
     }
     window.SanpoApp?.registerActions?.({
       'open-participants': () => showParticipantsView()
@@ -390,7 +399,6 @@
     list.replaceChildren();
 
     entries.forEach(([responseKey, applicant]) => {
-      const participantId = participantIdForApplicant(room, applicant);
       const checked = applicantDraftChecked(room, responseKey, applicant);
       const row = document.createElement('div');
       row.className = 'form-applicant-sync__row';
@@ -422,7 +430,7 @@
       list.appendChild(empty);
     }
     updateApplyButton();
-    syncParticipantNavigationState();
+    window.syncCarbonPrimaryNavigationState?.();
   }
 
   function makeDriverGroupId(participantId) {
@@ -489,7 +497,7 @@
       renderActiveCarPlanToDom();
       updateUI();
       render(true);
-      syncParticipantNavigationState();
+      window.syncCarbonPrimaryNavigationState?.();
     });
   }
 
@@ -592,7 +600,7 @@
     } finally {
       updateApplyButton();
       render(true);
-      syncParticipantNavigationState();
+      window.syncCarbonPrimaryNavigationState?.();
     }
   }
 
