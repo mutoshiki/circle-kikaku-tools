@@ -10,6 +10,8 @@
   const POLL_MS = 1200;
   let lastRenderKey = '';
   let syncingAcceptedDrivers = false;
+  let liveApplicationSync = null;
+  let applicationUnsubscribe = null;
 
   const byIdSafe = id => document.getElementById(id);
 
@@ -17,10 +19,16 @@
     return window.SanpoCanonicalState?.get?.() || null;
   }
 
+  function validApplicationSync(sync) {
+    return !!sync
+      && sync.kind === APPLICATION_KIND
+      && Number(sync.version || 0) === APPLICATION_VERSION;
+  }
+
   function applicationSync(room = canonical()) {
+    if (validApplicationSync(liveApplicationSync)) return liveApplicationSync;
     const sync = room?.meta?.applicationSync;
-    if (!sync || sync.kind !== APPLICATION_KIND || Number(sync.version || 0) !== APPLICATION_VERSION) return null;
-    return sync;
+    return validApplicationSync(sync) ? sync : null;
   }
 
   function escapeHtml(value) {
@@ -57,6 +65,34 @@
   function participantIdForApplicant(room, applicant) {
     if (!room || !applicant?.name) return '';
     return window.SanpoCanonicalState?.findParticipantIdByName?.(room.participants || {}, applicant.name) || '';
+  }
+
+  async function waitForFirebaseReady(timeoutMs = 12000) {
+    const started = Date.now();
+    while (Date.now() - started < timeoutMs) {
+      if (firebaseReady && db && ref && onValue) return true;
+      await new Promise(resolve => setTimeout(resolve, 120));
+    }
+    return false;
+  }
+
+  async function subscribeApplicationSync() {
+    if (!await waitForFirebaseReady()) return;
+    if (typeof applicationUnsubscribe === 'function') return;
+
+    applicationUnsubscribe = onValue(
+      ref(db, `rooms/${roomId}/meta/applicationSync`),
+      snapshot => {
+        const next = snapshot.val();
+        liveApplicationSync = validApplicationSync(next) ? next : null;
+        render(true);
+        syncAcceptedDriverCapacities();
+      },
+      error => {
+        console.error('Applicant sync listener failed:', error);
+        setStatus('応募フォームとの接続が切れました。再接続を待っています。', 'warning');
+      }
+    );
   }
 
   function ensureUi() {
@@ -378,6 +414,7 @@
       return;
     }
     render(true);
+    void subscribeApplicationSync();
     window.setInterval(tick, POLL_MS);
   }
 
