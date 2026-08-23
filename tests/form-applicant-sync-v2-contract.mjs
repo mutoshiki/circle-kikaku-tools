@@ -8,8 +8,8 @@ const settlementEmpty = fs.readFileSync(new URL('../assets/js/templates/settleme
 const commonEmpty = fs.readFileSync(new URL('../assets/js/templates/common-empty-state.js', import.meta.url), 'utf8');
 const navigation = fs.readFileSync(new URL('../assets/js/features/events/02-static-header-events.js', import.meta.url), 'utf8');
 
-assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-tab-v85/);
-assert.match(loader, /07-form-applicant-sync\.css\?v=participants-tab-v85/);
+assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-tab-v86/);
+assert.match(loader, /07-form-applicant-sync\.css\?v=participants-tab-v86/);
 assert.doesNotMatch(loader, /form-link-sync\.js/);
 assert.doesNotMatch(loader, /06-form-auto-link\.css/);
 assert.doesNotMatch(loader, /carbon-checkbox-state-bridge/);
@@ -31,20 +31,23 @@ assert.match(feature, /open-participants/);
 assert.match(feature, /view-mode-participants/);
 assert.match(feature, /get\(['"]view['"]\) === ['"]participants['"]/);
 
-// Carbon checkbox and tabs use their live component properties instead of stale host attributes.
+// Carbon checkbox state is owned by the post-change event and one draft model.
 assert.match(feature, /shadowRoot\?\.querySelector\?\.\(['"]input\[type=/);
-assert.match(feature, /participantTab\.selected = true/);
-assert.match(feature, /bar\.value = ['"]participants['"]/);
 assert.match(feature, /requestAnimationFrame\(syncParticipantNavigationState\)/);
 assert.match(feature, /cds-checkbox-changed/);
 assert.match(feature, /event\.detail\?\.checked/);
 assert.match(feature, /applicantSelectionDraft/);
 assert.match(feature, /manualSelectionDraft/);
+
+// The existing primary-navigation owner is the single owner for all five destinations.
 assert.doesNotMatch(feature, /__carbonPrimaryNavigationObserver\?\.disconnect/);
 assert.doesNotMatch(feature, /participantAwarePrimaryNavigationSync/);
+assert.match(feature, /window\.syncCarbonPrimaryNavigationState\?\.\(\)/);
 assert.match(navigation, /view-mode-participants/);
 assert.match(navigation, /\['tab-participants', view === 'participants'\]/);
 assert.match(navigation, /document\.body\.classList\.contains\('view-mode-participants'\)[\s\S]*?\? 'participants'/);
+assert.match(navigation, /tab\.toggleAttribute\('selected', active\)/);
+assert.match(navigation, /tabBar\.value = selectedValue/);
 
 // Existing selections remain editable; removals use canonical deletion and Carbon confirmation.
 assert.match(feature, /data-manual-participant-id/);
