@@ -18,15 +18,16 @@
   width: 100%;
   max-width: 1056px;
   margin: 0 auto;
-  padding: 48px 32px 96px;
+  padding: 32px 32px 96px;
 }
 
 .participants-page__header {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 24px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  min-height: 40px;
+  margin-bottom: 8px;
 }
 
 /* The selected Participants tab already names this view. Keep the semantic heading
@@ -36,19 +37,52 @@
 }
 
 .participants-page__description {
-  max-width: 640px;
-  margin: 0;
-  color: var(--cds-text-secondary, #525252);
-  font-size: 14px;
-  line-height: 20px;
+  display: none;
 }
 
 .participants-page__summary {
-  min-height: 20px;
-  margin-bottom: 16px;
-  color: var(--cds-text-secondary, #525252);
-  font-size: 14px;
-  line-height: 20px;
+  min-height: 28px;
+  margin-bottom: 12px;
+  color: var(--cds-text-primary, #161616);
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 400;
+}
+
+.participants-page__summary.is-manual {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.participants-selection-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px;
+  width: 100%;
+  margin-bottom: 1px;
+  background: var(--cds-layer-01, #ffffff);
+}
+
+#participantsSearch {
+  min-width: 0;
+}
+
+#participantsFilterToggle {
+  width: 48px;
+  height: 48px;
+}
+
+.participants-filter-panel {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  padding: 16px;
+  border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  background: var(--cds-layer-01, #ffffff);
+}
+
+.participants-filter-panel[hidden] {
+  display: none;
 }
 
 .form-applicant-sync__list {
@@ -65,6 +99,21 @@
   min-height: 64px;
   padding: 12px 16px;
   border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  background: var(--cds-layer-01, #ffffff);
+}
+
+.form-applicant-sync__row[hidden] {
+  display: none;
+}
+
+.form-applicant-sync__row.is-selected {
+  background: var(--cds-layer-selected-01, #e8e8e8);
+}
+
+@media (hover: hover) {
+  .form-applicant-sync__row:not(.is-selected):hover {
+    background: var(--cds-layer-hover-01, #e8e8e8);
+  }
 }
 
 .form-applicant-sync__row cds-checkbox {
@@ -74,14 +123,6 @@
 .form-applicant-sync__person {
   min-width: 0;
   padding-left: 16px;
-}
-
-.form-applicant-sync__name {
-  color: var(--cds-text-primary, #161616);
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 600;
-  overflow-wrap: anywhere;
 }
 
 .form-applicant-sync__meta {
@@ -103,12 +144,21 @@
 
 .participants-page__actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 16px;
   margin-top: 24px;
 }
 
+.participants-action-count {
+  margin-right: auto;
+  color: var(--cds-text-secondary, #525252);
+  font-size: 14px;
+  line-height: 20px;
+}
+
 .participants-page__actions cds-button {
-  min-width: 160px;
+  min-width: 176px;
 }
 
 .participants-page__status {
@@ -123,15 +173,31 @@ body.view-mode-participants #participants-view-area {
   display: block;
 }
 
+/* Participant creation belongs to the dedicated Participants view. */
+#top-area .allocation-toolbar {
+  display: none;
+}
+
 @media (max-width: 671px) {
   .participants-page {
     max-width: none;
-    padding: 24px 16px 96px;
+    padding: 16px 16px 0;
   }
 
   .participants-page__header {
-    gap: 16px;
-    margin-bottom: 16px;
+    min-height: 32px;
+    margin-bottom: 4px;
+  }
+
+  .participants-page__summary {
+    margin-bottom: 8px;
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  .participants-filter-panel {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 12px;
   }
 
   .form-applicant-sync__row {
@@ -146,10 +212,30 @@ body.view-mode-participants #participants-view-area {
   }
 
   .participants-page__actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
     justify-content: stretch;
+    gap: 12px;
+    margin: 0 -16px;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+    background: var(--cds-background, #f4f4f4);
+  }
+
+  .participants-action-count {
+    flex: 0 0 auto;
+    margin-right: 0;
+    white-space: nowrap;
   }
 
   .participants-page__actions cds-button {
-    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+  }
+
+  .participants-page__status {
+    margin: 8px 0 96px;
   }
 }

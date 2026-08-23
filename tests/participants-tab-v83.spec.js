@@ -19,17 +19,24 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   await page.goto('/');
   await page.waitForFunction(() => document.querySelector('#tab-participants') && window.SanpoApplicantSync && window.SanpoCanonicalState?.get?.());
   await page.waitForFunction(() => (typeof firebaseEnabled === 'undefined') || firebaseEnabled === false);
+  await expect(page.locator('#batchOpenBtn')).toHaveCount(0);
 
   const tabs = page.locator('#view-toggle-bar > cds-tab');
   await expect(tabs).toHaveCount(5);
   await expect(tabs).toHaveText(['共有画面', '精算', '車割', '班割', '参加者']);
+
+  await page.locator('#tab-team').click();
+  await expect(page.locator('#batchOpenBtn')).toHaveCount(0);
+  await page.locator('#tab-list').click();
+  await expect(page.locator('#batchOpenBtn')).toHaveCount(0);
 
   const participantTab = page.locator('#tab-participants');
   await participantTab.click();
   await expect(page.locator('body')).toHaveClass(/view-mode-participants/);
   await expect(page.locator('#participants-view-area')).toBeVisible();
   await expect(page.locator('#participantsViewTitle')).toHaveText('参加者');
-  await expect(page.locator('#participantsViewDescription')).toHaveText('参加者を追加してください。');
+  await expect(page.locator('#participantsViewDescription')).toHaveCount(0);
+  await expect(page.locator('#participantsViewSummary')).toHaveText('0人');
   await expect(participantTab).toHaveAttribute('selected', '');
   await expect(page.locator('#tab-list')).not.toHaveAttribute('selected', '');
   await expect(page.locator('#tab-sheet')).not.toHaveAttribute('selected', '');
@@ -67,8 +74,7 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
     window.SanpoApplicantSync.render();
   });
 
-  await expect(page.locator('#participantsViewDescription')).toHaveText('応募者を確認して、当選者を選んでください。');
-  await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 2人　参加者 0人');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('0 / 2人を選択');
   await expect(page.locator('#participantManualAddBtn')).toBeHidden();
   const applicantChecks = page.locator('#formApplicantList cds-checkbox[data-form-applicant-key]');
   await expect(applicantChecks).toHaveCount(2);
@@ -78,7 +84,10 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   // Carbon renders a label over the native input. Click the same visible label a user taps.
   await tanakaHost.locator('label').click();
   await expect(tanakaCheckbox).toBeChecked();
+  await expect(page.locator('#participantsViewSummary')).toHaveText('1 / 2人を選択');
+  await expect(tanakaHost.locator('xpath=ancestor::div[contains(@class,"form-applicant-sync__row")]')).toHaveClass(/is-selected/);
   const apply = page.locator('#formApplicantApplyBtn');
+  await expect(apply).toHaveText('参加者を確定');
   await expect(apply).not.toHaveAttribute('disabled', '');
   await expect(participantTab).toHaveAttribute('selected', '');
   await expect(page.locator('#tab-list')).not.toHaveAttribute('selected', '');
@@ -91,10 +100,12 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
     const group = Object.values(room.allocations?.car?.groups || {}).find(item => item?.ownerId === participantId);
     return group?.capacity || 0;
   })).toBe(4);
-  await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 2人　参加者 1人');
+  await expect(apply).toHaveText('参加者を更新');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('1 / 2人を選択');
 
   await tanakaHost.locator('label').click();
   await expect(tanakaCheckbox).not.toBeChecked();
+  await expect(page.locator('#participantsViewSummary')).toHaveText('0 / 2人を選択');
   await expect(apply).not.toHaveAttribute('disabled', '');
   await apply.click();
   const confirm = page.locator('#appConfirmModal');
