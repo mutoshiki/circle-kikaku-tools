@@ -7,11 +7,15 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   await page.goto('/');
   await page.waitForFunction(() => document.querySelector('#tab-participants') && window.SanpoApplicantSync && window.SanpoCanonicalState?.get?.());
 
-  // This test injects managed-form data directly into the canonical room. Wait until the
-  // new room's initial Firebase snapshot has arrived first, otherwise that legitimate empty
-  // bootstrap snapshot can race the synthetic fixture and erase it before selection is applied.
-  await page.waitForFunction(() => (typeof firebaseEnabled === 'undefined') || !firebaseEnabled || firebaseReady === true);
-  await page.waitForTimeout(800);
+  // This test injects managed-form data directly into the canonical room. The app closes its
+  // loading skeleton only after load() receives the first RTDB room snapshot (or settles into
+  // local-only mode), which is the real bootstrap boundary. Waiting merely for firebaseReady
+  // is too early: authentication/database setup can finish before the first room onValue.
+  await page.waitForFunction(() => {
+    if ((typeof firebaseEnabled === 'undefined') || !firebaseEnabled) return true;
+    const skeleton = document.getElementById('appLoadingSkeleton');
+    return Boolean(skeleton?.hidden);
+  });
 
   const tabs = page.locator('#view-toggle-bar > cds-tab');
   await expect(tabs).toHaveCount(5);
