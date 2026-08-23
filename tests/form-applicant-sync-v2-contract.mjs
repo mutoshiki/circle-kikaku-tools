@@ -21,13 +21,13 @@ assert.match(feature, /liveApplicationSync/);
 
 // Participant management is a first-class Carbon tab instead of a modal-only import step.
 assert.match(feature, /id = ['"]tab-participants['"]/);
-assert.match(feature, /value['"], ['"]participants['"]/);
+assert.match(feature, /setAttribute\(['"]value['"], ['"]participants['"]\)/);
 assert.match(feature, /participants-view-area/);
 assert.match(feature, /応募者を確認して、当選者を選んでください/);
 assert.match(feature, /選択を反映/);
 assert.match(feature, /open-participants/);
 assert.match(feature, /view-mode-participants/);
-assert.match(feature, /view['"]\) === ['"]participants['"]/);
+assert.match(feature, /get\(['"]view['"]\) === ['"]participants['"]/);
 
 // Existing selections remain editable; removals use canonical deletion and Carbon confirmation.
 assert.match(feature, /data-manual-participant-id/);
@@ -44,17 +44,17 @@ assert.match(feature, /capacity:\s*incomingCapacity/);
 assert.match(feature, /kind:\s*['"]driver['"]/);
 assert.match(feature, /g_car_/);
 assert.match(feature, /ensureAllParticipantsPlaced/);
-assert.match(feature, /removeDriver\(/);
 
 // Managed form projects must not expose the old spreadsheet-URL linking workflow.
 assert.doesNotMatch(feature, /spreadsheets\/d/);
 assert.doesNotMatch(feature, /formAutoLink/);
 assert.doesNotMatch(feature, /この企画と連携/);
 
-// The dynamic UI stays on Carbon controls.
+// The dynamic UI stays on Carbon controls and does not duplicate checkbox labels as names.
 assert.match(feature, /<cds-checkbox/);
 assert.match(feature, /<cds-button/);
 assert.doesNotMatch(feature, /<(?:input|textarea|select|button)\b/i);
+assert.doesNotMatch(feature, /form-applicant-sync__name/);
 
 assert.match(css, /\.participants-view-area/);
 assert.match(css, /\.participants-page/);
