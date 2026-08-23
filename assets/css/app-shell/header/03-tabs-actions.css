@@ -67,9 +67,9 @@ cds-overflow-menu.header-action {
 
 .header-app-switcher { --cds-icon-primary: #f4f4f4; }
 
-/* Four related views are the official Carbon Tabs component. The surrounding
+/* Five related views use the official Carbon Tabs component. The surrounding
  * band stays in the g100 shell palette; Carbon owns selected, hover, focus,
- * keyboard navigation and overflow scrolling inside its shadow DOM. */
+ * keyboard navigation and horizontal overflow inside its shadow DOM. */
 #app-view-navigation {
   position: relative;
   z-index: var(--z-view-navigation);
@@ -104,9 +104,11 @@ cds-overflow-menu.header-action {
   display: block;
   width: 100%;
   min-width: 0;
+  height: var(--view-navigation-height);
   min-height: var(--view-navigation-height);
   margin: 0;
   padding: 0;
+  overflow: hidden;
   background: #000000;
   color: #f4f4f4;
 }
