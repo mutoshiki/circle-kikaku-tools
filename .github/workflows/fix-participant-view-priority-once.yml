@@ -1,0 +1,49 @@
+name: Fix participant view priority once
+
+on:
+  push:
+    branches:
+      - feat/participants-tab
+    paths:
+      - .github/workflows/fix-participant-view-priority-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/participants-tab
+      - name: Prioritize participant body state
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('assets/js/features/events/02-static-header-events.js')
+          s = p.read_text()
+          old = "            const view = typeof currentView !== 'undefined' ? currentView : readCurrentShellView();"
+          new = "            const view = document.body.classList.contains('view-mode-participants')\n                ? 'participants'\n                : (typeof currentView !== 'undefined' ? currentView : readCurrentShellView());"
+          if old not in s:
+              raise SystemExit('view owner line not found')
+          p.write_text(s.replace(old, new, 1))
+
+          p = Path('tests/form-applicant-sync-v2-contract.mjs')
+          s = p.read_text()
+          marker = "assert.match(navigation, /\\['tab-participants', view === 'participants'\\]/);\n"
+          addition = marker + "assert.match(navigation, /document\\.body\\.classList\\.contains\\('view-mode-participants'\\)[\\s\\S]*?\\? 'participants'/);\n"
+          if marker not in s:
+              raise SystemExit('contract navigation marker not found')
+          p.write_text(s.replace(marker, addition, 1))
+          PY
+      - name: Remove one-shot workflow
+        run: rm .github/workflows/fix-participant-view-priority-once.yml
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add assets/js/features/events/02-static-header-events.js tests/form-applicant-sync-v2-contract.mjs .github/workflows/fix-participant-view-priority-once.yml
+          git diff --cached --check
+          git commit -m "参加者画面をナビゲーション状態で最優先にする"
+          git push origin HEAD:feat/participants-tab
