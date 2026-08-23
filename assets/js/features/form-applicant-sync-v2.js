@@ -16,8 +16,6 @@
   const applicantSelectionDraft = new Map();
   const manualSelectionDraft = new Map();
   let baseSwitchView = null;
-  let basePrimaryNavigationSync = null;
-  let participantNavObserver = null;
 
   const byIdSafe = id => document.getElementById(id);
 
@@ -196,37 +194,7 @@
   }
 
   function syncParticipantNavigationState() {
-    const active = document.body.classList.contains('view-mode-participants');
-    const participantTab = byIdSafe('tab-participants');
-    if (!participantTab) return;
-
-    if (!active) {
-      participantTab.classList.remove('active');
-      participantTab.removeAttribute('selected');
-      participantTab.removeAttribute('aria-current');
-      if ('selected' in participantTab) participantTab.selected = false;
-      return;
-    }
-
-    ['tab-sheet', 'tab-seisan', 'tab-list', 'tab-team'].forEach(id => {
-      const tab = byIdSafe(id);
-      if (!tab) return;
-      tab.classList.remove('active');
-      tab.removeAttribute('selected');
-      tab.removeAttribute('aria-current');
-      if ('selected' in tab) tab.selected = false;
-    });
-
-    participantTab.classList.add('active');
-    participantTab.setAttribute('selected', '');
-    participantTab.setAttribute('aria-current', 'page');
-    if ('selected' in participantTab) participantTab.selected = true;
-
-    const bar = byIdSafe('view-toggle-bar');
-    if (bar) {
-      bar.setAttribute('value', 'participants');
-      if ('value' in bar) bar.value = 'participants';
-    }
+    window.syncCarbonPrimaryNavigationState?.();
   }
 
   function hideParticipantsView() {
@@ -284,31 +252,6 @@
         if (view === 'list') restoreAllocationVisibility();
         return result;
       };
-    }
-
-    // The existing Carbon navigation owner knows the original four destinations. Replace
-    // its observer with one participant-aware owner instead of letting two observers fight
-    // over the selected tab. Non-participant views still delegate to the original owner.
-    if (!basePrimaryNavigationSync && typeof window.syncCarbonPrimaryNavigationState === 'function') {
-      basePrimaryNavigationSync = window.syncCarbonPrimaryNavigationState;
-      window.__carbonPrimaryNavigationObserver?.disconnect?.();
-      window.syncCarbonPrimaryNavigationState = function participantAwarePrimaryNavigationSync() {
-        if (document.body.classList.contains('view-mode-participants')) {
-          syncParticipantNavigationState();
-          return;
-        }
-        basePrimaryNavigationSync();
-      };
-    }
-
-    if (!participantNavObserver) {
-      participantNavObserver = new MutationObserver(() => window.syncCarbonPrimaryNavigationState?.());
-      participantNavObserver.observe(document.body, {
-        attributes: true,
-        attributeFilter: ['class', 'data-active-plan-template']
-      });
-      const carTab = byIdSafe('tab-list');
-      if (carTab) participantNavObserver.observe(carTab, { attributes: true, attributeFilter: ['class'] });
     }
     window.SanpoApp?.registerActions?.({
       'open-participants': () => showParticipantsView()

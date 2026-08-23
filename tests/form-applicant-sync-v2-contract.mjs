@@ -6,6 +6,7 @@ const loader = fs.readFileSync(new URL('../firebase-config.js', import.meta.url)
 const css = fs.readFileSync(new URL('../assets/css/guides-modals/import-guide/07-form-applicant-sync.css', import.meta.url), 'utf8');
 const settlementEmpty = fs.readFileSync(new URL('../assets/js/templates/settlement/07-empty-state-templates.js', import.meta.url), 'utf8');
 const commonEmpty = fs.readFileSync(new URL('../assets/js/templates/common-empty-state.js', import.meta.url), 'utf8');
+const navigation = fs.readFileSync(new URL('../assets/js/features/events/02-static-header-events.js', import.meta.url), 'utf8');
 
 assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-tab-v85/);
 assert.match(loader, /07-form-applicant-sync\.css\?v=participants-tab-v85/);
@@ -39,6 +40,10 @@ assert.match(feature, /cds-checkbox-changed/);
 assert.match(feature, /event\.detail\?\.checked/);
 assert.match(feature, /applicantSelectionDraft/);
 assert.match(feature, /manualSelectionDraft/);
+assert.doesNotMatch(feature, /__carbonPrimaryNavigationObserver\?\.disconnect/);
+assert.doesNotMatch(feature, /participantAwarePrimaryNavigationSync/);
+assert.match(navigation, /view-mode-participants/);
+assert.match(navigation, /\['tab-participants', view === 'participants'\]/);
 
 // Existing selections remain editable; removals use canonical deletion and Carbon confirmation.
 assert.match(feature, /data-manual-participant-id/);
