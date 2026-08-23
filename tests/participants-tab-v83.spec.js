@@ -5,17 +5,23 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   const errors = [];
   page.on('pageerror', error => errors.push(String(error)));
   await page.goto('/');
-  await page.waitForFunction(() => document.querySelector('#tab-participants') && window.SanpoApplicantSync);
+  await page.waitForFunction(() => document.querySelector('#tab-participants') && window.SanpoApplicantSync && window.SanpoCanonicalState?.get?.());
 
   const tabs = page.locator('#view-toggle-bar > cds-tab');
   await expect(tabs).toHaveCount(5);
   await expect(tabs).toHaveText(['共有画面', '精算', '車割', '班割', '参加者']);
 
-  await page.locator('#tab-participants').click();
+  const participantTab = page.locator('#tab-participants');
+  await participantTab.click();
   await expect(page.locator('body')).toHaveClass(/view-mode-participants/);
   await expect(page.locator('#participants-view-area')).toBeVisible();
   await expect(page.locator('#participantsViewTitle')).toHaveText('参加者');
   await expect(page.locator('#participantsViewDescription')).toHaveText('参加者を追加してください。');
+  await expect(participantTab).toHaveAttribute('selected', '');
+  await expect(page.locator('#tab-list')).not.toHaveAttribute('selected', '');
+  await expect(page.locator('#tab-sheet')).not.toHaveAttribute('selected', '');
+  await expect(page.locator('#tab-seisan')).not.toHaveAttribute('selected', '');
+  await expect(page.locator('#tab-team')).not.toHaveAttribute('selected', '');
   await expect.poll(() => new URL(page.url()).searchParams.get('view')).toBe('participants');
 
   await page.evaluate(() => {
@@ -36,6 +42,7 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
 
   await expect(page.locator('#participantsViewDescription')).toHaveText('応募者を確認して、当選者を選んでください。');
   await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 2人　参加者 0人');
+  await expect(page.locator('#participantManualAddBtn')).toBeHidden();
   const applicantChecks = page.locator('#formApplicantList cds-checkbox[data-form-applicant-key]');
   await expect(applicantChecks).toHaveCount(2);
 
@@ -63,5 +70,7 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
 
   await page.locator('#tab-seisan').click();
   await expect(page.locator('body')).not.toHaveClass(/view-mode-participants/);
+  await expect(page.locator('#participants-view-area')).toBeHidden();
+  await expect(page.locator('#tab-seisan')).toHaveAttribute('selected', '');
   expect(errors).toEqual([]);
 });
