@@ -59,8 +59,10 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   const applicantChecks = page.locator('#formApplicantList cds-checkbox[data-form-applicant-key]');
   await expect(applicantChecks).toHaveCount(2);
 
+  const tanakaHost = applicantChecks.first();
   const tanakaCheckbox = page.getByRole('checkbox', { name: '田中太郎' });
-  await tanakaCheckbox.click();
+  // Carbon renders a label over the native input. Click the same visible label a user taps.
+  await tanakaHost.locator('label').click();
   await expect(tanakaCheckbox).toBeChecked();
   const apply = page.locator('#formApplicantApplyBtn');
   await expect(apply).not.toHaveAttribute('disabled', '');
@@ -77,7 +79,7 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   })).toBe(4);
   await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 2人　参加者 1人');
 
-  await tanakaCheckbox.click();
+  await tanakaHost.locator('label').click();
   await expect(tanakaCheckbox).not.toBeChecked();
   await expect(apply).not.toHaveAttribute('disabled', '');
   await apply.click();
