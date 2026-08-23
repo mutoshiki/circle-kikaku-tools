@@ -2,13 +2,15 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const feature = fs.readFileSync(new URL('../assets/js/features/form-applicant-sync-v2.js', import.meta.url), 'utf8');
+const checkboxBridge = fs.readFileSync(new URL('../assets/js/features/carbon-checkbox-state-bridge.js', import.meta.url), 'utf8');
 const loader = fs.readFileSync(new URL('../firebase-config.js', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../assets/css/guides-modals/import-guide/07-form-applicant-sync.css', import.meta.url), 'utf8');
 const settlementEmpty = fs.readFileSync(new URL('../assets/js/templates/settlement/07-empty-state-templates.js', import.meta.url), 'utf8');
 const commonEmpty = fs.readFileSync(new URL('../assets/js/templates/common-empty-state.js', import.meta.url), 'utf8');
 
-assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-tab-v83/);
-assert.match(loader, /07-form-applicant-sync\.css\?v=participants-tab-v83/);
+assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-tab-v84/);
+assert.match(loader, /carbon-checkbox-state-bridge\.js\?v=participants-tab-v84/);
+assert.match(loader, /07-form-applicant-sync\.css\?v=participants-tab-v84/);
 assert.doesNotMatch(loader, /form-link-sync\.js/);
 assert.doesNotMatch(loader, /06-form-auto-link\.css/);
 
@@ -35,6 +37,12 @@ assert.match(feature, /SanpoCanonicalState\?\.deleteParticipant/);
 assert.match(feature, /AppUI\?\.confirm/);
 assert.match(feature, /参加者から外しますか/);
 assert.match(feature, /車割・班割・精算の割り当ても削除されます/);
+
+// Carbon checkbox internal state is reflected to the host before participant selection is read.
+assert.match(checkboxBridge, /#formApplicantList cds-checkbox/);
+assert.match(checkboxBridge, /shadowRoot\?\.querySelector/);
+assert.match(checkboxBridge, /cds-checkbox-changed/);
+assert.match(checkboxBridge, /toggleAttribute\(['"]checked['"]/);
 
 // Form fields continue to feed the canonical participant and car capacity.
 assert.match(feature, /SanpoCanonicalState\.ensureParticipant/);
