@@ -91,10 +91,10 @@
     return { applicant, manual };
   }
 
-  function setCheckboxState(checkbox, checked) {
-    if (!checkbox) return;
-    checkbox.checked = Boolean(checked);
-    checkbox.toggleAttribute('checked', Boolean(checked));
+  function markSelectionDirty(event) {
+    if (!event.target?.matches?.('cds-checkbox[data-form-applicant-key], cds-checkbox[data-manual-participant-id]')) return;
+    selectionDirty = true;
+    updateApplyButton();
   }
 
   function ensureParticipantViewArea() {
@@ -135,11 +135,9 @@
       if (modal) modal.setAttribute('aria-label', '参加者を追加');
       window.openBatchModal?.();
     });
-    byIdSafe('formApplicantList')?.addEventListener('change', event => {
-      if (!event.target?.matches?.('cds-checkbox[data-form-applicant-key], cds-checkbox[data-manual-participant-id]')) return;
-      selectionDirty = true;
-      updateApplyButton();
-    });
+    const list = byIdSafe('formApplicantList');
+    list?.addEventListener('change', markSelectionDirty);
+    list?.addEventListener('cds-checkbox-changed', markSelectionDirty);
     return area;
   }
 
@@ -199,6 +197,14 @@
     syncParticipantNavigationState();
   }
 
+  function restoreAllocationVisibility() {
+    const room = canonical();
+    const hasParticipants = Object.keys(room?.participants || {}).length > 0;
+    const bottomTray = byIdSafe('bottom-tray');
+    if (bottomTray) bottomTray.hidden = !hasParticipants;
+    window.updateUI?.();
+  }
+
   async function showParticipantsView() {
     ensureParticipantViewArea();
     ensureParticipantTab();
@@ -230,8 +236,11 @@
     if (!baseSwitchView && typeof window.switchView === 'function') {
       baseSwitchView = window.switchView;
       window.switchView = async function participantAwareSwitchView(view) {
-        if (view !== 'participants') hideParticipantsView();
-        return baseSwitchView(view);
+        if (view === 'participants') return showParticipantsView();
+        hideParticipantsView();
+        const result = await baseSwitchView(view);
+        if (view === 'list') restoreAllocationVisibility();
+        return result;
       };
     }
     if (!participantNavObserver) {
@@ -314,6 +323,9 @@
       ? '応募者を確認して、当選者を選んでください。'
       : '参加者を追加してください。';
 
+    const manualAdd = byIdSafe('participantManualAddBtn');
+    if (manualAdd) manualAdd.hidden = Boolean(sync);
+
     const summary = byIdSafe('participantsViewSummary');
     const participantCount = Object.keys(room.participants || {}).length;
     if (summary) summary.textContent = sync
@@ -334,7 +346,6 @@
       row.innerHTML = `
         <cds-checkbox data-form-applicant-key="${escapeHtml(responseKey)}" label-text="${escapeHtml(applicant.name)}" ${checked ? 'checked' : ''}></cds-checkbox>
         <div class="form-applicant-sync__person">
-          <div class="form-applicant-sync__name">${escapeHtml(applicant.name)}</div>
           <div class="form-applicant-sync__meta">${escapeHtml(applicantMeta(applicant))}</div>
         </div>`;
       list.appendChild(row);
@@ -350,7 +361,6 @@
       row.innerHTML = `
         <cds-checkbox data-manual-participant-id="${escapeHtml(participantId)}" label-text="${escapeHtml(participant.name)}" ${checked ? 'checked' : ''}></cds-checkbox>
         <div class="form-applicant-sync__person">
-          <div class="form-applicant-sync__name">${escapeHtml(participant.name)}</div>
           ${meta ? `<div class="form-applicant-sync__meta">${escapeHtml(meta)}</div>` : ''}
         </div>`;
       list.appendChild(row);
@@ -367,23 +377,6 @@
 
   function makeDriverGroupId(participantId) {
     return `g_car_${String(participantId || '').replace(/[^A-Za-z0-9_-]/g, '_')}`;
-  }
-
-  function removeDriver(room, participantId, now) {
-    const allocation = room.allocations?.car;
-    if (!allocation || !participantId) return false;
-    let changed = false;
-    Object.entries(allocation.groups || {}).forEach(([groupId, group]) => {
-      if (group?.ownerId !== participantId) return;
-      delete allocation.groups[groupId];
-      Object.entries(allocation.placements || {}).forEach(([id, placement]) => {
-        if (placement?.groupId !== groupId) return;
-        allocation.placements[id] = { kind: 'waiting', groupId: '', order: Number.MAX_SAFE_INTEGER, updatedAt: now };
-      });
-      changed = true;
-    });
-    if (changed) allocation.updatedAt = now;
-    return changed;
   }
 
   function ensureDriver(room, participantId, applicant, now) {
@@ -573,11 +566,7 @@
         participant.updatedAt = now;
         changed = true;
       }
-      if (applicant.canDrive) {
-        if (ensureDriver(room, participantId, applicant, now)) changed = true;
-      } else if (removeDriver(room, participantId, now)) {
-        changed = true;
-      }
+      if (applicant.canDrive && ensureDriver(room, participantId, applicant, now)) changed = true;
     });
 
     if (!changed) return;
