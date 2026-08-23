@@ -1,64 +1,80 @@
-.form-applicant-sync {
-  display: grid;
-  gap: 16px;
-  margin-bottom: 8px;
+.participants-view-area {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  background: var(--cds-background, #f4f4f4);
 }
 
-.form-applicant-sync[hidden] {
+.participants-view-area[hidden] {
   display: none !important;
 }
 
-.form-applicant-sync__heading-row {
+.participants-page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1056px;
+  margin: 0 auto;
+  padding: 48px 32px 96px;
+}
+
+.participants-page__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 24px;
+  margin-bottom: 32px;
 }
 
-.form-applicant-sync__heading {
-  margin: 0 0 4px;
+.participants-page__title {
+  margin: 0 0 8px;
   color: var(--cds-text-primary, #161616);
-  font-size: 20px;
-  line-height: 28px;
+  font-size: 28px;
+  line-height: 36px;
   font-weight: 400;
+  letter-spacing: 0;
 }
 
-.form-applicant-sync__description {
+.participants-page__description {
+  max-width: 640px;
   margin: 0;
   color: var(--cds-text-secondary, #525252);
   font-size: 14px;
   line-height: 20px;
 }
 
-.form-applicant-sync__count {
-  flex: 0 0 auto;
+.participants-page__summary {
+  min-height: 20px;
+  margin-bottom: 16px;
   color: var(--cds-text-secondary, #525252);
   font-size: 14px;
   line-height: 20px;
-  white-space: nowrap;
 }
 
 .form-applicant-sync__list {
   display: grid;
+  width: 100%;
   border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  background: var(--cds-layer-01, #ffffff);
 }
 
 .form-applicant-sync__row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(176px, .8fr) minmax(0, 1.2fr);
   align-items: center;
-  gap: 12px;
   min-height: 64px;
-  padding: 12px 0;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
 }
 
-.form-applicant-sync__row.is-accepted {
-  opacity: .72;
+.form-applicant-sync__row cds-checkbox {
+  min-width: 0;
 }
 
 .form-applicant-sync__person {
   min-width: 0;
+  padding-left: 16px;
 }
 
 .form-applicant-sync__name {
@@ -69,79 +85,77 @@
   overflow-wrap: anywhere;
 }
 
-.form-applicant-sync__meta,
-.form-applicant-sync__state {
+.form-applicant-sync__meta {
+  margin-top: 2px;
   color: var(--cds-text-secondary, #525252);
   font-size: 12px;
   line-height: 16px;
   letter-spacing: .32px;
-}
-
-.form-applicant-sync__state {
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .form-applicant-sync__empty {
-  padding: 16px 0 24px;
+  padding: 24px 16px 32px;
   border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
   color: var(--cds-text-secondary, #525252);
   font-size: 14px;
   line-height: 20px;
 }
 
-.form-applicant-sync__actions {
+.participants-page__actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 24px;
 }
 
-.form-applicant-sync__status {
-  margin: 0;
+.participants-page__actions cds-button {
+  min-width: 160px;
+}
+
+.participants-page__status {
+  min-height: 20px;
+  margin: 12px 0 0;
   color: var(--cds-text-secondary, #525252);
   font-size: 14px;
   line-height: 20px;
 }
 
-.form-applicant-sync__status[data-tone="success"] {
-  color: var(--cds-support-success, #198038);
-}
-
-.form-applicant-sync__status[data-tone="error"] {
-  color: var(--cds-support-error, #da1e28);
-}
-
-.form-applicant-sync__status[data-tone="warning"] {
-  color: var(--cds-text-primary, #161616);
-}
-
-/* A managed form already supplies structured applicants, so the old spreadsheet-to-text
-   conversion UI is not part of the normal flow for that project. */
-#batchImportModal[data-form-applicant-mode="true"] .batch-import-helper-card > .batch-import-helper-title,
-#batchImportModal[data-form-applicant-mode="true"] .batch-import-helper-card > .batch-import-help-text,
-#batchImportModal[data-form-applicant-mode="true"] .batch-import-helper-card > #googleFormPasteArea,
-#batchImportModal[data-form-applicant-mode="true"] .batch-import-helper-card > #applyGoogleFormPasteBtn,
-#batchImportModal[data-form-applicant-mode="true"] .batch-import-helper-card > #googleFormImportPreview,
-#batchImportModal[data-form-applicant-mode="true"] .batch-import-helper-card > .batch-import-help-details,
-#batchImportModal[data-form-applicant-mode="true"] .batch-import-column--half,
-#batchImportModal[data-form-applicant-mode="true"] #batchDuplicateWarning {
-  display: none !important;
+body.view-mode-participants #participants-view-area {
+  display: block;
 }
 
 @media (max-width: 671px) {
-  .form-applicant-sync__heading-row {
-    display: grid;
-    gap: 4px;
+  .participants-page {
+    max-width: none;
+    padding: 24px 16px 96px;
+  }
+
+  .participants-page__header {
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .participants-page__title {
+    font-size: 24px;
+    line-height: 32px;
   }
 
   .form-applicant-sync__row {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    min-height: 72px;
+    padding: 12px 16px;
   }
 
-  .form-applicant-sync__state {
-    grid-column: 2;
+  .form-applicant-sync__person {
+    padding-left: 32px;
   }
 
-  .form-applicant-sync__actions cds-button {
+  .participants-page__actions {
+    justify-content: stretch;
+  }
+
+  .participants-page__actions cds-button {
     width: 100%;
   }
 }
