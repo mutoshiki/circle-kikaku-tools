@@ -1,0 +1,56 @@
+.form-auto-link {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+}
+
+.form-auto-link__heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--cds-text-primary, #161616);
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.form-auto-link__description {
+  margin: 0;
+  color: var(--cds-text-secondary, #525252);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.form-auto-link__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.form-auto-link__status {
+  margin: 0;
+  color: var(--cds-text-secondary, #525252);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.form-auto-link__status[data-tone="success"] {
+  color: var(--cds-support-success, #198038);
+}
+
+.form-auto-link__status[data-tone="error"] {
+  color: var(--cds-support-error, #da1e28);
+}
+
+.form-auto-link__status[data-tone="warning"] {
+  color: var(--cds-text-primary, #161616);
+}
+
+@media (max-width: 671px) {
+  .form-auto-link__actions cds-button {
+    width: 100%;
+  }
+}
