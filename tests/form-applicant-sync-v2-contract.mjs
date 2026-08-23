@@ -49,6 +49,9 @@ assert.match(navigation, /document\.body\.classList\.contains\('view-mode-partic
 assert.match(navigation, /tab\.toggleAttribute\('selected', active\)/);
 assert.match(navigation, /tabBar\.value = selectedValue/);
 
+// Returning from Participants to allocation must re-project canonical state, not stale hidden DOM.
+assert.match(feature, /restoreAllocationVisibility[\s\S]*?renderActiveCarPlanToDom/);
+
 // Existing selections remain editable; removals use canonical deletion and Carbon confirmation.
 assert.match(feature, /data-manual-participant-id/);
 assert.match(feature, /SanpoCanonicalState\?\.deleteParticipant/);
