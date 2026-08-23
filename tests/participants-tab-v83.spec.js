@@ -59,10 +59,13 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   const applicantChecks = page.locator('#formApplicantList cds-checkbox[data-form-applicant-key]');
   await expect(applicantChecks).toHaveCount(2);
 
-  await applicantChecks.first().click();
+  const tanakaCheckbox = page.getByRole('checkbox', { name: '田中太郎' });
+  await tanakaCheckbox.click();
+  await expect(tanakaCheckbox).toBeChecked();
   const apply = page.locator('#formApplicantApplyBtn');
-  await expect(apply).toBeEnabled();
-  await expect.poll(() => applicantChecks.first().evaluate(checkbox => checkbox.checked)).toBe(true);
+  await expect(apply).not.toHaveAttribute('disabled', '');
+  await expect(participantTab).toHaveAttribute('selected', '');
+  await expect(page.locator('#tab-list')).not.toHaveAttribute('selected', '');
   await apply.click();
 
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(1);
@@ -74,7 +77,9 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   })).toBe(4);
   await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 2人　参加者 1人');
 
-  await applicantChecks.first().click();
+  await tanakaCheckbox.click();
+  await expect(tanakaCheckbox).not.toBeChecked();
+  await expect(apply).not.toHaveAttribute('disabled', '');
   await apply.click();
   const confirm = page.locator('#appConfirmModal');
   await expect(confirm).toHaveAttribute('open', '');
