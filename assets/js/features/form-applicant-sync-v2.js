@@ -108,7 +108,7 @@
         <div class="form-applicant-sync__heading-row">
           <div>
             <div class="form-applicant-sync__heading">応募者</div>
-            <p class="form-applicant-sync__description">応募フォームの回答は自動でここに届きます。当選者だけを選ぶと、車割・班割・精算で共通して使う参加者になります。</p>
+            <p class="form-applicant-sync__description">応募者を確認して、当選者を選んでください。</p>
           </div>
           <span id="formApplicantCount" class="form-applicant-sync__count"></span>
         </div>

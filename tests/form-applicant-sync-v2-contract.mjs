@@ -16,7 +16,7 @@ assert.match(feature, /room\?\.meta\?\.applicationSync/);
 assert.match(feature, /rooms\/\$\{roomId\}\/meta\/applicationSync/);
 assert.match(feature, /onValue\(/);
 assert.match(feature, /liveApplicationSync/);
-assert.match(feature, /応募フォームの回答は自動でここに届きます/);
+assert.match(feature, /応募者を確認して、当選者を選んでください/);
 assert.match(feature, /選択した人を参加者にする/);
 assert.match(feature, /SanpoCanonicalState\.ensureParticipant/);
 assert.match(feature, /findParticipantIdByName/);
