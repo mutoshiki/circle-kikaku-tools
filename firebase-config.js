@@ -13,20 +13,20 @@ window.SANPO_FIREBASE_CONFIG = {
   appId: "1:79505558920:web:3f9a9a333fc77de7a7fe3d"
 };
 
-// Managed forms now sync directly into the project room as applicants. The old
-// spreadsheet-URL linking feature is intentionally not loaded for v2 projects.
+// Managed forms sync directly into the project room as applicants. Participant selection
+// is owned by the dedicated Participants tab; no spreadsheet-URL linking UI is loaded.
 (function loadApplicantSyncFeature() {
   function load() {
     if (!document.querySelector('link[data-sanpo-applicant-sync]')) {
       const stylesheet = document.createElement('link');
       stylesheet.rel = 'stylesheet';
-      stylesheet.href = './assets/css/guides-modals/import-guide/07-form-applicant-sync.css?v=form-applicant-sync-v2';
+      stylesheet.href = './assets/css/guides-modals/import-guide/07-form-applicant-sync.css?v=participants-tab-v83';
       stylesheet.dataset.sanpoApplicantSync = 'true';
       document.head.appendChild(stylesheet);
     }
     if (!document.querySelector('script[data-sanpo-applicant-sync]')) {
       const script = document.createElement('script');
-      script.src = './assets/js/features/form-applicant-sync-v2.js?v=form-applicant-sync-v2';
+      script.src = './assets/js/features/form-applicant-sync-v2.js?v=participants-tab-v83';
       script.dataset.sanpoApplicantSync = 'true';
       document.head.appendChild(script);
     }
