@@ -13,21 +13,21 @@ window.SANPO_FIREBASE_CONFIG = {
   appId: "1:79505558920:web:3f9a9a333fc77de7a7fe3d"
 };
 
-// Keep the large app shell stable: the optional form-link feature owns its own
-// stylesheet/script and is attached after the existing application scripts have loaded.
-(function loadFormLinkSyncFeature() {
+// Managed forms now sync directly into the project room as applicants. The old
+// spreadsheet-URL linking feature is intentionally not loaded for v2 projects.
+(function loadApplicantSyncFeature() {
   function load() {
-    if (!document.querySelector('link[data-sanpo-form-link-sync]')) {
+    if (!document.querySelector('link[data-sanpo-applicant-sync]')) {
       const stylesheet = document.createElement('link');
       stylesheet.rel = 'stylesheet';
-      stylesheet.href = './assets/css/guides-modals/import-guide/06-form-auto-link.css?v=automatic-form-sync-v1';
-      stylesheet.dataset.sanpoFormLinkSync = 'true';
+      stylesheet.href = './assets/css/guides-modals/import-guide/07-form-applicant-sync.css?v=form-applicant-sync-v2';
+      stylesheet.dataset.sanpoApplicantSync = 'true';
       document.head.appendChild(stylesheet);
     }
-    if (!document.querySelector('script[data-sanpo-form-link-sync]')) {
+    if (!document.querySelector('script[data-sanpo-applicant-sync]')) {
       const script = document.createElement('script');
-      script.src = './assets/js/features/form-link-sync.js?v=automatic-form-sync-v1';
-      script.dataset.sanpoFormLinkSync = 'true';
+      script.src = './assets/js/features/form-applicant-sync-v2.js?v=form-applicant-sync-v2';
+      script.dataset.sanpoApplicantSync = 'true';
       document.head.appendChild(script);
     }
   }
