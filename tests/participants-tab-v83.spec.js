@@ -4,14 +4,21 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   await page.setViewportSize({ width: 390, height: 844 });
   const errors = [];
   page.on('pageerror', error => errors.push(String(error)));
+
+  // Keep firebase-config.js and its participant feature loader in the browser path, but make
+  // this deterministic UI test local-only. Otherwise a real RTDB room snapshot can overwrite
+  // the synthetic applicants while Carbon interaction assertions are running.
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'SANPO_FIREBASE_CONFIG', {
+      configurable: true,
+      get: () => ({}),
+      set: () => {}
+    });
+  });
+
   await page.goto('/');
   await page.waitForFunction(() => document.querySelector('#tab-participants') && window.SanpoApplicantSync && window.SanpoCanonicalState?.get?.());
-
-  await page.waitForFunction(() => {
-    if ((typeof firebaseEnabled === 'undefined') || !firebaseEnabled) return true;
-    const skeleton = document.getElementById('appLoadingSkeleton');
-    return Boolean(skeleton?.hidden);
-  });
+  await page.waitForFunction(() => (typeof firebaseEnabled === 'undefined') || firebaseEnabled === false);
 
   const tabs = page.locator('#view-toggle-bar > cds-tab');
   await expect(tabs).toHaveCount(5);
@@ -55,9 +62,9 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   await applicantChecks.first().click();
   const apply = page.locator('#formApplicantApplyBtn');
   await expect(apply).toBeEnabled();
-
   await expect.poll(() => applicantChecks.first().evaluate(checkbox => checkbox.checked)).toBe(true);
   await apply.click();
+
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(1);
   await expect.poll(() => page.evaluate(() => {
     const room = window.SanpoCanonicalState.get();
