@@ -37,6 +37,20 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   await expect(page.locator('#tab-team')).not.toHaveAttribute('selected', '');
   await expect.poll(() => new URL(page.url()).searchParams.get('view')).toBe('participants');
 
+  const shellOrder = await page.evaluate(() => {
+    const nav = document.getElementById('app-view-navigation').getBoundingClientRect();
+    const participants = document.getElementById('participants-view-area').getBoundingClientRect();
+    return {
+      navTop: nav.top,
+      navBottom: nav.bottom,
+      participantTop: participants.top,
+      participantOrder: getComputedStyle(document.getElementById('participants-view-area')).order
+    };
+  });
+  expect(shellOrder.participantOrder).toBe('3');
+  expect(shellOrder.participantTop).toBeGreaterThanOrEqual(shellOrder.navBottom - 1);
+  expect(shellOrder.navTop).toBeLessThan(shellOrder.participantTop);
+
   await page.evaluate(() => {
     const room = window.SanpoCanonicalState.get();
     room.meta = room.meta || {};
