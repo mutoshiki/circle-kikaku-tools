@@ -76,7 +76,10 @@
   }
 
   function checkboxChecked(checkbox) {
-    return Boolean(checkbox?.checked || checkbox?.hasAttribute?.('checked'));
+    const native = checkbox?.shadowRoot?.querySelector?.('input[type="checkbox"]');
+    if (native && typeof native.checked === 'boolean') return native.checked;
+    if (typeof checkbox?.checked === 'boolean') return checkbox.checked;
+    return Boolean(checkbox?.hasAttribute?.('checked'));
   }
 
   function captureDraftSelection() {
@@ -91,10 +94,18 @@
     return { applicant, manual };
   }
 
+  function participantCheckboxFromEvent(event) {
+    const selector = 'cds-checkbox[data-form-applicant-key], cds-checkbox[data-manual-participant-id]';
+    if (event.target?.matches?.(selector)) return event.target;
+    return event.composedPath?.().find(node => node?.matches?.(selector)) || null;
+  }
+
   function markSelectionDirty(event) {
-    if (!event.target?.matches?.('cds-checkbox[data-form-applicant-key], cds-checkbox[data-manual-participant-id]')) return;
+    if (!participantCheckboxFromEvent(event)) return;
     selectionDirty = true;
     updateApplyButton();
+    queueMicrotask(syncParticipantNavigationState);
+    requestAnimationFrame(syncParticipantNavigationState);
   }
 
   function ensureParticipantViewArea() {
@@ -167,23 +178,32 @@
     const participantTab = byIdSafe('tab-participants');
     if (!participantTab) return;
 
-    participantTab.classList.toggle('active', active);
-    participantTab.toggleAttribute('selected', active);
-    if (active) participantTab.setAttribute('aria-current', 'page');
-    else participantTab.removeAttribute('aria-current');
+    if (!active) {
+      participantTab.classList.remove('active');
+      participantTab.removeAttribute('selected');
+      participantTab.removeAttribute('aria-current');
+      if ('selected' in participantTab) participantTab.selected = false;
+      return;
+    }
 
-    if (!active) return;
     ['tab-sheet', 'tab-seisan', 'tab-list', 'tab-team'].forEach(id => {
       const tab = byIdSafe(id);
       if (!tab) return;
       tab.classList.remove('active');
       tab.removeAttribute('selected');
       tab.removeAttribute('aria-current');
+      if ('selected' in tab) tab.selected = false;
     });
+
+    participantTab.classList.add('active');
+    participantTab.setAttribute('selected', '');
+    participantTab.setAttribute('aria-current', 'page');
+    if ('selected' in participantTab) participantTab.selected = true;
+
     const bar = byIdSafe('view-toggle-bar');
     if (bar) {
       bar.setAttribute('value', 'participants');
-      if (customElements.get('cds-tabs')) bar.value = 'participants';
+      if ('value' in bar) bar.value = 'participants';
     }
   }
 
@@ -373,6 +393,7 @@
       list.appendChild(empty);
     }
     updateApplyButton();
+    syncParticipantNavigationState();
   }
 
   function makeDriverGroupId(participantId) {
@@ -439,6 +460,7 @@
       renderActiveCarPlanToDom();
       updateUI();
       render(true);
+      syncParticipantNavigationState();
     });
   }
 
@@ -544,6 +566,7 @@
     } finally {
       updateApplyButton();
       render(true);
+      syncParticipantNavigationState();
     }
   }
 
