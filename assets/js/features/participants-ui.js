@@ -22,19 +22,6 @@
     return Boolean(checkbox?.hasAttribute?.('checked'));
   }
 
-  function setCheckboxChecked(checkbox, checked) {
-    if (!checkbox) return;
-    checkbox.checked = checked;
-    checkbox.toggleAttribute('checked', checked);
-    const native = checkbox.shadowRoot?.querySelector?.('input[type="checkbox"]');
-    if (native) native.checked = checked;
-    checkbox.dispatchEvent(new CustomEvent('cds-checkbox-changed', {
-      bubbles: true,
-      composed: true,
-      detail: { checked }
-    }));
-  }
-
   function removeAllocationRegistrationAction() {
     const button = byId('batchOpenBtn');
     if (!button) return;
@@ -85,8 +72,8 @@
       toggle.setAttribute('aria-expanded', String(open));
     });
 
-    const search = byId('participantsSearch');
     const filter = () => applyFilters();
+    const search = byId('participantsSearch');
     search?.addEventListener('cds-search-input', filter);
     search?.addEventListener('input', filter);
     ['participantsSelectionFilter', 'participantsGradeFilter', 'participantsDriverFilter'].forEach(id => {
@@ -95,8 +82,7 @@
   }
 
   function currentSearchValue() {
-    const search = byId('participantsSearch');
-    return String(search?.value || '').trim().toLocaleLowerCase('ja');
+    return String(byId('participantsSearch')?.value || '').trim().toLocaleLowerCase('ja');
   }
 
   function rowData(row) {
@@ -147,7 +133,8 @@
     const { selected, total } = selectionState();
     const participantCount = Object.keys(room.participants || {}).length;
     summary.classList.toggle('is-manual', !sync);
-    summary.textContent = sync ? `${selected} / ${total}人を選択` : `${selected}人`;
+    const summaryText = sync ? `${selected} / ${total}人を選択` : `${selected}人`;
+    if (summary.textContent !== summaryText) summary.textContent = summaryText;
 
     const button = byId('formApplicantApplyBtn');
     if (button) {
@@ -158,7 +145,10 @@
     }
 
     const actionCount = byId('participantsActionCount');
-    if (actionCount) actionCount.textContent = sync ? `${selected}人を選択中` : `${selected}人`;
+    if (actionCount) {
+      const countText = sync ? `${selected}人を選択中` : `${selected}人`;
+      if (actionCount.textContent !== countText) actionCount.textContent = countText;
+    }
 
     const list = byId('formApplicantList');
     if (list) list.setAttribute('aria-label', sync ? '当選者を選択' : '参加者を選択');
