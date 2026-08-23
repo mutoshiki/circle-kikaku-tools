@@ -1,4 +1,6 @@
 .participants-view-area {
+  order: 3;
+  flex: 1 1 auto;
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
