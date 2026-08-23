@@ -14,7 +14,51 @@
 .seisan-empty strong { color: var(--text-main); font-size: 1.125rem; font-weight: 600; line-height: 1.35; }
 .seisan-empty span { max-width: 34em; font-size: var(--font-size-body); line-height: 1.55; }
 .seisan-empty cds-button { margin-top: var(--space-2); }
+
+.seisan-entry-choice {
+  display: grid;
+  gap: 24px;
+}
+
+.seisan-entry-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.seisan-entry-title {
+  margin: 0;
+  color: var(--cds-text-primary, #161616);
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 400;
+}
+
+.seisan-entry-note {
+  margin: 0;
+  color: var(--cds-text-secondary, #525252);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.seisan-entry-choice .app-entry-choice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .seisan-refresh-btn span { display: none; }
 .seisan-refresh-btn { padding-inline: 0; }
 .seisan-title--settings { margin-bottom: 0; }
 .route-add-stop-btn { margin-top: 8px; }
+
+@media (max-width: 671px) {
+  .seisan-entry-choice .app-entry-choice-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .seisan-entry-choice .app-entry-choice-actions cds-button {
+    width: 100%;
+  }
+}

@@ -182,6 +182,7 @@
     }
 
     function readCurrentShellView() {
+        if (document.body.classList.contains('view-mode-participants')) return 'participants';
         if (document.body.classList.contains('view-mode-sheet')) return 'sheet';
         if (document.body.classList.contains('view-mode-seisan')) return 'seisan';
         return 'list';
@@ -192,13 +193,16 @@
         if (syncingCarbonPrimaryNavigation) return;
         syncingCarbonPrimaryNavigation = true;
         try {
-            const view = typeof currentView !== 'undefined' ? currentView : readCurrentShellView();
+            const view = document.body.classList.contains('view-mode-participants')
+                ? 'participants'
+                : (typeof currentView !== 'undefined' ? currentView : readCurrentShellView());
             const allocationType = document.body.dataset.activePlanTemplate === 'team' ? 'team' : 'car';
             const states = [
                 ['tab-sheet', view === 'sheet'],
                 ['tab-seisan', view === 'seisan'],
                 ['tab-list', view === 'list' && allocationType === 'car'],
-                ['tab-team', view === 'list' && allocationType === 'team']
+                ['tab-team', view === 'list' && allocationType === 'team'],
+                ['tab-participants', view === 'participants']
             ];
             let selectedValue = 'car';
             states.forEach(([id, active]) => {
