@@ -1,0 +1,86 @@
+name: Patch participant nav owner final
+
+on:
+  push:
+    branches:
+      - feat/participants-tab
+    paths:
+      - .github/workflows/patch-participant-nav-owner-final.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/participants-tab
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Make the existing Carbon navigation owner five-view aware
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          nav_path = Path('assets/js/features/events/02-static-header-events.js')
+          nav = nav_path.read_text()
+          old = """    function readCurrentShellView() {\n        if (document.body.classList.contains('view-mode-sheet')) return 'sheet';\n        if (document.body.classList.contains('view-mode-seisan')) return 'seisan';\n        return 'list';\n    }"""
+          new = """    function readCurrentShellView() {\n        if (document.body.classList.contains('view-mode-participants')) return 'participants';\n        if (document.body.classList.contains('view-mode-sheet')) return 'sheet';\n        if (document.body.classList.contains('view-mode-seisan')) return 'seisan';\n        return 'list';\n    }"""
+          if old not in nav:
+              raise SystemExit('readCurrentShellView block not found')
+          nav = nav.replace(old, new, 1)
+
+          old = """            const states = [\n                ['tab-sheet', view === 'sheet'],\n                ['tab-seisan', view === 'seisan'],\n                ['tab-list', view === 'list' && allocationType === 'car'],\n                ['tab-team', view === 'list' && allocationType === 'team']\n            ];"""
+          new = """            const states = [\n                ['tab-sheet', view === 'sheet'],\n                ['tab-seisan', view === 'seisan'],\n                ['tab-list', view === 'list' && allocationType === 'car'],\n                ['tab-team', view === 'list' && allocationType === 'team'],\n                ['tab-participants', view === 'participants']\n            ];"""
+          if old not in nav:
+              raise SystemExit('navigation states block not found')
+          nav = nav.replace(old, new, 1)
+          nav_path.write_text(nav)
+
+          feature_path = Path('assets/js/features/form-applicant-sync-v2.js')
+          feature = feature_path.read_text()
+          feature = feature.replace('  let basePrimaryNavigationSync = null;\n', '')
+          feature = feature.replace('  let participantNavObserver = null;\n', '')
+
+          pattern = re.compile(r"  function syncParticipantNavigationState\(\) \{.*?\n  \}\n\n  function hideParticipantsView\(\) \{", re.S)
+          replacement = """  function syncParticipantNavigationState() {\n    window.syncCarbonPrimaryNavigationState?.();\n  }\n\n  function hideParticipantsView() {"""
+          feature, count = pattern.subn(replacement, feature, count=1)
+          if count != 1:
+              raise SystemExit(f'syncParticipantNavigationState replacement count={count}')
+
+          pattern = re.compile(r"  function installViewBridge\(\) \{.*?\n  \}\n\n  async function waitForFirebaseReady", re.S)
+          replacement = """  function installViewBridge() {\n    if (!baseSwitchView && typeof window.switchView === 'function') {\n      baseSwitchView = window.switchView;\n      window.switchView = async function participantAwareSwitchView(view) {\n        if (view === 'participants') return showParticipantsView();\n        hideParticipantsView();\n        const result = await baseSwitchView(view);\n        if (view === 'list') restoreAllocationVisibility();\n        return result;\n      };\n    }\n    window.SanpoApp?.registerActions?.({\n      'open-participants': () => showParticipantsView()\n    });\n  }\n\n  async function waitForFirebaseReady"""
+          feature, count = pattern.subn(replacement, feature, count=1)
+          if count != 1:
+              raise SystemExit(f'installViewBridge replacement count={count}')
+          feature_path.write_text(feature)
+
+          contract_path = Path('tests/form-applicant-sync-v2-contract.mjs')
+          contract = contract_path.read_text()
+          if "const navigation = fs.readFileSync" not in contract:
+              contract = contract.replace(
+                  "const commonEmpty = fs.readFileSync(new URL('../assets/js/templates/common-empty-state.js', import.meta.url), 'utf8');\n",
+                  "const commonEmpty = fs.readFileSync(new URL('../assets/js/templates/common-empty-state.js', import.meta.url), 'utf8');\nconst navigation = fs.readFileSync(new URL('../assets/js/features/events/02-static-header-events.js', import.meta.url), 'utf8');\n"
+              )
+          marker = "assert.match(feature, /manualSelectionDraft/);\n"
+          addition = """assert.match(feature, /manualSelectionDraft/);\nassert.doesNotMatch(feature, /__carbonPrimaryNavigationObserver\\?\\.disconnect/);\nassert.doesNotMatch(feature, /participantAwarePrimaryNavigationSync/);\nassert.match(navigation, /view-mode-participants/);\nassert.match(navigation, /\\['tab-participants', view === 'participants'\\]/);\n"""
+          if marker not in contract:
+              raise SystemExit('contract marker not found')
+          contract = contract.replace(marker, addition, 1)
+          contract_path.write_text(contract)
+          PY
+      - name: Remove this one-shot workflow
+        run: rm .github/workflows/patch-participant-nav-owner-final.yml
+      - name: Commit patch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add assets/js/features/events/02-static-header-events.js assets/js/features/form-applicant-sync-v2.js tests/form-applicant-sync-v2-contract.mjs .github/workflows/patch-participant-nav-owner-final.yml
+          git diff --cached --check
+          git commit -m "参加者タブを既存ナビゲーションownerへ統合"
+          git push origin HEAD:feat/participants-tab
