@@ -26,16 +26,13 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
+/* The selected Participants tab already names this view. Keep the semantic heading
+   available to the section label without repeating it visually in the page content. */
 .participants-page__title {
-  margin: 0 0 8px;
-  color: var(--cds-text-primary, #161616);
-  font-size: 28px;
-  line-height: 36px;
-  font-weight: 400;
-  letter-spacing: 0;
+  display: none;
 }
 
 .participants-page__description {
@@ -134,12 +131,7 @@ body.view-mode-participants #participants-view-area {
 
   .participants-page__header {
     gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .participants-page__title {
-    font-size: 24px;
-    line-height: 32px;
+    margin-bottom: 16px;
   }
 
   .form-applicant-sync__row {
