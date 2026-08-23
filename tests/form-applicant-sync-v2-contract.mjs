@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
+const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const feature = fs.readFileSync(new URL('../assets/js/features/form-applicant-sync-v2.js', import.meta.url), 'utf8');
 const participantUi = fs.readFileSync(new URL('../assets/js/features/participants-ui.js', import.meta.url), 'utf8');
 const loader = fs.readFileSync(new URL('../firebase-config.js', import.meta.url), 'utf8');
@@ -9,6 +10,7 @@ const settlementEmpty = fs.readFileSync(new URL('../assets/js/templates/settleme
 const commonEmpty = fs.readFileSync(new URL('../assets/js/templates/common-empty-state.js', import.meta.url), 'utf8');
 const navigation = fs.readFileSync(new URL('../assets/js/features/events/02-static-header-events.js', import.meta.url), 'utf8');
 
+assert.match(html, /\.\/firebase-config\.js\?v=participants-carbon-v90/);
 assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-carbon-v89/);
 assert.match(loader, /participants-ui\.js\?v=participants-carbon-v89/);
 assert.match(loader, /07-form-applicant-sync\.css\?v=participants-carbon-v89/);
