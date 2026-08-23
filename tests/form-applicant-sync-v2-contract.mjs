@@ -23,17 +23,13 @@ assert.match(feature, /rooms\/\$\{roomId\}\/meta\/applicationSync/);
 assert.match(feature, /onValue\(/);
 assert.match(feature, /liveApplicationSync/);
 
-// Participant management is a first-class Carbon tab instead of a modal-only import step.
 assert.match(feature, /id = ['"]tab-participants['"]/);
 assert.match(feature, /setAttribute\(['"]value['"], ['"]participants['"]\)/);
 assert.match(feature, /participants-view-area/);
-assert.match(feature, /応募者を確認して、当選者を選んでください/);
-assert.match(feature, /選択を反映/);
 assert.match(feature, /open-participants/);
 assert.match(feature, /view-mode-participants/);
 assert.match(feature, /get\(['"]view['"]\) === ['"]participants['"]/);
 
-// Carbon checkbox state is owned by the post-change event and one draft model.
 assert.match(feature, /shadowRoot\?\.querySelector\?\.\(['"]input\[type=/);
 assert.match(feature, /requestAnimationFrame\(syncParticipantNavigationState\)/);
 assert.match(feature, /cds-checkbox-changed/);
@@ -41,7 +37,6 @@ assert.match(feature, /event\.detail\?\.checked/);
 assert.match(feature, /applicantSelectionDraft/);
 assert.match(feature, /manualSelectionDraft/);
 
-// The existing primary-navigation owner is the single owner for all five destinations.
 assert.doesNotMatch(feature, /__carbonPrimaryNavigationObserver\?\.disconnect/);
 assert.doesNotMatch(feature, /participantAwarePrimaryNavigationSync/);
 assert.match(feature, /window\.syncCarbonPrimaryNavigationState\?\.\(\)/);
@@ -51,40 +46,42 @@ assert.match(navigation, /document\.body\.classList\.contains\('view-mode-partic
 assert.match(navigation, /tab\.toggleAttribute\('selected', active\)/);
 assert.match(navigation, /tabBar\.value = selectedValue/);
 
-// Participants must occupy the same flex slot as the other primary views, below the tab bar.
 assert.match(css, /\.participants-view-area\s*\{[\s\S]*?order:\s*3;/);
 assert.match(css, /\.participants-view-area\s*\{[\s\S]*?flex:\s*1 1 auto;/);
-
-// The selected tab already names the view; the semantic page heading must not repeat visually.
 assert.match(css, /\.participants-page__title\s*\{[\s\S]*?display:\s*none;/);
 
-// The presentation owner makes applicant -> winner state explicit without changing selection semantics.
-assert.match(participantUi, /participants-summary__label[^`]*応募者/);
-assert.match(participantUi, /participants-summary__label[^`]*当選者/);
+// Carbon selectable-data-table interaction model: current selection, active search,
+// compact filters, selected-row state, and one persistent commit action.
+assert.match(participantUi, /cds-table-toolbar-search/);
+assert.match(participantUi, /応募者を検索/);
+assert.match(participantUi, /participantsSelectionFilter/);
+assert.match(participantUi, /選択済み/);
+assert.match(participantUi, /未選択/);
+assert.match(participantUi, /participantsGradeFilter/);
+assert.match(participantUi, /participantsDriverFilter/);
+assert.match(participantUi, /車出し可/);
+assert.match(participantUi, /\$\{selected\} \/ \$\{total\}人を選択/);
 assert.match(participantUi, /参加者を確定/);
 assert.match(participantUi, /参加者を更新/);
 assert.match(participantUi, /aria-label['"], sync \? ['"]当選者を選択/);
-assert.match(css, /\.participants-page__summary\s*\{[\s\S]*?grid-template-columns:/);
+assert.match(css, /\.participants-selection-toolbar/);
 assert.match(css, /\.form-applicant-sync__row\.is-selected/);
 assert.match(css, /var\(--cds-layer-selected-01/);
 assert.match(css, /position:\s*sticky;/);
 
-// Participant registration belongs only to the dedicated Participants view, not car/team allocation.
+// Participant registration is not exposed from car/team allocation.
 assert.match(participantUi, /batchOpenBtn/);
 assert.match(participantUi, /removeAllocationRegistrationAction/);
 assert.match(participantUi, /button\.remove\(\)/);
+assert.match(css, /#top-area \.allocation-toolbar\s*\{[\s\S]*?display:\s*none;/);
 
-// Returning from Participants to allocation must re-project canonical state, not stale hidden DOM.
 assert.match(feature, /restoreAllocationVisibility[\s\S]*?renderActiveCarPlanToDom/);
-
-// Existing selections remain editable; removals use canonical deletion and Carbon confirmation.
 assert.match(feature, /data-manual-participant-id/);
 assert.match(feature, /SanpoCanonicalState\?\.deleteParticipant/);
 assert.match(feature, /AppUI\?\.confirm/);
 assert.match(feature, /参加者から外しますか/);
 assert.match(feature, /車割・班割・精算の割り当ても削除されます/);
 
-// Form fields continue to feed the canonical participant and car capacity.
 assert.match(feature, /SanpoCanonicalState\.ensureParticipant/);
 assert.match(feature, /findParticipantIdByName/);
 assert.match(feature, /applicant\.capacity/);
@@ -93,12 +90,10 @@ assert.match(feature, /kind:\s*['"]driver['"]/);
 assert.match(feature, /g_car_/);
 assert.match(feature, /ensureAllParticipantsPlaced/);
 
-// Managed form projects must not expose the old spreadsheet-URL linking workflow.
 assert.doesNotMatch(feature, /spreadsheets\/d/);
 assert.doesNotMatch(feature, /formAutoLink/);
 assert.doesNotMatch(feature, /この企画と連携/);
 
-// The dynamic UI stays on Carbon controls and does not duplicate checkbox labels as names.
 assert.match(feature, /<cds-checkbox/);
 assert.match(feature, /<cds-button/);
 assert.doesNotMatch(feature, /<(?:input|textarea|select|button)\b/i);
@@ -110,7 +105,6 @@ assert.match(css, /\.form-applicant-sync__row/);
 assert.match(css, /var\(--cds-/);
 assert.doesNotMatch(css, /data-form-applicant-mode/);
 
-// Empty states lead to the Participants tab and keep the alternative count-only settlement path.
 assert.match(settlementEmpty, /data-action="open-participants"/);
 assert.match(settlementEmpty, /応募者を確認/);
 assert.match(settlementEmpty, /参加者を追加/);
