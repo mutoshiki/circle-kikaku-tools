@@ -1,10 +1,10 @@
-// Participants presentation owner.
-// Keeps applicant selection semantics intact while presenting the dedicated view with Carbon patterns.
+// Participants selection presentation owner.
 (() => {
   'use strict';
 
   const byId = id => document.getElementById(id);
   let participantAreaObserver = null;
+  let uiUpdating = false;
 
   function canonical() {
     return window.SanpoCanonicalState?.get?.() || null;
@@ -22,6 +22,19 @@
     return Boolean(checkbox?.hasAttribute?.('checked'));
   }
 
+  function setCheckboxChecked(checkbox, checked) {
+    if (!checkbox) return;
+    checkbox.checked = checked;
+    checkbox.toggleAttribute('checked', checked);
+    const native = checkbox.shadowRoot?.querySelector?.('input[type="checkbox"]');
+    if (native) native.checked = checked;
+    checkbox.dispatchEvent(new CustomEvent('cds-checkbox-changed', {
+      bubbles: true,
+      composed: true,
+      detail: { checked }
+    }));
+  }
+
   function removeAllocationRegistrationAction() {
     const button = byId('batchOpenBtn');
     if (!button) return;
@@ -30,10 +43,99 @@
     if (toolbar && !toolbar.querySelector('button, cds-button, cds-icon-button, cds-overflow-menu')) toolbar.remove();
   }
 
-  function selectedCount(room, sync) {
-    const checkboxes = Array.from(byId('formApplicantList')?.querySelectorAll?.('cds-checkbox') || []);
-    if (checkboxes.length) return checkboxes.filter(checkboxChecked).length;
-    return Object.keys(room?.participants || {}).length;
+  function ensureSelectionToolbar() {
+    const list = byId('formApplicantList');
+    if (!list || byId('participantsSelectionToolbar')) return;
+
+    const toolbar = document.createElement('div');
+    toolbar.id = 'participantsSelectionToolbar';
+    toolbar.className = 'participants-selection-toolbar';
+    toolbar.innerHTML = `
+      <cds-table-toolbar-search id="participantsSearch" placeholder="応募者を検索" label-text="応募者を検索"></cds-table-toolbar-search>
+      <cds-icon-button id="participantsFilterToggle" kind="ghost" size="lg" align="bottom-right" aria-label="絞り込み" aria-expanded="false">
+        <span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span>
+      </cds-icon-button>
+      <div id="participantsFilterPanel" class="participants-filter-panel" hidden>
+        <cds-select id="participantsSelectionFilter" label-text="選択状態" size="md">
+          <cds-select-item value="all" selected>すべて</cds-select-item>
+          <cds-select-item value="selected">選択済み</cds-select-item>
+          <cds-select-item value="unselected">未選択</cds-select-item>
+        </cds-select>
+        <cds-select id="participantsGradeFilter" label-text="学年" size="md">
+          <cds-select-item value="all" selected>すべて</cds-select-item>
+          <cds-select-item value="1">1年</cds-select-item>
+          <cds-select-item value="2">2年</cds-select-item>
+          <cds-select-item value="3">3年</cds-select-item>
+          <cds-select-item value="4">4年</cds-select-item>
+        </cds-select>
+        <cds-select id="participantsDriverFilter" label-text="車出し" size="md">
+          <cds-select-item value="all" selected>すべて</cds-select-item>
+          <cds-select-item value="driver">車出し可</cds-select-item>
+          <cds-select-item value="no-driver">車出しなし</cds-select-item>
+        </cds-select>
+      </div>`;
+    list.before(toolbar);
+
+    const toggle = byId('participantsFilterToggle');
+    toggle?.addEventListener('click', () => {
+      const panel = byId('participantsFilterPanel');
+      if (!panel) return;
+      const open = panel.hidden;
+      panel.hidden = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+
+    const search = byId('participantsSearch');
+    const filter = () => applyFilters();
+    search?.addEventListener('cds-search-input', filter);
+    search?.addEventListener('input', filter);
+    ['participantsSelectionFilter', 'participantsGradeFilter', 'participantsDriverFilter'].forEach(id => {
+      byId(id)?.addEventListener('change', filter);
+    });
+  }
+
+  function currentSearchValue() {
+    const search = byId('participantsSearch');
+    return String(search?.value || '').trim().toLocaleLowerCase('ja');
+  }
+
+  function rowData(row) {
+    const checkbox = row.querySelector('cds-checkbox');
+    const label = String(checkbox?.getAttribute('label-text') || '').trim();
+    const meta = String(row.querySelector('.form-applicant-sync__meta')?.textContent || '').trim();
+    const grade = (/([1-4])年/.exec(meta) || [])[1] || '';
+    const canDrive = meta.includes('車出し可');
+    return { checkbox, label, meta, grade, canDrive, selected: checkboxChecked(checkbox) };
+  }
+
+  function filterValue(id) {
+    return String(byId(id)?.value || 'all');
+  }
+
+  function applyFilters() {
+    const query = currentSearchValue();
+    const selectionFilter = filterValue('participantsSelectionFilter');
+    const gradeFilter = filterValue('participantsGradeFilter');
+    const driverFilter = filterValue('participantsDriverFilter');
+
+    byId('formApplicantList')?.querySelectorAll?.('.form-applicant-sync__row').forEach(row => {
+      const data = rowData(row);
+      const matchesSearch = !query || `${data.label} ${data.meta}`.toLocaleLowerCase('ja').includes(query);
+      const matchesSelection = selectionFilter === 'all'
+        || (selectionFilter === 'selected' && data.selected)
+        || (selectionFilter === 'unselected' && !data.selected);
+      const matchesGrade = gradeFilter === 'all' || data.grade === gradeFilter;
+      const matchesDriver = driverFilter === 'all'
+        || (driverFilter === 'driver' && data.canDrive)
+        || (driverFilter === 'no-driver' && !data.canDrive);
+      row.hidden = !(matchesSearch && matchesSelection && matchesGrade && matchesDriver);
+    });
+  }
+
+  function selectionState() {
+    const rows = Array.from(byId('formApplicantList')?.querySelectorAll?.('.form-applicant-sync__row') || []);
+    const selected = rows.filter(row => checkboxChecked(row.querySelector('cds-checkbox'))).length;
+    return { selected, total: rows.length };
   }
 
   function updateSummary() {
@@ -42,18 +144,10 @@
     if (!room || !summary) return;
 
     const sync = applicationSync(room);
+    const { selected, total } = selectionState();
     const participantCount = Object.keys(room.participants || {}).length;
-    const selected = selectedCount(room, sync);
-    const applicantCount = sync ? Object.values(sync.applicants || {}).filter(applicant => applicant?.name).length : 0;
-    const key = sync ? `sync:${applicantCount}:${selected}` : `manual:${selected}`;
-
-    if (summary.dataset.summaryKey !== key) {
-      summary.dataset.summaryKey = key;
-      summary.classList.toggle('is-manual', !sync);
-      summary.innerHTML = sync
-        ? `<div class="participants-summary__item"><span class="participants-summary__label">応募者</span><span class="participants-summary__value">${applicantCount}人</span></div><div class="participants-summary__item"><span class="participants-summary__label">当選者</span><span class="participants-summary__value">${selected}人</span></div>`
-        : `<div class="participants-summary__item"><span class="participants-summary__label">参加者</span><span class="participants-summary__value">${selected}人</span></div>`;
-    }
+    summary.classList.toggle('is-manual', !sync);
+    summary.textContent = sync ? `${selected} / ${total}人を選択` : `${selected}人`;
 
     const button = byId('formApplicantApplyBtn');
     if (button) {
@@ -63,8 +157,20 @@
       if (button.textContent !== label) button.textContent = label;
     }
 
+    const actionCount = byId('participantsActionCount');
+    if (actionCount) actionCount.textContent = sync ? `${selected}人を選択中` : `${selected}人`;
+
     const list = byId('formApplicantList');
     if (list) list.setAttribute('aria-label', sync ? '当選者を選択' : '参加者を選択');
+  }
+
+  function ensureStickyActionCount() {
+    const actions = document.querySelector('.participants-page__actions');
+    if (!actions || byId('participantsActionCount')) return;
+    const count = document.createElement('span');
+    count.id = 'participantsActionCount';
+    count.className = 'participants-action-count';
+    actions.prepend(count);
   }
 
   function updateRows() {
@@ -75,28 +181,33 @@
   }
 
   function refreshParticipantUi() {
-    removeAllocationRegistrationAction();
+    if (uiUpdating) return true;
+    uiUpdating = true;
+    try {
+      removeAllocationRegistrationAction();
+      const area = byId('participants-view-area');
+      if (!area) return false;
 
-    const area = byId('participants-view-area');
-    if (!area) return false;
-
-    byId('participantsViewDescription')?.remove();
-    updateSummary();
-    updateRows();
-    return true;
+      byId('participantsViewDescription')?.remove();
+      ensureSelectionToolbar();
+      ensureStickyActionCount();
+      updateRows();
+      updateSummary();
+      applyFilters();
+      return true;
+    } finally {
+      uiUpdating = false;
+    }
   }
 
   function installParticipantObserver() {
     const area = byId('participants-view-area');
     if (!area || participantAreaObserver) return;
 
-    participantAreaObserver = new MutationObserver(() => {
-      queueMicrotask(refreshParticipantUi);
-    });
+    participantAreaObserver = new MutationObserver(() => queueMicrotask(refreshParticipantUi));
     participantAreaObserver.observe(area, { childList: true, subtree: true });
 
-    const list = byId('formApplicantList');
-    list?.addEventListener('cds-checkbox-changed', () => {
+    byId('formApplicantList')?.addEventListener('cds-checkbox-changed', () => {
       requestAnimationFrame(refreshParticipantUi);
     });
   }
