@@ -69,7 +69,7 @@
 
   function projectName(sync = applicationSync(), room = canonical()) {
     const raw = String(sync?.title || room?.roomName || '').trim() || '企画';
-    return raw.endsWith('企画') ? raw : `${raw}企画`;
+    return raw.includes('企画') ? raw : `${raw}企画`;
   }
 
   function sourceEventDate(sync = applicationSync(), room = canonical()) {
@@ -282,7 +282,7 @@
         <div class="participant-announcement-layout">
           <section id="announcementEditStep" class="participant-announcement-fields" aria-label="発表文の入力">
             <cds-text-input id="announcementEventDate" type="date" size="lg" label="実施日（任意）"></cds-text-input>
-            <cds-text-input id="announcementMeetingTime" type="time" size="lg" required label="集合時間"></cds-text-input>
+            <cds-text-input id="announcementMeetingTime" type="time" size="lg" required label="集合時間（必須）"></cds-text-input>
 
             <section class="participant-announcement-itinerary" aria-labelledby="announcementItineraryHeading">
               <div class="participant-announcement-itinerary__heading">
