@@ -32,21 +32,18 @@ assert.match(feature, /room\?\.meta\?\.applicationSync/);
 assert.match(feature, /rooms\/\$\{roomId\}\/meta\/applicationSync/);
 assert.match(feature, /onValue\(/);
 assert.match(feature, /liveApplicationSync/);
-
 assert.match(feature, /id = ['"]tab-participants['"]/);
 assert.match(feature, /setAttribute\(['"]value['"], ['"]participants['"]\)/);
 assert.match(feature, /participants-view-area/);
 assert.match(feature, /open-participants/);
 assert.match(feature, /view-mode-participants/);
 assert.match(feature, /get\(['"]view['"]\) === ['"]participants['"]/);
-
 assert.match(feature, /shadowRoot\?\.querySelector\?\.\(['"]input\[type=/);
 assert.match(feature, /requestAnimationFrame\(syncParticipantNavigationState\)/);
 assert.match(feature, /cds-checkbox-changed/);
 assert.match(feature, /event\.detail\?\.checked/);
 assert.match(feature, /applicantSelectionDraft/);
 assert.match(feature, /manualSelectionDraft/);
-
 assert.doesNotMatch(feature, /__carbonPrimaryNavigationObserver\?\.disconnect/);
 assert.doesNotMatch(feature, /participantAwarePrimaryNavigationSync/);
 assert.match(feature, /window\.syncCarbonPrimaryNavigationState\?\.\(\)/);
@@ -59,6 +56,8 @@ assert.match(navigation, /tabBar\.value = selectedValue/);
 assert.match(css, /\.participants-view-area\s*\{[\s\S]*?order:\s*3;/);
 assert.match(css, /\.participants-view-area\s*\{[\s\S]*?flex:\s*1 1 auto;/);
 assert.match(css, /\.participants-page__title\s*\{[\s\S]*?display:\s*none;/);
+assert.doesNotMatch(css, /body\.view-mode-participants \.project-title-region/);
+assert.doesNotMatch(css, /body\.view-mode-participants \.project-title-editor/);
 
 assert.match(participantUi, /cds-table-toolbar-search/);
 assert.match(participantUi, /名前を検索/);
@@ -70,6 +69,9 @@ assert.match(participantUi, /participantsDriverFilter/);
 assert.match(participantUi, /車出し可/);
 assert.match(participantUi, /participantsActiveFilters/);
 assert.match(participantUi, /activeFilterLabels/);
+assert.match(participantUi, /participantsToolbarSelectionCount/);
+assert.match(participantUi, /SanpoApplicationSyncBridge\?\.get/);
+assert.match(participantUi, /sanpo:application-sync-changed/);
 assert.match(participantUi, /応募者 \$\{applicantCount\}人/);
 assert.match(participantUi, /応募者 \$\{applicantCount\}人　参加者 \$\{participantCount\}人/);
 assert.match(participantUi, /参加者 \$\{participantCount\}人/);
@@ -83,6 +85,8 @@ assert.match(participantUi, /確定済み/);
 assert.match(participantUi, /is-confirmed-collapsed/);
 assert.match(participantUi, /row\.setAttribute\('role', 'listitem'\)/);
 assert.match(participantUi, /list\.setAttribute\('role', 'list'\)/);
+assert.match(participantUi, /document\.createElement\('cds-tag'\)/);
+assert.match(participantUi, /removal\.textContent = '除外予定'/);
 assert.doesNotMatch(participantUi, /\$\{selected\} \/ \$\{total\}人を選択/);
 assert.doesNotMatch(participantUi, /参加者を更新/);
 assert.match(participantUi, /participantsPostConfirmSection/);
@@ -99,17 +103,17 @@ assert.match(participantUi, /handoffExportReason/);
 assert.match(css, /\.participants-selection-toolbar/);
 assert.match(css, /grid-template-columns:\s*minmax\(0, 1fr\) 48px/);
 assert.doesNotMatch(css, /grid-template-columns:\s*minmax\(0, 1fr\) auto 48px/);
+assert.match(css, /\.participants-toolbar-selection-count/);
 assert.match(css, /\.participants-active-filters/);
 assert.match(css, /\.form-applicant-sync__row\.is-selected/);
 assert.match(css, /var\(--cds-layer-selected-01, var\(--cds-background-selected/);
 assert.match(css, /var\(--cds-layer-hover-01, var\(--cds-background-hover/);
-assert.match(css, /position:\s*sticky;/);
-assert.match(css, /\.participants-saved-state/);
+assert.match(css, /position:\s*fixed;/);
+assert.doesNotMatch(css, /\.participants-saved-state/);
 assert.match(css, /\.participants-confirmed-controls/);
 assert.match(css, /\.participants-page\.is-confirmed-collapsed \.participants-selection-toolbar/);
 assert.match(css, /\.participants-post-confirm/);
 assert.match(css, /\.participants-post-confirm__actions/);
-assert.match(css, /body\.view-mode-participants \.project-title-region\s*\{[\s\S]*?height:\s*96px;/);
 assert.match(css, /\.form-applicant-sync__row\s*\{[\s\S]*?min-height:\s*48px;/);
 assert.match(css, /\.participants-page__status\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?width:\s*1px;[\s\S]*?height:\s*1px;/);
 
@@ -154,29 +158,21 @@ assert.match(announcement, /participantAnnouncementOpenBtn/);
 assert.match(announcement, /らくらく連絡網に投稿する参加者発表文を作成します/);
 assert.doesNotMatch(announcement, /ラクラク連絡網/);
 assert.match(announcement, /参加者の変更を保存してから作成できます/);
-
-// Event date is optional and can be inherited from the linked form or edited here.
 assert.match(announcement, /id=\"announcementEventDate\" type=\"date\"[\s\S]*?label=\"実施日（任意）\"/);
 assert.match(announcement, /function sourceEventDate\(/);
 assert.match(announcement, /function selectedEventDate\(/);
 assert.match(announcement, /setComponentValue\(byId\('announcementEventDate'\), sourceEventDate\(\)\)/);
 assert.doesNotMatch(announcement, /announcementEventDate[^\n]*required/);
-
-// Meeting time stays empty until the organizer selects it and remains the only required field.
 assert.match(announcement, /id=\"announcementMeetingTime\" type=\"time\"[\s\S]*?required label=\"集合時間（必須）\"/);
 assert.match(announcement, /setComponentValue\(byId\('announcementMeetingTime'\), ''\)/);
 assert.match(announcement, /removeAttribute\('value'\)/);
 assert.match(announcement, /validateMeetingTime/);
 assert.doesNotMatch(announcement, /announcementMeetingPlace/);
 assert.doesNotMatch(announcement, /new Date\(\)[\s\S]*announcementMeetingTime/);
-
-// Application-result wording is generated, not exposed as a manual textarea.
 assert.match(announcement, /function defaultApplicationMessage\(/);
 assert.match(announcement, /今回は応募してくださった方全員が参加できることになりました/);
 assert.match(announcement, /たくさんのご応募ありがとうございました！/);
 assert.doesNotMatch(announcement, /id=\"announcementApplicationMessage\"/);
-
-// Basic editing is intentionally small; secondary copy is collapsed under an advanced disclosure.
 assert.match(announcement, /id=\"announcementSupplement\"[\s\S]*?label=\"補足事項（任意）\"/);
 assert.match(announcement, /温泉に寄るので着替え・タオルを持ってきてください/);
 assert.doesNotMatch(announcement, /詳細は添付のPDFをご確認ください/);
@@ -185,8 +181,6 @@ assert.match(announcement, /id=\"announcementAdvancedFields\"[\s\S]*?hidden/);
 assert.match(announcement, /id=\"announcementOpening\"[\s\S]*?placeholder=\"例：お疲れ様です！〇〇です。\"/);
 assert.match(announcement, /id=\"announcementContact\" type=\"email\"[\s\S]*?placeholder=\"例：sampokai25@gmail\.com\"/);
 assert.match(announcement, /id=\"announcementClosing\"[\s\S]*?placeholder=\"例：それでは当日よろしくお願いします！\"/);
-
-// Rough schedule rows start empty and are added only when needed.
 assert.match(announcement, /大まかな予定（任意）/);
 assert.match(announcement, /id=\"announcementItineraryList\"/);
 assert.match(announcement, /id=\"announcementAddItineraryBtn\"[\s\S]*?予定を追加/);
@@ -201,8 +195,6 @@ assert.match(announcement, /function addItineraryRow\(/);
 assert.doesNotMatch(announcement, /addItineraryRow\(\{ focus: false \}\)/);
 assert.match(announcement, /～大まかな予定～/);
 assert.doesNotMatch(announcement, /～ざっくり予定～/);
-
-// Generated copy has no dangling date separator and uses the fixed meeting place.
 assert.match(announcement, /function announcementSubject\(/);
 assert.match(announcement, /return `\$\{eventDateLabel\(sync, room\)\}\$\{projectName\(sync, room\)\}`/);
 assert.doesNotMatch(announcement, /\$\{eventDateLabel\(sync, room\)\}の\$\{projectName\(sync, room\)\}/);
@@ -215,8 +207,6 @@ assert.doesNotMatch(announcement, /※敬称略/);
 assert.doesNotMatch(announcement, /皆様、お疲れ様です！/);
 assert.doesNotMatch(announcement, /以前募集した/);
 assert.match(announcement, /【参加者発表】\$\{eventDateLabel\(sync\)\}\$\{projectName\(sync\)\}/);
-
-// Editing and preview are separate steps. Preview output is normal document content, not a nested textarea scroller.
 assert.match(announcement, /id=\"announcementEditStep\"/);
 assert.match(announcement, /id=\"announcementPreviewStep\"[\s\S]*?hidden/);
 assert.match(announcement, /id=\"announcementPreviewBtn\"[\s\S]*?発表文を確認/);
@@ -245,14 +235,12 @@ assert.match(participantUi, /batchOpenBtn/);
 assert.match(participantUi, /removeAllocationRegistrationAction/);
 assert.match(participantUi, /button\.remove\(\)/);
 assert.match(css, /#top-area \.allocation-toolbar\s*\{[\s\S]*?display:\s*none;/);
-
 assert.match(feature, /restoreAllocationVisibility[\s\S]*?renderActiveCarPlanToDom/);
 assert.match(feature, /data-manual-participant-id/);
 assert.match(feature, /SanpoCanonicalState\?\.deleteParticipant/);
 assert.match(feature, /AppUI\?\.confirm/);
 assert.match(feature, /参加者から外しますか/);
 assert.match(feature, /車割・班割・精算の割り当ても削除されます/);
-
 assert.match(feature, /SanpoCanonicalState\.ensureParticipant/);
 assert.match(feature, /findParticipantIdByName/);
 assert.match(feature, /applicant\.capacity/);
@@ -260,22 +248,18 @@ assert.match(feature, /capacity:\s*incomingCapacity/);
 assert.match(feature, /kind:\s*['"]driver['"]/);
 assert.match(feature, /g_car_/);
 assert.match(feature, /ensureAllParticipantsPlaced/);
-
 assert.doesNotMatch(feature, /spreadsheets\/d/);
 assert.doesNotMatch(feature, /formAutoLink/);
 assert.doesNotMatch(feature, /この企画と連携/);
-
 assert.match(feature, /<cds-checkbox/);
 assert.match(feature, /<cds-button/);
 assert.doesNotMatch(feature, /<(?:input|textarea|select|button)\b/i);
 assert.doesNotMatch(feature, /form-applicant-sync__name/);
-
 assert.match(css, /\.participants-view-area/);
 assert.match(css, /\.participants-page/);
 assert.match(css, /\.form-applicant-sync__row/);
 assert.match(css, /var\(--cds-/);
 assert.doesNotMatch(css, /data-form-applicant-mode/);
-
 assert.match(settlementEmpty, /data-action="open-participants"/);
 assert.match(settlementEmpty, /参加者がいません/);
 assert.match(settlementEmpty, /参加者がまだ決まっていません/);
@@ -291,4 +275,4 @@ assert.match(commonEmpty, /人数だけで精算/);
 assert.doesNotMatch(commonEmpty, /参加者登録\(推奨\)/);
 assert.doesNotMatch(commonEmpty, /もしくは/);
 
-console.log('PASS participant wording, cross-tab empty states, confirmed-flow UI, direct applicant sync, handoff export, participant announcement, and form-linked debug sample contracts');
+console.log('PASS participant wording, Carbon selection states, shell parity, cross-tab empty states, confirmed-flow UI, direct applicant sync, handoff export, participant announcement, and form-linked debug sample contracts');
