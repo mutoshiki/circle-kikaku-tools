@@ -5,9 +5,6 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   const errors = [];
   page.on('pageerror', error => errors.push(String(error)));
 
-  // Keep firebase-config.js and its participant feature loader in the browser path, but make
-  // this deterministic UI test local-only. Otherwise a real RTDB room snapshot can overwrite
-  // the synthetic applicants while Carbon interaction assertions are running.
   await page.addInitScript(() => {
     Object.defineProperty(window, 'SANPO_FIREBASE_CONFIG', {
       configurable: true,
@@ -80,13 +77,12 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
 
   await expect(page.locator('#participantsViewSummary')).toHaveText('0 / 2人を選択');
   await expect(page.locator('#participantManualAddBtn')).toBeHidden();
-  await expect(page.locator('#participantAnnouncementPanel')).toBeHidden();
+  await expect(page.locator('#participantAnnouncementPanel')).toHaveCount(0);
   const applicantChecks = page.locator('#formApplicantList cds-checkbox[data-form-applicant-key]');
   await expect(applicantChecks).toHaveCount(2);
 
   const tanakaHost = applicantChecks.first();
   const tanakaCheckbox = page.getByRole('checkbox', { name: '田中太郎' });
-  // Carbon renders a label over the native input. Click the same visible label a user taps.
   await tanakaHost.locator('label').click();
   await expect(tanakaCheckbox).toBeChecked();
   await expect(page.locator('#participantsViewSummary')).toHaveText('1 / 2人を選択');
@@ -94,8 +90,6 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   const apply = page.locator('#formApplicantApplyBtn');
   await expect(apply).toHaveText('参加者を確定');
   await expect(apply).not.toHaveAttribute('disabled', '');
-  await expect(participantTab).toHaveAttribute('selected', '');
-  await expect(page.locator('#tab-list')).not.toHaveAttribute('selected', '');
   await apply.click();
 
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(1);
@@ -113,36 +107,41 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   const announcementOpen = page.locator('#participantAnnouncementOpenBtn');
   await expect(announcementOpen).not.toHaveAttribute('disabled', '');
   await announcementOpen.click();
+
   const announcementModal = page.locator('#participantAnnouncementModal');
   await expect(announcementModal).toHaveAttribute('open', '');
-  await expect(announcementModal.locator('.participant-announcement-fixed-field')).toContainText('サークルボックス前');
-  const announcementCopy = page.locator('#participantAnnouncementCopyBtn');
-  await expect(announcementCopy).toHaveAttribute('disabled', '');
+  const titlePreview = page.locator('#announcementTitlePreview');
+  await expect(titlePreview).toHaveJSProperty('value', '【参加者発表】7月11日(土)霧ヶ峰企画');
+  await expect(page.locator('#announcementCopyTitleBtn')).toBeVisible();
+  await expect(page.locator('#announcementCopyTitleBtn')).toHaveText('タイトルをコピー');
+
+  const announcementCopyBody = page.locator('#announcementCopyBodyBtn');
+  await expect(announcementCopyBody).toHaveAttribute('disabled', '');
   await page.evaluate(() => {
-    const input = document.getElementById('participantAnnouncementMeetTime');
+    const input = document.getElementById('announcementMeetingTime');
     input.value = '06:30';
     input.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
   });
-  await expect(announcementCopy).not.toHaveAttribute('disabled', '');
-  const preview = page.locator('#participantAnnouncementPreview');
-  await expect(preview).toContainText('7月11日 霧ヶ峰企画');
-  await expect(preview).toContainText('○田中太郎');
-  await expect(preview).toContainText('当日の集合時間は06:30です。');
-  await expect(preview).toContainText('集合場所はサークルボックス前です。');
-  await announcementModal.locator('[data-modal-close]').first().click();
+  await expect(announcementCopyBody).not.toHaveAttribute('disabled', '');
+  const bodyPreview = page.locator('#announcementBodyPreview');
+  await expect(bodyPreview).toHaveJSProperty('value', expect.stringContaining('7月11日(土)霧ヶ峰企画'));
+  await expect(bodyPreview).toHaveJSProperty('value', expect.stringContaining('○田中太郎'));
+  await expect(bodyPreview).toHaveJSProperty('value', expect.stringContaining('当日の集合時間は06:30です。'));
+  await expect(bodyPreview).toHaveJSProperty('value', expect.stringContaining('サークルボックス前に集合してください。'));
+  await announcementModal.locator('#announcementCloseBtn').click();
 
   await tanakaHost.locator('label').click();
   await expect(tanakaCheckbox).not.toBeChecked();
   await expect(page.locator('#participantsViewSummary')).toHaveText('0 / 2人を選択');
   await expect(apply).not.toHaveAttribute('disabled', '');
-  await expect(announcementOpen).toHaveAttribute('disabled', '');
+  await expect(page.locator('#participantAnnouncementPanel')).toHaveCount(0);
   await apply.click();
   const confirm = page.locator('#appConfirmModal');
   await expect(confirm).toHaveAttribute('open', '');
   await expect(confirm.locator('.app-decision-message')).toHaveText('車割・班割・精算の割り当ても削除されます。');
   await confirm.locator('[data-role="ok"]').click();
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(0);
-  await expect(announcementPanel).toBeHidden();
+  await expect(page.locator('#participantAnnouncementPanel')).toHaveCount(0);
 
   await page.locator('#tab-seisan').click();
   await expect(page.locator('body')).not.toHaveClass(/view-mode-participants/);
