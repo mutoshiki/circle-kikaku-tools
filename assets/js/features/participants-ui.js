@@ -64,6 +64,7 @@
       <cds-icon-button id="participantsFilterToggle" kind="ghost" size="lg" align="bottom-right" aria-label="絞り込み" aria-expanded="false">
         <span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span>
       </cds-icon-button>
+      <div id="participantsToolbarSelectionCount" class="participants-toolbar-selection-count" aria-live="polite" hidden></div>
       <div id="participantsActiveFilters" class="participants-active-filters" aria-live="polite" hidden></div>
       <div id="participantsFilterPanel" class="participants-filter-panel" hidden>
         <cds-select id="participantsSelectionFilter" label-text="選択状態" size="md">
@@ -393,12 +394,17 @@
       button.hidden = !dirty;
     }
 
+    const countText = participantCount > 0
+      ? `参加者 ${participantCount}人 → ${selected}人`
+      : `${selected}人を選択中`;
+
     const actionCount = byId('participantsActionCount');
-    if (actionCount) {
-      const countText = participantCount > 0
-        ? `参加者 ${participantCount}人 → ${selected}人`
-        : `${selected}人を選択中`;
-      if (actionCount.textContent !== countText) actionCount.textContent = countText;
+    if (actionCount && actionCount.textContent !== countText) actionCount.textContent = countText;
+
+    const toolbarCount = byId('participantsToolbarSelectionCount');
+    if (toolbarCount) {
+      if (toolbarCount.textContent !== countText) toolbarCount.textContent = countText;
+      toolbarCount.hidden = !dirty;
     }
 
     const list = byId('formApplicantList');
@@ -426,9 +432,11 @@
       const person = row.querySelector('.form-applicant-sync__person');
       let removal = row.querySelector('.participants-pending-removal');
       if (pendingRemoval && person && !removal) {
-        removal = document.createElement('span');
+        removal = document.createElement('cds-tag');
         removal.className = 'participants-pending-removal';
-        removal.textContent = '参加者から外す予定';
+        removal.setAttribute('type', 'red');
+        removal.setAttribute('size', 'sm');
+        removal.textContent = '除外予定';
         person.appendChild(removal);
       } else if (!pendingRemoval && removal) {
         removal.remove();
