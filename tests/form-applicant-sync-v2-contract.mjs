@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const feature = fs.readFileSync(new URL('../assets/js/features/form-applicant-sync-v2.js', import.meta.url), 'utf8');
 const participantUi = fs.readFileSync(new URL('../assets/js/features/participants-ui.js', import.meta.url), 'utf8');
+const handoffExport = fs.readFileSync(new URL('../assets/js/features/handoff-export.js', import.meta.url), 'utf8');
 const loader = fs.readFileSync(new URL('../firebase-config.js', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../assets/css/guides-modals/import-guide/07-form-applicant-sync.css', import.meta.url), 'utf8');
 const settlementEmpty = fs.readFileSync(new URL('../assets/js/templates/settlement/07-empty-state-templates.js', import.meta.url), 'utf8');
@@ -11,9 +12,10 @@ const commonEmpty = fs.readFileSync(new URL('../assets/js/templates/common-empty
 const navigation = fs.readFileSync(new URL('../assets/js/features/events/02-static-header-events.js', import.meta.url), 'utf8');
 
 assert.match(html, /\.\/firebase-config\.js\?v=participants-carbon-v90/);
-assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-carbon-v89/);
-assert.match(loader, /participants-ui\.js\?v=participants-carbon-v89/);
-assert.match(loader, /07-form-applicant-sync\.css\?v=participants-carbon-v89/);
+assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-carbon-v91/);
+assert.match(loader, /participants-ui\.js\?v=participants-carbon-v91/);
+assert.match(loader, /handoff-export\.js\?v=participants-carbon-v91/);
+assert.match(loader, /07-form-applicant-sync\.css\?v=participants-carbon-v91/);
 assert.doesNotMatch(loader, /form-link-sync\.js/);
 assert.doesNotMatch(loader, /06-form-auto-link\.css/);
 assert.doesNotMatch(loader, /carbon-checkbox-state-bridge/);
@@ -71,6 +73,24 @@ assert.match(css, /\.form-applicant-sync__row\.is-selected/);
 assert.match(css, /var\(--cds-layer-selected-01/);
 assert.match(css, /position:\s*sticky;/);
 
+// Handoff export belongs to the Participants table toolbar, not the global overflow menu.
+// The organizer capability is stored per room on the device and removed from the URL.
+assert.match(handoffExport, /TOKEN_STORAGE_PREFIX\s*=\s*['"]SANPO_HANDOFF_EXPORT_TOKEN_V1:/);
+assert.match(handoffExport, /url\.searchParams\.delete\(TOKEN_PARAM\)/);
+assert.match(handoffExport, /window\.history\.replaceState/);
+assert.match(handoffExport, /id = ['"]handoffExportBtn['"]/);
+assert.match(handoffExport, /toolbar\.insertBefore\(button, filter/);
+assert.match(handoffExport, /参加者を更新してから作成できます/);
+assert.match(handoffExport, /action:\s*['"]handoff-export['"]/);
+assert.match(handoffExport, /responses:\s*selection\.responseKeys\.join/);
+assert.doesNotMatch(handoffExport, /studentId.*localStorage/i);
+assert.match(handoffExport, /\[['"]学籍番号['"], ['"]氏名['"]\]/);
+assert.match(handoffExport, /Blob\(\[csv\]/);
+assert.match(handoffExport, /anchor\.download/);
+assert.match(handoffExport, /ContentService/);
+assert.match(css, /#handoffExportBtn/);
+assert.match(css, /grid-template-columns:\s*minmax\(0, 1fr\) auto 48px/);
+
 // Participant registration is not exposed from car/team allocation.
 assert.match(participantUi, /batchOpenBtn/);
 assert.match(participantUi, /removeAllocationRegistrationAction/);
@@ -115,4 +135,4 @@ assert.match(commonEmpty, /data-action="open-participants"/);
 assert.doesNotMatch(commonEmpty, /参加者登録\(推奨\)/);
 assert.doesNotMatch(commonEmpty, /もしくは/);
 
-console.log('PASS participants tab and direct applicant sync contract');
+console.log('PASS participants tab, direct applicant sync, and organizer handoff export contract');
