@@ -195,7 +195,8 @@
 
   function updatePreview() {
     const preview = byId('participantAnnouncementPreview');
-    if (preview) preview.textContent = buildAnnouncement();
+    const text = buildAnnouncement();
+    if (preview && preview.textContent !== text) preview.textContent = text;
     const meetTime = fieldValue('participantAnnouncementMeetTime');
     const meetInput = byId('participantAnnouncementMeetTime');
     const copy = byId('participantAnnouncementCopyBtn');
@@ -206,7 +207,8 @@
       else meetInput.removeAttribute('invalid-text');
     }
     if (copy) {
-      copy.disabled = invalid;
+      const alreadyDisabled = copy.disabled || copy.hasAttribute('disabled');
+      if (alreadyDisabled !== invalid) copy.disabled = invalid;
       copy.toggleAttribute('disabled', invalid);
     }
   }
@@ -291,14 +293,17 @@
     panel.hidden = !state.visible;
     const button = byId('participantAnnouncementOpenBtn');
     if (button) {
-      button.disabled = !state.enabled;
-      button.toggleAttribute('disabled', !state.enabled);
+      const disabled = !state.enabled;
+      const alreadyDisabled = button.disabled || button.hasAttribute('disabled');
+      if (alreadyDisabled !== disabled) button.disabled = disabled;
+      button.toggleAttribute('disabled', disabled);
       button.setAttribute('title', state.reason);
     }
     const note = byId('participantAnnouncementPanelNote');
-    if (note) note.textContent = state.enabled
+    const noteText = state.enabled
       ? '確定した参加者情報から、ラクラク連絡網に投稿する文章を作成します。'
       : state.reason;
+    if (note && note.textContent !== noteText) note.textContent = noteText;
     if (byId('participantAnnouncementModal')) updatePreview();
     return true;
   }
