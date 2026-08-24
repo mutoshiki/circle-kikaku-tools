@@ -41,7 +41,18 @@
       heading = header.firstElementChild;
       if (heading) heading.classList.add('participants-page__heading');
     }
-    if (heading && summary.parentElement !== heading) heading.appendChild(summary);
+    if (!heading) return;
+    if (summary.parentElement !== heading) heading.appendChild(summary);
+
+    if (!byId('participantsSelectionStatus')) {
+      const status = document.createElement('cds-tag');
+      status.id = 'participantsSelectionStatus';
+      status.className = 'participants-selection-status';
+      status.setAttribute('type', 'blue');
+      status.setAttribute('size', 'sm');
+      status.hidden = true;
+      heading.appendChild(status);
+    }
   }
 
   function ensureSelectionToolbar() {
@@ -52,10 +63,14 @@
     toolbar.id = 'participantsSelectionToolbar';
     toolbar.className = 'participants-selection-toolbar';
     toolbar.innerHTML = `
-      <cds-table-toolbar-search id="participantsSearch" placeholder="名前を検索" label-text="名前を検索"></cds-table-toolbar-search>
-      <cds-icon-button id="participantsFilterToggle" kind="ghost" size="lg" align="bottom-right" aria-label="絞り込み" aria-expanded="false">
-        <span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span>
-      </cds-icon-button>
+      <cds-table-toolbar class="participants-carbon-toolbar" aria-label="参加者の検索と絞り込み">
+        <cds-table-toolbar-content class="participants-carbon-toolbar__content">
+          <cds-table-toolbar-search id="participantsSearch" size="lg" placeholder="名前を検索" label-text="名前を検索"></cds-table-toolbar-search>
+          <cds-icon-button id="participantsFilterToggle" kind="ghost" size="lg" align="bottom-right" aria-label="絞り込み" aria-expanded="false">
+            <span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span>
+          </cds-icon-button>
+        </cds-table-toolbar-content>
+      </cds-table-toolbar>
       <div id="participantsActiveFilters" class="participants-active-filters" aria-live="polite" hidden></div>
       <div id="participantsFilterPanel" class="participants-filter-panel" hidden>
         <cds-select id="participantsSelectionFilter" label-text="選択状態" size="md">
@@ -369,6 +384,13 @@
     summary.classList.remove('is-manual');
     if (summary.textContent !== summaryText) summary.textContent = summaryText;
 
+    const selectionStatus = byId('participantsSelectionStatus');
+    if (selectionStatus) {
+      const statusText = `${selected}人を選択中`;
+      if (selectionStatus.textContent !== statusText) selectionStatus.textContent = statusText;
+      selectionStatus.hidden = !dirty;
+    }
+
     const actions = document.querySelector('.participants-page__actions');
     if (actions) actions.hidden = !dirty;
 
@@ -414,9 +436,11 @@
       const person = row.querySelector('.form-applicant-sync__person');
       let removal = row.querySelector('.participants-pending-removal');
       if (pendingRemoval && person && !removal) {
-        removal = document.createElement('span');
+        removal = document.createElement('cds-tag');
         removal.className = 'participants-pending-removal';
-        removal.textContent = '参加者から外す予定';
+        removal.setAttribute('type', 'red');
+        removal.setAttribute('size', 'sm');
+        removal.textContent = '除外予定';
         person.appendChild(removal);
       } else if (!pendingRemoval && removal) {
         removal.remove();
