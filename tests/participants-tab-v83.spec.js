@@ -25,14 +25,16 @@ async function seedManagedApplicants(page) {
   });
 }
 
+function applicantRow(page, name) {
+  return page
+    .locator('#formApplicantList .form-applicant-sync__row')
+    .filter({ has: page.locator(`cds-checkbox[label-text="${name}"]`) })
+    .first();
+}
+
 async function clickApplicant(page, name) {
-  const host = page.locator('#formApplicantList cds-checkbox').filter({ has: page.locator(`label:has-text("${name}")`) });
-  if (await host.count()) {
-    await host.first().locator('label').click();
-    return;
-  }
-  const checkbox = page.getByRole('checkbox', { name, exact: true });
-  const row = checkbox.locator('xpath=ancestor::div[contains(@class,"form-applicant-sync__row")]');
+  const row = applicantRow(page, name);
+  await expect(row).toBeVisible();
   await row.locator('cds-checkbox label').click();
 }
 
@@ -150,8 +152,7 @@ test('Participants mobile flow has no saved-state overlay or broken sticky layou
 
   await edit.click();
   await clickApplicant(page, '山本 陽翔');
-  const yamamoto = page.getByRole('checkbox', { name: '山本 陽翔', exact: true });
-  const yamamotoRow = yamamoto.locator('xpath=ancestor::div[contains(@class,"form-applicant-sync__row")]');
+  const yamamotoRow = applicantRow(page, '山本 陽翔');
   await expect(yamamotoRow).toHaveClass(/is-pending-removal/);
   await expect(yamamotoRow.locator('.participants-pending-removal')).toHaveText('参加者から外す予定');
   await expect(page.locator('#participantsActionCount')).toHaveText('参加者 4人 → 3人');
@@ -166,8 +167,7 @@ test('Participants mobile flow has no saved-state overlay or broken sticky layou
   await expect(page.locator('#participantsPostConfirmSection')).toBeHidden();
 
   await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
-  const selectedRow = page.getByRole('checkbox', { name: '小林 海斗', exact: true })
-    .locator('xpath=ancestor::div[contains(@class,"form-applicant-sync__row")]');
+  const selectedRow = applicantRow(page, '小林 海斗');
   const darkColors = await selectedRow.evaluate(element => ({
     background: getComputedStyle(element).backgroundColor,
     color: getComputedStyle(element).color
