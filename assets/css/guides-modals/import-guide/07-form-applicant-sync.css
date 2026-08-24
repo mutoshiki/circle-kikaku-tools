@@ -49,6 +49,22 @@
   font-weight: 400;
 }
 
+.participants-confirmed-controls {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.participants-confirmed-controls[hidden] {
+  display: none !important;
+}
+
+.participants-confirmed-controls cds-tag {
+  flex: 0 0 auto;
+}
+
 .participants-selection-toolbar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 48px;
@@ -66,13 +82,28 @@
   height: 48px;
 }
 
+.participants-active-filters {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
+  background: var(--cds-layer-01, #ffffff);
+}
+
+.participants-active-filters[hidden] {
+  display: none !important;
+}
+
 .participants-filter-panel {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
   padding: 16px;
-  border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-top: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
   background: var(--cds-layer-01, #ffffff);
 }
 
@@ -83,7 +114,7 @@
 .form-applicant-sync__list {
   display: grid;
   width: 100%;
-  border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-top: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
   background: var(--cds-layer-01, #ffffff);
 }
 
@@ -94,7 +125,7 @@
   gap: 16px;
   min-height: 56px;
   padding: 8px 16px;
-  border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-bottom: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
   background: var(--cds-layer-01, #ffffff);
 }
 
@@ -103,12 +134,17 @@
 }
 
 .form-applicant-sync__row.is-selected {
-  background: var(--cds-layer-selected-01, #e8e8e8);
+  background: var(--cds-layer-selected-01, var(--cds-background-selected, #e8e8e8));
 }
 
 @media (hover: hover) {
   .form-applicant-sync__row:not(.is-selected):hover {
-    background: var(--cds-layer-hover-01, #e8e8e8);
+    background: var(--cds-layer-hover-01, var(--cds-background-hover, #e8e8e8));
+  }
+
+  .participants-post-confirm__item:hover,
+  .participants-post-confirm .participant-announcement-panel:hover {
+    background: var(--cds-layer-hover-01, var(--cds-background-hover, #e8e8e8));
   }
 }
 
@@ -131,7 +167,7 @@
 
 .form-applicant-sync__empty {
   padding: 24px 16px 32px;
-  border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-bottom: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
   color: var(--cds-text-secondary, #525252);
   font-size: 14px;
   line-height: 20px;
@@ -188,7 +224,7 @@
 .participants-post-confirm {
   margin-top: 32px;
   padding-top: 24px;
-  border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-top: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
 }
 
 .participants-post-confirm[hidden] {
@@ -206,7 +242,7 @@
 .participants-post-confirm__actions {
   display: grid;
   gap: 1px;
-  background: var(--cds-border-subtle-01, #e0e0e0);
+  background: var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
 }
 
 .participants-post-confirm__item,
@@ -215,10 +251,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  min-height: 96px;
   margin: 0;
   padding: 20px 24px;
   border: 0;
   background: var(--cds-layer-01, #ffffff);
+  transition: background-color 70ms cubic-bezier(.2, 0, 1, .9);
 }
 
 .participants-post-confirm__item h4,
@@ -245,6 +283,22 @@
   min-width: 176px;
 }
 
+/* Once participants are committed, the selection surface becomes an edit state rather
+   than permanent page chrome. This keeps the next-step actions close to the summary. */
+.participants-page.is-confirmed-collapsed .participants-selection-toolbar,
+.participants-page.is-confirmed-collapsed .form-applicant-sync__list,
+.participants-page.is-confirmed-collapsed .participants-page__actions {
+  display: none !important;
+}
+
+.participants-page.is-confirmed-collapsed .participants-page__summary {
+  margin-bottom: 0;
+}
+
+.participants-page.is-confirmed-collapsed .participants-post-confirm {
+  margin-top: 20px;
+}
+
 body.view-mode-participants #participants-view-area {
   display: block;
 }
@@ -256,25 +310,33 @@ body.view-mode-participants #participants-view-area {
 
 @media (max-width: 671px) {
   body.view-mode-participants .project-title-region {
-    height: 120px;
-    padding: 0 16px 16px;
+    height: 96px;
+    padding: 0 16px 12px;
   }
 
   body.view-mode-participants .project-title-editor {
-    min-height: 36px;
+    min-height: 32px;
     padding-bottom: 2px;
-    font-size: 1.75rem;
-    line-height: 1.15;
+    font-size: 1.5rem;
+    line-height: 1.2;
   }
 
   .participants-page {
     max-width: none;
-    padding: 16px 16px 96px;
+    padding: 16px 16px 112px;
+  }
+
+  .participants-page.is-confirmed-collapsed {
+    padding-bottom: 48px;
   }
 
   .participants-page__header {
     min-height: 32px;
     margin-bottom: 4px;
+  }
+
+  .participants-confirmed-controls {
+    width: 100%;
   }
 
   .participants-page__summary {
@@ -287,11 +349,16 @@ body.view-mode-participants #participants-view-area {
     grid-template-columns: minmax(0, 1fr) 48px;
   }
 
+  .participants-active-filters {
+    padding: 8px 12px;
+  }
+
   .participants-filter-panel {
     grid-template-columns: minmax(0, 1fr);
     padding: 12px;
   }
 
+  /* Mobile uses a compact contained-list pattern: one primary label plus trailing metadata. */
   .form-applicant-sync__row {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 12px;
@@ -310,15 +377,15 @@ body.view-mode-participants #participants-view-area {
   .participants-page__actions {
     position: sticky;
     bottom: 0;
-    z-index: 2;
+    z-index: 3;
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
     gap: 12px;
-    margin: 16px -16px 0;
+    margin: 16px -16px -112px;
     padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
-    background: var(--cds-background, #f4f4f4);
+    border-top: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
+    background: var(--cds-layer-01, var(--cds-background, #f4f4f4));
   }
 
   .participants-action-count {
@@ -342,6 +409,10 @@ body.view-mode-participants #participants-view-area {
     padding-top: 20px;
   }
 
+  .participants-page.is-confirmed-collapsed .participants-post-confirm {
+    margin-top: 16px;
+  }
+
   .participants-post-confirm__title {
     margin: 0 16px 12px;
     font-size: 18px;
@@ -353,6 +424,7 @@ body.view-mode-participants #participants-view-area {
     align-items: stretch;
     flex-direction: column;
     gap: 12px;
+    min-height: 0;
     margin: 0;
     padding: 16px;
   }

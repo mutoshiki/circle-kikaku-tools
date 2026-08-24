@@ -58,7 +58,7 @@ test('Participants tab owns applicant selection and confirmed follow-up actions'
   expect(shellOrder.participantOrder).toBe('3');
   expect(shellOrder.participantTop).toBeGreaterThanOrEqual(shellOrder.navBottom - 1);
   expect(shellOrder.navTop).toBeLessThan(shellOrder.participantTop);
-  expect(shellOrder.projectTitleHeight).toBe('120px');
+  expect(shellOrder.projectTitleHeight).toBe('96px');
 
   await page.evaluate(() => {
     const room = window.SanpoCanonicalState.get();
@@ -79,7 +79,7 @@ test('Participants tab owns applicant selection and confirmed follow-up actions'
     window.SanpoParticipantAnnouncement?.refresh?.();
   });
 
-  await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 0人');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 2人');
   await expect(page.locator('#participantManualAddBtn')).toBeHidden();
   await expect(page.locator('#participantAnnouncementPanel')).toHaveCount(0);
   await expect(page.locator('#handoffExportBtn')).not.toHaveCount(0);
@@ -87,15 +87,29 @@ test('Participants tab owns applicant selection and confirmed follow-up actions'
   await expect(page.locator('#participantsPostConfirmSection')).toBeHidden();
   const applicantChecks = page.locator('#formApplicantList cds-checkbox[data-form-applicant-key]');
   await expect(applicantChecks).toHaveCount(2);
+  await expect(page.locator('#formApplicantList')).toHaveAttribute('role', 'list');
+  await expect(page.locator('#formApplicantList .form-applicant-sync__row').first()).toHaveAttribute('role', 'listitem');
 
   const tanakaHost = applicantChecks.first();
+  const tanakaRow = tanakaHost.locator('xpath=ancestor::div[contains(@class,"form-applicant-sync__row")]');
   const tanakaCheckbox = page.getByRole('checkbox', { name: '田中太郎' });
   await tanakaHost.locator('label').click();
   await expect(tanakaCheckbox).toBeChecked();
-  await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 0人');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 2人');
   await expect(page.locator('#participantsActionCount')).toHaveText('1人を選択中');
   await expect(page.locator('#participantsSavedState')).toBeHidden();
-  await expect(tanakaHost.locator('xpath=ancestor::div[contains(@class,"form-applicant-sync__row")]')).toHaveClass(/is-selected/);
+  await expect(tanakaRow).toHaveClass(/is-selected/);
+
+  const originalTheme = await page.evaluate(() => document.documentElement.dataset.theme || '');
+  await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
+  const selectedDarkBackground = await tanakaRow.evaluate(element => getComputedStyle(element).backgroundColor);
+  expect(selectedDarkBackground).not.toBe('rgb(232, 232, 232)');
+  expect(selectedDarkBackground).not.toBe('rgb(255, 255, 255)');
+  await page.evaluate(theme => {
+    if (theme) document.documentElement.dataset.theme = theme;
+    else delete document.documentElement.dataset.theme;
+  }, originalTheme);
+
   const apply = page.locator('#formApplicantApplyBtn');
   await expect(apply).toHaveText('参加者を確定');
   await expect(apply).toBeVisible();
@@ -110,10 +124,17 @@ test('Participants tab owns applicant selection and confirmed follow-up actions'
     return group?.capacity || 0;
   })).toBe(4);
   await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 1人');
-  await expect(page.locator('#participantsActionCount')).toHaveText('1人を選択中');
+  await expect(page.locator('.participants-page')).toHaveClass(/is-confirmed-collapsed/);
+  await expect(page.locator('#participantsConfirmedControls')).toBeVisible();
+  await expect(page.locator('#participantsConfirmedTag')).toHaveText('確定済み');
+  const editToggle = page.locator('#participantsEditToggle');
+  await expect(editToggle).toHaveText('参加者を編集');
+  await expect(editToggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('#participantsSelectionToolbar')).toBeHidden();
+  await expect(page.locator('#formApplicantList')).toBeHidden();
+  await expect(page.locator('.participants-page__actions')).toBeHidden();
   await expect(apply).toBeHidden();
-  await expect(page.locator('#participantsSavedState')).toBeVisible();
-  await expect(page.locator('#participantsSavedState')).toHaveText('✓ 保存済み');
+  await expect(page.locator('#participantsSavedState')).toBeHidden();
 
   const postConfirm = page.locator('#participantsPostConfirmSection');
   await expect(postConfirm).toBeVisible();
@@ -126,6 +147,7 @@ test('Participants tab owns applicant selection and confirmed follow-up actions'
   await expect(announcementPanel).toBeVisible();
   await expect(announcementPanel.locator('p')).toHaveText('ラクラク連絡網に投稿する文章を作成します。');
   const announcementOpen = page.locator('#participantAnnouncementOpenBtn');
+  await expect(announcementOpen).toHaveAttribute('kind', 'ghost');
   await expect(announcementOpen).not.toHaveAttribute('disabled', '');
   await announcementOpen.click();
 
@@ -146,17 +168,27 @@ test('Participants tab owns applicant selection and confirmed follow-up actions'
   await expect(announcementCopyBody).not.toHaveAttribute('disabled', '');
   const bodyPreview = page.locator('#announcementBodyPreview');
   const bodyValue = await bodyPreview.evaluate(element => element.value);
-  expect(bodyValue).toContain('7月11日(土)霧ヶ峰企画');
+  expect(bodyValue).toContain('7月11日(土)の霧ヶ峰企画の参加者を発表します。');
   expect(bodyValue).toContain('○田中太郎');
-  expect(bodyValue).toContain('当日の集合時間は06:30です。');
-  expect(bodyValue).toContain('サークルボックス前に集合してください。');
+  expect(bodyValue).toContain('当日は06:30にサークルボックス前に集合してください。');
   await announcementModal.locator('#announcementCloseBtn').click();
+
+  await editToggle.click();
+  await expect(page.locator('.participants-page')).toHaveClass(/is-confirmed-editing/);
+  await expect(editToggle).toHaveText('編集を閉じる');
+  await expect(editToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('#participantsSelectionToolbar')).toBeVisible();
+  await expect(page.locator('#formApplicantList')).toBeVisible();
+  await expect(page.locator('.participants-page__actions')).toBeVisible();
+  await expect(page.locator('#participantsSavedState')).toBeVisible();
+  await expect(page.locator('#participantsSavedState')).toHaveText('✓ 保存済み');
 
   await tanakaHost.locator('label').click();
   await expect(tanakaCheckbox).not.toBeChecked();
   await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 1人');
   await expect(page.locator('#participantsActionCount')).toHaveText('0人を選択中');
   await expect(page.locator('#participantsSavedState')).toBeHidden();
+  await expect(editToggle).toHaveAttribute('disabled', '');
   await expect(apply).toHaveText('変更を保存');
   await expect(apply).toBeVisible();
   await expect(apply).not.toHaveAttribute('disabled', '');
@@ -168,7 +200,9 @@ test('Participants tab owns applicant selection and confirmed follow-up actions'
   await expect(confirm.locator('.app-decision-message')).toHaveText('車割・班割・精算の割り当ても削除されます。');
   await confirm.locator('[data-role="ok"]').click();
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(0);
-  await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 0人');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 2人');
+  await expect(page.locator('#participantsConfirmedControls')).toBeHidden();
+  await expect(page.locator('#formApplicantList')).toBeVisible();
   await expect(apply).toBeHidden();
   await expect(page.locator('#participantsSavedState')).toBeHidden();
   await expect(page.locator('#participantsPostConfirmSection')).toBeHidden();
