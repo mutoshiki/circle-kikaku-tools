@@ -206,8 +206,8 @@
     row.dataset.itineraryRow = String(rowNumber);
     row.innerHTML = `
       <cds-text-input data-itinerary-time type="time" size="lg" label="時間"></cds-text-input>
-      <cds-text-input data-itinerary-step type="text" size="lg" label="工程" placeholder="例：登山開始"></cds-text-input>
-      <cds-button data-itinerary-remove kind="ghost" size="sm" type="button" aria-label="この工程を削除">削除</cds-button>`;
+      <cds-text-input data-itinerary-step type="text" size="lg" label="行程" placeholder="例：登山開始"></cds-text-input>
+      <cds-button data-itinerary-remove kind="ghost" size="sm" type="button" aria-label="この行程を削除">削除</cds-button>`;
 
     row.querySelectorAll('[data-itinerary-time], [data-itinerary-step]').forEach(input => {
       input.addEventListener('input', updatePreview);
@@ -255,9 +255,9 @@
             <section class="participant-announcement-itinerary" aria-labelledby="announcementItineraryHeading">
               <div class="participant-announcement-itinerary__heading">
                 <h3 id="announcementItineraryHeading">ざっくり予定（任意）</h3>
-                <cds-button id="announcementAddItineraryBtn" kind="tertiary" size="sm" type="button">工程を追加</cds-button>
+                <cds-button id="announcementAddItineraryBtn" kind="tertiary" size="sm" type="button">行程を追加</cds-button>
               </div>
-              <div id="announcementItineraryList" class="participant-announcement-itinerary__list" aria-label="ざっくり予定の工程"></div>
+              <div id="announcementItineraryList" class="participant-announcement-itinerary__list" aria-label="ざっくり予定の行程"></div>
             </section>
             <cds-textarea id="announcementNotes" rows="3" label="持ち物・詳細など（任意）" placeholder="例：詳細は添付のPDFをご確認ください。"></cds-textarea>
             <cds-text-input id="announcementContact" type="email" size="lg" label="連絡先（任意）" placeholder="例：sampokai25@gmail.com"></cds-text-input>
@@ -341,7 +341,7 @@
     const participantCount = Object.keys(canonical()?.participants || {}).length;
     if (!sync) return { visible: false, enabled: false, reason: '' };
     if (!participantCount) return { visible: false, enabled: false, reason: '参加者を確定してから作成できます。' };
-    if (hasPendingSelection()) return { visible: false, enabled: false, reason: '参加者を更新してから作成できます。' };
+    if (hasPendingSelection()) return { visible: false, enabled: false, reason: '参加者の変更を保存してから作成できます。' };
     return { visible: true, enabled: true, reason: '確定した参加者から発表文を作成します。' };
   }
 
@@ -357,7 +357,7 @@
       panel.innerHTML = `
         <div>
           <h3 id="participantAnnouncementPanelTitle">参加者発表</h3>
-          <p>確定した参加者情報から、ラクラク連絡網に投稿する文章を作成します。</p>
+          <p>らくらく連絡網に投稿する参加者発表文を作成します。</p>
         </div>
         <cds-button id="participantAnnouncementOpenBtn" kind="tertiary" size="lg" type="button">発表文を作成</cds-button>`;
       status.insertAdjacentElement('afterend', panel);
