@@ -1,0 +1,137 @@
+.participant-announcement-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 24px;
+  padding: 20px 24px;
+  border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  background: var(--cds-layer-01, #ffffff);
+}
+
+.participant-announcement-panel[hidden] {
+  display: none;
+}
+
+.participant-announcement-panel h3 {
+  margin: 0 0 4px;
+  color: var(--cds-text-primary, #161616);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.participant-announcement-panel p {
+  max-width: 640px;
+  margin: 0;
+  color: var(--cds-text-secondary, #525252);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+#participantAnnouncementOpenBtn {
+  flex: 0 0 auto;
+  min-width: 152px;
+}
+
+.participant-announcement-body {
+  min-height: 0;
+}
+
+.participant-announcement-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, .9fr) minmax(320px, 1.1fr);
+  gap: 1px;
+  background: var(--cds-border-subtle-01, #e0e0e0);
+}
+
+.participant-announcement-fields,
+.participant-announcement-preview {
+  min-width: 0;
+  background: var(--cds-layer-01, #ffffff);
+}
+
+.participant-announcement-fields {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+}
+
+.participant-announcement-fixed-field {
+  display: grid;
+  gap: 4px;
+  padding: 12px 16px;
+  background: var(--cds-layer-02, #f4f4f4);
+}
+
+.participant-announcement-fixed-label {
+  color: var(--cds-text-secondary, #525252);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.participant-announcement-fixed-field strong {
+  color: var(--cds-text-primary, #161616);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.participant-announcement-preview {
+  display: flex;
+  flex-direction: column;
+  min-height: 560px;
+  padding: 24px;
+}
+
+.participant-announcement-preview h4 {
+  margin: 0 0 12px;
+  color: var(--cds-text-primary, #161616);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+#participantAnnouncementPreview {
+  flex: 1 1 auto;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--cds-layer-02, #f4f4f4);
+  color: var(--cds-text-primary, #161616);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+@media (max-width: 671px) {
+  .participant-announcement-panel {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+    margin: 16px -16px 96px;
+    padding: 16px;
+  }
+
+  #participantAnnouncementOpenBtn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .participant-announcement-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .participant-announcement-fields,
+  .participant-announcement-preview {
+    padding: 16px;
+  }
+
+  .participant-announcement-preview {
+    min-height: 420px;
+  }
+}
