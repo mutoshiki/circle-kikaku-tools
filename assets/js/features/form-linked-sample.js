@@ -133,8 +133,10 @@
   }
 
   async function waitForFirebaseWrite(timeoutMs = 8000) {
+    if (typeof firebaseEnabled !== 'undefined' && firebaseEnabled === false) return false;
     const started = Date.now();
     while (Date.now() - started < timeoutMs) {
+      if (typeof firebaseEnabled !== 'undefined' && firebaseEnabled === false) return false;
       if (
         typeof firebaseReady !== 'undefined' && firebaseReady
         && typeof db !== 'undefined' && db
@@ -229,6 +231,7 @@
   }
 
   function scheduleDebugRehydrate() {
+    if (!readDebugApplicationSync()) return;
     let attempts = 0;
     const timer = window.setInterval(() => {
       attempts += 1;
