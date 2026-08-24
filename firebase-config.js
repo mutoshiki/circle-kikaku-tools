@@ -45,7 +45,7 @@ window.SANPO_FIREBASE_CONFIG = {
     }
     if (!document.querySelector('script[data-sanpo-handoff-export]')) {
       const script = document.createElement('script');
-      script.src = './assets/js/features/handoff-export.js?v=participants-carbon-v92';
+      script.src = './assets/js/features/handoff-export.js?v=participants-flow-v94';
       script.dataset.sanpoHandoffExport = 'true';
       document.head.appendChild(script);
     }
