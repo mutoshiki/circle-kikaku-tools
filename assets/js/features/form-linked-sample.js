@@ -9,10 +9,18 @@
 
   const sampleApplicants = [
     { key: 'sample-a1', name: '松本 結月', grade: 4, canDrive: true, capacity: 4 },
-    { key: 'sample-a2', name: '佐々木 陽菜', grade: 3, canDrive: false, capacity: 0 },
-    { key: 'sample-a3', name: '小林 海斗', grade: 2, canDrive: true, capacity: 3 },
-    { key: 'sample-a4', name: '山本 陽翔', grade: 1, canDrive: false, capacity: 0 },
-    { key: 'sample-a5', name: '田中 結衣', grade: 1, canDrive: false, capacity: 0 }
+    { key: 'sample-a2', name: '佐々木 陽菜', grade: 4, canDrive: false, capacity: 0 },
+    { key: 'sample-a3', name: '小林 海斗', grade: 4, canDrive: true, capacity: 3 },
+    { key: 'sample-a4', name: '山本 陽翔', grade: 4, canDrive: false, capacity: 0 },
+    { key: 'sample-a5', name: '田中 結衣', grade: 4, canDrive: false, capacity: 0 },
+    { key: 'sample-a6', name: '伊藤 颯太', grade: 3, canDrive: false, capacity: 0 },
+    { key: 'sample-a7', name: '中村 葵', grade: 3, canDrive: false, capacity: 0 },
+    { key: 'sample-a8', name: '加藤 悠真', grade: 3, canDrive: true, capacity: 4 },
+    { key: 'sample-a9', name: '吉田 美咲', grade: 3, canDrive: false, capacity: 0 },
+    { key: 'sample-a10', name: '山田 蓮', grade: 2, canDrive: false, capacity: 0 },
+    { key: 'sample-a11', name: '佐藤 凛', grade: 2, canDrive: false, capacity: 0 },
+    { key: 'sample-a12', name: '鈴木 陽菜', grade: 1, canDrive: false, capacity: 0 },
+    { key: 'sample-a13', name: '高橋 湊', grade: 1, canDrive: false, capacity: 0 }
   ];
 
   function sampleMembers() {

@@ -46,6 +46,23 @@ async function setCarbonValue(page, selector, value) {
   }, value);
 }
 
+async function projectTitlePresentation(page) {
+  return page.evaluate(() => {
+    const region = document.querySelector('.project-title-region');
+    const editor = document.querySelector('.project-title-editor');
+    const regionStyle = getComputedStyle(region);
+    const editorStyle = getComputedStyle(editor);
+    return {
+      regionHeight: regionStyle.height,
+      regionPadding: regionStyle.padding,
+      editorFontSize: editorStyle.fontSize,
+      editorLineHeight: editorStyle.lineHeight,
+      editorWhiteSpace: editorStyle.whiteSpace,
+      editorMaxHeight: editorStyle.maxHeight
+    };
+  });
+}
+
 async function openManagedParticipants(page) {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript(() => {
@@ -58,41 +75,46 @@ async function openManagedParticipants(page) {
   await page.goto('/');
   await page.waitForFunction(() => document.querySelector('#tab-participants') && window.SanpoApplicantSync && window.SanpoCanonicalState?.get?.());
   await page.waitForFunction(() => (typeof firebaseEnabled === 'undefined') || firebaseEnabled === false);
+  const referenceTitle = await projectTitlePresentation(page);
   await page.locator('#tab-participants').click();
   await expect(page.locator('body')).toHaveClass(/view-mode-participants/);
   await seedManagedApplicants(page);
+  return referenceTitle;
 }
 
-test('Participants mobile flow has no saved-state overlay or broken sticky layout', async ({ page }) => {
+test('Participants mobile flow follows Carbon selection patterns without changing the shared project-title shell', async ({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(String(error)));
-  await openManagedParticipants(page);
+  const referenceTitle = await openManagedParticipants(page);
 
   await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 5人');
   await expect(page.locator('#formApplicantList cds-checkbox[data-form-applicant-key]')).toHaveCount(5);
   await expect(page.locator('#participantsSavedState')).toHaveCount(0);
-
-  const titleStyle = await page.locator('.project-title-editor').evaluate(element => ({
-    whiteSpace: getComputedStyle(element).whiteSpace,
-    fontSize: getComputedStyle(element).fontSize,
-    maxHeight: getComputedStyle(element).maxHeight
-  }));
-  expect(titleStyle.whiteSpace).not.toBe('nowrap');
-  expect(parseFloat(titleStyle.fontSize)).toBeLessThanOrEqual(24);
+  await expect(page.locator('#participantsSelectionToolbar cds-table-toolbar')).toHaveCount(1);
+  await expect(page.locator('#participantsSelectionToolbar cds-table-toolbar-content')).toHaveCount(1);
+  expect(await projectTitlePresentation(page)).toEqual(referenceTitle);
 
   for (const name of ['山本 陽翔', '小林 海斗', '佐々木 陽菜']) await clickApplicant(page, name);
 
   const apply = page.locator('#formApplicantApplyBtn');
   await expect(apply).toHaveText('3人を参加者として確定');
   await expect(page.locator('#participantsActionCount')).toHaveText('3人を選択中');
+  await expect(page.locator('#participantsSelectionStatus')).toBeVisible();
+  await expect(page.locator('#participantsSelectionStatus')).toHaveText('3人を選択中');
   await expect(page.locator('.participants-page__actions')).toBeVisible();
 
-  const initialActionStyle = await page.locator('.participants-page__actions').evaluate(element => getComputedStyle(element).position);
-  expect(initialActionStyle).toBe('static');
+  const initialActionStyle = await page.locator('.participants-page__actions').evaluate(element => ({
+    position: getComputedStyle(element).position,
+    bottom: element.getBoundingClientRect().bottom,
+    viewportHeight: window.innerHeight
+  }));
+  expect(initialActionStyle.position).toBe('fixed');
+  expect(initialActionStyle.bottom).toBeLessThanOrEqual(initialActionStyle.viewportHeight + 1);
 
   await apply.click();
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(3);
   await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 3人');
+  await expect(page.locator('#participantsSelectionStatus')).toBeHidden();
   await expect(page.locator('.participants-page')).toHaveClass(/is-confirmed-collapsed/);
   await expect(page.locator('#formApplicantList')).toBeHidden();
   await expect(page.locator('.participants-page__actions')).toBeHidden();
@@ -103,12 +125,9 @@ test('Participants mobile flow has no saved-state overlay or broken sticky layou
   const collapsedLayout = await page.evaluate(() => {
     const header = document.querySelector('.participants-page__header').getBoundingClientRect();
     const post = document.getElementById('participantsPostConfirmSection').getBoundingClientRect();
-    const area = document.getElementById('participants-view-area').getBoundingClientRect();
     return {
       headerBottom: header.bottom,
-      postTop: post.top,
-      postBottom: post.bottom,
-      areaBottom: area.bottom
+      postTop: post.top
     };
   });
   expect(collapsedLayout.postTop).toBeGreaterThanOrEqual(collapsedLayout.headerBottom - 1);
@@ -124,33 +143,23 @@ test('Participants mobile flow has no saved-state overlay or broken sticky layou
   await clickApplicant(page, '松本 結月');
   await expect(page.locator('.participants-page__actions')).toBeVisible();
   await expect(page.locator('#participantsActionCount')).toHaveText('参加者 3人 → 4人');
+  await expect(page.locator('#participantsSelectionStatus')).toHaveText('4人を選択中');
   await expect(apply).toHaveText('4人を参加者として保存');
   await expect(edit).toHaveAttribute('disabled', '');
   await expect(page.locator('#participantsPostConfirmSection')).toBeHidden();
 
-  const dirtyLayout = await page.evaluate(() => {
-    const list = document.getElementById('formApplicantList').getBoundingClientRect();
-    const actions = document.querySelector('.participants-page__actions').getBoundingClientRect();
-    const style = getComputedStyle(document.querySelector('.participants-page__actions'));
+  const dirtyAction = await page.locator('.participants-page__actions').evaluate(element => {
+    const rect = element.getBoundingClientRect();
     return {
-      listBottom: list.bottom,
-      actionsTop: actions.top,
-      actionsBottom: actions.bottom,
-      position: style.position,
-      marginBottom: style.marginBottom
+      position: getComputedStyle(element).position,
+      top: rect.top,
+      bottom: rect.bottom,
+      viewportHeight: window.innerHeight
     };
   });
-  expect(dirtyLayout.position).toBe('static');
-  expect(dirtyLayout.actionsTop).toBeGreaterThanOrEqual(dirtyLayout.listBottom - 1);
-  expect(dirtyLayout.marginBottom).not.toBe('-112px');
-
-  await page.locator('.participants-page__actions').scrollIntoViewIfNeeded();
-  const actionAndArea = await page.evaluate(() => {
-    const actions = document.querySelector('.participants-page__actions').getBoundingClientRect();
-    const area = document.getElementById('participants-view-area').getBoundingClientRect();
-    return { actionsBottom: actions.bottom, areaBottom: area.bottom };
-  });
-  expect(actionAndArea.actionsBottom).toBeLessThanOrEqual(actionAndArea.areaBottom + 1);
+  expect(dirtyAction.position).toBe('fixed');
+  expect(dirtyAction.top).toBeGreaterThan(0);
+  expect(dirtyAction.bottom).toBeLessThanOrEqual(dirtyAction.viewportHeight + 1);
 
   await apply.click();
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(4);
@@ -163,9 +172,16 @@ test('Participants mobile flow has no saved-state overlay or broken sticky layou
   await clickApplicant(page, '山本 陽翔');
   const yamamotoRow = applicantRow(page, '山本 陽翔');
   await expect(yamamotoRow).toHaveClass(/is-pending-removal/);
-  await expect(yamamotoRow.locator('.participants-pending-removal')).toHaveText('参加者から外す予定');
+  await expect(yamamotoRow.locator('.participants-pending-removal')).toHaveText('除外予定');
+  await expect(page.locator('#participantsSelectionStatus')).toHaveText('3人を選択中');
   await expect(page.locator('#participantsActionCount')).toHaveText('参加者 4人 → 3人');
   await expect(apply).toHaveText('3人を参加者として保存');
+  const pendingRemoval = await yamamotoRow.evaluate(element => ({
+    boxShadow: getComputedStyle(element).boxShadow,
+    tagName: element.querySelector('.participants-pending-removal')?.tagName || ''
+  }));
+  expect(pendingRemoval.boxShadow).toBe('none');
+  expect(pendingRemoval.tagName).toBe('CDS-TAG');
 
   await apply.click();
   const confirm = page.locator('#appConfirmModal');
