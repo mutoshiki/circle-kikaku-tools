@@ -142,13 +142,14 @@
     button.toggleAttribute('disabled', disabled);
     button.setAttribute('title', exportInFlight ? '引き継ぎデータを作成しています。' : state.reason);
     button.setAttribute('aria-label', exportInFlight ? '引き継ぎデータを作成中' : `引き継ぎデータを作成。${state.reason}`);
-    button.textContent = exportInFlight ? '作成中…' : '引き継ぎデータ';
+    const label = exportInFlight ? '作成中…' : '引き継ぎデータ';
+    if (button.textContent !== label) button.textContent = label;
     return true;
   }
 
   function setStatus(message, tone = 'info') {
     const status = byId('formApplicantStatus');
-    if (status) status.textContent = String(message || '');
+    if (status && status.textContent !== String(message || '')) status.textContent = String(message || '');
     if (message) window.AppUI?.showStatus?.(String(message), { tone });
   }
 
@@ -157,6 +158,7 @@
       const callback = `__sanpoHandoff_${Date.now()}_${Math.random().toString(36).slice(2)}`.replace(/[^A-Za-z0-9_$]/g, '_');
       const script = document.createElement('script');
       let settled = false;
+      let timeoutId = 0;
 
       const cleanup = () => {
         script.remove();
@@ -165,7 +167,7 @@
       const finish = (handler, value) => {
         if (settled) return;
         settled = true;
-        window.clearTimeout(timer);
+        if (timeoutId) window.clearTimeout(timeoutId);
         cleanup();
         handler(value);
       };
@@ -182,8 +184,8 @@
       }
       script.src = url.toString();
       script.async = true;
+      timeoutId = window.setTimeout(() => finish(reject, new Error('引き継ぎデータの作成がタイムアウトしました。')), JSONP_TIMEOUT_MS);
       document.head.appendChild(script);
-      const timer = window.setTimeout(() => finish(reject, new Error('引き継ぎデータの作成がタイムアウトしました。')), JSONP_TIMEOUT_MS);
     });
   }
 
@@ -230,17 +232,27 @@
     updateExportButton();
     setStatus('引き継ぎデータを作成しています…');
     try {
-      const payload = await jsonpRequest({
-        action: 'handoff-export',
-        projectId,
-        token,
-        responses: selection.responseKeys.join(','),
-        manual: JSON.stringify(selection.manualNames)
-      });
-      if (!payload?.ok) throw new Error(payload?.error || '引き継ぎデータを作成できませんでした。');
-      if (!Array.isArray(payload.participants) || !payload.participants.length) throw new Error('参加者データが空です。');
-      downloadParticipantCsv(payload.filename, payload.participants);
-      setStatus(`${payload.participants.length}人の引き継ぎデータを作成しました。`, 'success');
+      let formParticipants = [];
+      let filename = `${String(applicationSync()?.title || '企画').replace(/[\\/:*?"<>|]/g, '_')}_参加者.csv`;
+      if (selection.responseKeys.length) {
+        const payload = await jsonpRequest({
+          action: 'handoff-export',
+          projectId,
+          token,
+          responses: selection.responseKeys.join(',')
+        });
+        if (!payload?.ok) throw new Error(payload?.error || '引き継ぎデータを作成できませんでした。');
+        if (!Array.isArray(payload.participants)) throw new Error('参加者データを読み取れませんでした。');
+        formParticipants = payload.participants;
+        filename = payload.filename || filename;
+      }
+
+      const participants = formParticipants.concat(
+        selection.manualNames.map(name => ({ studentId: '', name }))
+      );
+      if (!participants.length) throw new Error('参加者データが空です。');
+      downloadParticipantCsv(filename, participants);
+      setStatus(`${participants.length}人の引き継ぎデータを作成しました。`, 'success');
     } catch (error) {
       setStatus(error?.message || '引き継ぎデータを作成できませんでした。', 'error');
     } finally {
