@@ -58,8 +58,6 @@ assert.match(css, /\.participants-view-area\s*\{[\s\S]*?order:\s*3;/);
 assert.match(css, /\.participants-view-area\s*\{[\s\S]*?flex:\s*1 1 auto;/);
 assert.match(css, /\.participants-page__title\s*\{[\s\S]*?display:\s*none;/);
 
-// Carbon selectable-data-table interaction model: current selection, active search,
-// compact filters, selected-row state, and one persistent commit action.
 assert.match(participantUi, /cds-table-toolbar-search/);
 assert.match(participantUi, /応募者を検索/);
 assert.match(participantUi, /participantsSelectionFilter/);
@@ -77,8 +75,6 @@ assert.match(css, /\.form-applicant-sync__row\.is-selected/);
 assert.match(css, /var\(--cds-layer-selected-01/);
 assert.match(css, /position:\s*sticky;/);
 
-// Handoff export belongs to the Participants table toolbar, not the global overflow menu.
-// The organizer capability is stored per room on the device and removed from the URL.
 assert.match(handoffExport, /TOKEN_STORAGE_PREFIX\s*=\s*['"]SANPO_HANDOFF_EXPORT_TOKEN_V1:/);
 assert.match(handoffExport, /url\.searchParams\.delete\(TOKEN_PARAM\)/);
 assert.match(handoffExport, /window\.history\.replaceState/);
@@ -94,34 +90,39 @@ assert.match(handoffExport, /anchor\.download/);
 assert.match(css, /#handoffExportBtn/);
 assert.match(css, /grid-template-columns:\s*minmax\(0, 1fr\) auto 48px/);
 
-// Participant announcements are only exposed for managed-form projects after participants
-// are committed. Meeting time is the only required manual input; meeting place is fixed.
+// Participant announcements are shown only for managed-form projects after committed
+// participants exist. Meeting time is the only required manual input; place is fixed.
 assert.match(announcement, /FIXED_MEETING_PLACE\s*=\s*['"]サークルボックス前['"]/);
-assert.match(announcement, /applicationSync\(room/);
+assert.match(announcement, /WEEKDAYS\s*=\s*\[['"]日['"], ['"]月['"], ['"]火['"], ['"]水['"], ['"]木['"], ['"]金['"], ['"]土['"]\]/);
 assert.match(announcement, /if \(!sync\) return \{ visible: false/);
 assert.match(announcement, /if \(!participantCount\) return \{ visible: false/);
-assert.match(announcement, /参加者を更新してから作成できます/);
+assert.match(announcement, /hasPendingSelection\(\)/);
 assert.match(announcement, /participantAnnouncementPanel/);
 assert.match(announcement, /participantAnnouncementOpenBtn/);
-assert.match(announcement, /participantAnnouncementMeetTime/);
+assert.match(announcement, /id=\"announcementMeetingTime\"/);
 assert.match(announcement, /type=\"time\"/);
-assert.match(announcement, /required/);
-assert.match(announcement, /集合時間は必須です/);
-assert.match(announcement, /集合場所は\$\{FIXED_MEETING_PLACE\}です/);
-assert.doesNotMatch(announcement, /participantAnnouncementMeetingPlace/);
-assert.match(announcement, /participantAnnouncementOpening/);
-assert.match(announcement, /participantAnnouncementWeather/);
-assert.match(announcement, /participantAnnouncementSchedule/);
-assert.match(announcement, /participantAnnouncementNotes/);
-assert.match(announcement, /participantAnnouncementContact/);
-assert.match(announcement, /【参加者発表】※敬称略  ○は車出し/);
-assert.match(announcement, /people\.length === Number\(sync\.responseCount\)/);
+assert.match(announcement, /required label=\"集合時間\"/);
+assert.match(announcement, /サークルボックス前で固定です/);
+assert.doesNotMatch(announcement, /announcementMeetingPlace/);
+assert.match(announcement, /id=\"announcementOpening\"/);
+assert.match(announcement, /id=\"announcementWeather\"/);
+assert.match(announcement, /id=\"announcementRoughPlan\"/);
+assert.match(announcement, /id=\"announcementNotes\"/);
+assert.match(announcement, /id=\"announcementContact\"/);
+assert.match(announcement, /【参加者発表】※敬称略　○は車出し/);
+assert.match(announcement, /\$\{FIXED_MEETING_PLACE\}に集合してください/);
+assert.match(announcement, /announcementTitle\(\)/);
+assert.match(announcement, /【参加者発表】\$\{eventDateLabel\(sync\)\}\$\{projectName\(sync\)\}/);
+assert.match(announcement, /announcementCopyTitleBtn/);
+assert.match(announcement, /タイトルをコピー/);
+assert.match(announcement, /announcementCopyBodyBtn/);
+assert.match(announcement, /本文をコピー/);
 assert.match(announcement, /navigator\.clipboard\?\.writeText/);
 assert.match(announcementCss, /\.participant-announcement-panel/);
 assert.match(announcementCss, /\.participant-announcement-layout/);
+assert.match(announcementCss, /\.participant-announcement-preview__heading/);
 assert.match(announcementCss, /var\(--cds-/);
 
-// Participant registration is not exposed from car/team allocation.
 assert.match(participantUi, /batchOpenBtn/);
 assert.match(participantUi, /removeAllocationRegistrationAction/);
 assert.match(participantUi, /button\.remove\(\)/);
