@@ -123,12 +123,34 @@
     }
   }
 
+  function publishApplicationSyncToBridge(sync) {
+    if (!isValidApplicationSync(sync)) return false;
+    const publish = () => {
+      const bridge = window.SanpoApplicationSyncBridge;
+      if (!bridge?.publish) return false;
+      bridge.publish(sync, { source: 'form-linked-debug-sample' });
+      return true;
+    };
+    if (publish()) return true;
+
+    // Feature scripts are injected dynamically. If the sample script happens to execute
+    // before the bridge, retain the form-owned state and publish it as soon as the bridge
+    // becomes available instead of depending on a transient canonical snapshot.
+    let attempts = 0;
+    const timer = window.setInterval(() => {
+      attempts += 1;
+      if (publish() || attempts >= 40) window.clearInterval(timer);
+    }, 50);
+    return false;
+  }
+
   function attachApplicationSyncToCanonical(sync) {
     if (!isValidApplicationSync(sync)) return false;
     const room = window.SanpoCanonicalState?.get?.();
     if (!room) return false;
     room.meta = room.meta && typeof room.meta === 'object' ? room.meta : {};
     room.meta.applicationSync = JSON.parse(JSON.stringify(sync));
+    publishApplicationSyncToBridge(sync);
     return true;
   }
 
