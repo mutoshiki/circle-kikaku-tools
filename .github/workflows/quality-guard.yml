@@ -46,6 +46,8 @@ jobs:
       - run: npm run test:ui
       - run: npm run test:visual
       - run: npm run test:safari-sync
+      - name: WebKit participants mobile regression
+        run: playwright test tests/participants-tab-v83.spec.js --config=playwright.webkit.config.js
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
