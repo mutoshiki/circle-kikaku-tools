@@ -1,4 +1,5 @@
 // Participants selection presentation owner.
+// Legacy rendered labels intentionally removed from the UI: 参加者を確定 / 変更を保存 / ✓ 保存済み.
 (() => {
   'use strict';
 
@@ -6,7 +7,7 @@
   let participantAreaObserver = null;
   let uiUpdating = false;
   let editingConfirmedSelection = false;
-  let previousDirtyState = false;
+  let pendingCollapseAfterSave = false;
 
   function canonical() {
     return window.SanpoCanonicalState?.get?.() || null;
@@ -30,6 +31,18 @@
     const toolbar = button.closest('.allocation-toolbar');
     button.remove();
     if (toolbar && !toolbar.querySelector('button, cds-button, cds-icon-button, cds-overflow-menu')) toolbar.remove();
+  }
+
+  function ensureHeaderSummaryLayout() {
+    const header = document.querySelector('.participants-page__header');
+    const summary = byId('participantsViewSummary');
+    if (!header || !summary) return;
+    let heading = header.querySelector('.participants-page__heading');
+    if (!heading) {
+      heading = header.firstElementChild;
+      if (heading) heading.classList.add('participants-page__heading');
+    }
+    if (heading && summary.parentElement !== heading) heading.appendChild(summary);
   }
 
   function ensureSelectionToolbar() {
@@ -170,7 +183,7 @@
     return Boolean(button && !button.disabled && !button.hasAttribute('disabled'));
   }
 
-  function ensureStickyState() {
+  function ensureActionState() {
     const actions = document.querySelector('.participants-page__actions');
     if (!actions) return;
 
@@ -181,14 +194,14 @@
       actions.prepend(count);
     }
 
-    if (!byId('participantsSavedState')) {
-      const saved = document.createElement('span');
-      saved.id = 'participantsSavedState';
-      saved.className = 'participants-saved-state';
-      saved.textContent = '✓ 保存済み';
-      saved.hidden = true;
-      const button = byId('formApplicantApplyBtn');
-      actions.insertBefore(saved, button || null);
+    byId('participantsSavedState')?.remove();
+
+    const button = byId('formApplicantApplyBtn');
+    if (button && !button.dataset.participantsCollapseBound) {
+      button.dataset.participantsCollapseBound = 'true';
+      button.addEventListener('click', () => {
+        pendingCollapseAfterSave = true;
+      }, { capture: true });
     }
   }
 
@@ -210,6 +223,7 @@
     byId('participantsEditToggle')?.addEventListener('click', () => {
       if (applyButtonIsDirty()) return;
       editingConfirmedSelection = !editingConfirmedSelection;
+      pendingCollapseAfterSave = false;
       refreshParticipantUi();
     });
     return controls;
@@ -226,13 +240,20 @@
     const participantCount = Object.keys(room.participants || {}).length;
     const confirmed = managed && participantCount > 0;
 
-    if (previousDirtyState && !dirty && confirmed) editingConfirmedSelection = false;
-    if (dirty) editingConfirmedSelection = true;
-    if (!confirmed) editingConfirmedSelection = false;
+    if (!confirmed) {
+      editingConfirmedSelection = false;
+      pendingCollapseAfterSave = false;
+    } else if (dirty) {
+      editingConfirmedSelection = true;
+    } else if (pendingCollapseAfterSave) {
+      editingConfirmedSelection = false;
+      pendingCollapseAfterSave = false;
+    }
 
     const collapsed = confirmed && !dirty && !editingConfirmedSelection;
     page.classList.toggle('is-confirmed-collapsed', collapsed);
     page.classList.toggle('is-confirmed-editing', confirmed && !collapsed);
+    page.classList.toggle('is-selection-dirty', dirty);
     controls.hidden = !confirmed;
 
     const editButton = byId('participantsEditToggle');
@@ -251,8 +272,6 @@
         : (collapsed ? '参加者の選択を編集' : '参加者の編集を閉じる');
       if (editButton.getAttribute('title') !== title) editButton.setAttribute('title', title);
     }
-
-    previousDirtyState = dirty;
   }
 
   function ensurePostConfirmSection() {
@@ -325,7 +344,13 @@
     }
 
     const participantCount = Object.keys(room.participants || {}).length;
-    const ready = Boolean(applicationSync(room) && participantCount > 0 && !applyButtonIsDirty());
+    const dirty = applyButtonIsDirty();
+    const ready = Boolean(
+      applicationSync(room)
+      && participantCount > 0
+      && !dirty
+      && !editingConfirmedSelection
+    );
     section.hidden = !ready || !(announcement || handoff);
   }
 
@@ -344,21 +369,25 @@
     summary.classList.remove('is-manual');
     if (summary.textContent !== summaryText) summary.textContent = summaryText;
 
+    const actions = document.querySelector('.participants-page__actions');
+    if (actions) actions.hidden = !dirty;
+
     const button = byId('formApplicantApplyBtn');
     if (button) {
-      const label = participantCount > 0 ? '変更を保存' : '参加者を確定';
+      const label = participantCount > 0
+        ? `${selected}人を参加者として保存`
+        : `${selected}人を参加者として確定`;
       if (button.textContent !== label) button.textContent = label;
       button.hidden = !dirty;
     }
 
     const actionCount = byId('participantsActionCount');
     if (actionCount) {
-      const countText = `${selected}人を選択中`;
+      const countText = participantCount > 0
+        ? `参加者 ${participantCount}人 → ${selected}人`
+        : `${selected}人を選択中`;
       if (actionCount.textContent !== countText) actionCount.textContent = countText;
     }
-
-    const saved = byId('participantsSavedState');
-    if (saved) saved.hidden = dirty || participantCount === 0;
 
     const list = byId('formApplicantList');
     if (list) {
@@ -368,10 +397,30 @@
   }
 
   function updateRows() {
+    const room = canonical();
+    const dirty = applyButtonIsDirty();
     byId('formApplicantList')?.querySelectorAll?.('.form-applicant-sync__row').forEach(row => {
       const checkbox = row.querySelector('cds-checkbox');
-      row.classList.toggle('is-selected', checkboxChecked(checkbox));
+      const checked = checkboxChecked(checkbox);
+      const label = String(checkbox?.getAttribute('label-text') || '').trim();
+      const participantId = label
+        ? window.SanpoCanonicalState?.findParticipantIdByName?.(room?.participants || {}, label) || ''
+        : '';
+      const pendingRemoval = Boolean(dirty && participantId && !checked);
+      row.classList.toggle('is-selected', checked);
+      row.classList.toggle('is-pending-removal', pendingRemoval);
       row.setAttribute('role', 'listitem');
+
+      const person = row.querySelector('.form-applicant-sync__person');
+      let removal = row.querySelector('.participants-pending-removal');
+      if (pendingRemoval && person && !removal) {
+        removal = document.createElement('span');
+        removal.className = 'participants-pending-removal';
+        removal.textContent = '参加者から外す予定';
+        person.appendChild(removal);
+      } else if (!pendingRemoval && removal) {
+        removal.remove();
+      }
     });
   }
 
@@ -384,8 +433,9 @@
       if (!area) return false;
 
       byId('participantsViewDescription')?.remove();
+      ensureHeaderSummaryLayout();
       ensureSelectionToolbar();
-      ensureStickyState();
+      ensureActionState();
       ensureConfirmedControls();
       updateRows();
       updateSummary();
