@@ -184,10 +184,10 @@
       <cds-modal-body class="app-modal-body participant-announcement-body" no-fade>
         <div class="participant-announcement-layout">
           <section class="participant-announcement-fields" aria-label="発表文の入力">
-            <cds-text-input id="announcementMeetingTime" type="time" size="lg" required label="集合時間" helper-text="必須・集合場所はサークルボックス前で固定です"></cds-text-input>
+            <cds-text-input id="announcementMeetingTime" type="time" size="lg" required label="集合時間"></cds-text-input>
             <cds-textarea id="announcementOpening" rows="2" label="冒頭のひとこと（任意）"></cds-textarea>
             <cds-textarea id="announcementWeather" rows="2" label="天候不良時の対応（任意）"></cds-textarea>
-            <cds-textarea id="announcementRoughPlan" rows="6" label="ざっくり予定（任意）" helper-text="集合部分は自動で入ります"></cds-textarea>
+            <cds-textarea id="announcementRoughPlan" rows="6" label="ざっくり予定（任意）"></cds-textarea>
             <cds-textarea id="announcementNotes" rows="3" label="持ち物・補足（任意）"></cds-textarea>
             <cds-text-input id="announcementContact" type="text" size="lg" label="連絡先（任意）"></cds-text-input>
           </section>
