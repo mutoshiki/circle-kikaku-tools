@@ -6,6 +6,7 @@ const feature = fs.readFileSync(new URL('../assets/js/features/form-applicant-sy
 const participantUi = fs.readFileSync(new URL('../assets/js/features/participants-ui.js', import.meta.url), 'utf8');
 const handoffExport = fs.readFileSync(new URL('../assets/js/features/handoff-export.js', import.meta.url), 'utf8');
 const announcement = fs.readFileSync(new URL('../assets/js/features/participant-announcement.js', import.meta.url), 'utf8');
+const formLinkedSample = fs.readFileSync(new URL('../assets/js/features/form-linked-sample.js', import.meta.url), 'utf8');
 const loader = fs.readFileSync(new URL('../firebase-config.js', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../assets/css/guides-modals/import-guide/07-form-applicant-sync.css', import.meta.url), 'utf8');
 const announcementCss = fs.readFileSync(new URL('../assets/css/guides-modals/import-guide/08-participant-announcement.css', import.meta.url), 'utf8');
@@ -18,6 +19,7 @@ assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-carbon-v92/);
 assert.match(loader, /participants-ui\.js\?v=participants-copy-v96/);
 assert.match(loader, /handoff-export\.js\?v=participants-copy-v96/);
 assert.match(loader, /participant-announcement\.js\?v=participants-copy-v96/);
+assert.match(loader, /form-linked-sample\.js\?v=participant-announcement-debug-v98/);
 assert.match(loader, /07-form-applicant-sync\.css\?v=participants-flow-v94/);
 assert.match(loader, /08-participant-announcement\.css\?v=participants-carbon-v93/);
 assert.doesNotMatch(loader, /form-link-sync\.js/);
@@ -130,6 +132,15 @@ assert.match(css, /#handoffExportBtn/);
 assert.match(participantUi, /button\.parentElement !== panel/);
 assert.match(participantUi, /panel\.appendChild\(button\)/);
 
+// Form-linked sample keeps managed-form-only UI reproducible without creating a real Google Form.
+assert.match(formLinkedSample, /SAMPLE_BUTTON_ID\s*=\s*['"]executeFormLinkedDebugBtn['"]/);
+assert.match(formLinkedSample, /フォーム連携サンプルを入れる/);
+assert.match(formLinkedSample, /kind:\s*['"]formApplicationSync['"]/);
+assert.match(formLinkedSample, /version:\s*2/);
+assert.match(formLinkedSample, /responseCount:\s*sampleApplicants\.length/);
+assert.match(formLinkedSample, /eventDate:\s*SAMPLE_EVENT_DATE/);
+assert.match(formLinkedSample, /window\.switchView\('participants'\)/);
+
 // Participant announcements are shown only for managed-form projects after committed
 // participants exist. Meeting time is the only required manual input; place is fixed.
 assert.match(announcement, /FIXED_MEETING_PLACE\s*=\s*['"]サークルボックス前['"]/);
@@ -190,12 +201,11 @@ assert.doesNotMatch(announcement, /addItineraryRow\(\{ focus: false \}\)/);
 assert.match(announcement, /～大まかな予定～/);
 assert.doesNotMatch(announcement, /～ざっくり予定～/);
 
-// Generated copy has no dangling date separator, duplicate project suffix, or variable meeting place.
-assert.match(announcement, /function projectName\(/);
-assert.match(announcement, /return raw\.includes\('企画'\) \? raw : `\$\{raw\}企画`/);
+// Generated copy has no dangling date separator and uses the fixed meeting place.
 assert.match(announcement, /function announcementSubject\(/);
 assert.match(announcement, /return `\$\{eventDateLabel\(sync, room\)\}\$\{projectName\(sync, room\)\}`/);
 assert.doesNotMatch(announcement, /\$\{eventDateLabel\(sync, room\)\}の\$\{projectName\(sync, room\)\}/);
+assert.match(announcement, /raw\.includes\('企画'\) \? raw : `\$\{raw\}企画`/);
 assert.match(announcement, /当日は\$\{meetingTime\}に\$\{FIXED_MEETING_PLACE\}に集合してください/);
 assert.match(announcement, /【参加者】/);
 assert.match(announcement, /○は車出し/);
@@ -280,4 +290,4 @@ assert.match(commonEmpty, /人数だけで精算/);
 assert.doesNotMatch(commonEmpty, /参加者登録\(推奨\)/);
 assert.doesNotMatch(commonEmpty, /もしくは/);
 
-console.log('PASS participant wording, cross-tab empty states, confirmed-flow UI, direct applicant sync, handoff export, and participant announcement contract');
+console.log('PASS participant wording, cross-tab empty states, confirmed-flow UI, direct applicant sync, handoff export, participant announcement, and form-linked debug sample contracts');
