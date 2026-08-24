@@ -20,26 +20,39 @@ window.SANPO_FIREBASE_CONFIG = {
     if (!document.querySelector('link[data-sanpo-applicant-sync]')) {
       const stylesheet = document.createElement('link');
       stylesheet.rel = 'stylesheet';
-      stylesheet.href = './assets/css/guides-modals/import-guide/07-form-applicant-sync.css?v=participants-carbon-v91';
+      stylesheet.href = './assets/css/guides-modals/import-guide/07-form-applicant-sync.css?v=participants-carbon-v92';
       stylesheet.dataset.sanpoApplicantSync = 'true';
+      document.head.appendChild(stylesheet);
+    }
+    if (!document.querySelector('link[data-sanpo-participant-announcement]')) {
+      const stylesheet = document.createElement('link');
+      stylesheet.rel = 'stylesheet';
+      stylesheet.href = './assets/css/guides-modals/import-guide/08-participant-announcement.css?v=participants-carbon-v92';
+      stylesheet.dataset.sanpoParticipantAnnouncement = 'true';
       document.head.appendChild(stylesheet);
     }
     if (!document.querySelector('script[data-sanpo-applicant-sync]')) {
       const script = document.createElement('script');
-      script.src = './assets/js/features/form-applicant-sync-v2.js?v=participants-carbon-v91';
+      script.src = './assets/js/features/form-applicant-sync-v2.js?v=participants-carbon-v92';
       script.dataset.sanpoApplicantSync = 'true';
       document.head.appendChild(script);
     }
     if (!document.querySelector('script[data-sanpo-participants-ui]')) {
       const script = document.createElement('script');
-      script.src = './assets/js/features/participants-ui.js?v=participants-carbon-v91';
+      script.src = './assets/js/features/participants-ui.js?v=participants-carbon-v92';
       script.dataset.sanpoParticipantsUi = 'true';
       document.head.appendChild(script);
     }
     if (!document.querySelector('script[data-sanpo-handoff-export]')) {
       const script = document.createElement('script');
-      script.src = './assets/js/features/handoff-export.js?v=participants-carbon-v91';
+      script.src = './assets/js/features/handoff-export.js?v=participants-carbon-v92';
       script.dataset.sanpoHandoffExport = 'true';
+      document.head.appendChild(script);
+    }
+    if (!document.querySelector('script[data-sanpo-participant-announcement]')) {
+      const script = document.createElement('script');
+      script.src = './assets/js/features/participant-announcement.js?v=participants-carbon-v92';
+      script.dataset.sanpoParticipantAnnouncement = 'true';
       document.head.appendChild(script);
     }
   }
