@@ -142,7 +142,7 @@
   function setComponentValue(element, value) {
     if (!element) return;
     if (element.value !== value) element.value = value;
-    element.setAttribute('value', value);
+    if (element.getAttribute('value') !== value) element.setAttribute('value', value);
   }
 
   function updatePreview() {
@@ -159,7 +159,8 @@
       else timeInput.removeAttribute('invalid-text');
     }
     if (copyBody) {
-      copyBody.disabled = invalid;
+      const currentlyDisabled = copyBody.disabled || copyBody.hasAttribute('disabled');
+      if (currentlyDisabled !== invalid) copyBody.disabled = invalid;
       copyBody.toggleAttribute('disabled', invalid);
       copyBody.setAttribute('title', invalid ? '集合時間を入力してください。' : '本文をコピーします。');
     }
@@ -301,8 +302,10 @@
     if (!panel) return false;
     const button = byId('participantAnnouncementOpenBtn');
     if (button) {
-      button.disabled = !state.enabled;
-      button.toggleAttribute('disabled', !state.enabled);
+      const disabled = !state.enabled;
+      const currentlyDisabled = button.disabled || button.hasAttribute('disabled');
+      if (currentlyDisabled !== disabled) button.disabled = disabled;
+      button.toggleAttribute('disabled', disabled);
       button.setAttribute('title', state.reason);
     }
     if (byId('participantAnnouncementModal')) updatePreview();
@@ -316,15 +319,21 @@
       if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(value);
       else throw new Error('clipboard-unavailable');
     } catch (_) {
-      const textarea = document.createElement('textarea');
-      textarea.value = value;
-      textarea.setAttribute('readonly', '');
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
+      const buffer = document.createElement('div');
+      buffer.textContent = value;
+      buffer.contentEditable = 'true';
+      buffer.setAttribute('aria-hidden', 'true');
+      buffer.style.position = 'fixed';
+      buffer.style.inset = '0 auto auto -10000px';
+      document.body.appendChild(buffer);
+      const range = document.createRange();
+      range.selectNodeContents(buffer);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
       const copied = document.execCommand('copy');
-      textarea.remove();
+      selection?.removeAllRanges();
+      buffer.remove();
       if (!copied) throw new Error('コピーできませんでした。');
     }
     window.AppUI?.showStatus?.(`${label}をコピーしました。`, { tone: 'success' });
