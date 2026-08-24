@@ -5,17 +5,21 @@ const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const feature = fs.readFileSync(new URL('../assets/js/features/form-applicant-sync-v2.js', import.meta.url), 'utf8');
 const participantUi = fs.readFileSync(new URL('../assets/js/features/participants-ui.js', import.meta.url), 'utf8');
 const handoffExport = fs.readFileSync(new URL('../assets/js/features/handoff-export.js', import.meta.url), 'utf8');
+const announcement = fs.readFileSync(new URL('../assets/js/features/participant-announcement.js', import.meta.url), 'utf8');
 const loader = fs.readFileSync(new URL('../firebase-config.js', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../assets/css/guides-modals/import-guide/07-form-applicant-sync.css', import.meta.url), 'utf8');
+const announcementCss = fs.readFileSync(new URL('../assets/css/guides-modals/import-guide/08-participant-announcement.css', import.meta.url), 'utf8');
 const settlementEmpty = fs.readFileSync(new URL('../assets/js/templates/settlement/07-empty-state-templates.js', import.meta.url), 'utf8');
 const commonEmpty = fs.readFileSync(new URL('../assets/js/templates/common-empty-state.js', import.meta.url), 'utf8');
 const navigation = fs.readFileSync(new URL('../assets/js/features/events/02-static-header-events.js', import.meta.url), 'utf8');
 
 assert.match(html, /\.\/firebase-config\.js\?v=participants-carbon-v90/);
-assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-carbon-v91/);
-assert.match(loader, /participants-ui\.js\?v=participants-carbon-v91/);
-assert.match(loader, /handoff-export\.js\?v=participants-carbon-v91/);
-assert.match(loader, /07-form-applicant-sync\.css\?v=participants-carbon-v91/);
+assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-carbon-v92/);
+assert.match(loader, /participants-ui\.js\?v=participants-carbon-v92/);
+assert.match(loader, /handoff-export\.js\?v=participants-carbon-v92/);
+assert.match(loader, /participant-announcement\.js\?v=participants-carbon-v92/);
+assert.match(loader, /07-form-applicant-sync\.css\?v=participants-carbon-v92/);
+assert.match(loader, /08-participant-announcement\.css\?v=participants-carbon-v92/);
 assert.doesNotMatch(loader, /form-link-sync\.js/);
 assert.doesNotMatch(loader, /06-form-auto-link\.css/);
 assert.doesNotMatch(loader, /carbon-checkbox-state-bridge/);
@@ -54,8 +58,6 @@ assert.match(css, /\.participants-view-area\s*\{[\s\S]*?order:\s*3;/);
 assert.match(css, /\.participants-view-area\s*\{[\s\S]*?flex:\s*1 1 auto;/);
 assert.match(css, /\.participants-page__title\s*\{[\s\S]*?display:\s*none;/);
 
-// Carbon selectable-data-table interaction model: current selection, active search,
-// compact filters, selected-row state, and one persistent commit action.
 assert.match(participantUi, /cds-table-toolbar-search/);
 assert.match(participantUi, /応募者を検索/);
 assert.match(participantUi, /participantsSelectionFilter/);
@@ -73,8 +75,6 @@ assert.match(css, /\.form-applicant-sync__row\.is-selected/);
 assert.match(css, /var\(--cds-layer-selected-01/);
 assert.match(css, /position:\s*sticky;/);
 
-// Handoff export belongs to the Participants table toolbar, not the global overflow menu.
-// The organizer capability is stored per room on the device and removed from the URL.
 assert.match(handoffExport, /TOKEN_STORAGE_PREFIX\s*=\s*['"]SANPO_HANDOFF_EXPORT_TOKEN_V1:/);
 assert.match(handoffExport, /url\.searchParams\.delete\(TOKEN_PARAM\)/);
 assert.match(handoffExport, /window\.history\.replaceState/);
@@ -90,7 +90,39 @@ assert.match(handoffExport, /anchor\.download/);
 assert.match(css, /#handoffExportBtn/);
 assert.match(css, /grid-template-columns:\s*minmax\(0, 1fr\) auto 48px/);
 
-// Participant registration is not exposed from car/team allocation.
+// Participant announcements are shown only for managed-form projects after committed
+// participants exist. Meeting time is the only required manual input; place is fixed.
+assert.match(announcement, /FIXED_MEETING_PLACE\s*=\s*['"]サークルボックス前['"]/);
+assert.match(announcement, /WEEKDAYS\s*=\s*\[['"]日['"], ['"]月['"], ['"]火['"], ['"]水['"], ['"]木['"], ['"]金['"], ['"]土['"]\]/);
+assert.match(announcement, /if \(!sync\) return \{ visible: false/);
+assert.match(announcement, /if \(!participantCount\) return \{ visible: false/);
+assert.match(announcement, /hasPendingSelection\(\)/);
+assert.match(announcement, /participantAnnouncementPanel/);
+assert.match(announcement, /participantAnnouncementOpenBtn/);
+assert.match(announcement, /id=\"announcementMeetingTime\"/);
+assert.match(announcement, /type=\"time\"/);
+assert.match(announcement, /required label=\"集合時間\"/);
+assert.match(announcement, /サークルボックス前で固定です/);
+assert.doesNotMatch(announcement, /announcementMeetingPlace/);
+assert.match(announcement, /id=\"announcementOpening\"/);
+assert.match(announcement, /id=\"announcementWeather\"/);
+assert.match(announcement, /id=\"announcementRoughPlan\"/);
+assert.match(announcement, /id=\"announcementNotes\"/);
+assert.match(announcement, /id=\"announcementContact\"/);
+assert.match(announcement, /【参加者発表】※敬称略　○は車出し/);
+assert.match(announcement, /\$\{FIXED_MEETING_PLACE\}に集合してください/);
+assert.match(announcement, /announcementTitle\(\)/);
+assert.match(announcement, /【参加者発表】\$\{eventDateLabel\(sync\)\}\$\{projectName\(sync\)\}/);
+assert.match(announcement, /announcementCopyTitleBtn/);
+assert.match(announcement, /タイトルをコピー/);
+assert.match(announcement, /announcementCopyBodyBtn/);
+assert.match(announcement, /本文をコピー/);
+assert.match(announcement, /navigator\.clipboard\?\.writeText/);
+assert.match(announcementCss, /\.participant-announcement-panel/);
+assert.match(announcementCss, /\.participant-announcement-layout/);
+assert.match(announcementCss, /\.participant-announcement-preview__heading/);
+assert.match(announcementCss, /var\(--cds-/);
+
 assert.match(participantUi, /batchOpenBtn/);
 assert.match(participantUi, /removeAllocationRegistrationAction/);
 assert.match(participantUi, /button\.remove\(\)/);
@@ -134,4 +166,4 @@ assert.match(commonEmpty, /data-action="open-participants"/);
 assert.doesNotMatch(commonEmpty, /参加者登録\(推奨\)/);
 assert.doesNotMatch(commonEmpty, /もしくは/);
 
-console.log('PASS participants tab, direct applicant sync, and organizer handoff export contract');
+console.log('PASS participants tab, direct applicant sync, organizer handoff export, and participant announcement contract');
