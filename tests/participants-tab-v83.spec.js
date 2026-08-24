@@ -38,11 +38,16 @@ async function clickApplicant(page, name) {
   await row.locator('cds-checkbox label').click();
 }
 
-test('Participants mobile flow has no saved-state overlay or broken sticky layout', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  const errors = [];
-  page.on('pageerror', error => errors.push(String(error)));
+async function setCarbonValue(page, selector, value) {
+  await page.locator(selector).evaluate((element, nextValue) => {
+    element.value = nextValue;
+    element.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+    element.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+  }, value);
+}
 
+async function openManagedParticipants(page) {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript(() => {
     Object.defineProperty(window, 'SANPO_FIREBASE_CONFIG', {
       configurable: true,
@@ -50,14 +55,18 @@ test('Participants mobile flow has no saved-state overlay or broken sticky layou
       set: () => {}
     });
   });
-
   await page.goto('/');
   await page.waitForFunction(() => document.querySelector('#tab-participants') && window.SanpoApplicantSync && window.SanpoCanonicalState?.get?.());
   await page.waitForFunction(() => (typeof firebaseEnabled === 'undefined') || firebaseEnabled === false);
-
   await page.locator('#tab-participants').click();
   await expect(page.locator('body')).toHaveClass(/view-mode-participants/);
   await seedManagedApplicants(page);
+}
+
+test('Participants mobile flow has no saved-state overlay or broken sticky layout', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(String(error)));
+  await openManagedParticipants(page);
 
   await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 5人');
   await expect(page.locator('#formApplicantList cds-checkbox[data-form-applicant-key]')).toHaveCount(5);
@@ -174,6 +183,76 @@ test('Participants mobile flow has no saved-state overlay or broken sticky layou
   }));
   expect(darkColors.background).not.toBe('rgb(232, 232, 232)');
   expect(darkColors.background).not.toBe('rgb(255, 255, 255)');
+
+  expect(errors).toEqual([]);
+});
+
+test('Participant announcement mobile flow starts safely and separates editing from preview', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(String(error)));
+  await openManagedParticipants(page);
+
+  for (const name of ['山本 陽翔', '小林 海斗', '佐々木 陽菜', '松本 結月', '田中 結衣']) {
+    await clickApplicant(page, name);
+  }
+  await page.locator('#formApplicantApplyBtn').click();
+  await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(5);
+  await expect(page.locator('#participantsPostConfirmSection')).toBeVisible();
+  await expect(page.locator('#participantAnnouncementOpenBtn')).toBeVisible();
+
+  await page.locator('#participantAnnouncementOpenBtn').click();
+  const modal = page.locator('#participantAnnouncementModal');
+  await expect(modal).toHaveAttribute('open', '');
+  await expect(page.locator('#announcementEditStep')).toBeVisible();
+  await expect(page.locator('#announcementPreviewStep')).toBeHidden();
+  await expect(page.locator('#announcementEventDate')).toHaveJSProperty('value', '2026-08-24');
+  await expect(page.locator('#announcementMeetingTime')).toHaveJSProperty('value', '');
+  await expect(page.locator('#announcementItineraryList .participant-announcement-itinerary__row')).toHaveCount(0);
+  await expect(page.locator('#announcementAdvancedFields')).toBeHidden();
+  await expect(modal.locator('cds-modal-footer')).toHaveCount(0);
+
+  await page.locator('#announcementPreviewBtn').click();
+  await expect(page.locator('#announcementEditStep')).toBeVisible();
+  await expect(page.locator('#announcementMeetingTime')).toHaveAttribute('invalid', '');
+
+  await setCarbonValue(page, '#announcementEventDate', '2026-09-24');
+  await setCarbonValue(page, '#announcementMeetingTime', '06:30');
+  await page.locator('#announcementAddItineraryBtn').click();
+  await expect(page.locator('#announcementItineraryList .participant-announcement-itinerary__row')).toHaveCount(1);
+  await setCarbonValue(page, '#announcementItineraryList [data-itinerary-time]', '09:00');
+  await setCarbonValue(page, '#announcementItineraryList [data-itinerary-step]', '登山開始');
+  await setCarbonValue(page, '#announcementSupplement', '天候によっては中止する場合があります。');
+
+  await page.locator('#announcementAdvancedToggleBtn').click();
+  await expect(page.locator('#announcementAdvancedFields')).toBeVisible();
+  await setCarbonValue(page, '#announcementOpening', 'お疲れ様です！テストです。');
+
+  await page.locator('#announcementPreviewBtn').click();
+  await expect(page.locator('#announcementEditStep')).toBeHidden();
+  await expect(page.locator('#announcementPreviewStep')).toBeVisible();
+  await expect(page.locator('#announcementTitlePreview')).toContainText('9月24日(木)');
+  await expect(page.locator('#announcementBodyPreview')).toContainText('9月24日(木)');
+  await expect(page.locator('#announcementBodyPreview')).toContainText('今回は応募してくださった方全員が参加できることになりました。');
+  await expect(page.locator('#announcementBodyPreview')).toContainText('○は車出し');
+  await expect(page.locator('#announcementBodyPreview')).toContainText('当日は06:30にサークルボックス前に集合してください。');
+  await expect(page.locator('#announcementBodyPreview')).toContainText('～大まかな予定～');
+  await expect(page.locator('#announcementBodyPreview')).toContainText('09:00 登山開始');
+  await expect(page.locator('#announcementBodyPreview')).not.toContainText('の5人テスト企画');
+
+  const bodyGeometry = await page.locator('#announcementBodyPreview').evaluate(element => ({
+    tagName: element.tagName,
+    overflowY: getComputedStyle(element).overflowY,
+    clientHeight: element.clientHeight,
+    scrollHeight: element.scrollHeight
+  }));
+  expect(bodyGeometry.tagName).toBe('PRE');
+  expect(bodyGeometry.overflowY).not.toBe('scroll');
+  expect(bodyGeometry.scrollHeight).toBeLessThanOrEqual(bodyGeometry.clientHeight + 1);
+
+  await page.locator('#announcementEditBtn').click();
+  await expect(page.locator('#announcementEditStep')).toBeVisible();
+  await expect(page.locator('#announcementPreviewStep')).toBeHidden();
+  await expect(page.locator('#announcementMeetingTime')).toHaveJSProperty('value', '06:30');
 
   expect(errors).toEqual([]);
 });
