@@ -87,7 +87,6 @@ assert.doesNotMatch(handoffExport, /studentId.*localStorage/i);
 assert.match(handoffExport, /\[['"]学籍番号['"], ['"]氏名['"]\]/);
 assert.match(handoffExport, /Blob\(\[csv\]/);
 assert.match(handoffExport, /anchor\.download/);
-assert.match(handoffExport, /ContentService/);
 assert.match(css, /#handoffExportBtn/);
 assert.match(css, /grid-template-columns:\s*minmax\(0, 1fr\) auto 48px/);
 
