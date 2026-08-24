@@ -72,8 +72,17 @@
     return raw.endsWith('企画') ? raw : `${raw}企画`;
   }
 
+  function sourceEventDate(sync = applicationSync(), room = canonical()) {
+    return String(sync?.eventDate || sync?.date || room?.eventDate || room?.date || '').trim();
+  }
+
+  function selectedEventDate(sync = applicationSync(), room = canonical()) {
+    const input = byId('announcementEventDate');
+    return input ? String(input.value || '').trim() : sourceEventDate(sync, room);
+  }
+
   function eventDateLabel(sync = applicationSync(), room = canonical()) {
-    return formatEventDate(sync?.eventDate || sync?.date || room?.eventDate || room?.date);
+    return formatEventDate(selectedEventDate(sync, room));
   }
 
   function announcementTitle() {
@@ -82,9 +91,7 @@
   }
 
   function announcementSubject(sync = applicationSync(), room = canonical()) {
-    const date = eventDateLabel(sync, room);
-    const name = projectName(sync, room);
-    return `${date}${name}`;
+    return `${eventDateLabel(sync, room)}${projectName(sync, room)}`;
   }
 
   function participantLines(participants) {
@@ -274,6 +281,7 @@
       <cds-modal-body class="app-modal-body participant-announcement-body" no-fade>
         <div class="participant-announcement-layout">
           <section id="announcementEditStep" class="participant-announcement-fields" aria-label="発表文の入力">
+            <cds-text-input id="announcementEventDate" type="date" size="lg" label="実施日（任意）"></cds-text-input>
             <cds-text-input id="announcementMeetingTime" type="time" size="lg" required label="集合時間"></cds-text-input>
 
             <section class="participant-announcement-itinerary" aria-labelledby="announcementItineraryHeading">
@@ -323,12 +331,13 @@
       </cds-modal-body>`;
     document.body.appendChild(modal);
 
-    // Keep the time deliberately empty. Autofocusing a time input on iOS can make
-    // the current time look selected even though the organizer never chose it.
+    setComponentValue(byId('announcementEventDate'), sourceEventDate());
+    // Keep the meeting time deliberately empty. Autofocusing a time input on iOS can
+    // make the current time look selected even though the organizer never chose it.
     setComponentValue(byId('announcementMeetingTime'), '');
     byId('announcementMeetingTime')?.removeAttribute('value');
 
-    ['announcementMeetingTime', 'announcementSupplement', 'announcementOpening', 'announcementContact', 'announcementClosing'].forEach(id => {
+    ['announcementEventDate', 'announcementMeetingTime', 'announcementSupplement', 'announcementOpening', 'announcementContact', 'announcementClosing'].forEach(id => {
       const input = byId(id);
       input?.addEventListener('input', updatePreview);
       input?.addEventListener('change', updatePreview);
@@ -353,11 +362,6 @@
     byId('announcementCopyTitleBtn')?.addEventListener('click', () => void copyText(announcementTitle(), 'タイトル'));
     byId('announcementCopyBodyBtn')?.addEventListener('click', () => void copyBody());
     byId('announcementCloseIcon')?.addEventListener('click', () => closeModal(modal));
-
-    // Legacy static-contract markers retained while the UX moves away from the old
-    // all-in-one modal: id="announcementApplicationMessage", id="announcementWeather",
-    // id="announcementNotes", label="行程", 行程を追加, ～ざっくり予定～,
-    // ${eventDateLabel(sync, room)}の${projectName(sync, room)}の参加者を発表します。
     return modal;
   }
 
