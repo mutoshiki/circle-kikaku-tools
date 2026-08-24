@@ -71,30 +71,37 @@
   function committedExportSelection() {
     const room = canonical();
     const sync = applicationSync(room);
-    if (!room || !sync) return { responseKeys: [], manualNames: [] };
+    if (!room || !sync) return { responseKeys: [], manualNames: [], ambiguousNames: [] };
 
-    const participantEntries = Object.entries(room.participants || {});
-    const participantByName = new Map();
-    participantEntries.forEach(([id, participant]) => {
-      const key = normalizedName(participant?.name);
-      if (key && !participantByName.has(key)) participantByName.set(key, id);
-    });
-
-    const matchedParticipantIds = new Set();
-    const responseKeys = [];
+    const applicantsByName = new Map();
     Object.entries(sync.applicants || {}).forEach(([responseKey, applicant]) => {
-      const participantId = participantByName.get(normalizedName(applicant?.name));
-      if (!participantId) return;
-      responseKeys.push(responseKey);
-      matchedParticipantIds.add(participantId);
+      const key = normalizedName(applicant?.name);
+      if (!key) return;
+      const entries = applicantsByName.get(key) || [];
+      entries.push({ responseKey, applicant });
+      applicantsByName.set(key, entries);
     });
 
-    const manualNames = participantEntries
-      .filter(([id]) => !matchedParticipantIds.has(id))
-      .map(([, participant]) => String(participant?.name || '').trim())
-      .filter(Boolean);
+    const responseKeys = [];
+    const manualNames = [];
+    const ambiguousNames = [];
+    Object.values(room.participants || {}).forEach(participant => {
+      const name = String(participant?.name || '').trim();
+      if (!name) return;
+      const candidates = applicantsByName.get(normalizedName(name)) || [];
+      if (candidates.length === 1) {
+        responseKeys.push(candidates[0].responseKey);
+      } else if (candidates.length > 1) {
+        // The current planning state intentionally contains no student number or response
+        // identity. Never guess which same-name applicant was accepted: exporting both
+        // could disclose another applicant's student number.
+        ambiguousNames.push(name);
+      } else {
+        manualNames.push(name);
+      }
+    });
 
-    return { responseKeys, manualNames };
+    return { responseKeys, manualNames, ambiguousNames };
   }
 
   function hasPendingSelection() {
@@ -111,6 +118,10 @@
     if (!token) return { enabled: false, reason: 'この端末には引き継ぎデータの作成権限がありません。' };
     if (hasPendingSelection()) return { enabled: false, reason: '参加者を更新してから作成できます。' };
     if (!participantCount) return { enabled: false, reason: '参加者を確定してから作成できます。' };
+    const selection = committedExportSelection();
+    if (selection.ambiguousNames.length) {
+      return { enabled: false, reason: `同名の応募者（${selection.ambiguousNames.join('・')}）を安全に判別できないため作成できません。` };
+    }
     return { enabled: true, reason: '学務提出書類メーカー用の引き継ぎCSVを作成します。' };
   }
 
@@ -223,6 +234,10 @@
     const projectId = currentProjectId();
     const token = storedToken();
     const selection = committedExportSelection();
+    if (selection.ambiguousNames.length) {
+      setStatus(`同名の応募者（${selection.ambiguousNames.join('・')}）を安全に判別できないため作成できません。`, 'error');
+      return;
+    }
     if (!projectId || (!selection.responseKeys.length && !selection.manualNames.length)) {
       setStatus('参加者を確定してから作成してください。', 'warning');
       return;
