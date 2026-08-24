@@ -168,10 +168,9 @@ test('Participants tab owns applicant selection and confirmed follow-up actions'
   await expect(announcementCopyBody).not.toHaveAttribute('disabled', '');
   const bodyPreview = page.locator('#announcementBodyPreview');
   const bodyValue = await bodyPreview.evaluate(element => element.value);
-  expect(bodyValue).toContain('7月11日(土)霧ヶ峰企画');
+  expect(bodyValue).toContain('7月11日(土)の霧ヶ峰企画の参加者を発表します。');
   expect(bodyValue).toContain('○田中太郎');
-  expect(bodyValue).toContain('当日の集合時間は06:30です。');
-  expect(bodyValue).toContain('サークルボックス前に集合してください。');
+  expect(bodyValue).toContain('当日は06:30にサークルボックス前に集合してください。');
   await announcementModal.locator('#announcementCloseBtn').click();
 
   await editToggle.click();
