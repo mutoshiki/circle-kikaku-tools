@@ -20,7 +20,7 @@ window.SANPO_FIREBASE_CONFIG = {
     if (!document.querySelector('link[data-sanpo-applicant-sync]')) {
       const stylesheet = document.createElement('link');
       stylesheet.rel = 'stylesheet';
-      stylesheet.href = './assets/css/guides-modals/import-guide/07-form-applicant-sync.css?v=participants-carbon-v92';
+      stylesheet.href = './assets/css/guides-modals/import-guide/07-form-applicant-sync.css?v=participants-flow-v94';
       stylesheet.dataset.sanpoApplicantSync = 'true';
       document.head.appendChild(stylesheet);
     }
@@ -39,7 +39,7 @@ window.SANPO_FIREBASE_CONFIG = {
     }
     if (!document.querySelector('script[data-sanpo-participants-ui]')) {
       const script = document.createElement('script');
-      script.src = './assets/js/features/participants-ui.js?v=participants-carbon-v92';
+      script.src = './assets/js/features/participants-ui.js?v=participants-flow-v94';
       script.dataset.sanpoParticipantsUi = 'true';
       document.head.appendChild(script);
     }
