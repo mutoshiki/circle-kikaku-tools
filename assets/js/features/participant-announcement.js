@@ -7,6 +7,7 @@
   const FIXED_MEETING_PLACE = 'サークルボックス前';
   const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
   let observer = null;
+  let itineraryRowSequence = 0;
 
   const byId = id => document.getElementById(id);
 
@@ -103,6 +104,19 @@
     return participantCount > 0 && total > 0 && participantCount === total;
   }
 
+  function itineraryEntries() {
+    return Array.from(document.querySelectorAll('#announcementItineraryList .participant-announcement-itinerary__row'))
+      .map(row => ({
+        time: String(row.querySelector('[data-itinerary-time]')?.value || '').trim(),
+        step: String(row.querySelector('[data-itinerary-step]')?.value || '').trim()
+      }))
+      .filter(entry => entry.time || entry.step);
+  }
+
+  function itineraryLine(entry) {
+    return [entry.time, entry.step].filter(Boolean).join(' ');
+  }
+
   function bodyText({ allowPlaceholder = false } = {}) {
     const room = canonical();
     const sync = applicationSync(room);
@@ -112,7 +126,7 @@
     const time = fieldValue('announcementMeetingTime');
     const opening = fieldValue('announcementOpening');
     const weather = fieldValue('announcementWeather');
-    const roughPlan = fieldValue('announcementRoughPlan');
+    const itinerary = itineraryEntries();
     const notes = fieldValue('announcementNotes');
     const contact = fieldValue('announcementContact');
     const meetingTime = time || (allowPlaceholder ? '［集合時間］' : '');
@@ -131,8 +145,12 @@
     lines.push('', '【参加者発表】※敬称略　○は車出し', participantLines(participants), '', `以上${participants.length}名になります`);
     lines.push('', `当日の集合時間は${meetingTime}です。`, `${FIXED_MEETING_PLACE}に集合してください。`, '遅れないようによろしくお願いします！');
 
-    if (roughPlan) {
-      lines.push('', '～ざっくり予定～', `${meetingTime} ${FIXED_MEETING_PLACE}に集合、車分け`, '  ↓', roughPlan);
+    if (itinerary.length) {
+      lines.push('', '～ざっくり予定～', `${meetingTime} ${FIXED_MEETING_PLACE}に集合、車分け`);
+      itinerary.forEach(entry => {
+        const line = itineraryLine(entry);
+        if (line) lines.push('  ↓', line);
+      });
     }
     if (notes) lines.push('', notes);
     if (contact) lines.push('', 'なにか質問ありましたら', `${contact} までお願いします。`);
@@ -166,6 +184,37 @@
     }
   }
 
+  function createItineraryRow() {
+    const row = document.createElement('div');
+    const rowNumber = ++itineraryRowSequence;
+    row.className = 'participant-announcement-itinerary__row';
+    row.dataset.itineraryRow = String(rowNumber);
+    row.innerHTML = `
+      <cds-text-input data-itinerary-time type="time" size="lg" label="時間"></cds-text-input>
+      <cds-text-input data-itinerary-step type="text" size="lg" label="工程" placeholder="例：登山口到着・登山開始"></cds-text-input>
+      <cds-button data-itinerary-remove kind="ghost" size="sm" type="button" aria-label="この工程を削除">削除</cds-button>`;
+
+    row.querySelectorAll('[data-itinerary-time], [data-itinerary-step]').forEach(input => {
+      input.addEventListener('input', updatePreview);
+      input.addEventListener('change', updatePreview);
+    });
+    row.querySelector('[data-itinerary-remove]')?.addEventListener('click', () => {
+      row.remove();
+      updatePreview();
+    });
+    return row;
+  }
+
+  function addItineraryRow({ focus = true } = {}) {
+    const list = byId('announcementItineraryList');
+    if (!list) return null;
+    const row = createItineraryRow();
+    list.appendChild(row);
+    updatePreview();
+    if (focus) window.setTimeout(() => row.querySelector('[data-itinerary-time]')?.focus?.(), 0);
+    return row;
+  }
+
   function ensureModal() {
     let modal = byId('participantAnnouncementModal');
     if (modal) return modal;
@@ -185,11 +234,17 @@
         <div class="participant-announcement-layout">
           <section class="participant-announcement-fields" aria-label="発表文の入力">
             <cds-text-input id="announcementMeetingTime" type="time" size="lg" required label="集合時間"></cds-text-input>
-            <cds-textarea id="announcementOpening" rows="2" label="冒頭のひとこと（任意）"></cds-textarea>
-            <cds-textarea id="announcementWeather" rows="2" label="天候不良時の対応（任意）"></cds-textarea>
-            <cds-textarea id="announcementRoughPlan" rows="6" label="ざっくり予定（任意）"></cds-textarea>
-            <cds-textarea id="announcementNotes" rows="3" label="持ち物・補足（任意）"></cds-textarea>
-            <cds-text-input id="announcementContact" type="text" size="lg" label="連絡先（任意）"></cds-text-input>
+            <cds-textarea id="announcementOpening" rows="2" label="冒頭のひとこと（任意）" placeholder="例：ご応募ありがとうございました！"></cds-textarea>
+            <cds-textarea id="announcementWeather" rows="2" label="天候不良時の対応（任意）" placeholder="例：雨天の場合は前日20時までに連絡します"></cds-textarea>
+            <section class="participant-announcement-itinerary" aria-labelledby="announcementItineraryHeading">
+              <div class="participant-announcement-itinerary__heading">
+                <h3 id="announcementItineraryHeading">ざっくり予定（任意）</h3>
+                <cds-button id="announcementAddItineraryBtn" kind="tertiary" size="sm" type="button">工程を追加</cds-button>
+              </div>
+              <div id="announcementItineraryList" class="participant-announcement-itinerary__list" aria-label="ざっくり予定の工程"></div>
+            </section>
+            <cds-textarea id="announcementNotes" rows="3" label="持ち物・補足（任意）" placeholder="例：防寒着と飲み物を忘れずに持参してください"></cds-textarea>
+            <cds-text-input id="announcementContact" type="text" size="lg" label="連絡先（任意）" placeholder="例：山田"></cds-text-input>
           </section>
           <section class="participant-announcement-preview" aria-label="発表文プレビュー">
             <div class="participant-announcement-preview__block">
@@ -202,7 +257,7 @@
             <div class="participant-announcement-preview__block participant-announcement-preview__block--body">
               <div class="participant-announcement-preview__heading">
                 <h3>本文</h3>
-                <cds-button id="announcementCopyBodyBtn" kind="primary" size="sm" type="button" disabled>本文をコピー</cds-button>
+                <cds-button id="announcementCopyBodyBtn" kind="tertiary" size="sm" type="button" disabled>本文をコピー</cds-button>
               </div>
               <cds-textarea id="announcementBodyPreview" hide-label label="本文" rows="20" readonly></cds-textarea>
             </div>
@@ -214,7 +269,7 @@
       </cds-modal-footer>`;
     document.body.appendChild(modal);
 
-    ['announcementMeetingTime', 'announcementOpening', 'announcementWeather', 'announcementRoughPlan', 'announcementNotes', 'announcementContact'].forEach(id => {
+    ['announcementMeetingTime', 'announcementOpening', 'announcementWeather', 'announcementNotes', 'announcementContact'].forEach(id => {
       const input = byId(id);
       input?.addEventListener('input', updatePreview);
       input?.addEventListener('change', updatePreview);
@@ -223,11 +278,13 @@
       event.currentTarget.dataset.touched = 'true';
       updatePreview();
     });
+    byId('announcementAddItineraryBtn')?.addEventListener('click', () => addItineraryRow());
     byId('announcementCopyTitleBtn')?.addEventListener('click', () => void copyText(announcementTitle(), 'タイトル'));
     byId('announcementCopyBodyBtn')?.addEventListener('click', () => void copyBody());
     const close = () => closeModal(modal);
     byId('announcementCloseIcon')?.addEventListener('click', close);
     byId('announcementCloseBtn')?.addEventListener('click', close);
+    addItineraryRow({ focus: false });
     return modal;
   }
 
