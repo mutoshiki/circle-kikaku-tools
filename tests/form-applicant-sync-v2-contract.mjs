@@ -151,7 +151,7 @@ assert.match(announcement, /setComponentValue\(byId\('announcementEventDate'\), 
 assert.doesNotMatch(announcement, /announcementEventDate[^\n]*required/);
 
 // Meeting time stays empty until the organizer selects it and remains the only required field.
-assert.match(announcement, /id=\"announcementMeetingTime\" type=\"time\"[\s\S]*?required label=\"集合時間\"/);
+assert.match(announcement, /id=\"announcementMeetingTime\" type=\"time\"[\s\S]*?required label=\"集合時間（必須）\"/);
 assert.match(announcement, /setComponentValue\(byId\('announcementMeetingTime'\), ''\)/);
 assert.match(announcement, /removeAttribute\('value'\)/);
 assert.match(announcement, /validateMeetingTime/);
@@ -190,7 +190,9 @@ assert.doesNotMatch(announcement, /addItineraryRow\(\{ focus: false \}\)/);
 assert.match(announcement, /～大まかな予定～/);
 assert.doesNotMatch(announcement, /～ざっくり予定～/);
 
-// Generated copy has no dangling date separator and uses the fixed meeting place.
+// Generated copy has no dangling date separator, duplicate project suffix, or variable meeting place.
+assert.match(announcement, /function projectName\(/);
+assert.match(announcement, /return raw\.includes\('企画'\) \? raw : `\$\{raw\}企画`/);
 assert.match(announcement, /function announcementSubject\(/);
 assert.match(announcement, /return `\$\{eventDateLabel\(sync, room\)\}\$\{projectName\(sync, room\)\}`/);
 assert.doesNotMatch(announcement, /\$\{eventDateLabel\(sync, room\)\}の\$\{projectName\(sync, room\)\}/);
