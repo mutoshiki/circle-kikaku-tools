@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('Participants tab owns applicant selection and later changes', async ({ page }) => {
+test('Participants tab owns applicant selection and confirmed follow-up actions', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const errors = [];
   page.on('pageerror', error => errors.push(String(error)));
@@ -33,7 +33,8 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   await expect(page.locator('#participants-view-area')).toBeVisible();
   await expect(page.locator('#participantsViewTitle')).toHaveText('参加者');
   await expect(page.locator('#participantsViewDescription')).toHaveCount(0);
-  await expect(page.locator('#participantsViewSummary')).toHaveText('0人');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 0人');
+  await expect(page.locator('#participantsPostConfirmSection')).toBeHidden();
   await expect(page.locator('#participantAnnouncementPanel')).toHaveCount(0);
   await expect(participantTab).toHaveAttribute('selected', '');
   await expect(page.locator('#tab-list')).not.toHaveAttribute('selected', '');
@@ -45,16 +46,19 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   const shellOrder = await page.evaluate(() => {
     const nav = document.getElementById('app-view-navigation').getBoundingClientRect();
     const participants = document.getElementById('participants-view-area').getBoundingClientRect();
+    const projectTitleRegion = document.querySelector('.project-title-region');
     return {
       navTop: nav.top,
       navBottom: nav.bottom,
       participantTop: participants.top,
-      participantOrder: getComputedStyle(document.getElementById('participants-view-area')).order
+      participantOrder: getComputedStyle(document.getElementById('participants-view-area')).order,
+      projectTitleHeight: getComputedStyle(projectTitleRegion).height
     };
   });
   expect(shellOrder.participantOrder).toBe('3');
   expect(shellOrder.participantTop).toBeGreaterThanOrEqual(shellOrder.navBottom - 1);
   expect(shellOrder.navTop).toBeLessThan(shellOrder.participantTop);
+  expect(shellOrder.projectTitleHeight).toBe('120px');
 
   await page.evaluate(() => {
     const room = window.SanpoCanonicalState.get();
@@ -75,9 +79,12 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
     window.SanpoParticipantAnnouncement?.refresh?.();
   });
 
-  await expect(page.locator('#participantsViewSummary')).toHaveText('0 / 2人を選択');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 0人');
   await expect(page.locator('#participantManualAddBtn')).toBeHidden();
   await expect(page.locator('#participantAnnouncementPanel')).toHaveCount(0);
+  await expect(page.locator('#handoffExportBtn')).not.toHaveCount(0);
+  await expect(page.locator('#participantsSelectionToolbar #handoffExportBtn')).toHaveCount(0);
+  await expect(page.locator('#participantsPostConfirmSection')).toBeHidden();
   const applicantChecks = page.locator('#formApplicantList cds-checkbox[data-form-applicant-key]');
   await expect(applicantChecks).toHaveCount(2);
 
@@ -85,10 +92,13 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   const tanakaCheckbox = page.getByRole('checkbox', { name: '田中太郎' });
   await tanakaHost.locator('label').click();
   await expect(tanakaCheckbox).toBeChecked();
-  await expect(page.locator('#participantsViewSummary')).toHaveText('1 / 2人を選択');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 0人');
+  await expect(page.locator('#participantsActionCount')).toHaveText('1人を選択中');
+  await expect(page.locator('#participantsSavedState')).toBeHidden();
   await expect(tanakaHost.locator('xpath=ancestor::div[contains(@class,"form-applicant-sync__row")]')).toHaveClass(/is-selected/);
   const apply = page.locator('#formApplicantApplyBtn');
   await expect(apply).toHaveText('参加者を確定');
+  await expect(apply).toBeVisible();
   await expect(apply).not.toHaveAttribute('disabled', '');
   await apply.click();
 
@@ -99,11 +109,22 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
     const group = Object.values(room.allocations?.car?.groups || {}).find(item => item?.ownerId === participantId);
     return group?.capacity || 0;
   })).toBe(4);
-  await expect(apply).toHaveText('参加者を更新');
-  await expect(page.locator('#participantsViewSummary')).toHaveText('1 / 2人を選択');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 1人');
+  await expect(page.locator('#participantsActionCount')).toHaveText('1人を選択中');
+  await expect(apply).toBeHidden();
+  await expect(page.locator('#participantsSavedState')).toBeVisible();
+  await expect(page.locator('#participantsSavedState')).toHaveText('✓ 保存済み');
+
+  const postConfirm = page.locator('#participantsPostConfirmSection');
+  await expect(postConfirm).toBeVisible();
+  await expect(postConfirm.locator('#participantsPostConfirmTitle')).toHaveText('参加者確定後');
+  await expect(postConfirm.locator('#participantsHandoffActionPanel')).toBeVisible();
+  await expect(postConfirm.locator('#participantsHandoffActionPanel h4')).toHaveText('学務提出用データ');
+  await expect(postConfirm.locator('#handoffExportBtn')).toBeVisible();
 
   const announcementPanel = page.locator('#participantAnnouncementPanel');
   await expect(announcementPanel).toBeVisible();
+  await expect(announcementPanel.locator('p')).toHaveText('ラクラク連絡網に投稿する文章を作成します。');
   const announcementOpen = page.locator('#participantAnnouncementOpenBtn');
   await expect(announcementOpen).not.toHaveAttribute('disabled', '');
   await announcementOpen.click();
@@ -133,8 +154,13 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
 
   await tanakaHost.locator('label').click();
   await expect(tanakaCheckbox).not.toBeChecked();
-  await expect(page.locator('#participantsViewSummary')).toHaveText('0 / 2人を選択');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 1人');
+  await expect(page.locator('#participantsActionCount')).toHaveText('0人を選択中');
+  await expect(page.locator('#participantsSavedState')).toBeHidden();
+  await expect(apply).toHaveText('変更を保存');
+  await expect(apply).toBeVisible();
   await expect(apply).not.toHaveAttribute('disabled', '');
+  await expect(page.locator('#participantsPostConfirmSection')).toBeHidden();
   await expect(page.locator('#participantAnnouncementPanel')).toHaveCount(0);
   await apply.click();
   const confirm = page.locator('#appConfirmModal');
@@ -142,7 +168,18 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   await expect(confirm.locator('.app-decision-message')).toHaveText('車割・班割・精算の割り当ても削除されます。');
   await confirm.locator('[data-role="ok"]').click();
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(0);
+  await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 0人');
+  await expect(apply).toBeHidden();
+  await expect(page.locator('#participantsSavedState')).toBeHidden();
+  await expect(page.locator('#participantsPostConfirmSection')).toBeHidden();
   await expect(page.locator('#participantAnnouncementPanel')).toHaveCount(0);
+
+  const statusStyle = await page.locator('#formApplicantStatus').evaluate(element => ({
+    width: getComputedStyle(element).width,
+    height: getComputedStyle(element).height,
+    position: getComputedStyle(element).position
+  }));
+  expect(statusStyle).toEqual({ width: '1px', height: '1px', position: 'absolute' });
 
   await page.locator('#tab-seisan').click();
   await expect(page.locator('body')).not.toHaveClass(/view-mode-participants/);
