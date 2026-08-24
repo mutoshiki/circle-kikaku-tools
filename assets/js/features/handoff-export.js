@@ -116,7 +116,7 @@
     const participantCount = Object.keys(canonical()?.participants || {}).length;
     if (!sync) return { enabled: false, reason: '応募フォームと自動連携した企画で利用できます。' };
     if (!token) return { enabled: false, reason: 'この端末には引き継ぎデータの作成権限がありません。' };
-    if (hasPendingSelection()) return { enabled: false, reason: '参加者を更新してから作成できます。' };
+    if (hasPendingSelection()) return { enabled: false, reason: '変更を保存してから作成できます。' };
     if (!participantCount) return { enabled: false, reason: '参加者を確定してから作成できます。' };
     const selection = committedExportSelection();
     if (selection.ambiguousNames.length) {
@@ -136,7 +136,7 @@
       button.setAttribute('kind', 'ghost');
       button.setAttribute('size', 'lg');
       button.setAttribute('type', 'button');
-      button.textContent = '引き継ぎデータ';
+      button.textContent = '引き継ぎデータを作成';
       const filter = byId('participantsFilterToggle');
       toolbar.insertBefore(button, filter || null);
       button.addEventListener('click', () => void exportHandoff());
@@ -153,7 +153,7 @@
     button.toggleAttribute('disabled', disabled);
     button.setAttribute('title', exportInFlight ? '引き継ぎデータを作成しています。' : state.reason);
     button.setAttribute('aria-label', exportInFlight ? '引き継ぎデータを作成中' : `引き継ぎデータを作成。${state.reason}`);
-    const label = exportInFlight ? '作成中…' : '引き継ぎデータ';
+    const label = exportInFlight ? '作成中…' : '引き継ぎデータを作成';
     if (button.textContent !== label) button.textContent = label;
     return true;
   }
