@@ -285,7 +285,7 @@
     if (!area || participantAreaObserver) return;
 
     participantAreaObserver = new MutationObserver(() => queueMicrotask(refreshParticipantUi));
-    participantAreaObserver.observe(area, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'hidden'] });
+    participantAreaObserver.observe(area, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
 
     byId('formApplicantList')?.addEventListener('cds-checkbox-changed', () => {
       requestAnimationFrame(refreshParticipantUi);
