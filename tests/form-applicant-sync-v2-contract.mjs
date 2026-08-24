@@ -142,55 +142,90 @@ assert.match(announcement, /participantAnnouncementOpenBtn/);
 assert.match(announcement, /らくらく連絡網に投稿する参加者発表文を作成します/);
 assert.doesNotMatch(announcement, /ラクラク連絡網/);
 assert.match(announcement, /参加者の変更を保存してから作成できます/);
-assert.match(announcement, /id=\"announcementMeetingTime\"/);
-assert.match(announcement, /type=\"time\"/);
-assert.match(announcement, /required label=\"集合時間\"/);
-assert.doesNotMatch(announcement, /必須・集合場所はサークルボックス前で固定です/);
-assert.doesNotMatch(announcement, /集合部分は自動で入ります/);
+
+// Event date is optional and can be inherited from the linked form or edited here.
+assert.match(announcement, /id=\"announcementEventDate\" type=\"date\"[\s\S]*?label=\"実施日（任意）\"/);
+assert.match(announcement, /function sourceEventDate\(/);
+assert.match(announcement, /function selectedEventDate\(/);
+assert.match(announcement, /setComponentValue\(byId\('announcementEventDate'\), sourceEventDate\(\)\)/);
+assert.doesNotMatch(announcement, /announcementEventDate[^\n]*required/);
+
+// Meeting time stays empty until the organizer selects it and remains the only required field.
+assert.match(announcement, /id=\"announcementMeetingTime\" type=\"time\"[\s\S]*?required label=\"集合時間\"/);
+assert.match(announcement, /setComponentValue\(byId\('announcementMeetingTime'\), ''\)/);
+assert.match(announcement, /removeAttribute\('value'\)/);
+assert.match(announcement, /validateMeetingTime/);
 assert.doesNotMatch(announcement, /announcementMeetingPlace/);
-assert.match(announcement, /id=\"announcementOpening\"[\s\S]*?placeholder=\"例：お疲れ様です！〇〇です。\"/);
-assert.match(announcement, /id=\"announcementApplicationMessage\"/);
+assert.doesNotMatch(announcement, /new Date\(\)[\s\S]*announcementMeetingTime/);
+
+// Application-result wording is generated, not exposed as a manual textarea.
 assert.match(announcement, /function defaultApplicationMessage\(/);
 assert.match(announcement, /今回は応募してくださった方全員が参加できることになりました/);
 assert.match(announcement, /たくさんのご応募ありがとうございました！/);
-assert.match(announcement, /id=\"announcementWeather\"[\s\S]*?label=\"天候・企画についての補足（任意）\"[\s\S]*?placeholder=\"例：天候によっては中止・変更する場合があります。\"/);
-assert.match(announcement, /id=\"announcementNotes\"[\s\S]*?label=\"持ち物・詳細など（任意）\"[\s\S]*?placeholder=\"例：詳細は添付のPDFをご確認ください。\"/);
+assert.doesNotMatch(announcement, /id=\"announcementApplicationMessage\"/);
+
+// Basic editing is intentionally small; secondary copy is collapsed under an advanced disclosure.
+assert.match(announcement, /id=\"announcementSupplement\"[\s\S]*?label=\"補足事項（任意）\"/);
+assert.match(announcement, /温泉に寄るので着替え・タオルを持ってきてください/);
+assert.doesNotMatch(announcement, /詳細は添付のPDFをご確認ください/);
+assert.match(announcement, /id=\"announcementAdvancedToggleBtn\"[\s\S]*?文章をさらに調整/);
+assert.match(announcement, /id=\"announcementAdvancedFields\"[\s\S]*?hidden/);
+assert.match(announcement, /id=\"announcementOpening\"[\s\S]*?placeholder=\"例：お疲れ様です！〇〇です。\"/);
 assert.match(announcement, /id=\"announcementContact\" type=\"email\"[\s\S]*?placeholder=\"例：sampokai25@gmail\.com\"/);
 assert.match(announcement, /id=\"announcementClosing\"[\s\S]*?placeholder=\"例：それでは当日よろしくお願いします！\"/);
-assert.doesNotMatch(announcement, /id=\"announcementRoughPlan\"/);
+
+// Rough schedule rows start empty and are added only when needed.
+assert.match(announcement, /大まかな予定（任意）/);
 assert.match(announcement, /id=\"announcementItineraryList\"/);
-assert.match(announcement, /id=\"announcementAddItineraryBtn\"/);
+assert.match(announcement, /id=\"announcementAddItineraryBtn\"[\s\S]*?予定を追加/);
 assert.match(announcement, /data-itinerary-time/);
 assert.match(announcement, /data-itinerary-step/);
 assert.match(announcement, /data-itinerary-remove/);
-assert.match(announcement, /label=\"行程\"/);
-assert.match(announcement, /行程を追加/);
+assert.match(announcement, /label=\"予定\"/);
 assert.match(announcement, /placeholder=\"例：登山開始\"/);
 assert.match(announcement, /function itineraryEntries\(\)/);
 assert.match(announcement, /function createItineraryRow\(\)/);
 assert.match(announcement, /function addItineraryRow\(/);
-assert.match(announcement, /～ざっくり予定～/);
-assert.doesNotMatch(announcement, /\$\{meetingTime\} \$\{FIXED_MEETING_PLACE\}に集合、車分け/);
+assert.doesNotMatch(announcement, /addItineraryRow\(\{ focus: false \}\)/);
+assert.match(announcement, /～大まかな予定～/);
+assert.doesNotMatch(announcement, /～ざっくり予定～/);
+
+// Generated copy has no dangling date separator and uses the fixed meeting place.
+assert.match(announcement, /function announcementSubject\(/);
+assert.match(announcement, /return `\$\{eventDateLabel\(sync, room\)\}\$\{projectName\(sync, room\)\}`/);
+assert.doesNotMatch(announcement, /\$\{eventDateLabel\(sync, room\)\}の\$\{projectName\(sync, room\)\}/);
 assert.match(announcement, /当日は\$\{meetingTime\}に\$\{FIXED_MEETING_PLACE\}に集合してください/);
 assert.match(announcement, /【参加者】/);
-assert.doesNotMatch(announcement, /※敬称略/);
-assert.match(announcement, /〇は車出し/);
+assert.match(announcement, /○は車出し/);
 assert.match(announcement, /以上\$\{participants\.length\}名です/);
+assert.doesNotMatch(announcement, /※敬称略/);
 assert.doesNotMatch(announcement, /皆様、お疲れ様です！/);
 assert.doesNotMatch(announcement, /以前募集した/);
-assert.match(announcement, /\$\{eventDateLabel\(sync, room\)\}の\$\{projectName\(sync, room\)\}の参加者を発表します/);
-assert.match(announcement, /announcementTitle\(\)/);
 assert.match(announcement, /【参加者発表】\$\{eventDateLabel\(sync\)\}\$\{projectName\(sync\)\}/);
+
+// Editing and preview are separate steps. Preview output is normal document content, not a nested textarea scroller.
+assert.match(announcement, /id=\"announcementEditStep\"/);
+assert.match(announcement, /id=\"announcementPreviewStep\"[\s\S]*?hidden/);
+assert.match(announcement, /id=\"announcementPreviewBtn\"[\s\S]*?発表文を確認/);
+assert.match(announcement, /id=\"announcementEditBtn\"[\s\S]*?編集に戻る/);
+assert.match(announcement, /function showStep\(/);
+assert.match(announcement, /id=\"announcementTitlePreview\" class=\"participant-announcement-output/);
+assert.match(announcement, /<pre id=\"announcementBodyPreview\" class=\"participant-announcement-output/);
+assert.doesNotMatch(announcement, /id=\"announcementBodyPreview\"[^>]*cds-textarea/);
+assert.doesNotMatch(announcement, /announcementCloseBtn/);
+assert.doesNotMatch(announcement, /cds-modal-footer/);
 assert.match(announcement, /id=\"announcementCopyTitleBtn\" kind=\"tertiary\" size=\"sm\"/);
-assert.match(announcement, /id=\"announcementCopyBodyBtn\" kind=\"tertiary\" size=\"sm\"/);
-assert.match(announcement, /タイトルをコピー/);
+assert.match(announcement, /id=\"announcementCopyBodyBtn\" kind=\"primary\" size=\"sm\"/);
 assert.match(announcement, /本文をコピー/);
 assert.match(announcement, /navigator\.clipboard\?\.writeText/);
+
 assert.match(announcementCss, /\.participant-announcement-panel/);
 assert.match(announcementCss, /\.participant-announcement-layout/);
 assert.match(announcementCss, /\.participant-announcement-itinerary__row/);
-assert.match(announcementCss, /grid-template-columns:\s*minmax\(104px, \.35fr\) minmax\(0, 1fr\) auto/);
+assert.match(announcementCss, /grid-template-columns:\s*minmax\(104px, \.32fr\) minmax\(0, 1fr\) auto/);
 assert.match(announcementCss, /\.participant-announcement-preview__heading/);
+assert.match(announcementCss, /\.participant-announcement-output--body\s*\{[\s\S]*?white-space:\s*pre-wrap/);
+assert.match(announcementCss, /\.participant-announcement-itinerary__list:empty\s*\{[\s\S]*?display:\s*none/);
 assert.match(announcementCss, /var\(--cds-/);
 
 assert.match(participantUi, /batchOpenBtn/);
