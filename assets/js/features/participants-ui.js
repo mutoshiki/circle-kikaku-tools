@@ -38,7 +38,7 @@
     toolbar.id = 'participantsSelectionToolbar';
     toolbar.className = 'participants-selection-toolbar';
     toolbar.innerHTML = `
-      <cds-table-toolbar-search id="participantsSearch" placeholder="応募者を検索" label-text="応募者を検索"></cds-table-toolbar-search>
+      <cds-table-toolbar-search id="participantsSearch" placeholder="名前を検索" label-text="名前を検索"></cds-table-toolbar-search>
       <cds-icon-button id="participantsFilterToggle" kind="ghost" size="lg" align="bottom-right" aria-label="絞り込み" aria-expanded="false">
         <span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span>
       </cds-icon-button>
@@ -124,43 +124,130 @@
     return { selected, total: rows.length };
   }
 
+  function applyButtonIsDirty() {
+    const button = byId('formApplicantApplyBtn');
+    return Boolean(button && !button.disabled && !button.hasAttribute('disabled'));
+  }
+
+  function ensureStickyState() {
+    const actions = document.querySelector('.participants-page__actions');
+    if (!actions) return;
+
+    if (!byId('participantsActionCount')) {
+      const count = document.createElement('span');
+      count.id = 'participantsActionCount';
+      count.className = 'participants-action-count';
+      actions.prepend(count);
+    }
+
+    if (!byId('participantsSavedState')) {
+      const saved = document.createElement('span');
+      saved.id = 'participantsSavedState';
+      saved.className = 'participants-saved-state';
+      saved.textContent = '✓ 保存済み';
+      saved.hidden = true;
+      const button = byId('formApplicantApplyBtn');
+      actions.insertBefore(saved, button || null);
+    }
+  }
+
+  function ensurePostConfirmSection() {
+    const page = document.querySelector('.participants-page');
+    if (!page) return null;
+    let section = byId('participantsPostConfirmSection');
+    if (section) return section;
+
+    section = document.createElement('section');
+    section.id = 'participantsPostConfirmSection';
+    section.className = 'participants-post-confirm';
+    section.hidden = true;
+    section.setAttribute('aria-labelledby', 'participantsPostConfirmTitle');
+    section.innerHTML = `
+      <h3 id="participantsPostConfirmTitle" class="participants-post-confirm__title">参加者確定後</h3>
+      <div id="participantsPostConfirmActions" class="participants-post-confirm__actions"></div>`;
+
+    const status = byId('formApplicantStatus');
+    if (status?.parentElement === page) status.insertAdjacentElement('afterend', section);
+    else page.appendChild(section);
+    return section;
+  }
+
+  function ensureHandoffActionPanel(container) {
+    const button = byId('handoffExportBtn');
+    if (!button || !container) return null;
+
+    let panel = byId('participantsHandoffActionPanel');
+    if (!panel) {
+      panel = document.createElement('section');
+      panel.id = 'participantsHandoffActionPanel';
+      panel.className = 'participants-post-confirm__item participants-handoff-panel';
+      panel.innerHTML = `
+        <div>
+          <h4>学務提出用データ</h4>
+          <p>確定した参加者情報を引き継ぎます。</p>
+        </div>`;
+      container.appendChild(panel);
+    }
+    if (button.parentElement !== panel) panel.appendChild(button);
+    return panel;
+  }
+
+  function normalizeAnnouncementPanel(container) {
+    const panel = byId('participantAnnouncementPanel');
+    if (!panel || !container) return null;
+
+    panel.querySelector('p')?.replaceChildren(document.createTextNode('ラクラク連絡網に投稿する文章を作成します。'));
+    if (panel.parentElement !== container) container.appendChild(panel);
+    return panel;
+  }
+
+  function updatePostConfirmActions() {
+    const room = canonical();
+    const section = ensurePostConfirmSection();
+    const container = byId('participantsPostConfirmActions');
+    if (!room || !section || !container) return;
+
+    const announcement = normalizeAnnouncementPanel(container);
+    const handoff = ensureHandoffActionPanel(container);
+    if (announcement && handoff && announcement.nextElementSibling !== handoff) {
+      container.insertBefore(announcement, handoff);
+    }
+
+    const participantCount = Object.keys(room.participants || {}).length;
+    const ready = Boolean(applicationSync(room) && participantCount > 0 && !applyButtonIsDirty());
+    section.hidden = !ready || !(announcement || handoff);
+  }
+
   function updateSummary() {
     const room = canonical();
     const summary = byId('participantsViewSummary');
     if (!room || !summary) return;
 
-    const sync = applicationSync(room);
-    const { selected, total } = selectionState();
+    const { selected } = selectionState();
     const participantCount = Object.keys(room.participants || {}).length;
-    summary.classList.toggle('is-manual', !sync);
-    const summaryText = sync ? `${selected} / ${total}人を選択` : `${selected}人`;
+    const dirty = applyButtonIsDirty();
+    const summaryText = `参加者 ${participantCount}人`;
+    summary.classList.remove('is-manual');
     if (summary.textContent !== summaryText) summary.textContent = summaryText;
 
     const button = byId('formApplicantApplyBtn');
     if (button) {
-      const label = sync
-        ? (participantCount > 0 ? '参加者を更新' : '参加者を確定')
-        : '参加者を更新';
+      const label = participantCount > 0 ? '変更を保存' : '参加者を確定';
       if (button.textContent !== label) button.textContent = label;
+      button.hidden = !dirty;
     }
 
     const actionCount = byId('participantsActionCount');
     if (actionCount) {
-      const countText = sync ? `${selected}人を選択中` : `${selected}人`;
+      const countText = `${selected}人を選択中`;
       if (actionCount.textContent !== countText) actionCount.textContent = countText;
     }
 
-    const list = byId('formApplicantList');
-    if (list) list.setAttribute('aria-label', sync ? '当選者を選択' : '参加者を選択');
-  }
+    const saved = byId('participantsSavedState');
+    if (saved) saved.hidden = dirty || participantCount === 0;
 
-  function ensureStickyActionCount() {
-    const actions = document.querySelector('.participants-page__actions');
-    if (!actions || byId('participantsActionCount')) return;
-    const count = document.createElement('span');
-    count.id = 'participantsActionCount';
-    count.className = 'participants-action-count';
-    actions.prepend(count);
+    const list = byId('formApplicantList');
+    if (list) list.setAttribute('aria-label', applicationSync(room) ? '当選者を選択' : '参加者を選択');
   }
 
   function updateRows() {
@@ -180,9 +267,10 @@
 
       byId('participantsViewDescription')?.remove();
       ensureSelectionToolbar();
-      ensureStickyActionCount();
+      ensureStickyState();
       updateRows();
       updateSummary();
+      updatePostConfirmActions();
       applyFilters();
       return true;
     } finally {
@@ -195,11 +283,12 @@
     if (!area || participantAreaObserver) return;
 
     participantAreaObserver = new MutationObserver(() => queueMicrotask(refreshParticipantUi));
-    participantAreaObserver.observe(area, { childList: true, subtree: true });
+    participantAreaObserver.observe(area, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'hidden'] });
 
     byId('formApplicantList')?.addEventListener('cds-checkbox-changed', () => {
       requestAnimationFrame(refreshParticipantUi);
     });
+    window.addEventListener('sanpo:canonical-room-changed', refreshParticipantUi);
   }
 
   function start() {
