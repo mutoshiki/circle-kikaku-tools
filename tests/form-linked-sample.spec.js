@@ -31,6 +31,29 @@ test('form-linked sample keeps managed-form state and announcement after reload'
   await sampleButton.click();
 
   await expect(page.locator('body')).toHaveClass(/view-mode-participants/);
+  const debugState = await page.evaluate(async () => {
+    await new Promise(resolve => setTimeout(resolve, 600));
+    const room = window.SanpoCanonicalState?.get?.();
+    const bridge = window.SanpoApplicationSyncBridge?.get?.();
+    const key = Object.keys(localStorage).find(value => value.startsWith('sanpoFormLinkedDebugSync:v1:')) || '';
+    let backup = null;
+    try { backup = key ? JSON.parse(localStorage.getItem(key)) : null; } catch (_) {}
+    return {
+      summary: document.getElementById('participantsViewSummary')?.textContent || '',
+      roomName: room?.roomName || '',
+      canonicalKind: room?.meta?.applicationSync?.kind || '',
+      canonicalApplicants: Object.keys(room?.meta?.applicationSync?.applicants || {}).length,
+      bridgeKind: bridge?.kind || '',
+      bridgeApplicants: Object.keys(bridge?.applicants || {}).length,
+      backupKind: backup?.kind || '',
+      backupApplicants: Object.keys(backup?.applicants || {}).length,
+      bridgeLoaded: !!window.SanpoApplicationSyncBridge,
+      applicantLoaded: !!window.SanpoApplicantSync,
+      announcementLoaded: !!window.SanpoParticipantAnnouncement
+    };
+  });
+  console.log('FORM_LINKED_DEBUG_STATE', JSON.stringify(debugState));
+
   await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 5人　参加者 5人');
   await expect(page.locator('#participantAnnouncementOpenBtn')).toBeVisible();
   await expect.poll(() => page.evaluate(() => {
