@@ -200,8 +200,8 @@
     if (button && !button.dataset.participantsCollapseBound) {
       button.dataset.participantsCollapseBound = 'true';
       button.addEventListener('click', () => {
-        if (applyButtonIsDirty()) pendingCollapseAfterSave = true;
-      });
+        pendingCollapseAfterSave = true;
+      }, { capture: true });
     }
   }
 
