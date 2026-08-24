@@ -1,5 +1,4 @@
 // Participants selection presentation owner.
-// Legacy rendered labels intentionally removed from the UI: 参加者を確定 / 変更を保存 / ✓ 保存済み.
 (() => {
   'use strict';
 
@@ -306,8 +305,9 @@
       panel.className = 'participants-post-confirm__item participants-handoff-panel';
       panel.innerHTML = `
         <div>
-          <h4>学務提出用データ</h4>
-          <p>確定した参加者情報を引き継ぎます。</p>
+          <h4>引き継ぎデータ</h4>
+          <p>学務提出書類作成ツールに読み込むための引き継ぎデータを作成します。</p>
+          <p id="handoffExportReason" class="participants-handoff-reason" hidden></p>
         </div>`;
       container.appendChild(panel);
     }
@@ -322,7 +322,7 @@
     if (!panel || !container) return null;
 
     const description = panel.querySelector('p');
-    const text = 'ラクラク連絡網に投稿する文章を作成します。';
+    const text = 'らくらく連絡網に投稿する参加者発表文を作成します。';
     if (description && description.textContent !== text) description.textContent = text;
     const button = byId('participantAnnouncementOpenBtn');
     if (button?.getAttribute('kind') !== 'ghost') button?.setAttribute('kind', 'ghost');
@@ -392,7 +392,7 @@
     const list = byId('formApplicantList');
     if (list) {
       list.setAttribute('role', 'list');
-      list.setAttribute('aria-label', managed ? '当選者を選択' : '参加者を選択');
+      list.setAttribute('aria-label', managed ? '応募者から参加者を選択' : '参加者を選択');
     }
   }
 
