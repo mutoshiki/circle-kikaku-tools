@@ -196,7 +196,9 @@
     const panel = byId('participantAnnouncementPanel');
     if (!panel || !container) return null;
 
-    panel.querySelector('p')?.replaceChildren(document.createTextNode('ラクラク連絡網に投稿する文章を作成します。'));
+    const description = panel.querySelector('p');
+    const text = 'ラクラク連絡網に投稿する文章を作成します。';
+    if (description && description.textContent !== text) description.textContent = text;
     if (panel.parentElement !== container) container.appendChild(panel);
     return panel;
   }
