@@ -54,6 +54,56 @@
   padding: 24px;
 }
 
+.participant-announcement-itinerary {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.participant-announcement-itinerary__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.participant-announcement-itinerary__heading h3 {
+  margin: 0;
+  color: var(--cds-text-primary, #161616);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.participant-announcement-itinerary__list {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.participant-announcement-itinerary__row {
+  display: grid;
+  grid-template-columns: minmax(104px, .35fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+  min-width: 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+}
+
+.participant-announcement-itinerary__row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.participant-announcement-itinerary__row cds-text-input {
+  min-width: 0;
+}
+
+.participant-announcement-itinerary__row [data-itinerary-remove] {
+  align-self: end;
+}
+
 .participant-announcement-preview {
   display: grid;
   align-content: start;
@@ -118,6 +168,24 @@
   .participant-announcement-fields,
   .participant-announcement-preview {
     padding: 16px;
+  }
+
+  .participant-announcement-itinerary__heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .participant-announcement-itinerary__heading cds-button {
+    width: 100%;
+  }
+
+  .participant-announcement-itinerary__row {
+    grid-template-columns: minmax(88px, .4fr) minmax(0, 1fr);
+  }
+
+  .participant-announcement-itinerary__row [data-itinerary-remove] {
+    grid-column: 2;
+    justify-self: start;
   }
 
   .participant-announcement-preview {
