@@ -152,7 +152,14 @@
     storeDebugApplicationSync(sync);
     attachApplicationSyncToCanonical(sync);
 
-    if (!await waitForFirebaseWrite()) return false;
+    const canWriteFirebase = await waitForFirebaseWrite();
+    if (!canWriteFirebase) {
+      // Awaiting transport readiness gives any queued normal room save a chance to replace
+      // the canonical object. The normal save intentionally omits applicationSync, so put
+      // the debug-owned metadata back after the await even when Firebase is unavailable.
+      attachApplicationSyncToCanonical(sync);
+      return false;
+    }
     try {
       await set(ref(db, `rooms/${roomId}/meta/applicationSync`), sync);
       // The room listener may paint an older root snapshot while the direct managed-form
