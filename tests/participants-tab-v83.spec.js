@@ -107,22 +107,31 @@ test('Participants mobile flow keeps the shared shell and Carbon selection actio
   const apply = page.locator('#formApplicantApplyBtn');
   await expect(apply).toHaveText('3人を参加者として確定');
   await expect(page.locator('#participantsActionCount')).toHaveText('3人を選択中');
-  await expect(page.locator('#participantsToolbarSelectionCount')).toBeVisible();
-  await expect(page.locator('#participantsToolbarSelectionCount')).toHaveText('3人を選択中');
+  await expect(page.locator('#participantsToolbarSelectionCount')).toBeHidden();
   await expect(page.locator('.participants-page__actions')).toBeVisible();
 
   const initialActionLayout = await page.locator('.participants-page__actions').evaluate(element => {
     const rect = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
     return {
-      position: getComputedStyle(element).position,
-      top: rect.top,
+      position: style.position,
+      left: rect.left,
+      right: rect.right,
       bottom: rect.bottom,
-      viewportHeight: window.innerHeight
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      borderTopWidth: style.borderTopWidth,
+      borderLeftWidth: style.borderLeftWidth,
+      boxShadow: style.boxShadow
     };
   });
   expect(initialActionLayout.position).toBe('fixed');
-  expect(initialActionLayout.top).toBeGreaterThanOrEqual(0);
-  expect(initialActionLayout.bottom).toBeLessThanOrEqual(initialActionLayout.viewportHeight);
+  expect(initialActionLayout.left).toBe(0);
+  expect(initialActionLayout.right).toBe(initialActionLayout.viewportWidth);
+  expect(initialActionLayout.bottom).toBe(initialActionLayout.viewportHeight);
+  expect(initialActionLayout.borderTopWidth).toBe('1px');
+  expect(initialActionLayout.borderLeftWidth).toBe('0px');
+  expect(initialActionLayout.boxShadow).toBe('none');
 
   await apply.click();
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(3);
@@ -153,7 +162,7 @@ test('Participants mobile flow keeps the shared shell and Carbon selection actio
   await clickApplicant(page, '松本 結月');
   await expect(page.locator('.participants-page__actions')).toBeVisible();
   await expect(page.locator('#participantsActionCount')).toHaveText('参加者 3人 → 4人');
-  await expect(page.locator('#participantsToolbarSelectionCount')).toHaveText('参加者 3人 → 4人');
+  await expect(page.locator('#participantsToolbarSelectionCount')).toBeHidden();
   await expect(apply).toHaveText('4人を参加者として保存');
   await expect(edit).toHaveAttribute('disabled', '');
   await expect(page.locator('#participantsPostConfirmSection')).toBeHidden();
@@ -164,17 +173,20 @@ test('Participants mobile flow keeps the shared shell and Carbon selection actio
     const style = getComputedStyle(document.querySelector('.participants-page__actions'));
     const pageStyle = getComputedStyle(pageNode);
     return {
-      actionsTop: actions.top,
+      actionsLeft: actions.left,
+      actionsRight: actions.right,
       actionsBottom: actions.bottom,
       position: style.position,
+      viewportWidth: window.innerWidth,
       viewportHeight: window.innerHeight,
       pagePaddingBottom: parseFloat(pageStyle.paddingBottom)
     };
   });
   expect(dirtyLayout.position).toBe('fixed');
-  expect(dirtyLayout.actionsTop).toBeGreaterThanOrEqual(0);
-  expect(dirtyLayout.actionsBottom).toBeLessThanOrEqual(dirtyLayout.viewportHeight);
-  expect(dirtyLayout.pagePaddingBottom).toBeGreaterThanOrEqual(120);
+  expect(dirtyLayout.actionsLeft).toBe(0);
+  expect(dirtyLayout.actionsRight).toBe(dirtyLayout.viewportWidth);
+  expect(dirtyLayout.actionsBottom).toBe(dirtyLayout.viewportHeight);
+  expect(dirtyLayout.pagePaddingBottom).toBeGreaterThanOrEqual(100);
 
   await apply.click();
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(4);
@@ -191,7 +203,7 @@ test('Participants mobile flow keeps the shared shell and Carbon selection actio
   await expect(removalTag).toHaveText('除外予定');
   await expect(removalTag).toHaveAttribute('type', 'red');
   await expect(page.locator('#participantsActionCount')).toHaveText('参加者 4人 → 3人');
-  await expect(page.locator('#participantsToolbarSelectionCount')).toHaveText('参加者 4人 → 3人');
+  await expect(page.locator('#participantsToolbarSelectionCount')).toBeHidden();
   await expect(apply).toHaveText('3人を参加者として保存');
 
   await apply.click();
