@@ -87,18 +87,8 @@
   height: 48px;
 }
 
+/* Selection changes are presented once in the action area, not duplicated below search. */
 .participants-toolbar-selection-count {
-  grid-column: 1 / -1;
-  min-height: 40px;
-  padding: 10px 16px;
-  border-top: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
-  background: var(--cds-layer-accent-01, #e0e0e0);
-  color: var(--cds-text-primary, #161616);
-  font-size: 14px;
-  line-height: 20px;
-}
-
-.participants-toolbar-selection-count[hidden] {
   display: none !important;
 }
 
@@ -336,7 +326,7 @@ body.view-mode-participants #participants-view-area {
   }
 
   .participants-page.is-selection-dirty {
-    padding-bottom: 124px;
+    padding-bottom: 104px;
   }
 
   .participants-page.is-confirmed-collapsed {
@@ -372,7 +362,6 @@ body.view-mode-participants #participants-view-area {
     grid-template-columns: minmax(0, 1fr) 48px;
   }
 
-  .participants-toolbar-selection-count,
   .participants-active-filters {
     padding: 8px 12px;
   }
@@ -402,26 +391,29 @@ body.view-mode-participants #participants-view-area {
     white-space: nowrap;
   }
 
+  /* Full-width mobile action region: flat Carbon layer with one top divider, not a floating card. */
   .participants-page__actions {
     position: fixed;
-    right: max(16px, env(safe-area-inset-right));
-    bottom: calc(12px + env(safe-area-inset-bottom));
-    left: max(16px, env(safe-area-inset-left));
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: var(--z-floating, 900);
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
+    gap: 4px;
     margin: 0;
-    padding: 8px;
-    border: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
+    padding: 6px max(16px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    border: 0;
+    border-top: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
     background: var(--cds-layer-01, #ffffff);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
+    box-shadow: none;
   }
 
   .participants-action-count {
     margin-right: 0;
-    padding: 0 4px;
+    padding: 0;
     font-size: 13px;
+    line-height: 18px;
     white-space: normal;
   }
 
