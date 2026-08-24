@@ -124,10 +124,11 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   });
   await expect(announcementCopyBody).not.toHaveAttribute('disabled', '');
   const bodyPreview = page.locator('#announcementBodyPreview');
-  await expect(bodyPreview).toHaveJSProperty('value', expect.stringContaining('7月11日(土)霧ヶ峰企画'));
-  await expect(bodyPreview).toHaveJSProperty('value', expect.stringContaining('○田中太郎'));
-  await expect(bodyPreview).toHaveJSProperty('value', expect.stringContaining('当日の集合時間は06:30です。'));
-  await expect(bodyPreview).toHaveJSProperty('value', expect.stringContaining('サークルボックス前に集合してください。'));
+  const bodyValue = await bodyPreview.evaluate(element => element.value);
+  expect(bodyValue).toContain('7月11日(土)霧ヶ峰企画');
+  expect(bodyValue).toContain('○田中太郎');
+  expect(bodyValue).toContain('当日の集合時間は06:30です。');
+  expect(bodyValue).toContain('サークルボックス前に集合してください。');
   await announcementModal.locator('#announcementCloseBtn').click();
 
   await tanakaHost.locator('label').click();
