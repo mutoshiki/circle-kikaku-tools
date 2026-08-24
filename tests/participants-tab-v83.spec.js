@@ -37,6 +37,7 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   await expect(page.locator('#participantsViewTitle')).toHaveText('参加者');
   await expect(page.locator('#participantsViewDescription')).toHaveCount(0);
   await expect(page.locator('#participantsViewSummary')).toHaveText('0人');
+  await expect(page.locator('#participantAnnouncementPanel')).toHaveCount(0);
   await expect(participantTab).toHaveAttribute('selected', '');
   await expect(page.locator('#tab-list')).not.toHaveAttribute('selected', '');
   await expect(page.locator('#tab-sheet')).not.toHaveAttribute('selected', '');
@@ -64,6 +65,8 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
     room.meta.applicationSync = {
       kind: 'formApplicationSync',
       version: 2,
+      title: '霧ヶ峰',
+      eventDate: '2026-07-11',
       responseCount: 2,
       syncedAt: Date.now(),
       applicants: {
@@ -72,10 +75,12 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
       }
     };
     window.SanpoApplicantSync.render();
+    window.SanpoParticipantAnnouncement?.refresh?.();
   });
 
   await expect(page.locator('#participantsViewSummary')).toHaveText('0 / 2人を選択');
   await expect(page.locator('#participantManualAddBtn')).toBeHidden();
+  await expect(page.locator('#participantAnnouncementPanel')).toBeHidden();
   const applicantChecks = page.locator('#formApplicantList cds-checkbox[data-form-applicant-key]');
   await expect(applicantChecks).toHaveCount(2);
 
@@ -103,16 +108,41 @@ test('Participants tab owns applicant selection and later changes', async ({ pag
   await expect(apply).toHaveText('参加者を更新');
   await expect(page.locator('#participantsViewSummary')).toHaveText('1 / 2人を選択');
 
+  const announcementPanel = page.locator('#participantAnnouncementPanel');
+  await expect(announcementPanel).toBeVisible();
+  const announcementOpen = page.locator('#participantAnnouncementOpenBtn');
+  await expect(announcementOpen).not.toHaveAttribute('disabled', '');
+  await announcementOpen.click();
+  const announcementModal = page.locator('#participantAnnouncementModal');
+  await expect(announcementModal).toHaveAttribute('open', '');
+  await expect(announcementModal.locator('.participant-announcement-fixed-field')).toContainText('サークルボックス前');
+  const announcementCopy = page.locator('#participantAnnouncementCopyBtn');
+  await expect(announcementCopy).toHaveAttribute('disabled', '');
+  await page.evaluate(() => {
+    const input = document.getElementById('participantAnnouncementMeetTime');
+    input.value = '06:30';
+    input.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+  });
+  await expect(announcementCopy).not.toHaveAttribute('disabled', '');
+  const preview = page.locator('#participantAnnouncementPreview');
+  await expect(preview).toContainText('7月11日 霧ヶ峰企画');
+  await expect(preview).toContainText('○田中太郎');
+  await expect(preview).toContainText('当日の集合時間は06:30です。');
+  await expect(preview).toContainText('集合場所はサークルボックス前です。');
+  await announcementModal.locator('[data-modal-close]').first().click();
+
   await tanakaHost.locator('label').click();
   await expect(tanakaCheckbox).not.toBeChecked();
   await expect(page.locator('#participantsViewSummary')).toHaveText('0 / 2人を選択');
   await expect(apply).not.toHaveAttribute('disabled', '');
+  await expect(announcementOpen).toHaveAttribute('disabled', '');
   await apply.click();
   const confirm = page.locator('#appConfirmModal');
   await expect(confirm).toHaveAttribute('open', '');
   await expect(confirm.locator('.app-decision-message')).toHaveText('車割・班割・精算の割り当ても削除されます。');
   await confirm.locator('[data-role="ok"]').click();
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(0);
+  await expect(announcementPanel).toBeHidden();
 
   await page.locator('#tab-seisan').click();
   await expect(page.locator('body')).not.toHaveClass(/view-mode-participants/);
