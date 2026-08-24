@@ -12,9 +12,17 @@
     return window.SanpoCanonicalState?.get?.() || null;
   }
 
+  function validApplicationSync(sync) {
+    return !!sync
+      && sync.kind === 'formApplicationSync'
+      && Number(sync.version || 0) === 2;
+  }
+
   function applicationSync(room = canonical()) {
+    const bridged = window.SanpoApplicationSyncBridge?.get?.();
+    if (validApplicationSync(bridged)) return bridged;
     const sync = room?.meta?.applicationSync;
-    return sync?.kind === 'formApplicationSync' && Number(sync.version || 0) === 2 ? sync : null;
+    return validApplicationSync(sync) ? sync : null;
   }
 
   function checkboxChecked(checkbox) {
@@ -360,12 +368,16 @@
     const summary = byId('participantsViewSummary');
     if (!room || !summary) return;
 
-    const { selected, total } = selectionState();
+    const { selected } = selectionState();
     const participantCount = Object.keys(room.participants || {}).length;
-    const managed = Boolean(applicationSync(room));
+    const sync = applicationSync(room);
+    const managed = Boolean(sync);
+    const applicantCount = Object.values(sync?.applicants || {}).filter(applicant => applicant?.name).length;
     const dirty = applyButtonIsDirty();
-    const summaryText = managed && participantCount === 0
-      ? `応募者 ${total}人`
+    const summaryText = managed
+      ? (participantCount > 0
+        ? `応募者 ${applicantCount}人　参加者 ${participantCount}人`
+        : `応募者 ${applicantCount}人`)
       : `参加者 ${participantCount}人`;
     summary.classList.remove('is-manual');
     if (summary.textContent !== summaryText) summary.textContent = summaryText;
@@ -467,6 +479,7 @@
       requestAnimationFrame(refreshParticipantUi);
     });
     window.addEventListener('sanpo:canonical-room-changed', refreshParticipantUi);
+    window.addEventListener('sanpo:application-sync-changed', refreshParticipantUi);
   }
 
   function start() {

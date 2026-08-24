@@ -37,6 +37,12 @@ window.SANPO_FIREBASE_CONFIG = {
       script.dataset.sanpoApplicantSync = 'true';
       document.head.appendChild(script);
     }
+    if (!document.querySelector('script[data-sanpo-application-sync-bridge]')) {
+      const script = document.createElement('script');
+      script.src = './assets/js/features/application-sync-bridge.js?v=participant-announcement-debug-v99';
+      script.dataset.sanpoApplicationSyncBridge = 'true';
+      document.head.appendChild(script);
+    }
     if (!document.querySelector('script[data-sanpo-participants-ui]')) {
       const script = document.createElement('script');
       script.src = './assets/js/features/participants-ui.js?v=participants-copy-v96';

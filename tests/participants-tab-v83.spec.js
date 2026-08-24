@@ -135,7 +135,7 @@ test('Participants mobile flow keeps the shared shell and Carbon selection actio
 
   await apply.click();
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(3);
-  await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 3人');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 5人　参加者 3人');
   await expect(page.locator('.participants-page')).toHaveClass(/is-confirmed-collapsed/);
   await expect(page.locator('#formApplicantList')).toBeHidden();
   await expect(page.locator('.participants-page__actions')).toBeHidden();
@@ -193,7 +193,7 @@ test('Participants mobile flow keeps the shared shell and Carbon selection actio
   await expect(page.locator('.participants-page')).toHaveClass(/is-confirmed-collapsed/);
   await expect(page.locator('.participants-page__actions')).toBeHidden();
   await expect(page.locator('#participantsPostConfirmSection')).toBeVisible();
-  await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 4人');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 5人　参加者 4人');
 
   await edit.click();
   await clickApplicant(page, '山本 陽翔');
@@ -236,6 +236,7 @@ test('Participant announcement mobile flow starts safely and separates editing f
   }
   await page.locator('#formApplicantApplyBtn').click();
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(5);
+  await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 5人　参加者 5人');
   await expect(page.locator('#participantsPostConfirmSection')).toBeVisible();
   await expect(page.locator('#participantAnnouncementOpenBtn')).toBeVisible();
 
