@@ -1,4 +1,5 @@
 // Participants selection presentation owner.
+// Legacy rendered labels intentionally removed from the UI: 参加者を確定 / 変更を保存 / ✓ 保存済み.
 (() => {
   'use strict';
 
