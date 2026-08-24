@@ -92,7 +92,7 @@ test('Participants mobile flow has no saved-state overlay or broken sticky layou
 
   await apply.click();
   await expect.poll(() => page.evaluate(() => Object.keys(window.SanpoCanonicalState.get()?.participants || {}).length)).toBe(3);
-  await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 3人');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 5人　参加者 3人');
   await expect(page.locator('.participants-page')).toHaveClass(/is-confirmed-collapsed/);
   await expect(page.locator('#formApplicantList')).toBeHidden();
   await expect(page.locator('.participants-page__actions')).toBeHidden();
@@ -157,7 +157,7 @@ test('Participants mobile flow has no saved-state overlay or broken sticky layou
   await expect(page.locator('.participants-page')).toHaveClass(/is-confirmed-collapsed/);
   await expect(page.locator('.participants-page__actions')).toBeHidden();
   await expect(page.locator('#participantsPostConfirmSection')).toBeVisible();
-  await expect(page.locator('#participantsViewSummary')).toHaveText('参加者 4人');
+  await expect(page.locator('#participantsViewSummary')).toHaveText('応募者 5人　参加者 4人');
 
   await edit.click();
   await clickApplicant(page, '山本 陽翔');
