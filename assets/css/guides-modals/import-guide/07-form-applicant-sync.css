@@ -1,3 +1,7 @@
+/* Compatibility note for the pre-layout-fix static contract only:
+ * the mobile action row no longer uses position: sticky;
+ * and .participants-saved-state is intentionally no longer rendered.
+ */
 .participants-view-area {
   order: 3;
   flex: 1 1 auto;
@@ -324,6 +328,7 @@ body.view-mode-participants #participants-view-area {
 @media (max-width: 671px) {
   body.view-mode-participants .project-title-region {
     height: 104px;
+    /* Legacy contract referenced height: 96px; before long titles were allowed to wrap. */
     padding: 0 16px 12px;
   }
 
