@@ -13,10 +13,10 @@ const settlementEmpty = fs.readFileSync(new URL('../assets/js/templates/settleme
 const commonEmpty = fs.readFileSync(new URL('../assets/js/templates/common-empty-state.js', import.meta.url), 'utf8');
 const navigation = fs.readFileSync(new URL('../assets/js/features/events/02-static-header-events.js', import.meta.url), 'utf8');
 
-assert.match(html, /\.\/firebase-config\.js\?v=participants-carbon-v90/);
+assert.match(html, /\.\/firebase-config\.js\?v=participants-flow-v94/);
 assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-carbon-v92/);
 assert.match(loader, /participants-ui\.js\?v=participants-flow-v94/);
-assert.match(loader, /handoff-export\.js\?v=participants-carbon-v92/);
+assert.match(loader, /handoff-export\.js\?v=participants-flow-v94/);
 assert.match(loader, /participant-announcement\.js\?v=participants-carbon-v93/);
 assert.match(loader, /07-form-applicant-sync\.css\?v=participants-flow-v94/);
 assert.match(loader, /08-participant-announcement\.css\?v=participants-carbon-v93/);
@@ -97,7 +97,8 @@ assert.match(handoffExport, /url\.searchParams\.delete\(TOKEN_PARAM\)/);
 assert.match(handoffExport, /window\.history\.replaceState/);
 assert.match(handoffExport, /id = ['"]handoffExportBtn['"]/);
 assert.match(handoffExport, /toolbar\.insertBefore\(button, filter/);
-assert.match(handoffExport, /参加者を更新してから作成できます/);
+assert.match(handoffExport, /変更を保存してから作成できます/);
+assert.match(handoffExport, /引き継ぎデータを作成/);
 assert.match(handoffExport, /action:\s*['"]handoff-export['"]/);
 assert.match(handoffExport, /responses:\s*selection\.responseKeys\.join/);
 assert.doesNotMatch(handoffExport, /studentId.*localStorage/i);
