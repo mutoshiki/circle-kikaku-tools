@@ -119,17 +119,23 @@
     const toggle = byId('participantsFilterToggle');
     if (!container || !toggle) return;
     const labels = activeFilterLabels();
-    container.replaceChildren(...labels.map(label => {
-      const tag = document.createElement('cds-tag');
-      tag.setAttribute('type', 'gray');
-      tag.setAttribute('size', 'sm');
-      tag.textContent = label;
-      return tag;
-    }));
+    const signature = labels.join('|');
+    if (container.dataset.filterSignature !== signature) {
+      container.replaceChildren(...labels.map(label => {
+        const tag = document.createElement('cds-tag');
+        tag.setAttribute('type', 'gray');
+        tag.setAttribute('size', 'sm');
+        tag.textContent = label;
+        return tag;
+      }));
+      container.dataset.filterSignature = signature;
+    }
     container.hidden = labels.length === 0;
     toggle.dataset.activeFilterCount = labels.length ? String(labels.length) : '';
-    toggle.setAttribute('aria-label', labels.length ? `絞り込み、${labels.length}件適用中` : '絞り込み');
-    toggle.setAttribute('title', labels.length ? `${labels.length}件の絞り込みを適用中` : '絞り込み');
+    const ariaLabel = labels.length ? `絞り込み、${labels.length}件適用中` : '絞り込み';
+    const title = labels.length ? `${labels.length}件の絞り込みを適用中` : '絞り込み';
+    if (toggle.getAttribute('aria-label') !== ariaLabel) toggle.setAttribute('aria-label', ariaLabel);
+    if (toggle.getAttribute('title') !== title) toggle.setAttribute('title', title);
   }
 
   function applyFilters() {
@@ -231,11 +237,19 @@
 
     const editButton = byId('participantsEditToggle');
     if (editButton) {
-      editButton.textContent = collapsed ? '参加者を編集' : '編集を閉じる';
-      editButton.disabled = dirty;
-      editButton.toggleAttribute('disabled', dirty);
-      editButton.setAttribute('aria-expanded', String(!collapsed));
-      editButton.setAttribute('title', dirty ? '変更を保存すると編集画面を閉じられます。' : (collapsed ? '参加者の選択を編集' : '参加者の編集を閉じる'));
+      const editLabel = collapsed ? '参加者を編集' : '編集を閉じる';
+      if (editButton.textContent !== editLabel) editButton.textContent = editLabel;
+      const currentlyDisabled = editButton.disabled || editButton.hasAttribute('disabled');
+      if (currentlyDisabled !== dirty) {
+        editButton.disabled = dirty;
+        editButton.toggleAttribute('disabled', dirty);
+      }
+      const expanded = String(!collapsed);
+      if (editButton.getAttribute('aria-expanded') !== expanded) editButton.setAttribute('aria-expanded', expanded);
+      const title = dirty
+        ? '変更を保存すると編集画面を閉じられます。'
+        : (collapsed ? '参加者の選択を編集' : '参加者の編集を閉じる');
+      if (editButton.getAttribute('title') !== title) editButton.setAttribute('title', title);
     }
 
     previousDirtyState = dirty;
@@ -278,8 +292,8 @@
         </div>`;
       container.appendChild(panel);
     }
-    button.setAttribute('kind', 'ghost');
-    button.setAttribute('size', 'lg');
+    if (button.getAttribute('kind') !== 'ghost') button.setAttribute('kind', 'ghost');
+    if (button.getAttribute('size') !== 'lg') button.setAttribute('size', 'lg');
     if (button.parentElement !== panel) panel.appendChild(button);
     return panel;
   }
@@ -292,8 +306,8 @@
     const text = 'ラクラク連絡網に投稿する文章を作成します。';
     if (description && description.textContent !== text) description.textContent = text;
     const button = byId('participantAnnouncementOpenBtn');
-    button?.setAttribute('kind', 'ghost');
-    button?.setAttribute('size', 'lg');
+    if (button?.getAttribute('kind') !== 'ghost') button?.setAttribute('kind', 'ghost');
+    if (button?.getAttribute('size') !== 'lg') button?.setAttribute('size', 'lg');
     if (panel.parentElement !== container) container.appendChild(panel);
     return panel;
   }
