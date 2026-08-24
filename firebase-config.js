@@ -63,7 +63,7 @@ window.SANPO_FIREBASE_CONFIG = {
     }
     if (!document.querySelector('script[data-sanpo-form-linked-sample]')) {
       const script = document.createElement('script');
-      script.src = './assets/js/features/form-linked-sample.js?v=participant-announcement-debug-v99';
+      script.src = './assets/js/features/form-linked-sample.js?v=participant-announcement-debug-v98';
       script.dataset.sanpoFormLinkedSample = 'true';
       document.head.appendChild(script);
     }
