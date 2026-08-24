@@ -115,14 +115,19 @@
     const token = storedToken();
     const participantCount = Object.keys(canonical()?.participants || {}).length;
     if (!sync) return { enabled: false, reason: '応募フォームと自動連携した企画で利用できます。' };
-    if (!token) return { enabled: false, reason: 'この端末には引き継ぎデータの作成権限がありません。' };
-    if (hasPendingSelection()) return { enabled: false, reason: '変更を保存してから作成できます。' };
+    if (!token) {
+      return {
+        enabled: false,
+        reason: 'この端末には作成権限がありません。応募フォーム作成後に表示される「この企画をサークル企画ツールで開く」から開いた端末で作成できます。'
+      };
+    }
+    if (hasPendingSelection()) return { enabled: false, reason: '参加者の変更を保存してから作成できます。' };
     if (!participantCount) return { enabled: false, reason: '参加者を確定してから作成できます。' };
     const selection = committedExportSelection();
     if (selection.ambiguousNames.length) {
       return { enabled: false, reason: `同名の応募者（${selection.ambiguousNames.join('・')}）を安全に判別できないため作成できません。` };
     }
-    return { enabled: true, reason: '学務提出書類メーカー用の引き継ぎCSVを作成します。' };
+    return { enabled: true, reason: '学務提出書類作成ツールに読み込む引き継ぎデータを作成します。' };
   }
 
   function ensureExportButton() {
@@ -155,6 +160,13 @@
     button.setAttribute('aria-label', exportInFlight ? '引き継ぎデータを作成中' : `引き継ぎデータを作成。${state.reason}`);
     const label = exportInFlight ? '作成中…' : '引き継ぎデータを作成';
     if (button.textContent !== label) button.textContent = label;
+
+    const reason = byId('handoffExportReason');
+    if (reason) {
+      const showReason = !exportInFlight && !state.enabled;
+      if (reason.textContent !== state.reason) reason.textContent = state.reason;
+      reason.hidden = !showReason;
+    }
     return true;
   }
 
