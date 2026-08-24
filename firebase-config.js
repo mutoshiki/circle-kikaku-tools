@@ -51,7 +51,7 @@ window.SANPO_FIREBASE_CONFIG = {
     }
     if (!document.querySelector('script[data-sanpo-participant-announcement]')) {
       const script = document.createElement('script');
-      script.src = './assets/js/features/participant-announcement.js?v=participants-carbon-v93';
+      script.src = './assets/js/features/participant-announcement.js?v=participants-copy-v95';
       script.dataset.sanpoParticipantAnnouncement = 'true';
       document.head.appendChild(script);
     }
