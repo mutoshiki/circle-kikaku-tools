@@ -16,3 +16,44 @@
 .edit-header-tools-only { display: block; }
 .edit-header-tools-only .edit-tools:not(.allocation-toolbar-inner) { grid-template-columns: minmax(0, 1fr) auto; }
 .app-subtitle { display: none; }
+
+@media (max-width: 768px) {
+  /* The title, tabs and active view share one scroll owner on phones. Previously
+   * #top-area scrolled independently and a 16px touch gesture collapsed a 240px
+   * title region, so the content appeared to move far faster than the finger. */
+  #app-layout {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #app-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+  }
+
+  #app-view-navigation {
+    position: sticky;
+    top: calc(48px + env(safe-area-inset-top));
+    z-index: var(--z-view-navigation);
+  }
+
+  #projectTitleRegion {
+    flex: 0 0 auto;
+    transition: none;
+  }
+
+  #top-area,
+  #sheet-view-area,
+  #seisan-view-area {
+    flex: 0 0 auto;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  #top-area {
+    -webkit-overflow-scrolling: auto;
+  }
+}
