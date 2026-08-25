@@ -58,4 +58,14 @@
   #top-area {
     -webkit-overflow-scrolling: auto;
   }
+
+  /* Programmatic focus/click scrolling must not park controls beneath the sticky
+   * application header and primary tabs. scroll-margin changes only scroll target
+   * placement; it does not add visible whitespace to the layout. */
+  #participantsEditToggle,
+  .participants-page__header,
+  #assignmentWorkspaceHeader,
+  #seisan-view-area > :first-child {
+    scroll-margin-top: calc(48px + var(--view-navigation-height) + 8px + env(safe-area-inset-top));
+  }
 }
