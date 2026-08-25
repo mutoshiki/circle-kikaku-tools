@@ -97,6 +97,129 @@
         });
     }
 
+    function normalizeProjectTitle(value) {
+        return String(value ?? '').replace(/[\r\n]+/g, '');
+    }
+
+    function syncEditorFromProjectTitleSource(roomInput, editor) {
+        if (!roomInput || !editor) return;
+        const next = normalizeProjectTitle(roomInput.value || '');
+        if (editor.textContent !== next) editor.textContent = next;
+        if (!next && editor.childNodes.length) editor.replaceChildren();
+    }
+
+    function installProjectTitleValueBridge(roomInput, editor) {
+        if (!roomInput || roomInput.dataset.projectTitleValueBridge === 'true') return;
+        let prototype = Object.getPrototypeOf(roomInput);
+        let valueDescriptor = null;
+        while (prototype && !valueDescriptor) {
+            valueDescriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
+            prototype = Object.getPrototypeOf(prototype);
+        }
+        if (!valueDescriptor?.get || !valueDescriptor?.set) return;
+
+        Object.defineProperty(roomInput, 'value', {
+            configurable: true,
+            enumerable: valueDescriptor.enumerable,
+            get() {
+                return valueDescriptor.get.call(this);
+            },
+            set(value) {
+                const next = normalizeProjectTitle(value);
+                valueDescriptor.set.call(this, next);
+                syncEditorFromProjectTitleSource(this, editor);
+            }
+        });
+        roomInput.dataset.projectTitleValueBridge = 'true';
+    }
+
+    function createRestoredProjectTitleEditor(roomInput) {
+        const editor = document.createElement('div');
+        editor.id = 'projectTitleEditor';
+        editor.className = 'project-title-editor';
+        editor.setAttribute('contenteditable', 'plaintext-only');
+        editor.setAttribute('role', 'textbox');
+        editor.setAttribute('aria-label', '企画名');
+        editor.setAttribute('aria-placeholder', '企画名を入力');
+        editor.setAttribute('aria-multiline', 'false');
+        editor.setAttribute('data-placeholder', '企画名を入力');
+        editor.setAttribute('spellcheck', 'false');
+        editor.tabIndex = 0;
+
+        const syncToSource = () => {
+            const next = normalizeProjectTitle(editor.textContent || '');
+            if (!next && editor.childNodes.length) editor.replaceChildren();
+            else if (editor.textContent !== next) editor.textContent = next;
+            if (roomInput.value !== next) roomInput.value = next;
+            roomInput.setAttribute('value', next);
+            roomInput.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+        };
+
+        editor.addEventListener('beforeinput', event => {
+            if (event.inputType === 'insertParagraph' || event.inputType === 'insertLineBreak') event.preventDefault();
+        });
+        editor.addEventListener('keydown', event => {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            editor.blur();
+        });
+        editor.addEventListener('input', event => {
+            if (!event.isComposing) syncToSource();
+        });
+        editor.addEventListener('compositionend', syncToSource);
+        editor.addEventListener('blur', syncToSource);
+        syncEditorFromProjectTitleSource(roomInput, editor);
+        return editor;
+    }
+
+    function setupRestoredProjectTitleEditor() {
+        const region = document.getElementById('projectTitleRegion');
+        const roomInput = document.getElementById('roomNameInput');
+        const roomField = roomInput?.closest('.app-room-field');
+        const content = region?.querySelector('.project-title-content') || region;
+        if (!region || !roomInput || !roomField || !content) return;
+
+        const sharedReadOnly = new URLSearchParams(global.location.search).get('view') === 'sheet';
+        let editor = document.getElementById('projectTitleEditor');
+        if (!editor) {
+            editor = createRestoredProjectTitleEditor(roomInput);
+            content.insertBefore(editor, roomField);
+        }
+
+        roomField.classList.add('project-title-source');
+        roomField.setAttribute('aria-hidden', 'true');
+        roomInput.setAttribute('aria-hidden', 'true');
+        roomInput.tabIndex = -1;
+        roomInput.readOnly = sharedReadOnly;
+        roomInput.toggleAttribute('readonly', sharedReadOnly);
+        editor.setAttribute('contenteditable', sharedReadOnly ? 'false' : 'plaintext-only');
+        editor.toggleAttribute('aria-readonly', sharedReadOnly);
+        editor.classList.toggle('is-readonly', sharedReadOnly);
+        syncEditorFromProjectTitleSource(roomInput, editor);
+        roomInput.addEventListener('input', () => syncEditorFromProjectTitleSource(roomInput, editor));
+
+        const installBridge = () => {
+            installProjectTitleValueBridge(roomInput, editor);
+            syncEditorFromProjectTitleSource(roomInput, editor);
+        };
+        if (customElements.get('cds-text-input')) installBridge();
+        else customElements.whenDefined('cds-text-input').then(installBridge).catch(() => {});
+
+        const syncExpandedState = () => {
+            const expanded = region.dataset.state !== 'collapsed';
+            if ((!expanded || sharedReadOnly) && document.activeElement === editor) editor.blur();
+            editor.inert = !expanded;
+            editor.tabIndex = expanded && !sharedReadOnly ? 0 : -1;
+        };
+        syncExpandedState();
+        if (region.dataset.projectTitleEditorObserverBound !== 'true') {
+            region.dataset.projectTitleEditorObserverBound = 'true';
+            const observer = new MutationObserver(syncExpandedState);
+            observer.observe(region, { attributes: true, attributeFilter: ['data-state'] });
+            global.__projectTitleEditorObserver = observer;
+        }
+    }
+
     async function submitBugReport(modal) {
         if (bugReportSubmitting) return;
         const input = modal?.querySelector('#bugReportMessage');
@@ -178,6 +301,7 @@
         const events = global.SanpoEvents || {};
         events.bindCoreStartupEvents?.();
         events.setupStaticHeaderEvents?.();
+        setupRestoredProjectTitleEditor();
         setupCarbonSideNavigationState();
         setupBugReportNavigation();
         events.setupGeneratedHtmlEventDelegation?.();
