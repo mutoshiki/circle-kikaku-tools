@@ -25,8 +25,8 @@ assert.match(css, /grid-template-areas:\s*"name meta menu"/, 'Member rows must n
 assert.ok(workspace.includes('const desired = [participantTab, carTab, teamTab, settlementTab]'), 'Primary destinations must be 参加者 → 車割 → 班割 → 精算');
 assert.ok(!workspace.includes('assignmentTypeSwitcher'), 'Allocation-local 車割/班割 switcher must be removed');
 assert.ok(!workspace.includes('assignmentWorkspaceTitle'), 'Redundant 車割・班割 workspace heading must be removed');
-assert.ok(workspace.includes('function parkLegacySheetTab'), 'Legacy sheet internals may remain only as a hidden compatibility node');
-assert.ok(workspace.includes("sheetTab.setAttribute('aria-hidden', 'true')"), 'Legacy sheet tab must be hidden from navigation and accessibility');
+assert.ok(workspace.includes('sheetTab?.remove()'), 'Legacy shared-view destination must be removed from the live DOM');
+assert.ok(app.includes('installRetiredSheetViewCompatibility'), 'Only the legacy switchView implementation may receive an ephemeral compatibility node during a call');
 assert.ok(viewEvents.includes("bind('tab-list', () => openAllocationDestination('car'))"), '車割 tab must open the car allocation directly');
 assert.ok(viewEvents.includes("bind('tab-team', () => openAllocationDestination('team'))"), '班割 tab must open the team allocation directly');
 assert.ok(!viewEvents.includes("bind('tab-sheet'"), 'Legacy shared-view tab must no longer own a navigation event');
