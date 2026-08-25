@@ -32,7 +32,7 @@
             link.dataset.assignmentWorkspaceStyle = 'true';
             D.head.appendChild(link);
         }
-        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v3';
+        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v4';
         if (!link.href.endsWith(href.replace('./', ''))) link.href = href;
     }
 
@@ -261,24 +261,26 @@
 
     function decorateEmptySeats(box) {
         const slots = Array.from(box.querySelectorAll('.seat-slot'));
-        const empty = slots.filter(slot => !slot.querySelector('.member-card'));
-        slots.forEach(slot => {
-            const primary = slot === empty[0];
-            const collapsed = empty.includes(slot) && !primary;
-            slot.classList.toggle('assignment-empty-seat--primary', primary);
-            slot.classList.toggle('assignment-empty-seat--collapsed', collapsed);
-            if (!empty.includes(slot)) slot.querySelector('.assignment-empty-label')?.remove();
+        slots.forEach((slot, index) => {
+            const empty = !slot.querySelector('.member-card');
+            slot.classList.toggle('assignment-empty-seat', empty);
+            slot.classList.remove('assignment-empty-seat--primary', 'assignment-empty-seat--collapsed');
+            let label = slot.querySelector('.assignment-empty-label');
+            if (!empty) {
+                label?.remove();
+                slot.removeAttribute('aria-label');
+                return;
+            }
+            if (!label) {
+                label = D.createElement('span');
+                label.className = 'assignment-empty-label';
+                slot.prepend(label);
+            }
+            label.textContent = '空席';
+            slot.setAttribute('aria-label', `空席 ${index + 1}`);
+            const add = slot.querySelector('.seat-add-btn');
+            add?.setAttribute('aria-label', '空席にメンバーを追加');
         });
-        const first = empty[0];
-        if (!first) return;
-        let label = first.querySelector('.assignment-empty-label');
-        if (!label) {
-            label = D.createElement('span');
-            label.className = 'assignment-empty-label';
-            first.prepend(label);
-        }
-        const text = `${empty.length}席空き`;
-        if (label.textContent !== text) label.textContent = text;
     }
 
     function currentMemberBox(card) {
@@ -474,6 +476,11 @@
         }
     }
 
+    function normalizeHorizontalPosition() {
+        const topArea = byId('top-area');
+        if (topArea && topArea.scrollLeft !== 0) topArea.scrollLeft = 0;
+    }
+
     function syncNow() {
         syncFrame = 0;
         D.body.classList.add('assignment-workspace-enabled');
@@ -485,6 +492,7 @@
         decorateCards();
         syncSummaryAndWaitingState();
         applyReadOnlyMode();
+        normalizeHorizontalPosition();
         global.SanpoCarbon?.renderCarbonIcons?.(byId('assignmentWorkspaceHeader'));
     }
 
@@ -512,6 +520,8 @@
         relocateAllocationActions();
         bindMoveMenuEvents();
         observe();
+        global.addEventListener('resize', scheduleSync, { passive: true });
+        global.visualViewport?.addEventListener('resize', scheduleSync, { passive: true });
         syncNow();
     }
 
