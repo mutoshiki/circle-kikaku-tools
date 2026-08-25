@@ -13,7 +13,7 @@ function loadAssignmentWorkspaceFeature() {
             return;
         }
         const script = document.createElement('script');
-        script.src = './assets/js/features/assignment-workspace.js?v=assignment-workspace-v3';
+        script.src = './assets/js/features/assignment-workspace.js?v=assignment-workspace-v5';
         script.async = true;
         script.dataset.assignmentWorkspaceFeature = 'true';
         script.addEventListener('load', () => resolve(window.SanpoAssignmentWorkspace), { once: true });
@@ -65,11 +65,12 @@ D.addEventListener('DOMContentLoaded', async () => {
     // Event bindings are owned by assets/js/features/events.js after A cleanup.
 
     loadTrustedEditPassphrase();
-    setupSortable($('#waiting-list'));
     // Person menus are delegated, so bind them before Firebase/network startup.
     // This keeps member menu buttons responsive even if remote sync is slow or blocked.
     setupCompactPersonMenu();
     ensureCompactMenuFallback();
+    // Assignment editing is intentionally direct-action only: empty seats use the
+    // picker and occupied members use their Move menu. Card drag is not initialized.
     setupSeatMemberPicker();
 
     // A copied room link may explicitly request one of the primary views. Keep
@@ -91,7 +92,7 @@ D.addEventListener('DOMContentLoaded', async () => {
     await assignmentWorkspaceReady;
     window.SanpoAssignmentWorkspace?.initialize?.();
     protectSharedAssignmentControls();
-    setupManualCardDrag();
+    // Sheet quick-edit drag is a separate presentation workflow and remains intact.
     setupManualSheetDrag();
 
     if (firebaseEnabled && db && firebaseReady) {
