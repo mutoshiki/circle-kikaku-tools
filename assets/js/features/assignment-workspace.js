@@ -34,6 +34,14 @@
         if (lock) label.appendChild(lock);
     }
 
+    function parkLegacySheetTab(sheetTab, bar) {
+        if (!sheetTab) return;
+        sheetTab.hidden = true;
+        sheetTab.setAttribute('aria-hidden', 'true');
+        const sheetArea = byId('sheet-view-area');
+        if (sheetArea && sheetTab.parentElement === bar) sheetArea.appendChild(sheetTab);
+    }
+
     function simplifyPrimaryNavigation() {
         const carTab = byId('tab-list');
         const teamTab = byId('tab-team');
@@ -43,7 +51,7 @@
         const bar = byId('view-toggle-bar');
         if (!bar || !carTab || !teamTab || !participantTab || !settlementTab) return;
 
-        sheetTab?.remove();
+        parkLegacySheetTab(sheetTab, bar);
         carTab.dataset.allocationType = 'car';
         teamTab.dataset.allocationType = 'team';
         carTab.setAttribute('value', 'car');
@@ -104,13 +112,19 @@
         if (label) label.textContent = 'ランダムに割り当て';
         else shuffle.prepend(D.createTextNode('ランダムに割り当て'));
         if (shuffle.parentElement !== actions) actions.appendChild(shuffle);
-        const wrapper = D.querySelector('.random-tools');
-        if (wrapper && wrapper !== actions && !wrapper.children.length) wrapper.remove();
+
+        D.querySelectorAll('.random-tools').forEach(wrapper => {
+            if (wrapper !== actions && !wrapper.children.length) wrapper.remove();
+        });
     }
 
     function concealWaitingPool() {
         const tray = byId('bottom-tray');
         if (!tray) return;
+        const waitingContainer = byId('waiting-list-container');
+        Array.from(tray.children).forEach(child => {
+            if (child !== waitingContainer) child.remove();
+        });
         tray.hidden = true;
         tray.setAttribute('aria-hidden', 'true');
         tray.style.display = 'none';
