@@ -226,7 +226,7 @@ test('Participants mobile flow keeps the shared shell and Carbon selection actio
   expect(errors).toEqual([]);
 });
 
-test('Participant announcement mobile flow starts safely and separates editing from preview', async ({ page }) => {
+test('Participant announcement mobile flow uses Carbon footer, disclosure, and preview actions', async ({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(String(error)));
   await openManagedParticipants(page);
@@ -242,16 +242,23 @@ test('Participant announcement mobile flow starts safely and separates editing f
 
   await page.locator('#participantAnnouncementOpenBtn').click();
   const modal = page.locator('#participantAnnouncementModal');
+  const primaryAction = page.locator('#announcementPrimaryActionBtn');
+  const secondaryAction = page.locator('#announcementSecondaryActionBtn');
+  const advanced = page.locator('#announcementAdvancedDisclosure');
+
   await expect(modal).toHaveAttribute('open', '');
+  await expect(modal).toHaveAttribute('data-announcement-step', 'edit');
   await expect(page.locator('#announcementEditStep')).toBeVisible();
   await expect(page.locator('#announcementPreviewStep')).toBeHidden();
   await expect(page.locator('#announcementEventDate')).toHaveJSProperty('value', '2026-08-24');
   await expect(page.locator('#announcementMeetingTime')).toHaveJSProperty('value', '');
   await expect(page.locator('#announcementItineraryList .participant-announcement-itinerary__row')).toHaveCount(0);
-  await expect(page.locator('#announcementAdvancedFields')).toBeHidden();
-  await expect(modal.locator('cds-modal-footer')).toHaveCount(0);
+  await expect(modal.locator('cds-modal-footer')).toHaveCount(1);
+  await expect(primaryAction).toHaveText('発表文を確認');
+  await expect(secondaryAction).toHaveText('キャンセル');
+  await expect(advanced).not.toHaveAttribute('open', '');
 
-  await page.locator('#announcementPreviewBtn').click();
+  await primaryAction.click();
   await expect(page.locator('#announcementEditStep')).toBeVisible();
   await expect(page.locator('#announcementMeetingTime')).toHaveAttribute('invalid', '');
 
@@ -263,13 +270,27 @@ test('Participant announcement mobile flow starts safely and separates editing f
   await setCarbonValue(page, '#announcementItineraryList [data-itinerary-step]', '登山開始');
   await setCarbonValue(page, '#announcementSupplement', '天候によっては中止する場合があります。');
 
-  await page.locator('#announcementAdvancedToggleBtn').click();
-  await expect(page.locator('#announcementAdvancedFields')).toBeVisible();
+  await advanced.locator('[slot="title"]').click();
+  await expect(advanced).toHaveAttribute('open', '');
   await setCarbonValue(page, '#announcementOpening', 'お疲れ様です！テストです。');
 
-  await page.locator('#announcementPreviewBtn').click();
+  const addButtonGeometry = await page.locator('#announcementAddItineraryBtn').evaluate(element => {
+    const button = element.getBoundingClientRect();
+    const section = element.closest('.participant-announcement-itinerary').getBoundingClientRect();
+    return { buttonWidth: button.width, sectionWidth: section.width };
+  });
+  expect(addButtonGeometry.buttonWidth).toBeLessThan(addButtonGeometry.sectionWidth);
+
+  await primaryAction.click();
+  await expect(modal).toHaveAttribute('data-announcement-step', 'preview');
   await expect(page.locator('#announcementEditStep')).toBeHidden();
   await expect(page.locator('#announcementPreviewStep')).toBeVisible();
+  await expect(primaryAction).toHaveText('発表文をコピー');
+  await expect(secondaryAction).toHaveText('編集に戻る');
+  await expect(page.locator('#announcementCopyTitleBtn')).toHaveAttribute('aria-label', 'タイトルをコピー');
+  await expect(page.locator('#announcementCopyBodyBtn')).toHaveAttribute('aria-label', '本文をコピー');
+  await expect(page.locator('#announcementTitlePreview')).toHaveAttribute('aria-readonly', 'true');
+  await expect(page.locator('#announcementBodyPreview')).toHaveAttribute('aria-readonly', 'true');
   await expect(page.locator('#announcementTitlePreview')).toContainText('9月24日(木)');
   await expect(page.locator('#announcementBodyPreview')).toContainText('9月24日(木)');
   await expect(page.locator('#announcementBodyPreview')).toContainText('今回は応募してくださった方全員が参加できることになりました。');
@@ -283,16 +304,21 @@ test('Participant announcement mobile flow starts safely and separates editing f
     tagName: element.tagName,
     overflowY: getComputedStyle(element).overflowY,
     clientHeight: element.clientHeight,
-    scrollHeight: element.scrollHeight
+    scrollHeight: element.scrollHeight,
+    borderTopWidth: getComputedStyle(element).borderTopWidth
   }));
   expect(bodyGeometry.tagName).toBe('PRE');
   expect(bodyGeometry.overflowY).not.toBe('scroll');
   expect(bodyGeometry.scrollHeight).toBeLessThanOrEqual(bodyGeometry.clientHeight + 1);
+  expect(bodyGeometry.borderTopWidth).toBe('0px');
 
-  await page.locator('#announcementEditBtn').click();
+  await secondaryAction.click();
+  await expect(modal).toHaveAttribute('data-announcement-step', 'edit');
   await expect(page.locator('#announcementEditStep')).toBeVisible();
   await expect(page.locator('#announcementPreviewStep')).toBeHidden();
   await expect(page.locator('#announcementMeetingTime')).toHaveJSProperty('value', '06:30');
+  await expect(primaryAction).toHaveText('発表文を確認');
+  await expect(secondaryAction).toHaveText('キャンセル');
 
   expect(errors).toEqual([]);
 });
