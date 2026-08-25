@@ -20,14 +20,52 @@ try {
   await page.waitForSelector('#overviewMenuBtn', { state: 'attached' });
   await page.waitForSelector('#overviewDrawer', { state: 'attached' });
 
+  await page.evaluate(() => {
+    window.__hamburgerEventTrace = [];
+    const trace = (label, event) => {
+      window.__hamburgerEventTrace.push({
+        label,
+        type: event.type,
+        target: event.target?.id || event.target?.tagName || '',
+        currentTarget: event.currentTarget?.id || event.currentTarget?.tagName || '',
+        detail: event.detail ?? null,
+        composed: event.composed,
+        bubbles: event.bubbles,
+        path: typeof event.composedPath === 'function'
+          ? event.composedPath().slice(0, 6).map(node => node?.id || node?.tagName || node?.nodeName || '')
+          : []
+      });
+    };
+    const trigger = document.getElementById('overviewMenuBtn');
+    document.addEventListener('pointerup', event => trace('document-pointerup-capture', event), true);
+    document.addEventListener('click', event => trace('document-click-capture', event), true);
+    document.addEventListener('click', event => trace('document-click-bubble', event));
+    document.addEventListener('cds-header-menu-button-toggled', event => trace('document-carbon-toggle-capture', event), true);
+    document.addEventListener('cds-header-menu-button-toggled', event => trace('document-carbon-toggle-bubble', event));
+    trigger?.addEventListener('click', event => trace('trigger-click-capture', event), true);
+    trigger?.addEventListener('click', event => trace('trigger-click-bubble', event));
+    trigger?.addEventListener('cds-header-menu-button-toggled', event => trace('trigger-carbon-toggle', event));
+  });
+
   const before = await page.evaluate(() => {
     const trigger = document.getElementById('overviewMenuBtn');
     const drawer = document.getElementById('overviewDrawer');
     const rect = drawer?.getBoundingClientRect();
+    const shadowButton = trigger?.shadowRoot?.querySelector('button');
     return {
       triggerTag: trigger?.tagName || '',
       drawerTag: drawer?.tagName || '',
       expanded: Boolean(drawer?.expanded || drawer?.hasAttribute('expanded')),
+      active: Boolean(trigger?.active || trigger?.hasAttribute('active')),
+      shadowButton: shadowButton ? {
+        exists: true,
+        ariaLabel: shadowButton.getAttribute('aria-label'),
+        disabled: shadowButton.disabled,
+        rect: (() => {
+          const r = shadowButton.getBoundingClientRect();
+          return { x: r.x, y: r.y, width: r.width, height: r.height };
+        })()
+      } : { exists: false },
       drawerX: rect?.x ?? null,
       drawerWidth: rect?.width ?? null,
       drawerVisibility: drawer ? getComputedStyle(drawer).visibility : null,
@@ -55,7 +93,8 @@ try {
       drawerVisibility: style?.visibility ?? null,
       drawerDisplay: style?.display ?? null,
       drawerPointerEvents: style?.pointerEvents ?? null,
-      drawerTransform: style?.transform ?? null
+      drawerTransform: style?.transform ?? null,
+      eventTrace: window.__hamburgerEventTrace || []
     };
   });
 
