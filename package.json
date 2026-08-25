@@ -11,7 +11,7 @@
     "test:carbon": "playwright test tests/carbon-complete.spec.js tests/shared-touch-scroll-v72.spec.js tests/official-carbon-runtime.spec.js",
     "test:ui": "playwright test tests/carbon-complete.spec.js tests/assignment-workspace-refresh.spec.js tests/shared-touch-scroll-v72.spec.js tests/shell-project-title-navigation-v73.spec.js tests/settlement-cost-editor-list-v75.spec.js tests/settlement-ui-regressions-v76.spec.js tests/status-toast-policy-v79.spec.js tests/settlement-modal-warning-v80.spec.js tests/participants-tab-v83.spec.js tests/form-linked-sample.spec.js tests/empty-state-parity-v96.spec.js tests/official-carbon-runtime.spec.js",
     "test:visual": "playwright test tests/carbon-complete.visual.spec.js",
-    "test:safari-sync": "playwright test tests/safari-sync-v82.spec.js --config=playwright.webkit.config.js",
+    "test:safari-sync": "playwright test tests/safari-sync-v82.spec.js tests/assignment-workspace-refresh.spec.js --config=playwright.webkit.config.js",
     "test:carbon:complete": "playwright test tests/carbon-complete.spec.js tests/assignment-workspace-refresh.spec.js tests/shared-touch-scroll-v72.spec.js tests/carbon-complete.visual.spec.js tests/settlement-cost-editor-list-v75.spec.js tests/settlement-ui-regressions-v76.spec.js tests/status-toast-policy-v79.spec.js tests/settlement-modal-warning-v80.spec.js tests/participants-tab-v83.spec.js tests/form-linked-sample.spec.js tests/empty-state-parity-v96.spec.js tests/official-carbon-runtime.spec.js",
     "test:guard": "npm run build:carbon && npm run lint:css && npm test && npm run test:carbon:complete && npm run test:safari-sync",
     "lint:maps": "node tools/lint-google-route-planner.mjs",
