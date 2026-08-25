@@ -27,7 +27,7 @@ window.SANPO_FIREBASE_CONFIG = {
     if (!document.querySelector('link[data-sanpo-participant-announcement]')) {
       const stylesheet = document.createElement('link');
       stylesheet.rel = 'stylesheet';
-      stylesheet.href = './assets/css/guides-modals/import-guide/08-participant-announcement.css?v=participants-carbon-v93';
+      stylesheet.href = './assets/css/guides-modals/import-guide/08-participant-announcement.css?v=participant-announcement-carbon-v100';
       stylesheet.dataset.sanpoParticipantAnnouncement = 'true';
       document.head.appendChild(stylesheet);
     }
@@ -57,7 +57,7 @@ window.SANPO_FIREBASE_CONFIG = {
     }
     if (!document.querySelector('script[data-sanpo-participant-announcement]')) {
       const script = document.createElement('script');
-      script.src = './assets/js/features/participant-announcement.js?v=participants-copy-v96';
+      script.src = './assets/js/features/participant-announcement.js?v=participant-announcement-carbon-v100';
       script.dataset.sanpoParticipantAnnouncement = 'true';
       document.head.appendChild(script);
     }

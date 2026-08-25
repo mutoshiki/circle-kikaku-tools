@@ -50,18 +50,17 @@
 .participant-announcement-fields {
   display: grid;
   align-content: start;
-  gap: 24px;
+  gap: 20px;
 }
 
 .participant-announcement-fields[hidden],
-.participant-announcement-preview[hidden],
-.participant-announcement-advanced[hidden] {
-  display: none !important;
+.participant-announcement-preview[hidden] {
+  display: none;
 }
 
 .participant-announcement-itinerary {
   display: grid;
-  gap: 12px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -69,16 +68,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
+  min-width: 0;
 }
 
-.participant-announcement-itinerary__heading h3,
-.participant-announcement-preview__heading h3 {
+.participant-announcement-itinerary__heading h3 {
   margin: 0;
-  color: var(--cds-text-primary, #161616);
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 600;
+  color: var(--cds-text-secondary, #525252);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+}
+
+#announcementAddItineraryBtn {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
 }
 
 .participant-announcement-itinerary__list {
@@ -93,11 +98,11 @@
 
 .participant-announcement-itinerary__row {
   display: grid;
-  grid-template-columns: minmax(104px, .32fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(104px, .32fr) minmax(0, 1fr) 40px;
   align-items: end;
   gap: 8px;
   min-width: 0;
-  padding: 12px 0;
+  padding: 8px 0;
   border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
 }
 
@@ -109,41 +114,31 @@
   min-width: 0;
 }
 
-.participant-announcement-advanced-toggle {
-  margin-top: -8px;
+.participant-announcement-itinerary__row [data-itinerary-remove] {
+  align-self: end;
 }
 
 .participant-announcement-advanced {
+  min-width: 0;
+  border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+}
+
+.participant-announcement-advanced__fields {
   display: grid;
   gap: 16px;
-  padding-top: 20px;
-  border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
-}
-
-.participant-announcement-edit-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 8px;
-}
-
-#announcementPreviewBtn {
-  min-width: 176px;
+  padding: 8px 0 16px;
 }
 
 .participant-announcement-preview {
   display: grid;
   align-content: start;
-  gap: 24px;
-}
-
-.participant-announcement-preview__topbar {
-  display: flex;
-  justify-content: flex-start;
+  gap: 20px;
 }
 
 .participant-announcement-preview__block {
   display: grid;
-  gap: 12px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -151,22 +146,32 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
+  min-height: 40px;
+}
+
+.participant-announcement-preview__heading h3 {
+  margin: 0;
+  color: var(--cds-text-primary, #161616);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
 }
 
 .participant-announcement-output {
   width: 100%;
   margin: 0;
   padding: 16px;
-  border: 1px solid var(--cds-border-strong-01, #8d8d8d);
+  border: 0;
   background: var(--cds-layer-02, #f4f4f4);
   color: var(--cds-text-primary, #161616);
   font: inherit;
-  line-height: 1.6;
+  line-height: 1.5;
   overflow-wrap: anywhere;
 }
 
 .participant-announcement-output--title {
+  min-height: 48px;
   font-weight: 600;
 }
 
@@ -176,7 +181,11 @@
   overflow: visible;
 }
 
-@media (max-width: 671px) {
+.participant-announcement-footer {
+  border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+}
+
+@media (max-width: 768px) {
   .participant-announcement-panel {
     align-items: stretch;
     flex-direction: column;
@@ -185,8 +194,7 @@
     padding: 16px;
   }
 
-  #participantAnnouncementOpenBtn,
-  #announcementPreviewBtn {
+  #participantAnnouncementOpenBtn {
     width: 100%;
     min-width: 0;
   }
@@ -197,41 +205,43 @@
   }
 
   .participant-announcement-fields {
-    gap: 20px;
+    gap: 16px;
+  }
+
+  .participant-announcement-itinerary {
+    gap: 6px;
   }
 
   .participant-announcement-itinerary__heading {
-    align-items: stretch;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
   }
 
-  .participant-announcement-itinerary__heading cds-button {
-    width: 100%;
+  #announcementAddItineraryBtn {
+    width: auto;
   }
 
   .participant-announcement-itinerary__row {
-    grid-template-columns: minmax(88px, .38fr) minmax(0, 1fr);
+    grid-template-columns: minmax(88px, .34fr) minmax(0, 1fr) 40px;
+    gap: 6px;
+    padding: 6px 0;
   }
 
-  .participant-announcement-itinerary__row [data-itinerary-remove] {
-    grid-column: 2;
-    justify-self: start;
+  .participant-announcement-advanced__fields {
+    gap: 12px;
+    padding-bottom: 12px;
   }
 
-  .participant-announcement-edit-actions {
-    padding-top: 4px;
+  .participant-announcement-preview {
+    gap: 16px;
   }
 
   .participant-announcement-preview__heading {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .participant-announcement-preview__heading cds-button {
-    width: 100%;
+    align-items: center;
+    flex-direction: row;
   }
 
   .participant-announcement-output {
-    padding: 14px;
+    padding: 12px;
   }
 }

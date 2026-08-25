@@ -213,23 +213,24 @@
 
   function showStep(step) {
     const editing = step !== 'preview';
+    const modal = byId('participantAnnouncementModal');
     const fields = byId('announcementEditStep');
     const preview = byId('announcementPreviewStep');
     const heading = byId('announcementModalHeading');
+    const secondaryAction = byId('announcementSecondaryActionBtn');
+    const primaryAction = byId('announcementPrimaryActionBtn');
+    const label = editing ? '参加者発表文を作成' : '参加者発表文を確認';
+
+    if (modal) {
+      modal.dataset.announcementStep = editing ? 'edit' : 'preview';
+      modal.setAttribute('aria-label', label);
+    }
     if (fields) fields.hidden = !editing;
     if (preview) preview.hidden = editing;
-    if (heading) heading.textContent = editing ? '参加者発表文を作成' : '参加者発表文を確認';
+    if (heading) heading.textContent = label;
+    if (secondaryAction) secondaryAction.textContent = editing ? 'キャンセル' : '編集に戻る';
+    if (primaryAction) primaryAction.textContent = editing ? '発表文を確認' : '発表文をコピー';
     if (!editing) updatePreview();
-  }
-
-  function toggleAdvanced() {
-    const section = byId('announcementAdvancedFields');
-    const button = byId('announcementAdvancedToggleBtn');
-    if (!section || !button) return;
-    const expanded = section.hidden;
-    section.hidden = !expanded;
-    button.setAttribute('aria-expanded', String(expanded));
-    button.textContent = expanded ? '調整項目を閉じる' : '文章をさらに調整';
   }
 
   function createItineraryRow() {
@@ -238,9 +239,11 @@
     row.className = 'participant-announcement-itinerary__row';
     row.dataset.itineraryRow = String(rowNumber);
     row.innerHTML = `
-      <cds-text-input data-itinerary-time type="time" size="lg" label="時間"></cds-text-input>
-      <cds-text-input data-itinerary-step type="text" size="lg" label="予定" placeholder="例：登山開始"></cds-text-input>
-      <cds-button data-itinerary-remove kind="ghost" size="sm" type="button" aria-label="この予定を削除">削除</cds-button>`;
+      <cds-text-input data-itinerary-time type="time" size="md" label="時間"></cds-text-input>
+      <cds-text-input data-itinerary-step type="text" size="md" label="予定" placeholder="例：登山開始"></cds-text-input>
+      <cds-icon-button data-itinerary-remove kind="ghost" size="md" type="button" aria-label="この予定を削除">
+        <span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span>
+      </cds-icon-button>`;
 
     row.querySelectorAll('[data-itinerary-time], [data-itinerary-step]').forEach(input => {
       input.addEventListener('input', updatePreview);
@@ -281,54 +284,60 @@
       <cds-modal-body class="app-modal-body participant-announcement-body" no-fade>
         <div class="participant-announcement-layout">
           <section id="announcementEditStep" class="participant-announcement-fields" aria-label="発表文の入力">
-            <cds-text-input id="announcementEventDate" type="date" size="lg" label="実施日（任意）"></cds-text-input>
-            <cds-text-input id="announcementMeetingTime" type="time" size="lg" required label="集合時間（必須）"></cds-text-input>
+            <cds-text-input id="announcementEventDate" type="date" size="md" label="実施日（任意）"></cds-text-input>
+            <cds-text-input id="announcementMeetingTime" type="time" size="md" required label="集合時間（必須）"></cds-text-input>
 
             <section class="participant-announcement-itinerary" aria-labelledby="announcementItineraryHeading">
               <div class="participant-announcement-itinerary__heading">
                 <h3 id="announcementItineraryHeading">大まかな予定（任意）</h3>
-                <cds-button id="announcementAddItineraryBtn" kind="tertiary" size="sm" type="button">予定を追加</cds-button>
+                <cds-button id="announcementAddItineraryBtn" kind="ghost" size="sm" type="button">
+                  <span data-carbon-icon="add" slot="icon" aria-hidden="true"></span>
+                  予定を追加
+                </cds-button>
               </div>
               <div id="announcementItineraryList" class="participant-announcement-itinerary__list" aria-label="大まかな予定"></div>
             </section>
 
             <cds-textarea id="announcementSupplement" rows="3" label="補足事項（任意）" placeholder="例：天候によっては中止する場合があります。温泉に寄るので着替え・タオルを持ってきてください。"></cds-textarea>
 
-            <div class="participant-announcement-advanced-toggle">
-              <cds-button id="announcementAdvancedToggleBtn" kind="ghost" size="sm" type="button" aria-expanded="false">文章をさらに調整</cds-button>
-            </div>
-            <section id="announcementAdvancedFields" class="participant-announcement-advanced" aria-label="文章の追加調整" hidden>
-              <cds-textarea id="announcementOpening" rows="2" label="冒頭のひとこと（任意）" placeholder="例：お疲れ様です！〇〇です。"></cds-textarea>
-              <cds-text-input id="announcementContact" type="email" size="lg" label="連絡先（任意）" placeholder="例：sampokai25@gmail.com"></cds-text-input>
-              <cds-textarea id="announcementClosing" rows="2" label="最後のひとこと（任意）" placeholder="例：それでは当日よろしくお願いします！"></cds-textarea>
-            </section>
-
-            <div class="participant-announcement-edit-actions">
-              <cds-button id="announcementPreviewBtn" kind="primary" size="lg" type="button">発表文を確認</cds-button>
-            </div>
+            <cds-accordion class="participant-announcement-advanced" aria-label="文章の追加調整">
+              <cds-accordion-item id="announcementAdvancedDisclosure">
+                <span slot="title">文章を調整</span>
+                <div id="announcementAdvancedFields" class="participant-announcement-advanced__fields">
+                  <cds-textarea id="announcementOpening" rows="2" label="冒頭のひとこと（任意）" placeholder="例：お疲れ様です！〇〇です。"></cds-textarea>
+                  <cds-text-input id="announcementContact" type="email" size="md" label="連絡先（任意）" placeholder="例：sampokai25@gmail.com"></cds-text-input>
+                  <cds-textarea id="announcementClosing" rows="2" label="最後のひとこと（任意）" placeholder="例：それでは当日よろしくお願いします！"></cds-textarea>
+                </div>
+              </cds-accordion-item>
+            </cds-accordion>
           </section>
 
           <section id="announcementPreviewStep" class="participant-announcement-preview" aria-label="発表文プレビュー" hidden>
-            <div class="participant-announcement-preview__topbar">
-              <cds-button id="announcementEditBtn" kind="ghost" size="sm" type="button">編集に戻る</cds-button>
-            </div>
             <div class="participant-announcement-preview__block">
               <div class="participant-announcement-preview__heading">
                 <h3>タイトル</h3>
-                <cds-button id="announcementCopyTitleBtn" kind="tertiary" size="sm" type="button">コピー</cds-button>
+                <cds-icon-button id="announcementCopyTitleBtn" kind="ghost" size="md" type="button" aria-label="タイトルをコピー">
+                  <span data-carbon-icon="copy" slot="icon" aria-hidden="true"></span>
+                </cds-icon-button>
               </div>
-              <div id="announcementTitlePreview" class="participant-announcement-output participant-announcement-output--title" aria-label="タイトル"></div>
+              <div id="announcementTitlePreview" class="participant-announcement-output participant-announcement-output--title" role="textbox" aria-readonly="true" aria-label="タイトル"></div>
             </div>
             <div class="participant-announcement-preview__block participant-announcement-preview__block--body">
               <div class="participant-announcement-preview__heading">
                 <h3>本文</h3>
-                <cds-button id="announcementCopyBodyBtn" kind="primary" size="sm" type="button">本文をコピー</cds-button>
+                <cds-icon-button id="announcementCopyBodyBtn" kind="ghost" size="md" type="button" aria-label="本文をコピー">
+                  <span data-carbon-icon="copy" slot="icon" aria-hidden="true"></span>
+                </cds-icon-button>
               </div>
-              <pre id="announcementBodyPreview" class="participant-announcement-output participant-announcement-output--body" aria-label="本文"></pre>
+              <pre id="announcementBodyPreview" class="participant-announcement-output participant-announcement-output--body" role="textbox" aria-readonly="true" aria-label="本文"></pre>
             </div>
           </section>
         </div>
-      </cds-modal-body>`;
+      </cds-modal-body>
+      <cds-modal-footer class="app-modal-footer participant-announcement-footer">
+        <cds-modal-footer-button id="announcementSecondaryActionBtn" kind="secondary" type="button">キャンセル</cds-modal-footer-button>
+        <cds-modal-footer-button id="announcementPrimaryActionBtn" kind="primary" type="button">発表文を確認</cds-modal-footer-button>
+      </cds-modal-footer>`;
     document.body.appendChild(modal);
 
     setComponentValue(byId('announcementEventDate'), sourceEventDate());
@@ -349,19 +358,27 @@
       }
     });
     byId('announcementAddItineraryBtn')?.addEventListener('click', () => addItineraryRow());
-    byId('announcementAdvancedToggleBtn')?.addEventListener('click', toggleAdvanced);
-    byId('announcementPreviewBtn')?.addEventListener('click', () => {
+    byId('announcementPrimaryActionBtn')?.addEventListener('click', () => {
+      if (modal.dataset.announcementStep === 'preview') {
+        void copyAnnouncement();
+        return;
+      }
       if (!validateMeetingTime({ focus: true })) return;
       showStep('preview');
-      window.setTimeout(() => byId('announcementEditBtn')?.focus?.(), 0);
+      window.setTimeout(() => byId('announcementCopyTitleBtn')?.focus?.(), 0);
     });
-    byId('announcementEditBtn')?.addEventListener('click', () => {
-      showStep('edit');
-      window.setTimeout(() => byId('announcementMeetingTime')?.focus?.(), 0);
+    byId('announcementSecondaryActionBtn')?.addEventListener('click', () => {
+      if (modal.dataset.announcementStep === 'preview') {
+        showStep('edit');
+        window.setTimeout(() => byId('announcementMeetingTime')?.focus?.(), 0);
+        return;
+      }
+      closeModal(modal);
     });
     byId('announcementCopyTitleBtn')?.addEventListener('click', () => void copyText(announcementTitle(), 'タイトル'));
     byId('announcementCopyBodyBtn')?.addEventListener('click', () => void copyBody());
     byId('announcementCloseIcon')?.addEventListener('click', () => closeModal(modal));
+    showStep('edit');
     return modal;
   }
 
@@ -479,6 +496,15 @@
       return;
     }
     await copyText(bodyText(), '本文');
+  }
+
+  async function copyAnnouncement() {
+    if (!validateMeetingTime({ focus: true })) {
+      showStep('edit');
+      return;
+    }
+    const text = [announcementTitle(), bodyText()].filter(Boolean).join('\n\n');
+    await copyText(text, '発表文');
   }
 
   function installObserver() {
