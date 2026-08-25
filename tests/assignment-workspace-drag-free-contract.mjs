@@ -15,8 +15,9 @@ const mobileCss = fs.readFileSync('assets/css/app-shell/layout/03-mobile-frame.c
 assert.ok(!app.includes('setupManualCardDrag();'), 'Assignment card drag must not be initialized');
 assert.ok(!workspace.includes('function ensureDragHandle'), 'Workspace must not create drag handles');
 assert.ok(!workspace.includes('data-carbon-icon="draggable"'), 'Workspace must not render draggable affordances');
-assert.ok(!workspace.includes('assignment-person-move-menu'), 'Workspace must not rebuild cross-car person move menus');
-assert.ok(!workspace.includes('data-assignment-move-target'), 'Workspace must not create cross-car move targets');
+assert.ok(!/createElement\([^)]*\)[\s\S]{0,180}assignment-person-move-menu/.test(workspace), 'Workspace must not rebuild cross-car person move menus');
+assert.ok(!/createElement\([^)]*\)[\s\S]{0,180}data-assignment-move-target/.test(workspace), 'Workspace must not create cross-car move targets');
+assert.ok(workspace.includes("person.querySelectorAll('.assignment-drag-handle, .assignment-person-move-menu, [data-assignment-move-target]').forEach(node => node.remove());"), 'Workspace must clean stale drag and move affordances rendered by older builds');
 assert.ok(workspace.includes('function concealWaitingPool()'), 'Workspace must explicitly conceal the legacy waiting pool surface');
 assert.ok(workspace.includes("if (child !== waitingContainer) child.remove();"), 'Visible waiting-tray controls must be removed while retaining only the internal pool container');
 assert.match(css, /body\.assignment-workspace-enabled #bottom-tray\s*\{\s*display:\s*none;/s, 'Legacy waiting drawer must stay hidden in Assignment Workspace');
