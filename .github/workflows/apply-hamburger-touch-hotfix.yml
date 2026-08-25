@@ -1,0 +1,33 @@
+name: Apply hamburger touch hotfix
+
+on:
+  push:
+    branches:
+      - fix/production-hamburger-cache-20260825
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/production-hamburger-cache-20260825
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/apply-hamburger-touch-hotfix.mjs
+      - name: Commit applied hotfix
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/js/features/events.js tests/official-carbon-ownership-contract.mjs tests/official-carbon-runtime.spec.js index.html .github/workflows/quality-guard.yml
+          git commit -m "実タップの二重トグルを解消"
+          git push origin HEAD:fix/production-hamburger-cache-20260825
