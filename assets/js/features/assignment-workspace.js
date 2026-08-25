@@ -1,8 +1,7 @@
 // Unified Carbon Assignment Workspace.
-// This module owns allocation layout composition. Allocation state, persistence,
-// synchronization and person-menu behavior remain in their existing feature owners.
-// Assignment editing is direct-action only: empty seats use the picker. Card drag,
-// a visible waiting drawer, and cross-car move menus are intentionally not exposed.
+// Car/team allocation is a normal editor destination alongside Participants and Settlement.
+// This owner exposes one bulk action (random assignment), compact group rows and direct seat picking.
+// Card drag, the visible waiting drawer, allocation-local type switching and special share views are retired.
 (function (global) {
     'use strict';
 
@@ -10,15 +9,6 @@
     const byId = id => D.getElementById(id);
     let observer = null;
     let syncFrame = 0;
-    let shareInitialTypeApplied = false;
-
-    function isSharedReadOnlyMode() {
-        return new URLSearchParams(global.location.search).get('view') === 'sheet';
-    }
-
-    function requestedShareType() {
-        return new URLSearchParams(global.location.search).get('allocation') === 'team' ? 'team' : 'car';
-    }
 
     function activeType() {
         return D.body.dataset.activePlanTemplate === 'team' ? 'team' : 'car';
@@ -32,7 +22,7 @@
             link.dataset.assignmentWorkspaceStyle = 'true';
             D.head.appendChild(link);
         }
-        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v6';
+        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v7';
         if (!link.href.endsWith(href.replace('./', ''))) link.href = href;
     }
 
@@ -44,42 +34,36 @@
         if (lock) label.appendChild(lock);
     }
 
-    function syncShellShareVisibility() {
-        const shellShare = byId('shareLinkBtn');
-        if (!shellShare) return;
-        shellShare.hidden = isSharedReadOnlyMode() || D.body.classList.contains('view-mode-list');
-    }
-
     function simplifyPrimaryNavigation() {
         const carTab = byId('tab-list');
         const teamTab = byId('tab-team');
-        const sheetTab = byId('tab-sheet');
         const participantTab = byId('tab-participants');
         const settlementTab = byId('tab-seisan');
+        const sheetTab = byId('tab-sheet');
         const bar = byId('view-toggle-bar');
-        if (!carTab || !teamTab || !bar) return;
+        if (!bar || !carTab || !teamTab || !participantTab || !settlementTab) return;
 
-        if (sheetTab) sheetTab.hidden = true;
-        carTab.hidden = false;
-        teamTab.hidden = false;
+        sheetTab?.remove();
         carTab.dataset.allocationType = 'car';
         teamTab.dataset.allocationType = 'team';
         carTab.setAttribute('value', 'car');
         teamTab.setAttribute('value', 'team');
-        carTab.setAttribute('aria-label', '車割');
-        teamTab.setAttribute('aria-label', '班割');
+        replaceTabLabel(participantTab, '参加者');
         replaceTabLabel(carTab, '車割');
         replaceTabLabel(teamTab, '班割');
-        replaceTabLabel(participantTab, '参加者');
         replaceTabLabel(settlementTab, '精算');
+        carTab.setAttribute('aria-label', '車割');
+        teamTab.setAttribute('aria-label', '班割');
 
-        const desired = [participantTab, carTab, teamTab, settlementTab].filter(Boolean);
+        const desired = [participantTab, carTab, teamTab, settlementTab];
         if (desired.some((tab, index) => bar.children[index] !== tab) || bar.children.length !== desired.length) {
             bar.replaceChildren(...desired);
         }
         bar.dataset.assignmentFourDestinationNav = 'true';
         global.syncCarbonPrimaryNavigationState?.();
-        syncShellShareVisibility();
+
+        const shellShare = byId('shareLinkBtn');
+        if (shellShare) shellShare.hidden = false;
     }
 
     function createHeader() {
@@ -95,41 +79,33 @@
         header.innerHTML = `
             <div class="assignment-workspace-meta-row">
                 <p class="assignment-workspace-summary" id="assignmentWorkspaceSummary" aria-live="polite"></p>
-                <cds-icon-button id="assignmentShareBtn" class="assignment-workspace-share" kind="ghost" size="lg" type="button" align="bottom-right" aria-label="共有">
-                    <span data-carbon-icon="link" slot="icon" aria-hidden="true"></span>
-                </cds-icon-button>
             </div>
             <div id="assignmentWorkspaceActions" class="assignment-workspace-actions" aria-label="割り当ての操作"></div>`;
-
         const legacyHeader = topArea.querySelector(':scope > .edit-header');
         topArea.insertBefore(header, legacyHeader || topArea.firstChild);
-        byId('assignmentShareBtn')?.addEventListener('click', () => global.copyUrl?.());
-        global.SanpoCarbon?.renderCarbonIcons?.(header);
         return header;
+    }
+
+    function removeRetiredAllocationControls() {
+        ['fillEmptySeatsBtn', 'traySettingsBtn', 'autoAssignPopover', 'autoAssignMenu', 'clearAllBtn', 'optFemale', 'optMale', 'optGrade']
+            .forEach(id => byId(id)?.remove());
     }
 
     function relocateAllocationActions() {
         const actions = byId('assignmentWorkspaceActions');
-        if (!actions || isSharedReadOnlyMode()) return;
+        if (!actions) return;
+        removeRetiredAllocationControls();
 
-        const fill = byId('fillEmptySeatsBtn');
-        if (fill) {
-            fill.setAttribute('kind', 'ghost');
-            fill.setAttribute('size', 'lg');
-            if (fill.parentElement !== actions) actions.appendChild(fill);
-        }
-
-        const randomTools = D.querySelector('#bottom-tray .random-tools, .random-tools');
-        if (randomTools) {
-            const shuffle = byId('shuffleAssignBtn');
-            if (shuffle) {
-                shuffle.setAttribute('kind', 'primary');
-                shuffle.setAttribute('size', 'lg');
-                const label = shuffle.querySelector('span:not([slot="icon"]):not([data-carbon-icon])');
-                if (label && label.textContent !== '自動で割り当て') label.textContent = '自動で割り当て';
-            }
-            if (randomTools.parentElement !== actions) actions.appendChild(randomTools);
-        }
+        const shuffle = byId('shuffleAssignBtn');
+        if (!shuffle) return;
+        shuffle.setAttribute('kind', 'primary');
+        shuffle.setAttribute('size', 'lg');
+        const label = shuffle.querySelector('span:not([slot="icon"]):not([data-carbon-icon])');
+        if (label) label.textContent = 'ランダムに割り当て';
+        else shuffle.prepend(D.createTextNode('ランダムに割り当て'));
+        if (shuffle.parentElement !== actions) actions.appendChild(shuffle);
+        const wrapper = D.querySelector('.random-tools');
+        if (wrapper && wrapper !== actions && !wrapper.children.length) wrapper.remove();
     }
 
     function concealWaitingPool() {
@@ -142,7 +118,7 @@
 
     function ensureGroupOverflow(box) {
         const header = box.querySelector('.car-header');
-        if (!header || isSharedReadOnlyMode()) return;
+        if (!header) return;
         let menu = header.querySelector('.assignment-group-menu');
         if (!menu) {
             menu = D.createElement('cds-overflow-menu');
@@ -167,7 +143,6 @@
                 try { menu.open = false; } catch (_) {}
             });
         }
-        menu.querySelectorAll('[data-assignment-group-action="return"]').forEach(item => item.remove());
     }
 
     function removeDeprecatedPersonAffordances(person) {
@@ -198,7 +173,7 @@
         if (!person) return false;
         if (person.dataset.driver === 'true') return true;
         if (person.dataset.driver === 'false') return false;
-        return person.classList.contains('driver-seat');
+        return false;
     }
 
     function syncRoleTag(person, type) {
@@ -206,8 +181,7 @@
         const meta = line?.querySelector('.person-meta');
         if (!meta) return;
         let tag = meta.querySelector('.driver-role-tag');
-        const enabled = roleEnabled(person);
-        if (!enabled) {
+        if (!roleEnabled(person)) {
             tag?.remove();
             return;
         }
@@ -223,11 +197,9 @@
     }
 
     function decorateEmptySeats(box) {
-        const slots = Array.from(box.querySelectorAll('.seat-slot'));
-        slots.forEach((slot, index) => {
+        Array.from(box.querySelectorAll('.seat-slot')).forEach((slot, index) => {
             const empty = !slot.querySelector('.member-card');
             slot.classList.toggle('assignment-empty-seat', empty);
-            slot.classList.remove('assignment-empty-seat--primary', 'assignment-empty-seat--collapsed');
             let label = slot.querySelector('.assignment-empty-label');
             if (!empty) {
                 label?.remove();
@@ -246,19 +218,18 @@
     }
 
     function rowPerson(row) {
-        if (row.classList.contains('driver-seat')) return row;
-        return row.querySelector(':scope > .member-card');
+        return row.classList.contains('driver-seat') ? row : row.querySelector(':scope > .member-card');
     }
 
     function sortRoleRows(box) {
         const layout = box.querySelector('.car-layout-grid');
         if (!layout) return;
         const rows = Array.from(layout.children).filter(row => row.matches('.driver-seat, .seat-slot'));
-        const ranked = rows.map((row, index) => {
+        rows.map((row, index) => {
             const person = rowPerson(row);
             return { row, index, rank: person ? (roleEnabled(person) ? 0 : 1) : 2 };
-        }).sort((a, b) => a.rank - b.rank || a.index - b.index);
-        ranked.forEach(({ row }) => layout.appendChild(row));
+        }).sort((a, b) => a.rank - b.rank || a.index - b.index)
+            .forEach(({ row }) => layout.appendChild(row));
     }
 
     function decorateCapacity(box, type) {
@@ -266,26 +237,23 @@
         const button = box.querySelector('.capacity-edit-btn');
         const passengerCapacity = parseInt(box.dataset.capacity, 10) || box.querySelectorAll('.seat-slot').length;
         const passengerCount = box.querySelectorAll('.seat-slot .member-card').length;
-        const ownerCount = box.querySelector('.driver-seat') ? 1 : 0;
-        const text = `${passengerCount + ownerCount}/${passengerCapacity + ownerCount}`;
+        const anchorCount = box.querySelector('.driver-seat') ? 1 : 0;
+        const text = `${passengerCount + anchorCount}/${passengerCapacity + anchorCount}`;
         if (count && count.textContent !== text) count.textContent = text;
         if (button) button.setAttribute('aria-label', `${type === 'team' ? '班' : '車'}の人数 ${text}、定員を変更`);
     }
 
     function decorateCards() {
         const type = activeType();
-        const boxes = Array.from(D.querySelectorAll('#cars-container .car-box'));
-        boxes.forEach((box, index) => {
-            box.dataset.assignmentIndex = String(index + 1);
+        Array.from(D.querySelectorAll('#cars-container .car-box')).forEach((box, index) => {
             const groupLabel = box.querySelector('.car-name-label');
             const nextLabel = type === 'team' ? `${index + 1}班` : `${index + 1}号車`;
-            if (groupLabel && groupLabel.textContent !== nextLabel) groupLabel.textContent = nextLabel;
+            if (groupLabel) groupLabel.textContent = nextLabel;
             box.setAttribute('role', 'group');
             box.setAttribute('aria-label', nextLabel);
             ensureGroupOverflow(box);
             decorateEmptySeats(box);
-            const people = Array.from(box.querySelectorAll('.driver-seat, .seat-slot > .member-card'));
-            people.forEach(person => {
+            Array.from(box.querySelectorAll('.driver-seat, .seat-slot > .member-card')).forEach(person => {
                 removeDeprecatedPersonAffordances(person);
                 syncLockIndicator(person);
                 syncRoleTag(person, type);
@@ -293,57 +261,18 @@
             sortRoleRows(box);
             decorateCapacity(box, type);
         });
-
-        D.querySelectorAll('#waiting-list .member-card').forEach(person => {
-            removeDeprecatedPersonAffordances(person);
-            syncLockIndicator(person);
-            syncRoleTag(person, type);
-        });
         global.SanpoCarbon?.renderCarbonIcons?.(byId('cars-container'));
     }
 
     function syncSummary() {
         const summary = byId('assignmentWorkspaceSummary');
+        if (!summary) return;
         const type = activeType();
         const groups = D.querySelectorAll('#cars-container .car-box').length;
         const waiting = D.querySelectorAll('#waiting-list .member-card').length;
         const passengers = D.querySelectorAll('#cars-container .member-card').length;
-        const owners = D.querySelectorAll('#cars-container .driver-seat').length;
-        const total = passengers + owners + waiting;
-        const unit = type === 'team' ? '班' : '台';
-        const text = `${total}人 · ${groups}${unit} · 未配置${waiting}人`;
-        if (summary && summary.textContent !== text) summary.textContent = text;
-    }
-
-    function applyShareInitialType() {
-        if (!isSharedReadOnlyMode() || shareInitialTypeApplied) return;
-        shareInitialTypeApplied = true;
-        const requested = requestedShareType();
-        if (requested === activeType()) return;
-        if (typeof global.switchCarPlan === 'function') global.switchCarPlan(requested, { persist: false });
-    }
-
-    function applyReadOnlyMode() {
-        const readonly = isSharedReadOnlyMode();
-        D.body.classList.toggle('assignment-readonly', readonly);
-        if (!readonly) return;
-        const topArea = byId('top-area');
-        const sheetArea = byId('sheet-view-area');
-        if (topArea) {
-            topArea.hidden = false;
-            topArea.style.display = '';
-        }
-        if (sheetArea) {
-            sheetArea.hidden = true;
-            sheetArea.classList.remove('active');
-            sheetArea.style.display = 'none';
-        }
-        concealWaitingPool();
-        const roomInput = byId('roomNameInput');
-        if (roomInput) {
-            roomInput.readOnly = true;
-            roomInput.toggleAttribute('readonly', true);
-        }
+        const anchors = D.querySelectorAll('#cars-container .driver-seat').length;
+        summary.textContent = `${passengers + anchors + waiting}人 · ${groups}${type === 'team' ? '班' : '台'} · 未配置${waiting}人`;
     }
 
     function normalizeHorizontalPosition() {
@@ -357,11 +286,9 @@
         createHeader();
         relocateAllocationActions();
         simplifyPrimaryNavigation();
-        applyShareInitialType();
         concealWaitingPool();
         decorateCards();
         syncSummary();
-        applyReadOnlyMode();
         normalizeHorizontalPosition();
         global.SanpoCarbon?.renderCarbonIcons?.(byId('assignmentWorkspaceHeader'));
     }
@@ -378,7 +305,7 @@
         const waiting = byId('waiting-list');
         const navigation = byId('view-toggle-bar');
         if (cars) observer.observe(cars, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-locked', 'data-capacity', 'data-driver'] });
-        if (waiting) observer.observe(waiting, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-locked', 'data-driver'] });
+        if (waiting) observer.observe(waiting, { childList: true, subtree: true });
         if (navigation) observer.observe(navigation, { childList: true });
         observer.observe(D.body, { attributes: true, attributeFilter: ['class', 'data-active-plan-template'] });
     }
@@ -396,6 +323,6 @@
     global.SanpoAssignmentWorkspace = Object.freeze({
         initialize,
         refresh: scheduleSync,
-        isReadOnly: isSharedReadOnlyMode
+        isReadOnly: () => false
     });
 })(window);
