@@ -10,6 +10,7 @@ function createSharedViewUrl() {
         : new URLSearchParams(window.location.search).get('room');
     if (activeRoomId) url.searchParams.set('room', activeRoomId);
     url.searchParams.set('view', 'sheet');
+    url.searchParams.set('allocation', document.body.dataset.activePlanTemplate === 'team' ? 'team' : 'car');
     return url.toString();
 }
 

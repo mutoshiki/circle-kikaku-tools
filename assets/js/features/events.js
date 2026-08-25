@@ -78,14 +78,24 @@
         const trigger = document.getElementById('overviewMenuBtn');
         if (!drawer || drawer.tagName !== 'CDS-SIDE-NAV' || !trigger || trigger.tagName !== 'CDS-HEADER-MENU-BUTTON') return;
 
+        // This app deliberately keeps application navigation behind a hamburger at every width.
+        // Carbon HeaderMenuButton hides in responsive mode at the lg breakpoint and is always
+        // hidden in fixed mode. Rail is Carbon's supported collapse mode that keeps the real
+        // menu button rendered across breakpoints; the app shell continues to place the Side Nav
+        // off-canvas until its official expanded state is set.
+        drawer.collapseMode = 'rail';
+        drawer.setAttribute('collapse-mode', 'rail');
+        trigger.collapseMode = 'rail';
+        trigger.setAttribute('collapse-mode', 'rail');
         trigger.setAttribute('aria-controls', 'overviewDrawer');
         setCarbonSideNavExpanded(Boolean(drawer.expanded || drawer.hasAttribute('expanded')));
         if (trigger.dataset.sideNavStateBound === 'true') return;
         trigger.dataset.sideNavStateBound = 'true';
 
-        trigger.addEventListener('click', () => {
-            const expanded = Boolean(drawer.expanded || drawer.hasAttribute('expanded'));
-            setCarbonSideNavExpanded(!expanded);
+        const root = trigger.getRootNode?.() || document;
+        root.addEventListener('cds-header-menu-button-toggled', event => {
+            if (!event.composedPath?.().includes(trigger)) return;
+            setCarbonSideNavExpanded(Boolean(event.detail?.active));
         });
         drawer.addEventListener('click', event => {
             if (!event.composedPath().some(node => node?.tagName === 'CDS-SIDE-NAV-LINK')) return;
@@ -101,36 +111,75 @@
         return String(value ?? '').replace(/[\r\n]+/g, '');
     }
 
-    function syncEditorFromProjectTitleSource(roomInput, editor) {
+    function getCurrentProjectTitleEditor(preferredEditor = null) {
+        return document.getElementById('projectTitleEditor') || preferredEditor;
+    }
+
+    function syncEditorFromProjectTitleSource(roomInput = document.getElementById('roomNameInput'), preferredEditor = null) {
+        const editor = getCurrentProjectTitleEditor(preferredEditor);
         if (!roomInput || !editor) return;
         const next = normalizeProjectTitle(roomInput.value || '');
         if (editor.textContent !== next) editor.textContent = next;
         if (!next && editor.childNodes.length) editor.replaceChildren();
     }
 
-    function installProjectTitleValueBridge(roomInput, editor) {
-        if (!roomInput || roomInput.dataset.projectTitleValueBridge === 'true') return;
-        let prototype = Object.getPrototypeOf(roomInput);
-        let valueDescriptor = null;
-        while (prototype && !valueDescriptor) {
-            valueDescriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
-            prototype = Object.getPrototypeOf(prototype);
-        }
-        if (!valueDescriptor?.get || !valueDescriptor?.set) return;
+    function setProjectTitleSourceValue(value, preferredInput = null, preferredEditor = null) {
+        const roomInput = document.getElementById('roomNameInput') || preferredInput;
+        if (!roomInput) return;
+        const next = normalizeProjectTitle(value);
+        if (roomInput.value !== next) roomInput.value = next;
+        if (roomInput.getAttribute('value') !== next) roomInput.setAttribute('value', next);
+        syncEditorFromProjectTitleSource(roomInput, preferredEditor);
+    }
 
-        Object.defineProperty(roomInput, 'value', {
-            configurable: true,
-            enumerable: valueDescriptor.enumerable,
-            get() {
-                return valueDescriptor.get.call(this);
-            },
-            set(value) {
-                const next = normalizeProjectTitle(value);
-                valueDescriptor.set.call(this, next);
-                syncEditorFromProjectTitleSource(this, editor);
-            }
-        });
-        roomInput.dataset.projectTitleValueBridge = 'true';
+    function installProjectTitleValueBridge(roomInput, editor) {
+        if (!roomInput) return;
+
+        // Do not redefine Carbon's reactive `value` property. Lit owns that property and may
+        // update it during the component lifecycle; shadowing it with Object.defineProperty
+        // creates a second state owner and can replay an old empty value after a valid edit.
+        // The hidden Carbon field remains the only persistence source. This bridge only mirrors
+        // that source into the restored visual editor and re-syncs after canonical restore.
+        if (roomInput.dataset.projectTitleValueBridge !== 'true') {
+            roomInput.dataset.projectTitleValueBridge = 'true';
+            const syncFromSource = () => syncEditorFromProjectTitleSource(roomInput);
+            roomInput.addEventListener('input', syncFromSource);
+            roomInput.addEventListener('change', syncFromSource);
+        }
+
+        if (!global.SanpoProjectTitle) {
+            global.SanpoProjectTitle = Object.freeze({
+                syncFromSource() {
+                    syncEditorFromProjectTitleSource(document.getElementById('roomNameInput'));
+                },
+                setSourceValue(value) {
+                    setProjectTitleSourceValue(value, roomInput, editor);
+                }
+            });
+        }
+
+        if (global.__projectTitleRestoreBridgeBound !== true && typeof global.restore === 'function') {
+            const restoreOwner = global.restore;
+            global.restore = function (...args) {
+                const result = restoreOwner.apply(this, args);
+                const restoredTitle = normalizeProjectTitle(
+                    global.SanpoCanonicalState?.get?.()?.roomName ?? args[0]?.roomName ?? ''
+                );
+                global.SanpoProjectTitle?.setSourceValue?.(restoredTitle);
+                // Carbon/Lit may finish a pending render after the synchronous restore call.
+                // Reassert the same canonical value at those lifecycle boundaries; this does
+                // not create a second persistence owner because no input event is emitted.
+                queueMicrotask(() => global.SanpoProjectTitle?.setSourceValue?.(restoredTitle));
+                const source = document.getElementById('roomNameInput');
+                Promise.resolve(source?.updateComplete).then(() => {
+                    global.SanpoProjectTitle?.setSourceValue?.(restoredTitle);
+                }).catch(() => {});
+                return result;
+            };
+            global.__projectTitleRestoreBridgeBound = true;
+        }
+
+        syncEditorFromProjectTitleSource(roomInput, editor);
     }
 
     function createRestoredProjectTitleEditor(roomInput) {
@@ -150,9 +199,14 @@
             const next = normalizeProjectTitle(editor.textContent || '');
             if (!next && editor.childNodes.length) editor.replaceChildren();
             else if (editor.textContent !== next) editor.textContent = next;
-            if (roomInput.value !== next) roomInput.value = next;
-            roomInput.setAttribute('value', next);
+            if (global.SanpoProjectTitle?.setSourceValue) global.SanpoProjectTitle.setSourceValue(next);
+            else setProjectTitleSourceValue(next, roomInput, editor);
             roomInput.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+            queueMicrotask(() => {
+                // Keep the visual editor aligned with Carbon's settled source value without
+                // introducing another persistence path.
+                if (document.activeElement !== editor) syncEditorFromProjectTitleSource(roomInput, editor);
+            });
         };
 
         editor.addEventListener('beforeinput', event => {
@@ -179,6 +233,7 @@
         const content = region?.querySelector('.project-title-content') || region;
         if (!region || !roomInput || !roomField || !content) return;
 
+        const sharedReadOnly = new URLSearchParams(global.location.search).get('view') === 'sheet';
         let editor = document.getElementById('projectTitleEditor');
         if (!editor) {
             editor = createRestoredProjectTitleEditor(roomInput);
@@ -189,8 +244,12 @@
         roomField.setAttribute('aria-hidden', 'true');
         roomInput.setAttribute('aria-hidden', 'true');
         roomInput.tabIndex = -1;
+        roomInput.readOnly = sharedReadOnly;
+        roomInput.toggleAttribute('readonly', sharedReadOnly);
+        editor.setAttribute('contenteditable', sharedReadOnly ? 'false' : 'plaintext-only');
+        editor.toggleAttribute('aria-readonly', sharedReadOnly);
+        editor.classList.toggle('is-readonly', sharedReadOnly);
         syncEditorFromProjectTitleSource(roomInput, editor);
-        roomInput.addEventListener('input', () => syncEditorFromProjectTitleSource(roomInput, editor));
 
         const installBridge = () => {
             installProjectTitleValueBridge(roomInput, editor);
@@ -201,9 +260,9 @@
 
         const syncExpandedState = () => {
             const expanded = region.dataset.state !== 'collapsed';
-            if (!expanded && document.activeElement === editor) editor.blur();
+            if ((!expanded || sharedReadOnly) && document.activeElement === editor) editor.blur();
             editor.inert = !expanded;
-            editor.tabIndex = expanded ? 0 : -1;
+            editor.tabIndex = expanded && !sharedReadOnly ? 0 : -1;
         };
         syncExpandedState();
         if (region.dataset.projectTitleEditorObserverBound !== 'true') {

@@ -11,7 +11,12 @@ async function seed(page) {
 async function hostClick(page, selector, index = 0) {
   const locator = page.locator(selector).nth(index);
   await expect(locator).toBeAttached();
-  if (await locator.evaluate(node => node.tagName === 'CDS-OVERFLOW-MENU')) await locator.click();
+  const tagName = await locator.evaluate(node => node.tagName);
+  if (tagName === 'CDS-HEADER-MENU-BUTTON') {
+    const button = locator.locator('button');
+    await expect(button).toBeVisible();
+    await button.click();
+  } else if (tagName === 'CDS-OVERFLOW-MENU') await locator.click();
   else await locator.evaluate(node => node.click());
   await page.waitForTimeout(80);
 }
@@ -66,7 +71,9 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       await hostClick(page, '#shareLinkBtn');
       await expect(page.locator('#appStatusToast')).toContainText('リンクをコピーしました');
       const copiedShareUrl = await page.evaluate(() => window.__copiedShareUrl || '');
-      expect(new URL(copiedShareUrl).searchParams.get('view')).toBe('sheet');
+      const copiedParams = new URL(copiedShareUrl).searchParams;
+      expect(copiedParams.get('view')).toBe('sheet');
+      expect(copiedParams.get('allocation')).toBe('car');
       await expect(page.locator('#share-links-modal')).toHaveCount(0);
       await hostClick(page, '#overviewMenuBtn');
       await expect.poll(() => page.locator('#overviewDrawer').evaluate(node => Boolean(node.expanded || node.hasAttribute('expanded')))).toBeTruthy();
@@ -86,10 +93,16 @@ test.describe('Allocation, menus and accessibility', () => {
     page.on('pageerror', error => errors.push(String(error)));
     await seed(page);
     await page.evaluate(() => window.switchView('list'));
+    await expect(page.locator('#assignmentWorkspaceHeader')).toBeVisible();
     await expect(page.locator('#car-plan-switcher')).toHaveCount(0);
-    await hostClick(page, '#tab-team');
+    await expect(page.locator('#tab-team')).toBeHidden();
+    await expect(page.locator('#tab-sheet')).toBeHidden();
+    await hostClick(page, '#assignmentTypeSwitcher cds-content-switcher-item[value="team"]');
     expect(await page.evaluate(() => window.getActiveCarPlan().templateType)).toBe('team');
+    await hostClick(page, '#tab-seisan');
     await hostClick(page, '#tab-list');
+    expect(await page.evaluate(() => window.getActiveCarPlan().templateType)).toBe('team');
+    await hostClick(page, '#assignmentTypeSwitcher cds-content-switcher-item[value="car"]');
     expect(await page.evaluate(() => window.getActiveCarPlan().templateType)).toBe('car');
     const expanded = await page.locator('#tray-handle').getAttribute('aria-expanded');
     await hostClick(page, '#tray-handle');

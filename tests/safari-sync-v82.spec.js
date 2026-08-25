@@ -74,13 +74,15 @@ async function mockFirebaseModules(page) {
 }
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 }]) {
-  test(`${viewport.width}px WebKit initializes shared sync and persists restored project title`, async ({ page }) => {
+  test(`${viewport.width}px WebKit initializes sync, persists title edits, and restores them read-only in sharing`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await mockFirebaseModules(page);
     const errors = [];
     page.on('pageerror', error => errors.push(String(error)));
 
-    await page.goto('/?room=SAFARI82&view=sheet');
+    // Editing remains owned by the normal room workspace. Persist there first so this regression
+    // proves the full WebKit write path rather than weakening the shared-view read-only contract.
+    await page.goto('/?room=SAFARI82');
     await page.waitForFunction(() => typeof firebaseReady !== 'undefined' && firebaseReady === true && globalThis.__firebaseMockSignedIn === true);
     await page.waitForFunction(() => document.getElementById('projectTitleEditor') && document.getElementById('roomNameInput')?.dataset.projectTitleValueBridge === 'true');
 
@@ -90,6 +92,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     });
 
     const editor = page.locator('#projectTitleEditor');
+    await expect(editor).toHaveAttribute('contenteditable', 'plaintext-only');
     await editor.fill('Safari共有企画');
     await editor.evaluate(node => node.dispatchEvent(new Event('blur', { bubbles: true })));
 
@@ -118,8 +121,27 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       () => page.evaluate(() => globalThis.__firebaseMockRoom?.roomName || ''),
       { timeout: 5000 }
     ).toBe('Safari共有企画');
-    await expect(page.locator('#roomNameInput')).toHaveJSProperty('value', 'Safari共有企画');
-    await expect(editor).toHaveText('Safari共有企画');
+
+    const persistedRoom = await page.evaluate(() => JSON.parse(JSON.stringify(globalThis.__firebaseMockRoom)));
+    await page.addInitScript(room => {
+      globalThis.__firebaseMockRoom = room;
+    }, persistedRoom);
+
+    // The copied/shared workspace is intentionally read-only. A fresh WebKit document must still
+    // restore the canonical title through Firebase while exposing no editable project-title owner.
+    await page.goto('/?room=SAFARI82&view=sheet&allocation=car');
+    await page.waitForFunction(() => typeof firebaseReady !== 'undefined' && firebaseReady === true && globalThis.__firebaseMockSignedIn === true);
+    await page.waitForFunction(() => document.getElementById('projectTitleEditor') && document.getElementById('roomNameInput')?.dataset.projectTitleValueBridge === 'true');
+
+    const sharedEditor = page.locator('#projectTitleEditor');
+    const sharedInput = page.locator('#roomNameInput');
+    await expect(sharedInput).toHaveJSProperty('value', 'Safari共有企画');
+    await expect(sharedInput).toHaveJSProperty('readOnly', true);
+    await expect(sharedEditor).toHaveText('Safari共有企画');
+    await expect(sharedEditor).toHaveAttribute('contenteditable', 'false');
+    await expect(sharedEditor).toHaveAttribute('aria-readonly', '');
+    await expect(page.locator('body')).toHaveClass(/assignment-readonly/);
+    await expect.poll(() => page.evaluate(() => getData({ skipDomSync: true }).roomName)).toBe('Safari共有企画');
     expect(errors).toEqual([]);
   });
 }

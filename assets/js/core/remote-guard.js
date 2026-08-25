@@ -30,6 +30,7 @@
         'input:not([readonly]):not([disabled])',
         'textarea:not([readonly]):not([disabled])',
         'select:not([disabled])',
+        '[contenteditable]:not([contenteditable="false"])',
         'cds-text-input:not([readonly]):not([disabled])',
         'cds-textarea:not([readonly]):not([disabled])',
         'cds-number-input:not([readonly]):not([disabled])',

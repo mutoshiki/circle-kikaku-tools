@@ -208,15 +208,9 @@ test.describe('Settlement UI regressions v76', () => {
     const beforeDriver = await settlementViewport(page);
     const driverToggle = page.locator('[data-settlement-driver-paid-name]').first();
     await expect(driverToggle).toBeVisible();
-    await driverToggle.evaluate(node => {
-      const next = !(node.toggled ?? node.checked);
-      node.toggled = next;
-      node.dispatchEvent(new CustomEvent('cds-toggle-changed', {
-        bubbles: true,
-        composed: true,
-        detail: { toggled: next }
-      }));
-    });
+    const driverControl = driverToggle.locator('button[role="switch"]');
+    await expect(driverControl).toBeVisible();
+    await driverControl.evaluate(node => node.click());
     await confirmDecision(page);
     await expect.poll(() => settlementViewport(page)).toEqual(beforeDriver);
     await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'collapsed');

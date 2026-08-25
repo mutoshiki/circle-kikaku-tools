@@ -1,7 +1,64 @@
 // Main app startup after S-4 cleanup.
 // Persistence, render, settlement edit guard, and history scheduling live in assets/js/core/.
 
+function loadAssignmentWorkspaceFeature() {
+    if (window.SanpoAssignmentWorkspace) return Promise.resolve(window.SanpoAssignmentWorkspace);
+    if (window.__assignmentWorkspaceFeaturePromise) return window.__assignmentWorkspaceFeaturePromise;
+
+    window.__assignmentWorkspaceFeaturePromise = new Promise((resolve, reject) => {
+        const existing = document.querySelector('script[data-assignment-workspace-feature]');
+        if (existing) {
+            existing.addEventListener('load', () => resolve(window.SanpoAssignmentWorkspace), { once: true });
+            existing.addEventListener('error', reject, { once: true });
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = './assets/js/features/assignment-workspace.js?v=assignment-workspace-v2';
+        script.async = true;
+        script.dataset.assignmentWorkspaceFeature = 'true';
+        script.addEventListener('load', () => resolve(window.SanpoAssignmentWorkspace), { once: true });
+        script.addEventListener('error', reject, { once: true });
+        document.head.appendChild(script);
+    });
+    return window.__assignmentWorkspaceFeaturePromise;
+}
+
+function protectSharedAssignmentControls() {
+    if (!window.SanpoAssignmentWorkspace?.isReadOnly?.()) return;
+
+    const makeCapacityReadOnly = () => {
+        document.querySelectorAll('.capacity-edit-pill').forEach(control => {
+            control.setAttribute('aria-disabled', 'true');
+            control.tabIndex = -1;
+        });
+    };
+    makeCapacityReadOnly();
+
+    const cars = document.getElementById('cars-container');
+    if (cars && !window.__assignmentReadOnlyCapacityObserver) {
+        const observer = new MutationObserver(makeCapacityReadOnly);
+        observer.observe(cars, { childList: true, subtree: true });
+        window.__assignmentReadOnlyCapacityObserver = observer;
+    }
+
+    if (!window.__assignmentReadOnlyCapacityGuard) {
+        D.addEventListener('click', event => {
+            if (!window.SanpoAssignmentWorkspace?.isReadOnly?.()) return;
+            const capacityControl = (event.composedPath?.() || []).find(node => node?.classList?.contains?.('capacity-edit-pill'));
+            if (!capacityControl) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }, true);
+        window.__assignmentReadOnlyCapacityGuard = true;
+    }
+}
+
 D.addEventListener('DOMContentLoaded', async () => {
+    const assignmentWorkspaceReady = loadAssignmentWorkspaceFeature().catch(error => {
+        console.warn('Assignment workspace failed to load:', error);
+        return null;
+    });
+
     initializeAppModals();
     setupPlanningAssurance?.();
 
@@ -31,6 +88,9 @@ D.addEventListener('DOMContentLoaded', async () => {
 
     refreshRoomTitle();
     updateEditLockButton();
+    await assignmentWorkspaceReady;
+    window.SanpoAssignmentWorkspace?.initialize?.();
+    protectSharedAssignmentControls();
     setupManualCardDrag();
     setupManualSheetDrag();
 

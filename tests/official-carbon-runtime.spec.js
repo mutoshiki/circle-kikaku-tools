@@ -47,16 +47,26 @@ test.describe('Official Carbon ownership runtime', () => {
     await expect(editor).toHaveText('紅葉ハイク');
 
     const drawer = page.locator('#overviewDrawer');
+    const menuHost = page.locator('#overviewMenuBtn');
+    // Carbon HeaderMenuButton renders its real interactive control in the open shadow root.
+    // Exercise that button with a genuine pointer click rather than clicking the custom-element host.
+    const menuButton = menuHost.locator('button');
+    await expect(menuHost).toHaveAttribute('collapse-mode', 'rail');
+    await expect(menuButton).toBeVisible();
     await expect(drawer).not.toBeVisible();
-    await page.locator('#overviewMenuBtn').evaluate(node => node.click());
+    await menuButton.click();
     await expect.poll(() => drawer.evaluate(node => Boolean(node.expanded || node.hasAttribute('expanded')))).toBeTruthy();
     await expect(drawer).toBeVisible();
     const drawerBox = await drawer.boundingBox();
     expect(drawerBox).not.toBeNull();
     expect(drawerBox.x).toBeGreaterThanOrEqual(-1);
     expect(drawerBox.width).toBeGreaterThan(150);
+    await menuButton.click();
+    await expect.poll(() => drawer.evaluate(node => Boolean(node.expanded || node.hasAttribute('expanded')))).toBeFalsy();
+    await expect(drawer).not.toBeVisible();
 
-    await page.locator('#bugReportMenuItem').evaluate(node => node.click());
+    await menuButton.click();
+    await page.locator('#bugReportMenuItem').click();
     await expect(page.locator('#bugReportModal')).toHaveAttribute('open', '');
   });
 
