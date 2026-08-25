@@ -7,7 +7,7 @@ on:
       - main
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: quality-guard-${{ github.event.pull_request.number || github.ref }}
@@ -20,8 +20,6 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -31,35 +29,9 @@ jobs:
           distribution: temurin
           java-version: '21'
       - run: npm ci --no-audit --no-fund
-      - run: node tools/apply-official-carbon-static-migration.mjs
       - run: npm run build:carbon
-      - name: Upload generated Carbon migration output
-        uses: actions/upload-artifact@v4
-        with:
-          name: official-carbon-migration-output
-          path: |
-            index.html
-            assets/js/features/events/02-static-header-events.js
-            tests/carbon-complete.spec.js
-            tests/participants-tab-v83.spec.js
-            assets/vendor/carbon/carbon-entry.min.js
-            assets/vendor/carbon/ui-shell.min.js
-            assets/vendor/carbon/build-manifest.json
-          if-no-files-found: error
-          retention-days: 2
-      - name: Commit deterministic Carbon migration output to PR branch
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        env:
-          HEAD_BRANCH: ${{ github.head_ref }}
-        run: |
-          if ! git diff --quiet -- index.html assets/js/features/events/02-static-header-events.js tests/carbon-complete.spec.js tests/participants-tab-v83.spec.js assets/vendor/carbon assets/vendor/ibm-plex; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add index.html assets/js/features/events/02-static-header-events.js tests/carbon-complete.spec.js tests/participants-tab-v83.spec.js assets/vendor/carbon assets/vendor/ibm-plex
-            git commit -m "静的Carbon移行結果と自己ホストbundleを反映"
-            git push origin "HEAD:${HEAD_BRANCH}"
-          fi
-      - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
+      - name: Verify generated Carbon assets are committed
+        run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npm run lint:css
       - run: npm test
       - run: npm run test:firebase:emulator
@@ -75,8 +47,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: node tools/apply-official-carbon-static-migration.mjs
       - run: npm run build:carbon
+      - name: Verify generated Carbon assets are committed
+        run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npx playwright install --with-deps chromium webkit
       - run: npm run test:ui
       - run: npm run test:visual
@@ -105,6 +78,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: node tools/apply-official-carbon-static-migration.mjs
       - run: npm run build:carbon
+      - name: Verify generated Carbon assets are committed
+        run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npm run test:collab:full
