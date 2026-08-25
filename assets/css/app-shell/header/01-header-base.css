@@ -36,7 +36,7 @@
 }
 
 /* Keep the Carbon Side Nav component, but own its viewport placement explicitly.
- * This prevents an expanded nav from remaining off-canvas in the static shell. */
+ * Opening is immediate so an expanded nav is never left visually off-canvas. */
 #overviewDrawer {
   position: fixed;
   top: calc(env(safe-area-inset-top) + 48px);
@@ -53,7 +53,7 @@
   visibility: hidden;
   transform: translateX(-100%);
   pointer-events: none;
-  transition: transform var(--motion-medium) cubic-bezier(0.2, 0, 0.38, 0.9), visibility 0s linear var(--motion-medium);
+  transition: none;
   --cds-background: #161616;
   --cds-layer: #161616;
   --cds-layer-01: #161616;
@@ -70,7 +70,6 @@
   visibility: visible;
   transform: translateX(0);
   pointer-events: auto;
-  transition-delay: 0s;
 }
 
 .project-title-region {
@@ -124,6 +123,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .project-title-region,
-  #overviewDrawer { transition: none; }
+  .project-title-region { transition: none; }
 }
