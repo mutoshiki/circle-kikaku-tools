@@ -1,0 +1,34 @@
+name: Production hamburger smoke
+
+on:
+  push:
+    branches:
+      - fix/production-hamburger-cache-20260825
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-hamburger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps webkit
+      - name: Tap production hamburger in WebKit touch context
+        run: node tools/test-production-hamburger.mjs
+      - name: Upload production screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-hamburger-after
+          path: production-hamburger-after.png
+          if-no-files-found: ignore
+          retention-days: 7
