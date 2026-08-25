@@ -3,7 +3,6 @@ name: Production hamburger smoke
 on:
   push:
     branches:
-      - fix/production-hamburger-cache-20260825
       - main
   workflow_dispatch:
 
@@ -22,7 +21,9 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npx playwright install --with-deps webkit
-      - name: Tap production hamburger in WebKit touch context
+      - name: Tap deployed production hamburger in WebKit touch context
+        env:
+          EXPECTED_ASSET_VERSION: hamburger-touch-v99
         run: node tools/test-production-hamburger.mjs
       - name: Upload production screenshot
         if: always()
