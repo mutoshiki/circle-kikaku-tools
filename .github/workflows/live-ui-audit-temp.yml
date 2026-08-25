@@ -1,0 +1,27 @@
+name: Live UI Audit Temp
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  live-ui-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/live-assignment-production-audit.spec.js --reporter=html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-ui-audit-report
+          path: playwright-report/
+          if-no-files-found: error
+          retention-days: 2
