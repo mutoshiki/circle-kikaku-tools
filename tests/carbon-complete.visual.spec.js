@@ -9,6 +9,12 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     await page.evaluate(() => window.switchView('list'));
     await expect(page.locator('#assignmentWorkspaceHeader')).toBeVisible();
 
+    // Debug/sample rendering can briefly collapse and re-expand the title while the active
+    // scroll surface is rebuilt. Measure the visual shell only after the restored title has
+    // reached its stable expanded geometry, rather than sampling the CSS height transition.
+    await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'expanded');
+    await expect.poll(() => page.locator('#projectTitleRegion').evaluate(node => node.getBoundingClientRect().height)).toBeGreaterThanOrEqual(200);
+
     const shellGeometry = await page.evaluate(() => {
       const header = document.querySelector('#app-header');
       const nav = document.querySelector('#app-view-navigation');
@@ -102,7 +108,9 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     expect(await page.evaluate(() => document.body.dataset.activePlanTemplate)).toBe('team');
     await page.locator('#tab-seisan').evaluate(node => node.click());
     await page.locator('#tab-list').evaluate(node => node.click());
-    await expect(page.locator('#tab-list')).toHaveAttribute('aria-current', 'page');
+    // Carbon Web Components exposes the active tab through its reflected `highlighted`
+    // boolean. aria-current is not the component's selected-state contract.
+    await expect(page.locator('#tab-list')).toHaveJSProperty('highlighted', true);
     expect(await page.evaluate(() => document.body.dataset.activePlanTemplate)).toBe('team');
     await page.locator('#assignmentTypeSwitcher cds-content-switcher-item[value="car"]').click();
     expect(await page.evaluate(() => document.body.dataset.activePlanTemplate)).toBe('car');
