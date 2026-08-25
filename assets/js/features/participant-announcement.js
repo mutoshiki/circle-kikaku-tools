@@ -239,7 +239,7 @@
     row.className = 'participant-announcement-itinerary__row';
     row.dataset.itineraryRow = String(rowNumber);
     row.innerHTML = `
-      <cds-time-picker data-itinerary-time size="md" label-text="時間" placeholder="hh:mm" pattern="([01][0-9]|2[0-3]):[0-5][0-9]"></cds-time-picker>
+      <cds-text-input data-itinerary-time type="time" size="md" label="時間"></cds-text-input>
       <cds-text-input data-itinerary-step type="text" size="md" label="予定" placeholder="例：登山開始"></cds-text-input>
       <cds-icon-button data-itinerary-remove kind="ghost" size="md" type="button" aria-label="この予定を削除">
         <span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span>
@@ -284,10 +284,8 @@
       <cds-modal-body class="app-modal-body participant-announcement-body" no-fade>
         <div class="participant-announcement-layout">
           <section id="announcementEditStep" class="participant-announcement-fields" aria-label="発表文の入力">
-            <cds-date-picker id="announcementEventDate" date-format="Y-m-d">
-              <cds-date-picker-input kind="single" size="md" label-text="実施日（任意）" placeholder="yyyy-mm-dd"></cds-date-picker-input>
-            </cds-date-picker>
-            <cds-time-picker id="announcementMeetingTime" size="md" required label-text="集合時間（必須）" placeholder="hh:mm" pattern="([01][0-9]|2[0-3]):[0-5][0-9]" required-validity-message="集合時間を入力してください。"></cds-time-picker>
+            <cds-text-input id="announcementEventDate" type="date" size="md" label="実施日（任意）"></cds-text-input>
+            <cds-text-input id="announcementMeetingTime" type="time" size="md" required label="集合時間（必須）"></cds-text-input>
 
             <section class="participant-announcement-itinerary" aria-labelledby="announcementItineraryHeading">
               <div class="participant-announcement-itinerary__heading">
@@ -353,7 +351,6 @@
       input?.addEventListener('input', updatePreview);
       input?.addEventListener('change', updatePreview);
     });
-    byId('announcementEventDate')?.addEventListener('cds-date-picker-changed', updatePreview);
     byId('announcementMeetingTime')?.addEventListener('blur', event => {
       if (!event.currentTarget.value) {
         event.currentTarget.dataset.touched = 'true';
