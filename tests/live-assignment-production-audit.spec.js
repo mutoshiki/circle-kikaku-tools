@@ -10,7 +10,7 @@ async function waitForProductionWorkspace(page) {
 test.describe('Production Assignment Workspace audit', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('actual GitHub Pages URL with sample data stays compact and contained', async ({ page }, testInfo) => {
+  test('actual GitHub Pages URL has the intended mobile density', async ({ page }, testInfo) => {
     const consoleErrors = [];
     const pageErrors = [];
     page.on('console', msg => {
@@ -39,7 +39,9 @@ test.describe('Production Assignment Workspace audit', () => {
       };
       const actions = document.querySelector('#assignmentWorkspaceActions');
       const rows = [...document.querySelectorAll('#cars-container .member-main-line')].slice(0, 12);
-      const cards = [...document.querySelectorAll('#cars-container .car-box')];
+      const occupiedCards = rows.map(row => row.closest('.member-card')).filter(Boolean);
+      const occupiedSlots = occupiedCards.map(card => card.closest('.seat-slot')).filter(Boolean);
+      const groupCards = [...document.querySelectorAll('#cars-container .car-box')];
       const controls = ['fillEmptySeatsBtn', 'shuffleAssignBtn', 'traySettingsBtn']
         .map(id => document.getElementById(id))
         .filter(visible)
@@ -54,7 +56,9 @@ test.describe('Production Assignment Workspace audit', () => {
         actions: rect(actions),
         controls,
         rowHeights: rows.map(row => rect(row)?.height),
-        cardWidths: cards.map(card => rect(card)?.width),
+        occupiedCardHeights: occupiedCards.map(card => rect(card)?.height),
+        occupiedSlotHeights: occupiedSlots.map(slot => rect(slot)?.height),
+        cardWidths: groupCards.map(card => rect(card)?.width),
         waitingCount: document.querySelectorAll('#waiting-list .member-card').length,
         bottomTrayVisible: visible(document.querySelector('#bottom-tray')),
         workspaceSummary: document.querySelector('#assignmentWorkspaceSummary')?.textContent?.trim() || '',
@@ -79,14 +83,27 @@ test.describe('Production Assignment Workspace audit', () => {
     expect(diagnostics.bodyWidth).toBeLessThanOrEqual(diagnostics.viewportWidth + 1);
     expect(diagnostics.rowHeights.length).toBeGreaterThan(0);
     diagnostics.rowHeights.forEach(height => {
-      expect(height).toBeGreaterThanOrEqual(48);
-      expect(height).toBeLessThanOrEqual(64);
+      expect(height).toBeGreaterThanOrEqual(55);
+      expect(height).toBeLessThanOrEqual(57);
+    });
+    expect(diagnostics.occupiedCardHeights.length).toBeGreaterThan(0);
+    diagnostics.occupiedCardHeights.forEach(height => {
+      expect(height).toBeGreaterThanOrEqual(55);
+      expect(height).toBeLessThanOrEqual(57);
+    });
+    expect(diagnostics.occupiedSlotHeights.length).toBeGreaterThan(0);
+    diagnostics.occupiedSlotHeights.forEach(height => {
+      expect(height).toBeGreaterThanOrEqual(55);
+      expect(height).toBeLessThanOrEqual(57);
     });
     expect(diagnostics.controls).toHaveLength(3);
     diagnostics.controls.forEach(control => {
       expect(control.left ?? control.x).toBeGreaterThanOrEqual(diagnostics.actions.x - 1);
       expect(control.right).toBeLessThanOrEqual(diagnostics.actions.right + 1);
+      expect(control.height).toBeGreaterThanOrEqual(47);
+      expect(control.height).toBeLessThanOrEqual(49);
     });
+    expect(diagnostics.actions.height).toBeLessThanOrEqual(57);
     if (diagnostics.waitingCount === 0) expect(diagnostics.bottomTrayVisible).toBeFalsy();
     expect(pageErrors).toEqual([]);
   });
