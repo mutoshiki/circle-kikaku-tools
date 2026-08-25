@@ -14,6 +14,14 @@ async function loadSampleWorkspace(page) {
   await page.evaluate(() => window.SanpoAssignmentWorkspace?.refresh?.());
 }
 
+async function expectPersonMenuOpen(menu) {
+  await expect.poll(() => menu.evaluate(node => (
+    node.matches?.(':popover-open') === true
+    || node.open === true
+    || node.hasAttribute('open')
+  ))).toBe(true);
+}
+
 function expectRectInside(inner, outer, tolerance = 1) {
   expect(inner.left).toBeGreaterThanOrEqual(outer.left - tolerance);
   expect(inner.right).toBeLessThanOrEqual(outer.right + tolerance);
@@ -78,7 +86,7 @@ test.describe('Assignment workspace refresh', () => {
       const member = members.nth(index);
       const menu = member.locator('cds-overflow-menu.person-overflow-menu');
       await menu.click();
-      await expect(menu).toHaveJSProperty('open', true);
+      await expectPersonMenuOpen(menu);
       const roleItem = menu.locator('[data-person-action="driver"]');
       await expect(roleItem).toHaveAttribute('label', '運転手にする');
       await roleItem.evaluate(node => node.click());
@@ -110,6 +118,7 @@ test.describe('Assignment workspace refresh', () => {
     const owner = firstCar.locator('.driver-seat');
     const ownerMenu = owner.locator('cds-overflow-menu.person-overflow-menu');
     await ownerMenu.click();
+    await expectPersonMenuOpen(ownerMenu);
     const ownerRoleItem = ownerMenu.locator('[data-person-action="driver"]');
     await expect(ownerRoleItem).toHaveAttribute('label', '運転手を外す');
     await ownerRoleItem.evaluate(node => node.click());
