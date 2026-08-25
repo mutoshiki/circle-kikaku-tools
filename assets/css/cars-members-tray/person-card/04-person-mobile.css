@@ -1,5 +1,13 @@
 /* Context alignment inside group and waiting surfaces. */
-#cars-container .seat-slot > .member-card { width: 100%; height: 100%; margin: 0; }
+#cars-container .seat-slot > .member-card {
+  width: 100%;
+  margin: 0;
+}
+
+body:not(.assignment-workspace-enabled) #cars-container .seat-slot > .member-card {
+  height: 100%;
+}
+
 #cars-container .driver-seat,
 #cars-container .seat-slot { border-radius: 0; box-shadow: none; }
 #cars-container .seat-slot:has(> .member-card) { align-self: stretch; min-height: 0; padding: 0; border: 0; background: transparent; box-shadow: none; opacity: 1; }
