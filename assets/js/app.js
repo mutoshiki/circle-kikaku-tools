@@ -127,6 +127,11 @@ D.addEventListener('DOMContentLoaded', async () => {
     loadTrustedEditPassphrase();
     setupCompactPersonMenu();
     ensureCompactMenuFallback();
+    await loadScriptOnce(
+        './assets/js/features/person-menu-click-owner.js?v=person-menu-click-owner-v1',
+        'data-person-menu-click-owner',
+        () => window.__personMenuClickOwnerInstalled === true
+    ).catch(error => console.warn('Person Menu click owner failed to load:', error));
     setupSeatMemberPicker();
 
     await roleStateReady;
