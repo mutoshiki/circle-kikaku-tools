@@ -42,7 +42,7 @@ function loadAssignmentWorkspaceFeature() {
             return;
         }
         const script = document.createElement('script');
-        script.src = './assets/js/features/assignment-workspace.js?v=assignment-workspace-v6';
+        script.src = './assets/js/features/assignment-workspace.js?v=assignment-workspace-v7';
         script.async = true;
         script.dataset.assignmentWorkspaceFeature = 'true';
         script.addEventListener('load', () => resolve(window.SanpoAssignmentWorkspace), { once: true });
@@ -52,46 +52,33 @@ function loadAssignmentWorkspaceFeature() {
     return window.__assignmentWorkspaceFeaturePromise;
 }
 
-function protectSharedAssignmentControls() {
-    if (!window.SanpoAssignmentWorkspace?.isReadOnly?.()) return;
-
-    const makeCapacityReadOnly = () => {
-        document.querySelectorAll('.capacity-edit-pill').forEach(control => {
-            control.setAttribute('aria-disabled', 'true');
-            control.tabIndex = -1;
-        });
-    };
-    makeCapacityReadOnly();
-
-    const cars = document.getElementById('cars-container');
-    if (cars && !window.__assignmentReadOnlyCapacityObserver) {
-        const observer = new MutationObserver(makeCapacityReadOnly);
-        observer.observe(cars, { childList: true, subtree: true });
-        window.__assignmentReadOnlyCapacityObserver = observer;
+function normalizeLegacyAllocationShareUrl() {
+    const url = new URL(window.location.href);
+    let changed = false;
+    if (url.searchParams.get('view') === 'sheet') {
+        url.searchParams.delete('view');
+        changed = true;
     }
-
-    if (!window.__assignmentReadOnlyCapacityGuard) {
-        D.addEventListener('click', event => {
-            if (!window.SanpoAssignmentWorkspace?.isReadOnly?.()) return;
-            const capacityControl = (event.composedPath?.() || []).find(node => node?.classList?.contains?.('capacity-edit-pill'));
-            if (!capacityControl) return;
-            event.preventDefault();
-            event.stopImmediatePropagation();
-        }, true);
-        window.__assignmentReadOnlyCapacityGuard = true;
+    if (url.searchParams.has('allocation')) {
+        url.searchParams.delete('allocation');
+        changed = true;
     }
+    if (changed) window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`);
 }
 
 D.addEventListener('DOMContentLoaded', async () => {
-    // On phones the entire shell is one natural scroll owner. Suppress the legacy
-    // gesture owner that converted a 16px touch into a 240px title collapse. Desktop
-    // keeps its existing compact reveal behavior.
+    // Phones use one natural scroll owner. The old gesture owner converted a tiny
+    // finger movement into a full project-title collapse, which felt much faster
+    // than the physical scroll.
     if (window.matchMedia('(max-width: 768px)').matches) {
         document.documentElement.dataset.projectTitleRevealBound = 'true';
     }
 
-    // Retired product concepts are removed before their legacy event owners bind.
-    ['optFemale', 'optMale'].forEach(id => document.getElementById(id)?.closest('.auto-assign-option-row')?.remove());
+    normalizeLegacyAllocationShareUrl();
+
+    // Retired allocation controls are removed before feature owners can expose them.
+    ['fillEmptySeatsBtn', 'traySettingsBtn', 'autoAssignPopover', 'autoAssignMenu', 'clearAllBtn', 'optFemale', 'optMale', 'optGrade']
+        .forEach(id => document.getElementById(id)?.remove());
     document.getElementById('car-plan-switcher')?.setAttribute('hidden', '');
 
     const roleStateReady = loadAllocationRoleState().catch(error => {
@@ -113,7 +100,7 @@ D.addEventListener('DOMContentLoaded', async () => {
     await roleStateReady;
 
     const requestedView = new URLSearchParams(window.location.search).get('view');
-    const initialView = ['list', 'sheet', 'seisan'].includes(requestedView) ? requestedView : currentView;
+    const initialView = ['list', 'seisan'].includes(requestedView) ? requestedView : 'list';
 
     load();
     await switchView(initialView);
@@ -125,11 +112,9 @@ D.addEventListener('DOMContentLoaded', async () => {
     updateEditLockButton();
     await assignmentWorkspaceReady;
     window.SanpoAssignmentWorkspace?.initialize?.();
-    protectSharedAssignmentControls();
-    setupManualSheetDrag();
 
     if (firebaseEnabled && db && firebaseReady) {
-        onValue(ref(db, ".info/connected"), (snap) => {
+        onValue(ref(db, '.info/connected'), snap => {
             if (snap.val() === true) updateStatus('connected', '共有同期中');
             else updateStatus('error', '同期切断中');
         });
