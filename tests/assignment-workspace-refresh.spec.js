@@ -18,27 +18,30 @@ test.describe('Unified assignment workspace', () => {
     await expect(page.locator('#assignmentShareBtn')).toHaveCount(1);
     expect(await page.locator('#assignmentShareBtn').evaluate(node => node.tagName.toLowerCase())).toBe('cds-icon-button');
 
-    const rowMetrics = await page.locator('#cars-container .member-main-line').first().evaluate(row => {
-      const rect = row.getBoundingClientRect();
-      const handle = row.querySelector('.assignment-drag-handle')?.getBoundingClientRect();
-      // Person Menu can move its live Carbon host into the top layer. The placeholder
-      // remains in the row and is therefore the correct layout anchor to measure.
-      const menuAnchor = row.querySelector('.person-menu-top-layer-placeholder') || row.querySelector('.person-overflow-menu');
-      const menu = menuAnchor?.getBoundingClientRect();
-      const name = row.querySelector('.member-name-text')?.getBoundingClientRect();
-      const center = value => value ? value.top + value.height / 2 : null;
-      return {
-        height: rect.height,
-        handleCenter: center(handle),
-        menuCenter: center(menu),
-        nameCenter: center(name)
-      };
-    });
+    const row = page.locator('#cars-container .member-main-line').first();
+    const handle = row.locator('.assignment-drag-handle');
+    const name = row.locator('.member-name-text');
+    // The Carbon overflow-menu host itself can own a top-layer-sized box. Playwright
+    // pierces its open shadow root, so measure the actual interactive button instead.
+    const menuButton = row.locator('cds-overflow-menu.person-overflow-menu button').first();
+    await expect(menuButton).toBeVisible();
 
-    expect(rowMetrics.height).toBeGreaterThanOrEqual(48);
-    expect(rowMetrics.height).toBeLessThanOrEqual(64);
-    expect(Math.abs(rowMetrics.handleCenter - rowMetrics.menuCenter)).toBeLessThanOrEqual(3);
-    expect(Math.abs(rowMetrics.handleCenter - rowMetrics.nameCenter)).toBeLessThanOrEqual(6);
+    const [rowBox, handleBox, nameBox, menuBox] = await Promise.all([
+      row.boundingBox(),
+      handle.boundingBox(),
+      name.boundingBox(),
+      menuButton.boundingBox()
+    ]);
+    expect(rowBox).not.toBeNull();
+    expect(handleBox).not.toBeNull();
+    expect(nameBox).not.toBeNull();
+    expect(menuBox).not.toBeNull();
+
+    const centerY = box => box.y + box.height / 2;
+    expect(rowBox.height).toBeGreaterThanOrEqual(48);
+    expect(rowBox.height).toBeLessThanOrEqual(64);
+    expect(Math.abs(centerY(handleBox) - centerY(menuBox))).toBeLessThanOrEqual(3);
+    expect(Math.abs(centerY(handleBox) - centerY(nameBox))).toBeLessThanOrEqual(6);
 
     const actionOverflow = await page.locator('#assignmentWorkspaceActions').evaluate(node => ({
       clientWidth: node.clientWidth,
