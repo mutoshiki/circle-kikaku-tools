@@ -66,7 +66,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     });
     await expect.poll(() => input.evaluate(node => node.value)).toBe('共有された企画名');
     await expect(editor).toHaveText('共有された企画名');
-    expect(await page.evaluate(() => getData({ skipDomSync: true }).roomName)).toBe('共有された企画名');
+    await expect.poll(() => page.evaluate(() => getData({ skipDomSync: true }).roomName)).toBe('共有された企画名');
 
     if (viewport.width <= 390) {
       await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 180, pointerId: 1, isPrimary: true });
@@ -96,7 +96,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     expect(await drawer.evaluate(node => node.tagName)).toBe('CDS-SIDE-NAV');
     await expect(drawer).not.toBeVisible();
 
-    await menu.evaluate(node => node.click());
+    await menu.click();
     await expect.poll(() => sideNavExpanded(drawer)).toBeTruthy();
     await expect(drawer).toBeVisible();
     const drawerBox = await drawer.boundingBox();
@@ -115,7 +115,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
 
     const reportLink = drawer.locator('#bugReportMenuItem');
     await expect(reportLink).toHaveText('バグを報告する');
-    await reportLink.evaluate(node => node.click());
+    await reportLink.click();
     await expect.poll(() => sideNavExpanded(drawer)).toBeFalsy();
     await expect(drawer).not.toBeVisible();
     const reportModal = page.locator('#bugReportModal');
@@ -125,10 +125,10 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     await expect(reportModal.locator('#bugReportSubmitBtn')).toHaveText('送信');
     await reportModal.locator('cds-modal-close-button').evaluate(node => node.click());
 
-    await menu.evaluate(node => node.click());
+    await menu.click();
     await expect.poll(() => sideNavExpanded(drawer)).toBeTruthy();
     await expect(drawer).toBeVisible();
-    await menu.evaluate(node => node.click());
+    await menu.click();
     await expect.poll(() => sideNavExpanded(drawer)).toBeFalsy();
     await expect(drawer).not.toBeVisible();
 
