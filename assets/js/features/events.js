@@ -78,6 +78,13 @@
         const trigger = document.getElementById('overviewMenuBtn');
         if (!drawer || drawer.tagName !== 'CDS-SIDE-NAV' || !trigger || trigger.tagName !== 'CDS-HEADER-MENU-BUTTON') return;
 
+        // This app always uses the hamburger as the entry point to application navigation.
+        // Carbon's responsive side-nav mode hides HeaderMenuButton at desktop breakpoints,
+        // so use Carbon's fixed collapse mode for both components on every viewport.
+        drawer.collapseMode = 'fixed';
+        drawer.setAttribute('collapse-mode', 'fixed');
+        trigger.collapseMode = 'fixed';
+        trigger.setAttribute('collapse-mode', 'fixed');
         trigger.setAttribute('aria-controls', 'overviewDrawer');
         setCarbonSideNavExpanded(Boolean(drawer.expanded || drawer.hasAttribute('expanded')));
         if (trigger.dataset.sideNavStateBound === 'true') return;
@@ -87,6 +94,15 @@
         root.addEventListener('cds-header-menu-button-toggled', event => {
             if (!event.composedPath?.().includes(trigger)) return;
             setCarbonSideNavExpanded(Boolean(event.detail?.active));
+        });
+        // Carbon fires its toggle event from the real shadow-DOM button. Preserve
+        // standards-based HTMLElement.click() activation on the custom-element host too,
+        // without double-toggling real pointer/keyboard gestures from the inner button.
+        trigger.addEventListener('click', event => {
+            const path = event.composedPath?.() || [];
+            if (path[0] !== trigger) return;
+            const expanded = Boolean(drawer.expanded || drawer.hasAttribute('expanded'));
+            setCarbonSideNavExpanded(!expanded);
         });
         drawer.addEventListener('click', event => {
             if (!event.composedPath().some(node => node?.tagName === 'CDS-SIDE-NAV-LINK')) return;
