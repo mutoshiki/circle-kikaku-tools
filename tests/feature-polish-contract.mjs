@@ -14,6 +14,7 @@ const modal = read('assets/js/core/modal-controller.js');
 const route = read('assets/js/features/settlement/04-route-helper.js');
 const sample = read('assets/js/features/sample-data-history.js');
 const autoAssign = read('assets/js/features/auto-assign.js');
+const workspace = read('assets/js/features/assignment-workspace.js');
 const userGuide = read('assets/js/templates/user-guide-content.js');
 const settlementSettingsCss = read('assets/css/settlement/controls/03-settings.css');
 
@@ -24,11 +25,14 @@ expect(runtime.includes('applyCarbonTooltipPolicy'), 'Global Carbon tooltip remo
 expect(runtime.includes("'.cds--popover, .cds--tooltip-content { display: none !important"), 'Tooltip popover suppression is missing');
 expect(runtime.includes("document.addEventListener('sanpo:carbon-ready'"), 'Tooltip policy is not reapplied after Carbon upgrade');
 
-expect(index.includes('>空きを埋める</span>'), 'Fill-empty button label must describe the result clearly.');
-expect(index.match(/id="shuffleAssignBtn"[\s\S]{0,220}data-carbon-icon="shuffle"/), 'Random action does not use the official Carbon shuffle icon');
-expect(!index.includes('carbon-dice-icon'), 'Legacy dice icon remains');
-expect(autoAssign.includes("if (mode === 'fill') return '空きを埋める';"), 'Auto-assignment result label must match the visible action.');
-expect(userGuide.includes('「空きを埋める」「ランダム割当」'), 'User guide must document the current allocation actions.');
+expect(autoAssign.includes('async function autoAssign()'), 'Random assignment must be a single no-options action.');
+expect(autoAssign.includes("title: 'ランダムに割り当て'"), 'Random assignment confirmation must use the visible action label.');
+expect(autoAssign.includes("lastAutoAssignLabel = 'ランダムに割り当て';"), 'Auto-assignment result label must match the visible action.');
+expect(!autoAssign.includes("mode === 'fill'") && !autoAssign.includes('optGrade') && !autoAssign.includes('optFemale') && !autoAssign.includes('optMale'), 'Retired fill/condition branches must not remain in auto assignment.');
+expect(workspace.includes("label.textContent = 'ランダムに割り当て'"), 'Workspace must expose the single action as 「ランダムに割り当て」.');
+expect(workspace.includes("'fillEmptySeatsBtn', 'traySettingsBtn', 'autoAssignPopover', 'autoAssignMenu', 'clearAllBtn', 'optFemale', 'optMale', 'optGrade'"), 'Workspace must remove legacy assignment settings and fill controls from the runtime UI.');
+expect(userGuide.includes('「ランダムに割り当て」'), 'User guide must document the single random allocation action.');
+expect(!userGuide.includes('「空きを埋める」') && !userGuide.includes('ランダム割当') && !userGuide.includes('ドラッグして配置'), 'User guide must not describe retired allocation actions.');
 
 expect(index.includes('車出し協力代の負担方法'), 'Driver reward burden heading is unclear');
 expect(!index.includes('1台あたりの協力代をどこから支払うか選択'), 'Removed driver reward helper copy remains');
