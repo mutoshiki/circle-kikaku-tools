@@ -358,7 +358,6 @@ body.assignment-readonly .assignment-workspace-share,
 body.assignment-readonly .assignment-drag-handle,
 body.assignment-readonly .assignment-group-menu,
 body.assignment-readonly .person-overflow-menu,
-body.assignment-readonly .capacity-edit-pill,
 body.assignment-readonly .seat-add-btn,
 body.assignment-readonly #bottom-tray,
 body.assignment-readonly .assignment-empty-seat--primary,
@@ -382,6 +381,11 @@ body.assignment-readonly .car-header {
 
 body.assignment-readonly .car-capacity-actions {
   display: flex;
+}
+
+body.assignment-readonly .capacity-edit-pill {
+  pointer-events: none;
+  cursor: default;
 }
 
 body.assignment-readonly .capacity-count {
