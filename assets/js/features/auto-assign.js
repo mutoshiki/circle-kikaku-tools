@@ -29,6 +29,10 @@ function appendAssignmentMember(member, parent) {
     );
 }
 
+// data-state.js still restores the historical lastAutoAssignLabel field because it is
+// part of persisted room compatibility. There are no longer condition controls to sync.
+function updateLastAutoAssignCondition() {}
+
 async function autoAssign() {
     if (!await appConfirm('参加者をランダムに割り当てます。', { title: 'ランダムに割り当て', okText: '実行' })) return;
 
