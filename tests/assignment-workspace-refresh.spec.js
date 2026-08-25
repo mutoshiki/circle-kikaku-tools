@@ -24,16 +24,20 @@ test.describe('Unified assignment workspace', () => {
     const rowMetrics = await page.evaluate(() => {
       const handle = document.querySelector('#cars-container .member-main-line .assignment-drag-handle');
       const row = handle?.closest('.member-main-line');
+      const card = row?.closest('.member-card');
+      const slot = card?.closest('.seat-slot');
       const name = row?.querySelector('.member-name-text');
       const menuHost = row?.querySelector('cds-overflow-menu.person-overflow-menu');
       const menuButton = menuHost?.shadowRoot?.querySelector('button');
-      if (!row || !handle || !name || !menuButton) return null;
+      if (!row || !card || !slot || !handle || !name || !menuButton) return null;
 
       const rect = node => {
         const box = node.getBoundingClientRect();
         return { x: box.x, y: box.y, width: box.width, height: box.height };
       };
       return {
+        slot: rect(slot),
+        card: rect(card),
         row: rect(row),
         handle: rect(handle),
         name: rect(name),
@@ -45,13 +49,19 @@ test.describe('Unified assignment workspace', () => {
     const centerY = box => box.y + box.height / 2;
     expect(rowMetrics.row.height).toBeGreaterThanOrEqual(48);
     expect(rowMetrics.row.height).toBeLessThanOrEqual(64);
+    // The actual occupied row must be compact too. A legacy ID-scoped member-card
+    // rule used to add 16px of padding around this 56px inner row on production.
+    expect(rowMetrics.card.height).toBeGreaterThanOrEqual(55);
+    expect(rowMetrics.card.height).toBeLessThanOrEqual(57);
+    expect(rowMetrics.slot.height).toBeGreaterThanOrEqual(55);
+    expect(rowMetrics.slot.height).toBeLessThanOrEqual(57);
     expect(Math.abs(centerY(rowMetrics.handle) - centerY(rowMetrics.menu))).toBeLessThanOrEqual(3);
     expect(Math.abs(centerY(rowMetrics.handle) - centerY(rowMetrics.name))).toBeLessThanOrEqual(6);
 
     // Carbon menu content can remain in a top layer and legitimately inflate a
     // container's scrollWidth even while the closed toolbar is visually contained.
     // Guard the actual product contract instead: every visible toolbar control must
-    // stay inside the toolbar and the page itself must not gain horizontal overflow.
+    // stay inside one 48px action row and the page must not gain horizontal overflow.
     const actionGeometry = await page.evaluate(() => {
       const actions = document.querySelector('#assignmentWorkspaceActions');
       if (!actions) return null;
@@ -66,11 +76,12 @@ test.describe('Unified assignment workspace', () => {
         })
         .map(node => {
           const rect = node.getBoundingClientRect();
-          return { id: node.id, left: rect.left, right: rect.right };
+          return { id: node.id, left: rect.left, right: rect.right, height: rect.height };
         });
       return {
         left: toolbar.left,
         right: toolbar.right,
+        height: toolbar.height,
         controls,
         pageScrollWidth: document.documentElement.scrollWidth,
         viewportWidth: window.innerWidth
@@ -81,7 +92,10 @@ test.describe('Unified assignment workspace', () => {
     actionGeometry.controls.forEach(control => {
       expect(control.left).toBeGreaterThanOrEqual(actionGeometry.left - 1);
       expect(control.right).toBeLessThanOrEqual(actionGeometry.right + 1);
+      expect(control.height).toBeGreaterThanOrEqual(47);
+      expect(control.height).toBeLessThanOrEqual(49);
     });
+    expect(actionGeometry.height).toBeLessThanOrEqual(57);
     expect(actionGeometry.pageScrollWidth).toBeLessThanOrEqual(actionGeometry.viewportWidth + 1);
 
     await page.evaluate(() => {

@@ -239,6 +239,19 @@ body.assignment-workspace-enabled .member-card {
   -webkit-touch-callout: none;
 }
 
+/* The shared card primitive still has an ID-scoped 64px + padding rule for the
+ * legacy tray/list layout. Inside the Assignment Workspace this owner must win,
+ * otherwise a nominal 56px row renders as a 72px card on the real mobile page. */
+body.assignment-workspace-enabled #cars-container .seat-slot > .member-card,
+body.assignment-workspace-enabled #waiting-list .member-card {
+  min-height: 3.5rem;
+  padding: 0;
+}
+
+body.assignment-workspace-enabled #cars-container .seat-slot > .member-card {
+  background: transparent;
+}
+
 body.assignment-workspace-enabled .member-card:active,
 body.assignment-workspace-enabled .member-card.manual-drag-source {
   cursor: grabbing;
@@ -502,8 +515,8 @@ body.assignment-readonly .capacity-edit-pill {
 
 @media (max-width: 768px) {
   .assignment-workspace-header {
-    gap: 0.625rem;
-    padding: 0.625rem 0.75rem 0;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem 0;
   }
 
   .assignment-workspace-heading-row {
@@ -517,9 +530,9 @@ body.assignment-readonly .capacity-edit-pill {
   .assignment-workspace-actions {
     display: grid;
     grid-template-columns: minmax(0, auto) minmax(0, 1fr);
-    align-items: stretch;
+    align-items: center;
     gap: 0.5rem;
-    padding-bottom: 0.625rem;
+    padding-bottom: 0.5rem;
   }
 
   .assignment-workspace-actions > #fillEmptySeatsBtn {
@@ -529,7 +542,28 @@ body.assignment-readonly .capacity-edit-pill {
   .assignment-workspace-actions .random-tools {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 3rem;
+    align-items: center;
     min-width: 0;
+  }
+
+  .assignment-workspace-actions > #fillEmptySeatsBtn,
+  .assignment-workspace-actions #shuffleAssignBtn,
+  .assignment-workspace-actions #traySettingsBtn {
+    height: 3rem;
+    min-height: 3rem;
+  }
+
+  .assignment-workspace-actions > #fillEmptySeatsBtn,
+  .assignment-workspace-actions #shuffleAssignBtn {
+    white-space: nowrap;
+  }
+
+  /* Two text actions plus two decorative icons made the primary Carbon button
+   * wrap to two lines at 390px, stretching the whole toolbar to ~66px. Keep the
+   * labels and reserve iconography for the settings action on mobile. */
+  .assignment-workspace-actions > #fillEmptySeatsBtn [slot="icon"],
+  .assignment-workspace-actions #shuffleAssignBtn [slot="icon"] {
+    display: none;
   }
 
   .assignment-workspace-actions #shuffleAssignBtn {
