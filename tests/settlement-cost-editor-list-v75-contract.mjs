@@ -100,15 +100,18 @@ assert.match(modalController, /sanpo:modal-hidden[\s\S]*resetSettlementEditingAf
 assert.match(modalController, /\['wheel', 'pointerdown', 'pointermove'\][\s\S]*stopPropagation/, 'modal scrolling and touch gestures cannot drive the background project-title reveal');
 assert.match(settlementFacade, /\['seisan-summary', 'seisan-share-preview'\][\s\S]*closest\('\.seisan-card'\)\?\.remove/, 'obsolete overall-cost and share-text cards are removed as settlement initializes');
 assert.match(viewEvents, /persistMainView[\s\S]*searchParams\.set\('view', view\)[\s\S]*history\.replaceState/, 'tab navigation persists the active main view in the URL');
-assert.match(viewEvents, /tab-sheet[\s\S]*switchViewRemembering\('sheet'\)[\s\S]*tab-seisan[\s\S]*switchViewRemembering\('seisan'\)/, 'shared and settlement tabs use the persistent view owner');
+assert.match(viewEvents, /tab-seisan[\s\S]*switchViewRemembering\('seisan'\)[\s\S]*tab-list[\s\S]*openAllocationDestination\('car'\)[\s\S]*tab-team[\s\S]*openAllocationDestination\('team'\)/, 'settlement, car and team tabs use the persistent four-destination owner');
+assert.doesNotMatch(viewEvents, /bind\('tab-sheet'/, 'retired shared view must not remain a primary navigation event');
 
-assert.match(shareActions, /url\.searchParams\.set\('view', 'sheet'\)/, 'canonical copied URL opens the shared view');
+assert.match(shareActions, /url\.searchParams\.set\('room', activeRoomId\)/, 'canonical copied URL preserves the room id');
+assert.doesNotMatch(shareActions, /searchParams\.set\('view'|searchParams\.set\('allocation'/, 'canonical copied URL must not create a special shared or allocation route');
 assert.match(shareActions, /navigator\.clipboard\?\.writeText/, 'canonical share uses the browser Clipboard API directly from the header action');
 assert.match(shareActions, /showShareCopyStatus\('リンクをコピーしました', 'success'\)/, 'successful copy uses concise Carbon toast feedback');
 assert.match(shareActions, /showShareCopyStatus\('リンクをコピーできませんでした', 'error'\)/, 'copy failure remains non-modal and uses Carbon feedback');
 assert.doesNotMatch(shareActions, /showCopyFallback|copy-fallback|createElement\(['"](?:input|textarea|button)['"]\)|share-links-modal|車割・班割\(発表用リンク\)|精算用リンク/, 'copy and share actions no longer open legacy dialogs or native fallback controls');
-assert.match(app, /requestedView[\s\S]*await switchView\(initialView\)/, 'view query parameter is applied during startup');
-assert.match(sheetView, /message: '下にスワイプできます。'/, 'shared-view guidance uses the requested swipe message');
+assert.match(app, /requestedView[\s\S]*await window\.switchView\(initialView\)/, 'ordinary list/settlement view query is applied during startup');
+assert.match(app, /normalizeLegacyAllocationShareUrl[\s\S]*searchParams\.delete\('view'\)[\s\S]*searchParams\.delete\('allocation'\)/, 'legacy special allocation URLs normalize to the ordinary app');
+assert.match(sheetView, /message: '下にスワイプできます。'/, 'internal legacy sheet compatibility keeps its concise swipe guidance');
 assert.doesNotMatch(sheetView, /1本指で移動、2本指で拡大・縮小できます。/, 'legacy gesture guidance is removed');
 
 console.log('settlement cost editor list v75 contract: PASS');
