@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 
 async function waitForWorkspace(page) {
   await page.waitForFunction(() => window.SanpoAssignmentWorkspace && document.querySelector('#assignmentWorkspaceHeader'));
+  await page.waitForFunction(() => document.querySelector('#tab-team') && document.querySelector('#tab-participants'));
 }
 
 async function loadSampleWorkspace(page) {
@@ -21,7 +22,7 @@ function expectRectInside(inner, outer, tolerance = 1) {
 test.describe('Assignment workspace refresh', () => {
   test.use({ viewport: { width: 428, height: 926 } });
 
-  test('primary toolbar is 参加者 → 車割 → 班割 → 精算 and allocation has no local type switcher/title', async ({ page }) => {
+  test('primary toolbar is 参加者 → 車割 → 班割 → 精算 with no allocation-local switcher or shared-view tab', async ({ page }) => {
     await loadSampleWorkspace(page);
 
     const nav = await page.locator('#view-toggle-bar > cds-tab').evaluateAll(tabs => tabs.map(tab => ({
@@ -36,6 +37,7 @@ test.describe('Assignment workspace refresh', () => {
       { id: 'tab-seisan', label: '精算', hidden: false }
     ]);
 
+    await expect(page.locator('#tab-sheet')).toHaveCount(0);
     await expect(page.locator('#assignmentTypeSwitcher')).toHaveCount(0);
     await expect(page.locator('#car-plan-switcher')).toBeHidden();
     await expect(page.locator('#assignmentWorkspaceHeader h1, #assignmentWorkspaceHeader h2, #assignmentWorkspaceHeader h3')).toHaveCount(0);
@@ -50,10 +52,12 @@ test.describe('Assignment workspace refresh', () => {
     await expect(page.locator('#tab-list')).toHaveAttribute('aria-current', 'page');
   });
 
-  test('retired gender, rename, drag and cross-car move concepts are absent', async ({ page }) => {
+  test('bulk allocation is one random action with no settings, fill, gender, rename, move or drag controls', async ({ page }) => {
     await loadSampleWorkspace(page);
 
-    await expect(page.locator('#optFemale, #optMale')).toHaveCount(0);
+    await expect(page.locator('#assignmentWorkspaceActions > #shuffleAssignBtn')).toHaveCount(1);
+    await expect(page.locator('#shuffleAssignBtn')).toContainText('ランダムに割り当て');
+    await expect(page.locator('#fillEmptySeatsBtn, #traySettingsBtn, #autoAssignPopover, #autoAssignMenu, #optFemale, #optMale, #optGrade, #clearAllBtn')).toHaveCount(0);
     await expect(page.locator('[data-person-action="name"], [data-person-action="gender"]')).toHaveCount(0);
     await expect(page.locator('.assignment-drag-handle, .assignment-person-move-menu, [data-assignment-move-target]')).toHaveCount(0);
     await expect(page.locator('#bottom-tray')).toBeHidden();
@@ -114,7 +118,7 @@ test.describe('Assignment workspace refresh', () => {
     expect(await firstCar.locator('[data-driver="true"]').count()).toBeGreaterThanOrEqual(2);
   });
 
-  test('mobile workspace stays compact and never widens the viewport', async ({ page }) => {
+  test('mobile workspace stays compact with one action and never widens the viewport', async ({ page }) => {
     await loadSampleWorkspace(page);
 
     const geometry = await page.evaluate(() => {
@@ -123,10 +127,7 @@ test.describe('Assignment workspace refresh', () => {
         return { left: r.left, right: r.right, width: r.width, height: r.height };
       };
       const actions = document.querySelector('#assignmentWorkspaceActions');
-      const controls = ['fillEmptySeatsBtn', 'shuffleAssignBtn', 'traySettingsBtn']
-        .map(id => document.getElementById(id))
-        .filter(Boolean)
-        .map(node => ({ id: node.id, ...rect(node) }));
+      const shuffle = document.getElementById('shuffleAssignBtn');
       const member = document.querySelector('#cars-container .seat-slot > .member-card');
       const memberRow = member?.querySelector('.member-main-line');
       return {
@@ -134,7 +135,7 @@ test.describe('Assignment workspace refresh', () => {
         documentWidth: document.documentElement.scrollWidth,
         topAreaWidth: document.querySelector('#top-area')?.scrollWidth || 0,
         toolbar: rect(actions),
-        controls,
+        shuffle: rect(shuffle),
         member: member ? rect(member) : null,
         memberRow: memberRow ? rect(memberRow) : null
       };
@@ -142,8 +143,9 @@ test.describe('Assignment workspace refresh', () => {
 
     expect(geometry.documentWidth).toBeLessThanOrEqual(geometry.viewportWidth + 1);
     expect(geometry.topAreaWidth).toBeLessThanOrEqual(geometry.viewportWidth + 1);
-    expect(geometry.controls).toHaveLength(3);
-    geometry.controls.forEach(control => expectRectInside(control, geometry.toolbar));
+    expectRectInside(geometry.shuffle, geometry.toolbar);
+    expect(geometry.shuffle.height).toBeGreaterThanOrEqual(47);
+    expect(geometry.shuffle.height).toBeLessThanOrEqual(49);
     expect(geometry.member?.height).toBeGreaterThanOrEqual(55);
     expect(geometry.member?.height).toBeLessThanOrEqual(57);
     expect(geometry.memberRow?.height).toBeGreaterThanOrEqual(55);
@@ -173,32 +175,28 @@ test.describe('Assignment workspace refresh', () => {
     await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'expanded');
   });
 
-  test('shared allocation keeps its selected car/team context without reintroducing a local switcher', async ({ page }) => {
+  test('share action copies the normal room URL and legacy special allocation links normalize back to the normal app', async ({ page }) => {
     const room = `ASSIGN-SHARE-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     await page.goto(`/?room=${room}`);
     await waitForWorkspace(page);
     await page.evaluate(() => window.executeDebugMode?.());
-    await page.evaluate(() => window.switchView('list'));
     await page.locator('#tab-team').click();
     await expect.poll(() => page.evaluate(() => document.body.dataset.activePlanTemplate)).toBe('team');
 
     const shareUrl = await page.evaluate(() => window.createSharedViewUrl());
     const shareParams = new URL(shareUrl).searchParams;
     expect(shareParams.get('room')).toBe(room);
-    expect(shareParams.get('view')).toBe('sheet');
-    expect(shareParams.get('allocation')).toBe('team');
+    expect(shareParams.has('view')).toBe(false);
+    expect(shareParams.has('allocation')).toBe(false);
 
-    await page.goto(shareUrl);
+    await page.goto(`/?room=${room}&view=sheet&allocation=team`);
     await waitForWorkspace(page);
-    await expect(page.locator('body')).toHaveClass(/assignment-readonly/);
-    await expect.poll(() => page.evaluate(() => document.body.dataset.activePlanTemplate)).toBe('team');
-    await expect(page.locator('#assignmentTypeSwitcher')).toHaveCount(0);
-    await expect(page.locator('#app-view-navigation')).toBeHidden();
-    await expect(page.locator('#assignmentWorkspaceActions')).toBeHidden();
-    await expect(page.locator('#assignmentShareBtn')).toBeHidden();
-    await expect(page.locator('.assignment-group-menu')).toHaveCount(0);
-    await expect(page.locator('.person-overflow-menu:visible')).toHaveCount(0);
-    await expect(page.locator('#bottom-tray')).toBeHidden();
-    await expect(page.locator('.car-name-label').first()).toContainText('1班');
+    await expect.poll(() => new URL(page.url()).searchParams.has('view')).toBe(false);
+    await expect.poll(() => new URL(page.url()).searchParams.has('allocation')).toBe(false);
+    await expect(page.locator('body')).not.toHaveClass(/assignment-readonly/);
+    await expect(page.locator('#app-view-navigation')).toBeVisible();
+    await expect(page.locator('#assignmentWorkspaceActions')).toBeVisible();
+    await expect(page.locator('#shareLinkBtn')).toBeVisible();
+    await expect(page.locator('#tab-sheet')).toHaveCount(0);
   });
 });
