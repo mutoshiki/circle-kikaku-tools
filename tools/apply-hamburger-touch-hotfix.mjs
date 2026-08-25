@@ -54,10 +54,4 @@ changed = await replaceExact(
   `./assets/js/features/events.js?v=hamburger-touch-v99`
 ) || changed;
 
-changed = await replaceExact(
-  '.github/workflows/quality-guard.yml',
-  `      - run: npm run test:safari-sync\n      - name: WebKit participants mobile regression`,
-  `      - run: npm run test:safari-sync\n      - name: WebKit hamburger touch regression\n        run: npx playwright test tests/official-carbon-runtime.spec.js --config=playwright.webkit.config.js\n      - name: WebKit participants mobile regression`
-) || changed;
-
 console.log(changed ? 'Hamburger touch hotfix applied.' : 'Hamburger touch hotfix already applied.');
