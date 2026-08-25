@@ -21,7 +21,10 @@ test.describe('Unified assignment workspace', () => {
     const rowMetrics = await page.locator('#cars-container .member-main-line').first().evaluate(row => {
       const rect = row.getBoundingClientRect();
       const handle = row.querySelector('.assignment-drag-handle')?.getBoundingClientRect();
-      const menu = row.querySelector('.person-overflow-menu')?.getBoundingClientRect();
+      // Person Menu can move its live Carbon host into the top layer. The placeholder
+      // remains in the row and is therefore the correct layout anchor to measure.
+      const menuAnchor = row.querySelector('.person-menu-top-layer-placeholder') || row.querySelector('.person-overflow-menu');
+      const menu = menuAnchor?.getBoundingClientRect();
       const name = row.querySelector('.member-name-text')?.getBoundingClientRect();
       const center = value => value ? value.top + value.height / 2 : null;
       return {
