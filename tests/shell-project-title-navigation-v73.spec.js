@@ -6,20 +6,12 @@ const expectedLinks = [
   ['山歩会企画ツール一覧', 'https://mutoshiki.github.io/sanpokai-kikaku-portal/']
 ];
 
-async function setCarbonValue(page, selector, value) {
-  await page.locator(selector).evaluate((element, nextValue) => {
-    element.value = nextValue;
-    element.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
-    element.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
-  }, value);
-}
-
 async function sideNavExpanded(drawer) {
   return drawer.evaluate(node => Boolean(node.expanded || node.hasAttribute('expanded')));
 }
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 }]) {
-  test(String(viewport.width) + 'px title reveal and official Carbon application navigation', async ({ page }) => {
+  test(String(viewport.width) + 'px restored title reveal and official Carbon application navigation', async ({ page }) => {
     await page.setViewportSize(viewport);
     const errors = [];
     page.on('pageerror', error => errors.push(String(error)));
@@ -31,27 +23,49 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       'cds-side-nav',
       'cds-side-nav-link',
       'cds-text-input'
-    ].every(name => customElements.get(name)));
+    ].every(name => customElements.get(name))
+      && document.querySelector('#projectTitleEditor')
+      && document.querySelector('#roomNameInput')?.dataset.projectTitleValueBridge === 'true');
 
     const title = page.locator('#projectTitleRegion');
     const input = page.locator('#roomNameInput');
+    const editor = page.locator('#projectTitleEditor');
     await expect(title).toHaveAttribute('data-state', 'expanded');
     await expect(input).toHaveAttribute('placeholder', '企画名を入力');
-    await expect(page.locator('#projectTitleEditor,[contenteditable]')).toHaveCount(0);
+    await expect(input).toHaveAttribute('aria-hidden', 'true');
+    await expect(editor).toHaveAttribute('data-placeholder', '企画名を入力');
+    await expect(editor).toBeVisible();
     await expect(input).toHaveJSProperty('value', '');
 
-    await setCarbonValue(page, '#roomNameInput', '紅葉ハイク最終版');
+    const expectedTypography = viewport.width <= 768
+      ? { fontSize: '42px', minHeight: '56px', lineHeight: '46.2px' }
+      : { fontSize: '54px', minHeight: '64px', lineHeight: '56.7px' };
+    const typography = await editor.evaluate(node => {
+      const style = getComputedStyle(node);
+      return {
+        fontSize: style.fontSize,
+        fontWeight: style.fontWeight,
+        lineHeight: style.lineHeight,
+        minHeight: style.minHeight,
+        paddingBottom: style.paddingBottom
+      };
+    });
+    expect(typography).toEqual({ ...expectedTypography, fontWeight: '300', paddingBottom: '8px' });
+
+    await editor.fill('紅葉ハイク最終版');
     await expect.poll(() => input.evaluate(node => node.value)).toBe('紅葉ハイク最終版');
     await expect.poll(() => page.evaluate(() => getData({ skipDomSync: true }).roomName)).toBe('紅葉ハイク最終版');
+    await expect(editor).toHaveText('紅葉ハイク最終版');
 
-    // roomName remains the shared snapshot field. Remote/restore writes should feed the
-    // same visible Carbon input directly instead of a second editable surface.
+    // roomName remains the shared snapshot field. Remote/restore writes must update the
+    // restored visual title without creating a second persistence owner.
     await page.evaluate(() => {
       const snapshot = getData({ skipDomSync: true });
       snapshot.roomName = '共有された企画名';
       restore(snapshot);
     });
     await expect.poll(() => input.evaluate(node => node.value)).toBe('共有された企画名');
+    await expect(editor).toHaveText('共有された企画名');
     expect(await page.evaluate(() => getData({ skipDomSync: true }).roomName)).toBe('共有された企画名');
 
     if (viewport.width <= 390) {
@@ -72,6 +86,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       await page.dispatchEvent('#top-area', 'wheel', { deltaY: -120 });
     }
     await expect(title).toHaveAttribute('data-state', 'expanded');
+    await expect(editor).toBeVisible();
 
     const header = page.locator('#app-header');
     const menu = page.locator('#overviewMenuBtn');
@@ -79,9 +94,15 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     expect(await header.evaluate(node => node.tagName)).toBe('CDS-HEADER');
     expect(await menu.evaluate(node => node.tagName)).toBe('CDS-HEADER-MENU-BUTTON');
     expect(await drawer.evaluate(node => node.tagName)).toBe('CDS-SIDE-NAV');
+    await expect(drawer).not.toBeVisible();
 
     await menu.evaluate(node => node.click());
     await expect.poll(() => sideNavExpanded(drawer)).toBeTruthy();
+    await expect(drawer).toBeVisible();
+    const drawerBox = await drawer.boundingBox();
+    expect(drawerBox).not.toBeNull();
+    expect(drawerBox.x).toBeGreaterThanOrEqual(-1);
+    expect(drawerBox.width).toBeGreaterThan(150);
     await expect(page.locator('#overviewMemoInput')).toHaveCount(0);
     await expect(page.locator('#overviewTimetableRows')).toHaveCount(0);
     const actualLinks = await drawer.locator('cds-side-nav-link[target="_blank"]').evaluateAll(links => links.map(link => [
@@ -96,6 +117,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     await expect(reportLink).toHaveText('バグを報告する');
     await reportLink.evaluate(node => node.click());
     await expect.poll(() => sideNavExpanded(drawer)).toBeFalsy();
+    await expect(drawer).not.toBeVisible();
     const reportModal = page.locator('#bugReportModal');
     await expect(reportModal).toHaveAttribute('open', '');
     await expect(reportModal.locator('cds-modal-heading')).toHaveText('バグを報告する');
@@ -105,12 +127,14 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
 
     await menu.evaluate(node => node.click());
     await expect.poll(() => sideNavExpanded(drawer)).toBeTruthy();
+    await expect(drawer).toBeVisible();
     await menu.evaluate(node => node.click());
     await expect.poll(() => sideNavExpanded(drawer)).toBeFalsy();
+    await expect(drawer).not.toBeVisible();
 
     for (const theme of ['light', 'dark']) {
       await page.evaluate(next => window.SanpoTheme.applyTheme(next), theme);
-      await expect(input).toBeVisible();
+      await expect(editor).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBeTruthy();
     }
     expect(errors).toEqual([]);
@@ -120,7 +144,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
 test('390px title expands as the active scroll container reaches the top', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await page.waitForFunction(() => document.querySelector('#projectTitleRegion') && customElements.get('cds-text-input'));
+  await page.waitForFunction(() => document.querySelector('#projectTitleEditor') && customElements.get('cds-text-input'));
 
   const title = page.locator('#projectTitleRegion');
   await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 180, pointerId: 11, isPrimary: true });
@@ -138,4 +162,5 @@ test('390px title expands as the active scroll container reaches the top', async
 
   await expect(title).toHaveAttribute('data-state', 'expanded');
   await expect.poll(() => title.evaluate(node => node.getBoundingClientRect().height)).toBeGreaterThan(1);
+  await expect(page.locator('#projectTitleEditor')).toBeVisible();
 });
