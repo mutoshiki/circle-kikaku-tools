@@ -117,7 +117,7 @@ test.describe('Allocation, menus and accessibility', () => {
 
     const personOverflow = firstPerson.locator('cds-overflow-menu.person-overflow-menu');
     await personOverflow.click();
-    await expect(personOverflow).toHaveJSProperty('open', true);
+    await expect.poll(() => personOverflow.evaluate(node => node.matches?.(':popover-open') === true)).toBe(true);
     await expect.poll(() => personOverflow.evaluate(node => ({
       topLayer: node.matches?.(':popover-open') === true,
       promoted: node.dataset.personMenuTopLayer === 'true',
@@ -125,10 +125,11 @@ test.describe('Allocation, menus and accessibility', () => {
     }))).toEqual({ topLayer: true, promoted: true, placeholder: true });
     expect(await page.evaluate(() => document.body.classList.contains('person-menu-top-layer-open'))).toBeTruthy();
     await page.mouse.click(8, 96);
+    await expect.poll(() => personOverflow.evaluate(node => node.matches?.(':popover-open') === true)).toBe(false);
     await expect(personOverflow).toHaveJSProperty('open', false);
     expect(await firstPerson.evaluate(node => getComputedStyle(node).outlineStyle)).toBe('none');
     await personOverflow.click();
-    await expect(personOverflow).toHaveJSProperty('open', true);
+    await expect.poll(() => personOverflow.evaluate(node => node.matches?.(':popover-open') === true)).toBe(true);
     const personMenu = personOverflow.locator(':scope > cds-menu.person-pop-menu');
     await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(5);
     await expect(personMenu.locator('[data-person-action="name"], [data-person-action="gender"]')).toHaveCount(0);
