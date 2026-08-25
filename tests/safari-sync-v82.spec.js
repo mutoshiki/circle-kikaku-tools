@@ -74,7 +74,7 @@ async function mockFirebaseModules(page) {
 }
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 }]) {
-  test(`${viewport.width}px WebKit initializes shared sync and persists Carbon project title`, async ({ page }) => {
+  test(`${viewport.width}px WebKit initializes shared sync and persists restored project title`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await mockFirebaseModules(page);
     const errors = [];
@@ -82,34 +82,35 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
 
     await page.goto('/?room=SAFARI82&view=sheet');
     await page.waitForFunction(() => typeof firebaseReady !== 'undefined' && firebaseReady === true && globalThis.__firebaseMockSignedIn === true);
-    await page.waitForFunction(() => document.getElementById('roomNameInput') && customElements.get('cds-text-input'));
+    await page.waitForFunction(() => document.getElementById('projectTitleEditor') && document.getElementById('roomNameInput')?.dataset.projectTitleValueBridge === 'true');
 
     expect(await page.evaluate(() => globalThis.__firebaseMockAuthOptions)).toEqual({
       persistence: ['LOCAL', 'SESSION', 'NONE'],
       hasPopupRedirectResolver: false
     });
 
+    const editor = page.locator('#projectTitleEditor');
+    await editor.fill('Safari共有企画');
+    await editor.evaluate(node => node.dispatchEvent(new Event('blur', { bubbles: true })));
+
     const localState = await page.evaluate(() => {
       const input = document.getElementById('roomNameInput');
-      input.value = 'Safari共有企画';
-      input.dispatchEvent(new InputEvent('input', {
-        bubbles: true,
-        composed: true,
-        inputType: 'insertText',
-        data: '画'
-      }));
-      input.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+      const editor = document.getElementById('projectTitleEditor');
       return {
         source: input.value,
-        tag: input.tagName,
+        sourceTag: input.tagName,
+        editorText: editor.textContent,
+        editorContenteditable: editor.getAttribute('contenteditable'),
         contenteditableCount: document.querySelectorAll('[contenteditable]').length,
         snapshot: getData({ skipDomSync: true }).roomName
       };
     });
     expect(localState).toEqual({
       source: 'Safari共有企画',
-      tag: 'CDS-TEXT-INPUT',
-      contenteditableCount: 0,
+      sourceTag: 'CDS-TEXT-INPUT',
+      editorText: 'Safari共有企画',
+      editorContenteditable: 'plaintext-only',
+      contenteditableCount: 1,
       snapshot: 'Safari共有企画'
     });
 
@@ -118,6 +119,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       { timeout: 5000 }
     ).toBe('Safari共有企画');
     await expect(page.locator('#roomNameInput')).toHaveJSProperty('value', 'Safari共有企画');
+    await expect(editor).toHaveText('Safari共有企画');
     expect(errors).toEqual([]);
   });
 }
