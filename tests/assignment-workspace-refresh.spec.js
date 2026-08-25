@@ -25,6 +25,7 @@ test.describe('Unified assignment workspace', () => {
 
     await page.goto(shareUrl);
     await waitForWorkspace(page);
+    await page.waitForFunction(() => document.querySelector('#projectTitleEditor'));
     await expect(page.locator('body')).toHaveClass(/assignment-readonly/);
     await expect.poll(() => page.evaluate(() => document.body.dataset.activePlanTemplate)).toBe('team');
     await expect(page.locator('#top-area')).toBeVisible();
@@ -45,6 +46,11 @@ test.describe('Unified assignment workspace', () => {
     expect(await capacityControl.evaluate(node => getComputedStyle(node).pointerEvents)).toBe('none');
 
     await expect(page.locator('#roomNameInput')).toHaveJSProperty('readOnly', true);
+    const titleEditor = page.locator('#projectTitleEditor');
+    await expect(titleEditor).toBeVisible();
+    await expect(titleEditor).toHaveAttribute('contenteditable', 'false');
+    await expect(titleEditor).toHaveAttribute('aria-readonly', '');
+    expect(await titleEditor.evaluate(node => node.tabIndex)).toBe(-1);
     await expect(page.locator('#assignmentWorkspaceSummary')).toContainText('未配置');
 
     await page.locator('#assignmentTypeSwitcher cds-content-switcher-item[value="car"]').click();
