@@ -291,7 +291,7 @@ test.describe('Settlement rental and dismissal regression', () => {
 test.describe('Canonical share link', () => {
   test.use({ viewport: { width: 390, height: 844 }, permissions: ['clipboard-read', 'clipboard-write'] });
 
-  test('header link copies one URL directly and never opens a copy modal', async ({ page, context }) => {
+  test('header link copies the ordinary room URL directly and never opens a copy modal', async ({ page, context }) => {
     const room = `SHARE-${Date.now()}`;
     await page.goto(`/?room=${room}`);
     await page.waitForFunction(() => typeof window.copyUrl === 'function');
@@ -301,11 +301,14 @@ test.describe('Canonical share link', () => {
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     const url = new URL(copied);
     expect(url.searchParams.get('room')).toBe(room);
-    expect(url.searchParams.get('view')).toBe('sheet');
+    expect(url.searchParams.has('view')).toBe(false);
+    expect(url.searchParams.has('allocation')).toBe(false);
 
     const shared = await context.newPage();
     await shared.goto(copied);
-    await shared.waitForFunction(() => document.body.classList.contains('view-mode-sheet'));
-    await expect(shared.locator('body')).toHaveClass(/view-mode-sheet/);
+    await shared.waitForFunction(() => window.SanpoAssignmentWorkspace && document.querySelectorAll('#view-toggle-bar > cds-tab').length === 4);
+    await expect(shared.locator('body')).not.toHaveClass(/view-mode-sheet/);
+    await expect(shared.locator('#tab-sheet')).toHaveCount(0);
+    await expect(shared.locator('#app-view-navigation')).toBeVisible();
   });
 });
