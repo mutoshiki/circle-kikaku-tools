@@ -89,11 +89,16 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     await expect(editor).toBeVisible();
 
     const header = page.locator('#app-header');
-    const menu = page.locator('#overviewMenuBtn');
+    const menuHost = page.locator('#overviewMenuBtn');
+    // Playwright pierces Carbon's open shadow root, so this is the exact interactive
+    // button a pointer user presses rather than the custom-element host wrapper.
+    const menu = menuHost.locator('button');
     const drawer = page.locator('#overviewDrawer');
     expect(await header.evaluate(node => node.tagName)).toBe('CDS-HEADER');
-    expect(await menu.evaluate(node => node.tagName)).toBe('CDS-HEADER-MENU-BUTTON');
+    expect(await menuHost.evaluate(node => node.tagName)).toBe('CDS-HEADER-MENU-BUTTON');
     expect(await drawer.evaluate(node => node.tagName)).toBe('CDS-SIDE-NAV');
+    await expect(menuHost).toHaveAttribute('collapse-mode', 'fixed');
+    await expect(menu).toBeVisible();
     await expect(drawer).not.toBeVisible();
 
     await menu.click();
