@@ -9,22 +9,36 @@ const versions = Object.freeze({
   plexSans: '1.1.0',
   plexSansJp: '3.0.0'
 });
-const outfile = resolve(root, 'assets/vendor/carbon/carbon-entry.min.js');
-await mkdir(dirname(outfile), { recursive: true });
-await build({
-  entryPoints: [resolve(root, 'assets/js/carbon-entry.js')],
-  outfile,
+const mainEntry = resolve(root, 'assets/js/carbon-entry.js');
+const mainOutput = resolve(root, 'assets/vendor/carbon/carbon-entry.min.js');
+const uiShellEntry = resolve(root, 'assets/js/carbon-ui-shell-entry.js');
+const uiShellOutput = resolve(root, 'assets/vendor/carbon/ui-shell.min.js');
+await mkdir(dirname(mainOutput), { recursive: true });
+
+const sharedBuildOptions = {
   bundle: true,
   minify: true,
   format: 'esm',
   target: ['es2020'],
-  legalComments: 'none',
+  legalComments: 'none'
+};
+
+await build({
+  ...sharedBuildOptions,
+  entryPoints: [mainEntry],
+  outfile: mainOutput,
   define: {
     __CARBON_WEB_COMPONENTS_VERSION__: JSON.stringify(versions.webComponents),
     __CARBON_ICONS_VERSION__: JSON.stringify(versions.icons),
     __IBM_PLEX_SANS_VERSION__: JSON.stringify(versions.plexSans),
     __IBM_PLEX_SANS_JP_VERSION__: JSON.stringify(versions.plexSansJp)
   }
+});
+
+await build({
+  ...sharedBuildOptions,
+  entryPoints: [uiShellEntry],
+  outfile: uiShellOutput
 });
 
 const licenseCopies = [
@@ -41,6 +55,12 @@ for (const [source, target] of licenseCopies) {
   await writeFile(targetPath, sourceText.replace(/\r\n?/g, '\n'), 'utf8');
   await chmod(targetPath, 0o644);
 }
-const manifest = { versions, entry: 'assets/js/carbon-entry.js', output: 'assets/vendor/carbon/carbon-entry.min.js' };
+const manifest = {
+  versions,
+  entry: 'assets/js/carbon-entry.js',
+  output: 'assets/vendor/carbon/carbon-entry.min.js',
+  uiShellEntry: 'assets/js/carbon-ui-shell-entry.js',
+  uiShellOutput: 'assets/vendor/carbon/ui-shell.min.js'
+};
 await writeFile(resolve(root, 'assets/vendor/carbon/build-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`Built Carbon assets: ${JSON.stringify(versions)}`);
