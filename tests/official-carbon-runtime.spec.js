@@ -47,7 +47,12 @@ test.describe('Official Carbon ownership runtime', () => {
     await expect(editor).toHaveText('紅葉ハイク');
 
     const drawer = page.locator('#overviewDrawer');
-    const menuButton = page.locator('#overviewMenuBtn');
+    const menuHost = page.locator('#overviewMenuBtn');
+    // Carbon HeaderMenuButton renders its real interactive control in the open shadow root.
+    // Exercise that button with a genuine pointer click rather than clicking the custom-element host.
+    const menuButton = menuHost.locator('button');
+    await expect(menuHost).toHaveAttribute('collapse-mode', 'fixed');
+    await expect(menuButton).toBeVisible();
     await expect(drawer).not.toBeVisible();
     await menuButton.click();
     await expect.poll(() => drawer.evaluate(node => Boolean(node.expanded || node.hasAttribute('expanded')))).toBeTruthy();
