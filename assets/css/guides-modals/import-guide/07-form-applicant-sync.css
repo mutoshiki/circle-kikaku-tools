@@ -320,6 +320,12 @@ body.view-mode-participants #participants-view-area {
 }
 
 @media (max-width: 671px) {
+  .participants-view-area {
+    flex: 0 0 auto;
+    min-height: auto;
+    overflow: visible;
+  }
+
   .participants-page {
     max-width: none;
     padding: 16px 16px 32px;
