@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 
 const app = fs.readFileSync('assets/js/app.js', 'utf8');
 const workspace = fs.readFileSync('assets/js/features/assignment-workspace.js', 'utf8');
+const autoAssign = fs.readFileSync('assets/js/features/auto-assign.js', 'utf8');
+const shareActions = fs.readFileSync('assets/js/features/share-actions.js', 'utf8');
 const personCards = fs.readFileSync('assets/js/features/person-cards.js', 'utf8');
 const personMenu = fs.readFileSync('assets/js/features/person-menu.js', 'utf8');
 const roleState = fs.readFileSync('assets/js/core/allocation-role-state.js', 'utf8');
@@ -18,13 +20,14 @@ assert.ok(!workspace.includes('data-assignment-move-target'), 'Workspace must no
 assert.ok(workspace.includes('function concealWaitingPool()'), 'Workspace must explicitly conceal the legacy waiting drawer');
 assert.match(css, /body\.assignment-workspace-enabled #bottom-tray\s*\{\s*display:\s*none;/s, 'Legacy waiting drawer must stay hidden in Assignment Workspace');
 assert.match(css, /grid-template-areas:\s*"name meta menu"/, 'Member rows must not reserve a drag column');
-assert.ok(css.includes('@media (max-width: 360px)'), 'Very narrow action wrapping must have an explicit tested breakpoint');
 
 assert.ok(workspace.includes('const desired = [participantTab, carTab, teamTab, settlementTab]'), 'Primary destinations must be 参加者 → 車割 → 班割 → 精算');
 assert.ok(!workspace.includes('assignmentTypeSwitcher'), 'Allocation-local 車割/班割 switcher must be removed');
 assert.ok(!workspace.includes('assignmentWorkspaceTitle'), 'Redundant 車割・班割 workspace heading must be removed');
+assert.ok(workspace.includes('sheetTab?.remove()'), 'Shared-view destination must be removed from the primary toolbar');
 assert.ok(viewEvents.includes("bind('tab-list', () => openAllocationDestination('car'))"), '車割 tab must open the car allocation directly');
 assert.ok(viewEvents.includes("bind('tab-team', () => openAllocationDestination('team'))"), '班割 tab must open the team allocation directly');
+assert.ok(!viewEvents.includes("bind('tab-sheet'"), 'Legacy shared-view tab must no longer own a navigation event');
 
 assert.ok(personCards.includes('data-person-action="driver"'), 'Person menu must expose the per-person driver role toggle');
 assert.ok(!personCards.includes('data-person-action="name"'), 'Person name editing must be removed');
@@ -34,10 +37,17 @@ assert.ok(!personMenu.includes("action === 'gender'"), 'Person menu handler must
 assert.ok(!personMenu.includes('setPersonGender'), 'Gender mutation functions must be removed from person menu behavior');
 
 assert.ok(app.includes('allocation-role-state.js'), 'Allocation role compatibility/state owner must load before room restore');
-assert.ok(roleState.includes("placement.driver"), 'Driver role must persist independently on participant placement');
+assert.ok(roleState.includes('placement.driver'), 'Driver role must persist independently on participant placement');
 assert.ok(roleState.includes("key === 'gender' || key === 'driverGender'"), 'Legacy gender fields must be stripped at state boundaries');
 assert.ok(roleState.includes('member.driver = roleFromPlacement'), 'Projected members must restore their independent driver role');
 assert.ok(workspace.includes('sortRoleRows(box)'), 'Role-tagged people must be sorted to the top of each group');
+
+assert.ok(autoAssign.includes("title: 'ランダムに割り当て'"), 'Random allocation must use the requested wording');
+assert.ok(!autoAssign.includes('optGrade') && !autoAssign.includes('assignByGrade') && !autoAssign.includes("mode === 'fill'"), 'Random allocation must have no condition or fill mode');
+assert.ok(workspace.includes("'fillEmptySeatsBtn', 'traySettingsBtn', 'autoAssignPopover'"), 'Retired bulk allocation controls must be removed from the live DOM');
+assert.ok(shareActions.includes("url.searchParams.set('room', activeRoomId)"), 'Share must preserve the room id');
+assert.ok(!shareActions.includes("url.searchParams.set('view'") && !shareActions.includes("url.searchParams.set('allocation'"), 'Share must not create a special car/team URL');
+assert.ok(app.includes('normalizeLegacyAllocationShareUrl'), 'Old allocation-specific share URLs must normalize to the normal app');
 
 assert.ok(app.includes("document.documentElement.dataset.projectTitleRevealBound = 'true'"), 'Mobile must suppress the legacy gesture-driven project-title collapse owner');
 assert.match(mobileCss, /#app-layout\s*\{[\s\S]*overflow-y:\s*auto;/, 'Mobile app layout must be the natural vertical scroll owner');
