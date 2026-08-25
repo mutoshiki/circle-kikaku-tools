@@ -18,10 +18,9 @@
 | Header overflow and local Carbon menus | `assets/css/guides-modals/modal/02-dropdowns.css` and feature owners |
 | Participant import shell and fields | `assets/css/guides-modals/import-guide/` and `assets/js/features/batch-import.js` |
 | Legacy overview markup concealment and overview snapshot compatibility | `assets/css/guides-modals/overview/` and `assets/js/features/events/02-static-header-events.js` |
-| Allocation cards and people | `assets/css/cars-members-tray/` |
-| Person Carbon Menu lifecycle | `assets/css/cars-members-tray/person-card/03-person-menu.css` and `assets/js/features/person-menu.js` |
-| Shared assigned/unassigned member surface | `assets/css/cars-members-tray/01-shared-card-primitives.css` |
-| Unassigned bottom tray and Carbon Popover | `assets/css/cars-members-tray/waiting-tray/` and `assets/js/features/waiting-tray.js` |
+| Assignment Workspace page/header/actions/group grid/person-row/waiting-drawer placement | `assets/css/cars-members-tray/assignment-workspace-refresh.css` and `assets/js/features/assignment-workspace.js` |
+| Person Carbon Menu lifecycle, stacking and submenu surfaces only | `assets/css/cars-members-tray/person-card/03-person-menu.css` and `assets/js/features/person-menu.js` |
+| Allocation persistence, drag/drop algorithms and state | existing allocation feature modules; they must not own Workspace row/grid geometry |
 | Settlement page hierarchy | `assets/css/settlement/page-shell/` |
 | Settlement controls and settings modal | `assets/css/settlement/controls/` |
 | Vehicle cost editing and validation | `assets/css/settlement/car-inputs/` and settlement feature/template files |
@@ -33,6 +32,7 @@
 
 - Product-wide override、skin、visual、repair ディレクトリは禁止する。
 - 視覚変更は、構造と状態を管理する owner へ直接統合する。
+- Assignment Workspace 内の page/header/actions/group/person-row/waiting-drawer の geometry は `assignment-workspace-refresh.css` だけが所有し、Person Menu や旧 car-card CSS から grid/flex/row 高さを再定義しない。
 - 汎用の操作・入力・選択・通知・モーダル・メニューは公式Carbon Web Componentsを使用する。
 - 車両、座席、参加者、精算内訳などCarbonに直接対応部品がないドメイン面は、Carbon token、layer、type、spacing、focus、state契約で構成する。
 - 白・黒の固定背景ではなく semantic surface を使用する。
