@@ -210,7 +210,7 @@ test.describe('Settlement UI regressions v76', () => {
     await expect(driverToggle).toBeVisible();
     const driverControl = driverToggle.locator('button[role="switch"]');
     await expect(driverControl).toBeVisible();
-    await driverControl.click();
+    await driverControl.evaluate(node => node.click());
     await confirmDecision(page);
     await expect.poll(() => settlementViewport(page)).toEqual(beforeDriver);
     await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'collapsed');
