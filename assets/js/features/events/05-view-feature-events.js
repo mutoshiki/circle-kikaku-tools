@@ -60,24 +60,18 @@
     }
 
     function setupAutoAssignOptionEvents() {
-        ['optFemale', 'optMale', 'optGrade'].forEach(id => {
-            const el = byId(id);
-            if (el && el.dataset.eventOwnerBound !== 'true') {
-                el.dataset.eventOwnerBound = 'true';
-                el.addEventListener('change', () => updateAutoAssignSummary());
-            }
-        });
-    }
-
-    async function openAllocationWorkspace() {
-        if (!(await switchViewRemembering('list'))) return;
-        global.SanpoAssignmentWorkspace?.refresh?.();
-        global.syncCarbonPrimaryNavigationState?.();
+        const grade = byId('optGrade');
+        if (grade && grade.dataset.eventOwnerBound !== 'true') {
+            grade.dataset.eventOwnerBound = 'true';
+            grade.addEventListener('change', () => updateAutoAssignSummary());
+        }
     }
 
     async function openAllocationDestination(templateType) {
         if (!(await switchViewRemembering('list'))) return;
-        if (typeof updateActiveCarPlanTemplate === 'function') updateActiveCarPlanTemplate(templateType);
+        const next = templateType === 'team' ? 'team' : 'car';
+        if (typeof updateActiveCarPlanTemplate === 'function') updateActiveCarPlanTemplate(next);
+        else if (typeof switchCarPlan === 'function') switchCarPlan(next);
         global.SanpoAssignmentWorkspace?.refresh?.();
         global.syncCarbonPrimaryNavigationState?.();
     }
@@ -85,9 +79,7 @@
     function setupViewAndFeatureEvents() {
         bind('tab-sheet', () => switchViewRemembering('sheet'));
         bind('tab-seisan', () => switchViewRemembering('seisan'));
-        bind('tab-list', () => openAllocationWorkspace());
-        // Legacy compatibility destination. The refreshed workspace hides this primary
-        // tab and switches car/team with a Content Switcher inside the workspace.
+        bind('tab-list', () => openAllocationDestination('car'));
         bind('tab-team', () => openAllocationDestination('team'));
         bind('batchOpenBtn', () => openBatchModal());
         bind('sheet-quick-edit-btn', () => toggleQuickEdit());
