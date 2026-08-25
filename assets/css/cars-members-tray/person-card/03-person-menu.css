@@ -49,9 +49,7 @@
   z-index: var(--z-person-menu);
 }
 
-.person-overflow-menu:not([open]) > .person-pop-menu {
-  display: none;
-}
+.person-overflow-menu:not([open]) > .person-pop-menu { display: none; }
 
 .person-menu-top-layer-placeholder {
   display: block;
