@@ -1,5 +1,6 @@
-// Share and small selection helpers
-// Owns the canonical room link, clipboard copy, and grade selection.
+// Share and small selection helpers.
+// Sharing now points to the ordinary room URL; car/team no longer have a special
+// presentation route or allocation-specific share parameter.
 
 function createSharedViewUrl() {
     const url = new URL('./', window.location.href);
@@ -9,8 +10,6 @@ function createSharedViewUrl() {
         ? roomId
         : new URLSearchParams(window.location.search).get('room');
     if (activeRoomId) url.searchParams.set('room', activeRoomId);
-    url.searchParams.set('view', 'sheet');
-    url.searchParams.set('allocation', document.body.dataset.activePlanTemplate === 'team' ? 'team' : 'car');
     return url.toString();
 }
 
@@ -44,6 +43,4 @@ function selectGrade(btn) {
 window.SanpoApp?.exposeCompat?.('selectGrade', selectGrade);
 window.SanpoApp?.exposeCompat?.('createSharedViewUrl', createSharedViewUrl);
 window.SanpoApp?.exposeCompat?.('copyUrl', copyUrl);
-window.SanpoApp?.registerActions?.({
-    'copy-url': () => copyUrl()
-});
+window.SanpoApp?.registerActions?.({ 'copy-url': () => copyUrl() });
