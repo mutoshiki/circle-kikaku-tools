@@ -20,12 +20,24 @@ expect(
   'Legacy tap-to-cycle-gender behavior is still present.'
 );
 expect(
-  personMenu.includes("else if (action === 'gender') setPersonGender(targetPerson, choiceValue);"),
-  'Gender changes must remain wired to the explicit person-menu choice.'
+  !personMenu.includes("action === 'gender'") && !personMenu.includes('setPersonGender'),
+  'Gender actions must be completely absent from the participant menu.'
 );
 expect(
-  personCards.includes('data-person-choice="${action}"') && personCards.includes("action: 'gender'"),
-  'The Carbon menu-item gender submenu is missing.'
+  !personCards.includes("action: 'gender'") && !personCards.includes('data-person-action="gender"'),
+  'The participant menu must not render a gender control.'
+);
+expect(
+  personMenu.includes("action === 'driver'") && personMenu.includes('setPersonDriverRole(targetPerson)'),
+  'Driver/leader changes must be wired to the explicit person-menu role toggle.'
+);
+expect(
+  personCards.includes('data-person-action="driver"'),
+  'The Carbon person menu must expose the driver/leader toggle.'
+);
+expect(
+  !personCards.includes('data-person-action="name"'),
+  'Participant name editing must not be exposed by the person menu.'
 );
 expect(
   !cardCss.includes('.member-card:focus-within'),
