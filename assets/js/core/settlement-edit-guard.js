@@ -26,12 +26,12 @@ function readSettlementProjectTitleState() {
 
 function applySettlementProjectTitleState(state) {
     const region = document.getElementById('projectTitleRegion');
-    const editor = document.getElementById('projectTitleEditor');
-    if (!region || !editor) return;
+    const input = document.getElementById('roomNameInput');
+    if (!region || !input) return;
     const expanded = state !== 'collapsed';
     region.dataset.state = expanded ? 'expanded' : 'collapsed';
-    editor.inert = !expanded;
-    editor.tabIndex = expanded ? 0 : -1;
+    input.inert = !expanded;
+    input.tabIndex = expanded ? 0 : -1;
 }
 
 function captureSettlementViewportState() {
