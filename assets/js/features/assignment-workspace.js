@@ -47,8 +47,7 @@
     function syncShellShareVisibility() {
         const shellShare = byId('shareLinkBtn');
         if (!shellShare) return;
-        const hidden = isSharedReadOnlyMode() || D.body.classList.contains('view-mode-list');
-        shellShare.hidden = hidden;
+        shellShare.hidden = isSharedReadOnlyMode() || D.body.classList.contains('view-mode-list');
     }
 
     function simplifyPrimaryNavigation() {
@@ -66,9 +65,15 @@
         workspaceTab.setAttribute('aria-label', '車割・班割');
         replaceTabLabel(workspaceTab, '車割・班割');
 
-        // Primary navigation represents destinations only. Car/team is a view switch inside
-        // this workspace, so it must not consume another primary tab.
-        if (bar) [participantTab, workspaceTab, settlementTab].filter(Boolean).forEach(tab => bar.appendChild(tab));
+        // Primary tabs are destinations. Car/team is a Content Switcher inside this destination.
+        if (bar) {
+            const desired = [participantTab, workspaceTab, settlementTab].filter(Boolean);
+            const desiredIds = desired.map(tab => tab.id);
+            const currentIds = Array.from(bar.children)
+                .filter(tab => desiredIds.includes(tab.id))
+                .map(tab => tab.id);
+            if (currentIds.join('|') !== desiredIds.join('|')) desired.forEach(tab => bar.appendChild(tab));
+        }
 
         if (D.body.classList.contains('view-mode-list')) {
             workspaceTab.classList.add('active');
@@ -280,14 +285,32 @@
         }) || null;
     }
 
+    function moveMenuSignature(card, boxes, type) {
+        const currentBox = currentMemberBox(card);
+        const targets = boxes.map((box, index) => {
+            if (box === currentBox) return `${index}:current`;
+            return `${index}:${firstOpenSeat(box, card) ? 'open' : 'full'}`;
+        }).join(',');
+        return [
+            type,
+            card.dataset.locked === 'true' ? 'locked' : 'free',
+            card.parentElement?.id === 'waiting-list' ? 'waiting' : boxes.indexOf(currentBox),
+            targets
+        ].join('|');
+    }
+
     function rebuildMoveMenu(card, boxes, type) {
         if (isSharedReadOnlyMode()) return;
         const menu = card.querySelector('.person-pop-menu');
         if (!menu) return;
-        menu.querySelector('.assignment-person-move-menu')?.remove();
+        const signature = moveMenuSignature(card, boxes, type);
+        const existing = menu.querySelector('.assignment-person-move-menu');
+        if (existing?.dataset.assignmentMoveSignature === signature) return;
+        existing?.remove();
 
         const move = D.createElement('cds-menu-item');
         move.className = 'assignment-person-move-menu';
+        move.dataset.assignmentMoveSignature = signature;
         move.setAttribute('label', '移動');
         if (card.dataset.locked === 'true') move.setAttribute('disabled', '');
 
@@ -344,6 +367,18 @@
         D.addEventListener('click', handleMoveMenuClick, true);
     }
 
+    function decorateCapacity(box, type) {
+        const count = box.querySelector('.capacity-count');
+        const button = box.querySelector('.capacity-edit-btn');
+        const passengerCapacity = parseInt(box.dataset.capacity, 10) || box.querySelectorAll('.seat-slot').length;
+        const passengerCount = box.querySelectorAll('.seat-slot .member-card').length;
+        const totalCapacity = passengerCapacity + 1;
+        const totalCount = passengerCount + 1;
+        const text = `${totalCount}/${totalCapacity}`;
+        if (count && count.textContent !== text) count.textContent = text;
+        if (button) button.setAttribute('aria-label', `${type === 'team' ? '班' : '車'}の人数 ${text}、定員を変更`);
+    }
+
     function decorateCards() {
         const type = activeType();
         const boxes = Array.from(D.querySelectorAll('#cars-container .car-box'));
@@ -352,11 +387,14 @@
             const groupLabel = box.querySelector('.car-name-label');
             const nextLabel = type === 'team' ? `${index + 1}班` : `${index + 1}号車`;
             if (groupLabel && groupLabel.textContent !== nextLabel) groupLabel.textContent = nextLabel;
+            box.setAttribute('role', 'group');
+            box.setAttribute('aria-label', nextLabel);
             const role = box.querySelector('.driver-role-tag');
             const nextRole = type === 'team' ? '班長' : '運転手';
             if (role && role.textContent !== nextRole) role.textContent = nextRole;
             ensureGroupOverflow(box, type);
             decorateEmptySeats(box);
+            decorateCapacity(box, type);
         });
 
         D.querySelectorAll('#cars-container .member-card, #waiting-list .member-card').forEach(card => {
