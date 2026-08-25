@@ -54,6 +54,17 @@ assert.ok(!appEvents.includes('projectTitleEditor'), 'app startup must use roomN
 assert.ok(!appEvents.includes("document.createElement('a')"), 'app startup must not recreate side-nav links with native anchors');
 assert.ok(!appEvents.includes("document.createElement('cds-side-nav-link')"), 'static navigation must remain static instead of being recreated at runtime');
 
+// The official HeaderMenuButton and SideNav are separate Carbon controls. Keep their
+// controlled state bridge explicit so a future cleanup cannot leave a real Carbon
+// hamburger that no longer opens its real Carbon side navigation.
+assert.match(appEvents, /function setCarbonSideNavExpanded\(expanded/);
+assert.match(appEvents, /drawer\.expanded = next;/);
+assert.match(appEvents, /drawer\.toggleAttribute\('expanded', next\);/);
+assert.match(appEvents, /trigger\.active = next;/);
+assert.match(appEvents, /trigger\.setAttribute\('aria-expanded', String\(next\)\);/);
+assert.match(appEvents, /trigger\.addEventListener\('click', \(\) =>/);
+assert.match(appEvents, /setupCarbonSideNavigationState\(\);/);
+
 for (const [name, source, forbidden] of [
   ['header CSS', headerCss, '.app-nav-drawer'],
   ['header CSS', headerCss, '.app-nav-link'],
