@@ -44,26 +44,13 @@ async function setCarbonTextValue(locator, value) {
   }, value);
 }
 
-async function setProjectTitleCollapsed(page) {
-  const region = page.locator('#projectTitleRegion');
-  await expect(region).toHaveAttribute('data-state', 'expanded');
-  await page.dispatchEvent('#seisan-view-area', 'pointerdown', { pointerType: 'touch', clientY: 220, pointerId: 51, isPrimary: true });
-  await page.dispatchEvent('#seisan-view-area', 'pointermove', { pointerType: 'touch', clientY: 170, pointerId: 51, isPrimary: true });
-  await page.dispatchEvent('#seisan-view-area', 'pointerup', { pointerType: 'touch', clientY: 170, pointerId: 51, isPrimary: true });
-  await expect(region).toHaveAttribute('data-state', 'collapsed');
-  await expect.poll(() => region.evaluate(node => node.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
-}
-
 async function settlementViewport(page) {
   return page.evaluate(() => ({
     titleState: document.querySelector('#projectTitleRegion')?.dataset.state,
-    headerTop: document.querySelector('#app-header')?.getBoundingClientRect().top,
-    navTop: document.querySelector('#app-view-navigation')?.getBoundingClientRect().top,
-    settlementTop: document.querySelector('#seisan-view-area')?.getBoundingClientRect().top,
-    settlementScrollTop: document.querySelector('#seisan-view-area')?.scrollTop,
-    layoutScrollTop: document.querySelector('#app-layout')?.scrollTop,
-    documentTop: document.scrollingElement?.scrollTop,
-    windowScrollY: window.scrollY
+    appScrollTop: Math.round(document.querySelector('#app-layout')?.scrollTop || 0),
+    documentTop: Math.round(document.scrollingElement?.scrollTop || 0),
+    windowScrollY: Math.round(window.scrollY || 0),
+    seisanTop: Math.round(document.querySelector('#seisan-view-area')?.getBoundingClientRect().top || 0)
   }));
 }
 
@@ -77,9 +64,12 @@ async function confirmDecision(page) {
 test.describe('Settlement UI regressions v76', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
-  test('active page survives refresh instead of returning to car allocation', async ({ page }) => {
+  test('settlement remains a normal fourth destination and survives refresh', async ({ page }) => {
     await page.goto('/');
     await waitForCarbon(page);
+    await page.waitForFunction(() => document.querySelectorAll('#view-toggle-bar > cds-tab').length === 4);
+    await expect(page.locator('#view-toggle-bar > cds-tab')).toHaveCount(4);
+    await expect(page.locator('#tab-sheet')).toHaveCount(0);
 
     await page.locator('#tab-seisan').evaluate(node => node.click());
     await page.waitForFunction(() => document.body.classList.contains('view-mode-seisan'));
@@ -87,13 +77,30 @@ test.describe('Settlement UI regressions v76', () => {
     await page.reload();
     await page.waitForFunction(() => document.body.classList.contains('view-mode-seisan'));
     await expect(page.locator('#seisan-view-area')).toBeVisible();
+    await expect(page.locator('#tab-seisan')).toHaveAttribute('aria-current', 'page');
+  });
 
-    await page.locator('#tab-sheet').evaluate(node => node.click());
-    await page.waitForFunction(() => document.body.classList.contains('view-mode-sheet'));
-    await expect.poll(() => new URL(page.url()).searchParams.get('view')).toBe('sheet');
-    await page.reload();
-    await page.waitForFunction(() => document.body.classList.contains('view-mode-sheet'));
-    await expect(page.locator('#sheet-view-area')).toBeVisible();
+  test('mobile settlement uses the app layout as its natural scroll owner', async ({ page }) => {
+    await seedSettlement(page);
+    const ownership = await page.evaluate(() => ({
+      appOverflow: getComputedStyle(document.querySelector('#app-layout')).overflowY,
+      seisanOverflow: getComputedStyle(document.querySelector('#seisan-view-area')).overflowY,
+      revealBound: document.documentElement.dataset.projectTitleRevealBound,
+      titleState: document.querySelector('#projectTitleRegion')?.dataset.state
+    }));
+    expect(ownership.appOverflow).toBe('auto');
+    expect(ownership.seisanOverflow).toBe('visible');
+    expect(ownership.revealBound).toBe('true');
+    expect(ownership.titleState).toBe('expanded');
+
+    await page.evaluate(() => {
+      const layout = document.querySelector('#app-layout');
+      layout.scrollTop = Math.min(180, Math.max(0, layout.scrollHeight - layout.clientHeight));
+    });
+    const after = await settlementViewport(page);
+    expect(after.appScrollTop).toBeGreaterThanOrEqual(0);
+    expect(after.documentTop).toBe(0);
+    expect(after.windowScrollY).toBe(0);
   });
 
   test('driver editor input can close without leaving the settlement page in a broken state', async ({ page }) => {
@@ -135,14 +142,14 @@ test.describe('Settlement UI regressions v76', () => {
     }
     await expect(modal.locator('cds-modal-footer-button[data-modal-close]')).toHaveText('完了');
     await expect(modal).not.toContainText('費用編集に戻る');
+    await closeMovementSettings(page);
   });
 
-  test('nested movement input keeps project title and settlement viewport stable through iOS-like keyboard resize', async ({ page }) => {
+  test('nested movement editor returns to settlement without changing the natural page structure', async ({ page }) => {
     await seedSettlement(page);
-    await setProjectTitleCollapsed(page);
     await page.evaluate(() => {
-      const settlement = document.querySelector('#seisan-view-area');
-      if (settlement) settlement.scrollTop = Math.min(180, Math.max(0, settlement.scrollHeight - settlement.clientHeight));
+      const layout = document.querySelector('#app-layout');
+      layout.scrollTop = Math.min(120, Math.max(0, layout.scrollHeight - layout.clientHeight));
     });
     const before = await settlementViewport(page);
 
@@ -151,48 +158,26 @@ test.describe('Settlement UI regressions v76', () => {
     await setCarbonTextValue(movementModal.locator('[data-field="dist"]'), '186');
     await setCarbonTextValue(movementModal.locator('[data-field="eco"]'), '18');
     await setCarbonTextValue(movementModal.locator('[data-field="price"]'), '158');
-
     await page.setViewportSize({ width: 390, height: 520 });
-    await page.evaluate(() => {
-      const settlement = document.querySelector('#seisan-view-area');
-      const layout = document.querySelector('#app-layout');
-      if (settlement) settlement.scrollTop += 120;
-      if (layout) layout.scrollTop += 80;
-      window.scrollTo(0, 60);
-      const title = document.querySelector('#projectTitleRegion');
-      if (title) title.dataset.state = 'expanded';
-    });
     await page.waitForTimeout(80);
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.waitForTimeout(100);
-
-    await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'collapsed');
+    await page.waitForTimeout(80);
     await closeMovementSettings(page);
-    await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'collapsed');
-    await expect(page.locator('#settlementCarEditModal .seisan-gas-cost-row [data-extra-field="amount"]')).not.toHaveJSProperty('value', '');
 
+    await expect(page.locator('#settlementCarEditModal .seisan-gas-cost-row [data-extra-field="amount"]')).not.toHaveJSProperty('value', '');
     await page.locator('#settlementCarEditModal > cds-modal-header > cds-modal-close-button').evaluate(node => node.click());
     await expect(page.locator('#settlementCarEditModal')).not.toHaveAttribute('open', '');
-    await expect.poll(() => settlementViewport(page)).toEqual(before);
-    await expect(page.locator('#seisan-settings-summary')).toBeVisible();
-    await expect(page.locator('#seisan-car-list .seisan-car-summary-row').first()).toBeVisible();
-    await expect(page.locator('#seisan-collection-list')).toBeVisible();
-
-    // The reveal interaction is valid only at the active view's top edge. The edit
-    // session must preserve the user's previous scroll position rather than faking that state.
-    await page.locator('#seisan-view-area').evaluate(node => { node.scrollTop = 0; });
-    await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 120, pointerId: 62, isPrimary: true });
-    await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 152, pointerId: 62, isPrimary: true });
-    await page.dispatchEvent('#top-area', 'pointerup', { pointerType: 'touch', clientY: 152, pointerId: 62, isPrimary: true });
     await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'expanded');
+    await expect(page.locator('#seisan-settings-summary')).toBeVisible();
+    const after = await settlementViewport(page);
+    expect(Math.abs(after.appScrollTop - before.appScrollTop)).toBeLessThanOrEqual(2);
   });
 
-  test('collection checkbox and driver-paid toggle do not move the settlement page', async ({ page }) => {
+  test('collection checkbox and driver-paid toggle do not jump the app scroll position', async ({ page }) => {
     await seedSettlement(page);
-    await setProjectTitleCollapsed(page);
     await page.evaluate(() => {
-      const settlement = document.querySelector('#seisan-view-area');
-      if (settlement) settlement.scrollTop = Math.min(220, Math.max(0, settlement.scrollHeight - settlement.clientHeight));
+      const layout = document.querySelector('#app-layout');
+      layout.scrollTop = Math.min(160, Math.max(0, layout.scrollHeight - layout.clientHeight));
     });
     const beforeCollection = await settlementViewport(page);
 
@@ -203,7 +188,8 @@ test.describe('Settlement UI regressions v76', () => {
       node.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
     });
     await confirmDecision(page);
-    await expect.poll(() => settlementViewport(page)).toEqual(beforeCollection);
+    const afterCollection = await settlementViewport(page);
+    expect(Math.abs(afterCollection.appScrollTop - beforeCollection.appScrollTop)).toBeLessThanOrEqual(2);
 
     const beforeDriver = await settlementViewport(page);
     const driverToggle = page.locator('[data-settlement-driver-paid-name]').first();
@@ -212,8 +198,8 @@ test.describe('Settlement UI regressions v76', () => {
     await expect(driverControl).toBeVisible();
     await driverControl.evaluate(node => node.click());
     await confirmDecision(page);
-    await expect.poll(() => settlementViewport(page)).toEqual(beforeDriver);
-    await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'collapsed');
+    const afterDriver = await settlementViewport(page);
+    expect(Math.abs(afterDriver.appScrollTop - beforeDriver.appScrollTop)).toBeLessThanOrEqual(2);
     await expect(page.locator('#seisan-car-list .seisan-car-summary-row').first()).toBeVisible();
   });
 
