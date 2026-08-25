@@ -40,6 +40,32 @@ const SETTLEMENT_SCALAR_OR_OBJECT_FIELDS = [
 const LEGACY_REMOTE_FIELDS = ['waiting', 'cars', 'carPlans', 'activeCarPlanId', 'lastAutoAssignLabel', 'activeAllocationType', 'trayMinimized'];
 
 let pendingRemoteRoomData = null;
+let syncOutboxRetryTimer = null;
+const deferredSyncOutboxIds = new Set();
+const exhaustedSyncOutboxIds = new Set();
+
+function scheduleSyncOutboxRetry(snapshot, requestVersion, baseSnapshot, options = {}) {
+    const retryAttempt = Number(options.retryAttempt || 0);
+    // Firebase can abort a contended transaction after its internal retry budget.
+    // Keep the durable, operation-idempotent intent and make a bounded retry. A
+    // subsequent RTDB value event will also replay the same outbox after this cap.
+    if (!options.outboxId || retryAttempt >= 2 || syncOutboxRetryTimer) {
+        if (options.outboxId && retryAttempt >= 2) exhaustedSyncOutboxIds.add(String(options.outboxId));
+        return;
+    }
+    const outboxId = String(options.outboxId);
+    deferredSyncOutboxIds.add(outboxId);
+    syncOutboxRetryTimer = setTimeout(() => {
+        syncOutboxRetryTimer = null;
+        const outbox = readStoredSyncOutbox();
+        if (!outbox || outbox.id !== outboxId || syncWriteInFlight || saveTimer) return;
+        deferredSyncOutboxIds.delete(outboxId);
+        void commitSnapshotToRemote(snapshot, requestVersion, baseSnapshot, {
+            ...options,
+            retryAttempt: retryAttempt + 1
+        });
+    }, 900 * (retryAttempt + 1));
+}
 
 
 function isRemoteUiBlocked() {
@@ -732,6 +758,10 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
     }
 
     syncWriteInFlight = true;
+    if (options.outboxId) {
+        deferredSyncOutboxIds.delete(String(options.outboxId));
+        exhaustedSyncOutboxIds.delete(String(options.outboxId));
+    }
     try {
         let committed;
         if (typeof runTransaction === 'function') {
@@ -783,7 +813,11 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
         }
         rememberSyncedData(committed);
         L.setItem(CFG.STORE + '_' + roomId, J.stringify(committed));
-        if (options.outboxId) clearSyncOutbox(options.outboxId);
+        if (options.outboxId) {
+            clearSyncOutbox(options.outboxId);
+            deferredSyncOutboxIds.delete(String(options.outboxId));
+            exhaustedSyncOutboxIds.delete(String(options.outboxId));
+        }
 
         const outcome = summarizeSyncOutcome(patch, localSnapshot, committed);
         if (outcome.adjustedPaths.length) {
@@ -823,6 +857,8 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
         const rejected = isPermanentSyncError(error);
         if (rejected && options.outboxId) {
             clearSyncOutbox(options.outboxId);
+            deferredSyncOutboxIds.delete(String(options.outboxId));
+            exhaustedSyncOutboxIds.delete(String(options.outboxId));
             window.SanpoSyncDiagnostics?.record?.({
                 kind: 'rejected', message: '共有保存を拒否されたため再送を停止', paths: Object.keys(patch || {}), revision: Number(lastSyncedRevision || 0)
             });
@@ -831,6 +867,13 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
             kind: rejected ? 'rejected' : 'failed', message: rejected ? '共有保存を拒否、再送停止' : '共有データの保存に失敗', paths: Object.keys(patch || {}), revision: Number(lastSyncedRevision || 0)
         });
         updateStatus('error', rejected ? '保存を拒否、再送停止' : '保存失敗');
+        if (!rejected) {
+            scheduleSyncOutboxRetry(localSnapshot, requestVersion, baseAtWrite, {
+                ...options,
+                patchOverride: patch,
+                operationId
+            });
+        }
         return null;
     } finally {
         syncWriteInFlight = false;
@@ -1013,6 +1056,16 @@ function load() {
         // intent by diffing a rendered/localStorage snapshot against Firebase.
         const outbox = readStoredSyncOutbox();
         if (outbox && !syncWriteInFlight && !saveTimer) {
+            if (deferredSyncOutboxIds.has(outbox.id)) {
+                rememberSyncedDataInMemory(remote);
+                updateStatus('saving', '保存を再試行中...');
+                return;
+            }
+            if (exhaustedSyncOutboxIds.has(outbox.id)) {
+                rememberSyncedDataInMemory(remote);
+                updateStatus('error', '保存失敗。もう一度保存してください');
+                return;
+            }
             if (isExpiredSyncOutbox(outbox)) {
                 clearSyncOutbox(outbox.id);
                 window.SanpoSyncDiagnostics?.record?.({

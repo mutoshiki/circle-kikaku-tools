@@ -46,11 +46,16 @@ assert.ok(roleState.includes('member.driver = roleFromPlacement'), 'Projected me
 assert.ok(workspace.includes('sortRoleRows(box)'), 'Role-tagged people must be sorted to the top of each group');
 
 assert.ok(autoAssign.includes('async function autoAssign()'), 'Random assignment must be one parameterless bulk action');
+assert.ok(autoAssign.includes("placement?.kind === 'member' && placement?.driver !== true"), 'Role-tagged drivers/leaders must keep their canonical allocation during random assignment');
+assert.ok(autoAssign.includes('function isRandomlyMovablePlacement') && autoAssign.includes('randomSlotsFromCanonical'), 'Random assignment must update canonical placements instead of transient card DOM');
 assert.ok(autoAssign.includes("title: 'ランダムに割り当て'"), 'Random allocation must use the requested wording');
 assert.ok(autoAssign.includes("lastAutoAssignLabel = 'ランダムに割り当て';"), 'Persisted action label must match the visible random action');
 assert.ok(!autoAssign.includes('optGrade') && !autoAssign.includes('assignByGrade') && !autoAssign.includes("mode === 'fill'"), 'Random allocation must have no condition or fill mode');
 assert.ok(workspace.includes("'fillEmptySeatsBtn', 'traySettingsBtn', 'autoAssignPopover', 'autoAssignMenu', 'clearAllBtn', 'optFemale', 'optMale', 'optGrade'"), 'Retired bulk allocation controls must be removed from the live DOM');
 assert.ok(!css.includes('traySettingsBtn') && !css.includes('autoAssignPopover') && !css.includes('auto-assign-menu-body'), 'Assignment owner CSS must not retain removed allocation-setting surfaces');
+assert.ok(workspace.includes("id = 'assignmentWorkspaceAddGroupBtn'"), 'Assignment Workspace must expose an add-group action');
+assert.ok(workspace.includes('function createGroupFromModal'), 'New car/team creation must be owned by the workspace lifecycle');
+assert.ok(workspace.includes('data-assignment-group-action="delete"'), 'Each created group must remain removable from its Carbon menu');
 
 assert.ok(shareActions.includes("url.searchParams.set('room', activeRoomId)"), 'Share must preserve the room id');
 assert.ok(!shareActions.includes("url.searchParams.set('view'") && !shareActions.includes("url.searchParams.set('allocation'"), 'Share must not create a special car/team URL');

@@ -35,4 +35,22 @@ assert.equal([...store.keys()].some(key => key.includes('_sync_outbox_')), false
 assert.equal(notices.length, 0, 'background sync rejection must not interrupt the user with a toast');
 assert.ok(statuses.some(([, label]) => String(label).includes('再送停止')), 'status must expose retry stop');
 
+let attempts = 0;
+const retryTimers = [];
+context.setTimeout = fn => { retryTimers.push(fn); return retryTimers.length; };
+context.runTransaction = async (_ref, updater) => {
+    attempts += 1;
+    if (attempts === 1) throw new Error('maxretry');
+    const result = updater(base);
+    return { committed: true, snapshot: { val: () => result } };
+};
+const retryPatch = context.window.SanpoEntitySyncTest.buildEntityPatch(base, local);
+const retried = await context.window.SanpoSync.saveImmediate({ snapshot: local, baseSnapshot: base, patchOverride: retryPatch });
+assert.equal(retried, null, 'the initial transient failure remains observable to the immediate caller');
+assert.equal(retryTimers.length, 1, 'a transient failure schedules a durable outbox retry');
+retryTimers.shift()();
+for (let tick = 0; tick < 8; tick += 1) await Promise.resolve();
+assert.equal(attempts, 2, 'a transient transaction failure retries exactly once through the durable outbox');
+assert.equal([...store.keys()].some(key => key.includes('_sync_outbox_')), false, 'the successful retry clears its matching durable outbox');
+
 console.log('Sync outbox rejection v68 contract: PASS');

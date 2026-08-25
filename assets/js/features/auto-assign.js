@@ -9,24 +9,22 @@ function shuffleArray(arr) {
     return arr;
 }
 
-function buildRandomAssignmentSlots() {
-    return shuffleArray(Array.from($$('.car-box')).flatMap(box =>
-        Array.from($$('.seat-slot', box)).filter(slot => getRealSeatCards(slot).length === 0)
-    ));
+function isRandomlyMovablePlacement(placement) {
+    return placement?.kind === 'waiting'
+        || (placement?.kind === 'member' && placement?.driver !== true);
 }
 
-function appendAssignmentMember(member, parent) {
-    return addMember(
-        member.name,
-        member.memo,
-        '',
-        member.grade || 0,
-        parent,
-        member.locked,
-        member.flag,
-        member.participantId || '',
-        member.driver === true || member.isDriver === true
-    );
+function randomSlotsFromCanonical(allocation) {
+    const placements = allocation?.placements || {};
+    return Object.values(allocation?.groups || {})
+        .sort((a, b) => Number(a?.order || 0) - Number(b?.order || 0))
+        .flatMap(group => {
+            const fixedMembers = Object.values(placements)
+                .filter(placement => placement?.kind === 'member' && placement.groupId === group.id && placement.driver === true)
+                .length;
+            const capacity = Math.max(1, parseInt(group?.capacity, 10) || 1);
+            return Array.from({ length: Math.max(0, capacity - fixedMembers) }, (_, order) => ({ groupId: group.id, order }));
+        });
 }
 
 // data-state.js still restores the historical lastAutoAssignLabel field because it is
@@ -36,30 +34,33 @@ function updateLastAutoAssignCondition() {}
 async function autoAssign() {
     if (!await appConfirm('参加者をランダムに割り当てます。', { title: 'ランダムに割り当て', okText: '実行' })) return;
 
-    const members = [];
-    $$('.seat-slot').forEach(slot => getRealSeatCards(slot)
-        .filter(member => member.dataset.locked !== 'true')
-        .forEach(member => {
-            members.push(getMemData(member));
-            member.remove();
-        }));
-    $$('#waiting-list .member-card:not([data-locked="true"])').forEach(member => {
-        members.push(getMemData(member));
-        member.remove();
-    });
+    const room = window.SanpoCanonicalState?.get?.();
+    const type = room?.activeAllocationType === 'team' ? 'team' : 'car';
+    const allocation = room?.allocations?.[type];
+    if (!room || !allocation) return;
 
-    if (!members.length) {
+    window.SanpoCanonicalState.ensureAllParticipantsPlaced(allocation, room.participants || {});
+    const movableIds = Object.entries(allocation.placements || {})
+        .filter(([, placement]) => isRandomlyMovablePlacement(placement))
+        .map(([participantId]) => participantId);
+    if (!movableIds.length) {
         window.AppUI?.showStatus?.('ランダムに割り当てる参加者がいません。', { tone: 'neutral', duration: 2200 });
         return;
     }
 
-    const slots = buildRandomAssignmentSlots();
-    const shuffled = shuffleArray(members);
+    const now = window.SanpoClock?.now?.() ?? Date.now();
+    const slots = shuffleArray(randomSlotsFromCanonical(allocation));
+    const shuffled = shuffleArray(movableIds);
     slots.forEach(slot => {
-        const member = shuffled.shift();
-        if (member) appendAssignmentMember(member, slot);
+        const participantId = shuffled.shift();
+        if (!participantId) return;
+        allocation.placements[participantId] = { kind: 'member', groupId: slot.groupId, order: slot.order, updatedAt: now };
     });
-    shuffled.forEach(member => appendAssignmentMember(member, $('#waiting-list')));
+    shuffled.forEach((participantId, order) => {
+        allocation.placements[participantId] = { kind: 'waiting', groupId: '', order, updatedAt: now };
+    });
+    window.SanpoCanonicalState.ensureAllParticipantsPlaced(allocation, room.participants || {});
+    window.renderActiveCarPlanToDom?.();
 
     lastAutoAssignLabel = 'ランダムに割り当て';
     updateUI();

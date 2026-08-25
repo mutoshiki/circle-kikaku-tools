@@ -22,7 +22,7 @@
             link.dataset.assignmentWorkspaceStyle = 'true';
             D.head.appendChild(link);
         }
-        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v7';
+        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v9';
         if (!link.href.endsWith(href.replace('./', ''))) link.href = href;
     }
 
@@ -96,9 +96,30 @@
         if (!actions) return;
         removeRetiredAllocationControls();
 
+        let addGroup = byId('assignmentWorkspaceAddGroupBtn');
+        if (!addGroup) {
+            addGroup = D.createElement('cds-button');
+            addGroup.id = 'assignmentWorkspaceAddGroupBtn';
+            addGroup.className = 'assignment-workspace-add-group';
+            // Both workspace-level actions use Carbon's neutral secondary treatment.
+            // The destructive-looking blue tertiary treatment was too prominent beside
+            // ordinary group management controls.
+            addGroup.setAttribute('kind', 'secondary');
+            addGroup.setAttribute('size', 'lg');
+            addGroup.setAttribute('type', 'button');
+            addGroup.innerHTML = '<span data-carbon-icon="add" slot="icon" aria-hidden="true"></span><span></span>';
+            addGroup.addEventListener('click', openGroupCreateModal);
+        }
+        const type = activeType();
+        const groupLabel = type === 'team' ? '班' : '車';
+        addGroup.setAttribute('aria-label', `${groupLabel}を追加`);
+        const addLabel = addGroup.querySelector('span:not([slot="icon"]):not([data-carbon-icon])');
+        if (addLabel) addLabel.textContent = `${groupLabel}を追加`;
+        if (addGroup.parentElement !== actions) actions.appendChild(addGroup);
+
         const shuffle = byId('shuffleAssignBtn');
         if (!shuffle) return;
-        shuffle.setAttribute('kind', 'primary');
+        shuffle.setAttribute('kind', 'secondary');
         shuffle.setAttribute('size', 'lg');
         const label = shuffle.querySelector('span:not([slot="icon"]):not([data-carbon-icon])');
         if (label) label.textContent = 'ランダムに割り当て';
@@ -108,6 +129,127 @@
         D.querySelectorAll('.random-tools').forEach(wrapper => {
             if (wrapper !== actions && !wrapper.children.length) wrapper.remove();
         });
+    }
+
+    function waitingCandidates() {
+        return Array.from(D.querySelectorAll('#waiting-list .member-card'))
+            .map(card => ({
+                id: String(card.dataset.participantId || ''),
+                name: String(card.dataset.name || card.querySelector('.member-name-text')?.textContent || '').trim(),
+                card
+            }))
+            .filter(candidate => candidate.id && candidate.name);
+    }
+
+    function ensureGroupCreateModal() {
+        let modal = byId('assignmentGroupCreateModal');
+        if (modal) return modal;
+        modal = D.createElement('cds-modal');
+        modal.id = 'assignmentGroupCreateModal';
+        modal.className = 'app-modal app-modal--compact';
+        modal.setAttribute('size', 'xs');
+        modal.setAttribute('aria-labelledby', 'assignmentGroupCreateTitle');
+        modal.innerHTML = `
+            <cds-modal-header>
+                <cds-modal-heading id="assignmentGroupCreateTitle" data-modal-primary-focus tabindex="-1"></cds-modal-heading>
+                <cds-modal-close-button close-button-label="閉じる"></cds-modal-close-button>
+            </cds-modal-header>
+            <cds-modal-body class="app-modal-body">
+                <p id="assignmentGroupCreateDescription" class="assignment-group-create-description"></p>
+                <cds-select id="assignmentGroupOwnerSelect" label-text="担当者" size="lg"></cds-select>
+                <cds-number-input id="assignmentGroupCapacityInput" label="定員" min="1" max="99" inputmode="numeric" size="lg"></cds-number-input>
+            </cds-modal-body>
+            <cds-modal-footer class="app-modal-footer">
+                <cds-modal-footer-button id="assignmentGroupCreateCancel" kind="secondary" type="button">キャンセル</cds-modal-footer-button>
+                <cds-modal-footer-button id="assignmentGroupCreateConfirm" kind="primary" type="button">追加</cds-modal-footer-button>
+            </cds-modal-footer>`;
+        D.body.appendChild(modal);
+        byId('assignmentGroupCreateCancel')?.addEventListener('click', () => closeGroupCreateModal(modal));
+        byId('assignmentGroupCreateConfirm')?.addEventListener('click', () => createGroupFromModal(modal));
+        return modal;
+    }
+
+    function openGroupCreateModalSurface(modal) {
+        const adapter = global.AppModalAdapter?.getOrCreateInstance?.(modal);
+        if (adapter?.show) adapter.show();
+        else {
+            modal.open = true;
+            modal.toggleAttribute('open', true);
+        }
+    }
+
+    function closeGroupCreateModal(modal) {
+        const adapter = global.AppModalAdapter?.getOrCreateInstance?.(modal);
+        if (adapter?.hide) adapter.hide({ reason: 'done' });
+        else {
+            modal.open = false;
+            modal.removeAttribute('open');
+        }
+    }
+
+    function openGroupCreateModal() {
+        const candidates = waitingCandidates();
+        const type = activeType();
+        const groupLabel = type === 'team' ? '班' : '車';
+        if (!candidates.length) {
+            global.AppUI?.showStatus?.(`未配置の参加者を選ぶと${groupLabel}を追加できます。`, { tone: 'neutral', duration: 2800 });
+            return;
+        }
+        const modal = ensureGroupCreateModal();
+        const title = byId('assignmentGroupCreateTitle');
+        const description = byId('assignmentGroupCreateDescription');
+        const owner = byId('assignmentGroupOwnerSelect');
+        const capacity = byId('assignmentGroupCapacityInput');
+        if (!owner || !capacity) return;
+        title.textContent = `${groupLabel}を追加`;
+        description.textContent = `未配置の参加者を${type === 'team' ? '班長' : '運転手'}にして、新しい${groupLabel}を作成します。`;
+        owner.replaceChildren(...candidates.map((candidate, index) => {
+            const item = D.createElement('cds-select-item');
+            item.value = candidate.id;
+            item.textContent = candidate.name;
+            item.toggleAttribute('selected', index === 0);
+            return item;
+        }));
+        owner.value = candidates[0].id;
+        const defaultCapacity = type === 'team' ? 5 : 3;
+        capacity.value = String(defaultCapacity);
+        capacity.setAttribute('value', String(defaultCapacity));
+        openGroupCreateModalSurface(modal);
+    }
+
+    function createGroupFromModal(modal) {
+        const owner = byId('assignmentGroupOwnerSelect');
+        const capacityInput = byId('assignmentGroupCapacityInput');
+        const participantId = String(owner?.value || '');
+        const candidate = waitingCandidates().find(item => item.id === participantId);
+        if (!candidate) {
+            global.AppUI?.showStatus?.('担当者を選び直してください。', { tone: 'warning' });
+            return;
+        }
+        const type = activeType();
+        const capacity = Math.max(1, Math.min(99, parseInt(capacityInput?.value, 10) || (type === 'team' ? 5 : 3)));
+        const state = global.SanpoCanonicalState;
+        const room = state?.get?.();
+        const allocation = room?.allocations?.[type];
+        if (!room || !allocation || !room.participants?.[participantId]) return;
+        const baseId = `g_${type}_${participantId.replace(/[^A-Za-z0-9_-]/g, '_')}`;
+        let groupId = baseId;
+        let suffix = 2;
+        while (allocation.groups?.[groupId]) groupId = `${baseId}_${suffix++}`;
+        const now = global.SanpoClock?.now?.() ?? Date.now();
+        const order = Object.values(allocation.groups || {}).reduce((highest, group) => Math.max(highest, Number(group?.order || 0)), -1) + 1;
+        allocation.groups = allocation.groups || {};
+        allocation.placements = allocation.placements || {};
+        allocation.groups[groupId] = { id: groupId, ownerId: participantId, capacity, order, createdAt: now, updatedAt: now };
+        allocation.placements[participantId] = { kind: 'driver', groupId, order, updatedAt: now };
+        state.ensureAllParticipantsPlaced?.(allocation, room.participants);
+        state.set?.(room);
+        global.renderActiveCarPlanToDom?.();
+        global.updateUI?.();
+        global.save?.();
+        global.SanpoRemoteGuard?.requestPendingApply?.();
+        closeGroupCreateModal(modal);
+        scheduleSync();
     }
 
     function concealWaitingPool() {
@@ -131,6 +273,10 @@
             menu.className = 'assignment-group-menu';
             menu.kind = 'ghost';
             menu.size = 'md';
+            // Carbon owns this overlay too. Dynamic Floating UI keeps it above
+            // the workspace without the former mobile fixed-sheet override.
+            menu.autoalign = true;
+            menu.menuAlignment = 'bottom-end';
             menu.setAttribute('label', 'グループの操作');
             menu.setAttribute('aria-label', 'グループの操作');
             menu.setAttribute('enable-v12-overflowmenu', '');
@@ -138,14 +284,17 @@
                 <span slot="icon" data-carbon-icon="overflow-menu-vertical" aria-hidden="true"></span>
                 <cds-menu>
                     <cds-menu-item label="定員を変更" data-assignment-group-action="capacity"><span data-carbon-icon="edit" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
+                    <cds-menu-item label="グループを削除" kind="danger" data-assignment-group-action="delete"><span data-carbon-icon="trash-can" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
                 </cds-menu>`;
             header.appendChild(menu);
             menu.addEventListener('click', event => {
-                const item = event.composedPath?.().find(node => node instanceof global.Element && node.matches?.('[data-assignment-group-action="capacity"]'));
-                if (!item) return;
+                const item = event.composedPath?.().find(node => node instanceof global.Element && node.matches?.('[data-assignment-group-action]'));
+                const action = item?.dataset?.assignmentGroupAction;
+                if (!action) return;
                 event.preventDefault();
                 event.stopPropagation();
-                box.querySelector('.capacity-edit-btn')?.click();
+                if (action === 'capacity') box.querySelector('.capacity-edit-btn')?.click();
+                if (action === 'delete') box.querySelector('.car-delete-btn')?.click();
                 try { menu.open = false; } catch (_) {}
             });
         }
@@ -231,11 +380,13 @@
         const layout = box.querySelector('.car-layout-grid');
         if (!layout) return;
         const rows = Array.from(layout.children).filter(row => row.matches('.driver-seat, .seat-slot'));
-        rows.map((row, index) => {
+        if (box.querySelector('.person-overflow-menu[open]')) return;
+        const orderedRows = rows.map((row, index) => {
             const person = rowPerson(row);
             return { row, index, rank: person ? (roleEnabled(person) ? 0 : 1) : 2 };
-        }).sort((a, b) => a.rank - b.rank || a.index - b.index)
-            .forEach(({ row }) => layout.appendChild(row));
+        }).sort((a, b) => a.rank - b.rank || a.index - b.index).map(({ row }) => row);
+        if (orderedRows.every((row, index) => row === rows[index])) return;
+        orderedRows.forEach(row => layout.appendChild(row));
     }
 
     function decorateCapacity(box, type) {
@@ -306,14 +457,21 @@
 
     function observe() {
         observer?.disconnect();
-        observer = new MutationObserver(scheduleSync);
+        observer = new MutationObserver(mutations => {
+            // Carbon mutates menu labels/icons while opening and focusing an item.
+            // Those are presentation-only changes: rerunning `sortRoleRows()` moves
+            // the focused card, emits focusout, and makes Carbon close its menu.
+            // Keep this workspace observer for card/layout mutations only.
+            const hasWorkspaceMutation = mutations.some(mutation => !mutation.target.closest?.('cds-overflow-menu.person-overflow-menu'));
+            if (hasWorkspaceMutation) scheduleSync();
+        });
         const cars = byId('cars-container');
         const waiting = byId('waiting-list');
         const navigation = byId('view-toggle-bar');
         if (cars) observer.observe(cars, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-locked', 'data-capacity', 'data-driver'] });
         if (waiting) observer.observe(waiting, { childList: true, subtree: true });
         if (navigation) observer.observe(navigation, { childList: true });
-        observer.observe(D.body, { attributes: true, attributeFilter: ['class', 'data-active-plan-template'] });
+        observer.observe(D.body, { attributes: true, attributeFilter: ['data-active-plan-template'] });
     }
 
     function initialize() {

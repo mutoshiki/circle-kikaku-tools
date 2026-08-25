@@ -114,7 +114,8 @@ function getMemData(el) {
         gender: el.dataset.gender,
         grade: parseInt(el.dataset.grade)||0,
         locked: el.dataset.locked === 'true',
-        flag: normalizePersonFlag(el.dataset.flag)
+        flag: normalizePersonFlag(el.dataset.flag),
+        driver: el.dataset.driver === 'true'
     };
 }
 

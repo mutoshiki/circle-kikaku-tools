@@ -123,7 +123,7 @@ for (const file of scannedFiles) {
   for (const [label, pattern] of forbiddenPatterns) {
     if (pattern.test(source)) violations.push(`${relative(root, file)}: ${label}`);
   }
-  if (/setAttribute\(\s*['"]contenteditable['"]/.test(source)) contenteditableOwners.push(relative(root, file));
+  if (/setAttribute\(\s*['"]contenteditable['"]/.test(source)) contenteditableOwners.push(relative(root, file).replaceAll('\\', '/'));
 }
 assert.deepEqual(violations, [], `official Carbon ownership violations:\n${violations.join('\n')}`);
 assert.deepEqual(contenteditableOwners, ['assets/js/features/events.js'], 'only the restored project-title editor may use contenteditable');

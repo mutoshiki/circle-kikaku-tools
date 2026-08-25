@@ -184,6 +184,9 @@
       tab.setAttribute('aria-label', '参加者');
       tab.innerHTML = '<span class="view-tab-label">参加者</span>';
       bar.appendChild(tab);
+    }
+    if (tab.dataset.participantsViewBound !== 'true') {
+      tab.dataset.participantsViewBound = 'true';
       tab.addEventListener('click', event => {
         event.preventDefault();
         void showParticipantsView();
@@ -536,10 +539,6 @@
       window.SanpoCanonicalState.ensureAllParticipantsPlaced(room.allocations?.team, room.participants);
       clearSelectionDraft();
       persist(room);
-      newParticipantIds.forEach(id => {
-        const name = room.participants?.[id]?.name;
-        if (name) detectGender(name);
-      });
       window.AppUI?.showStatus?.('参加者を更新しました。', { tone: 'success' });
     } catch (error) {
       console.error('Participant selection update failed:', error);
@@ -606,6 +605,7 @@
     showParticipantsView: () => showParticipantsView(),
     applySelection: () => applySelection()
   });
+  window.dispatchEvent(new Event('sanpo-applicant-sync-ready'));
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
   else start();

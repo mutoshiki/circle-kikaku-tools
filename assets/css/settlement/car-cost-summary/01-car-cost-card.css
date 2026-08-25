@@ -23,6 +23,9 @@
 }
 
 #seisan-view-area .seisan-car-summary-actions {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
   display: flex;
   align-items: center;
   justify-content: flex-end;

@@ -244,14 +244,28 @@
         roomField.setAttribute('aria-hidden', 'true');
         roomInput.setAttribute('aria-hidden', 'true');
         roomInput.tabIndex = -1;
-        roomInput.readOnly = sharedReadOnly;
-        roomInput.toggleAttribute('readonly', sharedReadOnly);
+        const applySourceReadOnly = () => {
+            // Carbon's text-input public property is `readonly` (not the native
+            // HTMLInputElement `readOnly` spelling). Apply after upgrade too:
+            // assigning a reactive property before upgrade would be replaced by
+            // the component's own default field initializer.
+            roomInput.readonly = sharedReadOnly;
+            roomInput.toggleAttribute('readonly', sharedReadOnly);
+            if (sharedReadOnly) roomInput.setAttribute('aria-readonly', 'true');
+            else roomInput.removeAttribute('aria-readonly');
+        };
+        applySourceReadOnly();
         editor.setAttribute('contenteditable', sharedReadOnly ? 'false' : 'plaintext-only');
         editor.toggleAttribute('aria-readonly', sharedReadOnly);
         editor.classList.toggle('is-readonly', sharedReadOnly);
         syncEditorFromProjectTitleSource(roomInput, editor);
 
         const installBridge = () => {
+            applySourceReadOnly();
+            // Lit upgrades and reflects the initial Carbon field properties in
+            // its first update. Reapply on that documented lifecycle boundary
+            // so the readonly source cannot be reset by its own initializer.
+            Promise.resolve(roomInput.updateComplete).then(applySourceReadOnly).catch(() => {});
             installProjectTitleValueBridge(roomInput, editor);
             syncEditorFromProjectTitleSource(roomInput, editor);
         };

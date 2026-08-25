@@ -42,7 +42,7 @@ function loadAssignmentWorkspaceFeature() {
             return;
         }
         const script = document.createElement('script');
-        script.src = './assets/js/features/assignment-workspace.js?v=assignment-workspace-v7';
+        script.src = './assets/js/features/assignment-workspace.js?v=assignment-workspace-v8';
         script.async = true;
         script.dataset.assignmentWorkspaceFeature = 'true';
         script.addEventListener('load', () => resolve(window.SanpoAssignmentWorkspace), { once: true });
@@ -127,16 +127,6 @@ D.addEventListener('DOMContentLoaded', async () => {
     loadTrustedEditPassphrase();
     setupCompactPersonMenu();
     ensureCompactMenuFallback();
-    await loadScriptOnce(
-        './assets/js/features/person-menu-click-owner.js?v=person-menu-click-owner-v1',
-        'data-person-menu-click-owner',
-        () => window.__personMenuClickOwnerInstalled === true
-    ).catch(error => console.warn('Person Menu click owner failed to load:', error));
-    await loadScriptOnce(
-        './assets/js/features/mobile-sticky-scroll-owner.js?v=mobile-sticky-scroll-owner-v1',
-        'data-mobile-sticky-scroll-owner',
-        () => window.__mobileStickyScrollOwnerInstalled === true
-    ).catch(error => console.warn('Mobile sticky scroll owner failed to load:', error));
     setupSeatMemberPicker();
 
     await roleStateReady;
@@ -147,6 +137,14 @@ D.addEventListener('DOMContentLoaded', async () => {
 
     load();
     await window.switchView(initialView);
+    if (requestedView === 'participants') {
+        const showRequestedParticipants = () => window.SanpoApplicantSync?.showParticipantsView?.();
+        // The participant feature is loaded asynchronously by Firebase configuration.
+        // Apply the route only after the base shell has finished its initial list render,
+        // otherwise that render can overwrite the participant view during startup.
+        if (window.SanpoApplicantSync) showRequestedParticipants();
+        else window.addEventListener('sanpo-applicant-sync-ready', showRequestedParticipants, { once: true });
+    }
 
     const remoteReady = await initFirebaseSync();
     if (remoteReady) load();

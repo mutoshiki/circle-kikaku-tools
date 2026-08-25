@@ -220,6 +220,17 @@ test.describe('Settlement UI regressions v76', () => {
     expect(await page.locator('#seisan-car-list').textContent()).not.toContain('＋');
   });
 
+  test('blank space beside a settlement action is inert', async ({ page }) => {
+    await seedSettlement(page);
+    const ignored = await page.locator('#seisan-car-list .seisan-car-summary-actions').first().evaluate(node => {
+      const click = new MouseEvent('click', { bubbles: true, cancelable: true, composed: true });
+      return node.dispatchEvent(click) === false;
+    });
+    expect(ignored).toBeTruthy();
+    await expect(page.locator('#settlementCarEditModal')).not.toHaveAttribute('open', '');
+    await expect(page.locator('#seisan-car-list .seisan-car-summary-row').first()).toBeVisible();
+  });
+
   test('collection rows show collection amounts and obsolete settlement cards are absent', async ({ page }) => {
     await seedSettlement(page);
     await expect(page.locator('#seisan-summary')).toHaveCount(0);

@@ -90,6 +90,50 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
 test.describe('Allocation, menus and accessibility', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
+  test('role-tagged people stay put during random assignment and new groups can be created', async ({ page }) => {
+    await seed(page);
+    await page.evaluate(() => window.switchView('list'));
+
+    const roleCard = page.locator('.seat-slot > .member-card').first();
+    await expect(roleCard).toBeVisible();
+    const rolePlacement = await roleCard.evaluate(card => {
+      window.setPersonDriverRole(card, true);
+      const box = card.closest('.car-box');
+      return {
+        id: card.dataset.participantId,
+        groupId: box?.dataset.groupId,
+        seatIndex: Array.from(box?.querySelectorAll('.seat-slot') || []).indexOf(card.parentElement)
+      };
+    });
+
+    const candidate = page.locator('.seat-slot > .member-card').nth(1);
+    await expect(candidate).toBeVisible();
+    const groupCount = await page.locator('.car-box').count();
+    await candidate.evaluate(card => {
+      document.querySelector('#waiting-list')?.appendChild(card);
+      window.updateUI();
+      window.save();
+    });
+
+    await hostClick(page, '#assignmentWorkspaceAddGroupBtn');
+    await expect(page.locator('#assignmentGroupCreateModal')).toHaveAttribute('open', '');
+    await expect(page.locator('#assignmentGroupOwnerSelect > cds-select-item')).toHaveCount(1);
+    await hostClick(page, '#assignmentGroupCreateConfirm');
+    await expect(page.locator('#assignmentGroupCreateModal')).not.toHaveAttribute('open', '');
+    await expect(page.locator('.car-box')).toHaveCount(groupCount + 1);
+
+    await hostClick(page, '#shuffleAssignBtn');
+    await hostClick(page, '#appConfirmModal [data-role="ok"]');
+    await expect.poll(() => page.locator(`.member-card[data-participant-id="${rolePlacement.id}"]`).count()).toBe(1);
+    expect(await page.locator(`.member-card[data-participant-id="${rolePlacement.id}"]`).evaluate(card => {
+      const box = card.closest('.car-box');
+      return {
+        groupId: box?.dataset.groupId,
+        seatIndex: Array.from(box?.querySelectorAll('.seat-slot') || []).indexOf(card.parentElement)
+      };
+    })).toEqual({ groupId: rolePlacement.groupId, seatIndex: rolePlacement.seatIndex });
+  });
+
   test('car/team tabs, one random action and official person menus work in the viewport', async ({ page }) => {
     const errors = [];
     page.on('pageerror', error => errors.push(String(error)));
@@ -117,19 +161,17 @@ test.describe('Allocation, menus and accessibility', () => {
 
     const personOverflow = firstPerson.locator('cds-overflow-menu.person-overflow-menu');
     await personOverflow.click();
-    await expect.poll(() => personOverflow.evaluate(node => node.matches?.(':popover-open') === true)).toBe(true);
+    await expect(personOverflow).toHaveJSProperty('open', true);
     await expect.poll(() => personOverflow.evaluate(node => ({
-      topLayer: node.matches?.(':popover-open') === true,
-      promoted: node.dataset.personMenuTopLayer === 'true',
+      carbonOwnsOverlay: node.autoalign === true,
+      popover: node.hasAttribute('popover'),
       placeholder: node.previousElementSibling?.classList.contains('person-menu-top-layer-placeholder') === true
-    }))).toEqual({ topLayer: true, promoted: true, placeholder: true });
-    expect(await page.evaluate(() => document.body.classList.contains('person-menu-top-layer-open'))).toBeTruthy();
+    }))).toEqual({ carbonOwnsOverlay: true, popover: false, placeholder: false });
     await page.mouse.click(8, 96);
-    await expect.poll(() => personOverflow.evaluate(node => node.matches?.(':popover-open') === true)).toBe(false);
     await expect(personOverflow).toHaveJSProperty('open', false);
     expect(await firstPerson.evaluate(node => getComputedStyle(node).outlineStyle)).toBe('none');
     await personOverflow.click();
-    await expect.poll(() => personOverflow.evaluate(node => node.matches?.(':popover-open') === true)).toBe(true);
+    await expect(personOverflow).toHaveJSProperty('open', true);
     const personMenu = personOverflow.locator(':scope > cds-menu.person-pop-menu');
     await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(5);
     await expect(personMenu.locator('[data-person-action="name"], [data-person-action="gender"]')).toHaveCount(0);
@@ -144,10 +186,10 @@ test.describe('Allocation, menus and accessibility', () => {
     await gradeMenuItem.locator('cds-menu-item[data-choice-value="2"]').evaluate(node => node.click());
     await expect(page.locator('.member-card,.driver-seat').first()).toContainText('2年');
     await expect.poll(() => personOverflow.evaluate(node => ({
-      topLayer: node.matches?.(':popover-open') === true,
+      open: node.open === true,
       popover: node.hasAttribute('popover'),
       placeholder: node.previousElementSibling?.classList.contains('person-menu-top-layer-placeholder') === true
-    }))).toEqual({ topLayer: false, popover: false, placeholder: false });
+    }))).toEqual({ open: false, popover: false, placeholder: false });
 
     const capacityAction = page.locator('[data-action="edit-capacity"]').first();
     await capacityAction.click();

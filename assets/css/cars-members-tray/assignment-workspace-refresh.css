@@ -47,8 +47,10 @@ body.assignment-workspace-enabled #bottom-tray {
 }
 
 .assignment-workspace-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
   align-items: center;
+  gap: 0.5rem;
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
@@ -62,6 +64,27 @@ body.assignment-workspace-enabled #bottom-tray {
   min-height: 3rem;
   margin: 0;
   white-space: nowrap;
+}
+
+.assignment-workspace-add-group {
+  min-width: 8rem;
+  min-height: 3rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.assignment-group-create-description {
+  margin: 0 0 1rem;
+  color: var(--cds-text-secondary, #525252);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+#assignmentGroupOwnerSelect,
+#assignmentGroupCapacityInput {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
 }
 
 body.assignment-workspace-enabled #cars-container.allocation-grid {
@@ -145,6 +168,10 @@ body.assignment-workspace-enabled .capacity-edit-pill {
   padding-inline: 0.75rem;
   color: var(--cds-text-secondary, #525252);
   font-variant-numeric: tabular-nums;
+  --cds-link-primary: var(--cds-text-primary, #161616);
+  --cds-link-primary-hover: var(--cds-text-primary, #161616);
+  --cds-background-hover: var(--cds-layer-hover, #e8e8e8);
+  --cds-background-active: var(--cds-layer-active, #c6c6c6);
 }
 
 body.assignment-workspace-enabled .capacity-edit-pill [slot="icon"],
@@ -158,6 +185,12 @@ body.assignment-workspace-enabled .car-return-btn {
   min-width: 3rem;
   height: 3rem;
   min-height: 3rem;
+  --cds-link-primary: var(--cds-text-primary, #161616);
+  --cds-link-primary-hover: var(--cds-text-primary, #161616);
+  --cds-background-hover: var(--cds-layer-hover, #e8e8e8);
+  --cds-background-active: var(--cds-layer-active, #c6c6c6);
+  --cds-popover-background-color: var(--cds-layer, #f4f4f4);
+  --cds-popover-text-color: var(--cds-text-primary, #161616);
 }
 
 body.assignment-workspace-enabled #cars-container .car-layout-grid {
@@ -286,8 +319,7 @@ body.assignment-workspace-enabled .grade-badge {
   white-space: nowrap;
 }
 
-body.assignment-workspace-enabled .person-overflow-menu,
-body.assignment-workspace-enabled .person-menu-top-layer-placeholder {
+body.assignment-workspace-enabled .person-overflow-menu {
   grid-area: menu;
   align-self: stretch;
   width: 3rem;
@@ -354,24 +386,13 @@ body.assignment-workspace-enabled .seat-add-btn {
     min-height: 3rem;
   }
 
-  body.assignment-workspace-enabled .assignment-group-menu::part(popover-container) {
-    position: fixed;
-    inset: auto 0 0 0;
-    width: 100vw;
-    max-width: 100vw;
-    margin: 0;
-    transform: none;
+  .assignment-workspace-actions {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  body.assignment-workspace-enabled .assignment-group-menu > cds-menu {
-    box-sizing: border-box;
-    width: 100vw;
-    max-width: 100vw;
-    max-height: min(70dvh, 30rem);
-    overflow-y: auto;
-    padding-bottom: env(safe-area-inset-bottom);
-    background: var(--cds-layer-01, #fff);
-    box-shadow: 0 -4px 12px rgb(0 0 0 / 14%);
+  .assignment-workspace-add-group {
+    width: 100%;
+    min-width: 0;
   }
 
   body.assignment-workspace-enabled #cars-container.allocation-grid {

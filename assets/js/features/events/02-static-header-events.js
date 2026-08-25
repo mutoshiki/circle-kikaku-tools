@@ -104,6 +104,16 @@
         const sheetTab = byId('tab-sheet');
         const settlementTab = byId('tab-seisan');
         const carTab = byId('tab-list');
+        const participantTab = byId('tab-participants');
+        const existingTeamTab = byId('tab-team');
+        // The canonical four destinations are now in the initial document.
+        // Do not build a transient sheet/team navigation and then replace it
+        // after hydration; that moved the toolbar while the page was loading.
+        if (!sheetTab && settlementTab && carTab && participantTab && existingTeamTab) {
+            bar.dataset.carbonFourViewNav = 'true';
+            syncCarbonPrimaryNavigationState();
+            return;
+        }
         if (!sheetTab || !settlementTab || !carTab) return;
 
         const teamTab = carTab.cloneNode(true);

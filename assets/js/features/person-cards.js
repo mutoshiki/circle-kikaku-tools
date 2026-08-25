@@ -56,7 +56,7 @@ function renderPersonOverflowMenu({ name, inWaiting = false, locked = false, rol
       { value: '3', label: '3年', icon: 'number--3' },
       { value: '4', label: '4年', icon: 'number--4' }
     ] }));
-    return `<cds-overflow-menu type="button" kind="ghost" size="lg" class="person-overflow-menu action-btn" label="${safeLabel}" aria-label="${safeLabel}" enable-v12-overflowmenu enter-delay-ms="86400000" leave-delay-ms="0">
+    return `<cds-overflow-menu type="button" kind="ghost" size="lg" class="person-overflow-menu action-btn" label="${safeLabel}" aria-label="${safeLabel}" enable-v12-overflowmenu autoalign menu-alignment="bottom-start" enter-delay-ms="86400000" leave-delay-ms="0">
         <span data-carbon-icon="overflow-menu-vertical" slot="icon" aria-hidden="true"></span>
         <cds-menu class="person-pop-menu" aria-label="${safeLabel}">${common.join('')}</cds-menu>
       </cds-overflow-menu>`;

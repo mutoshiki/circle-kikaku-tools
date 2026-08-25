@@ -35,12 +35,6 @@
     z-index: var(--z-header);
   }
 
-  #app-view-navigation {
-    position: sticky;
-    top: calc(48px + env(safe-area-inset-top));
-    z-index: var(--z-view-navigation);
-  }
-
   #projectTitleRegion {
     flex: 0 0 auto;
     transition: none;
