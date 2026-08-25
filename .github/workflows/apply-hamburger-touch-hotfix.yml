@@ -28,6 +28,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/js/features/events.js tests/official-carbon-ownership-contract.mjs tests/official-carbon-runtime.spec.js index.html .github/workflows/quality-guard.yml
+          git add assets/js/features/events.js tests/official-carbon-ownership-contract.mjs tests/official-carbon-runtime.spec.js index.html
           git commit -m "実タップの二重トグルを解消"
           git push origin HEAD:fix/production-hamburger-cache-20260825
