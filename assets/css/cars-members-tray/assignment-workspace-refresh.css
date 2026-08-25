@@ -1,0 +1,451 @@
+/* Carbon assignment workspace refresh
+ * One workspace for car/team allocation. Existing data/sync owners remain unchanged.
+ */
+
+body.assignment-workspace-enabled #tab-sheet,
+body.assignment-workspace-enabled #tab-team {
+  display: none !important;
+}
+
+body.assignment-workspace-enabled #top-area {
+  padding: 0;
+  background: var(--cds-background, #f4f4f4);
+}
+
+body.assignment-workspace-enabled #top-area > .edit-header {
+  display: none !important;
+}
+
+.assignment-workspace-header {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem 1rem 0;
+  background: var(--cds-background, #f4f4f4);
+}
+
+.assignment-workspace-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.assignment-workspace-title-block {
+  min-width: 0;
+}
+
+.assignment-workspace-title {
+  margin: 0;
+  color: var(--cds-text-primary, #161616);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+.assignment-workspace-summary {
+  margin: .25rem 0 0;
+  color: var(--cds-text-secondary, #525252);
+  font-size: .875rem;
+  line-height: 1.28572;
+}
+
+.assignment-workspace-share {
+  flex: 0 0 auto;
+}
+
+.assignment-workspace-switcher-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 0;
+}
+
+#assignmentTypeSwitcher {
+  width: min(20rem, 100%);
+}
+
+.assignment-workspace-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: .5rem;
+  min-height: 3rem;
+  padding: .5rem 0 1rem;
+  border-bottom: 1px solid var(--cds-border-subtle-01, #c6c6c6);
+}
+
+.assignment-workspace-actions .random-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+}
+
+.assignment-workspace-actions #shuffleAssignBtn,
+.assignment-workspace-actions #fillEmptySeatsBtn {
+  margin: 0;
+}
+
+.assignment-workspace-actions #shuffleAssignBtn {
+  min-width: 9.5rem;
+}
+
+.assignment-workspace-actions #traySettingsBtn {
+  border-left: 1px solid var(--cds-border-subtle-01, #c6c6c6);
+}
+
+body.assignment-workspace-enabled #cars-container.allocation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  align-items: start;
+  gap: 1rem;
+  width: 100%;
+  max-width: none;
+  padding: 1rem;
+  margin: 0;
+}
+
+body.assignment-workspace-enabled .allocation-grid-item {
+  min-width: 0;
+  margin: 0;
+}
+
+body.assignment-workspace-enabled .car-box {
+  position: relative;
+  display: block;
+  overflow: visible;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--cds-layer-01, #fff);
+  box-shadow: none;
+}
+
+body.assignment-workspace-enabled .car-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  min-height: 3rem;
+  padding: 0 0 0 1rem;
+  border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  background: var(--cds-layer-01, #fff);
+}
+
+body.assignment-workspace-enabled .car-name-label {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--cds-text-primary, #161616);
+  font-size: .875rem;
+  font-weight: 600;
+  line-height: 1.28572;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.assignment-workspace-enabled .car-capacity-actions {
+  display: flex;
+  align-items: center;
+}
+
+body.assignment-workspace-enabled .capacity-edit-pill {
+  min-width: auto;
+  padding-inline: .75rem;
+  color: var(--cds-text-secondary, #525252);
+}
+
+body.assignment-workspace-enabled .capacity-edit-pill [slot="icon"] {
+  display: none;
+}
+
+body.assignment-workspace-enabled .car-return-btn {
+  display: none !important;
+}
+
+.assignment-group-menu {
+  align-self: stretch;
+}
+
+body.assignment-workspace-enabled .car-layout-grid {
+  display: block;
+  width: 100%;
+  padding: 0;
+}
+
+body.assignment-workspace-enabled .driver-seat,
+body.assignment-workspace-enabled .seat-slot {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-radius: 0;
+  background: transparent;
+}
+
+body.assignment-workspace-enabled .driver-seat {
+  background: var(--cds-layer-02, #f4f4f4);
+}
+
+body.assignment-workspace-enabled .seat-slot:last-child {
+  border-bottom: 0;
+}
+
+body.assignment-workspace-enabled .member-card {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.assignment-workspace-enabled .member-main-line,
+body.assignment-workspace-enabled .driver-main-line {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: .5rem;
+  min-height: 3rem;
+  padding: 0 0 0 .75rem;
+}
+
+body.assignment-workspace-enabled .driver-main-line {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  padding-left: 1rem;
+}
+
+.assignment-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 2rem;
+  color: var(--cds-icon-secondary, #525252);
+  cursor: grab;
+  touch-action: none;
+}
+
+.assignment-drag-handle:active {
+  cursor: grabbing;
+}
+
+.member-card[data-locked="true"] .assignment-drag-handle {
+  color: var(--cds-icon-disabled, #c6c6c6);
+  cursor: default;
+}
+
+.assignment-lock-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cds-icon-secondary, #525252);
+}
+
+body.assignment-workspace-enabled .member-name-text,
+body.assignment-workspace-enabled .driver-name-disp {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--cds-text-primary, #161616);
+  font-size: .875rem;
+  line-height: 1.28572;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.assignment-workspace-enabled .driver-name-disp {
+  font-weight: 600;
+}
+
+body.assignment-workspace-enabled .person-meta {
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  min-width: 0;
+}
+
+body.assignment-workspace-enabled .driver-role-tag,
+body.assignment-workspace-enabled .grade-badge {
+  white-space: nowrap;
+}
+
+body.assignment-workspace-enabled .person-overflow-menu {
+  align-self: stretch;
+}
+
+body.assignment-workspace-enabled .memo-popup {
+  margin: 0;
+  padding: .5rem 1rem .75rem 2.5rem;
+  border-top: 1px solid var(--cds-border-subtle-00, #e0e0e0);
+  color: var(--cds-text-secondary, #525252);
+  background: var(--cds-layer-01, #fff);
+  font-size: .75rem;
+  line-height: 1.33333;
+}
+
+body.assignment-workspace-enabled .driver-seat .memo-popup {
+  padding-left: 1rem;
+  background: var(--cds-layer-02, #f4f4f4);
+}
+
+body.assignment-workspace-enabled .seat-add-btn {
+  width: 100%;
+  min-height: 2.5rem;
+}
+
+body.assignment-workspace-enabled .assignment-empty-seat--collapsed {
+  display: none !important;
+}
+
+body.assignment-workspace-enabled .assignment-empty-seat--primary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 2.5rem;
+  padding-left: 2.5rem;
+  color: var(--cds-text-secondary, #525252);
+  background: var(--cds-layer-01, #fff);
+}
+
+.assignment-empty-label {
+  font-size: .75rem;
+  line-height: 1.33333;
+}
+
+body.assignment-workspace-enabled .assignment-empty-seat--primary .seat-add-btn {
+  width: 3rem;
+  min-width: 3rem;
+  padding: 0;
+}
+
+body.assignment-workspace-enabled .seat-slot.drop-preview,
+body.assignment-workspace-enabled .seat-slot.shift-target,
+body.assignment-workspace-enabled .seat-slot.swap-target {
+  outline: 2px solid var(--cds-focus, #0f62fe);
+  outline-offset: -2px;
+  background: var(--cds-layer-hover-01, #e8e8e8);
+}
+
+body.assignment-workspace-enabled .member-card.manual-drag-source {
+  opacity: .35;
+}
+
+body.assignment-workspace-enabled .manual-drag-float {
+  border: 1px solid var(--cds-focus, #0f62fe);
+  border-radius: 0;
+  background: var(--cds-layer-01, #fff);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, .12);
+}
+
+body.assignment-workspace-enabled #bottom-tray {
+  border-top: 1px solid var(--cds-border-strong-01, #8d8d8d);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body.assignment-workspace-enabled #bottom-tray-header {
+  min-height: 3rem;
+}
+
+body.assignment-workspace-enabled #bottom-tray .tray-actions:empty,
+body.assignment-workspace-enabled #bottom-tray .tray-actions:not(:has(> *)) {
+  display: none;
+}
+
+body.assignment-readonly #app-view-navigation,
+body.assignment-readonly #shareLinkBtn,
+body.assignment-readonly .assignment-workspace-actions,
+body.assignment-readonly .assignment-workspace-share,
+body.assignment-readonly .assignment-drag-handle,
+body.assignment-readonly .assignment-group-menu,
+body.assignment-readonly .person-overflow-menu,
+body.assignment-readonly .capacity-edit-pill,
+body.assignment-readonly .seat-add-btn,
+body.assignment-readonly #bottom-tray,
+body.assignment-readonly .assignment-empty-seat--primary,
+body.assignment-readonly .assignment-empty-seat--collapsed {
+  display: none !important;
+}
+
+body.assignment-readonly .member-main-line {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding-left: 1rem;
+}
+
+body.assignment-readonly .driver-main-line {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+body.assignment-readonly .car-header {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding-right: 1rem;
+}
+
+body.assignment-readonly .car-capacity-actions {
+  display: flex;
+}
+
+body.assignment-readonly .capacity-count {
+  color: var(--cds-text-secondary, #525252);
+}
+
+body.assignment-readonly #projectTitleEditor {
+  cursor: default;
+}
+
+@media (max-width: 671px) {
+  .assignment-workspace-header {
+    gap: .75rem;
+    padding: .75rem .75rem 0;
+  }
+
+  .assignment-workspace-heading-row {
+    align-items: center;
+  }
+
+  .assignment-workspace-switcher-row {
+    display: block;
+  }
+
+  #assignmentTypeSwitcher {
+    width: 100%;
+  }
+
+  .assignment-workspace-actions {
+    overflow-x: auto;
+    margin-inline: -.75rem;
+    padding: .5rem .75rem .75rem;
+    scrollbar-width: none;
+  }
+
+  .assignment-workspace-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  body.assignment-workspace-enabled #cars-container.allocation-grid {
+    grid-template-columns: 1fr;
+    gap: .75rem;
+    padding: .75rem;
+  }
+
+  body.assignment-workspace-enabled .member-main-line,
+  body.assignment-workspace-enabled .driver-main-line {
+    min-height: 3.25rem;
+  }
+
+  body.assignment-workspace-enabled .person-meta {
+    gap: .125rem;
+  }
+
+  body.assignment-workspace-enabled .person-flag:not([data-flag="none"]) + .grade-badge {
+    margin-left: 0;
+  }
+}
