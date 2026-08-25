@@ -1,5 +1,7 @@
-// Unified Carbon assignment workspace.
-// Allocation state, sync, drag/drop, and auto-assign algorithms remain owned by their existing modules.
+// Unified Carbon Assignment Workspace.
+// This module owns allocation layout composition. Allocation state, persistence,
+// synchronization, drag/drop algorithms and person-menu behavior remain in their
+// existing feature owners.
 (function (global) {
     'use strict';
 
@@ -23,12 +25,15 @@
     }
 
     function ensureStylesheet() {
-        if (D.querySelector('link[data-assignment-workspace-style]')) return;
-        const link = D.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v2';
-        link.dataset.assignmentWorkspaceStyle = 'true';
-        D.head.appendChild(link);
+        let link = D.querySelector('link[data-assignment-workspace-style]');
+        if (!link) {
+            link = D.createElement('link');
+            link.rel = 'stylesheet';
+            link.dataset.assignmentWorkspaceStyle = 'true';
+            D.head.appendChild(link);
+        }
+        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v3';
+        if (!link.href.endsWith(href.replace('./', ''))) link.href = href;
     }
 
     function replaceTabLabel(tab, text) {
@@ -57,6 +62,7 @@
         const participantTab = byId('tab-participants');
         const settlementTab = byId('tab-seisan');
         const bar = byId('view-toggle-bar');
+
         if (sheetTab) sheetTab.hidden = true;
         if (teamTab) teamTab.hidden = true;
         if (!workspaceTab) return;
@@ -65,7 +71,6 @@
         workspaceTab.setAttribute('aria-label', '車割・班割');
         replaceTabLabel(workspaceTab, '車割・班割');
 
-        // Primary tabs are destinations. Car/team is a Content Switcher inside this destination.
         if (bar) {
             const desired = [participantTab, workspaceTab, settlementTab].filter(Boolean);
             const desiredIds = desired.map(tab => tab.id);
@@ -106,9 +111,9 @@
                     <h2 class="assignment-workspace-title" id="assignmentWorkspaceTitle">車割・班割</h2>
                     <p class="assignment-workspace-summary" id="assignmentWorkspaceSummary" aria-live="polite"></p>
                 </div>
-                <cds-button id="assignmentShareBtn" class="assignment-workspace-share" kind="primary" size="lg" type="button">
-                    <span>共有</span><span data-carbon-icon="link" slot="icon" aria-hidden="true"></span>
-                </cds-button>
+                <cds-icon-button id="assignmentShareBtn" class="assignment-workspace-share" kind="ghost" size="lg" type="button" align="bottom-right" aria-label="共有">
+                    <span data-carbon-icon="link" slot="icon" aria-hidden="true"></span>
+                </cds-icon-button>
             </div>
             <div class="assignment-workspace-switcher-row">
                 <cds-content-switcher id="assignmentTypeSwitcher" size="lg" value="car" aria-label="割り当ての種類">
@@ -171,20 +176,22 @@
         if (!actions || isSharedReadOnlyMode()) return;
 
         const fill = byId('fillEmptySeatsBtn');
-        if (fill && fill.parentElement !== actions) {
+        if (fill) {
             fill.setAttribute('kind', 'ghost');
-            actions.appendChild(fill);
+            fill.setAttribute('size', 'lg');
+            if (fill.parentElement !== actions) actions.appendChild(fill);
         }
 
         const randomTools = D.querySelector('#bottom-tray .random-tools, .random-tools');
-        if (randomTools && randomTools.parentElement !== actions) {
+        if (randomTools) {
             const shuffle = byId('shuffleAssignBtn');
             if (shuffle) {
-                shuffle.setAttribute('kind', 'tertiary');
-                const label = Array.from(shuffle.children).find(node => node.tagName !== 'SVG' && !node.hasAttribute?.('data-carbon-icon'));
-                if (label) label.textContent = '自動で割り当て';
+                shuffle.setAttribute('kind', 'primary');
+                shuffle.setAttribute('size', 'lg');
+                const label = shuffle.querySelector('span:not([slot="icon"]):not([data-carbon-icon])');
+                if (label && label.textContent !== '自動で割り当て') label.textContent = '自動で割り当て';
             }
-            actions.appendChild(randomTools);
+            if (randomTools.parentElement !== actions) actions.appendChild(randomTools);
         }
     }
 
@@ -235,8 +242,9 @@
 
     function syncLockIndicator(card) {
         const line = card.querySelector('.member-main-line');
-        if (!line) return;
-        let indicator = line.querySelector('.assignment-lock-indicator');
+        const meta = line?.querySelector('.person-meta');
+        if (!line || !meta) return;
+        let indicator = meta.querySelector('.assignment-lock-indicator');
         const locked = card.dataset.locked === 'true';
         if (!locked) {
             indicator?.remove();
@@ -247,8 +255,7 @@
             indicator.className = 'assignment-lock-indicator';
             indicator.setAttribute('aria-label', '固定');
             indicator.innerHTML = '<span data-carbon-icon="locked" aria-hidden="true"></span>';
-            const menu = line.querySelector('.person-overflow-menu');
-            line.insertBefore(indicator, menu || null);
+            meta.prepend(indicator);
         }
     }
 
@@ -419,9 +426,8 @@
         });
     }
 
-    function syncSummary() {
+    function syncSummaryAndWaitingState() {
         const summary = byId('assignmentWorkspaceSummary');
-        if (!summary) return;
         const type = activeType();
         const groups = D.querySelectorAll('#cars-container .car-box').length;
         const waiting = D.querySelectorAll('#waiting-list .member-card').length;
@@ -430,7 +436,9 @@
         const total = passengers + owners + waiting;
         const unit = type === 'team' ? '班' : '台';
         const text = `${total}人 · ${groups}${unit} · 未配置${waiting}人`;
-        if (summary.textContent !== text) summary.textContent = text;
+        if (summary && summary.textContent !== text) summary.textContent = text;
+        D.body.classList.toggle('assignment-waiting-empty', waiting === 0);
+        D.body.classList.toggle('assignment-has-waiting', waiting > 0);
     }
 
     function applyShareInitialType() {
@@ -475,7 +483,7 @@
         applyShareInitialType();
         syncSwitcher();
         decorateCards();
-        syncSummary();
+        syncSummaryAndWaitingState();
         applyReadOnlyMode();
         global.SanpoCarbon?.renderCarbonIcons?.(byId('assignmentWorkspaceHeader'));
     }
