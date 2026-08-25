@@ -25,6 +25,7 @@
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior-y: contain;
+    scroll-padding-top: calc(48px + var(--view-navigation-height) + env(safe-area-inset-top));
     -webkit-overflow-scrolling: touch;
   }
 
@@ -46,6 +47,7 @@
   }
 
   #top-area,
+  #participants-view-area,
   #sheet-view-area,
   #seisan-view-area {
     flex: 0 0 auto;
