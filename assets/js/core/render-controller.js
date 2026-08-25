@@ -154,8 +154,6 @@ function updateUI() {
     if (typeof refreshEmptySeatAccessibility === 'function') refreshEmptySeatAccessibility();
     updateWaitingTrayState();
     renderListEmptyHint();
-    updateAutoAssignSummary();
-    updateLastAutoAssignCondition();
     updateTrayMenuDirection();
     if (typeof currentView !== 'undefined' && currentView === 'sheet') {
         renderSheetView();
