@@ -76,6 +76,27 @@ function suppressRetiredAllocationDragGuidance() {
     }
 }
 
+function installRetiredSheetViewCompatibility() {
+    if (window.__retiredSheetViewCompatibilityInstalled || typeof window.switchView !== 'function') return;
+    window.__retiredSheetViewCompatibilityInstalled = true;
+    const baseSwitchView = window.switchView;
+    window.switchView = async function switchWithoutSharedDestination(view) {
+        let compatibilityTab = null;
+        if (!document.getElementById('tab-sheet')) {
+            compatibilityTab = document.createElement('span');
+            compatibilityTab.id = 'tab-sheet';
+            compatibilityTab.hidden = true;
+            compatibilityTab.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(compatibilityTab);
+        }
+        try {
+            return await baseSwitchView(view);
+        } finally {
+            compatibilityTab?.remove();
+        }
+    };
+}
+
 D.addEventListener('DOMContentLoaded', async () => {
     // Phones use one natural scroll owner. The old gesture owner converted a tiny
     // finger movement into a full project-title collapse, which felt much faster
@@ -109,12 +130,13 @@ D.addEventListener('DOMContentLoaded', async () => {
     setupSeatMemberPicker();
 
     await roleStateReady;
+    installRetiredSheetViewCompatibility();
 
     const requestedView = new URLSearchParams(window.location.search).get('view');
     const initialView = ['list', 'seisan'].includes(requestedView) ? requestedView : 'list';
 
     load();
-    await switchView(initialView);
+    await window.switchView(initialView);
 
     const remoteReady = await initFirebaseSync();
     if (remoteReady) load();
