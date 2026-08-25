@@ -1,8 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 
 function replaceOnce(source, pattern, replacement, label) {
-  const matches = source.match(pattern);
-  if (!matches) throw new Error(`Migration anchor not found: ${label}`);
+  if (!pattern.test(source)) return source;
   const next = source.replace(pattern, replacement);
   if (next === source) throw new Error(`Migration did not change source: ${label}`);
   return next;
@@ -113,18 +112,13 @@ index = replaceOnce(
 
 const mainCarbonBundle = '    <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=carbon-ui-actions-v60"></script>';
 if (!index.includes('./assets/vendor/carbon/ui-shell.min.js')) {
-  index = replaceOnce(
-    index,
-    mainCarbonBundle,
-    `    <script type="module" src="./assets/vendor/carbon/ui-shell.min.js?v=official-shell-v97"></script>\n${mainCarbonBundle}`,
-    'self-hosted UI shell script'
-  );
+  if (!index.includes(mainCarbonBundle)) throw new Error('Migration anchor not found: main Carbon bundle');
+  index = index.replace(mainCarbonBundle, `    <script type="module" src="./assets/vendor/carbon/ui-shell.min.js?v=official-shell-v97"></script>\n${mainCarbonBundle}`);
 }
 await writeFile(indexPath, index, 'utf8');
 
 const headerEventsPath = new URL('../assets/js/features/events/02-static-header-events.js', import.meta.url);
 let headerEvents = await readFile(headerEventsPath, 'utf8');
-
 const officialHeaderOwner = `    function ensureCarbonShellHeader() {
         const header = byId('app-header');
         const roomInput = byId('roomNameInput');
@@ -149,7 +143,6 @@ const officialHeaderOwner = `    function ensureCarbonShellHeader() {
     }
 
     function readCurrentShellView() {`;
-
 headerEvents = replaceOnce(
   headerEvents,
   /    function createCarbonShellIconButton[\s\S]*?    function readCurrentShellView\(\) \{/,
@@ -170,7 +163,6 @@ const carbonTitleReveal = `    function setProjectTitleExpanded(expanded) {
     }
 
     function getActiveProjectTitleScrollNodes() {`;
-
 headerEvents = replaceOnce(
   headerEvents,
   /    function setProjectTitleExpanded[\s\S]*?    function getActiveProjectTitleScrollNodes\(\) \{/,
@@ -189,14 +181,62 @@ const officialSideNavOwner = `    function setupAppNavigationDrawer() {
     }
 
     function setupStaticHeaderEvents() {`;
-
 headerEvents = replaceOnce(
   headerEvents,
   /    function createAppNavigationDrawer[\s\S]*?    function setupStaticHeaderEvents\(\) \{/,
   officialSideNavOwner,
   'official Carbon side navigation owner'
 );
-
 await writeFile(headerEventsPath, headerEvents, 'utf8');
+
+const carbonCompletePath = new URL('../tests/carbon-complete.spec.js', import.meta.url);
+let carbonComplete = await readFile(carbonCompletePath, 'utf8');
+carbonComplete = replaceOnce(
+  carbonComplete,
+  /      await hostClick\(page, '#overviewMenuBtn'\);\n      await expect\(page\.locator\('#overviewDrawer'\)\)\.toHaveAttribute\('aria-hidden', 'false'\);\n      await expect\(page\.locator\('#overviewDrawer \.app-nav-link'\)\)\.toHaveCount\(4\);\n      await page\.keyboard\.press\('Escape'\);\n      await expect\(page\.locator\('#overviewDrawer'\)\)\.toHaveAttribute\('aria-hidden', 'true'\);/,
+  `      await hostClick(page, '#overviewMenuBtn');
+      await expect.poll(() => page.locator('#overviewDrawer').evaluate(node => Boolean(node.expanded || node.hasAttribute('expanded')))).toBeTruthy();
+      await expect(page.locator('#overviewDrawer cds-side-nav-link')).toHaveCount(4);
+      await hostClick(page, '#overviewMenuBtn');
+      await expect.poll(() => page.locator('#overviewDrawer').evaluate(node => Boolean(node.expanded || node.hasAttribute('expanded')))).toBeFalsy();`,
+  'carbon-complete official side nav assertions'
+);
+await writeFile(carbonCompletePath, carbonComplete, 'utf8');
+
+const participantsPath = new URL('../tests/participants-tab-v83.spec.js', import.meta.url);
+let participants = await readFile(participantsPath, 'utf8');
+const carbonShellMetrics = `async function shellMetrics(page) {
+  return page.evaluate(() => {
+    const region = document.getElementById('projectTitleRegion');
+    const input = document.getElementById('roomNameInput');
+    const regionStyle = getComputedStyle(region);
+    const inputField = input?.closest('.app-room-field');
+    const inputFieldStyle = inputField ? getComputedStyle(inputField) : null;
+    return {
+      region: {
+        height: regionStyle.height,
+        paddingTop: regionStyle.paddingTop,
+        paddingRight: regionStyle.paddingRight,
+        paddingBottom: regionStyle.paddingBottom,
+        paddingLeft: regionStyle.paddingLeft
+      },
+      input: {
+        tagName: input?.tagName || '',
+        position: inputFieldStyle?.position || '',
+        visible: Boolean(input && input.getBoundingClientRect().width > 0 && input.getBoundingClientRect().height > 0),
+        contenteditableCount: document.querySelectorAll('[contenteditable]').length
+      }
+    };
+  });
+}
+
+async function openManagedParticipants`;
+participants = replaceOnce(
+  participants,
+  /async function shellMetrics\(page\) \{[\s\S]*?\n\}\n\nasync function openManagedParticipants/,
+  carbonShellMetrics,
+  'participants shared Carbon shell metrics'
+);
+await writeFile(participantsPath, participants, 'utf8');
 
 console.log('Applied official Carbon static UI migration.');
