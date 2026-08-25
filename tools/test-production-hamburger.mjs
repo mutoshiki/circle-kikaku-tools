@@ -17,8 +17,8 @@ page.on('pageerror', err => consoleMessages.push(`pageerror: ${String(err)}`));
 try {
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => customElements.get('cds-header-menu-button') && customElements.get('cds-side-nav'), null, { timeout: 15000 });
-  await page.waitForSelector('#overviewMenuBtn');
-  await page.waitForSelector('#overviewDrawer');
+  await page.waitForSelector('#overviewMenuBtn', { state: 'attached' });
+  await page.waitForSelector('#overviewDrawer', { state: 'attached' });
 
   const before = await page.evaluate(() => {
     const trigger = document.getElementById('overviewMenuBtn');
