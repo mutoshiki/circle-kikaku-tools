@@ -5,105 +5,208 @@ async function waitForWorkspace(page) {
   await expect(page.locator('#assignmentWorkspaceHeader')).toBeAttached();
 }
 
-test.describe('Unified assignment workspace', () => {
-  test.use({ viewport: { width: 390, height: 844 } });
+async function loadSampleWorkspace(page) {
+  await page.goto('/');
+  await waitForWorkspace(page);
+  await page.evaluate(() => window.executeDebugMode?.());
+  await page.evaluate(() => window.switchView('list'));
+  await page.waitForFunction(() => document.querySelector('#cars-container .member-main-line'));
+  await page.evaluate(() => window.SanpoAssignmentWorkspace?.refresh?.());
+}
 
-  test('mobile layout has one compact row owner and no empty waiting drawer', async ({ page }) => {
-    await page.goto('/');
-    await waitForWorkspace(page);
-    await page.evaluate(() => window.executeDebugMode?.());
-    await page.evaluate(() => window.switchView('list'));
-    await page.waitForFunction(() => document.querySelector('#cars-container .member-main-line .assignment-drag-handle'));
+function expectRectInside(inner, outer, tolerance = 1) {
+  expect(inner.left).toBeGreaterThanOrEqual(outer.left - tolerance);
+  expect(inner.right).toBeLessThanOrEqual(outer.right + tolerance);
+}
+
+test.describe('Unified assignment workspace', () => {
+  // iPhone 13/14 Pro Max class viewport. The production screenshots that exposed
+  // the broken horizontal layout were wider than the old 390px-only regression.
+  test.use({ viewport: { width: 428, height: 926 } });
+
+  test('mobile workspace is one compact column with no card drag or lower waiting drawer', async ({ page }) => {
+    await loadSampleWorkspace(page);
 
     await expect(page.locator('#assignmentShareBtn')).toHaveCount(1);
     expect(await page.locator('#assignmentShareBtn').evaluate(node => node.tagName.toLowerCase())).toBe('cds-icon-button');
 
-    // Workspace refreshes can replace member rows while Carbon upgrades its custom
-    // elements. Read every geometry value synchronously from the same live row so a
-    // locator cannot hop to a newly rendered row between individual measurements.
-    const rowMetrics = await page.evaluate(() => {
-      const handle = document.querySelector('#cars-container .member-main-line .assignment-drag-handle');
-      const row = handle?.closest('.member-main-line');
-      const card = row?.closest('.member-card');
-      const slot = card?.closest('.seat-slot');
-      const name = row?.querySelector('.member-name-text');
-      const menuHost = row?.querySelector('cds-overflow-menu.person-overflow-menu');
-      const menuButton = menuHost?.shadowRoot?.querySelector('button');
-      if (!row || !card || !slot || !handle || !name || !menuButton) return null;
+    await expect(page.locator('.assignment-drag-handle')).toHaveCount(0);
+    await expect(page.locator('#bottom-tray')).toBeHidden();
 
+    const layout = await page.evaluate(() => {
       const rect = node => {
-        const box = node.getBoundingClientRect();
-        return { x: box.x, y: box.y, width: box.width, height: box.height };
+        const r = node.getBoundingClientRect();
+        return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width, height: r.height };
       };
+      const member = document.querySelector('#cars-container .seat-slot > .member-card');
+      const memberRow = member?.querySelector('.member-main-line');
+      const memberSlot = member?.closest('.seat-slot');
+      const emptySlot = document.querySelector('#cars-container .seat-slot.assignment-empty-seat');
+      const emptyLabel = emptySlot?.querySelector('.assignment-empty-label');
+      const carGrid = document.querySelector('#cars-container .car-layout-grid');
+      const firstCard = document.querySelector('#cars-container .car-box');
       return {
-        slot: rect(slot),
-        card: rect(card),
-        row: rect(row),
-        handle: rect(handle),
-        name: rect(name),
-        menu: rect(menuButton)
+        viewportWidth: innerWidth,
+        documentWidth: document.documentElement.scrollWidth,
+        topAreaWidth: document.querySelector('#top-area')?.scrollWidth || 0,
+        member: member ? rect(member) : null,
+        memberRow: memberRow ? rect(memberRow) : null,
+        memberSlot: memberSlot ? rect(memberSlot) : null,
+        emptySlot: emptySlot ? rect(emptySlot) : null,
+        emptyLabel: emptyLabel?.textContent?.trim() || '',
+        carGridMinHeight: carGrid ? getComputedStyle(carGrid).minHeight : null,
+        firstCardHeight: firstCard ? rect(firstCard).height : 0,
+        firstCardRows: firstCard ? firstCard.querySelectorAll('.driver-seat, .seat-slot').length : 0
       };
     });
-    expect(rowMetrics).not.toBeNull();
 
-    const centerY = box => box.y + box.height / 2;
-    expect(rowMetrics.row.height).toBeGreaterThanOrEqual(48);
-    expect(rowMetrics.row.height).toBeLessThanOrEqual(64);
-    // The actual occupied row must be compact too. A legacy ID-scoped member-card
-    // rule used to add 16px of padding around this 56px inner row on production.
-    expect(rowMetrics.card.height).toBeGreaterThanOrEqual(55);
-    expect(rowMetrics.card.height).toBeLessThanOrEqual(57);
-    expect(rowMetrics.slot.height).toBeGreaterThanOrEqual(55);
-    expect(rowMetrics.slot.height).toBeLessThanOrEqual(57);
-    expect(Math.abs(centerY(rowMetrics.handle) - centerY(rowMetrics.menu))).toBeLessThanOrEqual(3);
-    expect(Math.abs(centerY(rowMetrics.handle) - centerY(rowMetrics.name))).toBeLessThanOrEqual(6);
+    expect(layout.documentWidth).toBeLessThanOrEqual(layout.viewportWidth + 1);
+    expect(layout.topAreaWidth).toBeLessThanOrEqual(layout.viewportWidth + 1);
+    expect(layout.member).not.toBeNull();
+    expect(layout.memberRow).not.toBeNull();
+    expect(layout.memberSlot).not.toBeNull();
+    expect(layout.member.height).toBeGreaterThanOrEqual(55);
+    expect(layout.member.height).toBeLessThanOrEqual(57);
+    expect(layout.memberRow.height).toBeGreaterThanOrEqual(55);
+    expect(layout.memberRow.height).toBeLessThanOrEqual(57);
+    expect(layout.memberSlot.height).toBeGreaterThanOrEqual(55);
+    expect(layout.memberSlot.height).toBeLessThanOrEqual(57);
+    expect(layout.emptySlot).not.toBeNull();
+    expect(layout.emptySlot.height).toBeGreaterThanOrEqual(55);
+    expect(layout.emptySlot.height).toBeLessThanOrEqual(57);
+    expect(layout.emptyLabel).toBe('空席');
+    expect(layout.carGridMinHeight).toBe('0px');
+    // No legacy 164px/expanding grid should inject a giant blank band between rows.
+    expect(layout.firstCardHeight).toBeLessThanOrEqual(49 + layout.firstCardRows * 57 + 4);
 
-    // Carbon menu content can remain in a top layer and legitimately inflate a
-    // container's scrollWidth even while the closed toolbar is visually contained.
-    // Guard the actual product contract instead: every visible toolbar control must
-    // stay inside one 48px action row and the page must not gain horizontal overflow.
-    const actionGeometry = await page.evaluate(() => {
+    const member = page.locator('#cars-container .seat-slot > .member-card').first();
+    const box = await member.boundingBox();
+    expect(box).not.toBeNull();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.waitForTimeout(360);
+    await page.mouse.move(box.x + box.width / 2 + 30, box.y + box.height / 2 + 20);
+    await page.waitForTimeout(80);
+    await page.mouse.up();
+    await expect(page.locator('.manual-drag-float')).toHaveCount(0);
+    await expect(page.locator('body')).not.toHaveClass(/manual-card-dragging/);
+  });
+
+  test('unassigned pool stays hidden but remains usable through direct Move and empty-seat picker', async ({ page }) => {
+    await loadSampleWorkspace(page);
+
+    const passenger = page.locator('#cars-container .member-card').first();
+    const movedName = (await passenger.getAttribute('data-name')) || '';
+    const overflow = passenger.locator('cds-overflow-menu.person-overflow-menu');
+    await overflow.click();
+    await expect(overflow).toHaveJSProperty('open', true);
+
+    const move = overflow.locator('cds-menu-item.assignment-person-move-menu');
+    await expect(move).toHaveCount(1);
+    const waitingTarget = move.locator('[data-assignment-move-target="waiting"]');
+    await expect(waitingTarget).toHaveCount(1);
+    await waitingTarget.evaluate(node => node.click());
+
+    await expect.poll(() => page.locator('#waiting-list .member-card').count()).toBeGreaterThan(0);
+    await expect(page.locator('#bottom-tray')).toBeHidden();
+    await expect(page.locator('#assignmentWorkspaceSummary')).toContainText('未配置');
+
+    const emptySeat = page.locator('#cars-container .seat-slot.assignment-empty-seat').first();
+    await expect(emptySeat).toBeVisible();
+    await expect(emptySeat.locator('.assignment-empty-label')).toHaveText('空席');
+    await emptySeat.locator('.seat-add-btn').click();
+
+    await expect(page.locator('#seatMemberPickerModal')).toBeVisible();
+    const pickerOption = page.locator('#seatMemberPickerList .seat-member-picker-option').filter({ hasText: movedName }).first();
+    await expect(pickerOption).toBeVisible();
+    await pickerOption.click();
+
+    await expect(page.locator('#seatMemberPickerModal')).toBeHidden();
+    await expect(emptySeat.locator('.member-card')).toHaveCount(1);
+    await expect(page.locator('#bottom-tray')).toBeHidden();
+  });
+
+  test('428px toolbar and mobile action sheets never widen the page', async ({ page }) => {
+    await loadSampleWorkspace(page);
+
+    const geometry = await page.evaluate(() => {
+      const rect = node => {
+        const r = node.getBoundingClientRect();
+        return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width, height: r.height };
+      };
       const actions = document.querySelector('#assignmentWorkspaceActions');
-      if (!actions) return null;
-      const toolbar = actions.getBoundingClientRect();
       const controls = ['fillEmptySeatsBtn', 'shuffleAssignBtn', 'traySettingsBtn']
         .map(id => document.getElementById(id))
         .filter(Boolean)
-        .filter(node => {
-          const style = getComputedStyle(node);
-          const rect = node.getBoundingClientRect();
-          return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
-        })
-        .map(node => {
-          const rect = node.getBoundingClientRect();
-          return { id: node.id, left: rect.left, right: rect.right, height: rect.height };
-        });
+        .map(node => ({ id: node.id, ...rect(node) }));
       return {
-        left: toolbar.left,
-        right: toolbar.right,
-        height: toolbar.height,
+        toolbar: rect(actions),
         controls,
-        pageScrollWidth: document.documentElement.scrollWidth,
-        viewportWidth: window.innerWidth
+        viewport: { left: 0, right: innerWidth },
+        documentWidth: document.documentElement.scrollWidth,
+        topAreaWidth: document.querySelector('#top-area')?.scrollWidth || 0
       };
     });
-    expect(actionGeometry).not.toBeNull();
-    expect(actionGeometry.controls).toHaveLength(3);
-    actionGeometry.controls.forEach(control => {
-      expect(control.left).toBeGreaterThanOrEqual(actionGeometry.left - 1);
-      expect(control.right).toBeLessThanOrEqual(actionGeometry.right + 1);
+
+    expect(geometry.controls).toHaveLength(3);
+    geometry.controls.forEach(control => {
+      expectRectInside(control, geometry.toolbar);
       expect(control.height).toBeGreaterThanOrEqual(47);
       expect(control.height).toBeLessThanOrEqual(49);
     });
-    expect(actionGeometry.height).toBeLessThanOrEqual(57);
-    expect(actionGeometry.pageScrollWidth).toBeLessThanOrEqual(actionGeometry.viewportWidth + 1);
+    expect(geometry.documentWidth).toBeLessThanOrEqual(geometry.viewport.right + 1);
+    expect(geometry.topAreaWidth).toBeLessThanOrEqual(geometry.viewport.right + 1);
 
-    await page.evaluate(() => {
-      document.querySelectorAll('#waiting-list .member-card').forEach(card => card.remove());
-      window.SanpoAssignmentWorkspace?.refresh?.();
+    await page.locator('#traySettingsBtn').click();
+    await expect(page.locator('#autoAssignPopover')).toHaveJSProperty('open', true);
+    const settingsRect = await page.locator('#autoAssignMenu').evaluate(node => {
+      const r = node.getBoundingClientRect();
+      return { left: r.left, right: r.right, width: r.width, height: r.height };
     });
-    await expect(page.locator('body')).toHaveClass(/assignment-waiting-empty/);
-    await expect(page.locator('#bottom-tray')).toBeHidden();
+    expect(settingsRect.left).toBeGreaterThanOrEqual(-1);
+    expect(settingsRect.right).toBeLessThanOrEqual(429);
+    expect(settingsRect.width).toBeLessThanOrEqual(429);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(429);
+    await page.keyboard.press('Escape');
+
+    const groupMenu = page.locator('.assignment-group-menu').first();
+    await groupMenu.click();
+    await expect(groupMenu).toHaveJSProperty('open', true);
+    const groupSurface = await groupMenu.locator('cds-menu').evaluate(node => {
+      const r = node.getBoundingClientRect();
+      return { left: r.left, right: r.right, width: r.width, height: r.height };
+    });
+    expect(groupSurface.left).toBeGreaterThanOrEqual(-1);
+    expect(groupSurface.right).toBeLessThanOrEqual(429);
+    expect(groupSurface.width).toBeLessThanOrEqual(429);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(429);
+  });
+
+  test('very narrow phones wrap actions instead of overflowing horizontally', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await loadSampleWorkspace(page);
+
+    const result = await page.evaluate(() => {
+      const actions = document.querySelector('#assignmentWorkspaceActions');
+      const rect = node => {
+        const r = node.getBoundingClientRect();
+        return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width, height: r.height };
+      };
+      return {
+        toolbar: rect(actions),
+        fill: rect(document.getElementById('fillEmptySeatsBtn')),
+        shuffle: rect(document.getElementById('shuffleAssignBtn')),
+        settings: rect(document.getElementById('traySettingsBtn')),
+        documentWidth: document.documentElement.scrollWidth,
+        viewportWidth: innerWidth
+      };
+    });
+
+    expect(result.documentWidth).toBeLessThanOrEqual(result.viewportWidth + 1);
+    expectRectInside(result.fill, result.toolbar);
+    expectRectInside(result.shuffle, result.toolbar);
+    expectRectInside(result.settings, result.toolbar);
+    expect(result.shuffle.top).toBeGreaterThan(result.fill.top);
   });
 
   test('shared link reuses the workspace as read-only and preserves team/car context', async ({ page }) => {
@@ -135,6 +238,7 @@ test.describe('Unified assignment workspace', () => {
     await expect(page.locator('.assignment-drag-handle')).toHaveCount(0);
     await expect(page.locator('.assignment-group-menu')).toHaveCount(0);
     await expect(page.locator('.person-overflow-menu:visible')).toHaveCount(0);
+    await expect(page.locator('#bottom-tray')).toBeHidden();
 
     const capacityControl = page.locator('.capacity-edit-pill').first();
     await expect(capacityControl).toBeVisible();
@@ -156,14 +260,11 @@ test.describe('Unified assignment workspace', () => {
     await expect(page.locator('.car-name-label').first()).toContainText('1号車');
   });
 
-  test('editor keeps drag plus direct move as parallel interaction paths', async ({ page }) => {
-    await page.goto('/');
-    await waitForWorkspace(page);
-    await page.evaluate(() => window.executeDebugMode?.());
-    await page.evaluate(() => window.switchView('list'));
+  test('editor keeps direct Move as the only member relocation path', async ({ page }) => {
+    await loadSampleWorkspace(page);
 
     const passenger = page.locator('#cars-container .member-card').first();
-    await expect(passenger.locator('.assignment-drag-handle')).toBeVisible();
+    await expect(passenger.locator('.assignment-drag-handle')).toHaveCount(0);
     const overflow = passenger.locator('cds-overflow-menu.person-overflow-menu');
     await overflow.click();
     await expect(overflow).toHaveJSProperty('open', true);
