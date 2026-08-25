@@ -96,7 +96,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     expect(await drawer.evaluate(node => node.tagName)).toBe('CDS-SIDE-NAV');
     await expect(drawer).not.toBeVisible();
 
-    await menu.evaluate(node => node.click());
+    await menu.click();
     await expect.poll(() => sideNavExpanded(drawer)).toBeTruthy();
     await expect(drawer).toBeVisible();
     const drawerBox = await drawer.boundingBox();
@@ -125,10 +125,10 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     await expect(reportModal.locator('#bugReportSubmitBtn')).toHaveText('送信');
     await reportModal.locator('cds-modal-close-button').evaluate(node => node.click());
 
-    await menu.evaluate(node => node.click());
+    await menu.click();
     await expect.poll(() => sideNavExpanded(drawer)).toBeTruthy();
     await expect(drawer).toBeVisible();
-    await menu.evaluate(node => node.click());
+    await menu.click();
     await expect.poll(() => sideNavExpanded(drawer)).toBeFalsy();
     await expect(drawer).not.toBeVisible();
 
