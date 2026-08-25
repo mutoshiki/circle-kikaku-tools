@@ -7,7 +7,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   static:
@@ -34,11 +34,25 @@ jobs:
           path: |
             index.html
             assets/js/features/events/02-static-header-events.js
+            tests/carbon-complete.spec.js
+            tests/participants-tab-v83.spec.js
             assets/vendor/carbon/carbon-entry.min.js
             assets/vendor/carbon/ui-shell.min.js
             assets/vendor/carbon/build-manifest.json
           if-no-files-found: error
           retention-days: 2
+      - name: Commit deterministic Carbon migration output to PR branch
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          HEAD_BRANCH: ${{ github.head_ref }}
+        run: |
+          if ! git diff --quiet -- index.html assets/js/features/events/02-static-header-events.js tests/carbon-complete.spec.js tests/participants-tab-v83.spec.js assets/vendor/carbon assets/vendor/ibm-plex; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add index.html assets/js/features/events/02-static-header-events.js tests/carbon-complete.spec.js tests/participants-tab-v83.spec.js assets/vendor/carbon assets/vendor/ibm-plex
+            git commit -m "静的Carbon移行結果と自己ホストbundleを反映"
+            git push origin "HEAD:${HEAD_BRANCH}"
+          fi
       - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npm run lint:css
       - run: npm test
