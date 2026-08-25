@@ -48,7 +48,8 @@ expect((ui.match(/state\.confirmModal\.show\(\);/g) || []).length === 1, 'Confir
 expect(ui.includes('const onHidden = () => finish(requestedValue);'), 'Confirmation results must wait for Carbon modal cleanup before updating the page');
 expect((ui.match(/queueMicrotask\(\(\) => state\.confirmModal\.hide\(\)\)/g) || []).length === 2, 'Confirmation modal must close after the activating click finishes to prevent backdrop click-through');
 
-expect(personMenuJs.includes('trigger.showPopover()'), 'Person menus are not promoted to the browser top layer');
+expect(personMenuJs.includes('HTMLElement.prototype.showPopover.call(trigger)'), 'Person menus are not promoted through the browser-native top layer');
+expect(personMenuJs.includes('personMenuWasOpenOnPointerDown'), 'Person-menu lifecycle is not explicitly owned across Carbon click handling');
 expect(personMenuJs.includes('person-menu-top-layer-placeholder'), 'Person-menu top-layer promotion does not preserve card layout');
 expect(personMenuJs.includes('syncPersonMenuTopLayerPosition'), 'Person-menu anchor is not synchronized during viewport movement');
 expect(personMenuCss.includes(':popover-open'), 'Person-menu top-layer geometry is missing');
