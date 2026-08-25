@@ -69,10 +69,10 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       expect(new URL(copiedShareUrl).searchParams.get('view')).toBe('sheet');
       await expect(page.locator('#share-links-modal')).toHaveCount(0);
       await hostClick(page, '#overviewMenuBtn');
-      await expect(page.locator('#overviewDrawer')).toHaveAttribute('aria-hidden', 'false');
-      await expect(page.locator('#overviewDrawer .app-nav-link')).toHaveCount(4);
-      await page.keyboard.press('Escape');
-      await expect(page.locator('#overviewDrawer')).toHaveAttribute('aria-hidden', 'true');
+      await expect.poll(() => page.locator('#overviewDrawer').evaluate(node => Boolean(node.expanded || node.hasAttribute('expanded')))).toBeTruthy();
+      await expect(page.locator('#overviewDrawer cds-side-nav-link')).toHaveCount(4);
+      await hostClick(page, '#overviewMenuBtn');
+      await expect.poll(() => page.locator('#overviewDrawer').evaluate(node => Boolean(node.expanded || node.hasAttribute('expanded')))).toBeFalsy();
       expect(errors).toEqual([]);
     });
   });

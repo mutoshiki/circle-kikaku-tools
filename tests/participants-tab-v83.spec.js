@@ -49,9 +49,10 @@ async function setCarbonValue(page, selector, value) {
 async function shellMetrics(page) {
   return page.evaluate(() => {
     const region = document.getElementById('projectTitleRegion');
-    const editor = document.getElementById('projectTitleEditor');
+    const input = document.getElementById('roomNameInput');
     const regionStyle = getComputedStyle(region);
-    const editorStyle = getComputedStyle(editor);
+    const inputField = input?.closest('.app-room-field');
+    const inputFieldStyle = inputField ? getComputedStyle(inputField) : null;
     return {
       region: {
         height: regionStyle.height,
@@ -60,12 +61,11 @@ async function shellMetrics(page) {
         paddingBottom: regionStyle.paddingBottom,
         paddingLeft: regionStyle.paddingLeft
       },
-      editor: {
-        fontSize: editorStyle.fontSize,
-        lineHeight: editorStyle.lineHeight,
-        whiteSpace: editorStyle.whiteSpace,
-        maxHeight: editorStyle.maxHeight,
-        paddingBottom: editorStyle.paddingBottom
+      input: {
+        tagName: input?.tagName || '',
+        position: inputFieldStyle?.position || '',
+        visible: Boolean(input && input.getBoundingClientRect().width > 0 && input.getBoundingClientRect().height > 0),
+        contenteditableCount: document.querySelectorAll('[contenteditable]').length
       }
     };
   });

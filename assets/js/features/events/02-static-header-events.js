@@ -11,174 +11,27 @@
     const PROJECT_TITLE_PULL_THRESHOLD = 16;
     let projectTitlePointerStartY = null;
 
-    function createCarbonShellIconButton(id, label, iconName) {
-        const button = document.createElement('cds-icon-button');
-        button.id = id;
-        button.className = 'app-shell-menu-button';
-        button.kind = 'ghost';
-        button.size = 'lg';
-        button.type = 'button';
-        button.setAttribute('aria-label', label);
-        button.setAttribute('align', 'bottom-left');
-        const icon = document.createElement('span');
-        icon.slot = 'icon';
-        icon.dataset.carbonIcon = iconName;
-        icon.setAttribute('aria-hidden', 'true');
-        button.appendChild(icon);
-        return button;
-    }
-
-    function dispatchRoomTitleInput(roomInput) {
-        roomInput.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
-    }
-
-    function normalizeProjectTitleEditor(editor) {
-        const value = String(editor.textContent || '').replace(/[\r\n]+/g, '');
-        if (!value && editor.childNodes.length) editor.replaceChildren();
-        else if (editor.textContent !== value) editor.textContent = value;
-        return value;
-    }
-
-    function createProjectTitleEditor(roomInput) {
-        const editor = document.createElement('div');
-        editor.id = 'projectTitleEditor';
-        editor.className = 'project-title-editor';
-        editor.setAttribute('contenteditable', 'plaintext-only');
-        editor.setAttribute('role', 'textbox');
-        editor.setAttribute('aria-label', '企画名');
-        editor.setAttribute('aria-placeholder', '企画名を入力');
-        editor.setAttribute('aria-multiline', 'false');
-        editor.setAttribute('data-placeholder', '企画名を入力');
-        editor.setAttribute('spellcheck', 'false');
-        editor.tabIndex = 0;
-
-        const syncFromSource = () => {
-            if (document.activeElement === editor) return;
-            const next = String(roomInput.value || '');
-            if (editor.textContent !== next) editor.textContent = next;
-            if (!next && editor.childNodes.length) editor.replaceChildren();
-        };
-        const syncToSource = () => {
-            const next = normalizeProjectTitleEditor(editor);
-            if (roomInput.value !== next) roomInput.value = next;
-            roomInput.setAttribute('value', next);
-            dispatchRoomTitleInput(roomInput);
-        };
-
-        editor.addEventListener('beforeinput', event => {
-            if (event.inputType === 'insertParagraph' || event.inputType === 'insertLineBreak') event.preventDefault();
-        });
-        editor.addEventListener('keydown', event => {
-            if (event.key !== 'Enter') return;
-            event.preventDefault();
-            editor.blur();
-        });
-        editor.addEventListener('input', event => {
-            if (!event.isComposing) syncToSource();
-        });
-        editor.addEventListener('compositionend', syncToSource);
-        // WebKit can blur a contenteditable before it emits the final compositionend.
-        // The visible editor owns the local draft, so blur must commit it to the persisted
-        // roomName source instead of pulling a stale/empty source value back into the editor.
-        editor.addEventListener('blur', syncToSource);
-
-        syncFromSource();
-        return editor;
-    }
-
-    function ensureProjectTitleRegion(brand) {
-        const roomField = brand.querySelector('.app-room-field');
-        const roomInput = byId('roomNameInput');
-        const header = byId('app-header');
-        if (!roomField || !roomInput || !header) return;
-
-        let region = byId('projectTitleRegion');
-        if (!region) {
-            region = document.createElement('section');
-            region.id = 'projectTitleRegion';
-            region.className = 'project-title-region';
-            region.dataset.state = 'expanded';
-            region.setAttribute('aria-label', '企画名');
-            header.insertAdjacentElement('afterend', region);
-        }
-
-        let editor = byId('projectTitleEditor');
-        if (!editor) {
-            editor = createProjectTitleEditor(roomInput);
-            region.appendChild(editor);
-        }
-
-        roomField.classList.add('project-title-source');
-        roomField.setAttribute('aria-hidden', 'true');
-        roomInput.tabIndex = -1;
-        roomInput.setAttribute('aria-hidden', 'true');
-        region.appendChild(roomField);
-        setProjectTitleExpanded(true);
-    }
-
     function ensureCarbonShellHeader() {
-        const main = document.querySelector('#app-header .app-header-main');
-        const brand = main?.querySelector('.app-brand');
-        const actions = main?.querySelector('.header-actions');
-        if (!main || !brand || !actions) return;
+        const header = byId('app-header');
+        const roomInput = byId('roomNameInput');
+        const region = byId('projectTitleRegion');
+        if (!header || header.tagName !== 'CDS-HEADER' || !roomInput || !region) return;
 
-        let navigationButton = byId('overviewMenuBtn');
-        if (!navigationButton) {
-            navigationButton = createCarbonShellIconButton('overviewMenuBtn', 'ナビゲーションを開く', 'menu');
-            main.insertBefore(navigationButton, brand);
-        }
-        navigationButton.setAttribute('aria-controls', 'overviewDrawer');
-        navigationButton.setAttribute('aria-expanded', 'false');
+        const roomField = roomInput.closest('.app-room-field');
+        roomField?.classList.remove('project-title-source');
+        roomField?.removeAttribute('aria-hidden');
+        roomInput.removeAttribute('aria-hidden');
+        roomInput.tabIndex = 0;
+        region.dataset.state ||= 'expanded';
 
-        let title = brand.querySelector('.app-brand-title');
-        if (!title) {
-            title = document.createElement('span');
-            title.className = 'app-brand-title';
-            title.textContent = 'サークル企画ツール';
-            brand.prepend(title);
-        }
-
-        ensureProjectTitleRegion(brand);
-
-        const headerMore = actions.querySelector('.header-more');
-        const overflow = headerMore?.querySelector('cds-overflow-menu');
-        const menu = overflow?.querySelector('cds-menu');
-        const share = byId('shareLinkBtn');
-
+        const overflow = document.querySelector('.header-more cds-overflow-menu');
         if (overflow) {
             overflow.classList.add('header-app-switcher');
             overflow.setAttribute('label', 'アプリメニュー');
             overflow.setAttribute('aria-label', 'アプリメニュー');
             overflow.setAttribute('align', 'bottom-end');
-            overflow.querySelector('[slot="icon"]')?.remove();
-            if (!overflow.querySelector('[data-carbon-icon="switcher"]')) {
-                const glyph = document.createElement('span');
-                glyph.className = 'app-switcher-icon';
-                glyph.slot = 'icon';
-                glyph.dataset.carbonIcon = 'switcher';
-                glyph.setAttribute('aria-hidden', 'true');
-                overflow.prepend(glyph);
-            }
         }
-
-        if (menu) {
-            const guide = byId('userGuideBtn');
-            const sample = byId('sampleDataBtn');
-            const theme = byId('themeToggleBtn');
-            const currentLock = byId('editLockBtn');
-            let lockItem = currentLock?.tagName === 'CDS-MENU-ITEM' ? currentLock : null;
-            if (!lockItem) {
-                lockItem = document.createElement('cds-menu-item');
-                lockItem.id = 'editLockBtn';
-                lockItem.setAttribute('label', 'ロック');
-                lockItem.innerHTML = '<span data-carbon-icon="unlocked" data-state-icon="editLock" data-icon-state="unlocked" slot="render-icon" aria-hidden="true"></span>';
-                currentLock?.remove();
-            }
-            [guide, sample, theme, lockItem].filter(Boolean).forEach(item => menu.appendChild(item));
-        }
-
-        if (share && headerMore) actions.replaceChildren(share, headerMore);
-        global.SanpoCarbon?.renderCarbonIcons?.(main);
+        global.SanpoCarbon?.renderCarbonIcons?.(header);
     }
 
     function readCurrentShellView() {
@@ -419,14 +272,14 @@
 
     function setProjectTitleExpanded(expanded) {
         const region = byId('projectTitleRegion');
-        const editor = byId('projectTitleEditor');
-        if (!region || !editor) return;
+        const roomInput = byId('roomNameInput');
+        if (!region || !roomInput) return;
         const nextState = expanded ? 'expanded' : 'collapsed';
         if (region.dataset.state === nextState) return;
-        if (!expanded && document.activeElement === editor) editor.blur();
+        if (!expanded && roomInput.matches?.(':focus-within')) roomInput.blur?.();
         region.dataset.state = nextState;
-        editor.inert = !expanded;
-        editor.tabIndex = expanded ? 0 : -1;
+        roomInput.inert = !expanded;
+        roomInput.tabIndex = expanded ? 0 : -1;
     }
 
     function getActiveProjectTitleScrollNodes() {
@@ -486,67 +339,14 @@
         });
     }
 
-    function createAppNavigationDrawer() {
-        const drawer = byId('overviewDrawer');
-        const scrim = byId('overviewDrawerScrim');
-        if (!drawer || !scrim) return null;
-        drawer.className = 'app-nav-drawer';
-        drawer.setAttribute('aria-hidden', 'true');
-        drawer.setAttribute('aria-label', '山歩会ツール');
-        scrim.className = 'app-nav-drawer-scrim';
-
-        const nav = document.createElement('nav');
-        nav.className = 'app-nav-drawer-nav';
-        nav.setAttribute('aria-label', '山歩会ツール');
-        const list = document.createElement('ul');
-        list.className = 'app-nav-drawer-list';
-        APP_NAVIGATION_LINKS.forEach(([label, href]) => {
-            const item = document.createElement('li');
-            const link = document.createElement('a');
-            link.className = 'app-nav-link';
-            link.href = href;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            link.textContent = label;
-            item.appendChild(link);
-            list.appendChild(item);
-        });
-        nav.appendChild(list);
-        drawer.replaceChildren(nav);
-        return drawer;
-    }
-
-    function setAppNavigationDrawerOpen(open, { restoreFocus = false } = {}) {
-        const drawer = byId('overviewDrawer');
-        const scrim = byId('overviewDrawerScrim');
-        const trigger = byId('overviewMenuBtn');
-        if (!drawer || !scrim || !trigger) return;
-        drawer.classList.toggle('is-open', open);
-        drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
-        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-        trigger.setAttribute('aria-label', open ? 'ナビゲーションを閉じる' : 'ナビゲーションを開く');
-        scrim.hidden = !open;
-        document.body.classList.toggle('app-nav-drawer-open', open);
-        if (open) queueMicrotask(() => drawer.querySelector('.app-nav-link')?.focus());
-        else if (restoreFocus) queueMicrotask(() => trigger.focus());
-    }
-
     function setupAppNavigationDrawer() {
-        const drawer = createAppNavigationDrawer();
-        if (!drawer) return;
-        bind('overviewMenuBtn', () => setAppNavigationDrawerOpen(drawer.getAttribute('aria-hidden') === 'true'));
-        bind('overviewDrawerScrim', () => setAppNavigationDrawerOpen(false, { restoreFocus: true }));
-        drawer.addEventListener('click', event => {
-            if (event.target.closest?.('.app-nav-link')) setAppNavigationDrawerOpen(false);
-        });
-        if (document.body.dataset.appNavigationEscapeBound !== 'true') {
-            document.body.dataset.appNavigationEscapeBound = 'true';
-            document.addEventListener('keydown', event => {
-                if (event.key === 'Escape' && drawer.getAttribute('aria-hidden') === 'false') {
-                    setAppNavigationDrawerOpen(false, { restoreFocus: true });
-                }
-            });
-        }
+        const drawer = byId('overviewDrawer');
+        const trigger = byId('overviewMenuBtn');
+        if (!drawer || drawer.tagName !== 'CDS-SIDE-NAV' || !trigger) return;
+        drawer.setAttribute('aria-label', '山歩会ツール');
+        drawer.setAttribute('collapse-mode', 'responsive');
+        drawer.setAttribute('is-not-persistent', '');
+        trigger.setAttribute('aria-controls', 'overviewDrawer');
     }
 
     function setupStaticHeaderEvents() {
