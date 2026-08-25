@@ -3,8 +3,6 @@ import '@carbon/web-components/es/components/button/index.js';
 import '@carbon/web-components/es/components/icon-button/index.js';
 import '@carbon/web-components/es/components/content-switcher/index.js';
 import '@carbon/web-components/es/components/data-table/index.js';
-import '@carbon/web-components/es/components/date-picker/index.js';
-import '@carbon/web-components/es/components/time-picker/index.js';
 import '@carbon/web-components/es/components/notification/toast-notification.js';
 import '@carbon/web-components/es/components/tag/index.js';
 import '@carbon/web-components/es/components/tabs/index.js';
