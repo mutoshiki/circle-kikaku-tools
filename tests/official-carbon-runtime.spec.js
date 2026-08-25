@@ -51,7 +51,7 @@ test.describe('Official Carbon ownership runtime', () => {
     // Carbon HeaderMenuButton renders its real interactive control in the open shadow root.
     // Exercise that button with a genuine pointer click rather than clicking the custom-element host.
     const menuButton = menuHost.locator('button');
-    await expect(menuHost).toHaveAttribute('collapse-mode', 'fixed');
+    await expect(menuHost).toHaveAttribute('collapse-mode', 'rail');
     await expect(menuButton).toBeVisible();
     await expect(drawer).not.toBeVisible();
     await menuButton.click();
