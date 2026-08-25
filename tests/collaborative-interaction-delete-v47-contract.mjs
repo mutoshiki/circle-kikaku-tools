@@ -11,6 +11,8 @@ const renderSource = read('assets/js/features/settlement/03-render.js');
 const batchSource = read('assets/js/features/batch-import.js');
 const dragSource = read('assets/js/features/drag-edit-view.js');
 const autoAssignSource = read('assets/js/features/auto-assign.js');
+const waitingTraySource = read('assets/js/features/waiting-tray.js');
+const appSource = read('assets/js/app.js');
 const index = read('index.html');
 
 assert.match(remoteGuard, /isCollaborativeEditModalOpen/, 'remote guard protects open write modals');
@@ -27,7 +29,10 @@ assert.match(batchSource, /batchOpeningCanonicalSnapshot/, 'participant registra
 assert.match(batchSource, /three-way intent editor/i, 'participant registration applies user intent instead of replacing the room');
 assert.match(batchSource, /__suspendActiveDomPlanSync = true/, 'batch submit saves canonical state without re-sampling the modal-underlay DOM');
 assert.match(renderSource, /renderSettlementAfterModalCommit/, 'settlement submit renders only after Carbon modal close');
-assert.match(dragSource, /BEFORE seat hit-testing/, 'collapsed waiting tray is resolved before underlying seat hit-testing');
+assert.match(dragSource, /BEFORE seat hit-testing/, 'legacy drag module keeps its internal ordering guarantee while remaining uninitialized');
+assert.doesNotMatch(appSource, /setupManualCardDrag\(\)/, 'allocation drag must stay retired at startup');
+assert.match(waitingTraySource, /Hidden unassigned-pool compatibility feature/, 'unassigned participants remain an internal pool rather than a visible drag target');
+assert.doesNotMatch(waitingTraySource, /ここにドロップして未割り当てに戻す|drag-transient-minimized|touchingClosedStrip/, 'hidden waiting pool must not expose the former drag-drawer lifecycle');
 assert.match(index, /remote-guard\.js\?v=collab-interaction-delete-v47/, 'remote guard is cache-busted');
 for (const path of [
   'core/runtime.js', 'core/storage.js', 'core/settlement-edit-guard.js', 'core/entity-state-v5.js',
@@ -43,9 +48,9 @@ for (const path of [
   const tail = index.slice(start, start + marker.length + 120);
   assert.match(tail, /collab-interaction-delete-v47|settlement-concurrent-save-v48|settlement-concurrent-save-v49|collaborative-sync-foundation-v50|settlement-negative-extra-save-v51|collection-carbon-v65|settlement-extra-concurrent-v66|sync-reliability-v67|sync-protocol-v68/, `${path} is cache-busted as a compatible collaborative build`);
 }
-assert.doesNotMatch(syncSource, /onValue\(dbRef,[\s\S]{0,160}if \(isProcessingQueue\) return/, 'gender queue must queue remote snapshots, never drop them');
-assert.match(syncSource, /\|\| !!isProcessingQueue/, 'gender detection participates in the remote UI transaction guard');
-assert.match(autoAssignSource, /SanpoRemoteGuard\?\.requestPendingApply/, 'gender queue releases queued remote snapshots after its final save');
+assert.doesNotMatch(syncSource, /onValue\(dbRef,[\s\S]{0,160}if \(isProcessingQueue\) return/, 'local processing must queue remote snapshots, never drop them');
+assert.match(syncSource, /\|\| !!isProcessingQueue/, 'local processing participates in the remote UI transaction guard');
+assert.match(autoAssignSource, /SanpoRemoteGuard\?\.requestPendingApply/, 'random allocation releases queued remote snapshots after its final save');
 assert.match(batchSource, /openingByName\.get\(key\)[\s\S]{0,240}canonical\.participants\?\.\[openingEntry\.id\]/, 'participant registration resolves unchanged driver lines by opening participant ID across remote renames');
 assert.match(remoteGuard, /'appConfirmModal'/, 'delete confirmation is protected as a collaborative write transaction');
 assert.match(remoteGuard, /function isPersonMenuOpen/, 'open person menu blocks remote DOM repaint');
@@ -53,12 +58,6 @@ assert.match(remoteGuard, /inPersonInteraction[\s\S]{0,420}markLocalEditing\(650
 assert.match(entitySource, /if \(preferred && tombstones\[preferred\]\) return '';/, 'a stale explicit tombstoned DOM identity cannot be reminted');
 assert.match(batchSource, /\[\.\.\.m, \.\.\.g1, \.\.\.g2, \.\.\.g3, \.\.\.g4\]\.forEach/, 'participant roster excludes the driver-role field');
 assert.doesNotMatch(batchSource, /\[\.\.\.m, \.\.\.g1, \.\.\.g2, \.\.\.g3, \.\.\.g4, \.\.\.d\]\.forEach/, 'driver field alone cannot preserve a removed participant');
-const waitingTraySource = read('assets/js/features/waiting-tray.js');
-const waitingDragCss = read('assets/css/cars-members-tray/drag-drop/01-card-drag.css');
-assert.match(waitingTraySource, /ここにドロップして未割り当てに戻す/, 'waiting tray announces the active return drop target');
-assert.match(waitingTraySource, /wasNear !== touchingClosedStrip[\s\S]{0,100}updateTrayToggleLabel/, 'waiting tray label changes exactly when pointer enters/leaves the drop strip');
-assert.match(waitingDragCss, /#bottom-tray\.is-drop-near #tray-handle[\s\S]{0,180}box-shadow:[^;]*var\(--drop-accent\)/, 'waiting tray hover has a stronger visual target state');
-assert.match(index, /01-card-drag\.css\?v=collab-interaction-delete-v47/, 'waiting tray drag CSS is cache-busted with v47');
 
 const ctx = vm.createContext({
   window: {}, SanpoClock: { now: () => Date.now(), isServerAligned: () => true }, console, Date, JSON, Math, Object, Array, Set, Map, String, Number, parseInt,
@@ -168,8 +167,7 @@ function roomWithAliceBob() {
   assert.equal(Object.values(entity.get().participants).some(p => p.name === 'Alice'), false, 'stale projected plan cannot resurrect Alice');
 }
 
-
-// Remote snapshots arriving during the local gender queue are retained, never discarded.
+// Remote snapshots arriving during a local processing transaction are retained, never discarded.
 {
   const { room, aliceId } = roomWithAliceBob();
   const remote = structuredClone(room);
@@ -181,7 +179,7 @@ function roomWithAliceBob() {
   ctx.__remoteForQueue = remote;
   vm.runInContext(`__roomOnValue({ val: () => __remoteForQueue });`, ctx);
   const queued = vm.runInContext('pendingRemoteRoomData', ctx);
-  assert.equal(queued.participants[aliceId].grade, 4, 'remote snapshot is queued while gender processing is active');
+  assert.equal(queued.participants[aliceId].grade, 4, 'remote snapshot is queued while local processing is active');
   vm.runInContext('isProcessingQueue = false; dbRef = null;', ctx);
 }
 
