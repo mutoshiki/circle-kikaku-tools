@@ -5,7 +5,8 @@
  */
 
 body.assignment-workspace-enabled #top-area {
-  overflow-x: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
   padding: 0;
   overscroll-behavior-x: none;
   background: var(--cds-background, #f4f4f4);
