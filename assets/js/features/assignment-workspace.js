@@ -8,9 +8,14 @@
     let observer = null;
     let syncFrame = 0;
     let switcherCommit = false;
+    let shareInitialTypeApplied = false;
 
     function isSharedReadOnlyMode() {
         return new URLSearchParams(global.location.search).get('view') === 'sheet';
+    }
+
+    function requestedShareType() {
+        return new URLSearchParams(global.location.search).get('allocation') === 'team' ? 'team' : 'car';
     }
 
     function ensureStylesheet() {
@@ -30,6 +35,7 @@
         const label = tab?.querySelector('.view-tab-label');
         if (!label) return;
         const lock = label.querySelector('.view-tab-lock-indicator');
+        if (label.firstChild?.nodeType === Node.TEXT_NODE && label.firstChild.textContent === text && label.childNodes.length === (lock ? 2 : 1)) return;
         label.replaceChildren(D.createTextNode(text));
         if (lock) label.appendChild(lock);
     }
@@ -38,6 +44,8 @@
         const carTab = byId('tab-list');
         const teamTab = byId('tab-team');
         const sheetTab = byId('tab-sheet');
+        const participantTab = byId('tab-participants');
+        const settlementTab = byId('tab-seisan');
         const bar = byId('view-toggle-bar');
         if (sheetTab) sheetTab.hidden = true;
         if (teamTab) teamTab.hidden = true;
@@ -46,6 +54,9 @@
         carTab.dataset.allocationType = 'workspace';
         carTab.setAttribute('aria-label', '車割・班割');
         replaceTabLabel(carTab, '車割・班割');
+
+        // Visible Carbon primary destinations: participants -> allocation workspace -> settlement.
+        if (bar) [participantTab, carTab, settlementTab].filter(Boolean).forEach(tab => bar.appendChild(tab));
 
         if (D.body.classList.contains('view-mode-list')) {
             carTab.classList.add('active');
@@ -100,6 +111,17 @@
         return header;
     }
 
+    function switchAllocationType(next) {
+        if (next !== 'team') next = 'car';
+        if (next === activeType()) return;
+        if (isSharedReadOnlyMode() && typeof global.switchCarPlan === 'function') {
+            global.switchCarPlan(next, { persist: false });
+            return;
+        }
+        if (typeof global.updateActiveCarPlanTemplate === 'function') global.updateActiveCarPlanTemplate(next);
+        else if (typeof global.switchCarPlan === 'function') global.switchCarPlan(next);
+    }
+
     function bindTypeSwitcher() {
         const switcher = byId('assignmentTypeSwitcher');
         if (!switcher || switcher.dataset.assignmentBound === 'true') return;
@@ -109,10 +131,8 @@
             const next = value === 'team' ? 'team' : 'car';
             if (switcherCommit || next === activeType()) return;
             switcherCommit = true;
-            try {
-                if (typeof global.updateActiveCarPlanTemplate === 'function') global.updateActiveCarPlanTemplate(next);
-                else if (typeof global.switchCarPlan === 'function') global.switchCarPlan(next);
-            } finally {
+            try { switchAllocationType(next); }
+            finally {
                 queueMicrotask(() => {
                     switcherCommit = false;
                     scheduleSync();
@@ -139,7 +159,8 @@
         const fill = byId('fillEmptySeatsBtn');
         if (fill && fill.parentElement !== actions) {
             fill.setAttribute('kind', 'ghost');
-            fill.querySelector('span:not([data-carbon-icon])')?.replaceChildren(D.createTextNode('空きを埋める'));
+            const fillLabel = Array.from(fill.children).find(node => node.tagName !== 'SVG' && !node.hasAttribute?.('data-carbon-icon'));
+            if (fillLabel) fillLabel.textContent = '空きを埋める';
             actions.appendChild(fill);
         }
         if (randomTools && randomTools.parentElement !== actions) {
@@ -173,7 +194,7 @@
                 </cds-menu>`;
             header.appendChild(menu);
             menu.addEventListener('click', event => {
-                const item = event.composedPath?.().find(node => node instanceof Element && node.matches?.('[data-assignment-group-action]'));
+                const item = event.composedPath?.().find(node => node instanceof global.Element && node.matches?.('[data-assignment-group-action]'));
                 if (!item) return;
                 event.preventDefault();
                 event.stopPropagation();
@@ -183,7 +204,8 @@
             });
         }
         const returnItem = menu.querySelector('[data-assignment-group-action="return"]');
-        returnItem?.setAttribute('label', type === 'team' ? '班長を未配置に戻す' : '運転手を未配置に戻す');
+        const nextLabel = type === 'team' ? '班長を未配置に戻す' : '運転手を未配置に戻す';
+        if (returnItem?.getAttribute('label') !== nextLabel) returnItem?.setAttribute('label', nextLabel);
     }
 
     function ensureDragHandle(card) {
@@ -219,19 +241,22 @@
         const slots = Array.from(box.querySelectorAll('.seat-slot'));
         const empty = slots.filter(slot => !slot.querySelector('.member-card'));
         slots.forEach(slot => {
-            slot.classList.remove('assignment-empty-seat--primary', 'assignment-empty-seat--collapsed');
-            slot.querySelector('.assignment-empty-label')?.remove();
-        });
-        empty.forEach((slot, index) => {
-            slot.classList.add(index === 0 ? 'assignment-empty-seat--primary' : 'assignment-empty-seat--collapsed');
+            const shouldPrimary = slot === empty[0];
+            const shouldCollapsed = empty.includes(slot) && !shouldPrimary;
+            slot.classList.toggle('assignment-empty-seat--primary', shouldPrimary);
+            slot.classList.toggle('assignment-empty-seat--collapsed', shouldCollapsed);
+            if (!empty.includes(slot)) slot.querySelector('.assignment-empty-label')?.remove();
         });
         const first = empty[0];
-        if (first) {
-            const label = D.createElement('span');
+        if (!first) return;
+        let label = first.querySelector('.assignment-empty-label');
+        if (!label) {
+            label = D.createElement('span');
             label.className = 'assignment-empty-label';
-            label.textContent = `${empty.length}席空き`;
             first.prepend(label);
         }
+        const text = `${empty.length}席空き`;
+        if (label.textContent !== text) label.textContent = text;
     }
 
     function decorateCards() {
@@ -240,9 +265,11 @@
         boxes.forEach((box, index) => {
             box.dataset.assignmentIndex = String(index + 1);
             const groupLabel = box.querySelector('.car-name-label');
-            if (groupLabel) groupLabel.textContent = type === 'team' ? `${index + 1}班` : `${index + 1}号車`;
+            const nextGroupLabel = type === 'team' ? `${index + 1}班` : `${index + 1}号車`;
+            if (groupLabel && groupLabel.textContent !== nextGroupLabel) groupLabel.textContent = nextGroupLabel;
             const driverRole = box.querySelector('.driver-role-tag');
-            if (driverRole) driverRole.textContent = type === 'team' ? '班長' : '運転手';
+            const nextRole = type === 'team' ? '班長' : '運転手';
+            if (driverRole && driverRole.textContent !== nextRole) driverRole.textContent = nextRole;
             ensureGroupOverflow(box, type);
             decorateEmptySeats(box);
         });
@@ -259,11 +286,11 @@
         const type = activeType();
         const switcher = byId('assignmentTypeSwitcher');
         if (!switcher) return;
-        switcher.setAttribute('value', type);
-        try { switcher.value = type; } catch (_) {}
+        if (switcher.getAttribute('value') !== type) switcher.setAttribute('value', type);
+        try { if (switcher.value !== type) switcher.value = type; } catch (_) {}
         switcher.querySelectorAll('cds-content-switcher-item').forEach(item => {
             const selected = (item.value || item.getAttribute('value')) === type;
-            item.selected = selected;
+            if (!!item.selected !== selected) item.selected = selected;
             item.toggleAttribute('selected', selected);
         });
     }
@@ -278,7 +305,15 @@
         const drivers = D.querySelectorAll('#cars-container .driver-seat').length;
         const total = assignedMembers + drivers + waiting;
         const unit = type === 'team' ? '班' : '台';
-        summary.textContent = `${total}人 · ${groups}${unit} · 未配置${waiting}人`;
+        const text = `${total}人 · ${groups}${unit} · 未配置${waiting}人`;
+        if (summary.textContent !== text) summary.textContent = text;
+    }
+
+    function applyShareInitialType() {
+        if (!isSharedReadOnlyMode() || shareInitialTypeApplied) return;
+        shareInitialTypeApplied = true;
+        const requested = requestedShareType();
+        if (requested !== activeType()) switchAllocationType(requested);
     }
 
     function applyReadOnlyMode() {
@@ -314,6 +349,7 @@
         createHeader();
         relocateAllocationActions();
         simplifyPrimaryNavigation();
+        applyShareInitialType();
         syncSwitcher();
         decorateCards();
         syncSummary();
@@ -331,8 +367,10 @@
         observer = new MutationObserver(scheduleSync);
         const cars = byId('cars-container');
         const waiting = byId('waiting-list');
-        if (cars) observer.observe(cars, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-locked', 'data-capacity', 'class'] });
-        if (waiting) observer.observe(waiting, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-locked', 'class'] });
+        const navigation = byId('view-toggle-bar');
+        if (cars) observer.observe(cars, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-locked', 'data-capacity'] });
+        if (waiting) observer.observe(waiting, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-locked'] });
+        if (navigation) observer.observe(navigation, { childList: true });
         observer.observe(D.body, { attributes: true, attributeFilter: ['class', 'data-active-plan-template'] });
     }
 
