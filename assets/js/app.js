@@ -132,6 +132,11 @@ D.addEventListener('DOMContentLoaded', async () => {
         'data-person-menu-click-owner',
         () => window.__personMenuClickOwnerInstalled === true
     ).catch(error => console.warn('Person Menu click owner failed to load:', error));
+    await loadScriptOnce(
+        './assets/js/features/mobile-sticky-scroll-owner.js?v=mobile-sticky-scroll-owner-v1',
+        'data-mobile-sticky-scroll-owner',
+        () => window.__mobileStickyScrollOwnerInstalled === true
+    ).catch(error => console.warn('Mobile sticky scroll owner failed to load:', error));
     setupSeatMemberPicker();
 
     await roleStateReady;
