@@ -18,30 +18,35 @@ test.describe('Unified assignment workspace', () => {
     await expect(page.locator('#assignmentShareBtn')).toHaveCount(1);
     expect(await page.locator('#assignmentShareBtn').evaluate(node => node.tagName.toLowerCase())).toBe('cds-icon-button');
 
-    const row = page.locator('#cars-container .member-main-line').first();
-    const handle = row.locator('.assignment-drag-handle');
-    const name = row.locator('.member-name-text');
-    // The Carbon overflow-menu host itself can own a top-layer-sized box. Playwright
-    // pierces its open shadow root, so measure the actual interactive button instead.
-    const menuButton = row.locator('cds-overflow-menu.person-overflow-menu button').first();
-    await expect(menuButton).toBeVisible();
+    // Workspace refreshes can replace member rows while Carbon upgrades its custom
+    // elements. Read every geometry value synchronously from the same live row so a
+    // locator cannot hop to a newly rendered row between individual measurements.
+    const rowMetrics = await page.evaluate(() => {
+      const handle = document.querySelector('#cars-container .member-main-line .assignment-drag-handle');
+      const row = handle?.closest('.member-main-line');
+      const name = row?.querySelector('.member-name-text');
+      const menuHost = row?.querySelector('cds-overflow-menu.person-overflow-menu');
+      const menuButton = menuHost?.shadowRoot?.querySelector('button');
+      if (!row || !handle || !name || !menuButton) return null;
 
-    const [rowBox, handleBox, nameBox, menuBox] = await Promise.all([
-      row.boundingBox(),
-      handle.boundingBox(),
-      name.boundingBox(),
-      menuButton.boundingBox()
-    ]);
-    expect(rowBox).not.toBeNull();
-    expect(handleBox).not.toBeNull();
-    expect(nameBox).not.toBeNull();
-    expect(menuBox).not.toBeNull();
+      const rect = node => {
+        const box = node.getBoundingClientRect();
+        return { x: box.x, y: box.y, width: box.width, height: box.height };
+      };
+      return {
+        row: rect(row),
+        handle: rect(handle),
+        name: rect(name),
+        menu: rect(menuButton)
+      };
+    });
+    expect(rowMetrics).not.toBeNull();
 
     const centerY = box => box.y + box.height / 2;
-    expect(rowBox.height).toBeGreaterThanOrEqual(48);
-    expect(rowBox.height).toBeLessThanOrEqual(64);
-    expect(Math.abs(centerY(handleBox) - centerY(menuBox))).toBeLessThanOrEqual(3);
-    expect(Math.abs(centerY(handleBox) - centerY(nameBox))).toBeLessThanOrEqual(6);
+    expect(rowMetrics.row.height).toBeGreaterThanOrEqual(48);
+    expect(rowMetrics.row.height).toBeLessThanOrEqual(64);
+    expect(Math.abs(centerY(rowMetrics.handle) - centerY(rowMetrics.menu))).toBeLessThanOrEqual(3);
+    expect(Math.abs(centerY(rowMetrics.handle) - centerY(rowMetrics.name))).toBeLessThanOrEqual(6);
 
     const actionOverflow = await page.locator('#assignmentWorkspaceActions').evaluate(node => ({
       clientWidth: node.clientWidth,
