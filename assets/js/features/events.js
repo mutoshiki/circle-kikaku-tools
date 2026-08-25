@@ -52,8 +52,8 @@
 
     function readBugReportProjectTitle() {
         return String(
-            document.getElementById('projectTitleEditor')?.textContent
-            || document.getElementById('roomNameInput')?.value
+            document.getElementById('roomNameInput')?.value
+            || document.getElementById('projectTitleEditor')?.textContent
             || ''
         ).trim().slice(0, 200);
     }
@@ -116,24 +116,24 @@
     }
 
     function setupBugReportNavigation() {
-        const list = document.querySelector('#overviewDrawer .app-nav-drawer-list');
-        if (!list) return;
-
+        const sideNavItems = document.querySelector('#overviewDrawer cds-side-nav-items');
         let reportLink = document.getElementById('bugReportMenuItem');
-        if (!reportLink) {
-            const reportItem = document.createElement('li');
-            reportLink = document.createElement('a');
+        if (!reportLink && sideNavItems) {
+            reportLink = document.createElement('cds-side-nav-link');
             reportLink.id = 'bugReportMenuItem';
-            reportLink.className = 'app-nav-link';
-            reportLink.href = '#bug-report';
+            reportLink.setAttribute('href', '#bug-report');
             reportLink.textContent = 'バグを報告する';
-            reportItem.appendChild(reportLink);
-            list.appendChild(reportItem);
+            sideNavItems.appendChild(reportLink);
         }
-        if (reportLink.dataset.bugReportBound !== 'true') {
+        if (reportLink?.dataset.bugReportBound !== 'true') {
             reportLink.dataset.bugReportBound = 'true';
             reportLink.addEventListener('click', event => {
                 event.preventDefault();
+                const drawer = document.getElementById('overviewDrawer');
+                if (drawer) {
+                    drawer.expanded = false;
+                    drawer.removeAttribute('expanded');
+                }
                 queueMicrotask(openBugReportModal);
             });
         }
