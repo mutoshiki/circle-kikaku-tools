@@ -111,7 +111,7 @@ D.addEventListener('DOMContentLoaded', async () => {
     // Retired allocation controls are removed before feature owners can expose them.
     ['fillEmptySeatsBtn', 'traySettingsBtn', 'autoAssignPopover', 'autoAssignMenu', 'clearAllBtn', 'optFemale', 'optMale', 'optGrade']
         .forEach(id => document.getElementById(id)?.remove());
-    document.getElementById('car-plan-switcher')?.setAttribute('hidden', '');
+    document.getElementById('car-plan-switcher')?.remove();
 
     const roleStateReady = loadAllocationRoleState().catch(error => {
         console.warn('Allocation role state failed to load:', error);
