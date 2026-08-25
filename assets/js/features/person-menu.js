@@ -1,12 +1,10 @@
-// Compact person menu feature
-// Owns member/driver quick action menus and the shared edit modal entry point.
+// Compact person menu feature.
+// Owns the Carbon overflow-menu lifecycle plus memo, role, grade, flag, lock and
+// unassigned/delete actions. Name editing, gender metadata and cross-car movement
+// are deliberately not part of the participant menu.
 
 let activePersonMenuTarget = null;
 let activePersonMenuTrigger = null;
-
-// An open person menu is promoted to the browser top layer. A z-index can only
-// compete inside its current stacking context; the Popover API removes that
-// limitation while Carbon continues to own placement, focus and submenus.
 const personMenuAnchorRects = new WeakMap();
 const personMenuPlaceholders = new WeakMap();
 const personMenuNativeToggleBound = new WeakSet();
@@ -53,18 +51,14 @@ function ensurePersonMenuPlaceholder(trigger, rect) {
 
 function getOpenPersonMenuTrigger() {
     if (activePersonMenuTrigger
-        && (activePersonMenuTrigger.open === true || activePersonMenuTrigger.hasAttribute('open'))) {
-        return activePersonMenuTrigger;
-    }
+        && (activePersonMenuTrigger.open === true || activePersonMenuTrigger.hasAttribute('open'))) return activePersonMenuTrigger;
     return document.querySelector('cds-overflow-menu.person-overflow-menu[data-person-menu-top-layer="true"], cds-overflow-menu.person-overflow-menu[open]');
 }
 
 function syncPersonMenuTopLayerPosition(trigger = getOpenPersonMenuTrigger()) {
     if (!trigger || !isPersonMenuInTopLayer(trigger)) return;
     const placeholder = personMenuPlaceholders.get(trigger);
-    const rect = placeholder?.isConnected
-        ? placeholder.getBoundingClientRect()
-        : personMenuAnchorRects.get(trigger);
+    const rect = placeholder?.isConnected ? placeholder.getBoundingClientRect() : personMenuAnchorRects.get(trigger);
     if (!rect) return;
     const viewportWidth = window.visualViewport?.width || window.innerWidth;
     const viewportHeight = window.visualViewport?.height || window.innerHeight;
@@ -84,6 +78,22 @@ function schedulePersonMenuTopLayerPosition() {
     });
 }
 
+function demotePersonMenuFromTopLayer(trigger) {
+    if (!trigger) return;
+    if (isPersonMenuInTopLayer(trigger)) {
+        try { trigger.hidePopover(); } catch (_) {}
+    }
+    trigger.removeAttribute('popover');
+    trigger.removeAttribute('data-person-menu-top-layer');
+    ['--person-menu-anchor-left', '--person-menu-anchor-top', '--person-menu-anchor-width', '--person-menu-anchor-height']
+        .forEach(property => trigger.style.removeProperty(property));
+    personMenuPlaceholders.get(trigger)?.remove();
+    personMenuPlaceholders.delete(trigger);
+    personMenuAnchorRects.delete(trigger);
+    const anyTopLayerMenu = Array.from(document.querySelectorAll('cds-overflow-menu.person-overflow-menu')).some(isPersonMenuInTopLayer);
+    document.body.classList.toggle('person-menu-top-layer-open', anyTopLayerMenu);
+}
+
 function handlePersonMenuNativeToggle(event) {
     const trigger = event.currentTarget;
     if (event.newState !== 'closed' || !trigger) return;
@@ -92,12 +102,6 @@ function handlePersonMenuNativeToggle(event) {
         trigger.removeAttribute('open');
     }
     demotePersonMenuFromTopLayer(trigger);
-    if (activePersonMenuTrigger === trigger) {
-        const nextTrigger = getOpenPersonMenuTrigger();
-        activePersonMenuTrigger = nextTrigger || null;
-        activePersonMenuTarget = nextTrigger?.closest('.member-card, .driver-seat') || null;
-        document.body.classList.toggle('person-menu-open', !!nextTrigger);
-    }
 }
 
 function promotePersonMenuToTopLayer(trigger) {
@@ -121,34 +125,13 @@ function promotePersonMenuToTopLayer(trigger) {
         document.body.classList.add('person-menu-top-layer-open');
         schedulePersonMenuTopLayerPosition();
         return true;
-    } catch (error) {
+    } catch (_) {
         trigger.removeAttribute('popover');
         trigger.removeAttribute('data-person-menu-top-layer');
         personMenuPlaceholders.get(trigger)?.remove();
         personMenuPlaceholders.delete(trigger);
-        console.warn('Person menu top-layer promotion failed; using stacking fallback.', error);
         return false;
     }
-}
-
-function demotePersonMenuFromTopLayer(trigger) {
-    if (!trigger) return;
-    if (isPersonMenuInTopLayer(trigger)) {
-        try { trigger.hidePopover(); }
-        catch { /* The Carbon menu may already have closed it. */ }
-    }
-    trigger.removeAttribute('popover');
-    trigger.removeAttribute('data-person-menu-top-layer');
-    trigger.style.removeProperty('--person-menu-anchor-left');
-    trigger.style.removeProperty('--person-menu-anchor-top');
-    trigger.style.removeProperty('--person-menu-anchor-width');
-    trigger.style.removeProperty('--person-menu-anchor-height');
-    personMenuPlaceholders.get(trigger)?.remove();
-    personMenuPlaceholders.delete(trigger);
-    personMenuAnchorRects.delete(trigger);
-    const anyTopLayerMenu = Array.from(document.querySelectorAll('cds-overflow-menu.person-overflow-menu'))
-        .some(isPersonMenuInTopLayer);
-    document.body.classList.toggle('person-menu-top-layer-open', anyTopLayerMenu);
 }
 
 function closeOtherPersonMenus(keepTrigger) {
@@ -181,9 +164,7 @@ window.SanpoPersonMenuLayer = Object.freeze({
     isTopLayer: isPersonMenuInTopLayer
 });
 
-function getActivePersonMenuTarget() {
-    return activePersonMenuTarget;
-}
+function getActivePersonMenuTarget() { return activePersonMenuTarget; }
 window.getActivePersonMenuTarget = getActivePersonMenuTarget;
 
 function personMenuItemFromEvent(event) {
@@ -198,51 +179,67 @@ function personOverflowFromEvent(event) {
 function replacePersonMenuItemIcon(item, iconName) {
     if (!item || !iconName) return;
     const current = item.querySelector('[slot="render-icon"]');
-    if (current?.dataset?.carbonIconName === iconName || current?.dataset?.carbonIcon === iconName) return;
     const placeholder = document.createElement('span');
     placeholder.setAttribute('slot', 'render-icon');
     placeholder.setAttribute('data-carbon-icon', iconName);
     placeholder.setAttribute('aria-hidden', 'true');
-    if (current) current.replaceWith(placeholder);
-    else item.prepend(placeholder);
+    if (current) current.replaceWith(placeholder); else item.prepend(placeholder);
     window.SanpoCarbon?.renderCarbonIcons?.(placeholder);
+}
+
+function personRoleEnabled(person) {
+    if (person?.dataset?.driver === 'true') return true;
+    if (person?.dataset?.driver === 'false') return false;
+    return !!person?.classList?.contains('driver-seat');
+}
+
+function allocationRoleText(enabled) {
+    const team = document.body.dataset.activePlanTemplate === 'team';
+    if (team) return enabled ? '班長を外す' : '班長にする';
+    return enabled ? '運転手を外す' : '運転手にする';
 }
 
 function syncPersonMenuContext(trigger) {
     if (!trigger) return null;
-    const card = trigger.closest('.member-card');
-    const driver = trigger.closest('.driver-seat');
-    const person = card || driver;
+    const person = trigger.closest('.member-card, .driver-seat');
     if (!person) return null;
     const name = person.dataset.name || person.querySelector('.member-name-text, .driver-name-disp')?.textContent || '参加者';
     trigger.label = `${name}の操作`;
     trigger.setAttribute('label', trigger.label);
     trigger.setAttribute('aria-label', trigger.label);
     const rootMenu = trigger.querySelector(':scope > cds-menu.person-pop-menu');
-    if (rootMenu) {
-        rootMenu.label = trigger.label;
-        rootMenu.setAttribute('aria-label', trigger.label);
+    rootMenu?.setAttribute('aria-label', trigger.label);
+
+    const roleItem = trigger.querySelector('[data-person-action="driver"]');
+    if (roleItem) {
+        const enabled = personRoleEnabled(person);
+        const label = allocationRoleText(enabled);
+        roleItem.setAttribute('label', label);
+        roleItem.label = label;
+        roleItem.toggleAttribute('disabled', person.parentElement?.id === 'waiting-list');
+        replacePersonMenuItemIcon(roleItem, document.body.dataset.activePlanTemplate === 'team' ? 'user-role' : 'car');
     }
-    if (card) {
-        const locked = card.dataset.locked === 'true';
-        const lockItem = trigger.querySelector('cds-menu-item[data-person-action="lock"]');
-        if (lockItem) {
-            const label = locked ? '固定解除' : '固定';
-            lockItem.label = label;
-            lockItem.setAttribute('label', label);
-            replacePersonMenuItemIcon(lockItem, locked ? 'unlocked' : 'locked');
-        }
-        const inWaiting = card.parentElement?.id === 'waiting-list';
-        const returnItem = trigger.querySelector('cds-menu-item[data-person-action="return"]');
-        if (returnItem) {
-            const label = inWaiting ? '削除' : '戻す';
-            returnItem.label = label;
-            returnItem.setAttribute('label', label);
-            returnItem.kind = inWaiting ? 'danger' : 'default';
-            returnItem.setAttribute('kind', returnItem.kind);
-            replacePersonMenuItemIcon(returnItem, inWaiting ? 'trash-can' : 'undo');
-        }
+
+    const lockItem = trigger.querySelector('[data-person-action="lock"]');
+    if (lockItem) {
+        const locked = person.dataset.locked === 'true';
+        const label = locked ? '固定解除' : '固定';
+        lockItem.setAttribute('label', label);
+        lockItem.label = label;
+        replacePersonMenuItemIcon(lockItem, locked ? 'unlocked' : 'locked');
     }
+
+    const returnItem = trigger.querySelector('[data-person-action="return"]');
+    if (returnItem) {
+        const inWaiting = person.parentElement?.id === 'waiting-list';
+        const label = inWaiting ? '削除' : '未配置に戻す';
+        returnItem.setAttribute('label', label);
+        returnItem.label = label;
+        returnItem.kind = inWaiting ? 'danger' : 'default';
+        returnItem.setAttribute('kind', returnItem.kind);
+        replacePersonMenuItemIcon(returnItem, inWaiting ? 'trash-can' : 'undo');
+    }
+
     activePersonMenuTarget = person;
     activePersonMenuTrigger = trigger;
     document.body.classList.add('person-menu-open');
@@ -254,7 +251,7 @@ function ensurePersonMeta(line) {
     let meta = line.querySelector('.person-meta');
     if (!meta) {
         meta = ce('div', 'person-meta');
-        line.insertBefore(meta, line.querySelector('.member-menu-btn, .driver-menu-btn') || null);
+        line.insertBefore(meta, line.querySelector('.person-overflow-menu') || null);
     }
     return meta;
 }
@@ -263,35 +260,16 @@ function updatePersonGradeBadge(person) {
     if (!person) return;
     const grade = parseInt(person.dataset.grade) || 0;
     const line = $('.member-main-line, .driver-main-line', person);
-    if (!line) return;
     const meta = ensurePersonMeta(line);
     meta?.querySelector('.grade-badge')?.remove();
     if (grade > 0 && meta) {
-        const tagValue = ['male', 'female'].includes(person.dataset.gender) ? person.dataset.gender : 'unknown';
         const badge = ce('cds-tag', 'grade-badge carbon-display-tag');
         badge.dataset.grade = String(grade);
-        badge.dataset.tagGroup = 'grade';
-        badge.dataset.tagValue = tagValue;
-        badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', tagValue) || 'gray');
+        badge.setAttribute('type', 'gray');
         badge.setAttribute('size', 'sm');
         badge.textContent = `${grade}年`;
-        badge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', tagValue, badge.textContent) || badge.textContent);
+        badge.setAttribute('aria-label', badge.textContent);
         meta.appendChild(badge);
-    }
-}
-
-function updatePersonGenderBadge(person) {
-    if (!person) return;
-    const line = $('.member-main-line, .driver-main-line', person);
-    if (!line) return;
-    line.querySelector('.gender-badge')?.remove();
-    const badge = line.querySelector('.grade-badge');
-    if (badge) {
-        const tagValue = ['male', 'female'].includes(person.dataset.gender) ? person.dataset.gender : 'unknown';
-        badge.classList.remove('grade-male', 'grade-female', 'grade-unknown');
-        badge.dataset.tagValue = tagValue;
-        badge.setAttribute('type', window.SanpoTagTypes?.resolve('grade', tagValue) || 'gray');
-        badge.setAttribute('aria-label', window.SanpoTagTypes?.accessibleName('grade', tagValue, badge.textContent) || badge.textContent);
     }
 }
 
@@ -303,29 +281,19 @@ function setPersonGrade(person, gradeValue) {
     save();
 }
 
-// Gender is changed only by an explicit Carbon menu-item choice. Person names
-// and card surfaces are intentionally non-interactive for this state.
-function setPersonGender(person, gender) {
-    const next = ['male', 'female', 'unknown'].includes(gender) ? gender : 'unknown';
-    person.dataset.gender = next;
-    updatePersonGenderBadge(person);
-    updateUI();
-    save();
-}
-
 function updatePersonFlagBadge(person) {
     if (!person) return;
     person.dataset.flag = normalizePersonFlag(person.dataset.flag);
     const line = $('.member-main-line, .driver-main-line', person);
-    if (!line) return;
     const meta = ensurePersonMeta(line);
     meta?.querySelector('.person-flag')?.remove();
     const holder = document.createElement('template');
     holder.innerHTML = renderPersonFlag(person.dataset.flag);
     const badge = holder.content.firstElementChild;
     if (!meta || !badge) return;
+    const role = meta.querySelector('.driver-role-tag');
     const grade = meta.querySelector('.grade-badge');
-    meta.insertBefore(badge, grade || null);
+    meta.insertBefore(badge, role || grade || null);
 }
 
 function syncFlagAcrossPlans(name, flag) {
@@ -359,6 +327,36 @@ function setPersonFlag(person, value) {
     save();
 }
 
+function syncPersonRoleTag(person) {
+    const meta = ensurePersonMeta($('.member-main-line, .driver-main-line', person));
+    if (!meta) return;
+    let tag = meta.querySelector('.driver-role-tag');
+    if (!personRoleEnabled(person)) {
+        tag?.remove();
+        return;
+    }
+    if (!tag) {
+        tag = ce('cds-tag', 'driver-role-tag carbon-display-tag');
+        tag.setAttribute('type', 'gray');
+        tag.setAttribute('size', 'sm');
+        const grade = meta.querySelector('.grade-badge');
+        meta.insertBefore(tag, grade || null);
+    }
+    tag.textContent = document.body.dataset.activePlanTemplate === 'team' ? '班長' : '運転手';
+    tag.setAttribute('aria-label', tag.textContent);
+}
+
+function setPersonDriverRole(person, enabled = !personRoleEnabled(person)) {
+    if (!person || person.parentElement?.id === 'waiting-list') return;
+    person.dataset.driver = enabled ? 'true' : 'false';
+    syncPersonRoleTag(person);
+    syncActiveCarPlanFromDom?.();
+    updateUI();
+    save();
+    window.SanpoAssignmentWorkspace?.refresh?.();
+}
+window.setPersonDriverRole = setPersonDriverRole;
+
 async function returnOrDeleteMemberCard(card) {
     if (!card) return;
     if (card.dataset.locked === 'true') {
@@ -374,23 +372,21 @@ async function returnOrDeleteMemberCard(card) {
             card.remove();
             changed = true;
         }
-    } else if (await appConfirm('車から降ろして未割り当てメンバーに戻しますか？', { title: '未割り当てに戻す', okText: '戻す' })) {
+    } else if (await appConfirm('未配置に戻しますか？', { title: '未配置に戻す', okText: '戻す' })) {
         $('#waiting-list')?.appendChild(card);
+        card.dataset.driver = 'false';
         changed = true;
     }
     if (!changed) return;
     updateUI();
     save();
+    window.SanpoAssignmentWorkspace?.refresh?.();
 }
 
 function handleCompactPersonAction(action, person = activePersonMenuTarget, choiceValue = '') {
     if (!action || !person) return;
-    const card = person.closest?.('.member-card') || null;
-    const driver = person.closest?.('.driver-seat') || null;
-    const isDriver = !!driver;
-    const targetPerson = card || driver;
+    const targetPerson = person.closest?.('.member-card, .driver-seat') || null;
     if (!targetPerson) return;
-
     const trigger = targetPerson.querySelector('cds-overflow-menu.person-overflow-menu');
     if (trigger) {
         trigger.open = false;
@@ -400,12 +396,11 @@ function handleCompactPersonAction(action, person = activePersonMenuTarget, choi
     document.body.classList.remove('person-menu-open');
     window.SanpoFocusModality?.clearPointerFocus?.(trigger);
 
-    if (action === 'memo') handleEdit(isDriver ? 'driverMemo' : 'memo', targetPerson);
-    else if (action === 'lock' && card) toggleLock(card);
-    else if (action === 'return' && card) returnOrDeleteMemberCard(card);
-    else if (action === 'name') handleEdit(isDriver ? 'driverName' : 'memberName', targetPerson);
+    if (action === 'memo') handleEdit('memo', targetPerson);
+    else if (action === 'driver') setPersonDriverRole(targetPerson);
+    else if (action === 'lock' && targetPerson.classList.contains('member-card')) toggleLock(targetPerson);
+    else if (action === 'return' && targetPerson.classList.contains('member-card')) returnOrDeleteMemberCard(targetPerson);
     else if (action === 'grade') setPersonGrade(targetPerson, choiceValue);
-    else if (action === 'gender') setPersonGender(targetPerson, choiceValue);
     else if (action === 'flag') setPersonFlag(targetPerson, choiceValue);
 }
 window.handleCompactPersonAction = handleCompactPersonAction;
@@ -424,16 +419,14 @@ function shouldKeepPersonMenuForTarget(target) {
     return !!target?.closest?.('cds-overflow-menu.person-overflow-menu, cds-menu.person-pop-menu');
 }
 
-function ensureCompactMenuFallback() {
-    setupCompactPersonMenu();
-}
+function ensureCompactMenuFallback() { setupCompactPersonMenu(); }
 window.ensureCompactMenuFallback = ensureCompactMenuFallback;
 
 function setupCompactPersonMenu() {
     if (setupCompactPersonMenu.bound === true) return;
     setupCompactPersonMenu.bound = true;
 
-    D.addEventListener('pointerdown', event => {
+    document.addEventListener('pointerdown', event => {
         const trigger = personOverflowFromEvent(event);
         if (trigger) {
             closeOtherPersonMenus(trigger);
@@ -441,19 +434,17 @@ function setupCompactPersonMenu() {
             syncPersonMenuContext(trigger);
             return;
         }
-        if (shouldKeepPersonMenuForTarget(event.target)) return;
-        closePersonMenus();
+        if (!shouldKeepPersonMenuForTarget(event.target)) closePersonMenus();
     }, true);
 
-    D.addEventListener('click', event => {
+    document.addEventListener('click', event => {
         const overflowTrigger = personOverflowFromEvent(event);
         const item = personMenuItemFromEvent(event);
         if (overflowTrigger && !item) {
             queueMicrotask(() => {
                 const open = overflowTrigger.open === true || overflowTrigger.hasAttribute('open');
                 document.body.classList.toggle('person-menu-open', open);
-                if (open) promotePersonMenuToTopLayer(overflowTrigger);
-                else demotePersonMenuFromTopLayer(overflowTrigger);
+                if (open) promotePersonMenuToTopLayer(overflowTrigger); else demotePersonMenuFromTopLayer(overflowTrigger);
             });
         }
         if (!item) return;
@@ -463,45 +454,11 @@ function setupCompactPersonMenu() {
         const directAction = item.dataset.personAction || '';
         const choiceAction = item.dataset.personChoice || '';
         if (!directAction && !choiceAction) return;
-        const action = choiceAction || directAction;
-        const value = choiceAction ? item.dataset.choiceValue || '' : '';
-        queueMicrotask(() => handleCompactPersonAction(action, person, value));
+        queueMicrotask(() => handleCompactPersonAction(choiceAction || directAction, person, choiceAction ? item.dataset.choiceValue || '' : ''));
     }, false);
 
-    D.addEventListener('keydown', event => {
-        if (event.key === 'Escape') closePersonMenus();
-    }, true);
-
-    D.addEventListener('cds-popover-closed', event => {
-        const path = event.composedPath?.() || [];
-        if (path.some(node => node?.matches?.('cds-overflow-menu.person-overflow-menu'))) closePersonMenus();
-    }, true);
-
-    const menuStateObserver = new MutationObserver(records => {
-        const menuRecords = records.filter(record => record.target?.matches?.('cds-overflow-menu.person-overflow-menu'));
-        if (!menuRecords.length) return;
-        menuRecords.forEach(record => {
-            const trigger = record.target;
-            const open = trigger.open === true || trigger.hasAttribute('open');
-            if (open) promotePersonMenuToTopLayer(trigger);
-            else demotePersonMenuFromTopLayer(trigger);
-        });
-        const anyOpen = !!D.querySelector('cds-overflow-menu.person-overflow-menu[open]');
-        D.body.classList.toggle('person-menu-open', anyOpen);
-        if (!anyOpen) {
-            activePersonMenuTarget = null;
-            activePersonMenuTrigger = null;
-        } else if (!activePersonMenuTrigger
-            || !(activePersonMenuTrigger.open === true || activePersonMenuTrigger.hasAttribute('open'))) {
-            const nextTrigger = D.querySelector('cds-overflow-menu.person-overflow-menu[open]');
-            activePersonMenuTrigger = nextTrigger || null;
-            activePersonMenuTarget = nextTrigger?.closest('.member-card, .driver-seat') || null;
-        }
-    });
-    menuStateObserver.observe(D.body, { subtree: true, attributes: true, attributeFilter: ['open'] });
-    setupCompactPersonMenu.menuStateObserver = menuStateObserver;
-
-    D.addEventListener('scroll', schedulePersonMenuTopLayerPosition, { capture: true, passive: true });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') closePersonMenus(); }, true);
+    document.addEventListener('scroll', schedulePersonMenuTopLayerPosition, { capture: true, passive: true });
     window.addEventListener('resize', schedulePersonMenuTopLayerPosition, { passive: true });
     window.visualViewport?.addEventListener('resize', schedulePersonMenuTopLayerPosition, { passive: true });
     window.visualViewport?.addEventListener('scroll', schedulePersonMenuTopLayerPosition, { passive: true });
@@ -511,31 +468,19 @@ function setupCompactPersonMenu() {
 function handleEdit(type, el) {
     const isCap = type === 'capacity';
     const box = isCap ? el.closest('.car-box') : null;
-    const card = !isCap ? el.closest('.member-card') : null;
-    const driver = !isCap && !card ? el.closest('.driver-seat') : null;
-
-    let initialVal = '', title = '';
-    if(isCap) {
-        title = '定員変更';
-        initialVal = String(
-            box?.dataset.capacity
-            || box?.querySelectorAll?.('.seat-slot')?.length
-            || el.value
-            || el.getAttribute?.('value')
-            || ''
-        );
-    }
-    else if (type === 'memberName' && card) { title = '名前変更'; initialVal = card.dataset.name || $('.member-name-text', card).innerText; }
-    else if (type === 'driverName' && driver) { title = '名前変更'; initialVal = driver.dataset.name || $('.driver-name-disp', driver).innerText; }
-    else if (card) { title = 'メモ編集'; initialVal = $('.memo-popup', card).innerText; } 
-    else if (driver) { title = '車出しメモ'; initialVal = $('.driver-memo-text', driver).innerText; }
+    const person = !isCap ? el.closest('.member-card, .driver-seat') : null;
+    const memo = person?.querySelector('.memo-popup');
+    const title = isCap ? '定員変更' : 'メモ編集';
+    const initialVal = isCap
+        ? String(box?.dataset.capacity || box?.querySelectorAll?.('.seat-slot')?.length || '')
+        : String(memo?.innerText || '');
 
     const editTitleEl = $('#commonEditModalTitle');
     const editInput = $('#editModalInput');
     if (editTitleEl) editTitleEl.innerText = title;
     if (editInput) {
         editInput.value = initialVal;
-        editInput.label = isCap ? '定員' : (type.includes('Name') ? '名前' : 'メモ');
+        editInput.label = isCap ? '定員' : 'メモ';
         editInput.setAttribute('label', editInput.label);
         editInput.setAttribute('aria-label', editInput.label);
         editInput.type = isCap ? 'number' : 'text';
@@ -548,51 +493,40 @@ function handleEdit(type, el) {
             editInput.removeAttribute('step');
         }
     }
-    
+
     saveCb = () => {
-        const v = $('#editModalInput').value;
-        if(isCap) {
-            const newC = getInt(v);
-            if(newC > 0) {
-                const boxEl = el.closest('.car-box');
-                const grid = $('.car-layout-grid', boxEl);
+        const value = $('#editModalInput').value;
+        if (isCap) {
+            const newCapacity = getInt(value);
+            if (newCapacity > 0) {
+                const grid = $('.car-layout-grid', box);
                 const current = $$('.seat-slot', grid);
-                if(newC > current.length) {
-                    for(let i=0; i<newC-current.length; i++) {
-                        const d = ce('div','seat-slot'); grid.appendChild(d); setupSortable(d);
+                if (newCapacity > current.length) {
+                    for (let i = 0; i < newCapacity - current.length; i += 1) {
+                        const slot = ce('div', 'seat-slot');
+                        slot.innerHTML = '<cds-icon-button class="seat-add-btn" type="button" kind="ghost" size="lg" aria-label="メンバーを追加"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span></cds-icon-button>';
+                        grid.appendChild(slot);
                     }
-                } else if(newC < current.length) {
-                    for(let i=current.length-1; i>=newC; i--) {
-                        if(current[i].children.length) $('#waiting-list').appendChild(current[i].children[0]);
+                } else if (newCapacity < current.length) {
+                    for (let i = current.length - 1; i >= newCapacity; i -= 1) {
+                        const occupant = current[i].querySelector('.member-card');
+                        if (occupant) {
+                            occupant.dataset.driver = 'false';
+                            $('#waiting-list')?.appendChild(occupant);
+                        }
                         current[i].remove();
                     }
                 }
-                boxEl.dataset.capacity = newC;
+                box.dataset.capacity = newCapacity;
             }
-        } else if (type === 'memberName' && card) {
-            const nextName = v.trim();
-            if (!nextName) return;
-            card.dataset.name = nextName;
-            $('.member-name-text', card).textContent = nextName;
-        } else if (type === 'driverName' && driver) {
-            const nextName = v.trim();
-            if (!nextName) return;
-            const oldName = driver.dataset.name || $('.driver-name-disp', driver).innerText;
-            driver.dataset.name = nextName;
-            $('.driver-name-disp', driver).textContent = nextName;
-            const boxEl = driver.closest('.car-box');
-            const label = $('.car-name-label', boxEl);
-            if (label) label.textContent = `${nextName}${typeof getActiveGroupSuffix === 'function' ? getActiveGroupSuffix() : '車'}`;
-            if (settlementState?.cars?.[oldName] && !settlementState.cars[nextName]) {
-                settlementState.cars[nextName] = settlementState.cars[oldName];
-                delete settlementState.cars[oldName];
-            }
-        } else if (card) {
-            const m = $('.memo-popup', card); m.innerText = v; m.style.display = v?'block':'none';
-        } else if (driver) {
-            const m = $('.driver-memo-text', driver); m.innerText = v; m.style.display = v?'block':'none';
+        } else if (memo) {
+            memo.innerText = value;
+            memo.style.display = value ? 'block' : 'none';
         }
-        modals.edit.hide(); updateUI(); save();
+        modals.edit.hide();
+        updateUI();
+        save();
+        window.SanpoAssignmentWorkspace?.refresh?.();
     };
     modals.edit.show();
 }
