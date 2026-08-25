@@ -66,6 +66,16 @@ function normalizeLegacyAllocationShareUrl() {
     if (changed) window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`);
 }
 
+function suppressRetiredAllocationDragGuidance() {
+    const key = `syawari_guidance_allocation_drag_${roomId || 'local'}_v3`;
+    try {
+        if (typeof safeLocalSet === 'function') safeLocalSet(key, true);
+        else localStorage.setItem(key, JSON.stringify(true));
+    } catch (_) {
+        // Guidance is nonessential; storage restrictions must not block app startup.
+    }
+}
+
 D.addEventListener('DOMContentLoaded', async () => {
     // Phones use one natural scroll owner. The old gesture owner converted a tiny
     // finger movement into a full project-title collapse, which felt much faster
@@ -75,6 +85,7 @@ D.addEventListener('DOMContentLoaded', async () => {
     }
 
     normalizeLegacyAllocationShareUrl();
+    suppressRetiredAllocationDragGuidance();
 
     // Retired allocation controls are removed before feature owners can expose them.
     ['fillEmptySeatsBtn', 'traySettingsBtn', 'autoAssignPopover', 'autoAssignMenu', 'clearAllBtn', 'optFemale', 'optMale', 'optGrade']
