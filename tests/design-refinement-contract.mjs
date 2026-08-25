@@ -42,7 +42,7 @@ expect(index.includes('rendered-qa-v26'), 'Changed design owners need the v26 ca
 expect(header.includes('cds-icon-button.header-action'), 'Header Carbon icon-button hosts need an explicit neutral utility contract.');
 expect(header.includes('#shareLinkBtn.header-action'), 'Share action needs an explicit shell-action contract.');
 expect(header.includes('--cds-icon-primary: #f4f4f4;'), 'Persistent g100 header utilities must use Carbon Gray 10 foreground.');
-expect(headerBase.includes('#overviewMenuBtn.app-shell-menu-button') && headerBase.includes('color: #f4f4f4;'), 'The Carbon shell menu glyph must stay Gray 10/white rather than inherit interactive blue.');
+expect(headerBase.includes('#overviewMenuBtn') && headerBase.includes('--cds-icon-primary: #f4f4f4;'), 'The official Carbon header menu glyph must stay Gray 10/white rather than inherit interactive blue.');
 expect(!index.includes('id="car-plan-switcher"'), 'Allocation pages must not duplicate car/team switching below the primary tabs.');
 expect(!index.includes('id="sheet-summary"'), 'Shared view must not render the removed participant-count summary.');
 expect(!lateRefinement.includes('#sheet-title-bar') && !lateRefinement.includes('#sheet-summary'), 'Late compatibility CSS must not reintroduce removed shared-summary geometry.');
