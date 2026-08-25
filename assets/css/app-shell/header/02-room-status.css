@@ -1,4 +1,4 @@
-/* Project-title editor and room control. Save/sync status now uses Carbon toast notifications. */
+/* Carbon project-title input and room status. */
 .app-room-control {
   position: relative;
   display: flex;
@@ -7,51 +7,41 @@
   min-width: 0;
 }
 
-/* The original Carbon text input remains the persistence source for roomName.
- * It is visually hidden after the shell creates the editable page-title view. */
 .app-room-field,
-.project-title-source {
-  position: absolute;
-  width: 1px;
-  height: 1px;
+.project-title-carbon-field {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: auto;
   padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
-  pointer-events: none;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
+  white-space: normal;
+  pointer-events: auto;
 }
 
 .app-room-kicker { display: none; }
-.app-room-input { width: 1px; min-width: 1px; min-height: 1px; opacity: 0; pointer-events: none; }
 
-.project-title-editor {
-  box-sizing: border-box;
-  width: min(100%, 960px);
+.app-room-input {
+  display: block;
+  width: 100%;
   min-width: 0;
-  min-height: 64px;
-  padding: 0 0 8px;
-  overflow: hidden;
-  outline: 0;
-  color: #f4f4f4;
-  font-size: 3.375rem;
-  font-weight: 300;
-  line-height: 1.05;
-  letter-spacing: 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  cursor: text;
+  min-height: 48px;
+  opacity: 1;
+  pointer-events: auto;
+  --cds-field: #262626;
+  --cds-field-hover: #333333;
+  --cds-text-primary: #f4f4f4;
+  --cds-text-secondary: #c6c6c6;
+  --cds-border-strong: #8d8d8d;
+  --cds-focus: #0f62fe;
+  --cds-body-compact-01-font-size: 1.125rem;
 }
 
-.project-title-editor:empty::before {
-  color: #8d8d8d;
-  content: attr(data-placeholder);
-  pointer-events: none;
-}
-
-.project-title-editor:focus-visible {
-  outline: 2px solid #0f62fe;
-  outline-offset: 2px;
+#syncStatusBadge {
+  justify-self: start;
 }
 
 #appUndoBar {
@@ -83,15 +73,6 @@
   --cds-button-ghost: transparent;
   --cds-button-ghost-hover: rgba(var(--white-rgb), 0.14);
   --cds-button-ghost-color: currentColor;
-}
-
-@media (max-width: 768px) {
-  .project-title-editor {
-    min-height: 56px;
-    padding-bottom: 8px;
-    font-size: 2.625rem;
-    line-height: 1.1;
-  }
 }
 
 @media (max-width: 520px) {

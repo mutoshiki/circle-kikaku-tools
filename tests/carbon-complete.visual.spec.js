@@ -4,7 +4,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
   test(`${viewport.width}px Carbon shell light/dark surfaces render without page overflow`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport);
     await page.goto('/');
-    await page.waitForFunction(() => customElements.get('cds-button'));
+    await page.waitForFunction(() => customElements.get('cds-button') && customElements.get('cds-header') && customElements.get('cds-text-input'));
     await page.evaluate(() => window.executeDebugMode?.());
     await page.evaluate(() => window.switchView('list'));
 
@@ -22,24 +22,26 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
       const switcher = document.querySelector('.header-app-switcher');
       const roomInput = document.querySelector('#roomNameInput');
       const projectTitle = document.querySelector('#projectTitleRegion');
-      const projectTitleEditor = document.querySelector('#projectTitleEditor');
       const tabShadow = document.querySelector('#view-toggle-bar')?.shadowRoot;
       return {
         navPosition: getComputedStyle(nav).position,
+        headerTag: header.tagName,
+        sideNavTag: document.querySelector('#overviewDrawer')?.tagName || '',
         headerBottom: headerRect.bottom,
         projectTitleTop: projectTitle?.getBoundingClientRect().top ?? -1,
         projectTitleBottom: projectTitle?.getBoundingClientRect().bottom ?? -1,
         projectTitleHeight: projectTitle?.getBoundingClientRect().height ?? 0,
         projectTitleState: projectTitle?.dataset.state || '',
-        projectTitleEditorText: projectTitleEditor?.textContent || '',
-        projectTitlePlaceholder: projectTitleEditor?.dataset.placeholder || '',
+        projectTitleValue: roomInput?.value || '',
+        projectTitlePlaceholder: roomInput?.getAttribute('placeholder') || '',
+        contenteditableCount: document.querySelectorAll('[contenteditable]').length,
         navTop: navRect.top,
         navBottom: navRect.bottom,
         firstViewContentTop: firstViewContentRect.top,
         navHeight: navRect.height,
         headerBackground: getComputedStyle(header).backgroundColor,
         navBackground: getComputedStyle(nav).backgroundColor,
-        brand: document.querySelector('.app-brand-title')?.textContent?.trim() || '',
+        brand: document.querySelector('cds-header-name')?.textContent?.trim() || '',
         labels: tabs.map(tab => tab.querySelector('.view-tab-label')?.textContent?.trim() || ''),
         shareSize: share ? { width: share.getBoundingClientRect().width, height: share.getBoundingClientRect().height } : null,
         switcherSize: switcher ? { width: switcher.getBoundingClientRect().width, height: switcher.getBoundingClientRect().height } : null,
@@ -51,12 +53,15 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
       };
     });
 
+    expect(shellGeometry.headerTag).toBe('CDS-HEADER');
+    expect(shellGeometry.sideNavTag).toBe('CDS-SIDE-NAV');
+    expect(shellGeometry.contenteditableCount).toBe(0);
     expect(shellGeometry.navPosition).not.toBe('fixed');
     expect(Math.abs(shellGeometry.projectTitleTop - shellGeometry.headerBottom)).toBeLessThanOrEqual(1);
     expect(Math.abs(shellGeometry.navTop - shellGeometry.projectTitleBottom)).toBeLessThanOrEqual(1);
     expect(shellGeometry.projectTitleHeight).toBeGreaterThanOrEqual(200);
     expect(shellGeometry.projectTitleState).toBe('expanded');
-    expect(shellGeometry.projectTitleEditorText).toBe('秋名山登山企画');
+    expect(shellGeometry.projectTitleValue).toBe('秋名山登山企画');
     expect(shellGeometry.projectTitlePlaceholder).toBe('企画名を入力');
     expect(shellGeometry.navHeight).toBeGreaterThanOrEqual(40);
     expect(shellGeometry.navHeight).toBeLessThanOrEqual(42);
@@ -67,7 +72,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     expect(shellGeometry.labels).toEqual(['共有画面', '精算', '車割', '班割', '参加者']);
     expect(shellGeometry.shareSize).toEqual({ width: 48, height: 48 });
     expect(shellGeometry.switcherSize).toEqual({ width: 48, height: 48 });
-    expect(shellGeometry.roomInputVisibility).toBe('absolute');
+    expect(shellGeometry.roomInputVisibility).toBe('relative');
     expect(shellGeometry.visibleOverflowButtons).toBe(viewport.width === 320 ? 1 : 0);
 
     await page.dispatchEvent('#top-area', 'wheel', { deltaY: 120 });

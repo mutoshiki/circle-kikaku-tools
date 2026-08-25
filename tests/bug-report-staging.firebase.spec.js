@@ -23,7 +23,11 @@ test.describe('staging bug report end-to-end submission', () => {
     await page.goto(`http://127.0.0.1:${port}/?room=${room}`);
     await page.waitForFunction(() => document.querySelector('#syncStatusBadge')?.dataset.status === 'connected', null, { timeout: 30_000 });
 
-    await page.locator('#projectTitleEditor').fill('バグ通知staging確認');
+    await page.locator('#roomNameInput').evaluate(node => {
+      node.value = 'バグ通知staging確認';
+      node.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      node.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    });
     await page.locator('#overviewMenuBtn').click();
     await page.locator('#bugReportMenuItem').click();
     await expect(page.locator('#bugReportModal')).toHaveAttribute('open', '');

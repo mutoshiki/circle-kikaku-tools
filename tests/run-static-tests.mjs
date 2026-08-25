@@ -25,7 +25,7 @@ check('Carbon package versions are exact', () => {
   assert.equal(pkg.devDependencies['@ibm/plex-sans-jp'], '3.0.0');
 });
 check('Carbon runtime and IBM Plex assets exist', () => {
-  ['assets/vendor/carbon/carbon-entry.min.js','assets/vendor/carbon/LICENSE-web-components.txt','assets/vendor/carbon/LICENSE-icons.txt','assets/vendor/ibm-plex/plex.css','assets/vendor/ibm-plex/LICENSE.txt','assets/vendor/ibm-plex/LICENSE-jp.txt'].forEach(rel => assert.ok(fs.existsSync(path.join(root, rel)), rel));
+  ['assets/vendor/carbon/carbon-entry.min.js','assets/vendor/carbon/ui-shell.min.js','assets/vendor/carbon/LICENSE-web-components.txt','assets/vendor/carbon/LICENSE-icons.txt','assets/vendor/ibm-plex/plex.css','assets/vendor/ibm-plex/LICENSE.txt','assets/vendor/ibm-plex/LICENSE-jp.txt'].forEach(rel => assert.ok(fs.existsSync(path.join(root, rel)), rel));
 });
 check('No Bootstrap or Font Awesome runtime dependency remains', () => {
   assert.doesNotMatch(source, /data-bs-|bootstrap\.|bootstrap(?:\.min)?\.(?:css|js)|fontawesome|font-awesome|\bfa-[a-z]/i);
@@ -61,10 +61,15 @@ check('Primary navigation uses Carbon Tabs while allocation mode uses Carbon Con
   assert.match(headerEvents, /teamTab\.setAttribute\(['"]value['"],\s*['"]team['"]\)/);
   assert.match(read('assets/js/core/data-state.js'), /<cds-content-switcher class="car-plan-template-tabs"/);
 });
-check('Header icon-only controls use Carbon Icon Button or Overflow Menu', () => {
+check('Header actions use official Carbon UI Shell and menu controls', () => {
   const html = read('index.html');
-  ['editLockBtn','shareLinkBtn','overviewMenuBtn'].forEach(id => assert.match(html, new RegExp(`<cds-icon-button\\b[^>]*id="${id}"`, 'i')));
-  assert.match(html, /<cds-overflow-menu\b[^>]*class="header-action"/i);
+  assert.match(html, /<cds-header\b[^>]*id="app-header"/i);
+  assert.match(html, /<cds-header-menu-button\b[^>]*id="overviewMenuBtn"/i);
+  assert.match(html, /<cds-header-name\b/i);
+  assert.match(html, /<cds-icon-button\b[^>]*id="shareLinkBtn"/i);
+  assert.match(html, /<cds-overflow-menu\b[^>]*header-app-switcher/i);
+  assert.match(html, /<cds-menu-item\b[^>]*id="editLockBtn"/i);
+  assert.match(html, /<cds-side-nav\b[^>]*id="overviewDrawer"/i);
 });
 check('Waiting tray disclosure uses a Carbon button', () => {
   assert.match(read('index.html'), /<cds-button\b[^>]*id="tray-handle"/i);
@@ -86,7 +91,7 @@ check('Input state owner includes Carbon invalid, warning, readonly and disabled
   ['invalid','warn','readonly','disabled'].forEach(term => assert.match(forms, new RegExp(term, 'i')));
 });
 
-check('All required Carbon component modules are registered by the entry', () => {
+check('All required Carbon component modules are registered by the entries', () => {
   const entry = read('assets/js/carbon-entry.js');
   [
     'button/index.js', 'icon-button/index.js', 'content-switcher/index.js',
@@ -95,6 +100,7 @@ check('All required Carbon component modules are registered by the entry', () =>
     'number-input/index.js', 'toggle/index.js', 'radio-button/index.js', 'modal/index.js',
     'overflow-menu/index.js'
   ].forEach(moduleName => assert.match(entry, new RegExp(moduleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))));
+  assert.match(read('assets/js/carbon-ui-shell-entry.js'), /ui-shell\/index\.js/);
 });
 check('Lockfiles do not retain Bootstrap or Font Awesome', () => {
   const locks = ['package-lock.json', 'pnpm-lock.yaml'].filter(rel => fs.existsSync(path.join(root, rel))).map(read).join('\n');
@@ -120,11 +126,13 @@ check('Build manifest is deterministic and matches exact versions', () => {
   const manifest = JSON.parse(read('assets/vendor/carbon/build-manifest.json'));
   assert.equal(manifest.generatedAt, undefined);
   assert.deepEqual(manifest.versions, { webComponents: '2.60.0', icons: '11.85.0', plexSans: '1.1.0', plexSansJp: '3.0.0' });
+  assert.equal(manifest.uiShellEntry, 'assets/js/carbon-ui-shell-entry.js');
+  assert.equal(manifest.uiShellOutput, 'assets/vendor/carbon/ui-shell.min.js');
 });
 check('Package scripts only reference available project test tools', () => {
   const pkg = JSON.parse(read('package.json'));
-  ['test','test:ui','test:visual','test:carbon:complete','test:guard'].forEach(name => assert.ok(pkg.scripts[name], name));
-  ['tests/run-static-tests.mjs','tests/carbon-complete.spec.js','tests/carbon-complete.visual.spec.js','tools/serve-static.mjs','playwright.config.js','stylelint.config.mjs'].forEach(rel => assert.ok(fs.existsSync(path.join(root, rel)), rel));
+  ['test','test:ui','test:visual','test:carbon:complete','test:guard','test:carbon:ownership'].forEach(name => assert.ok(pkg.scripts[name], name));
+  ['tests/run-static-tests.mjs','tests/official-carbon-ownership-contract.mjs','tests/official-carbon-runtime.spec.js','tests/carbon-complete.spec.js','tests/carbon-complete.visual.spec.js','tools/serve-static.mjs','playwright.config.js','stylelint.config.mjs'].forEach(rel => assert.ok(fs.existsSync(path.join(root, rel)), rel));
 });
 
 check('Index IDs are unique', () => {
@@ -137,7 +145,6 @@ check('All local index references exist', () => {
   const missing = refs.filter(rel => !fs.existsSync(path.join(root, rel)));
   assert.deepEqual(missing, []);
 });
-
 
 const failed = checks.filter(x => !x.ok);
 fs.mkdirSync(path.join(root, 'test-results'), { recursive: true });

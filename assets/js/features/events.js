@@ -51,16 +51,50 @@
     }
 
     function readBugReportProjectTitle() {
-        return String(
-            document.getElementById('projectTitleEditor')?.textContent
-            || document.getElementById('roomNameInput')?.value
-            || ''
-        ).trim().slice(0, 200);
+        return String(document.getElementById('roomNameInput')?.value || '').trim().slice(0, 200);
     }
 
     function readBugReportPlatform() {
         const nav = global.navigator;
         return String(nav?.userAgentData?.platform || nav?.platform || '').slice(0, 160);
+    }
+
+    function setCarbonSideNavExpanded(expanded, options = {}) {
+        const drawer = document.getElementById('overviewDrawer');
+        const trigger = document.getElementById('overviewMenuBtn');
+        if (!drawer || drawer.tagName !== 'CDS-SIDE-NAV' || !trigger || trigger.tagName !== 'CDS-HEADER-MENU-BUTTON') return;
+
+        const next = Boolean(expanded);
+        drawer.expanded = next;
+        drawer.toggleAttribute('expanded', next);
+        trigger.active = next;
+        trigger.toggleAttribute('active', next);
+        trigger.setAttribute('aria-expanded', String(next));
+        if (!next && options.restoreFocus) queueMicrotask(() => trigger.focus?.());
+    }
+
+    function setupCarbonSideNavigationState() {
+        const drawer = document.getElementById('overviewDrawer');
+        const trigger = document.getElementById('overviewMenuBtn');
+        if (!drawer || drawer.tagName !== 'CDS-SIDE-NAV' || !trigger || trigger.tagName !== 'CDS-HEADER-MENU-BUTTON') return;
+
+        trigger.setAttribute('aria-controls', 'overviewDrawer');
+        setCarbonSideNavExpanded(Boolean(drawer.expanded || drawer.hasAttribute('expanded')));
+        if (trigger.dataset.sideNavStateBound === 'true') return;
+        trigger.dataset.sideNavStateBound = 'true';
+
+        trigger.addEventListener('click', () => {
+            const expanded = Boolean(drawer.expanded || drawer.hasAttribute('expanded'));
+            setCarbonSideNavExpanded(!expanded);
+        });
+        drawer.addEventListener('click', event => {
+            if (!event.composedPath().some(node => node?.tagName === 'CDS-SIDE-NAV-LINK')) return;
+            setCarbonSideNavExpanded(false);
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key !== 'Escape' || !(drawer.expanded || drawer.hasAttribute('expanded'))) return;
+            setCarbonSideNavExpanded(false, { restoreFocus: true });
+        });
     }
 
     async function submitBugReport(modal) {
@@ -116,24 +150,12 @@
     }
 
     function setupBugReportNavigation() {
-        const list = document.querySelector('#overviewDrawer .app-nav-drawer-list');
-        if (!list) return;
-
-        let reportLink = document.getElementById('bugReportMenuItem');
-        if (!reportLink) {
-            const reportItem = document.createElement('li');
-            reportLink = document.createElement('a');
-            reportLink.id = 'bugReportMenuItem';
-            reportLink.className = 'app-nav-link';
-            reportLink.href = '#bug-report';
-            reportLink.textContent = 'バグを報告する';
-            reportItem.appendChild(reportLink);
-            list.appendChild(reportItem);
-        }
-        if (reportLink.dataset.bugReportBound !== 'true') {
+        const reportLink = document.getElementById('bugReportMenuItem');
+        if (reportLink?.dataset.bugReportBound !== 'true') {
             reportLink.dataset.bugReportBound = 'true';
             reportLink.addEventListener('click', event => {
                 event.preventDefault();
+                setCarbonSideNavExpanded(false);
                 queueMicrotask(openBugReportModal);
             });
         }
@@ -156,6 +178,7 @@
         const events = global.SanpoEvents || {};
         events.bindCoreStartupEvents?.();
         events.setupStaticHeaderEvents?.();
+        setupCarbonSideNavigationState();
         setupBugReportNavigation();
         events.setupGeneratedHtmlEventDelegation?.();
         events.setupSettlementInputEvents?.();

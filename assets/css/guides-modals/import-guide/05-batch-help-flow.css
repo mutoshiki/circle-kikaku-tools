@@ -57,52 +57,31 @@
   color: var(--text-main);
   font-weight: 500;
 }
+
+/* Carbon Data Table owns cells, borders, header fill, density and states. */
 .batch-auto-table-wrap {
   overflow-x: auto;
-  border: 1px solid var(--ui-saas-border, var(--border-color));
-  border-radius: var(--radius-sm, 10px);
-  background: var(--ui-saas-inner, color-mix(in srgb, var(--bg-body) 78%, var(--bg-card)));
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .batch-auto-rule-table {
+  display: block;
   width: 100%;
   min-width: 680px;
-  border-collapse: collapse;
-  table-layout: fixed;
+  --cds-layer: var(--bg-card);
+  --cds-layer-01: var(--bg-card);
+  --cds-text-primary: var(--text-main);
+  --cds-text-secondary: var(--text-sub);
+  --cds-border-subtle: var(--border-color);
 }
-.batch-auto-rule-table th,
-.batch-auto-rule-table td {
-  padding: 9px 10px;
-  border-right: 1px solid var(--ui-saas-border, var(--border-color));
-  border-bottom: 1px solid var(--ui-saas-border, var(--border-color));
-  color: var(--text-sub);
-  font-size: var(--font-size-caption);
-  font-weight: 500;
-  line-height: 1.55;
-  vertical-align: top;
-  word-break: break-word;
+.batch-auto-rule-table :is(cds-table-header-cell, cds-table-cell) {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
-.batch-auto-rule-table th {
-  color: var(--text-main);
-  font-weight: 500;
-}
-.batch-auto-rule-table thead th {
-  background: color-mix(in srgb, var(--app-accent-surface) 36%, var(--bg-card));
-}
-.batch-auto-rule-table th:first-child {
-  width: 118px;
-}
-.batch-auto-rule-table th:last-child,
-.batch-auto-rule-table td:last-child {
-  border-right: 0;
-}
-.batch-auto-rule-table tbody tr:last-child th,
-.batch-auto-rule-table tbody tr:last-child td {
-  border-bottom: 0;
-}
-.batch-auto-rule-table b {
-  color: var(--text-main);
-  font-weight: 500;
-}
+
 .batch-required-columns {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -142,16 +121,6 @@
 #batchImportModal .app-modal-body {
   padding: 16px;
 }
-@media (max-width: 520px) {
-  .batch-auto-table-wrap {
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .batch-auto-rule-table { min-width: 680px; }
-}
-
 
 #batchImportModal > .app-modal-body > .batch-import-layout {
   padding: 0 0 16px;

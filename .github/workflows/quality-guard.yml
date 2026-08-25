@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: quality-guard-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   static:
     name: CSS lint, static contracts, and Firebase rules
@@ -26,7 +30,8 @@ jobs:
           java-version: '21'
       - run: npm ci --no-audit --no-fund
       - run: npm run build:carbon
-      - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
+      - name: Verify generated Carbon assets are committed
+        run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npm run lint:css
       - run: npm test
       - run: npm run test:firebase:emulator
@@ -42,6 +47,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - run: npm run build:carbon
+      - name: Verify generated Carbon assets are committed
+        run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npx playwright install --with-deps chromium webkit
       - run: npm run test:ui
       - run: npm run test:visual
@@ -70,4 +78,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - run: npm run build:carbon
+      - name: Verify generated Carbon assets are committed
+        run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npm run test:collab:full

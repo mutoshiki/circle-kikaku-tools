@@ -4,37 +4,6 @@
 
     const events = global.SanpoEvents || {};
 
-    function installRoomTitleValueBridge(roomNameInput) {
-        if (!roomNameInput || roomNameInput.dataset.projectTitleValueBridge === 'true') return;
-        const prototype = Object.getPrototypeOf(roomNameInput);
-        const valueDescriptor = Object.getOwnPropertyDescriptor(prototype, 'value')
-            || Object.getOwnPropertyDescriptor(global.HTMLInputElement?.prototype || {}, 'value');
-        if (!valueDescriptor?.get || !valueDescriptor?.set) return;
-
-        const normalizeTitle = value => String(value ?? '').replace(/[\r\n]+/g, '');
-        const syncEditor = value => {
-            const editor = byId('projectTitleEditor');
-            if (!editor || document.activeElement === editor) return;
-            const next = normalizeTitle(value);
-            if (editor.textContent !== next) editor.textContent = next;
-            if (!next && editor.childNodes.length) editor.replaceChildren();
-        };
-
-        Object.defineProperty(roomNameInput, 'value', {
-            configurable: true,
-            enumerable: valueDescriptor.enumerable,
-            get() {
-                return valueDescriptor.get.call(this);
-            },
-            set(value) {
-                const next = normalizeTitle(value);
-                valueDescriptor.set.call(this, next);
-                syncEditor(next);
-            }
-        });
-        roomNameInput.dataset.projectTitleValueBridge = 'true';
-    }
-
     function bindCoreStartupEvents() {
         if (document.documentElement.dataset.coreStartupEventsBound === 'true') return;
         document.documentElement.dataset.coreStartupEventsBound = 'true';
@@ -138,7 +107,6 @@
 
         const roomNameInput = $('#roomNameInput');
         if (roomNameInput) {
-            installRoomTitleValueBridge(roomNameInput);
             roomNameInput.addEventListener('input', event => {
                 refreshRoomTitle();
                 if (event.isComposing) return;
