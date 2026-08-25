@@ -40,6 +40,7 @@ for (const forbidden of [
 }
 
 for (const forbidden of [
+  'projectTitleEditor',
   'createProjectTitleEditor',
   "setAttribute('contenteditable'",
   'createAppNavigationDrawer',
@@ -49,7 +50,9 @@ for (const forbidden of [
 ]) {
   assert.ok(!headerEvents.includes(forbidden), `header owner must not recreate Carbon UI: ${forbidden}`);
 }
+assert.ok(!appEvents.includes('projectTitleEditor'), 'app startup must use roomNameInput as the single project-title owner');
 assert.ok(!appEvents.includes("document.createElement('a')"), 'app startup must not recreate side-nav links with native anchors');
+assert.ok(!appEvents.includes("document.createElement('cds-side-nav-link')"), 'static navigation must remain static instead of being recreated at runtime');
 
 for (const [name, source, forbidden] of [
   ['header CSS', headerCss, '.app-nav-drawer'],
@@ -78,24 +81,27 @@ async function collectSourceFiles(dir) {
 
 const scannedFiles = [join(root, 'index.html'), ...await collectSourceFiles(join(root, 'assets', 'js'))]
   .filter(path => !path.includes(`${join('assets', 'vendor')}`));
-const nativeControlPatterns = [
-  /document\.createElement\(\s*['"]button['"]\s*\)/,
-  /document\.createElement\(\s*['"]input['"]\s*\)/,
-  /document\.createElement\(\s*['"]select['"]\s*\)/,
-  /document\.createElement\(\s*['"]textarea['"]\s*\)/,
-  /setAttribute\(\s*['"]contenteditable['"]/,
-  /<button\b/i,
-  /<input\b/i,
-  /<select\b/i,
-  /<textarea\b/i
+const forbiddenPatterns = [
+  ['native button creation', /document\.createElement\(\s*['"]button['"]\s*\)/],
+  ['native input creation', /document\.createElement\(\s*['"]input['"]\s*\)/],
+  ['native select creation', /document\.createElement\(\s*['"]select['"]\s*\)/],
+  ['native textarea creation', /document\.createElement\(\s*['"]textarea['"]\s*\)/],
+  ['contenteditable recreation', /setAttribute\(\s*['"]contenteditable['"]/],
+  ['native button markup', /<button\b/i],
+  ['native input markup', /<input\b/i],
+  ['native select markup', /<select\b/i],
+  ['native textarea markup', /<textarea\b/i],
+  ['legacy project-title editor', /projectTitleEditor/],
+  ['legacy custom app drawer', /app-nav-drawer/],
+  ['legacy custom app nav link', /app-nav-link/]
 ];
 const violations = [];
 for (const file of scannedFiles) {
   const source = await readFile(file, 'utf8');
-  for (const pattern of nativeControlPatterns) {
-    if (pattern.test(source)) violations.push(`${relative(root, file)}: ${pattern}`);
+  for (const [label, pattern] of forbiddenPatterns) {
+    if (pattern.test(source)) violations.push(`${relative(root, file)}: ${label}`);
   }
 }
-assert.deepEqual(violations, [], `generic native controls must use Carbon components:\n${violations.join('\n')}`);
+assert.deepEqual(violations, [], `official Carbon ownership violations:\n${violations.join('\n')}`);
 
 console.log('Official Carbon ownership contract passed.');
