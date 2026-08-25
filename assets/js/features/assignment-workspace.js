@@ -1,7 +1,8 @@
 // Unified Carbon Assignment Workspace.
 // This module owns allocation layout composition. Allocation state, persistence,
-// synchronization, drag/drop algorithms and person-menu behavior remain in their
-// existing feature owners.
+// synchronization and person-menu behavior remain in their existing feature owners.
+// Assignment editing is direct-action only: empty seats use the picker and members
+// move through their overflow menu. The legacy card-drag surface is not exposed.
 (function (global) {
     'use strict';
 
@@ -32,7 +33,7 @@
             link.dataset.assignmentWorkspaceStyle = 'true';
             D.head.appendChild(link);
         }
-        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v4';
+        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v5';
         if (!link.href.endsWith(href.replace('./', ''))) link.href = href;
     }
 
@@ -195,6 +196,14 @@
         }
     }
 
+    function concealWaitingPool() {
+        const tray = byId('bottom-tray');
+        if (!tray) return;
+        tray.hidden = true;
+        tray.setAttribute('aria-hidden', 'true');
+        tray.style.display = 'none';
+    }
+
     function ensureGroupOverflow(box, type) {
         const header = box.querySelector('.car-header');
         if (!header || isSharedReadOnlyMode()) return;
@@ -229,15 +238,9 @@
         if (returnItem?.getAttribute('label') !== label) returnItem?.setAttribute('label', label);
     }
 
-    function ensureDragHandle(card) {
-        if (isSharedReadOnlyMode()) return;
-        const line = card.querySelector('.member-main-line');
-        if (!line || line.querySelector('.assignment-drag-handle')) return;
-        const handle = D.createElement('span');
-        handle.className = 'assignment-drag-handle';
-        handle.setAttribute('aria-hidden', 'true');
-        handle.innerHTML = '<span data-carbon-icon="draggable" aria-hidden="true"></span>';
-        line.prepend(handle);
+    function removeLegacyDragAffordance(card) {
+        card.querySelectorAll('.assignment-drag-handle').forEach(handle => handle.remove());
+        card.classList.remove('manual-drag-source');
     }
 
     function syncLockIndicator(card) {
@@ -407,7 +410,7 @@
         });
 
         D.querySelectorAll('#cars-container .member-card, #waiting-list .member-card').forEach(card => {
-            ensureDragHandle(card);
+            removeLegacyDragAffordance(card);
             syncLockIndicator(card);
             rebuildMoveMenu(card, boxes, type);
         });
@@ -457,7 +460,6 @@
 
         const topArea = byId('top-area');
         const sheetArea = byId('sheet-view-area');
-        const tray = byId('bottom-tray');
         if (topArea) {
             topArea.hidden = false;
             topArea.style.display = '';
@@ -467,7 +469,6 @@
             sheetArea.classList.remove('active');
             sheetArea.style.display = 'none';
         }
-        if (tray) tray.style.display = 'none';
 
         const roomInput = byId('roomNameInput');
         if (roomInput) {
@@ -486,6 +487,7 @@
         D.body.classList.add('assignment-workspace-enabled');
         createHeader();
         relocateAllocationActions();
+        concealWaitingPool();
         simplifyPrimaryNavigation();
         applyShareInitialType();
         syncSwitcher();
@@ -518,6 +520,7 @@
         D.body.classList.add('assignment-workspace-enabled');
         createHeader();
         relocateAllocationActions();
+        concealWaitingPool();
         bindMoveMenuEvents();
         observe();
         global.addEventListener('resize', scheduleSync, { passive: true });
