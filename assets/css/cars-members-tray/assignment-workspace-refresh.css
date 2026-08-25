@@ -63,6 +63,10 @@ body.assignment-workspace-enabled #top-area > .edit-header {
   width: min(20rem, 100%);
 }
 
+#assignmentTypeSwitcher cds-content-switcher-item {
+  min-height: 3rem;
+}
+
 .assignment-workspace-actions {
   display: flex;
   align-items: center;
@@ -162,6 +166,8 @@ body.assignment-workspace-enabled .car-return-btn {
 
 .assignment-group-menu {
   align-self: stretch;
+  min-width: 3rem;
+  min-height: 3rem;
 }
 
 body.assignment-workspace-enabled .car-layout-grid {
