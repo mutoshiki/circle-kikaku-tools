@@ -23,6 +23,36 @@ function loadAssignmentWorkspaceFeature() {
     return window.__assignmentWorkspaceFeaturePromise;
 }
 
+function protectSharedAssignmentControls() {
+    if (!window.SanpoAssignmentWorkspace?.isReadOnly?.()) return;
+
+    const makeCapacityReadOnly = () => {
+        document.querySelectorAll('.capacity-edit-pill').forEach(control => {
+            control.setAttribute('aria-disabled', 'true');
+            control.tabIndex = -1;
+        });
+    };
+    makeCapacityReadOnly();
+
+    const cars = document.getElementById('cars-container');
+    if (cars && !window.__assignmentReadOnlyCapacityObserver) {
+        const observer = new MutationObserver(makeCapacityReadOnly);
+        observer.observe(cars, { childList: true, subtree: true });
+        window.__assignmentReadOnlyCapacityObserver = observer;
+    }
+
+    if (!window.__assignmentReadOnlyCapacityGuard) {
+        D.addEventListener('click', event => {
+            if (!window.SanpoAssignmentWorkspace?.isReadOnly?.()) return;
+            const capacityControl = (event.composedPath?.() || []).find(node => node?.classList?.contains?.('capacity-edit-pill'));
+            if (!capacityControl) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }, true);
+        window.__assignmentReadOnlyCapacityGuard = true;
+    }
+}
+
 D.addEventListener('DOMContentLoaded', async () => {
     const assignmentWorkspaceReady = loadAssignmentWorkspaceFeature().catch(error => {
         console.warn('Assignment workspace failed to load:', error);
@@ -60,6 +90,7 @@ D.addEventListener('DOMContentLoaded', async () => {
     updateEditLockButton();
     await assignmentWorkspaceReady;
     window.SanpoAssignmentWorkspace?.initialize?.();
+    protectSharedAssignmentControls();
     setupManualCardDrag();
     setupManualSheetDrag();
 
