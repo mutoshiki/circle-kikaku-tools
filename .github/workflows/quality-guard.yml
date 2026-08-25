@@ -25,7 +25,20 @@ jobs:
           distribution: temurin
           java-version: '21'
       - run: npm ci --no-audit --no-fund
+      - run: node tools/apply-official-carbon-static-migration.mjs
       - run: npm run build:carbon
+      - name: Upload generated Carbon migration output
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-carbon-migration-output
+          path: |
+            index.html
+            assets/js/features/events/02-static-header-events.js
+            assets/vendor/carbon/carbon-entry.min.js
+            assets/vendor/carbon/ui-shell.min.js
+            assets/vendor/carbon/build-manifest.json
+          if-no-files-found: error
+          retention-days: 2
       - run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
       - run: npm run lint:css
       - run: npm test
@@ -42,6 +55,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - run: node tools/apply-official-carbon-static-migration.mjs
+      - run: npm run build:carbon
       - run: npx playwright install --with-deps chromium webkit
       - run: npm run test:ui
       - run: npm run test:visual
@@ -70,4 +85,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - run: node tools/apply-official-carbon-static-migration.mjs
+      - run: npm run build:carbon
       - run: npm run test:collab:full
