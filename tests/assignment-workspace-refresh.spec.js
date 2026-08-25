@@ -36,7 +36,14 @@ test.describe('Unified assignment workspace', () => {
     await expect(page.locator('.assignment-drag-handle')).toHaveCount(0);
     await expect(page.locator('.assignment-group-menu')).toHaveCount(0);
     await expect(page.locator('.person-overflow-menu:visible')).toHaveCount(0);
-    await expect(page.locator('.capacity-count').first()).toBeVisible();
+
+    const capacityControl = page.locator('.capacity-edit-pill').first();
+    await expect(capacityControl).toBeVisible();
+    await expect(capacityControl.locator('.capacity-count')).toBeVisible();
+    await expect(capacityControl).toHaveAttribute('aria-disabled', 'true');
+    expect(await capacityControl.evaluate(node => node.tabIndex)).toBe(-1);
+    expect(await capacityControl.evaluate(node => getComputedStyle(node).pointerEvents)).toBe('none');
+
     await expect(page.locator('#roomNameInput')).toHaveJSProperty('readOnly', true);
     await expect(page.locator('#assignmentWorkspaceSummary')).toContainText('未配置');
 
