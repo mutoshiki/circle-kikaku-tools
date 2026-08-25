@@ -8,6 +8,49 @@ async function waitForWorkspace(page) {
 test.describe('Unified assignment workspace', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
+  test('mobile layout has one compact row owner and no empty waiting drawer', async ({ page }) => {
+    await page.goto('/');
+    await waitForWorkspace(page);
+    await page.evaluate(() => window.executeDebugMode?.());
+    await page.evaluate(() => window.switchView('list'));
+    await page.waitForFunction(() => document.querySelector('#cars-container .member-main-line .assignment-drag-handle'));
+
+    await expect(page.locator('#assignmentShareBtn')).toHaveCount(1);
+    expect(await page.locator('#assignmentShareBtn').evaluate(node => node.tagName.toLowerCase())).toBe('cds-icon-button');
+
+    const rowMetrics = await page.locator('#cars-container .member-main-line').first().evaluate(row => {
+      const rect = row.getBoundingClientRect();
+      const handle = row.querySelector('.assignment-drag-handle')?.getBoundingClientRect();
+      const menu = row.querySelector('.person-overflow-menu')?.getBoundingClientRect();
+      const name = row.querySelector('.member-name-text')?.getBoundingClientRect();
+      const center = value => value ? value.top + value.height / 2 : null;
+      return {
+        height: rect.height,
+        handleCenter: center(handle),
+        menuCenter: center(menu),
+        nameCenter: center(name)
+      };
+    });
+
+    expect(rowMetrics.height).toBeGreaterThanOrEqual(48);
+    expect(rowMetrics.height).toBeLessThanOrEqual(64);
+    expect(Math.abs(rowMetrics.handleCenter - rowMetrics.menuCenter)).toBeLessThanOrEqual(3);
+    expect(Math.abs(rowMetrics.handleCenter - rowMetrics.nameCenter)).toBeLessThanOrEqual(6);
+
+    const actionOverflow = await page.locator('#assignmentWorkspaceActions').evaluate(node => ({
+      clientWidth: node.clientWidth,
+      scrollWidth: node.scrollWidth
+    }));
+    expect(actionOverflow.scrollWidth).toBeLessThanOrEqual(actionOverflow.clientWidth + 1);
+
+    await page.evaluate(() => {
+      document.querySelectorAll('#waiting-list .member-card').forEach(card => card.remove());
+      window.SanpoAssignmentWorkspace?.refresh?.();
+    });
+    await expect(page.locator('body')).toHaveClass(/assignment-waiting-empty/);
+    await expect(page.locator('#bottom-tray')).toBeHidden();
+  });
+
   test('shared link reuses the workspace as read-only and preserves team/car context', async ({ page }) => {
     const room = `ASSIGN-SHARE-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     await page.goto(`/?room=${room}`);
