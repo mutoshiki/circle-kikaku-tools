@@ -30,32 +30,11 @@
   box-shadow: none;
 }
 
-.batch-import-help-details { border-top: 1px solid var(--border-section); }
-.batch-import-help-details > summary {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 48px;
-  padding: 8px 4px;
-  color: var(--text-main);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  list-style: none;
+.batch-import-help-accordion {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
 }
-.batch-import-help-details > summary::-webkit-details-marker { display: none; }
-.batch-import-help-details > summary::before {
-  content: "";
-  width: 0;
-  height: 0;
-  flex: 0 0 auto;
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-left: 7px solid currentColor;
-  transform-origin: 45% 50%;
-  transition: transform var(--motion-duration-fast, 120ms) ease;
-}
-.batch-import-help-details[open] > summary::before { transform: rotate(90deg); }
 
 .batch-spreadsheet-textarea {
   min-height: 118px;
@@ -144,8 +123,6 @@
   #batchImportModal > .app-modal-body > .batch-import-layout { padding: 0 0 16px; }
   .batch-import-helper-card .batch-spreadsheet-textarea { min-height: 132px; }
 }
-
-
 
 .batch-import-layout {
   display: grid;
