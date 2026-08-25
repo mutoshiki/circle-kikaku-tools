@@ -4,7 +4,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
   test(`${viewport.width}px Carbon shell light/dark surfaces render without page overflow`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport);
     await page.goto('/');
-    await page.waitForFunction(() => customElements.get('cds-button') && customElements.get('cds-header') && customElements.get('cds-text-input'));
+    await page.waitForFunction(() => customElements.get('cds-button') && customElements.get('cds-header') && customElements.get('cds-text-input') && document.querySelector('#projectTitleEditor'));
     await page.evaluate(() => window.executeDebugMode?.());
     await page.evaluate(() => window.switchView('list'));
     await expect(page.locator('#assignmentWorkspaceHeader')).toBeVisible();
@@ -26,8 +26,10 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
       const allocationSwitcher = document.querySelector('#assignmentTypeSwitcher');
       const switcher = document.querySelector('.header-app-switcher');
       const roomInput = document.querySelector('#roomNameInput');
+      const titleEditor = document.querySelector('#projectTitleEditor');
       const projectTitle = document.querySelector('#projectTitleRegion');
       const tabShadow = document.querySelector('#view-toggle-bar')?.shadowRoot;
+      const titleStyle = getComputedStyle(titleEditor);
       return {
         navPosition: getComputedStyle(nav).position,
         headerTag: header.tagName,
@@ -37,8 +39,11 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
         projectTitleBottom: projectTitle?.getBoundingClientRect().bottom ?? -1,
         projectTitleHeight: projectTitle?.getBoundingClientRect().height ?? 0,
         projectTitleState: projectTitle?.dataset.state || '',
-        projectTitleValue: roomInput?.value || '',
-        projectTitlePlaceholder: roomInput?.getAttribute('placeholder') || '',
+        projectTitleValue: titleEditor?.textContent || '',
+        projectTitlePlaceholder: titleEditor?.getAttribute('data-placeholder') || '',
+        projectTitleFontSize: titleStyle.fontSize,
+        projectTitleMinHeight: titleStyle.minHeight,
+        projectTitleWeight: titleStyle.fontWeight,
         contenteditableCount: document.querySelectorAll('[contenteditable]').length,
         navTop: navRect.top,
         navBottom: navRect.bottom,
@@ -62,7 +67,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
 
     expect(shellGeometry.headerTag).toBe('CDS-HEADER');
     expect(shellGeometry.sideNavTag).toBe('CDS-SIDE-NAV');
-    expect(shellGeometry.contenteditableCount).toBe(0);
+    expect(shellGeometry.contenteditableCount).toBe(1);
     expect(shellGeometry.navPosition).not.toBe('fixed');
     expect(Math.abs(shellGeometry.projectTitleTop - shellGeometry.headerBottom)).toBeLessThanOrEqual(1);
     expect(Math.abs(shellGeometry.navTop - shellGeometry.projectTitleBottom)).toBeLessThanOrEqual(1);
@@ -70,6 +75,9 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     expect(shellGeometry.projectTitleState).toBe('expanded');
     expect(shellGeometry.projectTitleValue).toBe('秋名山登山企画');
     expect(shellGeometry.projectTitlePlaceholder).toBe('企画名を入力');
+    expect(shellGeometry.projectTitleFontSize).toBe(viewport.width <= 768 ? '42px' : '54px');
+    expect(shellGeometry.projectTitleMinHeight).toBe(viewport.width <= 768 ? '56px' : '64px');
+    expect(shellGeometry.projectTitleWeight).toBe('300');
     expect(shellGeometry.navHeight).toBeGreaterThanOrEqual(40);
     expect(shellGeometry.navHeight).toBeLessThanOrEqual(42);
     expect(shellGeometry.firstViewContentTop).toBeGreaterThanOrEqual(shellGeometry.navBottom);
@@ -81,7 +89,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     expect(shellGeometry.shellShareVisible).toBeFalsy();
     expect(shellGeometry.allocationSwitcherVisible).toBeTruthy();
     expect(shellGeometry.switcherSize).toEqual({ width: 48, height: 48 });
-    expect(shellGeometry.roomInputVisibility).toBe('relative');
+    expect(shellGeometry.roomInputVisibility).toBe('absolute');
     expect(shellGeometry.visibleOverflowButtons).toBeLessThanOrEqual(1);
 
     await page.dispatchEvent('#top-area', 'wheel', { deltaY: 120 });
@@ -122,6 +130,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
       for (const view of ['list', 'sheet', 'seisan']) {
         await page.evaluate(next => window.switchView(next), view);
         await expect(page.locator('#app-view-navigation')).toBeVisible();
+        await expect(page.locator('#projectTitleEditor')).toBeVisible();
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBeTruthy();
         await page.screenshot({ path: testInfo.outputPath(`${viewport.width}-${theme}-${view}.png`) });
       }
