@@ -102,7 +102,7 @@
     }
 
     function syncEditorFromProjectTitleSource(roomInput, editor) {
-        if (!roomInput || !editor || document.activeElement === editor) return;
+        if (!roomInput || !editor) return;
         const next = normalizeProjectTitle(roomInput.value || '');
         if (editor.textContent !== next) editor.textContent = next;
         if (!next && editor.childNodes.length) editor.replaceChildren();
