@@ -123,6 +123,15 @@
         if (!next && editor.childNodes.length) editor.replaceChildren();
     }
 
+    function setProjectTitleSourceValue(value, preferredInput = null, preferredEditor = null) {
+        const roomInput = document.getElementById('roomNameInput') || preferredInput;
+        if (!roomInput) return;
+        const next = normalizeProjectTitle(value);
+        if (roomInput.value !== next) roomInput.value = next;
+        if (roomInput.getAttribute('value') !== next) roomInput.setAttribute('value', next);
+        syncEditorFromProjectTitleSource(roomInput, preferredEditor);
+    }
+
     function installProjectTitleValueBridge(roomInput, editor) {
         if (!roomInput) return;
 
@@ -142,6 +151,9 @@
             global.SanpoProjectTitle = Object.freeze({
                 syncFromSource() {
                     syncEditorFromProjectTitleSource(document.getElementById('roomNameInput'));
+                },
+                setSourceValue(value) {
+                    setProjectTitleSourceValue(value, roomInput, editor);
                 }
             });
         }
@@ -150,10 +162,18 @@
             const restoreOwner = global.restore;
             global.restore = function (...args) {
                 const result = restoreOwner.apply(this, args);
-                global.SanpoProjectTitle?.syncFromSource?.();
-                // Carbon completes reactive property work in a microtask. Mirror once more at
-                // that boundary without changing the canonical/source value.
-                queueMicrotask(() => global.SanpoProjectTitle?.syncFromSource?.());
+                const restoredTitle = normalizeProjectTitle(
+                    global.SanpoCanonicalState?.get?.()?.roomName ?? args[0]?.roomName ?? ''
+                );
+                global.SanpoProjectTitle?.setSourceValue?.(restoredTitle);
+                // Carbon/Lit may finish a pending render after the synchronous restore call.
+                // Reassert the same canonical value at those lifecycle boundaries; this does
+                // not create a second persistence owner because no input event is emitted.
+                queueMicrotask(() => global.SanpoProjectTitle?.setSourceValue?.(restoredTitle));
+                const source = document.getElementById('roomNameInput');
+                Promise.resolve(source?.updateComplete).then(() => {
+                    global.SanpoProjectTitle?.setSourceValue?.(restoredTitle);
+                }).catch(() => {});
                 return result;
             };
             global.__projectTitleRestoreBridgeBound = true;
@@ -179,8 +199,8 @@
             const next = normalizeProjectTitle(editor.textContent || '');
             if (!next && editor.childNodes.length) editor.replaceChildren();
             else if (editor.textContent !== next) editor.textContent = next;
-            if (roomInput.value !== next) roomInput.value = next;
-            roomInput.setAttribute('value', next);
+            if (global.SanpoProjectTitle?.setSourceValue) global.SanpoProjectTitle.setSourceValue(next);
+            else setProjectTitleSourceValue(next, roomInput, editor);
             roomInput.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
             queueMicrotask(() => {
                 // Keep the visual editor aligned with Carbon's settled source value without
