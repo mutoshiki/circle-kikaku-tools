@@ -69,16 +69,25 @@
         });
     }
 
+    async function openAllocationWorkspace() {
+        if (!(await switchViewRemembering('list'))) return;
+        global.SanpoAssignmentWorkspace?.refresh?.();
+        global.syncCarbonPrimaryNavigationState?.();
+    }
+
     async function openAllocationDestination(templateType) {
         if (!(await switchViewRemembering('list'))) return;
         if (typeof updateActiveCarPlanTemplate === 'function') updateActiveCarPlanTemplate(templateType);
+        global.SanpoAssignmentWorkspace?.refresh?.();
         global.syncCarbonPrimaryNavigationState?.();
     }
 
     function setupViewAndFeatureEvents() {
         bind('tab-sheet', () => switchViewRemembering('sheet'));
         bind('tab-seisan', () => switchViewRemembering('seisan'));
-        bind('tab-list', () => openAllocationDestination('car'));
+        bind('tab-list', () => openAllocationWorkspace());
+        // Legacy compatibility destination. The refreshed workspace hides this primary
+        // tab and switches car/team with a Content Switcher inside the workspace.
         bind('tab-team', () => openAllocationDestination('team'));
         bind('batchOpenBtn', () => openBatchModal());
         bind('sheet-quick-edit-btn', () => toggleQuickEdit());
