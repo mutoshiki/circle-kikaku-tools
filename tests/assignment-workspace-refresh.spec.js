@@ -37,9 +37,7 @@ test.describe('Assignment workspace refresh', () => {
       { id: 'tab-seisan', label: '精算', hidden: false }
     ]);
 
-    await expect(page.locator('#view-toggle-bar > #tab-sheet')).toHaveCount(0);
-    await expect(page.locator('#tab-sheet')).toHaveCount(1);
-    await expect(page.locator('#tab-sheet')).toBeHidden();
+    await expect(page.locator('#tab-sheet')).toHaveCount(0);
     await expect(page.locator('#assignmentTypeSwitcher')).toHaveCount(0);
     await expect(page.locator('#car-plan-switcher')).toBeHidden();
     await expect(page.locator('#assignmentWorkspaceHeader h1, #assignmentWorkspaceHeader h2, #assignmentWorkspaceHeader h3')).toHaveCount(0);
@@ -199,7 +197,6 @@ test.describe('Assignment workspace refresh', () => {
     await expect(page.locator('#app-view-navigation')).toBeVisible();
     await expect(page.locator('#assignmentWorkspaceActions')).toBeVisible();
     await expect(page.locator('#shareLinkBtn')).toBeVisible();
-    await expect(page.locator('#view-toggle-bar > #tab-sheet')).toHaveCount(0);
-    await expect(page.locator('#tab-sheet')).toBeHidden();
+    await expect(page.locator('#tab-sheet')).toHaveCount(0);
   });
 });
