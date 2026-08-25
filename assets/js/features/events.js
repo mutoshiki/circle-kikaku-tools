@@ -83,9 +83,10 @@
         if (trigger.dataset.sideNavStateBound === 'true') return;
         trigger.dataset.sideNavStateBound = 'true';
 
-        trigger.addEventListener('click', () => {
-            const expanded = Boolean(drawer.expanded || drawer.hasAttribute('expanded'));
-            setCarbonSideNavExpanded(!expanded);
+        const root = trigger.getRootNode?.() || document;
+        root.addEventListener('cds-header-menu-button-toggled', event => {
+            if (!event.composedPath?.().includes(trigger)) return;
+            setCarbonSideNavExpanded(Boolean(event.detail?.active));
         });
         drawer.addEventListener('click', event => {
             if (!event.composedPath().some(node => node?.tagName === 'CDS-SIDE-NAV-LINK')) return;
