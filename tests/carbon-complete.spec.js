@@ -68,10 +68,10 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       const copiedShareUrl = await page.evaluate(() => window.__copiedShareUrl || '');
       expect(new URL(copiedShareUrl).searchParams.get('view')).toBe('sheet');
       await expect(page.locator('#share-links-modal')).toHaveCount(0);
-      await hostClick(page, '#overviewMenuBtn');
+      await page.locator('#overviewMenuBtn').click();
       await expect.poll(() => page.locator('#overviewDrawer').evaluate(node => Boolean(node.expanded || node.hasAttribute('expanded')))).toBeTruthy();
       await expect(page.locator('#overviewDrawer cds-side-nav-link')).toHaveCount(4);
-      await hostClick(page, '#overviewMenuBtn');
+      await page.locator('#overviewMenuBtn').click();
       await expect.poll(() => page.locator('#overviewDrawer').evaluate(node => Boolean(node.expanded || node.hasAttribute('expanded')))).toBeFalsy();
       expect(errors).toEqual([]);
     });

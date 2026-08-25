@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Official Carbon ownership runtime', () => {
-  test.use({ viewport: { width: 390, height: 844 } });
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
   test('Carbon shell stays real while project title keeps the restored visual editor', async ({ page }) => {
     await page.goto('/');
@@ -48,7 +48,7 @@ test.describe('Official Carbon ownership runtime', () => {
 
     const drawer = page.locator('#overviewDrawer');
     await expect(drawer).not.toBeVisible();
-    await page.locator('#overviewMenuBtn').evaluate(node => node.click());
+    await page.locator('#overviewMenuBtn').tap();
     await expect.poll(() => drawer.evaluate(node => Boolean(node.expanded || node.hasAttribute('expanded')))).toBeTruthy();
     await expect(drawer).toBeVisible();
     const drawerBox = await drawer.boundingBox();

@@ -54,6 +54,8 @@ jobs:
       - run: npm run test:ui
       - run: npm run test:visual
       - run: npm run test:safari-sync
+      - name: WebKit hamburger touch regression
+        run: npx playwright test tests/official-carbon-runtime.spec.js --config=playwright.webkit.config.js
       - name: WebKit participants mobile regression
         run: npx playwright test tests/participants-tab-v83.spec.js --config=playwright.webkit.config.js
       - name: Upload Playwright report
