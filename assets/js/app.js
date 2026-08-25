@@ -83,12 +83,16 @@ function protectSharedAssignmentControls() {
 }
 
 D.addEventListener('DOMContentLoaded', async () => {
-    // Mobile uses one natural shell scroll. Prevent the legacy 16px touch gesture
-    // from collapsing a 240px title region and making content outrun the finger.
-    document.documentElement.dataset.projectTitleRevealBound = 'true';
+    // On phones the entire shell is one natural scroll owner. Suppress the legacy
+    // gesture owner that converted a 16px touch into a 240px title collapse. Desktop
+    // keeps its existing compact reveal behavior.
+    if (window.matchMedia('(max-width: 768px)').matches) {
+        document.documentElement.dataset.projectTitleRevealBound = 'true';
+    }
 
-    // Remove retired gender controls before the event owner binds form actions.
+    // Retired product concepts are removed before their legacy event owners bind.
     ['optFemale', 'optMale'].forEach(id => document.getElementById(id)?.closest('.auto-assign-option-row')?.remove());
+    document.getElementById('car-plan-switcher')?.setAttribute('hidden', '');
 
     const roleStateReady = loadAllocationRoleState().catch(error => {
         console.warn('Allocation role state failed to load:', error);
@@ -106,8 +110,6 @@ D.addEventListener('DOMContentLoaded', async () => {
     ensureCompactMenuFallback();
     setupSeatMemberPicker();
 
-    // Canonical reads/writes must use the role/gender-migration adapter from the
-    // first local restore onward so stale gender fields never re-enter new saves.
     await roleStateReady;
 
     const requestedView = new URLSearchParams(window.location.search).get('view');
