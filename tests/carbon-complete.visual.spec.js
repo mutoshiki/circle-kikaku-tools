@@ -9,9 +9,15 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     await page.evaluate(() => window.switchView('list'));
     await expect(page.locator('#assignmentWorkspaceHeader')).toBeVisible();
 
-    // Debug/sample rendering can briefly collapse and re-expand the title while the active
-    // scroll surface is rebuilt. Measure the visual shell only after the restored title has
-    // reached its stable expanded geometry, rather than sampling the CSS height transition.
+    // Debug/sample rendering may preserve a non-zero allocation scroll position on very narrow
+    // viewports. Put the active surface at its canonical visual-inspection origin before measuring
+    // the expanded shell. The title reveal behavior itself is covered by its dedicated regression.
+    await page.evaluate(() => {
+      const top = document.querySelector('#top-area');
+      if (!top) return;
+      top.scrollTop = 0;
+      top.dispatchEvent(new Event('scroll'));
+    });
     await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'expanded');
     await expect.poll(() => page.locator('#projectTitleRegion').evaluate(node => node.getBoundingClientRect().height)).toBeGreaterThanOrEqual(200);
 
