@@ -60,6 +60,7 @@ async function autoAssign() {
     lastAutoAssignLabel = 'ランダムに割り当て';
     updateUI();
     save();
+    window.SanpoRemoteGuard?.requestPendingApply?.();
     window.SanpoAssignmentWorkspace?.refresh?.();
 }
 window.autoAssign = autoAssign;
