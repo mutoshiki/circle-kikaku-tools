@@ -17,14 +17,16 @@ assert.ok(!workspace.includes('function ensureDragHandle'), 'Workspace must not 
 assert.ok(!workspace.includes('data-carbon-icon="draggable"'), 'Workspace must not render draggable affordances');
 assert.ok(!workspace.includes('assignment-person-move-menu'), 'Workspace must not rebuild cross-car person move menus');
 assert.ok(!workspace.includes('data-assignment-move-target'), 'Workspace must not create cross-car move targets');
-assert.ok(workspace.includes('function concealWaitingPool()'), 'Workspace must explicitly conceal the legacy waiting drawer');
+assert.ok(workspace.includes('function concealWaitingPool()'), 'Workspace must explicitly conceal the legacy waiting pool surface');
+assert.ok(workspace.includes("if (child !== waitingContainer) child.remove();"), 'Visible waiting-tray controls must be removed while retaining only the internal pool container');
 assert.match(css, /body\.assignment-workspace-enabled #bottom-tray\s*\{\s*display:\s*none;/s, 'Legacy waiting drawer must stay hidden in Assignment Workspace');
 assert.match(css, /grid-template-areas:\s*"name meta menu"/, 'Member rows must not reserve a drag column');
 
 assert.ok(workspace.includes('const desired = [participantTab, carTab, teamTab, settlementTab]'), 'Primary destinations must be 参加者 → 車割 → 班割 → 精算');
 assert.ok(!workspace.includes('assignmentTypeSwitcher'), 'Allocation-local 車割/班割 switcher must be removed');
 assert.ok(!workspace.includes('assignmentWorkspaceTitle'), 'Redundant 車割・班割 workspace heading must be removed');
-assert.ok(workspace.includes('sheetTab?.remove()'), 'Shared-view destination must be removed from the primary toolbar');
+assert.ok(workspace.includes('function parkLegacySheetTab'), 'Legacy sheet internals may remain only as a hidden compatibility node');
+assert.ok(workspace.includes("sheetTab.setAttribute('aria-hidden', 'true')"), 'Legacy sheet tab must be hidden from navigation and accessibility');
 assert.ok(viewEvents.includes("bind('tab-list', () => openAllocationDestination('car'))"), '車割 tab must open the car allocation directly');
 assert.ok(viewEvents.includes("bind('tab-team', () => openAllocationDestination('team'))"), '班割 tab must open the team allocation directly');
 assert.ok(!viewEvents.includes("bind('tab-sheet'"), 'Legacy shared-view tab must no longer own a navigation event');
@@ -38,13 +40,17 @@ assert.ok(!personMenu.includes('setPersonGender'), 'Gender mutation functions mu
 
 assert.ok(app.includes('allocation-role-state.js'), 'Allocation role compatibility/state owner must load before room restore');
 assert.ok(roleState.includes('placement.driver'), 'Driver role must persist independently on participant placement');
-assert.ok(roleState.includes("key === 'gender' || key === 'driverGender'"), 'Legacy gender fields must be stripped at state boundaries');
+assert.ok(roleState.includes("key === 'gender' || key === 'driverGender'"), 'Legacy gender input must be discarded at state boundaries');
 assert.ok(roleState.includes('member.driver = roleFromPlacement'), 'Projected members must restore their independent driver role');
 assert.ok(workspace.includes('sortRoleRows(box)'), 'Role-tagged people must be sorted to the top of each group');
 
+assert.ok(autoAssign.includes('async function autoAssign()'), 'Random assignment must be one parameterless bulk action');
 assert.ok(autoAssign.includes("title: 'ランダムに割り当て'"), 'Random allocation must use the requested wording');
+assert.ok(autoAssign.includes("lastAutoAssignLabel = 'ランダムに割り当て';"), 'Persisted action label must match the visible random action');
 assert.ok(!autoAssign.includes('optGrade') && !autoAssign.includes('assignByGrade') && !autoAssign.includes("mode === 'fill'"), 'Random allocation must have no condition or fill mode');
-assert.ok(workspace.includes("'fillEmptySeatsBtn', 'traySettingsBtn', 'autoAssignPopover'"), 'Retired bulk allocation controls must be removed from the live DOM');
+assert.ok(workspace.includes("'fillEmptySeatsBtn', 'traySettingsBtn', 'autoAssignPopover', 'autoAssignMenu', 'clearAllBtn', 'optFemale', 'optMale', 'optGrade'"), 'Retired bulk allocation controls must be removed from the live DOM');
+assert.ok(!css.includes('traySettingsBtn') && !css.includes('autoAssignPopover') && !css.includes('auto-assign-menu-body'), 'Assignment owner CSS must not retain removed allocation-setting surfaces');
+
 assert.ok(shareActions.includes("url.searchParams.set('room', activeRoomId)"), 'Share must preserve the room id');
 assert.ok(!shareActions.includes("url.searchParams.set('view'") && !shareActions.includes("url.searchParams.set('allocation'"), 'Share must not create a special car/team URL');
 assert.ok(app.includes('normalizeLegacyAllocationShareUrl'), 'Old allocation-specific share URLs must normalize to the normal app');
