@@ -48,11 +48,41 @@ test.describe('Unified assignment workspace', () => {
     expect(Math.abs(centerY(rowMetrics.handle) - centerY(rowMetrics.menu))).toBeLessThanOrEqual(3);
     expect(Math.abs(centerY(rowMetrics.handle) - centerY(rowMetrics.name))).toBeLessThanOrEqual(6);
 
-    const actionOverflow = await page.locator('#assignmentWorkspaceActions').evaluate(node => ({
-      clientWidth: node.clientWidth,
-      scrollWidth: node.scrollWidth
-    }));
-    expect(actionOverflow.scrollWidth).toBeLessThanOrEqual(actionOverflow.clientWidth + 1);
+    // Carbon menu content can remain in a top layer and legitimately inflate a
+    // container's scrollWidth even while the closed toolbar is visually contained.
+    // Guard the actual product contract instead: every visible toolbar control must
+    // stay inside the toolbar and the page itself must not gain horizontal overflow.
+    const actionGeometry = await page.evaluate(() => {
+      const actions = document.querySelector('#assignmentWorkspaceActions');
+      if (!actions) return null;
+      const toolbar = actions.getBoundingClientRect();
+      const controls = ['fillEmptySeatsBtn', 'shuffleAssignBtn', 'traySettingsBtn']
+        .map(id => document.getElementById(id))
+        .filter(Boolean)
+        .filter(node => {
+          const style = getComputedStyle(node);
+          const rect = node.getBoundingClientRect();
+          return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
+        })
+        .map(node => {
+          const rect = node.getBoundingClientRect();
+          return { id: node.id, left: rect.left, right: rect.right };
+        });
+      return {
+        left: toolbar.left,
+        right: toolbar.right,
+        controls,
+        pageScrollWidth: document.documentElement.scrollWidth,
+        viewportWidth: window.innerWidth
+      };
+    });
+    expect(actionGeometry).not.toBeNull();
+    expect(actionGeometry.controls).toHaveLength(3);
+    actionGeometry.controls.forEach(control => {
+      expect(control.left).toBeGreaterThanOrEqual(actionGeometry.left - 1);
+      expect(control.right).toBeLessThanOrEqual(actionGeometry.right + 1);
+    });
+    expect(actionGeometry.pageScrollWidth).toBeLessThanOrEqual(actionGeometry.viewportWidth + 1);
 
     await page.evaluate(() => {
       document.querySelectorAll('#waiting-list .member-card').forEach(card => card.remove());
