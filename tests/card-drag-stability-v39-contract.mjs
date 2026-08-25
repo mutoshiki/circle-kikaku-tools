@@ -14,7 +14,8 @@ assert.match(workspace, /label\.textContent = '空席'/, 'Assignment Workspace r
 assert.match(workspaceCss, /#cars-container \.seat-slot:not\(:has\(> \.member-card\)\)[\s\S]*min-height:\s*3\.5rem/, 'empty seat rows keep the same nominal 56px row height');
 
 assert.doesNotMatch(app, /setupManualCardDrag\(\)/, 'allocation card drag must not be initialized');
-assert.doesNotMatch(workspace, /draggable|ensureDragHandle|assignment-drag-handle/, 'Assignment Workspace must not create drag behavior or affordances');
+assert.doesNotMatch(workspace, /ensureDragHandle|data-carbon-icon="draggable"|className\s*=\s*['"]assignment-drag-handle|classList\.add\(['"]manual-drag-source/, 'Assignment Workspace must not create drag behavior or affordances');
+assert.match(workspace, /querySelectorAll\('\.assignment-drag-handle,[^']*'\)\.forEach\(node => node\.remove\(\)\)/, 'Workspace may remove stale drag affordances left by older rendered DOM');
 assert.match(workspace, /function concealWaitingPool\(\)/, 'the old waiting drawer is replaced by a hidden internal pool');
 assert.match(workspaceCss, /#bottom-tray\s*\{\s*display:\s*none;/s, 'the lower waiting tray is never a visible allocation surface');
 
