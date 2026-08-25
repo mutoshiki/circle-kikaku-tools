@@ -97,7 +97,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     expect(await header.evaluate(node => node.tagName)).toBe('CDS-HEADER');
     expect(await menuHost.evaluate(node => node.tagName)).toBe('CDS-HEADER-MENU-BUTTON');
     expect(await drawer.evaluate(node => node.tagName)).toBe('CDS-SIDE-NAV');
-    await expect(menuHost).toHaveAttribute('collapse-mode', 'fixed');
+    await expect(menuHost).toHaveAttribute('collapse-mode', 'rail');
     await expect(menu).toBeVisible();
     await expect(drawer).not.toBeVisible();
 
