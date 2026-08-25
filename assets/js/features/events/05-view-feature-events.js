@@ -7,10 +7,11 @@
     const bindModalSubmit = events.bindModalSubmit;
 
     function persistMainView(view) {
-        if (!['list', 'sheet', 'seisan'].includes(view)) return;
+        if (!['list', 'seisan'].includes(view)) return;
         const url = new URL(global.location.href);
         if (view === 'list') url.searchParams.delete('view');
         else url.searchParams.set('view', view);
+        url.searchParams.delete('allocation');
         global.history.replaceState(global.history.state, '', `${url.pathname}${url.search}${url.hash}`);
     }
 
@@ -59,14 +60,6 @@
         }
     }
 
-    function setupAutoAssignOptionEvents() {
-        const grade = byId('optGrade');
-        if (grade && grade.dataset.eventOwnerBound !== 'true') {
-            grade.dataset.eventOwnerBound = 'true';
-            grade.addEventListener('change', () => updateAutoAssignSummary());
-        }
-    }
-
     async function openAllocationDestination(templateType) {
         if (!(await switchViewRemembering('list'))) return;
         const next = templateType === 'team' ? 'team' : 'car';
@@ -77,14 +70,11 @@
     }
 
     function setupViewAndFeatureEvents() {
-        bind('tab-sheet', () => switchViewRemembering('sheet'));
         bind('tab-seisan', () => switchViewRemembering('seisan'));
         bind('tab-list', () => openAllocationDestination('car'));
         bind('tab-team', () => openAllocationDestination('team'));
         bind('batchOpenBtn', () => openBatchModal());
-        bind('sheet-quick-edit-btn', () => toggleQuickEdit());
         bind('seisanRefreshBtn', () => renderSettlementView());
-        bind('clearAllBtn', () => global.clearAll());
         bind('applyGoogleFormPasteBtn', () => global.applyGoogleFormPasteImport?.());
         bindModalSubmit('executeBatchBtn', () => executeBatch());
         bindModalSubmit('saveSettlementSettingsBtn', () => global.saveSettlementSettings?.());
@@ -92,13 +82,8 @@
         bind('executeDebugMissingBtn', () => global.executeDebugMissingCostMode?.());
         bind('addRouteStopBtn', () => global.addRouteStop?.());
         bind('openGoogleRouteBtn', () => global.openGoogleRoute?.());
-
         setupSettlementOptionEvents();
-        setupAutoAssignOptionEvents();
     }
 
-    global.SanpoEvents = Object.freeze({
-        ...events,
-        setupViewAndFeatureEvents
-    });
+    global.SanpoEvents = Object.freeze({ ...events, setupViewAndFeatureEvents });
 })(window);
