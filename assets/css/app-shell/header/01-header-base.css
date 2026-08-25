@@ -35,8 +35,25 @@
   min-height: 48px;
 }
 
+/* Keep the Carbon Side Nav component, but own its viewport placement explicitly.
+ * Opening is immediate so an expanded nav is never left visually off-canvas. */
 #overviewDrawer {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 48px);
+  bottom: 0;
+  left: 0;
   z-index: var(--z-modal);
+  display: block;
+  width: min(256px, calc(100vw - 48px));
+  max-width: none;
+  overflow-y: auto;
+  background: #161616;
+  color: #f4f4f4;
+  box-shadow: 2px 0 6px rgba(var(--black-rgb), 0.3);
+  visibility: hidden;
+  transform: translateX(-100%);
+  pointer-events: none;
+  transition: none;
   --cds-background: #161616;
   --cds-layer: #161616;
   --cds-layer-01: #161616;
@@ -47,6 +64,12 @@
   --cds-icon-primary: #f4f4f4;
   --cds-border-subtle: #393939;
   --cds-focus: #0f62fe;
+}
+
+#overviewDrawer[expanded] {
+  visibility: visible;
+  transform: translateX(0);
+  pointer-events: auto;
 }
 
 .project-title-region {
