@@ -66,11 +66,14 @@ test.describe('Production Assignment Workspace audit', () => {
     console.log('LIVE_ASSIGNMENT_CONSOLE_ERRORS', JSON.stringify(consoleErrors));
     console.log('LIVE_ASSIGNMENT_PAGE_ERRORS', JSON.stringify(pageErrors));
 
-    await page.screenshot({ path: testInfo.outputPath('live-assignment-top.png'), fullPage: false });
+    const top = await page.screenshot({ fullPage: false });
+    await testInfo.attach('live-assignment-top', { body: top, contentType: 'image/png' });
     await page.locator('#cars-container .car-box').last().scrollIntoViewIfNeeded();
     await page.waitForTimeout(300);
-    await page.screenshot({ path: testInfo.outputPath('live-assignment-lower.png'), fullPage: false });
-    await page.screenshot({ path: testInfo.outputPath('live-assignment-full.png'), fullPage: true });
+    const lower = await page.screenshot({ fullPage: false });
+    await testInfo.attach('live-assignment-lower', { body: lower, contentType: 'image/png' });
+    const full = await page.screenshot({ fullPage: true });
+    await testInfo.attach('live-assignment-full', { body: full, contentType: 'image/png' });
 
     expect(diagnostics.documentWidth).toBeLessThanOrEqual(diagnostics.viewportWidth + 1);
     expect(diagnostics.bodyWidth).toBeLessThanOrEqual(diagnostics.viewportWidth + 1);
