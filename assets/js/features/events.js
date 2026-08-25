@@ -111,7 +111,12 @@
         return String(value ?? '').replace(/[\r\n]+/g, '');
     }
 
-    function syncEditorFromProjectTitleSource(roomInput, editor) {
+    function getCurrentProjectTitleEditor(preferredEditor = null) {
+        return document.getElementById('projectTitleEditor') || preferredEditor;
+    }
+
+    function syncEditorFromProjectTitleSource(roomInput = document.getElementById('roomNameInput'), preferredEditor = null) {
+        const editor = getCurrentProjectTitleEditor(preferredEditor);
         if (!roomInput || !editor) return;
         const next = normalizeProjectTitle(roomInput.value || '');
         if (editor.textContent !== next) editor.textContent = next;
@@ -119,28 +124,42 @@
     }
 
     function installProjectTitleValueBridge(roomInput, editor) {
-        if (!roomInput || roomInput.dataset.projectTitleValueBridge === 'true') return;
-        let prototype = Object.getPrototypeOf(roomInput);
-        let valueDescriptor = null;
-        while (prototype && !valueDescriptor) {
-            valueDescriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
-            prototype = Object.getPrototypeOf(prototype);
-        }
-        if (!valueDescriptor?.get || !valueDescriptor?.set) return;
+        if (!roomInput) return;
 
-        Object.defineProperty(roomInput, 'value', {
-            configurable: true,
-            enumerable: valueDescriptor.enumerable,
-            get() {
-                return valueDescriptor.get.call(this);
-            },
-            set(value) {
-                const next = normalizeProjectTitle(value);
-                valueDescriptor.set.call(this, next);
-                syncEditorFromProjectTitleSource(this, editor);
-            }
-        });
-        roomInput.dataset.projectTitleValueBridge = 'true';
+        // Do not redefine Carbon's reactive `value` property. Lit owns that property and may
+        // update it during the component lifecycle; shadowing it with Object.defineProperty
+        // creates a second state owner and can replay an old empty value after a valid edit.
+        // The hidden Carbon field remains the only persistence source. This bridge only mirrors
+        // that source into the restored visual editor and re-syncs after canonical restore.
+        if (roomInput.dataset.projectTitleValueBridge !== 'true') {
+            roomInput.dataset.projectTitleValueBridge = 'true';
+            const syncFromSource = () => syncEditorFromProjectTitleSource(roomInput);
+            roomInput.addEventListener('input', syncFromSource);
+            roomInput.addEventListener('change', syncFromSource);
+        }
+
+        if (!global.SanpoProjectTitle) {
+            global.SanpoProjectTitle = Object.freeze({
+                syncFromSource() {
+                    syncEditorFromProjectTitleSource(document.getElementById('roomNameInput'));
+                }
+            });
+        }
+
+        if (global.__projectTitleRestoreBridgeBound !== true && typeof global.restore === 'function') {
+            const restoreOwner = global.restore;
+            global.restore = function (...args) {
+                const result = restoreOwner.apply(this, args);
+                global.SanpoProjectTitle?.syncFromSource?.();
+                // Carbon completes reactive property work in a microtask. Mirror once more at
+                // that boundary without changing the canonical/source value.
+                queueMicrotask(() => global.SanpoProjectTitle?.syncFromSource?.());
+                return result;
+            };
+            global.__projectTitleRestoreBridgeBound = true;
+        }
+
+        syncEditorFromProjectTitleSource(roomInput, editor);
     }
 
     function createRestoredProjectTitleEditor(roomInput) {
@@ -163,6 +182,11 @@
             if (roomInput.value !== next) roomInput.value = next;
             roomInput.setAttribute('value', next);
             roomInput.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+            queueMicrotask(() => {
+                // Keep the visual editor aligned with Carbon's settled source value without
+                // introducing another persistence path.
+                if (document.activeElement !== editor) syncEditorFromProjectTitleSource(roomInput, editor);
+            });
         };
 
         editor.addEventListener('beforeinput', event => {
@@ -206,7 +230,6 @@
         editor.toggleAttribute('aria-readonly', sharedReadOnly);
         editor.classList.toggle('is-readonly', sharedReadOnly);
         syncEditorFromProjectTitleSource(roomInput, editor);
-        roomInput.addEventListener('input', () => syncEditorFromProjectTitleSource(roomInput, editor));
 
         const installBridge = () => {
             installProjectTitleValueBridge(roomInput, editor);
