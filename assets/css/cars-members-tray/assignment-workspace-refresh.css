@@ -1,7 +1,7 @@
 /* Assignment Workspace is the canonical layout owner for car/team allocation.
- * It owns page/header/action/group/person/empty-seat geometry. Card drag, an
- * allocation-local type switcher, a visible waiting drawer, assignment settings
- * and allocation-specific share surfaces are intentionally not part of this UI.
+ * It owns page/header/action/group/person/empty-seat geometry. Allocation card drag,
+ * an allocation-local car/team switcher, a visible waiting drawer, assignment settings
+ * and special share-view geometry are intentionally not part of this UI.
  */
 
 body.assignment-workspace-enabled #top-area {
@@ -31,7 +31,7 @@ body.assignment-workspace-enabled #bottom-tray {
   display: flex;
   align-items: center;
   min-width: 0;
-  min-height: 2rem;
+  min-height: 2.5rem;
 }
 
 .assignment-workspace-summary {
@@ -57,7 +57,8 @@ body.assignment-workspace-enabled #bottom-tray {
 }
 
 .assignment-workspace-actions #shuffleAssignBtn {
-  min-width: 11.5rem;
+  min-width: 10.5rem;
+  min-height: 3rem;
   margin: 0;
   white-space: nowrap;
 }
@@ -197,8 +198,7 @@ body.assignment-workspace-enabled .driver-seat {
   color: var(--cds-text-primary, #161616);
 }
 
-body.assignment-workspace-enabled .member-card,
-body.assignment-workspace-enabled #cars-container .seat-slot > .member-card {
+body.assignment-workspace-enabled .member-card {
   position: relative;
   display: block;
   box-sizing: border-box;
@@ -206,7 +206,6 @@ body.assignment-workspace-enabled #cars-container .seat-slot > .member-card {
   max-width: 100%;
   min-width: 0;
   min-height: 3.5rem;
-  height: auto;
   margin: 0;
   padding: 0;
   border: 0;
@@ -218,6 +217,15 @@ body.assignment-workspace-enabled #cars-container .seat-slot > .member-card {
   user-select: text;
   -webkit-user-select: text;
   -webkit-touch-callout: default;
+}
+
+body.assignment-workspace-enabled #cars-container .seat-slot > .member-card {
+  width: 100%;
+  max-width: 100%;
+  min-height: 3.5rem;
+  height: auto;
+  padding: 0;
+  background: transparent;
 }
 
 body.assignment-workspace-enabled .member-card[data-locked="true"] {
@@ -338,19 +346,11 @@ body.assignment-workspace-enabled .seat-add-btn {
     padding: 0.375rem 0.75rem 0;
   }
 
-  .assignment-workspace-actions {
-    padding-bottom: 0.5rem;
-  }
-
   .assignment-workspace-actions #shuffleAssignBtn {
     width: 100%;
     min-width: 0;
     height: 3rem;
     min-height: 3rem;
-  }
-
-  .assignment-workspace-actions #shuffleAssignBtn [slot="icon"] {
-    display: none;
   }
 
   body.assignment-workspace-enabled .assignment-group-menu::part(popover-container) {
