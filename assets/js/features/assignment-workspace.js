@@ -34,14 +34,6 @@
         if (lock) label.appendChild(lock);
     }
 
-    function parkLegacySheetTab(sheetTab, bar) {
-        if (!sheetTab) return;
-        sheetTab.hidden = true;
-        sheetTab.setAttribute('aria-hidden', 'true');
-        const sheetArea = byId('sheet-view-area');
-        if (sheetArea && sheetTab.parentElement === bar) sheetArea.appendChild(sheetTab);
-    }
-
     function simplifyPrimaryNavigation() {
         const carTab = byId('tab-list');
         const teamTab = byId('tab-team');
@@ -51,7 +43,7 @@
         const bar = byId('view-toggle-bar');
         if (!bar || !carTab || !teamTab || !participantTab || !settlementTab) return;
 
-        parkLegacySheetTab(sheetTab, bar);
+        sheetTab?.remove();
         carTab.dataset.allocationType = 'car';
         teamTab.dataset.allocationType = 'team';
         carTab.setAttribute('value', 'car');
