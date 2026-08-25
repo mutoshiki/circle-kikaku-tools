@@ -65,13 +65,15 @@ assert.match(roomCss, /\.project-title-editor:empty::before[\s\S]*#8d8d8d/);
 assert.match(roomCss, /\.app-room-field,[\s\S]*clip-path:\s*inset\(50%\)/);
 
 // The official HeaderMenuButton and SideNav remain the navigation components. Their
-// controlled bridge and viewport placement are explicit so expanded can never mean off-canvas.
+// controlled bridge follows Carbon's toggle event, and viewport placement is explicit so
+// expanded can never mean off-canvas.
 assert.match(appEvents, /function setCarbonSideNavExpanded\(expanded/);
 assert.match(appEvents, /drawer\.expanded = next;/);
 assert.match(appEvents, /drawer\.toggleAttribute\('expanded', next\);/);
 assert.match(appEvents, /trigger\.active = next;/);
 assert.match(appEvents, /trigger\.setAttribute\('aria-expanded', String\(next\)\);/);
-assert.match(appEvents, /trigger\.addEventListener\('click', \(\) =>/);
+assert.match(appEvents, /addEventListener\('cds-header-menu-button-toggled', event =>/);
+assert.match(appEvents, /setCarbonSideNavExpanded\(Boolean\(event\.detail\?\.active\)\);/);
 assert.match(appEvents, /setupCarbonSideNavigationState\(\);/);
 assert.match(headerCss, /#overviewDrawer\s*\{[\s\S]*position:\s*fixed[\s\S]*visibility:\s*hidden[\s\S]*translateX\(-100%\)/);
 assert.match(headerCss, /#overviewDrawer\[expanded\][\s\S]*visibility:\s*visible[\s\S]*translateX\(0\)/);
