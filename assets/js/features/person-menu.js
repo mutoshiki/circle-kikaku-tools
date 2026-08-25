@@ -8,6 +8,7 @@ let activePersonMenuTrigger = null;
 const personMenuAnchorRects = new WeakMap();
 const personMenuPlaceholders = new WeakMap();
 const personMenuNativeToggleBound = new WeakSet();
+const personMenuWasOpenOnPointerDown = new WeakMap();
 let personMenuPositionFrame = 0;
 
 function supportsPersonMenuTopLayer() {
@@ -51,7 +52,9 @@ function ensurePersonMenuPlaceholder(trigger, rect) {
 
 function getOpenPersonMenuTrigger() {
     if (activePersonMenuTrigger
-        && (activePersonMenuTrigger.open === true || activePersonMenuTrigger.hasAttribute('open'))) return activePersonMenuTrigger;
+        && (isPersonMenuInTopLayer(activePersonMenuTrigger)
+            || activePersonMenuTrigger.open === true
+            || activePersonMenuTrigger.hasAttribute('open'))) return activePersonMenuTrigger;
     return document.querySelector('cds-overflow-menu.person-overflow-menu[data-person-menu-top-layer="true"], cds-overflow-menu.person-overflow-menu[open]');
 }
 
@@ -78,11 +81,24 @@ function schedulePersonMenuTopLayerPosition() {
     });
 }
 
+function nativeHidePersonMenuPopover(trigger) {
+    if (!trigger || !supportsPersonMenuTopLayer() || !isPersonMenuInTopLayer(trigger)) return;
+    try { HTMLElement.prototype.hidePopover.call(trigger); } catch (_) {}
+}
+
+function nativeShowPersonMenuPopover(trigger) {
+    if (!trigger || !supportsPersonMenuTopLayer()) return false;
+    try {
+        HTMLElement.prototype.showPopover.call(trigger);
+        return isPersonMenuInTopLayer(trigger);
+    } catch (_) {
+        return false;
+    }
+}
+
 function demotePersonMenuFromTopLayer(trigger) {
     if (!trigger) return;
-    if (isPersonMenuInTopLayer(trigger)) {
-        try { trigger.hidePopover(); } catch (_) {}
-    }
+    nativeHidePersonMenuPopover(trigger);
     trigger.removeAttribute('popover');
     trigger.removeAttribute('data-person-menu-top-layer');
     ['--person-menu-anchor-left', '--person-menu-anchor-top', '--person-menu-anchor-width', '--person-menu-anchor-height']
@@ -90,6 +106,7 @@ function demotePersonMenuFromTopLayer(trigger) {
     personMenuPlaceholders.get(trigger)?.remove();
     personMenuPlaceholders.delete(trigger);
     personMenuAnchorRects.delete(trigger);
+    personMenuWasOpenOnPointerDown.delete(trigger);
     const anyTopLayerMenu = Array.from(document.querySelectorAll('cds-overflow-menu.person-overflow-menu')).some(isPersonMenuInTopLayer);
     document.body.classList.toggle('person-menu-top-layer-open', anyTopLayerMenu);
 }
@@ -121,7 +138,7 @@ function promotePersonMenuToTopLayer(trigger) {
         }
         trigger.dataset.personMenuTopLayer = 'true';
         trigger.setAttribute('popover', 'manual');
-        trigger.showPopover();
+        if (!nativeShowPersonMenuPopover(trigger)) throw new Error('person menu top layer did not open');
         document.body.classList.add('person-menu-top-layer-open');
         schedulePersonMenuTopLayerPosition();
         return true;
@@ -130,6 +147,7 @@ function promotePersonMenuToTopLayer(trigger) {
         trigger.removeAttribute('data-person-menu-top-layer');
         personMenuPlaceholders.get(trigger)?.remove();
         personMenuPlaceholders.delete(trigger);
+        personMenuAnchorRects.delete(trigger);
         return false;
     }
 }
@@ -409,11 +427,26 @@ function openCompactPersonMenu(trigger) {
     closeOtherPersonMenus(trigger);
     capturePersonMenuAnchor(trigger);
     const person = syncPersonMenuContext(trigger);
-    if (!person) return;
+    if (!person) return false;
     trigger.open = true;
     trigger.setAttribute('open', '');
+    promotePersonMenuToTopLayer(trigger);
+    return true;
 }
 window.openCompactPersonMenu = openCompactPersonMenu;
+
+function closeCompactPersonMenu(trigger) {
+    if (!trigger) return;
+    trigger.open = false;
+    trigger.removeAttribute('open');
+    demotePersonMenuFromTopLayer(trigger);
+    if (activePersonMenuTrigger === trigger) {
+        document.body.classList.remove('person-menu-open');
+        activePersonMenuTarget = null;
+        activePersonMenuTrigger = null;
+    }
+    window.SanpoFocusModality?.clearPointerFocus?.(trigger);
+}
 
 function shouldKeepPersonMenuForTarget(target) {
     return !!target?.closest?.('cds-overflow-menu.person-overflow-menu, cds-menu.person-pop-menu');
@@ -429,6 +462,10 @@ function setupCompactPersonMenu() {
     document.addEventListener('pointerdown', event => {
         const trigger = personOverflowFromEvent(event);
         if (trigger) {
+            const wasOpen = isPersonMenuInTopLayer(trigger)
+                || trigger.open === true
+                || trigger.hasAttribute('open');
+            personMenuWasOpenOnPointerDown.set(trigger, wasOpen);
             closeOtherPersonMenus(trigger);
             capturePersonMenuAnchor(trigger);
             syncPersonMenuContext(trigger);
@@ -441,10 +478,11 @@ function setupCompactPersonMenu() {
         const overflowTrigger = personOverflowFromEvent(event);
         const item = personMenuItemFromEvent(event);
         if (overflowTrigger && !item) {
+            const wasOpen = personMenuWasOpenOnPointerDown.get(overflowTrigger) === true;
+            personMenuWasOpenOnPointerDown.delete(overflowTrigger);
             queueMicrotask(() => {
-                const open = overflowTrigger.open === true || overflowTrigger.hasAttribute('open');
-                document.body.classList.toggle('person-menu-open', open);
-                if (open) promotePersonMenuToTopLayer(overflowTrigger); else demotePersonMenuFromTopLayer(overflowTrigger);
+                if (wasOpen) closeCompactPersonMenu(overflowTrigger);
+                else openCompactPersonMenu(overflowTrigger);
             });
         }
         if (!item) return;
