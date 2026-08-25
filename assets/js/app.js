@@ -13,7 +13,7 @@ function loadAssignmentWorkspaceFeature() {
             return;
         }
         const script = document.createElement('script');
-        script.src = './assets/js/features/assignment-workspace.js?v=assignment-workspace-v2';
+        script.src = './assets/js/features/assignment-workspace.js?v=assignment-workspace-v3';
         script.async = true;
         script.dataset.assignmentWorkspaceFeature = 'true';
         script.addEventListener('load', () => resolve(window.SanpoAssignmentWorkspace), { once: true });
