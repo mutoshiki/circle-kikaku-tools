@@ -1,8 +1,8 @@
 // Unified Carbon Assignment Workspace.
 // This module owns allocation layout composition. Allocation state, persistence,
 // synchronization and person-menu behavior remain in their existing feature owners.
-// Assignment editing is direct-action only: empty seats use the picker and members
-// move through their overflow menu. The legacy card-drag surface is not exposed.
+// Assignment editing is direct-action only: empty seats use the picker. Card drag,
+// a visible waiting drawer, and cross-car move menus are intentionally not exposed.
 (function (global) {
     'use strict';
 
@@ -10,7 +10,6 @@
     const byId = id => D.getElementById(id);
     let observer = null;
     let syncFrame = 0;
-    let switcherCommit = false;
     let shareInitialTypeApplied = false;
 
     function isSharedReadOnlyMode() {
@@ -33,7 +32,7 @@
             link.dataset.assignmentWorkspaceStyle = 'true';
             D.head.appendChild(link);
         }
-        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v5';
+        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v6';
         if (!link.href.endsWith(href.replace('./', ''))) link.href = href;
     }
 
@@ -41,11 +40,6 @@
         const label = tab?.querySelector('.view-tab-label');
         if (!label) return;
         const lock = label.querySelector('.view-tab-lock-indicator');
-        const textNode = label.firstChild;
-        const alreadyCorrect = textNode?.nodeType === global.Node.TEXT_NODE
-            && textNode.textContent === text
-            && label.childNodes.length === (lock ? 2 : 1);
-        if (alreadyCorrect) return;
         label.replaceChildren(D.createTextNode(text));
         if (lock) label.appendChild(lock);
     }
@@ -57,42 +51,34 @@
     }
 
     function simplifyPrimaryNavigation() {
-        const workspaceTab = byId('tab-list');
+        const carTab = byId('tab-list');
         const teamTab = byId('tab-team');
         const sheetTab = byId('tab-sheet');
         const participantTab = byId('tab-participants');
         const settlementTab = byId('tab-seisan');
         const bar = byId('view-toggle-bar');
+        if (!carTab || !teamTab || !bar) return;
 
         if (sheetTab) sheetTab.hidden = true;
-        if (teamTab) teamTab.hidden = true;
-        if (!workspaceTab) return;
+        carTab.hidden = false;
+        teamTab.hidden = false;
+        carTab.dataset.allocationType = 'car';
+        teamTab.dataset.allocationType = 'team';
+        carTab.setAttribute('value', 'car');
+        teamTab.setAttribute('value', 'team');
+        carTab.setAttribute('aria-label', '車割');
+        teamTab.setAttribute('aria-label', '班割');
+        replaceTabLabel(carTab, '車割');
+        replaceTabLabel(teamTab, '班割');
+        replaceTabLabel(participantTab, '参加者');
+        replaceTabLabel(settlementTab, '精算');
 
-        workspaceTab.dataset.allocationType = 'workspace';
-        workspaceTab.setAttribute('aria-label', '車割・班割');
-        replaceTabLabel(workspaceTab, '車割・班割');
-
-        if (bar) {
-            const desired = [participantTab, workspaceTab, settlementTab].filter(Boolean);
-            const desiredIds = desired.map(tab => tab.id);
-            const currentIds = Array.from(bar.children)
-                .filter(tab => desiredIds.includes(tab.id))
-                .map(tab => tab.id);
-            if (currentIds.join('|') !== desiredIds.join('|')) desired.forEach(tab => bar.appendChild(tab));
+        const desired = [participantTab, carTab, teamTab, settlementTab].filter(Boolean);
+        if (desired.some((tab, index) => bar.children[index] !== tab) || bar.children.length !== desired.length) {
+            bar.replaceChildren(...desired);
         }
-
-        if (D.body.classList.contains('view-mode-list')) {
-            workspaceTab.classList.add('active');
-            workspaceTab.toggleAttribute('selected', true);
-            workspaceTab.setAttribute('aria-current', 'page');
-            teamTab?.classList.remove('active');
-            teamTab?.removeAttribute('selected');
-            teamTab?.removeAttribute('aria-current');
-            if (bar) {
-                bar.setAttribute('value', 'car');
-                try { bar.value = 'car'; } catch (_) {}
-            }
-        }
+        bar.dataset.assignmentFourDestinationNav = 'true';
+        global.syncCarbonPrimaryNavigationState?.();
         syncShellShareVisibility();
     }
 
@@ -105,71 +91,21 @@
         header = D.createElement('section');
         header.id = 'assignmentWorkspaceHeader';
         header.className = 'assignment-workspace-header';
-        header.setAttribute('aria-labelledby', 'assignmentWorkspaceTitle');
+        header.setAttribute('aria-label', '割り当て操作');
         header.innerHTML = `
-            <div class="assignment-workspace-heading-row">
-                <div class="assignment-workspace-title-block">
-                    <h2 class="assignment-workspace-title" id="assignmentWorkspaceTitle">車割・班割</h2>
-                    <p class="assignment-workspace-summary" id="assignmentWorkspaceSummary" aria-live="polite"></p>
-                </div>
+            <div class="assignment-workspace-meta-row">
+                <p class="assignment-workspace-summary" id="assignmentWorkspaceSummary" aria-live="polite"></p>
                 <cds-icon-button id="assignmentShareBtn" class="assignment-workspace-share" kind="ghost" size="lg" type="button" align="bottom-right" aria-label="共有">
                     <span data-carbon-icon="link" slot="icon" aria-hidden="true"></span>
                 </cds-icon-button>
             </div>
-            <div class="assignment-workspace-switcher-row">
-                <cds-content-switcher id="assignmentTypeSwitcher" size="lg" value="car" aria-label="割り当ての種類">
-                    <cds-content-switcher-item value="car" selected>車割</cds-content-switcher-item>
-                    <cds-content-switcher-item value="team">班割</cds-content-switcher-item>
-                </cds-content-switcher>
-            </div>
-            <div id="assignmentWorkspaceActions" class="assignment-workspace-actions" aria-label="車割・班割の操作"></div>`;
+            <div id="assignmentWorkspaceActions" class="assignment-workspace-actions" aria-label="割り当ての操作"></div>`;
 
         const legacyHeader = topArea.querySelector(':scope > .edit-header');
         topArea.insertBefore(header, legacyHeader || topArea.firstChild);
         byId('assignmentShareBtn')?.addEventListener('click', () => global.copyUrl?.());
-        bindTypeSwitcher();
         global.SanpoCarbon?.renderCarbonIcons?.(header);
         return header;
-    }
-
-    function switchAllocationType(value) {
-        const next = value === 'team' ? 'team' : 'car';
-        if (next === activeType()) return;
-        if (isSharedReadOnlyMode() && typeof global.switchCarPlan === 'function') {
-            global.switchCarPlan(next, { persist: false });
-            return;
-        }
-        if (typeof global.updateActiveCarPlanTemplate === 'function') global.updateActiveCarPlanTemplate(next);
-        else if (typeof global.switchCarPlan === 'function') global.switchCarPlan(next);
-    }
-
-    function bindTypeSwitcher() {
-        const switcher = byId('assignmentTypeSwitcher');
-        if (!switcher || switcher.dataset.assignmentBound === 'true') return;
-        switcher.dataset.assignmentBound = 'true';
-
-        const commit = value => {
-            const next = value === 'team' ? 'team' : 'car';
-            if (switcherCommit || next === activeType()) return;
-            switcherCommit = true;
-            try { switchAllocationType(next); }
-            finally {
-                queueMicrotask(() => {
-                    switcherCommit = false;
-                    scheduleSync();
-                });
-            }
-        };
-
-        switcher.addEventListener('cds-content-switcher-selected', event => {
-            const item = event.detail?.item;
-            if (!item || !switcher.contains(item)) return;
-            commit(item.value || item.getAttribute('value'));
-        });
-        switcher.addEventListener('change', event => {
-            const item = event.detail?.item || event.target?.closest?.('cds-content-switcher-item');
-            commit(item?.value || item?.getAttribute?.('value') || switcher.value);
-        });
     }
 
     function relocateAllocationActions() {
@@ -204,7 +140,7 @@
         tray.style.display = 'none';
     }
 
-    function ensureGroupOverflow(box, type) {
+    function ensureGroupOverflow(box) {
         const header = box.querySelector('.car-header');
         if (!header || isSharedReadOnlyMode()) return;
         let menu = header.querySelector('.assignment-group-menu');
@@ -220,35 +156,31 @@
                 <span slot="icon" data-carbon-icon="overflow-menu-vertical" aria-hidden="true"></span>
                 <cds-menu>
                     <cds-menu-item label="定員を変更" data-assignment-group-action="capacity"><span data-carbon-icon="edit" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
-                    <cds-menu-item data-assignment-group-action="return"><span data-carbon-icon="undo" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
                 </cds-menu>`;
             header.appendChild(menu);
             menu.addEventListener('click', event => {
-                const item = event.composedPath?.().find(node => node instanceof global.Element && node.matches?.('[data-assignment-group-action]'));
+                const item = event.composedPath?.().find(node => node instanceof global.Element && node.matches?.('[data-assignment-group-action="capacity"]'));
                 if (!item) return;
                 event.preventDefault();
                 event.stopPropagation();
-                if (item.dataset.assignmentGroupAction === 'capacity') box.querySelector('.capacity-edit-btn')?.click();
-                if (item.dataset.assignmentGroupAction === 'return') box.querySelector('.car-return-btn')?.click();
+                box.querySelector('.capacity-edit-btn')?.click();
                 try { menu.open = false; } catch (_) {}
             });
         }
-        const returnItem = menu.querySelector('[data-assignment-group-action="return"]');
-        const label = type === 'team' ? '班長を未配置に戻す' : '運転手を未配置に戻す';
-        if (returnItem?.getAttribute('label') !== label) returnItem?.setAttribute('label', label);
+        menu.querySelectorAll('[data-assignment-group-action="return"]').forEach(item => item.remove());
     }
 
-    function removeLegacyDragAffordance(card) {
-        card.querySelectorAll('.assignment-drag-handle').forEach(handle => handle.remove());
-        card.classList.remove('manual-drag-source');
+    function removeDeprecatedPersonAffordances(person) {
+        person.querySelectorAll('.assignment-drag-handle, .assignment-person-move-menu, [data-assignment-move-target]').forEach(node => node.remove());
+        person.classList.remove('manual-drag-source');
     }
 
-    function syncLockIndicator(card) {
-        const line = card.querySelector('.member-main-line');
+    function syncLockIndicator(person) {
+        const line = person.querySelector('.member-main-line, .driver-main-line');
         const meta = line?.querySelector('.person-meta');
         if (!line || !meta) return;
         let indicator = meta.querySelector('.assignment-lock-indicator');
-        const locked = card.dataset.locked === 'true';
+        const locked = person.dataset.locked === 'true';
         if (!locked) {
             indicator?.remove();
             return;
@@ -260,6 +192,34 @@
             indicator.innerHTML = '<span data-carbon-icon="locked" aria-hidden="true"></span>';
             meta.prepend(indicator);
         }
+    }
+
+    function roleEnabled(person) {
+        if (!person) return false;
+        if (person.dataset.driver === 'true') return true;
+        if (person.dataset.driver === 'false') return false;
+        return person.classList.contains('driver-seat');
+    }
+
+    function syncRoleTag(person, type) {
+        const line = person.querySelector('.member-main-line, .driver-main-line');
+        const meta = line?.querySelector('.person-meta');
+        if (!meta) return;
+        let tag = meta.querySelector('.driver-role-tag');
+        const enabled = roleEnabled(person);
+        if (!enabled) {
+            tag?.remove();
+            return;
+        }
+        if (!tag) {
+            tag = D.createElement('cds-tag');
+            tag.className = 'driver-role-tag carbon-display-tag';
+            tag.setAttribute('type', 'gray');
+            tag.setAttribute('size', 'sm');
+            meta.prepend(tag);
+        }
+        tag.textContent = type === 'team' ? '班長' : '運転手';
+        tag.setAttribute('aria-label', tag.textContent);
     }
 
     function decorateEmptySeats(box) {
@@ -281,102 +241,24 @@
             }
             label.textContent = '空席';
             slot.setAttribute('aria-label', `空席 ${index + 1}`);
-            const add = slot.querySelector('.seat-add-btn');
-            add?.setAttribute('aria-label', '空席にメンバーを追加');
+            slot.querySelector('.seat-add-btn')?.setAttribute('aria-label', '空席にメンバーを追加');
         });
     }
 
-    function currentMemberBox(card) {
-        return card.closest('.car-box');
+    function rowPerson(row) {
+        if (row.classList.contains('driver-seat')) return row;
+        return row.querySelector(':scope > .member-card');
     }
 
-    function firstOpenSeat(box, movingCard = null) {
-        return Array.from(box?.querySelectorAll('.seat-slot') || []).find(slot => {
-            const occupant = slot.querySelector('.member-card');
-            return !occupant || occupant === movingCard;
-        }) || null;
-    }
-
-    function moveMenuSignature(card, boxes, type) {
-        const currentBox = currentMemberBox(card);
-        const targets = boxes.map((box, index) => {
-            if (box === currentBox) return `${index}:current`;
-            return `${index}:${firstOpenSeat(box, card) ? 'open' : 'full'}`;
-        }).join(',');
-        return [
-            type,
-            card.dataset.locked === 'true' ? 'locked' : 'free',
-            card.parentElement?.id === 'waiting-list' ? 'waiting' : boxes.indexOf(currentBox),
-            targets
-        ].join('|');
-    }
-
-    function rebuildMoveMenu(card, boxes, type) {
-        if (isSharedReadOnlyMode()) return;
-        const menu = card.querySelector('.person-pop-menu');
-        if (!menu) return;
-        const signature = moveMenuSignature(card, boxes, type);
-        const existing = menu.querySelector('.assignment-person-move-menu');
-        if (existing?.dataset.assignmentMoveSignature === signature) return;
-        existing?.remove();
-
-        const move = D.createElement('cds-menu-item');
-        move.className = 'assignment-person-move-menu';
-        move.dataset.assignmentMoveSignature = signature;
-        move.setAttribute('label', '移動');
-        if (card.dataset.locked === 'true') move.setAttribute('disabled', '');
-
-        const group = D.createElement('cds-menu-item-group');
-        group.slot = 'submenu';
-        const currentBox = currentMemberBox(card);
-        boxes.forEach((box, index) => {
-            const item = D.createElement('cds-menu-item');
-            item.setAttribute('label', type === 'team' ? `${index + 1}班` : `${index + 1}号車`);
-            item.dataset.assignmentMoveTarget = String(index);
-            if (box === currentBox || !firstOpenSeat(box, card)) item.setAttribute('disabled', '');
-            group.appendChild(item);
-        });
-        if (card.parentElement?.id !== 'waiting-list') {
-            const waiting = D.createElement('cds-menu-item');
-            waiting.setAttribute('label', '未配置');
-            waiting.dataset.assignmentMoveTarget = 'waiting';
-            group.appendChild(waiting);
-        }
-        move.appendChild(group);
-        menu.prepend(move);
-    }
-
-    function handleMoveMenuClick(event) {
-        const path = event.composedPath?.() || [];
-        const item = path.find(node => node instanceof global.Element && node.hasAttribute?.('data-assignment-move-target'));
-        if (!item || item.hasAttribute('disabled')) return;
-        const card = path.find(node => node instanceof global.Element && node.classList?.contains('member-card'))
-            || item.closest('.member-card');
-        if (!card || card.dataset.locked === 'true') return;
-
-        const target = item.dataset.assignmentMoveTarget;
-        if (target === 'waiting') {
-            byId('waiting-list')?.appendChild(card);
-        } else {
-            const box = D.querySelectorAll('#cars-container .car-box')[Number(target)];
-            const slot = firstOpenSeat(box, card);
-            if (!slot) {
-                global.showMiniToast?.('空きがありません', 'warning');
-                return;
-            }
-            slot.appendChild(card);
-        }
-        event.preventDefault();
-        event.stopPropagation();
-        global.updateUI?.();
-        global.save?.();
-        scheduleSync();
-    }
-
-    function bindMoveMenuEvents() {
-        if (D.documentElement.dataset.assignmentMoveBound === 'true') return;
-        D.documentElement.dataset.assignmentMoveBound = 'true';
-        D.addEventListener('click', handleMoveMenuClick, true);
+    function sortRoleRows(box) {
+        const layout = box.querySelector('.car-layout-grid');
+        if (!layout) return;
+        const rows = Array.from(layout.children).filter(row => row.matches('.driver-seat, .seat-slot'));
+        const ranked = rows.map((row, index) => {
+            const person = rowPerson(row);
+            return { row, index, rank: person ? (roleEnabled(person) ? 0 : 1) : 2 };
+        }).sort((a, b) => a.rank - b.rank || a.index - b.index);
+        ranked.forEach(({ row }) => layout.appendChild(row));
     }
 
     function decorateCapacity(box, type) {
@@ -384,9 +266,8 @@
         const button = box.querySelector('.capacity-edit-btn');
         const passengerCapacity = parseInt(box.dataset.capacity, 10) || box.querySelectorAll('.seat-slot').length;
         const passengerCount = box.querySelectorAll('.seat-slot .member-card').length;
-        const totalCapacity = passengerCapacity + 1;
-        const totalCount = passengerCount + 1;
-        const text = `${totalCount}/${totalCapacity}`;
+        const ownerCount = box.querySelector('.driver-seat') ? 1 : 0;
+        const text = `${passengerCount + ownerCount}/${passengerCapacity + ownerCount}`;
         if (count && count.textContent !== text) count.textContent = text;
         if (button) button.setAttribute('aria-label', `${type === 'team' ? '班' : '車'}の人数 ${text}、定員を変更`);
     }
@@ -401,37 +282,27 @@
             if (groupLabel && groupLabel.textContent !== nextLabel) groupLabel.textContent = nextLabel;
             box.setAttribute('role', 'group');
             box.setAttribute('aria-label', nextLabel);
-            const role = box.querySelector('.driver-role-tag');
-            const nextRole = type === 'team' ? '班長' : '運転手';
-            if (role && role.textContent !== nextRole) role.textContent = nextRole;
-            ensureGroupOverflow(box, type);
+            ensureGroupOverflow(box);
             decorateEmptySeats(box);
+            const people = Array.from(box.querySelectorAll('.driver-seat, .seat-slot > .member-card'));
+            people.forEach(person => {
+                removeDeprecatedPersonAffordances(person);
+                syncLockIndicator(person);
+                syncRoleTag(person, type);
+            });
+            sortRoleRows(box);
             decorateCapacity(box, type);
         });
 
-        D.querySelectorAll('#cars-container .member-card, #waiting-list .member-card').forEach(card => {
-            removeLegacyDragAffordance(card);
-            syncLockIndicator(card);
-            rebuildMoveMenu(card, boxes, type);
+        D.querySelectorAll('#waiting-list .member-card').forEach(person => {
+            removeDeprecatedPersonAffordances(person);
+            syncLockIndicator(person);
+            syncRoleTag(person, type);
         });
         global.SanpoCarbon?.renderCarbonIcons?.(byId('cars-container'));
-        global.SanpoCarbon?.renderCarbonIcons?.(byId('waiting-list'));
     }
 
-    function syncSwitcher() {
-        const type = activeType();
-        const switcher = byId('assignmentTypeSwitcher');
-        if (!switcher) return;
-        if (switcher.getAttribute('value') !== type) switcher.setAttribute('value', type);
-        try { if (switcher.value !== type) switcher.value = type; } catch (_) {}
-        switcher.querySelectorAll('cds-content-switcher-item').forEach(item => {
-            const selected = (item.value || item.getAttribute('value')) === type;
-            if (!!item.selected !== selected) item.selected = selected;
-            item.toggleAttribute('selected', selected);
-        });
-    }
-
-    function syncSummaryAndWaitingState() {
+    function syncSummary() {
         const summary = byId('assignmentWorkspaceSummary');
         const type = activeType();
         const groups = D.querySelectorAll('#cars-container .car-box').length;
@@ -442,22 +313,20 @@
         const unit = type === 'team' ? '班' : '台';
         const text = `${total}人 · ${groups}${unit} · 未配置${waiting}人`;
         if (summary && summary.textContent !== text) summary.textContent = text;
-        D.body.classList.toggle('assignment-waiting-empty', waiting === 0);
-        D.body.classList.toggle('assignment-has-waiting', waiting > 0);
     }
 
     function applyShareInitialType() {
         if (!isSharedReadOnlyMode() || shareInitialTypeApplied) return;
         shareInitialTypeApplied = true;
         const requested = requestedShareType();
-        if (requested !== activeType()) switchAllocationType(requested);
+        if (requested === activeType()) return;
+        if (typeof global.switchCarPlan === 'function') global.switchCarPlan(requested, { persist: false });
     }
 
     function applyReadOnlyMode() {
         const readonly = isSharedReadOnlyMode();
         D.body.classList.toggle('assignment-readonly', readonly);
         if (!readonly) return;
-
         const topArea = byId('top-area');
         const sheetArea = byId('sheet-view-area');
         if (topArea) {
@@ -469,7 +338,7 @@
             sheetArea.classList.remove('active');
             sheetArea.style.display = 'none';
         }
-
+        concealWaitingPool();
         const roomInput = byId('roomNameInput');
         if (roomInput) {
             roomInput.readOnly = true;
@@ -487,12 +356,11 @@
         D.body.classList.add('assignment-workspace-enabled');
         createHeader();
         relocateAllocationActions();
-        concealWaitingPool();
         simplifyPrimaryNavigation();
         applyShareInitialType();
-        syncSwitcher();
+        concealWaitingPool();
         decorateCards();
-        syncSummaryAndWaitingState();
+        syncSummary();
         applyReadOnlyMode();
         normalizeHorizontalPosition();
         global.SanpoCarbon?.renderCarbonIcons?.(byId('assignmentWorkspaceHeader'));
@@ -509,8 +377,8 @@
         const cars = byId('cars-container');
         const waiting = byId('waiting-list');
         const navigation = byId('view-toggle-bar');
-        if (cars) observer.observe(cars, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-locked', 'data-capacity'] });
-        if (waiting) observer.observe(waiting, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-locked'] });
+        if (cars) observer.observe(cars, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-locked', 'data-capacity', 'data-driver'] });
+        if (waiting) observer.observe(waiting, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-locked', 'data-driver'] });
         if (navigation) observer.observe(navigation, { childList: true });
         observer.observe(D.body, { attributes: true, attributeFilter: ['class', 'data-active-plan-template'] });
     }
@@ -519,9 +387,6 @@
         ensureStylesheet();
         D.body.classList.add('assignment-workspace-enabled');
         createHeader();
-        relocateAllocationActions();
-        concealWaitingPool();
-        bindMoveMenuEvents();
         observe();
         global.addEventListener('resize', scheduleSync, { passive: true });
         global.visualViewport?.addEventListener('resize', scheduleSync, { passive: true });
