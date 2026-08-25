@@ -83,9 +83,9 @@
         if (trigger.dataset.sideNavStateBound === 'true') return;
         trigger.dataset.sideNavStateBound = 'true';
 
-        trigger.addEventListener('click', () => {
-            const expanded = Boolean(drawer.expanded || drawer.hasAttribute('expanded'));
-            setCarbonSideNavExpanded(!expanded);
+        trigger.addEventListener('cds-header-menu-button-toggled', event => {
+            const next = Boolean(event.detail?.active);
+            setCarbonSideNavExpanded(next);
         });
         drawer.addEventListener('click', event => {
             if (!event.composedPath().some(node => node?.tagName === 'CDS-SIDE-NAV-LINK')) return;
