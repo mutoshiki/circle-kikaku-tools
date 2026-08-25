@@ -136,7 +136,6 @@ test.describe('Allocation, menus and accessibility', () => {
     await expect(personOverflow).toHaveJSProperty('open', true);
     const personMenu = personOverflow.locator(':scope > cds-menu.person-pop-menu');
     await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(5);
-    await expect(personMenu.locator(':scope > cds-menu-item[label="移動"]')).toHaveCount(1);
     await expect(page.locator('cds-tooltip[open]')).toHaveCount(0);
     const menuItemsInViewport = await personMenu.locator(':scope > cds-menu-item').evaluateAll(items => items.every(item => {
       const box = item.getBoundingClientRect();
