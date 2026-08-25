@@ -11,7 +11,12 @@ async function seed(page) {
 async function hostClick(page, selector, index = 0) {
   const locator = page.locator(selector).nth(index);
   await expect(locator).toBeAttached();
-  if (await locator.evaluate(node => node.tagName === 'CDS-OVERFLOW-MENU')) await locator.click();
+  const tagName = await locator.evaluate(node => node.tagName);
+  if (tagName === 'CDS-HEADER-MENU-BUTTON') {
+    const button = locator.locator('button');
+    await expect(button).toBeVisible();
+    await button.click();
+  } else if (tagName === 'CDS-OVERFLOW-MENU') await locator.click();
   else await locator.evaluate(node => node.click());
   await page.waitForTimeout(80);
 }
