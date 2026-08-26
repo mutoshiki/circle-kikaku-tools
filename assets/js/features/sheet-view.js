@@ -107,7 +107,10 @@ async function switchView(view) {
     const tabSheet = byId('tab-sheet');
     const tabSeisan = byId('tab-seisan');
     const seisanArea = byId('seisan-view-area');
-    syncMainViewSwitcher(view);
+    // The retired shared view has no primary-navigation destination. Keeping
+    // the current Carbon tab selected avoids Carbon's fallback selection being
+    // mistaken for a car/team activation while legacy callers render it.
+    if (view !== 'sheet') syncMainViewSwitcher(view);
     if (listArea) listArea.hidden = view !== 'list';
     if (sheetArea) sheetArea.hidden = view !== 'sheet';
     if (seisanArea) seisanArea.hidden = view !== 'seisan';

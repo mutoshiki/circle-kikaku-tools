@@ -93,33 +93,28 @@
     }
 
     function bindCarbonAllocationSelection() {
-        [['tab-list', 'car'], ['tab-team', 'team']].forEach(([id, templateType]) => {
-            const tab = byId(id);
-            if (!tab || tab.dataset.assignmentDestinationOwner === 'true') return;
-            tab.dataset.assignmentDestinationOwner = 'true';
-            const request = () => {
-                if (!(tab.selected || tab.hasAttribute('selected'))) return;
-                // `syncCarbonPrimaryNavigationState()` mirrors an app-owned
-                // transition back into Carbon. It is already reflected in the
-                // active allocation state, so it is not a second view change.
-                if (activeType() === templateType && D.body.classList.contains('view-mode-list')) return;
-                requestedAllocationType = templateType;
-                if (applyingAllocationSelection) return;
-                applyingAllocationSelection = true;
-                void (async () => {
-                    while (requestedAllocationType) {
-                        const next = requestedAllocationType;
-                        requestedAllocationType = '';
-                        await applyCarbonAllocationSelection(next);
-                    }
-                    applyingAllocationSelection = false;
-                })();
-            };
-            // Carbon owns activation for pointer, keyboard, and programmatic
-            // host clicks. This observer is the sole application hand-off:
-            // follow Carbon's reflected selected state instead of competing
-            // with its event lifecycle from a shadow-root listener.
-            new MutationObserver(request).observe(tab, { attributes: true, attributeFilter: ['selected'] });
+        const bar = byId('view-toggle-bar');
+        if (!bar || bar.dataset.assignmentDestinationOwner === 'true') return;
+        bar.dataset.assignmentDestinationOwner = 'true';
+        // Carbon owns activation and selection. The composed component event is
+        // the single application hand-off, so state mirroring never competes
+        // with user navigation (including WebKit host clicks).
+        bar.addEventListener('cds-tabs-selected', event => {
+            const tab = event.detail?.item;
+            const templateType = tab?.dataset?.allocationType;
+            if (templateType !== 'car' && templateType !== 'team') return;
+            if (activeType() === templateType && D.body.classList.contains('view-mode-list')) return;
+            requestedAllocationType = templateType;
+            if (applyingAllocationSelection) return;
+            applyingAllocationSelection = true;
+            void (async () => {
+                while (requestedAllocationType) {
+                    const next = requestedAllocationType;
+                    requestedAllocationType = '';
+                    await applyCarbonAllocationSelection(next);
+                }
+                applyingAllocationSelection = false;
+            })();
         });
     }
 

@@ -102,7 +102,7 @@ assert.match(modalController, /\['wheel', 'pointerdown', 'pointermove'\][\s\S]*s
 assert.match(settlementFacade, /\['seisan-summary', 'seisan-share-preview'\][\s\S]*closest\('\.seisan-card'\)\?\.remove/, 'obsolete overall-cost and share-text cards are removed as settlement initializes');
 assert.match(viewEvents, /persistMainView[\s\S]*searchParams\.set\('view', view\)[\s\S]*history\.replaceState/, 'tab navigation persists the active main view in the URL');
 assert.match(viewEvents, /tab-seisan[\s\S]*switchViewRemembering\('seisan'\)/, 'settlement tab uses the persistent primary-navigation owner');
-assert.match(assignmentWorkspace, /bindCarbonAllocationSelection[\s\S]*attributeFilter: \['selected'\]/, 'car and team tabs observe Carbon selected state through one workspace owner');
+assert.match(assignmentWorkspace, /bindCarbonAllocationSelection[\s\S]*cds-tabs-selected/, 'car and team tabs use Carbon’s selected event through one workspace owner');
 assert.doesNotMatch(viewEvents, /bind\('tab-sheet'/, 'retired shared view must not remain a primary navigation event');
 
 assert.match(shareActions, /url\.searchParams\.set\('room', activeRoomId\)/, 'canonical copied URL preserves the room id');
