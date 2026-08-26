@@ -1,15 +1,10 @@
-// Person and car card rendering feature
-// Owns member/driver badge HTML and card creation helpers.
+// Person and group card rendering feature.
+// Owns participant badges, per-person actions, and allocation card creation helpers.
 
-function genderBadgeHtml(gender) {
-    return '';
-}
-
-function renderGradeBadge(grade, gender = 'unknown') {
+function renderGradeBadge(grade) {
     const n = parseInt(grade) || 0;
     if (n <= 0) return '';
-    const gradeText = `${n}年`;
-    return `<cds-tag class="grade-badge carbon-display-tag" data-grade="${n}" type="gray" size="sm">${gradeText}</cds-tag>`;
+    return `<cds-tag class="grade-badge carbon-display-tag" data-grade="${n}" type="gray" size="sm">${n}年</cds-tag>`;
 }
 
 function renderPersonFlag(flag) {
@@ -31,21 +26,28 @@ function renderPersonChoiceSubmenu({ label, icon, action, choices }) {
       </cds-menu-item>`;
 }
 
-function renderPersonOverflowMenu({ name, isDriver = false, inWaiting = false, locked = false } = {}) {
+function getAllocationRoleLabel(enabled) {
+    const team = document.body.dataset.activePlanTemplate === 'team';
+    if (team) return enabled ? '班長を外す' : '班長にする';
+    return enabled ? '運転手を外す' : '運転手にする';
+}
+
+function renderPersonOverflowMenu({ name, inWaiting = false, locked = false, roleEnabled = false, structuralOwner = false } = {}) {
     const safeLabel = escapeHtml(`${name || '参加者'}の操作`);
     const common = [
       `<cds-menu-item class="person-pop-item" label="メモ" data-person-action="memo">${renderPersonMenuIcon('notebook')}</cds-menu-item>`,
+      `<cds-menu-item class="person-pop-item" label="${getAllocationRoleLabel(roleEnabled)}" data-person-action="driver">${renderPersonMenuIcon('car')}</cds-menu-item>`,
       renderPersonChoiceSubmenu({ label: 'しるし', icon: 'flag', action: 'flag', choices: [
         { value: 'none', label: 'しるしなし', icon: 'close--outline', flag: true },
         { value: 'blue', label: '青', icon: 'flag', flag: true },
         { value: 'purple', label: '紫', icon: 'flag', flag: true },
         { value: 'yellow', label: '黄', icon: 'flag', flag: true },
         { value: 'red', label: '赤', icon: 'flag', flag: true }
-      ] })
+      ] }),
+      `<cds-menu-item class="person-pop-item" label="${locked ? '固定解除' : '固定'}" data-person-action="lock">${renderPersonMenuIcon(locked ? 'unlocked' : 'locked')}</cds-menu-item>`
     ];
-    if (!isDriver) {
-      common.push(`<cds-menu-item class="person-pop-item" label="${locked ? '固定解除' : '固定'}" data-person-action="lock">${renderPersonMenuIcon(locked ? 'unlocked' : 'locked')}</cds-menu-item>`);
-      common.push(`<cds-menu-item class="person-pop-item" label="${inWaiting ? '削除' : '戻す'}" data-person-action="return" kind="${inWaiting ? 'danger' : 'default'}">${renderPersonMenuIcon(inWaiting ? 'trash-can' : 'undo')}</cds-menu-item>`);
+    if (!structuralOwner) {
+      common.push(`<cds-menu-item class="person-pop-item" label="${inWaiting ? '削除' : '未配置に戻す'}" data-person-action="return" kind="${inWaiting ? 'danger' : 'default'}">${renderPersonMenuIcon(inWaiting ? 'trash-can' : 'undo')}</cds-menu-item>`);
     }
     common.push(renderPersonChoiceSubmenu({ label: '学年', icon: 'education', action: 'grade', choices: [
       { value: '0', label: '未設定', icon: 'subtract' },
@@ -54,40 +56,35 @@ function renderPersonOverflowMenu({ name, isDriver = false, inWaiting = false, l
       { value: '3', label: '3年', icon: 'number--3' },
       { value: '4', label: '4年', icon: 'number--4' }
     ] }));
-    common.push(renderPersonChoiceSubmenu({ label: '性別', icon: 'user-multiple', action: 'gender', choices: [
-      { value: 'male', label: '男性', icon: 'gender--male' },
-      { value: 'female', label: '女性', icon: 'gender--female' },
-      { value: 'unknown', label: '未設定', icon: 'help' }
-    ] }));
-    common.push(`<cds-menu-item class="person-pop-item" label="名前変更" data-person-action="name">${renderPersonMenuIcon('edit')}</cds-menu-item>`);
-    return `<cds-overflow-menu type="button" kind="ghost" size="lg" class="${isDriver ? 'driver-menu-btn' : 'member-menu-btn'} person-overflow-menu action-btn" label="${safeLabel}" aria-label="${safeLabel}" enable-v12-overflowmenu enter-delay-ms="86400000" leave-delay-ms="0">
+    return `<cds-overflow-menu type="button" kind="ghost" size="lg" class="person-overflow-menu action-btn" label="${safeLabel}" aria-label="${safeLabel}" enable-v12-overflowmenu autoalign menu-alignment="bottom-start" enter-delay-ms="86400000" leave-delay-ms="0">
         <span data-carbon-icon="overflow-menu-vertical" slot="icon" aria-hidden="true"></span>
         <cds-menu class="person-pop-menu" aria-label="${safeLabel}">${common.join('')}</cds-menu>
       </cds-overflow-menu>`;
 }
 window.renderPersonOverflowMenu = renderPersonOverflowMenu;
 
-function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), locked=false, flag='none', participantId='') {
+// The third positional argument is retained only so older local snapshots/callers can
+// still restore safely. It is deliberately ignored; participant sex/gender is no longer
+// part of allocation state or UI.
+function addMember(n, m='', _legacyUnused='', grade=0, parent=$('#waiting-list'), locked=false, flag='none', participantId='', roleEnabled=false) {
     const name = String(n || '').trim();
     if(!name) return;
-    
+
     const div = ce('div', 'member-card');
     div.dataset.name = name;
     if (participantId) div.dataset.participantId = String(participantId);
-    div.dataset.gender = g;
     div.dataset.grade = grade;
     div.dataset.locked = locked;
     div.dataset.flag = normalizePersonFlag(flag);
-    
+    div.dataset.driver = roleEnabled === true ? 'true' : 'false';
+
     const safeName = escapeHtml(name);
     const safeMemo = escapeHtml(m || '');
-    const gradeHtml = renderGradeBadge(grade, g);
-    const genderHtml = genderBadgeHtml(g);
     div.innerHTML = `
         <div class="member-main-line">
             <div class="member-name-text">${safeName}</div>
-            <div class="person-meta">${renderPersonFlag(flag)}${genderHtml}${gradeHtml}</div>
-            ${renderPersonOverflowMenu({ name, isDriver: false, inWaiting: parent?.id === 'waiting-list', locked })}
+            <div class="person-meta">${renderPersonFlag(flag)}${roleEnabled ? `<cds-tag class="driver-role-tag carbon-display-tag" type="gray" size="sm">${document.body.dataset.activePlanTemplate === 'team' ? '班長' : '運転手'}</cds-tag>` : ''}${renderGradeBadge(grade)}</div>
+            ${renderPersonOverflowMenu({ name, inWaiting: parent?.id === 'waiting-list', locked, roleEnabled })}
         </div>
         <div class="memo-popup" style="display:${m?'block':'none'}">${safeMemo}</div>
     `;
@@ -97,7 +94,8 @@ function addMember(n, m='', g='unknown', grade=0, parent=$('#waiting-list'), loc
 }
 window.addMember = addMember;
 
-function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none', participantId='', groupId='') {
+// The fifth positional argument is a legacy placeholder for pre-removal snapshots.
+function addCar(n, cap, mems=[], dm='', _legacyUnused='', dgrade=0, dflag='none', participantId='', groupId='', ownerRoleEnabled=true) {
     const name = String(n || '').trim();
     const fallbackCapacity = typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3;
     const c = getInt(cap) || fallbackCapacity;
@@ -107,16 +105,14 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none', pa
     if (participantId) col.dataset.participantId = String(participantId);
     const safeName = escapeHtml(name);
     const safeMemo = escapeHtml(dm || '');
-    const driverGradeHtml = renderGradeBadge(dgrade, dg);
-    const driverGenderHtml = genderBadgeHtml(dg);
     const groupSuffix = typeof getActiveGroupSuffix === 'function' ? getActiveGroupSuffix() : '車';
-    const driverRoleLabel = document.body.dataset.activePlanTemplate === 'team' ? '班長' : '運転手';
+    const roleText = document.body.dataset.activePlanTemplate === 'team' ? '班長' : '運転手';
     let slotsHtml = `
-        <div class="driver-seat" data-gender="${dg}" data-name="${safeName}" data-participant-id="${escapeHtml(participantId || '')}" data-grade="${dgrade || 0}" data-flag="${normalizePersonFlag(dflag)}">
+        <div class="driver-seat" data-driver="${ownerRoleEnabled ? 'true' : 'false'}" data-name="${safeName}" data-participant-id="${escapeHtml(participantId || '')}" data-grade="${dgrade || 0}" data-locked="false" data-flag="${normalizePersonFlag(dflag)}">
             <div class="member-main-line driver-main-line">
-                <div class="driver-name-disp ">${safeName}</div>
-                <div class="person-meta"><cds-tag class="driver-role-tag" type="gray" size="sm">${driverRoleLabel}</cds-tag>${renderPersonFlag(dflag)}${driverGenderHtml}${driverGradeHtml}</div>
-                ${renderPersonOverflowMenu({ name, isDriver: true })}
+                <div class="driver-name-disp">${safeName}</div>
+                <div class="person-meta">${renderPersonFlag(dflag)}${ownerRoleEnabled ? `<cds-tag class="driver-role-tag carbon-display-tag" type="gray" size="sm">${roleText}</cds-tag>` : ''}${renderGradeBadge(dgrade)}</div>
+                ${renderPersonOverflowMenu({ name, locked: false, roleEnabled: ownerRoleEnabled, structuralOwner: true })}
             </div>
             <div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${safeMemo}</div>
         </div>
@@ -124,7 +120,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none', pa
     for(let i=0; i<c; i++) slotsHtml += `<div class="seat-slot"><cds-icon-button class="seat-add-btn" type="button" kind="ghost" size="lg" aria-label="メンバーを追加" align="top"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span></cds-icon-button></div>`;
 
     col.innerHTML = `
-        <div class="car-box" data-capacity="${c}" data-group-id="${escapeHtml(groupId || '')}">
+        <cds-contained-list class="car-box" kind="on-page" is-inset data-capacity="${c}" data-group-id="${escapeHtml(groupId || '')}">
             <div class="car-header">
                 <span class="car-name-label">${safeName}${groupSuffix}</span>
                 <div class="car-capacity-actions">
@@ -133,18 +129,27 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none', pa
                         <span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span>
                     </cds-button>
                 </div>
-                <cds-icon-button type="button" kind="ghost" size="md" class="car-delete-btn car-return-btn delete-btn" aria-label="車出しを解除して待機に戻す">
-                    <span data-carbon-icon="undo" aria-hidden="true"></span>
+                <cds-icon-button type="button" kind="ghost" size="md" class="car-delete-btn car-return-btn delete-btn" aria-label="グループを削除">
+                    <span data-carbon-icon="trash-can" aria-hidden="true"></span>
                 </cds-icon-button>
             </div>
             <div class="car-layout-grid">${slotsHtml}</div>
-        </div>
+        </cds-contained-list>
     `;
     $('#cars-container').appendChild(col);
 
     $$('.seat-slot', col).forEach((slot, i) => {
-        setupSortable(slot);
-        if(mems[i]) addMember(mems[i].name, mems[i].memo, mems[i].gender, mems[i].grade||0, slot, mems[i].locked, mems[i].flag, mems[i].participantId || mems[i].id || '');
+        if(mems[i]) addMember(
+            mems[i].name,
+            mems[i].memo,
+            '',
+            mems[i].grade||0,
+            slot,
+            mems[i].locked,
+            mems[i].flag,
+            mems[i].participantId || mems[i].id || '',
+            mems[i].driver === true || mems[i].isDriver === true
+        );
     });
     if (!isRestoringCarPlans && !window.__suspendCardUpdateUi) updateUI();
 }

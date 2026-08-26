@@ -131,3 +131,18 @@ cds-overflow-menu.header-action {
   color: inherit;
   white-space: nowrap;
 }
+
+@media (max-width: 768px) {
+  /* These two Carbon shell layers remain at the top of the single app scroll
+   * owner. The project title scrolls underneath them as normal page content. */
+  #app-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+  }
+
+  #app-view-navigation {
+    position: sticky;
+    top: calc(48px + env(safe-area-inset-top));
+  }
+}

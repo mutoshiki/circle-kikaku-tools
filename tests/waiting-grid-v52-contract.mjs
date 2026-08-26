@@ -5,26 +5,29 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = rel => fs.readFileSync(path.join(root, rel), 'utf8');
-const gridCss = read('assets/css/cars-members-tray/waiting-tray/06-action-and-list-layout.css');
+const workspaceCss = read('assets/css/cars-members-tray/assignment-workspace-refresh.css');
+const waiting = read('assets/js/features/waiting-tray.js');
 const menuCss = read('assets/css/cars-members-tray/person-card/03-person-menu.css');
-const index = read('index.html');
 
 assert.match(
-  gridCss,
-  /@media \(max-width: 768px\), \(pointer: coarse\) and \(max-width: 1024px\)[\s\S]*#waiting-list \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); \}/,
-  'phone and touch-tablet trays use an explicit two-column grid'
+  workspaceCss,
+  /body\.assignment-workspace-enabled #bottom-tray\s*\{\s*display:\s*none;/s,
+  'the former waiting grid must not remain a visible phone surface'
 );
 assert.match(
-  gridCss,
-  /#waiting-list > \.member-card \{ min-width: 0; \}/,
-  'waiting cards may shrink to their two-column track'
+  waiting,
+  /Hidden unassigned-pool compatibility feature/,
+  'unassigned participants remain available only as an internal compatibility pool'
+);
+assert.match(
+  waiting,
+  /tray\.hidden = true;[\s\S]*tray\.style\.display = 'none';/,
+  'waiting compatibility owner continuously keeps the retired tray hidden'
 );
 assert.match(
   menuCss,
   /\.person-overflow-menu:not\(\[open\]\) > \.person-pop-menu \{ display: none; \}/,
-  'closed Carbon menu contents cannot enlarge a waiting card scroll area'
+  'closed Carbon menu contents cannot enlarge allocation rows'
 );
-assert.match(index, /06-action-and-list-layout\.css\?v=waiting-grid-v52/, 'grid CSS is cache-busted');
-assert.match(index, /03-person-menu\.css\?v=waiting-grid-v52/, 'menu overflow CSS is cache-busted');
 
-console.log('PASS waiting grid v52 contract');
+console.log('PASS hidden waiting-pool v52 contract');

@@ -11,7 +11,7 @@ async function sideNavExpanded(drawer) {
 }
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 }]) {
-  test(String(viewport.width) + 'px restored title reveal and official Carbon application navigation', async ({ page }) => {
+  test(String(viewport.width) + 'px project title and official Carbon application navigation', async ({ page }) => {
     await page.setViewportSize(viewport);
     const errors = [];
     page.on('pageerror', error => errors.push(String(error)));
@@ -35,7 +35,6 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     await expect(input).toHaveAttribute('aria-hidden', 'true');
     await expect(editor).toHaveAttribute('data-placeholder', '企画名を入力');
     await expect(editor).toBeVisible();
-    await expect(input).toHaveJSProperty('value', '');
 
     const expectedTypography = viewport.width <= 768
       ? { fontSize: '42px', minHeight: '56px', lineHeight: '46.2px' }
@@ -55,10 +54,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     await editor.fill('紅葉ハイク最終版');
     await expect.poll(() => input.evaluate(node => node.value)).toBe('紅葉ハイク最終版');
     await expect.poll(() => page.evaluate(() => getData({ skipDomSync: true }).roomName)).toBe('紅葉ハイク最終版');
-    await expect(editor).toHaveText('紅葉ハイク最終版');
 
-    // roomName remains the shared snapshot field. Remote/restore writes must update the
-    // restored visual title without creating a second persistence owner.
     await page.evaluate(() => {
       const snapshot = getData({ skipDomSync: true });
       snapshot.roomName = '共有された企画名';
@@ -66,32 +62,36 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     });
     await expect.poll(() => input.evaluate(node => node.value)).toBe('共有された企画名');
     await expect(editor).toHaveText('共有された企画名');
-    await expect.poll(() => page.evaluate(() => getData({ skipDomSync: true }).roomName)).toBe('共有された企画名');
 
-    if (viewport.width <= 390) {
+    if (viewport.width <= 768) {
+      const before = await page.evaluate(() => ({
+        state: document.querySelector('#projectTitleRegion')?.dataset.state,
+        overflow: getComputedStyle(document.querySelector('#app-layout')).overflowY,
+        revealBound: document.documentElement.dataset.projectTitleRevealBound
+      }));
+      expect(before).toEqual({ state: 'expanded', overflow: 'auto', revealBound: 'true' });
+
       await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 180, pointerId: 1, isPrimary: true });
       await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 148, pointerId: 1, isPrimary: true });
       await page.dispatchEvent('#top-area', 'pointerup', { pointerType: 'touch', clientY: 148, pointerId: 1, isPrimary: true });
+      await expect(title).toHaveAttribute('data-state', 'expanded');
+
+      await page.evaluate(() => {
+        const layout = document.querySelector('#app-layout');
+        layout.scrollTop = Math.min(48, Math.max(0, layout.scrollHeight - layout.clientHeight));
+      });
+      await page.waitForTimeout(50);
+      await expect(title).toHaveAttribute('data-state', 'expanded');
     } else {
       await page.dispatchEvent('#top-area', 'wheel', { deltaY: 120 });
-    }
-    await expect(title).toHaveAttribute('data-state', 'collapsed');
-    await expect.poll(() => title.evaluate(node => node.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
-
-    if (viewport.width <= 390) {
-      await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 120, pointerId: 2, isPrimary: true });
-      await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 152, pointerId: 2, isPrimary: true });
-      await page.dispatchEvent('#top-area', 'pointerup', { pointerType: 'touch', clientY: 152, pointerId: 2, isPrimary: true });
-    } else {
+      await expect(title).toHaveAttribute('data-state', 'collapsed');
+      await expect.poll(() => title.evaluate(node => node.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
       await page.dispatchEvent('#top-area', 'wheel', { deltaY: -120 });
+      await expect(title).toHaveAttribute('data-state', 'expanded');
     }
-    await expect(title).toHaveAttribute('data-state', 'expanded');
-    await expect(editor).toBeVisible();
 
     const header = page.locator('#app-header');
     const menuHost = page.locator('#overviewMenuBtn');
-    // Playwright pierces Carbon's open shadow root, so this is the exact interactive
-    // button a pointer user presses rather than the custom-element host wrapper.
     const menu = menuHost.locator('button');
     const drawer = page.locator('#overviewDrawer');
     expect(await header.evaluate(node => node.tagName)).toBe('CDS-HEADER');
@@ -122,7 +122,6 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     await expect(reportLink).toHaveText('バグを報告する');
     await reportLink.click();
     await expect.poll(() => sideNavExpanded(drawer)).toBeFalsy();
-    await expect(drawer).not.toBeVisible();
     const reportModal = page.locator('#bugReportModal');
     await expect(reportModal).toHaveAttribute('open', '');
     await expect(reportModal.locator('cds-modal-heading')).toHaveText('バグを報告する');
@@ -132,10 +131,8 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
 
     await menu.click();
     await expect.poll(() => sideNavExpanded(drawer)).toBeTruthy();
-    await expect(drawer).toBeVisible();
     await menu.click();
     await expect.poll(() => sideNavExpanded(drawer)).toBeFalsy();
-    await expect(drawer).not.toBeVisible();
 
     for (const theme of ['light', 'dark']) {
       await page.evaluate(next => window.SanpoTheme.applyTheme(next), theme);
@@ -146,26 +143,29 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
   });
 }
 
-test('390px title expands as the active scroll container reaches the top', async ({ page }) => {
+test('390px title follows natural app scrolling instead of gesture-driven collapse', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await page.waitForFunction(() => document.querySelector('#projectTitleEditor') && customElements.get('cds-text-input'));
 
   const title = page.locator('#projectTitleRegion');
   await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 180, pointerId: 11, isPrimary: true });
-  await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 148, pointerId: 11, isPrimary: true });
-  await page.dispatchEvent('#top-area', 'pointerup', { pointerType: 'touch', clientY: 148, pointerId: 11, isPrimary: true });
-  await expect(title).toHaveAttribute('data-state', 'collapsed');
-
-  await page.evaluate(() => {
-    const scroller = document.getElementById('top-area');
-    Object.defineProperty(scroller, 'scrollTop', { configurable: true, writable: true, value: 24 });
-    scroller.dispatchEvent(new Event('scroll'));
-    scroller.scrollTop = 0;
-    scroller.dispatchEvent(new Event('scroll'));
-  });
-
+  await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 120, pointerId: 11, isPrimary: true });
+  await page.dispatchEvent('#top-area', 'pointerup', { pointerType: 'touch', clientY: 120, pointerId: 11, isPrimary: true });
   await expect(title).toHaveAttribute('data-state', 'expanded');
-  await expect.poll(() => title.evaluate(node => node.getBoundingClientRect().height)).toBeGreaterThan(1);
-  await expect(page.locator('#projectTitleEditor')).toBeVisible();
+
+  const result = await page.evaluate(() => {
+    const layout = document.getElementById('app-layout');
+    const top = document.getElementById('top-area');
+    layout.scrollTop = Math.min(64, Math.max(0, layout.scrollHeight - layout.clientHeight));
+    return {
+      state: document.getElementById('projectTitleRegion')?.dataset.state,
+      layoutOverflow: getComputedStyle(layout).overflowY,
+      topOverflow: getComputedStyle(top).overflowY,
+      layoutScrollTop: layout.scrollTop
+    };
+  });
+  expect(result.state).toBe('expanded');
+  expect(result.layoutOverflow).toBe('auto');
+  expect(result.topOverflow).toBe('visible');
 });

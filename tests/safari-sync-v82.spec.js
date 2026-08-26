@@ -127,8 +127,9 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       globalThis.__firebaseMockRoom = room;
     }, persistedRoom);
 
-    // The copied/shared workspace is intentionally read-only. A fresh WebKit document must still
-    // restore the canonical title through Firebase while exposing no editable project-title owner.
+    // Legacy shared-view parameters normalize into the standard workspace. A fresh WebKit
+    // document must still restore the canonical title through Firebase without creating a
+    // separate read-only title owner.
     await page.goto('/?room=SAFARI82&view=sheet&allocation=car');
     await page.waitForFunction(() => typeof firebaseReady !== 'undefined' && firebaseReady === true && globalThis.__firebaseMockSignedIn === true);
     await page.waitForFunction(() => document.getElementById('projectTitleEditor') && document.getElementById('roomNameInput')?.dataset.projectTitleValueBridge === 'true');
@@ -136,11 +137,10 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     const sharedEditor = page.locator('#projectTitleEditor');
     const sharedInput = page.locator('#roomNameInput');
     await expect(sharedInput).toHaveJSProperty('value', 'Safari共有企画');
-    await expect(sharedInput).toHaveJSProperty('readOnly', true);
     await expect(sharedEditor).toHaveText('Safari共有企画');
-    await expect(sharedEditor).toHaveAttribute('contenteditable', 'false');
-    await expect(sharedEditor).toHaveAttribute('aria-readonly', '');
-    await expect(page.locator('body')).toHaveClass(/assignment-readonly/);
+    await expect(sharedEditor).toHaveAttribute('contenteditable', 'plaintext-only');
+    await expect(sharedEditor).not.toHaveAttribute('aria-readonly', '');
+    await expect(page.locator('body')).not.toHaveClass(/assignment-readonly/);
     await expect.poll(() => page.evaluate(() => getData({ skipDomSync: true }).roomName)).toBe('Safari共有企画');
     expect(errors).toEqual([]);
   });

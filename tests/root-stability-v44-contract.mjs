@@ -9,12 +9,15 @@ const renderSource = read('assets/js/features/settlement/03-render.js');
 const extraTemplate = read('assets/js/templates/settlement/04-extra-input-templates.js');
 const dragSource = read('assets/js/features/drag-edit-view.js');
 const traySource = read('assets/js/features/waiting-tray.js');
+const appSource = read('assets/js/app.js');
 
 assert.match(extraTemplate, /data-extra-field="type"[^>]*value="\$\{type\}"/, 'Carbon expense toggle host must carry the canonical value');
 assert.match(renderSource, /Validation must never rebuild a valid editor/, 'valid car-save validation must preserve live Carbon controls');
 assert.match(renderSource, /Missing organizer is guidance, not a save-blocking data error/, 'missing organizer must not deadlock settings save');
-assert.match(dragSource, /restoreScrollAfterManualCardMutation/, 'drag completion must own scroll restoration through layout frames');
-assert.match(traySource, /drag-transient-minimized/, 'waiting tray must use a transient, non-persisted drag collapse');
+assert.match(dragSource, /restoreScrollAfterManualCardMutation/, 'legacy drag module may retain its internal stability helper while it remains uninitialized');
+assert.doesNotMatch(appSource, /setupManualCardDrag\(\)/, 'retired allocation drag must not be initialized');
+assert.doesNotMatch(traySource, /drag-transient-minimized/, 'hidden waiting pool must not retain the former transient drag-drawer state');
+assert.match(traySource, /former bottom drawer, drag lifecycle and assignment settings UI are retired/, 'waiting compatibility owner must document the retired visible drag surface');
 
 const ctx = vm.createContext({
   window: { SanpoClock: { now: () => Date.now(), isServerAligned: () => true } }, console, Date, JSON, Math, Object, Array, Set, Map, String, Number, parseInt,

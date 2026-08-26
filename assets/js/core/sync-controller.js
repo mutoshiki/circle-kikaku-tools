@@ -40,6 +40,36 @@ const SETTLEMENT_SCALAR_OR_OBJECT_FIELDS = [
 const LEGACY_REMOTE_FIELDS = ['waiting', 'cars', 'carPlans', 'activeCarPlanId', 'lastAutoAssignLabel', 'activeAllocationType', 'trayMinimized'];
 
 let pendingRemoteRoomData = null;
+let syncOutboxRetryTimer = null;
+const deferredSyncOutboxIds = new Set();
+const exhaustedSyncOutboxIds = new Set();
+
+function scheduleSyncOutboxRetry(snapshot, requestVersion, baseSnapshot, options = {}) {
+    const retryAttempt = Number(options.retryAttempt || 0);
+    // Firebase can abort a contended transaction after its internal retry budget.
+    // Keep the durable, operation-idempotent intent and make a bounded retry. A
+    // subsequent RTDB value event will also replay the same outbox after this cap.
+    if (!options.outboxId || retryAttempt >= 2 || syncOutboxRetryTimer) {
+        if (options.outboxId && retryAttempt >= 2) exhaustedSyncOutboxIds.add(String(options.outboxId));
+        return;
+    }
+    const outboxId = String(options.outboxId);
+    deferredSyncOutboxIds.add(outboxId);
+    syncOutboxRetryTimer = setTimeout(() => {
+        syncOutboxRetryTimer = null;
+        const outbox = readStoredSyncOutbox();
+        if (!outbox || outbox.id !== outboxId || syncWriteInFlight || saveTimer) return;
+        deferredSyncOutboxIds.delete(outboxId);
+        void commitSnapshotToRemote(snapshot, requestVersion, baseSnapshot, {
+            ...options,
+            retryAttempt: retryAttempt + 1
+        });
+    }, 900 * (retryAttempt + 1));
+}
+
+function waitForSyncRetryDelay(retryAttempt) {
+    return new Promise(resolve => setTimeout(resolve, 900 * (retryAttempt + 1)));
+}
 
 
 function isRemoteUiBlocked() {
@@ -127,12 +157,19 @@ function isSyncOperationApplied(room, operationId = '') {
     return !!operationId && !!room?.syncOperations?.[operationId];
 }
 
-function rememberAppliedSyncOperation(room, operationId = '', clock = 0) {
+function rememberAppliedSyncOperation(room, operationId = '', clock = 0, appliedAt = 0) {
     if (!operationId || !room || typeof room !== 'object') return;
     const operations = room.syncOperations && typeof room.syncOperations === 'object'
         ? room.syncOperations
         : (room.syncOperations = {});
-    operations[operationId] = { clock: Number(clock || 0), clientId: String(myClientId || ''), appliedAt: Date.now() };
+    // RTDB may evaluate one transaction updater repeatedly before it can commit.
+    // This journal value must therefore be stable for a single operation; calling
+    // Date.now() here changes the proposed room every retry and causes `maxretry`.
+    operations[operationId] = {
+        clock: Number(clock || 0),
+        clientId: String(myClientId || ''),
+        appliedAt: Number(appliedAt || 0) || 0
+    };
     const retained = Object.entries(operations)
         .sort(([, a], [, b]) => Number(a?.clock || 0) - Number(b?.clock || 0) || Number(a?.appliedAt || 0) - Number(b?.appliedAt || 0));
     while (retained.length > MAX_SYNC_OPERATION_JOURNAL) {
@@ -193,6 +230,30 @@ function isPermanentSyncError(error) {
         || message.includes('permission denied')
         || message.includes('remote schema')
         || message.includes('transaction support is required');
+}
+
+function isTransactionRetryExhausted(error) {
+    const code = String(error?.code || '').toLowerCase();
+    const message = String(error?.message || error || '').toLowerCase();
+    return code.includes('maxretry') || message.includes('maxretry');
+}
+
+async function commitPrecisePatchFallback(localSnapshot, patch, operationId, operationAppliedAt) {
+    // A single RTDB root transaction can be starved by unrelated collaboration
+    // writes. The patch has already been reduced to canonical entity paths, so
+    // its atomic multi-location update never replaces an unrelated entity.
+    if (typeof update !== 'function' || !patchHasDomainChanges(patch)) return null;
+    const fallbackPatch = cloneSyncValue(patch) || {};
+    delete fallbackPatch.revision;
+    fallbackPatch.lastUpdatedAt = Number(localSnapshot.lastUpdatedAt || operationAppliedAt || 0);
+    fallbackPatch.lastUpdatedBy = String(localSnapshot.lastUpdatedBy || myClientId || '');
+    fallbackPatch[`syncOperations/${operationId}`] = {
+        clock: Number(localSnapshot.syncClock || 0),
+        clientId: String(myClientId || ''),
+        appliedAt: Number(operationAppliedAt || 0)
+    };
+    await update(dbRef, fallbackPatch);
+    return localSnapshot;
 }
 
 function rememberSyncOutbox(snapshot, baseSnapshot, patch, requestVersion, options = {}) {
@@ -599,7 +660,7 @@ function applyPatchPathInPlace(result, path, value) {
     else cursor[key] = cloneSyncValue(value);
 }
 
-function applyVersionedEntityPatch(remoteRaw = {}, baseRaw = {}, localRaw = {}, patch = {}, requestVersion = 0, operationId = '') {
+function applyVersionedEntityPatch(remoteRaw = {}, baseRaw = {}, localRaw = {}, patch = {}, requestVersion = 0, operationId = '', operationAppliedAt = 0) {
     // A user can act before the first empty-room onValue/cleanup transaction finishes.
     // Applying entity paths to a raw `{}` and only then migrating loses those paths because
     // the legacy migrator has no schema marker. Start a genuinely empty remote as a v5 room.
@@ -655,14 +716,14 @@ function applyVersionedEntityPatch(remoteRaw = {}, baseRaw = {}, localRaw = {}, 
     });
 
     if (!applied) {
-        rememberAppliedSyncOperation(remote, operationId, remoteClock);
+        rememberAppliedSyncOperation(remote, operationId, remoteClock, operationAppliedAt);
         return migrateAppData(remote);
     }
     remote.syncClock = Math.max(Number(remote.syncClock || 0), candidateClock);
     remote.lastUpdatedAt = Number(local.lastUpdatedAt || (window.SanpoClock?.now?.() ?? Date.now()));
     remote.lastUpdatedBy = String(local.lastUpdatedBy || myClientId || '');
     remote.revision = Math.max(0, Number(remote.revision || 0)) + 1;
-    rememberAppliedSyncOperation(remote, operationId, remote.syncClock);
+    rememberAppliedSyncOperation(remote, operationId, remote.syncClock, operationAppliedAt);
     // Canonicalization enforces participant tombstones, orphan cleanup and capacity.
     const normalized = migrateAppData(remote);
     normalized.pathVersions = remote.pathVersions;
@@ -722,6 +783,7 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
     const localSnapshot = migrateAppData(snapshot || {});
     const baseAtWrite = migrateAppData(capturedBase || lastSyncedData || readStoredSyncBase() || {});
     const operationId = String(options.operationId || options.outboxId || createSyncOperationId(requestVersion));
+    const operationAppliedAt = Number(options.operationAppliedAt || localSnapshot.lastUpdatedAt || 0) || 0;
     const patch = options.patchOverride && typeof options.patchOverride === 'object'
         ? cloneSyncValue(options.patchOverride)
         : buildEntityPatch(baseAtWrite, localSnapshot, { forceCanonical: options.forceCanonical === true });
@@ -732,6 +794,10 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
     }
 
     syncWriteInFlight = true;
+    if (options.outboxId) {
+        deferredSyncOutboxIds.delete(String(options.outboxId));
+        exhaustedSyncOutboxIds.delete(String(options.outboxId));
+    }
     try {
         let committed;
         if (typeof runTransaction === 'function') {
@@ -760,10 +826,10 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
                     canonicalCurrent.lastUpdatedAt = Number(canonicalCurrent.lastUpdatedAt || (window.SanpoClock?.now?.() ?? Date.now()));
                     canonicalCurrent.lastUpdatedBy = String(canonicalCurrent.lastUpdatedBy || myClientId || '');
                     canonicalCurrent.revision = Math.max(0, Number(currentRemote?.revision || canonicalCurrent.revision || 0)) + 1;
-                    rememberAppliedSyncOperation(canonicalCurrent, operationId, Number(canonicalCurrent.syncClock || 0));
+                    rememberAppliedSyncOperation(canonicalCurrent, operationId, Number(canonicalCurrent.syncClock || 0), operationAppliedAt);
                     return canonicalCurrent;
                 }
-                return applyVersionedEntityPatch(currentRemote || {}, baseAtWrite, localSnapshot, patch, requestVersion, operationId);
+                return applyVersionedEntityPatch(currentRemote || {}, baseAtWrite, localSnapshot, patch, requestVersion, operationId, operationAppliedAt);
             }, { applyLocally: false });
             if (!result.committed && !duplicateOperation && !resetInvalidated) throw new Error('Firebase entity transaction was not committed');
             committed = migrateAppData(result.snapshot.val() || {});
@@ -783,7 +849,11 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
         }
         rememberSyncedData(committed);
         L.setItem(CFG.STORE + '_' + roomId, J.stringify(committed));
-        if (options.outboxId) clearSyncOutbox(options.outboxId);
+        if (options.outboxId) {
+            clearSyncOutbox(options.outboxId);
+            deferredSyncOutboxIds.delete(String(options.outboxId));
+            exhaustedSyncOutboxIds.delete(String(options.outboxId));
+        }
 
         const outcome = summarizeSyncOutcome(patch, localSnapshot, committed);
         if (outcome.adjustedPaths.length) {
@@ -818,11 +888,35 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
         }
         updateStatus('connected', '同期完了');
         return committed;
-    } catch (error) {
+    } catch (caughtError) {
+        let error = caughtError;
+        if (options.allowPatchFallback === true && isTransactionRetryExhausted(error)) {
+            try {
+                const fallbackCommitted = await commitPrecisePatchFallback(localSnapshot, patch, operationId, operationAppliedAt);
+                if (fallbackCommitted) {
+                    rememberSyncedData(fallbackCommitted);
+                    L.setItem(CFG.STORE + '_' + roomId, J.stringify(fallbackCommitted));
+                    if (options.outboxId) {
+                        clearSyncOutbox(options.outboxId);
+                        deferredSyncOutboxIds.delete(String(options.outboxId));
+                        exhaustedSyncOutboxIds.delete(String(options.outboxId));
+                    }
+                    window.SanpoSyncDiagnostics?.record?.({
+                        kind: 'adjusted', message: '競合時に項目単位で共有データを保存', paths: Object.keys(patch || {}), revision: Number(lastSyncedRevision || 0)
+                    });
+                    updateStatus('connected', '同期完了');
+                    return fallbackCommitted;
+                }
+            } catch (fallbackError) {
+                error = fallbackError;
+            }
+        }
         console.error(error);
         const rejected = isPermanentSyncError(error);
         if (rejected && options.outboxId) {
             clearSyncOutbox(options.outboxId);
+            deferredSyncOutboxIds.delete(String(options.outboxId));
+            exhaustedSyncOutboxIds.delete(String(options.outboxId));
             window.SanpoSyncDiagnostics?.record?.({
                 kind: 'rejected', message: '共有保存を拒否されたため再送を停止', paths: Object.keys(patch || {}), revision: Number(lastSyncedRevision || 0)
             });
@@ -831,6 +925,13 @@ async function commitSnapshotToRemote(snapshot, requestVersion = saveRequestVers
             kind: rejected ? 'rejected' : 'failed', message: rejected ? '共有保存を拒否、再送停止' : '共有データの保存に失敗', paths: Object.keys(patch || {}), revision: Number(lastSyncedRevision || 0)
         });
         updateStatus('error', rejected ? '保存を拒否、再送停止' : '保存失敗');
+        if (!rejected && options.inlineRetry !== true) {
+            scheduleSyncOutboxRetry(localSnapshot, requestVersion, baseAtWrite, {
+                ...options,
+                patchOverride: patch,
+                operationId
+            });
+        }
         return null;
     } finally {
         syncWriteInFlight = false;
@@ -926,11 +1027,31 @@ async function saveImmediate({ snapshot = null, baseSnapshot = null, patchOverri
     // transaction journal make a transport duplicate a no-op instead of a second edit.
     const operationId = String(requestedOperationId || createSyncOperationId(requestVersion));
     const outboxId = rememberSyncOutbox(canonical, capturedBase, patch, requestVersion, { operationId });
-    return await commitSnapshotToRemote(canonical, requestVersion, capturedBase, {
-        patchOverride: patch,
-        outboxId,
-        operationId
-    });
+    // Modal saves need a definitive result. Returning failure after RTDB's
+    // internal `maxretry` while a detached retry may later succeed leaves the
+    // modal open and makes a real save look broken. Retry this same journaled
+    // operation inline; its idempotency key makes a transport duplicate safe.
+    for (let retryAttempt = 0; retryAttempt <= 2; retryAttempt += 1) {
+        const committed = await commitSnapshotToRemote(canonical, requestVersion, capturedBase, {
+            patchOverride: patch,
+            outboxId,
+            operationId,
+            retryAttempt,
+            inlineRetry: true,
+            allowPatchFallback: true
+        });
+        if (committed) return committed;
+
+        // Permanent rejections clear the outbox in commitSnapshotToRemote, so
+        // never wait/retry Rules or schema errors.
+        const pending = readStoredSyncOutbox();
+        if (!pending || pending.id !== outboxId || retryAttempt >= 2) {
+            if (pending?.id === outboxId) exhaustedSyncOutboxIds.add(String(outboxId));
+            return null;
+        }
+        await waitForSyncRetryDelay(retryAttempt);
+    }
+    return null;
 }
 
 function save() {
@@ -1013,6 +1134,16 @@ function load() {
         // intent by diffing a rendered/localStorage snapshot against Firebase.
         const outbox = readStoredSyncOutbox();
         if (outbox && !syncWriteInFlight && !saveTimer) {
+            if (deferredSyncOutboxIds.has(outbox.id)) {
+                rememberSyncedDataInMemory(remote);
+                updateStatus('saving', '保存を再試行中...');
+                return;
+            }
+            if (exhaustedSyncOutboxIds.has(outbox.id)) {
+                rememberSyncedDataInMemory(remote);
+                updateStatus('error', '保存失敗。もう一度保存してください');
+                return;
+            }
             if (isExpiredSyncOutbox(outbox)) {
                 clearSyncOutbox(outbox.id);
                 window.SanpoSyncDiagnostics?.record?.({

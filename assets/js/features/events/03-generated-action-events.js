@@ -117,6 +117,21 @@
         panel.appendChild(bridge);
     }
 
+    function isSettlementSummaryActionControl(event) {
+        return (event.composedPath?.() || []).some(node => node?.matches?.(
+            '.seisan-car-summary-actions cds-button, .seisan-car-summary-actions cds-toggle, .seisan-car-summary-actions button, .seisan-car-summary-actions input'
+        ));
+    }
+
+    function stopEmptySettlementSummaryActionClick(event) {
+        const actionSurface = (event.composedPath?.() || []).find(node => node?.matches?.('.seisan-car-summary-actions'));
+        if (!actionSurface || isSettlementSummaryActionControl(event)) return;
+        // This compact flex surface has intentional breathing room. Treat that
+        // space as inert so a tap never reaches the accordion behind the row.
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    }
+
     function waitForModalHidden(modal) {
         if (!modal?.open) return Promise.resolve();
         return new Promise(resolve => modal.addEventListener('sanpo:modal-hidden', resolve, { once: true }));
@@ -242,6 +257,8 @@
             event.stopPropagation();
             global.handleCompactPersonAction?.(personActionTarget.dataset.personAction || '', global.getActivePersonMenuTarget?.() || null);
         }, true);
+
+        document.addEventListener('click', stopEmptySettlementSummaryActionClick, true);
 
         const generatedActionHandlers = {
             'edit-capacity': ({ target }) => global.editCapacity?.(target),

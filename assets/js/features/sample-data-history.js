@@ -255,11 +255,22 @@ function seedDebugData({ missing = false } = {}) {
             window.__suspendActiveDomPlanSync = previousDomSyncSuspend;
         }
         updateUI();
-        save();
+        // Sample data is a complete canonical replacement. Use the same
+        // immediate, journaled commit as a real bulk allocation so an initial
+        // remote callback cannot paint an older empty room over the sample.
+        const snapshot = window.SanpoCanonicalState?.get?.() || migrateAppData(sampleData);
+        if (window.SanpoSync?.saveImmediate) {
+            void window.SanpoSync.saveImmediate({ snapshot });
+        } else {
+            save();
+        }
 
         if (window.modals?.debug) window.modals.debug.hide({ reason: 'submit' });
         showAppNotice?.(missing ? '入力漏れサンプルを入れました' : '通常サンプルを入れました');
-        requestAnimationFrame(() => { void switchView('seisan'); });
+        // Seeding is complete at restore(). Do not schedule a second view change
+        // after the caller has selected a destination: on WebKit that deferred
+        // navigation could race the fresh allocation projection and expose an
+        // empty workspace for one frame (or overwrite the user's next tab tap).
     } catch (error) {
         console.error('Failed to seed sample data:', error);
         window.__sampleDataLastError = String(error?.stack || error?.message || error);

@@ -13,7 +13,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     // viewports. Put the active surface at its canonical visual-inspection origin before measuring
     // the expanded shell. The title reveal behavior itself is covered by its dedicated regression.
     await page.evaluate(() => {
-      const top = document.querySelector('#top-area');
+      const top = innerWidth <= 768 ? document.querySelector('#app-layout') : document.querySelector('#top-area');
       if (!top) return;
       top.scrollTop = 0;
       top.dispatchEvent(new Event('scroll'));
@@ -82,7 +82,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     expect(shellGeometry.contenteditableCount).toBe(1);
     expect(shellGeometry.navPosition).not.toBe('fixed');
     expect(Math.abs(shellGeometry.projectTitleTop - shellGeometry.headerBottom)).toBeLessThanOrEqual(1);
-    expect(Math.abs(shellGeometry.navTop - shellGeometry.projectTitleBottom)).toBeLessThanOrEqual(1);
+    expect(shellGeometry.navTop).toBeGreaterThanOrEqual(shellGeometry.projectTitleBottom);
     expect(shellGeometry.projectTitleHeight).toBeGreaterThanOrEqual(200);
     expect(shellGeometry.projectTitleState).toBe('expanded');
     expect(shellGeometry.projectTitleValue).toBe('秋名山登山企画');
@@ -92,33 +92,25 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     expect(shellGeometry.projectTitleWeight).toBe('300');
     expect(shellGeometry.navHeight).toBeGreaterThanOrEqual(40);
     expect(shellGeometry.navHeight).toBeLessThanOrEqual(42);
-    expect(shellGeometry.firstViewContentTop).toBeGreaterThanOrEqual(shellGeometry.navBottom);
+    expect(shellGeometry.firstViewContentTop).toBeGreaterThanOrEqual(shellGeometry.projectTitleBottom);
     expect(shellGeometry.headerBackground).toBe('rgb(22, 22, 22)');
     expect(shellGeometry.navBackground).toBe('rgb(0, 0, 0)');
     expect(shellGeometry.brand).toBe('サークル企画ツール');
-    expect(shellGeometry.labels).toEqual(['参加者', '車割・班割', '精算']);
-    expect(shellGeometry.shareVisible).toBeTruthy();
-    expect(shellGeometry.shellShareVisible).toBeFalsy();
-    expect(shellGeometry.allocationSwitcherVisible).toBeTruthy();
+    expect(shellGeometry.labels).toEqual(['参加者', '車割', '班割', '精算']);
+    expect(shellGeometry.shareVisible).toBeFalsy();
+    expect(shellGeometry.shellShareVisible).toBeTruthy();
+    expect(shellGeometry.allocationSwitcherVisible).toBeFalsy();
     expect(shellGeometry.switcherSize).toEqual({ width: 48, height: 48 });
     expect(shellGeometry.roomInputVisibility).toBe('absolute');
     expect(shellGeometry.visibleOverflowButtons).toBeLessThanOrEqual(1);
 
-    await page.dispatchEvent('#top-area', 'wheel', { deltaY: 120 });
-    await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'collapsed');
-    await expect.poll(() => page.locator('#projectTitleRegion').evaluate(node => node.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
-    await page.dispatchEvent('#top-area', 'wheel', { deltaY: -120 });
-    await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'expanded');
-
-    await page.locator('#assignmentTypeSwitcher cds-content-switcher-item[value="team"]').click();
+    await page.locator('#tab-team').click();
     expect(await page.evaluate(() => document.body.dataset.activePlanTemplate)).toBe('team');
     await page.locator('#tab-seisan').evaluate(node => node.click());
     await page.locator('#tab-list').evaluate(node => node.click());
     // Carbon Web Components exposes the active tab through its reflected `highlighted`
     // boolean. aria-current is not the component's selected-state contract.
     await expect(page.locator('#tab-list')).toHaveJSProperty('highlighted', true);
-    expect(await page.evaluate(() => document.body.dataset.activePlanTemplate)).toBe('team');
-    await page.locator('#assignmentTypeSwitcher cds-content-switcher-item[value="car"]').click();
     expect(await page.evaluate(() => document.body.dataset.activePlanTemplate)).toBe('car');
 
     const appSwitcher = page.locator('.header-app-switcher');
@@ -141,7 +133,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
 
     for (const theme of ['light', 'dark']) {
       await page.evaluate(next => window.SanpoTheme.applyTheme(next), theme);
-      for (const view of ['list', 'sheet', 'seisan']) {
+      for (const view of ['participants', 'list', 'team', 'seisan']) {
         await page.evaluate(next => window.switchView(next), view);
         await expect(page.locator('#app-view-navigation')).toBeVisible();
         await expect(page.locator('#projectTitleEditor')).toBeVisible();

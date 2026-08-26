@@ -410,11 +410,5 @@ async function executeBatch() {
         updateUI();
     });
     window.markParticipantRegistrationGuidanceReady?.();
-
-    // New participants are visible in either allocation because both project the same roster.
-    newParticipantIds.forEach(id => {
-        const name = canonical.participants?.[id]?.name;
-        if (name) detectGender(name);
-    });
 }
 window.SanpoApp?.exposeCompat?.('executeBatch', executeBatch);

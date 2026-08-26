@@ -107,7 +107,10 @@ async function switchView(view) {
     const tabSheet = byId('tab-sheet');
     const tabSeisan = byId('tab-seisan');
     const seisanArea = byId('seisan-view-area');
-    syncMainViewSwitcher(view);
+    // The retired shared view has no primary-navigation destination. Keeping
+    // the current Carbon tab selected avoids Carbon's fallback selection being
+    // mistaken for a car/team activation while legacy callers render it.
+    if (view !== 'sheet') syncMainViewSwitcher(view);
     if (listArea) listArea.hidden = view !== 'list';
     if (sheetArea) sheetArea.hidden = view !== 'sheet';
     if (seisanArea) seisanArea.hidden = view !== 'seisan';
@@ -119,24 +122,24 @@ async function switchView(view) {
         bottomTray.style.display = 'none';
         sheetArea.classList.remove('active');
         seisanArea.classList.add('active');
-        tabList.classList.remove('active');
-        tabSheet.classList.remove('active');
-        tabSeisan.classList.add('active');
+        tabList?.classList.remove('active');
+        tabSheet?.classList.remove('active');
+        tabSeisan?.classList.add('active');
         updateQuickEditButton();
         renderSettlementView();
         return;
     }
 
     seisanArea.classList.remove('active');
-    tabSeisan.classList.remove('active');
+    tabSeisan?.classList.remove('active');
 
     if (view === 'sheet') {
         document.body.classList.add('sheet-mode');
         listArea.style.display = 'none';
         bottomTray.style.display = 'none';
         sheetArea.classList.add('active');
-        tabList.classList.remove('active');
-        tabSheet.classList.add('active');
+        tabList?.classList.remove('active');
+        tabSheet?.classList.add('active');
         updateQuickEditButton();
         renderSheetView();
         showFirstViewGuidance('sheet');
@@ -145,8 +148,8 @@ async function switchView(view) {
         listArea.style.display = '';
         bottomTray.style.display = '';
         sheetArea.classList.remove('active');
-        tabList.classList.add('active');
-        tabSheet.classList.remove('active');
+        tabList?.classList.add('active');
+        tabSheet?.classList.remove('active');
         updateQuickEditButton();
         showFirstViewGuidance('list');
     }

@@ -27,6 +27,8 @@ const settlementActions = read('assets/js/features/settlement/05-input-actions.j
 const overviewEvents = read('assets/js/features/events/02-static-header-events.js');
 const sheetViewport = read('assets/js/features/sheet/02-viewport-controls.js');
 const ui = read('assets/js/modules/ui.js');
+const applicantSync = read('assets/js/features/form-applicant-sync-v2.js');
+const batchImport = read('assets/js/features/batch-import.js');
 
 expect(settlement.includes('Missing organizer is guidance, not a save-blocking data error'), 'Organizer guidance must not block settings save');
 expect(settlement.includes('promptDiscardInvalidSettlementSettings'), 'Settlement settings discard-confirm flow is missing');
@@ -48,13 +50,11 @@ expect((ui.match(/state\.confirmModal\.show\(\);/g) || []).length === 1, 'Confir
 expect(ui.includes('const onHidden = () => finish(requestedValue);'), 'Confirmation results must wait for Carbon modal cleanup before updating the page');
 expect((ui.match(/queueMicrotask\(\(\) => state\.confirmModal\.hide\(\)\)/g) || []).length === 2, 'Confirmation modal must close after the activating click finishes to prevent backdrop click-through');
 
-expect(personMenuJs.includes('trigger.showPopover()'), 'Person menus are not promoted to the browser top layer');
-expect(personMenuJs.includes('person-menu-top-layer-placeholder'), 'Person-menu top-layer promotion does not preserve card layout');
-expect(personMenuJs.includes('syncPersonMenuTopLayerPosition'), 'Person-menu anchor is not synchronized during viewport movement');
-expect(personMenuCss.includes(':popover-open'), 'Person-menu top-layer geometry is missing');
-expect(personMenuCss.includes('person-menu-top-layer-placeholder'), 'Person-menu placeholder styling is missing');
-expect(personMenuCss.includes(':not(.person-menu-top-layer-open)'), 'Person-menu z-index fallback is not isolated from the top-layer path');
-expect(layeringCss.includes(':not(.person-menu-top-layer-open) #top-area'), 'Top-area stacking fallback still runs while the menu is in the top layer');
+expect(!personMenuJs.includes('showPopover'), 'Person menu must not create a second HTML Popover owner');
+expect(!personMenuJs.includes('personMenuTopLayer'), 'Person menu must not retain top-layer state');
+expect(!personMenuCss.includes(':popover-open'), 'Person menu styling must not override Carbon with HTML Popover geometry');
+expect(personMenuJs.includes("trigger.open = true"), 'Person menu must use Carbon public open lifecycle');
+expect(!layeringCss.includes('person-menu-top-layer-open'), 'Layering must not retain removed HTML Popover fallback state');
 expect(copyCss.includes('box-shadow: inset 0 0 0 1px var(--app-accent-border)'), 'Dark settlement copy action lacks a visible Carbon tertiary boundary');
 expect(carHeaderCss.includes('.capacity-edit-pill > .carbon-icon { width: 1rem; height: 1rem; }'), 'Capacity edit pill must keep a balanced Carbon icon size');
 expect(collectionCss.includes('grid-template-columns: repeat(2, minmax(0, 1fr))'), 'Collection checks must keep an efficient two-column desktop layout');
@@ -73,5 +73,6 @@ expect(overviewEvents.includes('syncTimetableTextareaExpansion'), 'Overview time
 expect(overviewEvents.includes("host.rows = shouldExpand ? 4 : 1"), 'Overview timetable textarea does not change official rows');
 expect(sheetViewport.includes('syncSheetTimetableTextareaExpansion'), 'Shared-view timetable expansion behavior is missing');
 expect(sheetViewport.includes("host.rows = shouldExpand ? 4 : 1"), 'Shared-view timetable textarea does not change official rows');
+expect(!applicantSync.includes('detectGender(') && !batchImport.includes('detectGender('), 'Participant registration must not call the retired gender detector');
 
 console.log('PASS feature fixes v30 contract');

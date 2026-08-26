@@ -2,7 +2,26 @@
  * Assignment Workspace owns the surrounding person-row geometry.
  */
 
-:where(.member-menu-btn, .driver-menu-btn) {
+/* `cds-menu` is a separate fixed overlay. Carbon's menu implementation reads
+ * `--cds-layer` (not the popover token), so provide the opaque layer at both
+ * its trigger and its overlay owner. This lets Carbon keep positioning and
+ * dismissal ownership without rendering a transparent panel. */
+body.assignment-workspace-enabled :where(cds-overflow-menu.person-overflow-menu, cds-overflow-menu.assignment-group-menu) {
+  --cds-layer: var(--cds-layer-01, #ffffff);
+  --cds-layer-hover: var(--cds-layer-hover-01, #e8e8e8);
+  --cds-layer-active: var(--cds-layer-active-01, #c6c6c6);
+  --cds-icon-primary: var(--cds-text-secondary, #525252);
+  --cds-link-primary: var(--cds-text-secondary, #525252);
+  --cds-link-primary-hover: var(--cds-text-primary, #161616);
+}
+
+body.assignment-workspace-enabled :where(cds-overflow-menu.person-overflow-menu, cds-overflow-menu.assignment-group-menu) > cds-menu {
+  --cds-layer: var(--cds-layer-01, #ffffff);
+  --cds-layer-hover: var(--cds-layer-hover-01, #e8e8e8);
+  --cds-layer-active: var(--cds-layer-active-01, #c6c6c6);
+}
+
+:where(cds-overflow-menu.person-overflow-menu, .member-menu-btn, .driver-menu-btn) {
   box-sizing: border-box;
   display: block;
   flex: 0 0 48px;
@@ -13,16 +32,16 @@
   padding: 0;
   color: var(--cds-icon-primary, var(--text-main));
   touch-action: manipulation;
+  /* Carbon ghost controls inherit link-primary by default. These are row
+   * utilities, not navigation links, so use the neutral semantic tokens. */
   --cds-icon-primary: var(--text-sub);
   --cds-link-primary: var(--text-sub);
   --cds-link-primary-hover: var(--text-main);
-  --cds-layer: var(--surface-lowest);
-  --cds-layer-01: var(--surface-lowest);
-  --cds-layer-02: var(--surface-low);
-  --cds-background: var(--surface-lowest);
+  --cds-background-hover: var(--cds-layer-hover, #e8e8e8);
+  --cds-background-active: var(--cds-layer-active, #c6c6c6);
 }
 
-:where(.member-menu-btn, .driver-menu-btn)::part(button) {
+:where(cds-overflow-menu.person-overflow-menu, .member-menu-btn, .driver-menu-btn)::part(button) {
   box-sizing: border-box;
   width: 48px;
   min-width: 48px;
@@ -33,76 +52,21 @@
   justify-content: center;
 }
 
-:where(.member-menu-btn, .driver-menu-btn) > .carbon-icon {
+:where(cds-overflow-menu.person-overflow-menu, .member-menu-btn, .driver-menu-btn) > .carbon-icon {
   width: 20px;
   height: 20px;
   margin: 0;
   pointer-events: none;
 }
 
-.person-overflow-menu {
-  position: relative;
-  z-index: var(--z-person-menu);
-}
-
-.person-overflow-menu::part(popover-container) {
-  z-index: var(--z-person-menu);
-}
-
 .person-overflow-menu:not([open]) > .person-pop-menu { display: none; }
-
-.person-menu-top-layer-placeholder {
-  display: block;
-  min-width: 48px;
-  min-height: 48px;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.person-overflow-menu[data-person-menu-top-layer="true"]:popover-open {
-  position: fixed;
-  inset: auto;
-  left: var(--person-menu-anchor-left);
-  top: var(--person-menu-anchor-top);
-  width: var(--person-menu-anchor-width, 48px);
-  min-width: var(--person-menu-anchor-width, 48px);
-  height: var(--person-menu-anchor-height, 48px);
-  min-height: var(--person-menu-anchor-height, 48px);
-  margin: 0;
-  padding: 0;
-  overflow: visible;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.person-overflow-menu[data-person-menu-top-layer="true"]::backdrop {
-  background: transparent;
-  pointer-events: none;
-}
-
-body.person-menu-open:not(.person-menu-top-layer-open) #app-layout #bottom-tray {
-  z-index: calc(var(--z-person-menu) - 2);
-}
-
-body.person-menu-open:not(.person-menu-top-layer-open) #cars-container,
-body.person-menu-open:not(.person-menu-top-layer-open) .car-box:has(.person-overflow-menu[open]) {
-  position: relative;
-  z-index: calc(var(--z-person-menu) - 1);
-}
 
 .person-overflow-menu > cds-menu.person-pop-menu,
 .person-overflow-menu cds-menu {
-  z-index: var(--z-person-menu);
   max-width: min(224px, calc(100vw - 16px));
   max-height: calc(100dvh - 16px);
-  --cds-layer: var(--surface-lowest);
-  --cds-layer-01: var(--surface-lowest);
-  --cds-layer-02: var(--surface-low);
-  --cds-background: var(--surface-lowest);
-  --cds-text-primary: var(--text-main);
-  --cds-text-secondary: var(--text-sub);
-  --cds-icon-primary: var(--text-sub);
+  --cds-popover-background-color: var(--cds-layer, #f4f4f4);
+  --cds-popover-text-color: var(--cds-text-primary, #161616);
 }
 
 .person-pop-item {

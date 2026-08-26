@@ -16,6 +16,7 @@ const navigation = fs.readFileSync(new URL('../assets/js/features/events/02-stat
 
 assert.match(html, /\.\/firebase-config\.js\?v=participants-flow-v94/);
 assert.match(loader, /form-applicant-sync-v2\.js\?v=participants-carbon-v92/);
+assert.match(feature, /sanpo-applicant-sync-ready/);
 assert.match(loader, /participants-ui\.js\?v=participants-copy-v96/);
 assert.match(loader, /handoff-export\.js\?v=participants-copy-v96/);
 assert.match(loader, /participant-announcement\.js\?v=participant-announcement-carbon-v100/);
