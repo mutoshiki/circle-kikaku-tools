@@ -95,17 +95,13 @@
     function bindCarbonAllocationSelection() {
         [['tab-list', 'car'], ['tab-team', 'team']].forEach(([id, templateType]) => {
             const tab = byId(id);
-            const root = tab?.shadowRoot;
-            if (!tab || !root || tab.dataset.assignmentDestinationOwner === 'true') return;
+            if (!tab || tab.dataset.assignmentDestinationOwner === 'true') return;
             tab.dataset.assignmentDestinationOwner = 'true';
-            let userSelectionIntent = 0;
             const request = () => {
                 if (!(tab.selected || tab.hasAttribute('selected'))) return;
-                if (!userSelectionIntent || Date.now() - userSelectionIntent > 250) return;
-                userSelectionIntent = 0;
                 // `syncCarbonPrimaryNavigationState()` mirrors an app-owned
-                // transition back into Carbon. That reflection is not another
-                // user selection and must not schedule a second view change.
+                // transition back into Carbon. It is already reflected in the
+                // active allocation state, so it is not a second view change.
                 if (activeType() === templateType && D.body.classList.contains('view-mode-list')) return;
                 requestedAllocationType = templateType;
                 if (applyingAllocationSelection) return;
@@ -119,18 +115,10 @@
                     applyingAllocationSelection = false;
                 })();
             };
-            const noteUserSelectionIntent = () => {
-                userSelectionIntent = Date.now();
-                requestAnimationFrame(request);
-                setTimeout(request, 90);
-            };
-            // Carbon owns pointer/keyboard selection. The shadow-root listener
-            // records only user intent; state changes occur only after Carbon
-            // reflects `selected`, keeping app synchronization out of its flow.
-            root.addEventListener('click', noteUserSelectionIntent);
-            root.addEventListener('keydown', event => {
-                if (event.key === 'Enter' || event.key === ' ') noteUserSelectionIntent();
-            });
+            // Carbon owns activation for pointer, keyboard, and programmatic
+            // host clicks. This observer is the sole application hand-off:
+            // follow Carbon's reflected selected state instead of competing
+            // with its event lifecycle from a shadow-root listener.
             new MutationObserver(request).observe(tab, { attributes: true, attributeFilter: ['selected'] });
         });
     }

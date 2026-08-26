@@ -30,7 +30,7 @@ assert.ok(workspace.includes('sheetTab?.remove()'), 'Legacy shared-view destinat
 assert.ok(app.includes('installRetiredSheetViewCompatibility'), 'Only the legacy switchView implementation may receive an ephemeral compatibility node during a call');
 assert.ok(workspace.includes('function bindCarbonAllocationSelection()'), 'Carbon selected state must have one allocation-navigation owner');
 assert.ok(workspace.includes("new MutationObserver(request).observe(tab, { attributes: true, attributeFilter: ['selected'] })"), 'Allocation navigation must react to Carbon selected state');
-assert.ok(workspace.includes("root.addEventListener('click', noteUserSelectionIntent)"), 'WebKit must record intent inside Carbon tab shadow DOM without owning selection');
+assert.ok(!workspace.includes('noteUserSelectionIntent'), 'Allocation navigation must not add a competing shadow-root click owner');
 assert.ok(!viewEvents.includes("bind('tab-list'"), 'View events must not add a second 車割 click owner');
 assert.ok(!viewEvents.includes("bind('tab-team'"), 'View events must not add a second 班割 click owner');
 assert.ok(!viewEvents.includes("bind('tab-sheet'"), 'Legacy shared-view tab must no longer own a navigation event');
