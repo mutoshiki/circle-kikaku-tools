@@ -133,6 +133,8 @@ function getCurrentAllocationFromDom() {
                 driverGender: driverSeat?.dataset.gender || 'unknown',
                 driverGrade: parseInt(driverSeat?.dataset.grade)||0,
                 driverFlag: normalizePersonFlag(driverSeat?.dataset.flag),
+                driver: driverSeat?.dataset.driver === 'true',
+                locked: driverSeat?.dataset.locked === 'true',
                 members: Array.from($$('.seat-slot', c)).flatMap(slot => getRealSeatCards(slot).map(getMemData))
             };
         })
@@ -421,7 +423,23 @@ function getCarPlansSnapshot(options = {}) {
     return carPlans.map((plan, index) => normalizeCarPlan(plan, index));
 }
 
+function captureAllocationScrollPosition() {
+    if (!document.body.classList.contains('view-mode-list')) return [];
+    const roots = [document.scrollingElement, byId('app-layout'), byId('top-area')]
+        .filter((root, index, all) => root && all.indexOf(root) === index);
+    return roots.map(root => ({ root, top: root.scrollTop, left: root.scrollLeft }));
+}
+
+function restoreAllocationScrollPosition(snapshot = []) {
+    snapshot.forEach(({ root, top, left }) => {
+        if (!root?.isConnected) return;
+        root.scrollTop = top;
+        root.scrollLeft = left;
+    });
+}
+
 function renderActiveCarPlanToDom(options = {}) {
+    const scrollSnapshot = captureAllocationScrollPosition();
     const canonical = window.SanpoCanonicalState?.get?.();
     const type = canonical?.activeAllocationType === 'team' ? 'team' : 'car';
     const plan = canonical
@@ -433,8 +451,8 @@ function renderActiveCarPlanToDom(options = {}) {
     try {
         $('#waiting-list').innerHTML = '';
         $('#cars-container').innerHTML = '';
-        (plan.waiting || []).forEach(m => addMember(m.name, m.memo, m.gender, m.grade||0, $('#waiting-list'), m.locked, m.flag, m.participantId));
-        (plan.cars || []).forEach(c => addCar(c.name, c.capacity, c.members, c.driverMemo, c.driverGender, c.driverGrade || 0, c.driverFlag, c.participantId, c.groupId));
+        (plan.waiting || []).forEach(m => addMember(m.name, m.memo, m.gender, m.grade||0, $('#waiting-list'), m.locked, m.flag, m.participantId, m.driver === true));
+        (plan.cars || []).forEach(c => addCar(c.name, c.capacity, c.members, c.driverMemo, c.driverGender, c.driverGrade || 0, c.driverFlag, c.participantId, c.groupId, c.driver === true, c.locked === true));
     } finally {
         isRestoringCarPlans = false;
         window.__suspendCardUpdateUi = previousCardUpdateSuspend;
@@ -444,6 +462,8 @@ function renderActiveCarPlanToDom(options = {}) {
     lastAutoAssignLabel = plan.lastAutoAssignLabel || '';
     renderCarPlanSwitcher();
     if (!options.skipUpdate) updateUI();
+    restoreAllocationScrollPosition(scrollSnapshot);
+    requestAnimationFrame(() => requestAnimationFrame(() => restoreAllocationScrollPosition(scrollSnapshot)));
 }
 
 function collectParticipantsForNewPlan(plan = null) {
@@ -680,12 +700,21 @@ function toggleLock(el) {
     if (!el) return;
     const locked = el.dataset.locked === 'true';
     const nextLocked = !locked;
+    const participantId = String(el.dataset.participantId || '');
+    const canonical = window.SanpoCanonicalState?.get?.();
+    const participant = canonical?.participants?.[participantId];
+    if (participant) {
+        participant.locked = nextLocked;
+        participant.updatedAt = window.SanpoClock?.now?.() ?? Date.now();
+        window.SanpoCanonicalState.set?.(canonical);
+    }
     el.dataset.locked = nextLocked;
     const btn = $('.lock-btn', el);
     const label = btn?.querySelector('span:not([data-carbon-icon])');
     if (btn) btn.classList.toggle('text-warning', nextLocked);
     if (btn) window.SanpoIconAdapter?.setIcon(btn, nextLocked ? 'locked' : 'unlocked');
-    if (label) label.textContent = nextLocked ? '固定中' : '固定';
+    if (label) label.textContent = nextLocked ? 'ロック中' : 'ロック';
+    window.SanpoAssignmentWorkspace?.refresh?.();
     save();
 }
 

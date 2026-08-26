@@ -32,7 +32,7 @@ function getAllocationRoleLabel(enabled) {
     return enabled ? '運転手を外す' : '運転手にする';
 }
 
-function renderPersonOverflowMenu({ name, inWaiting = false, locked = false, roleEnabled = false, structuralOwner = false } = {}) {
+function renderPersonOverflowMenu({ name, inWaiting = false, locked = false, roleEnabled = false } = {}) {
     const safeLabel = escapeHtml(`${name || '参加者'}の操作`);
     const common = [
       `<cds-menu-item class="person-pop-item" label="メモ" data-person-action="memo">${renderPersonMenuIcon('notebook')}</cds-menu-item>`,
@@ -44,11 +44,9 @@ function renderPersonOverflowMenu({ name, inWaiting = false, locked = false, rol
         { value: 'yellow', label: '黄', icon: 'flag', flag: true },
         { value: 'red', label: '赤', icon: 'flag', flag: true }
       ] }),
-      `<cds-menu-item class="person-pop-item" label="${locked ? '固定解除' : '固定'}" data-person-action="lock">${renderPersonMenuIcon(locked ? 'unlocked' : 'locked')}</cds-menu-item>`
+      `<cds-menu-item class="person-pop-item" label="${locked ? 'ロック解除' : 'ロック'}" data-person-action="lock">${renderPersonMenuIcon(locked ? 'unlocked' : 'locked')}</cds-menu-item>`
     ];
-    if (!structuralOwner) {
-      common.push(`<cds-menu-item class="person-pop-item" label="${inWaiting ? '削除' : '未配置に戻す'}" data-person-action="return" kind="${inWaiting ? 'danger' : 'default'}">${renderPersonMenuIcon(inWaiting ? 'trash-can' : 'undo')}</cds-menu-item>`);
-    }
+    common.push(`<cds-menu-item class="person-pop-item" label="${inWaiting ? '削除' : '未配置に戻す'}" data-person-action="return" kind="${inWaiting ? 'danger' : 'default'}">${renderPersonMenuIcon(inWaiting ? 'trash-can' : 'undo')}</cds-menu-item>`);
     common.push(renderPersonChoiceSubmenu({ label: '学年', icon: 'education', action: 'grade', choices: [
       { value: '0', label: '未設定', icon: 'subtract' },
       { value: '1', label: '1年', icon: 'number--1' },
@@ -95,7 +93,7 @@ function addMember(n, m='', _legacyUnused='', grade=0, parent=$('#waiting-list')
 window.addMember = addMember;
 
 // The fifth positional argument is a legacy placeholder for pre-removal snapshots.
-function addCar(n, cap, mems=[], dm='', _legacyUnused='', dgrade=0, dflag='none', participantId='', groupId='', ownerRoleEnabled=true) {
+function addCar(n, cap, mems=[], dm='', _legacyUnused='', dgrade=0, dflag='none', participantId='', groupId='', ownerRoleEnabled=false, ownerLocked=false) {
     const name = String(n || '').trim();
     const fallbackCapacity = typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3;
     const c = getInt(cap) || fallbackCapacity;
@@ -108,11 +106,11 @@ function addCar(n, cap, mems=[], dm='', _legacyUnused='', dgrade=0, dflag='none'
     const groupSuffix = typeof getActiveGroupSuffix === 'function' ? getActiveGroupSuffix() : '車';
     const roleText = document.body.dataset.activePlanTemplate === 'team' ? '班長' : '運転手';
     let slotsHtml = `
-        <div class="driver-seat" data-driver="${ownerRoleEnabled ? 'true' : 'false'}" data-name="${safeName}" data-participant-id="${escapeHtml(participantId || '')}" data-grade="${dgrade || 0}" data-locked="false" data-flag="${normalizePersonFlag(dflag)}">
+        <div class="driver-seat" data-driver="${ownerRoleEnabled ? 'true' : 'false'}" data-name="${safeName}" data-participant-id="${escapeHtml(participantId || '')}" data-grade="${dgrade || 0}" data-locked="${ownerLocked ? 'true' : 'false'}" data-flag="${normalizePersonFlag(dflag)}">
             <div class="member-main-line driver-main-line">
                 <div class="driver-name-disp">${safeName}</div>
                 <div class="person-meta">${renderPersonFlag(dflag)}${ownerRoleEnabled ? `<cds-tag class="driver-role-tag carbon-display-tag" type="gray" size="sm">${roleText}</cds-tag>` : ''}${renderGradeBadge(dgrade)}</div>
-                ${renderPersonOverflowMenu({ name, locked: false, roleEnabled: ownerRoleEnabled, structuralOwner: true })}
+                ${renderPersonOverflowMenu({ name, locked: ownerLocked, roleEnabled: ownerRoleEnabled })}
             </div>
             <div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${safeMemo}</div>
         </div>

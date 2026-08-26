@@ -13,7 +13,9 @@ function getBatchParticipantIndex(canonical = {}) {
 }
 
 function getBatchDriverIds(canonical = {}) {
-    return new Set(Object.values(canonical.allocations?.car?.groups || {}).map(group => group?.ownerId).filter(Boolean));
+    return new Set(Object.entries(canonical.allocations?.car?.placements || {})
+        .filter(([, placement]) => placement?.driver === true)
+        .map(([id]) => id));
 }
 
 function getBatchNameNormalizer() {
@@ -148,7 +150,9 @@ function openBatchModal() {
     const canonical = window.SanpoCanonicalState?.get?.();
     const participants = canonical?.participants || {};
     const carAllocation = canonical?.allocations?.car;
-    const driverIds = new Set(Object.values(carAllocation?.groups || {}).map(group => group?.ownerId).filter(Boolean));
+    const driverIds = new Set(Object.entries(carAllocation?.placements || {})
+        .filter(([, placement]) => placement?.driver === true)
+        .map(([id]) => id));
     const members = [];
     const grade1 = [], grade2 = [], grade3 = [], grade4 = [];
     const drivers = [];
@@ -369,7 +373,7 @@ async function executeBatch() {
                     id: groupId, ownerId: id, capacity: 3, order: Object.keys(carAllocation.groups).length, createdAt: now, updatedAt: now
                 };
                 if (previousGroup) carAllocation.groups[groupId] = { ...previousGroup, ownerId: id, updatedAt: now };
-                carAllocation.placements[id] = { kind: 'driver', groupId, order: Number(carAllocation.groups[groupId].order || 0), updatedAt: now };
+                carAllocation.placements[id] = { kind: 'member', driver: true, groupId, order: Number(carAllocation.groups[groupId].order || 0), updatedAt: now };
                 allocationChanged = true;
                 return;
             }
@@ -379,10 +383,10 @@ async function executeBatch() {
                 delete carAllocation.groups[groupId];
                 Object.entries(carAllocation.placements).forEach(([memberId, placement]) => {
                     if (placement?.groupId !== groupId || memberId === id) return;
-                    carAllocation.placements[memberId] = { kind: 'waiting', groupId: '', order: Number.MAX_SAFE_INTEGER, updatedAt: now };
+                    carAllocation.placements[memberId] = { kind: 'waiting', driver: placement?.driver === true, groupId: '', order: Number.MAX_SAFE_INTEGER, updatedAt: now };
                 });
             }
-            carAllocation.placements[id] = { kind: 'waiting', groupId: '', order: Number.MAX_SAFE_INTEGER, updatedAt: now };
+            carAllocation.placements[id] = { kind: 'waiting', driver: false, groupId: '', order: Number.MAX_SAFE_INTEGER, updatedAt: now };
             allocationChanged = true;
         });
 

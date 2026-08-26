@@ -31,11 +31,10 @@
         return room;
     }
 
-    function roleFromPlacement(placement, structuralOwner = false) {
-        if (hasOwn(placement, 'driver')) return placement.driver === true;
-        // Existing rooms used `kind: driver` as both structure and role. Preserve
-        // that visible meaning once, then future captures persist an explicit bool.
-        return structuralOwner && placement?.kind === 'driver';
+    function roleFromPlacement(placement) {
+        // Role state has one canonical owner: placement.driver. Group ownerId is
+        // only a structural header anchor and must never imply a role.
+        return placement?.driver === true;
     }
 
     function annotateRoles(room, domAllocation, type) {
@@ -49,14 +48,17 @@
             const ownerId = String(car?.participantId || group?.ownerId || '');
             const ownerPlacement = allocation.placements?.[ownerId];
             if (ownerPlacement) ownerPlacement.driver = car?.driver !== false;
+            if (ownerId && room?.participants?.[ownerId]) room.participants[ownerId].locked = car?.locked === true;
             (Array.isArray(car?.members) ? car.members : []).forEach(member => {
                 const id = String(member?.participantId || member?.id || '');
                 if (id && allocation.placements?.[id]) allocation.placements[id].driver = member?.driver === true;
+                if (id && room?.participants?.[id]) room.participants[id].locked = member?.locked === true;
             });
         });
         (Array.isArray(domAllocation?.waiting) ? domAllocation.waiting : []).forEach(member => {
             const id = String(member?.participantId || member?.id || '');
-            if (id && allocation.placements?.[id]) allocation.placements[id].driver = false;
+            if (id && allocation.placements?.[id]) allocation.placements[id].driver = member?.driver === true;
+            if (id && room?.participants?.[id]) room.participants[id].locked = member?.locked === true;
         });
     }
 
@@ -66,15 +68,16 @@
         const allocation = canonical?.allocations?.[type] || {};
         (plan.cars || []).forEach(car => {
             const ownerPlacement = allocation.placements?.[car.participantId];
-            car.driver = roleFromPlacement(ownerPlacement, true);
+            car.driver = roleFromPlacement(ownerPlacement);
+            car.locked = canonical.participants?.[car.participantId]?.locked === true;
             delete car.driverGender;
             (car.members || []).forEach(member => {
-                member.driver = roleFromPlacement(allocation.placements?.[member.participantId], false);
+                member.driver = roleFromPlacement(allocation.placements?.[member.participantId]);
                 delete member.gender;
             });
         });
         (plan.waiting || []).forEach(member => {
-            member.driver = false;
+            member.driver = roleFromPlacement(allocation.placements?.[member.participantId]);
             delete member.gender;
         });
         return plan;
@@ -165,7 +168,7 @@
             (projected.cars || []).forEach((car, index) => {
                 const box = boxes[index];
                 const owner = box?.querySelector('.driver-seat');
-                car.driver = owner?.dataset?.driver !== 'false';
+                car.driver = owner?.dataset?.driver === 'true';
                 const memberCards = Array.from(box?.querySelectorAll('.seat-slot .member-card') || []);
                 (car.members || []).forEach((member, memberIndex) => {
                     member.driver = memberCards[memberIndex]?.dataset?.driver === 'true';
@@ -174,7 +177,7 @@
                 delete car.driverGender;
             });
             (projected.waiting || []).forEach(member => {
-                member.driver = false;
+                member.driver = member?.driver === true;
                 delete member.gender;
             });
             return projected;
@@ -188,7 +191,7 @@
             const room = wrapped.get();
             const type = room?.activeAllocationType === 'team' ? 'team' : 'car';
             const placement = room?.allocations?.[type]?.placements?.[participantId];
-            args[9] = roleFromPlacement(placement, true);
+            args[9] = roleFromPlacement(placement);
             return originalAddCar(...args);
         };
     }
@@ -198,8 +201,7 @@
             const room = wrapped.get();
             const allocation = room?.allocations?.[type];
             const placement = allocation?.placements?.[participantId];
-            const structuralOwner = Object.values(allocation?.groups || {}).some(group => group?.ownerId === participantId);
-            return roleFromPlacement(placement, structuralOwner);
+            return roleFromPlacement(placement);
         },
         sanitizeRoom: sanitizeCanonicalRoom
     });

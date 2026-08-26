@@ -241,18 +241,26 @@ function migrateLegacyPlanIntoAllocation(plan, allocation, participants) {
             order: groupIndex,
             updatedAt: canonicalNow()
         };
-        allocation.placements[ownerId] = { kind: 'driver', groupId, order: groupIndex, updatedAt: canonicalNow() };
+        // Group ownership is only the structural header identity. The role is
+        // carried once, on the participant placement.
+        allocation.placements[ownerId] = {
+            kind: 'member',
+            driver: group?.driver !== false,
+            groupId,
+            order: groupIndex,
+            updatedAt: canonicalNow()
+        };
         (Array.isArray(group?.members) ? group.members : []).forEach((member, memberIndex) => {
             const memberId = ensureCanonicalParticipant(participants, member || {});
             if (!memberId || allocation.placements[memberId]) return;
-            allocation.placements[memberId] = { kind: 'member', groupId, order: memberIndex, updatedAt: canonicalNow() };
+            allocation.placements[memberId] = { kind: 'member', driver: member?.driver === true, groupId, order: memberIndex, updatedAt: canonicalNow() };
         });
     });
 
     (Array.isArray(plan.waiting) ? plan.waiting : []).forEach(member => {
         const id = ensureCanonicalParticipant(participants, member || {});
         if (!id || allocation.placements[id]) return;
-        allocation.placements[id] = { kind: 'waiting', groupId: '', order: waitingOrder++, updatedAt: canonicalNow() };
+        allocation.placements[id] = { kind: 'waiting', driver: member?.driver === true, groupId: '', order: waitingOrder++, updatedAt: canonicalNow() };
     });
 }
 
@@ -267,27 +275,55 @@ function ensureAllParticipantsPlaced(allocation, participants) {
             delete allocation.groups[groupId];
             return;
         }
-        // A persisted group and its owner placement form one logical allocation entity.
-        // Concurrent clients may write these two Firebase paths in opposite orders
-        // (for example: one device deletes an old car while another promotes one of
-        // its members to a new driver). If the group still exists after merging, its
-        // owner must be its driver; otherwise the room can contain a car whose driver
-        // is simultaneously marked waiting/member. Removing a car deletes the group,
-        // so an extant group is authoritative for this invariant.
+        // `ownerId` is only the structural header anchor. It is never a role.
+        // Normalize the legacy structural driver shape to a normal member and
+        // preserve the explicit placement.driver bit as the sole role state.
         const ownerPlacement = allocation.placements?.[group.ownerId];
-        if (!ownerPlacement || ownerPlacement.kind !== 'driver' || ownerPlacement.groupId !== groupId) {
+        if (ownerPlacement?.kind === 'driver') ownerPlacement.kind = 'member';
+        if (ownerPlacement && !Object.prototype.hasOwnProperty.call(ownerPlacement, 'driver')) ownerPlacement.driver = true;
+        const currentOccupants = Object.entries(allocation.placements || {})
+            .filter(([id, placement]) => Object.prototype.hasOwnProperty.call(participants || {}, id)
+                && placement?.kind === 'member'
+                && placement.groupId === groupId);
+        if (!currentOccupants.length && (!ownerPlacement || ownerPlacement.kind === 'waiting')) {
             allocation.placements[group.ownerId] = {
-                kind: 'driver',
+                ...(ownerPlacement || {}),
+                kind: 'member',
+                driver: ownerPlacement && Object.prototype.hasOwnProperty.call(ownerPlacement, 'driver')
+                    ? ownerPlacement.driver === true
+                    : true,
                 groupId,
-                order: Number(group.order) || 0,
+                order: Number(ownerPlacement?.order ?? group.order) || 0,
                 updatedAt: Math.max(Number(group.updatedAt || 0), Number(ownerPlacement?.updatedAt || 0), canonicalNow())
             };
         }
+        const occupants = Object.entries(allocation.placements || {})
+            .filter(([id, placement]) => Object.prototype.hasOwnProperty.call(participants || {}, id)
+                && placement?.kind === 'member'
+                && placement.groupId === groupId)
+            .sort(([idA, a], [idB, b]) => {
+                const roleDiff = Number(b?.driver === true) - Number(a?.driver === true);
+                if (roleDiff) return roleDiff;
+                const orderDiff = (Number(a?.order) || 0) - (Number(b?.order) || 0);
+                return orderDiff || String(idA).localeCompare(String(idB));
+            });
+        if (!occupants.length) {
+            delete allocation.groups[groupId];
+            return;
+        }
+        const anchor = occupants.find(([id]) => id === group.ownerId) || occupants[0];
+        if (group.ownerId !== anchor[0]) {
+            group.ownerId = anchor[0];
+            group.updatedAt = Math.max(Number(group.updatedAt || 0), Number(anchor[1]?.updatedAt || 0), canonicalNow());
+        }
     });
     Object.entries(allocation.placements || {}).forEach(([id, placement]) => {
-        if (placement?.kind !== 'driver' && placement?.kind !== 'member') return;
+        if (placement?.kind === 'driver') placement.kind = 'member';
+        if (placement?.kind === 'member' && !Object.prototype.hasOwnProperty.call(placement, 'driver')) placement.driver = true;
+        if (placement?.kind === 'waiting' && !Object.prototype.hasOwnProperty.call(placement, 'driver')) placement.driver = false;
+        if (placement?.kind !== 'member') return;
         if (!allocation.groups?.[placement.groupId]) {
-            allocation.placements[id] = { kind: 'waiting', groupId: '', order: Number.MAX_SAFE_INTEGER, updatedAt: canonicalNow() };
+            allocation.placements[id] = { kind: 'waiting', driver: placement.driver === true, groupId: '', order: Number.MAX_SAFE_INTEGER, updatedAt: canonicalNow() };
         }
     });
 
@@ -297,7 +333,7 @@ function ensureAllParticipantsPlaced(allocation, participants) {
     Object.entries(allocation.groups || {}).forEach(([groupId, group]) => {
         const capacity = Math.max(1, parseInt(group?.capacity) || (allocation.type === 'team' ? 5 : 3));
         const members = Object.entries(allocation.placements || {})
-            .filter(([, placement]) => placement?.kind === 'member' && placement.groupId === groupId)
+            .filter(([id, placement]) => placement?.kind === 'member' && placement.groupId === groupId && id !== group.ownerId)
             .sort(([idA, a], [idB, b]) => {
                 const timeDiff = (Number(a?.updatedAt) || 0) - (Number(b?.updatedAt) || 0);
                 if (timeDiff) return timeDiff;
@@ -307,6 +343,7 @@ function ensureAllParticipantsPlaced(allocation, participants) {
         members.slice(capacity).forEach(([id, placement]) => {
             allocation.placements[id] = {
                 kind: 'waiting',
+                driver: placement.driver === true,
                 groupId: '',
                 order: Number.MAX_SAFE_INTEGER,
                 updatedAt: Math.max(Number(placement?.updatedAt || 0), canonicalNow())
@@ -319,7 +356,7 @@ function ensureAllParticipantsPlaced(allocation, participants) {
         .reduce((max, p) => Math.max(max, Number(p.order) || 0), -1) + 1;
     Object.keys(participants || {}).forEach(id => {
         if (!allocation.placements[id]) {
-            allocation.placements[id] = { kind: 'waiting', groupId: '', order: order++, updatedAt: canonicalNow() };
+            allocation.placements[id] = { kind: 'waiting', driver: false, groupId: '', order: order++, updatedAt: canonicalNow() };
         }
     });
 }
@@ -402,12 +439,18 @@ function projectCanonicalAllocation(room = canonicalRoomState, type = room?.acti
         const members = Object.entries(allocation.placements || {})
             .filter(([id, placement]) => id !== group.ownerId && participants[id] && placement?.kind === 'member' && placement.groupId === group.id)
             .sort((a, b) => (Number(a[1].order) || 0) - (Number(b[1].order) || 0))
-            .map(([id]) => ({ ...cloneCanonical(participants[id]), participantId: id }));
+            .map(([id]) => ({
+                ...cloneCanonical(participants[id]),
+                participantId: id,
+                driver: allocation.placements?.[id]?.driver === true
+            }));
+        const ownerPlacement = allocation.placements?.[group.ownerId];
         return {
             name: driver.name,
             participantId: group.ownerId,
             groupId: group.id,
             capacity: group.capacity,
+            driver: ownerPlacement?.driver === true,
             driverMemo: driver.memo || '',
             driverGender: driver.gender || 'unknown',
             driverGrade: driver.grade || 0,
@@ -424,7 +467,11 @@ function projectCanonicalAllocation(room = canonicalRoomState, type = room?.acti
     const waiting = Object.entries(allocation.placements || {})
         .filter(([id, placement]) => participants[id] && !used.has(id) && placement?.kind === 'waiting')
         .sort((a, b) => (Number(a[1].order) || 0) - (Number(b[1].order) || 0))
-        .map(([id]) => ({ ...cloneCanonical(participants[id]), participantId: id }));
+        .map(([id]) => ({
+            ...cloneCanonical(participants[id]),
+            participantId: id,
+            driver: allocation.placements?.[id]?.driver === true
+        }));
 
     Object.keys(participants).forEach(id => {
         if (!used.has(id) && !waiting.some(member => member.participantId === id)) {
@@ -499,7 +546,8 @@ function updateCanonicalFromActiveDom(room, domAllocation, activeType = room?.ac
     const placementEqual = (a, b) => !!a && !!b
         && String(a.kind || '') === String(b.kind || '')
         && String(a.groupId || '') === String(b.groupId || '')
-        && Number(a.order || 0) === Number(b.order || 0);
+        && Number(a.order || 0) === Number(b.order || 0)
+        && a.driver === b.driver;
     const groupEqual = (a, b) => !!a && !!b
         && String(a.ownerId || '') === String(b.ownerId || '')
         && Number(a.capacity || 0) === Number(b.capacity || 0)
@@ -569,18 +617,18 @@ function updateCanonicalFromActiveDom(room, domAllocation, activeType = room?.ac
         newGroups[groupId] = groupEqual(previousGroup, groupShape)
             ? { ...previousGroup, ...groupShape, createdAt: Number(previousGroup.createdAt || canonicalNow()) }
             : { ...groupShape, updatedAt: canonicalNow(), createdAt: Number(previousGroup.createdAt || canonicalNow()) };
-        setPlacement(ownerId, { kind: 'driver', groupId, order: groupIndex });
+        setPlacement(ownerId, { kind: 'member', driver: car?.driver === true, groupId, order: groupIndex });
         (Array.isArray(car.members) ? car.members : []).forEach((member, memberIndex) => {
             const id = resolveId(member || {});
             if (!id || newPlacements[id]) return;
-            setPlacement(id, { kind: 'member', groupId, order: memberIndex });
+            setPlacement(id, { kind: 'member', driver: member?.driver === true, groupId, order: memberIndex });
         });
     });
 
     (Array.isArray(domAllocation?.waiting) ? domAllocation.waiting : []).forEach((member, waitingIndex) => {
         const id = resolveId(member || {});
         if (!id || newPlacements[id]) return;
-        setPlacement(id, { kind: 'waiting', groupId: '', order: waitingIndex });
+        setPlacement(id, { kind: 'waiting', driver: member?.driver === true, groupId: '', order: waitingIndex });
     });
 
     // DOM is a projection, never the participant master. A card can be temporarily absent
@@ -801,17 +849,17 @@ function applyProjectedPlanToCanonical(room, plan = {}, type = 'car') {
         if (!groupId || nextGroups[groupId]) groupId = Object.values(allocation.groups || {}).find(group => group?.ownerId === ownerId)?.id || makeCanonicalGroupId(normalizedType, ownerId, { ...(allocation.groups || {}), ...nextGroups });
         const previous = allocation.groups?.[groupId] || {};
         nextGroups[groupId] = { id: groupId, ownerId, capacity: Math.max(1, parseInt(car.capacity) || (normalizedType === 'team' ? 5 : 3)), order: groupIndex, createdAt: Number(previous.createdAt || canonicalNow()), updatedAt: canonicalNow() };
-        nextPlacements[ownerId] = { kind: 'driver', groupId, order: groupIndex, updatedAt: canonicalNow() };
+        nextPlacements[ownerId] = { kind: 'member', driver: car?.driver === true, groupId, order: groupIndex, updatedAt: canonicalNow() };
         (Array.isArray(car.members) ? car.members : []).filter(Boolean).forEach((member, memberIndex) => {
             const id = resolve(member);
             if (!id || nextPlacements[id]) return;
-            nextPlacements[id] = { kind: 'member', groupId, order: memberIndex, updatedAt: canonicalNow() };
+            nextPlacements[id] = { kind: 'member', driver: member?.driver === true, groupId, order: memberIndex, updatedAt: canonicalNow() };
         });
     });
     (Array.isArray(plan.waiting) ? plan.waiting : []).filter(Boolean).forEach((member, waitingIndex) => {
         const id = resolve(member);
         if (!id || nextPlacements[id]) return;
-        nextPlacements[id] = { kind: 'waiting', groupId: '', order: waitingIndex, updatedAt: canonicalNow() };
+        nextPlacements[id] = { kind: 'waiting', driver: member?.driver === true, groupId: '', order: waitingIndex, updatedAt: canonicalNow() };
     });
     allocation.groups = nextGroups;
     allocation.placements = nextPlacements;

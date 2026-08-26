@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const read = rel => fs.readFileSync(new URL(`../${rel}`, import.meta.url), 'utf8');
 const calculator = read('assets/js/features/settlement/02-calculator.js');
+const settlementState = read('assets/js/features/settlement/01-state.js');
 const summary = read('assets/js/templates/settlement/02-summary-templates.js');
 const costParts = read('assets/js/templates/settlement/01-cost-parts.js');
 const shareText = read('assets/js/features/settlement/06-share-text.js');
@@ -36,8 +37,20 @@ const context = {
   roundUp: (value, unit) => Math.ceil(value / unit) * unit
 };
 
+const roleProjectionContext = { result: null, window: {}, console, JSON, String, Set, Number, Math };
+vm.runInNewContext(`${settlementState}\nresult = getParticipantList({
+  cars: [{ name: 'A', participantId: 'a', driver: true, members: [
+    { name: 'B', participantId: 'b', driver: true },
+    { name: 'C', participantId: 'c', driver: false }
+  ] }],
+  waiting: [{ name: 'D', participantId: 'd', driver: true }]
+});`, roleProjectionContext);
+assert.equal(JSON.stringify(roleProjectionContext.result.map(person => [person.name, person.role])), JSON.stringify([
+  ['A', 'driver'], ['B', 'driver'], ['C', 'member'], ['D', 'driver']
+]), 'Settlement projection must preserve multiple canonical driver roles in one car and waiting.');
+
 vm.runInNewContext(`${calculator}\nresult = calculateSettlement({
-  participants: [{ name: 'A' }, { name: 'B' }, { name: 'C' }],
+  participants: [{ name: 'A', role: 'driver' }, { name: 'B', role: 'driver' }, { name: 'C', role: 'member' }],
   cars: [{ name: 'A' }, { name: 'B' }]
 }, {
   organizerName: '', organizerFree: false, driverCollectionOffset: true, driverCollectionFree: false,

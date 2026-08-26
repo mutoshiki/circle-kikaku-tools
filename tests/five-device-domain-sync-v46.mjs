@@ -36,7 +36,7 @@ function room() {
   for (let g = 0; g < 3; g++) {
     const id = ids[g]; const gid = `g${g}`;
     r.allocations.car.groups[gid] = { id: gid, ownerId: id, capacity: 3, order: g, createdAt: 10, updatedAt: 10 };
-    r.allocations.car.placements[id] = { kind: 'driver', groupId: gid, order: g, updatedAt: 10 };
+    r.allocations.car.placements[id] = { kind: 'member', driver: true, groupId: gid, order: g, updatedAt: 10 };
   }
   E.ensureAllParticipantsPlaced(r.allocations.car, r.participants);
   E.ensureAllParticipantsPlaced(r.allocations.team, r.participants);

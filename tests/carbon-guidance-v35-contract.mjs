@@ -11,7 +11,7 @@ function expect(condition, message) {
 
 expect(app.includes("'fillEmptySeatsBtn', 'traySettingsBtn', 'autoAssignPopover', 'autoAssignMenu', 'clearAllBtn', 'optFemale', 'optMale', 'optGrade'"), 'Retired assignment-setting controls must be removed before feature startup.');
 expect(workspace.includes('function removeRetiredAllocationControls()'), 'Assignment Workspace must own final cleanup of retired bulk-allocation controls.');
-expect(workspace.includes("label.textContent = 'ランダムに割り当て'"), 'The only bulk action must be labelled 「ランダムに割り当て」.');
+expect(workspace.includes("label.textContent = 'ランダム割当'"), 'The only bulk action must be labelled 「ランダム割当」.');
 expect(autoAssign.includes('async function autoAssign()'), 'Random allocation must be a single parameterless action.');
 expect(!autoAssign.includes('optGrade') && !autoAssign.includes('optFemale') && !autoAssign.includes('optMale'), 'Random allocation must not inspect assignment-condition controls.');
 expect(!autoAssign.includes("mode === 'fill'") && !autoAssign.includes('assignByGrade'), 'Fill mode and condition-specific assignment algorithms must be retired.');

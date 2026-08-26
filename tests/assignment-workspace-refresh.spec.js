@@ -63,8 +63,8 @@ test.describe('Assignment workspace refresh', () => {
   test('bulk allocation is one random action with no settings, fill, gender, rename, move or drag controls', async ({ page }) => {
     await loadSampleWorkspace(page);
 
-    await expect(page.locator('#assignmentWorkspaceActions > #shuffleAssignBtn')).toHaveCount(1);
-    await expect(page.locator('#shuffleAssignBtn')).toContainText('ランダムに割り当て');
+    await expect(page.locator('#assignmentWorkspaceRandomAction > #shuffleAssignBtn')).toHaveCount(1);
+    await expect(page.locator('#shuffleAssignBtn')).toContainText('ランダム割当');
     await expect(page.locator('#fillEmptySeatsBtn, #traySettingsBtn, #autoAssignPopover, #autoAssignMenu, #optFemale, #optMale, #optGrade, #clearAllBtn')).toHaveCount(0);
     await expect(page.locator('[data-person-action="name"], [data-person-action="gender"]')).toHaveCount(0);
     await expect(page.locator('.assignment-drag-handle, .assignment-person-move-menu, [data-assignment-move-target]')).toHaveCount(0);
@@ -127,6 +127,89 @@ test.describe('Assignment workspace refresh', () => {
     expect(await firstCar.locator('[data-driver="true"]').count()).toBeGreaterThanOrEqual(2);
   });
 
+  test('canonical role, lock, shuffle and scroll owners stay stable through real menu actions', async ({ page }) => {
+    await loadSampleWorkspace(page);
+
+    const owner = page.locator('#cars-container .car-box').first().locator('.driver-seat').first();
+    const ownerId = await owner.getAttribute('data-participant-id');
+    expect(ownerId).toBeTruthy();
+    await page.evaluate(() => {
+      const layout = document.getElementById('app-layout');
+      layout.scrollTop = Math.min(180, Math.max(0, layout.scrollHeight - layout.clientHeight));
+      layout.dispatchEvent(new Event('scroll'));
+    });
+
+    const ownerMenu = owner.locator('cds-overflow-menu.person-overflow-menu');
+    await ownerMenu.click();
+    await expectPersonMenuOpen(ownerMenu);
+    const scrollBefore = await page.evaluate(() => document.getElementById('app-layout')?.scrollTop || 0);
+    await ownerMenu.locator('[data-person-action="driver"]').evaluate(node => node.click());
+    await expect.poll(() => page.locator(`.driver-seat[data-participant-id="${ownerId}"]`).getAttribute('data-driver')).toBe('false');
+    const scrollAfterRole = await page.evaluate(() => document.getElementById('app-layout')?.scrollTop || 0);
+    expect(scrollAfterRole).toBe(scrollBefore);
+
+    const canonicalAfterRole = await page.evaluate(id => {
+      const room = window.SanpoCanonicalState?.get?.();
+      const placement = room?.allocations?.[room.activeAllocationType]?.placements?.[id];
+      return { kind: placement?.kind, driver: placement?.driver, hasLegacyDriverKind: Object.values(room?.allocations?.[room.activeAllocationType]?.placements || {}).some(item => item?.kind === 'driver') };
+    }, ownerId);
+    expect(canonicalAfterRole).toEqual({ kind: 'member', driver: false, hasLegacyDriverKind: false });
+
+    const ownerAfterRole = page.locator(`.driver-seat[data-participant-id="${ownerId}"]`);
+    const ownerReturnMenu = ownerAfterRole.locator('cds-overflow-menu.person-overflow-menu');
+    await ownerReturnMenu.click();
+    await expectPersonMenuOpen(ownerReturnMenu);
+    await ownerReturnMenu.locator('[data-person-action="return"]').evaluate(node => node.click());
+    await expect(page.locator('#appConfirmModal')).toHaveAttribute('open', '');
+    await page.locator('#appConfirmModal [data-role="ok"]').evaluate(node => node.click());
+    await expect(page.locator(`#waiting-list .member-card[data-participant-id="${ownerId}"]`)).toHaveCount(1);
+    await expect.poll(() => page.evaluate(id => {
+      const room = window.SanpoCanonicalState?.get?.();
+      return room?.allocations?.[room.activeAllocationType]?.placements?.[id]?.kind;
+    }, ownerId)).toBe('waiting');
+
+    const driverCard = page.locator('#cars-container .member-card[data-driver="false"]').first();
+    const driverId = await driverCard.getAttribute('data-participant-id');
+    const driverMenu = driverCard.locator('cds-overflow-menu.person-overflow-menu');
+    await driverMenu.click();
+    await expectPersonMenuOpen(driverMenu);
+    await driverMenu.locator('[data-person-action="driver"]').evaluate(node => node.click());
+    const driverPlacementBefore = await page.evaluate(id => {
+      const room = window.SanpoCanonicalState?.get?.();
+      return structuredClone(room?.allocations?.[room.activeAllocationType]?.placements?.[id]);
+    }, driverId);
+
+    const lockCard = page.locator('#cars-container .member-card[data-driver="false"]').first();
+    const lockId = await lockCard.getAttribute('data-participant-id');
+    const lockPlacementBefore = await page.evaluate(id => {
+      const room = window.SanpoCanonicalState?.get?.();
+      return structuredClone(room?.allocations?.[room.activeAllocationType]?.placements?.[id]);
+    }, lockId);
+    const lockMenu = lockCard.locator('cds-overflow-menu.person-overflow-menu');
+    await lockMenu.click();
+    await expectPersonMenuOpen(lockMenu);
+    await expect(lockMenu.locator('[data-person-action="lock"]')).toHaveAttribute('label', 'ロック');
+    await lockMenu.locator('[data-person-action="lock"]').evaluate(node => node.click());
+    await expect.poll(() => page.locator(`.member-card[data-participant-id="${lockId}"]`).getAttribute('data-locked')).toBe('true');
+
+    await page.locator('#shuffleAssignBtn').evaluate(node => node.click());
+    await expect(page.locator('#appConfirmModal')).toHaveAttribute('open', '');
+    await page.locator('#appConfirmModal [data-role="ok"]').evaluate(node => node.click());
+    await expect.poll(() => page.evaluate(() => document.querySelector('#appConfirmModal')?.open === false || !document.querySelector('#appConfirmModal')?.hasAttribute('open'))).toBe(true);
+    const shuffleResult = await page.evaluate(({ driverId: stableDriverId, lockId: stableLockId }) => {
+      const room = window.SanpoCanonicalState?.get?.();
+      const allocation = room?.allocations?.[room.activeAllocationType];
+      return {
+        driver: structuredClone(allocation?.placements?.[stableDriverId]),
+        locked: structuredClone(allocation?.placements?.[stableLockId]),
+        legacyKinds: Object.values(allocation?.placements || {}).filter(item => item?.kind === 'driver').length
+      };
+    }, { driverId, lockId });
+    expect(shuffleResult.driver).toEqual(driverPlacementBefore);
+    expect(shuffleResult.locked).toEqual(lockPlacementBefore);
+    expect(shuffleResult.legacyKinds).toBe(0);
+  });
+
   test('mobile workspace stays compact with one action and never widens the viewport', async ({ page }) => {
     await loadSampleWorkspace(page);
 
@@ -135,7 +218,7 @@ test.describe('Assignment workspace refresh', () => {
         const r = node.getBoundingClientRect();
         return { left: r.left, right: r.right, width: r.width, height: r.height };
       };
-      const actions = document.querySelector('#assignmentWorkspaceActions');
+      const actions = document.querySelector('#assignmentWorkspaceRandomAction');
       const shuffle = document.getElementById('shuffleAssignBtn');
       const member = document.querySelector('#cars-container .seat-slot > .member-card');
       const memberRow = member?.querySelector('.member-main-line');
@@ -204,7 +287,7 @@ test.describe('Assignment workspace refresh', () => {
     await expect.poll(() => new URL(page.url()).searchParams.has('allocation')).toBe(false);
     await expect(page.locator('body')).not.toHaveClass(/assignment-readonly/);
     await expect(page.locator('#app-view-navigation')).toBeVisible();
-    await expect(page.locator('#assignmentWorkspaceActions')).toBeVisible();
+    await expect(page.locator('#assignmentWorkspaceRandomAction')).toBeVisible();
     await expect(page.locator('#shareLinkBtn')).toBeVisible();
     await expect(page.locator('#tab-sheet')).toHaveCount(0);
   });

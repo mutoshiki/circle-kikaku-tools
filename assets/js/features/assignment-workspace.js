@@ -131,8 +131,8 @@
         header.innerHTML = `
             <div class="assignment-workspace-meta-row">
                 <p class="assignment-workspace-summary" id="assignmentWorkspaceSummary" aria-live="polite"></p>
-            </div>
-            <div id="assignmentWorkspaceActions" class="assignment-workspace-actions" aria-label="割り当ての操作"></div>`;
+                <div id="assignmentWorkspaceRandomAction" class="assignment-workspace-actions" aria-label="ランダム割当"></div>
+            </div>`;
         const legacyHeader = topArea.querySelector(':scope > .edit-header');
         topArea.insertBefore(header, legacyHeader || topArea.firstChild);
         return header;
@@ -144,9 +144,20 @@
     }
 
     function relocateAllocationActions() {
-        const actions = byId('assignmentWorkspaceActions');
-        if (!actions) return;
+        const actions = byId('assignmentWorkspaceRandomAction');
+        const topArea = byId('top-area');
+        const cars = byId('cars-container');
+        if (!actions || !topArea || !cars) return;
         removeRetiredAllocationControls();
+
+        let footer = byId('assignmentWorkspaceFooterActions');
+        if (!footer) {
+            footer = D.createElement('div');
+            footer.id = 'assignmentWorkspaceFooterActions';
+            footer.className = 'assignment-workspace-footer-actions';
+            footer.setAttribute('aria-label', 'グループを追加');
+            topArea.insertBefore(footer, cars.nextSibling);
+        }
 
         let addGroup = byId('assignmentWorkspaceAddGroupBtn');
         if (!addGroup) {
@@ -166,15 +177,15 @@
         addGroup.setAttribute('aria-label', `${groupLabel}を追加`);
         const addLabel = addGroup.querySelector('span:not([slot="icon"]):not([data-carbon-icon])');
         if (addLabel) addLabel.textContent = `${groupLabel}を追加`;
-        if (addGroup.parentElement !== actions) actions.appendChild(addGroup);
+        if (addGroup.parentElement !== footer) footer.appendChild(addGroup);
 
         const shuffle = byId('shuffleAssignBtn');
         if (!shuffle) return;
         shuffle.setAttribute('kind', 'primary');
         shuffle.setAttribute('size', 'lg');
         const label = shuffle.querySelector('span:not([slot="icon"]):not([data-carbon-icon])');
-        if (label) label.textContent = 'ランダムに割り当て';
-        else shuffle.prepend(D.createTextNode('ランダムに割り当て'));
+        if (label) label.textContent = 'ランダム割当';
+        else shuffle.prepend(D.createTextNode('ランダム割当'));
         if (shuffle.parentElement !== actions) actions.appendChild(shuffle);
 
         D.querySelectorAll('.random-tools').forEach(wrapper => {
@@ -292,7 +303,7 @@
         allocation.groups = allocation.groups || {};
         allocation.placements = allocation.placements || {};
         allocation.groups[groupId] = { id: groupId, ownerId: participantId, capacity, order, createdAt: now, updatedAt: now };
-        allocation.placements[participantId] = { kind: 'driver', groupId, order, updatedAt: now };
+        allocation.placements[participantId] = { kind: 'member', driver: true, groupId, order, updatedAt: now };
         state.ensureAllParticipantsPlaced?.(allocation, room.participants);
         state.set?.(room);
         global.renderActiveCarPlanToDom?.();
@@ -376,7 +387,7 @@
         if (!indicator) {
             indicator = D.createElement('span');
             indicator.className = 'assignment-lock-indicator';
-            indicator.setAttribute('aria-label', '固定');
+            indicator.setAttribute('aria-label', 'ロック中');
             indicator.innerHTML = '<span data-carbon-icon="locked" aria-hidden="true"></span>';
             meta.prepend(indicator);
         }

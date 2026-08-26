@@ -215,7 +215,7 @@ function createCarFromDroppedMember(card) {
     if (!member?.name) return false;
 
     card.remove();
-    addCar(member.name, (typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3), [], member.memo, member.gender, member.grade || 0, member.flag, member.participantId || '');
+    addCar(member.name, (typeof getDefaultGroupCapacityForActivePlan === 'function' ? getDefaultGroupCapacityForActivePlan() : 3), [], member.memo, member.gender, member.grade || 0, member.flag, member.participantId || '', '', member.driver === true);
     return true;
 }
 

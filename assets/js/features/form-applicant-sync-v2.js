@@ -421,9 +421,10 @@
     }
 
     const previousPlacement = allocation.placements[participantId];
-    if (!previousPlacement || previousPlacement.kind !== 'driver' || previousPlacement.groupId !== groupId) {
+    if (!previousPlacement || previousPlacement.kind !== 'member' || previousPlacement.groupId !== groupId || previousPlacement.driver !== true) {
       allocation.placements[participantId] = {
-        kind: 'driver',
+        kind: 'member',
+        driver: true,
         groupId,
         order: Number(allocation.groups[groupId].order || 0),
         updatedAt: now
@@ -487,19 +488,14 @@
         .map(([responseKey]) => responseKey)
     );
     const acceptedIds = currentApplicantParticipantIds(room, sync);
-    const selectedManualIds = new Set(
-      Object.keys(room.participants || {})
-        .filter(id => !acceptedIds.has(id) && manualDraftChecked(id))
-    );
-
     const removals = [];
     applicantEntries(sync).forEach(([responseKey, applicant]) => {
       const participantId = participantIdForApplicant(room, applicant);
       if (participantId && !selectedApplicantKeys.has(responseKey)) removals.push(participantId);
     });
-    Object.keys(room.participants || {}).forEach(id => {
-      if (!acceptedIds.has(id) && !selectedManualIds.has(id)) removals.push(id);
-    });
+    // In a normal (non-form) room, these checkboxes are a review surface, not
+    // a destructive roster editor. A mistaken uncheck must never erase a
+    // manually registered participant; removal remains an explicit card action.
 
     if (!await confirmParticipantRemovals(room, [...new Set(removals)])) return;
 

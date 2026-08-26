@@ -533,6 +533,18 @@ function getRoomDataOnly() {
     };
 }
 
+function allocationDriverMembers(car = {}) {
+    const drivers = [];
+    if (car?.driver === true && String(car?.name || '').trim()) {
+        drivers.push({ name: String(car.name).trim(), participantId: car.participantId || '', carName: String(car.name).trim() });
+    }
+    (car?.members || []).forEach(member => {
+        if (member?.driver !== true || !String(member?.name || '').trim()) return;
+        drivers.push({ name: String(member.name).trim(), participantId: member.participantId || member.id || '', carName: String(car?.name || '').trim() });
+    });
+    return drivers;
+}
+
 function getParticipantList(data = null) {
     const source = data || getRoomDataOnly();
     const seen = new Set();
@@ -545,10 +557,19 @@ function getParticipantList(data = null) {
     };
     (source.cars || []).forEach(car => {
         const driverName = String(car?.name || '').trim();
-        push(driverName, 'driver');
-        (car.members || []).forEach(m => push(m?.name, 'member', { driverName }));
+        const drivers = allocationDriverMembers(car);
+        drivers.forEach(driver => push(driver.name, 'driver', { driverName, participantId: driver.participantId }));
+        if (!drivers.some(driver => driver.name === driverName)) push(driverName, 'member', { driverName, participantId: car?.participantId || '' });
+        (car.members || []).forEach(member => {
+            if (member?.driver === true) return;
+            push(member?.name, 'member', { driverName, participantId: member?.participantId || member?.id || '' });
+        });
     });
-    (source.waiting || []).forEach(m => push(m?.name, 'waiting'));
+    (source.waiting || []).forEach(m => push(
+        m?.name,
+        m?.driver === true ? 'driver' : 'waiting',
+        { participantId: m?.participantId || m?.id || '' }
+    ));
     return list;
 }
 

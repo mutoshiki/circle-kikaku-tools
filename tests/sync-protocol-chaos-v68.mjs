@@ -44,7 +44,7 @@ function assertInvariants(raw, label) {
             assert.ok(!owners.has(group.ownerId), `${label}: duplicate group owner`);
             owners.add(group.ownerId);
             assert.equal(allocation.placements[group.ownerId]?.groupId, groupId, `${label}: driver placement mismatch`);
-            const members = Object.values(allocation.placements).filter(placement => placement?.kind === 'member' && placement.groupId === groupId);
+            const members = Object.entries(allocation.placements).filter(([id, placement]) => id !== group.ownerId && placement?.kind === 'member' && placement.groupId === groupId);
             assert.ok(members.length <= Number(group.capacity || 0), `${label}: capacity overflow`);
         }
         for (const id of ids) assert.ok(allocation.placements[id], `${label}: participant missing placement`);
@@ -75,9 +75,9 @@ function mutate(client, random, serial) {
         const allocation = room.allocations.car;
         const groupId = `g_${id}`;
         allocation.groups[groupId] = { id: groupId, ownerId: id, capacity: 1 + Math.floor(random() * 3), order: 0, updatedAt: serial };
-        allocation.placements[id] = { kind: 'driver', groupId, order: 0, updatedAt: serial };
+        allocation.placements[id] = { kind: 'member', driver: true, groupId, order: 0, updatedAt: serial };
         const member = ids.find(other => other !== id);
-        if (member) allocation.placements[member] = { kind: 'member', groupId, order: 1, updatedAt: serial };
+        if (member) allocation.placements[member] = { kind: 'member', driver: false, groupId, order: 1, updatedAt: serial };
     } else if (kind === 4 && ids.length) {
         const id = pick(random, ids);
         room.settlement.paidByParticipantId[id] = random() > 0.5;

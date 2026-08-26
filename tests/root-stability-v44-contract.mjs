@@ -79,7 +79,7 @@ function baseRoom() {
   const { room, aliceId, bobId, carolId } = baseRoom();
   const gid = 'g_car_alice';
   room.allocations.car.groups[gid] = { id: gid, ownerId: aliceId, capacity: 1, order: 0, updatedAt: 1 };
-  room.allocations.car.placements[aliceId] = { kind: 'driver', groupId: gid, order: 0, updatedAt: 1 };
+  room.allocations.car.placements[aliceId] = { kind: 'member', driver: true, groupId: gid, order: 0, updatedAt: 1 };
   room.allocations.car.placements[bobId] = { kind: 'waiting', groupId: '', order: 0, updatedAt: 1 };
   room.allocations.car.placements[carolId] = { kind: 'waiting', groupId: '', order: 1, updatedAt: 1 };
   const a = structuredClone(room);
@@ -95,7 +95,8 @@ function baseRoom() {
   let server2 = sync.applyVersionedEntityPatch(room, room, b, patchB, 1);
   server2 = sync.applyVersionedEntityPatch(server2, room, a, patchA, 1);
   for (const server of [server1, server2]) {
-    const members = Object.values(server.allocations.car.placements).filter(p => p?.kind === 'member' && p.groupId === gid);
+    const members = Object.entries(server.allocations.car.placements)
+      .filter(([id, p]) => id !== aliceId && p?.kind === 'member' && p.groupId === gid);
     assert.equal(members.length, 1, 'capacity invariant must hold after concurrent last-seat claims');
   }
   assert.deepEqual(server1.allocations.car.placements[bobId].kind, server2.allocations.car.placements[bobId].kind, 'capacity race must converge independent of delivery order');

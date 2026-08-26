@@ -56,7 +56,7 @@ function pruneParticipant(room,id) {
     delete a.placements[id];
     for (const [gid,g] of Object.entries(a.groups)) if (g.ownerId===id) {
       delete a.groups[gid];
-      for (const [pid,p] of Object.entries(a.placements)) if (p.groupId===gid) a.placements[pid]={kind:'waiting',groupId:'',order:999,updatedAt:Date.now()};
+      for (const [pid,p] of Object.entries(a.placements)) if (p.groupId===gid) a.placements[pid]={kind:'waiting',driver:p.driver===true,groupId:'',order:999,updatedAt:Date.now()};
     }
   }
   for (const field of ['carsByParticipantId','paidByParticipantId','paidByNameByParticipantId','driverPaidByParticipantId']) delete room.settlement?.[field]?.[id];
@@ -67,20 +67,20 @@ function addPerson(room, name){
   const id=entity.ensureParticipant(room.participants,{name,grade:1,gender:'unknown'}); room.participantTombstones ||= {}; delete room.participantTombstones[id]; ensurePlacements(room); return id;
 }
 function movePerson(room,r,type){
-  const a=room.allocations[type]; const driverIds=new Set(Object.values(a.groups).map(g=>g.ownerId)); const ids=keys(room.participants).filter(id=>!driverIds.has(id)); if(!ids.length)return; const id=pick(r,ids);
+  const a=room.allocations[type]; const driverIds=new Set(Object.entries(a.placements).filter(([,p])=>p?.driver===true).map(([id])=>id)); const ids=keys(room.participants).filter(id=>!driverIds.has(id)); if(!ids.length)return; const id=pick(r,ids);
   const gids=keys(a.groups).filter(gid=>a.groups[gid].ownerId!==id);
-  if(r()<0.45 || !gids.length) a.placements[id]={kind:'waiting',groupId:'',order:Math.floor(r()*50),updatedAt:Date.now()};
-  else { const gid=pick(r,gids); a.placements[id]={kind:'member',groupId:gid,order:Math.floor(r()*8),updatedAt:Date.now()}; }
+  if(r()<0.45 || !gids.length) a.placements[id]={kind:'waiting',driver:false,groupId:'',order:Math.floor(r()*50),updatedAt:Date.now()};
+  else { const gid=pick(r,gids); a.placements[id]={kind:'member',driver:false,groupId:gid,order:Math.floor(r()*8),updatedAt:Date.now()}; }
 }
 function makeDriver(room,r,type){
   const ids=keys(room.participants); if(!ids.length)return; const id=pick(r,ids); const a=room.allocations[type];
   for(const [gid,g] of Object.entries(a.groups)) if(g.ownerId===id){ delete a.groups[gid]; }
   const gid=`g_${type}_${id}`; a.groups[gid]={id:gid,ownerId:id,capacity:type==='team'?5:3,order:keys(a.groups).length,createdAt:Date.now(),updatedAt:Date.now()};
-  a.placements[id]={kind:'driver',groupId:gid,order:keys(a.groups).length-1,updatedAt:Date.now()};
+  a.placements[id]={kind:'member',driver:true,groupId:gid,order:keys(a.groups).length-1,updatedAt:Date.now()};
 }
 function deleteGroup(room,r,type){
   const a=room.allocations[type], gids=keys(a.groups); if(!gids.length)return; const gid=pick(r,gids); delete a.groups[gid];
-  for(const [id,p] of Object.entries(a.placements)) if(p.groupId===gid) a.placements[id]={kind:'waiting',groupId:'',order:999,updatedAt:Date.now()};
+  for(const [id,p] of Object.entries(a.placements)) if(p.groupId===gid) a.placements[id]={kind:'waiting',driver:p.driver===true,groupId:'',order:999,updatedAt:Date.now()};
 }
 function settlementEdit(room,r){
   const ids=keys(room.participants); if(!ids.length)return; const id=pick(r,ids); room.settlement ||= {}; const field=pick(r,['car','paid','driverPaid','organizer']);
@@ -110,7 +110,7 @@ function check(room,label){
     const a=c.allocations[type];
     for(const [id,p] of Object.entries(a.placements)){ assert.ok(ids.has(id),`${label}: ${type} placement -> missing participant ${id}`); if(['member','driver'].includes(p.kind)) assert.ok(a.groups[p.groupId],`${label}: ${type} placement -> missing group`); }
     for(const id of ids) assert.ok(a.placements[id],`${label}: ${type} missing placement ${id}`);
-    for(const [gid,g] of Object.entries(a.groups)){ assert.ok(ids.has(g.ownerId),`${label}: ${type} group missing owner`); assert.equal(a.placements[g.ownerId]?.kind,'driver',`${label}: ${type} owner not driver`); assert.equal(a.placements[g.ownerId]?.groupId,gid,`${label}: ${type} driver wrong group`); }
+    for(const [gid,g] of Object.entries(a.groups)){ assert.ok(ids.has(g.ownerId),`${label}: ${type} group missing owner`); const ownerPlacement=a.placements[g.ownerId]; assert.equal(ownerPlacement?.kind,'member',`${label}: ${type} owner must be a member placement`); assert.equal(typeof ownerPlacement?.driver,'boolean',`${label}: ${type} owner role must be canonical`); assert.equal(ownerPlacement?.groupId,gid,`${label}: ${type} owner wrong group`); }
   }
   for(const field of ['carsByParticipantId','paidByParticipantId','paidByNameByParticipantId','driverPaidByParticipantId']) for(const id of keys(c.settlement?.[field])) assert.ok(ids.has(id),`${label}: settlement ${field} -> deleted participant`);
   for(const id of keys(c.participantTombstones)) assert.ok(!c.participants[id],`${label}: tombstoned participant resurrected ${id}`);

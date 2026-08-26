@@ -119,13 +119,14 @@ console.log('Entity schema v42 canonical state + entity sync contract: PASS');
   const remote = structuredClone(baseRoom);
   const gid = `g_car_${bob}_regression`;
   remote.allocations.car.groups[gid] = { id: gid, ownerId: bob, capacity: 3, order: 9, createdAt: 100, updatedAt: 200 };
-  remote.allocations.car.placements[bob] = { kind: 'driver', groupId: gid, order: 9, updatedAt: 200 };
+  remote.allocations.car.placements[bob] = { kind: 'member', driver: true, groupId: gid, order: 9, updatedAt: 200 };
   // A stale device concurrently cleans Bob back to waiting after deleting an old group.
   const stale = structuredClone(baseRoom);
   stale.allocations.car.placements[bob] = { kind: 'waiting', groupId: '', order: 999, updatedAt: 150 };
   const mergedRaw = applyEntityPatchToObject(remote, buildEntityPatch(baseRoom, stale));
   const mergedCanonical = entity.migrate(mergedRaw);
-  assert.equal(mergedCanonical.allocations.car.placements[bob].kind, 'driver', 'existing group owner must remain a driver after concurrent stale cleanup');
+  assert.equal(mergedCanonical.allocations.car.placements[bob].kind, 'member', 'existing group owner must remain a member placement after concurrent stale cleanup');
+  assert.equal(mergedCanonical.allocations.car.placements[bob].driver, true, 'existing group owner role must remain canonical after concurrent stale cleanup');
   assert.equal(mergedCanonical.allocations.car.placements[bob].groupId, gid, 'existing group and owner placement must stay coherent');
 }
 

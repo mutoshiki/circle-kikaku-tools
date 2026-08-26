@@ -10,7 +10,7 @@ function calculateSettlement(data, state) {
     const organizerName = state.organizerName || '';
     const organizerSelected = !!organizerName;
     const excludedName = state.organizerFree && organizerSelected ? organizerName : '';
-    const driverNames = new Set((data.cars || []).map(car => String(car.name || '').trim()).filter(Boolean));
+    const driverNames = new Set(participants.filter(participant => participant.role === 'driver').map(participant => participant.name));
     const driverCollectionOffset = isDriverCollectionOffsetEnabled(state);
     const driverCollectionFree = isDriverCollectionFreeEnabled(state);
     const excludedNames = new Set();

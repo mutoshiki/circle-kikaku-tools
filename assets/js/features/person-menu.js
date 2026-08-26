@@ -49,8 +49,7 @@ function replacePersonMenuItemIcon(item, iconName) {
 
 function personRoleEnabled(person) {
     if (person?.dataset?.driver === 'true') return true;
-    if (person?.dataset?.driver === 'false') return false;
-    return !!person?.classList?.contains('driver-seat');
+    return false;
 }
 
 function allocationRoleText(enabled) {
@@ -76,14 +75,14 @@ function syncPersonMenuContext(trigger) {
         const label = allocationRoleText(enabled);
         roleItem.setAttribute('label', label);
         roleItem.label = label;
-        roleItem.toggleAttribute('disabled', person.parentElement?.id === 'waiting-list');
+        roleItem.removeAttribute('disabled');
         replacePersonMenuItemIcon(roleItem, document.body.dataset.activePlanTemplate === 'team' ? 'user-role' : 'car');
     }
 
     const lockItem = trigger.querySelector('[data-person-action="lock"]');
     if (lockItem) {
         const locked = person.dataset.locked === 'true';
-        const label = locked ? '固定解除' : '固定';
+        const label = locked ? 'ロック解除' : 'ロック';
         lockItem.setAttribute('label', label);
         lockItem.label = label;
         replacePersonMenuItemIcon(lockItem, locked ? 'unlocked' : 'locked');
@@ -206,21 +205,60 @@ function syncPersonRoleTag(person) {
     tag.setAttribute('aria-label', tag.textContent);
 }
 
-function setPersonDriverRole(person, enabled = !personRoleEnabled(person)) {
-    if (!person || person.parentElement?.id === 'waiting-list') return;
-    person.dataset.driver = enabled ? 'true' : 'false';
-    syncPersonRoleTag(person);
-    syncActiveCarPlanFromDom?.();
+function commitAllocationPersonMutation(person, mutate) {
+    const participantId = String(person?.dataset?.participantId || '');
+    const state = window.SanpoCanonicalState;
+    const room = state?.get?.();
+    const type = room?.activeAllocationType === 'team' ? 'team' : 'car';
+    const allocation = room?.allocations?.[type];
+    const placement = allocation?.placements?.[participantId];
+    if (!participantId || !room || !allocation || !placement) return false;
+    mutate({ room, allocation, placement, participantId, type });
+    state.ensureAllParticipantsPlaced?.(allocation, room.participants || {});
+    state.set?.(room);
+    window.renderActiveCarPlanToDom?.();
     updateUI();
     save();
     window.SanpoAssignmentWorkspace?.refresh?.();
+    return true;
+}
+
+function reassignGroupAnchorBeforeRemoval(allocation, participantId, now) {
+    Object.entries(allocation?.groups || {}).forEach(([groupId, group]) => {
+        if (group?.ownerId !== participantId) return;
+        const replacement = Object.entries(allocation.placements || {})
+            .filter(([id, candidate]) => id !== participantId
+                && candidate?.kind === 'member'
+                && candidate.groupId === groupId)
+            .sort(([, a], [, b]) => {
+                const orderDiff = Number(a?.order || 0) - Number(b?.order || 0);
+                return orderDiff;
+            })[0];
+        if (replacement) {
+            group.ownerId = replacement[0];
+            group.updatedAt = now;
+            return;
+        }
+        // Removing the last header anchor removes an empty group. Any stale
+        // occupants are returned to waiting by the canonical normalizer.
+        delete allocation.groups[groupId];
+    });
+}
+
+function setPersonDriverRole(person, enabled = !personRoleEnabled(person)) {
+    if (!person) return;
+    const now = window.SanpoClock?.now?.() ?? Date.now();
+    const changed = commitAllocationPersonMutation(person, ({ allocation, placement, participantId }) => {
+        allocation.placements[participantId] = { ...placement, driver: enabled === true, updatedAt: now };
+    });
+    if (!changed) return;
 }
 window.setPersonDriverRole = setPersonDriverRole;
 
 async function returnOrDeleteMemberCard(card) {
     if (!card) return;
     if (card.dataset.locked === 'true') {
-        showAppNotice('固定されています。先に固定を解除してください。', true);
+        showAppNotice('ロック中です。先にロックを解除してください。', true);
         return;
     }
     let changed = false;
@@ -233,11 +271,20 @@ async function returnOrDeleteMemberCard(card) {
             changed = true;
         }
     } else if (await appConfirm('未配置に戻しますか？', { title: '未配置に戻す', okText: '戻す' })) {
-        $('#waiting-list')?.appendChild(card);
-        card.dataset.driver = 'false';
-        changed = true;
+        const now = window.SanpoClock?.now?.() ?? Date.now();
+        changed = commitAllocationPersonMutation(card, ({ allocation, placement, participantId }) => {
+            reassignGroupAnchorBeforeRemoval(allocation, participantId, now);
+            allocation.placements[participantId] = {
+                ...allocation.placements[participantId],
+                kind: 'waiting',
+                groupId: '',
+                order: Number.MAX_SAFE_INTEGER,
+                updatedAt: now
+            };
+        });
     }
     if (!changed) return;
+    if (!deletingFromWaiting) return;
     updateUI();
     save();
     window.SanpoAssignmentWorkspace?.refresh?.();
@@ -256,8 +303,8 @@ function handleCompactPersonAction(action, person = activePersonMenuTarget, choi
 
     if (action === 'memo') handleEdit('memo', targetPerson);
     else if (action === 'driver') setPersonDriverRole(targetPerson);
-    else if (action === 'lock' && targetPerson.classList.contains('member-card')) toggleLock(targetPerson);
-    else if (action === 'return' && targetPerson.classList.contains('member-card')) returnOrDeleteMemberCard(targetPerson);
+    else if (action === 'lock') toggleLock(targetPerson);
+    else if (action === 'return') returnOrDeleteMemberCard(targetPerson);
     else if (action === 'grade') setPersonGrade(targetPerson, choiceValue);
     else if (action === 'flag') setPersonFlag(targetPerson, choiceValue);
 }

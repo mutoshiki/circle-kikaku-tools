@@ -28,7 +28,7 @@ window.SanpoUserGuideContent = `
 
     <section id="manual-car" class="user-manual-section">
       <div class="user-manual-heading"><span>2</span><h2>車割を作る</h2></div>
-      <p>「車割」タブで各車の空席に参加者を追加します。全体を作り直したいときは「ランダムに割り当て」を押すだけで、固定していない参加者をランダムに配置できます。</p>
+      <p>「車割」タブで各車の空席に参加者を追加します。全体を作り直したいときは「ランダム割当」を押すだけで、ロックしていない参加者をランダムに配置できます。</p>
       <p>各参加者のメニューから「運転手にする／運転手を外す」を切り替えられます。運転手は1台に複数人設定でき、運転手タグが付いた人は車内の上側に並びます。</p>
       <figure class="user-manual-figure">
         <img loading="lazy" src="./assets/images/user-guide/03-car-allocation.webp" alt="スマホの車割画面" width="390" height="844">
@@ -37,7 +37,7 @@ window.SanpoUserGuideContent = `
 
     <section id="manual-team" class="user-manual-section">
       <div class="user-manual-heading"><span>3</span><h2>班割を作る</h2></div>
-      <p>「班割」タブは車割とは別の画面です。空席から班員を追加し、必要なら「ランダムに割り当て」で全体を作り直します。</p>
+      <p>「班割」タブは車割とは別の画面です。空席から班員を追加し、必要なら「ランダム割当」で全体を作り直します。</p>
       <p>班長も参加者メニューからオン・オフできます。複数人に設定でき、班長タグが付いた人は班内の上側に並びます。</p>
       <figure class="user-manual-figure">
         <img loading="lazy" src="./assets/images/user-guide/04-team-allocation.webp" alt="スマホの班割画面" width="390" height="844">

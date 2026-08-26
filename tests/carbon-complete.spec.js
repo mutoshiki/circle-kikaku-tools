@@ -144,13 +144,13 @@ test.describe('Allocation, menus and accessibility', () => {
     await expect(page.locator('#tab-team')).toBeVisible();
     await expect(page.locator('#tab-sheet')).toHaveCount(0);
     await expect(page.locator('#assignmentTypeSwitcher')).toHaveCount(0);
-    await expect(page.locator('#assignmentWorkspaceActions > #shuffleAssignBtn')).toHaveCount(1);
-    await expect(page.locator('#shuffleAssignBtn')).toContainText('ランダムに割り当て');
+    await expect(page.locator('#assignmentWorkspaceRandomAction > #shuffleAssignBtn')).toHaveCount(1);
+    await expect(page.locator('#shuffleAssignBtn')).toContainText('ランダム割当');
     await expect(page.locator('cds-contained-list.car-box')).toHaveCount(3);
     const compactWorkspace = await page.locator('cds-contained-list.car-box').first().evaluate(card => {
       const row = card.querySelector('.driver-seat');
       const tag = card.querySelector('.driver-role-tag');
-      const toolbarButtons = [...document.querySelectorAll('#assignmentWorkspaceActions cds-button')];
+      const toolbarButtons = [...document.querySelectorAll('#assignmentWorkspaceRandomAction cds-button')];
       return {
         rowHeight: Math.round(row?.getBoundingClientRect().height || 0),
         tagHeight: Math.round(tag?.getBoundingClientRect().height || 0),
@@ -198,7 +198,8 @@ test.describe('Allocation, menus and accessibility', () => {
       };
     });
     expect(personSurface).toEqual({ background: 'rgb(255, 255, 255)', triggerColor: 'rgb(22, 22, 22)' });
-    await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(5);
+    await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(6);
+    await expect(personMenu.locator('[data-person-action="return"]')).toHaveAttribute('label', '未配置に戻す');
     await expect(personMenu.locator('[data-person-action="name"], [data-person-action="gender"]')).toHaveCount(0);
     await expect(page.locator('cds-tooltip[open]')).toHaveCount(0);
     const menuItemsInViewport = await personMenu.locator(':scope > cds-menu-item').evaluateAll(items => items.every(item => {

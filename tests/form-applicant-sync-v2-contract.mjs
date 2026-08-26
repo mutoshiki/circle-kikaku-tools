@@ -261,7 +261,7 @@ assert.match(feature, /SanpoCanonicalState\.ensureParticipant/);
 assert.match(feature, /findParticipantIdByName/);
 assert.match(feature, /applicant\.capacity/);
 assert.match(feature, /capacity:\s*incomingCapacity/);
-assert.match(feature, /kind:\s*['"]driver['"]/);
+assert.match(feature, /kind:\s*['"]member['"][\s\S]*?driver:\s*true/);
 assert.match(feature, /g_car_/);
 assert.match(feature, /ensureAllParticipantsPlaced/);
 assert.doesNotMatch(feature, /spreadsheets\/d/);

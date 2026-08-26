@@ -111,10 +111,10 @@ const overfull = clone(base);
 const gid = 'g_capacity';
 overfull.allocations.car.groups[gid] = { id: gid, ownerId: addedId, capacity: 1, order: 0, updatedAt: 1 };
 overfull.participants[addedId] = { id: addedId, name: '別参加者', updatedAt: 1 };
-overfull.allocations.car.placements[addedId] = { kind: 'driver', groupId: gid, order: 0, updatedAt: 1 };
+overfull.allocations.car.placements[addedId] = { kind: 'member', driver: true, groupId: gid, order: 0, updatedAt: 1 };
 overfull.allocations.car.placements[originalId] = { kind: 'member', groupId: gid, order: 1, updatedAt: 1 };
 const normalized = E.migrate(overfull);
-const memberCount = Object.values(normalized.allocations.car.placements).filter(p => p.kind === 'member' && p.groupId === gid).length;
+const memberCount = Object.entries(normalized.allocations.car.placements).filter(([id, p]) => id !== addedId && p.kind === 'member' && p.groupId === gid).length;
 assert.ok(memberCount <= 1, 'group capacity must hold after normalization');
 assert.equal(new Set(Object.keys(normalized.allocations.car.placements)).size, Object.keys(normalized.allocations.car.placements).length, 'one placement per participant key');
 

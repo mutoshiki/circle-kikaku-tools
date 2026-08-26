@@ -9,18 +9,22 @@ function shuffleArray(arr) {
     return arr;
 }
 
-function isRandomlyMovablePlacement(placement) {
-    return placement?.kind === 'waiting'
-        || (placement?.kind === 'member' && placement?.driver !== true);
+function isRandomlyMovablePlacement(placement, participant) {
+    return participant?.locked !== true
+        && placement?.driver !== true
+        && (placement?.kind === 'waiting' || placement?.kind === 'member');
 }
 
-function randomSlotsFromCanonical(allocation) {
+function randomSlotsFromCanonical(allocation, participants = {}) {
     const placements = allocation?.placements || {};
     return Object.values(allocation?.groups || {})
         .sort((a, b) => Number(a?.order || 0) - Number(b?.order || 0))
         .flatMap(group => {
-            const fixedMembers = Object.values(placements)
-                .filter(placement => placement?.kind === 'member' && placement.groupId === group.id && placement.driver === true)
+            const fixedMembers = Object.entries(placements)
+                .filter(([participantId, placement]) => placement?.kind === 'member'
+                    && placement.groupId === group.id
+                    && participantId !== group.ownerId
+                    && (placement.driver === true || participants?.[participantId]?.locked === true))
                 .length;
             const capacity = Math.max(1, parseInt(group?.capacity, 10) || 1);
             return Array.from({ length: Math.max(0, capacity - fixedMembers) }, (_, order) => ({ groupId: group.id, order }));
@@ -32,7 +36,7 @@ function randomSlotsFromCanonical(allocation) {
 function updateLastAutoAssignCondition() {}
 
 async function autoAssign() {
-    if (!await appConfirm('参加者をランダムに割り当てます。', { title: 'ランダムに割り当て', okText: '実行' })) return;
+    if (!await appConfirm('参加者をランダムに割り当てます。', { title: 'ランダム割当', okText: '実行' })) return;
 
     const room = window.SanpoCanonicalState?.get?.();
     const type = room?.activeAllocationType === 'team' ? 'team' : 'car';
@@ -41,7 +45,7 @@ async function autoAssign() {
 
     window.SanpoCanonicalState.ensureAllParticipantsPlaced(allocation, room.participants || {});
     const movableIds = Object.entries(allocation.placements || {})
-        .filter(([, placement]) => isRandomlyMovablePlacement(placement))
+        .filter(([participantId, placement]) => isRandomlyMovablePlacement(placement, room.participants?.[participantId]))
         .map(([participantId]) => participantId);
     if (!movableIds.length) {
         window.AppUI?.showStatus?.('ランダムに割り当てる参加者がいません。', { tone: 'neutral', duration: 2200 });
@@ -49,20 +53,20 @@ async function autoAssign() {
     }
 
     const now = window.SanpoClock?.now?.() ?? Date.now();
-    const slots = shuffleArray(randomSlotsFromCanonical(allocation));
+    const slots = shuffleArray(randomSlotsFromCanonical(allocation, room.participants || {}));
     const shuffled = shuffleArray(movableIds);
     slots.forEach(slot => {
         const participantId = shuffled.shift();
         if (!participantId) return;
-        allocation.placements[participantId] = { kind: 'member', groupId: slot.groupId, order: slot.order, updatedAt: now };
+        allocation.placements[participantId] = { kind: 'member', driver: false, groupId: slot.groupId, order: slot.order, updatedAt: now };
     });
     shuffled.forEach((participantId, order) => {
-        allocation.placements[participantId] = { kind: 'waiting', groupId: '', order, updatedAt: now };
+        allocation.placements[participantId] = { kind: 'waiting', driver: false, groupId: '', order, updatedAt: now };
     });
     window.SanpoCanonicalState.ensureAllParticipantsPlaced(allocation, room.participants || {});
     window.renderActiveCarPlanToDom?.();
 
-    lastAutoAssignLabel = 'ランダムに割り当て';
+    lastAutoAssignLabel = 'ランダム割当';
     updateUI();
     // This is an allocation-wide canonical mutation. A debounced projection
     // save leaves a window where an initial remote read can repaint the old
