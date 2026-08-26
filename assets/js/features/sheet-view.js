@@ -119,24 +119,24 @@ async function switchView(view) {
         bottomTray.style.display = 'none';
         sheetArea.classList.remove('active');
         seisanArea.classList.add('active');
-        tabList.classList.remove('active');
-        tabSheet.classList.remove('active');
-        tabSeisan.classList.add('active');
+        tabList?.classList.remove('active');
+        tabSheet?.classList.remove('active');
+        tabSeisan?.classList.add('active');
         updateQuickEditButton();
         renderSettlementView();
         return;
     }
 
     seisanArea.classList.remove('active');
-    tabSeisan.classList.remove('active');
+    tabSeisan?.classList.remove('active');
 
     if (view === 'sheet') {
         document.body.classList.add('sheet-mode');
         listArea.style.display = 'none';
         bottomTray.style.display = 'none';
         sheetArea.classList.add('active');
-        tabList.classList.remove('active');
-        tabSheet.classList.add('active');
+        tabList?.classList.remove('active');
+        tabSheet?.classList.add('active');
         updateQuickEditButton();
         renderSheetView();
         showFirstViewGuidance('sheet');
@@ -145,8 +145,8 @@ async function switchView(view) {
         listArea.style.display = '';
         bottomTray.style.display = '';
         sheetArea.classList.remove('active');
-        tabList.classList.add('active');
-        tabSheet.classList.remove('active');
+        tabList?.classList.add('active');
+        tabSheet?.classList.remove('active');
         updateQuickEditButton();
         showFirstViewGuidance('list');
     }
