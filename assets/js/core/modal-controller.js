@@ -158,6 +158,7 @@
             this.restoreFocusForKeyboard = false;
             this.closed = true;
             this.programmaticClose = false;
+            this.lifecycleEpoch = 0;
             this.element.hidden = !this.element.open;
             bindModalScrollAffordance(this.element);
             // Modal gestures must stay inside the modal. In particular, the page-title
@@ -187,6 +188,7 @@
 
         show() {
             if (!this.element || this.isOpen()) return;
+            const lifecycleEpoch = ++this.lifecycleEpoch;
             global.dismissPlanningCoach?.();
             this.returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
             this.restoreFocusForKeyboard = keyboardInteraction;
@@ -200,10 +202,22 @@
             focusModalStart(this.element);
             this.element.dispatchEvent(new CustomEvent('sanpo:modal-shown'));
             updateModalScrollAffordance(this.element);
+            // A dynamically-created Carbon modal can finish its first reactive
+            // update after this synchronous open assignment. Reassert this
+            // adapter-owned state after that lifecycle boundary; a later hide
+            // invalidates the epoch so it can never reopen a dismissed dialog.
+            Promise.resolve(this.element.updateComplete).then(() => {
+                if (this.closed || this.lifecycleEpoch !== lifecycleEpoch || this.isOpen()) return;
+                this.element.hidden = false;
+                this.element.open = true;
+                syncModalPageState(true);
+                focusModalStart(this.element);
+            });
         }
 
         hide(options = {}) {
             if (!this.element || !this.isOpen()) return;
+            ++this.lifecycleEpoch;
             const reason = String(options.reason || 'programmatic');
             const before = new CustomEvent('sanpo:modal-hiding', {
                 cancelable: true,
