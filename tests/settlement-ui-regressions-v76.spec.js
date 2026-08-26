@@ -128,6 +128,23 @@ test.describe('Settlement UI regressions v76', () => {
     await expect(page.locator('#seisan-collection-list')).toBeVisible();
   });
 
+  test('explicit car-cost save commits and closes the editor', async ({ page }) => {
+    await seedSettlement(page);
+    await openFirstCarEditor(page);
+
+    const amount = page.locator('#settlementCarEditModal .seisan-extra-list .seisan-extra-row [data-extra-field="amount"]').first();
+    await amount.evaluate(node => {
+      node.value = '433';
+      node.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      node.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    });
+    await page.locator('#saveSettlementCarEditBtn').click();
+
+    await expect(page.locator('#settlementCarEditModal')).not.toHaveAttribute('open', '');
+    await expect(page.locator('#seisan-car-list .seisan-car-summary-row').first()).toBeVisible();
+    await expect(page.locator('#seisan-car-list')).toContainText('433');
+  });
+
   test('distance, fuel economy and gas unit price use the same numeric keyboard contract', async ({ page }) => {
     await seedSettlement(page);
     await openFirstCarEditor(page);

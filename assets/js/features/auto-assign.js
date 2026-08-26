@@ -64,7 +64,17 @@ async function autoAssign() {
 
     lastAutoAssignLabel = 'ランダムに割り当て';
     updateUI();
-    save();
+    // This is an allocation-wide canonical mutation. A debounced projection
+    // save leaves a window where an initial remote read can repaint the old
+    // allocation and make every newly assigned person appear to disappear.
+    const snapshot = window.SanpoCanonicalState?.get?.() || room;
+    if (window.SanpoSync?.saveImmediate) {
+        void window.SanpoSync.saveImmediate({ snapshot });
+    } else {
+        save();
+    }
+    // The guard defers any already-queued remote paint until the immediate
+    // transaction has finished; it never releases it while syncWriteInFlight.
     window.SanpoRemoteGuard?.requestPendingApply?.();
     window.SanpoAssignmentWorkspace?.refresh?.();
 }

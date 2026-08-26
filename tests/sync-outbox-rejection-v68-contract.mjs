@@ -36,21 +36,28 @@ assert.equal(notices.length, 0, 'background sync rejection must not interrupt th
 assert.ok(statuses.some(([, label]) => String(label).includes('再送停止')), 'status must expose retry stop');
 
 let attempts = 0;
-const retryTimers = [];
-context.setTimeout = fn => { retryTimers.push(fn); return retryTimers.length; };
+context.setTimeout = fn => { fn(); return 1; };
+context.update = undefined;
 context.runTransaction = async (_ref, updater) => {
     attempts += 1;
     if (attempts === 1) throw new Error('maxretry');
     const result = updater(base);
+    const repeatedResult = updater(base);
+    assert.deepEqual(JSON.parse(JSON.stringify(repeatedResult)), JSON.parse(JSON.stringify(result)), 'one RTDB operation must propose the identical room on every transaction callback');
     return { committed: true, snapshot: { val: () => result } };
 };
 const retryPatch = context.window.SanpoEntitySyncTest.buildEntityPatch(base, local);
 const retried = await context.window.SanpoSync.saveImmediate({ snapshot: local, baseSnapshot: base, patchOverride: retryPatch });
-assert.equal(retried, null, 'the initial transient failure remains observable to the immediate caller');
-assert.equal(retryTimers.length, 1, 'a transient failure schedules a durable outbox retry');
-retryTimers.shift()();
-for (let tick = 0; tick < 8; tick += 1) await Promise.resolve();
-assert.equal(attempts, 2, 'a transient transaction failure retries exactly once through the durable outbox');
+assert.ok(retried, 'an immediate save waits for its bounded retry to commit');
+assert.equal(attempts, 2, 'a transient transaction failure retries once with the same journaled operation');
 assert.equal([...store.keys()].some(key => key.includes('_sync_outbox_')), false, 'the successful retry clears its matching durable outbox');
+
+let fallbackPatch = null;
+context.runTransaction = async () => { throw new Error('maxretry'); };
+context.update = async (_ref, patchValue) => { fallbackPatch = patchValue; };
+const fallbackCommitted = await context.window.SanpoSync.saveImmediate({ snapshot: local, baseSnapshot: base, patchOverride: retryPatch });
+assert.ok(fallbackCommitted, 'a starved immediate transaction falls back to the precise entity patch');
+assert.equal(fallbackPatch.roomName, 'rejected write', 'the fallback writes only the intended canonical entity path');
+assert.equal(fallbackPatch.revision, undefined, 'the fallback never lowers a concurrent room revision');
 
 console.log('Sync outbox rejection v68 contract: PASS');

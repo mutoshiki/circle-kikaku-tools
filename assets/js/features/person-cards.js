@@ -120,7 +120,7 @@ function addCar(n, cap, mems=[], dm='', _legacyUnused='', dgrade=0, dflag='none'
     for(let i=0; i<c; i++) slotsHtml += `<div class="seat-slot"><cds-icon-button class="seat-add-btn" type="button" kind="ghost" size="lg" aria-label="メンバーを追加" align="top"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span></cds-icon-button></div>`;
 
     col.innerHTML = `
-        <div class="car-box" data-capacity="${c}" data-group-id="${escapeHtml(groupId || '')}">
+        <cds-contained-list class="car-box" kind="on-page" is-inset data-capacity="${c}" data-group-id="${escapeHtml(groupId || '')}">
             <div class="car-header">
                 <span class="car-name-label">${safeName}${groupSuffix}</span>
                 <div class="car-capacity-actions">
@@ -134,7 +134,7 @@ function addCar(n, cap, mems=[], dm='', _legacyUnused='', dgrade=0, dflag='none'
                 </cds-icon-button>
             </div>
             <div class="car-layout-grid">${slotsHtml}</div>
-        </div>
+        </cds-contained-list>
     `;
     $('#cars-container').appendChild(col);
 

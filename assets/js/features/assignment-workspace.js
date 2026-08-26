@@ -22,7 +22,7 @@
             link.dataset.assignmentWorkspaceStyle = 'true';
             D.head.appendChild(link);
         }
-        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v9';
+        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v10';
         if (!link.href.endsWith(href.replace('./', ''))) link.href = href;
     }
 
@@ -66,6 +66,38 @@
         if (shellShare) shellShare.hidden = false;
     }
 
+    async function activateAllocationDestinationFallback(templateType) {
+        // The normal event owner is installed during startup. WebKit can expose the
+        // freshly-rendered Carbon tab one frame before that owner binds, though.
+        // Keep the navigation operable in that short lifecycle window instead of
+        // dropping the user's first tap.
+        await global.switchView?.('list');
+        const next = templateType === 'team' ? 'team' : 'car';
+        if (typeof global.updateActiveCarPlanTemplate === 'function') global.updateActiveCarPlanTemplate(next);
+        else global.switchCarPlan?.(next);
+        const url = new URL(global.location.href);
+        url.searchParams.delete('view');
+        url.searchParams.delete('allocation');
+        global.history.replaceState(global.history.state, '', `${url.pathname}${url.search}${url.hash}`);
+        global.SanpoAssignmentWorkspace?.refresh?.();
+        global.syncCarbonPrimaryNavigationState?.();
+    }
+
+    function bindAllocationDestinationFallbacks() {
+        [['tab-list', 'car'], ['tab-team', 'team']].forEach(([id, templateType]) => {
+            const tab = byId(id);
+            if (!tab || tab.dataset.assignmentWorkspaceFallbackBound === 'true') return;
+            tab.dataset.assignmentWorkspaceFallbackBound = 'true';
+            tab.addEventListener('click', event => {
+                // Once the normal event module owns the tab, it remains the sole
+                // behavior owner. This listener only fills the startup gap.
+                if (tab.dataset.eventOwnerBound === 'true') return;
+                event.preventDefault();
+                void activateAllocationDestinationFallback(templateType);
+            });
+        });
+    }
+
     function createHeader() {
         const topArea = byId('top-area');
         if (!topArea) return null;
@@ -101,9 +133,8 @@
             addGroup = D.createElement('cds-button');
             addGroup.id = 'assignmentWorkspaceAddGroupBtn';
             addGroup.className = 'assignment-workspace-add-group';
-            // Both workspace-level actions use Carbon's neutral secondary treatment.
-            // The destructive-looking blue tertiary treatment was too prominent beside
-            // ordinary group management controls.
+            // Creation is a secondary action. Random assignment remains the one
+            // workspace-level primary action.
             addGroup.setAttribute('kind', 'secondary');
             addGroup.setAttribute('size', 'lg');
             addGroup.setAttribute('type', 'button');
@@ -119,7 +150,7 @@
 
         const shuffle = byId('shuffleAssignBtn');
         if (!shuffle) return;
-        shuffle.setAttribute('kind', 'secondary');
+        shuffle.setAttribute('kind', 'primary');
         shuffle.setAttribute('size', 'lg');
         const label = shuffle.querySelector('span:not([slot="icon"]):not([data-carbon-icon])');
         if (label) label.textContent = 'ランダムに割り当て';
@@ -246,8 +277,15 @@
         state.set?.(room);
         global.renderActiveCarPlanToDom?.();
         global.updateUI?.();
-        global.save?.();
-        global.SanpoRemoteGuard?.requestPendingApply?.();
+        // Creating a car/team is a structural canonical mutation. Commit that
+        // exact snapshot immediately so a delayed initial room read cannot win
+        // after the modal releases the remote-paint guard.
+        const snapshot = state.get?.();
+        if (snapshot && global.SanpoSync?.saveImmediate) {
+            void global.SanpoSync.saveImmediate({ snapshot });
+        } else {
+            global.save?.();
+        }
         closeGroupCreateModal(modal);
         scheduleSync();
     }
@@ -443,6 +481,7 @@
         createHeader();
         relocateAllocationActions();
         simplifyPrimaryNavigation();
+        bindAllocationDestinationFallbacks();
         concealWaitingPool();
         decorateCards();
         syncSummary();

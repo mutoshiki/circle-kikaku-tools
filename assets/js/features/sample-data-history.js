@@ -255,7 +255,15 @@ function seedDebugData({ missing = false } = {}) {
             window.__suspendActiveDomPlanSync = previousDomSyncSuspend;
         }
         updateUI();
-        save();
+        // Sample data is a complete canonical replacement. Use the same
+        // immediate, journaled commit as a real bulk allocation so an initial
+        // remote callback cannot paint an older empty room over the sample.
+        const snapshot = window.SanpoCanonicalState?.get?.() || migrateAppData(sampleData);
+        if (window.SanpoSync?.saveImmediate) {
+            void window.SanpoSync.saveImmediate({ snapshot });
+        } else {
+            save();
+        }
 
         if (window.modals?.debug) window.modals.debug.hide({ reason: 'submit' });
         showAppNotice?.(missing ? '入力漏れサンプルを入れました' : '通常サンプルを入れました');

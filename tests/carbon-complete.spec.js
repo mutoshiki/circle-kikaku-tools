@@ -146,6 +146,23 @@ test.describe('Allocation, menus and accessibility', () => {
     await expect(page.locator('#assignmentTypeSwitcher')).toHaveCount(0);
     await expect(page.locator('#assignmentWorkspaceActions > #shuffleAssignBtn')).toHaveCount(1);
     await expect(page.locator('#shuffleAssignBtn')).toContainText('ランダムに割り当て');
+    await expect(page.locator('cds-contained-list.car-box')).toHaveCount(3);
+    const compactWorkspace = await page.locator('cds-contained-list.car-box').first().evaluate(card => {
+      const row = card.querySelector('.driver-seat');
+      const tag = card.querySelector('.driver-role-tag');
+      const toolbarButtons = [...document.querySelectorAll('#assignmentWorkspaceActions cds-button')];
+      return {
+        rowHeight: Math.round(row?.getBoundingClientRect().height || 0),
+        tagHeight: Math.round(tag?.getBoundingClientRect().height || 0),
+        toolbarHeights: toolbarButtons.map(button => Math.round(button.getBoundingClientRect().height)),
+        primaryActions: toolbarButtons.filter(button => button.getAttribute('kind') === 'primary').length
+      };
+    });
+    expect(compactWorkspace.rowHeight).toBeGreaterThanOrEqual(48);
+    expect(compactWorkspace.rowHeight).toBeLessThanOrEqual(64);
+    expect(compactWorkspace.tagHeight).toBe(24);
+    expect(compactWorkspace.toolbarHeights.every(height => height === 48)).toBeTruthy();
+    expect(compactWorkspace.primaryActions).toBe(1);
     await expect(page.locator('#fillEmptySeatsBtn, #traySettingsBtn, #autoAssignPopover, #autoAssignMenu, #optFemale, #optMale, #optGrade, #clearAllBtn')).toHaveCount(0);
     await expect(page.locator('#bottom-tray')).toBeHidden();
 
@@ -173,6 +190,14 @@ test.describe('Allocation, menus and accessibility', () => {
     await personOverflow.click();
     await expect(personOverflow).toHaveJSProperty('open', true);
     const personMenu = personOverflow.locator(':scope > cds-menu.person-pop-menu');
+    const personSurface = await personMenu.evaluate(node => {
+      const panel = node.shadowRoot?.querySelector('ul');
+      return {
+        background: panel ? getComputedStyle(panel).backgroundColor : '',
+        triggerColor: getComputedStyle(node.parentElement).color
+      };
+    });
+    expect(personSurface).toEqual({ background: 'rgb(255, 255, 255)', triggerColor: 'rgb(22, 22, 22)' });
     await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(5);
     await expect(personMenu.locator('[data-person-action="name"], [data-person-action="gender"]')).toHaveCount(0);
     await expect(page.locator('cds-tooltip[open]')).toHaveCount(0);
@@ -191,7 +216,25 @@ test.describe('Allocation, menus and accessibility', () => {
       placeholder: node.previousElementSibling?.classList.contains('person-menu-top-layer-placeholder') === true
     }))).toEqual({ open: false, popover: false, placeholder: false });
 
+    const groupOverflow = page.locator('cds-overflow-menu.assignment-group-menu').first();
+    await groupOverflow.click();
+    await expect(groupOverflow).toHaveJSProperty('open', true);
+    expect(await groupOverflow.evaluate(node => {
+      const menu = node.querySelector('cds-menu');
+      const panel = menu?.shadowRoot?.querySelector('ul');
+      return {
+        background: panel ? getComputedStyle(panel).backgroundColor : '',
+        triggerColor: getComputedStyle(node).color
+      };
+    })).toEqual({ background: 'rgb(255, 255, 255)', triggerColor: 'rgb(22, 22, 22)' });
+    await page.mouse.click(8, 96);
+    await expect(groupOverflow).toHaveJSProperty('open', false);
+
     const capacityAction = page.locator('[data-action="edit-capacity"]').first();
+    expect(await capacityAction.evaluate(node => {
+      const button = node.shadowRoot?.querySelector('button');
+      return button ? getComputedStyle(button).color : '';
+    })).toBe('rgb(22, 22, 22)');
     await capacityAction.click();
     await expect(page.locator('#commonEditModal')).toHaveAttribute('open', '');
     await page.locator('#editModalInput').evaluate((node, next) => {

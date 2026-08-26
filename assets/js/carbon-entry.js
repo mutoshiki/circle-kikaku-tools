@@ -2,6 +2,7 @@ import '@carbon/web-components/es/components/accordion/index.js';
 import '@carbon/web-components/es/components/button/index.js';
 import '@carbon/web-components/es/components/icon-button/index.js';
 import '@carbon/web-components/es/components/content-switcher/index.js';
+import '@carbon/web-components/es/components/contained-list/index.js';
 import '@carbon/web-components/es/components/data-table/index.js';
 import '@carbon/web-components/es/components/notification/toast-notification.js';
 import '@carbon/web-components/es/components/tag/index.js';

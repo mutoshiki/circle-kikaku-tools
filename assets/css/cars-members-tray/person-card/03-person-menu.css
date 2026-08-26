@@ -2,7 +2,26 @@
  * Assignment Workspace owns the surrounding person-row geometry.
  */
 
-:where(.member-menu-btn, .driver-menu-btn) {
+/* `cds-menu` is a separate fixed overlay. Carbon's menu implementation reads
+ * `--cds-layer` (not the popover token), so provide the opaque layer at both
+ * its trigger and its overlay owner. This lets Carbon keep positioning and
+ * dismissal ownership without rendering a transparent panel. */
+body.assignment-workspace-enabled :where(cds-overflow-menu.person-overflow-menu, cds-overflow-menu.assignment-group-menu) {
+  --cds-layer: var(--cds-layer-01, #ffffff);
+  --cds-layer-hover: var(--cds-layer-hover-01, #e8e8e8);
+  --cds-layer-active: var(--cds-layer-active-01, #c6c6c6);
+  --cds-icon-primary: var(--cds-text-secondary, #525252);
+  --cds-link-primary: var(--cds-text-secondary, #525252);
+  --cds-link-primary-hover: var(--cds-text-primary, #161616);
+}
+
+body.assignment-workspace-enabled :where(cds-overflow-menu.person-overflow-menu, cds-overflow-menu.assignment-group-menu) > cds-menu {
+  --cds-layer: var(--cds-layer-01, #ffffff);
+  --cds-layer-hover: var(--cds-layer-hover-01, #e8e8e8);
+  --cds-layer-active: var(--cds-layer-active-01, #c6c6c6);
+}
+
+:where(cds-overflow-menu.person-overflow-menu, .member-menu-btn, .driver-menu-btn) {
   box-sizing: border-box;
   display: block;
   flex: 0 0 48px;
@@ -22,7 +41,7 @@
   --cds-background-active: var(--cds-layer-active, #c6c6c6);
 }
 
-:where(.member-menu-btn, .driver-menu-btn)::part(button) {
+:where(cds-overflow-menu.person-overflow-menu, .member-menu-btn, .driver-menu-btn)::part(button) {
   box-sizing: border-box;
   width: 48px;
   min-width: 48px;
@@ -33,7 +52,7 @@
   justify-content: center;
 }
 
-:where(.member-menu-btn, .driver-menu-btn) > .carbon-icon {
+:where(cds-overflow-menu.person-overflow-menu, .member-menu-btn, .driver-menu-btn) > .carbon-icon {
   width: 20px;
   height: 20px;
   margin: 0;
