@@ -83,6 +83,19 @@
         global.syncCarbonPrimaryNavigationState?.();
     }
 
+    function installAllocationDestinationCapture() {
+        if (D.documentElement.dataset.assignmentWorkspaceCaptureBound === 'true') return;
+        D.documentElement.dataset.assignmentWorkspaceCaptureBound = 'true';
+        D.addEventListener('click', event => {
+            const tab = event.composedPath?.().find(node => node?.id === 'tab-list' || node?.id === 'tab-team');
+            if (!tab || tab.dataset.eventOwnerBound === 'true') return;
+            // Remember this startup tap so the host and selected-event fallbacks
+            // do not run the same transition twice.
+            tab.dataset.assignmentWorkspaceCapturePending = 'true';
+            void activateAllocationDestinationFallback(tab.id === 'tab-team' ? 'team' : 'car');
+        }, true);
+    }
+
     function bindAllocationDestinationFallbacks() {
         [['tab-list', 'car'], ['tab-team', 'team']].forEach(([id, templateType]) => {
             const tab = byId(id);
@@ -91,10 +104,20 @@
             tab.addEventListener('click', event => {
                 // Once the normal event module owns the tab, it remains the sole
                 // behavior owner. This listener only fills the startup gap.
-                if (tab.dataset.eventOwnerBound === 'true') return;
+                if (tab.dataset.eventOwnerBound === 'true' || tab.dataset.assignmentWorkspaceCapturePending === 'true') return;
                 event.preventDefault();
                 void activateAllocationDestinationFallback(templateType);
             });
+        });
+
+        const tabs = byId('view-toggle-bar');
+        if (!tabs || tabs.dataset.assignmentWorkspaceSelectionBound === 'true') return;
+        tabs.dataset.assignmentWorkspaceSelectionBound = 'true';
+        tabs.addEventListener('cds-tabs-selected', event => {
+            const item = event.detail?.item;
+            const templateType = item?.id === 'tab-team' ? 'team' : (item?.id === 'tab-list' ? 'car' : '');
+            if (!templateType || item?.dataset.eventOwnerBound === 'true' || item?.dataset.assignmentWorkspaceCapturePending === 'true') return;
+            void activateAllocationDestinationFallback(templateType);
         });
     }
 
@@ -523,6 +546,7 @@
         syncNow();
     }
 
+    installAllocationDestinationCapture();
     global.SanpoAssignmentWorkspace = Object.freeze({
         initialize,
         refresh: scheduleSync,

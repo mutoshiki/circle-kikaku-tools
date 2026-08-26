@@ -69,7 +69,26 @@
         global.syncCarbonPrimaryNavigationState?.();
     }
 
+    function setupCarbonAllocationTabSelection() {
+        const tabs = byId('view-toggle-bar');
+        if (!tabs || tabs.dataset.allocationSelectionBound === 'true') return;
+        tabs.dataset.allocationSelectionBound = 'true';
+        // Carbon Tabs dispatches this composed selection event from its lifecycle.
+        // Safari/WebKit may commit it before a shadow-host click reaches a listener,
+        // so using it keeps the first real tap on 車割/班割 reliable on every engine.
+        tabs.addEventListener('cds-tabs-selected', event => {
+            const item = event.detail?.item;
+            const templateType = item?.id === 'tab-team' ? 'team' : (item?.id === 'tab-list' ? 'car' : '');
+            if (!templateType) return;
+            queueMicrotask(() => {
+                const current = document.body.dataset.activePlanTemplate === 'team' ? 'team' : 'car';
+                if (current !== templateType) void openAllocationDestination(templateType);
+            });
+        });
+    }
+
     function setupViewAndFeatureEvents() {
+        setupCarbonAllocationTabSelection();
         bind('tab-seisan', () => switchViewRemembering('seisan'));
         bind('tab-list', () => openAllocationDestination('car'));
         bind('tab-team', () => openAllocationDestination('team'));
