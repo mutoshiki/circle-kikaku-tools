@@ -9,6 +9,8 @@
     const byId = id => D.getElementById(id);
     let observer = null;
     let syncFrame = 0;
+    let requestedAllocationType = '';
+    let applyingAllocationSelection = false;
 
     function activeType() {
         return D.body.dataset.activePlanTemplate === 'team' ? 'team' : 'car';
@@ -26,10 +28,19 @@
         if (!link.href.endsWith(href.replace('./', ''))) link.href = href;
     }
 
+    function setAttributeIfChanged(element, name, value) {
+        if (element?.getAttribute(name) !== value) element?.setAttribute(name, value);
+    }
+
     function replaceTabLabel(tab, text) {
         const label = tab?.querySelector('.view-tab-label');
         if (!label) return;
         const lock = label.querySelector('.view-tab-lock-indicator');
+        const current = Array.from(label.childNodes)
+            .filter(node => node !== lock)
+            .map(node => node.textContent || '')
+            .join('').trim();
+        if (current === text) return;
         label.replaceChildren(D.createTextNode(text));
         if (lock) label.appendChild(lock);
     }
@@ -44,33 +55,31 @@
         if (!bar || !carTab || !teamTab || !participantTab || !settlementTab) return;
 
         sheetTab?.remove();
-        carTab.dataset.allocationType = 'car';
-        teamTab.dataset.allocationType = 'team';
-        carTab.setAttribute('value', 'car');
-        teamTab.setAttribute('value', 'team');
+        if (carTab.dataset.allocationType !== 'car') carTab.dataset.allocationType = 'car';
+        if (teamTab.dataset.allocationType !== 'team') teamTab.dataset.allocationType = 'team';
+        setAttributeIfChanged(carTab, 'value', 'car');
+        setAttributeIfChanged(teamTab, 'value', 'team');
         replaceTabLabel(participantTab, '参加者');
         replaceTabLabel(carTab, '車割');
         replaceTabLabel(teamTab, '班割');
         replaceTabLabel(settlementTab, '精算');
-        carTab.setAttribute('aria-label', '車割');
-        teamTab.setAttribute('aria-label', '班割');
+        setAttributeIfChanged(carTab, 'aria-label', '車割');
+        setAttributeIfChanged(teamTab, 'aria-label', '班割');
 
         const desired = [participantTab, carTab, teamTab, settlementTab];
         if (desired.some((tab, index) => bar.children[index] !== tab) || bar.children.length !== desired.length) {
             bar.replaceChildren(...desired);
         }
-        bar.dataset.assignmentFourDestinationNav = 'true';
-        global.syncCarbonPrimaryNavigationState?.();
+        if (bar.dataset.assignmentFourDestinationNav !== 'true') {
+            bar.dataset.assignmentFourDestinationNav = 'true';
+            global.syncCarbonPrimaryNavigationState?.();
+        }
 
         const shellShare = byId('shareLinkBtn');
         if (shellShare) shellShare.hidden = false;
     }
 
-    async function activateAllocationDestinationFallback(templateType) {
-        // The normal event owner is installed during startup. WebKit can expose the
-        // freshly-rendered Carbon tab one frame before that owner binds, though.
-        // Keep the navigation operable in that short lifecycle window instead of
-        // dropping the user's first tap.
+    async function applyCarbonAllocationSelection(templateType) {
         await global.switchView?.('list');
         const next = templateType === 'team' ? 'team' : 'car';
         if (typeof global.updateActiveCarPlanTemplate === 'function') global.updateActiveCarPlanTemplate(next);
@@ -83,41 +92,29 @@
         global.syncCarbonPrimaryNavigationState?.();
     }
 
-    function installAllocationDestinationCapture() {
-        if (D.documentElement.dataset.assignmentWorkspaceCaptureBound === 'true') return;
-        D.documentElement.dataset.assignmentWorkspaceCaptureBound = 'true';
-        D.addEventListener('click', event => {
-            const tab = event.composedPath?.().find(node => node?.id === 'tab-list' || node?.id === 'tab-team');
-            if (!tab || tab.dataset.eventOwnerBound === 'true') return;
-            // Remember this startup tap so the host and selected-event fallbacks
-            // do not run the same transition twice.
-            tab.dataset.assignmentWorkspaceCapturePending = 'true';
-            void activateAllocationDestinationFallback(tab.id === 'tab-team' ? 'team' : 'car');
-        }, true);
-    }
-
-    function bindAllocationDestinationFallbacks() {
+    function bindCarbonAllocationSelection() {
         [['tab-list', 'car'], ['tab-team', 'team']].forEach(([id, templateType]) => {
             const tab = byId(id);
-            if (!tab || tab.dataset.assignmentWorkspaceFallbackBound === 'true') return;
-            tab.dataset.assignmentWorkspaceFallbackBound = 'true';
-            tab.addEventListener('click', event => {
-                // Once the normal event module owns the tab, it remains the sole
-                // behavior owner. This listener only fills the startup gap.
-                if (tab.dataset.eventOwnerBound === 'true' || tab.dataset.assignmentWorkspaceCapturePending === 'true') return;
-                event.preventDefault();
-                void activateAllocationDestinationFallback(templateType);
-            });
-        });
-
-        const tabs = byId('view-toggle-bar');
-        if (!tabs || tabs.dataset.assignmentWorkspaceSelectionBound === 'true') return;
-        tabs.dataset.assignmentWorkspaceSelectionBound = 'true';
-        tabs.addEventListener('cds-tabs-selected', event => {
-            const item = event.detail?.item;
-            const templateType = item?.id === 'tab-team' ? 'team' : (item?.id === 'tab-list' ? 'car' : '');
-            if (!templateType || item?.dataset.eventOwnerBound === 'true' || item?.dataset.assignmentWorkspaceCapturePending === 'true') return;
-            void activateAllocationDestinationFallback(templateType);
+            if (!tab || tab.dataset.assignmentDestinationOwner === 'true') return;
+            tab.dataset.assignmentDestinationOwner = 'true';
+            const request = () => {
+                if (!(tab.selected || tab.hasAttribute('selected'))) return;
+                requestedAllocationType = templateType;
+                if (applyingAllocationSelection) return;
+                applyingAllocationSelection = true;
+                void (async () => {
+                    while (requestedAllocationType) {
+                        const next = requestedAllocationType;
+                        requestedAllocationType = '';
+                        await applyCarbonAllocationSelection(next);
+                    }
+                    applyingAllocationSelection = false;
+                })();
+            };
+            // Carbon owns pointer/keyboard selection. The app observes only its
+            // selected state, so no host/shadow click listener competes with it.
+            new MutationObserver(request).observe(tab, { attributes: true, attributeFilter: ['selected'] });
+            Promise.resolve(tab.updateComplete).then(request);
         });
     }
 
@@ -504,7 +501,7 @@
         createHeader();
         relocateAllocationActions();
         simplifyPrimaryNavigation();
-        bindAllocationDestinationFallbacks();
+        bindCarbonAllocationSelection();
         concealWaitingPool();
         decorateCards();
         syncSummary();
@@ -546,7 +543,6 @@
         syncNow();
     }
 
-    installAllocationDestinationCapture();
     global.SanpoAssignmentWorkspace = Object.freeze({
         initialize,
         refresh: scheduleSync,

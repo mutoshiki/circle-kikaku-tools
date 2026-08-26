@@ -42,7 +42,7 @@ function loadAssignmentWorkspaceFeature() {
             return;
         }
         const script = document.createElement('script');
-        script.src = './assets/js/features/assignment-workspace.js?v=assignment-workspace-v14';
+        script.src = './assets/js/features/assignment-workspace.js?v=assignment-workspace-v18';
         script.async = true;
         script.dataset.assignmentWorkspaceFeature = 'true';
         script.addEventListener('load', () => resolve(window.SanpoAssignmentWorkspace), { once: true });
