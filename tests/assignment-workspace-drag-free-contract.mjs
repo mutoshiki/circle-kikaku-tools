@@ -28,8 +28,11 @@ assert.ok(!workspace.includes('assignmentTypeSwitcher'), 'Allocation-local 車�
 assert.ok(!workspace.includes('assignmentWorkspaceTitle'), 'Redundant 車割・班割 workspace heading must be removed');
 assert.ok(workspace.includes('sheetTab?.remove()'), 'Legacy shared-view destination must be removed from the live DOM');
 assert.ok(app.includes('installRetiredSheetViewCompatibility'), 'Only the legacy switchView implementation may receive an ephemeral compatibility node during a call');
-assert.ok(viewEvents.includes("bind('tab-list', () => openAllocationDestination('car'))"), '車割 tab must open the car allocation directly');
-assert.ok(viewEvents.includes("bind('tab-team', () => openAllocationDestination('team'))"), '班割 tab must open the team allocation directly');
+assert.ok(workspace.includes('function bindCarbonAllocationSelection()'), 'Carbon selected state must have one allocation-navigation owner');
+assert.ok(workspace.includes("new MutationObserver(request).observe(tab, { attributes: true, attributeFilter: ['selected'] })"), 'Allocation navigation must react to Carbon selected state');
+assert.ok(workspace.includes("root.addEventListener('click', noteUserSelectionIntent)"), 'WebKit must record intent inside Carbon tab shadow DOM without owning selection');
+assert.ok(!viewEvents.includes("bind('tab-list'"), 'View events must not add a second 車割 click owner');
+assert.ok(!viewEvents.includes("bind('tab-team'"), 'View events must not add a second 班割 click owner');
 assert.ok(!viewEvents.includes("bind('tab-sheet'"), 'Legacy shared-view tab must no longer own a navigation event');
 
 assert.ok(personCards.includes('data-person-action="driver"'), 'Person menu must expose the per-person driver role toggle');

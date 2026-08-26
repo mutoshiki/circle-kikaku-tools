@@ -13,6 +13,7 @@ const generatedEvents = fs.readFileSync('assets/js/features/events/03-generated-
 const inputActions = fs.readFileSync('assets/js/features/settlement/05-input-actions.js', 'utf8');
 const calculator = fs.readFileSync('assets/js/features/settlement/02-calculator.js', 'utf8');
 const viewEvents = fs.readFileSync('assets/js/features/events/05-view-feature-events.js', 'utf8');
+const assignmentWorkspace = fs.readFileSync('assets/js/features/assignment-workspace.js', 'utf8');
 const modalController = fs.readFileSync('assets/js/core/modal-controller.js', 'utf8');
 const settlementGuard = fs.readFileSync('assets/js/core/settlement-edit-guard.js', 'utf8');
 const settlementFacade = fs.readFileSync('assets/js/features/settlement.js', 'utf8');
@@ -100,7 +101,8 @@ assert.match(modalController, /sanpo:modal-hidden[\s\S]*resetSettlementEditingAf
 assert.match(modalController, /\['wheel', 'pointerdown', 'pointermove'\][\s\S]*stopPropagation/, 'modal scrolling and touch gestures cannot drive the background project-title reveal');
 assert.match(settlementFacade, /\['seisan-summary', 'seisan-share-preview'\][\s\S]*closest\('\.seisan-card'\)\?\.remove/, 'obsolete overall-cost and share-text cards are removed as settlement initializes');
 assert.match(viewEvents, /persistMainView[\s\S]*searchParams\.set\('view', view\)[\s\S]*history\.replaceState/, 'tab navigation persists the active main view in the URL');
-assert.match(viewEvents, /tab-seisan[\s\S]*switchViewRemembering\('seisan'\)[\s\S]*tab-list[\s\S]*openAllocationDestination\('car'\)[\s\S]*tab-team[\s\S]*openAllocationDestination\('team'\)/, 'settlement, car and team tabs use the persistent four-destination owner');
+assert.match(viewEvents, /tab-seisan[\s\S]*switchViewRemembering\('seisan'\)/, 'settlement tab uses the persistent primary-navigation owner');
+assert.match(assignmentWorkspace, /bindCarbonAllocationSelection[\s\S]*attributeFilter: \['selected'\]/, 'car and team tabs observe Carbon selected state through one workspace owner');
 assert.doesNotMatch(viewEvents, /bind\('tab-sheet'/, 'retired shared view must not remain a primary navigation event');
 
 assert.match(shareActions, /url\.searchParams\.set\('room', activeRoomId\)/, 'canonical copied URL preserves the room id');
