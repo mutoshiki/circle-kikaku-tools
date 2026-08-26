@@ -65,7 +65,13 @@
       });
     });
     splitRows.push({ label: '端数調整', amount: calc.splitRound || 0, sign: adjustmentSign(calc.splitRound) });
-    if (calc.collectionOffset) splitRows.push({ label: '集金控除', amount: calc.collectionOffset, sign: '−' });
+    if (calc.collectionOffset) {
+      const driverCount = Number(calc.offsetDriverCount || 0);
+      const label = driverCount > 1 && calc.collectionOffsetPerDriver
+        ? `集金控除（運転手${driverCount}人 × ${money(calc.collectionOffsetPerDriver, helpers)}）`
+        : '集金控除';
+      splitRows.push({ label, amount: calc.collectionOffset, sign: '−' });
+    }
     clubRows.push({ label: '端数調整', amount: calc.clubRound || 0, sign: adjustmentSign(calc.clubRound) });
     return {
       split: splitRows.map(row => structuredCostRow(row, helpers)).join(''),
@@ -76,15 +82,25 @@
     };
   }
 
+  function driverDisplayLabel(car, calc) {
+    const names = Array.isArray(calc?.driverNames)
+      ? calc.driverNames.filter(name => String(name || '').trim()).map(name => String(name).trim())
+      : [];
+    if (names.length === 1 && names[0] === String(car?.name || '').trim()) return `${names[0]}車`;
+    if (names.length) return `${names.join('・')}（${String(car?.name || '').trim()}車）`;
+    return `運転手未設定（${String(car?.name || '').trim()}車）`;
+  }
+
   function carSummary({ car, calc, issues, paid = false, helpers = {} }) {
     const rowClass = issues.rows.has(car.name) ? ' has-error' : '';
     const extras = orderDriverRewardFirstForDisplay(Array.isArray(calc.extras) ? calc.extras : []);
     const costDetails = structuredCostRows(calc, extras, helpers);
+    const driverLabel = driverDisplayLabel(car, calc);
     return `<article class="seisan-car-summary-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}">
       <div class="seisan-car-summary-headline">
-        <strong class="seisan-car-summary-name">${esc(car.name, helpers)}車${calc.usesTimesRental ? '（レンタカー）' : ''}</strong>
+        <strong class="seisan-car-summary-name">${esc(driverLabel, helpers)}${calc.usesTimesRental ? '（レンタカー）' : ''}</strong>
         <div class="seisan-car-summary-actions">
-          <cds-toggle class="seisan-car-payment-toggle" size="sm" ${paid ? 'toggled' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" label-a="支払済み" label-b="未払い" aria-label="${esc(car.name, helpers)}車への支払い状態"></cds-toggle>
+          <cds-toggle class="seisan-car-payment-toggle" size="sm" ${paid ? 'toggled' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" label-a="支払済み" label-b="未払い" aria-label="${esc(driverLabel, helpers)}への支払い状態"></cds-toggle>
           <cds-button class="seisan-btn seisan-edit-btn" kind="ghost" size="md" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span><span>編集</span></cds-button>
         </div>
       </div>

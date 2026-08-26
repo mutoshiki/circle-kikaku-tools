@@ -139,8 +139,8 @@ body.assignment-workspace-enabled #cars-container .car-box {
 @media (max-width: 480px) {
   .assignment-workspace-meta-row { align-items: flex-start; }
   .assignment-workspace-summary { padding-top: var(--space-2, 0.5rem); }
-  .assignment-workspace-add-group { min-width: 3rem; }
-  .assignment-workspace-add-group span:not([slot="icon"]) { display: none; }
+  .assignment-workspace-add-group { min-width: 8rem; }
+  .assignment-workspace-add-group span:not([slot="icon"]) { display: inline; }
   .assignment-workspace-actions #shuffleAssignBtn { min-width: auto; }
 }
 

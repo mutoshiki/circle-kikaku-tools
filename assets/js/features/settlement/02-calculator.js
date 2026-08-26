@@ -10,7 +10,25 @@ function calculateSettlement(data, state) {
     const organizerName = state.organizerName || '';
     const organizerSelected = !!organizerName;
     const excludedName = state.organizerFree && organizerSelected ? organizerName : '';
-    const driverNames = new Set(participants.filter(participant => participant.role === 'driver').map(participant => participant.name));
+    const carDriverNames = car => {
+        const names = [];
+        if (data.isStandaloneSettlement && String(car?.name || '').trim()) return [String(car.name).trim()];
+        if (car?.driver === true && String(car.name || '').trim()) names.push(String(car.name).trim());
+        (car?.members || []).forEach(member => {
+            if (member?.driver !== true || !String(member?.name || '').trim()) return;
+            const name = String(member.name).trim();
+            if (!names.includes(name)) names.push(name);
+        });
+        // Keep the legacy calculation contract for callers that provide only
+        // `{ name, members }`. Canonical projections always include `driver`.
+        if (!names.length && !Object.prototype.hasOwnProperty.call(car || {}, 'driver') && String(car?.name || '').trim()) {
+            names.push(String(car.name).trim());
+        }
+        return names;
+    };
+    // Follow the explicit driver tags in the car allocation. A tagged passenger
+    // is still a driver for that car; an untagged group owner is not.
+    const driverNames = new Set((data.cars || []).flatMap(carDriverNames));
     const driverCollectionOffset = isDriverCollectionOffsetEnabled(state);
     const driverCollectionFree = isDriverCollectionFreeEnabled(state);
     const excludedNames = new Set();
@@ -32,6 +50,7 @@ function calculateSettlement(data, state) {
     let totalSplitRound = 0;
     let totalClubRound = 0;
     const cars = (data.cars || []).map(car => {
+        const drivers = carDriverNames(car);
         const cState = ensureDriverRewardExtra(state.cars?.[car.name] || {}, state);
         const dist = getNumberValue(cState.dist);
         const eco = getNumberValue(cState.eco);
@@ -83,6 +102,7 @@ function calculateSettlement(data, state) {
         totalClubRound += clubRound;
         return {
             name: car.name,
+            driverNames: drivers,
             gas,
             rentalType: cState.rentalType,
             usesTimesRental,
@@ -108,7 +128,15 @@ function calculateSettlement(data, state) {
     const expectedCollected = perPerson * payerCount;
     const surplus = expectedCollected - totalSplit;
     cars.forEach(car => {
-        car.collectionOffset = driverCollectionOffset && driverNames.has(car.name) && car.name !== excludedName ? perPerson : 0;
+        // A shared car can have more than one tagged driver. Each non-free
+        // driver has one personal collection share to deduct from this car's
+        // combined payout, rather than applying a single deduction per car.
+        const offsetDriverCount = car.driverNames.filter(name => name !== excludedName).length;
+        car.offsetDriverCount = offsetDriverCount;
+        car.collectionOffsetPerDriver = driverCollectionOffset && offsetDriverCount ? perPerson : 0;
+        car.collectionOffset = driverCollectionOffset
+            ? perPerson * offsetDriverCount
+            : 0;
         car.adjustedSplitPay = car.splitPay - car.collectionOffset;
         car.adjustedClubPay = car.clubPay;
         car.adjustedTotalPay = car.adjustedSplitPay + car.adjustedClubPay;

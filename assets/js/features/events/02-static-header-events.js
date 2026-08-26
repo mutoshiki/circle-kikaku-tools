@@ -17,6 +17,20 @@
         const region = byId('projectTitleRegion');
         if (!header || header.tagName !== 'CDS-HEADER' || !roomInput || !region) return;
 
+        // `cds-header-name` resolves a relative `./` href against the site root.
+        // That drops the room query on a real click and boots a new empty room.
+        // Keep the current room in the brand link while leaving transient view
+        // and allocation state behind.
+        const brand = header.querySelector('cds-header-name');
+        if (brand) {
+            const roomUrl = new URL(global.location.href);
+            roomUrl.searchParams.delete('view');
+            roomUrl.searchParams.delete('allocation');
+            roomUrl.hash = '';
+            const roomHref = `${roomUrl.pathname}${roomUrl.search}`;
+            if (brand.getAttribute('href') !== roomHref) brand.setAttribute('href', roomHref);
+        }
+
         const roomField = roomInput.closest('.app-room-field');
         roomField?.classList.remove('project-title-source');
         roomField?.removeAttribute('aria-hidden');

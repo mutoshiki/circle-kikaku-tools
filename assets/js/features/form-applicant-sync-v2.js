@@ -493,9 +493,14 @@
       const participantId = participantIdForApplicant(room, applicant);
       if (participantId && !selectedApplicantKeys.has(responseKey)) removals.push(participantId);
     });
-    // In a normal (non-form) room, these checkboxes are a review surface, not
-    // a destructive roster editor. A mistaken uncheck must never erase a
-    // manually registered participant; removal remains an explicit card action.
+    // Manual participants are part of the same selection surface. Previously
+    // their draft value was rendered but ignored here, so an unchecked row was
+    // saved and immediately rendered as checked again.
+    Object.entries(room.participants || {})
+      .filter(([id]) => !acceptedIds.has(id))
+      .forEach(([id]) => {
+        if (!manualDraftChecked(id)) removals.push(id);
+      });
 
     if (!await confirmParticipantRemovals(room, [...new Set(removals)])) return;
 

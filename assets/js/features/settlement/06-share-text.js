@@ -44,18 +44,27 @@ function buildSettlementOverviewText({ title, state, result }) {
     const clubPaymentTotal = Number(result.clubPaymentTotal ?? result.totalClub);
     const unpaid = getSettlementUnpaidNames(result, state);
     const splitExtraTotal = result.cars.reduce((sum, car) => sum + (car.splitExtras || 0), 0);
-    const driverLines = result.cars.map(car => {
+    const driverLines = result.cars.filter(car => Array.isArray(car.driverNames) && car.driverNames.length).map(car => {
         const paidMark = state.driverPaid?.[car.name] ? '（支払い済み）' : '';
+        const driverLabel = car.driverNames.length === 1 && car.driverNames[0] === car.name
+            ? `${car.driverNames[0]}車`
+            : `${car.driverNames.join('・')}（${car.name}車）`;
         const details = [
             car.usesTimesRental ? 'ガソリン代：なし（タイムズ）' : `ガソリン代：${yen(car.gas)}`,
             `諸経費：${formatSettlementExtraDetail(car)}`
         ];
-        if (car.collectionOffset) details.push(`− ドライバー分の集金控除：${yen(car.collectionOffset)}`);
+        if (car.collectionOffset) {
+            const driverCount = Number(car.offsetDriverCount || 0);
+            const offsetDetail = driverCount > 1 && car.collectionOffsetPerDriver
+                ? `（1人あたり${yen(car.collectionOffsetPerDriver)}）`
+                : '';
+            details.push(`− ドライバー${driverCount || 1}人分の集金控除：${yen(car.collectionOffset)}${offsetDetail}`);
+        }
         if (car.splitRound) details.push(`＋ 割勘の端数調整：${yen(car.splitRound)}`);
         if (car.clubRound) details.push(`＋ 部費の端数調整：${yen(car.clubRound)}`);
         details.push(`割勘：${yen(car.adjustedSplitPay ?? car.splitPay)}`);
         details.push(`部費：${yen(car.adjustedClubPay ?? car.clubPay)}`);
-        return `・${car.name}車：${yen(car.adjustedTotalPay ?? car.totalPay)}${paidMark}\n　${details.join('　')}`;
+        return `・${driverLabel}：${yen(car.adjustedTotalPay ?? car.totalPay)}${paidMark}\n　${details.join('　')}`;
     });
 
     return [

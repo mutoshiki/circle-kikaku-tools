@@ -62,8 +62,12 @@
 
     function formatDriverCollectionOffsetInline(calc, helpers = {}) {
     if (!calc.collectionOffset) return '';
-    return { op: '−', html: `<span class="seisan-extra-inline seisan-cost-line seisan-cost-line--supporting seisan-extra-inline--offset" data-cost-type="offset"><span>集金</span><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.collectionOffset, helpers)}</strong></span>` };
-  }
+    const driverCount = Number(calc.offsetDriverCount || 0);
+    const label = driverCount > 1 && calc.collectionOffsetPerDriver
+      ? `集金（運転手${driverCount}人 × ${money(calc.collectionOffsetPerDriver, helpers)}）`
+      : '集金';
+    return { op: '−', html: `<span class="seisan-extra-inline seisan-cost-line seisan-cost-line--supporting seisan-extra-inline--offset" data-cost-type="offset"><span>${label}</span><strong class="seisan-cost-line-amount seisan-car-summary-total ${UI_CLASS.amount}">${money(calc.collectionOffset, helpers)}</strong></span>` };
+    }
 
     function formatDriverRoundInline(calc, helpers = {}) {
     if (!calc.driverRound) return '';
