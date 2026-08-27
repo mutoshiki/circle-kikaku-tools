@@ -24,7 +24,7 @@
             link.dataset.assignmentWorkspaceStyle = 'true';
             D.head.appendChild(link);
         }
-        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v10';
+        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v11';
         if (!link.href.endsWith(href.replace('./', ''))) link.href = href;
     }
 
@@ -167,7 +167,7 @@
         }
         const hasParticipants = registeredParticipantCount() > 0;
         const workspaceHeader = byId('assignmentWorkspaceHeader');
-        if (workspaceHeader) workspaceHeader.hidden = !hasParticipants;
+        if (workspaceHeader) workspaceHeader.hidden = false;
         footer.hidden = !hasParticipants;
 
         let addGroup = byId('assignmentWorkspaceAddGroupBtn');
@@ -177,8 +177,8 @@
             addGroup.className = 'assignment-workspace-add-group';
             // Creation is a secondary action. Random assignment remains the one
             // workspace-level primary action.
-            addGroup.setAttribute('kind', 'secondary');
-            addGroup.setAttribute('size', 'lg');
+            addGroup.setAttribute('kind', 'tertiary');
+            addGroup.setAttribute('size', 'md');
             addGroup.setAttribute('type', 'button');
             addGroup.innerHTML = '<span data-carbon-icon="add" slot="icon" aria-hidden="true"></span><span></span>';
             addGroup.addEventListener('click', openGroupCreateModal);
@@ -194,7 +194,7 @@
         const shuffle = byId('shuffleAssignBtn');
         if (!shuffle) return;
         shuffle.setAttribute('kind', 'primary');
-        shuffle.setAttribute('size', 'lg');
+        shuffle.setAttribute('size', 'md');
         const label = shuffle.querySelector('span:not([slot="icon"]):not([data-carbon-icon])');
         if (label) label.textContent = 'ランダム割り当て';
         else shuffle.prepend(D.createTextNode('ランダム割り当て'));
@@ -433,25 +433,188 @@
         tag.setAttribute('aria-label', tag.textContent);
     }
 
+    function syncGradeText(person) {
+        const line = person.querySelector('.member-main-line, .driver-main-line');
+        const meta = line?.querySelector('.person-meta');
+        if (!meta) return;
+        const badge = meta.querySelector('.grade-badge');
+        const grade = parseInt(person.dataset.grade, 10) || parseInt(badge?.dataset.grade, 10) || 0;
+        if (badge) badge.remove();
+        let text = meta.querySelector('.person-grade-text');
+        if (grade <= 0) {
+            text?.remove();
+            return;
+        }
+        if (!text) {
+            text = D.createElement('span');
+            text.className = 'person-grade-text';
+            meta.appendChild(text);
+        }
+        text.dataset.grade = String(grade);
+        text.textContent = `${grade}年`;
+    }
+
+    function candidateDisclosure(box, row) {
+        let disclosure = row.nextElementSibling;
+        if (!disclosure?.classList.contains('assignment-seat-disclosure')) {
+            disclosure = D.createElement('div');
+            disclosure.className = 'assignment-seat-disclosure';
+            disclosure.hidden = true;
+            disclosure.setAttribute('role', 'region');
+            disclosure.setAttribute('aria-label', '追加候補');
+            row.after(disclosure);
+        }
+        return disclosure;
+    }
+
+    function seatCandidateSignature(emptySlots) {
+        return `${emptySlots.length}:${waitingCandidates().map(candidate => candidate.id).join('|')}`;
+    }
+
+    function renderSeatCandidates(box, row, emptySlots) {
+        const disclosure = candidateDisclosure(box, row);
+        const candidates = waitingCandidates();
+        disclosure.replaceChildren();
+        disclosure.hidden = false;
+        disclosure.dataset.signature = seatCandidateSignature(emptySlots);
+        if (!candidates.length) {
+            const notice = D.createElement('cds-inline-notification');
+            notice.className = 'assignment-seat-notification';
+            notice.setAttribute('kind', 'info');
+            notice.setAttribute('low-contrast', '');
+            notice.setAttribute('hide-close-button', '');
+            notice.setAttribute('title', '追加できる参加者がいません');
+            notice.setAttribute('subtitle', '参加者登録、または別の席から未割り当てに戻してください。');
+            disclosure.appendChild(notice);
+            global.SanpoCarbon?.renderCarbonIcons?.(disclosure);
+            return;
+        }
+
+        const list = D.createElement('cds-contained-list');
+        list.className = 'assignment-candidate-list';
+        list.setAttribute('kind', 'disclosed');
+        list.setAttribute('label', '追加候補');
+        candidates.forEach(candidate => {
+            const item = D.createElement('cds-contained-list-item');
+            item.className = 'assignment-candidate-item';
+            item.setAttribute('clickable', '');
+            item.dataset.participantId = candidate.id;
+            const content = D.createElement('span');
+            content.className = 'assignment-candidate-content';
+            const name = D.createElement('span');
+            name.className = 'assignment-candidate-name';
+            name.textContent = candidate.name;
+            content.appendChild(name);
+            const grade = parseInt(candidate.card.dataset.grade, 10) || 0;
+            if (grade > 0) {
+                const gradeText = D.createElement('span');
+                gradeText.className = 'assignment-candidate-grade';
+                gradeText.textContent = `${grade}年`;
+                content.appendChild(gradeText);
+            }
+            item.appendChild(content);
+            const icon = D.createElement('span');
+            icon.className = 'assignment-candidate-arrow';
+            icon.setAttribute('slot', 'action');
+            icon.setAttribute('data-carbon-icon', 'arrow--right');
+            icon.setAttribute('aria-hidden', 'true');
+            item.appendChild(icon);
+            item.addEventListener('click', event => {
+                event.preventDefault();
+                const target = emptySlots.find(slot => slot.isConnected && !slot.querySelector('.member-card'));
+                if (!target) return;
+                global.assignWaitingMemberToSeat?.(candidate.card, target);
+                row.dataset.open = 'false';
+                row.setAttribute('aria-expanded', 'false');
+                disclosure.hidden = true;
+            });
+            list.appendChild(item);
+        });
+        disclosure.appendChild(list);
+        global.SanpoCarbon?.renderCarbonIcons?.(disclosure);
+    }
+
+    function openSeatCandidates(slot) {
+        const box = slot?.closest?.('.car-box');
+        const layout = box?.querySelector('.car-layout-grid');
+        const row = layout?.querySelector(':scope > .assignment-empty-seats-row');
+        if (!box || !layout || !row) return;
+        const emptySlots = Array.from(layout.querySelectorAll(':scope > .seat-slot'))
+            .filter(candidate => !candidate.querySelector('.member-card'));
+        if (!emptySlots.length) return;
+        row.dataset.open = 'true';
+        row.setAttribute('aria-expanded', 'true');
+        renderSeatCandidates(box, row, emptySlots);
+    }
+
     function decorateEmptySeats(box) {
-        Array.from(box.querySelectorAll('.seat-slot')).forEach((slot, index) => {
+        const layout = box.querySelector('.car-layout-grid');
+        if (!layout) return;
+        const slots = Array.from(layout.querySelectorAll(':scope > .seat-slot'));
+        const emptySlots = slots.filter(slot => !slot.querySelector('.member-card'));
+        slots.forEach(slot => {
             const empty = !slot.querySelector('.member-card');
             slot.classList.toggle('assignment-empty-seat', empty);
-            let label = slot.querySelector('.assignment-empty-label');
             if (!empty) {
-                label?.remove();
+                slot.classList.remove('assignment-empty-seat--collapsed');
                 slot.removeAttribute('aria-label');
                 return;
             }
-            if (!label) {
-                label = D.createElement('span');
-                label.className = 'assignment-empty-label';
-                slot.prepend(label);
-            }
-            label.textContent = '空席';
-            slot.setAttribute('aria-label', `空席 ${index + 1}`);
-            slot.querySelector('.seat-add-btn')?.setAttribute('aria-label', '空席に参加者を追加');
+            slot.classList.add('assignment-empty-seat--collapsed');
+            slot.removeAttribute('aria-label');
         });
+
+        let row = layout.querySelector(':scope > .assignment-empty-seats-row');
+        let disclosure = row?.nextElementSibling?.classList.contains('assignment-seat-disclosure')
+            ? row.nextElementSibling
+            : null;
+        if (!emptySlots.length) {
+            row?.remove();
+            disclosure?.remove();
+            return;
+        }
+        if (!row) {
+            row = D.createElement('cds-contained-list-item');
+            row.className = 'assignment-empty-seats-row';
+            row.setAttribute('clickable', '');
+            row.setAttribute('aria-expanded', 'false');
+            const content = D.createElement('span');
+            content.className = 'assignment-empty-seats-content';
+            const label = D.createElement('span');
+            label.className = 'assignment-empty-seats-label';
+            content.appendChild(label);
+            row.appendChild(content);
+            const icon = D.createElement('span');
+            icon.className = 'assignment-empty-seats-icon';
+            icon.setAttribute('slot', 'action');
+            icon.setAttribute('data-carbon-icon', 'add');
+            icon.setAttribute('aria-hidden', 'true');
+            row.appendChild(icon);
+            row.addEventListener('click', () => {
+                const nextEmptySlots = Array.from(layout.querySelectorAll(':scope > .seat-slot'))
+                    .filter(slot => !slot.querySelector('.member-card'));
+                if (!nextEmptySlots.length) return;
+                const open = row.dataset.open === 'true';
+                row.dataset.open = open ? 'false' : 'true';
+                row.setAttribute('aria-expanded', String(!open));
+                if (open) {
+                    candidateDisclosure(box, row).hidden = true;
+                } else {
+                    renderSeatCandidates(box, row, nextEmptySlots);
+                }
+            });
+            layout.appendChild(row);
+        }
+        const label = row.querySelector('.assignment-empty-seats-label');
+        if (label) label.textContent = `空席 ${emptySlots.length}`;
+        if (row.dataset.open === 'true') {
+            const currentDisclosure = candidateDisclosure(box, row);
+            if (currentDisclosure.dataset.signature !== seatCandidateSignature(emptySlots)) {
+                renderSeatCandidates(box, row, emptySlots);
+            }
+        } else {
+            candidateDisclosure(box, row).hidden = true;
+        }
     }
 
     function rowPerson(row) {
@@ -496,6 +659,7 @@
                 removeDeprecatedPersonAffordances(person);
                 syncLockIndicator(person);
                 syncRoleTag(person, type);
+                syncGradeText(person);
             });
             sortRoleRows(box);
             decorateCapacity(box, type);
@@ -570,6 +734,7 @@
     global.SanpoAssignmentWorkspace = Object.freeze({
         initialize,
         refresh: scheduleSync,
+        openSeatCandidates,
         isReadOnly: () => false
     });
 })(window);

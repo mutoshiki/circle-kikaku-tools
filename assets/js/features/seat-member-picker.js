@@ -48,22 +48,27 @@ function renderSeatMemberPicker() {
 function openSeatMemberPicker(slot) {
     if (!slot || getRealSeatCards(slot).length > 0) return;
     if (typeof canUseUnlockedMenuAction === 'function' && !canUseUnlockedMenuAction()) return;
+    if (document.body.classList.contains('assignment-workspace-enabled')) {
+        window.SanpoAssignmentWorkspace?.openSeatCandidates?.(slot);
+        return;
+    }
     seatMemberPickerTarget = slot;
     renderSeatMemberPicker();
     modals.seatMember?.show();
 }
 
-function assignWaitingMemberToSeat(card) {
-    const slot = seatMemberPickerTarget;
+function assignWaitingMemberToSeat(card, targetSlot = seatMemberPickerTarget) {
+    const slot = targetSlot;
     if (!slot || !slot.isConnected || getRealSeatCards(slot).length > 0 || card?.parentElement?.id !== 'waiting-list') {
-        modals.seatMember?.hide();
+        if (!document.body.classList.contains('assignment-workspace-enabled')) modals.seatMember?.hide();
         return;
     }
     slot.appendChild(card);
-    modals.seatMember?.hide();
+    if (!document.body.classList.contains('assignment-workspace-enabled')) modals.seatMember?.hide();
     updateUI();
     save();
-    requestAnimationFrame(() => card.querySelector('.member-menu-btn')?.focus());
+    window.SanpoAssignmentWorkspace?.refresh?.();
+    requestAnimationFrame(() => card.querySelector('.person-overflow-menu')?.focus());
 }
 
 function setupSeatMemberPicker() {

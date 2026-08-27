@@ -40,6 +40,7 @@ body.assignment-workspace-enabled #bottom-tray {
 }
 
 .assignment-workspace-summary {
+  flex: 1 1 auto;
   min-width: 0;
   margin: 0;
   overflow: hidden;
@@ -51,6 +52,7 @@ body.assignment-workspace-enabled #bottom-tray {
 }
 
 .assignment-workspace-actions {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -69,7 +71,7 @@ body.assignment-workspace-enabled #bottom-tray {
 }
 
 .assignment-workspace-actions #shuffleAssignBtn {
-  min-width: 10.5rem;
+  min-width: 9rem;
   min-height: 3rem;
   margin: 0;
   white-space: nowrap;
@@ -338,12 +340,19 @@ body.assignment-workspace-enabled .person-meta:empty {
   display: none;
 }
 
-body.assignment-workspace-enabled .driver-role-tag,
-body.assignment-workspace-enabled .grade-badge {
+body.assignment-workspace-enabled .driver-role-tag {
   flex: 0 0 auto;
   min-block-size: 1.5rem;
   margin: 0;
   white-space: nowrap;
+}
+
+body.assignment-workspace-enabled .person-grade-text {
+  flex: 0 0 auto;
+  margin: 0;
+  color: var(--cds-text-secondary, #525252);
+  font-size: 0.75rem;
+  line-height: 1.33333;
 }
 
 body.assignment-workspace-enabled .person-overflow-menu {
@@ -369,20 +378,86 @@ body.assignment-workspace-enabled .seat-slot:has(> .member-card) > .seat-add-btn
   display: none;
 }
 
-body.assignment-workspace-enabled #cars-container .seat-slot:not(:has(> .member-card)) {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 3rem;
-  align-items: center;
-  min-height: 3.5rem;
-  padding: 0 0 0 var(--space-4, 1rem);
-  color: var(--cds-text-secondary, #525252);
+body.assignment-workspace-enabled #cars-container .assignment-empty-seat--collapsed {
+  display: none;
+}
+
+body.assignment-workspace-enabled #cars-container .assignment-empty-seats-row,
+body.assignment-workspace-enabled #cars-container .assignment-seat-disclosure {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
   background: var(--cds-layer-01, #fff);
 }
 
-body.assignment-workspace-enabled .assignment-empty-label {
-  min-width: 0;
+body.assignment-workspace-enabled #cars-container .assignment-empty-seats-row {
+  min-height: 3rem;
+  color: var(--cds-text-secondary, #525252);
+}
+
+body.assignment-workspace-enabled .assignment-empty-seats-content {
+  display: inline-flex;
+  align-items: center;
+  min-height: 0;
+  color: inherit;
   font-size: 0.875rem;
   line-height: 1.28572;
+}
+
+body.assignment-workspace-enabled .assignment-empty-seats-label {
+  color: inherit;
+}
+
+body.assignment-workspace-enabled .assignment-empty-seats-icon {
+  color: var(--cds-icon-secondary, #525252);
+}
+
+body.assignment-workspace-enabled .assignment-seat-disclosure[hidden] {
+  display: none;
+}
+
+body.assignment-workspace-enabled .assignment-candidate-list {
+  border: 0;
+  border-radius: 0;
+}
+
+body.assignment-workspace-enabled .assignment-candidate-item {
+  min-height: 3rem;
+}
+
+body.assignment-workspace-enabled .assignment-candidate-content {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2, 0.5rem);
+  min-width: 0;
+}
+
+body.assignment-workspace-enabled .assignment-candidate-name {
+  overflow: hidden;
+  color: var(--cds-text-primary, #161616);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.assignment-workspace-enabled .assignment-candidate-grade {
+  color: var(--cds-text-secondary, #525252);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+body.assignment-workspace-enabled .assignment-candidate-arrow {
+  color: var(--cds-icon-secondary, #525252);
+}
+
+body.assignment-workspace-enabled .assignment-seat-notification {
+  display: block;
+  margin: 0;
+  border: 0;
 }
 
 body.assignment-workspace-enabled .seat-add-btn {
@@ -406,25 +481,14 @@ body.assignment-workspace-enabled .seat-add-btn {
     padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem) 0;
   }
 
-  .assignment-workspace-actions #shuffleAssignBtn {
-    width: 100%;
-    min-width: 0;
-    height: 3rem;
-    min-height: 3rem;
-  }
-
-  .assignment-workspace-actions {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .assignment-workspace-footer-actions .assignment-workspace-add-group {
-    width: 100%;
-    min-width: 0;
+    width: auto;
+    min-width: 8rem;
   }
 
   body.assignment-workspace-enabled #cars-container.allocation-grid {
     grid-template-columns: 1fr;
-    gap: var(--space-2, 0.5rem);
+    gap: var(--space-4, 1rem);
     padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem) calc(var(--space-6, 1.5rem) + env(safe-area-inset-bottom));
   }
 

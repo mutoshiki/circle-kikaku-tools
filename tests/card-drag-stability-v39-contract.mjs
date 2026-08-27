@@ -10,8 +10,10 @@ const personCards = fs.readFileSync('assets/js/features/person-cards.js', 'utf8'
 assert.doesNotMatch(seatCss, /content:\s*"空席\\A\s*メンバーを追加"/, 'empty seats must not render the old two-line pseudo copy');
 assert.match(seatCss, /\.seat-slot::before\s*\{\s*content:\s*none;\s*\}/, 'empty-seat pseudo copy is explicitly removed');
 assert.match(personCards, /class="seat-add-btn"/, 'empty seats keep an explicit Carbon add action');
-assert.match(workspace, /label\.textContent = '空席'/, 'Assignment Workspace renders empty seats as real rows rather than blank space');
-assert.match(workspaceCss, /#cars-container \.seat-slot:not\(:has\(> \.member-card\)\)[\s\S]*min-height:\s*3\.5rem/, 'empty seat rows keep the same nominal 56px row height');
+assert.match(workspace, /assignment-empty-seats-row/, 'Assignment Workspace aggregates empty seats into one disclosure row');
+assert.match(workspace, /空席 \$\{emptySlots\.length\}/, 'empty-seat disclosure exposes the aggregate count');
+assert.match(workspaceCss, /assignment-empty-seat--collapsed/, 'individual empty seat slots are visually collapsed');
+assert.match(workspaceCss, /assignment-seat-disclosure/, 'empty-seat candidates render in an inline disclosure surface');
 
 assert.doesNotMatch(app, /setupManualCardDrag\(\)/, 'allocation card drag must not be initialized');
 assert.doesNotMatch(workspace, /ensureDragHandle|data-carbon-icon="draggable"|className\s*=\s*['"]assignment-drag-handle|classList\.add\(['"]manual-drag-source/, 'Assignment Workspace must not create drag behavior or affordances');
