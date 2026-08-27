@@ -34,7 +34,9 @@ assert.match(uiSource, /id = slot === 'sync' \? 'appSyncStatusToast' : 'appStatu
 assert.match(uiSource, /aria-live'[\s\S]*assertive[\s\S]*polite/, 'notification urgency is reflected in accessible live-region behavior');
 assert.doesNotMatch(roomStatusCss, /\.sync-status-badge/, 'the retired header status badge has no remaining CSS owner');
 assert.match(notificationCss, /\.app-notification-region\s*\{[\s\S]*position:\s*fixed;[\s\S]*top:[^;]+;[\s\S]*right:/, 'Carbon notifications are stacked in a stable upper-right region');
-assert.match(notificationCss, /\.app-notification-region[\s\S]*width:\s*min\(22rem, calc\(100vw - 2rem\)\)[\s\S]*\.app-status-toast[\s\S]*width:\s*100%/, 'notification region owns toast width instead of the project-title slot');
+assert.match(notificationCss, /\.app-notification-region[\s\S]*width:\s*min\(18rem,[\s\S]*\.app-status-toast[\s\S]*width:\s*min\(18rem, 100%\)/, 'notification region owns compact Carbon toast width instead of the project-title slot');
+assert.match(notificationCss, /\.app-notification-region[\s\S]*flex-direction:\s*column[\s\S]*gap:\s*var\(--space-2\)/, 'shared notification region stacks Carbon toasts vertically');
+assert.match(notificationCss, /@media \(max-width: 640px\)[\s\S]*top:\s*calc\(env\(safe-area-inset-top\)[\s\S]*right:\s*calc\(env\(safe-area-inset-right\)/, 'mobile toast placement keeps safe-area-aware top and right gutters');
 assert.match(diagnosticsSource, /MAX_ENTRIES = 60/);
 assert.match(diagnosticsSource, /syawari_sync_diagnostics_/);
 assert.match(historySource, /appendSyncDiagnostics/);

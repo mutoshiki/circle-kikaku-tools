@@ -13,14 +13,14 @@
  * each notification keeps Carbon's own dimensions, colors, close affordance and focus behavior. */
 .app-notification-region {
   position: fixed;
-  top: calc(env(safe-area-inset-top) + 1rem);
-  right: 1rem;
+  top: calc(env(safe-area-inset-top) + var(--space-4));
+  right: calc(env(safe-area-inset-right) + var(--space-4));
   z-index: var(--z-toast);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  width: min(22rem, calc(100vw - 2rem));
-  max-width: calc(100vw - 2rem);
+  width: min(18rem, calc(100vw - (var(--space-4) * 2)));
+  max-width: calc(100vw - (var(--space-4) * 2));
   pointer-events: none;
 }
 
@@ -30,8 +30,10 @@
   --cds-link-primary-hover: var(--app-accent-text-hover);
 
   position: relative;
-  width: 100%;
+  width: min(18rem, 100%);
+  max-width: 100%;
   min-width: 0;
+  align-self: flex-end;
   margin: 0;
   opacity: 0;
   pointer-events: auto;
@@ -46,10 +48,10 @@
 
 @media (max-width: 640px) {
   .app-notification-region {
-    top: calc(env(safe-area-inset-top) + 0.75rem);
-    right: 0.75rem;
-    width: calc(100vw - 1.5rem);
-    max-width: calc(100vw - 1.5rem);
+    top: calc(env(safe-area-inset-top) + var(--space-3));
+    right: calc(env(safe-area-inset-right) + var(--space-3));
+    width: min(18rem, calc(100vw - (var(--space-3) * 2)));
+    max-width: calc(100vw - (var(--space-3) * 2));
   }
 }
 

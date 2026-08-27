@@ -109,6 +109,30 @@ test.describe('Status toast policy v79', () => {
     await expect(page.locator('#appStatusToast')).toHaveCount(0);
   });
 
+  test('shared Carbon region keeps simultaneous status and sync toasts compact and stacked', async ({ page }) => {
+    await page.goto('/');
+    await waitForApp(page);
+
+    const result = await page.evaluate(() => {
+      window.AppUI.setSyncStatus('error', 'network offline');
+      window.showMiniToast('リンクをコピーしました', 'success');
+      const region = document.querySelector('#appNotificationRegion');
+      const toasts = [...region.querySelectorAll('.app-status-toast')];
+      return {
+        count: toasts.length,
+        ids: toasts.map(toast => toast.id),
+        region: region.getBoundingClientRect().toJSON(),
+        rects: toasts.map(toast => toast.getBoundingClientRect().toJSON())
+      };
+    });
+
+    expect(result.count).toBe(2);
+    expect(result.ids).toEqual(['appStatusToast', 'appSyncStatusToast']);
+    expect(result.rects[0].top).toBeLessThan(result.rects[1].top);
+    expect(result.rects.every(rect => rect.right <= result.region.right + 0.5)).toBeTruthy();
+    expect(result.rects.every(rect => rect.width <= 288.5)).toBeTruthy();
+  });
+
   test('dynamic Carbon warning state is rendered after an already-mounted field changes', async ({ page }) => {
     await page.goto('/');
     await waitForApp(page);
