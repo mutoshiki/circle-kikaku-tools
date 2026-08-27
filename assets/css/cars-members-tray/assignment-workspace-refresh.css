@@ -36,7 +36,7 @@ body.assignment-workspace-enabled #bottom-tray {
   min-width: 0;
   min-height: 3rem;
   padding-bottom: var(--space-2, 0.5rem);
-  border-bottom: 1px solid var(--cds-border-subtle-01, #c6c6c6);
+  border-bottom: 1px solid var(--cds-border-subtle, var(--border-section));
 }
 
 .assignment-workspace-summary {
@@ -132,7 +132,7 @@ body.assignment-workspace-enabled #cars-container .car-box {
   min-height: 0;
   margin: 0;
   padding: 0;
-  border: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border: 1px solid var(--cds-border-subtle, var(--border-section));
   border-radius: 0;
   background: var(--cds-layer-01, #fff);
   box-shadow: none;
@@ -150,7 +150,6 @@ body.assignment-workspace-enabled #cars-container .car-box {
  * allocation layout owner, while Carbon owns the list surface and semantics. */
 body.assignment-workspace-enabled #cars-container cds-contained-list.car-box {
   --cds-layer: var(--cds-layer-01, #ffffff);
-  --cds-border-subtle: var(--cds-border-subtle-01, #e0e0e0);
 }
 
 body.assignment-workspace-enabled .car-header {
@@ -165,7 +164,7 @@ body.assignment-workspace-enabled .car-header {
   margin: 0;
   padding: 0 0 0 var(--space-4, 1rem);
   border: 0;
-  border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-bottom: 1px solid var(--cds-border-subtle, var(--border-section));
   background: var(--cds-layer-01, #fff);
 }
 
@@ -197,8 +196,6 @@ body.assignment-workspace-enabled .capacity-edit-pill {
   --cds-link-primary: var(--cds-text-primary, #161616);
   --cds-link-primary-hover: var(--cds-text-primary, #161616);
   --cds-layer: var(--cds-layer-01, #ffffff);
-  --cds-background-hover: var(--cds-layer-hover, #e8e8e8);
-  --cds-background-active: var(--cds-layer-active, #c6c6c6);
 }
 
 body.assignment-workspace-enabled .capacity-edit-pill [slot="icon"],
@@ -215,8 +212,6 @@ body.assignment-workspace-enabled .car-return-btn {
   --cds-link-primary: var(--cds-text-primary, #161616);
   --cds-link-primary-hover: var(--cds-text-primary, #161616);
   --cds-layer: var(--cds-layer-01, #ffffff);
-  --cds-background-hover: var(--cds-layer-hover, #e8e8e8);
-  --cds-background-active: var(--cds-layer-active, #c6c6c6);
   --cds-popover-background-color: var(--cds-layer, #f4f4f4);
   --cds-popover-text-color: var(--cds-text-primary, #161616);
 }
@@ -245,7 +240,7 @@ body.assignment-workspace-enabled #cars-container .seat-slot {
   margin: 0;
   padding: 0;
   border: 0;
-  border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-bottom: 1px solid var(--cds-border-subtle, var(--border-section));
   border-radius: 0;
   background: var(--cds-layer-01, #fff);
   box-shadow: none;
@@ -367,7 +362,7 @@ body.assignment-workspace-enabled .person-overflow-menu {
 body.assignment-workspace-enabled .memo-popup {
   margin: 0;
   padding: var(--space-2, 0.5rem) var(--space-4, 1rem) var(--space-2, 0.5rem);
-  border-top: 1px solid var(--cds-border-subtle-00, #e0e0e0);
+  border-top: 1px solid var(--cds-border-subtle, var(--border-section));
   color: var(--cds-text-secondary, #525252);
   background: var(--cds-layer-01, #fff);
   font-size: 0.75rem;
@@ -389,7 +384,7 @@ body.assignment-workspace-enabled #cars-container .assignment-seat-disclosure {
   width: 100%;
   min-width: 0;
   margin: 0;
-  border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-bottom: 1px solid var(--cds-border-subtle, var(--border-section));
   background: var(--cds-layer-01, #fff);
 }
 
@@ -456,6 +451,9 @@ body.assignment-workspace-enabled .assignment-candidate-arrow {
 
 body.assignment-workspace-enabled .assignment-seat-notification {
   display: block;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 100%;
   margin: 0;
   border: 0;
 }

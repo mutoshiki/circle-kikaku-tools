@@ -8,8 +8,8 @@
  * dismissal ownership without rendering a transparent panel. */
 body.assignment-workspace-enabled :where(cds-overflow-menu.person-overflow-menu, cds-overflow-menu.assignment-group-menu) {
   --cds-layer: var(--cds-layer-01, #ffffff);
-  --cds-layer-hover: var(--cds-layer-hover-01, #e8e8e8);
-  --cds-layer-active: var(--cds-layer-active-01, #c6c6c6);
+  --cds-layer-hover: var(--cds-background-hover, #e8e8e8);
+  --cds-layer-active: var(--cds-background-active, #c6c6c6);
   --cds-icon-primary: var(--cds-text-secondary, #525252);
   --cds-link-primary: var(--cds-text-secondary, #525252);
   --cds-link-primary-hover: var(--cds-text-primary, #161616);
@@ -17,8 +17,8 @@ body.assignment-workspace-enabled :where(cds-overflow-menu.person-overflow-menu,
 
 body.assignment-workspace-enabled :where(cds-overflow-menu.person-overflow-menu, cds-overflow-menu.assignment-group-menu) > cds-menu {
   --cds-layer: var(--cds-layer-01, #ffffff);
-  --cds-layer-hover: var(--cds-layer-hover-01, #e8e8e8);
-  --cds-layer-active: var(--cds-layer-active-01, #c6c6c6);
+  --cds-layer-hover: var(--cds-background-hover, #e8e8e8);
+  --cds-layer-active: var(--cds-background-active, #c6c6c6);
 }
 
 :where(cds-overflow-menu.person-overflow-menu, .member-menu-btn, .driver-menu-btn) {
@@ -37,8 +37,6 @@ body.assignment-workspace-enabled :where(cds-overflow-menu.person-overflow-menu,
   --cds-icon-primary: var(--text-sub);
   --cds-link-primary: var(--text-sub);
   --cds-link-primary-hover: var(--text-main);
-  --cds-background-hover: var(--cds-layer-hover, #e8e8e8);
-  --cds-background-active: var(--cds-layer-active, #c6c6c6);
 }
 
 :where(cds-overflow-menu.person-overflow-menu, .member-menu-btn, .driver-menu-btn)::part(button) {

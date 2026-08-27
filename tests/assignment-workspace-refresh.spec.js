@@ -267,6 +267,59 @@ test.describe('Assignment workspace refresh', () => {
     await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'expanded');
   });
 
+  test('Carbon allocation borders, empty-seat notification width and pointer menu cleanup stay theme-aware', async ({ page }) => {
+    await loadSampleWorkspace(page);
+
+    const appSwitcher = page.locator('.header-app-switcher');
+    await appSwitcher.click();
+    const themeToggle = page.locator('#themeToggleBtn');
+    if (await themeToggle.getAttribute('label') === 'ダークモードに切り替え') await themeToggle.click();
+    await page.waitForTimeout(80);
+
+    const darkBorders = await page.evaluate(() => {
+      const car = document.querySelector('#cars-container .car-box');
+      const row = document.querySelector('#cars-container .seat-slot');
+      return {
+        theme: document.documentElement.dataset.theme,
+        carBorder: getComputedStyle(car).borderColor,
+        rowBorder: getComputedStyle(row).borderBottomColor,
+        carToken: getComputedStyle(car).getPropertyValue('--cds-border-subtle').trim()
+      };
+    });
+    expect(darkBorders.theme).toBe('dark');
+    expect(darkBorders.carBorder).toBe('rgb(82, 82, 82)');
+    expect(darkBorders.rowBorder).toBe('rgb(82, 82, 82)');
+    expect(darkBorders.carToken).toBe('#525252');
+
+    const firstCar = page.locator('#cars-container .car-box').first();
+    const extraCapacity = await firstCar.evaluate(box => Number(box.dataset.capacity || 0) + 1);
+    await firstCar.locator('.capacity-edit-pill').click();
+    await page.locator('#editModalInput input').fill(String(extraCapacity));
+    await page.locator('#saveEditBtn').click();
+    const emptyRow = page.locator('#cars-container .assignment-empty-seats-row').first();
+    await emptyRow.waitFor({ state: 'visible' });
+    await emptyRow.click();
+    const notificationGeometry = await page.evaluate(() => {
+      const notice = document.querySelector('.assignment-seat-notification').getBoundingClientRect();
+      const disclosure = document.querySelector('.assignment-seat-disclosure').getBoundingClientRect();
+      return { noticeWidth: notice.width, disclosureWidth: disclosure.width };
+    });
+    expect(notificationGeometry.noticeWidth).toBeCloseTo(notificationGeometry.disclosureWidth, 1);
+
+    const menu = firstCar.locator('.person-overflow-menu').first();
+    await menu.click();
+    await expectPersonMenuOpen(menu);
+    await page.locator('#assignmentWorkspaceSummary').click();
+    await expect.poll(() => menu.evaluate(node => {
+      const button = node.shadowRoot?.querySelector('button');
+      return {
+        open: node.open === true || node.hasAttribute('open'),
+        background: button ? getComputedStyle(button).backgroundColor : null,
+        focusVisible: button?.matches(':focus-visible') || false
+      };
+    })).toEqual({ open: false, background: 'rgba(0, 0, 0, 0)', focusVisible: false });
+  });
+
   test('share action copies the normal room URL and legacy special allocation links normalize back to the normal app', async ({ page }) => {
     const room = `ASSIGN-SHARE-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     await page.goto(`/?room=${room}`);
