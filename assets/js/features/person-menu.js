@@ -91,7 +91,7 @@ function syncPersonMenuContext(trigger) {
     const returnItem = trigger.querySelector('[data-person-action="return"]');
     if (returnItem) {
         const inWaiting = person.parentElement?.id === 'waiting-list';
-        const label = inWaiting ? '削除' : '未配置に戻す';
+        const label = inWaiting ? '削除' : '未割り当てに戻す';
         returnItem.setAttribute('label', label);
         returnItem.label = label;
         returnItem.kind = inWaiting ? 'danger' : 'default';
@@ -264,13 +264,13 @@ async function returnOrDeleteMemberCard(card) {
     let changed = false;
     const deletingFromWaiting = card.parentElement?.id === 'waiting-list';
     if (deletingFromWaiting) {
-        if (await appConfirm('このメンバーを完全に削除しますか？', { title: 'メンバー削除', okText: '削除', danger: true })) {
+        if (await appConfirm('この参加者を完全に削除しますか？', { title: '参加者削除', okText: '削除', danger: true })) {
             const participantKey = card.dataset.participantId || card.dataset.name || '';
             window.SanpoCanonicalState?.deleteParticipant?.(participantKey);
             card.remove();
             changed = true;
         }
-    } else if (await appConfirm('未配置に戻しますか？', { title: '未配置に戻す', okText: '戻す' })) {
+    } else if (await appConfirm('未割り当てに戻しますか？', { title: '未割り当てに戻す', okText: '戻す' })) {
         const now = window.SanpoClock?.now?.() ?? Date.now();
         changed = commitAllocationPersonMutation(card, ({ allocation, placement, participantId }) => {
             reassignGroupAnchorBeforeRemoval(allocation, participantId, now);
@@ -420,7 +420,7 @@ function handleEdit(type, el) {
                 if (newCapacity > current.length) {
                     for (let i = 0; i < newCapacity - current.length; i += 1) {
                         const slot = ce('div', 'seat-slot');
-                        slot.innerHTML = '<cds-icon-button class="seat-add-btn" type="button" kind="ghost" size="lg" aria-label="メンバーを追加"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span></cds-icon-button>';
+                        slot.innerHTML = '<cds-icon-button class="seat-add-btn" type="button" kind="ghost" size="lg" aria-label="参加者を追加"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span></cds-icon-button>';
                         grid.appendChild(slot);
                     }
                 } else if (newCapacity < current.length) {

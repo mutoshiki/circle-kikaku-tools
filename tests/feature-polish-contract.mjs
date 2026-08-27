@@ -26,12 +26,12 @@ expect(runtime.includes("'.cds--popover, .cds--tooltip-content { display: none !
 expect(runtime.includes("document.addEventListener('sanpo:carbon-ready'"), 'Tooltip policy is not reapplied after Carbon upgrade');
 
 expect(autoAssign.includes('async function autoAssign()'), 'Random assignment must be a single no-options action.');
-expect(autoAssign.includes("title: 'ランダム割当'"), 'Random assignment confirmation must use the visible action label.');
-expect(autoAssign.includes("lastAutoAssignLabel = 'ランダム割当';"), 'Auto-assignment result label must match the visible action.');
+expect(autoAssign.includes("title: 'ランダム割り当て'"), 'Random assignment confirmation must use the visible action label.');
+expect(autoAssign.includes("lastAutoAssignLabel = 'ランダム割り当て';"), 'Auto-assignment result label must match the visible action.');
 expect(!autoAssign.includes("mode === 'fill'") && !autoAssign.includes('optGrade') && !autoAssign.includes('optFemale') && !autoAssign.includes('optMale'), 'Retired fill/condition branches must not remain in auto assignment.');
-expect(workspace.includes("label.textContent = 'ランダム割当'"), 'Workspace must expose the single action as 「ランダム割当」.');
+expect(workspace.includes("label.textContent = 'ランダム割り当て'"), 'Workspace must expose the single action as 「ランダム割り当て」.');
 expect(workspace.includes("'fillEmptySeatsBtn', 'traySettingsBtn', 'autoAssignPopover', 'autoAssignMenu', 'clearAllBtn', 'optFemale', 'optMale', 'optGrade'"), 'Workspace must remove legacy assignment settings and fill controls from the runtime UI.');
-expect(userGuide.includes('「ランダム割当」'), 'User guide must document the single random allocation action.');
+expect(userGuide.includes('「ランダム割り当て」'), 'User guide must document the single random allocation action.');
 expect(!userGuide.includes('「空きを埋める」') && !userGuide.includes('ランダムに割り当て') && !userGuide.includes('ドラッグして配置'), 'User guide must not describe retired allocation actions.');
 
 expect(index.includes('車出し協力代の負担方法'), 'Driver reward burden heading is unclear');

@@ -64,7 +64,7 @@ test.describe('Assignment workspace refresh', () => {
     await loadSampleWorkspace(page);
 
     await expect(page.locator('#assignmentWorkspaceRandomAction > #shuffleAssignBtn')).toHaveCount(1);
-    await expect(page.locator('#shuffleAssignBtn')).toContainText('ランダム割当');
+    await expect(page.locator('#shuffleAssignBtn')).toContainText('ランダム割り当て');
     await expect(page.locator('#fillEmptySeatsBtn, #traySettingsBtn, #autoAssignPopover, #autoAssignMenu, #optFemale, #optMale, #optGrade, #clearAllBtn')).toHaveCount(0);
     await expect(page.locator('[data-person-action="name"], [data-person-action="gender"]')).toHaveCount(0);
     await expect(page.locator('.assignment-drag-handle, .assignment-person-move-menu, [data-assignment-move-target]')).toHaveCount(0);

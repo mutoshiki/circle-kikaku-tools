@@ -11,7 +11,7 @@ function refreshEmptySeatAccessibility() {
         if (button) {
             button.tabIndex = empty ? 0 : -1;
             button.hidden = !empty;
-            button.setAttribute('aria-label', 'メンバーを追加');
+            button.setAttribute('aria-label', '参加者を追加');
         }
     });
 }

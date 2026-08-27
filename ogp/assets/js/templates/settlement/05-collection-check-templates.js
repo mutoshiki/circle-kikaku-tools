@@ -18,10 +18,10 @@
     const checked = paid || preDeducted;
     const displayName = state.paidBy?.[p.name] || p.name;
     const note = excluded
-      ? (preDeducted ? '支払い額から差し引き済' : (p.name === result.excludedName ? '対象外（企画者）' : '対象外'))
+      ? (preDeducted ? '支払い額から差し引き済み' : (p.name === result.excludedName ? '対象外（企画者）' : '対象外'))
       : (p.role === 'member' && p.driverName ? formatCarLabel(p.driverName, helpers) : (p.role === 'waiting' ? '待機' : ''));
     return `<label class="seisan-check-item ${checked ? 'paid' : ''} ${excluded ? 'excluded' : ''} ${preDeducted ? 'pre-deducted' : ''}" data-carbon-checkbox-row${excluded ? ' aria-disabled="true"' : ''}>
-            <cds-checkbox ${checked ? 'checked' : ''} ${excluded ? 'disabled' : ''} data-settlement-paid-name="${encodeURIComponent(p.name)}" label-text="" aria-label="${esc(displayName, helpers)}の支払いチェック"></cds-checkbox>
+            <cds-checkbox ${checked ? 'checked' : ''} ${excluded ? 'disabled' : ''} data-settlement-paid-name="${encodeURIComponent(p.name)}" label-text="" aria-label="${esc(displayName, helpers)}の集金チェック"></cds-checkbox>
             <span class="seisan-check-copy${note ? ' has-note' : ''}">
               <span class="seisan-check-name">${esc(displayName, helpers)}</span>
               ${note ? `<span class="seisan-check-note">${note}</span>` : ''}
@@ -52,7 +52,7 @@
       if (items.length) groups.push({ title: driverName ? `${driverName}車` : '車未設定', items });
     });
     const waiting = participants.filter(p => !used.has(p.name));
-    if (waiting.length) groups.push({ title: '待機・未割当', items: waiting });
+    if (waiting.length) groups.push({ title: '未割り当て', items: waiting });
     return groups.length ? groups : [{ title: '', items: participants }];
   }
 

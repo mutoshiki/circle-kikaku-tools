@@ -5,16 +5,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>サークル企画ツール</title>
-    <meta name="description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">
+    <meta name="description" content="サークルの企画で使える、車割作成・共有・精算をまとめたWebツールです。">
     <meta property="og:title" content="サークル企画ツール">
-    <meta property="og:description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">
+    <meta property="og:description" content="サークルの企画で使える、車割作成・共有・精算をまとめたWebツールです。">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://mutoshiki.github.io/circle-kikaku-tools/">
     <meta property="og:image" content="https://mutoshiki.github.io/circle-kikaku-tools/ogp-thumbnail.png">
     <meta property="og:site_name" content="サークル企画ツール">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="サークル企画ツール">
-    <meta name="twitter:description" content="サークルの企画で使える、車割作成・発表・精算をまとめたWebツールです。">
+    <meta name="twitter:description" content="サークルの企画で使える、車割作成・共有・精算をまとめたWebツールです。">
     <meta name="twitter:image" content="https://mutoshiki.github.io/circle-kikaku-tools/ogp-thumbnail.png">
     <!-- CSS: local fonts -->
     <link rel="preload" href="./assets/vendor/ibm-plex/fonts/IBMPlexSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
@@ -227,7 +227,7 @@
 
       <div id="sheet-view-area" hidden>
         <div id="sheet-title-bar">
-          <span id="sheet-summary" aria-label="車割と班割の集計">車割 車出し 0 同乗者 0 全員 0 待機 0 / 班割 班長 0 メンバー 0 全員 0 待機 0</span>
+          <span id="sheet-summary" aria-label="車割と班割の集計">車割 運転手 0 参加者 0 全員 0 未割り当て 0 / 班割 班長 0 参加者 0 全員 0 未割り当て 0</span>
         </div>
         <div id="sheet-canvas" role="region" aria-label="共有画面の車割・班割・タイムテーブル" tabindex="0"></div>
         <div id="sheet-bottom-controls">
@@ -259,7 +259,7 @@
             <div class="seisan-head">
               <div class="seisan-title seisan-semantic-section-title">
                 <span data-carbon-icon="car-small" aria-hidden="true"></span>
-                <span>ドライバーへの<cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge seisan-payment-tag carbon-display-tag ui-chip pay" data-cost-type="pay" data-tag-group="cost" data-tag-value="pay" type="magenta" size="sm">支払い</cds-tag></span>
+                <span>運転手への<cds-tag class="seisan-cost-policy-tag seisan-cost-type-badge seisan-payment-tag carbon-display-tag ui-chip pay" data-cost-type="pay" data-tag-group="cost" data-tag-value="pay" type="magenta" size="sm">支払い</cds-tag></span>
               </div>
             </div>
             <div id="seisan-car-list"></div>
@@ -291,12 +291,12 @@
           <section class="seisan-card seisan-share-card seisan-panel">
             <div class="seisan-head">
               <div>
-                <div class="seisan-title"><span data-carbon-icon="copy" aria-hidden="true"></span>共有用テキスト</div>
+                <div class="seisan-title"><span data-carbon-icon="copy" aria-hidden="true"></span>精算メモ</div>
                 <div id="seisan-share-note" class="seisan-muted">テキストのプレビュー</div>
               </div>
             </div>
             <pre id="seisan-share-preview" class="seisan-share-preview" aria-label="精算メモのプレビュー"></pre>
-            <div class="seisan-share-actions" aria-label="精算結果の共有用テキスト">
+            <div class="seisan-share-actions" aria-label="精算メモの共有">
               <cds-button class="seisan-btn seisan-copy-btn" kind="tertiary" size="lg" type="button" data-action="copy-settlement-text"><span data-carbon-icon="task" slot="icon" aria-hidden="true"></span>精算メモをコピー</cds-button>
             </div>
           </section>
@@ -305,13 +305,13 @@
       </div>
 
       <div id="bottom-tray" hidden>
-        <cds-button id="tray-handle" kind="ghost" size="lg" type="button" aria-label="未割り当てメンバーを開閉" aria-controls="waiting-list-container" aria-expanded="false">
-          <span id="tray-toggle-label"><span data-carbon-icon="chevron--up" data-state-icon="waitingTray" data-icon-state="closed" aria-hidden="true"></span><span>未割り当てメンバーを開く</span></span>
+        <cds-button id="tray-handle" kind="ghost" size="lg" type="button" aria-label="未割り当ての参加者を開閉" aria-controls="waiting-list-container" aria-expanded="false">
+          <span id="tray-toggle-label"><span data-carbon-icon="chevron--up" data-state-icon="waitingTray" data-icon-state="closed" aria-hidden="true"></span><span>未割り当ての参加者を開く</span></span>
         </cds-button>
         <div id="bottom-tray-header">
           <div class="tray-inline-row">
             <span id="waiting-count" class="waiting-inline-count" aria-live="polite">未割り当て 0人</span>
-            <div class="tray-actions" aria-label="未割り当てメンバーの自動配置">
+            <div class="tray-actions" aria-label="未割り当ての参加者の自動配置">
               <cds-button id="fillEmptySeatsBtn" class="tray-action-btn tray-action-btn--fill" kind="tertiary" size="lg" type="button"><span data-carbon-icon="user--follow" slot="icon" aria-hidden="true"></span><span>埋める</span></cds-button>
               <div class="random-tools">
                 <cds-button id="shuffleAssignBtn" class="auto-assign-btn tray-action-btn tray-action-btn--auto" kind="primary" size="lg" type="button"><span>ランダム</span><span data-carbon-icon="shuffle" slot="icon" aria-hidden="true"></span></cds-button>
@@ -326,10 +326,10 @@
                     </div>
                     <div class="auto-assign-menu-options" role="group" aria-label="ランダム割り当てで考慮する条件">
                       <div class="auto-assign-option-row">
-                        <cds-checkbox id="optFemale" class="auto-assign-checkbox" label-text="女子をまとめる" aria-label="女性の配置を考慮する"></cds-checkbox>
+                        <cds-checkbox id="optFemale" class="auto-assign-checkbox" label-text="女性をまとめる" aria-label="女性の配置を考慮する"></cds-checkbox>
                       </div>
                       <div class="auto-assign-option-row">
-                        <cds-checkbox id="optMale" class="auto-assign-checkbox" label-text="男子をまとめる" aria-label="男性の配置を考慮する"></cds-checkbox>
+                        <cds-checkbox id="optMale" class="auto-assign-checkbox" label-text="男性をまとめる" aria-label="男性の配置を考慮する"></cds-checkbox>
                       </div>
                       <div class="auto-assign-option-row">
                         <cds-checkbox id="optGrade" class="auto-assign-checkbox" label-text="学年をまとめる" aria-label="学年の配置を考慮する"></cds-checkbox>
@@ -371,7 +371,7 @@
 <div class="seat-member-picker-list" id="seatMemberPickerList" role="list"></div>
 <div class="seat-member-picker-empty" hidden="" id="seatMemberPickerEmpty">
 <span aria-hidden="true" data-carbon-icon="user--follow"></span>
-<strong>追加できるメンバーがいません</strong>
+<strong>追加できる参加者がいません</strong>
 <span>参加者登録、または別の席から「待機に戻す」を行ってください。</span>
 </div>
 </cds-modal-body></cds-modal>
@@ -439,7 +439,7 @@
 </div>
 </div>
 <div class="batch-import-column batch-import-column--half">
-<label class="batch-import-field-label batch-label-accent">同乗者（改行区切り）</label>
+<label class="batch-import-field-label batch-label-accent">参加者（改行区切り）</label>
 <cds-textarea aria-label="参加者名一覧" class="batch-import-textarea" hide-label="" id="batchMembers" label="参加者名一覧" placeholder="（例）
 田中 太郎
 佐藤 花子
@@ -519,14 +519,14 @@
 </div>
 <div class="seisan-standalone-fields seisan-settings-span" hidden="" id="seisanStandaloneFields">
 <div class="seisan-field">
-<label>車出し人数</label>
-<cds-number-input aria-label="車出し人数" hide-label="" id="seisanStandaloneDriverCount" inputmode="numeric" label="車出し人数" max="99" min="0" placeholder="例：3" size="lg"></cds-number-input>
+<label>運転手人数</label>
+<cds-number-input aria-label="運転手人数" hide-label="" id="seisanStandaloneDriverCount" inputmode="numeric" label="運転手人数" max="99" min="0" placeholder="例：3" size="lg"></cds-number-input>
 </div>
 <div class="seisan-field">
 <label>それ以外の人数</label>
 <cds-number-input aria-label="それ以外の人数" hide-label="" id="seisanStandaloneMemberCount" inputmode="numeric" label="それ以外の人数" max="99" min="0" placeholder="例：8" size="lg"></cds-number-input>
 </div>
-<div class="seisan-standalone-error" hidden="" id="seisanStandaloneError">車出し人数とそれ以外の人数を入力してください。</div>
+<div class="seisan-standalone-error" hidden="" id="seisanStandaloneError">運転手人数とそれ以外の人数を入力してください。</div>
 </div>
 </div>
 <div class="seisan-settings-section seisan-settings-section--detail seisan-settings-span">

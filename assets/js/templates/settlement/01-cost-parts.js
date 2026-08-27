@@ -139,7 +139,7 @@
 
     function formatPaymentTotalRow(calc, helpers = {}) {
     const amount = calc.adjustedTotalPay ?? calc.totalPay ?? 0;
-    return `<div class="seisan-car-summary-payment seisan-cost-total-row" aria-label="車主への支払い金額"><span class="seisan-cost-total-label">合計</span><strong class="seisan-car-summary-total ${UI_CLASS.amount}"><span class="seisan-amount-sign" aria-hidden="true">＝</span>${money(amount, helpers)}</strong></div>`;
+    return `<div class="seisan-car-summary-payment seisan-cost-total-row" aria-label="運転手への支払い金額"><span class="seisan-cost-total-label">合計</span><strong class="seisan-car-summary-total ${UI_CLASS.amount}"><span class="seisan-amount-sign" aria-hidden="true">＝</span>${money(amount, helpers)}</strong></div>`;
   }
 
   

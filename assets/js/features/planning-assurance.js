@@ -62,11 +62,11 @@
             const groups = Array.isArray(plan.cars) ? plan.cars : [];
             const waiting = Array.isArray(plan.waiting) ? plan.waiting : [];
             if (!groups.length) issues.push({ tone: 'error', title: `${label}が未作成です`, detail: `${label}の代表者を設定してください。` });
-            if (waiting.length) issues.push({ tone: 'warning', title: `${label}に未割り当てが${waiting.length}名います`, detail: waiting.slice(0, 4).map(member => member.name).filter(Boolean).join('、') + (waiting.length > 4 ? ' ほか' : '') });
+            if (waiting.length) issues.push({ tone: 'warning', title: `${label}に未割り当てが${waiting.length}人います`, detail: waiting.slice(0, 4).map(member => member.name).filter(Boolean).join('、') + (waiting.length > 4 ? ' ほか' : '') });
             groups.forEach(group => {
                 const count = (group.members || []).filter(member => member?.name).length;
                 const capacity = Number(group.capacity || 0);
-                if (capacity > 0 && count > capacity) issues.push({ tone: 'error', title: `${group.name || label}が定員超過です`, detail: `${count}/${capacity}名になっています。` });
+                if (capacity > 0 && count > capacity) issues.push({ tone: 'error', title: `${group.name || label}が定員超過です`, detail: `${count}/${capacity}人になっています。` });
             });
             const names = peopleInPlan(plan);
             const duplicates = names.filter((name, index) => names.indexOf(name) !== index);

@@ -75,13 +75,13 @@ function renderGoogleFormImportPreview(result, reflected = false) {
     return `
         <div class="form-import-preview-title">読み取り結果（登録前の確認）</div>
         <div class="form-import-result-grid">
-            <div><span>参加者</span><strong>${counts.total || 0}名</strong></div>
-            <div><span>1年生</span><strong>${counts.grade1 || 0}名</strong></div>
-            <div><span>2年生</span><strong>${counts.grade2 || 0}名</strong></div>
-            <div><span>3年生</span><strong>${counts.grade3 || 0}名</strong></div>
-            <div><span>4年生</span><strong>${counts.grade4 || 0}名</strong></div>
-            <div><span>学年なし</span><strong>${counts.noGrade || 0}名</strong></div>
-            <div><span>車出し</span><strong>${counts.drivers || 0}名</strong></div>
+            <div><span>参加者</span><strong>${counts.total || 0}人</strong></div>
+            <div><span>1年生</span><strong>${counts.grade1 || 0}人</strong></div>
+            <div><span>2年生</span><strong>${counts.grade2 || 0}人</strong></div>
+            <div><span>3年生</span><strong>${counts.grade3 || 0}人</strong></div>
+            <div><span>4年生</span><strong>${counts.grade4 || 0}人</strong></div>
+            <div><span>学年なし</span><strong>${counts.noGrade || 0}人</strong></div>
+            <div><span>車出し</span><strong>${counts.drivers || 0}人</strong></div>
         </div>
         <div class="form-import-column-list">
             <div>名前列：${escapeHtml(result.columnText?.name || 'なし')}</div>
@@ -192,7 +192,7 @@ function getBatchFieldLines(selector) {
 
 function collectManualBatchEntries() {
     const fields = [
-        { id: '#batchMembers', group: '同乗者', type: 'member', grade: 0 },
+        { id: '#batchMembers', group: '参加者', type: 'member', grade: 0 },
         { id: '#batchGrade1', group: '1年生', type: 'grade', grade: 1 },
         { id: '#batchGrade2', group: '2年生', type: 'grade', grade: 2 },
         { id: '#batchGrade3', group: '3年生', type: 'grade', grade: 3 },
@@ -228,7 +228,7 @@ function findManualBatchIssues(entries) {
 
         duplicatedGroups.forEach(group => blocking.push(`${firstName}：${group}欄の中で重複しています。`));
         if (uniqueNonDriverGroups.length > 1) {
-            blocking.push(`${firstName}：${uniqueNonDriverGroups.join('・')}に重複しています。学年欄同士、または同乗者欄と学年欄の重複を直してください。`);
+            blocking.push(`${firstName}：${uniqueNonDriverGroups.join('・')}に重複しています。学年欄同士、または参加者欄と学年欄の重複を直してください。`);
         }
         if (driverCount > 1) blocking.push(`${firstName}：車出し欄の中で重複しています。`);
         if (displayNames.length > 1) {

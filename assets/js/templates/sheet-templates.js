@@ -12,7 +12,7 @@
       type: 'car',
       sectionTitle: '車割',
       sheetTitle: '車割',
-      ownerLabel: '車出し',
+      ownerLabel: '運転手',
       memberLabel: '席',
       groupSuffix: '車',
       ownerIcon: 'car-small',
@@ -35,7 +35,7 @@
     const shared = window.SanpoApp?.templates?.common?.entryChoice;
     return typeof shared === 'function'
       ? shared({ className: 'sheet-empty-card' })
-      : '<div class="sheet-empty-card app-empty-card empty-card app-entry-choice"><div class="seisan-empty-actions"><cds-button kind="primary" size="lg" type="button" data-action="open-batch">参加者登録(推奨)</cds-button><span class="seisan-empty-or">もしくは</span><cds-button kind="secondary" size="lg" type="button" data-action="switch-seisan-settings">人数だけで精算</cds-button></div></div>';
+      : '<div class="sheet-empty-card app-empty-card empty-card app-entry-choice"><div class="seisan-empty-actions"><cds-button kind="primary" size="lg" type="button" data-action="open-batch">参加者登録（推奨）</cds-button><span class="seisan-empty-or">もしくは</span><cds-button kind="secondary" size="lg" type="button" data-action="switch-seisan-settings">人数だけで精算</cds-button></div></div>';
   }
 
   function labelColumn(maxSeats, template = {}) {
@@ -87,13 +87,13 @@
       html += `<div class="sheet-seat-row" data-gender="${g}">${plainMember(mem, helpers)}</div>`;
     });
     const vacancyCount = Math.max(0, cap - filled);
-    if (vacancyCount) html += `<div class="sheet-seat-row empty sheet-seat-capacity">空き ${vacancyCount}名</div>`;
+    if (vacancyCount) html += `<div class="sheet-seat-row empty sheet-seat-capacity">空き ${vacancyCount}人</div>`;
     return html;
   }
 
   function waitingColumn({ data, quickEditMode, helpers = {} }) {
     const waiting = Array.isArray(data?.waiting) ? data.waiting : [];
-    let html = `<div class="sheet-wait-header">未割り当て ${waiting.length}名</div>`;
+    let html = `<div class="sheet-wait-header">未割り当て ${waiting.length}人</div>`;
     if (quickEditMode) {
       html += `<div class="sheet-wait-body"><div class="sheet-waiting-list" data-zone-type="waiting" data-accept-drop="true">${waiting.map(member => memberChip(member, helpers)).join('')}</div></div>`;
     } else {

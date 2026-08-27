@@ -207,7 +207,7 @@ assert.match(announcement, /raw\.includes\('企画'\) \? raw : `\$\{raw\}企画`
 assert.match(announcement, /当日は\$\{meetingTime\}に\$\{FIXED_MEETING_PLACE\}に集合してください/);
 assert.match(announcement, /【参加者】/);
 assert.match(announcement, /○は車出し/);
-assert.match(announcement, /以上\$\{participants\.length\}名です/);
+assert.match(announcement, /以上\$\{participants\.length\}人です/);
 assert.doesNotMatch(announcement, /※敬称略/);
 assert.doesNotMatch(announcement, /皆様、お疲れ様です！/);
 assert.doesNotMatch(announcement, /以前募集した/);

@@ -51,7 +51,7 @@ function buildSettlementOverviewText({ title, state, result }) {
             car.usesTimesRental ? 'ガソリン代：なし（タイムズ）' : `ガソリン代：${yen(car.gas)}`,
             `諸経費：${formatSettlementExtraDetail(car)}`
         ];
-        if (car.collectionOffset) details.push(`− ドライバー分の集金控除：${yen(car.collectionOffset)}`);
+        if (car.collectionOffset) details.push(`− 運転手分の集金控除：${yen(car.collectionOffset)}`);
         if (car.driverRound) details.push(`＋ 支払い額の切り上げ：${yen(car.driverRound)}`);
         return `・${car.name}車：${yen(car.adjustedTotalPay ?? car.totalPay)}${paidMark}\n　${details.join('　')}`;
     });
@@ -60,12 +60,12 @@ function buildSettlementOverviewText({ title, state, result }) {
         `【${title} 精算メモ】`,
         `参加者集金：${yen(result.expectedCollected)}（${yen(result.perPerson)} × ${result.payerCount}名）`,
         `${accountingLabel}：${yen(accountingAbs)}`,
-        `支払総額：${yen(result.driverTotal)}`,
-        `計算：参加者集金 ${formulaSign} ${accountingLabel} ＝ 支払総額`,
+        `支払い総額：${yen(result.driverTotal)}`,
+        `計算：参加者集金 ${formulaSign} ${accountingLabel} ＝ 支払い総額`,
         '',
         `割勘対象：${yen(result.totalSplit)}`,
         `諸経費：割勘 ${yen(splitExtraTotal)} / 部費 ${yen(result.totalClub)}`,
-        `ドライバー分の集金控除：${formatSignedSettlementYen(-result.totalDriverCollectionOffset, false)}`,
+        `運転手分の集金控除：${formatSignedSettlementYen(-result.totalDriverCollectionOffset, false)}`,
         `${collectionBalanceLabel}：${yen(Math.abs(result.surplus))}`,
         `集金状況：${result.paidCount}/${result.payerCount}名`,
         `未回収：${unpaid.length ? unpaid.join('、') : 'なし'}`,

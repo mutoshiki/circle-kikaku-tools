@@ -19,7 +19,7 @@ function formatUpdatedAt(ts) {
 function buildSheetPlanSummaryRow(plan, updatedLabel = '') {
     const template = typeof getCarPlanTemplateConfig === 'function'
         ? getCarPlanTemplateConfig(plan || 'car')
-        : { type: 'car', ownerLabel: '車出し', memberLabel: '席' };
+        : { type: 'car', ownerLabel: '運転手', memberLabel: '参加者' };
     const cars = Array.isArray(plan?.cars) ? plan.cars : [];
     const waiting = Array.isArray(plan?.waiting) ? plan.waiting : [];
     const ownerCount = cars.length;
@@ -28,12 +28,12 @@ function buildSheetPlanSummaryRow(plan, updatedLabel = '') {
     const memberCount = assignedMemberCount + waitingCount;
     const totalCount = ownerCount + memberCount;
     const ownerSummaryLabel = template.type === 'team' ? (template.ownerLabel || '班長') : '運転手';
-    const memberSummaryLabel = template.type === 'team' ? '班員' : '同乗者';
+    const memberSummaryLabel = '参加者';
     const stats = [
         [ownerSummaryLabel, ownerCount],
         [memberSummaryLabel, memberCount],
         ['全員', totalCount],
-        ['待機', waitingCount]
+        ['未割り当て', waitingCount]
     ];
     const row = document.createElement('span');
     row.className = `sheet-summary-row is-${template.type || 'car'}`;
@@ -175,7 +175,7 @@ function renderListEmptyHint() {
     const activePlan = typeof getActiveCarPlan === 'function' ? getActiveCarPlan() : null;
     const template = typeof getCarPlanTemplateConfig === 'function'
         ? getCarPlanTemplateConfig(activePlan || 'car')
-        : { sectionTitle: '車割', ownerLabel: '車出し', groupSuffix: '車', ownerIcon: 'car-small' };
+        : { sectionTitle: '車割', ownerLabel: '運転手', groupSuffix: '車', ownerIcon: 'car-small' };
     const ownerText = template.type === 'team'
         ? '班長にする人をここへドロップ'
         : '車出しをここへドロップ';
@@ -183,7 +183,7 @@ function renderListEmptyHint() {
     const entryChoice = window.SanpoApp?.templates?.common?.entryChoice;
     const emptyChoice = typeof entryChoice === 'function'
         ? entryChoice({ className: 'allocation-entry-choice' })
-        : '<div class="app-empty-card empty-card app-entry-choice"><div class="seisan-empty-actions"><cds-button kind="primary" size="lg" type="button" data-action="open-batch">参加者登録(推奨)</cds-button><span class="seisan-empty-or">もしくは</span><cds-button kind="secondary" size="lg" type="button" data-action="switch-seisan-settings">人数だけで精算</cds-button></div></div>';
+        : '<div class="app-empty-card empty-card app-entry-choice"><div class="seisan-empty-actions"><cds-button kind="primary" size="lg" type="button" data-action="open-batch">参加者登録（推奨）</cds-button><span class="seisan-empty-or">もしくは</span><cds-button kind="secondary" size="lg" type="button" data-action="switch-seisan-settings">人数だけで精算</cds-button></div></div>';
     const html = waitingCount > 0
         ? `<div class="allocation-grid-item allocation-grid-item--full" id="list-empty-hint"><div class="drop-create-lane empty-card--drop-create"><span data-carbon-icon="${template.ownerIcon || 'car-small'}" aria-hidden="true"></span><strong>${ownerText}</strong><span>${createText}</span></div></div>`
         : `<div class="allocation-grid-item allocation-grid-item--full" id="list-empty-hint">${emptyChoice}</div>`;

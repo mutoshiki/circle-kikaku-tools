@@ -45,7 +45,7 @@
     const organizerNote = state.organizerFree && state.organizerName && !result.isStandaloneSettlement
       ? `（${esc(state.organizerName, helpers)}）`
       : '';
-    const driverOffsetLabel = result.driverCollectionOffset ? '支払い額から差し引き済' : 'する';
+    const driverOffsetLabel = result.driverCollectionOffset ? '支払い額から差し引き済み' : 'する';
     const driverFreeLabel = result.driverCollectionFree ? 'しない' : '';
     const organizerFreeDisplay = `${organizerFreeLabel}${organizerNote}`;
     const standalone = result.isStandaloneSettlement ? result.standaloneCounts : null;
@@ -59,7 +59,7 @@
 
     if (standalone) {
       rows.push(row('入力方法', '精算だけ'));
-      rows.push(row('人数', `車出し${standalone.driverCount}名＋その他${standalone.memberCount}名`));
+      rows.push(row('人数', `運転手${standalone.driverCount}人＋その他${standalone.memberCount}人`));
     }
     if (result.driverCollectionOffset) rows.push(row('車出しの集金', esc(driverOffsetLabel, helpers)));
     if (result.driverCollectionFree) rows.push(row('運転手の集金', esc(driverFreeLabel, helpers)));

@@ -52,8 +52,8 @@ assert.ok(workspace.includes('sortRoleRows(box)'), 'Role-tagged people must be s
 assert.ok(autoAssign.includes('async function autoAssign()'), 'Random assignment must be one parameterless bulk action');
 assert.ok(autoAssign.includes('placement?.driver !== true') && autoAssign.includes("placement?.kind === 'waiting'"), 'Role-tagged drivers/leaders must keep their canonical allocation during random assignment');
 assert.ok(autoAssign.includes('function isRandomlyMovablePlacement') && autoAssign.includes('randomSlotsFromCanonical'), 'Random assignment must update canonical placements instead of transient card DOM');
-assert.ok(autoAssign.includes("title: 'ランダム割当'"), 'Random allocation must use the requested wording');
-assert.ok(autoAssign.includes("lastAutoAssignLabel = 'ランダム割当';"), 'Persisted action label must match the visible random action');
+assert.ok(autoAssign.includes("title: 'ランダム割り当て'"), 'Random allocation must use the requested wording');
+assert.ok(autoAssign.includes("lastAutoAssignLabel = 'ランダム割り当て';"), 'Persisted action label must match the visible random action');
 assert.ok(!autoAssign.includes('optGrade') && !autoAssign.includes('assignByGrade') && !autoAssign.includes("mode === 'fill'"), 'Random allocation must have no condition or fill mode');
 assert.ok(workspace.includes("'fillEmptySeatsBtn', 'traySettingsBtn', 'autoAssignPopover', 'autoAssignMenu', 'clearAllBtn', 'optFemale', 'optMale', 'optGrade'"), 'Retired bulk allocation controls must be removed from the live DOM');
 assert.ok(!css.includes('traySettingsBtn') && !css.includes('autoAssignPopover') && !css.includes('auto-assign-menu-body'), 'Assignment owner CSS must not retain removed allocation-setting surfaces');

@@ -78,7 +78,7 @@ function getCarPlanTemplateConfig(planOrType = 'car') {
             sheetTitle: '班割',
             planName: '班割',
             ownerLabel: '班長',
-            memberLabel: '班員',
+            memberLabel: '参加者',
             groupSuffix: '班',
             ownerIcon: 'user-multiple'
         };
@@ -88,7 +88,7 @@ function getCarPlanTemplateConfig(planOrType = 'car') {
         sectionTitle: '車割',
         sheetTitle: '車割',
         planName: '車割',
-        ownerLabel: '車出し',
+        ownerLabel: '運転手',
         memberLabel: '席',
         groupSuffix: '車',
         ownerIcon: 'car-small'

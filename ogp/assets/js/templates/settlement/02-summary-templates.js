@@ -29,9 +29,9 @@
         </div>
         <div class="seisan-flow-arrow seisan-flow-arrow--equals" aria-hidden="true">＝</div>
         <div class="seisan-summary-card pay ${UI_CLASS.surfaceCard}" data-summary-kind="pay">
-          <div class="seisan-summary-label"><span data-carbon-icon="car-small" aria-hidden="true"></span>支払総額</div>
+          <div class="seisan-summary-label"><span data-carbon-icon="car-small" aria-hidden="true"></span>支払い総額</div>
           <div class="seisan-summary-value ${UI_CLASS.amount}">${money(result.driverTotal, helpers)}</div>
-          <div class="seisan-summary-sub">ドライバー${result.cars.length}名分</div>
+          <div class="seisan-summary-sub">運転手${result.cars.length}人分</div>
         </div>`;
   }
 
@@ -40,14 +40,14 @@
     const organizerNote = state.organizerFree && state.organizerName && !result.isStandaloneSettlement
       ? `（${esc(state.organizerName, helpers)}）`
       : '';
-    const driverOffsetLabel = result.driverCollectionOffset ? '支払い額から差し引き済' : 'する';
+    const driverOffsetLabel = result.driverCollectionOffset ? '支払い額から差し引き済み' : 'する';
     const driverFreeLabel = result.driverCollectionFree ? 'しない' : '';
     const organizerFreeDisplay = `${organizerFreeLabel}${organizerNote}`;
     const standalone = result.isStandaloneSettlement ? result.standaloneCounts : null;
     const reward = Number(result.reward || 0);
     const rewardTypeLabel = result.driverRewardType === 'club' ? '部費' : '割勘';
     const standalonePill = standalone
-      ? `<span class="seisan-setting-pill--mode"><small>入力方法</small>精算だけ</span><span class="seisan-setting-pill--count"><small>人数</small>車出し${standalone.driverCount}名＋その他${standalone.memberCount}名</span>`
+      ? `<span class="seisan-setting-pill--mode"><small>入力方法</small>精算だけ</span><span class="seisan-setting-pill--count"><small>人数</small>運転手${standalone.driverCount}人＋その他${standalone.memberCount}人</span>`
       : '';
     const driverOffsetPill = result.driverCollectionOffset
       ? `<span class="seisan-setting-pill--subtle"><small>車出しの集金:</small>${esc(driverOffsetLabel, helpers)}</span>`
@@ -96,7 +96,7 @@
     const collectionRounding = -Number(result.surplus || 0);
     const adjustmentRows = [
       { name: '支払い額の切り上げ', amount: Number(result.totalDriverRound || 0), user: '全体' },
-      { name: 'ドライバー分の集金控除', amount: -Number(result.totalDriverCollectionOffset || 0), user: '全体' },
+      { name: '運転手分の集金控除', amount: -Number(result.totalDriverCollectionOffset || 0), user: '全体' },
       {
         name: collectionRounding > 0 ? '参加者集金の不足' : '参加者集金の余り',
         amount: collectionRounding,

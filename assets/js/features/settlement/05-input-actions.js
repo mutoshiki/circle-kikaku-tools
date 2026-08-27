@@ -120,7 +120,7 @@ function refreshSettlementCollectionStatus(encodedName, name, checked, state) {
         const displayName = state.paidBy?.[name] || name;
         const nameEl = input.closest('.seisan-check-item')?.querySelector('.seisan-check-name');
         if (nameEl) nameEl.textContent = displayName;
-        input.setAttribute('aria-label', `${displayName}の支払いチェック`);
+        input.setAttribute('aria-label', `${displayName}の集金チェック`);
     }
 
     const data = getRoomDataOnly();

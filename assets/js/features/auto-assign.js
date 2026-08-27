@@ -36,7 +36,7 @@ function randomSlotsFromCanonical(allocation, participants = {}) {
 function updateLastAutoAssignCondition() {}
 
 async function autoAssign() {
-    if (!await appConfirm('参加者をランダムに割り当てます。', { title: 'ランダム割当', okText: '実行' })) return;
+    if (!await appConfirm('参加者をランダムに割り当てます。', { title: 'ランダム割り当て', okText: '実行' })) return;
 
     const room = window.SanpoCanonicalState?.get?.();
     const type = room?.activeAllocationType === 'team' ? 'team' : 'car';
@@ -66,7 +66,7 @@ async function autoAssign() {
     window.SanpoCanonicalState.ensureAllParticipantsPlaced(allocation, room.participants || {});
     window.renderActiveCarPlanToDom?.();
 
-    lastAutoAssignLabel = 'ランダム割当';
+    lastAutoAssignLabel = 'ランダム割り当て';
     updateUI();
     // This is an allocation-wide canonical mutation. A debounced projection
     // save leaves a window where an initial remote read can repaint the old

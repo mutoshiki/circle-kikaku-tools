@@ -251,7 +251,7 @@ function createSheetWaitingColumn(data, isEditablePlan) {
 function createSheetPlanSection(plan, index) {
     const template = typeof getCarPlanTemplateConfig === 'function'
         ? getCarPlanTemplateConfig(plan)
-        : { sectionTitle: '車割', sheetTitle: '車割', planName: '車割', ownerLabel: '車出し', memberLabel: '席', groupSuffix: '車', ownerIcon: 'car-small' };
+        : { sectionTitle: '車割', sheetTitle: '車割', planName: '車割', ownerLabel: '運転手', memberLabel: '参加者', groupSuffix: '車', ownerIcon: 'car-small' };
     const section = document.createElement('section');
     section.className = 'sheet-plan-section';
     section.dataset.planId = plan.id || `plan-${index}`;

@@ -101,7 +101,7 @@ function updateWaitingTrayState() {
     const initialized = tray.dataset.waitingInitialized === 'true';
 
     countEl.textContent = `未割り当て ${count}人`;
-    countEl.setAttribute('aria-label', `未割り当てメンバー ${count}人`);
+    countEl.setAttribute('aria-label', `未割り当ての参加者 ${count}人`);
     setWaitingTraySizeClass(tray, count);
     tray.dataset.waitingCount = String(count);
     tray.dataset.waitingNames = JSON.stringify(stats.waitingNames);
@@ -167,8 +167,8 @@ function updateTrayToggleLabel() {
     const minimized = isWaitingTrayCollapsed(tray);
     const emptySuffix = count === 0 ? '（0人）' : suffix;
     updatePresentation(!minimized, minimized
-        ? `未割り当てメンバーを開く${emptySuffix}`
-        : `未割り当てメンバーを閉じる${emptySuffix}`);
+        ? `未割り当ての参加者を開く${emptySuffix}`
+        : `未割り当ての参加者を閉じる${emptySuffix}`);
 }
 
 function toggleTray() {

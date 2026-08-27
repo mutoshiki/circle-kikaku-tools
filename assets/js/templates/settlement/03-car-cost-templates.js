@@ -100,7 +100,7 @@
       <div class="seisan-car-summary-headline">
         <strong class="seisan-car-summary-name">${esc(driverLabel, helpers)}${calc.usesTimesRental ? '（レンタカー）' : ''}</strong>
         <div class="seisan-car-summary-actions">
-          <cds-toggle class="seisan-car-payment-toggle" size="sm" ${paid ? 'toggled' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" label-a="支払済み" label-b="未払い" aria-label="${esc(driverLabel, helpers)}への支払い状態"></cds-toggle>
+          <cds-toggle class="seisan-car-payment-toggle" size="sm" ${paid ? 'toggled' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" label-a="支払い済み" label-b="未払い" aria-label="${esc(driverLabel, helpers)}への支払い状態"></cds-toggle>
           <cds-button class="seisan-btn seisan-edit-btn" kind="ghost" size="md" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span><span>編集</span></cds-button>
         </div>
       </div>
@@ -148,7 +148,7 @@
     const rowClass = `${issues.rows.has(car.name) ? ' has-error' : ''}${usesTimesRental ? ' is-times-rental' : ''}`;
     const standaloneIndex = Number.isInteger(car.standaloneIndex) ? car.standaloneIndex : null;
     const standaloneData = standaloneIndex == null ? '' : ` data-standalone-driver-index="${standaloneIndex}"`;
-    const standaloneNameField = standaloneIndex == null ? '' : `<label class="seisan-standalone-driver-name-field"><span class="seisan-mini-label">車出し名</span><cds-text-input size="md" density="condensed" data-field="standaloneDriverName" value="${esc(car.name, helpers)}" placeholder="車出し${standaloneIndex + 1}" autocomplete="off" label="車出し名" hide-label></cds-text-input></label>`;
+    const standaloneNameField = standaloneIndex == null ? '' : `<label class="seisan-standalone-driver-name-field"><span class="seisan-mini-label">運転手名</span><cds-text-input size="md" density="condensed" data-field="standaloneDriverName" value="${esc(car.name, helpers)}" placeholder="運転手${standaloneIndex + 1}" autocomplete="off" label="運転手名" hide-label></cds-text-input></label>`;
     const movementLabel = usesTimesRental ? 'タイムズ移動料金' : 'ガソリン代';
     const normalizedName = value => String(value || '').replace(/\s+/g, '').replace(/[（）()]/g, '');
     const movementSourceIndex = cState.extras.findIndex(ex => usesTimesRental

@@ -58,7 +58,7 @@ function buildSettlementOverviewText({ title, state, result }) {
             const offsetDetail = driverCount > 1 && car.collectionOffsetPerDriver
                 ? `（1人あたり${yen(car.collectionOffsetPerDriver)}）`
                 : '';
-            details.push(`− ドライバー${driverCount || 1}人分の集金控除：${yen(car.collectionOffset)}${offsetDetail}`);
+            details.push(`− 運転手${driverCount || 1}人分の集金控除：${yen(car.collectionOffset)}${offsetDetail}`);
         }
         if (car.splitRound) details.push(`＋ 割勘の端数調整：${yen(car.splitRound)}`);
         if (car.clubRound) details.push(`＋ 部費の端数調整：${yen(car.clubRound)}`);
@@ -69,18 +69,18 @@ function buildSettlementOverviewText({ title, state, result }) {
 
     return [
         `【${title} 精算メモ】`,
-        `参加者集金：${yen(result.expectedCollected)}（${yen(result.perPerson)} × ${result.payerCount}名）`,
+        `参加者集金：${yen(result.expectedCollected)}（${yen(result.perPerson)} × ${result.payerCount}人）`,
         `割勘合計：${yen(splitPaymentTotal)}`,
         `部費合計：${yen(clubPaymentTotal)}`,
         `端数調整：割勘 ${formatSignedSettlementYen(result.splitPaymentAdjustment)} / 部費 ${formatSignedSettlementYen(result.clubPaymentAdjustment)}`,
-        `支払総額：${yen(result.driverTotal)}`,
+        `支払い総額：${yen(result.driverTotal)}`,
         `計算：${yen(splitPaymentTotal)} ＋ ${yen(clubPaymentTotal)} ＝ ${yen(result.driverTotal)}`,
         '',
         `割勘対象：${yen(result.totalSplit)}`,
         `諸経費：割勘 ${yen(splitExtraTotal)} / 部費 ${yen(result.totalClub)}`,
-        `ドライバー分の集金控除：${formatSignedSettlementYen(-result.totalDriverCollectionOffset, false)}`,
+        `運転手分の集金控除：${formatSignedSettlementYen(-result.totalDriverCollectionOffset, false)}`,
         `${collectionBalanceLabel}：${yen(Math.abs(result.surplus))}`,
-        `集金状況：${result.paidCount}/${result.payerCount}名`,
+        `集金状況：${result.paidCount}/${result.payerCount}人`,
         `未回収：${unpaid.length ? unpaid.join('、') : 'なし'}`,
         '',
         '車出しへ',

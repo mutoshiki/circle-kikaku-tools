@@ -36,16 +36,16 @@
                 }
 
                 if (card.parentElement.id === 'waiting-list') {
-                    if (await appConfirm('このメンバーを完全に削除しますか？', { title: 'メンバー削除', okText: '削除', danger: true })) {
+                    if (await appConfirm('この参加者を完全に削除しますか？', { title: '参加者削除', okText: '削除', danger: true })) {
                         const participantKey = card.dataset.participantId || card.dataset.name || '';
                         window.SanpoCanonicalState?.deleteParticipant?.(participantKey);
                         card.remove();
                     }
-                } else if (await appConfirm('車から降ろして未割り当てメンバーに戻しますか？', { title: '未割り当てに戻す', okText: '戻す' })) {
+                } else if (await appConfirm('車から降ろして未割り当ての参加者に戻しますか？', { title: '未割り当てに戻す', okText: '戻す' })) {
                     $('#waiting-list').appendChild(card);
                 }
             } else if (box) {
-                if (await appConfirm('この車出しを解除して、車出しと同乗者を待機メンバーに戻しますか？', { title: '車出しを解除', okText: '戻す' })) {
+                if (await appConfirm('この車を削除して、運転手と参加者を未割り当てに戻しますか？', { title: '車を削除', okText: '戻す' })) {
                     const driver = $('.driver-seat', box);
                     const driverName = driver?.dataset?.name || $('.driver-name-disp', driver)?.innerText || '';
                     const driverMemo = $('.driver-memo-text', driver)?.innerText || '';

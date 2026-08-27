@@ -169,7 +169,7 @@ test('each tagged driver in one car receives a collection offset', async ({ page
     driverTotal: 600,
     expectedCollected: 600
   });
-  expect(shareText).toContain('ドライバー2人分の集金控除：¥600（1人あたり¥300）');
+  expect(shareText).toContain('運転手2人分の集金控除：¥600（1人あたり¥300）');
   await expect(page.locator('.seisan-car-summary-name')).toHaveText('藤原 拓海・茂木 なつき（藤原 拓海車）');
   await expect(page.locator('#seisan-car-list')).toContainText('集金控除');
   await expect(page.locator('#seisan-car-list')).toContainText('運転手2人');

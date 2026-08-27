@@ -63,7 +63,7 @@
           <strong class="seisan-car-summary-name">${esc(car.name, helpers)}車${calc.usesTimesRental ? '（レンタカー）' : ''}</strong>
           <cds-button class="seisan-btn seisan-edit-btn" kind="tertiary" size="md" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span><span>編集</span></cds-button>
           <label class="seisan-car-payment-check ${paid ? 'done' : ''}" data-carbon-checkbox-row>
-            <span>${paid ? '支払済み' : '支払済みにする'}</span>
+            <span>${paid ? '支払い済み' : '支払い済みにする'}</span>
             <cds-checkbox ${paid ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" aria-label="${esc(car.name, helpers)}車への支払いチェック"></cds-checkbox>
           </label>
         </div>
@@ -86,7 +86,7 @@
     const details = `${fuelText} / 諸経費 ${money((calc.splitExtras || 0) + (calc.clubExtras || 0), helpers)}${offsetText}`;
     const standaloneIndex = Number.isInteger(car.standaloneIndex) ? car.standaloneIndex : null;
     const standaloneData = standaloneIndex == null ? '' : ` data-standalone-driver-index="${standaloneIndex}"`;
-    const standaloneNameField = standaloneIndex == null ? '' : `<label class="seisan-standalone-driver-name-field"><span class="seisan-mini-label">車出し名</span><cds-text-input size="lg" data-field="standaloneDriverName" value="${esc(car.name, helpers)}" placeholder="車出し${standaloneIndex + 1}" autocomplete="off" label="車出し名" hide-label></cds-text-input></label>`;
+    const standaloneNameField = standaloneIndex == null ? '' : `<label class="seisan-standalone-driver-name-field"><span class="seisan-mini-label">運転手名</span><cds-text-input size="lg" data-field="standaloneDriverName" value="${esc(car.name, helpers)}" placeholder="運転手${standaloneIndex + 1}" autocomplete="off" label="運転手名" hide-label></cds-text-input></label>`;
     const rentalType = usesTimesRental ? 'times' : 'private';
     return `<div class="seisan-car-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}"${standaloneData}>
         ${standaloneNameField}

@@ -33,12 +33,11 @@ expect(presentationShare.includes('og:title" content="車割・班割｜サー�
 expect(presentationShare.includes("target.searchParams.set('view', 'sheet')"), '発表用リンクがsheetへ遷移しません');
 expect(settlementShare.includes('og:title" content="精算｜サークル企画ツール'), '精算用OGタイトルがありません');
 expect(settlementShare.includes("target.searchParams.set('view', 'seisan')"), '精算用リンクがseisanへ遷移しません');
-expect(shareActions.includes('車割・班割（発表用リンク）'), '共有モーダルの発表用文言がありません');
-expect(shareActions.includes('精算用リンク'), '共有モーダルの精算用文言がありません');
-expect(shareActions.includes("path: 'share/presentation/'"), '発表用リンクパスがありません');
-expect(shareActions.includes("path: 'share/settlement/'"), '精算用リンクパスがありません');
-expect(/const SHARE_PREVIEW_VERSION = '[a-f0-9]{12}-[a-f0-9]{12}';/.test(shareActions), '共有プレビューのバージョンがありません');
-expect(shareActions.includes("url.searchParams.set('preview', SHARE_PREVIEW_VERSION)"), '共有URLにキャッシュ更新用パラメータがありません');
+expect(shareActions.includes("url.searchParams.set('room', activeRoomId)"), '共有URLが企画ルームを保持しません');
+expect(!shareActions.includes('車割・班割（発表用リンク）'), '旧発表用リンク文言が残っています');
+expect(!shareActions.includes('精算用リンク'), '旧精算用リンク文言が残っています');
+expect(!shareActions.includes("path: 'share/presentation/'"), '旧発表用リンクパスが残っています');
+expect(!shareActions.includes("path: 'share/settlement/'"), '旧精算用リンクパスが残っています');
 expect(sheetView.includes("['list', 'sheet', 'seisan'].includes(requestedInitialView)"), 'viewクエリの初期画面処理がありません');
 expect(presentationSource.includes('<h1 class="ogp-title">車割・班割</h1>'), '発表用サムネイルのタイトルがありません');
 expect(settlementSource.includes('<h1 class="ogp-title">精算</h1>'), '精算用サムネイルのタイトルがありません');

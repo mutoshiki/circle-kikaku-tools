@@ -29,7 +29,7 @@ window.SanpoUserGuideContent = `
 
     <section id="manual-car" class="user-manual-section">
       <div class="user-manual-heading"><span>2</span><h2>車割を作る</h2></div>
-      <p>車出しにした人ごとに車が作られます。未割り当ての人をドラッグするか、「埋める」「ランダム」で自動配置します。固定した人は動きません。</p>
+      <p>「車割」タブで各車の空席に参加者を追加します。全体を作り直したいときは「ランダム割り当て」を押すだけで、ロックしていない参加者をランダムに配置できます。</p>
       <figure class="user-manual-figure">
         <img loading="lazy" src="./assets/images/user-guide/03-car-allocation.webp" alt="スマホの車割画面" width="390" height="844">
       </figure>
@@ -37,7 +37,7 @@ window.SanpoUserGuideContent = `
 
     <section id="manual-team" class="user-manual-section">
       <div class="user-manual-heading"><span>3</span><h2>班割を作る</h2></div>
-      <p>「班割」に切り替え、班長と班員をドラッグして配置します。定員、自動配置、固定の使い方は車割と同じです。</p>
+      <p>「班割」タブは車割とは別の画面です。空席から参加者を追加し、必要なら「ランダム割り当て」で全体を作り直します。</p>
       <figure class="user-manual-figure">
         <img loading="lazy" src="./assets/images/user-guide/04-team-allocation.webp" alt="スマホの班割画面" width="390" height="844">
       </figure>
@@ -80,13 +80,13 @@ window.SanpoUserGuideContent = `
       </figure>
 
       <h3>結果</h3>
-      <p>合計、ドライバーへの支払い、集金状況を確認します。「精算メモをコピー」で連絡用の文章をコピーできます。</p>
+      <p>合計、運転手への支払い、集金状況を確認します。「精算メモをコピー」で連絡用の文章をコピーできます。</p>
       <div class="user-manual-media-stack">
         <figure class="user-manual-figure">
           <img loading="lazy" src="./assets/images/user-guide/10-settlement-summary.webp" alt="スマホの精算結果上部" width="390" height="844">
         </figure>
         <figure class="user-manual-figure">
-          <img loading="lazy" src="./assets/images/user-guide/11-settlement-checks.webp" alt="スマホの支払いチェックと共有用テキスト" width="390" height="844">
+          <img loading="lazy" src="./assets/images/user-guide/11-settlement-checks.webp" alt="スマホの集金チェックと精算メモ" width="390" height="844">
         </figure>
       </div>
     </section>

@@ -136,7 +136,7 @@ function addCar(n, cap, mems=[], dm='', dg='unknown', dgrade=0, dflag='none', pa
                 <cds-button type="button" kind="ghost" size="lg" class="capacity-badge capacity-edit-btn" data-action="edit-capacity" aria-label="定員を変更">
                     <span class="capacity-count">0/${c}</span><span data-carbon-icon="edit" aria-hidden="true"></span>
                 </cds-button>
-                <cds-icon-button type="button" kind="danger--ghost" size="lg" class="car-delete-btn car-return-btn action-btn delete-btn" aria-label="車出しを解除して待機に戻す">
+                <cds-icon-button type="button" kind="danger--ghost" size="lg" class="car-delete-btn car-return-btn action-btn delete-btn" aria-label="車を削除して未割り当てに戻す">
                     <span data-carbon-icon="undo" aria-hidden="true"></span>
                 </cds-icon-button>
             </div>

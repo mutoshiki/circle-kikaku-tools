@@ -131,7 +131,7 @@
         header.innerHTML = `
             <div class="assignment-workspace-meta-row">
                 <p class="assignment-workspace-summary" id="assignmentWorkspaceSummary" aria-live="polite"></p>
-                <div id="assignmentWorkspaceRandomAction" class="assignment-workspace-actions" aria-label="ランダム割当"></div>
+                <div id="assignmentWorkspaceRandomAction" class="assignment-workspace-actions" aria-label="ランダム割り当て"></div>
             </div>`;
         const legacyHeader = topArea.querySelector(':scope > .edit-header');
         topArea.insertBefore(header, legacyHeader || topArea.firstChild);
@@ -162,7 +162,7 @@
             footer = D.createElement('div');
             footer.id = 'assignmentWorkspaceFooterActions';
             footer.className = 'assignment-workspace-footer-actions';
-            footer.setAttribute('aria-label', 'グループを追加');
+            footer.setAttribute('aria-label', '車を追加');
             topArea.insertBefore(footer, cars.nextSibling);
         }
         const hasParticipants = registeredParticipantCount() > 0;
@@ -185,6 +185,7 @@
         }
         const type = activeType();
         const groupLabel = type === 'team' ? '班' : '車';
+        footer.setAttribute('aria-label', `${groupLabel}を追加`);
         addGroup.setAttribute('aria-label', `${groupLabel}を追加`);
         const addLabel = addGroup.querySelector('span:not([slot="icon"]):not([data-carbon-icon])');
         if (addLabel) addLabel.textContent = `${groupLabel}を追加`;
@@ -195,8 +196,8 @@
         shuffle.setAttribute('kind', 'primary');
         shuffle.setAttribute('size', 'lg');
         const label = shuffle.querySelector('span:not([slot="icon"]):not([data-carbon-icon])');
-        if (label) label.textContent = 'ランダム割当';
-        else shuffle.prepend(D.createTextNode('ランダム割当'));
+        if (label) label.textContent = 'ランダム割り当て';
+        else shuffle.prepend(D.createTextNode('ランダム割り当て'));
         if (shuffle.parentElement !== actions) actions.appendChild(shuffle);
 
         D.querySelectorAll('.random-tools').forEach(wrapper => {
@@ -265,7 +266,7 @@
         const groupLabel = type === 'team' ? '班' : '車';
         const roleLabel = type === 'team' ? '班長' : '運転手';
         if (!candidates.length) {
-            global.AppUI?.showStatus?.(`未配置の参加者を選ぶと${groupLabel}を追加できます。`, { tone: 'neutral', duration: 2800 });
+            global.AppUI?.showStatus?.(`未割り当ての参加者を選ぶと${groupLabel}を追加できます。`, { tone: 'neutral', duration: 2800 });
             return;
         }
         const modal = ensureGroupCreateModal();
@@ -347,6 +348,7 @@
     function ensureGroupOverflow(box) {
         const header = box.querySelector('.car-header');
         if (!header) return;
+        const type = activeType();
         let menu = header.querySelector('.assignment-group-menu');
         if (!menu) {
             menu = D.createElement('cds-overflow-menu');
@@ -357,14 +359,14 @@
             // the workspace without the former mobile fixed-sheet override.
             menu.autoalign = true;
             menu.menuAlignment = 'bottom-end';
-            menu.setAttribute('label', 'グループの操作');
-            menu.setAttribute('aria-label', 'グループの操作');
+            menu.setAttribute('label', `${type === 'team' ? '班' : '車'}の操作`);
+            menu.setAttribute('aria-label', `${type === 'team' ? '班' : '車'}の操作`);
             menu.setAttribute('enable-v12-overflowmenu', '');
             menu.innerHTML = `
                 <span slot="icon" data-carbon-icon="overflow-menu-vertical" aria-hidden="true"></span>
                 <cds-menu>
                     <cds-menu-item label="定員を変更" data-assignment-group-action="capacity"><span data-carbon-icon="edit" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
-                    <cds-menu-item label="グループを削除" kind="danger" data-assignment-group-action="delete"><span data-carbon-icon="trash-can" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
+                    <cds-menu-item label="${type === 'team' ? '班' : '車'}を削除" kind="danger" data-assignment-group-action="delete"><span data-carbon-icon="trash-can" slot="render-icon" aria-hidden="true"></span></cds-menu-item>
                 </cds-menu>`;
             header.appendChild(menu);
             menu.addEventListener('click', event => {
@@ -448,7 +450,7 @@
             }
             label.textContent = '空席';
             slot.setAttribute('aria-label', `空席 ${index + 1}`);
-            slot.querySelector('.seat-add-btn')?.setAttribute('aria-label', '空席にメンバーを追加');
+            slot.querySelector('.seat-add-btn')?.setAttribute('aria-label', '空席に参加者を追加');
         });
     }
 
@@ -509,7 +511,7 @@
         const waiting = D.querySelectorAll('#waiting-list .member-card').length;
         const passengers = D.querySelectorAll('#cars-container .member-card').length;
         const anchors = D.querySelectorAll('#cars-container .driver-seat').length;
-        summary.textContent = `${passengers + anchors + waiting}人 · ${groups}${type === 'team' ? '班' : '台'} · 未配置${waiting}人`;
+        summary.textContent = `${passengers + anchors + waiting}人 · ${groups}${type === 'team' ? '班' : '台'} · 未割り当て${waiting}人`;
     }
 
     function normalizeHorizontalPosition() {

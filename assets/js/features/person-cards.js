@@ -46,7 +46,7 @@ function renderPersonOverflowMenu({ name, inWaiting = false, locked = false, rol
       ] }),
       `<cds-menu-item class="person-pop-item" label="${locked ? 'ロック解除' : 'ロック'}" data-person-action="lock">${renderPersonMenuIcon(locked ? 'unlocked' : 'locked')}</cds-menu-item>`
     ];
-    common.push(`<cds-menu-item class="person-pop-item" label="${inWaiting ? '削除' : '未配置に戻す'}" data-person-action="return" kind="${inWaiting ? 'danger' : 'default'}">${renderPersonMenuIcon(inWaiting ? 'trash-can' : 'undo')}</cds-menu-item>`);
+    common.push(`<cds-menu-item class="person-pop-item" label="${inWaiting ? '削除' : '未割り当てに戻す'}" data-person-action="return" kind="${inWaiting ? 'danger' : 'default'}">${renderPersonMenuIcon(inWaiting ? 'trash-can' : 'undo')}</cds-menu-item>`);
     common.push(renderPersonChoiceSubmenu({ label: '学年', icon: 'education', action: 'grade', choices: [
       { value: '0', label: '未設定', icon: 'subtract' },
       { value: '1', label: '1年', icon: 'number--1' },
@@ -115,7 +115,7 @@ function addCar(n, cap, mems=[], dm='', _legacyUnused='', dgrade=0, dflag='none'
             <div class="memo-popup driver-memo-text" style="display:${dm?'block':'none'}">${safeMemo}</div>
         </div>
     `;
-    for(let i=0; i<c; i++) slotsHtml += `<div class="seat-slot"><cds-icon-button class="seat-add-btn" type="button" kind="ghost" size="lg" aria-label="メンバーを追加" align="top"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span></cds-icon-button></div>`;
+    for(let i=0; i<c; i++) slotsHtml += `<div class="seat-slot"><cds-icon-button class="seat-add-btn" type="button" kind="ghost" size="lg" aria-label="参加者を追加" align="top"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span></cds-icon-button></div>`;
 
     col.innerHTML = `
         <cds-contained-list class="car-box" kind="on-page" is-inset data-capacity="${c}" data-group-id="${escapeHtml(groupId || '')}">
@@ -127,7 +127,7 @@ function addCar(n, cap, mems=[], dm='', _legacyUnused='', dgrade=0, dflag='none'
                         <span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span>
                     </cds-button>
                 </div>
-                <cds-icon-button type="button" kind="ghost" size="md" class="car-delete-btn car-return-btn delete-btn" aria-label="グループを削除">
+                <cds-icon-button type="button" kind="ghost" size="md" class="car-delete-btn car-return-btn delete-btn" aria-label="${document.body.dataset.activePlanTemplate === 'team' ? '班' : '車'}を削除">
                     <span data-carbon-icon="trash-can" aria-hidden="true"></span>
                 </cds-icon-button>
             </div>

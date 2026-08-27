@@ -70,17 +70,17 @@ expect(!sheetTemplates.includes('renderGradeBadge') && !sheetTemplates.includes(
 expect(!people.includes('person-drag-affordance') && !people.includes('data-carbon-icon="draggable"'), 'Allocation person cards must not render drag affordances.');
 expect(people.includes('renderGradeBadge(grade)') && people.includes('renderGradeBadge(dgrade)'), 'Grade tags must be independent of retired gender metadata.');
 expect(!people.includes('data-person-action="gender"') && !personMenu.includes('setPersonGender'), 'Gender UI and mutation behavior must be absent.');
-expect(autoAssign.includes("lastAutoAssignLabel = 'ランダム割当'") && !autoAssign.includes('optGrade') && !autoAssign.includes('assignByGrade'), 'Bulk assignment must be one pure random action with no detailed conditions.');
-expect(workspace.includes("label.textContent = 'ランダム割当'") && workspace.includes("'fillEmptySeatsBtn'") && workspace.includes("'traySettingsBtn'"), 'Workspace must label the one random action and remove retired allocation controls at runtime.');
+expect(autoAssign.includes("lastAutoAssignLabel = 'ランダム割り当て'") && !autoAssign.includes('optGrade') && !autoAssign.includes('assignByGrade'), 'Bulk assignment must be one pure random action with no detailed conditions.');
+expect(workspace.includes("label.textContent = 'ランダム割り当て'") && workspace.includes("'fillEmptySeatsBtn'") && workspace.includes("'traySettingsBtn'"), 'Workspace must label the one random action and remove retired allocation controls at runtime.');
 expect(shareActions.includes("url.searchParams.set('room', activeRoomId)") && !shareActions.includes("url.searchParams.set('view'") && !shareActions.includes("url.searchParams.set('allocation'"), 'Share links must point to the normal room rather than a special car/team view.');
 expect(carCostTemplates.includes('<cds-structured-list') && carCostTemplates.includes('<cds-toggle'), 'Driver payment cards must use Carbon Structured List and Toggle.');
 expect(carCostCard.includes('.seisan-cost-structured-list') && carCostCard.includes('font-weight: 400;'), 'Regular driver cost rows must use one consistent body typography.');
-expect(workspace.includes('id="assignmentWorkspaceRandomAction"') && workspace.includes('ランダム割当'), 'Allocation must expose one primary bulk assignment action.');
+expect(workspace.includes('id="assignmentWorkspaceRandomAction"') && workspace.includes('ランダム割り当て'), 'Allocation must expose one primary bulk assignment action.');
 expect(!sheetView.includes('updateSheetSummary({ ...data, carPlans: plans })'), 'Removed shared-view counts must not be rendered or recomputed by the legacy presentation renderer.');
 expect(people.includes('<cds-button type="button" kind="ghost" size="sm" class="capacity-badge capacity-edit-btn capacity-edit-pill"') && people.includes('class="capacity-count"'), 'Capacity information and its edit icon must share one compact Carbon action pill.');
 expect(people.includes('<cds-icon-button type="button" kind="ghost" size="md"') && people.includes('class="car-delete-btn car-return-btn delete-btn"'), 'The vehicle return action must use a regular Carbon ghost icon button.');
 expect(/\.car-header\s*\{\s*display:\s*grid;\s*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto\s+auto;/.test(carHeader) && !carHeader.includes('.car-delete-btn:hover'), 'The vehicle return action must not retain the old fixed tile geometry.');
-expect(index.includes('<span>ドライバーへの支払い</span>') && !index.includes('seisan-payment-tag carbon-display-tag ui-chip pay'), 'Driver payment heading must not use a decorative payment tag.');
+expect(index.includes('<span>運転手への支払い</span>') && !index.includes('seisan-payment-tag carbon-display-tag ui-chip pay'), 'Driver payment heading must not use a decorative payment tag.');
 
 for (const [source, mode] of [[lightTokens, 'light'], [darkTokens, 'dark']]) {
   expect(source.includes('--cds-support-success:'), `${mode} theme needs Carbon success support token.`);

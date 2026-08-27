@@ -1,0 +1,244 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner "サークル企画ツール" [ref=e3]:
+      - generic:
+        - button "ナビゲーションを開く" [ref=e5] [cursor=pointer]
+        - link "サークル企画ツール" [ref=e12] [cursor=pointer]:
+          - /url: /?room=E49GZ2N8
+        - generic [ref=e14]:
+          - generic "共有リンク" [ref=e15]:
+            - generic [ref=e17]:
+              - button "undefined" [ref=e18] [cursor=pointer]
+              - generic:
+                - tooltip
+          - generic "アプリメニュー" [ref=e23] [cursor=pointer]:
+            - generic [ref=e25]:
+              - button "アプリメニュー" [ref=e26]
+              - generic:
+                - tooltip
+    - generic:
+      - generic:
+        - generic: 山歩会フォームメーカー
+        - generic: 学務提出書類作成ツール
+        - generic: 山歩会企画ツール一覧
+        - generic: バグを報告する
+    - region "企画名" [ref=e37]:
+      - generic [ref=e38]:
+        - textbox "企画名" [ref=e39]
+        - generic:
+          - generic:
+            - generic:
+              - generic: 企画名
+              - generic:
+                - generic:
+                  - textbox:
+                    - /placeholder: 企画名を入力
+                    - text: 秋名山登山企画
+    - generic [ref=e40]:
+      - region "割り当て操作" [ref=e140]:
+        - generic [ref=e141]:
+          - paragraph [ref=e142]: 13人 · 3班 · 未配置1人
+          - generic "ランダム割当" [ref=e143]:
+            - button "ランダム割当" [ref=e145] [cursor=pointer]
+      - generic [ref=e41]:
+        - group "1班" [ref=e772]:
+          - list [ref=e774]:
+            - generic:
+              - generic [ref=e775]:
+                - generic [ref=e776]: 1班
+                - generic "班の人数 4/6、定員を変更" [ref=e778]:
+                  - button "4/6" [ref=e779] [cursor=pointer]
+                - generic "グループの操作" [ref=e781] [cursor=pointer]:
+                  - generic [ref=e783]:
+                    - button "グループの操作" [ref=e784]
+                    - generic:
+                      - tooltip
+              - generic [ref=e789]:
+                - generic [ref=e791]:
+                  - generic [ref=e792]: 藤原 拓海
+                  - generic [ref=e793]:
+                    - generic "班長" [ref=e794]
+                    - generic [ref=e796]: 3年
+                  - generic "藤原 拓海の操作" [ref=e798] [cursor=pointer]:
+                    - generic [ref=e800]:
+                      - button "藤原 拓海の操作" [ref=e801]
+                      - generic:
+                        - tooltip
+                - generic [ref=e804]:
+                  - generic [ref=e805]: 武内 樹
+                  - generic [ref=e806]: 3年
+                  - generic "武内 樹の操作" [ref=e809] [cursor=pointer]:
+                    - generic [ref=e811]:
+                      - button "武内 樹の操作" [ref=e812]
+                      - generic:
+                        - tooltip
+                - generic [ref=e815]:
+                  - generic [ref=e816]: 茂木 なつき
+                  - generic [ref=e817]: 3年
+                  - generic "茂木 なつきの操作" [ref=e820] [cursor=pointer]:
+                    - generic [ref=e822]:
+                      - button "茂木 なつきの操作" [ref=e823]
+                      - generic:
+                        - tooltip
+                - generic [ref=e826]:
+                  - generic [ref=e827]: 池谷 浩一郎
+                  - generic [ref=e828]: 4年
+                  - generic "池谷 浩一郎の操作" [ref=e831] [cursor=pointer]:
+                    - generic [ref=e833]:
+                      - button "池谷 浩一郎の操作" [ref=e834]
+                      - generic:
+                        - tooltip
+                - generic "空席 4" [ref=e835]:
+                  - generic [ref=e836]: 空席
+                  - generic "空席にメンバーを追加" [ref=e837]:
+                    - generic [ref=e839]:
+                      - button "undefined" [ref=e840] [cursor=pointer]
+                      - generic:
+                        - tooltip
+                - generic "空席 5" [ref=e843]:
+                  - generic [ref=e844]: 空席
+                  - generic "空席にメンバーを追加" [ref=e845]:
+                    - generic [ref=e847]:
+                      - button "undefined" [ref=e848] [cursor=pointer]
+                      - generic:
+                        - tooltip
+        - group "2班" [ref=e852]:
+          - list [ref=e854]:
+            - generic:
+              - generic [ref=e855]:
+                - generic [ref=e856]: 2班
+                - generic "班の人数 4/6、定員を変更" [ref=e858]:
+                  - button "4/6" [ref=e859] [cursor=pointer]
+                - generic "グループの操作" [ref=e861] [cursor=pointer]:
+                  - generic [ref=e863]:
+                    - button "グループの操作" [ref=e864]
+                    - generic:
+                      - tooltip
+              - generic [ref=e869]:
+                - generic [ref=e871]:
+                  - generic [ref=e872]: 高橋 啓介
+                  - generic [ref=e873]:
+                    - generic "班長" [ref=e874]
+                    - generic [ref=e876]: 4年
+                  - generic "高橋 啓介の操作" [ref=e878] [cursor=pointer]:
+                    - generic [ref=e880]:
+                      - button "高橋 啓介の操作" [ref=e881]
+                      - generic:
+                        - tooltip
+                - generic [ref=e884]:
+                  - generic [ref=e885]: 健二
+                  - generic [ref=e886]: 4年
+                  - generic "健二の操作" [ref=e889] [cursor=pointer]:
+                    - generic [ref=e891]:
+                      - button "健二の操作" [ref=e892]
+                      - generic:
+                        - tooltip
+                - generic [ref=e895]:
+                  - generic [ref=e896]: 中村 賢太
+                  - generic [ref=e897]: 3年
+                  - generic "中村 賢太の操作" [ref=e900] [cursor=pointer]:
+                    - generic [ref=e902]:
+                      - button "中村 賢太の操作" [ref=e903]
+                      - generic:
+                        - tooltip
+                - generic [ref=e906]:
+                  - generic [ref=e907]: 佐藤 真子
+                  - generic [ref=e908]: 4年
+                  - generic "佐藤 真子の操作" [ref=e911] [cursor=pointer]:
+                    - generic [ref=e913]:
+                      - button "佐藤 真子の操作" [ref=e914]
+                      - generic:
+                        - tooltip
+                - generic "空席 4" [ref=e915]:
+                  - generic [ref=e916]: 空席
+                  - generic "空席にメンバーを追加" [ref=e917]:
+                    - generic [ref=e919]:
+                      - button "undefined" [ref=e920] [cursor=pointer]
+                      - generic:
+                        - tooltip
+                - generic "空席 5" [ref=e923]:
+                  - generic [ref=e924]: 空席
+                  - generic "空席にメンバーを追加" [ref=e925]:
+                    - generic [ref=e927]:
+                      - button "undefined" [ref=e928] [cursor=pointer]
+                      - generic:
+                        - tooltip
+        - group "3班" [ref=e932]:
+          - list [ref=e934]:
+            - generic:
+              - generic [ref=e935]:
+                - generic [ref=e936]: 3班
+                - generic "班の人数 4/6、定員を変更" [ref=e938]:
+                  - button "4/6" [ref=e939] [cursor=pointer]
+                - generic "グループの操作" [ref=e941] [cursor=pointer]:
+                  - generic [ref=e943]:
+                    - button "グループの操作" [ref=e944]
+                    - generic:
+                      - tooltip
+              - generic [ref=e949]:
+                - generic [ref=e951]:
+                  - generic [ref=e952]: 高橋 涼介
+                  - generic [ref=e953]:
+                    - generic "班長" [ref=e954]
+                    - generic [ref=e956]: 4年
+                  - generic "高橋 涼介の操作" [ref=e958] [cursor=pointer]:
+                    - generic [ref=e960]:
+                      - button "高橋 涼介の操作" [ref=e961]
+                      - generic:
+                        - tooltip
+                - generic [ref=e964]:
+                  - generic [ref=e965]: 沙雪
+                  - generic [ref=e966]: 4年
+                  - generic "沙雪の操作" [ref=e969] [cursor=pointer]:
+                    - generic [ref=e971]:
+                      - button "沙雪の操作" [ref=e972]
+                      - generic:
+                        - tooltip
+                - generic [ref=e975]:
+                  - generic [ref=e976]: 秋山 渉
+                  - generic [ref=e977]: 4年
+                  - generic "秋山 渉の操作" [ref=e980] [cursor=pointer]:
+                    - generic [ref=e982]:
+                      - button "秋山 渉の操作" [ref=e983]
+                      - generic:
+                        - tooltip
+                - generic [ref=e986]:
+                  - generic [ref=e987]: 秋山 和美
+                  - generic [ref=e988]: 3年
+                  - generic "秋山 和美の操作" [ref=e991] [cursor=pointer]:
+                    - generic [ref=e993]:
+                      - button "秋山 和美の操作" [ref=e994]
+                      - generic:
+                        - tooltip
+                - generic "空席 4" [ref=e995]:
+                  - generic [ref=e996]: 空席
+                  - generic "空席にメンバーを追加" [ref=e997]:
+                    - generic [ref=e999]:
+                      - button "undefined" [ref=e1000] [cursor=pointer]
+                      - generic:
+                        - tooltip
+                - generic "空席 5" [ref=e1003]:
+                  - generic [ref=e1004]: 空席
+                  - generic "空席にメンバーを追加" [ref=e1005]:
+                    - generic [ref=e1007]:
+                      - button "undefined" [ref=e1008] [cursor=pointer]
+                      - generic:
+                        - tooltip
+      - generic "グループを追加" [ref=e352]:
+        - generic "班を追加" [ref=e1011]:
+          - button "班を追加" [ref=e1012] [cursor=pointer]
+    - text: メモなし
+    - navigation "メイン画面" [ref=e51]:
+      - generic "主要画面" [ref=e52]:
+        - tablist [ref=e55]:
+          - generic:
+            - listitem "参加者" [ref=e56]:
+              - tab "参加者" [ref=e57] [cursor=pointer]
+            - listitem "車割" [ref=e60]:
+              - tab "車割" [ref=e61] [cursor=pointer]
+            - listitem "班割" [active] [ref=e64]:
+              - tab "班割" [selected] [ref=e65] [cursor=pointer]
+            - listitem "精算" [ref=e68]:
+              - tab "精算" [ref=e69] [cursor=pointer]
+        - status [ref=e72]: Selected an item.
+  - generic "ステータス通知"

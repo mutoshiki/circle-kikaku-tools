@@ -165,7 +165,7 @@
 
     lines.push('', '【参加者】');
     if (hasDrivers(participants)) lines.push('○は車出し');
-    lines.push('', participantLines(participants), '', `以上${participants.length}名です。`);
+    lines.push('', participantLines(participants), '', `以上${participants.length}人です。`);
     lines.push('', `当日は${meetingTime}に${FIXED_MEETING_PLACE}に集合してください。`);
 
     if (itinerary.length) {

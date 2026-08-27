@@ -7,7 +7,7 @@ function refreshEmptySeatAccessibility() {
         if (empty) {
             slot.setAttribute('role', 'button');
             slot.setAttribute('tabindex', '0');
-            slot.setAttribute('aria-label', '空席に未割り当てメンバーを追加');
+            slot.setAttribute('aria-label', '空席に未割り当ての参加者を追加');
         } else {
             slot.removeAttribute('role');
             slot.removeAttribute('tabindex');
