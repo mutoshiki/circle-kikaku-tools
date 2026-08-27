@@ -186,21 +186,18 @@ function renderListEmptyHint() {
         return;
     }
 
-    const activePlan = typeof getActiveCarPlan === 'function' ? getActiveCarPlan() : null;
-    const template = typeof getCarPlanTemplateConfig === 'function'
-        ? getCarPlanTemplateConfig(activePlan || 'car')
-        : { sectionTitle: '車割', ownerLabel: '車出し', groupSuffix: '車', ownerIcon: 'car-small' };
-    const ownerText = template.type === 'team'
-        ? '班長にする人をここへドロップ'
-        : '車出しをここへドロップ';
-    const createText = template.type === 'team' ? '新しい班を作成します' : '新しい車を作成します';
+    if (waitingCount > 0) {
+        // Group creation is owned by the explicit workspace action. Do not show
+        // the retired drag-to-create affordance when participants are waiting.
+        existing?.remove();
+        return;
+    }
+
     const entryChoice = window.SanpoApp?.templates?.common?.entryChoice;
     const emptyChoice = typeof entryChoice === 'function'
         ? entryChoice({ className: 'allocation-entry-choice' })
         : '<div class="app-empty-card empty-card app-entry-choice"><div class="seisan-empty-actions"><cds-button kind="primary" size="lg" type="button" data-action="open-batch">参加者登録(推奨)</cds-button><span class="seisan-empty-or">もしくは</span><cds-button kind="secondary" size="lg" type="button" data-action="switch-seisan-settings">人数だけで精算</cds-button></div></div>';
-    const html = waitingCount > 0
-        ? `<div class="allocation-grid-item allocation-grid-item--full" id="list-empty-hint"><div class="drop-create-lane empty-card--drop-create"><span data-carbon-icon="${template.ownerIcon || 'car-small'}" aria-hidden="true"></span><strong>${ownerText}</strong><span>${createText}</span></div></div>`
-        : `<div class="allocation-grid-item allocation-grid-item--full" id="list-empty-hint">${emptyChoice}</div>`;
+    const html = `<div class="allocation-grid-item allocation-grid-item--full" id="list-empty-hint">${emptyChoice}</div>`;
 
     if (!existing) {
         container.insertAdjacentHTML('afterbegin', html);

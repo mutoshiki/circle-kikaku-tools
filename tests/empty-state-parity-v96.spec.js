@@ -51,6 +51,10 @@ async function visitFourNonParticipantStates(page, assertion) {
     window.updateActiveCarPlanTemplate('car');
   });
   await expect(page.locator('body')).toHaveAttribute('data-active-plan-template', 'car');
+  await expect(page.locator('#assignmentWorkspaceHeader')).toBeHidden();
+  await expect(page.locator('#assignmentWorkspaceFooterActions')).toBeHidden();
+  await expect(page.locator('#assignmentWorkspaceAddGroupBtn')).toBeHidden();
+  await expect(page.locator('#shuffleAssignBtn')).toBeHidden();
   await assertion(page, '#list-empty-hint .app-entry-choice');
 
   await page.evaluate(() => {
@@ -58,6 +62,10 @@ async function visitFourNonParticipantStates(page, assertion) {
     window.updateActiveCarPlanTemplate('team');
   });
   await expect(page.locator('body')).toHaveAttribute('data-active-plan-template', 'team');
+  await expect(page.locator('#assignmentWorkspaceHeader')).toBeHidden();
+  await expect(page.locator('#assignmentWorkspaceFooterActions')).toBeHidden();
+  await expect(page.locator('#assignmentWorkspaceAddGroupBtn')).toBeHidden();
+  await expect(page.locator('#shuffleAssignBtn')).toBeHidden();
   await assertion(page, '#list-empty-hint .app-entry-choice');
 
   await page.evaluate(() => window.switchView('sheet'));

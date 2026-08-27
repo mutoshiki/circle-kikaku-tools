@@ -60,6 +60,10 @@ assert.ok(!css.includes('traySettingsBtn') && !css.includes('autoAssignPopover')
 assert.ok(workspace.includes("id = 'assignmentWorkspaceAddGroupBtn'"), 'Assignment Workspace must expose an add-group action');
 assert.ok(workspace.includes('function createGroupFromModal'), 'New car/team creation must be owned by the workspace lifecycle');
 assert.ok(workspace.includes('data-assignment-group-action="delete"'), 'Each created group must remain removable from its Carbon menu');
+assert.ok(workspace.includes('const roleLabel = type === \'team\' ? \'班長\' : \'運転手\';'), 'Group creation must name the role instead of using 担当者');
+assert.ok(!workspace.includes('label-text="担当者"'), 'Group creation select must not use the generic 担当者 label');
+assert.ok(!workspace.includes('未配置の参加者を${type === \'team\' ? \'班長\' : \'運転手\'}にして、新しい${groupLabel}を作成します。'), 'Retired group creation description must be removed');
+assert.ok(!fs.readFileSync('assets/js/core/render-controller.js', 'utf8').includes('班長にする人をここへドロップ'), 'Retired drag-to-create hint must be removed');
 
 assert.ok(shareActions.includes("url.searchParams.set('room', activeRoomId)"), 'Share must preserve the room id');
 assert.ok(!shareActions.includes("url.searchParams.set('view'") && !shareActions.includes("url.searchParams.set('allocation'"), 'Share must not create a special car/team URL');

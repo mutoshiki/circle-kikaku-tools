@@ -143,6 +143,13 @@
             .forEach(id => byId(id)?.remove());
     }
 
+    function registeredParticipantCount() {
+        const room = global.SanpoCanonicalState?.get?.();
+        const canonicalCount = Object.keys(room?.participants || {}).length;
+        if (canonicalCount > 0) return canonicalCount;
+        return D.querySelectorAll('#waiting-list .member-card, #cars-container .member-card, #cars-container .driver-seat').length;
+    }
+
     function relocateAllocationActions() {
         const actions = byId('assignmentWorkspaceRandomAction');
         const topArea = byId('top-area');
@@ -158,6 +165,10 @@
             footer.setAttribute('aria-label', 'グループを追加');
             topArea.insertBefore(footer, cars.nextSibling);
         }
+        const hasParticipants = registeredParticipantCount() > 0;
+        const workspaceHeader = byId('assignmentWorkspaceHeader');
+        if (workspaceHeader) workspaceHeader.hidden = !hasParticipants;
+        footer.hidden = !hasParticipants;
 
         let addGroup = byId('assignmentWorkspaceAddGroupBtn');
         if (!addGroup) {
@@ -217,8 +228,7 @@
                 <cds-modal-close-button close-button-label="閉じる"></cds-modal-close-button>
             </cds-modal-header>
             <cds-modal-body class="app-modal-body">
-                <p id="assignmentGroupCreateDescription" class="assignment-group-create-description"></p>
-                <cds-select id="assignmentGroupOwnerSelect" label-text="担当者" size="lg"></cds-select>
+                <cds-select id="assignmentGroupOwnerSelect" size="lg"></cds-select>
                 <cds-number-input id="assignmentGroupCapacityInput" label="定員" min="1" max="99" inputmode="numeric" size="lg"></cds-number-input>
             </cds-modal-body>
             <cds-modal-footer class="app-modal-footer">
@@ -253,18 +263,18 @@
         const candidates = waitingCandidates();
         const type = activeType();
         const groupLabel = type === 'team' ? '班' : '車';
+        const roleLabel = type === 'team' ? '班長' : '運転手';
         if (!candidates.length) {
             global.AppUI?.showStatus?.(`未配置の参加者を選ぶと${groupLabel}を追加できます。`, { tone: 'neutral', duration: 2800 });
             return;
         }
         const modal = ensureGroupCreateModal();
         const title = byId('assignmentGroupCreateTitle');
-        const description = byId('assignmentGroupCreateDescription');
         const owner = byId('assignmentGroupOwnerSelect');
         const capacity = byId('assignmentGroupCapacityInput');
         if (!owner || !capacity) return;
         title.textContent = `${groupLabel}を追加`;
-        description.textContent = `未配置の参加者を${type === 'team' ? '班長' : '運転手'}にして、新しい${groupLabel}を作成します。`;
+        owner.setAttribute('label-text', roleLabel);
         owner.replaceChildren(...candidates.map((candidate, index) => {
             const item = D.createElement('cds-select-item');
             item.value = candidate.id;
@@ -283,12 +293,13 @@
         const owner = byId('assignmentGroupOwnerSelect');
         const capacityInput = byId('assignmentGroupCapacityInput');
         const participantId = String(owner?.value || '');
+        const type = activeType();
+        const roleLabel = type === 'team' ? '班長' : '運転手';
         const candidate = waitingCandidates().find(item => item.id === participantId);
         if (!candidate) {
-            global.AppUI?.showStatus?.('担当者を選び直してください。', { tone: 'warning' });
+            global.AppUI?.showStatus?.(`${roleLabel}を選び直してください。`, { tone: 'warning' });
             return;
         }
-        const type = activeType();
         const capacity = Math.max(1, Math.min(99, parseInt(capacityInput?.value, 10) || (type === 'team' ? 5 : 3)));
         const state = global.SanpoCanonicalState;
         const room = state?.get?.();
