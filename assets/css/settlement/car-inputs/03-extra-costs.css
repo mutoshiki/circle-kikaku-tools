@@ -1,38 +1,44 @@
 /* Cost rows inside the vehicle editor. Carbon controls own visual and interaction
- * states; this owner defines the shared four-column geometry and alignment. */
+ * states; this owner defines the shared table geometry and responsive grouping. */
 #settlementCarEditModal .seisan-cost-edit-list {
   display: grid;
   gap: 0;
   min-width: 0;
+  border-block-start: 1px solid var(--cds-border-subtle, var(--border-section));
 }
 
 #settlementCarEditModal .seisan-cost-edit-header,
 #settlementCarEditModal .seisan-cost-edit-row,
 #settlementCarEditModal .seisan-extra-row {
   display: grid;
-  grid-template-columns: minmax(112px, 1fr) minmax(104px, 132px) 64px 48px;
+  grid-template-columns: minmax(112px, 1fr) minmax(104px, 132px) minmax(112px, 124px) 48px;
   align-items: center;
   column-gap: var(--space-2);
   min-width: 0;
 }
 
 #settlementCarEditModal .seisan-cost-edit-header {
-  min-height: 32px;
+  min-height: 40px;
+  padding-block: var(--space-1);
   color: var(--cds-text-secondary, var(--text-sub));
   font-size: var(--font-size-caption);
   font-weight: 600;
   line-height: 1.2;
 }
 
-#settlementCarEditModal .seisan-cost-edit-header > span:nth-child(n + 2) {
+#settlementCarEditModal .seisan-cost-edit-header > span:nth-child(2) {
+  text-align: end;
+}
+
+#settlementCarEditModal .seisan-cost-edit-header > span:nth-child(n + 3) {
   text-align: center;
 }
 
 #settlementCarEditModal .seisan-cost-edit-row,
 #settlementCarEditModal .seisan-extra-row {
-  min-height: 52px;
-  padding-block: var(--space-1);
-  border: 0;
+  min-height: 56px;
+  padding-block: var(--space-2);
+  border-block-end: 1px solid var(--cds-border-subtle, var(--border-section));
   background: transparent;
 }
 
@@ -40,7 +46,6 @@
   display: grid;
   gap: 0;
   min-width: 0;
-  border: 0;
 }
 
 #settlementCarEditModal .seisan-extra-field {
@@ -65,6 +70,13 @@
   width: 100%;
 }
 
+#settlementCarEditModal .seisan-gas-cost-row .seisan-extra-field--name {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 #settlementCarEditModal .seisan-extra-field--amount :is(cds-text-input, cds-number-input) {
   width: 100%;
   --cds-layout-density-padding-inline-condensed: 0.5rem;
@@ -81,26 +93,51 @@
   align-self: stretch;
 }
 
-/* Compact toggles use Carbon's hidden-label mode so the invisible label row does
- * not reserve vertical space. The switch itself stays centered against the input. */
-#settlementCarEditModal .seisan-extra-field--type cds-toggle {
+#settlementCarEditModal .seisan-extra-field--type cds-radio-button-group {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 44px;
-  min-width: 44px;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
   min-height: 40px;
-  margin: auto;
+  margin: 0;
   align-self: center;
 }
 
+#settlementCarEditModal .seisan-extra-field--type cds-radio-button {
+  min-width: 0;
+}
+
+#settlementCarEditModal .seisan-auto-status {
+  align-self: flex-start;
+  justify-self: start;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 2px;
+}
+
+#settlementCarEditModal .seisan-mobile-currency {
+  display: none;
+}
+
 #settlementCarEditModal .seisan-extra-field--action .seisan-icon-btn {
+  --cds-icon-primary: var(--app-accent-icon, var(--accent-color));
+  --cds-icon-secondary: var(--app-accent-icon, var(--accent-color));
   width: 48px;
   min-width: 48px;
   height: 48px;
   margin: auto;
   align-self: center;
+}
+
+#settlementCarEditModal .seisan-extra-field--action .seisan-icon-btn[kind="danger--ghost"] {
+  --cds-icon-primary: var(--semantic-danger, var(--cds-support-error));
+  --cds-icon-secondary: var(--semantic-danger, var(--cds-support-error));
+}
+
+#settlementCarEditModal .seisan-add-row .seisan-btn {
+  --cds-icon-primary: var(--app-accent-icon, var(--accent-color));
+  --cds-icon-secondary: var(--app-accent-icon, var(--accent-color));
 }
 
 #settlementCarEditModal .seisan-fixed-cell {
@@ -184,18 +221,81 @@
   #settlementCarEditModal .seisan-cost-edit-header,
   #settlementCarEditModal .seisan-cost-edit-row,
   #settlementCarEditModal .seisan-extra-row {
-    grid-template-columns: minmax(92px, 1fr) minmax(72px, 88px) 52px 48px;
+    grid-template-columns: minmax(0, 1fr) minmax(132px, 144px);
+    grid-template-areas:
+      "name action"
+      "amount type";
     column-gap: var(--space-1);
+    row-gap: var(--space-2);
   }
 
   #settlementCarEditModal .seisan-cost-edit-header {
-    min-height: 28px;
+    display: none;
   }
 
   #settlementCarEditModal .seisan-cost-edit-row,
   #settlementCarEditModal .seisan-extra-row {
-    min-height: 52px;
-    padding-block: var(--space-1);
+    min-height: 112px;
+    padding-block: var(--space-2);
+  }
+
+  #settlementCarEditModal .seisan-extra-field--name {
+    grid-area: name;
+    align-items: center;
+  }
+
+  #settlementCarEditModal .seisan-extra-field--amount {
+    grid-area: amount;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: var(--space-1);
+  }
+
+  #settlementCarEditModal .seisan-extra-field--type {
+    grid-area: type;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: var(--space-1);
+  }
+
+  #settlementCarEditModal .seisan-extra-field--action {
+    grid-area: action;
+    justify-content: flex-end;
+  }
+
+  #settlementCarEditModal .seisan-mobile-currency {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    color: var(--cds-text-secondary, var(--text-sub));
+    font-size: var(--font-size-body);
+    font-variant-numeric: tabular-nums;
+  }
+
+  #settlementCarEditModal .seisan-extra-field--amount :is(cds-text-input, cds-number-input) {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  #settlementCarEditModal .seisan-extra-field--type cds-radio-button-group {
+    width: auto;
+    min-height: 32px;
+  }
+
+  #settlementCarEditModal .seisan-extra-field--type cds-radio-button {
+    flex: 0 0 auto;
+  }
+
+  #settlementCarEditModal .seisan-auto-status {
+    margin-top: 0;
+  }
+
+  #settlementCarEditModal .seisan-gas-cost-row .seisan-extra-field--name {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    gap: var(--space-1);
   }
 
   #settlementCarEditModal .seisan-extra-field--amount :is(cds-text-input, cds-number-input) {
@@ -214,7 +314,7 @@
   #settlementCarEditModal .seisan-cost-edit-header,
   #settlementCarEditModal .seisan-cost-edit-row,
   #settlementCarEditModal .seisan-extra-row {
-    grid-template-columns: minmax(78px, 1fr) minmax(64px, 76px) 48px 44px;
+    grid-template-columns: minmax(0, 1fr) minmax(124px, 132px);
     column-gap: 2px;
   }
 

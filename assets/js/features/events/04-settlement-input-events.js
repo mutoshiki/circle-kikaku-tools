@@ -98,7 +98,7 @@
         // Carbon Select's official selection event is cds-select-selected. Set the
         // host value from that event before reading the DOM so the signed type is
         // never replaced by a stale pre-selection value on iOS.
-        target.value = type;
+        target.value = target.matches?.('cds-radio-button-group') ? baseType : type;
         target.classList.remove('split', 'club', 'split-minus', 'club-minus');
         target.classList.add(baseType, type);
         const typeField = target.closest('.seisan-extra-field--type');
@@ -199,6 +199,13 @@
         });
 
         document.addEventListener('cds-select-selected', event => {
+            const target = event.target;
+            if (!target?.matches?.('.seisan-car-row [data-extra-field="type"]')) return;
+            const selectedValue = event.detail?.value ?? event.detail?.item?.value ?? target.value;
+            commitSettlementExtraTypeSelection(target, selectedValue);
+        });
+
+        document.addEventListener('cds-radio-button-group-changed', event => {
             const target = event.target;
             if (!target?.matches?.('.seisan-car-row [data-extra-field="type"]')) return;
             const selectedValue = event.detail?.value ?? event.detail?.item?.value ?? target.value;

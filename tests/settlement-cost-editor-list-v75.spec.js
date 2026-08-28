@@ -67,11 +67,15 @@ for (const config of [
       const header = page.locator('#settlementCarEditModal .seisan-cost-edit-header');
       await expect(header).toContainText('名目');
       await expect(header).toContainText('金額');
-      await expect(header).toContainText('部費');
+      await expect(header).toContainText('負担区分');
       await expect(header).toContainText('操作');
       await expect(page.locator('#settlementCarEditModal .seisan-extra-field-label')).toHaveCount(0);
       await expect(page.locator('#settlementCarEditModal cds-select[data-extra-field="type"]')).toHaveCount(0);
-      await expect(page.locator('#settlementCarEditModal cds-toggle[data-extra-field="type"]')).not.toHaveCount(0);
+      await expect(page.locator('#settlementCarEditModal cds-toggle[data-extra-field="type"]')).toHaveCount(0);
+      await expect(page.locator('#settlementCarEditModal cds-radio-button-group[data-extra-field="type"]')).not.toHaveCount(0);
+      await expect(page.locator('#settlementCarEditModal .seisan-auto-status')).toHaveText('自動計算');
+      await expect(page.locator('#settlementCarEditModal .seisan-extra-candidates cds-accordion-item')).toHaveAttribute('open', '');
+      await expect(page.locator('#settlementCarEditModal .seisan-extra-candidate-chip')).toHaveAttribute('kind', 'ghost');
 
       const row = page.locator('#settlementCarEditModal .seisan-gas-cost-row');
       await expect(row.locator('.seisan-extra-field--name cds-text-input')).toHaveJSProperty('value', 'ガソリン代');
@@ -83,8 +87,13 @@ for (const config of [
       await expect(row.locator('.seisan-extra-field--action [data-action="open-settlement-gas-settings"]')).toHaveCount(1);
       await expect(row.locator('.seisan-extra-field--action [data-carbon-icon="settings--adjust"], .seisan-extra-field--action [data-carbon-icon-name="settings--adjust"]')).toHaveCount(1);
       await expect(row.locator('.seisan-extra-field--action [data-carbon-icon="trash-can"], .seisan-extra-field--action [data-carbon-icon-name="trash-can"]')).toHaveCount(0);
-      await expect(row.locator('cds-toggle[data-extra-field="type"]')).toHaveCount(1);
-      await expect(row.locator('cds-toggle[data-extra-field="type"]')).not.toHaveAttribute('disabled', '');
+      await expect(row.locator('cds-radio-button-group[data-extra-field="type"]')).toHaveCount(1);
+      await expect(row.locator('cds-radio-button-group[data-extra-field="type"]')).not.toHaveAttribute('disabled', '');
+      await expect(row.locator('cds-radio-button-group[data-extra-field="type"]')).toHaveAttribute('aria-label', 'ガソリン代の負担区分');
+      await expect(row.locator('cds-radio-button[value="split"]')).toHaveAttribute('label-text', '割勘');
+      await expect(row.locator('cds-radio-button[value="club"]')).toHaveAttribute('label-text', '部費');
+      await expect(row.locator('.seisan-mobile-field-label')).toHaveCount(0);
+      await expect(row.locator('.seisan-mobile-currency')).toHaveText('¥');
 
       const geometry = await row.evaluate(node => {
         const rowBox = node.getBoundingClientRect();
@@ -92,21 +101,30 @@ for (const config of [
           const box = child.getBoundingClientRect();
           return { left: box.left, right: box.right, centerY: (box.top + box.bottom) / 2 };
         });
-        const toggle = node.querySelector('cds-toggle')?.getBoundingClientRect();
+        const radio = node.querySelector('cds-radio-button-group')?.getBoundingClientRect();
         const amount = node.querySelector('.seisan-extra-field--amount cds-text-input')?.getBoundingClientRect();
         const action = node.querySelector('.seisan-extra-field--action cds-icon-button')?.getBoundingClientRect();
         return {
           height: rowBox.height,
+          rowLeft: rowBox.left,
+          rowRight: rowBox.right,
           cells,
-          toggleCenterY: toggle ? (toggle.top + toggle.bottom) / 2 : null,
+          radioCenterY: radio ? (radio.top + radio.bottom) / 2 : null,
           amountCenterY: amount ? (amount.top + amount.bottom) / 2 : null,
           actionSize: action ? { width: action.width, height: action.height } : null
         };
       });
-      expect(geometry.height).toBeLessThanOrEqual(64);
-      expect(Math.max(...geometry.cells.map(cell => cell.centerY)) - Math.min(...geometry.cells.map(cell => cell.centerY))).toBeLessThanOrEqual(1);
-      expect(Math.abs(geometry.toggleCenterY - geometry.amountCenterY)).toBeLessThanOrEqual(2);
-      expect(geometry.cells.every((cell, index, all) => index === 0 || cell.left >= all[index - 1].right)).toBeTruthy();
+      if (config.width <= 640) {
+        expect(geometry.height).toBeGreaterThanOrEqual(112);
+        expect(geometry.height).toBeLessThanOrEqual(152);
+        expect(Math.abs(geometry.cells[1].centerY - geometry.cells[2].centerY)).toBeLessThanOrEqual(2);
+        expect(geometry.cells.every(cell => cell.left >= geometry.rowLeft - 1 && cell.right <= geometry.rowRight + 1)).toBeTruthy();
+      } else {
+        expect(geometry.height).toBeLessThanOrEqual(72);
+        expect(Math.max(...geometry.cells.map(cell => cell.centerY)) - Math.min(...geometry.cells.map(cell => cell.centerY))).toBeLessThanOrEqual(2);
+        expect(geometry.cells.every((cell, index, all) => index === 0 || cell.left >= all[index - 1].right)).toBeTruthy();
+        expect(Math.abs(geometry.radioCenterY - geometry.amountCenterY)).toBeLessThanOrEqual(8);
+      }
       expect(geometry.actionSize.width).toBeGreaterThanOrEqual(44);
       expect(geometry.actionSize.height).toBeGreaterThanOrEqual(44);
 
@@ -157,7 +175,7 @@ test.describe('Settlement rental and dismissal regression', () => {
     const amount = row.locator('[data-extra-field="amount"]');
     await expect(amount).toHaveJSProperty('value', '1500');
     await expect(amount).toHaveAttribute('readonly', '');
-    const toggle = row.locator('cds-toggle[data-extra-field="type"]');
+    const toggle = row.locator('cds-radio-button[value="club"]');
     const before = await page.evaluate(() => {
       const data = getRoomDataOnly();
       const state = ensureSettlementState();

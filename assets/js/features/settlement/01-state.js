@@ -156,9 +156,15 @@ function readSettlementExtraTypeControlValue(control, preferredValue) {
     // value can lead the host property by one event turn, so saving from the host alone can
     // miss a just-selected signed type.
     const nativeValue = control?.shadowRoot?.querySelector?.('select')?.value;
-    const candidates = [preferredValue, nativeValue, control?.value, control?.getAttribute?.('value')];
+    const selectedRadio = control?.matches?.('cds-radio-button-group')
+        ? control.querySelector?.('cds-radio-button[checked]')
+        : null;
+    const candidates = [preferredValue, selectedRadio?.value, nativeValue, control?.value, control?.getAttribute?.('value')];
     const selected = candidates.find(value => SETTLEMENT_EXTRA_TYPES.has(String(value || '')));
-    return normalizeSettlementExtraType(selected || 'split');
+    const normalized = normalizeSettlementExtraType(selected || 'split');
+    const baseType = normalized.startsWith('club') ? 'club' : 'split';
+    const negative = control?.dataset?.extraNegative === 'true' || normalized.endsWith('-minus');
+    return `${baseType}${negative ? '-minus' : ''}`;
 }
 
 function getSettlementExtraBaseType(value = 'split') {
