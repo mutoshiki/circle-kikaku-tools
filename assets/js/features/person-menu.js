@@ -1,5 +1,5 @@
 // Compact person menu feature.
-// Owns the Carbon overflow-menu lifecycle plus memo, role, grade, flag, lock and
+// Owns the Carbon overflow-menu lifecycle plus memo, role, grade, flag and
 // unassigned/delete actions. Name editing, gender metadata and cross-car movement
 // are deliberately not part of the participant menu.
 
@@ -77,15 +77,6 @@ function syncPersonMenuContext(trigger) {
         roleItem.label = label;
         roleItem.removeAttribute('disabled');
         replacePersonMenuItemIcon(roleItem, document.body.dataset.activePlanTemplate === 'team' ? 'user-role' : 'car');
-    }
-
-    const lockItem = trigger.querySelector('[data-person-action="lock"]');
-    if (lockItem) {
-        const locked = person.dataset.locked === 'true';
-        const label = locked ? 'ロック解除' : 'ロック';
-        lockItem.setAttribute('label', label);
-        lockItem.label = label;
-        replacePersonMenuItemIcon(lockItem, locked ? 'unlocked' : 'locked');
     }
 
     const returnItem = trigger.querySelector('[data-person-action="return"]');
@@ -257,10 +248,6 @@ window.setPersonDriverRole = setPersonDriverRole;
 
 async function returnOrDeleteMemberCard(card) {
     if (!card) return;
-    if (card.dataset.locked === 'true') {
-        showAppNotice('ロック中です。先にロックを解除してください。', true);
-        return;
-    }
     let changed = false;
     const deletingFromWaiting = card.parentElement?.id === 'waiting-list';
     if (deletingFromWaiting) {
@@ -303,7 +290,6 @@ function handleCompactPersonAction(action, person = activePersonMenuTarget, choi
 
     if (action === 'memo') handleEdit('memo', targetPerson);
     else if (action === 'driver') setPersonDriverRole(targetPerson);
-    else if (action === 'lock') toggleLock(targetPerson);
     else if (action === 'return') returnOrDeleteMemberCard(targetPerson);
     else if (action === 'grade') setPersonGrade(targetPerson, choiceValue);
     else if (action === 'flag') setPersonFlag(targetPerson, choiceValue);

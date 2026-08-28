@@ -179,34 +179,19 @@ test.describe('Assignment workspace refresh', () => {
       return structuredClone(room?.allocations?.[room.activeAllocationType]?.placements?.[id]);
     }, driverId);
 
-    const lockCard = page.locator('#cars-container .member-card[data-driver="false"]').first();
-    const lockId = await lockCard.getAttribute('data-participant-id');
-    const lockPlacementBefore = await page.evaluate(id => {
-      const room = window.SanpoCanonicalState?.get?.();
-      return structuredClone(room?.allocations?.[room.activeAllocationType]?.placements?.[id]);
-    }, lockId);
-    const lockMenu = lockCard.locator('cds-overflow-menu.person-overflow-menu');
-    await lockMenu.click();
-    await expectPersonMenuOpen(lockMenu);
-    await expect(lockMenu.locator('[data-person-action="lock"]')).toHaveAttribute('label', 'ロック');
-    await lockMenu.locator('[data-person-action="lock"]').evaluate(node => node.click());
-    await expect.poll(() => page.locator(`.member-card[data-participant-id="${lockId}"]`).getAttribute('data-locked')).toBe('true');
-
     await page.locator('#shuffleAssignBtn').evaluate(node => node.click());
     await expect(page.locator('#appConfirmModal')).toHaveAttribute('open', '');
     await page.locator('#appConfirmModal [data-role="ok"]').evaluate(node => node.click());
     await expect.poll(() => page.evaluate(() => document.querySelector('#appConfirmModal')?.open === false || !document.querySelector('#appConfirmModal')?.hasAttribute('open'))).toBe(true);
-    const shuffleResult = await page.evaluate(({ driverId: stableDriverId, lockId: stableLockId }) => {
+    const shuffleResult = await page.evaluate(({ driverId: stableDriverId }) => {
       const room = window.SanpoCanonicalState?.get?.();
       const allocation = room?.allocations?.[room.activeAllocationType];
       return {
         driver: structuredClone(allocation?.placements?.[stableDriverId]),
-        locked: structuredClone(allocation?.placements?.[stableLockId]),
         legacyKinds: Object.values(allocation?.placements || {}).filter(item => item?.kind === 'driver').length
       };
-    }, { driverId, lockId });
+    }, { driverId });
     expect(shuffleResult.driver).toEqual(driverPlacementBefore);
-    expect(shuffleResult.locked).toEqual(lockPlacementBefore);
     expect(shuffleResult.legacyKinds).toBe(0);
   });
 

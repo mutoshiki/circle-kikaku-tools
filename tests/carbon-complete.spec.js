@@ -336,9 +336,6 @@ test.describe('Carbon modal and participant workflows', () => {
     await page.evaluate(() => { window.__alertPromise = window.appAlert('通知', { title: '通知' }); });
     await hostClick(page, '#appAlertModal [data-role="ok"]');
     await expect(page.locator('#appAlertModal')).not.toHaveAttribute('open', '');
-    await hostClick(page, '#editLockBtn');
-    await expect(page.locator('#passphrase-panel cds-text-input')).toHaveCount(2);
-    await expect(page.locator('#passphrase-panel cds-checkbox')).toHaveCount(2);
     await hostClick(page, '#passphrase-panel cds-modal-close-button');
     await expect(page.locator('#passphrase-panel')).toHaveCount(0);
   });

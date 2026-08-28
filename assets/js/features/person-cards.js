@@ -43,8 +43,7 @@ function renderPersonOverflowMenu({ name, inWaiting = false, locked = false, rol
         { value: 'purple', label: '紫', icon: 'flag', flag: true },
         { value: 'yellow', label: '黄', icon: 'flag', flag: true },
         { value: 'red', label: '赤', icon: 'flag', flag: true }
-      ] }),
-      `<cds-menu-item class="person-pop-item" label="${locked ? 'ロック解除' : 'ロック'}" data-person-action="lock">${renderPersonMenuIcon(locked ? 'unlocked' : 'locked')}</cds-menu-item>`
+      ] })
     ];
     common.push(`<cds-menu-item class="person-pop-item" label="${inWaiting ? '削除' : '未割り当てに戻す'}" data-person-action="return" kind="${inWaiting ? 'danger' : 'default'}">${renderPersonMenuIcon(inWaiting ? 'trash-can' : 'undo')}</cds-menu-item>`);
     common.push(renderPersonChoiceSubmenu({ label: '学年', icon: 'education', action: 'grade', choices: [

@@ -22,7 +22,7 @@ function getLockedScopeLabels(scopes = editLockScopes) {
 }
 
 function isEditScopeLocked(scope = 'any') {
-    if (!editLockEnabled || !editLockPassphrase) return false;
+    return false;
     const scopes = normalizeEditLockScopes();
     if (scope === 'allocation' || scope === 'settlement') return !!scopes[scope];
     return scopes.allocation || scopes.settlement;
@@ -42,7 +42,7 @@ function rememberTrustedDevice(passphrase) {
 }
 
 function hasTrustedEditAccess(scope = 'any') {
-    return !isEditScopeLocked(scope) || (!!editLockPassphrase && trustedEditPassphrase === editLockPassphrase);
+    return true;
 }
 
 

@@ -100,13 +100,6 @@
                 if (customElements.get('cds-tabs')) tabBar.value = selectedValue;
             }
 
-            const carTab = byId('tab-list');
-            const teamTab = byId('tab-team');
-            const allocationLocked = !!carTab?.classList.contains('is-scope-locked');
-            const teamIndicator = teamTab?.querySelector('.view-tab-lock-indicator[data-lock-scope="allocation"]');
-            if (teamIndicator) teamIndicator.hidden = !allocationLocked;
-            teamTab?.classList.toggle('is-scope-locked', allocationLocked);
-            if (teamTab) teamTab.setAttribute('aria-label', allocationLocked ? '班割（ロック中）' : '班割');
         } finally {
             syncingCarbonPrimaryNavigation = false;
         }
@@ -117,9 +110,7 @@
         tab.querySelector('.view-tab-icon')?.remove();
         const label = tab.querySelector('.view-tab-label');
         if (!label) return;
-        const lockIndicator = label.querySelector('.view-tab-lock-indicator');
         label.replaceChildren(document.createTextNode(text));
-        if (lockIndicator) label.appendChild(lockIndicator);
     }
 
     function ensureCarbonPrimaryNavigation() {
@@ -399,12 +390,10 @@
         bind('historyBtn', () => { if (canUseUnlockedMenuAction()) global.showHistory?.(); });
         bind('sampleDataBtn', () => { if (canUseUnlockedMenuAction()) global.openDebugModal?.(); });
         bind('resetDataBtn', () => { if (canUseUnlockedMenuAction()) global.resetData(); });
-        bind('editLockBtn', () => toggleEditProtection());
         bind('shareLinkBtn', () => copyUrl());
         bind('fillEmptySeatsBtn', () => autoAssign('fill'));
         bind('shuffleAssignBtn', () => autoAssign('shuffle'));
         bind('tray-handle', () => toggleTray());
-        global.updateEditLockButton?.();
         syncCarbonPrimaryNavigationState();
     }
 

@@ -68,7 +68,6 @@ check('Header actions use official Carbon UI Shell and menu controls', () => {
   assert.match(html, /<cds-header-name\b/i);
   assert.match(html, /<cds-icon-button\b[^>]*id="shareLinkBtn"/i);
   assert.match(html, /<cds-overflow-menu\b[^>]*header-app-switcher/i);
-  assert.match(html, /<cds-menu-item\b[^>]*id="editLockBtn"/i);
   assert.match(html, /<cds-side-nav\b[^>]*id="overviewDrawer"/i);
 });
 check('Waiting tray disclosure uses a Carbon button', () => {

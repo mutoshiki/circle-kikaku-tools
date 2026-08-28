@@ -37,14 +37,11 @@
     function replaceTabLabel(tab, text) {
         const label = tab?.querySelector('.view-tab-label');
         if (!label) return;
-        const lock = label.querySelector('.view-tab-lock-indicator');
         const current = Array.from(label.childNodes)
-            .filter(node => node !== lock)
             .map(node => node.textContent || '')
             .join('').trim();
         if (current === text) return;
         label.replaceChildren(D.createTextNode(text));
-        if (lock) label.appendChild(lock);
     }
 
     function simplifyPrimaryNavigation() {
@@ -441,25 +438,6 @@
         person.classList.remove('manual-drag-source');
     }
 
-    function syncLockIndicator(person) {
-        const line = person.querySelector('.member-main-line, .driver-main-line');
-        const meta = line?.querySelector('.person-meta');
-        if (!line || !meta) return;
-        let indicator = meta.querySelector('.assignment-lock-indicator');
-        const locked = person.dataset.locked === 'true';
-        if (!locked) {
-            indicator?.remove();
-            return;
-        }
-        if (!indicator) {
-            indicator = D.createElement('span');
-            indicator.className = 'assignment-lock-indicator';
-            indicator.setAttribute('aria-label', 'ロック中');
-            indicator.innerHTML = '<span data-carbon-icon="locked" aria-hidden="true"></span>';
-            meta.prepend(indicator);
-        }
-    }
-
     function roleEnabled(person) {
         if (!person) return false;
         if (person.dataset.driver === 'true') return true;
@@ -711,7 +689,6 @@
             decorateEmptySeats(box);
             Array.from(box.querySelectorAll('.driver-seat, .seat-slot > .member-card')).forEach(person => {
                 removeDeprecatedPersonAffordances(person);
-                syncLockIndicator(person);
                 syncRoleTag(person, type);
                 syncGradeText(person);
             });

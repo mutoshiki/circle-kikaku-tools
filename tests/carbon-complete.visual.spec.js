@@ -117,7 +117,7 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     await appSwitcher.click();
     await expect(appSwitcher).toHaveJSProperty('open', true);
     const menuLabels = await page.locator('.header-app-switcher > cds-menu > cds-menu-item').evaluateAll(items => items.map(item => item.getAttribute('label')));
-    expect(menuLabels).toEqual(['使い方', 'サンプルデータ', expect.any(String), 'ロック']);
+    expect(menuLabels).toEqual(['使い方', 'サンプルデータ', expect.any(String)]);
     await page.keyboard.press('Escape');
     await expect(appSwitcher).toHaveJSProperty('open', false);
     await page.mouse.move(Math.min(viewport.width - 24, 200), 140);

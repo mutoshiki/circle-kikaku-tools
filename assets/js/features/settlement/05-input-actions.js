@@ -138,6 +138,7 @@ function refreshSettlementCollectionStatus(encodedName, name, checked, state) {
 async function toggleSettlementPaid(encodedName, checked, input = null) {
     const scrollSnapshot = consumeSettlementCheckScrollPosition();
     input?.focus?.({ preventScroll: true });
+    if (!window.SanpoFocusModality?.isKeyboard?.()) window.SanpoFocusModality?.clearPointerFocus?.(input);
     const name = decodeURIComponent(encodedName);
     const state = ensureSettlementState();
     const previousPaid = { ...(state.paid || {}) };
@@ -173,6 +174,7 @@ async function toggleSettlementPaid(encodedName, checked, input = null) {
 async function toggleSettlementDriverPaid(encodedName, checked, input = null) {
     const scrollSnapshot = consumeSettlementCheckScrollPosition();
     input?.focus?.({ preventScroll: true });
+    if (!window.SanpoFocusModality?.isKeyboard?.()) window.SanpoFocusModality?.clearPointerFocus?.(input);
     const name = decodeURIComponent(encodedName);
     const state = ensureSettlementState();
     const previousDriverPaid = { ...(state.driverPaid || {}) };
