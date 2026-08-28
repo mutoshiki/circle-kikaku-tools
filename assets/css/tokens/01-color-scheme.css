@@ -29,7 +29,15 @@
   --cds-background-inverse-hover: #474747;
   --cds-layer-selected-inverse: #161616;
   --cds-border-subtle: #e0e0e0;
+  /* Carbon Web Components consume layer-specific aliases directly. Keep
+   * modal and layered component borders on the app's subtle owner instead of
+   * falling back to the default high-contrast Gray 20 border. */
+  --cds-border-subtle-00: var(--cds-border-subtle);
+  --cds-border-subtle-01: var(--cds-border-subtle);
+  --cds-border-subtle-02: var(--cds-border-subtle);
   --cds-border-strong: #8d8d8d;
+  --cds-border-strong-01: var(--cds-border-strong);
+  --cds-border-strong-02: var(--cds-border-strong);
   --cds-interactive: #0f62fe;
   --cds-interactive-hover: #0050e6;
   --cds-interactive-active: #002d9c;
