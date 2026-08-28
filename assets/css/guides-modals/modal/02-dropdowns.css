@@ -1,7 +1,10 @@
 .header-overflow-body,
 .auto-assign-menu-body {
   min-width: 220px;
-  --cds-layer: var(--cds-layer-01, var(--surface-lowest));
+  /* The header shell intentionally stays dark in both themes, but its menus
+   * are application surfaces. Read the theme-owned surface directly so the
+   * light menu does not inherit the header's dark layer-01 value. */
+  --cds-layer: var(--surface-lowest);
   --cds-layer-hover: var(--cds-layer-hover-01, var(--surface-hover));
   --cds-text-primary: var(--text-main);
   --cds-text-secondary: var(--text-sub);
