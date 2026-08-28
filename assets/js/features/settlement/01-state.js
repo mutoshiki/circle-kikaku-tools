@@ -115,7 +115,7 @@ function normalizeRoutePlannerState(raw = {}) {
 function getDefaultSettlementState() {
     return {
         rounding: '100',
-        organizerFree: true,
+        organizerFree: false,
         organizerName: '',
         driverCollectionOffset: true,
         driverCollectionFree: false,
@@ -468,7 +468,7 @@ function normalizeSettlementState(state = {}) {
         ...base,
         ...state,
         rounding: String(state.rounding ?? base.rounding),
-        organizerFree: state.organizerFree !== undefined ? !!state.organizerFree : true,
+        organizerFree: state.organizerFree !== undefined ? !!state.organizerFree : false,
         organizerName: state.organizerName || '',
         driverCollectionOffset: state.driverCollectionOffset !== undefined ? !!state.driverCollectionOffset : true,
         driverCollectionFree: state.driverCollectionFree === true,

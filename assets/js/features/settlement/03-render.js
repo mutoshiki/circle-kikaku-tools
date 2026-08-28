@@ -754,15 +754,16 @@ function resumeSettlementCarEditor(encodedName) {
     if (modals.settlementCarEdit) modals.settlementCarEdit.show();
 }
 
+function readStandaloneDriverNameFromEditor() {
+    const row = byId('settlementCarEditBody')?.querySelector?.('.seisan-car-row[data-standalone-driver-index]');
+    if (!row) return '';
+    const index = Number(row.dataset.standaloneDriverIndex);
+    const input = row.querySelector('[data-field="standaloneDriverName"]');
+    return normalizeStandaloneDriverName(input?.value || row.dataset.driverName, Number.isInteger(index) ? index : 0);
+}
+
 function saveSettlementCarEditDraft({ render = true, refreshEditor = false } = {}) {
-    const body = byId('settlementCarEditBody');
-    const standaloneRow = body?.querySelector?.('.seisan-car-row[data-standalone-driver-index]');
-    let renamedStandaloneDriver = '';
-    if (standaloneRow) {
-        const index = Number(standaloneRow.dataset.standaloneDriverIndex);
-        const input = standaloneRow.querySelector('[data-field="standaloneDriverName"]');
-        renamedStandaloneDriver = normalizeStandaloneDriverName(input?.value || standaloneRow.dataset.driverName, Number.isInteger(index) ? index : 0);
-    }
+    const renamedStandaloneDriver = readStandaloneDriverNameFromEditor();
     syncSettlementStateFromDOM();
     if (renamedStandaloneDriver) activeSettlementCarEditName = renamedStandaloneDriver;
     save();
@@ -776,6 +777,11 @@ function saveSettlementCarEditDraft({ render = true, refreshEditor = false } = {
 }
 
 async function saveSettlementCarEdit() {
+    // The editor's car key can change in standalone mode. Set the active key
+    // before validation and intent-patch filtering so the renamed car is part
+    // of the explicit remote-save scope as well as the local snapshot.
+    const renamedStandaloneDriver = readStandaloneDriverNameFromEditor();
+    if (renamedStandaloneDriver) activeSettlementCarEditName = renamedStandaloneDriver;
     if (!validateActiveSettlementCarEditor(true)) return false;
     syncSettlementStateFromDOM();
     const currentRoom = cloneData(getData({ skipDomSync: !!window.__suspendActiveDomPlanSync }));
