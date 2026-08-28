@@ -7,6 +7,7 @@
 
   /* Carbon v11 Gray 10 semantic tokens, mirrored from the Figma library. */
   --cds-background: #f4f4f4;
+  --cds-layer: var(--cds-layer-01);
   --cds-layer-01: #ffffff;
   --cds-layer-02: #f4f4f4;
   --cds-layer-03: #e8e8e8;

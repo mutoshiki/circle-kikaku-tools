@@ -20,6 +20,7 @@ const routeCandidates = await read('assets/css/settlement/route-helper/03-route-
 const index = await read('index.html');
 
 expect(darkTheme.includes('--cds-interactive: #0f62fe;'), 'Dark primary actions must use Carbon blue 60.');
+expect(darkTheme.includes('--cds-layer: var(--cds-layer-01);'), 'Dark theme must provide Carbon layer for component shells.');
 expect(darkTheme.includes('--cds-link-primary: #78a9ff;'), 'Dark text/link accents must use Carbon blue 40.');
 expect(darkTheme.includes('--cds-support-info: var(--cds-link-primary);'), 'Dark information accents must reuse the text/link accent.');
 expect(darkTheme.includes('--semantic-info-inverse: var(--cds-link-primary);'), 'Toast information accent must not introduce a third blue.');
@@ -32,6 +33,7 @@ for (const token of [
 ]) {
   expect(lightTheme.includes(token), `Missing product semantic accent token: ${token}`);
 }
+expect(lightTheme.includes('--cds-layer: var(--cds-layer-01);'), 'Light theme must provide Carbon layer for component shells.');
 
 expect(modalBase.includes('color: var(--cds-icon-primary, var(--text-main));'), 'Modal heading icons must be neutral.');
 expect(dropdowns.includes('--cds-link-primary: var(--app-accent-text);'), 'Popover/menu links must inherit the canonical text accent.');
@@ -49,7 +51,6 @@ const popupOwners = [modalBase, dropdowns, personMenu, shareModal, importShell, 
 expect(!/#4589ff/i.test(popupOwners), 'Popup owners must not hard-code Carbon blue 50.');
 expect(!/var\(--accent-line\)/.test(popupOwners), 'Popup owners must not consume the ambiguous legacy accent-line token.');
 
-expect(index.includes('rendered-qa-v26'), 'Dark theme cache-buster was not updated.');
-expect(index.includes('rendered-qa-v26'), 'Popup owner cache-busters were not updated.');
+expect(index.includes('rendered-qa-v27'), 'Theme cache-buster was not updated.');
 
 console.log('PASS dark accent and popup semantic contract');

@@ -4,6 +4,7 @@ html[data-theme="dark"] {
 
   /* Carbon v11 Gray 100 semantic tokens. */
   --cds-background: #161616;
+  --cds-layer: var(--cds-layer-01);
   --cds-layer-01: #262626;
   --cds-layer-02: #393939;
   --cds-layer-03: #525252;
