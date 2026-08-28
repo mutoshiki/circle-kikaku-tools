@@ -214,27 +214,25 @@
 
       <div id="seisan-view-area" hidden>
         <div class="seisan-wrap">
+          <section class="seisan-card seisan-status-card">
+            <div class="seisan-head">
+              <div><div class="seisan-title seisan-semantic-section-title"><span>精算状況</span></div><div class="seisan-section-note">集金・支払いの進捗と残りの作業を確認できます。</div></div>
+            </div>
+            <div id="seisan-status-summary" class="seisan-status-summary" aria-live="polite"></div>
+          </section>
+
           <section class="seisan-card seisan-settings-card">
             <div class="seisan-compact-head">
-              <div class="seisan-title seisan-title--settings"><span data-carbon-icon="settings--adjust" aria-hidden="true"></span>精算設定</div>
-              <cds-button class="seisan-btn seisan-edit-btn" kind="ghost" size="lg" type="button" data-action="open-settlement-settings"><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span><span>編集</span></cds-button>
+              <div><div class="seisan-title seisan-title--settings">精算設定</div><div class="seisan-section-note">精算額の計算に使う設定を確認・変更できます。</div></div>
+              <cds-button class="seisan-btn seisan-edit-btn" kind="secondary" size="lg" type="button" data-action="open-settlement-settings"><span>編集</span></cds-button>
             </div>
             <div id="seisan-settings-summary" class="seisan-settings-summary" aria-live="polite"></div>
           </section>
 
-          <section class="seisan-card seisan-panel seisan-car-panel">
-            <div class="seisan-head">
-              <div class="seisan-title seisan-semantic-section-title">
-                <span data-carbon-icon="car-small" aria-hidden="true"></span>
-                <span>運転手への支払い</span>
-              </div>
-            </div>
-            <div id="seisan-car-list"></div>
-          </section>
-
           <section class="seisan-card seisan-toolbar-card">
             <div class="seisan-head">
-              <div class="seisan-title"><span data-carbon-icon="calculator" aria-hidden="true"></span>全体の費用</div>
+              <div><div class="seisan-title">全体の費用</div><div class="seisan-section-note">精算に含める費用を確認・追加できます。</div></div>
+              <cds-button class="seisan-btn" kind="ghost" size="lg" type="button" data-action="focus-settlement-cost-editors">費用を追加</cds-button>
             </div>
             <div id="seisan-summary" class="seisan-top-flow"></div>
             <div id="seisan-errors" class="seisan-alert"></div>
@@ -243,26 +241,40 @@
           <section class="seisan-card seisan-panel seisan-collection-panel">
             <div class="seisan-head">
               <div>
-                <div class="seisan-title seisan-semantic-section-title">
-                  <span data-carbon-icon="checkbox--checked" aria-hidden="true"></span>
-                  <span id="seisan-collection-title">集金（0円）</span>
-                </div>
+                <div class="seisan-title seisan-semantic-section-title"><span>集金チェック</span></div>
+                <div class="seisan-section-note">参加者ごとの集金状況を確認・記録できます。</div>
+                <div id="seisan-collection-progress" class="seisan-section-progress" aria-live="polite"></div>
               </div>
             </div>
+            <div class="seisan-collection-actions" aria-label="集金チェックの表示と共有">
+              <cds-button id="seisan-unpaid-filter" class="seisan-btn" kind="tertiary" size="lg" type="button" data-action="toggle-settlement-unpaid-filter" aria-pressed="false">未回収のみ</cds-button>
+              <cds-button class="seisan-btn" kind="secondary" size="lg" type="button" data-action="copy-settlement-unpaid">未回収者をコピー</cds-button>
+            </div>
             <div id="seisan-collection-list" class="seisan-check-list"></div>
+            <div class="seisan-collection-hint">※ チェック後も並び順は変わりません。</div>
+          </section>
+
+          <section class="seisan-card seisan-panel seisan-car-panel">
+            <div class="seisan-head">
+              <div>
+                <div class="seisan-title seisan-semantic-section-title">
+                  <span>運転手への支払い</span>
+                </div>
+                <div class="seisan-section-note">車ごとの支払額と支払い状況を確認・記録できます。</div>
+                <div id="seisan-payment-progress" class="seisan-section-progress" aria-live="polite"></div>
+              </div>
+            </div>
+            <div id="seisan-car-list"></div>
           </section>
 
           <section class="seisan-card seisan-share-card seisan-panel">
             <div class="seisan-head">
               <div>
-                <div class="seisan-title"><span data-carbon-icon="copy" aria-hidden="true"></span>精算メモ</div>
-                <div id="seisan-share-note" class="seisan-muted">テキストのプレビュー</div>
+                <div class="seisan-title">精算メモ</div>
+                <div class="seisan-section-note">領収書の保管場所や、あとで確認する事項を記録できます。</div>
               </div>
             </div>
-            <pre id="seisan-share-preview" class="seisan-share-preview" aria-label="精算メモのプレビュー"></pre>
-            <div class="seisan-share-actions" aria-label="精算メモの共有">
-              <cds-button class="seisan-btn seisan-copy-btn" kind="tertiary" size="lg" type="button" data-action="copy-settlement-text"><span data-carbon-icon="task" slot="icon" aria-hidden="true"></span>精算メモをコピー</cds-button>
-            </div>
+            <cds-textarea id="seisanMemoInput" label="引き継ぎ事項や精算時の注意" placeholder="例：駐車場代の領収書は企画者が保管" rows="5"></cds-textarea>
           </section>
 
         </div>
@@ -442,48 +454,18 @@
 </cds-modal-body></cds-modal>
 
     <!-- Settlement edit modals -->
-    <cds-modal aria-label="精算設定" aria-labelledby="settlementSettingsModalTitle" class="app-modal app-modal--scroll settlement-edit-modal settlement-settings-modal" id="settlementSettingsModal" size="xs" has-scrolling-content><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementSettingsModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="settings--adjust"></span>精算設定</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" no-fade>
+    <cds-modal aria-label="精算設定を編集" aria-labelledby="settlementSettingsModalTitle" class="app-modal app-modal--scroll settlement-edit-modal settlement-settings-modal" id="settlementSettingsModal" size="xs" has-scrolling-content><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementSettingsModalTitle" tabindex="-1">精算設定を編集</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" no-fade>
 <div class="seisan-settings seisan-settings--modal">
-<div class="seisan-settings-section seisan-settings-section--basic seisan-settings-span">
-<div class="seisan-settings-section-title">基本設定</div>
+<section class="seisan-settings-section seisan-settings-section--method seisan-settings-span">
+<h3 class="seisan-settings-section-title">精算方法</h3>
 <div class="seisan-settings-grid">
-<div class="seisan-field seisan-settings-field--rounding">
-<label>端数処理</label>
-<div aria-label="端数処理" class="seisan-rounding-options" role="radiogroup">
-<cds-content-switcher aria-label="端数処理" class="seisan-rounding-row" size="lg" value="100">
-<cds-content-switcher-item class="seisan-rounding-option" data-rounding-value="100" selected="" value="100">100円</cds-content-switcher-item>
-<cds-content-switcher-item class="seisan-rounding-option" data-rounding-value="50" value="50">50円</cds-content-switcher-item>
-<cds-content-switcher-item class="seisan-rounding-option" data-rounding-value="10" value="10">10円</cds-content-switcher-item>
-<cds-content-switcher-item class="seisan-rounding-option" data-rounding-value="1" value="1">1円</cds-content-switcher-item>
-</cds-content-switcher>
-</div>
-<cds-select aria-label="端数処理" hidden="" hide-label="" id="seisanRounding" label-text="端数処理">
-<cds-select-item value="100">100円</cds-select-item>
-<cds-select-item value="50">50円</cds-select-item>
-<cds-select-item value="10">10円</cds-select-item>
-<cds-select-item value="1">1円</cds-select-item>
-</cds-select>
-</div>
-<div class="seisan-field seisan-settings-field--reward">
-<label>車出し協力代（1台）</label>
-<cds-text-input aria-label="車出し協力代" hide-label="" id="seisanDriverReward" inputmode="numeric" label="車出し協力代" pattern="[0-9]*" placeholder="例：1000" size="lg" type="text" value="0"></cds-text-input>
-<div class="seisan-driver-reward-policy">
-<div class="seisan-driver-reward-policy-heading">
-<label class="seisan-driver-reward-policy-label" id="seisanDriverRewardTypeLabel">車出し協力代の負担方法</label>
-</div>
-<cds-content-switcher aria-labelledby="seisanDriverRewardTypeLabel" id="seisanDriverRewardType" size="lg" value="split">
-<cds-content-switcher-item selected="" value="split">割勘</cds-content-switcher-item>
-<cds-content-switcher-item value="club">部費</cds-content-switcher-item>
-</cds-content-switcher>
-</div>
-</div>
-</div>
-</div>
-<div class="seisan-settings-section seisan-settings-section--standalone seisan-settings-span">
-<div class="seisan-settings-section-title">人数だけで精算</div>
-<div class="seisan-toggle seisan-toggle--modal seisan-standalone-toggle seisan-settings-span">
-<cds-checkbox aria-label="人数だけで精算する" id="seisanStandaloneEnabled" label-text="人数だけで精算する"></cds-checkbox>
-</div>
+<div class="seisan-field seisan-settings-span">
+<cds-radio-button-group id="seisanSettlementMode" name="settlement-mode" value="normal" orientation="vertical" legend-text="精算モード">
+<cds-radio-button value="normal" label-text="参加者を登録して精算"></cds-radio-button>
+<cds-radio-button value="standalone" label-text="人数だけで精算"></cds-radio-button>
+</cds-radio-button-group>
+<div class="seisan-settings-help">参加者を登録して精算するか、運転手・同乗者の人数だけで精算するかを選びます。</div>
+<cds-checkbox hidden="" aria-hidden="true" id="seisanStandaloneEnabled" label-text="人数だけで精算する"></cds-checkbox>
 <div class="seisan-standalone-fields seisan-settings-span" hidden="" id="seisanStandaloneFields">
 <div class="seisan-field">
 <label>車出し人数</label>
@@ -496,24 +478,64 @@
 <div class="seisan-standalone-error" hidden="" id="seisanStandaloneError">車出し人数とそれ以外の人数を入力してください。</div>
 </div>
 </div>
-<div class="seisan-settings-section seisan-settings-section--detail seisan-settings-span">
-<div class="seisan-settings-section-title">詳細オプション</div>
-<div class="seisan-toggle seisan-toggle--modal seisan-settings-span">
-<cds-checkbox aria-label="運転手の集金を支払いから差し引く" checked="" id="seisanDriverCollectionOffset" label-text="運転手の集金を支払いから差し引く"></cds-checkbox>
+<div class="seisan-field seisan-settings-field--rounding">
+<cds-radio-button-group aria-label="端数単位" class="seisan-rounding-row" id="seisanRoundingOptions" name="settlement-rounding" value="100" orientation="vertical" legend-text="端数単位">
+<cds-radio-button data-rounding-value="1" value="1" label-text="1円単位"></cds-radio-button>
+<cds-radio-button data-rounding-value="10" value="10" label-text="10円単位"></cds-radio-button>
+<cds-radio-button data-rounding-value="100" value="100" label-text="100円単位"></cds-radio-button>
+</cds-radio-button-group>
+<cds-select aria-label="端数処理" hidden="" hide-label="" id="seisanRounding" label-text="端数処理">
+<cds-select-item value="100">100円</cds-select-item>
+<cds-select-item value="50">50円</cds-select-item>
+<cds-select-item value="10">10円</cds-select-item>
+<cds-select-item value="1">1円</cds-select-item>
+</cds-select>
 </div>
-<div class="seisan-toggle seisan-toggle--modal seisan-settings-span">
-<cds-checkbox aria-label="企画者から集金しない" checked="" id="seisanOrganizerFree" label-text="企画者から集金しない"></cds-checkbox>
 </div>
-<div class="seisan-toggle seisan-toggle--modal seisan-settings-span">
-<cds-checkbox aria-label="運転手から集金しない" id="seisanDriverCollectionFree" label-text="運転手から集金しない"></cds-checkbox>
+</section>
+<section class="seisan-settings-section seisan-settings-section--reward seisan-settings-span">
+<h3 class="seisan-settings-section-title">車出し協力代</h3>
+<div class="seisan-settings-grid">
+<div class="seisan-field seisan-settings-field--reward">
+<label>1台あたりの協力代</label>
+<cds-text-input aria-label="1台あたりの協力代" hide-label="" id="seisanDriverReward" inputmode="numeric" label="1台あたりの協力代" pattern="[0-9]*" placeholder="例：1000" size="lg" type="text" value="0"></cds-text-input>
 </div>
-<div class="seisan-field seisan-settings-span seisan-organizer-field" hidden="" id="seisanOrganizerField">
+<div class="seisan-field seisan-settings-field--reward-policy">
+<cds-radio-button-group id="seisanDriverRewardType" name="settlement-reward-type" value="split" orientation="vertical" legend-text="協力代の負担">
+<cds-radio-button value="split" label-text="参加者で割勘"></cds-radio-button>
+<cds-radio-button value="club" label-text="部費から支払う"></cds-radio-button>
+</cds-radio-button-group>
+</div>
+</div>
+</section>
+<section class="seisan-settings-section seisan-settings-section--collection seisan-settings-span">
+<h3 class="seisan-settings-section-title">集金ルール</h3>
+<div class="seisan-settings-grid">
+<div class="seisan-field seisan-settings-span">
+<cds-radio-button-group id="seisanDriverCollectionRule" name="settlement-driver-collection-rule" value="offset" orientation="vertical" legend-text="運転手分の集金">
+<cds-radio-button value="normal" label-text="通常どおり集金する"></cds-radio-button>
+<cds-radio-button value="offset" label-text="支払額から控除する"></cds-radio-button>
+<cds-radio-button value="free" label-text="集金対象外にする"></cds-radio-button>
+</cds-radio-button-group>
+<cds-checkbox hidden="" aria-hidden="true" id="seisanDriverCollectionOffset" label-text="運転手の集金を支払いから差し引く"></cds-checkbox>
+<cds-checkbox hidden="" aria-hidden="true" id="seisanDriverCollectionFree" label-text="運転手から集金しない"></cds-checkbox>
+</div>
+<div class="seisan-field seisan-settings-span seisan-organizer-field" id="seisanOrganizerField">
 <label>企画者</label>
 <cds-select aria-label="企画者名" hide-label="" id="seisanOrganizerName" label-text="企画者名" size="lg"></cds-select>
 </div>
+<div class="seisan-field seisan-settings-span">
+<cds-radio-button-group id="seisanOrganizerRule" name="settlement-organizer-rule" value="free" orientation="vertical" legend-text="企画者分">
+<cds-radio-button value="collect" label-text="通常どおり集金する"></cds-radio-button>
+<cds-radio-button value="free" label-text="集金対象外にする"></cds-radio-button>
+</cds-radio-button-group>
+<cds-checkbox hidden="" aria-hidden="true" id="seisanOrganizerFree" label-text="企画者から集金しない"></cds-checkbox>
 </div>
 </div>
-</cds-modal-body><cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button id="saveSettlementSettingsBtn" data-action="save-settlement-settings" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
+</section>
+<div id="seisanSettingsImpact" class="seisan-settings-impact seisan-settings-span" aria-live="polite"><div class="seisan-settings-impact-title">変更後</div><div id="seisanSettingsImpactValue" class="seisan-settings-impact-value"><span data-impact="payer">集金対象 —</span><span data-impact="per-person">1人あたり —</span><span data-impact="driver-total">支払い総額 —</span></div></div>
+</div>
+</cds-modal-body><cds-modal-footer class="app-modal-footer"><cds-modal-footer-button data-modal-close kind="secondary" type="button">キャンセル</cds-modal-footer-button><cds-modal-footer-button id="saveSettlementSettingsBtn" data-action="save-settlement-settings" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
 
     <cds-modal aria-label="車ごとの費用" aria-labelledby="settlementCarEditModalTitle" class="app-modal app-modal--scroll settlement-edit-modal settlement-edit-modal--car" id="settlementCarEditModal" size="sm" has-scrolling-content><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementCarEditModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="car-small"></span>費用を編集</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" no-fade>
 <div id="settlementCarEditBody"></div>

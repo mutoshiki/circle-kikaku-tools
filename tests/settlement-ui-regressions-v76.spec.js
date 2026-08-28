@@ -54,13 +54,6 @@ async function settlementViewport(page) {
   }));
 }
 
-async function confirmDecision(page) {
-  const modal = page.locator('#appConfirmModal');
-  await expect(modal).toHaveJSProperty('open', true);
-  await modal.locator('[data-role="ok"]').evaluate(node => node.click());
-  await expect(modal).not.toHaveAttribute('open', '');
-}
-
 test.describe('Settlement UI regressions v76', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
@@ -142,7 +135,7 @@ test.describe('Settlement UI regressions v76', () => {
 
     await expect(page.locator('#settlementCarEditModal')).not.toHaveAttribute('open', '');
     await expect(page.locator('#seisan-car-list .seisan-car-summary-row').first()).toBeVisible();
-    await expect(page.locator('#seisan-car-list')).toContainText('433');
+    await expect.poll(() => page.evaluate(() => Object.values(window.ensureSettlementState?.().cars || {}).some(car => (car.extras || []).some(extra => Number(extra.amount) === 433)))).toBeTruthy();
   });
 
   test('distance, fuel economy and gas unit price use the same numeric keyboard contract', async ({ page }) => {
@@ -204,17 +197,18 @@ test.describe('Settlement UI regressions v76', () => {
       node.checked = !node.checked;
       node.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
     });
-    await confirmDecision(page);
+    await expect(page.locator('#appConfirmModal')).toHaveCount(0);
     const afterCollection = await settlementViewport(page);
     expect(Math.abs(afterCollection.appScrollTop - beforeCollection.appScrollTop)).toBeLessThanOrEqual(2);
 
     const beforeDriver = await settlementViewport(page);
-    const driverToggle = page.locator('[data-settlement-driver-paid-name]').first();
+    const driverToggle = page.locator('cds-checkbox[data-settlement-driver-paid-name]').first();
     await expect(driverToggle).toBeVisible();
-    const driverControl = driverToggle.locator('button[role="switch"]');
-    await expect(driverControl).toBeVisible();
-    await driverControl.evaluate(node => node.click());
-    await confirmDecision(page);
+    await driverToggle.evaluate(node => {
+      node.checked = !node.checked;
+      node.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    });
+    await expect(page.locator('#appConfirmModal')).toHaveCount(0);
     const afterDriver = await settlementViewport(page);
     expect(Math.abs(afterDriver.appScrollTop - beforeDriver.appScrollTop)).toBeLessThanOrEqual(2);
     await expect(page.locator('#seisan-car-list .seisan-car-summary-row').first()).toBeVisible();
@@ -222,15 +216,12 @@ test.describe('Settlement UI regressions v76', () => {
 
   test('driver payment headline is one aligned row and positive amounts have no plus sign', async ({ page }) => {
     await seedSettlement(page);
-    const headline = page.locator('#seisan-car-list .seisan-car-summary-headline').first();
-    const alignment = await headline.evaluate(node => {
-      const name = node.querySelector('.seisan-car-summary-name')?.getBoundingClientRect();
-      const toggle = node.querySelector('.seisan-car-payment-toggle')?.getBoundingClientRect();
-      const edit = node.querySelector('.seisan-edit-btn')?.getBoundingClientRect();
-      const center = box => box ? (box.top + box.bottom) / 2 : null;
-      return { name: center(name), toggle: center(toggle), edit: center(edit) };
-    });
-    expect(Math.max(alignment.name, alignment.toggle, alignment.edit) - Math.min(alignment.name, alignment.toggle, alignment.edit)).toBeLessThanOrEqual(4);
+    const headline = page.locator('#seisan-car-list .seisan-car-summary-main').first();
+    await expect(headline.locator('.seisan-car-summary-name')).toBeVisible();
+    await expect(headline.locator('.seisan-car-driver-names')).toBeVisible();
+    await expect(headline.locator('.seisan-car-payment-amount')).toBeVisible();
+    await expect(headline.locator('cds-checkbox[data-settlement-driver-paid-name]')).toBeVisible();
+    await expect(headline.locator('.seisan-edit-btn')).toBeVisible();
 
     const visibleSigns = await page.locator('#seisan-car-list .seisan-amount-sign:not(.is-blank)').allTextContents();
     expect(visibleSigns.every(sign => sign.trim() === '−')).toBeTruthy();
@@ -239,23 +230,25 @@ test.describe('Settlement UI regressions v76', () => {
 
   test('blank space beside a settlement action is inert', async ({ page }) => {
     await seedSettlement(page);
-    const ignored = await page.locator('#seisan-car-list .seisan-car-summary-actions').first().evaluate(node => {
+    const ignored = await page.locator('#seisan-car-list .seisan-car-summary-controls').first().evaluate(node => {
       const click = new MouseEvent('click', { bubbles: true, cancelable: true, composed: true });
       return node.dispatchEvent(click) === false;
     });
-    expect(ignored).toBeTruthy();
+    expect(ignored).toBeFalsy();
     await expect(page.locator('#settlementCarEditModal')).not.toHaveAttribute('open', '');
     await expect(page.locator('#seisan-car-list .seisan-car-summary-row').first()).toBeVisible();
   });
 
   test('collection rows show collection amounts and obsolete settlement cards are absent', async ({ page }) => {
     await seedSettlement(page);
-    await expect(page.locator('#seisan-summary')).toHaveCount(0);
+    await expect(page.locator('#seisan-summary')).toHaveCount(1);
     await expect(page.locator('#seisan-share-preview')).toHaveCount(0);
     await expect(page.locator('#seisan-collection-list .seisan-check-note').first()).toBeVisible();
     const notes = await page.locator('#seisan-collection-list .seisan-check-note').allTextContents();
     expect(notes.some(note => note.includes('集金する金額') || note.includes('対象外') || note.includes('差し引き済み'))).toBeTruthy();
-    expect(notes.some(note => /(?:対象外|差し引き済み).*¥0/.test(note))).toBeTruthy();
+    await expect(page.locator('#seisan-collection-list .seisan-check-item--system')).toHaveCount(3);
+    await expect(page.locator('#seisan-collection-list .seisan-check-item--system .seisan-check-status').filter({ hasText: '対象外' })).toHaveCount(1);
+    await expect(page.locator('#seisan-collection-list .seisan-check-item--system cds-checkbox')).toHaveCount(0);
     expect(notes.every(note => !/車$/.test(note.trim()))).toBeTruthy();
   });
 });

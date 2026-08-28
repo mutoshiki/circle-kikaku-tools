@@ -1,0 +1,210 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner "サークル企画ツール" [ref=e3]:
+      - generic:
+        - button "ナビゲーションを開く" [ref=e5] [cursor=pointer]
+        - link "サークル企画ツール" [ref=e12] [cursor=pointer]:
+          - /url: /?room=XTSQ7JMJ
+        - generic [ref=e14]:
+          - generic "共有リンク" [ref=e15]:
+            - generic [ref=e17]:
+              - button "undefined" [ref=e1365] [cursor=pointer]
+              - generic:
+                - tooltip
+          - generic "アプリメニュー" [ref=e24] [cursor=pointer]:
+            - generic [ref=e26]:
+              - button "アプリメニュー" [ref=e27]
+              - generic:
+                - tooltip
+    - generic:
+      - generic:
+        - generic: 山歩会フォームメーカー
+        - generic: 学務提出書類作成ツール
+        - generic: 山歩会企画ツール一覧
+        - generic: バグを報告する
+    - region "企画名" [ref=e38]:
+      - generic [ref=e39]:
+        - textbox "企画名" [ref=e40]
+        - generic:
+          - generic:
+            - generic:
+              - generic: 企画名
+              - generic:
+                - generic:
+                  - textbox:
+                    - /placeholder: 企画名を入力
+                    - text: 秋名山登山企画
+    - generic [ref=e41]:
+      - region "割り当て操作" [ref=e141]:
+        - generic [ref=e142]:
+          - paragraph [ref=e143]: 13人 · 3台 · 未割り当て0人
+          - generic "ランダム割り当て" [ref=e144]:
+            - button "ランダム割り当て" [ref=e146] [cursor=pointer]
+      - generic [ref=e42]:
+        - group "1号車" [ref=e1469]:
+          - list [ref=e1471]:
+            - generic:
+              - generic [ref=e1472]:
+                - generic [ref=e1473]: 1号車
+                - generic "車の人数 4/4、定員を変更" [ref=e1475]:
+                  - button "4/4" [ref=e1476] [cursor=pointer]
+                - generic "車の操作" [ref=e1478] [cursor=pointer]:
+                  - generic [ref=e1480]:
+                    - button "車の操作" [ref=e1481]
+                    - generic:
+                      - tooltip
+              - generic [ref=e1486]:
+                - generic [ref=e1488]:
+                  - generic [ref=e1489]: 藤原 拓海
+                  - generic [ref=e1490]:
+                    - generic "運転手" [ref=e1491]
+                    - generic [ref=e1493]: 3年
+                  - generic "藤原 拓海の操作" [ref=e1494] [cursor=pointer]:
+                    - generic [ref=e1496]:
+                      - button "藤原 拓海の操作" [ref=e1497]
+                      - generic:
+                        - tooltip
+                - generic [ref=e1500]:
+                  - generic [ref=e1501]: 武内 樹
+                  - generic [ref=e1502]: 3年
+                  - generic "武内 樹の操作" [ref=e1504] [cursor=pointer]:
+                    - generic [ref=e1506]:
+                      - button "武内 樹の操作" [ref=e1507]
+                      - generic:
+                        - tooltip
+                - generic [ref=e1510]:
+                  - generic [ref=e1511]: 茂木 なつき
+                  - generic [ref=e1512]: 3年
+                  - generic "茂木 なつきの操作" [ref=e1514] [cursor=pointer]:
+                    - generic [ref=e1516]:
+                      - button "茂木 なつきの操作" [ref=e1517]
+                      - generic:
+                        - tooltip
+                - generic [ref=e1520]:
+                  - generic [ref=e1521]: 池谷 浩一郎
+                  - generic [ref=e1522]: 4年
+                  - generic "池谷 浩一郎の操作" [ref=e1524] [cursor=pointer]:
+                    - generic [ref=e1526]:
+                      - button "池谷 浩一郎の操作" [ref=e1527]
+                      - generic:
+                        - tooltip
+        - group "2号車" [ref=e1529]:
+          - list [ref=e1531]:
+            - generic:
+              - generic [ref=e1532]:
+                - generic [ref=e1533]: 2号車
+                - generic "車の人数 4/4、定員を変更" [ref=e1535]:
+                  - button "4/4" [ref=e1536] [cursor=pointer]
+                - generic "車の操作" [ref=e1538] [cursor=pointer]:
+                  - generic [ref=e1540]:
+                    - button "車の操作" [ref=e1541]
+                    - generic:
+                      - tooltip
+              - generic [ref=e1546]:
+                - generic [ref=e1548]:
+                  - generic [ref=e1549]: 高橋 啓介
+                  - generic [ref=e1550]:
+                    - generic "運転手" [ref=e1551]
+                    - generic [ref=e1553]: 4年
+                  - generic "高橋 啓介の操作" [ref=e1554] [cursor=pointer]:
+                    - generic [ref=e1556]:
+                      - button "高橋 啓介の操作" [ref=e1557]
+                      - generic:
+                        - tooltip
+                - generic [ref=e1560]:
+                  - generic [ref=e1561]: 健二
+                  - generic [ref=e1562]: 4年
+                  - generic "健二の操作" [ref=e1564] [cursor=pointer]:
+                    - generic [ref=e1566]:
+                      - button "健二の操作" [ref=e1567]
+                      - generic:
+                        - tooltip
+                - generic [ref=e1570]:
+                  - generic [ref=e1571]: 中村 賢太
+                  - generic [ref=e1572]: 3年
+                  - generic "中村 賢太の操作" [ref=e1574] [cursor=pointer]:
+                    - generic [ref=e1576]:
+                      - button "中村 賢太の操作" [ref=e1577]
+                      - generic:
+                        - tooltip
+                - generic [ref=e1580]:
+                  - generic [ref=e1581]: 佐藤 真子
+                  - generic [ref=e1582]: 4年
+                  - generic "佐藤 真子の操作" [ref=e1584] [cursor=pointer]:
+                    - generic [ref=e1586]:
+                      - button "佐藤 真子の操作" [ref=e1587]
+                      - generic:
+                        - tooltip
+        - group "3号車" [ref=e1589]:
+          - list [ref=e1591]:
+            - generic:
+              - generic [ref=e1592]:
+                - generic [ref=e1593]: 3号車
+                - generic "車の人数 5/5、定員を変更" [ref=e1595]:
+                  - button "5/5" [ref=e1596] [cursor=pointer]
+                - generic "車の操作" [ref=e1598] [cursor=pointer]:
+                  - generic [ref=e1600]:
+                    - button "車の操作" [ref=e1601]
+                    - generic:
+                      - tooltip
+              - generic [ref=e1606]:
+                - generic [ref=e1608]:
+                  - generic [ref=e1609]: 高橋 涼介
+                  - generic [ref=e1610]:
+                    - generic "運転手" [ref=e1611]
+                    - generic [ref=e1613]: 4年
+                  - generic "高橋 涼介の操作" [ref=e1614] [cursor=pointer]:
+                    - generic [ref=e1616]:
+                      - button "高橋 涼介の操作" [ref=e1617]
+                      - generic:
+                        - tooltip
+                - generic [ref=e1620]:
+                  - generic [ref=e1621]: 沙雪
+                  - generic [ref=e1622]: 4年
+                  - generic "沙雪の操作" [ref=e1624] [cursor=pointer]:
+                    - generic [ref=e1626]:
+                      - button "沙雪の操作" [ref=e1627]
+                      - generic:
+                        - tooltip
+                - generic [ref=e1630]:
+                  - generic [ref=e1631]: 秋山 渉
+                  - generic [ref=e1632]: 4年
+                  - generic "秋山 渉の操作" [ref=e1634] [cursor=pointer]:
+                    - generic [ref=e1636]:
+                      - button "秋山 渉の操作" [ref=e1637]
+                      - generic:
+                        - tooltip
+                - generic [ref=e1640]:
+                  - generic [ref=e1641]: 秋山 和美
+                  - generic [ref=e1642]: 3年
+                  - generic "秋山 和美の操作" [ref=e1644] [cursor=pointer]:
+                    - generic [ref=e1646]:
+                      - button "秋山 和美の操作" [ref=e1647]
+                      - generic:
+                        - tooltip
+                - generic [ref=e1650]:
+                  - generic [ref=e1651]: 岩城 清次
+                  - generic [ref=e1652]: 4年
+                  - generic "岩城 清次の操作" [ref=e1654] [cursor=pointer]:
+                    - generic [ref=e1656]:
+                      - button "岩城 清次の操作" [ref=e1657]
+                      - generic:
+                        - tooltip
+      - generic "車を追加" [ref=e340]:
+        - generic "車を追加" [ref=e341]:
+          - button "車を追加" [ref=e342] [cursor=pointer]
+    - text: 未割り当ての参加者はいません
+    - navigation "メイン画面" [ref=e52]:
+      - generic "主要画面" [ref=e53]:
+        - tablist [ref=e56]:
+          - generic:
+            - listitem "参加者" [ref=e57]:
+              - tab "参加者" [ref=e58] [cursor=pointer]
+            - listitem "車割" [active] [ref=e61]:
+              - tab "車割" [selected] [ref=e62] [cursor=pointer]
+            - listitem "班割" [ref=e65]:
+              - tab "班割" [ref=e66] [cursor=pointer]
+            - listitem "精算" [ref=e69]:
+              - tab "精算" [ref=e70] [cursor=pointer]
+        - status [ref=e73]: Selected an item.
+  - generic "ステータス通知"

@@ -1,32 +1,4 @@
-/* Base surface for each driver cost summary. Detailed rows are owned by car-cost-summary. */
-#seisan-view-area #seisan-car-list {
-  display: grid;
-  gap: var(--space-3);
-}
-
-#seisan-view-area .seisan-car-summary-row {
-  display: grid;
-  gap: 0;
-  min-width: 0;
-  overflow: hidden;
-  border: 0;
-  border-radius: 0;
-  background: var(--cds-layer-02, var(--surface-low));
-  color: var(--cds-text-primary, var(--text-main));
-  box-shadow: none;
-}
-
-#seisan-view-area .seisan-car-summary-total {
-  color: var(--cds-text-primary, var(--text-main));
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  word-break: keep-all;
-  overflow-wrap: normal;
-}
-
-@media (min-width: 769px) {
-  #seisan-view-area #seisan-car-list {
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  }
-}
+/* Vehicle payment cards. */
+#seisan-view-area #seisan-car-list { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
+#seisan-view-area .seisan-car-summary-row { display: grid; min-width: 0; overflow: hidden; border: 0; border-top: 1px solid var(--cds-border-subtle-01, #525252); border-radius: 0; background: var(--cds-layer-01, #262626); color: var(--cds-text-primary, #f4f4f4); box-shadow: none; }
+#seisan-view-area .seisan-car-summary-row.has-error { border-color: var(--cds-support-error, #fa4d56); }

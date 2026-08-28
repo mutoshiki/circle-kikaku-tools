@@ -1,72 +1,24 @@
-/* Collection checklist grouped by vehicle. */
-#seisan-view-area .seisan-collection-panel .seisan-head { margin-bottom: var(--space-2); }
-#seisan-view-area .seisan-collection-panel .seisan-head > div { width: 100%; min-width: 0; }
-#seisan-view-area #seisan-collection-note.seisan-muted {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-  width: 100%;
-  margin: var(--space-1) 0 0;
-}
-#seisan-view-area .seisan-collection-note-left { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: var(--space-1) var(--space-2); min-width: 0; }
-#seisan-view-area .seisan-collection-per-person { display: inline-flex; align-items: baseline; gap: var(--space-1); margin-left: auto; white-space: nowrap; }
-#seisan-view-area .seisan-collection-per-person-amount { color: var(--cds-text-primary, var(--text-main)); font-size: 1.125rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-#seisan-view-area .seisan-check-list { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
-#seisan-view-area .seisan-collection-group { display: grid; gap: var(--space-2); min-width: 0; }
-#seisan-view-area .seisan-collection-group-title { padding: 0; color: var(--cds-text-secondary, var(--text-sub)); font-size: var(--font-size-label); font-weight: 600; }
-#seisan-view-area .seisan-collection-group-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-4); }
-
-.seisan-check-item {
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
-  align-items: start;
-  gap: var(--space-2);
-  min-width: 0;
-  min-height: 48px;
-  padding: var(--space-2) var(--space-1);
-  border-block-end: 1px solid var(--cds-border-subtle-01, var(--border-section));
-  background: transparent;
-  color: var(--cds-text-primary, var(--text-main));
-  box-shadow: none;
-  cursor: pointer;
-}
-.seisan-check-item:hover { background: var(--cds-layer-hover-01, var(--surface-hover)); }
-.seisan-check-item.paid .seisan-check-name { color: var(--cds-text-primary, var(--text-main)); }
-.seisan-check-item.excluded {
-  cursor: not-allowed;
-  color: var(--cds-disabled-text, var(--text-faint));
-  opacity: 1;
-}
-.seisan-check-item.excluded:hover { background: transparent; }
-.seisan-check-item cds-checkbox { grid-column: 1; grid-row: 1; min-width: 24px; margin: 1px 0 0; }
-#seisan-view-area .seisan-check-copy {
-  display: flex;
-  grid-column: 2;
-  grid-row: 1;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-1);
-  min-width: 0;
-}
-#seisan-view-area .seisan-check-name {
-  min-width: 0;
-  font-size: var(--font-size-label);
-  font-weight: 600;
-  line-height: var(--line-height-label);
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
-#seisan-view-area .seisan-check-note {
-  width: 100%;
-  min-width: 0;
-  color: var(--cds-text-secondary, var(--text-sub));
-  font-size: var(--font-size-caption);
-  font-weight: 400;
-  line-height: 1.4;
-  text-align: left;
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
-#seisan-view-area .seisan-check-item.paid .seisan-check-note { color: var(--cds-text-secondary, var(--text-sub)); }
-#seisan-view-area .seisan-check-item.excluded :is(.seisan-check-name, .seisan-check-note) { color: var(--cds-disabled-text, var(--text-faint)); }
+/* Collection workflow: only manual rows own a Checkbox. */
+.seisan-collection-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 8px; margin: 0 0 12px; }
+#seisan-view-area .seisan-check-list { display: grid; grid-template-columns: 1fr; gap: var(--space-5); }
+#seisan-view-area .seisan-collection-group { display: grid; gap: 0; min-width: 0; }
+#seisan-view-area .seisan-collection-group-title { padding: 0 0 8px; color: var(--cds-text-secondary, #c6c6c6); font-size: 12px; font-weight: 400; }
+#seisan-view-area .seisan-collection-group-list { display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--cds-border-subtle-01, #525252); }
+.seisan-check-item { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-width: 0; min-height: 58px; padding: 0 8px 0 4px; border-block-end: 1px solid var(--cds-border-subtle-01, #525252); background: var(--cds-layer-01, #262626); color: var(--cds-text-primary, #f4f4f4); cursor: pointer; }
+.seisan-check-item:not(.seisan-check-item--system):hover { background: var(--cds-layer-hover-01, #333333); }
+.seisan-check-item cds-checkbox { grid-column: 1; min-width: 24px; margin: 0; }
+#seisan-view-area .seisan-check-copy { display: flex; grid-column: 2; flex-direction: column; gap: var(--space-1); min-width: 0; }
+#seisan-view-area .seisan-check-name { min-width: 0; color: var(--cds-text-primary, #f4f4f4); font-size: var(--font-size-label); font-weight: 500; line-height: 1.4; overflow-wrap: anywhere; }
+#seisan-view-area .seisan-check-note { color: var(--cds-text-secondary, #c6c6c6); font-size: var(--font-size-caption); line-height: 1.4; overflow-wrap: anywhere; }
+.seisan-check-amount-state { display: block; justify-self: end; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.seisan-check-status { color: var(--cds-text-secondary, #c6c6c6); font-size: 12px; white-space: nowrap; }
+.seisan-check-status.success { color: #a7f0ba; }
+.seisan-check-item.paid .seisan-check-note { color: #a7f0ba; }
+.seisan-check-item--system { grid-template-columns: minmax(0, 1fr) auto; padding-left: 16px; background: #202020; cursor: default; }
+#seisan-view-area .seisan-check-item--system .seisan-check-copy { grid-column: 1; }
+.seisan-check-item--system .seisan-check-status { grid-column: 2; }
+.seisan-check-item--system.pre-deducted .seisan-check-status { color: var(--cds-link-primary, #78a9ff); }
+.seisan-check-item--system.excluded :is(.seisan-check-name, .seisan-check-note) { color: var(--cds-text-secondary, #c6c6c6); }
+.seisan-check-item--system :is(.seisan-check-status) { color: #d0e2ff; }
+.seisan-collection-hint { margin-top: 8px; color: var(--cds-text-disabled, #8d8d8d); font-size: 11px; }
+.seisan-collection-actions cds-button { white-space: nowrap; }

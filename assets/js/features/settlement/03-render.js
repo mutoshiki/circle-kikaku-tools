@@ -52,14 +52,16 @@ function renderExtraRowHtml(carName, ex, index, issues) {
 
 function syncSettlementControls(state, participants) {
     const roundingEl = byId('seisanRounding');
-    const roundingOptions = Array.from(document.querySelectorAll('[data-rounding-value]'));
+    const roundingOptionsEl = byId('seisanRoundingOptions');
     const organizerFreeEl = byId('seisanOrganizerFree');
     const organizerEl = byId('seisanOrganizerName');
     const organizerField = byId('seisanOrganizerField');
     const driverCollectionOffsetEl = byId('seisanDriverCollectionOffset');
     const driverCollectionFreeEl = byId('seisanDriverCollectionFree');
+    const driverCollectionRuleEl = byId('seisanDriverCollectionRule');
     const rewardEl = byId('seisanDriverReward');
     const rewardTypeEl = byId('seisanDriverRewardType');
+    const settlementModeEl = byId('seisanSettlementMode');
     const standaloneEnabledEl = byId('seisanStandaloneEnabled');
     const standaloneDriverCountEl = byId('seisanStandaloneDriverCount');
     const standaloneMemberCountEl = byId('seisanStandaloneMemberCount');
@@ -68,30 +70,33 @@ function syncSettlementControls(state, participants) {
     if (organizerFreeEl) organizerFreeEl.checked = state.organizerFree !== false;
     if (driverCollectionOffsetEl) driverCollectionOffsetEl.checked = state.driverCollectionOffset !== false;
     if (driverCollectionFreeEl) driverCollectionFreeEl.checked = state.driverCollectionFree === true;
+    if (driverCollectionRuleEl) {
+        const driverRule = state.driverCollectionFree === true ? 'free' : (state.driverCollectionOffset !== false ? 'offset' : 'normal');
+        driverCollectionRuleEl.value = driverRule;
+        driverCollectionRuleEl.setAttribute('value', driverRule);
+    }
     if (rewardEl) rewardEl.value = state.driverReward ?? '0';
     if (rewardTypeEl) {
         const rewardType = getDriverRewardType(state);
         rewardTypeEl.value = rewardType;
-        rewardTypeEl.querySelectorAll('cds-content-switcher-item').forEach(item => {
-            item.selected = item.value === rewardType;
-        });
+        rewardTypeEl.setAttribute('value', rewardType);
     }
     const standalone = normalizeStandaloneSettlementState(state.standalone || {});
     const roundingValue = String(state.rounding || '100');
-    document.querySelectorAll('.seisan-rounding-row').forEach(switcher => {
-        if (switcher.querySelector(`[data-rounding-value="${CSS.escape(roundingValue)}"]`)) switcher.value = roundingValue;
-    });
+    if (roundingOptionsEl) {
+        roundingOptionsEl.value = roundingValue;
+        roundingOptionsEl.setAttribute('value', roundingValue);
+    }
+    if (settlementModeEl) {
+        const mode = standalone.enabled ? 'standalone' : 'normal';
+        settlementModeEl.value = mode;
+        settlementModeEl.setAttribute('value', mode);
+    }
     if (standaloneEnabledEl) standaloneEnabledEl.checked = standalone.enabled;
     if (standaloneDriverCountEl) standaloneDriverCountEl.value = standalone.driverCount || '';
     if (standaloneMemberCountEl) standaloneMemberCountEl.value = standalone.memberCount || '';
     if (standaloneFieldsEl) standaloneFieldsEl.hidden = !standalone.enabled;
-    roundingOptions.forEach(option => {
-        const active = option.dataset.roundingValue === roundingValue;
-        option.classList.toggle('active', active);
-        option.selected = active;
-        option.setAttribute('aria-pressed', active ? 'true' : 'false');
-    });
-    if (organizerField) organizerField.hidden = state.organizerFree === false;
+    if (organizerField) organizerField.hidden = false;
     if (organizerEl) {
         const current = state.organizerName || '';
         const createItem = (label, value) => {
@@ -105,6 +110,12 @@ function syncSettlementControls(state, participants) {
         organizerEl.replaceChildren(placeholder, ...options);
         organizerEl.value = participants.some(p => p.name === current) ? current : '';
         state.organizerName = organizerEl.value;
+    }
+    const organizerRuleEl = byId('seisanOrganizerRule');
+    if (organizerRuleEl) {
+        const organizerRule = state.organizerFree === false ? 'collect' : 'free';
+        organizerRuleEl.value = organizerRule;
+        organizerRuleEl.setAttribute('value', organizerRule);
     }
 }
 
@@ -163,8 +174,10 @@ function renderSettlementCarsHtml(data, state, result, issues) {
     });
 }
 
+let settlementCollectionUnpaidOnly = false;
+
 function renderSettlementCollectionHtml(data, participants, state, result) {
-    return window.SanpoApp.templates.settlement.collection({ data, participants, state, result, helpers: { escapeHtml } });
+    return window.SanpoApp.templates.settlement.collection({ data, participants, state, result, unpaidOnly: settlementCollectionUnpaidOnly, helpers: { escapeHtml } });
 }
 
 function renderSettlementDriverPayHtml(result, state) {
@@ -181,6 +194,10 @@ function renderSettlementClubExpenseBreakdownHtml(result) {
 
 function renderSettlementSettingSummaryHtml(state, result) {
     return window.SanpoApp.templates.settlement.settingSummary({ state, result, helpers: { escapeHtml, yen } });
+}
+
+function renderSettlementStatusHtml(state, result, issues) {
+    return window.SanpoApp.templates.settlement.statusSummary({ state, result, issues, helpers: { escapeHtml, yen } });
 }
 
 let activeSettlementCarEditName = '';
@@ -442,12 +459,22 @@ function openStandaloneSettlementSettings() {
     const standaloneFields = byId('seisanStandaloneFields');
     const driverCollectionOffset = byId('seisanDriverCollectionOffset');
     const driverCollectionFree = byId('seisanDriverCollectionFree');
+    const driverCollectionRule = byId('seisanDriverCollectionRule');
     const organizerFree = byId('seisanOrganizerFree');
+    const organizerRule = byId('seisanOrganizerRule');
     if (standaloneEnabled) standaloneEnabled.checked = true;
     if (standaloneFields) standaloneFields.hidden = false;
     if (driverCollectionOffset) driverCollectionOffset.checked = false;
     if (driverCollectionFree) driverCollectionFree.checked = false;
+    if (driverCollectionRule) {
+        driverCollectionRule.value = 'normal';
+        driverCollectionRule.setAttribute('value', 'normal');
+    }
     if (organizerFree) organizerFree.checked = false;
+    if (organizerRule) {
+        organizerRule.value = 'collect';
+        organizerRule.setAttribute('value', 'collect');
+    }
     validateSettlementSettings(false);
     if (modals.settlementSettings) modals.settlementSettings.show();
 }
@@ -477,7 +504,7 @@ function validateOrganizerSettlementSettings(showErrors = true) {
     const organizer = byId('seisanOrganizerName');
     const organizerField = byId('seisanOrganizerField');
     const missing = !!organizerFree?.checked && !String(organizer?.value || '').trim();
-    if (organizerField) organizerField.hidden = !organizerFree?.checked;
+    if (organizerField) organizerField.hidden = false;
     if (organizer) {
         // Missing organizer is guidance, not a save-blocking data error. The calculator already
         // treats this condition as informational; the settings modal must follow the same rule.
@@ -779,8 +806,11 @@ function renderSettlementView() {
     if (!options.preserveSettingsControls) syncSettlementControls(state, participants);
 
     const result = calculateSettlement(data, state);
-    const summaryIssues = createEmptySettlementIssues();
+    const summaryIssues = getSettlementIssues(data, state, result);
     renderSettlementIssues(summaryIssues);
+
+    const statusSummary = byId('seisan-status-summary');
+    if (statusSummary) statusSummary.innerHTML = renderSettlementStatusHtml(state, result, summaryIssues);
 
     const settingsSummary = byId('seisan-settings-summary');
     if (settingsSummary) settingsSummary.innerHTML = renderSettlementSettingSummaryHtml(state, result);
@@ -800,24 +830,34 @@ function renderSettlementView() {
     const collectionList = byId('seisan-collection-list');
     if (collectionList) collectionList.innerHTML = renderSettlementCollectionHtml(data, participants, state, result);
 
-    const collectionTitle = byId('seisan-collection-title');
-    if (collectionTitle) collectionTitle.textContent = `集金（${yen(result.perPerson || 0)}）`;
+    const collectionProgress = byId('seisan-collection-progress');
+    if (collectionProgress) collectionProgress.textContent = `${result.paidCount}/${result.payerCount}人・${yen(result.expectedCollected - result.unpaidAmount)} / ${yen(result.expectedCollected)}・残り ${yen(result.unpaidAmount || 0)}`;
+    const unpaidFilter = byId('seisan-unpaid-filter');
+    if (unpaidFilter) {
+        unpaidFilter.setAttribute('aria-pressed', settlementCollectionUnpaidOnly ? 'true' : 'false');
+        unpaidFilter.textContent = settlementCollectionUnpaidOnly ? '全員を表示' : '未回収のみ';
+    }
+
+    const paidCarCount = (result.cars || []).filter(car => state.driverPaid?.[car.name]).length;
+    const paymentRemaining = (result.cars || []).filter(car => !state.driverPaid?.[car.name]).reduce((sum, car) => sum + Number(car.adjustedTotalPay || 0), 0);
+    const paymentProgress = byId('seisan-payment-progress');
+    if (paymentProgress) paymentProgress.textContent = `支払い済み ${paidCarCount}/${(result.cars || []).length}台・残り ${yen(paymentRemaining)}`;
 
     const driverPayList = byId('seisan-driver-pay-list');
     if (driverPayList) driverPayList.innerHTML = renderSettlementDriverPayHtml(result, state);
 
-    const shareNote = byId('seisan-share-note');
-    if (shareNote) {
-        shareNote.textContent = 'テキストのプレビュー';
-    }
-    const sharePreview = byId('seisan-share-preview');
-    if (sharePreview && typeof buildSettlementOverviewText === 'function') {
-        sharePreview.textContent = buildSettlementOverviewText({
-            data,
-            state,
-            result,
-            title: (data.roomName || '企画名未設定').trim()
-        });
+    const memo = byId('seisanMemoInput');
+    if (memo && document.activeElement !== memo) memo.value = state.memo || '';
+
+    const settingsImpact = byId('seisanSettingsImpactValue');
+    if (settingsImpact) {
+        const impactPayer = settingsImpact.querySelector('[data-impact="payer"]');
+        const impactPerPerson = settingsImpact.querySelector('[data-impact="per-person"]');
+        const impactDriverTotal = settingsImpact.querySelector('[data-impact="driver-total"]');
+        if (impactPayer) impactPayer.textContent = `集金対象 ${result.payerCount}人`;
+        if (impactPerPerson) impactPerPerson.textContent = `1人あたり ${yen(result.perPerson || 0)}`;
+        if (impactDriverTotal) impactDriverTotal.textContent = `支払い総額 ${yen(result.driverTotal || 0)}`;
+        if (!impactPayer && !impactPerPerson && !impactDriverTotal) settingsImpact.textContent = `集金対象 ${result.payerCount}人・1人あたり ${yen(result.perPerson || 0)}・支払い総額 ${yen(result.driverTotal || 0)}`;
     }
 
     const breakdown = byId('seisan-breakdown');

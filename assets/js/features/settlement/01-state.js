@@ -133,7 +133,8 @@ function getDefaultSettlementState() {
         routePlanner: createDefaultRoutePlannerState(),
         paid: {},
         paidBy: {},
-        driverPaid: {}
+        driverPaid: {},
+        memo: ''
     };
 }
 
@@ -480,7 +481,8 @@ function normalizeSettlementState(state = {}) {
         routePlanner: normalizeRoutePlannerState(state.routePlanner || base.routePlanner),
         paid: state.paid && typeof state.paid === 'object' ? state.paid : {},
         paidBy: state.paidBy && typeof state.paidBy === 'object' ? state.paidBy : {},
-        driverPaid: state.driverPaid && typeof state.driverPaid === 'object' ? state.driverPaid : {}
+        driverPaid: state.driverPaid && typeof state.driverPaid === 'object' ? state.driverPaid : {},
+        memo: String(state.memo || '')
     };
 }
 
@@ -599,23 +601,42 @@ function syncSettlementStateFromDOM() {
     const rounding = byId('seisanRounding');
     const organizerFree = byId('seisanOrganizerFree');
     const organizerName = byId('seisanOrganizerName');
+    const organizerRule = byId('seisanOrganizerRule');
     const driverCollectionOffset = byId('seisanDriverCollectionOffset');
     const driverCollectionFree = byId('seisanDriverCollectionFree');
+    const driverCollectionRule = byId('seisanDriverCollectionRule');
     const driverReward = byId('seisanDriverReward');
     const driverRewardType = byId('seisanDriverRewardType');
+    const settlementMode = byId('seisanSettlementMode');
+    const roundingOptions = byId('seisanRoundingOptions');
     const standaloneEnabled = byId('seisanStandaloneEnabled');
     const standaloneDriverCount = byId('seisanStandaloneDriverCount');
     const standaloneMemberCount = byId('seisanStandaloneMemberCount');
+    const memo = byId('seisanMemoInput');
 
-    if (rounding) state.rounding = rounding.value || '100';
-    if (organizerFree) state.organizerFree = organizerFree.checked;
+    const selectedRadioValue = group => group?.value || group?.querySelector('cds-radio-button[checked]')?.getAttribute('value') || group?.getAttribute('value') || '';
+    if (rounding) state.rounding = selectedRadioValue(roundingOptions) || rounding.value || '100';
+    // The modal exposes one exclusive organizer rule; keep the legacy boolean
+    // field as the storage shape for old rooms and sync consumers.
+    if (organizerRule) {
+        const rule = selectedRadioValue(organizerRule) || (organizerFree?.checked ? 'free' : 'collect');
+        state.organizerFree = rule === 'free';
+    } else if (organizerFree) state.organizerFree = organizerFree.checked;
     if (organizerName) state.organizerName = organizerName.value || '';
-    if (driverCollectionOffset) state.driverCollectionOffset = driverCollectionOffset.checked;
-    if (driverCollectionFree) state.driverCollectionFree = driverCollectionFree.checked;
+    // Likewise, map the exclusive driver rule back to the two compatible flags.
+    if (driverCollectionRule) {
+        const rule = selectedRadioValue(driverCollectionRule) || (driverCollectionFree?.checked ? 'free' : (driverCollectionOffset?.checked ? 'offset' : 'normal'));
+        state.driverCollectionOffset = rule === 'offset';
+        state.driverCollectionFree = rule === 'free';
+    } else {
+        if (driverCollectionOffset) state.driverCollectionOffset = driverCollectionOffset.checked;
+        if (driverCollectionFree) state.driverCollectionFree = driverCollectionFree.checked;
+    }
     if (driverReward) state.driverReward = driverReward.value;
-    if (driverRewardType) state.driverRewardType = normalizeDriverRewardType(driverRewardType.value);
+    if (driverRewardType) state.driverRewardType = normalizeDriverRewardType(selectedRadioValue(driverRewardType) || driverRewardType.value);
+    if (memo) state.memo = memo.value || '';
     state.standalone = normalizeStandaloneSettlementState({
-        enabled: standaloneEnabled ? standaloneEnabled.checked : state.standalone?.enabled,
+        enabled: settlementMode ? selectedRadioValue(settlementMode) === 'standalone' : (standaloneEnabled ? standaloneEnabled.checked : state.standalone?.enabled),
         driverCount: standaloneDriverCount ? standaloneDriverCount.value : state.standalone?.driverCount,
         memberCount: standaloneMemberCount ? standaloneMemberCount.value : state.standalone?.memberCount,
         driverNames: state.standalone?.driverNames || []

@@ -60,11 +60,10 @@ expect(!sheetSummary.includes('#sheet-view-area.active::after'), 'Shared view mu
 expect(settlement.includes('var(--cds-icon-primary, var(--text-main))'), 'Base settlement heading icons must be neutral.');
 expect(settlementStates.includes('var(--cds-icon-secondary, var(--text-sub))'), 'Late settlement state owner must not re-blue heading icons.');
 expect(tagTokens.includes('--settlement-tag-font-size: var(--font-size-caption);'), 'Settlement tags must use the readable caption size.');
-expect(summary.includes('.seisan-summary-accordion') && summary.includes('.seisan-summary-static'), 'Settlement totals must use Carbon disclosure plus a static total row.');
-expect(summaryTemplate.includes('<cds-accordion') && summaryTemplate.includes('割勘合計') && summaryTemplate.includes('部費合計') && summaryTemplate.includes('支払い合計'), 'Settlement totals must render as Carbon accordion detail with a clear payment total.');
-expect(summaryTemplate.includes('seisan-summary-detail-list') && summaryTemplate.includes('seisan-summary-static-row is-total'), 'Settlement summary must preserve scan-friendly detail rows and a separate total.');
-expect(index.indexOf('seisan-car-panel') < index.indexOf('seisan-toolbar-card'), 'Driver payments must precede the overall cost table.');
-expect(index.indexOf('seisan-club-expense-panel') < index.indexOf('seisan-toolbar-card'), 'Club balance must precede the overall cost table.');
+expect(summary.includes('.seisan-status-summary') && summary.includes('.seisan-overall-cost-total'), 'Settlement must expose status and a static overall-cost total.');
+expect(summaryTemplate.includes('statusSummary') && summaryTemplate.includes('seisan-overall-cost-list') && summaryTemplate.includes('seisan-overall-cost-total'), 'Settlement summary templates must render status plus the registered cost list and total.');
+expect(index.indexOf('seisan-status-card') < index.indexOf('seisan-settings-card') && index.indexOf('seisan-settings-card') < index.indexOf('seisan-toolbar-card'), 'Settlement status, settings, and overall costs must follow the redesign order.');
+expect(index.indexOf('seisan-toolbar-card') < index.indexOf('seisan-collection-panel') && index.indexOf('seisan-collection-panel') < index.indexOf('seisan-car-panel') && index.indexOf('seisan-car-panel') < index.indexOf('seisan-share-card'), 'Overall costs, collection, driver payments, and memo must follow the redesign order.');
 expect(sheetFrame.includes('.sheet-content') && sheetFrame.includes('width: 100%;') && sheetFrame.includes('grid-template-columns: repeat(auto-fit'), 'Legacy sheet renderer must remain responsive while old links are normalized away.');
 expect(!sheetTemplates.includes('renderGradeBadge') && !sheetTemplates.includes('renderPersonFlag'), 'Legacy presentation renderer must omit grade tags and person flags.');
 expect(!people.includes('person-drag-affordance') && !people.includes('data-carbon-icon="draggable"'), 'Allocation person cards must not render drag affordances.');
@@ -73,7 +72,7 @@ expect(!people.includes('data-person-action="gender"') && !personMenu.includes('
 expect(autoAssign.includes("lastAutoAssignLabel = 'ランダム割り当て'") && !autoAssign.includes('optGrade') && !autoAssign.includes('assignByGrade'), 'Bulk assignment must be one pure random action with no detailed conditions.');
 expect(workspace.includes("label.textContent = 'ランダム割り当て'") && workspace.includes("'fillEmptySeatsBtn'") && workspace.includes("'traySettingsBtn'"), 'Workspace must label the one random action and remove retired allocation controls at runtime.');
 expect(shareActions.includes("url.searchParams.set('room', activeRoomId)") && !shareActions.includes("url.searchParams.set('view'") && !shareActions.includes("url.searchParams.set('allocation'"), 'Share links must point to the normal room rather than a special car/team view.');
-expect(carCostTemplates.includes('<cds-structured-list') && carCostTemplates.includes('<cds-toggle'), 'Driver payment cards must use Carbon Structured List and Toggle.');
+expect(carCostTemplates.includes('<cds-structured-list') && carCostTemplates.includes('data-settlement-driver-paid-name') && carCostTemplates.includes('<cds-checkbox'), 'Driver payment cards must use Carbon Structured List and Checkbox task state.');
 expect(carCostCard.includes('.seisan-cost-structured-list') && carCostCard.includes('font-weight: 400;'), 'Regular driver cost rows must use one consistent body typography.');
 expect(workspace.includes('id="assignmentWorkspaceRandomAction"') && workspace.includes('ランダム割り当て'), 'Allocation must expose one primary bulk assignment action.');
 expect(!sheetView.includes('updateSheetSummary({ ...data, carPlans: plans })'), 'Removed shared-view counts must not be rendered or recomputed by the legacy presentation renderer.');

@@ -34,9 +34,12 @@ expect(workspace.includes("'fillEmptySeatsBtn', 'traySettingsBtn', 'autoAssignPo
 expect(userGuide.includes('「ランダム割り当て」'), 'User guide must document the single random allocation action.');
 expect(!userGuide.includes('「空きを埋める」') && !userGuide.includes('ランダムに割り当て') && !userGuide.includes('ドラッグして配置'), 'User guide must not describe retired allocation actions.');
 
-expect(index.includes('車出し協力代の負担方法'), 'Driver reward burden heading is unclear');
+expect(index.includes('legend-text="協力代の負担"'), 'Driver reward burden heading must match the settlement redesign');
 expect(!index.includes('1台あたりの協力代をどこから支払うか選択'), 'Removed driver reward helper copy remains');
-expect(index.includes('aria-labelledby="seisanDriverRewardTypeLabel"'), 'Driver reward switcher is not programmatically labelled');
+expect(index.includes('id="seisanDriverRewardType"') && index.includes('legend-text="協力代の負担"'), 'Driver reward radio group is not programmatically labelled');
+expect(index.includes('class="seisan-settings-section seisan-settings-section--method') && index.includes('class="seisan-settings-section seisan-settings-section--reward') && index.includes('class="seisan-settings-section seisan-settings-section--collection'), 'Settlement settings must group controls by meaning');
+expect(index.includes('id="seisanDriverCollectionRule"') && index.includes('id="seisanOrganizerRule"') && !index.includes('その他の設定'), 'Settlement collection rules must use explicit radio groups without an ambiguous advanced category');
+expect(index.includes('data-impact="payer"') && index.includes('data-impact="per-person"') && index.includes('data-impact="driver-total"'), 'Settlement settings preview must list the three post-change totals');
 expect(!/\.seisan-driver-reward-policy\s*\{[^}]*border-top\s*:/.test(settlementSettingsCss), 'Unnecessary divider remains between driver reward amount and burden method');
 
 expect(sample.includes("roomName: missing ? '入力漏れチェック用サンプル' : '秋名山登山企画'"), 'Sample room title was not updated');

@@ -95,20 +95,27 @@
     const rowClass = issues.rows.has(car.name) ? ' has-error' : '';
     const extras = orderDriverRewardFirstForDisplay(Array.isArray(calc.extras) ? calc.extras : []);
     const costDetails = structuredCostRows(calc, extras, helpers);
-    const driverLabel = driverDisplayLabel(car, calc);
+    const driverNames = Array.isArray(calc.driverNames) ? calc.driverNames.filter(Boolean) : [];
+    const vehicleLabel = `${String(car.name || '').trim()}車${calc.usesTimesRental ? '（レンタカー）' : ''}`;
+    const driversText = driverNames.length ? driverNames.join('、') : '未設定';
+    const multipleDriverNote = driverNames.length > 1 ? '（車単位で一括支払い）' : '';
     return `<article class="seisan-car-summary-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}">
-      <div class="seisan-car-summary-headline">
-        <strong class="seisan-car-summary-name">${esc(driverLabel, helpers)}${calc.usesTimesRental ? '（レンタカー）' : ''}</strong>
-        <div class="seisan-car-summary-actions">
-          <cds-toggle class="seisan-car-payment-toggle" size="sm" ${paid ? 'toggled' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="" label-a="支払い済み" label-b="未払い" aria-label="${esc(driverLabel, helpers)}への支払い状態"></cds-toggle>
-          <cds-button class="seisan-btn seisan-edit-btn" kind="ghost" size="md" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span><span>編集</span></cds-button>
+      <div class="seisan-car-summary-main">
+        <div class="seisan-car-summary-identity">
+          <strong class="seisan-car-summary-name">${esc(vehicleLabel, helpers)}</strong>
+          <span class="seisan-car-driver-names">運転手：${esc(driversText, helpers)}${multipleDriverNote}</span>
+          <div class="seisan-car-payment-amount"><span>この車への支払額</span><strong>${money(calc.adjustedTotalPay ?? calc.totalPay ?? 0, helpers)}</strong></div>
+        </div>
+        <div class="seisan-car-summary-controls">
+          <div class="seisan-car-payment-check" data-carbon-checkbox-row>
+            <cds-checkbox ${paid ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="支払い済み" aria-label="${esc(vehicleLabel, helpers)}を支払い済みにする"></cds-checkbox>
+          </div>
+          <cds-button class="seisan-btn seisan-edit-btn" kind="ghost" size="lg" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><span>費用を編集</span></cds-button>
         </div>
       </div>
       <cds-accordion class="seisan-car-accordion">
-        <cds-accordion-item><span slot="title" class="seisan-accordion-total"><span>割勘合計</span><strong>${money(costDetails.splitTotal, helpers)}</strong></span><cds-structured-list condensed class="seisan-cost-structured-list" aria-label="費用内訳"><cds-structured-list-body>${costDetails.split}</cds-structured-list-body></cds-structured-list></cds-accordion-item>
-        <cds-accordion-item><span slot="title" class="seisan-accordion-total"><span>部費合計</span><strong>${money(costDetails.clubTotal, helpers)}</strong></span><cds-structured-list condensed class="seisan-cost-structured-list" aria-label="部費の内訳"><cds-structured-list-body>${costDetails.club}</cds-structured-list-body></cds-structured-list></cds-accordion-item>
+        <cds-accordion-item><span slot="title" class="seisan-payment-detail-title"><span>内訳を表示</span><span>割勘 ${money(costDetails.splitTotal, helpers)}・部費 ${money(costDetails.clubTotal, helpers)}</span></span><div class="seisan-payment-breakdown"><div><strong>割勘</strong><cds-structured-list condensed class="seisan-cost-structured-list" aria-label="割勘費用の内訳"><cds-structured-list-body>${costDetails.split}</cds-structured-list-body></cds-structured-list></div><div><strong>部費</strong><cds-structured-list condensed class="seisan-cost-structured-list" aria-label="部費の内訳"><cds-structured-list-body>${costDetails.club}</cds-structured-list-body></cds-structured-list></div></div></cds-accordion-item>
       </cds-accordion>
-      <cds-structured-list condensed class="seisan-cost-structured-list seisan-cost-structured-list--total" aria-label="車ごとの支払い合計"><cds-structured-list-body>${costDetails.total}</cds-structured-list-body></cds-structured-list>
     </article>`;
   }
 

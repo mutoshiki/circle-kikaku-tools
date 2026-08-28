@@ -58,17 +58,12 @@
 }
 #seisan-view-area :where(
   .seisan-summary-card,
-  .seisan-car-summary-row,
-  .seisan-check-item,
   .seisan-driver-pay-row
 ) {
   border-radius: var(--radius-main);
 }
 
 #seisan-view-area :where(
-  .seisan-title,
-  .seisan-car-summary-name,
-  .seisan-check-name,
   .seisan-driver-name
 ) {
   font-weight: 600;

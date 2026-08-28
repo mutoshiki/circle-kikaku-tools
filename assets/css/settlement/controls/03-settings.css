@@ -1,6 +1,6 @@
 /* Settlement settings summary and settings-modal controls. Carbon Modal owns
  * dialog geometry, focus, overlay, scrolling and footer; this file owns form content. */
-.seisan-settings-card .seisan-compact-head { margin-bottom: var(--space-3); }
+.seisan-settings-card .seisan-compact-head { margin-bottom: 16px; }
 .seisan-settings-summary { min-width: 0; }
 .seisan-title--settings .carbon-icon { color: var(--cds-icon-primary, var(--text-main)); }
 
@@ -10,9 +10,15 @@
   margin-inline: auto;
 }
 
+#settlementSettingsModal::part(dialog) {
+  width: min(560px, calc(100vw - 32px));
+  max-width: 560px;
+  max-height: calc(100dvh - 32px);
+}
+
 #settlementSettingsModal > .app-modal-body {
   min-height: 0;
-  padding: var(--space-4) var(--space-5) var(--space-6);
+  padding: 20px;
   scroll-padding-bottom: var(--space-6);
   background: var(--cds-layer-01, var(--surface-lowest));
   color: var(--cds-text-primary, var(--text-main));
@@ -24,7 +30,7 @@
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: var(--space-6);
-  background: var(--cds-layer-02, var(--surface-low));
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
 .seisan-settings--modal .seisan-settings-span { grid-column: 1 / -1; }
@@ -41,8 +47,6 @@
   padding-top: var(--space-5);
   border-top: 1px solid var(--cds-border-subtle);
 }
-
-.seisan-settings-section--standalone { padding-top: 0; }
 
 .seisan-settings-section-title {
   padding-inline: 0;
@@ -76,20 +80,9 @@
   align-items: start;
 }
 
-.seisan-driver-reward-policy {
-  display: grid;
-  gap: var(--space-3);
-  margin-top: 0;
-  padding-top: 0;
-}
-
-.seisan-driver-reward-policy-heading { display: grid; gap: var(--space-1); }
-
-.seisan-driver-reward-policy-label {
-  color: var(--cds-text-secondary, var(--text-sub));
-  font-size: var(--font-size-caption);
-  font-weight: 400;
-  line-height: 1.35;
+.seisan-settings-section--reward .seisan-settings-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
 }
 
 #seisanDriverRewardType { width: 100%; min-width: 0; }
@@ -112,45 +105,24 @@
 #settlementSettingsModal .seisan-standalone-fields .seisan-field { min-width: 0; }
 #settlementSettingsModal .seisan-standalone-fields cds-number-input { display: block; width: 100%; min-width: 0; }
 
-.seisan-rounding-options { display: block; min-width: 0; }
-.seisan-rounding-row { width: 100%; min-width: 0; }
-.seisan-rounding-option { min-width: 0; min-height: 48px; }
+.seisan-rounding-row,
+#seisanSettlementMode,
+#seisanDriverRewardType { display: block; width: 100%; min-width: 0; }
 
-.seisan-settings--modal .seisan-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  min-height: 48px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-}
-
-.seisan-toggle--modal {
-  min-height: 48px;
+.seisan-settings-impact {
+  display: grid;
+  gap: var(--space-2);
   margin-top: 0;
+  padding: 12px 14px;
+  border-inline-start: 3px solid var(--cds-border-interactive, #0f62fe);
+  background: #1c1c1c;
+  color: var(--cds-text-primary, #f4f4f4);
+  font-size: var(--font-size-label);
+  line-height: 1.5;
 }
-
-.seisan-toggle--modal + .seisan-toggle--modal {
-  margin-top: 0;
-  border-top: 1px solid var(--cds-border-subtle);
-}
-
-.seisan-toggle--modal cds-checkbox {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  align-self: flex-start;
-  justify-self: start;
-  width: fit-content;
-  max-width: 100%;
-  inline-size: fit-content;
-  min-height: 48px;
-  margin: 0;
-  text-align: left;
-}
+.seisan-settings-impact-title { margin-bottom: 4px; color: var(--cds-text-secondary, #c6c6c6); font-size: 12px; }
+.seisan-settings-impact-value { display: grid; gap: 2px; font-weight: 500; }
+.seisan-settings-help { margin-top: 6px; color: var(--cds-text-secondary, #c6c6c6); font-size: 12px; line-height: 1.45; }
 
 #settlementSettingsModal .seisan-standalone-error {
   grid-column: 1 / -1;
@@ -161,19 +133,11 @@
   line-height: 1.45;
 }
 
-#settlementSettingsModal .seisan-settings-section--detail {
-  gap: 0;
-}
-
-#settlementSettingsModal .seisan-settings-section--detail .seisan-settings-section-title {
-  margin-bottom: var(--space-2);
-}
-
 #settlementSettingsModal .seisan-organizer-field {
   padding-top: var(--space-4);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 680px) {
   #settlementSettingsModal > .app-modal-body {
     padding: var(--space-4) var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom));
     scroll-padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
@@ -188,6 +152,7 @@
 
   .seisan-settings--modal { gap: var(--space-5); }
   .seisan-settings-section + .seisan-settings-section { padding-top: var(--space-4); }
+  .seisan-settings-section--reward .seisan-settings-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 420px) {

@@ -105,14 +105,16 @@ test('settlement driver rows follow car allocation driver tags', async ({ page }
   });
   await page.locator('#tab-seisan').click();
   await expect(page.locator('.seisan-car-summary-row')).toHaveCount(1);
-  await expect(page.locator('.seisan-car-summary-name')).toHaveText('運転手B（車所有者A車）');
+  await expect(page.locator('.seisan-car-summary-name')).toHaveText('車所有者A車');
+  await expect(page.locator('.seisan-car-driver-names')).toHaveText('運転手：運転手B');
 
   await page.locator('#tab-list').click();
   const passengerMenu = page.locator('#cars-container .seat-slot .member-card cds-overflow-menu.person-overflow-menu').first();
   await passengerMenu.click();
   await passengerMenu.locator('[data-person-action="driver"]').evaluate(node => node.click());
   await page.locator('#tab-seisan').click();
-  await expect(page.locator('.seisan-car-summary-name')).toHaveText('運転手未設定（車所有者A車）');
+  await expect(page.locator('.seisan-car-summary-name')).toHaveText('車所有者A車');
+  await expect(page.locator('.seisan-car-driver-names')).toHaveText('運転手：未設定');
 });
 
 test('each tagged driver in one car receives a collection offset', async ({ page }) => {
@@ -170,7 +172,8 @@ test('each tagged driver in one car receives a collection offset', async ({ page
     expectedCollected: 600
   });
   expect(shareText).toContain('運転手2人分の集金控除：¥600（1人あたり¥300）');
-  await expect(page.locator('.seisan-car-summary-name')).toHaveText('藤原 拓海・茂木 なつき（藤原 拓海車）');
+  await expect(page.locator('.seisan-car-summary-name')).toHaveText('藤原 拓海車');
+  await expect(page.locator('.seisan-car-driver-names')).toHaveText('運転手：藤原 拓海、茂木 なつき（車単位で一括支払い）');
   await expect(page.locator('#seisan-car-list')).toContainText('集金控除');
   await expect(page.locator('#seisan-car-list')).toContainText('運転手2人');
   await expect(page.locator('#seisan-car-list')).toContainText('¥600');

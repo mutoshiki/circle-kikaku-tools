@@ -1,0 +1,210 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner "サークル企画ツール" [ref=e3]:
+      - generic:
+        - button "ナビゲーションを開く" [ref=e5] [cursor=pointer]
+        - link "サークル企画ツール" [ref=e12] [cursor=pointer]:
+          - /url: /?room=XTSQ7JMJ
+        - generic [ref=e14]:
+          - generic "共有リンク" [ref=e15]:
+            - generic [ref=e17]:
+              - button "共有リンク" [ref=e19] [cursor=pointer]
+              - generic:
+                - tooltip
+          - generic "アプリメニュー" [ref=e24] [cursor=pointer]:
+            - generic [ref=e26]:
+              - button "アプリメニュー" [ref=e27]
+              - generic:
+                - tooltip
+    - generic:
+      - generic:
+        - generic: 山歩会フォームメーカー
+        - generic: 学務提出書類作成ツール
+        - generic: 山歩会企画ツール一覧
+        - generic: バグを報告する
+    - region "企画名" [ref=e38]:
+      - generic [ref=e39]:
+        - textbox "企画名" [ref=e40]
+        - generic:
+          - generic:
+            - generic:
+              - generic: 企画名
+              - generic:
+                - generic:
+                  - textbox:
+                    - /placeholder: 企画名を入力
+                    - text: 秋名山登山企画
+    - region "参加者" [ref=e645]:
+      - generic [ref=e646]:
+        - generic [ref=e647]:
+          - generic [ref=e648]: 参加者 13人
+          - button "追加" [ref=e651] [cursor=pointer]
+        - generic [ref=e652]:
+          - search [ref=e653] [cursor=pointer]:
+            - generic [ref=e654]:
+              - generic [ref=e656]: 名前を検索
+              - search "名前を検索" [ref=e658]
+          - generic "絞り込み" [ref=e659]:
+            - generic [ref=e661]:
+              - button "undefined" [ref=e662] [cursor=pointer]
+              - generic:
+                - tooltip
+        - list "参加者を選択" [ref=e666]:
+          - listitem [ref=e667]:
+            - generic [ref=e668]:
+              - checkbox "岩城 清次" [checked] [ref=e669]
+              - generic [ref=e670] [cursor=pointer]: 岩城 清次
+            - generic [ref=e672]: 4年
+          - listitem [ref=e674]:
+            - generic [ref=e675]:
+              - checkbox "健二" [checked] [ref=e676]
+              - generic [ref=e677] [cursor=pointer]: 健二
+            - generic [ref=e679]: 4年
+          - listitem [ref=e681]:
+            - generic [ref=e682]:
+              - checkbox "高橋 啓介" [checked] [ref=e683]
+              - generic [ref=e684] [cursor=pointer]: 高橋 啓介
+            - generic [ref=e686]: 4年
+          - listitem [ref=e688]:
+            - generic [ref=e689]:
+              - checkbox "高橋 涼介" [checked] [ref=e690]
+              - generic [ref=e691] [cursor=pointer]: 高橋 涼介
+            - generic [ref=e693]: 4年
+          - listitem [ref=e695]:
+            - generic [ref=e696]:
+              - checkbox "佐藤 真子" [checked] [ref=e697]
+              - generic [ref=e698] [cursor=pointer]: 佐藤 真子
+            - generic [ref=e700]: 4年
+          - listitem [ref=e702]:
+            - generic [ref=e703]:
+              - checkbox "沙雪" [checked] [ref=e704]
+              - generic [ref=e705] [cursor=pointer]: 沙雪
+            - generic [ref=e707]: 4年
+          - listitem [ref=e709]:
+            - generic [ref=e710]:
+              - checkbox "秋山 渉" [checked] [ref=e711]
+              - generic [ref=e712] [cursor=pointer]: 秋山 渉
+            - generic [ref=e714]: 4年
+          - listitem [ref=e716]:
+            - generic [ref=e717]:
+              - checkbox "秋山 和美" [checked] [ref=e718]
+              - generic [ref=e719] [cursor=pointer]: 秋山 和美
+            - generic [ref=e721]: 3年
+          - listitem [ref=e723]:
+            - generic [ref=e724]:
+              - checkbox "池谷 浩一郎" [checked] [ref=e725]
+              - generic [ref=e726] [cursor=pointer]: 池谷 浩一郎
+            - generic [ref=e728]: 4年
+          - listitem [ref=e730]:
+            - generic [ref=e731]:
+              - checkbox "中村 賢太" [checked] [ref=e732]
+              - generic [ref=e733] [cursor=pointer]: 中村 賢太
+            - generic [ref=e735]: 3年
+          - listitem [ref=e737]:
+            - generic [ref=e738]:
+              - checkbox "藤原 拓海" [checked] [ref=e739]
+              - generic [ref=e740] [cursor=pointer]: 藤原 拓海
+            - generic [ref=e742]: 3年
+          - listitem [ref=e744]:
+            - generic [ref=e745]:
+              - checkbox "武内 樹" [checked] [ref=e746]
+              - generic [ref=e747] [cursor=pointer]: 武内 樹
+            - generic [ref=e749]: 3年
+          - listitem [ref=e751]:
+            - generic [ref=e752]:
+              - checkbox "茂木 なつき" [checked] [ref=e753]
+              - generic [ref=e754] [cursor=pointer]: 茂木 なつき
+            - generic [ref=e756]: 3年
+        - paragraph [ref=e758]
+    - text: 未割り当ての参加者はいません
+    - navigation "メイン画面" [ref=e52]:
+      - generic "主要画面" [ref=e53]:
+        - tablist [ref=e56]:
+          - generic:
+            - listitem "参加者" [ref=e57]:
+              - tab "参加者" [selected] [ref=e58] [cursor=pointer]
+            - listitem "車割" [ref=e61]:
+              - tab "車割" [ref=e62] [cursor=pointer]
+            - listitem "班割" [ref=e65]:
+              - tab "班割" [ref=e66] [cursor=pointer]
+            - listitem "精算" [ref=e69]:
+              - tab "精算" [ref=e70] [cursor=pointer]
+        - status [ref=e73]: Selected an item.
+  - dialog "参加者を追加" [ref=e760]:
+    - generic:
+      - generic [ref=e761]:
+        - generic:
+          - generic [active] [ref=e762]: 参加者を追加
+          - generic "閉じる" [ref=e764]:
+            - generic [ref=e766]:
+              - button "閉じる" [ref=e767] [cursor=pointer]
+              - generic:
+                - tooltip
+      - region "参加者を追加" [ref=e770]:
+        - generic [ref=e771]:
+          - generic [ref=e773]:
+            - generic [ref=e774]: スプレッドシートからまとめて登録
+            - generic [ref=e777]: 回答全体を貼り付けると、全員の名前・学年・車出しをまとめて読み込めます。
+            - generic "Googleフォーム回答スプレッドシート貼り付け欄" [ref=e778]:
+              - textbox "Googleフォーム回答スプレッドシート貼り付け欄" [ref=e782]:
+                - /placeholder: "例：\n名前\t学籍番号もしくは学年\t(車出し)\n藤田 陽斗\t24T1234A\tする\n田中太郎\t1年\tしない\n前田 航平\t23T9081A\tする\n中村 海斗\t2年\tしない\n…"
+            - button "貼り付けた表を登録欄に読み込む" [ref=e784] [cursor=pointer]
+            - list "スプレッドシート取り込みの説明" [ref=e785]:
+              - generic:
+                - listitem "貼り付け方を見る" [ref=e786]:
+                  - button "貼り付け方を見る" [ref=e787] [cursor=pointer]
+                - listitem "自動判定の仕組み" [ref=e792]:
+                  - button "自動判定の仕組み" [ref=e793] [cursor=pointer]
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: 項目
+                        - generic: 名前
+                        - generic: 学年、または学籍番号
+                        - generic: 車出しの有無
+                    - generic:
+                      - generic:
+                        - generic: 質問名として読み取れる例
+                        - generic: 名前、氏名、お名前、参加者名、フルネーム、Name、name
+                        - generic: 学年、年、年次、grade、Grade、学籍番号、学生番号、学籍、番号、student id、studentId、id
+                        - generic: 車出し、車、運転、配車、車を出せる、車出し可、自家用車、driver、car
+                      - generic:
+                        - generic: 回答として読み取れる例
+                        - generic: 入力された名前
+                        - generic: 1、1年、1年生、一年、一年生、壱年、B1、学部1年、1回生など。2〜4年も同じ形式で判定できます。学籍番号の場合は、24T1234A、24t1234a、２４Ｔ１２３４Ａなど。
+                        - generic: あり：true、1、yes、y、○、◯、〇、はい、する、出す、出せる、出せます、できます、出来ます、可能、可、車出し可、運転可、自家用車あり、車あり、あり、有 なし：false、0、no、n、×、✕、x、いいえ、しない、出さない、出せない、出せません、できない、できません、出来ない、出来ません、不可、無理、車出し不可、運転不可、自家用車なし、車なし、なし、無し、無
+                      - generic:
+                        - generic: 補足
+                        - generic: 空欄の行は読み込み対象外です。同じ名前が複数行にある場合は、1人にまとまります。
+                        - generic: 学年がある場合は、その値を使います。学籍番号の場合は、先頭2桁を入学年度として学年を推定します。
+                        - generic: 同じ人に複数の回答がある場合は、車出しありを優先します。
+          - generic [ref=e798]:
+            - generic [ref=e799]: 参加者（改行区切り）
+            - generic "参加者名一覧" [ref=e800]:
+              - textbox "参加者名一覧" [ref=e804]:
+                - /placeholder: "（例）\n田中 太郎\n佐藤 花子\n鈴木 次郎"
+          - generic [ref=e805]:
+            - generic [ref=e806]: 車出し
+            - generic "車出し可能な参加者" [ref=e807]:
+              - textbox "車出し可能な参加者" [ref=e811]: 高橋 涼介 高橋 啓介 藤原 拓海
+          - generic [ref=e812]:
+            - generic [ref=e813]: 1年生
+            - generic "1年生の表記" [ref=e814]:
+              - textbox "1年生の表記" [ref=e818]
+          - generic [ref=e819]:
+            - generic [ref=e820]: 2年生
+            - generic "2年生の表記" [ref=e821]:
+              - textbox "2年生の表記" [ref=e825]
+          - generic [ref=e826]:
+            - generic [ref=e827]: 3年生
+            - generic "3年生の表記" [ref=e828]:
+              - textbox "3年生の表記" [ref=e832]: 武内 樹 茂木 なつき 中村 賢太 秋山 和美 藤原 拓海
+          - generic [ref=e833]:
+            - generic [ref=e834]: 4年生
+            - generic "4年生の表記" [ref=e835]:
+              - textbox "4年生の表記" [ref=e839]: 健二 沙雪 高橋 涼介 佐藤 真子 高橋 啓介 秋山 渉 岩城 清次 池谷 浩一郎
+      - generic [ref=e840]:
+        - generic:
+          - button "キャンセル" [ref=e842] [cursor=pointer]
+          - button "登録する" [ref=e844] [cursor=pointer]
+  - generic "ステータス通知"

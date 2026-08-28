@@ -1,96 +1,26 @@
-/* Settlement total hierarchy. Legacy table selectors remain for compatibility;
- * the current renderer uses Carbon Accordion plus a static total row. */
-.seisan-top-flow {
-  display: block;
-  min-width: 0;
-  overflow-x: auto;
-}
-
-.seisan-summary-table {
-  width: 100%;
-  min-width: 0;
-  background: var(--cds-layer-02, var(--surface-low));
-}
-
-.seisan-summary-table :is(cds-table-header-cell, cds-table-cell):first-child { width: 27%; }
-.seisan-summary-table :is(cds-table-header-cell, cds-table-cell):nth-child(2) { width: 29%; text-align: right; }
-.seisan-summary-table :is(cds-table-header-cell, cds-table-cell):last-child { width: 44%; }
-
-.seisan-summary-table-name {
-  color: var(--cds-text-primary, var(--text-main));
-  font-weight: 600;
-}
-
-.seisan-summary-table-amount {
-  color: var(--cds-text-primary, var(--text-main));
-  font-size: 1.125rem;
-  font-weight: 600;
-  text-align: right;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
-}
-
-.seisan-summary-table-detail {
-  color: var(--cds-text-secondary, var(--text-sub));
-  font-size: var(--font-size-caption);
-  line-height: 1.35;
-  white-space: normal;
-}
-
-.seisan-summary-table-detail > span { display: block; white-space: nowrap; }
-
-#seisan-view-area .seisan-summary-accordion {
-  --cds-layout-size-height: 48px;
-  --cds-layout-density-padding-inline: 0;
-  display: block;
-  width: 100%;
-  border: 0;
-  background: transparent;
-}
-
-#seisan-view-area .seisan-summary-accordion cds-accordion-item {
-  border-color: var(--cds-border-subtle-01, var(--border-section));
-}
-
-#seisan-view-area .seisan-summary-detail-list {
-  display: grid;
-  gap: var(--space-1);
-  padding: var(--space-1) 0 var(--space-2);
-  color: var(--cds-text-secondary, var(--text-sub));
-  font-size: var(--font-size-caption);
-  line-height: 1.4;
-}
-
-#seisan-view-area .seisan-summary-detail-list span { display: block; }
-
-#seisan-view-area .seisan-summary-static { display: grid; }
-
-#seisan-view-area .seisan-summary-static-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-4);
-  min-height: 48px;
-  padding: var(--space-3) 0;
-  color: var(--cds-text-primary, var(--text-main));
-  border-block-end: 1px solid var(--cds-border-strong-01, var(--border-strong));
-}
-
-#seisan-view-area .seisan-summary-static-row strong {
-  font-size: 1.125rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-#seisan-view-area .seisan-summary-static-row.is-total { font-weight: 600; }
-
-@media (max-width: 640px) {
-  .seisan-summary-table :is(cds-table-header-cell, cds-table-cell) { padding-inline: 10px; }
-  .seisan-summary-table :is(cds-table-header-cell, cds-table-cell):first-child { width: 29%; }
-  .seisan-summary-table :is(cds-table-header-cell, cds-table-cell):nth-child(2) { width: 28%; }
-  .seisan-summary-table :is(cds-table-header-cell, cds-table-cell):last-child { width: 43%; }
-  .seisan-summary-table-amount,
-  #seisan-view-area .seisan-summary-static-row strong { font-size: var(--font-size-title); }
+/* Settlement status and overall-cost hierarchy. */
+.seisan-status-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--cds-border-subtle-01, #525252); background: var(--cds-layer-01, #262626); }
+.seisan-status-item { display: grid; align-content: start; gap: 0; min-width: 0; min-height: 92px; padding: 16px; border-inline-end: 1px solid var(--cds-border-subtle-01, #525252); }
+.seisan-status-item:last-child { border-inline-end: 0; }
+.seisan-status-label { margin-bottom: 7px; color: var(--cds-text-secondary, #c6c6c6); font-size: 12px; }
+.seisan-status-item strong { color: var(--cds-text-primary, #f4f4f4); font-size: 18px; font-weight: 400; line-height: 1.25; font-variant-numeric: tabular-nums; }
+.seisan-status-note { overflow: hidden; margin-top: 6px; color: var(--cds-text-secondary, #c6c6c6); font-size: 12px; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
+.seisan-status-item.has-issue strong { color: var(--cds-support-warning, #f1c21b); }
+.seisan-top-flow { min-width: 0; }
+.seisan-overall-cost-list { border-top: 1px solid var(--cds-border-subtle-01, #525252); }
+.seisan-overall-cost-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; min-height: 0; padding: 14px 0; border-bottom: 1px solid var(--cds-border-subtle-01, #525252); color: var(--cds-text-primary, #f4f4f4); }
+.seisan-overall-cost-row > span { display: grid; gap: 3px; }
+.seisan-overall-cost-row > span strong { font-weight: 500; }
+.seisan-overall-cost-row small { color: var(--cds-text-secondary, #c6c6c6); font-size: 12px; }
+.seisan-overall-cost-row > b { align-self: start; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.seisan-overall-cost-total { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); padding-top: 14px; color: var(--cds-text-primary, #f4f4f4); font-size: 18px; }
+.seisan-overall-cost-total span { font-size: 1.125rem; font-weight: 600; }
+.seisan-overall-cost-total strong { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (max-width: 680px) {
+  .seisan-status-summary { grid-template-columns: 1fr; border-inline: 0; background: transparent; }
+  .seisan-status-item { grid-template-columns: 92px minmax(0, 1fr); align-items: baseline; gap: 12px; min-height: 0; padding: 13px 0; border-inline-end: 0; border-block-end: 1px solid var(--cds-border-subtle-01, #525252); background: transparent; }
+  .seisan-status-item:last-child { border-block-end: 0; }
+  .seisan-status-label { margin: 0; }
+  .seisan-status-item strong { font-size: 17px; }
+  .seisan-status-note { grid-column: 2; margin-top: 1px; }
 }

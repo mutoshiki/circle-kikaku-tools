@@ -1,0 +1,4 @@
+[     454ms] [INFO] [@carbon/feature-flags] `enable-v12-dynamic-floating-styles` is available but not enabled.
+Enable dynamic setting of floating styles for components like Popover, Tooltip, etc.
+This becomes the default behavior in v12. Enable it to migrate early, or enable `enable-v12-release` to turn on every v12 flag at once. @ http://127.0.0.1:4173/assets/vendor/carbon/carbon-entry.min.js?v=carbon-single-bundle-v1:1487
+[     594ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:4173/favicon.ico:0

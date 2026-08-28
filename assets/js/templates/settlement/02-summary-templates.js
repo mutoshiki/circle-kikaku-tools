@@ -12,60 +12,63 @@
   }
 
   function summary(result, helpers = {}) {
-    // The former table contract is intentionally replaced by Carbon Accordion:
-    // <cds-table><cds-table-header-cell>名目</cds-table-header-cell><cds-table-header-cell>金額</cds-table-header-cell><cds-table-header-cell>詳細</cds-table-header-cell> 割勘合計 / 部費合計 / 支払合計
-    // data-summary-kind="rounding" 割勘 部費 data-summary-kind="pay"
-    const splitBasePaymentTotal = Number(result.splitBasePaymentTotal ?? (result.totalSplit - result.totalDriverCollectionOffset));
-    const splitPaymentAdjustment = Number(result.splitPaymentAdjustment ?? result.totalSplitRound ?? 0);
-    const splitPaymentTotal = splitBasePaymentTotal + splitPaymentAdjustment;
-    const clubPaymentAdjustment = Number(result.clubPaymentAdjustment || 0);
-    const paymentAdjustmentTotal = Number(result.paymentAdjustmentTotal ?? (splitPaymentAdjustment + clubPaymentAdjustment));
-    const splitBaseDetail = result.totalDriverCollectionOffset
-      ? `<span>費用 ${signedMoney(result.totalSplit, helpers)}</span><span>集金控除 ${signedMoney(-result.totalDriverCollectionOffset, helpers)}</span>`
-      : '<span>割勘費用</span>';
-    // Legacy test anchor: 1人 ${money(result.perPerson, helpers)} × ${result.payerCount}名
-    return `
-    <cds-accordion class="seisan-summary-accordion" aria-label="全体の費用の内訳">
-      <cds-accordion-item>
-        <span slot="title" class="seisan-accordion-total"><span>割勘合計</span><strong>${signedMoney(splitPaymentTotal, helpers)}</strong></span>
-        <div class="seisan-summary-detail-list">${splitBaseDetail}<span>端数調整 ${signedMoney(splitPaymentAdjustment, helpers, true)}</span></div>
-      </cds-accordion-item>
-      <cds-accordion-item>
-        <span slot="title" class="seisan-accordion-total"><span>部費合計</span><strong>${signedMoney(result.totalClub, helpers)}</strong></span>
-        <div class="seisan-summary-detail-list"><span>部費負担分</span><span>端数調整 ${signedMoney(clubPaymentAdjustment, helpers, true)}</span></div>
-      </cds-accordion-item>
-    </cds-accordion>
-    <div class="seisan-summary-static" aria-label="支払い合計">
-      <div class="seisan-summary-static-row is-total"><span>支払い合計</span><strong>${signedMoney(result.driverTotal, helpers)}</strong></div>
-    </div>`;
+    const totals = new Map();
+    const add = (label, amount, carName) => {
+      const current = totals.get(label) || { amount: 0, cars: new Set() };
+      current.amount += Number(amount || 0);
+      if (carName) current.cars.add(carName);
+      totals.set(label, current);
+    };
+    (result.cars || []).forEach(car => {
+      add(car.usesTimesRental ? 'タイムズ移動料金' : 'ガソリン代', car.movementAmount || 0, car.name);
+      (car.extras || []).forEach(extra => add(extra.name || '費用', extra.amountValue || 0, car.name));
+    });
+    const rows = [...totals.entries()]
+      .filter(([, entry]) => entry.amount !== 0)
+      .map(([label, entry]) => `<div class="seisan-overall-cost-row"><span><strong>${esc(label, helpers)}</strong><small>${entry.cars.size}台分</small></span><b>${signedMoney(entry.amount, helpers)}</b></div>`)
+      .join('');
+    const total = Number(result.totalSplit || 0) + Number(result.totalClub || 0);
+    return `<div class="seisan-overall-cost-list" aria-label="登録済み費用">${rows || '<div class="seisan-muted">費用はまだありません。</div>'}</div>
+      <div class="seisan-overall-cost-total"><span>合計</span><strong>${signedMoney(total, helpers)}</strong></div>`;
+  }
+
+  function statusSummary({ state, result, issues, helpers = {} }) {
+    const cars = result.cars || [];
+    const paidCars = cars.filter(car => state.driverPaid?.[car.name]);
+    const paymentPaid = paidCars.reduce((sum, car) => sum + Number(car.adjustedTotalPay || 0), 0);
+    const paymentRemaining = cars.filter(car => !state.driverPaid?.[car.name])
+      .reduce((sum, car) => sum + Number(car.adjustedTotalPay || 0), 0);
+    const issueCount = Number(issues?.messages?.length || 0);
+    const items = [
+      ['集金', `${result.paidCount}/${result.payerCount}人・残り ${money(result.unpaidAmount || 0, helpers)}`, `${money(result.expectedCollected - result.unpaidAmount, helpers)} / ${money(result.expectedCollected, helpers)}`],
+      ['支払い', `${paidCars.length}/${cars.length}台・残り ${money(paymentRemaining, helpers)}`, `支払い済み ${money(paymentPaid, helpers)}`],
+      ['要確認', issueCount ? `${issueCount}件` : 'なし', issueCount ? esc(issues.messages[0], helpers) : '確認事項はありません']
+    ];
+    return items.map(([label, value, note]) => `<div class="seisan-status-item${issueCount && label === '要確認' ? ' has-issue' : ''}"><span class="seisan-status-label">${label}</span><strong>${value}</strong><span class="seisan-status-note">${note}</span></div>`).join('');
   }
 
   function settingSummary({ state, result, helpers = {} }) {
-    const organizerFreeLabel = state.organizerFree ? 'しない' : 'する';
-    const organizerNote = state.organizerFree && state.organizerName && !result.isStandaloneSettlement
-      ? `（${esc(state.organizerName, helpers)}）`
-      : '';
-    const driverOffsetLabel = result.driverCollectionOffset ? '支払い額から差し引き済み' : 'する';
-    const driverFreeLabel = result.driverCollectionFree ? 'しない' : '';
-    const organizerFreeDisplay = `${organizerFreeLabel}${organizerNote}`;
     const standalone = result.isStandaloneSettlement ? result.standaloneCounts : null;
     const reward = Number(result.reward || 0);
     const rewardTypeLabel = result.driverRewardType === 'club' ? '部費' : '割勘';
-    const rows = [];
     const row = (label, value) => `<cds-structured-list-row condensed class="seisan-setting-row">
       <cds-structured-list-cell class="seisan-setting-label">${label}</cds-structured-list-cell>
       <cds-structured-list-cell class="seisan-setting-value">${value}</cds-structured-list-cell>
     </cds-structured-list-row>`;
-
-    if (standalone) {
-      rows.push(row('入力方法', '精算だけ'));
-      rows.push(row('人数', `運転手${standalone.driverCount}人＋その他${standalone.memberCount}人`));
-    }
-    if (result.driverCollectionOffset) rows.push(row('車出しの集金', esc(driverOffsetLabel, helpers)));
-    if (result.driverCollectionFree) rows.push(row('運転手の集金', esc(driverFreeLabel, helpers)));
-    if (state.organizerFree) rows.push(row('企画者の集金', organizerFreeDisplay));
-    rows.push(row('端数処理', `${esc(state.rounding || '100', helpers)}円単位`));
-    if (reward > 0) rows.push(row('車出し協力代', `1台 ${money(reward, helpers)}・${rewardTypeLabel}`));
+    const mode = standalone ? `人数だけ（運転手${standalone.driverCount}人・その他${standalone.memberCount}人）` : '通常精算';
+    const driverCollection = result.driverCollectionOffset ? '支払い額から控除' : (result.driverCollectionFree ? '対象外' : '参加者と同じく集金');
+    const excluded = [
+      state.organizerFree ? `企画者${state.organizerName ? `（${esc(state.organizerName, helpers)}）` : ''}` : '',
+      result.driverCollectionFree ? '運転手' : ''
+    ].filter(Boolean).join('・') || 'なし';
+    const rows = [
+      row('精算モード', mode),
+      row('端数', `${esc(state.rounding || '100', helpers)}円単位`),
+      row('協力代', reward > 0 ? `1台 ${money(reward, helpers)}（${rewardTypeLabel}）` : 'なし'),
+      row('運転手分', driverCollection),
+      row('集金対象外', excluded),
+      row('設定結果', `集金対象 ${result.payerCount}人・運転手 ${result.driverNames?.size || 0}人・1人あたり ${money(result.perPerson || 0, helpers)}`)
+    ];
 
     return `<cds-structured-list condensed class="seisan-settings-structured-list" aria-label="現在の精算設定">
       <cds-structured-list-body>${rows.join('')}</cds-structured-list-body>
@@ -105,5 +108,5 @@
     return `${details}<div class="seisan-club-expense-total"><span>${totalLabel}</span><strong>${signedMoney(clubTotal, helpers)}</strong></div>`;
   }
 
-  Object.assign(parts, { summary, settingSummary, breakdown, clubExpenseBreakdown });
+  Object.assign(parts, { summary, statusSummary, settingSummary, breakdown, clubExpenseBreakdown });
 })();

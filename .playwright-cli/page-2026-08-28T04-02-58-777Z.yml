@@ -1,0 +1,315 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner "サークル企画ツール" [ref=e3]:
+      - generic:
+        - button "ナビゲーションを開く" [ref=e5] [cursor=pointer]
+        - link "サークル企画ツール" [ref=e12] [cursor=pointer]:
+          - /url: /?room=XTSQ7JMJ
+        - generic [ref=e14]:
+          - generic "共有リンク" [ref=e15]:
+            - generic [ref=e17]:
+              - button "共有リンク" [ref=e19] [cursor=pointer]
+              - generic:
+                - tooltip
+          - generic "アプリメニュー" [ref=e24] [cursor=pointer]:
+            - generic [ref=e26]:
+              - button "アプリメニュー" [ref=e27]
+              - generic:
+                - tooltip
+    - generic:
+      - generic:
+        - generic: 山歩会フォームメーカー
+        - generic: 学務提出書類作成ツール
+        - generic: 山歩会企画ツール一覧
+        - generic: バグを報告する
+    - region "企画名" [ref=e38]:
+      - generic [ref=e39]:
+        - textbox "企画名" [ref=e40]
+        - generic:
+          - generic:
+            - generic:
+              - generic: 企画名
+              - generic:
+                - generic:
+                  - textbox:
+                    - /placeholder: 企画名を入力
+                    - text: 秋名山登山企画
+    - generic [ref=e367]:
+      - generic [ref=e368]:
+        - generic [ref=e369]:
+          - generic [ref=e370]: 精算設定
+          - button "編集" [ref=e375] [cursor=pointer]
+        - table "現在の精算設定" [ref=e381]:
+          - rowgroup [ref=e383]:
+            - generic:
+              - row [ref=e384]:
+                - generic:
+                  - cell "車出しの集金" [ref=e385]
+                  - cell "支払い額から差し引き済み" [ref=e386]
+              - row [ref=e387]:
+                - generic:
+                  - cell "企画者の集金" [ref=e388]
+                  - cell "しない（高橋 涼介）" [ref=e389]
+              - row [ref=e390]:
+                - generic:
+                  - cell "端数処理" [ref=e391]
+                  - cell "100円単位" [ref=e392]
+              - row [ref=e393]:
+                - generic:
+                  - cell "車出し協力代" [ref=e394]
+                  - cell "1台 ¥1,000・割勘" [ref=e395]
+      - generic [ref=e396]:
+        - generic [ref=e397]: 運転手への支払い
+        - generic [ref=e402]:
+          - article [ref=e403]:
+            - generic [ref=e404]:
+              - strong [ref=e405]: 藤原 拓海車
+              - generic [ref=e406]:
+                - generic "藤原 拓海車への支払い状態" [ref=e407]:
+                  - switch [ref=e408]
+                  - generic [ref=e409]: 未払い
+                - button "編集" [ref=e414] [cursor=pointer]
+            - list [ref=e419]:
+              - generic:
+                - listitem [ref=e420]:
+                  - button "割勘合計 ¥1,900" [ref=e421] [cursor=pointer]:
+                    - generic [ref=e425]:
+                      - generic [ref=e426]: 割勘合計
+                      - strong [ref=e427]: ¥1,900
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: ガソリン代
+                        - generic: ¥1,633
+                      - generic:
+                        - generic: 車出し協力代
+                        - generic: ¥1,000
+                      - generic:
+                        - generic: 駐車場
+                        - generic: ¥200
+                      - generic:
+                        - generic: 端数調整
+                        - generic: ¥67
+                      - generic:
+                        - generic: 集金控除
+                        - generic: ¥1,000
+                - listitem [ref=e428]:
+                  - button "部費合計 ¥0" [ref=e429] [cursor=pointer]:
+                    - generic [ref=e433]:
+                      - generic [ref=e434]: 部費合計
+                      - strong [ref=e435]: ¥0
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: 端数調整
+                        - generic: ¥0
+            - table "車ごとの支払い合計" [ref=e436]:
+              - rowgroup [ref=e438]:
+                - row [ref=e439]:
+                  - generic:
+                    - cell "合計" [ref=e440]
+                    - cell [ref=e441]:
+                      - strong [ref=e442]: ¥1,900
+          - article [ref=e443]:
+            - generic [ref=e444]:
+              - strong [ref=e445]: 高橋 啓介車（レンタカー）
+              - generic [ref=e446]:
+                - generic "高橋 啓介車への支払い状態" [ref=e447]:
+                  - switch [ref=e448]
+                  - generic [ref=e449]: 未払い
+                - button "編集" [ref=e454] [cursor=pointer]
+            - list [ref=e459]:
+              - generic:
+                - listitem [ref=e460]:
+                  - button "割勘合計 ¥4,700" [ref=e461] [cursor=pointer]:
+                    - generic [ref=e465]:
+                      - generic [ref=e466]: 割勘合計
+                      - strong [ref=e467]: ¥4,700
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: タイムズ移動料金
+                        - generic: ¥4,440
+                      - generic:
+                        - generic: 車出し協力代
+                        - generic: ¥1,000
+                      - generic:
+                        - generic: 駐車場
+                        - generic: ¥200
+                      - generic:
+                        - generic: 端数調整
+                        - generic: ¥60
+                      - generic:
+                        - generic: 集金控除
+                        - generic: ¥1,000
+                - listitem [ref=e468]:
+                  - button "部費合計 ¥0" [ref=e469] [cursor=pointer]:
+                    - generic [ref=e473]:
+                      - generic [ref=e474]: 部費合計
+                      - strong [ref=e475]: ¥0
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: タイムズ時間料金
+                        - generic: ¥0
+                      - generic:
+                        - generic: 端数調整
+                        - generic: ¥0
+            - table "車ごとの支払い合計" [ref=e476]:
+              - rowgroup [ref=e478]:
+                - row [ref=e479]:
+                  - generic:
+                    - cell "合計" [ref=e480]
+                    - cell [ref=e481]:
+                      - strong [ref=e482]: ¥4,700
+          - article [ref=e483]:
+            - generic [ref=e484]:
+              - strong [ref=e485]: 高橋 涼介車
+              - generic [ref=e486]:
+                - generic "高橋 涼介車への支払い状態" [ref=e487]:
+                  - switch [ref=e488]
+                  - generic [ref=e489]: 未払い
+                - button "編集" [ref=e494] [cursor=pointer]
+            - list [ref=e499]:
+              - generic:
+                - listitem [ref=e500]:
+                  - button "割勘合計 ¥3,400" [ref=e501] [cursor=pointer]:
+                    - generic [ref=e505]:
+                      - generic [ref=e506]: 割勘合計
+                      - strong [ref=e507]: ¥3,400
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: ガソリン代
+                        - generic: ¥2,114
+                      - generic:
+                        - generic: 車出し協力代
+                        - generic: ¥1,000
+                      - generic:
+                        - generic: 駐車場
+                        - generic: ¥200
+                      - generic:
+                        - generic: 端数調整
+                        - generic: ¥86
+                - listitem [ref=e508]:
+                  - button "部費合計 ¥0" [ref=e509] [cursor=pointer]:
+                    - generic [ref=e513]:
+                      - generic [ref=e514]: 部費合計
+                      - strong [ref=e515]: ¥0
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: 端数調整
+                        - generic: ¥0
+            - table "車ごとの支払い合計" [ref=e516]:
+              - rowgroup [ref=e518]:
+                - row [ref=e519]:
+                  - generic:
+                    - cell "合計" [ref=e520]
+                    - cell [ref=e521]:
+                      - strong [ref=e522]: ¥3,400
+      - generic [ref=e523]:
+        - generic [ref=e524]: 集金（¥1,000）
+        - generic [ref=e531]:
+          - generic [ref=e532]:
+            - generic [ref=e533]: 藤原 拓海車
+            - generic [ref=e534]:
+              - generic [ref=e535]:
+                - generic "藤原 拓海の集金チェック" [ref=e536]:
+                  - checkbox "藤原 拓海の集金チェック" [checked] [disabled] [ref=e537]
+                - generic [ref=e540]:
+                  - generic [ref=e541]: 藤原 拓海
+                  - generic [ref=e542]: 支払い額から差し引き済み ¥0
+              - generic [ref=e543] [cursor=pointer]:
+                - generic "武内 樹の集金チェック" [ref=e544]:
+                  - checkbox "武内 樹の集金チェック" [ref=e545]
+                - generic [ref=e548]:
+                  - generic [ref=e549]: 武内 樹
+                  - generic [ref=e550]: 集金する金額 ¥1,000
+              - generic [ref=e551] [cursor=pointer]:
+                - generic "茂木 なつきの集金チェック" [ref=e552]:
+                  - checkbox "茂木 なつきの集金チェック" [ref=e553]
+                - generic [ref=e556]:
+                  - generic [ref=e557]: 茂木 なつき
+                  - generic [ref=e558]: 集金する金額 ¥1,000
+              - generic [ref=e559] [cursor=pointer]:
+                - generic "池谷 浩一郎の集金チェック" [ref=e560]:
+                  - checkbox "池谷 浩一郎の集金チェック" [ref=e561]
+                - generic [ref=e564]:
+                  - generic [ref=e565]: 池谷 浩一郎
+                  - generic [ref=e566]: 集金する金額 ¥1,000
+          - generic [ref=e567]:
+            - generic [ref=e568]: 高橋 啓介車
+            - generic [ref=e569]:
+              - generic [ref=e570]:
+                - generic "高橋 啓介の集金チェック" [ref=e571]:
+                  - checkbox "高橋 啓介の集金チェック" [checked] [disabled] [ref=e572]
+                - generic [ref=e575]:
+                  - generic [ref=e576]: 高橋 啓介
+                  - generic [ref=e577]: 支払い額から差し引き済み ¥0
+              - generic [ref=e578] [cursor=pointer]:
+                - generic "健二の集金チェック" [ref=e579]:
+                  - checkbox "健二の集金チェック" [ref=e580]
+                - generic [ref=e583]:
+                  - generic [ref=e584]: 健二
+                  - generic [ref=e585]: 集金する金額 ¥1,000
+              - generic [ref=e586] [cursor=pointer]:
+                - generic "中村 賢太の集金チェック" [ref=e587]:
+                  - checkbox "中村 賢太の集金チェック" [ref=e588]
+                - generic [ref=e591]:
+                  - generic [ref=e592]: 中村 賢太
+                  - generic [ref=e593]: 集金する金額 ¥1,000
+              - generic [ref=e594] [cursor=pointer]:
+                - generic "佐藤 真子の集金チェック" [ref=e595]:
+                  - checkbox "佐藤 真子の集金チェック" [ref=e596]
+                - generic [ref=e599]:
+                  - generic [ref=e600]: 佐藤 真子
+                  - generic [ref=e601]: 集金する金額 ¥1,000
+          - generic [ref=e602]:
+            - generic [ref=e603]: 高橋 涼介車
+            - generic [ref=e604]:
+              - generic [ref=e605]:
+                - generic "高橋 涼介の集金チェック" [ref=e606]:
+                  - checkbox "高橋 涼介の集金チェック" [disabled] [ref=e607]
+                - generic [ref=e610]:
+                  - generic [ref=e611]: 高橋 涼介
+                  - generic [ref=e612]: 対象外（企画者） ¥0
+              - generic [ref=e613] [cursor=pointer]:
+                - generic "沙雪の集金チェック" [ref=e614]:
+                  - checkbox "沙雪の集金チェック" [ref=e615]
+                - generic [ref=e618]:
+                  - generic [ref=e619]: 沙雪
+                  - generic [ref=e620]: 集金する金額 ¥1,000
+              - generic [ref=e621] [cursor=pointer]:
+                - generic "秋山 渉の集金チェック" [ref=e622]:
+                  - checkbox "秋山 渉の集金チェック" [ref=e623]
+                - generic [ref=e626]:
+                  - generic [ref=e627]: 秋山 渉
+                  - generic [ref=e628]: 集金する金額 ¥1,000
+              - generic [ref=e629] [cursor=pointer]:
+                - generic "秋山 和美の集金チェック" [ref=e630]:
+                  - checkbox "秋山 和美の集金チェック" [ref=e631]
+                - generic [ref=e634]:
+                  - generic [ref=e635]: 秋山 和美
+                  - generic [ref=e636]: 集金する金額 ¥1,000
+              - generic [ref=e637] [cursor=pointer]:
+                - generic "岩城 清次の集金チェック" [ref=e638]:
+                  - checkbox "岩城 清次の集金チェック" [ref=e639]
+                - generic [ref=e642]:
+                  - generic [ref=e643]: 岩城 清次
+                  - generic [ref=e644]: 集金する金額 ¥1,000
+    - text: 未割り当ての参加者はいません
+    - navigation "メイン画面" [ref=e52]:
+      - generic "主要画面" [ref=e53]:
+        - tablist [ref=e56]:
+          - generic:
+            - listitem "参加者" [ref=e57]:
+              - tab "参加者" [ref=e58] [cursor=pointer]
+            - listitem "車割" [ref=e61]:
+              - tab "車割" [ref=e62] [cursor=pointer]
+            - listitem "班割" [ref=e65]:
+              - tab "班割" [ref=e66] [cursor=pointer]
+            - listitem "精算" [active] [ref=e69]:
+              - tab "精算" [selected] [ref=e70] [cursor=pointer]
+        - status [ref=e73]: Selected an item.
+  - generic "ステータス通知"

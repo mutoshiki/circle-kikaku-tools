@@ -116,24 +116,23 @@ function refreshSettlementCollectionStatus(encodedName, name, checked, state) {
         .find(candidate => candidate.dataset.settlementPaidName === encodedName);
     if (input) {
         input.checked = !!checked;
-        input.closest('.seisan-check-item')?.classList.toggle('paid', !!checked);
+        const item = input.closest('.seisan-check-item');
+        item?.classList.toggle('paid', !!checked);
+        if (item) item.hidden = settlementCollectionUnpaidOnly && !!checked;
         const displayName = state.paidBy?.[name] || name;
-        const nameEl = input.closest('.seisan-check-item')?.querySelector('.seisan-check-name');
+        const nameEl = item?.querySelector('.seisan-check-name');
         if (nameEl) nameEl.textContent = displayName;
+        const noteEl = item?.querySelector('.seisan-check-note');
+        if (noteEl) noteEl.textContent = checked ? '回収済み' : '未回収';
         input.setAttribute('aria-label', `${displayName}の集金チェック`);
     }
 
     const data = getRoomDataOnly();
     const result = calculateSettlement(data, state);
-    const sharePreview = byId('seisan-share-preview');
-    if (sharePreview && typeof buildSettlementOverviewText === 'function') {
-        sharePreview.textContent = buildSettlementOverviewText({
-            data,
-            state,
-            result,
-            title: (data.roomName || '企画名未設定').trim()
-        });
-    }
+    const collectionProgress = byId('seisan-collection-progress');
+    if (collectionProgress) collectionProgress.textContent = `${result.paidCount}/${result.payerCount}人・${yen(result.expectedCollected - result.unpaidAmount)} / ${yen(result.expectedCollected)}・残り ${yen(result.unpaidAmount || 0)}`;
+    const statusSummary = byId('seisan-status-summary');
+    if (statusSummary) statusSummary.innerHTML = renderSettlementStatusHtml(state, result, getSettlementIssues(data, state, result));
 }
 
 async function toggleSettlementPaid(encodedName, checked, input = null) {
@@ -141,7 +140,8 @@ async function toggleSettlementPaid(encodedName, checked, input = null) {
     input?.focus?.({ preventScroll: true });
     const name = decodeURIComponent(encodedName);
     const state = ensureSettlementState();
-    let confirmed = false;
+    const previousPaid = { ...(state.paid || {}) };
+    const previousPaidBy = { ...(state.paidBy || {}) };
     if (checked && state.standalone?.enabled) {
         const paidByName = await appPrompt('集金した人の名前を入力してください', state.paidBy?.[name] || '', {
             title: '集金済みにする人',
@@ -154,21 +154,19 @@ async function toggleSettlementPaid(encodedName, checked, input = null) {
             return;
         }
         state.paidBy = { ...(state.paidBy || {}), [name]: normalizedPaidByName };
-        confirmed = true;
-    } else {
-        confirmed = await confirmSettlementCheckChange(
-            checked ? `${name}さんを集金済みにしますか？` : `${name}さんを未回収に戻しますか？`,
-            { title: '集金チェック', okText: checked ? '記録' : '戻す' },
-            input,
-            checked
-        );
     }
     stabilizeSettlementScrollPosition(scrollSnapshot);
-    if (!confirmed) return;
     state.paid[name] = !!checked;
     if (!checked && state.paidBy) delete state.paidBy[name];
     refreshSettlementCollectionStatus(encodedName, name, checked, state);
     save();
+    showUndoRestoreToast(checked ? `${name}さんを回収済みにしました` : `${name}さんを未回収に戻しました`, () => {
+        const currentState = ensureSettlementState();
+        currentState.paid = previousPaid;
+        currentState.paidBy = previousPaidBy;
+        renderSettlementViewPreservingScroll(scrollSnapshot);
+        save();
+    });
     stabilizeSettlementScrollPosition(scrollSnapshot);
 }
 
@@ -176,19 +174,44 @@ async function toggleSettlementDriverPaid(encodedName, checked, input = null) {
     const scrollSnapshot = consumeSettlementCheckScrollPosition();
     input?.focus?.({ preventScroll: true });
     const name = decodeURIComponent(encodedName);
-    const confirmed = await confirmSettlementCheckChange(
-        checked ? `${name}さんへの支払いを完了にしますか？` : `${name}さんへの支払いを未払いに戻しますか？`,
-        { title: '支払いチェック', okText: checked ? '記録' : '戻す' },
-        input,
-        checked
-    );
-    stabilizeSettlementScrollPosition(scrollSnapshot);
-    if (!confirmed) return;
     const state = ensureSettlementState();
+    const previousDriverPaid = { ...(state.driverPaid || {}) };
     state.driverPaid[name] = !!checked;
     renderSettlementViewPreservingScroll(scrollSnapshot);
     save();
+    showUndoRestoreToast(checked ? `${name}車への支払いを完了にしました` : `${name}車を未払いに戻しました`, () => {
+        const currentState = ensureSettlementState();
+        currentState.driverPaid = previousDriverPaid;
+        renderSettlementViewPreservingScroll(scrollSnapshot);
+        save();
+    });
     stabilizeSettlementScrollPosition(scrollSnapshot);
+}
+
+function toggleSettlementUnpaidFilter() {
+    const snapshot = captureSettlementScrollPosition();
+    settlementCollectionUnpaidOnly = !settlementCollectionUnpaidOnly;
+    renderSettlementViewPreservingScroll(snapshot);
+}
+
+function copySettlementUnpaid() {
+    const state = ensureSettlementState();
+    const data = getRoomDataOnly();
+    const result = calculateSettlement(data, state);
+    const names = result.participants
+        .filter(person => !result.excludedNames.has(person.name) && !state.paid?.[person.name])
+        .map(person => person.name);
+    if (!names.length) {
+        showAppNotice('未回収者はいません');
+        return;
+    }
+    copyTextWithFallback(names.join('、'), '未回収者をコピーしました');
+}
+
+function focusSettlementCostEditors() {
+    const paymentSection = byId('seisan-car-list')?.closest('.seisan-card');
+    paymentSection?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => paymentSection?.querySelector?.('[data-action="open-settlement-car-edit"]')?.focus?.({ preventScroll: true }), 350);
 }
 
 window.SanpoApp?.exposeCompat?.('onSettlementInput', onSettlementInput);
@@ -199,3 +222,6 @@ window.SanpoApp?.exposeCompat?.('removeSettlementExtra', removeSettlementExtra);
 window.SanpoApp?.exposeCompat?.('captureSettlementScrollPosition', captureSettlementScrollPosition);
 window.SanpoApp?.exposeCompat?.('toggleSettlementPaid', toggleSettlementPaid);
 window.SanpoApp?.exposeCompat?.('toggleSettlementDriverPaid', toggleSettlementDriverPaid);
+window.SanpoApp?.exposeCompat?.('toggleSettlementUnpaidFilter', toggleSettlementUnpaidFilter);
+window.SanpoApp?.exposeCompat?.('copySettlementUnpaid', copySettlementUnpaid);
+window.SanpoApp?.exposeCompat?.('focusSettlementCostEditors', focusSettlementCostEditors);

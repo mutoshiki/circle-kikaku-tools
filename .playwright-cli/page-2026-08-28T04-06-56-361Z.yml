@@ -1,0 +1,133 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner "サークル企画ツール" [ref=e3]:
+      - generic:
+        - button "ナビゲーションを開く" [ref=e5] [cursor=pointer]
+        - link "サークル企画ツール" [ref=e12] [cursor=pointer]:
+          - /url: /?room=XTSQ7JMJ
+        - generic [ref=e14]:
+          - generic "共有リンク" [ref=e15]:
+            - generic [ref=e17]:
+              - button "undefined" [ref=e1365] [cursor=pointer]
+              - generic:
+                - tooltip
+          - generic "アプリメニュー" [ref=e24] [cursor=pointer]:
+            - generic [ref=e26]:
+              - button "アプリメニュー" [ref=e27]
+              - generic:
+                - tooltip
+    - generic:
+      - generic:
+        - generic: 山歩会フォームメーカー
+        - generic: 学務提出書類作成ツール
+        - generic: 山歩会企画ツール一覧
+        - generic: バグを報告する
+    - region "企画名" [ref=e38]:
+      - generic [ref=e39]:
+        - textbox "企画名" [ref=e40]
+        - generic:
+          - generic:
+            - generic:
+              - generic: 企画名
+              - generic:
+                - generic:
+                  - textbox:
+                    - /placeholder: 企画名を入力
+                    - text: 秋名山登山企画
+    - region "参加者" [ref=e645]:
+      - generic [ref=e646]:
+        - generic [ref=e647]:
+          - generic [ref=e648]: 参加者 13人
+          - button "追加" [ref=e651] [cursor=pointer]
+        - generic [ref=e652]:
+          - search [ref=e653] [cursor=pointer]:
+            - generic [ref=e654]:
+              - generic [ref=e656]: 名前を検索
+              - search "名前を検索" [ref=e658]
+          - generic "絞り込み" [ref=e659]:
+            - generic [ref=e661]:
+              - button "undefined" [ref=e662] [cursor=pointer]
+              - generic:
+                - tooltip
+        - list "参加者を選択" [ref=e666]:
+          - listitem [ref=e1377]:
+            - generic [ref=e1378]:
+              - checkbox "岩城 清次" [checked] [ref=e1379]
+              - generic [ref=e1380] [cursor=pointer]: 岩城 清次
+            - generic [ref=e1382]: 4年
+          - listitem [ref=e1384]:
+            - generic [ref=e1385]:
+              - checkbox "健二" [checked] [ref=e1386]
+              - generic [ref=e1387] [cursor=pointer]: 健二
+            - generic [ref=e1389]: 4年
+          - listitem [ref=e1391]:
+            - generic [ref=e1392]:
+              - checkbox "高橋 啓介" [checked] [ref=e1393]
+              - generic [ref=e1394] [cursor=pointer]: 高橋 啓介
+            - generic [ref=e1396]: 4年
+          - listitem [ref=e1398]:
+            - generic [ref=e1399]:
+              - checkbox "高橋 涼介" [checked] [ref=e1400]
+              - generic [ref=e1401] [cursor=pointer]: 高橋 涼介
+            - generic [ref=e1403]: 4年
+          - listitem [ref=e1405]:
+            - generic [ref=e1406]:
+              - checkbox "佐藤 真子" [checked] [ref=e1407]
+              - generic [ref=e1408] [cursor=pointer]: 佐藤 真子
+            - generic [ref=e1410]: 4年
+          - listitem [ref=e1412]:
+            - generic [ref=e1413]:
+              - checkbox "沙雪" [checked] [ref=e1414]
+              - generic [ref=e1415] [cursor=pointer]: 沙雪
+            - generic [ref=e1417]: 4年
+          - listitem [ref=e1419]:
+            - generic [ref=e1420]:
+              - checkbox "秋山 渉" [checked] [ref=e1421]
+              - generic [ref=e1422] [cursor=pointer]: 秋山 渉
+            - generic [ref=e1424]: 4年
+          - listitem [ref=e1426]:
+            - generic [ref=e1427]:
+              - checkbox "秋山 和美" [checked] [ref=e1428]
+              - generic [ref=e1429] [cursor=pointer]: 秋山 和美
+            - generic [ref=e1431]: 3年
+          - listitem [ref=e1433]:
+            - generic [ref=e1434]:
+              - checkbox "池谷 浩一郎" [checked] [ref=e1435]
+              - generic [ref=e1436] [cursor=pointer]: 池谷 浩一郎
+            - generic [ref=e1438]: 4年
+          - listitem [ref=e1440]:
+            - generic [ref=e1441]:
+              - checkbox "中村 賢太" [checked] [ref=e1442]
+              - generic [ref=e1443] [cursor=pointer]: 中村 賢太
+            - generic [ref=e1445]: 3年
+          - listitem [ref=e1447]:
+            - generic [ref=e1448]:
+              - checkbox "藤原 拓海" [checked] [ref=e1449]
+              - generic [ref=e1450] [cursor=pointer]: 藤原 拓海
+            - generic [ref=e1452]: 3年
+          - listitem [ref=e1454]:
+            - generic [ref=e1455]:
+              - checkbox "武内 樹" [checked] [ref=e1456]
+              - generic [ref=e1457] [cursor=pointer]: 武内 樹
+            - generic [ref=e1459]: 3年
+          - listitem [ref=e1461]:
+            - generic [ref=e1462]:
+              - checkbox "茂木 なつき" [checked] [ref=e1463]
+              - generic [ref=e1464] [cursor=pointer]: 茂木 なつき
+            - generic [ref=e1466]: 3年
+        - paragraph [ref=e758]
+    - text: 未割り当ての参加者はいません
+    - navigation "メイン画面" [ref=e52]:
+      - generic "主要画面" [ref=e53]:
+        - tablist [ref=e56]:
+          - generic:
+            - listitem "参加者" [active] [ref=e57]:
+              - tab "参加者" [selected] [ref=e58] [cursor=pointer]
+            - listitem "車割" [ref=e61]:
+              - tab "車割" [ref=e62] [cursor=pointer]
+            - listitem "班割" [ref=e65]:
+              - tab "班割" [ref=e66] [cursor=pointer]
+            - listitem "精算" [ref=e69]:
+              - tab "精算" [ref=e70] [cursor=pointer]
+        - status [ref=e73]: Selected an item.
+  - generic "ステータス通知"

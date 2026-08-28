@@ -5,7 +5,8 @@
   display: block;
   width: 100%;
   margin: 0;
-  background: var(--cds-layer-02, var(--surface-low));
+  border-top: 1px solid var(--cds-border-subtle-01, var(--border-section));
+  background: var(--cds-layer-01, var(--surface-low));
   color: var(--cds-text-primary, var(--text-main));
 }
 
@@ -16,10 +17,11 @@
 
 .seisan-settings-structured-list .seisan-setting-row {
   display: grid;
-  grid-template-columns: minmax(120px, 0.8fr) minmax(0, 1.2fr);
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 20px;
   align-items: center;
   min-height: 48px;
-  border-bottom: 1px solid var(--cds-border-subtle-02, var(--border-section));
+  border-bottom: 1px solid var(--cds-border-subtle-01, var(--border-section));
 }
 
 .seisan-settings-structured-list .seisan-setting-label,
@@ -27,7 +29,7 @@
   display: block;
   min-width: 0;
   width: auto;
-  padding: var(--space-2) var(--space-3);
+  padding: 13px 0;
   color: var(--cds-text-primary, var(--text-main));
   font-size: var(--font-size-label);
   line-height: var(--line-height-body);
@@ -35,11 +37,13 @@
 }
 
 .seisan-settings-structured-list .seisan-setting-label {
+  padding-left: 16px;
   color: var(--cds-text-secondary, var(--text-sub));
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .seisan-settings-structured-list .seisan-setting-value {
+  padding-right: 16px;
   font-weight: 400;
   overflow-wrap: anywhere;
 }
@@ -70,10 +74,13 @@
 }
 .seisan-summary-pills small { display: block; margin: 0; color: var(--cds-text-secondary, var(--text-sub)); font-size: var(--font-size-caption); font-weight: 600; }
 
-@media (max-width: 420px) {
-  .seisan-settings-structured-list .seisan-setting-row {
-    grid-template-columns: minmax(112px, 0.8fr) minmax(0, 1.2fr);
+@media (max-width: 680px) {
+  #seisan-view-area .seisan-settings-structured-list .seisan-setting-row {
+    grid-template-columns: 1fr;
+    gap: 3px;
+    padding: 12px;
   }
-  .seisan-settings-structured-list .seisan-setting-label,
-  .seisan-settings-structured-list .seisan-setting-value { padding-inline: var(--space-2); }
+  #seisan-view-area .seisan-settings-structured-list .seisan-setting-label,
+  #seisan-view-area .seisan-settings-structured-list .seisan-setting-value { padding: 0; }
+  #seisan-view-area .seisan-settings-structured-list .seisan-setting-label { font-size: 12px; }
 }
