@@ -66,10 +66,11 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
     if (viewport.width <= 768) {
       const before = await page.evaluate(() => ({
         state: document.querySelector('#projectTitleRegion')?.dataset.state,
+        titleHeight: document.querySelector('#projectTitleRegion')?.getBoundingClientRect().height,
         overflow: getComputedStyle(document.querySelector('#app-layout')).overflowY,
         revealBound: document.documentElement.dataset.projectTitleRevealBound
       }));
-      expect(before).toEqual({ state: 'expanded', overflow: 'auto', revealBound: 'true' });
+      expect(before).toEqual({ state: 'expanded', titleHeight: 176, overflow: 'auto', revealBound: 'true' });
 
       await page.dispatchEvent('#top-area', 'pointerdown', { pointerType: 'touch', clientY: 180, pointerId: 1, isPrimary: true });
       await page.dispatchEvent('#top-area', 'pointermove', { pointerType: 'touch', clientY: 148, pointerId: 1, isPrimary: true });

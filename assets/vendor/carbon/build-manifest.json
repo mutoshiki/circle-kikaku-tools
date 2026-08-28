@@ -6,7 +6,5 @@
     "plexSansJp": "3.0.0"
   },
   "entry": "assets/js/carbon-entry.js",
-  "output": "assets/vendor/carbon/carbon-entry.min.js",
-  "uiShellEntry": "assets/js/carbon-ui-shell-entry.js",
-  "uiShellOutput": "assets/vendor/carbon/ui-shell.min.js"
+  "output": "assets/vendor/carbon/carbon-entry.min.js"
 }

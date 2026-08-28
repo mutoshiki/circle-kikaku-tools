@@ -24,7 +24,7 @@ for (const required of [
   '<cds-text-input id="roomNameInput"',
   '<cds-accordion id="batchImportHelpAccordion"',
   '<cds-table class="batch-auto-rule-table"',
-  './assets/vendor/carbon/ui-shell.min.js'
+  './assets/vendor/carbon/carbon-entry.min.js'
 ]) {
   assert.ok(index.includes(required), `index.html must use official Carbon component: ${required}`);
 }
@@ -75,6 +75,11 @@ assert.match(appEvents, /trigger\.setAttribute\('aria-expanded', String\(next\)\
 assert.match(appEvents, /addEventListener\('cds-header-menu-button-toggled', event =>/);
 assert.match(appEvents, /setCarbonSideNavExpanded\(Boolean\(event\.detail\?\.active\)\);/);
 assert.match(appEvents, /setupCarbonSideNavigationState\(\);/);
+assert.match(headerEvents, /share\.tooltipText = shareLabel/);
+assert.match(headerEvents, /share\.setAttribute\('tooltip-text', shareLabel\)/);
+assert.match(headerEvents, /whenDefined\?\.\('cds-icon-button'\)/);
+assert.match(await read('assets/js/core/runtime.js'), /host\.localName === 'cds-icon-button'/);
+assert.match(await read('assets/js/core/runtime.js'), /getAttribute\('aria-label'\).*getAttribute\('tooltip-text'\)/);
 assert.match(headerCss, /#overviewDrawer\s*\{[\s\S]*position:\s*fixed[\s\S]*visibility:\s*hidden[\s\S]*translateX\(-100%\)/);
 assert.match(headerCss, /#overviewDrawer\[expanded\][\s\S]*visibility:\s*visible[\s\S]*translateX\(0\)/);
 
@@ -88,8 +93,9 @@ for (const [name, source, forbidden] of [
   assert.ok(!source.includes(forbidden), `${name} must not restyle a legacy replacement: ${forbidden}`);
 }
 
-assert.ok(buildScript.includes("assets/js/carbon-ui-shell-entry.js"), 'build must own the UI Shell entry');
-assert.ok(buildScript.includes("assets/vendor/carbon/ui-shell.min.js"), 'build must self-host the UI Shell bundle');
+assert.match(await read('assets/js/carbon-entry.js'), /components\/ui-shell\/index\.js/);
+assert.doesNotMatch(index, /ui-shell\.min\.js/);
+assert.doesNotMatch(buildScript, /carbon-ui-shell-entry|ui-shell\.min\.js/);
 
 async function collectSourceFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true });

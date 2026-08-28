@@ -1,3 +1,4 @@
+import '@carbon/web-components/es/components/ui-shell/index.js';
 import '@carbon/web-components/es/components/accordion/index.js';
 import '@carbon/web-components/es/components/button/index.js';
 import '@carbon/web-components/es/components/icon-button/index.js';

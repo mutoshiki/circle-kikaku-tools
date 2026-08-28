@@ -11,8 +11,6 @@ const versions = Object.freeze({
 });
 const mainEntry = resolve(root, 'assets/js/carbon-entry.js');
 const mainOutput = resolve(root, 'assets/vendor/carbon/carbon-entry.min.js');
-const uiShellEntry = resolve(root, 'assets/js/carbon-ui-shell-entry.js');
-const uiShellOutput = resolve(root, 'assets/vendor/carbon/ui-shell.min.js');
 await mkdir(dirname(mainOutput), { recursive: true });
 
 const sharedBuildOptions = {
@@ -35,12 +33,6 @@ await build({
   }
 });
 
-await build({
-  ...sharedBuildOptions,
-  entryPoints: [uiShellEntry],
-  outfile: uiShellOutput
-});
-
 const licenseCopies = [
   ['node_modules/@carbon/web-components/LICENSE', 'assets/vendor/carbon/LICENSE-web-components.txt'],
   ['node_modules/@carbon/icons/LICENSE', 'assets/vendor/carbon/LICENSE-icons.txt'],
@@ -58,9 +50,7 @@ for (const [source, target] of licenseCopies) {
 const manifest = {
   versions,
   entry: 'assets/js/carbon-entry.js',
-  output: 'assets/vendor/carbon/carbon-entry.min.js',
-  uiShellEntry: 'assets/js/carbon-ui-shell-entry.js',
-  uiShellOutput: 'assets/vendor/carbon/ui-shell.min.js'
+  output: 'assets/vendor/carbon/carbon-entry.min.js'
 };
 await writeFile(resolve(root, 'assets/vendor/carbon/build-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`Built Carbon assets: ${JSON.stringify(versions)}`);

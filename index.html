@@ -156,7 +156,7 @@
         <cds-header-menu-button id="overviewMenuBtn" button-label-active="ナビゲーションを閉じる" button-label-inactive="ナビゲーションを開く"></cds-header-menu-button>
         <cds-header-name href="./">サークル企画ツール</cds-header-name>
         <div class="cds--header__global header-actions">
-          <cds-icon-button id="shareLinkBtn" class="header-action share-action" kind="ghost" size="lg" align="bottom-right" aria-label="共有リンク">
+          <cds-icon-button id="shareLinkBtn" class="header-action share-action" kind="ghost" size="lg" align="bottom-right" aria-label="共有リンク" tooltip-text="共有リンク">
             <span data-carbon-icon="link" slot="icon" aria-hidden="true"></span>
           </cds-icon-button>
           <div class="header-more">
@@ -685,13 +685,12 @@
     <script src="./assets/js/app.js?v=assignment-workspace-v22"></script>
     <script src="./assets/js/features/events/00-event-utils.js"></script>
     <script src="./assets/js/features/events/01-core-startup-events.js?v=person-card-interaction-v32-collab-interaction-delete-v47"></script>
-    <script src="./assets/js/features/events/02-static-header-events.js?v=bug-report-nav-v74"></script>
+    <script src="./assets/js/features/events/02-static-header-events.js?v=share-a11y-v1"></script>
     <script src="./assets/js/features/events/03-generated-action-events.js?v=settlement-summary-action-boundary-v18"></script>
     <script src="./assets/js/features/events/04-settlement-input-events.js?v=collection-carbon-v65"></script>
     <script src="./assets/js/features/events/05-view-feature-events.js?v=carbon-tabs-selection-v21"></script>
     <script src="./assets/js/features/events.js?v=bug-report-nav-v74"></script>
-    <script type="module" src="./assets/vendor/carbon/ui-shell.min.js?v=official-shell-v97"></script>
-    <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=carbon-ui-actions-v61"></script>
+    <script type="module" src="./assets/vendor/carbon/carbon-entry.min.js?v=carbon-single-bundle-v1"></script>
     <script type="module">if (!customElements.get('cds-accordion')) import('https://1.www.s81c.com/common/carbon/web-components/version/v2.60.0/accordion.min.js');</script>
   </body>
 </html>

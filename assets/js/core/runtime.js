@@ -208,6 +208,11 @@ function applyCarbonTooltipPolicy(root = document) {
         Promise.resolve(host.updateComplete).then(() => {
             const shadow = host.shadowRoot;
             if (!shadow) return;
+            if (host.localName === 'cds-icon-button') {
+                const accessibleName = String(host.getAttribute('aria-label') || host.getAttribute('tooltip-text') || host.getAttribute('label') || '').trim();
+                const button = shadow.querySelector('button');
+                if (accessibleName && button?.getAttribute('aria-label') !== accessibleName) button?.setAttribute('aria-label', accessibleName);
+            }
             shadow.querySelectorAll('[slot="tooltip-content"]').forEach(node => node.remove());
             shadow.querySelectorAll('cds-tooltip').forEach(hideCarbonTooltipPopover);
             shadow.querySelectorAll('cds-icon-button, cds-modal-close-button, cds-dialog-close-button').forEach(applyCarbonTooltipPolicy);

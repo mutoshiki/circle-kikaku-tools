@@ -72,6 +72,12 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       });
       await hostClick(page, '#shareLinkBtn');
       await expect(page.locator('#appStatusToast')).toContainText('リンクをコピーしました');
+      const shareA11y = await page.locator('#shareLinkBtn').evaluate(node => ({
+        hostAriaLabel: node.getAttribute('aria-label'),
+        carbonTooltipText: node.getAttribute('tooltip-text'),
+        innerAriaLabel: node.shadowRoot?.querySelector('button')?.getAttribute('aria-label')
+      }));
+      expect(shareA11y).toEqual({ hostAriaLabel: '共有リンク', carbonTooltipText: '共有リンク', innerAriaLabel: '共有リンク' });
       const copiedShareUrl = await page.evaluate(() => window.__copiedShareUrl || '');
       const copiedParams = new URL(copiedShareUrl).searchParams;
       expect(copiedParams.has('view')).toBe(false);

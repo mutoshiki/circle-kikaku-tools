@@ -45,7 +45,17 @@
             overflow.setAttribute('aria-label', 'アプリメニュー');
             overflow.setAttribute('align', 'bottom-end');
         }
+        ensureCarbonShareLabel();
+        global.customElements?.whenDefined?.('cds-icon-button').then(ensureCarbonShareLabel).catch(() => {});
         global.SanpoCarbon?.renderCarbonIcons?.(header);
+    }
+
+    function ensureCarbonShareLabel() {
+        const share = byId('shareLinkBtn');
+        if (share?.tagName !== 'CDS-ICON-BUTTON') return;
+        const shareLabel = share.getAttribute('aria-label') || share.getAttribute('label') || '共有リンク';
+        share.tooltipText = shareLabel;
+        share.setAttribute('tooltip-text', shareLabel);
     }
 
     function readCurrentShellView() {

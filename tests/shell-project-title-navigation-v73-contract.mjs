@@ -49,7 +49,7 @@ for (const [label, url] of [
 }
 
 assert.match(header, /height:\s*256px/);
-assert.match(header, /max-width:\s*768px[\s\S]*height:\s*240px/);
+assert.match(header, /max-width:\s*768px[\s\S]*height:\s*176px/);
 assert.match(header, /#overviewDrawer\s*\{[\s\S]*position:\s*fixed[\s\S]*translateX\(-100%\)/);
 assert.match(header, /#overviewDrawer\[expanded\][\s\S]*translateX\(0\)/);
 assert.doesNotMatch(header, /\.app-nav-link|\.app-nav-drawer/);
@@ -58,7 +58,8 @@ assert.match(room, /max-width:\s*768px[\s\S]*font-size:\s*2\.625rem/);
 assert.match(room, /\.app-room-field,[\s\S]*clip-path:\s*inset\(50%\)/);
 assert.match(room, /#syncStatusBadge\s*\{\s*display:\s*none/);
 assert.doesNotMatch(`${header}\n${room}`, /!important/);
-assert.match(carbonBuild, /carbon-ui-shell-entry\.js/);
-assert.match(carbonBuild, /ui-shell\.min\.js/);
-assert.ok(html.includes('./assets/vendor/carbon/ui-shell.min.js?v=official-shell-v97'), 'UI Shell must be self-hosted from the pinned Carbon build');
+assert.match(carbonBuild, /assets\/js\/carbon-entry\.js/);
+assert.doesNotMatch(carbonBuild, /carbon-ui-shell-entry\.js|ui-shell\.min\.js/);
+assert.ok(html.includes('./assets/vendor/carbon/carbon-entry.min.js?v=carbon-single-bundle-v1'), 'Carbon components must load from the single pinned Carbon build');
+assert.match(html, /id="shareLinkBtn"[^>]*aria-label="共有リンク"[^>]*tooltip-text="共有リンク"/);
 console.log('PASS Carbon shell with restored project title and visible application navigation contract');
