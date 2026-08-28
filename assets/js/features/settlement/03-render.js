@@ -42,6 +42,17 @@ function renderSettlementIssues(issues) {
         : pageMessages.map(m => `・${escapeHtml(m)}`).join('<br>');
 }
 
+function suppressSettlementIssueNotificationFocus(root) {
+    root?.querySelectorAll?.('cds-actionable-notification.seisan-car-issue').forEach(notification => {
+        // Carbon's has-focus property defaults to true. It is a Boolean
+        // attribute, so markup such as has-focus="false" still enables focus.
+        // Keep notification focus policy in this renderer; issue components must
+        // never focus themselves while settlement is rendered or synchronized.
+        notification.hasFocus = false;
+        notification.removeAttribute('has-focus');
+    });
+}
+
 function renderExtraRowHtml(carName, ex, index, issues) {
     return window.SanpoApp.templates.settlement.extraRow({
         carName,
@@ -395,9 +406,7 @@ function refreshSettlementCarEditorCandidates(name = activeSettlementCarEditName
 }
 
 
-function focusFirstSettlementCarValidationError() {
-    const body = byId('settlementCarEditBody');
-    const host = body?.querySelector('[invalid], .seisan-input-error');
+function focusSettlementValidationError(host) {
     if (!host) return;
     const apply = () => {
         host.scrollIntoView?.({ block: 'center', inline: 'nearest' });
@@ -405,6 +414,11 @@ function focusFirstSettlementCarValidationError() {
         (control || host).focus?.({ preventScroll: true });
     };
     Promise.resolve(host.updateComplete).then(() => requestAnimationFrame(() => requestAnimationFrame(apply)));
+}
+
+function focusFirstSettlementCarValidationError() {
+    const body = byId('settlementCarEditBody');
+    focusSettlementValidationError(body?.querySelector('[invalid], .seisan-input-error'));
 }
 
 function commitLiveSettlementExtraTypeControls(root = byId('settlementCarEditBody')) {
@@ -618,13 +632,7 @@ function validateOrganizerSettlementSettings(showErrors = true) {
 function focusFirstSettlementSettingsValidationError() {
     const modal = byId('settlementSettingsModal');
     const host = modal?.querySelector('[data-settlement-step="1"]:not([hidden]) [invalid], [data-settlement-step="1"]:not([hidden]) [aria-invalid="true"]');
-    if (!host) return;
-    const apply = () => {
-        host.scrollIntoView?.({ block: 'center', inline: 'nearest' });
-        const control = host.shadowRoot?.querySelector('input, select, textarea, button');
-        (control || host).focus?.({ preventScroll: true });
-    };
-    Promise.resolve(host.updateComplete).then(() => requestAnimationFrame(() => requestAnimationFrame(apply)));
+    focusSettlementValidationError(host);
 }
 
 function validateSettlementSettings(showErrors = true) {
@@ -632,7 +640,6 @@ function validateSettlementSettings(showErrors = true) {
     const standaloneValid = validateStandaloneSettlementSettings(showErrors);
     const organizerValid = validateOrganizerSettlementSettings(showErrors);
     const valid = standaloneValid && organizerValid;
-    if (showErrors && !valid) focusFirstSettlementSettingsValidationError();
     return valid;
 }
 
@@ -900,6 +907,7 @@ function renderSettlementView() {
     const carList = byId('seisan-car-list');
     if (carList) {
         carList.innerHTML = renderSettlementCarsHtml(data, state, result, summaryIssues);
+        suppressSettlementIssueNotificationFocus(carList);
         applySettlementCarLayout(carList, (data.cars || []).length);
     }
 

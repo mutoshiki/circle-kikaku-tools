@@ -36,7 +36,9 @@
       ? `${carName}車：${(gasMatch || timesMatch)[1]}を入力してください。`
       : `${carName}車：${raw.replace(`${carName}車の`, '')}`;
     const actionLabel = `${carName}車を編集`;
-    return `<cds-actionable-notification class="seisan-car-issue" inline kind="error" low-contrast hide-close-button has-focus="false">
+    // Carbon Boolean attributes are enabled by presence; a string "false" still enables focus.
+    // Settlement renderer disables notification focus centrally after mounting it.
+    return `<cds-actionable-notification class="seisan-car-issue" inline kind="error" low-contrast hide-close-button>
       <span slot="title">${esc(title, helpers)}</span>
       <span slot="subtitle">${esc(subtitle, helpers)}</span>
       <cds-actionable-notification-button slot="action" kind="ghost" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(carName)}">${esc(actionLabel, helpers)}</cds-actionable-notification-button>
