@@ -14,7 +14,7 @@
   min-height: 0;
   padding-bottom: var(--space-5);
   scroll-padding-bottom: var(--space-5);
-  background: var(--modal-bg, var(--cds-layer-01, var(--surface-lowest)));
+  background: var(--cds-layer-01, var(--surface-lowest));
   color: var(--cds-text-primary, var(--text-main));
   -webkit-overflow-scrolling: touch;
 }

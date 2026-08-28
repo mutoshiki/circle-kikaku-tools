@@ -11,9 +11,9 @@
   display: block;
   width: 100%;
   height: auto;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--cds-border-subtle);
   border-radius: var(--radius-lg);
-  background: var(--surface-soft);
+  background: var(--cds-layer-02, var(--surface-low));
   box-shadow: var(--shadow-card);
 }
 

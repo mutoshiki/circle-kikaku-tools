@@ -1,7 +1,4 @@
 .share-links-modal-body {
-  --cds-layer: var(--surface-lowest);
-  --cds-layer-01: var(--surface-lowest);
-  --cds-layer-02: var(--surface-low);
   --cds-text-primary: var(--text-main);
   --cds-text-secondary: var(--text-sub);
   display: grid;
@@ -16,7 +13,7 @@
   align-items: center;
   min-height: 80px;
   padding: var(--space-4, 16px);
-  border: 1px solid var(--cds-border-subtle, var(--border-section));
+  border: 1px solid var(--cds-border-subtle);
   background: var(--cds-layer-01, var(--surface-lowest));
 }
 

@@ -9,10 +9,6 @@
   color: var(--text-main);
   --cds-text-primary: var(--text-main);
   --cds-text-secondary: var(--text-sub);
-  --cds-layer: var(--surface-lowest);
-  --cds-layer-01: var(--surface-lowest);
-  --cds-layer-02: var(--surface-low);
-  --cds-border-subtle: var(--border-section);
 }
 
 .app-modal[hidden] { display: none; }

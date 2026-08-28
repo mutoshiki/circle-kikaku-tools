@@ -6,7 +6,7 @@
   min-width: 0;
   min-height: 0;
   overflow: auto;
-  background: var(--cds-background, #f4f4f4);
+  background: var(--cds-background, var(--surface-low));
 }
 
 .participants-view-area[hidden] {
@@ -75,7 +75,7 @@
   grid-template-columns: minmax(0, 1fr) 48px;
   width: 100%;
   margin-bottom: 1px;
-  background: var(--cds-layer-01, #ffffff);
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
 #participantsSearch {
@@ -99,8 +99,8 @@
   gap: 8px;
   min-height: 40px;
   padding: 8px 16px;
-  border-top: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
-  background: var(--cds-layer-01, #ffffff);
+  border-top: 1px solid var(--cds-border-subtle);
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
 .participants-active-filters[hidden] {
@@ -113,8 +113,8 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
   padding: 16px;
-  border-top: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
-  background: var(--cds-layer-01, #ffffff);
+  border-top: 1px solid var(--cds-border-subtle);
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
 .participants-filter-panel[hidden] {
@@ -124,8 +124,8 @@
 .form-applicant-sync__list {
   display: grid;
   width: 100%;
-  border-top: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
-  background: var(--cds-layer-01, #ffffff);
+  border-top: 1px solid var(--cds-border-subtle);
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
 .form-applicant-sync__row {
@@ -135,8 +135,8 @@
   gap: 16px;
   min-height: 56px;
   padding: 8px 16px;
-  border-bottom: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
-  background: var(--cds-layer-01, #ffffff);
+  border-bottom: 1px solid var(--cds-border-subtle);
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
 .form-applicant-sync__row[hidden] {
@@ -144,17 +144,17 @@
 }
 
 .form-applicant-sync__row.is-selected {
-  background: var(--cds-layer-selected-01, var(--cds-background-selected, #e8e8e8));
+  background: var(--cds-layer-selected-01, var(--cds-background-selected, var(--surface-container)));
 }
 
 @media (hover: hover) {
   .form-applicant-sync__row:not(.is-selected):hover {
-    background: var(--cds-layer-hover-01, var(--cds-background-hover, #e8e8e8));
+    background: var(--cds-layer-hover-01, var(--cds-background-hover, var(--surface-hover)));
   }
 
   .participants-post-confirm__item:hover,
   .participants-post-confirm .participant-announcement-panel:hover {
-    background: var(--cds-layer-hover-01, var(--cds-background-hover, #e8e8e8));
+    background: var(--cds-layer-hover-01, var(--cds-background-hover, var(--surface-hover)));
   }
 }
 
@@ -185,7 +185,7 @@
 
 .form-applicant-sync__empty {
   padding: 24px 16px 32px;
-  border-bottom: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
+  border-bottom: 1px solid var(--cds-border-subtle);
   color: var(--cds-text-secondary, #525252);
   font-size: 14px;
   line-height: 20px;
@@ -235,7 +235,7 @@
 .participants-post-confirm {
   margin-top: 24px;
   padding-top: 24px;
-  border-top: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
+  border-top: 1px solid var(--cds-border-subtle);
 }
 
 .participants-post-confirm[hidden] {
@@ -253,7 +253,7 @@
 .participants-post-confirm__actions {
   display: grid;
   gap: 1px;
-  background: var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
+  background: var(--cds-border-subtle);
 }
 
 .participants-post-confirm__item,
@@ -266,7 +266,7 @@
   margin: 0;
   padding: 20px 24px;
   border: 0;
-  background: var(--cds-layer-01, #ffffff);
+  background: var(--cds-layer-01, var(--surface-lowest));
   transition: background-color 70ms cubic-bezier(.2, 0, 1, .9);
 }
 
@@ -410,8 +410,8 @@ body.view-mode-participants #participants-view-area {
     margin: 0;
     padding: 6px max(16px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
     border: 0;
-    border-top: 1px solid var(--cds-border-subtle-01, var(--cds-border-subtle, #e0e0e0));
-    background: var(--cds-layer-01, #ffffff);
+    border-top: 1px solid var(--cds-border-subtle);
+    background: var(--cds-layer-01, var(--surface-lowest));
     box-shadow: none;
   }
 

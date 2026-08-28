@@ -2,7 +2,7 @@
 .user-manual {
   width: 100%;
   color: var(--text-main);
-  background: var(--surface-lowest);
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
 .user-manual-intro,
@@ -11,8 +11,8 @@
 }
 
 .user-manual-intro {
-  border-bottom: 1px solid var(--border-section);
-  background: var(--surface-soft);
+  border-bottom: 1px solid var(--cds-border-subtle);
+  background: var(--cds-layer-02, var(--surface-low));
 }
 
 .user-manual-intro > p {
@@ -32,8 +32,8 @@
   gap: 6px;
   padding: 9px clamp(14px, 4vw, 28px);
   overflow-x: auto;
-  border-bottom: 1px solid var(--border-section);
-  background: color-mix(in srgb, var(--surface-lowest) 94%, transparent);
+  border-bottom: 1px solid var(--cds-border-subtle);
+  background: color-mix(in srgb, var(--cds-layer-01, var(--surface-lowest)) 94%, transparent);
   backdrop-filter: var(--ui-floating-backdrop);
   scrollbar-width: none;
 }
@@ -45,10 +45,10 @@
 .user-manual-nav a {
   flex: 0 0 auto;
   padding: 7px 11px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--cds-border-subtle);
   border-radius: var(--radius-pill);
   color: var(--text-sub);
-  background: var(--surface-lowest);
+  background: var(--cds-layer-01, var(--surface-lowest));
   font-size: 0.76rem;
   font-weight: 600;
   text-decoration: none;
@@ -58,12 +58,12 @@
 .user-manual-nav a:focus-visible {
   border-color: var(--app-accent-border);
   color: var(--app-accent-text);
-  background: color-mix(in srgb, var(--app-accent-surface) 44%, transparent);
+  background: var(--cds-layer-selected-01, var(--cds-background-selected, var(--surface-container)));
 }
 
 .user-manual-section {
   scroll-margin-top: 60px;
-  border-bottom: 1px solid var(--border-section);
+  border-bottom: 1px solid var(--cds-border-subtle);
 }
 
 .user-manual-section:last-child {

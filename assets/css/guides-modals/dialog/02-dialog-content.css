@@ -1,5 +1,5 @@
 /* Shared dialog content primitives. */
-.history-list { display: grid; min-width: 0; }
+.history-list { display: grid; min-width: 0; background: var(--cds-layer-02, var(--surface-low)); }
 .history-empty {
   padding: var(--space-6);
   color: var(--text-sub);
@@ -14,10 +14,10 @@
   min-height: 56px;
   padding: var(--space-3) var(--space-4);
   border: 0;
-  border-bottom: 1px solid var(--border-section);
-  background: var(--surface-lowest);
+  border-bottom: 1px solid var(--cds-border-subtle);
+  background: var(--cds-layer-01, var(--surface-lowest));
   color: var(--text-main);
   text-align: left;
   cursor: pointer;
 }
-.history-entry:hover { background: var(--surface-hover); }
+.history-entry:hover { background: var(--cds-layer-hover-01, var(--surface-hover)); }

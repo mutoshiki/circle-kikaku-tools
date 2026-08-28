@@ -38,7 +38,7 @@ expect(dropdowns.includes('--cds-link-primary: var(--app-accent-text);'), 'Popov
 expect(personMenu.includes('--cds-icon-primary: var(--text-sub);'), 'Overflow action triggers must use the neutral secondary icon role.');
 expect(personMenu.includes('--cds-link-primary: var(--text-sub);'), 'Overflow action triggers must not inherit the blue link role.');
 expect(personMenu.includes('--person-flag-color: var(--app-accent-text);'), 'The explicit blue flag must use the canonical text accent.');
-expect(shareModal.includes('--cds-layer-01: var(--surface-lowest);'), 'Share popup must use explicit Carbon layers.');
+expect(shareModal.includes('background: var(--cds-layer-01') && !shareModal.includes('--cds-layer-01: var(--surface-lowest);'), 'Share popup must consume the global Carbon layer owner.');
 expect(importShell.includes('var(--app-accent-icon)'), 'Import popup helper icons must use the canonical accent role.');
 expect(importTable.includes('var(--app-accent-surface)'), 'Import popup status surfaces must use the canonical accent surface.');
 expect(routeShell.includes('border-left: 3px solid var(--app-accent-border)'), 'Route popup helper emphasis must use the canonical border accent.');

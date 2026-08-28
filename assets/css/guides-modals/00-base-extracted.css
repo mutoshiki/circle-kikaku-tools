@@ -19,7 +19,7 @@
   padding: 28px 20px;
   border: 0;
   border-radius: var(--radius-lg);
-  background: var(--surface-lowest);
+  background: var(--cds-layer-01, var(--surface-lowest));
   color: var(--text-sub);
   box-shadow: var(--shadow-card);
   text-align: center;

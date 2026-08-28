@@ -71,11 +71,8 @@
   display: block;
   width: 100%;
   min-width: 680px;
-  --cds-layer: var(--bg-card);
-  --cds-layer-01: var(--bg-card);
   --cds-text-primary: var(--text-main);
   --cds-text-secondary: var(--text-sub);
-  --cds-border-subtle: var(--border-color);
 }
 .batch-auto-rule-table :is(cds-table-header-cell, cds-table-cell) {
   white-space: normal;
@@ -91,9 +88,9 @@
   display: grid;
   gap: 2px;
   padding: 9px 10px;
-  border: 1px solid var(--ui-saas-border, var(--border-color));
+  border: 1px solid var(--cds-border-subtle);
   border-radius: var(--radius-sm, 10px);
-  background: var(--ui-saas-inner, color-mix(in srgb, var(--bg-body) 78%, var(--bg-card)));
+  background: var(--cds-layer-02, var(--surface-low));
 }
 .batch-required-columns strong {
   color: var(--text-main);

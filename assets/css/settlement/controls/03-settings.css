@@ -14,7 +14,7 @@
   min-height: 0;
   padding: var(--space-4) var(--space-5) var(--space-6);
   scroll-padding-bottom: var(--space-6);
-  background: var(--modal-bg, var(--cds-layer-01, var(--surface-lowest)));
+  background: var(--cds-layer-01, var(--surface-lowest));
   color: var(--cds-text-primary, var(--text-main));
   -webkit-overflow-scrolling: touch;
 }
@@ -24,6 +24,7 @@
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: var(--space-6);
+  background: var(--cds-layer-02, var(--surface-low));
 }
 
 .seisan-settings--modal .seisan-settings-span { grid-column: 1 / -1; }
@@ -33,11 +34,12 @@
   gap: var(--space-4);
   min-width: 0;
   padding: 0;
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
 .seisan-settings-section + .seisan-settings-section {
   padding-top: var(--space-5);
-  border-top: 1px solid var(--cds-border-subtle-01, var(--border-subtle));
+  border-top: 1px solid var(--cds-border-subtle);
 }
 
 .seisan-settings-section--standalone { padding-top: 0; }
@@ -133,7 +135,7 @@
 
 .seisan-toggle--modal + .seisan-toggle--modal {
   margin-top: 0;
-  border-top: 1px solid var(--cds-border-subtle-01, var(--border-subtle));
+  border-top: 1px solid var(--cds-border-subtle);
 }
 
 .seisan-toggle--modal cds-checkbox {

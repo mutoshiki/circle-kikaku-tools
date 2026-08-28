@@ -4,7 +4,8 @@
   display: grid;
   gap: 0;
   min-width: 0;
-  border-block-start: 1px solid var(--cds-border-subtle, var(--border-section));
+  border-block-start: 1px solid var(--cds-border-subtle);
+  background: var(--cds-layer-02, var(--surface-low));
 }
 
 #settlementCarEditModal .seisan-cost-edit-header,
@@ -38,8 +39,8 @@
 #settlementCarEditModal .seisan-extra-row {
   min-height: 56px;
   padding-block: var(--space-2);
-  border-block-end: 1px solid var(--cds-border-subtle, var(--border-section));
-  background: transparent;
+  border-block-end: 1px solid var(--cds-border-subtle);
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
 #settlementCarEditModal .seisan-extra-list {

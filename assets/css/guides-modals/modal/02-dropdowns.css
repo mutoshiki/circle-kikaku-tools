@@ -1,8 +1,8 @@
 .header-overflow-body,
 .auto-assign-menu-body {
   min-width: 220px;
-  --cds-layer: var(--surface-lowest);
-  --cds-layer-hover: var(--surface-hover);
+  --cds-layer: var(--cds-layer-01, var(--surface-lowest));
+  --cds-layer-hover: var(--cds-layer-hover-01, var(--surface-hover));
   --cds-text-primary: var(--text-main);
   --cds-text-secondary: var(--text-sub);
   --cds-icon-primary: var(--text-main);

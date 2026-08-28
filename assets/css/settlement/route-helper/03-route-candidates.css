@@ -2,7 +2,7 @@
 #routeDistanceModal .route-candidate-list {
   display: grid;
   gap: 1px;
-  background: var(--cds-border-subtle-01, var(--border-color));
+  background: var(--cds-border-subtle);
 }
 
 #routeDistanceModal .route-candidate-empty {
@@ -19,9 +19,9 @@
 #routeDistanceModal .route-candidate-card {
   width: 100%;
   min-height: 64px;
-  --cds-button-ghost: var(--cds-layer-01, var(--bg-card));
-  --cds-button-ghost-hover: var(--cds-layer-hover-01, color-mix(in srgb, var(--bg-card) 92%, var(--text-main)));
-  --cds-button-ghost-active: var(--cds-layer-selected-01, color-mix(in srgb, var(--app-accent-surface) 34%, var(--bg-card)));
+  --cds-button-ghost: var(--cds-layer-01, var(--surface-lowest));
+  --cds-button-ghost-hover: var(--cds-layer-hover-01, color-mix(in srgb, var(--surface-lowest) 92%, var(--text-main)));
+  --cds-button-ghost-active: var(--cds-layer-selected-01, color-mix(in srgb, var(--app-accent-surface) 34%, var(--surface-lowest)));
   --cds-button-ghost-color: var(--cds-text-primary, var(--text-main));
   border-left: 4px solid transparent;
   text-align: left;
@@ -44,7 +44,7 @@
 
 #routeDistanceModal .route-candidate-card[aria-checked="true"] {
   border-left-color: var(--app-accent-fill);
-  --cds-button-ghost: var(--cds-layer-selected-01, color-mix(in srgb, var(--app-accent-surface) 34%, var(--bg-card)));
+  --cds-button-ghost: var(--cds-layer-selected-01, color-mix(in srgb, var(--app-accent-surface) 34%, var(--surface-lowest)));
 }
 
 #routeDistanceModal .route-candidate-main { min-width: 0; }
@@ -109,7 +109,7 @@
   display: grid;
   gap: 1px;
   margin-top: 16px;
-  background: var(--cds-border-subtle-01, var(--border-color));
+  background: var(--cds-border-subtle);
 }
 
 #routeDistanceModal .route-total-summary,
@@ -175,7 +175,7 @@
 #routeDistanceModal .route-candidate-group {
   display: grid;
   gap: 1px;
-  background: var(--cds-border-subtle-01, var(--border-color));
+  background: var(--cds-border-subtle);
   margin-bottom: 16px;
 }
 

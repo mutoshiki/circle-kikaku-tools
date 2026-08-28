@@ -4,21 +4,21 @@
 }
 .form-import-preview {
     margin-top: 10px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--cds-border-subtle);
     border-radius: var(--radius-main);
-    background: color-mix(in srgb, var(--bg-card) 88%, var(--app-accent-surface));
+    background: color-mix(in srgb, var(--cds-layer-01, var(--surface-lowest)) 88%, var(--app-accent-surface));
     padding: 10px;
     color: var(--text-main);
     font-size: 0.8rem;
 }
 .form-import-preview--success {
-    border-color: color-mix(in srgb, var(--app-accent-border) 40%, var(--border-color));
+    border-color: color-mix(in srgb, var(--app-accent-border) 40%, var(--cds-border-subtle));
 }
 .form-import-preview--warning {
-    border-color: color-mix(in srgb, var(--color-warning) 56%, var(--border-color));
+    border-color: color-mix(in srgb, var(--color-warning) 56%, var(--cds-border-subtle));
 }
 .form-import-preview--error {
-    border-color: color-mix(in srgb, var(--color-danger) 60%, var(--border-color));
+    border-color: color-mix(in srgb, var(--color-danger) 60%, var(--cds-border-subtle));
 }
 .form-import-preview-title {
     display: flex;
@@ -38,9 +38,9 @@
     justify-content: space-between;
     align-items: center;
     gap: 8px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--cds-border-subtle);
     border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--bg-card) 82%, transparent);
+    background: color-mix(in srgb, var(--cds-layer-01, var(--surface-lowest)) 82%, transparent);
     padding: 7px 8px;
 }
 .form-import-result-grid span {
@@ -63,7 +63,7 @@
     margin-left: 6px;
     padding: 1px 6px;
     border-radius: var(--radius-xs);
-    background: color-mix(in srgb, var(--app-accent-surface) 80%, var(--bg-card));
+    background: color-mix(in srgb, var(--app-accent-surface) 80%, var(--cds-layer-01, var(--surface-lowest)));
     color: var(--app-accent-text);
     font-size: var(--font-size-caption);
     font-weight: 500;
@@ -77,18 +77,18 @@
     padding: 8px 9px;
 }
 .form-import-reflected {
-    background: color-mix(in srgb, var(--app-accent-surface) 68%, var(--bg-card));
+    background: color-mix(in srgb, var(--app-accent-surface) 68%, var(--cds-layer-01, var(--surface-lowest)));
     color: var(--app-accent-text);
     font-weight: 500;
 }
 .form-import-ok {
-    background: color-mix(in srgb, var(--app-accent-surface) 58%, var(--bg-card));
+    background: color-mix(in srgb, var(--app-accent-surface) 58%, var(--cds-layer-01, var(--surface-lowest)));
     color: var(--app-accent-text);
     font-weight: 500;
 }
 .form-import-warnings {
-    border: 1px solid color-mix(in srgb, var(--color-warning) 46%, var(--border-color));
-    background: color-mix(in srgb, var(--color-warning) 10%, var(--bg-card));
+    border: 1px solid color-mix(in srgb, var(--color-warning) 46%, var(--cds-border-subtle));
+    background: color-mix(in srgb, var(--color-warning) 10%, var(--cds-layer-01, var(--surface-lowest)));
     color: var(--text-main);
 }
 .form-import-warnings-title,

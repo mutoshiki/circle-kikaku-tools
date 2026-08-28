@@ -2,8 +2,8 @@
 /* Guide polish: quieter buttons, neutral mockups, and shorter diagram surfaces. */
 /* Spreadsheet guide mock uses the product accent for selection. */
 .import-preview-card {
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--cds-border-subtle);
     border-radius: var(--radius-main);
-    background: var(--surface-lowest);
+    background: var(--cds-layer-01, var(--surface-lowest));
     box-shadow: none;
 }

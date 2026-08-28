@@ -5,8 +5,8 @@
   gap: 24px;
   margin-top: 24px;
   padding: 20px 24px;
-  border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
-  background: var(--cds-layer-01, #ffffff);
+  border-top: 1px solid var(--cds-border-subtle);
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
 .participant-announcement-panel h3 {
@@ -37,14 +37,14 @@
 }
 
 .participant-announcement-layout {
-  background: var(--cds-layer-01, #ffffff);
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
 .participant-announcement-fields,
 .participant-announcement-preview {
   min-width: 0;
   padding: 24px;
-  background: var(--cds-layer-01, #ffffff);
+  background: var(--cds-layer-01, var(--surface-lowest));
 }
 
 .participant-announcement-fields {
@@ -103,11 +103,11 @@
   gap: 8px;
   min-width: 0;
   padding: 8px 0;
-  border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-top: 1px solid var(--cds-border-subtle);
 }
 
 .participant-announcement-itinerary__row:last-child {
-  border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-bottom: 1px solid var(--cds-border-subtle);
 }
 
 .participant-announcement-itinerary__row cds-text-input {
@@ -120,8 +120,8 @@
 
 .participant-announcement-advanced {
   min-width: 0;
-  border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
-  border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-top: 1px solid var(--cds-border-subtle);
+  border-bottom: 1px solid var(--cds-border-subtle);
 }
 
 .participant-announcement-advanced__fields {
@@ -163,7 +163,7 @@
   margin: 0;
   padding: 16px;
   border: 0;
-  background: var(--cds-layer-02, #f4f4f4);
+  background: var(--cds-layer-02, var(--surface-low));
   color: var(--cds-text-primary, #161616);
   font: inherit;
   line-height: 1.5;
@@ -182,7 +182,7 @@
 }
 
 .participant-announcement-footer {
-  border-top: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+  border-top: 1px solid var(--cds-border-subtle);
 }
 
 @media (max-width: 768px) {
