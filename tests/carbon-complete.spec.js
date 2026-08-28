@@ -118,6 +118,7 @@ test.describe('Allocation, menus and accessibility', () => {
     await hostClick(page, '#assignmentWorkspaceAddGroupBtn');
     await expect(page.locator('#assignmentGroupCreateModal')).toHaveAttribute('open', '');
     await expect(page.locator('#assignmentGroupOwnerSelect > cds-select-item')).toHaveCount(1);
+    await expect.poll(() => page.locator('cds-select#assignmentGroupOwnerSelect').evaluate(node => node.shadowRoot?.querySelector('select')?.value || '')).not.toBe('');
     await hostClick(page, '#assignmentGroupCreateConfirm');
     await expect(page.locator('#assignmentGroupCreateModal')).not.toHaveAttribute('open', '');
     await expect(page.locator('.car-box')).toHaveCount(groupCount + 1);

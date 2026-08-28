@@ -11,6 +11,8 @@
     let syncFrame = 0;
     let requestedAllocationType = '';
     let applyingAllocationSelection = false;
+    let groupCreateDefaultOwnerId = '';
+    let groupCreateCandidateIds = new Set();
 
     function activeType() {
         return D.body.dataset.activePlanTemplate === 'team' ? 'team' : 'car';
@@ -167,7 +169,7 @@
         }
         const hasParticipants = registeredParticipantCount() > 0;
         const workspaceHeader = byId('assignmentWorkspaceHeader');
-        if (workspaceHeader) workspaceHeader.hidden = false;
+        if (workspaceHeader) workspaceHeader.hidden = !hasParticipants;
         footer.hidden = !hasParticipants;
 
         let addGroup = byId('assignmentWorkspaceAddGroupBtn');
@@ -260,7 +262,42 @@
         }
     }
 
-    function openGroupCreateModal() {
+    function selectedGroupOwnerId(owner) {
+        const value = String(owner?.value || '').trim();
+        if (value) return value;
+        const selected = owner?.querySelector?.('cds-select-item[selected]') || owner?.querySelector?.('cds-select-item');
+        return String(selected?.value || selected?.getAttribute?.('value') || '').trim();
+    }
+
+    function reassertGroupOwnerDefault(owner, candidateIds, defaultId) {
+        if (!owner || !defaultId) return;
+        const current = selectedGroupOwnerId(owner);
+        if (!candidateIds.has(current)) owner.value = defaultId;
+    }
+
+    function syncGroupOwnerNativeSelection(owner, defaultId) {
+        const nativeSelect = owner?.shadowRoot?.querySelector?.('select');
+        if (!nativeSelect?.options?.length) return;
+        const desiredIndex = Array.from(nativeSelect.options).findIndex(option => option.value === defaultId);
+        if (desiredIndex < 0 || nativeSelect.selectedIndex === desiredIndex) return;
+        owner.selectedIndex = desiredIndex;
+        // Keep the rendered native control aligned when Carbon has just completed
+        // its first light-DOM item projection and the public setter is one render
+        // behind.
+        if (nativeSelect.selectedIndex !== desiredIndex) nativeSelect.selectedIndex = desiredIndex;
+        owner.value = nativeSelect.value || defaultId;
+    }
+
+    async function settleGroupOwnerSelection(owner, candidateIds, defaultId) {
+        reassertGroupOwnerDefault(owner, candidateIds, defaultId);
+        await Promise.resolve(owner?.updateComplete);
+        syncGroupOwnerNativeSelection(owner, defaultId);
+        reassertGroupOwnerDefault(owner, candidateIds, defaultId);
+        await Promise.resolve(owner?.updateComplete);
+        syncGroupOwnerNativeSelection(owner, defaultId);
+    }
+
+    async function openGroupCreateModal() {
         const candidates = waitingCandidates();
         const type = activeType();
         const groupLabel = type === 'team' ? '班' : '車';
@@ -269,6 +306,8 @@
             global.AppUI?.showStatus?.(`未割り当ての参加者を選ぶと${groupLabel}を追加できます。`, { tone: 'neutral', duration: 2800 });
             return;
         }
+        groupCreateDefaultOwnerId = candidates[0].id;
+        groupCreateCandidateIds = new Set(candidates.map(candidate => candidate.id));
         const modal = ensureGroupCreateModal();
         const title = byId('assignmentGroupCreateTitle');
         const owner = byId('assignmentGroupOwnerSelect');
@@ -284,6 +323,11 @@
             return item;
         }));
         owner.value = candidates[0].id;
+        const candidateIds = new Set(candidates.map(candidate => candidate.id));
+        // Carbon upgrades and renders dynamic select items asynchronously. Reassert
+        // the default only while the current value is empty/invalid, so a quick user
+        // choice is never overwritten by the lifecycle repair.
+        await settleGroupOwnerSelection(owner, candidateIds, candidates[0].id);
         const defaultCapacity = type === 'team' ? 5 : 3;
         capacity.value = String(defaultCapacity);
         capacity.setAttribute('value', String(defaultCapacity));
@@ -293,14 +337,24 @@
     function createGroupFromModal(modal) {
         const owner = byId('assignmentGroupOwnerSelect');
         const capacityInput = byId('assignmentGroupCapacityInput');
-        const participantId = String(owner?.value || '');
+        const requestedParticipantId = selectedGroupOwnerId(owner);
         const type = activeType();
         const roleLabel = type === 'team' ? '班長' : '運転手';
-        const candidate = waitingCandidates().find(item => item.id === participantId);
+        const candidates = waitingCandidates();
+        // A dynamically-created Carbon select can briefly expose an empty or
+        // stale host value while its light-DOM items and shadow options settle.
+        // Resolve that transient state against the current waiting pool so a
+        // valid default selection can still commit the structural mutation.
+        const candidate = candidates.find(item => item.id === requestedParticipantId)
+            || (groupCreateCandidateIds.has(requestedParticipantId) ? { id: requestedParticipantId } : null)
+            || candidates.find(item => item.id === groupCreateDefaultOwnerId)
+            || (groupCreateCandidateIds.has(groupCreateDefaultOwnerId) ? { id: groupCreateDefaultOwnerId } : null)
+            || candidates[0];
         if (!candidate) {
             global.AppUI?.showStatus?.(`${roleLabel}を選び直してください。`, { tone: 'warning' });
             return;
         }
+        const participantId = candidate.id;
         const capacity = Math.max(1, Math.min(99, parseInt(capacityInput?.value, 10) || (type === 'team' ? 5 : 3)));
         const state = global.SanpoCanonicalState;
         const room = state?.get?.();

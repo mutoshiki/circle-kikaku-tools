@@ -90,6 +90,20 @@ async function openManagedParticipants(page) {
   return referenceShell;
 }
 
+test('participant search filters rows through Carbon input events', async ({ page }) => {
+  await openManagedParticipants(page);
+
+  const search = page.locator('#participantsSearch').locator('input');
+  await search.click();
+  await search.pressSequentially('山本');
+  await expect(page.locator('#formApplicantList .form-applicant-sync__row:not([hidden])')).toHaveCount(1);
+  await expect(page.locator('#formApplicantList .form-applicant-sync__row:not([hidden])')).toContainText('山本 陽翔');
+
+  await search.press('ControlOrMeta+A');
+  await search.press('Backspace');
+  await expect(page.locator('#formApplicantList .form-applicant-sync__row:not([hidden])')).toHaveCount(5);
+});
+
 test('Participants mobile flow keeps the shared shell and Carbon selection actions', async ({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(String(error)));

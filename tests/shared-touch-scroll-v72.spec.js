@@ -15,7 +15,7 @@ test.describe('Retired shared allocation destination', () => {
     await expect(page.locator('#tab-sheet')).toHaveCount(0);
     await expect(page.locator('#sheet-view-area')).toBeHidden();
     await expect(page.locator('#app-view-navigation')).toBeVisible();
-    await expect(page.locator('#assignmentWorkspaceRandomAction')).toBeVisible();
+    await expect(page.locator('#assignmentWorkspaceRandomAction')).toBeHidden();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBeTruthy();
   });
 });

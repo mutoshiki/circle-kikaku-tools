@@ -7,6 +7,7 @@
   let uiUpdating = false;
   let editingConfirmedSelection = false;
   let pendingCollapseAfterSave = false;
+  let searchDraft = '';
 
   function canonical() {
     return window.SanpoCanonicalState?.get?.() || null;
@@ -96,7 +97,11 @@
       toggle.setAttribute('aria-expanded', String(open));
     });
 
-    const filter = () => applyFilters();
+    const filter = event => {
+      if (typeof event?.detail?.value === 'string') searchDraft = event.detail.value;
+      else searchDraft = readSearchInputValue();
+      applyFilters();
+    };
     const search = byId('participantsSearch');
     search?.addEventListener('cds-search-input', filter);
     search?.addEventListener('input', filter);
@@ -105,8 +110,15 @@
     });
   }
 
+  function readSearchInputValue() {
+    const search = byId('participantsSearch');
+    const hostValue = typeof search?.value === 'string' ? search.value : '';
+    const inputValue = search?.shadowRoot?.querySelector?.('input')?.value || '';
+    return String(hostValue || inputValue || searchDraft || '');
+  }
+
   function currentSearchValue() {
-    return String(byId('participantsSearch')?.value || '').trim().toLocaleLowerCase('ja');
+    return readSearchInputValue().trim().toLocaleLowerCase('ja');
   }
 
   function rowData(row) {

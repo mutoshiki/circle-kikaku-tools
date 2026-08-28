@@ -1129,6 +1129,16 @@ function load() {
         const remote = migrateAppData(raw);
         if (!lastSyncedData) rememberSyncedData(remote);
 
+        // A pending local outbox is normally replayed before applying an incoming
+        // snapshot. While a write surface is open, however, replaying that snapshot
+        // would repaint the editor and can invalidate a just-opened Carbon dialog.
+        // Keep the editor draft authoritative until the modal/input transaction ends.
+        if (isRemoteUiBlocked()) {
+            rememberPendingRemoteData(remote);
+            updateStatus('local', window.SanpoRemoteGuard?.isModalOpen?.() ? '編集中のため同期保留' : (isSettlementInputProtected() ? '入力中のため同期保留' : '変更を同期中...'));
+            return;
+        }
+
         // Only an explicitly saved operation enters the durable outbox. On reconnect/reload,
         // replay that original narrow intent against the latest transaction state; never infer
         // intent by diffing a rendered/localStorage snapshot against Firebase.
@@ -1177,15 +1187,6 @@ function load() {
                     operationId: outbox.operationId || outbox.id
                 }
             );
-            return;
-        }
-
-        // The editor DOM owns the draft until its UI transaction ends. Remote snapshots are
-        // queued as complete authoritative rooms; the save path emits a narrow intent patch,
-        // so disjoint edits still merge without rebuilding an open Carbon surface.
-        if (isRemoteUiBlocked()) {
-            rememberPendingRemoteData(remote);
-            updateStatus('local', window.SanpoRemoteGuard?.isModalOpen?.() ? '編集中のため同期保留' : (isSettlementInputProtected() ? '入力中のため同期保留' : '変更を同期中...'));
             return;
         }
 
