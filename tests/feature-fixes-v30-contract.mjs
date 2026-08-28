@@ -32,8 +32,8 @@ const applicantSync = read('assets/js/features/form-applicant-sync-v2.js');
 const batchImport = read('assets/js/features/batch-import.js');
 
 expect(settlement.includes('Missing organizer is guidance, not a save-blocking data error'), 'Organizer guidance must not block settings save');
-expect(settlement.includes('promptDiscardInvalidSettlementSettings'), 'Settlement settings discard-confirm flow is missing');
-expect(settlement.includes("title: '入力内容を破棄'"), 'Settlement settings discard modal title is missing');
+expect(settlement.includes('function validateAndSaveSettlementSettingsBeforeClose') && settlement.includes('restoreSettlementSettingsOpeningSnapshot'), 'Settlement settings dismissal must restore the opening draft snapshot');
+expect(settlement.includes('saveLocalDraftOnly?.();') && !settlement.includes('promptDiscardInvalidSettlementSettings'), 'Settlement settings dismissal must remain local-only without a second confirmation flow');
 expect(settlementEvents.includes("#seisanOrganizerFree, #seisanOrganizerName"), 'Organizer controls do not refresh validation state');
 
 expect(index.includes('class="route-place-search-icon" data-carbon-icon="search"'), 'Route search does not request the official Carbon Search icon');
@@ -63,7 +63,7 @@ expect(collectionMobileCss.includes('grid-template-columns: 1fr;'), 'Mobile coll
 expect(collectionCss.includes('grid-template-columns: 32px minmax(0, 1fr) auto') && collectionTemplate.includes('<cds-checkbox'), 'Manual collection checks must use the mockup checkbox-left anatomy');
 expect(collectionTemplate.includes('seisan-check-item--system') && collectionTemplate.includes('控除済み') && collectionTemplate.includes('対象外・企画者'), 'Derived collection states must use explicit non-checkbox rows');
 expect(collectionTemplate.includes('seisan-check-note') && !/seisan-check-amount-state[^\n]*>[\s\S]*seisan-check-status/.test(collectionTemplate), 'Manual collection rows must expose one recovery state instead of duplicating it beside the amount');
-expect(carCostTemplates.includes('label-text="支払い済み"') && carCostTemplates.includes('を支払い済みにする'), 'Driver payment Checkbox must be an unambiguous completion action');
+expect(carCostTemplates.includes("label-text=\"${paid ? '支払済み' : '未払い'}\"") && carCostTemplates.includes('支払い済みにする') && carCostTemplates.includes('未払いに戻す'), 'Driver payment Checkbox must expose its current payment state and reversible action');
 expect(collectionCss.includes('overflow-wrap: anywhere') && collectionCss.includes('flex-direction: column'), 'Collection names and details must stack and wrap safely');
 expect(settlementEvents.includes('__settlementCheckScrollSnapshot') && settlementActions.includes('consumeSettlementCheckScrollPosition') && settlementActions.includes('showUndoRestoreToast'), 'Collection checks must preserve scroll and provide immediate undo feedback');
 expect((settlementActions.match(/input\?\.focus\?\.\(\{ preventScroll: true \}\);/g) || []).length === 2, 'Settlement confirmations must explicitly return focus to the operated Carbon control');

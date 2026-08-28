@@ -28,15 +28,18 @@ function createEmptySettlementIssues() {
 function renderSettlementIssues(issues) {
     const box = byId('seisan-errors');
     if (!box) return;
-    if (!issues.messages.length) {
+    const carNames = new Set([...issues.rows]);
+    const pageMessages = issues.messages.filter(message => ![...carNames].some(name => String(message || '').startsWith(`${name}車の`)));
+    if (!pageMessages.length) {
         box.style.display = 'none';
         box.innerHTML = '';
         return;
     }
     box.style.display = 'block';
+    const pageIssues = { ...issues, messages: pageMessages };
     box.innerHTML = window.SanpoApp?.templates?.settlement?.renderIssues
-        ? window.SanpoApp.templates.settlement.renderIssues(issues, { escapeHtml })
-        : issues.messages.map(m => `・${escapeHtml(m)}`).join('<br>');
+        ? window.SanpoApp.templates.settlement.renderIssues(pageIssues, { escapeHtml })
+        : pageMessages.map(m => `・${escapeHtml(m)}`).join('<br>');
 }
 
 function renderExtraRowHtml(carName, ex, index, issues) {
@@ -119,8 +122,85 @@ function syncSettlementControls(state, participants) {
     }
 }
 
-function renderSettlementSummaryHtml(result) {
-    return window.SanpoApp.templates.settlement.summary(result, { yen });
+function settlementSettingsFieldValue(field) {
+    const shadowInput = field?.shadowRoot?.querySelector?.('input');
+    return shadowInput ? shadowInput.value : field?.value;
+}
+
+function settlementSettingsFieldErrorVisible(field, showErrors) {
+    return !!(showErrors && (field?.dataset?.touched === 'true' || settlementSettingsValidationRequested));
+}
+
+function setSettlementSettingsStep(step, { focus = false } = {}) {
+    const nextStep = Math.min(3, Math.max(1, Number(step) || 1));
+    settlementSettingsStep = nextStep;
+    const modal = byId('settlementSettingsModal');
+    const progress = modal?.querySelector('.seisan-settings-progress');
+    if (progress) {
+        progress.currentIndex = nextStep - 1;
+        progress.onChange = event => goToSettlementSettingsStep(Number(event.detail?.index) + 1);
+    }
+    modal?.querySelectorAll('[data-settlement-step]').forEach(panel => {
+        panel.hidden = Number(panel.dataset.settlementStep) !== nextStep;
+    });
+    modal?.querySelectorAll('.seisan-settings-progress cds-progress-step').forEach((progressStep, index) => {
+        const stepNumber = Number(progressStep.dataset.step) || index + 1;
+        if (stepNumber === nextStep) progressStep.setAttribute('aria-current', 'step');
+        else progressStep.removeAttribute('aria-current');
+    });
+    const back = byId('settlementSettingsBackBtn');
+    const saveButton = byId('saveSettlementSettingsBtn');
+    if (back) {
+        back.hidden = false;
+        back.disabled = nextStep === 1;
+        back.toggleAttribute('disabled', nextStep === 1);
+    }
+    if (saveButton) {
+        const isFinalStep = nextStep === 3;
+        saveButton.hidden = false;
+        saveButton.textContent = isFinalStep ? '保存' : '次へ';
+        saveButton.dataset.action = isFinalStep ? 'save-settlement-settings' : 'settlement-settings-next';
+        saveButton.setAttribute('aria-label', isFinalStep ? '保存' : '次へ');
+    }
+    const body = modal?.querySelector(':scope > cds-modal-body.app-modal-body');
+    if (body) body.scrollTop = 0;
+    if (focus) {
+        const heading = modal?.querySelector(`[data-settlement-step="${nextStep}"] .seisan-settings-step-title`);
+        requestAnimationFrame(() => heading?.focus?.({ preventScroll: true }));
+    }
+}
+
+function validateSettlementSettingsStep(step) {
+    if (Number(step) !== 1) return true;
+    const valid = validateSettlementSettings(true);
+    if (!valid) {
+        setSettlementSettingsStep(1);
+        focusFirstSettlementSettingsValidationError();
+    }
+    return valid;
+}
+
+function goToSettlementSettingsStep(step) {
+    const modal = byId('settlementSettingsModal');
+    if (!modal?.open) return false;
+    const requested = Math.min(3, Math.max(1, Number(step) || 1));
+    if (requested === settlementSettingsStep) return true;
+    syncSettlementStateFromDOM();
+    if (requested > settlementSettingsStep && !validateSettlementSettingsStep(1)) return false;
+    setSettlementSettingsStep(requested, { focus: true });
+    return true;
+}
+
+function nextSettlementSettingsStep() {
+    return goToSettlementSettingsStep(settlementSettingsStep + 1);
+}
+
+function previousSettlementSettingsStep() {
+    return goToSettlementSettingsStep(settlementSettingsStep - 1);
+}
+
+function renderSettlementSummaryHtml(result, issues) {
+    return window.SanpoApp.templates.settlement.summary(result, { yen, issues });
 }
 
 function renderSettlementCarRowHtml(car, state, result, issues) {
@@ -214,6 +294,8 @@ let settlementSettingsSyncBaseSnapshot = null;
 let settlementSettingsClosePrepared = false;
 let settlementSettingsDiscardPromptActive = false;
 let settlementSettingsPreserveOnHidden = false;
+let settlementSettingsStep = 1;
+let settlementSettingsValidationRequested = false;
 
 function getSettlementCarEditIssues(name) {
     const data = getRoomDataOnly();
@@ -432,8 +514,14 @@ function openSettlementSettings() {
     settlementSettingsClosePrepared = false;
     settlementSettingsDiscardPromptActive = false;
     settlementSettingsPreserveOnHidden = false;
+    settlementSettingsStep = 1;
+    settlementSettingsValidationRequested = false;
     syncSettlementControls(state, getParticipantList(data));
+    [byId('seisanStandaloneDriverCount'), byId('seisanStandaloneMemberCount')].forEach(field => {
+        if (field) delete field.dataset.touched;
+    });
     validateSettlementSettings(false);
+    setSettlementSettingsStep(1);
     if (modals.settlementSettings) modals.settlementSettings.show();
 }
 
@@ -446,6 +534,8 @@ function openStandaloneSettlementSettings() {
     settlementSettingsClosePrepared = false;
     settlementSettingsDiscardPromptActive = false;
     settlementSettingsPreserveOnHidden = false;
+    settlementSettingsStep = 1;
+    settlementSettingsValidationRequested = false;
     state.standalone = normalizeStandaloneSettlementState({
         ...(state.standalone || {}),
         enabled: true
@@ -475,26 +565,29 @@ function openStandaloneSettlementSettings() {
         organizerRule.value = 'collect';
         organizerRule.setAttribute('value', 'collect');
     }
+    [byId('seisanStandaloneDriverCount'), byId('seisanStandaloneMemberCount')].forEach(field => {
+        if (field) delete field.dataset.touched;
+    });
     validateSettlementSettings(false);
+    setSettlementSettingsStep(1);
     if (modals.settlementSettings) modals.settlementSettings.show();
 }
 
 function validateStandaloneSettlementSettings(showErrors = true) {
     const enabled = byId('seisanStandaloneEnabled');
     const fields = [byId('seisanStandaloneDriverCount'), byId('seisanStandaloneMemberCount')].filter(Boolean);
-    const message = byId('seisanStandaloneError');
     const shouldValidate = !!enabled?.checked;
-    const invalidFields = shouldValidate ? fields.filter(field => String(field.value || '').trim() === '') : [];
+    const invalidFields = shouldValidate ? fields.filter(field => String(settlementSettingsFieldValue(field) || '').trim() === '') : [];
     fields.forEach(field => {
-        const invalid = showErrors && invalidFields.includes(field);
-        field.classList.toggle('is-invalid', invalid);
+        const invalid = invalidFields.includes(field) && settlementSettingsFieldErrorVisible(field, showErrors);
         field.invalid = invalid;
-        field.invalidText = invalid ? '人数を入力してください' : '';
+        const invalidText = `${field.getAttribute('aria-label') || '人数'}を入力してください`;
+        field.invalidText = invalid ? invalidText : '';
+        field.toggleAttribute('invalid', invalid);
+        if (invalid) field.setAttribute('invalid-text', invalidText);
+        else field.removeAttribute('invalid-text');
         field.setAttribute('aria-invalid', invalid ? 'true' : 'false');
     });
-    if (message) {
-        message.hidden = !(showErrors && invalidFields.length);
-    }
     return invalidFields.length === 0;
 }
 
@@ -524,7 +617,7 @@ function validateOrganizerSettlementSettings(showErrors = true) {
 
 function focusFirstSettlementSettingsValidationError() {
     const modal = byId('settlementSettingsModal');
-    const host = modal?.querySelector('[invalid], .is-invalid, [aria-invalid="true"]');
+    const host = modal?.querySelector('[data-settlement-step="1"]:not([hidden]) [invalid], [data-settlement-step="1"]:not([hidden]) [aria-invalid="true"]');
     if (!host) return;
     const apply = () => {
         host.scrollIntoView?.({ block: 'center', inline: 'nearest' });
@@ -535,6 +628,7 @@ function focusFirstSettlementSettingsValidationError() {
 }
 
 function validateSettlementSettings(showErrors = true) {
+    if (showErrors) settlementSettingsValidationRequested = true;
     const standaloneValid = validateStandaloneSettlementSettings(showErrors);
     const organizerValid = validateOrganizerSettlementSettings(showErrors);
     const valid = standaloneValid && organizerValid;
@@ -553,52 +647,19 @@ function waitForSettlementSettingsModalHidden() {
     return new Promise(resolve => modal.addEventListener('sanpo:modal-hidden', resolve, { once: true }));
 }
 
-async function promptDiscardInvalidSettlementSettings() {
-    if (settlementSettingsDiscardPromptActive) return;
-    settlementSettingsDiscardPromptActive = true;
-    settlementSettingsPreserveOnHidden = true;
-    settlementSettingsClosePrepared = true;
-    const hidden = waitForSettlementSettingsModalHidden();
-    modals.settlementSettings?.hide({ reason: 'discard-prompt' });
-    await hidden;
-
-    const discard = await appConfirm(
-        '企画者が選択されていません。変更を破棄して精算設定を閉じますか？',
-        {
-            title: '入力内容を破棄',
-            okText: '破棄して閉じる',
-            cancelText: '編集を続ける',
-            danger: true
-        }
-    );
-
-    settlementSettingsDiscardPromptActive = false;
-    settlementSettingsPreserveOnHidden = false;
-    if (discard) {
-        restoreSettlementSettingsOpeningSnapshot();
-        clearSettlementSettingsEditor();
-        renderSettlementView({ force: true });
-        save();
-        return;
-    }
-
-    const data = getRoomDataOnly();
-    syncSettlementControls(ensureSettlementState(), getParticipantList(data));
-    modals.settlementSettings?.show();
-    validateSettlementSettings(true);
-}
-
 function validateAndSaveSettlementSettingsBeforeClose(reason = 'dismiss') {
     if (settlementSettingsClosePrepared) {
         settlementSettingsClosePrepared = false;
         return true;
     }
     if (reason === 'submit') return true;
-    if (!validateSettlementSettings(true)) {
-        queueMicrotask(promptDiscardInvalidSettlementSettings);
-        return false;
-    }
-    saveSettlementSettingsDraft();
+    // Carbon close, Escape and Cancel all discard the modal session. The only
+    // path that commits to Firebase is the explicit final Save action.
+    clearTimeout(settlementRenderTimer);
+    clearTimeout(settlementCommitTimer);
+    restoreSettlementSettingsOpeningSnapshot();
+    saveLocalDraftOnly?.();
+    renderSettlementView({ force: true });
     return true;
 }
 
@@ -609,6 +670,8 @@ function clearSettlementSettingsEditor() {
     settlementSettingsSyncBaseSnapshot = null;
     settlementSettingsClosePrepared = false;
     settlementSettingsDiscardPromptActive = false;
+    settlementSettingsStep = 1;
+    settlementSettingsValidationRequested = false;
 }
 
 function renderSettlementAfterModalCommit(modalId) {
@@ -625,13 +688,20 @@ function renderSettlementAfterModalCommit(modalId) {
 
 function saveSettlementSettingsDraft({ render = true } = {}) {
     syncSettlementStateFromDOM();
-    save();
+    saveLocalDraftOnly?.();
     if (render) renderSettlementAfterModalCommit('settlementSettingsModal');
 }
 
 async function saveSettlementSettings() {
-    if (!validateSettlementSettings(true)) return false;
+    settlementSettingsValidationRequested = true;
+    if (!validateSettlementSettings(true)) {
+        setSettlementSettingsStep(1, { focus: true });
+        focusFirstSettlementSettingsValidationError();
+        return false;
+    }
     syncSettlementStateFromDOM();
+    clearTimeout(settlementRenderTimer);
+    clearTimeout(settlementCommitTimer);
     const currentRoom = cloneData(getData({ skipDomSync: !!window.__suspendActiveDomPlanSync }));
     const openingRoom = cloneData(settlementSettingsOpeningRoomSnapshot || lastSyncedData || currentRoom);
     const syncBase = cloneData(settlementSettingsSyncBaseSnapshot || lastSyncedData || openingRoom);
@@ -756,6 +826,9 @@ window.SanpoApp?.exposeCompat?.('saveSettlementSettings', saveSettlementSettings
 window.SanpoApp?.exposeCompat?.('validateSettlementSettings', validateSettlementSettings);
 window.SanpoApp?.exposeCompat?.('validateAndSaveSettlementSettingsBeforeClose', validateAndSaveSettlementSettingsBeforeClose);
 window.SanpoApp?.exposeCompat?.('clearSettlementSettingsEditor', clearSettlementSettingsEditor);
+window.SanpoApp?.exposeCompat?.('nextSettlementSettingsStep', nextSettlementSettingsStep);
+window.SanpoApp?.exposeCompat?.('previousSettlementSettingsStep', previousSettlementSettingsStep);
+window.SanpoApp?.exposeCompat?.('goToSettlementSettingsStep', goToSettlementSettingsStep);
 window.SanpoApp?.exposeCompat?.('openSettlementCarEditor', openSettlementCarEditor);
 window.SanpoApp?.exposeCompat?.('resumeSettlementCarEditor', resumeSettlementCarEditor);
 window.SanpoApp?.exposeCompat?.('refreshSettlementCarEditor', refreshSettlementCarEditor);
@@ -816,7 +889,7 @@ function renderSettlementView() {
     if (settingsSummary) settingsSummary.innerHTML = renderSettlementSettingSummaryHtml(state, result);
 
     const summary = byId('seisan-summary');
-    if (summary) summary.innerHTML = renderSettlementSummaryHtml(result);
+    if (summary) summary.innerHTML = renderSettlementSummaryHtml(result, summaryIssues);
 
     const carList = byId('seisan-car-list');
     if (carList) {
@@ -848,17 +921,6 @@ function renderSettlementView() {
 
     const memo = byId('seisanMemoInput');
     if (memo && document.activeElement !== memo) memo.value = state.memo || '';
-
-    const settingsImpact = byId('seisanSettingsImpactValue');
-    if (settingsImpact) {
-        const impactPayer = settingsImpact.querySelector('[data-impact="payer"]');
-        const impactPerPerson = settingsImpact.querySelector('[data-impact="per-person"]');
-        const impactDriverTotal = settingsImpact.querySelector('[data-impact="driver-total"]');
-        if (impactPayer) impactPayer.textContent = `集金対象 ${result.payerCount}人`;
-        if (impactPerPerson) impactPerPerson.textContent = `1人あたり ${yen(result.perPerson || 0)}`;
-        if (impactDriverTotal) impactDriverTotal.textContent = `支払い総額 ${yen(result.driverTotal || 0)}`;
-        if (!impactPayer && !impactPerPerson && !impactDriverTotal) settingsImpact.textContent = `集金対象 ${result.payerCount}人・1人あたり ${yen(result.perPerson || 0)}・支払い総額 ${yen(result.driverTotal || 0)}`;
-    }
 
     const breakdown = byId('seisan-breakdown');
     if (breakdown) breakdown.innerHTML = renderSettlementBreakdownHtml(result);

@@ -17,18 +17,30 @@
   function renderIssues(issues, helpers = {}) {
     return (issues.messages || []).map(message => {
       const text = esc(message, helpers);
-      const carName = String(message || '').match(/^(.+?)車の/)?.[1] || '';
       const guidance = message.includes('企画者を選ぶ');
-      const action = carName
-        ? `<cds-button class="seisan-alert-action" kind="ghost" size="lg" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(carName)}">該当車を編集</cds-button>`
-        : '';
-      return `<div class="seisan-alert-item${guidance ? ' is-guidance' : ''}">
-        <cds-inline-notification kind="${guidance ? 'info' : 'error'}" low-contrast hide-close-button>
-          <span slot="title">${guidance ? '設定を確認してください' : '入力内容を確認してください'}</span>
-          <span slot="subtitle">${text}</span>
-        </cds-inline-notification>${action}
-      </div>`;
+      return `<cds-inline-notification kind="${guidance ? 'info' : 'error'}" low-contrast hide-close-button>
+        <span slot="title">${guidance ? '設定を確認してください' : '入力内容を確認してください'}</span>
+        <span slot="subtitle">${text}</span>
+      </cds-inline-notification>`;
     }).join('');
+  }
+
+  function carIssueNotification(carName, issues, helpers = {}) {
+    const message = (issues.messages || []).find(item => String(item || '').startsWith(`${carName}車の`));
+    if (!message) return '';
+    const raw = String(message);
+    const gasMatch = raw.match(/^.+?車のガソリン代を計算するため、(.+?)を入力してください。$/);
+    const timesMatch = raw.match(/^.+?車のタイムズ移動料金を計算するため、(.+?)を入力してください。$/);
+    const title = gasMatch || timesMatch ? 'ガソリン代を計算できません' : '車の費用を確認できません';
+    const subtitle = gasMatch || timesMatch
+      ? `${carName}車：${(gasMatch || timesMatch)[1]}を入力してください。`
+      : `${carName}車：${raw.replace(`${carName}車の`, '')}`;
+    const actionLabel = `${carName}車を編集`;
+    return `<cds-actionable-notification class="seisan-car-issue" inline kind="error" low-contrast hide-close-button has-focus="false">
+      <span slot="title">${esc(title, helpers)}</span>
+      <span slot="subtitle">${esc(subtitle, helpers)}</span>
+      <cds-actionable-notification-button slot="action" kind="ghost" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(carName)}">${esc(actionLabel, helpers)}</cds-actionable-notification-button>
+    </cds-actionable-notification>`;
   }
 
   function structuredCostRow({ label, amount = 0, sign = '', rowType = 'detail' }, helpers = {}) {
@@ -100,6 +112,7 @@
     const driversText = driverNames.length ? driverNames.join('、') : '未設定';
     const multipleDriverNote = driverNames.length > 1 ? '（車単位で一括支払い）' : '';
     return `<article class="seisan-car-summary-row ${UI_CLASS.surfaceCard}${rowClass}" data-driver-name="${esc(car.name, helpers)}">
+      ${carIssueNotification(car.name, issues, helpers)}
       <div class="seisan-car-summary-main">
         <div class="seisan-car-summary-identity">
           <strong class="seisan-car-summary-name">${esc(vehicleLabel, helpers)}</strong>
@@ -108,13 +121,13 @@
         </div>
         <div class="seisan-car-summary-controls">
           <div class="seisan-car-payment-check" data-carbon-checkbox-row>
-            <cds-checkbox ${paid ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="支払い済み" aria-label="${esc(vehicleLabel, helpers)}を支払い済みにする"></cds-checkbox>
+            <cds-checkbox ${paid ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="${paid ? '支払済み' : '未払い'}" aria-label="${esc(vehicleLabel, helpers)}を${paid ? '支払い済みから未払いに戻す' : '支払い済みにする'}"></cds-checkbox>
           </div>
           <cds-button class="seisan-btn seisan-edit-btn" kind="ghost" size="lg" type="button" data-action="open-settlement-car-edit" data-driver-name="${encodeURIComponent(car.name)}"><span>費用を編集</span></cds-button>
         </div>
       </div>
       <cds-accordion class="seisan-car-accordion">
-        <cds-accordion-item><span slot="title" class="seisan-payment-detail-title"><span>内訳を表示</span><span>割勘 ${money(costDetails.splitTotal, helpers)}・部費 ${money(costDetails.clubTotal, helpers)}</span></span><div class="seisan-payment-breakdown"><div><strong>割勘</strong><cds-structured-list condensed class="seisan-cost-structured-list" aria-label="割勘費用の内訳"><cds-structured-list-body>${costDetails.split}</cds-structured-list-body></cds-structured-list></div><div><strong>部費</strong><cds-structured-list condensed class="seisan-cost-structured-list" aria-label="部費の内訳"><cds-structured-list-body>${costDetails.club}</cds-structured-list-body></cds-structured-list></div></div></cds-accordion-item>
+        <cds-accordion-item><span slot="title" class="seisan-payment-detail-title"><span>内訳を表示</span><span class="seisan-payment-detail-meta">割勘 ${money(costDetails.splitTotal, helpers)}・部費 ${money(costDetails.clubTotal, helpers)}</span></span><div class="seisan-payment-breakdown"><div><strong>割勘</strong><cds-structured-list condensed class="seisan-cost-structured-list" aria-label="割勘費用の内訳"><cds-structured-list-body>${costDetails.split}</cds-structured-list-body></cds-structured-list></div><div><strong>部費</strong><cds-structured-list condensed class="seisan-cost-structured-list" aria-label="部費の内訳"><cds-structured-list-body>${costDetails.club}</cds-structured-list-body></cds-structured-list></div></div></cds-accordion-item>
       </cds-accordion>
     </article>`;
   }
@@ -139,9 +152,9 @@
           </cds-radio-button-group>
           <p class="seisan-gas-settings-helper" data-times-helper ${isTimes ? '' : 'hidden'}>移動距離から移動料金を自動で計算できます。</p>
           <div class="seisan-gas-field-row${isTimes ? ' is-times' : ''}" role="group" aria-label="移動料金の計算条件">
-            <label class="seisan-distance-field"><span class="seisan-mini-label">移動距離（km）</span><cds-text-input type="text" size="md" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-field="dist" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'dist')}" value="${esc(cState.dist || '', helpers)}" placeholder="例：186" label="移動距離（km）" hide-label${invalidAttr('dist', '0より大きい移動距離を入力してください')}></cds-text-input></label>
-            <label class="seisan-fuel-field" data-private-fuel ${isTimes ? 'hidden' : ''}><span class="seisan-mini-label">燃費（km/L）</span><cds-text-input type="text" size="md" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-field="eco" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'eco')}" value="${esc(cState.eco || '', helpers)}" placeholder="例：18" label="燃費（km/L）" hide-label${invalidAttr('eco', '0より大きい燃費を入力してください')}></cds-text-input></label>
-            <label class="seisan-fuel-field" data-private-fuel ${isTimes ? 'hidden' : ''}><span class="seisan-mini-label">ガソリン単価（円/L）</span><cds-text-input type="text" size="md" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-field="price" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'price')}" value="${esc(cState.price || '', helpers)}" placeholder="例：158" label="ガソリン単価（円/L）" hide-label${invalidAttr('price', '0より大きいガソリン単価を入力してください')}></cds-text-input></label>
+            <label class="seisan-distance-field"><span class="seisan-mini-label">移動距離（km）</span><cds-text-input type="text" size="md" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-field="dist" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'dist')}" value="${esc(cState.dist || '', helpers)}" placeholder="例：186" label="移動距離（km）" hide-label${invalidAttr('dist', '移動距離を入力してください')}></cds-text-input></label>
+            <label class="seisan-fuel-field" data-private-fuel ${isTimes ? 'hidden' : ''}><span class="seisan-mini-label">燃費（km/L）</span><cds-text-input type="text" size="md" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-field="eco" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'eco')}" value="${esc(cState.eco || '', helpers)}" placeholder="例：18" label="燃費（km/L）" hide-label${invalidAttr('eco', '燃費を入力してください')}></cds-text-input></label>
+            <label class="seisan-fuel-field" data-private-fuel ${isTimes ? 'hidden' : ''}><span class="seisan-mini-label">ガソリン単価（円/L）</span><cds-text-input type="text" size="md" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-field="price" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'price')}" value="${esc(cState.price || '', helpers)}" placeholder="例：158" label="ガソリン単価（円/L）" hide-label${invalidAttr('price', 'ガソリン単価を入力してください')}></cds-text-input></label>
           </div>
           <cds-button class="seisan-distance-shortcut" kind="tertiary" size="lg" type="button" data-action="open-route-helper-shortcut"><span data-carbon-icon="roadmap" slot="icon" aria-hidden="true"></span><span>距離計算ツール</span></cds-button>
         </div>

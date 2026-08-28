@@ -41,9 +41,6 @@
 .seisan-section-progress { margin-top: var(--space-1); color: var(--cds-text-secondary, #c6c6c6); font-size: var(--font-size-label); line-height: 1.5; }
 .seisan-section-note { margin-top: 4px; color: var(--cds-text-secondary, #c6c6c6); font-size: 12px; line-height: 1.45; }
 .seisan-alert { display: none; margin-top: var(--space-4); }
-.seisan-alert-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; gap: var(--space-2); margin-block: var(--space-2); }
-.seisan-alert-item cds-inline-notification { min-width: 0; }
-.seisan-alert-action { min-width: 0; min-height: 48px; align-self: stretch; }
 .seisan-empty { padding: var(--space-8) var(--space-4); background: var(--cds-layer-01, #262626); color: var(--cds-text-secondary, #c6c6c6); text-align: center; }
 @media (max-width: 680px) {
   #seisan-view-area { overflow: visible; overscroll-behavior: auto; padding: 0 0 calc(var(--space-16) + env(safe-area-inset-bottom)); }
@@ -55,6 +52,4 @@
   .seisan-compact-head { margin-bottom: var(--space-4); }
   .seisan-title,
   .seisan-section-title { font-size: 1.125rem; }
-  .seisan-alert-item { grid-template-columns: 1fr; }
-  .seisan-alert-action { width: 100%; }
 }

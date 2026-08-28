@@ -43,11 +43,7 @@
   color: var(--text-sub);
   font-weight: 600;
 }
-.seisan-alert,
-.seisan-car-summary-row.has-error {
-  border-color: color-mix(in srgb, var(--ui-danger, var(--color-danger)) 54%, var(--ui-panel-border));
-  background: color-mix(in srgb, var(--semantic-danger-soft) 68%, var(--ui-panel-bg));
-}
+.seisan-alert { display: grid; gap: var(--space-3); }
 .seisan-car-summary-row { box-shadow: none; }
 .seisan-cost-type-badge {
   border-width: 0;
@@ -85,8 +81,8 @@
 #seisan-view-area .seisan-head,
 #seisan-view-area .seisan-compact-head {
   margin: 0 0 10px;
-  padding-bottom: 9px;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 #seisan-view-area .seisan-head-tools-only {
   justify-content: flex-end;
@@ -108,21 +104,9 @@
   color: var(--cds-icon-secondary, var(--text-sub));
   width: 1.25em;
 }
-#seisan-view-area .seisan-alert-row.is-guidance {
-  border-color: color-mix(in srgb, var(--color-danger) 24%, var(--border-color));
-  background: color-mix(in srgb, var(--color-danger) 5%, var(--bg-card));
-  color: color-mix(in srgb, var(--color-danger-deep) 72%, var(--text-main));
-  font-weight: 600;
-}
-#seisan-view-area .seisan-alert-row.is-error {
-  border-color: color-mix(in srgb, var(--color-danger) 42%, var(--border-color));
-  background: color-mix(in srgb, var(--color-danger) 10%, var(--bg-card));
-  color: var(--color-danger-deep);
-  font-weight: 600;
-}
 #seisan-view-area .seisan-car-panel .seisan-head {
   margin-bottom: 7px;
-  padding-bottom: 7px;
+  padding-bottom: 0;
 }
 #seisan-view-area .seisan-car-summary-name span {
   min-width: 0;

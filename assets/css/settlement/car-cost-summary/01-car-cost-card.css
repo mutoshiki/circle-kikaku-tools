@@ -10,8 +10,9 @@
 #seisan-view-area .seisan-car-payment-check { min-width: 0; }
 #seisan-view-area .seisan-car-accordion { --cds-layout-size-height: 44px; --cds-layout-density-padding-inline: 16px; display: block; width: 100%; border-top: 1px solid var(--cds-border-subtle-01, #525252); background: transparent; }
 #seisan-view-area .seisan-car-accordion cds-accordion-item { border: 0; }
-#seisan-view-area .seisan-payment-detail-title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); width: 100%; color: var(--cds-text-primary, #f4f4f4); font-size: var(--font-size-label); }
-#seisan-view-area .seisan-payment-detail-title span:last-child { color: var(--cds-text-secondary, #c6c6c6); font-size: var(--font-size-caption); font-weight: 400; }
+#seisan-view-area .seisan-payment-detail-title { display: flex; align-items: baseline; gap: var(--space-3); width: 100%; min-width: 0; color: var(--cds-text-primary, #f4f4f4); font-size: var(--font-size-label); }
+#seisan-view-area .seisan-payment-detail-meta { min-width: 0; margin-inline-start: auto; color: var(--cds-text-secondary, #c6c6c6); font-size: var(--font-size-caption); font-weight: 400; white-space: nowrap; }
+#seisan-view-area .seisan-car-issue { display: flex; inline-size: 100%; min-inline-size: 0; max-inline-size: none; margin: 0; }
 #seisan-view-area .seisan-payment-breakdown { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); padding: var(--space-2) 0 var(--space-4); }
 #seisan-view-area .seisan-payment-breakdown > div > strong { display: block; margin-bottom: var(--space-2); font-size: var(--font-size-label); }
 #seisan-view-area .seisan-cost-structured-list { width: 100%; margin: 0; color: var(--cds-text-primary, #f4f4f4); }
@@ -26,5 +27,6 @@
   #seisan-view-area .seisan-car-summary-main { grid-template-columns: 1fr; align-items: start; gap: 16px; padding: 16px; }
   #seisan-view-area .seisan-car-summary-controls { width: 100%; min-width: 0; flex-direction: row; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--cds-border-subtle-01, #525252); }
   #seisan-view-area .seisan-payment-breakdown { grid-template-columns: 1fr; gap: var(--space-4); }
-  #seisan-view-area .seisan-payment-detail-title { align-items: flex-start; flex-direction: column; gap: 2px; }
+  #seisan-view-area .seisan-payment-detail-title { gap: var(--space-2); }
+  #seisan-view-area .seisan-payment-detail-meta { font-size: 11px; }
 }

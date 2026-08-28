@@ -32,7 +32,7 @@
       return `<div class="seisan-driver-pay-row ${done ? 'done' : ''}" data-carbon-checkbox-row>
             <span class="seisan-driver-name">${esc(driverLabel, helpers)}</span>
             <span class="seisan-driver-amount"><span class="seisan-amount-sign" aria-hidden="true">＝</span>${money(car.adjustedTotalPay ?? car.totalPay, helpers)}</span>
-            <cds-checkbox ${done ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="支払い済み" aria-label="${esc(driverLabel, helpers)}を支払い済みにする"></cds-checkbox>
+            <cds-checkbox ${done ? 'checked' : ''} data-settlement-driver-paid-name="${encodeURIComponent(car.name)}" label-text="${done ? '支払済み' : '未払い'}" aria-label="${esc(driverLabel, helpers)}を${done ? '支払い済みから未払いに戻す' : '支払い済みにする'}"></cds-checkbox>
             <cds-accordion class="seisan-driver-accordion">
               <cds-accordion-item title="内訳を表示">
                 <div class="seisan-driver-detail seisan-driver-detail-list" aria-label="支払い内訳">${costDetails}</div>

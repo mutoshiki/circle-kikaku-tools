@@ -165,6 +165,7 @@
                 return;
             }
             if (target?.matches?.('#seisanStandaloneDriverCount, #seisanStandaloneMemberCount')) {
+                target.dataset.touched = 'true';
                 syncSettlementStateFromDOM?.();
                 validateStandaloneSettlementSettings?.(true);
                 return;
@@ -231,6 +232,7 @@
             }
 
             if (target.matches('#seisanStandaloneEnabled, #seisanStandaloneDriverCount, #seisanStandaloneMemberCount')) {
+                if (target.matches('#seisanStandaloneDriverCount, #seisanStandaloneMemberCount')) target.dataset.touched = 'true';
                 syncSettlementStateFromDOM?.();
                 syncSettlementControls?.(ensureSettlementState(), getParticipantList(getRoomDataOnly()));
                 validateStandaloneSettlementSettings?.(true);

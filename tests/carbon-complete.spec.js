@@ -31,6 +31,18 @@ async function setHostValue(page, selector, value, index = -1) {
   await page.waitForTimeout(50);
 }
 
+async function clearCarbonInput(page, selector, index = -1) {
+  const locator = page.locator(selector).nth(index);
+  await locator.evaluate(node => {
+    const input = node.shadowRoot?.querySelector('input, textarea, select');
+    if (!input) return;
+    input.value = '';
+    input.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+  });
+  await page.waitForTimeout(50);
+}
+
 async function expectNoDocumentOverflow(page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBeTruthy();
 }
@@ -47,7 +59,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
         'cds-button', 'cds-icon-button', 'cds-content-switcher', 'cds-toast-notification',
         'cds-inline-notification', 'cds-tag', 'cds-text-input', 'cds-select',
         'cds-checkbox', 'cds-textarea', 'cds-number-input', 'cds-toggle', 'cds-modal',
-        'cds-overflow-menu', 'cds-menu', 'cds-menu-item'
+      'cds-overflow-menu', 'cds-menu', 'cds-menu-item', 'cds-progress-indicator', 'cds-progress-step'
       ].every(name => customElements.get(name)));
       expect(registered).toBeTruthy();
       await expect(page.locator('#app-layout')).toBeVisible();
@@ -397,6 +409,8 @@ test.describe('First-run rendering and submit regression', () => {
     await expect(page.locator('#settlementSettingsModal')).toHaveAttribute('open', '');
     await setHostValue(page, '#seisanStandaloneDriverCount', '1');
     await setHostValue(page, '#seisanStandaloneMemberCount', '3');
+    await hostClick(page, '#settlementSettingsModal [data-action="settlement-settings-next"]');
+    await hostClick(page, '#settlementSettingsModal [data-action="settlement-settings-next"]');
     await hostClick(page, '#saveSettlementSettingsBtn');
     await expect(page.locator('#settlementSettingsModal')).not.toHaveAttribute('open', '');
   });
@@ -444,20 +458,50 @@ test.describe('Settlement and route workflows', () => {
     await seed(page);
     await page.evaluate(() => window.switchView('seisan'));
     await hostClick(page, '[data-action="open-settlement-settings"]');
-    await expect(page.locator('#settlementSettingsModal cds-content-switcher')).toHaveCount(0);
+    await expect(page.locator('#settlementSettingsModal #settlementSettingsProgress')).toBeVisible();
+    await expect(page.locator('#settlementSettingsModal cds-progress-step')).toHaveCount(3);
+    await expect(page.locator('#settlementSettingsModal cds-progress-step[aria-current="step"]')).toHaveCount(1);
+    await expect(page.locator('#settlementSettingsModal cds-progress-step[aria-current="step"]')).toHaveAttribute('label', '精算方法');
+    await expect(page.locator('#settlementSettingsModal [data-settlement-step="1"]')).toBeVisible();
+    await expect(page.locator('#settlementSettingsModal [data-settlement-step="2"]')).toBeHidden();
     await expect(page.locator('#settlementSettingsModal #seisanSettlementMode cds-radio-button')).toHaveCount(2);
     await expect(page.locator('#settlementSettingsModal #seisanRoundingOptions cds-radio-button')).toHaveCount(3);
     await expect(page.locator('#settlementSettingsModal #seisanDriverRewardType cds-radio-button')).toHaveCount(2);
     await expect(page.locator('#settlementSettingsModal #seisanDriverCollectionRule cds-radio-button')).toHaveCount(3);
     await expect(page.locator('#settlementSettingsModal #seisanOrganizerRule cds-radio-button')).toHaveCount(2);
     await expect(page.locator('#settlementSettingsModal .seisan-settings-advanced')).toHaveCount(0);
-    await expect(page.locator('#settlementSettingsModal #seisanSettingsImpactValue [data-impact]')).toHaveCount(3);
+    await expect(page.locator('#settlementSettingsModal #settlementSettingsSummary')).toHaveCount(0);
+    await expect(page.locator('#settlementSettingsModal #seisanStandaloneDriverCount')).not.toHaveAttribute('invalid', '');
+    await page.locator('#settlementSettingsModal #seisanSettlementMode cds-radio-button[value="standalone"]').click();
+    await clearCarbonInput(page, '#seisanStandaloneDriverCount');
+    await clearCarbonInput(page, '#seisanStandaloneMemberCount');
+    await hostClick(page, '#settlementSettingsModal [data-action="settlement-settings-next"]');
+    await expect(page.locator('#settlementSettingsModal [data-settlement-step="1"]')).toBeVisible();
+    await expect(page.locator('#settlementSettingsModal #seisanStandaloneDriverCount')).toHaveAttribute('invalid', '');
+    await expect(page.locator('#settlementSettingsModal #seisanStandaloneDriverCount')).toHaveAttribute('invalid-text', '運転手の人数を入力してください');
+    await expect(page.locator('#settlementSettingsModal #seisanStandaloneMemberCount')).toHaveAttribute('invalid-text', '同乗者の人数を入力してください');
+    await setHostValue(page, '#seisanStandaloneDriverCount', '3');
+    await setHostValue(page, '#seisanStandaloneMemberCount', '10');
+    await expect(page.locator('#settlementSettingsModal #seisanStandaloneDriverCount')).not.toHaveAttribute('invalid', '');
+    await expect(page.locator('#settlementSettingsModal #seisanStandaloneMemberCount')).not.toHaveAttribute('invalid', '');
+    await hostClick(page, '#settlementSettingsModal [data-action="settlement-settings-next"]');
+    await expect(page.locator('#settlementSettingsModal [data-settlement-step="2"]')).toBeVisible();
+    await expect(page.locator('#settlementSettingsModal [data-settlement-step="1"]')).toBeHidden();
+    await expect(page.locator('#settlementSettingsModal [data-action="settlement-settings-back"]')).toBeVisible();
+    await expect(page.locator('#settlementSettingsModal #seisanDriverReward')).toBeVisible();
+    await hostClick(page, '#settlementSettingsModal [data-action="settlement-settings-next"]');
+    await expect(page.locator('#settlementSettingsModal [data-settlement-step="3"]')).toBeVisible();
+    await expect(page.locator('#settlementSettingsModal #seisanDriverCollectionRule')).toBeVisible();
     await page.locator('#settlementSettingsModal #seisanDriverCollectionRule cds-radio-button[value="free"]').click();
     await expect(page.locator('#settlementSettingsModal #seisanDriverCollectionOffset').first()).toHaveJSProperty('checked', false);
     await expect(page.locator('#settlementSettingsModal #seisanDriverCollectionFree').first()).toHaveJSProperty('checked', true);
     await page.locator('#settlementSettingsModal #seisanOrganizerRule cds-radio-button[value="collect"]').click();
     await expect(page.locator('#settlementSettingsModal #seisanOrganizerFree').first()).toHaveJSProperty('checked', false);
+    await hostClick(page, '#settlementSettingsModal [data-action="settlement-settings-back"]');
+    await expect(page.locator('#settlementSettingsModal [data-settlement-step="2"]')).toBeVisible();
+    await hostClick(page, '#settlementSettingsModal [data-action="settlement-settings-next"]');
     await hostClick(page, '#settlementSettingsModal [data-action="save-settlement-settings"]');
+    await expect(page.locator('#settlementSettingsModal')).not.toHaveAttribute('open', '');
     await hostClick(page, '[data-action="open-settlement-car-edit"]');
     await hostClick(page, '#settlementCarEditModal [data-action="open-settlement-gas-settings"]');
     const gasPanel = page.locator('#settlementGasEditPanel');

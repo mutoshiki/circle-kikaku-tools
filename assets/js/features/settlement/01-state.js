@@ -615,6 +615,10 @@ function syncSettlementStateFromDOM() {
     const memo = byId('seisanMemoInput');
 
     const selectedRadioValue = group => group?.value || group?.querySelector('cds-radio-button[checked]')?.getAttribute('value') || group?.getAttribute('value') || '';
+    const controlValue = control => {
+        const shadowInput = control?.shadowRoot?.querySelector?.('input');
+        return shadowInput ? shadowInput.value : control?.value;
+    };
     if (rounding) state.rounding = selectedRadioValue(roundingOptions) || rounding.value || '100';
     // The modal exposes one exclusive organizer rule; keep the legacy boolean
     // field as the storage shape for old rooms and sync consumers.
@@ -637,8 +641,8 @@ function syncSettlementStateFromDOM() {
     if (memo) state.memo = memo.value || '';
     state.standalone = normalizeStandaloneSettlementState({
         enabled: settlementMode ? selectedRadioValue(settlementMode) === 'standalone' : (standaloneEnabled ? standaloneEnabled.checked : state.standalone?.enabled),
-        driverCount: standaloneDriverCount ? standaloneDriverCount.value : state.standalone?.driverCount,
-        memberCount: standaloneMemberCount ? standaloneMemberCount.value : state.standalone?.memberCount,
+        driverCount: standaloneDriverCount ? controlValue(standaloneDriverCount) : state.standalone?.driverCount,
+        memberCount: standaloneMemberCount ? controlValue(standaloneMemberCount) : state.standalone?.memberCount,
         driverNames: state.standalone?.driverNames || []
     });
 

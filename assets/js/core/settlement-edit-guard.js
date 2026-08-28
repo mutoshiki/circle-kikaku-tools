@@ -12,9 +12,11 @@ function isSettlementCarEditorOpen() {
 function isSettlementEditSessionActive() {
     const carEditor = document.getElementById('settlementCarEditModal');
     const movementEditor = document.getElementById('settlementGasEditModal');
+    const settingsEditor = document.getElementById('settlementSettingsModal');
     return !!(
         carEditor?.open
         || movementEditor?.open
+        || settingsEditor?.open
         || window.shouldPreserveSettlementCarEditorOnHidden?.()
     );
 }

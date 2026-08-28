@@ -109,7 +109,7 @@
                 standalone.checked = eventRadioValue(event, settlementMode) === 'standalone';
                 syncSettlementStateFromDOM?.();
                 syncSettlementControls?.(ensureSettlementState(), getParticipantList(getRoomDataOnly()));
-                validateStandaloneSettlementSettings?.(true);
+                validateStandaloneSettlementSettings?.(false);
             });
             settlementMode.addEventListener('change', event => {
                 const standalone = byId('seisanStandaloneEnabled');
@@ -117,7 +117,7 @@
                 standalone.checked = eventRadioValue(event, settlementMode) === 'standalone';
                 syncSettlementStateFromDOM?.();
                 syncSettlementControls?.(ensureSettlementState(), getParticipantList(getRoomDataOnly()));
-                validateStandaloneSettlementSettings?.(true);
+                validateStandaloneSettlementSettings?.(false);
             });
         }
 
@@ -143,7 +143,6 @@
         bind('seisanRefreshBtn', () => renderSettlementView());
         bind('applyGoogleFormPasteBtn', () => global.applyGoogleFormPasteImport?.());
         bindModalSubmit('executeBatchBtn', () => executeBatch());
-        bindModalSubmit('saveSettlementSettingsBtn', () => global.saveSettlementSettings?.());
         bind('executeDebugBtn', () => global.executeDebugMode?.());
         bind('executeDebugMissingBtn', () => global.executeDebugMissingCostMode?.());
         bind('addRouteStopBtn', () => global.addRouteStop?.());

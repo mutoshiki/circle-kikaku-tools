@@ -1,4 +1,4 @@
 /* Vehicle payment cards. */
 #seisan-view-area #seisan-car-list { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
 #seisan-view-area .seisan-car-summary-row { display: grid; min-width: 0; overflow: hidden; border: 0; border-top: 1px solid var(--cds-border-subtle-01, #525252); border-radius: 0; background: var(--cds-layer-01, #262626); color: var(--cds-text-primary, #f4f4f4); box-shadow: none; }
-#seisan-view-area .seisan-car-summary-row.has-error { border-color: var(--cds-support-error, #fa4d56); }
+#seisan-view-area .seisan-car-summary-row.has-error { border-color: var(--cds-border-subtle-01, #525252); }

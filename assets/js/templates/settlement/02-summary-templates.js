@@ -12,6 +12,7 @@
   }
 
   function summary(result, helpers = {}) {
+    const hasUnresolvedCarCosts = Number(helpers.issues?.rows?.size || 0) > 0;
     const totals = new Map();
     const add = (label, amount, carName) => {
       const current = totals.get(label) || { amount: 0, cars: new Set() };
@@ -28,8 +29,12 @@
       .map(([label, entry]) => `<div class="seisan-overall-cost-row"><span><strong>${esc(label, helpers)}</strong><small>${entry.cars.size}台分</small></span><b>${signedMoney(entry.amount, helpers)}</b></div>`)
       .join('');
     const total = Number(result.totalSplit || 0) + Number(result.totalClub || 0);
-    return `<div class="seisan-overall-cost-list" aria-label="登録済み費用">${rows || '<div class="seisan-muted">費用はまだありません。</div>'}</div>
-      <div class="seisan-overall-cost-total"><span>合計</span><strong>${signedMoney(total, helpers)}</strong></div>`;
+    const emptyMessage = hasUnresolvedCarCosts ? '入力が完了すると費用が表示されます。' : '費用はまだありません。';
+    const totalValue = hasUnresolvedCarCosts
+      ? '<strong>—</strong><small class="seisan-overall-cost-total-state">未確定</small>'
+      : `<strong>${signedMoney(total, helpers)}</strong>`;
+    return `<div class="seisan-overall-cost-list" aria-label="登録済み費用">${rows || `<div class="seisan-muted">${emptyMessage}</div>`}</div>
+      <div class="seisan-overall-cost-total"><span>合計</span><span class="seisan-overall-cost-total-value">${totalValue}</span></div>`;
   }
 
   function statusSummary({ state, result, issues, helpers = {} }) {
@@ -42,9 +47,9 @@
     const items = [
       ['集金', `${result.paidCount}/${result.payerCount}人・残り ${money(result.unpaidAmount || 0, helpers)}`, `${money(result.expectedCollected - result.unpaidAmount, helpers)} / ${money(result.expectedCollected, helpers)}`],
       ['支払い', `${paidCars.length}/${cars.length}台・残り ${money(paymentRemaining, helpers)}`, `支払い済み ${money(paymentPaid, helpers)}`],
-      ['要確認', issueCount ? `${issueCount}件` : 'なし', issueCount ? esc(issues.messages[0], helpers) : '確認事項はありません']
+      ['要確認', issueCount ? `${issueCount}件` : 'なし', '']
     ];
-    return items.map(([label, value, note]) => `<div class="seisan-status-item${issueCount && label === '要確認' ? ' has-issue' : ''}"><span class="seisan-status-label">${label}</span><strong>${value}</strong><span class="seisan-status-note">${note}</span></div>`).join('');
+    return items.map(([label, value, note]) => `<div class="seisan-status-item${issueCount && label === '要確認' ? ' has-issue' : ''}"><span class="seisan-status-label">${label}</span><strong>${value}</strong>${note ? `<span class="seisan-status-note">${note}</span>` : ''}</div>`).join('');
   }
 
   function settingSummary({ state, result, helpers = {} }) {
