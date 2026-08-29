@@ -64,7 +64,7 @@ body.assignment-workspace-enabled #bottom-tray {
 
 .assignment-workspace-summary-unassigned {
   color: var(--cds-text-primary, #161616);
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .assignment-workspace-summary-secondary {
@@ -235,7 +235,7 @@ body.assignment-workspace-enabled .capacity-display {
   padding-inline: var(--space-3, 0.75rem);
   color: var(--cds-text-secondary, #525252);
   font-size: var(--font-size-body, 0.875rem);
-  line-height: var(--line-height-body, 1.4286);
+  line-height: var(--line-height-label, 1.28572);
   letter-spacing: 0;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -361,8 +361,8 @@ body.assignment-workspace-enabled .driver-main-line {
   row-gap: 0;
 }
 
-body.assignment-workspace-enabled .member-name-text,
-body.assignment-workspace-enabled .driver-name-disp {
+body.assignment-workspace-enabled #cars-container .member-name-text,
+body.assignment-workspace-enabled #cars-container .driver-name-disp {
   grid-area: name;
   align-self: center;
   min-width: 0;
@@ -370,7 +370,7 @@ body.assignment-workspace-enabled .driver-name-disp {
   color: inherit;
   font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.28572;
+  line-height: 1.42857;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -458,16 +458,18 @@ body.assignment-workspace-enabled .assignment-empty-seats-content {
   min-height: 0;
   color: inherit;
   font-size: 0.875rem;
-  line-height: 1.28572;
+  line-height: 1.42857;
 }
 
 body.assignment-workspace-enabled .assignment-empty-seats-label {
   color: inherit;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 body.assignment-workspace-enabled .assignment-empty-seats-action {
   color: var(--cds-text-secondary, #525252);
+  font-size: 0.75rem;
+  line-height: 1.33333;
 }
 
 body.assignment-workspace-enabled .assignment-empty-seats-icon {
