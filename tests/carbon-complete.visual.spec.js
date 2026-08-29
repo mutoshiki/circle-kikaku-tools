@@ -8,6 +8,13 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     await page.evaluate(() => window.executeDebugMode?.());
     await page.evaluate(() => window.switchView('list'));
     await expect(page.locator('#assignmentWorkspaceHeader')).toBeVisible();
+    const initialPrimaryNavigationFocus = await page.evaluate(() => {
+      const tabBar = document.querySelector('#view-toggle-bar');
+      const focusedTab = document.activeElement;
+      const focusedLink = focusedTab?.shadowRoot?.activeElement;
+      return focusedTab?.parentElement === tabBar && focusedLink?.matches?.(':focus') === true;
+    });
+    expect(initialPrimaryNavigationFocus).toBeFalsy();
 
     // Debug/sample rendering may preserve a non-zero allocation scroll position on very narrow
     // viewports. Put the active surface at its canonical visual-inspection origin before measuring

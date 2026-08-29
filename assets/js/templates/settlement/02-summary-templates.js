@@ -3,38 +3,12 @@
   'use strict';
 
   const parts = window.SanpoApp?.settlementTemplateParts || {};
-  const { UI_CLASS, esc, money, formatCostBadge, formatPaymentBadge, formatExtraLines } = parts;
+  const { esc, money } = parts;
 
   function signedMoney(value, helpers = {}, showPlus = false) {
     const amount = Number(value || 0);
     const sign = amount < 0 ? '−' : (showPlus && amount > 0 ? '＋' : '');
     return `${sign}${money(Math.abs(amount), helpers)}`;
-  }
-
-  function summary(result, helpers = {}) {
-    const hasUnresolvedCarCosts = Number(helpers.issues?.rows?.size || 0) > 0;
-    const totals = new Map();
-    const add = (label, amount, carName) => {
-      const current = totals.get(label) || { amount: 0, cars: new Set() };
-      current.amount += Number(amount || 0);
-      if (carName) current.cars.add(carName);
-      totals.set(label, current);
-    };
-    (result.cars || []).forEach(car => {
-      add(car.usesTimesRental ? 'タイムズ移動料金' : 'ガソリン代', car.movementAmount || 0, car.name);
-      (car.extras || []).forEach(extra => add(extra.name || '費用', extra.amountValue || 0, car.name));
-    });
-    const rows = [...totals.entries()]
-      .filter(([, entry]) => entry.amount !== 0)
-      .map(([label, entry]) => `<div class="seisan-overall-cost-row"><span><strong>${esc(label, helpers)}</strong><small>${entry.cars.size}台分</small></span><b>${signedMoney(entry.amount, helpers)}</b></div>`)
-      .join('');
-    const total = Number(result.totalSplit || 0) + Number(result.totalClub || 0);
-    const emptyMessage = hasUnresolvedCarCosts ? '入力が完了すると費用が表示されます。' : '費用はまだありません。';
-    const totalValue = hasUnresolvedCarCosts
-      ? '<strong>—</strong><small class="seisan-overall-cost-total-state">未確定</small>'
-      : `<strong>${signedMoney(total, helpers)}</strong>`;
-    return `<div class="seisan-overall-cost-list" aria-label="登録済み費用">${rows || `<div class="seisan-muted">${emptyMessage}</div>`}</div>
-      <div class="seisan-overall-cost-total"><span>合計</span><span class="seisan-overall-cost-total-value">${totalValue}</span></div>`;
   }
 
   function statusSummary({ state, result, issues, helpers = {} }) {
@@ -113,5 +87,5 @@
     return `${details}<div class="seisan-club-expense-total"><span>${totalLabel}</span><strong>${signedMoney(clubTotal, helpers)}</strong></div>`;
   }
 
-  Object.assign(parts, { summary, statusSummary, settingSummary, breakdown, clubExpenseBreakdown });
+  Object.assign(parts, { statusSummary, settingSummary, breakdown, clubExpenseBreakdown });
 })();

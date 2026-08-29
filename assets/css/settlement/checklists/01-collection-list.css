@@ -17,7 +17,6 @@
 .seisan-check-item--system { grid-template-columns: minmax(0, 1fr) auto; padding-left: 16px; background: var(--cds-layer-02, var(--surface-low)); cursor: default; }
 #seisan-view-area .seisan-check-item--system .seisan-check-copy { grid-column: 1; }
 .seisan-check-item--system .seisan-check-status { grid-column: 2; }
-.seisan-check-item--system.pre-deducted .seisan-check-status { color: var(--cds-link-primary, #78a9ff); }
 .seisan-check-item--system.excluded :is(.seisan-check-name, .seisan-check-note) { color: var(--cds-text-secondary, #c6c6c6); }
 .seisan-check-item--system :is(.seisan-check-status) { color: var(--cds-text-secondary, var(--text-sub)); }
 .seisan-collection-hint { margin-top: 8px; color: var(--cds-text-disabled, #8d8d8d); font-size: 11px; }

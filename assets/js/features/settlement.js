@@ -15,7 +15,6 @@
         calculateSettlement,
         getSettlementIssues,
         syncSettlementControls,
-        renderSettlementSummaryHtml,
         renderSettlementCarRowHtml,
         renderSettlementCarsHtml,
         renderSettlementCollectionHtml,

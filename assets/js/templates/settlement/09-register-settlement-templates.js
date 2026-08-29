@@ -4,7 +4,6 @@
 
   const parts = window.SanpoApp?.settlementTemplateParts || {};
   const publicTemplateNames = [
-    'summary',
     'statusSummary',
     'settingSummary',
     'renderIssues',

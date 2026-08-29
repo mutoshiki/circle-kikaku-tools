@@ -12,8 +12,8 @@
     const preDeducted = excluded && isDriver && result.driverCollectionOffset && p.name !== result.excludedName;
     const displayName = state.paidBy?.[p.name] || p.name;
     if (excluded) {
-      const status = preDeducted ? '控除済み' : (p.name === result.excludedName ? '対象外・企画者' : (isDriver ? '対象外・運転手' : '対象外'));
-      const note = preDeducted ? '運転手分を支払額から控除' : (p.name === result.excludedName ? '企画者は集金対象外' : '集金対象外');
+      const status = preDeducted || p.name === result.excludedName ? '集金不要' : (isDriver ? '対象外・運転手' : '対象外');
+      const note = preDeducted ? '支払額から差し引き済み' : (p.name === result.excludedName ? '企画者のため集金対象外' : '集金対象外');
       return `<div class="seisan-check-item seisan-check-item--system ${preDeducted ? 'pre-deducted' : 'excluded'}">
           <span class="seisan-check-copy has-note"><span class="seisan-check-name">${esc(displayName, helpers)}</span><span class="seisan-check-note">${note}</span></span>
           <span class="seisan-check-status">${status}</span>

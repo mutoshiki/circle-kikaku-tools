@@ -210,10 +210,6 @@ function previousSettlementSettingsStep() {
     return goToSettlementSettingsStep(settlementSettingsStep - 1);
 }
 
-function renderSettlementSummaryHtml(result, issues) {
-    return window.SanpoApp.templates.settlement.summary(result, { yen, issues });
-}
-
 function renderSettlementCarRowHtml(car, state, result, issues) {
     const cState = ensureDriverRewardExtra(state.cars?.[car.name] || {}, state);
     state.cars[car.name] = cState;
@@ -900,9 +896,6 @@ function renderSettlementView() {
 
     const settingsSummary = byId('seisan-settings-summary');
     if (settingsSummary) settingsSummary.innerHTML = renderSettlementSettingSummaryHtml(state, result);
-
-    const summary = byId('seisan-summary');
-    if (summary) summary.innerHTML = renderSettlementSummaryHtml(result, summaryIssues);
 
     const carList = byId('seisan-car-list');
     if (carList) {

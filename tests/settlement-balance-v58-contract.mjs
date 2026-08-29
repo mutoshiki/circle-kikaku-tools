@@ -68,9 +68,7 @@ assert.equal(context.result.splitPaymentAdjustment, context.result.totalSplitRou
 assert.equal(context.result.clubPaymentAdjustment, context.result.totalClubRound);
 assert.equal(context.result.splitBasePaymentTotal + context.result.totalClub + context.result.paymentAdjustmentTotal, context.result.driverTotal, 'Base costs plus category rounding must reconcile to driver payments.');
 assert.doesNotMatch(calculator, /adjustedTotalPay\s*=\s*Math\.max\(0/);
-assert.match(summary, /result\.totalSplit[\s\S]*result\.totalClub/, 'Overall costs must total the canonical split and club expense sources.');
-assert.match(summary, /car\.extras[\s\S]*extra\.amountValue/, 'Overall costs must aggregate canonical calculated extras rather than mock values.');
-assert.match(summary, /seisan-overall-cost-list[\s\S]*seisan-overall-cost-total/, 'The redesigned overall-cost list must finish with one clear total.');
+assert.doesNotMatch(summary, /function summary|seisan-overall-cost-list|seisan-overall-cost-total/, 'The removed overall-cost display must not remain in the settlement templates.');
 assert.match(read('assets/js/templates/settlement/03-car-cost-templates.js'), /この車への支払額[\s\S]*内訳を表示[\s\S]*割勘[\s\S]*部費/, 'Driver cards must lead with the canonical combined payment and disclose split and club details.');
 assert.doesNotMatch(summary, /ドライバー分の集金控除|参加者集金の不足/);
 assert.doesNotMatch(shareText, /accountingLabel|部費支出.*accounting/);
@@ -94,6 +92,6 @@ assert.match(routeCss, /\.route-map-settings-toggle\s*\{[\s\S]*?display:\s*block
 assert.match(routeTemplate, /data-carbon-icon="draggable"/, 'Route waypoint drag handles must use the registered Carbon draggable icon.');
 assert.doesNotMatch(routeTemplate, /data-carbon-icon="drag--vertical"/, 'The unregistered drag icon alias must not return.');
 assert.match(index, /settlement-balance-v58/);
-assert.ok(index.indexOf('seisan-club-expense-panel') < index.indexOf('seisan-toolbar-card'), 'Overall costs must follow the club expense section.');
+assert.doesNotMatch(index, /seisan-toolbar-card|全体の費用|seisan-summary/, 'The removed overall-cost section must not remain in the page shell.');
 
 console.log('Settlement balance v58 contract: PASS');

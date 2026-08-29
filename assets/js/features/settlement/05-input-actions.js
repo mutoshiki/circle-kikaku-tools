@@ -210,12 +210,6 @@ function copySettlementUnpaid() {
     copyTextWithFallback(names.join('、'), '未回収者をコピーしました');
 }
 
-function focusSettlementCostEditors() {
-    const paymentSection = byId('seisan-car-list')?.closest('.seisan-card');
-    paymentSection?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => paymentSection?.querySelector?.('[data-action="open-settlement-car-edit"]')?.focus?.({ preventScroll: true }), 350);
-}
-
 window.SanpoApp?.exposeCompat?.('onSettlementInput', onSettlementInput);
 window.SanpoApp?.exposeCompat?.('onSettlementInputDelayed', onSettlementInputDelayed);
 window.SanpoApp?.exposeCompat?.('addSettlementExtra', addSettlementExtra);
@@ -226,4 +220,3 @@ window.SanpoApp?.exposeCompat?.('toggleSettlementPaid', toggleSettlementPaid);
 window.SanpoApp?.exposeCompat?.('toggleSettlementDriverPaid', toggleSettlementDriverPaid);
 window.SanpoApp?.exposeCompat?.('toggleSettlementUnpaidFilter', toggleSettlementUnpaidFilter);
 window.SanpoApp?.exposeCompat?.('copySettlementUnpaid', copySettlementUnpaid);
-window.SanpoApp?.exposeCompat?.('focusSettlementCostEditors', focusSettlementCostEditors);

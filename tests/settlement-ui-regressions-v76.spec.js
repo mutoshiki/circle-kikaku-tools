@@ -239,16 +239,23 @@ test.describe('Settlement UI regressions v76', () => {
     await expect(page.locator('#seisan-car-list .seisan-car-summary-row').first()).toBeVisible();
   });
 
-  test('collection rows show collection amounts and obsolete settlement cards are absent', async ({ page }) => {
+  test('collection rows remain intact after removing the overall-cost section', async ({ page }) => {
     await seedSettlement(page);
-    await expect(page.locator('#seisan-summary')).toHaveCount(1);
+    await expect(page.locator('#seisan-summary')).toHaveCount(0);
+    await expect(page.getByText('全体の費用', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('※ チェック後も並び順は変わりません。', { exact: true })).toHaveCount(0);
+    await expect(page.locator('#seisan-errors')).toBeAttached();
     await expect(page.locator('#seisan-share-preview')).toHaveCount(0);
     await expect(page.locator('#seisan-collection-list .seisan-check-note').first()).toBeVisible();
     const notes = await page.locator('#seisan-collection-list .seisan-check-note').allTextContents();
-    expect(notes.some(note => note.includes('集金する金額') || note.includes('対象外') || note.includes('差し引き済み'))).toBeTruthy();
-    await expect(page.locator('#seisan-collection-list .seisan-check-item--system')).toHaveCount(3);
-    await expect(page.locator('#seisan-collection-list .seisan-check-item--system .seisan-check-status').filter({ hasText: '対象外' })).toHaveCount(1);
-    await expect(page.locator('#seisan-collection-list .seisan-check-item--system cds-checkbox')).toHaveCount(0);
+    expect(notes.some(note => note.includes('集金する金額') || note.includes('未回収'))).toBeTruthy();
+    const systemRows = page.locator('#seisan-collection-list .seisan-check-item--system');
+    await expect(systemRows).toHaveCount(3);
+    await expect(systemRows.filter({ hasText: '支払額から差し引き済み' })).toHaveCount(2);
+    await expect(systemRows.filter({ hasText: '企画者のため集金対象外' })).toHaveCount(1);
+    await expect(systemRows.locator('.seisan-check-status')).toHaveText(['集金不要', '集金不要', '集金不要']);
+    await expect(systemRows.locator('.seisan-check-status').filter({ hasText: '対象外' })).toHaveCount(0);
+    await expect(systemRows.locator('cds-checkbox')).toHaveCount(0);
     expect(notes.every(note => !/車$/.test(note.trim()))).toBeTruthy();
   });
 });

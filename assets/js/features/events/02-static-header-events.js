@@ -74,10 +74,28 @@
         if (tabBar.getAttribute('size') !== size) tabBar.setAttribute('size', size);
     }
 
+    function clearInitialCarbonPrimaryNavigationFocus(tabBar) {
+        if (!tabBar || tabBar.dataset.carbonPrimaryNavigationInitialFocusHandled === 'true') return;
+        tabBar.dataset.carbonPrimaryNavigationInitialFocusHandled = 'true';
+        let userInteracted = false;
+        const markUserInteraction = () => { userInteracted = true; };
+        tabBar.addEventListener('pointerdown', markUserInteraction, { once: true, passive: true });
+        tabBar.addEventListener('keydown', markUserInteraction, { once: true });
+        const schedule = global.requestAnimationFrame || (callback => global.setTimeout(callback, 0));
+        schedule(() => {
+            if (userInteracted) return;
+            const focusedTab = document.activeElement;
+            const focusedLink = focusedTab?.shadowRoot?.activeElement;
+            if (focusedTab?.parentElement !== tabBar || !focusedLink?.matches?.('[role="tab"]:focus')) return;
+            focusedLink.blur();
+        });
+    }
+
     function setupCarbonPrimaryNavigationSizing(tabBar) {
         if (!tabBar || tabBar.dataset.carbonPrimaryNavigationSizingBound === 'true') return;
         tabBar.dataset.carbonPrimaryNavigationSizingBound = 'true';
         syncCarbonPrimaryNavigationSizing();
+        clearInitialCarbonPrimaryNavigationFocus(tabBar);
         global.addEventListener('resize', syncCarbonPrimaryNavigationSizing, { passive: true });
     }
 

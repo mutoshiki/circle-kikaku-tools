@@ -15,7 +15,6 @@
 .seisan-wrap { display: block; max-width: 860px; min-width: 0; margin: 0 auto; }
 .seisan-card,
 .seisan-panel,
-.seisan-toolbar-card,
 .seisan-settings-card {
   min-width: 0;
   box-sizing: border-box;
@@ -46,7 +45,6 @@
   #seisan-view-area { overflow: visible; overscroll-behavior: auto; padding: 0 0 calc(var(--space-16) + env(safe-area-inset-bottom)); }
   .seisan-card,
   .seisan-panel,
-  .seisan-toolbar-card,
   .seisan-settings-card { padding: 22px max(16px, env(safe-area-inset-right)) 22px max(16px, env(safe-area-inset-left)); }
   .seisan-head,
   .seisan-compact-head { margin-bottom: var(--space-4); }

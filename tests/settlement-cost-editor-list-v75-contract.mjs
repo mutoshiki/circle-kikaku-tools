@@ -69,8 +69,9 @@ assert.match(calculator, /filter\(ex => !isTimesDistanceFeeExtra\(ex\) && !isGas
 assert.match(calculator, /totalClub \+= club/, 'club total includes movement fees when their toggle is on');
 
 assert.match(collectionTemplate, /seisan-check-amount[\s\S]*money\(result\.perPerson \|\| 0, helpers\)/, 'collection rows show the canonical amount in the mockup amount-state column');
-assert.match(collectionTemplate, /控除済み[\s\S]*運転手分を支払額から控除/, 'pre-deducted drivers use the mockup derived status without a checkbox');
-assert.match(collectionTemplate, /対象外・企画者[\s\S]*企画者は集金対象外/, 'excluded organizers use the mockup derived status without a checkbox');
+assert.match(collectionTemplate, /集金不要[\s\S]*支払額から差し引き済み/, 'pre-deducted drivers use a neutral no-collection status without a checkbox');
+assert.match(collectionTemplate, /集金不要[\s\S]*企画者のため集金対象外/, 'excluded organizers use the same neutral no-collection status without a checkbox');
+assert.doesNotMatch(collectionTemplate, /控除済み|運転手分を支払額から控除|対象外・企画者|企画者は集金対象外/, 'legacy collection checklist wording is removed');
 assert.doesNotMatch(collectionTemplate, /p\.role === 'member' && p\.driverName \? formatCarLabel/, 'collection rows no longer duplicate their group car heading');
 
 assert.match(generatedEvents, /prepareSettlementCarEditTransition\(\{ allowInvalid: true, preserveSession: true \}\)/, 'movement settings preserve the current edit transaction before switching dialogs');

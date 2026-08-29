@@ -282,7 +282,6 @@
             'copy-settlement-text': () => global.copySettlementText?.(),
             'toggle-settlement-unpaid-filter': () => global.toggleSettlementUnpaidFilter?.(),
             'copy-settlement-unpaid': () => global.copySettlementUnpaid?.(),
-            'focus-settlement-cost-editors': () => global.focusSettlementCostEditors?.(),
             'open-route-helper-shortcut': ({ target }) => openRouteHelperShortcut(target),
             'remove-route-waypoint': ({ target }) => global.removeRouteWaypoint?.(target.dataset.routeWaypointId || ''),
             'select-google-route': ({ target }) => global.selectGoogleRoute?.(Number(target.dataset.routeIndex), target.dataset.routeSegmentIndex === undefined ? undefined : Number(target.dataset.routeSegmentIndex))

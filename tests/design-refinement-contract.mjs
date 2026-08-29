@@ -60,10 +60,11 @@ expect(!sheetSummary.includes('#sheet-view-area.active::after'), 'Shared view mu
 expect(settlement.includes('var(--cds-icon-primary, var(--text-main))'), 'Base settlement heading icons must be neutral.');
 expect(settlementStates.includes('var(--cds-icon-secondary, var(--text-sub))'), 'Late settlement state owner must not re-blue heading icons.');
 expect(tagTokens.includes('--settlement-tag-font-size: var(--font-size-caption);'), 'Settlement tags must use the readable caption size.');
-expect(summary.includes('.seisan-status-summary') && summary.includes('.seisan-overall-cost-total'), 'Settlement must expose status and a static overall-cost total.');
-expect(summaryTemplate.includes('statusSummary') && summaryTemplate.includes('seisan-overall-cost-list') && summaryTemplate.includes('seisan-overall-cost-total'), 'Settlement summary templates must render status plus the registered cost list and total.');
-expect(index.indexOf('seisan-status-card') < index.indexOf('seisan-settings-card') && index.indexOf('seisan-settings-card') < index.indexOf('seisan-toolbar-card'), 'Settlement status, settings, and overall costs must follow the redesign order.');
-expect(index.indexOf('seisan-toolbar-card') < index.indexOf('seisan-collection-panel') && index.indexOf('seisan-collection-panel') < index.indexOf('seisan-car-panel') && index.indexOf('seisan-car-panel') < index.indexOf('seisan-share-card'), 'Overall costs, collection, driver payments, and memo must follow the redesign order.');
+expect(summary.includes('.seisan-status-summary') && !summary.includes('.seisan-overall-cost-total'), 'Settlement status remains available without the removed overall-cost display.');
+expect(summaryTemplate.includes('statusSummary') && !summaryTemplate.includes('function summary') && !summaryTemplate.includes('seisan-overall-cost-list'), 'Settlement summary templates must omit the removed overall-cost renderer.');
+expect(index.indexOf('seisan-status-card') < index.indexOf('seisan-settings-card') && index.indexOf('seisan-settings-card') < index.indexOf('seisan-collection-panel'), 'Settlement status, settings, and collection must follow the remaining flow order.');
+expect(!index.includes('seisan-toolbar-card') && !index.includes('全体の費用') && !index.includes('seisan-summary'), 'The overall-cost section and its display container must be fully removed.');
+expect(!index.includes('※ チェック後も並び順は変わりません。'), 'The obsolete collection ordering hint must be removed.');
 expect(sheetFrame.includes('.sheet-content') && sheetFrame.includes('width: 100%;') && sheetFrame.includes('grid-template-columns: repeat(auto-fit'), 'Legacy sheet renderer must remain responsive while old links are normalized away.');
 expect(!sheetTemplates.includes('renderGradeBadge') && !sheetTemplates.includes('renderPersonFlag'), 'Legacy presentation renderer must omit grade tags and person flags.');
 expect(!people.includes('person-drag-affordance') && !people.includes('data-carbon-icon="draggable"'), 'Allocation person cards must not render drag affordances.');
