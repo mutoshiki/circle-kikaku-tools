@@ -15,6 +15,17 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
       return focusedTab?.parentElement === tabBar && focusedLink?.matches?.(':focus') === true;
     });
     expect(initialPrimaryNavigationFocus).toBeFalsy();
+    const initialSelectedTabStyle = await page.locator('#view-toggle-bar').evaluate(tabBar => {
+      const selectedTab = [...tabBar.children].find(tab => tab.selected);
+      const link = selectedTab?.shadowRoot?.querySelector('a');
+      return {
+        selected: selectedTab?.id || '',
+        hideDivider: selectedTab?.hasAttribute('hide-divider') || false,
+        boxShadow: link ? getComputedStyle(link).boxShadow : ''
+      };
+    });
+    expect(initialSelectedTabStyle.hideDivider).toBeFalsy();
+    expect(initialSelectedTabStyle.boxShadow).toContain('rgb(15, 98, 254)');
 
     // Debug/sample rendering may preserve a non-zero allocation scroll position on very narrow
     // viewports. Put the active surface at its canonical visual-inspection origin before measuring

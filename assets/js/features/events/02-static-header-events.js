@@ -91,6 +91,10 @@
         });
     }
 
+    function clearCarbonPrimaryNavigationHiddenDividers(tabBar) {
+        tabBar?.querySelectorAll('cds-tab[hide-divider]').forEach(tab => tab.removeAttribute('hide-divider'));
+    }
+
     function setupCarbonPrimaryNavigationSizing(tabBar) {
         if (!tabBar || tabBar.dataset.carbonPrimaryNavigationSizingBound === 'true') return;
         tabBar.dataset.carbonPrimaryNavigationSizingBound = 'true';
@@ -132,6 +136,9 @@
                 setupCarbonPrimaryNavigationSizing(tabBar);
                 tabBar.setAttribute('value', selectedValue);
                 if (customElements.get('cds-tabs')) tabBar.value = selectedValue;
+                clearCarbonPrimaryNavigationHiddenDividers(tabBar);
+                const schedule = global.requestAnimationFrame || (callback => global.setTimeout(callback, 0));
+                schedule(() => clearCarbonPrimaryNavigationHiddenDividers(tabBar));
             }
 
         } finally {
