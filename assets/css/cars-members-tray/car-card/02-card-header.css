@@ -33,20 +33,18 @@
   min-height: 48px;
 }
 
-/* Keep this a real Carbon ghost button. Do not paint a separate pill/tile behind
- * it; Carbon owns hover, active, focus, disabled and theme behavior. */
-.car-capacity-actions .capacity-edit-pill {
+.car-capacity-actions .capacity-display {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 64px;
   min-height: 48px;
   margin: 0;
-  overflow: hidden;
-  border-radius: 0;
-  background: transparent;
   color: var(--cds-text-secondary, var(--text-sub));
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-.car-capacity-actions .capacity-edit-pill.is-over { color: var(--semantic-danger); }
-.car-capacity-actions .capacity-edit-pill > .carbon-icon { width: 1rem; height: 1rem; }
+.car-capacity-actions .capacity-display.is-over { color: var(--semantic-danger); }
 
 .car-delete-btn,
 .car-header .delete-btn {

@@ -1,0 +1,64 @@
+[     461ms] [INFO] [@carbon/feature-flags] `enable-v12-dynamic-floating-styles` is available but not enabled.
+Enable dynamic setting of floating styles for components like Popover, Tooltip, etc.
+This becomes the default behavior in v12. Enable it to migrate early, or enable `enable-v12-release` to turn on every v12 flag at once. @ http://127.0.0.1:4173/assets/vendor/carbon/carbon-entry.min.js?v=carbon-single-bundle-v1:1552
+[     591ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:4173/favicon.ico:0
+[  502660ms] [INFO] [@carbon/feature-flags] `enable-v12-dynamic-floating-styles` is available but not enabled.
+Enable dynamic setting of floating styles for components like Popover, Tooltip, etc.
+This becomes the default behavior in v12. Enable it to migrate early, or enable `enable-v12-release` to turn on every v12 flag at once. @ http://127.0.0.1:4173/assets/vendor/carbon/carbon-entry.min.js?v=carbon-single-bundle-v1:1552
+[  504604ms] [WARNING] [2026-08-29T08:21:44.441Z]  @firebase/database: FIREBASE WARNING: transaction at /rooms/8VASZ026 failed: permission_denied  @ https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:0
+[  504604ms] [ERROR] Error: permission_denied
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153012
+    at exceptionGuard (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:19571)
+    at repoRerunTransactionQueue (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153138)
+    at repoRerunTransactions (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153212)
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:151207
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55617
+    at PersistentConnection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55959)
+    at Connection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40524)
+    at Connection.onPrimaryMessageReceived_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40457)
+    at WebSocketConnection.onMessage (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:38770) @ http://127.0.0.1:4173/assets/js/core/sync-controller.js?v=sync-protocol-v68-precise-patch-fallback-v75:913
+[  681881ms] [INFO] [@carbon/feature-flags] `enable-v12-dynamic-floating-styles` is available but not enabled.
+Enable dynamic setting of floating styles for components like Popover, Tooltip, etc.
+This becomes the default behavior in v12. Enable it to migrate early, or enable `enable-v12-release` to turn on every v12 flag at once. @ http://127.0.0.1:4173/assets/vendor/carbon/carbon-entry.min.js?v=carbon-single-bundle-v1:1552
+[  683859ms] [WARNING] [2026-08-29T08:24:43.697Z]  @firebase/database: FIREBASE WARNING: transaction at /rooms/8VASZ026 failed: permission_denied  @ https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:0
+[  683859ms] [ERROR] Error: permission_denied
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153012
+    at exceptionGuard (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:19571)
+    at repoRerunTransactionQueue (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153138)
+    at repoRerunTransactions (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153212)
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:151207
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55617
+    at PersistentConnection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55959)
+    at Connection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40524)
+    at Connection.onPrimaryMessageReceived_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40457)
+    at WebSocketConnection.onMessage (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:38770) @ http://127.0.0.1:4173/assets/js/core/sync-controller.js?v=sync-protocol-v68-precise-patch-fallback-v75:913
+[ 1189824ms] [INFO] [@carbon/feature-flags] `enable-v12-dynamic-floating-styles` is available but not enabled.
+Enable dynamic setting of floating styles for components like Popover, Tooltip, etc.
+This becomes the default behavior in v12. Enable it to migrate early, or enable `enable-v12-release` to turn on every v12 flag at once. @ http://127.0.0.1:4173/assets/vendor/carbon/carbon-entry.min.js?v=carbon-single-bundle-v1:1552
+[ 1191736ms] [WARNING] [2026-08-29T08:33:11.574Z]  @firebase/database: FIREBASE WARNING: transaction at /rooms/8VASZ026 failed: permission_denied  @ https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:0
+[ 1191737ms] [ERROR] Error: permission_denied
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153012
+    at exceptionGuard (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:19571)
+    at repoRerunTransactionQueue (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153138)
+    at repoRerunTransactions (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153212)
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:151207
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55617
+    at PersistentConnection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55959)
+    at Connection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40524)
+    at Connection.onPrimaryMessageReceived_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40457)
+    at WebSocketConnection.onMessage (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:38770) @ http://127.0.0.1:4173/assets/js/core/sync-controller.js?v=sync-protocol-v68-precise-patch-fallback-v75:913
+[ 1197959ms] [INFO] [@carbon/feature-flags] `enable-v12-dynamic-floating-styles` is available but not enabled.
+Enable dynamic setting of floating styles for components like Popover, Tooltip, etc.
+This becomes the default behavior in v12. Enable it to migrate early, or enable `enable-v12-release` to turn on every v12 flag at once. @ http://127.0.0.1:4173/assets/vendor/carbon/carbon-entry.min.js?v=carbon-single-bundle-v1:1552
+[ 1199613ms] [WARNING] [2026-08-29T08:33:19.451Z]  @firebase/database: FIREBASE WARNING: transaction at /rooms/8VASZ026 failed: permission_denied  @ https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:0
+[ 1199613ms] [ERROR] Error: permission_denied
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153012
+    at exceptionGuard (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:19571)
+    at repoRerunTransactionQueue (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153138)
+    at repoRerunTransactions (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153212)
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:151207
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55617
+    at PersistentConnection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55959)
+    at Connection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40524)
+    at Connection.onPrimaryMessageReceived_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40457)
+    at WebSocketConnection.onMessage (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:38770) @ http://127.0.0.1:4173/assets/js/core/sync-controller.js?v=sync-protocol-v68-precise-patch-fallback-v75:913

@@ -57,7 +57,7 @@ expect(!personMenuCss.includes(':popover-open'), 'Person menu styling must not o
 expect(personMenuJs.includes("trigger.open = true"), 'Person menu must use Carbon public open lifecycle');
 expect(!layeringCss.includes('person-menu-top-layer-open'), 'Layering must not retain removed HTML Popover fallback state');
 expect(copyCss.includes('.seisan-share-card cds-textarea'), 'Settlement memo must be owned by the persisted Carbon textarea surface');
-expect(carHeaderCss.includes('.capacity-edit-pill > .carbon-icon { width: 1rem; height: 1rem; }'), 'Capacity edit pill must keep a balanced Carbon icon size');
+expect(carHeaderCss.includes('.capacity-display') && carHeaderCss.includes('font-variant-numeric: tabular-nums;'), 'Capacity display must stay readable and non-interactive in the card header.');
 expect(collectionCss.includes('grid-template-columns: 1fr') && !collectionCss.includes('repeat(2, minmax(0, 1fr))'), 'Collection checks must keep the mockup single-column reading order');
 expect(collectionMobileCss.includes('grid-template-columns: 1fr;'), 'Mobile collection checks must stack vertically for Carbon checkbox scanning and label wrapping');
 expect(collectionCss.includes('grid-template-columns: 32px minmax(0, 1fr) auto') && collectionTemplate.includes('<cds-checkbox'), 'Manual collection checks must use the mockup checkbox-left anatomy');

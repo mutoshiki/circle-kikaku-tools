@@ -121,10 +121,9 @@ function addCar(n, cap, mems=[], dm='', _legacyUnused='', dgrade=0, dflag='none'
             <div class="car-header">
                 <span class="car-name-label">${safeName}${groupSuffix}</span>
                 <div class="car-capacity-actions">
-                    <cds-button type="button" kind="ghost" size="sm" class="capacity-badge capacity-edit-btn capacity-edit-pill" data-action="edit-capacity" aria-label="定員0/${c}を変更">
-                        <span class="capacity-count">0/${c}</span>
-                        <span data-carbon-icon="edit" slot="icon" aria-hidden="true"></span>
-                    </cds-button>
+                    <span class="capacity-badge capacity-display" aria-label="車の人数 0/${c}人">
+                        <span class="capacity-count">0/${c}人</span>
+                    </span>
                 </div>
                 <cds-icon-button type="button" kind="ghost" size="md" class="car-delete-btn car-return-btn delete-btn" aria-label="${document.body.dataset.activePlanTemplate === 'team' ? '班' : '車'}を削除">
                     <span data-carbon-icon="trash-can" aria-hidden="true"></span>

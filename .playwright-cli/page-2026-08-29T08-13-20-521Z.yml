@@ -1,0 +1,55 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner "サークル企画ツール" [ref=e3]:
+      - generic:
+        - button "ナビゲーションを開く" [ref=e5] [cursor=pointer]
+        - link "サークル企画ツール" [ref=e12] [cursor=pointer]:
+          - /url: /?room=8VASZ026
+        - generic [ref=e14]:
+          - generic "共有リンク" [ref=e15]:
+            - generic [ref=e17]:
+              - button "共有リンク" [ref=e19] [cursor=pointer]
+              - generic:
+                - tooltip
+          - generic "アプリメニュー" [ref=e24] [cursor=pointer]:
+            - generic [ref=e26]:
+              - button "アプリメニュー" [ref=e27]
+              - generic:
+                - tooltip
+    - generic:
+      - generic:
+        - generic: 山歩会フォームメーカー
+        - generic: 学務提出書類作成ツール
+        - generic: 山歩会企画ツール一覧
+        - generic: バグを報告する
+    - region "企画名" [ref=e38]:
+      - generic [ref=e39]:
+        - textbox "企画名" [ref=e40]: 企画名を入力
+        - generic:
+          - generic:
+            - generic:
+              - generic: 企画名
+              - generic:
+                - generic:
+                  - textbox:
+                    - /placeholder: 企画名を入力
+    - generic [ref=e44]:
+      - heading "参加者がいません" [level=3] [ref=e46]
+      - generic [ref=e47]:
+        - button "参加者を追加" [ref=e49] [cursor=pointer]
+        - button "人数だけで精算" [ref=e51] [cursor=pointer]
+    - text: 未割り当ての参加者はいません
+    - navigation "メイン画面" [ref=e52]:
+      - generic "主要画面" [ref=e53]:
+        - tablist [ref=e56]:
+          - generic:
+            - listitem "参加者" [ref=e57]:
+              - tab "参加者" [ref=e58] [cursor=pointer]
+            - listitem "車割" [ref=e61]:
+              - tab "車割" [selected] [ref=e62] [cursor=pointer]
+            - listitem "班割" [ref=e65]:
+              - tab "班割" [ref=e66] [cursor=pointer]
+            - listitem "精算" [ref=e69]:
+              - tab "精算" [ref=e70] [cursor=pointer]
+        - status [ref=e73]: Selected an item.
+  - generic "ステータス通知"

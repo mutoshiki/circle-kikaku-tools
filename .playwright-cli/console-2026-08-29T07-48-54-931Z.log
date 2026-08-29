@@ -1,0 +1,12 @@
+[  522119ms] [WARNING] [2026-08-29T07:57:37.050Z]  @firebase/database: FIREBASE WARNING: transaction at /rooms/263HGL0Y failed: permission_denied  @ https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:0
+[  522120ms] [ERROR] Error: permission_denied
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153012
+    at exceptionGuard (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:19571)
+    at repoRerunTransactionQueue (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153138)
+    at repoRerunTransactions (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153212)
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:151207
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55617
+    at PersistentConnection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55959)
+    at Connection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40524)
+    at Connection.onPrimaryMessageReceived_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40457)
+    at WebSocketConnection.onMessage (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:38770) @ http://127.0.0.1:4173/assets/js/core/sync-controller.js?v=sync-protocol-v68-precise-patch-fallback-v75:913

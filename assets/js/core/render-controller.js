@@ -135,12 +135,14 @@ function updateUI() {
         const c = getInt(b.dataset.capacity);
         const n = Array.from($$('.seat-slot', b)).reduce((sum, slot) => sum + getRealSeatCards(slot).length, 0);
         const badge = $('.capacity-badge', b);
-        const capacityCount = $('.capacity-count', badge);
+        const capacityCount = badge ? $('.capacity-count', badge) : null;
         if (capacityCount) capacityCount.textContent = `${n}/${c}`;
-        badge.classList.toggle('is-over', n > c);
-        badge.classList.toggle('is-full', n === c);
-        badge.setAttribute('kind', n > c ? 'danger--ghost' : 'ghost');
-        badge.setAttribute('aria-label', `定員${n}/${c}を変更`);
+        badge?.classList.toggle('is-over', n > c);
+        badge?.classList.toggle('is-full', n === c);
+        if (badge?.classList.contains('capacity-edit-btn')) {
+            badge.setAttribute('kind', n > c ? 'danger--ghost' : 'ghost');
+            badge.setAttribute('aria-label', `定員${n}/${c}を変更`);
+        }
         const label = $('.car-name-label', b);
         const driverName = $('.driver-name-disp', b)?.innerText?.trim() || '';
         if (label && driverName) {

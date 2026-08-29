@@ -65,9 +65,15 @@ test.describe('Assignment workspace refresh', () => {
 
     await expect(page.locator('#assignmentWorkspaceRandomAction > #shuffleAssignBtn')).toHaveCount(1);
     await expect(page.locator('#shuffleAssignBtn')).toContainText('ランダム割り当て');
+    await expect(page.locator('.assignment-workspace-summary-primary')).toContainText('未割り当て');
+    await expect(page.locator('.assignment-workspace-summary-secondary')).toContainText('13人・3台');
     await expect(page.locator('#fillEmptySeatsBtn, #traySettingsBtn, #autoAssignPopover, #autoAssignMenu, #optFemale, #optMale, #optGrade, #clearAllBtn')).toHaveCount(0);
     await expect(page.locator('[data-person-action="name"], [data-person-action="gender"]')).toHaveCount(0);
     await expect(page.locator('.assignment-drag-handle, .assignment-person-move-menu, [data-assignment-move-target]')).toHaveCount(0);
+    await expect(page.locator('.capacity-display')).toHaveCount(3);
+    await expect.poll(() => page.locator('.capacity-display').evaluateAll(nodes => nodes.every(node => !node.hasAttribute('data-action')))).toBe(true);
+    await expect(page.locator('.capacity-count').first()).toContainText('人');
+    await expect(page.locator('.assignment-group-menu').first()).toHaveAttribute('aria-label', '1号車の操作');
     await expect(page.locator('#bottom-tray')).toBeHidden();
 
     const snapshot = await page.evaluate(() => JSON.stringify(window.SanpoCanonicalState?.get?.() || {}));
@@ -278,12 +284,25 @@ test.describe('Assignment workspace refresh', () => {
 
     const firstCar = page.locator('#cars-container .car-box').first();
     const extraCapacity = await firstCar.evaluate(box => Number(box.dataset.capacity || 0) + 1);
-    await firstCar.locator('.capacity-edit-pill').click();
+    const groupMenu = firstCar.locator('.assignment-group-menu');
+    await groupMenu.click();
+    await expectPersonMenuOpen(groupMenu);
+    await groupMenu.locator('[data-assignment-group-action="capacity"]').evaluate(node => node.click());
     await page.locator('#editModalInput input').fill(String(extraCapacity));
     await page.locator('#saveEditBtn').click();
     const emptyRow = page.locator('#cars-container .assignment-empty-seats-row').first();
     await emptyRow.waitFor({ state: 'visible' });
+    await expect(emptyRow).toContainText('参加者を追加');
+    await expect(emptyRow).toHaveAttribute('aria-controls', /assignment-seat-candidates-/);
     await emptyRow.click();
+    await expect(page.locator('.assignment-seat-disclosure').first()).toHaveAttribute('aria-label', '1号車に追加');
+    const candidateCount = await page.locator('.assignment-candidate-item').count();
+    if (candidateCount > 0) {
+      await expect(page.locator('.assignment-candidate-item').first()).toHaveAttribute('aria-label', /を1号車に追加$/);
+      await expect(page.locator('.assignment-candidate-add').first()).toHaveAttribute('data-carbon-icon-name', 'add');
+    } else {
+      await expect(page.locator('.assignment-seat-notification')).toBeVisible();
+    }
     const notificationGeometry = await page.evaluate(() => {
       const notice = document.querySelector('.assignment-seat-notification').getBoundingClientRect();
       const disclosure = document.querySelector('.assignment-seat-disclosure').getBoundingClientRect();

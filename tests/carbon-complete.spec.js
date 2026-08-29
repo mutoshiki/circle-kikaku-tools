@@ -250,12 +250,11 @@ test.describe('Allocation, menus and accessibility', () => {
     await page.mouse.click(8, 96);
     await expect(groupOverflow).toHaveJSProperty('open', false);
 
-    const capacityAction = page.locator('[data-action="edit-capacity"]').first();
-    expect(await capacityAction.evaluate(node => {
-      const button = node.shadowRoot?.querySelector('button');
-      return button ? getComputedStyle(button).color : '';
-    })).toBe('rgb(22, 22, 22)');
-    await capacityAction.click();
+    await groupOverflow.click();
+    await expect(groupOverflow).toHaveJSProperty('open', true);
+    const capacityAction = groupOverflow.locator('[data-assignment-group-action="capacity"]');
+    await expect(capacityAction).toHaveAttribute('label', '定員を変更');
+    await capacityAction.evaluate(node => node.click());
     await expect(page.locator('#commonEditModal')).toHaveAttribute('open', '');
     await page.locator('#editModalInput').evaluate((node, next) => {
       const control = node.shadowRoot?.querySelector('input');

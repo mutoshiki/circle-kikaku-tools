@@ -26,7 +26,7 @@
             link.dataset.assignmentWorkspaceStyle = 'true';
             D.head.appendChild(link);
         }
-        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v12';
+        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v13';
         if (!link.href.endsWith(href.replace('./', ''))) link.href = href;
     }
 
@@ -129,7 +129,10 @@
         header.setAttribute('aria-label', '割り当て操作');
         header.innerHTML = `
             <div class="assignment-workspace-meta-row">
-                <p class="assignment-workspace-summary" id="assignmentWorkspaceSummary" aria-live="polite"></p>
+                <p class="assignment-workspace-summary" id="assignmentWorkspaceSummary" aria-live="polite">
+                    <span class="assignment-workspace-summary-primary"><span class="assignment-workspace-summary-label">未割り当て</span> <strong class="assignment-workspace-summary-unassigned">0人</strong></span>
+                    <span class="assignment-workspace-summary-secondary">0人・0台</span>
+                </p>
                 <div id="assignmentWorkspaceRandomAction" class="assignment-workspace-actions" aria-label="ランダム割り当て"></div>
             </div>`;
         const legacyHeader = topArea.querySelector(':scope > .edit-header');
@@ -400,6 +403,8 @@
         const header = box.querySelector('.car-header');
         if (!header) return;
         const type = activeType();
+        const groupName = box.querySelector('.car-name-label')?.textContent?.trim()
+            || `${type === 'team' ? '班' : '車'}`;
         let menu = header.querySelector('.assignment-group-menu');
         if (!menu) {
             menu = D.createElement('cds-overflow-menu');
@@ -410,8 +415,8 @@
             // the workspace without the former mobile fixed-sheet override.
             menu.autoalign = true;
             menu.menuAlignment = 'bottom-end';
-            menu.setAttribute('label', `${type === 'team' ? '班' : '車'}の操作`);
-            menu.setAttribute('aria-label', `${type === 'team' ? '班' : '車'}の操作`);
+            menu.setAttribute('label', `${groupName}の操作`);
+            menu.setAttribute('aria-label', `${groupName}の操作`);
             menu.setAttribute('enable-v12-overflowmenu', '');
             menu.innerHTML = `
                 <span slot="icon" data-carbon-icon="overflow-menu-vertical" aria-hidden="true"></span>
@@ -426,11 +431,13 @@
                 if (!action) return;
                 event.preventDefault();
                 event.stopPropagation();
-                if (action === 'capacity') box.querySelector('.capacity-edit-btn')?.click();
+                if (action === 'capacity') global.editCapacity?.(box);
                 if (action === 'delete') box.querySelector('.car-delete-btn')?.click();
                 try { menu.open = false; } catch (_) {}
             });
         }
+        menu.setAttribute('label', `${groupName}の操作`);
+        menu.setAttribute('aria-label', `${groupName}の操作`);
     }
 
     function removeDeprecatedPersonAffordances(person) {
@@ -493,9 +500,16 @@
             disclosure.className = 'assignment-seat-disclosure';
             disclosure.hidden = true;
             disclosure.setAttribute('role', 'region');
-            disclosure.setAttribute('aria-label', '追加候補');
             row.after(disclosure);
         }
+        const groupName = box.querySelector('.car-name-label')?.textContent?.trim() || 'このグループ';
+        const groupIndex = Array.from(D.querySelectorAll('#cars-container .car-box')).indexOf(box) + 1;
+        const token = String(box.dataset.groupId || groupIndex).replace(/[^A-Za-z0-9_-]/g, '_');
+        if (!row.id) row.id = `assignment-empty-seats-${token}`;
+        if (!disclosure.id) disclosure.id = `assignment-seat-candidates-${token}`;
+        row.setAttribute('aria-controls', disclosure.id);
+        disclosure.setAttribute('aria-labelledby', row.id);
+        disclosure.setAttribute('aria-label', `${groupName}に追加`);
         return disclosure;
     }
 
@@ -503,9 +517,17 @@
         return `${emptySlots.length}:${waitingCandidates().map(candidate => candidate.id).join('|')}`;
     }
 
+    function syncCandidateAccessibleName(item, label) {
+        item.setAttribute('aria-label', label);
+        const apply = () => item.shadowRoot?.querySelector('button')?.setAttribute('aria-label', label);
+        apply();
+        Promise.resolve(item.updateComplete).then(apply).catch(() => {});
+    }
+
     function renderSeatCandidates(box, row, emptySlots) {
         const disclosure = candidateDisclosure(box, row);
         const candidates = waitingCandidates();
+        const groupName = box.querySelector('.car-name-label')?.textContent?.trim() || 'このグループ';
         disclosure.replaceChildren();
         disclosure.hidden = false;
         disclosure.dataset.signature = seatCandidateSignature(emptySlots);
@@ -525,11 +547,12 @@
         const list = D.createElement('cds-contained-list');
         list.className = 'assignment-candidate-list';
         list.setAttribute('kind', 'disclosed');
-        list.setAttribute('label', '追加候補');
+        list.setAttribute('label', `${groupName}に追加`);
         candidates.forEach(candidate => {
             const item = D.createElement('cds-contained-list-item');
             item.className = 'assignment-candidate-item';
             item.setAttribute('clickable', '');
+            syncCandidateAccessibleName(item, `${candidate.name}を${groupName}に追加`);
             item.dataset.participantId = candidate.id;
             const content = D.createElement('span');
             content.className = 'assignment-candidate-content';
@@ -546,9 +569,9 @@
             }
             item.appendChild(content);
             const icon = D.createElement('span');
-            icon.className = 'assignment-candidate-arrow';
+            icon.className = 'assignment-candidate-add';
             icon.setAttribute('slot', 'action');
-            icon.setAttribute('data-carbon-icon', 'arrow--right');
+            icon.setAttribute('data-carbon-icon', 'add');
             icon.setAttribute('aria-hidden', 'true');
             item.appendChild(icon);
             item.addEventListener('click', event => {
@@ -615,6 +638,10 @@
             const label = D.createElement('span');
             label.className = 'assignment-empty-seats-label';
             content.appendChild(label);
+            const action = D.createElement('span');
+            action.className = 'assignment-empty-seats-action';
+            action.textContent = '参加者を追加';
+            content.appendChild(action);
             row.appendChild(content);
             const icon = D.createElement('span');
             icon.className = 'assignment-empty-seats-icon';
@@ -639,6 +666,9 @@
         }
         const label = row.querySelector('.assignment-empty-seats-label');
         if (label) label.textContent = `空席 ${emptySlots.length}`;
+        const groupName = box.querySelector('.car-name-label')?.textContent?.trim() || 'このグループ';
+        row.setAttribute('aria-label', `${groupName}、空席 ${emptySlots.length}、参加者を追加`);
+        candidateDisclosure(box, row);
         if (row.dataset.open === 'true') {
             const currentDisclosure = candidateDisclosure(box, row);
             if (currentDisclosure.dataset.signature !== seatCandidateSignature(emptySlots)) {
@@ -668,13 +698,17 @@
 
     function decorateCapacity(box, type) {
         const count = box.querySelector('.capacity-count');
-        const button = box.querySelector('.capacity-edit-btn');
+        const display = box.querySelector('.capacity-display');
         const passengerCapacity = parseInt(box.dataset.capacity, 10) || box.querySelectorAll('.seat-slot').length;
         const passengerCount = box.querySelectorAll('.seat-slot .member-card').length;
         const anchorCount = box.querySelector('.driver-seat') ? 1 : 0;
-        const text = `${passengerCount + anchorCount}/${passengerCapacity + anchorCount}`;
+        const text = `${passengerCount + anchorCount}/${passengerCapacity + anchorCount}人`;
         if (count && count.textContent !== text) count.textContent = text;
-        if (button) button.setAttribute('aria-label', `${type === 'team' ? '班' : '車'}の人数 ${text}、定員を変更`);
+        if (display) {
+            display.classList.toggle('is-over', passengerCount > passengerCapacity);
+            display.classList.toggle('is-full', passengerCount === passengerCapacity);
+            display.setAttribute('aria-label', `${type === 'team' ? '班' : '車'}の人数 ${text}`);
+        }
     }
 
     function decorateCards() {
@@ -683,6 +717,7 @@
             const groupLabel = box.querySelector('.car-name-label');
             const nextLabel = type === 'team' ? `${index + 1}班` : `${index + 1}号車`;
             if (groupLabel) groupLabel.textContent = nextLabel;
+            box.dataset.assignmentGroupIndex = String(index + 1);
             box.setAttribute('role', 'group');
             box.setAttribute('aria-label', nextLabel);
             ensureGroupOverflow(box);
@@ -706,7 +741,13 @@
         const waiting = D.querySelectorAll('#waiting-list .member-card').length;
         const passengers = D.querySelectorAll('#cars-container .member-card').length;
         const anchors = D.querySelectorAll('#cars-container .driver-seat').length;
-        summary.textContent = `${passengers + anchors + waiting}人 · ${groups}${type === 'team' ? '班' : '台'} · 未割り当て${waiting}人`;
+        const total = `${passengers + anchors + waiting}人`;
+        const groupCount = `${groups}${type === 'team' ? '班' : '台'}`;
+        const unassigned = summary.querySelector('.assignment-workspace-summary-unassigned');
+        const secondary = summary.querySelector('.assignment-workspace-summary-secondary');
+        if (unassigned) unassigned.textContent = `${waiting}人`;
+        if (secondary) secondary.textContent = `${total}・${groupCount}`;
+        summary.setAttribute('aria-label', `未割り当て ${waiting}人。${total}・${groupCount}`);
     }
 
     function normalizeHorizontalPosition() {
