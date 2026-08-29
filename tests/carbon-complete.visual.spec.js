@@ -19,7 +19,8 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
       top.dispatchEvent(new Event('scroll'));
     });
     await expect(page.locator('#projectTitleRegion')).toHaveAttribute('data-state', 'expanded');
-    await expect.poll(() => page.locator('#projectTitleRegion').evaluate(node => node.getBoundingClientRect().height)).toBeGreaterThanOrEqual(200);
+    const expectedProjectTitleHeight = viewport.width <= 768 ? 176 : 256;
+    await expect.poll(() => page.locator('#projectTitleRegion').evaluate(node => node.getBoundingClientRect().height)).toBe(expectedProjectTitleHeight);
 
     const shellGeometry = await page.evaluate(() => {
       const header = document.querySelector('#app-header');
@@ -83,15 +84,15 @@ for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }
     expect(shellGeometry.navPosition).not.toBe('fixed');
     expect(Math.abs(shellGeometry.projectTitleTop - shellGeometry.headerBottom)).toBeLessThanOrEqual(1);
     expect(shellGeometry.navTop).toBeGreaterThanOrEqual(shellGeometry.projectTitleBottom);
-    expect(shellGeometry.projectTitleHeight).toBeGreaterThanOrEqual(200);
+    expect(shellGeometry.projectTitleHeight).toBe(expectedProjectTitleHeight);
     expect(shellGeometry.projectTitleState).toBe('expanded');
     expect(shellGeometry.projectTitleValue).toBe('秋名山登山企画');
     expect(shellGeometry.projectTitlePlaceholder).toBe('企画名を入力');
     expect(shellGeometry.projectTitleFontSize).toBe(viewport.width <= 768 ? '42px' : '54px');
     expect(shellGeometry.projectTitleMinHeight).toBe(viewport.width <= 768 ? '56px' : '64px');
     expect(shellGeometry.projectTitleWeight).toBe('300');
-    expect(shellGeometry.navHeight).toBeGreaterThanOrEqual(40);
-    expect(shellGeometry.navHeight).toBeLessThanOrEqual(42);
+    expect(shellGeometry.navHeight).toBeGreaterThanOrEqual(viewport.width <= 768 ? 48 : 40);
+    expect(shellGeometry.navHeight).toBeLessThanOrEqual(viewport.width <= 768 ? 50 : 42);
     expect(shellGeometry.firstViewContentTop).toBeGreaterThanOrEqual(shellGeometry.projectTitleBottom);
     expect(shellGeometry.headerBackground).toBe('rgb(22, 22, 22)');
     expect(shellGeometry.navBackground).toBe('rgb(0, 0, 0)');

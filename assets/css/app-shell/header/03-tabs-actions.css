@@ -90,14 +90,27 @@ cds-overflow-menu.header-action {
   --cds-background-hover: #262626;
   --cds-background-active: #393939;
   --cds-layer: #000000;
+  --cds-layer-01: #393939;
+  --cds-layer-accent-01: #000000;
+  --cds-layer-accent-hover: #262626;
+  --cds-layer-accent-active: #393939;
   --cds-layer-hover: #262626;
   --cds-layer-active: #393939;
   --cds-text-primary: #f4f4f4;
-  --cds-text-secondary: #c6c6c6;
+  --cds-text-secondary: #f4f4f4;
   --cds-icon-primary: #f4f4f4;
   --cds-border-subtle: #393939;
+  --cds-border-strong: #393939;
   --cds-border-interactive: #0f62fe;
+  --cds-interactive: #0f62fe;
   --cds-focus: #0f62fe;
+  --cds-layout-size-height: 48px;
+  --cds-body-compact-01-font-size: 0.875rem;
+  --cds-body-compact-01-line-height: 1.28572;
+  --cds-body-compact-01-letter-spacing: normal;
+  --cds-heading-compact-01-font-size: 0.875rem;
+  --cds-heading-compact-01-line-height: 1.28572;
+  --cds-heading-compact-01-letter-spacing: normal;
 }
 
 #view-toggle-bar {
@@ -111,6 +124,34 @@ cds-overflow-menu.header-action {
   overflow: hidden;
   background: #000000;
   color: #f4f4f4;
+  --cds-layer: #000000;
+  --cds-layer-01: #393939;
+  --cds-layer-accent-01: #000000;
+  --cds-layer-accent-hover: #262626;
+  --cds-layer-accent-active: #393939;
+  --cds-text-primary: #f4f4f4;
+  --cds-text-secondary: #f4f4f4;
+  --cds-border-subtle: #393939;
+  --cds-border-strong: #393939;
+  --cds-border-interactive: #0f62fe;
+  --cds-interactive: #0f62fe;
+  --cds-layout-size-height: 48px;
+  --cds-body-compact-01-font-size: 0.875rem;
+  --cds-body-compact-01-line-height: 1.28572;
+  --cds-body-compact-01-letter-spacing: normal;
+  --cds-heading-compact-01-font-size: 0.875rem;
+  --cds-heading-compact-01-line-height: 1.28572;
+  --cds-heading-compact-01-letter-spacing: normal;
+}
+
+@media (max-width: 768px) {
+  #app-view-navigation,
+  #view-toggle-bar {
+    --cds-body-compact-01-font-size: 1rem;
+    --cds-body-compact-01-line-height: 1;
+    --cds-heading-compact-01-font-size: 1rem;
+    --cds-heading-compact-01-line-height: 1;
+  }
 }
 
 .view-tab {
@@ -118,7 +159,7 @@ cds-overflow-menu.header-action {
   min-height: var(--view-navigation-height);
   color: #f4f4f4;
   --cds-text-primary: #f4f4f4;
-  --cds-text-secondary: #c6c6c6;
+  --cds-text-secondary: #f4f4f4;
   --cds-border-interactive: #0f62fe;
   --cds-focus: #0f62fe;
 }

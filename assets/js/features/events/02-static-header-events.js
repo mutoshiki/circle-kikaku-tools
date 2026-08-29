@@ -66,6 +66,21 @@
     }
 
     let syncingCarbonPrimaryNavigation = false;
+    function syncCarbonPrimaryNavigationSizing() {
+        const tabBar = byId('view-toggle-bar');
+        if (!tabBar) return;
+        const mobile = global.matchMedia?.('(max-width: 768px)').matches === true;
+        const size = mobile ? 'lg' : 'md';
+        if (tabBar.getAttribute('size') !== size) tabBar.setAttribute('size', size);
+    }
+
+    function setupCarbonPrimaryNavigationSizing(tabBar) {
+        if (!tabBar || tabBar.dataset.carbonPrimaryNavigationSizingBound === 'true') return;
+        tabBar.dataset.carbonPrimaryNavigationSizingBound = 'true';
+        syncCarbonPrimaryNavigationSizing();
+        global.addEventListener('resize', syncCarbonPrimaryNavigationSizing, { passive: true });
+    }
+
     function syncCarbonPrimaryNavigationState() {
         if (syncingCarbonPrimaryNavigation) return;
         syncingCarbonPrimaryNavigation = true;
@@ -96,6 +111,7 @@
             });
             const tabBar = byId('view-toggle-bar');
             if (tabBar) {
+                setupCarbonPrimaryNavigationSizing(tabBar);
                 tabBar.setAttribute('value', selectedValue);
                 if (customElements.get('cds-tabs')) tabBar.value = selectedValue;
             }
@@ -116,6 +132,7 @@
     function ensureCarbonPrimaryNavigation() {
         const bar = byId('view-toggle-bar');
         if (!bar || bar.dataset.carbonFourViewNav === 'true') return;
+        setupCarbonPrimaryNavigationSizing(bar);
         const sheetTab = byId('tab-sheet');
         const settlementTab = byId('tab-seisan');
         const carTab = byId('tab-list');

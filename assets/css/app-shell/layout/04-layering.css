@@ -22,6 +22,10 @@
   --z-toast: 1100;
 }
 
+@media (max-width: 768px) {
+  :root { --view-navigation-height: 48px; }
+}
+
 #top-area {
   position: relative;
   z-index: var(--z-local-base);
