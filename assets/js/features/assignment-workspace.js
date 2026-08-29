@@ -26,7 +26,7 @@
             link.dataset.assignmentWorkspaceStyle = 'true';
             D.head.appendChild(link);
         }
-        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v14';
+        const href = './assets/css/cars-members-tray/assignment-workspace-refresh.css?v=assignment-workspace-v22';
         if (!link.href.endsWith(href.replace('./', ''))) link.href = href;
     }
 
@@ -567,13 +567,12 @@
                 gradeText.textContent = `${grade}年`;
                 content.appendChild(gradeText);
             }
-            item.appendChild(content);
             const icon = D.createElement('span');
             icon.className = 'assignment-candidate-add';
-            icon.setAttribute('slot', 'action');
             icon.setAttribute('data-carbon-icon', 'add');
             icon.setAttribute('aria-hidden', 'true');
-            item.appendChild(icon);
+            content.appendChild(icon);
+            item.appendChild(content);
             item.addEventListener('click', event => {
                 event.preventDefault();
                 const target = emptySlots.find(slot => slot.isConnected && !slot.querySelector('.member-card'));
@@ -581,12 +580,25 @@
                 global.assignWaitingMemberToSeat?.(candidate.card, target);
                 row.dataset.open = 'false';
                 row.setAttribute('aria-expanded', 'false');
+                setEmptySeatDisclosureIcon(row, false);
                 disclosure.hidden = true;
             });
             list.appendChild(item);
         });
         disclosure.appendChild(list);
         global.SanpoCarbon?.renderCarbonIcons?.(disclosure);
+    }
+
+    function setEmptySeatDisclosureIcon(row, open) {
+        const iconName = open ? 'chevron--up' : 'chevron--down';
+        if (global.SanpoIconAdapter?.setIcon) {
+            global.SanpoIconAdapter.setIcon(row, iconName, { className: 'assignment-empty-seats-icon' });
+            return;
+        }
+        const icon = row?.querySelector('.assignment-empty-seats-icon');
+        if (!icon) return;
+        icon.setAttribute('data-carbon-icon', iconName);
+        global.SanpoCarbon?.renderCarbonIcons?.(icon);
     }
 
     function openSeatCandidates(slot) {
@@ -599,6 +611,7 @@
         if (!emptySlots.length) return;
         row.dataset.open = 'true';
         row.setAttribute('aria-expanded', 'true');
+        setEmptySeatDisclosureIcon(row, true);
         renderSeatCandidates(box, row, emptySlots);
     }
 
@@ -642,13 +655,12 @@
             action.className = 'assignment-empty-seats-action';
             action.textContent = '参加者を追加';
             content.appendChild(action);
-            row.appendChild(content);
             const icon = D.createElement('span');
             icon.className = 'assignment-empty-seats-icon';
-            icon.setAttribute('slot', 'action');
-            icon.setAttribute('data-carbon-icon', 'add');
+            icon.setAttribute('data-carbon-icon', 'chevron--down');
             icon.setAttribute('aria-hidden', 'true');
-            row.appendChild(icon);
+            content.appendChild(icon);
+            row.appendChild(content);
             row.addEventListener('click', () => {
                 const nextEmptySlots = Array.from(layout.querySelectorAll(':scope > .seat-slot'))
                     .filter(slot => !slot.querySelector('.member-card'));
@@ -656,6 +668,7 @@
                 const open = row.dataset.open === 'true';
                 row.dataset.open = open ? 'false' : 'true';
                 row.setAttribute('aria-expanded', String(!open));
+                setEmptySeatDisclosureIcon(row, !open);
                 if (open) {
                     candidateDisclosure(box, row).hidden = true;
                 } else {
@@ -666,6 +679,7 @@
         }
         const label = row.querySelector('.assignment-empty-seats-label');
         if (label) label.textContent = `空席 ${emptySlots.length}`;
+        setEmptySeatDisclosureIcon(row, row.dataset.open === 'true');
         const groupName = box.querySelector('.car-name-label')?.textContent?.trim() || 'このグループ';
         row.setAttribute('aria-label', `${groupName}、空席 ${emptySlots.length}、参加者を追加`);
         candidateDisclosure(box, row);

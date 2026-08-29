@@ -229,10 +229,10 @@ test.describe('Assignment workspace refresh', () => {
     expectRectInside(geometry.shuffle, geometry.toolbar);
     expect(geometry.shuffle.height).toBeGreaterThanOrEqual(47);
     expect(geometry.shuffle.height).toBeLessThanOrEqual(49);
-    expect(geometry.member?.height).toBeGreaterThanOrEqual(55);
-    expect(geometry.member?.height).toBeLessThanOrEqual(57);
-    expect(geometry.memberRow?.height).toBeGreaterThanOrEqual(55);
-    expect(geometry.memberRow?.height).toBeLessThanOrEqual(57);
+    expect(geometry.member?.height).toBeGreaterThanOrEqual(51);
+    expect(geometry.member?.height).toBeLessThanOrEqual(53);
+    expect(geometry.memberRow?.height).toBeGreaterThanOrEqual(51);
+    expect(geometry.memberRow?.height).toBeLessThanOrEqual(53);
   });
 
   test('allocation hierarchy uses productive Carbon type grades and spacing', async ({ page }) => {
@@ -271,6 +271,63 @@ test.describe('Assignment workspace refresh', () => {
     expect(styles.capacity).toMatchObject({ fontSize: 14 });
     expect(styles.tag).toMatchObject({ fontSize: 12, height: 24 });
     expect(styles.cardGap).toBe('16px');
+  });
+
+  test('expanded candidate rows keep the Carbon disclosure label compact and center the add icon', async ({ page }) => {
+    await loadSampleWorkspace(page);
+
+    const firstCar = page.locator('#cars-container .car-box').first();
+    const driver = firstCar.locator('.driver-seat').first();
+    const menu = driver.locator('cds-overflow-menu.person-overflow-menu');
+    await menu.click();
+    await expectPersonMenuOpen(menu);
+    await menu.locator('[data-person-action="return"]').evaluate(node => node.click());
+    await page.locator('#appConfirmModal [data-role="ok"]').evaluate(node => node.click());
+    await expect.poll(() => page.locator('#waiting-list .member-card').count()).toBe(1);
+
+    const emptyRow = firstCar.locator('.assignment-empty-seats-row');
+    await emptyRow.click();
+    const candidateList = firstCar.locator('.assignment-candidate-list');
+    await expect(candidateList).toBeVisible();
+
+    const geometry = await candidateList.evaluate(list => {
+      const header = list.shadowRoot?.querySelector('.cds--contained-list__header');
+      const label = list.shadowRoot?.querySelector('.cds--contained-list__label');
+      const item = list.querySelector('.assignment-candidate-item');
+      const icon = item?.querySelector('.assignment-candidate-add');
+      const disclosure = list.closest('.assignment-seat-disclosure');
+      const emptyRow = disclosure?.previousElementSibling;
+      const emptyIcon = emptyRow?.querySelector('.assignment-empty-seats-icon');
+      const itemRect = item?.getBoundingClientRect();
+      const iconRect = icon?.getBoundingClientRect();
+      const emptyRowRect = emptyRow?.getBoundingClientRect();
+      const emptyIconRect = emptyIcon?.getBoundingClientRect();
+      return {
+        headerHeight: header?.getBoundingClientRect().height || 0,
+        labelFontSize: label ? getComputedStyle(label).fontSize : '',
+        itemHeight: itemRect?.height || 0,
+        itemCenter: itemRect ? itemRect.top + itemRect.height / 2 : 0,
+        iconCenter: iconRect ? iconRect.top + iconRect.height / 2 : 0,
+        emptyRowCenter: emptyRowRect ? emptyRowRect.top + emptyRowRect.height / 2 : 0,
+        emptyIconCenter: emptyIconRect ? emptyIconRect.top + emptyIconRect.height / 2 : 0,
+        rowStart: emptyRow ? getComputedStyle(emptyRow).gridColumnStart : '',
+        rowEnd: emptyRow ? getComputedStyle(emptyRow).gridColumnEnd : '',
+        disclosureStart: disclosure ? getComputedStyle(disclosure).gridColumnStart : '',
+        disclosureEnd: disclosure ? getComputedStyle(disclosure).gridColumnEnd : ''
+      };
+    });
+
+    expect(geometry.headerHeight).toBeCloseTo(32, 1);
+    expect(geometry.labelFontSize).toBe('12px');
+    expect(geometry.itemHeight).toBeCloseTo(52, 1);
+    expect(Math.abs(geometry.itemCenter - geometry.iconCenter)).toBeLessThan(1);
+    expect(Math.abs(geometry.emptyRowCenter - geometry.emptyIconCenter)).toBeLessThan(1);
+    expect({
+      rowStart: geometry.rowStart,
+      rowEnd: geometry.rowEnd,
+      disclosureStart: geometry.disclosureStart,
+      disclosureEnd: geometry.disclosureEnd
+    }).toEqual({ rowStart: '1', rowEnd: '-1', disclosureStart: '1', disclosureEnd: '-1' });
   });
 
   test('mobile title uses the same natural scroll owner instead of collapsing 240px from a tiny gesture', async ({ page }) => {
@@ -332,8 +389,24 @@ test.describe('Assignment workspace refresh', () => {
     await emptyRow.waitFor({ state: 'visible' });
     await expect(emptyRow).toContainText('参加者を追加');
     await expect(emptyRow).toHaveAttribute('aria-controls', /assignment-seat-candidates-/);
+    await expect(emptyRow).toHaveAttribute('aria-expanded', 'false');
+    await expect(emptyRow.locator('.assignment-empty-seats-icon')).toHaveAttribute('data-carbon-icon-name', 'chevron--down');
+    const emptySeatPlacement = await page.evaluate(() => {
+      const row = document.querySelector('#cars-container .assignment-empty-seats-row');
+      const disclosure = document.querySelector('#cars-container .assignment-seat-disclosure');
+      return {
+        rowStart: row ? getComputedStyle(row).gridColumnStart : '',
+        rowEnd: row ? getComputedStyle(row).gridColumnEnd : '',
+        disclosureStart: disclosure ? getComputedStyle(disclosure).gridColumnStart : '',
+        disclosureEnd: disclosure ? getComputedStyle(disclosure).gridColumnEnd : ''
+      };
+    });
+    expect(emptySeatPlacement).toEqual({ rowStart: '1', rowEnd: '-1', disclosureStart: '1', disclosureEnd: '-1' });
     await emptyRow.click();
+    await expect(emptyRow).toHaveAttribute('aria-expanded', 'true');
+    await expect(emptyRow.locator('.assignment-empty-seats-icon')).toHaveAttribute('data-carbon-icon-name', 'chevron--up');
     await expect(page.locator('.assignment-seat-disclosure').first()).toHaveAttribute('aria-label', '1号車に追加');
+    await expect.poll(() => page.locator('.assignment-candidate-item, .assignment-seat-notification').count()).toBeGreaterThan(0);
     const candidateCount = await page.locator('.assignment-candidate-item').count();
     if (candidateCount > 0) {
       await expect(page.locator('.assignment-candidate-item').first()).toHaveAttribute('aria-label', /を1号車に追加$/);
@@ -341,6 +414,9 @@ test.describe('Assignment workspace refresh', () => {
     } else {
       await expect(page.locator('.assignment-seat-notification')).toBeVisible();
     }
+    await emptyRow.click();
+    await expect(emptyRow).toHaveAttribute('aria-expanded', 'false');
+    await expect(emptyRow.locator('.assignment-empty-seats-icon')).toHaveAttribute('data-carbon-icon-name', 'chevron--down');
     const notificationGeometry = await page.evaluate(() => {
       const notice = document.querySelector('.assignment-seat-notification').getBoundingClientRect();
       const disclosure = document.querySelector('.assignment-seat-disclosure').getBoundingClientRect();
