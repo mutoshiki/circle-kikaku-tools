@@ -235,6 +235,44 @@ test.describe('Assignment workspace refresh', () => {
     expect(geometry.memberRow?.height).toBeLessThanOrEqual(57);
   });
 
+  test('allocation hierarchy uses productive Carbon type grades and spacing', async ({ page }) => {
+    await loadSampleWorkspace(page);
+
+    const styles = await page.evaluate(() => {
+      const summaryPrimary = document.querySelector('.assignment-workspace-summary-primary');
+      const summarySecondary = document.querySelector('.assignment-workspace-summary-secondary');
+      const car = document.querySelector('#cars-container .car-box');
+      const title = car?.querySelector('.car-name-label');
+      const capacity = car?.querySelector('.capacity-display');
+      const tag = car?.querySelector('.driver-role-tag');
+      const cardGap = getComputedStyle(document.querySelector('#cars-container.allocation-grid')).rowGap;
+      const style = node => {
+        const computed = getComputedStyle(node);
+        return {
+          fontSize: parseFloat(computed.fontSize),
+          lineHeight: parseFloat(computed.lineHeight),
+          fontWeight: computed.fontWeight
+        };
+      };
+      return {
+        summaryPrimary: style(summaryPrimary),
+        summarySecondary: style(summarySecondary),
+        title: style(title),
+        capacity: style(capacity),
+        tag: tag ? { ...style(tag), height: tag.getBoundingClientRect().height } : null,
+        cardGap
+      };
+    });
+
+    expect(styles.summaryPrimary).toMatchObject({ fontSize: 20, fontWeight: '400' });
+    expect(styles.summarySecondary.fontSize).toBe(12);
+    expect(styles.summarySecondary.lineHeight).toBeCloseTo(16, 2);
+    expect(styles.title).toMatchObject({ fontSize: 14, fontWeight: '600' });
+    expect(styles.capacity).toMatchObject({ fontSize: 14 });
+    expect(styles.tag).toMatchObject({ fontSize: 12, height: 24 });
+    expect(styles.cardGap).toBe('16px');
+  });
+
   test('mobile title uses the same natural scroll owner instead of collapsing 240px from a tiny gesture', async ({ page }) => {
     await loadSampleWorkspace(page);
 
