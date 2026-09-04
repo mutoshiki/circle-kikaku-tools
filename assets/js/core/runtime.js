@@ -175,6 +175,7 @@ if (!roomId) {
 }
 
 localStorage.setItem('syawari_last_room_id', roomId);
+localStorage.setItem(`syawari_last_opened_at_${roomId}`, String(Date.now()));
 
 
 const CARBON_TOOLTIP_POLICY_STYLE = 'carbon-tooltip-policy-style';
