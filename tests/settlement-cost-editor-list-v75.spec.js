@@ -79,6 +79,50 @@ for (const config of [
       await expect(page.locator('#settlementCarEditModal .seisan-extra-candidates cds-accordion-item')).not.toHaveAttribute('open', '');
       await expect(page.locator('#settlementCarEditModal .seisan-extra-candidate-chip')).toHaveAttribute('kind', 'ghost');
 
+      const deleteButton = page.locator('#settlementCarEditModal .seisan-extra-list .seisan-extra-row [data-action="remove-settlement-extra"]');
+      await expect(deleteButton).toHaveCount(1);
+      await expect(deleteButton).toHaveJSProperty('tagName', 'CDS-BUTTON');
+      await expect(deleteButton).toHaveAttribute('kind', 'danger-ghost');
+      await expect(deleteButton).toHaveText('削除');
+      await expect(deleteButton.locator('[data-carbon-icon="trash-can"], [data-carbon-icon-name="trash-can"]')).toHaveCount(1);
+      await expect(deleteButton.locator('cds-icon-button')).toHaveCount(0);
+
+      const normalDeleteStyle = await deleteButton.evaluate(node => {
+        const button = node.shadowRoot?.querySelector('[part="button"]');
+        const icon = node.querySelector('svg');
+        const rootStyle = getComputedStyle(document.documentElement);
+        const probe = document.createElement('span');
+        probe.style.color = rootStyle.getPropertyValue('--cds-support-error').trim();
+        document.body.append(probe);
+        const dangerColor = getComputedStyle(probe).color;
+        probe.remove();
+        const style = getComputedStyle(button);
+        return {
+          background: style.backgroundColor,
+          color: style.color,
+          dangerColor,
+          iconFill: icon ? getComputedStyle(icon).fill : ''
+        };
+      });
+      expect(normalDeleteStyle.background).toBe('rgba(0, 0, 0, 0)');
+      expect(normalDeleteStyle.color).toBe(normalDeleteStyle.dangerColor);
+      expect(normalDeleteStyle.iconFill).toBe(normalDeleteStyle.color);
+
+      await deleteButton.evaluate(node => node.shadowRoot?.querySelector('[part="button"]')?.focus());
+      const focusDeleteStyle = await deleteButton.evaluate(node => {
+        const button = node.shadowRoot?.querySelector('[part="button"]');
+        const style = getComputedStyle(button);
+        return { border: style.borderColor, shadow: style.boxShadow };
+      });
+      expect(focusDeleteStyle.border).not.toBe('rgba(0, 0, 0, 0)');
+      expect(focusDeleteStyle.shadow).not.toBe('none');
+
+      if (config.width > 640) {
+        await deleteButton.hover();
+        const hoverDeleteBackground = await deleteButton.evaluate(node => getComputedStyle(node.shadowRoot?.querySelector('[part="button"]')).backgroundColor);
+        expect(hoverDeleteBackground).not.toBe('rgba(0, 0, 0, 0)');
+      }
+
       const row = page.locator('#settlementCarEditModal .seisan-gas-cost-row');
       await expect(row.locator('.seisan-extra-field--name cds-text-input')).toHaveJSProperty('value', 'ガソリン代');
       const cells = row.locator(':scope > *');
@@ -130,6 +174,16 @@ for (const config of [
       }
       expect(geometry.actionSize.width).toBeGreaterThanOrEqual(44);
       expect(geometry.actionSize.height).toBeGreaterThanOrEqual(44);
+
+      const deleteGeometry = await deleteButton.evaluate(node => ({
+        host: node.getBoundingClientRect().toJSON(),
+        shadow: node.shadowRoot?.querySelector('[part="button"]')?.getBoundingClientRect().toJSON(),
+        action: node.closest('.seisan-extra-field--action')?.getBoundingClientRect().toJSON()
+      }));
+      expect(deleteGeometry.host.width).toBeGreaterThan(48);
+      expect(deleteGeometry.host.height).toBeGreaterThanOrEqual(32);
+      expect(deleteGeometry.host.right).toBeLessThanOrEqual(deleteGeometry.action.right + 1);
+      expect(deleteGeometry.host.left).toBeGreaterThanOrEqual(deleteGeometry.action.left - 1);
 
       const normalAmount = page.locator('#settlementCarEditModal .seisan-extra-list .seisan-extra-row [data-extra-field="amount"]').first();
       const movementAmount = row.locator('.seisan-calculated-amount-input');

@@ -138,6 +138,16 @@
   align-self: center;
 }
 
+#settlementCarEditModal .seisan-extra-field--action .seisan-icon-btn[disabled] {
+  --cds-icon-primary: var(--app-accent-icon, var(--accent-color));
+  --cds-icon-secondary: var(--app-accent-icon, var(--accent-color));
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  margin: auto;
+  align-self: center;
+}
+
 #settlementCarEditModal .seisan-extra-field--type cds-radio-button {
   min-width: 0;
 }
@@ -150,16 +160,6 @@
   margin-top: 2px;
 }
 
-#settlementCarEditModal .seisan-extra-field--action .seisan-icon-btn {
-  --cds-icon-primary: var(--app-accent-icon, var(--accent-color));
-  --cds-icon-secondary: var(--app-accent-icon, var(--accent-color));
-  width: 48px;
-  min-width: 48px;
-  height: 48px;
-  margin: auto;
-  align-self: center;
-}
-
 #settlementCarEditModal .seisan-gas-settings-trigger {
   width: 100%;
   min-height: 44px;
@@ -167,7 +167,7 @@
   text-align: left;
 }
 
-#settlementCarEditModal .seisan-extra-field--action .seisan-icon-btn[kind="danger--ghost"] {
+#settlementCarEditModal .seisan-extra-field--action .seisan-icon-btn[disabled][kind="danger--ghost"] {
   --cds-icon-primary: var(--semantic-danger, var(--cds-support-error));
   --cds-icon-secondary: var(--semantic-danger, var(--cds-support-error));
 }
@@ -417,8 +417,9 @@
     column-gap: 2px;
   }
 
-  #settlementCarEditModal .seisan-extra-field--action .seisan-icon-btn {
+  #settlementCarEditModal .seisan-extra-field--action .seisan-icon-btn[disabled] {
     width: 44px;
     min-width: 44px;
   }
+
 }

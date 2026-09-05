@@ -44,6 +44,7 @@
   --cds-button-primary: var(--cds-interactive);
   --cds-button-primary-hover: var(--cds-interactive-hover);
   --cds-button-primary-active: var(--cds-interactive-active);
+  --cds-button-danger-secondary: var(--cds-support-error);
   --cds-border-interactive: var(--cds-interactive);
   --cds-text-on-color: #ffffff;
   --cds-icon-secondary: #525252;

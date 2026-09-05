@@ -5,6 +5,8 @@ const carTemplate = fs.readFileSync('assets/js/templates/settlement/03-car-cost-
 const extraTemplate = fs.readFileSync('assets/js/templates/settlement/04-extra-input-templates.js', 'utf8');
 const collectionTemplate = fs.readFileSync('assets/js/templates/settlement/05-collection-check-templates.js', 'utf8');
 const rowCss = fs.readFileSync('assets/css/settlement/car-inputs/03-extra-costs.css', 'utf8');
+const colorScheme = fs.readFileSync('assets/css/tokens/01-color-scheme.css', 'utf8');
+const themeModes = fs.readFileSync('assets/css/tokens/01-theme-modes.css', 'utf8');
 const carSummaryCss = fs.readFileSync('assets/css/settlement/car-cost-summary/01-car-cost-card.css', 'utf8');
 const editModalCss = fs.readFileSync('assets/css/settlement/car-inputs/04-edit-modal.css', 'utf8');
 const settingsCss = fs.readFileSync('assets/css/settlement/controls/03-settings.css', 'utf8');
@@ -59,6 +61,9 @@ assert.match(extraTemplate, /fixedName = !!timesFeeKind \|\| isReward/, 'Times f
 assert.match(extraTemplate, /amountLockedAttr = isReward/, 'Times time fee amount remains editable like a normal expense');
 assert.match(extraTemplate, /typeLocked = isReward/, 'Times time fee keeps the normal editable club toggle');
 assert.match(extraTemplate, /const deleteControl = timesFeeKind[\s\S]*\? ''/, 'Times automatic fee rows intentionally render no trash control');
+assert.match(extraTemplate, /<cds-button kind="danger-ghost" size="sm" type="button" data-action="remove-settlement-extra"><span>削除<\/span>[\s\S]*data-carbon-icon="trash-can"[\s\S]*slot="icon"/, 'deletable extras use the installed Carbon danger ghost button API with the official trash icon');
+assert.doesNotMatch(extraTemplate, /data-action="remove-settlement-extra"[\s\S]*<cds-icon-button/, 'deletable extras are not rendered as icon-only buttons');
+assert.match(extraTemplate, /isReward[\s\S]*<cds-icon-button class="seisan-icon-btn"[\s\S]*disabled/, 'non-deletable reward rows retain their disabled trash control');
 assert.match(extraTemplate, /<cds-radio-button-group[^>]*data-extra-field="type"[\s\S]*value="\$\{baseType\}"[\s\S]*aria-label="\$\{typeLocked \? `\$\{costName\}の負担区分は変更できません` : `\$\{costName\}の負担区分`\}"/, 'club burden uses a self-describing Carbon radio group');
 assert.match(extraTemplate, /seisan-amount-unit[\s\S]*>円<\//, 'manual amount exposes 円 outside the input control');
 assert.match(extraTemplate, /seisan-cost-field-label">名目[\s\S]*金額[\s\S]*負担区分/, 'manual costs expose persistent field labels in the compact form');
@@ -86,6 +91,10 @@ assert.match(rowCss, /grid-template-columns:[^;]+minmax\(144px, 170px\) minmax\(
 assert.match(rowCss, /seisan-calculated-amount-input[\s\S]*pointer-events: none/, 'automatic amount keeps a real Carbon field surface without becoming a second editable control');
 assert.doesNotMatch(rowCss, /seisan-gas-settings-trigger[\s\S]*position: absolute/, 'settings action no longer overlays the amount field');
 assert.match(rowCss, /seisan-gas-settings-trigger[\s\S]*min-height: 44px/, 'operation-column settings action keeps an explicit Carbon button target');
+assert.match(rowCss, /seisan-extra-field--action \.seisan-icon-btn\[disabled\]/, 'non-deletable expense actions retain their existing disabled icon-button geometry');
+assert.doesNotMatch(rowCss, /seisan-extra-field--action \.seisan-icon-btn\s*\{/, 'deletable expense actions defer button sizing and states to Carbon');
+assert.match(colorScheme, /--cds-button-danger-secondary:\s*var\(--cds-support-error\)/, 'light theme maps Carbon danger ghost foreground to the existing error token');
+assert.match(themeModes, /--cds-button-danger-secondary:\s*var\(--cds-support-error\)/, 'dark theme maps Carbon danger ghost foreground to the existing error token');
 assert.match(rowCss, /seisan-cost-field-label[\s\S]*@media \(max-width: 640px\)[\s\S]*display: block/, 'compact rows reveal their field labels instead of relying on hidden headers');
 assert.match(rowCss, /seisan-extra-field--type cds-radio-button-group[\s\S]*align-items: center/, 'burden radio groups are aligned in every cost row');
 assert.match(rowCss, /#settlementGasEditModal \.seisan-gas-settings-fields/, 'small movement modal has one Carbon-token layout owner');

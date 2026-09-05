@@ -1,0 +1,34 @@
+[     423ms] [INFO] [@carbon/feature-flags] `enable-v12-dynamic-floating-styles` is available but not enabled.
+Enable dynamic setting of floating styles for components like Popover, Tooltip, etc.
+This becomes the default behavior in v12. Enable it to migrate early, or enable `enable-v12-release` to turn on every v12 flag at once. @ http://127.0.0.1:4173/assets/vendor/carbon/carbon-entry.min.js?v=carbon-single-bundle-v1:1552
+[     576ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:4173/favicon.ico:0
+[  247447ms] [INFO] [@carbon/feature-flags] `enable-v12-dynamic-floating-styles` is available but not enabled.
+Enable dynamic setting of floating styles for components like Popover, Tooltip, etc.
+This becomes the default behavior in v12. Enable it to migrate early, or enable `enable-v12-release` to turn on every v12 flag at once. @ http://127.0.0.1:4173/assets/vendor/carbon/carbon-entry.min.js?v=carbon-single-bundle-v1:1552
+[  249276ms] [WARNING] [2026-09-05T06:39:53.547Z]  @firebase/database: FIREBASE WARNING: transaction at /rooms/UH9T3S6O failed: permission_denied  @ https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:0
+[  249277ms] [ERROR] Error: permission_denied
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153012
+    at exceptionGuard (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:19571)
+    at repoRerunTransactionQueue (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153138)
+    at repoRerunTransactions (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153212)
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:151207
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55617
+    at PersistentConnection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55959)
+    at Connection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40524)
+    at Connection.onPrimaryMessageReceived_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40457)
+    at WebSocketConnection.onMessage (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:38770) @ http://127.0.0.1:4173/assets/js/core/sync-controller.js?v=sync-protocol-v68-precise-patch-fallback-v75:913
+[  541793ms] [INFO] [@carbon/feature-flags] `enable-v12-dynamic-floating-styles` is available but not enabled.
+Enable dynamic setting of floating styles for components like Popover, Tooltip, etc.
+This becomes the default behavior in v12. Enable it to migrate early, or enable `enable-v12-release` to turn on every v12 flag at once. @ http://127.0.0.1:4173/assets/vendor/carbon/carbon-entry.min.js?v=carbon-single-bundle-v1:1552
+[  543621ms] [WARNING] [2026-09-05T06:44:47.892Z]  @firebase/database: FIREBASE WARNING: transaction at /rooms/UH9T3S6O failed: permission_denied  @ https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:0
+[  543622ms] [ERROR] Error: permission_denied
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153012
+    at exceptionGuard (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:19571)
+    at repoRerunTransactionQueue (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153138)
+    at repoRerunTransactions (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:153212)
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:151207
+    at https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55617
+    at PersistentConnection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:55959)
+    at Connection.onDataMessage_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40524)
+    at Connection.onPrimaryMessageReceived_ (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:40457)
+    at WebSocketConnection.onMessage (https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js:1:38770) @ http://127.0.0.1:4173/assets/js/core/sync-controller.js?v=sync-protocol-v68-precise-patch-fallback-v75:913

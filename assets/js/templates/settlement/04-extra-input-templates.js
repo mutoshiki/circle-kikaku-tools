@@ -53,7 +53,7 @@
       ? ''
       : isReward
         ? `<cds-icon-button class="seisan-icon-btn" kind="danger--ghost" size="lg" type="button" disabled aria-label="${costName}は削除できません"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span></cds-icon-button>`
-        : `<cds-icon-button class="seisan-icon-btn" kind="danger--ghost" size="lg" type="button" data-action="remove-settlement-extra" aria-label="${costName}を削除"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span></cds-icon-button>`;
+        : `<cds-button kind="danger-ghost" size="sm" type="button" data-action="remove-settlement-extra"><span>削除</span><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span></cds-button>`;
     const typeLocked = isReward;
 
     return `<div class="${rowClass}" role="row" data-extra-index="${index}" data-extra-id="${esc(ex.id || '')}"${timesAttr}${pendingAttr}>
