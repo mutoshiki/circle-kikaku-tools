@@ -15,7 +15,7 @@ async function seedSettlement(page) {
 
 async function openMovementSettings(page) {
   const action = page.locator('#settlementCarEditModal [data-action="open-settlement-gas-settings"]');
-  await action.evaluate(node => node.click());
+  await action.click();
   const modal = page.locator('body > #settlementGasEditModal');
   await expect(modal).toHaveCount(1);
   await expect(modal).toHaveJSProperty('open', true);
@@ -74,7 +74,9 @@ for (const config of [
       await expect(page.locator('#settlementCarEditModal cds-toggle[data-extra-field="type"]')).toHaveCount(0);
       await expect(page.locator('#settlementCarEditModal cds-radio-button-group[data-extra-field="type"]')).not.toHaveCount(0);
       await expect(page.locator('#settlementCarEditModal .seisan-auto-status')).toHaveText('自動計算');
-      await expect(page.locator('#settlementCarEditModal .seisan-extra-candidates cds-accordion-item')).toHaveAttribute('open', '');
+      await expect(page.locator('#settlementCarEditModal .seisan-gas-cost-row .seisan-extra-field--amount .seisan-auto-status')).toHaveText('自動計算');
+      await expect(page.locator('#settlementCarEditModal .seisan-gas-cost-row .seisan-extra-field--name .seisan-auto-status')).toHaveCount(0);
+      await expect(page.locator('#settlementCarEditModal .seisan-extra-candidates cds-accordion-item')).not.toHaveAttribute('open', '');
       await expect(page.locator('#settlementCarEditModal .seisan-extra-candidate-chip')).toHaveAttribute('kind', 'ghost');
 
       const row = page.locator('#settlementCarEditModal .seisan-gas-cost-row');
@@ -93,7 +95,8 @@ for (const config of [
       await expect(row.locator('cds-radio-button[value="split"]')).toHaveAttribute('label-text', '割勘');
       await expect(row.locator('cds-radio-button[value="club"]')).toHaveAttribute('label-text', '部費');
       await expect(row.locator('.seisan-mobile-field-label')).toHaveCount(0);
-      await expect(row.locator('.seisan-mobile-currency')).toHaveText('¥');
+      await expect(row.locator('.seisan-amount-unit')).toHaveText('円');
+      await expect(row.locator('.seisan-mobile-currency')).toHaveCount(0);
 
       const geometry = await row.evaluate(node => {
         const rowBox = node.getBoundingClientRect();
@@ -103,7 +106,7 @@ for (const config of [
         });
         const radio = node.querySelector('cds-radio-button-group')?.getBoundingClientRect();
         const amount = node.querySelector('.seisan-extra-field--amount cds-text-input')?.getBoundingClientRect();
-        const action = node.querySelector('.seisan-extra-field--action cds-icon-button')?.getBoundingClientRect();
+        const action = node.querySelector('.seisan-extra-field--action .seisan-gas-settings-trigger, .seisan-extra-field--action cds-icon-button')?.getBoundingClientRect();
         return {
           height: rowBox.height,
           rowLeft: rowBox.left,

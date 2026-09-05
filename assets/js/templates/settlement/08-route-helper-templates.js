@@ -40,11 +40,12 @@
     const isAppend = role === 'append';
     const id = String(item.id || role || `waypoint-${index}`);
     const value = item.place?.name || '';
+    const appendLabel = String(item.appendLabel || '経由地を追加');
     const placeholder = role === 'origin'
       ? '出発地を追加'
       : role === 'destination'
         ? '目的地を追加'
-        : '経由地を追加';
+        : appendLabel;
     const accessibleIndex = Math.max(1, index + 1);
     const marker = role === 'origin'
       ? '<span class="route-stop-marker route-stop-marker--origin" aria-hidden="true">O</span>'
@@ -56,7 +57,7 @@
     const remove = isAppend
       ? '<span class="route-stop-action-spacer" aria-hidden="true"></span>'
       : `<cds-button class="route-stop-delete" kind="ghost" size="lg" type="button" data-action="remove-route-stop" data-route-role="${role}"${waypointAttr} aria-label="この地点を削除"><span data-carbon-icon="trash-can" slot="icon" aria-hidden="true"></span><span class="visually-hidden">この地点を削除</span></cds-button>`;
-    const roleLabel = role === 'origin' ? '出発地' : role === 'destination' ? '目的地' : isAppend ? '地点を追加' : `経由地 ${stopLetter(Math.max(0, index - 1))}`;
+    const roleLabel = role === 'origin' ? '出発地' : role === 'destination' ? '目的地' : isAppend ? appendLabel : `経由地 ${stopLetter(Math.max(0, index - 1))}`;
     return `<div class="route-stop-row route-stop-row--${role}" data-route-stop-id="${esc(id, helpers)}" data-route-role="${role}"${waypointAttr}${isAppend ? ' data-route-add-slot="true"' : ''}>
       ${marker}
       <div class="route-stop-field">

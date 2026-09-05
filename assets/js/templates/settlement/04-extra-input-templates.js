@@ -58,13 +58,13 @@
 
     return `<div class="${rowClass}" role="row" data-extra-index="${index}" data-extra-id="${esc(ex.id || '')}"${timesAttr}${pendingAttr}>
         <div class="seisan-extra-field seisan-extra-field--name" role="cell">
-          <cds-text-input size="md" density="condensed" data-extra-field="name" class="${inputClass('name')}" value="${esc(ex.name || '', helpers)}" placeholder="例：駐車場代" label="名目" hide-label${invalidAttr('name', '名目を入力してください')}${nameLockedAttr}></cds-text-input>
+          <span class="seisan-cost-field-label">名目</span><cds-text-input size="md" density="condensed" data-extra-field="name" class="${inputClass('name')}" value="${esc(ex.name || '', helpers)}" placeholder="例：駐車場代" label="名目" hide-label${invalidAttr('name', '名目を入力してください')}${nameLockedAttr}></cds-text-input>
         </div>
         <div class="seisan-extra-field seisan-extra-field--amount" role="cell" data-extra-amount-field>
-          <span class="seisan-mobile-currency" aria-hidden="true">¥</span><cds-text-input type="text" size="md" density="condensed" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-extra-field="amount" class="${inputClass('amount')}" value="${esc(ex.amount || '', helpers)}" placeholder="金額" label="金額" hide-label${invalidAttr('amount', '金額を入力してください')}${amountLockedAttr}></cds-text-input>
+          <span class="seisan-cost-field-label">金額</span><div class="seisan-amount-control"><cds-text-input type="text" size="md" density="condensed" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-extra-field="amount" class="${inputClass('amount')}" value="${esc(ex.amount || '', helpers)}" placeholder="金額" label="金額" hide-label${invalidAttr('amount', '金額を入力してください')}${amountLockedAttr}></cds-text-input><span class="seisan-amount-unit" aria-hidden="true">円</span></div>
         </div>
         <div class="seisan-extra-field seisan-extra-field--type ${baseType} ${type}" role="cell">
-          <cds-radio-button-group class="seisan-extra-type ${UI_CLASS.input} ${baseType} ${type}" data-extra-field="type" data-extra-negative="${isNegative ? 'true' : 'false'}" name="settlement-extra-type-${encodeURIComponent(carName)}-${index}" value="${baseType}" orientation="horizontal" legend-text="" aria-label="${typeLocked ? `${costName}の負担区分は変更できません` : `${costName}の負担区分`}" ${typeLocked ? 'disabled' : ''}><cds-radio-button value="split" label-text="割勘" ${typeLocked ? 'disabled' : ''}></cds-radio-button><cds-radio-button value="club" label-text="部費" ${typeLocked ? 'disabled' : ''}></cds-radio-button></cds-radio-button-group>
+          <span class="seisan-cost-field-label">負担区分</span><cds-radio-button-group class="seisan-extra-type ${UI_CLASS.input} ${baseType} ${type}" data-extra-field="type" data-extra-negative="${isNegative ? 'true' : 'false'}" name="settlement-extra-type-${encodeURIComponent(carName)}-${index}" value="${baseType}" orientation="horizontal" legend-text="" aria-label="${typeLocked ? `${costName}の負担区分は変更できません` : `${costName}の負担区分`}" ${typeLocked ? 'disabled' : ''}><cds-radio-button value="split" label-text="割勘" ${typeLocked ? 'disabled' : ''}></cds-radio-button><cds-radio-button value="club" label-text="部費" ${typeLocked ? 'disabled' : ''}></cds-radio-button></cds-radio-button-group>
         </div>
         <div class="seisan-extra-field seisan-extra-field--action" role="cell">${deleteControl}</div>
     </div>`;

@@ -141,6 +141,18 @@
       : '';
     const rentalType = cState.rentalType === 'times' ? 'times' : 'private';
     const isTimes = rentalType === 'times';
+    const distance = Number(cState.dist) || 0;
+    const fuelEconomy = Number(cState.eco) || 0;
+    const fuelPrice = Number(cState.price) || 0;
+    const calculatedAmount = isTimes
+      ? (typeof window.getTimesDistanceFee === 'function' ? window.getTimesDistanceFee(cState.dist) : 0)
+      : (distance > 0 && fuelEconomy > 0 && fuelPrice > 0 ? Math.round((distance / fuelEconomy) * fuelPrice) : 0);
+    const calculationLabel = isTimes ? '計算した移動料金' : '計算したガソリン代';
+    const calculationFormula = isTimes
+      ? (distance > 0 ? `移動距離 ${distance.toLocaleString('ja-JP')}km` : '移動距離を入力してください')
+      : (distance > 0 && fuelEconomy > 0 && fuelPrice > 0
+        ? `${distance.toLocaleString('ja-JP')}km ÷ ${fuelEconomy.toLocaleString('ja-JP')}km/L × ${fuelPrice.toLocaleString('ja-JP')}円/L`
+        : '移動距離・燃費・ガソリン単価を入力してください');
     return `<cds-modal aria-label="${movementLabel}を設定" aria-labelledby="settlementGasEditModalTitle" class="app-modal app-modal--scroll settlement-gas-edit-modal" id="settlementGasEditModal" size="sm" has-scrolling-content data-driver-name="${encodeURIComponent(car.name)}">
       <cds-modal-header>
         <cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementGasEditModalTitle" tabindex="-1">${movementLabel}を設定</cds-modal-heading>
@@ -154,14 +166,14 @@
           </cds-radio-button-group>
           <p class="seisan-gas-settings-helper" data-times-helper ${isTimes ? '' : 'hidden'}>移動距離から移動料金を自動で計算できます。</p>
           <div class="seisan-gas-field-row${isTimes ? ' is-times' : ''}" role="group" aria-label="移動料金の計算条件">
-            <label class="seisan-distance-field"><span class="seisan-mini-label">移動距離（km）</span><cds-text-input type="text" size="md" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-field="dist" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'dist')}" value="${esc(cState.dist || '', helpers)}" placeholder="例：186" label="移動距離（km）" hide-label${invalidAttr('dist', '移動距離を入力してください')}></cds-text-input></label>
+            <div class="seisan-distance-field"><label><span class="seisan-mini-label">移動距離（km）</span><cds-text-input type="text" size="md" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-field="dist" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'dist')}" value="${esc(cState.dist || '', helpers)}" placeholder="例：186" label="移動距離（km）" hide-label${invalidAttr('dist', '移動距離を入力してください')}></cds-text-input></label><cds-button class="seisan-distance-shortcut" kind="tertiary" size="lg" type="button" data-action="open-route-helper-shortcut"><span data-carbon-icon="roadmap" slot="icon" aria-hidden="true"></span><span>ルートから距離を計算</span></cds-button></div>
             <label class="seisan-fuel-field" data-private-fuel ${isTimes ? 'hidden' : ''}><span class="seisan-mini-label">燃費（km/L）</span><cds-text-input type="text" size="md" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-field="eco" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'eco')}" value="${esc(cState.eco || '', helpers)}" placeholder="例：18" label="燃費（km/L）" hide-label${invalidAttr('eco', '燃費を入力してください')}></cds-text-input></label>
             <label class="seisan-fuel-field" data-private-fuel ${isTimes ? 'hidden' : ''}><span class="seisan-mini-label">ガソリン単価（円/L）</span><cds-text-input type="text" size="md" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-field="price" class="${UI_CLASS.input} ${fieldErrorClass(issues, car.name, 'price')}" value="${esc(cState.price || '', helpers)}" placeholder="例：158" label="ガソリン単価（円/L）" hide-label${invalidAttr('price', 'ガソリン単価を入力してください')}></cds-text-input></label>
           </div>
-          <cds-button class="seisan-distance-shortcut" kind="tertiary" size="lg" type="button" data-action="open-route-helper-shortcut"><span data-carbon-icon="roadmap" slot="icon" aria-hidden="true"></span><span>距離計算ツール</span></cds-button>
+          <div class="seisan-gas-calculation-preview" data-gas-calculation-preview aria-live="polite"><span data-gas-calculation-label>${calculationLabel}</span><strong data-gas-calculation-amount>${money(calculatedAmount, helpers)}</strong><small data-gas-calculation-formula>${calculationFormula}</small></div>
         </div>
       </cds-modal-body>
-      <cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button data-modal-close kind="primary" type="button">完了</cds-modal-footer-button></cds-modal-footer>
+      <cds-modal-footer class="app-modal-footer app-modal-footer--single"><cds-modal-footer-button data-modal-close kind="primary" type="button">ガソリン代を適用</cds-modal-footer-button></cds-modal-footer>
     </cds-modal>`;
   }
 
@@ -199,19 +211,19 @@
       <div class="seisan-cost-edit-list" role="table" aria-label="費用一覧">
         <div class="seisan-cost-edit-header" role="row"><span role="columnheader">名目</span><span role="columnheader">金額</span><span role="columnheader">負担区分</span><span role="columnheader">操作</span></div>
         <div class="seisan-extra-row seisan-cost-edit-row seisan-gas-cost-row" role="row" data-extra-index="${Math.max(0, movementSourceIndex)}" data-extra-id="${esc(movementSource.id || '')}" data-movement-extra="${usesTimesRental ? 'distance' : 'gas'}"${movementTimesAttr}>
-          <div class="seisan-extra-field seisan-extra-field--name" role="cell"><cds-text-input size="md" density="condensed" data-extra-field="name" value="${movementLabel}" label="名目" hide-label readonly aria-readonly="true"></cds-text-input><cds-tag class="seisan-auto-status" type="cool-gray" size="sm">自動計算</cds-tag></div>
+          <div class="seisan-extra-field seisan-extra-field--name" role="cell"><span class="seisan-cost-field-label">名目</span><cds-text-input size="md" density="condensed" data-extra-field="name" value="${movementLabel}" label="名目" hide-label readonly aria-readonly="true"></cds-text-input></div>
           <div class="seisan-extra-field seisan-extra-field--amount seisan-calculated-amount-field" role="cell" data-extra-amount-field>
-            <span class="seisan-mobile-currency" aria-hidden="true">¥</span><cds-text-input class="seisan-calculated-amount-input" type="text" size="md" density="condensed" inputmode="numeric" data-extra-field="amount" value="${esc(movementAmount, helpers)}" label="金額" hide-label readonly aria-readonly="true" aria-label="${movementLabel}は設定から自動計算されます"></cds-text-input>
+            <span class="seisan-cost-field-label">金額</span><div class="seisan-amount-control"><cds-text-input class="seisan-calculated-amount-input" type="text" size="md" density="condensed" inputmode="numeric" data-extra-field="amount" value="${esc(movementAmount, helpers)}" label="金額" hide-label readonly aria-readonly="true" aria-label="${movementLabel}は設定から自動計算されます"></cds-text-input><span class="seisan-amount-unit" aria-hidden="true">円</span></div><cds-tag class="seisan-auto-status" type="cool-gray" size="sm">自動計算</cds-tag>
           </div>
           <div class="seisan-extra-field seisan-extra-field--type ${movementClub ? 'club' : 'split'} ${movementClub ? 'club' : 'split'}" role="cell">
-            <cds-radio-button-group class="seisan-extra-type ${UI_CLASS.input} ${movementClub ? 'club' : 'split'}" data-extra-field="type" data-extra-negative="false" name="settlement-movement-type-${encodeURIComponent(car.name)}" value="${movementClub ? 'club' : 'split'}" orientation="horizontal" legend-text="" aria-label="${esc(movementLabel, helpers)}の負担区分"><cds-radio-button value="split" label-text="割勘"></cds-radio-button><cds-radio-button value="club" label-text="部費"></cds-radio-button></cds-radio-button-group>
+            <span class="seisan-cost-field-label">負担区分</span><cds-radio-button-group class="seisan-extra-type ${UI_CLASS.input} ${movementClub ? 'club' : 'split'}" data-extra-field="type" data-extra-negative="false" name="settlement-movement-type-${encodeURIComponent(car.name)}" value="${movementClub ? 'club' : 'split'}" orientation="horizontal" legend-text="" aria-label="${esc(movementLabel, helpers)}の負担区分"><cds-radio-button value="split" label-text="割勘"></cds-radio-button><cds-radio-button value="club" label-text="部費"></cds-radio-button></cds-radio-button-group>
           </div>
-          <div class="seisan-extra-field seisan-extra-field--action" role="cell"><cds-icon-button class="seisan-icon-btn seisan-gas-settings-trigger" kind="ghost" size="lg" type="button" data-action="open-settlement-gas-settings" data-driver-name="${encodeURIComponent(car.name)}" aria-haspopup="dialog" aria-controls="settlementGasEditModal" aria-label="${movementLabel}の設定を開く"><span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span></cds-icon-button></div>
+          <div class="seisan-extra-field seisan-extra-field--action" role="cell"><cds-button class="seisan-gas-settings-trigger" kind="ghost" size="md" type="button" data-action="open-settlement-gas-settings" data-driver-name="${encodeURIComponent(car.name)}" aria-haspopup="dialog" aria-controls="settlementGasEditModal"><span data-carbon-icon="settings--adjust" slot="icon" aria-hidden="true"></span>計算条件を変更</cds-button></div>
         </div>
         <div class="seisan-extra-list" role="rowgroup">${visibleExtras.map(({ ex, index }) => extraRow({ carName: car.name, ex, index, issues, helpers })).join('')}</div>
       </div>
       <div class="seisan-add-row"><cds-button class="seisan-btn" kind="tertiary" size="lg" type="button" data-action="add-settlement-extra" data-driver-name="${encodeURIComponent(car.name)}"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span><span>費用を追加</span></cds-button></div>
-      ${visibleCandidates.length ? `<cds-accordion class="seisan-extra-candidates" alignment="end" aria-label="費用候補"><cds-accordion-item open><span slot="title" class="seisan-extra-candidates-title"><span data-carbon-icon="idea" aria-hidden="true"></span>候補（${visibleCandidates.length}件）</span><div class="seisan-extra-candidate-list">${visibleCandidates.map(candidate => `<cds-button class="seisan-extra-candidate-chip" kind="ghost" size="md" type="button" data-action="add-settlement-extra-candidate" data-driver-name="${encodeURIComponent(car.name)}" data-extra-candidate="${encodeURIComponent(candidate.name)}" data-extra-amount="${encodeURIComponent(candidate.amount)}" data-extra-type="${candidate.type}"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span><span>${extraCandidateLabel(candidate, helpers)}</span></cds-button>`).join('')}</div></cds-accordion-item></cds-accordion>` : ''}
+      ${visibleCandidates.length ? `<cds-accordion class="seisan-extra-candidates" alignment="end" aria-label="登録済みの費用から追加"><cds-accordion-item><span slot="title" class="seisan-extra-candidates-title"><span data-carbon-icon="idea" aria-hidden="true"></span>登録済みの費用から追加（${visibleCandidates.length}件）</span><div class="seisan-extra-candidate-list">${visibleCandidates.map(candidate => `<cds-button class="seisan-extra-candidate-chip" kind="ghost" size="md" type="button" data-action="add-settlement-extra-candidate" data-driver-name="${encodeURIComponent(car.name)}" data-extra-candidate="${encodeURIComponent(candidate.name)}" data-extra-amount="${encodeURIComponent(candidate.amount)}" data-extra-type="${candidate.type}"><span data-carbon-icon="add" slot="icon" aria-hidden="true"></span><span>${extraCandidateLabel(candidate, helpers)}</span></cds-button>`).join('')}</div></cds-accordion-item></cds-accordion>` : ''}
       ${gasSettingsModal({ car, cState, issues, movementLabel, helpers })}
     </div>`;
   }

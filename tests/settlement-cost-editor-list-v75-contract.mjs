@@ -31,8 +31,8 @@ assert.match(carTemplate, /seisan-extra-field--action[\s\S]*data-action="open-se
 assert.doesNotMatch(carTemplate, /seisan-calculated-amount-field[\s\S]{0,600}data-action="open-settlement-gas-settings"/, 'movement settings no longer overlays the amount cell');
 assert.match(carTemplate, /data-movement-extra=/, 'automatic movement fee row has explicit DOM ownership metadata');
 assert.match(carTemplate, /cds-radio-button-group[^>]*data-extra-field="type"[\s\S]*value="\$\{movementClub \? 'club' : 'split'\}"[\s\S]*aria-label="\$\{esc\(movementLabel, helpers\)\}の負担区分"/, 'movement fee uses a self-describing Carbon radio group');
-assert.match(carTemplate, /seisan-mobile-currency/, 'movement amount has a compact mobile currency cue');
-assert.doesNotMatch(carTemplate, /seisan-mobile-field-label/, 'movement amount and burden headings are not duplicated inside the mobile rows');
+assert.match(carTemplate, /seisan-amount-unit[\s\S]*>円<\//, 'movement amount exposes 円 outside the input control');
+assert.match(carTemplate, /seisan-cost-field-label">名目[\s\S]*金額[\s\S]*負担区分/, 'movement row exposes persistent field labels in the compact form');
 assert.doesNotMatch(carTemplate, /seisan-gas-cost-row[\s\S]{0,1800}<cds-radio-button-group[^>]*disabled/, 'movement burden radio group is editable');
 assert.doesNotMatch(carTemplate, /seisan-gas-cost-row[\s\S]{0,2200}trash-can/, 'movement row no longer renders a trash action');
 assert.match(carTemplate, /movementLabel = usesTimesRental \? 'タイムズ移動料金' : 'ガソリン代'/, 'rental mode renames the movement fee');
@@ -46,7 +46,9 @@ assert.match(carTemplate, /data-private-fuel[\s\S]*data-field="eco"[\s\S]*data-p
 assert.match(carTemplate, /data-field="dist"[\s\S]*inputmode="numeric"|inputmode="numeric"[\s\S]*data-field="dist"/, 'distance uses the numeric keyboard contract');
 assert.match(carTemplate, /data-field="eco"[\s\S]*inputmode="numeric"|inputmode="numeric"[\s\S]*data-field="eco"/, 'fuel economy uses the numeric keyboard contract');
 assert.match(carTemplate, /data-field="price"[\s\S]*inputmode="numeric"|inputmode="numeric"[\s\S]*data-field="price"/, 'gasoline unit price uses the numeric keyboard contract');
-assert.match(carTemplate, /data-modal-close kind="primary" type="button">完了<\/cds-modal-footer-button>/, 'movement settings complete action uses the requested 完了 label');
+assert.match(carTemplate, /data-modal-close kind="primary" type="button">ガソリン代を適用<\/cds-modal-footer-button>/, 'movement settings names its explicit apply action');
+assert.match(carTemplate, /seisan-gas-calculation-preview[\s\S]*data-gas-calculation-amount[\s\S]*data-gas-calculation-formula/, 'movement settings show the calculated cost and its basis');
+assert.match(carTemplate, /ルートから距離を計算/, 'route calculation is placed beside the distance field');
 assert.doesNotMatch(carTemplate, />費用編集に戻る</, 'legacy movement settings return wording is removed');
 assert.match(carTemplate, /const operator = sign === '−' \? '−' : ''/, 'driver cost rows preserve only negative signs');
 assert.doesNotMatch(carTemplate, /sign: targetRows\.length === 0[\s\S]*'＋'/, 'positive driver costs do not add plus signs');
@@ -58,8 +60,8 @@ assert.match(extraTemplate, /amountLockedAttr = isReward/, 'Times time fee amoun
 assert.match(extraTemplate, /typeLocked = isReward/, 'Times time fee keeps the normal editable club toggle');
 assert.match(extraTemplate, /const deleteControl = timesFeeKind[\s\S]*\? ''/, 'Times automatic fee rows intentionally render no trash control');
 assert.match(extraTemplate, /<cds-radio-button-group[^>]*data-extra-field="type"[\s\S]*value="\$\{baseType\}"[\s\S]*aria-label="\$\{typeLocked \? `\$\{costName\}の負担区分は変更できません` : `\$\{costName\}の負担区分`\}"/, 'club burden uses a self-describing Carbon radio group');
-assert.match(extraTemplate, /seisan-mobile-currency/, 'manual amount has a compact mobile currency cue');
-assert.doesNotMatch(extraTemplate, /seisan-mobile-field-label/, 'manual amount and burden headings are not duplicated inside the mobile rows');
+assert.match(extraTemplate, /seisan-amount-unit[\s\S]*>円<\//, 'manual amount exposes 円 outside the input control');
+assert.match(extraTemplate, /seisan-cost-field-label">名目[\s\S]*金額[\s\S]*負担区分/, 'manual costs expose persistent field labels in the compact form');
 assert.doesNotMatch(extraTemplate, /<cds-select[^>]*data-extra-field="type"/, 'legacy burden select is removed');
 assert.doesNotMatch(extraTemplate, /seisan-extra-field-label/, 'row-level repeated column labels are removed');
 assert.match(extraTemplate, /data-extra-negative=/, 'signed extra type metadata is preserved without schema changes');
@@ -80,10 +82,11 @@ assert.match(generatedEvents, /resumeSettlementCarEditor[\s\S]*restoreCarEditorS
 assert.match(generatedEvents, /data-private-fuel[\s\S]*data-times-helper/, 'vehicle type change progressively discloses only relevant calculation fields');
 assert.match(inputEvents, /cds-radio-button-group-changed[\s\S]*data-extra-field=\\?"type/, 'official Carbon radio event commits the burden control');
 assert.match(generatedEvents, /split-minus[\s\S]*club-minus|extraNegative/, 'negative extra semantics survive base burden toggles');
-assert.match(rowCss, /grid-template-columns:[^;]+minmax\(112px, 124px\) 48px/, 'desktop rows share four aligned columns');
+assert.match(rowCss, /grid-template-columns:[^;]+minmax\(144px, 170px\) minmax\(112px, 124px\) minmax\(164px, 184px\)/, 'desktop rows reserve explicit amount, burden, and calculation-settings columns');
 assert.match(rowCss, /seisan-calculated-amount-input[\s\S]*pointer-events: none/, 'automatic amount keeps a real Carbon field surface without becoming a second editable control');
 assert.doesNotMatch(rowCss, /seisan-gas-settings-trigger[\s\S]*position: absolute/, 'settings action no longer overlays the amount field');
-assert.match(rowCss, /seisan-extra-field--action \.seisan-icon-btn[\s\S]*width: 48px[\s\S]*height: 48px/, 'operation-column settings action keeps a Carbon-sized touch target');
+assert.match(rowCss, /seisan-gas-settings-trigger[\s\S]*min-height: 44px/, 'operation-column settings action keeps an explicit Carbon button target');
+assert.match(rowCss, /seisan-cost-field-label[\s\S]*@media \(max-width: 640px\)[\s\S]*display: block/, 'compact rows reveal their field labels instead of relying on hidden headers');
 assert.match(rowCss, /seisan-extra-field--type cds-radio-button-group[\s\S]*align-items: center/, 'burden radio groups are aligned in every cost row');
 assert.match(rowCss, /#settlementGasEditModal \.seisan-gas-settings-fields/, 'small movement modal has one Carbon-token layout owner');
 assert.match(rowCss, /@media \(max-width: 640px\)[\s\S]*grid-template-columns:/, 'mobile keeps a responsive one-row list');

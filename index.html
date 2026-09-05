@@ -531,7 +531,7 @@
 </div>
 </cds-modal-body><cds-modal-footer class="app-modal-footer" has-three-buttons><cds-modal-footer-button data-modal-close kind="ghost" type="button">キャンセル</cds-modal-footer-button><cds-modal-footer-button class="seisan-settings-footer-spacer" disabled aria-hidden="true" tabindex="-1" type="button"></cds-modal-footer-button><cds-modal-footer-button id="settlementSettingsBackBtn" data-action="settlement-settings-back" kind="secondary" type="button" disabled>戻る</cds-modal-footer-button><cds-modal-footer-button id="saveSettlementSettingsBtn" data-action="settlement-settings-next" kind="primary" type="button">次へ</cds-modal-footer-button></cds-modal-footer></cds-modal>
 
-    <cds-modal aria-label="車ごとの費用" aria-labelledby="settlementCarEditModalTitle" class="app-modal app-modal--scroll settlement-edit-modal settlement-edit-modal--car" id="settlementCarEditModal" size="sm" has-scrolling-content><cds-modal-header><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementCarEditModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="car-small"></span>費用を編集</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" no-fade>
+    <cds-modal aria-label="車ごとの費用" aria-labelledby="settlementCarEditModalTitle" class="app-modal app-modal--scroll settlement-edit-modal settlement-edit-modal--car" id="settlementCarEditModal" size="md" has-scrolling-content><cds-modal-header><cds-modal-label id="settlementCarEditModalLabel">車</cds-modal-label><cds-modal-heading data-modal-primary-focus class="app-modal-heading" id="settlementCarEditModalTitle" tabindex="-1"><span aria-hidden="true" class="app-modal-heading-icon" data-carbon-icon="car-small"></span>費用を編集</cds-modal-heading><cds-modal-close-button close-button-label="閉じる" data-modal-close=""></cds-modal-close-button></cds-modal-header><cds-modal-body class="app-modal-body" no-fade>
 <div id="settlementCarEditBody"></div>
 </cds-modal-body><cds-modal-footer class="app-modal-footer"><cds-modal-footer-button data-modal-close kind="secondary" type="button">キャンセル</cds-modal-footer-button><cds-modal-footer-button id="saveSettlementCarEditBtn" data-action="save-settlement-car-edit" kind="primary" type="button">保存</cds-modal-footer-button></cds-modal-footer></cds-modal>
 
@@ -560,10 +560,11 @@
         </div>
         <div class="route-planner-shell">
           <section class="route-planner-controls" aria-label="地点入力">
-            <cds-inline-notification class="route-privacy-notice" kind="info" low-contrast hide-close-button title="入力した場所はルーム内で候補として共有されます" subtitle="自宅の住所などは入力せず、周囲の施設を代わりに入力してください。"></cds-inline-notification>
-            <div id="routePlaceStack" class="route-place-stack">
-              <div id="routeStopList" class="route-stop-list" aria-label="ルート地点"></div>
-            </div>
+              <cds-inline-notification class="route-privacy-notice" kind="info" low-contrast hide-close-button title="入力した場所はルーム内で共有されます" subtitle="自宅住所は避け、近くの施設を入力してください。"></cds-inline-notification>
+              <div id="routePlaceStack" class="route-place-stack">
+                <div id="routeStopList" class="route-stop-list" aria-label="ルート地点"></div>
+              </div>
+              <cds-button id="routeMapToggleBtn" class="route-map-toggle" kind="tertiary" size="lg" type="button" aria-controls="routePlannerMapPanel" aria-expanded="false"><span data-carbon-icon="map" slot="icon" aria-hidden="true"></span>地図を表示</cds-button>
             <cds-accordion class="route-settings-accordion route-settings-accordion--contract" alignment="end" hidden aria-hidden="true">
               <cds-accordion-item title="ルート設定"></cds-accordion-item>
             </cds-accordion>
@@ -571,7 +572,7 @@
             <div id="routePlannerRetry" class="route-planner-retry" hidden><cds-button id="routePlannerRetryBtn" type="button" kind="tertiary" size="lg"><span data-carbon-icon="undo" slot="icon" aria-hidden="true"></span>再試行</cds-button></div>
             <div id="routePlannerLoading" class="route-planner-loading" hidden><cds-inline-loading status="active" description="ルート候補を取得しています"></cds-inline-loading></div>
           </section>
-          <section class="route-planner-map-panel" aria-label="ルート地図">
+            <section class="route-planner-map-panel" id="routePlannerMapPanel" aria-label="ルート地図">
             <div class="route-map-frame">
               <div id="routeMapSkeleton" class="route-map-skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
               <div id="routeMap" class="route-map" role="application" aria-label="ルート候補の地図"></div>
@@ -588,12 +589,12 @@
                 </div>
               </div>
             </div>
-          </section>
-          <section class="route-planner-results" aria-labelledby="routePlannerResultsTitle">
+            </section>
+            <section class="route-planner-results" aria-labelledby="routePlannerResultsTitle">
             <div class="route-planner-section-heading"><div><h6 id="routePlannerResultsTitle">ルート候補</h6></div></div>
             <div id="routeCandidateList" class="route-candidate-list" role="radiogroup" aria-label="ルート候補"></div>
-            <div id="routeLegSummary" class="route-leg-summary"></div>
-          </section>
+              <div id="routeLegSummary" class="route-leg-summary"></div>
+            </section>
         </div>
       </cds-modal-body>
       <cds-modal-footer class="app-modal-footer route-planner-footer">

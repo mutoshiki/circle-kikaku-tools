@@ -99,6 +99,10 @@
   max-width: 100%;
 }
 
+#routeDistanceModal .route-map-toggle {
+  display: none;
+}
+
 #routeDistanceModal .route-place-search-surface {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -454,8 +458,8 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "controls"
-      "map"
-      "results";
+      "results"
+      "map";
     width: 100%;
     min-height: 0;
   }
@@ -470,6 +474,16 @@
     position: static;
     padding: 0;
     border-top: 0;
+  }
+
+  #routeDistanceModal .route-map-toggle {
+    display: flex;
+    width: 100%;
+    margin-top: 16px;
+  }
+
+  #routeDistanceModal.route-map-collapsed .route-planner-map-panel {
+    display: none;
   }
 
   #routeDistanceModal .route-map-frame { min-height: 360px; border-inline: 0; }

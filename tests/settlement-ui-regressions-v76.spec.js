@@ -21,7 +21,7 @@ async function openFirstCarEditor(page) {
 }
 
 async function openMovementSettings(page) {
-  await page.locator('#settlementCarEditModal [data-action="open-settlement-gas-settings"]').evaluate(node => node.click());
+  await page.locator('#settlementCarEditModal [data-action="open-settlement-gas-settings"]').click();
   const modal = page.locator('body > #settlementGasEditModal');
   await expect(modal).toHaveCount(1);
   await expect(modal).toHaveJSProperty('open', true);
@@ -150,7 +150,8 @@ test.describe('Settlement UI regressions v76', () => {
       await expect(input).toHaveAttribute('pattern', '[0-9]*');
       await expect(input).toHaveAttribute('maxlength', '4');
     }
-    await expect(modal.locator('cds-modal-footer-button[data-modal-close]')).toHaveText('完了');
+    await expect(modal.locator('cds-modal-footer-button[data-modal-close]')).toHaveText('ガソリン代を適用');
+    await expect(modal.locator('[data-gas-calculation-preview]')).toBeVisible();
     await expect(modal).not.toContainText('費用編集に戻る');
     await closeMovementSettings(page);
   });

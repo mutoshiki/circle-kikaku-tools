@@ -51,6 +51,36 @@
             ? global.ensureTimesRentalExtras(current)
             : current;
         global.saveLocalDraftOnly?.();
+        updateGasCalculationPreview(modal);
+    }
+
+    function updateGasCalculationPreview(modal) {
+        const preview = modal?.querySelector?.('[data-gas-calculation-preview]');
+        if (!preview) return;
+        const parked = privateFuelFields.get(modal)?.fields || [];
+        const findField = key => modal.querySelector(`[data-field="${key}"]`)
+            || parked.find(field => field.querySelector?.(`[data-field="${key}"]`))?.querySelector?.(`[data-field="${key}"]`);
+        const readNumber = key => Number(String(findField(key)?.value || '').replace(/,/g, '')) || 0;
+        const isTimes = modal.querySelector('[data-field="rentalType"]')?.value === 'times';
+        const distance = readNumber('dist');
+        const fuelEconomy = readNumber('eco');
+        const fuelPrice = readNumber('price');
+        const amount = isTimes
+            ? (typeof global.getTimesDistanceFee === 'function' ? Number(global.getTimesDistanceFee(String(distance))) || 0 : 0)
+            : (distance > 0 && fuelEconomy > 0 && fuelPrice > 0 ? Math.round((distance / fuelEconomy) * fuelPrice) : 0);
+        const ready = isTimes ? distance > 0 : distance > 0 && fuelEconomy > 0 && fuelPrice > 0;
+        const label = isTimes ? '計算した移動料金' : '計算したガソリン代';
+        const formula = isTimes
+            ? (ready ? `移動距離 ${distance.toLocaleString('ja-JP')}km` : '移動距離を入力してください')
+            : (ready
+                ? `${distance.toLocaleString('ja-JP')}km ÷ ${fuelEconomy.toLocaleString('ja-JP')}km/L × ${fuelPrice.toLocaleString('ja-JP')}円/L`
+                : '移動距離・燃費・ガソリン単価を入力してください');
+        const labelNode = preview.querySelector('[data-gas-calculation-label]');
+        const amountNode = preview.querySelector('[data-gas-calculation-amount]');
+        const formulaNode = preview.querySelector('[data-gas-calculation-formula]');
+        if (labelNode) labelNode.textContent = label;
+        if (amountNode) amountNode.textContent = `¥${amount.toLocaleString('ja-JP')}`;
+        if (formulaNode) formulaNode.textContent = formula;
     }
 
     function syncPrivateFuelDisclosure(modal, times) {
@@ -289,7 +319,11 @@
         global.SanpoApp?.registerActions?.(generatedActionHandlers);
 
         document.addEventListener('click', event => {
-            const actionTarget = event.target.closest?.('[data-action]');
+            // Carbon controls dispatch composed clicks from inside their shadow
+            // root. Resolve the host from the composed path so a real pointer
+            // click and a synthetic host click use the same action route.
+            const actionTarget = (event.composedPath?.() || []).find(node => node?.matches?.('[data-action]'))
+                || event.target.closest?.('[data-action]');
             if (!actionTarget || actionTarget.closest?.('.person-pop-menu')) return;
             const action = actionTarget.dataset.action;
             const handled = global.SanpoApp?.runAction?.(action, { event, target: actionTarget, action });

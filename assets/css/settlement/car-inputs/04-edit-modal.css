@@ -26,6 +26,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+#settlementCarEditModal cds-modal-label {
+  color: var(--cds-text-secondary, var(--text-sub));
+}
 #settlementCarEditModal .seisan-car-row {
   margin: 0;
   padding: 0;

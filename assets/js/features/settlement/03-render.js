@@ -739,7 +739,9 @@ function openSettlementCarEditor(encodedName) {
     const name = decodeURIComponent(encodedName || '');
     activeSettlementCarEditName = name;
     const title = byId('settlementCarEditModalTitle');
-    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用を編集`;
+    const label = byId('settlementCarEditModalLabel');
+    if (label) label.textContent = `${name}車`;
+    if (title) title.innerHTML = '<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>費用を編集';
     refreshSettlementCarEditor(name);
     if (modals.settlementCarEdit) modals.settlementCarEdit.show();
 }
@@ -752,7 +754,9 @@ function resumeSettlementCarEditor(encodedName) {
     settlementCarEditDiscardPromptActive = false;
     settlementCarEditPreserveOnHidden = false;
     const title = byId('settlementCarEditModalTitle');
-    if (title) title.innerHTML = `<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>${escapeHtml(name)}車の費用を編集`;
+    const label = byId('settlementCarEditModalLabel');
+    if (label) label.textContent = `${name}車`;
+    if (title) title.innerHTML = '<span data-carbon-icon="car-small" class="app-modal-heading-icon" aria-hidden="true"></span>費用を編集';
     refreshSettlementCarEditor(name);
     if (modals.settlementCarEdit) modals.settlementCarEdit.show();
 }

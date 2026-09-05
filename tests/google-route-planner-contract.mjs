@@ -29,11 +29,11 @@ assert.doesNotMatch(route, /createRouteMapLabel|route-map-route-label/, 'map rou
 assert.match(route, /function\s+formatMapStopLetter[\s\S]*String\.fromCharCode\(65/, 'map waypoint markers generate A, B, C and later letters deterministically');
 assert.match(route, /isDestination\s*\?\s*buildPinMarkerSvg\(\)\s*:\s*buildCircleMarkerSvg\(markerText\)/, 'only the final destination uses a red pin');
 assert.match(route, /waitForPlannerCloseCompletion/, 'rapid route-modal reopening waits for the prior close lifecycle');
-assert.match(modal, /入力した場所はルーム内で候補として共有されます/, 'the route privacy notice is visible at the top');
-assert.match(carTemplates, /type="number"[\s\S]*data-field="dist"/, 'distance uses a numeric input');
-assert.match(carTemplates, /type="number"[\s\S]*data-field="eco"/, 'fuel economy uses a numeric input');
-assert.match(carTemplates, /type="number"[\s\S]*data-field="price"/, 'fuel price uses a numeric input');
-assert.match(extraTemplates, /columnLabel\(['"]名目['"]\)/, 'extra-cost name is labeled 名目');
+assert.match(modal, /入力した場所はルーム内で共有されます[\s\S]*自宅住所は避け、近くの施設を入力してください。/, 'the concise route privacy callout is visible at the top');
+assert.match(carTemplates, /data-field="dist"[\s\S]*inputmode="numeric"|inputmode="numeric"[\s\S]*data-field="dist"/, 'distance uses the numeric keyboard contract');
+assert.match(carTemplates, /data-field="eco"[\s\S]*inputmode="numeric"|inputmode="numeric"[\s\S]*data-field="eco"/, 'fuel economy uses the numeric keyboard contract');
+assert.match(carTemplates, /data-field="price"[\s\S]*inputmode="numeric"|inputmode="numeric"[\s\S]*data-field="price"/, 'fuel price uses the numeric keyboard contract');
+assert.match(extraTemplates, /seisan-cost-field-label">名目/, 'extra-cost name is visibly labeled 名目 on compact forms');
 assert.match(settlementRender, /allowInvalid[\s\S]*settlementCarEditClosePrepared/, 'the route shortcut may transition away while validation warnings remain');
 assert.match(loader, /data\.sanpoGoogleMaps|dataset\.sanpoGoogleMaps/, 'loader owns one Google script');
 assert.match(config, /SANPO_GOOGLE_MAPS_CONFIG/, 'config follows the window config pattern');
@@ -68,12 +68,14 @@ assert.match(route, /Polyline[\s\S]*addListener\(['"]click['"]/, 'map routes are
 assert.match(route, /popstate/, 'browser back closes the planner');
 assert.doesNotMatch(route, /DirectionsService|DistanceMatrixService|AutocompleteService/, 'legacy APIs are absent');
 assert.match(route, /retryRoutePlanner/, 'Google failures expose retry');
+assert.match(route, /setRouteMapExpanded[\s\S]*route-map-collapsed/, 'mobile can collapse the map until it is needed for confirmation');
+assert.match(route, /合計 \$\{distance\} を適用/, 'the apply action exposes the selected total distance');
 assert.doesNotMatch(modal, /id="addRouteWaypointBtn"/, 'the permanent empty stop row replaces the add button');
 assert.match(modal, /<cds-accordion[\s\S]*<cds-accordion-item[^>]*title="ルート設定"/, 'route settings use the official Carbon Accordion');
 assert.doesNotMatch(modal, /地図プレビュー|地点を選択すると自動で取得します/, 'redundant planner copy is removed');
 assert.match(templates, /route-stop-row--\$\{role\}/, 'all route points share the same stop-row anatomy');
 assert.match(templates, /data-route-add-slot/, 'one permanent empty append slot is rendered');
-for (const id of ['routeStopList','routePlaceSearchInput','routePlaceHistoryList','routePlannerRetryBtn','routeMap','routeCandidateList','applyRouteDistanceBtn']) {
+for (const id of ['routeStopList','routePlaceSearchInput','routePlaceHistoryList','routePlannerRetryBtn','routeMap','routeMapToggleBtn','routeCandidateList','applyRouteDistanceBtn']) {
   assert.match(modal, new RegExp(`id="${id}"`));
 }
 console.log('Google route planner contract: PASS');

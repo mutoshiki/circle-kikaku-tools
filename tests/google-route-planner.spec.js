@@ -152,12 +152,12 @@ test('compact Carbon stop editor uses one permanent append slot and accordion se
   await expect(page.locator('#addRouteWaypointBtn')).toHaveCount(0);
   await expect(page.locator('#routeStopList .route-stop-row')).toHaveCount(2);
   await expect(page.locator('#routeStopList .route-stop-row--append .route-stop-delete')).toHaveCount(0);
-  await expect(page.locator('#routeStopList .route-stop-row--append .route-stop-input')).toHaveJSProperty('placeholder', '経由地を追加');
+  await expect(page.locator('#routeStopList .route-stop-row--append .route-stop-input')).toHaveJSProperty('placeholder', '目的地を追加');
   await expect(page.locator('#routePlannerMapTitle')).toHaveCount(0);
   await expect(page.locator('#routePlannerCalculatedAt')).toHaveCount(0);
   await expect(page.locator('cds-accordion.route-settings-accordion')).toHaveCount(1);
-  await expect(page.locator('#routeAvoidTolls')).toHaveJSProperty('checked', true);
-  await expect(page.locator('#routeAvoidHighways')).toHaveJSProperty('checked', true);
+  await expect(page.locator('cds-checkbox#routeUseTolls')).toHaveJSProperty('checked', false);
+  await expect(page.locator('cds-checkbox#routeUseHighways')).toHaveJSProperty('checked', false);
 });
 
 test('segmented alternatives create at most three complete route candidates', async ({ page }) => {

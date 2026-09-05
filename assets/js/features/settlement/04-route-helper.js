@@ -584,7 +584,12 @@
             ...runtime.waypointRows.filter(row => row.place).map(row => ({ id: row.id, role: 'waypoint', place: row.place }))
         ];
         if (state.destination) items.push({ id: 'destination', role: 'destination', place: state.destination });
-        items.push({ id: 'append', role: 'append', place: null });
+        items.push({
+            id: 'append',
+            role: 'append',
+            place: null,
+            appendLabel: state.destination ? '経由地を追加' : '目的地を追加'
+        });
         return items;
     }
 
@@ -632,7 +637,9 @@
     }
 
     function searchPlaceholder(role) {
-        return role === 'origin' ? '出発地を追加' : '経由地を追加';
+        if (role === 'origin') return '出発地を追加';
+        if (role === 'append' && !plannerState().destination) return '目的地を追加';
+        return '経由地を追加';
     }
 
     function placeSearchInput() {
@@ -700,6 +707,17 @@
         list.innerHTML = entries.length
             ? entries.map((entry, index) => templates().routeHistoryItem(entry, index, { escapeHtml })).join('')
             : `<div class="route-place-history-empty">${mode === 'search' ? '一致する場所がありません。' : '候補はまだありません。'}</div>`;
+        // Carbon buttons encapsulate their visible button in Shadow DOM. Bind the
+        // newly-rendered choices at their owning surface as well as keeping the
+        // list-level fallback below, so both keyboard and pointer selection have
+        // one reliable route back to the stop editor.
+        list.querySelectorAll('[data-route-history-index]').forEach(item => {
+            item.addEventListener('click', event => {
+                event.preventDefault();
+                event.stopPropagation();
+                selectPlaceSearchEntry(Number(item.dataset.routeHistoryIndex));
+            });
+        });
         applyRuntimeAccessibilityFixes(list);
     }
 
@@ -939,7 +957,12 @@
                 : '<div class="route-candidate-empty">出発地と目的地を選ぶと、ルート候補を表示します。</div>';
         }
         if (summary) summary.innerHTML = selected ? templates().routeLegSummary(selected, places, state.roundTrip, { escapeHtml }) : '';
-        if (apply) apply.disabled = !selected;
+        if (apply) {
+            const distance = selected ? templates().formatRouteDistance((Number(selected.distanceMeters) || 0) * (state.roundTrip ? 2 : 1)) : '';
+            apply.disabled = !selected;
+            apply.textContent = selected ? `合計 ${distance} を適用` : 'この距離を適用';
+            apply.setAttribute('aria-label', selected ? `合計距離 ${distance} を移動距離に適用` : 'この距離を適用');
+        }
         applyRuntimeAccessibilityFixes(list);
     }
 
@@ -1335,6 +1358,23 @@
         }
     }
 
+    function setRouteMapExpanded(expanded) {
+        const modal = byId('routeDistanceModal');
+        const toggle = byId('routeMapToggleBtn');
+        const next = expanded === true;
+        modal?.classList.toggle('route-map-collapsed', !next);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', next ? 'true' : 'false');
+            toggle.textContent = next ? '地図を隠す' : '地図を表示';
+            const icon = document.createElement('span');
+            icon.dataset.carbonIcon = next ? 'chevron--up' : 'map';
+            icon.slot = 'icon';
+            icon.setAttribute('aria-hidden', 'true');
+            toggle.prepend(icon);
+        }
+        if (next) refreshMapAfterOpen();
+    }
+
     function routePreferenceScore(route, state) {
         let score = 0;
         if (!state.avoidTolls && route.hasTolls) score += 2;
@@ -1488,6 +1528,7 @@
         closePlaceSearch();
         renderStopEditor();
         renderRoutes();
+        setRouteMapExpanded(false);
         setNotice('', '', '');
         setMapEmpty(runtime.map ? '' : 'Google Mapsを読み込んでいます。');
         setMapSkeleton(!runtime.map);
@@ -1666,6 +1707,10 @@
             });
         });
         byId('applyRouteDistanceBtn')?.addEventListener('click', applySelectedDistance);
+        byId('routeMapToggleBtn')?.addEventListener('click', () => {
+            const expanded = byId('routeMapToggleBtn')?.getAttribute('aria-expanded') === 'true';
+            setRouteMapExpanded(!expanded);
+        });
         byId('routePlannerRetryBtn')?.addEventListener('click', () => void retryRoutePlanner());
         byId('routePlannerCancelBtn')?.addEventListener('click', () => closePlanner());
         ['routeUseTolls', 'routeUseHighways'].forEach(id => {
