@@ -20,7 +20,10 @@
     'routeWaypointRow',
     'routeHistoryItem',
     'routeCandidateCard',
-    'routeLegSummary'
+    'routeLegSummary',
+    'formatRouteDistance',
+    'formatRouteDuration',
+    'formatRouteStopLetter'
   ];
 
   function registerSettlementTemplates() {

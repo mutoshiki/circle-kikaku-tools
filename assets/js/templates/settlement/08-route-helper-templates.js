@@ -76,7 +76,7 @@
   function routeHistoryItem(item = {}, index = 0, helpers = {}) {
     const title = item.title || item.place?.name || item.name || '';
     const subtitle = item.subtitle || item.place?.address || item.address || '';
-    const icon = item.kind === 'prediction' ? 'location' : 'recently-viewed';
+    const icon = item.kind === 'prediction' ? 'map' : 'recently-viewed';
     return `<cds-button class="route-place-history-item" kind="ghost" size="lg" type="button" data-route-history-index="${index}">
       <span class="route-place-history-layout">
         <span class="route-place-history-icon" aria-hidden="true"><span data-carbon-icon="${icon}"></span></span>

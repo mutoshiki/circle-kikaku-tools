@@ -4,6 +4,7 @@ const read = file => fs.readFileSync(file, 'utf8');
 const state = read('assets/js/features/settlement/01-state.js');
 const route = read('assets/js/features/settlement/04-route-helper.js');
 const templates = read('assets/js/templates/settlement/08-route-helper-templates.js');
+const templateRegistry = read('assets/js/templates/settlement/09-register-settlement-templates.js');
 const carTemplates = read('assets/js/templates/settlement/03-car-cost-templates.js');
 const extraTemplates = read('assets/js/templates/settlement/04-extra-input-templates.js');
 const settlementRender = read('assets/js/features/settlement/03-render.js');
@@ -75,6 +76,11 @@ assert.match(modal, /<cds-accordion[\s\S]*<cds-accordion-item[^>]*title="ルー�
 assert.doesNotMatch(modal, /地図プレビュー|地点を選択すると自動で取得します/, 'redundant planner copy is removed');
 assert.match(templates, /route-stop-row--\$\{role\}/, 'all route points share the same stop-row anatomy');
 assert.match(templates, /data-route-add-slot/, 'one permanent empty append slot is rendered');
+assert.match(templates, /item\.kind === ['"]prediction['"] \? ['"]map['"]/, 'route predictions use a bundled Carbon icon');
+for (const helper of ['formatRouteDistance', 'formatRouteDuration', 'formatRouteStopLetter']) {
+  assert.match(templates, new RegExp(`${helper}\\s*:`), `route template helper is defined: ${helper}`);
+  assert.match(templateRegistry, new RegExp(`['"]${helper}['"]`), `route template helper is published: ${helper}`);
+}
 for (const id of ['routeStopList','routePlaceSearchInput','routePlaceHistoryList','routePlannerRetryBtn','routeMap','routeMapToggleBtn','routeCandidateList','applyRouteDistanceBtn']) {
   assert.match(modal, new RegExp(`id="${id}"`));
 }

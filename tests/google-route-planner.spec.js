@@ -10,6 +10,8 @@ async function installGoogleMock(page) {
       extend(point) { this.points.push(point); return this; }
       isEmpty() { return !this.points.length; }
     }
+    class Size { constructor(width, height) { this.width = width; this.height = height; } }
+    class Point { constructor(x, y) { this.x = x; this.y = y; } }
     class Map {
       constructor(node, options) { this.node = node; this.options = options; }
       setOptions(options) { Object.assign(this.options, options); }
@@ -86,7 +88,7 @@ async function installGoogleMock(page) {
       };
     };
     const maps = {
-      Map, Polyline, Marker, LatLngBounds: Bounds,
+      Map, Polyline, Marker, LatLngBounds: Bounds, Size, Point,
       event: {
         addListenerOnce: (_target, _name, handler) => setTimeout(handler, 0),
         trigger: (_target, event) => { if (event === 'resize') window.__mapResize += 1; }
@@ -149,6 +151,12 @@ test.beforeEach(async ({ page }) => {
 
 test('compact Carbon stop editor uses one permanent append slot and accordion settings', async ({ page }) => {
   await openFromCar(page);
+  const routeTemplateHelpers = await page.evaluate(() => {
+    const routeTemplates = window.SanpoApp?.templates?.settlement || {};
+    return ['formatRouteDistance', 'formatRouteDuration', 'formatRouteStopLetter']
+      .every(name => typeof routeTemplates[name] === 'function');
+  });
+  expect(routeTemplateHelpers).toBeTruthy();
   await expect(page.locator('#addRouteWaypointBtn')).toHaveCount(0);
   await expect(page.locator('#routeStopList .route-stop-row')).toHaveCount(2);
   await expect(page.locator('#routeStopList .route-stop-row--append .route-stop-delete')).toHaveCount(0);
@@ -158,6 +166,14 @@ test('compact Carbon stop editor uses one permanent append slot and accordion se
   await expect(page.locator('cds-accordion.route-settings-accordion')).toHaveCount(1);
   await expect(page.locator('cds-checkbox#routeUseTolls')).toHaveJSProperty('checked', false);
   await expect(page.locator('cds-checkbox#routeUseHighways')).toHaveJSProperty('checked', false);
+});
+
+test('selected route renders the distance apply action', async ({ page }) => {
+  await openFromCar(page);
+  await choosePlace(page, 'origin', '信州');
+  await choosePlace(page, 'append', '松本');
+  await expect(page.locator('.route-candidate-card')).toHaveCount(3);
+  await expect(page.locator('#applyRouteDistanceBtn')).toHaveText(/合計 \d+(?:\.\d+)?km を適用/);
 });
 
 test('segmented alternatives create at most three complete route candidates', async ({ page }) => {
