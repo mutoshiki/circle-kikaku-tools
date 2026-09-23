@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 4,
+  "roomName": "互換性確認用の企画",
+  "cars": [
+    { "name": "仮参加者A", "capacity": 3, "driverGrade": 2, "members": [
+      { "name": "仮参加者B", "grade": 1, "locked": true },
+      { "name": "仮参加者C", "grade": 3 }
+    ] },
+    { "name": "仮参加者D", "capacity": 2, "driverGrade": 4, "members": [
+      { "name": "仮参加者E", "grade": 2 }
+    ] }
+  ],
+  "waiting": [{ "name": "仮参加者F", "grade": 1, "memo": "集合場所を確認" }],
+  "settlement": {
+    "rounding": "100",
+    "organizerFree": false,
+    "organizerName": "仮参加者B",
+    "driverCollectionOffset": true,
+    "driverCollectionFree": false,
+    "driverReward": "500",
+    "driverRewardType": "split",
+    "cars": {
+      "仮参加者A": { "dist": "186", "eco": "18", "price": "158", "extras": [
+        { "id": "extra-highway-a", "name": "高速代", "amount": "2400", "type": "split" },
+        { "id": "extra-club-a", "name": "駐車代", "amount": "800", "type": "club" },
+        { "id": "extra-discount-a", "name": "割引", "amount": "200", "type": "split-minus" }
+      ] },
+      "仮参加者D": { "dist": "41.5", "rentalType": "times", "extras": [
+        { "id": "extra-rental-d", "name": "タイムズ時間料金", "amount": "2500", "type": "split" },
+        { "id": "extra-club-discount-d", "name": "部費返金", "amount": "100", "type": "club-minus" }
+      ] }
+    },
+    "paid": { "仮参加者B": true },
+    "paidBy": { "仮参加者B": "仮参加者A" },
+    "driverPaid": { "仮参加者A": true }
+  },
+  "overview": { "memo": "個人情報を含まない検証用データ", "timetableItems": [{ "time": "08:30", "title": "集合" }] },
+  "meta": {
+    "applicationSync": { "kind": "formApplicationSync", "version": 2, "title": "互換性確認用の企画", "responseCount": 2, "syncedAt": 1000,
+      "applicants": {
+        "fixture-response-a": { "name": "仮参加者A", "grade": 2, "canDrive": true, "capacity": 3 },
+        "fixture-response-g": { "name": "仮参加者G", "grade": 1, "canDrive": false }
+      }
+    }
+  }
+}

@@ -85,6 +85,11 @@ try {
     await mustPass('authenticated room read', () => roomRef.once('value'));
     await mustPass('authenticated room update', () => roomRef.update({ roomName: '通常操作', lastUpdatedAt: 2, revision: 1 }));
 
+    // Schema-6 readers may omit this legacy view field while normalizing old rooms.
+    const canonicalWithoutActiveAllocationType = canonicalRoom();
+    delete canonicalWithoutActiveAllocationType.activeAllocationType;
+    await mustPass('schema-6 room without legacy activeAllocationType', () => owner.ref('rooms/ROOMOLD001').set(canonicalWithoutActiveAllocationType));
+
     // Rules must reject unauthenticated, malformed ID and invalid canonical values.
     await mustFail('unauthenticated read', () => stranger.ref(`rooms/${validRoomId}`).once('value'));
     await mustFail('unauthenticated write', () => stranger.ref(`rooms/${validRoomId}`).set(canonicalRoom()));

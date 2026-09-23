@@ -1,0 +1,13 @@
+node_modules/
+dist/
+dist-emulator/
+.env.local
+.env.*.local
+test-results/
+playwright-report/
+coverage/
+.cache/
+*.log
+*.trace
+*.zip
+screenshots/
