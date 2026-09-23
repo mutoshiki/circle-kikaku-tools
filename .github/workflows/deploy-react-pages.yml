@@ -72,11 +72,6 @@ jobs:
         working-directory: apps/react
         run: npm ci --no-audit --no-fund
 
-      - name: Run React unit and contract tests
-        if: steps.target.outputs.value != 'legacy'
-        working-directory: apps/react
-        run: npm test
-
       - name: Validate production browser config
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && steps.target.outputs.value != 'legacy'
         env:
@@ -141,6 +136,11 @@ jobs:
           VITE_BASE_PATH: ${{ steps.target.outputs.value == 'react' && '/circle-kikaku-tools/' || '/circle-kikaku-tools/react/' }}
           VITE_REACT_SYNC_MODE: local
         run: npm run build
+
+      - name: Run React unit and contract tests
+        if: steps.target.outputs.value != 'legacy'
+        working-directory: apps/react
+        run: npm test
 
       - name: Build current legacy site for compatibility preview
         if: steps.target.outputs.value == 'compatibility'
