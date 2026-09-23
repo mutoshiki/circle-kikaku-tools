@@ -1,0 +1,2695 @@
+{
+  "config": {
+    "argv": [
+      "F:\\nodejsss\\node.exe",
+      "C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "apps/react/migration/legacy.playwright.config.mjs"
+    ],
+    "configFile": "C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\apps\\react\\migration\\legacy.playwright.config.mjs",
+    "rootDir": "C:/Users/toshi/Documents/GitHub/circle-kikaku-tools/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/toshi/AppData/Local/Temp/circle-react-migration-evidence/legacy-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/toshi/Documents/GitHub/circle-kikaku-tools/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "carbon-complete.spec.js",
+          "assignment-workspace-refresh.spec.js",
+          "shared-touch-scroll-v72.spec.js",
+          "shell-project-title-navigation-v73.spec.js",
+          "settlement-cost-editor-list-v75.spec.js",
+          "settlement-ui-regressions-v76.spec.js",
+          "status-toast-policy-v79.spec.js",
+          "settlement-modal-warning-v80.spec.js",
+          "participants-tab-v83.spec.js",
+          "form-linked-sample.spec.js",
+          "empty-state-parity-v96.spec.js",
+          "bugfix-room-participants-drivers-v101.spec.js",
+          "official-carbon-runtime.spec.js"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\toshi\\AppData\\Local\\Temp\\circle-react-migration-evidence\\legacy-browser-baseline.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": {
+      "command": "node apps/react/tools/reference-server.mjs",
+      "cwd": "C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\",
+      "url": "http://127.0.0.1:4183",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "assignment-workspace-refresh.spec.js",
+      "file": "assignment-workspace-refresh.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Assignment workspace refresh",
+          "file": "assignment-workspace-refresh.spec.js",
+          "line": 30,
+          "column": 6,
+          "specs": [
+            {
+              "title": "primary toolbar is 参加者 → 車割 → 班割 → 精算 with no allocation-local switcher or shared-view destination",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3124,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:19:42.393Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db6335747c1c10af16d4-1c92b1aee0073d1a703d",
+              "file": "assignment-workspace-refresh.spec.js",
+              "line": 33,
+              "column": 7
+            },
+            {
+              "title": "bulk allocation is one random action with no settings, fill, gender, rename, move or drag controls",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2172,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:19:45.617Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db6335747c1c10af16d4-ce9c477d3b0f4a3b01f2",
+              "file": "assignment-workspace-refresh.spec.js",
+              "line": 63,
+              "column": 7
+            },
+            {
+              "title": "driver role can be toggled for multiple people and role rows stay first after rerender",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3808,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:19:47.798Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db6335747c1c10af16d4-7c4d035f881eb37eb3c4",
+              "file": "assignment-workspace-refresh.spec.js",
+              "line": 84,
+              "column": 7
+            },
+            {
+              "title": "canonical role, lock, shuffle and scroll owners stay stable through real menu actions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4008,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:19:51.615Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db6335747c1c10af16d4-3585f2a8d9d350aa36cc",
+              "file": "assignment-workspace-refresh.spec.js",
+              "line": 136,
+              "column": 7
+            },
+            {
+              "title": "mobile workspace stays compact with one action and never widens the viewport",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1511,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:19:55.631Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db6335747c1c10af16d4-79fde5c6a41b51e6aa3c",
+              "file": "assignment-workspace-refresh.spec.js",
+              "line": 204,
+              "column": 7
+            },
+            {
+              "title": "allocation hierarchy uses productive Carbon type grades and spacing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1489,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:19:57.149Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db6335747c1c10af16d4-0192ca95b17656661bea",
+              "file": "assignment-workspace-refresh.spec.js",
+              "line": 238,
+              "column": 7
+            },
+            {
+              "title": "expanded candidate rows keep the Carbon disclosure label compact and center the add icon",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2326,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:19:58.647Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db6335747c1c10af16d4-075f16578bc34aef60c9",
+              "file": "assignment-workspace-refresh.spec.js",
+              "line": 276,
+              "column": 7
+            },
+            {
+              "title": "mobile title uses the same natural scroll owner instead of collapsing 240px from a tiny gesture",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1712,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:20:00.981Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db6335747c1c10af16d4-bbbb3fc5ab6538de789f",
+              "file": "assignment-workspace-refresh.spec.js",
+              "line": 333,
+              "column": 7
+            },
+            {
+              "title": "Carbon allocation borders, empty-seat notification width and pointer menu cleanup stay theme-aware",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5903,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:20:02.701Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db6335747c1c10af16d4-0828ae118da3d42ea3a1",
+              "file": "assignment-workspace-refresh.spec.js",
+              "line": 356,
+              "column": 7
+            },
+            {
+              "title": "share action copies the normal room URL and legacy special allocation links normalize back to the normal app",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3008,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:20:08.613Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db6335747c1c10af16d4-c3fd85328baff3b85439",
+              "file": "assignment-workspace-refresh.spec.js",
+              "line": 441,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "bugfix-room-participants-drivers-v101.spec.js",
+      "file": "bugfix-room-participants-drivers-v101.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "brand link keeps the current room while clearing only transient view state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3285,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T10:20:11.635Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eb886fd26fcb3ee0826c-c9635a28d01a963b8de6",
+          "file": "bugfix-room-participants-drivers-v101.spec.js",
+          "line": 21,
+          "column": 5
+        },
+        {
+          "title": "unchecked manual participant stays removed after saving selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1840,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T10:20:14.928Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eb886fd26fcb3ee0826c-48bf0580a06385e5f4b9",
+          "file": "bugfix-room-participants-drivers-v101.spec.js",
+          "line": 64,
+          "column": 5
+        },
+        {
+          "title": "settlement driver rows follow car allocation driver tags",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1643,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T10:20:16.777Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eb886fd26fcb3ee0826c-677c8acbe41995d1ec4d",
+          "file": "bugfix-room-participants-drivers-v101.spec.js",
+          "line": 90,
+          "column": 5
+        },
+        {
+          "title": "each tagged driver in one car receives a collection offset",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1327,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T10:20:18.428Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eb886fd26fcb3ee0826c-2492a6bcc64ee460e6c1",
+          "file": "bugfix-room-participants-drivers-v101.spec.js",
+          "line": 120,
+          "column": 5
+        },
+        {
+          "title": "mobile add-car action keeps its label visible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1122,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T10:20:19.763Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eb886fd26fcb3ee0826c-d4b80b56d7ab1715a5e4",
+          "file": "bugfix-room-participants-drivers-v101.spec.js",
+          "line": 182,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "carbon-complete.spec.js",
+      "file": "carbon-complete.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "390px Carbon shell",
+          "file": "carbon-complete.spec.js",
+          "line": 51,
+          "column": 8,
+          "specs": [
+            {
+              "title": "primary destinations, theme, navigation and app drawer remain operable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4067,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:20:20.906Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8384a9c60c91e9a2ca9f-c85182dcee7264e6d9a6",
+              "file": "carbon-complete.spec.js",
+              "line": 54,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "1280px Carbon shell",
+          "file": "carbon-complete.spec.js",
+          "line": 51,
+          "column": 8,
+          "specs": [
+            {
+              "title": "primary destinations, theme, navigation and app drawer remain operable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3986,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:20:24.981Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8384a9c60c91e9a2ca9f-978a428ddc7635b81330",
+              "file": "carbon-complete.spec.js",
+              "line": 54,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Allocation, menus and accessibility",
+          "file": "carbon-complete.spec.js",
+          "line": 108,
+          "column": 6,
+          "specs": [
+            {
+              "title": "role-tagged people stay put during random assignment and new groups can be created",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4445,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:20:28.975Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8384a9c60c91e9a2ca9f-7e67fdc878ca200b9f3f",
+              "file": "carbon-complete.spec.js",
+              "line": 111,
+              "column": 7
+            },
+            {
+              "title": "car/team tabs, one random action and official person menus work in the viewport",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2556,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m64\u001b[39m\nReceived:    \u001b[31m65\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m64\u001b[39m\nReceived:    \u001b[31m65\u001b[39m\n    at C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js:181:40",
+                        "location": {
+                          "file": "C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js",
+                          "column": 40,
+                          "line": 181
+                        },
+                        "snippet": "  179 |     });\n  180 |     expect(compactWorkspace.rowHeight).toBeGreaterThanOrEqual(48);\n> 181 |     expect(compactWorkspace.rowHeight).toBeLessThanOrEqual(64);\n      |                                        ^\n  182 |     expect(compactWorkspace.tagHeight).toBe(24);\n  183 |     expect(compactWorkspace.toolbarHeights.every(height => height === 48)).toBeTruthy();\n  184 |     expect(compactWorkspace.primaryActions).toBe(1);"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js",
+                            "column": 40,
+                            "line": 181
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m64\u001b[39m\nReceived:    \u001b[31m65\u001b[39m\n\n  179 |     });\n  180 |     expect(compactWorkspace.rowHeight).toBeGreaterThanOrEqual(48);\n> 181 |     expect(compactWorkspace.rowHeight).toBeLessThanOrEqual(64);\n      |                                        ^\n  182 |     expect(compactWorkspace.tagHeight).toBe(24);\n  183 |     expect(compactWorkspace.toolbarHeights.every(height => height === 48)).toBeTruthy();\n  184 |     expect(compactWorkspace.primaryActions).toBe(1);\n    at C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js:181:40"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:20:33.427Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\toshi\\AppData\\Local\\Temp\\circle-react-migration-evidence\\legacy-browser\\carbon-complete-Allocation-dbc8c--menus-work-in-the-viewport-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\toshi\\AppData\\Local\\Temp\\circle-react-migration-evidence\\legacy-browser\\carbon-complete-Allocation-dbc8c--menus-work-in-the-viewport-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\toshi\\AppData\\Local\\Temp\\circle-react-migration-evidence\\legacy-browser\\carbon-complete-Allocation-dbc8c--menus-work-in-the-viewport-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js",
+                        "column": 40,
+                        "line": 181
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8384a9c60c91e9a2ca9f-2e7849f5202c48428ea7",
+              "file": "carbon-complete.spec.js",
+              "line": 156,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Carbon modal and participant workflows",
+          "file": "carbon-complete.spec.js",
+          "line": 298,
+          "column": 6,
+          "specs": [
+            {
+              "title": "participant spreadsheet import creates participants",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1460,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:20:36.725Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8384a9c60c91e9a2ca9f-8854debef312bfe8f00a",
+              "file": "carbon-complete.spec.js",
+              "line": 301,
+              "column": 7
+            },
+            {
+              "title": "major and dynamic modals avoid button autofocus and close correctly",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11901,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeAttached\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#passphrase-panel cds-modal-close-button').first()\nExpected: attached\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeAttached\" with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for locator('#passphrase-panel cds-modal-close-button').first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeAttached\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#passphrase-panel cds-modal-close-button').first()\nExpected: attached\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeAttached\" with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for locator('#passphrase-panel cds-modal-close-button').first()\u001b[22m\n\n    at hostClick (C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js:13:25)\n    at C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js:338:11",
+                        "location": {
+                          "file": "C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js",
+                          "column": 25,
+                          "line": 13
+                        },
+                        "snippet": "  11 | async function hostClick(page, selector, index = 0) {\n  12 |   const locator = page.locator(selector).nth(index);\n> 13 |   await expect(locator).toBeAttached();\n     |                         ^\n  14 |   const tagName = await locator.evaluate(node => node.tagName);\n  15 |   if (tagName === 'CDS-HEADER-MENU-BUTTON') {\n  16 |     const button = locator.locator('button');"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js",
+                            "column": 25,
+                            "line": 13
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeAttached\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#passphrase-panel cds-modal-close-button').first()\nExpected: attached\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeAttached\" with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for locator('#passphrase-panel cds-modal-close-button').first()\u001b[22m\n\n\n  11 | async function hostClick(page, selector, index = 0) {\n  12 |   const locator = page.locator(selector).nth(index);\n> 13 |   await expect(locator).toBeAttached();\n     |                         ^\n  14 |   const tagName = await locator.evaluate(node => node.tagName);\n  15 |   if (tagName === 'CDS-HEADER-MENU-BUTTON') {\n  16 |     const button = locator.locator('button');\n    at hostClick (C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js:13:25)\n    at C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js:338:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:20:38.283Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\toshi\\AppData\\Local\\Temp\\circle-react-migration-evidence\\legacy-browser\\carbon-complete-Carbon-mod-fd339-tofocus-and-close-correctly-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\toshi\\AppData\\Local\\Temp\\circle-react-migration-evidence\\legacy-browser\\carbon-complete-Carbon-mod-fd339-tofocus-and-close-correctly-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\toshi\\AppData\\Local\\Temp\\circle-react-migration-evidence\\legacy-browser\\carbon-complete-Carbon-mod-fd339-tofocus-and-close-correctly-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js",
+                        "column": 25,
+                        "line": 13
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8384a9c60c91e9a2ca9f-55da75cb1ed998bdd899",
+              "file": "carbon-complete.spec.js",
+              "line": 314,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "First-run rendering and submit regression",
+          "file": "carbon-complete.spec.js",
+          "line": 343,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Carbon toast feedback stays concise without occupying the product-title slot",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3600,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:20:50.978Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8384a9c60c91e9a2ca9f-22940892e20d69afbf84",
+              "file": "carbon-complete.spec.js",
+              "line": 346,
+              "column": 7
+            },
+            {
+              "title": "first meaningful list and settlement screens use the same entry choices",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1013,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:20:54.670Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8384a9c60c91e9a2ca9f-589d98fc5b99c011446c",
+              "file": "carbon-complete.spec.js",
+              "line": 368,
+              "column": 7
+            },
+            {
+              "title": "participant and settlement settings submit buttons close their Carbon modals",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2511,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:20:55.692Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8384a9c60c91e9a2ca9f-6a59d7e76a894c75e0c7",
+              "file": "carbon-complete.spec.js",
+              "line": 389,
+              "column": 7
+            },
+            {
+              "title": "sample data is restored, rendered, persisted and closes the sample modal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2455,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:20:58.213Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8384a9c60c91e9a2ca9f-946e8985ff0e7078b02f",
+              "file": "carbon-complete.spec.js",
+              "line": 414,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Settlement and route workflows",
+          "file": "carbon-complete.spec.js",
+          "line": 448,
+          "column": 6,
+          "specs": [
+            {
+              "title": "settings, vehicle cost validation and route helper remain functional",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 15674,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#settlementCarEditModal')\nExpected: not \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  7000ms\n\nCall log:\n\u001b[2m  - Expect \"not toHaveAttribute\" with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for locator('#settlementCarEditModal')\u001b[22m\n\u001b[2m    17 × locator resolved to <cds-modal open=\"\" size=\"md\" has-footer=\"\" aria-label=\"車ごとの費用\" has-scrolling-content=\"\" loading-status=\"inactive\" id=\"settlementCarEditModal\" data-route-shortcut-bound=\"true\" data-settlement-modal-bound=\"true\" data-project-title-guard-bound=\"true\" aria-labelledby=\"settlementCarEditModalTitle\" class=\"app-modal app-modal--scroll settlement-edit-modal settlement-edit-modal--car\">…</cds-modal>\u001b[22m\n\u001b[2m       - unexpected value \"\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#settlementCarEditModal')\nExpected: not \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  7000ms\n\nCall log:\n\u001b[2m  - Expect \"not toHaveAttribute\" with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for locator('#settlementCarEditModal')\u001b[22m\n\u001b[2m    17 × locator resolved to <cds-modal open=\"\" size=\"md\" has-footer=\"\" aria-label=\"車ごとの費用\" has-scrolling-content=\"\" loading-status=\"inactive\" id=\"settlementCarEditModal\" data-route-shortcut-bound=\"true\" data-settlement-modal-bound=\"true\" data-project-title-guard-bound=\"true\" aria-labelledby=\"settlementCarEditModalTitle\" class=\"app-modal app-modal--scroll settlement-edit-modal settlement-edit-modal--car\">…</cds-modal>\u001b[22m\n\u001b[2m       - unexpected value \"\"\u001b[22m\n\n    at C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js:523:63",
+                        "location": {
+                          "file": "C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js",
+                          "column": 63,
+                          "line": 523
+                        },
+                        "snippet": "  521 |     await expect(page.locator('#settlementCarEditModal [data-extra-field][invalid]')).toHaveCount(0);\n  522 |     await hostClick(page, '#settlementCarEditModal [data-action=\"save-settlement-car-edit\"]');\n> 523 |     await expect(page.locator('#settlementCarEditModal')).not.toHaveAttribute('open', '');\n      |                                                               ^\n  524 |     await hostClick(page, '[data-action=\"open-settlement-car-edit\"]');\n  525 |     expect(await page.locator('#settlementCarEditModal [data-extra-field=\"amount\"]').last().evaluate(node => node.value)).toBe('1234');\n  526 |     const dimensions = await page.locator('#settlementCarEditModal .seisan-extra-row').last().evaluate(row => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js",
+                            "column": 63,
+                            "line": 523
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#settlementCarEditModal')\nExpected: not \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  7000ms\n\nCall log:\n\u001b[2m  - Expect \"not toHaveAttribute\" with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for locator('#settlementCarEditModal')\u001b[22m\n\u001b[2m    17 × locator resolved to <cds-modal open=\"\" size=\"md\" has-footer=\"\" aria-label=\"車ごとの費用\" has-scrolling-content=\"\" loading-status=\"inactive\" id=\"settlementCarEditModal\" data-route-shortcut-bound=\"true\" data-settlement-modal-bound=\"true\" data-project-title-guard-bound=\"true\" aria-labelledby=\"settlementCarEditModalTitle\" class=\"app-modal app-modal--scroll settlement-edit-modal settlement-edit-modal--car\">…</cds-modal>\u001b[22m\n\u001b[2m       - unexpected value \"\"\u001b[22m\n\n\n  521 |     await expect(page.locator('#settlementCarEditModal [data-extra-field][invalid]')).toHaveCount(0);\n  522 |     await hostClick(page, '#settlementCarEditModal [data-action=\"save-settlement-car-edit\"]');\n> 523 |     await expect(page.locator('#settlementCarEditModal')).not.toHaveAttribute('open', '');\n      |                                                               ^\n  524 |     await hostClick(page, '[data-action=\"open-settlement-car-edit\"]');\n  525 |     expect(await page.locator('#settlementCarEditModal [data-extra-field=\"amount\"]').last().evaluate(node => node.value)).toBe('1234');\n  526 |     const dimensions = await page.locator('#settlementCarEditModal .seisan-extra-row').last().evaluate(row => {\n    at C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js:523:63"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:21:00.676Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\toshi\\AppData\\Local\\Temp\\circle-react-migration-evidence\\legacy-browser\\carbon-complete-Settlement-1b988-te-helper-remain-functional-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\toshi\\AppData\\Local\\Temp\\circle-react-migration-evidence\\legacy-browser\\carbon-complete-Settlement-1b988-te-helper-remain-functional-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\toshi\\AppData\\Local\\Temp\\circle-react-migration-evidence\\legacy-browser\\carbon-complete-Settlement-1b988-te-helper-remain-functional-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\toshi\\Documents\\GitHub\\circle-kikaku-tools\\tests\\carbon-complete.spec.js",
+                        "column": 63,
+                        "line": 523
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8384a9c60c91e9a2ca9f-970d52fc5b010cc42492",
+              "file": "carbon-complete.spec.js",
+              "line": 451,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "empty-state-parity-v96.spec.js",
+      "file": "empty-state-parity-v96.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Participant empty-state parity across non-participant tabs",
+          "file": "empty-state-parity-v96.spec.js",
+          "line": 78,
+          "column": 6,
+          "specs": [
+            {
+              "title": "shared view, settlement, car allocation, and team allocation show the same empty actions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1648,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:21:17.120Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d08905d96df183a5b1aa-7cae3c122ec78d50dce1",
+              "file": "empty-state-parity-v96.spec.js",
+              "line": 81,
+              "column": 7
+            },
+            {
+              "title": "managed-form rooms with applicants use the same applicant guidance on all four tabs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1717,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:21:18.861Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d08905d96df183a5b1aa-79e463b0ff4a1a41b53b",
+              "file": "empty-state-parity-v96.spec.js",
+              "line": 86,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "form-linked-sample.spec.js",
+      "file": "form-linked-sample.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "form-linked sample keeps managed-form state and announcement after reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2966,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "FORM_LINKED_DEBUG_STATE {\"summary\":\"応募者 5人　参加者 5人\",\"roomName\":\"フォーム連携テスト企画\",\"canonicalKind\":\"formApplicationSync\",\"canonicalApplicants\":5,\"bridgeKind\":\"formApplicationSync\",\"bridgeApplicants\":5,\"backupKind\":\"formApplicationSync\",\"backupApplicants\":5,\"bridgeLoaded\":true,\"applicantLoaded\":true,\"announcementLoaded\":true}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T10:21:20.589Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "986201e870f4d216c5e6-feb549deb5964214c0f8",
+          "file": "form-linked-sample.spec.js",
+          "line": 3,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "official-carbon-runtime.spec.js",
+      "file": "official-carbon-runtime.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Official Carbon ownership runtime",
+          "file": "official-carbon-runtime.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Carbon shell stays real while project title keeps the restored visual editor",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1548,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:21:23.567Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "453e3c3a09223671fbdc-cbd4460f9ec8213c3919",
+              "file": "official-carbon-runtime.spec.js",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "participant import help uses Carbon Accordion and Data Table",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 963,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:21:25.127Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "453e3c3a09223671fbdc-0920f692b578b873683c",
+              "file": "official-carbon-runtime.spec.js",
+              "line": 73,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "participants-tab-v83.spec.js",
+      "file": "participants-tab-v83.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "participant search filters rows through Carbon input events",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1181,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T10:21:26.103Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "66baa67cdf8ce21df3b7-0aabaec911f19ca3d783",
+          "file": "participants-tab-v83.spec.js",
+          "line": 93,
+          "column": 5
+        },
+        {
+          "title": "Participants mobile flow keeps the shared shell and Carbon selection actions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3178,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T10:21:27.292Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "66baa67cdf8ce21df3b7-22cddad24926b9a2af9c",
+          "file": "participants-tab-v83.spec.js",
+          "line": 107,
+          "column": 5
+        },
+        {
+          "title": "Participant announcement mobile flow uses Carbon footer, disclosure, and preview actions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3544,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T10:21:30.478Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "66baa67cdf8ce21df3b7-b9030c69ee22ec836e6d",
+          "file": "participants-tab-v83.spec.js",
+          "line": 243,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "settlement-cost-editor-list-v75.spec.js",
+      "file": "settlement-cost-editor-list-v75.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "mobile light",
+          "file": "settlement-cost-editor-list-v75.spec.js",
+          "line": 51,
+          "column": 8,
+          "specs": [
+            {
+              "title": "cost list stays scannable and movement settings use one small Carbon modal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4749,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:21:34.037Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b9b45bd495ea7fc40262-96d8adee09296d1862f7",
+              "file": "settlement-cost-editor-list-v75.spec.js",
+              "line": 54,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "mobile dark",
+          "file": "settlement-cost-editor-list-v75.spec.js",
+          "line": 51,
+          "column": 8,
+          "specs": [
+            {
+              "title": "cost list stays scannable and movement settings use one small Carbon modal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4913,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:21:38.794Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b9b45bd495ea7fc40262-e7d8f53fa8a90363cf20",
+              "file": "settlement-cost-editor-list-v75.spec.js",
+              "line": 54,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "desktop light",
+          "file": "settlement-cost-editor-list-v75.spec.js",
+          "line": 51,
+          "column": 8,
+          "specs": [
+            {
+              "title": "cost list stays scannable and movement settings use one small Carbon modal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4917,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:21:43.715Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b9b45bd495ea7fc40262-13e3dc69ee0c1f3b4fbd",
+              "file": "settlement-cost-editor-list-v75.spec.js",
+              "line": 54,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "desktop dark",
+          "file": "settlement-cost-editor-list-v75.spec.js",
+          "line": 51,
+          "column": 8,
+          "specs": [
+            {
+              "title": "cost list stays scannable and movement settings use one small Carbon modal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5325,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:21:48.640Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b9b45bd495ea7fc40262-cd17eb45a5a9ff00add5",
+              "file": "settlement-cost-editor-list-v75.spec.js",
+              "line": 54,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Settlement rental and dismissal regression",
+          "file": "settlement-cost-editor-list-v75.spec.js",
+          "line": 220,
+          "column": 6,
+          "specs": [
+            {
+              "title": "automatic movement amount is visible, read-only, and its club toggle changes accounting",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3447,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:21:53.973Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b9b45bd495ea7fc40262-ab5b477b8a3f564a9565",
+              "file": "settlement-cost-editor-list-v75.spec.js",
+              "line": 223,
+              "column": 7
+            },
+            {
+              "title": "Times rental shows movement fee then editable time fee with fixed name and no trash",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3608,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:21:57.427Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b9b45bd495ea7fc40262-2a8d2e65bba7c6481140",
+              "file": "settlement-cost-editor-list-v75.spec.js",
+              "line": 262,
+              "column": 7
+            },
+            {
+              "title": "keyboard viewport resize does not move the app shell or leave a white-gap state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2975,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:01.043Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b9b45bd495ea7fc40262-d288325554f12b3e1613",
+              "file": "settlement-cost-editor-list-v75.spec.js",
+              "line": 297,
+              "column": 7
+            },
+            {
+              "title": "closing movement settings and vehicle editor leaves no modal residue",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2793,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:04.026Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b9b45bd495ea7fc40262-017117cc19299d44e283",
+              "file": "settlement-cost-editor-list-v75.spec.js",
+              "line": 348,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Canonical share link",
+          "file": "settlement-cost-editor-list-v75.spec.js",
+          "line": 366,
+          "column": 6,
+          "specs": [
+            {
+              "title": "header link copies the ordinary room URL directly and never opens a copy modal",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1661,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:06.826Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b9b45bd495ea7fc40262-8def5df4554def1c4ac0",
+              "file": "settlement-cost-editor-list-v75.spec.js",
+              "line": 369,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "settlement-modal-warning-v80.spec.js",
+      "file": "settlement-modal-warning-v80.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Settlement field validation v80",
+          "file": "settlement-modal-warning-v80.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "new expense stays neutral until save, then uses Carbon field-level validation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2936,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:08.499Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1732c5fec6c05fd04230-c8eff6afd484220fe6c5",
+              "file": "settlement-modal-warning-v80.spec.js",
+              "line": 16,
+              "column": 7
+            },
+            {
+              "title": "multiple car warnings stay passive across settlement rerenders",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2029,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:11.443Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1732c5fec6c05fd04230-c4311333df4c20c0e165",
+              "file": "settlement-modal-warning-v80.spec.js",
+              "line": 75,
+              "column": 7
+            },
+            {
+              "title": "save validation moves to only the first invalid field once",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2222,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:13.480Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1732c5fec6c05fd04230-5d41e059dc15bcf555a8",
+              "file": "settlement-modal-warning-v80.spec.js",
+              "line": 119,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "settlement-ui-regressions-v76.spec.js",
+      "file": "settlement-ui-regressions-v76.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Settlement UI regressions v76",
+          "file": "settlement-ui-regressions-v76.spec.js",
+          "line": 57,
+          "column": 6,
+          "specs": [
+            {
+              "title": "settlement remains a normal fourth destination and survives refresh",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1460,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:15.714Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8eea394ef9e97bc9c115-eb535c8745ed7f08b9e9",
+              "file": "settlement-ui-regressions-v76.spec.js",
+              "line": 60,
+              "column": 7
+            },
+            {
+              "title": "mobile settlement uses the app layout as its natural scroll owner",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1671,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:17.181Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8eea394ef9e97bc9c115-c98153d750b9b086aa72",
+              "file": "settlement-ui-regressions-v76.spec.js",
+              "line": 76,
+              "column": 7
+            },
+            {
+              "title": "driver editor input can close without leaving the settlement page in a broken state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2175,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:18.860Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8eea394ef9e97bc9c115-a5d40eef92c9ed0e213e",
+              "file": "settlement-ui-regressions-v76.spec.js",
+              "line": 99,
+              "column": 7
+            },
+            {
+              "title": "explicit car-cost save commits and closes the editor",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2125,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:21.043Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8eea394ef9e97bc9c115-81cc146f1ebad8123e1a",
+              "file": "settlement-ui-regressions-v76.spec.js",
+              "line": 124,
+              "column": 7
+            },
+            {
+              "title": "distance, fuel economy and gas unit price use the same numeric keyboard contract",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2862,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:23.176Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8eea394ef9e97bc9c115-32eb913bba158f78c6f7",
+              "file": "settlement-ui-regressions-v76.spec.js",
+              "line": 141,
+              "column": 7
+            },
+            {
+              "title": "nested movement editor returns to settlement without changing the natural page structure",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3072,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:26.045Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8eea394ef9e97bc9c115-e012bd2d8e6556a1f472",
+              "file": "settlement-ui-regressions-v76.spec.js",
+              "line": 159,
+              "column": 7
+            },
+            {
+              "title": "collection checkbox and driver-paid toggle do not jump the app scroll position",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2144,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:29.125Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8eea394ef9e97bc9c115-da6cfb19453bbe53a3c2",
+              "file": "settlement-ui-regressions-v76.spec.js",
+              "line": 187,
+              "column": 7
+            },
+            {
+              "title": "driver payment headline is one aligned row and positive amounts have no plus sign",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1891,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:31.277Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8eea394ef9e97bc9c115-6d4260debd1259cfcc8e",
+              "file": "settlement-ui-regressions-v76.spec.js",
+              "line": 218,
+              "column": 7
+            },
+            {
+              "title": "blank space beside a settlement action is inert",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1725,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:33.176Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8eea394ef9e97bc9c115-7b8a02f2c4d319386786",
+              "file": "settlement-ui-regressions-v76.spec.js",
+              "line": 232,
+              "column": 7
+            },
+            {
+              "title": "collection rows remain intact after removing the overall-cost section",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2225,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:34.908Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8eea394ef9e97bc9c115-a25d482ca55648d98476",
+              "file": "settlement-ui-regressions-v76.spec.js",
+              "line": 243,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "shared-touch-scroll-v72.spec.js",
+      "file": "shared-touch-scroll-v72.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Retired shared allocation destination",
+          "file": "shared-touch-scroll-v72.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "legacy shared allocation URLs normalize to the ordinary app and expose no shared tab",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 891,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:37.144Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "094c4fe42fbc69709266-a8473fef39b0e2dd0849",
+              "file": "shared-touch-scroll-v72.spec.js",
+              "line": 6,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "shell-project-title-navigation-v73.spec.js",
+      "file": "shell-project-title-navigation-v73.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "390px project title and official Carbon application navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2017,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T10:22:38.048Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ae9c7bcd4959e5b7492b-41124a63c878ba0e10b8",
+          "file": "shell-project-title-navigation-v73.spec.js",
+          "line": 14,
+          "column": 7
+        },
+        {
+          "title": "1280px project title and official Carbon application navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2404,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T10:22:40.072Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ae9c7bcd4959e5b7492b-a7e05cede60e88e9f479",
+          "file": "shell-project-title-navigation-v73.spec.js",
+          "line": 14,
+          "column": 7
+        },
+        {
+          "title": "390px title follows natural app scrolling instead of gesture-driven collapse",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 895,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T10:22:42.484Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ae9c7bcd4959e5b7492b-d38c225778c6f5b9a2b0",
+          "file": "shell-project-title-navigation-v73.spec.js",
+          "line": 147,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "status-toast-policy-v79.spec.js",
+      "file": "status-toast-policy-v79.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Status toast policy v79",
+          "file": "status-toast-policy-v79.spec.js",
+          "line": 29,
+          "column": 6,
+          "specs": [
+            {
+              "title": "real saves show concise completion feedback while quiet interactions and internal retry states stay silent",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3875,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:43.390Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "297abff72f9e8c3154ef-8dc317e77c65ea670e5e",
+              "file": "status-toast-policy-v79.spec.js",
+              "line": 32,
+              "column": 7
+            },
+            {
+              "title": "shared Carbon region keeps simultaneous status and sync toasts compact and stacked",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 808,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:47.273Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "297abff72f9e8c3154ef-a208af16e86650cbace4",
+              "file": "status-toast-policy-v79.spec.js",
+              "line": 112,
+              "column": 7
+            },
+            {
+              "title": "dynamic Carbon warning state is rendered after an already-mounted field changes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 840,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:48.089Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "297abff72f9e8c3154ef-f612735229a77dbd07bf",
+              "file": "status-toast-policy-v79.spec.js",
+              "line": 136,
+              "column": 7
+            },
+            {
+              "title": "transaction transport readiness is retryable instead of a permanent rejection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 844,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:48.936Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "297abff72f9e8c3154ef-972a4b5b50b071f6881a",
+              "file": "status-toast-policy-v79.spec.js",
+              "line": 165,
+              "column": 7
+            },
+            {
+              "title": "private-car movement settings warn even when all gas calculation fields are blank",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1595,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T10:22:49.789Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "297abff72f9e8c3154ef-bdf77c6301aa244a6b88",
+              "file": "status-toast-policy-v79.spec.js",
+              "line": 180,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-05T10:19:41.567Z",
+    "duration": 190190.814,
+    "expected": 62,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

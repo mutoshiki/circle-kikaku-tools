@@ -1,0 +1,220 @@
+{
+  "referenceCommit": "e37b8651eeba1cb52d2b7a98bc05674bb63591a8",
+  "results": [
+    {
+      "path": "tests/run-static-tests.mjs",
+      "exitCode": 1,
+      "failures": [
+        "FAIL Primary navigation uses Carbon Tabs while allocation mode uses Carbon Content Switcher: The input did not match the regular expression /<cds-tab\\b[^>]*id=\"tab-list\"[^>]*selected/i. Input:"
+      ]
+    },
+    {
+      "path": "tests/official-carbon-ownership-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/dark-accent-contract.mjs",
+      "exitCode": 1,
+      "failures": [
+        "Error: Theme cache-buster was not updated.\r"
+      ]
+    },
+    {
+      "path": "tests/design-refinement-contract.mjs",
+      "exitCode": 1,
+      "failures": [
+        "Error: Extra-cost rows need readable amount, burden and action columns.\r"
+      ]
+    },
+    {
+      "path": "tests/feature-polish-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/feature-fixes-v30-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/person-card-interaction-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/carbon-guidance-v35-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/route-distance-apply-v37-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/carbon-feedback-focus-fit-v38-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/card-drag-stability-v39-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/entity-schema-v42-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/root-stability-v44-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/collaborative-interaction-delete-v47-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/settlement-concurrent-save-v48-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/settlement-cross-car-sync-v49-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/collaborative-sync-foundation-v50-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/settlement-negative-extra-save-v51-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/waiting-grid-v52-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/assignment-workspace-drag-free-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/settlement-balance-v58-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/settlement-extra-concurrent-v66-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/sync-reliability-v67-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/sync-protocol-v68-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/sync-outbox-rejection-v68-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/shared-touch-scroll-v72-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/shell-project-title-navigation-v73-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/safari-sync-v82-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/bug-report-notification-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/settlement-cost-editor-list-v75-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/form-applicant-sync-v2-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/bugfix-room-participants-drivers-v101-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/settlement-warning-scroll-v103-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/five-device-domain-sync-v46.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/google-route-planner-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/share-links-contract.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/driver-reward-policy-contract.mjs",
+      "exitCode": 1,
+      "failures": [
+        "AssertionError [ERR_ASSERTION]: Carbon content switcher selection must be handled\r"
+      ]
+    },
+    {
+      "path": "tests/five-device-chaos-v42.mjs",
+      "exitCode": 0,
+      "failures": []
+    },
+    {
+      "path": "tests/deep-five-device-suite.mjs",
+      "exitCode": 2,
+      "failures": []
+    },
+    {
+      "path": "tests/five-device-network-soak-v46.mjs",
+      "exitCode": 1,
+      "failures": [
+        "AssertionError [ERR_ASSERTION]: car owner placement mismatch\r"
+      ]
+    },
+    {
+      "path": "tests/sync-protocol-chaos-v68.mjs",
+      "exitCode": 0,
+      "failures": []
+    }
+  ]
+}

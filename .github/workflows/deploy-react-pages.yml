@@ -1,0 +1,202 @@
+name: React GitHub Pages
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-react-pages.yml'
+      - 'apps/react/**'
+      - 'firebase/database.rules.json'
+      - 'firebase.json'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'compatibility keeps legacy at / and adds React at /react; react replaces /; legacy restores the pinned legacy site'
+        required: true
+        type: choice
+        options:
+          - compatibility
+          - react
+          - legacy
+        default: compatibility
+
+permissions:
+  contents: read
+
+concurrency:
+  group: react-pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Select publication target
+        id: target
+        shell: bash
+        env:
+          TARGET_INPUT: ${{ inputs.target }}
+        run: |
+          if [ -n "$TARGET_INPUT" ]; then
+            printf 'value=%s\n' "$TARGET_INPUT" >> "$GITHUB_OUTPUT"
+          else
+            printf 'value=compatibility\n' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout current source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Checkout pinned legacy rollback source
+        if: steps.target.outputs.value == 'legacy'
+        uses: actions/checkout@v6
+        with:
+          ref: e37b8651eeba1cb52d2b7a98bc05674bb63591a8
+          path: rollback-source
+          persist-credentials: false
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Set up Node.js
+        if: steps.target.outputs.value != 'legacy'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+
+      - name: Install React dependencies
+        if: steps.target.outputs.value != 'legacy'
+        working-directory: apps/react
+        run: npm ci --no-audit --no-fund
+
+      - name: Run React unit and contract tests
+        if: steps.target.outputs.value != 'legacy'
+        working-directory: apps/react
+        run: npm test
+
+      - name: Validate production browser config
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && steps.target.outputs.value != 'legacy'
+        env:
+          REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
+          REACT_MAPS_API_KEY: ${{ vars.REACT_MAPS_API_KEY }}
+          RULES_ROLLBACK_READY_SHA: ${{ vars.REACT_FIREBASE_RULES_ROLLBACK_READY_SHA }}
+          RULES_RELEASE_SHA: ${{ vars.REACT_FIREBASE_RULES_RELEASE_SHA }}
+        run: |
+          if [ "$RULES_ROLLBACK_READY_SHA" != "fa9daf4d07546800b5e7e5df6e52f5424b4f8d24" ]; then
+            echo 'Before changing production Rules, verify the live Rules match Phase 8 and record the tested rollback source; then set REACT_FIREBASE_RULES_ROLLBACK_READY_SHA to the Phase 8 Rules blob SHA.' >&2
+            exit 1
+          fi
+          rules_blob="$(git rev-parse HEAD:firebase/database.rules.json)"
+          if [ "$RULES_RELEASE_SHA" != "$rules_blob" ]; then
+            echo 'The checked-in RTDB Rules revision has not been acknowledged as released.' >&2
+            exit 1
+          fi
+          node --input-type=module -e "
+            const config = JSON.parse(process.env.REACT_FIREBASE_CONFIG || '{}');
+            if (config.projectId !== 'sanpokai-tool' || config.databaseURL !== 'https://sanpokai-tool-default-rtdb.firebaseio.com') {
+              throw new Error('REACT_FIREBASE_CONFIG must target the approved production Firebase project.');
+            }
+            if (!config.apiKey || config.authDomain !== 'sanpokai-tool.firebaseapp.com' || !config.appId || !config.messagingSenderId) {
+              throw new Error('REACT_FIREBASE_CONFIG is missing required web app fields or mixes Firebase projects.');
+            }
+            if (!process.env.REACT_MAPS_API_KEY) throw new Error('REACT_MAPS_API_KEY is required for production route calculations.');
+          "
+
+      - name: Require compatibility smoke signoff before replacing the root app
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && steps.target.outputs.value == 'react'
+        env:
+          COMPATIBILITY_SMOKE_SHA: ${{ vars.REACT_COMPATIBILITY_SMOKE_SHA }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          if [ "$COMPATIBILITY_SMOKE_SHA" != "$CURRENT_SHA" ]; then
+            echo 'Set REACT_COMPATIBILITY_SMOKE_SHA to this commit only after compatibility-mode production smoke passes.' >&2
+            exit 1
+          fi
+
+      - name: Build React for pull request preview
+        if: github.event_name == 'pull_request' && steps.target.outputs.value != 'legacy'
+        working-directory: apps/react
+        env:
+          VITE_BASE_PATH: ${{ steps.target.outputs.value == 'react' && '/circle-kikaku-tools/' || '/circle-kikaku-tools/react/' }}
+          VITE_REACT_SYNC_MODE: local
+        run: npm run build
+
+      - name: Build React for production artifact
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && steps.target.outputs.value != 'legacy'
+        working-directory: apps/react
+        env:
+          VITE_BASE_PATH: ${{ steps.target.outputs.value == 'react' && '/circle-kikaku-tools/' || '/circle-kikaku-tools/react/' }}
+          VITE_REACT_SYNC_MODE: production
+          VITE_REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
+          VITE_REACT_MAPS_API_KEY: ${{ vars.REACT_MAPS_API_KEY }}
+        run: npm run build
+
+      - name: Build React for non-production manual preview
+        if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && steps.target.outputs.value != 'legacy'
+        working-directory: apps/react
+        env:
+          VITE_BASE_PATH: ${{ steps.target.outputs.value == 'react' && '/circle-kikaku-tools/' || '/circle-kikaku-tools/react/' }}
+          VITE_REACT_SYNC_MODE: local
+        run: npm run build
+
+      - name: Build current legacy site for compatibility preview
+        if: steps.target.outputs.value == 'compatibility'
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+
+      - name: Build pinned legacy site for rollback
+        if: steps.target.outputs.value == 'legacy'
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./rollback-source
+          destination: ./_site
+
+      - name: Prepare React at /react/
+        if: steps.target.outputs.value == 'compatibility'
+        run: |
+          mkdir -p _site/react
+          cp -a apps/react/dist/. _site/react/
+
+      - name: Prepare React at site root
+        if: steps.target.outputs.value == 'react'
+        run: |
+          mkdir -p _site
+          cp -a apps/react/dist/. _site/
+
+      - name: Verify publication artifact
+        shell: bash
+        env:
+          TARGET: ${{ steps.target.outputs.value }}
+        run: |
+          test -f _site/index.html
+          if [ "$TARGET" = compatibility ]; then
+            test -f _site/react/index.html
+            test -n "$(find _site/react/assets -type f -print -quit)"
+          elif [ "$TARGET" = react ]; then
+            test -n "$(find _site/assets -type f -print -quit)"
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./_site
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v5
