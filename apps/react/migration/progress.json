@@ -2,7 +2,7 @@
   "objectiveFile": "apps/react/migration/goal.md",
   "referenceCommit": "e37b8651eeba1cb52d2b7a98bc05674bb63591a8",
   "currentPhase": 9,
-  "releaseAssessment": "Phase 9 cutover implementation is prepared but not deployed. The manual GitHub Actions workflow preserves the legacy root in compatibility mode, serves React at /react/, supports React root mode, and pins a legacy rollback build. Production runtime is explicitly restricted to the existing Firebase project. Root RTDB Rules now allow the schema-6 legacy field activeAllocationType to be absent after React cleanup while rejecting invalid values; the Rules change is not deployed.",
+  "releaseAssessment": "Phase 9A is in progress. Checkpoint 921144a was merged to main as 61d694c. Production RTDB Rules were deployed and live-verified against main; dedicated legacy root Rules smoke passed and the test room was removed. GitHub Pages remains on the legacy main:/ source. Compatibility deployment and React root cutover have not run because the required production Firebase web config and restricted Maps browser key are not configured as repository variables.",
   "completedWork": [
     "Phase 0 baseline, anonymous fixture, and semantic legacy/React comparison",
     "Independent Vite/React/Carbon application under apps/react",
@@ -79,11 +79,14 @@
   "productionSafety": {
     "legacyEntryChanged": false,
     "productionDeploymentPerformed": false,
-    "productionFirebaseUsed": false,
+    "productionFirebaseUsed": true,
     "phase8Performed": true,
     "phase8Completed": true,
     "phase9Started": true,
-    "phase9PredeployGate": "implementation prepared; no Pages or Firebase production deployment performed"
+    "phase9PredeployGate": "PASS; rollback source is the live-before snapshot matching Phase 8",
+    "productionRulesDeploymentPerformed": true,
+    "productionPagesDeploymentPerformed": false,
+    "rootReactCutoverPerformed": false
   },
   "phase8BaseCommit": "852d5f4",
   "lastMeaningfulVerification": {
@@ -99,6 +102,75 @@
     "phase8": "Complete; no blocking bug, observed data-loss risk, or sync incompatibility remained in the tested React migration path; production Firebase and deployment were not used",
     "legacyHashClassification": "Updated the stale protected-file manifest entries to the current bytes, which match reference commit e37b865 exactly: assets/css/settlement/car-inputs/03-extra-costs.css=b9ae432c0f1873372329a58bd7aaaa7d685c26825f5bb304089ff26b293f46df; assets/js/features/settlement/05-input-actions.js=7471809ed65e88df01e52ba756ae8b1ae4e270e43f9cab109dda2914a427d6ee; index.html=34a060844c37418dbd631603d88c003fd87be9176d535d2d309d60711629a556; tests/settlement-ui-regressions-v76.spec.js=8f65208fadca61d60e674ffc0a08d222e3bc6192ec03395c458aef4cb66fc4dc. These are historical legacy files present at Phase 0; no Phase 0-8 edits or new compatibility delta.",
     "phase9Predeploy": "GitHub Pages API reports build_type=legacy, source main:/, latest deployment e37b8651eeba1cb52d2b7a98bc05674bb63591a8 on 2026-09-05. .github/workflows contains only quality-guard.yml; no React production build/cutover procedure found. Deployment stopped.",
-    "phase9Implementation": "46/46 React unit tests passed; root Firebase Rules Emulator passed including schema-6 room writes without activeAllocationType; React compatibility-path and root-path builds passed with build-only values; workflow YAML and manifests parsed; manual-only Pages deployment, complete production Firebase field checks, pre-Rules rollback-ready SHA gate, post-release Rules SHA acknowledgment, and same-commit compatibility-smoke gate verified. No production deploy was run."
+    "phase9Implementation": "The manual-only Pages workflow PR build passed with an artifact preview; its deploy job was skipped. Production RTDB Rules were deployed and verified separately. No Pages source change or production Pages deployment occurred.",
+    "phase9RulesDeploymentAndLegacySmoke": "2026-09-23: main commit 61d694c; live-before Rules SHA-256 2ae3e7e0... equals Phase 8; Firebase CLI database Rules deploy passed; live-after SHA-256 bc8f783b... exactly matches main intended Rules; legacy root dedicated-room load/read/write/save/reload/two-tab sync/cleanup passed, no permission or console errors; test room removed. Pages source remains legacy because the production Firebase web config and restricted Maps browser key repository variables are absent."
+  },
+  "phase9AExecution": {
+    "status": "IN_PROGRESS_BLOCKED_BEFORE_PAGES_ACTIONS_SWITCH",
+    "implementationCheckpoint": "921144ae3590c74a74072a4a9e37ea9d6761a9f8",
+    "mainMergeCommit": "61d694c2e13c581b53d2de5c0f721f6c6847b9d2",
+    "productionRules": {
+      "projectId": "sanpokai-tool",
+      "databaseUrl": "https://sanpokai-tool-default-rtdb.firebaseio.com",
+      "phase8RulesBlobSha": "fa9daf4d07546800b5e7e5df6e52f5424b4f8d24",
+      "liveBefore": {
+        "retrievedAt": "2026-09-23T09:50:23.033Z",
+        "normalizedSha256": "2ae3e7e0dee039f733f81b52aaea42889de0c07a69eff869192c66c04e335a50",
+        "snapshot": "C:/Users/toshi/.codex/firebase-rules-snapshots/sanpokai-tool/live-before-2026-09-23T09-50-23-031Z.json",
+        "equalsPhase8": true
+      },
+      "deployment": "PASS; Firebase CLI deploy --only database",
+      "liveAfter": {
+        "retrievedAt": "2026-09-23T10:30:18.028Z",
+        "normalizedSha256": "bc8f783bd278ba77c0c41e716950e4280a0d285ea22f075176ca3dac5f2a9fab",
+        "snapshot": "C:/Users/toshi/.codex/firebase-rules-snapshots/sanpokai-tool/live-after-2026-09-23T10-30-18-028Z.json",
+        "equalsMainIntendedRules": true
+      },
+      "rollbackSourceRetainedOutsideRepository": true
+    },
+    "rulesConfirmationGate": {
+      "status": "SET_AFTER_LEGACY_SMOKE_PASS",
+      "repositoryVariable": "REACT_FIREBASE_RULES_RELEASE_SHA",
+      "value": "23d48c129b9d2abfdf95607ba53de85911ad49bc",
+      "correspondsToLiveAfterNormalizedSha256": "bc8f783bd278ba77c0c41e716950e4280a0d285ea22f075176ca3dac5f2a9fab"
+    },
+    "legacyRulesSmoke": {
+      "status": "PASS",
+      "url": "https://mutoshiki.github.io/circle-kikaku-tools/",
+      "tested": [
+        "load",
+        "read",
+        "write",
+        "save",
+        "reload persistence",
+        "two-tab sync",
+        "dedicated test-room cleanup"
+      ],
+      "permissionErrors": 0,
+      "consoleErrors": 0,
+      "testRoomRemovedAndReadBackNull": true
+    },
+    "pagesBeforeStop": {
+      "source": "legacy main:/",
+      "latestLegacyBuildCommit": "61d694c2e13c581b53d2de5c0f721f6c6847b9d2",
+      "latestLegacyBuildStatus": "built",
+      "workflowBuildArtifact": "PASS; PR preview only; deployment job skipped",
+      "sourceChangedToActions": false,
+      "compatibilityDeployment": "NOT_RUN"
+    },
+    "blocker": {
+      "missingRepositoryVariables": [
+        "REACT_FIREBASE_CONFIG",
+        "REACT_MAPS_API_KEY"
+      ],
+      "requiredConfig": "Existing public Firebase web config for sanpokai-tool and a Maps browser key restricted to https://mutoshiki.github.io/circle-kikaku-tools/*"
+    },
+    "rootReactCutover": "NOT_RUN",
+    "predeploymentChecks": {
+      "verifyLegacy": "PASS 1296/1296 on checkpoint",
+      "reactPagesPullRequestBuild": "PASS; artifact-only, deploy job skipped",
+      "qualityGuard": "FAIL in the unchanged root static contract: test expects a selected attribute absent from unchanged main index.html; collaboration job stopped at the same npm test failure",
+      "uiRegression": "FAIL: 3 existing root UI regression cases; root legacy source was unchanged by PR"
+    }
   }
 }
