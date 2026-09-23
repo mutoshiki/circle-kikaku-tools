@@ -159,6 +159,7 @@ jobs:
       - name: Prepare React at /react/
         if: steps.target.outputs.value == 'compatibility'
         run: |
+          sudo chown -R "$(id -u):$(id -g)" _site
           mkdir -p _site/react
           cp -a apps/react/dist/. _site/react/
 
