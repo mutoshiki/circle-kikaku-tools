@@ -308,9 +308,9 @@
         },
         "react": {
           "chromiumDesktop": "load and core Firebase/write/sync verified; Maps route flow blocked by 403",
-          "webkitDesktop": "app mounts; anonymous Auth works; auxiliary getProjectConfig 403",
-          "chromiumMobile390": "loaded before rollback; full critical flow not completed",
-          "webkitMobile390": "app mounts; auxiliary getProjectConfig 403"
+          "webkitDesktop": "App mounts and anonymous Auth succeeds; auxiliary getProjectConfig 403; full critical interaction not completed",
+          "chromiumMobile390": "NOT_COMPLETE; full React interaction was not completed before rollback",
+          "webkitMobile390": "getProjectConfig 403 observed; full React interaction not completed before rollback"
         }
       },
       "rollback": {
