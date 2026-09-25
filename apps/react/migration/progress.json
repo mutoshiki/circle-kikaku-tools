@@ -2,7 +2,7 @@
   "objectiveFile": "apps/react/migration/goal.md",
   "referenceCommit": "e37b8651eeba1cb52d2b7a98bc05674bb63591a8",
   "currentPhase": 9,
-  "releaseAssessment": "Phase 9A compatibility deployment was rolled back to the pinned legacy site after production Maps Places returned HTTP 403 for the actual GitHub Pages Referer. Root remains legacy; Pages source is GitHub Actions. React preview is unavailable until the Pages Maps key restriction matches the production Referer and smoke passes.",
+  "releaseAssessment": "Phase 9A remains stopped. Compatibility deploy was rolled back after production Places Autocomplete and Routes ComputeRoutes continued returning HTTP 403 for https://mutoshiki.github.io/. Root remains the pinned legacy site; Phase 9B is not ready.",
   "phase9ABlockerResolution": {
     "recordedOn": "2026-09-25",
     "testFirebaseIsolation": {
@@ -111,7 +111,8 @@
     "Production Firebase was not used and no deployment occurred; Carbon UI was preserved",
     "Phase 9 pre-deploy gate started; classified and accepted four stale protected-file manifest hashes against unchanged Phase 0 reference contents; production deployment blocked until an existing React cutover path is identified.",
     "Phase 9 cutover implementation prepared: manual GitHub Pages Actions workflow with compatibility/react/legacy targets, production Firebase target guard, and schema-6 Rules compatibility. No production deploy or Firebase Rules deploy performed.",
-    "2026-09-25 Phase 9A compatibility deploy run 36096891634 succeeded, but production Maps Places Autocomplete returned 403 because the HTTP Referer was https://mutoshiki.github.io/ and was not allowed. Legacy rollback run 36100180780 succeeded; root legacy smoke passed Chromium and WebKit; /react/ now returns 404. Dedicated room P9A26KQT was cleaned and authenticated readback is null. Phase 9A remains incomplete; no React root cutover."
+    "2026-09-25 Phase 9A compatibility deploy run 36096891634 succeeded, but production Maps Places Autocomplete returned 403 because the HTTP Referer was https://mutoshiki.github.io/ and was not allowed. Legacy rollback run 36100180780 succeeded; root legacy smoke passed Chromium and WebKit; /react/ now returns 404. Dedicated room P9A26KQT was cleaned and authenticated readback is null. Phase 9A remains incomplete; no React root cutover.",
+    "2026-09-25 retry: after user reported adding https://mutoshiki.github.io/* to Maps key referrers and a 60-second propagation wait, compatibility workflow 36103786123 passed config/build/unit/artifact gates and deployed. Maps JS loaded (200), but Places Autocomplete and Routes ComputeRoutes each returned 403: Requests from referer https://mutoshiki.github.io/ are blocked. Cleanup test room P9A93LMQ and rollback with workflow 36106248307; root is legacy, /react/ is 404. Phase 9A remains incomplete."
   ],
   "productionSafety": {
     "legacyEntryChanged": false,
@@ -144,7 +145,7 @@
     "phase9AProductionExecution": "2026-09-25: main gate commit e555307, protected-file follow-up 746863f; compatibility workflow 36096891634 passed but Maps Places Autocomplete returned HTTP 403 due rejected Pages Referer. Legacy rollback workflow 36100180780 passed. Root legacy smoke passed Chromium and WebKit; /react/ returned 404 after rollback. React production participant save/reload, React tabs, and bidirectional legacy sync passed in a dedicated test room; cleanup verified null. Phase 9A incomplete."
   },
   "phase9AExecution": {
-    "status": "STOPPED_BLOCKING_MAPS_REFERRER_403_AFTER_LEGACY_ROLLBACK",
+    "status": "STOPPED_BLOCKING_MAPS_PLACES_AND_ROUTES_403_AFTER_RETRY_AND_LEGACY_ROLLBACK",
     "implementationCheckpoint": "921144ae3590c74a74072a4a9e37ea9d6761a9f8",
     "mainMergeCommit": "61d694c2e13c581b53d2de5c0f721f6c6847b9d2",
     "productionRules": {
@@ -201,17 +202,23 @@
         "reactArtifact": "/react/"
       },
       "rollback": {
-        "runId": "36100180780",
+        "runId": "36106248307",
         "target": "legacy",
         "conclusion": "success",
-        "rootSmoke": "PASS Chromium and WebKit",
+        "rootSmoke": "PASS Chromium/WebKit desktop/mobile",
         "reactPathStatus": 404,
         "rootReactCutover": false
+      },
+      "retryCompatibilityDeployment": {
+        "runId": "36103786123",
+        "commit": "4bbb23f57b96529d8d88040382c50607003d9b12",
+        "target": "compatibility",
+        "conclusion": "success"
       }
     },
     "blocker": {
       "missingRepositoryVariables": [],
-      "productionMaps": "BLOCKED; Places Autocomplete 403 from https://mutoshiki.github.io/; update and verify HTTP referrer restriction before retrying",
+      "productionMaps": "BLOCKED after user-reported referrer update: active production Places and Routes requests still reject actual Referer https://mutoshiki.github.io/ with HTTP 403; verify exact key identity/restrictions and propagation before retrying.",
       "compatibilityDeployment": "ROLLED_BACK_TO_LEGACY"
     },
     "rootReactCutover": "NOT_RUN",
@@ -225,10 +232,10 @@
     "legacyVerificationFollowUpCommit": "746863fc0b2a85b225e4041eaa56f2b7ee7c1328",
     "productionSmoke": {
       "dedicatedTestRoom": {
-        "id": "P9A26KQT",
-        "databasePath": "/rooms/P9A26KQT",
+        "id": "P9A93LMQ",
+        "databasePath": "/rooms/P9A93LMQ",
         "wasNullBeforeWrite": true,
-        "cleanup": "PASS; authenticated readback null"
+        "cleanup": "PASS; authenticated readback null after retry"
       },
       "previouslyExistingRoomCandidate": {
         "id": "P9A25MIX",
@@ -256,6 +263,64 @@
       "rootLegacyAfterRollback": "PASS Chromium and WebKit; missing assets 0; runtime errors 0"
     },
     "phase9ACompletion": "NOT_COMPLETE",
-    "phase9BReadiness": "NOT_READY; Maps production smoke failed and compatibility artifact was rolled back"
+    "phase9BReadiness": "NOT_READY; production Places and Routes return 403; compatibility artifact rolled back",
+    "retryAfterMapsReferrerUpdate": {
+      "reportedSetting": "Added https://mutoshiki.github.io/* to Maps key HTTP referrers; no key value recorded.",
+      "propagationWait": "60 seconds before compatibility dispatch; additional build and smoke time elapsed before live request.",
+      "compatibilityDeployment": {
+        "runId": "36103786123",
+        "commit": "4bbb23f57b96529d8d88040382c50607003d9b12",
+        "target": "compatibility",
+        "conclusion": "success"
+      },
+      "maps": {
+        "javascriptApi": "PASS HTTP 200",
+        "placesAutocomplete": "FAIL HTTP 403; live request says Requests from referer https://mutoshiki.github.io/ are blocked.",
+        "routesComputeRoutes": "FAIL HTTP 403; live request says Requests from referer https://mutoshiki.github.io/ are blocked.",
+        "referrerUpdateEffective": "NO; active deployed key still rejects actual Pages origin or update did not reach that key."
+      },
+      "firebaseIdentityToolkit": {
+        "status": "WEBKIT_ONLY_AUXILIARY_403",
+        "path": "/identitytoolkit/v3/relyingparty/getProjectConfig",
+        "blockedReferer": "https://sanpokai-tool.firebaseapp.com/",
+        "cause": "Firebase Auth project-config discovery request uses configured authDomain origin, which Firebase Web API key HTTP referrer restrictions do not allow.",
+        "impact": "Nonfatal to app mount and anonymous Auth: identitytoolkit accounts:signUp and accounts:lookup returned HTTP 200; no uncaught exception. WebKit console includes one failed-resource error."
+      },
+      "productionRoom": {
+        "id": "P9A93LMQ",
+        "initiallyNull": true,
+        "participantsAdded": "PASS; two dedicated test participants persisted to production RTDB",
+        "carAllocation": "PASS; driver and group persisted",
+        "teamAllocation": "PASS; group persisted",
+        "reactTabSync": "PASS",
+        "reloadPersistence": "PASS",
+        "reactToLegacy": "PASS",
+        "legacyToReact": "PASS",
+        "cleanup": "PASS; authenticated database:get readback null"
+      },
+      "browserSmoke": {
+        "legacy": {
+          "chromiumDesktop": "PASS",
+          "chromiumMobile390": "PASS",
+          "webkitDesktop": "PASS",
+          "webkitMobile390": "PASS",
+          "checks": "root load, 4-view navigation, reload; no missing assets, console errors, or uncaught exceptions"
+        },
+        "react": {
+          "chromiumDesktop": "load and core Firebase/write/sync verified; Maps route flow blocked by 403",
+          "webkitDesktop": "app mounts; anonymous Auth works; auxiliary getProjectConfig 403",
+          "chromiumMobile390": "loaded before rollback; full critical flow not completed",
+          "webkitMobile390": "app mounts; auxiliary getProjectConfig 403"
+        }
+      },
+      "rollback": {
+        "runId": "36106248307",
+        "target": "legacy",
+        "conclusion": "success",
+        "rootSmoke": "PASS all four browser/viewport combinations",
+        "reactPathStatus": 404
+      },
+      "rootReactCutover": false
+    }
   }
 }
