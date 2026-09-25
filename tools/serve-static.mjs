@@ -1,9 +1,11 @@
 import http from 'node:http';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { extname, join, normalize, resolve } from 'node:path';
+import { assertTestFirebaseTarget, offlineFirebaseConfigScript } from './test-firebase-target.mjs';
 
 const root = resolve(process.cwd());
 const port = Number(process.env.PLAYWRIGHT_TEST_PORT || process.env.PORT || 4173);
+assertTestFirebaseTarget();
 const types = new Map([
   ['.html', 'text/html; charset=utf-8'], ['.js', 'text/javascript; charset=utf-8'],
   ['.mjs', 'text/javascript; charset=utf-8'], ['.css', 'text/css; charset=utf-8'],
@@ -15,6 +17,11 @@ const types = new Map([
 const server = http.createServer((req, res) => {
   const pathname = decodeURIComponent(new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`).pathname);
   const relative = pathname === '/' ? 'index.html' : pathname.replace(/^\/+/, '');
+  if (relative === 'firebase-config.js') {
+    res.writeHead(200, { 'content-type': 'application/javascript; charset=utf-8', 'cache-control': 'no-store' });
+    res.end(offlineFirebaseConfigScript());
+    return;
+  }
   const target = normalize(join(root, relative));
   if (!target.startsWith(root) || !existsSync(target) || !statSync(target).isFile()) {
     res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });

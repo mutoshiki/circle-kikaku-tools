@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { assertTestFirebaseTarget } from '../../tools/test-firebase-target.mjs';
+assertTestFirebaseTarget({ allowed: ['emulator'] });
 export default defineConfig({
   testDir: './tests/browser-emulator',
   timeout: 30000,
@@ -12,5 +14,14 @@ export default defineConfig({
     { name: 'chromium-desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 900 } } },
     { name: 'webkit-mobile', use: { ...devices['iPhone 13'], viewport: { width: 390, height: 844 } } },
   ],
-  webServer: { command: 'npx --no-install vite preview --host 127.0.0.1 --port 4175 --strictPort --outDir dist-emulator', url: 'http://127.0.0.1:4175', reuseExistingServer: false },
+  webServer: {
+    command: 'node tools/serve-test-preview.mjs emulator',
+    url: 'http://127.0.0.1:4175',
+    reuseExistingServer: false,
+    env: {
+      SANPO_TEST_FIREBASE_TARGET: process.env.SANPO_TEST_FIREBASE_TARGET,
+      SANPO_TEST_FIREBASE_PROJECT_ID: process.env.SANPO_TEST_FIREBASE_PROJECT_ID,
+      SANPO_TEST_FIREBASE_DATABASE_URL: process.env.SANPO_TEST_FIREBASE_DATABASE_URL,
+    },
+  },
 });

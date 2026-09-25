@@ -140,6 +140,10 @@ jobs:
       - name: Run React unit and contract tests
         if: steps.target.outputs.value != 'legacy'
         working-directory: apps/react
+        env:
+          SANPO_TEST_FIREBASE_TARGET: offline
+          SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
+          SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
         run: npm test
 
       - name: Build current legacy site for compatibility preview

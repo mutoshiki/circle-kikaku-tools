@@ -2,7 +2,43 @@
   "objectiveFile": "apps/react/migration/goal.md",
   "referenceCommit": "e37b8651eeba1cb52d2b7a98bc05674bb63591a8",
   "currentPhase": 9,
-  "releaseAssessment": "Phase 9A is in progress. Checkpoint 921144a was merged to main as 61d694c. Production RTDB Rules were deployed and live-verified against main; dedicated legacy root Rules smoke passed and the test room was removed. GitHub Pages remains on the legacy main:/ source. Compatibility deployment and React root cutover have not run because the required production Firebase web config and restricted Maps browser key are not configured as repository variables.",
+  "releaseAssessment": "Phase 9A compatibility cutover is authorized after the pre-deploy gates pass. Rules live verification and legacy Rules smoke passed. Test Firebase isolation, React visual baseline separation, production config, and checkout-stable protected-file verification have been implemented; the release checkpoint and main promotion are being prepared. Pages source is still branch main:/, and no compatibility deployment or React root cutover has run.",
+  "phase9ABlockerResolution": {
+    "recordedOn": "2026-09-25",
+    "testFirebaseIsolation": {
+      "status": "PASS",
+      "policy": "Every unit/browser/visual test requires an explicit offline, emulator, or staging target; production project/database config is rejected. React browser tests build a local-sync artifact to a dedicated port and never reuse the production preview.",
+      "browserEvidence": "Legacy UI isolation smoke passed after seeding: test server supplied an empty Firebase config and observed zero RTDB requests. React settlement and visual browser tests used offline local storage.",
+      "productionRuntimeChanged": false,
+      "ambientStagingConfig": "A staging-named environment variable resolved to the production target and was rejected. No config value was recorded; clear or replace this environment variable before any staging suite."
+    },
+    "orphanTestRoom": {
+      "room": "B9CVCRQM",
+      "status": "ABSENT_NULL",
+      "readPath": "/B9CVCRQM",
+      "projectId": "sanpokai-tool",
+      "databaseUrl": "https://sanpokai-tool-default-rtdb.firebaseio.com",
+      "method": "Authenticated Firebase CLI database:get; returned null. No write or cleanup was performed."
+    },
+    "settlementRegression": {
+      "status": "PASS",
+      "evidence": "React settlement.spec.js plus visual-consistency.spec.js passed 8/8 on Chromium mobile 390px. React unit suite passed 46/46. No skip or expectation relaxation."
+    },
+    "reactVisualBaseline": {
+      "status": "PASS",
+      "source": "Phase 8 React + Carbon rendered behavior. React browser tests do not consume legacy screenshots or legacy-browser-baseline.json; legacy baseline scope is documented separately."
+    },
+    "productionVariables": {
+      "REACT_FIREBASE_CONFIG": "PASS; set and read-back checked without displaying the value; sourced from the existing production web config and verified against sanpokai-tool RTDB.",
+      "REACT_MAPS_API_KEY": "PASS; configured Pages browser key with approved HTTP referrer and API restrictions; value not displayed or recorded."
+    },
+    "productionConfigGate": "PASS; production Firebase config targets sanpokai-tool and Pages Maps key is configured.",
+    "verifyLegacy": "PASS 1296/1296 using checkpoint/tree blob comparison and CRLF/LF-normalized checkout bytes. Phase 8, Phase 9 checkpoint, and main-promotion HEAD index.html Git blob IDs match. No manifest recapture or legacy source change.",
+    "pagesSourceChanged": false,
+    "compatibilityDeployment": "NOT_RUN",
+    "rootReactCutover": "NOT_RUN",
+    "phase9AResumeGate": "PREDEPLOY_GATES_READY_FOR_RECHECK_AFTER_MAIN_PROMOTION"
+  },
   "completedWork": [
     "Phase 0 baseline, anonymous fixture, and semantic legacy/React comparison",
     "Independent Vite/React/Carbon application under apps/react",
@@ -159,18 +195,15 @@
       "compatibilityDeployment": "NOT_RUN"
     },
     "blocker": {
-      "missingRepositoryVariables": [
-        "REACT_FIREBASE_CONFIG",
-        "REACT_MAPS_API_KEY"
-      ],
-      "requiredConfig": "Existing public Firebase web config for sanpokai-tool and a Maps browser key restricted to https://mutoshiki.github.io/circle-kikaku-tools/*"
+      "missingRepositoryVariables": [],
+      "requiredConfig": "REACT_FIREBASE_CONFIG and the Pages-restricted REACT_MAPS_API_KEY are configured; production config gate must be rerun against main before compatibility deployment."
     },
     "rootReactCutover": "NOT_RUN",
     "predeploymentChecks": {
-      "verifyLegacy": "PASS 1296/1296 on checkpoint",
+      "verifyLegacy": "PASS 1296/1296 on checkpoint with CRLF/LF-stable Git blob verification; no protected legacy content changed",
       "reactPagesPullRequestBuild": "PASS; artifact-only, deploy job skipped",
-      "qualityGuard": "FAIL in the unchanged root static contract: test expects a selected attribute absent from unchanged main index.html; collaboration job stopped at the same npm test failure",
-      "uiRegression": "FAIL: 3 existing root UI regression cases; root legacy source was unchanged by PR"
+      "qualityGuard": "KNOWN BASELINE: one Carbon Tabs static assertion expects selected on #tab-list, absent in unchanged index.html at Phase 8, Phase 9 checkpoint, and current main HEAD. Root legacy source was not changed. No later root tests ran after this first failure; targeted Phase 9A checks are required after main promotion.",
+      "uiRegression": "React settlement and visual suite PASS 8/8 on Chromium mobile; unit suite PASS 46/46. React visual checks use React + Carbon behavior, separate from the legacy screenshot baseline."
     }
   }
 }
