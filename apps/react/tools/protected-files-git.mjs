@@ -11,3 +11,15 @@ export function sameCheckoutContent(left, right) {
   };
   return normalize(left).equals(normalize(right));
 }
+
+export const PHASE9A_TEST_ISOLATION_OVERLAYS = Object.freeze([
+  '.github/workflows/quality-guard.yml',
+  'package.json',
+  'playwright.config.js',
+  'playwright.webkit.config.js',
+  'tools/serve-static.mjs',
+]);
+
+export function isPhase9ATestIsolationOverlay(path) {
+  return PHASE9A_TEST_ISOLATION_OVERLAYS.includes(path);
+}
