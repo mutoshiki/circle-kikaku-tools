@@ -335,7 +335,7 @@ export default function Settlement({ runtime, room, onNotice }) {
               <div className="settlement-car-main">
                 <div className="settlement-car-info">
                   <h3>{carLabel}</h3>
-                  <p>運転手：{calc.driverNames.join('、') || '未設定'}{calc.driverNames.length > 1 && '（車単位で一括支払い）'}</p>
+                  {calc.driverNames.length > 1 && <p>運転手：{calc.driverNames.join('、')}（車単位で一括支払い）</p>}
                   <div className="settlement-car-payment"><span className="cds--type-body-compact-01">支払額</span><strong className="cds--type-productive-heading-03">{money(calc.adjustedTotalPay)}</strong></div>
                 </div>
                 <div className="settlement-car-actions">

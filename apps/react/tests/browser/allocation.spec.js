@@ -17,10 +17,16 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await registration.getByRole('textbox', { name: '1年生', exact: true }).fill('仮参加者B');
   await registration.getByRole('button', { name: '登録', exact: true }).click();
   await expect(registration).toHaveCount(0);
+  let room = await saved(page);
+  expect(Object.values(room.participants).map(person => person.name)).toEqual(expect.arrayContaining(['仮参加者A', '仮参加者B', '仮参加者C', '仮参加者D']));
   await page.getByRole('tab', { name: '車割', exact: true }).click();
   await expect(page.getByRole('region', { name: '仮参加者A車', exact: true })).toBeVisible();
   const car = page.getByRole('region', { name: '仮参加者A車', exact: true });
-  await expect(car.getByRole('button', { name: '削除', exact: true })).toHaveClass(/cds--btn--danger-ghost/);
+  await car.getByRole('button', { name: '仮参加者A車の操作', exact: true }).click();
+  const groupDelete = page.getByRole('menuitem', { name: '削除', exact: true });
+  await expect(groupDelete).toBeVisible();
+  await expect(groupDelete.locator('xpath=ancestor::li[1]')).toHaveClass(/--danger/);
+  await page.keyboard.press('Escape');
   await expect(page.getByRole('button', { name: 'ランダム割り当て', exact: true })).toHaveClass(/cds--btn--tertiary/);
   await car.getByRole('button', { name: /空席 3/ }).click();
   await car.getByRole('button', { name: '仮参加者Bを仮参加者A車に追加', exact: true }).click();
@@ -30,7 +36,7 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await car.getByRole('button', { name: '仮参加者Bの固定', exact: true }).click();
   await car.getByRole('button', { name: '仮参加者Bの操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '運転手にする', exact: true }).click();
-  let room = await saved(page);
+  room = await saved(page);
   const a = Object.values(room.participants).find(person => person.name === '仮参加者A');
   const b = Object.values(room.participants).find(person => person.name === '仮参加者B');
   const carGroupId = room.allocations.car.placements[a.id].groupId;
@@ -46,6 +52,8 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   expect(room.allocations.car.placements[b.id].groupId).toBe(carGroupId);
   expect(room.allocations.car.placements[b.id].driver).toBe(true);
   await page.getByRole('tab', { name: '班割', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '班割', exact: true })).toHaveCount(0);
+  await expect(page.locator('.allocation-page[aria-label="班割"] .allocation-toolbar-summary')).toContainText(/\d+人・\d+班/);
   await page.getByRole('button', { name: '班を追加', exact: true }).click();
   const groupDialog = page.getByRole('dialog', { name: '班を追加' });
   await groupDialog.getByRole('combobox', { name: '班長', exact: true }).selectOption(b.id);
@@ -62,10 +70,17 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   expect(room.allocations.car.groups[carGroupId].ownerId).toBe(a.id);
   expect(room.allocations.car.placements[a.id].driver).toBe(false);
   expect(room.allocations.car.placements[b.id].driver).toBe(true);
-  await car.getByRole('button', { name: '仮参加者A車の定員を変更', exact: true }).click();
+  const capacityDisplay = car.locator('.group-capacity-display');
+  await expect(capacityDisplay).toHaveText('3/3人');
+  expect(await capacityDisplay.evaluate(element => element.tagName)).toBe('SPAN');
+  await capacityDisplay.click();
+  await expect(page.getByRole('dialog', { name: '定員を変更' })).toHaveCount(0);
+  await car.getByRole('button', { name: '仮参加者A車の操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '定員変更', exact: true }).click();
   const capacityDialog = page.getByRole('dialog', { name: '定員を変更' });
   await capacityDialog.getByRole('spinbutton', { name: '定員', exact: true }).fill('2');
   await capacityDialog.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(capacityDisplay).toHaveText('2/2人');
   room = await saved(page);
   expect(room.allocations.car.groups[carGroupId].capacity).toBe(2);
   expect(Object.entries(room.allocations.car.placements).filter(([id, placement]) => id !== a.id && placement.groupId === carGroupId)).toHaveLength(2);
@@ -91,5 +106,22 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   }
   await page.reload();
   await expect(page.getByRole('region', { name: '仮参加者A車', exact: true })).toContainText('日本語のメモ');
+  await page.getByRole('button', { name: '仮参加者A車の操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '削除', exact: true }).click();
+  await page.getByRole('dialog', { name: '車を削除しますか？' }).getByRole('button', { name: '削除', exact: true }).click();
+  await expect(page.getByRole('region', { name: '仮参加者A車', exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);
+});
+
+test('Google Forms spreadsheet paste registration remains available', async ({ page }) => {
+  await page.goto('/?room=ALLOCATION-FORM-PASTE-RC');
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  await page.getByRole('button', { name: '追加', exact: true }).click();
+  const registration = page.getByRole('dialog', { name: '参加者登録' });
+  await registration.getByRole('textbox', { name: 'Googleフォームの回答を貼り付け', exact: true }).fill('氏名\t学年\t車出し\nフォーム参加者A\t3\t可\nフォーム参加者B\t2\tいいえ');
+  await expect(registration.getByRole('status')).toHaveText('2人を読み込みました。');
+  await registration.getByRole('button', { name: '登録', exact: true }).click();
+  await expect(registration).toHaveCount(0);
+  const room = await saved(page, 'ALLOCATION-FORM-PASTE-RC');
+  expect(Object.values(room.participants).map(person => person.name)).toEqual(expect.arrayContaining(['フォーム参加者A', 'フォーム参加者B']));
 });

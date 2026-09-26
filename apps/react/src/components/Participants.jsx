@@ -50,7 +50,7 @@ export default function Participants({ runtime, room, onNotice }) {
     catch (error) { onNotice(error.message); }
   }
   return <section className="participants-page" aria-label="参加者">
-    <div className="section-heading"><div><h1>参加者</h1><p>{application ? <>応募者 {entries.length}人　参加者 <strong>{participantCount}人</strong></> : <strong>参加者 {participantCount}人</strong>}</p></div>
+    <div className="section-heading"><div><p>{application ? <>応募者 {entries.length}人　参加者 <strong>{participantCount}人</strong></> : <strong>参加者 {participantCount}人</strong>}</p></div>
       <div className="inline-actions">{confirmed ? <><Tag type="green" size="sm">{editingSelection ? '選び直し中' : '確定済み'}</Tag><Button kind="ghost" size="sm" onClick={() => setEditingSelection(value => !value)}>{editingSelection ? '選び直しを閉じる' : '参加者を選び直す'}</Button></> : !application && <Button kind="ghost" renderIcon={Add} onClick={() => setRegistering(true)}>追加</Button>}</div>
     </div>
     {selectionVisible && <>

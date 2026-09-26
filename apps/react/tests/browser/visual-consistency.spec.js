@@ -11,9 +11,11 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
 
   const tabs = page.getByRole('tablist', { name: '画面切り替え' });
   await expect(tabs.getByRole('tab')).toHaveCount(4);
-  const participantHeading = page.getByRole('heading', { name: '参加者', exact: true });
-  await expect(participantHeading).toBeVisible();
-  const participantInset = (await participantHeading.boundingBox()).x;
+  await expect(page.getByRole('heading', { name: '参加者', exact: true })).toHaveCount(0);
+  const participantSummary = page.locator('.participants-page > .section-heading p');
+  await expect(participantSummary).toContainText(/参加者\s*\d+人/);
+  expect(await participantSummary.evaluate(element => getComputedStyle(element).marginBlockStart)).toBe('0px');
+  const participantInset = (await participantSummary.boundingBox()).x;
   await expect(page.getByText('参加者を追加してください。', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '追加', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '追加', exact: true }).click();
@@ -21,9 +23,8 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await page.getByRole('dialog', { name: '参加者登録' }).getByRole('button', { name: 'キャンセル' }).click();
 
   await page.getByRole('tab', { name: '班割', exact: true }).click();
-  const teamHeading = page.getByRole('heading', { name: '班割', exact: true });
-  await expect(teamHeading).toBeVisible();
-  expect(Math.abs((await teamHeading.boundingBox()).x - participantInset)).toBeLessThanOrEqual(1);
+  await expect(page.getByRole('heading', { name: '班割', exact: true })).toHaveCount(0);
+  await expect(page.locator('.allocation-page[aria-label="班割"] .allocation-toolbar-summary')).toContainText(/\d+人・\d+班/);
   const randomize = page.getByRole('button', { name: 'ランダム割り当て', exact: true });
   await expect(randomize).toHaveClass(/cds--btn--tertiary/);
   await randomize.hover();
