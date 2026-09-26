@@ -4,8 +4,10 @@ import { Add, SettingsAdjust } from '@carbon/icons-react';
 import ParticipantEditor from './ParticipantEditor.jsx';
 import RegistrationModal from './RegistrationModal.jsx';
 import { ExportModal, GuidanceModal } from './ProjectTools.jsx';
+import useMediaQuery from '../hooks/useMediaQuery.js';
 
 export default function Participants({ runtime, room, onNotice }) {
+  const isMobile = useMediaQuery('(max-width: 671px)');
   const [search, setSearch] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [filter, setFilter] = useState({ grade: 'all', driver: 'all', selected: 'all' });
@@ -49,15 +51,15 @@ export default function Participants({ runtime, room, onNotice }) {
   }
   return <section className="participants-page" aria-label="参加者">
     <div className="section-heading"><div><h1>参加者</h1><p>{application ? <>応募者 {entries.length}人　参加者 <strong>{participantCount}人</strong></> : <strong>参加者 {participantCount}人</strong>}</p></div>
-      <div className="inline-actions">{confirmed ? <>{!editingSelection && <Tag type="green" size="sm">確定済み</Tag>}<Button kind="ghost" size="sm" onClick={() => setEditingSelection(value => !value)}>{editingSelection ? '編集を閉じる' : '確定解除'}</Button></> : !application && <Button kind="ghost" renderIcon={Add} onClick={() => setRegistering(true)}>追加</Button>}</div>
+      <div className="inline-actions">{confirmed ? <><Tag type="green" size="sm">{editingSelection ? '選び直し中' : '確定済み'}</Tag><Button kind="ghost" size="sm" onClick={() => setEditingSelection(value => !value)}>{editingSelection ? '選び直しを閉じる' : '参加者を選び直す'}</Button></> : !application && <Button kind="ghost" renderIcon={Add} onClick={() => setRegistering(true)}>追加</Button>}</div>
     </div>
     {selectionVisible && <>
-      {application ? <p className="section-description">応募者を確認して、参加者を選んでください。</p> : participantCount === 0 && <p className="section-description">参加者を追加してください。</p>}
+      {application ? <p className="section-description">{editingSelection ? '参加者を選び直し、「参加者を確定」を押してください。' : '応募者を確認して、参加者を選んでください。'}</p> : participantCount === 0 && <p className="section-description">参加者を追加してください。</p>}
       <div className="participant-toolbar"><Search id="participant-search" labelText="名前を検索" placeholder="名前を検索" value={search} onChange={event => setSearch(event.target.value)} closeButtonLabelText="検索をクリア" />
         <IconButton kind="ghost" label="絞り込み" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(value => !value)}><SettingsAdjust /></IconButton>
       </div>
       {filtersOpen && <div className="form-grid filter-panel">{[['selected', '選択状態', [['all', 'すべて'], ['selected', '選択済み'], ['unselected', '未選択']]], ['grade', '学年', [['all', 'すべて'], ...[1, 2, 3, 4].map(n => [String(n), `${n}年`])]], ['driver', '車出し', [['all', 'すべて'], ['driver', '車出し可'], ['no-driver', '車出しなし']]]].map(([key, label, options]) => <Select key={key} id={`participant-filter-${key}`} labelText={label} value={filter[key]} onChange={event => setFilter(current => ({ ...current, [key]: event.target.value }))}>{options.map(([value, text]) => <SelectItem key={value} value={value} text={text} />)}</Select>)}</div>}
-      {!!rows.length && <ContainedList className="participant-list" label="参加者一覧" size="lg">{visible.map(row => <ContainedListItem className="participant-row" key={row.key} action={<div className="participant-row-actions"><Checkbox id={`participant-choice-${row.key}`} labelText={row.person.name} hideLabel aria-label={row.person.name} checked={checked(row)} onChange={(_, { checked: value }) => setChoices(current => ({ ...current, [row.key]: value }))} />{row.id ? <OverflowMenu ariaLabel={`${row.person.name}の操作`} iconDescription={`${row.person.name}の操作`} flipped><OverflowMenuItem itemText="編集" onClick={() => edit(row.id)} /><OverflowMenuItem hasDivider itemText="削除" isDelete onClick={() => setPendingDelete({ id: row.id, name: row.person.name })} /></OverflowMenu> : <span />}</div>}>
+      {!!rows.length && <ContainedList className="participant-list" label="参加者一覧" size="lg">{visible.map(row => <ContainedListItem className="participant-row" key={row.key} action={<div className="participant-row-actions"><Checkbox id={`participant-choice-${row.key}`} labelText={row.person.name} hideLabel aria-label={row.person.name} checked={checked(row)} onChange={(_, { checked: value }) => setChoices(current => ({ ...current, [row.key]: value }))} />{row.id ? <OverflowMenu ariaLabel={`${row.person.name}の操作`} iconDescription={`${row.person.name}の操作`} size={isMobile ? 'lg' : 'sm'} flipped><OverflowMenuItem itemText="編集" onClick={() => edit(row.id)} /><OverflowMenuItem hasDivider itemText="削除" isDelete onClick={() => setPendingDelete({ id: row.id, name: row.person.name })} /></OverflowMenu> : <span />}</div>}>
         <div className="participant-row-copy"><strong>{row.person.name}</strong><span className="row-detail">{row.detail}</span></div>
       </ContainedListItem>)}</ContainedList>}
       {!rows.length && <p className="empty-state">参加者がいません</p>}

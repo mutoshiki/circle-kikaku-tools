@@ -57,9 +57,9 @@ test('settings cancel/save, signed extras, payment state and reload', async ({ p
   await lastRow.getByLabel('名目').fill('にほんごへんかんちゅう');
   await lastRow.getByLabel('名目').dispatchEvent('compositionend', { data: '日本語変換中の返金' });
   await lastRow.getByLabel('名目').fill('日本語変換中の返金');
-  await lastRow.getByLabel('金額').fill('300');
+  await lastRow.getByRole('textbox', { name: '金額', exact: true }).fill('300');
   await lastRow.getByText('部費', { exact: true }).click();
-  await lastRow.getByRole('checkbox', { name: '減額対象' }).check({ force: true });
+  await lastRow.getByRole('checkbox', { name: /この金額を(?:部費|割勘)から差し引く/ }).check({ force: true });
   await modal.getByRole('button', { name: '保存' }).click();
   const carA = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) });
   await carA.getByRole('button', { name: /内訳を表示/ }).click();
@@ -68,7 +68,8 @@ test('settings cancel/save, signed extras, payment state and reload', async ({ p
   await page.locator('label[for="settlement-paid-仮参加者C"]').click();
   await expect(page.getByRole('dialog', { name: '集金済みにする' })).toHaveCount(0);
   await expect(page.getByRole('checkbox', { name: '仮参加者Cの集金チェック' })).toBeChecked();
-  await page.locator('label[for="settlement-driver-paid-仮参加者D"]').click();
+  const driverPayment = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者D車/ }) });
+  await driverPayment.getByRole('button', { name: '支払い済みにする' }).click();
 
   await page.reload();
   await page.getByRole('tab', { name: '精算', exact: true }).click();
@@ -77,7 +78,7 @@ test('settings cancel/save, signed extras, payment state and reload', async ({ p
   await reloadedCarA.getByRole('button', { name: /内訳を表示/ }).click();
   await expect(reloadedCarA.getByText('日本語変換中の返金')).toBeVisible();
   await expect(page.getByRole('checkbox', { name: '仮参加者Cの集金チェック' })).toBeChecked();
-  await expect(page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者D車/ }) }).getByRole('checkbox', { name: '支払い済みにする' })).toBeChecked();
+  await expect(driverPayment.getByRole('button', { name: '未払いに戻す' })).toBeVisible();
   await page.getByRole('button', { name: 'ユーティリティメニュー' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -111,7 +112,7 @@ test('car expense editor uses a compact Carbon list and focused mobile editing s
   await parkingTrigger.click();
   await expect(dialog.getByLabel('名目')).toHaveValue('駐車代');
   await expect(dialog.getByRole('radio', { name: '割勘' })).toBeVisible();
-  await expect(dialog.getByRole('checkbox', { name: '減額対象' })).toBeVisible();
+  await expect(dialog.getByRole('checkbox', { name: /この金額を(?:部費|割勘)から差し引く/ })).toBeVisible();
   await expect(dialog.locator('.settlement-cost-editor-details')).toHaveCount(1);
   const rowEditor = await dialog.locator('.settlement-cost-editor-details').evaluate(node => ({
     parentClass: node.closest('.settlement-cost-editor-details-row')?.className,
@@ -136,7 +137,7 @@ test('car expense editor uses a compact Carbon list and focused mobile editing s
   expect(editorStyle.backgroundColor).not.toBe(editorStyle.bodyBackgroundColor);
   const fieldColumns = await dialog.locator('.settlement-cost-editor-fields').evaluate(node => getComputedStyle(node).gridTemplateColumns);
   expect(fieldColumns.split(' ').length).toBe(2);
-  await expect(dialog.getByLabel('金額')).toHaveCSS('text-align', 'right');
+  await expect(dialog.getByRole('textbox', { name: '金額', exact: true })).toHaveCSS('text-align', 'right');
   await dialog.getByLabel('名目').press('Shift+Tab');
   await page.keyboard.press('Shift+Tab');
   const keyboardFocusStyle = await dialog.evaluate(node => ({
@@ -270,31 +271,32 @@ test('driver payment uses labeled status control and Carbon expandable tile', as
   await expect(car.locator('.cds--tag__label', { hasText: '未払い' })).toBeVisible();
   await expect(car.getByRole('heading', { name: /レンタカー/ })).toBeVisible();
 
-  const paid = car.getByRole('checkbox', { name: '支払い済みにする' });
+  const paid = car.getByRole('button', { name: '支払い済みにする' });
   await expect(paid).toBeVisible();
-  await expect(paid).not.toBeChecked();
+  await expect(paid).toBeEnabled();
   const actions = car.locator('.settlement-car-actions');
   const statusRow = actions.locator('.settlement-car-status-row');
   await car.scrollIntoViewIfNeeded();
   const tagBox = await statusRow.locator('.cds--tag').boundingBox();
-  const checkboxBox = await statusRow.locator('.cds--checkbox-wrapper').boundingBox();
+  const checkboxBox = await statusRow.getByRole('button', { name: '支払い済みにする' }).boundingBox();
   const editBox = await car.getByRole('button', { name: '費用を編集' }).boundingBox();
   expect(Math.abs((tagBox.y + tagBox.height / 2) - (checkboxBox.y + checkboxBox.height / 2)), JSON.stringify({ tagBox, checkboxBox })).toBeLessThanOrEqual(3);
   if (await page.evaluate(() => innerWidth <= 672)) {
     expect(editBox.y).toBeGreaterThanOrEqual(checkboxBox.y + checkboxBox.height - 1);
   }
-  await car.locator(`label[for="${await paid.getAttribute('id')}"]`).click();
-  await expect(paid).toBeChecked();
+  await paid.click();
+  await expect(car.getByRole('button', { name: '未払いに戻す' })).toBeVisible();
   await expect(car.locator('.cds--tag').filter({ hasText: '支払い済み' })).toBeVisible();
-  await paid.focus();
-  await expect(paid).toBeFocused();
+  let reversePayment = car.getByRole('button', { name: '未払いに戻す' });
+  await reversePayment.focus();
+  await expect(reversePayment).toBeFocused();
   await page.keyboard.press('Space');
-  await expect(paid).not.toBeChecked();
+  await expect(car.getByRole('button', { name: '支払い済みにする' })).toBeVisible();
   await expect(car.locator('.cds--tag').filter({ hasText: '未払い' })).toBeVisible();
-  await car.locator(`label[for="${await paid.getAttribute('id')}"]`).click();
-  await expect(paid).toBeChecked();
-  await car.locator(`label[for="${await paid.getAttribute('id')}"]`).click();
-  await expect(paid).not.toBeChecked();
+  await car.getByRole('button', { name: '支払い済みにする' }).click();
+  await expect(car.getByRole('button', { name: '未払いに戻す' })).toBeVisible();
+  await car.getByRole('button', { name: '未払いに戻す' }).click();
+  await expect(car.getByRole('button', { name: '支払い済みにする' })).toBeVisible();
   await expect(car.locator('.cds--tag').filter({ hasText: '未払い' })).toBeVisible();
 
   await car.getByRole('button', { name: '費用を編集' }).click();
@@ -354,7 +356,7 @@ test('driver payment wraps long car names and formats zero amount', async ({ pag
     expect(summaryLayout.height).toBeLessThanOrEqual(summaryLayout.lineHeight + 1);
     expect(summaryLayout.rect.right + 4).toBeLessThanOrEqual(trigger.x);
     const tag = await current.locator('.settlement-car-status-row .cds--tag').boundingBox();
-    const checkbox = await current.locator('.settlement-car-status-row .cds--checkbox-wrapper').boundingBox();
+    const checkbox = await current.locator('.settlement-car-status-row button').boundingBox();
     const edit = await current.getByRole('button', { name: '費用を編集' }).boundingBox();
     if (viewportWidth <= 672) {
       expect(Math.abs((tag.y + tag.height / 2) - (checkbox.y + checkbox.height / 2)), JSON.stringify({ tag, checkbox, statusRow: await current.locator('.settlement-car-status-row').evaluate(element => ({ alignItems: getComputedStyle(element).alignItems, children: [...element.children].map(child => ({ display: getComputedStyle(child).display, alignSelf: getComputedStyle(child).alignSelf })) })) })).toBeLessThanOrEqual(3);

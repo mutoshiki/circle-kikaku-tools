@@ -18,7 +18,7 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
   await expect(page.getByRole('button', { name: '参加者画面のその他の操作' })).toHaveCount(0);
 
   const confirmedStatus = page.getByText('確定済み', { exact: true });
-  const reopenSelection = page.getByRole('button', { name: '確定解除', exact: true });
+  const reopenSelection = page.getByRole('button', { name: '参加者を選び直す', exact: true });
   await expect(confirmedStatus).toBeVisible();
   await expect(confirmedStatus.locator('xpath=ancestor::*[contains(@class,"cds--tag")]')).toBeVisible();
   await expect(reopenSelection).toHaveClass(/cds--btn--ghost/);
@@ -53,7 +53,8 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
   await page.evaluate(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), { key: storageKey, value: room });
   await page.reload();
   await page.getByRole('tab', { name: '参加者', exact: true }).click();
-  await page.getByRole('button', { name: '確定解除', exact: true }).click();
+  await page.getByRole('button', { name: '参加者を選び直す', exact: true }).click();
+  await expect(page.getByText('選び直し中', { exact: true })).toBeVisible();
   await expect(page.getByRole('checkbox', { name: '回答更新後G', exact: true })).toBeChecked();
   await expect(page.locator('.participant-row').filter({ hasText: '回答更新後G' })).toContainText('4年 ・ 車出し可・同乗2人');
 
