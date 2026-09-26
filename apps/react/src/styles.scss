@@ -25,6 +25,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .section-heading, .group-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .section-heading h1, .allocation-toolbar-summary h1 { margin: 0; font-size: var(--cds-heading-04-font-size); font-weight: var(--cds-heading-04-font-weight); line-height: var(--cds-heading-04-line-height); }
 .section-heading p, .section-description { color: var(--cds-text-secondary); margin-block: layout.$spacing-02 0; }
+.participants-page > .section-heading p { margin-block-start: 0; }
 .section-description { max-inline-size: 40rem; margin-block-end: layout.$spacing-05; }
 .form-stack { display: grid; gap: 1.5rem; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
@@ -55,6 +56,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .allocation-group:not(:last-child) { padding-block-end: layout.$spacing-03; border-block-end: 1px solid var(--cds-border-subtle); }
 .group-heading { padding: layout.$spacing-03 layout.$spacing-05; border-bottom: 1px solid var(--cds-border-subtle); }
 .group-heading h2 { font-size: 1rem; font-weight: 600; overflow-wrap: anywhere; }
+.group-capacity-display { color: var(--cds-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .allocation-person-list .cds--contained-list__header { display: none; }
 .person-summary { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
 .person-name { overflow-wrap: anywhere; }
