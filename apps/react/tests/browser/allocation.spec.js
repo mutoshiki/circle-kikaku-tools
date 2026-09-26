@@ -125,3 +125,23 @@ test('Google Forms spreadsheet paste registration remains available', async ({ p
   const room = await saved(page, 'ALLOCATION-FORM-PASTE-RC');
   expect(Object.values(room.participants).map(person => person.name)).toEqual(expect.arrayContaining(['フォーム参加者A', 'フォーム参加者B']));
 });
+
+test('manual registration accepts names entered only in driver and grade fields', async ({ page }) => {
+  const roomId = 'ALLOCATION-METADATA-ONLY-RC';
+  await page.goto(`/?room=${roomId}`);
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  await page.getByRole('button', { name: '追加', exact: true }).click();
+  const registration = page.getByRole('dialog', { name: '参加者登録' });
+  await registration.getByRole('textbox', { name: '車出し可能な参加者', exact: true }).fill('車出し欄だけの人');
+  await registration.getByRole('textbox', { name: '2年生', exact: true }).fill('学年欄だけの人');
+  await registration.getByRole('button', { name: '登録', exact: true }).click();
+  await expect(registration).toHaveCount(0);
+
+  const room = await saved(page, roomId);
+  const participants = Object.values(room.participants);
+  const driver = participants.find(person => person.name === '車出し欄だけの人');
+  const student = participants.find(person => person.name === '学年欄だけの人');
+  expect(driver).toBeDefined();
+  expect(room.allocations.car.placements[driver.id].driver).toBe(true);
+  expect(student).toMatchObject({ grade: 2 });
+});
