@@ -24,7 +24,12 @@ export default function RegistrationModal({ runtime, onClose, onNotice }) {
     const split = value => value.split(/\r?\n/).map(name => name.trim()).filter(Boolean);
     const driverKeys = new Set(split(drivers).map(formParser.normalizeNameForCompare));
     const gradeKeys = grades.map(value => new Set(split(value).map(formParser.normalizeNameForCompare)));
-    const people = parsed?.people || split(members).map(name => ({ name, grade: Math.max(0, gradeKeys.findIndex(keys => keys.has(formParser.normalizeNameForCompare(name))) + 1), driver: driverKeys.has(formParser.normalizeNameForCompare(name)) }));
+    const manualNames = new Map();
+    for (const name of [...split(members), ...split(drivers), ...grades.flatMap(split)]) {
+      const key = formParser.normalizeNameForCompare(name);
+      if (key && !manualNames.has(key)) manualNames.set(key, name);
+    }
+    const people = parsed?.people || [...manualNames].map(([key, name]) => ({ name, grade: Math.max(0, gradeKeys.findIndex(keys => keys.has(key)) + 1), driver: driverKeys.has(key) }));
     if (parsed && !parsed.ok) { setError(parsed.errors.join(' ')); focusSheet(); return; }
     if (!people.length) { setError('参加者を入力してください。'); focusSheet(); return; }
     try { runtime.store.command('addParticipants', { people }); onNotice('参加者を登録しました。'); onClose(); }
