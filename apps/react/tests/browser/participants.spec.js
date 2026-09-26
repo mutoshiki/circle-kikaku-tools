@@ -8,6 +8,32 @@ async function saved(page) {
   return page.evaluate(key => JSON.parse(localStorage.getItem(key)), storageKey);
 }
 
+test('registration validation focuses an input path and clears when corrected', async ({ page }, testInfo) => {
+  const roomId = `REGVAL-${testInfo.project.name}`;
+  const key = `sanpo-react:v1:${roomId}:room`;
+  const manual = structuredClone(fixture);
+  manual.meta.applicationSync = null;
+  await page.addInitScript(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), { key, value: manual });
+  await page.goto(`/?room=${roomId}`);
+  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+  const add = page.getByRole('button', { name: '追加', exact: true });
+  const addBox = await add.boundingBox();
+  expect(addBox).not.toBeNull();
+  console.log(`TARGET participant add ${addBox.width.toFixed(1)}x${addBox.height.toFixed(1)} ${testInfo.project.name}`);
+  if (testInfo.project.name.includes('mobile')) expect(addBox.height).toBeGreaterThanOrEqual(44);
+  await add.click();
+  const dialog = page.getByRole('dialog', { name: '参加者登録' });
+  await dialog.getByRole('button', { name: '登録', exact: true }).click();
+  const error = dialog.locator('.cds--inline-notification');
+  await expect(error).toContainText('参加者を入力してください。');
+  await expect(dialog.locator('#registration-sheet')).toBeFocused();
+  await dialog.getByLabel('参加者（改行区切り）').fill('統合検証参加者');
+  await expect(error).toHaveCount(0);
+  await dialog.getByRole('button', { name: '登録', exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByText('統合検証参加者', { exact: true })).toBeVisible();
+});
+
 test('form applicants can be selected, updated, confirmed, unconfirmed and deleted without identity revival', async ({ page }) => {
   const initial = structuredClone(fixture);
   await page.addInitScript(({ key, room }) => {
@@ -18,7 +44,7 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
   await expect(page.getByRole('button', { name: '参加者画面のその他の操作' })).toHaveCount(0);
 
   const confirmedStatus = page.getByText('確定済み', { exact: true });
-  const reopenSelection = page.getByRole('button', { name: '確定解除', exact: true });
+  const reopenSelection = page.getByRole('button', { name: '参加者を選び直す', exact: true });
   await expect(confirmedStatus).toBeVisible();
   await expect(confirmedStatus.locator('xpath=ancestor::*[contains(@class,"cds--tag")]')).toBeVisible();
   await expect(reopenSelection).toHaveClass(/cds--btn--ghost/);
@@ -53,7 +79,7 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
   await page.evaluate(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), { key: storageKey, value: room });
   await page.reload();
   await page.getByRole('tab', { name: '参加者', exact: true }).click();
-  await page.getByRole('button', { name: '確定解除', exact: true }).click();
+  await page.getByRole('button', { name: '参加者を選び直す', exact: true }).click();
   await expect(page.getByRole('checkbox', { name: '回答更新後G', exact: true })).toBeChecked();
   await expect(page.locator('.participant-row').filter({ hasText: '回答更新後G' })).toContainText('4年 ・ 車出し可・同乗2人');
 

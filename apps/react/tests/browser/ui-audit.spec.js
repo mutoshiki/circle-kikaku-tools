@@ -110,7 +110,7 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await page.getByRole('tab', { name: '参加者', exact: true }).click();
     await shot(page, viewportName, 9, 'participants-default');
     console.log('AUDIT participants default captured');
-    if (await page.getByRole('button', { name: '確定解除', exact: true }).count()) await page.getByRole('button', { name: '確定解除', exact: true }).click();
+    if (await page.getByRole('button', { name: '参加者を選び直す', exact: true }).count()) await page.getByRole('button', { name: '参加者を選び直す', exact: true }).click();
     console.log('AUDIT participants selection mode');
     await page.getByRole('searchbox', { name: '名前を検索' }).fill('存在しない名前');
     await expect(page.getByText('“存在しない名前” に一致する参加者はいません', { exact: true })).toBeVisible();

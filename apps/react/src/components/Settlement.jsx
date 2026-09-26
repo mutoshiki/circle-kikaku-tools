@@ -10,7 +10,10 @@ import RoutePlanner from './RoutePlanner.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
 
 const money = value => `¥${Math.round(Number(value) || 0).toLocaleString('ja-JP')}`;
-const extraTypeLabel = type => ({ split: '割勘', club: '部費', 'split-minus': '割勘 −', 'club-minus': '部費 −' })[type] || '割勘';
+const hasNegativeValue = value => /^[-−]/.test(String(value ?? '').trim());
+const negativeMoneyText = '金額は0円以上で入力してください。';
+const negativeNumberText = '0以上の値を入力してください。';
+const extraTypeLabel = type => ({ split: '割勘', club: '部費', 'split-minus': '割勘から差し引き', 'club-minus': '部費から差し引き' })[type] || '割勘';
 
 function SettingsModal({ runtime, edit, onClose, onNotice }) {
   const [, render] = useState(0);
@@ -22,21 +25,27 @@ function SettingsModal({ runtime, edit, onClose, onNotice }) {
   const state = edit.state;
   const update = changes => { Object.assign(state, changes); render(value => value + 1); };
   const updateStandalone = changes => update({ standalone: { ...state.standalone, ...changes } });
+  const invalidDriverCount = state.standalone.enabled && hasNegativeValue(state.standalone.driverCount);
+  const invalidMemberCount = state.standalone.enabled && hasNegativeValue(state.standalone.memberCount);
+  const invalidReward = hasNegativeValue(state.driverReward);
+  const invalidCurrentStep = step === 0 ? invalidDriverCount || invalidMemberCount : step === 1 && invalidReward;
   const driverRule = state.driverCollectionFree ? 'free' : state.driverCollectionOffset ? 'offset' : 'normal';
   async function save() {
-    if (composing || saving) return;
+    if (composing || saving || invalidDriverCount || invalidMemberCount || invalidReward) return;
     setSaving(true); setError('');
     try { await commitSettlementEdit(runtime, edit); onNotice('精算設定を保存しました。'); onClose(true); }
     catch (caught) { setError(caught.message); setSaving(false); }
   }
   function go(next) {
+    if (next > step && step === 0 && (invalidDriverCount || invalidMemberCount)) return;
+    if (next > step && step === 1 && invalidReward) return;
     if (next > step && step === 0 && state.standalone.enabled && ((Number(state.standalone.driverCount) || 0) + (Number(state.standalone.memberCount) || 0) <= 0)) {
       setError('運転手または同乗者の人数を入力してください。');
       return;
     }
     setError(''); setStep(Math.max(0, Math.min(2, next)));
   }
-  return <Modal className="app-modal settlement-settings-modal" open size="lg" hasScrollingContent modalHeading="精算設定を編集" primaryButtonText={step === 2 ? '保存' : '次へ'} secondaryButtons={[{ buttonText: 'キャンセル', onClick: () => onClose(false) }, { buttonText: '戻る', onClick: () => go(step - 1) }]} primaryButtonDisabled={saving || composing} onRequestSubmit={() => step === 2 ? save() : go(step + 1)} onRequestClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus="#settlement-mode-normal">
+  return <Modal className="app-modal settlement-settings-modal" open size="lg" hasScrollingContent modalHeading="精算設定を編集" primaryButtonText={step === 2 ? '保存' : '次へ'} secondaryButtons={[{ buttonText: 'キャンセル', onClick: () => onClose(false) }, { buttonText: '戻る', onClick: () => go(step - 1) }]} primaryButtonDisabled={saving || composing || invalidCurrentStep} onRequestSubmit={() => step === 2 ? save() : go(step + 1)} onRequestClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus="#settlement-mode-normal">
     <div className="form-stack settlement-settings-form" onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}>
       <ProgressIndicator id="settlement-settings-progress" className="settlement-settings-progress" currentIndex={step} vertical={isMobile} spaceEqually={!isMobile} aria-label="精算設定の進行状況">
         {['精算方法', '車出し協力代', '集金ルール'].map((label, index) => <ProgressStep key={label} label={label} current={step === index} complete={step > index} />)}
@@ -47,15 +56,15 @@ function SettingsModal({ runtime, edit, onClose, onNotice }) {
         <RadioButton id="settlement-mode-standalone" value="standalone" labelText="人数だけで精算" />
       </RadioButtonGroup>
       {state.standalone.enabled && <div className="form-grid">
-        <NumberInput id="settlement-driver-count" label="運転手の人数" min={0} max={99} allowEmpty value={state.standalone.driverCount} onChange={(_, { value }) => updateStandalone({ driverCount: String(value) })} />
-        <NumberInput id="settlement-member-count" label="同乗者の人数" min={0} max={99} allowEmpty value={state.standalone.memberCount} onChange={(_, { value }) => updateStandalone({ memberCount: String(value) })} />
+        <NumberInput id="settlement-driver-count" label="運転手の人数" min={0} max={99} allowEmpty invalid={invalidDriverCount} invalidText="人数は0以上で入力してください。" value={state.standalone.driverCount} onChange={(_, { value }) => updateStandalone({ driverCount: String(value) })} />
+        <NumberInput id="settlement-member-count" label="同乗者の人数" min={0} max={99} allowEmpty invalid={invalidMemberCount} invalidText="人数は0以上で入力してください。" value={state.standalone.memberCount} onChange={(_, { value }) => updateStandalone({ memberCount: String(value) })} />
         {Array.from({ length: Number(state.standalone.driverCount) || 0 }, (_, index) => <TextInput key={index} id={`settlement-driver-name-${index}`} labelText={`運転手${index + 1}の名前`} value={state.standalone.driverNames[index] || ''} onChange={event => { const names = [...state.standalone.driverNames]; names[index] = event.target.value; updateStandalone({ driverNames: names }); }} />)}
       </div>}
       <RadioButtonGroup legendText="端数単位" name="settlement-rounding" valueSelected={state.rounding} onChange={value => update({ rounding: String(value) })} orientation="vertical">
         {['1', '10', '100'].map(value => <RadioButton key={value} id={`settlement-rounding-${value}`} value={value} labelText={`${value}円単位`} />)}
       </RadioButtonGroup></section>}
       {step === 1 && <section className="settlement-settings-step" aria-labelledby="settlement-reward-title"><h3 id="settlement-reward-title">車出し協力代</h3><div className="form-grid">
-        <TextInput id="settlement-driver-reward" labelText="1台あたりの協力代（円）" inputMode="numeric" value={state.driverReward} onChange={event => update({ driverReward: event.target.value })} />
+        <TextInput id="settlement-driver-reward" labelText="1台あたりの協力代（円）" inputMode="numeric" invalid={invalidReward} invalidText={negativeMoneyText} value={state.driverReward} onChange={event => update({ driverReward: event.target.value })} />
         <RadioButtonGroup legendText="協力代の負担" name="settlement-reward-type" valueSelected={state.driverRewardType} onChange={value => update({ driverRewardType: value })} orientation="vertical">
           <RadioButton id="settlement-reward-split" value="split" labelText="参加者で割勘" />
           <RadioButton id="settlement-reward-club" value="club" labelText="部費から支払う" />
@@ -92,7 +101,7 @@ function CostTypeControl({ domain, id, label, type, disabled = false, allowNegat
 
 function MovementSettingsView({ car, domain, movementAmount, movementLabel, movementFormula, onOpenRoute, onRentalType, onUpdate }) {
   const times = domain.isTimesRentalCar(car);
-  const input = (id, label, value, key) => <TextInput id={id} labelText={label} inputMode="decimal" value={value} onChange={event => onUpdate({ [key]: event.target.value })} />;
+  const input = (id, label, value, key) => <TextInput id={id} labelText={label} inputMode="decimal" invalid={hasNegativeValue(value)} invalidText={negativeNumberText} value={value} onChange={event => onUpdate({ [key]: event.target.value })} />;
   return <div className="form-stack settlement-movement-form">
       <RadioButtonGroup legendText="車両種別" name="settlement-rental-type" valueSelected={car.rentalType} onChange={onRentalType} orientation="horizontal">
         <RadioButton id="settlement-rental-type" value="private" labelText="自家用車" />
@@ -141,6 +150,10 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
     ? (Number(car.dist) > 0 ? `移動距離 ${Number(car.dist).toLocaleString('ja-JP')}km` : '移動距離を入力してください')
     : (Number(car.dist) > 0 && Number(car.eco) > 0 && Number(car.price) > 0 ? `${Number(car.dist).toLocaleString('ja-JP')}km ÷ ${car.eco}km/L × ${car.price}円/L` : '移動距離・燃費・ガソリン単価を入力してください');
   const editable = car.extras.map((row, index) => ({ row, index })).filter(({ row }) => !domain.isDriverRewardExtra(row) && !domain.isTimesDistanceFeeExtra(row) && !domain.isGasMovementFeeExtra(row));
+  const movementFields = domain.isTimesRentalCar(car) ? ['dist'] : ['dist', 'eco', 'price'];
+  const hasNegativeMovement = movementFields.some(key => hasNegativeValue(car[key]));
+  const hasNegativeExpense = editable.some(({ row }) => hasNegativeValue(row.amount));
+  const validationMessage = hasNegativeExpense ? negativeMoneyText : hasNegativeMovement ? '移動距離・燃費・ガソリン単価は0以上で入力してください。' : '';
   const getCostId = (row, index) => row.id || `extra-${index}`;
   const activeExtra = editable.find(({ row, index }) => getCostId(row, index) === activeCostId);
   const candidates = getExtraCandidates(edit.state, domain);
@@ -174,6 +187,7 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
   }, [view]);
   async function save() {
     if (composing || saving) return;
+    if (hasNegativeExpense || hasNegativeMovement) { setError(validationMessage); return; }
     const { data } = runtime.store.domain.settlementInput(edit.session.base);
     const normalized = domain.normalizeSettlementState(edit.state);
     const result = domain.calculateSettlement(data, normalized);
@@ -185,12 +199,12 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
     catch (caught) { setError(caught.message); setSaving(false); }
   }
   const primaryLabel = view === 'expense' ? '保存' : view === 'movement' ? `${movementLabel}を適用` : routeStatus.primaryLabel;
-  const primaryDisabled = view === 'expense' ? saving || composing : view === 'route' ? routeStatus.disabled : false;
+  const primaryDisabled = view === 'expense' ? saving || composing || hasNegativeExpense || hasNegativeMovement : view === 'movement' ? hasNegativeMovement : view === 'route' ? routeStatus.disabled : false;
   const back = () => { if (view === 'route' && routeRef.current?.returnToPlanner()) return; changeView(view === 'route' ? 'movement' : 'expense'); };
   const submit = () => { if (view === 'expense') void save(); else if (view === 'movement') changeView('expense'); else routeRef.current?.apply(); };
   return <Modal className={`app-modal settlement-car-modal settlement-task-modal${view === 'movement' ? ' settlement-movement-modal' : view === 'route' ? ' settlement-route-modal' : ''}${contentAtBottom && view !== 'expense' ? ' settlement-movement-at-bottom' : ''}`} onScrollCapture={handleModalScroll} open size={view === 'route' ? 'lg' : 'md'} hasScrollingContent={view !== 'route'} closeButtonLabel="閉じる" modalAriaLabel={`${name}車の費用を編集`} modalLabel={`${name}車`} modalHeading={view === 'expense' ? '費用を編集' : view === 'movement' ? `${movementLabel}を設定` : '移動距離を計算'} primaryButtonText={view === 'route' && routeStatus.hidePrimaryButton ? undefined : primaryLabel} secondaryButtons={[{ buttonText: view === 'expense' ? 'キャンセル' : '戻る', onClick: view === 'expense' ? () => onClose(false) : back }]} primaryButtonDisabled={primaryDisabled} onRequestSubmit={submit} onRequestClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus={view === 'route' ? '#route-origin-action .cds--contained-list-item__content' : '#settlement-movement-type-split'}>
     {view === 'expense' && <div className="form-stack settlement-car-form" onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}>
-      {error && <InlineNotification kind="error" title="入力内容を確認してください" subtitle={error} hideCloseButton lowContrast />}
+      {(error || validationMessage) && <InlineNotification kind="error" title="入力内容を確認してください" subtitle={error || validationMessage} hideCloseButton lowContrast />}
       <section className="settlement-form-section" aria-label="車両費用の編集">
         <ContainedList className="settlement-cost-editor" kind="disclosed" size="sm" label={<span className="cds--visually-hidden">車両費用</span>}>
           <ContainedListItem className={`settlement-cost-list-item${activeCostId === 'movement' ? ' settlement-cost-list-item--active' : ''}`} onClick={() => changeView('movement')} aria-current={activeCostId === 'movement' ? 'true' : undefined} action={<ChevronRight className="settlement-cost-editor-chevron" size={16} aria-hidden="true" />}>
@@ -202,7 +216,9 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
           {editable.map(({ row, index }) => {
             const id = getCostId(row, index);
             const timesTime = domain.isTimesTimeFeeExtra(row);
-            const amount = String(row.amount || '').trim() ? money(row.amount) : '金額未入力';
+            const rawAmount = String(row.amount ?? '').trim();
+            const signedAmount = domain.getSignedSettlementExtraAmount(row);
+            const amount = rawAmount ? `${signedAmount < 0 ? '−' : ''}${money(Math.abs(signedAmount))}` : '金額未入力';
             const isActive = activeCostId === id;
             return <Fragment key={id}>
               <ContainedListItem className={`settlement-cost-list-item${isActive ? ' settlement-cost-list-item--active' : ''}${timesTime ? '' : ' settlement-cost-list-item--deletable'}`} onClick={() => setActiveCostId(id)} aria-current={isActive ? 'true' : undefined} action={timesTime ? null : <Button kind="danger--ghost" size="sm" renderIcon={TrashCan} onClick={event => { event.stopPropagation(); removeExtra(index); }}>削除</Button>}>
@@ -211,7 +227,7 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
               {isActive && activeExtra && <ContainedListItem className="settlement-cost-editor-details-row"><div className="settlement-cost-editor-details" aria-live="polite">
                 <div className="settlement-cost-editor-fields">
                   <TextInput id={`settlement-extra-name-${activeExtra.index}`} size="sm" labelText="名目" value={activeExtra.row.name} readOnly={domain.isTimesTimeFeeExtra(activeExtra.row)} placeholder="例：駐車場代" onChange={event => updateExtra(activeExtra.index, { name: event.target.value, pending: false })} />
-                  <TextInput id={`settlement-extra-amount-${activeExtra.index}`} size="sm" labelText="金額" inputMode="numeric" value={activeExtra.row.amount} onChange={event => updateExtra(activeExtra.index, { amount: event.target.value, pending: false })} />
+                  <TextInput id={`settlement-extra-amount-${activeExtra.index}`} size="sm" labelText="金額" inputMode="numeric" invalid={hasNegativeValue(activeExtra.row.amount)} invalidText={negativeMoneyText} value={activeExtra.row.amount} onChange={event => updateExtra(activeExtra.index, { amount: event.target.value, pending: false })} />
                 </div>
                 <CostTypeControl domain={domain} id={`settlement-extra-type-${activeExtra.index}`} label="負担区分" type={activeExtra.row.type} onChange={type => updateExtra(activeExtra.index, { type })} />
               </div></ContainedListItem>}
@@ -245,6 +261,7 @@ function SettingRows({ state, result }) {
 }
 
 export default function Settlement({ runtime, room, onNotice }) {
+  const isMobile = useMediaQuery('(max-width: 671px)');
   const { data, state } = runtime.store.domain.settlementInput(room);
   const settlement = runtime.store.domain.settlement;
   const result = settlement.calculateSettlement(data, state);
@@ -294,7 +311,7 @@ export default function Settlement({ runtime, room, onNotice }) {
       {issues.messages.map(message => <InlineNotification key={message} kind={message.includes('企画者を選ぶ') ? 'info' : 'error'} title="設定を確認してください" subtitle={message} hideCloseButton lowContrast />)}
     </Tile>
     <Tile className="settlement-card">
-      <div className="settlement-section-heading"><div><h2>集金チェック</h2><p>参加者ごとの集金状況を確認・記録できます。</p><small>回収済み {result.paidCount}/{result.payerCount}人・残り {money(result.unpaidAmount)}</small></div><div className="settlement-collection-tools"><ContentSwitcher aria-label="集金チェックの表示" size="sm" lowContrast selectedIndex={collectionView === 'unpaid' ? 1 : 0} onChange={({ name }) => setCollectionView(name)}><Switch name="all" text="すべて" /><Switch name="unpaid" text="未回収のみ" /></ContentSwitcher><Button kind="ghost" size="sm" renderIcon={Copy} onClick={copyUnpaid}>未回収者をコピー</Button></div></div>
+      <div className="settlement-section-heading"><div><h2>集金チェック</h2><p>参加者ごとの集金状況を確認・記録できます。</p><small>回収済み {result.paidCount}/{result.payerCount}人・残り {money(result.unpaidAmount)}</small></div><div className="settlement-collection-tools"><ContentSwitcher aria-label="集金チェックの表示" size={isMobile ? 'lg' : 'sm'} lowContrast selectedIndex={collectionView === 'unpaid' ? 1 : 0} onChange={({ name }) => setCollectionView(name)}><Switch name="all" text="すべて" /><Switch name="unpaid" text="未回収のみ" /></ContentSwitcher><Button kind="ghost" size="sm" renderIcon={Copy} onClick={copyUnpaid}>未回収者をコピー</Button></div></div>
       <div className="settlement-check-list">{result.participants.filter(person => collectionView !== 'unpaid' || (!result.excludedNames.has(person.name) && !state.paid[person.name])).map(person => {
         const excluded = result.excludedNames.has(person.name);
         const paid = !!state.paid[person.name];

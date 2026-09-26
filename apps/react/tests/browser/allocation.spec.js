@@ -20,10 +20,32 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await page.getByRole('tab', { name: '車割', exact: true }).click();
   await expect(page.getByRole('region', { name: '仮参加者A車', exact: true })).toBeVisible();
   const car = page.getByRole('region', { name: '仮参加者A車', exact: true });
-  await expect(car.getByRole('button', { name: '削除', exact: true })).toHaveClass(/cds--btn--danger-ghost/);
+  const mobile = testInfo.project.name.includes('mobile');
+  async function verifyTarget(label, locator) {
+    const box = await locator.boundingBox();
+    expect(box, `${label} is rendered`).not.toBeNull();
+    console.log(`TARGET ${label} ${box.width.toFixed(1)}x${box.height.toFixed(1)} ${testInfo.project.name}`);
+    if (mobile) expect(box.height, `${label} mobile hit area`).toBeGreaterThanOrEqual(44);
+  }
+  const pin = car.locator('.person-actions').first().getByRole('button').first();
+  await verifyTarget('allocation pin', pin);
+  const capacityAction = car.getByRole('button', { name: '仮参加者A車の定員を変更', exact: true });
+  await verifyTarget('allocation capacity', capacityAction);
+  const groupMenu = car.getByRole('button', { name: '仮参加者A車の操作', exact: true });
+  await verifyTarget('allocation group menu', groupMenu);
+  await groupMenu.click();
+  const deleteItem = page.getByRole('menuitem', { name: '削除', exact: true });
+  await expect(deleteItem).toBeVisible();
+  await deleteItem.click();
+  const deleteConfirmation = page.getByRole('dialog', { name: '車を削除しますか？' });
+  await expect(deleteConfirmation).toBeVisible();
+  await deleteConfirmation.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(car).toBeVisible();
   await expect(page.getByRole('button', { name: 'ランダム割り当て', exact: true })).toHaveClass(/cds--btn--tertiary/);
   await car.getByRole('button', { name: /空席 3/ }).click();
-  await car.getByRole('button', { name: '仮参加者Bを仮参加者A車に追加', exact: true }).click();
+  const addCandidate = car.getByRole('button', { name: '仮参加者Bを仮参加者A車に追加', exact: true });
+  await verifyTarget('allocation candidate add', addCandidate);
+  await addCandidate.click();
   await car.getByRole('button', { name: '仮参加者Cを仮参加者A車に追加', exact: true }).click();
   await car.getByRole('button', { name: '仮参加者Dを仮参加者A車に追加', exact: true }).click();
   await expect(car.getByRole('button', { name: /空席/ })).toHaveCount(0);
