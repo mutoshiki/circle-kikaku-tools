@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, IconButton, Modal, Select, SelectItem, NumberInput, InlineNotification, Tag, OverflowMenu, OverflowMenuItem, ContainedList, ContainedListItem } from '@carbon/react';
-import { Add, Shuffle, ChevronDown, ChevronUp, Pin, PinFilled, TrashCan, Flag } from '@carbon/icons-react';
+import { Add, Shuffle, ChevronDown, ChevronUp, Pin, PinFilled, Flag } from '@carbon/icons-react';
 import ParticipantEditor from './ParticipantEditor.jsx';
+import useMediaQuery from '../hooks/useMediaQuery.js';
 
 function GroupEditor({ runtime, room, type, group, onClose, onNotice }) {
   const allocation = room.allocations[type];
@@ -27,6 +28,7 @@ function GroupEditor({ runtime, room, type, group, onClose, onNotice }) {
 }
 
 export default function Allocation({ runtime, room, type, onNotice, onParticipants }) {
+  const isMobile = useMediaQuery('(max-width: 671px)');
   const [editor, setEditor] = useState(null);
   const [groupEditor, setGroupEditor] = useState(null);
   const [confirmation, setConfirmation] = useState(null);
@@ -67,8 +69,8 @@ export default function Allocation({ runtime, room, type, onNotice, onParticipan
     const record = room.participants[id];
     if (!record) return null;
     return <ContainedListItem key={id} action={<div className="person-actions">
-      <IconButton kind="ghost" size="sm" label={`${record.name}の固定${record.locked ? 'を解除' : ''}`} aria-pressed={record.locked === true} onClick={() => execute('editParticipant', { id, changes: { locked: !record.locked } })}>{record.locked ? <PinFilled /> : <Pin />}</IconButton>
-      <OverflowMenu ref={node => node ? personMenus.current.set(id, node) : personMenus.current.delete(id)} onOpen={() => trackMenuKeys(id)} onClose={() => closeMenu(id)} ariaLabel={`${record.name}の操作`} iconDescription={`${record.name}の操作`} flipped>
+      <IconButton kind="ghost" size={isMobile ? 'lg' : 'sm'} label={`${record.name}の固定${record.locked ? 'を解除' : ''}`} aria-pressed={record.locked === true} onClick={() => execute('editParticipant', { id, changes: { locked: !record.locked } })}>{record.locked ? <PinFilled /> : <Pin />}</IconButton>
+      <OverflowMenu ref={node => node ? personMenus.current.set(id, node) : personMenus.current.delete(id)} onOpen={() => trackMenuKeys(id)} onClose={() => closeMenu(id)} ariaLabel={`${record.name}の操作`} iconDescription={`${record.name}の操作`} size="lg" flipped>
         <OverflowMenuItem itemText="メモ" onClick={() => edit(id)} />
         <OverflowMenuItem itemText={person.driver ? `${roleLabel}を外す` : `${roleLabel}にする`} onClick={() => execute('role', { id, type, driver: !person.driver })} />
         <OverflowMenuItem itemText="しるし" onClick={() => edit(id)} />
@@ -92,10 +94,10 @@ export default function Allocation({ runtime, room, type, onNotice, onParticipan
       const expanded = !!openCandidates[group.id];
       const name = `${car.name}${groupLabel}`;
       return <section className="allocation-group" key={group.id} aria-label={name}>
-        <div className="group-heading"><h2>{name}</h2><div className="inline-actions"><Button kind="ghost" size="sm" onClick={() => setGroupEditor({ group })} aria-label={`${name}の定員を変更`}>{car.members.length}/{group.capacity}人</Button><Button kind="danger-ghost" size="sm" renderIcon={TrashCan} onClick={() => setConfirmation({ title: `${groupLabel}を削除しますか？`, body: '割り当てた参加者を未割り当てに戻します。', button: '削除', danger: true, action: () => execute('deleteGroup', { type, groupId: group.id }) })}>削除</Button></div></div>
+        <div className="group-heading"><h2>{name}</h2><div className="inline-actions"><Button kind="ghost" size={isMobile ? 'lg' : 'sm'} onClick={() => setGroupEditor({ group })} aria-label={`${name}の定員を変更`}>{car.members.length}/{group.capacity}人</Button><OverflowMenu ariaLabel={`${name}の操作`} iconDescription={`${name}の操作`} size={isMobile ? 'lg' : 'sm'} flipped><OverflowMenuItem itemText="削除" hasDivider isDelete onClick={() => setConfirmation({ title: `${groupLabel}を削除しますか？`, body: '割り当てた参加者を未割り当てに戻します。', button: '削除', danger: true, action: () => execute('deleteGroup', { type, groupId: group.id }) })} /></OverflowMenu></div></div>
         <ContainedList label={name} className="allocation-person-list" size="lg">{personRow({ ...car, id: car.participantId })}{car.members.map(person => personRow(person))}</ContainedList>
         {empty > 0 && <Button className="empty-seats-action" kind="ghost" renderIcon={expanded ? ChevronUp : ChevronDown} aria-expanded={expanded} aria-controls={`${group.id}-candidates`} onClick={() => setOpenCandidates(current => ({ ...current, [group.id]: !expanded }))}><span className="empty-seat-count">空席 {empty}</span><span className="empty-seat-action-label">参加者を追加</span></Button>}
-        {expanded && empty > 0 && <ContainedList id={`${group.id}-candidates`} label={`${name}に追加`} kind="disclosed" size="lg">{projection.waiting.map(person => <ContainedListItem key={person.participantId} action={<IconButton kind="ghost" size="sm" label={`${person.name}を${name}に追加`} onClick={() => execute('move', { id: person.participantId, type, groupId: group.id, order: car.members.length })}><Add /></IconButton>}>{person.name}</ContainedListItem>)}{!projection.waiting.length && <ContainedListItem>追加できる参加者がいません</ContainedListItem>}</ContainedList>}
+        {expanded && empty > 0 && <ContainedList id={`${group.id}-candidates`} label={`${name}に追加`} kind="disclosed" size="lg">{projection.waiting.map(person => <ContainedListItem key={person.participantId} action={<IconButton kind="ghost" size={isMobile ? 'lg' : 'sm'} label={`${person.name}を${name}に追加`} onClick={() => execute('move', { id: person.participantId, type, groupId: group.id, order: car.members.length })}><Add /></IconButton>}>{person.name}</ContainedListItem>)}{!projection.waiting.length && <ContainedListItem>追加できる参加者がいません</ContainedListItem>}</ContainedList>}
       </section>;
     })}</div>
     <div className="allocation-add-area"><Button kind="tertiary" renderIcon={Add} onClick={() => { if (projection.waiting.length) { setLocalWarning(''); setGroupEditor({}); } else setLocalWarning(`未割り当ての参加者を選ぶと${groupLabel}を追加できます。`); }}>{groupLabel}を追加</Button>{localWarning && <InlineNotification kind="warning" title={localWarning} hideCloseButton lowContrast />}</div>
