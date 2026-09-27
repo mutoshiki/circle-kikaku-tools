@@ -27,7 +27,7 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await expect(groupDelete).toBeVisible();
   await expect(groupDelete.locator('xpath=ancestor::li[1]')).toHaveClass(/--danger/);
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('button', { name: 'ランダム割り当て', exact: true })).toHaveClass(/cds--btn--tertiary/);
+  await expect(page.getByRole('button', { name: 'ランダム割り当て', exact: true })).toHaveClass(/cds--btn--ghost/);
   await car.getByRole('button', { name: /空席 3/ }).click();
   await car.getByRole('button', { name: '仮参加者Bを仮参加者A車に追加', exact: true }).click();
   await car.getByRole('button', { name: '仮参加者Cを仮参加者A車に追加', exact: true }).click();
@@ -144,4 +144,30 @@ test('manual registration accepts names entered only in driver and grade fields'
   expect(driver).toBeDefined();
   expect(room.allocations.car.placements[driver.id].driver).toBe(true);
   expect(student).toMatchObject({ grade: 2 });
+});
+
+test('allocation toolbar keeps its summary and random assignment action compact on mobile', async ({ page }) => {
+  const roomId = `ALLOCATION-TOOLBAR-${Date.now()}`;
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/?room=${roomId}`);
+  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+  await page.getByRole('button', { name: '追加', exact: true }).click();
+  const registration = page.getByRole('dialog', { name: '参加者登録' });
+  await registration.getByRole('textbox', { name: '参加者（改行区切り）', exact: true }).fill('割り当て確認 太郎');
+  await registration.getByRole('button', { name: '登録', exact: true }).click();
+  await page.getByRole('tab', { name: '車割', exact: true }).click();
+
+  const toolbar = page.getByRole('tabpanel', { name: '車割', exact: true }).locator('.allocation-toolbar');
+  const randomize = toolbar.getByRole('button', { name: 'ランダム割り当て', exact: true });
+  await expect(randomize).toHaveClass(/cds--btn--ghost/);
+  const layout = await toolbar.evaluate(node => ({
+    marginBlockEnd: getComputedStyle(node).marginBlockEnd,
+    toolbar: node.getBoundingClientRect().toJSON(),
+    button: node.querySelector('button').getBoundingClientRect().toJSON(),
+    viewportWidth: innerWidth,
+  }));
+  expect(parseFloat(layout.marginBlockEnd)).toBeLessThanOrEqual(16);
+  expect(layout.button.width).toBeLessThan(layout.toolbar.width * 0.75);
+  expect(layout.button.right).toBeLessThanOrEqual(layout.viewportWidth);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

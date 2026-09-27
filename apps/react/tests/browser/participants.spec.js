@@ -78,3 +78,34 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
   expect(room.participants[participantId]).toBeUndefined();
   expect(Object.values(room.participants).some(person => person.name === '回答更新後G')).toBe(false);
 });
+
+test('participant list shows assigned driver role and participant editor can toggle it', async ({ page }) => {
+  const roomId = `PARTICIPANT-DRIVER-ROLE-${Date.now()}`;
+  await page.goto(`/?room=${roomId}&view=participants`);
+  await page.getByRole('button', { name: '追加', exact: true }).click();
+  const registration = page.getByRole('dialog', { name: '参加者登録' });
+  await registration.getByRole('textbox', { name: '参加者（改行区切り）', exact: true }).fill('運転手属性 確認');
+  await registration.getByRole('textbox', { name: '車出し可能な参加者', exact: true }).fill('運転手属性 確認');
+  await registration.getByRole('button', { name: '登録', exact: true }).click();
+
+  const row = page.locator('.participant-row').filter({ hasText: '運転手属性 確認' });
+  await expect(row.getByText('運転手', { exact: true })).toBeVisible();
+  await row.getByRole('button', { name: '運転手属性 確認の操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '編集', exact: true }).click();
+  const editor = page.getByRole('dialog', { name: '参加者を編集' });
+  const driver = editor.getByRole('checkbox', { name: '運転手', exact: true });
+  await expect(driver).toBeChecked();
+  await driver.uncheck({ force: true });
+  await editor.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(row.getByText('運転手', { exact: true })).toHaveCount(0);
+
+  await row.getByRole('button', { name: '運転手属性 確認の操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '編集', exact: true }).click();
+  const secondEditor = page.getByRole('dialog', { name: '参加者を編集' });
+  await secondEditor.getByRole('checkbox', { name: '運転手', exact: true }).check({ force: true });
+  await secondEditor.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(row.getByText('運転手', { exact: true })).toBeVisible();
+  await page.reload();
+  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+  await expect(page.locator('.participant-row').filter({ hasText: '運転手属性 確認' }).getByText('運転手', { exact: true })).toBeVisible();
+});

@@ -1,8 +1,8 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import {
-  Accordion, AccordionItem, Button, Checkbox, ContainedList, ContainedListItem, ContentSwitcher, ExpandableTile, IconButton, InlineNotification, Modal,
+  Accordion, AccordionItem, Button, Checkbox, ContainedList, ContainedListItem, ContentSwitcher, IconButton, InlineNotification, Modal,
   NumberInput, ProgressIndicator, ProgressStep, RadioButton, RadioButtonGroup,
-  Select, SelectItem, Switch, Tag, TextArea, TextInput, Tile, TileAboveTheFoldContent, TileBelowTheFoldContent,
+  Select, SelectItem, Switch, Tag, TextArea, TextInput, Tile,
 } from '@carbon/react';
 import { Add, ChevronRight, Copy, Edit, TrashCan } from '@carbon/icons-react';
 import { beginSettlementEdit, commitSettlementEdit, collectionChange } from './settlement/edit.js';
@@ -248,21 +248,9 @@ function CollectionPrompt({ value, onChange, onSave, onClose }) {
   </Modal>;
 }
 
-function SettingRows({ state, result }) {
-  const mode = result.isStandaloneSettlement ? `人数だけ（運転手${result.standaloneCounts.driverCount}人・その他${result.standaloneCounts.memberCount}人）` : '通常精算';
-  const driver = result.driverCollectionOffset ? '支払い額から控除' : result.driverCollectionFree ? '対象外' : '参加者と同じく集金';
-  const excluded = [state.organizerFree && `企画者${state.organizerName ? `（${state.organizerName}）` : ''}`, result.driverCollectionFree && '運転手'].filter(Boolean).join('・') || 'なし';
-  return <dl className="settlement-setting-list">
-    <div><dt>精算モード</dt><dd>{mode}</dd></div><div><dt>端数</dt><dd>{state.rounding}円単位</dd></div>
-    <div><dt>協力代</dt><dd>{Number(result.reward) ? `1台 ${money(result.reward)}（${result.driverRewardType === 'club' ? '部費' : '割勘'}）` : 'なし'}</dd></div>
-    <div><dt>運転手分</dt><dd>{driver}</dd></div><div><dt>集金対象外</dt><dd>{excluded}</dd></div>
-    <div><dt>設定結果</dt><dd>集金対象 {result.payerCount}人・運転手 {result.driverNames.size}人・1人あたり {money(result.perPerson)}</dd></div>
-  </dl>;
-}
-
 export default function Settlement({ runtime, room, onNotice }) {
-  const isMobile = useMediaQuery('(max-width: 671px)');
   const { data, state } = runtime.store.domain.settlementInput(room);
+  const isMobile = useMediaQuery('(max-width: 671px)');
   const settlement = runtime.store.domain.settlement;
   const result = settlement.calculateSettlement(data, state);
   const issues = settlement.getSettlementIssues(data, state, result);
@@ -270,10 +258,10 @@ export default function Settlement({ runtime, room, onNotice }) {
   const [carEdit, setCarEdit] = useState(null);
   const [collector, setCollector] = useState(null);
   const [memo, setMemo] = useState(null);
-  const [expandedDriverPayments, setExpandedDriverPayments] = useState({});
-  const [collectionView, setCollectionView] = useState('all');
-  const paidCars = result.cars.filter(car => state.driverPaid[car.name]);
-  const paymentRemaining = result.cars.filter(car => !state.driverPaid[car.name]).reduce((sum, car) => sum + car.adjustedTotalPay, 0);
+  const [memoEditing, setMemoEditing] = useState(false);
+  const [collectionOpen, setCollectionOpen] = useState(false);
+  const [collectionView, setCollectionView] = useState('unpaid');
+  const collectionTriggerRef = useRef(null);
   function closeEdit(setter, edit, saved) { if (!saved && edit && !edit.session.closed) runtime.store.cancelEdit(edit.session); setter(null); }
   function openCar(car) {
     const edit = beginSettlementEdit(runtime.store, { car });
@@ -284,7 +272,6 @@ export default function Settlement({ runtime, room, onNotice }) {
     collectionChange(runtime.store, { name: collector.name, checked: true, collector: collector.value || collector.name });
     setCollector(null); onNotice('集金状況を更新しました。');
   }
-  function paymentChange(name, checked) { collectionChange(runtime.store, { name, checked, payment: true }); }
   async function copyUnpaid() {
     const names = result.participants.filter(person => !result.excludedNames.has(person.name) && !state.paid[person.name]).map(person => person.name);
     if (!names.length) { onNotice('未回収者はいません'); return; }
@@ -292,73 +279,86 @@ export default function Settlement({ runtime, room, onNotice }) {
     catch { onNotice('未回収者をコピーできませんでした'); }
   }
   function saveMemo() {
-    if (memo === null || memo === state.memo) return;
-    runtime.store.command('settlement', { state: { ...state, memo } }); setMemo(null); onNotice('精算メモを保存しました。');
+    if (memo === null) return;
+    if (memo !== state.memo) runtime.store.command('settlement', { state: { ...state, memo } });
+    setMemo(null); setMemoEditing(false); onNotice('精算メモを保存しました。');
   }
+  function openMemoEditor() { setMemo(state.memo || ''); setMemoEditing(true); }
+  function closeMemoEditor() { setMemo(null); setMemoEditing(false); }
   if (!result.participants.length && !result.isStandaloneSettlement) return <section className="settlement-page"><div className="empty-state"><h1>精算</h1><p>参加者がいません</p></div></section>;
   return <section className="settlement-page" aria-label="精算">
-    <Tile className="settlement-card">
-      <div className="settlement-section-heading"><div><h1>精算状況</h1><p>集金・支払いの進捗と残りの作業を確認できます。</p></div></div>
-      <div className="settlement-status-grid">
-        <div><span>集金</span><strong>{result.paidCount}/{result.payerCount}人・残り {money(result.unpaidAmount)}</strong><small>{money(result.expectedCollected - result.unpaidAmount)} / {money(result.expectedCollected)}</small></div>
-        <div><span>支払い</span><strong>{paidCars.length}/{result.cars.length}台・残り {money(paymentRemaining)}</strong><small>支払い済み {money(result.cars.filter(car => state.driverPaid[car.name]).reduce((sum, car) => sum + car.adjustedTotalPay, 0))}</small></div>
-        <div className={issues.messages.length ? 'has-issue' : ''}><span>要確認</span><strong>{issues.messages.length ? `${issues.messages.length}件` : 'なし'}</strong></div>
+    {issues.messages.map(message => <InlineNotification key={message} kind={message.includes('企画者を選ぶ') ? 'info' : 'error'} title="設定を確認してください" subtitle={message} hideCloseButton lowContrast />)}
+    <Tile className="settlement-card settlement-vehicles-card">
+      <div className="settlement-section-heading"><div><h1>車ごとの精算</h1></div>
+        <Button className="settlement-settings-action" kind="ghost" size="sm" renderIcon={Edit} aria-label="精算設定を編集" onClick={() => setSettingsEdit(beginSettlementEdit(runtime.store))}>精算設定</Button>
       </div>
-    </Tile>
-    <Tile className="settlement-card">
-      <div className="settlement-section-heading"><div><h2>精算設定</h2><p>精算額の計算に使う設定を確認・変更できます。</p></div><Button kind="tertiary" renderIcon={Edit} onClick={() => setSettingsEdit(beginSettlementEdit(runtime.store))}>精算設定を編集</Button></div>
-      <SettingRows state={state} result={result} />
-      {issues.messages.map(message => <InlineNotification key={message} kind={message.includes('企画者を選ぶ') ? 'info' : 'error'} title="設定を確認してください" subtitle={message} hideCloseButton lowContrast />)}
-    </Tile>
-    <Tile className="settlement-card">
-      <div className="settlement-section-heading"><div><h2>集金チェック</h2><p>参加者ごとの集金状況を確認・記録できます。</p><small>回収済み {result.paidCount}/{result.payerCount}人・残り {money(result.unpaidAmount)}</small></div><div className="settlement-collection-tools"><ContentSwitcher aria-label="集金チェックの表示" size={isMobile ? 'lg' : 'sm'} lowContrast selectedIndex={collectionView === 'unpaid' ? 1 : 0} onChange={({ name }) => setCollectionView(name)}><Switch name="all" text="すべて" /><Switch name="unpaid" text="未回収のみ" /></ContentSwitcher><Button kind="ghost" size="sm" renderIcon={Copy} onClick={copyUnpaid}>未回収者をコピー</Button></div></div>
-      <div className="settlement-check-list">{result.participants.filter(person => collectionView !== 'unpaid' || (!result.excludedNames.has(person.name) && !state.paid[person.name])).map(person => {
-        const excluded = result.excludedNames.has(person.name);
-        const paid = !!state.paid[person.name];
-        const label = state.paidBy[person.name] || person.name;
-        if (excluded) return <div className="settlement-check-row excluded" key={person.name}><span><strong>{person.name}</strong><small>{result.driverNames.has(person.name) && result.driverCollectionOffset ? '支払額から差し引き済み' : '集金対象外'}</small></span><Tag type="cool-gray" size="sm">集金不要</Tag></div>;
-        return <div className="settlement-check-row" key={person.name}><Checkbox id={`settlement-paid-${person.name}`} labelText={`${label}の集金チェック`} hideLabel checked={paid} onChange={(_, { checked }) => checked && result.isStandaloneSettlement ? setCollector({ name: person.name, value: state.paidBy[person.name] || '' }) : collectionChange(runtime.store, { name: person.name, checked })} /><span><strong>{label}</strong><small>{paid ? '回収済み' : '未回収'}</small></span><strong>{money(result.perPerson)}</strong></div>;
-      })}</div>
-    </Tile>
-    <Tile className="settlement-card">
-      <div className="settlement-section-heading"><div><h2>運転手への支払い</h2><p className="settlement-driver-payment-description cds--type-body-compact-01">各車の支払額・状態を確認できます。</p><small className="settlement-payment-summary cds--type-body-compact-01">支払い済み <strong>{paidCars.length}/{result.cars.length}台</strong>・残り <strong>{money(paymentRemaining)}</strong></small></div></div>
-      <div className="settlement-car-list">{data.cars.map(car => {
+      <div className="settlement-car-list">{data.cars.map((car, index) => {
         const calc = result.cars.find(row => row.name === car.name);
         if (!calc) return null;
         const carLabel = `${car.name}車${calc.usesTimesRental ? '（レンタカー）' : ''}`;
-        const expanded = !!expandedDriverPayments[car.name];
-        return <ExpandableTile className="settlement-car" key={car.name} expanded={expanded}
-          onClick={() => setExpandedDriverPayments(current => ({ ...current, [car.name]: !current[car.name] }))}
-          tileCollapsedIconText={`${carLabel}の内訳を表示`} tileExpandedIconText={`${carLabel}の内訳を隠す`}>
-          <TileAboveTheFoldContent>
-            <div className="settlement-car-above">
-              <div className="settlement-car-main">
-                <div className="settlement-car-info">
-                  <h3>{carLabel}</h3>
-                  {calc.driverNames.length > 1 && <p>運転手：{calc.driverNames.join('、')}（車単位で一括支払い）</p>}
-                  <div className="settlement-car-payment"><span className="cds--type-body-compact-01">支払額</span><strong className="cds--type-productive-heading-03">{money(calc.adjustedTotalPay)}</strong></div>
-                </div>
-                <div className="settlement-car-actions">
-                  <div className="settlement-car-status-row"><Tag type={state.driverPaid[car.name] ? 'green' : 'cool-gray'} size="sm">{state.driverPaid[car.name] ? '支払い済み' : '未払い'}</Tag>
-                    <Button kind="ghost" onClick={() => paymentChange(car.name, !state.driverPaid[car.name])}>{state.driverPaid[car.name] ? '未払いに戻す' : '支払い済みにする'}</Button>
-                  </div>
-                  <Button className="settlement-car-edit-action" kind="ghost" renderIcon={Edit} onClick={() => openCar(car)}>費用を編集</Button>
-                </div>
+        const carId = index;
+        const movementLabel = calc.usesTimesRental ? 'タイムズ移動料金' : 'ガソリン代';
+        const movementItem = { id: `movement-${carId}`, isMovement: true, name: movementLabel, amountValue: calc.movementAmount, type: calc.movementType };
+        const splitItems = [...(calc.movementBaseType === 'split' ? [movementItem] : []), ...calc.extras.filter(row => row.baseType === 'split')];
+        const clubItems = [...(calc.movementBaseType === 'club' ? [movementItem] : []), ...calc.extras.filter(row => row.baseType === 'club')];
+        const adjustmentAmount = amount => `${amount < 0 ? '−' : '+'}${money(Math.abs(amount))}`;
+        const renderItems = (items, baseType) => items.filter(row => row.amountValue !== 0).map((row, rowIndex) => <div className="settlement-cost-item" key={row.id || `${row.name}-${rowIndex}`}><span>{row.name || '費用'}{row.isMovement || row.type === baseType ? '' : `（${extraTypeLabel(row.type)}）`}</span><strong>{row.amountValue < 0 ? '−' : ''}{money(Math.abs(row.amountValue))}</strong></div>);
+        const hasSplitDetails = splitItems.some(row => row.amountValue !== 0) || calc.splitRound !== 0 || calc.collectionOffset !== 0;
+        const hasClubDetails = clubItems.some(row => row.amountValue !== 0) || calc.clubRound !== 0;
+        const breakdownTitle = `割勘 ${money(calc.adjustedSplitPay)}・部費 ${money(calc.adjustedClubPay)}`;
+        return <article className="settlement-car" key={car.name} aria-labelledby={`settlement-car-${carId}`}>
+          <div className="settlement-car-main">
+            <div className="settlement-car-info">
+              <h2 id={`settlement-car-${carId}`}>{carLabel}</h2>
+              {calc.driverNames.length > 1 && <p>運転手：{calc.driverNames.join('、')}（車単位で一括支払い）</p>}
+              <div className="settlement-car-payment"><span className="cds--type-body-compact-01">支払額</span><strong className="cds--type-productive-heading-03">{money(calc.adjustedTotalPay)}</strong></div>
+            </div>
+            <div className="settlement-car-actions">
+              <Button className="settlement-car-edit-action" kind="ghost" size="sm" onClick={() => openCar(car)}>費用を入力</Button>
+            </div>
+          </div>
+          <Accordion className="settlement-car-breakdown" size="sm">
+            <AccordionItem title={breakdownTitle}>
+              <div className="settlement-cost-list">
+                <section className="settlement-cost-group" aria-labelledby={`settlement-split-${carId}`}>
+                  <h3 id={`settlement-split-${carId}`}>割勘</h3>
+                  {renderItems(splitItems, 'split')}
+                  {calc.splitRound !== 0 && <div className="settlement-cost-adjustment"><span>端数処理</span><strong>{adjustmentAmount(calc.splitRound)}</strong></div>}
+                  {calc.collectionOffset !== 0 && <div className="settlement-cost-adjustment"><span>運転手分の集金控除</span><strong>−{money(calc.collectionOffset)}</strong></div>}
+                  {!hasSplitDetails && <p className="settlement-cost-empty">対象なし</p>}
+                </section>
+                <section className="settlement-cost-group" aria-labelledby={`settlement-club-${carId}`}>
+                  <h3 id={`settlement-club-${carId}`}>部費</h3>
+                  {renderItems(clubItems, 'club')}
+                  {calc.clubRound !== 0 && <div className="settlement-cost-adjustment"><span>端数処理</span><strong>{adjustmentAmount(calc.clubRound)}</strong></div>}
+                  {!hasClubDetails && <p className="settlement-cost-empty">対象なし</p>}
+                </section>
               </div>
-              <div className="settlement-car-split-summary"><span className="cds--type-label-01">割勘 {money(calc.adjustedSplitPay)}・部費 {money(calc.adjustedClubPay)}</span></div>
-            </div>
-          </TileAboveTheFoldContent>
-          <TileBelowTheFoldContent>
-            <div className="settlement-cost-list">
-              <div><span>{calc.usesTimesRental ? 'タイムズ移動料金' : 'ガソリン代'}</span><strong>{money(calc.movementAmount)}</strong></div>
-              {calc.extras.map((row, index) => <div key={row.id || index}><span>{row.name || '費用'}（{extraTypeLabel(row.type)}）</span><strong>{row.amountValue < 0 ? '−' : ''}{money(Math.abs(row.amountValue))}</strong></div>)}
-              <div className="settlement-cost-total"><span>合計</span><strong>{money(calc.adjustedTotalPay)}</strong></div>
-            </div>
-          </TileBelowTheFoldContent>
-        </ExpandableTile>;
+            </AccordionItem>
+          </Accordion>
+        </article>;
       })}</div>
     </Tile>
-    <Tile className="settlement-card"><div className="settlement-section-heading"><div><h2>精算メモ</h2><p>精算に関するメモや、あとで確認することを記録できます。</p></div></div><TextArea id="settlement-memo" labelText="精算メモ" hideLabel placeholder="例：レンタカー代は高橋さんが立替" rows={5} value={memo ?? state.memo} onChange={event => setMemo(event.target.value)} onBlur={saveMemo} /></Tile>
+    <Tile className="settlement-card settlement-collection-card">
+      <div className="settlement-section-heading"><div><h2>集金</h2><small className="settlement-collection-summary"><span>{result.paidCount}/{result.payerCount}人</span><span>残り {money(result.unpaidAmount)}</span></small></div>
+        <Button ref={collectionTriggerRef} kind="ghost" size="sm" aria-expanded={collectionOpen} aria-controls="settlement-collection-modal" onClick={() => setCollectionOpen(true)}>集金を確認</Button>
+      </div>
+      </Tile>
+    <Tile className="settlement-card settlement-memo-card"><div className="settlement-section-heading"><div><h2>精算メモ</h2>{!memoEditing && <p>{state.memo?.trim() ? state.memo : 'メモなし'}</p>}</div>{!memoEditing && <Button kind="ghost" size="sm" onClick={openMemoEditor}>{state.memo?.trim() ? '編集' : 'メモを追加'}</Button>}</div>
+      {memoEditing && <div className="settlement-memo-editor"><TextArea id="settlement-memo-editor" labelText="精算メモ" placeholder="例：レンタカー代は高橋さんが立替" rows={3} value={memo ?? ''} onChange={event => setMemo(event.target.value)} /><div className="settlement-memo-actions"><Button kind="tertiary" size="sm" onClick={saveMemo}>保存</Button><Button kind="ghost" size="sm" onClick={closeMemoEditor}>キャンセル</Button></div></div>}
+    </Tile>
+    <Modal id="settlement-collection-modal" className="settlement-collection-modal" open={collectionOpen} size="sm" hasScrollingContent modalHeading="集金を確認" closeButtonLabel="閉じる" primaryButtonText="閉じる" secondaryButtonText="未回収者をコピー" onSecondarySubmit={copyUnpaid} onRequestSubmit={() => setCollectionOpen(false)} onRequestClose={() => setCollectionOpen(false)} launcherButtonRef={collectionTriggerRef} selectorPrimaryFocus=".settlement-collection-modal .cds--content-switcher-btn">
+      <div className="settlement-collection-modal-content">
+        <ContentSwitcher aria-label="集金対象者の表示" size="sm" lowContrast selectedIndex={collectionView === 'unpaid' ? 1 : 0} onChange={({ name }) => setCollectionView(name)}><Switch name="all" text="すべて" /><Switch name="unpaid" text="未回収" /></ContentSwitcher>
+        <ContainedList className="settlement-collection-list" kind="on-page" size="lg" label={<span className="cds--visually-hidden">集金対象者</span>}>{result.participants.filter(person => collectionView !== 'unpaid' || (!result.excludedNames.has(person.name) && !state.paid[person.name])).map(person => {
+                const excluded = result.excludedNames.has(person.name);
+                const paid = !!state.paid[person.name];
+                const label = state.paidBy[person.name] || person.name;
+                if (excluded) return <ContainedListItem className="settlement-collection-row excluded" key={person.name} action={<Tag type="cool-gray" size="sm">集金不要</Tag>}><span><strong>{person.name}</strong><small>{result.driverNames.has(person.name) && result.driverCollectionOffset ? '支払額から差し引き済み' : '集金対象外'}</small></span></ContainedListItem>;
+                return <ContainedListItem className="settlement-collection-row" key={person.name} action={<Checkbox id={`settlement-paid-${person.name}`} labelText={`${label}の集金チェック`} hideLabel checked={paid} onChange={(_, { checked }) => checked && result.isStandaloneSettlement ? setCollector({ name: person.name, value: state.paidBy[person.name] || '' }) : collectionChange(runtime.store, { name: person.name, checked })} />}><span><strong>{label}</strong><small>{paid ? '回収済み' : '未回収'}</small></span><strong>{money(result.perPerson)}</strong></ContainedListItem>;
+        })}</ContainedList>
+      </div>
+    </Modal>
     {settingsEdit && <SettingsModal runtime={runtime} edit={settingsEdit} onNotice={onNotice} onClose={saved => closeEdit(setSettingsEdit, settingsEdit, saved)} />}
     {carEdit && <CarEditor runtime={runtime} edit={carEdit} onNotice={onNotice} onClose={saved => closeEdit(setCarEdit, carEdit, saved)} />}
     {collector && <CollectionPrompt value={collector.value} onChange={value => setCollector(current => ({ ...current, value }))} onSave={markCollected} onClose={() => setCollector(null)} />}
