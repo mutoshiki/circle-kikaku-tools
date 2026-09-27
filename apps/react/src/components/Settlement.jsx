@@ -1,10 +1,11 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import {
   Accordion, AccordionItem, Button, Checkbox, ContainedList, ContainedListItem, ContentSwitcher, IconButton, InlineNotification, Modal,
+  OverflowMenu, OverflowMenuItem,
   NumberInput, ProgressIndicator, ProgressStep, RadioButton, RadioButtonGroup,
   Select, SelectItem, Switch, Tag, TextArea, TextInput, Tile,
 } from '@carbon/react';
-import { Add, ChevronRight, Copy, Edit, TrashCan } from '@carbon/icons-react';
+import { Add, Copy, Edit } from '@carbon/icons-react';
 import { beginSettlementEdit, commitSettlementEdit, collectionChange } from './settlement/edit.js';
 import RoutePlanner from './RoutePlanner.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
@@ -96,10 +97,10 @@ function CostTypeControl({ domain, id, label, type, disabled = false, allowNegat
     <RadioButton id={`${id}-split`} value="split" labelText="割勘" />
     <RadioButton id={`${id}-club`} value="club" labelText="部費" />
   </RadioButtonGroup>
-  {allowNegative ? <Checkbox id={`${id}-minus`} labelText={`この金額を${baseType === 'club' ? '部費' : '割勘'}から差し引く`} checked={negative} disabled={disabled} onChange={(_, { checked }) => onChange(`${baseType}${checked ? '-minus' : ''}`)} /> : null}</div>;
+  {allowNegative ? <Checkbox id={`${id}-minus`} labelText={`${baseType === 'club' ? '部費' : '割勘'}の費用から差し引く`} helperText="入力した金額をマイナスの費用として扱います。" checked={negative} disabled={disabled} onChange={(_, { checked }) => onChange(`${baseType}${checked ? '-minus' : ''}`)} /> : null}</div>;
 }
 
-function MovementSettingsView({ car, domain, movementAmount, movementLabel, movementFormula, onOpenRoute, onRentalType, onUpdate }) {
+function MovementSettingsView({ car, domain, movementAmount, movementLabel, movementFormula, movementType, onOpenRoute, onRentalType, onMovementType, onUpdate }) {
   const times = domain.isTimesRentalCar(car);
   const input = (id, label, value, key) => <TextInput id={id} labelText={label} inputMode="decimal" invalid={hasNegativeValue(value)} invalidText={negativeNumberText} value={value} onChange={event => onUpdate({ [key]: event.target.value })} />;
   return <div className="form-stack settlement-movement-form">
@@ -108,9 +109,10 @@ function MovementSettingsView({ car, domain, movementAmount, movementLabel, move
         <RadioButton id="settlement-rental-times" value="times" labelText="タイムズ" />
       </RadioButtonGroup>
       <section className="settlement-form-section" aria-labelledby="settlement-movement-conditions-title"><h3 className="settlement-movement-section-title" id="settlement-movement-conditions-title">移動料金の計算条件</h3><div className="form-grid">
-        <div className="distance-field">{input('settlement-distance', '移動距離（km）', car.dist, 'dist')}<Button kind="tertiary" size="sm" onClick={onOpenRoute}>ルートから距離を計算</Button></div>
+        <div className="distance-field">{input('settlement-distance', '移動距離（km）', car.dist, 'dist')}<Button kind="ghost" size="sm" onClick={onOpenRoute}>ルートから距離を計算</Button></div>
         {!times && <>{input('settlement-eco', '燃費（km/L）', car.eco, 'eco')}{input('settlement-price', 'ガソリン単価（円/L）', car.price, 'price')}</>}
       </div></section>
+      <CostTypeControl domain={domain} id="settlement-movement-type" label="移動料金の負担区分" type={movementType || 'split'} allowNegative={false} onChange={onMovementType} />
       <Tile className="settlement-movement-preview" aria-label={`計算した${movementLabel} ${money(movementAmount)}。計算条件: ${movementFormula}`}><span>計算した{movementLabel}</span><strong>{money(movementAmount)}</strong></Tile>
     </div>;
 }
@@ -134,6 +136,8 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
   const [view, setView] = useState('expense');
   const [contentAtBottom, setContentAtBottom] = useState(false);
   const [activeCostId, setActiveCostId] = useState('movement');
+  const [extraMode, setExtraMode] = useState('edit');
+  const [returnFocusId, setReturnFocusId] = useState('#settlement-movement-menu');
   const [routeStatus, setRouteStatus] = useState({ primaryLabel: 'この距離を適用', disabled: true, hidePrimaryButton: false });
   const routeRef = useRef(null);
   const name = edit.car.name;
@@ -171,11 +175,11 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
     if (index >= 0) updateExtra(index, { type });
     else update({ extras: [...car.extras, { id: domain.createSettlementExtraId(), name: 'ガソリン代', amount: '', type }] });
   }
-  function addExtra() { const row = { id: domain.createSettlementExtraId(), name: '', amount: '', type: 'split', pending: true }; update({ extras: [...car.extras, row] }); setActiveCostId(row.id); }
-  function addCandidate(candidate) { const row = { id: domain.createSettlementExtraId(), ...candidate, pending: false }; update({ extras: [...car.extras, row] }); setActiveCostId(row.id); }
+  function addExtra() { const row = { id: domain.createSettlementExtraId(), name: '', amount: '', type: 'split', pending: true }; update({ extras: [...car.extras, row] }); setActiveCostId(row.id); setExtraMode('add'); setReturnFocusId('#settlement-cost-add'); setError(''); setView('extra'); }
+  function addCandidate(candidate) { const row = { id: domain.createSettlementExtraId(), ...candidate, pending: false }; update({ extras: [...car.extras, row] }); setActiveCostId(row.id); setExtraMode('add'); setReturnFocusId('#settlement-cost-add'); setError(''); setView('extra'); }
   function removeExtra(index) { const removed = car.extras[index]; update({ extras: car.extras.filter((_, rowIndex) => rowIndex !== index) }); if (getCostId(removed, index) === activeCostId) setActiveCostId('movement'); }
   useEffect(() => {
-    const selector = view === 'expense' ? '#settlement-movement-type-split' : view === 'movement' ? '#settlement-rental-type' : '#route-origin-action .cds--contained-list-item__content';
+    const selector = view === 'expense' ? returnFocusId : view === 'extra' ? `#settlement-extra-name-${activeExtra?.index ?? 0}` : view === 'movement' ? '#settlement-rental-type' : '#route-origin-action .cds--contained-list-item__content';
     const timer = setTimeout(() => {
       document.querySelector(selector)?.focus();
       if (view === 'movement' || view === 'route') {
@@ -184,7 +188,7 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
       }
     }, 0);
     return () => clearTimeout(timer);
-  }, [view]);
+  }, [view, activeExtra?.index, returnFocusId]);
   async function save() {
     if (composing || saving) return;
     if (hasNegativeExpense || hasNegativeMovement) { setError(validationMessage); return; }
@@ -198,46 +202,51 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
     try { await commitSettlementEdit(runtime, edit); onNotice(`${name}車の費用を保存しました。`); onClose(true); }
     catch (caught) { setError(caught.message); setSaving(false); }
   }
-  const primaryLabel = view === 'expense' ? '保存' : view === 'movement' ? `${movementLabel}を適用` : routeStatus.primaryLabel;
-  const primaryDisabled = view === 'expense' ? saving || composing || hasNegativeExpense || hasNegativeMovement : view === 'movement' ? hasNegativeMovement : view === 'route' ? routeStatus.disabled : false;
+  const primaryLabel = view === 'expense' ? '費用を保存' : view === 'extra' ? (extraMode === 'add' ? '費用を追加' : '変更を反映') : view === 'movement' ? `${movementLabel}を適用` : routeStatus.primaryLabel;
+  const primaryDisabled = ['expense', 'extra'].includes(view) ? saving || composing || hasNegativeExpense || hasNegativeMovement : view === 'movement' ? hasNegativeMovement : view === 'route' ? routeStatus.disabled : false;
   const back = () => { if (view === 'route' && routeRef.current?.returnToPlanner()) return; changeView(view === 'route' ? 'movement' : 'expense'); };
-  const submit = () => { if (view === 'expense') void save(); else if (view === 'movement') changeView('expense'); else routeRef.current?.apply(); };
-  return <Modal className={`app-modal settlement-car-modal settlement-task-modal${view === 'movement' ? ' settlement-movement-modal' : view === 'route' ? ' settlement-route-modal' : ''}${contentAtBottom && view !== 'expense' ? ' settlement-movement-at-bottom' : ''}`} onScrollCapture={handleModalScroll} open size={view === 'route' ? 'lg' : 'md'} hasScrollingContent={view !== 'route'} closeButtonLabel="閉じる" modalAriaLabel={`${name}車の費用を編集`} modalLabel={`${name}車`} modalHeading={view === 'expense' ? '費用を編集' : view === 'movement' ? `${movementLabel}を設定` : '移動距離を計算'} primaryButtonText={view === 'route' && routeStatus.hidePrimaryButton ? undefined : primaryLabel} secondaryButtons={[{ buttonText: view === 'expense' ? 'キャンセル' : '戻る', onClick: view === 'expense' ? () => onClose(false) : back }]} primaryButtonDisabled={primaryDisabled} onRequestSubmit={submit} onRequestClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus={view === 'route' ? '#route-origin-action .cds--contained-list-item__content' : '#settlement-movement-type-split'}>
+  const submit = () => { if (view === 'expense') void save(); else if (view === 'extra') returnToList(); else if (view === 'movement') changeView('expense'); else routeRef.current?.apply(); };
+  const returnToList = () => { setError(''); changeView('expense'); };
+  return <Modal className={`app-modal settlement-car-modal settlement-task-modal${view === 'movement' ? ' settlement-movement-modal' : view === 'route' ? ' settlement-route-modal' : ''}${contentAtBottom && view !== 'expense' ? ' settlement-movement-at-bottom' : ''}`} onScrollCapture={handleModalScroll} open size={view === 'route' ? 'lg' : 'md'} hasScrollingContent={view !== 'route'} closeButtonLabel="閉じる" modalAriaLabel={`${name}車の費用を編集`} modalLabel={`${name}車`} modalHeading={view === 'route' ? '移動距離を計算' : view === 'movement' ? `${movementLabel}を設定` : '費用を編集'} primaryButtonText={view === 'route' && routeStatus.hidePrimaryButton ? undefined : primaryLabel} secondaryButtons={[{ buttonText: view === 'expense' ? 'キャンセル' : '戻る', onClick: view === 'expense' ? () => onClose(false) : view === 'extra' ? returnToList : back }]} primaryButtonDisabled={primaryDisabled} onRequestSubmit={submit} onRequestClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus={view === 'route' ? '#route-origin-action .cds--contained-list-item__content' : view === 'movement' ? '#settlement-rental-type' : view === 'extra' ? `#settlement-extra-name-${activeExtra?.index ?? 0}` : returnFocusId}>
     {view === 'expense' && <div className="form-stack settlement-car-form" onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}>
       {(error || validationMessage) && <InlineNotification kind="error" title="入力内容を確認してください" subtitle={error || validationMessage} hideCloseButton lowContrast />}
       <section className="settlement-form-section" aria-label="車両費用の編集">
         <ContainedList className="settlement-cost-editor" kind="disclosed" size="sm" label={<span className="cds--visually-hidden">車両費用</span>}>
-          <ContainedListItem className={`settlement-cost-list-item${activeCostId === 'movement' ? ' settlement-cost-list-item--active' : ''}`} onClick={() => changeView('movement')} aria-current={activeCostId === 'movement' ? 'true' : undefined} action={<ChevronRight className="settlement-cost-editor-chevron" size={16} aria-hidden="true" />}>
-            <span className="settlement-cost-summary"><strong>{movementLabel}</strong><span className="settlement-cost-summary__amount"><strong>{money(movementAmount)}</strong><Tag type="cool-gray" size="sm">自動計算</Tag></span></span>
+          <ContainedListItem className="settlement-cost-list-item" action={<OverflowMenu id="settlement-movement-menu" aria-label={`${movementLabel}の操作`} iconDescription={`${movementLabel}の操作`} align="bottom-right" size="sm" flipped>
+            <OverflowMenuItem itemText="計算条件を編集" onClick={() => { setReturnFocusId('#settlement-movement-menu'); changeView('movement'); }} />
+          </OverflowMenu>}>
+            <div className="settlement-cost-summary"><strong>{movementLabel}</strong><span className="settlement-cost-summary__amount"><strong>{money(movementAmount)}</strong></span></div>
           </ContainedListItem>
-          {activeCostId === 'movement' && <ContainedListItem className="settlement-cost-editor-details-row"><div className="settlement-cost-editor-details" aria-live="polite">
-            <CostTypeControl domain={domain} id="settlement-movement-type" label="負担区分" type={movement?.type || 'split'} allowNegative={false} onChange={setMovementType} />
-          </div></ContainedListItem>}
           {editable.map(({ row, index }) => {
             const id = getCostId(row, index);
             const timesTime = domain.isTimesTimeFeeExtra(row);
             const rawAmount = String(row.amount ?? '').trim();
             const signedAmount = domain.getSignedSettlementExtraAmount(row);
             const amount = rawAmount ? `${signedAmount < 0 ? '−' : ''}${money(Math.abs(signedAmount))}` : '金額未入力';
-            const isActive = activeCostId === id;
             return <Fragment key={id}>
-              <ContainedListItem className={`settlement-cost-list-item${isActive ? ' settlement-cost-list-item--active' : ''}${timesTime ? '' : ' settlement-cost-list-item--deletable'}`} onClick={() => setActiveCostId(id)} aria-current={isActive ? 'true' : undefined} action={timesTime ? null : <Button kind="danger--ghost" size="sm" renderIcon={TrashCan} onClick={event => { event.stopPropagation(); removeExtra(index); }}>削除</Button>}>
-                <span className="settlement-cost-summary"><strong>{row.name || '新しい費用'}</strong><strong className="settlement-cost-summary__amount">{amount}</strong></span>
+              <ContainedListItem className="settlement-cost-list-item" action={<OverflowMenu id={`settlement-extra-menu-${index}`} aria-label={`${row.name || '費用'}の操作`} iconDescription={`${row.name || '費用'}の操作`} align="bottom-right" size="sm" flipped>
+                <OverflowMenuItem itemText="編集" onClick={() => { setActiveCostId(id); setExtraMode('edit'); setReturnFocusId(`#settlement-extra-menu-${index}`); changeView('extra'); }} />
+                {!timesTime && <OverflowMenuItem itemText="削除" hasDivider isDelete onClick={() => removeExtra(index)} />}
+              </OverflowMenu>}>
+                <div className="settlement-cost-summary"><strong>{row.name || '新しい費用'}</strong><strong className="settlement-cost-summary__amount">{amount}</strong></div>
               </ContainedListItem>
-              {isActive && activeExtra && <ContainedListItem className="settlement-cost-editor-details-row"><div className="settlement-cost-editor-details" aria-live="polite">
-                <div className="settlement-cost-editor-fields">
-                  <TextInput id={`settlement-extra-name-${activeExtra.index}`} size="sm" labelText="名目" value={activeExtra.row.name} readOnly={domain.isTimesTimeFeeExtra(activeExtra.row)} placeholder="例：駐車場代" onChange={event => updateExtra(activeExtra.index, { name: event.target.value, pending: false })} />
-                  <TextInput id={`settlement-extra-amount-${activeExtra.index}`} size="sm" labelText="金額" inputMode="numeric" invalid={hasNegativeValue(activeExtra.row.amount)} invalidText={negativeMoneyText} value={activeExtra.row.amount} onChange={event => updateExtra(activeExtra.index, { amount: event.target.value, pending: false })} />
-                </div>
-                <CostTypeControl domain={domain} id={`settlement-extra-type-${activeExtra.index}`} label="負担区分" type={activeExtra.row.type} onChange={type => updateExtra(activeExtra.index, { type })} />
-              </div></ContainedListItem>}
             </Fragment>;
           })}
         </ContainedList>
-        <Button kind="tertiary" size="sm" renderIcon={Add} onClick={addExtra}>費用を追加</Button>
-      {candidates.length > 0 && <Accordion className="settlement-extra-candidates" align="end"><AccordionItem title={`登録済みの費用から追加（${candidates.length}件）`}>{candidates.map(candidate => <Button key={`${candidate.name}-${candidate.type}`} kind="ghost" size="sm" renderIcon={Add} onClick={() => addCandidate(candidate)}>{`${candidate.name} ${money(candidate.amount)}（${extraTypeLabel(candidate.type)}）を追加`}</Button>)}</AccordionItem></Accordion>}</section>
+        <Button id="settlement-cost-add" className="settlement-cost-add-action" kind="tertiary" size="sm" renderIcon={Add} onClick={addExtra}>費用を追加</Button>
+      {candidates.length > 0 && <section className="settlement-extra-candidates" aria-labelledby="settlement-extra-candidates-title"><h3 id="settlement-extra-candidates-title">登録済みから追加</h3><ContainedList kind="disclosed" size="sm" label={<span className="cds--visually-hidden">登録済みの費用</span>}>{candidates.map(candidate => <ContainedListItem key={`${candidate.name}-${candidate.type}`} className="settlement-extra-candidate" action={<IconButton kind="ghost" size="sm" label={`${candidate.name}を追加`} align="bottom-right" renderIcon={Add} onClick={() => addCandidate(candidate)} />}><div><strong>{candidate.name}</strong><span>{money(candidate.amount)} ・ {extraTypeLabel(candidate.type)}</span></div></ContainedListItem>)}</ContainedList></section>}</section>
     </div>}
-    {view === 'movement' && <MovementSettingsView car={car} domain={domain} movementAmount={movementAmount} movementLabel={movementLabel} movementFormula={movementFormula} onOpenRoute={() => changeView('route')} onRentalType={setRentalType} onUpdate={update} />}
+    {view === 'extra' && activeExtra && <div className="form-stack settlement-car-form settlement-cost-editor-form" onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}>
+      {(error || validationMessage) && <InlineNotification kind="error" title="入力内容を確認してください" subtitle={error || validationMessage} hideCloseButton lowContrast />}
+      <section className="settlement-form-section" aria-label="費用の入力">
+        <div className="settlement-cost-editor-fields">
+          <TextInput id={`settlement-extra-name-${activeExtra.index}`} labelText="名目" value={activeExtra.row.name} readOnly={domain.isTimesTimeFeeExtra(activeExtra.row)} placeholder="例：駐車場代" onChange={event => updateExtra(activeExtra.index, { name: event.target.value, pending: false })} />
+          <TextInput id={`settlement-extra-amount-${activeExtra.index}`} labelText="金額（円）" inputMode="numeric" invalid={hasNegativeValue(activeExtra.row.amount)} invalidText={negativeMoneyText} value={activeExtra.row.amount} onChange={event => updateExtra(activeExtra.index, { amount: event.target.value, pending: false })} />
+        </div>
+        <CostTypeControl domain={domain} id={`settlement-extra-type-${activeExtra.index}`} label="負担区分" type={activeExtra.row.type} onChange={type => updateExtra(activeExtra.index, { type })} />
+      </section>
+    </div>}
+    {view === 'movement' && <MovementSettingsView car={car} domain={domain} movementAmount={movementAmount} movementLabel={movementLabel} movementFormula={movementFormula} movementType={movement?.type} onOpenRoute={() => changeView('route')} onRentalType={setRentalType} onMovementType={setMovementType} onUpdate={update} />}
     <div aria-hidden={view !== 'route'} style={{ display: view === 'route' ? undefined : 'none' }}><RoutePlanner ref={routeRef} runtime={runtime} onStatusChange={setRouteStatus} onApply={value => { update({ dist: value }); changeView('movement'); onNotice('計算した距離を入力しました。'); }} /></div>
   </Modal>;
 }

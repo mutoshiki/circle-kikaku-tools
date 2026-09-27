@@ -28,21 +28,22 @@ test('route planner uses Carbon rows, Search states, modal footer navigation, an
   const evidence = join(tmpdir(), 'circle-react-migration-evidence', 'route-carbon');
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を編集' }).click();
+  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();
   const modal = page.getByRole('dialog', { name: '仮参加者A車' });
   const expenseName = modal.locator('.settlement-cost-list-item').filter({ hasText: 'ガソリン代' }).locator('.settlement-cost-summary > strong').first();
   const expenseRow = modal.locator('.settlement-cost-list-item').filter({ hasText: '駐車代' });
   const expenseAmount = expenseRow.locator('.settlement-cost-summary__amount');
-  const expenseDelete = expenseRow.getByRole('button', { name: '削除' });
-  const [expenseNameBox, expenseAmountBox, expenseDeleteBox] = await Promise.all([expenseName.boundingBox(), expenseAmount.boundingBox(), expenseDelete.boundingBox()]);
-  expect(expenseDeleteBox.x).toBeGreaterThan(expenseNameBox.x);
-  expect(expenseAmountBox.x + expenseAmountBox.width + 8).toBeLessThanOrEqual(expenseDeleteBox.x);
+  const expenseMenu = expenseRow.getByRole('button', { name: '駐車代の操作' });
+  const [expenseNameBox, expenseAmountBox, expenseMenuBox] = await Promise.all([expenseName.boundingBox(), expenseAmount.boundingBox(), expenseMenu.boundingBox()]);
+  expect(expenseMenuBox.x).toBeGreaterThan(expenseNameBox.x);
+  expect(expenseAmountBox.x + expenseAmountBox.width + 8).toBeLessThanOrEqual(expenseMenuBox.x);
   await expect(modal.locator('.settlement-cost-editor')).toHaveCount(1);
   await expect(modal.locator('.settlement-cost-editor .settlement-cost-list-item')).toHaveCount(4);
-  await modal.locator('.settlement-cost-list-item').filter({ hasText: 'ガソリン代' }).click();
+  await modal.getByRole('button', { name: 'ガソリン代の操作' }).click();
+  await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
   await expect(modal.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
   const movementFormGap = await modal.locator('.settlement-movement-form').evaluate(node => getComputedStyle(node).rowGap);
-  expect(movementFormGap).toBe('16px');
+  expect(movementFormGap).toBe('12px');
   const gasBody = modal.locator('.cds--modal-content');
   await gasBody.evaluate(node => { node.scrollTop = node.scrollHeight; node.dispatchEvent(new Event('scroll', { bubbles: true })); });
   await expect(page.locator('.cds--modal.is-visible')).toHaveClass(/settlement-movement-at-bottom/);
@@ -169,9 +170,10 @@ test('route planner uses Carbon rows, Search states, modal footer navigation, an
   await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
   await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を編集' }).click();
+  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();
   const darkModal = page.getByRole('dialog', { name: '仮参加者A車' });
-  await darkModal.locator('.settlement-cost-list-item').filter({ hasText: 'ガソリン代' }).click();
+  await darkModal.getByRole('button', { name: 'ガソリン代の操作' }).click();
+  await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
   const darkFuelField = await darkModal.locator('.settlement-movement-form .cds--text-input').first().evaluate(node => ({
     background: getComputedStyle(node).backgroundColor,
     borderBottomStyle: getComputedStyle(node).borderBottomStyle,

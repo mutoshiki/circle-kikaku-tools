@@ -172,11 +172,13 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await page.getByRole('button', { name: '次へ' }).click();
     await shot(page, viewportName, 24, 'settlement-wizard-step-3');
     await cancelDialog(page);
-    await page.getByRole('button', { name: '費用を編集' }).first().click();
+    await page.getByRole('button', { name: '費用を入力' }).first().click();
     await shot(page, viewportName, 25, 'vehicle-expense-editor');
     await page.getByRole('button', { name: '費用を追加' }).click();
     await shot(page, viewportName, 26, 'vehicle-expense-extra-row');
-    await page.locator('.settlement-cost-list-item').filter({ hasText: 'ガソリン代' }).click();
+    await page.getByRole('button', { name: '戻る' }).click();
+    await page.getByRole('button', { name: 'ガソリン代の操作' }).click();
+    await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
     await shot(page, viewportName, 27, 'movement-settings-private');
     const rental = page.locator('#settlement-rental-times');
     if (await rental.count()) await rental.check({ force: true });

@@ -138,36 +138,36 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-cost-editor { margin: 0; }
 .settlement-cost-editor .cds--contained-list__header { display: none; }
 .settlement-cost-editor .cds--contained-list-item__content { min-block-size: 3rem; }
-.settlement-cost-editor .cds--contained-list-item__action .cds--icon-tooltip { inline-size: 3rem; }
-.settlement-cost-editor .cds--contained-list-item__action .cds--btn--icon-only { inline-size: 3rem; min-inline-size: 3rem; block-size: 3rem; padding: 0; }
-.settlement-cost-summary { display: flex; align-items: center; justify-content: space-between; gap: layout.$spacing-03 layout.$spacing-05; min-inline-size: 0; inline-size: 100%; }
+.settlement-cost-editor .cds--contained-list-item__action { align-items: center; padding-inline-end: var(--cds-spacing-03, .5rem); }
+.settlement-cost-summary { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-03 layout.$spacing-05; min-inline-size: 0; inline-size: 100%; }
 .settlement-cost-summary > strong { min-inline-size: 0; overflow-wrap: anywhere; }
-.settlement-cost-summary__amount { display: inline-flex; align-items: center; justify-content: flex-end; gap: layout.$spacing-03; flex: 0 0 auto; }
+.settlement-cost-summary__amount { display: inline-flex; align-items: center; justify-content: flex-end; gap: layout.$spacing-03; flex: 0 0 auto; margin-inline-start: auto; }
 .settlement-cost-list-item .cds--contained-list-item__content > div { inline-size: 100%; min-inline-size: 0; }
 .settlement-cost-list-item .settlement-cost-summary { padding-inline-end: var(--cds-spacing-03, .5rem); }
-.settlement-cost-list-item--deletable .settlement-cost-summary { padding-inline-end: var(--cds-spacing-08, 3rem); }
-.settlement-cost-list-item--active .cds--contained-list-item__content { background: var(--cds-layer-selected); }
-.settlement-cost-editor-details-row .cds--contained-list-item__content { min-block-size: 0; padding: 0; background: var(--cds-layer-02); }
-.settlement-cost-editor-details { display: grid; grid-template-columns: minmax(0, 1fr); align-items: end; gap: var(--cds-spacing-05, 1rem); padding: var(--cds-spacing-03, .5rem) var(--cds-spacing-05, 1rem); background: var(--cds-layer-02); }
-.settlement-cost-editor-fields { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: layout.$spacing-04; }
+.settlement-cost-editor-form > .settlement-form-section { gap: var(--cds-spacing-05, 1rem); }
+.settlement-cost-editor-fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--cds-spacing-05, 1rem); }
 .settlement-cost-editor-fields input[id^='settlement-extra-amount-'] { text-align: right; }
-.settlement-cost-editor-details > .cds--btn { justify-self: start; }
-.settlement-cost-editor-details .settlement-cost-type-control { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
-@supports selector(:focus-visible) {
-  .settlement-cost-list-item .cds--contained-list-item__content:focus:not(:focus-visible)::after { display: none; }
-  .settlement-car-modal .cds--modal-content:focus:not(:focus-visible) { outline: none; }
-}
-.settlement-cost-type-control { display: grid; gap: layout.$spacing-03; min-width: 0; }
+@media (min-width: 672px) { .settlement-cost-editor-fields { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); } }
+.settlement-cost-type-control { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--cds-spacing-03, .5rem); min-width: 0; }
 .settlement-cost-type-control .cds--radio-button-group { min-width: 0; }
 .settlement-cost-type-control .cds--checkbox-wrapper { margin: 0; }
-.settlement-extra-candidates .cds--accordion__content { display: grid; gap: layout.$spacing-02; padding: layout.$spacing-04 0; }
-.settlement-extra-candidates .cds--btn { justify-content: flex-start; max-inline-size: none; }
+.settlement-cost-add-action { justify-self: start; }
+@supports selector(:focus-visible) { .settlement-car-modal .cds--modal-content:focus:not(:focus-visible) { outline: none; } }
+.settlement-extra-candidates { display: grid; gap: layout.$spacing-03; }
+.settlement-extra-candidates h3 { margin: 0; font-size: var(--cds-heading-compact-01-font-size, .875rem); font-weight: var(--cds-heading-compact-01-font-weight, 600); line-height: var(--cds-heading-compact-01-line-height, 1.4); }
+.settlement-extra-candidates .cds--contained-list__header { display: none; }
+.settlement-extra-candidate .cds--contained-list-item__content > div { display: grid; gap: layout.$spacing-01; min-inline-size: 0; }
+.settlement-extra-candidate .cds--contained-list-item__content > div > strong { font-weight: var(--cds-body-compact-01-font-weight, 400); }
+.settlement-extra-candidate .cds--contained-list-item__content > div > span { color: var(--cds-text-secondary); font-size: var(--cds-label-01-font-size); line-height: var(--cds-label-01-line-height); }
+.settlement-extra-candidate .cds--contained-list-item__action { align-items: center; padding-inline-end: var(--cds-spacing-03, .5rem); }
 .settlement-movement-section-title { margin: 0; font-size: var(--cds-heading-compact-01-font-size, .875rem); font-weight: var(--cds-heading-compact-01-font-weight, 600); line-height: var(--cds-heading-compact-01-line-height, 1.4); }
-.settlement-movement-preview { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: layout.$spacing-03; padding: layout.$spacing-03 layout.$spacing-04; background: var(--cds-layer-accent-01); }
+.settlement-movement-preview { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--cds-spacing-03, .5rem); padding: var(--cds-spacing-03, .5rem) var(--cds-spacing-04, .75rem); background: var(--cds-layer-accent-01); }
 .settlement-movement-preview span { color: var(--cds-text-primary); }
-.settlement-movement-preview strong { grid-column: 2; grid-row: 1; color: var(--cds-text-primary); font-size: 1rem; }
-.settlement-movement-form { gap: var(--cds-spacing-05, 1rem); }
-.settlement-movement-form .settlement-form-section { gap: var(--cds-spacing-05, 1rem); }
+.settlement-movement-preview strong { grid-column: 2; grid-row: 1; color: var(--cds-text-primary); font-size: var(--cds-body-compact-01-font-size, .875rem); font-weight: var(--cds-heading-compact-01-font-weight, 600); line-height: var(--cds-body-compact-01-line-height, 1.125rem); }
+.settlement-movement-form { gap: var(--cds-spacing-04, .75rem); }
+.settlement-movement-form .settlement-form-section { gap: var(--cds-spacing-04, .75rem); }
+.settlement-movement-form .form-grid { gap: var(--cds-spacing-04, .75rem); }
+.settlement-movement-form .distance-field { gap: var(--cds-spacing-02, .25rem); }
 .settlement-movement-form > .cds--radio-button-group { display: flex; flex-wrap: wrap; column-gap: var(--cds-spacing-06, 1.5rem); row-gap: var(--cds-spacing-03, .5rem); }
 .settlement-movement-form > .cds--radio-button-group .cds--radio-button-wrapper { margin-inline-end: 0; }
 .route-planner-callout { inline-size: 100%; max-inline-size: none; margin: 0; }
@@ -244,10 +244,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   .settlement-extra-row { grid-template-columns: 1fr; }
   .settlement-extra-row .cds--btn { width: 100%; max-width: none; }
   .settlement-car-modal .cds--modal-content { padding-block: var(--cds-spacing-03, .5rem) var(--cds-spacing-05, 1rem); }
-  .settlement-cost-editor-details { padding-inline: var(--cds-spacing-05, 1rem); }
-  .settlement-cost-editor-fields { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: layout.$spacing-03; }
-  .settlement-cost-editor-details .settlement-cost-type-control { grid-template-columns: minmax(0, 1fr) auto; gap: layout.$spacing-03; }
-  .settlement-movement-form .form-grid { grid-template-columns: minmax(0, 1fr); gap: var(--cds-spacing-03, .5rem); }
+  .settlement-movement-form .form-grid { grid-template-columns: minmax(0, 1fr); gap: var(--cds-spacing-04, .75rem); }
   .settlement-movement-form .distance-field { grid-column: 1 / -1; }
   .settlement-movement-form .distance-field .cds--btn { justify-self: start; }
   .settlement-movement-form > .cds--radio-button-group { flex-direction: row; }

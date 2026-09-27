@@ -61,8 +61,8 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await expect(paymentCard.getByText('支払い済み', { exact: true })).toBeVisible();
   await paymentCard.getByRole('button', { name: '未払いに戻す', exact: true }).click();
   await expect(paymentCard.getByText('未払い', { exact: true })).toBeVisible();
-  await expect(paymentCard.getByRole('button', { name: '費用を編集', exact: true })).toHaveClass(/cds--btn--ghost/);
-  await paymentCard.getByRole('button', { name: '費用を編集', exact: true }).click();
+  await expect(paymentCard.getByRole('button', { name: '費用を入力', exact: true })).toHaveClass(/cds--btn--ghost/);
+  await paymentCard.getByRole('button', { name: '費用を入力', exact: true }).click();
   const editCost = page.getByRole('dialog', { name: /藤原 拓海車/ });
   await expect(editCost).toBeVisible();
   await editCost.getByRole('button', { name: 'キャンセル', exact: true }).click();
