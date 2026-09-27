@@ -72,7 +72,7 @@ function SettingsModal({ runtime, edit, onClose, onNotice }) {
       </div></section>}
       {step === 2 && <section className="settlement-settings-step" aria-labelledby="settlement-collection-title"><h3 id="settlement-collection-title">集金ルール</h3><RadioButtonGroup legendText="運転手分の集金" name="settlement-driver-rule" valueSelected={driverRule} onChange={value => update({ driverCollectionOffset: value === 'offset', driverCollectionFree: value === 'free' })} orientation="vertical">
         <RadioButton id="settlement-driver-normal" value="normal" labelText="集金する" />
-        <RadioButton id="settlement-driver-offset" value="offset" labelText="支払額から控除" />
+        <RadioButton id="settlement-driver-offset" value="offset" labelText="支払額から差し引く" />
         <RadioButton id="settlement-driver-free" value="free" labelText="集金対象外" />
       </RadioButtonGroup>
       {!state.standalone.enabled && <Select id="settlement-organizer" labelText="企画者" value={state.organizerName} onChange={event => update({ organizerName: event.target.value })}>
@@ -289,7 +289,7 @@ export default function Settlement({ runtime, room, onNotice }) {
   return <section className="settlement-page" aria-label="精算">
     {issues.messages.map(message => <InlineNotification key={message} kind={message.includes('企画者を選ぶ') ? 'info' : 'error'} title="設定を確認してください" subtitle={message} hideCloseButton lowContrast />)}
     <Tile className="settlement-card settlement-vehicles-card">
-      <div className="settlement-section-heading"><div><h1>車ごとの精算</h1></div>
+      <div className="settlement-section-heading"><div><h1>各車への支払い</h1></div>
         <Button className="settlement-settings-action" kind="ghost" size="sm" renderIcon={Edit} aria-label="精算設定を編集" onClick={() => setSettingsEdit(beginSettlementEdit(runtime.store))}>精算設定</Button>
       </div>
       <div className="settlement-car-list">{data.cars.map((car, index) => {
@@ -310,11 +310,10 @@ export default function Settlement({ runtime, room, onNotice }) {
           <div className="settlement-car-main">
             <div className="settlement-car-info">
               <h2 id={`settlement-car-${carId}`}>{carLabel}</h2>
+              <div className="settlement-car-actions">
+                <Button className="settlement-car-edit-action" kind="ghost" size="sm" onClick={() => openCar(car)}>費用を入力</Button>
+              </div>
               {calc.driverNames.length > 1 && <p>運転手：{calc.driverNames.join('、')}（車単位で一括支払い）</p>}
-              <div className="settlement-car-payment"><span className="cds--type-body-compact-01">支払額</span><strong className="cds--type-productive-heading-03">{money(calc.adjustedTotalPay)}</strong></div>
-            </div>
-            <div className="settlement-car-actions">
-              <Button className="settlement-car-edit-action" kind="ghost" size="sm" onClick={() => openCar(car)}>費用を入力</Button>
             </div>
           </div>
           <Accordion className="settlement-car-breakdown" size="sm">
@@ -324,7 +323,7 @@ export default function Settlement({ runtime, room, onNotice }) {
                   <h3 id={`settlement-split-${carId}`}>割勘</h3>
                   {renderItems(splitItems, 'split')}
                   {calc.splitRound !== 0 && <div className="settlement-cost-adjustment"><span>端数処理</span><strong>{adjustmentAmount(calc.splitRound)}</strong></div>}
-                  {calc.collectionOffset !== 0 && <div className="settlement-cost-adjustment"><span>運転手分の集金控除</span><strong>−{money(calc.collectionOffset)}</strong></div>}
+                  {calc.collectionOffset !== 0 && <div className="settlement-cost-adjustment"><span>集金分差し引き</span><strong>−{money(calc.collectionOffset)}</strong></div>}
                   {!hasSplitDetails && <p className="settlement-cost-empty">対象なし</p>}
                 </section>
                 <section className="settlement-cost-group" aria-labelledby={`settlement-club-${carId}`}>
@@ -340,12 +339,12 @@ export default function Settlement({ runtime, room, onNotice }) {
       })}</div>
     </Tile>
     <Tile className="settlement-card settlement-collection-card">
-      <div className="settlement-section-heading"><div><h2>集金</h2><small className="settlement-collection-summary"><span>{result.paidCount}/{result.payerCount}人</span><span>残り {money(result.unpaidAmount)}</span></small></div>
+      <div className="settlement-section-heading"><div><h2>集金チェック</h2><small className="settlement-collection-summary"><span>{result.paidCount}/{result.payerCount}人</span><span>残り {money(result.unpaidAmount)}</span></small></div>
         <Button ref={collectionTriggerRef} kind="ghost" size="sm" aria-expanded={collectionOpen} aria-controls="settlement-collection-modal" onClick={() => setCollectionOpen(true)}>集金を確認</Button>
       </div>
       </Tile>
-    <Tile className="settlement-card settlement-memo-card"><div className="settlement-section-heading"><div><h2>精算メモ</h2>{!memoEditing && <p>{state.memo?.trim() ? state.memo : 'メモなし'}</p>}</div>{!memoEditing && <Button kind="ghost" size="sm" onClick={openMemoEditor}>{state.memo?.trim() ? '編集' : 'メモを追加'}</Button>}</div>
-      {memoEditing && <div className="settlement-memo-editor"><TextArea id="settlement-memo-editor" labelText="精算メモ" placeholder="例：レンタカー代は高橋さんが立替" rows={3} value={memo ?? ''} onChange={event => setMemo(event.target.value)} /><div className="settlement-memo-actions"><Button kind="tertiary" size="sm" onClick={saveMemo}>保存</Button><Button kind="ghost" size="sm" onClick={closeMemoEditor}>キャンセル</Button></div></div>}
+    <Tile className="settlement-card settlement-memo-card"><div className="settlement-section-heading"><div><h2>メモ</h2>{!memoEditing && <p>{state.memo?.trim() ? state.memo : 'メモなし'}</p>}</div>{!memoEditing && <Button kind="ghost" size="sm" onClick={openMemoEditor}>{state.memo?.trim() ? '編集' : 'メモを追加'}</Button>}</div>
+      {memoEditing && <div className="settlement-memo-editor"><TextArea id="settlement-memo-editor" labelText="メモ" placeholder="例：レンタカー代は高橋さんが立替" rows={3} value={memo ?? ''} onChange={event => setMemo(event.target.value)} /><div className="settlement-memo-actions"><Button kind="tertiary" size="sm" onClick={saveMemo}>保存</Button><Button kind="ghost" size="sm" onClick={closeMemoEditor}>キャンセル</Button></div></div>}
     </Tile>
     <Modal id="settlement-collection-modal" className="settlement-collection-modal" open={collectionOpen} size="sm" hasScrollingContent modalHeading="集金を確認" closeButtonLabel="閉じる" primaryButtonText="閉じる" secondaryButtonText="未回収者をコピー" onSecondarySubmit={copyUnpaid} onRequestSubmit={() => setCollectionOpen(false)} onRequestClose={() => setCollectionOpen(false)} launcherButtonRef={collectionTriggerRef} selectorPrimaryFocus=".settlement-collection-modal .cds--content-switcher-btn">
       <div className="settlement-collection-modal-content">

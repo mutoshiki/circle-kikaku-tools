@@ -87,14 +87,13 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-car { display: grid; gap: layout.$spacing-02; min-width: 0; padding-block: layout.$spacing-03; border-block-end: 1px solid var(--cds-border-subtle); }
 .settlement-car:first-child { padding-block-start: 0; }
 .settlement-car:last-child { border-block-end: 0; }
-.settlement-car-main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(12rem, auto); align-items: start; gap: layout.$spacing-02; }
-.settlement-car-info { min-width: 0; }
-.settlement-car-main h2 { font-size: 1rem; line-height: 1.4; overflow-wrap: anywhere; }
-.settlement-car-main p { color: var(--cds-text-secondary); margin-block: layout.$spacing-02; overflow-wrap: anywhere; }
-.settlement-car-payment { display: flex; flex-wrap: wrap; align-items: baseline; gap: layout.$spacing-03; margin-block-start: layout.$spacing-02; }
-.settlement-car-payment strong { overflow-wrap: anywhere; }
+.settlement-car-main { min-width: 0; }
+.settlement-car-info { display: grid; grid-template-columns: minmax(0, 1fr) max-content; align-items: baseline; column-gap: layout.$spacing-03; row-gap: layout.$spacing-01; min-width: 0; }
+.settlement-car-main h2 { grid-column: 1; min-inline-size: 0; margin-block: 0; font-size: 1rem; line-height: 1.4; overflow-wrap: anywhere; }
+.settlement-car-main p { grid-column: 1 / -1; color: var(--cds-text-secondary); margin-block: 0; overflow-wrap: anywhere; }
 .settlement-car-actions { display: flex; align-items: center; justify-content: flex-end; min-inline-size: 0; }
-.settlement-car-edit-action { margin-inline-start: auto; }
+.settlement-car-actions { grid-column: 2; justify-self: end; }
+.settlement-car-edit-action { margin-inline-start: 0; }
 .settlement-car-breakdown { margin-block-start: 0; }
 .settlement-car-breakdown .cds--accordion__item { border-block: 0; }
 .settlement-car-breakdown .cds--accordion__content { padding-block: layout.$spacing-03 0; }
@@ -241,12 +240,6 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   .settlement-card { padding-block: layout.$spacing-03; }
   .settlement-section-heading { flex-direction: column; }
   .settlement-vehicles-card .settlement-section-heading { flex-direction: row; align-items: flex-start; }
-  .settlement-car-main { grid-template-columns: minmax(0, 1fr); }
-  .settlement-car-info { display: grid; grid-template-columns: minmax(0, 1fr) max-content; align-items: baseline; column-gap: layout.$spacing-03; row-gap: layout.$spacing-01; }
-  .settlement-car-info h2 { min-inline-size: 0; }
-  .settlement-car-info h2 { grid-area: 1 / 1; margin-block: 0; }
-  .settlement-car-info p { grid-column: 1 / -1; margin-block: 0; }
-  .settlement-car-payment { grid-area: 1 / 2; justify-content: flex-end; flex-wrap: nowrap; margin-block-start: 0; white-space: nowrap; }
   .settlement-collection-card .settlement-section-heading { flex-direction: row; align-items: center; }
   .settlement-extra-row { grid-template-columns: 1fr; }
   .settlement-extra-row .cds--btn { width: 100%; max-width: none; }
@@ -258,7 +251,6 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   .settlement-movement-form .distance-field { grid-column: 1 / -1; }
   .settlement-movement-form .distance-field .cds--btn { justify-self: start; }
   .settlement-movement-form > .cds--radio-button-group { flex-direction: row; }
-  .settlement-car-actions { inline-size: 100%; }
   .timetable-row { grid-template-columns: 1fr; }
   .timetable-row .cds--btn { width: 100%; max-width: none; }
   .distance-field { grid-template-columns: 1fr; }
