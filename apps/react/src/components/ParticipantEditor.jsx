@@ -4,6 +4,7 @@ import { Modal, TextInput, TextArea, Select, SelectItem, Checkbox, InlineNotific
 export default function ParticipantEditor({ runtime, session, onClose, onNotice }) {
   const id = session.participantId;
   const [draft, setDraft] = useState(() => ({ ...session.draft.participants[id] }));
+  const [driver, setDriver] = useState(() => session.draft.allocations.car.placements[id]?.driver === true);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const field = (name, value) => setDraft(current => ({ ...current, [name]: value }));
@@ -12,6 +13,8 @@ export default function ParticipantEditor({ runtime, session, onClose, onNotice 
     setSaving(true);
     try {
       Object.assign(session.draft.participants[id], draft);
+      const placement = session.draft.allocations.car.placements[id];
+      if (placement) placement.driver = driver;
       runtime.store.commitEdit(session, { close: false });
       await runtime.sync.flush();
       if (runtime.sync.getSnapshot().kind === 'error') throw new Error(runtime.sync.getSnapshot().message);
@@ -28,6 +31,7 @@ export default function ParticipantEditor({ runtime, session, onClose, onNotice 
       <Select id="participant-edit-grade" labelText="学年" value={String(draft.grade || 0)} onChange={event => field('grade', Number(event.target.value))}>
         <SelectItem value="0" text="未設定" />{[1, 2, 3, 4].map(grade => <SelectItem key={grade} value={String(grade)} text={`${grade}年`} />)}
       </Select>
+      {session.draft.allocations.car.placements[id] && <Checkbox id="participant-edit-driver" labelText="運転手" checked={driver} onChange={(_, { checked }) => setDriver(checked)} />}
       <TextArea id="participant-edit-memo" labelText="メモ" value={draft.memo || ''} onChange={event => field('memo', event.target.value)} />
       <Select id="participant-edit-flag" labelText="しるし" value={draft.flag || 'none'} onChange={event => field('flag', event.target.value)}>{[['none', 'しるしなし'], ['blue', '青'], ['purple', '紫'], ['yellow', '黄'], ['red', '赤']].map(([value, text]) => <SelectItem key={value} value={value} text={text} />)}</Select>
       <Checkbox id="participant-edit-locked" labelText="固定" checked={draft.locked === true} onChange={(_, { checked }) => field('locked', checked)} />

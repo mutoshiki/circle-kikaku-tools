@@ -24,8 +24,11 @@ export default function Participants({ runtime, room, onNotice }) {
   const acceptedIds = new Set(entries.map(([key, applicant]) => runtime.store.participantIdForApplicant(key, applicant)).filter(Boolean));
   const participantCount = Object.keys(room.participants).length;
   const rows = [
-    ...entries.map(([key, applicant]) => ({ key: `a:${key}`, responseKey: key, id: runtime.store.participantIdForApplicant(key, applicant), person: applicant, driver: applicant.canDrive, detail: applicants.applicantMeta(applicant) })),
-    ...Object.entries(room.participants).filter(([id]) => !acceptedIds.has(id)).sort(([, a], [, b]) => a.name.localeCompare(b.name, 'ja')).map(([id, person]) => ({ key: `p:${id}`, id, person, driver: room.allocations.car.placements[id]?.driver, detail: applicants.participantMeta(person) })),
+    ...entries.map(([key, applicant]) => {
+      const id = runtime.store.participantIdForApplicant(key, applicant);
+      return { key: `a:${key}`, responseKey: key, id, person: applicant, driver: applicant.canDrive, assignedDriver: !!(room.participants[id] && room.allocations.car.placements[id]?.driver), detail: applicants.applicantMeta(applicant) };
+    }),
+    ...Object.entries(room.participants).filter(([id]) => !acceptedIds.has(id)).sort(([, a], [, b]) => a.name.localeCompare(b.name, 'ja')).map(([id, person]) => ({ key: `p:${id}`, id, person, driver: room.allocations.car.placements[id]?.driver, assignedDriver: !!room.allocations.car.placements[id]?.driver, detail: applicants.participantMeta(person) })),
   ];
   const checked = row => Object.hasOwn(choices, row.key) ? choices[row.key] : !!row.id;
   const confirmed = application && Object.keys(room.participants).length > 0;
@@ -60,7 +63,7 @@ export default function Participants({ runtime, room, onNotice }) {
       </div>
       {filtersOpen && <div className="form-grid filter-panel">{[['selected', '選択状態', [['all', 'すべて'], ['selected', '選択済み'], ['unselected', '未選択']]], ['grade', '学年', [['all', 'すべて'], ...[1, 2, 3, 4].map(n => [String(n), `${n}年`])]], ['driver', '車出し', [['all', 'すべて'], ['driver', '車出し可'], ['no-driver', '車出しなし']]]].map(([key, label, options]) => <Select key={key} id={`participant-filter-${key}`} labelText={label} value={filter[key]} onChange={event => setFilter(current => ({ ...current, [key]: event.target.value }))}>{options.map(([value, text]) => <SelectItem key={value} value={value} text={text} />)}</Select>)}</div>}
       {!!rows.length && <ContainedList className="participant-list" label="参加者一覧" size="lg">{visible.map(row => <ContainedListItem className="participant-row" key={row.key} action={<div className="participant-row-actions"><Checkbox id={`participant-choice-${row.key}`} labelText={row.person.name} hideLabel aria-label={row.person.name} checked={checked(row)} onChange={(_, { checked: value }) => setChoices(current => ({ ...current, [row.key]: value }))} />{row.id ? <OverflowMenu ariaLabel={`${row.person.name}の操作`} iconDescription={`${row.person.name}の操作`} size={isMobile ? 'lg' : 'sm'} flipped><OverflowMenuItem itemText="編集" onClick={() => edit(row.id)} /><OverflowMenuItem hasDivider itemText="削除" isDelete onClick={() => setPendingDelete({ id: row.id, name: row.person.name })} /></OverflowMenu> : <span />}</div>}>
-        <div className="participant-row-copy"><strong>{row.person.name}</strong><span className="row-detail">{row.detail}</span></div>
+        <div className="participant-row-copy"><div className="participant-row-title"><strong>{row.person.name}</strong>{row.assignedDriver && <Tag type="gray" size="sm">運転手</Tag>}</div><span className="row-detail">{row.detail}</span></div>
       </ContainedListItem>)}</ContainedList>}
       {!rows.length && <p className="empty-state">参加者がいません</p>}
       {!!rows.length && !visible.length && <p className="empty-state">{search.trim() ? `“${search.trim()}” に一致する参加者はいません` : '条件に一致する参加者はいません'}</p>}
