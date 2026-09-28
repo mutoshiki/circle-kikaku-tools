@@ -14,6 +14,7 @@ async function runRoomRequest(page, { config, roomId, marker, operation, data, a
   assertRoomTarget(roomId, config);
   if (!releaseMarkerPattern.test(marker)) throw new Error('Production smoke marker guard rejected this operation.');
   return page.evaluate(async ({ apiKey, databaseURL, roomId, marker, operation, data, allowPriorReleaseMarker }) => {
+    const browserReleaseMarkerPattern = /^react-release-\d+-\d+(?:-updated)?$/;
     const authResponse = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${encodeURIComponent(apiKey)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -34,7 +35,7 @@ async function runRoomRequest(page, { config, roomId, marker, operation, data, a
     if (operation === 'seed') {
       if (existing !== null) {
         const priorMarker = existing?.roomName;
-        if (typeof priorMarker !== 'string' || !releaseMarkerPattern.test(priorMarker)) {
+        if (typeof priorMarker !== 'string' || !browserReleaseMarkerPattern.test(priorMarker)) {
           throw new Error('Reserved smoke room contains unmarked data; no data was changed.');
         }
         const remove = await fetch(roomUrl, { method: 'DELETE', credentials: 'omit', referrerPolicy: 'origin' });
@@ -53,7 +54,7 @@ async function runRoomRequest(page, { config, roomId, marker, operation, data, a
     if (existing === null) return 'already-empty';
     const existingMarker = existing?.roomName;
     if (existingMarker !== marker && existingMarker !== `${marker}-updated`
-      && !(allowPriorReleaseMarker && typeof existingMarker === 'string' && releaseMarkerPattern.test(existingMarker))) {
+      && !(allowPriorReleaseMarker && typeof existingMarker === 'string' && browserReleaseMarkerPattern.test(existingMarker))) {
       throw new Error('Reserved smoke room marker does not belong to this release; data was left unchanged.');
     }
     const response = await fetch(roomUrl, { method: 'DELETE', credentials: 'omit', referrerPolicy: 'origin' });
