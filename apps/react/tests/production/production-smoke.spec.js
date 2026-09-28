@@ -1,8 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { initializeApp, deleteApp } from 'firebase/app';
-import { getAuth, signInAnonymously, signOut } from 'firebase/auth';
-import { getDatabase, ref, get, runTransaction, remove } from 'firebase/database';
 import { fixture, createReference } from '../reference.mjs';
+import { cleanupProductionSmokeRoom, seedProductionSmokeRoom } from './firebase-smoke-room.mjs';
 
 const roomId = process.env.REACT_PRODUCTION_SMOKE_ROOM;
 const mode = process.env.REACT_PRODUCTION_SMOKE_MODE;
@@ -24,28 +22,9 @@ function assertProductionSmokeTarget() {
   }
 }
 
-async function openSmokeRoomClient() {
-  assertProductionSmokeTarget();
-  const app = initializeApp(config, `release-smoke-${globalThis.crypto.randomUUID()}`);
-  const auth = getAuth(app);
-  const database = getDatabase(app);
-  try {
-    await signInAnonymously(auth);
-    return {
-      room: ref(database, `rooms/${roomId}`),
-      async dispose() {
-        try { await signOut(auth); } finally { await deleteApp(app); }
-      },
-    };
-  } catch (error) {
-    await deleteApp(app);
-    throw error;
-  }
-}
-
 test('production app, Firebase compatibility, route APIs, and key tasks work without touching another room', async ({ page }) => {
-  const smokeClient = await openSmokeRoomClient();
-  let roomOwnedByThisRun = false;
+  assertProductionSmokeTarget();
+  let roomSeeded = false;
   let consoleErrorCount = 0;
   const forbiddenResponses = [];
   page.on('console', message => { if (message.type() === 'error') consoleErrorCount += 1; });
@@ -60,23 +39,14 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
   });
 
   try {
-    const initialRoom = await get(smokeClient.room);
-    if (initialRoom.exists()) {
-      const oldMarker = initialRoom.child('roomName').val();
-      if (typeof oldMarker !== 'string' || !/^react-release-\d+-\d+$/.test(oldMarker)) {
-        throw new Error('Reserved smoke room contains unmarked data; no data was changed.');
-      }
-      await remove(smokeClient.room);
-      if ((await get(smokeClient.room)).exists()) throw new Error('Stale reserved smoke room cleanup could not be verified.');
-    }
-
     const initial = createReference().migrateAppData(fixture);
     initial.roomName = smokeMarker;
-    const seeded = await runTransaction(smokeClient.room, current => current === null ? initial : undefined, { applyLocally: false });
-    if (!seeded.committed) throw new Error('Reserved smoke room is not empty; no data was changed.');
-    roomOwnedByThisRun = true;
-
-    await page.goto(`?room=${roomId}&view=participants`);
+    await page.goto(baseURL);
+    await expect(page.locator('.application')).toBeVisible();
+    await expect(page.locator('.sync-status')).toHaveText('同期完了');
+    await seedProductionSmokeRoom(page, { config, roomId, marker: smokeMarker, data: initial });
+    roomSeeded = true;
+    await page.goto(`${baseURL}?room=${roomId}&view=participants`);
     await expect(page).toHaveTitle('サークル企画ツール');
     const buildManifest = await page.evaluate(async () => {
       const response = await fetch(new URL('release-build.json', window.location.href));
@@ -87,7 +57,8 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(page.locator('.application')).toBeVisible();
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
     const projectName = page.getByRole('textbox', { name: '企画名' });
-    await projectName.fill(smokeMarker);
+    const updatedSmokeMarker = `${smokeMarker}-updated`;
+    await projectName.fill(updatedSmokeMarker);
     await projectName.press('Tab');
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
@@ -128,26 +99,20 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
     await page.reload();
-    await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(smokeMarker);
+    await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(updatedSmokeMarker);
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
     if (mode === 'compatibility') {
       const legacyUrl = new URL('/circle-kikaku-tools/', 'https://mutoshiki.github.io');
       legacyUrl.searchParams.set('room', roomId);
       await page.goto(legacyUrl.toString());
-      await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(smokeMarker);
+      await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(updatedSmokeMarker);
       await page.goto(`${productionPath}?room=${roomId}&view=seisan`);
       await expect(page.getByRole('tabpanel', { name: '精算', exact: true })).toBeVisible();
     }
     expect(consoleErrorCount).toBe(0);
     expect(forbiddenResponses).toEqual([]);
   } finally {
-    await page.close().catch(() => {});
-    if (roomOwnedByThisRun) {
-      await remove(smokeClient.room);
-      const cleaned = await get(smokeClient.room);
-      if (cleaned.exists()) throw new Error('Dedicated smoke room cleanup could not be verified.');
-    }
-    await smokeClient.dispose();
+    if (roomSeeded && !page.isClosed()) await cleanupProductionSmokeRoom(page, { config, roomId, marker: smokeMarker });
   }
 });
