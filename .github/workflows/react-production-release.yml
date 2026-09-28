@@ -1,0 +1,310 @@
+name: React Production Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: read
+  checks: read
+
+concurrency:
+  group: react-production-release
+  cancel-in-progress: false
+
+jobs:
+  release-gate:
+    name: Release / Require main CI readiness
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require the latest main Release / Readiness check for this exact SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RELEASE_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          conclusion="$(gh api "repos/$REPOSITORY/commits/$RELEASE_SHA/check-runs?per_page=100" --jq "[.check_runs[] | select(.name == \"Release / Readiness\" and .head_sha == \"$RELEASE_SHA\")] | sort_by(.started_at) | last | .conclusion // \"missing\"")"
+          test "$conclusion" = success
+          echo "Exact-SHA Release / Readiness gate passed."
+
+  prepare:
+    name: Release / Build once and package promoteable artifacts
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      build_sha: ${{ steps.build.outputs.build_sha }}
+      asset_digest: ${{ steps.build.outputs.asset_digest }}
+    needs: release-gate
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v6
+        with:
+          ref: e37b8651eeba1cb52d2b7a98bc05674bb63591a8
+          path: rollback-source
+          persist-credentials: false
+      - uses: actions/configure-pages@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - name: Validate approved production config and Firebase Rules release gate
+        shell: bash
+        env:
+          REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
+          REACT_MAPS_API_KEY: ${{ vars.REACT_MAPS_API_KEY }}
+          RULES_ROLLBACK_READY_SHA: ${{ vars.REACT_FIREBASE_RULES_ROLLBACK_READY_SHA }}
+          RULES_RELEASE_SHA: ${{ vars.REACT_FIREBASE_RULES_RELEASE_SHA }}
+        run: |
+          set -euo pipefail
+          test "$RULES_ROLLBACK_READY_SHA" = 'fa9daf4d07546800b5e7e5df6e52f5424b4f8d24'
+          expected_rules="$(git rev-parse HEAD:firebase/database.rules.json)"
+          test "$RULES_RELEASE_SHA" = "$expected_rules"
+          node --input-type=module -e '
+            const config = JSON.parse(process.env.REACT_FIREBASE_CONFIG || "{}");
+            if (config.projectId !== "sanpokai-tool" || config.databaseURL !== "https://sanpokai-tool-default-rtdb.firebaseio.com") throw new Error("Production Firebase target is not approved.");
+            if (!config.apiKey || config.authDomain !== "sanpokai-tool.firebaseapp.com" || !config.appId || !config.messagingSenderId) throw new Error("Production Firebase config is incomplete.");
+            if (!process.env.REACT_MAPS_API_KEY) throw new Error("The restricted Maps browser key is not configured.");
+          '
+          echo "Production config and Rules SHA gates passed for $GITHUB_SHA. Values were not printed."
+      - name: Install React dependencies
+        working-directory: apps/react
+        run: npm ci --no-audit --no-fund
+      - name: Build React app once for both deployment paths
+        id: build
+        working-directory: apps/react
+        env:
+          VITE_BASE_PATH: ./
+          VITE_REACT_SYNC_MODE: production
+          VITE_REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
+          VITE_REACT_MAPS_API_KEY: ${{ vars.REACT_MAPS_API_KEY }}
+          BUILD_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run build
+          asset_digest="$(cd dist && find . -type f ! -name release-build.json -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d ' ' -f 1)"
+          printf '{"sourceSha":"%s","assetDigest":"%s"}\n' "$BUILD_SHA" "$asset_digest" > dist/release-build.json
+          echo "build_sha=$BUILD_SHA" >> "$GITHUB_OUTPUT"
+          echo "asset_digest=$asset_digest" >> "$GITHUB_OUTPUT"
+          echo "React app built once: $BUILD_SHA ($asset_digest)."
+      - name: Assemble legacy root and compatibility React artifacts
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - name: Add React compatibility app under /react/
+        shell: bash
+        run: |
+          sudo chown -R "$(id -u):$(id -g)" _site
+          mkdir -p _site/react
+          cp -a apps/react/dist/. _site/react/
+          test -s _site/index.html
+          test -s _site/react/index.html
+          test -n "$(find _site/react/assets -type f -print -quit)"
+          test -s _site/react/release-build.json
+      - name: Upload compatibility artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          name: github-pages-compatibility
+          path: ./_site
+      - name: Assemble root React artifact
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/react-root"
+          cp -a apps/react/dist/. "$RUNNER_TEMP/react-root/"
+          test -s "$RUNNER_TEMP/react-root/index.html"
+          test -n "$(find "$RUNNER_TEMP/react-root/assets" -type f -print -quit)"
+          test -s "$RUNNER_TEMP/react-root/release-build.json"
+      - name: Upload root React artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          name: github-pages-react-root
+          path: ${{ runner.temp }}/react-root
+      - name: Assemble pinned legacy rollback artifact
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./rollback-source
+          destination: ./rollback-site
+      - name: Upload pinned legacy rollback artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          name: github-pages-legacy-rollback
+          path: ./rollback-site
+
+  compatibility-deploy:
+    name: Release / Deploy compatibility at /react/
+    if: github.ref == 'refs/heads/main'
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy compatibility artifact
+        id: deployment
+        uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-compatibility
+
+  compatibility-smoke:
+    name: Release / Compatibility production smoke
+    needs: [prepare, compatibility-deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      REACT_PRODUCTION_RELEASE: 'true'
+      REACT_PRODUCTION_SMOKE_MODE: compatibility
+      REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/react/
+      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
+      REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
+      REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
+      REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
+      REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - name: Install smoke dependencies
+        working-directory: apps/react
+        run: npm ci --no-audit --no-fund
+      - name: Install Chromium and WebKit
+        working-directory: apps/react
+        run: npx playwright install --with-deps chromium webkit
+      - name: Verify compatibility app, Firebase, Maps, Places, Routes, and legacy read compatibility
+        working-directory: apps/react
+        run: npx playwright test --config playwright.production.config.js
+
+  compatibility-cleanup:
+    name: Release / Compatibility smoke-room cleanup
+    if: always() && needs.compatibility-deploy.result == 'success'
+    needs: [compatibility-deploy, compatibility-smoke]
+    runs-on: ubuntu-latest
+    env:
+      REACT_PRODUCTION_RELEASE: 'true'
+      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
+      REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
+      REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: apps/react
+      - name: Remove only this run's marked smoke room and verify null
+        working-directory: apps/react
+        run: node tools/cleanup-production-smoke.mjs
+
+  root-deploy:
+    name: Release / Cut over root to React
+    if: github.ref == 'refs/heads/main'
+    needs: [prepare, compatibility-smoke, compatibility-cleanup]
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy React root artifact
+        id: deployment
+        uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-react-root
+
+  root-smoke:
+    name: Release / Production root smoke
+    needs: [prepare, compatibility-smoke, root-deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      REACT_PRODUCTION_RELEASE: 'true'
+      REACT_PRODUCTION_SMOKE_MODE: root
+      REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/
+      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
+      REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
+      REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
+      REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
+      REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - name: Install smoke dependencies
+        working-directory: apps/react
+        run: npm ci --no-audit --no-fund
+      - name: Install Chromium and WebKit
+        working-directory: apps/react
+        run: npx playwright install --with-deps chromium webkit
+      - name: Verify root React app and production integrations
+        working-directory: apps/react
+        run: npx playwright test --config playwright.production.config.js
+
+  root-cleanup:
+    name: Release / Root smoke-room cleanup
+    if: always() && needs.root-deploy.result == 'success'
+    needs: [root-deploy, root-smoke]
+    runs-on: ubuntu-latest
+    env:
+      REACT_PRODUCTION_RELEASE: 'true'
+      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
+      REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
+      REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: apps/react
+      - name: Remove only this run's marked smoke room and verify null
+        working-directory: apps/react
+        run: node tools/cleanup-production-smoke.mjs
+
+  rollback:
+    name: Release / Restore pinned legacy root after failed root smoke
+    if: github.ref == 'refs/heads/main' && always() && needs.root-deploy.result == 'success' && (needs.root-smoke.result == 'failure' || needs.root-cleanup.result == 'failure')
+    needs: [prepare, root-deploy, root-smoke, root-cleanup]
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+    steps:
+      - name: Restore pinned legacy root
+        uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-legacy-rollback

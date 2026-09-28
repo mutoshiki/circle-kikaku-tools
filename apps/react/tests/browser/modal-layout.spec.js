@@ -67,7 +67,7 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
   await page.screenshot({ path: join(evidence, `settlement-wizard-${testInfo.project.name}.png`) });
   await dialog.getByRole('button', { name: 'キャンセル' }).click();
 
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を編集' }).click();
+  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();
   dialog = page.getByRole('dialog', { name: '仮参加者A車' });
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await expectViewportFrame(page, dialog);
@@ -91,7 +91,9 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
   await page.screenshot({ path: join(evidence, `vehicle-expense-${testInfo.project.name}.png`) });
   await dialog.getByRole('button', { name: '費用を追加' }).click();
   await dialog.getByLabel('名目').last().fill('保持する費用');
-  await dialog.locator('.settlement-cost-list-item').filter({ hasText: 'ガソリン代' }).click();
+  await dialog.getByRole('button', { name: '戻る' }).click();
+  await dialog.getByRole('button', { name: 'ガソリン代の操作' }).click();
+  await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
 
   const movement = page.getByRole('dialog', { name: '仮参加者A車' });
   await expect(page.getByRole('dialog')).toHaveCount(1);

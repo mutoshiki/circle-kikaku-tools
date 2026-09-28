@@ -43,7 +43,8 @@ test('capture form-linked and registration UI states', async ({ page }, testInfo
     if (await guidance.count()) {
       await guidance.click();
       await shot(page, viewportName, 41, 'guidance-modal');
-      await page.locator('.cds--modal-close').click({ force: true });
+      const guidanceDialog = page.getByRole('dialog', { name: '参加者発表文を作成' });
+      await guidanceDialog.getByRole('button', { name: '閉じる', exact: true }).last().click();
     }
     const handoff = page.getByRole('button', { name: '引き継ぎデータを作成', exact: true });
     if (await handoff.count()) await shot(page, viewportName, 42, 'handoff-disabled-state');

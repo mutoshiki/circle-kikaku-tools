@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+
+const workflow = readFileSync(new URL('../../../.github/workflows/react-production-release.yml', import.meta.url), 'utf8');
+const ciWorkflow = readFileSync(new URL('../../../.github/workflows/quality-guard.yml', import.meta.url), 'utf8');
+
+function job(name) {
+  const start = workflow.indexOf(`\n  ${name}:\n`);
+  assert.notEqual(start, -1, `release workflow job "${name}" exists`);
+  const body = workflow.slice(start + name.length + 4);
+  const nextJob = body.search(/^  [a-z][a-z-]*:|^permissions:/m);
+  return body.slice(0, nextJob === -1 ? undefined : nextJob);
+}
+
+test('React production Pages deployments are restricted to a verified main dispatch', () => {
+  assert.match(workflow, /^on:\n  workflow_dispatch:\s*$/m);
+  assert.doesNotMatch(workflow, /^  (?:push|pull_request|pull_request_target):/m);
+
+  for (const name of ['release-gate', 'prepare', 'compatibility-deploy', 'root-deploy', 'rollback']) {
+    assert.match(job(name), /if:\s*github\.ref == 'refs\/heads\/main'/, `${name} is main-only`);
+  }
+
+  assert.match(job('prepare'), /needs:\s*release-gate/);
+  assert.match(job('root-deploy'), /needs:\s*\[prepare, compatibility-smoke, compatibility-cleanup\]/);
+  assert.match(job('compatibility-deploy'), /artifact_name:\s*github-pages-compatibility/);
+  assert.match(job('root-deploy'), /artifact_name:\s*github-pages-react-root/);
+  assert.match(job('prepare'), /Build React app once for both deployment paths/);
+
+  for (const browser of ['Chromium', 'WebKit', 'visual and layout']) {
+    assert.match(ciWorkflow, new RegExp(`Require every React ${browser} test to pass on the PR head`));
+  }
+  assert.doesNotMatch(ciWorkflow, /Run the same React .* suite on exact PR base/);
+});

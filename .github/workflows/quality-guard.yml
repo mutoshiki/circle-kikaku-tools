@@ -1,21 +1,165 @@
-name: Quality Guard
+name: React and Legacy CI
 
 on:
   pull_request:
+    branches: [main]
   push:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: quality-guard-${{ github.event.pull_request.number || github.ref }}
+  group: app-ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  static:
-    name: CSS lint, static contracts, and Firebase rules
+  changes:
+    name: CI / Change scope
+    runs-on: ubuntu-latest
+    outputs:
+      react: ${{ steps.classify.outputs.react }}
+      shared: ${{ steps.classify.outputs.shared }}
+      legacy: ${{ steps.classify.outputs.legacy }}
+      source_legacy: ${{ steps.classify.outputs.source_legacy }}
+      infrastructure: ${{ steps.classify.outputs.infrastructure }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Classify changed paths
+        id: classify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+          HEAD_SHA: ${{ github.sha }}
+        run: node tools/classify-release-changes.mjs "$BASE_SHA" "$HEAD_SHA"
+
+  react-build:
+    name: React / Build
+    needs: changes
+    if: needs.changes.outputs.react == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: apps/react
+      - run: npm run build
+        working-directory: apps/react
+        env:
+          VITE_REACT_SYNC_MODE: local
+
+  react-unit:
+    name: React / Unit
+    needs: changes
+    if: needs.changes.outputs.react == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SANPO_TEST_FIREBASE_TARGET: offline
+      SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
+      SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: apps/react
+      - name: Build the React bundle required by runtime-boundary unit tests
+        run: npm run build
+        working-directory: apps/react
+        env:
+          VITE_REACT_SYNC_MODE: local
+      - run: npm test
+        working-directory: apps/react
+
+  react-browser-chromium:
+    name: React / Browser Chromium
+    needs: changes
+    if: needs.changes.outputs.react == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SANPO_TEST_FIREBASE_TARGET: offline
+      SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
+      SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: apps/react
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/react
+      - name: Run React Chromium suite on PR head and retain report
+        continue-on-error: true
+        env:
+          MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/head-react-chromium
+        run: npm run test:browser -- --project chromium-desktop --project chromium-mobile
+        working-directory: apps/react
+      - name: Require every React Chromium test to pass on the PR head
+        run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-chromium/react-browser.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: react-browser-chromium-head
+          path: ${{ runner.temp }}/head-react-chromium/react-browser.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  react-browser-webkit:
+    name: React / Browser WebKit
+    needs: changes
+    if: needs.changes.outputs.react == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SANPO_TEST_FIREBASE_TARGET: offline
+      SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
+      SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: apps/react
+      - run: npx playwright install --with-deps webkit
+        working-directory: apps/react
+      - name: Run React WebKit suite on PR head and retain report
+        continue-on-error: true
+        env:
+          MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/head-react-webkit
+        run: npm run test:browser -- --project webkit-mobile
+        working-directory: apps/react
+      - name: Require every React WebKit test to pass on the PR head
+        run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-webkit/react-browser.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: react-browser-webkit-head
+          path: ${{ runner.temp }}/head-react-webkit/react-browser.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  react-visual:
+    name: React / Visual and Layout
+    needs: changes
+    if: needs.changes.outputs.react == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -23,8 +167,45 @@ jobs:
       SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
       SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: apps/react
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/react
+      - name: Run React visual and layout suite on PR head
+        continue-on-error: true
+        env:
+          MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/head-react-visual
+        run: npm run test:browser -- tests/browser/visual-consistency.spec.js --project chromium-desktop --project chromium-mobile
+        working-directory: apps/react
+      - name: Require every React visual and layout test to pass on the PR head
+        run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-visual/react-browser.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: react-visual-head
+          path: ${{ runner.temp }}/head-react-visual/react-browser.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  react-firebase:
+    name: React / Firebase and Compatibility
+    needs: changes
+    if: needs.changes.outputs.react == 'true' || needs.changes.outputs.shared == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SANPO_TEST_FIREBASE_TARGET: offline
+      SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
+      SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -33,64 +214,266 @@ jobs:
           distribution: temurin
           java-version: '21'
       - run: npm ci --no-audit --no-fund
-      - run: npm run build:carbon
-      - name: Verify generated Carbon assets are committed
-        run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
-      - run: npm run lint:css
-      - run: npm test
+      - run: npm ci --no-audit --no-fund
+        working-directory: apps/react
       - run: npm run test:firebase:emulator
+      - name: Build the React bundle required by emulator unit tests
+        run: npm run build
+        working-directory: apps/react
+        env:
+          VITE_REACT_SYNC_MODE: local
+      - name: Run React Firebase Auth/Database Emulator tests
+        shell: bash
+        env:
+          SANPO_TEST_FIREBASE_TARGET: emulator
+          SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-react
+          SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9008
+        run: |
+          cat > "$RUNNER_TEMP/react-emulators.json" <<EOF
+          {"database":{"rules":"$GITHUB_WORKSPACE/firebase/database.rules.json","port":9008},"emulators":{"auth":{"port":9098},"database":{"port":9008},"ui":{"enabled":false}}}
+          EOF
+          npx firebase-tools emulators:exec --config "$RUNNER_TEMP/react-emulators.json" --only auth,database --project demo-circle-react "npm --prefix apps/react run test:emulator"
 
-  browser:
-    name: UI and visual regression
+  shared-collaboration:
+    name: Shared / Collaboration
+    needs: changes
+    if: needs.changes.outputs.react == 'true' || needs.changes.outputs.shared == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
+    env:
+      SANPO_TEST_FIREBASE_TARGET: emulator
+      SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-react
+      SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9008
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci --no-audit --no-fund
+        working-directory: apps/react
+      - name: Install browser binaries for Chromium and WebKit projects
+        run: npx playwright install --with-deps chromium webkit
+        working-directory: apps/react
+      - name: Run multi-client React sync in Auth/Database Emulator
+        shell: bash
+        run: |
+          cat > "$RUNNER_TEMP/react-emulators.json" <<EOF
+          {"database":{"rules":"$GITHUB_WORKSPACE/firebase/database.rules.json","port":9008},"emulators":{"auth":{"port":9098},"database":{"port":9008},"ui":{"enabled":false}}}
+          EOF
+          npx firebase-tools emulators:exec --config "$RUNNER_TEMP/react-emulators.json" --only auth,database --project demo-circle-react "npm --prefix apps/react run test:browser:emulator"
+
+  legacy-static:
+    name: Legacy / Static
+    needs: changes
+    if: needs.changes.outputs.legacy == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       SANPO_TEST_FIREBASE_TARGET: offline
       SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
       SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npm run build:carbon
-      - name: Verify generated Carbon assets are committed
-        run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
-      - run: npx playwright install --with-deps chromium webkit
-      - run: npm run test:ui
-      - run: npm run test:visual
-      - run: npm run test:safari-sync
-      - name: WebKit participants mobile regression
-        run: npx playwright test tests/participants-tab-v83.spec.js --config=playwright.webkit.config.js
-      - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Build generated assets and lint legacy CSS
+        run: npm run build:carbon && git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex && npm run lint:css
+      - name: Run each static contract and retain its result
+        id: head
+        continue-on-error: true
+        env:
+          STATIC_CONTRACT_REPORT: ${{ runner.temp }}/head-static.json
+        run: node tools/run-static-contracts.mjs
+      - uses: actions/checkout@v6
         with:
-          name: playwright-report
+          ref: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+          path: legacy-base
+          fetch-depth: 0
+      - name: Install base dependencies
+        run: npm ci --no-audit --no-fund
+        working-directory: legacy-base
+      - name: Run base static contracts
+        continue-on-error: true
+        env:
+          STATIC_CONTRACT_REPORT: ${{ runner.temp }}/base-static.json
+        run: node tools/run-static-contracts.mjs "$GITHUB_WORKSPACE/legacy-base"
+      - name: Create empty browser report for the static-only comparison
+        run: echo '{"suites":[]}' > "$RUNNER_TEMP/empty-browser.json"
+      - name: Compare with PR base
+        run: node tools/compare-baseline-reports.mjs "$RUNNER_TEMP/base-static.json" "$RUNNER_TEMP/head-static.json" "$RUNNER_TEMP/empty-browser.json" "$RUNNER_TEMP/empty-browser.json"
+        shell: bash
+      - name: Require clean legacy contracts when legacy or shared source changed
+        if: needs.changes.outputs.source_legacy == 'true' || needs.changes.outputs.shared == 'true'
+        run: node tools/assert-static-clean.mjs "$RUNNER_TEMP/head-static.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: legacy-static-head-base
           path: |
-            playwright-report/
-            test-results/
+            ${{ runner.temp }}/head-static.json
+            ${{ runner.temp }}/base-static.json
           if-no-files-found: ignore
           retention-days: 14
 
-  collaboration:
-    name: Five-device collaboration simulation
+  legacy-browser:
+    name: Legacy / Browser
+    needs: changes
+    if: needs.changes.outputs.legacy == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Run legacy browser suite against PR head
+        continue-on-error: true
+        env:
+          MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/head-browser
+        run: npx playwright test --config apps/react/migration/legacy.playwright.config.mjs
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+          path: legacy-base
+          fetch-depth: 0
+      - name: Install base dependencies
+        run: npm ci --no-audit --no-fund
+        working-directory: legacy-base
+      - name: Run legacy browser suite against PR base
+        continue-on-error: true
+        env:
+          MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/base-browser
+        working-directory: legacy-base
+        run: npx playwright test --config apps/react/migration/legacy.playwright.config.mjs
+      - name: Compare browser failures against PR base
+        run: node tools/compare-browser-baseline.mjs "$RUNNER_TEMP/base-browser/legacy-browser-baseline.json" "$RUNNER_TEMP/head-browser/legacy-browser-baseline.json"
+      - name: Require clean legacy browser suite when legacy or shared source changed
+        if: needs.changes.outputs.source_legacy == 'true' || needs.changes.outputs.shared == 'true'
+        run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-browser/legacy-browser-baseline.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: legacy-browser-head-base
+          path: |
+            ${{ runner.temp }}/head-browser/
+            ${{ runner.temp }}/base-browser/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  legacy-collaboration:
+    name: Legacy / Five-device collaboration
+    needs: changes
+    if: needs.changes.outputs.legacy == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
     env:
       SANPO_TEST_FIREBASE_TARGET: offline
       SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
       SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npm run build:carbon
-      - name: Verify generated Carbon assets are committed
-        run: git diff --exit-code -- assets/vendor/carbon assets/vendor/ibm-plex
-      - run: npm run test:collab:full
+      - name: Run legacy collaboration simulations on PR head
+        continue-on-error: true
+        env:
+          COLLABORATION_REPORT: ${{ runner.temp }}/head-collaboration.json
+        run: node tools/run-collaboration-baseline.mjs "$GITHUB_WORKSPACE"
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+          path: legacy-base
+          fetch-depth: 0
+      - name: Install base dependencies
+        run: npm ci --no-audit --no-fund
+        working-directory: legacy-base
+      - name: Run legacy collaboration simulations on PR base
+        continue-on-error: true
+        env:
+          COLLABORATION_REPORT: ${{ runner.temp }}/base-collaboration.json
+        run: node tools/run-collaboration-baseline.mjs "$GITHUB_WORKSPACE/legacy-base"
+      - name: Compare collaboration failures against PR base
+        run: node tools/compare-collaboration-baseline.mjs "$RUNNER_TEMP/base-collaboration.json" "$RUNNER_TEMP/head-collaboration.json"
+      - name: Require clean collaboration suite when legacy or shared source changed
+        if: needs.changes.outputs.source_legacy == 'true' || needs.changes.outputs.shared == 'true'
+        run: node tools/assert-collaboration-clean.mjs "$RUNNER_TEMP/head-collaboration.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: legacy-collaboration-head-base
+          path: |
+            ${{ runner.temp }}/head-collaboration.json
+            ${{ runner.temp }}/base-collaboration.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  release-readiness:
+    name: Release / Readiness
+    if: always()
+    needs:
+      - changes
+      - react-build
+      - react-unit
+      - react-browser-chromium
+      - react-browser-webkit
+      - react-visual
+      - react-firebase
+      - shared-collaboration
+      - legacy-static
+      - legacy-browser
+      - legacy-collaboration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require relevant React, shared, and legacy checks
+        env:
+          REACT_NEEDED: ${{ needs.changes.outputs.react }}
+          SHARED_NEEDED: ${{ needs.changes.outputs.shared }}
+          LEGACY_NEEDED: ${{ needs.changes.outputs.legacy }}
+          REACT_BUILD: ${{ needs.react-build.result }}
+          REACT_UNIT: ${{ needs.react-unit.result }}
+          REACT_CHROMIUM: ${{ needs.react-browser-chromium.result }}
+          REACT_WEBKIT: ${{ needs.react-browser-webkit.result }}
+          REACT_VISUAL: ${{ needs.react-visual.result }}
+          REACT_FIREBASE: ${{ needs.react-firebase.result }}
+          SHARED_COLLAB: ${{ needs.shared-collaboration.result }}
+          LEGACY_STATIC: ${{ needs.legacy-static.result }}
+          LEGACY_BROWSER: ${{ needs.legacy-browser.result }}
+          LEGACY_COLLABORATION: ${{ needs.legacy-collaboration.result }}
+          CHANGE_RESULT: ${{ needs.changes.result }}
+        run: |
+          set -euo pipefail
+          test "$CHANGE_RESULT" = success
+          if [ "$REACT_NEEDED" = true ]; then
+            for result in "$REACT_BUILD" "$REACT_UNIT" "$REACT_CHROMIUM" "$REACT_WEBKIT" "$REACT_VISUAL"; do test "$result" = success; done
+          fi
+          if [ "$REACT_NEEDED" = true ] || [ "$SHARED_NEEDED" = true ]; then
+            test "$REACT_FIREBASE" = success
+            test "$SHARED_COLLAB" = success
+          fi
+          if [ "$LEGACY_NEEDED" = true ]; then
+            test "$LEGACY_STATIC" = success
+            test "$LEGACY_BROWSER" = success
+            test "$LEGACY_COLLABORATION" = success
+          fi
+          echo 'Relevant release checks passed; unchanged legacy baseline failures are compared on baseline jobs and do not block React-only releases.'

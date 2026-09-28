@@ -14,41 +14,45 @@ test.beforeEach(async ({ page }, testInfo) => {
   expect(horizontalOverflow).toBeLessThanOrEqual(1);
 });
 
-test('expense amounts reject negatives inline while zero saves without changing the total', async ({ page }) => {
-  const status = page.locator('.settlement-status-grid');
-  const originalStatus = (await status.innerText()).replace(/\s+/g, '');
-  await page.getByRole('button', { name: '費用を編集' }).first().click();
+test('expense editor rejects negative values and a zero-value row preserves settlement results', async ({ page }) => {
+  const firstCar = page.locator('.settlement-car').first();
+  const originalBreakdown = (await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, '');
+  await page.getByRole('button', { name: '費用を入力' }).first().click();
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('button', { name: '費用を追加' }).click();
-  const row = dialog.locator('.settlement-cost-editor-details').last();
-  await row.getByLabel('名目').fill('E2Eゼロ円');
-  const amount = row.getByRole('textbox', { name: '金額', exact: true });
+  await dialog.getByLabel('名目').fill('E2Eゼロ円');
+  const amount = dialog.getByRole('textbox', { name: '金額（円）', exact: true });
   await amount.fill('-250');
 
-  await expect(row.getByText('金額は0円以上で入力してください。')).toBeVisible();
-  await expect(dialog.getByRole('button', { name: '保存' })).toBeDisabled();
+  await expect(amount).toHaveAttribute('aria-invalid', 'true');
+  await expect(dialog.getByRole('button', { name: '費用を追加' })).toBeDisabled();
   await amount.fill('1000000000');
-  await expect(row.getByText('金額は0円以上で入力してください。')).toHaveCount(0);
+  await expect(amount).not.toHaveAttribute('aria-invalid', 'true');
   await amount.fill('0');
-  await expect(row.getByText('金額は0円以上で入力してください。')).toHaveCount(0);
-  await expect(dialog.getByRole('button', { name: '保存' })).toBeEnabled();
-  await dialog.getByRole('button', { name: '保存' }).click();
+  await expect(amount).not.toHaveAttribute('aria-invalid', 'true');
+  await expect(dialog.getByRole('button', { name: '費用を追加' })).toBeEnabled();
+  await dialog.getByRole('button', { name: '費用を追加' }).click();
+  await expect(dialog.locator('.settlement-cost-editor')).toBeVisible();
+  await dialog.getByRole('button', { name: '費用を保存' }).click();
 
-  expect((await status.innerText()).replace(/\s+/g, '')).toBe(originalStatus);
+  expect((await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, '')).toBe(originalBreakdown);
   await page.reload();
   await page.getByRole('tab', { name: '精算', exact: true }).click();
-  expect((await status.innerText()).replace(/\s+/g, '')).toBe(originalStatus);
-  await page.getByRole('button', { name: '費用を編集' }).first().click();
+  const reloadedCar = page.locator('.settlement-car').first();
+  expect((await reloadedCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, '')).toBe(originalBreakdown);
+  await page.getByRole('button', { name: '費用を入力' }).first().click();
   const reloadedDialog = page.getByRole('dialog');
-  await reloadedDialog.getByRole('button', { name: /E2Eゼロ円/ }).click();
-  await expect(reloadedDialog.getByRole('textbox', { name: '金額', exact: true })).toHaveValue('0');
+  await reloadedDialog.getByRole('button', { name: 'E2Eゼロ円の操作' }).click();
+  await page.getByRole('menuitem', { name: '編集', exact: true }).click();
+  await expect(reloadedDialog.getByRole('textbox', { name: '金額（円）', exact: true })).toHaveValue('0');
   await expect(reloadedDialog.getByLabel('名目')).toHaveValue('E2Eゼロ円');
 });
 
 test('movement distance, fuel economy, and unit price reject negatives inline', async ({ page }) => {
-  await page.getByRole('button', { name: '費用を編集' }).first().click();
+  await page.getByRole('button', { name: '費用を入力' }).first().click();
   const dialog = page.getByRole('dialog');
-  await dialog.locator('.settlement-cost-list-item').first().click();
+  await dialog.getByRole('button', { name: 'ガソリン代の操作' }).click();
+  await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
   const cases = [
     ['移動距離（km）', '-10'],
     ['燃費（km/L）', '-12'],
@@ -67,7 +71,7 @@ test('movement distance, fuel economy, and unit price reject negatives inline', 
   await distance.fill('132');
   await expect(dialog.getByRole('button', { name: 'ガソリン代を適用' })).toBeEnabled();
   await dialog.getByRole('button', { name: '戻る' }).click();
-  await expect(dialog.getByRole('button', { name: '保存' })).toBeEnabled();
+  await expect(dialog.getByRole('button', { name: '費用を保存' })).toBeEnabled();
   await dialog.getByRole('button', { name: 'キャンセル' }).click();
 });
 
