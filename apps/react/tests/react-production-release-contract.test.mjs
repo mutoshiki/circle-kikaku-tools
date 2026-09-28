@@ -37,6 +37,7 @@ test('React production Pages deployments are restricted to a verified main dispa
 });
 
 test('production Firebase smoke uses browser-origin auth and keeps its room marker guard', () => {
+  assert.match(smoke, /const baseURL = process\.env\.REACT_PRODUCTION_SMOKE_BASE_URL/);
   assert.match(smoke, /seedProductionSmokeRoom\(page/);
   assert.match(smoke, /cleanupProductionSmokeRoom\(page/);
   assert.doesNotMatch(smoke, /signInAnonymously|initializeApp\(config/);

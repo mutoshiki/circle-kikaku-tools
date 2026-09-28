@@ -4,6 +4,7 @@ import { cleanupProductionSmokeRoom, seedProductionSmokeRoom } from './firebase-
 
 const roomId = process.env.REACT_PRODUCTION_SMOKE_ROOM;
 const mode = process.env.REACT_PRODUCTION_SMOKE_MODE;
+const baseURL = process.env.REACT_PRODUCTION_SMOKE_BASE_URL || '';
 const smokeMarker = process.env.REACT_PRODUCTION_SMOKE_MARKER || '';
 const expectedBuildSha = process.env.REACT_PRODUCTION_BUILD_SHA || '';
 const expectedAssetDigest = process.env.REACT_PRODUCTION_ASSET_DIGEST || '';
