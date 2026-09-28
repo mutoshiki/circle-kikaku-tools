@@ -7,7 +7,15 @@ const mode = process.env.REACT_PRODUCTION_SMOKE_MODE;
 const smokeMarker = process.env.REACT_PRODUCTION_SMOKE_MARKER || '';
 const expectedBuildSha = process.env.REACT_PRODUCTION_BUILD_SHA || '';
 const expectedAssetDigest = process.env.REACT_PRODUCTION_ASSET_DIGEST || '';
-const config = JSON.parse(process.env.REACT_FIREBASE_CONFIG || '{}');
+const config = {
+  apiKey: process.env.REACT_FIREBASE_API_KEY || '',
+  authDomain: 'sanpokai-tool.firebaseapp.com',
+  databaseURL: 'https://sanpokai-tool-default-rtdb.firebaseio.com',
+  projectId: 'sanpokai-tool',
+  storageBucket: 'sanpokai-tool.firebasestorage.app',
+  messagingSenderId: '79505558920',
+  appId: '1:79505558920:web:3f9a9a333fc77de7a7fe3d',
+};
 const productionPath = mode === 'compatibility' ? '/circle-kikaku-tools/react/' : '/circle-kikaku-tools/';
 
 function assertProductionSmokeTarget() {

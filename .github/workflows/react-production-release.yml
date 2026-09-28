@@ -57,7 +57,7 @@ jobs:
       - name: Validate approved production config and Firebase Rules release gate
         shell: bash
         env:
-          REACT_FIREBASE_CONFIG: ${{ secrets.REACT_FIREBASE_CONFIG }}
+          REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
           REACT_MAPS_API_KEY: ${{ secrets.REACT_MAPS_API_KEY }}
           RULES_ROLLBACK_READY_SHA: ${{ vars.REACT_FIREBASE_RULES_ROLLBACK_READY_SHA }}
           RULES_RELEASE_SHA: ${{ vars.REACT_FIREBASE_RULES_RELEASE_SHA }}
@@ -66,12 +66,8 @@ jobs:
           test "$RULES_ROLLBACK_READY_SHA" = 'fa9daf4d07546800b5e7e5df6e52f5424b4f8d24'
           expected_rules="$(git rev-parse HEAD:firebase/database.rules.json)"
           test "$RULES_RELEASE_SHA" = "$expected_rules"
-          node --input-type=module -e '
-            const config = JSON.parse(process.env.REACT_FIREBASE_CONFIG || "{}");
-            if (config.projectId !== "sanpokai-tool" || config.databaseURL !== "https://sanpokai-tool-default-rtdb.firebaseio.com") throw new Error("Production Firebase target is not approved.");
-            if (!config.apiKey || config.authDomain !== "sanpokai-tool.firebaseapp.com" || !config.appId || !config.messagingSenderId) throw new Error("Production Firebase config is incomplete.");
-            if (!process.env.REACT_MAPS_API_KEY) throw new Error("The restricted Maps browser key is not configured.");
-          '
+          test -n "$REACT_FIREBASE_API_KEY"
+          test -n "$REACT_MAPS_API_KEY"
           echo "Production config and Rules SHA gates passed for $GITHUB_SHA. Values were not printed."
       - name: Install React dependencies
         working-directory: apps/react
@@ -82,12 +78,14 @@ jobs:
         env:
           VITE_BASE_PATH: ./
           VITE_REACT_SYNC_MODE: production
-          VITE_REACT_FIREBASE_CONFIG: ${{ secrets.REACT_FIREBASE_CONFIG }}
-          VITE_REACT_MAPS_API_KEY: ${{ secrets.REACT_MAPS_API_KEY }}
+          REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
+          REACT_MAPS_API_KEY: ${{ secrets.REACT_MAPS_API_KEY }}
           BUILD_SHA: ${{ github.sha }}
         shell: bash
         run: |
           set -euo pipefail
+          export VITE_REACT_FIREBASE_CONFIG="$(node --input-type=module -e 'process.stdout.write(JSON.stringify({ apiKey: process.env.REACT_FIREBASE_API_KEY, authDomain: "sanpokai-tool.firebaseapp.com", databaseURL: "https://sanpokai-tool-default-rtdb.firebaseio.com", projectId: "sanpokai-tool", storageBucket: "sanpokai-tool.firebasestorage.app", messagingSenderId: "79505558920", appId: "1:79505558920:web:3f9a9a333fc77de7a7fe3d" }))')"
+          export VITE_REACT_MAPS_API_KEY="$REACT_MAPS_API_KEY"
           npm run build
           asset_digest="$(cd dist && find . -type f ! -name release-build.json -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d ' ' -f 1)"
           printf '{"sourceSha":"%s","assetDigest":"%s"}\n' "$BUILD_SHA" "$asset_digest" > dist/release-build.json
@@ -170,7 +168,7 @@ jobs:
       REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
       REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
       REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
-      REACT_FIREBASE_CONFIG: ${{ secrets.REACT_FIREBASE_CONFIG }}
+      REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -200,7 +198,7 @@ jobs:
       REACT_PRODUCTION_RELEASE: 'true'
       REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
       REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
-      REACT_FIREBASE_CONFIG: ${{ secrets.REACT_FIREBASE_CONFIG }}
+      REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -251,7 +249,7 @@ jobs:
       REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
       REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
       REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
-      REACT_FIREBASE_CONFIG: ${{ secrets.REACT_FIREBASE_CONFIG }}
+      REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -280,7 +278,7 @@ jobs:
       REACT_PRODUCTION_RELEASE: 'true'
       REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
       REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
-      REACT_FIREBASE_CONFIG: ${{ secrets.REACT_FIREBASE_CONFIG }}
+      REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
     steps:
       - uses: actions/checkout@v6
         with:

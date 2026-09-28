@@ -3,7 +3,11 @@ import { cleanupProductionSmokeRoom } from '../tests/production/firebase-smoke-r
 
 const roomId = process.env.REACT_PRODUCTION_SMOKE_ROOM || '';
 const marker = process.env.REACT_PRODUCTION_SMOKE_MARKER || '';
-const config = JSON.parse(process.env.REACT_FIREBASE_CONFIG || '{}');
+const config = {
+  apiKey: process.env.REACT_FIREBASE_API_KEY || '',
+  projectId: 'sanpokai-tool',
+  databaseURL: 'https://sanpokai-tool-default-rtdb.firebaseio.com',
+};
 if (process.env.REACT_PRODUCTION_RELEASE !== 'true'
   || roomId !== 'P9A93LMQ'
   || !/^react-release-\d+-\d+$/.test(marker)

@@ -45,7 +45,7 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.match(roomHelper, /Reserved smoke room contains unmarked data; no data was changed/);
   assert.match(cleanup, /chromium\.launch/);
   for (const name of ['prepare', 'compatibility-smoke', 'compatibility-cleanup', 'root-smoke', 'root-cleanup']) {
-    assert.match(job(name), /secrets\.REACT_FIREBASE_CONFIG/);
+    assert.match(job(name), /secrets\.REACT_FIREBASE_API_KEY/);
   }
   assert.match(job('prepare'), /secrets\.REACT_MAPS_API_KEY/);
 });

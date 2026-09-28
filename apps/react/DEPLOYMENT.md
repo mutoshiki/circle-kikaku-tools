@@ -22,7 +22,7 @@ The root `npm test` command runs React unit tests, and `npm run test:guard` runs
 3. The workflow deploys compatibility first and runs real Chromium and WebKit smoke tests against `/react/`. It verifies the deployed build manifest matches the exact build SHA/digest, Firebase read/write/reload using only reserved smoke room `P9A93LMQ`, real Maps/Places/Routes requests, key app views, expense/gas dialogs, and legacy read compatibility. Firebase smoke-room setup and cleanup run from a browser page on the production origin so Firebase Auth receives the allowed referrer. It stops without writing if the room contains unmarked data, removes only marked smoke data, and verifies a null readback.
 4. Only a successful compatibility smoke allows React root cutover. The workflow then repeats smoke tests at `/`. If root smoke fails after cutover, the workflow automatically deploys the pinned legacy rollback artifact.
 
-Production Firebase config and the restricted Maps browser key are repository Actions secrets so workflow logs mask their values. Released Rules SHA, rollback-ready Rules SHA, and the reserved smoke room are repository Actions variables. Values are validated without printing them. No ordinary room is used by the smoke test.
+The production Firebase web API key and restricted Maps browser key are repository Actions secrets so workflow logs mask their values. The remaining Firebase web config fields are fixed release constants. Released Rules SHA, rollback-ready Rules SHA, and the reserved smoke room are repository Actions variables. Values are validated without printing them. No ordinary room is used by the smoke test.
 
 ## Manual rollback
 
