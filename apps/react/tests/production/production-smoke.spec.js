@@ -122,6 +122,16 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     expect(consoleErrorCount).toBe(0);
     expect(forbiddenResponses).toEqual([]);
   } finally {
-    if (roomSeeded && !page.isClosed()) await cleanupProductionSmokeRoom(page, { config, roomId, marker: smokeMarker });
+    if (roomSeeded) {
+      const context = page.context();
+      if (!page.isClosed()) await page.close();
+      const cleanupPage = await context.newPage();
+      try {
+        await cleanupPage.goto('https://mutoshiki.github.io/circle-kikaku-tools/', { waitUntil: 'domcontentloaded' });
+        await cleanupProductionSmokeRoom(cleanupPage, { config, roomId, marker: smokeMarker });
+      } finally {
+        await cleanupPage.close();
+      }
+    }
   }
 });

@@ -17,7 +17,12 @@ async function withFetch(handler, run) {
 }
 
 function evaluatePage() {
-  return { evaluate: (callback, options) => callback(options) };
+  return {
+    evaluate: (callback, options) => {
+      const isolatedCallback = new Function(`return (${callback.toString()})`)();
+      return isolatedCallback(options);
+    },
+  };
 }
 
 function jsonResponse(body, status = 200) {
