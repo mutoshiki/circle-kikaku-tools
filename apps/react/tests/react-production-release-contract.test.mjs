@@ -2,8 +2,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-const workflow = readFileSync(new URL('../../../.github/workflows/react-production-release.yml', import.meta.url), 'utf8');
-const ciWorkflow = readFileSync(new URL('../../../.github/workflows/quality-guard.yml', import.meta.url), 'utf8');
+const workflow = readFileSync(new URL('../../../.github/workflows/react-production-release.yml', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+const ciWorkflow = readFileSync(new URL('../../../.github/workflows/quality-guard.yml', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+const smoke = readFileSync(new URL('./production/production-smoke.spec.js', import.meta.url), 'utf8');
+const roomHelper = readFileSync(new URL('./production/firebase-smoke-room.mjs', import.meta.url), 'utf8');
+const cleanup = readFileSync(new URL('../tools/cleanup-production-smoke.mjs', import.meta.url), 'utf8');
 
 function job(name) {
   const start = workflow.indexOf(`\n  ${name}:\n`);
@@ -31,4 +34,18 @@ test('React production Pages deployments are restricted to a verified main dispa
     assert.match(ciWorkflow, new RegExp(`Require every React ${browser} test to pass on the PR head`));
   }
   assert.doesNotMatch(ciWorkflow, /Run the same React .* suite on exact PR base/);
+});
+
+test('production Firebase smoke uses browser-origin auth and keeps its room marker guard', () => {
+  assert.match(smoke, /seedProductionSmokeRoom\(page/);
+  assert.match(smoke, /cleanupProductionSmokeRoom\(page/);
+  assert.doesNotMatch(smoke, /signInAnonymously|initializeApp\(config/);
+  assert.match(roomHelper, /referrerPolicy: 'origin'/);
+  assert.match(roomHelper, /existingMarker !== marker/);
+  assert.match(roomHelper, /Reserved smoke room contains unmarked data; no data was changed/);
+  assert.match(cleanup, /chromium\.launch/);
+  for (const name of ['prepare', 'compatibility-smoke', 'compatibility-cleanup', 'root-smoke', 'root-cleanup']) {
+    assert.match(job(name), /secrets\.REACT_FIREBASE_CONFIG/);
+  }
+  assert.match(job('prepare'), /secrets\.REACT_MAPS_API_KEY/);
 });

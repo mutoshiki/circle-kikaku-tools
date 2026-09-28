@@ -57,8 +57,8 @@ jobs:
       - name: Validate approved production config and Firebase Rules release gate
         shell: bash
         env:
-          REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
-          REACT_MAPS_API_KEY: ${{ vars.REACT_MAPS_API_KEY }}
+          REACT_FIREBASE_CONFIG: ${{ secrets.REACT_FIREBASE_CONFIG }}
+          REACT_MAPS_API_KEY: ${{ secrets.REACT_MAPS_API_KEY }}
           RULES_ROLLBACK_READY_SHA: ${{ vars.REACT_FIREBASE_RULES_ROLLBACK_READY_SHA }}
           RULES_RELEASE_SHA: ${{ vars.REACT_FIREBASE_RULES_RELEASE_SHA }}
         run: |
@@ -82,8 +82,8 @@ jobs:
         env:
           VITE_BASE_PATH: ./
           VITE_REACT_SYNC_MODE: production
-          VITE_REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
-          VITE_REACT_MAPS_API_KEY: ${{ vars.REACT_MAPS_API_KEY }}
+          VITE_REACT_FIREBASE_CONFIG: ${{ secrets.REACT_FIREBASE_CONFIG }}
+          VITE_REACT_MAPS_API_KEY: ${{ secrets.REACT_MAPS_API_KEY }}
           BUILD_SHA: ${{ github.sha }}
         shell: bash
         run: |
@@ -170,7 +170,7 @@ jobs:
       REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
       REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
       REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
-      REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
+      REACT_FIREBASE_CONFIG: ${{ secrets.REACT_FIREBASE_CONFIG }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -192,6 +192,7 @@ jobs:
 
   compatibility-cleanup:
     name: Release / Compatibility smoke-room cleanup
+    timeout-minutes: 15
     if: always() && needs.compatibility-deploy.result == 'success'
     needs: [compatibility-deploy, compatibility-smoke]
     runs-on: ubuntu-latest
@@ -199,7 +200,7 @@ jobs:
       REACT_PRODUCTION_RELEASE: 'true'
       REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
       REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
-      REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
+      REACT_FIREBASE_CONFIG: ${{ secrets.REACT_FIREBASE_CONFIG }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -211,6 +212,9 @@ jobs:
           cache-dependency-path: apps/react/package-lock.json
       - run: npm ci --no-audit --no-fund
         working-directory: apps/react
+      - name: Install Chromium for browser-origin cleanup
+        working-directory: apps/react
+        run: npx playwright install --with-deps chromium
       - name: Remove only this run's marked smoke room and verify null
         working-directory: apps/react
         run: node tools/cleanup-production-smoke.mjs
@@ -247,7 +251,7 @@ jobs:
       REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
       REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
       REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
-      REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
+      REACT_FIREBASE_CONFIG: ${{ secrets.REACT_FIREBASE_CONFIG }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -276,7 +280,7 @@ jobs:
       REACT_PRODUCTION_RELEASE: 'true'
       REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
       REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
-      REACT_FIREBASE_CONFIG: ${{ vars.REACT_FIREBASE_CONFIG }}
+      REACT_FIREBASE_CONFIG: ${{ secrets.REACT_FIREBASE_CONFIG }}
     steps:
       - uses: actions/checkout@v6
         with:
