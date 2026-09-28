@@ -10,6 +10,7 @@
     "preview": "vite preview --host 127.0.0.1 --port 4174 --strictPort",
     "test": "node tools/assert-test-target.mjs offline && node --test tests/*.test.mjs",
     "test:browser": "node tools/assert-test-target.mjs offline && playwright test",
+    "test:browser:emulator": "node tools/assert-test-target.mjs emulator && playwright test --config playwright.emulator.config.js",
     "test:emulator": "node tools/assert-test-target.mjs emulator && node --test tests/emulator/*.test.mjs",
     "test:baseline": "node tools/assert-test-target.mjs offline && node tools/baseline.mjs",
     "verify:legacy": "node tools/protected-files.mjs",

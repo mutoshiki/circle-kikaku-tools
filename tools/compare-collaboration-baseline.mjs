@@ -1,0 +1,14 @@
+import { readFileSync } from 'node:fs';
+const [basePath, headPath] = process.argv.slice(2);
+if (!basePath || !headPath) throw new Error('Usage: node tools/compare-collaboration-baseline.mjs <base-report> <head-report>');
+const base = JSON.parse(readFileSync(basePath, 'utf8'));
+const head = JSON.parse(readFileSync(headPath, 'utf8'));
+const key = result => result.failures || (result.exitCode === 0 ? [] : [`${result.script} :: unreported failing case`]);
+const baseFailures = base.flatMap(key);
+const headFailures = head.flatMap(key);
+const baseSet = new Set(baseFailures);
+const headSet = new Set(headFailures);
+const newFailures = [...headSet].filter(failure => !baseSet.has(failure));
+const resolvedFailures = [...baseSet].filter(failure => !headSet.has(failure));
+process.stdout.write(JSON.stringify({ baselineFailureIds: [...baseSet], headFailureIds: [...headSet], newFailureIds: newFailures, resolvedFailureIds: resolvedFailures }, null, 2) + '\n');
+if (newFailures.length) process.exitCode = 1;
