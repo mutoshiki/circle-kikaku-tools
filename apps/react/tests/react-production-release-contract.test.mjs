@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const workflow = readFileSync(new URL('../../../.github/workflows/react-production-release.yml', import.meta.url), 'utf8');
+const ciWorkflow = readFileSync(new URL('../../../.github/workflows/quality-guard.yml', import.meta.url), 'utf8');
 
 function job(name) {
   const start = workflow.indexOf(`\n  ${name}:\n`);
@@ -25,4 +26,9 @@ test('React production Pages deployments are restricted to a verified main dispa
   assert.match(job('compatibility-deploy'), /artifact_name:\s*github-pages-compatibility/);
   assert.match(job('root-deploy'), /artifact_name:\s*github-pages-react-root/);
   assert.match(job('prepare'), /Build React app once for both deployment paths/);
+
+  for (const browser of ['Chromium', 'WebKit', 'visual and layout']) {
+    assert.match(ciWorkflow, new RegExp(`Require every React ${browser} test to pass on the PR head`));
+  }
+  assert.doesNotMatch(ciWorkflow, /Run the same React .* suite on exact PR base/);
 });

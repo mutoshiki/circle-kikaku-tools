@@ -109,36 +109,13 @@ jobs:
           MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/head-react-chromium
         run: npm run test:browser -- --project chromium-desktop --project chromium-mobile
         working-directory: apps/react
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
-          path: react-base
-          fetch-depth: 0
-      - run: npm ci --no-audit --no-fund
-        working-directory: react-base/apps/react
-      - run: npx playwright install chromium
-        working-directory: react-base/apps/react
-      - name: Run the same React Chromium suite on exact PR base
-        continue-on-error: true
-        env:
-          SANPO_TEST_FIREBASE_TARGET: offline
-          SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
-          SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
-          MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/base-react-chromium
-        run: npm run test:browser -- --project chromium-desktop --project chromium-mobile
-        working-directory: react-base/apps/react
-      - name: Compare React Chromium failure IDs with the exact PR base
-        run: node tools/compare-browser-baseline.mjs "$RUNNER_TEMP/base-react-chromium/react-browser.json" "$RUNNER_TEMP/head-react-chromium/react-browser.json"
-        shell: bash
       - name: Require every React Chromium test to pass on the PR head
         run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-chromium/react-browser.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: react-browser-chromium-head-base
-          path: |
-            ${{ runner.temp }}/head-react-chromium/react-browser.json
-            ${{ runner.temp }}/base-react-chromium/react-browser.json
+          name: react-browser-chromium-head
+          path: ${{ runner.temp }}/head-react-chromium/react-browser.json
           if-no-files-found: ignore
           retention-days: 14
 
@@ -169,36 +146,13 @@ jobs:
           MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/head-react-webkit
         run: npm run test:browser -- --project webkit-mobile
         working-directory: apps/react
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
-          path: react-base
-          fetch-depth: 0
-      - run: npm ci --no-audit --no-fund
-        working-directory: react-base/apps/react
-      - run: npx playwright install webkit
-        working-directory: react-base/apps/react
-      - name: Run the same React WebKit suite on exact PR base
-        continue-on-error: true
-        env:
-          SANPO_TEST_FIREBASE_TARGET: offline
-          SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
-          SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
-          MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/base-react-webkit
-        run: npm run test:browser -- --project webkit-mobile
-        working-directory: react-base/apps/react
-      - name: Compare React WebKit failure IDs with the exact PR base
-        run: node tools/compare-browser-baseline.mjs "$RUNNER_TEMP/base-react-webkit/react-browser.json" "$RUNNER_TEMP/head-react-webkit/react-browser.json"
-        shell: bash
       - name: Require every React WebKit test to pass on the PR head
         run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-webkit/react-browser.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: react-browser-webkit-head-base
-          path: |
-            ${{ runner.temp }}/head-react-webkit/react-browser.json
-            ${{ runner.temp }}/base-react-webkit/react-browser.json
+          name: react-browser-webkit-head
+          path: ${{ runner.temp }}/head-react-webkit/react-browser.json
           if-no-files-found: ignore
           retention-days: 14
 
@@ -229,36 +183,13 @@ jobs:
           MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/head-react-visual
         run: npm run test:browser -- tests/browser/visual-consistency.spec.js --project chromium-desktop --project chromium-mobile
         working-directory: apps/react
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
-          path: react-base
-          fetch-depth: 0
-      - run: npm ci --no-audit --no-fund
-        working-directory: react-base/apps/react
-      - run: npx playwright install chromium
-        working-directory: react-base/apps/react
-      - name: Run the same React visual and layout suite on exact PR base
-        continue-on-error: true
-        env:
-          SANPO_TEST_FIREBASE_TARGET: offline
-          SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
-          SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
-          MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/base-react-visual
-        run: npm run test:browser -- tests/browser/visual-consistency.spec.js --project chromium-desktop --project chromium-mobile
-        working-directory: react-base/apps/react
-      - name: Compare React visual failure IDs with the exact PR base
-        run: node tools/compare-browser-baseline.mjs "$RUNNER_TEMP/base-react-visual/react-browser.json" "$RUNNER_TEMP/head-react-visual/react-browser.json"
-        shell: bash
       - name: Require every React visual and layout test to pass on the PR head
         run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-visual/react-browser.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: react-visual-head-base
-          path: |
-            ${{ runner.temp }}/head-react-visual/react-browser.json
-            ${{ runner.temp }}/base-react-visual/react-browser.json
+          name: react-visual-head
+          path: ${{ runner.temp }}/head-react-visual/react-browser.json
           if-no-files-found: ignore
           retention-days: 14
 
