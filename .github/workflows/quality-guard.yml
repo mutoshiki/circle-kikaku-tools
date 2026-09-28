@@ -127,9 +127,11 @@ jobs:
           MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/base-react-chromium
         run: npm run test:browser -- --project chromium-desktop --project chromium-mobile
         working-directory: react-base/apps/react
-      - name: Block only new React test IDs; preserve unchanged failures as maintenance signal
+      - name: Compare React Chromium failure IDs with the exact PR base
         run: node tools/compare-browser-baseline.mjs "$RUNNER_TEMP/base-react-chromium/react-browser.json" "$RUNNER_TEMP/head-react-chromium/react-browser.json"
         shell: bash
+      - name: Require every React Chromium test to pass on the PR head
+        run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-chromium/react-browser.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -185,9 +187,11 @@ jobs:
           MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/base-react-webkit
         run: npm run test:browser -- --project webkit-mobile
         working-directory: react-base/apps/react
-      - name: Block only new React test IDs; preserve unchanged failures as maintenance signal
+      - name: Compare React WebKit failure IDs with the exact PR base
         run: node tools/compare-browser-baseline.mjs "$RUNNER_TEMP/base-react-webkit/react-browser.json" "$RUNNER_TEMP/head-react-webkit/react-browser.json"
         shell: bash
+      - name: Require every React WebKit test to pass on the PR head
+        run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-webkit/react-browser.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -243,9 +247,11 @@ jobs:
           MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/base-react-visual
         run: npm run test:browser -- tests/browser/visual-consistency.spec.js --project chromium-desktop --project chromium-mobile
         working-directory: react-base/apps/react
-      - name: Block only new React visual test IDs; preserve unchanged failures as maintenance signal
+      - name: Compare React visual failure IDs with the exact PR base
         run: node tools/compare-browser-baseline.mjs "$RUNNER_TEMP/base-react-visual/react-browser.json" "$RUNNER_TEMP/head-react-visual/react-browser.json"
         shell: bash
+      - name: Require every React visual and layout test to pass on the PR head
+        run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-visual/react-browser.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

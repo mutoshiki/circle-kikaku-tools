@@ -9,6 +9,6 @@ const visit = suite => {
 };
 for (const suite of report.suites || []) visit(suite);
 if (failed.length) {
-  process.stderr.write(`Legacy browser tests failed after legacy/shared source changes:\n${failed.join('\n')}\n`);
+  process.stderr.write(`Browser tests failed:\n${failed.join('\n')}\n`);
   process.exitCode = 1;
 }

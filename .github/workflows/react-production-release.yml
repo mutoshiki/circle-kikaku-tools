@@ -140,6 +140,7 @@ jobs:
 
   compatibility-deploy:
     name: Release / Deploy compatibility at /react/
+    if: github.ref == 'refs/heads/main'
     needs: prepare
     runs-on: ubuntu-latest
     permissions:
@@ -216,6 +217,7 @@ jobs:
 
   root-deploy:
     name: Release / Cut over root to React
+    if: github.ref == 'refs/heads/main'
     needs: [prepare, compatibility-smoke, compatibility-cleanup]
     runs-on: ubuntu-latest
     permissions:
@@ -292,7 +294,7 @@ jobs:
 
   rollback:
     name: Release / Restore pinned legacy root after failed root smoke
-    if: always() && needs.root-deploy.result == 'success' && (needs.root-smoke.result == 'failure' || needs.root-cleanup.result == 'failure')
+    if: github.ref == 'refs/heads/main' && always() && needs.root-deploy.result == 'success' && (needs.root-smoke.result == 'failure' || needs.root-cleanup.result == 'failure')
     needs: [prepare, root-deploy, root-smoke, root-cleanup]
     runs-on: ubuntu-latest
     permissions:
