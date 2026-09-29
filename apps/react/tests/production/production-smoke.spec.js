@@ -87,6 +87,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
     await editor.getByRole('button', { name: 'ルートから距離を計算' }).click();
     const routeModal = page.getByRole('dialog', { name: /仮参加者A/ });
+    await routeModal.getByRole('button', { name: /出発地を追加/ }).click();
     const search = routeModal.getByRole('searchbox', { name: '場所を検索' });
     await search.fill('東京駅');
     await expect(routeModal.locator('.route-place-results')).toBeVisible();
