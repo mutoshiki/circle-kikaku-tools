@@ -1,3 +1,5 @@
+import { prepareCompatibleUrl } from '../services/url-compat.js';
+
 export const PROJECT_SECTIONS = Object.freeze([
   'overview',
   'participants',
@@ -32,6 +34,23 @@ export function createProjectSectionUrl(href, section) {
   url.searchParams.delete('allocation');
   url.hash = '';
   return url.toString();
+}
+
+export function prepareProjectLaunch(options) {
+  const requestedUrl = new URL(options.location.href);
+  const initialSection = readProjectSection(requestedUrl.href);
+  const launch = prepareCompatibleUrl(options);
+  const removedLegacySection = requestedUrl.searchParams.get('view') === 'sheet' || requestedUrl.searchParams.has('allocation');
+  if (!removedLegacySection) return { ...launch, initialSection };
+
+  const href = createProjectSectionUrl(launch.href, initialSection);
+  const canonical = new URL(href);
+  const next = `${canonical.pathname}${canonical.search}${canonical.hash}`;
+  const current = new URL(options.location.href);
+  if (`${current.pathname}${current.search}${current.hash}` !== next) {
+    options.history.replaceState(options.history.state || null, '', next);
+  }
+  return { ...launch, href, initialSection };
 }
 
 export function createProjectNavigation({ location, history, eventTarget }) {

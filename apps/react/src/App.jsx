@@ -83,7 +83,7 @@ export default function App({ runtime }) {
     if (section === 'history-settings') return {
       title: '履歴と設定', description: '企画の復元ポイントと共通設定を管理します。',
       metadata: [{ label: '保存済み履歴', value: `${runtime.history.read().length}件` }, ...sync],
-      actions: <Button renderIcon={Time} onClick={() => setGlobalModal('history')}>履歴を開く</Button>,
+      actions: <Button kind="tertiary" renderIcon={Time} onClick={() => setGlobalModal('history')}>履歴を開く</Button>,
       content: <ProjectHistorySettings />,
     };
     const projection = runtime.store.domain.canonical.projectAllocation(room, 'car');

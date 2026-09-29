@@ -1,6 +1,6 @@
 # Carbon pattern selection for 山歩会企画ツール
 
-Status: normative pattern-selection reference v1.0 (effective 2026-09-29)  
+Status: normative pattern-selection reference v1.0 (effective 2026-09-29)
 Research snapshot: 2026-09-29
 
 Contract role: user taskからsurface / interaction patternを選ぶための共通判断基準。本書は個別画面のtarget structureを所有せず、[SANPOKAI_PRODUCT_UI.md](./SANPOKAI_PRODUCT_UI.md) のproduct-specific ruleを補足する。現行UIの事実は [CURRENT_UI_AUDIT.md](./CURRENT_UI_AUDIT.md)、実装順序は [CARBON_MIGRATION_ROADMAP.md](./CARBON_MIGRATION_ROADMAP.md) を参照する。

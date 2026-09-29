@@ -1,7 +1,7 @@
 # 山歩会企画ツール Product UI specification
 
-Status: normative product UI specification v1.0 (effective 2026-09-29)  
-Research snapshot: 2026-09-29  
+Status: normative product UI specification v1.0 (effective 2026-09-29)
+Research snapshot: 2026-09-29
 Design basis: [CARBON_PRODUCT_PRINCIPLES.md](./CARBON_PRODUCT_PRINCIPLES.md) / [CARBON_PATTERNS.md](./CARBON_PATTERNS.md)
 
 Contract role: 山歩会企画ツール固有の唯一のnormative product UI specification。Phase B以降のtarget IA、workflow、interaction、content、responsive behaviorとUI PRのminimum review gateを所有する。
@@ -106,6 +106,9 @@ UIはこのlifecycleを反映する。domain objectと保存schemaは現行互�
 - global headerはpage primary actionを所有しない。
 - sync errorをToastだけにしない。
 - theme切替は現行g10/g100 token contractを維持する。
+- `room`だけを含む共有URLの既定着地は**概要**とする。現在のsectionはcanonicalな`section` queryで表し、明示されたdeep linkはrefresh、browser back / forward後も同じsectionへ復帰しなければならない。
+- 旧`view=participants`、`view=sheet&allocation=*`、`view=seisan`は対応する新sectionへ受け入れるが、新しいnavigation後のURLからlegacy presentation parameterを除く。
+- client-side section change後はpage `h1`へfocusを移す。初回表示では閲覧開始位置を奪わない。
 
 ## 4. Page layout and header
 

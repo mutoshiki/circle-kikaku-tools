@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createMemoryStorage, createHistoryService } from '../src/services/history.js';
-import { prepareCompatibleUrl, createProjectSectionUrl, createShareUrl, tokenStorageKey } from '../src/services/url-compat.js';
+import { prepareCompatibleUrl, createShareUrl, tokenStorageKey } from '../src/services/url-compat.js';
+import { createProjectSectionUrl, prepareProjectLaunch } from '../src/navigation/project-navigation.js';
 import { createProjectDomain } from '../src/services/project-domain.js';
 import { createDomain } from '../src/domain/index.js';
 
@@ -11,18 +12,18 @@ test('overview draft remains local until explicit shared save', () => {
   const storage = createMemoryStorage();
   const history = { calls: [], replaceState(...args) { this.calls.push(args); } };
   const location = { href: 'https://example.test/react/?room=ROOM-A&view=sheet&allocation=car' };
-  const url = prepareCompatibleUrl({ location, history, storage, crypto: { randomUUID: () => 'abcd-1234' } });
+  const url = prepareProjectLaunch({ location, history, storage, crypto: { randomUUID: () => 'abcd-1234' } });
   assert.equal(url.roomId, 'ROOM-A');
   assert.equal(url.initialView, 1);
   assert.equal(url.initialSection, 'organization-car');
-  assert.equal(new URL(url.href).search, '?room=ROOM-A');
+  assert.equal(new URL(url.href).search, '?room=ROOM-A&section=organization-car');
   assert.equal(createShareUrl(url.href), 'https://example.test/react/?room=ROOM-A');
 });
 
 test('project sections use stable URLs while preserving inbound legacy links', () => {
   const storage = createMemoryStorage();
   const crypto = { randomUUID: () => 'unused' };
-  const launch = href => prepareCompatibleUrl({
+  const launch = href => prepareProjectLaunch({
     location: { href },
     history: { state: null, replaceState() {} },
     storage,

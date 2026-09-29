@@ -10,7 +10,6 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/?room=ALLOCATION-RC');
   await navigateToProjectSection(page, '参加者');
-  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
   await page.getByRole('button', { name: '追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者登録' });
   await expect(registration).toBeVisible();
@@ -99,7 +98,9 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await expect(car).toContainText('日本語のメモ');
   for (const theme of ['g10', 'g100']) {
     if (theme === 'g100') { await page.getByRole('button', { name: 'ユーティリティメニュー' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click(); }
+    await navigateToProjectSection(page, '概要');
     await expect(page.getByRole('textbox', { name: '企画名' })).toHaveCSS('background-color', theme === 'g100' ? 'rgb(38, 38, 38)' : 'rgb(255, 255, 255)');
+    await navigateToProjectSection(page, '車割');
     const geometry = await page.evaluate(() => ({ width: innerWidth, scrollWidth: document.documentElement.scrollWidth, overflow: [...document.querySelectorAll('body *')].map(node => ({ tag: node.tagName, className: String(node.className), text: node.textContent?.slice(0, 60), x: node.getBoundingClientRect().x, right: node.getBoundingClientRect().right, width: node.getBoundingClientRect().width, position: getComputedStyle(node).position })).filter(node => node.width > 0 && node.right > innerWidth + 1).slice(0, 30) }));
     await testInfo.attach(`geometry-${theme}`, { body: JSON.stringify(geometry, null, 2), contentType: 'application/json' });
     expect(geometry.scrollWidth, JSON.stringify(geometry)).toBeLessThanOrEqual(geometry.width);
@@ -117,7 +118,7 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
 
 test('Google Forms spreadsheet paste registration remains available', async ({ page }) => {
   await page.goto('/?room=ALLOCATION-FORM-PASTE-RC');
-  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  await navigateToProjectSection(page, '参加者');
   await page.getByRole('button', { name: '追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者登録' });
   await registration.getByRole('textbox', { name: 'Googleフォームの回答を貼り付け', exact: true }).fill('氏名\t学年\t車出し\nフォーム参加者A\t3\t可\nフォーム参加者B\t2\tいいえ');
@@ -131,7 +132,7 @@ test('Google Forms spreadsheet paste registration remains available', async ({ p
 test('manual registration accepts names entered only in driver and grade fields', async ({ page }) => {
   const roomId = 'ALLOCATION-METADATA-ONLY-RC';
   await page.goto(`/?room=${roomId}`);
-  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  await navigateToProjectSection(page, '参加者');
   await page.getByRole('button', { name: '追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者登録' });
   await registration.getByRole('textbox', { name: '車出し可能な参加者', exact: true }).fill('車出し欄だけの人');

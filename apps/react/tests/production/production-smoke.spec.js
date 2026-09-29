@@ -19,6 +19,7 @@ const config = {
   appId: '1:79505558920:web:3f9a9a333fc77de7a7fe3d',
 };
 const productionPath = mode === 'compatibility' ? '/circle-kikaku-tools/react/' : '/circle-kikaku-tools/';
+const syncComplete = page => page.getByRole('definition').filter({ hasText: /^同期完了$/ });
 
 function assertProductionSmokeTarget() {
   if (process.env.REACT_PRODUCTION_RELEASE !== 'true'
@@ -53,7 +54,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     initial.roomName = smokeMarker;
     await page.goto(baseURL);
     await expect(page.locator('.application')).toBeVisible();
-    await expect(page.locator('.sync-status')).toHaveText('同期完了');
+    await expect(syncComplete(page)).toBeVisible();
     await seedProductionSmokeRoom(page, { config, roomId, marker: smokeMarker, data: initial });
     roomSeeded = true;
     await page.goto(`${baseURL}?room=${roomId}&view=participants`);
@@ -65,13 +66,13 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     });
     expect(buildManifest).toEqual({ sourceSha: expectedBuildSha, assetDigest: expectedAssetDigest });
     await expect(page.locator('.application')).toBeVisible();
-    await expect(page.locator('.sync-status')).toHaveText('同期完了');
+    await expect(syncComplete(page)).toBeVisible();
     await navigateToProjectSection(page, '概要');
     const projectName = page.getByRole('textbox', { name: '企画名' });
     const updatedSmokeMarker = `${smokeMarker}-updated`;
     await projectName.fill(updatedSmokeMarker);
     await projectName.press('Tab');
-    await expect(page.locator('.sync-status')).toHaveText('同期完了');
+    await expect(syncComplete(page)).toBeVisible();
 
     await navigateToProjectSection(page, '車割');
     await expect(page.getByRole('heading', { level: 1, name: '車割', exact: true })).toBeVisible();
@@ -108,12 +109,12 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
     await editor.getByRole('button', { name: '費用を保存' }).click();
     await expect(editor).toHaveCount(0);
-    await expect(page.locator('.sync-status')).toHaveText('同期完了');
+    await expect(syncComplete(page)).toBeVisible();
 
     await page.reload();
     await navigateToProjectSection(page, '概要');
     await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(updatedSmokeMarker);
-    await expect(page.locator('.sync-status')).toHaveText('同期完了');
+    await expect(syncComplete(page)).toBeVisible();
 
     if (mode === 'compatibility') {
       const legacyUrl = new URL('/circle-kikaku-tools/', 'https://mutoshiki.github.io');

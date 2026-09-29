@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 import { fixture, createReference } from '../reference.mjs';
 import { navigateToProjectSection } from '../browser/project-navigation.js';
 
+const syncComplete = page => page.getByRole('definition').filter({ hasText: /^同期完了$/ });
+
 test('two real browsers save through Emulator; an active Japanese draft survives remote rename', async ({ browser, request }, testInfo) => {
   const roomId = `RCBROWSER${testInfo.project.name.startsWith('webkit') ? 'WK' : 'CH'}`;
   const adminUrl = `http://127.0.0.1:9008/rooms/${roomId}.json?ns=demo-circle-react-default-rtdb`;
@@ -15,8 +17,8 @@ test('two real browsers save through Emulator; an active Japanese draft survives
     const errors = [];
     for (const page of [pageA, pageB]) page.on('pageerror', error => errors.push(error.message));
     await Promise.all([pageA.goto(`http://127.0.0.1:4175/?room=${roomId}`), pageB.goto(`http://127.0.0.1:4175/?room=${roomId}`)]);
-    await expect(pageA.locator('.sync-status')).toHaveText('同期完了');
-    await expect(pageB.locator('.sync-status')).toHaveText('同期完了');
+    await expect(syncComplete(pageA)).toBeVisible();
+    await expect(syncComplete(pageB)).toBeVisible();
     const fieldA = pageA.getByRole('textbox', { name: '企画名' });
     const fieldB = pageB.getByRole('textbox', { name: '企画名' });
     await fieldB.focus();
@@ -24,13 +26,14 @@ test('two real browsers save through Emulator; an active Japanese draft survives
     await fieldB.fill('にほんご編集中');
     await fieldA.fill('別端末で変更');
     await navigateToProjectSection(pageA, '参加者');
-    await expect(pageA.locator('.sync-status')).toHaveText('同期完了');
+    await expect(syncComplete(pageA)).toBeVisible();
     await expect.poll(async () => (await (await request.get(adminUrl, { headers: { Authorization: 'Bearer owner' } })).json()).roomName).toBe('別端末で変更');
     await expect(fieldB).toHaveValue('にほんご編集中');
     await fieldB.dispatchEvent('compositionend', { data: '日本語で確定' });
     await fieldB.fill('日本語で確定');
     await navigateToProjectSection(pageB, '参加者');
-    await expect(fieldA).toHaveValue('日本語で確定');
+    await navigateToProjectSection(pageA, '概要');
+    await expect(pageA.getByRole('textbox', { name: '企画名' })).toHaveValue('日本語で確定');
     const saved = await (await request.get(adminUrl, { headers: { Authorization: 'Bearer owner' } })).json();
     expect(Object.keys(saved.participants)).toHaveLength(6);
     expect(saved.meta.applicationSync).toEqual(fixture.meta.applicationSync);

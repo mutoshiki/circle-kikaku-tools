@@ -1,7 +1,7 @@
 # Carbon migration roadmap
 
-Status: normative phase sequence and gates v1.0 (effective 2026-09-29)  
-Source: [CURRENT_UI_AUDIT.md](./CURRENT_UI_AUDIT.md)  
+Status: normative phase sequence and gates v1.0 (effective 2026-09-29)
+Source: [CURRENT_UI_AUDIT.md](./CURRENT_UI_AUDIT.md)
 Target contract: [SANPOKAI_PRODUCT_UI.md](./SANPOKAI_PRODUCT_UI.md)
 
 Contract role: Phaseの順序、依存関係、各Phaseのentry / exit gateだけを所有する。画面・interactionのtarget仕様はProduct UI仕様、横断原則は [CARBON_PRODUCT_PRINCIPLES.md](./CARBON_PRODUCT_PRINCIPLES.md)、pattern選択は [CARBON_PATTERNS.md](./CARBON_PATTERNS.md) を参照する。本書の順序はtarget UIを上書きせず、Auditの推奨は本書のPhase gateを上書きしない。

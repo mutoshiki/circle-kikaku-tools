@@ -1,7 +1,7 @@
 # Current React UI audit
 
-Status: approved descriptive audit snapshot (2026-09-29)  
-Audit date: 2026-09-29  
+Status: approved descriptive audit snapshot (2026-09-29)
+Audit date: 2026-09-29
 Audited tree: current working tree on `codex/react-migration-rc` at `633733c` plus pre-existing local changes. No user changes were reset or stashed.
 
 Contract role: 現行実装と実ブラウザで観測した事実、問題、推奨方向を記録する **non-normative evidence**。本書の`Carbon interpretation`と`Recommended zero-based structure`は監査時点のProject interpretationであり、Carbon公式の直接規則ではない。将来実装の必須仕様は [SANPOKAI_PRODUCT_UI.md](./SANPOKAI_PRODUCT_UI.md)、共通原則とpattern選択は [CARBON_PRODUCT_PRINCIPLES.md](./CARBON_PRODUCT_PRINCIPLES.md) / [CARBON_PATTERNS.md](./CARBON_PATTERNS.md)、順序は [CARBON_MIGRATION_ROADMAP.md](./CARBON_MIGRATION_ROADMAP.md) が所有する。本書はそれらを上書きしない。

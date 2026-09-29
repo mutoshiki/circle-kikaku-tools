@@ -4,11 +4,11 @@ import { createRoomSync } from './sync/room-sync.js';
 import { createApplicantSync } from './sync/applicant-sync.js';
 import { createHistoryService } from './services/history.js';
 import { createOverviewDraftStorage } from './services/overview-draft.js';
-import { createShareUrl, prepareCompatibleUrl } from './services/url-compat.js';
-import { createProjectNavigation } from './services/project-navigation.js';
+import { createShareUrl } from './services/url-compat.js';
+import { createProjectNavigation, prepareProjectLaunch } from './navigation/project-navigation.js';
 
 export function createLocalRuntime({ location, history, storage, crypto, transport, legacyLoadWrites = true, routeService = null, externalAdapters = {}, eventTarget = globalThis.window }) {
-  const launch = prepareCompatibleUrl({ location, history, storage, crypto });
+  const launch = prepareProjectLaunch({ location, history, storage, crypto });
   const roomId = launch.roomId;
   const roomStorage = createRoomStorage(storage, roomId);
   const clientId = roomStorage.read('clientId') || `react_${crypto.randomUUID().replaceAll('-', '').slice(0, 12)}`;

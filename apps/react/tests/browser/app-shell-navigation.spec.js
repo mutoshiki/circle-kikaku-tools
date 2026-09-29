@@ -102,7 +102,7 @@ test('shell navigation preserves populated project and route draft state', async
   await navigateToProjectSection(page, '班割');
   await expect(page.locator('.allocation-group').first()).toBeVisible();
   await navigateToProjectSection(page, '精算');
-  await expect(page.getByRole('heading', { name: '精算状況', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '各車への支払い', exact: true })).toBeVisible();
 
   const storedAfter = await page.evaluate(id => ({
     room: localStorage.getItem(`sanpo-react:v1:${id}:room`),

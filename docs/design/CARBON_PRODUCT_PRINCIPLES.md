@@ -1,7 +1,7 @@
 # Carbon product principles for 山歩会企画ツール
 
-Status: normative foundation v1.0 (effective 2026-09-29)  
-Research snapshot: 2026-09-29  
+Status: normative foundation v1.0 (effective 2026-09-29)
+Research snapshot: 2026-09-29
 Scope: React版のUI/UX設計。データモデル、同期、Firebase互換性、精算計算は別の変更境界とする。
 
 Contract role: Carbon公式の根拠と、このプロダクト全体に共通する設計原則を定義する。個別flowの構造・文言・保存modelは [SANPOKAI_PRODUCT_UI.md](./SANPOKAI_PRODUCT_UI.md) が所有し、pattern選択は [CARBON_PATTERNS.md](./CARBON_PATTERNS.md) が補足する。本書は現行UIの説明や移行順序を所有しない。
