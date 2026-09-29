@@ -9,6 +9,7 @@ import { Add, Copy, Edit } from '@carbon/icons-react';
 import { beginSettlementEdit, commitSettlementEdit, collectionChange } from './settlement/edit.js';
 import RoutePlanner from './RoutePlanner.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
+import { notice } from '../ui/task-contracts.js';
 
 const money = value => `¥${Math.round(Number(value) || 0).toLocaleString('ja-JP')}`;
 const hasNegativeValue = value => /^[-−]/.test(String(value ?? '').trim());
@@ -34,7 +35,7 @@ function SettingsModal({ runtime, edit, onClose, onNotice }) {
   async function save() {
     if (composing || saving || invalidDriverCount || invalidMemberCount || invalidReward) return;
     setSaving(true); setError('');
-    try { await commitSettlementEdit(runtime, edit); onNotice('精算設定を保存しました。'); onClose(true); }
+    try { await commitSettlementEdit(runtime, edit); onClose(true); }
     catch (caught) { setError(caught.message); setSaving(false); }
   }
   function go(next) {
@@ -199,7 +200,7 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
     const messages = issues.messages.filter(message => message.startsWith(`${name}車の`));
     if (messages.length) { setError(messages[0]); return; }
     setSaving(true); setError('');
-    try { await commitSettlementEdit(runtime, edit); onNotice(`${name}車の費用を保存しました。`); onClose(true); }
+    try { await commitSettlementEdit(runtime, edit); onClose(true); }
     catch (caught) { setError(caught.message); setSaving(false); }
   }
   const primaryLabel = view === 'expense' ? '費用を保存' : view === 'extra' ? (extraMode === 'add' ? '費用を追加' : '変更を反映') : view === 'movement' ? `${movementLabel}を適用` : routeStatus.primaryLabel;
@@ -247,7 +248,7 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
       </section>
     </div>}
     {view === 'movement' && <MovementSettingsView car={car} domain={domain} movementAmount={movementAmount} movementLabel={movementLabel} movementFormula={movementFormula} movementType={movement?.type} onOpenRoute={() => changeView('route')} onRentalType={setRentalType} onMovementType={setMovementType} onUpdate={update} />}
-    <div aria-hidden={view !== 'route'} style={{ display: view === 'route' ? undefined : 'none' }}><RoutePlanner ref={routeRef} runtime={runtime} onStatusChange={setRouteStatus} onApply={value => { update({ dist: value }); changeView('movement'); onNotice('計算した距離を入力しました。'); }} /></div>
+    <div aria-hidden={view !== 'route'} style={{ display: view === 'route' ? undefined : 'none' }}><RoutePlanner ref={routeRef} runtime={runtime} onStatusChange={setRouteStatus} onApply={value => { update({ dist: value }); changeView('movement'); }} /></div>
   </Modal>;
 }
 
@@ -279,18 +280,18 @@ export default function Settlement({ runtime, room, onNotice, embedded = false }
   }
   function markCollected() {
     collectionChange(runtime.store, { name: collector.name, checked: true, collector: collector.value || collector.name });
-    setCollector(null); onNotice('集金状況を更新しました。');
+    setCollector(null);
   }
   async function copyUnpaid() {
     const names = result.participants.filter(person => !result.excludedNames.has(person.name) && !state.paid[person.name]).map(person => person.name);
-    if (!names.length) { onNotice('未回収者はいません'); return; }
-    try { await navigator.clipboard.writeText(names.join('、')); onNotice('未回収者をコピーしました'); }
-    catch { onNotice('未回収者をコピーできませんでした'); }
+    if (!names.length) { onNotice(notice.info('未回収者はいません', { placement: 'toast' })); return; }
+    try { await navigator.clipboard.writeText(names.join('、')); onNotice(notice.success('未回収者をコピーしました', { placement: 'toast' })); }
+    catch { onNotice(notice.error('未回収者をコピーできませんでした', { placement: 'toast' })); }
   }
   function saveMemo() {
     if (memo === null) return;
     if (memo !== state.memo) runtime.store.command('settlement', { state: { ...state, memo } });
-    setMemo(null); setMemoEditing(false); onNotice('精算メモを保存しました。');
+    setMemo(null); setMemoEditing(false);
   }
   function openMemoEditor() { setMemo(state.memo || ''); setMemoEditing(true); }
   function closeMemoEditor() { setMemo(null); setMemoEditing(false); }

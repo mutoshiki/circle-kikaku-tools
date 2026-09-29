@@ -5,6 +5,7 @@ import ParticipantEditor from './ParticipantEditor.jsx';
 import RegistrationModal from './RegistrationModal.jsx';
 import { ExportModal, GuidanceModal } from './ProjectTools.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
+import { notice } from '../ui/task-contracts.js';
 
 export default function Participants({ runtime, room, onNotice, embedded = false }) {
   const isMobile = useMediaQuery('(max-width: 671px)');
@@ -38,8 +39,8 @@ export default function Participants({ runtime, room, onNotice, embedded = false
     && (filter.driver === 'all' || !!row.driver === (filter.driver === 'driver'))
     && (filter.selected === 'all' || checked(row) === (filter.selected === 'selected')));
   function apply(args) {
-    try { runtime.store.command('applySelection', args); setChoices({}); setEditingSelection(false); setPendingSelection(null); onNotice('参加者を更新しました。'); }
-    catch (error) { onNotice(error.message); }
+    try { runtime.store.command('applySelection', args); setChoices({}); setEditingSelection(false); setPendingSelection(null); }
+    catch (error) { onNotice(notice.error('参加者を更新できませんでした', { subtitle: error.message })); }
   }
   function requestApply() {
     const args = { selectedApplicants: rows.filter(row => row.responseKey && checked(row)).map(row => row.responseKey), selectedManual: rows.filter(row => !row.responseKey && checked(row)).map(row => row.id) };
@@ -49,8 +50,8 @@ export default function Participants({ runtime, room, onNotice, embedded = false
   }
   function edit(id) { setEditor(runtime.store.beginEdit({ kind: 'participant-edit', participantId: id })); }
   function remove() {
-    try { runtime.store.command('deleteParticipant', { id: pendingDelete.id }); onNotice('参加者を削除しました。'); setPendingDelete(null); }
-    catch (error) { onNotice(error.message); }
+    try { runtime.store.command('deleteParticipant', { id: pendingDelete.id }); setPendingDelete(null); }
+    catch (error) { onNotice(notice.error('参加者を削除できませんでした', { subtitle: error.message })); }
   }
   return <section className="participants-page" aria-label="参加者">
     <div className="section-heading"><div>{!embedded && <h1>参加者</h1>}<p>{application ? <>応募者 {entries.length}人　参加者 <strong>{participantCount}人</strong></> : <strong>参加者 {participantCount}人</strong>}</p></div>

@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Modal, TextArea, InlineNotification, Accordion, AccordionItem } from '@carbon/react';
 import { formParser } from '../domain/index.js';
 
-export default function RegistrationModal({ runtime, onClose, onNotice }) {
+export default function RegistrationModal({ runtime, onClose }) {
   const [sheet, setSheet] = useState('');
   const [members, setMembers] = useState('');
   const [drivers, setDrivers] = useState('');
@@ -32,7 +32,7 @@ export default function RegistrationModal({ runtime, onClose, onNotice }) {
     const people = parsed?.people || [...manualNames].map(([key, name]) => ({ name, grade: Math.max(0, gradeKeys.findIndex(keys => keys.has(key)) + 1), driver: driverKeys.has(key) }));
     if (parsed && !parsed.ok) { setError(parsed.errors.join(' ')); focusSheet(); return; }
     if (!people.length) { setError('参加者を入力してください。'); focusSheet(); return; }
-    try { runtime.store.command('addParticipants', { people }); onNotice('参加者を登録しました。'); onClose(); }
+    try { runtime.store.command('addParticipants', { people }); onClose(); }
     catch (caught) { setError(caught.message); }
   }
   return <Modal className="app-modal registration-modal" open hasScrollingContent modalHeading="参加者登録" size="lg" primaryButtonText="登録" secondaryButtonText="キャンセル" onRequestSubmit={submit} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#registration-sheet">

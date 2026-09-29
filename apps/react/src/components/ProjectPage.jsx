@@ -1,6 +1,6 @@
 import { Column, Grid } from '@carbon/react';
 
-export default function ProjectPage({ context, title, description, metadata = [], actions, children }) {
+export default function ProjectPage({ context, title, description, metadata = [], actions, status, children }) {
   return <div className="project-page">
     <Grid fullWidth className="project-page__grid">
       <Column sm={4} md={8} lg={16} xlg={16} max={16}>
@@ -17,7 +17,10 @@ export default function ProjectPage({ context, title, description, metadata = []
         </header>
       </Column>
       <Column sm={4} md={8} lg={16} xlg={16} max={16}>
-        <div className="project-page__body">{children}</div>
+        <div className="project-page__body">
+          {status && <div className="project-page__status" aria-label="ページの状態">{status}</div>}
+          {children}
+        </div>
       </Column>
     </Grid>
   </div>;

@@ -61,7 +61,7 @@ test('sample menu keeps the legacy form-linked sample action', async ({ page }) 
   await expect(dialog.getByRole('radio', { name: 'フォーム連携サンプル' })).toBeVisible();
   await dialog.getByRole('radio', { name: 'フォーム連携サンプル' }).check({ force: true });
   await dialog.getByRole('button', { name: 'サンプルを入れる' }).click();
-  await expect(page.getByText('フォーム連携サンプルを入れました')).toBeVisible();
+  await expect(page.getByText('フォーム連携テスト企画', { exact: true }).first()).toBeVisible();
   await navigateToProjectSection(page, '概要');
   await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue('フォーム連携テスト企画');
   await navigateToProjectSection(page, '参加者');

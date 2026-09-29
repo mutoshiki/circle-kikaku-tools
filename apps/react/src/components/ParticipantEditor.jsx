@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Modal, TextInput, TextArea, Select, SelectItem, Checkbox, InlineNotification } from '@carbon/react';
 
-export default function ParticipantEditor({ runtime, session, onClose, onNotice }) {
+export default function ParticipantEditor({ runtime, session, onClose }) {
   const id = session.participantId;
   const [draft, setDraft] = useState(() => ({ ...session.draft.participants[id] }));
   const [driver, setDriver] = useState(() => session.draft.allocations.car.placements[id]?.driver === true);
@@ -19,7 +19,6 @@ export default function ParticipantEditor({ runtime, session, onClose, onNotice 
       await runtime.sync.flush();
       if (runtime.sync.getSnapshot().kind === 'error') throw new Error(runtime.sync.getSnapshot().message);
       runtime.store.cancelEdit(session);
-      onNotice('参加者を更新しました。');
       onClose();
     } catch (caught) { setError(caught.message); }
     finally { setSaving(false); }

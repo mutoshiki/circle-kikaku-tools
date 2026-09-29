@@ -3,6 +3,7 @@ import { Button, IconButton, Modal, Select, SelectItem, NumberInput, InlineNotif
 import { Add, Shuffle, ChevronDown, ChevronUp, Pin, PinFilled, Flag } from '@carbon/icons-react';
 import ParticipantEditor from './ParticipantEditor.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
+import { notice } from '../ui/task-contracts.js';
 
 function GroupEditor({ runtime, room, type, group, onClose, onNotice }) {
   const allocation = room.allocations[type];
@@ -15,7 +16,7 @@ function GroupEditor({ runtime, room, type, group, onClose, onNotice }) {
     if (!ownerId || Number(capacity) < 1 || Number(capacity) > 99) { setError('参加者と1〜99人の定員を指定してください。'); return; }
     try {
       runtime.store.command(group ? 'capacity' : 'createGroup', group ? { type, groupId: group.id, capacity } : { type, ownerId, capacity });
-      onNotice(group ? '定員を更新しました。' : `${label}を追加しました。`); onClose();
+      onClose();
     } catch (caught) { setError(caught.message); }
   }
   return <Modal open size="xs" modalHeading={group ? '定員を変更' : `${label}を追加`} primaryButtonText={group ? '保存' : '追加'} secondaryButtonText="キャンセル" onRequestSubmit={save} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus={group ? '#group-capacity' : '#group-owner'}>
@@ -44,7 +45,7 @@ export default function Allocation({ runtime, room, type, onNotice, onParticipan
   const count = Object.keys(room.participants).length;
   function execute(command, args) {
     try { runtime.store.command(command, args); }
-    catch (error) { onNotice(error.message); }
+    catch (error) { onNotice(notice.error('操作を完了できませんでした', { subtitle: error.message })); }
   }
   function edit(id) { setEditor(runtime.store.beginEdit({ kind: 'participant-edit', participantId: id })); }
   useEffect(() => () => {
