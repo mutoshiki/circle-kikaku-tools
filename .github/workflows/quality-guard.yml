@@ -2,7 +2,7 @@ name: React and Legacy CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, carbon-redesign]
   push:
     branches: [main]
   workflow_dispatch:
