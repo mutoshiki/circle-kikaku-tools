@@ -15,3 +15,10 @@
 - Use [`CARBON_PRODUCT_PRINCIPLES.md`](../../docs/design/CARBON_PRODUCT_PRINCIPLES.md) for official Carbon evidence and cross-product rules, and [`CARBON_PATTERNS.md`](../../docs/design/CARBON_PATTERNS.md) for task-to-pattern selection.
 - Treat [`CURRENT_UI_AUDIT.md`](../../docs/design/CURRENT_UI_AUDIT.md) as descriptive evidence only. Follow the current phase and gates in [`CARBON_MIGRATION_ROADMAP.md`](../../docs/design/CARBON_MIGRATION_ROADMAP.md).
 - UI work must preserve protected data, calculation, sync, Firebase, persistence, and compatibility behavior unless a separately approved scope explicitly changes it.
+
+## Carbon redesign integration program
+
+- Phases B–I merge only into the long-lived `carbon-redesign` branch after phase-specific tests, browser validation, PR review, and CI.
+- During Phases B–I, do not merge to `main`, dispatch React Production Release, compatibility deploy, root cut over, run production smoke, or write production Firebase data.
+- After Phase I, run the cumulative integration gates in `CARBON_MIGRATION_ROADMAP.md`. Only a separate final PR from `carbon-redesign` to `main` may enter the standard readiness/release path.
+- Production hotfixes branch from `main` and are incorporated into `carbon-redesign` separately when relevant.

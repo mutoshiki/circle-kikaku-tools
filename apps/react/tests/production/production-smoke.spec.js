@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { fixture, createReference } from '../reference.mjs';
+import { navigateToProjectSection } from '../browser/project-navigation.js';
 import { cleanupProductionSmokeRoom, seedProductionSmokeRoom } from './firebase-smoke-room.mjs';
 
 const roomId = process.env.REACT_PRODUCTION_SMOKE_ROOM;
@@ -56,7 +57,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await seedProductionSmokeRoom(page, { config, roomId, marker: smokeMarker, data: initial });
     roomSeeded = true;
     await page.goto(`${baseURL}?room=${roomId}&view=participants`);
-    await expect(page).toHaveTitle('サークル企画ツール');
+    await expect(page).toHaveTitle('山歩会企画ツール');
     const buildManifest = await page.evaluate(async () => {
       const response = await fetch(new URL('release-build.json', window.location.href));
       if (!response.ok) throw new Error(`Build identity manifest request failed: ${response.status}`);
@@ -65,18 +66,19 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     expect(buildManifest).toEqual({ sourceSha: expectedBuildSha, assetDigest: expectedAssetDigest });
     await expect(page.locator('.application')).toBeVisible();
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
+    await navigateToProjectSection(page, '概要');
     const projectName = page.getByRole('textbox', { name: '企画名' });
     const updatedSmokeMarker = `${smokeMarker}-updated`;
     await projectName.fill(updatedSmokeMarker);
     await projectName.press('Tab');
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
-    await page.getByRole('tab', { name: '車割', exact: true }).click();
-    await expect(page.getByRole('region', { name: '車割', exact: true })).toBeVisible();
-    await page.getByRole('tab', { name: '班割', exact: true }).click();
-    await expect(page.getByRole('tabpanel', { name: '班割', exact: true })).toBeVisible();
-    await page.getByRole('tab', { name: '精算', exact: true }).click();
-    await expect(page.getByRole('tabpanel', { name: '精算', exact: true })).toBeVisible();
+    await navigateToProjectSection(page, '車割');
+    await expect(page.getByRole('heading', { level: 1, name: '車割', exact: true })).toBeVisible();
+    await navigateToProjectSection(page, '班割');
+    await expect(page.getByRole('heading', { level: 1, name: '班割', exact: true })).toBeVisible();
+    await navigateToProjectSection(page, '精算');
+    await expect(page.getByRole('heading', { level: 1, name: '精算', exact: true })).toBeVisible();
 
     const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A/ }) }).first();
     await car.getByRole('button', { name: '費用を入力' }).click();
@@ -109,6 +111,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
     await page.reload();
+    await navigateToProjectSection(page, '概要');
     await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(updatedSmokeMarker);
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
@@ -118,7 +121,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
       await page.goto(legacyUrl.toString());
       await expect(page.locator('#roomNameInput')).toHaveJSProperty('value', updatedSmokeMarker);
       await page.goto(`${productionPath}?room=${roomId}&view=seisan`);
-      await expect(page.getByRole('tabpanel', { name: '精算', exact: true })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: '精算', exact: true })).toBeVisible();
     }
     expect(consoleErrorCount).toBe(0);
     expect(forbiddenResponses).toEqual([]);

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { navigateToProjectSection } from './project-navigation.js';
 
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', import.meta.url)));
 const pageErrors = new WeakMap();
@@ -39,7 +40,7 @@ test.beforeEach(async ({ page }, testInfo) => {
     key: `sanpo-react:v1:${roomId}:room`, value: initialFixture,
   });
   await page.goto(`/?room=${roomId}`);
-  await page.getByRole('tab', { name: '精算', exact: true }).click();
+  await navigateToProjectSection(page, '精算');
 });
 
 test.afterEach(async ({ page }) => {
@@ -108,7 +109,7 @@ test('settings cancel/save, signed extras, collection state and reload', async (
   const driverPaidBefore = await page.evaluate(() => JSON.parse(localStorage.getItem(`sanpo-react:v1:${new URL(location.href).searchParams.get('room')}:room`)).settlement.driverPaid);
 
   await page.reload();
-  await page.getByRole('tab', { name: '精算', exact: true }).click();
+  await navigateToProjectSection(page, '精算');
   await page.getByRole('button', { name: '精算設定' }).click();
   settings = page.getByRole('dialog', { name: '精算設定を編集' });
   await expect(settings.getByRole('radio', { name: '10円単位' })).toBeChecked();
@@ -364,11 +365,11 @@ test('settlement progress wraps as groups and cost details avoid redundant type 
 test('driver names appear only when a car has multiple drivers', async ({ page }) => {
   const carA = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) });
   await expect(carA.getByText(/^運転手：/)).toHaveCount(0);
-  await page.getByRole('tab', { name: '車割', exact: true }).click();
+  await navigateToProjectSection(page, '車割');
   const allocationCarA = page.getByRole('region', { name: '仮参加者A車', exact: true });
   await allocationCarA.getByRole('button', { name: '仮参加者Bの操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '運転手にする', exact: true }).click();
-  await page.getByRole('tab', { name: '精算', exact: true }).click();
+  await navigateToProjectSection(page, '精算');
   await expect(carA.getByText('運転手：仮参加者A、仮参加者B（車単位で一括支払い）', { exact: true })).toBeVisible();
   expect(pageErrors.get(page)).toEqual([]);
 });
@@ -631,7 +632,7 @@ test('人数だけで精算するdraft survives save and reload', async ({ page 
   await expect(page.getByRole('heading', { name: '第一運転手車' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '第二運転手車' })).toBeVisible();
   await page.reload();
-  await page.getByRole('tab', { name: '精算', exact: true }).click();
+  await navigateToProjectSection(page, '精算');
   await page.getByRole('button', { name: '精算設定' }).click();
   const reloadedSettings = page.getByRole('dialog', { name: '精算設定を編集' });
   await expect(reloadedSettings.getByLabel('運転手の人数')).toHaveValue('2');
@@ -716,7 +717,7 @@ test('settlement memo stays summarized until lightweight inline editing is opene
   await memoCard.getByRole('button', { name: '保存' }).click();
   await expect(memoCard.getByText('高速料金は武内さんが立替済み。', { exact: true })).toBeVisible();
   await page.reload();
-  await page.getByRole('tab', { name: '精算', exact: true }).click();
+  await navigateToProjectSection(page, '精算');
   await expect(page.locator('.settlement-memo-card').getByText('高速料金は武内さんが立替済み。', { exact: true })).toBeVisible();
   await expect(pageErrors.get(page)).toEqual([]);
 });

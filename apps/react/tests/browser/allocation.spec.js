@@ -2,12 +2,14 @@ import { test, expect } from '@playwright/test';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { expectFontsLoaded } from './font-readiness.js';
+import { navigateToProjectSection } from './project-navigation.js';
 
 async function saved(page, room = 'ALLOCATION-RC') { return page.evaluate(key => JSON.parse(localStorage.getItem(`sanpo-react:v1:${key}:room`)), room); }
 test('register, fill seats, independent team, roles, fixed participants, menus and reload', async ({ page }, testInfo) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/?room=ALLOCATION-RC');
+  await navigateToProjectSection(page, '参加者');
   await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
   await page.getByRole('button', { name: '追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者登録' });
@@ -19,7 +21,7 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await expect(registration).toHaveCount(0);
   let room = await saved(page);
   expect(Object.values(room.participants).map(person => person.name)).toEqual(expect.arrayContaining(['仮参加者A', '仮参加者B', '仮参加者C', '仮参加者D']));
-  await page.getByRole('tab', { name: '車割', exact: true }).click();
+  await navigateToProjectSection(page, '車割');
   await expect(page.getByRole('region', { name: '仮参加者A車', exact: true })).toBeVisible();
   const car = page.getByRole('region', { name: '仮参加者A車', exact: true });
   await car.getByRole('button', { name: '仮参加者A車の操作', exact: true }).click();
@@ -51,8 +53,8 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   room = await saved(page);
   expect(room.allocations.car.placements[b.id].groupId).toBe(carGroupId);
   expect(room.allocations.car.placements[b.id].driver).toBe(true);
-  await page.getByRole('tab', { name: '班割', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '班割', exact: true })).toHaveCount(0);
+  await navigateToProjectSection(page, '班割');
+  await expect(page.getByRole('heading', { level: 1, name: '班割', exact: true })).toBeVisible();
   await expect(page.locator('.allocation-page[aria-label="班割"] .allocation-toolbar-summary')).toContainText(/\d+人・\d+班/);
   await page.getByRole('button', { name: '班を追加', exact: true }).click();
   const groupDialog = page.getByRole('dialog', { name: '班を追加' });
@@ -63,7 +65,7 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   expect(room.allocations.car.placements[b.id].driver).toBe(true);
   expect(room.allocations.team.placements[b.id].driver).toBe(true);
   expect(room.allocations.car.placements[b.id].groupId).not.toBe(room.allocations.team.placements[b.id].groupId);
-  await page.getByRole('tab', { name: '車割', exact: true }).click();
+  await navigateToProjectSection(page, '車割');
   await car.getByRole('button', { name: '仮参加者Aの操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '運転手を外す', exact: true }).click();
   room = await saved(page);
@@ -150,14 +152,14 @@ test('allocation toolbar keeps its summary and random assignment action compact 
   const roomId = `ALLOCATION-TOOLBAR-${Date.now()}`;
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/?room=${roomId}`);
-  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+  await navigateToProjectSection(page, '参加者');
   await page.getByRole('button', { name: '追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者登録' });
   await registration.getByRole('textbox', { name: '参加者（改行区切り）', exact: true }).fill('割り当て確認 太郎');
   await registration.getByRole('button', { name: '登録', exact: true }).click();
-  await page.getByRole('tab', { name: '車割', exact: true }).click();
+  await navigateToProjectSection(page, '車割');
 
-  const toolbar = page.getByRole('tabpanel', { name: '車割', exact: true }).locator('.allocation-toolbar');
+  const toolbar = page.locator('.allocation-page[aria-label="車割"] .allocation-toolbar');
   const randomize = toolbar.getByRole('button', { name: 'ランダム割り当て', exact: true });
   await expect(randomize).toHaveClass(/cds--btn--ghost/);
   const layout = await toolbar.evaluate(node => ({

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { navigateToProjectSection } from './project-navigation.js';
 
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', import.meta.url)));
 
@@ -12,9 +13,11 @@ test.beforeEach(async ({ page }, testInfo) => {
 });
 
 test('shared Carbon layout, contextual feedback, icon labels and mobile overflow', async ({ page }) => {
-  await expect(page.locator('.project-grid')).toHaveCount(1);
-  await expect(page.locator('.content-grid')).toHaveCount(1);
-  await page.getByRole('tab', { name: '車割', exact: true }).click();
+  await expect(page.getByRole('banner')).toHaveCount(1);
+  await expect(page.getByRole('navigation', { name: '企画内ナビゲーション' })).toHaveCount(1);
+  await expect(page.getByRole('main')).toHaveCount(1);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
+  await navigateToProjectSection(page, '車割');
   await expect(page.getByRole('button', { name: /の固定/ }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: /の操作$/ }).first()).toBeVisible();
   const add = page.getByRole('button', { name: '車を追加', exact: true });
@@ -25,7 +28,7 @@ test('shared Carbon layout, contextual feedback, icon labels and mobile overflow
     else {
       await expect(page.getByRole('status').filter({ hasText: '未割り当ての参加者を選ぶと車を追加できます。' })).toBeVisible();
       await expect(page.locator('.notification-region')).toHaveCount(0);
-      await page.getByRole('tab', { name: '精算', exact: true }).click();
+      await navigateToProjectSection(page, '精算');
       await expect(page.getByText('未割り当ての参加者を選ぶと車を追加できます。')).toBeHidden();
     }
   }
@@ -34,7 +37,7 @@ test('shared Carbon layout, contextual feedback, icon labels and mobile overflow
 
 test('long transactional modal keeps its footer in the viewport', async ({ page }) => {
   await page.goto('/?room=CARBON-EMPTY-REGISTRATION');
-  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+  await navigateToProjectSection(page, '参加者');
   await page.getByRole('button', { name: '追加', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '参加者登録' });
   await expect(dialog).toBeVisible();

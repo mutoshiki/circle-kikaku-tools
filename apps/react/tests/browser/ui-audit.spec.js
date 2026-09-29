@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { navigateToProjectSection } from './project-navigation.js';
 
 const root = join(process.cwd(), '..', '..');
 const outputRoot = join(root, 'artifacts', 'ui-audit');
@@ -12,8 +13,8 @@ function shot(page, viewportName, number, name) {
 }
 async function gotoEmpty(page, room) {
   await page.goto(`/?room=${room}`);
-  await expect(page).toHaveTitle('サークル企画ツール');
-  await expect(page.getByRole('tab', { name: '参加者', exact: true })).toBeVisible();
+  await expect(page).toHaveTitle('山歩会企画ツール');
+  await expect(page.getByRole('navigation', { name: '企画内ナビゲーション' })).toHaveCount(1);
 }
 async function openMenu(page) {
   await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
@@ -51,7 +52,7 @@ async function seedFormSample(page) {
 }
 async function reopen(page, room) {
   await page.goto(`/?room=${room}`);
-  await expect(page.getByRole('tab', { name: '参加者', exact: true })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: '企画内ナビゲーション' })).toHaveCount(1);
 }
 
 test('capture reachable React UI audit states', async ({ page }, testInfo) => {
@@ -76,11 +77,13 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     }, { room });
 
     await gotoEmpty(page, room);
-    await page.getByRole('tab', { name: '参加者', exact: true }).click();
+    await navigateToProjectSection(page, '参加者');
     await shot(page, viewportName, 1, 'shell-participants-empty');
-    await expect(page.getByRole('button', { name: /ナビゲーションを/ })).toHaveCount(0);
-    await expect(page.getByRole('navigation', { name: '山歩会ツール', exact: true })).toHaveCount(0);
+    const projectMenu = page.getByRole('button', { name: '企画メニューを開く' });
+    if (await projectMenu.isVisible()) await projectMenu.click();
+    await expect(page.getByRole('navigation', { name: '企画内ナビゲーション' })).toBeVisible();
     await shot(page, viewportName, 44, 'side-navigation-open');
+    if (await page.getByRole('button', { name: '企画メニューを閉じる' }).isVisible()) await page.getByRole('button', { name: '企画メニューを閉じる' }).click();
     await openMenu(page);
     await shot(page, viewportName, 2, 'header-app-menu-open');
     await page.getByRole('menuitem', { name: 'ダークモードに切り替え', exact: true }).click();
@@ -102,12 +105,12 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await closeModal(page);
 
     await reopen(page, room);
-    await page.getByRole('tab', { name: '参加者', exact: true }).click();
+    await navigateToProjectSection(page, '参加者');
     await shot(page, viewportName, 6, 'participants-missing-sample');
 
     await seedSample(page);
     console.log('AUDIT participants normal seeded');
-    await page.getByRole('tab', { name: '参加者', exact: true }).click();
+    await navigateToProjectSection(page, '参加者');
     await shot(page, viewportName, 9, 'participants-default');
     console.log('AUDIT participants default captured');
     if (await page.getByRole('button', { name: '参加者を選び直す', exact: true }).count()) await page.getByRole('button', { name: '参加者を選び直す', exact: true }).click();
@@ -136,7 +139,7 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await shot(page, viewportName, 13, 'participant-delete-confirmation');
     await cancelDialog(page);
 
-    await page.getByRole('tab', { name: '車割', exact: true }).click();
+    await navigateToProjectSection(page, '車割');
     const assignedMenu = page.getByRole('button', { name: /の操作$/ }).first();
     if (await assignedMenu.count()) {
       await assignedMenu.click();
@@ -157,13 +160,13 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     const allocationMenu = page.getByRole('button', { name: /の操作$/ }).first();
     if (await allocationMenu.count()) { await allocationMenu.click(); await shot(page, viewportName, 18, 'car-row-overflow-open'); await page.keyboard.press('Escape'); }
 
-    await page.getByRole('tab', { name: '班割', exact: true }).click();
+    await navigateToProjectSection(page, '班割');
     await shot(page, viewportName, 19, 'team-allocation-default');
     await page.getByRole('button', { name: '班を追加', exact: true }).click();
     await shot(page, viewportName, 20, 'team-add-modal');
     await cancelDialog(page);
 
-    await page.getByRole('tab', { name: '精算', exact: true }).click();
+    await navigateToProjectSection(page, '精算');
     await shot(page, viewportName, 21, 'settlement-default');
     await page.getByRole('button', { name: '精算設定を編集' }).click();
     await shot(page, viewportName, 22, 'settlement-wizard-step-1');

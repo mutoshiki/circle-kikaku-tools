@@ -103,16 +103,15 @@
 5. Fix only Phase B regressions; ledger later-phase issues without changing feature interiors.
 6. Commit verified implementation and evidence.
 
-## Task 6: Review, integrate, and release the verified SHA
+## Task 6: Review and integrate the verified SHA into `carbon-redesign`
 
 **Files:**
 
 - Modify only if verification finds a Phase B defect or a required runbook correction.
 
-**Interfaces:** GitHub PR/checks and repository release workflows. Compatibility and root deployments must use the same merged main SHA/build artifact; production smoke uses the dedicated smoke room and is cleaned up.
+**Interfaces:** GitHub PR/checks and the long-lived Carbon redesign integration branch. Production workflows are out of scope until Phase I and the final integration gate complete.
 
 1. Perform whole-branch review against the normative spec and phase boundary; fix Important/Critical findings with RED→GREEN tests.
-2. Push the branch, open a PR, attach it to the task, and wait for required CI/Readiness.
-3. Merge only after required checks pass; verify Readiness on the merged main SHA.
-4. Dispatch React Production Release, then compatibility deploy/smoke, root cutover, production root smoke, and cleanup according to the repository runbook.
-5. If a production smoke fails, use the documented rollback and report the result; never write production data outside the dedicated smoke room.
+2. Push the branch, open a PR targeting `carbon-redesign`, attach it to the task, and wait for required CI.
+3. Merge only after required checks pass; verify the Phase B commit is integrated into `carbon-redesign`.
+4. Do not merge to `main`, dispatch React Production Release, compatibility deploy, root cut over, run production smoke, or write production Firebase data during Phases B–I.

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { fixture } from '../reference.mjs';
+import { navigateToProjectSection } from './project-navigation.js';
 
 const roomId = 'PARTICIPANT-RC';
 const storageKey = `sanpo-react:v1:${roomId}:room`;
@@ -14,7 +15,7 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
     if (localStorage.getItem(key) === null) localStorage.setItem(key, JSON.stringify(room));
   }, { key: storageKey, room: initial });
   await page.goto(`/?room=${roomId}`);
-  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+  await navigateToProjectSection(page, '参加者');
   await expect(page.getByRole('button', { name: '参加者画面のその他の操作' })).toHaveCount(0);
 
   const confirmedStatus = page.getByText('確定済み', { exact: true });
@@ -52,7 +53,7 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
   };
   await page.evaluate(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), { key: storageKey, value: room });
   await page.reload();
-  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+  await navigateToProjectSection(page, '参加者');
   await page.getByRole('button', { name: '参加者を選び直す', exact: true }).click();
   await expect(page.getByText('選び直し中', { exact: true })).toBeVisible();
   await expect(page.getByRole('checkbox', { name: '回答更新後G', exact: true })).toBeChecked();
@@ -106,6 +107,6 @@ test('participant list shows assigned driver role and participant editor can tog
   await secondEditor.getByRole('button', { name: '保存', exact: true }).click();
   await expect(row.getByText('運転手', { exact: true })).toBeVisible();
   await page.reload();
-  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+  await navigateToProjectSection(page, '参加者');
   await expect(page.locator('.participant-row').filter({ hasText: '運転手属性 確認' }).getByText('運転手', { exact: true })).toBeVisible();
 });

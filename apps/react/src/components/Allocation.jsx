@@ -27,7 +27,7 @@ function GroupEditor({ runtime, room, type, group, onClose, onNotice }) {
   </Modal>;
 }
 
-export default function Allocation({ runtime, room, type, onNotice, onParticipants }) {
+export default function Allocation({ runtime, room, type, onNotice, onParticipants, embedded = false }) {
   const isMobile = useMediaQuery('(max-width: 671px)');
   const [editor, setEditor] = useState(null);
   const [groupEditor, setGroupEditor] = useState(null);
@@ -83,7 +83,7 @@ export default function Allocation({ runtime, room, type, onNotice, onParticipan
       {record.memo && <p className="person-memo">{record.memo}</p>}
     </ContainedListItem>;
   }
-  if (!count) return <section className="allocation-page"><div className="empty-state">{type === 'car' && <h1>車割</h1>}<p>参加者がいません</p><Button onClick={onParticipants}>参加者を追加</Button></div></section>;
+  if (!count) return <section className="allocation-page"><div className="empty-state">{!embedded && <h1>{type === 'team' ? '班割' : '車割'}</h1>}<p>参加者がいません</p><Button onClick={onParticipants}>参加者を追加</Button></div></section>;
   return <section className="allocation-page" aria-label={type === 'team' ? '班割' : '車割'}>
     <div className="allocation-toolbar"><div className="allocation-toolbar-summary"><p><span>未割り当て <strong>{projection.waiting.length}人</strong></span><span className="row-detail">{count}人・{projection.cars.length}{type === 'team' ? '班' : '台'}</span></p></div>
       <Button kind="ghost" size="sm" renderIcon={Shuffle} onClick={() => setConfirmation({ title: 'ランダム割り当て', body: '参加者をランダムに割り当てます。', button: '実行', action: () => execute('randomize', { type }) })}>ランダム割り当て</Button>

@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { navigateToProjectSection } from './project-navigation.js';
 
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', import.meta.url)));
 
@@ -42,19 +43,19 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
   const evidence = process.env.MIGRATION_EVIDENCE_DIR || join(tmpdir(), 'circle-react-migration-evidence');
   page.on('pageerror', error => errors.push(error.message));
 
-  await page.getByRole('tab', { name: '車割', exact: true }).click();
+  await navigateToProjectSection(page, '車割');
   await page.getByRole('button', { name: '車を追加', exact: true }).click();
   let dialog = page.getByRole('dialog', { name: '車を追加' });
   await expectViewportFrame(page, dialog);
   await dialog.getByRole('button', { name: 'キャンセル' }).click();
 
-  await page.getByRole('tab', { name: '班割', exact: true }).click();
+  await navigateToProjectSection(page, '班割');
   await page.getByRole('button', { name: '班を追加', exact: true }).click();
   dialog = page.getByRole('dialog', { name: '班を追加' });
   await expectViewportFrame(page, dialog);
   await dialog.getByRole('button', { name: 'キャンセル' }).click();
 
-  await page.getByRole('tab', { name: '精算', exact: true }).click();
+  await navigateToProjectSection(page, '精算');
   await page.getByRole('button', { name: '精算設定を編集' }).click();
   dialog = page.getByRole('dialog', { name: '精算設定を編集' });
   await expectViewportFrame(page, dialog);

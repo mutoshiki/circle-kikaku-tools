@@ -44,7 +44,7 @@ Do not hide a domain/data migration inside a UI phase.
 | Phase | Design invariants that become binding |
 | --- | --- |
 | A — Foundation | 5文書のrole / precedence、Product UI仕様の規則語、Official guidance / Project interpretationの区別、UI PR checklistを変更理由なしに迂回しない。Phase Aは文書・test contractのみでProduct UIを変更しない。 |
-| B — Shell / navigation | 既存room URL、shared link、refresh / back / initial destinationを維持する。すべてのdestinationに1つの`h1`、programmatic current state、navigation後のfocus strategyを持たせ、global / project / page action ownerを混在させない。 |
+| B — Shell / navigation | 既存room URL、shared link、refresh / backとlegacy destination mappingを維持し、section指定のないroom URLはlifecycle起点の概要へ着地させる。すべてのdestinationに1つの`h1`、programmatic current state、navigation後のfocus strategyを持たせ、global / project / page action ownerを混在させない。 |
 | C — Shared patterns | Modalはapproved brief-task allow-listに限定する。Save / Apply / Confirm / Cancel / Close / Back、typed state severity、focus-to-error / focus returnを共通contractにし、日本語message解析でbehaviorを決めない。 |
 | D — Overview / participants | Participant identityとconfirm / unconfirmのdownstream effectを変えない。Importはpreview / correction前にcommitせず、productive list densityとsearch / filter / zero-data stateを維持する。 |
 | E — Allocation | 全参加者をdragなしで割り当て可能にする。Unassigned、capacity、pin / lock、driver / leaderを失わず、同じ操作は既存と同じserialized assignment stateを作る。 |
@@ -495,14 +495,13 @@ Phase Aの次は、one bounded **Phase B shell/page-anatomy slice**とする:
 
 Do not start with settlement visual polish or arbitrary CSS cleanup: both depend on the target page/navigation structure.
 
-## 5. Release and production boundary
+## 5. Integration and production boundary
 
-For the current audit/documentation task:
+Phases B–I form one Carbon redesign integration program:
 
-- Do not dispatch React Production Release.
-- Do not compatibility deploy.
-- Do not root cut over.
-- Do not production deploy or production smoke.
-- Do not write to production Firebase.
+- Use the long-lived `carbon-redesign` branch as the only integration target for each phase.
+- Each phase completes through implementation, relevant tests, browser validation, commit/push, PR, CI, and merge into `carbon-redesign`.
+- During Phases B–I, do not merge to `main`, dispatch React Production Release, compatibility deploy, root cut over, run production smoke, or write production Firebase data.
+- A production hotfix starts from `main` as a separate change and is incorporated into `carbon-redesign` only when applicable.
 
-Future implementation phases may use branch/PR/CI and local fixtures/Firebase Emulator. Any production action remains a separately authorized release decision after phase-specific compatibility, sync, browser, and accessibility gates.
+After Phase I, run the cumulative regression gate across Chromium/WebKit desktop/mobile, accessibility, responsive behavior, Firebase Emulator/shared behavior, Maps/Places/Routes, persistence/sync/calculation compatibility, and final design-contract alignment. Only after every gate passes may `carbon-redesign` open its final PR to `main` and enter the standard same-SHA/same-artifact readiness, release, compatibility, cutover, dedicated-smoke-room, rollback, and cleanup path.

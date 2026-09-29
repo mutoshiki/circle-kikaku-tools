@@ -8,7 +8,7 @@ export const PROJECT_SECTIONS = Object.freeze([
 ]);
 
 const SECTION_SET = new Set(PROJECT_SECTIONS);
-export const DEFAULT_PROJECT_SECTION = 'organization-car';
+export const DEFAULT_PROJECT_SECTION = 'overview';
 
 export function readProjectSection(href) {
   const url = new URL(href);
@@ -18,7 +18,9 @@ export function readProjectSection(href) {
   const legacyView = url.searchParams.get('view');
   if (legacyView === 'participants') return 'participants';
   if (legacyView === 'seisan') return 'settlement';
-  if (legacyView === 'sheet' && url.searchParams.get('allocation') === 'team') return 'organization-team';
+  if (legacyView === 'sheet') {
+    return url.searchParams.get('allocation') === 'team' ? 'organization-team' : 'organization-car';
+  }
   return DEFAULT_PROJECT_SECTION;
 }
 

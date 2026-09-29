@@ -44,7 +44,7 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
     applicantSync.start();
   }
   async function dispose() { unsubscribe?.(); unsubscribe = null; applicantSync.dispose(); sync.dispose(); await transport?.dispose(); }
-  return { roomId, initialView: launch.initialView, initialSection: launch.initialSection, navigation, handoffToken: launch.handoffToken, store, storage: roomStorage, sync, history: roomHistory, overviewDraft, routeDraft, routeService, external, createShareUrl: () => createShareUrl(new URL(location.href, launch.href).href), start, dispose };
+  return { roomId, initialView: launch.initialView, initialSection: launch.initialSection, navigation, sampleDataEnabled: !transport, handoffToken: launch.handoffToken, store, storage: roomStorage, sync, history: roomHistory, overviewDraft, routeDraft, routeService, external, createShareUrl: () => createShareUrl(new URL(location.href, launch.href).href), start, dispose };
 }
 
 export async function createRuntime(options, env = import.meta.env || {}) {

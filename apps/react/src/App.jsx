@@ -1,29 +1,34 @@
-import { useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
-  Column, Grid, Modal, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, Tabs, TabList, Tab,
-  TabPanels, TabPanel, TextInput, ToastNotification,
+  Button, Modal, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, ToastNotification,
 } from '@carbon/react';
-import AppHeader from './components/AppHeader.jsx';
+import { Edit, Time } from '@carbon/icons-react';
+import ProjectShell from './components/ProjectShell.jsx';
+import ProjectPage from './components/ProjectPage.jsx';
+import ProjectOverview from './components/ProjectOverview.jsx';
+import ProjectHistorySettings from './components/ProjectHistorySettings.jsx';
 import Participants from './components/Participants.jsx';
 import Allocation from './components/Allocation.jsx';
 import Settlement from './components/Settlement.jsx';
 import { BugModal, HistoryModal, OverviewModal } from './components/ProjectTools.jsx';
 import { createProjectDomain } from './services/project-domain.js';
 
-const destinations = ['参加者', '車割', '班割', '精算'];
-const sectionByView = ['participants', 'organization-car', 'organization-team', 'settlement'];
-const viewBySection = Object.freeze({ participants: 0, 'organization-car': 1, 'organization-team': 2, settlement: 3 });
 const noticeKind = message => /できません|失敗|エラー/.test(message) ? 'error' : /未割り当て|確認してください|選ぶと/.test(message) ? 'warning' : /ました|コピー/.test(message) ? 'success' : 'info';
 export default function App({ runtime }) {
   const room = useSyncExternalStore(runtime.store.subscribe, runtime.store.getSnapshot);
   const syncStatus = useSyncExternalStore(runtime.sync.subscribe, runtime.sync.getSnapshot);
   const section = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getSnapshot, () => runtime.initialSection);
   const [theme, setTheme] = useState('g10');
-  const [roomName, setRoomName] = useState(null);
   const [notice, setNotice] = useState('');
   const [globalModal, setGlobalModal] = useState('');
   const [sampleCars, setSampleCars] = useState('3');
   const [sampleType, setSampleType] = useState('normal');
+  const previousSection = useRef(section);
+  useEffect(() => {
+    if (previousSection.current === section) return;
+    previousSection.current = section;
+    requestAnimationFrame(() => document.getElementById('project-page-title')?.focus());
+  }, [section]);
   async function share() {
     try { await navigator.clipboard.writeText(runtime.createShareUrl()); setNotice('リンクをコピーしました'); }
     catch { setNotice('リンクをコピーできませんでした'); }
@@ -48,28 +53,52 @@ export default function App({ runtime }) {
     if (sampleType === 'form') seedFormLinkedSample();
     else seedSample(sampleType === 'missing');
   }
-  function changeView(selectedIndex) {
-    runtime.navigation.navigate(sectionByView[selectedIndex]);
-  }
+  const participantCount = Object.keys(room.participants || {}).length;
+  const page = (() => {
+    const sync = syncStatus.kind === 'local' ? [] : [{ label: '同期', value: syncStatus.message }];
+    if (section === 'overview') return {
+      title: '概要', description: '企画の基本情報と現在の準備状況を確認します。',
+      metadata: [{ label: '参加者', value: `${participantCount}人` }, { label: '企画ID', value: runtime.roomId }, ...sync],
+      actions: <Button renderIcon={Edit} onClick={() => setGlobalModal('overview')}>企画情報を編集</Button>,
+      content: <ProjectOverview runtime={runtime} room={room} />,
+    };
+    if (section === 'participants') return {
+      title: '参加者', description: '応募者を確認し、この企画に参加する人を確定します。',
+      metadata: [{ label: '参加者', value: `${participantCount}人` }, ...sync],
+      content: <Participants runtime={runtime} room={room} onNotice={setNotice} embedded />,
+    };
+    if (section === 'organization-team') {
+      const projection = runtime.store.domain.canonical.projectAllocation(room, 'team');
+      return {
+        title: '班割', description: '参加者を班へ割り当て、班長と定員を管理します。',
+        metadata: [{ label: '未割り当て', value: `${projection.waiting.length}人` }, { label: '班', value: `${projection.cars.length}班` }, ...sync],
+        content: <Allocation runtime={runtime} room={room} type="team" onNotice={setNotice} onParticipants={() => runtime.navigation.navigate('participants')} embedded />,
+      };
+    }
+    if (section === 'settlement') return {
+      title: '精算', description: '企画後の費用、集金、運転手への支払い状況を管理します。',
+      metadata: [{ label: '参加者', value: `${participantCount}人` }, ...sync],
+      content: <Settlement runtime={runtime} room={room} onNotice={setNotice} embedded />,
+    };
+    if (section === 'history-settings') return {
+      title: '履歴と設定', description: '企画の復元ポイントと共通設定を管理します。',
+      metadata: [{ label: '保存済み履歴', value: `${runtime.history.read().length}件` }, ...sync],
+      actions: <Button renderIcon={Time} onClick={() => setGlobalModal('history')}>履歴を開く</Button>,
+      content: <ProjectHistorySettings />,
+    };
+    const projection = runtime.store.domain.canonical.projectAllocation(room, 'car');
+    return {
+      title: '車割', description: '参加者を車へ割り当て、運転手と定員を管理します。',
+      metadata: [{ label: '未割り当て', value: `${projection.waiting.length}人` }, { label: '車', value: `${projection.cars.length}台` }, ...sync],
+      content: <Allocation runtime={runtime} room={room} type="car" onNotice={setNotice} onParticipants={() => runtime.navigation.navigate('participants')} embedded />,
+    };
+  })();
   return <Theme theme={theme} className="application">
-    <AppHeader theme={theme} onShare={share} onOpenUtility={openGlobalModal} onToggleTheme={toggleTheme} />
-    <Grid fullWidth className="project-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><section className="project-title" aria-label="企画情報">
-      <TextInput id="room-name" labelText="企画名" placeholder="企画名未設定" value={roomName ?? room.roomName} onChange={event => setRoomName(event.target.value)} onBlur={() => { if (roomName !== null) runtime.store.command('rename', { name: roomName }); setRoomName(null); }} />
-      {syncStatus.kind !== 'local' && <span className="sync-status" role="status">{syncStatus.message}</span>}
-    </section></Column></Grid>
-    <Grid fullWidth className="content-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><main className="main-content">
-      <Tabs selectedIndex={viewBySection[section] ?? 1} onChange={({ selectedIndex }) => changeView(selectedIndex)}>
-        <TabList aria-label="画面切り替え" contained fullWidth>{destinations.map(name => <Tab key={name}>{name}</Tab>)}</TabList>
-        <TabPanels>
-          <TabPanel><Participants runtime={runtime} room={room} onNotice={setNotice} /></TabPanel>
-          <TabPanel><Allocation runtime={runtime} room={room} type="car" onNotice={setNotice} onParticipants={() => changeView(0)} /></TabPanel>
-          <TabPanel><Allocation runtime={runtime} room={room} type="team" onNotice={setNotice} onParticipants={() => changeView(0)} /></TabPanel>
-          <TabPanel><Settlement runtime={runtime} room={room} onNotice={setNotice} /></TabPanel>
-        </TabPanels>
-      </Tabs>
-    </main></Column></Grid>
+    <ProjectShell projectName={room.roomName} roomId={runtime.roomId} section={section} navigation={runtime.navigation} headerProps={{ theme, showSampleData: runtime.sampleDataEnabled, onShare: share, onOpenUtility: openGlobalModal, onToggleTheme: toggleTheme }}>
+      <ProjectPage context={room.roomName || '企画名未設定'} title={page.title} description={page.description} metadata={page.metadata} actions={page.actions}>{page.content}</ProjectPage>
+    </ProjectShell>
     {globalModal === 'guide' && <Modal className="app-modal" open passiveModal size="md" closeButtonLabel="閉じる" modalHeading="使い方" onRequestClose={() => setGlobalModal('')}>
-      <div className="user-guide"><p>参加者の選択、車割、班割、精算を上部の4つのタブから行います。</p><ol><li><strong>参加者</strong> 応募者を確認し、企画に参加する人を選びます。</li><li><strong>車割</strong> 車と参加者を割り当てます。</li><li><strong>班割</strong> 班と参加者を割り当てます。</li><li><strong>共有</strong> 右上の共有リンクから通常の企画ルームURLをコピーします。</li><li><strong>精算</strong> 設定、車ごとの費用、集金・支払い状況を管理します。</li></ol></div>
+      <div className="user-guide"><p>企画メニューから、準備の段階に合わせて作業を進めます。</p><ol><li><strong>概要</strong> 企画名、メモ、時刻表を確認します。</li><li><strong>参加者</strong> 応募者を確認し、企画に参加する人を選びます。</li><li><strong>運営準備</strong> 車割と班割を管理します。</li><li><strong>共有</strong> 右上の共有リンクから通常の企画ルームURLをコピーします。</li><li><strong>精算</strong> 設定、車ごとの費用、集金・支払い状況を管理します。</li></ol></div>
     </Modal>}
     {globalModal === 'overview' && <OverviewModal runtime={runtime} room={room} onNotice={setNotice} onClose={() => setGlobalModal('')} />}
     {globalModal === 'history' && <HistoryModal runtime={runtime} onNotice={setNotice} onClose={() => setGlobalModal('')} />}
