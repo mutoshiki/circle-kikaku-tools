@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createMemoryStorage, createHistoryService } from '../src/services/history.js';
-import { prepareCompatibleUrl, createShareUrl, tokenStorageKey } from '../src/services/url-compat.js';
+import { prepareCompatibleUrl, createProjectSectionUrl, createShareUrl, tokenStorageKey } from '../src/services/url-compat.js';
 import { createProjectDomain } from '../src/services/project-domain.js';
 import { createDomain } from '../src/domain/index.js';
 
@@ -14,8 +14,35 @@ test('overview draft remains local until explicit shared save', () => {
   const url = prepareCompatibleUrl({ location, history, storage, crypto: { randomUUID: () => 'abcd-1234' } });
   assert.equal(url.roomId, 'ROOM-A');
   assert.equal(url.initialView, 1);
+  assert.equal(url.initialSection, 'organization-car');
   assert.equal(new URL(url.href).search, '?room=ROOM-A');
   assert.equal(createShareUrl(url.href), 'https://example.test/react/?room=ROOM-A');
+});
+
+test('project sections use stable URLs while preserving inbound legacy links', () => {
+  const storage = createMemoryStorage();
+  const crypto = { randomUUID: () => 'unused' };
+  const launch = href => prepareCompatibleUrl({
+    location: { href },
+    history: { state: null, replaceState() {} },
+    storage,
+    crypto,
+  });
+
+  assert.equal(launch('https://example.test/react/?room=A&section=overview').initialSection, 'overview');
+  assert.equal(launch('https://example.test/react/?room=A&section=participants').initialSection, 'participants');
+  assert.equal(launch('https://example.test/react/?room=A&section=organization-team').initialSection, 'organization-team');
+  assert.equal(launch('https://example.test/react/?room=A&section=settlement').initialSection, 'settlement');
+  assert.equal(launch('https://example.test/react/?room=A&section=history-settings').initialSection, 'history-settings');
+  assert.equal(launch('https://example.test/react/?room=A&view=participants').initialSection, 'participants');
+  assert.equal(launch('https://example.test/react/?room=A&view=seisan').initialSection, 'settlement');
+  assert.equal(launch('https://example.test/react/?room=A&view=sheet&allocation=team').initialSection, 'organization-team');
+  assert.equal(launch('https://example.test/react/?room=A&section=unknown').initialSection, 'organization-car');
+
+  const next = new URL(createProjectSectionUrl('https://example.test/react/?room=A&view=participants#top', 'settlement'));
+  assert.equal(next.search, '?room=A&section=settlement');
+  assert.equal(next.hash, '');
+  assert.equal(createShareUrl(next.href), 'https://example.test/react/?room=A');
 });
 
 test('handoff capability is room-local and removed from URL before sharing', () => {
