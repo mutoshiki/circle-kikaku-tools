@@ -11,12 +11,14 @@ import { BugModal, HistoryModal, OverviewModal } from './components/ProjectTools
 import { createProjectDomain } from './services/project-domain.js';
 
 const destinations = ['参加者', '車割', '班割', '精算'];
+const sectionByView = ['participants', 'organization-car', 'organization-team', 'settlement'];
+const viewBySection = Object.freeze({ participants: 0, 'organization-car': 1, 'organization-team': 2, settlement: 3 });
 const noticeKind = message => /できません|失敗|エラー/.test(message) ? 'error' : /未割り当て|確認してください|選ぶと/.test(message) ? 'warning' : /ました|コピー/.test(message) ? 'success' : 'info';
 export default function App({ runtime }) {
   const room = useSyncExternalStore(runtime.store.subscribe, runtime.store.getSnapshot);
   const syncStatus = useSyncExternalStore(runtime.sync.subscribe, runtime.sync.getSnapshot);
+  const section = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getSnapshot, () => runtime.initialSection);
   const [theme, setTheme] = useState('g10');
-  const [view, setView] = useState(runtime.initialView ?? 1);
   const [roomName, setRoomName] = useState(null);
   const [notice, setNotice] = useState('');
   const [globalModal, setGlobalModal] = useState('');
@@ -47,13 +49,7 @@ export default function App({ runtime }) {
     else seedSample(sampleType === 'missing');
   }
   function changeView(selectedIndex) {
-    setView(selectedIndex);
-    const url = new URL(location.href);
-    url.searchParams.delete('allocation');
-    if (selectedIndex === 0) url.searchParams.set('view', 'participants');
-    else if (selectedIndex === 3) url.searchParams.set('view', 'seisan');
-    else url.searchParams.delete('view');
-    history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
+    runtime.navigation.navigate(sectionByView[selectedIndex]);
   }
   return <Theme theme={theme} className="application">
     <AppHeader theme={theme} onShare={share} onOpenUtility={openGlobalModal} onToggleTheme={toggleTheme} />
@@ -62,7 +58,7 @@ export default function App({ runtime }) {
       {syncStatus.kind !== 'local' && <span className="sync-status" role="status">{syncStatus.message}</span>}
     </section></Column></Grid>
     <Grid fullWidth className="content-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><main className="main-content">
-      <Tabs selectedIndex={view} onChange={({ selectedIndex }) => changeView(selectedIndex)}>
+      <Tabs selectedIndex={viewBySection[section] ?? 1} onChange={({ selectedIndex }) => changeView(selectedIndex)}>
         <TabList aria-label="画面切り替え" contained fullWidth>{destinations.map(name => <Tab key={name}>{name}</Tab>)}</TabList>
         <TabPanels>
           <TabPanel><Participants runtime={runtime} room={room} onNotice={setNotice} /></TabPanel>

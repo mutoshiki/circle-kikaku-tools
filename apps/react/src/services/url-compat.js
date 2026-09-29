@@ -1,3 +1,7 @@
+import { createProjectSectionUrl, readProjectSection } from './project-navigation.js';
+
+export { createProjectSectionUrl } from './project-navigation.js';
+
 export const HANDOFF_TOKEN_PARAM = 'handoff';
 export const HANDOFF_TOKEN_PREFIX = 'SANPO_HANDOFF_EXPORT_TOKEN_V1:';
 export const validHandoffToken = value => /^h_[A-Za-z0-9_-]{48,160}$/.test(String(value || ''));
@@ -22,6 +26,7 @@ export function prepareCompatibleUrl({ location, history, storage, crypto }) {
   }
   const requestedView = url.searchParams.get('view');
   const initialView = requestedView === 'participants' ? 0 : requestedView === 'seisan' ? 3 : 1;
+  const initialSection = readProjectSection(url.href);
   const launchToken = String(url.searchParams.get(HANDOFF_TOKEN_PARAM) || '');
   if (validHandoffToken(launchToken)) {
     try { storage.setItem(tokenStorageKey(roomId), launchToken); } catch {}
@@ -37,5 +42,5 @@ export function prepareCompatibleUrl({ location, history, storage, crypto }) {
   const next = `${url.pathname}${url.search}${url.hash}`;
   const current = new URL(location.href);
   if (`${current.pathname}${current.search}${current.hash}` !== next) history.replaceState(history.state || null, '', next);
-  return { roomId, href: url.href, initialView, handoffToken };
+  return { roomId, href: url.href, initialView, initialSection, handoffToken };
 }
