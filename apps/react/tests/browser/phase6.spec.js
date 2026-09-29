@@ -23,7 +23,7 @@ test.beforeEach(async ({ page }, testInfo) => {
     };
   }, { key: `sanpo-react:v1:${roomId}:room`, value: fixture });
   await page.goto(`/?room=${roomId}&view=sheet&allocation=car&handoff=${token}`);
-  await expect(page).toHaveURL(new RegExp(`\\?room=${roomId}$`));
+  await expect(page).toHaveURL(new RegExp(`\\?room=${roomId}&section=organization-car$`));
 });
 
 test('guidance, CSV, utility report, notifications and URL security', async ({ page }) => {

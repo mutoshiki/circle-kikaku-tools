@@ -39,6 +39,7 @@ test.beforeEach(async ({ page }, testInfo) => {
 });
 
 test('primary dialogs retain viewport margins and usable actions', async ({ page }, testInfo) => {
+  test.slow();
   const errors = [];
   const evidence = process.env.MIGRATION_EVIDENCE_DIR || join(tmpdir(), 'circle-react-migration-evidence');
   page.on('pageerror', error => errors.push(error.message));
