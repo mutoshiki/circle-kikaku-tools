@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { navigateToProjectSection } from './project-navigation.js';
 
 const outputRoot = join(process.cwd(), '..', '..', 'artifacts', 'ui-audit');
 function shot(page, viewportName, number, name) {
@@ -22,7 +23,7 @@ test('capture form-linked and registration UI states', async ({ page }, testInfo
     await page.setViewportSize(viewport);
     const room = `UI-AUDIT-FORM-${viewportName}`;
     await page.goto(`/?room=${room}`);
-    await page.getByRole('tab', { name: '参加者', exact: true }).click();
+    await navigateToProjectSection(page, '参加者');
     await page.getByRole('button', { name: '追加', exact: true }).click();
     await shot(page, viewportName, 37, 'participant-registration-modal');
     await page.getByRole('button', { name: '貼り付け方を見る', exact: true }).click();
@@ -34,7 +35,7 @@ test('capture form-linked and registration UI states', async ({ page }, testInfo
     const sample = page.getByRole('dialog', { name: 'サンプルデータ' });
     await sample.getByRole('radio', { name: 'フォーム連携サンプル', exact: true }).check({ force: true });
     await sample.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
-    await page.getByRole('tab', { name: '参加者', exact: true }).click();
+    await navigateToProjectSection(page, '参加者');
     await shot(page, viewportName, 39, 'form-linked-participants-unconfirmed');
     const confirm = page.getByRole('button', { name: '参加者を確定', exact: true });
     if (await confirm.count()) await confirm.click();

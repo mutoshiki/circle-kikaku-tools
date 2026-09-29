@@ -257,7 +257,7 @@ function CollectionPrompt({ value, onChange, onSave, onClose }) {
   </Modal>;
 }
 
-export default function Settlement({ runtime, room, onNotice }) {
+export default function Settlement({ runtime, room, onNotice, embedded = false }) {
   const { data, state } = runtime.store.domain.settlementInput(room);
   const isMobile = useMediaQuery('(max-width: 671px)');
   const settlement = runtime.store.domain.settlement;
@@ -294,11 +294,11 @@ export default function Settlement({ runtime, room, onNotice }) {
   }
   function openMemoEditor() { setMemo(state.memo || ''); setMemoEditing(true); }
   function closeMemoEditor() { setMemo(null); setMemoEditing(false); }
-  if (!result.participants.length && !result.isStandaloneSettlement) return <section className="settlement-page"><div className="empty-state"><h1>精算</h1><p>参加者がいません</p></div></section>;
+  if (!result.participants.length && !result.isStandaloneSettlement) return <section className="settlement-page"><div className="empty-state">{!embedded && <h1>精算</h1>}<p>参加者がいません</p></div></section>;
   return <section className="settlement-page" aria-label="精算">
     {issues.messages.map(message => <InlineNotification key={message} kind={message.includes('企画者を選ぶ') ? 'info' : 'error'} title="設定を確認してください" subtitle={message} hideCloseButton lowContrast />)}
     <Tile className="settlement-card settlement-vehicles-card">
-      <div className="settlement-section-heading"><div><h1>各車への支払い</h1></div>
+      <div className="settlement-section-heading"><div>{embedded ? <h2>各車への支払い</h2> : <h1>各車への支払い</h1>}</div>
         <Button className="settlement-settings-action" kind="ghost" size="sm" renderIcon={Edit} aria-label="精算設定を編集" onClick={() => setSettingsEdit(beginSettlementEdit(runtime.store))}>精算設定</Button>
       </div>
       <div className="settlement-car-list">{data.cars.map((car, index) => {

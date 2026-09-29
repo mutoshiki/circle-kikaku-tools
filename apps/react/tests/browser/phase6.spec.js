@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { navigateToProjectSection } from './project-navigation.js';
 
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', import.meta.url)));
 const token = `h_${'R'.repeat(48)}`;
@@ -22,12 +23,12 @@ test.beforeEach(async ({ page }, testInfo) => {
     };
   }, { key: `sanpo-react:v1:${roomId}:room`, value: fixture });
   await page.goto(`/?room=${roomId}&view=sheet&allocation=car&handoff=${token}`);
-  await expect(page).toHaveURL(new RegExp(`\\?room=${roomId}$`));
+  await expect(page).toHaveURL(new RegExp(`\\?room=${roomId}&section=organization-car$`));
 });
 
 test('guidance, CSV, utility report, notifications and URL security', async ({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
-  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+  await navigateToProjectSection(page, '参加者');
   let saved = await page.evaluate(roomId => JSON.parse(localStorage.getItem(`sanpo-react:v1:${roomId}:room`)), new URL(page.url()).searchParams.get('room'));
   expect(saved.meta.applicationSync.title).toBe(fixture.meta.applicationSync.title);
 
@@ -55,7 +56,7 @@ test('guidance, CSV, utility report, notifications and URL security', async ({ p
 
 test('route draft stays local and selected distance alone enters shared settlement', async ({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
-  await page.getByRole('tab', { name: '精算', exact: true }).click();
+  await navigateToProjectSection(page, '精算');
   await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();
   const car = page.getByRole('dialog', { name: '仮参加者A車' });
   await car.getByRole('button', { name: '費用を追加' }).click();
@@ -94,7 +95,7 @@ test('route draft stays local and selected distance alone enters shared settleme
   expect(JSON.stringify(state.room)).not.toContain('fixture-route');
   expect(state.route.routes[0].id).toBe('fixture-route');
   expect(JSON.stringify(state.room)).not.toContain(token);
-  await page.reload(); await page.getByRole('tab', { name: '精算', exact: true }).click(); await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();
+  await page.reload(); await navigateToProjectSection(page, '精算'); await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();
   const reopened = page.getByRole('dialog', { name: '仮参加者A車' });
   await reopened.getByRole('button', { name: 'ガソリン代の操作' }).click();
   await page.getByRole('menuitem', { name: '計算条件を編集' }).click();

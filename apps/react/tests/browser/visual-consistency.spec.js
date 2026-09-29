@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { navigateToProjectSection } from './project-navigation.js';
 test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   const roomId = 'VISUAL-CONSISTENCY-RC';
   await page.setViewportSize({ width: 390, height: 844 });
@@ -9,22 +10,20 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await sample.getByRole('radio', { name: '通常サンプル', exact: true }).check({ force: true });
   await sample.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
 
-  const tabs = page.getByRole('tablist', { name: '画面切り替え' });
-  await expect(tabs.getByRole('tab')).toHaveCount(4);
-  await expect(page.getByRole('heading', { name: '参加者', exact: true })).toHaveCount(0);
-  const participantSummary = page.locator('.participants-page > .section-heading p');
-  await expect(participantSummary).toContainText(/参加者\s*\d+人/);
-  expect(await participantSummary.evaluate(element => getComputedStyle(element).marginBlockStart)).toBe('0px');
-  const participantInset = (await participantSummary.boundingBox()).x;
+  await expect(page.getByRole('navigation', { name: '企画内ナビゲーション' }).getByRole('link')).toHaveCount(6);
+  const participantHeading = page.getByRole('heading', { name: '参加者', exact: true });
+  await expect(participantHeading).toBeVisible();
+  const participantInset = (await participantHeading.boundingBox()).x;
   await expect(page.getByText('参加者を追加してください。', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '追加', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '追加', exact: true }).click();
   await expect(page.getByRole('dialog', { name: '参加者登録' })).toBeVisible();
   await page.getByRole('dialog', { name: '参加者登録' }).getByRole('button', { name: 'キャンセル' }).click();
 
-  await page.getByRole('tab', { name: '班割', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '班割', exact: true })).toHaveCount(0);
-  await expect(page.locator('.allocation-page[aria-label="班割"] .allocation-toolbar-summary')).toContainText(/\d+人・\d+班/);
+  await navigateToProjectSection(page, '班割');
+  const teamHeading = page.getByRole('heading', { name: '班割', exact: true });
+  await expect(teamHeading).toBeVisible();
+  expect(Math.abs((await teamHeading.boundingBox()).x - participantInset)).toBeLessThanOrEqual(1);
   const randomize = page.getByRole('button', { name: 'ランダム割り当て', exact: true });
   await expect(randomize).toHaveClass(/cds--btn--ghost/);
   await randomize.hover();
@@ -39,10 +38,11 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await seatToggle.click();
   await expect(seatToggle).toHaveAttribute('aria-expanded', 'true');
 
-  await page.getByRole('tab', { name: '精算', exact: true }).click();
+  await navigateToProjectSection(page, '精算');
+  await expect(page.getByRole('heading', { level: 1, name: '精算', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: '各車への支払い', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: '集金チェック', exact: true })).toBeVisible();
-  const settlementInset = (await page.getByRole('heading', { name: '各車への支払い', exact: true }).boundingBox()).x;
+  const settlementInset = (await page.getByRole('heading', { level: 1, name: '精算', exact: true }).boundingBox()).x;
   expect(Math.abs(settlementInset - participantInset)).toBeLessThanOrEqual(1);
   const settingsButton = page.getByRole('button', { name: '精算設定を編集', exact: true });
   await expect(settingsButton).toHaveClass(/cds--btn--ghost/);

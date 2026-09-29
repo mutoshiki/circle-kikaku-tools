@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import {
-  Header, HeaderGlobalAction, HeaderGlobalBar, HeaderName, HeaderPanel,
+  Header, HeaderGlobalAction, HeaderGlobalBar, HeaderMenuButton, HeaderName, HeaderPanel,
   Menu, MenuItem, Popover, PopoverContent, Switcher, SwitcherItem,
 } from '@carbon/react';
 import { Link, OverflowMenuVertical, Switcher as SwitcherIcon } from '@carbon/icons-react';
@@ -11,7 +11,7 @@ const relatedApplications = [
   { name: '山歩会企画ツール一覧', href: 'https://mutoshiki.github.io/sanpokai-kikaku-portal/' },
 ];
 
-export default function AppHeader({ theme, onShare, onOpenUtility, onToggleTheme }) {
+export default function AppHeader({ theme, projectName, showSampleData, navigationButtonRef, navigationOpen, onToggleNavigation, onShare, onOpenUtility, onToggleTheme }) {
   const [utilityOpen, setUtilityOpen] = useState(false);
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const switcherButton = useRef(null);
@@ -31,8 +31,10 @@ export default function AppHeader({ theme, onShare, onOpenUtility, onToggleTheme
     setSwitcherOpen(value => !value);
   }
 
-  return <Header aria-label="サークル企画ツール" className="app-header">
-    <HeaderName prefix="">サークル企画ツール</HeaderName>
+  return <Header aria-label="山歩会企画ツール" className="app-header">
+    <HeaderMenuButton ref={navigationButtonRef} aria-label={navigationOpen ? '企画メニューを閉じる' : '企画メニューを開く'} aria-expanded={navigationOpen} isActive={navigationOpen} onClick={onToggleNavigation} />
+    <HeaderName prefix="">山歩会企画ツール</HeaderName>
+    <div className="app-header__project" title={projectName || '企画名未設定'}><span>{projectName || '企画名未設定'}</span></div>
     <HeaderGlobalBar>
       <HeaderGlobalAction aria-label="共有リンク" tooltipAlignment="end" onClick={onShare}><Link size={20} /></HeaderGlobalAction>
       <Popover className="utility-menu-popover" open={utilityOpen} align="bottom-end" autoAlign onRequestClose={() => setUtilityOpen(false)}>
@@ -40,7 +42,7 @@ export default function AppHeader({ theme, onShare, onOpenUtility, onToggleTheme
         <PopoverContent className="utility-menu-popover__content">
           <Menu label="ユーティリティメニュー" open={utilityOpen} target={null} legacyAutoalign={false} onClose={() => setUtilityOpen(false)}>
             <MenuItem label="使い方" onClick={() => openUtility('guide')} />
-            <MenuItem label="サンプルデータ" onClick={() => openUtility('sample')} />
+            {showSampleData && <MenuItem label="サンプルデータ" onClick={() => openUtility('sample')} />}
             <MenuItem label={theme === 'g10' ? 'ダークモードに切り替え' : 'ライトモードに切り替え'} onClick={() => { setUtilityOpen(false); onToggleTheme(); }} />
             <MenuItem label="バグを報告する" onClick={() => openUtility('bug')} />
           </Menu>

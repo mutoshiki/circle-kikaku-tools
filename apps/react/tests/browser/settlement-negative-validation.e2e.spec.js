@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { navigateToProjectSection } from './project-navigation.js';
 
 test.beforeEach(async ({ page }, testInfo) => {
   const projectId = testInfo.project.name === 'chromium-mobile' ? 'M' : 'D';
@@ -9,7 +10,7 @@ test.beforeEach(async ({ page }, testInfo) => {
   await page.getByRole('menuitem', { name: 'サンプルデータ' }).click();
   const samples = page.getByRole('dialog', { name: 'サンプルデータ' });
   await samples.getByRole('button', { name: 'サンプルを入れる' }).click();
-  await page.getByRole('tab', { name: '精算', exact: true }).click();
+  await navigateToProjectSection(page, '精算');
   const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(horizontalOverflow).toBeLessThanOrEqual(1);
 });
@@ -37,7 +38,7 @@ test('expense editor rejects negative values and a zero-value row preserves sett
 
   expect((await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, '')).toBe(originalBreakdown);
   await page.reload();
-  await page.getByRole('tab', { name: '精算', exact: true }).click();
+  await navigateToProjectSection(page, '精算');
   const reloadedCar = page.locator('.settlement-car').first();
   expect((await reloadedCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, '')).toBe(originalBreakdown);
   await page.getByRole('button', { name: '費用を入力' }).first().click();

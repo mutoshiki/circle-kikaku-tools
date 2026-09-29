@@ -4,10 +4,11 @@ import { createRoomSync } from './sync/room-sync.js';
 import { createApplicantSync } from './sync/applicant-sync.js';
 import { createHistoryService } from './services/history.js';
 import { createOverviewDraftStorage } from './services/overview-draft.js';
-import { createShareUrl, prepareCompatibleUrl } from './services/url-compat.js';
+import { createShareUrl } from './services/url-compat.js';
+import { createProjectNavigation, prepareProjectLaunch } from './navigation/project-navigation.js';
 
-export function createLocalRuntime({ location, history, storage, crypto, transport, legacyLoadWrites = true, routeService = null, externalAdapters = {} }) {
-  const launch = prepareCompatibleUrl({ location, history, storage, crypto });
+export function createLocalRuntime({ location, history, storage, crypto, transport, legacyLoadWrites = true, routeService = null, externalAdapters = {}, eventTarget = globalThis.window }) {
+  const launch = prepareProjectLaunch({ location, history, storage, crypto });
   const roomId = launch.roomId;
   const roomStorage = createRoomStorage(storage, roomId);
   const clientId = roomStorage.read('clientId') || `react_${crypto.randomUUID().replaceAll('-', '').slice(0, 12)}`;
@@ -20,6 +21,7 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
   const applicantSync = createApplicantSync({ store, transport });
   const roomHistory = createHistoryService({ storage, roomId, clock: transport?.clock });
   const overviewDraft = createOverviewDraftStorage(storage, roomId);
+  const navigation = createProjectNavigation({ location, history, eventTarget });
   const routeDraftKey = `sanpo.routePlannerState.v2:${roomId}`;
   const routeDraft = Object.freeze({
     read(fallback = {}) { try { return JSON.parse(storage.getItem(routeDraftKey) || 'null') || structuredClone(fallback); } catch { return structuredClone(fallback); } },
@@ -42,7 +44,7 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
     applicantSync.start();
   }
   async function dispose() { unsubscribe?.(); unsubscribe = null; applicantSync.dispose(); sync.dispose(); await transport?.dispose(); }
-  return { roomId, initialView: launch.initialView, handoffToken: launch.handoffToken, store, storage: roomStorage, sync, history: roomHistory, overviewDraft, routeDraft, routeService, external, createShareUrl: () => createShareUrl(new URL(location.href, launch.href).href), start, dispose };
+  return { roomId, initialView: launch.initialView, initialSection: launch.initialSection, navigation, sampleDataEnabled: !transport, handoffToken: launch.handoffToken, store, storage: roomStorage, sync, history: roomHistory, overviewDraft, routeDraft, routeService, external, createShareUrl: () => createShareUrl(new URL(location.href, launch.href).href), start, dispose };
 }
 
 export async function createRuntime(options, env = import.meta.env || {}) {

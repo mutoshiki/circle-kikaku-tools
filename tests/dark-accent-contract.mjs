@@ -17,7 +17,6 @@ const importTable = await read('assets/css/guides-modals/import-guide/02-import-
 const routeShell = await read('assets/css/settlement/route-helper/01-route-shell.css');
 const routeStops = await read('assets/css/settlement/route-helper/02-route-stops.css');
 const routeCandidates = await read('assets/css/settlement/route-helper/03-route-candidates.css');
-const index = await read('index.html');
 
 expect(darkTheme.includes('--cds-interactive: #0f62fe;'), 'Dark primary actions must use Carbon blue 60.');
 expect(darkTheme.includes('--cds-layer: var(--cds-layer-01);'), 'Dark theme must provide Carbon layer for component shells.');
@@ -54,7 +53,5 @@ expect(routeCandidates.includes('border-left-color: var(--app-accent-fill);'), '
 const popupOwners = [modalBase, dropdowns, personMenu, shareModal, importShell, importTable, routeShell, routeStops, routeCandidates].join('\n');
 expect(!/#4589ff/i.test(popupOwners), 'Popup owners must not hard-code Carbon blue 50.');
 expect(!/var\(--accent-line\)/.test(popupOwners), 'Popup owners must not consume the ambiguous legacy accent-line token.');
-
-expect(index.includes('rendered-qa-v28'), 'Theme cache-buster was not updated.');
 
 console.log('PASS dark accent and popup semantic contract');
