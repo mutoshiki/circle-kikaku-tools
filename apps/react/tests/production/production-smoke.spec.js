@@ -116,7 +116,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
       const legacyUrl = new URL('/circle-kikaku-tools/', 'https://mutoshiki.github.io');
       legacyUrl.searchParams.set('room', roomId);
       await page.goto(legacyUrl.toString());
-      await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(updatedSmokeMarker);
+      await expect(page.locator('#roomNameInput')).toHaveJSProperty('value', updatedSmokeMarker);
       await page.goto(`${productionPath}?room=${roomId}&view=seisan`);
       await expect(page.getByRole('tabpanel', { name: '精算', exact: true })).toBeVisible();
     }
