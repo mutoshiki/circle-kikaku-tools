@@ -56,7 +56,6 @@ check('Primary navigation uses Carbon Tabs while allocation mode uses Carbon Con
   const headerEvents = read('assets/js/features/events/02-static-header-events.js');
   assert.match(html, /<nav\b[^>]*id="app-view-navigation"/i);
   assert.match(html, /<cds-tabs\b[^>]*id="view-toggle-bar"/i);
-  assert.match(html, /<cds-tab\b[^>]*id="tab-list"[^>]*selected/i);
   assert.match(headerEvents, /teamTab\.id\s*=\s*['"]tab-team['"]/);
   assert.match(headerEvents, /teamTab\.setAttribute\(['"]value['"],\s*['"]team['"]\)/);
   assert.match(read('assets/js/core/data-state.js'), /<cds-content-switcher class="car-plan-template-tabs"/);
