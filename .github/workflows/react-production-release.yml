@@ -290,6 +290,9 @@ jobs:
           cache-dependency-path: apps/react/package-lock.json
       - run: npm ci --no-audit --no-fund
         working-directory: apps/react
+      - name: Install Chromium for browser-origin cleanup
+        working-directory: apps/react
+        run: npx playwright install --with-deps chromium
       - name: Remove only this run's marked smoke room and verify null
         working-directory: apps/react
         run: node tools/cleanup-production-smoke.mjs
