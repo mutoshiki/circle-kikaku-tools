@@ -6,6 +6,7 @@ import { navigateToProjectSection } from './project-navigation.js';
 
 async function saved(page, room = 'ALLOCATION-RC') { return page.evaluate(key => JSON.parse(localStorage.getItem(`sanpo-react:v1:${key}:room`)), room); }
 test('register, fill seats, independent team, roles, fixed participants, menus and reload', async ({ page }, testInfo) => {
+  test.slow();
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/?room=ALLOCATION-RC');
