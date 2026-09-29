@@ -49,5 +49,6 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   for (const name of ['prepare', 'compatibility-smoke', 'compatibility-cleanup', 'root-smoke', 'root-cleanup']) {
     assert.match(job(name), /secrets\.REACT_FIREBASE_API_KEY/);
   }
+  assert.match(job('root-cleanup'), /Install Chromium for browser-origin cleanup[\s\S]*npx playwright install --with-deps chromium/);
   assert.match(job('prepare'), /secrets\.REACT_MAPS_API_KEY/);
 });
