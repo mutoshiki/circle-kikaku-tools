@@ -16,7 +16,7 @@ test('production preview loads assets and preserves a room edit across critical 
   await expect(page.getByRole('heading', { name: '参加者', exact: true })).toHaveCount(0);
   await expect(page.locator('.participants-page > .section-heading p')).toContainText(/参加者\s*\d+人/);
   await page.getByRole('tab', { name: '車割', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '車割', exact: true })).toBeVisible();
+  await expect(page.getByRole('tabpanel', { name: '車割', exact: true }).locator('section.allocation-page')).toBeVisible();
   await page.getByRole('tab', { name: '班割', exact: true }).click();
   await expect(page.getByRole('heading', { name: '班割', exact: true })).toHaveCount(0);
   await page.getByRole('tab', { name: '精算', exact: true }).click();

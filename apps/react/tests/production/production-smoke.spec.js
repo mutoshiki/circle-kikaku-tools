@@ -72,7 +72,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
     await page.getByRole('tab', { name: '車割', exact: true }).click();
-    await expect(page.getByRole('heading', { name: '車割', exact: true })).toBeVisible();
+    await expect(page.getByRole('region', { name: '車割', exact: true })).toBeVisible();
     await page.getByRole('tab', { name: '班割', exact: true }).click();
     await expect(page.getByRole('tabpanel', { name: '班割', exact: true })).toBeVisible();
     await page.getByRole('tab', { name: '精算', exact: true }).click();
