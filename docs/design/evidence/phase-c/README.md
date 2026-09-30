@@ -65,7 +65,7 @@ The independent whole-branch reviewer found no remaining Critical/Important find
 - Offline suite: set `SANPO_TEST_FIREBASE_TARGET=offline`, demo project ID, and loopback database URL, then run `npm --prefix apps/react run test:browser`. The historical `production-smoke.spec.js` name runs only this isolated local preview (4176); no production smoke was run.
 - Emulator: use `firebase emulators:exec --config apps/react/migration/firebase-emulator.json --only auth,database --project demo-circle-react` with explicit emulator target, then run the existing unit/browser scripts. Synthetic room mutations and temporary room-specific rejecting Rules occur only in the demo Emulator, are restored, and the owned process stops after testing.
 - Set `PHASE_C_EVIDENCE_DIR` to capture the four screenshots with `phase-c-evidence.spec.js`.
-- Earlier full offline runs exposed a reload test checking mobile-trigger visibility before React mounted, and one non-reproduced WebKit footer-focus failure. The reload helper now waits for the current main heading; the footer test additionally asserts dialog initial focus and close-button focus, retaining its original wrap assertion. Diagnostic repeat passed 5/5; final focused and CI results are recorded with the PR. No timeout, forced click, skip, or assertion relaxation was introduced.
+- Earlier full offline runs exposed a reload test checking mobile-trigger visibility before React mounted, one non-reproduced WebKit footer-focus failure, and an immediate midpoint-scroll fade assertion racing the browser repaint. The reload helper now waits for the current main heading; the footer test additionally asserts dialog initial focus and close-button focus, retaining its original wrap assertion. Midpoint fade now waits for the same rendered state, like the existing bottom-fade assertion; neither fade expectation was removed. Diagnostic footer repeat passed 5/5; focused and CI results are recorded with the PR. No timeout, forced click, skip, or assertion relaxation was introduced.
 
 ## Verified results
 
@@ -73,10 +73,15 @@ The independent whole-branch reviewer found no remaining Critical/Important find
 - Production build: passed; only the existing bundle-size advisory was reported.
 - Protected legacy files: 1,332 unchanged.
 - Final focused browser contracts: 60 passed across Chromium/WebKit desktop/mobile, after all pilot fixes and stronger modal initialization assertions.
-- Full offline regression before the final focus/reset fixes: 239 passed, 12 intended viewport-specific skips, one WebKit footer-focus failure investigated as above. This is not recorded as an all-green run. Final relevant browser/CI results accompany the integration PR.
+- Final midpoint/bottom scroll-fade regression: 8 passed (all four browser projects, repeated twice) after waiting for the actual repaint rather than reading an intermediate frame.
+- Full offline regressions: 239 passed, 12 intended viewport-specific skips; earlier run had one WebKit footer-focus failure, later run had one WebKit midpoint-fade assertion race investigated as above. Neither is recorded as an all-green run. Final relevant browser/CI results accompany the integration PR.
 - Auth/Realtime Database Emulator unit suite: 3 passed.
 - Auth/Realtime Database Emulator browser suite: 12 passed (six scenarios in Chromium desktop and WebKit 390px), including real Rules rejection/retry, independent fields, delayed acknowledgement, remote deletion, and concurrent reset.
 - Legacy static contracts: 36 passed.
 - Browser CLI inspection: Chromium at 390 × 844 confirmed Overview focus entry, name → memo keyboard order, Cancel return, and row-delete focus falling to BODY before the fix and Add after it.
 - Visual review: all four committed dark-theme screenshots were inspected; no clipping or document-level horizontal overflow was observed.
 - Production release, deployment, smoke, and production Firebase writes: not run, per the Carbon redesign integration exception.
+
+## Integration status
+
+PR [#78](https://github.com/mutoshiki/circle-kikaku-tools/pull/78) targets `carbon-redesign`; it must not merge while required checks fail. [First CI run](https://github.com/mutoshiki/circle-kikaku-tools/actions/runs/36781264775) (head `5224882`) found identical legacy collaboration failure IDs on head and base (`newFailureIds: []`): ten `test:collab:deep` owner/capacity boundary/race issues and `test:collab:soak :: car owner placement mismatch`. The clean-legacy gate fails because the path classifier treats `src/services/overview-draft.js` as shared, even though this change concerns only the local UI draft. React Chromium/WebKit browser, shared-collaboration, Firebase compatibility, build/unit/visual checks passed on that run. No classifier, workflow, domain owner, required check, or legacy assertion has been weakened to hide the baseline failures. Addressing this classification or the existing protected-domain defects requires a separately reviewed scope before integration; Phase C is not yet declared complete.

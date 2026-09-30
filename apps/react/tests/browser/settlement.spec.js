@@ -582,7 +582,12 @@ test('movement settings body scrolls within a short mobile viewport', async ({ p
     return { top: node.scrollTop, max: node.scrollHeight - node.clientHeight, mask: style.maskImage, webkitMask: style.webkitMaskImage };
   });
   expect(middleScroll.top).toBeLessThan(middleScroll.max);
-  expect(middleScroll.mask !== 'none' || middleScroll.webkitMask !== 'none').toBe(true);
+  // Scroll events and the resulting fade repaint are asynchronous, just as
+  // the bottom-state repaint below is. Assert the rendered state, not a frame.
+  await expect.poll(() => content.evaluate(node => {
+    const style = getComputedStyle(node);
+    return style.maskImage !== 'none' || style.webkitMaskImage !== 'none';
+  })).toBe(true);
   const headerAfter = await dialog.locator('.cds--modal-header').evaluate(node => node.getBoundingClientRect().toJSON());
   expect(headerAfter.top).toBe(headerBefore.top);
   expect(headerAfter.bottom).toBe(headerBefore.bottom);
