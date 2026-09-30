@@ -10,10 +10,10 @@ export default function ProjectPage({ context, title, description, metadata = []
             <h1 id="project-page-title" tabIndex={-1}>{title}</h1>
             {description && <p>{description}</p>}
           </div>
-          {actions && <div className="project-page__actions" aria-label="ページ操作">{actions}</div>}
           {!!metadata.length && <dl className="project-page__metadata">
             {metadata.map(item => <div key={item.label}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}
           </dl>}
+          {actions && <div className="project-page__actions" aria-label="ページ操作">{actions}</div>}
         </header>
       </Column>
       <Column sm={4} md={8} lg={16} xlg={16} max={16}>

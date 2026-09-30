@@ -63,19 +63,12 @@ Carbonの[2x Grid](https://carbondesignsystem.com/elements/2x-grid/overview/)は
 
 ### Project interpretation
 
-最上位の情報構造はコード上の4 componentではなく、次のtask lifecycleである。
-
-1. 企画を定義する
-2. 応募を取り込み、参加者を確定する
-3. 車と班を編成する
-4. 移動と費用を確定する
-5. 誰が誰へいくら支払うかを確定し、完了を追跡する
-6. 変更履歴と引き継ぎを管理する
+最上位の情報構造はコード上の4 componentでも一般的なproject management lifecycleでもなく、実際のactor、時期、反復頻度、引き渡し、完了条件から導く。利用者が共有した実運用を一次情報として扱い、企画の定義や履歴管理を必須の開始・終了stageにしない。具体的なproduct realityとIAは唯一のownerであるProduct UI仕様§1–2を参照する。
 
 ### Practical rule
 
-- Page titleは「精算設定」など内部構造ではなく、ユーザーが達成する対象を示す。
-- Page headerは title、状態、主要action、補助metadataの順。section titleでpage titleを代用しない。
+- Page titleはユーザーが達成する対象を示す。「精算設定」のような利用者のtask名は使えるが、component名や内部state名を露出しない。
+- Page headerはtitleで現在taskを示し、判断に必要なmetadataとactionを区別する。具体的なDOM順・mobile順はProduct UI仕様§4が所有する。section titleでpage titleを代用しない。
 - 重要度をsurfaceの数で表さない。heading level、位置、spacing、action emphasisで表す。
 - 互いに独立したwork areaをTabsへ押し込まない。Tabsは同じ文脈内の関連viewに限定する。
 - 同じ事実を複数surfaceで繰り返さない。summaryから詳細へ辿れる構造にする。
@@ -92,7 +85,7 @@ Carbon gridはbreakpointごとのcolumn、margin、gutter、key lineを一貫さ
 
 1. Global header: product identity、project switcher / related tools、global utilities
 2. Project context: project name、sync/status、project-level actions
-3. Local navigation: lifecycleのwork area
+3. Local navigation: 主要work areaと必要時の補助機能
 4. Page header: current task、status、primary action
 5. Main content: task順に並ぶsection / list / workspace
 6. Contextual actions: selection時、editing時だけ表示
@@ -103,7 +96,7 @@ Carbon gridはbreakpointごとのcolumn、margin、gutter、key lineを一貫さ
 - global、project、page、rowのactionを同じtoolbarへ混在させない。
 - footerは文書末尾用。保存actionを置く独自fixed footerを常設しない。
 - mobileでもglobal headerとpage titleの役割を残す。titleを省いてTabsだけにしない。
-- page-level primary actionは通常1つ。selection modeやmodalは別の一時的contextとして数える。
+- page-level primary actionは必要な場合だけ最大1つ。selection modeやmodalは別の一時的contextとして数える。
 
 ## 6. Grid and responsive layout
 
@@ -154,6 +147,7 @@ compactは余白を消すことではない。row内、group内、section間、p
 ### Practical rule
 
 - Carbon type tokenを使い、任意のfont-size / line-heightを増やさない。
+- installed packageのSass `type-style`等、実際に出力される公開APIを使う。token名に似た未定義CSS変数を作って参照しない。computed typographyでhierarchyが成立することをbrowserで確認する。[Type sets](https://carbondesignsystem.com/elements/typography/type-sets/)のproductive fixed headingとutility / body roleを混同しない。
 - 見た目の大きさではなくsemantic heading levelを正しくする。
 - 金額は単位と桁の可読性を保ち、同じlistではalignmentを揃える。
 - helper、metadata、statusをすべて同じsmall textに落とさず、役割を分ける。
@@ -196,7 +190,7 @@ Carbonは[Layer](https://carbondesignsystem.com/elements/color/usage/#layering-m
 
 ### Official guidance
 
-[Button usage](https://carbondesignsystem.com/components/button/usage/)では、通常pageのprimaryは1つ。Secondaryはprimaryと対になる補助、Tertiaryは独立したsub-action、Ghostは最小強調。3つを超えるactionはgroupingやoverflowを検討する。Danger actionをicon-onlyにしない。
+[Button usage](https://carbondesignsystem.com/components/button/usage/)では、Primaryはpageの主要なcall to actionに限定する。閲覧中心pageはPrimaryなしでよく、page headerにはTertiaryを推奨する。SecondaryはPrimaryと対になる補助、Ghostは最小強調。actionが多い場合はgroupingやoverflowを検討する。Danger actionをicon-onlyにしない。
 
 ### Project interpretation
 
@@ -204,7 +198,7 @@ primaryは「現在のtaskを前進・完了させる操作」。表示切替、
 
 ### Practical rule
 
-- 各page / dialog / selection contextでprimaryを1つ特定する。
+- 各page / dialog / selection contextでPrimaryが必要か判断し、必要な場合は最大1つにする。具体的な選択はProduct UI仕様§5を参照する。
 - destructive actionは通常overflowまたはdanger zoneへ置き、日常actionと距離を取る。
 - Buttonをnavigation linkとして使わない。
 - icon-onlyにはvisible-on-focus/hover tooltipとaccessible nameを付ける。
@@ -224,7 +218,7 @@ form surfaceを開く前に、auto-save、explicit save、draft、apply、cancel
 
 - Auto-save: 変更が局所的で、即時反映が安全、undoまたは状態表示がある場合だけ。
 - Explicit save: 複数fieldが1つの整合した変更になる場合。saveまでshared stateへ反映しない。
-- Apply: 値を適用するがsurfaceを閉じない時だけ。
+- Apply: 計算・選択結果を現在のediting contextへ反映する。共有保存と同義にしない。surfaceを閉じるかはtaskの戻り先contractで決める。具体的な保存境界はProduct UI仕様§6 / §10を参照する。
 - Cancel: 未保存変更を破棄して閉じる。Closeと同じdialogで併用しない。
 - validationは該当fieldへ関連付け、blur後またはsubmit時に表示する。最初のinvalid fieldへfocusを移す。
 - native input typeとmobile keyboardを選ぶ。選択肢が少なく全て見せる価値がある場合はRadio、独立booleanはCheckboxを使う。

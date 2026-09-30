@@ -10,7 +10,7 @@ export const PROJECT_SECTIONS = Object.freeze([
 ]);
 
 const SECTION_SET = new Set(PROJECT_SECTIONS);
-export const DEFAULT_PROJECT_SECTION = 'overview';
+export const DEFAULT_PROJECT_SECTION = 'participants';
 
 export function readProjectSection(href) {
   const url = new URL(href);

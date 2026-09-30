@@ -1,24 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  Content, SideNav, SideNavItems, SideNavLink, SideNavMenu, SideNavMenuItem, SkipToContent,
+  Content, SideNav, SideNavItems, SideNavLink, SideNavDivider, SkipToContent,
 } from '@carbon/react';
 import AppHeader from './AppHeader.jsx';
+import { breakpoints } from '@carbon/layout';
 import useMediaQuery from '../hooks/useMediaQuery.js';
 
 const primaryItems = [
-  ['overview', '概要'],
   ['participants', '参加者'],
-];
-const organizationItems = [
   ['organization-car', '車割'],
   ['organization-team', '班割'],
-];
-const closingItems = [
   ['settlement', '精算'],
-  ['history-settings', '履歴と設定'],
+];
+const supportingItems = [
+  ['overview', '概要'],
+  ['history-settings', '履歴'],
 ];
 
-function ProjectLink({ item: [id, label], section, navigation, onNavigate, nested = false }) {
+function ProjectLink({ item: [id, label], section, navigation, onNavigate }) {
   const active = section === id;
   const props = {
     href: navigation.hrefFor(id),
@@ -31,11 +30,11 @@ function ProjectLink({ item: [id, label], section, navigation, onNavigate, neste
     },
     children: label,
   };
-  return nested ? <SideNavMenuItem {...props} /> : <SideNavLink {...props} />;
+  return <SideNavLink {...props} />;
 }
 
 export default function ProjectShell({ projectName, roomId, section, navigation, headerProps, children }) {
-  const isDesktop = useMediaQuery('(min-width: 66rem)');
+  const isDesktop = useMediaQuery(`(min-width: ${breakpoints.lg.width})`);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const navigationButtonRef = useRef(null);
   const expanded = isDesktop || mobileNavOpen;
@@ -53,8 +52,14 @@ export default function ProjectShell({ projectName, roomId, section, navigation,
   }, [mobileNavOpen]);
 
   function navigate(id) {
-    navigation.navigate(id);
+    const changed = navigation.navigate(id);
     setMobileNavOpen(false);
+    if (!changed) requestAnimationFrame(() => document.getElementById('project-page-title')?.focus());
+  }
+
+  function dismissNavigation() {
+    setMobileNavOpen(false);
+    requestAnimationFrame(() => navigationButtonRef.current?.focus());
   }
 
   return <>
@@ -65,26 +70,29 @@ export default function ProjectShell({ projectName, roomId, section, navigation,
       navigationButtonRef={navigationButtonRef}
       navigationOpen={mobileNavOpen}
       onToggleNavigation={() => setMobileNavOpen(value => !value)}
+      onCloseNavigation={() => setMobileNavOpen(false)}
     />
     <SideNav
+      id="project-navigation"
       aria-label="企画内ナビゲーション"
-      className={`project-navigation${mobileNavOpen ? ' project-navigation--mobile-open' : ''}`}
+      className="project-navigation"
       expanded={expanded}
       isChildOfHeader
       isPersistent
-      onOverlayClick={() => setMobileNavOpen(false)}
+      onOverlayClick={dismissNavigation}
+      onSideNavBlur={() => { if (!isDesktop) setMobileNavOpen(false); }}
     >
       <div className="project-navigation__context">
         <span>現在の企画</span>
         <strong title={projectName || '企画名未設定'}>{projectName || '企画名未設定'}</strong>
         <small>{roomId}</small>
       </div>
-      <SideNavItems isSideNavExpanded={expanded}>
+      <SideNavItems aria-label="主要作業" isSideNavExpanded={expanded}>
         {primaryItems.map(item => <ProjectLink key={item[0]} item={item} section={section} navigation={navigation} onNavigate={navigate} />)}
-        <SideNavMenu title="運営準備" defaultExpanded isActive={section.startsWith('organization-')} isSideNavExpanded={expanded}>
-          {organizationItems.map(item => <ProjectLink key={item[0]} item={item} section={section} navigation={navigation} onNavigate={navigate} nested />)}
-        </SideNavMenu>
-        {closingItems.map(item => <ProjectLink key={item[0]} item={item} section={section} navigation={navigation} onNavigate={navigate} />)}
+        <SideNavDivider />
+      </SideNavItems>
+      <SideNavItems aria-label="企画情報と履歴" isSideNavExpanded={expanded}>
+        {supportingItems.map(item => <ProjectLink key={item[0]} item={item} section={section} navigation={navigation} onNavigate={navigate} />)}
       </SideNavItems>
     </SideNav>
     <Content id="main-content" className="project-content">{children}</Content>
