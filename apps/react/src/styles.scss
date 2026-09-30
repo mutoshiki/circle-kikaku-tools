@@ -24,12 +24,21 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .project-page__metadata dt { color: var(--cds-text-secondary); font-size: var(--cds-label-01-font-size); }
 .project-page__metadata dd { margin: 0; font-size: var(--cds-body-compact-01-font-size); font-weight: 600; }
 .project-page__body { padding-block: layout.$spacing-06 layout.$spacing-09; }
+.project-page__status { max-inline-size: 48rem; margin-block-end: layout.$spacing-06; }
 .overview-layout, .history-settings-layout { display: grid; gap: layout.$spacing-07; }
 .overview-section { display: grid; gap: layout.$spacing-05; max-inline-size: 64rem; }
 .content-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: layout.$spacing-05; padding-block-end: layout.$spacing-03; border-block-end: 1px solid var(--cds-border-subtle); }
 .content-section-heading h2 { margin: 0; font-size: var(--cds-heading-03-font-size); font-weight: var(--cds-heading-03-font-weight); line-height: var(--cds-heading-03-line-height); }
 .content-section-heading p, .empty-copy { margin-block-start: layout.$spacing-02; color: var(--cds-text-secondary); }
-.overview-section > .cds--form-item { max-inline-size: 40rem; }
+.overview-basics { margin: 0; }
+.overview-basics > div { display: grid; gap: layout.$spacing-02; }
+.overview-basics dt { color: var(--cds-text-secondary); font-size: var(--cds-label-01-font-size); line-height: var(--cds-label-01-line-height); }
+.overview-basics dd { margin: 0; font-size: var(--cds-body-01-font-size); line-height: var(--cds-body-01-line-height); }
+.overview-editor { display: grid; gap: layout.$spacing-06; max-inline-size: 48rem; }
+.overview-editor__heading { align-items: center; }
+.overview-editor__timetable { display: grid; gap: layout.$spacing-05; }
+.overview-editor__timetable h3 { margin: 0; font-size: var(--cds-heading-02-font-size); font-weight: var(--cds-heading-02-font-weight); line-height: var(--cds-heading-02-line-height); }
+.overview-editor__actions { display: flex; flex-wrap: wrap; gap: layout.$spacing-03; }
 .overview-memo { max-inline-size: 48rem; white-space: pre-wrap; }
 .overview-timetable { display: grid; gap: 1px; max-inline-size: 48rem; padding: 0; margin: 0; background: var(--cds-border-subtle); list-style: none; }
 .overview-timetable li { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: layout.$spacing-05; padding: layout.$spacing-03 layout.$spacing-05; background: var(--cds-layer); }
@@ -202,7 +211,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .user-guide { display: grid; gap: 1rem; }
 .user-guide ol { display: grid; gap: .75rem; padding-inline-start: 1.5rem; }
 .timetable-list, .history-list, .route-results { display: grid; gap: 1px; background: var(--cds-border-subtle); }
-.timetable-row { display: grid; grid-template-columns: 9rem minmax(0, 1fr) auto; align-items: end; gap: .75rem; padding: 1rem; background: var(--cds-layer); }
+.timetable-row { display: grid; grid-template-columns: 9rem minmax(0, 1fr) auto; align-items: end; gap: layout.$spacing-04; padding: layout.$spacing-05; background: var(--cds-layer); }
 .history-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .75rem 1rem; background: var(--cds-layer); }
 .history-row > span { display: grid; gap: .25rem; min-width: 0; }
 .history-row small { color: var(--cds-text-secondary); }

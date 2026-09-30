@@ -84,6 +84,10 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
   const commands = {
     rename(room, { name }) { room.roomName = String(name); },
     overview(room, { overview }) { room.overview = clone(overview); },
+    projectOverview(room, { name, overview }) {
+      room.roomName = String(name);
+      room.overview = clone(overview);
+    },
     addParticipants(room, { people, type = 'car' }) {
       for (const person of people) {
         const id = domain.canonical.ensureParticipant(room.participants, person, '', room.participantTombstones);

@@ -1,23 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Button, InlineNotification, Modal, OverflowMenu, OverflowMenuItem, TextArea, TextInput } from '@carbon/react';
-import { Add, TrashCan } from '@carbon/icons-react';
 import { createProjectDomain } from '../services/project-domain.js';
 import { notice } from '../ui/task-contracts.js';
-
-export function OverviewModal({ runtime, room, onClose, onNotice }) {
-  const initial = runtime.overviewDraft.read(room.overview || {});
-  const [draft, setDraft] = useState({ memo: String(initial.memo || ''), timetableItems: Array.isArray(initial.timetableItems) && initial.timetableItems.length ? initial.timetableItems : [{ time: '', title: '' }] });
-  function patch(next) { setDraft(next); runtime.overviewDraft.write(next); }
-  function saveShared() { runtime.store.command('overview', { overview: runtime.store.domain ? { memo: draft.memo, timetableItems: draft.timetableItems.filter(item => item.time || item.title) } : draft }); onClose(); }
-  return <Modal className="app-modal" open size="md" hasScrollingContent modalHeading="企画情報" primaryButtonText="共有保存" secondaryButtonText="閉じる" onRequestSubmit={saveShared} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#overview-memo">
-    <div className="form-stack"><InlineNotification kind="info" title="この端末の下書き" subtitle="入力中は端末内だけに保存されます。共有保存するまで他の端末へ反映されません。" hideCloseButton lowContrast />
-      <TextArea id="overview-memo" labelText="メモ" rows={4} value={draft.memo} onChange={event => patch({ ...draft, memo: event.target.value })} />
-      <section><div className="section-heading"><h3>時刻表</h3><Button kind="ghost" size="sm" renderIcon={Add} onClick={() => patch({ ...draft, timetableItems: [...draft.timetableItems, { time: '', title: '' }] })}>行を追加</Button></div>
-        <div className="timetable-list">{draft.timetableItems.map((item, index) => <div className="timetable-row" key={index}><TextInput id={`overview-time-${index}`} type="time" labelText="時刻" value={item.time} onChange={event => { const rows = draft.timetableItems.map((row, i) => i === index ? { ...row, time: event.target.value } : row); patch({ ...draft, timetableItems: rows }); }} /><TextInput id={`overview-title-${index}`} labelText="内容" value={item.title} onChange={event => { const rows = draft.timetableItems.map((row, i) => i === index ? { ...row, title: event.target.value } : row); patch({ ...draft, timetableItems: rows }); }} /><Button kind="danger-ghost" size="sm" renderIcon={TrashCan} onClick={() => patch({ ...draft, timetableItems: draft.timetableItems.filter((_, i) => i !== index) })}>削除</Button></div>)}</div>
-      </section>
-    </div>
-  </Modal>;
-}
 
 export function HistoryModal({ runtime, onClose, onNotice }) {
   const [items, setItems] = useState(runtime.history.read());
@@ -69,5 +53,5 @@ export default function ProjectTools({ runtime, room, onNotice }) {
   const [open, setOpen] = useState('');
   const application = runtime.store.domain.applicants.validApplicationSync(room.meta?.applicationSync);
   const hasParticipants = Object.keys(room.participants || {}).length > 0;
-  return <><OverflowMenu ariaLabel="参加者画面のその他の操作" iconDescription="参加者画面のその他の操作" flipped><OverflowMenuItem itemText="企画情報" onClick={() => setOpen('overview')} /><OverflowMenuItem itemText="履歴" onClick={() => setOpen('history')} />{application && hasParticipants && <OverflowMenuItem itemText="案内文" onClick={() => setOpen('guidance')} />}{application && <OverflowMenuItem itemText="引き継ぎCSV" onClick={() => setOpen('export')} />}<OverflowMenuItem itemText="バグを報告" onClick={() => setOpen('bug')} /></OverflowMenu>{open === 'overview' && <OverviewModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'history' && <HistoryModal runtime={runtime} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'guidance' && <GuidanceModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'export' && <ExportModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'bug' && <BugModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}</>;
+  return <><OverflowMenu ariaLabel="参加者画面のその他の操作" iconDescription="参加者画面のその他の操作" flipped><OverflowMenuItem itemText="履歴" onClick={() => setOpen('history')} />{application && hasParticipants && <OverflowMenuItem itemText="案内文" onClick={() => setOpen('guidance')} />}{application && <OverflowMenuItem itemText="引き継ぎCSV" onClick={() => setOpen('export')} />}<OverflowMenuItem itemText="バグを報告" onClick={() => setOpen('bug')} /></OverflowMenu>{open === 'history' && <HistoryModal runtime={runtime} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'guidance' && <GuidanceModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'export' && <ExportModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'bug' && <BugModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}</>;
 }

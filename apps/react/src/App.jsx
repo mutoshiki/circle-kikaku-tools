@@ -10,7 +10,7 @@ import ProjectHistorySettings from './components/ProjectHistorySettings.jsx';
 import Participants from './components/Participants.jsx';
 import Allocation from './components/Allocation.jsx';
 import Settlement from './components/Settlement.jsx';
-import { BugModal, HistoryModal, OverviewModal } from './components/ProjectTools.jsx';
+import { BugModal, HistoryModal } from './components/ProjectTools.jsx';
 import { createProjectDomain } from './services/project-domain.js';
 import { isToastNotice, notice as taskNotice } from './ui/task-contracts.js';
 
@@ -21,9 +21,11 @@ export default function App({ runtime }) {
   const [theme, setTheme] = useState('g10');
   const [feedback, setFeedback] = useState(null);
   const [globalModal, setGlobalModal] = useState('');
+  const [overviewEditing, setOverviewEditing] = useState(false);
   const [sampleCars, setSampleCars] = useState('3');
   const [sampleType, setSampleType] = useState('normal');
   const previousSection = useRef(section);
+  const overviewEditButtonRef = useRef(null);
   useEffect(() => {
     if (previousSection.current === section) return;
     previousSection.current = section;
@@ -52,14 +54,18 @@ export default function App({ runtime }) {
     if (sampleType === 'form') seedFormLinkedSample();
     else seedSample(sampleType === 'missing');
   }
+  function finishOverviewEdit() {
+    setOverviewEditing(false);
+    requestAnimationFrame(() => overviewEditButtonRef.current?.focus());
+  }
   const participantCount = Object.keys(room.participants || {}).length;
   const page = (() => {
     const sync = syncStatus.kind === 'local' ? [] : [{ label: '同期', value: syncStatus.message }];
     if (section === 'overview') return {
       title: '概要', description: '企画の基本情報と現在の準備状況を確認します。',
       metadata: [{ label: '参加者', value: `${participantCount}人` }, { label: '企画ID', value: runtime.roomId }, ...sync],
-      actions: <Button renderIcon={Edit} onClick={() => setGlobalModal('overview')}>企画情報を編集</Button>,
-      content: <ProjectOverview runtime={runtime} room={room} />,
+      actions: !overviewEditing && <Button ref={overviewEditButtonRef} renderIcon={Edit} onClick={() => setOverviewEditing(true)}>企画情報を編集</Button>,
+      content: <ProjectOverview runtime={runtime} room={room} editing={overviewEditing} onCancel={finishOverviewEdit} onSaved={finishOverviewEdit} />,
     };
     if (section === 'participants') return {
       title: '参加者', description: '応募者を確認し、この企画に参加する人を確定します。',
@@ -106,7 +112,6 @@ export default function App({ runtime }) {
     {globalModal === 'guide' && <Modal className="app-modal" open passiveModal size="md" closeButtonLabel="閉じる" modalHeading="使い方" onRequestClose={() => setGlobalModal('')}>
       <div className="user-guide"><p>企画メニューから、準備の段階に合わせて作業を進めます。</p><ol><li><strong>概要</strong> 企画名、メモ、時刻表を確認します。</li><li><strong>参加者</strong> 応募者を確認し、企画に参加する人を選びます。</li><li><strong>運営準備</strong> 車割と班割を管理します。</li><li><strong>共有</strong> 右上の共有リンクから通常の企画ルームURLをコピーします。</li><li><strong>精算</strong> 設定、車ごとの費用、集金・支払い状況を管理します。</li></ol></div>
     </Modal>}
-    {globalModal === 'overview' && <OverviewModal runtime={runtime} room={room} onNotice={setFeedback} onClose={() => setGlobalModal('')} />}
     {globalModal === 'history' && <HistoryModal runtime={runtime} onNotice={setFeedback} onClose={() => setGlobalModal('')} />}
     {globalModal === 'sample' && <Modal className="app-modal sample-modal" open size="sm" closeButtonLabel="閉じる" modalHeading="サンプルデータ" primaryButtonText="サンプルを入れる" secondaryButtonText="キャンセル" onRequestSubmit={seedSelectedSample} onRequestClose={() => setGlobalModal('')} selectorPrimaryFocus="#sample-normal">
       <div className="sample-form"><p>現在のデータをリセットして、確認用サンプルを入れます。</p><RadioButtonGroup legendText="サンプルの種類" name="sample-type" valueSelected={sampleType} onChange={value => setSampleType(String(value))} orientation="vertical"><RadioButton id="sample-normal" labelText="通常サンプル" value="normal" /><RadioButton id="sample-form" labelText="フォーム連携サンプル" value="form" /><RadioButton id="sample-missing" labelText="入力漏れサンプル" value="missing" /></RadioButtonGroup>{sampleType !== 'form' && <Select id="sample-car-count" labelText="車の数" value={sampleCars} onChange={event => setSampleCars(event.target.value)}>{['2', '3', '4', '5'].map(value => <SelectItem key={value} value={value} text={`${value}台`} />)}</Select>}</div>

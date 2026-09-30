@@ -31,8 +31,9 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await expect(applications.getByRole('link', { name: '山歩会企画ツール一覧', exact: true })).toHaveAttribute('href', /sanpokai-kikaku-portal/);
   await page.getByRole('button', { name: '関連アプリ', exact: true }).click();
   await navigateToProjectSection(page, '概要');
+  await page.getByRole('button', { name: '企画情報を編集', exact: true }).click();
   await page.getByRole('textbox', { name: '企画名' }).fill('互換性確認用の企画');
-  await page.getByRole('textbox', { name: '企画名' }).blur();
+  await page.getByRole('button', { name: '保存', exact: true }).click();
   for (const name of ['参加者', '車割', '班割', '精算']) {
     await navigateToProjectSection(page, name);
     await expect(page.getByRole('navigation', { name: '企画内ナビゲーション' }).getByRole('link', { name, exact: true })).toHaveAttribute('aria-current', 'page');
@@ -42,7 +43,9 @@ test('independent shell: semantic header utilities, related apps, Japanese input
     if (theme === 'g100') { await page.getByRole('button', { name: 'ユーティリティメニュー' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click(); }
     await expect(page.locator('.application')).toHaveClass(new RegExp(`cds--${theme}(?:\\s|$)`));
     await navigateToProjectSection(page, '概要');
+    await page.getByRole('button', { name: '企画情報を編集', exact: true }).click();
     await expect(page.getByRole('textbox', { name: '企画名' })).toHaveCSS('background-color', theme === 'g100' ? 'rgb(38, 38, 38)' : 'rgb(255, 255, 255)');
+    await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await expectFontsLoaded(page);
     await page.screenshot({ path: join(process.env.MIGRATION_EVIDENCE_DIR || join(tmpdir(), 'circle-react-migration-evidence'), `shell-${testInfo.project.name}-${theme}.png`) });
@@ -63,7 +66,7 @@ test('sample menu keeps the legacy form-linked sample action', async ({ page }) 
   await dialog.getByRole('button', { name: 'サンプルを入れる' }).click();
   await expect(page.getByText('フォーム連携テスト企画', { exact: true }).first()).toBeVisible();
   await navigateToProjectSection(page, '概要');
-  await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue('フォーム連携テスト企画');
+  await expect(page.getByText('フォーム連携テスト企画', { exact: true }).first()).toBeVisible();
   await navigateToProjectSection(page, '参加者');
   await expect(page.getByText(/応募者 5人/)).toBeVisible();
   await expect(page.getByText('参加者確定後', { exact: true })).toBeVisible();

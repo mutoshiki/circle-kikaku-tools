@@ -36,3 +36,47 @@ test('clipboard result uses an explicit transient feedback surface', async ({ pa
   await expect.poll(() => page.evaluate(() => window.__copiedShareUrl)).toContain('room=PHASE-C-CLIPBOARD');
   await navigateToProjectSection(page, '参加者');
 });
+
+test('overview uses an explicit page draft with save, cancel and focus return', async ({ page }) => {
+  const roomId = 'PHASE-C-OVERVIEW-PILOT';
+  const storageKey = `sanpo-react:v1:${roomId}:room`;
+  await page.goto(`/?room=${roomId}&section=overview`);
+
+  const edit = page.getByRole('button', { name: '企画情報を編集', exact: true });
+  await expect(edit).toBeVisible();
+  await expect(page.getByRole('textbox', { name: '企画名', exact: true })).toHaveCount(0);
+  await edit.click();
+  await expect(page.getByRole('heading', { level: 2, name: '企画情報を編集', exact: true })).toBeVisible();
+
+  const name = page.getByRole('textbox', { name: '企画名', exact: true });
+  await name.fill('保存前の企画名');
+  await name.blur();
+  await expect(page.getByText('未保存の変更', { exact: true })).toBeVisible();
+  expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key) || 'null')?.roomName, storageKey)).not.toBe('保存前の企画名');
+
+  await navigateToProjectSection(page, '参加者');
+  await navigateToProjectSection(page, '概要');
+  await expect(page.getByRole('textbox', { name: '企画名', exact: true })).toHaveValue('保存前の企画名');
+
+  await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(edit).toBeFocused();
+  await expect(page.getByText('保存前の企画名', { exact: true })).toHaveCount(0);
+
+  await edit.click();
+  await page.getByRole('textbox', { name: '企画名', exact: true }).fill('共有保存した企画');
+  await page.getByRole('textbox', { name: 'メモ', exact: true }).fill('共有する企画メモ');
+  await page.getByRole('textbox', { name: '時刻', exact: true }).fill('08:30');
+  await page.getByRole('textbox', { name: '内容', exact: true }).fill('集合');
+  await page.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(page.getByText('共有保存した企画', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText('共有する企画メモ', { exact: true })).toBeVisible();
+  await expect(page.getByText('08:30', { exact: true })).toBeVisible();
+  await expect(page.locator('.cds--toast-notification')).toHaveCount(0);
+
+  const saved = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), storageKey);
+  expect(saved.roomName).toBe('共有保存した企画');
+  expect(saved.overview).toEqual({ memo: '共有する企画メモ', timetableItems: [{ time: '08:30', title: '集合' }] });
+  await page.reload();
+  await expect(page.getByRole('button', { name: '企画情報を編集', exact: true })).toBeVisible();
+  await expect(page.getByText('共有する企画メモ', { exact: true })).toBeVisible();
+});

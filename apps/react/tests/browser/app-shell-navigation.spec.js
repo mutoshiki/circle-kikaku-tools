@@ -115,12 +115,13 @@ test('shell navigation preserves populated project and route draft state', async
 test('long project names remain readable without horizontal overflow after refresh', async ({ page }) => {
   const longName = '令和八年度秋季縦走登山安全講習および新入部員歓迎を兼ねた非常に長い企画名';
   await page.goto('/?room=PHASE-B-LONG&section=overview');
+  await page.getByRole('button', { name: '企画情報を編集', exact: true }).click();
   const input = page.getByRole('textbox', { name: '企画名' });
   await input.fill(longName);
-  await input.blur();
-  await expect(page.getByRole('main').getByText(longName, { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(page.getByRole('main').getByText(longName, { exact: true }).first()).toBeVisible();
   await page.reload();
-  await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(longName);
+  await expect(page.getByRole('main').getByText(longName, { exact: true }).first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 

@@ -7,7 +7,11 @@ export function createOverviewDraftStorage(storage, roomId) {
       catch { return structuredClone(fallback); }
     },
     write(value) {
-      const normalized = { memo: String(value?.memo || ''), timetableItems: Array.isArray(value?.timetableItems) ? value.timetableItems.map(item => ({ time: String(item?.time || '').slice(0, 5), title: String(item?.title || '') })).filter(item => item.time || item.title) : [] };
+      const normalized = {
+        ...(Object.hasOwn(value || {}, 'roomName') ? { roomName: String(value.roomName || '') } : {}),
+        memo: String(value?.memo || ''),
+        timetableItems: Array.isArray(value?.timetableItems) ? value.timetableItems.map(item => ({ time: String(item?.time || '').slice(0, 5), title: String(item?.title || '') })).filter(item => item.time || item.title) : [],
+      };
       storage.setItem(key, JSON.stringify(normalized));
       return normalized;
     },
