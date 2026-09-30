@@ -19,8 +19,18 @@ test('direct and legacy URLs open a stable current project section', async ({ pa
   await expect(projectNavigation(page).getByRole('link', { name: '精算', exact: true })).toHaveAttribute('aria-current', 'page');
 });
 
+test('a room-only shared link starts participant work while explicit task links keep their destination', async ({ page }) => {
+  await page.goto('/?room=AB-REALITY-ENTRY');
+  await expect(page.getByRole('heading', { level: 1, name: '参加者' })).toBeVisible();
+  await expect(projectNavigation(page).getByRole('link', { name: '参加者', exact: true })).toHaveAttribute('aria-current', 'page');
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1, name: '参加者' })).toBeVisible();
+  await page.goto('/?room=AB-REALITY-ENTRY&section=overview');
+  await expect(page.getByRole('heading', { level: 1, name: '概要' })).toBeVisible();
+});
+
 test('navigation owns browser history, refresh, current semantics and heading focus', async ({ page }, testInfo) => {
-  await page.goto('/?room=PHASE-B-HISTORY');
+  await page.goto('/?room=PHASE-B-HISTORY&section=overview');
   const navigation = projectNavigation(page);
   await expect(navigation.getByRole('link', { name: '概要', exact: true })).toHaveAttribute('aria-current', 'page');
 
@@ -52,9 +62,10 @@ test('shell exposes lifecycle navigation, landmarks and one page title', async (
   await expect(page.getByRole('banner')).toHaveCount(1);
   await expect(page.getByRole('main')).toHaveCount(1);
   await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
-  await expect(projectNavigation(page).getByRole('link')).toHaveText([
-    '概要', '参加者', '車割', '班割', '精算', '履歴と設定',
-  ]);
+  for (const href of await projectNavigation(page).getByRole('link').evaluateAll(links => links.map(link => link.href))) {
+    expect(new URL(href).searchParams.get('room')).toBe('PHASE-B-ANATOMY');
+    expect(new URL(href).searchParams.get('section')).toBeTruthy();
+  }
   await expect(page.getByRole('main').getByText('PHASE-B-ANATOMY', { exact: true })).toBeVisible();
 });
 
@@ -80,6 +91,48 @@ test('mobile project navigation is touch-operable and closes after selection', a
   await expect(page.getByRole('heading', { level: 1, name: '参加者' })).toBeFocused();
   await expect(menuButton).toHaveAttribute('aria-expanded', 'false');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('reselecting the current mobile destination returns focus to the page', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.includes('mobile'), 'mobile focus contract');
+  await page.goto('/?room=AB-REVIEW-CURRENT&section=overview');
+  const trigger = page.getByRole('button', { name: '企画メニューを開く' });
+  await trigger.tap();
+  await projectNavigation(page).getByRole('link', { name: '概要', exact: true }).tap();
+  await expect(page.getByRole('heading', { level: 1, name: '概要' })).toBeFocused();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('mobile navigation closes when keyboard focus leaves it', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.includes('mobile'), 'mobile focus contract');
+  await page.goto('/?room=AB-REVIEW-TAB');
+  const trigger = page.getByRole('button', { name: '企画メニューを開く' });
+  await trigger.focus();
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Tab');
+  await expect(projectNavigation(page).getByRole('link', { name: '参加者', exact: true })).toBeFocused();
+  await projectNavigation(page).getByRole('link', { name: '履歴', exact: true }).focus();
+  await page.keyboard.press('Tab');
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  expect(await page.getByRole('main').evaluate(main => main.contains(document.activeElement))).toBe(true);
+});
+
+test('mobile shell overlays are exclusive and backdrop dismissal restores focus', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.includes('mobile'), 'mobile overlay contract');
+  await page.goto('/?room=AB-REVIEW-OVERLAY');
+  const trigger = page.getByRole('button', { name: /企画メニューを/ });
+  await trigger.tap();
+  await page.getByRole('button', { name: '関連アプリ', exact: true }).tap();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByRole('navigation', { name: '関連アプリ' })).toBeVisible();
+  await trigger.tap();
+  await expect(page.getByRole('navigation', { name: '関連アプリ' })).toBeHidden();
+  // Tap the visible scrim, independently of Carbon's internal DOM/class names.
+  const bounds = await projectNavigation(page).boundingBox();
+  const viewport = page.viewportSize();
+  await page.touchscreen.tap((bounds.x + bounds.width + viewport.width) / 2, viewport.height / 2);
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await expect(trigger).toBeFocused();
 });
 
 test('shell navigation preserves populated project and route draft state', async ({ page }) => {

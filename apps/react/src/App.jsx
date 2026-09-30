@@ -57,9 +57,9 @@ export default function App({ runtime }) {
   const page = (() => {
     const sync = syncStatus.kind === 'local' ? [] : [{ label: '同期', value: syncStatus.message }];
     if (section === 'overview') return {
-      title: '概要', description: '企画の基本情報と現在の準備状況を確認します。',
+      title: '概要', description: '企画名、メモ、時刻表を確認します。',
       metadata: [{ label: '参加者', value: `${participantCount}人` }, { label: '企画ID', value: runtime.roomId }, ...sync],
-      actions: <Button renderIcon={Edit} onClick={() => setGlobalModal('overview')}>企画情報を編集</Button>,
+      actions: <Button kind="tertiary" renderIcon={Edit} onClick={() => setGlobalModal('overview')}>企画情報を編集</Button>,
       content: <ProjectOverview runtime={runtime} room={room} />,
     };
     if (section === 'participants') return {
@@ -76,12 +76,12 @@ export default function App({ runtime }) {
       };
     }
     if (section === 'settlement') return {
-      title: '精算', description: '企画後の費用、集金、運転手への支払い状況を管理します。',
+      title: '精算', description: '車ごとの距離・費用を入力し、精算額と集金・支払いを確認します。',
       metadata: [{ label: '参加者', value: `${participantCount}人` }, ...sync],
       content: <Settlement runtime={runtime} room={room} onNotice={setNotice} embedded />,
     };
     if (section === 'history-settings') return {
-      title: '履歴と設定', description: '企画の復元ポイントと共通設定を管理します。',
+      title: '履歴', description: '企画の状態を保存し、必要なときに以前の状態へ戻します。',
       metadata: [{ label: '保存済み履歴', value: `${runtime.history.read().length}件` }, ...sync],
       actions: <Button kind="tertiary" renderIcon={Time} onClick={() => setGlobalModal('history')}>履歴を開く</Button>,
       content: <ProjectHistorySettings />,
@@ -98,7 +98,7 @@ export default function App({ runtime }) {
       <ProjectPage context={room.roomName || '企画名未設定'} title={page.title} description={page.description} metadata={page.metadata} actions={page.actions}>{page.content}</ProjectPage>
     </ProjectShell>
     {globalModal === 'guide' && <Modal className="app-modal" open passiveModal size="md" closeButtonLabel="閉じる" modalHeading="使い方" onRequestClose={() => setGlobalModal('')}>
-      <div className="user-guide"><p>企画メニューから、準備の段階に合わせて作業を進めます。</p><ol><li><strong>概要</strong> 企画名、メモ、時刻表を確認します。</li><li><strong>参加者</strong> 応募者を確認し、企画に参加する人を選びます。</li><li><strong>運営準備</strong> 車割と班割を管理します。</li><li><strong>共有</strong> 右上の共有リンクから通常の企画ルームURLをコピーします。</li><li><strong>精算</strong> 設定、車ごとの費用、集金・支払い状況を管理します。</li></ol></div>
+      <div className="user-guide"><p>企画メニューから、必要な作業を開きます。</p><ul><li><strong>参加者</strong> 応募者を確認し、企画に参加する人を選びます。手動で追加することもできます。</li><li><strong>車割・班割</strong> 確定した参加者を手動またはランダムで割り当てます。</li><li><strong>精算</strong> 各車の距離・費用を入力し、精算額と集金・支払いを確認します。</li></ul><p>概要と履歴は、企画情報の確認・編集や状態の復元が必要なときに使います。共有リンクは右上からコピーできます。</p></div>
     </Modal>}
     {globalModal === 'overview' && <OverviewModal runtime={runtime} room={room} onNotice={setNotice} onClose={() => setGlobalModal('')} />}
     {globalModal === 'history' && <HistoryModal runtime={runtime} onNotice={setNotice} onClose={() => setGlobalModal('')} />}

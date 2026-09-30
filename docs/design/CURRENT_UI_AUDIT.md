@@ -895,3 +895,61 @@ Therefore the five documents and the React audit are reviewable, and the test-on
 - React protected legacy check: pass after updating only the three reviewed test hashes.
 - Diff / Markdown whitespace checks: pass.
 - No production, compatibility, cutover, production smoke, or production Firebase operation is part of this verification.
+
+## 27. Phase A/B independent review — 2026-09-30
+
+本節は`carbon-redesign`のPhase B統合SHA `1c1d707fac6169218654dcc1508ed07688e65425`を独立に再評価した記録。§1–26と[Phase B証跡](./evidence/phase-b/README.md)は当時の観察として保持し、現在のtarget仕様を上書きしない。モデルの世代は不具合の根拠にせず、利用者の実運用説明と観測できるbehaviorを根拠にした。現在の唯一のnormative仕様はProduct UI仕様v1.1。
+
+### 27.1 Main work areas and supporting context
+
+**Current structure**: Phase Bは概要をroom-only landingにし、参加者、折りたたみ「運営準備」配下の車割・班割、精算、履歴と設定を公開していた。履歴pageには実装されていない共通設定のplaceholderがあった。
+
+**User goal**: 短期間の企画について、参加者を決め、当日朝に車割・班割を発表し、各ドライバーの距離・費用入力から精算・支払い確認まで終える。
+
+**User task**: 担当者が参加者を選び、手動・ランダム割当を往復する。距離は企画前・当日・終了後のいずれにも入力し、各ドライバーがそれぞれ自分の車を更新する。概要・履歴は情報確認・編集・復旧が必要な時だけ使う。
+
+**Carbon interpretation**: Official guidance: [UI shell left panel](https://carbondesignsystem.com/components/UI-shell-left-panel/usage/)はglobal Headerとは別のproduct navigationを扱い、階層を2段以内にする。Project interpretation: ここでは頻繁な車割・班割に親groupを挟む価値がなく、必須概要dashboardや終了後の管理stageを作る根拠もない。Carbon公式はこのアプリのnav順やlandingを指定していない。
+
+**Problems**: 概要を主要taskの前に置き、当日朝までの中心作業を「運営準備」の1階層下にした優先順位は実運用に合わない。ルートを準備にだけ属させる解釈は距離・費用の時期と各ドライバーのactorを取りこぼす。「履歴と設定」は存在しない設定を約束する。概要と履歴の存在自体は問題ではなく、それらの中心性を仮定したことが問題。
+
+**Recommended zero-based structure**: 主要taskを参加者、車割、班割、車両費用、精算にし、概要・履歴・必要な設定はsecondaryにする。今回のShellでは実装済みの参加者 / 車割 / 班割 / 精算を直接link、概要 / 履歴を別listにする。room-onlyは参加者、明示的なtask URLはそのtaskに着地。車両費用の独立入口・driver車選択はPhase Fで実装し、今回は精算からの既存入口を維持する。7段階wizard、架空の進捗率、新認証role、完了schemaは作らない。
+
+**Severity**: structural / workflow / content。
+
+**Dependencies**: Shell、URL default、guide文言、Product UI仕様§1–3、Roadmap。手動・ランダムと当日朝の結果presentationはPhase E、per-car費用・routeはPhase F、集金・支払い完了はPhase H。既存の参加者発表文は参加者名・企画情報を生成する機能で、車割・班割発表を支援できたという証跡にはならない。
+
+### 27.2 Navigation focus and page anatomy
+
+**Current structure**: Carbon SideNavをcontrolled stateで使用。mobileで現在地linkを選び直すとdrawerが閉じるが、focusが閉じたlinkに残った。Tab離脱callbackが接続されずdrawerが開き続け、global utilityと同時に開けた。scrim dismissもtriggerへのfocus returnがなかった。page headerのDOMではactionsがmetadataより先で、mobile視覚順と異なった。
+
+**User goal**: 現在地を認識し、keyboard / touchで迷わずtaskを切り替える。
+
+**User task**: 開く、選ぶ、同じ場所を選び直す、Tabでcontentへ出る、Escape / scrimで閉じる、別utilityを使う。
+
+**Carbon interpretation**: Official guidance: Carbon ShellはHeaderとproduct navigationを分離する。Project interpretation: non-modal SideNavのTab離脱では次focusを維持して閉じ、dismissではtrigger、選択ではtask `h1`へ移す。Carbon component採用だけではcontrolled callbackのcompositionを保証しない。
+
+**Problems**: inert linkへのfocus、overlay併存、dismiss後のfocus喪失。mobile margin overrideがsibling DOM関係に依存し、階層変更でcontentが256px押し出されうる。Header product identityがhrefなしanchorだった。必ずPrimary1つという文書は閲覧page・履歴のPrimaryなしと矛盾し、概要Editの過大強調につながった。
+
+Rendered typographyも実質的な問題だった。Shellは`--cds-heading-05-font-size`等を参照したが、installed Carbonではそれらの変数が出力されておらず、`h1`とdescriptionはcomputed sizeがともに16pxだった。semantic h1だけではvisual hierarchyになっていない。相対size assertionを追加してREDを確認し、公開Sass `type-style`を使ってproductive heading / label / bodyを出力する修正へ置換した。feature内部の未移行typographyは担当Phaseに残す。
+
+**Recommended zero-based structure**: Native Carbon interactionを維持してcallbacksを接続。再選択も`h1`focus、Tab離脱は実際の移動先focus、dismissはtrigger、Shell overlayは排他。page header DOMをcontext / title / description → metadata → actionsへ統一。read pageはPrimaryなしを許しEditをTertiaryにする。mobile overlayのcontent位置はapp所有landmarkで定義し、Carbon内部classやsibling構造に依存しない。
+
+**Severity**: interaction / responsive / accessibility / visual。
+
+**Dependencies**: AppHeader、ProjectShell、ProjectPage、Shell CSS、navigation contracts。feature内部Modal / form / feedbackはPhase C以降で扱う。
+
+### 27.3 Document contract corrections and retained decisions
+
+- 実運用とactor/handoffのownerをProduct UI仕様§1に置き、他文書は参照する。概要・履歴の重要性を独立に再評価し、既存追加の事実を根拠にしない。
+- Primaryは最大1つ、閲覧pageでは0でもよい。これは[Carbon Button usage](https://carbondesignsystem.com/components/button/usage/)のread-centric / page-header guidanceに沿う。pageごとのaction決定はProject interpretation。
+- Applyはediting contextへの適用、Saveは共有保存という境界を維持する。Apply後に必ずsurfaceを開き続けるという曖昧な横断ruleを除き、routeから呼出元draftへ戻れるproduct ruleと整合させた。
+- target contractと段階移行の適用範囲を区別し、長い既存Modalの保持を「適合」と呼ばない。担当Phaseと既存問題を保持し、新たな違反を増やさない。
+- URLを唯一のsection sourceにする`useSyncExternalStore`、legacy inbound mapping、stable `h1`とlandmark、Carbon Grid、g10/g100、productive listと現行domain ownerは妥当であり維持する。独立ページの入口は旧4 Tabsの構造保護ではない。
+- WebKitのkeyboard regressionはpointer click後のbutton focusを前提にしたtestの問題だった。keyboard focus → Enter → TabでCarbon native behaviorは成立し、独自keyboard navigation実装は追加しない。
+- 廃止したsource-text assertion3件の理由・代替coverage（§26）は依然妥当。今回は削除もskip追加もせず、Shellのbehavior / semantics / geometry / protected stateのcoverageを追加する。
+
+### 27.4 Scope and evidence
+
+再監査の修正は設計文書、Shell / page anatomy / navigation、対応testに限定する。Participant / Allocation / Settlement / Route内部、store、schema、Firebase Rules、sync、calculationは変更しない。未統合Phase Cの6 commitsは別branchで保持し、本再監査に混ぜない。
+
+新しい操作証跡と検証結果は[Phase A/B再監査証跡](./evidence/phase-ab-review/README.md)を参照。過去のbrowser結果と今回の結果を合算して完全なアクセシビリティ検証とは扱わない。Production操作は一切実行しない。

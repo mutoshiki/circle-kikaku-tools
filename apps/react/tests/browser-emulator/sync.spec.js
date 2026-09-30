@@ -16,7 +16,7 @@ test('two real browsers save through Emulator; an active Japanese draft survives
     const pageB = await b.newPage();
     const errors = [];
     for (const page of [pageA, pageB]) page.on('pageerror', error => errors.push(error.message));
-    await Promise.all([pageA.goto(`http://127.0.0.1:4175/?room=${roomId}`), pageB.goto(`http://127.0.0.1:4175/?room=${roomId}`)]);
+    await Promise.all([pageA.goto(`http://127.0.0.1:4175/?room=${roomId}&section=overview`), pageB.goto(`http://127.0.0.1:4175/?room=${roomId}&section=overview`)]);
     await expect(syncComplete(pageA)).toBeVisible();
     await expect(syncComplete(pageB)).toBeVisible();
     const fieldA = pageA.getByRole('textbox', { name: '企画名' });
