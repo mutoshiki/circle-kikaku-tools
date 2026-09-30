@@ -37,7 +37,7 @@ function OverviewEditor({ runtime, room, onCancel, onSaved }) {
   }
 
   function cancel() {
-    runtime.overviewDraft.write({ roomName: room.roomName, ...savedOverview });
+    runtime.overviewDraft.clear();
     onCancel();
   }
 
@@ -48,7 +48,7 @@ function OverviewEditor({ runtime, room, onCancel, onSaved }) {
     setError('');
     try {
       runtime.store.command('projectOverview', { name: draft.roomName, overview: draftOverview });
-      runtime.overviewDraft.write({ roomName: draft.roomName, ...draftOverview });
+      runtime.overviewDraft.clear();
       onSaved();
     } catch (caught) {
       setError(String(caught?.message || caught));

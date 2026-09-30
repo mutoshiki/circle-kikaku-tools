@@ -35,6 +35,8 @@ test('two real browsers save through Emulator; an active Japanese draft survives
     await pageB.getByRole('button', { name: '保存', exact: true }).click();
     await expect(syncComplete(pageB)).toBeVisible();
     await expect(pageA.getByRole('main').getByText('日本語で確定', { exact: true }).first()).toBeVisible();
+    await pageA.getByRole('button', { name: '企画情報を編集', exact: true }).click();
+    await expect(pageA.getByRole('textbox', { name: '企画名' })).toHaveValue('日本語で確定');
     const saved = await (await request.get(adminUrl, { headers: { Authorization: 'Bearer owner' } })).json();
     expect(Object.keys(saved.participants)).toHaveLength(6);
     expect(saved.meta.applicationSync).toEqual(fixture.meta.applicationSync);

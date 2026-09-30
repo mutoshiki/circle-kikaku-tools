@@ -5,6 +5,7 @@ import { prepareCompatibleUrl, createShareUrl, tokenStorageKey } from '../src/se
 import { createProjectSectionUrl, prepareProjectLaunch } from '../src/navigation/project-navigation.js';
 import { createProjectDomain } from '../src/services/project-domain.js';
 import { createDomain } from '../src/domain/index.js';
+import { createOverviewDraftStorage } from '../src/services/overview-draft.js';
 
 const participant = (name, grade = 1) => ({ name, grade, memo: '', flag: 'none', locked: false, updatedAt: 1 });
 
@@ -18,6 +19,17 @@ test('overview draft remains local until explicit shared save', () => {
   assert.equal(url.initialSection, 'organization-car');
   assert.equal(new URL(url.href).search, '?room=ROOM-A&section=organization-car');
   assert.equal(createShareUrl(url.href), 'https://example.test/react/?room=ROOM-A');
+});
+
+test('completed overview drafts clear so later shared values become the next edit baseline', () => {
+  const storage = createMemoryStorage();
+  const drafts = createOverviewDraftStorage(storage, 'ROOM-A');
+  drafts.write({ roomName: '古い下書き', memo: '編集中', timetableItems: [] });
+  assert.equal(drafts.read({ roomName: '共有値' }).roomName, '古い下書き');
+  drafts.clear();
+  assert.deepEqual(drafts.read({ roomName: '新しい共有値', memo: '共有メモ', timetableItems: [] }), {
+    roomName: '新しい共有値', memo: '共有メモ', timetableItems: [],
+  });
 });
 
 test('project sections use stable URLs while preserving inbound legacy links', () => {

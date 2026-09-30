@@ -15,5 +15,8 @@ export function createOverviewDraftStorage(storage, roomId) {
       storage.setItem(key, JSON.stringify(normalized));
       return normalized;
     },
+    clear() {
+      storage.removeItem(key);
+    },
   });
 }
