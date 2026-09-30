@@ -1,6 +1,6 @@
 # 山歩会企画ツール Product UI specification
 
-Status: normative product UI specification v1.0 (effective 2026-09-29)
+Status: normative product UI specification v1.1 (reviewed 2026-09-30)
 Research snapshot: 2026-09-29
 Design basis: [CARBON_PRODUCT_PRINCIPLES.md](./CARBON_PRODUCT_PRINCIPLES.md) / [CARBON_PATTERNS.md](./CARBON_PATTERNS.md)
 
@@ -44,18 +44,35 @@ Contract role: 山歩会企画ツール固有の唯一のnormative product UI sp
 - Settlement rulesはsingle-page grouped formを既定とする。順序依存を実データとtask testで示せた場合だけpage wizardを採用し、Modal wizardにはしない。
 - Collectionとrecipient paymentは異なるstateとheadingを持つ。1 route内の別sectionでも別routeでもよいが、同一control・同一statusへ統合しない。
 
+### Incremental applicability
+
+本書は完成時のtarget contractを定義する。既存feature内部の移行はRoadmapの担当Phaseで完了する。各PRでは、今回導入するsurfaceと累積済みinvariantを必須とし、未移行surfaceはAuditの問題と担当Phaseを明示する。既存の長いModalやfeedbackをPhase Bで維持することは移行延期であり、適合の証明ではない。後続Phaseまで新たに同じ問題を増やしてはならない。
+
 ## 1. Product model
 
-山歩会企画ツールは、1企画について次の成果を順に作るproductive applicationである。
+山歩会企画ツールは、短期間の企画運営において、参加者確定、車割・班割の作成と発表、車ごとの費用入力、精算と支払い確認を完了するためのproductive toolである。一般的なproject management dashboardや常時利用する登山中のactivity trackerを既定modelにしない。
 
-1. 企画の基本情報を定義する。
-2. 応募を取り込み、参加者を確定する。
-3. 車・班・ルートを編成する。
-4. 移動費、追加費用、部費、免除、控除を確定する。
-5. 誰が誰へいくら支払うかを確定し、集金・支払い完了まで追跡する。
-6. 履歴、共有、引き継ぎを管理する。
+### Product reality — user-provided primary evidence (2026-09-30)
 
-UIはこのlifecycleを反映する。domain objectと保存schemaは現行互換を維持し、表示構造の変更と切り離す。
+次は利用者が共有した実運用であり、Carbon公式のguidanceではない。担当者の名称は説明用で、権限roleや新たな認証modelを定義しない。
+
+| 実運用 | Timing / actor | 成果とhandoff |
+| --- | --- | --- |
+| 応募から参加者を選ぶ、必要なら手動追加 | 準備中 / 参加者を決める担当者 | 確定した参加者が車割・班割の対象になる |
+| 手動・ランダムで車割と班割を作る | 当日朝まで / 割り当てを作る担当者 | 当日朝に参加者へ発表する、識別可能な車・班とmember一覧 |
+| 登山・移動を実施する | 当日 / 参加者 | ツールの常時操作は目的ではない。専用の「実施中」pageはこの説明から導入しない |
+| 距離と必要な費用を求める | 前日まで・当日・終了後のいずれもある / 距離・費用を確認する人 | 距離計算ツールまたは車のメーター等の値を精算へ使用 |
+| 自分の車の精算情報を入力する | 各ドライバー、複数人がそれぞれ入力 | 車単位の距離・費用が共有され、精算計算のinputになる |
+| 精算額と集金・支払いを確認する | 費用確認後 / 精算する人 | 計算結果の確認と実際の金銭移動の追跡 |
+| 精算完了 | 企画終了後 | この企画での主な役割が終了。履歴・復旧・設定は必要時に使う補助機能 |
+
+### Product interpretation and protected capabilities
+
+- Taskは往復・並行する。7段階をwizard、mandatory stage、進捗率へ変換しない。距離・費用入力を「登山終了後にしか使えない」taskにしない。
+- 企画名・メモ・時刻表は共有contextであり、作業開始の必須stepではない。概要を必須landing/dashboardにしない。
+- 各ドライバーの車単位入力と、企画全体の精算rule / 集金 / 支払いを区別する。driver入力で他車のdraftや企画全体設定を巻き込まない。
+- 応募連携、手動登録、手動・ランダム割当、発表・引き継ぎ、距離計算、車両費用・その他費用、人数だけの精算、割勘、部費、免除、控除、精算内訳、支払い済み管理を維持する。実運用に明示されない機能も、用途・依存・計算への影響を確認せず削除・簡略化しない。
+- 完了は既存の計算結果と集金・支払いstateに基づいて表現する。架空の「企画完了」flag、新たなworkflow schema、自動archiveを追加しない。domain object、persistence、sync、calculation、schema / legacy compatibilityは保護する。
 
 ## 2. Canonical information architecture
 
@@ -69,20 +86,33 @@ UIはこのlifecycleを反映する。domain objectと保存schemaは現行互�
 
 ### Project level
 
-1. **概要**: 企画名、日程、メモ、時刻表、進捗、次の作業
-2. **参加者**: 応募取込、応募者確認、参加者確定、発表、引き継ぎ
-3. **編成**
-   - 車割
-   - 班割
-   - ルート / 移動
-4. **精算**
+主要作業:
+
+1. **参加者**: 応募連携から参加者確定、必要時の手動追加、参加者発表、引き継ぎ
+2. **車割**: 手動・ランダム割当、確認、当日朝の車割発表
+3. **班割**: 手動・ランダム割当、確認、当日朝の班割発表
+4. **車両費用** (Phase Fで公開): 各ドライバーの車選択、距離・ルート / 移動・車ごとの費用入力。精算からも同じ対象車へ接続
+5. **精算**
    - 精算概要
-   - 費用・車ごとの費用
+   - 費用の確認、同じ車両費用workspaceへの入口（別のeditor / draftを複製しない）
    - 割勘・部費・免除・控除
    - 集金・支払い状況
-5. **履歴と設定**: snapshot / restore、project settings、danger zone
+補助機能:
+
+- **概要**: 企画名、日程、メモ、時刻表の共有context。内容を確認・編集したい時に開く
+- **履歴**: snapshot / restore
+- **設定** (Phase Hで実在するtaskのみ公開): project settings、danger zone。精算ruleは精算のtaskであり、genericな設定へ移さない
 
 この構造はtarget IAであり、既存4 Tabsの1対1改名ではない。URL、state restoration、権限、legacy compatibilityをPhaseごとに追加検証する。
+
+### IA rationale and phase exposure
+
+- 車割と班割は準備の中心で、参加者確定後から当日朝まで繰り返し開く。Carbon SideNavの直接linkを使い、「運営準備」「編成」という折りたたみgroupを挟まない。4 Tabsの再採用ではなく、URLを持つtask destinationとして扱う。
+- 概要と履歴は主要作業の後で視覚的・semanticに別groupへ置く。概要入力や履歴操作を主要作業の前提にしない。既存`section=overview` / `section=history-settings`は維持する。
+- 概要と履歴は実運用の中心ではない。補助情報・復旧への到達性だけを維持し、landing、主要CTA、進捗dashboard、必須終了操作として強調しない。Phase Bで追加したという理由は優先度の根拠にならない（利用者の2026-09-30補足）。
+- `room`のみのlinkは**参加者**を既定着地とする。これは実運用の開始taskに基づくProject interpretationであり、旧「概要」defaultを2026-09-30に改訂したもの。ドライバー等には明示的なtask / 車のdeep linkを使う。従来のroom-only共有linkも同じ企画を開くことを保護し、旧UIのlanding順自体は固定しない。
+- Phase Bの公開先は参加者・車割・班割・精算・概要・履歴。車両費用は現在の精算画面の各車の入口を暫定利用し、Phase Fで独立した車選択 / 費用workspaceを公開する。未実装のnav itemや設定placeholderを追加しない。
+- SideNavは最大2階層。精算のrule・集金・支払いはpage内のlocal navigation / task linkを使う。ルートは車両費用に属する共有taskとし、車割からも同じ車のcontextへ接続できる。別入口ごとに距離draftや計算ownerを複製しない。
 
 ## 3. App shell
 
@@ -99,14 +129,15 @@ UIはこのlifecycleを反映する。domain objectと保存schemaは現行互�
 - Headerはproduct identity、project/navigation trigger、essential utilityに絞る。
 - 現在のwork areaとproject titleをmain contentのpage headerで再提示する。
 - 4つ以上のwork areaを横幅いっぱいのTabsへ圧縮しない。
-- Navigationを開閉した後は元triggerへfocusを戻し、現在pageをprogrammaticに示す。
+- Navigationのdismissでは元triggerへfocusを戻す。destination選択ではpageへ移動し、現在pageをprogrammaticに示す。
+- Mobile navigationはnon-modalなCarbon SideNavを使う。triggerからTabでlinkへ入り、navigation外へTabで出たら閉じ、移動先focusを維持する。Escape、scrimによるdismissはtriggerへ戻す。現在地を選び直した場合も閉じて`h1`へ移す。triggerは`aria-controls`と`aria-expanded`を持つ。Shellのutility / app switcherとmobile navigationを同時に開かない。
 
 ### Invariants
 
 - global headerはpage primary actionを所有しない。
 - sync errorをToastだけにしない。
 - theme切替は現行g10/g100 token contractを維持する。
-- `room`だけを含む共有URLの既定着地は**概要**とする。現在のsectionはcanonicalな`section` queryで表し、明示されたdeep linkはrefresh、browser back / forward後も同じsectionへ復帰しなければならない。
+- `room`だけを含む共有URLの既定着地は**参加者**とする。現在のsectionはcanonicalな`section` queryで表し、明示されたdeep linkはrefresh、browser back / forward後も同じsectionへ復帰しなければならない。
 - 旧`view=participants`、`view=sheet&allocation=*`、`view=seisan`は対応する新sectionへ受け入れるが、新しいnavigation後のURLからlegacy presentation parameterを除く。
 - client-side section change後はpage `h1`へfocusを移す。初回表示では閲覧開始位置を奪わない。
 
@@ -117,7 +148,7 @@ UIはこのlifecycleを反映する。domain objectと保存schemaは現行互�
 1. Breadcrumb相当が必要なnested taskでは、戻り先を明示する。
 2. `h1`: task / object名。
 3. Status / summary: 人数、未割り当て、未回収など、判断に必要な1–3項目。
-4. Primary action: page goalを前進させる1つ。
+4. Page-level action: 閲覧pageではTertiaryの編集開始など。taskを完了するPrimaryは必要な場合だけ、最大1つ。
 5. Secondary / tertiary actions。
 6. Main sections: workflow順。
 
@@ -128,12 +159,16 @@ Layout rules:
 - Sectionはheading + optional description + content。Tileで囲むことを既定にしない。
 - Summaryと編集formを同時に全て表示しない。read modeから明確にedit modeへ移る。
 - mobileは1-columnを基本とし、actionをcontent順へ移動する。無条件のfixed footerは使わない。
+- Project contextは`h1`の前の補助text、`h1`は現在のtask名、descriptionは必要な時だけ短く示す。metadataは判断に必要な情報だけをdescriptionの後にまとめる。global HeaderとSideNavのcontextは移動中の識別、pageのcontextはcontent閲覧中の識別を担う。
+- DOM順はcontext / title / description → metadata → page actions → main contentとし、mobileの視覚順とkeyboard順を一致させる。desktopでactionsを横へ置いてもmetadataは非操作情報に限定する。
+- Shellのtype roleは`h1`にproductive `heading-05`、md未満には`heading-04`、補助context / metadata labelに`label-01`、descriptionに`body-01`、metadata valueに`heading-compact-01`、外枠section titleに`heading-03`を使う。これは本製品の階層選択であってCarbonが指定したpage anatomyではない。固定heading tokenをbreakpointで切り替え、独自fluid sizeや未定義CSS変数を使わない。
+- Supporting contentは所属section内またはdesktopの補助columnへ置く。feedbackは原因のあるform / sectionの近傍、global sync障害は共通status領域に置く。Phase Cで共通feedback contractを実装する。
 
 ## 5. Action hierarchy
 
 ### Primary
 
-現在のpage goalを前進・完了するaction。通常1 pageに1つ。
+現在のpage goalを前進・完了するaction。1 pageに**最大1つ**。閲覧、状態追跡中心のpageではPrimaryを置かなくてよい。read modeの概要の「企画情報を編集」はTertiary、edit modeの「保存」はPrimaryとする。
 
 - 参加者: 「参加者を確定」または未登録時の「応募を取り込む」
 - 車割: selection contextで「車へ割り当て」
@@ -189,8 +224,8 @@ Label definitions:
 ### Target structure
 
 - Dedicated Overview page。
-- Header: project title、last saved / sync issue、primary「編集」。
-- Progress summary: participant確定、車割、精算など未完了taskへのlink。
+- Header: project title、last saved / sync issue、Tertiary「企画情報を編集」。edit modeのPrimaryは「保存」。
+- 必要なtask linkは提供してよいが、概要を必須dashboardにせず、未定義の準備進捗・完了率を作らない。
 - Details: 日程、説明、時刻表をread viewでscan可能に表示。
 - Edit mode: logical group順のform。時刻表はrepeating rowとして追加/削除。shared save 1つ。
 - Danger zone: project delete/resetは通常contentから分離。
@@ -245,7 +280,7 @@ Rules:
 
 ### User goal
 
-参加者を車・班へ過不足なく割り当て、未割り当てとcapacityを解消する。
+当日朝までに参加者を車・班へ過不足なく割り当て、結果を参加者へ発表できる状態にする。
 
 ### Target structure
 
@@ -255,7 +290,8 @@ Rules:
 - Mobile: current group list→group detail→unassigned selectionのtask順。長いdrag操作を必須にしない。
 - Group list: title、member count/capacity、driver/leader、issue status。
 - Row actions: 現行pin/lock semanticsは維持する。頻繁に使う根拠がない限り、rename/capacity/deleteとともにOverflowまたはgroup detailへ置く。
-- Random allocation: tertiary tool。実行前に保持されるlockと変更範囲、実行後に結果reviewを示す。
+- 手動とRandom allocationは同じ成果を作る選択肢。手動で配置・調整でき、RandomはTertiaryの効率化toolとして発見可能にする。Random後も手動修正できる。実行前に既存lockと変更範囲、実行後に結果reviewを示す。
+- 当日朝の発表は割当結果のhandoff。完成した車 / 班、運転手 / 班長、member、未割当 / capacity issueを確認・提示できるread presentationを持つ。投稿・コピー等の方式は既存capabilityと用途を確認してPhase Eで決定する。参加者発表文と割当結果発表を同一taskとして扱わない。
 
 ### Rules
 
@@ -272,8 +308,8 @@ Rules:
 
 ### Target structure
 
-- Project IAの「編成」に属するdedicated route task。Car allocationとvehicle cost detailの両方から同じcar contextへdeep-linkでき、戻り先とdraftを保持する。Modal内でexpense→movement→routeをview切替しない。
-- Header: 対象車、current distance、Back to vehicle costs。
+- 車両費用に属するdedicated route task。Car allocationとvehicle cost detailの両方から同じcar contextへdeep-linkでき、戻り先とdraftを保持する。計算ツールの値とメーター等の直接距離入力を両方維持し、登山実施の前後を問わず使用できる。Modal内でexpense→movement→routeをview切替しない。
+- Header: 対象車、current distance、呼出元への戻り先。費用から開始した場合は同じ費用draftへ、編成から開始した場合は同じ車へ戻る。
 - Stop list: origin、waypoints、destination。検索、並べ替え、削除。
 - Map / route alternatives: desktopはlist + map、mobileはroute summaryを先、mapは必要時に表示。
 - Advanced route optionはDisclosure。
@@ -329,6 +365,7 @@ Rules:
 ### Target structure
 
 - Vehicle cost list: 車、合計、距離、issue、last update。
+- 各ドライバーが自分の車を識別して直接編集できる入口を持つ。現在の認証から本人と車を確実に対応できない場合は車 / 運転手labelで選択させ、本人を推測しない。driver専用の権限・account・schemaはこのUI仕様から導入しない。
 - Vehicle cost detail/workspace:
   1. 費目list
   2. 選択中費目のeditor
@@ -341,6 +378,7 @@ Rules:
 ### Rules
 
 - 費目を切替えても未保存draftを失わない。
+- 車ごとにdraft / 保存中 / 保存失敗 / 確定値を区別する。別車の並行入力をpage全体のSaveで上書きしない。同じ車の同時編集は既存sync / conflict behaviorに従い、失敗や競合を確定表示しない。独自sync protocolを追加しない。
 - Deleteは追加費目のみ。標準費目の0円化/無効化とdeleteを混同しない。
 - Formulaはread-only summaryとして常時確認可能。
 - 「ルートから距離を計算」はtertiary navigation。nested modalにしない。
@@ -390,6 +428,7 @@ Rules:
 ### Invariants
 
 - Collection済みとrecipient支払い済みは別state。
+- 費用入力、計算結果、実際の集金・支払い確認は異なるtask。費用が揃っていないのに精算完了と表示しない。完了後は追加の管理stageを要求せず、内訳・履歴・訂正へ必要時に戻れる。
 - Calculation resultはUI側で再計算しない。現行domain resultをpresentationする。
 - 同期競合や保存失敗時はoptimistic stateを確定表示しない。
 
@@ -401,7 +440,7 @@ Rules:
 
 ### Target structure
 
-- Project navigationから到達するdedicated History page。Overviewからはtask linkで同じdestinationへ移動する。
+- Project navigationから到達するdedicated History page。Overviewからはtask linkで同じdestinationへ移動する。Phase Bの履歴Modal接続はPhase Hまでの移行入口であり、完成仕様ではない。
 - History list/Data table: timestamp、project name、creator/sourceがあれば表示、current marker。
 - Primary actionは通常不要。「現在の状態をsnapshot」はpage headerのtertiary action。
 - Row action「この状態を復元」。復元前に影響を確認。
@@ -515,7 +554,7 @@ Wording examples:
 Phase B以降のすべてのUI変更で、次を同時に守る。
 
 1. User goal → task → IA → hierarchy → pattern → interaction → componentの順で判断し、既存componentの置換を設計理由にしない。
-2. 1 page / 1 dialog / 1 selection contextのprimary actionは1つ。独立taskを同じTabsやModalへ押し込めない。
+2. 1 page / 1 dialog / 1 selection contextのprimary actionは最大1つ。閲覧pageでは0でもよい。独立taskを同じTabsやModalへ押し込めない。
 3. 長い、複数step、反復、元context参照が必要なtaskはModalにしない。Modalはbrief / focused / interruptible taskだけに使う。
 4. Data shape、participant identity、calculation、sync、Firebase、persistence、shared-link compatibilityをUI都合で変更しない。必要な変更は別scopeと別承認に分ける。
 5. Carbon Grid / component / token / interactionを先に使う。arbitrary value、独自focus / hover / dialog、global Carbon overrideは承認済み例外だけにする。
@@ -539,7 +578,7 @@ Phase B以降のすべてのUI変更で、次を同時に守る。
 ### Pattern, hierarchy, and content
 
 - [ ] 選んだpatternの`Use when`と、退けた主要代替の`Do not use when`を説明した。
-- [ ] Page anatomy、section hierarchy、1 primary action、secondary / tertiary / overflow / dangerのownerが明確である。
+- [ ] Page anatomy、section hierarchy、最大1 primary action、secondary / tertiary / overflow / dangerのownerが明確である。
 - [ ] Save / Apply / Confirm / Cancel / Close / Backの意味と、draft / persistence / failure時の挙動が明確である。
 - [ ] 日本語labelだけで操作結果が分かり、同じconceptに同じ用語を使っている。
 - [ ] Empty / loading / error / disabled / unsaved / sync / destructiveの該当stateを確認した。

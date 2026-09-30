@@ -44,8 +44,8 @@ Do not hide a domain/data migration inside a UI phase.
 | Phase | Design invariants that become binding |
 | --- | --- |
 | A — Foundation | 5文書のrole / precedence、Product UI仕様の規則語、Official guidance / Project interpretationの区別、UI PR checklistを変更理由なしに迂回しない。Phase Aは文書・test contractのみでProduct UIを変更しない。 |
-| B — Shell / navigation | 既存room URL、shared link、refresh / backとlegacy destination mappingを維持し、section指定のないroom URLはlifecycle起点の概要へ着地させる。すべてのdestinationに1つの`h1`、programmatic current state、navigation後のfocus strategyを持たせ、global / project / page action ownerを混在させない。 |
-| C — Shared patterns | Modalはapproved brief-task allow-listに限定する。Save / Apply / Confirm / Cancel / Close / Back、typed state severity、focus-to-error / focus returnを共通contractにし、日本語message解析でbehaviorを決めない。 |
+| B — Shell / navigation | 既存room URL、shared link、refresh / backとlegacy destination mappingを維持する。room-only既定着地と主要・補助navigationはProduct UI仕様§2が所有し、概要・履歴を必須stageにしない。すべてのdestinationに1つの`h1`、programmatic current state、navigation後のfocus strategyを持たせ、global / project / page action ownerを混在させない。 |
+| C — Shared patterns | 新規Modalはapproved brief-task allow-listに限定する。既存の未移行Modalは担当Phaseと理由を分類し、拡張せず移行対象として残す。Save / Apply / Confirm / Cancel / Close / Back、typed state severity、focus-to-error / focus returnを共通contractにし、日本語message解析でbehaviorを決めない。 |
 | D — Overview / participants | Participant identityとconfirm / unconfirmのdownstream effectを変えない。Importはpreview / correction前にcommitせず、productive list densityとsearch / filter / zero-data stateを維持する。 |
 | E — Allocation | 全参加者をdragなしで割り当て可能にする。Unassigned、capacity、pin / lock、driver / leaderを失わず、同じ操作は既存と同じserialized assignment stateを作る。 |
 | F — Route / costs | Route / movementをnested Modal state machineへ戻さない。Nested navigationでdraftを保持し、同じinputから同じdistance / cost resultを得る。Mapを唯一の情報源や唯一の操作手段にしない。 |
@@ -105,7 +105,7 @@ Low for product behavior; medium process risk if rules are not reviewed by maint
 
 ### Goal
 
-Replace whole-app contained Tabs with a Carbon-aligned project navigation model and establish Overview + stable page headers.
+Replace whole-app contained Tabs with task destinations and stable page headers. Publish main versus supporting work areas according to the Product UI contract, not a generic project dashboard.
 
 ### Why this phase comes here
 
@@ -145,6 +145,7 @@ High: current tests target tab roles; navigation state and deep-link/share behav
 - Every feature has one stable page destination and `h1`.
 - Global/project/page actions have separate owners.
 - Current user can complete all old flows through the new shell.
+- 公開するnavigation labelは実在するtaskだけを約束する。Phase Bでは「履歴」を公開し、設定・danger zoneの公開はPhase Hまで延期する。完成時IAと移行時の公開範囲はProduct UI仕様§2を参照する。
 
 ## Phase C — Shared task surfaces, forms, state feedback, and content
 
@@ -187,7 +188,7 @@ Medium-high: feedback timing and save boundaries touch many flows.
 
 ### Exit criteria
 
-- Modal is reserved for brief tasks by a reviewable allow-list.
+- New Modals are reserved for brief tasks by a reviewable allow-list. Existing long dialogs have an explicit migration classification and owning Phase; their retention is not evidence of design compliance.
 - Form/save and notification contracts are used by the pilot.
 - No notice severity depends on parsing Japanese message strings.
 
@@ -195,7 +196,7 @@ Medium-high: feedback timing and save boundaries touch many flows.
 
 ### Goal
 
-Create the lifecycle entry point and move applicant import out of the large Modal while preserving the strong participant list.
+Make participant confirmation the operational starting task and move applicant import out of the large Modal while preserving the strong participant list. Overview editing is a supporting task, not a mandatory entry point.
 
 ### Why this phase comes here
 
@@ -272,12 +273,14 @@ High: assignment persistence, pin behavior, recalculation, and touch/drag behavi
 - Empty, full, over-capacity, pinned, multiple unassigned, delete, randomize/cancel/review.
 - Desktop Chromium, 390px Chromium/WebKit, keyboard, focus return, no overflow.
 - Compare serialized assignment state before/after equivalent old/new actions.
+- Verify manual and random assignment remain complementary, and the completed allocation can be read and communicated to participants on the event morning. The existing participant-announcement generator is not evidence of car/team announcement coverage.
 
 ### Exit criteria
 
 - All people can be assigned without drag.
 - Capacity/unassigned issues are visible before completion.
 - Car and team share structure without leaking vehicle-only rules.
+- Completed car/team membership is readable for the morning handoff; no new publication state or messaging service is implied.
 
 ## Phase F — Route, movement, and vehicle-cost workspace
 
@@ -316,6 +319,7 @@ Very high: cost draft, movement formula, route application, map API, and settlem
 - Golden settlement result comparison before/after UI migration.
 - Route fixture tests for empty, loading, no result, error, alternatives, map unavailable, apply/back/cancel.
 - Verify expense draft survives route round-trip and cancel discards only intended changes.
+- Verify each driver can locate their car and input distance/costs independently, including meter-based manual distance. Use two Emulator clients to cover different-car concurrency and existing same-car conflict behavior; do not infer driver identity from anonymous auth.
 - Real keyboard and 390px tests; map keyboard/text alternative and reduced motion.
 
 ### Exit criteria
@@ -323,6 +327,7 @@ Very high: cost draft, movement formula, route application, map API, and settlem
 - No nested internal Modal view remains for route/movement.
 - Existing cost and distance results are byte/number equivalent for the same inputs.
 - Route can be completed without relying on the map.
+- The vehicle-cost workspace has a direct task entry and car context; equivalent distance tools and per-car domain behavior remain available.
 
 ## Phase G — Settlement rules and calculation explanation
 
@@ -413,6 +418,7 @@ High: persistent paid/collected state, synchronization, restore, and status word
 - Calculated obligation and actual completion states remain distinct.
 - State changes are visible without success Toast spam.
 - Restore/delete/reset have risk-appropriate confirmation and recoverability.
+- Settlement completion is based on existing calculation and collection/payment state, not a new mandatory archive/project-completion stage. History/settings remain secondary recovery utilities.
 
 ## Phase I — Cross-product responsive, accessibility, content, and visual hardening
 
@@ -490,7 +496,7 @@ Phase Aの次は、one bounded **Phase B shell/page-anatomy slice**とする:
 1. 現行room URL、shared link、initial destination、back / refreshをbehavior testでfreezeする。
 2. Product UI仕様のApp shell / Page layout / Global invariantsを、既存`App.jsx` / `AppHeader.jsx` ownerへmappingする。
 3. Navigation componentを現行`@carbon/react` 1.115.0で検証し、desktop / mobile / focus contractを先にtestする。
-4. Overview destinationとstable page titleを導入するが、旧flowを到達不能にしない。
+4. 主要task destinationとstable page titleを導入し、概要・履歴は補助導線に留める。旧flowを到達不能にしない。
 5. 全work areaが到達可能で、navigationだけではdata mutationが起きないことを確認してから、旧whole-app Tabsを段階的に外す。
 
 Do not start with settlement visual polish or arbitrary CSS cleanup: both depend on the target page/navigation structure.

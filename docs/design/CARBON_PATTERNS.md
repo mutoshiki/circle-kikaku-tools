@@ -42,7 +42,7 @@ Carbon公式の基礎: [Patterns overview](https://carbondesignsystem.com/patter
 - **Use when**: taskが長い、複数section/step、頻繁、元contextを参照、履歴を持つ、URLやback navigationの価値がある。
 - **Do not use when**: 1判断で終わり、移動によるcontext lossの方が大きい。
 - **User task**: 独立した成果物またはworkflow stageを完了する。
-- **Interaction principle**: page headerにgoal、status、primary action。途中stateを保持し、Backの行先を明示する。
+- **Interaction principle**: page headerにgoal、status、必要なpage action。閲覧中心pageはPrimary不要。途中stateを保持し、Backの行先を明示する。
 - **Mobile behavior**: 最も安定する既定surface。sectionを1-columnへ並べ、必要ならlocal progress / disclosureを使う。
 - **Accessibility**: route変更時のpage title、main heading、focus移動、browser back、unsaved changesを扱う。
 - **Project example**: 応募取込、企画情報編集、履歴、精算設定、車両費用・ルート確定。
@@ -289,10 +289,14 @@ Carbon公式の基礎: [Patterns overview](https://carbondesignsystem.com/patter
 
 ## 8. Quick decision matrix
 
+Product reality、actor、時期、handoff、完了条件のownerはProduct UI仕様§1–2である。以下は選択基準であり、7段階をwizard化したり、実運用説明に出ないdomain capabilityを削除したりする根拠ではない。
+
 | Task characteristic | First candidate | Avoid |
 | --- | --- | --- |
 | 短い・単一・中断可 | Modal | Full workflowをModal化 |
 | 長い・反復・複数step | Full page | nested / full-screen-like Modal |
+| ドライバーごとの距離・費用入力 | 車を選べるdurable workspace / task deep link | 企画概要からの必須開始、actorごとのdraft混同 |
+| 当日朝の完成した車割・班割の発表 | 読み取り可能なallocation presentation / handoff | 応募者発表と同一機能だと推測すること |
 | desktopでcontext参照 | Inline split / verified panel | 未確認の独自SidePanel |
 | rich rowのscan/action | Contained list | 1 row 1 Tile |
 | 多列比較/sort | Data table | card列 |

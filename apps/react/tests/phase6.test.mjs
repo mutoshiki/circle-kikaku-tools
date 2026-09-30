@@ -42,7 +42,7 @@ test('project sections use stable URLs while preserving inbound legacy links', (
     crypto,
   });
 
-  assert.equal(launch('https://example.test/react/?room=A').initialSection, 'overview');
+  assert.equal(launch('https://example.test/react/?room=A').initialSection, 'participants');
   assert.equal(launch('https://example.test/react/?room=A&section=overview').initialSection, 'overview');
   assert.equal(launch('https://example.test/react/?room=A&section=participants').initialSection, 'participants');
   assert.equal(launch('https://example.test/react/?room=A&section=organization-team').initialSection, 'organization-team');
@@ -52,7 +52,7 @@ test('project sections use stable URLs while preserving inbound legacy links', (
   assert.equal(launch('https://example.test/react/?room=A&view=seisan').initialSection, 'settlement');
   assert.equal(launch('https://example.test/react/?room=A&view=sheet&allocation=team').initialSection, 'organization-team');
   assert.equal(launch('https://example.test/react/?room=A&view=sheet&allocation=car').initialSection, 'organization-car');
-  assert.equal(launch('https://example.test/react/?room=A&section=unknown').initialSection, 'overview');
+  assert.equal(launch('https://example.test/react/?room=A&section=unknown').initialSection, 'participants');
 
   const next = new URL(createProjectSectionUrl('https://example.test/react/?room=A&view=participants#top', 'settlement'));
   assert.equal(next.search, '?room=A&section=settlement');

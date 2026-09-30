@@ -1,6 +1,8 @@
 @use '@carbon/react/scss/config' with ($css--font-face: false);
 @use '@carbon/react';
 @use '@carbon/layout' as layout;
+@use '@carbon/react/scss/breakpoint' as breakpoint;
+@use '@carbon/react/scss/type' as type;
 @import '../../../assets/vendor/ibm-plex/plex.css';
 
 :root { font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; }
@@ -10,25 +12,25 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .app-header__project { display: flex; align-items: center; min-inline-size: 0; margin-inline-end: auto; padding-inline: layout.$spacing-05; border-inline-start: 1px solid var(--cds-border-subtle); color: var(--cds-text-secondary); }
 .app-header__project span { overflow: hidden; max-inline-size: 25vw; text-overflow: ellipsis; white-space: nowrap; }
 .project-navigation__context { display: grid; gap: layout.$spacing-02; padding: layout.$spacing-05; border-block-end: 1px solid var(--cds-border-subtle); }
-.project-navigation__context span, .project-navigation__context small { color: var(--cds-text-secondary); font-size: var(--cds-label-01-font-size); line-height: var(--cds-label-01-line-height); }
+.project-navigation__context span, .project-navigation__context small { @include type.type-style('label-01'); color: var(--cds-text-secondary); }
 .project-navigation__context strong { overflow: hidden; color: var(--cds-text-primary); text-overflow: ellipsis; white-space: nowrap; }
 .application .project-content { min-block-size: calc(100dvh - layout.$spacing-09); padding: 0; background: var(--cds-background); }
 .project-page__header { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'heading actions' 'metadata metadata'; gap: layout.$spacing-05 layout.$spacing-07; padding-block: layout.$spacing-07 layout.$spacing-06; border-block-end: 1px solid var(--cds-border-subtle); }
 .project-page__heading { grid-area: heading; min-inline-size: 0; }
-.project-page__heading h1 { margin: 0; font-size: var(--cds-heading-05-font-size); font-weight: var(--cds-heading-05-font-weight); line-height: var(--cds-heading-05-line-height); outline-offset: layout.$spacing-02; }
-.project-page__heading > p:not(.project-page__context) { max-inline-size: 48rem; margin-block-start: layout.$spacing-03; color: var(--cds-text-secondary); }
-.project-page__context { overflow-wrap: anywhere; margin-block: 0 layout.$spacing-03; color: var(--cds-text-secondary); font-size: var(--cds-label-01-font-size); line-height: var(--cds-label-01-line-height); }
+.project-page__heading h1 { @include type.type-style('heading-05'); margin: 0; outline-offset: layout.$spacing-02; }
+.project-page__heading > p:not(.project-page__context) { @include type.type-style('body-01'); max-inline-size: 48rem; margin-block-start: layout.$spacing-03; color: var(--cds-text-secondary); }
+.project-page__context { @include type.type-style('label-01'); overflow-wrap: anywhere; margin-block: 0 layout.$spacing-03; color: var(--cds-text-secondary); }
 .project-page__actions { grid-area: actions; display: flex; align-items: flex-start; gap: layout.$spacing-03; }
 .project-page__metadata { grid-area: metadata; display: flex; flex-wrap: wrap; gap: layout.$spacing-05 layout.$spacing-07; margin: 0; }
 .project-page__metadata > div { display: flex; gap: layout.$spacing-02; align-items: baseline; }
-.project-page__metadata dt { color: var(--cds-text-secondary); font-size: var(--cds-label-01-font-size); }
-.project-page__metadata dd { margin: 0; font-size: var(--cds-body-compact-01-font-size); font-weight: 600; }
+.project-page__metadata dt { @include type.type-style('label-01'); color: var(--cds-text-secondary); }
+.project-page__metadata dd { @include type.type-style('heading-compact-01'); margin: 0; }
 .project-page__body { padding-block: layout.$spacing-06 layout.$spacing-09; }
 .project-page__status { max-inline-size: 48rem; margin-block-end: layout.$spacing-06; }
 .overview-layout, .history-settings-layout { display: grid; gap: layout.$spacing-07; }
 .overview-section { display: grid; gap: layout.$spacing-05; max-inline-size: 64rem; }
 .content-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: layout.$spacing-05; padding-block-end: layout.$spacing-03; border-block-end: 1px solid var(--cds-border-subtle); }
-.content-section-heading h2 { margin: 0; font-size: var(--cds-heading-03-font-size); font-weight: var(--cds-heading-03-font-weight); line-height: var(--cds-heading-03-line-height); }
+.content-section-heading h2 { @include type.type-style('heading-03'); margin: 0; }
 .content-section-heading p, .empty-copy { margin-block-start: layout.$spacing-02; color: var(--cds-text-secondary); }
 .overview-basics { margin: 0; }
 .overview-basics > div { display: grid; gap: layout.$spacing-02; }
@@ -260,16 +262,19 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-movement-modal .cds--modal-content { min-block-size: 0; background: var(--cds-layer); }
 .settlement-movement-form .distance-field > .cds--btn { inline-size: max-content; min-inline-size: 0; max-inline-size: 100%; }
 .settlement-movement-at-bottom .cds--modal-content { -webkit-mask-image: none; mask-image: none; }
-@media (max-width: 65.98rem) {
+@include breakpoint.breakpoint-down(lg) {
   .app-header__project { display: none; }
-  .application .project-content { margin-inline-start: 0; }
-  .application .project-navigation--mobile-open ~ .project-content { margin-inline-start: 0; }
+  // Override Carbon's expanded SideNav/content push rule at our own landmark,
+  // without depending on Carbon internal classes or sibling DOM structure.
+  .application #main-content.project-content { margin-inline-start: 0; }
+}
+@include breakpoint.breakpoint-down(md) {
+  .project-page__header { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'heading' 'metadata' 'actions'; gap: layout.$spacing-05; padding-block: layout.$spacing-05; }
+  .project-page__heading h1 { @include type.type-style('heading-04'); }
+  .project-page__actions { flex-wrap: wrap; }
+  .project-page__body { padding-block: layout.$spacing-05 layout.$spacing-07; }
 }
 @media (max-width: 42rem) {
-  .project-page__header { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'heading' 'metadata' 'actions'; gap: layout.$spacing-05; padding-block: layout.$spacing-05; }
-  .project-page__heading h1 { font-size: var(--cds-heading-04-font-size); line-height: var(--cds-heading-04-line-height); }
-  .project-page__actions, .project-page__actions .cds--btn { inline-size: 100%; max-inline-size: none; }
-  .project-page__body { padding-block: layout.$spacing-05 layout.$spacing-07; }
   .content-section-heading { flex-direction: column; }
   .overview-timetable li { grid-template-columns: minmax(0, 1fr); gap: layout.$spacing-02; }
   .cds--text-input, .cds--text-area { font-size: 1rem; }

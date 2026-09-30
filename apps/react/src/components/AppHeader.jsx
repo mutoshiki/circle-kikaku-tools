@@ -11,7 +11,7 @@ const relatedApplications = [
   { name: '山歩会企画ツール一覧', href: 'https://mutoshiki.github.io/sanpokai-kikaku-portal/' },
 ];
 
-export default function AppHeader({ theme, projectName, showSampleData, navigationButtonRef, navigationOpen, onToggleNavigation, onShare, onOpenUtility, onToggleTheme }) {
+export default function AppHeader({ theme, projectName, showSampleData, navigationButtonRef, navigationOpen, onToggleNavigation, onCloseNavigation, onShare, onOpenUtility, onToggleTheme }) {
   const [utilityOpen, setUtilityOpen] = useState(false);
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const switcherButton = useRef(null);
@@ -22,18 +22,20 @@ export default function AppHeader({ theme, projectName, showSampleData, navigati
   }
 
   function toggleUtility() {
+    onCloseNavigation();
     setSwitcherOpen(false);
     setUtilityOpen(value => !value);
   }
 
   function toggleSwitcher() {
+    onCloseNavigation();
     setUtilityOpen(false);
     setSwitcherOpen(value => !value);
   }
 
   return <Header aria-label="山歩会企画ツール" className="app-header">
-    <HeaderMenuButton ref={navigationButtonRef} aria-label={navigationOpen ? '企画メニューを閉じる' : '企画メニューを開く'} aria-expanded={navigationOpen} isActive={navigationOpen} onClick={onToggleNavigation} />
-    <HeaderName prefix="">山歩会企画ツール</HeaderName>
+    <HeaderMenuButton ref={navigationButtonRef} aria-label={navigationOpen ? '企画メニューを閉じる' : '企画メニューを開く'} aria-controls="project-navigation" aria-expanded={navigationOpen} isActive={navigationOpen} onClick={() => { setUtilityOpen(false); setSwitcherOpen(false); onToggleNavigation(); }} />
+    <HeaderName as="span" prefix="">山歩会企画ツール</HeaderName>
     <div className="app-header__project" title={projectName || '企画名未設定'}><span>{projectName || '企画名未設定'}</span></div>
     <HeaderGlobalBar>
       <HeaderGlobalAction aria-label="共有リンク" tooltipAlignment="end" onClick={onShare}><Link size={20} /></HeaderGlobalAction>
