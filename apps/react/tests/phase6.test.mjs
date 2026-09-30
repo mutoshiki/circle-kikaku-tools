@@ -5,6 +5,7 @@ import { prepareCompatibleUrl, createShareUrl, tokenStorageKey } from '../src/se
 import { createProjectSectionUrl, prepareProjectLaunch } from '../src/navigation/project-navigation.js';
 import { createProjectDomain } from '../src/services/project-domain.js';
 import { createDomain } from '../src/domain/index.js';
+import { createOverviewDraftStorage } from '../src/services/overview-draft.js';
 
 const participant = (name, grade = 1) => ({ name, grade, memo: '', flag: 'none', locked: false, updatedAt: 1 });
 
@@ -18,6 +19,29 @@ test('overview draft remains local until explicit shared save', () => {
   assert.equal(url.initialSection, 'organization-car');
   assert.equal(new URL(url.href).search, '?room=ROOM-A&section=organization-car');
   assert.equal(createShareUrl(url.href), 'https://example.test/react/?room=ROOM-A');
+});
+
+test('completed overview drafts clear so later shared values become the next edit baseline', () => {
+  const storage = createMemoryStorage();
+  const drafts = createOverviewDraftStorage(storage, 'ROOM-A');
+  drafts.write({ roomName: '古い下書き', memo: '編集中', timetableItems: [] });
+  assert.equal(drafts.read({ roomName: '共有値' }).roomName, '古い下書き');
+  drafts.clear();
+  assert.deepEqual(drafts.read({ roomName: '新しい共有値', memo: '共有メモ', timetableItems: [] }), {
+    roomName: '新しい共有値', memo: '共有メモ', timetableItems: [],
+  });
+});
+
+test('overview draft recovery keeps its original baseline without changing legacy draft readability', () => {
+  const storage = createMemoryStorage();
+  const drafts = createOverviewDraftStorage(storage, 'ROOM-RECOVERY');
+  const baseline = { roomName: '開始時の企画', memo: '開始時のメモ', timetableItems: [], resetGeneration: 0 };
+  drafts.write({ roomName: '開始時の企画', memo: '未保存メモ', timetableItems: [], baseline });
+  const recovered = drafts.read({ roomName: '別端末の新しい企画' });
+  assert.deepEqual(recovered.baseline, baseline);
+  assert.equal(recovered.memo, '未保存メモ');
+  storage.setItem(drafts.key, JSON.stringify({ memo: '以前の下書き', timetableItems: [] }));
+  assert.deepEqual(drafts.read(), { memo: '以前の下書き', timetableItems: [] });
 });
 
 test('project sections use stable URLs while preserving inbound legacy links', () => {

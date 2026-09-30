@@ -378,6 +378,7 @@ test('car expense editor uses a compact Carbon list and focused mobile editing s
   await page.setViewportSize({ width: 390, height: 703 });
   await openCarExpenseEditor(page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }));
   const dialog = page.getByRole('dialog', { name: '仮参加者A車' });
+  await expect(dialog.getByRole('button', { name: 'ガソリン代の操作' })).toBeFocused();
   await expect(dialog.getByRole('heading', { name: '費用を編集' })).toBeVisible();
   await expect(dialog.getByRole('heading', { name: '費用一覧' })).toHaveCount(0);
   await expect(dialog.getByRole('button', { name: '費用を保存' })).toBeVisible();
@@ -392,6 +393,7 @@ test('car expense editor uses a compact Carbon list and focused mobile editing s
   expect(modalContentMetrics.scroll).toBeLessThanOrEqual(modalContentMetrics.client + 1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await dialog.getByRole('button', { name: '閉じる' }).focus();
+  await expect(dialog.getByRole('button', { name: '閉じる' })).toBeFocused();
   await page.keyboard.press('Shift+Tab');
   await expect(dialog.getByRole('button', { name: '費用を保存' })).toBeFocused();
   await page.keyboard.press('Tab');
@@ -575,9 +577,17 @@ test('movement settings body scrolls within a short mobile viewport', async ({ p
   await expect.poll(() => content.evaluate(node => node.scrollTop)).toBeGreaterThan(0);
   await content.evaluate(node => { node.scrollTop = Math.floor((node.scrollHeight - node.clientHeight) / 2); });
   await expect(page.locator('.settlement-movement-modal')).not.toHaveClass(/settlement-movement-at-bottom/);
-  const middleScroll = await content.evaluate(node => ({ top: node.scrollTop, max: node.scrollHeight - node.clientHeight, mask: getComputedStyle(node).maskImage }));
+  const middleScroll = await content.evaluate(node => {
+    const style = getComputedStyle(node);
+    return { top: node.scrollTop, max: node.scrollHeight - node.clientHeight, mask: style.maskImage, webkitMask: style.webkitMaskImage };
+  });
   expect(middleScroll.top).toBeLessThan(middleScroll.max);
-  expect(middleScroll.mask).not.toBe('none');
+  // Scroll events and the resulting fade repaint are asynchronous, just as
+  // the bottom-state repaint below is. Assert the rendered state, not a frame.
+  await expect.poll(() => content.evaluate(node => {
+    const style = getComputedStyle(node);
+    return style.maskImage !== 'none' || style.webkitMaskImage !== 'none';
+  })).toBe(true);
   const headerAfter = await dialog.locator('.cds--modal-header').evaluate(node => node.getBoundingClientRect().toJSON());
   expect(headerAfter.top).toBe(headerBefore.top);
   expect(headerAfter.bottom).toBe(headerBefore.bottom);
@@ -589,7 +599,10 @@ test('movement settings body scrolls within a short mobile viewport', async ({ p
   await content.evaluate(node => { node.scrollTop = node.scrollHeight; });
   await expect.poll(() => content.evaluate(node => node.scrollTop + node.clientHeight >= node.scrollHeight - 2)).toBe(true);
   await expect(page.locator('.settlement-movement-modal')).toHaveClass(/settlement-movement-at-bottom/);
-  await expect.poll(() => content.evaluate(node => getComputedStyle(node).maskImage)).toBe('none');
+  await expect.poll(() => content.evaluate(node => {
+    const style = getComputedStyle(node);
+    return style.maskImage === 'none' && style.webkitMaskImage === 'none';
+  })).toBe(true);
   await expect(dialog.locator('.settlement-movement-preview')).toHaveCSS('opacity', '1');
   expect(pageErrors.get(page)).toEqual([]);
 });

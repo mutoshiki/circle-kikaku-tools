@@ -27,6 +27,29 @@ test('store snapshots are stable, immutable and command updates notify once with
   assert.equal(notifications, 1);
 });
 
+test('project overview saves name and overview as one intent without changing protected state', () => {
+  const store = create();
+  const before = plain(store.getSnapshot());
+  const intents = [];
+  store.subscribeIntents(intent => intents.push(intent));
+
+  const session = store.beginEdit({ kind: 'project-overview' });
+  session.draft.roomName = '明示保存した企画';
+  session.draft.overview = { memo: '共有メモ', timetableItems: [{ time: '08:30', title: '集合' }] };
+  store.commitEdit(session);
+
+  const after = plain(store.getSnapshot());
+  assert.equal(intents.length, 1);
+  assert.equal(intents[0].kind, 'project-overview');
+  assert.equal(after.roomName, '明示保存した企画');
+  assert.deepEqual(after.overview, { memo: '共有メモ', timetableItems: [{ time: '08:30', title: '集合' }] });
+  assert.deepEqual(after.participants, before.participants);
+  assert.deepEqual(after.allocations, before.allocations);
+  assert.deepEqual(after.settlement, before.settlement);
+  assert.deepEqual(after.meta, before.meta);
+  assert.deepEqual(Object.keys(after.overview).sort(), ['memo', 'timetableItems']);
+});
+
 test('open drafts retain IME input while remote updates flow to other fields', () => {
   const store = create();
   const id = Object.keys(store.getSnapshot().participants)[0];

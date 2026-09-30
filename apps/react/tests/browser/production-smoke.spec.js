@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { navigateToProjectSection } from './project-navigation.js';
 
-test('production preview loads assets and preserves a room edit across critical views and reload', async ({ page }) => {
-  const origin = 'http://127.0.0.1:4174';
+test('production preview loads assets and preserves a room edit across critical views and reload', async ({ page, baseURL }) => {
+  const origin = new URL(baseURL).origin;
   const runtimeErrors = [];
   const badResponses = [];
   page.on('pageerror', error => runtimeErrors.push(error.message));
@@ -12,9 +12,10 @@ test('production preview loads assets and preserves a room edit across critical 
   await page.goto('/?room=PHASE8PRODUCTION');
   await expect(page).toHaveTitle('山歩会企画ツール');
   await navigateToProjectSection(page, '概要');
+  await page.getByRole('button', { name: '企画情報を編集', exact: true }).click();
   const projectName = page.getByRole('textbox', { name: '企画名' });
   await projectName.fill('Phase 8 production smoke');
-  await projectName.blur();
+  await page.getByRole('button', { name: '保存', exact: true }).click();
   await navigateToProjectSection(page, '参加者');
   await expect(page.getByRole('heading', { name: '参加者', exact: true })).toBeVisible();
   await navigateToProjectSection(page, '車割');
@@ -25,7 +26,7 @@ test('production preview loads assets and preserves a room edit across critical 
   await expect(page.getByRole('heading', { level: 1, name: '精算', exact: true })).toBeVisible();
   await page.reload();
   await navigateToProjectSection(page, '概要');
-  await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue('Phase 8 production smoke');
+  await expect(page.getByRole('main').getByText('Phase 8 production smoke', { exact: true }).first()).toBeVisible();
   expect(runtimeErrors).toEqual([]);
   expect(badResponses).toEqual([]);
 });
