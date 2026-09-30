@@ -99,6 +99,10 @@ test('short participant edit focuses the invalid field and returns focus on dism
   await expect(name).toBeFocused();
   await expect(editor.getByText('名前を入力してください。', { exact: true }).first()).toBeVisible();
 
+  await name.fill('Focus Contract');
+  await expect(name).not.toHaveAttribute('aria-invalid', 'true');
+  await expect(editor.getByText('名前を入力してください。', { exact: true })).toHaveCount(0);
+
   await page.keyboard.press('Escape');
   await expect(editor).toBeHidden();
   await expect(trigger).toBeFocused();
@@ -109,4 +113,55 @@ test('short participant edit focuses the invalid field and returns focus on dism
   await expect(confirmation.getByText(/車割・班割・精算/)).toBeVisible();
   await confirmation.getByRole('button', { name: 'キャンセル', exact: true }).click();
   await expect(page.getByText('Focus Contract', { exact: true }).first()).toBeVisible();
+});
+
+test('failed report stays inside the active dialog, preserves input and allows retry', async ({ page }) => {
+  await page.addInitScript(() => {
+    let attempts = 0;
+    window.__REACT_EXTERNAL_ADAPTERS__ = {
+      async bugReport() { if (++attempts === 1) throw new Error('fixture rejection'); return { ok: true }; },
+    };
+  });
+  await page.goto('/?room=PHASE-C-REPORT-ERROR');
+  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
+  await page.getByRole('menuitem', { name: 'バグを報告する', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'バグを報告', exact: true });
+  const input = dialog.getByRole('textbox', { name: 'バグの内容', exact: true });
+  await input.fill('再試行する報告内容');
+  await dialog.getByRole('button', { name: '送信', exact: true }).click();
+  await expect(dialog.getByRole('status')).toContainText('送信できませんでした');
+  await expect(input).toHaveValue('再試行する報告内容');
+  await expect(dialog.getByRole('button', { name: '送信', exact: true })).toBeEnabled();
+  await dialog.getByRole('button', { name: '送信', exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByText('バグ報告を送信しました', { exact: true })).toBeVisible();
+});
+
+test('deleting the last draft timetable row keeps keyboard focus on its add action', async ({ page }) => {
+  await page.goto('/?room=PHASE-C-ROW-FOCUS&section=overview');
+  await page.getByRole('button', { name: '企画情報を編集', exact: true }).click();
+  const form = page.getByRole('form', { name: '企画情報を編集', exact: true });
+  await form.getByRole('textbox', { name: '内容', exact: true }).fill('まだ共有しない行');
+  await form.getByRole('button', { name: '削除', exact: true }).click();
+  await expect(form.getByRole('button', { name: '行を追加', exact: true })).toBeFocused();
+  await expect(form.getByRole('textbox', { name: '内容', exact: true })).toHaveCount(0);
+});
+
+test('refresh recovers a local overview draft without publishing it, and Cancel clears recovery', async ({ page }) => {
+  const roomId = 'PHASE-C-REFRESH-DRAFT';
+  await page.goto(`/?room=${roomId}&section=overview`);
+  const edit = page.getByRole('button', { name: '企画情報を編集', exact: true });
+  await edit.click();
+  await page.getByRole('textbox', { name: '企画名', exact: true }).fill('この端末だけの下書き');
+  await page.getByRole('textbox', { name: 'メモ', exact: true }).fill('更新後も復元するメモ');
+  await page.reload();
+  await expect(edit).toBeVisible();
+  expect(await page.evaluate(id => JSON.parse(localStorage.getItem(`sanpo-react:v1:${id}:room`) || 'null')?.roomName, roomId)).not.toBe('この端末だけの下書き');
+  await edit.click();
+  await expect(page.getByRole('textbox', { name: '企画名', exact: true })).toHaveValue('この端末だけの下書き');
+  await expect(page.getByRole('textbox', { name: 'メモ', exact: true })).toHaveValue('更新後も復元するメモ');
+  await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await edit.click();
+  await expect(page.getByRole('textbox', { name: '企画名', exact: true })).toHaveValue('');
+  await expect(page.getByRole('textbox', { name: 'メモ', exact: true })).toHaveValue('');
 });

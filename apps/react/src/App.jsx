@@ -27,6 +27,12 @@ export default function App({ runtime }) {
   const [sampleType, setSampleType] = useState('normal');
   const previousSection = useRef(section);
   const overviewEditButtonRef = useRef(null);
+  const overviewReturnFocus = useRef(false);
+  useEffect(() => {
+    if (overviewEditing || !overviewReturnFocus.current) return;
+    overviewReturnFocus.current = false;
+    overviewEditButtonRef.current?.focus();
+  }, [overviewEditing]);
   useEffect(() => {
     if (previousSection.current === section) return;
     previousSection.current = section;
@@ -56,8 +62,8 @@ export default function App({ runtime }) {
     else seedSample(sampleType === 'missing');
   }
   function finishOverviewEdit() {
+    overviewReturnFocus.current = true;
     setOverviewEditing(false);
-    requestAnimationFrame(() => overviewEditButtonRef.current?.focus());
   }
   const participantCount = Object.keys(room.participants || {}).length;
   const page = (() => {

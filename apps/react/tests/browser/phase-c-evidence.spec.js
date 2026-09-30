@@ -27,7 +27,7 @@ test('Phase C page-form contract is responsive, keyboard ordered, dark-theme saf
   await expect(actions.getByRole('button', { name: '保存', exact: true })).toBeVisible();
   await expect(actions.getByRole('button', { name: 'キャンセル', exact: true })).toBeVisible();
   if (testInfo.project.name.includes('mobile')) {
-    const heights = await actions.getByRole('button').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().height));
+    const heights = await page.getByRole('form', { name: '企画情報を編集', exact: true }).getByRole('button').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().height));
     expect(Math.min(...heights)).toBeGreaterThanOrEqual(40);
   }
 

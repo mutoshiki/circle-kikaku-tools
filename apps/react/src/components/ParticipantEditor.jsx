@@ -40,7 +40,7 @@ export default function ParticipantEditor({ runtime, session, onClose, launcherB
   return <TaskModal taskId="participant-edit" className="app-modal" open hasScrollingContent modalHeading="参加者を編集" size="sm" primaryButtonText="保存" secondaryButtonText="キャンセル" onRequestSubmit={save} onRequestClose={close} primaryButtonDisabled={saving} preventCloseOnClickOutside launcherButtonRef={launcherButtonRef} selectorPrimaryFocus="#participant-edit-name">
     <div ref={formRef} className="form-stack">
       {error && <InlineNotification kind="error" title={error} hideCloseButton lowContrast />}
-      <TextInput id="participant-edit-name" labelText="名前" value={draft.name} onChange={event => field('name', event.target.value)} invalid={!draft.name.trim() && !!error} invalidText="名前を入力してください。" />
+      <TextInput id="participant-edit-name" labelText="名前" value={draft.name} onChange={event => { field('name', event.target.value); if (error === '名前を入力してください。' && event.target.value.trim()) setError(''); }} invalid={!draft.name.trim() && !!error} invalidText="名前を入力してください。" />
       <Select id="participant-edit-grade" labelText="学年" value={String(draft.grade || 0)} onChange={event => field('grade', Number(event.target.value))}>
         <SelectItem value="0" text="未設定" />{[1, 2, 3, 4].map(grade => <SelectItem key={grade} value={String(grade)} text={`${grade}年`} />)}
       </Select>

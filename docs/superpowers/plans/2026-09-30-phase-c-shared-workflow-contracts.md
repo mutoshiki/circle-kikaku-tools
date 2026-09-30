@@ -4,7 +4,7 @@
 
 **Goal:** Establish reusable, typed contracts for task feedback, form save/cancel behavior, validation focus, destructive risk, and Modal eligibility, then prove them through an inline Project Overview editing pilot without changing protected domain behavior.
 
-**Architecture:** `App.jsx` remains the feedback and page-composition owner but receives typed notices instead of inferring severity from Japanese strings. Small UI contract modules define notice/status semantics, validation focus, destructive risk tiers, and a reviewable Modal registry. `ProjectOverview` becomes a read/edit page surface with a local draft, explicit save/cancel, contextual status, and one atomic store intent preserving the existing room shape. Existing feature workflows remain in place; their Modals are classified as approved brief tasks or time-bounded legacy migrations for later phases.
+**Architecture:** `App.jsx` remains the page-feedback and page-composition owner but receives typed notices instead of inferring severity from Japanese strings. Active dialogs own their contextual errors. Small UI contract modules define notice/status semantics, validation focus, and a reviewable Modal registry; destructive-risk selection follows the normative document, not an unused runtime helper. `ProjectOverview` becomes a read/edit page surface with a local draft, explicit save/cancel, contextual status, and one existing edit-session intent preserving the room shape. Existing feature workflows remain in place; their Modals are classified as approved brief tasks or time-bounded legacy migrations for later phases.
 
 **Tech Stack:** React 19, `@carbon/react` 1.115.0 stable exports, Sass with Carbon tokens, Node test runner, Playwright Chromium/WebKit desktop and 390px mobile.
 
@@ -22,9 +22,9 @@
 - Add: `apps/react/src/ui/task-contracts.js`
 - Add: `apps/react/src/ui/focus-first-invalid.js`
 
-**Interfaces:** Produces typed notices (`kind`, `title`, optional `subtitle`, `placement`, `timeout`), async task states, destructive risk decisions, Modal classifications, and a DOM-facing first-invalid focus helper.
+**Interfaces:** Produces typed notices (`kind`, `title`, optional `subtitle`, `placement`, `timeout`), Modal classifications, and a DOM-facing first-invalid focus helper. Async state belongs to the task owner; destructive-risk decisions follow the normative specification rather than an unused runtime policy helper.
 
-1. Write unit tests with literal expectations for valid/invalid notice normalization, Toast eligibility, risk-tier confirmation decisions, Modal policy lookup, and first-invalid focus behavior.
+1. Write unit tests with literal expectations for valid/invalid notice normalization, Toast eligibility, Modal policy lookup, and first-invalid focus behavior. Risk-tier confirmation outcomes are covered by actual flow tests.
 2. Run the targeted unit test and record RED because the contract modules do not exist.
 3. Implement the minimal pure contract modules. Invalid or unknown values must fail safe (`error` or persistent inline), never parse message text, and never infer destructive risk from labels.
 4. Run the targeted test to GREEN and commit.
@@ -55,7 +55,7 @@
 
 - Modify: `apps/react/src/components/ProjectOverview.jsx`
 - Modify: `apps/react/src/App.jsx`
-- Modify: `apps/react/src/store/room-store.js`
+- Reuse unchanged: `apps/react/src/store/room-store.js` edit-session API
 - Modify: `apps/react/src/services/overview-draft.js`
 - Modify: `apps/react/src/components/ProjectTools.jsx`
 - Modify: `apps/react/src/styles.scss`
@@ -63,9 +63,9 @@
 - Modify: `apps/react/tests/browser/shared-task-contracts.spec.js`
 - Modify: affected existing browser tests that currently assume blur-save or the Overview Modal
 
-**Interfaces:** Read mode exposes page-level `編集`; edit mode owns a local draft, status, form fields, `保存` and `キャンセル`. One `projectOverview` store command atomically writes `roomName` and the existing `overview` object shape. Cancel discards local changes and restores focus to `編集`; save returns to read mode and preserves all unrelated room data.
+**Interfaces:** Read mode exposes Tertiary page-level `編集`; edit mode owns a local draft, baseline, status, form fields, `保存` and `キャンセル`. One existing `commitEdit` intent writes the user's changed fields, preserving unrelated remote values and the existing `overview` storage owner. Save awaits existing sync acknowledgement before clearing its draft and returning to read mode; failure retains the editor for retry. Cancel discards local changes and restores focus to `編集`. A local optional baseline records draft ownership across navigation/reload; old drafts remain readable. No new store command or sync protocol is introduced.
 
-1. Add store tests proving the atomic command changes only `roomName` and `overview`, preserves participant/allocation/settlement/meta data, and serializes the existing schema shape.
+1. Add store tests proving the existing edit-session intent changes only `roomName` and `overview`, preserves participant/allocation/settlement/meta data, and serializes the existing schema shape. Add real Emulator tests for disjoint users, delayed acknowledgement, and permanent rejection/retry.
 2. Add browser tests for read→edit, local draft, explicit save, cancel, focus return, no blur-save, refresh persistence after save, no redundant success Toast, keyboard order, long content, and 390px overflow.
 3. Run targeted tests and record RED against the current always-editable name field and Overview Modal.
 4. Implement the page form using stable Carbon Form/TextInput/TextArea/Button components and spacing/type/layer tokens. Do not add custom dialog, shadow, color, radius, or focus treatment.

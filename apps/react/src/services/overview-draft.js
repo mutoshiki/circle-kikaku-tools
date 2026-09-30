@@ -8,6 +8,7 @@ export function createOverviewDraftStorage(storage, roomId) {
     },
     write(value) {
       const normalized = {
+        ...(value?.baseline && typeof value.baseline === 'object' ? { baseline: structuredClone(value.baseline) } : {}),
         ...(Object.hasOwn(value || {}, 'roomName') ? { roomName: String(value.roomName || '') } : {}),
         memo: String(value?.memo || ''),
         timetableItems: Array.isArray(value?.timetableItems) ? value.timetableItems.map(item => ({ time: String(item?.time || '').slice(0, 5), title: String(item?.title || '') })).filter(item => item.time || item.title) : [],

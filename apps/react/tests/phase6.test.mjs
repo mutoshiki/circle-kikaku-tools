@@ -32,6 +32,18 @@ test('completed overview drafts clear so later shared values become the next edi
   });
 });
 
+test('overview draft recovery keeps its original baseline without changing legacy draft readability', () => {
+  const storage = createMemoryStorage();
+  const drafts = createOverviewDraftStorage(storage, 'ROOM-RECOVERY');
+  const baseline = { roomName: '開始時の企画', memo: '開始時のメモ', timetableItems: [], resetGeneration: 0 };
+  drafts.write({ roomName: '開始時の企画', memo: '未保存メモ', timetableItems: [], baseline });
+  const recovered = drafts.read({ roomName: '別端末の新しい企画' });
+  assert.deepEqual(recovered.baseline, baseline);
+  assert.equal(recovered.memo, '未保存メモ');
+  storage.setItem(drafts.key, JSON.stringify({ memo: '以前の下書き', timetableItems: [] }));
+  assert.deepEqual(drafts.read(), { memo: '以前の下書き', timetableItems: [] });
+});
+
 test('project sections use stable URLs while preserving inbound legacy links', () => {
   const storage = createMemoryStorage();
   const crypto = { randomUUID: () => 'unused' };

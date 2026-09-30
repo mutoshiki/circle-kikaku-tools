@@ -49,8 +49,9 @@ test('long context and mobile menu remain usable in a short viewport and reduced
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/?room=AB-REVIEW-LONG&section=overview');
   const longName = '秋季縦走登山安全講習および新入部員歓迎を兼ねた非常に長い企画名と集合時刻の確認';
+  await page.getByRole('button', { name: '企画情報を編集', exact: true }).click();
   await page.getByRole('textbox', { name: '企画名' }).fill(longName);
-  await page.getByRole('textbox', { name: '企画名' }).blur();
+  await page.getByRole('button', { name: '保存', exact: true }).click();
   await page.reload();
   const mobile = testInfo.project.name.includes('mobile');
   await page.setViewportSize({ width: mobile ? 390 : 1280, height: mobile ? 500 : 900 });
@@ -61,7 +62,7 @@ test('long context and mobile menu remain usable in a short viewport and reduced
       await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
       await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
     }
-    await expect(page.getByRole('main').getByText(longName, { exact: true })).toBeVisible();
+    await expect(page.getByRole('main').getByText(longName, { exact: true }).first()).toBeVisible();
     if (evidence) await page.screenshot({ path: join(evidence, `${testInfo.project.name}-${theme}-context.png`), animations: 'disabled' });
     if (mobile) {
       const trigger = page.getByRole('button', { name: /企画メニューを/ });

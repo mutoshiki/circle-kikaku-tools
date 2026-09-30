@@ -1,6 +1,8 @@
-import { Button, Form, InlineNotification, Tag, TextArea, TextInput } from '@carbon/react';
+import { Button, Form, InlineLoading, InlineNotification, Tag, TextArea, TextInput } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/icons-react';
 import { useEffect, useRef, useState } from 'react';
+import { breakpoints } from '@carbon/layout';
+import useMediaQuery from '../hooks/useMediaQuery.js';
 
 function normalizedOverview(value = {}) {
   return {
@@ -12,7 +14,9 @@ function normalizedOverview(value = {}) {
 }
 
 function OverviewEditor({ runtime, room, onCancel, onSaved }) {
-  const persistedDraft = runtime.overviewDraft.read(room.overview || {});
+  const compact = useMediaQuery(`(min-width: ${breakpoints.md.width})`);
+  const [persistedDraft] = useState(() => runtime.overviewDraft.read(room.overview || {}));
+  const [baseline] = useState(() => persistedDraft.baseline || { roomName: String(room.roomName || ''), ...normalizedOverview(room.overview), resetGeneration: room.resetGeneration });
   const initialOverview = normalizedOverview(persistedDraft);
   const [draft, setDraft] = useState({
     roomName: Object.hasOwn(persistedDraft, 'roomName') ? String(persistedDraft.roomName || '') : String(room.roomName || ''),
@@ -22,17 +26,22 @@ function OverviewEditor({ runtime, room, onCancel, onSaved }) {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const nameRef = useRef(null);
-  const savedOverview = normalizedOverview(room.overview || {});
+  const addRowRef = useRef(null);
+  const sessionRef = useRef(null);
+  const savedOverview = normalizedOverview(baseline);
   const draftOverview = normalizedOverview(draft);
-  const dirty = draft.roomName !== String(room.roomName || '') || JSON.stringify(draftOverview) !== JSON.stringify(savedOverview);
+  const dirty = draft.roomName !== baseline.roomName || JSON.stringify(draftOverview) !== JSON.stringify(savedOverview);
 
   useEffect(() => {
-    requestAnimationFrame(() => nameRef.current?.focus());
-  }, []);
+    const session = runtime.store.beginEdit({ kind: 'project-overview' });
+    sessionRef.current = session;
+    const frame = requestAnimationFrame(() => nameRef.current?.focus());
+    return () => { cancelAnimationFrame(frame); runtime.store.cancelEdit(session); sessionRef.current = null; };
+  }, [runtime]);
 
   function patch(next) {
     setDraft(next);
-    runtime.overviewDraft.write(next);
+    runtime.overviewDraft.write({ ...next, baseline });
     if (error) setError('');
   }
 
@@ -41,13 +50,30 @@ function OverviewEditor({ runtime, room, onCancel, onSaved }) {
     onCancel();
   }
 
-  function save(event) {
+  async function save(event) {
     event.preventDefault();
     if (!dirty || saving) return;
     setSaving(true);
     setError('');
     try {
-      runtime.store.command('projectOverview', { name: draft.roomName, overview: draftOverview });
+      const session = sessionRef.current;
+      if (baseline.resetGeneration !== room.resetGeneration) throw new Error('企画がリセットされました。キャンセルして開き直してください。');
+      // Preserve untouched owners, including remote timetable/memo edits, without
+      // changing the existing whole-overview persistence/sync contract.
+      const latest = normalizedOverview(runtime.store.getSnapshot().overview);
+      session.draft.overview = {
+        ...latest,
+        ...(draftOverview.memo !== savedOverview.memo ? { memo: draftOverview.memo } : {}),
+        ...(JSON.stringify(draftOverview.timetableItems) !== JSON.stringify(savedOverview.timetableItems) ? { timetableItems: draftOverview.timetableItems } : {}),
+      };
+      if (draft.roomName !== baseline.roomName) session.draft.roomName = draft.roomName;
+      runtime.store.commitEdit(session, { close: false });
+      do {
+        await runtime.sync.flush();
+        if (runtime.sync.getSnapshot().kind === 'error') throw new Error('共有保存に失敗しました。接続や権限を確認して、もう一度保存してください。');
+      } while (runtime.storage.read('outbox'));
+      if (sessionRef.current !== session) return;
+      if (baseline.resetGeneration !== runtime.store.getSnapshot().resetGeneration) throw new Error('企画がリセットされました。キャンセルして開き直してください。');
       runtime.overviewDraft.clear();
       onSaved();
     } catch (caught) {
@@ -60,28 +86,38 @@ function OverviewEditor({ runtime, room, onCancel, onSaved }) {
     patch({ ...draft, timetableItems: draft.timetableItems.map((row, rowIndex) => rowIndex === index ? { ...row, ...changes } : row) });
   }
 
-  return <Form className="overview-editor" aria-labelledby="overview-editor-title" onSubmit={save}>
+  function removeRow(index) {
+    const timetableItems = draft.timetableItems.filter((_, rowIndex) => rowIndex !== index);
+    patch({ ...draft, timetableItems });
+    requestAnimationFrame(() => {
+      const next = document.getElementById(`overview-time-${Math.min(index, timetableItems.length - 1)}`);
+      (next || addRowRef.current)?.focus();
+    });
+  }
+
+  return <Form className="overview-editor" aria-labelledby="overview-editor-title" aria-busy={saving} onSubmit={save}>
     <div className="content-section-heading overview-editor__heading">
-      <div><h2 id="overview-editor-title">企画情報を編集</h2><p>入力内容は「保存」を押すまで共有されません。</p></div>
+      <div><h2 id="overview-editor-title">企画情報を編集</h2><p>「保存」で共有します。画面を移動しても、この端末に下書きが残ります。</p></div>
       {dirty && <Tag type="gray" size="sm">未保存の変更</Tag>}
     </div>
     {error && <InlineNotification kind="error" title="企画情報を保存できませんでした" subtitle={error} hideCloseButton lowContrast />}
-    <TextInput ref={nameRef} id="room-name" labelText="企画名" placeholder="企画名未設定" value={draft.roomName} onChange={event => patch({ ...draft, roomName: event.target.value })} />
-    <TextArea id="overview-memo" labelText="メモ" rows={4} value={draft.memo} onChange={event => patch({ ...draft, memo: event.target.value })} />
+    <TextInput disabled={saving} ref={nameRef} id="room-name" labelText="企画名" placeholder="企画名未設定" value={draft.roomName} onChange={event => patch({ ...draft, roomName: event.target.value })} />
+    <TextArea disabled={saving} id="overview-memo" labelText="メモ" rows={4} value={draft.memo} onChange={event => patch({ ...draft, memo: event.target.value })} />
     <section className="overview-editor__timetable" aria-labelledby="overview-timetable-editor-title">
       <div className="content-section-heading">
         <div><h3 id="overview-timetable-editor-title">時刻表</h3><p>企画当日の順序を入力します。</p></div>
-        <Button kind="ghost" size="sm" type="button" renderIcon={Add} onClick={() => patch({ ...draft, timetableItems: [...draft.timetableItems, { time: '', title: '' }] })}>行を追加</Button>
+        <Button ref={addRowRef} disabled={saving} kind="ghost" size={compact ? 'sm' : 'md'} type="button" renderIcon={Add} onClick={() => patch({ ...draft, timetableItems: [...draft.timetableItems, { time: '', title: '' }] })}>行を追加</Button>
       </div>
       <div className="timetable-list">{draft.timetableItems.map((item, index) => <div className="timetable-row" key={index}>
-        <TextInput id={`overview-time-${index}`} type="time" labelText="時刻" value={item.time} onChange={event => updateRow(index, { time: event.target.value })} />
-        <TextInput id={`overview-title-${index}`} labelText="内容" value={item.title} onChange={event => updateRow(index, { title: event.target.value })} />
-        <Button kind="danger-ghost" size="sm" type="button" renderIcon={TrashCan} onClick={() => patch({ ...draft, timetableItems: draft.timetableItems.filter((_, rowIndex) => rowIndex !== index) })}>削除</Button>
+        <TextInput disabled={saving} id={`overview-time-${index}`} type="time" labelText="時刻" value={item.time} onChange={event => updateRow(index, { time: event.target.value })} />
+        <TextInput disabled={saving} id={`overview-title-${index}`} labelText="内容" value={item.title} onChange={event => updateRow(index, { title: event.target.value })} />
+        <Button disabled={saving} kind="danger--ghost" size={compact ? 'sm' : 'md'} type="button" renderIcon={TrashCan} onClick={() => removeRow(index)}>削除</Button>
       </div>)}</div>
     </section>
     <div className="overview-editor__actions">
       <Button type="submit" disabled={!dirty || saving}>保存</Button>
-      <Button type="button" kind="secondary" onClick={cancel}>キャンセル</Button>
+      <Button type="button" kind="secondary" disabled={saving} onClick={cancel}>キャンセル</Button>
+      {saving && <InlineLoading status="active" description="保存中" />}
     </div>
   </Form>;
 }

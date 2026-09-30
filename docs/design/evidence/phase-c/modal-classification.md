@@ -4,7 +4,7 @@ This register is evidence for the Phase C boundary. It does not make every exist
 
 ## Basis
 
-**Official guidance.** Carbon describes Modal as a focused layer for important information or a short task. It recommends a full page when a workflow is complex, long, or benefits from more space. Modal focus must enter the dialog, remain trapped while open, and return to the launch context when it closes. See [Carbon Modal usage](https://carbondesignsystem.com/components/modal/usage/) and [Carbon Modal accessibility](https://carbondesignsystem.com/components/modal/accessibility/).
+**Official guidance.** Carbon describes Modal as a focused layer for important information or short, non-frequent tasks that interrupt the page workflow. For repeated tasks it says to consider making them completable on the main page; the [Dialog pattern](https://www.carbondesignsystem.com/building-blocks/core/patterns/dialogs) also cautions against complex components that prolong the task. Modal focus must enter the dialog, remain trapped while open, and return to the launch context when it closes. See [Carbon Modal usage](https://carbondesignsystem.com/components/modal/usage/) and [Carbon Modal accessibility](https://carbondesignsystem.com/components/modal/accessibility/). These links were rechecked on 2026-10-01; the current guidance does not prescribe this product's specific destination/phase assignments.
 
 **Project interpretation.** `approved-brief` means the current user task is intentionally allowed to remain a Modal. `legacy-migration` means Phase C preserves its behavior only; the target phase must re-evaluate and migrate it. Every rendered Modal must pass a registered `taskId` through `TaskModal`, so a new unreviewed dialog fails immediately.
 
@@ -35,5 +35,5 @@ This register is evidence for the Phase C boundary. It does not make every exist
 - An unregistered or missing task ID throws instead of silently creating a new dialog pattern.
 - `legacy-migration` is a temporary compatibility classification, not design approval.
 - Phase C does not change protected data shape, calculation, persistence, or synchronization behavior.
-- A failed form submit exposes the error at the field and moves focus to the first invalid enabled control.
+- The migrated short participant form exposes field validation and focuses the invalid control; active-dialog submit/confirmation errors stay inside that surface. Unmigrated registration/settings/cost forms retain their later-phase accessibility work, not a claim that the wrapper fixes their composition automatically.
 - Closing a dialog by Escape, close, or cancel returns focus to its launch context when that context still exists.

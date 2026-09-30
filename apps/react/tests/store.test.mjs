@@ -33,14 +33,14 @@ test('project overview saves name and overview as one intent without changing pr
   const intents = [];
   store.subscribeIntents(intent => intents.push(intent));
 
-  store.command('projectOverview', {
-    name: '明示保存した企画',
-    overview: { memo: '共有メモ', timetableItems: [{ time: '08:30', title: '集合' }] },
-  });
+  const session = store.beginEdit({ kind: 'project-overview' });
+  session.draft.roomName = '明示保存した企画';
+  session.draft.overview = { memo: '共有メモ', timetableItems: [{ time: '08:30', title: '集合' }] };
+  store.commitEdit(session);
 
   const after = plain(store.getSnapshot());
   assert.equal(intents.length, 1);
-  assert.equal(intents[0].kind, 'projectOverview');
+  assert.equal(intents[0].kind, 'project-overview');
   assert.equal(after.roomName, '明示保存した企画');
   assert.deepEqual(after.overview, { memo: '共有メモ', timetableItems: [{ time: '08:30', title: '集合' }] });
   assert.deepEqual(after.participants, before.participants);

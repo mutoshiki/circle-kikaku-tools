@@ -54,6 +54,29 @@ test('guidance, CSV, utility report, notifications and URL security', async ({ p
   expect(errors).toEqual([]);
 });
 
+test('failed handoff stays inside the dialog until retry succeeds', async ({ page }) => {
+  await page.addInitScript(() => {
+    let attempts = 0;
+    window.__REACT_EXTERNAL_ADAPTERS__ = {
+      async handoff() {
+        if (++attempts === 1) throw new Error('引き継ぎ接続を確認してください。');
+        return { ok: true, filename: '再試行.csv', participants: [{ studentId: 'S001', name: '仮参加者A' }] };
+      },
+    };
+  });
+  await page.reload();
+  await navigateToProjectSection(page, '参加者');
+  await page.getByRole('button', { name: '引き継ぎデータを作成', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '引き継ぎデータ', exact: true });
+  const submit = dialog.getByRole('button', { name: '引き継ぎデータを作成', exact: true });
+  await submit.click();
+  await expect(dialog.getByRole('status')).toContainText('引き継ぎ接続を確認してください。');
+  const download = page.waitForEvent('download');
+  await submit.click();
+  expect((await download).suggestedFilename()).toBe('再試行.csv');
+  await expect(dialog).toBeHidden();
+});
+
 test('route draft stays local and selected distance alone enters shared settlement', async ({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await navigateToProjectSection(page, '精算');

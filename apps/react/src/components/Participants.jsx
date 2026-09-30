@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Button, Checkbox, ContainedList, ContainedListItem, IconButton, Search, Select, SelectItem, Tag, OverflowMenu, OverflowMenuItem } from '@carbon/react';
+import { Button, Checkbox, ContainedList, ContainedListItem, IconButton, InlineNotification, Search, Select, SelectItem, Tag, OverflowMenu, OverflowMenuItem } from '@carbon/react';
 import { Add, SettingsAdjust } from '@carbon/icons-react';
 import ParticipantEditor from './ParticipantEditor.jsx';
 import RegistrationModal from './RegistrationModal.jsx';
@@ -19,6 +19,7 @@ export default function Participants({ runtime, room, onNotice, embedded = false
   const [editor, setEditor] = useState(null);
   const [pendingSelection, setPendingSelection] = useState(null);
   const [pendingDelete, setPendingDelete] = useState(null);
+  const [confirmationError, setConfirmationError] = useState('');
   const [toolModal, setToolModal] = useState('');
   const participantMenus = useRef(new Map());
   const modalLauncherRef = useRef(null);
@@ -43,9 +44,10 @@ export default function Participants({ runtime, room, onNotice, embedded = false
     && (filter.selected === 'all' || checked(row) === (filter.selected === 'selected')));
   function apply(args) {
     try { runtime.store.command('applySelection', args); setChoices({}); setEditingSelection(false); setPendingSelection(null); }
-    catch (error) { onNotice(notice.error('参加者を更新できませんでした', { subtitle: error.message })); }
+    catch (error) { if (pendingSelection) setConfirmationError(error.message); else onNotice(notice.error('参加者を更新できませんでした', { subtitle: error.message })); }
   }
   function requestApply() {
+    setConfirmationError('');
     const args = { selectedApplicants: rows.filter(row => row.responseKey && checked(row)).map(row => row.responseKey), selectedManual: rows.filter(row => !row.responseKey && checked(row)).map(row => row.id) };
     const removals = rows.filter(row => row.id && !checked(row));
     if (removals.some(row => applicants.participantHasDependentData(room, row.id))) setPendingSelection(args);
@@ -54,8 +56,15 @@ export default function Participants({ runtime, room, onNotice, embedded = false
   function rememberLauncher(id) { modalLauncherRef.current = participantMenus.current.get(id) || null; }
   function edit(id) { rememberLauncher(id); setEditor(runtime.store.beginEdit({ kind: 'participant-edit', participantId: id })); }
   function remove() {
-    try { runtime.store.command('deleteParticipant', { id: pendingDelete.id }); setPendingDelete(null); }
-    catch (error) { onNotice(notice.error('参加者を削除できませんでした', { subtitle: error.message })); }
+    try { runtime.store.command('deleteParticipant', { id: pendingDelete.id }); closeDelete(); }
+    catch (error) { setConfirmationError(error.message); }
+  }
+  function closeDelete() {
+    setPendingDelete(null);
+    requestAnimationFrame(() => {
+      const launcher = modalLauncherRef.current;
+      (launcher?.isConnected ? launcher : document.getElementById('project-page-title'))?.focus();
+    });
   }
   return <section className="participants-page" aria-label="参加者">
     <div className="section-heading"><div>{!embedded && <h1>参加者</h1>}<p>{application ? <>応募者 {entries.length}人　参加者 <strong>{participantCount}人</strong></> : <strong>参加者 {participantCount}人</strong>}</p></div>
@@ -67,7 +76,7 @@ export default function Participants({ runtime, room, onNotice, embedded = false
         <IconButton kind="ghost" label="絞り込み" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(value => !value)}><SettingsAdjust /></IconButton>
       </div>
       {filtersOpen && <div className="form-grid filter-panel">{[['selected', '選択状態', [['all', 'すべて'], ['selected', '選択済み'], ['unselected', '未選択']]], ['grade', '学年', [['all', 'すべて'], ...[1, 2, 3, 4].map(n => [String(n), `${n}年`])]], ['driver', '車出し', [['all', 'すべて'], ['driver', '車出し可'], ['no-driver', '車出しなし']]]].map(([key, label, options]) => <Select key={key} id={`participant-filter-${key}`} labelText={label} value={filter[key]} onChange={event => setFilter(current => ({ ...current, [key]: event.target.value }))}>{options.map(([value, text]) => <SelectItem key={value} value={value} text={text} />)}</Select>)}</div>}
-      {!!rows.length && <ContainedList className="participant-list" label="参加者一覧" size="lg">{visible.map(row => <ContainedListItem className="participant-row" key={row.key} action={<div className="participant-row-actions"><Checkbox id={`participant-choice-${row.key}`} labelText={row.person.name} hideLabel aria-label={row.person.name} checked={checked(row)} onChange={(_, { checked: value }) => setChoices(current => ({ ...current, [row.key]: value }))} />{row.id ? <OverflowMenu ref={node => node ? participantMenus.current.set(row.id, node) : participantMenus.current.delete(row.id)} ariaLabel={`${row.person.name}の操作`} iconDescription={`${row.person.name}の操作`} size={isMobile ? 'lg' : 'sm'} flipped><OverflowMenuItem itemText="編集" onClick={() => edit(row.id)} /><OverflowMenuItem hasDivider itemText="削除" isDelete onClick={() => { rememberLauncher(row.id); setPendingDelete({ id: row.id, name: row.person.name }); }} /></OverflowMenu> : <span />}</div>}>
+      {!!rows.length && <ContainedList className="participant-list" label="参加者一覧" size="lg">{visible.map(row => <ContainedListItem className="participant-row" key={row.key} action={<div className="participant-row-actions"><Checkbox id={`participant-choice-${row.key}`} labelText={row.person.name} hideLabel aria-label={row.person.name} checked={checked(row)} onChange={(_, { checked: value }) => setChoices(current => ({ ...current, [row.key]: value }))} />{row.id ? <OverflowMenu ref={node => node ? participantMenus.current.set(row.id, node) : participantMenus.current.delete(row.id)} ariaLabel={`${row.person.name}の操作`} iconDescription={`${row.person.name}の操作`} size={isMobile ? 'lg' : 'sm'} flipped><OverflowMenuItem itemText="編集" onClick={() => edit(row.id)} /><OverflowMenuItem hasDivider itemText="削除" isDelete onClick={() => { rememberLauncher(row.id); setConfirmationError(''); setPendingDelete({ id: row.id, name: row.person.name }); }} /></OverflowMenu> : <span />}</div>}>
         <div className="participant-row-copy"><div className="participant-row-title"><strong>{row.person.name}</strong>{row.assignedDriver && <Tag type="gray" size="sm">運転手</Tag>}</div><span className="row-detail">{row.detail}</span></div>
       </ContainedListItem>)}</ContainedList>}
       {!rows.length && <p className="empty-state">参加者がいません</p>}
@@ -83,8 +92,8 @@ export default function Participants({ runtime, room, onNotice, embedded = false
     </section>}
     {registering && <RegistrationModal runtime={runtime} onClose={() => setRegistering(false)} onNotice={onNotice} />}
     {editor && <ParticipantEditor runtime={runtime} session={editor} onClose={() => setEditor(null)} onNotice={onNotice} launcherButtonRef={modalLauncherRef} />}
-    {pendingSelection && <TaskModal taskId="participant-selection-remove" open danger size="xs" modalHeading="参加者から外しますか？" primaryButtonText="外す" secondaryButtonText="キャンセル" onRequestSubmit={() => apply(pendingSelection)} onRequestClose={() => setPendingSelection(null)}><p>車割・班割・精算の割り当ても削除されます。</p></TaskModal>}
-    {pendingDelete && <TaskModal taskId="participant-delete" open danger size="xs" modalHeading="参加者を削除しますか？" primaryButtonText="削除" secondaryButtonText="キャンセル" onRequestSubmit={remove} onRequestClose={() => setPendingDelete(null)} launcherButtonRef={modalLauncherRef}><p>{pendingDelete.name}を削除します。車割・班割・精算の割り当ても削除されます。</p></TaskModal>}
+    {pendingSelection && <TaskModal taskId="participant-selection-remove" open danger size="xs" modalHeading="参加者から外しますか？" primaryButtonText="外す" secondaryButtonText="キャンセル" onRequestSubmit={() => apply(pendingSelection)} onRequestClose={() => setPendingSelection(null)}><p>車割・班割・精算の割り当ても削除されます。</p>{confirmationError && <InlineNotification kind="error" title="参加者を更新できませんでした" subtitle={confirmationError} hideCloseButton lowContrast />}</TaskModal>}
+    {pendingDelete && <TaskModal taskId="participant-delete" open danger size="xs" modalHeading="参加者を削除しますか？" primaryButtonText="削除" secondaryButtonText="キャンセル" onRequestSubmit={remove} onRequestClose={closeDelete} launcherButtonRef={modalLauncherRef}><p>{pendingDelete.name}を削除します。車割・班割・精算の割り当ても削除されます。</p>{confirmationError && <InlineNotification kind="error" title="参加者を削除できませんでした" subtitle={confirmationError} hideCloseButton lowContrast />}</TaskModal>}
     {toolModal === 'guidance' && <GuidanceModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setToolModal('')} />}
     {toolModal === 'export' && <ExportModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setToolModal('')} />}
   </section>;

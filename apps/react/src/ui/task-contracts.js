@@ -16,7 +16,6 @@ export function createNotice({ kind = 'info', title, subtitle = '', placement = 
     timeout: normalizedPlacement === 'toast' ? Math.max(1, Number(timeout) || 2600) : 0,
   });
 }
-
 function noticeFor(kind, title, options = {}) {
   return createNotice({ kind, title, ...options });
 }
@@ -56,8 +55,4 @@ export function modalTaskPolicy(id) {
   const policy = MODAL_TASKS[key];
   if (!policy) return Object.freeze({ id: key, status: 'unregistered', targetPhase: null, reason: 'Modal task is not registered' });
   return Object.freeze({ id: key, status: policy[0], targetPhase: policy[1], reason: policy[2] });
-}
-
-export function requiresConfirmation(risk) {
-  return risk !== 'reversible-low';
 }

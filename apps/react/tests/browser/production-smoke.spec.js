@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { navigateToProjectSection } from './project-navigation.js';
 
-test('production preview loads assets and preserves a room edit across critical views and reload', async ({ page }) => {
-  const origin = 'http://127.0.0.1:4174';
+test('production preview loads assets and preserves a room edit across critical views and reload', async ({ page, baseURL }) => {
+  const origin = new URL(baseURL).origin;
   const runtimeErrors = [];
   const badResponses = [];
   page.on('pageerror', error => runtimeErrors.push(error.message));

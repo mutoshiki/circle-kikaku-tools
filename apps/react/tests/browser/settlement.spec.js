@@ -378,6 +378,7 @@ test('car expense editor uses a compact Carbon list and focused mobile editing s
   await page.setViewportSize({ width: 390, height: 703 });
   await openCarExpenseEditor(page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }));
   const dialog = page.getByRole('dialog', { name: '仮参加者A車' });
+  await expect(dialog.getByRole('button', { name: 'ガソリン代の操作' })).toBeFocused();
   await expect(dialog.getByRole('heading', { name: '費用を編集' })).toBeVisible();
   await expect(dialog.getByRole('heading', { name: '費用一覧' })).toHaveCount(0);
   await expect(dialog.getByRole('button', { name: '費用を保存' })).toBeVisible();
@@ -392,6 +393,7 @@ test('car expense editor uses a compact Carbon list and focused mobile editing s
   expect(modalContentMetrics.scroll).toBeLessThanOrEqual(modalContentMetrics.client + 1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await dialog.getByRole('button', { name: '閉じる' }).focus();
+  await expect(dialog.getByRole('button', { name: '閉じる' })).toBeFocused();
   await page.keyboard.press('Shift+Tab');
   await expect(dialog.getByRole('button', { name: '費用を保存' })).toBeFocused();
   await page.keyboard.press('Tab');
