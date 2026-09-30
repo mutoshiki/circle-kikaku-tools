@@ -40,7 +40,7 @@ async function seedSample(page) {
   await expect(dialog).toBeVisible();
   await dialog.getByRole('radio', { name: '通常サンプル', exact: true }).check({ force: true });
   await dialog.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
-  await expect(page.getByText('通常サンプルを入れました')).toBeVisible();
+  await expect(page.getByRole('main')).toContainText('藤原 拓海');
 }
 async function seedFormSample(page) {
   await openMenu(page);
@@ -48,7 +48,7 @@ async function seedFormSample(page) {
   const dialog = page.getByRole('dialog', { name: 'サンプルデータ' });
   await dialog.getByRole('radio', { name: 'フォーム連携サンプル', exact: true }).check({ force: true });
   await dialog.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
-  await expect(page.getByText('フォーム連携サンプルを入れました')).toBeVisible();
+  await expect(page.getByRole('main')).toContainText('フォーム連携テスト企画');
 }
 async function reopen(page, room) {
   await page.goto(`/?room=${room}`);

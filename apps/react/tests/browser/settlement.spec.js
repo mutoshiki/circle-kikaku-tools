@@ -575,9 +575,12 @@ test('movement settings body scrolls within a short mobile viewport', async ({ p
   await expect.poll(() => content.evaluate(node => node.scrollTop)).toBeGreaterThan(0);
   await content.evaluate(node => { node.scrollTop = Math.floor((node.scrollHeight - node.clientHeight) / 2); });
   await expect(page.locator('.settlement-movement-modal')).not.toHaveClass(/settlement-movement-at-bottom/);
-  const middleScroll = await content.evaluate(node => ({ top: node.scrollTop, max: node.scrollHeight - node.clientHeight, mask: getComputedStyle(node).maskImage }));
+  const middleScroll = await content.evaluate(node => {
+    const style = getComputedStyle(node);
+    return { top: node.scrollTop, max: node.scrollHeight - node.clientHeight, mask: style.maskImage, webkitMask: style.webkitMaskImage };
+  });
   expect(middleScroll.top).toBeLessThan(middleScroll.max);
-  expect(middleScroll.mask).not.toBe('none');
+  expect(middleScroll.mask !== 'none' || middleScroll.webkitMask !== 'none').toBe(true);
   const headerAfter = await dialog.locator('.cds--modal-header').evaluate(node => node.getBoundingClientRect().toJSON());
   expect(headerAfter.top).toBe(headerBefore.top);
   expect(headerAfter.bottom).toBe(headerBefore.bottom);
@@ -589,7 +592,10 @@ test('movement settings body scrolls within a short mobile viewport', async ({ p
   await content.evaluate(node => { node.scrollTop = node.scrollHeight; });
   await expect.poll(() => content.evaluate(node => node.scrollTop + node.clientHeight >= node.scrollHeight - 2)).toBe(true);
   await expect(page.locator('.settlement-movement-modal')).toHaveClass(/settlement-movement-at-bottom/);
-  await expect.poll(() => content.evaluate(node => getComputedStyle(node).maskImage)).toBe('none');
+  await expect.poll(() => content.evaluate(node => {
+    const style = getComputedStyle(node);
+    return style.maskImage === 'none' && style.webkitMaskImage === 'none';
+  })).toBe(true);
   await expect(dialog.locator('.settlement-movement-preview')).toHaveCSS('opacity', '1');
   expect(pageErrors.get(page)).toEqual([]);
 });

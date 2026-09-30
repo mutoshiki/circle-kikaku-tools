@@ -100,7 +100,9 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   for (const theme of ['g10', 'g100']) {
     if (theme === 'g100') { await page.getByRole('button', { name: 'ユーティリティメニュー' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click(); }
     await navigateToProjectSection(page, '概要');
+    await page.getByRole('button', { name: '企画情報を編集', exact: true }).click();
     await expect(page.getByRole('textbox', { name: '企画名' })).toHaveCSS('background-color', theme === 'g100' ? 'rgb(38, 38, 38)' : 'rgb(255, 255, 255)');
+    await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
     await navigateToProjectSection(page, '車割');
     const geometry = await page.evaluate(() => ({ width: innerWidth, scrollWidth: document.documentElement.scrollWidth, overflow: [...document.querySelectorAll('body *')].map(node => ({ tag: node.tagName, className: String(node.className), text: node.textContent?.slice(0, 60), x: node.getBoundingClientRect().x, right: node.getBoundingClientRect().right, width: node.getBoundingClientRect().width, position: getComputedStyle(node).position })).filter(node => node.width > 0 && node.right > innerWidth + 1).slice(0, 30) }));
     await testInfo.attach(`geometry-${theme}`, { body: JSON.stringify(geometry, null, 2), contentType: 'application/json' });

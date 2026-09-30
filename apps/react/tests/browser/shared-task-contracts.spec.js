@@ -68,7 +68,7 @@ test('overview uses an explicit page draft with save, cancel and focus return', 
   await page.getByRole('textbox', { name: '時刻', exact: true }).fill('08:30');
   await page.getByRole('textbox', { name: '内容', exact: true }).fill('集合');
   await page.getByRole('button', { name: '保存', exact: true }).click();
-  await expect(page.getByText('共有保存した企画', { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('main').getByText('共有保存した企画', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('共有する企画メモ', { exact: true })).toBeVisible();
   await expect(page.getByText('08:30', { exact: true })).toBeVisible();
   await expect(page.locator('.cds--toast-notification')).toHaveCount(0);

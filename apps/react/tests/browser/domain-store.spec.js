@@ -30,6 +30,6 @@ test('production bundle migrates a legacy fixture through the external store and
   expect(saved.meta.applicationSync).toEqual(fixture.meta.applicationSync);
   await page.reload();
   await navigateToProjectSection(page, '概要');
-  await expect(page.getByText('日本語の企画', { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('main').getByText('日本語の企画', { exact: true }).first()).toBeVisible();
   expect(errors).toEqual([]);
 });
