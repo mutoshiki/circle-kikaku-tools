@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
-  Button, InlineNotification, Modal, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, ToastNotification,
+  Button, InlineNotification, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, ToastNotification,
 } from '@carbon/react';
 import { Edit, Time } from '@carbon/icons-react';
 import ProjectShell from './components/ProjectShell.jsx';
@@ -11,6 +11,7 @@ import Participants from './components/Participants.jsx';
 import Allocation from './components/Allocation.jsx';
 import Settlement from './components/Settlement.jsx';
 import { BugModal, HistoryModal } from './components/ProjectTools.jsx';
+import TaskModal from './components/TaskModal.jsx';
 import { createProjectDomain } from './services/project-domain.js';
 import { isToastNotice, notice as taskNotice } from './ui/task-contracts.js';
 
@@ -109,13 +110,13 @@ export default function App({ runtime }) {
         status={feedback && !isToastNotice(feedback) ? <InlineNotification kind={feedback.kind} title={feedback.title} subtitle={feedback.subtitle} lowContrast onClose={() => { setFeedback(null); return true; }} /> : null}
       >{page.content}</ProjectPage>
     </ProjectShell>
-    {globalModal === 'guide' && <Modal className="app-modal" open passiveModal size="md" closeButtonLabel="閉じる" modalHeading="使い方" onRequestClose={() => setGlobalModal('')}>
+    {globalModal === 'guide' && <TaskModal taskId="help-guide" className="app-modal" open passiveModal size="md" closeButtonLabel="閉じる" modalHeading="使い方" onRequestClose={() => setGlobalModal('')}>
       <div className="user-guide"><p>企画メニューから、準備の段階に合わせて作業を進めます。</p><ol><li><strong>概要</strong> 企画名、メモ、時刻表を確認します。</li><li><strong>参加者</strong> 応募者を確認し、企画に参加する人を選びます。</li><li><strong>運営準備</strong> 車割と班割を管理します。</li><li><strong>共有</strong> 右上の共有リンクから通常の企画ルームURLをコピーします。</li><li><strong>精算</strong> 設定、車ごとの費用、集金・支払い状況を管理します。</li></ol></div>
-    </Modal>}
+    </TaskModal>}
     {globalModal === 'history' && <HistoryModal runtime={runtime} onNotice={setFeedback} onClose={() => setGlobalModal('')} />}
-    {globalModal === 'sample' && <Modal className="app-modal sample-modal" open size="sm" closeButtonLabel="閉じる" modalHeading="サンプルデータ" primaryButtonText="サンプルを入れる" secondaryButtonText="キャンセル" onRequestSubmit={seedSelectedSample} onRequestClose={() => setGlobalModal('')} selectorPrimaryFocus="#sample-normal">
+    {globalModal === 'sample' && <TaskModal taskId="sample-data" className="app-modal sample-modal" open size="sm" closeButtonLabel="閉じる" modalHeading="サンプルデータ" primaryButtonText="サンプルを入れる" secondaryButtonText="キャンセル" onRequestSubmit={seedSelectedSample} onRequestClose={() => setGlobalModal('')} selectorPrimaryFocus="#sample-normal">
       <div className="sample-form"><p>現在のデータをリセットして、確認用サンプルを入れます。</p><RadioButtonGroup legendText="サンプルの種類" name="sample-type" valueSelected={sampleType} onChange={value => setSampleType(String(value))} orientation="vertical"><RadioButton id="sample-normal" labelText="通常サンプル" value="normal" /><RadioButton id="sample-form" labelText="フォーム連携サンプル" value="form" /><RadioButton id="sample-missing" labelText="入力漏れサンプル" value="missing" /></RadioButtonGroup>{sampleType !== 'form' && <Select id="sample-car-count" labelText="車の数" value={sampleCars} onChange={event => setSampleCars(event.target.value)}>{['2', '3', '4', '5'].map(value => <SelectItem key={value} value={value} text={`${value}台`} />)}</Select>}</div>
-    </Modal>}
+    </TaskModal>}
     {globalModal === 'bug' && <BugModal runtime={runtime} room={room} onNotice={setFeedback} onClose={() => setGlobalModal('')} />}
     {feedback && isToastNotice(feedback) && <div className="notification-region"><ToastNotification kind={feedback.kind} title={feedback.title} subtitle={feedback.subtitle} caption="" timeout={feedback.timeout} onClose={() => { setFeedback(null); return true; }} lowContrast /></div>}
   </Theme>;

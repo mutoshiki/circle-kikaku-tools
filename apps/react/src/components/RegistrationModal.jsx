@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
-import { Modal, TextArea, InlineNotification, Accordion, AccordionItem } from '@carbon/react';
+import { TextArea, InlineNotification, Accordion, AccordionItem } from '@carbon/react';
 import { formParser } from '../domain/index.js';
+import TaskModal from './TaskModal.jsx';
 
 export default function RegistrationModal({ runtime, onClose }) {
   const [sheet, setSheet] = useState('');
@@ -35,7 +36,7 @@ export default function RegistrationModal({ runtime, onClose }) {
     try { runtime.store.command('addParticipants', { people }); onClose(); }
     catch (caught) { setError(caught.message); }
   }
-  return <Modal className="app-modal registration-modal" open hasScrollingContent modalHeading="参加者登録" size="lg" primaryButtonText="登録" secondaryButtonText="キャンセル" onRequestSubmit={submit} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#registration-sheet">
+  return <TaskModal taskId="participant-registration" className="app-modal registration-modal" open hasScrollingContent modalHeading="参加者登録" size="lg" primaryButtonText="登録" secondaryButtonText="キャンセル" onRequestSubmit={submit} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#registration-sheet">
     <div className="form-stack">
       {error && <InlineNotification kind="error" title={error} lowContrast hideCloseButton />}
       <TextArea ref={sheetRef} id="registration-sheet" labelText="Googleフォームの回答を貼り付け" helperText="各項目の見出しの行も必ず一緒にコピーしてください。" value={sheet} onChange={event => updatePrimaryInput(setSheet, event.target.value)} rows={4} />
@@ -48,5 +49,5 @@ export default function RegistrationModal({ runtime, onClose }) {
         {grades.map((value, index) => <TextArea key={index} id={`registration-grade-${index + 1}`} labelText={`${index + 1}年生`} rows={2} value={value} onChange={event => setGrades(current => current.map((item, i) => i === index ? event.target.value : item))} disabled={!!sheet.trim()} />)}
       </div>
     </div>
-  </Modal>;
+  </TaskModal>;
 }

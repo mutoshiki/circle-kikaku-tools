@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
-import { Button, InlineNotification, Modal, OverflowMenu, OverflowMenuItem, TextArea, TextInput } from '@carbon/react';
+import { Button, InlineNotification, OverflowMenu, OverflowMenuItem, TextArea, TextInput } from '@carbon/react';
 import { createProjectDomain } from '../services/project-domain.js';
 import { notice } from '../ui/task-contracts.js';
+import TaskModal from './TaskModal.jsx';
 
 export function HistoryModal({ runtime, onClose, onNotice }) {
   const [items, setItems] = useState(runtime.history.read());
@@ -9,7 +10,7 @@ export function HistoryModal({ runtime, onClose, onNotice }) {
   function snapshot() { runtime.history.save(runtime.store.getSnapshot()); setItems(runtime.history.read()); }
   function restore(item) { runtime.history.restore(runtime.store, item); setUndo(true); }
   function restoreUndo() { if (runtime.history.undo(runtime.store)) setUndo(false); }
-  return <Modal className="app-modal" open size="md" hasScrollingContent modalHeading="履歴" primaryButtonText="閉じる" onRequestSubmit={onClose} onRequestClose={onClose}><div className="form-stack"><div className="inline-actions"><Button onClick={snapshot}>現在の状態を保存</Button>{undo && <Button kind="ghost" onClick={restoreUndo}>復元を取り消す</Button>}</div>{items.length ? <div className="history-list">{items.map((item, index) => <div className="history-row" key={`${item.time}-${index}`}><span><strong>{item.data?.roomName || '企画名未設定'}</strong><small>{new Date(item.time).toLocaleString('ja-JP')}</small></span><Button kind="ghost" onClick={() => restore(item)}>復元</Button></div>)}</div> : <p>履歴がありません</p>}</div></Modal>;
+  return <TaskModal taskId="history-management" className="app-modal" open size="md" hasScrollingContent modalHeading="履歴" primaryButtonText="閉じる" onRequestSubmit={onClose} onRequestClose={onClose}><div className="form-stack"><div className="inline-actions"><Button onClick={snapshot}>現在の状態を保存</Button>{undo && <Button kind="ghost" onClick={restoreUndo}>復元を取り消す</Button>}</div>{items.length ? <div className="history-list">{items.map((item, index) => <div className="history-row" key={`${item.time}-${index}`}><span><strong>{item.data?.roomName || '企画名未設定'}</strong><small>{new Date(item.time).toLocaleString('ja-JP')}</small></span><Button kind="ghost" onClick={() => restore(item)}>復元</Button></div>)}</div> : <p>履歴がありません</p>}</div></TaskModal>;
 }
 
 export function GuidanceModal({ runtime, room, onClose, onNotice }) {
@@ -17,7 +18,7 @@ export function GuidanceModal({ runtime, room, onClose, onNotice }) {
   const project = useMemo(() => createProjectDomain({ getRoom: () => room, getAnnouncement: () => fields, settlement: runtime.store.domain.settlement }), [room, fields, runtime]);
   const text = project.bodyText({ allowPlaceholder: true });
   async function copy() { try { await navigator.clipboard.writeText(text); onNotice(notice.success('案内文をコピーしました', { placement: 'toast' })); } catch { onNotice(notice.error('案内文をコピーできませんでした', { placement: 'toast' })); } }
-  return <Modal className="app-modal" open size="lg" hasScrollingContent modalHeading="参加者発表文を作成" primaryButtonText="コピー" secondaryButtonText="閉じる" primaryButtonDisabled={!text} onRequestSubmit={copy} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#guidance-date"><div className="form-stack"><div className="form-grid"><TextInput id="guidance-date" type="date" labelText="実施日" value={fields.eventDate} onChange={event => setFields({ ...fields, eventDate: event.target.value })} /><TextInput id="guidance-time" type="time" labelText="集合時間" value={fields.meetingTime} onChange={event => setFields({ ...fields, meetingTime: event.target.value })} /></div><TextArea id="guidance-supplement" labelText="補足事項" rows={3} value={fields.supplement} onChange={event => setFields({ ...fields, supplement: event.target.value })} /><TextArea id="guidance-preview" labelText="発表文プレビュー" rows={14} value={text} readOnly />{!text && <InlineNotification kind="warning" title="発表文を作成できません" subtitle="応募フォーム連携済みの企画で参加者を確定してください。" hideCloseButton lowContrast />}</div></Modal>;
+  return <TaskModal taskId="participant-guidance" className="app-modal" open size="lg" hasScrollingContent modalHeading="参加者発表文を作成" primaryButtonText="コピー" secondaryButtonText="閉じる" primaryButtonDisabled={!text} onRequestSubmit={copy} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#guidance-date"><div className="form-stack"><div className="form-grid"><TextInput id="guidance-date" type="date" labelText="実施日" value={fields.eventDate} onChange={event => setFields({ ...fields, eventDate: event.target.value })} /><TextInput id="guidance-time" type="time" labelText="集合時間" value={fields.meetingTime} onChange={event => setFields({ ...fields, meetingTime: event.target.value })} /></div><TextArea id="guidance-supplement" labelText="補足事項" rows={3} value={fields.supplement} onChange={event => setFields({ ...fields, supplement: event.target.value })} /><TextArea id="guidance-preview" labelText="発表文プレビュー" rows={14} value={text} readOnly />{!text && <InlineNotification kind="warning" title="発表文を作成できません" subtitle="応募フォーム連携済みの企画で参加者を確定してください。" hideCloseButton lowContrast />}</div></TaskModal>;
 }
 
 export function ExportModal({ runtime, room, onClose, onNotice }) {
@@ -40,13 +41,13 @@ export function ExportModal({ runtime, room, onClose, onNotice }) {
       onNotice(notice.success(`${participants.length}人の引き継ぎデータを作成しました`, { placement: 'toast' })); onClose();
     } catch (error) { onNotice(notice.error('引き継ぎデータを作成できませんでした', { subtitle: error.message })); }
   }
-  return <Modal className="app-modal" open size="sm" modalHeading="引き継ぎデータ" primaryButtonText="引き継ぎデータを作成" secondaryButtonText="閉じる" primaryButtonDisabled={blocked} onRequestSubmit={download} onRequestClose={onClose}><p>学務提出書類作成ツールに読み込むための引き継ぎデータを作成します。</p>{blocked && <InlineNotification kind="warning" title="作成できません" subtitle={reason} hideCloseButton lowContrast />}</Modal>;
+  return <TaskModal taskId="participant-export" className="app-modal" open size="sm" modalHeading="引き継ぎデータ" primaryButtonText="引き継ぎデータを作成" secondaryButtonText="閉じる" primaryButtonDisabled={blocked} onRequestSubmit={download} onRequestClose={onClose}><p>学務提出書類作成ツールに読み込むための引き継ぎデータを作成します。</p>{blocked && <InlineNotification kind="warning" title="作成できません" subtitle={reason} hideCloseButton lowContrast />}</TaskModal>;
 }
 
 export function BugModal({ runtime, room, onClose, onNotice }) {
   const [message, setMessage] = useState(''); const [sending, setSending] = useState(false);
   async function send() { setSending(true); try { await runtime.external.bugReport({ message: message.trim().slice(0, 2000), roomId: runtime.roomId.slice(0, 80), pageUrl: location.href.slice(0, 2048), projectTitle: room.roomName }); onNotice(notice.success('バグ報告を送信しました', { placement: 'toast' })); onClose(); } catch { onNotice(notice.error('バグ報告を送信できませんでした')); setSending(false); } }
-  return <Modal className="app-modal" open size="sm" modalHeading="バグを報告" primaryButtonText="送信" secondaryButtonText="キャンセル" primaryButtonDisabled={!message.trim() || sending} onRequestSubmit={send} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#bug-message"><TextArea id="bug-message" labelText="バグの内容" rows={6} value={message} onChange={event => setMessage(event.target.value)} /></Modal>;
+  return <TaskModal taskId="bug-report" className="app-modal" open size="sm" modalHeading="バグを報告" primaryButtonText="送信" secondaryButtonText="キャンセル" primaryButtonDisabled={!message.trim() || sending} onRequestSubmit={send} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#bug-message"><TextArea id="bug-message" labelText="バグの内容" rows={6} value={message} onChange={event => setMessage(event.target.value)} /></TaskModal>;
 }
 
 export default function ProjectTools({ runtime, room, onNotice }) {

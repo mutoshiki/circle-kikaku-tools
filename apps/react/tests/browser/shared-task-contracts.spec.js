@@ -80,3 +80,33 @@ test('overview uses an explicit page draft with save, cancel and focus return', 
   await expect(page.getByRole('button', { name: '企画情報を編集', exact: true })).toBeVisible();
   await expect(page.getByText('共有する企画メモ', { exact: true })).toBeVisible();
 });
+
+test('short participant edit focuses the invalid field and returns focus on dismiss', async ({ page }) => {
+  await page.goto('/?room=PHASE-C-MODAL-FOCUS&section=participants');
+  await page.getByRole('button', { name: '追加', exact: true }).click();
+  const registration = page.getByRole('dialog', { name: '参加者登録' });
+  await registration.getByRole('textbox', { name: '参加者（改行区切り）', exact: true }).fill('Focus Contract');
+  await registration.getByRole('button', { name: '登録', exact: true }).click();
+
+  const trigger = page.getByRole('button', { name: 'Focus Contractの操作', exact: true });
+  await trigger.click();
+  await page.getByRole('menuitem', { name: '編集', exact: true }).click();
+  const editor = page.getByRole('dialog', { name: '参加者を編集' });
+  const name = editor.getByRole('textbox', { name: '名前', exact: true });
+  await name.fill('');
+  await editor.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(name).toHaveAttribute('aria-invalid', 'true');
+  await expect(name).toBeFocused();
+  await expect(editor.getByText('名前を入力してください。', { exact: true }).first()).toBeVisible();
+
+  await page.keyboard.press('Escape');
+  await expect(editor).toBeHidden();
+  await expect(trigger).toBeFocused();
+
+  await trigger.click();
+  await page.getByRole('menuitem', { name: '削除', exact: true }).click();
+  const confirmation = page.getByRole('dialog', { name: '参加者を削除しますか？' });
+  await expect(confirmation.getByText(/車割・班割・精算/)).toBeVisible();
+  await confirmation.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(page.getByText('Focus Contract', { exact: true }).first()).toBeVisible();
+});

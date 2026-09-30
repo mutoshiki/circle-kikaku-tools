@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, IconButton, Modal, Select, SelectItem, NumberInput, InlineNotification, Tag, OverflowMenu, OverflowMenuItem, ContainedList, ContainedListItem } from '@carbon/react';
+import { Button, IconButton, Select, SelectItem, NumberInput, InlineNotification, Tag, OverflowMenu, OverflowMenuItem, ContainedList, ContainedListItem } from '@carbon/react';
 import { Add, Shuffle, ChevronDown, ChevronUp, Pin, PinFilled, Flag } from '@carbon/icons-react';
 import ParticipantEditor from './ParticipantEditor.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
 import { notice } from '../ui/task-contracts.js';
+import TaskModal from './TaskModal.jsx';
 
 function GroupEditor({ runtime, room, type, group, onClose, onNotice }) {
   const allocation = room.allocations[type];
@@ -19,13 +20,13 @@ function GroupEditor({ runtime, room, type, group, onClose, onNotice }) {
       onClose();
     } catch (caught) { setError(caught.message); }
   }
-  return <Modal open size="xs" modalHeading={group ? '定員を変更' : `${label}を追加`} primaryButtonText={group ? '保存' : '追加'} secondaryButtonText="キャンセル" onRequestSubmit={save} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus={group ? '#group-capacity' : '#group-owner'}>
+  return <TaskModal taskId="allocation-group-edit" open size="xs" modalHeading={group ? '定員を変更' : `${label}を追加`} primaryButtonText={group ? '保存' : '追加'} secondaryButtonText="キャンセル" onRequestSubmit={save} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus={group ? '#group-capacity' : '#group-owner'}>
     <div className="form-stack">
       {error && <InlineNotification kind="error" title={error} hideCloseButton lowContrast />}
       {!group && <Select id="group-owner" labelText={type === 'team' ? '班長' : '運転手'} value={ownerId} onChange={event => setOwnerId(event.target.value)}>{candidates.map(person => <SelectItem key={person.id} value={person.id} text={person.name} />)}</Select>}
       <NumberInput id="group-capacity" label="定員" min={1} max={99} value={capacity} onChange={(_, { value }) => setCapacity(value)} invalidText="1〜99人で入力してください。" />
     </div>
-  </Modal>;
+  </TaskModal>;
 }
 
 export default function Allocation({ runtime, room, type, onNotice, onParticipants, embedded = false }) {
@@ -105,6 +106,6 @@ export default function Allocation({ runtime, room, type, onNotice, onParticipan
     {projection.waiting.length > 0 && <div className="waiting-section"><Button kind="ghost" renderIcon={waitingOpen ? ChevronUp : ChevronDown} aria-expanded={waitingOpen} onClick={() => setWaitingOpen(value => !value)}>未割り当て {projection.waiting.length}人</Button>{waitingOpen && <ContainedList label="未割り当て" size="lg">{projection.waiting.map(person => personRow(person, true))}</ContainedList>}</div>}
     {editor && <ParticipantEditor runtime={runtime} session={editor} onClose={() => setEditor(null)} onNotice={onNotice} />}
     {groupEditor && <GroupEditor runtime={runtime} room={room} type={type} group={groupEditor.group} onClose={() => setGroupEditor(null)} onNotice={onNotice} />}
-    {confirmation && <Modal open size="xs" modalHeading={confirmation.title} danger={confirmation.danger} primaryButtonText={confirmation.button} secondaryButtonText="キャンセル" onRequestSubmit={() => { confirmation.action(); setConfirmation(null); }} onRequestClose={() => setConfirmation(null)}><p>{confirmation.body}</p></Modal>}
+    {confirmation && <TaskModal taskId="allocation-group-confirm" open size="xs" modalHeading={confirmation.title} danger={confirmation.danger} primaryButtonText={confirmation.button} secondaryButtonText="キャンセル" onRequestSubmit={() => { confirmation.action(); setConfirmation(null); }} onRequestClose={() => setConfirmation(null)}><p>{confirmation.body}</p></TaskModal>}
   </section>;
 }
