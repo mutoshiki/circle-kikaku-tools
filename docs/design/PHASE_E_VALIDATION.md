@@ -1,6 +1,6 @@
 # Phase E validation — car and team allocation
 
-Status: implementation candidate, 2026-10-01. Final whole-branch review, latest cumulative browser gate and PR CI/integration are pending. This evidence is descriptive; [Product UI v1.3](./SANPOKAI_PRODUCT_UI.md) remains the only normative Product UI specification.
+Status: local implementation acceptance and independent review complete, 2026-10-02. Post-review cumulative gates pass; remote CI/integration are the separate final gate recorded below. This evidence is descriptive; [Product UI v1.3](./SANPOKAI_PRODUCT_UI.md) remains the only normative Product UI specification.
 
 Integration base: `3fcdf5ead75fd984098f019ddacf290e5fb0b6d7` (`carbon-redesign`, Phase D / PR79). Work branch: `codex/phase-e-allocation-workflow`. No main merge, Production Release, compatibility deploy, root cutover, production smoke or production Firebase write.
 
@@ -36,6 +36,8 @@ Goal: confirmed participants can be assigned and corrected by manual or random o
 | Reset discards in-flight operation | Emulator test and receipt tests; no unsafe replay, inspect actual outcome; deleted deep group falls back only after initial load, retains room/handoff token |
 | Late acknowledgement does not steal another task's focus/input | Emulator test, repeated 3× per engine: wait for route focus, enter participant draft, release held acknowledgement, same focused input/value retained |
 | Morning display/text fresh, privacy-safe, duplicate-safe | Presentation adapter/browser tests, another client name update reflected in current text, no mutable controls; issues retained without fake completion |
+| Same-name group destinations identifiable | Duplicate-anchor adapter and car/team assignment/direct-move contracts in all four browser projects: consistent projected-order suffix across summary, heading, option and copy; private attributes excluded |
+| Submitted editor payload stays fixed | Denied-write Emulator test holds the outgoing save, verifies all six editor fields disabled while pending and after failure, retries the original name/memo, checks authoritative shared result and receipt clearance |
 | Copy failure/pending result | Browser clipboard rejection/selectable fallback; rejected/recovered relevant receipt blocks copy until proved resolved; unrelated allocation-only/memo-only receipt does not block |
 | Linked applicant vehicle reconciliation | Separate Emulator test and dialog warning: existing source-owned capacity/group can be reapplied/recreated; domain listener unchanged |
 | Direct/shared/legacy entry, refresh/history, current location | Existing shell/navigation tests plus new task/group URL contracts and real deleted-group load |
@@ -47,17 +49,18 @@ All test commands used explicit `SANPO_TEST_FIREBASE_TARGET`, demo project and l
 
 | Gate | Result and local evidence |
 | --- | --- |
-| Fresh local `npm.cmd run build` | PASS; `%TEMP%/phase-e-build-final.log`; existing large-bundle warning, not a failure |
-| `npm.cmd test` | 88/88 PASS after latest UI corrections; `%TEMP%/phase-e-unit-current.log` |
-| Full offline `npm.cmd run test:browser` | First complete gate: 308 PASS / 12 preexisting conditional skips / 0 failures; `%TEMP%/phase-e-full-browser-final.log`. Latest tree rerun in progress: `%TEMP%/phase-e-browser-acceptance-current.log` |
-| `npm.cmd run test:emulator` | 3/3 PASS; `%TEMP%/phase-e-emulator-units.log`; Rules/schema6/legacy-reader compatibility and future-schema rejection preserved |
-| Full `npm.cmd run test:browser:emulator` | 38/38 PASS; `%TEMP%/phase-e-emulator-acceptance-complete.log`; Chromium Desktop and WebKit iPhone/390px |
+| Fresh local `npm.cmd run build` | Post-review PASS; `%TEMP%/phase-e-postreview-build.log`; existing large-bundle warning, not a failure |
+| `npm.cmd test` | Post-review 89/89 PASS; `%TEMP%/phase-e-postreview-unit.log` |
+| Full offline `npm.cmd run test:browser` | Post-review 316 PASS / 12 preexisting conditional skips / 0 failures (10.9m); `%TEMP%/phase-e-postreview-browser.log`. Earlier gates 308/12 passed before the eight duplicate-group cases were added |
+| `npm.cmd run test:emulator` | Post-review 3/3 PASS; `%TEMP%/phase-e-postreview-emulator-unit.log`; Rules/schema6/legacy-reader compatibility and future-schema rejection preserved |
+| Full `npm.cmd run test:browser:emulator` | Post-review 40/40 PASS (1.3m); `%TEMP%/phase-e-postreview-emulator-browser.log`; Chromium Desktop and WebKit iPhone/390px; earlier 38/38 plus two submitted-editor cases |
 | Late acknowledgement repeat | 6/6 PASS; `%TEMP%/phase-e-late-repeat.log`; route-focus precondition proved before input and network release |
 | Focused remote capacity/deletion + last slot | 4/4 PASS; `%TEMP%/phase-e-stale-green.log`; stale move first failed on enabled submit in both engines, then corrected |
 | `git diff --check` | PASS; no whitespace errors |
 | Protected source path diff against exact integration base | Empty for legacy `src/`, Firebase, React domain/store/sync/adapters; no dependency, schema, algorithm, calculation or persistence model change |
 | Historical `npm.cmd run verify:legacy` manifest | NOT GREEN; same three paths already differ at the exact base: `docs/design/SANPOKAI_PRODUCT_UI.md`, root `package.json`, `tools/classify-release-changes.mjs`. Only the approved normative document changes further in Phase E. Root package/classifier unchanged from base. Manifest not recaptured or weakened. This is not a domain-source failure |
-| Independent review / PR CI / merge | Pending; no completion claim before these gates |
+| Independent review | One fresh reviewer; two Important fixes verified RED→GREEN and all cumulative gates above rerun; one named Minor deferred to I |
+| Remote required CI / integration | Separate gate: only `carbon-redesign` PR. No production-readiness dispatch or main/release operation. Live PR/check links will record the authoritative outcome |
 
 The 12 offline skips are existing conditions: four opt-in Phase B evidence captures without their evidence environment, plus four mobile-only navigation/focus tests excluded from each desktop project. No Phase E behavior is skipped.
 
@@ -66,7 +69,8 @@ The 12 offline skips are existing conditions: four opt-in Phase B evidence captu
 - Before: actual Chromium desktop discovery on the Phase D implementation, synthetic room `PHASE-E-DESIGN-LOCAL-3`; `.playwright-cli/page-2026-10-01T07-57-44-445Z.yml` through `07-59-26-748Z.yml`, also recorded in the detailed design §3. This is before DOM/interaction evidence, not a claim of before screenshots in every engine/theme.
 - After: Chromium/WebKit at 1280×900 and 390×844; light/dark images in `%TEMP%/circle-react-migration-evidence/allocation-{project}-{g10|g100}.png`, inspected individually. Group roles, upper limit, unassigned context, action slots and no document overflow retained. The browser matrix also covers long project names, duplicate identities, empty/full, short viewport, reduced motion and logical history/focus.
 - Direct headed Chromium CLI: started empty; added six people/two drivers using registration UI, selected a waiting person, manually assigned, reviewed/executed random allocation, read/copied result, resized to 390×600, switched dark and refreshed current result URL. DOM snapshots and screenshots at `.playwright-cli/page-2026-10-01T09-52-47-759Z.yml`, `10-06-50-079Z.png`, `10-09-56-653Z.png`, `10-13-04-989Z.png`, `10-14-35-989Z.png`. Initial existing favicon 404 is the sole console error; Carbon feature-flag notices are informational. No blank, blocking overlay or horizontal overflow found.
-- Direct headed WebKit interaction: in progress; repository automated tests use pinned Playwright 1.61 WebKit, CLI additionally uses its own installed browser runtime. No package/lockfile was changed for this.
+- Direct headed WebKit interaction (2026-10-02 JST): fresh synthetic local room `PHASE-E-HUMAN-WK2`, empty → sample through UI → manual person-to-waiting move using Tab/Enter → 390×600 group detail/assign → Back/Forward with heading focus → radio keyboard Space → assignment → read result → dark theme → refresh with same result/data. No horizontal overflow or app warning/error; Carbon flag notices informational. Snapshots `.playwright-cli/page-2026-10-01T20-48-25-333Z.yml` through `20-52-44-593Z.yml` (UTC timestamps). Repository automated tests use pinned Playwright 1.61 WebKit; CLI additionally uses its own installed browser runtime. No package/lockfile was changed.
+- WebKit final direct screenshots inspected at `%TEMP%/phase-e-webkit-{desktop|mobile}-dark-final.png` (1280×900 / 390×600, actual `g100`, no document overflow). Refresh preserves result/data; the existing theme state resets to `g10` after reload, so dark was explicitly selected again before these captures. The CLI initially stalled on unused font faces; restarted only the owned session with the repository's existing `PW_TEST_SCREENSHOT_NO_FONTS_READY` capture setting. Selected Japanese font readiness remains asserted by the full visual tests. Neither app font CSS nor a behavior assertion was altered to obtain screenshots.
 - Two-client last-slot outcomes are retained as main-content text attachments alongside exact state/receipt assertions. Windows Playwright 1.61 multi-context routed-WebSocket trace finalization produced truncated ZIP/file-stream errors, and background screenshots stalled; this new Emulator test file disables traces only on Windows, retaining all assertions and attachments. Linux CI retains failure traces; existing other files retain their tracing. Four-project screenshots are the separate visual gate, not a replacement for shared-behavior checks.
 
 ## Minimum Product UI §23 review checklist
@@ -82,8 +86,18 @@ The 12 offline skips are existing conditions: four opt-in Phase B evidence captu
 - [x] Source-text/internal-class assertions replaced only where obsolete structure changed; domain outcomes, role/fixed/delete/memo/settlement regression retained. Geometry/semantics not snapshots alone.
 - [x] No production/main operations; final redesign release is a separate Phase I gate.
 - [ ] Physical software keyboard / iOS browser chrome / native safe-area behavior / native screen reader: NOT VERIFIED on real hardware. Viewport/touch emulation is not that evidence; mandatory final Phase I device/screen-reader gate remains open.
-- [ ] Final independent review and required CI: pending.
+- [x] One independent fresh-context whole-branch review, with the two Important findings reproduced RED→GREEN (see below). Required CI remains pending.
 
 ## Follow-up boundary
 
 Phase F owns route/movement and each driver's vehicle-cost inputs, including nested draft navigation and Maps/Places/Routes gates. Settlement logic/payments remain G/H. Final physical-device/accessibility/zoom and cumulative integration checks remain I. Random provenance is a separately scoped future enhancement, not a missing Phase E requirement.
+
+## Independent review and fix pass
+
+Fresh reviewer assessed `3fcdf5e..98036ae` against the sole normative document, approved design, plan, ledger and Review Focus. No Critical findings; two Important, one Minor. The author verified the code paths and re-graded by actual user impact. One fix pass only; no second review substituted for tests.
+
+- Important: the allocation participant editor allowed newer input after its original payload was applied; an exact retry then closed the editor and discarded that newer input. Reproduced as enabled fields during a held save in both engines, then fixed by opt-in Carbon disabled props for pending/unresolved allocation saves. Default Phase D editor behavior unchanged. Targeted Emulator test 2/2 PASS; checks original authoritative name/memo, not merely the button state. Evidence `%TEMP%/phase-e-review-edit-{red|green}.log`.
+- Important: two same-name anchors with equal vacancy counts had indistinguishable group destinations. Unit and four mobile car/team tests failed before the fix. One UI projection now applies duplicate-only ordinals in existing projected order, consistently consumed by headings, links, move/assignment options and copy. IDs and canonical state unchanged, no private attribute used. Unit 6/6 and all four-project car/team contracts 8/8 PASS. Evidence `%TEMP%/phase-e-review-duplicate-{red|green}.log`, `phase-e-review-duplicate-browser-{red|green}.log`.
+- Deferred minor: copied waiting-person lines omit their explicit driver/leader role while the read-only result shows it. Names and waiting placements are not lost, but metadata differs. Track as a Phase I handoff consistency fix, with car/team adapter coverage, before final cumulative acceptance. No assertion was removed to conceal it.
+
+Reviewer limits were explicitly ruled on: excluded provenance/publication/messaging/authorization/repository/schema workflows stay excluded; route/Maps/vehicle costs remain F; settlement/payment/history remain G/H (not independently hand-calculated here); algorithms/source reconciliation/sync remain protected; real-device/native SR remains an open I gate; allocation limit is not legal seating certification; production/main/live Firebase verification remains prohibited. Existing capabilities remain available, not declared unnecessary.

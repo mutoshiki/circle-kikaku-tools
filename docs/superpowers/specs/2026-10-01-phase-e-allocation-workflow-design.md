@@ -1,6 +1,6 @@
 # Phase E implementation design: car and team allocation
 
-Status: written design approved for continuation by user on 2026-10-01. Implementation in progress on the phase branch; Phase E acceptance and integration are not complete.
+Status: written design approved for continuation by user on 2026-10-01; local implementation, cumulative acceptance and independent review fix pass complete on 2026-10-02. Remote CI/integration is separately tracked in [Phase E validation](../../design/PHASE_E_VALIDATION.md).
 
 Integration base: `carbon-redesign` at `3fcdf5ead75fd984098f019ddacf290e5fb0b6d7` (Phase D integrated). Working branch: `codex/phase-e-allocation-workflow`.
 
