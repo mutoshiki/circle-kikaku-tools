@@ -11,13 +11,13 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/?room=ALLOCATION-RC');
   await navigateToProjectSection(page, '参加者');
-  await page.getByRole('button', { name: '追加', exact: true }).click();
-  const registration = page.getByRole('dialog', { name: '参加者登録' });
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  const registration = page.getByRole('form', { name: '参加者を登録' });
   await expect(registration).toBeVisible();
   await registration.getByRole('textbox', { name: '参加者（改行区切り）', exact: true }).fill('仮参加者A\n仮参加者B\n仮参加者C\n仮参加者D');
   await registration.getByRole('textbox', { name: '車出し可能な参加者', exact: true }).fill('仮参加者A');
   await registration.getByRole('textbox', { name: '1年生', exact: true }).fill('仮参加者B');
-  await registration.getByRole('button', { name: '登録', exact: true }).click();
+  await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
   await expect(registration).toHaveCount(0);
   let room = await saved(page);
   expect(Object.values(room.participants).map(person => person.name)).toEqual(expect.arrayContaining(['仮参加者A', '仮参加者B', '仮参加者C', '仮参加者D']));
@@ -122,11 +122,12 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
 test('Google Forms spreadsheet paste registration remains available', async ({ page }) => {
   await page.goto('/?room=ALLOCATION-FORM-PASTE-RC');
   await navigateToProjectSection(page, '参加者');
-  await page.getByRole('button', { name: '追加', exact: true }).click();
-  const registration = page.getByRole('dialog', { name: '参加者登録' });
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  const registration = page.getByRole('form', { name: '参加者を登録' });
+  await registration.getByRole('radio', { name: '表データを貼り付け', exact: true }).check({ force: true });
   await registration.getByRole('textbox', { name: 'Googleフォームの回答を貼り付け', exact: true }).fill('氏名\t学年\t車出し\nフォーム参加者A\t3\t可\nフォーム参加者B\t2\tいいえ');
-  await expect(registration.getByRole('status')).toHaveText('2人を読み込みました。');
-  await registration.getByRole('button', { name: '登録', exact: true }).click();
+  await expect(registration.getByRole('status')).toHaveText('登録する参加者 2人');
+  await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
   await expect(registration).toHaveCount(0);
   const room = await saved(page, 'ALLOCATION-FORM-PASTE-RC');
   expect(Object.values(room.participants).map(person => person.name)).toEqual(expect.arrayContaining(['フォーム参加者A', 'フォーム参加者B']));
@@ -136,11 +137,11 @@ test('manual registration accepts names entered only in driver and grade fields'
   const roomId = 'ALLOCATION-METADATA-ONLY-RC';
   await page.goto(`/?room=${roomId}`);
   await navigateToProjectSection(page, '参加者');
-  await page.getByRole('button', { name: '追加', exact: true }).click();
-  const registration = page.getByRole('dialog', { name: '参加者登録' });
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  const registration = page.getByRole('form', { name: '参加者を登録' });
   await registration.getByRole('textbox', { name: '車出し可能な参加者', exact: true }).fill('車出し欄だけの人');
   await registration.getByRole('textbox', { name: '2年生', exact: true }).fill('学年欄だけの人');
-  await registration.getByRole('button', { name: '登録', exact: true }).click();
+  await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
   await expect(registration).toHaveCount(0);
 
   const room = await saved(page, roomId);
@@ -157,10 +158,10 @@ test('allocation toolbar keeps its summary and random assignment action compact 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/?room=${roomId}`);
   await navigateToProjectSection(page, '参加者');
-  await page.getByRole('button', { name: '追加', exact: true }).click();
-  const registration = page.getByRole('dialog', { name: '参加者登録' });
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  const registration = page.getByRole('form', { name: '参加者を登録' });
   await registration.getByRole('textbox', { name: '参加者（改行区切り）', exact: true }).fill('割り当て確認 太郎');
-  await registration.getByRole('button', { name: '登録', exact: true }).click();
+  await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
   await navigateToProjectSection(page, '車割');
 
   const toolbar = page.locator('.allocation-page[aria-label="車割"] .allocation-toolbar');

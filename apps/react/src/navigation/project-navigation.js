@@ -32,6 +32,7 @@ export function createProjectSectionUrl(href, section) {
   url.searchParams.set('section', section);
   url.searchParams.delete('view');
   url.searchParams.delete('allocation');
+  url.searchParams.delete('task');
   url.hash = '';
   return url.toString();
 }
@@ -55,18 +56,37 @@ export function prepareProjectLaunch(options) {
 
 export function createProjectNavigation({ location, history, eventTarget }) {
   const getSnapshot = () => readProjectSection(location.href);
+  const getTaskSnapshot = () => {
+    const task = new URL(location.href).searchParams.get('task');
+    return getSnapshot() === 'participants' && ['import', 'announcement'].includes(task) ? task : '';
+  };
+  function push(href, section) {
+    const current = new URL(location.href);
+    if (`${current.pathname}${current.search}${current.hash}` === href) return false;
+    history.pushState({ ...(history.state || {}), projectSection: section }, '', href);
+    eventTarget?.dispatchEvent(new Event('sanpo:sectionchange'));
+    return true;
+  }
   return Object.freeze({
     getSnapshot,
+    getTaskSnapshot,
     hrefFor(section) {
       const url = new URL(createProjectSectionUrl(location.href, section));
       return `${url.pathname}${url.search}${url.hash}`;
     },
     navigate(section) {
       const href = this.hrefFor(section);
-      if (section === getSnapshot()) return false;
-      history.pushState({ ...(history.state || {}), projectSection: section }, '', href);
-      eventTarget?.dispatchEvent(new Event('sanpo:sectionchange'));
-      return true;
+      if (section === getSnapshot() && !new URL(location.href).searchParams.has('task')) return false;
+      return push(href, section);
+    },
+    taskHrefFor(task) {
+      if (!['', 'import', 'announcement'].includes(task)) throw new Error(`Unknown participant task: ${task}`);
+      const url = new URL(createProjectSectionUrl(location.href, 'participants'));
+      if (task) url.searchParams.set('task', task);
+      return `${url.pathname}${url.search}${url.hash}`;
+    },
+    navigateTask(task) {
+      return push(this.taskHrefFor(task), 'participants');
     },
     subscribe(listener) {
       eventTarget?.addEventListener('popstate', listener);

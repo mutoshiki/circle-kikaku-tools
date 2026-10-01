@@ -32,11 +32,11 @@ test('guidance, CSV, utility report, notifications and URL security', async ({ p
   let saved = await page.evaluate(roomId => JSON.parse(localStorage.getItem(`sanpo-react:v1:${roomId}:room`)), new URL(page.url()).searchParams.get('room'));
   expect(saved.meta.applicationSync.title).toBe(fixture.meta.applicationSync.title);
 
-  await page.getByRole('button', { name: '発表文を作成' }).click();
-  const guidance = page.getByRole('dialog', { name: '参加者発表文を作成' });
+  await page.getByRole('link', { name: '発表文を作成' }).click();
+  const guidance = page.getByRole('form', { name: '参加者発表文を作成' });
   await guidance.getByLabel('集合時間').fill('08:30');
   await expect(guidance.getByLabel('発表文プレビュー')).toHaveValue(/参加者を発表します/);
-  await guidance.getByRole('button', { name: '閉じる' }).click();
+  await page.getByRole('link', { name: '参加者に戻る', exact: true }).click();
 
   await page.getByRole('button', { name: '引き継ぎデータを作成' }).click();
   const download = page.waitForEvent('download');

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Button, InlineNotification, OverflowMenu, OverflowMenuItem, TextArea, TextInput } from '@carbon/react';
+import { Button, InlineNotification, TextArea } from '@carbon/react';
 import { createProjectDomain } from '../services/project-domain.js';
 import { notice } from '../ui/task-contracts.js';
 import TaskModal from './TaskModal.jsx';
@@ -12,15 +12,6 @@ export function HistoryModal({ runtime, onClose, onNotice }) {
   function restoreUndo() { if (runtime.history.undo(runtime.store)) setUndo(false); }
   return <TaskModal taskId="history-management" className="app-modal" open size="md" hasScrollingContent modalHeading="履歴" primaryButtonText="閉じる" onRequestSubmit={onClose} onRequestClose={onClose}><div className="form-stack"><div className="inline-actions"><Button onClick={snapshot}>現在の状態を保存</Button>{undo && <Button kind="ghost" onClick={restoreUndo}>復元を取り消す</Button>}</div>{items.length ? <div className="history-list">{items.map((item, index) => <div className="history-row" key={`${item.time}-${index}`}><span><strong>{item.data?.roomName || '企画名未設定'}</strong><small>{new Date(item.time).toLocaleString('ja-JP')}</small></span><Button kind="ghost" onClick={() => restore(item)}>復元</Button></div>)}</div> : <p>履歴がありません</p>}</div></TaskModal>;
 }
-
-export function GuidanceModal({ runtime, room, onClose, onNotice }) {
-  const [fields, setFields] = useState({ eventDate: room.meta?.applicationSync?.eventDate || '', meetingTime: '', opening: '', supplement: '', contact: '', closing: '', itinerary: [] });
-  const project = useMemo(() => createProjectDomain({ getRoom: () => room, getAnnouncement: () => fields, settlement: runtime.store.domain.settlement }), [room, fields, runtime]);
-  const text = project.bodyText({ allowPlaceholder: true });
-  async function copy() { try { await navigator.clipboard.writeText(text); onNotice(notice.success('案内文をコピーしました', { placement: 'toast' })); } catch { onNotice(notice.error('案内文をコピーできませんでした', { placement: 'toast' })); } }
-  return <TaskModal taskId="participant-guidance" className="app-modal" open size="lg" hasScrollingContent modalHeading="参加者発表文を作成" primaryButtonText="コピー" secondaryButtonText="閉じる" primaryButtonDisabled={!text} onRequestSubmit={copy} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#guidance-date"><div className="form-stack"><div className="form-grid"><TextInput id="guidance-date" type="date" labelText="実施日" value={fields.eventDate} onChange={event => setFields({ ...fields, eventDate: event.target.value })} /><TextInput id="guidance-time" type="time" labelText="集合時間" value={fields.meetingTime} onChange={event => setFields({ ...fields, meetingTime: event.target.value })} /></div><TextArea id="guidance-supplement" labelText="補足事項" rows={3} value={fields.supplement} onChange={event => setFields({ ...fields, supplement: event.target.value })} /><TextArea id="guidance-preview" labelText="発表文プレビュー" rows={14} value={text} readOnly />{!text && <InlineNotification kind="warning" title="発表文を作成できません" subtitle="応募フォーム連携済みの企画で参加者を確定してください。" hideCloseButton lowContrast />}</div></TaskModal>;
-}
-
 export function ExportModal({ runtime, room, onClose, onNotice }) {
   const [error, setError] = useState('');
   const project = useMemo(() => createProjectDomain({ getRoom: () => room, settlement: runtime.store.domain.settlement }), [room, runtime]);
@@ -51,11 +42,4 @@ export function BugModal({ runtime, room, onClose, onNotice }) {
   const [message, setMessage] = useState(''); const [sending, setSending] = useState(false);
   async function send() { setSending(true); setError(''); try { await runtime.external.bugReport({ message: message.trim().slice(0, 2000), roomId: runtime.roomId.slice(0, 80), pageUrl: location.href.slice(0, 2048), projectTitle: room.roomName }); onNotice(notice.success('バグ報告を送信しました', { placement: 'toast' })); onClose(); } catch { setError('接続を確認して、もう一度送信してください。'); setSending(false); } }
   return <TaskModal taskId="bug-report" className="app-modal" open size="sm" modalHeading="バグを報告" primaryButtonText="送信" secondaryButtonText="キャンセル" primaryButtonDisabled={!message.trim() || sending} onRequestSubmit={send} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#bug-message">{error && <InlineNotification kind="error" title="バグ報告を送信できませんでした" subtitle={error} hideCloseButton lowContrast />}<TextArea id="bug-message" labelText="バグの内容" rows={6} value={message} onChange={event => setMessage(event.target.value)} /></TaskModal>;
-}
-
-export default function ProjectTools({ runtime, room, onNotice }) {
-  const [open, setOpen] = useState('');
-  const application = runtime.store.domain.applicants.validApplicationSync(room.meta?.applicationSync);
-  const hasParticipants = Object.keys(room.participants || {}).length > 0;
-  return <><OverflowMenu ariaLabel="参加者画面のその他の操作" iconDescription="参加者画面のその他の操作" flipped><OverflowMenuItem itemText="履歴" onClick={() => setOpen('history')} />{application && hasParticipants && <OverflowMenuItem itemText="案内文" onClick={() => setOpen('guidance')} />}{application && <OverflowMenuItem itemText="引き継ぎCSV" onClick={() => setOpen('export')} />}<OverflowMenuItem itemText="バグを報告" onClick={() => setOpen('bug')} /></OverflowMenu>{open === 'history' && <HistoryModal runtime={runtime} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'guidance' && <GuidanceModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'export' && <ExportModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'bug' && <BugModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}</>;
 }

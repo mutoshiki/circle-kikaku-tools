@@ -3,10 +3,10 @@ import { navigateToProjectSection } from './project-navigation.js';
 
 test('visible participant state changes do not add redundant success toasts', async ({ page }) => {
   await page.goto('/?room=PHASE-C-TYPED-NOTICE&section=participants');
-  await page.getByRole('button', { name: '追加', exact: true }).click();
-  const registration = page.getByRole('dialog', { name: '参加者登録' });
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  const registration = page.getByRole('form', { name: '参加者を登録' });
   await registration.getByRole('textbox', { name: '参加者（改行区切り）', exact: true }).fill('通知契約 参加者');
-  await registration.getByRole('button', { name: '登録', exact: true }).click();
+  await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
   await page.waitForTimeout(100);
   expect(await page.locator('.cds--toast-notification').count()).toBe(0);
   const row = page.locator('.participant-row').filter({ hasText: '通知契約 参加者' });
@@ -83,10 +83,10 @@ test('overview uses an explicit page draft with save, cancel and focus return', 
 
 test('short participant edit focuses the invalid field and returns focus on dismiss', async ({ page }) => {
   await page.goto('/?room=PHASE-C-MODAL-FOCUS&section=participants');
-  await page.getByRole('button', { name: '追加', exact: true }).click();
-  const registration = page.getByRole('dialog', { name: '参加者登録' });
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  const registration = page.getByRole('form', { name: '参加者を登録' });
   await registration.getByRole('textbox', { name: '参加者（改行区切り）', exact: true }).fill('Focus Contract');
-  await registration.getByRole('button', { name: '登録', exact: true }).click();
+  await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
 
   const trigger = page.getByRole('button', { name: 'Focus Contractの操作', exact: true });
   await trigger.click();
