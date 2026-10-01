@@ -41,6 +41,19 @@ test('capacity adapter validates rather than silently clamping and displays comp
   assert.equal(allocationView(store.getSnapshot(), 'car', store.domain.canonical).groups.find(g => g.id === groups.a).totalLimit, 121);
 });
 
+test('same-name group anchors have distinct consistent labels without leaking private attributes', () => {
+  const { store, ids, groups } = allocationFixture();
+  for (const id of [ids.A, ids.B]) store.command('editParticipant', { id, changes: { name: '同名', memo: '秘密', grade: 3 } });
+  const before = JSON.stringify(store.getSnapshot());
+  const view = allocationView(store.getSnapshot(), 'car', store.domain.canonical);
+  assert.equal(view.groups.find(g => g.id === groups.a).name, '同名車（1）');
+  assert.equal(view.groups.find(g => g.id === groups.b).name, '同名車（2）');
+  const { text } = allocationPresentation(view, '企画');
+  assert.match(text, /同名車（1）/); assert.match(text, /同名車（2）/);
+  assert.doesNotMatch(text, /秘密|3年/);
+  assert.equal(JSON.stringify(store.getSnapshot()), before);
+});
+
 test('random review uses actual eligibility including role-free anchor and fixed waiting people', () => {
   const { store, ids, groups } = allocationFixture();
   const review = () => randomAllocationReview(store.getSnapshot(), 'car', store.domain.assignment);

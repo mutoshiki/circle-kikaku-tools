@@ -13,6 +13,16 @@ export function allocationView(room, type, canonical) {
     if (people.length > totalLimit) issues.push({ kind: 'over-capacity', groupId: group.id });
     return { id: group.id, name: `${car.name}${label}`, people, roles, peopleCount: people.length, totalLimit, vacancies: Math.max(0, Number(group.capacity) - car.members.length), issues };
   });
+  // Distinguish equal anchor names in every consumer (heading, navigation,
+  // destination and copy). This is display order, never a new group identity.
+  const nameCounts = new Map(), nameOrder = new Map();
+  for (const group of groups) nameCounts.set(group.name, (nameCounts.get(group.name) || 0) + 1);
+  for (const group of groups) {
+    if (nameCounts.get(group.name) < 2) continue;
+    const ordinal = (nameOrder.get(group.name) || 0) + 1;
+    nameOrder.set(group.name, ordinal);
+    group.name = `${group.name}（${ordinal}）`;
+  }
   const participantCount = Object.keys(room.participants).length;
   return { type, groups, waiting: projection.waiting, assignedCount: participantCount - projection.waiting.length, participantCount,
     issues: groups.flatMap(group => group.issues) };

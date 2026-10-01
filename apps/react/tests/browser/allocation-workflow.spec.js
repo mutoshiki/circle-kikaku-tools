@@ -213,3 +213,34 @@ test('presentation preserves duplicate identities and missing roles rather than 
   expect(text).not.toMatch(/秘密のメモ|3年|red|精算完了|割当完了/);
   await expect(page.getByRole('button', { name: '車割をコピー', exact: true })).toBeEnabled();
 });
+
+for (const type of ['car', 'team']) test(`same-name ${type} groups can be identified for assignment and direct move`, async ({ page }, info) => {
+  const id = `PHASE-E-DUPGROUP-${type}-${info.project.name}`;
+  const label = type === 'car' ? '車' : '班';
+  const store = createRoomStore({ clock: { now: () => 1000 } });
+  store.command('addParticipants', { people: [{ name: 'A', driver: true }, { name: 'B', driver: true }, { name: 'C' }] });
+  const ids = Object.fromEntries(Object.values(store.getSnapshot().participants).map(p => [p.name, p.id]));
+  if (type === 'team') for (const ownerId of [ids.A, ids.B]) store.command('createGroup', { type, ownerId, capacity: 3 });
+  const groups = [ids.A, ids.B].map(personId => store.getSnapshot().allocations[type].placements[personId].groupId);
+  for (const personId of [ids.A, ids.B]) store.command('editParticipant', { id: personId, changes: { name: '同名' } });
+  await page.addInitScript(({ id, room }) => { if (!localStorage.getItem(`sanpo-react:v1:${id}:room`)) localStorage.setItem(`sanpo-react:v1:${id}:room`, JSON.stringify(room)); }, { id, room: store.getSnapshot() });
+  await page.goto(`/?room=${id}&section=organization-${type}`);
+  for (const index of [1, 2]) await expect(page.getByRole('link', { name: `同名${label}（${index}）の詳細`, exact: true })).toBeVisible();
+  if (info.project.use.viewport.width < 1056) await page.getByRole('link', { name: '未割り当て 1人を確認', exact: true }).click();
+  await choosePerson(page, 'C', !!info.project.use.hasTouch);
+  const target = page.getByRole('combobox', { name: '割り当て先', exact: true });
+  for (const index of [1, 2]) await expect(target.getByRole('option', { name: `同名${label}（${index}）（空き3人）`, exact: true })).toHaveCount(1);
+  await target.selectOption({ label: `同名${label}（2）（空き3人）` });
+  await page.getByRole('button', { name: `${label}へ割り当て`, exact: true }).click();
+  await expect.poll(async () => (await roomAt(page, id)).allocations[type].placements[ids.C].groupId).toBe(groups[1]);
+  if (info.project.use.viewport.width < 1056) {
+    await page.getByRole('link', { name: `${label}割に戻る`, exact: true }).click();
+    await page.getByRole('link', { name: `同名${label}（2）の詳細`, exact: true }).click();
+  }
+  await page.getByRole('button', { name: 'Cの移動', exact: true }).click();
+  const move = page.getByRole('form', { name: 'Cの移動', exact: true });
+  await move.getByRole('combobox', { name: '移動先', exact: true }).selectOption({ label: `同名${label}（1）（空き3人）` });
+  await move.getByRole('button', { name: `${label}へ移動`, exact: true }).click();
+  await expect.poll(async () => (await roomAt(page, id)).allocations[type].placements[ids.C].groupId).toBe(groups[0]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

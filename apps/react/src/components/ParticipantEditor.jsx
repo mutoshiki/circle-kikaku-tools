@@ -9,6 +9,7 @@ export default function ParticipantEditor({ runtime, session, onClose, launcherB
   const [driver, setDriver] = useState(() => session.draft.allocations.car.placements[id]?.driver === true);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const fieldsDisabled = !!saveIntent && (saving || saveBlocked);
   const formRef = useRef(null);
   const alive = useRef(true);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
@@ -50,14 +51,14 @@ export default function ParticipantEditor({ runtime, session, onClose, launcherB
     <div ref={formRef} className="form-stack">
       {saveFeedback}
       {error && <InlineNotification kind="error" title={error} hideCloseButton lowContrast />}
-      <TextInput id="participant-edit-name" labelText="名前" value={draft.name} onChange={event => { field('name', event.target.value); if (error === '名前を入力してください。' && event.target.value.trim()) setError(''); }} invalid={!draft.name.trim() && !!error} invalidText="名前を入力してください。" />
-      <Select id="participant-edit-grade" labelText="学年" value={String(draft.grade || 0)} onChange={event => field('grade', Number(event.target.value))}>
+      <TextInput id="participant-edit-name" labelText="名前" disabled={fieldsDisabled} value={draft.name} onChange={event => { field('name', event.target.value); if (error === '名前を入力してください。' && event.target.value.trim()) setError(''); }} invalid={!draft.name.trim() && !!error} invalidText="名前を入力してください。" />
+      <Select id="participant-edit-grade" labelText="学年" disabled={fieldsDisabled} value={String(draft.grade || 0)} onChange={event => field('grade', Number(event.target.value))}>
         <SelectItem value="0" text="未設定" />{[1, 2, 3, 4].map(grade => <SelectItem key={grade} value={String(grade)} text={`${grade}年`} />)}
       </Select>
-      {session.draft.allocations.car.placements[id] && <Checkbox id="participant-edit-driver" labelText="運転手" checked={driver} onChange={(_, { checked }) => setDriver(checked)} />}
-      <TextArea id="participant-edit-memo" labelText="メモ" value={draft.memo || ''} onChange={event => field('memo', event.target.value)} />
-      <Select id="participant-edit-flag" labelText="しるし" value={draft.flag || 'none'} onChange={event => field('flag', event.target.value)}>{[['none', 'しるしなし'], ['blue', '青'], ['purple', '紫'], ['yellow', '黄'], ['red', '赤']].map(([value, text]) => <SelectItem key={value} value={value} text={text} />)}</Select>
-      <Checkbox id="participant-edit-locked" labelText="固定" checked={draft.locked === true} onChange={(_, { checked }) => field('locked', checked)} />
+      {session.draft.allocations.car.placements[id] && <Checkbox id="participant-edit-driver" labelText="運転手" disabled={fieldsDisabled} checked={driver} onChange={(_, { checked }) => setDriver(checked)} />}
+      <TextArea id="participant-edit-memo" labelText="メモ" disabled={fieldsDisabled} value={draft.memo || ''} onChange={event => field('memo', event.target.value)} />
+      <Select id="participant-edit-flag" labelText="しるし" disabled={fieldsDisabled} value={draft.flag || 'none'} onChange={event => field('flag', event.target.value)}>{[['none', 'しるしなし'], ['blue', '青'], ['purple', '紫'], ['yellow', '黄'], ['red', '赤']].map(([value, text]) => <SelectItem key={value} value={value} text={text} />)}</Select>
+      <Checkbox id="participant-edit-locked" labelText="固定" disabled={fieldsDisabled} checked={draft.locked === true} onChange={(_, { checked }) => field('locked', checked)} />
     </div>
   </TaskModal>;
 }

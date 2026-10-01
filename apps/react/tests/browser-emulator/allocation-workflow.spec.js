@@ -128,6 +128,43 @@ test('group creation retry retains its identity after reload and later independe
   }
 });
 
+test('applied participant edit freezes submitted fields while pending and after denial until exact retry', async ({ page, request }, info) => {
+  const id = `ESHAREDEDIT${info.project.name.startsWith('webkit') ? 'WK' : 'CH'}`;
+  const { store, ids } = setup();
+  const socket = await heldSocket(page);
+  expect((await request.put(urlFor(id), { headers, data: schema6Data(store.getSnapshot()) })).ok()).toBe(true);
+  try {
+    await enter(page, id, '&task=unassigned');
+    await deny(request, id);
+    await page.getByRole('button', { name: '仮参加者Bの操作', exact: true }).click();
+    await page.getByRole('menuitem', { name: '参加者を編集', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: '参加者を編集', exact: true });
+    const name = dialog.getByRole('textbox', { name: '名前', exact: true });
+    const memo = dialog.getByRole('textbox', { name: 'メモ', exact: true });
+    await name.fill('送信した名前'); await memo.fill('送信したメモ');
+    socket.hold();
+    await dialog.getByRole('button', { name: '保存', exact: true }).click();
+    await expect.poll(socket.count).toBeGreaterThan(0);
+    for (const field of [name, memo, dialog.getByRole('combobox', { name: '学年', exact: true }), dialog.getByRole('combobox', { name: 'しるし', exact: true }), dialog.getByRole('checkbox', { name: '固定', exact: true }), dialog.getByRole('checkbox', { name: '運転手', exact: true })]) await expect(field).toBeDisabled();
+    socket.release();
+    await expect(dialog.getByRole('button', { name: '共有保存を再試行', exact: true })).toBeVisible();
+    await expect(name).toBeDisabled(); await expect(memo).toBeDisabled();
+    await expect(name).toHaveValue('送信した名前'); await expect(memo).toHaveValue('送信したメモ');
+    expect((await shared(request, id)).participants[ids.B].name).toBe('仮参加者B');
+    expect((await request.put(rulesUrl, { headers, data: originalRules })).ok()).toBe(true);
+    await dialog.getByRole('button', { name: '共有保存を再試行', exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+    const saved = await shared(request, id);
+    expect(saved.participants[ids.B].name).toBe('送信した名前');
+    expect(saved.participants[ids.B].memo).toBe('送信したメモ');
+    expect(await receiptAt(page, id)).toBeNull();
+  } finally {
+    socket.release(); await page.close();
+    expect((await request.put(rulesUrl, { headers, data: originalRules })).ok()).toBe(true);
+    expect((await request.delete(urlFor(id), { headers })).ok()).toBe(true);
+  }
+});
+
 test('two clients compete for the last slot and display canonical outcome without compensating writes', async ({ browser, request }, info) => {
   const id = `ESHAREDSLOT${info.project.name.startsWith('webkit') ? 'WK' : 'CH'}`;
   const { store, ids } = setup();
