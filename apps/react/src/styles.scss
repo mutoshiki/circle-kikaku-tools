@@ -91,17 +91,21 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .participant-row-actions > * { pointer-events: all; }
 .row-detail { color: var(--cds-text-secondary); font-size: .875rem; }
 .selection-actions { position: sticky; inset-block-end: 0; z-index: 2; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: layout.$spacing-03; margin-block-start: layout.$spacing-05; padding: layout.$spacing-04 layout.$spacing-05 calc(#{layout.$spacing-04} + env(safe-area-inset-bottom)); border-block-start: 1px solid var(--cds-border-subtle); background: var(--cds-layer); }
-.allocation-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: layout.$spacing-03; margin-block: 0 layout.$spacing-04; }
-.allocation-toolbar-summary { display: grid; gap: layout.$spacing-02; min-inline-size: 0; }
-.allocation-toolbar p { display: flex; gap: layout.$spacing-04; flex-wrap: wrap; margin: 0; }
-.allocation-toolbar > .cds--btn { flex: 0 0 auto; inline-size: auto; max-inline-size: none; }
-.allocation-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr)); align-items: start; gap: layout.$spacing-05; margin-block-end: layout.$spacing-05; }
-.allocation-group { min-width: 0; background: var(--cds-layer); }
-.allocation-group:not(:last-child) { padding-block-end: layout.$spacing-03; border-block-end: 1px solid var(--cds-border-subtle); }
-.group-heading { padding: layout.$spacing-03 layout.$spacing-05; border-bottom: 1px solid var(--cds-border-subtle); }
-.group-heading h2 { font-size: 1rem; font-weight: 600; overflow-wrap: anywhere; }
-.group-capacity-display { color: var(--cds-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.allocation-person-list .cds--contained-list__header { display: none; }
+.allocation-page { display: grid; gap: layout.$spacing-05; }
+.allocation-actions, .allocation-task-links, .allocation-person-actions { display: flex; align-items: center; flex-wrap: wrap; gap: layout.$spacing-03; }
+.allocation-workspace { row-gap: layout.$spacing-06; }
+.allocation-groups { display: grid; align-items: start; gap: layout.$spacing-05; }
+.allocation-group { min-inline-size: 0; padding-block-end: layout.$spacing-05; border-block-end: 1px solid var(--cds-border-subtle); }
+.allocation-group-heading { display: flex; align-items: center; justify-content: space-between; gap: layout.$spacing-03; }
+.allocation-group-heading h2, .allocation-move-form h2 { @include type.type-style('heading-03'); overflow-wrap: anywhere; }
+.allocation-group-summary, .allocation-person-metadata, .allocation-person-copy p { @include type.type-style('body-compact-01'); color: var(--cds-text-secondary); }
+.allocation-group-summary { margin-block: layout.$spacing-03; }
+.allocation-person-copy { min-inline-size: 0; overflow-wrap: anywhere; }
+.allocation-person-metadata { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-02; }
+.allocation-choice-label { display: inline-flex; align-items: center; min-inline-size: layout.$spacing-09; min-block-size: layout.$spacing-09; }
+.allocation-assignment-form, .allocation-move-form { display: grid; gap: layout.$spacing-05; margin-block: layout.$spacing-05; }
+.allocation-task-links { margin-block: layout.$spacing-03; }
+.allocation-empty { display: grid; justify-items: start; gap: layout.$spacing-05; }
 .person-summary { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
 .person-name { overflow-wrap: anywhere; }
 .person-tags { display: flex; align-items: center; flex-wrap: wrap; }
@@ -109,12 +113,6 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .person-memo { margin-top: .25rem; font-size: .75rem; color: var(--cds-text-secondary); overflow-wrap: anywhere; }
 .person-flag { inline-size: 1rem; block-size: 1rem; margin-right: .25rem; }
 .flag-blue { color: var(--cds-support-info); }.flag-purple { color: var(--cds-link-primary); }.flag-yellow { color: var(--cds-support-warning); }.flag-red { color: var(--cds-support-error); }
-.empty-seats-action { inline-size: 100%; max-inline-size: none; display: flex; justify-content: flex-start; gap: layout.$spacing-05; }
-.empty-seat-count { color: var(--cds-text-secondary); }
-.empty-seat-action-label { margin-inline-start: auto; }
-.waiting-section { margin-top: 1rem; }
-.allocation-add-area { display: grid; justify-items: start; gap: .5rem; }
-.allocation-add-area .cds--inline-notification { max-inline-size: 32rem; margin: 0; }
 .settlement-page { display: grid; gap: layout.$spacing-04; padding-top: layout.$spacing-02; }
 .settlement-card { min-width: 0; margin: 0; padding: layout.$spacing-04 0; border: 0; background: var(--cds-layer-01, var(--cds-layer)); }
 .settlement-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: layout.$spacing-03; margin-block-end: layout.$spacing-04; }

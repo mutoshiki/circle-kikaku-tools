@@ -14,19 +14,24 @@ import { BugModal, HistoryModal } from './components/ProjectTools.jsx';
 import TaskModal from './components/TaskModal.jsx';
 import { createProjectDomain } from './services/project-domain.js';
 import { isToastNotice, notice as taskNotice } from './ui/task-contracts.js';
+import { allocationView } from './ui/allocation-view.js';
 
 export default function App({ runtime }) {
   const room = useSyncExternalStore(runtime.store.subscribe, runtime.store.getSnapshot);
   const syncStatus = useSyncExternalStore(runtime.sync.subscribe, runtime.sync.getSnapshot);
   const section = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getSnapshot, () => runtime.initialSection);
   const participantTask = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getTaskSnapshot, () => '');
+  const allocationDestinationJson = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getAllocationTaskSnapshot, () => '{"type":"","task":"","groupId":"","invalid":false}');
+  const allocationDestination = JSON.parse(allocationDestinationJson);
+  const [roomResolved, setRoomResolved] = useState(() => !runtime.sync.enqueue || syncStatus.kind === 'connected');
+  useEffect(() => { if (syncStatus.kind === 'connected') setRoomResolved(true); }, [syncStatus.kind]);
   const [theme, setTheme] = useState('g10');
   const [feedback, setFeedback] = useState(null);
   const [globalModal, setGlobalModal] = useState('');
   const [overviewEditing, setOverviewEditing] = useState(false);
   const [sampleCars, setSampleCars] = useState('3');
   const [sampleType, setSampleType] = useState('normal');
-  const previousSection = useRef(`${section}:${participantTask}`);
+  const previousSection = useRef(`${section}:${participantTask}:${allocationDestinationJson}`);
   const participantReturnFocus = useRef('');
   const overviewEditButtonRef = useRef(null);
   const overviewReturnFocus = useRef(false);
@@ -36,7 +41,7 @@ export default function App({ runtime }) {
     overviewEditButtonRef.current?.focus();
   }, [overviewEditing]);
   useEffect(() => {
-    const destination = `${section}:${participantTask}`;
+    const destination = `${section}:${participantTask}:${allocationDestinationJson}`;
     if (previousSection.current === destination) return;
     previousSection.current = destination;
     setFeedback(null);
@@ -44,10 +49,15 @@ export default function App({ runtime }) {
     participantReturnFocus.current = '';
     const frame = requestAnimationFrame(() => (document.getElementById(returnId) || document.getElementById('project-page-title'))?.focus());
     return () => cancelAnimationFrame(frame);
-  }, [section, participantTask]);
+  }, [section, participantTask, allocationDestinationJson]);
   function finishParticipantTask() {
     participantReturnFocus.current = participantTask === 'import' ? 'participant-add' : 'participant-announcement';
     runtime.navigation.navigateTask('');
+  }
+  function finishAllocationTask() {
+    const { type, task, groupId } = allocationDestination;
+    participantReturnFocus.current = task === 'assign' ? `allocation-assign-${groupId}` : groupId ? `allocation-group-${groupId}` : task === 'presentation' ? 'allocation-presentation' : 'allocation-unassigned';
+    runtime.navigation.navigateAllocationTask(type, task === 'assign' ? 'group' : '', task === 'assign' ? groupId : '');
   }
   async function share() {
     try { await navigator.clipboard.writeText(runtime.createShareUrl()); setFeedback(taskNotice.success('リンクをコピーしました', { placement: 'toast' })); }
@@ -91,12 +101,18 @@ export default function App({ runtime }) {
       back: participantTask && <Link href={runtime.navigation.taskHrefFor('')} onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); finishParticipantTask(); } }}>参加者に戻る</Link>,
       content: <Participants runtime={runtime} room={room} task={participantTask} onReturn={finishParticipantTask} onNotice={setFeedback} embedded />,
     };
-    if (section === 'organization-team') {
-      const projection = runtime.store.domain.canonical.projectAllocation(room, 'team');
+    if (section === 'organization-team' || section === 'organization-car') {
+      const type = section === 'organization-team' ? 'team' : 'car';
+      const view = allocationView(room, type, runtime.store.domain.canonical);
+      const group = view.groups.find(g => g.id === allocationDestination.groupId);
+      const label = type === 'team' ? '班割' : '車割';
+      const task = allocationDestination.task;
       return {
-        title: '班割', description: '参加者を班へ割り当て、班長と定員を管理します。',
-        metadata: [{ label: '未割り当て', value: `${projection.waiting.length}人` }, { label: '班', value: `${projection.cars.length}班` }, ...sync],
-        content: <Allocation runtime={runtime} room={room} type="team" onNotice={setFeedback} onParticipants={() => runtime.navigation.navigate('participants')} embedded />,
+        title: task === 'presentation' ? `${label}の結果` : task === 'unassigned' ? `${label}の未割り当て` : group ? task === 'assign' ? `${group.name}へ割り当て` : group.name : label,
+        description: task ? '' : '手動・ランダムで割り当てを作り、当日朝の発表に備えます。',
+        metadata: [{ label: '割り当て済み', value: `${view.assignedCount}人` }, { label: '未割り当て', value: `${view.waiting.length}人` }, { label: type === 'team' ? '班' : '車', value: `${view.groups.length}${type === 'team' ? '班' : '台'}` }, ...sync],
+        back: task && <Link href={runtime.navigation.allocationTaskHrefFor(type, task === 'assign' && group ? 'group' : '', task === 'assign' && group ? group.id : '')} onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); finishAllocationTask(); } }}>{task === 'assign' && group ? `${group.name}に戻る` : `${label}に戻る`}</Link>,
+        content: <Allocation key={type} runtime={runtime} room={room} type={type} destination={allocationDestination} resolved={roomResolved} onNotice={setFeedback} onParticipants={() => runtime.navigation.navigate('participants')} />,
       };
     }
     if (section === 'settlement') return {
@@ -110,12 +126,7 @@ export default function App({ runtime }) {
       actions: <Button kind="tertiary" renderIcon={Time} onClick={() => setGlobalModal('history')}>履歴を開く</Button>,
       content: <ProjectHistorySettings />,
     };
-    const projection = runtime.store.domain.canonical.projectAllocation(room, 'car');
-    return {
-      title: '車割', description: '参加者を車へ割り当て、運転手と定員を管理します。',
-      metadata: [{ label: '未割り当て', value: `${projection.waiting.length}人` }, { label: '車', value: `${projection.cars.length}台` }, ...sync],
-      content: <Allocation runtime={runtime} room={room} type="car" onNotice={setFeedback} onParticipants={() => runtime.navigation.navigate('participants')} embedded />,
-    };
+    return { title: '参加者', content: <Participants runtime={runtime} room={room} onNotice={setFeedback} embedded /> };
   })();
   return <Theme theme={theme} className="application">
     <ProjectShell projectName={room.roomName} roomId={runtime.roomId} section={section} navigation={runtime.navigation} headerProps={{ theme, showSampleData: runtime.sampleDataEnabled, onShare: share, onOpenUtility: openGlobalModal, onToggleTheme: toggleTheme }}>
