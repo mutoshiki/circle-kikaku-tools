@@ -110,7 +110,7 @@ export default function App({ runtime }) {
       return {
         title: task === 'presentation' ? `${label}の結果` : task === 'unassigned' ? `${label}の未割り当て` : group ? task === 'assign' ? `${group.name}へ割り当て` : group.name : label,
         description: task ? '' : '手動・ランダムで割り当てを作り、当日朝の発表に備えます。',
-        metadata: [{ label: '割り当て済み', value: `${view.assignedCount}人` }, { label: '未割り当て', value: `${view.waiting.length}人` }, { label: type === 'team' ? '班' : '車', value: `${view.groups.length}${type === 'team' ? '班' : '台'}` }, ...sync],
+        metadata: group ? [{ label: '人数', value: `${group.peopleCount}人 / 上限${group.totalLimit}人` }, { label: '空き', value: `${group.vacancies}人` }, { label: '未割り当て', value: `${view.waiting.length}人` }, ...sync] : [{ label: '割り当て済み', value: `${view.assignedCount}人` }, { label: '未割り当て', value: `${view.waiting.length}人` }, { label: type === 'team' ? '班' : '車', value: `${view.groups.length}${type === 'team' ? '班' : '台'}` }, ...sync],
         back: task && <Link href={runtime.navigation.allocationTaskHrefFor(type, task === 'assign' && group ? 'group' : '', task === 'assign' && group ? group.id : '')} onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); finishAllocationTask(); } }}>{task === 'assign' && group ? `${group.name}に戻る` : `${label}に戻る`}</Link>,
         content: <Allocation key={type} runtime={runtime} room={room} type={type} destination={allocationDestination} resolved={roomResolved} onNotice={setFeedback} onParticipants={() => runtime.navigation.navigate('participants')} />,
       };

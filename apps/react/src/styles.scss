@@ -106,6 +106,8 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .allocation-assignment-form, .allocation-move-form { display: grid; gap: layout.$spacing-05; margin-block: layout.$spacing-05; }
 .allocation-task-links { margin-block: layout.$spacing-03; }
 .allocation-empty { display: grid; justify-items: start; gap: layout.$spacing-05; }
+.allocation-presentation, .allocation-copy-form { display: grid; gap: layout.$spacing-05; min-inline-size: 0; overflow-wrap: anywhere; }
+.allocation-presentation h2 { @include type.type-style('heading-03'); margin-block-end: layout.$spacing-03; }
 .person-summary { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
 .person-name { overflow-wrap: anywhere; }
 .person-tags { display: flex; align-items: center; flex-wrap: wrap; }

@@ -3,9 +3,12 @@ import { Button, InlineNotification, Link } from '@carbon/react';
 import { Add, Shuffle } from '@carbon/icons-react';
 import ParticipantEditor from './ParticipantEditor.jsx';
 import AllocationWorkspace from './allocation/AllocationWorkspace.jsx';
+import AllocationPresentation from './allocation/AllocationPresentation.jsx';
 import { AllocationConfirmation, AllocationSaveStatus, GroupEditor } from './allocation/AllocationDialogs.jsx';
 import useAllocationOperation from '../hooks/useAllocationOperation.js';
 import { allocationView, randomAllocationReview } from '../ui/allocation-view.js';
+import { allocationReceiptAffectsPresentation } from '../ui/allocation-save.js';
+import { createParticipantTaskDraft } from '../ui/participant-task-draft.js';
 
 export default function Allocation({ runtime, room, type, destination, resolved = true, onNotice, onParticipants }) {
   const view = allocationView(room, type, runtime.store.domain.canonical);
@@ -79,14 +82,23 @@ export default function Allocation({ runtime, room, type, destination, resolved 
     });
   }
   const review = randomAllocationReview(room, type, runtime.store.domain.assignment);
+  let presentationReceipt = operation.receipt;
+  if (destination.task === 'presentation' && !presentationReceipt) {
+    const other = createParticipantTaskDraft({ storage: () => window.localStorage, roomId: runtime.roomId, task: `allocation:${type === 'car' ? 'team' : 'car'}` }).read()?.receipt;
+    const base = runtime.storage.read('base');
+    const unknown = other && !other.acknowledged && !base?.syncOperations?.[other.operationId] && !['saved', 'local'].includes(other.disposition) && (!base || base.resetGeneration === other.resetGeneration);
+    const pending = runtime.storage.read('outbox');
+    presentationReceipt = unknown && allocationReceiptAffectsPresentation(other, type) ? other : allocationReceiptAffectsPresentation(pending, type) ? pending : null;
+  }
   return <section className="allocation-page" aria-label={type === 'team' ? '班割' : '車割'}>
     {error && <InlineNotification kind="error" title="割り当てを確認してください" subtitle={error} hideCloseButton lowContrast />}
     {!editor && !groupEditor && !confirmation && <AllocationSaveStatus operation={operation} />}
-    {!view.participantCount ? <div className="allocation-empty"><p>参加者がいません</p><Link href={runtime.navigation.hrefFor('participants')} onClick={event => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); onParticipants(); } }}>参加者へ</Link></div> : <>
+    {destination.task === 'presentation' ? <AllocationPresentation view={view} projectName={room.roomName} receipt={presentationReceipt} busy={operation.busy} onNotice={onNotice} /> : !view.participantCount ? <div className="allocation-empty"><p>参加者がいません</p><Link href={runtime.navigation.hrefFor('participants')} onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); onParticipants(); } }}>参加者へ</Link></div> : <>
       <div className="allocation-actions">
         <Button id="allocation-add" kind={view.groups.length ? 'tertiary' : 'primary'} renderIcon={Add} disabled={disabled || !view.waiting.length} onClick={event => setGroupEditor({ launcher: { current: event.currentTarget } })}>{label}を追加</Button>
         <Button id="allocation-random" kind="tertiary" renderIcon={Shuffle} disabled={disabled || !view.groups.length || !review.eligibleCount || !review.slotCount} onClick={event => setConfirmation({ title: 'ランダム割り当て', command: 'randomize', args: { type }, button: 'ランダムに割り当て', scope: review.scope, launcher: { current: event.currentTarget } })}>ランダム割り当て</Button>
       </div>
+      <Link id="allocation-presentation" href={navigate.href('presentation')} onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); navigate('presentation'); } }}>結果を確認・コピー</Link>
       {!view.groups.length && <p>未割り当ての参加者を選んで{label}を追加してください。</p>}
       {view.groups.length > 0 && !review.eligibleCount && <p>ランダム割り当ての対象者がいません。固定・役割を確認するか、手動で移動してください。</p>}
       {view.groups.length > 0 && review.eligibleCount > 0 && !review.slotCount && <p>ランダム割り当てに使える空き枠がありません。人数の上限・固定・役割を確認してください。</p>}

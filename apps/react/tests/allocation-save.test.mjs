@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createRoomStore } from '../src/store/room-store.js';
 import { createRoomSync } from '../src/sync/room-sync.js';
 import { createFixtureServer, memoryStorage } from './helpers/fixture-transport.mjs';
-import { allocationSaveReceipt, settleAllocationSave } from '../src/ui/allocation-save.js';
+import { allocationSaveReceipt, settleAllocationSave, allocationReceiptAffectsPresentation } from '../src/ui/allocation-save.js';
 import { createParticipantTaskDraft } from '../src/ui/participant-task-draft.js';
 
 async function client() {
@@ -161,4 +161,15 @@ test('observing a recovered receipt never flushes or replays and follows its ack
     assert.equal((await settleAllocationSave(runtime, receipt, { observe: true })).disposition, 'saved');
     assert.equal(calls, 0);
   } finally { runtime.sync.dispose(); }
+});
+
+test('presentation guards relevant operations across allocation namespaces without blocking private metadata', () => {
+  const receipt = { patch: { 'allocations/team/placements/p1': { groupId: 'g1' } }, before: {} };
+  assert.equal(allocationReceiptAffectsPresentation(receipt, 'team'), true);
+  assert.equal(allocationReceiptAffectsPresentation(receipt, 'car'), false);
+  const rename = { patch: { 'participants/p1': { name: '変更後', memo: 'private' } }, before: { 'participants/p1': { name: '変更前', memo: '' } } };
+  assert.equal(allocationReceiptAffectsPresentation(rename, 'car'), true);
+  assert.equal(allocationReceiptAffectsPresentation(rename, 'team'), true);
+  rename.before['participants/p1'].name = '変更後';
+  assert.equal(allocationReceiptAffectsPresentation(rename, 'car'), false);
 });

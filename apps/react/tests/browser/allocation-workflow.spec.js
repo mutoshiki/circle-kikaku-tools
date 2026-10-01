@@ -163,3 +163,53 @@ test('group limits validate with associated focus and waiting actions remain ava
   await expect(team).toHaveCount(0);
   expect(Object.values((await roomAt(page, id)).allocations.team.groups)[0].capacity).toBe(5);
 });
+
+test('presentation is read-only, private-safe and clipboard failure leaves selectable current text', async ({ page }, info) => {
+  const id = `PHASE-E-PRESENT-${info.project.name}`;
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => { if (!window.__allowCopy) throw new Error('denied'); window.__allocationCopy = text; } } });
+  });
+  await seed(page, id);
+  await page.getByRole('link', { name: '結果を確認・コピー', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1, name: '車割の結果', exact: true })).toBeFocused();
+  const preview = page.getByRole('textbox', { name: '割当結果プレビュー', exact: true });
+  await expect(preview).toHaveAttribute('readonly', '');
+  const text = await preview.inputValue();
+  expect(text).toContain('A車（1人 / 上限4人）');
+  expect(text).toContain('運転手：A');
+  expect(text).toContain('未割り当て 3人');
+  expect(text).not.toMatch(/2年|固定|ランダム割当を使用|ランダム割り当てを使用|p_[a-z0-9]+/);
+  await expect(page.getByRole('button', { name: '車を追加', exact: true })).toHaveCount(0);
+  const copy = page.getByRole('button', { name: '車割をコピー', exact: true });
+  await copy.click();
+  await expect(page.getByText('車割をコピーできませんでした', { exact: true })).toBeVisible();
+  await expect(preview).toHaveValue(text);
+  await page.evaluate(() => { window.__allowCopy = true; });
+  await copy.click();
+  expect(await page.evaluate(() => window.__allocationCopy)).toBe(text);
+  await page.reload();
+  await expect(preview).toHaveValue(text);
+  await page.getByRole('link', { name: '車割に戻る', exact: true }).click();
+  await expect(page.getByRole('link', { name: '結果を確認・コピー', exact: true })).toBeFocused();
+});
+
+test('presentation preserves duplicate identities and missing roles rather than inventing completion', async ({ page }, info) => {
+  const id = `PHASE-E-DUPLICATE-${info.project.name}`;
+  const store = createRoomStore();
+  store.command('addParticipants', { people: [{ name: '同名A', driver: true }, { name: '同名B' }, { name: '未割当', memo: '秘密のメモ', grade: 3, flag: 'red' }] });
+  const room = store.getSnapshot();
+  const [owner, member] = Object.values(room.participants).filter(p => p.name.startsWith('同名'));
+  for (const person of [owner, member]) store.command('editParticipant', { id: person.id, changes: { name: '同名' } });
+  const groupId = room.allocations.car.placements[owner.id].groupId;
+  store.command('move', { id: member.id, type: 'car', groupId });
+  store.command('role', { id: owner.id, type: 'car', driver: false });
+  await page.addInitScript(({ id, room }) => localStorage.setItem(`sanpo-react:v1:${id}:room`, JSON.stringify(room)), { id, room: store.getSnapshot() });
+  await page.goto(`/?room=${id}&section=organization-car&task=presentation`);
+  await expect(page.getByRole('heading', { level: 1, name: '車割の結果', exact: true })).toBeVisible();
+  await expect(page.getByText('同名の参加者がいます', { exact: true })).toBeVisible();
+  const text = await page.getByRole('textbox', { name: '割当結果プレビュー', exact: true }).inputValue();
+  expect(text.match(/・同名/g)).toHaveLength(2);
+  expect(text).toContain('運転手が設定されていません');
+  expect(text).not.toMatch(/秘密のメモ|3年|red|精算完了|割当完了/);
+  await expect(page.getByRole('button', { name: '車割をコピー', exact: true })).toBeEnabled();
+});

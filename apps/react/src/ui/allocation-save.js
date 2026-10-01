@@ -7,6 +7,15 @@ function ordered(value) {
 const equal = (a, b) => JSON.stringify(ordered(a)) === JSON.stringify(ordered(b));
 const diagnostics = runtime => runtime.sync.getDiagnostics?.() || [];
 
+export function allocationReceiptAffectsPresentation(receipt, type) {
+  return Object.entries(receipt?.patch || {}).some(([path, value]) => {
+    if (path === 'resetGeneration' || path.startsWith(`allocations/${type}/`)) return true;
+    if (/^participants\/[^/]+\/name$/.test(path)) return true;
+    if (/^participants\/[^/]+$/.test(path)) return value?.name !== receipt.before?.[path]?.name;
+    return false;
+  });
+}
+
 export function allocationSaveReceipt(runtime, intent, { type, label }) {
   if (!intent) return null;
   const entry = runtime.storage.read('outbox');
