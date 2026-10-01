@@ -1,6 +1,6 @@
 # Phase E implementation design: car and team allocation
 
-Status: approach approved by user on 2026-10-01; detailed written specification awaiting user review. Product implementation has not started.
+Status: written design approved for continuation by user on 2026-10-01. Implementation planning in progress; product implementation has not started.
 
 Integration base: `carbon-redesign` at `3fcdf5ead75fd984098f019ddacf290e5fb0b6d7` (Phase D integrated). Working branch: `codex/phase-e-allocation-workflow`.
 
@@ -17,7 +17,7 @@ Integration base: `carbon-redesign` at `3fcdf5ead75fd984098f019ddacf290e5fb0b6d7
 
 This document is an implementation design, not another normative Product UI specification. [SANPOKAI_PRODUCT_UI.md](../../design/SANPOKAI_PRODUCT_UI.md) v1.2 remains the sole product authority. This design implements §1–6, §9, §16–23 and [Roadmap Phase E](../../design/CARBON_MIGRATION_ROADMAP.md#phase-e--allocation-workspace-vehicles-and-teams). [Product Principles](../../design/CARBON_PRODUCT_PRINCIPLES.md) provides official evidence; [Carbon Patterns](../../design/CARBON_PATTERNS.md) provides task-to-pattern selection. [Current Audit](../../design/CURRENT_UI_AUDIT.md) is descriptive, not a competing target specification.
 
-The user approved Desktop group/unassigned comparison, Mobile list/detail/assignment, no-drag manual moves, explainable random allocation, and morning result presentation/copy. The precise rules below, including the count clarification in §2, are subject to written-spec review. After approval, incorporate the clarifications in §12 into the normative owner in the implementation PR; do not silently create a competing contract here.
+The user approved Desktop group/unassigned comparison, Mobile list/detail/assignment, no-drag manual moves, explainable random allocation, and morning result presentation/copy, and instructed continuation after reviewing this design. Incorporate the clarifications in §12 into the normative owner in the implementation PR; do not silently create a competing contract here.
 
 ## 1. Intended outcome and phase scope
 
@@ -144,6 +144,7 @@ Disable with a nearby reason when no groups or no eligible people exist. A lack 
 - Generate display and text from the same current canonical projection and stable identities. No editable second assignment list; changes made elsewhere update the preview. Preserve every duplicate-name person rather than merging equal labels. Group order/name context can distinguish groups; if names still cannot be distinguished in copied text without the omitted metadata, show a same-name warning in the presentation and direct the organizer to check the on-screen participant attributes. Do not fabricate unique names or IDs in output.
 - Pending/failed relevant shared allocation saves are clearly shown; copying is disabled until their disposition is known. Unassigned or missing-role issues alone do not hide the result or force a wizard: output retains those issues and is never labeled complete. Preserve UI-local inspection while connection recovery is pending.
 - Clipboard success may use typed transient feedback. Failure stays near the preview with retry and selectable text as a fallback. No posting integration, share permission, export schema, PDF/print implementation or publication timestamp is introduced.
+- User decision (2026-10-01): do not display or copy a random-allocation provenance statement in Phase E. Neither automatic provenance nor an organizer-declared creation-method control is in scope. A future enhancement requires its own design and, for reliable cross-device provenance, separately approved persistence/sync scope; historical `lastAutoAssignLabel` is not evidence of the current result's creation method.
 
 ## 9. Save, failure and concurrency
 
