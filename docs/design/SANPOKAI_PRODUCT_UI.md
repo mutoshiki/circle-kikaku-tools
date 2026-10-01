@@ -1,6 +1,6 @@
 # 山歩会企画ツール Product UI specification
 
-Status: normative product UI specification v1.2 (reviewed 2026-10-01)
+Status: normative product UI specification v1.3 (reviewed 2026-10-01; Phase E allocation clarification)
 Research snapshot: 2026-09-29
 Design basis: [CARBON_PRODUCT_PRINCIPLES.md](./CARBON_PRODUCT_PRINCIPLES.md) / [CARBON_PATTERNS.md](./CARBON_PATTERNS.md)
 
@@ -303,6 +303,16 @@ Rules:
 - 空席はprimary data。closed disclosureのlabelに件数を残す。
 - Deleteはmemberが未割り当てへ戻ることをconfirmする。
 - dragがある場合もkeyboard/touchの選択→移動代替を必須にする。
+
+### Phase E interaction contract
+
+- 人数・上限は構造上の基準参加者（`ownerId`）を含む全員で表示する。保存上限は基準参加者以外を数えるため、表示・編集値は保存値+1とする。編集は全員を含む2〜100人（保存値1〜99）、既存のそれ以上の値は切り捨てず閲覧できる。これはUI換算であり、車の法定乗車定員の検証ではない。
+- 基準参加者と運転手／班長は別概念。役割はplacementの明示値だけから表示し、複数人・未設定・基準参加者交代を保持する。固定は車割・班割共通のランダム制約であり、手動移動や上限縮小による既存の正規化を禁止しない。
+- 手動操作は1人→1移動先→1回の既存move。別の車／班への移動を発見可能にし、一度未割り当てへ戻すことを要求しない。反復操作をModalにしない。上限・対象者・対象groupを実行時に再検証し、既存の正規化結果を表示する。
+- `lg`以上はgroupと未割り当ての同時比較、未満は一覧→詳細→割当。durable taskは`group`、`assign`、`unassigned`、`presentation`、対象groupはstable IDをURLに持つ。resizeではURL・選択を変更せず、削除／不正contextは初回load解決後にparentへreplaceで戻す。親へ戻る操作は論理trigger、履歴移動はheadingへfocusする。
+- ランダム確認は既存helperの対象人数・固定・役割・空き枠・割当済みも変更する範囲を説明する。対象／固定／役割／group／resetが確認時から変わったsubmitでは実行せず、更新した内容を再確認する。無関係なメモ・費用変更は再確認を要求しない。既存commandを1回だけ実行し、preview用再抽選や架空のUndoを作らない。
+- 当日朝用に読み取り専用結果とコピーを持つ。同じcanonical projectionから、実際の役割・全員人数・未割当・問題を示し、個人メモ・しるし・学年・内部ID・token・費用をコピーしない。同名の人を統合せず、識別できない場合は確認を促す。公開flag／送信サービス／必須完了操作／ランダム使用の来歴表示はPhase Eへ追加しない。
+- 共有保存の表示・再試行は当該operationの変更path・元値・reset世代だけをUI receiptに保持する。outbox全体が空になったことだけで成功判定しない。既に受理された操作を後の編集へ再適用せず、失敗再試行で新しいgroup IDや再抽選を生成しない。受理／調整を証明できない場合は未確認のまま現在結果へ誘導し、該当する未確認保存がある間は結果コピーを無効にする。後から完了しても移動済みpageのfocusを奪わない。
 
 ## 10. Route and movement
 

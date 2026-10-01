@@ -1,6 +1,6 @@
 # Phase E implementation design: car and team allocation
 
-Status: written design approved for continuation by user on 2026-10-01. Implementation planning in progress; product implementation has not started.
+Status: written design approved for continuation by user on 2026-10-01. Implementation in progress on the phase branch; Phase E acceptance and integration are not complete.
 
 Integration base: `carbon-redesign` at `3fcdf5ead75fd984098f019ddacf290e5fb0b6d7` (Phase D integrated). Working branch: `codex/phase-e-allocation-workflow`.
 
@@ -15,7 +15,7 @@ Integration base: `carbon-redesign` at `3fcdf5ead75fd984098f019ddacf290e5fb0b6d7
 
 ## 0. Authority and review boundary
 
-This document is an implementation design, not another normative Product UI specification. [SANPOKAI_PRODUCT_UI.md](../../design/SANPOKAI_PRODUCT_UI.md) v1.2 remains the sole product authority. This design implements §1–6, §9, §16–23 and [Roadmap Phase E](../../design/CARBON_MIGRATION_ROADMAP.md#phase-e--allocation-workspace-vehicles-and-teams). [Product Principles](../../design/CARBON_PRODUCT_PRINCIPLES.md) provides official evidence; [Carbon Patterns](../../design/CARBON_PATTERNS.md) provides task-to-pattern selection. [Current Audit](../../design/CURRENT_UI_AUDIT.md) is descriptive, not a competing target specification.
+This document is an implementation design, not another normative Product UI specification. [SANPOKAI_PRODUCT_UI.md](../../design/SANPOKAI_PRODUCT_UI.md) remains the sole product authority; its v1.3 incorporates Phase E clarifications without changing protected data meaning. This design implements §1–6, §9, §16–23 and [Roadmap Phase E](../../design/CARBON_MIGRATION_ROADMAP.md#phase-e--allocation-workspace-vehicles-and-teams). [Product Principles](../../design/CARBON_PRODUCT_PRINCIPLES.md) provides official evidence; [Carbon Patterns](../../design/CARBON_PATTERNS.md) provides task-to-pattern selection. [Current Audit](../../design/CURRENT_UI_AUDIT.md) is descriptive, not a competing target specification.
 
 The user approved Desktop group/unassigned comparison, Mobile list/detail/assignment, no-drag manual moves, explainable random allocation, and morning result presentation/copy, and instructed continuation after reviewing this design. Incorporate the clarifications in §12 into the normative owner in the implementation PR; do not silently create a competing contract here.
 
