@@ -9,11 +9,6 @@ const headers = { Authorization: 'Bearer owner' };
 const urlFor = id => `${base}/rooms/${id}.json?ns=${ns}`;
 const rulesUrl = `${base}/.settings/rules.json?ns=${ns}`;
 const originalRules = JSON.parse(readFileSync(new URL('../../../../firebase/database.rules.json', import.meta.url)));
-// Windows Playwright 1.61's multi-context routed-WebSocket trace finalization
-// fails with truncated ZIP/file-stream errors. No behavior assertion is skipped:
-// retain observable-result attachments here and four-project visual evidence.
-// trace is worker-scoped, so this override applies only to this new test file.
-test.use({ trace: process.platform === 'win32' ? 'off' : 'retain-on-failure' });
 const complete = page => page.getByRole('definition').filter({ hasText: /^同期完了$/ });
 const local = (page, id) => page.evaluate(id => JSON.parse(localStorage.getItem(`sanpo-react:v1:${id}:room`)), id);
 const receiptAt = (page, id, type = 'car') => page.evaluate(({ id, type }) => JSON.parse(localStorage.getItem(`sanpo-ui:participant-task:v1:${id}:allocation:${type}`) || 'null')?.data?.receipt || null, { id, type });
@@ -205,8 +200,21 @@ test('two clients compete for the last slot and display canonical outcome withou
     await info.attach('last-slot-client-a', { body: await pageA.locator('main').innerText(), contentType: 'text/plain' });
     await info.attach('last-slot-client-b', { body: await pageB.locator('main').innerText(), contentType: 'text/plain' });
   } finally {
-    await Promise.all([a.close(), b.close()]);
-    expect((await request.delete(urlFor(id), { headers })).ok()).toBe(true);
+    // End live routed sockets before context closure exports trace archives:
+    // Playwright 1.61 appends socket resources while they remain open, causing
+    // ZIP size mismatches on Chromium/Windows and both Linux CI projects.
+    // Always close both clients and clean the synthetic room, even if one
+    // diagnostic export fails. Do not swallow that failure.
+    try {
+      for (const page of a.pages()) await page.close();
+      for (const page of b.pages()) await page.close();
+    } finally {
+      try { await a.close(); }
+      finally {
+        try { await b.close(); }
+        finally { expect((await request.delete(urlFor(id), { headers })).ok()).toBe(true); }
+      }
+    }
   }
 });
 
