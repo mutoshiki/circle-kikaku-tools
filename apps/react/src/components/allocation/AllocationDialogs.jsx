@@ -24,7 +24,7 @@ export function AllocationSaveStatus({ operation, onAccepted }) {
   </>;
 }
 
-export function GroupEditor({ type, view, group, operation, onSave, onClose, launcherButtonRef }) {
+export function GroupEditor({ type, view, group, linkedVehicle, operation, onSave, onClose, launcherButtonRef }) {
   const [ownerId, setOwnerId] = useState(group ? '' : view.waiting[0]?.participantId || '');
   const [limit, setLimit] = useState(group?.totalLimit || (type === 'team' ? 6 : 4));
   const [error, setError] = useState('');
@@ -46,6 +46,7 @@ export function GroupEditor({ type, view, group, operation, onSave, onClose, lau
       <AllocationSaveStatus operation={operation} onAccepted={onClose} />
       {error && <InlineNotification kind="error" title="設定を確認してください" subtitle={error} hideCloseButton lowContrast />}
       {missing && <p role="status">参加者・割り当て先が変更されました。キャンセルして現在の一覧を確認してください。</p>}
+      {linkedVehicle && <p>応募フォームの車出し情報が連携されている場合、人数の上限や車が再設定されることがあります。</p>}
       {!group && <Select id="group-owner" labelText={type === 'team' ? '班長' : '運転手'} value={ownerId} disabled={blocked} onChange={event => setOwnerId(event.target.value)}>{view.waiting.map(person => <SelectItem key={person.participantId} value={person.participantId} text={person.name} />)}</Select>}
       <NumberInput id="group-capacity" label="割り当て人数の上限（全員を含む）" min={2} max={100} value={limit} disabled={blocked} invalid={invalid} onChange={(_, { value }) => { setLimit(value); setInvalid(false); setError(''); }} invalidText="2〜100人で入力してください。" />
       {group && Number(limit) < (view.groups.find(g => g.id === group.id)?.peopleCount || 0) && <p>上限を超える参加者は未割り当てへ戻ります。固定した参加者も対象になります。</p>}

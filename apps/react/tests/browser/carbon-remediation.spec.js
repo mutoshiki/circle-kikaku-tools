@@ -18,7 +18,11 @@ test('shared Carbon layout, contextual feedback, icon labels and mobile overflow
   await expect(page.getByRole('main')).toHaveCount(1);
   await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
   await navigateToProjectSection(page, '車割');
-  await expect(page.getByRole('button', { name: /の固定/ }).first()).toBeVisible();
+  await page.getByRole('link', { name: '仮参加者A車の詳細', exact: true }).click();
+  await page.getByRole('button', { name: '仮参加者Bの操作', exact: true }).click();
+  await expect(page.getByRole('menuitem', { name: '固定を解除', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.getByRole('link', { name: '車割に戻る', exact: true }).click();
   await expect(page.getByRole('button', { name: /の操作$/ }).first()).toBeVisible();
   const add = page.getByRole('button', { name: '車を追加', exact: true });
   if (await add.count()) {

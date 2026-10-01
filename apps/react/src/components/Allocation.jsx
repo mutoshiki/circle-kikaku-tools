@@ -20,11 +20,12 @@ export default function Allocation({ runtime, room, type, destination, resolved 
   const [groupEditor, setGroupEditor] = useState(null);
   const [confirmation, setConfirmation] = useState(null);
   const [error, setError] = useState('');
+  const [selectionNotice, setSelectionNotice] = useState('');
   const live = useRef(true), route = useRef(destination);
   route.current = destination;
   useEffect(() => { live.current = true; return () => { live.current = false; }; }, []);
   useEffect(() => {
-    setMovingId(''); setSelectedId(''); setTargetId(destination.groupId || '');
+    setMovingId(''); setSelectedId(''); setTargetId(destination.groupId || ''); setSelectionNotice('');
     setGroupEditor(null); setConfirmation(null);
     setEditor(current => { if (current) runtime.store.cancelEdit(current.session); return null; });
   }, [destination.task, destination.groupId, runtime]);
@@ -34,9 +35,22 @@ export default function Allocation({ runtime, room, type, destination, resolved 
       runtime.navigation.replaceAllocationTask(type, '');
     }
   }, [destination.invalid, destination.groupId, resolved, room, runtime, type]);
+  useEffect(() => {
+    if (operation.busy || operation.receipt) return;
+    const selectionGone = selectedId && !view.waiting.some(person => person.participantId === selectedId);
+    const moverGone = movingId && !room.participants[movingId];
+    if (!selectionGone && !moverGone) return;
+    if (selectionGone) setSelectedId('');
+    if (moverGone) setMovingId('');
+    setSelectionNotice('選択していた参加者が変更されました。現在の一覧から選び直してください。');
+    // Only repair focus lost with this local form/row; do not interrupt another
+    // field, dialog or navigation destination after a remote update.
+    if (document.activeElement === document.body || document.activeElement?.closest('.allocation-move-form, .allocation-assignment-form')) focusHeading();
+  }, [room, selectedId, movingId, operation.busy, operation.receipt]);
   const personById = id => [...view.groups.flatMap(g => g.people), ...view.waiting].find(p => p.participantId === id);
   const label = type === 'team' ? '班' : '車';
   const roleLabel = type === 'team' ? '班長' : '運転手';
+  const linkedVehicle = type === 'car' && runtime.store.domain.applicants.validApplicationSync(room.meta?.applicationSync);
   const disabled = operation.busy || !!operation.receipt;
   async function execute(command, args, label, onDone) {
     const initialRoute = JSON.stringify(route.current);
@@ -57,6 +71,7 @@ export default function Allocation({ runtime, room, type, destination, resolved 
   function closeGroup() { const launcher = groupEditor?.launcher; setGroupEditor(null); returnFocus(launcher); }
   function closeConfirmation() { const launcher = confirmation?.launcher; setConfirmation(null); returnFocus(launcher); }
   function personAction(action, id, launcher) {
+    setSelectionNotice('');
     const person = personById(id);
     if (!person) { setError('参加者が変更されました。現在の一覧を確認してください。'); return; }
     if (action === 'move') { setMovingId(id); setSelectedId(''); setTargetId(''); requestAnimationFrame(() => document.getElementById('allocation-move-target')?.focus()); }
@@ -70,7 +85,7 @@ export default function Allocation({ runtime, room, type, destination, resolved 
     if (!group) return;
     const launcher = { current: document.getElementById(`allocation-group-menu-${groupId}`) };
     if (action === 'capacity') setGroupEditor({ group, launcher });
-    if (action === 'delete') setConfirmation({ title: `${group.name}を削除しますか？`, body: '割り当てた参加者を未割り当てに戻します。参加者自体は削除されません。', command: 'deleteGroup', args: { type, groupId }, danger: true, button: '削除', launcher });
+    if (action === 'delete') setConfirmation({ title: `${group.name}を削除しますか？`, body: `割り当てた参加者を未割り当てに戻します。参加者自体は削除されません。${linkedVehicle ? '応募フォームの車出し情報が連携されている場合、車が再作成されることがあります。' : ''}`, command: 'deleteGroup', args: { type, groupId }, danger: true, button: '削除', launcher });
   }
   function assign() {
     if (!selectedId || !targetId) return;
@@ -91,6 +106,7 @@ export default function Allocation({ runtime, room, type, destination, resolved 
     presentationReceipt = unknown && allocationReceiptAffectsPresentation(other, type) ? other : allocationReceiptAffectsPresentation(pending, type) ? pending : null;
   }
   return <section className="allocation-page" aria-label={type === 'team' ? '班割' : '車割'}>
+    {selectionNotice && <p role="status">{selectionNotice}</p>}
     {error && <InlineNotification kind="error" title="割り当てを確認してください" subtitle={error} hideCloseButton lowContrast />}
     {!editor && !groupEditor && !confirmation && <AllocationSaveStatus operation={operation} />}
     {destination.task === 'presentation' ? <AllocationPresentation view={view} projectName={room.roomName} receipt={presentationReceipt} busy={operation.busy} onNotice={onNotice} /> : !view.participantCount ? <div className="allocation-empty"><p>参加者がいません</p><Link href={runtime.navigation.hrefFor('participants')} onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); onParticipants(); } }}>参加者へ</Link></div> : <>
@@ -108,7 +124,7 @@ export default function Allocation({ runtime, room, type, destination, resolved 
         onManualMove={() => execute('move', { id: movingId, type, groupId: targetId }, `${label}へ移動`, () => { setMovingId(''); focusHeading(); })} />
     </>}
     {editor && <ParticipantEditor runtime={runtime} session={editor.session} launcherButtonRef={editor.launcher} onClose={() => setEditor(null)} saveIntent={session => operation.run(() => runtime.store.commitEdit(session, { close: false }), {}, '参加者を保存')} saveBlocked={disabled} saveFeedback={<AllocationSaveStatus operation={operation} onAccepted={() => { runtime.store.cancelEdit(editor.session); setEditor(null); returnFocus(editor.launcher); }} />} />}
-    {groupEditor && <GroupEditor type={type} view={view} group={groupEditor.group} operation={operation} onSave={execute} launcherButtonRef={groupEditor.launcher} onClose={closeGroup} />}
+    {groupEditor && <GroupEditor type={type} view={view} group={groupEditor.group} linkedVehicle={linkedVehicle} operation={operation} onSave={execute} launcherButtonRef={groupEditor.launcher} onClose={closeGroup} />}
     {confirmation && <AllocationConfirmation state={confirmation} review={review} type={type} operation={operation} launcherButtonRef={confirmation.launcher} onClose={closeConfirmation} onSubmit={() => {
       const latestReview = randomAllocationReview(runtime.store.getSnapshot(), type, runtime.store.domain.assignment);
       if (confirmation.scope && confirmation.scope !== latestReview.scope) { setConfirmation({ ...confirmation, scope: latestReview.scope, changed: true }); return; }

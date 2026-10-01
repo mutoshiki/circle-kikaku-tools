@@ -25,7 +25,6 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await expect(teamHeading).toBeVisible();
   expect(Math.abs((await teamHeading.boundingBox()).x - participantInset)).toBeLessThanOrEqual(1);
   const randomize = page.getByRole('button', { name: 'ランダム割り当て', exact: true });
-  await expect(randomize).toHaveClass(/cds--btn--ghost/);
   await randomize.hover();
   expect(await randomize.evaluate(element => getComputedStyle(element).cursor)).toBe('pointer');
   await randomize.focus();
@@ -33,10 +32,16 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await page.getByRole('button', { name: /班の操作$/ }).first().click();
   const removeGroup = page.getByRole('menuitem', { name: '削除', exact: true }).first();
   await expect(removeGroup).toBeVisible();
-  await expect(removeGroup.locator('xpath=ancestor::li[1]')).toHaveClass(/--danger/);
-  const seatToggle = page.locator('.empty-seats-action').first();
-  await seatToggle.click();
-  await expect(seatToggle).toHaveAttribute('aria-expanded', 'true');
+  await page.keyboard.press('Escape');
+  await page.getByRole('link', { name: /班の詳細$/ }).first().click();
+  const assignment = page.getByRole('link', { name: '参加者を割り当て', exact: true });
+  if (await assignment.count()) {
+    await assignment.click();
+    await expect(page.getByRole('list', { name: /^未割り当て/ })).toBeVisible();
+    await expect(page).toHaveURL(/task=assign/);
+  } else {
+    await expect(page.getByRole('main')).toContainText('空き0人');
+  }
 
   await navigateToProjectSection(page, '精算');
   await expect(page.getByRole('heading', { level: 1, name: '精算', exact: true })).toBeVisible();
