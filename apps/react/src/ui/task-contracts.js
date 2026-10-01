@@ -40,8 +40,6 @@ const MODAL_TASKS = Object.freeze({
   'participant-edit': ['approved-brief', null, '少数項目を編集して1回保存する短いtask'],
   'participant-selection-remove': ['approved-brief', null, '下流影響を確認する単一判断'],
   'participant-delete': ['approved-brief', null, '対象と下流影響を確認するdanger task'],
-  'participant-registration': ['legacy-migration', 'D', 'import、preview、correctionを含む長いtask'],
-  'participant-guidance': ['legacy-migration', 'D', 'context参照と長文previewを含むtask'],
   'participant-export': ['approved-brief', null, 'export可否を確認し1回生成する短いtask'],
   'history-management': ['legacy-migration', 'H', '反復操作とdurable historyを含むtask'],
   'settlement-settings': ['legacy-migration', 'G', '複数stepの高影響form'],

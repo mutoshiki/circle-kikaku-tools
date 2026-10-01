@@ -68,8 +68,11 @@ test('sample menu keeps the legacy form-linked sample action', async ({ page }) 
   await navigateToProjectSection(page, '概要');
   await expect(page.getByRole('main').getByText('フォーム連携テスト企画', { exact: true }).first()).toBeVisible();
   await navigateToProjectSection(page, '参加者');
+  await expect(page.getByRole('list', { name: '参加者一覧' })).toBeVisible();
+  await expect(page.getByText('確定済み', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '参加者を選び直す' }).click();
   await expect(page.getByText(/応募者 5人/)).toBeVisible();
-  await expect(page.getByText('参加者確定後', { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: '発表文を作成', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(page.getByRole('link', { name: '発表文を作成', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '引き継ぎデータを作成', exact: true })).toBeVisible();
 });

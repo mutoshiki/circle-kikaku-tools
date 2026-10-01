@@ -1,11 +1,12 @@
 import { Column, Grid } from '@carbon/react';
 
-export default function ProjectPage({ context, title, description, metadata = [], actions, status, children }) {
+export default function ProjectPage({ context, title, description, metadata = [], actions, status, back, children }) {
   return <div className="project-page">
     <Grid fullWidth className="project-page__grid">
       <Column sm={4} md={8} lg={16} xlg={16} max={16}>
         <header className="project-page__header">
           <div className="project-page__heading">
+            {back && <div className="project-page__back">{back}</div>}
             {context && <p className="project-page__context">{context}</p>}
             <h1 id="project-page-title" tabIndex={-1}>{title}</h1>
             {description && <p>{description}</p>}

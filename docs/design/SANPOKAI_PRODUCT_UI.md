@@ -1,6 +1,6 @@
 # 山歩会企画ツール Product UI specification
 
-Status: normative product UI specification v1.1 (reviewed 2026-09-30)
+Status: normative product UI specification v1.2 (reviewed 2026-10-01)
 Research snapshot: 2026-09-29
 Design basis: [CARBON_PRODUCT_PRINCIPLES.md](./CARBON_PRODUCT_PRINCIPLES.md) / [CARBON_PATTERNS.md](./CARBON_PATTERNS.md)
 
@@ -170,7 +170,7 @@ Layout rules:
 
 現在のpage goalを前進・完了するaction。1 pageに**最大1つ**。閲覧、状態追跡中心のpageではPrimaryを置かなくてよい。read modeの概要の「企画情報を編集」はTertiary、edit modeの「保存」はPrimaryとする。
 
-- 参加者: 「参加者を確定」または未登録時の「応募を取り込む」
+- 参加者: 応募者のselection modeは「参加者を確定」。応募連携も参加者もない空状態は「参加者を追加」。確定済みのread modeにはPrimaryを置かず、追加はTertiaryのsub-task開始とする。
 - 車割: selection contextで「車へ割り当て」
 - 精算: 設定不足時「精算設定を完了」、運用時「集金を記録」ではなくrow-level state changeが中心
 - Form: 「保存」「登録」「適用」
@@ -240,16 +240,16 @@ Label definitions:
 
 ### 8.1 Applicants and import
 
-User goal: 応募dataを誤りなく取り込み、確認可能な参加者候補にする。
+User goal: 自動連携の応募者から参加者を選び、必要な人を手動・表データから誤りなく追加する。
 
 Target structure:
 
-1. Dedicated「応募を取り込む」page / flow。
+1. 手動・表データの追加はdedicated「参加者を登録」page。自動連携の応募者は参加者pageの選択・確定で扱う。
 2. Source選択: spreadsheet paste / manual entry。
 3. Paste areaと短いformat guidance。
-4. Parse result preview: recognized、warning、errorをrow単位で表示。
-5. Correction step。
-6. 「参加者候補として登録」でcommit。
+4. 表データは同じpageで読取結果と編集可能なpreviewを示す。warningとblocking errorを区別する。parserがrow/field情報を提供する範囲で関連付け、存在しないrow identityを作らない。
+5. 確認・修正の機会をcommit前に必須とするが、別step・確認buttonは必須ではない。短い手動追加は入力そのものを確認・修正できる構造と人数summaryで足りる。表データのsource変更後に古いpreview修正を適用しない。
+6. 「参加者を登録」で既存addParticipantsへcommitする。参加者候補repositoryや新しい承認stageを作らない。自動連携の応募者だけは既存response identityを持つ選択を「参加者を確定」で適用する。
 
 Rules:
 
@@ -257,6 +257,9 @@ Rules:
 - helpは必要箇所のdisclosure。必須手順をAccordion内へ隠さない。
 - parse errorはglobal errorだけでなくrow/fieldへ関連付ける。
 - mobile keyboardに合わせtextarea/input typeを選ぶ。
+- Sourceごとの入力を保持し、UI-localで企画ごとにdraftを復元する。戻る・navigation・refreshでは保持、明示的キャンセル・成功した登録では破棄。端末保存不能時は入力を維持し、復元保証がないことを示す。
+- 共有登録は既存syncの完了までbusyとし、失敗ではdraftと再試行を維持する。重複submitを防ぐ。UIの都合でschema、参加者identity、placement/driver副作用を変えない。
+- 既存commandが端末へ反映した後は入力を固定し、共有保存の再試行で同じIDと変更範囲を維持する。復元用のUI-local receiptはそのcommandの変更pathと元値だけに限定し、room snapshot・他featureのdraft・認証tokenを複製しない。端末反映後のキャンセルは参加者を削除しないことを明示する。remote reset後に古い登録・確定を成功表示しない。
 
 ### 8.2 Participant list and confirmation
 
@@ -274,6 +277,7 @@ Rules:
 
 - 検索0件、filter 0件、data 0件を異なるempty stateにする。
 - Participant editは現在の少数fieldならModal可。fieldが増えたらdetail page。
+- 確定済みのread listはcanonicalな参加者属性と割当済みroleを表示し、応募者の選択listは応募回答・車出し可否を表示する。応募由来のname / grade / vehicle属性は既存の応募同期ownerに従い、手動修正を優先する新たな競合規則をUIだけで導入しない。
 - 削除と「参加者から外す」を区別する。後者は応募dataを残す可能性と後続assignmentへの影響を明記する。
 
 ## 9. Car and team allocation

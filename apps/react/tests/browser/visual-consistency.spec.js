@@ -15,10 +15,10 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await expect(participantHeading).toBeVisible();
   const participantInset = (await participantHeading.boundingBox()).x;
   await expect(page.getByText('参加者を追加してください。', { exact: true })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: '追加', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '追加', exact: true }).click();
-  await expect(page.getByRole('dialog', { name: '参加者登録' })).toBeVisible();
-  await page.getByRole('dialog', { name: '参加者登録' }).getByRole('button', { name: 'キャンセル' }).click();
+  await expect(page.getByRole('button', { name: '参加者を追加', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  await expect(page.getByRole('form', { name: '参加者を登録' })).toBeVisible();
+  await page.getByRole('form', { name: '参加者を登録' }).getByRole('button', { name: 'キャンセル' }).click();
 
   await navigateToProjectSection(page, '班割');
   const teamHeading = page.getByRole('heading', { name: '班割', exact: true });

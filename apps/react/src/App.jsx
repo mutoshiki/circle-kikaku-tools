@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
-  Button, InlineNotification, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, ToastNotification,
+  Button, InlineNotification, Link, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, ToastNotification,
 } from '@carbon/react';
 import { Edit, Time } from '@carbon/icons-react';
 import ProjectShell from './components/ProjectShell.jsx';
@@ -19,13 +19,15 @@ export default function App({ runtime }) {
   const room = useSyncExternalStore(runtime.store.subscribe, runtime.store.getSnapshot);
   const syncStatus = useSyncExternalStore(runtime.sync.subscribe, runtime.sync.getSnapshot);
   const section = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getSnapshot, () => runtime.initialSection);
+  const participantTask = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getTaskSnapshot, () => '');
   const [theme, setTheme] = useState('g10');
   const [feedback, setFeedback] = useState(null);
   const [globalModal, setGlobalModal] = useState('');
   const [overviewEditing, setOverviewEditing] = useState(false);
   const [sampleCars, setSampleCars] = useState('3');
   const [sampleType, setSampleType] = useState('normal');
-  const previousSection = useRef(section);
+  const previousSection = useRef(`${section}:${participantTask}`);
+  const participantReturnFocus = useRef('');
   const overviewEditButtonRef = useRef(null);
   const overviewReturnFocus = useRef(false);
   useEffect(() => {
@@ -34,11 +36,19 @@ export default function App({ runtime }) {
     overviewEditButtonRef.current?.focus();
   }, [overviewEditing]);
   useEffect(() => {
-    if (previousSection.current === section) return;
-    previousSection.current = section;
+    const destination = `${section}:${participantTask}`;
+    if (previousSection.current === destination) return;
+    previousSection.current = destination;
     setFeedback(null);
-    requestAnimationFrame(() => document.getElementById('project-page-title')?.focus());
-  }, [section]);
+    const returnId = participantReturnFocus.current;
+    participantReturnFocus.current = '';
+    const frame = requestAnimationFrame(() => (document.getElementById(returnId) || document.getElementById('project-page-title'))?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [section, participantTask]);
+  function finishParticipantTask() {
+    participantReturnFocus.current = participantTask === 'import' ? 'participant-add' : 'participant-announcement';
+    runtime.navigation.navigateTask('');
+  }
   async function share() {
     try { await navigator.clipboard.writeText(runtime.createShareUrl()); setFeedback(taskNotice.success('リンクをコピーしました', { placement: 'toast' })); }
     catch { setFeedback(taskNotice.error('リンクをコピーできませんでした', { placement: 'toast' })); }
@@ -75,9 +85,11 @@ export default function App({ runtime }) {
       content: <ProjectOverview runtime={runtime} room={room} editing={overviewEditing} onCancel={finishOverviewEdit} onSaved={finishOverviewEdit} />,
     };
     if (section === 'participants') return {
-      title: '参加者', description: '応募者を確認し、この企画に参加する人を確定します。',
+      title: participantTask === 'import' ? '参加者を登録' : participantTask === 'announcement' ? '参加者発表文を作成' : '参加者',
+      description: participantTask === 'import' ? '手動入力または表データから参加者を追加します。' : participantTask === 'announcement' ? '参加者を確認し、投稿用の発表文を作成します。' : '応募者を確認し、この企画に参加する人を確定します。',
       metadata: [{ label: '参加者', value: `${participantCount}人` }, ...sync],
-      content: <Participants runtime={runtime} room={room} onNotice={setFeedback} embedded />,
+      back: participantTask && <Link href={runtime.navigation.taskHrefFor('')} onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); finishParticipantTask(); } }}>参加者に戻る</Link>,
+      content: <Participants runtime={runtime} room={room} task={participantTask} onReturn={finishParticipantTask} onNotice={setFeedback} embedded />,
     };
     if (section === 'organization-team') {
       const projection = runtime.store.domain.canonical.projectAllocation(room, 'team');
@@ -113,6 +125,7 @@ export default function App({ runtime }) {
         description={page.description}
         metadata={page.metadata}
         actions={page.actions}
+        back={page.back}
         status={feedback && !isToastNotice(feedback) ? <InlineNotification kind={feedback.kind} title={feedback.title} subtitle={feedback.subtitle} lowContrast onClose={() => { setFeedback(null); return true; }} /> : null}
       >{page.content}</ProjectPage>
     </ProjectShell>

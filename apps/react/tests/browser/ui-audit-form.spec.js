@@ -24,8 +24,9 @@ test('capture form-linked and registration UI states', async ({ page }, testInfo
     const room = `UI-AUDIT-FORM-${viewportName}`;
     await page.goto(`/?room=${room}`);
     await navigateToProjectSection(page, '参加者');
-    await page.getByRole('button', { name: '追加', exact: true }).click();
-    await shot(page, viewportName, 37, 'participant-registration-modal');
+    await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+    await shot(page, viewportName, 37, 'participant-registration-page');
+    await page.getByRole('radio', { name: '表データを貼り付け', exact: true }).check({ force: true });
     await page.getByRole('button', { name: '貼り付け方を見る', exact: true }).click();
     await page.waitForTimeout(500);
     await shot(page, viewportName, 38, 'participant-registration-help-expanded');
@@ -40,12 +41,11 @@ test('capture form-linked and registration UI states', async ({ page }, testInfo
     const confirm = page.getByRole('button', { name: '参加者を確定', exact: true });
     if (await confirm.count()) await confirm.click();
     await shot(page, viewportName, 40, 'form-linked-participants-confirmed');
-    const guidance = page.getByRole('button', { name: '発表文を作成', exact: true });
+    const guidance = page.getByRole('link', { name: '発表文を作成', exact: true });
     if (await guidance.count()) {
       await guidance.click();
-      await shot(page, viewportName, 41, 'guidance-modal');
-      const guidanceDialog = page.getByRole('dialog', { name: '参加者発表文を作成' });
-      await guidanceDialog.getByRole('button', { name: '閉じる', exact: true }).last().click();
+      await shot(page, viewportName, 41, 'guidance-page');
+      await page.getByRole('link', { name: '参加者に戻る', exact: true }).click();
     }
     const handoff = page.getByRole('button', { name: '引き継ぎデータを作成', exact: true });
     if (await handoff.count()) await shot(page, viewportName, 42, 'handoff-disabled-state');

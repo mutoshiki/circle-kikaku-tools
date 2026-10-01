@@ -35,18 +35,15 @@ test('shared Carbon layout, contextual feedback, icon labels and mobile overflow
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test('long transactional modal keeps its footer in the viewport', async ({ page }) => {
+test('participant registration scrolls as a page with reachable actions and no horizontal overflow', async ({ page }) => {
   await page.goto('/?room=CARBON-EMPTY-REGISTRATION');
   await navigateToProjectSection(page, '参加者');
-  await page.getByRole('button', { name: '追加', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: '参加者登録' });
-  await expect(dialog).toBeVisible();
-  const geometry = await dialog.evaluate(node => {
-    const body = node.querySelector('.cds--modal-content');
-    const footer = node.querySelector('.cds--modal-footer');
-    const container = node.closest('.cds--modal-container') || document.querySelector('.cds--modal-container');
-    return { bodyOverflowY: getComputedStyle(body).overflowY, footerBottom: footer.getBoundingClientRect().bottom, viewport: innerHeight, container: { rect: container.getBoundingClientRect().toJSON(), maxBlockSize: getComputedStyle(container).maxBlockSize, boxSizing: getComputedStyle(container).boxSizing, scrollHeight: container.scrollHeight, clientHeight: container.clientHeight } };
-  });
-  expect(['auto', 'scroll']).toContain(geometry.bodyOverflowY);
-  expect(geometry.footerBottom, JSON.stringify(geometry)).toBeLessThanOrEqual(geometry.viewport);
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1, name: '参加者を登録' })).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const submit = page.getByRole('form', { name: '参加者を登録' }).getByRole('button', { name: '参加者を登録', exact: true });
+  await submit.scrollIntoViewIfNeeded();
+  const geometry = await submit.evaluate(node => ({ bottom: node.getBoundingClientRect().bottom, viewport: innerHeight, width: innerWidth, scrollWidth: document.documentElement.scrollWidth }));
+  expect(geometry.bottom).toBeLessThanOrEqual(geometry.viewport);
+  expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.width);
 });

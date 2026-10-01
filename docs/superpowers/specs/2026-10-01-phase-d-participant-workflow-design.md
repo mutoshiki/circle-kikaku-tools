@@ -1,8 +1,8 @@
 # Phase D implementation design: participants and handoff
 
-Status: proposed for review, 2026-10-01. No Product UI implementation yet.
+Status: approved by user, 2026-10-01; registration overhead adjustment approved in the same instruction.
 
-This is an implementation design, not another normative Product UI specification. `docs/design/SANPOKAI_PRODUCT_UI.md` v1.1 remains the sole authority. This proposal implements its sections 4–8, 16–20 and the Phase D gates in `CARBON_MIGRATION_ROADMAP.md`. Conflicts must be resolved in the normative owner before implementation, not silently overridden here.
+This is an implementation design, not another normative Product UI specification. `docs/design/SANPOKAI_PRODUCT_UI.md` v1.2 remains the sole authority. This proposal implements its sections 4–8, 16–20 and the Phase D gates in `CARBON_MIGRATION_ROADMAP.md`. Conflicts must be resolved in the normative owner before implementation, not silently overridden here.
 
 ## 1. Intent and phase boundary
 
@@ -30,7 +30,7 @@ There are two different existing data paths:
 
 The UI must not turn the second path into a new persistent applicant repository. The input/review remains a local draft until registration. The user must see that registration adds participants, not merely candidates waiting for an unimplemented approval stage.
 
-Normative §8.1 currently says `参加者候補として登録` for all input sources. Before implementation, clarify that section to distinguish automatic applicant confirmation from manual/paste registration and use the truthful final label `参加者を登録` for the existing `addParticipants` path. Keep the review/correction-before-commit invariant. This is a wording/ownership correction grounded in protected behavior and the user's manual-add use case, not permission to weaken review or alter schema.
+At proposal time, normative v1.1 §8.1 said `参加者候補として登録` for all input sources. The implementation updates normative v1.2 to distinguish automatic applicant confirmation from manual/paste registration and use the truthful final label `参加者を登録` for the existing `addParticipants` path. The review/correction-before-commit invariant remains. This is a wording/ownership correction grounded in protected behavior and the user's manual-add use case, not permission to weaken review or alter schema.
 
 The existing parser merges normalized duplicate names and emits advisory warning strings. Preserve that policy; show its warnings before registration. Do not invent row IDs, parse-warning severity from Japanese text, reverse the parser's duplicate resolution, or claim that warnings were repaired merely because they were hidden.
 
@@ -38,7 +38,7 @@ The existing parser merges normalized duplicate names and emits advisory warning
 
 ### Alternatives
 
-- **Recommended: one durable nested task with input and editable review states.** A single task URL owns source choice, input, review and correction. Back to input retains the draft. This is enough to protect registration and keeps navigation/state ownership small.
+- **Chosen: one durable nested page with inline review.** A single task URL owns source choice, input, review and correction. Simple manual additions need only editable source fields, recognized count and one register action. Spreadsheet parsing needs a visible editable preview, not a second confirmation page. No mandatory next/confirm button or stage URL is added.
 - **Separate input and review routes:** enables linking to individual stages, but introduces more history entries and recovery coordination without a demonstrated need. Do not add stage URLs in this phase.
 - Retaining the long Modal, or inventing an unverified desktop side panel with a different mobile editor, fails the already-approved task-surface criterion and is not an implementation alternative.
 
@@ -59,8 +59,8 @@ Nested destination: `section=participants&task=import`. SideNav still identifies
 
 1. Choose `表データを貼り付け` or `手動入力` using a labeled source control. Only the chosen source fields are shown. Preserve each source draft when switching.
 2. Paste keeps the existing parser, heading requirements, column-order handling, inferred grades and warnings. Manual input preserves names entered only in driver/grade areas as well as the main names field; none of the six existing input capabilities is removed.
-3. `入力内容を確認` builds a local preview, with no room command. Parsing errors are associated with the input, with focus to the relevant field. Parser warnings and source column information remain visible and distinguishable from blocking errors.
-4. Review lists each recognized person with editable name, grade and driver eligibility. Use labeled row controls and identity/context text, not a horizontally scrolling spreadsheet at 390px. Correcting the source is always possible via `入力に戻る`.
+3. Input derives a local recognized summary immediately, with no room command. Parsing errors are associated with the input, with focus on invalid submit. Parser warnings and source column information remain visible and distinguishable from blocking errors.
+4. Spreadsheet review lists each recognized person with editable name, grade and driver eligibility on the same page. Source edits invalidate its corrections before the next commit; switching sources preserves each draft. Manual fields are themselves the editable review, avoiding redundant re-entry for a small addition. All six manual capabilities remain visible in one labeled group, with no mandatory confirmation stage. Use labeled row controls, not a horizontally scrolling spreadsheet at 390px.
 5. `参加者を登録` is the only committing action. It passes the reviewed people to the unchanged `addParticipants` command. A blank corrected name blocks submission and focuses its field.
 6. Registration stays busy until the existing sync acknowledges completion. Failure retains the draft, reviewed values and retry; navigation does not manufacture success. Successful registration returns to the participant list without a redundant success Toast.
 
@@ -78,7 +78,7 @@ Handoff export stays a short registered dialog, with current authorization/ambig
 - Primary navigation clears the child task. Selecting Participants while already in its child returns to the list; it is not rejected merely because the parent section is unchanged.
 - Task state is derived from the URL. Do not maintain a competing `registering` boolean that can disagree with refresh/back/forward.
 - Direct child URL, refresh and browser back/forward preserve the same room and task. Existing legacy inbound mappings and room-only/shared links remain unchanged.
-- A changed section/task moves focus to the existing page `h1`. Initial direct entry does not steal focus. Input → review and invalid submit move focus to the review heading or first invalid field respectively.
+- A changed section/task moves focus to the existing page `h1`. Initial direct entry does not steal focus. Invalid submit moves focus to the first invalid field. Inline preview updates do not steal focus while typing.
 - Explicit parent Back/Cancel restores the logical task launcher when it exists; otherwise the participant heading is the fallback. Browser history navigation keeps the route-level heading strategy.
 - Preserve parent list search/filter/selection during child-task round trips without persisting new domain state. Never hide a still-editable child in a Modal or leave multiple active task surfaces.
 
@@ -86,7 +86,7 @@ Handoff export stays a short registered dialog, with current authorization/ambig
 
 **Official guidance:** [Modal usage](https://carbondesignsystem.com/components/modal/usage/) says a full page may be needed when large Modal content does not fit the task. [Forms](https://preview.carbondesignsystem.com/building-blocks/core/patterns/forms) covers visible labels, logical form ordering, validation and not hiding required information in Tabs/Accordions. [Form specifications](https://www.carbondesignsystem.com/building-blocks/core/components/form/specifications) support content-dependent column widths and one-column mobile forms.
 
-**Project interpretation:** durable registration/announcement pages, input → editable review → existing commit, and compact participant list/selection are choices for this actual workflow. Carbon does not prescribe the room schema, applicant identity, duplicate-name policy or task URL.
+**Project interpretation:** durable registration/announcement pages, inline editable review before the existing commit, and compact participant list/selection are choices for this actual workflow. Carbon does not prescribe the room schema, applicant identity, duplicate-name policy or task URL. The user explicitly asked to avoid excessive registration steps; logical ordering and visible errors follow [Carbon Forms](https://www.carbondesignsystem.com/building-blocks/core/patterns/forms), but inline review is our product decision.
 
 Use installed `@carbon/react` 1.115.0 public components and API, Grid/Column, productive type, spacing/layer/theme/breakpoint tokens. Verify actual exports/props/keyboard behavior before implementation. Retain appropriate Contained list/short Modal patterns; no wrapper Tiles, global Carbon internal selectors, custom focus rings or unverified SidePanel.
 
@@ -106,4 +106,4 @@ Before completion:
 
 ## 7. Review checkpoint
 
-The requested Phase D is an architectural workflow change, not a one-component replacement. Review this concrete implementation design before writing the task-by-task implementation plan and Product UI code. The sole normative document will receive the registration-semantics clarification alongside the implementation, with this technical constraint recorded in its review evidence.
+The user approved this structure and authorized simplifying registration if its steps were excessive. The normative document receives the registration-semantics/inline-review clarification with this implementation. Continue autonomously through tests, browser validation, PR and integration CI; no production release.

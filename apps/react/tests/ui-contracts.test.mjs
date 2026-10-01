@@ -32,10 +32,8 @@ test('modal registry distinguishes approved brief tasks from migrations', () => 
     id: 'participant-edit', status: 'approved-brief', targetPhase: null,
     reason: '少数項目を編集して1回保存する短いtask',
   });
-  assert.deepEqual(modalTaskPolicy('participant-registration'), {
-    id: 'participant-registration', status: 'legacy-migration', targetPhase: 'D',
-    reason: 'import、preview、correctionを含む長いtask',
-  });
+  assert.equal(modalTaskPolicy('participant-registration').status, 'unregistered');
+  assert.equal(modalTaskPolicy('participant-guidance').status, 'unregistered');
   assert.deepEqual(modalTaskPolicy('not-registered'), {
     id: 'not-registered', status: 'unregistered', targetPhase: null,
     reason: 'Modal task is not registered',

@@ -20,6 +20,22 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .project-page__heading h1 { @include type.type-style('heading-05'); margin: 0; outline-offset: layout.$spacing-02; }
 .project-page__heading > p:not(.project-page__context) { @include type.type-style('body-01'); max-inline-size: 48rem; margin-block-start: layout.$spacing-03; color: var(--cds-text-secondary); }
 .project-page__context { @include type.type-style('label-01'); overflow-wrap: anywhere; margin-block: 0 layout.$spacing-03; color: var(--cds-text-secondary); }
+.project-page__back { margin-block-end: layout.$spacing-05; }
+.participant-task-form { display: grid; gap: layout.$spacing-06; max-inline-size: 48rem; }
+.participant-task-form h2, .participants-next h2 { @include type.type-style('heading-03'); margin-block-end: layout.$spacing-03; }
+.participant-task-form section { display: grid; gap: layout.$spacing-05; }
+.task-draft-status { @include type.type-style('body-01'); color: var(--cds-text-secondary); }
+.registration-fields { display: grid; gap: layout.$spacing-06; min-inline-size: 0; border: 0; padding: 0; margin: 0; }
+.registration-inputs { row-gap: layout.$spacing-05; }
+.registration-review__person { display: grid; gap: layout.$spacing-05; padding-block: layout.$spacing-05; border-block-start: 1px solid var(--cds-border-subtle); }
+.registration-review__person legend { @include type.type-style('heading-compact-01'); }
+.participant-task-actions, .participant-page-actions, .participant-filter-summary, .participants-next__links { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-03; }
+.participant-page-actions { margin-block-end: layout.$spacing-05; }
+.participant-filter-summary { margin-block: layout.$spacing-03; @include type.type-style('body-compact-01'); }
+.participant-filter-summary p { margin: 0; }
+.participants-next { display: grid; gap: layout.$spacing-05; margin-block-start: layout.$spacing-07; padding-block-start: layout.$spacing-05; border-block-start: 1px solid var(--cds-border-subtle); }
+.participants-next__links { gap: layout.$spacing-05; }
+.participants-next__reason { color: var(--cds-text-secondary); max-inline-size: 48rem; @include type.type-style('body-01'); }
 .project-page__actions { grid-area: actions; display: flex; align-items: flex-start; gap: layout.$spacing-03; }
 .project-page__metadata { grid-area: metadata; display: flex; flex-wrap: wrap; gap: layout.$spacing-05 layout.$spacing-07; margin: 0; }
 .project-page__metadata > div { display: flex; gap: layout.$spacing-02; align-items: baseline; }
@@ -68,23 +84,13 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .participant-toolbar { display: flex; align-items: center; gap: layout.$spacing-02; }
 .participant-toolbar .cds--search { flex: 1 1 auto; min-inline-size: 0; }
 .filter-panel { grid-template-columns: repeat(3, minmax(0, 1fr)); padding-block: 1rem; }
-.participant-list .cds--contained-list__header { display: none; }
-.participant-list .participant-row .cds--contained-list-item__content { padding-inline: 3rem; }
-.participant-row-copy { display: grid; gap: .125rem; min-inline-size: 0; }
+.participant-row-copy { display: grid; gap: layout.$spacing-01; min-inline-size: 0; }
 .participant-row-title { display: flex; align-items: center; flex-wrap: wrap; gap: layout.$spacing-02; min-inline-size: 0; }
 .participant-row-title > strong { overflow-wrap: anywhere; }
-.participant-row-actions { display: flex; inline-size: 100%; justify-content: space-between; align-items: center; pointer-events: none; }
+.participant-row-actions { display: flex; justify-content: flex-end; align-items: center; gap: layout.$spacing-02; pointer-events: none; }
 .participant-row-actions > * { pointer-events: all; }
 .row-detail { color: var(--cds-text-secondary); font-size: .875rem; }
-.selection-actions { position: sticky; inset-block-end: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 1rem; padding: .75rem 1rem calc(.75rem + env(safe-area-inset-bottom)); border-top: 1px solid var(--cds-border-subtle); background: var(--cds-layer-01, var(--cds-layer)); }
-.selection-actions .cds--btn { min-inline-size: 11rem; }
-.participants-post-confirm { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--cds-border-subtle); }
-.participants-post-confirm h2 { margin: 0 0 .75rem; font-size: 1.125rem; }
-.participants-post-confirm__actions { display: grid; gap: 1px; background: var(--cds-border-subtle); }
-.participants-post-confirm__item { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem; background: var(--cds-layer-01, var(--cds-layer)); }
-.participants-post-confirm__item h3 { margin: 0 0 .25rem; font-size: 1rem; }
-.participants-post-confirm__item p { margin: 0; color: var(--cds-text-secondary); font-size: .875rem; }
-.participants-post-confirm__item .participants-post-confirm__reason { margin-top: .5rem; max-inline-size: 48rem; }
+.selection-actions { position: sticky; inset-block-end: 0; z-index: 2; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: layout.$spacing-03; margin-block-start: layout.$spacing-05; padding: layout.$spacing-04 layout.$spacing-05 calc(#{layout.$spacing-04} + env(safe-area-inset-bottom)); border-block-start: 1px solid var(--cds-border-subtle); background: var(--cds-layer); }
 .allocation-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: layout.$spacing-03; margin-block: 0 layout.$spacing-04; }
 .allocation-toolbar-summary { display: grid; gap: layout.$spacing-02; min-inline-size: 0; }
 .allocation-toolbar p { display: flex; gap: layout.$spacing-04; flex-wrap: wrap; margin: 0; }
@@ -306,9 +312,5 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   .settlement-settings-modal .cds--progress--space-equal .cds--progress-step,
   .settlement-settings-modal .cds--progress--space-equal .cds--progress-line { min-inline-size: 0; }
   .settlement-settings-progress.cds--progress--vertical { overflow: visible; padding-block-end: 0; }
-  .selection-actions { margin-inline: 0; padding-inline: 1rem; }
-  .selection-actions .cds--btn { min-inline-size: 0; }
   .app-modal .cds--modal-footer .cds--btn { white-space: nowrap; padding-inline: 1rem; }
-  .participants-post-confirm__item { align-items: flex-start; flex-direction: column; }
-  .participants-post-confirm__item .cds--btn { inline-size: 100%; max-inline-size: none; }
 }

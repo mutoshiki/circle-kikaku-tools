@@ -21,8 +21,7 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
   const confirmedStatus = page.getByText('確定済み', { exact: true });
   const reopenSelection = page.getByRole('button', { name: '参加者を選び直す', exact: true });
   await expect(confirmedStatus).toBeVisible();
-  await expect(confirmedStatus.locator('xpath=ancestor::*[contains(@class,"cds--tag")]')).toBeVisible();
-  await expect(reopenSelection).toHaveClass(/cds--btn--ghost/);
+  await expect(page.getByRole('list', { name: '参加者一覧' })).toBeVisible();
   const disabledHandoff = page.getByRole('button', { name: '引き継ぎデータを作成', exact: true });
   await expect(disabledHandoff).toBeDisabled();
   await expect(page.getByText(/この端末には作成権限がありません/)).toBeVisible();
@@ -33,7 +32,7 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
   await expect(page.getByText('“存在しない名前” に一致する参加者はいません', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: '検索をクリア' }).click();
   await expect(page.getByRole('checkbox', { name: '仮参加者G', exact: true })).toBeVisible();
-  await expect(page.locator('.selection-actions')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'キャンセル', exact: true })).toBeVisible();
   await page.getByRole('checkbox', { name: '仮参加者G', exact: true }).check({ force: true });
   await expect(page.getByRole('checkbox', { name: '仮参加者G', exact: true })).toBeChecked();
   await expect(page.locator('.selection-actions')).toBeVisible();
@@ -83,11 +82,11 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
 test('participant list shows assigned driver role and participant editor can toggle it', async ({ page }) => {
   const roomId = `PARTICIPANT-DRIVER-ROLE-${Date.now()}`;
   await page.goto(`/?room=${roomId}&view=participants`);
-  await page.getByRole('button', { name: '追加', exact: true }).click();
-  const registration = page.getByRole('dialog', { name: '参加者登録' });
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  const registration = page.getByRole('form', { name: '参加者を登録' });
   await registration.getByRole('textbox', { name: '参加者（改行区切り）', exact: true }).fill('運転手属性 確認');
   await registration.getByRole('textbox', { name: '車出し可能な参加者', exact: true }).fill('運転手属性 確認');
-  await registration.getByRole('button', { name: '登録', exact: true }).click();
+  await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
 
   const row = page.locator('.participant-row').filter({ hasText: '運転手属性 確認' });
   await expect(row.getByText('運転手', { exact: true })).toBeVisible();
