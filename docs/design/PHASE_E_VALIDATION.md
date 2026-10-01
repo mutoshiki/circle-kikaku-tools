@@ -4,6 +4,8 @@ Status: local implementation acceptance and independent review complete, 2026-10
 
 Integration base: `3fcdf5ead75fd984098f019ddacf290e5fb0b6d7` (`carbon-redesign`, Phase D / PR79). Work branch: `codex/phase-e-allocation-workflow`. No main merge, Production Release, compatibility deploy, root cutover, production smoke or production Firebase write.
 
+Remote integration record: [PR80 — Phase E allocation workflow](https://github.com/mutoshiki/circle-kikaku-tools/pull/80), base `carbon-redesign`; [required CI run](https://github.com/mutoshiki/circle-kikaku-tools/actions/workflows/quality-guard.yml). The linked PR/check state is the authoritative remote gate; this document does not dispatch or certify a production release.
+
 ## Task and design traceability
 
 Goal: confirmed participants can be assigned and corrected by manual or random operation, then the actual current car/team result can be read or copied for the morning announcement. Registration and participant confirmation remain Phase D; distance, individual driver costs and settlement remain Phases F–H.
@@ -60,7 +62,7 @@ All test commands used explicit `SANPO_TEST_FIREBASE_TARGET`, demo project and l
 | Protected source path diff against exact integration base | Empty for legacy `src/`, Firebase, React domain/store/sync/adapters; no dependency, schema, algorithm, calculation or persistence model change |
 | Historical `npm.cmd run verify:legacy` manifest | NOT GREEN; same three paths already differ at the exact base: `docs/design/SANPOKAI_PRODUCT_UI.md`, root `package.json`, `tools/classify-release-changes.mjs`. Only the approved normative document changes further in Phase E. Root package/classifier unchanged from base. Manifest not recaptured or weakened. This is not a domain-source failure |
 | Independent review | One fresh reviewer; two Important fixes verified RED→GREEN and all cumulative gates above rerun; one named Minor deferred to I |
-| Remote required CI / integration | Separate gate: only `carbon-redesign` PR. No production-readiness dispatch or main/release operation. Live PR/check links will record the authoritative outcome |
+| Remote required CI / integration | [PR80](https://github.com/mutoshiki/circle-kikaku-tools/pull/80) records the live check/merge outcome; base `carbon-redesign` only. No production-readiness dispatch or main/release operation |
 
 The 12 offline skips are existing conditions: four opt-in Phase B evidence captures without their evidence environment, plus four mobile-only navigation/focus tests excluded from each desktop project. No Phase E behavior is skipped.
 
@@ -86,7 +88,7 @@ The 12 offline skips are existing conditions: four opt-in Phase B evidence captu
 - [x] Source-text/internal-class assertions replaced only where obsolete structure changed; domain outcomes, role/fixed/delete/memo/settlement regression retained. Geometry/semantics not snapshots alone.
 - [x] No production/main operations; final redesign release is a separate Phase I gate.
 - [ ] Physical software keyboard / iOS browser chrome / native safe-area behavior / native screen reader: NOT VERIFIED on real hardware. Viewport/touch emulation is not that evidence; mandatory final Phase I device/screen-reader gate remains open.
-- [x] One independent fresh-context whole-branch review, with the two Important findings reproduced RED→GREEN (see below). Required CI remains pending.
+- [x] One independent fresh-context whole-branch review, with the two Important findings reproduced RED→GREEN (see below). Required CI/integration is tracked separately by PR80's live check and merge record.
 
 ## Follow-up boundary
 
