@@ -17,7 +17,7 @@ export function allocationSaveReceipt(runtime, intent, { type, label }) {
     diagnosticCount: diagnostics(runtime).length, disposition: runtime.sync.enqueue ? 'pending' : 'local', canRetry: false };
 }
 
-export async function settleAllocationSave(runtime, receipt, { retry = false, onReceipt = () => {} } = {}) {
+export async function settleAllocationSave(runtime, receipt, { retry = false, observe = false, onReceipt = () => {} } = {}) {
   function result(disposition, changes = {}) {
     receipt = receipt ? { ...receipt, ...changes, disposition } : null;
     onReceipt(receipt);
@@ -52,11 +52,11 @@ export async function settleAllocationSave(runtime, receipt, { retry = false, on
     onReceipt(receipt);
     pending = entry;
   }
-  if (pending?.id === receipt.operationId) await runtime.sync.flush();
+  if (pending?.id === receipt.operationId && !observe) await runtime.sync.flush();
   if (reset()) return result('reset', { canRetry: false });
   if (accepted()) return acknowledgedResult();
   const ownRejection = diagnostics(runtime).slice(receipt.diagnosticCount).some(item => item.kind === 'rejected' && equal([...item.paths].sort(), Object.keys(receipt.patch).sort()));
   if (ownRejection) return result('failed', { canRetry: true });
-  if (runtime.storage.read('outbox')?.id === receipt.operationId) return result('failed', { canRetry: true });
+  if (runtime.storage.read('outbox')?.id === receipt.operationId) return result(observe && runtime.sync.getSnapshot().kind === 'saving' ? 'pending' : 'failed', { canRetry: true });
   return result(receipt.canRetry ? 'failed' : 'unresolved');
 }

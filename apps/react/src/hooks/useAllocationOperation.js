@@ -14,9 +14,9 @@ export default function useAllocationOperation(runtime, type) {
     const persisted = next ? cache.write({ receipt: next }) : cache.clear();
     if (alive.current) { setReceipt(next); setRecoverable(persisted); }
   }
-  async function finish(original, retry = false) {
+  async function finish(original, retry = false, observe = false) {
     const expected = original?.operationId;
-    const outcome = await settleAllocationSave(runtime, original, { retry, onReceipt: next => {
+    const outcome = await settleAllocationSave(runtime, original, { retry, observe, onReceipt: next => {
       // A remounted workspace may already own another attempt. Never clear it.
       if (cache.read()?.receipt?.operationId !== (current.current?.operationId || expected)) return;
       remember(next);
@@ -26,19 +26,30 @@ export default function useAllocationOperation(runtime, type) {
     }
     return outcome;
   }
+  useEffect(() => {
+    // Status observation identifies late/recovered acknowledgements, but must
+    // never trigger a write, a new command or an automatic replay.
+    let stopped = false;
+    function refresh() {
+      if (!stopped && !active.current && current.current) void finish(current.current, false, true);
+    }
+    refresh();
+    const unsubscribe = runtime.sync.subscribe(refresh);
+    return () => { stopped = true; unsubscribe(); };
+  }, [runtime, cache]);
   async function run(command, args, label) {
     if (active.current || current.current) throw new Error('前の操作の保存状態を確認してください。');
     active.current = true; setBusy(true);
     try {
-      const next = allocationSaveReceipt(runtime, runtime.store.command(command, args), { type, label });
+      const next = allocationSaveReceipt(runtime, typeof command === 'function' ? command() : runtime.store.command(command, args), { type, label });
       remember(next);
       return await finish(next);
     } finally { active.current = false; if (alive.current) setBusy(false); }
   }
-  async function retry() {
+  async function retry(observe = false) {
     if (active.current || !current.current) return null;
     active.current = true; setBusy(true);
-    try { return await finish(current.current, true); }
+    try { return await finish(current.current, !observe, observe); }
     finally { active.current = false; if (alive.current) setBusy(false); }
   }
   function inspect() {

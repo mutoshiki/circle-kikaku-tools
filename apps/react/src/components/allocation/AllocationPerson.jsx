@@ -5,10 +5,8 @@ import { Flag } from '@carbon/icons-react';
 export default function AllocationPerson({ person, type, roleLabel, busy, onMove, onAction, selected, onSelect }) {
   const menu = useRef(null);
   const id = person.participantId;
-  return <ContainedListItem action={onSelect ?
-    <RadioButton id={`allocation-select-${id}`} name="allocation-person" value={id} checked={selected} disabled={busy} aria-label={`${person.name}を選択`} labelText={<span className="allocation-choice-label">選択</span>} onChange={() => onSelect(id)} /> :
-    <div className="allocation-person-actions">
-      <Button id={`allocation-move-${id}`} kind="ghost" disabled={busy} aria-label={`${person.name}の移動`} onClick={() => onMove(id)}>移動</Button>
+  return <ContainedListItem action={<div className="allocation-person-actions">
+      {onSelect ? <RadioButton id={`allocation-select-${id}`} name="allocation-person" value={id} checked={selected} disabled={busy} aria-label={`${person.name}を選択`} labelText={<span className="allocation-choice-label">選択</span>} onChange={() => onSelect(id)} /> : <Button id={`allocation-move-${id}`} kind="ghost" disabled={busy} aria-label={`${person.name}の移動`} onClick={() => onMove(id)}>移動</Button>}
       <OverflowMenu ref={menu} size="lg" flipped ariaLabel={`${person.name}の操作`} iconDescription={`${person.name}の操作`} onClose={() => requestAnimationFrame(() => { if (document.activeElement === document.body) menu.current?.focus(); })}>
         <OverflowMenuItem itemText="参加者を編集" disabled={busy} onClick={() => onAction('edit', id, menu)} />
         <OverflowMenuItem itemText={person.driver ? `${roleLabel}を外す` : `${roleLabel}にする`} disabled={busy} onClick={() => onAction('role', id, menu)} />

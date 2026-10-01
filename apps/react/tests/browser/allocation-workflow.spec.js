@@ -111,3 +111,55 @@ test('empty allocation uses participant task rather than another registration ow
   await page.getByRole('link', { name: '参加者へ', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name: '参加者', exact: true })).toBeFocused();
 });
+
+test('random review states actual scope and cancel never changes allocations', async ({ page }, info) => {
+  const id = `PHASE-E-RANDOM-${info.project.name}`;
+  await seed(page, id);
+  const before = (await roomAt(page, id)).allocations;
+  await page.getByRole('button', { name: 'ランダム割り当て', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'ランダム割り当て', exact: true });
+  await expect(dialog).toContainText('対象 2人');
+  await expect(dialog).toContainText('固定 1人');
+  await expect(dialog).toContainText('運転手 2人');
+  await expect(dialog).toContainText('空き枠 6人');
+  await expect(dialog).toContainText('固定した未割り当て 1人');
+  await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  expect((await roomAt(page, id)).allocations).toEqual(before);
+  await expect(page.getByRole('button', { name: 'ランダム割り当て', exact: true })).toBeFocused();
+  await page.getByRole('button', { name: 'ランダム割り当て', exact: true }).click();
+  await dialog.getByRole('button', { name: 'ランダムに割り当て', exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('heading', { level: 1, name: '車割', exact: true })).toBeFocused();
+  const after = (await roomAt(page, id));
+  expect(Object.values(after.allocations.car.placements).filter(p => p.kind === 'waiting')).toHaveLength(1);
+  expect(Object.values(after.allocations.team.placements).every(p => p.kind === 'waiting')).toBe(true);
+});
+
+test('group limits validate with associated focus and waiting actions remain available', async ({ page }, info) => {
+  const id = `PHASE-E-EDIT-${info.project.name}`;
+  const { ids } = await seed(page, id);
+  if (info.project.use.viewport.width < 1056) await page.getByRole('link', { name: '未割り当て 3人を確認', exact: true }).click();
+  await page.getByRole('button', { name: 'Cの操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '固定を解除', exact: true }).click();
+  await expect.poll(async () => (await roomAt(page, id)).participants[ids.C].locked).toBe(false);
+  await page.getByRole('button', { name: '車を追加', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '車を追加', exact: true });
+  const limit = dialog.getByRole('spinbutton', { name: '割り当て人数の上限（全員を含む）', exact: true });
+  await expect(limit).toHaveValue('4');
+  await limit.fill('1');
+  await dialog.getByRole('button', { name: '追加', exact: true }).click();
+  await expect(limit).toHaveAttribute('aria-invalid', 'true');
+  await expect(limit).toBeFocused();
+  await expect(limit).toHaveAttribute('aria-describedby', /.+/);
+  await limit.fill('100');
+  await dialog.getByRole('button', { name: '追加', exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  expect(Object.values((await roomAt(page, id)).allocations.car.groups).some(g => g.capacity === 99)).toBe(true);
+  await navigateToProjectSection(page, '班割');
+  await page.getByRole('button', { name: '班を追加', exact: true }).click();
+  const team = page.getByRole('dialog', { name: '班を追加', exact: true });
+  await expect(team.getByRole('spinbutton', { name: '割り当て人数の上限（全員を含む）', exact: true })).toHaveValue('6');
+  await team.getByRole('button', { name: '追加', exact: true }).click();
+  await expect(team).toHaveCount(0);
+  expect(Object.values((await roomAt(page, id)).allocations.team.groups)[0].capacity).toBe(5);
+});

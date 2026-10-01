@@ -147,3 +147,18 @@ test('allocation receipt cache is isolated by room/type and retains memory when 
   assert.equal(reopened.read().receipt.operationId, 'op-2');
   assert.equal(reopened.isRecoverable(), false);
 });
+
+test('observing a recovered receipt never flushes or replays and follows its acknowledgement', async () => {
+  const runtime = await client();
+  try {
+    const receipt = command(runtime, 'randomize', { type: 'car' });
+    let calls = 0;
+    const flush = runtime.sync.flush;
+    runtime.sync = { ...runtime.sync, flush: () => { calls++; return flush(); } };
+    await settleAllocationSave(runtime, receipt, { observe: true });
+    assert.equal(calls, 0);
+    await flush();
+    assert.equal((await settleAllocationSave(runtime, receipt, { observe: true })).disposition, 'saved');
+    assert.equal(calls, 0);
+  } finally { runtime.sync.dispose(); }
+});

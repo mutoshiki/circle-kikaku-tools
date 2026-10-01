@@ -16,7 +16,7 @@ export default function AllocationWorkspace({ view, destination, selectedId, tar
   function taskLink(task, groupId, text, props = {}) {
     return <Link {...props} href={onNavigate.href(task, groupId)} onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) { event.preventDefault(); onNavigate(task, groupId); } }}>{text}</Link>;
   }
-  const candidateRows = view.waiting.map(person => <AllocationPerson key={person.participantId} person={person} type={view.type} roleLabel={roleLabel} busy={busy} selected={selectedId === person.participantId} onSelect={onSelect} />);
+  const candidateRows = view.waiting.map(person => <AllocationPerson key={person.participantId} person={person} type={view.type} roleLabel={roleLabel} busy={busy} selected={selectedId === person.participantId} onSelect={onSelect} onAction={onPersonAction} />);
   return <div>
     {mover && <Form className="allocation-move-form" aria-label={`${mover.name}の移動`} onSubmit={event => { event.preventDefault(); onManualMove(); }}>
       <h2>{mover.name}の移動</h2>
@@ -30,7 +30,7 @@ export default function AllocationWorkspace({ view, destination, selectedId, tar
     <Grid fullWidth className="allocation-workspace">
       {destination.task !== 'unassigned' && !(destination.task === 'assign' && !desktop) && <Column sm={4} md={8} lg={10} xlg={10} max={10}>
         <div className="allocation-groups">{groups.map(g => <section className="allocation-group" key={g.id} aria-label={g.name}>
-          <div className="allocation-group-heading"><h2>{group ? '割り当て内容' : g.name}</h2><OverflowMenu size="lg" flipped ariaLabel={`${g.name}の操作`} iconDescription={`${g.name}の操作`}>
+          <div className="allocation-group-heading"><h2>{group ? '割り当て内容' : g.name}</h2><OverflowMenu id={`allocation-group-menu-${g.id}`} size="lg" flipped ariaLabel={`${g.name}の操作`} iconDescription={`${g.name}の操作`}>
             <OverflowMenuItem itemText="人数の上限を変更" disabled={busy} onClick={() => onGroupAction('capacity', g.id)} />
             <OverflowMenuItem itemText="削除" hasDivider isDelete disabled={busy} onClick={() => onGroupAction('delete', g.id)} />
           </OverflowMenu></div>
