@@ -367,6 +367,7 @@ test('driver names appear only when a car has multiple drivers', async ({ page }
   await expect(carA.getByText(/^運転手：/)).toHaveCount(0);
   await navigateToProjectSection(page, '車割');
   const allocationCarA = page.getByRole('region', { name: '仮参加者A車', exact: true });
+  await page.getByRole('link', { name: '仮参加者A車の詳細', exact: true }).click();
   await allocationCarA.getByRole('button', { name: '仮参加者Bの操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '運転手にする', exact: true }).click();
   await navigateToProjectSection(page, '精算');

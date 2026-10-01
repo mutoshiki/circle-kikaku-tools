@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { navigateToProjectSection } from './project-navigation.js';
 
 const root = join(process.cwd(), '..', '..');
-const outputRoot = join(root, 'artifacts', 'ui-audit');
+const outputRoot = join(tmpdir(), 'circle-react-migration-evidence', 'ui-audit');
 function shot(page, viewportName, number, name) {
   const directory = join(outputRoot, viewportName);
   mkdirSync(directory, { recursive: true });
@@ -140,15 +141,18 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await cancelDialog(page);
 
     await navigateToProjectSection(page, '車割');
-    const assignedMenu = page.getByRole('button', { name: /の操作$/ }).first();
-    if (await assignedMenu.count()) {
-      await assignedMenu.click();
-      const moveWaiting = page.getByRole('menuitem', { name: '未割り当てに戻す', exact: true });
-      if (await moveWaiting.count()) await moveWaiting.click();
-    }
+    await page.getByRole('link', { name: /車の詳細$/ }).first().click();
+    await page.getByRole('button', { name: /の移動$/ }).first().click();
+    await page.getByRole('form', { name: /の移動$/ }).getByRole('button', { name: '車へ移動', exact: true }).click();
+    const parent = page.getByRole('link', { name: '車割に戻る', exact: true });
+    if (await parent.count()) await parent.click();
     await shot(page, viewportName, 14, 'car-allocation-default');
-    const seatAction = page.getByRole('button', { name: /空席 .*参加者を追加/ }).first();
-    if (await seatAction.count()) { await seatAction.click(); await shot(page, viewportName, 15, 'car-candidates-expanded'); }
+    const assignment = page.getByRole('link', { name: /車へ参加者を割り当て$/ }).first();
+    if (await assignment.count()) {
+      await assignment.click(); await shot(page, viewportName, 15, 'car-candidate-selection');
+      await page.getByRole('link', { name: /車に戻る$/ }).click();
+      await page.getByRole('link', { name: '車割に戻る', exact: true }).click();
+    }
     await page.getByRole('button', { name: '車を追加', exact: true }).click();
     await shot(page, viewportName, 16, 'car-add-modal');
     console.log('AUDIT car add captured');

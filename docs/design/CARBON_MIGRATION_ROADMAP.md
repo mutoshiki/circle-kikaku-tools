@@ -238,6 +238,8 @@ High: participant confirmation drives car/team/settlement state and form-linked 
 
 ## Phase E — Allocation workspace: vehicles and teams
 
+Implementation evidence: [Phase E validation](./PHASE_E_VALIDATION.md) records the current candidate, independent review fixes, acceptance gates and integration status. It is not a second normative Product UI specification.
+
 ### Goal
 
 Apply the shared allocation pattern to desktop and mobile without losing assigned/unassigned context.
@@ -281,6 +283,7 @@ High: assignment persistence, pin behavior, recalculation, and touch/drag behavi
 - Capacity/unassigned issues are visible before completion.
 - Car and team share structure without leaking vehicle-only rules.
 - Completed car/team membership is readable for the morning handoff; no new publication state or messaging service is implied.
+- Named deferred handoff consistency item for final Phase I: include explicit driver/leader role in copied unassigned-person entries, matching the read view; validate both allocation types. This known minor does not authorize removing the role or weakening the normative output contract.
 
 ## Phase F — Route, movement, and vehicle-cost workspace
 

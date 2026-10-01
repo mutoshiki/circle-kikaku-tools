@@ -10,6 +10,7 @@ export const PROJECT_SECTIONS = Object.freeze([
 ]);
 
 const SECTION_SET = new Set(PROJECT_SECTIONS);
+const ALLOCATION_TASKS = new Set(['', 'group', 'assign', 'unassigned', 'presentation']);
 export const DEFAULT_PROJECT_SECTION = 'participants';
 
 export function readProjectSection(href) {
@@ -33,8 +34,23 @@ export function createProjectSectionUrl(href, section) {
   url.searchParams.delete('view');
   url.searchParams.delete('allocation');
   url.searchParams.delete('task');
+  url.searchParams.delete('group');
   url.hash = '';
   return url.toString();
+}
+
+export function readAllocationTask(href) {
+  const section = readProjectSection(href);
+  const type = section === 'organization-car' ? 'car' : section === 'organization-team' ? 'team' : '';
+  if (!type) return { type: '', task: '', groupId: '', invalid: false };
+  const url = new URL(href);
+  const task = url.searchParams.get('task') || '';
+  const groupId = url.searchParams.get('group') || '';
+  const needsGroup = task === 'group' || task === 'assign';
+  if (!ALLOCATION_TASKS.has(task) || needsGroup && !groupId || !needsGroup && url.searchParams.has('group')) {
+    return { type, task: '', groupId: '', invalid: true };
+  }
+  return { type, task, groupId: needsGroup ? groupId : '', invalid: false };
 }
 
 export function prepareProjectLaunch(options) {
@@ -70,13 +86,14 @@ export function createProjectNavigation({ location, history, eventTarget }) {
   return Object.freeze({
     getSnapshot,
     getTaskSnapshot,
+    getAllocationTaskSnapshot: () => JSON.stringify(readAllocationTask(location.href)),
     hrefFor(section) {
       const url = new URL(createProjectSectionUrl(location.href, section));
       return `${url.pathname}${url.search}${url.hash}`;
     },
     navigate(section) {
       const href = this.hrefFor(section);
-      if (section === getSnapshot() && !new URL(location.href).searchParams.has('task')) return false;
+      if (section === getSnapshot() && !new URL(location.href).searchParams.has('task') && !new URL(location.href).searchParams.has('group')) return false;
       return push(href, section);
     },
     taskHrefFor(task) {
@@ -87,6 +104,25 @@ export function createProjectNavigation({ location, history, eventTarget }) {
     },
     navigateTask(task) {
       return push(this.taskHrefFor(task), 'participants');
+    },
+    allocationTaskHrefFor(type, task, groupId = '') {
+      if (!['car', 'team'].includes(type) || !ALLOCATION_TASKS.has(task)) throw new Error('Unknown allocation destination');
+      if (['group', 'assign'].includes(task) && !groupId) throw new Error('Allocation group is required');
+      const url = new URL(createProjectSectionUrl(location.href, `organization-${type}`));
+      if (task) url.searchParams.set('task', task);
+      if (['group', 'assign'].includes(task)) url.searchParams.set('group', groupId);
+      return `${url.pathname}${url.search}${url.hash}`;
+    },
+    navigateAllocationTask(type, task, groupId = '') {
+      return push(this.allocationTaskHrefFor(type, task, groupId), `organization-${type}`);
+    },
+    replaceAllocationTask(type, task, groupId = '') {
+      const href = this.allocationTaskHrefFor(type, task, groupId);
+      const current = new URL(location.href);
+      if (`${current.pathname}${current.search}${current.hash}` === href) return false;
+      history.replaceState(history.state || null, '', href);
+      eventTarget?.dispatchEvent(new Event('sanpo:sectionchange'));
+      return true;
     },
     subscribe(listener) {
       eventTarget?.addEventListener('popstate', listener);
