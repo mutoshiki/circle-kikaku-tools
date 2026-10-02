@@ -1,6 +1,6 @@
 # 山歩会企画ツール Product UI specification
 
-Status: normative product UI specification v1.3 (reviewed 2026-10-02; Phase E allocation clarification and reviewed interaction fixes)
+Status: normative product UI specification v1.4 (2026-10-02; Phase F vehicle-cost draft, save, route ownership contract)
 Research snapshot: 2026-09-29
 Design basis: [CARBON_PRODUCT_PRINCIPLES.md](./CARBON_PRODUCT_PRINCIPLES.md) / [CARBON_PATTERNS.md](./CARBON_PATTERNS.md)
 

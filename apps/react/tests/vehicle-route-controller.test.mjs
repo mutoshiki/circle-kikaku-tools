@@ -9,6 +9,18 @@ function make(service={},working=null) {
   const c=createVehicleRouteController({roomId:'LOCAL-F',carKey:'participant:a',service,working,routeDraft:{read:()=>({}),write:value=>writes.push(value)},rememberWorking:value=>writes.push(value)});
   return {c,writes};
 }
+
+test('entering a restored search owns initialization before the next typed query',async()=>{
+  const {c}=make({search:async q=>[place(q)]},{searchQuery:'previous'});
+  c.setContext({task:'route-search',stopKey:'origin'});
+  assert.equal(c.getSnapshot().search.status,'pending');
+  c.setQuery('typed');await tick();
+  assert.equal(c.getSnapshot().search.query,'typed');
+  assert.equal(c.getSnapshot().search.predictions[0].name,'typed');
+  c.setContext({task:'route'});c.setContext({task:'route-search',stopKey:'destination'});
+  assert.equal(c.getSnapshot().search.status,'pending');
+  await tick();assert.equal(c.getSnapshot().search.predictions[0].name,'typed');c.dispose();
+});
 test('search A after B cannot replace current query result or clear its pending status',async()=>{
   const a=deferred(),b=deferred();const {c,writes}=make({search:q=>q==='A'?a.promise:b.promise});
   c.setContext({task:'route-search',stopKey:'origin'});c.setQuery('A');await tick();c.setQuery('B');await tick();

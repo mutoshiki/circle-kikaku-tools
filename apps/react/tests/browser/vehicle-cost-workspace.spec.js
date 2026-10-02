@@ -67,10 +67,20 @@ test('reload Back resize and Cancel preserve correct scope', async ({page}) => {
   await page.setViewportSize({width:390,height:844});
   await expect(page).toHaveURL(url);
   await page.getByRole('link',{name:'費目一覧に戻る',exact:true}).click();
+  await expect(page.getByRole('link',{name:'移動条件を編集',exact:true})).toBeFocused();
   await page.goBack();
   await expect(page.getByRole('textbox',{name:'走行距離（km）',exact:true})).toHaveValue('321');
   await page.getByRole('button',{name:'キャンセル',exact:true}).click();
   await openCar(page); await movement(page);
   await expect(page.getByRole('textbox',{name:'走行距離（km）',exact:true})).toHaveValue('186');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('invalid direct target returns to its parent with a persistent reason without guessing a car',async({page})=>{
+  const url=new URL(page.url());url.searchParams.set('car','participant:missing-car');
+  await page.goto(url.href);
+  await expect(page.getByRole('heading',{level:1,name:'車両費用',exact:true})).toBeVisible();
+  await expect(page.getByText('対象車が見つかりません。車両費用の一覧を確認してください。',{exact:true})).toBeVisible();
+  expect(new URL(page.url()).searchParams.has('car')).toBe(false);
+  await expect(page.getByRole('form')).toHaveCount(0);
 });

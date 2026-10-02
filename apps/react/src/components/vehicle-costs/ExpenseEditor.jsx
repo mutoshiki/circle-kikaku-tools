@@ -6,7 +6,7 @@ export default function ExpenseEditor({ snapshot, onFieldChange, onRentalType, o
   const composing = useRef(false);
   const { domain, car, activeFee: fee, frozen, attempted } = snapshot;
   const times = domain.isTimesRentalCar(car);
-  const issue = field => attempted && snapshot.issues.fields.find(i => i.feeKey === fee.key && i.field === field);
+  const issue = field => (attempted || field !== 'name' && /^[-−]/.test(String(fee.kind === 'movement' ? car[field] ?? '' : fee.row?.[field] ?? '').trim())) && snapshot.issues.fields.find(i => i.feeKey === fee.key && i.field === field);
   const input = (field, label, value) => <TextInput id={costFieldId(fee.key, field)} labelText={label} inputMode={field === 'name' ? undefined : 'decimal'} value={value ?? ''} disabled={frozen} invalid={!!issue(field)} invalidText={issue(field)?.message} onChange={event => onFieldChange(fee.key, field, event.target.value)} />;
   const type = fee.kind === 'movement' ? fee.row?.type || 'split' : fee.row?.type || 'split';
   const baseType = domain.getSettlementExtraBaseType(type);

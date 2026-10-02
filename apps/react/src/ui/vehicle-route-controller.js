@@ -32,6 +32,7 @@ export function createVehicleRouteController({roomId,carKey,service,routeDraft,w
     if(calculation.status==='pending')calculation={status:'idle',error:''};
     if(map.status==='pending')map={status:'idle',error:''};
     emit();
+    if(context.task==='route-search' && search.query)setQuery(search.query);
   }
   function setQuery(query) {
     if(disposed)return;
