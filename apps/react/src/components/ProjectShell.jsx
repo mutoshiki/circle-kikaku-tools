@@ -10,6 +10,7 @@ const primaryItems = [
   ['participants', '参加者'],
   ['organization-car', '車割'],
   ['organization-team', '班割'],
+  ['vehicle-costs', '車両費用'],
   ['settlement', '精算'],
 ];
 const supportingItems = [

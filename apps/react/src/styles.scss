@@ -9,6 +9,18 @@
 body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; }
 * { box-sizing: border-box; }
 .application { min-height: 100dvh; color: var(--cds-text-primary); background: var(--cds-background); }
+.vehicle-cost-workspace, .vehicle-cost-form, .vehicle-cost-fields { display: grid; gap: layout.$spacing-05; min-inline-size: 0; }
+.vehicle-cost-fields { border: 0; padding: 0; margin: 0; }
+.vehicle-cost-fields legend { @include type.type-style('heading-03'); margin-block-end: layout.$spacing-05; }
+.vehicle-cost-row { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-03 layout.$spacing-05; padding-block: layout.$spacing-03; overflow-wrap: anywhere; }
+.vehicle-cost-row > strong { flex-basis: 100%; @include type.type-style('heading-compact-01'); }
+.vehicle-cost-grid { row-gap: layout.$spacing-06; }
+.vehicle-cost-actions, .vehicle-cost-links { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-03; }
+.vehicle-cost-links a { padding-block: layout.$spacing-04; }
+.vehicle-cost-reuse { display: flex; flex-wrap: wrap; align-items: end; gap: layout.$spacing-03; }
+.vehicle-cost-preview { padding-block: layout.$spacing-05; border-block: 1px solid var(--cds-border-subtle); }
+.vehicle-cost-preview h3 { @include type.type-style('heading-compact-01'); }
+.vehicle-cost-preview p { @include type.type-style('body-01'); margin-block-start: layout.$spacing-03; overflow-wrap: anywhere; }
 .app-header__project { display: flex; align-items: center; min-inline-size: 0; margin-inline-end: auto; padding-inline: layout.$spacing-05; border-inline-start: 1px solid var(--cds-border-subtle); color: var(--cds-text-secondary); }
 .app-header__project span { overflow: hidden; max-inline-size: 25vw; text-overflow: ellipsis; white-space: nowrap; }
 .project-navigation__context { display: grid; gap: layout.$spacing-02; padding: layout.$spacing-05; border-block-end: 1px solid var(--cds-border-subtle); }

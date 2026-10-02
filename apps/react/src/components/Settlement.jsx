@@ -7,6 +7,8 @@ import {
 } from '@carbon/react';
 import { Add, Copy, Edit } from '@carbon/icons-react';
 import { beginSettlementEdit, commitSettlementEdit, collectionChange } from './settlement/edit.js';
+import { vehicleCostTargets } from '../ui/vehicle-cost-target.js';
+import { costEntryId } from './vehicle-costs/VehicleCosts.jsx';
 import RoutePlanner from './RoutePlanner.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
 import { notice } from '../ui/task-contracts.js';
@@ -275,9 +277,8 @@ export default function Settlement({ runtime, room, onNotice, embedded = false }
   const collectionTriggerRef = useRef(null);
   function closeEdit(setter, edit, saved) { if (!saved && edit && !edit.session.closed) runtime.store.cancelEdit(edit.session); setter(null); }
   function openCar(car) {
-    const edit = beginSettlementEdit(runtime.store, { car });
-    edit.state.cars[car.name] = settlement.ensureTimesRentalExtras(edit.state.cars[car.name]);
-    setCarEdit(edit);
+    const target = vehicleCostTargets(room, runtime.store.domain).find(t=>car.participantId ? t.car.participantId === car.participantId : t.car.name === car.name);
+    if (target) runtime.navigation.navigateVehicleCostTask({carKey:target.key,returnTo:{section:'settlement'}});
   }
   function markCollected() {
     collectionChange(runtime.store, { name: collector.name, checked: true, collector: collector.value || collector.name });
@@ -322,7 +323,7 @@ export default function Settlement({ runtime, room, onNotice, embedded = false }
             <div className="settlement-car-info">
               <h2 id={`settlement-car-${carId}`}>{carLabel}</h2>
               <div className="settlement-car-actions">
-                <Button className="settlement-car-edit-action" kind="ghost" size="sm" onClick={() => openCar(car)}>費用を入力</Button>
+                <Button id={costEntryId(car.participantId ? `participant:${car.participantId}` : `name:${car.name}`)} className="settlement-car-edit-action" kind="ghost" size="sm" aria-label={`${car.name}車の費用を入力`} onClick={() => openCar(car)}>費用を入力</Button>
               </div>
               {calc.driverNames.length > 1 && <p>運転手：{calc.driverNames.join('、')}（車単位で一括支払い）</p>}
             </div>

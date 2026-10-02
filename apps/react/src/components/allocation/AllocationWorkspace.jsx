@@ -2,7 +2,7 @@ import { Button, Column, ContainedList, ContainedListItem, Form, Grid, Link, Ove
 import useMediaQuery from '../../hooks/useMediaQuery.js';
 import AllocationPerson from './AllocationPerson.jsx';
 
-export default function AllocationWorkspace({ view, destination, selectedId, targetId, busy, onSelect, onTarget, onMove, onNavigate, onPersonAction, onGroupAction, movingId, onCancelMove, onManualMove }) {
+export default function AllocationWorkspace({ view, destination, selectedId, targetId, busy, onSelect, onTarget, onMove, onNavigate, onPersonAction, onGroupAction, movingId, onCancelMove, onManualMove, costDestination, costNavigation }) {
   const desktop = useMediaQuery('(min-width: 1056px)');
   const roleLabel = view.type === 'team' ? '班長' : '運転手';
   const label = view.type === 'team' ? '班' : '車';
@@ -44,6 +44,7 @@ export default function AllocationWorkspace({ view, destination, selectedId, tar
           <div className="allocation-task-links">
             {!group && taskLink('group', g.id, '詳細', { id: `allocation-group-${g.id}`, 'aria-label': `${g.name}の詳細` })}
             {g.vacancies > 0 && taskLink('assign', g.id, '参加者を割り当て', { id: `allocation-assign-${g.id}`, 'aria-label': group ? '参加者を割り当て' : `${g.name}へ参加者を割り当て` })}
+            {view.type === 'car' && (()=>{const target=costDestination?.(g.id), dest=target && {carKey:target.key,returnTo:{section:'organization-car',groupId:g.id}};return dest ? <Link id={`allocation-cost-${g.id}`} href={costNavigation.vehicleCostTaskHrefFor(dest)} onClick={event=>{if(event.button===0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey){event.preventDefault();costNavigation.navigateVehicleCostTask(dest);}}}>{target.label}の費用</Link> : <p>費用の保存先が見つかりません。車両費用で対象車を確認してください。</p>;})()}
           </div>
         </section>)}</div>
       </Column>}

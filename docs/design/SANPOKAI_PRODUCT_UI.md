@@ -202,7 +202,7 @@ Primaryと同じtask内の代替・補助。Cancelを含む。Primaryなしで�
 | participant / group属性 | explicit save | short formならModal可。複雑化したらdetail page |
 | participant selection | staged selection + apply/confirm | selection toolbar。変更影響をconfirm |
 | 精算設定 | explicit save as one transaction | dedicated settings task。validation後にcommit |
-| 車両費用 | local draft + apply per logical unit + final save | dedicated workspace。nested modalにしない |
+| 車両費用 | 車単位local draft + explicit shared save | dedicated workspace。費目切替に中間確定を要求しない。route結果だけを「適用」でdraftへ移す。nested modalにしない |
 | 支払い済み / 集金済み | immediate state change + recoverability | row内で結果を即表示。既存ownerがreversalを許す場合は戻せる操作を提供し、失敗時は確定表示しない。毎回toastなし |
 | 履歴復元 | explicit destructive/impact confirmation | 復元対象時刻、影響、取り消し可否を示す |
 
@@ -381,7 +381,7 @@ Rules:
 
 ### Target structure
 
-- Vehicle cost list: 車、合計、距離、issue、last update。
+- Vehicle cost list: 車、保存済み合計、距離、issue、未保存draftの有無。last updateは実際の対象車metadataがある場合のみ表示し、企画activityから捏造しない。
 - 各ドライバーが自分の車を識別して直接編集できる入口を持つ。現在の認証から本人と車を確実に対応できない場合は車 / 運転手labelで選択させ、本人を推測しない。driver専用の権限・account・schemaはこのUI仕様から導入しない。
 - Vehicle cost detail/workspace:
   1. 費目list
@@ -395,6 +395,11 @@ Rules:
 ### Rules
 
 - 費目を切替えても未保存draftを失わない。
+- 車別UI recoveryはcanonical persistenceと別namespace。保存前の入力・戻る・refreshを保持し、他車のdraftを共有保存へ混ぜない。本人を推測せずexisting cost targetを選ぶ。同名projectionなど保存先が曖昧な場合は理由を示して保存を止める。
+- 「車両費用を保存」はその車全体をvalidationし、表示外の問題がある費目へ移動して最初の無効fieldへfocusする。追加費用のblank/pendingを勝手に削除しない。
+- 成功はexisting intent receiptで判定する。outboxが空という理由だけで成功にしない。保存失敗のretryは同じintentを使い、端末反映後のCancelをundoと説明しない。
+- 成功後は車一覧、またはallowlistedな呼出元の精算/車割へ戻り、実在する入口にfocusする。費目切替・Backはdraft保持、明示Cancelは未保存draftのみ破棄する。
+- DesktopはCarbon lg以降でlist/editorのsplit、より狭い画面はlist→editのdrill-in。同じcontroller/formを維持し、resizeでURLや入力を変更しない。
 - 車ごとにdraft / 保存中 / 保存失敗 / 確定値を区別する。別車の並行入力をpage全体のSaveで上書きしない。同じ車の同時編集は既存sync / conflict behaviorに従い、失敗や競合を確定表示しない。独自sync protocolを追加しない。
 - Deleteは追加費目のみ。標準費目の0円化/無効化とdeleteを混同しない。
 - Formulaはread-only summaryとして常時確認可能。
