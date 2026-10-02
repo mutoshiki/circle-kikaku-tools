@@ -22,7 +22,7 @@ export default function ExpenseEditor({ snapshot, onFieldChange, onRentalType, o
         </RadioButtonGroup>
         {input('dist', '走行距離（km）', car.dist)}
         {!times && <>{input('eco', '燃費（km/L）', car.eco)}{input('price', 'ガソリン単価（円/L）', car.price)}</>}
-        <Button kind="tertiary" type="button" onClick={onRoute} disabled={frozen}>ルートから距離を計算</Button>
+        <Button id="vehicle-route-launch" kind="tertiary" type="button" onClick={onRoute} disabled={frozen}>ルートから距離を計算</Button>
         <div className="vehicle-cost-preview"><h3>{times ? 'タイムズ移動料金' : 'ガソリン代'}</h3><p>{Number(calc?.movementAmount || 0).toLocaleString('ja-JP')}円</p><p>{formula}</p></div>
       </> : <>{fee.kind === 'extra' && input('name', '費用名', fee.row?.name)}{input('amount', '金額（円）', fee.row?.amount)}</>}
       <RadioButtonGroup name="vehicle-cost-burden" legendText="負担区分" valueSelected={baseType} orientation="vertical" onChange={value => changeType(`${value}${minus ? '-minus' : ''}`)}>
@@ -32,6 +32,6 @@ export default function ExpenseEditor({ snapshot, onFieldChange, onRentalType, o
     </fieldset>
     <div className="vehicle-cost-actions"><Button kind="tertiary" type="button" disabled={frozen} onClick={onAdd}>費用を追加</Button>{onReuse}</div>
     <p>保存すると、この車の未保存の入力をまとめて共有します。</p>
-    <div className="vehicle-cost-actions"><Button type="submit" disabled={frozen}>車両費用を保存</Button><Button kind="secondary" type="button" disabled={frozen} onClick={onCancel}>キャンセル</Button></div>
+    <div className="vehicle-cost-actions"><Button type="submit" disabled={frozen}>車両費用を保存</Button><Button kind="secondary" type="button" disabled={snapshot.saving || !!snapshot.receipt} onClick={onCancel}>キャンセル</Button></div>
   </Form>;
 }

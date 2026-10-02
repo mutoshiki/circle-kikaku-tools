@@ -319,6 +319,14 @@ Rules:
 
 ## 10. Route and movement
 
+Phase F interaction contract（Project interpretation）:
+
+- 車別のworking itineraryと既存のroom-local「前回使用ルート」を区別する。地点・候補・queryはURLやshared費用へ書き込まない。Googleへの送信と、距離だけが費用保存で共有されることを説明する。
+- 検索は専用page。選択はその地点へのlocal操作で、追加の確認stepを要求しない。25経由地、順序変更・削除、道路設定、文字の候補・内訳、任意の地図、走行距離の直接入力を維持する。
+- 検索・resolve・計算・地図の結果はroom/car/task/input revisionと現在の地点へ結び付ける。古い結果やfinallyが現在の結果・loading・focusを変更してはならない。
+- 「この距離を適用」はcurrentなselected resultを既存distance helperで変換し、同じ車の未保存movement editorへ戻す。車割から入った場合も、別の車割return linkを維持する。route Backは距離を書き込まない。
+- 候補は実際のradio keyboard behaviorを持つ。地図やpointerだけに依存せず、地図失敗でも文字候補のApplyと手動入力を残す。
+
 ### User goal
 
 各車の出発・経由・目的地から移動距離と経路を確認し、費用計算へ正しい距離を適用する。
