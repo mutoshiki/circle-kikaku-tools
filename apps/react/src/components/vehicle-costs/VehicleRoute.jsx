@@ -3,7 +3,7 @@ import { Button, Checkbox, ContainedList, ContainedListItem, IconButton, InlineL
 import { ArrowDown, ArrowUp, Close } from '@carbon/icons-react';
 
 export const routeStopId=key=>`vehicle-route-stop-${encodeURIComponent(key)}`;
-export default function VehicleRoute({controller,onSearch,onApply}) {
+export default function VehicleRoute({controller,onSearch,onApply,blockedReason=''}) {
   const snapshot=useSyncExternalStore(controller.subscribe,controller.getSnapshot);
   const {state,stopKeys,calculation,map,revision}=snapshot;
   const [mapOpen,setMapOpen]=useState(false),[optionsOpen,setOptionsOpen]=useState(false),[announcement,setAnnouncement]=useState('');
@@ -35,6 +35,7 @@ export default function VehicleRoute({controller,onSearch,onApply}) {
       {selected && calculation.status==='ready' && <div className="vehicle-route-summary"><h2>選択したルート</h2><p>適用する距離 {controller.applyValue()}km</p>{selected.legs?.map((leg,index)=><p key={index}>{leg.fromName || `地点${index+1}`} → {leg.toName || `地点${index+2}`}　{(Number(leg.distanceMeters)/1000).toFixed(1)}km</p>)}</div>}
     </section>
     {mapOpen && <section id="vehicle-route-map" aria-label="ルート地図"><p role="status">{map.error || (map.status==='pending'?'地図を表示しています':'地図が使えない場合も文字のルートを使用できます。')}</p><div className="vehicle-route-map" ref={mapRef} /></section>}
-    <Button disabled={!controller.applyValue()} onClick={()=>onApply(controller.applyValue())}>この距離を適用</Button>
+    {blockedReason && <p role="status">{blockedReason}</p>}
+    <Button disabled={!!blockedReason || !controller.applyValue()} onClick={()=>{if(!blockedReason)onApply(controller.applyValue());}}>この距離を適用</Button>
   </div>;
 }

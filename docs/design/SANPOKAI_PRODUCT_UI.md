@@ -406,6 +406,7 @@ Phase F interaction contract（Project interpretation）:
 - 車別UI recoveryはcanonical persistenceと別namespace。保存前の入力・戻る・refreshを保持し、他車のdraftを共有保存へ混ぜない。本人を推測せずexisting cost targetを選ぶ。同名projectionなど保存先が曖昧な場合は理由を示して保存を止める。
 - 「車両費用を保存」はその車全体をvalidationし、表示外の問題がある費目へ移動して最初の無効fieldへfocusする。追加費用のblank/pendingを勝手に削除しない。
 - 成功はexisting intent receiptで判定する。outboxが空という理由だけで成功にしない。保存失敗のretryは同じintentを使い、端末反映後のCancelをundoと説明しない。
+- 受理済みでも現在値と異なるreceiptやresetは成功として閉じず、結果確認へ誘導する。明示的な「現在の費用を確認」で入力の控えを閉じる場合は、その破棄と共有費用を変更しないことを説明する。未確認receiptをこの操作で捨てたり、逆方向のwriteで取り消したりしない。
 - 成功後は車一覧、またはallowlistedな呼出元の精算/車割へ戻り、実在する入口にfocusする。費目切替・Backはdraft保持、明示Cancelは未保存draftのみ破棄する。
 - DesktopはCarbon lg以降でlist/editorのsplit、より狭い画面はlist→editのdrill-in。同じcontroller/formを維持し、resizeでURLや入力を変更しない。
 - 車ごとにdraft / 保存中 / 保存失敗 / 確定値を区別する。別車の並行入力をpage全体のSaveで上書きしない。同じ車の同時編集は既存sync / conflict behaviorに従い、失敗や競合を確定表示しない。独自sync protocolを追加しない。

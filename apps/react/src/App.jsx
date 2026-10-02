@@ -132,7 +132,8 @@ export default function App({ runtime }) {
     if (section === 'vehicle-costs') return {
       title:'車両費用',description:'対象車を選び、距離・費用を入力します。',
       ...(vehiclePage?.key === vehicleDestinationJson && vehicleDestination.carKey ? vehiclePage : {}),
-      content:<VehicleCosts runtime={runtime} room={room} resolved={roomResolved} destination={vehicleDestination} onNotice={setFeedback} onPageChange={changeVehiclePage} onReturn={returnFromVehicle} />,
+      metadata:[...(vehiclePage?.key === vehicleDestinationJson && vehicleDestination.carKey ? vehiclePage.metadata || [] : []),...sync],
+      content:<VehicleCosts runtime={runtime} room={room} resolved={roomResolved || syncStatus.kind === 'error' && !!runtime.storage.read('base')} destination={vehicleDestination} onPageChange={changeVehiclePage} onReturn={returnFromVehicle} />,
     };
     if (section === 'settlement') return {
       title: '精算', description: '車ごとの距離・費用を入力し、精算額と集金・支払いを確認します。',

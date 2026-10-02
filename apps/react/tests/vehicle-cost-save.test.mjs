@@ -81,3 +81,41 @@ test('empty outbox is not proof and an accepted receipt never replays a later ed
     await settleVehicleCostSave(r,accepted.receipt,{retry:true});assert.equal(r.server.writes(),after);assert.equal(r.store.domain.settlementInput(r.server.get()).state.cars[target.car.name].dist,'250');
   }finally{r.sync.dispose();}
 });
+
+test('an acknowledged adjusted receipt can close its recovery without inverse write; pending cannot',async()=>{
+  const r=await client(),target=vehicleCostTargets(r.store.getSnapshot(),r.store.domain)[0],cache=cacheFor(target);
+  try{
+    const edit=beginVehicleCostEdit(r,target);edit.state.cars[target.car.name].dist='135';
+    const receipt=publishVehicleCostEdit(r,edit);await r.sync.flush();
+    const later=beginVehicleCostEdit(r,target);later.state.cars[target.car.name].dist='250';publishVehicleCostEdit(r,later);await r.sync.flush();
+    const record={fields:{movement:{dist:'135'}},before:{movement:{dist:'186'}},added:[],removed:[],name:target.car.name,resetGeneration:r.store.getSnapshot().resetGeneration,receipt};
+    cache.write(record);const c=createVehicleCostController({runtime:r,target,cache});
+    assert.equal(c.confirmCurrent(),false);assert.notEqual(cache.read(),null);
+    assert.equal((await c.retry()).disposition,'adjusted');const writes=r.server.writes();
+    assert.equal(c.confirmCurrent(),true);assert.equal(cache.read(),null);assert.equal(r.server.writes(),writes);
+    assert.equal(r.store.domain.settlementInput(r.server.get()).state.cars[target.car.name].dist,'250');c.dispose();
+  }finally{r.sync.dispose();}
+});
+
+test('opening a recovered receipt observes existing acceptance even without a new sync event',async()=>{
+  const r=await client(),target=vehicleCostTargets(r.store.getSnapshot(),r.store.domain)[0],cache=cacheFor(target);
+  try{
+    const edit=beginVehicleCostEdit(r,target);edit.state.cars[target.car.name].dist='135';const receipt=publishVehicleCostEdit(r,edit);await r.sync.flush();
+    const later=beginVehicleCostEdit(r,target);later.state.cars[target.car.name].dist='250';publishVehicleCostEdit(r,later);await r.sync.flush();
+    cache.write({fields:{movement:{dist:'135'}},before:{},added:[],removed:[],name:target.car.name,resetGeneration:r.store.getSnapshot().resetGeneration,receipt});
+    const c=createVehicleCostController({runtime:r,target,cache}),writes=r.server.writes();
+    await new Promise(resolve=>setTimeout(resolve,0));
+    assert.equal(c.getSnapshot().receipt.disposition,'adjusted');assert.equal(c.getSnapshot().receipt.acknowledged,true);
+    assert.equal(r.server.writes(),writes);c.dispose();
+  }finally{r.sync.dispose();}
+});
+
+test('a recovered matching acceptance publishes typed completion for its active UI caller',async()=>{
+  const r=await client(),target=vehicleCostTargets(r.store.getSnapshot(),r.store.domain)[0],cache=cacheFor(target);
+  try{
+    const edit=beginVehicleCostEdit(r,target);edit.state.cars[target.car.name].dist='135';const receipt=publishVehicleCostEdit(r,edit);await r.sync.flush();
+    cache.write({fields:{movement:{dist:'135'}},before:{},added:[],removed:[],name:target.car.name,resetGeneration:r.store.getSnapshot().resetGeneration,receipt});
+    const c=createVehicleCostController({runtime:r,target,cache});await new Promise(resolve=>setTimeout(resolve,0));
+    assert.equal(c.getSnapshot().completion,'saved');assert.equal(cache.read(),null);c.dispose();
+  }finally{r.sync.dispose();}
+});

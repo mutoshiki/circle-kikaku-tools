@@ -9,7 +9,7 @@ export function createVehicleCostController({ runtime, target, cache }) {
   const listeners = new Set(), domain = runtime.store.domain, settlement = domain.settlement;
   let record = cache.read() || { fields: {}, before: {}, added: [], removed: [], resetGeneration: runtime.store.getSnapshot().resetGeneration, name: target.car.name };
   let edit, unavailable = false, status = '', saving = false, closed = false, disposed = false;
-  let receipt = record.receipt || null, snapshot, pending;
+  let receipt = record.receipt || null, snapshot, pending, completion = null;
   if (receipt) status = statusText(receipt.disposition);
   try { edit = beginVehicleCostEdit(runtime, target); } catch (error) { unavailable = true; status = error.message; }
   const car = () => edit?.state.cars[target.car.name];
@@ -53,7 +53,7 @@ export function createVehicleCostController({ runtime, target, cache }) {
     snapshot = { edit, fees: currentFees, issues: edit ? validateVehicleCost({ data: currentInput.data, state: previewState, target: current || target, domain, fees: currentFees }) : { fields: [], valid: false },
       dirty: !!receipt || Object.keys(record.fields || {}).length > 0 || !!record.added?.length || !!record.removed?.length,
       recoverable: cache.isRecoverable(), receipt, frozen: saving || !!receipt || closed || unavailable, unavailable, status,
-      preview: settlement.calculateSettlement(currentInput.data, settlement.normalizeSettlementState(previewState)), saving };
+      preview: settlement.calculateSettlement(currentInput.data, settlement.normalizeSettlementState(previewState)), saving, completion };
     if (!disposed) for (const listener of listeners) listener();
   }
   function persist() {
@@ -109,6 +109,7 @@ export function createVehicleCostController({ runtime, target, cache }) {
     const result = await settleVehicleCostSave(runtime, receipt, { retry, observe, onReceipt(value) { receipt = value; if (!closed) persist(); } });
     receipt = result.receipt; status = statusText(result.disposition);
     if (['saved', 'local'].includes(result.disposition)) {
+      completion = result.disposition;
       closed = true; cache.clear(); if (edit && !edit.session.closed) runtime.store.cancelEdit(edit.session);
       record = { ...record, fields: {}, before: {}, added: [], removed: [] }; receipt = null;
     } else { if (result.disposition === 'reset') unavailable = true; persist(); }
@@ -136,12 +137,15 @@ export function createVehicleCostController({ runtime, target, cache }) {
     pending = settle(true).finally(() => { saving = false; pending = null; refresh(); }); return pending;
   }
   const unsubscribe = runtime.store.subscribe(refresh);
-  const unsubscribeSync = runtime.sync.subscribe?.(() => {
-    if (receipt && !saving && !pending && !closed) void settle(false, true);
-  });
+  const observeReceipt = () => {
+    if (receipt && !saving && !pending && !closed && !disposed) pending = settle(false, true).finally(() => { pending = null; refresh(); });
+  };
+  const unsubscribeSync = runtime.sync.subscribe?.(observeReceipt);
   refresh();
+  queueMicrotask(observeReceipt);
   return { getSnapshot: () => snapshot, subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); }, updateField, setRentalType, setMovementType,
     addExtra: () => add({ name: '', amount: '', type: 'split', pending: true }), reuseExtra: row => add({ name: row.name, amount: row.amount, type: row.type, pending: false }), removeExtra, save, retry,
+    confirmCurrent() { if (saving || !receipt || !receipt.acknowledged && receipt.disposition !== 'reset') return false; closed = true; cache.clear(); if (edit && !edit.session.closed) runtime.store.cancelEdit(edit.session); record.fields = {}; record.before = {}; record.added = []; record.removed = []; receipt = null; refresh(); return true; },
     cancel() { if (receipt || saving) return false; closed = true; cache.clear(); if (edit && !edit.session.closed) runtime.store.cancelEdit(edit.session); record.fields = {}; record.added = []; record.removed = []; refresh(); return true; },
     dispose() { disposed = true; unsubscribe(); unsubscribeSync?.(); listeners.clear(); if (edit && !edit.session.closed) runtime.store.cancelEdit(edit.session); },
   };
