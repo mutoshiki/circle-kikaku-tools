@@ -1,14 +1,16 @@
 import { readFileSync } from 'node:fs';
 export const vehicleFixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', import.meta.url)));
-export async function seedVehicleCostRoom(page, {roomId, room = vehicleFixture}) {
-  await page.addInitScript(({key,value}) => {
+export async function seedVehicleCostRoom(page, {roomId, room = vehicleFixture, routeMode = 'normal'}) {
+  await page.addInitScript(({key,value,routeMode}) => {
     if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(value));
+    let calculations=0;
     window.__REACT_ROUTE_ADAPTER__ = {
-      async search(query) { if (query === '失敗') throw Error('fixture network failure'); if (query === 'なし') return []; return [{placeId:query,name:query,address:'テスト住所',latitude:35,longitude:139}]; },
-      async resolve(place) { return {...place,latitude:35,longitude:139}; },
-      async calculate(state) { return {...state, routes:[{distanceMeters:12345,durationSeconds:1200,description:'候補1',legs:[]},{distanceMeters:18000,durationSeconds:1800,description:'候補2',legs:[]}],selectedRouteIndex:0}; },
+      async search(query) { if (query === '遅い') await new Promise(r=>setTimeout(r,700)); if (query === '失敗') throw Error('fixture network failure'); if (query === 'なし') return []; return [{placeId:query,name:query,address:'テスト住所'}]; },
+      async resolve(place) { if (place.name === '解決失敗') throw Error('fixture resolve failure'); return {...place,latitude:35,longitude:139}; },
+      async calculate(state) { if (routeMode === 'retry' && ++calculations === 1) throw Error('fixture routes failure'); return {...state, routes:[{distanceMeters:12345,durationSeconds:1200,label:'候補1',legs:[]},{distanceMeters:18000,durationSeconds:1800,label:'候補2',legs:[]}],selectedRouteIndex:0}; },
+      async renderMap(){throw Error('fixture map failure');},
     };
-  }, {key:`sanpo-react:v1:${roomId}:room`,value:room});
+  }, {key:`sanpo-react:v1:${roomId}:room`,value:room,routeMode});
 }
 export async function costNav(page, name) {
   const trigger = page.getByRole('button',{name:'企画メニューを開く'});
