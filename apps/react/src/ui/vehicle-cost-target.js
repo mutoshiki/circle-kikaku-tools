@@ -40,7 +40,7 @@ export function vehicleCostFees(carState, domain) {
     if (!row.id && !rowLocators.has(row)) rowLocators.set(row, `local:${++locatorSequence}`);
     const reward = settlement.isDriverRewardExtra(row);
     const standard = reward || settlement.isTimesTimeFeeExtra(row);
-    fees.push({ key: row.id ? `extra:${row.id}` : rowLocators.get(row), row, kind: reward ? 'reward' : standard ? 'times-time' : 'extra', editable: !reward, removable: !standard });
+    fees.push({ key: row.id ? `extra:${row.id}` : standard ? reward ? 'standard:reward' : 'standard:times-time' : rowLocators.get(row), row, kind: reward ? 'reward' : standard ? 'times-time' : 'extra', editable: !reward, removable: !standard });
   }
   return fees;
 }
