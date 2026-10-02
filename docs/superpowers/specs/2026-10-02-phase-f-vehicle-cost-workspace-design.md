@@ -1,6 +1,6 @@
 # Phase F implementation design: vehicle costs, movement, and route
 
-Status: conversational structure approved on 2026-10-02; written specification awaiting user review. Product implementation and implementation plan have not started.
+Status: written specification approved by the user's 「進んで」「続行」 on 2026-10-02. Implementation plan prepared for review; Product UI implementation has not started.
 
 Integration base: `carbon-redesign` at `f232d8d7de2c2077255c47e7f6e02f0085cfda77` (Phase E integrated). Working branch: `codex/phase-f-vehicle-cost-workspace`.
 
@@ -366,6 +366,6 @@ No merge to `main`, React Production Release dispatch, compatibility deploy, roo
 - Consistency: route Apply is local; car Save is shared; Back keeps draft; pre-commit Cancel discards only that draft; post-commit navigation cannot undo an applied write.
 - Feasibility: ID/name scoped writes, projection ambiguity, cache recovery, and receipt evidence have explicit characterization/stop conditions rather than invented domain guarantees.
 - Coverage: observable task, semantic, geometry, concurrency, calculation and real-browser gates are listed; no new implementation/test result is claimed.
-- Review boundary: this specification is ready for user review; implementation planning/code starts only after the written specification is approved.
+- Review boundary: written specification approved on 2026-10-02; the [implementation plan](../plans/2026-10-02-phase-f-vehicle-cost-workspace.md) is the next review artifact. Plan preparation is not implementation acceptance.
 
 Written-spec validation on 2026-10-02: all 22 local file links resolve; no unfinished placeholder remains; staged whitespace check passes. Existing offline `settlement-edit.test.mjs` + `route.test.mjs` passed 10/10 with no skips or changes to assertions. This is baseline/spec evidence only: no Phase F UI code or new tests were added, and the new UI browser/Emulator/CI acceptance matrix remains unexecuted.
