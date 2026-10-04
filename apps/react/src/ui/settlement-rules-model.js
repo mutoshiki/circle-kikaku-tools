@@ -11,7 +11,7 @@ export function projectSettlementRules({ room, edit, domain }) {
   const current = domain.settlement.calculateSettlement(currentInput.data, currentInput.state);
   const candidate = domain.settlement.calculateSettlement(candidateInput.data, candidateInput.state);
   return { patch, candidateRoom, currentInput, candidateInput, current, candidate,
-    readiness: settlementRulesReadiness({ room: candidateRoom, input: candidateInput, result: candidate, domain }) };
+    readiness: settlementRulesReadiness({ room: candidateRoom, targetRoom: room, input: candidateInput, result: candidate, domain }) };
 }
 
 export function validateSettlementRules(state) {
@@ -44,12 +44,13 @@ export function settlementRulesSafety({ room, edit, organizerId = null, patch, d
   return issues;
 }
 
-export function settlementRulesReadiness({ room, input, result, domain }) {
+export function settlementRulesReadiness({ room, targetRoom = room, input, result, domain }) {
   const { data, state } = input, issues = [], owner = domain.settlement.getSettlementIssues(data, state, result);
   if (!result.participants.length) issues.push({ key: 'participants', message: '精算対象がいません。参加者を登録するか、人数を入力してください。', destination: { kind: state.standalone.enabled ? 'rule' : 'participants', fieldKey: 'standalone.driverCount' } });
   if (!data.cars.length) issues.push({ key: 'drivers', message: '車がありません。車割または人数だけの精算を確認してください。', destination: { kind: 'rule', fieldKey: 'standalone.enabled' } });
   if (!result.isStandaloneSettlement && state.organizerFree && result.participants.length && !state.organizerName) issues.push({ key: 'organizer', message: '企画者を選ぶと、免除対象を正確にできます。', destination: { kind: 'rule', fieldKey: 'organizerName' } });
   if (result.payerCount <= 0 && result.participants.length) issues.push({ key: 'payers', message: '現金を集める対象が0人です。免除・差し引きを確認してください。', destination: { kind: 'rule', fieldKey: 'driverCollectionRule' } });
+  const availableTargets = vehicleCostTargets(targetRoom, domain);
   for (const target of vehicleCostTargets(room, domain)) {
     const name = target.car.name, car = domain.settlement.ensureDriverRewardExtra(state.cars[name] || {}, state);
     const fees = vehicleCostFees(car, domain);
@@ -60,8 +61,10 @@ export function settlementRulesReadiness({ room, input, result, domain }) {
       const fee = match ? fees.find(item => item.row === row) : fees[0];
       const label = match ? `${row?.name || '追加費用'}の${match[2] === 'name' ? '費用名' : '金額'}` : ({ dist: '移動距離', eco: '燃費', price: 'ガソリン単価' }[field] || field);
       // Stable IDs / standard keys only; no invented locator for an unknown row.
-      const destination = target.editable && fee ? { kind: 'vehicle-cost', destination: { carKey: target.key, task: 'expense', expenseKey: fee.key, returnTo: { section: 'settlement' } } } : null;
-      issues.push({ key, message: `${target.label}: ${label}を入力してください。${!target.editable ? target.reason : ''}`, destination });
+      const available = availableTargets.find(value => value.key === target.key && value.editable);
+      const destination = target.editable && available && fee ? { kind: 'vehicle-cost', destination: { carKey: target.key, task: 'expense', expenseKey: fee.key, returnTo: { section: 'settlement' } } } : null;
+      const reason = !target.editable ? target.reason : !available ? '先に精算ルールを保存してから、車両費用を入力してください。' : '';
+      issues.push({ key, message: `${target.label}: ${label}を入力してください。${reason}`, destination });
     }
   }
   return issues;

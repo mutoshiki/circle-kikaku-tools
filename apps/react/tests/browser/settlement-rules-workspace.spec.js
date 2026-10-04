@@ -63,7 +63,12 @@ test('protected standalone collection still records a collector through the exis
   const checkbox = page.getByRole('checkbox', { name: '参加者1の集金チェック', exact: true });
   await checkbox.focus(); await checkbox.press('Space');
   const prompt = page.getByRole('dialog', { name: '集金済みにする', exact: true });
-  await expect(prompt).toBeVisible(); await prompt.getByRole('textbox', { name: '集金した人', exact: true }).fill('確認用集金者');
+  await expect(prompt).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(1);
+  const collector = prompt.getByRole('textbox', { name: '集金した人', exact: true });
+  await expect(collector).toBeFocused();
+  await collector.fill('確認用集金者');
+  await expect(collector).toHaveValue('確認用集金者');
   await prompt.getByRole('button', { name: '保存', exact: true }).click(); await expect(prompt).toHaveCount(0);
   await page.getByRole('tab', { name: 'すべて', exact: true }).click();
   await expect(page.getByRole('checkbox', { name: '確認用集金者の集金チェック', exact: true })).toBeChecked();

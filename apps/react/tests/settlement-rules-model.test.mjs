@@ -59,3 +59,14 @@ test('reset is unsafe independent of expenses or form validity', () => {
   const store = create(), edit = beginSettlementEdit(store), room = structuredClone(store.getSnapshot()); room.resetGeneration++;
   assert.equal(settlementRulesSafety({ room, edit, patch: {}, domain: store.domain })[0].key, 'reset');
 });
+
+test('unsaved standalone cars have no corrective link until their target exists in the shared room', () => {
+  const store = create(), edit = beginSettlementEdit(store), domain = store.domain;
+  edit.state.standalone = { enabled: true, driverCount: '1', memberCount: '2', driverNames: ['未保存の運転手'] };
+  const projection = projectSettlementRules({ room: store.getSnapshot(), edit, domain });
+  const issues = projection.readiness.filter(issue => issue.key.startsWith('未保存の運転手:'));
+  assert.ok(issues.length > 0);
+  assert.ok(issues.every(issue => issue.destination === null));
+  assert.ok(issues.every(issue => issue.message.includes('精算ルールを保存')));
+  assert.equal(domain.settlementInput(store.getSnapshot()).state.standalone.enabled, false);
+});

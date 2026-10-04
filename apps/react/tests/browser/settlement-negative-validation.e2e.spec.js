@@ -48,20 +48,23 @@ test('movement distance fuel economy and unit price reject negatives inline',asy
 });
 
 test('standalone counts and driver cooperation money reject negatives inline', async ({ page }) => {
-  await page.getByRole('button', { name: '精算設定を編集' }).click();
-  const dialog = page.getByRole('dialog', { name: '精算設定を編集' });
+  await page.getByRole('link', { name: '精算ルール', exact: true }).click();
+  const dialog = page.getByRole('form', { name: '精算ルール', exact: true });
   await dialog.getByText('人数だけで精算', { exact: true }).click();
   const driverCount = dialog.getByLabel('運転手の人数');
   await driverCount.fill('-1');
+  await driverCount.press('Tab');
   await expect(driverCount).toHaveAttribute('aria-invalid', 'true');
-  await expect(dialog.getByText('人数は0以上で入力してください。')).toBeVisible();
-  await expect(dialog.getByRole('button', { name: '次へ' })).toBeDisabled();
+  await expect(dialog.getByText('0以上の人数を入力してください。', { exact: true })).toBeVisible();
+  await dialog.getByRole('button', { name: '精算ルールを保存', exact: true }).click();
+  await expect(driverCount).toBeFocused();
   await driverCount.fill('1');
-  await expect(dialog.getByRole('button', { name: '次へ' })).toBeEnabled();
-  await dialog.getByRole('button', { name: '次へ' }).click();
+  await expect(driverCount).not.toHaveAttribute('aria-invalid', 'true');
   const reward = dialog.getByLabel('1台あたりの協力代（円）');
   await reward.fill('-300');
+  await reward.press('Tab');
   await expect(reward).toHaveAttribute('aria-invalid', 'true');
-  await expect(dialog.getByText('金額は0円以上で入力してください。')).toBeVisible();
-  await expect(dialog.getByRole('button', { name: '次へ' })).toBeDisabled();
+  await dialog.getByRole('button', { name: '精算ルールを保存', exact: true }).click();
+  await expect(reward).toBeFocused();
+  await expect(dialog.getByText('協力代は0円以上で入力してください。').first()).toBeVisible();
 });
