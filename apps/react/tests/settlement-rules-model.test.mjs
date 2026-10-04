@@ -53,6 +53,7 @@ test('validation preserves existing raw guard and ignores hidden counts and miss
   state.driverReward = '−1'; assert.equal(validateSettlementRules(state).fields[0].key, 'driverReward');
   state.driverReward = '1,000'; assert.equal(validateSettlementRules(state).valid, true);
   state.standalone.driverCount = ''; assert.equal(validateSettlementRules(state).valid, false);
+  state.standalone.driverCount = '1,000'; assert.equal(validateSettlementRules(state).valid, false, 'old raw step guard treats nonnumeric count as zero');
 });
 test('reset is unsafe independent of expenses or form validity', () => {
   const store = create(), edit = beginSettlementEdit(store), room = structuredClone(store.getSnapshot()); room.resetGeneration++;

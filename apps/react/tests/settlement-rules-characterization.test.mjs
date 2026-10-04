@@ -43,7 +43,7 @@ test('raw counts and reward have different existing numeric acceptance; names no
     assert.equal(domain.clampStandaloneCount(raw), count, raw);
     assert.equal(domain.getDriverRewardAmount({ driverReward: raw }), reward, raw);
     // The previous step guard checks the raw sum, not normalized integer counts.
-    assert.equal(Number(raw) + Number('0') <= 0, ['', '0', '-1'].includes(raw), raw);
+    assert.equal((Number(raw) || 0) + (Number('0') || 0) <= 0, ['', '0', '1,000', '-1', '−1'].includes(raw), raw);
   }
   assert.deepEqual(domain.getStandaloneDriverNames({ driverCount: '3', driverNames: ['', ' 同名 ', '同名'] }), ['車出し1', '同名', '同名2']);
 });

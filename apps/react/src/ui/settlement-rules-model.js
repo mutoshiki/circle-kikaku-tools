@@ -19,7 +19,7 @@ export function validateSettlementRules(state) {
   const negative = (value) => /^[-−]/.test(String(value ?? '').trim());
   if (state.standalone.enabled) {
     for (const key of ['driverCount', 'memberCount']) if (negative(state.standalone[key])) fields.push({ key: `standalone.${key}`, message: '0以上の人数を入力してください。' });
-    if (!fields.length && Number(state.standalone.driverCount) + Number(state.standalone.memberCount) <= 0) fields.push({ key: 'standalone.driverCount', message: '精算する人数を入力してください。' });
+    if (!fields.length && (Number(state.standalone.driverCount) || 0) + (Number(state.standalone.memberCount) || 0) <= 0) fields.push({ key: 'standalone.driverCount', message: '精算する人数を入力してください。' });
   }
   if (negative(state.driverReward)) fields.push({ key: 'driverReward', message: '協力代は0円以上で入力してください。' });
   return { valid: fields.length === 0, fields };

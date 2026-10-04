@@ -9,6 +9,21 @@
 body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; }
 * { box-sizing: border-box; }
 .application { min-height: 100dvh; color: var(--cds-text-primary); background: var(--cds-background); }
+.rules-form, .rules-groups, .rules-group, .rules-preview, .rules-save-feedback { display: grid; gap: layout.$spacing-05; min-inline-size: 0; }
+.rules-groups { gap: layout.$spacing-08; }
+.rules-group h2, .rules-preview h2 { @include type.type-style('heading-03'); }
+.rules-preview h3 { @include type.type-style('heading-compact-01'); }
+.rules-form p, .rules-form li { @include type.type-style('body-01'); overflow-wrap: anywhere; }
+.rules-form ul { padding-inline-start: layout.$spacing-05; }
+.rules-form li + li { margin-block-start: layout.$spacing-03; }
+.rules-grid { row-gap: layout.$spacing-07; }
+.rules-input-column, .rules-preview-column, .rules-action-column { min-inline-size: 0; }
+.rules-actions, .rules-parent-entry { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-05; }
+.rules-parent-entry { padding-block-end: layout.$spacing-05; }
+.rules-actions a, .rules-parent-entry a, .rules-readiness a { display: inline-flex; align-items: center; min-block-size: layout.$spacing-09; }
+.rules-readiness { padding-block: layout.$spacing-05; border-block: 1px solid var(--cds-border-subtle); }
+.rules-comparison { inline-size: 100%; table-layout: fixed; }
+.rules-comparison th, .rules-comparison td { white-space: normal; overflow-wrap: anywhere; }
 .vehicle-cost-workspace, .vehicle-cost-form, .vehicle-cost-inputs { display: grid; gap: layout.$spacing-05; min-inline-size: 0; }
 .vehicle-cost-fields { border: 0; padding: 0; margin: 0; }
 .vehicle-cost-fields legend { @include type.type-style('heading-03'); margin-block-end: layout.$spacing-05; max-inline-size: 100%; overflow-wrap: anywhere; }
@@ -143,7 +158,6 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-card { min-width: 0; margin: 0; padding: layout.$spacing-04 0; border: 0; background: var(--cds-layer-01, var(--cds-layer)); }
 .settlement-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: layout.$spacing-03; margin-block-end: layout.$spacing-04; }
 .settlement-vehicles-card .settlement-section-heading { align-items: flex-start; }
-.settlement-settings-action { flex: 0 0 auto; inline-size: auto; max-inline-size: none; }
 .settlement-section-heading h1, .settlement-section-heading h2 { font-size: 1.25rem; line-height: 1.4; }
 .settlement-section-heading p, .settlement-section-heading small { display: block; color: var(--cds-text-secondary); margin-block-start: layout.$spacing-02; }
 .settlement-collection-summary > span { white-space: nowrap; }
@@ -192,10 +206,8 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-memo-actions { display: flex; flex-wrap: wrap; gap: layout.$spacing-02; }
 .settlement-extra-list { display: grid; gap: 1px; background: var(--cds-border-subtle); }
 .settlement-extra-row { display: grid; grid-template-columns: minmax(10rem, 1.2fr) minmax(7rem, .7fr) minmax(8rem, .8fr) auto; align-items: end; gap: layout.$spacing-04; padding: layout.$spacing-05; background: var(--cds-layer); }
-.settlement-settings-form fieldset { min-width: 0; }
-.settlement-settings-progress { overflow-x: auto; padding-block-end: layout.$spacing-03; }
-.settlement-settings-step, .settlement-form-section { display: grid; gap: layout.$spacing-06; }
-.settlement-settings-step > h3, .modal-section-heading h3 { font-size: 1rem; line-height: 1.4; }
+.settlement-form-section { display: grid; gap: layout.$spacing-06; }
+.modal-section-heading h3 { font-size: 1rem; line-height: 1.4; }
 .modal-section-heading { padding-block-end: layout.$spacing-04; border-bottom: 1px solid var(--cds-border-subtle); }
 .modal-section-heading p { margin-block-start: layout.$spacing-02; color: var(--cds-text-secondary); font-size: .875rem; }
 .sample-actions { display: grid; gap: .5rem; }
@@ -245,9 +257,5 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   .distance-field { grid-template-columns: 1fr; }
   .cds--modal.is-visible { align-items: flex-end; block-size: 100dvh; padding: 0; }
   .cds--modal.is-visible .cds--modal-container { position: relative; inset: auto; transform: none; inline-size: 100%; max-inline-size: 100%; block-size: auto; min-block-size: 0; max-block-size: 100dvh; margin-block-start: auto; }
-  .settlement-settings-modal .cds--progress--space-equal .cds--progress-label { margin-inline-end: 0; font-size: .75rem; }
-  .settlement-settings-modal .cds--progress--space-equal .cds--progress-step,
-  .settlement-settings-modal .cds--progress--space-equal .cds--progress-line { min-inline-size: 0; }
-  .settlement-settings-progress.cds--progress--vertical { overflow: visible; padding-block-end: 0; }
   .app-modal .cds--modal-footer .cds--btn { white-space: nowrap; padding-inline: 1rem; }
 }
