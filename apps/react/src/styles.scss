@@ -9,9 +9,9 @@
 body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; }
 * { box-sizing: border-box; }
 .application { min-height: 100dvh; color: var(--cds-text-primary); background: var(--cds-background); }
-.vehicle-cost-workspace, .vehicle-cost-form, .vehicle-cost-fields { display: grid; gap: layout.$spacing-05; min-inline-size: 0; }
+.vehicle-cost-workspace, .vehicle-cost-form, .vehicle-cost-inputs { display: grid; gap: layout.$spacing-05; min-inline-size: 0; }
 .vehicle-cost-fields { border: 0; padding: 0; margin: 0; }
-.vehicle-cost-fields legend { @include type.type-style('heading-03'); margin-block-end: layout.$spacing-05; }
+.vehicle-cost-fields legend { @include type.type-style('heading-03'); margin-block-end: layout.$spacing-05; max-inline-size: 100%; overflow-wrap: anywhere; }
 .vehicle-cost-row { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-03 layout.$spacing-05; padding-block: layout.$spacing-03; overflow-wrap: anywhere; }
 .vehicle-cost-row > strong { flex-basis: 100%; @include type.type-style('heading-compact-01'); }
 .vehicle-cost-grid { row-gap: layout.$spacing-06; }

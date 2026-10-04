@@ -55,7 +55,7 @@ export default function ProjectShell({ projectName, roomId, section, navigation,
   function navigate(id) {
     const changed = navigation.navigate(id);
     setMobileNavOpen(false);
-    if (!changed) requestAnimationFrame(() => document.getElementById('project-page-title')?.focus());
+    if (!changed || id === section) requestAnimationFrame(() => document.getElementById('project-page-title')?.focus());
   }
 
   function dismissNavigation() {

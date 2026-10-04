@@ -16,7 +16,7 @@ export default function ExpenseEditor({ snapshot, onFieldChange, onRentalType, o
   const formula = times ? `走行距離 ${car.dist || '未入力'}km` : `${car.dist || '未入力'}km ÷ ${car.eco || '未入力'}km/L × ${car.price || '未入力'}円/L`;
   return <Form aria-label="車両費用の入力" className="vehicle-cost-form" onCompositionStart={() => { composing.current = true; }} onCompositionEnd={() => { composing.current = false; }} onSubmit={event => { event.preventDefault(); if (!composing.current && !event.nativeEvent.isComposing) onSave(); }}>
     <fieldset className="vehicle-cost-fields" disabled={frozen}><legend>{fee.kind === 'movement' ? '移動条件' : fee.row?.name || '追加費用'}</legend>
-      {fee.kind === 'movement' ? <>
+      <div className="vehicle-cost-inputs">{fee.kind === 'movement' ? <>
         <RadioButtonGroup name="vehicle-rental-type" legendText="車の種類" valueSelected={times ? 'times' : 'private'} onChange={onRentalType} orientation="vertical">
           <RadioButton id="vehicle-private" value="private" labelText="自家用車" /><RadioButton id="vehicle-times" value="times" labelText="タイムズ" />
         </RadioButtonGroup>
@@ -29,6 +29,7 @@ export default function ExpenseEditor({ snapshot, onFieldChange, onRentalType, o
         <RadioButton id="vehicle-cost-split" value="split" labelText="割勘" /><RadioButton id="vehicle-cost-club" value="club" labelText="部費" />
       </RadioButtonGroup>
       {fee.kind !== 'movement' && <Checkbox id="vehicle-cost-minus" labelText={`${baseType === 'club' ? '部費' : '割勘'}の費用から差し引く`} helperText="金額は0円以上で入力します。" checked={minus} onChange={(_, {checked}) => changeType(`${baseType}${checked ? '-minus' : ''}`)} />}
+      </div>
     </fieldset>
     <div className="vehicle-cost-actions"><Button kind="tertiary" type="button" disabled={frozen} onClick={onAdd}>費用を追加</Button>{onReuse}</div>
     <p>保存すると、この車の未保存の入力をまとめて共有します。</p>
