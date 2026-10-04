@@ -1,6 +1,6 @@
 # Phase G implementation design: settlement rules and calculation explanation
 
-Status: review-ready written design proposal (2026-10-05). The user approved concretizing the single-page approach with 「具体化」. Written-spec approval, implementation planning and Product UI implementation have not occurred.
+Status: written design approved (2026-10-05) by the user's 「実装計画へ」. [Implementation plan](../plans/2026-10-05-phase-g-settlement-rules.md) prepared for review; Product UI implementation has not started. Normative-owner clarifications in §11 will be applied before UI implementation.
 
 Integration base: `carbon-redesign` at `dbd4d76c3456e344d13f2f36004303616b99b385` (Phase F integrated). Working branch: `codex/phase-g-settlement-rules`.
 
@@ -273,7 +273,7 @@ no-opでは新intentを作らない。比較結果が変更なしなら「変更
 | §13 / §14 | shareCountとpayerCount、1人額と車別端数、未保存試算と共有受理、費用readinessとsettings validityを区別 |
 | §20 / §22 | 一つのURL-owned rules task/controller/form、lg split/狭幅single column、末尾action、document scroll、既存focus/keyboard/token contractを累積適用 |
 
-このturnではnormative owner自体を変更しない。written-spec承認後、実装計画と同じPhase G branchで必要な規則をownerへ反映し、上記proposalを仕様回避の例外として使わない。具体化後の本書はそのownerへのtraceabilityと実装説明だけを担う。
+written-specは承認済み。実装計画Task 1で、同じPhase G branchのnormative ownerへ必要な規則を反映してからUI実装へ進む。上記具体化を仕様回避の例外として使わない。反映後の本書はそのownerへのtraceabilityと実装説明だけを担う。
 
 ## 12. Implementation boundaries, review focus, and completion
 
