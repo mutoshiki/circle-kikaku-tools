@@ -67,6 +67,12 @@ export function readVehicleCostTask(href) {
   return { carKey, task, expenseKey, stopKey, returnTo, invalid };
 }
 
+export function readSettlementTask(href) {
+  if (readProjectSection(href) !== 'settlement') return { task: '', invalid: false };
+  const task = new URL(href).searchParams.get('task') || '';
+  return { task: task === 'rules' ? task : '', invalid: !['', 'rules'].includes(task) };
+}
+
 export function prepareProjectLaunch(options) {
   const requestedUrl = new URL(options.location.href);
   const initialSection = readProjectSection(requestedUrl.href);
@@ -102,6 +108,7 @@ export function createProjectNavigation({ location, history, eventTarget }) {
     getTaskSnapshot,
     getAllocationTaskSnapshot: () => JSON.stringify(readAllocationTask(location.href)),
     getVehicleCostTaskSnapshot: () => JSON.stringify(readVehicleCostTask(location.href)),
+    getSettlementTaskSnapshot: () => JSON.stringify(readSettlementTask(location.href)),
     hrefFor(section) {
       const url = new URL(createProjectSectionUrl(location.href, section));
       return `${url.pathname}${url.search}${url.hash}`;
@@ -153,6 +160,20 @@ export function createProjectNavigation({ location, history, eventTarget }) {
     replaceVehicleCostTask(destination) {
       const href = this.vehicleCostTaskHrefFor(destination);
       const current = new URL(location.href);
+      if (`${current.pathname}${current.search}${current.hash}` === href) return false;
+      history.replaceState(history.state || null, '', href);
+      eventTarget?.dispatchEvent(new Event('sanpo:sectionchange'));
+      return true;
+    },
+    settlementTaskHrefFor(task = '') {
+      if (!['', 'rules'].includes(task)) throw new Error('Unknown settlement destination');
+      const url = new URL(createProjectSectionUrl(location.href, 'settlement'));
+      if (task) url.searchParams.set('task', task);
+      return `${url.pathname}${url.search}${url.hash}`;
+    },
+    navigateSettlementTask(task) { return push(this.settlementTaskHrefFor(task), 'settlement'); },
+    replaceSettlementTask(task) {
+      const href = this.settlementTaskHrefFor(task), current = new URL(location.href);
       if (`${current.pathname}${current.search}${current.hash}` === href) return false;
       history.replaceState(history.state || null, '', href);
       eventTarget?.dispatchEvent(new Event('sanpo:sectionchange'));
