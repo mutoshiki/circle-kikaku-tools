@@ -287,7 +287,7 @@ High: assignment persistence, pin behavior, recalculation, and touch/drag behavi
 
 ## Phase F — Route, movement, and vehicle-cost workspace
 
-Candidate evidence: [Phase F validation](./evidence/PHASE_F_VALIDATION.md) records task contracts, actual browser/Emulator runs, protected-owner comparison and pending review/CI/integration gates. It is descriptive, not a second normative specification; completion requires safe integration into `carbon-redesign`.
+Candidate evidence: [Phase F validation](./evidence/PHASE_F_VALIDATION.md) records task contracts, the independent review and one correction pass, final local browser/Emulator results and protected-owner comparison. At its pre-PR checkpoint, CI/integration remain separate gates recorded in the integration PR. It is descriptive, not a second normative specification; completion requires successful CI and safe integration into `carbon-redesign`.
 
 ### Goal
 

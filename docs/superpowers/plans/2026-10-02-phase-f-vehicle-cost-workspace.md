@@ -10,7 +10,7 @@
 
 **Spec:** [Approved Phase F design](../specs/2026-10-02-phase-f-vehicle-cost-workspace-design.md). [SANPOKAI_PRODUCT_UI.md](../../design/SANPOKAI_PRODUCT_UI.md) is the sole normative Product UI specification; this plan is execution guidance, not another specification.
 
-Status: Native execution approved. Tasks 1–8 are committed and verified; Task 9 final review, CI and `carbon-redesign` integration remain in progress. Checkboxes below preserve the approved execution instructions; actual outcomes are recorded in [Phase F validation](../../design/evidence/PHASE_F_VALIDATION.md).
+Status at the pre-PR checkpoint: Native execution approved. Tasks 1–8 are committed and verified; Task 9 independent review, its single correction pass and final local cumulative gates are verified. PR CI and `carbon-redesign` integration remain in progress and are recorded separately in the integration PR. Checkboxes below preserve the approved execution instructions; actual local outcomes are recorded in [Phase F validation](../../design/evidence/PHASE_F_VALIDATION.md).
 
 ## Global Constraints
 
