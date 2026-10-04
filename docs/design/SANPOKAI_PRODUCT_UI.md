@@ -404,12 +404,14 @@ Phase F interaction contract（Project interpretation）:
 
 - 費目を切替えても未保存draftを失わない。
 - 車別UI recoveryはcanonical persistenceと別namespace。保存前の入力・戻る・refreshを保持し、他車のdraftを共有保存へ混ぜない。本人を推測せずexisting cost targetを選ぶ。同名projectionなど保存先が曖昧な場合は理由を示して保存を止める。
+- 保存先の名前比較は既存canonical ownerと一致させる（空白正規化・大文字小文字を区別しない）。name-only保存先が既存Firebase pathで安全に表現できない場合は理由と入力の控えを保持し、保存を止める。UI独自のescaping、identity、schemaで回避しない。これは既存保存境界のtechnical constraintへのProject interpretationであり、Carbon公式の規則ではない。
 - 「車両費用を保存」はその車全体をvalidationし、表示外の問題がある費目へ移動して最初の無効fieldへfocusする。追加費用のblank/pendingを勝手に削除しない。
 - 成功はexisting intent receiptで判定する。outboxが空という理由だけで成功にしない。保存失敗のretryは同じintentを使い、端末反映後のCancelをundoと説明しない。
 - 受理済みでも現在値と異なるreceiptやresetは成功として閉じず、結果確認へ誘導する。明示的な「現在の費用を確認」で入力の控えを閉じる場合は、その破棄と共有費用を変更しないことを説明する。未確認receiptをこの操作で捨てたり、逆方向のwriteで取り消したりしない。
 - 成功後は車一覧、またはallowlistedな呼出元の精算/車割へ戻り、実在する入口にfocusする。費目切替・Backはdraft保持、明示Cancelは未保存draftのみ破棄する。
 - DesktopはCarbon lg以降でlist/editorのsplit、より狭い画面はlist→editのdrill-in。同じcontroller/formを維持し、resizeでURLや入力を変更しない。
 - 車ごとにdraft / 保存中 / 保存失敗 / 確定値を区別する。別車の並行入力をpage全体のSaveで上書きしない。同じ車の同時編集は既存sync / conflict behaviorに従い、失敗や競合を確定表示しない。独自sync protocolを追加しない。
+- 車一覧へ戻っても当該車の未確認・失敗・調整済みreceiptを識別できるようにする。端末へ適用された合計を共有保存済みと表示しない。車種切替で非表示になった入力は共有費用とは別のdraftとして復元し、古いcontrollerの完了が新しい同じ車の下書きを消してはならない。
 - Deleteは追加費目のみ。標準費目の0円化/無効化とdeleteを混同しない。
 - Formulaはread-only summaryとして常時確認可能。
 - 「ルートから距離を計算」はtertiary navigation。nested modalにしない。

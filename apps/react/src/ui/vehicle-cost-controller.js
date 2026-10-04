@@ -7,7 +7,9 @@ const statusText = disposition => ({ pending: '共有保存中', failed: '共有
 
 export function createVehicleCostController({ runtime, target, cache }) {
   const listeners = new Set(), domain = runtime.store.domain, settlement = domain.settlement;
-  let record = cache.read() || { fields: {}, before: {}, added: [], removed: [], resetGeneration: runtime.store.getSnapshot().resetGeneration, name: target.car.name };
+  const recovered = cache.read();
+  let persistedRecord = copy(recovered);
+  let record = recovered || { fields: {}, before: {}, added: [], removed: [], resetGeneration: runtime.store.getSnapshot().resetGeneration, name: target.car.name };
   let edit, unavailable = false, status = '', saving = false, closed = false, disposed = false;
   let receipt = record.receipt || null, snapshot, pending, completion = null;
   if (receipt) status = statusText(receipt.disposition);
@@ -21,7 +23,7 @@ export function createVehicleCostController({ runtime, target, cache }) {
     if (record.resetGeneration !== edit.session.base.resetGeneration || record.name !== target.car.name) unavailable = true;
     if (!receipt) for (const [key, changes] of Object.entries(record.before || {})) for (const [field, value] of Object.entries(changes)) {
       if (record.added?.some(row => key === `extra:${row.id}`)) continue;
-      if (key === 'standard:times-time' && record.fields?.movement?.rentalType === 'times' && !settlement.isTimesRentalCar(car())) continue;
+      if (key === 'standard:times-time' && record.fields?.movement?.rentalType && !settlement.isTimesRentalCar(car())) continue;
       if (!same(fieldValue(key, field), value)) unavailable = true;
     }
     // Retain stale input for inspection/recovery, but never publish it by guessing.
@@ -37,6 +39,7 @@ export function createVehicleCostController({ runtime, target, cache }) {
         }
       }
       else if (fee(key)) Object.assign(fee(key).row, fields);
+      else if (key === 'standard:times-time' && !settlement.isTimesRentalCar(car())) continue;
       else unavailable = true;
     }
     for (const key of record.removed || []) car().extras = car().extras.filter(row => row !== fee(key)?.row);
@@ -58,8 +61,13 @@ export function createVehicleCostController({ runtime, target, cache }) {
   }
   function persist() {
     record.receipt = receipt;
-    cache.write(record);
+    if (!disposed || same(cache.read(), persistedRecord)) {
+      cache.write(record); persistedRecord = copy(record);
+    }
     refresh();
+  }
+  function clearRecovery() {
+    if (!disposed || same(cache.read(), persistedRecord)) { cache.clear(); persistedRecord = null; }
   }
   function remember(key, field) {
     record.before[key] ||= {};
@@ -85,6 +93,8 @@ export function createVehicleCostController({ runtime, target, cache }) {
     if (snapshot.frozen) return;
     remember('movement', 'rentalType'); record.fields.movement ||= {}; record.fields.movement.rentalType = type;
     edit.state.cars[target.car.name] = settlement.ensureDriverRewardExtra(settlement.ensureTimesRentalExtras({ ...car(), rentalType: type }), edit.state);
+    const timeFee = fee('standard:times-time');
+    if (timeFee && record.fields['standard:times-time']) Object.assign(timeFee.row, record.fields['standard:times-time']);
     persist();
   }
   function setMovementType(type) {
@@ -110,7 +120,7 @@ export function createVehicleCostController({ runtime, target, cache }) {
     receipt = result.receipt; status = statusText(result.disposition);
     if (['saved', 'local'].includes(result.disposition)) {
       completion = result.disposition;
-      closed = true; cache.clear(); if (edit && !edit.session.closed) runtime.store.cancelEdit(edit.session);
+      closed = true; clearRecovery(); if (edit && !edit.session.closed) runtime.store.cancelEdit(edit.session);
       record = { ...record, fields: {}, before: {}, added: [], removed: [] }; receipt = null;
     } else { if (result.disposition === 'reset') unavailable = true; persist(); }
     refresh(); return result;

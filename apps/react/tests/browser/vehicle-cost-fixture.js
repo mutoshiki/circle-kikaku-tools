@@ -8,7 +8,7 @@ export async function seedVehicleCostRoom(page, {roomId, room = vehicleFixture, 
       async search(query) { if (query === '遅い') await new Promise(r=>setTimeout(r,700)); if (query === '失敗') throw Error('fixture network failure'); if (query === 'なし') return []; return [{placeId:query,name:query,address:'テスト住所'}]; },
       async resolve(place) { if (place.name === '解決失敗') throw Error('fixture resolve failure'); return {...place,latitude:35,longitude:139}; },
       async calculate(state) { if (routeMode === 'retry' && ++calculations === 1) throw Error('fixture routes failure'); return {...state, routes:[{distanceMeters:12345,durationSeconds:1200,label:'候補1',legs:[]},{distanceMeters:18000,durationSeconds:1800,label:'候補2',legs:[]}],selectedRouteIndex:0}; },
-      async renderMap(){throw Error('fixture map failure');},
+      async renderMap(element,state){if(routeMode!=='held-map')throw Error('fixture map failure');await new Promise(resolve=>window.__releaseRouteMap=resolve);element.textContent=`地図: ${state.routes[state.selectedRouteIndex].label}`;},
     };
   }, {key:`sanpo-react:v1:${roomId}:room`,value:room,routeMode});
 }

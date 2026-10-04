@@ -17,6 +17,8 @@ export function createVehicleRouteController({roomId,carKey,service,routeDraft,w
   delete state.stopKeys;delete state.searchQuery;
   let revision=0,context={task:'',stopKey:''},contextVersion=0,disposed=false,timer;
   let searchToken=0,resolveToken=0,calculationToken=0,mapToken=0;
+  let mapCanvas;
+  const releaseMap=()=>{mapCanvas?.remove();mapCanvas=null;};
   let search={query:working?.searchQuery || '',predictions:[],status:'idle',error:''};
   let calculation={status:state.routes.length?'ready':'idle',error:''},map={status:'idle',error:''},snapshot;
   const listeners=new Set();
@@ -24,9 +26,10 @@ export function createVehicleRouteController({roomId,carKey,service,routeDraft,w
   const persist=()=>{const serialized=clone(state);routeDraft.write(serialized);rememberWorking({...serialized,stopKeys:clone(stopKeys),searchQuery:search.query});};
   const stamp=()=>({roomId,carKey,revision,contextVersion});
   const current=s=>!disposed && s.roomId===roomId && s.carKey===carKey && s.revision===revision && s.contextVersion===contextVersion;
-  function invalidate() { revision++;resolveToken++;calculationToken++;mapToken++;state={...state,routes:[],selectedRouteIndex:0,roundTrip:false};calculation={status:'idle',error:''};map={status:'idle',error:''}; }
+  function invalidate() { releaseMap();revision++;resolveToken++;calculationToken++;mapToken++;state={...state,routes:[],selectedRouteIndex:0,roundTrip:false};calculation={status:'idle',error:''};map={status:'idle',error:''}; }
   function setContext(next) {
     if (disposed || context.task===next.task && context.stopKey===(next.stopKey || '')) return;
+    releaseMap();
     context={task:next.task,stopKey:next.stopKey || ''};contextVersion++;searchToken++;resolveToken++;calculationToken++;mapToken++;clearTimeout(timer);
     search={...search,predictions:[],status:'idle',error:''};
     if(calculation.status==='pending')calculation={status:'idle',error:''};
@@ -69,9 +72,10 @@ export function createVehicleRouteController({roomId,carKey,service,routeDraft,w
     stopKeys={...stopKeys,waypoints:waypoints.map((_,i)=>waypointKeys[i] || stopId())};persist();emit();
   }
   function setOptions(options) {if(disposed)return;invalidate();for(const field of ['avoidTolls','avoidHighways','avoidFerries'])if(Object.hasOwn(options,field))state={...state,[field]:!!options[field]};persist();emit();}
-  function selectRoute(index) {if(disposed || calculation.status!=='ready' || !state.routes[index])return;state={...state,selectedRouteIndex:index};mapToken++;map={status:'idle',error:''};persist();emit();}
+  function selectRoute(index) {if(disposed || calculation.status!=='ready' || !state.routes[index])return;releaseMap();state={...state,selectedRouteIndex:index};mapToken++;map={status:'idle',error:''};persist();emit();}
   async function calculate() {
     if(disposed || !state.origin || !state.destination)return;
+    releaseMap();mapToken++;map={status:'idle',error:''};
     const owner=stamp(),token=++calculationToken;calculation={status:'pending',error:''};emit();
     try {
       const result=await service.calculate(clone({...state,roundTrip:false}));
@@ -82,13 +86,20 @@ export function createVehicleRouteController({roomId,carKey,service,routeDraft,w
   }
   async function renderMap(element) {
     if(disposed || !element?.isConnected || calculation.status!=='ready')return;
+    releaseMap();
     const owner=stamp(),token=++mapToken;map={status:'pending',error:''};emit();
-    try {if(!service.renderMap)throw Error('map unavailable');await service.renderMap(element,clone(state));if(current(owner) && token===mapToken && element.isConnected){map={status:'ready',error:''};emit();}}
+    try {
+      if(!service.renderMap)throw Error('map unavailable');
+      const canvas=element.ownerDocument.createElement('div');
+      canvas.className='vehicle-route-map-canvas';element.appendChild(canvas);mapCanvas=canvas;
+      await service.renderMap(canvas,clone(state));
+      if(current(owner) && token===mapToken && canvas.isConnected){map={status:'ready',error:''};emit();}
+    }
     catch(error){if(current(owner) && token===mapToken && element.isConnected){map={status:'error',error:'地図を表示できません。文字のルート候補、または走行距離の直接入力を使用できます。'};emit();}}
   }
   emit();
   return {getSnapshot:()=>snapshot,subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn);},setContext,setQuery,resolveStop,setStops,setOptions,selectRoute,calculate,renderMap,
     applyValue(){const value=calculation.status==='ready' && distanceKilometers(state);return value>0?String(value):null;},
-    dispose(){disposed=true;clearTimeout(timer);searchToken++;resolveToken++;calculationToken++;mapToken++;listeners.clear();},
+    dispose(){disposed=true;releaseMap();clearTimeout(timer);searchToken++;resolveToken++;calculationToken++;mapToken++;listeners.clear();},
   };
 }

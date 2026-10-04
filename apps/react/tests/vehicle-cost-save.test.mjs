@@ -48,6 +48,62 @@ test('standalone exact participant-name match uses the existing canonical ID pat
   assert.ok(Object.keys(receipt.patch).length>0);assert.ok(Object.keys(receipt.patch).every(p=>p.startsWith('settlement/carsByParticipantId/p_1xeyc8h/')));
 });
 
+test('canonical-equivalent owner names block publication instead of saving another car values',async()=>{
+  const r=await client(false);
+  r.store.command('editParticipant',{id:'p_1xeyc8h',changes:{name:'Alex'}});
+  r.store.command('editParticipant',{id:'p_1y8x5be',changes:{name:'ALEX'}});
+  const before=structuredClone(r.store.getSnapshot()),targets=vehicleCostTargets(before,r.store.domain);
+  assert.ok(targets.every(t=>!t.editable && t.reason));
+  for(const target of targets)assert.throws(()=>beginVehicleCostEdit(r,target));
+  assert.deepEqual(r.store.getSnapshot(),before);
+});
+
+test('unique canonical-equivalent standalone name saves intended values into its existing participant account',async()=>{
+  const r=await client(false);
+  r.store.command('editParticipant',{id:'p_1xeyc8h',changes:{name:'Alex Smith'}});
+  const state=r.store.domain.settlementInput(r.store.getSnapshot()).state;
+  state.standalone={enabled:true,driverCount:'1',memberCount:'3',driverNames:['ALEX   Smith']};r.store.command('settlement',{state});
+  const target=vehicleCostTargets(r.store.getSnapshot(),r.store.domain)[0],edit=beginVehicleCostEdit(r,target);
+  Object.assign(edit.state.cars[target.car.name],{dist:'888',eco:'10',price:'150'});
+  const receipt=publishVehicleCostEdit(r,edit);
+  assert.ok(receipt && Object.keys(receipt.patch).length);
+  assert.ok(Object.keys(receipt.patch).every(p=>p.startsWith('settlement/carsByParticipantId/p_1xeyc8h/')));
+  assert.equal(r.store.getSnapshot().settlement.carsByParticipantId.p_1xeyc8h.dist,'888');
+  assert.equal(r.store.getSnapshot().settlement.carsByParticipantId.p_1y8x5be.dist,'41.5');
+});
+
+test('unrepresentable name-backed Firebase paths block Save without changing any financial account',async()=>{
+  for(const name of ['田中:/車','田中.車','田中#車','田中$車','田中[車]','田中\u0001車']){
+    const r=await client(false),state=r.store.domain.settlementInput(r.store.getSnapshot()).state;
+    state.standalone={enabled:true,driverCount:'1',memberCount:'3',driverNames:[name]};r.store.command('settlement',{state});
+    const before=structuredClone(r.store.getSnapshot()),target=vehicleCostTargets(before,r.store.domain)[0];
+    assert.equal(target.editable,false,name);assert.match(target.reason,/名前/);
+    assert.throws(()=>beginVehicleCostEdit(r,target));assert.deepEqual(r.store.getSnapshot(),before);
+  }
+});
+
+test('private Times private draft recovers usable inputs and dormant time fee without shared writes',async()=>{
+  const r=await client(false),target=vehicleCostTargets(r.store.getSnapshot(),r.store.domain)[0],cache=cacheFor(target),before=structuredClone(r.store.getSnapshot());
+  let c=createVehicleCostController({runtime:r,target,cache});
+  c.updateField('movement','dist','210');c.setRentalType('times');c.updateField('standard:times-time','amount','2500');c.setRentalType('private');c.dispose();
+  c=createVehicleCostController({runtime:r,target,cache});assert.equal(c.getSnapshot().unavailable,false);
+  assert.equal(c.getSnapshot().edit.state.cars[target.car.name].dist,'210');
+  c.setRentalType('times');assert.equal(c.getSnapshot().fees.find(f=>f.kind==='times-time').row.amount,'2500');
+  c.setRentalType('private');assert.equal((await c.save()).disposition,'local');
+  assert.equal(r.store.getSnapshot().settlement.carsByParticipantId.p_1xeyc8h.dist,'210');
+  assert.deepEqual(r.store.getSnapshot().settlement.carsByParticipantId.p_1y8x5be,before.settlement.carsByParticipantId.p_1y8x5be);c.dispose();
+});
+
+test('Times private Times recovery retains the edited time fee and valid Save',async()=>{
+  const r=await client(false),target=vehicleCostTargets(r.store.getSnapshot(),r.store.domain)[1],cache=cacheFor(target);
+  let c=createVehicleCostController({runtime:r,target,cache});
+  const key=c.getSnapshot().fees.find(f=>f.kind==='times-time').key;
+  c.updateField(key,'amount','3200');c.setRentalType('private');c.setRentalType('times');c.dispose();
+  c=createVehicleCostController({runtime:r,target,cache});assert.equal(c.getSnapshot().unavailable,false);
+  assert.equal(c.getSnapshot().fees.find(f=>f.kind==='times-time').row.amount,'3200');
+  assert.equal((await c.save()).disposition,'local');c.dispose();
+});
+
 test('rejected Save freezes payload across reload and retries without duplicate extras',async()=>{
   const r=await client(),target=vehicleCostTargets(r.store.getSnapshot(),r.store.domain)[0],cache=cacheFor(target);
   try {
@@ -118,4 +174,20 @@ test('a recovered matching acceptance publishes typed completion for its active 
     const c=createVehicleCostController({runtime:r,target,cache});await new Promise(resolve=>setTimeout(resolve,0));
     assert.equal(c.getSnapshot().completion,'saved');assert.equal(cache.read(),null);c.dispose();
   }finally{r.sync.dispose();}
+});
+
+test('a disposed save completion cannot erase a newer draft for the same car',async()=>{
+  const r=await client(),target=vehicleCostTargets(r.store.getSnapshot(),r.store.domain)[0],cache=cacheFor(target);
+  let release;const hold=new Promise(resolve=>release=resolve),flush=r.sync.flush.bind(r.sync);
+  r.sync={...r.sync,flush:async()=>{await flush();await hold;}};
+  try{
+    const old=createVehicleCostController({runtime:r,target,cache});old.updateField('movement','dist','210');const pending=old.save();
+    await new Promise(resolve=>setTimeout(resolve,0));old.dispose();
+    const observed=createVehicleCostController({runtime:r,target,cache});await new Promise(resolve=>setTimeout(resolve,0));
+    assert.equal(observed.getSnapshot().completion,'saved');observed.dispose();
+    const newer=createVehicleCostController({runtime:r,target,cache});newer.updateField('movement','dist','300');
+    release();await pending;
+    assert.equal(cache.read()?.fields.movement.dist,'300');
+    assert.equal(r.store.getSnapshot().settlement.carsByParticipantId.p_1xeyc8h.dist,'210');newer.dispose();
+  }finally{release();r.sync.dispose();}
 });

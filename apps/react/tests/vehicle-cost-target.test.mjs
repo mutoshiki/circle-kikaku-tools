@@ -20,7 +20,7 @@ test('cost target follows the structural anchor despite missing or multiple driv
   assert.equal(resolveVehicleCostTarget(targets, 'participant:gone'), null);
 });
 
-test('standalone car retains the exact Japanese fallback identity', () => {
+test('standalone car retains an unrepresentable fallback identity but blocks editing with an explanation', () => {
   const store = createRoomStore();
   const state = store.domain.settlementInput(store.getSnapshot()).state;
   state.standalone = { enabled: true, driverCount: '1', memberCount: '3', driverNames: ['田中:/車'] };
@@ -29,7 +29,8 @@ test('standalone car retains the exact Japanese fallback identity', () => {
   assert.equal(targets.length, 1);
   assert.equal(targets[0].key, 'name:田中:/車');
   assert.equal(resolveVehicleCostTarget(targets, targets[0].key).car.name, '田中:/車');
-  assert.equal(targets[0].editable, true);
+  assert.equal(targets[0].editable, false);
+  assert.match(targets[0].reason, /名前/);
 });
 
 test('duplicate name projection is exposed rather than guessed into an ID-backed save', () => {

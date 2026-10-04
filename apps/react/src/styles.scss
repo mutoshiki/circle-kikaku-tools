@@ -32,6 +32,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .vehicle-place-result { display: grid; gap: layout.$spacing-02; overflow-wrap: anywhere; }
 .vehicle-place-result span { color: var(--cds-text-secondary); }
 .vehicle-route-map { block-size: 50dvh; min-block-size: layout.$spacing-13; }
+.vehicle-route-map-canvas { block-size: 100%; inline-size: 100%; }
 .app-header__project { display: flex; align-items: center; min-inline-size: 0; margin-inline-end: auto; padding-inline: layout.$spacing-05; border-inline-start: 1px solid var(--cds-border-subtle); color: var(--cds-text-secondary); }
 .app-header__project span { overflow: hidden; max-inline-size: 25vw; text-overflow: ellipsis; white-space: nowrap; }
 .project-navigation__context { display: grid; gap: layout.$spacing-02; padding: layout.$spacing-05; border-block-end: 1px solid var(--cds-border-subtle); }

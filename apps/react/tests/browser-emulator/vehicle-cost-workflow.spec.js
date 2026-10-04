@@ -132,6 +132,12 @@ test('denied double-submit freezes one payload; reload retry registers the origi
     expect(original.added).toHaveLength(1);expect(original.receipt.patch).toBeTruthy();
     socket.release();await expect.poll(async()=> (await cached(page,id,target.key))?.data?.receipt?.canRetry).toBe(true);
     await expect(page.getByRole('button',{name:'共有保存を再試行',exact:true})).toBeEnabled();
+    await costNav(page,'車両費用');
+    const recoveryRow=page.getByRole('listitem').filter({has:page.getByRole('link',{name:`${target.label}の費用を入力`,exact:true})});
+    await expect(recoveryRow.getByText('共有保存に失敗',{exact:true})).toBeVisible();
+    await expect(recoveryRow.getByText(/^保存済み合計/)).toHaveCount(0);
+    await expect(recoveryRow.getByText(/^現在の合計（共有保存を確認）/)).toBeVisible();
+    const extraUrl=new URL(page.url());extraUrl.searchParams.set('car',target.key);extraUrl.searchParams.set('task','expense');extraUrl.searchParams.set('expense',`extra:${original.added[0].id}`);await page.goto(extraUrl.href);
     expect((await shared(request,id)).settlement.carsByParticipantId[target.car.participantId].extras.some(e=>e.id===original.added[0].id)).toBe(false);
     await page.reload();await expect(page.getByRole('status').filter({hasText:/共有保存に失敗しました|保存結果を確認できません/})).toBeVisible();
     await expect(page.getByRole('textbox',{name:'金額（円）',exact:true})).toHaveValue('400');await expect(page.getByRole('textbox',{name:'金額（円）',exact:true})).toBeDisabled();

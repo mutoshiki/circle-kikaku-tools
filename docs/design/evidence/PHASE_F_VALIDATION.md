@@ -1,6 +1,6 @@
 # Phase F validation evidence
 
-Status: implementation candidate; independent whole-branch review, cumulative browser result, PR CI and integration are still pending. This file records evidence, not a second Product UI specification. Normative owner: [SANPOKAI_PRODUCT_UI.md](../SANPOKAI_PRODUCT_UI.md), especially §10, §12, §20–23.
+Status: independently reviewed candidate; one effect-graded TDD correction pass is implemented. Post-correction cumulative browser, PR CI and integration remain pending. This file records evidence, not a second Product UI specification. Normative owner: [SANPOKAI_PRODUCT_UI.md](../SANPOKAI_PRODUCT_UI.md), especially §10, §12, §20–23.
 
 ## Scope and provenance
 
@@ -32,6 +32,7 @@ All tests use synthetic data, guarded offline or demo Emulator configuration. No
 | Gate | Command / suite | Observed result |
 | --- | --- | --- |
 | Full unit after Task 9 owner-local corrections | Root `npm test` | 126/126, zero fail/skip |
+| Full unit after independent-review correction pass | Root `npm test` | 133/133, zero fail/skip |
 | Golden financial characterization | `vehicle-cost-calculation.test.mjs` | 5/5 against unchanged legacy reference; complete result equality, not invented formulas |
 | Affected feature matrix at Task 7 | workspace/route/settlement/negative/route-Carbon files, all four projects | 116/116 |
 | Cost/route after Task 8 recovery corrections | workspace + route, all four projects | 36/36 |
@@ -43,6 +44,7 @@ All tests use synthetic data, guarded offline or demo Emulator configuration. No
 | Protected owner comparison | `git diff f232d8d..HEAD` plus working changes over assets/Firebase/domain/store/sync/route/runtime/services | Empty |
 | Change classifier | `node tools/classify-release-changes.mjs f232d8d HEAD` | React true; shared/legacy/infrastructure false; React CI and shared collaboration/Firebase gates remain required |
 | Initial cumulative offline browser | `npm --prefix apps/react run test:browser`, four projects | 356 passed / 4 failed / 12 pre-existing conditional skips. All failures: `phase-ab-review` current-section canonicalization focus, one per project; correction and final rerun pending |
+| Pre-review-fix cumulative offline browser at `39c20b4` | Same full four-project command | 364 passed / 12 existing conditional skips / zero failures (376 cases); does not certify subsequent fixes |
 
 Safety target variables are set in each runner process. Offline uses `demo-circle-react` with a loopback database URL; Emulator uses Auth 9098/RTDB 9008 and the same demo project. Preview ports are 4176 offline and 4175 Emulator. The temporary absolute-path Emulator config is not committed and does not alter repository Rules.
 
@@ -82,7 +84,26 @@ The full browser configuration already contains eight desktop skips of mobile-on
 - Denied-reload test first waits for persisted rejection proof and enabled Retry. Rendering a Retry button while pending is not rejection proof; unknown reload is separately protected.
 - Final review occurs after local candidate evidence but before Task 9 completion/CI/merge because Task 9 itself contains those gates. It does not mark unfinished integration complete.
 
-Pending: single fresh-context whole-branch review and any verified Critical/Important TDD fixes, final cumulative browser result, PR CI, safe merge only to `carbon-redesign` and remote SHA verification.
+## Independent whole-branch review and one correction pass
+
+Fresh-context `gpt-6-astra` reviewed `f232d8d..39c20b4` read-only against the plan, normative owner, evidence and ledger. Its verdict was **not ready to merge**. The author independently reproduced and effect-graded the findings, rather than accepting the labels as authority:
+
+| Finding | Actual effect / correction | RED → GREEN evidence |
+| --- | --- | --- |
+| Critical: exact-string name checks disagree with canonical equality | `Alex` / `ALEX` could publish the other car's financial values; an alias-only standalone Save could be a no-op. Reuse unchanged canonical name normalization/resolution, block collisions, assert actual intended values as well as narrow paths | `vehicle-cost-save`: collision blocking and unique whitespace/case alias publication |
+| Critical: unsafe name-backed path | `田中:/車` could write nested malformed data while appearing successful. Block unrepresentable fallback keys with preserved input/explanation; do not invent escaping or change schema. An existing unambiguous participant account still uses its existing safe ID | Same suite: six reserved-character cases retain the entire room unchanged and reject editing |
+| Important: vehicle-type recovery | Private → Times time fee → private became falsely unavailable after reopening. Retain inactive generated-fee input only in the local draft, reapply on returning to Times; preserve unrelated inputs and domain transformation | Same suite: private/Times/private reopening fails first, then saves correctly; reverse direction characterized |
+| Important: stale map mutations | Status tokens were too late to stop the real service drawing into the live node. UI owns a disposable child canvas and detaches it at input/selection/context/disposal changes; service bytes stay unchanged | Real `createRouteService` + deferred SDK: stale overlays/bounds target disconnected nodes; rendered browser additionally checks canvas dimensions and removal |
+| Reviewer Minor → author Important: receipt state hidden on vehicle list | Failed/local amounts looked shared saved. List and page metadata distinguish pending/failed/unknown/adjusted receipts and require shared-value confirmation | Browser list states first fail; real denied-write Emulator additionally observes the affected row after leaving |
+| Additional Important reproduced within the same pass: old completion erases newer same-car draft | After acceptance was reconciled by a new observer, a disposed older controller could clear a fresh `300` draft. Its recovery writes/clear now require ownership of the unchanged persisted record | Real sync acceptance with deferred UI completion: missing `300` RED, retained `300` GREEN; shared accepted value stays `210` |
+
+The five original findings and the same-pass additional recovery race are addressed without a second review round. No reviewer Minor remains deferred after regrading. Full unit is 133/133; all final browser/Emulator and CI results must still be observed before integration.
+
+Test-harness failures remain disclosed: the first additional late-completion test attempted to mutate a frozen sync object (harness error, not RED), then wrapped the real owner and reproduced input loss. A new browser radio `.check()` was intercepted by Carbon's label in all four projects (24/28 intermediate result); it now uses the existing native Arrow-key contract without force, CSS overrides or skipping. New denied-recovery navigation initially reused a helper requiring `同期完了` while intentionally rejected (52/54 intermediate result); direct task re-entry preserves the rejection assertions instead of falsely expecting success.
+
+The review declined to adjudicate protected identity/merge changes, later G/H feature redesign, live providers, physical-device input/chrome/safe-area, native SR, prohibited production operations, historical pre-F manifest mismatches, and pending final CI/merge. Those boundaries remain explicit: protected owners unchanged, later features retained, Phase I device/provider/SR gates pending, old manifest failure candid, no production, and no completion before observed integration.
+
+Pending: post-correction cumulative browser/Emulator result, PR CI, safe merge only to `carbon-redesign` and remote SHA verification.
 
 Retained Phase I checks: live Google Maps/Places/Routes under approved safe configuration, physical software-keyboard/browser chrome, device safe-area, native NVDA/VoiceOver and final integration regression. Synthetic taps, screenshots, semantic assertions and reduced-motion emulation do not constitute those device/SR checks.
 

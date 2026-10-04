@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { seedVehicleCostRoom, editFee, costNav } from './vehicle-cost-fixture.js';
 test.beforeEach(async({page},info)=>{
   const roomId=`ROUTE-F-${info.project.name}-${info.testId}`;
-  await seedVehicleCostRoom(page,{roomId,routeMode:info.title.includes('retry')?'retry':'normal'});
+  await seedVehicleCostRoom(page,{roomId,routeMode:info.title.includes('retry')?'retry':info.title.includes('delayed map')?'held-map':'normal'});
   await page.goto(`/?room=${roomId}&section=organization-car`);
   await page.getByRole('link',{name:'仮参加者A車の費用',exact:true}).click();
   await editFee(page,'移動条件');
@@ -14,6 +14,18 @@ async function selectStop(page,role,query){
   await page.getByRole('searchbox',{name:'場所を検索',exact:true}).fill(query);
   await page.getByRole('button',{name:new RegExp(query)}).click();
 }
+
+test('delayed map DOM mutations cannot remain visible after deleting a stop',async({page})=>{
+  await selectStop(page,'出発地','出発');await selectStop(page,'目的地','登山口');
+  await expect(page.getByRole('radio',{name:/候補1/})).toBeChecked();
+  await page.getByRole('button',{name:'地図を表示',exact:true}).click();
+  await expect.poll(()=>page.evaluate(()=>typeof window.__releaseRouteMap)).toBe('function');
+  expect(await page.locator('.vehicle-route-map-canvas').evaluate(node=>node.getBoundingClientRect().height)).toBeGreaterThan(100);
+  await page.getByRole('button',{name:'目的地を削除',exact:true}).click();
+  await page.evaluate(()=>window.__releaseRouteMap());
+  await expect(page.getByText('地図: 候補1',{exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'この距離を適用',exact:true})).toBeDisabled();
+});
 test('allocation route Apply edits the same unsaved car; radio Arrow keys and Back do not save',async({page})=>{
   await expect(page.getByText('地点とルートはこの端末の入力履歴です。')).toBeVisible();
   await selectStop(page,'出発地','集合場所');await selectStop(page,'目的地','登山口');
@@ -61,7 +73,7 @@ test('retry route failure and map failure leave text and manual fallback usable'
 });
 test('stop reorder removal have logical keyboard focus and announce order',async({page})=>{
   await selectStop(page,'出発地','出発');await selectStop(page,'目的地','目的地');
-  for(const name of ['経由A','経由B']){await page.getByRole('link',{name:'経由地を追加',exact:true}).click();await page.getByRole('searchbox',{name:'場所を検索',exact:true}).fill(name);await page.getByRole('button',{name:new RegExp(name)}).click();}
+  for(const name of ['経由A','経由B']){await page.getByRole('link',{name:'経由地を追加',exact:true}).click();await expect(page.getByRole('heading',{level:1,name:'経由地を検索',exact:true})).toBeFocused();const query=page.getByRole('searchbox',{name:'場所を検索',exact:true});await query.fill(name);await expect(query).toHaveValue(name);await page.getByRole('button',{name:new RegExp(name)}).click();}
   await page.getByRole('button',{name:'経由地 2を上へ',exact:true}).press('Enter');
   await expect(page.getByRole('button',{name:'経由地 1を下へ',exact:true})).toBeFocused();
   await expect(page.getByRole('status').filter({hasText:'経由地の順序を変更しました'})).toBeVisible();

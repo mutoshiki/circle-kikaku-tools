@@ -10,8 +10,7 @@ export function beginVehicleCostEdit(runtime, target) {
   // Standalone names can already map to a participant through the unchanged
   // conversion owner. Select that exact existing path, not a new cost account.
   if (!edit.session.participantId) {
-    const matching = Object.values(edit.session.base.participants).filter(person => person.name === current.car.name);
-    if (matching.length === 1) edit.session.participantId = matching[0].id;
+    edit.session.participantId = runtime.store.domain.canonical.findParticipantIdByName(edit.session.base.participants, current.car.name);
   }
   return edit;
 }

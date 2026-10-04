@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createVehicleRouteController } from '../src/ui/vehicle-route-controller.js';
+import { createRouteService } from '../src/route/service.js';
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};};
 const place=n=>({placeId:n,name:n,latitude:35,longitude:139});
 const tick=()=>new Promise(r=>setTimeout(r,200));
@@ -9,6 +10,31 @@ function make(service={},working=null) {
   const c=createVehicleRouteController({roomId:'LOCAL-F',carKey:'participant:a',service,working,routeDraft:{read:()=>({}),write:value=>writes.push(value)},rememberWorking:value=>writes.push(value)});
   return {c,writes};
 }
+
+// Minimal connected tree at the external SDK boundary; the real route service
+// still constructs maps, overlays and bounds against the node it is given.
+function mapHost(){
+  const document={createElement(){return {ownerDocument:document,parent:null,children:[],style:{},get isConnected(){return !!this.parent?.isConnected;},appendChild(child){child.parent=this;this.children.push(child);},remove(){if(this.parent)this.parent.children=this.parent.children.filter(n=>n!==this);this.parent=null;}};}};
+  const host=document.createElement();Object.defineProperty(host,'isConnected',{value:true});return host;
+}
+
+test('delayed real map rendering cannot draw an obsolete route into the connected page',async()=>{
+  for(const change of ['stops','selection','context','dispose']){
+    const sdk=deferred(),host=mapHost(),drawn=[];
+    const service=createRouteService({loadLibraries:()=>sdk.promise});
+    const {c}=make(service,{origin:place('s'),destination:place('e'),routes:[{distanceMeters:12345,path:[{lat:35,lng:139}]},{distanceMeters:18000,path:[{lat:36,lng:140}]}],selectedRouteIndex:0});
+    c.setContext({task:'route'});const pending=c.renderMap(host);
+    if(change==='stops')c.setStops({destination:null});
+    if(change==='selection')c.selectRoute(1);
+    if(change==='context')c.setContext({task:'expense'});
+    if(change==='dispose')c.dispose();
+    sdk.resolve({maps:{Map:class{constructor(element){this.element=element;}fitBounds(){drawn.push(this.element);}},Polyline:class{constructor({map}){drawn.push(map.element);}setMap(){}},LatLngBounds:class{extend(){}isEmpty(){return false;}}}});
+    await pending;
+    assert.ok(drawn.length>0,'real service attempted to draw');
+    assert.equal(drawn.some(node=>node.isConnected),false,change);
+    if(change!=='dispose')c.dispose();
+  }
+});
 
 test('entering a restored search owns initialization before the next typed query',async()=>{
   const {c}=make({search:async q=>[place(q)]},{searchQuery:'previous'});
@@ -48,7 +74,7 @@ test('leave or disposal fences old car completion and map errors do not block te
   const delayed=deferred();const {c}=make({calculate:()=>delayed.promise},{origin:place('s'),destination:place('e')});
   c.setContext({task:'route'});const request=c.calculate();c.setContext({task:'expense'});delayed.resolve({routes:[{distanceMeters:1000}]});await request;assert.equal(c.applyValue(),null);c.dispose();
   const live=make({calculate:async()=>({routes:[{distanceMeters:12345}]}),renderMap:async()=>{throw Error('SDK failed');}},{origin:place('s'),destination:place('e')}).c;
-  live.setContext({task:'route'});await live.calculate();await live.renderMap({isConnected:true});assert.equal(live.getSnapshot().map.status,'error');assert.equal(live.applyValue(),'12.3');live.dispose();
+  live.setContext({task:'route'});await live.calculate();await live.renderMap(mapHost());assert.equal(live.getSnapshot().map.status,'error');assert.equal(live.applyValue(),'12.3');live.dispose();
 });
 test('local cache seed, waypoint bound, recent places and disconnected map preserve service contract',async()=>{
   let request;const writes=[];

@@ -4,21 +4,25 @@ let locatorSequence = 0;
 
 export function vehicleCostTargets(room, domain) {
   const { data } = domain.settlementInput(room);
+  const nameKey = domain.canonical.normalizeNameKey;
   const counts = new Map();
-  for (const car of data.cars) counts.set(car.name, (counts.get(car.name) || 0) + 1);
+  for (const car of data.cars) counts.set(nameKey(car.name), (counts.get(nameKey(car.name)) || 0) + 1);
   const participantCounts = new Map();
-  for (const person of Object.values(room.participants || {})) participantCounts.set(person.name, (participantCounts.get(person.name) || 0) + 1);
+  for (const person of Object.values(room.participants || {})) participantCounts.set(nameKey(person.name), (participantCounts.get(nameKey(person.name)) || 0) + 1);
   const ordinals = new Map();
   return data.cars.map(car => {
-    const ambiguous = counts.get(car.name) > 1 || participantCounts.get(car.name) > 1;
-    const ordinal = (ordinals.get(car.name) || 0) + 1;
-    ordinals.set(car.name, ordinal);
+    const normalizedName = nameKey(car.name);
+    const ambiguous = counts.get(normalizedName) > 1 || participantCounts.get(normalizedName) > 1;
+    const participantId = car.participantId || domain.canonical.findParticipantIdByName(room.participants || {}, car.name);
+    const unsafeName = !participantId && /[/.#$\[\]\u0000-\u001f\u007f]/.test(car.name);
+    const ordinal = (ordinals.get(normalizedName) || 0) + 1;
+    ordinals.set(normalizedName, ordinal);
     return {
       key: car.participantId ? `participant:${car.participantId}` : `name:${car.name}`,
       car,
-      label: `${car.name}車${counts.get(car.name) > 1 ? `（${ordinal}）` : ''}`,
-      editable: !ambiguous,
-      reason: ambiguous ? '同名の参加者がいるため、費用の保存先を特定できません。現在の費用を確認してください。' : '',
+      label: `${car.name}車${counts.get(normalizedName) > 1 ? `（${ordinal}）` : ''}`,
+      editable: !ambiguous && !unsafeName,
+      reason: ambiguous ? '同じ名前として扱われる参加者がいるため、費用の保存先を特定できません。現在の費用を確認してください。' : unsafeName ? '名前に保存できない文字が含まれています。入力の控えは残しています。精算設定の車の名前を確認してください。' : '',
     };
   });
 }
