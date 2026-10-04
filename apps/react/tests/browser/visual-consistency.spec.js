@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { navigateToProjectSection } from './project-navigation.js';
+import { editFee } from './vehicle-cost-fixture.js';
 test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   const roomId = 'VISUAL-CONSISTENCY-RC';
   await page.setViewportSize({ width: 390, height: 844 });
@@ -10,7 +11,7 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await sample.getByRole('radio', { name: '通常サンプル', exact: true }).check({ force: true });
   await sample.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
 
-  await expect(page.getByRole('navigation', { name: '企画内ナビゲーション' }).getByRole('link')).toHaveCount(6);
+  await expect(page.getByRole('navigation', { name: '企画内ナビゲーション' }).getByRole('link')).toHaveText(['参加者','車割','班割','車両費用','精算','概要','履歴']);
   const participantHeading = page.getByRole('heading', { name: '参加者', exact: true });
   await expect(participantHeading).toBeVisible();
   const participantInset = (await participantHeading.boundingBox()).x;
@@ -66,11 +67,12 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await expect(collectionDialog.locator('.settlement-collection-row.excluded .cds--tag').first()).toBeVisible();
   await collectionDialog.getByRole('button', { name: '閉じる', exact: true }).last().click();
   const paymentCard = page.locator('.settlement-car').first();
-  await expect(paymentCard.getByRole('button', { name: '費用を入力', exact: true })).toHaveClass(/cds--btn--ghost/);
-  await paymentCard.getByRole('button', { name: '費用を入力', exact: true }).click();
-  const editCost = page.getByRole('dialog', { name: /藤原 拓海車/ });
+  await expect(paymentCard.getByRole('button', { name: /費用を入力$/ })).toHaveClass(/cds--btn--ghost/);
+  await paymentCard.getByRole('button', { name: /費用を入力$/ }).click();
+  const editCost = page.getByRole('heading', {level:1,name:/藤原 拓海車の費用/});
   await expect(editCost).toBeVisible();
-  await editCost.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await editFee(page,'移動条件');
+  await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
   const expand = paymentCard.getByRole('button', { name: /割勘.*部費/ });
   await expand.click();
   await expect(expand).toHaveAttribute('aria-expanded', 'true');

@@ -5,12 +5,14 @@ export const PROJECT_SECTIONS = Object.freeze([
   'participants',
   'organization-car',
   'organization-team',
+  'vehicle-costs',
   'settlement',
   'history-settings',
 ]);
 
 const SECTION_SET = new Set(PROJECT_SECTIONS);
 const ALLOCATION_TASKS = new Set(['', 'group', 'assign', 'unassigned', 'presentation']);
+const VEHICLE_COST_TASKS = new Set(['', 'expense', 'route', 'route-search']);
 export const DEFAULT_PROJECT_SECTION = 'participants';
 
 export function readProjectSection(href) {
@@ -31,10 +33,7 @@ export function createProjectSectionUrl(href, section) {
   if (!SECTION_SET.has(section)) throw new Error(`Unknown project section: ${section}`);
   const url = new URL(href);
   url.searchParams.set('section', section);
-  url.searchParams.delete('view');
-  url.searchParams.delete('allocation');
-  url.searchParams.delete('task');
-  url.searchParams.delete('group');
+  for (const key of ['view', 'allocation', 'task', 'group', 'car', 'expense', 'stop', 'return', 'returnGroup']) url.searchParams.delete(key);
   url.hash = '';
   return url.toString();
 }
@@ -51,6 +50,21 @@ export function readAllocationTask(href) {
     return { type, task: '', groupId: '', invalid: true };
   }
   return { type, task, groupId: needsGroup ? groupId : '', invalid: false };
+}
+
+export function readVehicleCostTask(href) {
+  const empty = { carKey: '', task: '', expenseKey: '', stopKey: '', returnTo: null, invalid: false };
+  if (readProjectSection(href) !== 'vehicle-costs') return empty;
+  const params = new URL(href).searchParams;
+  const carKey = params.get('car') || '', task = params.get('task') || '';
+  const expenseKey = params.get('expense') || '', stopKey = params.get('stop') || '';
+  const caller = params.get('return') || '', groupId = params.get('returnGroup') || '';
+  const returnTo = caller === 'settlement' && !groupId ? { section: caller } : caller === 'organization-car' && groupId ? { section: caller, groupId } : null;
+  const invalid = !VEHICLE_COST_TASKS.has(task) || Boolean(carKey && !/^(participant|name):.+$/s.test(carKey)) || Boolean(task && !carKey)
+    || (task === 'expense' ? !expenseKey || !!stopKey : !!expenseKey)
+    || (task === 'route-search' ? !stopKey : !!stopKey)
+    || Boolean((caller || groupId) && !returnTo) || Boolean(!carKey && (expenseKey || stopKey || caller || groupId));
+  return { carKey, task, expenseKey, stopKey, returnTo, invalid };
 }
 
 export function prepareProjectLaunch(options) {
@@ -87,13 +101,13 @@ export function createProjectNavigation({ location, history, eventTarget }) {
     getSnapshot,
     getTaskSnapshot,
     getAllocationTaskSnapshot: () => JSON.stringify(readAllocationTask(location.href)),
+    getVehicleCostTaskSnapshot: () => JSON.stringify(readVehicleCostTask(location.href)),
     hrefFor(section) {
       const url = new URL(createProjectSectionUrl(location.href, section));
       return `${url.pathname}${url.search}${url.hash}`;
     },
     navigate(section) {
       const href = this.hrefFor(section);
-      if (section === getSnapshot() && !new URL(location.href).searchParams.has('task') && !new URL(location.href).searchParams.has('group')) return false;
       return push(href, section);
     },
     taskHrefFor(task) {
@@ -118,6 +132,26 @@ export function createProjectNavigation({ location, history, eventTarget }) {
     },
     replaceAllocationTask(type, task, groupId = '') {
       const href = this.allocationTaskHrefFor(type, task, groupId);
+      const current = new URL(location.href);
+      if (`${current.pathname}${current.search}${current.hash}` === href) return false;
+      history.replaceState(history.state || null, '', href);
+      eventTarget?.dispatchEvent(new Event('sanpo:sectionchange'));
+      return true;
+    },
+    vehicleCostTaskHrefFor({ carKey = '', task = '', expenseKey = '', stopKey = '', returnTo = null } = {}) {
+      const url = new URL(createProjectSectionUrl(location.href, 'vehicle-costs'));
+      if (carKey) url.searchParams.set('car', carKey);
+      if (task) url.searchParams.set('task', task);
+      if (task === 'expense' && expenseKey) url.searchParams.set('expense', expenseKey);
+      if (task === 'route-search' && stopKey) url.searchParams.set('stop', stopKey);
+      if (returnTo?.section) url.searchParams.set('return', returnTo.section);
+      if (returnTo?.section === 'organization-car' && returnTo.groupId) url.searchParams.set('returnGroup', returnTo.groupId);
+      if (readVehicleCostTask(url.href).invalid) throw new Error('Unknown vehicle cost destination');
+      return `${url.pathname}${url.search}${url.hash}`;
+    },
+    navigateVehicleCostTask(destination) { return push(this.vehicleCostTaskHrefFor(destination), 'vehicle-costs'); },
+    replaceVehicleCostTask(destination) {
+      const href = this.vehicleCostTaskHrefFor(destination);
       const current = new URL(location.href);
       if (`${current.pathname}${current.search}${current.hash}` === href) return false;
       history.replaceState(history.state || null, '', href);

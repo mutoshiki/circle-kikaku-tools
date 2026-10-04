@@ -1,6 +1,6 @@
 # 山歩会企画ツール Product UI specification
 
-Status: normative product UI specification v1.3 (reviewed 2026-10-02; Phase E allocation clarification and reviewed interaction fixes)
+Status: normative product UI specification v1.4 (2026-10-02; Phase F vehicle-cost draft, save, route ownership contract)
 Research snapshot: 2026-09-29
 Design basis: [CARBON_PRODUCT_PRINCIPLES.md](./CARBON_PRODUCT_PRINCIPLES.md) / [CARBON_PATTERNS.md](./CARBON_PATTERNS.md)
 
@@ -202,7 +202,7 @@ Primaryと同じtask内の代替・補助。Cancelを含む。Primaryなしで�
 | participant / group属性 | explicit save | short formならModal可。複雑化したらdetail page |
 | participant selection | staged selection + apply/confirm | selection toolbar。変更影響をconfirm |
 | 精算設定 | explicit save as one transaction | dedicated settings task。validation後にcommit |
-| 車両費用 | local draft + apply per logical unit + final save | dedicated workspace。nested modalにしない |
+| 車両費用 | 車単位local draft + explicit shared save | dedicated workspace。費目切替に中間確定を要求しない。route結果だけを「適用」でdraftへ移す。nested modalにしない |
 | 支払い済み / 集金済み | immediate state change + recoverability | row内で結果を即表示。既存ownerがreversalを許す場合は戻せる操作を提供し、失敗時は確定表示しない。毎回toastなし |
 | 履歴復元 | explicit destructive/impact confirmation | 復元対象時刻、影響、取り消し可否を示す |
 
@@ -319,6 +319,14 @@ Rules:
 
 ## 10. Route and movement
 
+Phase F interaction contract（Project interpretation）:
+
+- 車別のworking itineraryと既存のroom-local「前回使用ルート」を区別する。地点・候補・queryはURLやshared費用へ書き込まない。Googleへの送信と、距離だけが費用保存で共有されることを説明する。
+- 検索は専用page。選択はその地点へのlocal操作で、追加の確認stepを要求しない。25経由地、順序変更・削除、道路設定、文字の候補・内訳、任意の地図、走行距離の直接入力を維持する。
+- 検索・resolve・計算・地図の結果はroom/car/task/input revisionと現在の地点へ結び付ける。古い結果やfinallyが現在の結果・loading・focusを変更してはならない。
+- 「この距離を適用」はcurrentなselected resultを既存distance helperで変換し、同じ車の未保存movement editorへ戻す。車割から入った場合も、別の車割return linkを維持する。route Backは距離を書き込まない。
+- 候補は実際のradio keyboard behaviorを持つ。地図やpointerだけに依存せず、地図失敗でも文字候補のApplyと手動入力を残す。
+
 ### User goal
 
 各車の出発・経由・目的地から移動距離と経路を確認し、費用計算へ正しい距離を適用する。
@@ -381,7 +389,7 @@ Rules:
 
 ### Target structure
 
-- Vehicle cost list: 車、合計、距離、issue、last update。
+- Vehicle cost list: 車、保存済み合計、距離、issue、未保存draftの有無。last updateは実際の対象車metadataがある場合のみ表示し、企画activityから捏造しない。
 - 各ドライバーが自分の車を識別して直接編集できる入口を持つ。現在の認証から本人と車を確実に対応できない場合は車 / 運転手labelで選択させ、本人を推測しない。driver専用の権限・account・schemaはこのUI仕様から導入しない。
 - Vehicle cost detail/workspace:
   1. 費目list
@@ -395,7 +403,15 @@ Rules:
 ### Rules
 
 - 費目を切替えても未保存draftを失わない。
+- 車別UI recoveryはcanonical persistenceと別namespace。保存前の入力・戻る・refreshを保持し、他車のdraftを共有保存へ混ぜない。本人を推測せずexisting cost targetを選ぶ。同名projectionなど保存先が曖昧な場合は理由を示して保存を止める。
+- 保存先の名前比較は既存canonical ownerと一致させる（空白正規化・大文字小文字を区別しない）。name-only保存先が既存Firebase pathで安全に表現できない場合は理由と入力の控えを保持し、保存を止める。UI独自のescaping、identity、schemaで回避しない。これは既存保存境界のtechnical constraintへのProject interpretationであり、Carbon公式の規則ではない。
+- 「車両費用を保存」はその車全体をvalidationし、表示外の問題がある費目へ移動して最初の無効fieldへfocusする。追加費用のblank/pendingを勝手に削除しない。
+- 成功はexisting intent receiptで判定する。outboxが空という理由だけで成功にしない。保存失敗のretryは同じintentを使い、端末反映後のCancelをundoと説明しない。
+- 受理済みでも現在値と異なるreceiptやresetは成功として閉じず、結果確認へ誘導する。明示的な「現在の費用を確認」で入力の控えを閉じる場合は、その破棄と共有費用を変更しないことを説明する。未確認receiptをこの操作で捨てたり、逆方向のwriteで取り消したりしない。
+- 成功後は車一覧、またはallowlistedな呼出元の精算/車割へ戻り、実在する入口にfocusする。費目切替・Backはdraft保持、明示Cancelは未保存draftのみ破棄する。
+- DesktopはCarbon lg以降でlist/editorのsplit、より狭い画面はlist→editのdrill-in。同じcontroller/formを維持し、resizeでURLや入力を変更しない。
 - 車ごとにdraft / 保存中 / 保存失敗 / 確定値を区別する。別車の並行入力をpage全体のSaveで上書きしない。同じ車の同時編集は既存sync / conflict behaviorに従い、失敗や競合を確定表示しない。独自sync protocolを追加しない。
+- 車一覧へ戻っても当該車の未確認・失敗・調整済みreceiptを識別できるようにする。端末へ適用された合計を共有保存済みと表示しない。車種切替で非表示になった入力は共有費用とは別のdraftとして復元し、古いcontrollerの完了が新しい同じ車の下書きを消してはならない。
 - Deleteは追加費目のみ。標準費目の0円化/無効化とdeleteを混同しない。
 - Formulaはread-only summaryとして常時確認可能。
 - 「ルートから距離を計算」はtertiary navigation。nested modalにしない。

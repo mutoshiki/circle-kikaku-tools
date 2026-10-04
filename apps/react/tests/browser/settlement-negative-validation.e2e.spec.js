@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { navigateToProjectSection } from './project-navigation.js';
+import { editFee } from './vehicle-cost-fixture.js';
 
 test.beforeEach(async ({ page }, testInfo) => {
   const projectId = testInfo.project.name === 'chromium-mobile' ? 'M' : 'D';
@@ -15,65 +16,35 @@ test.beforeEach(async ({ page }, testInfo) => {
   expect(horizontalOverflow).toBeLessThanOrEqual(1);
 });
 
-test('expense editor rejects negative values and a zero-value row preserves settlement results', async ({ page }) => {
-  const firstCar = page.locator('.settlement-car').first();
-  const originalBreakdown = (await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, '');
-  await page.getByRole('button', { name: '費用を入力' }).first().click();
-  const dialog = page.getByRole('dialog');
-  await dialog.getByRole('button', { name: '費用を追加' }).click();
-  await dialog.getByLabel('名目').fill('E2Eゼロ円');
-  const amount = dialog.getByRole('textbox', { name: '金額（円）', exact: true });
-  await amount.fill('-250');
-
-  await expect(amount).toHaveAttribute('aria-invalid', 'true');
-  await expect(dialog.getByRole('button', { name: '費用を追加' })).toBeDisabled();
-  await amount.fill('1000000000');
-  await expect(amount).not.toHaveAttribute('aria-invalid', 'true');
-  await amount.fill('0');
-  await expect(amount).not.toHaveAttribute('aria-invalid', 'true');
-  await expect(dialog.getByRole('button', { name: '費用を追加' })).toBeEnabled();
-  await dialog.getByRole('button', { name: '費用を追加' }).click();
-  await expect(dialog.locator('.settlement-cost-editor')).toBeVisible();
-  await dialog.getByRole('button', { name: '費用を保存' }).click();
-
-  expect((await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, '')).toBe(originalBreakdown);
-  await page.reload();
-  await navigateToProjectSection(page, '精算');
-  const reloadedCar = page.locator('.settlement-car').first();
-  expect((await reloadedCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, '')).toBe(originalBreakdown);
-  await page.getByRole('button', { name: '費用を入力' }).first().click();
-  const reloadedDialog = page.getByRole('dialog');
-  await reloadedDialog.getByRole('button', { name: 'E2Eゼロ円の操作' }).click();
-  await page.getByRole('menuitem', { name: '編集', exact: true }).click();
-  await expect(reloadedDialog.getByRole('textbox', { name: '金額（円）', exact: true })).toHaveValue('0');
-  await expect(reloadedDialog.getByLabel('名目')).toHaveValue('E2Eゼロ円');
+test('expense editor rejects negative values and a zero-value row preserves settlement results',async({page})=>{
+  const firstCar=page.locator('.settlement-car').first();
+  const original=(await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g,'');
+  await firstCar.getByRole('button',{name:/費用を入力$/}).click();
+  await page.getByRole('button',{name:'費用を追加',exact:true}).click();
+  await page.getByRole('textbox',{name:'費用名',exact:true}).fill('E2Eゼロ円');
+  const amount=page.getByRole('textbox',{name:'金額（円）',exact:true});
+  await amount.fill('-250');await expect(amount).toHaveAttribute('aria-invalid','true');
+  await page.getByRole('button',{name:'車両費用を保存',exact:true}).click();
+  await expect(amount).toBeFocused();
+  await amount.fill('1000000000');await expect(amount).not.toHaveAttribute('aria-invalid','true');
+  await amount.fill('0');await page.getByRole('button',{name:'車両費用を保存',exact:true}).click();
+  expect((await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g,'')).toBe(original);
+  await page.reload();expect((await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g,'')).toBe(original);
+  await firstCar.getByRole('button',{name:/費用を入力$/}).click();await editFee(page,'E2Eゼロ円');
+  await expect(amount).toHaveValue('0');await expect(page.getByRole('textbox',{name:'費用名',exact:true})).toHaveValue('E2Eゼロ円');
 });
 
-test('movement distance, fuel economy, and unit price reject negatives inline', async ({ page }) => {
-  await page.getByRole('button', { name: '費用を入力' }).first().click();
-  const dialog = page.getByRole('dialog');
-  await dialog.getByRole('button', { name: 'ガソリン代の操作' }).click();
-  await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
-  const cases = [
-    ['移動距離（km）', '-10'],
-    ['燃費（km/L）', '-12'],
-    ['ガソリン単価（円/L）', '-172'],
-  ];
-  for (const [label, value] of cases) {
-    const input = dialog.getByLabel(label);
-    await input.fill(value);
-    await expect(input).toHaveAttribute('aria-invalid', 'true');
-    await expect(dialog.getByText('0以上の値を入力してください。').first()).toBeVisible();
-    await input.fill(label === '移動距離（km）' ? '132' : label === '燃費（km/L）' ? '12' : '172');
+test('movement distance fuel economy and unit price reject negatives inline',async({page})=>{
+  await page.locator('.settlement-car').first().getByRole('button',{name:/費用を入力$/}).click();await editFee(page,'移動条件');
+  for(const [label,value] of [['走行距離（km）','132'],['燃費（km/L）','12'],['ガソリン単価（円/L）','172']]){
+    const input=page.getByRole('textbox',{name:label,exact:true});
+    await input.fill('-10');await expect(input).toHaveAttribute('aria-invalid','true');
+    await page.getByRole('button',{name:'車両費用を保存',exact:true}).click();await expect(input).toBeFocused();
+    await input.fill(value);await expect(input).not.toHaveAttribute('aria-invalid','true');
   }
-  const distance = dialog.getByLabel('移動距離（km）');
-  await distance.fill('1000000');
-  await expect(distance).not.toHaveAttribute('aria-invalid', 'true');
-  await distance.fill('132');
-  await expect(dialog.getByRole('button', { name: 'ガソリン代を適用' })).toBeEnabled();
-  await dialog.getByRole('button', { name: '戻る' }).click();
-  await expect(dialog.getByRole('button', { name: '費用を保存' })).toBeEnabled();
-  await dialog.getByRole('button', { name: 'キャンセル' }).click();
+  await page.getByRole('textbox',{name:'走行距離（km）',exact:true}).fill('1000000');
+  await expect(page.getByRole('textbox',{name:'走行距離（km）',exact:true})).not.toHaveAttribute('aria-invalid','true');
+  await page.getByRole('button',{name:'キャンセル',exact:true}).click();
 });
 
 test('standalone counts and driver cooperation money reject negatives inline', async ({ page }) => {

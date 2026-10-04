@@ -29,6 +29,17 @@ test('a room-only shared link starts participant work while explicit task links 
   await expect(page.getByRole('heading', { level: 1, name: '概要' })).toBeVisible();
 });
 
+test('canonicalizing a room-only link focuses its already current section after explicit navigation', async ({page},testInfo)=>{
+  await page.goto('/?room=PHASE-F-CANONICAL-FOCUS');
+  const heading=page.getByRole('heading',{level:1,name:'参加者',exact:true});
+  await expect(heading).toBeVisible();
+  await expect(heading).not.toBeFocused();
+  await openMobileNavigation(page,testInfo);
+  await projectNavigation(page).getByRole('link',{name:'参加者',exact:true}).press('Enter');
+  await expect(page).toHaveURL(/section=participants$/);
+  await expect(heading).toBeFocused();
+});
+
 test('navigation owns browser history, refresh, current semantics and heading focus', async ({ page }, testInfo) => {
   await page.goto('/?room=PHASE-B-HISTORY&section=overview');
   const navigation = projectNavigation(page);

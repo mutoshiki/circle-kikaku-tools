@@ -3,6 +3,7 @@ import { Button, InlineNotification, Link } from '@carbon/react';
 import { Add, Shuffle } from '@carbon/icons-react';
 import ParticipantEditor from './ParticipantEditor.jsx';
 import AllocationWorkspace from './allocation/AllocationWorkspace.jsx';
+import { vehicleCostTargetForGroup } from '../ui/vehicle-cost-target.js';
 import AllocationPresentation from './allocation/AllocationPresentation.jsx';
 import { AllocationConfirmation, AllocationSaveStatus, GroupEditor } from './allocation/AllocationDialogs.jsx';
 import useAllocationOperation from '../hooks/useAllocationOperation.js';
@@ -120,6 +121,7 @@ export default function Allocation({ runtime, room, type, destination, resolved 
       {view.groups.length > 0 && review.eligibleCount > 0 && !review.slotCount && <p>ランダム割り当てに使える空き枠がありません。人数の上限・固定・役割を確認してください。</p>}
       {!view.waiting.length && <p>未割り当ての参加者を選ぶと{label}を追加できます。移動から未割り当てへ戻せます。</p>}
       <AllocationWorkspace view={view} destination={destination} selectedId={selectedId} targetId={targetId} busy={disabled} movingId={movingId} onSelect={id => { setMovingId(''); setSelectedId(id); }} onTarget={setTargetId} onMove={assign} onNavigate={navigate} onPersonAction={personAction} onGroupAction={groupAction}
+        costDestination={groupId=>type === 'car' ? vehicleCostTargetForGroup(room,runtime.store.domain,groupId) : null} costNavigation={runtime.navigation}
         onCancelMove={() => { const id = movingId; setMovingId(''); requestAnimationFrame(() => document.getElementById(`allocation-move-${id}`)?.focus()); }}
         onManualMove={() => execute('move', { id: movingId, type, groupId: targetId }, `${label}へ移動`, () => { setMovingId(''); focusHeading(); })} />
     </>}

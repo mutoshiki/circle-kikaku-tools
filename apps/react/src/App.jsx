@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
   Button, InlineNotification, Link, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, ToastNotification,
 } from '@carbon/react';
@@ -10,6 +10,7 @@ import ProjectHistorySettings from './components/ProjectHistorySettings.jsx';
 import Participants from './components/Participants.jsx';
 import Allocation from './components/Allocation.jsx';
 import Settlement from './components/Settlement.jsx';
+import VehicleCosts from './components/vehicle-costs/VehicleCosts.jsx';
 import { BugModal, HistoryModal } from './components/ProjectTools.jsx';
 import TaskModal from './components/TaskModal.jsx';
 import { createProjectDomain } from './services/project-domain.js';
@@ -23,6 +24,10 @@ export default function App({ runtime }) {
   const participantTask = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getTaskSnapshot, () => '');
   const allocationDestinationJson = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getAllocationTaskSnapshot, () => '{"type":"","task":"","groupId":"","invalid":false}');
   const allocationDestination = JSON.parse(allocationDestinationJson);
+  const vehicleDestinationJson = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getVehicleCostTaskSnapshot);
+  const vehicleDestination = JSON.parse(vehicleDestinationJson);
+  const [vehiclePage, setVehiclePage] = useState(null);
+  const changeVehiclePage = useCallback(value => setVehiclePage(current => JSON.stringify(current) === JSON.stringify({key:vehicleDestinationJson,...value}) ? current : {key:vehicleDestinationJson,...value}), [vehicleDestinationJson]);
   const [roomResolved, setRoomResolved] = useState(() => !runtime.sync.enqueue || syncStatus.kind === 'connected');
   useEffect(() => { if (syncStatus.kind === 'connected') setRoomResolved(true); }, [syncStatus.kind]);
   const [theme, setTheme] = useState('g10');
@@ -31,7 +36,7 @@ export default function App({ runtime }) {
   const [overviewEditing, setOverviewEditing] = useState(false);
   const [sampleCars, setSampleCars] = useState('3');
   const [sampleType, setSampleType] = useState('normal');
-  const previousSection = useRef(`${section}:${participantTask}:${allocationDestinationJson}`);
+  const previousSection = useRef(`${section}:${participantTask}:${allocationDestinationJson}:${vehicleDestinationJson}`);
   const participantReturnFocus = useRef('');
   const overviewEditButtonRef = useRef(null);
   const overviewReturnFocus = useRef(false);
@@ -41,7 +46,7 @@ export default function App({ runtime }) {
     overviewEditButtonRef.current?.focus();
   }, [overviewEditing]);
   useEffect(() => {
-    const destination = `${section}:${participantTask}:${allocationDestinationJson}`;
+    const destination = `${section}:${participantTask}:${allocationDestinationJson}:${vehicleDestinationJson}`;
     if (previousSection.current === destination) return;
     previousSection.current = destination;
     setFeedback(null);
@@ -49,7 +54,16 @@ export default function App({ runtime }) {
     participantReturnFocus.current = '';
     const frame = requestAnimationFrame(() => (document.getElementById(returnId) || document.getElementById('project-page-title'))?.focus());
     return () => cancelAnimationFrame(frame);
-  }, [section, participantTask, allocationDestinationJson]);
+  }, [section, participantTask, allocationDestinationJson, vehicleDestinationJson]);
+  function returnFromVehicle({destination, focusId}) {
+    participantReturnFocus.current = focusId;
+    if (destination.section === 'organization-car') runtime.navigation.navigateAllocationTask('car','group',destination.groupId);
+    else if (destination.section === 'vehicle-costs' && destination.carKey) {
+      const changed=runtime.navigation.navigateVehicleCostTask(destination);
+      if (!changed) { participantReturnFocus.current=''; requestAnimationFrame(()=>document.getElementById(focusId)?.focus()); }
+    }
+    else runtime.navigation.navigate(destination.section);
+  }
   function finishParticipantTask() {
     participantReturnFocus.current = participantTask === 'import' ? 'participant-add' : 'participant-announcement';
     runtime.navigation.navigateTask('');
@@ -115,6 +129,12 @@ export default function App({ runtime }) {
         content: <Allocation key={type} runtime={runtime} room={room} type={type} destination={allocationDestination} resolved={roomResolved} onNotice={setFeedback} onParticipants={() => runtime.navigation.navigate('participants')} />,
       };
     }
+    if (section === 'vehicle-costs') return {
+      title:'車両費用',description:'対象車を選び、距離・費用を入力します。',
+      ...(vehiclePage?.key === vehicleDestinationJson && vehicleDestination.carKey ? vehiclePage : {}),
+      metadata:[...(vehiclePage?.key === vehicleDestinationJson && vehicleDestination.carKey ? vehiclePage.metadata || [] : []),...sync],
+      content:<VehicleCosts runtime={runtime} room={room} resolved={roomResolved || syncStatus.kind === 'error' && !!runtime.storage.read('base')} destination={vehicleDestination} onPageChange={changeVehiclePage} onReturn={returnFromVehicle} />,
+    };
     if (section === 'settlement') return {
       title: '精算', description: '車ごとの距離・費用を入力し、精算額と集金・支払いを確認します。',
       metadata: [{ label: '参加者', value: `${participantCount}人` }, ...sync],

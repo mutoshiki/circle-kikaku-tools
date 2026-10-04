@@ -10,6 +10,7 @@ const primaryItems = [
   ['participants', '参加者'],
   ['organization-car', '車割'],
   ['organization-team', '班割'],
+  ['vehicle-costs', '車両費用'],
   ['settlement', '精算'],
 ];
 const supportingItems = [
@@ -54,7 +55,7 @@ export default function ProjectShell({ projectName, roomId, section, navigation,
   function navigate(id) {
     const changed = navigation.navigate(id);
     setMobileNavOpen(false);
-    if (!changed) requestAnimationFrame(() => document.getElementById('project-page-title')?.focus());
+    if (!changed || id === section) requestAnimationFrame(() => document.getElementById('project-page-title')?.focus());
   }
 
   function dismissNavigation() {

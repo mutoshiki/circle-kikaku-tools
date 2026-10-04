@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { navigateToProjectSection } from './project-navigation.js';
+import { editFee } from './vehicle-cost-fixture.js';
 
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', import.meta.url)));
 
@@ -69,57 +70,24 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
   await page.screenshot({ path: join(evidence, `settlement-wizard-${testInfo.project.name}.png`) });
   await dialog.getByRole('button', { name: 'キャンセル' }).click();
 
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();
-  dialog = page.getByRole('dialog', { name: '仮参加者A車' });
-  await expect(page.getByRole('dialog')).toHaveCount(1);
-  await expectViewportFrame(page, dialog);
-  await expect(dialog.getByRole('heading', { name: '費用を編集' })).toBeVisible();
-  await expect(dialog.getByRole('heading', { name: '費用一覧' })).toHaveCount(0);
-  await expect(dialog.getByRole('button', { name: '計算条件を変更' })).toHaveCount(0);
-  if (testInfo.project.name.includes('mobile')) {
-    const expenseFrame = await dialog.evaluate(node => ({ ...node.getBoundingClientRect().toJSON(), viewportHeight: innerHeight }));
-    expect(Math.abs(expenseFrame.bottom - expenseFrame.viewportHeight)).toBeLessThan(1);
-    expect(expenseFrame.height).toBeLessThan(expenseFrame.viewportHeight * .85);
-  }
-  await expect(dialog.getByRole('button', { name: '費用を追加' })).toBeVisible();
-  if (testInfo.project.name.includes('mobile')) {
-    const compactRow = await dialog.locator('.settlement-cost-list-item .settlement-cost-summary').first().evaluate(row => {
-      const name = row.querySelector(':scope > strong').getBoundingClientRect();
-      const amount = row.querySelector('.settlement-cost-summary__amount').getBoundingClientRect();
-      return Math.abs(name.top - amount.top) < 64 && amount.left > name.left;
-    });
-    expect(compactRow).toBe(true);
-  }
-  await page.screenshot({ path: join(evidence, `vehicle-expense-${testInfo.project.name}.png`) });
-  await dialog.getByRole('button', { name: '費用を追加' }).click();
-  await dialog.getByLabel('名目').last().fill('保持する費用');
-  await dialog.getByRole('button', { name: '戻る' }).click();
-  await dialog.getByRole('button', { name: 'ガソリン代の操作' }).click();
-  await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
-
-  const movement = page.getByRole('dialog', { name: '仮参加者A車' });
-  await expect(page.getByRole('dialog')).toHaveCount(1);
-  await expect(movement.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
-  await expectViewportFrame(page, movement);
-  await expect(movement.getByRole('heading', { name: '移動料金の計算条件' })).toBeVisible();
-  await movement.getByLabel('移動距離（km）').fill('42');
-  await movement.getByRole('button', { name: 'ルートから距離を計算' }).click();
-
-  const route = page.getByRole('dialog', { name: '仮参加者A車' });
-  await expect(page.getByRole('dialog')).toHaveCount(1);
-  await expectViewportFrame(page, route);
-  await expect(route.getByRole('heading', { name: '移動距離を計算' })).toBeVisible();
-  await page.screenshot({ path: join(evidence, `route-planner-${testInfo.project.name}.png`) });
-  await route.getByRole('button', { name: '戻る' }).click();
-  await expect(page.getByRole('dialog')).toHaveCount(1);
-  await expectViewportFrame(page, movement);
-  await expect(movement.getByLabel('移動距離（km）')).toHaveValue('42');
-  await movement.getByRole('button', { name: 'ガソリン代を適用' }).click();
-  await expect(page.getByRole('dialog')).toHaveCount(1);
-  dialog = page.getByRole('dialog', { name: '仮参加者A車' });
-  await expectViewportFrame(page, dialog);
-  await expect(dialog.locator('.settlement-cost-list-item').filter({ hasText: '保持する費用' })).toBeVisible();
-  await dialog.getByRole('button', { name: 'キャンセル' }).click();
+  await page.locator('.settlement-car').first().getByRole('button',{name:/費用を入力$/}).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.screenshot({path:join(evidence,`vehicle-expense-${testInfo.project.name}.png`),fullPage:true});
+  await page.getByRole('button',{name:'費用を追加',exact:true}).click();
+  await page.getByRole('textbox',{name:'費用名',exact:true}).fill('保持する費用');
+  await page.getByRole('link',{name:'費目一覧に戻る',exact:true}).click();
+  await editFee(page,'移動条件');
+  await page.getByRole('textbox',{name:'走行距離（km）',exact:true}).fill('42');
+  await page.getByRole('button',{name:'ルートから距離を計算',exact:true}).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('heading',{level:1,name:'移動距離を計算'})).toBeVisible();
+  await page.screenshot({path:join(evidence,`route-planner-${testInfo.project.name}.png`),fullPage:true});
+  await page.getByRole('link',{name:'移動条件に戻る',exact:true}).click();
+  await expect(page.getByRole('textbox',{name:'走行距離（km）',exact:true})).toHaveValue('42');
+  await page.getByRole('link',{name:'費目一覧に戻る',exact:true}).click();
+  await editFee(page,'保持する費用');
+  await expect(page.getByRole('textbox',{name:'費用名',exact:true})).toHaveValue('保持する費用');
+  await page.getByRole('button',{name:'キャンセル',exact:true}).click();
 
   await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
   const appMenu = page.getByRole('menu', { name: 'ユーティリティメニュー' });
