@@ -1,6 +1,6 @@
 # Phase G implementation design: settlement rules and calculation explanation
 
-Status: written design approved (2026-10-05) by the user's 「実装計画へ」. [Implementation plan](../plans/2026-10-05-phase-g-settlement-rules.md) prepared for review; Product UI implementation has not started. Normative-owner clarifications in §11 will be applied before UI implementation.
+Status: design and [implementation plan](../plans/2026-10-05-phase-g-settlement-rules.md) approved; Native implementation authorized by 「実装へ進んで」 (2026-10-05). Approved §11 clarifications are published in the normative owner v1.5 before UI implementation. Implementation/integration gates remain pending.
 
 Integration base: `carbon-redesign` at `dbd4d76c3456e344d13f2f36004303616b99b385` (Phase F integrated). Working branch: `codex/phase-g-settlement-rules`.
 
@@ -16,7 +16,7 @@ Integration base: `carbon-redesign` at `dbd4d76c3456e344d13f2f36004303616b99b385
 
 ## 0. Authority, brief, and scope
 
-[SANPOKAI_PRODUCT_UI.md](../../design/SANPOKAI_PRODUCT_UI.md) v1.4が唯一のnormative Product UI specification。参照箇所は§0–6、§11–14、§17–23。本書はその具体化案であり、normative ruleを上書きしない。[Roadmap Phase G](../../design/CARBON_MIGRATION_ROADMAP.md#phase-g--settlement-rules-and-calculation-explanation)は実装順序・gate、[Product Principles](../../design/CARBON_PRODUCT_PRINCIPLES.md)は公式根拠、[Carbon Patterns](../../design/CARBON_PATTERNS.md)はpattern選択、[Current Audit §14](../../design/CURRENT_UI_AUDIT.md#14-settlement-settings-split-club-fee-exemption-deduction)は現状証拠のowner。
+[SANPOKAI_PRODUCT_UI.md](../../design/SANPOKAI_PRODUCT_UI.md) v1.5が唯一のnormative Product UI specification。参照箇所は§0–6、§11–14、§17–23。本書はその具体化案であり、normative ruleを上書きしない。[Roadmap Phase G](../../design/CARBON_MIGRATION_ROADMAP.md#phase-g--settlement-rules-and-calculation-explanation)は実装順序・gate、[Product Principles](../../design/CARBON_PRODUCT_PRINCIPLES.md)は公式根拠、[Carbon Patterns](../../design/CARBON_PATTERNS.md)はpattern選択、[Current Audit §14](../../design/CURRENT_UI_AUDIT.md#14-settlement-settings-split-club-fee-exemption-deduction)は現状証拠のowner。
 
 本書のProduct UI判断はすべて **Project interpretation**。公式の主張は§2の **Official guidance**、既存実装の制限は **Technical constraint** として分ける。§13との具体化上の差は§11の改訂案へ明示する。承認後、必要な規則をnormative ownerへ反映してから実装し、別仕様を二重管理しない。
 

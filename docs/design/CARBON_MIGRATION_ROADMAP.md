@@ -352,7 +352,7 @@ Rules depend on final participant/allocation/cost structures. Moving them earlie
 
 ### Screens / flows affected
 
-Settlement readiness, mode, organizer/collector, rounding/split, driver compensation, club fee, exemption, deduction, validation, preview.
+Settlement readiness, mode, organizer, rounding/split, driver compensation, club fee, existing role exemption and expense deduction, validation, preview. Collector remains a collection record in Phase H, not a new global rule. Detailed UI rules belong only to the normative Product UI specification.
 
 ### Shared patterns affected
 

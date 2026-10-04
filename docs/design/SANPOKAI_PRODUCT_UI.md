@@ -1,6 +1,6 @@
 # 山歩会企画ツール Product UI specification
 
-Status: normative product UI specification v1.4 (2026-10-02; Phase F vehicle-cost draft, save, route ownership contract)
+Status: normative product UI specification v1.5 (2026-10-05; approved Phase G rules, calculation explanation and settings-only receipt contract)
 Research snapshot: 2026-09-29
 Design basis: [CARBON_PRODUCT_PRINCIPLES.md](./CARBON_PRODUCT_PRINCIPLES.md) / [CARBON_PATTERNS.md](./CARBON_PATTERNS.md)
 
@@ -172,7 +172,7 @@ Layout rules:
 
 - 参加者: 応募者のselection modeは「参加者を確定」。応募連携も参加者もない空状態は「参加者を追加」。確定済みのread modeにはPrimaryを置かず、追加はTertiaryのsub-task開始とする。
 - 車割: selection contextで「車へ割り当て」
-- 精算: 設定不足時「精算設定を完了」、運用時「集金を記録」ではなくrow-level state changeが中心
+- 精算: 「精算ルール」を独立taskの入口として提供する。運用時はrow-level集金・支払いstate changeが中心であり、新たな完了flagを作らない
 - Form: 「保存」「登録」「適用」
 
 ### Secondary
@@ -181,7 +181,7 @@ Primaryと同じtask内の代替・補助。Cancelを含む。Primaryなしで�
 
 ### Tertiary
 
-独立したsub-task開始。例: 「ルートから距離を計算」「精算設定を編集」。ただし頻繁・複雑ならpage navigationに昇格する。
+独立したsub-task開始。例: 「ルートから距離を計算」「精算ルール」。複雑なtaskは専用pageへのnavigationとする。
 
 ### Ghost
 
@@ -201,7 +201,7 @@ Primaryと同じtask内の代替・補助。Cancelを含む。Primaryなしで�
 | 企画情報・時刻表 | local draft + explicit shared save | page form。未保存表示。離脱時に扱いを確認 |
 | participant / group属性 | explicit save | short formならModal可。複雑化したらdetail page |
 | participant selection | staged selection + apply/confirm | selection toolbar。変更影響をconfirm |
-| 精算設定 | explicit save as one transaction | dedicated settings task。validation後にcommit |
+| 精算ルール | local draft + explicit settings-only save | single-page task。field validity・write safetyを確認し、既存transactionとexact receiptを使用する。費用readinessは保存可否とは別 |
 | 車両費用 | 車単位local draft + explicit shared save | dedicated workspace。費目切替に中間確定を要求しない。route結果だけを「適用」でdraftへ移す。nested modalにしない |
 | 支払い済み / 集金済み | immediate state change + recoverability | row内で結果を即表示。既存ownerがreversalを許す場合は戻せる操作を提供し、失敗時は確定表示しない。毎回toastなし |
 | 履歴復元 | explicit destructive/impact confirmation | 復元対象時刻、影響、取り消し可否を示す |
@@ -214,6 +214,8 @@ Label definitions:
 - **キャンセル**: 未保存変更を破棄して戻る。
 - **閉じる**: state変更なしでsurfaceを閉じる。Cancelと併置しない。
 - **戻る**: 前step / parent taskへ戻り、draft保持規則を明示する。
+
+精算ルールは戻る・navigation・refreshでUI-local raw draftを保持する。publish前のキャンセルはそのdraftのみ破棄し、no-op Saveはintentなしで親へ戻る。publish後は入力を固定し、既存operation receiptで成功・失敗・未確認を区別する。global sync状態や空のoutboxを成功の根拠にしない。retryは既存receipt helperの同一変更範囲を使用する。受理済みの調整結果やresetは成功として閉じず、明示的な「現在の精算を確認」で控えのみを破棄する。pending/unknownはこの操作で捨てない。
 
 ## 7. Overview / project creation and edit
 
@@ -376,7 +378,7 @@ Phase F interaction contract（Project interpretation）:
    - 部費
    - 免除
    - 控除
-   - rounding / collector / organizer
+   - rounding / organizer（collectorは集金記録のowner）
 4. **集金**
    - participantごとの請求額、除外/免除理由、集金済み
 5. **支払い**
@@ -421,16 +423,22 @@ Phase F interaction contract（Project interpretation）:
 
 ### Target structure
 
-- Dedicated settings page。関連するgroupをworkflow順に並べる。
-- Page headerにcurrent modeとblocking issues。
+- Dedicated「精算ルール」page。正規URLは`section=settlement&task=rules`でroom/shared queryを維持する。URLがtask選択の唯一のowner。legacy精算URLは親精算へ接続し、不明taskはload後に理由を示して親へreplaceする。
+- Page headerにmode、対象人数、主要試算を示す。Appが一つのmain/h1を所有する。navigation後はh1、明示Back/Save/Cancelで親へ戻る場合は実在するrules入口へfocusする。初回direct entryでfocusを奪わない。
 - Sections:
-  - 対象者と企画者
-  - 割勘 / rounding
+  - 精算対象（登録した参加者 / 人数だけ、企画者）
+  - 割勘と端数
   - 車出し協力代・部費
-  - 免除 / 控除
-  - 集金担当
-- 右または末尾に計算preview: payer count、1人額、total consistency。
-- Save前に全sectionをvalidationし、最初のerrorへfocus。
+  - 免除・差し引き
+  - 計算への影響
+- 参加者0でも参加者登録と人数だけの精算の入口を提供する。後者の初期値は新しいlocal draftにのみ適用し、開くだけで共有設定を変更しない。
+- raw人数・名前・金額を入力途中に丸めない。入力可能範囲、negative guard、count/name normalizationは既存ownerに従い、新たな整数限定ruleを加えない。mode切替で非表示値を消さず、normalized countで反復入力を安全に表示する。
+- 計算previewは既存domainのcurrentとcandidateを比較する。候補は最新roomへ変更settings patchだけを重ね、最新費用・未変更設定を使う。他車の未保存draftは使わない。入力で共有writeを起こさない。
+- shareCount（費用を負担する人数）とpayerCount（現金を集める人数）を別表示する。1人額の端数単位と車ごとの100円切上げを区別し、原資・車別内訳・差引・余剰・会計差額を現行resultから説明する。会計差額0を新しいvalidation条件にしない。
+- field validity、費用等のreadiness、write safety、global syncは別status。readinessは既存issue fields/rowsとsource predicatesから導き、文言の解析をしない。費用不足だけで有効なrules Saveを止めない。修正先は実在するparticipant/vehicle-cost taskを使う。
+- Save前にactive fieldをvalidationし、最初のerrorへfocus。invalid Saveは修正先を示せるよう操作可能とし、IME中・pending・unsafe時は理由とともに止める。
+- UI-local recoveryはroomごとのversioned namespaceにraw changed fields・dirty path元値・reset・exact receiptだけを保存する。room snapshot、認証情報、他feature draftを複製しない。保存不能時も入力は保持し、復元保証がないことを示す。古いcontrollerの完了が新しいdraftを消してはならない。
+- 保存は既存settings-only patchのchanged pathsだけ。最新費用、paid/collector、memo、参加者、割当をopening snapshotで復元しない。同じdirty settingのremote変更、reset、企画者identity不明/曖昧は理由とdraftを維持し、未publishの場合のみ明示的な現行値からの再編集へ誘導する。
 
 ### Wizard choice
 
@@ -438,9 +446,11 @@ Phase F interaction contract（Project interpretation）:
 
 ### Exemption / deduction rules
 
-- 人単位・理由・金額/割合・計算への影響を同じrowで読める。
-- Exemptとpaidを同じstatusにしない。
-- 免除削除は通常のrule removal。計算結果の変化を保存前previewで示す。
+- 既存の役割ベースのchoice（運転手の通常集金 / 支払額から差し引き / 免除、企画者免除）を説明し、generic個人別・割合rule repositoryを追加しない。
+- 免除は費用負担から除外、差し引きは負担に含めて現金を集めずdriver支払額から差引、集金済みは実際の回収記録。別conceptとして表示する。
+- stored offset/free両方trueは「免除と差し引き（現在の設定）」で保持し、明示的な通常choice変更時のみpairを置換する。stored roundingが標準1/10/100以外でもcurrent optionとして保持する。
+- 企画者の既存ID/name canonical equalityを維持する。同名の見た目からidentityを推測せず、削除・rename・重複時は再選択を要求する。未変更IDを別人へ付け替えない。
+- 費用の差引は既存split-minus/club-minus等の費目ownerへ誘導する。collectorは§14の集金記録。rules formに新たなglobal担当設定は作らない。
 
 ## 14. Collection and payment status
 
@@ -461,6 +471,7 @@ Phase F interaction contract（Project interpretation）:
 ### Invariants
 
 - Collection済みとrecipient支払い済みは別state。
+- 集金担当は既存paidBy / paidCollector記録のowner。精算ルールSaveから集金・支払い済みを変更しない。
 - 費用入力、計算結果、実際の集金・支払い確認は異なるtask。費用が揃っていないのに精算完了と表示しない。完了後は追加の管理stageを要求せず、内訳・履歴・訂正へ必要時に戻れる。
 - Calculation resultはUI側で再計算しない。現行domain resultをpresentationする。
 - 同期競合や保存失敗時はoptimistic stateを確定表示しない。
@@ -569,6 +580,7 @@ Wording examples:
 | Cost editor | list + editor split | list page→edit page |
 | Route | stops/results + map | summary/results先、map optional |
 | Settlement overview | summary + task links | blocking issueとnext action先、long card stackを避ける |
+| Settlement rules | Carbon lg以上でform 10/16・preview 6/16 | 一つのform DOMを入力→preview→末尾actionの順にし、lg未満は1列。metadataは主要人数/金額、詳細はSave前。document scroll、fixed footerや独立scroll cageは作らない |
 | Data table | selected columns | semantic list/detailへ変換 |
 | Modal | short centered | short viewport-contained。長いtaskはpage |
 | Selection action | contextual toolbar | safe-area対応、contentを覆わない |
@@ -596,6 +608,7 @@ Phase B以降のすべてのUI変更で、次を同時に守る。
 8. Carbon componentの採用だけでaccessibleと判定しない。semantic structure、keyboard、focus entry / trap / return、name / label、announcement、reduced motionをcompositionとして検証する。
 9. 操作結果を画面上のstate変化で理解できる場合、success Toastを追加しない。Persistent problemは関連sectionに置く。
 10. Design完了やCI成功はproduction releaseの許可ではない。Deploy、compatibility、cutover、production smoke、production Firebase writeは別の明示承認を必要とする。
+11. 精算ルールは既存domain capabilityをpreserveし、UI draft/preview/receiptだけをorchestrateする。最新費用・未変更settingを使い、dirty settingだけを保存する。未確認保存を成功・取消済みと表示しない。
 
 ## 23. Minimum design review checklist for UI PRs
 
