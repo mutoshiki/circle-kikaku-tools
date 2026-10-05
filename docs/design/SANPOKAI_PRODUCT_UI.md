@@ -481,7 +481,7 @@ Phase F interaction contract（Project interpretation）:
 ### Phase H recording and recovery
 
 - 計算額は現在の費用/ルールの結果で、チェックには過去の授受額・日時が保存されない。その限界を短く説明し、費用変更でチェックを自動解除しない。readiness問題なし・関連write確認済み・非空対象すべてのチェック成立時だけ「現在の集金・支払いチェックはすべて記録されています」と言える。実際の金銭移動の監査や最終額lockを証明しない。
-- 最新roomとtarget/context/resetをpublish直前に検証し既存collectionChangeを一回だけ実行。集金は対象paid/paidBy、支払いは対象driverPaid、memoはmemoだけ。既存whole-map Undoは変更せず、新UIでは対象行の逆操作を訂正とする。
+- 最新roomとtarget/context/resetをpublish直前に検証し既存collectionChangeを一回だけ実行。集金は対象paid/paidBy、支払いは対象driverPaid、memoはmemoだけ。Technical constraint: helperはlegacy projection全体も正規化するため、transportなしのdetached storeで既存helperを一回使い、得られた対象pathだけを既存commitEditで実roomへ一回publishするUI adapterを使う。費用/ルート/設定の付随正規化はチェック操作でpublishしない。helper/domain自体は変更しない。既存whole-map Undoは変更せず、新UIでは対象行の逆操作を訂正とする。
 - H writeは一件ずつ、既存one-record outboxとexact intent receiptを使う。foreign outbox・非terminal receipt中の新write/逆writeを止め、閲覧は維持。retryは同じpatchだけでcommandを再実行しない。connected・空outbox・helper boolを受理証拠にしない。受理と現在path一致は別に確認する。
 - localはこの端末、pendingは保存中、failedは同じ内容の許可されたretry、unresolvedは結果未確認。pending/unknownを破棄/取消済みと説明しない。adjusted/resetは現在結果の明示確認へ誘導し、terminalと証明できた控えだけ閉じる。毎回の成功Toastなし。
 - 回復cacheはroom別versioned namespace、raw/対象/changed paths/元値/reset/receiptだけ。room全体/auth/別feature draftを複製しない。保存不能でもmemoryを維持しrefresh保証なしを示す。古いcompletionが新しい入力を消さない。広範な復元のcache制限は§15。

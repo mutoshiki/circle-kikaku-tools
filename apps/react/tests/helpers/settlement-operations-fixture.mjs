@@ -29,7 +29,8 @@ export async function createOperationsFixture({ shared = false, standalone = fal
   const { data, state } = store.domain.settlementInput(store.getSnapshot());
   const result = resultOf(runtime);
   const person = result.participants.find(p => !result.excludedNames.has(p.name) && !state.paid[p.name]);
-  const payment = vehicleCostTargets(store.getSnapshot(), store.domain)[0];
+  const paymentTargets = vehicleCostTargets(store.getSnapshot(), store.domain);
+  const payment = paymentTargets.find(target => !state.driverPaid[target.car.name]) || paymentTargets[0];
   return { runtime, server, transport, rawStorage, keys: {
     collection: person ? { kind: 'collection', key: person.participantId ? `participant:${person.participantId}` : `name:${person.name}`, name: person.name } : null,
     payment: { kind: 'payment', key: payment.key, name: payment.car.name },
