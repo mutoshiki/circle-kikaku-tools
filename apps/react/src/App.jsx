@@ -6,7 +6,7 @@ import { Edit, Time } from '@carbon/icons-react';
 import ProjectShell from './components/ProjectShell.jsx';
 import ProjectPage from './components/ProjectPage.jsx';
 import ProjectOverview from './components/ProjectOverview.jsx';
-import ProjectHistorySettings from './components/ProjectHistorySettings.jsx';
+import ProjectHistory from './components/history/ProjectHistory.jsx';
 import Participants from './components/Participants.jsx';
 import Allocation from './components/Allocation.jsx';
 import Settlement from './components/Settlement.jsx';
@@ -20,6 +20,7 @@ import { allocationView } from './ui/allocation-view.js';
 import { createOperationsCache } from './ui/settlement-operations-draft.js';
 import { createSettlementOperationController } from './ui/settlement-operation-controller.js';
 import { createSettlementMemoController } from './ui/settlement-memo-controller.js';
+import { createProjectHistoryController } from './ui/project-history-controller.js';
 import { projectSettlementOperations } from './ui/settlement-operations-model.js';
 import CollectionWorkspace from './components/settlement-operations/CollectionWorkspace.jsx';
 import PaymentWorkspace from './components/settlement-operations/PaymentWorkspace.jsx';
@@ -33,17 +34,19 @@ export default function App({ runtime }) {
     const cache = createOperationsCache({ roomId: runtime.roomId, storage: () => sessionStorage });
     const controller = createSettlementOperationController({ runtime, cache });
     const memoController = createSettlementMemoController({ runtime, operations: controller, cache });
-    setResources({ runtime, cache, controller, memoController });
+    const historyController = createProjectHistoryController({ runtime, operations: controller, rawStorage: () => localStorage });
+    setResources({ runtime, cache, controller, memoController, historyController });
     void controller.observe();
-    return () => { memoController.dispose(); controller.dispose(); };
+    return () => { historyController.dispose(); memoController.dispose(); controller.dispose(); };
   }, [runtime]);
   if (resources?.runtime !== runtime) return <InlineLoading description="企画を開いています" />;
   return <Application runtime={runtime} resources={resources} />;
 }
 
-function Application({ runtime, resources: { cache, controller, memoController } }) {
+function Application({ runtime, resources: { cache, controller, memoController, historyController } }) {
   const room = useSyncExternalStore(runtime.store.subscribe, runtime.store.getSnapshot);
   const operationSnapshot = useSyncExternalStore(controller.subscribe, controller.getSnapshot);
+  const historySnapshot = useSyncExternalStore(historyController.subscribe, historyController.getSnapshot);
   const operationsView = projectSettlementOperations({ room, domain: runtime.store.domain, operation: operationSnapshot.operation });
   const syncStatus = useSyncExternalStore(runtime.sync.subscribe, runtime.sync.getSnapshot);
   const section = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getSnapshot, () => runtime.initialSection);
@@ -200,9 +203,9 @@ function Application({ runtime, resources: { cache, controller, memoController }
     };
     if (section === 'history-settings') return {
       title: '履歴', description: '企画の状態を保存し、必要なときに以前の状態へ戻します。',
-      metadata: [{ label: '保存済み履歴', value: `${runtime.history.read().length}件` }, ...sync],
-      actions: <Button kind="tertiary" renderIcon={Time} onClick={() => setGlobalModal('history')}>履歴を開く</Button>,
-      content: <ProjectHistorySettings />,
+      metadata: [...(historySnapshot.loadIssue ? [] : [{ label: 'この端末の履歴', value: `${historySnapshot.items.length}件` }]), ...sync],
+      actions: <Button kind="tertiary" disabled={historySnapshot.blocked} onClick={() => historyController.saveSnapshot()}>現在の状態を保存</Button>,
+      content: <><OperationFeedback controller={controller} snapshot={operationSnapshot} /><ProjectHistory controller={historyController} /></>,
     };
     return { title: '参加者', content: <Participants runtime={runtime} room={room} onNotice={setFeedback} embedded /> };
   })();
