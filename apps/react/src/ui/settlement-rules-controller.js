@@ -72,12 +72,13 @@ export function createSettlementRulesController({ runtime, cache }) {
   function updateField(key, value) {
     if (snapshot.frozen || !RULE_FIELDS.includes(key)) return;
     const room = runtime.store.getSnapshot();
+    const wasOwned = Object.hasOwn(record.fields, key);
     // A field becomes ours at its first edit, not when the page was opened.
     // Existing dirty paths keep their original baseline and conflict checks.
     if (!Object.hasOwn(record.fields, key)) set(edit.openingState, key, get(domain.settlementInput(room).state, key));
     set(edit.state, key, value);
     if (same(get(edit.openingState, key), value)) delete record.fields[key]; else record.fields[key] = copy(value);
-    if (key === 'organizerName' && !Object.hasOwn(record.fields, key)) record.organizerId = null;
+    if (key === 'organizerName' && wasOwned && !Object.hasOwn(record.fields, key)) record.organizerId = null;
     const { patch } = projectSettlementRules({ room: runtime.store.getSnapshot(), edit, domain });
     for (const path of Object.keys(record.before)) if (!Object.hasOwn(patch, path)) delete record.before[path];
     for (const path of Object.keys(patch)) if (!Object.hasOwn(record.before, path)) {

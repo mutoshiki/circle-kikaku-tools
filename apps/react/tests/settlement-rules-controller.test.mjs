@@ -104,6 +104,17 @@ test('reverting organizer selection releases its identity when a different share
   assert.equal(c.getSnapshot().organizerId, ids[1]);
   assert.equal(c.getSnapshot().writeIssues.length, 0); c.dispose();
 });
+test('explicitly confirming the current organizer still fences later identity removal', async () => {
+  const r = await client(), room = structuredClone(r.store.getSnapshot()), id = Object.keys(room.participants)[0];
+  room.settlement.organizerParticipantId = id; r.store.receiveRemote(room);
+  const cache = cacheFor(), c = createSettlementRulesController({ runtime: r, cache });
+  c.setOrganizer(id); c.updateField('driverReward', '1500');
+  const remote = structuredClone(r.store.getSnapshot()); delete remote.participants[id]; remote.settlement.organizerParticipantId = '';
+  r.store.receiveRemote(remote);
+  assert.ok(c.getSnapshot().writeIssues.some(issue => issue.key === 'organizer-missing')); c.dispose();
+  const resumed = createSettlementRulesController({ runtime: r, cache });
+  assert.ok(resumed.getSnapshot().writeIssues.some(issue => issue.key === 'organizer-missing')); resumed.dispose();
+});
 test('storage failures retain input and report no reload guarantee', async () => {
   const r = await client(), cache = createSettlementRulesDraft({ roomId: crypto.randomUUID(), storage: () => { throw Error('blocked'); } });
   const c = createSettlementRulesController({ runtime: r, cache }); c.updateField('driverReward', '1500'); assert.equal(c.getSnapshot().recoverable, false); assert.equal(c.getSnapshot().state.driverReward, '1500'); c.dispose();

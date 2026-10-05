@@ -145,7 +145,7 @@ test('first standalone edit preserves observed shared siblings through recovery 
 });
 
 test('untouched organizer Select and saved identity track the shared current organizer', async ({ browser, request }, info) => {
-  const id = idFor('ORGANIZERLIVE', info), initial = setup(), ids = Object.keys(initial.participants);
+  const id = idFor('ORGANIZERLIVE', info), initial = structuredClone(setup()), ids = Object.keys(initial.participants);
   initial.settlement.organizerParticipantId = ids[0]; await seed(request, id, initial);
   const a = await browser.newContext(info.project.use), b = await browser.newContext(info.project.use);
   try {
