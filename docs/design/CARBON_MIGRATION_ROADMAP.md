@@ -336,6 +336,8 @@ Very high: cost draft, movement formula, route application, map API, and settlem
 
 ## Phase G — Settlement rules and calculation explanation
 
+Implementation evidence: [Phase G validation](./evidence/PHASE_G_VALIDATION.md) records the grouped page/settings-only receipt implementation, protected-domain comparisons, real concurrency/recovery tests and browser evidence. One whole-branch review correction pass and cumulative local gates are complete; subsequent latest-head CI/integration outcome belongs to [PR #82](https://github.com/mutoshiki/circle-kikaku-tools/pull/82). This evidence does not replace the normative Product UI specification; phase completion requires successful CI and safe integration into `carbon-redesign`. Deferred receipt robustness/readiness wording and the observed intermittent WebKit mobile trigger issue remain visible for Phase I; collection/payment/history/danger redesign remains Phase H.
+
 ### Goal
 
 Move settlement settings out of the wizard Modal and make split, club fee, exemption, deduction, roles, and calculation impact understandable as one rule system.
@@ -352,7 +354,7 @@ Rules depend on final participant/allocation/cost structures. Moving them earlie
 
 ### Screens / flows affected
 
-Settlement readiness, mode, organizer/collector, rounding/split, driver compensation, club fee, exemption, deduction, validation, preview.
+Settlement readiness, mode, organizer, rounding/split, driver compensation, club fee, existing role exemption and expense deduction, validation, preview. Collector remains a collection record in Phase H, not a new global rule. Detailed UI rules belong only to the normative Product UI specification.
 
 ### Shared patterns affected
 

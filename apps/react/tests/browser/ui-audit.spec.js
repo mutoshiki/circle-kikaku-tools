@@ -173,13 +173,14 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
 
     await navigateToProjectSection(page, '精算');
     await shot(page, viewportName, 21, 'settlement-default');
-    await page.getByRole('button', { name: '精算設定を編集' }).click();
-    await shot(page, viewportName, 22, 'settlement-wizard-step-1');
-    await page.getByRole('button', { name: '次へ' }).click();
-    await shot(page, viewportName, 23, 'settlement-wizard-step-2');
-    await page.getByRole('button', { name: '次へ' }).click();
-    await shot(page, viewportName, 24, 'settlement-wizard-step-3');
-    await cancelDialog(page);
+    await page.getByRole('link', { name: '精算ルール', exact: true }).click();
+    await shot(page, viewportName, 22, 'settlement-rules-page');
+    await page.getByRole('textbox', { name: '1台あたりの協力代（円）', exact: true }).fill('-300');
+    await page.getByRole('button', { name: '精算ルールを保存', exact: true }).click();
+    await shot(page, viewportName, 23, 'settlement-rules-invalid');
+    await page.getByRole('heading', { level: 2, name: '計算への影響', exact: true }).scrollIntoViewIfNeeded();
+    await shot(page, viewportName, 24, 'settlement-rules-preview');
+    await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
     await page.getByRole('button', {name:/費用を入力$/}).first().click();
     await shot(page, viewportName, 25, 'vehicle-expense-workspace');
     await page.getByRole('button', {name:'費用を追加',exact:true}).click();

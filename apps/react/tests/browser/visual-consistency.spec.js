@@ -50,9 +50,10 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await expect(page.getByRole('heading', { name: '集金チェック', exact: true })).toBeVisible();
   const settlementInset = (await page.getByRole('heading', { level: 1, name: '精算', exact: true }).boundingBox()).x;
   expect(Math.abs(settlementInset - participantInset)).toBeLessThanOrEqual(1);
-  const settingsButton = page.getByRole('button', { name: '精算設定を編集', exact: true });
-  await expect(settingsButton).toHaveClass(/cds--btn--ghost/);
-  expect((await settingsButton.boundingBox()).width).toBeLessThan((await page.locator('.settlement-card').nth(1).boundingBox()).width * 0.6);
+  const settingsButton = page.getByRole('link', { name: '精算ルール', exact: true });
+  await expect(settingsButton).toHaveAttribute('href', /section=settlement.*task=rules/);
+  expect((await settingsButton.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  expect((await settingsButton.boundingBox()).y).toBeLessThan((await page.getByRole('heading', { name: '各車への支払い', exact: true }).boundingBox()).y);
   await expect(page.locator('.settlement-collection-summary')).toContainText(/\d+\/\d+人/);
   const collectionTrigger = page.getByRole('button', { name: '集金を確認', exact: true });
   await collectionTrigger.click();

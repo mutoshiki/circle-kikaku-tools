@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
   Button, InlineNotification, Link, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, ToastNotification,
 } from '@carbon/react';
@@ -10,6 +10,7 @@ import ProjectHistorySettings from './components/ProjectHistorySettings.jsx';
 import Participants from './components/Participants.jsx';
 import Allocation from './components/Allocation.jsx';
 import Settlement from './components/Settlement.jsx';
+import SettlementRules from './components/settlement-rules/SettlementRules.jsx';
 import VehicleCosts from './components/vehicle-costs/VehicleCosts.jsx';
 import { BugModal, HistoryModal } from './components/ProjectTools.jsx';
 import TaskModal from './components/TaskModal.jsx';
@@ -26,17 +27,27 @@ export default function App({ runtime }) {
   const allocationDestination = JSON.parse(allocationDestinationJson);
   const vehicleDestinationJson = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getVehicleCostTaskSnapshot);
   const vehicleDestination = JSON.parse(vehicleDestinationJson);
+  const settlementDestinationJson = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getSettlementTaskSnapshot);
+  const settlementDestination = JSON.parse(settlementDestinationJson);
+  const [rulesPage, setRulesPage] = useState(null);
+  const [rulesEntryProblem, setRulesEntryProblem] = useState('');
+  const changeRulesPage = useCallback(value => setRulesPage(current => JSON.stringify(current) === JSON.stringify({ key: settlementDestinationJson, ...value }) ? current : { key: settlementDestinationJson, ...value }), [settlementDestinationJson]);
   const [vehiclePage, setVehiclePage] = useState(null);
   const changeVehiclePage = useCallback(value => setVehiclePage(current => JSON.stringify(current) === JSON.stringify({key:vehicleDestinationJson,...value}) ? current : {key:vehicleDestinationJson,...value}), [vehicleDestinationJson]);
   const [roomResolved, setRoomResolved] = useState(() => !runtime.sync.enqueue || syncStatus.kind === 'connected');
   useEffect(() => { if (syncStatus.kind === 'connected') setRoomResolved(true); }, [syncStatus.kind]);
+  const rulesResolved = roomResolved || syncStatus.kind === 'error' && !!runtime.storage.read('base');
+  useEffect(() => {
+    if (rulesResolved && settlementDestination.invalid) { setRulesEntryProblem('指定された精算画面が見つかりません。精算ルールはここから開けます。'); runtime.navigation.replaceSettlementTask(''); }
+    else if (settlementDestination.task === 'rules') setRulesEntryProblem('');
+  }, [rulesResolved, settlementDestination.invalid, settlementDestination.task, runtime]);
   const [theme, setTheme] = useState('g10');
   const [feedback, setFeedback] = useState(null);
   const [globalModal, setGlobalModal] = useState('');
   const [overviewEditing, setOverviewEditing] = useState(false);
   const [sampleCars, setSampleCars] = useState('3');
   const [sampleType, setSampleType] = useState('normal');
-  const previousSection = useRef(`${section}:${participantTask}:${allocationDestinationJson}:${vehicleDestinationJson}`);
+  const previousSection = useRef(`${section}:${participantTask}:${allocationDestinationJson}:${vehicleDestinationJson}:${settlementDestinationJson}`);
   const participantReturnFocus = useRef('');
   const overviewEditButtonRef = useRef(null);
   const overviewReturnFocus = useRef(false);
@@ -45,16 +56,18 @@ export default function App({ runtime }) {
     overviewReturnFocus.current = false;
     overviewEditButtonRef.current?.focus();
   }, [overviewEditing]);
-  useEffect(() => {
-    const destination = `${section}:${participantTask}:${allocationDestinationJson}:${vehicleDestinationJson}`;
+  useLayoutEffect(() => {
+    const destination = `${section}:${participantTask}:${allocationDestinationJson}:${vehicleDestinationJson}:${settlementDestinationJson}`;
     if (previousSection.current === destination) return;
     previousSection.current = destination;
     setFeedback(null);
     const returnId = participantReturnFocus.current;
     participantReturnFocus.current = '';
-    const frame = requestAnimationFrame(() => (document.getElementById(returnId) || document.getElementById('project-page-title'))?.focus());
-    return () => cancelAnimationFrame(frame);
-  }, [section, participantTask, allocationDestinationJson, vehicleDestinationJson]);
+    // Commit focus with the destination DOM, before the next user input.
+    // A queued animation frame could steal focus after fast WebKit typing.
+    (document.getElementById(returnId) || document.getElementById('project-page-title'))?.focus();
+  }, [section, participantTask, allocationDestinationJson, vehicleDestinationJson, settlementDestinationJson]);
+  const returnFromRules = useCallback(({ focusId }) => { participantReturnFocus.current = focusId; runtime.navigation.navigateSettlementTask(''); }, [runtime]);
   function returnFromVehicle({destination, focusId}) {
     participantReturnFocus.current = focusId;
     if (destination.section === 'organization-car') runtime.navigation.navigateAllocationTask('car','group',destination.groupId);
@@ -135,10 +148,16 @@ export default function App({ runtime }) {
       metadata:[...(vehiclePage?.key === vehicleDestinationJson && vehicleDestination.carKey ? vehiclePage.metadata || [] : []),...sync],
       content:<VehicleCosts runtime={runtime} room={room} resolved={roomResolved || syncStatus.kind === 'error' && !!runtime.storage.read('base')} destination={vehicleDestination} onPageChange={changeVehiclePage} onReturn={returnFromVehicle} />,
     };
+    if (section === 'settlement' && settlementDestination.task === 'rules') return {
+      title: '精算ルール', description: '負担と集金の扱いを設定し、計算への影響を確認します。',
+      metadata: [...(rulesPage?.key === settlementDestinationJson ? rulesPage.metadata || [] : []), ...sync],
+      back: <Link href={runtime.navigation.settlementTaskHrefFor('')} onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); returnFromRules({ focusId: 'settlement-rules-entry', reason: 'back' }); } }}>精算に戻る</Link>,
+      content: <SettlementRules runtime={runtime} room={room} resolved={rulesResolved} destination={settlementDestination} onPageChange={changeRulesPage} onReturn={returnFromRules} />,
+    };
     if (section === 'settlement') return {
       title: '精算', description: '車ごとの距離・費用を入力し、精算額と集金・支払いを確認します。',
       metadata: [{ label: '参加者', value: `${participantCount}人` }, ...sync],
-      content: <Settlement runtime={runtime} room={room} onNotice={setFeedback} embedded />,
+      content: <>{rulesEntryProblem && <InlineNotification kind="error" title={rulesEntryProblem} hideCloseButton lowContrast />}<Settlement runtime={runtime} room={room} onNotice={setFeedback} embedded /></>,
     };
     if (section === 'history-settings') return {
       title: '履歴', description: '企画の状態を保存し、必要なときに以前の状態へ戻します。',

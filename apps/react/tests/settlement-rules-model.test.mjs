@@ -1,0 +1,72 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { fixture, createReference, plain } from './reference.mjs';
+import { createRoomStore } from '../src/store/room-store.js';
+import { beginSettlementEdit } from '../src/components/settlement/edit.js';
+import { projectSettlementRules, validateSettlementRules, settlementRulesSafety } from '../src/ui/settlement-rules-model.js';
+const create = () => createRoomStore({ initial: fixture });
+test('preview overlays changed rounding only onto latest expenses and paid maps without mutation or intent', () => {
+  const store = create(), edit = beginSettlementEdit(store), domain = store.domain;
+  edit.state.rounding = '10';
+  const remote = structuredClone(store.getSnapshot()), car = domain.settlementInput(remote).data.cars[0];
+  remote.settlement.carsByParticipantId[car.participantId].dist = '222';
+  remote.settlement.driverReward = '800';
+  store.receiveRemote(remote);
+  const before = store.getSnapshot(), draftBefore = structuredClone(edit), intents = [];
+  store.subscribeIntents(value => intents.push(value));
+  const projection = projectSettlementRules({ room: before, edit, domain });
+  assert.deepEqual(projection.patch, { 'settlement/rounding': '10' });
+  assert.equal(projection.candidateInput.state.cars[car.name].dist, '222');
+  assert.equal(projection.candidateInput.state.driverReward, '800');
+  assert.deepEqual(plain(projection.candidate), plain(createReference().calculateSettlement(projection.candidateInput.data, projection.candidateInput.state)));
+  assert.equal(store.getSnapshot(), before); assert.deepEqual(edit, draftBefore); assert.equal(intents.length, 0);
+  assert.deepEqual(settlementRulesSafety({ room: before, edit, patch: projection.patch, domain }), []);
+  remote.settlement.rounding = '1'; store.receiveRemote(remote);
+  assert.ok(settlementRulesSafety({ room: store.getSnapshot(), edit, patch: projection.patch, domain }).some(issue => issue.key === 'stale-settings'));
+});
+test('organizer selection requires a live unambiguous canonical identity', () => {
+  const store = create(), edit = beginSettlementEdit(store), domain = store.domain, room = structuredClone(store.getSnapshot());
+  const id = Object.keys(room.participants)[0]; edit.state.organizerName = room.participants[id].name;
+  const patch = projectSettlementRules({ room, edit, domain }).patch;
+  assert.deepEqual(settlementRulesSafety({ room, edit, patch, organizerId: id, domain }), []);
+  room.participants.duplicate = { ...room.participants[id], id: 'duplicate', name: ` ${room.participants[id].name.toUpperCase()} ` };
+  assert.ok(settlementRulesSafety({ room, edit, patch, organizerId: id, domain }).some(issue => issue.key === 'organizer-ambiguous'));
+  delete room.participants[id];
+  assert.ok(settlementRulesSafety({ room, edit, patch, organizerId: id, domain }).some(issue => issue.key === 'organizer-missing'));
+});
+test('cost readiness does not invalidate valid settings, and points at the actual cost task', () => {
+  const store = create(), room = structuredClone(store.getSnapshot()), domain = store.domain;
+  const car = domain.settlementInput(room).data.cars[0]; room.settlement.carsByParticipantId[car.participantId].dist = '';
+  store.receiveRemote(room); const edit = beginSettlementEdit(store);
+  const p = projectSettlementRules({ room: store.getSnapshot(), edit, domain });
+  assert.equal(validateSettlementRules(edit.state).valid, true);
+  assert.ok(p.readiness.some(issue => issue.destination?.kind === 'vehicle-cost' && issue.destination.destination.carKey === `participant:${car.participantId}`));
+  assert.deepEqual(settlementRulesSafety({ room: store.getSnapshot(), edit, patch: p.patch, domain }), []);
+});
+test('validation preserves existing raw guard and ignores hidden counts and missing organizer advisory', () => {
+  const store = create(), edit = beginSettlementEdit(store), state = edit.state;
+  state.standalone.driverCount = '-1'; assert.equal(validateSettlementRules(state).valid, true);
+  state.standalone.enabled = true;
+  assert.equal(validateSettlementRules(state).fields[0].key, 'standalone.driverCount');
+  state.standalone.driverCount = '0.5'; state.standalone.memberCount = '0';
+  assert.equal(validateSettlementRules(state).valid, true);
+  state.driverReward = '−1'; assert.equal(validateSettlementRules(state).fields[0].key, 'driverReward');
+  state.driverReward = '1,000'; assert.equal(validateSettlementRules(state).valid, true);
+  state.standalone.driverCount = ''; assert.equal(validateSettlementRules(state).valid, false);
+  state.standalone.driverCount = '1,000'; assert.equal(validateSettlementRules(state).valid, false, 'old raw step guard treats nonnumeric count as zero');
+});
+test('reset is unsafe independent of expenses or form validity', () => {
+  const store = create(), edit = beginSettlementEdit(store), room = structuredClone(store.getSnapshot()); room.resetGeneration++;
+  assert.equal(settlementRulesSafety({ room, edit, patch: {}, domain: store.domain })[0].key, 'reset');
+});
+
+test('unsaved standalone cars have no corrective link until their target exists in the shared room', () => {
+  const store = create(), edit = beginSettlementEdit(store), domain = store.domain;
+  edit.state.standalone = { enabled: true, driverCount: '1', memberCount: '2', driverNames: ['未保存の運転手'] };
+  const projection = projectSettlementRules({ room: store.getSnapshot(), edit, domain });
+  const issues = projection.readiness.filter(issue => issue.key.startsWith('未保存の運転手:'));
+  assert.ok(issues.length > 0);
+  assert.ok(issues.every(issue => issue.destination === null));
+  assert.ok(issues.every(issue => issue.message.includes('精算ルールを保存')));
+  assert.equal(domain.settlementInput(store.getSnapshot()).state.standalone.enabled, false);
+});

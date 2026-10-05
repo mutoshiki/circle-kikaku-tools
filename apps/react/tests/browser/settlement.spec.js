@@ -54,31 +54,27 @@ test('settings cancel/save, signed extras, collection state and reload', async (
   await expect(page.getByRole('heading', { name: '精算状況' })).toHaveCount(0);
   await expect(page.getByText('精算モード', { exact: true })).toHaveCount(0);
 
-  await page.getByRole('button', { name: '精算設定' }).click();
-  let settings = page.getByRole('dialog', { name: '精算設定を編集' });
+  await page.getByRole('link', { name: '精算ルール', exact: true }).click();
+  let settings = page.getByRole('form', { name: '精算ルール', exact: true });
   await settings.getByText('10円単位', { exact: true }).click();
   await page.getByRole('button', { name: 'キャンセル' }).click();
-  await page.getByRole('button', { name: '精算設定' }).click();
-  settings = page.getByRole('dialog', { name: '精算設定を編集' });
+  await page.getByRole('link', { name: '精算ルール', exact: true }).click();
+  settings = page.getByRole('form', { name: '精算ルール', exact: true });
   await expect(settings.getByRole('radio', { name: '100円単位' })).toBeChecked();
   await page.getByRole('button', { name: 'キャンセル' }).click();
 
-  await page.getByRole('button', { name: '精算設定' }).click();
-  settings = page.getByRole('dialog', { name: '精算設定を編集' });
-  await settings.getByRole('button', { name: '次へ' }).click();
-  await settings.getByRole('button', { name: '次へ' }).click();
-  await expect(settings.getByRole('radio', { name: '支払額から差し引く' })).toBeVisible();
+  await page.getByRole('link', { name: '精算ルール', exact: true }).click();
+  settings = page.getByRole('form', { name: '精算ルール', exact: true });
+  await expect(settings.getByRole('radio', { name: '車への支払額から差し引く' })).toBeVisible();
   await page.getByRole('button', { name: 'キャンセル' }).click();
 
-  await page.getByRole('button', { name: '精算設定' }).click();
-  settings = page.getByRole('dialog', { name: '精算設定を編集' });
+  await page.getByRole('link', { name: '精算ルール', exact: true }).click();
+  settings = page.getByRole('form', { name: '精算ルール', exact: true });
   await settings.getByText('10円単位', { exact: true }).click();
-  await settings.getByRole('button', { name: '次へ' }).click();
   await settings.getByLabel('1台あたりの協力代（円）').fill('700');
-  await settings.getByRole('button', { name: '次へ' }).click();
-  await settings.getByRole('button', { name: '保存' }).click();
-  await page.getByRole('button', { name: '精算設定' }).click();
-  settings = page.getByRole('dialog', { name: '精算設定を編集' });
+  await settings.getByRole('button', { name: '精算ルールを保存' }).click();
+  await page.getByRole('link', { name: '精算ルール', exact: true }).click();
+  settings = page.getByRole('form', { name: '精算ルール', exact: true });
   await expect(settings.getByRole('radio', { name: '10円単位' })).toBeChecked();
   await page.getByRole('button', { name: 'キャンセル' }).click();
 
@@ -110,8 +106,8 @@ test('settings cancel/save, signed extras, collection state and reload', async (
 
   await page.reload();
   await navigateToProjectSection(page, '精算');
-  await page.getByRole('button', { name: '精算設定' }).click();
-  settings = page.getByRole('dialog', { name: '精算設定を編集' });
+  await page.getByRole('link', { name: '精算ルール', exact: true }).click();
+  settings = page.getByRole('form', { name: '精算ルール', exact: true });
   await expect(settings.getByRole('radio', { name: '10円単位' })).toBeChecked();
   await page.getByRole('button', { name: 'キャンセル' }).click();
   const reloadedCarA = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) });
@@ -443,22 +439,20 @@ test('desktop cost workspace shares one form and scan list without horizontal sc
 });
 
 test('人数だけで精算するdraft survives save and reload', async ({ page }) => {
-  await page.getByRole('button', { name: '精算設定' }).click();
-  const modal = page.getByRole('dialog', { name: '精算設定を編集' });
+  await page.getByRole('link', { name: '精算ルール', exact: true }).click();
+  const modal = page.getByRole('form', { name: '精算ルール', exact: true });
   await modal.getByText('人数だけで精算', { exact: true }).click();
   await modal.getByLabel('運転手の人数').fill('2');
   await modal.getByLabel('同乗者の人数').fill('4');
   await modal.getByLabel('運転手1の名前').fill('第一運転手');
   await modal.getByLabel('運転手2の名前').fill('第二運転手');
-  await modal.getByRole('button', { name: '次へ' }).click();
-  await modal.getByRole('button', { name: '次へ' }).click();
-  await modal.getByRole('button', { name: '保存' }).click();
+  await modal.getByRole('button', { name: '精算ルールを保存' }).click();
   await expect(page.getByRole('heading', { name: '第一運転手車' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '第二運転手車' })).toBeVisible();
   await page.reload();
   await navigateToProjectSection(page, '精算');
-  await page.getByRole('button', { name: '精算設定' }).click();
-  const reloadedSettings = page.getByRole('dialog', { name: '精算設定を編集' });
+  await page.getByRole('link', { name: '精算ルール', exact: true }).click();
+  const reloadedSettings = page.getByRole('form', { name: '精算ルール', exact: true });
   await expect(reloadedSettings.getByLabel('運転手の人数')).toHaveValue('2');
   await page.getByRole('button', { name: 'キャンセル' }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -466,8 +460,8 @@ test('人数だけで精算するdraft survives save and reload', async ({ page 
 });
 test('vehicle settlement presents expense and breakdown with an accessible Carbon accordion', async ({ page }) => {
   const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者D車/ }) });
-  const settings = page.getByRole('button', { name: '精算設定を編集' });
-  await expect(settings).toHaveClass(/cds--btn--ghost/);
+  const settings = page.getByRole('link', { name: '精算ルール', exact: true });
+  await expect(settings).toHaveAttribute('href', /section=settlement.*task=rules/);
   await expect(car.locator('.settlement-car-payment')).toHaveCount(0);
   await expect(car.locator('.settlement-car-menu')).toHaveCount(0);
   await expect(car.getByText('未払い', { exact: true })).toHaveCount(0);
