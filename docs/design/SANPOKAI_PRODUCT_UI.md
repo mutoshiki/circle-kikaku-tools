@@ -1,6 +1,6 @@
 # 山歩会企画ツール Product UI specification
 
-Status: normative product UI specification v1.5 (2026-10-05; approved Phase G rules, calculation explanation and settings-only receipt contract)
+Status: normative product UI specification v1.6 (2026-10-05; approved Phase H collection/payment tasks, exact-operation recovery and local-history/shared-restore contract)
 Research snapshot: 2026-09-29
 Design basis: [CARBON_PRODUCT_PRINCIPLES.md](./CARBON_PRODUCT_PRINCIPLES.md) / [CARBON_PATTERNS.md](./CARBON_PATTERNS.md)
 
@@ -42,7 +42,7 @@ Contract role: 山歩会企画ツール固有の唯一のnormative product UI sp
 - Phase Bのnavigation component名は固定しない。現在地、stable destination、URL / refresh / back、focus、desktop / mobile behaviorを満たすことがcontractであり、installed Carbon versionで検証したcomponentを選ぶ。
 - Carbonに安定したside-panel contractがない場合、full page、nested page、またはinline split viewを使う。独自panelをModal代替として増やさない。
 - Settlement rulesはsingle-page grouped formを既定とする。順序依存を実データとtask testで示せた場合だけpage wizardを採用し、Modal wizardにはしない。
-- Collectionとrecipient paymentは異なるstateとheadingを持つ。1 route内の別sectionでも別routeでもよいが、同一control・同一statusへ統合しない。
+- Collectionとrecipient paymentは異なるstateとheadingを持つ。Phase Hでは反復操作のため専用subrouteとし、同一control・同一statusへ統合しない。
 
 ### Incremental applicability
 
@@ -385,7 +385,9 @@ Phase F interaction contract（Project interpretation）:
    - recipient/driverごとの支払額、内訳、支払い済み
 6. **メモ**
 
-これらを1 pageの5 Tileへ連続stackしない。Overviewから明確なlocal navigationまたはtask linkで各work areaへ移る。Collectionとpaymentは同一route内に置けるが、独立heading・summary・state ownerを必須とし、同一status listへ混在させない。
+これらを1 pageの5 Tileへ連続stackしない。精算parentから明確なtask linkで各work areaへ移る。集金は`section=settlement&task=collection`、支払いは`section=settlement&task=payments`、既存ルールは`task=rules`。URLがdestinationの唯一のowner。global navigationは増やさず、local linkのcurrent pageとh1で現在taskを識別する。未知taskはload解決後parentへreplaceし、writeしない。
+
+精算parentは確認項目→現在の精算額→残る集金/支払いのwork link→メモの順。請求額・負担人数/現金集金人数・割勘/部費・端数/差引/余剰/会計差額は既存resultから説明し、必須金額を閉じたdisclosureへ隠さない。readinessの既存structured issueを修正先へ接続し、message解析や会計差額0を新validationにしない。閲覧parentにPrimary・新たな完了flagは不要。
 
 ## 12. Costs and vehicle costs
 
@@ -456,17 +458,17 @@ Phase F interaction contract（Project interpretation）:
 
 ### Collection
 
-- Summary: 回収済み / 対象人数、残額。
-- View filter: すべて / 未回収のみ。
-- Row: participant、請求額、免除/除外、collector、paid state。
-- Mark paidはrow-level immediate action。複数人のbulk updateが実際に必要ならselection modeを追加する。
+- h1「集金」、domain paidCount/payerCount・未集金額。filter「未集金 / すべて」は同種一覧のviewでありnavigationではない。fresh entryは未集金、room/taskごとのsession-local選択を復元する。
+- 登録参加者は本人名・現在請求額・「集金済み」checkboxを直接操作できる。paidByは既存「集金した人」の補助記録であり本人identityや新しい会計担当roleではない。除外rowはすべてで理由を表示しcheckboxなし。企画者免除、運転手免除、支払額から差引を区別し、既存paidを削除しない。
+- 人数だけの未記録rowは短いinline「集金した人」editor、Primary「記録」とCancel。一度に1行、rawを保持しIME中submit禁止。現在Reactの`collector.value || collector.name`とhelperのtrim/fallbackを維持し、legacyとの相違を今回揃えない。mode/slot集合/reset/contextが変わったらpublishを止める。navigation/refreshはraw保持、明示Cancel/成功で破棄。
+- Ghost「未集金者をコピー」は表示filterにかかわらず実際の未集金全員を対象とする。コピー不能では選択可能なtextを残す。bulk処理はPhase Hで追加しない。
 
 ### Driver / recipient payment
 
-- Summary: 未払い件数 / total。
-- Row: recipient/vehicle、支払額、state、detail disclosure。
-- Detail: 誰からの集金を原資とするかではなく、計算内訳をscan可能に示す。
-- Paid toggleは結果をrow内で即表示し、Toastを重ねない。
+- h1「支払い」、filter「未払い / すべて」。domain result.carsの一車に一row・一driverPaid記録。複数driverへの独自分割やdriver別flagを作らない。実際のdriver roleを表示し、未設定をownerから推測しない。
+- Summaryは未確認車件数とその車の現在adjustedTotalPayのsigned合計。相殺した額だけで残る作業を示さない。0円/負額も符号・内訳と操作を残し、自動チェックや自動解除をしない。
+- 割勘/部費・端数・差引・協力代・費目は既存resultを一段disclosureで示す。修正先はPhase Fの同じ車両費用taskであり費用editorを複製しない。
+- 正規化名衝突、unsafe name fallback、削除/rename等で対象が一意でない時は表示と理由を残して記録のみ止める。独自escaping/identity/schemaで回避しない。
 
 ### Invariants
 
@@ -475,6 +477,16 @@ Phase F interaction contract（Project interpretation）:
 - 費用入力、計算結果、実際の集金・支払い確認は異なるtask。費用が揃っていないのに精算完了と表示しない。完了後は追加の管理stageを要求せず、内訳・履歴・訂正へ必要時に戻れる。
 - Calculation resultはUI側で再計算しない。現行domain resultをpresentationする。
 - 同期競合や保存失敗時はoptimistic stateを確定表示しない。
+
+### Phase H recording and recovery
+
+- 計算額は現在の費用/ルールの結果で、チェックには過去の授受額・日時が保存されない。その限界を短く説明し、費用変更でチェックを自動解除しない。readiness問題なし・関連write確認済み・非空対象すべてのチェック成立時だけ「現在の集金・支払いチェックはすべて記録されています」と言える。実際の金銭移動の監査や最終額lockを証明しない。
+- 最新roomとtarget/context/resetをpublish直前に検証し既存collectionChangeを一回だけ実行。集金は対象paid/paidBy、支払いは対象driverPaid、memoはmemoだけ。既存whole-map Undoは変更せず、新UIでは対象行の逆操作を訂正とする。
+- H writeは一件ずつ、既存one-record outboxとexact intent receiptを使う。foreign outbox・非terminal receipt中の新write/逆writeを止め、閲覧は維持。retryは同じpatchだけでcommandを再実行しない。connected・空outbox・helper boolを受理証拠にしない。受理と現在path一致は別に確認する。
+- localはこの端末、pendingは保存中、failedは同じ内容の許可されたretry、unresolvedは結果未確認。pending/unknownを破棄/取消済みと説明しない。adjusted/resetは現在結果の明示確認へ誘導し、terminalと証明できた控えだけ閉じる。毎回の成功Toastなし。
+- 回復cacheはroom別versioned namespace、raw/対象/changed paths/元値/reset/receiptだけ。room全体/auth/別feature draftを複製しない。保存不能でもmemoryを維持しrefresh保証なしを示す。古いcompletionが新しい入力を消さない。広範な復元のcache制限は§15。
+- メモは短いinline read/edit、Primary「メモを保存」とCancel。raw/opening memoを保持し最新stateへmemo-only Save。同じmemoのremote変更はpublish前に止め、控えを維持し明示的な再編集へ。publish後はreceipt解決まで固定しCancelを共有Undoとしない。
+- 未処理filterでfocused rowが消える時は次row→前row→filterへfocus。pending/failed/unknown rowは残す。pointer/touchで無条件に先頭へ飛ばさない。戻るはparentの実在入口、履歴移動はh1、direct loadでfocusを奪わない。
 
 ## 15. History
 
@@ -496,19 +508,29 @@ Phase F interaction contract（Project interpretation）:
 - Empty stateは履歴の生成条件と「現在の状態を保存」を示す。
 - Restore後に何が戻り、何が戻らないかを明記する。
 
+### Phase H local history / shared restore
+
+- `section=history-settings`の識別子を維持しh1「履歴」。この端末に最大20件、新しい順、手動保存のみ。自動snapshot/新たな終了stageなし。日時/企画名を示し実在しないcreator/sourceは捏造しない。current markerはbusiness状態の一致で証明できる時だけ。
+- history.save returnだけで成功とせずtime/dataをread-backする。read-only adapterで既存history.keyの読取/JSON arrayを確認し、破損/access errorを0件と区別。自動修復・削除なし。未解決共有write中はsnapshot作成を待たせる。成功はrow/markerで示しToastなし。
+- 短いdanger「この履歴を復元しますか？」で対象日時/企画名、既存migration後の参加者・割当・費用/ルール・金銭記録・企画情報への影響を提示。理解checkboxとdanger「この状態を復元」、Cancel。実際の集金/支払いは取り消されないこと、local draft/履歴一覧/route作業/authは対象外であることを明示する。生JSON/tokenを表示しない。
+- 確認中/実行直前にcurrent business stateとsnapshotを再照合。既存metadata/tombstone/merge/reset規則を保護し、全room原子lockや応募フォーム自体の復元を約束しない。history.restore一回のintentを追跡し、retryでrestore/backup作成を再実行しない。
+- 広範なreceipt/backupはmemoryと既存history/outboxだけ。新UIのdurable控えはoperation ID/reset/history time/disposition等の最小識別でありfull patch/room/tokenを複製しない。refresh後に完全復元できないなら受理済み・現在確認または未確認で止め、自動再実行しない。
+- Undoは同runtimeの実在backup、調整なし受理/local適用、他の未解決writeなし、全business状態がcommand端末適用後と一致し以後変化なしの場合だけ。own patch一致だけで安全としない。後続編集/他者変更/reset/new restore/refreshで入口を閉じる。短いimpact確認で既存history.undoを一回だけ使い、backup消費と失敗時exact patch retryを維持する。固定時間/refresh後Undo保証を作らない。
+
 ## 16. Delete, reset, and danger zone
 
 Risk tiers:
 
 - Low / reversible: 即時実行し、既存ownerがreversalを保証できる場合はUndoまたは逆操作を提供する。
 - Moderate: danger confirmation。対象、影響、戻し方を示す。
-- High / broad reset: project settingsのDanger zone。対象名入力または同等に対象と影響を再確認できるstrong confirmationを必須とする。
+- High / broad reset: task固有の分離されたdanger領域。対象名入力または同等に対象と影響を再確認できるstrong confirmationを必須とする。実在しないproject settings/delete/reset APIをこの仕様から追加しない。
 
 Placement:
 
 - Row delete: Overflow末尾、divider付き。
 - Project delete / sample reset: normal utilityから分離。
-- Resetは「最後に保存した状態へ戻す」、Deleteはdata除去としてlabelを分ける。
+- 履歴は「この状態を復元」、sampleは「サンプルで置き換える」、実在するDeleteは対象のdata除去。genericな「リセット」や一律「最後に保存した状態へ戻す」で異なる結果を説明しない。
+- sampleはruntime.sampleDataEnabledのlocal/demoだけ、履歴の「開発用操作」から`section=history-settings&task=sample`。通常/入力漏れ/応募連携と車数の既存factoryを保護する。選択は無write、Tertiary「置換内容を確認」→対象/失われるdata・理解checkboxの短いdanger確認。submitでcurrent/choiceを再照合し既存生成/restore一回。共有環境の直接URLはparentへreplace、無write。
 
 Wording examples:
 
