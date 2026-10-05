@@ -336,6 +336,8 @@ Very high: cost draft, movement formula, route application, map API, and settlem
 
 ## Phase G — Settlement rules and calculation explanation
 
+Candidate evidence: [Phase G validation](./evidence/PHASE_G_VALIDATION.md) records the grouped page/settings-only receipt implementation, protected-domain comparisons, real concurrency/recovery tests, browser evidence and remaining gates. At its local checkpoint, whole-branch review, final cumulative browser gate, CI and integration are pending. This evidence does not replace the normative Product UI specification; completion requires successful CI and safe integration into `carbon-redesign`.
+
 ### Goal
 
 Move settlement settings out of the wizard Modal and make split, club fee, exemption, deduction, roles, and calculation impact understandable as one rule system.

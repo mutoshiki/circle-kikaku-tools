@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
   Button, InlineNotification, Link, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, ToastNotification,
 } from '@carbon/react';
@@ -56,15 +56,16 @@ export default function App({ runtime }) {
     overviewReturnFocus.current = false;
     overviewEditButtonRef.current?.focus();
   }, [overviewEditing]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const destination = `${section}:${participantTask}:${allocationDestinationJson}:${vehicleDestinationJson}:${settlementDestinationJson}`;
     if (previousSection.current === destination) return;
     previousSection.current = destination;
     setFeedback(null);
     const returnId = participantReturnFocus.current;
     participantReturnFocus.current = '';
-    const frame = requestAnimationFrame(() => (document.getElementById(returnId) || document.getElementById('project-page-title'))?.focus());
-    return () => cancelAnimationFrame(frame);
+    // Commit focus with the destination DOM, before the next user input.
+    // A queued animation frame could steal focus after fast WebKit typing.
+    (document.getElementById(returnId) || document.getElementById('project-page-title'))?.focus();
   }, [section, participantTask, allocationDestinationJson, vehicleDestinationJson, settlementDestinationJson]);
   const returnFromRules = useCallback(({ focusId }) => { participantReturnFocus.current = focusId; runtime.navigation.navigateSettlementTask(''); }, [runtime]);
   function returnFromVehicle({destination, focusId}) {

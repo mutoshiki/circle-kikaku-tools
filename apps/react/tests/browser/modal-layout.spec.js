@@ -77,6 +77,7 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
   await page.screenshot({path:join(evidence,`vehicle-expense-${testInfo.project.name}.png`),fullPage:true});
   await page.getByRole('button',{name:'費用を追加',exact:true}).click();
   await page.getByRole('textbox',{name:'費用名',exact:true}).fill('保持する費用');
+  await expect(page.getByRole('textbox',{name:'費用名',exact:true})).toHaveValue('保持する費用');
   await page.getByRole('link',{name:'費目一覧に戻る',exact:true}).click();
   await expect(page.getByRole('link',{name:'移動条件を編集',exact:true})).toBeVisible();
   await editFee(page,'移動条件');

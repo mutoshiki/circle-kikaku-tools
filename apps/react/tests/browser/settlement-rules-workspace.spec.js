@@ -8,6 +8,23 @@ async function open(page, testInfo, room = vehicleFixture, task = 'rules') {
   return roomId;
 }
 const readRoom = (page, roomId) => page.evaluate(id => JSON.parse(localStorage.getItem(`sanpo-react:v1:${id}:room`)), roomId);
+test('delayed rendering callbacks cannot steal focus from input started after task navigation', async ({ page }, testInfo) => {
+  await open(page, testInfo, vehicleFixture, '');
+  await expect(page.getByRole('link', { name: '精算ルール', exact: true })).toBeVisible();
+  await page.evaluate(() => {
+    const request = window.requestAnimationFrame, cancel = window.cancelAnimationFrame, queued = new Map(); let id = 1000000;
+    window.requestAnimationFrame = callback => { queued.set(++id, callback); return id; };
+    window.cancelAnimationFrame = value => { if (!queued.delete(value)) cancel(value); };
+    window.__releaseRenderingFrames = () => {
+      window.requestAnimationFrame = request; window.cancelAnimationFrame = cancel;
+      const callbacks = [...queued.values()]; queued.clear(); callbacks.forEach(callback => callback(performance.now()));
+    };
+  });
+  await page.getByRole('link', { name: '精算ルール', exact: true }).click();
+  await reward(page).fill('1500'); await expect(reward(page)).toBeFocused();
+  await page.evaluate(() => window.__releaseRenderingFrames());
+  await expect(reward(page)).toBeFocused(); await expect(reward(page)).toHaveValue('1500');
+});
 test('clearing the organizer visibly clears selection and survives refresh without a shared write', async ({ page }, testInfo) => {
   const id = await open(page, testInfo);
   const organizer = page.getByRole('combobox', { name: '企画者', exact: true });
