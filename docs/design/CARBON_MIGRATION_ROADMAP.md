@@ -383,6 +383,8 @@ Very high: settlement logic is critical and compatibility-sensitive.
 
 ## Phase H — Settlement operations: collection, payouts, history, and danger zone
 
+Design checkpoint: [Phase H detailed design](../superpowers/specs/2026-10-05-phase-h-settlement-operations-design.md) concretizes the conversationally approved collection/payment workspaces, local history/shared restore and conditional recovery. Written-spec review and implementation planning remain pending. This checkpoint is not a second normative Product UI specification and does not authorize implementation or production operations.
+
 ### Goal
 
 Replace the long settlement Tile stack with overview + focused collection/payment work, and migrate durable history/settings out of Modals.
