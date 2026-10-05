@@ -172,6 +172,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .operations-payment-row { display: grid; gap: layout.$spacing-04; padding-block: layout.$spacing-05; border-block-end: 1px solid var(--cds-border-subtle); }
 .operations-payment-main { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: layout.$spacing-05; }
 .operations-memo-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.operations-memo-form { display: grid; gap: layout.$spacing-04; }
 .settlement-card { min-width: 0; margin: 0; padding: layout.$spacing-04 0; border: 0; background: var(--cds-layer-01, var(--cds-layer)); }
 .settlement-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: layout.$spacing-03; margin-block-end: layout.$spacing-04; }
 .settlement-vehicles-card .settlement-section-heading { align-items: flex-start; }

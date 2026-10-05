@@ -19,6 +19,7 @@ import { isToastNotice, notice as taskNotice } from './ui/task-contracts.js';
 import { allocationView } from './ui/allocation-view.js';
 import { createOperationsCache } from './ui/settlement-operations-draft.js';
 import { createSettlementOperationController } from './ui/settlement-operation-controller.js';
+import { createSettlementMemoController } from './ui/settlement-memo-controller.js';
 import { projectSettlementOperations } from './ui/settlement-operations-model.js';
 import CollectionWorkspace from './components/settlement-operations/CollectionWorkspace.jsx';
 import PaymentWorkspace from './components/settlement-operations/PaymentWorkspace.jsx';
@@ -31,15 +32,16 @@ export default function App({ runtime }) {
     // a second live controller or transport observer.
     const cache = createOperationsCache({ roomId: runtime.roomId, storage: () => sessionStorage });
     const controller = createSettlementOperationController({ runtime, cache });
-    setResources({ runtime, cache, controller });
+    const memoController = createSettlementMemoController({ runtime, operations: controller, cache });
+    setResources({ runtime, cache, controller, memoController });
     void controller.observe();
-    return () => controller.dispose();
+    return () => { memoController.dispose(); controller.dispose(); };
   }, [runtime]);
   if (resources?.runtime !== runtime) return <InlineLoading description="企画を開いています" />;
   return <Application runtime={runtime} resources={resources} />;
 }
 
-function Application({ runtime, resources: { cache, controller } }) {
+function Application({ runtime, resources: { cache, controller, memoController } }) {
   const room = useSyncExternalStore(runtime.store.subscribe, runtime.store.getSnapshot);
   const operationSnapshot = useSyncExternalStore(controller.subscribe, controller.getSnapshot);
   const operationsView = projectSettlementOperations({ room, domain: runtime.store.domain, operation: operationSnapshot.operation });
@@ -194,7 +196,7 @@ function Application({ runtime, resources: { cache, controller } }) {
     if (section === 'settlement') return {
       title: '精算', description: '車ごとの距離・費用を入力し、精算額と集金・支払いを確認します。',
       metadata: [{ label: '参加者', value: `${participantCount}人` }, ...sync],
-      content: <>{rulesEntryProblem && <InlineNotification kind="error" title={rulesEntryProblem} hideCloseButton lowContrast />}<OperationFeedback controller={controller} snapshot={operationSnapshot} /><Settlement runtime={runtime} room={room} view={operationsView} controller={controller} snapshot={operationSnapshot} cache={cache} /></>,
+      content: <>{rulesEntryProblem && <InlineNotification kind="error" title={rulesEntryProblem} hideCloseButton lowContrast />}<OperationFeedback controller={controller} snapshot={operationSnapshot} /><Settlement runtime={runtime} room={room} view={operationsView} memoController={memoController} /></>,
     };
     if (section === 'history-settings') return {
       title: '履歴', description: '企画の状態を保存し、必要なときに以前の状態へ戻します。',

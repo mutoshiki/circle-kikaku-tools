@@ -59,3 +59,10 @@ test('standalone inline draft preserves raw input and IME without a write until 
   await page.getByRole('tab',{name:'すべて',exact:true}).click();await expect(page.getByRole('main')).toContainText('集金した人:');
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });
+
+test('memo raw draft survives refresh without publish',async({page},info)=>{
+  const id=await open(page,info,''),before=await readRoom(page,id);await page.getByRole('button',{name:'精算メモを編集',exact:true}).click();
+  const input=page.getByRole('textbox',{name:'精算メモ',exact:true});await input.fill('  連絡\n ');await page.reload();await expect(input).toHaveValue('  連絡\n ');expect(await readRoom(page,id)).toEqual(before);
+  await page.getByRole('button',{name:'メモを保存',exact:true}).click();await expect(page.getByRole('button',{name:'精算メモを編集',exact:true})).toBeFocused();
+  const after=await readRoom(page,id);expect(after.settlement.memo).toBe('  連絡\n ');expect(after.settlement.carsByParticipantId).toEqual(before.settlement.carsByParticipantId);await expect(page.getByRole('dialog')).toHaveCount(0);
+});
