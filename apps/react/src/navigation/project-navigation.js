@@ -70,7 +70,8 @@ export function readVehicleCostTask(href) {
 export function readSettlementTask(href) {
   if (readProjectSection(href) !== 'settlement') return { task: '', invalid: false };
   const task = new URL(href).searchParams.get('task') || '';
-  return { task: task === 'rules' ? task : '', invalid: !['', 'rules'].includes(task) };
+  const tasks=['','rules','collection','payments'];
+  return { task: tasks.includes(task) ? task : '', invalid: !tasks.includes(task) };
 }
 
 export function prepareProjectLaunch(options) {
@@ -166,7 +167,7 @@ export function createProjectNavigation({ location, history, eventTarget }) {
       return true;
     },
     settlementTaskHrefFor(task = '') {
-      if (!['', 'rules'].includes(task)) throw new Error('Unknown settlement destination');
+      if (!['', 'rules', 'collection', 'payments'].includes(task)) throw new Error('Unknown settlement destination');
       const url = new URL(createProjectSectionUrl(location.href, 'settlement'));
       if (task) url.searchParams.set('task', task);
       return `${url.pathname}${url.search}${url.hash}`;

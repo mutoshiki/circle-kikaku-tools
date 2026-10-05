@@ -10,7 +10,7 @@
 
 **Spec:** [Approved Phase H design](../specs/2026-10-05-phase-h-settlement-operations-design.md). [SANPOKAI_PRODUCT_UI.md](../../design/SANPOKAI_PRODUCT_UI.md) is the sole normative Product UI specification; this plan is execution guidance, not another UI contract.
 
-Status: written specification approved by 「実装計画へ」 (2026-10-05). Plan review remains pending; no implementation or verification outcome is claimed. Native is preserved from the user's earlier selection, subject to confirmation that this plan captures the approved design.
+Status: plan approved for Native execution by 「実装へ」 (2026-10-05). Execution is in progress; completed steps and verification are recorded in the execution ledger and final phase evidence.
 
 ## Global Constraints
 
@@ -108,7 +108,7 @@ Reference-only: `src/domain/**`, `src/store/**`, `src/sync/**`, `src/services/**
 
 **Files:** Create operation controller and `tests/settlement-operations-controller.test.mjs`. **Spec:** §7/8 receipt rules.
 
-**Interfaces:** Consume Task 2 target/cache/comparison, `collectionChange(store,{name,checked,payment=false,collector})` and existing `allocationSaveReceipt/settleAllocationSave`. Produce shared controller contract above. Preflight runs that same unchanged helper against a detached `createRoomStore({initial:latestRoom})`, inspects its emitted patch and permits the real runtime command only when semantic paths match the resolved target; no transport, persistence, history, or live intent subscription is attached to the preview. `publishHistory` captures broad receipt in memory, durable cache stores compact identifiers; receipt reconstructed only from matching existing outbox, otherwise conservatively unresolved/accepted-needs-review.
+**Interfaces:** Consume Task 2 target/cache/comparison, `collectionChange(store,{name,checked,payment=false,collector})` and existing `allocationSaveReceipt/settleAllocationSave`. Produce shared controller contract above. Task 3 execution ruling (normative §14): execute the unchanged helper once against detached `createRoomStore({initial:latestRoom})`; project only resolved target paths into one existing live beginEdit/commitEdit. No transport, persistence or history is attached to the preview. This excludes incidental legacy normalization instead of rejecting compatible rooms. `publishHistory` captures broad receipt in memory, durable cache stores compact identifiers; receipt reconstructed only from matching existing outbox, otherwise conservatively unresolved/accepted-needs-review.
 
 - [ ] **Write RED cases:** latest-room toggle once; intended paid+collector or driverPaid paths only (ignore the existing three root bookkeeping paths), inverse action leaves other rows intact; same target removed/renamed/reset/ambiguous; noop; foreign outbox; double submit; denied→exact retry; unknown empty/replaced outbox; acceptance followed by remote opposite value; stale controller completion; blocked cache. Named test `one local row record emits one intent without changing the calculated amount`:
 

@@ -1,6 +1,6 @@
 # Phase H design: collection, payouts, history, and safe recovery
 
-Status: conversational structure approved by 「具体化」 and written specification approved by 「実装計画へ」 (2026-10-05). [Implementation plan](../plans/2026-10-05-phase-h-settlement-operations.md) awaits user review. UI implementation is not yet authorized.
+Status: specification approved by 「実装計画へ」 and Native implementation authorized by 「実装へ」 (2026-10-05). Implementation is in progress; verification and integration outcomes belong to the phase evidence, not this design rationale.
 
 Integration base: `carbon-redesign` at `c33962ed9c28fd3cd94e4a63d52e111a026c7b0f` (Phase G / PR #82 integrated). Working branch: `codex/phase-h-settlement-operations`.
 
@@ -121,7 +121,7 @@ Appの一つのmain/h1を使用。project context→title/短いdescription→�
 
 ### 操作単位
 
-毎回最新roomから既存`collectionChange`を一回だけ呼ぶ。helperを変えず、短命のintent subscriptionでその同期commandのintentを捕捉し、既存receipt helperへ接続する。集金は対象paidと必要なpaidByだけ、支払いは対象driverPaidだけ、memoはmemoだけが意味上の変更範囲。実装testで発行patchを確認する。全settlement snapshotを復旧cacheに保存しない。
+毎回最新roomから既存`collectionChange`を一回だけ呼ぶ。**Technical constraint (Task 3 verified):** helperはlegacy projection全体も正規化するため、transport/persistenceのないdetached storeで一回実行し、解決済み対象の変更pathだけを既存beginEdit/commitEditから一回publishする。live intentを短命のsubscriptionで捕捉し既存receipt helperへ接続する。唯一のnormative owner §14の適用でありhelperの変更ではない。集金は対象paidと必要なpaidByだけ、支払いは対象driverPaidだけ、memoはmemoだけが意味上の変更範囲。実装testで発行patchを確認する。全settlement snapshotを復旧cacheに保存しない。
 
 同名/target消失/reset世代/context変更をpublish直前に再検証する。同一行の重複操作、未解決receiptに反対操作を重ねることを禁止する。one-record outboxをUIでqueueへ変えない。別operationのoutboxが存在する場合は新しいH writeを待たせ、閲覧・navigationは維持し、理由を示す。H操作は一件ずつ受理を確認する。別featureの後続writeが既存outboxを置換した場合は元操作を未確認として残し、successへ進めない。
 

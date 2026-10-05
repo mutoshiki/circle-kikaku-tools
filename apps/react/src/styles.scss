@@ -155,6 +155,23 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .person-flag { inline-size: 1rem; block-size: 1rem; margin-right: .25rem; }
 .flag-blue { color: var(--cds-support-info); }.flag-purple { color: var(--cds-link-primary); }.flag-yellow { color: var(--cds-support-warning); }.flag-red { color: var(--cds-support-error); }
 .settlement-page { display: grid; gap: layout.$spacing-04; padding-top: layout.$spacing-02; }
+.operations-overview, .operations-workspace { display: grid; gap: layout.$spacing-06; min-inline-size: 0; }
+.operations-overview section { display: grid; gap: layout.$spacing-04; }
+.operations-overview h2, .operations-payment-row h2 { @include type.type-style('heading-03'); overflow-wrap: anywhere; }
+.operations-links, .operations-actions, .operations-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-04; }
+.operations-amounts { display: grid; gap: layout.$spacing-03; }
+.operations-amounts > div { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: layout.$spacing-03; }
+.operations-amounts dt { color: var(--cds-text-secondary); }
+.operations-amounts dd { @include type.type-style('heading-compact-01'); }
+.operations-work-links, .operations-list { list-style: none; margin: 0; padding: 0; }
+.operations-work-links li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: layout.$spacing-04; padding-block: layout.$spacing-04; border-block-end: 1px solid var(--cds-border-subtle); }
+.operations-record-summary { display: grid; gap: layout.$spacing-02; min-inline-size: 0; overflow-wrap: anywhere; }
+.operations-record-summary small { @include type.type-style('body-compact-01'); color: var(--cds-text-secondary); }
+.operations-inline-editor { padding: layout.$spacing-05; background: var(--cds-layer); }
+.operations-inline-editor form { display: grid; gap: layout.$spacing-04; }
+.operations-payment-row { display: grid; gap: layout.$spacing-04; padding-block: layout.$spacing-05; border-block-end: 1px solid var(--cds-border-subtle); }
+.operations-payment-main { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: layout.$spacing-05; }
+.operations-memo-text { white-space: pre-wrap; overflow-wrap: anywhere; }
 .settlement-card { min-width: 0; margin: 0; padding: layout.$spacing-04 0; border: 0; background: var(--cds-layer-01, var(--cds-layer)); }
 .settlement-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: layout.$spacing-03; margin-block-end: layout.$spacing-04; }
 .settlement-vehicles-card .settlement-section-heading { align-items: flex-start; }

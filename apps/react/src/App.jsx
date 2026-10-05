@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
-  Button, InlineNotification, Link, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, ToastNotification,
+  Button, InlineLoading, InlineNotification, Link, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, ToastNotification,
 } from '@carbon/react';
 import { Edit, Time } from '@carbon/icons-react';
 import ProjectShell from './components/ProjectShell.jsx';
@@ -17,9 +17,32 @@ import TaskModal from './components/TaskModal.jsx';
 import { createProjectDomain } from './services/project-domain.js';
 import { isToastNotice, notice as taskNotice } from './ui/task-contracts.js';
 import { allocationView } from './ui/allocation-view.js';
+import { createOperationsCache } from './ui/settlement-operations-draft.js';
+import { createSettlementOperationController } from './ui/settlement-operation-controller.js';
+import { projectSettlementOperations } from './ui/settlement-operations-model.js';
+import CollectionWorkspace from './components/settlement-operations/CollectionWorkspace.jsx';
+import PaymentWorkspace from './components/settlement-operations/PaymentWorkspace.jsx';
+import OperationFeedback, { normalClick } from './components/settlement-operations/OperationFeedback.jsx';
 
 export default function App({ runtime }) {
+  const [resources, setResources] = useState(null);
+  useEffect(() => {
+    // Subscribe only after commit: StrictMode render probes must not create
+    // a second live controller or transport observer.
+    const cache = createOperationsCache({ roomId: runtime.roomId, storage: () => sessionStorage });
+    const controller = createSettlementOperationController({ runtime, cache });
+    setResources({ runtime, cache, controller });
+    void controller.observe();
+    return () => controller.dispose();
+  }, [runtime]);
+  if (resources?.runtime !== runtime) return <InlineLoading description="企画を開いています" />;
+  return <Application runtime={runtime} resources={resources} />;
+}
+
+function Application({ runtime, resources: { cache, controller } }) {
   const room = useSyncExternalStore(runtime.store.subscribe, runtime.store.getSnapshot);
+  const operationSnapshot = useSyncExternalStore(controller.subscribe, controller.getSnapshot);
+  const operationsView = projectSettlementOperations({ room, domain: runtime.store.domain, operation: operationSnapshot.operation });
   const syncStatus = useSyncExternalStore(runtime.sync.subscribe, runtime.sync.getSnapshot);
   const section = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getSnapshot, () => runtime.initialSection);
   const participantTask = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getTaskSnapshot, () => '');
@@ -68,6 +91,10 @@ export default function App({ runtime }) {
     (document.getElementById(returnId) || document.getElementById('project-page-title'))?.focus();
   }, [section, participantTask, allocationDestinationJson, vehicleDestinationJson, settlementDestinationJson]);
   const returnFromRules = useCallback(({ focusId }) => { participantReturnFocus.current = focusId; runtime.navigation.navigateSettlementTask(''); }, [runtime]);
+  function returnFromMoney(task) {
+    participantReturnFocus.current = task === 'collection' ? 'settlement-collection-entry' : 'settlement-payments-entry';
+    runtime.navigation.navigateSettlementTask('');
+  }
   function returnFromVehicle({destination, focusId}) {
     participantReturnFocus.current = focusId;
     if (destination.section === 'organization-car') runtime.navigation.navigateAllocationTask('car','group',destination.groupId);
@@ -154,10 +181,20 @@ export default function App({ runtime }) {
       back: <Link href={runtime.navigation.settlementTaskHrefFor('')} onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); returnFromRules({ focusId: 'settlement-rules-entry', reason: 'back' }); } }}>精算に戻る</Link>,
       content: <SettlementRules runtime={runtime} room={room} resolved={rulesResolved} destination={settlementDestination} onPageChange={changeRulesPage} onReturn={returnFromRules} />,
     };
+    if (section === 'settlement' && ['collection', 'payments'].includes(settlementDestination.task)) {
+      const task = settlementDestination.task;
+      return {
+        title: task === 'collection' ? '集金' : '支払い',
+        description: task === 'collection' ? '実際に集金した人を記録し、未集金者を確認します。' : '車単位で支払いを記録し、未払いと内訳を確認します。',
+        metadata: sync,
+        back: <Link href={runtime.navigation.settlementTaskHrefFor('')} onClick={event => { if (normalClick(event)) { event.preventDefault(); returnFromMoney(task); } }}>精算へ戻る</Link>,
+        content: <><OperationFeedback controller={controller} snapshot={operationSnapshot} />{task === 'collection' ? <CollectionWorkspace runtime={runtime} view={operationsView} controller={controller} snapshot={operationSnapshot} cache={cache} /> : <PaymentWorkspace runtime={runtime} view={operationsView} controller={controller} snapshot={operationSnapshot} cache={cache} />}</>,
+      };
+    }
     if (section === 'settlement') return {
       title: '精算', description: '車ごとの距離・費用を入力し、精算額と集金・支払いを確認します。',
       metadata: [{ label: '参加者', value: `${participantCount}人` }, ...sync],
-      content: <>{rulesEntryProblem && <InlineNotification kind="error" title={rulesEntryProblem} hideCloseButton lowContrast />}<Settlement runtime={runtime} room={room} onNotice={setFeedback} embedded /></>,
+      content: <>{rulesEntryProblem && <InlineNotification kind="error" title={rulesEntryProblem} hideCloseButton lowContrast />}<OperationFeedback controller={controller} snapshot={operationSnapshot} /><Settlement runtime={runtime} room={room} view={operationsView} controller={controller} snapshot={operationSnapshot} cache={cache} /></>,
     };
     if (section === 'history-settings') return {
       title: '履歴', description: '企画の状態を保存し、必要なときに以前の状態へ戻します。',
