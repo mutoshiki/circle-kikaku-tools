@@ -1,6 +1,6 @@
 # Phase H design: collection, payouts, history, and safe recovery
 
-Status: conversational structure approved by 「具体化」 (2026-10-05). Written specification awaiting user review. Implementation plan and UI implementation are not authorized by this document's creation.
+Status: conversational structure approved by 「具体化」 and written specification approved by 「実装計画へ」 (2026-10-05). [Implementation plan](../plans/2026-10-05-phase-h-settlement-operations.md) awaits user review. UI implementation is not yet authorized.
 
 Integration base: `carbon-redesign` at `c33962ed9c28fd3cd94e4a63d52e111a026c7b0f` (Phase G / PR #82 integrated). Working branch: `codex/phase-h-settlement-operations`.
 
@@ -232,4 +232,4 @@ Exitは必要なspec改訂承認、実装、関連test/browser証跡、PR/CIがg
 - conversational approvalを実装許可と混同せず、statusをwritten review待ちにした。存在しないdelete/settings、archive、授受台帳、bulk/new protocolをscopeへ入れていない。
 - storage returnの成功誤認、同名target、single-outbox置換、refresh後Undo、resetGenerationがrestoreで増えない制限、receipt payloadの機密data複製を明示した。
 - placeholdersなし。受理と現在値の一致、Cancelとpublish後の戻るを分離。spec作成は機能/test/browser完了の証拠ではない。
-- 次のgateは利用者による本書レビュー。承認後、normative改訂とimplementation planを作成し、plan review/実行方式の承認後に実装へ進む。
+- 本書は「実装計画へ」で承認済み。次のgateはimplementation planのレビュー。normative改訂はplan Task 1でUI実装前に行い、plan review/実行方式の承認後に実装へ進む。
