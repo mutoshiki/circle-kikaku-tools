@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExter
 import {
   Button, InlineLoading, InlineNotification, Link, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, ToastNotification,
 } from '@carbon/react';
-import { Edit, Time } from '@carbon/icons-react';
+import { Edit } from '@carbon/icons-react';
 import ProjectShell from './components/ProjectShell.jsx';
 import ProjectPage from './components/ProjectPage.jsx';
 import ProjectOverview from './components/ProjectOverview.jsx';
@@ -12,7 +12,7 @@ import Allocation from './components/Allocation.jsx';
 import Settlement from './components/Settlement.jsx';
 import SettlementRules from './components/settlement-rules/SettlementRules.jsx';
 import VehicleCosts from './components/vehicle-costs/VehicleCosts.jsx';
-import { BugModal, HistoryModal } from './components/ProjectTools.jsx';
+import { BugModal } from './components/ProjectTools.jsx';
 import TaskModal from './components/TaskModal.jsx';
 import { createProjectDomain } from './services/project-domain.js';
 import { isToastNotice, notice as taskNotice } from './ui/task-contracts.js';
@@ -122,7 +122,7 @@ function Application({ runtime, resources: { cache, controller, memoController, 
     try { await navigator.clipboard.writeText(runtime.createShareUrl()); setFeedback(taskNotice.success('リンクをコピーしました', { placement: 'toast' })); }
     catch { setFeedback(taskNotice.error('リンクをコピーできませんでした', { placement: 'toast' })); }
   }
-  function openGlobalModal(name) { setGlobalModal(name); }
+  function openGlobalModal(name) { if (name === 'history') runtime.navigation.navigate('history-settings'); else setGlobalModal(name); }
   function seedSample(missing = false) {
     const project = createProjectDomain({ getRoom: runtime.store.getSnapshot, settlement: runtime.store.domain.settlement });
     runtime.store.command('restore', { value: project.createSampleAppData({ missing, carCount: Number(sampleCars) }) });
@@ -224,7 +224,6 @@ function Application({ runtime, resources: { cache, controller, memoController, 
     {globalModal === 'guide' && <TaskModal taskId="help-guide" className="app-modal" open passiveModal size="md" closeButtonLabel="閉じる" modalHeading="使い方" onRequestClose={() => setGlobalModal('')}>
       <div className="user-guide"><p>企画メニューから、必要な作業を開きます。</p><ul><li><strong>参加者</strong> 応募者を確認し、企画に参加する人を選びます。手動で追加することもできます。</li><li><strong>車割・班割</strong> 確定した参加者を手動またはランダムで割り当てます。</li><li><strong>精算</strong> 各車の距離・費用を入力し、精算額と集金・支払いを確認します。</li></ul><p>概要と履歴は、企画情報の確認・編集や状態の復元が必要なときに使います。共有リンクは右上からコピーできます。</p></div>
     </TaskModal>}
-    {globalModal === 'history' && <HistoryModal runtime={runtime} onNotice={setFeedback} onClose={() => setGlobalModal('')} />}
     {globalModal === 'sample' && <TaskModal taskId="sample-data" className="app-modal sample-modal" open size="sm" closeButtonLabel="閉じる" modalHeading="サンプルデータ" primaryButtonText="サンプルを入れる" secondaryButtonText="キャンセル" onRequestSubmit={seedSelectedSample} onRequestClose={() => setGlobalModal('')} selectorPrimaryFocus="#sample-normal">
       <div className="sample-form"><p>現在のデータをリセットして、確認用サンプルを入れます。</p><RadioButtonGroup legendText="サンプルの種類" name="sample-type" valueSelected={sampleType} onChange={value => setSampleType(String(value))} orientation="vertical"><RadioButton id="sample-normal" labelText="通常サンプル" value="normal" /><RadioButton id="sample-form" labelText="フォーム連携サンプル" value="form" /><RadioButton id="sample-missing" labelText="入力漏れサンプル" value="missing" /></RadioButtonGroup>{sampleType !== 'form' && <Select id="sample-car-count" labelText="車の数" value={sampleCars} onChange={event => setSampleCars(event.target.value)}>{['2', '3', '4', '5'].map(value => <SelectItem key={value} value={value} text={`${value}台`} />)}</Select>}</div>
     </TaskModal>}

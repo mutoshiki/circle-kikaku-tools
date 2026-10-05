@@ -129,3 +129,8 @@ test('a newer cache operation is never erased by an older disposed controller co
   const recoveryBefore=r.cache.read();release();await result;
   assert.deepEqual(r.cache.read(),recoveryBefore);
 });
+test('acceptance callback followed by current correction returns adjusted not stale saved',async t=>{
+  const r=await setup(t,{shared:true});let changed=false;
+  const stop=r.controller.subscribe(()=>{if(changed || r.controller.getSnapshot().operation?.receipt?.disposition!=='saved')return;changed=true;const remote=structuredClone(r.runtime.store.getSnapshot());remote.settlement.driverPaidByParticipantId[r.target('payment').participantId]=false;r.runtime.store.receiveRemote(remote);});t.after(stop);
+  const result=await r.controller.toggle({target:r.target('payment'),checked:true});assert.equal(result.disposition,'adjusted');assert.equal(r.controller.getSnapshot().blocked,true);
+});

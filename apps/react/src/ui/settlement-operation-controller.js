@@ -17,7 +17,7 @@ export function createSettlementOperationController({runtime,cache}) {
     else operation={...operation,receipt:null,disposition:operation.disposition==='local' && !runtime.sync.enqueue ? 'accepted-needs-review' : 'unresolved',acknowledged:operation.disposition==='local' && !runtime.sync.enqueue};
   }
   function refresh() {
-    if(operation?.receipt && ['local','saved'].includes(operation.receipt.disposition) && !matchesCurrent(operation.receipt)) operation={...operation,receipt:{...operation.receipt,disposition:'adjusted',acknowledged:true,canRetry:false}};
+    if(operation?.receipt && ['local','saved'].includes(operation.receipt.disposition) && !matchesCurrent(operation.receipt)) operation.receipt={...operation.receipt,disposition:'adjusted',acknowledged:true,canRetry:false};
     const foreign=runtime.storage.read('outbox');
     const blocked=busy || operationNeedsReview(operation) || !!foreign;
     snapshot={operation,blocked,reason:error || (busy?'記録を保存しています。':operationNeedsReview(operation)?'前の記録の保存結果を確認してください。':foreign?'別の変更を保存しています。完了後に記録してください。':''),cacheWarning:cache.getWarning()};

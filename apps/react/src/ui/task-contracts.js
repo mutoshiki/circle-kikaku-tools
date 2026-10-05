@@ -42,6 +42,7 @@ const MODAL_TASKS = Object.freeze({
   'participant-delete': ['approved-brief', null, '対象と下流影響を確認するdanger task'],
   'participant-export': ['approved-brief', null, 'export可否を確認し1回生成する短いtask'],
   'history-management': ['legacy-migration', 'H', '反復操作とdurable historyを含むtask'],
+  'history-restore-confirm': ['approved-brief', null, '対象と共有変更範囲を確認する単一danger判断'],
   'settlement-settings': ['legacy-migration', 'G', '複数stepの高影響form'],
   'settlement-car-cost': ['legacy-migration', 'F', '費用、移動、routeを往復する反復task'],
   'settlement-collector': ['approved-brief', null, '集金担当者を選び1回保存する短いtask'],
