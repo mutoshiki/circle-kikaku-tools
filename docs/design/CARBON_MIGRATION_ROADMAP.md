@@ -336,7 +336,7 @@ Very high: cost draft, movement formula, route application, map API, and settlem
 
 ## Phase G — Settlement rules and calculation explanation
 
-Candidate evidence: [Phase G validation](./evidence/PHASE_G_VALIDATION.md) records the grouped page/settings-only receipt implementation, protected-domain comparisons, real concurrency/recovery tests, browser evidence and remaining gates. At its local checkpoint, whole-branch review, final cumulative browser gate, CI and integration are pending. This evidence does not replace the normative Product UI specification; completion requires successful CI and safe integration into `carbon-redesign`.
+Implementation evidence: [Phase G validation](./evidence/PHASE_G_VALIDATION.md) records the grouped page/settings-only receipt implementation, protected-domain comparisons, real concurrency/recovery tests and browser evidence. One whole-branch review correction pass and cumulative local gates are complete; subsequent latest-head CI/integration outcome belongs to [PR #82](https://github.com/mutoshiki/circle-kikaku-tools/pull/82). This evidence does not replace the normative Product UI specification; phase completion requires successful CI and safe integration into `carbon-redesign`. Deferred receipt robustness/readiness wording and the observed intermittent WebKit mobile trigger issue remain visible for Phase I; collection/payment/history/danger redesign remains Phase H.
 
 ### Goal
 

@@ -10,7 +10,7 @@
 
 **Spec:** [Approved Phase G design](../specs/2026-10-05-phase-g-settlement-rules-design.md). [SANPOKAI_PRODUCT_UI.md](../../design/SANPOKAI_PRODUCT_UI.md) is the sole normative Product UI specification; this plan is execution guidance, not a second specification.
 
-Status: written design approved by 「実装計画へ」 and implementation authorized by 「実装へ進んで」 on 2026-10-05. Native Tasks 1–8 are implemented and verified; Task 9 cumulative validation, whole-branch review and integration are in progress. Actual results belong to [Phase G evidence](../../design/evidence/PHASE_G_VALIDATION.md), not this execution plan. No production action is authorized.
+Status: written design approved by 「実装計画へ」 and implementation authorized by 「実装へ進んで」 on 2026-10-05. Native Tasks 1–8 are implemented and verified; Task 9 cumulative local validation and one whole-branch review correction pass are complete. Final CI/integration outcome is recorded on [PR #82](https://github.com/mutoshiki/circle-kikaku-tools/pull/82), base `carbon-redesign` only. Actual local results belong to [Phase G evidence](../../design/evidence/PHASE_G_VALIDATION.md), not this execution plan. No production action is authorized.
 
 ## Global Constraints
 

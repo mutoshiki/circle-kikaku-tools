@@ -1,6 +1,6 @@
 # Phase G validation evidence
 
-Status at the local evidence checkpoint (2026-10-05): implementation through Task 8 at `8b7b2ac809ca04d3915d21dbafd6672a0b1bebef`; cumulative offline browser gate, independent whole-branch review, PR CI and integration are not yet complete. This is descriptive evidence, not a second Product UI specification. Normative owner: [SANPOKAI_PRODUCT_UI.md](../SANPOKAI_PRODUCT_UI.md), especially §6, §11–14, §20, §22–23.
+Status at the local integration-candidate checkpoint (2026-10-05): implementation, one independent review correction pass and cumulative local checks complete at executable `dbd2c3f6a01c182a4e172e12de25fbb4a1119813`. [PR #82](https://github.com/mutoshiki/circle-kikaku-tools/pull/82) targets only `carbon-redesign`; its latest-head CI and merge metadata own the subsequent integration outcome, not this pre-CI checkpoint. This is descriptive evidence, not a second Product UI specification. Normative owner: [SANPOKAI_PRODUCT_UI.md](../SANPOKAI_PRODUCT_UI.md), especially §6, §11–14, §20, §22–23.
 
 ## Scope and provenance
 
@@ -33,18 +33,19 @@ All runs use guarded offline or demo Firebase Emulator targets and synthetic roo
 
 | Gate | Actual result at this checkpoint |
 | --- | --- |
-| Full React unit, Task 9 | 227/227, zero failure/skip |
+| Full React unit after review correction | 232/232, zero failure/skip |
 | Task 1 golden full-result/settings characterization | 64 calculation combinations plus identity/raw/legacy cases; complete legacy-reference equality, not independent formulas |
 | Task 7 affected four-project matrix | 140/140 before subsequent Task 8 corrections |
 | Task 8 rules workspace four-project matrix | 24/24, including organizer clear/reload and protected standalone collector |
 | Latest-source first-edit controller/model/parity | 85/85; controller first-edit regression observed RED before owner-local correction |
 | Task 8 final cumulative real browser Emulator | 72/72: 18 rules plus 54 prior participant/allocation/vehicle/sync cases; Chromium desktop/WebKit mobile |
+| Final post-review cumulative real browser Emulator | `dbd2c3f`: 76/76 (3.8m): 22 rules plus 54 prior cases; includes observed remote standalone siblings/recovery/publication and live organizer Select/identity. Every final case restores Rules/readback and deletes its exact room/null readback |
 | React real SDK/Auth/RTDB Emulator | 3/3 |
 | Shared Firebase Rules | PASS: rooms, private reports, notification lease/retry/terminal sent |
 | Task 9 React build | PASS, local sync; existing bundle-size warning retained |
 | Initial full offline browser | 423 passed / 1 failed / 12 existing conditional skips (436 cases); failure is WebKit desktop first-added-fee input lost before route round trip. Not a green candidate; focus race investigation follows |
 | Focus correction affected matrix | 88 passed / 8 pre-existing applicability skips / zero failures, four projects; deterministic held-rendering callback test now preserves field focus and input |
-| Final full offline browser / focused WebKit repeat | Pending; no result inferred from affected suites |
+| Latest-source full offline / focused WebKit repeat | `dbd2c3f`: 428 passed / 12 existing conditional skips (440 cases, four projects, 7.1m); WebKit mobile repeat 26/26 (1.2m) |
 | Change classifier | React true; shared/legacy/infrastructure false; automatically selected React/Firebase/shared collaboration checks still required |
 | Protected executable/lockfile diff against integration base | Empty for assets, Firebase, domain, store, sync, services, runtime, existing settlement edit owner and lockfiles |
 | Historical raw `verify:legacy` | Same four failing paths as Phase F base: design Product UI/Roadmap, root package.json, classifier. Each is already a manifest mismatch at base. No recapture/skip; executable parity and shared tests are independently required |
@@ -54,6 +55,10 @@ All runs use guarded offline or demo Firebase Emulator targets and synthetic roo
 Configured Playwright runs actual Chromium/WebKit desktop and 390px, both themes, short viewport, 1055/1056 boundary, long Japanese names, large money amounts and 99 repeated driver fields. Assertions cover one form, landmarks/headings, native radio arrows, touch, IME, error association/first-invalid focus, current navigation, direct/shared/legacy/task URLs, Back/Forward/refresh, corrective links, no unintended writes, action reachability and document overflow. Semantic/geometry/interaction checks are the contract; class names and screenshots are not.
 
 Unified browser control is available in this session; no Browser plugin installation is required. Actual IAB interaction at Task 8 build, offline dedicated room `PHASE-G-CUA-LOCAL`: raw reward 1500, radio ArrowDown, unsaved state, Back returning focus to the real rules link, reload preserving raw 1500 without stealing initial focus, and Cancel returning focus to that link. Earlier interaction also reproduced invalid reward focus, candidate-only correction problem and standalone collector focus/input/save. Current browser error/warning list is empty; all agent-created tabs close. IAB does not substitute for the explicit WebKit test projects.
+
+Post-correction IAB interaction additionally confirms reward 1600 remains focused, parent Back returns focus to the actual rules link, reentry/refresh retains 1600 without initial input focus theft, and Cancel returns to the parent. Console warnings/errors remain empty, created tab closed.
+
+The first latest-source Emulator rerun was 75 pass / 1 WebKit mobile timeout in unknown recovery. Trace stopped at mobile-menu click and repeatedly reported the fixed trigger outside the viewport; receipt-outcome assertions were not reached. Unchanged focused case passed 2/2; final separately executed cumulative rerun passed 76/76. No source/assertion/timeout was altered to hide this; root cause is unconfirmed and this observation must remain visible for Phase I mobile hardening. Timeout interrupted that failed case's request-context cleanup; the ephemeral Emulator shut down without export. The successful final run independently proves Rules/room cleanup. The failed run is not counted as green coverage.
 
 Real Emulator cases hold outbound or inbound WebSocket messages and temporarily deny only their dedicated synthetic room. They verify exact one-operation payload, refusal/reload/retry, independent driver costs and settings, dirty-path conflict, first edit after an observed unrelated setting update, delayed completion after navigation, reset fencing, removed/duplicate organizer identity, full protected-state projection and legacy-reference financial equality. Every finally closes clients/releases sockets, restores and reads back original Rules, deletes the exact room and checks authenticated null readback. Successful cases check outbox quiescence.
 
@@ -89,9 +94,29 @@ Existing monetary/signed-extra/paid/collector/memo assertions remain. No new tes
 
 ## Independent review and integration
 
-Pending. Native execution uses one fresh whole-branch reviewer, not per-task implementation delegation. Critical/Important findings require reproduced RED→GREEN corrections and cumulative checks before integration. Minor findings and declined judgments will be recorded explicitly.
+Native execution used one fresh whole-branch reviewer (`phase_g_final_review`, `dbd4d76..4df7dac`), not per-task implementation delegation. The reviewer independently ran focused rules tests 94/94 and verified protected executable diff empty. Assessment before corrections was **not ready**: three Important findings, no Critical. All three were effect-graded Important and addressed in one controller-only correction pass:
 
-PR CI/integration status is separate from local test success. The implementation PR targets only `carbon-redesign`; main must remain unchanged. No readiness/release/deploy workflow is manually dispatched.
+1. Opening state could replace remotely observed standalone siblings while editing only a count. Regression RED shows enabled/name/member loss; candidate and publication now preserve latest untouched siblings and existing name normalization. Real two-client recovery/publication test is added.
+2. Untouched organizer Select could show the opening ID while candidate used the latest person. Regression RED; untouched identity now comes from the current canonical room. Locally owned selection, explicit empty and identity conflict protection remain. Reverting selection also releases its captured identity (separate RED→GREEN).
+3. Reverted fields retained inactive conflict baselines and falsely blocked a later first edit after observing a remote value. Regression RED; inactive canonical baselines are released, shared paths remain owned while another field changes them, and recovery retains actual dirty baselines.
+
+Initial reproductions: 12 pass / 3 fail. Correction controller tests and full unit pass, 232/232. Full Emulator first correction run had 72 pass / 4 failures: a new fixture attempted to mutate the store's frozen snapshot (2 projects), and releasing a no-op explicit organizer selection lost removal protection (2 projects). The fixture now clones the snapshot; explicit current selection is retained while a true reverted edit releases its identity. Additional real-store removal/reload regression was watched RED→GREEN. No existing protection assertion was removed. The reviewer is not rerun; actual cumulative browser/Emulator and CI must pass before integration.
+
+Deferred Minor findings (not silently fixed):
+
+- A manually malformed v1 receipt missing lifecycle properties can freeze recovery. No normal publication path was shown to generate it. Phase I must validate malformed recovery safely without discarding valid unknown operations.
+- Readiness text says rules can be saved even alongside separate form/safety errors. Actual Save is correctly blocked. Phase I content hardening must clarify that missing costs alone do not prevent saving valid rules.
+
+Reviewer declined judgments were explicitly ruled on:
+
+6. Full collection/payment/history/danger redesign remains Phase H; this phase reviews only changed preservation/focus orchestration. If wrong, pre-existing defects remain until that phase.
+7. Physical keyboards, native screen readers, real browser chrome/safe area and Maps providers remain mandatory Phase I device/provider gates. If wrong, defects are discovered later; final release is still blocked on those gates.
+8. Keep the four historical manifest failures without hash refresh: same failing paths exist at base, protected executable diff is empty, and shared tests remain mandatory. If wrong, a non-executable compatibility defect could remain; final compatibility gates still apply.
+9. Do not infer cumulative tests, CI or integration from focused reviewer success. Record each actual gate before merge. If wrong, completion is delayed; no gate is waived.
+
+PR CI/integration status is separate from local test success. The implementation PR targets only `carbon-redesign`; main must remain unchanged. No readiness/release/deploy workflow is manually dispatched. A rerun missing the explicit test-target environment was rejected by the safety guard before browser execution; it was rerun with the approved demo Emulator environment, not bypassed.
+
+Latest local cumulative browser has 12 existing skips: four mobile-only shell contracts on two desktop projects (8), and opt-in Phase B screenshot capture on all four projects (4). No Phase G assertion or protected behavior is skipped. PR #82 is created/attached; automatic existing CI is required on its final documentation-inclusive head. Integration may occur only when those checks pass. Verify merge tree equals that head and remote main remains `e155d1cf1c4ce213b93f56e8e8c15969206d91ca`.
 
 ## Phase H / I remaining gates
 
