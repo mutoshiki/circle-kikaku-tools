@@ -8,6 +8,19 @@ async function open(page, testInfo, room = vehicleFixture, task = 'rules') {
   return roomId;
 }
 const readRoom = (page, roomId) => page.evaluate(id => JSON.parse(localStorage.getItem(`sanpo-react:v1:${id}:room`)), roomId);
+test('clearing the organizer visibly clears selection and survives refresh without a shared write', async ({ page }, testInfo) => {
+  const id = await open(page, testInfo);
+  const organizer = page.getByRole('combobox', { name: '企画者', exact: true });
+  const before = await readRoom(page, id);
+  const personId = Object.keys(before.participants)[0];
+  await organizer.selectOption(personId);
+  await page.getByRole('button', { name: '精算ルールを保存', exact: true }).click();
+  await page.getByRole('link', { name: '精算ルール', exact: true }).click();
+  const saved = await readRoom(page, id);
+  await organizer.selectOption(''); await expect(organizer).toHaveValue('');
+  await page.reload(); await expect(organizer).toHaveValue('');
+  expect((await readRoom(page, id)).settlement).toEqual(saved.settlement);
+});
 test('rules groups compare effects before one Save and typing never changes shared financial state', async ({ page }, testInfo) => {
   const id = await open(page, testInfo);
   await expect(page.getByRole('heading', { level: 1, name: '精算ルール', exact: true })).toBeVisible();

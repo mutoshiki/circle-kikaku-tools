@@ -149,7 +149,7 @@ export default function App({ runtime }) {
     };
     if (section === 'settlement' && settlementDestination.task === 'rules') return {
       title: '精算ルール', description: '負担と集金の扱いを設定し、計算への影響を確認します。',
-      metadata: rulesPage?.key === settlementDestinationJson ? rulesPage.metadata : [],
+      metadata: [...(rulesPage?.key === settlementDestinationJson ? rulesPage.metadata || [] : []), ...sync],
       back: <Link href={runtime.navigation.settlementTaskHrefFor('')} onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); returnFromRules({ focusId: 'settlement-rules-entry', reason: 'back' }); } }}>精算に戻る</Link>,
       content: <SettlementRules runtime={runtime} room={room} resolved={rulesResolved} destination={settlementDestination} onPageChange={changeRulesPage} onReturn={returnFromRules} />,
     };

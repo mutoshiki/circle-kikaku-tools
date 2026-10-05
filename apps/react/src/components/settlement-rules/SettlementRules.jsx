@@ -28,9 +28,8 @@ function RulesForm({ runtime, room, onPageChange, onReturn }) {
   }, { href: destination => destination.kind === 'rule' ? `#${rulesFieldId(destination.fieldKey)}` : destination.kind === 'participants' ? runtime.navigation.taskHrefFor('import') : runtime.navigation.vehicleCostTaskHrefFor(destination.destination) });
   const driverRule = state.driverCollectionOffset && state.driverCollectionFree ? 'both' : state.driverCollectionFree ? 'free' : state.driverCollectionOffset ? 'offset' : 'normal';
   const people = Object.entries(room.participants || {}).sort(([, a], [, b]) => a.name.localeCompare(b.name, 'ja'));
-  const selected = room.settlement.organizerParticipantId || '';
   const organizer = people.find(([, person]) => runtime.store.domain.canonical.normalizeNameKey(person.name) === runtime.store.domain.canonical.normalizeNameKey(state.organizerName));
-  const organizerValue = organizer ? organizer[0] : selected && room.participants[selected] ? selected : '';
+  const organizerValue = snapshot.organizerId !== null ? snapshot.organizerId : organizer?.[0] || '';
   const unsafe = snapshot.writeIssues.length > 0;
   return <form aria-label="精算ルール" noValidate className="rules-form" onSubmit={save} onCompositionStart={() => { composition.current = true; setComposing(true); }} onCompositionEnd={() => { composition.current = false; setComposing(false); }}>
     <p className="rules-draft-status" role="status">{snapshot.status || (snapshot.dirty ? '未保存' : '現在のルール')}。戻る・再読み込みでは入力を保持します。</p>

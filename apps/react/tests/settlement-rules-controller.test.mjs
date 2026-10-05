@@ -37,6 +37,20 @@ test('latest cost and unrelated rules feed preview but same dirty path is stale 
   assert.equal(c.getSnapshot().state.rounding, '10'); assert.ok(c.getSnapshot().writeIssues.some(i => i.key === 'stale-settings'));
   assert.equal(c.restartFromCurrent(), true); assert.equal(c.getSnapshot().state.rounding, '1'); assert.equal(c.getSnapshot().dirty, false); c.dispose();
 });
+test('first edit of a previously untouched remotely updated setting uses its observed current baseline', async () => {
+  const r = await client(), cache = cacheFor(), c = createSettlementRulesController({ runtime: r, cache });
+  c.updateField('rounding', '10');
+  const remote = structuredClone(r.store.getSnapshot()); remote.settlement.driverReward = '900'; r.store.receiveRemote(remote);
+  assert.equal(c.getSnapshot().state.driverReward, '900');
+  c.updateField('driverReward', '1500');
+  assert.equal(c.getSnapshot().writeIssues.length, 0);
+  assert.equal(cache.read().before['settlement/driverReward'], '900');
+  c.dispose(); const resumed = createSettlementRulesController({ runtime: r, cache });
+  assert.equal(resumed.getSnapshot().writeIssues.length, 0);
+  assert.equal((await resumed.save()).disposition, 'local');
+  assert.equal(r.store.getSnapshot().settlement.driverReward, '1500');
+  assert.equal(r.store.getSnapshot().settlement.rounding, '10'); resumed.dispose();
+});
 test('standalone entrance sets existing defaults once locally and never overwrites recovery', async () => {
   const r = await client(), cache = cacheFor(); let intents = 0; r.store.subscribeIntents(() => intents++);
   assert.equal(prepareStandaloneRulesDraft({ runtime: r, cache }), true);

@@ -42,6 +42,7 @@ export function createSettlementRulesController({ runtime, cache }) {
     for (const [key, value] of Object.entries(record.fields)) set(state, key, value);
     const writeIssues = receipt ? [] : settlementRulesSafety({ room, edit, patch: projection.patch, organizerId: record.organizerId, domain });
     snapshot = { state, projection, validation: validateSettlementRules(state), writeIssues,
+      organizerId: record.organizerId ?? edit.session.base.settlement?.organizerParticipantId ?? null,
       dirty: !!receipt || Object.keys(record.fields).length > 0, recoverable: cache.isRecoverable(), receipt,
       frozen: saving || closed || !!receipt || disposed, status, saving, completion };
     if (!disposed) for (const listener of listeners) listener();
@@ -60,10 +61,18 @@ export function createSettlementRulesController({ runtime, cache }) {
   }
   function updateField(key, value) {
     if (snapshot.frozen || !RULE_FIELDS.includes(key)) return;
+    const room = runtime.store.getSnapshot();
+    // A field becomes ours at its first edit, not when the page was opened.
+    // Existing dirty paths keep their original baseline and conflict checks.
+    if (!Object.hasOwn(record.fields, key)) set(edit.openingState, key, get(domain.settlementInput(room).state, key));
     set(edit.state, key, value);
     if (same(get(edit.openingState, key), value)) delete record.fields[key]; else record.fields[key] = copy(value);
     const { patch } = projectSettlementRules({ room: runtime.store.getSnapshot(), edit, domain });
-    for (const path of Object.keys(patch)) if (!Object.hasOwn(record.before, path)) record.before[path] = copy(domain.sync.getSyncPathValue(edit.session.base, path) ?? null);
+    for (const path of Object.keys(patch)) if (!Object.hasOwn(record.before, path)) {
+      const before = copy(domain.sync.getSyncPathValue(room, path) ?? null);
+      record.before[path] = before;
+      edit.session.base = domain.sync.applyEntityPatchToObject(edit.session.base, { [path]: before });
+    }
     persist();
   }
   async function settle(retry = false, observe = false) {
