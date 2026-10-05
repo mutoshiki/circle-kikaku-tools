@@ -57,6 +57,53 @@ test('standalone entrance sets existing defaults once locally and never overwrit
   const c = createSettlementRulesController({ runtime: r, cache }); assert.equal(c.getSnapshot().state.standalone.enabled, true); assert.equal(c.getSnapshot().state.driverCollectionOffset, false);
   c.updateField('driverReward', '1500'); assert.equal(prepareStandaloneRulesDraft({ runtime: r, cache }), false); assert.equal(cache.read().fields.driverReward, '1500'); assert.equal(intents, 0); c.dispose();
 });
+test('editing one standalone field preserves remotely updated siblings and previews the displayed mode', async () => {
+  const r = await client(), cache = cacheFor(), c = createSettlementRulesController({ runtime: r, cache });
+  const remote = structuredClone(r.store.getSnapshot());
+  remote.settlement.standalone = { enabled: true, driverCount: '2', memberCount: '9', driverNames: ['NewA', 'NewB'] };
+  r.store.receiveRemote(remote);
+  assert.equal(c.getSnapshot().state.standalone.enabled, true);
+  c.updateField('standalone.driverCount', '3');
+  const expected = { enabled: true, driverCount: '3', memberCount: '9', driverNames: ['NewA', 'NewB', '車出し3'] };
+  assert.deepEqual(c.getSnapshot().projection.candidateInput.state.standalone, expected);
+  assert.equal(c.getSnapshot().writeIssues.length, 0);
+  await c.save();
+  assert.deepEqual(r.store.getSnapshot().settlement.standalone, expected); c.dispose();
+});
+test('untouched organizer identity follows current shared rules instead of the page opening selection', async () => {
+  const r = await client(), room = structuredClone(r.store.getSnapshot());
+  const ids = Object.keys(room.participants), first = ids[0], second = ids[1];
+  room.settlement.organizerParticipantId = first; r.store.receiveRemote(room);
+  const c = createSettlementRulesController({ runtime: r, cache: cacheFor() }); c.updateField('rounding', '10');
+  const remote = structuredClone(r.store.getSnapshot()); remote.settlement.organizerParticipantId = second; r.store.receiveRemote(remote);
+  assert.equal(c.getSnapshot().organizerId, second);
+  assert.equal(c.getSnapshot().state.organizerName, remote.participants[second].name);
+  assert.equal(c.getSnapshot().projection.candidateInput.state.organizerName, remote.participants[second].name);
+  assert.equal(c.getSnapshot().writeIssues.length, 0);
+  await c.save(); assert.equal(r.store.getSnapshot().settlement.organizerParticipantId, second); c.dispose();
+});
+test('reverting a field releases its old baseline before a later first edit of a remote value', async () => {
+  const r = await client(), cache = cacheFor(), c = createSettlementRulesController({ runtime: r, cache });
+  const original = c.getSnapshot().state.driverReward;
+  c.updateField('driverReward', '1500'); c.updateField('driverReward', original);
+  const remote = structuredClone(r.store.getSnapshot()); remote.settlement.driverReward = '900'; r.store.receiveRemote(remote);
+  c.updateField('driverReward', '1600');
+  assert.equal(c.getSnapshot().writeIssues.length, 0);
+  assert.equal(cache.read().before['settlement/driverReward'], '900');
+  c.dispose(); const resumed = createSettlementRulesController({ runtime: r, cache });
+  assert.equal(resumed.getSnapshot().writeIssues.length, 0);
+  assert.equal((await resumed.save()).disposition, 'local');
+  assert.equal(r.store.getSnapshot().settlement.driverReward, '1600'); resumed.dispose();
+});
+test('reverting organizer selection releases its identity when a different shared organizer arrives', async () => {
+  const r = await client(), room = structuredClone(r.store.getSnapshot()), ids = Object.keys(room.participants);
+  room.settlement.organizerParticipantId = ids[0]; r.store.receiveRemote(room);
+  const c = createSettlementRulesController({ runtime: r, cache: cacheFor() });
+  c.setOrganizer(ids[1]); c.setOrganizer(ids[0]);
+  const remote = structuredClone(r.store.getSnapshot()); remote.settlement.organizerParticipantId = ids[1]; r.store.receiveRemote(remote);
+  assert.equal(c.getSnapshot().organizerId, ids[1]);
+  assert.equal(c.getSnapshot().writeIssues.length, 0); c.dispose();
+});
 test('storage failures retain input and report no reload guarantee', async () => {
   const r = await client(), cache = createSettlementRulesDraft({ roomId: crypto.randomUUID(), storage: () => { throw Error('blocked'); } });
   const c = createSettlementRulesController({ runtime: r, cache }); c.updateField('driverReward', '1500'); assert.equal(c.getSnapshot().recoverable, false); assert.equal(c.getSnapshot().state.driverReward, '1500'); c.dispose();

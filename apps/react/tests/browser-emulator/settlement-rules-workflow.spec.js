@@ -119,6 +119,48 @@ test('distinct settings edits preserve each other; a remote same dirty path bloc
   } finally { await cleanup(request, id, [a, b]); }
 });
 
+test('first standalone edit preserves observed shared siblings through recovery and publication', async ({ browser, request }, info) => {
+  const id = idFor('ACQUIRE', info); await seed(request, id, setup());
+  const a = await browser.newContext(info.project.use), b = await browser.newContext(info.project.use);
+  try {
+    const pa = await a.newPage(), pb = await b.newPage(); await Promise.all([enter(pa, id), enter(pb, id)]);
+    await pb.getByText('人数だけで精算', { exact: true }).click();
+    await pb.getByRole('textbox', { name: '運転手の人数', exact: true }).fill('2');
+    await pb.getByRole('textbox', { name: '同乗者の人数', exact: true }).fill('9');
+    await pb.getByRole('textbox', { name: '運転手1の名前', exact: true }).fill('NewA');
+    await pb.getByRole('textbox', { name: '運転手2の名前', exact: true }).fill('NewB');
+    await save(pb).click(); await quiescent(pb, id);
+    await expect(pa.getByRole('textbox', { name: '同乗者の人数', exact: true })).toHaveValue('9');
+    const before = await shared(request, id);
+    await pa.getByRole('textbox', { name: '運転手の人数', exact: true }).fill('3');
+    await pa.reload();
+    await expect(pa.getByRole('textbox', { name: '運転手の人数', exact: true })).toHaveValue('3');
+    await expect(pa.getByRole('textbox', { name: '同乗者の人数', exact: true })).toHaveValue('9');
+    await expect(pa.getByRole('textbox', { name: '運転手1の名前', exact: true })).toHaveValue('NewA');
+    await save(pa).click(); await quiescent(pa, id);
+    const result = await shared(request, id);
+    expect(result.settlement.standalone).toEqual({ enabled: true, driverCount: '3', memberCount: '9', driverNames: ['NewA', 'NewB', '車出し3'] });
+    expectProtected(result, before);
+  } finally { await cleanup(request, id, [a, b]); }
+});
+
+test('untouched organizer Select and saved identity track the shared current organizer', async ({ browser, request }, info) => {
+  const id = idFor('ORGANIZERLIVE', info), initial = setup(), ids = Object.keys(initial.participants);
+  initial.settlement.organizerParticipantId = ids[0]; await seed(request, id, initial);
+  const a = await browser.newContext(info.project.use), b = await browser.newContext(info.project.use);
+  try {
+    const pa = await a.newPage(), pb = await b.newPage(); await Promise.all([enter(pa, id), enter(pb, id)]);
+    await pa.getByText('10円単位', { exact: true }).click();
+    await pb.getByRole('combobox', { name: '企画者', exact: true }).selectOption(ids[1]);
+    await save(pb).click(); await quiescent(pb, id);
+    await expect(pa.getByRole('combobox', { name: '企画者', exact: true })).toHaveValue(ids[1]);
+    const before = await shared(request, id);
+    await save(pa).click(); await quiescent(pa, id);
+    const result = await shared(request, id); expect(result.settlement.organizerParticipantId).toBe(ids[1]);
+    expect(result.settlement.rounding).toBe('10'); expectProtected(result, before);
+  } finally { await cleanup(request, id, [a, b]); }
+});
+
 test('denied double submit freezes one settings payload; reload retries exactly without rewriting cost or paid maps', async ({ page, request }, info) => {
   const id = idFor('RETRY', info); await seed(request, id, setup()); const socket = await heldSocket(page);
   try {

@@ -36,13 +36,23 @@ export function createSettlementRulesController({ runtime, cache }) {
   const ownsRecovery = () => same(cache.read(), persistedRecord);
   function refresh() {
     const room = runtime.store.getSnapshot();
+    const currentState = domain.settlementInput(room).state;
+    // Untouched fields belong to the current shared room. Only actively edited
+    // canonical paths retain their acquisition baseline for conflict checks.
+    edit.session.base = domain.sync.applyEntityPatchToObject(room, record.before);
+    edit.session.base.resetGeneration = record.resetGeneration;
+    edit.session.draft = copy(edit.session.base);
+    for (const key of RULE_FIELDS) if (!Object.hasOwn(record.fields, key)) {
+      set(edit.state, key, get(currentState, key));
+      set(edit.openingState, key, get(currentState, key));
+    }
     edit.session.draft.participants = copy(room.participants);
     const projection = projectSettlementRules({ room, edit, domain });
-    const state = copy(domain.settlementInput(room).state);
+    const state = copy(currentState);
     for (const [key, value] of Object.entries(record.fields)) set(state, key, value);
     const writeIssues = receipt ? [] : settlementRulesSafety({ room, edit, patch: projection.patch, organizerId: record.organizerId, domain });
     snapshot = { state, projection, validation: validateSettlementRules(state), writeIssues,
-      organizerId: record.organizerId ?? edit.session.base.settlement?.organizerParticipantId ?? null,
+      organizerId: record.organizerId ?? room.settlement?.organizerParticipantId ?? null,
       dirty: !!receipt || Object.keys(record.fields).length > 0, recoverable: cache.isRecoverable(), receipt,
       frozen: saving || closed || !!receipt || disposed, status, saving, completion };
     if (!disposed) for (const listener of listeners) listener();
@@ -67,7 +77,9 @@ export function createSettlementRulesController({ runtime, cache }) {
     if (!Object.hasOwn(record.fields, key)) set(edit.openingState, key, get(domain.settlementInput(room).state, key));
     set(edit.state, key, value);
     if (same(get(edit.openingState, key), value)) delete record.fields[key]; else record.fields[key] = copy(value);
+    if (key === 'organizerName' && !Object.hasOwn(record.fields, key)) record.organizerId = null;
     const { patch } = projectSettlementRules({ room: runtime.store.getSnapshot(), edit, domain });
+    for (const path of Object.keys(record.before)) if (!Object.hasOwn(patch, path)) delete record.before[path];
     for (const path of Object.keys(patch)) if (!Object.hasOwn(record.before, path)) {
       const before = copy(domain.sync.getSyncPathValue(room, path) ?? null);
       record.before[path] = before;
