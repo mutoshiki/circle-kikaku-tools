@@ -514,6 +514,7 @@ Phase F interaction contract（Project interpretation）:
 - history.save returnだけで成功とせずtime/dataをread-backする。read-only adapterで既存history.keyの読取/JSON arrayを確認し、破損/access errorを0件と区別。自動修復・削除なし。未解決共有write中はsnapshot作成を待たせる。成功はrow/markerで示しToastなし。
 - 短いdanger「この履歴を復元しますか？」で対象日時/企画名、既存migration後の参加者・割当・費用/ルール・金銭記録・企画情報への影響を提示。理解checkboxとdanger「この状態を復元」、Cancel。実際の集金/支払いは取り消されないこと、local draft/履歴一覧/route作業/authは対象外であることを明示する。生JSON/tokenを表示しない。
 - 確認中/実行直前にcurrent business stateとsnapshotを再照合。既存metadata/tombstone/merge/reset規則を保護し、全room原子lockや応募フォーム自体の復元を約束しない。history.restore一回のintentを追跡し、retryでrestore/backup作成を再実行しない。
+- Technical constraint: restore通知では既存applicant sync ownerが派生intentを発行する場合がある。UIは単一の利用者restore intentと既知の派生reconciliationを区別し、後者を新たな利用者command・UI outboxへ再構成しない。結果が元の変更pathと異なれば調整として現在確認を要求し、完全一致・安全なUndoと誤表示しない。
 - 広範なreceipt/backupはmemoryと既存history/outboxだけ。新UIのdurable控えはoperation ID/reset/history time/disposition等の最小識別でありfull patch/room/tokenを複製しない。refresh後に完全復元できないなら受理済み・現在確認または未確認で止め、自動再実行しない。
 - Undoは同runtimeの実在backup、調整なし受理/local適用、他の未解決writeなし、全business状態がcommand端末適用後と一致し以後変化なしの場合だけ。own patch一致だけで安全としない。後続編集/他者変更/reset/new restore/refreshで入口を閉じる。短いimpact確認で既存history.undoを一回だけ使い、backup消費と失敗時exact patch retryを維持する。固定時間/refresh後Undo保証を作らない。
 

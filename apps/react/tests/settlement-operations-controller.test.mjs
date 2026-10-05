@@ -4,6 +4,8 @@ import {createOperationsFixture,resultOf} from './helpers/settlement-operations-
 import {createOperationsCache} from '../src/ui/settlement-operations-draft.js';
 import {resolveMoneyTarget} from '../src/ui/settlement-operations-model.js';
 import {createSettlementOperationController} from '../src/ui/settlement-operation-controller.js';
+import {createApplicantSync} from '../src/sync/applicant-sync.js';
+import {createProjectDomain} from '../src/services/project-domain.js';
 
 async function setup(t,options) {
   const r=await createOperationsFixture(options);
@@ -133,4 +135,11 @@ test('acceptance callback followed by current correction returns adjusted not st
   const r=await setup(t,{shared:true});let changed=false;
   const stop=r.controller.subscribe(()=>{if(changed || r.controller.getSnapshot().operation?.receipt?.disposition!=='saved')return;changed=true;const remote=structuredClone(r.runtime.store.getSnapshot());remote.settlement.driverPaidByParticipantId[r.target('payment').participantId]=false;r.runtime.store.receiveRemote(remote);});t.after(stop);
   const result=await r.controller.toggle({target:r.target('payment'),checked:true});assert.equal(result.disposition,'adjusted');assert.equal(r.controller.getSnapshot().blocked,true);
+});
+test('existing applicant reconciliation is not mistaken for a second user restore command',async t=>{
+  const r=await setup(t),previous=globalThis.window;globalThis.window={};t.after(()=>{globalThis.window=previous;});
+  const applicantSync=createApplicantSync({store:r.runtime.store});applicantSync.start();t.after(applicantSync.dispose);
+  const project=createProjectDomain({getRoom:r.runtime.store.getSnapshot,settlement:r.runtime.store.domain.settlement});let restoreCount=0;r.runtime.store.subscribeIntents(intent=>{if(intent.kind==='restore')restoreCount++;});
+  const result=await r.controller.publishHistory({kind:'sample',perform:()=>r.runtime.store.command('restore',{value:project.createFormLinkedSampleData()})});
+  assert.equal(restoreCount,1);assert.ok(['local','adjusted'].includes(result.disposition));assert.notEqual(r.controller.getSnapshot().reason,'変更範囲を確認できません。現在の内容を確認してください。');assert.ok(r.runtime.store.getSnapshot().meta.applicationSync);
 });

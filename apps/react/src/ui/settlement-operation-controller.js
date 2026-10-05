@@ -64,7 +64,14 @@ export function createSettlementOperationController({runtime,cache}) {
     if(disposed || snapshot.blocked) return unavailable(snapshot.reason || 'この操作を開始できません。');
     busy=true;error='';refresh();
     let intent=null, intentCount=0, appliedRoom;
-    const unsubscribe=runtime.store.subscribeIntents(value=>{intent=value;intentCount++;});
+    const expectedKind=broad(kind)?'restore':'settlement';
+    const unsubscribe=runtime.store.subscribeIntents(value=>{
+      // Existing applicant reconciliation can emit a nested intent during
+      // restore notification. It remains service-owned, not a second H command
+      // or a payload to merge into our one-record recovery receipt.
+      if(broad(kind) && value.kind==='syncApplicantDetails')return;
+      intentCount++;if(value.kind===expectedKind)intent=value;
+    });
     try { perform();appliedRoom=copy(runtime.store.getSnapshot()); }
     catch(e) { busy=false;return unavailable('記録できませんでした。現在の内容を確認してください。'); }
     finally { unsubscribe(); }

@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
-  Button, InlineLoading, InlineNotification, Link, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, ToastNotification,
+  Button, InlineLoading, InlineNotification, Link, Theme, ToastNotification,
 } from '@carbon/react';
 import { Edit } from '@carbon/icons-react';
 import ProjectShell from './components/ProjectShell.jsx';
 import ProjectPage from './components/ProjectPage.jsx';
 import ProjectOverview from './components/ProjectOverview.jsx';
 import ProjectHistory from './components/history/ProjectHistory.jsx';
+import SampleWorkspace from './components/history/SampleWorkspace.jsx';
 import Participants from './components/Participants.jsx';
 import Allocation from './components/Allocation.jsx';
 import Settlement from './components/Settlement.jsx';
@@ -14,7 +15,6 @@ import SettlementRules from './components/settlement-rules/SettlementRules.jsx';
 import VehicleCosts from './components/vehicle-costs/VehicleCosts.jsx';
 import { BugModal } from './components/ProjectTools.jsx';
 import TaskModal from './components/TaskModal.jsx';
-import { createProjectDomain } from './services/project-domain.js';
 import { isToastNotice, notice as taskNotice } from './ui/task-contracts.js';
 import { allocationView } from './ui/allocation-view.js';
 import { createOperationsCache } from './ui/settlement-operations-draft.js';
@@ -57,6 +57,8 @@ function Application({ runtime, resources: { cache, controller, memoController, 
   const vehicleDestination = JSON.parse(vehicleDestinationJson);
   const settlementDestinationJson = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getSettlementTaskSnapshot);
   const settlementDestination = JSON.parse(settlementDestinationJson);
+  const historyDestinationJson = useSyncExternalStore(runtime.navigation.subscribe, runtime.navigation.getHistoryTaskSnapshot);
+  const historyDestination = JSON.parse(historyDestinationJson);
   const [rulesPage, setRulesPage] = useState(null);
   const [rulesEntryProblem, setRulesEntryProblem] = useState('');
   const changeRulesPage = useCallback(value => setRulesPage(current => JSON.stringify(current) === JSON.stringify({ key: settlementDestinationJson, ...value }) ? current : { key: settlementDestinationJson, ...value }), [settlementDestinationJson]);
@@ -66,6 +68,9 @@ function Application({ runtime, resources: { cache, controller, memoController, 
   useEffect(() => { if (syncStatus.kind === 'connected') setRoomResolved(true); }, [syncStatus.kind]);
   const rulesResolved = roomResolved || syncStatus.kind === 'error' && !!runtime.storage.read('base');
   useEffect(() => {
+    if (historyDestination.task === 'sample' && !runtime.sampleDataEnabled || roomResolved && historyDestination.invalid) runtime.navigation.replaceHistoryTask('');
+  }, [historyDestination.task, historyDestination.invalid, roomResolved, runtime]);
+  useEffect(() => {
     if (rulesResolved && settlementDestination.invalid) { setRulesEntryProblem('指定された精算画面が見つかりません。精算ルールはここから開けます。'); runtime.navigation.replaceSettlementTask(''); }
     else if (settlementDestination.task === 'rules') setRulesEntryProblem('');
   }, [rulesResolved, settlementDestination.invalid, settlementDestination.task, runtime]);
@@ -73,9 +78,7 @@ function Application({ runtime, resources: { cache, controller, memoController, 
   const [feedback, setFeedback] = useState(null);
   const [globalModal, setGlobalModal] = useState('');
   const [overviewEditing, setOverviewEditing] = useState(false);
-  const [sampleCars, setSampleCars] = useState('3');
-  const [sampleType, setSampleType] = useState('normal');
-  const previousSection = useRef(`${section}:${participantTask}:${allocationDestinationJson}:${vehicleDestinationJson}:${settlementDestinationJson}`);
+  const previousSection = useRef(`${section}:${participantTask}:${allocationDestinationJson}:${vehicleDestinationJson}:${settlementDestinationJson}:${historyDestinationJson}`);
   const participantReturnFocus = useRef('');
   const overviewEditButtonRef = useRef(null);
   const overviewReturnFocus = useRef(false);
@@ -85,7 +88,7 @@ function Application({ runtime, resources: { cache, controller, memoController, 
     overviewEditButtonRef.current?.focus();
   }, [overviewEditing]);
   useLayoutEffect(() => {
-    const destination = `${section}:${participantTask}:${allocationDestinationJson}:${vehicleDestinationJson}:${settlementDestinationJson}`;
+    const destination = `${section}:${participantTask}:${allocationDestinationJson}:${vehicleDestinationJson}:${settlementDestinationJson}:${historyDestinationJson}`;
     if (previousSection.current === destination) return;
     previousSection.current = destination;
     setFeedback(null);
@@ -94,7 +97,7 @@ function Application({ runtime, resources: { cache, controller, memoController, 
     // Commit focus with the destination DOM, before the next user input.
     // A queued animation frame could steal focus after fast WebKit typing.
     (document.getElementById(returnId) || document.getElementById('project-page-title'))?.focus();
-  }, [section, participantTask, allocationDestinationJson, vehicleDestinationJson, settlementDestinationJson]);
+  }, [section, participantTask, allocationDestinationJson, vehicleDestinationJson, settlementDestinationJson, historyDestinationJson]);
   const returnFromRules = useCallback(({ focusId }) => { participantReturnFocus.current = focusId; runtime.navigation.navigateSettlementTask(''); }, [runtime]);
   function returnFromMoney(task) {
     participantReturnFocus.current = task === 'collection' ? 'settlement-collection-entry' : 'settlement-payments-entry';
@@ -123,22 +126,8 @@ function Application({ runtime, resources: { cache, controller, memoController, 
     catch { setFeedback(taskNotice.error('リンクをコピーできませんでした', { placement: 'toast' })); }
   }
   function openGlobalModal(name) { if (name === 'history') runtime.navigation.navigate('history-settings'); else setGlobalModal(name); }
-  function seedSample(missing = false) {
-    const project = createProjectDomain({ getRoom: runtime.store.getSnapshot, settlement: runtime.store.domain.settlement });
-    runtime.store.command('restore', { value: project.createSampleAppData({ missing, carCount: Number(sampleCars) }) });
-    setGlobalModal('');
-  }
-  function seedFormLinkedSample() {
-    const project = createProjectDomain({ getRoom: runtime.store.getSnapshot, settlement: runtime.store.domain.settlement });
-    runtime.store.command('restore', { value: project.createFormLinkedSampleData() });
-    setGlobalModal('');
-  }
   function toggleTheme() {
     setTheme(value => value === 'g10' ? 'g100' : 'g10');
-  }
-  function seedSelectedSample() {
-    if (sampleType === 'form') seedFormLinkedSample();
-    else seedSample(sampleType === 'missing');
   }
   function finishOverviewEdit() {
     overviewReturnFocus.current = true;
@@ -201,16 +190,21 @@ function Application({ runtime, resources: { cache, controller, memoController, 
       metadata: [{ label: '参加者', value: `${participantCount}人` }, ...sync],
       content: <>{rulesEntryProblem && <InlineNotification kind="error" title={rulesEntryProblem} hideCloseButton lowContrast />}<OperationFeedback controller={controller} snapshot={operationSnapshot} /><Settlement runtime={runtime} room={room} view={operationsView} memoController={memoController} /></>,
     };
+    if (section === 'history-settings' && historyDestination.task === 'sample' && runtime.sampleDataEnabled) return {
+      title: 'サンプルデータ', description: 'ローカル環境の企画を確認用データで置き換えます。', metadata: sync,
+      back: <Link href={runtime.navigation.historyTaskHrefFor('')} onClick={event => { if (normalClick(event)) { event.preventDefault(); participantReturnFocus.current = 'history-sample-entry'; runtime.navigation.navigateHistoryTask(''); } }}>履歴へ戻る</Link>,
+      content: <><OperationFeedback controller={controller} snapshot={operationSnapshot} /><SampleWorkspace runtime={runtime} room={room} controller={controller} snapshot={operationSnapshot} /></>,
+    };
     if (section === 'history-settings') return {
       title: '履歴', description: '企画の状態を保存し、必要なときに以前の状態へ戻します。',
       metadata: [...(historySnapshot.loadIssue ? [] : [{ label: 'この端末の履歴', value: `${historySnapshot.items.length}件` }]), ...sync],
       actions: <Button kind="tertiary" disabled={historySnapshot.blocked} onClick={() => historyController.saveSnapshot()}>現在の状態を保存</Button>,
-      content: <><OperationFeedback controller={controller} snapshot={operationSnapshot} /><ProjectHistory controller={historyController} /></>,
+      content: <><OperationFeedback controller={controller} snapshot={operationSnapshot} /><ProjectHistory runtime={runtime} controller={historyController} /></>,
     };
     return { title: '参加者', content: <Participants runtime={runtime} room={room} onNotice={setFeedback} embedded /> };
   })();
   return <Theme theme={theme} className="application">
-    <ProjectShell projectName={room.roomName} roomId={runtime.roomId} section={section} navigation={runtime.navigation} headerProps={{ theme, showSampleData: runtime.sampleDataEnabled, onShare: share, onOpenUtility: openGlobalModal, onToggleTheme: toggleTheme }}>
+    <ProjectShell projectName={room.roomName} roomId={runtime.roomId} section={section} navigation={runtime.navigation} headerProps={{ theme, onShare: share, onOpenUtility: openGlobalModal, onToggleTheme: toggleTheme }}>
       <ProjectPage
         context={room.roomName || '企画名未設定'}
         title={page.title}
@@ -223,9 +217,6 @@ function Application({ runtime, resources: { cache, controller, memoController, 
     </ProjectShell>
     {globalModal === 'guide' && <TaskModal taskId="help-guide" className="app-modal" open passiveModal size="md" closeButtonLabel="閉じる" modalHeading="使い方" onRequestClose={() => setGlobalModal('')}>
       <div className="user-guide"><p>企画メニューから、必要な作業を開きます。</p><ul><li><strong>参加者</strong> 応募者を確認し、企画に参加する人を選びます。手動で追加することもできます。</li><li><strong>車割・班割</strong> 確定した参加者を手動またはランダムで割り当てます。</li><li><strong>精算</strong> 各車の距離・費用を入力し、精算額と集金・支払いを確認します。</li></ul><p>概要と履歴は、企画情報の確認・編集や状態の復元が必要なときに使います。共有リンクは右上からコピーできます。</p></div>
-    </TaskModal>}
-    {globalModal === 'sample' && <TaskModal taskId="sample-data" className="app-modal sample-modal" open size="sm" closeButtonLabel="閉じる" modalHeading="サンプルデータ" primaryButtonText="サンプルを入れる" secondaryButtonText="キャンセル" onRequestSubmit={seedSelectedSample} onRequestClose={() => setGlobalModal('')} selectorPrimaryFocus="#sample-normal">
-      <div className="sample-form"><p>現在のデータをリセットして、確認用サンプルを入れます。</p><RadioButtonGroup legendText="サンプルの種類" name="sample-type" valueSelected={sampleType} onChange={value => setSampleType(String(value))} orientation="vertical"><RadioButton id="sample-normal" labelText="通常サンプル" value="normal" /><RadioButton id="sample-form" labelText="フォーム連携サンプル" value="form" /><RadioButton id="sample-missing" labelText="入力漏れサンプル" value="missing" /></RadioButtonGroup>{sampleType !== 'form' && <Select id="sample-car-count" labelText="車の数" value={sampleCars} onChange={event => setSampleCars(event.target.value)}>{['2', '3', '4', '5'].map(value => <SelectItem key={value} value={value} text={`${value}台`} />)}</Select>}</div>
     </TaskModal>}
     {globalModal === 'bug' && <BugModal runtime={runtime} room={room} onNotice={setFeedback} onClose={() => setGlobalModal('')} />}
     {feedback && isToastNotice(feedback) && <div className="notification-region"><ToastNotification kind={feedback.kind} title={feedback.title} subtitle={feedback.subtitle} caption="" timeout={feedback.timeout} onClose={() => { setFeedback(null); return true; }} lowContrast /></div>}
