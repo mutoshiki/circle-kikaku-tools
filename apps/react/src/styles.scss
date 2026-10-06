@@ -168,6 +168,9 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .operations-work-links li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: layout.$spacing-04; padding-block: layout.$spacing-04; border-block-end: 1px solid var(--cds-border-subtle); }
 .operations-record-summary { display: grid; gap: layout.$spacing-02; min-inline-size: 0; overflow-wrap: anywhere; }
 .operations-record-summary small { @include type.type-style('body-compact-01'); color: var(--cds-text-secondary); }
+.operations-collection-summary { padding-inline-end: layout.$spacing-09; }
+.operations-collection-check { flex: 0 0 auto; inline-size: max-content; margin: 0; margin-inline-end: layout.$spacing-04; padding-block: layout.$spacing-04; }
+.operations-check-label { display: inline-block; min-block-size: layout.$spacing-09; }
 .operations-inline-editor { padding: layout.$spacing-05; background: var(--cds-layer); }
 .operations-inline-editor form { display: grid; gap: layout.$spacing-04; }
 .operations-payment-row { display: grid; gap: layout.$spacing-04; padding-block: layout.$spacing-05; border-block-end: 1px solid var(--cds-border-subtle); }

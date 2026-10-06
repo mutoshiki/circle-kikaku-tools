@@ -60,6 +60,27 @@ test('standalone inline draft preserves raw input and IME without a write until 
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });
 
+test('standalone keyboard recording follows next previous and empty-filter focus destinations',async({page},info)=>{
+  const room=structuredClone(vehicleFixture);room.settlement.standalone={enabled:true,driverCount:'0',memberCount:'3',driverNames:[]};
+  await open(page,info,'collection',room);
+  await expect(page.getByRole('checkbox')).toHaveCount(3);
+  const names=await page.getByRole('checkbox').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('aria-label')));
+  for(const [index,next] of [[1,2],[2,0],[0,null]]){
+    const box=page.getByRole('checkbox',{name:names[index],exact:true});await box.focus();await box.press('Space');
+    const input=page.getByRole('textbox',{name:'集金した人',exact:true});await expect(input).toBeFocused();await input.fill('担当');await input.press('Enter');
+    await expect(input).toHaveCount(0);
+    await expect(next===null?page.getByRole('tab',{name:'未集金',exact:true}):page.getByRole('checkbox',{name:names[next],exact:true})).toBeFocused();
+  }
+});
+
+test('standalone cancellation restores the re-enabled row trigger after commit',async({page},info)=>{
+  const room=structuredClone(vehicleFixture);room.settlement.standalone={enabled:true,driverCount:'0',memberCount:'2',driverNames:[]};
+  const id=await open(page,info,'collection',room),before=await readRoom(page,id),box=page.getByRole('checkbox').first();
+  await box.focus();await box.press('Space');await page.getByRole('textbox',{name:'集金した人',exact:true}).fill('未保存');
+  await page.getByRole('button',{name:'キャンセル',exact:true}).focus();await page.keyboard.press('Enter');
+  await expect(box).toBeEnabled();await expect(box).toBeFocused();expect(await readRoom(page,id)).toEqual(before);
+});
+
 test('memo raw draft survives refresh without publish',async({page},info)=>{
   const id=await open(page,info,''),before=await readRoom(page,id);await page.getByRole('button',{name:'精算メモを編集',exact:true}).click();
   const input=page.getByRole('textbox',{name:'精算メモ',exact:true});await input.fill('  連絡\n ');await page.reload();await expect(input).toHaveValue('  連絡\n ');expect(await readRoom(page,id)).toEqual(before);

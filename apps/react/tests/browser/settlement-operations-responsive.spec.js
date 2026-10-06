@@ -35,6 +35,17 @@ test('keyboard checked row leaves focus on the next outstanding record',async({p
   await page.getByRole('tab',{name:'未集金',exact:true}).focus();await page.keyboard.press('ArrowRight');
   await expect(page.getByRole('tab',{name:'すべて',exact:true})).toHaveAttribute('aria-selected','true');
 });
+
+test('collection record targets do not overlap names and have usable touch labels',async({page},info)=>{
+  await open(page,info);
+  await expect(page.getByRole('checkbox').first()).toBeVisible();
+  const measured=await page.getByRole('checkbox').evaluateAll(inputs=>inputs.map(input=>{
+    const row=input.closest('li'),label=document.querySelector(`label[for="${input.id}"]`),summary=row.querySelector('.operations-record-summary');
+    const a=label.getBoundingClientRect(),r=row.getBoundingClientRect(),text=Array.from(summary.children).flatMap(node=>{const range=document.createRange();range.selectNodeContents(node);return [...range.getClientRects()];});
+    return {overlap:text.some(b=>Math.min(a.right,b.right)>Math.max(a.left,b.left)&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top)),height:a.height,inside:a.top>=r.top&&a.bottom<=r.bottom+1};
+  }));
+  expect(measured.length).toBeGreaterThan(0);for(const target of measured){expect(target.overlap).toBe(false);expect(target.height).toBeGreaterThanOrEqual(44);expect(target.inside).toBe(true);}
+});
 test('vehicle costs return to the payment task and its reachable entry',async({page},info)=>{
   await open(page,info,'payments');const entry=page.getByRole('link',{name:/の費用を入力/}).first();
   await expect(entry).toBeVisible();const name=await entry.innerText();await entry.click();

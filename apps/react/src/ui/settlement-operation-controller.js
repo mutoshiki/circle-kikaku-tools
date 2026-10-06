@@ -19,6 +19,11 @@ export function createSettlementOperationController({runtime,cache}) {
   }
   function refresh() {
     if(operation?.receipt && ['local','saved'].includes(operation.receipt.disposition) && !matchesCurrent(operation.receipt)) operation.receipt={...operation.receipt,disposition:'adjusted',acknowledged:true,canRetry:false};
+    const record=cache.read(),submitted=operation?.collectorDraft;
+    if(!disposed && submitted && operation.kind==='collection' && ['local','saved'].includes(operation.receipt?.disposition) && equalOperationValue(record.operation,persistedOperation) && equalOperationValue(record.collectorDraft,submitted)) {
+      const target=resolveMoneyTarget({room:runtime.store.getSnapshot(),domain,kind:'collection',key:submitted.targetKey});
+      if(target?.context===submitted.context && matchesCurrent(operation.receipt))cache.write({...record,collectorDraft:null},{expectedRevision:record.revision});
+    }
     const foreign=runtime.storage.read('outbox');
     const blocked=busy || operationNeedsReview(operation) || !!foreign;
     snapshot={operation,blocked,reason:error || (busy?'記録を保存しています。':operationNeedsReview(operation)?'前の記録の保存結果を確認してください。':foreign?'別の変更を保存しています。完了後に記録してください。':''),cacheWarning:cache.getWarning()};
@@ -35,7 +40,7 @@ export function createSettlementOperationController({runtime,cache}) {
     let value=operation;
     if(value) {
       const {kind,targetKey,resetGeneration,receipt}=value;
-      value=broad(kind) ? {kind,targetKey,resetGeneration,operationId:receipt?.operationId || value.operationId || '',disposition:receipt?.disposition || value.disposition,acknowledged:receipt?.acknowledged===true || value.acknowledged===true,...(value.historyTime===undefined?{}:{historyTime:value.historyTime})} : {kind,targetKey,resetGeneration,receipt};
+      value=broad(kind) ? {kind,targetKey,resetGeneration,operationId:receipt?.operationId || value.operationId || '',disposition:receipt?.disposition || value.disposition,acknowledged:receipt?.acknowledged===true || value.acknowledged===true,...(value.historyTime===undefined?{}:{historyTime:value.historyTime})} : {kind,targetKey,resetGeneration,receipt,...(value.collectorDraft?{collectorDraft:value.collectorDraft}:{})};
     }
     if(cache.write({...record,operation:value},{expectedRevision:record.revision})) persistedOperation=copy(value);
   }
@@ -60,7 +65,7 @@ export function createSettlementOperationController({runtime,cache}) {
     }
     return result;
   }
-  function run(kind,targetKey,perform,{allowedPaths=null,historyTime}={}) {
+  function run(kind,targetKey,perform,{allowedPaths=null,historyTime,collectorDraft}={}) {
     refresh();
     if(disposed || snapshot.blocked) return unavailable(snapshot.reason || 'この操作を開始できません。');
     busy=true;error='';refresh();
@@ -78,7 +83,7 @@ export function createSettlementOperationController({runtime,cache}) {
     finally { unsubscribe(); }
     if(!intent) { busy=false;refresh();return Promise.resolve({receipt:null,disposition:'unchanged'}); }
     const receipt=allocationSaveReceipt(runtime,intent,{type:kind,label:kind==='memo'?'メモ':broad(kind)?'履歴の変更':'金銭記録'});
-    operation={kind,targetKey,resetGeneration:intent.base.resetGeneration,receipt,appliedRoom,...(historyTime===undefined?{}:{historyTime})};
+    operation={kind,targetKey,resetGeneration:intent.base.resetGeneration,receipt,appliedRoom,...(historyTime===undefined?{}:{historyTime}),...(collectorDraft?{collectorDraft:copy(collectorDraft)}:{})};
     if(intentCount!==1 || allowedPaths && domainPaths(intent.patch).some(path=>!allowedPaths.includes(path))) {
       receipt.disposition='unresolved'; receipt.canRetry=false;
       error='変更範囲を確認できません。現在の内容を確認してください。';persist();busy=false;refresh();
@@ -99,6 +104,8 @@ export function createSettlementOperationController({runtime,cache}) {
     const changesCollector=current.kind==='collection' && (checked && collector!==undefined ? (state.paidBy[current.name] || '')!==String(collector).trim() : !checked && !!state.paidBy[current.name]);
     if(!!paid===checked && !changesCollector) return Promise.resolve({receipt:null,disposition:'unchanged'});
     const allowedPaths=moneyTargetPaths(current);
+    const draft=cache.read().collectorDraft;
+    const collectorDraft=checked && current.kind==='collection' && collector!==undefined && draft?.targetKey===current.key && draft.context===current.context && (draft.raw || current.name)===collector ? draft : null;
     const change={name:current.name,checked,payment:current.kind==='payment',collector};
     const preview=createRoomStore({initial:room});let previewIntent;preview.subscribeIntents(value=>{previewIntent=value;});
     collectionChange(preview,change);
@@ -111,7 +118,7 @@ export function createSettlementOperationController({runtime,cache}) {
       const edit=runtime.store.beginEdit({kind:'settlement'});
       edit.draft=domain.sync.applyEntityPatchToObject(edit.draft,patch);
       try { runtime.store.commitEdit(edit); } finally { if(!edit.closed) runtime.store.cancelEdit(edit); }
-    },{allowedPaths});
+    },{allowedPaths,collectorDraft});
   }
   function publishMemo({openingMemo,raw,resetGeneration}) {
     const room=runtime.store.getSnapshot();

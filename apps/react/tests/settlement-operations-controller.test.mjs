@@ -135,6 +135,51 @@ test('mode and reset changes invalidate recovered collector context before publi
   assert.equal((await r.controller.toggle({target,checked:true,collector:'控え'})).disposition,'unavailable');assert.equal(intents,0);
 });
 
+function collectorDraft(r,raw='  集金担当  '){
+  const target=r.target('collection'),draft={targetKey:target.key,context:target.context,raw},record=r.cache.read();
+  assert.equal(r.cache.write({...record,collectorDraft:draft},{expectedRevision:record.revision}),true);
+  return {target,draft};
+}
+
+test('standalone acceptance clears its owned raw draft without a mounted collection view',async t=>{
+  const r=await setup(t,{shared:true,standalone:true}),{target,draft}=collectorDraft(r);
+  const original=r.transport.transaction;let release;const held=new Promise(resolve=>{release=resolve;});
+  r.transport.transaction=async updater=>{await held;return original(updater);};
+  const saved=r.controller.toggle({target,checked:true,collector:draft.raw});
+  assert.deepEqual(r.cache.read().collectorDraft,draft);
+  release();assert.equal((await saved).disposition,'saved');
+  assert.equal(r.cache.read().collectorDraft,null);
+});
+
+test('reloaded standalone rejection clears draft only after its exact retry is accepted',async t=>{
+  const r=await setup(t,{shared:true,standalone:true}),{target,draft}=collectorDraft(r);
+  r.transport.failOnce(Error('permission_denied'));
+  assert.equal((await r.controller.toggle({target,checked:true,collector:draft.raw})).disposition,'failed');
+  assert.deepEqual(r.cache.read().collectorDraft,draft);r.controller.dispose();
+  const cache=createOperationsCache({roomId:r.runtime.roomId,storage:()=>r.rawStorage});
+  const recovered=createSettlementOperationController({runtime:r.runtime,cache});t.after(recovered.dispose);
+  assert.equal((await recovered.retry()).disposition,'saved');
+  assert.equal(cache.read().collectorDraft,null);
+});
+
+test('old collector acceptance never clears a newer raw draft even if normalized values match',async t=>{
+  const r=await setup(t,{shared:true,standalone:true}),{target,draft}=collectorDraft(r);
+  const original=r.transport.transaction;let release;const held=new Promise(resolve=>{release=resolve;});
+  r.transport.transaction=async updater=>{await held;return original(updater);};
+  const saved=r.controller.toggle({target,checked:true,collector:draft.raw}),record=r.cache.read();
+  const newer={...draft,raw:draft.raw.trim()};r.cache.write({...record,collectorDraft:newer},{expectedRevision:record.revision});
+  release();await saved;assert.deepEqual(r.cache.read().collectorDraft,newer);
+});
+
+test('standalone acceptance after slot population changed retains the stale input for review',async t=>{
+  const r=await setup(t,{shared:true,standalone:true}),{target,draft}=collectorDraft(r);
+  const original=r.transport.transaction;let release;const held=new Promise(resolve=>{release=resolve;});
+  r.transport.transaction=async updater=>{await held;return original(updater);};
+  const saved=r.controller.toggle({target,checked:true,collector:draft.raw});
+  const remote=structuredClone(r.server.get());remote.settlement.standalone.memberCount='4';r.server.replace(remote);await Promise.resolve();
+  release();await saved;assert.deepEqual(r.cache.read().collectorDraft,draft);
+});
+
 test('a newer cache operation is never erased by an older disposed controller completion',async t=>{
   const r=await setup(t,{shared:true}), original=r.transport.transaction;let release;
   const held=new Promise(resolve=>{release=resolve;});r.transport.transaction=async updater=>{await held;return original(updater);};

@@ -117,6 +117,30 @@ test('standalone changed slot population retains raw draft but cannot publish it
   }finally{await cleanup(request,id,[a,b]);}
 });
 
+test('accepted standalone recording clears the draft after navigating away without stealing focus',async({browser,request},info)=>{
+  const id=idFor(info,'SLOTNAV');await seed(request,id,setup(true));const a=await browser.newContext(info.project.use),pa=await a.newPage(),socket=await heldSocket(pa,'in');
+  try{
+    await enter(pa,id);const box=pa.getByRole('checkbox').first();await box.focus();await box.press('Space');
+    const input=pa.getByRole('textbox',{name:'集金した人',exact:true});await input.fill('  担当  ');socket.hold();await input.press('Enter');
+    await expect.poll(()=>socket.count()).toBeGreaterThan(0);await navigateToProjectSection(pa,'概要');
+    const title=pa.getByRole('heading',{level:1,name:'概要',exact:true});await expect(title).toBeFocused();socket.release();await accepted(pa,request,id);await expect(title).toBeFocused();
+    expect((await cached(pa,id)).collectorDraft).toBeNull();await enter(pa,id);await expect(input).toHaveCount(0);await expect(pa.getByRole('checkbox').first()).toBeEnabled();
+    await pa.reload();await expect(input).toHaveCount(0);await expect(pa.getByRole('checkbox').first()).toBeEnabled();parity(await shared(request,id));
+  }finally{await cleanup(request,id,[a],[socket]);}
+});
+
+test('failed standalone recording keeps raw input through refresh then exact retry clears it',async({browser,request},info)=>{
+  const id=idFor(info,'SLOTRETRY');await seed(request,id,setup(true));const a=await browser.newContext(info.project.use),pa=await a.newPage();
+  try{
+    await enter(pa,id);const before=await shared(request,id),box=pa.getByRole('checkbox').first();await box.focus();await box.press('Space');
+    const input=pa.getByRole('textbox',{name:'集金した人',exact:true});await input.fill('  担当  ');await deny(request,id);await input.press('Enter');
+    await expect(pa.getByRole('button',{name:'同じ内容を再試行',exact:true})).toBeVisible();const failed=await cached(pa,id);expect(failed.collectorDraft.raw).toBe('  担当  ');
+    await pa.reload();await expect(input).toHaveValue('  担当  ');await restoreRules(request);await pa.getByRole('button',{name:'同じ内容を再試行',exact:true}).click();const op=await accepted(pa,request,id);
+    expect(op.receipt.patch).toEqual(failed.operation.receipt.patch);expect((await cached(pa,id)).collectorDraft).toBeNull();await expect(input).toHaveCount(0);await expect(pa.getByRole('checkbox').first()).toBeEnabled();
+    const after=await shared(request,id);expect(protectedExcept(after,moneyFields)).toEqual(protectedExcept(before,moneyFields));parity(after);
+  }finally{await cleanup(request,id,[a]);}
+});
+
 test('rejected monetary receipt retries its exact patch after refresh',async({browser,request},info)=>{
   const id=idFor(info,'RETRY');await seed(request,id,setup());const context=await browser.newContext(info.project.use),page=await context.newPage(),socket=await heldSocket(page);
   try{

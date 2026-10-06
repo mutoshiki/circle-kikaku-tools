@@ -16,7 +16,7 @@ Integration base: `carbon-redesign` at `c33962ed9c28fd3cd94e4a63d52e111a026c7b0f
 
 ## 0. Authority, intent, and phase boundary
 
-[SANPOKAI_PRODUCT_UI.md](../../design/SANPOKAI_PRODUCT_UI.md) v1.5が唯一のnormative Product UI specification。参照箇所は§0–6、§11–12、§14–23。本書はPhase Hの具体化案であり、第二のnormative specificationではない。採用する改訂は§12に列挙する。[Roadmap Phase H](../../design/CARBON_MIGRATION_ROADMAP.md#phase-h--settlement-operations-collection-payouts-history-and-danger-zone)が依存関係とgate、[Patterns](../../design/CARBON_PATTERNS.md)がpattern選択、[Principles](../../design/CARBON_PRODUCT_PRINCIPLES.md)が公式根拠、[Audit §15–18](../../design/CURRENT_UI_AUDIT.md#15-settlement-overview-and-data-presentation)が過去の監査証拠を所有する。
+[SANPOKAI_PRODUCT_UI.md](../../design/SANPOKAI_PRODUCT_UI.md) v1.6が唯一のnormative Product UI specification。作成時のv1.5への承認済み改訂はTask 1で同ownerへ反映済み。参照箇所は§0–6、§11–12、§14–23。本書はPhase Hの詳細根拠であり、第二のnormative specificationではない。改訂の根拠は§12に列挙する。[Roadmap Phase H](../../design/CARBON_MIGRATION_ROADMAP.md#phase-h--settlement-operations-collection-payouts-history-and-danger-zone)が依存関係とgate、[Patterns](../../design/CARBON_PATTERNS.md)がpattern選択、[Principles](../../design/CARBON_PRODUCT_PRINCIPLES.md)が公式根拠、[Audit §15–18](../../design/CURRENT_UI_AUDIT.md#15-settlement-overview-and-data-presentation)が過去の監査証拠を所有する。
 
 本書のUI判断はすべて **Project interpretation**。§2の公式主張だけを **Official guidance**、§1と保存/復元ownerの制限を **Technical constraint** として扱う。
 
@@ -196,7 +196,7 @@ Empty/state rule: 初期loadはpage anatomyのSkeleton、local記録待ちは行
 
 ## 11. Validation and exit gates
 
-本書作成時点では未実施。実装計画で下記を具体的なtests/fixtures/commandsへ割り当てる。source textやclassだけをcontractにしない。
+本書作成時点では未実施だったgateを実装計画でtests/fixtures/commandsへ割り当てた。現在の実測結果は[Phase H evidence](../../design/evidence/PHASE_H_VALIDATION.md)が所有する。下記は受入基準であり、source textやclassだけをcontractにしない。
 
 | Coverage | 必須の観測 / 比較 |
 | --- | --- |
@@ -218,7 +218,7 @@ Exitは必要なspec改訂承認、実装、関連test/browser証跡、PR/CIがg
 
 ## 12. Proposed normative clarification after written-spec approval
 
-実装前に唯一のownerへ次を反映し、本書では詳細根拠・traceabilityを残す。現行v1.5を本書だけで上書きしない。
+以下は承認済み改訂の記録。Task 1で実装前に唯一のowner v1.6へ反映済みで、本書には詳細根拠・traceabilityを残す。本書だけでnormative ownerを上書きしない。
 
 1. §11/14: collection/paymentsのdurable subroute、リンクnavigationと各一覧のfilterの分離。車単位state、名前記録、field/receipt、0/負額・計算額と授受記録の限界を明示。
 2. §6/14: 新UIの訂正は対象行の逆操作。既存whole-map Undoを変更せず採用しない。exact receipt、一件outbox、未確認保存の回復規則、memo-only Saveを具体化。
@@ -232,4 +232,4 @@ Exitは必要なspec改訂承認、実装、関連test/browser証跡、PR/CIがg
 - conversational approvalを実装許可と混同せず、statusをwritten review待ちにした。存在しないdelete/settings、archive、授受台帳、bulk/new protocolをscopeへ入れていない。
 - storage returnの成功誤認、同名target、single-outbox置換、refresh後Undo、resetGenerationがrestoreで増えない制限、receipt payloadの機密data複製を明示した。
 - placeholdersなし。受理と現在値の一致、Cancelとpublish後の戻るを分離。spec作成は機能/test/browser完了の証拠ではない。
-- 本書は「実装計画へ」で承認済み。次のgateはimplementation planのレビュー。normative改訂はplan Task 1でUI実装前に行い、plan review/実行方式の承認後に実装へ進む。
+- 本書は「実装計画へ」、Native実装計画は「実装へ」で承認済み。Task 1のnormative改訂とTasks 1–10は完了。現在のgateはTask 11の累積検証・独立レビュー修正・CI・integrationであり、再承認待ちではない。

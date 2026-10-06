@@ -4,6 +4,7 @@ const allowed = (object,keys) => object && typeof object==='object' && !Array.is
 const text = value => typeof value==='string';
 const number = value => Number.isSafeInteger(value) && value>=0;
 const outcomes = ['local','pending','saved','failed','unresolved','adjusted','reset','accepted-needs-review'];
+const validCollectorDraft = value => allowed(value,['targetKey','context','raw']) && text(value.targetKey) && text(value.context) && text(value.raw);
 
 export function validNarrowOperationPath(kind,path) {
   if (['revision','lastUpdatedAt','lastUpdatedBy'].includes(path)) return true;
@@ -17,7 +18,8 @@ function validOperation(op) {
   if (op===null) return true;
   if (!op || !['collection','payment','memo','restore','undo','sample'].includes(op.kind) || !text(op.targetKey) || !number(op.resetGeneration)) return false;
   if (['restore','undo','sample'].includes(op.kind)) return allowed(op,['kind','targetKey','resetGeneration','operationId','historyTime','disposition','acknowledged']) && text(op.operationId) && outcomes.includes(op.disposition) && (op.historyTime===undefined || Number.isFinite(op.historyTime)) && (op.acknowledged===undefined || typeof op.acknowledged==='boolean');
-  if (!allowed(op,['kind','targetKey','resetGeneration','receipt'])) return false;
+  if (!allowed(op,['kind','targetKey','resetGeneration','receipt','collectorDraft'])) return false;
+  if(op.collectorDraft!==undefined && (op.kind!=='collection' || !validCollectorDraft(op.collectorDraft) || op.collectorDraft.targetKey!==op.targetKey))return false;
   const receipt=op.receipt;
   if (!allowed(receipt,['type','label','resetGeneration','operationId','patch','before','diagnosticCount','disposition','canRetry','acknowledged']) || !number(receipt.resetGeneration) || !text(receipt.operationId) || !outcomes.includes(receipt.disposition) || !number(receipt.diagnosticCount) || typeof receipt.canRetry!=='boolean') return false;
   if (!allowed(receipt.patch,Object.keys(receipt.patch || {})) || !allowed(receipt.before,Object.keys(receipt.before || {}))) return false;
@@ -37,7 +39,7 @@ function valid(record) {
   if (!allowed(record,fields) || record.version!==1 || !number(record.revision)) return false;
   if (!allowed(record.filters,['collection','payment']) || !['outstanding','all'].includes(record.filters.collection) || !['outstanding','all'].includes(record.filters.payment)) return false;
   const c=record.collectorDraft,m=record.memoDraft;
-  if (c!==null && (!allowed(c,['targetKey','context','raw']) || !text(c.targetKey) || !text(c.context) || !text(c.raw))) return false;
+  if (c!==null && !validCollectorDraft(c)) return false;
   if (m!==null && (!allowed(m,['raw','openingMemo','resetGeneration']) || !text(m.raw) || !text(m.openingMemo) || !number(m.resetGeneration))) return false;
   return validOperation(record.operation);
 }

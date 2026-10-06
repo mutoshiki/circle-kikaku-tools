@@ -30,6 +30,16 @@ test('stale completion cannot clear a newer raw draft and filters survive clear'
   assert.equal(recovered.read().filters.collection,'all');
 });
 
+test('collector submission ownership remains a narrow matching raw/context record on reload',()=>{
+  const storage=createMemoryStorage(),cache=createOperationsCache({roomId:'H',storage:()=>storage});
+  const op={kind:'collection',targetKey:'name:参加者1',resetGeneration:0,collectorDraft:{targetKey:'name:参加者1',context:'standalone-slots',raw:'  担当  '},receipt:{type:'collection',label:'金銭記録',operationId:'op',resetGeneration:0,diagnosticCount:0,disposition:'failed',canRetry:true,patch:{'settlement/paidByName/参加者1':true,'settlement/paidCollectorByName/参加者1':'担当'},before:{'settlement/paidByName/参加者1':null,'settlement/paidCollectorByName/参加者1':null}}};
+  assert.equal(cache.write({...cache.read(),operation:op},{expectedRevision:0}),true);
+  assert.deepEqual(createOperationsCache({roomId:'H',storage:()=>storage}).read().operation.collectorDraft,op.collectorDraft);
+  for(const mutate of [value=>{value.collectorDraft.targetKey='name:別人';},value=>{value.collectorDraft.room={participants:{}};},value=>{value.collectorDraft.raw={bad:true};},value=>{value.kind='payment';}]){
+    const value=structuredClone(op);mutate(value);const record=cache.read();assert.equal(cache.write({...record,operation:value},{expectedRevision:record.revision}),false);
+  }
+});
+
 test('quota failure retains memory draft and warns that refresh is not assured', () => {
   const cache=createOperationsCache({roomId:'H',storage:()=>({getItem:()=>null,setItem:()=>{throw Error('quota');}})});
   const record=cache.read();record.memoDraft={raw:'  メモ  ',openingMemo:'旧',resetGeneration:0};

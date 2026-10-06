@@ -2,6 +2,8 @@ import {createRoomStore} from '../store/room-store.js';
 import {createApplicantSync} from '../sync/applicant-sync.js';
 import {equalOperationValue} from './settlement-operations-model.js';
 
+export function historyName(item){const name=item?.data?.roomName;return typeof name==='string' && name ? name : '企画名未設定';}
+
 export function inspectLocalHistory({history,storage}) {
   let raw;try{raw=storage().getItem(history.key);}catch{return {kind:'unavailable',items:[],message:'この端末の履歴を読み込めません。保存先へのアクセスを確認してください。'};}
   try{const parsed=JSON.parse(raw || '[]');if(!Array.isArray(parsed))throw Error('not a list');const items=history.read();if(!equalOperationValue(items,parsed))return {kind:'unavailable',items:[],message:'この端末の履歴を読み込めません。保存先へのアクセスを確認してください。'};return {kind:'ready',items,message:''};}
@@ -25,6 +27,7 @@ export function historyImpact(before,after){
 export function previewHistoryRestore({room,item}){
   const data=item?.data;
   const object=value=>value!==null && typeof value==='object' && !Array.isArray(value);
+  if(object(data) && 'roomName' in data && typeof data.roomName!=='string')return {available:false,reason:'保存内容を確認できないため、この履歴は復元できません。',candidate:null,impact:[]};
   const malformed=!object(data) || !('participants' in data || 'cars' in data || 'allocations' in data) || 'participants' in data && (!object(data.participants) || Object.values(data.participants).some(person=>!object(person) || typeof person.name!=='string')) || 'allocations' in data && !object(data.allocations) || 'cars' in data && !Array.isArray(data.cars) || 'settlement' in data && !object(data.settlement) || 'schemaVersion' in data && !Number.isSafeInteger(data.schemaVersion);
   if(malformed)return {available:false,reason:'保存内容を確認できないため、この履歴は復元できません。',candidate:null,impact:[]};
   try{
