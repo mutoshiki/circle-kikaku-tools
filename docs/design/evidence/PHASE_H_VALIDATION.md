@@ -135,4 +135,4 @@ Physical software keyboard/browser chrome/safe area, native NVDA/VoiceOver, live
 
 ## Integration record
 
-PR/CI/merge pending. No manual workflow dispatch; no main merge, production release/deploy/cutover/smoke or production Firebase write. Final report must name actual integration SHA, checked head and CI result, with protected main unchanged.
+[PR #83](https://github.com/mutoshiki/circle-kikaku-tools/pull/83) targets `carbon-redesign`. Locally verified implementation/evidence commit: `264988993407e3e1dd97d14776dac1755b053982`; the PR's final documentation-inclusive head must pass automatic CI. CI/merge outcome is recorded by that PR and the final execution report, not assumed by this pre-integration evidence. No manual workflow dispatch; no main merge, production release/deploy/cutover/smoke or production Firebase write. Final report must name actual integration SHA, checked head and CI result, with protected main unchanged.
