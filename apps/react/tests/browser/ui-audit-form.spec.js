@@ -1,3 +1,4 @@
+import {replaceSample,openSampleWorkspace,confirmSampleReplacement} from './sample-workspace.js';
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -9,10 +10,7 @@ function shot(page, viewportName, number, name) {
   mkdirSync(directory, { recursive: true });
   return page.mouse.move(1, 1).then(() => page.screenshot({ path: join(directory, `${String(number).padStart(2, '0')}-${name}.png`) }));
 }
-async function menu(page) {
-  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
-  await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
-}
+
 
 test('capture form-linked and registration UI states', async ({ page }, testInfo) => {
   test.setTimeout(120000);
@@ -32,10 +30,7 @@ test('capture form-linked and registration UI states', async ({ page }, testInfo
     await shot(page, viewportName, 38, 'participant-registration-help-expanded');
     await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
 
-    await menu(page);
-    const sample = page.getByRole('dialog', { name: 'サンプルデータ' });
-    await sample.getByRole('radio', { name: 'フォーム連携サンプル', exact: true }).check({ force: true });
-    await sample.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
+    await replaceSample(page,'フォーム連携サンプル');
     await navigateToProjectSection(page, '参加者');
     await shot(page, viewportName, 39, 'form-linked-participants-unconfirmed');
     const confirm = page.getByRole('button', { name: '参加者を確定', exact: true });

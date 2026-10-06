@@ -1,0 +1,489 @@
+{
+  "stage": "before",
+  "baseSHA": "c33962ed9c28fd3cd94e4a63d52e111a026c7b0f",
+  "head": "c8d6741701f73edb9c02b07aa88e9c6508933e77",
+  "sourceDiffSHA256": "12294ebd6ddf26754f92de8b1ea4692ae89f7f4e963c8caae020d9f09bfa9067",
+  "fixtureSHA256": "1c634075dc493511438baa168101ec0204a032a77c0ff8bd91f9f8ec5d0b16ae",
+  "records": [
+    {
+      "engine": "chromium",
+      "device": "desktop",
+      "theme": "light",
+      "scenario": "parent",
+      "file": "chromium-desktop-light-parent.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "BODY"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "desktop",
+      "theme": "light",
+      "scenario": "collection",
+      "file": "chromium-desktop-light-collection.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "desktop",
+      "theme": "light",
+      "scenario": "memo",
+      "file": "chromium-desktop-light-memo.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "settlement-memo-editor"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "desktop",
+      "theme": "light",
+      "scenario": "history",
+      "file": "chromium-desktop-light-history.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "desktop",
+      "theme": "dark",
+      "scenario": "parent",
+      "file": "chromium-desktop-dark-parent.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "desktop",
+      "theme": "dark",
+      "scenario": "collection",
+      "file": "chromium-desktop-dark-collection.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "desktop",
+      "theme": "dark",
+      "scenario": "memo",
+      "file": "chromium-desktop-dark-memo.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "settlement-memo-editor"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "desktop",
+      "theme": "dark",
+      "scenario": "history",
+      "file": "chromium-desktop-dark-history.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "mobile",
+      "theme": "light",
+      "scenario": "parent",
+      "file": "chromium-mobile-light-parent.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "BODY"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "mobile",
+      "theme": "light",
+      "scenario": "collection",
+      "file": "chromium-mobile-light-collection.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "mobile",
+      "theme": "light",
+      "scenario": "memo",
+      "file": "chromium-mobile-light-memo.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "settlement-memo-editor"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "mobile",
+      "theme": "light",
+      "scenario": "history",
+      "file": "chromium-mobile-light-history.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "mobile",
+      "theme": "dark",
+      "scenario": "parent",
+      "file": "chromium-mobile-dark-parent.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "mobile",
+      "theme": "dark",
+      "scenario": "collection",
+      "file": "chromium-mobile-dark-collection.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "mobile",
+      "theme": "dark",
+      "scenario": "memo",
+      "file": "chromium-mobile-dark-memo.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "settlement-memo-editor"
+      },
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "device": "mobile",
+      "theme": "dark",
+      "scenario": "history",
+      "file": "chromium-mobile-dark-history.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "desktop",
+      "theme": "light",
+      "scenario": "parent",
+      "file": "webkit-desktop-light-parent.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "BODY"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "desktop",
+      "theme": "light",
+      "scenario": "collection",
+      "file": "webkit-desktop-light-collection.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "desktop",
+      "theme": "light",
+      "scenario": "memo",
+      "file": "webkit-desktop-light-memo.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "settlement-memo-editor"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "desktop",
+      "theme": "light",
+      "scenario": "history",
+      "file": "webkit-desktop-light-history.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "cds--modal-body--modal-id-_r_n_"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "desktop",
+      "theme": "dark",
+      "scenario": "parent",
+      "file": "webkit-desktop-dark-parent.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "BODY"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "desktop",
+      "theme": "dark",
+      "scenario": "collection",
+      "file": "webkit-desktop-dark-collection.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "desktop",
+      "theme": "dark",
+      "scenario": "memo",
+      "file": "webkit-desktop-dark-memo.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "settlement-memo-editor"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "desktop",
+      "theme": "dark",
+      "scenario": "history",
+      "file": "webkit-desktop-dark-history.png",
+      "geometry": {
+        "width": 1280,
+        "documentWidth": 1280,
+        "main": 1,
+        "h1": 1,
+        "focus": "cds--modal-body--modal-id-_r_n_"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "mobile",
+      "theme": "light",
+      "scenario": "parent",
+      "file": "webkit-mobile-light-parent.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "BODY"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "mobile",
+      "theme": "light",
+      "scenario": "collection",
+      "file": "webkit-mobile-light-collection.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "mobile",
+      "theme": "light",
+      "scenario": "memo",
+      "file": "webkit-mobile-light-memo.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "settlement-memo-editor"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "mobile",
+      "theme": "light",
+      "scenario": "history",
+      "file": "webkit-mobile-light-history.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "cds--modal-body--modal-id-_r_n_"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "mobile",
+      "theme": "dark",
+      "scenario": "parent",
+      "file": "webkit-mobile-dark-parent.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "BODY"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "mobile",
+      "theme": "dark",
+      "scenario": "collection",
+      "file": "webkit-mobile-dark-collection.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "BUTTON"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "mobile",
+      "theme": "dark",
+      "scenario": "memo",
+      "file": "webkit-mobile-dark-memo.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "settlement-memo-editor"
+      },
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "device": "mobile",
+      "theme": "dark",
+      "scenario": "history",
+      "file": "webkit-mobile-dark-history.png",
+      "geometry": {
+        "width": 390,
+        "documentWidth": 390,
+        "main": 1,
+        "h1": 1,
+        "focus": "cds--modal-body--modal-id-_r_n_"
+      },
+      "errors": []
+    }
+  ]
+}

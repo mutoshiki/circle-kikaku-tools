@@ -37,13 +37,14 @@ test('allocation route Apply edits the same unsaved car; radio Arrow keys and Ba
   await expect(page.getByRole('status').filter({hasText:'未保存の入力あり'})).toBeVisible();
   await page.getByRole('link',{name:'車割へ戻る',exact:true}).click();
   await costNav(page,'精算');
-  await page.getByRole('button',{name:'仮参加者A車の費用を入力',exact:true}).click();await editFee(page,'移動条件');
+  await page.getByRole('link',{name:'支払いを確認',exact:true}).click();await page.getByRole('tab',{name:'すべて',exact:true}).click();
+  await page.getByRole('link',{name:'仮参加者A車の費用を入力',exact:true}).click();await editFee(page,'移動条件');
   await expect(page.getByRole('textbox',{name:'走行距離（km）',exact:true})).toHaveValue('18');
   await page.getByRole('button',{name:'ルートから距離を計算',exact:true}).click();
   await page.getByRole('link',{name:'移動条件に戻る',exact:true}).click();
   await expect(page.getByRole('button',{name:'ルートから距離を計算',exact:true})).toBeFocused();
   await page.getByRole('button',{name:'キャンセル',exact:true}).click();
-  await page.getByRole('button',{name:'仮参加者A車の費用を入力',exact:true}).click();await editFee(page,'移動条件');
+  await page.getByRole('link',{name:'仮参加者A車の費用を入力',exact:true}).click();await editFee(page,'移動条件');
   await expect(page.getByRole('textbox',{name:'走行距離（km）',exact:true})).toHaveValue('186');
 });
 test('search current query owns empty error delayed results and reload',async({page})=>{

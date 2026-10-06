@@ -86,20 +86,21 @@ test('current flag and rounding values do not migrate on entry or unrelated Save
   const after = await readRoom(page, id), expected = structuredClone(before.settlement); expected.driverReward = '1500'; expect(after.settlement).toEqual(expected);
   for (const key of ['participants', 'allocations', 'overview']) expect(after[key]).toEqual(before[key]);
 });
-test('protected standalone collection still records a collector through the existing brief prompt', async ({ page }, testInfo) => {
+test('protected standalone collection still records a collector through the inline record', async ({ page }, testInfo) => {
   const room = structuredClone(vehicleFixture); room.settlement.standalone = { enabled: true, driverCount: '1', memberCount: '2', driverNames: ['確認用車'] }; room.settlement.driverCollectionOffset = false;
   await open(page, testInfo, room, '');
-  await page.getByRole('button', { name: '集金を確認', exact: true }).click();
-  const checkbox = page.getByRole('checkbox', { name: '参加者1の集金チェック', exact: true });
+  await page.getByRole('link', { name: '集金を確認', exact: true }).click();
+  const checkbox = page.getByRole('checkbox', { name: '参加者1の集金済み', exact: true });
   await checkbox.focus(); await checkbox.press('Space');
-  const prompt = page.getByRole('dialog', { name: '集金済みにする', exact: true });
+  const prompt = page.getByRole('form', { name: '集金した人を記録', exact: true });
   await expect(prompt).toBeVisible();
-  await expect(page.getByRole('dialog')).toHaveCount(1);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   const collector = prompt.getByRole('textbox', { name: '集金した人', exact: true });
   await expect(collector).toBeFocused();
   await collector.fill('確認用集金者');
   await expect(collector).toHaveValue('確認用集金者');
-  await prompt.getByRole('button', { name: '保存', exact: true }).click(); await expect(prompt).toHaveCount(0);
+  await prompt.getByRole('button', { name: '記録', exact: true }).click(); await expect(prompt).toHaveCount(0);
   await page.getByRole('tab', { name: 'すべて', exact: true }).click();
-  await expect(page.getByRole('checkbox', { name: '確認用集金者の集金チェック', exact: true })).toBeChecked();
+  await expect(page.getByRole('checkbox', { name: '参加者1の集金済み', exact: true })).toBeChecked();
+  const saved=await readRoom(page,new URL(page.url()).searchParams.get("room"));expect([...Object.values(saved.settlement.paidCollectorByParticipantId || {}),...Object.values(saved.settlement.paidCollectorByName || {})]).toContain("確認用集金者");
 });

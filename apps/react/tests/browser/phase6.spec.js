@@ -80,8 +80,8 @@ test('failed handoff stays inside the dialog until retry succeeds', async ({ pag
 
 test('route draft stays local and selected distance alone enters shared settlement',async({page})=>{
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
-  await navigateToProjectSection(page,'精算');
-  await page.locator('.settlement-car').first().getByRole('button',{name:/費用を入力$/}).click();await editFee(page,'移動条件');
+  await navigateToProjectSection(page,'車両費用');
+  await page.getByRole('link',{name:/車の費用を入力$/}).first().click();await editFee(page,'移動条件');
   await page.getByRole('button',{name:'ルートから距離を計算',exact:true}).click();
   await page.getByRole('link',{name:'出発地を検索',exact:true}).click();await page.getByRole('searchbox',{name:'場所を検索'}).fill('なし');
   await expect(page.getByText('一致する場所がありません。')).toBeVisible();
@@ -95,7 +95,7 @@ test('route draft stays local and selected distance alone enters shared settleme
   await page.getByRole('button',{name:'車両費用を保存',exact:true}).click();
   const state=await page.evaluate(()=>({room:JSON.parse(localStorage.getItem(`sanpo-react:v1:${new URL(location.href).searchParams.get('room')}:room`)),route:JSON.parse(localStorage.getItem(`sanpo.routePlannerState.v2:${new URL(location.href).searchParams.get('room')}`))}));
   expect(JSON.stringify(state.room)).not.toContain('fixture-route');expect(JSON.stringify(state.room)).not.toContain(token);expect(state.route.routes[0].id).toBe('fixture-route');
-  await page.reload();await page.locator('.settlement-car').first().getByRole('button',{name:/費用を入力$/}).click();await editFee(page,'移動条件');
+  await page.reload();await page.getByRole('link',{name:/車の費用を入力$/}).first().click();await editFee(page,'移動条件');
   await expect(page.getByRole('textbox',{name:'走行距離（km）'})).toHaveValue('12.3');await page.getByRole('button',{name:'キャンセル',exact:true}).click();
   await page.getByRole('button',{name:'ユーティリティメニュー'}).click();await page.getByRole('menuitem',{name:'ダークモードに切り替え'}).click();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(errors).toEqual([]);

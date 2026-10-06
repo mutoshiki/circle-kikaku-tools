@@ -4,14 +4,6 @@ import { createProjectDomain } from '../services/project-domain.js';
 import { notice } from '../ui/task-contracts.js';
 import TaskModal from './TaskModal.jsx';
 
-export function HistoryModal({ runtime, onClose, onNotice }) {
-  const [items, setItems] = useState(runtime.history.read());
-  const [undo, setUndo] = useState(runtime.history.canUndo());
-  function snapshot() { runtime.history.save(runtime.store.getSnapshot()); setItems(runtime.history.read()); }
-  function restore(item) { runtime.history.restore(runtime.store, item); setUndo(true); }
-  function restoreUndo() { if (runtime.history.undo(runtime.store)) setUndo(false); }
-  return <TaskModal taskId="history-management" className="app-modal" open size="md" hasScrollingContent modalHeading="履歴" primaryButtonText="閉じる" onRequestSubmit={onClose} onRequestClose={onClose}><div className="form-stack"><div className="inline-actions"><Button onClick={snapshot}>現在の状態を保存</Button>{undo && <Button kind="ghost" onClick={restoreUndo}>復元を取り消す</Button>}</div>{items.length ? <div className="history-list">{items.map((item, index) => <div className="history-row" key={`${item.time}-${index}`}><span><strong>{item.data?.roomName || '企画名未設定'}</strong><small>{new Date(item.time).toLocaleString('ja-JP')}</small></span><Button kind="ghost" onClick={() => restore(item)}>復元</Button></div>)}</div> : <p>履歴がありません</p>}</div></TaskModal>;
-}
 export function ExportModal({ runtime, room, onClose, onNotice }) {
   const [error, setError] = useState('');
   const project = useMemo(() => createProjectDomain({ getRoom: () => room, settlement: runtime.store.domain.settlement }), [room, runtime]);

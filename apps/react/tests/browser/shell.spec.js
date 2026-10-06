@@ -19,7 +19,7 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await page.getByRole('button', { name: 'ユーティリティメニュー', exact: true }).click();
   const utilities = page.getByRole('menu', { name: 'ユーティリティメニュー', exact: true });
   await expect(utilities.getByRole('menuitem', { name: '使い方', exact: true })).toBeVisible();
-  await expect(utilities.getByRole('menuitem', { name: 'サンプルデータ', exact: true })).toBeVisible();
+  await expect(utilities.getByRole('menuitem', { name: 'サンプルデータ', exact: true })).toHaveCount(0);
   await expect(utilities.getByRole('menuitem', { name: 'ダークモードに切り替え', exact: true })).toBeVisible();
   await expect(utilities.getByRole('menuitem', { name: 'バグを報告する', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
@@ -56,14 +56,16 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await expect(page.locator('vite-error-overlay')).toHaveCount(0);
 });
 
-test('sample menu keeps the legacy form-linked sample action', async ({ page }) => {
+test('local history sample utility keeps the form-linked sample capability', async ({ page }) => {
   await page.goto('/?room=REACT-FORM-SAMPLE');
-  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
-  await page.getByRole('menuitem', { name: 'サンプルデータ' }).click();
-  const dialog = page.getByRole('dialog', { name: 'サンプルデータ' });
-  await expect(dialog.getByRole('radio', { name: 'フォーム連携サンプル' })).toBeVisible();
-  await dialog.getByRole('radio', { name: 'フォーム連携サンプル' }).check({ force: true });
-  await dialog.getByRole('button', { name: 'サンプルを入れる' }).click();
+  await navigateToProjectSection(page,'履歴');
+  await page.getByRole('link',{name:'サンプルデータ',exact:true}).click();
+  await page.getByRole('radio',{name:'フォーム連携サンプル',exact:true}).focus();
+  await page.getByRole('radio',{name:'フォーム連携サンプル',exact:true}).press('Space');
+  await page.getByRole('button',{name:'置換内容を確認',exact:true}).click();
+  const dialog=page.getByRole('dialog');await dialog.getByRole('checkbox').focus();await dialog.getByRole('checkbox').press('Space');
+  await dialog.getByRole('button',{name:'サンプルで置き換える',exact:true}).click();
+  await expect(dialog).toHaveCount(0);
   await expect(page.getByRole('main').getByText('フォーム連携テスト企画', { exact: true }).first()).toBeVisible();
   await navigateToProjectSection(page, '概要');
   await expect(page.getByRole('main').getByText('フォーム連携テスト企画', { exact: true }).first()).toBeVisible();

@@ -12,7 +12,9 @@ test('vehicle list and both callers open one car draft', async ({page}) => {
   await openCar(page); await movement(page);
   await page.getByRole('textbox',{name:'走行距離（km）',exact:true}).fill('200');
   await costNav(page,'精算');
-  await page.getByRole('button',{name:'仮参加者A車の費用を入力',exact:true}).click();
+  await page.getByRole('link',{name:'支払いを確認',exact:true}).click();
+  await page.getByRole('tab',{name:'すべて',exact:true}).click();
+  await page.getByRole('link',{name:'仮参加者A車の費用を入力',exact:true}).click();
   await movement(page);
   await expect(page.getByRole('textbox',{name:'走行距離（km）',exact:true})).toHaveValue('200');
   await costNav(page,'車割');

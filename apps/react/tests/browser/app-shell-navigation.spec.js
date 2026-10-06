@@ -1,3 +1,4 @@
+import {replaceSample} from './sample-workspace.js';
 import { test, expect } from '@playwright/test';
 import { navigateToProjectSection } from './project-navigation.js';
 
@@ -149,11 +150,7 @@ test('mobile shell overlays are exclusive and backdrop dismissal restores focus'
 test('shell navigation preserves populated project and route draft state', async ({ page }) => {
   const roomId = 'PHASE-B-PROTECTED';
   await page.goto(`/?room=${roomId}`);
-  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
-  await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
-  const sample = page.getByRole('dialog', { name: 'サンプルデータ' });
-  await sample.getByRole('radio', { name: '通常サンプル', exact: true }).check({ force: true });
-  await sample.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
+  await replaceSample(page);
   const storedBefore = await page.evaluate(id => {
     localStorage.setItem(`sanpo.routePlannerState.v2:${id}`, JSON.stringify({ origin: '保存済み出発地' }));
     return localStorage.getItem(`sanpo-react:v1:${id}:room`);
@@ -166,7 +163,7 @@ test('shell navigation preserves populated project and route draft state', async
   await navigateToProjectSection(page, '班割');
   await expect(page.locator('.allocation-group').first()).toBeVisible();
   await navigateToProjectSection(page, '精算');
-  await expect(page.getByRole('heading', { name: '各車への支払い', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: '支払いを確認', exact: true })).toBeVisible();
 
   const storedAfter = await page.evaluate(id => ({
     room: localStorage.getItem(`sanpo-react:v1:${id}:room`),

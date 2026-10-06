@@ -383,9 +383,11 @@ Very high: settlement logic is critical and compatibility-sensitive.
 
 ## Phase H — Settlement operations: collection, payouts, history, and danger zone
 
+Implementation checkpoint: [Phase H detailed design](../superpowers/specs/2026-10-05-phase-h-settlement-operations-design.md) and [implementation plan](../superpowers/plans/2026-10-05-phase-h-settlement-operations.md) are approved; Native execution is authorized by 「実装へ」. Normative v1.6 clarifications and Tasks 1–10 are implemented; the single final author correction pass and cumulative local gates passed. [Phase H evidence](./evidence/PHASE_H_VALIDATION.md) records actual coverage and limitations; final automatic CI/integration outcome belongs to [PR #83](https://github.com/mutoshiki/circle-kikaku-tools/pull/83). Phase completion requires that successful CI and safe integration, not the design checkpoint alone. These documents are not a second Product UI specification and do not authorize production operations.
+
 ### Goal
 
-Replace the long settlement Tile stack with overview + focused collection/payment work, and migrate durable history/settings out of Modals.
+Replace the long settlement Tile stack with overview + focused collection/payment work, and migrate durable history/recovery out of Modals. Expose only existing settings/danger capabilities; do not invent a generic settings or project-delete repository.
 
 ### Why this phase comes here
 

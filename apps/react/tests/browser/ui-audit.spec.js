@@ -1,3 +1,4 @@
+import {replaceSample,openSampleWorkspace,confirmSampleReplacement} from './sample-workspace.js';
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -35,23 +36,8 @@ async function cancelDialog(page) {
   if (await cancel.count()) await cancel.click({ force: true });
   else await dialog.getByRole('button', { name: '戻る', exact: true }).click({ force: true });
 }
-async function seedSample(page) {
-  await openMenu(page);
-  await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: 'サンプルデータ' });
-  await expect(dialog).toBeVisible();
-  await dialog.getByRole('radio', { name: '通常サンプル', exact: true }).check({ force: true });
-  await dialog.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
-  await expect(page.getByRole('main')).toContainText('藤原 拓海');
-}
-async function seedFormSample(page) {
-  await openMenu(page);
-  await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: 'サンプルデータ' });
-  await dialog.getByRole('radio', { name: 'フォーム連携サンプル', exact: true }).check({ force: true });
-  await dialog.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
-  await expect(page.getByRole('main')).toContainText('フォーム連携テスト企画');
-}
+async function seedSample(page) {await replaceSample(page);await expect(page.getByRole('main')).toContainText('藤原 拓海');}
+async function seedFormSample(page) {await replaceSample(page,'フォーム連携サンプル');await expect(page.getByRole('main')).toContainText('フォーム連携テスト企画');}
 async function reopen(page, room) {
   await page.goto(`/?room=${room}`);
   await expect(page.getByRole('navigation', { name: '企画内ナビゲーション' })).toHaveCount(1);
@@ -97,12 +83,8 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await shot(page, viewportName, 3, 'guide-modal');
     await closeModal(page);
     await page.goto(`/?room=${room}`);
-    await openMenu(page);
-    await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
-    await shot(page, viewportName, 4, 'sample-data-modal');
-    const sample = page.getByRole('dialog', { name: 'サンプルデータ' });
-    await sample.getByRole('radio', { name: '入力漏れサンプル', exact: true }).check({ force: true });
-    await sample.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
+    await openSampleWorkspace(page,'入力漏れサンプル');
+    await shot(page,viewportName,4,'sample-data-page');await confirmSampleReplacement(page);
     await shot(page, viewportName, 5, 'sample-missing-toast');
     await closeModal(page);
 
@@ -181,7 +163,7 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await page.getByRole('heading', { level: 2, name: '計算への影響', exact: true }).scrollIntoViewIfNeeded();
     await shot(page, viewportName, 24, 'settlement-rules-preview');
     await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
-    await page.getByRole('button', {name:/費用を入力$/}).first().click();
+    await navigateToProjectSection(page,'精算');await page.getByRole('link',{name:'支払いを確認',exact:true}).click();await page.getByRole('tab',{name:'すべて',exact:true}).click();await page.getByRole('link',{name:/費用を入力$/}).first().click();
     await shot(page, viewportName, 25, 'vehicle-expense-workspace');
     await page.getByRole('button', {name:'費用を追加',exact:true}).click();
     await shot(page, viewportName, 26, 'vehicle-expense-extra-row');
@@ -209,10 +191,8 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await page.getByRole('button',{name:'この距離を適用',exact:true}).click();
     await shot(page,viewportName,34,'vehicle-expense-after-route');
     await page.getByRole('button',{name:'キャンセル',exact:true}).click();
-    const detail = page.getByRole('button', { name: /内訳を表示/ }).first();
-    if (await detail.count()) { await detail.click(); await shot(page, viewportName, 35, 'settlement-payment-breakdown-open'); }
-    const paid = page.getByRole('button', { name: '支払い済みにする' }).first();
-    if (await paid.count()) { await paid.click(); await shot(page, viewportName, 36, 'settlement-payment-paid'); }
+    const detail=page.getByRole('button',{name:/内訳/}).first();await detail.click();await shot(page,viewportName,35,'settlement-payment-breakdown-open');
+    const paid=page.getByRole('checkbox').first();await paid.focus();await paid.press('Space');await shot(page,viewportName,36,'settlement-payment-recorded');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
 });
