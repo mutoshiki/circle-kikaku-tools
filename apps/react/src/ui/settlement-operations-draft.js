@@ -8,7 +8,9 @@ const outcomes = ['local','pending','saved','failed','unresolved','adjusted','re
 export function validNarrowOperationPath(kind,path) {
   if (['revision','lastUpdatedAt','lastUpdatedBy'].includes(path)) return true;
   if (kind==='memo') return path==='settlement/memo';
-  return new RegExp(`^settlement/${kind==='payment'?'driverPaidBy':'(?:paidBy|paidCollectorBy)'}(?:ParticipantId|Name)/[^/.#$\[\]\u0000-\u001f\u007f]+$`).test(path);
+  const [root,field,identity,...extra]=path.split('/');
+  const fields=kind==='payment'?['driverPaidByParticipantId','driverPaidByName']:['paidByParticipantId','paidByName','paidCollectorByParticipantId','paidCollectorByName'];
+  return root==='settlement' && fields.includes(field) && extra.length===0 && !!identity && !/[/.#$\[\]\u0000-\u001f\u007f]/.test(identity);
 }
 
 function validOperation(op) {
@@ -19,7 +21,16 @@ function validOperation(op) {
   const receipt=op.receipt;
   if (!allowed(receipt,['type','label','resetGeneration','operationId','patch','before','diagnosticCount','disposition','canRetry','acknowledged']) || !number(receipt.resetGeneration) || !text(receipt.operationId) || !outcomes.includes(receipt.disposition) || !number(receipt.diagnosticCount) || typeof receipt.canRetry!=='boolean') return false;
   if (!allowed(receipt.patch,Object.keys(receipt.patch || {})) || !allowed(receipt.before,Object.keys(receipt.before || {}))) return false;
-  return Object.keys(receipt.patch).length>0 && Object.entries({...receipt.before,...receipt.patch}).every(([path,value])=>validNarrowOperationPath(op.kind,path) && (value===null || ['string','boolean','number'].includes(typeof value)));
+  const paths=Object.keys(receipt.patch),beforePaths=Object.keys(receipt.before),domainPaths=paths.filter(path=>path.startsWith('settlement/'));
+  if(receipt.resetGeneration!==op.resetGeneration || receipt.type!==op.kind || !text(receipt.label) || !domainPaths.length || paths.length!==beforePaths.length || paths.some(path=>!beforePaths.includes(path)))return false;
+  const identities=new Set(domainPaths.map(path=>path.split('/').slice(2).join('/')));
+  if(op.kind!=='memo' && (identities.size!==1 || op.targetKey.startsWith('participant:') && domainPaths.some(path=>!path.endsWith(`ParticipantId/${op.targetKey.slice(12)}`))))return false;
+  return Object.entries({...receipt.before,...receipt.patch}).every(([path,value])=>{
+    if(!validNarrowOperationPath(op.kind,path))return false;
+    if(path==='settlement/memo' || path.includes('/paidCollectorBy'))return value===null || text(value);
+    if(path.startsWith('settlement/'))return value===null || typeof value==='boolean';
+    return value===null || typeof value==='string' || typeof value==='number' && Number.isFinite(value);
+  });
 }
 
 function valid(record) {

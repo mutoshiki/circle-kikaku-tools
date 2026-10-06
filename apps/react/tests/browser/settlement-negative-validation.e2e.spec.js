@@ -1,3 +1,4 @@
+import {replaceSample} from './sample-workspace.js';
 import { test, expect } from '@playwright/test';
 import { navigateToProjectSection } from './project-navigation.js';
 import { editFee } from './vehicle-cost-fixture.js';
@@ -7,19 +8,17 @@ test.beforeEach(async ({ page }, testInfo) => {
   const caseId = testInfo.title.replace(/[^a-z0-9]/gi, '').slice(0, 3).toUpperCase();
   const roomId = `SETVAL${projectId}${caseId}${testInfo.retry}`;
   await page.goto(`/?room=${roomId}`);
-  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
-  await page.getByRole('menuitem', { name: 'サンプルデータ' }).click();
-  const samples = page.getByRole('dialog', { name: 'サンプルデータ' });
-  await samples.getByRole('button', { name: 'サンプルを入れる' }).click();
+  await replaceSample(page);
   await navigateToProjectSection(page, '精算');
   const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(horizontalOverflow).toBeLessThanOrEqual(1);
 });
 
 test('expense editor rejects negative values and a zero-value row preserves settlement results',async({page})=>{
-  const firstCar=page.locator('.settlement-car').first();
-  const original=(await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g,'');
-  await firstCar.getByRole('button',{name:/費用を入力$/}).click();
+  await page.getByRole('link',{name:'支払いを確認',exact:true}).click();await page.getByRole('tab',{name:'すべて',exact:true}).click();
+  const firstCar=page.getByRole('list',{name:/支払い対象/}).getByRole('listitem').first();
+  const original=(await firstCar.getByRole('strong').innerText()).replace(/\s+/g,'');
+  await firstCar.getByRole('link',{name:/費用を入力$/}).click();
   await page.getByRole('button',{name:'費用を追加',exact:true}).click();
   await page.getByRole('textbox',{name:'費用名',exact:true}).fill('E2Eゼロ円');
   const amount=page.getByRole('textbox',{name:'金額（円）',exact:true});
@@ -28,14 +27,14 @@ test('expense editor rejects negative values and a zero-value row preserves sett
   await expect(amount).toBeFocused();
   await amount.fill('1000000000');await expect(amount).not.toHaveAttribute('aria-invalid','true');
   await amount.fill('0');await page.getByRole('button',{name:'車両費用を保存',exact:true}).click();
-  expect((await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g,'')).toBe(original);
-  await page.reload();expect((await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g,'')).toBe(original);
-  await firstCar.getByRole('button',{name:/費用を入力$/}).click();await editFee(page,'E2Eゼロ円');
+  expect((await firstCar.getByRole('strong').innerText()).replace(/\s+/g,'')).toBe(original);
+  await page.reload();expect((await firstCar.getByRole('strong').innerText()).replace(/\s+/g,'')).toBe(original);
+  await firstCar.getByRole('link',{name:/費用を入力$/}).click();await editFee(page,'E2Eゼロ円');
   await expect(amount).toHaveValue('0');await expect(page.getByRole('textbox',{name:'費用名',exact:true})).toHaveValue('E2Eゼロ円');
 });
 
 test('movement distance fuel economy and unit price reject negatives inline',async({page})=>{
-  await page.locator('.settlement-car').first().getByRole('button',{name:/費用を入力$/}).click();await editFee(page,'移動条件');
+  await navigateToProjectSection(page,'車両費用');await page.getByRole('link',{name:/費用を入力$/}).first().click();await editFee(page,'移動条件');
   for(const [label,value] of [['走行距離（km）','132'],['燃費（km/L）','12'],['ガソリン単価（円/L）','172']]){
     const input=page.getByRole('textbox',{name:label,exact:true});
     await input.fill('-10');await expect(input).toHaveAttribute('aria-invalid','true');

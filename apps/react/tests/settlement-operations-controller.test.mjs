@@ -65,6 +65,20 @@ test('broad local write stores only compact receipt and never reruns on retry',a
   const op=r.cache.read().operation;assert.equal(op.kind,'restore');assert.equal(op.receipt,undefined);assert.equal(op.patch,undefined);
 });
 
+test('local broad current-review survives repeated controller initialization without replay',async t=>{
+  const r=await setup(t),item=r.runtime.history.save(r.runtime.store.getSnapshot());
+  r.runtime.store.command('rename',{name:'変更'});
+  await r.controller.publishHistory({kind:'restore',historyTime:item.time,perform:()=>r.runtime.history.restore(r.runtime.store,item)});
+  r.controller.dispose();let commands=0;r.runtime.store.subscribeIntents(()=>commands++);
+  for(let i=0;i<2;i++){
+    const cache=createOperationsCache({roomId:r.runtime.roomId,storage:()=>r.rawStorage});
+    const recovered=createSettlementOperationController({runtime:r.runtime,cache});
+    try {await recovered.observe();assert.equal(recovered.getSnapshot().operation.disposition,'accepted-needs-review');assert.equal(recovered.getSnapshot().operation.acknowledged,true);}
+    finally{recovered.dispose();}
+  }
+  assert.equal(commands,0);
+});
+
 test('accepted record is not replayed over a newer current value',async t=>{
   const r=await setup(t,{shared:true});
   const result=await r.controller.toggle({target:r.target('payment'),checked:true});

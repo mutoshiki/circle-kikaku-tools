@@ -3,6 +3,19 @@ import assert from 'node:assert/strict';
 import { createMemoryStorage } from '../src/services/history.js';
 import { createOperationsCache } from '../src/ui/settlement-operations-draft.js';
 
+test('malformed recovery cannot join records or redirect a target receipt',()=>{
+  const cache=createOperationsCache({roomId:'H',storage:()=>createMemoryStorage()}),base=cache.read();
+  const op={kind:'collection',targetKey:'participant:p1',resetGeneration:0,receipt:{type:'collection',label:'金銭記録',operationId:'op',resetGeneration:0,diagnosticCount:0,disposition:'failed',canRetry:true,patch:{'settlement/paidByParticipantId/p1':true},before:{'settlement/paidByParticipantId/p1':null}}};
+  const baseline=createOperationsCache({roomId:'H2',storage:()=>createMemoryStorage()});assert.equal(baseline.write({...base,operation:op},{expectedRevision:0}),true);
+  for(const mutate of [
+    value=>{value.receipt.patch['settlement/paidByParticipantId/p2']=true;value.receipt.before['settlement/paidByParticipantId/p2']=null;},
+    value=>{value.targetKey='participant:p2';},
+    value=>{value.receipt.before={};},
+    value=>{value.receipt.resetGeneration=1;},
+    value=>{value.receipt.patch['settlement/paidByParticipantId/p1']='true';},
+  ]){const value=structuredClone(op);mutate(value);assert.equal(cache.write({...base,operation:value},{expectedRevision:0}),false);}
+});
+
 test('stale completion cannot clear a newer raw draft and filters survive clear', () => {
   const storage=createMemoryStorage(), cache=createOperationsCache({roomId:'H',storage:()=>storage});
   let next=cache.read(); next.collectorDraft={targetKey:'name:参加者1',context:'mode1',raw:'  未変換  '};

@@ -110,6 +110,7 @@ function Application({ runtime, resources: { cache, controller, memoController, 
       const changed=runtime.navigation.navigateVehicleCostTask(destination);
       if (!changed) { participantReturnFocus.current=''; requestAnimationFrame(()=>document.getElementById(focusId)?.focus()); }
     }
+    else if(destination.section === 'settlement') runtime.navigation.navigateSettlementTask('payments');
     else runtime.navigation.navigate(destination.section);
   }
   function finishParticipantTask() {

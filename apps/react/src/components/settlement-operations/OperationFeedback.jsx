@@ -5,10 +5,15 @@ const text={local:'この端末に記録',pending:'記録を保存していま�
 export default function OperationFeedback({controller,snapshot}) {
   const op=snapshot.operation, receipt=op?.receipt, disposition=receipt?.disposition || op?.disposition;
   const review=disposition==='reset'||['adjusted','accepted-needs-review'].includes(disposition)&&(receipt?.acknowledged || op?.acknowledged);
+  function act(event) {
+    if(!review){if(receipt?.canRetry)void controller.retry();else void controller.observe();return;}
+    const ownedFocus=document.activeElement===event.currentTarget;
+    if(controller.confirmCurrent() && ownedFocus)document.getElementById('project-page-title')?.focus();
+  }
   return <div className="operations-feedback">
     {snapshot.cacheWarning && <p role="status">{snapshot.cacheWarning}</p>}
     {op && <p role="status">{text[disposition] || '記録を確認してください'}</p>}
     {snapshot.reason && snapshot.blocked && <p>{snapshot.reason}</p>}
-    {op && !['saved','local'].includes(disposition) && <Button kind="tertiary" type="button" size="sm" onClick={()=>review?controller.confirmCurrent():receipt?.canRetry?void controller.retry():void controller.observe()}>{review?'現在の内容を確認':receipt?.canRetry?'同じ内容を再試行':'保存結果を確認'}</Button>}
+    {op && !['saved','local'].includes(disposition) && <Button kind="tertiary" type="button" size="sm" onClick={act}>{review?'現在の内容を確認':receipt?.canRetry?'同じ内容を再試行':'保存結果を確認'}</Button>}
   </div>;
 }

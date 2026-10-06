@@ -12,6 +12,7 @@ export default function PaymentWorkspace({runtime,view,controller,snapshot,cache
   useLayoutEffect(()=>{
     const removed=removedFocus.current;
     if(removed && !rows.some(row=>row.target.key===removed.key)) {
+      if(snapshot.blocked)return;
       removedFocus.current=null;
       if(!removed.focused || document.activeElement!==document.body)return;
       const next=rows[Math.min(removed.index,rows.length-1)];
@@ -29,8 +30,8 @@ export default function PaymentWorkspace({runtime,view,controller,snapshot,cache
       {row.target.reason && <p>{row.target.reason}</p>}{row.amount<0 && <p>現在計算の調整額です。内訳を確認してください。</p>}
       <Accordion size="sm"><AccordionItem title={`${row.name}の内訳（割勘 ${money(row.detail.adjustedSplitPay)}・部費 ${money(row.detail.adjustedClubPay)}）`}>
         <dl className="operations-amounts">{[['移動料金',row.detail.movementAmount],['割勘費用',row.detail.splitExtras],['部費費用',row.detail.clubExtras],['車出し協力代',row.detail.reward],['割勘の端数調整',row.detail.splitRound],['部費の端数調整',row.detail.clubRound],['集金分差引',row.detail.collectionOffset]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{money(value)}</dd></div>)}{row.detail.extras.map((extra,index)=><div key={extra.id || index}><dt>{extra.name || '費用'}</dt><dd>{money(extra.amountValue)}</dd></div>)}</dl>
-        <Link id={costEntryId(row.target.key)} href={runtime.navigation.vehicleCostTaskHrefFor({carKey:row.target.key,returnTo:{section:'settlement'}})} onClick={event=>{if(normalClick(event)){event.preventDefault();runtime.navigation.navigateVehicleCostTask({carKey:row.target.key,returnTo:{section:'settlement'}});}}}>{row.name}の費用を入力</Link>
       </AccordionItem></Accordion>
+      <Link id={costEntryId(row.target.key)} href={runtime.navigation.vehicleCostTaskHrefFor({carKey:row.target.key,returnTo:{section:'settlement'}})} onClick={event=>{if(normalClick(event)){event.preventDefault();runtime.navigation.navigateVehicleCostTask({carKey:row.target.key,returnTo:{section:'settlement'}});}}}>{row.name}の費用を入力</Link>
     </li>)}</ul>
     {!rows.length && <p>{view.payments.length?'現在の未払いの車はありません。「すべて」で記録を確認できます。':'車がありません。車割または精算ルールを確認してください。'}</p>}
   </section>;

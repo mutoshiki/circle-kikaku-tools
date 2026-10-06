@@ -30,8 +30,8 @@ test('every published destination has a matching title and current location in b
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     }
   }
-  await page.getByRole('button', { name: '履歴を開く', exact: true }).click();
-  await expect(page.getByRole('dialog', { name: '履歴', exact: true }).getByRole('button', { name: '現在の状態を保存', exact: true })).toBeVisible();
+  await navigateToProjectSection(page,'履歴');
+  await expect(page.getByRole('button', { name: '現在の状態を保存', exact: true })).toBeVisible();
 });
 
 test('legacy car and team links survive refresh and subsequent canonical navigation', async ({ page }) => {

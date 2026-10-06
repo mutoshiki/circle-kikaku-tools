@@ -72,7 +72,7 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
   await rules.getByRole('button', { name: 'キャンセル' }).click();
   await expect(page.getByRole('link', { name: '精算ルール', exact: true })).toBeFocused();
 
-  await page.locator('.settlement-car').first().getByRole('button',{name:/費用を入力$/}).click();
+  await navigateToProjectSection(page,'車両費用');await page.getByRole('link',{name:/費用を入力$/}).first().click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.screenshot({path:join(evidence,`vehicle-expense-${testInfo.project.name}.png`),fullPage:true});
   await page.getByRole('button',{name:'費用を追加',exact:true}).click();
@@ -96,10 +96,10 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
 
   await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
   const appMenu = page.getByRole('menu', { name: 'ユーティリティメニュー' });
-  await expect(appMenu.getByRole('menuitem')).toHaveText(['使い方', 'サンプルデータ', 'ダークモードに切り替え', 'バグを報告する']);
+  await expect(appMenu.getByRole('menuitem')).toHaveText(['使い方', 'ダークモードに切り替え', 'バグを報告する']);
   await appMenu.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
-  await page.getByRole('link', { name: '精算ルール', exact: true }).click();
+  await navigateToProjectSection(page,'精算');await page.getByRole('link', { name: '精算ルール', exact: true }).click();
   await expect(page.getByRole('form', { name: '精算ルール', exact: true })).toBeVisible();
   expect(await page.getByRole('textbox', { name: '1台あたりの協力代（円）', exact: true }).evaluate(node => getComputedStyle(node).backgroundColor)).not.toBe('rgb(255, 255, 255)');
   await page.screenshot({ path: join(evidence, `settlement-rules-dark-${testInfo.project.name}.png`), fullPage: true });

@@ -1,4 +1,5 @@
 import {createRoomStore} from '../store/room-store.js';
+import {createApplicantSync} from '../sync/applicant-sync.js';
 import {equalOperationValue} from './settlement-operations-model.js';
 
 export function inspectLocalHistory({history,storage}) {
@@ -26,6 +27,12 @@ export function previewHistoryRestore({room,item}){
   const object=value=>value!==null && typeof value==='object' && !Array.isArray(value);
   const malformed=!object(data) || !('participants' in data || 'cars' in data || 'allocations' in data) || 'participants' in data && (!object(data.participants) || Object.values(data.participants).some(person=>!object(person) || typeof person.name!=='string')) || 'allocations' in data && !object(data.allocations) || 'cars' in data && !Array.isArray(data.cars) || 'settlement' in data && !object(data.settlement) || 'schemaVersion' in data && !Number.isSafeInteger(data.schemaVersion);
   if(malformed)return {available:false,reason:'保存内容を確認できないため、この履歴は復元できません。',candidate:null,impact:[]};
-  try{const preview=createRoomStore({initial:room});if(preview.domain.sync.isUnsupportedRemoteSchema(data))return {available:false,reason:'新しいバージョンの履歴です。このバージョンでは復元できません。',candidate:null,impact:[]};preview.command('restore',{value:structuredClone(data)});const candidate=preview.getSnapshot();return {available:true,reason:'',candidate,impact:historyImpact(room,candidate)};}
+  try{
+    const preview=createRoomStore({initial:room});
+    if(preview.domain.sync.isUnsupportedRemoteSchema(data))return {available:false,reason:'新しいバージョンの履歴です。このバージョンでは復元できません。',candidate:null,impact:[]};
+    const applicantOwner=createApplicantSync({store:preview});
+    try{applicantOwner.start();preview.command('restore',{value:structuredClone(data)});const candidate=preview.getSnapshot();return {available:true,reason:'',candidate,impact:historyImpact(room,candidate)};}
+    finally{applicantOwner.dispose();}
+  }
   catch{return {available:false,reason:'保存内容を確認できないため、この履歴は復元できません。',candidate:null,impact:[]};}
 }

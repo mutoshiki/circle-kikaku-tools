@@ -159,6 +159,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .operations-overview section { display: grid; gap: layout.$spacing-04; }
 .operations-overview h2, .operations-payment-row h2 { @include type.type-style('heading-03'); overflow-wrap: anywhere; }
 .operations-links, .operations-actions, .operations-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-04; }
+.operations-links > a, .operations-work-links a, .operations-payment-row > a { display: inline-flex; align-items: center; min-block-size: layout.$spacing-09; }
 .operations-amounts { display: grid; gap: layout.$spacing-03; }
 .operations-amounts > div { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: layout.$spacing-03; }
 .operations-amounts dt { color: var(--cds-text-secondary); }

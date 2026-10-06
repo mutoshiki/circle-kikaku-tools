@@ -1,3 +1,4 @@
+import {replaceSample} from './sample-workspace.js';
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -10,11 +11,7 @@ test('capture Phase B shell evidence', async ({ page }, testInfo) => {
   mkdirSync(evidenceRoot, { recursive: true });
   const roomId = `PHASE-B-EVIDENCE-${testInfo.project.name}`;
   await page.goto(`/?room=${roomId}&section=overview`);
-  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
-  await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
-  const sample = page.getByRole('dialog', { name: 'サンプルデータ' });
-  await sample.getByRole('radio', { name: '通常サンプル', exact: true }).check({ force: true });
-  await sample.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
+  await replaceSample(page);
   await expect(page.getByRole('heading', { level: 1, name: '概要' })).toBeVisible();
   await page.screenshot({ path: join(evidenceRoot, `after-${testInfo.project.name}-overview-light.png`), fullPage: true });
 

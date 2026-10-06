@@ -13,8 +13,9 @@ export function createSettlementOperationController({runtime,cache}) {
   let busy=false, disposed=false, pending=null, snapshot, error='';
   if (operation && broad(operation.kind)) {
     const entry=runtime.storage.read('outbox');
+    const localReview=!runtime.sync.enqueue && (operation.disposition==='local' || operation.disposition==='accepted-needs-review' && operation.acknowledged===true);
     if (entry?.id===operation.operationId) operation={...operation,receipt:allocationSaveReceipt(runtime,{base:entry.baseSnapshot,local:entry.snapshot,patch:entry.patch},{type:operation.kind,label:'履歴の変更'})};
-    else operation={...operation,receipt:null,disposition:operation.disposition==='local' && !runtime.sync.enqueue ? 'accepted-needs-review' : 'unresolved',acknowledged:operation.disposition==='local' && !runtime.sync.enqueue};
+    else operation={...operation,receipt:null,disposition:localReview ? 'accepted-needs-review' : 'unresolved',acknowledged:localReview};
   }
   function refresh() {
     if(operation?.receipt && ['local','saved'].includes(operation.receipt.disposition) && !matchesCurrent(operation.receipt)) operation.receipt={...operation.receipt,disposition:'adjusted',acknowledged:true,canRetry:false};

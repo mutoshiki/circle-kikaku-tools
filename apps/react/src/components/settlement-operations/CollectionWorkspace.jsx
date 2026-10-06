@@ -17,6 +17,7 @@ export default function CollectionWorkspace({runtime,view,controller,snapshot,ca
     if(startFocus.current){startFocus.current=false;input.current?.focus();}
     const removed=removedFocus.current;
     if(removed && !rows.some(row=>row.target.key===removed.key)) {
+      if(snapshot.blocked)return;
       removedFocus.current=null;
       if(!removed.focused || document.activeElement!==document.body) return;
       const next=rows[Math.min(removed.index,rows.length-1)];
