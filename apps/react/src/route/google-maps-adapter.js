@@ -54,8 +54,8 @@ export function createConfiguredRouteService(env = {}, { browser = globalThis, d
       browser,
       document,
     });
-    const [routes, places, mapLibrary, core] = await Promise.all([maps.importLibrary('routes'), maps.importLibrary('places'), maps.importLibrary('maps'), maps.importLibrary('core')]);
-    return { routes, places, maps: mapLibrary, core };
+    const [routes, places] = await Promise.all([maps.importLibrary('routes'), maps.importLibrary('places')]);
+    return { routes, places };
   };
   return createRouteService({ loadLibraries });
 }

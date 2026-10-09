@@ -62,11 +62,10 @@ test('route draft stays local and selected distance alone enters shared settleme
   await car.getByLabel('名目').fill('一時費用');
   await car.getByRole('button', { name: '戻る' }).click();
   const addedExpense = car.locator('.settlement-cost-list-item').filter({ hasText: '一時費用' });
-  await addedExpense.getByRole('button', { name: '一時費用の操作' }).click();
-  await page.getByRole('menuitem', { name: '削除', exact: true }).click();
-  await car.getByRole('button', { name: 'ガソリン代の操作' }).click();
-  await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
-  await car.getByRole('button', { name: 'ルートから距離を計算' }).click();
+  await addedExpense.getByRole('button', { name: '一時費用を編集' }).click();
+  await car.getByRole('button', { name: '一時費用を削除' }).click();
+  await car.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
+  await car.getByRole('button', { name: '移動距離計算ツール' }).click();
   const route = page.getByRole('dialog', { name: '仮参加者A車' });
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await route.getByRole('button', { name: /出発地を追加/ }).click();
@@ -78,8 +77,9 @@ test('route draft stays local and selected distance alone enters shared settleme
   await route.getByRole('button', { name: /目的地を追加/ }).click();
   await route.getByRole('searchbox', { name: '場所を検索' }).fill('目的地');
   await route.getByRole('button', { name: /目的地/ }).last().click();
-  await expect(route.getByRole('radio', { name: /おすすめ 12\.35 km/ })).toBeVisible();
-  await expect(route.getByRole('button', { name: '地図を表示' })).toHaveClass(/cds--btn--tertiary/);
+  await expect(route.locator('.route-leg-summary')).toContainText('12.35km・60分');
+  await expect(route.getByRole('radio')).toHaveCount(0);
+  await expect(route.getByRole('button', { name: /地図/ })).toHaveCount(0);
   await route.getByRole('button', { name: 'ルート設定' }).click();
   const tolls = route.getByRole('checkbox', { name: '有料道路を使う' });
   const highways = route.getByRole('checkbox', { name: '高速道路を使う' });
@@ -96,8 +96,7 @@ test('route draft stays local and selected distance alone enters shared settleme
   expect(JSON.stringify(state.room)).not.toContain(token);
   await page.reload(); await page.getByRole('tab', { name: '精算', exact: true }).click(); await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();
   const reopened = page.getByRole('dialog', { name: '仮参加者A車' });
-  await reopened.getByRole('button', { name: 'ガソリン代の操作' }).click();
-  await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
+  await reopened.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await expect(reopened.getByLabel('移動距離（km）')).toHaveValue('12.3');
   await reopened.locator('.cds--modal-close').click();
   await page.getByRole('button', { name: 'ユーティリティメニュー' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();

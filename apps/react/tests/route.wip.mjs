@@ -11,7 +11,7 @@ import { createDomain } from '../src/domain/index.js';
 const places = [{ placeId: 'A', name: '駅', latitude: 35, longitude: 139 }, { placeId: 'B', name: '山', latitude: 36, longitude: 140 }];
 const rawRoute = { routeToken: 'fixture', description: '国道20号', distanceMeters: 12345, durationMillis: 3600000, path: [{ lat: 35, lng: 139 }, { lat: 36, lng: 140 }], legs: [{ distanceMeters: 12345, durationMillis: 3600000 }], routeLabels: ['DEFAULT_ROUTE'] };
 
-test('configured preview Maps adapter loads current routes and places libraries', async () => {
+test('configured preview adapter loads only current routes and places libraries', async () => {
   const imports = [];
   const maps = {
     async importLibrary(name) {
@@ -30,7 +30,8 @@ test('configured preview Maps adapter loads current routes and places libraries'
   const service = createConfiguredRouteService({ VITE_REACT_MAPS_API_KEY: 'preview-key' }, { browser, document });
   assert.ok(service);
   const result = await service.calculate({ origin: places[0], destination: places[1] });
-  assert.deepEqual(imports.sort(), ['core', 'maps', 'places', 'routes']);
+  assert.deepEqual(imports.sort(), ['places', 'routes']);
+  assert.equal('renderMap' in service, false);
   assert.equal(result.routes[0].distanceMeters, 12345);
 });
 
@@ -58,14 +59,17 @@ test('route serialization, ranking, aggregation and selected distance retain leg
 
 test('route service uses current SDK request, retries unsupported toll fields, and preserves stop order', async () => {
   const requests = [];
-  const service = createRouteService({ loadLibraries: async () => ({ routes: { Route: { async computeRoutes(request) { requests.push(request); if (requests.length === 1) throw new Error('UNIMPLEMENTED extraComputations TOLLS'); return { routes: [rawRoute] }; } } }, places: {} }), htmlText: String });
+  const service = createRouteService({ loadLibraries: async () => ({ routes: { Route: { async computeRoutes(request) { requests.push(request); if (requests.length === 1) throw new Error('UNIMPLEMENTED extraComputations TOLLS'); return { routes: [rawRoute, { ...rawRoute, routeToken: 'alternative', distanceMeters: 54321 }] }; } } }, places: {} }), htmlText: String });
   const state = createDomain().settlement.normalizeRoutePlannerState({ origin: places[0], destination: places[1], waypoints: [{ ...places[0], placeId: 'C', latitude: 35.5 }], avoidHighways: false });
   const result = await service.calculate(state);
   assert.equal(requests.length, 2);
+  assert.equal(requests[1].computeAlternativeRoutes, false);
   assert.deepEqual(requests[1].intermediates, [{ location: { lat: 35.5, lng: 139 } }]);
   assert.equal(requests[1].extraComputations, undefined);
   assert.equal(requests[1].fields.includes('travelAdvisory'), false);
   assert.equal(result.routes[0].distanceMeters, 12345);
+  assert.equal(result.routes.length, 1);
+  assert.equal('renderMap' in service, false);
   assert.equal(result.waypoints[0].placeId, 'C');
   assert.equal(result.selectedRouteIndex, 0);
   assert.equal(rememberPlace([places[0], places[1]], { ...places[0], name: '改名' })[0].name, '改名');

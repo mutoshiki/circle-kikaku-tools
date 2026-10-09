@@ -5,6 +5,7 @@ import { createApplicantSync } from './sync/applicant-sync.js';
 import { createHistoryService } from './services/history.js';
 import { createOverviewDraftStorage } from './services/overview-draft.js';
 import { createShareUrl, prepareCompatibleUrl } from './services/url-compat.js';
+import { withRoutePlaceCatalogMerge } from './route-place-sync.js';
 
 export function createLocalRuntime({ location, history, storage, crypto, transport, legacyLoadWrites = true, routeService = null, externalAdapters = {} }) {
   const launch = prepareCompatibleUrl({ location, history, storage, crypto });
@@ -13,6 +14,7 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
   const clientId = roomStorage.read('clientId') || `react_${crypto.randomUUID().replaceAll('-', '').slice(0, 12)}`;
   roomStorage.write('clientId', clientId);
   const store = createRoomStore({ initial: roomStorage.read('room', {}), clientId, crypto, clock: transport?.clock });
+  store.domain.sync = withRoutePlaceCatalogMerge(store.domain.sync);
   const localStatus = Object.freeze({ kind: 'local', message: 'ローカル保存', error: null });
   const sync = transport ? createRoomSync({ store, storage: roomStorage, transport, clientId, clock: transport.clock, legacyLoadWrites })
     : { start() {}, dispose() {}, getSnapshot: () => localStatus, subscribe: () => () => {}, flush: async () => null };

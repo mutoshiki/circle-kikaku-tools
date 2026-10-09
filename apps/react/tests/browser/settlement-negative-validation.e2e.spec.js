@@ -19,9 +19,9 @@ test('expense editor rejects negative values and a zero-value row preserves sett
   const originalBreakdown = (await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, '');
   await page.getByRole('button', { name: '費用を入力' }).first().click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByRole('button', { name: '費用を追加' }).click();
+  await dialog.getByRole('button', { name: '新しい費用を追加' }).click();
   await dialog.getByLabel('名目').fill('E2Eゼロ円');
-  const amount = dialog.getByRole('textbox', { name: '金額（円）', exact: true });
+  const amount = dialog.getByRole('textbox', { name: /金額（円）/ });
   await amount.fill('-250');
 
   await expect(amount).toHaveAttribute('aria-invalid', 'true');
@@ -42,27 +42,26 @@ test('expense editor rejects negative values and a zero-value row preserves sett
   expect((await reloadedCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, '')).toBe(originalBreakdown);
   await page.getByRole('button', { name: '費用を入力' }).first().click();
   const reloadedDialog = page.getByRole('dialog');
-  await reloadedDialog.getByRole('button', { name: 'E2Eゼロ円の操作' }).click();
-  await page.getByRole('menuitem', { name: '編集', exact: true }).click();
-  await expect(reloadedDialog.getByRole('textbox', { name: '金額（円）', exact: true })).toHaveValue('0');
+  const zeroCost = reloadedDialog.getByRole('listitem').filter({ hasText: 'E2Eゼロ円' });
+  await zeroCost.getByRole('button', { name: 'E2Eゼロ円を編集' }).click();
+  await expect(reloadedDialog.getByRole('textbox', { name: /金額（円）/ })).toHaveValue('0');
   await expect(reloadedDialog.getByLabel('名目')).toHaveValue('E2Eゼロ円');
 });
 
 test('movement distance, fuel economy, and unit price reject negatives inline', async ({ page }) => {
   await page.getByRole('button', { name: '費用を入力' }).first().click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByRole('button', { name: 'ガソリン代の操作' }).click();
-  await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
+  await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   const cases = [
-    ['移動距離（km）', '-10'],
-    ['燃費（km/L）', '-12'],
-    ['ガソリン単価（円/L）', '-172'],
+    ['移動距離（km）', '-10', '移動距離'],
+    ['燃費（km/L）', '-12', '燃費'],
+    ['ガソリン単価（円/L）', '-172', 'ガソリン単価'],
   ];
-  for (const [label, value] of cases) {
+  for (const [label, value, fieldName] of cases) {
     const input = dialog.getByLabel(label);
     await input.fill(value);
     await expect(input).toHaveAttribute('aria-invalid', 'true');
-    await expect(dialog.getByText('0以上の値を入力してください。').first()).toBeVisible();
+    await expect(dialog.getByText(`${fieldName}は0より大きい値を入力してください。`, { exact: true })).toBeVisible();
     await input.fill(label === '移動距離（km）' ? '132' : label === '燃費（km/L）' ? '12' : '172');
   }
   const distance = dialog.getByLabel('移動距離（km）');
