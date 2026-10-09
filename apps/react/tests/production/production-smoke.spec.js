@@ -50,10 +50,10 @@ async function waitForProductionBuildManifest(page) {
 test('production app, Firebase compatibility, route APIs, and key tasks work without touching another room', async ({ page }) => {
   assertProductionSmokeTarget();
   let roomSeeded = false;
-  let consoleErrorCount = 0;
+  const consoleErrors = [];
   const forbiddenResponses = [];
-  page.on('console', message => { if (message.type() === 'error') consoleErrorCount += 1; });
-  page.on('pageerror', () => { consoleErrorCount += 1; });
+  page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+  page.on('pageerror', error => { consoleErrors.push(error.message); });
   page.on('response', response => {
     const url = new URL(response.url());
     if (response.status() === 403 && /(?:googleapis\.com|google\.com)$/.test(url.hostname)) {
@@ -153,7 +153,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
       await page.goto(`${productionPath}?room=${roomId}&view=seisan`);
       await expect(page.getByRole('tabpanel', { name: '精算', exact: true })).toBeVisible();
     }
-    expect(consoleErrorCount).toBe(0);
+    expect(consoleErrors, `Unexpected browser console/page errors:\n${consoleErrors.join('\n')}`).toEqual([]);
     expect(forbiddenResponses).toEqual([]);
   } finally {
     if (roomSeeded) {
