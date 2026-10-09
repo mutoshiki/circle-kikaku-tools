@@ -2,6 +2,23 @@ name: React Production Release
 
 on:
   workflow_dispatch:
+    inputs:
+      operation:
+        description: Release the target SHA or collect non-deploy production diagnostics
+        required: true
+        type: choice
+        options:
+          - release
+          - diagnose
+        default: release
+      diagnostic_smoke_mode:
+        description: Published route to inspect when operation is diagnose
+        required: true
+        type: choice
+        options:
+          - compatibility
+          - root
+        default: compatibility
 
 permissions:
   contents: read
@@ -15,7 +32,7 @@ concurrency:
 jobs:
   release-gate:
     name: Release / Require main CI readiness
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && inputs.operation != 'diagnose'
     runs-on: ubuntu-latest
     outputs:
       readiness_seconds: ${{ steps.readiness.outputs.duration_seconds }}
@@ -49,7 +66,7 @@ jobs:
 
   prepare:
     name: Release / Build once and package promoteable artifacts
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && inputs.operation != 'diagnose'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -208,12 +225,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p _site/legacy _site/react
-          cp rollback-source/index.html rollback-source/firebase-config.js rollback-source/maps-config.js rollback-source/ogp-thumbnail.png _site/legacy/
-          cp -a rollback-source/assets _site/legacy/
-          cp -a apps/react/dist/. _site/react/
-          cp -a "$RUNNER_TEMP/react-rollback/." _site/
-          touch _site/.nojekyll
+          node apps/react/tools/assemble-compatibility-pages.mjs \
+            "$RUNNER_TEMP/react-rollback" \
+            apps/react/dist \
+            rollback-source \
+            _site
           test -s _site/index.html
           test -s _site/react/index.html
           test -s _site/legacy/index.html
@@ -243,7 +259,7 @@ jobs:
 
   promotion:
     name: Release / Stage, promote, and verify production
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && inputs.operation != 'diagnose'
     needs: [prepare]
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -299,8 +315,8 @@ jobs:
         env:
           REACT_PRODUCTION_SMOKE_MODE: compatibility
           REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/react/
-          REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.rollback_published_sha || needs.prepare.outputs.build_sha }}
-          REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.rollback_asset_digest || needs.prepare.outputs.asset_digest }}
+          REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
+          REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
         run: npx playwright test --config playwright.production.config.js
       - name: Verify compatibility smoke-room cleanup
         id: compatibility-cleanup
@@ -344,7 +360,7 @@ jobs:
 
   cleanup-recovery:
     name: Release / Recover smoke-room cleanup after runner failure
-    if: always() && needs.prepare.result == 'success' && needs.promotion.result != 'success'
+    if: github.ref == 'refs/heads/main' && inputs.operation != 'diagnose' && always() && needs.prepare.result == 'success' && needs.promotion.result != 'success'
     needs: [prepare, promotion]
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -373,7 +389,7 @@ jobs:
 
   archive-successful-release:
     name: Release / Store verified React rollback payload
-    if: github.ref == 'refs/heads/main' && needs.promotion.result == 'success'
+    if: github.ref == 'refs/heads/main' && inputs.operation != 'diagnose' && needs.promotion.result == 'success'
     needs: [prepare, promotion]
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -417,7 +433,7 @@ jobs:
 
   rollback:
     name: Release / Restore previous root after failed verification
-    if: github.ref == 'refs/heads/main' && always() && (needs.promotion.outputs.root_deployment_outcome == 'failure' || (needs.promotion.outputs.root_deployment_outcome == 'success' && (needs.promotion.outputs.root_smoke_outcome == 'failure' || needs.promotion.outputs.root_cleanup_outcome == 'failure' || needs.cleanup-recovery.result == 'failure' || needs.archive-successful-release.result == 'failure')))
+    if: github.ref == 'refs/heads/main' && inputs.operation != 'diagnose' && always() && (needs.promotion.outputs.root_deployment_outcome == 'failure' || (needs.promotion.outputs.root_deployment_outcome == 'success' && (needs.promotion.outputs.root_smoke_outcome == 'failure' || needs.promotion.outputs.root_cleanup_outcome == 'failure' || needs.cleanup-recovery.result == 'failure' || needs.archive-successful-release.result == 'failure')))
     needs: [prepare, promotion, cleanup-recovery, archive-successful-release]
     runs-on: ubuntu-latest
     permissions:
@@ -432,9 +448,78 @@ jobs:
         with:
           artifact_name: github-pages-react-rollback
 
+  diagnose:
+    name: Release / Collect non-deploy WebKit diagnostics
+    if: github.ref == 'refs/heads/main' && inputs.operation == 'diagnose'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: read
+      pages: read
+      checks: read
+    outputs:
+      published_sha: ${{ steps.current-release.outputs.published_sha }}
+      published_asset_digest: ${{ steps.current-release.outputs.published_asset_digest }}
+    env:
+      REACT_PRODUCTION_RELEASE: 'true'
+      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
+      REACT_PRODUCTION_SMOKE_MARKER: react-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+      REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - name: Install smoke dependencies
+        working-directory: apps/react
+        run: npm ci --no-audit --no-fund
+      - name: Install cleanup Chromium and diagnostic WebKit
+        working-directory: apps/react
+        run: npx playwright install --with-deps chromium webkit
+      - name: Recover and verify the exact currently published successful archive
+        id: current-release
+        working-directory: apps/react
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node tools/production-release-artifact.mjs fetch-current https://mutoshiki.github.io/circle-kikaku-tools/release-build.json "${{ runner.temp }}/diagnostic-pages"
+      - name: Require root and /react/ routes to match that verified archive
+        working-directory: apps/react
+        env:
+          PUBLISHED_SHA: ${{ steps.current-release.outputs.published_sha }}
+          PUBLISHED_ASSET_DIGEST: ${{ steps.current-release.outputs.published_asset_digest }}
+        run: node tools/verify-published-route-manifests.mjs "$PUBLISHED_SHA" "$PUBLISHED_ASSET_DIGEST"
+      - name: Run WebKit smoke against the selected published route without deploying
+        id: smoke
+        working-directory: apps/react
+        env:
+          REACT_PRODUCTION_SMOKE_MODE: ${{ inputs.diagnostic_smoke_mode }}
+          REACT_PRODUCTION_SMOKE_BASE_URL: ${{ inputs.diagnostic_smoke_mode == 'compatibility' && 'https://mutoshiki.github.io/circle-kikaku-tools/react/' || 'https://mutoshiki.github.io/circle-kikaku-tools/' }}
+          REACT_PRODUCTION_BUILD_SHA: ${{ steps.current-release.outputs.published_sha }}
+          REACT_PRODUCTION_ASSET_DIGEST: ${{ steps.current-release.outputs.published_asset_digest }}
+          REACT_PRODUCTION_DIAGNOSTICS_PATH: ${{ runner.temp }}/react-production-diagnostics/identity-toolkit.json
+        run: npx playwright test --config playwright.production.config.js --project production-webkit-mobile
+      - name: Recover and verify the reserved smoke room after diagnostic failure
+        if: always() && steps.smoke.outcome != 'skipped'
+        working-directory: apps/react
+        run: node tools/cleanup-production-smoke.mjs
+      - name: Upload sanitized Identity Toolkit diagnostics
+        if: always() && steps.smoke.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: react-production-webkit-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/react-production-diagnostics/identity-toolkit.json
+          if-no-files-found: warn
+          retention-days: 7
+
   release-summary:
     name: Release / Summarize timings and recovery state
-    if: github.ref == 'refs/heads/main' && always()
+    if: github.ref == 'refs/heads/main' && inputs.operation != 'diagnose' && always()
     needs: [release-gate, prepare, promotion, cleanup-recovery, archive-successful-release, rollback]
     runs-on: ubuntu-latest
     steps:

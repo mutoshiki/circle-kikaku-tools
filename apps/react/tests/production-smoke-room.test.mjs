@@ -72,3 +72,19 @@ test('production smoke cleanup requires an owned release marker and verifies del
   assert.deepEqual(methods, ['POST', 'GET', 'DELETE', 'GET']);
   assert.equal(room, null);
 });
+test('production smoke accepts a run-scoped diagnostic marker for its reserved room', async () => {
+  const diagnosticMarker = 'react-diagnostic-98765-2';
+  const methods = [];
+  let room = null;
+  await withFetch(async (url, options) => {
+    methods.push(options.method || 'GET');
+    if (String(url).includes('accounts:signUp')) return jsonResponse({ idToken: 'test-token' });
+    if (options.method === 'PUT') { room = { roomName: diagnosticMarker }; return jsonResponse(room); }
+    if (options.method === 'DELETE') { room = null; return jsonResponse(null); }
+    return jsonResponse(room);
+  }, async () => {
+    assert.equal(await seedProductionSmokeRoom(evaluatePage(), { config, roomId, marker: diagnosticMarker, data: { roomName: diagnosticMarker } }), 'seeded');
+    assert.equal(await cleanupProductionSmokeRoom(evaluatePage(), { config, roomId, marker: diagnosticMarker }), 'cleaned');
+  });
+  assert.deepEqual(methods, ['POST', 'GET', 'PUT', 'POST', 'GET', 'DELETE', 'GET']);
+});

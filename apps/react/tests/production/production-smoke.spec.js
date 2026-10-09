@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { fixture, createReference } from '../reference.mjs';
 import { openRoutePlannerFromMovementSettings, returnToMovementSettingsFromRoutePlanner } from '../browser/settlement-smoke-actions.mjs';
 import { cleanupProductionSmokeRoom, seedProductionSmokeRoom } from './firebase-smoke-room.mjs';
+import { createSmokeDiagnostics } from './production-smoke-diagnostics.mjs';
 
 const roomId = process.env.REACT_PRODUCTION_SMOKE_ROOM;
 const mode = process.env.REACT_PRODUCTION_SMOKE_MODE;
@@ -9,6 +10,7 @@ const baseURL = process.env.REACT_PRODUCTION_SMOKE_BASE_URL || '';
 const smokeMarker = process.env.REACT_PRODUCTION_SMOKE_MARKER || '';
 const expectedBuildSha = process.env.REACT_PRODUCTION_BUILD_SHA || '';
 const expectedAssetDigest = process.env.REACT_PRODUCTION_ASSET_DIGEST || '';
+const diagnosticPath = process.env.REACT_PRODUCTION_DIAGNOSTICS_PATH || '';
 const config = {
   apiKey: process.env.REACT_FIREBASE_API_KEY || '',
   authDomain: 'sanpokai-tool.firebaseapp.com',
@@ -23,7 +25,7 @@ const productionPath = mode === 'compatibility' ? '/circle-kikaku-tools/react/' 
 function assertProductionSmokeTarget() {
   if (process.env.REACT_PRODUCTION_RELEASE !== 'true'
     || roomId !== 'P9A93LMQ'
-    || !/^react-release-\d+-\d+$/.test(smokeMarker)
+    || !/^react-(?:release|diagnostic)-\d+-\d+$/.test(smokeMarker)
     || !/^[a-f0-9]{40}$/.test(expectedBuildSha)
     || !/^[a-f0-9]{64}$/.test(expectedAssetDigest)
     || config.projectId !== 'sanpokai-tool'
@@ -51,10 +53,13 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
   assertProductionSmokeTarget();
   let roomSeeded = false;
   const consoleErrors = [];
+  const diagnostics = createSmokeDiagnostics(page.context(), { browserName: test.info().project.name });
+  diagnostics.trackPage(page);
   const identityToolkitDiagnostics = [];
   const identityToolkitResponseTasks = [];
   const forbiddenResponses = [];
   let smokePhase = 'initial app load';
+  const setSmokePhase = value => { smokePhase = value; diagnostics.setPhase(value); };
   page.on('console', message => {
     if (message.type() !== 'error') return;
     const location = message.location();
@@ -96,18 +101,18 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
   try {
     const initial = createReference().migrateAppData(fixture);
     initial.roomName = smokeMarker;
-    smokePhase = 'initial app load';
+    setSmokePhase('initial app load');
     await page.goto(baseURL);
     await expect(page.locator('.application')).toBeVisible();
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
-    smokePhase = 'smoke room seed helper';
+    setSmokePhase('smoke room seed helper');
     await seedProductionSmokeRoom(page, { config, roomId, marker: smokeMarker, data: initial });
     roomSeeded = true;
-    smokePhase = 'React room entry';
+    setSmokePhase('React room entry');
     await page.goto(`${baseURL}?room=${roomId}&view=participants`);
     await expect(page).toHaveTitle('サークル企画ツール');
     await waitForProductionBuildManifest(page);
-    smokePhase = 'React room reload';
+    setSmokePhase('React room reload');
     await page.reload();
     await waitForProductionBuildManifest(page);
     await expect(page.locator('.application')).toBeVisible();
@@ -154,13 +159,13 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(editor).toHaveCount(0);
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
-    smokePhase = 'React persistence reload';
+    setSmokePhase('React persistence reload');
     await page.reload();
     await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(updatedSmokeMarker);
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
     if (mode === 'root') {
-      smokePhase = 'React alias validation';
+      setSmokePhase('React alias validation');
       const routePage = await page.context().newPage();
       try {
         const reactAlias = new URL('/circle-kikaku-tools/react/', 'https://mutoshiki.github.io');
@@ -182,7 +187,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     }
 
     if (mode === 'compatibility') {
-      smokePhase = 'legacy alias validation';
+      setSmokePhase('legacy alias validation');
       const legacyUrl = new URL('/circle-kikaku-tools/legacy/', 'https://mutoshiki.github.io');
       legacyUrl.searchParams.set('room', roomId);
       await page.goto(legacyUrl.toString());
@@ -199,16 +204,22 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     ].join('\n')).toEqual([]);
     expect(forbiddenResponses).toEqual([]);
   } finally {
-    if (roomSeeded) {
-      const context = page.context();
-      if (!page.isClosed()) await page.close();
-      const cleanupPage = await context.newPage();
-      try {
-        await cleanupPage.goto('https://mutoshiki.github.io/circle-kikaku-tools/', { waitUntil: 'domcontentloaded' });
-        await cleanupProductionSmokeRoom(cleanupPage, { config, roomId, marker: smokeMarker });
-      } finally {
-        await cleanupPage.close();
+    try {
+      if (roomSeeded) {
+        setSmokePhase('smoke room cleanup');
+        const context = page.context();
+        if (!page.isClosed()) await page.close();
+        const cleanupPage = await context.newPage();
+        try {
+          await cleanupPage.goto('https://mutoshiki.github.io/circle-kikaku-tools/', { waitUntil: 'domcontentloaded' });
+          await cleanupProductionSmokeRoom(cleanupPage, { config, roomId, marker: smokeMarker });
+        } finally {
+          await cleanupPage.close();
+        }
       }
+    } finally {
+      diagnostics.dispose();
+      await diagnostics.flush(diagnosticPath);
     }
   }
 });
