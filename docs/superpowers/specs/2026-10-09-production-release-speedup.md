@@ -33,6 +33,7 @@
 
 - `Release / Readiness` は対象main SHAの成功が必要。PR headや別SHAのCI結果を流用しない。
 - compatibilityとrootで同じproduction buildとdigestを使う。localモードのCI成果物をproduction buildとして流用しない。
+- migration完了後のroot artifactにも `/react/`（同じSHAのReact）と `/legacy/`（固定legacy）を含める。rollback payloadは公開中の全パスを復元できる内容を保存し、root smokeで両別名ルートを検証する。
 - Firebase Rules SHA・公開設定・キー制限・同時release禁止を維持する。
 - Chromium desktop / WebKit mobileを維持する。予約room `P9A93LMQ` を共有するためsmoke並列実行はしない。
 - 通常企画データに書かない。marker付き専用roomのみを扱い、クライアント停止後の削除とnull確認を必須とする。

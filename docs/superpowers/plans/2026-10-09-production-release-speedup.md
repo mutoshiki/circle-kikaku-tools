@@ -80,6 +80,7 @@
 - [x] 直前の公開成功SHAから全変更を比較し、UI-only・数commit前のshared・unknown・missing ancestor・依存変更の分類fixtureを検証する。
 - [x] standard経路をReadiness→rollback確保/config確認→production build→root一回deploy→両ブラウザsmoke/cleanup→成功artifact保存とする。
 - [x] migration経路はcompatibility→rootを維持するが、compatibility artifactのrootはTask 3の公開中成功React payloadを保持する。旧legacyを専用互換パスで検証し、通常ユーザーのrootをlegacyへ置換しない。legacy read checkのURLを対応させる。
+- [ ] root promotion後も `/react/` と `/legacy/` を公開成果物に保持し、成功release archiveとrollback payloadに含める。root smokeは両パスからのReact起動・同期とlegacy読み出しを検証する。
 - [x] `AGENTS.md`とcontract testsに通常/移行経路の条件を合わせて記述する。Required checksを迂回せず、同じworkflowを標準経路とする。
 - [ ] standardとmigrationそれぞれで実ブラウザ確認する。version manifest、root HTTP 200、両ブラウザ・API・保存再読込・null・復旧経路を確認する。
 - [ ] standard成功releaseを3回以上計測する。Readiness後3〜5分、公開中の旧版切替なしを目標とし、未達時はjob timingから再評価する。
@@ -93,4 +94,4 @@
 - [x] Readiness待ち・artifact準備・deploy・smoke・cleanupをjob summaryで一目で確認できるようにする。アプリ操作で使うdataやsecretをログへ出さない。
 - [x] CIの追加短縮は別計測で判断する。今回のmain CIは3分45秒だったため、初期段階ではrelease jobの準備重複を優先する。
 
-実装状況（2026-10-09）: Task 1〜5のworkflow・helper・契約テストは専用worktreeで実装中。Task 1〜2の計測とTask 3〜4の本番経路確認は、merge後の標準releaseで実測する。時間見積もりは保証ではない。無関係な変更・生成済みtest artifactは保全する。
+実装状況（2026-10-09）: 最初のmigration releaseは成功したが、公開後に `/react/` と `/legacy/` がroot promotionで失われることを追加確認した。root artifactの経路保持、rollback archive、root production smokeを専用worktreeで修正中。Task 1〜2の計測とTask 3〜4の本番経路確認は、修正merge後の標準releaseで実測する。時間見積もりは保証ではない。無関係な変更・生成済みtest artifactは保全する。

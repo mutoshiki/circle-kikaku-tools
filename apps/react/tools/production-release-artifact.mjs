@@ -29,8 +29,10 @@ function assertSafePath(filePath) {
 }
 
 export function computeAssetDigest(files) {
+  const manifestPaths = new Set(['release-build.json', 'react/release-build.json']);
   const entries = [...files.entries()]
-    .filter(([filePath]) => filePath !== 'release-build.json')
+    .map(([filePath, contents]) => [assertSafePath(filePath), contents])
+    .filter(([filePath]) => !manifestPaths.has(filePath))
     .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0);
   const lines = entries.map(([filePath, contents]) => `${sha256(contents)}  ./${assertSafePath(filePath)}\n`).join('');
   return sha256(lines);

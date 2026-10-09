@@ -53,7 +53,17 @@ test('React production Pages deployments are restricted to a verified main dispa
   assert.match(job('rollback'), /needs:\s*\[prepare, promotion, cleanup-recovery, archive-successful-release\]/);
   assert.match(job('rollback'), /needs\.promotion\.outputs\.root_deployment_outcome == 'failure' \|\|/);
   assert.match(job('prepare'), /Build React app once for both deployment paths/);
-  assert.match(job('prepare'), /production-release-artifact\.mjs digest dist/);
+  assert.match(job('prepare'), /production-release-artifact\.mjs digest "\$RUNNER_TEMP\/react-root"/);
+  const rootAssemblyStart = prepare.indexOf('      - name: Assemble root React artifact');
+  const rootAssemblyEnd = prepare.indexOf('      - name: Upload root React artifact', rootAssemblyStart);
+  const rootAssembly = prepare.slice(rootAssemblyStart, rootAssemblyEnd);
+  assert.match(rootAssembly, /mkdir -p "\$RUNNER_TEMP\/react-root\/react" "\$RUNNER_TEMP\/react-root\/legacy"/);
+  assert.match(rootAssembly, /cp -a apps\/react\/dist\/\. "\$RUNNER_TEMP\/react-root\/react\/"/);
+  assert.match(rootAssembly, /cp rollback-source\/index\.html rollback-source\/firebase-config\.js rollback-source\/maps-config\.js rollback-source\/ogp-thumbnail\.png "\$RUNNER_TEMP\/react-root\/legacy\/"/);
+  assert.match(rootAssembly, /production-release-artifact\.mjs digest "\$RUNNER_TEMP\/react-root"/);
+  assert.match(rootAssembly, /release-build\.json/);
+  assert.match(rootAssembly, /root\/react\/release-build\.json/);
+  assert.match(prepare, /name: github-pages-react-root-release-payload[\s\S]*?path: \$\{\{ runner\.temp \}\}\/react-root/);
   assert.match(job('prepare'), /fetch-depth:\s*0/);
   assert.match(job('prepare'), /classify-production-release\.mjs/);
   assert.match(job('prepare'), /release_mode:\s*\$\{\{ steps\.release-classification\.outputs\.mode \}\}/);
@@ -83,6 +93,7 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.match(sharedSmokeActions, /移動距離計算ツール/);
   assert.match(sharedSmokeActions, /returnToMovementSettingsFromRoutePlanner/);
   assert.match(smoke, /new URL\('\/circle-kikaku-tools\/legacy\//);
+  assert.match(smoke, /if \(mode === 'root'\)[\s\S]*?circle-kikaku-tools\/react\/[\s\S]*?circle-kikaku-tools\/legacy\//);
   assert.match(smoke, /if \(!page\.isClosed\(\)\) await page\.close\(\)/);
   assert.doesNotMatch(smoke, /signInAnonymously|initializeApp\(config/);
   assert.match(roomHelper, /referrerPolicy: 'origin'/);
