@@ -9,6 +9,7 @@ const offlineSettlement = readFileSync(new URL('./browser/settlement.spec.js', i
 const sharedSmokeActions = readFileSync(new URL('./browser/settlement-smoke-actions.mjs', import.meta.url), 'utf8');
 const roomHelper = readFileSync(new URL('./production/firebase-smoke-room.mjs', import.meta.url), 'utf8');
 const cleanup = readFileSync(new URL('../tools/cleanup-production-smoke.mjs', import.meta.url), 'utf8');
+const releaseArtifact = readFileSync(new URL('../tools/production-release-artifact.mjs', import.meta.url), 'utf8');
 const repositoryRules = readFileSync(new URL('../../../AGENTS.md', import.meta.url), 'utf8');
 
 function job(name) {
@@ -70,6 +71,15 @@ test('React production Pages deployments are restricted to a verified main dispa
   assert.match(job('prepare'), /fetch-depth:\s*0/);
   assert.match(job('prepare'), /classify-production-release\.mjs/);
   assert.match(job('prepare'), /release_mode:\s*\$\{\{ steps\.release-classification\.outputs\.mode \}\}/);
+  assert.match(job('prepare'), /rollback_published_sha:\s*\$\{\{ steps\.rollback-payload\.outputs\.published_sha \}\}/);
+  assert.match(job('prepare'), /rollback_asset_digest:\s*\$\{\{ steps\.rollback-payload\.outputs\.published_asset_digest \}\}/);
+  assert.match(releaseArtifact, /writeGithubOutput\('published_asset_digest', currentManifest\.assetDigest\)/);
+  assert.equal((releaseArtifact.match(/writeGithubOutput\('published_asset_digest'/g) || []).length, 3);
+  const compatibilitySmokeStart = promotion.indexOf('      - name: Verify compatibility app, Firebase, Maps, Places, Routes, and legacy read compatibility');
+  const compatibilitySmokeEnd = promotion.indexOf('      - name: Verify compatibility smoke-room cleanup', compatibilitySmokeStart);
+  const compatibilitySmoke = promotion.slice(compatibilitySmokeStart, compatibilitySmokeEnd);
+  assert.match(compatibilitySmoke, /REACT_PRODUCTION_BUILD_SHA:\s*\$\{\{ needs\.prepare\.outputs\.rollback_published_sha \|\| needs\.prepare\.outputs\.build_sha \}\}/);
+  assert.match(compatibilitySmoke, /REACT_PRODUCTION_ASSET_DIGEST:\s*\$\{\{ needs\.prepare\.outputs\.rollback_asset_digest \|\| needs\.prepare\.outputs\.asset_digest \}\}/);
   assert.match(promotion, /needs\.prepare\.outputs\.release_mode == 'standard'/);
   assert.match(promotion, /needs\.prepare\.outputs\.release_mode == 'migration'/);
   assert.match(promotion, /id: compatibility-deployment\s+if: needs\.prepare\.outputs\.release_mode == 'migration'/);
