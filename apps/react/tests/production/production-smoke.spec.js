@@ -82,8 +82,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await car.getByRole('button', { name: '費用を入力' }).click();
     const editor = page.getByRole('dialog', { name: /仮参加者A/ });
     await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
-    await editor.getByRole('button', { name: 'ガソリン代の操作' }).click();
-    await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
+    await editor.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
     await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
     await editor.getByRole('button', { name: '移動距離計算ツール' }).click();
     const routeModal = page.getByRole('dialog', { name: /仮参加者A/ });
