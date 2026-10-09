@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createDomain, formParser } from '../src/domain/index.js';
+import { withRoutePlaceCatalogMerge } from '../src/route-place-sync.js';
 import { createReference, fixture, plain, semanticRoom } from './reference.mjs';
 
 // Fix wall-clock migration annotations as well as the injected action clock.
@@ -126,6 +127,7 @@ test('patch, versioned transactions, extras merge, reset and operation replay ma
 
 test('concurrent shared route-place additions merge by placeId and stay within the catalog limit', () => {
   const { next } = pair();
+  const sync = withRoutePlaceCatalogMerge(next.sync);
   const base = next.migrate(fixture);
   const catalog = Array.from({ length: 48 }, (_, index) => ({
     placeId: `place-${index}`,
@@ -144,11 +146,11 @@ test('concurrent shared route-place additions merge by placeId and stay within t
     placeId: 'place-remote', name: '端末B', address: '', latitude: 36, longitude: 140,
   }, ...catalog.slice(0, 47)];
   const path = 'settlement/routePlaceCatalog';
-  const pathKey = next.sync.syncPathVersionKey(path);
+  const pathKey = sync.syncPathVersionKey(path);
   remote.pathVersions = { [pathKey]: { clock: 5, clientId: 'remote-client', seq: 1 } };
-  const patch = next.sync.buildEntityPatch(base, local);
+  const patch = sync.buildEntityPatch(base, local);
 
-  const merged = next.sync.applyVersionedEntityPatch(remote, base, local, patch, 2, 'route-catalog-concurrent-additions', 2000);
+  const merged = sync.applyVersionedEntityPatch(remote, base, local, patch, 2, 'route-catalog-concurrent-additions', 2000);
   const mergedCatalog = merged.settlement.routePlaceCatalog;
   const placeIds = mergedCatalog.map(place => place.placeId);
 
@@ -165,13 +167,13 @@ test('concurrent shared route-place additions merge by placeId and stay within t
   samePlaceRemote.settlement.routePlaceCatalog = [{
     placeId: 'shared-place', name: '端末B表記', address: 'B住所', latitude: 36, longitude: 140,
   }, ...catalog.slice(0, 47)];
-  const duplicatePatch = next.sync.buildEntityPatch(base, samePlaceLocal);
-  const deduplicated = next.sync.applyVersionedEntityPatch(samePlaceRemote, base, samePlaceLocal, duplicatePatch, 3, 'route-catalog-same-place', 3000);
+  const duplicatePatch = sync.buildEntityPatch(base, samePlaceLocal);
+  const deduplicated = sync.applyVersionedEntityPatch(samePlaceRemote, base, samePlaceLocal, duplicatePatch, 3, 'route-catalog-same-place', 3000);
   assert.equal(deduplicated.settlement.routePlaceCatalog.filter(place => place.placeId === 'shared-place').length, 1);
 
   const resetRemote = structuredClone(remote);
   resetRemote.resetGeneration += 1;
-  const staleAfterReset = next.sync.applyVersionedEntityPatch(resetRemote, base, local, patch, 4, 'route-catalog-after-reset', 4000);
+  const staleAfterReset = sync.applyVersionedEntityPatch(resetRemote, base, local, patch, 4, 'route-catalog-after-reset', 4000);
   assert.equal(staleAfterReset.resetGeneration, resetRemote.resetGeneration);
   assert.equal(staleAfterReset.settlement.routePlaceCatalog.some(place => place.placeId === 'place-local'), false);
 });
