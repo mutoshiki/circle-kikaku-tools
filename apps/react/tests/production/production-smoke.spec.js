@@ -112,6 +112,30 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(updatedSmokeMarker);
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
+    if (mode === 'root') {
+      const routePage = await page.context().newPage();
+      try {
+        const reactAlias = new URL('/circle-kikaku-tools/react/', 'https://mutoshiki.github.io');
+        reactAlias.searchParams.set('room', roomId);
+        await routePage.goto(reactAlias.toString());
+        await expect(routePage.locator('.application')).toBeVisible();
+        await expect(routePage.locator('.sync-status')).toHaveText('同期完了');
+        const aliasManifest = await routePage.evaluate(async () => {
+          const response = await fetch(new URL('release-build.json', window.location.href));
+          if (!response.ok) throw new Error(`React alias manifest request failed: ${response.status}`);
+          return response.json();
+        });
+        expect(aliasManifest).toEqual({ sourceSha: expectedBuildSha, assetDigest: expectedAssetDigest });
+
+        const legacyAlias = new URL('/circle-kikaku-tools/legacy/', 'https://mutoshiki.github.io');
+        legacyAlias.searchParams.set('room', roomId);
+        await routePage.goto(legacyAlias.toString());
+        await expect(routePage.locator('#roomNameInput')).toHaveJSProperty('value', updatedSmokeMarker);
+      } finally {
+        await routePage.close();
+      }
+    }
+
     if (mode === 'compatibility') {
       const legacyUrl = new URL('/circle-kikaku-tools/legacy/', 'https://mutoshiki.github.io');
       legacyUrl.searchParams.set('room', roomId);

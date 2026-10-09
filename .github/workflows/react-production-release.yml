@@ -54,8 +54,8 @@ jobs:
       actions: read
       contents: read
     outputs:
-      build_sha: ${{ steps.build.outputs.build_sha }}
-      asset_digest: ${{ steps.build.outputs.asset_digest }}
+      build_sha: ${{ steps.root-artifact.outputs.build_sha }}
+      asset_digest: ${{ steps.root-artifact.outputs.asset_digest }}
       release_mode: ${{ steps.release-classification.outputs.mode }}
       previous_success_sha: ${{ steps.release-classification.outputs.previous_success_sha }}
       rollback_source: ${{ steps.rollback-payload.outputs.source }}
@@ -99,33 +99,42 @@ jobs:
         working-directory: apps/react
         run: npm ci --no-audit --no-fund
       - name: Build React app once for both deployment paths
-        id: build
         working-directory: apps/react
         env:
           VITE_BASE_PATH: ./
           VITE_REACT_SYNC_MODE: production
           REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
           REACT_MAPS_API_KEY: ${{ secrets.REACT_MAPS_API_KEY }}
-          BUILD_SHA: ${{ github.sha }}
         shell: bash
         run: |
           set -euo pipefail
           export VITE_REACT_FIREBASE_CONFIG="$(node --input-type=module -e 'process.stdout.write(JSON.stringify({ apiKey: process.env.REACT_FIREBASE_API_KEY, authDomain: "sanpokai-tool.firebaseapp.com", databaseURL: "https://sanpokai-tool-default-rtdb.firebaseio.com", projectId: "sanpokai-tool", storageBucket: "sanpokai-tool.firebasestorage.app", messagingSenderId: "79505558920", appId: "1:79505558920:web:3f9a9a333fc77de7a7fe3d" }))')"
           export VITE_REACT_MAPS_API_KEY="$REACT_MAPS_API_KEY"
           npm run build
-          asset_digest="$(node tools/production-release-artifact.mjs digest dist)"
-          printf '{"sourceSha":"%s","assetDigest":"%s"}\n' "$BUILD_SHA" "$asset_digest" > dist/release-build.json
-          echo "build_sha=$BUILD_SHA" >> "$GITHUB_OUTPUT"
-          echo "asset_digest=$asset_digest" >> "$GITHUB_OUTPUT"
-          echo "React app built once: $BUILD_SHA ($asset_digest)."
+          echo "React app built once for $GITHUB_SHA."
       - name: Assemble root React artifact
+        id: root-artifact
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p "$RUNNER_TEMP/react-root"
           cp -a apps/react/dist/. "$RUNNER_TEMP/react-root/"
+          mkdir -p "$RUNNER_TEMP/react-root/react" "$RUNNER_TEMP/react-root/legacy"
+          cp -a apps/react/dist/. "$RUNNER_TEMP/react-root/react/"
+          cp rollback-source/index.html rollback-source/firebase-config.js rollback-source/maps-config.js rollback-source/ogp-thumbnail.png "$RUNNER_TEMP/react-root/legacy/"
+          cp -a rollback-source/assets "$RUNNER_TEMP/react-root/legacy/"
+          touch "$RUNNER_TEMP/react-root/.nojekyll"
           test -s "$RUNNER_TEMP/react-root/index.html"
           test -n "$(find "$RUNNER_TEMP/react-root/assets" -type f -print -quit)"
-          test -s "$RUNNER_TEMP/react-root/release-build.json"
+          test -s "$RUNNER_TEMP/react-root/react/index.html"
+          test -s "$RUNNER_TEMP/react-root/legacy/index.html"
+          asset_digest="$(node apps/react/tools/production-release-artifact.mjs digest "$RUNNER_TEMP/react-root")"
+          printf '{"sourceSha":"%s","assetDigest":"%s"}\n' "$GITHUB_SHA" "$asset_digest" > apps/react/dist/release-build.json
+          cp apps/react/dist/release-build.json "$RUNNER_TEMP/react-root/release-build.json"
+          cp apps/react/dist/release-build.json "$RUNNER_TEMP/react-root/react/release-build.json"
+          echo "build_sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+          echo "asset_digest=$asset_digest" >> "$GITHUB_OUTPUT"
+          echo "Complete React root and /react/ and /legacy/ Pages artifact: $GITHUB_SHA ($asset_digest)."
       - name: Upload root React artifact
         uses: actions/upload-pages-artifact@v5
         with:
@@ -135,7 +144,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: github-pages-react-root-release-payload
-          path: apps/react/dist
+          path: ${{ runner.temp }}/react-root
           if-no-files-found: error
           retention-days: 7
       - name: Assemble pinned legacy rollback artifact

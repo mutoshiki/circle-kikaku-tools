@@ -17,9 +17,13 @@ const sourceSha = 'a'.repeat(40);
 const files = new Map([
   ['index.html', Buffer.from('<main>React</main>')],
   ['assets/app.js', Buffer.from('console.log("release")')],
+  ['react/index.html', Buffer.from('<main>React alias</main>')],
+  ['react/assets/app.js', Buffer.from('console.log("release")')],
+  ['legacy/index.html', Buffer.from('<main>Legacy</main>')],
 ]);
 const assetDigest = computeAssetDigest(files);
 files.set('release-build.json', Buffer.from(JSON.stringify({ sourceSha, assetDigest })));
+files.set('react/release-build.json', Buffer.from(JSON.stringify({ sourceSha, assetDigest })));
 const manifest = { sourceSha, assetDigest };
 const archiveBuffer = createPagesArchive(files);
 const record = {
@@ -43,7 +47,10 @@ const successfulRun = {
 
 test('verified successful Pages release accepts its matching manifest and exact payload', () => {
   const payload = verifyCurrentRelease({ archiveBuffer, record, currentManifest: manifest, successfulRun });
-  assert.deepEqual([...payload.keys()], ['assets/app.js', 'index.html', 'release-build.json']);
+  assert.deepEqual([...payload.keys()].sort(), [
+    'assets/app.js', 'index.html', 'legacy/index.html', 'react/assets/app.js', 'react/index.html',
+    'react/release-build.json', 'release-build.json',
+  ].sort());
 });
 
 test('asset digest is independent of enumeration order and excludes its own manifest', () => {
@@ -54,6 +61,33 @@ test('asset digest is independent of enumeration order and excludes its own mani
   ]);
   const two = new Map([...one].reverse());
   assert.equal(computeAssetDigest(one), computeAssetDigest(two));
+});
+
+test('asset digest excludes root and /react release manifests while including both app routes', () => {
+  const files = new Map([
+    ['index.html', Buffer.from('root app')],
+    ['react/index.html', Buffer.from('React alias')],
+    ['react/release-build.json', Buffer.from('first manifest')],
+    ['legacy/index.html', Buffer.from('legacy app')],
+    ['release-build.json', Buffer.from('first root manifest')],
+  ]);
+  const digest = computeAssetDigest(files);
+  files.set('react/release-build.json', Buffer.from('updated manifest'));
+  files.set('release-build.json', Buffer.from('updated root manifest'));
+  assert.equal(computeAssetDigest(files), digest);
+  files.set('legacy/index.html', Buffer.from('different legacy app'));
+  assert.notEqual(computeAssetDigest(files), digest);
+  const legacyNamedAsset = new Map([
+    ['index.html', Buffer.from('root app')],
+    ['legacy/release-build.json', Buffer.from('this is a legacy asset')],
+  ]);
+  const legacyDigest = computeAssetDigest(legacyNamedAsset);
+  legacyNamedAsset.set('legacy/release-build.json', Buffer.from('changed legacy asset'));
+  assert.notEqual(computeAssetDigest(legacyNamedAsset), legacyDigest);
+});
+
+test('asset digest validates manifest paths before excluding them', () => {
+  assert.throws(() => computeAssetDigest(new Map([['../release-build.json', Buffer.from('{}')]])), /unsafe path/);
 });
 
 test('digest CLI reads a Pages build directory using the release digest algorithm', () => {
