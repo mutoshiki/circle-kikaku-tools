@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { openRoutePlannerFromMovementSettings, returnToMovementSettingsFromRoutePlanner } from './settlement-smoke-actions.mjs';
 
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', import.meta.url)));
 const pageErrors = new WeakMap();
@@ -804,6 +805,11 @@ test('movement settings body scrolls within a short mobile viewport', async ({ p
   await expect(page.locator('.settlement-movement-modal')).toHaveClass(/settlement-modal-at-bottom/);
   await expect.poll(() => content.evaluate(node => getComputedStyle(node).maskImage)).toBe('none');
   await expect(dialog.locator('.settlement-movement-preview')).toHaveCSS('opacity', '1');
+  await openRoutePlannerFromMovementSettings(dialog);
+  await expect(dialog.getByRole('heading', { name: '移動距離計算ツール' })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: /地図/ })).toHaveCount(0);
+  await returnToMovementSettingsFromRoutePlanner(dialog);
+  await expect(dialog.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
   expect(pageErrors.get(page)).toEqual([]);
 });
 

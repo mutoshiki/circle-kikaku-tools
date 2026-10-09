@@ -1,6 +1,6 @@
 # 本番反映の短縮設計
 
-対象: `962d384f6debc3926a466f0d5b9f3bf48334ca7d` の既存リリース手順。ユーザーの依頼は計画作成であり、今回はworkflow・本番設定を変更しない。
+対象: `962d384f6debc3926a466f0d5b9f3bf48334ca7d` の既存リリース手順。このspecに沿ったworkflow変更を専用worktreeで進行中。本番反映はmerge後、既存のReadinessとReact Production Release経路を通す。
 
 ## 実測と目標
 

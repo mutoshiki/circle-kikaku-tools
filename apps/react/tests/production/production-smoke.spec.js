@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { fixture, createReference } from '../reference.mjs';
+import { openRoutePlannerFromMovementSettings, returnToMovementSettingsFromRoutePlanner } from '../browser/settlement-smoke-actions.mjs';
 import { cleanupProductionSmokeRoom, seedProductionSmokeRoom } from './firebase-smoke-room.mjs';
 
 const roomId = process.env.REACT_PRODUCTION_SMOKE_ROOM;
@@ -84,7 +85,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
     await editor.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
     await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
-    await editor.getByRole('button', { name: '移動距離計算ツール' }).click();
+    await openRoutePlannerFromMovementSettings(editor);
     const routeModal = page.getByRole('dialog', { name: /仮参加者A/ });
     await routeModal.getByRole('button', { name: /出発地を追加/ }).click();
     const search = routeModal.getByRole('searchbox', { name: '場所を検索' });
@@ -99,7 +100,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(routeModal.getByRole('radio')).toHaveCount(0);
     await expect(routeModal.getByRole('button', { name: /地図/ })).toHaveCount(0);
     expect(forbiddenResponses).toEqual([]);
-    await routeModal.getByRole('button', { name: '戻る' }).click();
+    await returnToMovementSettingsFromRoutePlanner(routeModal);
     await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
     await editor.getByRole('button', { name: 'ガソリン代を適用' }).click();
     await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
@@ -112,7 +113,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
     if (mode === 'compatibility') {
-      const legacyUrl = new URL('/circle-kikaku-tools/', 'https://mutoshiki.github.io');
+      const legacyUrl = new URL('/circle-kikaku-tools/legacy/', 'https://mutoshiki.github.io');
       legacyUrl.searchParams.set('room', roomId);
       await page.goto(legacyUrl.toString());
       await expect(page.locator('#roomNameInput')).toHaveJSProperty('value', updatedSmokeMarker);
