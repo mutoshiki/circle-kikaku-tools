@@ -208,12 +208,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p _site/legacy _site/react
-          cp rollback-source/index.html rollback-source/firebase-config.js rollback-source/maps-config.js rollback-source/ogp-thumbnail.png _site/legacy/
-          cp -a rollback-source/assets _site/legacy/
-          cp -a apps/react/dist/. _site/react/
-          cp -a "$RUNNER_TEMP/react-rollback/." _site/
-          touch _site/.nojekyll
+          node apps/react/tools/assemble-compatibility-pages.mjs \
+            "$RUNNER_TEMP/react-rollback" \
+            apps/react/dist \
+            rollback-source \
+            _site
           test -s _site/index.html
           test -s _site/react/index.html
           test -s _site/legacy/index.html
@@ -299,8 +298,8 @@ jobs:
         env:
           REACT_PRODUCTION_SMOKE_MODE: compatibility
           REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/react/
-          REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.rollback_published_sha || needs.prepare.outputs.build_sha }}
-          REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.rollback_asset_digest || needs.prepare.outputs.asset_digest }}
+          REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
+          REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
         run: npx playwright test --config playwright.production.config.js
       - name: Verify compatibility smoke-room cleanup
         id: compatibility-cleanup

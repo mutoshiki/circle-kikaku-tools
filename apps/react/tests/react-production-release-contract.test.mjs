@@ -78,16 +78,14 @@ test('React production Pages deployments are restricted to a verified main dispa
   const compatibilitySmokeStart = promotion.indexOf('      - name: Verify compatibility app, Firebase, Maps, Places, Routes, and legacy read compatibility');
   const compatibilitySmokeEnd = promotion.indexOf('      - name: Verify compatibility smoke-room cleanup', compatibilitySmokeStart);
   const compatibilitySmoke = promotion.slice(compatibilitySmokeStart, compatibilitySmokeEnd);
-  assert.match(compatibilitySmoke, /REACT_PRODUCTION_BUILD_SHA:\s*\$\{\{ needs\.prepare\.outputs\.rollback_published_sha \|\| needs\.prepare\.outputs\.build_sha \}\}/);
-  assert.match(compatibilitySmoke, /REACT_PRODUCTION_ASSET_DIGEST:\s*\$\{\{ needs\.prepare\.outputs\.rollback_asset_digest \|\| needs\.prepare\.outputs\.asset_digest \}\}/);
+  assert.match(compatibilitySmoke, /REACT_PRODUCTION_BUILD_SHA:\s*\$\{\{ needs\.prepare\.outputs\.build_sha \}\}/);
+  assert.match(compatibilitySmoke, /REACT_PRODUCTION_ASSET_DIGEST:\s*\$\{\{ needs\.prepare\.outputs\.asset_digest \}\}/);
   assert.match(promotion, /needs\.prepare\.outputs\.release_mode == 'standard'/);
   assert.match(promotion, /needs\.prepare\.outputs\.release_mode == 'migration'/);
   assert.match(promotion, /id: compatibility-deployment\s+if: needs\.prepare\.outputs\.release_mode == 'migration'/);
   assert.match(prepare, /Build migration artifact with stable root, \/react\/, and \/legacy\//);
-  assert.match(prepare, /cp rollback-source\/index\.html rollback-source\/firebase-config\.js rollback-source\/maps-config\.js rollback-source\/ogp-thumbnail\.png _site\/legacy\//);
-  assert.match(prepare, /cp -a rollback-source\/assets _site\/legacy\//);
-  assert.match(prepare, /cp -a apps\/react\/dist\/\. _site\/react\//);
-  assert.match(prepare, /cp -a "\$RUNNER_TEMP\/react-rollback\/\." _site\//);
+  assert.match(prepare, /assemble-compatibility-pages\.mjs[\s\S]*?"\$RUNNER_TEMP\/react-rollback"[\s\S]*?apps\/react\/dist[\s\S]*?rollback-source[\s\S]*?_site/);
+  assert.doesNotMatch(prepare, /cp -a "\$RUNNER_TEMP\/react-rollback\/\." _site\//);
   assert.match(repositoryRules, /React UI component・style・public UI assetだけ/);
   assert.match(repositoryRules, /旧legacyは `\/legacy\/`、移行対象Reactは `\/react\/`/);
 
