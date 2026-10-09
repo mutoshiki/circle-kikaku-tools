@@ -5,6 +5,7 @@ import test from 'node:test';
 const workflow = readFileSync(new URL('../../../.github/workflows/react-production-release.yml', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 const ciWorkflow = readFileSync(new URL('../../../.github/workflows/quality-guard.yml', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 const smoke = readFileSync(new URL('./production/production-smoke.spec.js', import.meta.url), 'utf8');
+const smokeDiagnostics = readFileSync(new URL('./production/production-smoke-diagnostics.mjs', import.meta.url), 'utf8');
 const offlineSettlement = readFileSync(new URL('./browser/settlement.spec.js', import.meta.url), 'utf8');
 const sharedSmokeActions = readFileSync(new URL('./browser/settlement-smoke-actions.mjs', import.meta.url), 'utf8');
 const roomHelper = readFileSync(new URL('./production/firebase-smoke-room.mjs', import.meta.url), 'utf8');
@@ -21,7 +22,7 @@ function job(name) {
 }
 
 test('React production Pages deployments are restricted to a verified main dispatch', () => {
-  assert.match(workflow, /^on:\n  workflow_dispatch:\s*$/m);
+  assert.match(workflow, /^on:\n  workflow_dispatch:\n    inputs:/m);
   assert.doesNotMatch(workflow, /^  (?:push|pull_request|pull_request_target):/m);
 
   for (const name of ['release-gate', 'prepare', 'promotion', 'archive-successful-release', 'rollback']) {
@@ -49,7 +50,7 @@ test('React production Pages deployments are restricted to a verified main dispa
   assert.equal((promotion.match(/playwright install --with-deps chromium webkit/g) || []).length, 1);
   assert.match(promotion, /outputs:[\s\S]*root_deployment_outcome:[\s\S]*steps\.root-deployment\.outcome/);
   assert.match(promotion, /id: root-deployment\s+if: always\(\) && needs\.prepare\.result == 'success' && \(needs\.prepare\.outputs\.release_mode == 'standard' \|\| \(needs\.prepare\.outputs\.release_mode == 'migration' && steps\.compatibility-smoke\.outcome == 'success' && steps\.compatibility-cleanup\.outcome == 'success'\)\)/);
-  assert.match(job('cleanup-recovery'), /if: always\(\) && needs\.prepare\.result == 'success' && needs\.promotion\.result != 'success'/);
+  assert.match(job('cleanup-recovery'), /if: github\.ref == 'refs\/heads\/main' && inputs\.operation != 'diagnose' && always\(\) && needs\.prepare\.result == 'success' && needs\.promotion\.result != 'success'/);
   assert.match(job('cleanup-recovery'), /needs:\s*\[prepare, promotion\]/);
   assert.match(job('rollback'), /needs:\s*\[prepare, promotion, cleanup-recovery, archive-successful-release\]/);
   assert.match(job('rollback'), /needs\.promotion\.outputs\.root_deployment_outcome == 'failure' \|\|/);
@@ -65,6 +66,18 @@ test('React production Pages deployments are restricted to a verified main dispa
   assert.match(rootAssembly, /release-build\.json/);
   assert.match(rootAssembly, /root\/react\/release-build\.json/);
   assert.match(prepare, /name: github-pages-react-root-release-payload[\s\S]*?path: \$\{\{ runner\.temp \}\}\/react-root/);
+  const diagnose = job('diagnose');
+  assert.match(diagnose, /if:\s*github\.ref == 'refs\/heads\/main' && inputs\.operation == 'diagnose'/);
+  assert.match(diagnose, /permissions:\s*\n\s+actions:\s+read\n\s+contents:\s+read\n\s+pages:\s+read\n\s+checks:\s+read/);
+  assert.doesNotMatch(diagnose, /pages:\s+write|id-token:\s+write|contents:\s+write|actions\/deploy-pages/);
+  assert.ok(diagnose.indexOf('id: current-release') < diagnose.indexOf('Require root and /react/ routes to match that verified archive'));
+  assert.ok(diagnose.indexOf('Require root and /react/ routes to match that verified archive') < diagnose.indexOf('Run WebKit smoke'));
+  assert.match(diagnose, /--project production-webkit-mobile/);
+  assert.match(diagnose, /path: \$\{\{ runner\.temp \}\}\/react-production-diagnostics\/identity-toolkit\.json/);
+  assert.match(diagnose, /retention-days:\s*7/);
+  for (const name of ['release-gate', 'prepare', 'promotion', 'cleanup-recovery', 'archive-successful-release', 'rollback', 'release-summary']) {
+    assert.match(job(name), /inputs\.operation != 'diagnose'/, `${name} cannot execute for diagnostic dispatches`);
+  }
   const durablePayloadUploadStart = prepare.indexOf('      - name: Keep run-scoped payload for successful release archive');
   const durablePayloadUploadEnd = prepare.indexOf('      - name: Assemble pinned legacy rollback artifact', durablePayloadUploadStart);
   assert.match(prepare.slice(durablePayloadUploadStart, durablePayloadUploadEnd), /include-hidden-files:\s*true/);
@@ -120,6 +133,10 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.match(smoke, /const identityToolkitDiagnostics = \[\]/);
   assert.match(smoke, /request\.failure\(\)\?\.errorText/);
   assert.match(smoke, /identitytoolkit\.googleapis\.com/);
+  assert.match(smoke, /diagnostics\.flush\(diagnosticPath\)/);
+  assert.match(smokeDiagnostics, /accessControlAllowOrigin/);
+  assert.match(smokeDiagnostics, /identitytoolkit\.googleapis\.com/);
+  assert.doesNotMatch(smokeDiagnostics, /postData\(|allHeaders\(|authorization:|searchParams/);
   assert.match(smoke, /response\.status\(\) >= 400/);
   assert.match(smoke, /\$\{url\.origin\}\$\{url\.pathname\}/);
   assert.match(smoke, /message\.text\(\)\.replace/);

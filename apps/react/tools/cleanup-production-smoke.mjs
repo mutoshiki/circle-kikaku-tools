@@ -10,7 +10,7 @@ const config = {
 };
 if (process.env.REACT_PRODUCTION_RELEASE !== 'true'
   || roomId !== 'P9A93LMQ'
-  || !/^react-release-\d+-\d+$/.test(marker)
+  || !/^react-(?:release|diagnostic)-\d+-\d+$/.test(marker)
   || config.projectId !== 'sanpokai-tool'
   || config.databaseURL !== 'https://sanpokai-tool-default-rtdb.firebaseio.com'
   || !config.apiKey) {

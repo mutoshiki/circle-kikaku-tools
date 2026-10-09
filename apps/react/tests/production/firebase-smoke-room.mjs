@@ -1,5 +1,5 @@
 const expectedRoomId = 'P9A93LMQ';
-const releaseMarkerPattern = /^react-release-\d+-\d+(?:-updated)?$/;
+const releaseMarkerPattern = /^react-(?:release|diagnostic)-\d+-\d+(?:-updated)?$/;
 
 function assertRoomTarget(roomId, config) {
   if (roomId !== expectedRoomId
@@ -14,7 +14,7 @@ async function runRoomRequest(page, { config, roomId, marker, operation, data, a
   assertRoomTarget(roomId, config);
   if (!releaseMarkerPattern.test(marker)) throw new Error('Production smoke marker guard rejected this operation.');
   return page.evaluate(async ({ apiKey, databaseURL, roomId, marker, operation, data, allowPriorReleaseMarker }) => {
-    const browserReleaseMarkerPattern = /^react-release-\d+-\d+(?:-updated)?$/;
+    const browserReleaseMarkerPattern = /^react-(?:release|diagnostic)-\d+-\d+(?:-updated)?$/;
     const authResponse = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${encodeURIComponent(apiKey)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
