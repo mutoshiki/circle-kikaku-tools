@@ -31,6 +31,18 @@ test.beforeEach(async ({ page }, testInfo) => {
     initialFixture.settlement.driverReward = '0';
     initialFixture.settlement.driverCollectionOffset = false;
   }
+  if (testInfo.title === 'missing fuel settings do not show error notifications before the user opens a car') {
+    initialFixture.settlement.cars['仮参加者A'] = {
+      ...initialFixture.settlement.cars['仮参加者A'],
+      dist: '',
+      eco: '',
+      price: '',
+      extras: [
+        ...initialFixture.settlement.cars['仮参加者A'].extras,
+        { id: 'pending-check', name: '', amount: '', type: 'split', pending: true },
+      ],
+    };
+  }
   if (testInfo.title === 'collection uses a Carbon modal with one scrolling body, filters, copy, and excluded labels' || testInfo.title.startsWith('settlement responsive layout')) {
     initialFixture.settlement.organizerFree = true;
     initialFixture.cars[0].members.push(...Array.from({ length: 18 }, (_, index) => ({ name: `検証参加者${index + 1}`, grade: 1 })));
@@ -128,6 +140,18 @@ test('settings cancel/save, signed extras, collection state and reload', async (
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(pageErrors.get(page)).toEqual([]);
+});
+
+test('missing fuel settings do not show error notifications before the user opens a car', async ({ page }) => {
+  await expect(page.getByRole('heading', { name: '各車への支払い' })).toBeVisible();
+  await expect(page.getByText(/ガソリン代を計算するため、.*を入力してください。/)).toHaveCount(0);
+  await expect(page.getByText('仮参加者A車の追加した諸経費が未入力です。')).toBeVisible();
+
+  await openCarExpenseEditor(page.locator('.settlement-car').first());
+  const dialog = page.getByRole('dialog', { name: '仮参加者A車' });
+  await expect(dialog.locator('.cds--inline-notification')).toHaveCount(0);
+  await dialog.getByRole('button', { name: '費用を保存' }).click();
+  await expect(dialog.locator('.cds--inline-notification')).toContainText('ガソリン代を計算するため、移動距離・燃費・ガソリン単価を入力してください。');
 });
 
 test('registered-participant collection records directly without asking for a collector', async ({ page }) => {
