@@ -100,6 +100,10 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.match(roomHelper, /existingMarker !== marker/);
   assert.match(roomHelper, /Reserved smoke room contains unmarked data; no data was changed/);
   assert.match(cleanup, /chromium\.launch/);
+  assert.match(smoke, /expect\.poll\([\s\S]*?Build identity manifest request failed/);
+  assert.match(smoke, /cache:\s*'no-store'/);
+  assert.match(smoke, /timeout:\s*120_000/);
+  assert.match(smoke, /await waitForProductionBuildManifest\(page\);[\s\S]*?await page\.reload\(\)/);
   for (const name of ['prepare', 'promotion', 'cleanup-recovery']) assert.match(job(name), /secrets\.REACT_FIREBASE_API_KEY/);
   assert.match(job('prepare'), /secrets\.REACT_MAPS_API_KEY/);
 });
