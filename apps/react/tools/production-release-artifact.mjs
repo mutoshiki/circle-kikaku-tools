@@ -59,10 +59,10 @@ export function decodePagesArchive(archiveBuffer) {
   const files = new Map();
   for (const file of decoded.files) {
     const filePath = assertSafePath(file?.path);
-    if (files.has(filePath) || typeof file.content !== 'string' || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(file.content)) {
-      throw new Error(`invalid Pages payload file: ${filePath}`);
-    }
-    files.set(filePath, Buffer.from(file.content, 'base64'));
+    if (files.has(filePath) || typeof file.content !== 'string') throw new Error(`invalid Pages payload file: ${filePath}`);
+    const contents = Buffer.from(file.content, 'base64');
+    if (contents.toString('base64') !== file.content) throw new Error(`invalid Pages payload file: ${filePath}`);
+    files.set(filePath, contents);
   }
   if (!files.has('index.html') || !files.has('release-build.json')) throw new Error('Pages payload is missing its entry point or release manifest');
   return files;
