@@ -263,6 +263,7 @@ async function bootstrapCurrentActionsArtifact(currentManifest, destination) {
       writeGithubOutput('source_sha', currentManifest.sourceSha);
       writeGithubOutput('source', 'verified-actions-artifact');
       writeGithubOutput('published_sha', currentManifest.sourceSha);
+      writeGithubOutput('published_asset_digest', currentManifest.assetDigest);
       process.stdout.write(`Verified current Pages rollback payload from successful run ${run.id}.\n`);
       return true;
     } finally {
@@ -291,6 +292,7 @@ async function fetchCurrent([manifestUrl, destination]) {
     if (await bootstrapCurrentActionsArtifact(currentManifest, destination)) return;
     writeGithubOutput('source', 'pinned-legacy-fallback');
     writeGithubOutput('published_sha', currentManifest.sourceSha);
+    writeGithubOutput('published_asset_digest', currentManifest.assetDigest);
     process.stderr.write('No unexpired successful React Pages artifact exists for the current manifest; use the pinned legacy rollback artifact.\n');
     process.exitCode = 3;
     return;
@@ -327,6 +329,7 @@ async function fetchCurrent([manifestUrl, destination]) {
     writeGithubOutput('source_sha', record.sourceSha);
     writeGithubOutput('source', 'verified-github-release');
     writeGithubOutput('published_sha', currentManifest.sourceSha);
+    writeGithubOutput('published_asset_digest', currentManifest.assetDigest);
     process.stdout.write(`Verified current Pages rollback payload: ${record.sourceSha} (${record.assetDigest}).\n`);
   } finally {
     await rm(temporaryDirectory, { recursive: true, force: true });

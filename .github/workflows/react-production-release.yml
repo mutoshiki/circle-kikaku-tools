@@ -61,6 +61,8 @@ jobs:
       release_mode: ${{ steps.release-classification.outputs.mode }}
       previous_success_sha: ${{ steps.release-classification.outputs.previous_success_sha }}
       rollback_source: ${{ steps.rollback-payload.outputs.source }}
+      rollback_published_sha: ${{ steps.rollback-payload.outputs.published_sha }}
+      rollback_asset_digest: ${{ steps.rollback-payload.outputs.published_asset_digest }}
       prepare_seconds: ${{ steps.prepare-summary.outputs.duration_seconds }}
     needs: release-gate
     steps:
@@ -297,6 +299,8 @@ jobs:
         env:
           REACT_PRODUCTION_SMOKE_MODE: compatibility
           REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/react/
+          REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.rollback_published_sha || needs.prepare.outputs.build_sha }}
+          REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.rollback_asset_digest || needs.prepare.outputs.asset_digest }}
         run: npx playwright test --config playwright.production.config.js
       - name: Verify compatibility smoke-room cleanup
         id: compatibility-cleanup
