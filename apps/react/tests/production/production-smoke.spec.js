@@ -32,6 +32,21 @@ function assertProductionSmokeTarget() {
   }
 }
 
+async function waitForProductionBuildManifest(page) {
+  const expectedManifest = { sourceSha: expectedBuildSha, assetDigest: expectedAssetDigest };
+  await expect.poll(async () => page.evaluate(async () => {
+    const manifestUrl = new URL('release-build.json', window.location.href);
+    manifestUrl.searchParams.set('releaseCheck', `${Date.now()}-${Math.random()}`);
+    const response = await fetch(manifestUrl, { cache: 'no-store' });
+    if (!response.ok) return { error: `Build identity manifest request failed: ${response.status}` };
+    return response.json();
+  }), {
+    message: 'Wait for GitHub Pages to serve the release that was just deployed.',
+    timeout: 120_000,
+    intervals: [1_000, 2_000, 5_000],
+  }).toEqual(expectedManifest);
+}
+
 test('production app, Firebase compatibility, route APIs, and key tasks work without touching another room', async ({ page }) => {
   assertProductionSmokeTarget();
   let roomSeeded = false;
@@ -58,12 +73,9 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     roomSeeded = true;
     await page.goto(`${baseURL}?room=${roomId}&view=participants`);
     await expect(page).toHaveTitle('サークル企画ツール');
-    const buildManifest = await page.evaluate(async () => {
-      const response = await fetch(new URL('release-build.json', window.location.href));
-      if (!response.ok) throw new Error(`Build identity manifest request failed: ${response.status}`);
-      return response.json();
-    });
-    expect(buildManifest).toEqual({ sourceSha: expectedBuildSha, assetDigest: expectedAssetDigest });
+    await waitForProductionBuildManifest(page);
+    await page.reload();
+    await waitForProductionBuildManifest(page);
     await expect(page.locator('.application')).toBeVisible();
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
     const projectName = page.getByRole('textbox', { name: '企画名' });
@@ -118,14 +130,11 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
         const reactAlias = new URL('/circle-kikaku-tools/react/', 'https://mutoshiki.github.io');
         reactAlias.searchParams.set('room', roomId);
         await routePage.goto(reactAlias.toString());
+        await waitForProductionBuildManifest(routePage);
+        await routePage.reload();
         await expect(routePage.locator('.application')).toBeVisible();
         await expect(routePage.locator('.sync-status')).toHaveText('同期完了');
-        const aliasManifest = await routePage.evaluate(async () => {
-          const response = await fetch(new URL('release-build.json', window.location.href));
-          if (!response.ok) throw new Error(`React alias manifest request failed: ${response.status}`);
-          return response.json();
-        });
-        expect(aliasManifest).toEqual({ sourceSha: expectedBuildSha, assetDigest: expectedAssetDigest });
+        await waitForProductionBuildManifest(routePage);
 
         const legacyAlias = new URL('/circle-kikaku-tools/legacy/', 'https://mutoshiki.github.io');
         legacyAlias.searchParams.set('room', roomId);
