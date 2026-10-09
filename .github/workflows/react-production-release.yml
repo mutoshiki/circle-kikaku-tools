@@ -191,7 +191,7 @@ jobs:
   compatibility-cleanup:
     name: Release / Compatibility smoke-room cleanup
     timeout-minutes: 15
-    if: always() && needs.compatibility-deploy.result == 'success'
+    if: always() && needs.compatibility-deploy.result == 'success' && needs.compatibility-smoke.result != 'success'
     needs: [compatibility-deploy, compatibility-smoke]
     runs-on: ubuntu-latest
     env:
@@ -219,7 +219,7 @@ jobs:
 
   root-deploy:
     name: Release / Cut over root to React
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && always() && needs.prepare.result == 'success' && needs.compatibility-smoke.result == 'success' && (needs.compatibility-cleanup.result == 'success' || needs.compatibility-cleanup.result == 'skipped')
     needs: [prepare, compatibility-smoke, compatibility-cleanup]
     runs-on: ubuntu-latest
     permissions:
@@ -271,7 +271,7 @@ jobs:
 
   root-cleanup:
     name: Release / Root smoke-room cleanup
-    if: always() && needs.root-deploy.result == 'success'
+    if: always() && needs.root-deploy.result == 'success' && needs.root-smoke.result != 'success'
     needs: [root-deploy, root-smoke]
     runs-on: ubuntu-latest
     env:

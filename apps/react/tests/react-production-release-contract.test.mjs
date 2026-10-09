@@ -25,7 +25,10 @@ test('React production Pages deployments are restricted to a verified main dispa
   }
 
   assert.match(job('prepare'), /needs:\s*release-gate/);
+  assert.match(job('root-deploy'), /if: github\.ref == 'refs\/heads\/main' && always\(\) && needs\.prepare\.result == 'success' && needs\.compatibility-smoke\.result == 'success' && \(needs\.compatibility-cleanup\.result == 'success' \|\| needs\.compatibility-cleanup\.result == 'skipped'\)/);
   assert.match(job('root-deploy'), /needs:\s*\[prepare, compatibility-smoke, compatibility-cleanup\]/);
+  assert.match(job('compatibility-cleanup'), /if:\s*always\(\) && needs\.compatibility-deploy\.result == 'success' && needs\.compatibility-smoke\.result != 'success'/);
+  assert.match(job('root-cleanup'), /if:\s*always\(\) && needs\.root-deploy\.result == 'success' && needs\.root-smoke\.result != 'success'/);
   assert.match(job('compatibility-deploy'), /artifact_name:\s*github-pages-compatibility/);
   assert.match(job('root-deploy'), /artifact_name:\s*github-pages-react-root/);
   assert.match(job('prepare'), /Build React app once for both deployment paths/);
