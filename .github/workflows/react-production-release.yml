@@ -17,8 +17,15 @@ jobs:
     name: Release / Require main CI readiness
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    outputs:
+      run_started_at: ${{ steps.timing.outputs.started_at }}
+      readiness_seconds: ${{ steps.readiness.outputs.duration_seconds }}
     steps:
+      - name: Start release timing
+        id: timing
+        run: echo "started_at=$(date +%s)" >> "$GITHUB_OUTPUT"
       - name: Require the latest main Release / Readiness check for this exact SHA
+        id: readiness
         env:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
@@ -26,23 +33,42 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          conclusion="$(gh api "repos/$REPOSITORY/commits/$RELEASE_SHA/check-runs?per_page=100" --jq "[.check_runs[] | select(.name == \"Release / Readiness\" and .head_sha == \"$RELEASE_SHA\")] | sort_by(.started_at) | last | .conclusion // \"missing\"")"
+          check="$(gh api "repos/$REPOSITORY/commits/$RELEASE_SHA/check-runs?per_page=100" --jq "[.check_runs[] | select(.name == \"Release / Readiness\" and .head_sha == \"$RELEASE_SHA\")] | sort_by(.started_at) | last // {}")"
+          conclusion="$(jq -r '.conclusion // "missing"' <<< "$check")"
           test "$conclusion" = success
-          echo "Exact-SHA Release / Readiness gate passed."
+          started="$(jq -r '.started_at // empty' <<< "$check")"
+          completed="$(jq -r '.completed_at // empty' <<< "$check")"
+          readiness_seconds=0
+          if [ -n "$started" ] && [ -n "$completed" ]; then
+            readiness_seconds=$(( $(date -u -d "$completed" +%s) - $(date -u -d "$started" +%s) ))
+          fi
+          echo "duration_seconds=$readiness_seconds" >> "$GITHUB_OUTPUT"
+          printf '### React Production Release\n- Readiness: exact SHA `%s` passed (%s seconds).\n' "$RELEASE_SHA" "$readiness_seconds" >> "$GITHUB_STEP_SUMMARY"
 
   prepare:
     name: Release / Build once and package promoteable artifacts
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: read
     outputs:
       build_sha: ${{ steps.build.outputs.build_sha }}
       asset_digest: ${{ steps.build.outputs.asset_digest }}
+      release_mode: ${{ steps.release-classification.outputs.mode }}
+      previous_success_sha: ${{ steps.release-classification.outputs.previous_success_sha }}
+      rollback_source: ${{ steps.rollback-payload.outputs.source }}
+      prepare_seconds: ${{ steps.prepare-summary.outputs.duration_seconds }}
     needs: release-gate
     steps:
+      - name: Start artifact preparation timing
+        id: prepare-timing
+        run: echo "started_at=$(date +%s)" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/checkout@v6
         with:
           ref: e37b8651eeba1cb52d2b7a98bc05674bb63591a8
@@ -87,31 +113,11 @@ jobs:
           export VITE_REACT_FIREBASE_CONFIG="$(node --input-type=module -e 'process.stdout.write(JSON.stringify({ apiKey: process.env.REACT_FIREBASE_API_KEY, authDomain: "sanpokai-tool.firebaseapp.com", databaseURL: "https://sanpokai-tool-default-rtdb.firebaseio.com", projectId: "sanpokai-tool", storageBucket: "sanpokai-tool.firebasestorage.app", messagingSenderId: "79505558920", appId: "1:79505558920:web:3f9a9a333fc77de7a7fe3d" }))')"
           export VITE_REACT_MAPS_API_KEY="$REACT_MAPS_API_KEY"
           npm run build
-          asset_digest="$(cd dist && find . -type f ! -name release-build.json -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d ' ' -f 1)"
+          asset_digest="$(node tools/production-release-artifact.mjs digest dist)"
           printf '{"sourceSha":"%s","assetDigest":"%s"}\n' "$BUILD_SHA" "$asset_digest" > dist/release-build.json
           echo "build_sha=$BUILD_SHA" >> "$GITHUB_OUTPUT"
           echo "asset_digest=$asset_digest" >> "$GITHUB_OUTPUT"
           echo "React app built once: $BUILD_SHA ($asset_digest)."
-      - name: Assemble legacy root and compatibility React artifacts
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./
-          destination: ./_site
-      - name: Add React compatibility app under /react/
-        shell: bash
-        run: |
-          sudo chown -R "$(id -u):$(id -g)" _site
-          mkdir -p _site/react
-          cp -a apps/react/dist/. _site/react/
-          test -s _site/index.html
-          test -s _site/react/index.html
-          test -n "$(find _site/react/assets -type f -print -quit)"
-          test -s _site/react/release-build.json
-      - name: Upload compatibility artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          name: github-pages-compatibility
-          path: ./_site
       - name: Assemble root React artifact
         shell: bash
         run: |
@@ -125,155 +131,207 @@ jobs:
         with:
           name: github-pages-react-root
           path: ${{ runner.temp }}/react-root
-      - name: Assemble pinned legacy rollback artifact
-        uses: actions/jekyll-build-pages@v1
+      - name: Keep run-scoped payload for successful release archive
+        uses: actions/upload-artifact@v4
         with:
-          source: ./rollback-source
-          destination: ./rollback-site
-      - name: Upload pinned legacy rollback artifact
+          name: github-pages-react-root-release-payload
+          path: apps/react/dist
+          if-no-files-found: error
+          retention-days: 7
+      - name: Assemble pinned legacy rollback artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p rollback-site
+          cp rollback-source/index.html rollback-site/
+          cp rollback-source/firebase-config.js rollback-site/
+          cp rollback-source/maps-config.js rollback-site/
+          cp rollback-source/ogp-thumbnail.png rollback-site/
+          cp -a rollback-source/assets rollback-site/
+          touch rollback-site/.nojekyll
+          test -s rollback-site/index.html
+          test -s rollback-site/firebase-config.js
+          test -d rollback-site/assets
+      - name: Initialize rollback payload with pinned legacy fallback
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/react-rollback"
+          cp -a rollback-site/. "$RUNNER_TEMP/react-rollback/"
+      - name: Use current successful React release as rollback when available
+        id: rollback-payload
+        working-directory: apps/react
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set +e
+          node tools/production-release-artifact.mjs fetch-current \
+            https://mutoshiki.github.io/circle-kikaku-tools/release-build.json \
+            "$RUNNER_TEMP/react-rollback"
+          result=$?
+          set -e
+          if [ "$result" -eq 0 ]; then
+            echo "Using the verified current React rollback payload."
+          elif [ "$result" -eq 3 ]; then
+            echo "source=pinned-legacy-fallback" >> "$GITHUB_OUTPUT"
+          else
+            exit "$result"
+          fi
+      - name: Require exact current React rollback before deploying over its root
+        if: steps.rollback-payload.outputs.published_sha != '' && steps.rollback-payload.outputs.source == 'pinned-legacy-fallback'
+        run: exit 1
+      - name: Classify all changes since the previous successful production release
+        id: release-classification
+        working-directory: apps/react
+        env:
+          PREVIOUS_SUCCESS_SHA: ${{ steps.rollback-payload.outputs.source_sha }}
+          TARGET_SHA: ${{ github.sha }}
+        run: node tools/classify-production-release.mjs "$PREVIOUS_SUCCESS_SHA" "$TARGET_SHA"
+      - name: Build migration artifact with stable root, /react/, and /legacy/ routes
+        if: steps.release-classification.outputs.mode == 'migration'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _site/legacy _site/react
+          cp rollback-source/index.html rollback-source/firebase-config.js rollback-source/maps-config.js rollback-source/ogp-thumbnail.png _site/legacy/
+          cp -a rollback-source/assets _site/legacy/
+          cp -a apps/react/dist/. _site/react/
+          cp -a "$RUNNER_TEMP/react-rollback/." _site/
+          touch _site/.nojekyll
+          test -s _site/index.html
+          test -s _site/react/index.html
+          test -s _site/legacy/index.html
+          test -s _site/release-build.json
+      - name: Upload compatibility artifact
+        if: steps.release-classification.outputs.mode == 'migration'
         uses: actions/upload-pages-artifact@v5
         with:
-          name: github-pages-legacy-rollback
-          path: ./rollback-site
+          name: github-pages-compatibility
+          path: ./_site
+      - name: Summarize artifact preparation
+        id: prepare-summary
+        if: always()
+        shell: bash
+        run: |
+          duration=$(( $(date +%s) - ${{ steps.prepare-timing.outputs.started_at || '0' }} ))
+          echo "duration_seconds=$duration" >> "$GITHUB_OUTPUT"
+          printf '\n### Artifact preparation\n- Duration: %s seconds\n- Release mode: %s\n- Rollback source: %s\n' \
+            "$duration" \
+            "${{ steps.release-classification.outputs.mode || 'not classified' }}" \
+            "${{ steps.rollback-payload.outputs.source || 'not prepared' }}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload verified rollback Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          name: github-pages-react-rollback
+          path: ${{ runner.temp }}/react-rollback
 
-  compatibility-deploy:
-    name: Release / Deploy compatibility at /react/
+  promotion:
+    name: Release / Stage, promote, and verify production
     if: github.ref == 'refs/heads/main'
-    needs: prepare
+    needs: [prepare]
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       actions: read
+      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.root-deployment.outputs.page_url || steps.compatibility-deployment.outputs.page_url }}
+    outputs:
+      root_deployment_outcome: ${{ steps.root-deployment.outcome }}
+      release_mode: ${{ needs.prepare.outputs.release_mode }}
+      root_smoke_outcome: ${{ steps.root-smoke.outcome }}
+      root_cleanup_outcome: ${{ steps.root-cleanup.outcome }}
+      promotion_seconds: ${{ steps.promotion-summary.outputs.duration_seconds }}
+    env:
+      REACT_PRODUCTION_RELEASE: 'true'
+      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
+      REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
+      REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
+      REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
+      REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
     steps:
+      - name: Start deployment timing
+        id: promotion-timing
+        run: echo "started_at=$(date +%s)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - name: Install smoke dependencies
+        working-directory: apps/react
+        run: npm ci --no-audit --no-fund
+      - name: Install Chromium and WebKit
+        working-directory: apps/react
+        run: npx playwright install --with-deps chromium webkit
       - name: Deploy compatibility artifact
-        id: deployment
+        id: compatibility-deployment
+        if: needs.prepare.outputs.release_mode == 'migration'
         uses: actions/deploy-pages@v5
         with:
           artifact_name: github-pages-compatibility
-
-  compatibility-smoke:
-    name: Release / Compatibility production smoke
-    needs: [prepare, compatibility-deploy]
-    runs-on: ubuntu-latest
-    timeout-minutes: 35
-    env:
-      REACT_PRODUCTION_RELEASE: 'true'
-      REACT_PRODUCTION_SMOKE_MODE: compatibility
-      REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/react/
-      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
-      REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
-      REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
-      REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
-      REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: apps/react/package-lock.json
-      - name: Install smoke dependencies
-        working-directory: apps/react
-        run: npm ci --no-audit --no-fund
-      - name: Install Chromium and WebKit
-        working-directory: apps/react
-        run: npx playwright install --with-deps chromium webkit
       - name: Verify compatibility app, Firebase, Maps, Places, Routes, and legacy read compatibility
+        id: compatibility-smoke
+        if: needs.prepare.outputs.release_mode == 'migration' && steps.compatibility-deployment.outcome == 'success'
         working-directory: apps/react
+        env:
+          REACT_PRODUCTION_SMOKE_MODE: compatibility
+          REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/react/
         run: npx playwright test --config playwright.production.config.js
-
-  compatibility-cleanup:
-    name: Release / Compatibility smoke-room cleanup
-    timeout-minutes: 15
-    if: always() && needs.compatibility-deploy.result == 'success'
-    needs: [compatibility-deploy, compatibility-smoke]
-    runs-on: ubuntu-latest
-    env:
-      REACT_PRODUCTION_RELEASE: 'true'
-      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
-      REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
-      REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: apps/react/package-lock.json
-      - run: npm ci --no-audit --no-fund
-        working-directory: apps/react
-      - name: Install Chromium for browser-origin cleanup
-        working-directory: apps/react
-        run: npx playwright install --with-deps chromium
-      - name: Remove only this run's marked smoke room and verify null
+      - name: Verify compatibility smoke-room cleanup
+        id: compatibility-cleanup
+        if: always() && needs.prepare.outputs.release_mode == 'migration' && steps.compatibility-deployment.outcome == 'success'
         working-directory: apps/react
         run: node tools/cleanup-production-smoke.mjs
-
-  root-deploy:
-    name: Release / Cut over root to React
-    if: github.ref == 'refs/heads/main'
-    needs: [prepare, compatibility-smoke, compatibility-cleanup]
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
       - name: Deploy React root artifact
-        id: deployment
+        id: root-deployment
+        if: always() && needs.prepare.result == 'success' && (needs.prepare.outputs.release_mode == 'standard' || (needs.prepare.outputs.release_mode == 'migration' && steps.compatibility-smoke.outcome == 'success' && steps.compatibility-cleanup.outcome == 'success'))
         uses: actions/deploy-pages@v5
         with:
           artifact_name: github-pages-react-root
-
-  root-smoke:
-    name: Release / Production root smoke
-    needs: [prepare, compatibility-smoke, root-deploy]
-    runs-on: ubuntu-latest
-    timeout-minutes: 35
-    env:
-      REACT_PRODUCTION_RELEASE: 'true'
-      REACT_PRODUCTION_SMOKE_MODE: root
-      REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/
-      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
-      REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
-      REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
-      REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
-      REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: apps/react/package-lock.json
-      - name: Install smoke dependencies
-        working-directory: apps/react
-        run: npm ci --no-audit --no-fund
-      - name: Install Chromium and WebKit
-        working-directory: apps/react
-        run: npx playwright install --with-deps chromium webkit
       - name: Verify root React app and production integrations
+        id: root-smoke
+        if: success() && steps.root-deployment.outcome == 'success'
         working-directory: apps/react
+        env:
+          REACT_PRODUCTION_SMOKE_MODE: root
+          REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/
         run: npx playwright test --config playwright.production.config.js
+      - name: Verify root smoke-room cleanup
+        id: root-cleanup
+        if: always() && steps.root-deployment.outcome == 'success'
+        working-directory: apps/react
+        run: node tools/cleanup-production-smoke.mjs
+      - name: Summarize deployment and smoke results
+        id: promotion-summary
+        if: always()
+        shell: bash
+        run: |
+          duration=$(( $(date +%s) - ${{ steps.promotion-timing.outputs.started_at || '0' }} ))
+          echo "duration_seconds=$duration" >> "$GITHUB_OUTPUT"
+          printf '\n### Deployment and production smoke\n- Duration: %s seconds\n- Route: %s\n- Compatibility smoke / cleanup: %s / %s\n- Root deploy / smoke / cleanup: %s / %s / %s\n' \
+            "$duration" \
+            "${{ needs.prepare.outputs.release_mode }}" \
+            "${{ steps.compatibility-smoke.outcome || 'skipped' }}" \
+            "${{ steps.compatibility-cleanup.outcome || 'skipped' }}" \
+            "${{ steps.root-deployment.outcome || 'skipped' }}" \
+            "${{ steps.root-smoke.outcome || 'skipped' }}" \
+            "${{ steps.root-cleanup.outcome || 'skipped' }}" >> "$GITHUB_STEP_SUMMARY"
 
-  root-cleanup:
-    name: Release / Root smoke-room cleanup
-    if: always() && needs.root-deploy.result == 'success'
-    needs: [root-deploy, root-smoke]
+  cleanup-recovery:
+    name: Release / Recover smoke-room cleanup after runner failure
+    if: always() && needs.prepare.result == 'success' && needs.promotion.result != 'success'
+    needs: [prepare, promotion]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       REACT_PRODUCTION_RELEASE: 'true'
       REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
@@ -297,10 +355,54 @@ jobs:
         working-directory: apps/react
         run: node tools/cleanup-production-smoke.mjs
 
+  archive-successful-release:
+    name: Release / Store verified React rollback payload
+    if: github.ref == 'refs/heads/main' && needs.promotion.result == 'success'
+    needs: [prepare, promotion]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      archive_seconds: ${{ steps.archive-summary.outputs.duration_seconds }}
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Start durable artifact timing
+        id: archive-timing
+        run: echo "started_at=$(date +%s)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: github-pages-react-root-release-payload
+          path: ${{ runner.temp }}/react-pages-payload
+      - name: Publish immutable Pages payload and provenance record
+        id: archive-publish
+        working-directory: apps/react
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: >-
+          node tools/production-release-artifact.mjs publish
+          "${{ github.run_id }}"
+          "${{ github.sha }}"
+          "${{ needs.prepare.outputs.asset_digest }}"
+          "${{ runner.temp }}/react-pages-payload"
+      - name: Summarize durable artifact storage
+        id: archive-summary
+        if: always()
+        shell: bash
+        run: |
+          duration=$(( $(date +%s) - ${{ steps.archive-timing.outputs.started_at || '0' }} ))
+          echo "duration_seconds=$duration" >> "$GITHUB_OUTPUT"
+          printf '\n### Durable rollback artifact\n- Duration: %s seconds\n- Result: %s\n' \
+            "$duration" "${{ steps.archive-publish.outcome || 'not started' }}" >> "$GITHUB_STEP_SUMMARY"
+
   rollback:
-    name: Release / Restore pinned legacy root after failed root smoke
-    if: github.ref == 'refs/heads/main' && always() && needs.root-deploy.result == 'success' && (needs.root-smoke.result == 'failure' || needs.root-cleanup.result == 'failure')
-    needs: [prepare, root-deploy, root-smoke, root-cleanup]
+    name: Release / Restore previous root after failed verification
+    if: github.ref == 'refs/heads/main' && always() && (needs.promotion.outputs.root_deployment_outcome == 'failure' || (needs.promotion.outputs.root_deployment_outcome == 'success' && (needs.promotion.outputs.root_smoke_outcome == 'failure' || needs.promotion.outputs.root_cleanup_outcome == 'failure' || needs.cleanup-recovery.result == 'failure' || needs.archive-successful-release.result == 'failure')))
+    needs: [prepare, promotion, cleanup-recovery, archive-successful-release]
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -309,7 +411,47 @@ jobs:
     environment:
       name: github-pages
     steps:
-      - name: Restore pinned legacy root
+      - name: Restore previous verified React root or initial legacy fallback
         uses: actions/deploy-pages@v5
         with:
-          artifact_name: github-pages-legacy-rollback
+          artifact_name: github-pages-react-rollback
+
+  release-summary:
+    name: Release / Summarize timings and recovery state
+    if: github.ref == 'refs/heads/main' && always()
+    needs: [release-gate, prepare, promotion, cleanup-recovery, archive-successful-release, rollback]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summarize end-to-end release
+        shell: bash
+        env:
+          RELEASE_STARTED_AT: ${{ needs.release-gate.outputs.run_started_at }}
+          READINESS_SECONDS: ${{ needs.release-gate.outputs.readiness_seconds }}
+          PREPARE_SECONDS: ${{ needs.prepare.outputs.prepare_seconds }}
+          PROMOTION_SECONDS: ${{ needs.promotion.outputs.promotion_seconds }}
+          ARCHIVE_SECONDS: ${{ needs.archive-successful-release.outputs.archive_seconds }}
+          RELEASE_MODE: ${{ needs.prepare.outputs.release_mode }}
+          ROLLBACK_SOURCE: ${{ needs.prepare.outputs.rollback_source }}
+          GATE_RESULT: ${{ needs.release-gate.result }}
+          PREPARE_RESULT: ${{ needs.prepare.result }}
+          PROMOTION_RESULT: ${{ needs.promotion.result }}
+          CLEANUP_RECOVERY_RESULT: ${{ needs.cleanup-recovery.result }}
+          ARCHIVE_RESULT: ${{ needs.archive-successful-release.result }}
+          ROLLBACK_RESULT: ${{ needs.rollback.result }}
+          ROOT_DEPLOY: ${{ needs.promotion.outputs.root_deployment_outcome }}
+          ROOT_SMOKE: ${{ needs.promotion.outputs.root_smoke_outcome }}
+          ROOT_CLEANUP: ${{ needs.promotion.outputs.root_cleanup_outcome }}
+          TARGET_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          total_seconds=unavailable
+          if [[ "$RELEASE_STARTED_AT" =~ ^[0-9]+$ ]]; then
+            total_seconds=$(( $(date +%s) - RELEASE_STARTED_AT ))
+          fi
+          printf '### React Production Release summary\n- Target SHA: `%s`\n- Readiness check: %s (%s seconds)\n- Artifact preparation: %s (%s seconds)\n- Route: %s; rollback source: %s\n- Promotion: %s (%s seconds)\n- Root deploy / smoke / cleanup: %s / %s / %s\n- Cleanup recovery: %s\n- Durable artifact: %s (%s seconds)\n- Rollback: %s\n- Total release runtime: %s seconds\n' \
+            "$TARGET_SHA" "$GATE_RESULT" "${READINESS_SECONDS:-unavailable}" \
+            "$PREPARE_RESULT" "${PREPARE_SECONDS:-unavailable}" "${RELEASE_MODE:-unavailable}" \
+            "${ROLLBACK_SOURCE:-unavailable}" "$PROMOTION_RESULT" "${PROMOTION_SECONDS:-unavailable}" \
+            "${ROOT_DEPLOY:-skipped}" "${ROOT_SMOKE:-skipped}" "${ROOT_CLEANUP:-skipped}" \
+            "$CLEANUP_RECOVERY_RESULT" "$ARCHIVE_RESULT" "${ARCHIVE_SECONDS:-unavailable}" \
+            "$ROLLBACK_RESULT" "$total_seconds" >> "$GITHUB_STEP_SUMMARY"
