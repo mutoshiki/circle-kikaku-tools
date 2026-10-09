@@ -142,6 +142,10 @@ test('rollback uses the current verified React release and only saves a smoke-ve
   const summary = job('release-summary');
   assert.match(summary, /needs:\s*\[release-gate, prepare, promotion, cleanup-recovery, archive-successful-release, rollback\]/);
   assert.match(summary, /READINESS_SECONDS/);
+  assert.match(job('release-gate'), /readiness_completed_at:\s*\$\{\{ steps\.readiness\.outputs\.completed_at_epoch \}\}/);
+  assert.match(job('release-gate'), /readiness_completed_at=\$\(date -u -d "\$completed" \+%s\)/);
+  assert.match(summary, /READINESS_COMPLETED_AT:\s*\$\{\{ needs\.release-gate\.outputs\.readiness_completed_at \}\}/);
+  assert.match(summary, /Readiness success to release completion: %s seconds/);
   assert.match(summary, /PREPARE_SECONDS/);
   assert.match(summary, /PROMOTION_SECONDS/);
   assert.match(summary, /Root deploy \/ smoke \/ cleanup/);

@@ -18,12 +18,9 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
-      run_started_at: ${{ steps.timing.outputs.started_at }}
       readiness_seconds: ${{ steps.readiness.outputs.duration_seconds }}
+      readiness_completed_at: ${{ steps.readiness.outputs.completed_at_epoch }}
     steps:
-      - name: Start release timing
-        id: timing
-        run: echo "started_at=$(date +%s)" >> "$GITHUB_OUTPUT"
       - name: Require the latest main Release / Readiness check for this exact SHA
         id: readiness
         env:
@@ -42,7 +39,12 @@ jobs:
           if [ -n "$started" ] && [ -n "$completed" ]; then
             readiness_seconds=$(( $(date -u -d "$completed" +%s) - $(date -u -d "$started" +%s) ))
           fi
+          readiness_completed_at=0
+          if [ -n "$completed" ]; then
+            readiness_completed_at=$(date -u -d "$completed" +%s)
+          fi
           echo "duration_seconds=$readiness_seconds" >> "$GITHUB_OUTPUT"
+          echo "completed_at_epoch=$readiness_completed_at" >> "$GITHUB_OUTPUT"
           printf '### React Production Release\n- Readiness: exact SHA `%s` passed (%s seconds).\n' "$RELEASE_SHA" "$readiness_seconds" >> "$GITHUB_STEP_SUMMARY"
 
   prepare:
@@ -435,7 +437,7 @@ jobs:
       - name: Summarize end-to-end release
         shell: bash
         env:
-          RELEASE_STARTED_AT: ${{ needs.release-gate.outputs.run_started_at }}
+          READINESS_COMPLETED_AT: ${{ needs.release-gate.outputs.readiness_completed_at }}
           READINESS_SECONDS: ${{ needs.release-gate.outputs.readiness_seconds }}
           PREPARE_SECONDS: ${{ needs.prepare.outputs.prepare_seconds }}
           PROMOTION_SECONDS: ${{ needs.promotion.outputs.promotion_seconds }}
@@ -454,14 +456,14 @@ jobs:
           TARGET_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          total_seconds=unavailable
-          if [[ "$RELEASE_STARTED_AT" =~ ^[0-9]+$ ]]; then
-            total_seconds=$(( $(date +%s) - RELEASE_STARTED_AT ))
+          post_readiness_seconds=unavailable
+          if [[ "$READINESS_COMPLETED_AT" =~ ^[0-9]+$ ]] && (( READINESS_COMPLETED_AT > 0 )); then
+            post_readiness_seconds=$(( $(date +%s) - READINESS_COMPLETED_AT ))
           fi
-          printf '### React Production Release summary\n- Target SHA: `%s`\n- Readiness check: %s (%s seconds)\n- Artifact preparation: %s (%s seconds)\n- Route: %s; rollback source: %s\n- Promotion: %s (%s seconds)\n- Root deploy / smoke / cleanup: %s / %s / %s\n- Cleanup recovery: %s\n- Durable artifact: %s (%s seconds)\n- Rollback: %s\n- Total release runtime: %s seconds\n' \
-            "$TARGET_SHA" "$GATE_RESULT" "${READINESS_SECONDS:-unavailable}" \
+          printf '### React Production Release summary\n- Target SHA: `%s`\n- Readiness check: %s (%s seconds)\n- Readiness success to release completion: %s seconds\n- Artifact preparation: %s (%s seconds)\n- Route: %s; rollback source: %s\n- Promotion: %s (%s seconds)\n- Root deploy / smoke / cleanup: %s / %s / %s\n- Cleanup recovery: %s\n- Durable artifact: %s (%s seconds)\n- Rollback: %s\n' \
+            "$TARGET_SHA" "$GATE_RESULT" "${READINESS_SECONDS:-unavailable}" "$post_readiness_seconds" \
             "$PREPARE_RESULT" "${PREPARE_SECONDS:-unavailable}" "${RELEASE_MODE:-unavailable}" \
             "${ROLLBACK_SOURCE:-unavailable}" "$PROMOTION_RESULT" "${PROMOTION_SECONDS:-unavailable}" \
             "${ROOT_DEPLOY:-skipped}" "${ROOT_SMOKE:-skipped}" "${ROOT_CLEANUP:-skipped}" \
             "$CLEANUP_RECOVERY_RESULT" "$ARCHIVE_RESULT" "${ARCHIVE_SECONDS:-unavailable}" \
-            "$ROLLBACK_RESULT" "$total_seconds" >> "$GITHUB_STEP_SUMMARY"
+            "$ROLLBACK_RESULT" >> "$GITHUB_STEP_SUMMARY"
