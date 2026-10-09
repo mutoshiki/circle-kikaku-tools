@@ -64,6 +64,9 @@ test('React production Pages deployments are restricted to a verified main dispa
   assert.match(rootAssembly, /release-build\.json/);
   assert.match(rootAssembly, /root\/react\/release-build\.json/);
   assert.match(prepare, /name: github-pages-react-root-release-payload[\s\S]*?path: \$\{\{ runner\.temp \}\}\/react-root/);
+  const durablePayloadUploadStart = prepare.indexOf('      - name: Keep run-scoped payload for successful release archive');
+  const durablePayloadUploadEnd = prepare.indexOf('      - name: Assemble pinned legacy rollback artifact', durablePayloadUploadStart);
+  assert.match(prepare.slice(durablePayloadUploadStart, durablePayloadUploadEnd), /include-hidden-files:\s*true/);
   assert.match(job('prepare'), /fetch-depth:\s*0/);
   assert.match(job('prepare'), /classify-production-release\.mjs/);
   assert.match(job('prepare'), /release_mode:\s*\$\{\{ steps\.release-classification\.outputs\.mode \}\}/);

@@ -145,6 +145,7 @@ jobs:
         with:
           name: github-pages-react-root-release-payload
           path: ${{ runner.temp }}/react-root
+          include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
       - name: Assemble pinned legacy rollback artifact
