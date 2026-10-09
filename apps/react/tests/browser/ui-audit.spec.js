@@ -177,13 +177,12 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await page.getByRole('button', { name: '費用を追加' }).click();
     await shot(page, viewportName, 26, 'vehicle-expense-extra-row');
     await page.getByRole('button', { name: '戻る' }).click();
-    await page.getByRole('button', { name: 'ガソリン代の操作' }).click();
-    await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
+    await page.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
     await shot(page, viewportName, 27, 'movement-settings-private');
     const rental = page.locator('#settlement-rental-times');
     if (await rental.count()) await rental.check({ force: true });
     await shot(page, viewportName, 28, 'movement-settings-rental');
-    await page.getByRole('button', { name: 'ルートから距離を計算' }).click();
+    await page.getByRole('button', { name: '移動距離計算ツール' }).click();
     await shot(page, viewportName, 29, 'route-planner-empty');
     await page.getByRole('button', { name: /出発地を追加/ }).click();
     await page.getByRole('searchbox', { name: '場所を検索' }).fill('出発地');
@@ -193,20 +192,18 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await page.getByRole('button', { name: /目的地を追加/ }).click();
     await page.getByRole('searchbox', { name: '場所を検索' }).fill('目的地');
     await page.getByRole('button', { name: /目的地/ }).last().click();
-    await expect(page.getByRole('radio', { name: /おすすめ/ })).toBeVisible();
-    await shot(page, viewportName, 31, 'route-candidate-selected');
-    await page.getByRole('button', { name: '地図を表示' }).click();
-    await shot(page, viewportName, 32, 'route-map-open');
+    await expect(page.locator('.route-leg-summary')).toContainText('12.35km');
+    await shot(page, viewportName, 31, 'route-primary-selected');
     await page.getByRole('button', { name: 'ルート設定' }).click();
-    await shot(page, viewportName, 33, 'route-options-open');
+    await shot(page, viewportName, 32, 'route-options-open');
     await page.getByRole('button', { name: /合計 .* を適用/ }).click();
-    await shot(page, viewportName, 34, 'vehicle-expense-after-route');
+    await shot(page, viewportName, 33, 'vehicle-expense-after-route');
     await page.getByRole('button', { name: '戻る', exact: true }).last().click({ force: true });
     await cancelDialog(page);
     const detail = page.getByRole('button', { name: /内訳を表示/ }).first();
-    if (await detail.count()) { await detail.click(); await shot(page, viewportName, 35, 'settlement-payment-breakdown-open'); }
+    if (await detail.count()) { await detail.click(); await shot(page, viewportName, 34, 'settlement-payment-breakdown-open'); }
     const paid = page.getByRole('button', { name: '支払い済みにする' }).first();
-    if (await paid.count()) { await paid.click(); await shot(page, viewportName, 36, 'settlement-payment-paid'); }
+    if (await paid.count()) { await paid.click(); await shot(page, viewportName, 35, 'settlement-payment-paid'); }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
 });

@@ -124,6 +124,58 @@ test('patch, versioned transactions, extras merge, reset and operation replay ma
   same(semanticRoom(old.migrateAppData(a)), semanticRoom(next.migrate(a)));
 });
 
+test('concurrent shared route-place additions merge by placeId and stay within the catalog limit', () => {
+  const { next } = pair();
+  const base = next.migrate(fixture);
+  const catalog = Array.from({ length: 48 }, (_, index) => ({
+    placeId: `place-${index}`,
+    name: `場所${index}`,
+    address: `住所${index}`,
+    latitude: 35 + index / 1000,
+    longitude: 139 + index / 1000,
+  }));
+  base.settlement.routePlaceCatalog = catalog;
+  const local = structuredClone(base);
+  local.settlement.routePlaceCatalog = [{
+    placeId: 'place-local', name: '端末A', address: '', latitude: 35, longitude: 139,
+  }, ...catalog.slice(0, 47)];
+  const remote = structuredClone(base);
+  remote.settlement.routePlaceCatalog = [{
+    placeId: 'place-remote', name: '端末B', address: '', latitude: 36, longitude: 140,
+  }, ...catalog.slice(0, 47)];
+  const path = 'settlement/routePlaceCatalog';
+  const pathKey = next.sync.syncPathVersionKey(path);
+  remote.pathVersions = { [pathKey]: { clock: 5, clientId: 'remote-client', seq: 1 } };
+  const patch = next.sync.buildEntityPatch(base, local);
+
+  const merged = next.sync.applyVersionedEntityPatch(remote, base, local, patch, 2, 'route-catalog-concurrent-additions', 2000);
+  const mergedCatalog = merged.settlement.routePlaceCatalog;
+  const placeIds = mergedCatalog.map(place => place.placeId);
+
+  assert.ok(placeIds.includes('place-local'));
+  assert.ok(placeIds.includes('place-remote'));
+  assert.equal(mergedCatalog.length, 48);
+  assert.equal(new Set(placeIds).size, placeIds.length);
+
+  const samePlaceLocal = structuredClone(base);
+  samePlaceLocal.settlement.routePlaceCatalog = [{
+    placeId: 'shared-place', name: '端末A表記', address: 'A住所', latitude: 35, longitude: 139,
+  }, ...catalog.slice(0, 47)];
+  const samePlaceRemote = structuredClone(base);
+  samePlaceRemote.settlement.routePlaceCatalog = [{
+    placeId: 'shared-place', name: '端末B表記', address: 'B住所', latitude: 36, longitude: 140,
+  }, ...catalog.slice(0, 47)];
+  const duplicatePatch = next.sync.buildEntityPatch(base, samePlaceLocal);
+  const deduplicated = next.sync.applyVersionedEntityPatch(samePlaceRemote, base, samePlaceLocal, duplicatePatch, 3, 'route-catalog-same-place', 3000);
+  assert.equal(deduplicated.settlement.routePlaceCatalog.filter(place => place.placeId === 'shared-place').length, 1);
+
+  const resetRemote = structuredClone(remote);
+  resetRemote.resetGeneration += 1;
+  const staleAfterReset = next.sync.applyVersionedEntityPatch(resetRemote, base, local, patch, 4, 'route-catalog-after-reset', 4000);
+  assert.equal(staleAfterReset.resetGeneration, resetRemote.resetGeneration);
+  assert.equal(staleAfterReset.settlement.routePlaceCatalog.some(place => place.placeId === 'place-local'), false);
+});
+
 test('compatibility hazards are explicit: canonical cleanup, application metadata and outbox age', () => {
   const { next, old } = pair();
   const base = next.migrate(fixture);

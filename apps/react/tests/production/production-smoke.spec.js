@@ -85,7 +85,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await editor.getByRole('button', { name: 'ガソリン代の操作' }).click();
     await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
     await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
-    await editor.getByRole('button', { name: 'ルートから距離を計算' }).click();
+    await editor.getByRole('button', { name: '移動距離計算ツール' }).click();
     const routeModal = page.getByRole('dialog', { name: /仮参加者A/ });
     await routeModal.getByRole('button', { name: /出発地を追加/ }).click();
     const search = routeModal.getByRole('searchbox', { name: '場所を検索' });
@@ -96,9 +96,9 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await search.fill('新宿駅');
     await expect(routeModal.locator('.route-place-results')).toBeVisible();
     await routeModal.locator('.route-place-results .cds--contained-list-item').first().click();
-    await expect(routeModal.locator('.route-results .route-result').first()).toBeVisible({ timeout: 60000 });
-    await routeModal.getByRole('button', { name: '地図を表示' }).click();
-    await expect(routeModal.getByRole('region', { name: 'ルート地図' })).toBeVisible();
+    await expect(routeModal.locator('.route-leg-summary')).toBeVisible({ timeout: 60000 });
+    await expect(routeModal.getByRole('radio')).toHaveCount(0);
+    await expect(routeModal.getByRole('button', { name: /地図/ })).toHaveCount(0);
     expect(forbiddenResponses).toEqual([]);
     await routeModal.getByRole('button', { name: '戻る' }).click();
     await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();

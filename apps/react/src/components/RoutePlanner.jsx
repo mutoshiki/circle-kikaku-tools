@@ -1,17 +1,18 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, useSyncExternalStore } from 'react';
 import { Button, Callout, Checkbox, ContainedList, ContainedListItem, IconButton, InlineLoading, InlineNotification, Search } from '@carbon/react';
-import { Add, ArrowDown, ArrowUp, Close, Map, SettingsAdjust } from '@carbon/icons-react';
+import { Add, ArrowDown, ArrowUp, Close, SettingsAdjust } from '@carbon/icons-react';
 import { distanceKilometers } from '../route/service.js';
 import { createRouteDomain } from '../route/legacy-domain.js';
 
-const empty = { origin: null, destination: null, waypoints: [], routes: [], selectedRouteIndex: 0, avoidTolls: true, avoidHighways: true, avoidFerries: false, roundTrip: false, recentPlaces: [] };
+const empty = { origin: null, destination: null, waypoints: [], routes: [], selectedRouteIndex: 0, avoidTolls: true, avoidHighways: true, avoidFerries: false, roundTrip: false };
+const noPlaces = Object.freeze([]);
 const roleLabel = target => target.role === 'origin' ? '出発地' : target.role === 'destination' ? '目的地' : `経由地 ${target.index + 1}`;
 
-function PlaceSearch({ runtime, target, recent, onSelect }) {
+function PlaceSearch({ runtime, target, history, onSelect }) {
   const [query, setQuery] = useState('');
-  const [searchState, setSearchState] = useState({ status: 'idle', entries: recent });
+  const [searchState, setSearchState] = useState({ status: 'idle', entries: history });
   useEffect(() => {
-    if (!query.trim()) { setSearchState({ status: 'idle', entries: recent }); return undefined; }
+    if (!query.trim()) { setSearchState({ status: 'idle', entries: history }); return undefined; }
     let current = true;
     const timer = setTimeout(async () => {
       try {
@@ -25,7 +26,7 @@ function PlaceSearch({ runtime, target, recent, onSelect }) {
       }
     }, 180);
     return () => { current = false; clearTimeout(timer); };
-  }, [query, recent, runtime]);
+  }, [query, history, runtime]);
   async function choose(entry) {
     setSearchState({ status: 'loading', operation: 'resolve' });
     try { await onSelect(entry.placeId && entry.latitude != null ? entry : await runtime.routeService.resolve(entry)); }
@@ -34,29 +35,31 @@ function PlaceSearch({ runtime, target, recent, onSelect }) {
   function updateQuery(event) {
     const next = event.target.value;
     setQuery(next);
-    setSearchState(next.trim() ? { status: 'loading', operation: 'search' } : { status: 'idle', entries: recent });
+    setSearchState(next.trim() ? { status: 'loading', operation: 'search' } : { status: 'idle', entries: history });
   }
   const entries = searchState.status === 'results' ? searchState.entries : searchState.status === 'idle' ? searchState.entries : [];
-  const listLabel = query.trim() ? '検索結果' : '最近選んだ場所';
+  const listLabel = query.trim() ? '検索結果' : '企画で共有した場所';
   return <section className="route-place-search" aria-label={`${roleLabel(target)}を検索`}>
-    <Search id="route-place-search" labelText="場所を検索" placeholder="場所を検索" value={query} size="lg" autoComplete="off" closeButtonLabelText="検索語を消去" onChange={updateQuery} onClear={() => { setQuery(''); setSearchState({ status: 'idle', entries: recent }); }} />
+    <Search id="route-place-search" labelText="場所を検索" placeholder="場所を検索" value={query} size="lg" autoComplete="off" closeButtonLabelText="検索語を消去" onChange={updateQuery} onClear={() => { setQuery(''); setSearchState({ status: 'idle', entries: history }); }} />
     {searchState.status === 'loading' && <InlineLoading description={searchState.operation === 'resolve' ? '場所を確認しています' : '場所を検索しています'} />}
     {searchState.status === 'error' && <InlineNotification kind="error" title="場所を検索できませんでした" subtitle="もう一度お試しください。" hideCloseButton lowContrast />}
     {searchState.status === 'empty' && <p className="route-place-empty">一致する場所がありません。</p>}
     {entries.length > 0 && (searchState.status === 'results' || searchState.status === 'idle') && <ContainedList className="route-place-results" label={listLabel} size="lg">{entries.map((entry, index) => <ContainedListItem key={entry.placeId || entry.id || index} onClick={() => choose(entry)}><span className="route-place-result"><strong>{entry.name || entry.mainText?.text || entry.text?.text || entry.query || '候補'}</strong>{entry.address && <small>{entry.address}</small>}</span></ContainedListItem>)}</ContainedList>}
-    {searchState.status === 'idle' && !entries.length && <p className="route-place-empty">場所を検索してください。</p>}
+    {searchState.status === 'idle' && !entries.length && <p className="route-place-empty">企画で共有した場所はありません。場所を検索してください。</p>}
   </section>;
 }
 
-const RoutePlanner = forwardRef(function RoutePlanner({ runtime, onApply, onStatusChange }, ref) {
+const RoutePlanner = forwardRef(function RoutePlanner({ runtime, isMobile = false, isActive = false, onApply, onStatusChange }, ref) {
   const stored = runtime.routeDraft.read(empty);
-  const [draft, setDraft] = useState({ ...empty, ...stored, roundTrip: false, waypoints: Array.isArray(stored.waypoints) ? stored.waypoints : [], routes: Array.isArray(stored.routes) ? stored.routes : [], recentPlaces: Array.isArray(stored.recentPlaces) ? stored.recentPlaces : [] });
+  const { recentPlaces: _legacyRecentPlaces, ...storedDraft } = stored;
+  const [draft, setDraft] = useState({ ...empty, ...storedDraft, roundTrip: false, waypoints: Array.isArray(stored.waypoints) ? stored.waypoints : [], routes: Array.isArray(stored.routes) ? stored.routes : [] });
+  const history = useSyncExternalStore(runtime.store.subscribe, () => runtime.store.getSnapshot().settlement?.routePlaceCatalog || noPlaces, () => noPlaces);
   const [searchTarget, setSearchTarget] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [mapOpen, setMapOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const mapRef = useRef(null);
+  const noticeAlreadySeen = useRef(runtime.storage.read('routePlannerNoticeSeen', false) === true);
+  const [showPrivacyNotice, setShowPrivacyNotice] = useState(false);
   const routeDomain = createRouteDomain();
   const selected = routeDomain.getSelectedRoute(draft);
   function persist(next) { runtime.routeDraft.write(next); setDraft(next); return next; }
@@ -69,8 +72,9 @@ const RoutePlanner = forwardRef(function RoutePlanner({ runtime, onApply, onStat
     finally { setLoading(false); }
   }
   async function selectPlace(place) {
-    const recentPlaces = [place, ...draft.recentPlaces.filter(item => item.placeId !== place.placeId)].slice(0, 12);
-    let next = { ...draft, recentPlaces, routes: [], selectedRouteIndex: 0 };
+    const { state: settlement } = runtime.store.domain.settlementInput(runtime.store.getSnapshot());
+    runtime.store.command('settlement', { state: { ...settlement, routePlaceCatalog: [place, ...settlement.routePlaceCatalog.filter(item => item.placeId !== place.placeId)].slice(0, 48) } });
+    let next = { ...draft, routes: [], selectedRouteIndex: 0 };
     if (searchTarget.role === 'origin') next.origin = place;
     else if (searchTarget.role === 'destination') next.destination = place;
     else {
@@ -106,14 +110,17 @@ const RoutePlanner = forwardRef(function RoutePlanner({ runtime, onApply, onStat
   }
   useImperativeHandle(ref, () => ({ apply, returnToPlanner }), [draft, loading, searchTarget]);
   useEffect(() => {
-    if (!mapOpen || !mapRef.current || !selected || !runtime.routeService?.renderMap) return;
-    runtime.routeService.renderMap(mapRef.current, draft).catch(caught => setError(caught.message));
-  }, [mapOpen, selected, draft, runtime]);
+    if (!isActive) { setShowPrivacyNotice(false); return; }
+    if (noticeAlreadySeen.current) return;
+    noticeAlreadySeen.current = true;
+    runtime.storage.write('routePlannerNoticeSeen', true);
+    setShowPrivacyNotice(true);
+  }, [isActive, runtime]);
   const stop = (place, role, index = -1) => {
     const label = roleLabel({ role, index });
     const actions = (role === 'waypoint' || place) && <div className="route-stop-actions" onClick={event => event.stopPropagation()}>
-      {role === 'waypoint' && <><IconButton kind="ghost" size="sm" label={`${label}を上へ`} disabled={index === 0} onClick={() => move(index, -1)}><ArrowUp /></IconButton><IconButton kind="ghost" size="sm" label={`${label}を下へ`} disabled={index === draft.waypoints.length - 1} onClick={() => move(index, 1)}><ArrowDown /></IconButton></>}
-      {place && <IconButton kind="ghost" size="sm" label={`${label}を削除`} onClick={() => remove(role, index)}><Close /></IconButton>}
+      {role === 'waypoint' && <><IconButton kind="ghost" size={isMobile ? 'lg' : 'sm'} label={`${label}を上へ`} disabled={index === 0} onClick={() => move(index, -1)}><ArrowUp /></IconButton><IconButton kind="ghost" size={isMobile ? 'lg' : 'sm'} label={`${label}を下へ`} disabled={index === draft.waypoints.length - 1} onClick={() => move(index, 1)}><ArrowDown /></IconButton></>}
+      {place && <IconButton kind="ghost" size={isMobile ? 'lg' : 'sm'} label={`${label}を削除`} onClick={() => remove(role, index)}><Close /></IconButton>}
     </div>;
     return <ContainedListItem key={`${role}-${index}`} id={role === 'origin' ? 'route-origin-action' : undefined} className="route-stop-item" onClick={() => setSearchTarget({ role, index })} action={actions}>
       <span className="route-stop-content"><span className="route-stop-marker" aria-hidden="true">{role === 'origin' ? 'O' : role === 'destination' ? 'D' : String.fromCharCode(65 + index)}</span><span className="route-stop-copy"><small>{label}</small><strong>{place?.name || `${label}を追加`}</strong>{place?.address && <span>{place.address}</span>}</span></span>
@@ -123,16 +130,15 @@ const RoutePlanner = forwardRef(function RoutePlanner({ runtime, onApply, onStat
   const distanceLabel = selected ? `${(selected.distanceMeters / 1000).toFixed(selected.distanceMeters >= 100000 ? 1 : 2)}km` : '';
   useEffect(() => { onStatusChange({ primaryLabel: selected ? `合計 ${distanceLabel} を適用` : 'この距離を適用', disabled: !selected || loading, hidePrimaryButton: Boolean(searchTarget) }); }, [distanceLabel, loading, onStatusChange, searchTarget, selected]);
   return <>
-    {searchTarget ? <PlaceSearch runtime={runtime} target={searchTarget} recent={draft.recentPlaces} onSelect={selectPlace} /> : <div className={`route-planner-shell${mapOpen ? ' map-open' : ''}`}>
+    {searchTarget ? <PlaceSearch runtime={runtime} target={searchTarget} history={history} onSelect={selectPlace} /> : <div className="route-planner-shell">
       <section className="route-planner-controls" aria-label="地点入力">
-        <Callout className="route-planner-callout" kind="warning" title="場所はルーム内で共有されます" subtitle="自宅住所ではなく、近くの施設を指定してください。" lowContrast />
+        {showPrivacyNotice && <Callout className="route-planner-callout" kind="warning" title="追加した場所は企画内で共有されます。" subtitle="自宅の住所の入力は避け、近隣の施設などを代わりに入力してください。" lowContrast />}
         <ContainedList className="route-stop-list" label="ルート地点" size="lg">{stop(draft.origin, 'origin')}{draft.waypoints.map((place, index) => stop(place, 'waypoint', index))}{stop(draft.destination, 'destination')}{waypointAction}</ContainedList>
-        <div className="route-toolbar"><Button kind="tertiary" renderIcon={Map} aria-expanded={mapOpen} onClick={() => setMapOpen(value => !value)}>{mapOpen ? '地図を閉じる' : '地図を表示'}</Button><Button kind="ghost" renderIcon={SettingsAdjust} aria-expanded={settingsOpen} onClick={() => setSettingsOpen(value => !value)}>{settingsOpen ? 'ルート設定を閉じる' : 'ルート設定'}</Button></div>
+        <div className="route-toolbar"><Button kind="ghost" renderIcon={SettingsAdjust} aria-expanded={settingsOpen} onClick={() => setSettingsOpen(value => !value)}>{settingsOpen ? 'ルート設定を閉じる' : 'ルート設定'}</Button></div>
         {settingsOpen && <div className="route-options" role="group" aria-label="ルート設定"><Checkbox id="route-use-tolls" labelText="有料道路を使う" checked={!draft.avoidTolls} onChange={(_, { checked }) => option({ avoidTolls: !checked })} /><Checkbox id="route-use-highways" labelText="高速道路を使う" checked={!draft.avoidHighways} onChange={(_, { checked }) => option({ avoidHighways: !checked })} /></div>}
-        {error && <InlineNotification kind="error" title="ルートを計算できませんでした" subtitle={error} hideCloseButton lowContrast />}{loading && <InlineLoading description="ルート候補を取得しています" />}
+        {error && <InlineNotification kind="error" title="ルートを計算できませんでした" subtitle={error} hideCloseButton lowContrast />}{loading && <InlineLoading description="ルートを計算しています" />}
       </section>
-      {mapOpen && <section className="route-map-panel" aria-label="ルート地図"><div ref={mapRef} className="route-map" role="application" aria-label="ルート候補の地図">{!runtime.routeService?.renderMap && <p>ルートを選ぶと地図を表示します。</p>}</div></section>}
-      <section className="route-planner-results" aria-labelledby="route-results-title"><h3 id="route-results-title">ルート候補</h3>{draft.routes.length ? <div className="route-results" role="radiogroup" aria-label="ルート候補">{draft.routes.map((route, index) => <button type="button" role="radio" aria-checked={index === draft.selectedRouteIndex} className="route-result" key={route.id} onClick={() => persist({ ...draft, selectedRouteIndex: index })}><strong>{route.label}</strong><span>{(route.distanceMeters / 1000).toFixed(route.distanceMeters >= 100000 ? 1 : 2)} km</span><small>{Math.round(route.durationSeconds / 60)}分{route.tollPrice ? `・${route.tollPrice}` : ''}</small></button>)}</div> : <p className="route-empty">出発地と目的地を選択すると、ルート候補を表示します。</p>}{selected && <div className="route-leg-summary"><strong>合計 {distanceLabel}・{Math.round(selected.durationSeconds / 60)}分</strong>{selected.legs?.map((leg, index) => <span key={index}>{leg.fromName || `地点${index + 1}`} → {leg.toName || `地点${index + 2}`}　{(leg.distanceMeters / 1000).toFixed(1)}km・{Math.round(leg.durationSeconds / 60)}分</span>)}</div>}</section>
+      <section className="route-planner-results" aria-labelledby="route-results-title"><h3 id="route-results-title">ルート</h3>{selected ? <div className="route-leg-summary"><strong>{distanceLabel}・{Math.round(selected.durationSeconds / 60)}分</strong>{selected.legs?.map((leg, index) => <span key={index}>{leg.fromName || `地点${index + 1}`} → {leg.toName || `地点${index + 2}`}　{(leg.distanceMeters / 1000).toFixed(1)}km・{Math.round(leg.durationSeconds / 60)}分</span>)}</div> : <p className="route-empty">出発地と目的地を選択すると、ルートを表示します。</p>}</section>
     </div>}
   </>;
 });

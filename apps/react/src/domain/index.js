@@ -5,13 +5,14 @@ import { createSettlementDomain } from './generated/settlement.js';
 import { createSyncDomain } from './generated/sync.js';
 import { createAssignmentDomain } from './generated/allocation.js';
 import { createApplicantsDomain } from './generated/applicants.js';
+import { withRoutePlaceCatalogMerge } from './route-place-sync.js';
 export { formParser } from './generated/parser.js';
 
 export function createDomain({ clock = { now: () => Date.now(), isServerAligned: () => false }, clientId = 'local', random = Math.random, crypto = globalThis.crypto } = {}) {
   const canonical = withAllocationRoles(createCanonicalEngine({ clock }));
   const migrate = createMigration(canonical);
   const settlement = createSettlementDomain({ crypto, random, clientId });
-  const sync = createSyncDomain({ migrate, clock, clientId });
+  const sync = withRoutePlaceCatalogMerge(createSyncDomain({ migrate, clock, clientId }));
   const assignment = createAssignmentDomain({ random, clock });
   function settlementInput(room) {
     const state = settlement.normalizeSettlementState(canonical.settlementToUi(room.settlement, room.participants));
