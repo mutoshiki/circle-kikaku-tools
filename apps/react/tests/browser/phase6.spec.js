@@ -62,8 +62,8 @@ test('route draft stays local and selected distance alone enters shared settleme
   await car.getByLabel('名目').fill('一時費用');
   await car.getByRole('button', { name: '戻る' }).click();
   const addedExpense = car.locator('.settlement-cost-list-item').filter({ hasText: '一時費用' });
-  await addedExpense.getByRole('button', { name: '一時費用の操作' }).click();
-  await page.getByRole('menuitem', { name: '削除', exact: true }).click();
+  await addedExpense.getByRole('button', { name: '一時費用を編集' }).click();
+  await car.getByRole('button', { name: '一時費用を削除' }).click();
   await car.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await car.getByRole('button', { name: '移動距離計算ツール' }).click();
   const route = page.getByRole('dialog', { name: '仮参加者A車' });

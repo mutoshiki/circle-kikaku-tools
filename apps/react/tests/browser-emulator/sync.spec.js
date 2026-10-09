@@ -55,7 +55,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
       const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: carHeading, exact: true }) });
       await car.getByRole('button', { name: '費用を入力', exact: true }).click();
       const dialog = page.getByRole('dialog', { name: dialogName });
-      await dialog.getByRole('button', { name: '費用を追加', exact: true }).click();
+      await dialog.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
       return dialog;
     }
 
@@ -98,7 +98,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     await expect(draftNameB).toHaveValue('端末B 当日入浴代');
     await expect(draftAmountB).toHaveValue('900');
 
-    await pageA.getByRole('button', { name: '精算設定' }).click();
+    await pageA.getByRole('button', { name: '精算設定を編集' }).click();
     const settings = pageA.getByRole('dialog', { name: '精算設定を編集' });
     await settings.getByText('10円単位', { exact: true }).click();
     await settings.getByRole('button', { name: '次へ' }).click();
@@ -171,8 +171,7 @@ test('two real browsers preserve concurrently added route places in shared room 
       const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: '仮参加者A車', exact: true }) });
       await car.getByRole('button', { name: '費用を入力', exact: true }).click();
       const dialog = page.getByRole('dialog', { name: '仮参加者A車' });
-      await dialog.getByRole('button', { name: 'ガソリン代の操作' }).click();
-      await page.getByRole('menuitem', { name: '計算条件を編集' }).click();
+      await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
       await dialog.getByRole('button', { name: '移動距離計算ツール' }).click();
       await dialog.getByRole('button', { name: /出発地を追加/ }).click();
       return dialog;
