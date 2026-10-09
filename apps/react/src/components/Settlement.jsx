@@ -263,6 +263,7 @@ export default function Settlement({ runtime, room, onNotice }) {
   const settlement = runtime.store.domain.settlement;
   const result = settlement.calculateSettlement(data, state);
   const issues = settlement.getSettlementIssues(data, state, result);
+  const visibleIssues = issues.messages.filter(message => !message.includes('車のガソリン代を計算するため、'));
   const [settingsEdit, setSettingsEdit] = useState(null);
   const [carEdit, setCarEdit] = useState(null);
   const [collector, setCollector] = useState(null);
@@ -296,7 +297,7 @@ export default function Settlement({ runtime, room, onNotice }) {
   function closeMemoEditor() { setMemo(null); setMemoEditing(false); }
   if (!result.participants.length && !result.isStandaloneSettlement) return <section className="settlement-page"><div className="empty-state"><h1>精算</h1><p>参加者がいません</p></div></section>;
   return <section className="settlement-page" aria-label="精算">
-    {issues.messages.map(message => <InlineNotification key={message} kind={message.includes('企画者を選ぶ') ? 'info' : 'error'} title="設定を確認してください" subtitle={message} hideCloseButton lowContrast />)}
+    {visibleIssues.map(message => <InlineNotification key={message} kind={message.includes('企画者を選ぶ') ? 'info' : 'error'} title="設定を確認してください" subtitle={message} hideCloseButton lowContrast />)}
     <Tile className="settlement-card settlement-vehicles-card">
       <div className="settlement-section-heading"><div><h1>各車への支払い</h1></div>
         <Button className="settlement-settings-action" kind="ghost" size="sm" renderIcon={Edit} aria-label="精算設定を編集" onClick={() => setSettingsEdit(beginSettlementEdit(runtime.store))}>精算設定</Button>
