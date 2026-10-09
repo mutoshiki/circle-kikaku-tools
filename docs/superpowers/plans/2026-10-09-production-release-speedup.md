@@ -68,6 +68,7 @@
 - [x] 必要なcontents書込権限をtrusted mainのpublish jobのみに限定する。通常のartifact取得は最小権限とする。
 - [x] 取得済み成功payloadを今回runのrollback Pages artifactとして用意し、失敗後に再buildせず復旧できるようにする。
 - [x] workflow相当の模擬Pages deployで復旧先のSHA/digestとファイル内容を検証する。
+- [x] 実際の保存済み9MB Pages payloadでdecoderを検証し、大容量Base64をrecursive regexなしで検証する。
 - [ ] 標準releaseで成功後のlast-good記録保存と、その成果物を使うrollbackを確認する。
 
 ### Task 4: 通常UI更新をroot一回公開へ整理
@@ -94,4 +95,4 @@
 - [x] Readiness待ち・artifact準備・deploy・smoke・cleanupをjob summaryで一目で確認できるようにする。アプリ操作で使うdataやsecretをログへ出さない。
 - [x] CIの追加短縮は別計測で判断する。今回のmain CIは3分45秒だったため、初期段階ではrelease jobの準備重複を優先する。
 
-実装状況（2026-10-09）: 最初のmigration releaseは成功したが、公開後に `/react/` と `/legacy/` がroot promotionで失われることを追加確認した。root artifactの経路保持、rollback archive、root production smokeを専用worktreeで修正中。Task 1〜2の計測とTask 3〜4の本番経路確認は、修正merge後の標準releaseで実測する。時間見積もりは保証ではない。無関係な変更・生成済みtest artifactは保全する。
+実装状況（2026-10-09）: PR #87のmigration release後に `/react/` と `/legacy/` がroot promotionで失われる問題を確認し、PR #88でroot artifact・rollback archive・root smokeを修正してmerge済み。修正後のreleaseはPages変更前のrollback検証で停止した。実際の保存済みpayloadを使って原因を再現し、大容量Base64 decoderを修正するPRを準備中。Task 1〜2の計測とTask 3〜4の本番経路確認は、修正後のreleaseで実測する。時間見積もりは保証ではない。無関係な変更・生成済みtest artifactは保全する。

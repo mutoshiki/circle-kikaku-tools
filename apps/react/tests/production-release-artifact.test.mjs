@@ -10,6 +10,7 @@ import test from 'node:test';
 import {
   computeAssetDigest,
   createPagesArchive,
+  decodePagesArchive,
   verifyCurrentRelease,
 } from '../tools/production-release-artifact.mjs';
 
@@ -88,6 +89,17 @@ test('asset digest excludes root and /react release manifests while including bo
 
 test('asset digest validates manifest paths before excluding them', () => {
   assert.throws(() => computeAssetDigest(new Map([['../release-build.json', Buffer.from('{}')]])), /unsafe path/);
+});
+
+test('Pages rollback archive decodes large production assets without regex recursion limits', () => {
+  const largeAsset = Buffer.alloc(6 * 1024 * 1024, 0x61);
+  const archive = createPagesArchive(new Map([
+    ['index.html', Buffer.from('<main>React</main>')],
+    ['assets/app.js', largeAsset],
+    ['release-build.json', Buffer.from('{}')],
+  ]));
+  const restored = decodePagesArchive(archive);
+  assert.deepEqual(restored.get('assets/app.js'), largeAsset);
 });
 
 test('digest CLI reads a Pages build directory using the release digest algorithm', () => {
