@@ -18,12 +18,12 @@
 
 直近4回の成功releaseは8分10秒〜8分59秒。テスト本体は今回合計55秒で、テスト削減より実行環境の再準備を減らす効果が大きい。
 
-目標は二段階。既存の二段階公開を保つ最初の改善で約7分、準備環境の改善を実測して6〜7分を目指す。その後、条件を満たす通常のUI更新をroot一回の公開に整理し、**Readiness成功後3〜5分**を目標とする。所要時間は推定で、キュー待ち・外部API障害・再試行を別記して実測する。
+目標は二段階。cleanupの重複起動を外し、互換性確認とroot確認を同じrunnerで続ける改善で約5〜6分を目指す。その後、条件を満たす通常のUI更新をroot一回の公開に整理し、**Readiness成功後3〜5分**を目標とする。所要時間は推定で、キュー待ち・外部API障害・再試行を別記して実測する。
 
 ## 採用する方針
 
 1. 最優先は各smokeジョブ内でcleanupを実行して確認すること。二つの段階のcleanupを最後まで延期するのではなく、各段階の順序と安全性を保ちながら、独立cleanupジョブのnpm・ブラウザ導入を通常成功時から除く。
-2. Playwrightの公式イメージを候補に、ブラウザ・OS依存の準備を実測比較する。npmダウンロードキャッシュは既に有効。ブラウザキャッシュを追加すれば必ず速くなるとは扱わない。
+2. compatibility smokeとroot smokeを同じrunnerへ移し、npm/browser準備を一度にする。公式Playwright imageはローカル実測101秒・3.45GBでNode 24、本体テストは現在Node 22のため候補から外す。npmダウンロードキャッシュは既に有効。ブラウザキャッシュを追加すれば必ず速くなるとは扱わない。
 3. 通常のReact UI更新と、旧版からの移行・shared互換変更を、同じ標準workflow内の明示的な経路に分ける。通常経路はroot一回公開、移行経路はcompatibility→root。同じSHAのReadiness、production設定検証、両ブラウザのroot smoke、cleanup、rollbackは両経路で必須。
 4. rollback先を直前の成功React成果物として保存・検証する。旧legacyを毎回ビルドすることと、通常公開でトップを一時的にlegacyへ戻すことを解消する。移行経路のcompatibility artifactも公開中の成功React rootを保持し、旧版は必要な互換確認用の別パスで検証する。
 
@@ -52,6 +52,8 @@
 - CIのPR/main二重実行を単純に省略: merge後のSHA保証を崩す。別の最適化として証拠付きで検討する。
 - 自前runner: 運用・更新負担が大きく、現状の規模では先にジョブ再準備を減らす。
 - すべてのmergeを自動公開: 今回の目的は依頼した本番反映の短縮。公開タイミングの変更は含めない。
+
+公式image trial (mcr.microsoft.com/playwright:v1.61.0-noble) はローカルで101.3秒のcold pull、3,449,416,031 bytes。内蔵Nodeはv24.16.0で本workflowのNode 22要件と合わないため導入を見送る。smoke実行jobを同一runner化する方が、browser installの二重実行を直接なくせる。
 
 ## 完了判定
 

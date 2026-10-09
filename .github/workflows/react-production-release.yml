@@ -136,144 +136,88 @@ jobs:
           name: github-pages-legacy-rollback
           path: ./rollback-site
 
-  compatibility-deploy:
-    name: Release / Deploy compatibility at /react/
+  promotion:
+    name: Release / Stage, promote, and verify production
     if: github.ref == 'refs/heads/main'
-    needs: prepare
+    needs: [prepare]
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       actions: read
       pages: write
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.root-deployment.outputs.page_url || steps.compatibility-deployment.outputs.page_url }}
+    outputs:
+      root_deployment_outcome: ${{ steps.root-deployment.outcome }}
+      root_smoke_outcome: ${{ steps.root-smoke.outcome }}
+      root_cleanup_outcome: ${{ steps.root-cleanup.outcome }}
+    env:
+      REACT_PRODUCTION_RELEASE: 'true'
+      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
+      REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
+      REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
+      REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
+      REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
     steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/react/package-lock.json
+      - name: Install smoke dependencies
+        working-directory: apps/react
+        run: npm ci --no-audit --no-fund
+      - name: Install Chromium and WebKit
+        working-directory: apps/react
+        run: npx playwright install --with-deps chromium webkit
       - name: Deploy compatibility artifact
-        id: deployment
+        id: compatibility-deployment
         uses: actions/deploy-pages@v5
         with:
           artifact_name: github-pages-compatibility
-
-  compatibility-smoke:
-    name: Release / Compatibility production smoke
-    needs: [prepare, compatibility-deploy]
-    runs-on: ubuntu-latest
-    timeout-minutes: 35
-    env:
-      REACT_PRODUCTION_RELEASE: 'true'
-      REACT_PRODUCTION_SMOKE_MODE: compatibility
-      REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/react/
-      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
-      REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
-      REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
-      REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
-      REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: apps/react/package-lock.json
-      - name: Install smoke dependencies
-        working-directory: apps/react
-        run: npm ci --no-audit --no-fund
-      - name: Install Chromium and WebKit
-        working-directory: apps/react
-        run: npx playwright install --with-deps chromium webkit
       - name: Verify compatibility app, Firebase, Maps, Places, Routes, and legacy read compatibility
+        id: compatibility-smoke
         working-directory: apps/react
+        env:
+          REACT_PRODUCTION_SMOKE_MODE: compatibility
+          REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/react/
         run: npx playwright test --config playwright.production.config.js
-
-  compatibility-cleanup:
-    name: Release / Compatibility smoke-room cleanup
-    timeout-minutes: 15
-    if: always() && needs.compatibility-deploy.result == 'success' && needs.compatibility-smoke.result != 'success'
-    needs: [compatibility-deploy, compatibility-smoke]
-    runs-on: ubuntu-latest
-    env:
-      REACT_PRODUCTION_RELEASE: 'true'
-      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
-      REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
-      REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: apps/react/package-lock.json
-      - run: npm ci --no-audit --no-fund
-        working-directory: apps/react
-      - name: Install Chromium for browser-origin cleanup
-        working-directory: apps/react
-        run: npx playwright install --with-deps chromium
-      - name: Remove only this run's marked smoke room and verify null
+      - name: Verify compatibility smoke-room cleanup
+        id: compatibility-cleanup
+        if: always() && steps.compatibility-deployment.outcome == 'success'
         working-directory: apps/react
         run: node tools/cleanup-production-smoke.mjs
-
-  root-deploy:
-    name: Release / Cut over root to React
-    if: github.ref == 'refs/heads/main' && always() && needs.prepare.result == 'success' && needs.compatibility-smoke.result == 'success' && (needs.compatibility-cleanup.result == 'success' || needs.compatibility-cleanup.result == 'skipped')
-    needs: [prepare, compatibility-smoke, compatibility-cleanup]
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
       - name: Deploy React root artifact
-        id: deployment
+        id: root-deployment
+        if: success() && steps.compatibility-smoke.outcome == 'success' && steps.compatibility-cleanup.outcome == 'success'
         uses: actions/deploy-pages@v5
         with:
           artifact_name: github-pages-react-root
-
-  root-smoke:
-    name: Release / Production root smoke
-    needs: [prepare, compatibility-smoke, root-deploy]
-    runs-on: ubuntu-latest
-    timeout-minutes: 35
-    env:
-      REACT_PRODUCTION_RELEASE: 'true'
-      REACT_PRODUCTION_SMOKE_MODE: root
-      REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/
-      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
-      REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
-      REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
-      REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
-      REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: apps/react/package-lock.json
-      - name: Install smoke dependencies
-        working-directory: apps/react
-        run: npm ci --no-audit --no-fund
-      - name: Install Chromium and WebKit
-        working-directory: apps/react
-        run: npx playwright install --with-deps chromium webkit
       - name: Verify root React app and production integrations
+        id: root-smoke
+        if: success() && steps.root-deployment.outcome == 'success'
         working-directory: apps/react
+        env:
+          REACT_PRODUCTION_SMOKE_MODE: root
+          REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/
         run: npx playwright test --config playwright.production.config.js
+      - name: Verify root smoke-room cleanup
+        id: root-cleanup
+        if: always() && steps.root-deployment.outcome == 'success'
+        working-directory: apps/react
+        run: node tools/cleanup-production-smoke.mjs
 
-  root-cleanup:
-    name: Release / Root smoke-room cleanup
-    if: always() && needs.root-deploy.result == 'success' && needs.root-smoke.result != 'success'
-    needs: [root-deploy, root-smoke]
+  cleanup-recovery:
+    name: Release / Recover smoke-room cleanup after runner failure
+    if: always() && needs.prepare.result == 'success' && needs.promotion.result != 'success'
+    needs: [prepare, promotion]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       REACT_PRODUCTION_RELEASE: 'true'
       REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
@@ -299,8 +243,8 @@ jobs:
 
   rollback:
     name: Release / Restore pinned legacy root after failed root smoke
-    if: github.ref == 'refs/heads/main' && always() && needs.root-deploy.result == 'success' && (needs.root-smoke.result == 'failure' || needs.root-cleanup.result == 'failure')
-    needs: [prepare, root-deploy, root-smoke, root-cleanup]
+    if: github.ref == 'refs/heads/main' && always() && (needs.promotion.outputs.root_deployment_outcome == 'failure' || (needs.promotion.outputs.root_deployment_outcome == 'success' && (needs.promotion.outputs.root_smoke_outcome == 'failure' || needs.promotion.outputs.root_cleanup_outcome == 'failure' || needs.cleanup-recovery.result == 'failure')))
+    needs: [prepare, promotion, cleanup-recovery]
     runs-on: ubuntu-latest
     permissions:
       actions: read

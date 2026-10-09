@@ -20,17 +20,33 @@ test('React production Pages deployments are restricted to a verified main dispa
   assert.match(workflow, /^on:\n  workflow_dispatch:\s*$/m);
   assert.doesNotMatch(workflow, /^  (?:push|pull_request|pull_request_target):/m);
 
-  for (const name of ['release-gate', 'prepare', 'compatibility-deploy', 'root-deploy', 'rollback']) {
+  for (const name of ['release-gate', 'prepare', 'promotion', 'rollback']) {
     assert.match(job(name), /if:\s*github\.ref == 'refs\/heads\/main'/, `${name} is main-only`);
   }
 
   assert.match(job('prepare'), /needs:\s*release-gate/);
-  assert.match(job('root-deploy'), /if: github\.ref == 'refs\/heads\/main' && always\(\) && needs\.prepare\.result == 'success' && needs\.compatibility-smoke\.result == 'success' && \(needs\.compatibility-cleanup\.result == 'success' \|\| needs\.compatibility-cleanup\.result == 'skipped'\)/);
-  assert.match(job('root-deploy'), /needs:\s*\[prepare, compatibility-smoke, compatibility-cleanup\]/);
-  assert.match(job('compatibility-cleanup'), /if:\s*always\(\) && needs\.compatibility-deploy\.result == 'success' && needs\.compatibility-smoke\.result != 'success'/);
-  assert.match(job('root-cleanup'), /if:\s*always\(\) && needs\.root-deploy\.result == 'success' && needs\.root-smoke\.result != 'success'/);
-  assert.match(job('compatibility-deploy'), /artifact_name:\s*github-pages-compatibility/);
-  assert.match(job('root-deploy'), /artifact_name:\s*github-pages-react-root/);
+  assert.match(job('promotion'), /needs:\s*\[prepare\]/);
+  const promotion = job('promotion');
+  const orderedSteps = [
+    'id: compatibility-deployment',
+    'artifact_name: github-pages-compatibility',
+    'id: compatibility-smoke',
+    'id: compatibility-cleanup',
+    'id: root-deployment',
+    'artifact_name: github-pages-react-root',
+    'id: root-smoke',
+    'id: root-cleanup',
+  ].map(step => promotion.indexOf(step));
+  assert.ok(orderedSteps.every(index => index >= 0));
+  assert.deepEqual(orderedSteps, [...orderedSteps].sort((a, b) => a - b));
+  assert.equal((promotion.match(/npm ci --no-audit --no-fund/g) || []).length, 1);
+  assert.equal((promotion.match(/playwright install --with-deps chromium webkit/g) || []).length, 1);
+  assert.match(promotion, /outputs:[\s\S]*root_deployment_outcome:[\s\S]*steps\.root-deployment\.outcome/);
+  assert.match(promotion, /id: root-deployment\s+if: success\(\) && steps\.compatibility-smoke\.outcome == 'success' && steps\.compatibility-cleanup\.outcome == 'success'/);
+  assert.match(job('cleanup-recovery'), /if: always\(\) && needs\.prepare\.result == 'success' && needs\.promotion\.result != 'success'/);
+  assert.match(job('cleanup-recovery'), /needs:\s*\[prepare, promotion\]/);
+  assert.match(job('rollback'), /needs:\s*\[prepare, promotion, cleanup-recovery\]/);
+  assert.match(job('rollback'), /needs\.promotion\.outputs\.root_deployment_outcome == 'failure' \|\|/);
   assert.match(job('prepare'), /Build React app once for both deployment paths/);
 
   for (const browser of ['Chromium', 'WebKit', 'visual and layout']) {
@@ -49,9 +65,6 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.match(roomHelper, /existingMarker !== marker/);
   assert.match(roomHelper, /Reserved smoke room contains unmarked data; no data was changed/);
   assert.match(cleanup, /chromium\.launch/);
-  for (const name of ['prepare', 'compatibility-smoke', 'compatibility-cleanup', 'root-smoke', 'root-cleanup']) {
-    assert.match(job(name), /secrets\.REACT_FIREBASE_API_KEY/);
-  }
-  assert.match(job('root-cleanup'), /Install Chromium for browser-origin cleanup[\s\S]*npx playwright install --with-deps chromium/);
+  for (const name of ['prepare', 'promotion', 'cleanup-recovery']) assert.match(job(name), /secrets\.REACT_FIREBASE_API_KEY/);
   assert.match(job('prepare'), /secrets\.REACT_MAPS_API_KEY/);
 });

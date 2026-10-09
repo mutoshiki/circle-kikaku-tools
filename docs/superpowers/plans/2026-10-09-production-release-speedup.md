@@ -43,16 +43,18 @@
 - [ ] focused checks: `node --test tests/react-production-release-contract.test.mjs tests/production-smoke-room.test.mjs` をapps/reactで実行する。失敗経路は模擬環境で検証し、本番の不具合注入をしない。
 - [ ] 標準CI→Readiness→releaseで通常成功を計測する。現行約9分から約7分を初期目標とし、setupを116秒分消した効果を確認する。変更を個別commitにまとめる。
 
-### Task 2: ブラウザ準備の実測改善
+### Task 2: 段階公開のブラウザ実行環境を共通化
 
 **Files:** `.github/workflows/react-production-release.yml`、`apps/react/tests/react-production-release-contract.test.mjs`
 
-**Interfaces:** lockfileのPlaywright版と一致する公式imageを使用する。digest固定と版本一致チェックをreleaseの前提とする。
+**Interfaces:** 一つのpromotion runner内でcompatibilityとrootのdeploy/smoke/cleanupを順番に行う。root deployment、root smoke、root cleanupのstep outcomesをjob outputsに公開し、別runnerのrollback/recoveryに渡す。
 
-- [ ] 現在の`npm ci`+`playwright install --with-deps`と、Playwright公式containerでの起動+`npm ci`を比較する。cold/warm pull、Node 22、Chromium/WebKitの起動時間を含める。
-- [ ] 採用はimage取得時間込みで両smoke jobの準備合計が改善した場合のみ。版本不一致をチェックで拒否する。npm cacheは既存のものを使用する。
-- [ ] 両ブラウザ・Google/Firebase APIへの接続とbrowser-origin認証を実ブラウザで確認する。OSやimage変更でのsnapshot更新はこの作業に含めない。
-- [ ] 標準releaseで計測し6〜7分を目安とする。改善しなければTask 1の形を維持する。テストを減らして目標を合わせない。
+- [ ] Playwright公式containerを実測する。v1.61.0-nobleはローカルpull 101秒、3.45GBで、image内Nodeはv24.16.0だった。現状のGitHub runner browser installはcompat/root各約60秒、Nodeは22なので、このimage案を採用しない。
+- [ ] compatibility deploy→smoke→room cleanup→root deploy→smoke→room cleanupを同じpromotion jobにまとめる。Node 22、npm ci、Chromium/WebKitのinstallは一度だけにする。root deployはcompatibility smokeとcleanupの両成功後のみ実行する。
+- [ ] runner終了やroom cleanup失敗に備え、別runnerのcleanup-recoveryをpromotion失敗時のみ起動する。失敗を成功へ変換しない。
+- [ ] root deployが失敗した可能性もrollback対象にする。root deployがskipされたcompatibility段階の失敗でrollbackを実行しない。
+- [ ] focused checksとReact単体suiteを実行し、ジョブ順・成功条件・失敗時のrecovery/rollback条件を契約テストで確認する。
+- [ ] 次の標準releaseで段階CIからroot smoke完了までの時間を記録し、約5〜6分を初期目標とする。テストを減らして目標を合わせない。
 
 ### Task 3: 継続運用用のrollbackを準備
 
