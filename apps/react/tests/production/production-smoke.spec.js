@@ -51,9 +51,39 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
   assertProductionSmokeTarget();
   let roomSeeded = false;
   const consoleErrors = [];
+  const identityToolkitDiagnostics = [];
+  const identityToolkitResponseTasks = [];
   const forbiddenResponses = [];
-  page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+  let smokePhase = 'initial app load';
+  page.on('console', message => {
+    if (message.type() !== 'error') return;
+    const location = message.location();
+    let source = '';
+    try {
+      if (location.url) {
+        const url = new URL(location.url);
+        source = ` [${url.origin}${url.pathname}:${location.lineNumber}:${location.columnNumber}]`;
+      }
+    } catch {}
+    const messageText = message.text().replace(/([?&]key=)[^&\s]+/gi, '$1[redacted]');
+    consoleErrors.push(`${messageText}${source}`);
+  });
   page.on('pageerror', error => { consoleErrors.push(error.message); });
+  page.on('requestfailed', request => {
+    const url = new URL(request.url());
+    if (url.hostname !== 'identitytoolkit.googleapis.com') return;
+    identityToolkitDiagnostics.push(`${smokePhase}: ${request.method()} ${url.origin}${url.pathname} failed (${request.failure()?.errorText || 'unknown'})`);
+  });
+  page.on('response', response => {
+    const url = new URL(response.url());
+    if (url.hostname !== 'identitytoolkit.googleapis.com' || response.status() < 400) return;
+    const responsePhase = smokePhase;
+    identityToolkitResponseTasks.push((async () => {
+      let detail = '';
+      try { detail = ((await response.json())?.error?.message || '').replace(/([?&]key=)[^&\s]+/gi, '$1[redacted]'); } catch {}
+      identityToolkitDiagnostics.push(`${responsePhase}: HTTP ${response.status()} ${url.origin}${url.pathname}${detail ? ` (${detail})` : ''}`);
+    })());
+  });
   page.on('response', response => {
     const url = new URL(response.url());
     if (response.status() === 403 && /(?:googleapis\.com|google\.com)$/.test(url.hostname)) {
@@ -66,14 +96,18 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
   try {
     const initial = createReference().migrateAppData(fixture);
     initial.roomName = smokeMarker;
+    smokePhase = 'initial app load';
     await page.goto(baseURL);
     await expect(page.locator('.application')).toBeVisible();
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
+    smokePhase = 'smoke room seed helper';
     await seedProductionSmokeRoom(page, { config, roomId, marker: smokeMarker, data: initial });
     roomSeeded = true;
+    smokePhase = 'React room entry';
     await page.goto(`${baseURL}?room=${roomId}&view=participants`);
     await expect(page).toHaveTitle('サークル企画ツール');
     await waitForProductionBuildManifest(page);
+    smokePhase = 'React room reload';
     await page.reload();
     await waitForProductionBuildManifest(page);
     await expect(page.locator('.application')).toBeVisible();
@@ -120,11 +154,13 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(editor).toHaveCount(0);
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
+    smokePhase = 'React persistence reload';
     await page.reload();
     await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(updatedSmokeMarker);
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
     if (mode === 'root') {
+      smokePhase = 'React alias validation';
       const routePage = await page.context().newPage();
       try {
         const reactAlias = new URL('/circle-kikaku-tools/react/', 'https://mutoshiki.github.io');
@@ -146,6 +182,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     }
 
     if (mode === 'compatibility') {
+      smokePhase = 'legacy alias validation';
       const legacyUrl = new URL('/circle-kikaku-tools/legacy/', 'https://mutoshiki.github.io');
       legacyUrl.searchParams.set('room', roomId);
       await page.goto(legacyUrl.toString());
@@ -153,7 +190,13 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
       await page.goto(`${productionPath}?room=${roomId}&view=seisan`);
       await expect(page.getByRole('tabpanel', { name: '精算', exact: true })).toBeVisible();
     }
-    expect(consoleErrors, `Unexpected browser console/page errors:\n${consoleErrors.join('\n')}`).toEqual([]);
+    await Promise.all(identityToolkitResponseTasks);
+    expect(consoleErrors, [
+      'Unexpected browser console/page errors:',
+      consoleErrors.join('\n'),
+      'Identity Toolkit request diagnostics (query strings omitted):',
+      identityToolkitDiagnostics.join('\n') || '(none)',
+    ].join('\n')).toEqual([]);
     expect(forbiddenResponses).toEqual([]);
   } finally {
     if (roomSeeded) {

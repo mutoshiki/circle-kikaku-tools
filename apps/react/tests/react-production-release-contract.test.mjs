@@ -109,6 +109,13 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.match(smoke, /await waitForProductionBuildManifest\(page\);[\s\S]*?await page\.reload\(\)/);
   assert.match(smoke, /const consoleErrors = \[\]/);
   assert.match(smoke, /Unexpected browser console\/page errors/);
+  assert.match(smoke, /const identityToolkitDiagnostics = \[\]/);
+  assert.match(smoke, /request\.failure\(\)\?\.errorText/);
+  assert.match(smoke, /identitytoolkit\.googleapis\.com/);
+  assert.match(smoke, /response\.status\(\) >= 400/);
+  assert.match(smoke, /\$\{url\.origin\}\$\{url\.pathname\}/);
+  assert.match(smoke, /message\.text\(\)\.replace/);
+  assert.match(smoke, /Identity Toolkit request diagnostics/);
   for (const name of ['prepare', 'promotion', 'cleanup-recovery']) assert.match(job(name), /secrets\.REACT_FIREBASE_API_KEY/);
   assert.match(job('prepare'), /secrets\.REACT_MAPS_API_KEY/);
 });
