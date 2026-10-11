@@ -49,6 +49,12 @@ async function waitForProductionBuildManifest(page) {
   }).toEqual(expectedManifest);
 }
 
+async function waitForSmokeRoomReady(page, expectedRoomName) {
+  await expect(page.locator('.application')).toBeVisible();
+  await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(expectedRoomName);
+  await expect(page.locator('.sync-status')).toHaveText('同期完了');
+}
+
 test('production app, Firebase compatibility, route APIs, and key tasks work without touching another room', async ({ page }) => {
   assertProductionSmokeTarget();
   let roomSeeded = false;
@@ -112,11 +118,12 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await page.goto(`${baseURL}?room=${roomId}&view=participants`);
     await expect(page).toHaveTitle('サークル企画ツール');
     await waitForProductionBuildManifest(page);
+    setSmokePhase('React room readiness');
+    await waitForSmokeRoomReady(page, smokeMarker);
     setSmokePhase('React room reload');
     await page.reload();
     await waitForProductionBuildManifest(page);
-    await expect(page.locator('.application')).toBeVisible();
-    await expect(page.locator('.sync-status')).toHaveText('同期完了');
+    await waitForSmokeRoomReady(page, smokeMarker);
     const projectName = page.getByRole('textbox', { name: '企画名' });
     const updatedSmokeMarker = `${smokeMarker}-updated`;
     await projectName.fill(updatedSmokeMarker);
@@ -172,10 +179,11 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
         reactAlias.searchParams.set('room', roomId);
         await routePage.goto(reactAlias.toString());
         await waitForProductionBuildManifest(routePage);
+        await waitForSmokeRoomReady(routePage, updatedSmokeMarker);
+        setSmokePhase('React alias reload');
         await routePage.reload();
-        await expect(routePage.locator('.application')).toBeVisible();
-        await expect(routePage.locator('.sync-status')).toHaveText('同期完了');
         await waitForProductionBuildManifest(routePage);
+        await waitForSmokeRoomReady(routePage, updatedSmokeMarker);
 
         const legacyAlias = new URL('/circle-kikaku-tools/legacy/', 'https://mutoshiki.github.io');
         legacyAlias.searchParams.set('room', roomId);

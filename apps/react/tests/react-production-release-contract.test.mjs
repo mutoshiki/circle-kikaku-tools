@@ -145,6 +145,19 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.match(job('prepare'), /secrets\.REACT_MAPS_API_KEY/);
 });
 
+test('production smoke confirms the expected room is synced before root and alias reloads', () => {
+  const roomEntry = smoke.indexOf("setSmokePhase('React room entry')");
+  const roomReload = smoke.indexOf("setSmokePhase('React room reload')");
+  const aliasEntry = smoke.indexOf("setSmokePhase('React alias validation')");
+  const aliasReload = smoke.indexOf('await routePage.reload()', aliasEntry);
+  assert.ok(roomEntry >= 0 && roomReload > roomEntry);
+  assert.match(smoke.slice(roomEntry, roomReload), /waitForSmokeRoomReady\(page, smokeMarker\)/);
+  assert.ok(aliasEntry >= 0 && aliasReload > aliasEntry);
+  assert.match(smoke.slice(aliasEntry, aliasReload), /waitForSmokeRoomReady\(routePage, updatedSmokeMarker\)/);
+  assert.match(smoke, /async function waitForSmokeRoomReady\(page, expectedRoomName\)/);
+  assert.match(smoke, /waitForSmokeRoomReady[\s\S]*?\.application[\s\S]*?企画名[\s\S]*?同期完了/);
+});
+
 test('rollback uses the current verified React release and only saves a smoke-verified payload', () => {
   const prepare = job('prepare');
   const archive = job('archive-successful-release');
