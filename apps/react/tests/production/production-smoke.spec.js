@@ -11,6 +11,11 @@ const smokeMarker = process.env.REACT_PRODUCTION_SMOKE_MARKER || '';
 const expectedBuildSha = process.env.REACT_PRODUCTION_BUILD_SHA || '';
 const expectedAssetDigest = process.env.REACT_PRODUCTION_ASSET_DIGEST || '';
 const diagnosticPath = process.env.REACT_PRODUCTION_DIAGNOSTICS_PATH || '';
+function getDiagnosticsPath() {
+  if (!diagnosticPath) return '';
+  if (diagnosticPath.endsWith('.json')) return diagnosticPath;
+  return `${diagnosticPath}/${mode}-${test.info().project.name}.json`;
+}
 const config = {
   apiKey: process.env.REACT_FIREBASE_API_KEY || '',
   authDomain: 'sanpokai-tool.firebaseapp.com',
@@ -227,7 +232,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
       }
     } finally {
       diagnostics.dispose();
-      await diagnostics.flush(diagnosticPath);
+      await diagnostics.flush(getDiagnosticsPath());
     }
   }
 });
