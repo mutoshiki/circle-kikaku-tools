@@ -133,7 +133,7 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.match(smoke, /const identityToolkitDiagnostics = \[\]/);
   assert.match(smoke, /request\.failure\(\)\?\.errorText/);
   assert.match(smoke, /identitytoolkit\.googleapis\.com/);
-  assert.match(smoke, /diagnostics\.flush\(diagnosticPath\)/);
+  assert.match(smoke, /diagnostics\.flush\(getDiagnosticsPath\(\)\)/);
   assert.match(smokeDiagnostics, /accessControlAllowOrigin/);
   assert.match(smokeDiagnostics, /identitytoolkit\.googleapis\.com/);
   assert.doesNotMatch(smokeDiagnostics, /postData\(|allHeaders\(|authorization:|searchParams/);
@@ -156,6 +156,32 @@ test('production smoke confirms the expected room is synced before root and alia
   assert.match(smoke.slice(aliasEntry, aliasReload), /waitForSmokeRoomReady\(routePage, updatedSmokeMarker\)/);
   assert.match(smoke, /async function waitForSmokeRoomReady\(page, expectedRoomName\)/);
   assert.match(smoke, /waitForSmokeRoomReady[\s\S]*?\.application[\s\S]*?企画名[\s\S]*?同期完了/);
+});
+
+test('normal release preserves sanitized smoke diagnostics for each route and browser', () => {
+  const promotion = job('promotion');
+  const compatibilityStart = promotion.indexOf('id: compatibility-smoke');
+  const compatibilityEnd = promotion.indexOf('id: compatibility-cleanup', compatibilityStart);
+  const rootStart = promotion.indexOf('id: root-smoke');
+  const rootEnd = promotion.indexOf('id: root-cleanup', rootStart);
+  const compatibilitySmoke = promotion.slice(compatibilityStart, compatibilityEnd);
+  const rootSmoke = promotion.slice(rootStart, rootEnd);
+  const diagnosticUpload = promotion.indexOf('Upload sanitized production smoke diagnostics');
+  const summary = promotion.indexOf('Summarize deployment and smoke results');
+
+  assert.match(compatibilitySmoke, /REACT_PRODUCTION_DIAGNOSTICS_PATH:\s*\$\{\{ runner\.temp \}\}\/react-production-diagnostics/);
+  assert.match(rootSmoke, /REACT_PRODUCTION_DIAGNOSTICS_PATH:\s*\$\{\{ runner\.temp \}\}\/react-production-diagnostics/);
+  assert.match(smoke, /\$\{mode\}-\$\{test\.info\(\)\.project\.name\}\.json/);
+  assert.match(smoke, /if \(diagnosticPath\.endsWith\('\.json'\)\) return diagnosticPath/);
+  assert.ok(diagnosticUpload > promotion.indexOf('id: root-cleanup'));
+  assert.ok(diagnosticUpload < summary);
+  const uploadStep = promotion.slice(diagnosticUpload, summary);
+  assert.match(uploadStep, /if: always\(\)/);
+  assert.match(uploadStep, /continue-on-error:\s*true/);
+  assert.match(uploadStep, /actions\/upload-artifact@v4/);
+  assert.match(uploadStep, /if-no-files-found:\s*warn/);
+  assert.match(uploadStep, /retention-days:\s*7/);
+  assert.match(uploadStep, /react-production-diagnostics/);
 });
 
 test('rollback uses the current verified React release and only saves a smoke-verified payload', () => {

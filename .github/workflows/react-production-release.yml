@@ -317,6 +317,7 @@ jobs:
           REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/react/
           REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
           REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
+          REACT_PRODUCTION_DIAGNOSTICS_PATH: ${{ runner.temp }}/react-production-diagnostics
         run: npx playwright test --config playwright.production.config.js
       - name: Verify compatibility smoke-room cleanup
         id: compatibility-cleanup
@@ -336,12 +337,23 @@ jobs:
         env:
           REACT_PRODUCTION_SMOKE_MODE: root
           REACT_PRODUCTION_SMOKE_BASE_URL: https://mutoshiki.github.io/circle-kikaku-tools/
+          REACT_PRODUCTION_DIAGNOSTICS_PATH: ${{ runner.temp }}/react-production-diagnostics
         run: npx playwright test --config playwright.production.config.js
       - name: Verify root smoke-room cleanup
         id: root-cleanup
         if: always() && steps.root-deployment.outcome == 'success'
         working-directory: apps/react
         run: node tools/cleanup-production-smoke.mjs
+      - name: Upload sanitized production smoke diagnostics
+        id: production-diagnostics-upload
+        if: always() && (steps.compatibility-smoke.outcome != 'skipped' || steps.root-smoke.outcome != 'skipped')
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: react-production-smoke-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/react-production-diagnostics/*.json
+          if-no-files-found: warn
+          retention-days: 7
       - name: Summarize deployment and smoke results
         id: promotion-summary
         if: always()
@@ -349,14 +361,15 @@ jobs:
         run: |
           duration=$(( $(date +%s) - ${{ steps.promotion-timing.outputs.started_at || '0' }} ))
           echo "duration_seconds=$duration" >> "$GITHUB_OUTPUT"
-          printf '\n### Deployment and production smoke\n- Duration: %s seconds\n- Route: %s\n- Compatibility smoke / cleanup: %s / %s\n- Root deploy / smoke / cleanup: %s / %s / %s\n' \
+          printf '\n### Deployment and production smoke\n- Duration: %s seconds\n- Route: %s\n- Compatibility smoke / cleanup: %s / %s\n- Root deploy / smoke / cleanup: %s / %s / %s\n- Sanitized diagnostics upload: %s\n' \
             "$duration" \
             "${{ needs.prepare.outputs.release_mode }}" \
             "${{ steps.compatibility-smoke.outcome || 'skipped' }}" \
             "${{ steps.compatibility-cleanup.outcome || 'skipped' }}" \
             "${{ steps.root-deployment.outcome || 'skipped' }}" \
             "${{ steps.root-smoke.outcome || 'skipped' }}" \
-            "${{ steps.root-cleanup.outcome || 'skipped' }}" >> "$GITHUB_STEP_SUMMARY"
+            "${{ steps.root-cleanup.outcome || 'skipped' }}" \
+            "${{ steps.production-diagnostics-upload.outcome || 'skipped' }}" >> "$GITHUB_STEP_SUMMARY"
 
   cleanup-recovery:
     name: Release / Recover smoke-room cleanup after runner failure
