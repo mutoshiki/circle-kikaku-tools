@@ -110,7 +110,10 @@ test('participant list shows assigned driver role and participant editor can tog
   const registration = page.getByRole('dialog', { name: '参加者を登録' });
   await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('運転手属性 確認');
   await registration.getByText('学年・車出しを設定（任意）', { exact: true }).click();
-  await registration.getByRole('checkbox', { name: '運転手属性 確認を車出しに指定', exact: true }).check({ force: true });
+  const registrationDriver = registration.getByRole('checkbox', { name: '運転手属性 確認を車出しに指定', exact: true });
+  await registrationDriver.focus();
+  await registrationDriver.press('Space');
+  await expect(registrationDriver).toBeChecked();
   await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
 
   const row = page.locator('.participant-row').filter({ hasText: '運転手属性 確認' });
@@ -120,14 +123,19 @@ test('participant list shows assigned driver role and participant editor can tog
   const editor = page.getByRole('dialog', { name: '参加者を編集' });
   const driver = editor.getByRole('checkbox', { name: '運転手', exact: true });
   await expect(driver).toBeChecked();
-  await driver.uncheck({ force: true });
+  await driver.focus();
+  await driver.press('Space');
+  await expect(driver).not.toBeChecked();
   await editor.getByRole('button', { name: '保存', exact: true }).click();
   await expect(row.getByText('運転手', { exact: true })).toHaveCount(0);
 
   await row.getByRole('button', { name: '運転手属性 確認の操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '編集', exact: true }).click();
   const secondEditor = page.getByRole('dialog', { name: '参加者を編集' });
-  await secondEditor.getByRole('checkbox', { name: '運転手', exact: true }).check({ force: true });
+  const secondDriver = secondEditor.getByRole('checkbox', { name: '運転手', exact: true });
+  await secondDriver.focus();
+  await secondDriver.press('Space');
+  await expect(secondDriver).toBeChecked();
   await secondEditor.getByRole('button', { name: '保存', exact: true }).click();
   await expect(row.getByText('運転手', { exact: true })).toBeVisible();
   await page.reload();
