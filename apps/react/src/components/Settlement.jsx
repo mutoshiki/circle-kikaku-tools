@@ -8,6 +8,7 @@ import { Add, Copy, Edit, TrashCan } from '@carbon/icons-react';
 import { beginSettlementEdit, commitSettlementEdit, collectionChange } from './settlement/edit.js';
 import RoutePlanner from './RoutePlanner.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
+import InitialEmptyState from './InitialEmptyState.jsx';
 
 const money = value => `¥${Math.round(Number(value) || 0).toLocaleString('ja-JP')}`;
 const hasNegativeValue = value => /^[-−]/.test(String(value ?? '').trim());
@@ -416,7 +417,7 @@ function CollectionPrompt({ value, onChange, onSave, onClose }) {
   </Modal>;
 }
 
-export default function Settlement({ runtime, room, onNotice, openSettingsRequestId = null, onSettingsRequestHandled }) {
+export default function Settlement({ runtime, room, onNotice, openSettingsRequestId = null, onSettingsRequestHandled, roomStatus }) {
   const { data, state } = runtime.store.domain.settlementInput(room);
   const isMobile = useMediaQuery('(max-width: 671px)');
   const settlement = runtime.store.domain.settlement;
@@ -469,7 +470,7 @@ export default function Settlement({ runtime, room, onNotice, openSettingsReques
   function openMemoEditor() { setMemo(state.memo || ''); setMemoEditing(true); }
   function closeMemoEditor() { setMemo(null); setMemoEditing(false); }
   if (!result.participants.length && !result.isStandaloneSettlement) return <>
-    <section className="settlement-page"><div className="empty-state"><h2>精算</h2><p>参加者がいません</p></div></section>
+    <section className="settlement-page"><InitialEmptyState headingId="settlement-initial-heading" title="精算を始める" description="名前を登録せず、人数だけでも精算できます。" primaryAction={{ label: '人数だけで精算', onClick: () => setSettingsEdit(beginSettlementEdit(runtime.store, { standalone: true })) }} alternateAction={{ label: '参加者を追加', onClick: () => onOpenParticipantRegistration?.() }} roomStatus={roomStatus} /></section>
     {settingsEdit && <SettingsModal runtime={runtime} edit={settingsEdit} onNotice={onNotice} onClose={saved => closeEdit(setSettingsEdit, settingsEdit, saved)} />}
   </>;
   return <section className="settlement-page" aria-label="精算">

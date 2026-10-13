@@ -118,10 +118,10 @@ export default function App({ runtime }) {
       <Tabs selectedIndex={view} onChange={({ selectedIndex }) => changeView(selectedIndex)}>
         <TabList aria-label="画面切り替え" contained fullWidth>{destinations.map(name => <Tab key={name}>{name}</Tab>)}</TabList>
         <TabPanels>
-          <TabPanel><Participants runtime={runtime} room={room} onNotice={setNotice} onOpenCountOnlySettlement={openCountOnlySettlement} /></TabPanel>
-          <TabPanel><Allocation runtime={runtime} room={room} type="car" onNotice={setNotice} onParticipants={() => changeView(0)} /></TabPanel>
-          <TabPanel><Allocation runtime={runtime} room={room} type="team" onNotice={setNotice} onParticipants={() => changeView(0)} /></TabPanel>
-          <TabPanel><Settlement runtime={runtime} room={room} onNotice={setNotice} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} /></TabPanel>
+          <TabPanel><Participants runtime={runtime} room={room} onNotice={setNotice} onOpenCountOnlySettlement={openCountOnlySettlement} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel><Allocation runtime={runtime} room={room} type="car" onNotice={setNotice} onParticipants={() => changeView(0)} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel><Allocation runtime={runtime} room={room} type="team" onNotice={setNotice} onParticipants={() => changeView(0)} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel><Settlement runtime={runtime} room={room} onNotice={setNotice} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} /></TabPanel>
         </TabPanels>
       </Tabs>
     </div></Column></Grid>

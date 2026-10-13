@@ -16,7 +16,7 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
   roomStorage.write('clientId', clientId);
   const store = createRoomStore({ initial: roomStorage.read('room', {}), clientId, crypto, clock: transport?.clock });
   store.domain.sync = withRoutePlaceCatalogMerge(store.domain.sync);
-  const localStatus = Object.freeze({ kind: 'local', message: 'ローカル保存', error: null });
+  const localStatus = Object.freeze({ kind: 'local', message: 'ローカル保存', error: null, hasLoadedRoom: true });
   const sync = transport ? createRoomSync({ store, storage: roomStorage, transport, clientId, clock: transport.clock, legacyLoadWrites })
     : { start() {}, dispose() {}, getSnapshot: () => localStatus, subscribe: () => () => {}, flush: async () => null };
   let unsubscribe;

@@ -5,15 +5,16 @@ export function createFixtureServer(initial) {
   let writes = 0;
   const clients = new Set();
   const notify = () => { for (const client of clients) client.deliver(value); };
-  function connect() {
+  function connect(connectOptions = {}) {
     let listener;
+    let errorListener;
     let online = true;
     let nextError;
     let updates = 0;
     let subscriptions = 0;
     const client = {
       deliver(raw) { if (online && listener) queueMicrotask(() => listener?.(copy(raw))); },
-      subscribe(fn) { subscriptions++; listener = fn; clients.add(client); client.deliver(value); return () => { subscriptions--; listener = null; clients.delete(client); }; },
+      subscribe(fn, onError) { subscriptions++; listener = fn; errorListener = onError; clients.add(client); if (!connectOptions.deferInitial) client.deliver(value); return () => { subscriptions--; listener = null; errorListener = null; clients.delete(client); }; },
       async transaction(updater) {
         const run = chain.then(() => {
           if (!online) throw new Error('disconnected');
@@ -37,6 +38,8 @@ export function createFixtureServer(initial) {
       },
       setOnline(next) { online = next; if (online) client.deliver(value); },
       failOnce(error) { nextError = error; },
+      failSubscription(error) { queueMicrotask(() => errorListener?.(error)); },
+      deliverInitial() { client.deliver(value); },
       stats: () => ({ subscriptions, updates }),
     };
     return client;

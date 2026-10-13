@@ -13,11 +13,18 @@ export function createRoomSync({ store, storage, transport, clientId, clock, tim
   let inFlight;
   let remote = storage.read('base', null);
   let sequence = Number(storage.read('sequence', 0));
-  let status = Object.freeze({ kind: 'local', message: 'ローカル保存', error: null });
+  let hasLoadedRoom = false;
+  let status = Object.freeze({ kind: 'local', message: 'ローカル保存', error: null, hasLoadedRoom });
   const listeners = new Set();
   const diagnostics = [];
   function setStatus(kind, message, error = null) {
-    status = Object.freeze({ kind, message, error: error ? String(error.message || error) : null });
+    status = Object.freeze({ kind, message, error: error ? String(error.message || error) : null, hasLoadedRoom });
+    for (const listener of listeners) listener();
+  }
+  function markRoomLoaded() {
+    if (hasLoadedRoom) return;
+    hasLoadedRoom = true;
+    status = Object.freeze({ ...status, hasLoadedRoom });
     for (const listener of listeners) listener();
   }
   function record(kind, message, patch = {}) { diagnostics.push({ kind, message, paths: Object.keys(patch), at: clock.now() }); }
@@ -149,6 +156,7 @@ export function createRoomSync({ store, storage, transport, clientId, clock, tim
     if (raw === null) {
       const local = storage.read('room');
       rememberBase({});
+      markRoomLoaded();
       if (!storage.read('outbox') && local && legacyLoadWrites) enqueue({ base: {}, local }, { forceCanonical: true });
       else if (storage.read('outbox')) void flush();
       else { store.receiveRemote({}); setStatus('connected', '同期完了'); }
@@ -156,6 +164,7 @@ export function createRoomSync({ store, storage, transport, clientId, clock, tim
     }
     const needsCleanup = Number(raw.schemaVersion || 1) < 6 || !raw.allocations?.car || !raw.allocations?.team || Object.hasOwn(raw, 'activeAllocationType') || Object.hasOwn(raw, 'trayMinimized');
     applyRemote(raw);
+    markRoomLoaded();
     if (storage.read('outbox')) { if (!inFlight) void flush(); }
     else if (needsCleanup && legacyLoadWrites) enqueue({ base: remote, local: remote }, { forceCanonical: true });
     else setStatus('connected', '同期完了');
