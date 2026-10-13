@@ -125,7 +125,7 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
       else await firstCheckbox.check({ force: true });
     }
     await shot(page, viewportName, 10, 'participants-selection-sticky');
-    const firstRowMenu = page.getByRole('button', { name: /の操作$/ }).first();
+    const firstRowMenu = page.locator('.participant-list').getByRole('button', { name: /の操作$/ }).first();
     await firstRowMenu.click();
     await shot(page, viewportName, 11, 'participants-row-overflow-open');
     await page.getByRole('menuitem', { name: '編集', exact: true }).click();
@@ -172,7 +172,7 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await page.getByRole('button', { name: '次へ' }).click();
     await shot(page, viewportName, 24, 'settlement-wizard-step-3');
     await cancelDialog(page);
-    await page.getByRole('button', { name: '費用を入力' }).first().click();
+    await page.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).first().click();
     await shot(page, viewportName, 25, 'vehicle-expense-editor');
     await page.getByRole('button', { name: '費用を追加' }).click();
     await shot(page, viewportName, 26, 'vehicle-expense-extra-row');

@@ -661,7 +661,7 @@ test('driver names appear only when a car has multiple drivers', async ({ page }
   const carA = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) });
   await expect(carA.getByText(/^運転手：/)).toHaveCount(0);
   await page.getByRole('tab', { name: '車割', exact: true }).click();
-  const allocationCarA = page.getByRole('region', { name: '仮参加者A車', exact: true });
+  const allocationCarA = page.getByRole('region', { name: 'A車', exact: true });
   await allocationCarA.getByRole('button', { name: '仮参加者Bの操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '運転手にする', exact: true }).click();
   await page.getByRole('tab', { name: '精算', exact: true }).click();

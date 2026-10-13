@@ -15,7 +15,10 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('仮参加者A\n仮参加者B\n仮参加者C\n仮参加者D');
   await registration.getByText('学年・車出しを設定（任意）', { exact: true }).click();
   await registration.getByLabel('仮参加者Bの学年').selectOption('1');
-  await registration.getByRole('checkbox', { name: '仮参加者Aを車出しに指定', exact: true }).check({ force: true });
+  const driverCheckbox = registration.getByRole('checkbox', { name: '仮参加者Aを車出しに指定', exact: true });
+  await driverCheckbox.focus();
+  await driverCheckbox.press('Space');
+  await expect(driverCheckbox).toBeChecked();
   await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
   await expect(registration).toHaveCount(0);
   let room = await saved(page);
@@ -181,7 +184,10 @@ test('manual registration attaches grade and driver attributes to explicitly ent
   await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('車出し欄だけの人\n学年欄だけの人');
   await registration.getByText('学年・車出しを設定（任意）', { exact: true }).click();
   await registration.getByLabel('学年欄だけの人の学年').selectOption('2');
-  await registration.getByRole('checkbox', { name: '車出し欄だけの人を車出しに指定', exact: true }).check({ force: true });
+  const driverCheckbox = registration.getByRole('checkbox', { name: '車出し欄だけの人を車出しに指定', exact: true });
+  await driverCheckbox.focus();
+  await driverCheckbox.press('Space');
+  await expect(driverCheckbox).toBeChecked();
   await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
   await expect(registration).toHaveCount(0);
 

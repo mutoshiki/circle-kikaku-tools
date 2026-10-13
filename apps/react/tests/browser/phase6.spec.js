@@ -56,7 +56,7 @@ test('guidance, CSV, utility report, notifications and URL security', async ({ p
 test('route draft stays local and selected distance alone enters shared settlement', async ({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.getByRole('tab', { name: '精算', exact: true }).click();
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();
+  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
   const car = page.getByRole('dialog', { name: '仮参加者A車' });
   await car.getByRole('button', { name: '費用を追加' }).click();
   await car.getByLabel('名目').fill('一時費用');
@@ -94,7 +94,7 @@ test('route draft stays local and selected distance alone enters shared settleme
   expect(JSON.stringify(state.room)).not.toContain('fixture-route');
   expect(state.route.routes[0].id).toBe('fixture-route');
   expect(JSON.stringify(state.room)).not.toContain(token);
-  await page.reload(); await page.getByRole('tab', { name: '精算', exact: true }).click(); await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();
+  await page.reload(); await page.getByRole('tab', { name: '精算', exact: true }).click(); await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
   const reopened = page.getByRole('dialog', { name: '仮参加者A車' });
   await reopened.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await expect(reopened.getByLabel('移動距離（km）')).toHaveValue('12.3');

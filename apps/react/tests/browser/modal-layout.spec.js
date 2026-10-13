@@ -72,7 +72,7 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
   await page.screenshot({ path: join(evidence, `settlement-wizard-${testInfo.project.name}.png`) });
   await dialog.getByRole('button', { name: 'キャンセル' }).click();
 
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();
+  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
   dialog = page.getByRole('dialog', { name: '仮参加者A車' });
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await expectViewportFrame(page, dialog);
