@@ -116,7 +116,9 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
       while (allocation.groups[groupId]) groupId = `${baseId}_${suffix++}`;
       const now = clock.now();
       const order = Object.values(allocation.groups).reduce((highest, group) => Math.max(highest, Number(group.order || 0)), -1) + 1;
-      allocation.groups[groupId] = { id: groupId, ownerId, capacity: Math.max(1, Math.min(99, parseInt(capacity) || (type === 'team' ? 5 : 3))), order, createdAt: now, updatedAt: now };
+      const displayIndex = Math.max(1, Number(allocation.nextDisplayIndex) || 1, ...Object.values(allocation.groups).map(group => (Number(group.displayIndex) || 0) + 1));
+      allocation.nextDisplayIndex = displayIndex + 1;
+      allocation.groups[groupId] = { id: groupId, ownerId, capacity: Math.max(1, Math.min(99, parseInt(capacity) || (type === 'team' ? 5 : 3))), order, displayIndex, createdAt: now, updatedAt: now };
       allocation.placements[ownerId] = { kind: 'member', groupId, driver: true, order, updatedAt: now };
       domain.canonical.ensureAllParticipantsPlaced(allocation, room.participants);
     },
@@ -136,10 +138,25 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
       requireParticipant(room, id);
       const allocation = requireAllocation(room, type);
       if (groupId && !allocation.groups[groupId]) throw new Error('移動先が削除されています。');
+      const sourceGroupEntry = Object.entries(allocation.groups).find(([, group]) => group.ownerId === id);
+      const sourceGroupId = sourceGroupEntry?.[0];
+      const sourceGroup = sourceGroupEntry?.[1];
+      if (sourceGroupId && sourceGroupId === groupId) return;
       if (groupId) {
         const group = allocation.groups[groupId];
         const occupants = Object.entries(allocation.placements).filter(([pid, p]) => pid !== id && pid !== group.ownerId && p.groupId === groupId);
         if (id !== group.ownerId && occupants.length >= group.capacity) throw new Error('空席がありません。');
+      }
+      if (sourceGroup) {
+        const replacements = Object.entries(allocation.placements)
+          .filter(([participantId, placement]) => participantId !== id && placement?.kind === 'member' && placement.groupId === sourceGroupId)
+          .sort(([idA, a], [idB, b]) => (Number(a?.order) || 0) - (Number(b?.order) || 0) || String(idA).localeCompare(String(idB)));
+        if (replacements.length) {
+          sourceGroup.ownerId = replacements[0][0];
+          sourceGroup.updatedAt = clock.now();
+        } else {
+          delete allocation.groups[sourceGroupId];
+        }
       }
       allocation.placements[id] = { kind: groupId ? 'member' : 'waiting', driver: allocation.placements[id]?.driver === true, groupId, order, updatedAt: clock.now() };
       domain.canonical.ensureAllParticipantsPlaced(allocation, room.participants);

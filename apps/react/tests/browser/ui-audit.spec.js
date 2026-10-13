@@ -16,8 +16,8 @@ async function gotoEmpty(page, room) {
   await expect(page.getByRole('tab', { name: '参加者', exact: true })).toBeVisible();
 }
 async function openMenu(page) {
-  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
-  await expect(page.getByRole('menu', { name: 'ユーティリティメニュー' })).toBeVisible();
+  await page.getByRole('button', { name: 'その他の操作' }).click();
+  await expect(page.getByRole('menu', { name: 'その他の操作' })).toBeVisible();
 }
 async function closeModal(page) {
   const modal = page.locator('.cds--modal.is-visible');

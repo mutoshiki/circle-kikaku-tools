@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Modal, TextInput, TextArea, Select, SelectItem, Checkbox, InlineNotification } from '@carbon/react';
 
-export default function ParticipantEditor({ runtime, session, onClose, onNotice }) {
+export default function ParticipantEditor({ runtime, session, launcherButtonRef, onClose, onNotice }) {
   const id = session.participantId;
   const [draft, setDraft] = useState(() => ({ ...session.draft.participants[id] }));
   const [driver, setDriver] = useState(() => session.draft.allocations.car.placements[id]?.driver === true);
@@ -24,7 +24,7 @@ export default function ParticipantEditor({ runtime, session, onClose, onNotice 
     } catch (caught) { setError(caught.message); }
     finally { setSaving(false); }
   }
-  return <Modal className="app-modal" open hasScrollingContent modalHeading="参加者を編集" size="sm" primaryButtonText="保存" secondaryButtonText="キャンセル" onRequestSubmit={save} onRequestClose={() => { runtime.store.cancelEdit(session); onClose(); }} primaryButtonDisabled={saving} preventCloseOnClickOutside selectorPrimaryFocus="#participant-edit-name">
+  return <Modal className="app-modal" open hasScrollingContent modalHeading="参加者を編集" closeButtonLabel="閉じる" launcherButtonRef={launcherButtonRef} size="sm" primaryButtonText="保存" secondaryButtonText="キャンセル" onRequestSubmit={save} onRequestClose={() => { runtime.store.cancelEdit(session); onClose(); }} primaryButtonDisabled={saving} preventCloseOnClickOutside selectorPrimaryFocus="#participant-edit-name">
     <div className="form-stack">
       {error && <InlineNotification kind="error" title={error} hideCloseButton lowContrast />}
       <TextInput id="participant-edit-name" labelText="名前" value={draft.name} onChange={event => field('name', event.target.value)} invalid={!draft.name.trim() && !!error} invalidText="名前を入力してください。" />
@@ -35,6 +35,7 @@ export default function ParticipantEditor({ runtime, session, onClose, onNotice 
       <TextArea id="participant-edit-memo" labelText="メモ" value={draft.memo || ''} onChange={event => field('memo', event.target.value)} />
       <Select id="participant-edit-flag" labelText="しるし" value={draft.flag || 'none'} onChange={event => field('flag', event.target.value)}>{[['none', 'しるしなし'], ['blue', '青'], ['purple', '紫'], ['yellow', '黄'], ['red', '赤']].map(([value, text]) => <SelectItem key={value} value={value} text={text} />)}</Select>
       <Checkbox id="participant-edit-locked" labelText="固定" checked={draft.locked === true} onChange={(_, { checked }) => field('locked', checked)} />
+      <p className="participant-edit-help">固定すると、班割・車割のランダム割り当てで移動しません。</p>
     </div>
   </Modal>;
 }

@@ -155,7 +155,11 @@ test('production smoke confirms the expected room is synced before root and alia
   assert.ok(aliasEntry >= 0 && aliasReload > aliasEntry);
   assert.match(smoke.slice(aliasEntry, aliasReload), /waitForSmokeRoomReady\(routePage, updatedSmokeMarker\)/);
   assert.match(smoke, /async function waitForSmokeRoomReady\(page, expectedRoomName\)/);
-  assert.match(smoke, /waitForSmokeRoomReady[\s\S]*?\.application[\s\S]*?企画名[\s\S]*?同期完了/);
+  const readiness = smoke.match(/async function waitForSmokeRoomReady\(page, expectedRoomName\) \{([\s\S]*?)\n\}/)?.[1] || '';
+  assert.match(readiness, /\.application/);
+  assert.match(readiness, /#project-heading/);
+  assert.match(readiness, /\.sync-status/);
+  assert.match(readiness, /同期完了/);
 });
 
 test('normal release preserves sanitized smoke diagnostics for each route and browser', () => {

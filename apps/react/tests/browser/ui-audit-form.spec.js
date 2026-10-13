@@ -9,7 +9,7 @@ function shot(page, viewportName, number, name) {
   return page.mouse.move(1, 1).then(() => page.screenshot({ path: join(directory, `${String(number).padStart(2, '0')}-${name}.png`) }));
 }
 async function menu(page) {
-  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
+  await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
 }
 

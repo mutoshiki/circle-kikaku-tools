@@ -3,7 +3,7 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   const roomId = 'VISUAL-CONSISTENCY-RC';
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/?room=${roomId}&view=participants`);
-  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
+  await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
   const sample = page.getByRole('dialog', { name: 'サンプルデータ' });
   await sample.getByRole('radio', { name: '通常サンプル', exact: true }).check({ force: true });
@@ -19,8 +19,8 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await expect(page.getByText('参加者を追加してください。', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '追加', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '追加', exact: true }).click();
-  await expect(page.getByRole('dialog', { name: '参加者登録' })).toBeVisible();
-  await page.getByRole('dialog', { name: '参加者登録' }).getByRole('button', { name: 'キャンセル' }).click();
+  await expect(page.getByRole('dialog', { name: '参加者を登録' })).toBeVisible();
+  await page.getByRole('dialog', { name: '参加者を登録' }).getByRole('button', { name: 'キャンセル' }).click();
 
   await page.getByRole('tab', { name: '班割', exact: true }).click();
   await expect(page.getByRole('heading', { name: '班割', exact: true })).toHaveCount(0);
@@ -32,7 +32,7 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await randomize.focus();
   await expect(randomize).toBeFocused();
   await page.getByRole('button', { name: /班の操作$/ }).first().click();
-  const removeGroup = page.getByRole('menuitem', { name: '削除', exact: true }).first();
+  const removeGroup = page.getByRole('menuitem', { name: '班を削除', exact: true }).first();
   await expect(removeGroup).toBeVisible();
   await expect(removeGroup.locator('xpath=ancestor::li[1]')).toHaveClass(/--danger/);
   const seatToggle = page.locator('.empty-seats-action').first();
@@ -41,16 +41,16 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
 
   await page.getByRole('tab', { name: '精算', exact: true }).click();
   await expect(page.getByRole('heading', { name: '各車への支払い', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '集金チェック', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '集金状況', exact: true })).toBeVisible();
   const settlementInset = (await page.getByRole('heading', { name: '各車への支払い', exact: true }).boundingBox()).x;
   expect(Math.abs(settlementInset - participantInset)).toBeLessThanOrEqual(1);
   const settingsButton = page.getByRole('button', { name: '精算設定を編集', exact: true });
   await expect(settingsButton).toHaveClass(/cds--btn--ghost/);
   expect((await settingsButton.boundingBox()).width).toBeLessThan((await page.locator('.settlement-card').nth(1).boundingBox()).width * 0.6);
-  await expect(page.locator('.settlement-collection-summary')).toContainText(/\d+\/\d+人/);
-  const collectionTrigger = page.getByRole('button', { name: '集金を確認', exact: true });
+  await expect(page.locator('.settlement-collection-summary')).toHaveText(/^1人あたり (?:¥[\d,]+|未確定)$/);
+  const collectionTrigger = page.getByRole('button', { name: '集金を記録', exact: true });
   await collectionTrigger.click();
-  const collectionDialog = page.getByRole('dialog', { name: '集金を確認' });
+  const collectionDialog = page.getByRole('dialog', { name: '集金状況' });
   await expect(collectionDialog).toBeVisible();
   const switcher = collectionDialog.getByRole('tablist', { name: '集金対象者の表示' });
   await expect(switcher.getByRole('tab', { name: 'すべて' })).toBeVisible();
@@ -61,8 +61,10 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await expect(collectionDialog.locator('.settlement-collection-row.excluded .cds--tag').first()).toBeVisible();
   await collectionDialog.getByRole('button', { name: '閉じる', exact: true }).last().click();
   const paymentCard = page.locator('.settlement-car').first();
-  await expect(paymentCard.getByRole('button', { name: '費用を入力', exact: true })).toHaveClass(/cds--btn--ghost/);
-  await paymentCard.getByRole('button', { name: '費用を入力', exact: true }).click();
+  const costAction = paymentCard.locator('.settlement-car-edit-action');
+  await expect(costAction).toHaveClass(/cds--btn--ghost/);
+  await expect(costAction).toHaveAccessibleName(/費用を(?:入力|編集)/);
+  await costAction.click();
   const editCost = page.getByRole('dialog', { name: /藤原 拓海車/ });
   await expect(editCost).toBeVisible();
   await editCost.getByRole('button', { name: 'キャンセル', exact: true }).click();
@@ -70,7 +72,7 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await expand.click();
   await expect(expand).toHaveAttribute('aria-expanded', 'true');
   await expect(paymentCard.getByRole('heading', { name: '割勘', exact: true })).toBeVisible();
-  await expect(paymentCard.getByRole('heading', { name: '部費', exact: true })).toBeVisible();
+  await expect(paymentCard.getByRole('heading', { name: /^部費/ })).toBeVisible();
   await expect(paymentCard.getByText('費用小計', { exact: true })).toHaveCount(0);
   await expect(paymentCard.getByText('支払総額', { exact: true })).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

@@ -1,6 +1,6 @@
 {
   "assets/js/core/entity-state-v5.js": {
-    "sha256": "c42f0c9614281d72d738a763d1f35331e6096da89f1a6af79886d30c72b49768",
+    "sha256": "52c335a32188da4b7864bf21d5ec583e71bdbdf37663f9d92e86cd3208d9df2e",
     "declarations": [
       "CANONICAL_SCHEMA_VERSION",
       "MIN_CANONICAL_SCHEMA_VERSION",
@@ -20,6 +20,8 @@
       "participantRecordFromLegacy",
       "mergeParticipantRecord",
       "emptyCanonicalAllocation",
+      "ensureGroupDisplayIndices",
+      "groupDisplayName",
       "emptyCanonicalRoom",
       "findCanonicalParticipantIdByName",
       "ensureCanonicalParticipant",
@@ -63,7 +65,7 @@
     ]
   },
   "assets/js/features/google-form-import-parser.js": {
-    "sha256": "d89c08ba0548133de131a20f0c9decb562bd4fe67440c8cb812d03d196a3e310",
+    "sha256": "695ca31d403fe545ff5676c2baeeb0dd9f593686e290142a6dbb9388808a9c97",
     "declarations": [
       "NAME_HEADERS",
       "GRADE_HEADERS",
@@ -91,7 +93,7 @@
     ]
   },
   "assets/js/features/settlement/01-state.js": {
-    "sha256": "80bc067d6c703574bd18bf2e39c105b1669cea60f99ff777fb14b8d304241887",
+    "sha256": "5c416bb9514fda081dc0a7808a61ca5f0ab14e28ced01c03c9421b57e16cc8d1",
     "declarations": [
       "createDefaultRoutePlannerState",
       "normalizeRoutePlannerPlace",
@@ -151,7 +153,7 @@
     ]
   },
   "assets/js/features/settlement/02-calculator.js": {
-    "sha256": "6531cc176f59256ec5955fb467af5a3054d972b287252af116bc9cf4faa688a6",
+    "sha256": "8775e242ceb7427414962f1c51e4b29e1cbb97f438391c6fca7dc922865b2285",
     "declarations": [
       "isGasMovementFeeExtra",
       "calculateSettlement",
@@ -161,13 +163,13 @@
     ]
   },
   "assets/js/core/storage.js": {
-    "sha256": "cfd1968fcac2a528818eff468fc3fceb10fe40688484e2c77043518f6ad65590",
+    "sha256": "d18fd4d7d75866ba160e3c77eaf7b8d653e488cdfaceec5e4d9374a4f3a364b7",
     "declarations": [
       "migrateAppData"
     ]
   },
   "assets/js/core/sync-controller.js": {
-    "sha256": "bcf827a58803ae03af2c6aa7bc8a56d89514e49d239469e2539172badfcaea7e",
+    "sha256": "a02a9a3c95fb8aa14ff1981915e1ab2274497875b3fb90648997fd38acbea0e6",
     "declarations": [
       "ROOM_META_FIELDS",
       "MAX_SYNC_OPERATION_JOURNAL",
@@ -217,7 +219,7 @@
     ]
   },
   "assets/js/features/auto-assign.js": {
-    "sha256": "1c8cd881b9eb49474eacf2856fd596b08fbcaaf3bd37d96bee6ae908ddc163ab",
+    "sha256": "c7b488cfa05bb2864ab94163af68039cdeb3eadb2e2ad130884eba4c1eb9fee9",
     "declarations": [
       "shuffleArray",
       "isRandomlyMovablePlacement",
@@ -225,7 +227,7 @@
     ]
   },
   "assets/js/features/form-applicant-sync-v2.js": {
-    "sha256": "c7e2d6f947ecce23a0465231566af55a0cd6bc0fec1f65addbbfc424eab7bdf3",
+    "sha256": "012b3aeb9d0fcbe678132bc4103a1e6aababb15d9ad6b853a5a655f46625ec48",
     "declarations": [
       "APPLICATION_KIND",
       "APPLICATION_VERSION",

@@ -56,7 +56,7 @@ async function waitForProductionBuildManifest(page) {
 
 async function waitForSmokeRoomReady(page, expectedRoomName) {
   await expect(page.locator('.application')).toBeVisible();
-  await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(expectedRoomName);
+  await expect(page.locator('#project-heading')).toHaveText(expectedRoomName);
   await expect(page.locator('.sync-status')).toHaveText('同期完了');
 }
 
@@ -129,10 +129,11 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await page.reload();
     await waitForProductionBuildManifest(page);
     await waitForSmokeRoomReady(page, smokeMarker);
+    await page.getByRole('button', { name: '企画名を変更' }).click();
     const projectName = page.getByRole('textbox', { name: '企画名' });
     const updatedSmokeMarker = `${smokeMarker}-updated`;
     await projectName.fill(updatedSmokeMarker);
-    await projectName.press('Tab');
+    await page.getByRole('button', { name: '保存', exact: true }).click();
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
     await page.getByRole('tab', { name: '車割', exact: true }).click();
@@ -173,7 +174,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
 
     setSmokePhase('React persistence reload');
     await page.reload();
-    await expect(page.getByRole('textbox', { name: '企画名' })).toHaveValue(updatedSmokeMarker);
+    await expect(page.locator('#project-heading')).toHaveText(updatedSmokeMarker);
     await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
     if (mode === 'root') {

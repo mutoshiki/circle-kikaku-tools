@@ -42,7 +42,7 @@ test('guidance, CSV, utility report, notifications and URL security', async ({ p
   await page.getByRole('dialog', { name: '引き継ぎデータ' }).getByRole('button', { name: '引き継ぎデータを作成' }).click();
   expect((await download).suggestedFilename()).toBe('参加者.csv');
 
-  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
+  await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: 'バグを報告する' }).click();
   await page.getByLabel('バグの内容').fill('fixture only');
   await page.getByRole('dialog', { name: 'バグを報告' }).getByRole('button', { name: '送信' }).click();
@@ -99,7 +99,7 @@ test('route draft stays local and selected distance alone enters shared settleme
   await reopened.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await expect(reopened.getByLabel('移動距離（km）')).toHaveValue('12.3');
   await reopened.locator('.cds--modal-close').click();
-  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
+  await page.getByRole('button', { name: 'その他の操作' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(errors).toEqual([]);

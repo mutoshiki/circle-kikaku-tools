@@ -210,7 +210,7 @@ test('route planner uses Carbon rows, Search states, modal footer navigation, an
   await expect(routeModal.getByRole('searchbox', { name: '場所を検索' })).toBeVisible();
   await routeModal.getByRole('button', { name: '戻る' }).click();
   await routeModal.getByRole('button', { name: '閉じる' }).click();
-  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
+  await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
   await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();

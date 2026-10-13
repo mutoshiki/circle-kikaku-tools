@@ -136,10 +136,43 @@ function emptyCanonicalAllocation(type = 'car') {
         type: normalizedType,
         name: normalizedType === 'team' ? '班割' : '車割',
         groups: {},
+        nextDisplayIndex: 1,
         placements: {},
         lastAutoAssignLabel: '',
         updatedAt: canonicalNow()
     };
+}
+
+function ensureGroupDisplayIndices(allocation) {
+    const groups = Object.values(allocation?.groups || {}).sort((a, b) =>
+        (Number(a.order) || 0) - (Number(b.order) || 0)
+        || (Number(a.createdAt) || 0) - (Number(b.createdAt) || 0)
+        || String(a.id || '').localeCompare(String(b.id || '')));
+    const used = new Set();
+    let next = Math.max(1, Number(allocation?.nextDisplayIndex) || 1,
+        ...groups.map(group => (Number(group.displayIndex) || 0) + 1));
+    groups.forEach(group => {
+        const index = Number(group.displayIndex);
+        if (Number.isInteger(index) && index > 0 && !used.has(index)) {
+            used.add(index);
+            return;
+        }
+        while (used.has(next)) next += 1;
+        group.displayIndex = next;
+        used.add(next++);
+    });
+    if (allocation) allocation.nextDisplayIndex = Math.max(next, Number(allocation.nextDisplayIndex) || 1);
+}
+
+function groupDisplayName(index, type) {
+    let value = Math.max(1, Number(index) || 1);
+    let label = '';
+    while (value > 0) {
+        value -= 1;
+        label = String.fromCharCode(65 + (value % 26)) + label;
+        value = Math.floor(value / 26);
+    }
+    return `${label}${type === 'team' ? '班' : '車'}`;
 }
 
 function emptyCanonicalRoom() {
@@ -239,6 +272,7 @@ function migrateLegacyPlanIntoAllocation(plan, allocation, participants) {
             ownerId,
             capacity: Math.max(1, parseInt(group?.capacity) || (type === 'team' ? 5 : 3)),
             order: groupIndex,
+            displayIndex: Math.max(1, Number(group?.displayIndex) || groupIndex + 1),
             updatedAt: canonicalNow()
         };
         // Group ownership is only the structural header identity. The role is
@@ -386,6 +420,7 @@ function migrateToCanonicalRoom(raw = {}) {
             canonical.allocations[type].groups = cloneCanonical(canonical.allocations[type].groups || {});
             canonical.allocations[type].placements = cloneCanonical(canonical.allocations[type].placements || {});
             ensureAllParticipantsPlaced(canonical.allocations[type], canonical.participants);
+            ensureGroupDisplayIndices(canonical.allocations[type]);
         });
         canonical.activeAllocationType = raw.activeAllocationType === 'team' ? 'team' : 'car';
         canonical.settlement = normalizeCanonicalSettlement(raw.settlement || {}, canonical.participants);
@@ -419,6 +454,7 @@ function migrateToCanonicalRoom(raw = {}) {
     migrateLegacyPlanIntoAllocation(sourceByType.car, canonical.allocations.car, canonical.participants);
     migrateLegacyPlanIntoAllocation(sourceByType.team, canonical.allocations.team, canonical.participants);
     ALLOCATION_TYPES.forEach(type => ensureAllParticipantsPlaced(canonical.allocations[type], canonical.participants));
+    ALLOCATION_TYPES.forEach(type => ensureGroupDisplayIndices(canonical.allocations[type]));
 
     const activeLegacyPlan = plans.find(plan => String(plan.id || '') === String(raw.activeCarPlanId || ''));
     canonical.activeAllocationType = normalizeLegacyPlanType(activeLegacyPlan || sourceByType.car, 'car');
@@ -447,6 +483,9 @@ function projectCanonicalAllocation(room = canonicalRoomState, type = room?.acti
         const ownerPlacement = allocation.placements?.[group.ownerId];
         return {
             name: driver.name,
+            groupDisplayName: groupDisplayName(group.displayIndex, type),
+            displayIndex: group.displayIndex,
+            displayMemberCount: members.length + 1,
             participantId: group.ownerId,
             groupId: group.id,
             capacity: group.capacity,
@@ -551,7 +590,8 @@ function updateCanonicalFromActiveDom(room, domAllocation, activeType = room?.ac
     const groupEqual = (a, b) => !!a && !!b
         && String(a.ownerId || '') === String(b.ownerId || '')
         && Number(a.capacity || 0) === Number(b.capacity || 0)
-        && Number(a.order || 0) === Number(b.order || 0);
+        && Number(a.order || 0) === Number(b.order || 0)
+        && Number(a.displayIndex || 0) === Number(b.displayIndex || 0);
     const entityMapEqual = (a = {}, b = {}, recordEqual) => {
         const aKeys = Object.keys(a || {}).sort();
         const bKeys = Object.keys(b || {}).sort();
@@ -612,7 +652,8 @@ function updateCanonicalFromActiveDom(room, domAllocation, activeType = room?.ac
             id: groupId,
             ownerId,
             capacity: Math.max(1, parseInt(car.capacity) || (activeType === 'team' ? 5 : 3)),
-            order: groupIndex
+            order: groupIndex,
+            displayIndex: Number(car.displayIndex || previousGroup.displayIndex || 0)
         };
         newGroups[groupId] = groupEqual(previousGroup, groupShape)
             ? { ...previousGroup, ...groupShape, createdAt: Number(previousGroup.createdAt || canonicalNow()) }
@@ -848,7 +889,7 @@ function applyProjectedPlanToCanonical(room, plan = {}, type = 'car') {
         let groupId = String(car.groupId || '').trim();
         if (!groupId || nextGroups[groupId]) groupId = Object.values(allocation.groups || {}).find(group => group?.ownerId === ownerId)?.id || makeCanonicalGroupId(normalizedType, ownerId, { ...(allocation.groups || {}), ...nextGroups });
         const previous = allocation.groups?.[groupId] || {};
-        nextGroups[groupId] = { id: groupId, ownerId, capacity: Math.max(1, parseInt(car.capacity) || (normalizedType === 'team' ? 5 : 3)), order: groupIndex, createdAt: Number(previous.createdAt || canonicalNow()), updatedAt: canonicalNow() };
+        nextGroups[groupId] = { id: groupId, ownerId, capacity: Math.max(1, parseInt(car.capacity) || (normalizedType === 'team' ? 5 : 3)), order: groupIndex, displayIndex: Math.max(1, Number(car.displayIndex) || Number(previous.displayIndex) || groupIndex + 1), createdAt: Number(previous.createdAt || canonicalNow()), updatedAt: canonicalNow() };
         nextPlacements[ownerId] = { kind: 'member', driver: car?.driver === true, groupId, order: groupIndex, updatedAt: canonicalNow() };
         (Array.isArray(car.members) ? car.members : []).filter(Boolean).forEach((member, memberIndex) => {
             const id = resolve(member);
@@ -863,6 +904,7 @@ function applyProjectedPlanToCanonical(room, plan = {}, type = 'car') {
     });
     allocation.groups = nextGroups;
     allocation.placements = nextPlacements;
+    ensureGroupDisplayIndices(allocation);
     allocation.updatedAt = canonicalNow();
     ensureAllParticipantsPlaced(allocation, canonical.participants || {});
     return allocation;
