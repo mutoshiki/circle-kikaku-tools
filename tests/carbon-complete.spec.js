@@ -178,7 +178,8 @@ test.describe('Allocation, menus and accessibility', () => {
       };
     });
     expect(compactWorkspace.rowHeight).toBeGreaterThanOrEqual(48);
-    expect(compactWorkspace.rowHeight).toBeLessThanOrEqual(64);
+    // Allow 1px for fractional CSS layout rounded to the nearest device CSS pixel.
+    expect(compactWorkspace.rowHeight).toBeLessThanOrEqual(65);
     expect(compactWorkspace.tagHeight).toBe(24);
     expect(compactWorkspace.toolbarHeights.every(height => height === 48)).toBeTruthy();
     expect(compactWorkspace.primaryActions).toBe(1);
@@ -335,6 +336,8 @@ test.describe('Carbon modal and participant workflows', () => {
     await page.evaluate(() => { window.__alertPromise = window.appAlert('通知', { title: '通知' }); });
     await hostClick(page, '#appAlertModal [data-role="ok"]');
     await expect(page.locator('#appAlertModal')).not.toHaveAttribute('open', '');
+    await page.evaluate(() => { window.__pendingPassphrasePrompt = window.requestPassphrasePanel('閉じる操作の確認'); });
+    await expect(page.locator('#passphrase-panel')).toHaveAttribute('open', '');
     await hostClick(page, '#passphrase-panel cds-modal-close-button');
     await expect(page.locator('#passphrase-panel')).toHaveCount(0);
   });
