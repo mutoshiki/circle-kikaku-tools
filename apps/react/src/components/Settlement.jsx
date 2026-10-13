@@ -332,11 +332,8 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
 }
 
 function CollectionPrompt({ value, onChange, onSave, onClose }) {
-  const inputRef = useRef(null);
-  const latestValue = useRef(value);
-  function save() { onSave(inputRef.current?.value ?? latestValue.current); }
-  return <Modal open size="xs" modalHeading="集金済みにする" primaryButtonText="保存" secondaryButtonText="キャンセル" onRequestSubmit={save} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#settlement-collector">
-    <TextInput ref={inputRef} id="settlement-collector" labelText="集金した人" value={value} onChange={event => { latestValue.current = event.target.value; onChange(event.target.value); }} />
+  return <Modal open size="xs" modalHeading="集金済みにする" primaryButtonText="保存" secondaryButtonText="キャンセル" onRequestSubmit={onSave} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#settlement-collector">
+    <TextInput id="settlement-collector" labelText="集金した人" value={value} onChange={event => onChange(event.target.value)} />
   </Modal>;
 }
 
@@ -379,8 +376,8 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
       setDriverNameEdit({ edit, launcherButtonRef: { current: launcher } });
     } catch (error) { onNotice(error.message || '運転手の名前を編集できませんでした。'); }
   }
-  function markCollected(value = collector.value) {
-    collectionChange(runtime.store, { name: collector.name, checked: true, collector: value || collector.name });
+  function markCollected() {
+    collectionChange(runtime.store, { name: collector.name, checked: true, collector: collector.value || collector.name });
     setCollector(null); onNotice('集金状況を更新しました。');
   }
   function setCollectionStatus(person, checked) {
