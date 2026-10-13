@@ -51,6 +51,7 @@ export default function Allocation({ runtime, room, type, onNotice, onParticipan
   const groupLabel = type === 'team' ? '班' : '車';
   const roleLabel = type === 'team' ? '班長' : '運転手';
   const count = Object.keys(room.participants).length;
+  const hasFormApplication = runtime.store.domain.applicants.validApplicationSync(room.meta?.applicationSync);
   function execute(command, args) {
     try { runtime.store.command(command, args); return true; }
     catch (error) { onNotice(error.message); return false; }
@@ -120,7 +121,7 @@ export default function Allocation({ runtime, room, type, onNotice, onParticipan
       {record.memo && <p className="person-memo">{record.memo}</p>}
     </ContainedListItem>;
   }
-  if (!count) return <section className="allocation-page"><InitialEmptyState headingId={`${type}-initial-heading`} title={type === 'car' ? '車割を始める' : '班割を始める'} description="まず参加者を登録してください。" primaryAction={{ label: '参加者を追加', onClick: onParticipants }} roomStatus={roomStatus} /></section>;
+  if (!count) return <section className="allocation-page"><InitialEmptyState headingId={`${type}-initial-heading`} title={type === 'car' ? '車割を始める' : '班割を始める'} description={hasFormApplication ? 'フォームの応募者を確認して、参加者を選んでください。' : 'まず参加者を登録してください。'} primaryAction={{ label: hasFormApplication ? '参加者を確認' : '参加者を追加', onClick: onParticipants }} roomStatus={roomStatus} /></section>;
   return <section className="allocation-page" aria-label={type === 'team' ? '班割' : '車割'}>
     <div className="allocation-toolbar"><div className="allocation-toolbar-summary"><p><span>未割り当て <strong>{projection.waiting.length}人</strong></span><span className="row-detail">{count}人・{projection.cars.length}{type === 'team' ? '班' : '台'}</span></p></div>
       <div className="allocation-toolbar-actions">{projection.waiting.length > 0 && <Button kind="ghost" size="sm" onClick={() => { setWaitingOpen(true); setTimeout(() => waitingSectionRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 0); }}>未割り当て {projection.waiting.length}人を確認</Button>}<Button kind="ghost" size="sm" renderIcon={Shuffle} onClick={() => setConfirmation({ title: 'ランダム割り当て', body: '班長・運転手と固定した参加者を除き、現在の割り当てを組み替えます。', button: '実行', action: () => execute('randomize', { type }) })}>ランダム割り当て</Button></div>

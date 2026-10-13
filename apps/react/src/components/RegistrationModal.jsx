@@ -12,7 +12,7 @@ function isHttpUrl(value) {
   catch { return false; }
 }
 
-export default function RegistrationModal({ runtime, room, onClose, onNotice }) {
+export default function RegistrationModal({ runtime, room, launcherButtonRef, onClose, onNotice }) {
   const [method, setMethod] = useState('manual');
   const [namesText, setNamesText] = useState('');
   const [sheet, setSheet] = useState('');
@@ -66,7 +66,7 @@ export default function RegistrationModal({ runtime, room, onClose, onNotice }) 
     try {
       runtime.store.command('addParticipants', { people });
       onNotice('参加者を登録しました。');
-      onClose();
+      onClose(true);
     } catch (caught) {
       setSubmitError(caught.message);
       focusField(errorRef);
@@ -75,9 +75,9 @@ export default function RegistrationModal({ runtime, room, onClose, onNotice }) 
 
   const showManualAttributes = manualNames.length > 0;
 
-  return <Modal className="app-modal registration-modal" open hasScrollingContent modalHeading="参加者を登録" size="md"
+  return <Modal className="app-modal registration-modal" open hasScrollingContent modalHeading="参加者を登録" size="md" launcherButtonRef={launcherButtonRef}
     closeButtonLabel="閉じる" primaryButtonText="参加者を登録" secondaryButtonText="キャンセル" onRequestSubmit={submit}
-    onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#registration-mode-manual">
+    onRequestClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus="#registration-mode-manual">
     <div className="form-stack registration-modal__content" onKeyDownCapture={event => {
       if (event.key === 'Escape' && (event.isComposing || composing)) { event.preventDefault(); event.stopPropagation(); }
     }}>

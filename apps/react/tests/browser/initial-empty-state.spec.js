@@ -34,3 +34,95 @@ test('applicant selection remains available when the participant room itself is 
   await expect(panel.getByText(/応募者/).first()).toBeVisible();
   await expect(panel.getByRole('heading', { name: '参加者を登録して始める', exact: true })).toHaveCount(0);
 });
+
+test('allocation and settlement empty states route form-linked rooms to applicant selection', async ({ page }) => {
+  const roomId = 'INITIAL-FORM-LINKED-ROUTE';
+  const room = structuredClone(fixture);
+  room.cars = [];
+  room.waiting = [];
+  room.settlement.cars = {};
+  await page.addInitScript(({ id, value }) => localStorage.setItem(`sanpo-react:v1:${id}:room`, JSON.stringify(value)), { id: roomId, value: room });
+  await page.goto(`/?room=${roomId}&view=participants`);
+
+  for (const tabName of ['車割', '班割', '精算']) {
+    await page.getByRole('tab', { name: tabName, exact: true }).click();
+    const panel = page.getByRole('tabpanel', { name: tabName, exact: true });
+    await expect(panel.getByRole('button', { name: '参加者を確認', exact: true })).toBeVisible();
+    await panel.getByRole('button', { name: '参加者を確認', exact: true }).click();
+    await expect(page.getByRole('tab', { name: '参加者', exact: true })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByRole('tabpanel', { name: '参加者', exact: true }).getByText(/応募者/).first()).toBeVisible();
+    await expect(page.getByRole('dialog', { name: '参加者を登録', exact: true })).toHaveCount(0);
+  }
+});
+
+test('saving from the initial registration flow enters the participant list', async ({ page }) => {
+  await page.goto('/?room=INITIAL-REGISTER-SAVE&view=participants');
+  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '参加者を登録', exact: true });
+  await dialog.getByRole('textbox', { name: '参加者の名前' }).fill('登録テスト');
+  await dialog.getByRole('button', { name: '参加者を登録', exact: true }).last().click();
+  await expect(dialog).toHaveCount(0);
+  const panel = page.getByRole('tabpanel', { name: '参加者', exact: true });
+  await expect(panel.getByRole('heading', { name: '参加者 1人', exact: true })).toBeVisible();
+  await expect(panel.getByRole('searchbox', { name: '名前を検索' })).toBeVisible();
+  await expect(panel.getByRole('button', { name: '参加者を登録', exact: true })).toHaveCount(0);
+});
+
+for (const origin of [
+  { view: 'car', tab: '車割' },
+  { view: 'team', tab: '班割' },
+  { view: 'seisan', tab: '精算' },
+]) {
+  test(`${origin.tab} empty state opens participant registration without saving on cancel`, async ({ page }) => {
+    const roomId = `INITIAL-REGISTER-${origin.view.toUpperCase()}`;
+    await page.goto(`/?room=${roomId}&view=${origin.view}`);
+    await page.getByRole('tab', { name: origin.tab, exact: true }).click();
+    const key = `sanpo-react:v1:${roomId}:room`;
+    const before = await page.evaluate(storageKey => localStorage.getItem(storageKey), key);
+    await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+    await expect(page.getByRole('tab', { name: '参加者', exact: true })).toHaveAttribute('aria-selected', 'true');
+    const dialog = page.getByRole('dialog', { name: '参加者を登録', exact: true });
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+    expect(await page.evaluate(storageKey => localStorage.getItem(storageKey), key)).toBe(before);
+    await expect(page.getByRole('button', { name: '参加者を追加', exact: true })).toBeFocused();
+  });
+}
+
+test('participant registration cancel returns focus to its visible start action', async ({ page }) => {
+  const roomId = 'INITIAL-REGISTER-FOCUS';
+  await page.goto(`/?room=${roomId}&view=participants`);
+  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+  const start = page.getByRole('button', { name: '参加者を追加', exact: true });
+  const key = `sanpo-react:v1:${roomId}:room`;
+  const before = await page.evaluate(storageKey => localStorage.getItem(storageKey), key);
+  await start.click();
+  const dialog = page.getByRole('dialog', { name: '参加者を登録', exact: true });
+  await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  expect(await page.evaluate(storageKey => localStorage.getItem(storageKey), key)).toBe(before);
+  await expect(start).toBeFocused();
+});
+
+test('count-only setup opens from participant and settlement empty states, cancels without saving, and restores focus', async ({ page }) => {
+  const roomId = 'INITIAL-COUNT-ONLY-FOCUS';
+  await page.goto(`/?room=${roomId}&view=participants`);
+  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+  const participantsPanel = page.getByRole('tabpanel', { name: '参加者', exact: true });
+  const participantStart = participantsPanel.getByRole('button', { name: '人数だけで精算', exact: true });
+  const settlementStart = page.getByRole('tabpanel', { name: '精算', exact: true }).getByRole('button', { name: '人数だけで精算', exact: true });
+  const key = `sanpo-react:v1:${roomId}:room`;
+  const before = await page.evaluate(storageKey => localStorage.getItem(storageKey), key);
+  for (const start of [participantStart, settlementStart]) {
+    await start.click();
+    await expect(page.getByRole('tab', { name: '精算', exact: true })).toHaveAttribute('aria-selected', 'true');
+    const dialog = page.getByRole('dialog', { name: '精算設定を編集', exact: true });
+    await expect(dialog.getByRole('radio', { name: '人数だけで精算', exact: true })).toBeChecked();
+    await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+    expect(await page.evaluate(storageKey => localStorage.getItem(storageKey), key)).toBe(before);
+    await expect(settlementStart).toBeFocused();
+  }
+});

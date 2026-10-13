@@ -34,6 +34,9 @@ export default function App({ runtime }) {
   const [notice, setNotice] = useState('');
   const [countOnlySettlementRequest, setCountOnlySettlementRequest] = useState(null);
   const countOnlySettlementRequestId = useRef(0);
+  const [participantRegistrationRequest, setParticipantRegistrationRequest] = useState(null);
+  const participantRegistrationRequestId = useRef(0);
+  const participantStartRef = useRef(null);
   const [globalModal, setGlobalModal] = useState('');
   const [sampleCars, setSampleCars] = useState('3');
   const [sampleType, setSampleType] = useState('normal');
@@ -104,6 +107,16 @@ export default function App({ runtime }) {
     const requestId = ++countOnlySettlementRequestId.current;
     setCountOnlySettlementRequest(requestId);
   }
+  function openParticipantRegistration() {
+    changeView(0);
+    const currentRoom = runtime.store.getSnapshot();
+    if (runtime.store.domain.applicants.validApplicationSync(currentRoom.meta?.applicationSync)) return;
+    const requestId = ++participantRegistrationRequestId.current;
+    setParticipantRegistrationRequest(requestId);
+  }
+  function consumeParticipantRegistrationRequest(requestId) {
+    setParticipantRegistrationRequest(current => current === requestId ? null : current);
+  }
   function consumeCountOnlySettlementRequest(requestId) {
     setCountOnlySettlementRequest(current => current === requestId ? null : current);
   }
@@ -118,10 +131,10 @@ export default function App({ runtime }) {
       <Tabs selectedIndex={view} onChange={({ selectedIndex }) => changeView(selectedIndex)}>
         <TabList aria-label="画面切り替え" contained fullWidth>{destinations.map(name => <Tab key={name}>{name}</Tab>)}</TabList>
         <TabPanels>
-          <TabPanel><Participants runtime={runtime} room={room} onNotice={setNotice} onOpenCountOnlySettlement={openCountOnlySettlement} roomStatus={syncStatus} /></TabPanel>
-          <TabPanel><Allocation runtime={runtime} room={room} type="car" onNotice={setNotice} onParticipants={() => changeView(0)} roomStatus={syncStatus} /></TabPanel>
-          <TabPanel><Allocation runtime={runtime} room={room} type="team" onNotice={setNotice} onParticipants={() => changeView(0)} roomStatus={syncStatus} /></TabPanel>
-          <TabPanel><Settlement runtime={runtime} room={room} onNotice={setNotice} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel><Participants runtime={runtime} room={room} onNotice={setNotice} onOpenCountOnlySettlement={openCountOnlySettlement} openRegistrationRequestId={participantRegistrationRequest} onRegistrationRequestHandled={consumeParticipantRegistrationRequest} participantStartRef={participantStartRef} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel><Allocation runtime={runtime} room={room} type="car" onNotice={setNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel><Allocation runtime={runtime} room={room} type="team" onNotice={setNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel><Settlement runtime={runtime} room={room} onNotice={setNotice} onOpenParticipantRegistration={openParticipantRegistration} participantStartRef={participantStartRef} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} /></TabPanel>
         </TabPanels>
       </Tabs>
     </div></Column></Grid>
