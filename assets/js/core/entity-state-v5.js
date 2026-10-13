@@ -374,9 +374,10 @@ function ensureAllParticipantsPlaced(allocation, participants) {
                 const orderDiff = (Number(a?.order) || 0) - (Number(b?.order) || 0);
                 return orderDiff || String(idA).localeCompare(String(idB));
             });
-        // The group owner occupies one seat too. Keep at most capacity - 1
-        // additional members after the owner when reconciling concurrent moves.
-        members.slice(Math.max(0, capacity - 1)).forEach(([id, placement]) => {
+        // Car capacity counts passenger seats; team capacity includes its leader.
+        // Keep the owner's slot in the team limit, but preserve all car seats.
+        const memberCapacity = Math.max(0, capacity - (allocation.type === 'team' ? 1 : 0));
+        members.slice(memberCapacity).forEach(([id, placement]) => {
             allocation.placements[id] = {
                 kind: 'waiting',
                 driver: placement.driver === true,

@@ -80,6 +80,26 @@ test('participant, capacity, fixed role and random assignment commands preserve 
   assert.ok(Object.entries(current.placements).filter(([id, p]) => id !== current.groups[group.id].ownerId && p.groupId === group.id).length <= 1);
 });
 
+test('car capacity leaves its stated number of passenger seats after the owner', () => {
+  const store = create();
+  const room = plain(store.getSnapshot());
+  const allocation = room.allocations.car;
+  const group = Object.values(allocation.groups)[0];
+  group.capacity = 2;
+  const waitingIds = Object.entries(allocation.placements)
+    .filter(([, placement]) => placement.kind === 'waiting')
+    .map(([id]) => id)
+    .slice(0, 2);
+  waitingIds.forEach((id, index) => {
+    allocation.placements[id] = { kind: 'member', driver: false, groupId: group.id, order: index, updatedAt: 1001 + index };
+  });
+
+  const normalized = store.domain.canonical.migrate(room);
+  const passengers = Object.values(normalized.allocations.car.placements)
+    .filter(placement => placement.kind === 'member' && placement.groupId === group.id && placement !== normalized.allocations.car.placements[group.ownerId]);
+  assert.equal(passengers.length, 2);
+});
+
 test('allocation group labels are stable and new teams count the leader in total capacity', () => {
   const store = create();
   let room = plain(store.getSnapshot());

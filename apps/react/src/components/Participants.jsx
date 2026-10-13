@@ -6,6 +6,24 @@ import RegistrationModal from './RegistrationModal.jsx';
 import { ExportModal, GuidanceModal } from './ProjectTools.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
 
+function keepConfirmationTabWithinDialog(event) {
+  if (event.key !== 'Tab') return;
+  const dialog = event.target.closest?.('[role="dialog"]');
+  if (!dialog) return;
+  const tabbable = [...dialog.querySelectorAll('button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])')]
+    .filter(element => element.getClientRects().length > 0 && getComputedStyle(element).visibility !== 'hidden');
+  if (!tabbable.length) return;
+  const first = tabbable[0];
+  const last = tabbable[tabbable.length - 1];
+  if (!event.shiftKey && event.target === last) {
+    event.preventDefault();
+    first.focus();
+  } else if (event.shiftKey && event.target === first) {
+    event.preventDefault();
+    last.focus();
+  }
+}
+
 export default function Participants({ runtime, room, onNotice, onOpenCountOnlySettlement }) {
   const isMobile = useMediaQuery('(max-width: 671px)');
   const [search, setSearch] = useState('');
@@ -134,7 +152,7 @@ export default function Participants({ runtime, room, onNotice, onOpenCountOnlyS
     {registering && <RegistrationModal runtime={runtime} room={room} onClose={() => setRegistering(false)} onNotice={onNotice} />}
     {editor && <ParticipantEditor runtime={runtime} session={editor} launcherButtonRef={modalLauncherRef} onClose={() => { const launcher = modalLauncherRef.current; setEditor(null); focusAfterClose(launcher); }} onNotice={onNotice} />}
     {pendingSelection && <Modal open danger size="xs" closeButtonLabel="閉じる" launcherButtonRef={modalLauncherRef} modalHeading="参加者から外しますか？" primaryButtonText="外す" secondaryButtonText="キャンセル" onRequestSubmit={() => { modalLauncherRef.current = participantsHeadingRef.current; apply(pendingSelection); }} onRequestClose={closeSelectionConfirmation}><p>車割・班割・精算の割り当ても削除されます。</p></Modal>}
-    {pendingDelete && <Modal open danger size="xs" closeButtonLabel="閉じる" launcherButtonRef={modalLauncherRef} modalHeading="参加者を削除しますか？" primaryButtonText="削除" secondaryButtonText="キャンセル" onRequestSubmit={remove} onRequestClose={closeDeleteConfirmation}><p>{pendingDelete.name}を削除します。車割・班割・精算の割り当ても削除されます。</p></Modal>}
+    {pendingDelete && <Modal open danger size="xs" closeButtonLabel="閉じる" launcherButtonRef={modalLauncherRef} modalHeading="参加者を削除しますか？" primaryButtonText="削除" secondaryButtonText="キャンセル" onKeyDownCapture={keepConfirmationTabWithinDialog} onRequestSubmit={remove} onRequestClose={closeDeleteConfirmation}><p>{pendingDelete.name}を削除します。車割・班割・精算の割り当ても削除されます。</p></Modal>}
     {toolModal === 'guidance' && <GuidanceModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setToolModal('')} />}
     {toolModal === 'export' && <ExportModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setToolModal('')} />}
   </section>;
