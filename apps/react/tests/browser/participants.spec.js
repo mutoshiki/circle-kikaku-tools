@@ -106,7 +106,7 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
 test('participant list shows assigned driver role and participant editor can toggle it', async ({ page }) => {
   const roomId = `PARTICIPANT-DRIVER-ROLE-${Date.now()}`;
   await page.goto(`/?room=${roomId}&view=participants`);
-  await page.getByRole('button', { name: '追加', exact: true }).click();
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者を登録' });
   await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('運転手属性 確認');
   await registration.getByText('学年・車出しを設定（任意）', { exact: true }).click();

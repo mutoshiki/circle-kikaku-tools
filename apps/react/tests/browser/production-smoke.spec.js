@@ -62,12 +62,14 @@ test('production preview loads assets and preserves a room edit across critical 
 
   await page.goto('/?room=PHASE8PRODUCTION');
   await expect(page).toHaveTitle('サークル企画ツール');
-  await page.getByRole('button', { name: '企画名を変更' }).click();
+  await page.getByRole('button', { name: /^企画名を(設定|変更)$/ }).click();
   const projectName = page.getByRole('textbox', { name: '企画名' });
   await projectName.fill('Phase 8 production smoke');
   await page.getByRole('button', { name: '保存', exact: true }).click();
+  await page.getByRole('tab', { name: '参加者', exact: true }).click();
   await expect(page.getByRole('heading', { name: '参加者', exact: true })).toHaveCount(0);
-  await expect(page.locator('.participants-page > .section-heading h2')).toContainText(/参加者\s*\d+人/);
+  await expect(page.getByRole('button', { name: '参加者を追加', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '人数だけで精算', exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '車割', exact: true }).click();
   await expect(page.getByRole('tabpanel', { name: '車割', exact: true }).locator('section.allocation-page')).toBeVisible();
   await page.getByRole('tab', { name: '班割', exact: true }).click();
