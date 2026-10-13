@@ -374,7 +374,9 @@ function ensureAllParticipantsPlaced(allocation, participants) {
                 const orderDiff = (Number(a?.order) || 0) - (Number(b?.order) || 0);
                 return orderDiff || String(idA).localeCompare(String(idB));
             });
-        members.slice(capacity).forEach(([id, placement]) => {
+        // The group owner occupies one seat too. Keep at most capacity - 1
+        // additional members after the owner when reconciling concurrent moves.
+        members.slice(Math.max(0, capacity - 1)).forEach(([id, placement]) => {
             allocation.placements[id] = {
                 kind: 'waiting',
                 driver: placement.driver === true,
