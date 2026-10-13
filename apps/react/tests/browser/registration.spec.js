@@ -19,7 +19,10 @@ test('registration methods are explicit and manual attributes stay with their na
   await expect(names).toHaveValue('属性なしの人\n属性ありの人');
   await dialog.getByText('学年・車出しを設定（任意）', { exact: true }).click();
   await dialog.getByLabel('属性ありの人の学年').selectOption('3');
-  await dialog.getByRole('checkbox', { name: '属性ありの人を車出しに指定', exact: true }).check({ force: true });
+  const driverCheckbox = dialog.getByRole('checkbox', { name: '属性ありの人を車出しに指定', exact: true });
+  await driverCheckbox.scrollIntoViewIfNeeded();
+  await dialog.getByText('属性ありの人を車出しに指定', { exact: true }).click();
+  await expect(driverCheckbox).toBeChecked();
   await expect(dialog.locator('.registration-modal__summary')).toContainText('2人');
 
   await spreadsheetMethod.check({ force: true });
