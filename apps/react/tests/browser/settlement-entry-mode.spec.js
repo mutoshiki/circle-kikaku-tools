@@ -90,6 +90,7 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await collectorPrompt.getByRole('textbox', { name: '集金した人' }).fill('集金担当');
   await collectorPrompt.getByRole('button', { name: '保存', exact: true }).click();
   await expect(collectorPrompt).toHaveCount(0);
+  await collection.getByRole('tab', { name: 'すべて', exact: true }).click();
   await expect(collection.locator('.settlement-collection-row').filter({ hasText: '集金担当' })).toContainText('回収済み');
   await collection.getByRole('button', { name: '閉じる', exact: true }).last().click();
 });
