@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { fixture, createReference } from '../reference.mjs';
-import { openRoutePlannerFromMovementSettings, returnToMovementSettingsFromRoutePlanner } from '../browser/settlement-smoke-actions.mjs';
+import { openRoutePlannerFromMovementSettings, openVehicleExpenseEditor, returnToMovementSettingsFromRoutePlanner } from '../browser/settlement-smoke-actions.mjs';
 import { cleanupProductionSmokeRoom, seedProductionSmokeRoom } from './firebase-smoke-room.mjs';
 import { createSmokeDiagnostics } from './production-smoke-diagnostics.mjs';
 
@@ -143,9 +143,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await page.getByRole('tab', { name: '精算', exact: true }).click();
     await expect(page.getByRole('tabpanel', { name: '精算', exact: true })).toBeVisible();
 
-    const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).first();
-    await car.getByRole('button', { name: /仮参加者A車の費用を入力/ }).click();
-    const editor = page.getByRole('dialog', { name: /仮参加者A車/ });
+    const editor = await openVehicleExpenseEditor(page, { carLabel: '仮参加者A車', action: '編集' });
     await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
     await editor.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
     await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();

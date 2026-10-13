@@ -236,7 +236,10 @@ test('long participant content and action menus remain readable at mobile and 20
   const registration = page.getByRole('dialog', { name: '参加者を登録' });
   await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill(`${longName}\n通常参加者`);
   await registration.getByText('学年・車出しを設定（任意）', { exact: true }).click();
-  await registration.getByRole('checkbox', { name: `${longName}を車出しに指定`, exact: true }).check({ force: true });
+  const driverCheckbox = registration.getByRole('checkbox', { name: `${longName}を車出しに指定`, exact: true });
+  await driverCheckbox.scrollIntoViewIfNeeded();
+  await registration.getByText(`${longName}を車出しに指定`, { exact: true }).click();
+  await expect(driverCheckbox).toBeChecked();
   await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
   await page.getByRole('tab', { name: '車割', exact: true }).click();
   const group = page.getByRole('region', { name: 'A車', exact: true });
