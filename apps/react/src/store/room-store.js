@@ -42,7 +42,7 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
     return ownedGroupIds.length > 0;
   };
 
-  function publish(base, local, { patch: explicitPatch, kind = 'edit' } = {}) {
+  function publish(base, local, { patch: explicitPatch, precondition = null, kind = 'edit' } = {}) {
     if (Number(base.resetGeneration) !== Number(snapshot.resetGeneration)) throw new Error('企画がリセットされました。画面を開き直してください。');
     local.lastUpdatedAt = clock.now();
     local.lastUpdatedBy = clientId;
@@ -75,7 +75,7 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
       liveApplicationMetadata = clone(local.meta.applicationSync);
     }
     snapshot = freeze(domain.migrate(next));
-    const intent = freeze({ base: clone(base), local: clone(local), patch: clone(patch), sequence: ++sequence, kind });
+    const intent = freeze({ base: clone(base), local: clone(local), patch: clone(patch), precondition: clone(precondition), sequence: ++sequence, kind });
     notify();
     for (const listener of intentListeners) listener(intent);
     return intent;
@@ -231,13 +231,13 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
     return session;
   }
   function cancelEdit(session) { session.closed = true; sessions.delete(session); }
-  function commitEdit(session, { close = true } = {}) {
+  function commitEdit(session, { close = true, precondition = session.precondition || null } = {}) {
     if (!sessions.has(session) || session.closed) throw new Error('編集は終了しています。');
     if (session.participantId) requireParticipant(snapshot, session.participantId);
     let patch;
     if (session.scope === 'settlement-settings') patch = domain.sync.buildSettlementSettingsIntentPatch(session.base, session.draft);
     else if (session.scope === 'settlement-car') patch = domain.sync.buildSettlementCarIntentPatch(session.base, session.draft, { participantId: session.participantId, name: session.name || '' });
-    const intent = publish(session.base, session.draft, { patch, kind: session.kind || 'draft' });
+    const intent = publish(session.base, session.draft, { patch, precondition, kind: session.kind || 'draft' });
     if (close) cancelEdit(session);
     return intent;
   }

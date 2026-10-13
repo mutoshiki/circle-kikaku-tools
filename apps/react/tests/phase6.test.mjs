@@ -18,6 +18,18 @@ test('overview draft remains local until explicit shared save', () => {
   assert.equal(createShareUrl(url.href), 'https://example.test/react/?room=ROOM-A');
 });
 
+test('initial screen defaults to settlement while explicit destinations remain addressable', () => {
+  const cases = [
+    ['', 3], ['?view=unknown', 3], ['?view=participants', 0], ['?view=car', 1], ['?view=team', 2], ['?view=seisan', 3],
+  ];
+  for (const [search, expected] of cases) {
+    const storage = createMemoryStorage();
+    const history = { replaceState() {} };
+    const result = prepareCompatibleUrl({ location: { href: `https://example.test/react/${search}` }, history, storage, crypto: { randomUUID: () => 'abcd-1234' } });
+    assert.equal(result.initialView, expected, search || 'no view');
+  }
+});
+
 test('handoff capability is room-local and removed from URL before sharing', () => {
   const storage = createMemoryStorage();
   const token = `h_${'A'.repeat(48)}`;

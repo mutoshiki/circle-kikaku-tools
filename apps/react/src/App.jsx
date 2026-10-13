@@ -8,8 +8,10 @@ import ProjectIdentity from './components/ProjectIdentity.jsx';
 import Participants from './components/Participants.jsx';
 import Allocation from './components/Allocation.jsx';
 import Settlement from './components/Settlement.jsx';
+import SettlementSettingsModal from './components/SettlementSettingsModal.jsx';
 import { BugModal, HistoryModal, OverviewModal } from './components/ProjectTools.jsx';
 import { createProjectDomain } from './services/project-domain.js';
+import { beginSettlementEdit } from './components/settlement/edit.js';
 
 const destinations = ['参加者', '車割', '班割', '精算'];
 const THEME_PREFERENCE_KEY = 'sanpo-react:theme-preference:v1';
@@ -30,13 +32,16 @@ export default function App({ runtime }) {
   const [systemTheme, setSystemTheme] = useState(readSystemTheme);
   const theme = themePreference === 'system' ? systemTheme : themePreference === 'dark' ? 'g100' : 'g10';
   const contentTheme = theme === 'g100' ? 'g90' : 'g10';
-  const [view, setView] = useState(runtime.initialView ?? 1);
+  const [view, setView] = useState(runtime.initialView ?? 3);
   const [notice, setNotice] = useState('');
   const [countOnlySettlementRequest, setCountOnlySettlementRequest] = useState(null);
   const countOnlySettlementRequestId = useRef(0);
   const [participantRegistrationRequest, setParticipantRegistrationRequest] = useState(null);
   const participantRegistrationRequestId = useRef(0);
   const participantStartRef = useRef(null);
+  const [settlementSettingsEdit, setSettlementSettingsEdit] = useState(null);
+  const [settlementSettingsLauncher, setSettlementSettingsLauncher] = useState(null);
+  const standaloneMode = room.settlement?.standalone?.enabled === true;
   const [globalModal, setGlobalModal] = useState('');
   const [sampleCars, setSampleCars] = useState('3');
   const [sampleType, setSampleType] = useState('normal');
@@ -94,14 +99,39 @@ export default function App({ runtime }) {
     else seedSample(sampleType === 'missing');
   }
   function changeView(selectedIndex) {
+    if (standaloneMode) selectedIndex = 3;
     setView(selectedIndex);
     const url = new URL(location.href);
     url.searchParams.delete('allocation');
-    if (selectedIndex === 0) url.searchParams.set('view', 'participants');
-    else if (selectedIndex === 3) url.searchParams.set('view', 'seisan');
-    else url.searchParams.delete('view');
+    const viewNames = ['participants', 'car', 'team', 'seisan'];
+    url.searchParams.set('view', viewNames[selectedIndex] || 'seisan');
     history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
   }
+  function openSettlementSettings({ standalone = false, launcherButtonRef = null } = {}) {
+    setSettlementSettingsLauncher(launcherButtonRef);
+    setSettlementSettingsEdit(beginSettlementEdit(runtime.store, { standalone }));
+  }
+  function closeSettlementSettings(saved) {
+    const launcher = settlementSettingsLauncher?.current;
+    if (!saved && settlementSettingsEdit && !settlementSettingsEdit.session.closed) runtime.store.cancelEdit(settlementSettingsEdit.session);
+    setSettlementSettingsEdit(null);
+    setSettlementSettingsLauncher(null);
+    window.requestAnimationFrame(() => {
+      const visible = element => element?.isConnected && element.getClientRects().length > 0;
+      const fallback = [...document.querySelectorAll('button')].find(button => visible(button) && /精算設定を編集|人数だけで精算/.test(button.textContent || ''));
+      (visible(launcher) ? launcher : fallback)?.focus();
+    });
+  }
+  useEffect(() => {
+    if (!standaloneMode) return;
+    if (view !== 3) setView(3);
+    const url = new URL(location.href);
+    if (url.searchParams.get('view') !== 'seisan') {
+      url.searchParams.set('view', 'seisan');
+      url.searchParams.delete('allocation');
+      history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
+    }
+  }, [standaloneMode, view]);
   function openCountOnlySettlement() {
     changeView(3);
     const requestId = ++countOnlySettlementRequestId.current;
@@ -128,18 +158,21 @@ export default function App({ runtime }) {
     <main id="main-content" tabIndex={-1} aria-labelledby="project-heading">
     <Grid fullWidth className="project-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><ProjectIdentity name={room.roomName} syncStatus={syncStatus} onRename={name => runtime.store.command('rename', { name })} /></Column></Grid>
     <Grid fullWidth className="content-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><div className="main-content">
-      <Tabs selectedIndex={view} onChange={({ selectedIndex }) => changeView(selectedIndex)}>
+      {standaloneMode
+        ? <Settlement runtime={runtime} room={room} onNotice={setNotice} onOpenParticipantRegistration={openParticipantRegistration} onOpenSettings={openSettlementSettings} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} />
+        : <Tabs selectedIndex={view} onChange={({ selectedIndex }) => changeView(selectedIndex)}>
         <TabList aria-label="画面切り替え" contained fullWidth>{destinations.map(name => <Tab key={name}>{name}</Tab>)}</TabList>
         <TabPanels>
           <TabPanel><Participants runtime={runtime} room={room} onNotice={setNotice} onOpenCountOnlySettlement={openCountOnlySettlement} openRegistrationRequestId={participantRegistrationRequest} onRegistrationRequestHandled={consumeParticipantRegistrationRequest} participantStartRef={participantStartRef} roomStatus={syncStatus} /></TabPanel>
           <TabPanel><Allocation runtime={runtime} room={room} type="car" onNotice={setNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} /></TabPanel>
           <TabPanel><Allocation runtime={runtime} room={room} type="team" onNotice={setNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} /></TabPanel>
-          <TabPanel><Settlement runtime={runtime} room={room} onNotice={setNotice} onOpenParticipantRegistration={openParticipantRegistration} participantStartRef={participantStartRef} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel><Settlement runtime={runtime} room={room} onNotice={setNotice} onOpenParticipantRegistration={openParticipantRegistration} onOpenSettings={openSettlementSettings} participantStartRef={participantStartRef} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} /></TabPanel>
         </TabPanels>
-      </Tabs>
+      </Tabs>}
     </div></Column></Grid>
     </main>
     </Theme>
+    {settlementSettingsEdit && <SettlementSettingsModal runtime={runtime} edit={settlementSettingsEdit} launcherButtonRef={settlementSettingsLauncher} onNotice={setNotice} onClose={closeSettlementSettings} />}
     {globalModal === 'guide' && <Modal className="app-modal" open passiveModal size="md" closeButtonLabel="閉じる" modalHeading="使い方" onRequestClose={() => setGlobalModal('')}>
       <div className="user-guide"><p>参加者の選択、車割、班割、精算を上部の4つのタブから行います。</p><ol><li><strong>参加者</strong> 応募者を確認し、企画に参加する人を選びます。</li><li><strong>車割</strong> 車と参加者を割り当てます。</li><li><strong>班割</strong> 班と参加者を割り当てます。</li><li><strong>共有</strong> 右上の「企画のリンクをコピー」から通常の企画ルームURLをコピーします。</li><li><strong>精算</strong> 設定、車ごとの費用、集金・支払い状況を管理します。</li></ol></div>
     </Modal>}

@@ -9,7 +9,7 @@ test('production bundle migrates a legacy fixture through the external store and
     const key = 'sanpo-react:v1:DOMAIN-FIXTURE:room';
     if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(input));
   }, fixture);
-  await page.goto('/?room=DOMAIN-FIXTURE');
+  await page.goto('/?room=DOMAIN-FIXTURE&view=participants');
   await expect(page.getByRole('tabpanel')).toContainText('6人');
   await expect(page.locator('#project-heading')).toHaveText(fixture.roomName);
   await page.getByRole('button', { name: '企画名を変更' }).click();

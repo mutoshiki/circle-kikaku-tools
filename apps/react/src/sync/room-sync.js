@@ -1,6 +1,15 @@
 const copy = value => structuredClone(value);
 const legacyFields = ['waiting', 'cars', 'carPlans', 'activeCarPlanId', 'lastAutoAssignLabel', 'activeAllocationType', 'trayMinimized'];
 
+function sameValue(left, right) {
+  if (Object.is(left, right)) return true;
+  if (left === undefined || right === undefined || left === null || right === null || typeof left !== 'object' || typeof right !== 'object') return false;
+  if (Array.isArray(left) || Array.isArray(right)) return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((value, index) => sameValue(value, right[index]));
+  const leftKeys = Object.keys(left).sort();
+  const rightKeys = Object.keys(right).sort();
+  return sameValue(leftKeys, rightKeys) && leftKeys.every(key => sameValue(left[key], right[key]));
+}
+
 // Owns exactly one room subscription, one intent subscription and one retry timer.
 // No React effects, DOM reads, modal lookups or browser globals live here.
 export function createRoomSync({ store, storage, transport, clientId, clock, timers = globalThis, legacyLoadWrites = true }) {
@@ -46,7 +55,7 @@ export function createRoomSync({ store, storage, transport, clientId, clock, tim
     const baseSnapshot = copy(intent.base || remote || {});
     const patch = intent.patch || sync.buildEntityPatch(baseSnapshot, snapshot, { forceCanonical });
     const id = `op_${clientId.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 48)}_${requestVersion}_${clock.now().toString(36)}`;
-    const entry = { id, operationId: id, requestVersion, snapshot, baseSnapshot, patch: copy(patch), createdAt: clock.now(), forceCanonical, allowPatchFallback };
+    const entry = { id, operationId: id, requestVersion, snapshot, baseSnapshot, patch: copy(patch), precondition: copy(intent.precondition || null), createdAt: clock.now(), forceCanonical, allowPatchFallback };
     // Deliberately retains the existing one-record-per-room outbox contract.
     storage.write('outbox', entry);
     storage.write('room', snapshot);
@@ -83,17 +92,28 @@ export function createRoomSync({ store, storage, transport, clientId, clock, tim
     try {
       let duplicate = false;
       let reset = false;
+      let preconditionFailed = false;
       const response = await transport.transaction(current => {
         if (sync.isUnsupportedRemoteSchema(current)) throw new Error(`Remote schema ${current.schemaVersion} is newer than this client`);
         if (Number(current?.resetGeneration || 0) !== Number(entry.baseSnapshot?.resetGeneration || 0)) { reset = true; return undefined; }
         if (current?.syncOperations?.[entry.id]) { duplicate = true; return undefined; }
+        if (entry.precondition && !entry.precondition.every(({ path, value }) => sameValue(sync.getSyncPathValue(current || {}, path), value))) { preconditionFailed = true; return undefined; }
         return entry.forceCanonical ? cleanup(current, entry) : sync.applyVersionedEntityPatch(current || {}, entry.baseSnapshot, entry.snapshot, entry.patch, entry.requestVersion, entry.id, Number(entry.snapshot.lastUpdatedAt || 0));
       });
+      if (preconditionFailed) {
+        result = migrate(response.value || remote || {});
+        if (!started || currentEpoch !== epoch) return null;
+        clearOutbox(entry.id);
+        applyRemote(result);
+        record('rejected', '同時編集により運転手名の変更を中止', entry.patch);
+        setStatus('error', '別の端末で精算情報が変更されました。画面を開き直してください。', new Error('別の端末で精算情報が変更されました。'));
+        return result;
+      }
       if (!response.committed && !duplicate && !reset) throw new Error('Firebase entity transaction was not committed');
       result = migrate(response.value || {});
       if (reset) record('adjusted', 'リセット後の古い保存を破棄', entry.patch);
     } catch (error) {
-      if (entry.allowPatchFallback && sync.isTransactionRetryExhausted(error)) {
+      if (!entry.precondition && entry.allowPatchFallback && sync.isTransactionRetryExhausted(error)) {
         try { result = await fallback(entry); } catch (fallbackError) { error = fallbackError; }
       }
       if (!result) {

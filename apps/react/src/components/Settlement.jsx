@@ -1,14 +1,15 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import {
   Accordion, AccordionItem, Button, Callout, Checkbox, ContainedList, ContainedListItem, ContentSwitcher, IconButton, InlineNotification, Modal,
-  NumberInput, ProgressIndicator, ProgressStep, RadioButton, RadioButtonGroup,
-  Select, SelectItem, Switch, Tag, TextArea, TextInput, Tile,
+  NumberInput, RadioButton, RadioButtonGroup,
+  Select, SelectItem, Switch, Tag, TextArea, TextInput, Tile, OverflowMenu, OverflowMenuItem,
 } from '@carbon/react';
 import { Add, Copy, Edit, TrashCan } from '@carbon/icons-react';
-import { beginSettlementEdit, commitSettlementEdit, collectionChange } from './settlement/edit.js';
+import { beginSettlementEdit, beginStandaloneDriverNameEdit, commitSettlementEdit, collectionChange } from './settlement/edit.js';
 import RoutePlanner from './RoutePlanner.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
 import InitialEmptyState from './InitialEmptyState.jsx';
+import StandaloneDriverNameModal from './StandaloneDriverNameModal.jsx';
 
 const money = value => `¥${Math.round(Number(value) || 0).toLocaleString('ja-JP')}`;
 const hasNegativeValue = value => /^[-−]/.test(String(value ?? '').trim());
@@ -39,7 +40,6 @@ function getExpenseFieldErrors(row, domain) {
     amount: hasNegativeValue(amount) ? negativeMoneyText : amount && !Number.isFinite(parsedAmount) ? '金額は数値で入力してください。' : '',
   };
 }
-const settlementSettingsSteps = ['精算方法', '車出し協力代', '集金ルール'];
 function isMovementCalculationIssue(message) {
   return /(?:ガソリン代|タイムズ移動料金)を計算するため、/.test(message);
 }
@@ -61,86 +61,6 @@ function settlementSaveNotice(label, before, after) {
   if (before.amount === after.amount) return label;
   const change = `1人あたりの集金額が ${money(before.amount)} から ${money(after.amount)} に変更されました。`;
   return `${label} ${change}${after.hasRecordedCollections ? ' 記録済みの集金状況を確認してください。' : ''}`;
-}
-
-function SettingsModal({ runtime, edit, launcherButtonRef, onClose, onNotice }) {
-  const [, render] = useState(0);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [composing, setComposing] = useState(false);
-  const [step, setStep] = useState(0);
-  const isMobile = useMediaQuery('(max-width: 671px)');
-  const isNarrowMobile = useMediaQuery('(max-width: 399px)');
-  const state = edit.state;
-  const update = changes => { Object.assign(state, changes); render(value => value + 1); };
-  const updateStandalone = changes => update({ standalone: { ...state.standalone, ...changes } });
-  const invalidDriverCount = state.standalone.enabled && hasNegativeValue(state.standalone.driverCount);
-  const invalidMemberCount = state.standalone.enabled && hasNegativeValue(state.standalone.memberCount);
-  const invalidReward = hasNegativeValue(state.driverReward);
-  const invalidCurrentStep = step === 0 ? invalidDriverCount || invalidMemberCount : step === 1 && invalidReward;
-  const driverRule = state.driverCollectionFree ? 'free' : state.driverCollectionOffset ? 'offset' : 'normal';
-  async function save() {
-    if (composing || saving || invalidDriverCount || invalidMemberCount || invalidReward) return;
-    setSaving(true); setError('');
-    const before = getSettlementAmountSnapshot(runtime.store);
-    try {
-      await commitSettlementEdit(runtime, edit);
-      onNotice(settlementSaveNotice('精算設定を保存しました。', before, getSettlementAmountSnapshot(runtime.store)));
-      onClose(true);
-    }
-    catch (caught) { setError(caught.message); setSaving(false); }
-  }
-  function go(next) {
-    if (next > step && step === 0 && (invalidDriverCount || invalidMemberCount)) return;
-    if (next > step && step === 1 && invalidReward) return;
-    if (next > step && step === 0 && state.standalone.enabled && ((Number(state.standalone.driverCount) || 0) + (Number(state.standalone.memberCount) || 0) <= 0)) {
-      setError('運転手または同乗者の人数を入力してください。');
-      return;
-    }
-    setError(''); setStep(Math.max(0, Math.min(2, next)));
-  }
-  return <Modal className="app-modal settlement-settings-modal" open size="lg" hasScrollingContent modalHeading="精算設定を編集" closeButtonLabel="閉じる" launcherButtonRef={launcherButtonRef} primaryButtonText={step === 2 ? '保存' : '次へ'} secondaryButtons={[{ buttonText: 'キャンセル', onClick: () => onClose(false) }, { buttonText: '戻る', onClick: () => go(step - 1) }]} primaryButtonDisabled={saving || composing || invalidCurrentStep} onRequestSubmit={() => step === 2 ? save() : go(step + 1)} onRequestClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus="#settlement-mode-normal">
-    <div className="form-stack settlement-settings-form" onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}>
-      {isNarrowMobile
-        ? <div className="settlement-settings-progress-compact" role="status" aria-label={`ステップ ${step + 1}/3：${settlementSettingsSteps[step]}`}><span className="settlement-settings-progress-compact__count">ステップ {step + 1}/3</span><strong>{settlementSettingsSteps[step]}</strong></div>
-        : <ProgressIndicator id="settlement-settings-progress" className="settlement-settings-progress" currentIndex={step} vertical={false} spaceEqually aria-label="精算設定の進行状況">
-          {settlementSettingsSteps.map((label, index) => <ProgressStep key={label} label={label} current={step === index} complete={step > index} />)}
-        </ProgressIndicator>}
-      {error && <InlineNotification kind="error" title="保存できませんでした" subtitle={error} hideCloseButton lowContrast />}
-      {step === 0 && <section className="settlement-settings-step" aria-labelledby="settlement-method-title"><h3 id="settlement-method-title">精算方法</h3><RadioButtonGroup legendText="精算方法" name="settlement-mode" valueSelected={state.standalone.enabled ? 'standalone' : 'normal'} onChange={value => updateStandalone({ enabled: value === 'standalone' })} orientation="vertical">
-        <RadioButton id="settlement-mode-normal" value="normal" labelText="参加者を登録して精算" />
-        <RadioButton id="settlement-mode-standalone" value="standalone" labelText="人数だけで精算" />
-      </RadioButtonGroup>
-      {state.standalone.enabled && <div className="form-grid">
-        <NumberInput id="settlement-driver-count" label="運転手の人数" min={0} max={99} allowEmpty invalid={invalidDriverCount} invalidText="人数は0以上で入力してください。" value={state.standalone.driverCount} onChange={(_, { value }) => updateStandalone({ driverCount: String(value) })} />
-        <NumberInput id="settlement-member-count" label="同乗者の人数" min={0} max={99} allowEmpty invalid={invalidMemberCount} invalidText="人数は0以上で入力してください。" value={state.standalone.memberCount} onChange={(_, { value }) => updateStandalone({ memberCount: String(value) })} />
-        {Array.from({ length: Number(state.standalone.driverCount) || 0 }, (_, index) => <TextInput key={index} id={`settlement-driver-name-${index}`} labelText={`運転手${index + 1}の名前`} value={state.standalone.driverNames[index] || ''} onChange={event => { const names = [...state.standalone.driverNames]; names[index] = event.target.value; updateStandalone({ driverNames: names }); }} />)}
-      </div>}
-      <RadioButtonGroup legendText="精算額の切り上げ単位" name="settlement-rounding" valueSelected={state.rounding} onChange={value => update({ rounding: String(value) })} orientation="vertical">
-        {['1', '10', '100'].map(value => <RadioButton key={value} id={`settlement-rounding-${value}`} value={value} labelText={`${value}円単位`} />)}
-      </RadioButtonGroup></section>}
-      {step === 1 && <section className="settlement-settings-step" aria-labelledby="settlement-reward-title"><h3 id="settlement-reward-title">車出し協力代</h3><div className="form-grid">
-        <TextInput id="settlement-driver-reward" labelText="1台あたりの協力代（円）" inputMode="numeric" invalid={invalidReward} invalidText={negativeMoneyText} value={state.driverReward} onChange={event => update({ driverReward: event.target.value })} />
-        <RadioButtonGroup legendText="協力代の負担" name="settlement-reward-type" valueSelected={state.driverRewardType} onChange={value => update({ driverRewardType: value })} orientation="vertical">
-          <RadioButton id="settlement-reward-split" value="split" labelText="参加者で割勘" />
-          <RadioButton id="settlement-reward-club" value="club" labelText="部費から支払う" />
-        </RadioButtonGroup>
-      </div></section>}
-      {step === 2 && <section className="settlement-settings-step" aria-labelledby="settlement-collection-title"><h3 id="settlement-collection-title">集金ルール</h3><RadioButtonGroup legendText="運転手分の集金" name="settlement-driver-rule" valueSelected={driverRule} onChange={value => update({ driverCollectionOffset: value === 'offset', driverCollectionFree: value === 'free' })} orientation="vertical">
-        <RadioButton id="settlement-driver-normal" value="normal" labelText="集金する" />
-        <RadioButton id="settlement-driver-offset" value="offset" labelText="支払額から差し引く" />
-        <RadioButton id="settlement-driver-free" value="free" labelText="集金対象外" />
-      </RadioButtonGroup>
-      {!state.standalone.enabled && <Select id="settlement-organizer" labelText="企画者" value={state.organizerName} onChange={event => update({ organizerName: event.target.value })}>
-        <SelectItem value="" text="選択してください" />
-        {Object.values(edit.session.base.participants || {}).sort((a, b) => a.name.localeCompare(b.name, 'ja')).map(person => <SelectItem key={person.id} value={person.name} text={person.name} />)}
-      </Select>}
-      {!state.standalone.enabled && <RadioButtonGroup legendText="企画者分の集金" name="settlement-organizer-rule" valueSelected={state.organizerFree ? 'free' : 'collect'} onChange={value => update({ organizerFree: value === 'free' })} orientation="vertical">
-        <RadioButton id="settlement-organizer-collect" value="collect" labelText="集金する" />
-        <RadioButton id="settlement-organizer-free" value="free" labelText="集金対象外" />
-      </RadioButtonGroup>}</section>}
-    </div>
-  </Modal>;
 }
 
 function CostTypeControl({ domain, id, label, type, disabled = false, allowNegative = true, onChange }) {
@@ -417,7 +337,7 @@ function CollectionPrompt({ value, onChange, onSave, onClose }) {
   </Modal>;
 }
 
-export default function Settlement({ runtime, room, onNotice, onOpenParticipantRegistration, participantStartRef, openSettingsRequestId = null, onSettingsRequestHandled, roomStatus }) {
+export default function Settlement({ runtime, room, onNotice, onOpenParticipantRegistration, onOpenSettings, participantStartRef, openSettingsRequestId = null, onSettingsRequestHandled, roomStatus }) {
   const { data, state } = runtime.store.domain.settlementInput(room);
   const isMobile = useMediaQuery('(max-width: 671px)');
   const settlement = runtime.store.domain.settlement;
@@ -425,11 +345,12 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
   const hasFormApplication = runtime.store.domain.applicants.validApplicationSync(room.meta?.applicationSync);
   const issues = settlement.getSettlementIssues(data, state, result);
   const visibleIssues = issues.messages.filter(message => !isMovementCalculationIssue(message) && !isExpenseInputIssue(message));
-  const [settingsEdit, setSettingsEdit] = useState(null);
   const settlementStartRef = useRef(null);
   const settlementSettingsTriggerRef = useRef(null);
   const lastHandledSettingsRequest = useRef(0);
   const [carEdit, setCarEdit] = useState(null);
+  const [driverNameEdit, setDriverNameEdit] = useState(null);
+  const standaloneDriverMenus = useRef(new Map());
   const [collector, setCollector] = useState(null);
   const [memo, setMemo] = useState(null);
   const [memoEditing, setMemoEditing] = useState(false);
@@ -439,23 +360,21 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
   useEffect(() => {
     if (!openSettingsRequestId || openSettingsRequestId <= lastHandledSettingsRequest.current) return;
     lastHandledSettingsRequest.current = openSettingsRequestId;
-    setSettingsEdit(beginSettlementEdit(runtime.store, { standalone: true }));
+    onOpenSettings?.({ standalone: true, launcherButtonRef: settlementStartRef });
     onSettingsRequestHandled?.(openSettingsRequestId);
-  }, [openSettingsRequestId, onSettingsRequestHandled, runtime.store]);
+  }, [openSettingsRequestId, onOpenSettings, onSettingsRequestHandled]);
   function closeEdit(setter, edit, saved) { if (!saved && edit && !edit.session.closed) runtime.store.cancelEdit(edit.session); setter(null); }
-  function closeInitialSettings(saved) {
-    closeEdit(setSettingsEdit, settingsEdit, saved);
-    window.requestAnimationFrame(() => {
-      const preferred = saved ? settlementSettingsTriggerRef.current : settlementStartRef.current;
-      const fallback = preferred === settlementStartRef.current ? settlementSettingsTriggerRef.current : settlementStartRef.current;
-      const target = [preferred, fallback].find(element => element?.isConnected && element.getClientRects().length > 0);
-      target?.focus();
-    });
-  }
   function openCar(car) {
     const edit = beginSettlementEdit(runtime.store, { car });
     edit.state.cars[car.name] = settlement.ensureTimesRentalExtras(edit.state.cars[car.name]);
     setCarEdit(edit);
+  }
+  function openDriverNameEditor(car) {
+    try {
+      const edit = beginStandaloneDriverNameEdit(runtime.store, car.standaloneIndex);
+      const launcher = standaloneDriverMenus.current.get(car.standaloneIndex);
+      setDriverNameEdit({ edit, launcherButtonRef: { current: launcher } });
+    } catch (error) { onNotice(error.message || '運転手の名前を編集できませんでした。'); }
   }
   function markCollected() {
     collectionChange(runtime.store, { name: collector.name, checked: true, collector: collector.value || collector.name });
@@ -481,21 +400,23 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
   }
   function openMemoEditor() { setMemo(state.memo || ''); setMemoEditing(true); }
   function closeMemoEditor() { setMemo(null); setMemoEditing(false); }
-  if (!result.participants.length && !result.isStandaloneSettlement) return <>
-    <section className="settlement-page"><InitialEmptyState headingId="settlement-initial-heading" title="精算を始める" description="名前を登録せず、人数だけでも精算できます。" primaryAction={{ label: '人数だけで精算', buttonRef: settlementStartRef, onClick: () => setSettingsEdit(beginSettlementEdit(runtime.store, { standalone: true })) }} alternateAction={{ label: hasFormApplication ? '参加者を確認' : '参加者を追加', onClick: onOpenParticipantRegistration }} roomStatus={roomStatus} /></section>
-    {settingsEdit && <SettingsModal runtime={runtime} edit={settingsEdit} launcherButtonRef={settlementStartRef} onNotice={onNotice} onClose={closeInitialSettings} />}
-  </>;
+  const countOnlyNeedsCounts = room.settlement?.standalone?.enabled === true && !result.isStandaloneSettlement;
+  if (countOnlyNeedsCounts || (!result.participants.length && !result.isStandaloneSettlement)) return <section className="settlement-page">
+    {room.settlement?.standalone?.enabled === true
+      ? <div className="initial-empty-state" aria-labelledby="settlement-counts-missing-heading"><h2 id="settlement-counts-missing-heading">人数を設定してください</h2><p>人数だけで精算するには、運転手または同乗者の人数を設定します。</p><Button ref={settlementStartRef} onClick={() => onOpenSettings?.({ standalone: true, launcherButtonRef: settlementStartRef })}>人数を設定</Button><Button kind="ghost" onClick={() => onOpenSettings?.({ launcherButtonRef: settlementStartRef })}>通常の精算に切り替える</Button></div>
+      : <InitialEmptyState headingId="settlement-initial-heading" title="精算を始める" description="参加者を追加するか、人数だけで精算を始められます。" primaryAction={{ label: hasFormApplication ? '参加者を確認' : '参加者を追加', onClick: onOpenParticipantRegistration }} alternateAction={{ label: '人数だけで精算', buttonRef: settlementStartRef, onClick: () => onOpenSettings?.({ standalone: true, launcherButtonRef: settlementStartRef }) }} roomStatus={roomStatus} />}
+  </section>;
   return <section className="settlement-page" aria-label="精算">
     {visibleIssues.map(message => <InlineNotification key={message} kind={message.includes('企画者を選ぶ') ? 'info' : 'error'} title="設定を確認してください" subtitle={message} hideCloseButton lowContrast />)}
     <Tile className="settlement-card settlement-vehicles-card">
       <div className="settlement-section-heading"><div><h2>各車への支払い</h2></div>
-        <Button ref={settlementSettingsTriggerRef} className="settlement-settings-action" kind="ghost" size="sm" onClick={() => setSettingsEdit(beginSettlementEdit(runtime.store))}>精算設定を編集</Button>
+        <Button ref={settlementSettingsTriggerRef} className="settlement-settings-action" kind="ghost" size="sm" onClick={() => onOpenSettings?.({ launcherButtonRef: settlementSettingsTriggerRef })}>精算設定を編集</Button>
       </div>
       <div className="settlement-car-list">{data.cars.map((car, index) => {
         const calc = result.cars.find(row => row.name === car.name);
         if (!calc) return null;
         const carLabel = `${car.name}車${calc.usesTimesRental ? '（レンタカー）' : ''}`;
-        const carId = index;
+        const carId = Number.isInteger(car.standaloneIndex) ? car.standaloneIndex : index;
         const movementLabel = calc.usesTimesRental ? 'タイムズ移動料金' : 'ガソリン代';
         const carState = state.cars?.[car.name] || {};
         const movementUncalculated = Object.values(getMovementErrors(carState, settlement)).some(Boolean);
@@ -513,12 +434,13 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
         const breakdownLabel = `割勘 ${money(calc.adjustedSplitPay)}・部費 ${money(calc.adjustedClubPay)}`;
         const breakdownAccessibleLabel = `「${carLabel}」支払い内訳 ${breakdownLabel}`;
         const breakdownTitle = <span className="settlement-car-breakdown-title"><span>支払い内訳</span><span className="settlement-car-breakdown-amount"><span>割勘 </span><strong>{money(calc.adjustedSplitPay)}</strong><span>・部費 </span><strong>{money(calc.adjustedClubPay)}</strong></span></span>;
-        return <article className="settlement-car" key={car.name} aria-labelledby={`settlement-car-${carId}`}>
+        return <article className="settlement-car" key={Number.isInteger(car.standaloneIndex) ? `standalone-${car.standaloneIndex}` : car.name} aria-labelledby={`settlement-car-${carId}`}>
           <div className="settlement-car-main">
             <div className="settlement-car-info">
               <h2 id={`settlement-car-${carId}`}>{carLabel}</h2>
               <div className="settlement-car-actions">
                 <Button className="settlement-car-edit-action" kind="ghost" size="sm" aria-label={`${carLabel}の費用を${hasSavedCarExpenses ? '編集' : '入力'}`} onClick={() => openCar(car)}>{hasSavedCarExpenses ? '費用を編集' : '費用を入力'}</Button>
+                {result.isStandaloneSettlement && Number.isInteger(car.standaloneIndex) && <OverflowMenu ref={node => node ? standaloneDriverMenus.current.set(car.standaloneIndex, node) : standaloneDriverMenus.current.delete(car.standaloneIndex)} ariaLabel={`${carLabel}の操作`} iconDescription={`${carLabel}の操作`} size={isMobile ? 'lg' : 'sm'} flipped><OverflowMenuItem itemText="運転手の名前を編集" onClick={() => openDriverNameEditor(car)} /></OverflowMenu>}
               </div>
               {calc.driverNames.length > 1 && <p>運転手：{calc.driverNames.join('、')}（車単位で一括支払い）</p>}
             </div>
@@ -563,8 +485,8 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
         })}</ContainedList>
       </div>
     </Modal>
-    {settingsEdit && <SettingsModal runtime={runtime} edit={settingsEdit} launcherButtonRef={settlementSettingsTriggerRef} onNotice={onNotice} onClose={saved => closeEdit(setSettingsEdit, settingsEdit, saved)} />}
     {carEdit && <CarEditor runtime={runtime} edit={carEdit} onNotice={onNotice} onClose={saved => closeEdit(setCarEdit, carEdit, saved)} />}
+    {driverNameEdit && <StandaloneDriverNameModal runtime={runtime} edit={driverNameEdit.edit} launcherButtonRef={driverNameEdit.launcherButtonRef} onNotice={onNotice} onClose={saved => closeEdit(setDriverNameEdit, driverNameEdit.edit, saved)} />}
     {collector && <CollectionPrompt value={collector.value} onChange={value => setCollector(current => ({ ...current, value }))} onSave={markCollected} onClose={() => setCollector(null)} />}
   </section>;
 }
