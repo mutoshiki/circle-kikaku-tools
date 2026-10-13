@@ -50,7 +50,7 @@ test('opening a count-only room with zero counts asks for counts without showing
   await expect(page.getByRole('button', { name: '人数を設定', exact: true })).toBeVisible();
 });
 
-test('count-only setup starts at zero without driver names and keeps vehicle-name and passenger-collector inputs', async ({ page }, testInfo) => {
+test('count-only setup starts at zero without driver names and keeps vehicle-name and passenger-collector inputs', async ({ page }) => {
   await page.goto('/?room=SETTLEMENT-ENTRY-COUNT-INPUTS');
   await page.getByRole('button', { name: '人数だけで精算', exact: true }).click();
   const settings = page.getByRole('dialog', { name: '精算設定を編集', exact: true });
@@ -87,26 +87,13 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await collection.locator('.cds--content-switcher-btn').first().click();
   await collection.locator('.settlement-collection-row').filter({ hasText: '参加者1' }).click();
   const collectorPrompt = page.getByRole('dialog', { name: '集金済みにする', exact: true });
+  await expect(collection).toHaveCount(0);
   const collectorInput = collectorPrompt.getByRole('textbox', { name: '集金した人' });
-  await page.evaluate(() => {
-    window.__collectorInputEvents = [];
-    for (const type of ['input', 'change', 'blur']) document.addEventListener(type, event => {
-      if (event.target?.id === 'settlement-collector') window.__collectorInputEvents.push({ type, value: event.target.value, active: document.activeElement === event.target });
-    }, true);
-  });
   await collectorInput.fill('集金担当');
-  await testInfo.attach('collector-input-after-fill', {
-    body: Buffer.from(JSON.stringify(await page.evaluate(() => ({
-      value: document.getElementById('settlement-collector')?.value,
-      valueAttribute: document.getElementById('settlement-collector')?.getAttribute('value'),
-      activeElement: document.activeElement?.id,
-      events: window.__collectorInputEvents
-    })), null, 2)),
-    contentType: 'application/json'
-  });
   await expect(collectorInput).toHaveValue('集金担当');
   await collectorPrompt.getByRole('button', { name: '保存', exact: true }).click();
   await expect(collectorPrompt).toHaveCount(0);
+  await expect(collection).toBeVisible();
   await collection.getByRole('tab', { name: 'すべて', exact: true }).click();
   await expect(collection.locator('.settlement-collection-row').filter({ hasText: '集金担当' })).toContainText('回収済み');
   await collection.getByRole('button', { name: '閉じる', exact: true }).last().click();

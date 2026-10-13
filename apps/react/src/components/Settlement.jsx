@@ -378,11 +378,12 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
   }
   function markCollected() {
     collectionChange(runtime.store, { name: collector.name, checked: true, collector: collector.value || collector.name });
-    setCollector(null); onNotice('集金状況を更新しました。');
+    setCollector(null); setCollectionOpen(true); onNotice('集金状況を更新しました。');
   }
   function setCollectionStatus(person, checked) {
     if (checked && result.isStandaloneSettlement) {
       setCollector({ name: person.name, value: state.paidBy[person.name] || '' });
+      setCollectionOpen(false);
       return;
     }
     collectionChange(runtime.store, { name: person.name, checked });
@@ -487,6 +488,6 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
     </Modal>
     {carEdit && <CarEditor runtime={runtime} edit={carEdit} onNotice={onNotice} onClose={saved => closeEdit(setCarEdit, carEdit, saved)} />}
     {driverNameEdit && <StandaloneDriverNameModal runtime={runtime} edit={driverNameEdit.edit} launcherButtonRef={driverNameEdit.launcherButtonRef} onNotice={onNotice} onClose={saved => closeEdit(setDriverNameEdit, driverNameEdit.edit, saved)} />}
-    {collector && <CollectionPrompt value={collector.value} onChange={value => setCollector(current => ({ ...current, value }))} onSave={markCollected} onClose={() => setCollector(null)} />}
+    {collector && <CollectionPrompt value={collector.value} onChange={value => setCollector(current => ({ ...current, value }))} onSave={markCollected} onClose={() => { setCollector(null); setCollectionOpen(true); }} />}
   </section>;
 }
