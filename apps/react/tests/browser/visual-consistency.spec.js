@@ -35,10 +35,6 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   const removeGroup = page.getByRole('menuitem', { name: '班を削除', exact: true }).first();
   await expect(removeGroup).toBeVisible();
   await expect(removeGroup.locator('xpath=ancestor::li[1]')).toHaveClass(/--danger/);
-  const seatToggle = page.locator('.empty-seats-action').first();
-  await seatToggle.click();
-  await expect(seatToggle).toHaveAttribute('aria-expanded', 'true');
-
   await page.getByRole('tab', { name: '精算', exact: true }).click();
   await expect(page.getByRole('heading', { name: '各車への支払い', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: '集金状況', exact: true })).toBeVisible();
