@@ -87,9 +87,14 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await collection.locator('.cds--content-switcher-btn').first().click();
   await collection.locator('.settlement-collection-row').filter({ hasText: '参加者1' }).click();
   const collectorPrompt = page.getByRole('dialog', { name: '集金済みにする', exact: true });
-  await collectorPrompt.getByRole('textbox', { name: '集金した人' }).fill('集金担当');
+  await expect(collection).toHaveCount(0);
+  const collectorInput = collectorPrompt.getByRole('textbox', { name: '集金した人' });
+  await collectorInput.fill('集金担当');
+  await expect(collectorInput).toHaveValue('集金担当');
   await collectorPrompt.getByRole('button', { name: '保存', exact: true }).click();
   await expect(collectorPrompt).toHaveCount(0);
+  await expect(collection).toBeVisible();
+  await collection.getByRole('tab', { name: 'すべて', exact: true }).click();
   await expect(collection.locator('.settlement-collection-row').filter({ hasText: '集金担当' })).toContainText('回収済み');
   await collection.getByRole('button', { name: '閉じる', exact: true }).last().click();
 });
