@@ -6,6 +6,7 @@ import { createHistoryService } from './services/history.js';
 import { createOverviewDraftStorage } from './services/overview-draft.js';
 import { createShareUrl, prepareCompatibleUrl } from './services/url-compat.js';
 import { withRoutePlaceCatalogMerge } from './route-place-sync.js';
+import { recordPortalVisit, updatePortalProject } from './services/portal-history.js';
 
 export function createLocalRuntime({ location, history, storage, crypto, transport, legacyLoadWrites = true, routeService = null, externalAdapters = {} }) {
   const launch = prepareCompatibleUrl({ location, history, storage, crypto });
@@ -19,6 +20,7 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
   const sync = transport ? createRoomSync({ store, storage: roomStorage, transport, clientId, clock: transport.clock, legacyLoadWrites })
     : { start() {}, dispose() {}, getSnapshot: () => localStatus, subscribe: () => () => {}, flush: async () => null };
   let unsubscribe;
+  let unsubscribePortal;
   const applicantSync = createApplicantSync({ store, transport });
   const roomHistory = createHistoryService({ storage, roomId, clock: transport?.clock });
   const overviewDraft = createOverviewDraftStorage(storage, roomId);
@@ -40,10 +42,16 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
   function start() {
     if (unsubscribe) return;
     unsubscribe = store.subscribeIntents(() => roomStorage.write('room', store.getSnapshot()));
+    const snapshot = store.getSnapshot();
+    recordPortalVisit(storage, { roomId, name: snapshot.roomName, updatedAt: snapshot.lastUpdatedAt });
+    unsubscribePortal = store.subscribe(() => {
+      const current = store.getSnapshot();
+      updatePortalProject(storage, { roomId, name: current.roomName, updatedAt: current.lastUpdatedAt });
+    });
     sync.start();
     applicantSync.start();
   }
-  async function dispose() { unsubscribe?.(); unsubscribe = null; applicantSync.dispose(); sync.dispose(); await transport?.dispose(); }
+  async function dispose() { unsubscribe?.(); unsubscribe = null; unsubscribePortal?.(); unsubscribePortal = null; applicantSync.dispose(); sync.dispose(); await transport?.dispose(); }
   return { roomId, initialView: launch.initialView, handoffToken: launch.handoffToken, store, storage: roomStorage, sync, history: roomHistory, overviewDraft, routeDraft, routeService, external, createShareUrl: () => createShareUrl(new URL(location.href, launch.href).href), start, dispose };
 }
 

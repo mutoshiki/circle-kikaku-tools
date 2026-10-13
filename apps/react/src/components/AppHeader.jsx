@@ -6,7 +6,7 @@ import {
 import { Link, OverflowMenuVertical, Switcher as SwitcherIcon } from '@carbon/icons-react';
 
 const relatedApplications = [
-  { name: '山歩会フォームメーカー', href: 'https://script.google.com/macros/s/AKfycbw0R5VgBdSLS8aRDJDw7GUIEfHlXRZ6rPrOgjXmO2N7LvhuoGyS_opUCFTCSiUiDZw5/exec' },
+  { name: '山歩会フォームメーカー', href: 'https://mutoshiki.github.io/sanpokai-kikaku-portal/form-maker/' },
   { name: '学務提出書類作成ツール', href: 'https://github.com/mutoshiki/sampokai-submission-builder/releases' },
   { name: '山歩会企画ツール一覧', href: 'https://mutoshiki.github.io/sanpokai-kikaku-portal/' },
 ];

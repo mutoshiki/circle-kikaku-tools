@@ -32,7 +32,7 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await expect(utilities).toBeHidden();
   await page.getByRole('button', { name: '関連アプリ', exact: true }).click();
   const applications = page.getByRole('navigation', { name: '関連アプリ', exact: true });
-  await expect(applications.getByRole('link', { name: '山歩会フォームメーカー', exact: true })).toHaveAttribute('href', /script\.google\.com/);
+  await expect(applications.getByRole('link', { name: '山歩会フォームメーカー', exact: true })).toHaveAttribute('href', 'https://mutoshiki.github.io/sanpokai-kikaku-portal/form-maker/');
   await expect(applications.getByRole('link', { name: '学務提出書類作成ツール', exact: true })).toHaveAttribute('href', /sampokai-submission-builder/);
   await expect(applications.getByRole('link', { name: '山歩会企画ツール一覧', exact: true })).toHaveAttribute('href', /sanpokai-kikaku-portal/);
   await page.getByRole('button', { name: '関連アプリ', exact: true }).click();
