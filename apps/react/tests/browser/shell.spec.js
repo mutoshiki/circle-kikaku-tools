@@ -52,7 +52,7 @@ test('independent shell: semantic header utilities, related apps, Japanese input
     if (theme === 'g100') { await page.getByRole('button', { name: 'その他の操作' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click(); }
     await expect(page.locator('.application')).toHaveClass(new RegExp(`cds--${theme}(?:\\s|$)`));
     await page.getByRole('button', { name: '企画名を変更' }).click();
-    await expect(page.getByRole('textbox', { name: '企画名' })).toHaveCSS('background-color', theme === 'g100' ? 'rgb(38, 38, 38)' : 'rgb(255, 255, 255)');
+    await expect(page.getByRole('textbox', { name: '企画名' })).toHaveCSS('background-color', theme === 'g100' ? 'rgb(57, 57, 57)' : 'rgb(255, 255, 255)');
     await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await expectFontsLoaded(page);

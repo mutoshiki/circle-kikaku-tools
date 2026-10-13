@@ -20,7 +20,7 @@ test('expense editor does not fade the end of content that fits', async ({ page 
   });
   await page.goto(`/?room=${roomId}&view=seisan`);
   await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) })
-    .getByRole('button', { name: '費用を入力', exact: true }).click();
+    .getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
 
   const dialog = page.getByRole('dialog', { name: '仮参加者A車' });
   const body = dialog.locator('.cds--modal-content');
@@ -52,7 +52,7 @@ test('long expense editor scrolls and reveals its end without a false fade', asy
   });
   await page.goto(`/?room=${roomId}&view=seisan`);
   await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) })
-    .getByRole('button', { name: '費用を入力', exact: true }).click();
+    .getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
 
   const dialog = page.getByRole('dialog', { name: '仮参加者A車' });
   const body = dialog.locator('.cds--modal-content');

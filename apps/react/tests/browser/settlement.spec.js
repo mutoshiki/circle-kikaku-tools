@@ -517,7 +517,7 @@ test('vehicle settlement keeps expense input above the collapsed cost detail', a
   await expect(page.getByRole('heading', { name: '各車への支払い' })).toBeVisible();
   await expect(page.locator('.settlement-car-list')).toBeVisible();
   const firstCar = page.locator('.settlement-car').first();
-  const expenseAction = firstCar.getByRole('button', { name: '費用を入力', exact: true });
+  const expenseAction = firstCar.getByRole('button', { name: /の費用を(?:入力|編集)$/ });
   await expect(expenseAction).toBeVisible();
   await expect(expenseAction).toHaveClass(/cds--btn--ghost/);
   await expect(firstCar.locator('.settlement-payment-state')).toHaveCount(0);
@@ -637,12 +637,10 @@ test('settlement progress wraps as groups and cost details avoid redundant type 
   await expect(page.locator('.settlement-payment-summary')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '各車への支払い' })).toBeVisible();
   await expect(page.locator('.settlement-car .settlement-payment-state')).toHaveCount(0);
-  await expect(page.locator('.settlement-car').first().getByRole('button', { name: '費用を入力', exact: true })).toBeVisible();
+  await expect(page.locator('.settlement-car').first().getByRole('button', { name: /の費用を(?:入力|編集)$/ })).toBeVisible();
 
   const collectionSummary = page.locator('.settlement-collection-summary');
-  await expect(collectionSummary.locator(':scope > span')).toHaveCount(2);
-  await expect(collectionSummary.locator(':scope > span').nth(1)).toContainText('残り');
-  await expect(collectionSummary.locator(':scope > span').nth(1)).toHaveCSS('white-space', 'nowrap');
+  await expect(collectionSummary).toHaveText(/^1人あたり ¥[\d,]+$/);
 
   const firstCar = page.locator('.settlement-car').first();
   await firstCar.getByRole('button', { name: /割勘 .*・部費/ }).click();
@@ -984,7 +982,7 @@ test('vehicle settlement presents expense and breakdown with an accessible Carbo
   await expect(car.locator('.settlement-car-menu')).toHaveCount(0);
   await expect(car.getByText('未払い', { exact: true })).toHaveCount(0);
   await expect(car.getByRole('button', { name: '支払い済みにする', exact: true })).toHaveCount(0);
-  await expect(car.getByRole('button', { name: '費用を入力', exact: true })).toBeVisible();
+  await expect(car.getByRole('button', { name: /の費用を(?:入力|編集)$/ })).toBeVisible();
 
   const articleSeparators = await page.locator('.settlement-car').evaluateAll(elements => elements.map(element => ({
     top: getComputedStyle(element).borderBlockStartStyle,
@@ -996,7 +994,7 @@ test('vehicle settlement presents expense and breakdown with an accessible Carbo
   await expect(car.locator('.cds--accordion__item')).toHaveCSS('border-block-end-style', 'none');
 
   const disclosure = car.getByRole('button', { name: /割勘 .*・部費/ });
-  await expect(disclosure).toHaveAccessibleName('割勘 ¥2,200・部費 ¥-100');
+  await expect(disclosure).toHaveAccessibleName('「仮参加者D車（レンタカー）」支払い内訳 割勘 ¥2,200・部費 ¥-100');
   await expect(disclosure).toHaveAttribute('aria-expanded', 'false');
   await expect(car.locator('.settlement-cost-list')).not.toBeVisible();
   await disclosure.focus();
@@ -1011,7 +1009,7 @@ test('vehicle settlement presents expense and breakdown with an accessible Carbo
   await expect(car.locator('.settlement-car-breakdown').getByText('支払総額', { exact: true })).toHaveCount(0);
   await expect(car.getByText('運転手への支払額', { exact: true })).toHaveCount(0);
   await expect(car.getByText('部費の支払額', { exact: true })).toHaveCount(0);
-  await expect(car.getByText('端数処理', { exact: true })).toBeVisible();
+  await expect(car.getByText('切り上げ分', { exact: true })).toBeVisible();
   await expect(car.getByText('集金分差し引き', { exact: true })).toBeVisible();
   await expect(car.locator('.settlement-cost-grand-total')).toHaveCount(0);
 
@@ -1031,12 +1029,12 @@ test('settlement rows wrap long car names and format zero amount', async ({ page
   const viewportWidth = await page.evaluate(() => innerWidth);
   expect(tile.x + tile.width).toBeLessThanOrEqual(viewportWidth);
   expect(await longCar.getByRole('heading').evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
-  await expect(longCar.getByRole('button', { name: '費用を入力', exact: true })).toBeVisible();
+  await expect(longCar.getByRole('button', { name: /の費用を(?:入力|編集)$/ })).toBeVisible();
   const breakdown = longCar.getByRole('button', { name: '割勘 ¥0・部費 ¥0' });
   await expect(breakdown).toBeVisible();
   await breakdown.click();
-  await expect(longCar.locator('.settlement-cost-group h3')).toHaveText(['割勘', '部費']);
-  await expect(longCar.getByText('対象なし', { exact: true })).toHaveCount(2);
+  await expect(longCar.locator('.settlement-cost-group h3')).toHaveText(['割勘該当する費用なし', '部費該当する費用なし']);
+  await expect(longCar.getByText('該当する費用なし', { exact: true })).toHaveCount(2);
 });
 
 test('settlement memo stays summarized until lightweight inline editing is opened', async ({ page }) => {
@@ -1064,7 +1062,7 @@ test('vehicle rows omit driver payment recording and right-align a ghost expense
   await expect(car.getByText('未払い', { exact: true })).toHaveCount(0);
   await expect(car.getByRole('button', { name: '支払い済みにする', exact: true })).toHaveCount(0);
   await expect(car.getByRole('button', { name: /その他の操作/ })).toHaveCount(0);
-  const expense = car.getByRole('button', { name: '費用を入力', exact: true });
+  const expense = car.getByRole('button', { name: /の費用を(?:入力|編集)$/ });
   await expect(expense).toHaveClass(/cds--btn--ghost/);
   await expect(expense.locator('.cds--btn__icon')).toHaveCount(0);
   const alignment = await expense.evaluate(button => ({ button: button.getBoundingClientRect().toJSON(), actions: button.parentElement.getBoundingClientRect().toJSON() }));

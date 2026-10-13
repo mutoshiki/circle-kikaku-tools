@@ -69,7 +69,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
 
     async function openExpense(page, carHeading = '仮参加者A車', dialogName = carHeading) {
       const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: carHeading, exact: true }) });
-      await car.getByRole('button', { name: '費用を入力', exact: true }).click();
+      await car.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
       const dialog = page.getByRole('dialog', { name: dialogName });
       await dialog.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
       return dialog;
@@ -147,7 +147,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     await pageA.getByRole('tab', { name: '精算', exact: true }).click();
     await expect(pageA.locator('.sync-status')).toHaveText('同期完了');
     const refreshedCar = pageA.locator('.settlement-car').filter({ has: pageA.getByRole('heading', { name: '仮参加者A車', exact: true }) });
-    await refreshedCar.getByRole('button', { name: '費用を入力', exact: true }).click();
+    await refreshedCar.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
     const refreshedDialog = pageA.getByRole('dialog', { name: '仮参加者A車' });
     await expect(refreshedDialog.locator('.settlement-cost-editor').getByText('端末A 当日駐車代', { exact: true })).toBeVisible();
     await expect(refreshedDialog.locator('.settlement-cost-editor').getByText('端末B 当日入浴代', { exact: true })).toBeVisible();
@@ -185,7 +185,7 @@ test('two real browsers preserve concurrently added route places in shared room 
 
     async function openRoute(page) {
       const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: '仮参加者A車', exact: true }) });
-      await car.getByRole('button', { name: '費用を入力', exact: true }).click();
+      await car.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
       const dialog = page.getByRole('dialog', { name: '仮参加者A車' });
       await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
       await dialog.getByRole('button', { name: '移動距離計算ツール' }).click();
