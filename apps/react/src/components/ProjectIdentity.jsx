@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button, TextInput } from '@carbon/react';
 
 export default function ProjectIdentity({ name, syncStatus, onRename }) {
+  const hasName = String(name ?? '').trim().length > 0;
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const [saveError, setSaveError] = useState('');
@@ -58,7 +59,10 @@ export default function ProjectIdentity({ name, syncStatus, onRename }) {
   return <section className="project-title" aria-label="企画情報">
     <div className="project-identity-heading">
       <h1 id="project-heading">{name || '企画名未設定'}</h1>
-      <Button ref={editButton} kind="ghost" size="sm" aria-label="企画名を変更" hidden={editing} onClick={beginEditing}>変更</Button>
+      <div className="project-identity-actions">
+        <Button ref={editButton} kind="ghost" size="sm" aria-label={hasName ? '企画名を変更' : '企画名を設定'} hidden={editing} onClick={beginEditing}>{hasName ? '変更' : '企画名を設定'}</Button>
+        {syncStatus.kind === 'connected' && <span className="sync-status sync-status--compact" role="status">{syncStatus.message}</span>}
+      </div>
     </div>
     {editing && <form className="project-name-editor" onSubmit={event => { event.preventDefault(); saveEditing(); }}>
       <TextInput ref={input} id="room-name" labelText="企画名" placeholder="企画名未設定" value={draft} invalid={!!saveError} invalidText={saveError} onChange={event => setDraft(event.target.value)} onCompositionStart={() => { composing.current = true; }} onCompositionEnd={() => { composing.current = false; }} onKeyDown={handleKeyDown} />
@@ -67,6 +71,6 @@ export default function ProjectIdentity({ name, syncStatus, onRename }) {
         <Button type="button" kind="ghost" size="sm" onClick={cancelEditing}>キャンセル</Button>
       </div>
     </form>}
-    {syncStatus.kind !== 'local' && <span className="sync-status" role="status">{syncStatus.message}</span>}
+    {syncStatus.kind !== 'local' && syncStatus.kind !== 'connected' && <span className="sync-status sync-status--prominent" role="status">{syncStatus.message}</span>}
   </section>;
 }
