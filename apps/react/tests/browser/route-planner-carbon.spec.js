@@ -30,7 +30,7 @@ test.beforeEach(async ({ page }, testInfo) => {
 
 test('route planner shares place history and shows its privacy notice once per room and device', async ({ page }) => {
   const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) });
-  await car.getByRole('button', { name: '費用を入力' }).click();
+  await car.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
   let modal = page.getByRole('dialog', { name: '仮参加者A車' });
   await modal.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await modal.getByRole('button', { name: '移動距離計算ツール' }).click();
@@ -63,7 +63,7 @@ test('route planner shares place history and shows its privacy notice once per r
   await modal.getByRole('button', { name: /12\.35km を適用/ }).click();
 
   await modal.getByRole('button', { name: '閉じる' }).click();
-  await car.getByRole('button', { name: '費用を入力' }).click();
+  await car.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
   modal = page.getByRole('dialog', { name: '仮参加者A車' });
   await modal.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await modal.getByRole('button', { name: '移動距離計算ツール' }).click();
@@ -74,7 +74,7 @@ test('route planner uses Carbon rows, Search states, modal footer navigation, an
   const evidence = join(tmpdir(), 'circle-react-migration-evidence', 'route-carbon');
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();
+  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
   const modal = page.getByRole('dialog', { name: '仮参加者A車' });
   const expenseRow = modal.locator('.settlement-cost-list-item').filter({ hasText: '駐車代' });
   const expenseName = expenseRow.locator('.settlement-cost-summary__name');
@@ -210,10 +210,10 @@ test('route planner uses Carbon rows, Search states, modal footer navigation, an
   await expect(routeModal.getByRole('searchbox', { name: '場所を検索' })).toBeVisible();
   await routeModal.getByRole('button', { name: '戻る' }).click();
   await routeModal.getByRole('button', { name: '閉じる' }).click();
-  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
+  await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: '費用を入力' }).click();
+  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
   const darkModal = page.getByRole('dialog', { name: '仮参加者A車' });
   await darkModal.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   const darkFuelField = await darkModal.locator('.settlement-movement-form .cds--text-input').first().evaluate(node => ({

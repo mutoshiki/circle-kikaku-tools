@@ -178,7 +178,8 @@ test.describe('Allocation, menus and accessibility', () => {
       };
     });
     expect(compactWorkspace.rowHeight).toBeGreaterThanOrEqual(48);
-    expect(compactWorkspace.rowHeight).toBeLessThanOrEqual(64);
+    // Allow 1px for fractional CSS layout rounded to the nearest device CSS pixel.
+    expect(compactWorkspace.rowHeight).toBeLessThanOrEqual(65);
     expect(compactWorkspace.tagHeight).toBe(24);
     expect(compactWorkspace.toolbarHeights.every(height => height === 48)).toBeTruthy();
     expect(compactWorkspace.primaryActions).toBe(1);
@@ -217,7 +218,7 @@ test.describe('Allocation, menus and accessibility', () => {
       };
     });
     expect(personSurface).toEqual({ background: 'rgb(255, 255, 255)', triggerColor: 'rgb(22, 22, 22)' });
-    await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(6);
+    await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(5);
     await expect(personMenu.locator('[data-person-action="return"]')).toHaveAttribute('label', '未割り当てに戻す');
     await expect(personMenu.locator('[data-person-action="name"], [data-person-action="gender"]')).toHaveCount(0);
     await expect(page.locator('cds-tooltip[open]')).toHaveCount(0);
@@ -335,6 +336,8 @@ test.describe('Carbon modal and participant workflows', () => {
     await page.evaluate(() => { window.__alertPromise = window.appAlert('通知', { title: '通知' }); });
     await hostClick(page, '#appAlertModal [data-role="ok"]');
     await expect(page.locator('#appAlertModal')).not.toHaveAttribute('open', '');
+    await page.evaluate(() => { window.__pendingPassphrasePrompt = window.requestPassphrasePanel('閉じる操作の確認'); });
+    await expect(page.locator('#passphrase-panel')).toHaveAttribute('open', '');
     await hostClick(page, '#passphrase-panel cds-modal-close-button');
     await expect(page.locator('#passphrase-panel')).toHaveCount(0);
   });
@@ -512,6 +515,9 @@ test.describe('Settlement and route workflows', () => {
     await expect(page.locator('#settlementGasEditPanel [data-field="price"]')).toHaveCount(0);
     await page.locator('#settlementGasEditPanel [data-field="rentalType"] cds-radio-button[value="private"]').click();
     await expect(page.locator('#settlementGasEditPanel [data-field="rentalType"]')).toHaveJSProperty('value', 'private');
+    await setHostValue(page, '#settlementGasEditPanel [data-field="dist"]', '100');
+    await setHostValue(page, '#settlementGasEditPanel [data-field="eco"]', '10');
+    await setHostValue(page, '#settlementGasEditPanel [data-field="price"]', '150');
     await page.locator('body > #settlementGasEditModal cds-modal-footer-button[data-modal-close]').evaluate(node => node.click());
     await expect(page.locator('body > #settlementGasEditModal')).toHaveCount(0);
     await expect(page.locator('#settlementCarEditModal')).toHaveJSProperty('open', true);

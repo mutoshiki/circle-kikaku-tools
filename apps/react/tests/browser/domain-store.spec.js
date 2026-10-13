@@ -11,6 +11,8 @@ test('production bundle migrates a legacy fixture through the external store and
   }, fixture);
   await page.goto('/?room=DOMAIN-FIXTURE');
   await expect(page.getByRole('tabpanel')).toContainText('6人');
+  await expect(page.locator('#project-heading')).toHaveText(fixture.roomName);
+  await page.getByRole('button', { name: '企画名を変更' }).click();
   const field = page.getByRole('textbox', { name: '企画名' });
   await expect(field).toHaveValue(fixture.roomName);
   await field.focus();
@@ -18,13 +20,13 @@ test('production bundle migrates a legacy fixture through the external store and
   await field.fill('にほんご');
   await field.dispatchEvent('compositionend', { data: '日本語の企画' });
   await field.fill('日本語の企画');
-  await page.getByRole('tab', { name: '車割', exact: true }).click();
+  await page.getByRole('button', { name: '保存', exact: true }).click();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('sanpo-react:v1:DOMAIN-FIXTURE:room')));
   expect(saved.schemaVersion).toBe(6);
   expect(saved.roomName).toBe('日本語の企画');
   expect(Object.keys(saved.participants)).toHaveLength(6);
   expect(saved.meta.applicationSync).toEqual(fixture.meta.applicationSync);
   await page.reload();
-  await expect(field).toHaveValue('日本語の企画');
+  await expect(page.locator('#project-heading')).toHaveText('日本語の企画');
   expect(errors).toEqual([]);
 });

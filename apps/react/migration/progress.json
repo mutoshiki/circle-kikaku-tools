@@ -2,7 +2,7 @@
   "objectiveFile": "apps/react/migration/goal.md",
   "referenceCommit": "e37b8651eeba1cb52d2b7a98bc05674bb63591a8",
   "currentPhase": 9,
-  "releaseAssessment": "Phase 9A remains stopped. Compatibility deploy was rolled back after production Places Autocomplete and Routes ComputeRoutes continued returning HTTP 403 for https://mutoshiki.github.io/. Root remains the pinned legacy site; Phase 9B is not ready.",
+  "releaseAssessment": "The production React root release completed successfully on 2026-10-11 at source SHA a8531f1be1353a156be4d2ed1c71f80af9c3ff6b (React Production Release run 38135261428). Compatibility Maps/Places/Routes smoke, root smoke, and reserved-room cleanup all passed. Earlier 2026-09-25 HTTP 403 results below are historical and were superseded by this successful release.",
   "phase9ABlockerResolution": {
     "recordedOn": "2026-09-25",
     "testFirebaseIsolation": {
@@ -103,8 +103,8 @@
     "Six obsolete legacy static assertions documented in baseline.md",
     "Three legacy browser failures: 65px compact row, retired passphrase close flow, and incomplete private-fuel test setup"
   ],
-  "currentUnresolvedIssue": "Production Places Autocomplete is blocked: Google returned HTTP 403 because the configured Maps key referrer rules reject the actual Pages Referer https://mutoshiki.github.io/. Compatibility artifact was rolled back using target=legacy; root legacy is healthy. Do not retry compatibility deploy until the Maps key restrictions are corrected and verified.",
-  "nextConcreteTask": "Resolve the Maps browser key HTTP referrer restriction for the actual GitHub Pages request while retaining approved API restrictions. Re-run production Maps config gate, then Phase 9A compatibility deploy and smoke. Keep root legacy.",
+  "currentUnresolvedIssue": "None recorded after successful production React release 38135261428 on 2026-10-11; its compatibility Maps/Places/Routes and root production smoke passed and the reserved smoke room was cleaned.",
+  "nextConcreteTask": "For subsequent releases, preserve the exact-SHA Release / Readiness gate, migration-path compatibility smoke, root production smoke, reserved-room cleanup, and rollback artifact verification.",
   "workInProgress": [
     "Phase 8 started from checkpoint 852d5f4 after committing integrated Phase 7 UI changes",
     "Phase 8 full regression and production-readiness checks passed; only the non-blocking chunk-size warning and historical protected-file baseline mismatch remain recorded",
@@ -112,7 +112,7 @@
     "Phase 9 pre-deploy gate started; classified and accepted four stale protected-file manifest hashes against unchanged Phase 0 reference contents; production deployment blocked until an existing React cutover path is identified.",
     "Phase 9 cutover implementation prepared: manual GitHub Pages Actions workflow with compatibility/react/legacy targets, production Firebase target guard, and schema-6 Rules compatibility. No production deploy or Firebase Rules deploy performed.",
     "2026-09-25 Phase 9A compatibility deploy run 36096891634 succeeded, but production Maps Places Autocomplete returned 403 because the HTTP Referer was https://mutoshiki.github.io/ and was not allowed. Legacy rollback run 36100180780 succeeded; root legacy smoke passed Chromium and WebKit; /react/ now returns 404. Dedicated room P9A26KQT was cleaned and authenticated readback is null. Phase 9A remains incomplete; no React root cutover.",
-    "2026-09-25 retry: after user reported adding https://mutoshiki.github.io/* to Maps key referrers and a 60-second propagation wait, compatibility workflow 36103786123 passed config/build/unit/artifact gates and deployed. Maps JS loaded (200), but Places Autocomplete and Routes ComputeRoutes each returned 403: Requests from referer https://mutoshiki.github.io/ are blocked. Cleanup test room P9A93LMQ and rollback with workflow 36106248307; root is legacy, /react/ is 404. Phase 9A remains incomplete."
+    "2026-09-25 retry: after user reported adding https://mutoshiki.github.io/* to Maps key referrers and a 60-second propagation wait, compatibility workflow 36103786123 passed config/build/unit/artifact gates and deployed. Maps JS loaded (200), but Places Autocomplete and Routes ComputeRoutes each returned 403: Requests from referer https://mutoshiki.github.io/ are blocked. Cleanup test room P9A93LMQ and rollback with workflow 36106248307; root is legacy, /react/ is 404. This finding was superseded by the successful 2026-10-11 production release recorded in releaseAssessment."
   ],
   "productionSafety": {
     "legacyEntryChanged": false,
@@ -263,7 +263,7 @@
       "rootLegacyAfterRollback": "PASS Chromium and WebKit; missing assets 0; runtime errors 0"
     },
     "phase9ACompletion": "NOT_COMPLETE",
-    "phase9BReadiness": "NOT_READY; production Places and Routes return 403; compatibility artifact rolled back",
+    "phase9BReadiness": "PASS; 2026-10-11 React Production Release run 38135261428 completed compatibility Maps/Places/Routes smoke, root production smoke, and cleanup successfully",
     "retryAfterMapsReferrerUpdate": {
       "reportedSetting": "Added https://mutoshiki.github.io/* to Maps key HTTP referrers; no key value recorded.",
       "propagationWait": "60 seconds before compatibility dispatch; additional build and smoke time elapsed before live request.",

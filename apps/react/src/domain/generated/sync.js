@@ -170,7 +170,7 @@ function diffSettlementCars(patch, baseMap = {}, localMap = {}) {
 
 function diffAllocation(patch, type, baseAllocation = {}, localAllocation = {}) {
     const prefix = `allocations/${type}`;
-    ['id', 'type', 'name', 'lastAutoAssignLabel', 'updatedAt'].forEach(field => {
+    ['id', 'type', 'name', 'lastAutoAssignLabel', 'updatedAt', 'nextDisplayIndex'].forEach(field => {
         if (!syncValuesEqual(baseAllocation?.[field], localAllocation?.[field])) {
             setPatchValue(patch, `${prefix}/${field}`, localAllocation?.[field]);
         }

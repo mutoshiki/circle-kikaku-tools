@@ -15,7 +15,7 @@ test('shared Carbon layout, contextual feedback, icon labels and mobile overflow
   await expect(page.locator('.project-grid')).toHaveCount(1);
   await expect(page.locator('.content-grid')).toHaveCount(1);
   await page.getByRole('tab', { name: '車割', exact: true }).click();
-  await expect(page.getByRole('button', { name: /の固定/ }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: /を固定$/ }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: /の操作$/ }).first()).toBeVisible();
   const add = page.getByRole('button', { name: '車を追加', exact: true });
   if (await add.count()) {
@@ -36,7 +36,7 @@ test('long transactional modal keeps its footer in the viewport', async ({ page 
   await page.goto('/?room=CARBON-EMPTY-REGISTRATION');
   await page.getByRole('tab', { name: '参加者', exact: true }).click();
   await page.getByRole('button', { name: '追加', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: '参加者登録' });
+  const dialog = page.getByRole('dialog', { name: '参加者を登録' });
   await expect(dialog).toBeVisible();
   const geometry = await dialog.evaluate(node => {
     const body = node.querySelector('.cds--modal-content');

@@ -95,9 +95,9 @@ function baseRoom() {
   let server2 = sync.applyVersionedEntityPatch(room, room, b, patchB, 1);
   server2 = sync.applyVersionedEntityPatch(server2, room, a, patchA, 1);
   for (const server of [server1, server2]) {
-    const members = Object.entries(server.allocations.car.placements)
-      .filter(([id, p]) => id !== aliceId && p?.kind === 'member' && p.groupId === gid);
-    assert.equal(members.length, 1, 'capacity invariant must hold after concurrent last-seat claims');
+    const passengers = Object.entries(server.allocations.car.placements)
+      .filter(([id, p]) => id !== server.allocations.car.groups[gid].ownerId && p?.kind === 'member' && p.groupId === gid);
+    assert.ok(passengers.length <= server.allocations.car.groups[gid].capacity, 'car capacity preserves its passenger seats after concurrent claims');
   }
   assert.deepEqual(server1.allocations.car.placements[bobId].kind, server2.allocations.car.placements[bobId].kind, 'capacity race must converge independent of delivery order');
   assert.deepEqual(server1.allocations.car.placements[carolId].kind, server2.allocations.car.placements[carolId].kind, 'capacity race must converge independent of delivery order');

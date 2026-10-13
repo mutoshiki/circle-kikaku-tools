@@ -9,7 +9,7 @@ function shot(page, viewportName, number, name) {
   return page.mouse.move(1, 1).then(() => page.screenshot({ path: join(directory, `${String(number).padStart(2, '0')}-${name}.png`) }));
 }
 async function menu(page) {
-  await page.getByRole('button', { name: 'ユーティリティメニュー' }).click();
+  await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
 }
 
@@ -25,6 +25,7 @@ test('capture form-linked and registration UI states', async ({ page }, testInfo
     await page.getByRole('tab', { name: '参加者', exact: true }).click();
     await page.getByRole('button', { name: '追加', exact: true }).click();
     await shot(page, viewportName, 37, 'participant-registration-modal');
+    await page.getByRole('radio', { name: '回答表を貼り付ける', exact: true }).check({ force: true });
     await page.getByRole('button', { name: '貼り付け方を見る', exact: true }).click();
     await page.waitForTimeout(500);
     await shot(page, viewportName, 38, 'participant-registration-help-expanded');
