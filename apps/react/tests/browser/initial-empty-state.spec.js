@@ -119,6 +119,7 @@ test('count-only setup opens from participant and settlement empty states, cance
     await start.click();
     await expect(page.getByRole('tab', { name: '精算', exact: true })).toHaveAttribute('aria-selected', 'true');
     const dialog = page.getByRole('dialog', { name: '精算設定を編集', exact: true });
+    await expect(dialog.getByRole('button', { name: '閉じる', exact: true })).toBeVisible();
     await expect(dialog.getByRole('radio', { name: '人数だけで精算', exact: true })).toBeChecked();
     await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
     await expect(dialog).toHaveCount(0);
