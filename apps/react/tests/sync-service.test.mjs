@@ -8,10 +8,11 @@ import { fixture, plain } from './reference.mjs';
 
 const clock = { now: () => 1000, isServerAligned: () => true };
 function setup(server, clientId, options = {}) {
+  const { deferInitial = false, ...syncOptions } = options;
   const store = createRoomStore({ initial: fixture, clientId, clock });
   const storage = options.storage || memoryStorage();
-  const transport = server.connect();
-  const sync = createRoomSync({ store, storage, transport, clientId, clock, legacyLoadWrites: false, ...options });
+  const transport = server.connect({ deferInitial });
+  const sync = createRoomSync({ store, storage, transport, clientId, clock, legacyLoadWrites: false, ...syncOptions });
   return { store, storage, transport, sync };
 }
 const canonical = () => createRoomStore({ initial: fixture, clock }).getSnapshot();
@@ -41,6 +42,35 @@ test('start/dispose/restart owns one listener and has no duplicated command writ
   await drain(a);
   assert.equal(server.writes(), 2);
   assert.equal(server.get().roomName, '変更2');
+  a.sync.dispose();
+});
+
+test('room hydration is false until a room callback and stays true after a later listener error', async () => {
+  const server = createFixtureServer(null);
+  const a = setup(server, 'hydrate-empty');
+  assert.equal(a.sync.getSnapshot().hasLoadedRoom, false);
+  a.sync.start();
+  assert.equal(a.sync.getSnapshot().hasLoadedRoom, false);
+  await drain(a);
+  assert.equal(a.sync.getSnapshot().hasLoadedRoom, true, 'an empty room callback completes initial hydration');
+  a.transport.failSubscription(new Error('network unavailable'));
+  await Promise.resolve();
+  assert.equal(a.sync.getSnapshot().hasLoadedRoom, true, 'a later error does not undo hydration');
+  assert.equal(a.sync.getSnapshot().kind, 'error');
+  a.sync.dispose();
+});
+
+test('initial listener errors leave room hydration incomplete until a valid callback arrives', async () => {
+  const server = createFixtureServer(canonical());
+  const a = setup(server, 'hydrate-error', { deferInitial: true });
+  a.sync.start();
+  a.transport.failSubscription(new Error('network unavailable'));
+  await Promise.resolve();
+  assert.equal(a.sync.getSnapshot().kind, 'error');
+  assert.equal(a.sync.getSnapshot().hasLoadedRoom, false);
+  a.transport.deliverInitial();
+  await Promise.resolve();
+  assert.equal(a.sync.getSnapshot().hasLoadedRoom, true);
   a.sync.dispose();
 });
 

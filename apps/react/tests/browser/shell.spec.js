@@ -3,6 +3,19 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { expectFontsLoaded } from './font-readiness.js';
 
+test('project name action says set before a name exists and change afterward', async ({ page }) => {
+  await page.goto('/?room=REACT-NAME-ACTION');
+  const action = page.getByRole('button', { name: '企画名を設定', exact: true });
+  await expect(action).toBeVisible();
+  await expect(action).toHaveText('企画名を設定');
+  await action.click();
+  await page.getByRole('textbox', { name: '企画名' }).fill('企画名あり');
+  await page.getByRole('button', { name: '保存', exact: true }).click();
+  const rename = page.getByRole('button', { name: '企画名を変更', exact: true });
+  await expect(rename).toBeVisible();
+  await expect(rename).toHaveText('変更');
+});
+
 test('independent shell: semantic header utilities, related apps, Japanese input, themes and no legacy runtime', async ({ page }, testInfo) => {
   const errors = [];
   const requests = [];
@@ -37,16 +50,17 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await expect(applications.getByRole('link', { name: '山歩会企画ツール一覧', exact: true })).toHaveAttribute('href', /sanpokai-kikaku-portal/);
   await page.getByRole('button', { name: '関連アプリ', exact: true }).click();
   await expect(page.getByRole('tab')).toHaveText(['参加者', '車割', '班割', '精算']);
-  await page.getByRole('button', { name: '企画名を変更' }).click();
+  await page.getByRole('button', { name: '企画名を設定' }).click();
   const projectName = page.getByRole('textbox', { name: '企画名' });
   await projectName.fill('互換性確認用の企画');
   await page.getByRole('button', { name: '保存', exact: true }).click();
   await expect(page.locator('#project-heading')).toHaveText('互換性確認用の企画');
   await expect(page.getByRole('button', { name: '企画名を変更' })).toBeFocused();
+  const initialHeadings = { '参加者': '参加者を登録して始める', '車割': '車割を始める', '班割': '班割を始める', '精算': '精算を始める' };
   for (const name of ['参加者', '車割', '班割', '精算']) {
     await page.getByRole('tab', { name, exact: true }).click();
     await expect(page.getByRole('tab', { name, exact: true })).toHaveAttribute('aria-selected', 'true');
-    await expect(page.getByRole('tabpanel')).toContainText('参加者がいません');
+    await expect(page.getByRole('tabpanel').getByRole('heading', { name: initialHeadings[name], exact: true })).toBeVisible();
   }
   for (const theme of ['g10', 'g100']) {
     if (theme === 'g100') { await page.getByRole('button', { name: 'その他の操作' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click(); }
@@ -68,7 +82,7 @@ test('project name editing does not save on blur and cancel discards the draft',
   await page.goto('/?room=REACT-NAME-EDIT');
   const title = page.locator('#project-heading');
   await expect(title).toHaveText('企画名未設定');
-  await page.getByRole('button', { name: '企画名を変更' }).click();
+  await page.getByRole('button', { name: '企画名を設定' }).click();
   const field = page.getByRole('textbox', { name: '企画名' });
   await field.fill('取消する名前');
   await page.getByRole('tab', { name: '参加者', exact: true }).click();
@@ -76,14 +90,14 @@ test('project name editing does not save on blur and cancel discards the draft',
   await expect(field).toHaveValue('取消する名前');
   await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
   await expect(title).toHaveText('企画名未設定');
-  await expect(page.getByRole('button', { name: '企画名を変更' })).toBeFocused();
+  await expect(page.getByRole('button', { name: '企画名を設定' })).toBeFocused();
   await page.reload();
   await expect(title).toHaveText('企画名未設定');
 });
 
 test('project name Enter and Escape do not interrupt Japanese composition', async ({ page }) => {
   await page.goto('/?room=REACT-NAME-IME');
-  await page.getByRole('button', { name: '企画名を変更' }).click();
+  await page.getByRole('button', { name: '企画名を設定' }).click();
   const field = page.getByRole('textbox', { name: '企画名' });
   await field.dispatchEvent('compositionstart');
   await field.fill('変換中');
@@ -99,7 +113,7 @@ test('project name Enter and Escape do not interrupt Japanese composition', asyn
 
 test('long project names wrap at phone widths without horizontal page scrolling', async ({ page }) => {
   await page.goto('/?room=REACT-NAME-LAYOUT');
-  await page.getByRole('button', { name: '企画名を変更' }).click();
+  await page.getByRole('button', { name: '企画名を設定' }).click();
   const titleText = '秋名山登山企画'.repeat(8);
   await page.getByRole('textbox', { name: '企画名' }).fill(titleText);
   await page.getByRole('button', { name: '保存', exact: true }).click();

@@ -8,6 +8,7 @@ import { Add, Copy, Edit, TrashCan } from '@carbon/icons-react';
 import { beginSettlementEdit, commitSettlementEdit, collectionChange } from './settlement/edit.js';
 import RoutePlanner from './RoutePlanner.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
+import InitialEmptyState from './InitialEmptyState.jsx';
 
 const money = value => `¥${Math.round(Number(value) || 0).toLocaleString('ja-JP')}`;
 const hasNegativeValue = value => /^[-−]/.test(String(value ?? '').trim());
@@ -62,7 +63,7 @@ function settlementSaveNotice(label, before, after) {
   return `${label} ${change}${after.hasRecordedCollections ? ' 記録済みの集金状況を確認してください。' : ''}`;
 }
 
-function SettingsModal({ runtime, edit, onClose, onNotice }) {
+function SettingsModal({ runtime, edit, launcherButtonRef, onClose, onNotice }) {
   const [, render] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -98,7 +99,7 @@ function SettingsModal({ runtime, edit, onClose, onNotice }) {
     }
     setError(''); setStep(Math.max(0, Math.min(2, next)));
   }
-  return <Modal className="app-modal settlement-settings-modal" open size="lg" hasScrollingContent modalHeading="精算設定を編集" primaryButtonText={step === 2 ? '保存' : '次へ'} secondaryButtons={[{ buttonText: 'キャンセル', onClick: () => onClose(false) }, { buttonText: '戻る', onClick: () => go(step - 1) }]} primaryButtonDisabled={saving || composing || invalidCurrentStep} onRequestSubmit={() => step === 2 ? save() : go(step + 1)} onRequestClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus="#settlement-mode-normal">
+  return <Modal className="app-modal settlement-settings-modal" open size="lg" hasScrollingContent modalHeading="精算設定を編集" closeButtonLabel="閉じる" launcherButtonRef={launcherButtonRef} primaryButtonText={step === 2 ? '保存' : '次へ'} secondaryButtons={[{ buttonText: 'キャンセル', onClick: () => onClose(false) }, { buttonText: '戻る', onClick: () => go(step - 1) }]} primaryButtonDisabled={saving || composing || invalidCurrentStep} onRequestSubmit={() => step === 2 ? save() : go(step + 1)} onRequestClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus="#settlement-mode-normal">
     <div className="form-stack settlement-settings-form" onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}>
       {isNarrowMobile
         ? <div className="settlement-settings-progress-compact" role="status" aria-label={`ステップ ${step + 1}/3：${settlementSettingsSteps[step]}`}><span className="settlement-settings-progress-compact__count">ステップ {step + 1}/3</span><strong>{settlementSettingsSteps[step]}</strong></div>
@@ -416,14 +417,17 @@ function CollectionPrompt({ value, onChange, onSave, onClose }) {
   </Modal>;
 }
 
-export default function Settlement({ runtime, room, onNotice, openSettingsRequestId = null, onSettingsRequestHandled }) {
+export default function Settlement({ runtime, room, onNotice, onOpenParticipantRegistration, participantStartRef, openSettingsRequestId = null, onSettingsRequestHandled, roomStatus }) {
   const { data, state } = runtime.store.domain.settlementInput(room);
   const isMobile = useMediaQuery('(max-width: 671px)');
   const settlement = runtime.store.domain.settlement;
   const result = settlement.calculateSettlement(data, state);
+  const hasFormApplication = runtime.store.domain.applicants.validApplicationSync(room.meta?.applicationSync);
   const issues = settlement.getSettlementIssues(data, state, result);
   const visibleIssues = issues.messages.filter(message => !isMovementCalculationIssue(message) && !isExpenseInputIssue(message));
   const [settingsEdit, setSettingsEdit] = useState(null);
+  const settlementStartRef = useRef(null);
+  const settlementSettingsTriggerRef = useRef(null);
   const lastHandledSettingsRequest = useRef(0);
   const [carEdit, setCarEdit] = useState(null);
   const [collector, setCollector] = useState(null);
@@ -439,6 +443,15 @@ export default function Settlement({ runtime, room, onNotice, openSettingsReques
     onSettingsRequestHandled?.(openSettingsRequestId);
   }, [openSettingsRequestId, onSettingsRequestHandled, runtime.store]);
   function closeEdit(setter, edit, saved) { if (!saved && edit && !edit.session.closed) runtime.store.cancelEdit(edit.session); setter(null); }
+  function closeInitialSettings(saved) {
+    closeEdit(setSettingsEdit, settingsEdit, saved);
+    window.requestAnimationFrame(() => {
+      const preferred = saved ? settlementSettingsTriggerRef.current : settlementStartRef.current;
+      const fallback = preferred === settlementStartRef.current ? settlementSettingsTriggerRef.current : settlementStartRef.current;
+      const target = [preferred, fallback].find(element => element?.isConnected && element.getClientRects().length > 0);
+      target?.focus();
+    });
+  }
   function openCar(car) {
     const edit = beginSettlementEdit(runtime.store, { car });
     edit.state.cars[car.name] = settlement.ensureTimesRentalExtras(edit.state.cars[car.name]);
@@ -469,14 +482,14 @@ export default function Settlement({ runtime, room, onNotice, openSettingsReques
   function openMemoEditor() { setMemo(state.memo || ''); setMemoEditing(true); }
   function closeMemoEditor() { setMemo(null); setMemoEditing(false); }
   if (!result.participants.length && !result.isStandaloneSettlement) return <>
-    <section className="settlement-page"><div className="empty-state"><h2>精算</h2><p>参加者がいません</p></div></section>
-    {settingsEdit && <SettingsModal runtime={runtime} edit={settingsEdit} onNotice={onNotice} onClose={saved => closeEdit(setSettingsEdit, settingsEdit, saved)} />}
+    <section className="settlement-page"><InitialEmptyState headingId="settlement-initial-heading" title="精算を始める" description="名前を登録せず、人数だけでも精算できます。" primaryAction={{ label: '人数だけで精算', buttonRef: settlementStartRef, onClick: () => setSettingsEdit(beginSettlementEdit(runtime.store, { standalone: true })) }} alternateAction={{ label: hasFormApplication ? '参加者を確認' : '参加者を追加', onClick: onOpenParticipantRegistration }} roomStatus={roomStatus} /></section>
+    {settingsEdit && <SettingsModal runtime={runtime} edit={settingsEdit} launcherButtonRef={settlementStartRef} onNotice={onNotice} onClose={closeInitialSettings} />}
   </>;
   return <section className="settlement-page" aria-label="精算">
     {visibleIssues.map(message => <InlineNotification key={message} kind={message.includes('企画者を選ぶ') ? 'info' : 'error'} title="設定を確認してください" subtitle={message} hideCloseButton lowContrast />)}
     <Tile className="settlement-card settlement-vehicles-card">
       <div className="settlement-section-heading"><div><h2>各車への支払い</h2></div>
-        <Button className="settlement-settings-action" kind="ghost" size="sm" onClick={() => setSettingsEdit(beginSettlementEdit(runtime.store))}>精算設定を編集</Button>
+        <Button ref={settlementSettingsTriggerRef} className="settlement-settings-action" kind="ghost" size="sm" onClick={() => setSettingsEdit(beginSettlementEdit(runtime.store))}>精算設定を編集</Button>
       </div>
       <div className="settlement-car-list">{data.cars.map((car, index) => {
         const calc = result.cars.find(row => row.name === car.name);
@@ -550,7 +563,7 @@ export default function Settlement({ runtime, room, onNotice, openSettingsReques
         })}</ContainedList>
       </div>
     </Modal>
-    {settingsEdit && <SettingsModal runtime={runtime} edit={settingsEdit} onNotice={onNotice} onClose={saved => closeEdit(setSettingsEdit, settingsEdit, saved)} />}
+    {settingsEdit && <SettingsModal runtime={runtime} edit={settingsEdit} launcherButtonRef={settlementSettingsTriggerRef} onNotice={onNotice} onClose={saved => closeEdit(setSettingsEdit, settingsEdit, saved)} />}
     {carEdit && <CarEditor runtime={runtime} edit={carEdit} onNotice={onNotice} onClose={saved => closeEdit(setCarEdit, carEdit, saved)} />}
     {collector && <CollectionPrompt value={collector.value} onChange={value => setCollector(current => ({ ...current, value }))} onSave={markCollected} onClose={() => setCollector(null)} />}
   </section>;

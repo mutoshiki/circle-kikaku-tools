@@ -23,7 +23,7 @@ test('capture form-linked and registration UI states', async ({ page }, testInfo
     const room = `UI-AUDIT-FORM-${viewportName}`;
     await page.goto(`/?room=${room}`);
     await page.getByRole('tab', { name: '参加者', exact: true }).click();
-    await page.getByRole('button', { name: '追加', exact: true }).click();
+    await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
     await shot(page, viewportName, 37, 'participant-registration-modal');
     await page.getByRole('radio', { name: '回答表を貼り付ける', exact: true }).check({ force: true });
     await page.getByRole('button', { name: '貼り付け方を見る', exact: true }).click();

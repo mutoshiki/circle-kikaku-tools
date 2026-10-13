@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('registration methods are explicit and manual attributes stay with their names', async ({ page }) => {
   await page.goto('/?room=REGISTRATION-METHODS&view=participants');
-  await page.getByRole('button', { name: '追加', exact: true }).click();
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '参加者を登録', exact: true });
   const manualMethod = dialog.getByRole('radio', { name: '名前を入力', exact: true });
   const spreadsheetMethod = dialog.getByRole('radio', { name: '回答表を貼り付ける', exact: true });
@@ -42,7 +42,7 @@ test('registration methods are explicit and manual attributes stay with their na
 
 test('spreadsheet registration shows deduplicated results and parser warnings before saving', async ({ page }) => {
   await page.goto('/?room=REGISTRATION-SPREADSHEET&view=participants');
-  await page.getByRole('button', { name: '追加', exact: true }).click();
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '参加者を登録', exact: true });
   await dialog.getByRole('radio', { name: '回答表を貼り付ける', exact: true }).check({ force: true });
   await dialog.getByRole('textbox', { name: '回答データ', exact: true }).fill('氏名\t学年\t車出し\n回答者A\t3\t可\n回答者A\t2\tいいえ');
@@ -59,7 +59,7 @@ test('empty manual registration points to the name field and cancel leaves the r
   await page.goto(`/?room=${roomId}&view=participants`);
   const key = `sanpo-react:v1:${roomId}:room`;
   const before = await page.evaluate(storageKey => localStorage.getItem(storageKey), key);
-  await page.getByRole('button', { name: '追加', exact: true }).click();
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '参加者を登録', exact: true });
   await dialog.getByRole('button', { name: '参加者を登録', exact: true }).click();
   const nameField = dialog.getByRole('textbox', { name: '参加者の名前', exact: true });
@@ -86,7 +86,7 @@ test('form-linked applicant rooms keep their existing selection flow without the
 test('long manual attributes scroll inside the mobile modal while the Carbon footer stays reachable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?room=REGISTRATION-LONG-MOBILE&view=participants');
-  await page.getByRole('button', { name: '追加', exact: true }).click();
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '参加者を登録', exact: true });
   const names = Array.from({ length: 40 }, (_, index) => `参加者${index + 1}の長い表示名を折り返す確認`).join('\n');
   await dialog.getByRole('textbox', { name: '参加者の名前', exact: true }).fill(names);
@@ -112,7 +112,7 @@ test('empty unlinked participant state opens count-only settlement settings with
   await page.goto('/?room=REGISTRATION-COUNT-ONLY&view=participants');
   const before = await page.evaluate(() => localStorage.getItem('sanpo-react:v1:REGISTRATION-COUNT-ONLY:room'));
   await page.getByRole('tab', { name: '参加者', exact: true }).click();
-  await expect(page.getByRole('tabpanel', { name: '参加者' }).getByText('参加者がいません', { exact: true })).toBeVisible();
+  await expect(page.getByRole('tabpanel', { name: '参加者' }).getByRole('heading', { name: '参加者を登録して始める', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '人数だけで精算', exact: true }).click();
   await expect(page.getByRole('tab', { name: '精算', exact: true })).toHaveAttribute('aria-selected', 'true');
   const settings = page.getByRole('dialog', { name: '精算設定を編集', exact: true });

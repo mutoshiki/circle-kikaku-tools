@@ -9,7 +9,6 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/?room=ALLOCATION-RC');
   await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
-  await page.getByRole('button', { name: '追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者を登録' });
   await expect(registration).toBeVisible();
   await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('仮参加者A\n仮参加者B\n仮参加者C\n仮参加者D');
@@ -143,7 +142,7 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await expect(car).toContainText('日本語のメモ');
   for (const theme of ['g10', 'g100']) {
     if (theme === 'g100') { await page.getByRole('button', { name: 'その他の操作' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click(); }
-    await page.getByRole('button', { name: '企画名を変更' }).click();
+    await page.getByRole('button', { name: /^企画名を(設定|変更)$/ }).click();
     await expect(page.getByRole('textbox', { name: '企画名' })).toHaveCSS('background-color', theme === 'g100' ? 'rgb(57, 57, 57)' : 'rgb(255, 255, 255)');
     await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
     const geometry = await page.evaluate(() => ({ width: innerWidth, scrollWidth: document.documentElement.scrollWidth, overflow: [...document.querySelectorAll('body *')].map(node => ({ tag: node.tagName, className: String(node.className), text: node.textContent?.slice(0, 60), x: node.getBoundingClientRect().x, right: node.getBoundingClientRect().right, width: node.getBoundingClientRect().width, position: getComputedStyle(node).position })).filter(node => node.width > 0 && node.right > innerWidth + 1).slice(0, 30) }));
@@ -164,7 +163,6 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
 test('Google Forms spreadsheet paste registration remains available', async ({ page }) => {
   await page.goto('/?room=ALLOCATION-FORM-PASTE-RC');
   await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
-  await page.getByRole('button', { name: '追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者を登録' });
   await registration.getByRole('radio', { name: '回答表を貼り付ける', exact: true }).check({ force: true });
   await registration.getByRole('textbox', { name: '回答データ', exact: true }).fill('氏名\t学年\t車出し\nフォーム参加者A\t3\t可\nフォーム参加者B\t2\tいいえ');
@@ -179,7 +177,6 @@ test('manual registration attaches grade and driver attributes to explicitly ent
   const roomId = 'ALLOCATION-METADATA-ONLY-RC';
   await page.goto(`/?room=${roomId}`);
   await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
-  await page.getByRole('button', { name: '追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者を登録' });
   await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('車出し欄だけの人\n学年欄だけの人');
   await registration.getByText('学年・車出しを設定（任意）', { exact: true }).click();
@@ -205,7 +202,7 @@ test('allocation toolbar keeps its summary and random assignment action compact 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/?room=${roomId}`);
   await page.getByRole('tab', { name: '参加者', exact: true }).click();
-  await page.getByRole('button', { name: '追加', exact: true }).click();
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者を登録' });
   await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('割り当て確認 太郎');
   await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
@@ -232,7 +229,6 @@ test('long participant content and action menus remain readable at mobile and 20
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/?room=${roomId}`);
   await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
-  await page.getByRole('button', { name: '追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者を登録' });
   await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill(`${longName}\n通常参加者`);
   await registration.getByText('学年・車出しを設定（任意）', { exact: true }).click();
@@ -277,7 +273,6 @@ test('car assignment can move a waiting participant directly and cancel without 
   const roomId = `ALLOCATION-CAR-MOVE-${Date.now()}`;
   await page.goto(`/?room=${roomId}`);
   await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
-  await page.getByRole('button', { name: '追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者を登録' });
   await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('運転手 一郎\n運転手 二郎\n同乗者 三郎');
   await registration.getByText('学年・車出しを設定（任意）', { exact: true }).click();

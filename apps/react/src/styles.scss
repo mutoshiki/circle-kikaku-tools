@@ -16,15 +16,24 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .utility-menu-popover .cds--menu { position: static; min-inline-size: 15rem; }
 .sample-form { display: grid; gap: 1rem; }
 .project-title { display: grid; gap: layout.$spacing-03; padding-block: layout.$spacing-06; }
-.project-identity-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: layout.$spacing-03; min-inline-size: 0; }
-.project-identity-heading h1 { flex: 1 1 auto; min-inline-size: 0; margin: 0; font-size: var(--cds-heading-04-font-size); font-weight: var(--cds-heading-04-font-weight); line-height: var(--cds-heading-04-line-height); overflow-wrap: anywhere; }
-.project-identity-heading .cds--btn { flex: 0 0 auto; }
+.project-identity-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: layout.$spacing-03; min-inline-size: 0; }
+.project-identity-heading h1 { flex: 1 1 12rem; min-inline-size: 0; margin: 0; font-size: var(--cds-heading-04-font-size); font-weight: var(--cds-heading-04-font-weight); line-height: var(--cds-heading-04-line-height); overflow-wrap: anywhere; }
+.project-identity-actions { display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: layout.$spacing-02; min-inline-size: 0; }
+.project-identity-actions .cds--btn { flex: 0 1 auto; max-inline-size: 100%; white-space: normal; text-align: end; }
 .project-title .cds--form-item { max-inline-size: 40rem; }
 .project-name-editor { display: grid; gap: layout.$spacing-04; max-inline-size: 40rem; }
 .project-name-editor-actions { display: flex; flex-wrap: wrap; gap: layout.$spacing-02; }
 .sync-status { color: var(--cds-text-secondary); font-size: var(--cds-label-01-font-size); line-height: var(--cds-label-01-line-height); overflow-wrap: anywhere; }
+.sync-status--compact { flex: 0 1 auto; }
+.sync-status--prominent { display: block; }
 .main-content { padding: 0 0 3rem; }
 .empty-state { padding: 2rem 0; }
+.initial-empty-state { display: grid; justify-items: start; gap: layout.$spacing-04; padding: layout.$spacing-07; background: var(--cds-layer-01); }
+.initial-empty-state h2, .initial-empty-state p { margin: 0; }
+.initial-empty-state h2 { font-size: var(--cds-heading-03-font-size); font-weight: var(--cds-heading-03-font-weight); line-height: var(--cds-heading-03-line-height); }
+.initial-empty-state > p { color: var(--cds-text-secondary); }
+.initial-empty-state__actions { display: flex; flex-direction: column; align-items: flex-start; gap: layout.$spacing-03; }
+.initial-empty-state__actions .cds--btn { max-inline-size: 100%; white-space: normal; text-align: start; }
 .participants-empty-state { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: layout.$spacing-03; }
 .participants-empty-state .empty-state { margin: 0; padding-block: layout.$spacing-06; }
 .participants-empty-state > .cds--btn { flex: 0 0 auto; inline-size: auto; max-inline-size: none; }

@@ -4,6 +4,7 @@ import { Add, SettingsAdjust } from '@carbon/icons-react';
 import ParticipantEditor from './ParticipantEditor.jsx';
 import RegistrationModal from './RegistrationModal.jsx';
 import { ExportModal, GuidanceModal } from './ProjectTools.jsx';
+import InitialEmptyState from './InitialEmptyState.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
 
 function keepConfirmationTabWithinDialog(event) {
@@ -24,7 +25,7 @@ function keepConfirmationTabWithinDialog(event) {
   }
 }
 
-export default function Participants({ runtime, room, onNotice, onOpenCountOnlySettlement }) {
+export default function Participants({ runtime, room, onNotice, onOpenCountOnlySettlement, openRegistrationRequestId = null, onRegistrationRequestHandled, participantStartRef, roomStatus }) {
   const isMobile = useMediaQuery('(max-width: 671px)');
   const [search, setSearch] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -43,6 +44,8 @@ export default function Participants({ runtime, room, onNotice, onOpenCountOnlyS
   const filterTriggerRef = useRef(null);
   const participantsHeadingRef = useRef(null);
   const modalLauncherRef = useRef(null);
+  const registrationLauncherRef = useRef(null);
+  const lastHandledRegistrationRequest = useRef(0);
   const participantMenuTriggers = useRef(new Map());
   const resultSnapshot = useRef({ conditions: '', visibleCount: 0, total: 0 });
   const applicants = runtime.store.domain.applicants;
@@ -50,6 +53,7 @@ export default function Participants({ runtime, room, onNotice, onOpenCountOnlyS
   const entries = applicants.applicantEntries(application);
   const acceptedIds = new Set(entries.map(([key, applicant]) => runtime.store.participantIdForApplicant(key, applicant)).filter(Boolean));
   const participantCount = Object.keys(room.participants).length;
+  const initialEmpty = participantCount === 0 && !application;
   const rows = [
     ...entries.map(([key, applicant]) => {
       const id = runtime.store.participantIdForApplicant(key, applicant);
@@ -81,6 +85,31 @@ export default function Participants({ runtime, room, onNotice, onOpenCountOnlyS
     }, 350);
     return () => window.clearTimeout(timer);
   }, [resultRevision, composingSearch]);
+  useEffect(() => {
+    if (!openRegistrationRequestId || openRegistrationRequestId <= lastHandledRegistrationRequest.current) return;
+    lastHandledRegistrationRequest.current = openRegistrationRequestId;
+    if (!application) {
+      registrationLauncherRef.current = participantStartRef?.current || participantsHeadingRef.current;
+      setRegistering(true);
+    }
+    onRegistrationRequestHandled?.(openRegistrationRequestId);
+  }, [openRegistrationRequestId, onRegistrationRequestHandled, application, participantStartRef]);
+  function openRegistration(launcher = participantStartRef?.current) {
+    registrationLauncherRef.current = launcher || participantsHeadingRef.current;
+    setRegistering(true);
+  }
+  function closeRegistration(saved = false) {
+    setRegistering(false);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const candidates = saved
+          ? [participantsHeadingRef.current]
+          : [participantStartRef?.current, registrationLauncherRef.current, participantsHeadingRef.current];
+        const target = candidates.find(element => element?.isConnected && element.getClientRects().length > 0);
+        target?.focus();
+      });
+    });
+  }
   function focusAfterClose(target) {
     window.requestAnimationFrame(() => {
       if (target?.isConnected) target.focus();
@@ -118,8 +147,9 @@ export default function Participants({ runtime, room, onNotice, onOpenCountOnlyS
     catch (error) { onNotice(error.message); }
   }
   return <section className="participants-page" aria-label="参加者">
+    {initialEmpty ? <InitialEmptyState headingId="participants-initial-heading" title="参加者を登録して始める" description="参加者を登録すると、車割・班割・精算ができます。" primaryAction={{ label: '参加者を追加', buttonRef: participantStartRef, onClick: event => openRegistration(event.currentTarget) }} alternateAction={{ label: '人数だけで精算', onClick: onOpenCountOnlySettlement }} roomStatus={roomStatus} /> : <>
     <div className="section-heading"><div><h2 id="participants-heading" ref={participantsHeadingRef} tabIndex={-1}>{application ? <>応募者 {entries.length}人　参加者 <strong>{participantCount}人</strong></> : <>参加者 {participantCount}人</>}</h2></div>
-      <div className="inline-actions">{confirmed ? <><Tag type="green" size="sm">{editingSelection ? '選び直し中' : '確定済み'}</Tag><Button kind="ghost" size="sm" onClick={() => setEditingSelection(value => !value)}>{editingSelection ? '選び直しを閉じる' : '参加者を選び直す'}</Button></> : !application && <Button kind="ghost" renderIcon={Add} onClick={() => setRegistering(true)}>追加</Button>}</div>
+      <div className="inline-actions">{confirmed ? <><Tag type="green" size="sm">{editingSelection ? '選び直し中' : '確定済み'}</Tag><Button kind="ghost" size="sm" onClick={() => setEditingSelection(value => !value)}>{editingSelection ? '選び直しを閉じる' : '参加者を選び直す'}</Button></> : !application && <Button kind="ghost" renderIcon={Add} onClick={event => openRegistration(event.currentTarget)}>追加</Button>}</div>
     </div>
     {selectionVisible && <>
       {application ? <p className="section-description">{editingSelection ? '参加者を選び直し、「参加者を確定」を押してください。' : '応募者を確認して、参加者を選んでください。'}</p> : participantCount === 0 && <p className="section-description">参加者を追加してください。</p>}
@@ -149,7 +179,8 @@ export default function Participants({ runtime, room, onNotice, onOpenCountOnlyS
         <div className="participants-post-confirm__item"><div><h3>引き継ぎデータ</h3><p>学務提出書類作成ツールに読み込むための引き継ぎデータを作成します。</p>{!runtime.handoffToken && <p className="participants-post-confirm__reason">この端末には作成権限がありません。応募フォーム作成後に表示される「この企画をサークル企画ツールで開く」から開いた端末で作成できます。</p>}</div><Button kind="ghost" disabled={!runtime.handoffToken} onClick={() => setToolModal('export')}>引き継ぎデータを作成</Button></div>
       </div>
     </section>}
-    {registering && <RegistrationModal runtime={runtime} room={room} onClose={() => setRegistering(false)} onNotice={onNotice} />}
+    </>}
+    {registering && <RegistrationModal runtime={runtime} room={room} launcherButtonRef={registrationLauncherRef} onClose={closeRegistration} onNotice={onNotice} />}
     {editor && <ParticipantEditor runtime={runtime} session={editor} launcherButtonRef={modalLauncherRef} onClose={() => { const launcher = modalLauncherRef.current; setEditor(null); focusAfterClose(launcher); }} onNotice={onNotice} />}
     {pendingSelection && <Modal open danger size="xs" closeButtonLabel="閉じる" launcherButtonRef={modalLauncherRef} modalHeading="参加者から外しますか？" primaryButtonText="外す" secondaryButtonText="キャンセル" onRequestSubmit={() => { modalLauncherRef.current = participantsHeadingRef.current; apply(pendingSelection); }} onRequestClose={closeSelectionConfirmation}><p>車割・班割・精算の割り当ても削除されます。</p></Modal>}
     {pendingDelete && <Modal open danger size="xs" closeButtonLabel="閉じる" launcherButtonRef={modalLauncherRef} modalHeading="参加者を削除しますか？" primaryButtonText="削除" secondaryButtonText="キャンセル" onKeyDownCapture={keepConfirmationTabWithinDialog} onRequestSubmit={remove} onRequestClose={closeDeleteConfirmation}><p>{pendingDelete.name}を削除します。車割・班割・精算の割り当ても削除されます。</p></Modal>}
