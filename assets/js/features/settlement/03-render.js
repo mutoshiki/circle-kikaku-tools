@@ -431,15 +431,7 @@ function validateActiveSettlementCarEditor(showErrors = true) {
     commitLiveSettlementExtraTypeControls();
     syncSettlementStateFromDOM();
     const issues = getSettlementCarEditIssues(activeSettlementCarEditName);
-    // Uncalculated movement costs remain visible as unresolved on the settlement
-    // summary, but they must not prevent saving other vehicle expenses. Only an
-    // incomplete extra-cost row blocks this editor's explicit save action.
-    const movementFields = new Set([
-        `${activeSettlementCarEditName}:dist`,
-        `${activeSettlementCarEditName}:eco`,
-        `${activeSettlementCarEditName}:price`
-    ]);
-    const valid = [...issues.fields].every(field => movementFields.has(field));
+    const valid = issues.fields.size === 0;
     if (!showErrors) return valid;
     settlementCarEditValidationActive = !valid;
     if (!valid) {

@@ -515,6 +515,9 @@ test.describe('Settlement and route workflows', () => {
     await expect(page.locator('#settlementGasEditPanel [data-field="price"]')).toHaveCount(0);
     await page.locator('#settlementGasEditPanel [data-field="rentalType"] cds-radio-button[value="private"]').click();
     await expect(page.locator('#settlementGasEditPanel [data-field="rentalType"]')).toHaveJSProperty('value', 'private');
+    await setHostValue(page, '#settlementGasEditPanel [data-field="dist"]', '100');
+    await setHostValue(page, '#settlementGasEditPanel [data-field="eco"]', '10');
+    await setHostValue(page, '#settlementGasEditPanel [data-field="price"]', '150');
     await page.locator('body > #settlementGasEditModal cds-modal-footer-button[data-modal-close]').evaluate(node => node.click());
     await expect(page.locator('body > #settlementGasEditModal')).toHaveCount(0);
     await expect(page.locator('#settlementCarEditModal')).toHaveJSProperty('open', true);
