@@ -218,7 +218,7 @@ test.describe('Allocation, menus and accessibility', () => {
       };
     });
     expect(personSurface).toEqual({ background: 'rgb(255, 255, 255)', triggerColor: 'rgb(22, 22, 22)' });
-    await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(6);
+    await expect(personMenu.locator(':scope > cds-menu-item')).toHaveCount(5);
     await expect(personMenu.locator('[data-person-action="return"]')).toHaveAttribute('label', '未割り当てに戻す');
     await expect(personMenu.locator('[data-person-action="name"], [data-person-action="gender"]')).toHaveCount(0);
     await expect(page.locator('cds-tooltip[open]')).toHaveCount(0);
