@@ -12,7 +12,7 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   const tabs = page.getByRole('tablist', { name: '画面切り替え' });
   await expect(tabs.getByRole('tab')).toHaveCount(4);
   await expect(page.getByRole('heading', { name: '参加者', exact: true })).toHaveCount(0);
-  const participantSummary = page.locator('.participants-page > .section-heading p');
+  const participantSummary = page.locator('.participants-page > .section-heading h2');
   await expect(participantSummary).toContainText(/参加者\s*\d+人/);
   expect(await participantSummary.evaluate(element => getComputedStyle(element).marginBlockStart)).toBe('0px');
   const participantInset = (await participantSummary.boundingBox()).x;
