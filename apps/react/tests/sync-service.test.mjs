@@ -3,13 +3,14 @@ import assert from 'node:assert/strict';
 import { createRoomStore } from '../src/store/room-store.js';
 import { createRoomSync } from '../src/sync/room-sync.js';
 import { createFirebaseTransport } from '../src/sync/firebase-transport.js';
+import { beginSettlementEdit, beginStandaloneDriverNameEdit, applyStandaloneDriverName, assertStandaloneDriverNameTargetCurrent, writeSettlementDraft, commitSettlementEdit } from '../src/components/settlement/edit.js';
 import { createFixtureServer, memoryStorage } from './helpers/fixture-transport.mjs';
 import { fixture, plain } from './reference.mjs';
 
 const clock = { now: () => 1000, isServerAligned: () => true };
 function setup(server, clientId, options = {}) {
-  const { deferInitial = false, ...syncOptions } = options;
-  const store = createRoomStore({ initial: fixture, clientId, clock });
+  const { deferInitial = false, initial = fixture, ...syncOptions } = options;
+  const store = createRoomStore({ initial, clientId, clock });
   const storage = options.storage || memoryStorage();
   const transport = server.connect({ deferInitial });
   const sync = createRoomSync({ store, storage, transport, clientId, clock, legacyLoadWrites: false, ...syncOptions });
@@ -206,6 +207,39 @@ test('offline edits stay in the durable outbox and sync after the client comes o
   assert.equal(server.get().roomName, 'オフライン編集');
   assert.equal(a.storage.read('outbox'), null);
   assert.equal(a.sync.getSnapshot().kind, 'connected');
+  a.sync.dispose();
+});
+
+test('standalone driver rename aborts atomically when the remote vehicle record changes after the local check', async () => {
+  const seed = createRoomStore({ initial: canonical(), clientId: 'seed', clock });
+  const settings = beginSettlementEdit(seed, { standalone: true });
+  settings.state.standalone = { enabled: true, driverCount: '1', memberCount: '0', driverNames: ['運転手A'] };
+  writeSettlementDraft(seed, settings);
+  seed.commitEdit(settings.session);
+
+  const server = createFixtureServer(seed.getSnapshot());
+  const a = setup(server, 'driver-name-guard', { initial: seed.getSnapshot() });
+  a.sync.start();
+  await drain(a);
+  const edit = beginStandaloneDriverNameEdit(a.store, 0);
+  assertStandaloneDriverNameTargetCurrent(a.store, edit);
+  assert.equal(applyStandaloneDriverName(edit, edit.state, '新しい名前').ok, true);
+
+  const remote = server.get();
+  remote.settlement.carsByName['運転手A'] = { rentalType: 'private', dist: '10', eco: '10', price: '100', extras: [{ id: 'remote-expense', name: '駐車場', amount: '500', type: 'split' }] };
+  const transact = a.transport.transaction.bind(a.transport);
+  let injected = false;
+  a.transport.transaction = async updater => {
+    if (!injected) { injected = true; server.replace(remote); }
+    return transact(updater);
+  };
+
+  await assert.rejects(commitSettlementEdit(a, edit), /別の端末で精算情報が変更/);
+  const current = a.store.domain.settlementInput(a.store.getSnapshot()).state;
+  assert.equal(current.cars['運転手A'].extras[0].id, 'remote-expense');
+  assert.equal(Object.hasOwn(current.cars, '新しい名前'), false);
+  assert.equal(a.storage.read('outbox'), null);
+  assert.equal(a.sync.getSnapshot().kind, 'error');
   a.sync.dispose();
 });
 

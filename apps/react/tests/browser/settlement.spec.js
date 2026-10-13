@@ -407,12 +407,12 @@ test('count-only settlement can record collections with blank movement costs', a
   await settings.getByText('人数だけで精算', { exact: true }).click();
   await settings.getByLabel('運転手の人数').fill('1');
   await settings.getByLabel('同乗者の人数').fill('2');
-  await settings.getByLabel('運転手1の名前').fill('検証運転手');
+  await expect(settings.getByRole('textbox', { name: /運転手\d+の名前/ })).toHaveCount(0);
   await settings.getByRole('button', { name: '次へ' }).click();
   await settings.getByRole('button', { name: '次へ' }).click();
   await settings.getByRole('button', { name: '保存' }).click();
 
-  const driverCar = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: '検証運転手車' }) });
+  const driverCar = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: '車出し1車' }) });
   await expect(driverCar.getByRole('button', { name: '費用を入力' })).toBeVisible();
   await expect(page.locator('.settlement-collection-summary')).toHaveText(/^1人あたり ¥[\d,]+$/);
   await page.getByRole('button', { name: '集金を記録' }).click();
@@ -958,16 +958,24 @@ test('人数だけで精算するdraft survives save and reload', async ({ page 
   await modal.getByText('人数だけで精算', { exact: true }).click();
   await modal.getByLabel('運転手の人数').fill('2');
   await modal.getByLabel('同乗者の人数').fill('4');
-  await modal.getByLabel('運転手1の名前').fill('第一運転手');
-  await modal.getByLabel('運転手2の名前').fill('第二運転手');
+  await expect(modal.getByRole('textbox', { name: /運転手\d+の名前/ })).toHaveCount(0);
   await modal.getByRole('button', { name: '次へ' }).click();
   await modal.getByRole('button', { name: '次へ' }).click();
   await modal.getByRole('button', { name: '保存' }).click();
+
+  for (const [number, name] of [[1, '第一運転手'], [2, '第二運転手']]) {
+    await page.getByRole('button', { name: `車出し${number}車の操作`, exact: true }).click();
+    await page.getByRole('menuitem', { name: '運転手の名前を編集', exact: true }).click();
+    const nameDialog = page.getByRole('dialog', { name: '運転手の名前を編集', exact: true });
+    await nameDialog.getByRole('textbox', { name: '運転手の名前（任意）' }).fill(name);
+    await nameDialog.getByRole('button', { name: '保存', exact: true }).click();
+    await expect(nameDialog).toHaveCount(0);
+  }
   await expect(page.getByRole('heading', { name: '第一運転手車' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '第二運転手車' })).toBeVisible();
   await page.reload();
-  await page.getByRole('tab', { name: '精算', exact: true }).click();
-  await page.getByRole('button', { name: '精算設定' }).click();
+  await expect(page.getByRole('tab')).toHaveCount(0);
+  await page.getByRole('button', { name: '精算設定を編集', exact: true }).click();
   const reloadedSettings = page.getByRole('dialog', { name: '精算設定を編集' });
   await expect(reloadedSettings.getByLabel('運転手の人数')).toHaveValue('2');
   await page.getByRole('button', { name: 'キャンセル' }).click();

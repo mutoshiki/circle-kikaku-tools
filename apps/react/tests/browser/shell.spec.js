@@ -16,6 +16,30 @@ test('project name action says set before a name exists and change afterward', a
   await expect(rename).toHaveText('変更');
 });
 
+test('Carbon sync status styles keep normal confirmation quiet and actionable states readable', async ({ page }) => {
+  await page.goto('/?room=REACT-SYNC-TYPOGRAPHY');
+  await page.locator('#project-heading').waitFor();
+  await page.evaluate(() => {
+    const compact = document.createElement('span');
+    compact.id = 'sync-status-compact-test';
+    compact.className = 'sync-status sync-status--compact';
+    compact.setAttribute('role', 'status');
+    compact.textContent = '同期完了';
+    const prominent = document.createElement('span');
+    prominent.id = 'sync-status-prominent-test';
+    prominent.className = 'sync-status sync-status--prominent';
+    prominent.setAttribute('role', 'status');
+    prominent.textContent = '同期に失敗しました。再接続してください。';
+    document.querySelector('#project-heading').parentElement.append(compact, prominent);
+  });
+  await expect(page.locator('#sync-status-compact-test')).toHaveCSS('font-size', '12px');
+  expect(await page.locator('#sync-status-compact-test').evaluate(element => Number.parseFloat(getComputedStyle(element).lineHeight))).toBeCloseTo(16, 0);
+  await expect(page.locator('#sync-status-prominent-test')).toHaveCSS('font-size', '14px');
+  expect(await page.locator('#sync-status-prominent-test').evaluate(element => Number.parseFloat(getComputedStyle(element).lineHeight))).toBeCloseTo(18, 0);
+  await expect(page.locator('#sync-status-compact-test')).toHaveAttribute('role', 'status');
+  await expect(page.locator('#sync-status-prominent-test')).toHaveAttribute('role', 'status');
+});
+
 test('independent shell: semantic header utilities, related apps, Japanese input, themes and no legacy runtime', async ({ page }, testInfo) => {
   const errors = [];
   const requests = [];

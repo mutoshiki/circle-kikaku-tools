@@ -5,18 +5,18 @@
 ## 公開基準
 
 - 公開URL: <https://mutoshiki.github.io/circle-kikaku-tools/>
-- 確認日時: 2026-10-13 19:15 JST
+- 確認日時: 2026-10-14（公開manifestを再取得し、実装開始前に基準SHAを確認）
 - manifest: <https://mutoshiki.github.io/circle-kikaku-tools/release-build.json>
-- 公開source SHA: `2741143426ebaff79f01dda52ca6beef24fb9800`
-- 公開asset digest: `f6ea719df172358377b6c194b45f6a560cc1e939b15e5217b49346a53ef513a5`
+- 公開source SHA: `338737afcf47a43a4716b56a05cf49cecaf4c355`
+- 公開asset digest: `dff109eb26e81e9cbf8dea37e46c16a37b2c62ac46d1a4e477f029ce767059c2`
 - 公開サイトはReactのルートビルド。CIで`apps/react/dist`からPagesルートを構成する。
 - 公開サイトを開いた今回のブラウザーでは`auth/network-request-failed`となり、room画面を確認できなかった。公開SHA・digestと保存済みPages archiveは既存の検証ツールで一致を確認済み。
 
 ## 作業元
 
 - 専用worktree: `C:\Users\toshi\.codex\worktrees\initial-empty-state-usability\circle-kikaku-tools`
-- branch: `codex/initial-empty-state-usability`
-- 起点HEAD: `2741143426ebaff79f01dda52ca6beef24fb9800`（この文書を加えた後もHEADは同じ。実際のコード変更は未コミット）
+- branch: `codex/settlement-entry-count-only`
+- 起点HEAD: `338737afcf47a43a4716b56a05cf49cecaf4c355`（公開manifestと一致。今回の作業branch `codex/settlement-entry-count-only`）
 - 公開ルートの`view=seisan`と費用編集のReact owner: `apps/react/src/components/Settlement.jsx`
 - 設定・精算計算のdomain owner: `apps/react/src/domain/settlement.js`。画面変更時も計算・保存・同期・永続化の契約を守る。
 
@@ -35,7 +35,7 @@
 ```powershell
 cd C:\Users\toshi\.codex\worktrees\initial-empty-state-usability\circle-kikaku-tools\apps\react
 npm ci
-npm run build:preview -- --baseline-source-sha 2741143426ebaff79f01dda52ca6beef24fb9800
+npm run build:preview -- --baseline-source-sha 338737afcf47a43a4716b56a05cf49cecaf4c355
 node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4195 --strictPort
 ```
 
@@ -43,7 +43,7 @@ node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4195 --strict
 
 ```powershell
 cd C:\Users\toshi\.codex\worktrees\initial-empty-state-usability\circle-kikaku-tools\apps\react
-npm run check:preview -- --url http://127.0.0.1:4195/ --expected-source-sha 2741143426ebaff79f01dda52ca6beef24fb9800
+npm run check:preview -- --url http://127.0.0.1:4195/ --expected-source-sha 338737afcf47a43a4716b56a05cf49cecaf4c355
 ```
 
 照合はmanifest基準SHA、worktreeのHEADとsource fingerprint、build metadata、配信中のHTMLとJS/CSSを確認する。ソースがbuild後に変わった場合、別worktree由来の場合、SHAやmetadataが違う場合は失敗する。成功は「このローカルpreviewが指定SHAを祖先に持つ現在のworktreeからbuildされ、ページ資産が一致する」ことを示す。公開manifestとpreviewを毎回取り直す前提なので、成功結果を次回の版確認に流用しない。

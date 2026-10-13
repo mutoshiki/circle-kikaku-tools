@@ -5,7 +5,7 @@ const cases = [
   { view: 'participants', tab: '参加者', heading: '参加者を登録して始める', description: '参加者を登録すると、車割・班割・精算ができます。', primary: '参加者を追加', alternate: '人数だけで精算' },
   { view: 'car', tab: '車割', heading: '車割を始める', description: 'まず参加者を登録してください。', primary: '参加者を追加' },
   { view: 'team', tab: '班割', heading: '班割を始める', description: 'まず参加者を登録してください。', primary: '参加者を追加' },
-  { view: 'seisan', tab: '精算', heading: '精算を始める', description: '名前を登録せず、人数だけでも精算できます。', primary: '人数だけで精算', alternate: '参加者を追加' },
+  { view: 'seisan', tab: '精算', heading: '精算を始める', description: '参加者を追加するか、人数だけで精算を始められます。', primary: '参加者を追加', alternate: '人数だけで精算' },
 ];
 
 for (const state of cases) {
@@ -24,6 +24,16 @@ for (const state of cases) {
     }
   });
 }
+
+test('a new room opens on settlement and orders participant registration before count-only setup', async ({ page }) => {
+  await page.goto('/?room=INITIAL-DEFAULT-SETTLEMENT');
+  await expect(page.getByRole('tab', { name: '精算', exact: true })).toHaveAttribute('aria-selected', 'true');
+  const panel = page.getByRole('tabpanel', { name: '精算', exact: true });
+  const actions = panel.locator('.initial-empty-state__actions button');
+  await expect(actions).toHaveText(['参加者を追加', '人数だけで精算']);
+  await expect(actions.nth(0)).toHaveClass(/cds--btn--primary/);
+  await expect(actions.nth(1)).toHaveClass(/cds--btn--ghost/);
+});
 
 test('applicant selection remains available when the participant room itself is empty', async ({ page }) => {
   const room = structuredClone(fixture);

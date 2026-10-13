@@ -21,7 +21,9 @@ export function prepareCompatibleUrl({ location, history, storage, crypto }) {
     url.searchParams.set('room', roomId);
   }
   const requestedView = url.searchParams.get('view');
-  const initialView = requestedView === 'participants' ? 0 : requestedView === 'seisan' ? 3 : 1;
+  const legacyAllocation = requestedView === 'sheet' || url.searchParams.has('allocation');
+  const viewIndex = { participants: 0, car: 1, team: 2, seisan: 3 }[requestedView];
+  const initialView = legacyAllocation ? 1 : (viewIndex ?? 3);
   const launchToken = String(url.searchParams.get(HANDOFF_TOKEN_PARAM) || '');
   if (validHandoffToken(launchToken)) {
     try { storage.setItem(tokenStorageKey(roomId), launchToken); } catch {}
@@ -30,7 +32,7 @@ export function prepareCompatibleUrl({ location, history, storage, crypto }) {
     try { const value = storage.getItem(tokenStorageKey(roomId)); return validHandoffToken(value) ? value : ''; } catch { return ''; }
   })();
   url.searchParams.delete(HANDOFF_TOKEN_PARAM);
-  if (requestedView === 'sheet' || url.searchParams.has('allocation')) {
+  if (legacyAllocation) {
     url.searchParams.delete('view');
     url.searchParams.delete('allocation');
   }

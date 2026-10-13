@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRoomStore } from '../src/store/room-store.js';
 import { fixture, createReference, plain } from './reference.mjs';
-import { beginSettlementEdit, writeSettlementDraft, commitSettlementEdit, collectionChange, undoCollectionChange } from '../src/components/settlement/edit.js';
+import { beginSettlementEdit, beginStandaloneDriverNameEdit, applyStandaloneDriverName, assertStandaloneDriverNameTargetCurrent, writeSettlementDraft, commitSettlementEdit, collectionChange, undoCollectionChange } from '../src/components/settlement/edit.js';
 
 const create = () => createRoomStore({ initial: fixture, clientId: 'settlement-test', clock: { now: () => 1000 } });
 const runtime = store => ({ store, sync: { flush: async () => {}, getSnapshot: () => ({ kind: 'local' }) } });
@@ -46,6 +46,107 @@ test('settings cancel changes nothing; failed save retains draft; reset rejects 
   remote.resetGeneration++;
   store.receiveRemote(remote);
   await assert.rejects(commitSettlementEdit(runtime(store), edit), /リセット/);
+});
+
+test('first count-only setup starts both counts at zero and persists the selected mode without count edits', async () => {
+  const store = createRoomStore();
+  const edit = beginSettlementEdit(store, { standalone: true });
+  assert.equal(edit.state.standalone.driverCount, '0');
+  assert.equal(edit.state.standalone.memberCount, '0');
+  await commitSettlementEdit(runtime(store), edit);
+  const reloaded = createRoomStore({ initial: store.getSnapshot() });
+  assert.equal(reloaded.getSnapshot().settlement.standalone.enabled, true);
+  assert.equal(reloaded.domain.settlementInput(reloaded.getSnapshot()).state.standalone.driverCount, '0');
+});
+
+test('saved count-only values and driver names remain the initial settings draft', async () => {
+  const store = createRoomStore();
+  const setup = beginSettlementEdit(store, { standalone: true });
+  setup.state.standalone = { enabled: true, driverCount: '2', memberCount: '3', driverNames: ['運転手A', '運転手B'] };
+  await commitSettlementEdit(runtime(store), setup);
+  const edit = beginSettlementEdit(store, { standalone: true });
+  assert.equal(edit.state.standalone.driverCount, '2');
+  assert.equal(edit.state.standalone.memberCount, '3');
+  assert.deepEqual(edit.state.standalone.driverNames, ['運転手A', '運転手B']);
+});
+
+test('renaming a count-only driver retains vehicle expenses and collection records under the new key', async () => {
+  const store = createRoomStore();
+  const setup = beginSettlementEdit(store, { standalone: true });
+  setup.state.standalone = { enabled: true, driverCount: '1', memberCount: '2', driverNames: ['運転手A'] };
+  await commitSettlementEdit(runtime(store), setup);
+  const car = store.domain.settlementInput(store.getSnapshot()).data.cars[0];
+  const vehicleEdit = beginSettlementEdit(store, { car });
+  vehicleEdit.state.cars['運転手A'] = { rentalType: 'private', dist: '100', eco: '10', price: '170', extras: [{ id: 'expense-a', name: '駐車場', amount: '500', type: 'split' }] };
+  vehicleEdit.state.paid['運転手A'] = true;
+  vehicleEdit.state.paidBy['運転手A'] = '集金担当';
+  vehicleEdit.state.driverPaid['運転手A'] = true;
+  vehicleEdit.state.routePlanner.targetCarName = '運転手A';
+  await commitSettlementEdit(runtime(store), vehicleEdit);
+
+  const edit = beginStandaloneDriverNameEdit(store, 0);
+  const outcome = applyStandaloneDriverName(edit, edit.state, '運転手B');
+  assert.equal(outcome.ok, true);
+  await commitSettlementEdit(runtime(store), edit);
+  const { state } = store.domain.settlementInput(store.getSnapshot());
+  assert.equal(state.cars['運転手B'].extras[0].id, 'expense-a');
+  assert.equal(state.cars['運転手B'].extras[0].amount, '500');
+  assert.equal(state.paid['運転手B'], true);
+  assert.equal(state.paidBy['運転手B'], '集金担当');
+  assert.equal(state.driverPaid['運転手B'], true);
+  assert.equal(state.routePlanner.targetCarName, '運転手B');
+  assert.equal(Object.hasOwn(state.cars, '運転手A'), false);
+});
+
+test('renaming to a synthetic passenger name is rejected without changing the draft', async () => {
+  const store = createRoomStore();
+  const setup = beginSettlementEdit(store, { standalone: true });
+  setup.state.standalone = { enabled: true, driverCount: '1', memberCount: '2', driverNames: [] };
+  await commitSettlementEdit(runtime(store), setup);
+  const edit = beginStandaloneDriverNameEdit(store, 0);
+  const beforeNames = structuredClone(edit.state.standalone.driverNames);
+  const outcome = applyStandaloneDriverName(edit, edit.state, '参加者1');
+  assert.equal(outcome.ok, false);
+  assert.match(outcome.error, /別の車または参加者/);
+  assert.deepEqual(edit.state.standalone.driverNames, beforeNames);
+});
+
+test('standalone driver rename refuses to overwrite a vehicle changed by another device', async () => {
+  const store = createRoomStore();
+  const setup = beginSettlementEdit(store, { standalone: true });
+  setup.state.standalone = { enabled: true, driverCount: '1', memberCount: '0', driverNames: [] };
+  await commitSettlementEdit(runtime(store), setup);
+
+  const edit = beginStandaloneDriverNameEdit(store, 0);
+  const remote = structuredClone(store.getSnapshot());
+  remote.settlement.standalone.driverNames = ['別端末の名前'];
+  store.receiveRemote(remote);
+
+  assert.throws(() => assertStandaloneDriverNameTargetCurrent(store, edit), /別の端末で変更/);
+  assert.equal(edit.oldName, '車出し1');
+});
+
+test('standalone driver rename refuses stale expenses and a newly conflicting vehicle name', async () => {
+  const store = createRoomStore();
+  const setup = beginSettlementEdit(store, { standalone: true });
+  setup.state.standalone = { enabled: true, driverCount: '2', memberCount: '0', driverNames: ['運転手A', '運転手B'] };
+  await commitSettlementEdit(runtime(store), setup);
+
+  const expenseEdit = beginStandaloneDriverNameEdit(store, 0);
+  const expenseRemote = structuredClone(store.getSnapshot());
+  expenseRemote.settlement.carsByName['運転手A'] = { rentalType: 'private', dist: '10', eco: '10', price: '100', extras: [{ id: 'remote-expense', name: '駐車場', amount: '500', type: 'split' }] };
+  store.receiveRemote(expenseRemote);
+  assert.throws(() => assertStandaloneDriverNameTargetCurrent(store, expenseEdit), /別の端末で変更/);
+
+  const nameStore = createRoomStore();
+  const nameSetup = beginSettlementEdit(nameStore, { standalone: true });
+  nameSetup.state.standalone = { enabled: true, driverCount: '2', memberCount: '0', driverNames: ['運転手A', '運転手B'] };
+  await commitSettlementEdit(runtime(nameStore), nameSetup);
+  const nameEdit = beginStandaloneDriverNameEdit(nameStore, 0);
+  const nameRemote = structuredClone(nameStore.getSnapshot());
+  nameRemote.settlement.standalone.driverNames[1] = '衝突予定の名前';
+  nameStore.receiveRemote(nameRemote);
+  assert.throws(() => assertStandaloneDriverNameTargetCurrent(nameStore, nameEdit), /別の端末で変更/);
 });
 
 test('standalone names, Times fees and signed expenses round trip through canonical storage', async () => {
