@@ -5,6 +5,7 @@ import { createSettlementDomain } from './generated/settlement.js';
 import { createSyncDomain } from './generated/sync.js';
 import { createAssignmentDomain } from './generated/allocation.js';
 import { createApplicantsDomain } from './generated/applicants.js';
+import * as randomization from './randomization-history.js';
 export { formParser } from './generated/parser.js';
 
 export function createDomain({ clock = { now: () => Date.now(), isServerAligned: () => false }, clientId = 'local', random = Math.random, crypto = globalThis.crypto } = {}) {
@@ -20,5 +21,5 @@ export function createDomain({ clock = { now: () => Date.now(), isServerAligned:
       : { ...canonical.projectAllocation(room, 'car'), roomName: room.roomName };
     return { data, state };
   }
-  return { canonical, migrate, settlement, sync, assignment, settlementInput, applicants: createApplicantsDomain(canonical) };
+  return { canonical, migrate, settlement, sync, assignment, randomization, settlementInput, applicants: createApplicantsDomain(canonical) };
 }

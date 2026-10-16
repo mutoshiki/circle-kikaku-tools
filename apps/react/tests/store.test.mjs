@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createRoomStore } from '../src/store/room-store.js';
 import { createRoomStorage } from '../src/store/local-storage.js';
 import { fixture, plain } from './reference.mjs';
+import { getRandomizationStatus } from '../src/domain/randomization-history.js';
 
 const create = () => createRoomStore({ initial: fixture, clientId: 'test', clock: { now: () => 1000 } });
 
@@ -78,6 +79,37 @@ test('participant, capacity, fixed role and random assignment commands preserve 
   store.command('capacity', { type: 'car', groupId: group.id, capacity: 1 });
   const current = store.getSnapshot().allocations.car;
   assert.ok(Object.entries(current.placements).filter(([id, p]) => id !== current.groups[group.id].ownerId && p.groupId === group.id).length <= 1);
+});
+
+test('random assignment counts successful runs even when placement output is unchanged', () => {
+  let id = 0;
+  const store = createRoomStore({ initial: fixture, clientId: 'random-count', clock: { now: () => 1000 }, crypto: { randomUUID: () => `random-${++id}` } });
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 0);
+  const first = store.command('randomize', { type: 'car' });
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 1);
+  assert.equal(first.randomizationIntent.runIds.length, 1);
+  store.command('randomize', { type: 'car' });
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 2);
+  assert.equal(store.command('rename', { name: '別名' }).randomizationIntent, undefined);
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 2);
+});
+
+test('random assignment rejects no-target runs and resets history only for changed conditions', () => {
+  let id = 0;
+  const store = createRoomStore({ initial: fixture, clientId: 'random-reset', clock: { now: () => 1000 }, crypto: { randomUUID: () => `random-${++id}` } });
+  store.command('randomize', { type: 'car' });
+  const before = getRandomizationStatus(store.getSnapshot(), 'car');
+  const personId = Object.keys(store.getSnapshot().participants)[0];
+  store.command('editParticipant', { id: personId, changes: { name: '表示名だけ変更' } });
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 1);
+  const changed = store.command('editParticipant', { id: personId, changes: { locked: !store.getSnapshot().participants[personId].locked } });
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 0);
+  assert.notEqual(getRandomizationStatus(store.getSnapshot(), 'car').epochId, before.epochId);
+  assert.deepEqual(changed.randomizationResets, [{ type: 'car', reason: 'fixed' }]);
+  const afterPin = getRandomizationStatus(store.getSnapshot(), 'car');
+  store.command('editParticipant', { id: personId, changes: { locked: !store.getSnapshot().participants[personId].locked } });
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 0, 'old run IDs do not return when conditions are restored');
+  assert.notEqual(getRandomizationStatus(store.getSnapshot(), 'car').epochId, afterPin.epochId);
 });
 
 test('car capacity leaves its stated number of passenger seats after the owner', () => {

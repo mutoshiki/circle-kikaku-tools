@@ -67,6 +67,11 @@ export function getRandomizationStatus(room, type) {
   return { count: Object.keys(history?.runs || {}).length, epochId: history?.epochId || '', conditionsKey };
 }
 
+export function createRandomizationHistory(conditionsKey, epochId) {
+  if (!conditionsKey || !epochId) throw new TypeError('Randomization history requires a condition key and epoch ID');
+  return { version: 1, epochId: String(epochId), conditionsKey, runs: {} };
+}
+
 export function hasRandomizationTargets(room, type, assignment) {
   if (!ALLOCATION_TYPES.includes(type) || !assignment?.randomSlotsFromCanonical || !assignment?.isRandomlyMovablePlacement) return false;
   const allocation = room?.allocations?.[type];
