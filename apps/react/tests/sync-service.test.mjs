@@ -91,6 +91,101 @@ test('five devices converge on independent participant edits with one durable ou
   });
 });
 
+test('simultaneous random assignments from two devices merge two unique runs', async () => {
+  const server = createFixtureServer(canonical());
+  const a = setup(server, 'random-a');
+  const b = setup(server, 'random-b');
+  a.sync.start(); b.sync.start(); await drain(a, b);
+  a.store.command('randomize', { type: 'car' });
+  b.store.command('randomize', { type: 'car' });
+  await drain(a, b);
+  assert.equal(Object.keys(server.get().allocations.car.randomization.runs).length, 2);
+  assert.deepEqual(plain(a.store.getSnapshot()), plain(a.store.domain.migrate(server.get())));
+  assert.deepEqual(plain(b.store.getSnapshot()), plain(b.store.domain.migrate(server.get())));
+  a.sync.dispose(); b.sync.dispose();
+});
+
+test('replaying an acknowledged random assignment outbox does not increase the count', async () => {
+  const server = createFixtureServer(canonical());
+  const a = setup(server, 'replay-random');
+  a.sync.start(); await drain(a);
+  a.store.command('randomize', { type: 'car' });
+  const acknowledged = a.storage.read('outbox');
+  await drain(a);
+  assert.equal(Object.keys(server.get().allocations.car.randomization.runs).length, 1);
+  a.storage.write('outbox', acknowledged);
+  await drain(a);
+  assert.equal(Object.keys(server.get().allocations.car.randomization.runs).length, 1);
+  a.sync.dispose();
+});
+
+test('three offline random assignments survive outbox coalescing and sync once online', async () => {
+  const server = createFixtureServer(canonical());
+  const pendingTimers = new Map();
+  const timers = { setTimeout(fn) { pendingTimers.set(pendingTimers.size + 1, fn); return pendingTimers.size; }, clearTimeout(id) { pendingTimers.delete(id); } };
+  const a = setup(server, 'offline-random', { timers });
+  a.sync.start(); await drain(a);
+  a.transport.setOnline(false);
+  for (let i = 0; i < 3; i++) a.store.command('randomize', { type: 'car' });
+  for (let i = 0; i < 10 && !pendingTimers.size; i++) await Promise.resolve();
+  assert.equal(a.storage.read('outbox')?.randomizationIntents?.[0]?.runIds.length, 3);
+  a.transport.setOnline(true);
+  const retries = [...pendingTimers.values()]; pendingTimers.clear(); retries.forEach(retry => retry());
+  await drain(a);
+  assert.equal(Object.keys(server.get().allocations.car.randomization.runs).length, 3);
+  assert.equal(a.storage.read('outbox'), null);
+  a.sync.dispose();
+});
+
+test('a condition edit followed by randomization offline commits the final condition and its run together', async () => {
+  const server = createFixtureServer(canonical());
+  const pendingTimers = new Map();
+  const timers = { setTimeout(fn) { pendingTimers.set(pendingTimers.size + 1, fn); return pendingTimers.size; }, clearTimeout(id) { pendingTimers.delete(id); } };
+  const a = setup(server, 'offline-condition-run', { timers });
+  a.sync.start(); await drain(a);
+  const groupId = Object.keys(a.store.getSnapshot().allocations.car.groups)[0];
+  const nextCapacity = a.store.getSnapshot().allocations.car.groups[groupId].capacity + 1;
+  a.transport.setOnline(false);
+  a.store.command('capacity', { type: 'car', groupId, capacity: nextCapacity });
+  a.store.command('randomize', { type: 'car' });
+  const entry = a.storage.read('outbox');
+  assert.ok(Object.keys(entry.patch).some(path => path.startsWith(`allocations/car/groups/${groupId}`)), 'coalesced outbox retains the condition edit');
+  assert.equal(entry.randomizationIntents[0].conditionsKey, a.store.domain.randomization.getRandomizationConditionsKey(entry.snapshot, 'car'));
+  a.transport.setOnline(true);
+  const retries = [...pendingTimers.values()]; pendingTimers.clear(); retries.forEach(retry => retry());
+  await drain(a);
+  assert.equal(server.get().allocations.car.groups[groupId].capacity, nextCapacity);
+  assert.equal(Object.keys(server.get().allocations.car.randomization.runs).length, 1);
+  assert.equal(server.get().allocations.car.randomization.conditionsKey, a.store.domain.randomization.getRandomizationConditionsKey(server.get(), 'car'));
+  a.sync.dispose();
+});
+
+test('an offline random assignment is rejected after another device changes capacity', async () => {
+  const server = createFixtureServer(canonical());
+  const a = setup(server, 'stale-random-a');
+  const b = setup(server, 'stale-random-b');
+  a.sync.start(); b.sync.start(); await drain(a, b);
+  a.transport.setOnline(false);
+  a.store.command('randomize', { type: 'car' });
+  const staleIntent = a.storage.read('outbox').randomizationIntents[0];
+  const staleEpoch = staleIntent.epochId;
+  const groupId = Object.keys(b.store.getSnapshot().allocations.car.groups)[0];
+  const originalCapacity = b.store.getSnapshot().allocations.car.groups[groupId].capacity;
+  b.store.command('capacity', { type: 'car', groupId, capacity: 8 });
+  await drain(b);
+  b.store.command('capacity', { type: 'car', groupId, capacity: originalCapacity });
+  await drain(b);
+  a.transport.setOnline(true);
+  await drain(a);
+  assert.equal(a.storage.read('outbox'), null);
+  assert.equal(a.sync.getSnapshot().kind, 'error');
+  assert.notEqual(server.get().allocations.car.randomization?.epochId, staleEpoch);
+  assert.equal(b.store.domain.randomization.getRandomizationConditionsKey(server.get(), 'car'), staleIntent.conditionsKey, 'conditions can return to the prior values while the prior epoch remains expired');
+  assert.equal(Object.keys(server.get().allocations.car.randomization?.runs || {}).length, 0);
+  assert.deepEqual(plain(a.store.getSnapshot()), plain(a.store.domain.migrate(server.get())));
+  a.sync.dispose(); b.sync.dispose();
+});
+
 test('an older acknowledgement cannot clear a newer outbox or lose its normal in-flight edit', async () => {
   const server = createFixtureServer(canonical());
   const a = setup(server, 'device-a');

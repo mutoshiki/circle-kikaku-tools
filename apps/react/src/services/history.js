@@ -31,14 +31,14 @@ export function createHistoryService({ storage, roomId, clock = { now: () => Dat
   function restore(store, item) {
     if (!item?.data) return false;
     restoreBackup = structuredClone(store.getSnapshot());
-    store.command('restore', { value: structuredClone(item.data) });
+    store.command('restore', { value: structuredClone(item.data), source: 'backup' });
     return true;
   }
   function undo(store) {
     if (!restoreBackup) return false;
     const value = restoreBackup;
     restoreBackup = null;
-    store.command('restore', { value });
+    store.command('restore', { value, source: 'backup' });
     return true;
   }
   return Object.freeze({ key, read, write, save, restore, undo, canUndo: () => restoreBackup !== null });

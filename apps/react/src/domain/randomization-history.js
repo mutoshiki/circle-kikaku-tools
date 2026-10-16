@@ -72,6 +72,12 @@ export function createRandomizationHistory(conditionsKey, epochId) {
   return { version: 1, epochId: String(epochId), conditionsKey, runs: {} };
 }
 
+export function getInitialRandomizationEpoch(conditionsKey) {
+  let hash = 2166136261;
+  for (let index = 0; index < conditionsKey.length; index++) hash = Math.imul(hash ^ conditionsKey.charCodeAt(index), 16777619);
+  return `initial-${(hash >>> 0).toString(36)}`;
+}
+
 export function hasRandomizationTargets(room, type, assignment) {
   if (!ALLOCATION_TYPES.includes(type) || !assignment?.randomSlotsFromCanonical || !assignment?.isRandomlyMovablePlacement) return false;
   const allocation = room?.allocations?.[type];

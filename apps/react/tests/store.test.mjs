@@ -75,7 +75,11 @@ test('participant, capacity, fixed role and random assignment commands preserve 
   store.command('randomize', { type: 'car' });
   assert.equal(store.getSnapshot().allocations.car.placements[waitingId].groupId, group.id);
   assert.equal(store.getSnapshot().allocations.car.placements[waitingId].driver, true);
-  assert.deepEqual(plain(store.getSnapshot().allocations.team), team);
+  const teamAfterSharedLockChange = structuredClone(store.getSnapshot().allocations.team);
+  delete teamAfterSharedLockChange.randomization;
+  delete team.randomization;
+  assert.deepEqual(plain(teamAfterSharedLockChange), team);
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'team').count, 0);
   store.command('capacity', { type: 'car', groupId: group.id, capacity: 1 });
   const current = store.getSnapshot().allocations.car;
   assert.ok(Object.entries(current.placements).filter(([id, p]) => id !== current.groups[group.id].ownerId && p.groupId === group.id).length <= 1);
@@ -110,6 +114,43 @@ test('random assignment rejects no-target runs and resets history only for chang
   store.command('editParticipant', { id: personId, changes: { locked: !store.getSnapshot().participants[personId].locked } });
   assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 0, 'old run IDs do not return when conditions are restored');
   assert.notEqual(getRandomizationStatus(store.getSnapshot(), 'car').epochId, afterPin.epochId);
+});
+
+test('sample restore clears randomization history while matching backup restore preserves it', () => {
+  const store = create();
+  store.command('randomize', { type: 'car' });
+  const backup = structuredClone(store.getSnapshot());
+  store.command('restore', { value: backup, source: 'backup' });
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 1);
+  store.command('restore', { value: backup, source: 'sample' });
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 0);
+});
+
+test('ordinary member moves keep the count, while owner moves, roster changes, and capacity changes reset the affected generation', () => {
+  const store = create();
+  store.command('randomize', { type: 'car' });
+  const car = store.getSnapshot().allocations.car;
+  const group = Object.values(car.groups)[0];
+  const movable = Object.entries(car.placements).find(([id, placement]) => id !== group.ownerId && placement.kind === 'member' && placement.driver !== true && store.getSnapshot().participants[id]?.locked !== true);
+  store.command('move', { id: movable[0], type: 'car', groupId: '' });
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 1);
+
+  store.command('move', { id: group.ownerId, type: 'car', groupId: '' });
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 0);
+  store.command('randomize', { type: 'car' });
+  const currentCar = store.getSnapshot().allocations.car;
+  const firstGroup = Object.values(currentCar.groups)[0];
+  store.command('capacity', { type: 'car', groupId: firstGroup.id, capacity: firstGroup.capacity + 1 });
+  const resetEpoch = getRandomizationStatus(store.getSnapshot(), 'car').epochId;
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 0);
+  store.command('capacity', { type: 'car', groupId: firstGroup.id, capacity: firstGroup.capacity });
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 0, 'reverting to old conditions must not revive a previous epoch');
+  assert.notEqual(getRandomizationStatus(store.getSnapshot(), 'car').epochId, resetEpoch);
+
+  store.command('randomize', { type: 'car' });
+  store.command('addParticipants', { people: [{ name: '追加参加者' }] });
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'car').count, 0);
+  assert.equal(getRandomizationStatus(store.getSnapshot(), 'team').count, 0);
 });
 
 test('car capacity leaves its stated number of passenger seats after the owner', () => {

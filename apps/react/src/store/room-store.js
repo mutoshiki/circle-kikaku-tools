@@ -50,13 +50,10 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
     if (Number(base.resetGeneration) !== Number(snapshot.resetGeneration)) throw new Error('企画がリセットされました。画面を開き直してください。');
     const randomizationResets = [];
     for (const change of domain.randomization.getRandomizationConditionChanges(base, local)) {
-      const previous = base.allocations?.[change.type]?.randomization;
       const beforeStatus = domain.randomization.getRandomizationStatus(base, change.type);
-      if (previous?.epochId) {
+      if (local.allocations?.[change.type]) {
         const conditionsKey = domain.randomization.getRandomizationConditionsKey(local, change.type);
         local.allocations[change.type].randomization = domain.randomization.createRandomizationHistory(conditionsKey, createRandomizationId());
-      } else if (local.allocations?.[change.type]) {
-        delete local.allocations[change.type].randomization;
       }
       if (beforeStatus.count > 0) randomizationResets.push(change);
     }
@@ -236,8 +233,15 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
     settlement(room, { state }) {
       room.settlement = domain.canonical.settlementToStorage(domain.settlement.normalizeSettlementState(state), room.participants);
     },
-    restore(room, { value }) {
+    restore(room, { value, source = 'backup' }) {
       const restored = domain.migrate(value);
+      for (const type of ['car', 'team']) {
+        if (source === 'sample' || source === 'reset') delete restored.allocations?.[type]?.randomization;
+        else {
+          const key = domain.randomization.getRandomizationConditionsKey(restored, type);
+          if (!domain.randomization.normalizeRandomizationHistory(restored.allocations?.[type]?.randomization, key)) delete restored.allocations?.[type]?.randomization;
+        }
+      }
       // Normal samples have no metadata and keep the live application metadata;
       // an explicit form-linked sample owns its applicationSync payload.
       const restoredMeta = restored.meta && Object.keys(restored.meta).length ? restored.meta : room.meta;
@@ -258,7 +262,7 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
       const type = args.type;
       const conditionsKey = domain.randomization.getRandomizationConditionsKey(migrated, type);
       let history = domain.randomization.normalizeRandomizationHistory(migrated.allocations[type].randomization, conditionsKey);
-      if (!history) history = domain.randomization.createRandomizationHistory(conditionsKey, createRandomizationId());
+      if (!history) history = domain.randomization.createRandomizationHistory(conditionsKey, domain.randomization.getInitialRandomizationEpoch(conditionsKey));
       const runId = createRandomizationId();
       history.runs[runId] = true;
       migrated.allocations[type].randomization = history;
