@@ -34,6 +34,13 @@ export default function App({ runtime }) {
   const contentTheme = theme === 'g100' ? 'g90' : 'g10';
   const [view, setView] = useState(runtime.initialView ?? 3);
   const [notice, setNotice] = useState('');
+  const [noticeTimeout, setNoticeTimeout] = useState(2600);
+  const pendingResetNotice = useRef(null);
+  function showNotice(message) {
+    if (pendingResetNotice.current) return;
+    setNoticeTimeout(2600);
+    setNotice(message);
+  }
   const [countOnlySettlementRequest, setCountOnlySettlementRequest] = useState(null);
   const countOnlySettlementRequestId = useRef(0);
   const [participantRegistrationRequest, setParticipantRegistrationRequest] = useState(null);
@@ -45,22 +52,39 @@ export default function App({ runtime }) {
   const [globalModal, setGlobalModal] = useState('');
   const [sampleCars, setSampleCars] = useState('3');
   const [sampleType, setSampleType] = useState('normal');
+  useEffect(() => runtime.store.subscribeIntents(intent => {
+    const resets = intent.randomizationResets?.filter(change => change.type === 'car' || change.type === 'team') || [];
+    if (!resets.length) return;
+    const reasons = new Set(resets.map(change => change.reason));
+    const types = new Set(resets.map(change => change.type));
+    const message = reasons.has('participants')
+      ? '参加者が変わったため、車割・班割のランダム割り当て回数を0に戻しました。'
+      : reasons.has('fixed')
+        ? '固定設定が変わったため、車割・班割のランダム割り当て回数を0に戻しました。'
+        : types.size === 2
+          ? '車割・班割の条件が変わったため、ランダム割り当て回数を0に戻しました。'
+          : `${types.has('car') ? '車割' : '班割'}の条件が変わったため、ランダム割り当て回数を0に戻しました。`;
+    pendingResetNotice.current = message;
+    setNoticeTimeout(8000);
+    setNotice(message);
+    queueMicrotask(() => { setNotice(message); pendingResetNotice.current = null; });
+  }), [runtime]);
   async function share() {
-    try { await navigator.clipboard.writeText(runtime.createShareUrl()); setNotice('リンクをコピーしました'); }
-    catch { setNotice('リンクをコピーできませんでした'); }
+    try { await navigator.clipboard.writeText(runtime.createShareUrl()); showNotice('リンクをコピーしました'); }
+    catch { showNotice('リンクをコピーできませんでした'); }
   }
   function openGlobalModal(name) { setGlobalModal(name); }
   function seedSample(missing = false) {
     const project = createProjectDomain({ getRoom: runtime.store.getSnapshot, settlement: runtime.store.domain.settlement });
-    runtime.store.command('restore', { value: project.createSampleAppData({ missing, carCount: Number(sampleCars) }) });
+    runtime.store.command('restore', { value: project.createSampleAppData({ missing, carCount: Number(sampleCars) }), source: 'sample' });
     setGlobalModal('');
-    setNotice(missing ? '入力漏れサンプルを入れました' : '通常サンプルを入れました');
+    showNotice(missing ? '入力漏れサンプルを入れました' : '通常サンプルを入れました');
   }
   function seedFormLinkedSample() {
     const project = createProjectDomain({ getRoom: runtime.store.getSnapshot, settlement: runtime.store.domain.settlement });
-    runtime.store.command('restore', { value: project.createFormLinkedSampleData() });
+    runtime.store.command('restore', { value: project.createFormLinkedSampleData(), source: 'sample' });
     setGlobalModal('');
-    setNotice('フォーム連携サンプルを入れました');
+    showNotice('フォーム連携サンプルを入れました');
   }
   useEffect(() => {
     const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
@@ -90,9 +114,9 @@ export default function App({ runtime }) {
   }
   function seedSelectedSample() {
     if (sampleType === 'reset') {
-      runtime.store.command('restore', { value: runtime.store.domain.canonical.emptyRoom() });
+      runtime.store.command('restore', { value: runtime.store.domain.canonical.emptyRoom(), source: 'reset' });
       setGlobalModal('');
-      setNotice('企画データをリセットしました');
+      showNotice('企画データをリセットしました');
       return;
     }
     if (sampleType === 'form') seedFormLinkedSample();
@@ -159,29 +183,29 @@ export default function App({ runtime }) {
     <Grid fullWidth className="project-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><ProjectIdentity name={room.roomName} syncStatus={syncStatus} onRename={name => runtime.store.command('rename', { name })} /></Column></Grid>
     <Grid fullWidth className="content-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><div className="main-content">
       {standaloneMode
-        ? <Settlement runtime={runtime} room={room} onNotice={setNotice} onOpenParticipantRegistration={openParticipantRegistration} onOpenSettings={openSettlementSettings} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} />
+        ? <Settlement runtime={runtime} room={room} onNotice={showNotice} onOpenParticipantRegistration={openParticipantRegistration} onOpenSettings={openSettlementSettings} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} />
         : <Tabs selectedIndex={view} onChange={({ selectedIndex }) => changeView(selectedIndex)}>
         <TabList aria-label="画面切り替え" contained fullWidth>{destinations.map(name => <Tab key={name}>{name}</Tab>)}</TabList>
         <TabPanels>
-          <TabPanel><Participants runtime={runtime} room={room} onNotice={setNotice} onOpenCountOnlySettlement={openCountOnlySettlement} openRegistrationRequestId={participantRegistrationRequest} onRegistrationRequestHandled={consumeParticipantRegistrationRequest} participantStartRef={participantStartRef} roomStatus={syncStatus} /></TabPanel>
-          <TabPanel><Allocation runtime={runtime} room={room} type="car" onNotice={setNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} /></TabPanel>
-          <TabPanel><Allocation runtime={runtime} room={room} type="team" onNotice={setNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} /></TabPanel>
-          <TabPanel><Settlement runtime={runtime} room={room} onNotice={setNotice} onOpenParticipantRegistration={openParticipantRegistration} onOpenSettings={openSettlementSettings} participantStartRef={participantStartRef} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel><Participants runtime={runtime} room={room} onNotice={showNotice} onOpenCountOnlySettlement={openCountOnlySettlement} openRegistrationRequestId={participantRegistrationRequest} onRegistrationRequestHandled={consumeParticipantRegistrationRequest} participantStartRef={participantStartRef} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel><Allocation runtime={runtime} room={room} type="car" onNotice={showNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel><Allocation runtime={runtime} room={room} type="team" onNotice={showNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel><Settlement runtime={runtime} room={room} onNotice={showNotice} onOpenParticipantRegistration={openParticipantRegistration} onOpenSettings={openSettlementSettings} participantStartRef={participantStartRef} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} /></TabPanel>
         </TabPanels>
       </Tabs>}
     </div></Column></Grid>
     </main>
     </Theme>
-    {settlementSettingsEdit && <SettlementSettingsModal runtime={runtime} edit={settlementSettingsEdit} launcherButtonRef={settlementSettingsLauncher} onNotice={setNotice} onClose={closeSettlementSettings} />}
+    {settlementSettingsEdit && <SettlementSettingsModal runtime={runtime} edit={settlementSettingsEdit} launcherButtonRef={settlementSettingsLauncher} onNotice={showNotice} onClose={closeSettlementSettings} />}
     {globalModal === 'guide' && <Modal className="app-modal" open passiveModal size="md" closeButtonLabel="閉じる" modalHeading="使い方" onRequestClose={() => setGlobalModal('')}>
       <div className="user-guide"><p>参加者の選択、車割、班割、精算を上部の4つのタブから行います。</p><ol><li><strong>参加者</strong> 応募者を確認し、企画に参加する人を選びます。</li><li><strong>車割</strong> 車と参加者を割り当てます。</li><li><strong>班割</strong> 班と参加者を割り当てます。</li><li><strong>共有</strong> 右上の「企画のリンクをコピー」から通常の企画ルームURLをコピーします。</li><li><strong>精算</strong> 設定、車ごとの費用、集金・支払い状況を管理します。</li></ol></div>
     </Modal>}
-    {globalModal === 'overview' && <OverviewModal runtime={runtime} room={room} onNotice={setNotice} onClose={() => setGlobalModal('')} />}
-    {globalModal === 'history' && <HistoryModal runtime={runtime} onNotice={setNotice} onClose={() => setGlobalModal('')} />}
+    {globalModal === 'overview' && <OverviewModal runtime={runtime} room={room} onNotice={showNotice} onClose={() => setGlobalModal('')} />}
+    {globalModal === 'history' && <HistoryModal runtime={runtime} onNotice={showNotice} onClose={() => setGlobalModal('')} />}
     {globalModal === 'sample' && <Modal className="app-modal sample-modal" open size="sm" closeButtonLabel="閉じる" modalHeading={sampleType === 'reset' ? '企画データをリセット' : 'サンプルデータ'} primaryButtonText={sampleType === 'reset' ? 'リセットする' : 'サンプルを入れる'} secondaryButtonText="キャンセル" onRequestSubmit={seedSelectedSample} onRequestClose={() => setGlobalModal('')} selectorPrimaryFocus="#sample-normal">
       <div className="sample-form"><p>{sampleType === 'reset' ? '企画名、参加者、割り当て、精算情報を空に戻します。フォーム連携情報は保持されます。' : '現在の企画データを置き換えて、確認用サンプルを入れます。'}</p><RadioButtonGroup legendText="サンプルの種類" name="sample-type" valueSelected={sampleType} onChange={value => setSampleType(String(value))} orientation="vertical"><RadioButton id="sample-normal" labelText="通常サンプル" value="normal" /><RadioButton id="sample-form" labelText="フォーム連携サンプル" value="form" /><RadioButton id="sample-missing" labelText="入力漏れサンプル" value="missing" /><RadioButton id="sample-reset" labelText="リセット（空の状態にする）" value="reset" /></RadioButtonGroup>{(sampleType === 'normal' || sampleType === 'missing') && <Select id="sample-car-count" labelText="車の数" value={sampleCars} onChange={event => setSampleCars(event.target.value)}>{['2', '3', '4', '5'].map(value => <SelectItem key={value} value={value} text={`${value}台`} />)}</Select>}</div>
     </Modal>}
-    {globalModal === 'bug' && <BugModal runtime={runtime} room={room} onNotice={setNotice} onClose={() => setGlobalModal('')} />}
-    {notice && <div className="notification-region"><ToastNotification kind={noticeKind(notice)} title={notice} subtitle="" caption="" timeout={2600} onClose={() => { setNotice(''); return true; }} lowContrast /></div>}
+    {globalModal === 'bug' && <BugModal runtime={runtime} room={room} onNotice={showNotice} onClose={() => setGlobalModal('')} />}
+    {notice && <div className="notification-region"><ToastNotification key={notice} kind={noticeKind(notice)} title={notice} subtitle="" caption="" timeout={noticeTimeout} onClose={() => { setNotice(current => current === notice ? '' : current); return true; }} lowContrast /></div>}
   </Theme>;
 }

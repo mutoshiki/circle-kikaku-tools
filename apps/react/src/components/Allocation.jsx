@@ -61,9 +61,11 @@ export default function Allocation({ runtime, room, type, onNotice, onParticipan
   const groupLabel = type === 'team' ? '班' : '車';
   const roleLabel = type === 'team' ? '班長' : '運転手';
   const count = Object.keys(room.participants).length;
+  const randomizationStatus = runtime.store.domain.randomization.getRandomizationStatus(room, type);
+  const randomizationDescriptionId = `randomization-count-description-${type}`;
   const hasFormApplication = runtime.store.domain.applicants.validApplicationSync(room.meta?.applicationSync);
   function execute(command, args) {
-    try { runtime.store.command(command, args); return true; }
+    try { const result = runtime.store.command(command, args); return result !== null; }
     catch (error) { onNotice(error.message); return false; }
   }
   function openMoveEditor(id, fromWaiting = false) {
@@ -133,7 +135,7 @@ export default function Allocation({ runtime, room, type, onNotice, onParticipan
   if (!count) return <section className="allocation-page"><InitialEmptyState headingId={`${type}-initial-heading`} title={type === 'car' ? '車割を始める' : '班割を始める'} description={hasFormApplication ? 'フォームの応募者を確認して、参加者を選んでください。' : 'まず参加者を登録してください。'} primaryAction={{ label: hasFormApplication ? '参加者を確認' : '参加者を追加', onClick: onParticipants }} roomStatus={roomStatus} /></section>;
   return <section className="allocation-page" aria-label={type === 'team' ? '班割' : '車割'}>
     <div className="allocation-toolbar"><div className="allocation-toolbar-summary"><p><span>未割り当て <strong>{projection.waiting.length}人</strong></span><span className="row-detail">{count}人・{projection.cars.length}{type === 'team' ? '班' : '台'}</span></p></div>
-      <div className="allocation-toolbar-actions">{projection.waiting.length > 0 && <Button kind="ghost" size="sm" onClick={() => { setWaitingOpen(true); setTimeout(() => waitingSectionRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 0); }}>未割り当て {projection.waiting.length}人を確認</Button>}<Button kind="ghost" size="sm" renderIcon={Shuffle} onClick={() => setConfirmation({ title: 'ランダム割り当て', body: '班長・運転手と固定した参加者を除き、現在の割り当てを組み替えます。', button: '実行', action: () => execute('randomize', { type }) })}>ランダム割り当て</Button></div>
+      <div className="allocation-toolbar-actions">{projection.waiting.length > 0 && <Button kind="ghost" size="sm" onClick={() => { setWaitingOpen(true); setTimeout(() => waitingSectionRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 0); }}>未割り当て {projection.waiting.length}人を確認</Button>}<div className="allocation-randomization-action"><Button kind="ghost" size="sm" renderIcon={Shuffle} aria-describedby={randomizationDescriptionId} onClick={() => setConfirmation({ title: 'ランダム割り当て', body: '班長・運転手と固定した参加者を除き、現在の割り当てを組み替えます。', button: '実行', action: () => { try { const result = runtime.store.command('randomize', { type }); if (!result) { onNotice('ランダム割り当てできる参加者や空き枠がありません。'); return; } const currentCount = runtime.store.domain.randomization.getRandomizationStatus(runtime.store.getSnapshot(), type).count; onNotice(`${groupLabel === '車' ? '車割' : '班割'}のランダム割り当てを実行しました。${currentCount}回目。`); } catch (error) { onNotice(error.message); } } })}>ランダム割り当て</Button><span className="allocation-randomization-count" aria-hidden="true">実行 {randomizationStatus.count}回</span></div><span id={randomizationDescriptionId} className="cds--visually-hidden">現在の条件でランダム割り当てを{randomizationStatus.count}回実行しています。</span></div>
     </div>
     <div className="allocation-groups">{projection.cars.map(car => {
       const group = room.allocations[type].groups[car.groupId];
