@@ -100,6 +100,93 @@ test('car capacity leaves its stated number of passenger seats after the owner',
   assert.equal(passengers.length, 2);
 });
 
+test('team capacity includes the owner and rejects an extra member without changing the snapshot', () => {
+  const store = create();
+  const ids = Object.keys(store.getSnapshot().participants);
+  const [ownerId, ...memberIds] = ids;
+  store.command('createGroup', { type: 'team', ownerId, capacity: 5 });
+  const group = Object.values(store.getSnapshot().allocations.team.groups).find(item => item.ownerId === ownerId);
+  memberIds.slice(0, 4).forEach(id => store.command('move', { id, type: 'team', groupId: group.id }));
+  const fullSnapshot = store.getSnapshot();
+  const rejectedId = memberIds[4];
+
+  assert.throws(() => store.command('move', { id: rejectedId, type: 'team', groupId: group.id }), /空席/);
+  assert.equal(store.getSnapshot(), fullSnapshot);
+  assert.equal(store.getSnapshot().allocations.team.placements[rejectedId].kind, 'waiting');
+  assert.equal(Object.values(store.getSnapshot().allocations.team.placements).filter(placement => placement.kind === 'member' && placement.groupId === group.id).length, 5);
+});
+
+test('car capacity still admits its stored number of passengers after the owner', () => {
+  const store = create();
+  const [ownerId, ...memberIds] = Object.keys(store.getSnapshot().participants);
+  store.command('createGroup', { type: 'car', ownerId, capacity: 3 });
+  const group = Object.values(store.getSnapshot().allocations.car.groups).find(item => item.ownerId === ownerId);
+  memberIds.slice(0, 3).forEach(id => store.command('move', { id, type: 'car', groupId: group.id }));
+  assert.equal(Object.values(store.getSnapshot().allocations.car.placements).filter(placement => placement.kind === 'member' && placement.groupId === group.id).length, 4);
+});
+
+test('team group creation preserves capacity 100 instead of clamping it to 99', () => {
+  const store = create();
+  const [ownerId, carOwnerId] = Object.keys(store.getSnapshot().participants);
+  store.command('createGroup', { type: 'team', ownerId, capacity: 100 });
+  const group = Object.values(store.getSnapshot().allocations.team.groups).find(item => item.ownerId === ownerId);
+  assert.equal(group.capacity, 100);
+  store.command('createGroup', { type: 'car', ownerId: carOwnerId, capacity: 100 });
+  const carGroup = Object.values(store.getSnapshot().allocations.car.groups).find(item => item.ownerId === carOwnerId);
+  assert.equal(carGroup.capacity, 99);
+});
+
+test('random assignment leaves no movable member waiting when team capacity is available', () => {
+  const store = create();
+  const room = plain(store.getSnapshot());
+  const allocation = room.allocations.team;
+  const participantIds = Object.keys(room.participants);
+  const owners = participantIds.slice(0, 2);
+  const [fixedId, ...movableIds] = participantIds.slice(2, 6);
+  allocation.groups = {
+    team_a: { id: 'team_a', ownerId: owners[0], capacity: 3, order: 0, displayIndex: 1 },
+    team_b: { id: 'team_b', ownerId: owners[1], capacity: 3, order: 1, displayIndex: 2 },
+  };
+  allocation.placements = Object.fromEntries(Object.keys(room.participants).map((id, index) => [id, {
+    kind: 'waiting', driver: false, groupId: '', order: index,
+  }]));
+  owners.forEach((id, index) => {
+    allocation.placements[id] = { kind: 'member', driver: true, groupId: `team_${index ? 'b' : 'a'}`, order: 0 };
+  });
+  allocation.placements[fixedId] = { kind: 'member', driver: false, groupId: 'team_a', order: 1 };
+  room.participants[fixedId].locked = true;
+  participantIds.filter(id => id !== fixedId && !owners.includes(id) && !movableIds.includes(id)).forEach(id => { room.participants[id].locked = true; });
+  const randomized = createRoomStore({ initial: room, random: () => 0, clock: { now: () => 2000 } });
+
+  assert.equal(randomized.domain.assignment.randomSlotsFromCanonical(randomized.getSnapshot().allocations.team, randomized.getSnapshot().participants).length, 3);
+  randomized.command('randomize', { type: 'team' });
+  const result = randomized.getSnapshot().allocations.team;
+  const waiting = movableIds.filter(id => result.placements[id].kind === 'waiting');
+  assert.deepEqual(waiting, []);
+  for (const group of Object.values(result.groups)) {
+    assert.ok(Object.values(result.placements).filter(placement => placement.kind === 'member' && placement.groupId === group.id).length <= group.capacity);
+  }
+});
+
+test('random assignment gives a one-person team zero member slots', () => {
+  const store = create();
+  const room = plain(store.getSnapshot());
+  const ownerId = Object.keys(room.participants)[0];
+  const allocation = room.allocations.team;
+  const groupId = 'team_single';
+  allocation.groups = { [groupId]: { id: groupId, ownerId, capacity: 1, order: 0, displayIndex: 1 } };
+  allocation.placements = Object.fromEntries(Object.keys(room.participants).map((id, index) => [id, {
+    kind: id === ownerId ? 'member' : 'waiting', driver: id === ownerId, groupId: id === ownerId ? groupId : '', order: index,
+  }]));
+  const randomized = createRoomStore({ initial: room, random: () => 0, clock: { now: () => 2000 } });
+
+  randomized.command('randomize', { type: 'team' });
+  const result = randomized.getSnapshot().allocations.team;
+  assert.equal(Object.values(result.placements).filter(placement => placement.kind === 'member' && placement.groupId === groupId).length, 1);
+  assert.equal(Object.values(result.placements).filter(placement => placement.kind === 'waiting').length, Object.keys(room.participants).length - 1);
+  assert.equal(randomized.domain.assignment.randomSlotsFromCanonical(result, randomized.getSnapshot().participants).length, 0);
+});
+
 test('allocation group labels are stable and new teams count the leader in total capacity', () => {
   const store = create();
   let room = plain(store.getSnapshot());
@@ -121,7 +208,7 @@ test('allocation group labels are stable and new teams count the leader in total
   room = plain(store.getSnapshot());
   projected = store.domain.canonical.projectAllocation(room, 'team');
   assert.deepEqual(projected.cars.map(group => group.groupDisplayName), ['A班', 'C班', 'D班']);
-  assert.equal(projected.cars.at(-1).capacity + 1, 6);
+  assert.equal(projected.cars.at(-1).capacity, 5);
   const displayNames = projected.cars.map(group => group.groupDisplayName);
   const oldClientProjection = projected.cars.map(({ displayIndex, ...car }) => car);
   store.domain.canonical.applyProjectedPlan(room, { name: '班割', cars: oldClientProjection, waiting: projected.waiting }, 'team');

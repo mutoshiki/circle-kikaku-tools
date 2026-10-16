@@ -219,7 +219,7 @@
     ]
   },
   "assets/js/features/auto-assign.js": {
-    "sha256": "c7b488cfa05bb2864ab94163af68039cdeb3eadb2e2ad130884eba4c1eb9fee9",
+    "sha256": "6d73f15bb3580f13ffb810af85f8a1951f3440f9e421af6d027a7850aaaa131d",
     "declarations": [
       "shuffleArray",
       "isRandomlyMovablePlacement",

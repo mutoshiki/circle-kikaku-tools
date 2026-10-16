@@ -118,7 +118,7 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
       const order = Object.values(allocation.groups).reduce((highest, group) => Math.max(highest, Number(group.order || 0)), -1) + 1;
       const displayIndex = Math.max(1, Number(allocation.nextDisplayIndex) || 1, ...Object.values(allocation.groups).map(group => (Number(group.displayIndex) || 0) + 1));
       allocation.nextDisplayIndex = displayIndex + 1;
-      allocation.groups[groupId] = { id: groupId, ownerId, capacity: Math.max(1, Math.min(99, parseInt(capacity) || (type === 'team' ? 5 : 3))), order, displayIndex, createdAt: now, updatedAt: now };
+      allocation.groups[groupId] = { id: groupId, ownerId, capacity: Math.max(1, Math.min(type === 'team' ? 100 : 99, parseInt(capacity) || (type === 'team' ? 5 : 3))), order, displayIndex, createdAt: now, updatedAt: now };
       allocation.placements[ownerId] = { kind: 'member', groupId, driver: true, order, updatedAt: now };
       domain.canonical.ensureAllParticipantsPlaced(allocation, room.participants);
     },
@@ -144,8 +144,10 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
       if (sourceGroupId && sourceGroupId === groupId) return;
       if (groupId) {
         const group = allocation.groups[groupId];
-        const occupants = Object.entries(allocation.placements).filter(([pid, p]) => pid !== id && pid !== group.ownerId && p.groupId === groupId);
-        if (id !== group.ownerId && occupants.length >= group.capacity) throw new Error('空席がありません。');
+        const memberCount = Object.entries(allocation.placements).filter(([participantId, placement]) => participantId !== id
+          && participantId !== group.ownerId && placement?.kind === 'member' && placement.groupId === groupId).length;
+        const memberCapacity = Math.max(0, group.capacity - (type === 'team' ? 1 : 0));
+        if (id !== group.ownerId && memberCount >= memberCapacity) throw new Error('空席がありません。');
       }
       if (sourceGroup) {
         const replacements = Object.entries(allocation.placements)
