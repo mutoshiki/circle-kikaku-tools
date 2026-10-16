@@ -64,11 +64,10 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   const editCost = page.getByRole('dialog', { name: /藤原 拓海車/ });
   await expect(editCost).toBeVisible();
   await editCost.getByRole('button', { name: 'キャンセル', exact: true }).click();
-  const expand = paymentCard.getByRole('button', { name: /割勘.*部費/ });
+  const expand = paymentCard.getByRole('button', { name: /支払い内訳/ });
   await expand.click();
   await expect(expand).toHaveAttribute('aria-expanded', 'true');
   await expect(paymentCard.getByRole('heading', { name: '割勘', exact: true })).toBeVisible();
-  await expect(paymentCard.getByRole('heading', { name: /^部費/ })).toBeVisible();
   await expect(paymentCard.getByText('費用小計', { exact: true })).toHaveCount(0);
   await expect(paymentCard.getByText('支払総額', { exact: true })).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
