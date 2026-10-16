@@ -27,7 +27,8 @@ function randomSlotsFromCanonical(allocation, participants = {}) {
                     && (placement.driver === true || participants?.[participantId]?.locked === true))
                 .length;
             const capacity = Math.max(1, parseInt(group?.capacity, 10) || 1);
-            return Array.from({ length: Math.max(0, capacity - fixedMembers) }, (_, order) => ({ groupId: group.id, order }));
+            const memberCapacity = Math.max(0, capacity - (allocation?.type === 'team' ? 1 : 0));
+            return Array.from({ length: Math.max(0, memberCapacity - fixedMembers) }, (_, order) => ({ groupId: group.id, order }));
         });
 }
 

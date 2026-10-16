@@ -4,20 +4,30 @@ import { Add, Shuffle, ChevronDown, ChevronUp, Pin, PinFilled, Flag } from '@car
 import ParticipantEditor from './ParticipantEditor.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
 import InitialEmptyState from './InitialEmptyState.jsx';
+import { getCapacitySummary, toStoredCapacity } from './allocation-capacity.js';
 
 function GroupEditor({ runtime, room, type, group, onClose, onNotice }) {
   const allocation = room.allocations[type];
   const candidates = Object.entries(allocation.placements).filter(([, p]) => p.kind === 'waiting').map(([id]) => room.participants[id]);
   const [ownerId, setOwnerId] = useState(group?.ownerId || candidates[0]?.id || '');
-  const [capacity, setCapacity] = useState(group ? group.capacity + (type === 'team' ? 1 : 0) : (type === 'team' ? 6 : 3));
+  const initialCapacity = group ? group.capacity + (type === 'car' ? 1 : 0) : (type === 'team' ? 6 : 4);
+  const [capacity, setCapacity] = useState(initialCapacity);
   const [error, setError] = useState('');
   const label = type === 'team' ? '班' : '車';
-  const minimum = type === 'team' ? 2 : 1;
-  const maximum = type === 'team' ? 100 : 99;
+  const minimum = type === 'team' ? 1 : 2;
+  const maximum = 100;
+  const currentOccupancy = group ? Object.values(allocation.placements).filter(placement => placement.kind === 'member' && placement.groupId === group.id).length : 0;
+  const numericCapacity = capacity === '' ? NaN : Number(capacity);
+  const capacityUnchanged = !!group && numericCapacity === initialCapacity;
+  const willUnassignMembers = !!group && Number.isInteger(numericCapacity) && numericCapacity < currentOccupancy;
   function save() {
-    if (!ownerId || Number(capacity) < minimum || Number(capacity) > maximum) { setError(`参加者と${minimum}〜${maximum}人の定員を指定してください。`); return; }
+    if (!Number.isFinite(numericCapacity) || !Number.isInteger(numericCapacity) || (!capacityUnchanged && (numericCapacity < minimum || numericCapacity > maximum))) {
+      setError(`${minimum}〜${maximum}人の整数で入力してください。`); return;
+    }
+    if (!ownerId) { setError(`参加者を選択してから${label}を追加してください。`); return; }
+    if (capacityUnchanged) { onClose(); return; }
     try {
-      const storedCapacity = Number(capacity) - (type === 'team' ? 1 : 0);
+      const storedCapacity = toStoredCapacity(type, numericCapacity);
       runtime.store.command(group ? 'capacity' : 'createGroup', group ? { type, groupId: group.id, capacity: storedCapacity } : { type, ownerId, capacity: storedCapacity });
       onNotice(group ? '定員を更新しました。' : `${label}を追加しました。`); onClose();
     } catch (caught) { setError(caught.message); }
@@ -26,7 +36,7 @@ function GroupEditor({ runtime, room, type, group, onClose, onNotice }) {
     <div className="form-stack">
       {error && <InlineNotification kind="error" title={error} hideCloseButton lowContrast />}
       {!group && <Select id="group-owner" labelText={type === 'team' ? '班長' : '運転手'} value={ownerId} onChange={event => setOwnerId(event.target.value)}>{candidates.map(person => <SelectItem key={person.id} value={person.id} text={person.name} />)}</Select>}
-      <NumberInput id="group-capacity" label={type === 'team' ? '定員（班長を含む）' : '定員'} min={minimum} max={maximum} value={capacity} onChange={(_, { value }) => setCapacity(value)} invalidText={`${minimum}〜${maximum}人で入力してください。`} />
+      <NumberInput id="group-capacity" label={type === 'team' ? '定員（班長を含む）' : '定員（運転手を含む）'} min={minimum} max={maximum} allowEmpty value={capacity} invalid={!!error} invalidText={error || `${minimum}〜${maximum}人の整数で入力してください。`} helperText={willUnassignMembers ? '定員を減らすと、超過した参加者は未割り当てに戻ります。' : undefined} onChange={(_, { value }) => { setCapacity(value); setError(''); }} />
     </div>
   </Modal>;
 }
@@ -60,9 +70,8 @@ export default function Allocation({ runtime, room, type, onNotice, onParticipan
     const currentGroupId = room.allocations[type].placements[id]?.groupId || '';
     const targets = projection.cars.filter(car => car.participantId !== id && car.groupId !== currentGroupId).map(car => {
       const group = room.allocations[type].groups[car.groupId];
-      const occupied = type === 'team' ? car.displayMemberCount : car.members.length;
-      const capacity = group.capacity + (type === 'team' ? 1 : 0);
-      return { ...car, hasCapacity: occupied < capacity };
+      const summary = getCapacitySummary(type, group.capacity, car.members.length);
+      return { ...car, ...summary, hasCapacity: summary.remaining > 0 };
     });
     if (!targets.length) { onNotice(`移動できる${groupLabel}がありません。`); return; }
     setMoveTarget((targets.find(car => car.hasCapacity) || targets[0]).groupId);
@@ -128,13 +137,11 @@ export default function Allocation({ runtime, room, type, onNotice, onParticipan
     </div>
     <div className="allocation-groups">{projection.cars.map(car => {
       const group = room.allocations[type].groups[car.groupId];
-      const occupied = type === 'team' ? car.displayMemberCount : car.members.length;
-      const totalCapacity = group.capacity + (type === 'team' ? 1 : 0);
-      const empty = Math.max(0, totalCapacity - occupied);
+      const { occupied, totalCapacity, remaining: empty } = getCapacitySummary(type, group.capacity, car.members.length);
       const expanded = !!openCandidates[group.id];
       const name = car.groupDisplayName;
       return <section className="allocation-group" key={group.id} aria-label={name}>
-        <div className="group-heading"><h2 id={`${group.id}-heading`} tabIndex={-1}>{name}</h2><div className="inline-actions"><span className="group-capacity-display cds--type-body-compact-01">{type === 'team' ? `班員 ${occupied}/${totalCapacity}人` : `${occupied}/${totalCapacity}人`}</span><OverflowMenu ariaLabel={`${name}の操作`} iconDescription={`${name}の操作`} size={isMobile ? 'lg' : 'sm'} flipped><OverflowMenuItem itemText="定員変更" onClick={() => setGroupEditor({ group })} /><OverflowMenuItem itemText={`${groupLabel}を削除`} hasDivider isDelete onClick={() => setConfirmation({ title: `${groupLabel}を削除しますか？`, body: '割り当てた参加者を未割り当てに戻します。', button: '削除', danger: true, action: () => execute('deleteGroup', { type, groupId: group.id }) })} /></OverflowMenu></div></div>
+        <div className="group-heading"><h2 id={`${group.id}-heading`} tabIndex={-1}>{name}</h2><div className="inline-actions"><span className="group-capacity-display cds--type-body-compact-01">{occupied}/{totalCapacity}人</span><OverflowMenu ariaLabel={`${name}の操作`} iconDescription={`${name}の操作`} size={isMobile ? 'lg' : 'sm'} flipped><OverflowMenuItem itemText="定員変更" onClick={() => setGroupEditor({ group })} /><OverflowMenuItem itemText={`${groupLabel}を削除`} hasDivider isDelete onClick={() => setConfirmation({ title: `${groupLabel}を削除しますか？`, body: '割り当てた参加者を未割り当てに戻します。', button: '削除', danger: true, action: () => execute('deleteGroup', { type, groupId: group.id }) })} /></OverflowMenu></div></div>
         <ContainedList label={name} className="allocation-person-list" size="lg">{personRow({ ...car, id: car.participantId })}{car.members.map(person => personRow(person))}</ContainedList>
         {empty > 0 && <Button ref={node => node ? seatButtons.current.set(group.id, node) : seatButtons.current.delete(group.id)} className="empty-seats-action" kind="ghost" renderIcon={expanded ? ChevronUp : ChevronDown} aria-expanded={expanded} aria-controls={`${group.id}-candidates`} onClick={() => setOpenCandidates(current => ({ ...current, [group.id]: !expanded }))}><span className="empty-seat-count">あと{empty}人追加可</span><span className="empty-seat-action-label">未割り当てから追加</span></Button>}
         {expanded && empty > 0 && <ContainedList id={`${group.id}-candidates`} label={`${name}に追加する参加者`} kind="disclosed" size="lg">{projection.waiting.map((person, index) => <ContainedListItem key={person.participantId} action={<IconButton ref={node => node ? candidateButtons.current.set(`${group.id}:${person.participantId}`, node) : candidateButtons.current.delete(`${group.id}:${person.participantId}`)} kind="ghost" size={isMobile ? 'lg' : 'sm'} label={`${person.name}を${name}に追加`} onClick={() => { if (execute('move', { id: person.participantId, type, groupId: group.id, order: car.members.length })) { onNotice(`${person.name}を${name}に追加しました。`); focusAfterCandidateAdd(group.id, person.participantId, projection.waiting.filter((_, i) => i !== index)); } }}><Add /></IconButton>}>{person.name}</ContainedListItem>)}{!projection.waiting.length && <ContainedListItem>追加できる参加者がいません</ContainedListItem>}</ContainedList>}
@@ -144,7 +151,7 @@ export default function Allocation({ runtime, room, type, onNotice, onParticipan
     {projection.waiting.length > 0 && <div className="waiting-section" ref={waitingSectionRef}><Button kind="ghost" renderIcon={waitingOpen ? ChevronUp : ChevronDown} aria-expanded={waitingOpen} onClick={() => setWaitingOpen(value => !value)}>未割り当て {projection.waiting.length}人</Button>{waitingOpen && <ContainedList label="未割り当て" size="lg">{projection.waiting.map(person => personRow(person, true))}</ContainedList>}</div>}
     {editor && <ParticipantEditor runtime={runtime} session={editor} onClose={() => setEditor(null)} onNotice={onNotice} />}
     {groupEditor && <GroupEditor runtime={runtime} room={room} type={type} group={groupEditor.group} onClose={() => setGroupEditor(null)} onNotice={onNotice} />}
-    {moveEditor && <Modal open size="sm" modalHeading={moveEditor.fromWaiting ? `${room.participants[moveEditor.id]?.name || '参加者'}の割り当て先を選択` : `${room.participants[moveEditor.id]?.name || '参加者'}を別の${groupLabel}へ移す`} primaryButtonText="移動" secondaryButtonText="キャンセル" primaryButtonDisabled={!moveEditor.targets.find(car => car.groupId === moveTarget)?.hasCapacity} onRequestSubmit={() => { const target = moveEditor.targets.find(car => car.groupId === moveTarget); if (target?.hasCapacity && execute('move', { id: moveEditor.id, type, groupId: target.groupId, order: target.members.length })) { onNotice(`${room.participants[moveEditor.id]?.name || '参加者'}を${target.groupDisplayName}へ移しました。`); setMoveEditor(null); } }} onRequestClose={() => setMoveEditor(null)}><div className="form-stack">{moveEditor.sourceGroupWillBeRemoved && <p>{`この参加者だけの${groupLabel}なので、移動すると元の${groupLabel}は削除されます。`}</p>}<Select id="allocation-move-target" labelText="移動先" value={moveTarget} onChange={event => setMoveTarget(event.target.value)}>{moveEditor.targets.map(car => { const capacity = room.allocations[type].groups[car.groupId].capacity + (type === 'team' ? 1 : 0); const occupied = type === 'team' ? car.displayMemberCount : car.members.length; return <SelectItem key={car.groupId} disabled={!car.hasCapacity} value={car.groupId} text={`${car.groupDisplayName}（${occupied}/${capacity}人${car.hasCapacity ? '' : '・満員'}）`} />; })}</Select></div></Modal>}
+    {moveEditor && <Modal open size="sm" modalHeading={moveEditor.fromWaiting ? `${room.participants[moveEditor.id]?.name || '参加者'}の割り当て先を選択` : `${room.participants[moveEditor.id]?.name || '参加者'}を別の${groupLabel}へ移す`} primaryButtonText="移動" secondaryButtonText="キャンセル" primaryButtonDisabled={!moveEditor.targets.find(car => car.groupId === moveTarget)?.hasCapacity} onRequestSubmit={() => { const target = moveEditor.targets.find(car => car.groupId === moveTarget); if (target?.hasCapacity && execute('move', { id: moveEditor.id, type, groupId: target.groupId, order: target.members.length })) { onNotice(`${room.participants[moveEditor.id]?.name || '参加者'}を${target.groupDisplayName}へ移しました。`); setMoveEditor(null); } }} onRequestClose={() => setMoveEditor(null)}><div className="form-stack">{moveEditor.sourceGroupWillBeRemoved && <p>{`この参加者だけの${groupLabel}なので、移動すると元の${groupLabel}は削除されます。`}</p>}<Select id="allocation-move-target" labelText="移動先" value={moveTarget} onChange={event => setMoveTarget(event.target.value)}>{moveEditor.targets.map(car => <SelectItem key={car.groupId} disabled={!car.hasCapacity} value={car.groupId} text={`${car.groupDisplayName}（${car.occupied}/${car.totalCapacity}人${car.hasCapacity ? '' : '・満員'}）`} />)}</Select></div></Modal>}
     {confirmation && <Modal open size="xs" modalHeading={confirmation.title} danger={confirmation.danger} primaryButtonText={confirmation.button} secondaryButtonText="キャンセル" onRequestSubmit={() => { confirmation.action(); setConfirmation(null); }} onRequestClose={() => setConfirmation(null)}><p>{confirmation.body}</p></Modal>}
   </section>;
 }
