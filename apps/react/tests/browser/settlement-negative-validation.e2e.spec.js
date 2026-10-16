@@ -16,7 +16,11 @@ test.beforeEach(async ({ page }, testInfo) => {
 
 test('expense editor rejects negative values and a zero-value row preserves settlement results', async ({ page }) => {
   const firstCar = page.locator('.settlement-car').first();
-  const originalBreakdown = (await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, '');
+  const paymentView = async car => JSON.stringify({
+    amounts: (await car.locator('.settlement-car-amounts').innerText()).replace(/\s+/g, ''),
+    breakdown: (await car.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, ''),
+  });
+  const originalBreakdown = await paymentView(firstCar);
   await page.getByRole('button', { name: /費用を(?:入力|編集)/ }).first().click();
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('button', { name: '新しい費用を追加' }).click();
@@ -38,11 +42,11 @@ test('expense editor rejects negative values and a zero-value row preserves sett
   await expect(dialog.locator('.settlement-cost-editor')).toBeVisible();
   await dialog.getByRole('button', { name: '費用を保存' }).click();
 
-  expect((await firstCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, '')).toBe(originalBreakdown);
+  expect(await paymentView(firstCar)).toBe(originalBreakdown);
   await page.reload();
   await page.getByRole('tab', { name: '精算', exact: true }).click();
   const reloadedCar = page.locator('.settlement-car').first();
-  expect((await reloadedCar.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, '')).toBe(originalBreakdown);
+  expect(await paymentView(reloadedCar)).toBe(originalBreakdown);
   await page.getByRole('button', { name: /費用を(?:入力|編集)/ }).first().click();
   const reloadedDialog = page.getByRole('dialog');
   const zeroCost = reloadedDialog.getByRole('listitem').filter({ hasText: 'E2Eゼロ円' });
