@@ -230,8 +230,8 @@
 - [x] `npm.cmd run build` と `git diff --check` はPASS。`verify:legacy` は既存の保護対象 legacy ファイル差分で失敗。`node tools/extract-domain.mjs --check` は既存の `canonical.js` 生成ドリフトで失敗。今回変更はどちらの範囲にも含まれない。
 - [x] 公開manifestのsource SHA `b2ba4f9574d391c2d5bf8281b69e581ee6d2f2f7` とdigestを再取得済み。最終変更後もlocal-only previewのbuild/checkが成功。
 - [x] 新規の同期・store変更なので、React UIのみの公開経路を使わず、compatibility確認を含む標準経路を選択。
-- [ ] 実装依頼時の公開範囲とrepoルールに従い、push/PR/CI/merge、対象main SHAのReadiness、React Production Release、公開manifest SHA/digest、両ブラウザproduction smokeと専用room cleanupを確認する。
-- [ ] 成功済みの同一SHAのチェックを理由なく繰り返さない。不具合が出た範囲だけ原因に沿って再確認する。
+- [x] PR [#108](https://github.com/mutoshiki/circle-kikaku-tools/pull/108) をmergeし、main SHA `851cb1a4c90fde012ad84eee47a3403689dac9ef` の全CI/Release Readinessを確認。 [React Production Release run 38985261814](https://github.com/mutoshiki/circle-kikaku-tools/actions/runs/38985261814) はmigration経路のcompatibility→rootで成功し、各段階のChromium/WebKit smoke、専用room cleanup、rollback payload保存が成功。
+- [x] 公開manifestはsource SHA `851cb1a4c90fde012ad84eee47a3403689dac9ef`、asset digest `647a68524eebd8bf4fae02791a8617daf103bc5c3929bd4ff5cc6dd009a2d2de` と一致。公開root HTTP 200。成功済みの同一SHAチェックは再実行していない。
 
 ## 受け入れ条件
 
@@ -254,6 +254,6 @@
 ## 計画の自己確認
 
 - 全仕様はTasks 1〜4と受け入れ条件に対応。Review Focusの5項目はTasks 1〜3のテストへ割り当てた。
-- Tasks 1〜4の実装・テストを完了。offline単体136件、Chromium/WebKit desktop/mobile 32件、Emulator 3件、production build、local-only previewのbuild/checkと実ブラウザー確認は成功。保護ファイル/抽出確認は既存baseline driftで失敗し、内容をTask 5に記録。push/PR/CI/merge後の本番Release Readiness・Production Release・smoke・cleanupはこれから実施する。
+- Tasks 1〜5を完了。offline単体136件、Chromium/WebKit desktop/mobile 32件、Emulator 3件、main SHAのCI/Readiness、production build、local-only previewのbuild/checkと実ブラウザー確認、migration経路のcompatibility/root production smoke・cleanupに成功。ローカル保護ファイル/抽出確認は既存baseline driftで失敗したが、PR比較のLegacy checksを含むmain CIは成功。
 - 初期案からの具体化: 共通ピンは両側reset、通常移動でもgroup/役割/固定配置が変われば対象側reset。現行データモデルに基づく仕様。
 
