@@ -499,7 +499,7 @@ test('collection uses a Carbon modal with one scrolling body, filters, copy, and
   await expect(dialog).not.toBeVisible();
   await page.getByRole('button', { name: '集金を記録' }).click();
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole('tab', { name: '未回収' })).toHaveAttribute('aria-selected', 'true');
+  await expect(dialog.getByRole('tab', { name: 'すべて' })).toHaveAttribute('aria-selected', 'true');
   await expect(dialog.getByText(/集金\s*\d+\/\d+人/)).toHaveCount(0);
   await expect(dialog.getByText(/残り\s*¥/)).toHaveCount(0);
   await expect(dialog.getByText('集金不要', { exact: true })).toHaveCount(0);
@@ -1048,7 +1048,7 @@ test('vehicle settlement presents expense and breakdown with an accessible Carbo
     top: getComputedStyle(element).borderBlockStartStyle,
     bottom: getComputedStyle(element).borderBlockEndStyle,
   })));
-  expect(articleSeparators.every(separator => separator.top === 'none' && separator.bottom === 'none')).toBe(true);
+  expect(articleSeparators.every((separator, index) => separator.bottom === 'none' && separator.top === (index === 0 ? 'none' : 'solid'))).toBe(true);
   await expect(car.locator('.settlement-car-breakdown-item')).toHaveCSS('border-block-start-style', 'none');
   await expect(car.locator('.settlement-car-breakdown-item')).toHaveCSS('border-block-end-style', 'none');
 
@@ -1216,7 +1216,7 @@ test('settlement WebKit text and control size audit', async ({ page }, testInfo)
       const buttons = [...root.querySelectorAll('button')].filter(visible).map(button => {
         const rect = button.getBoundingClientRect();
         const label = (button.innerText || button.getAttribute('aria-label') || button.title || '').trim().replace(/\s+/g, ' ');
-        return { label, height: Math.round(rect.height), width: Math.round(rect.width), fontSize: Number.parseFloat(getComputedStyle(button).fontSize), iconOnly: !button.innerText.trim() && !!button.querySelector('svg'), nonInteractive: button.classList.contains('cds--progress-step-button--unclickable') };
+        return { label, height: Math.round(rect.height), width: Math.round(rect.width), fontSize: Number.parseFloat(getComputedStyle(button).fontSize), iconOnly: !button.innerText.trim() && !!button.querySelector('svg'), nonInteractive: button.classList.contains('cds--progress-step-button--unclickable'), focusSentinel: button.getAttribute('aria-label') === 'Focus sentinel' };
       });
       const textNodes = [];
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -1236,7 +1236,7 @@ test('settlement WebKit text and control size audit', async ({ page }, testInfo)
         buttonCount: buttons.length,
         textCount: textNodes.length,
         smallestButtonText: buttons.filter(button => button.label && !button.iconOnly && button.fontSize < 14),
-        smallestButtons: buttons.filter(button => !button.nonInteractive && button.height < 32),
+        smallestButtons: buttons.filter(button => !button.nonInteractive && !button.focusSentinel && button.height < 32),
         iconTargetsBelow44: iconTargets.filter(target => target.height < 44 || target.width < 44),
         menuItems,
         smallestText: textNodes.filter(node => node.fontSize < 12).sort((a, b) => a.fontSize - b.fontSize).slice(0, 12),

@@ -6,7 +6,7 @@ export async function openVehicleExpenseEditor(page, { carLabel, action }) {
     has: page.getByRole('heading', { name: carLabel, exact: true }),
   }).first();
   await car.getByRole('button', { name: `${carLabel}の費用を${action}`, exact: true }).click();
-  return page.getByRole('dialog', { name: carLabel, exact: true });
+  return page.getByRole('dialog', { name: new RegExp(`^${carLabel}：`) });
 }
 
 export async function openRoutePlannerFromMovementSettings(dialog) {

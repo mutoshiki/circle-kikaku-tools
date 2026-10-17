@@ -35,7 +35,7 @@ test('guidance, CSV, utility report, notifications and URL security', async ({ p
   const guidance = page.getByRole('dialog', { name: '参加者発表文を作成' });
   await guidance.getByLabel('集合時間').fill('08:30');
   await expect(guidance.getByLabel('発表文プレビュー')).toHaveValue(/参加者を発表します/);
-  await guidance.getByRole('button', { name: '閉じる' }).click();
+  await guidance.getByLabel('閉じる').click();
 
   await page.getByRole('button', { name: '引き継ぎデータを作成' }).click();
   const download = page.waitForEvent('download');
