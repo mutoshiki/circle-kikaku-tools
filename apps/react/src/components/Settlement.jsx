@@ -1,6 +1,6 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Accordion, AccordionItem, Button, Callout, Checkbox, ContainedList, ContainedListItem, ContentSwitcher, IconButton, InlineNotification, Modal,
+  Accordion, AccordionItem, Button, Callout, Checkbox, ComposedModal, ContainedList, ContainedListItem, ContentSwitcher, IconButton, InlineNotification, Modal, ModalBody, ModalFooter, ModalHeader,
   NumberInput, RadioButton, RadioButtonGroup,
   Select, SelectItem, Switch, Tag, TextArea, TextInput, Tile, OverflowMenu, OverflowMenuItem,
 } from '@carbon/react';
@@ -119,7 +119,7 @@ function getExtraCandidates(state, domain, currentCar) {
   return [...candidates.values()];
 }
 
-function CarEditor({ runtime, edit, onClose, onNotice }) {
+function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
   const domain = runtime.store.domain.settlement;
   const isMobile = useMediaQuery('(max-width: 671px)');
   const [, render] = useState(0);
@@ -290,7 +290,10 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
   const submit = () => { if (view === 'expense') void save(); else if (view === 'extra') { setExpenseAttempted(true); if (expenseComplete) returnToList(); } else if (view === 'movement') { setMovementAttempted(true); if (movementValid) changeView('expense'); } else routeRef.current?.apply(); };
   const returnToList = () => { setError(''); changeView('expense'); };
   const modalHeading = view === 'route' ? '移動距離計算ツール' : view === 'movement' ? `${movementLabel}を設定` : view === 'extra' ? (extraMode === 'add' ? '費用を追加' : `${activeExtra?.row.name || '費用'}を編集`) : '費用を編集';
-  return <Modal className={`app-modal settlement-car-modal settlement-task-modal${view === 'movement' ? ' settlement-movement-modal' : view === 'route' ? ' settlement-route-modal' : ''}${contentAtBottom ? ' settlement-modal-at-bottom' : ''}`} onScrollCapture={handleModalScroll} open size={view === 'route' ? 'lg' : view === 'movement' ? 'md' : 'sm'} hasScrollingContent={view === 'movement' || (['expense', 'extra'].includes(view) && contentHasOverflow)} closeButtonLabel="閉じる" modalAriaLabel={`${name}車の費用を編集`} modalLabel={`${name}車`} modalHeading={modalHeading} primaryButtonText={view === 'route' && routeStatus.hidePrimaryButton ? undefined : primaryLabel} secondaryButtons={[{ buttonText: view === 'expense' ? 'キャンセル' : '戻る', onClick: view === 'expense' ? () => onClose(false) : view === 'extra' ? returnToList : back }]} primaryButtonDisabled={primaryDisabled} onRequestSubmit={submit} onRequestClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus={view === 'route' ? '#route-origin-action .cds--contained-list-item__content' : view === 'movement' ? '#settlement-rental-type' : view === 'extra' ? `#settlement-extra-name-${activeExtra?.index ?? 0}` : returnFocusId}>
+  return <ComposedModal className={`app-modal settlement-car-modal settlement-task-modal${view === 'movement' ? ' settlement-movement-modal' : view === 'route' ? ' settlement-route-modal' : ''}${contentAtBottom ? ' settlement-modal-at-bottom' : ''}`} onScrollCapture={handleModalScroll} open size={view === 'route' ? 'lg' : view === 'movement' ? 'md' : 'sm'} aria-label={`${name}車：${modalHeading}`} launcherButtonRef={launcherButtonRef} onClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus={view === 'route' ? '#route-origin-action .cds--contained-list-item__content' : view === 'movement' ? '#settlement-rental-type' : view === 'extra' ? `#settlement-extra-name-${activeExtra?.index ?? 0}` : returnFocusId}>
+    <ModalHeader label={`${name}車`} title={modalHeading} iconDescription="閉じる" />
+    <ModalBody hasScrollingContent={view === 'movement' || (['expense', 'extra'].includes(view) && contentHasOverflow)} aria-labelledby="settlement-car-modal-region-title">
+      <span id="settlement-car-modal-region-title" className="cds--visually-hidden">{name}車：{modalHeading}の内容</span>
     {view === 'expense' && <div className="form-stack settlement-car-form" onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}>
       {(error || validationMessage) && <InlineNotification kind="error" title="入力内容を確認してください" subtitle={error || validationMessage} hideCloseButton lowContrast />}
       {removedExpense && <Callout className="settlement-cost-deleted" kind="success" titleId="settlement-cost-deleted-title" title={`${removedExpense.row.name || '費用'}を削除しました`} actionButtonLabel="元に戻す" onActionButtonClick={undoRemoveExpense} lowContrast />}
@@ -328,11 +331,13 @@ function CarEditor({ runtime, edit, onClose, onNotice }) {
     </div>}
     {view === 'movement' && <MovementSettingsView car={car} domain={domain} isMobile={isMobile} movementAmount={movementAmount} movementLabel={movementLabel} movementFormula={movementFormula} movementType={movement?.type} movementErrors={movementErrors} movementTouched={movementTouched} movementAttempted={movementAttempted} movementComplete={movementComplete} onBlurField={key => setMovementTouched(current => ({ ...current, [key]: true }))} onOpenRoute={() => changeView('route')} onRentalType={setRentalType} onMovementType={setMovementType} onUpdate={update} />}
     <div aria-hidden={view !== 'route'} style={{ display: view === 'route' ? undefined : 'none' }}><RoutePlanner ref={routeRef} runtime={runtime} isMobile={isMobile} isActive={view === 'route'} onStatusChange={setRouteStatus} onApply={value => { update({ dist: value }); changeView('movement'); onNotice('計算した距離を入力しました。'); }} /></div>
-  </Modal>;
+    </ModalBody>
+    <ModalFooter primaryButtonText={view === 'route' && routeStatus.hidePrimaryButton ? undefined : primaryLabel} secondaryButtons={[{ buttonText: view === 'expense' ? 'キャンセル' : '戻る', onClick: view === 'expense' ? () => onClose(false) : view === 'extra' ? returnToList : back }]} primaryButtonDisabled={primaryDisabled} onRequestSubmit={submit} onRequestClose={() => onClose(false)} />
+  </ComposedModal>;
 }
 
 function CollectionPrompt({ value, onChange, onSave, onClose }) {
-  return <Modal open size="xs" modalHeading="集金済みにする" primaryButtonText="保存" secondaryButtonText="キャンセル" onRequestSubmit={onSave} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#settlement-collector">
+  return <Modal className="app-modal" open size="xs" modalHeading="集金済みにする" closeButtonLabel="閉じる" primaryButtonText="保存" secondaryButtonText="キャンセル" onRequestSubmit={onSave} onRequestClose={onClose} preventCloseOnClickOutside selectorPrimaryFocus="#settlement-collector">
     <TextInput id="settlement-collector" labelText="集金した人" value={value} onChange={event => onChange(event.target.value)} />
   </Modal>;
 }
@@ -347,6 +352,9 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
   const visibleIssues = issues.messages.filter(message => !isMovementCalculationIssue(message) && !isExpenseInputIssue(message));
   const settlementStartRef = useRef(null);
   const settlementSettingsTriggerRef = useRef(null);
+  const paymentHeadingRef = useRef(null);
+  const carLauncherElement = useRef(null);
+  const carLauncherButtonRef = useMemo(() => ({ get current() { return carLauncherElement.current?.isConnected ? carLauncherElement.current : paymentHeadingRef.current; } }), []);
   const lastHandledSettingsRequest = useRef(0);
   const [carEdit, setCarEdit] = useState(null);
   const [driverNameEdit, setDriverNameEdit] = useState(null);
@@ -355,8 +363,20 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
   const [memo, setMemo] = useState(null);
   const [memoEditing, setMemoEditing] = useState(false);
   const [collectionOpen, setCollectionOpen] = useState(false);
-  const [collectionView, setCollectionView] = useState('unpaid');
+  const [collectionView, setCollectionView] = useState('all');
+  const [pendingCollectionFocus, setPendingCollectionFocus] = useState(false);
   const collectionTriggerRef = useRef(null);
+  useEffect(() => {
+    if (!pendingCollectionFocus || !collectionOpen) return undefined;
+    const timer = setTimeout(() => {
+      const modal = document.getElementById('settlement-collection-modal');
+      const target = modal?.querySelector('.settlement-collection-row:not(.excluded) .cds--checkbox')
+        || modal?.querySelector('.cds--content-switcher-btn[aria-selected="true"]');
+      target?.focus();
+      setPendingCollectionFocus(false);
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [collectionOpen, collectionView, pendingCollectionFocus]);
   useEffect(() => {
     if (!openSettingsRequestId || openSettingsRequestId <= lastHandledSettingsRequest.current) return;
     lastHandledSettingsRequest.current = openSettingsRequestId;
@@ -364,10 +384,15 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
     onSettingsRequestHandled?.(openSettingsRequestId);
   }, [openSettingsRequestId, onOpenSettings, onSettingsRequestHandled]);
   function closeEdit(setter, edit, saved) { if (!saved && edit && !edit.session.closed) runtime.store.cancelEdit(edit.session); setter(null); }
-  function openCar(car) {
+  function openCar(car, event) {
+    carLauncherElement.current = event?.currentTarget || null;
     const edit = beginSettlementEdit(runtime.store, { car });
     edit.state.cars[car.name] = settlement.ensureTimesRentalExtras(edit.state.cars[car.name]);
     setCarEdit(edit);
+  }
+  function closeCarEditor(saved) {
+    closeEdit(setCarEdit, carEdit, saved);
+    requestAnimationFrame(() => carLauncherButtonRef.current?.focus());
   }
   function openDriverNameEditor(car) {
     try {
@@ -379,6 +404,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
   function markCollected() {
     collectionChange(runtime.store, { name: collector.name, checked: true, collector: collector.value || collector.name });
     setCollector(null); setCollectionOpen(true); onNotice('集金状況を更新しました。');
+    if (collectionView === 'unpaid') setPendingCollectionFocus(true);
   }
   function setCollectionStatus(person, checked) {
     if (checked && result.isStandaloneSettlement) {
@@ -387,6 +413,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
       return;
     }
     collectionChange(runtime.store, { name: person.name, checked });
+    if (checked && collectionView === 'unpaid') setPendingCollectionFocus(true);
   }
   async function copyUnpaid() {
     const names = result.participants.filter(person => !result.excludedNames.has(person.name) && !state.paid[person.name]).map(person => person.name);
@@ -415,8 +442,8 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
       </div>
     </Tile>
     <Tile className="settlement-card settlement-vehicles-card">
-      <div className="settlement-section-heading"><div><h2>各車への支払い</h2></div>
-        <Button ref={settlementSettingsTriggerRef} className="settlement-settings-action" kind="ghost" size="sm" onClick={() => onOpenSettings?.({ launcherButtonRef: settlementSettingsTriggerRef })}>精算設定を編集</Button>
+      <div className="settlement-section-heading"><div><h2 ref={paymentHeadingRef} tabIndex="-1">各車への支払い</h2></div>
+        <Button ref={settlementSettingsTriggerRef} className="settlement-settings-action" kind="ghost" size="sm" onClick={() => onOpenSettings?.({ launcherButtonRef: settlementSettingsTriggerRef })}>精算設定</Button>
       </div>
       <div className="settlement-car-list">{data.cars.map((car, index) => {
         const calc = result.cars.find(row => row.name === car.name);
@@ -441,9 +468,9 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
         return <article className="settlement-car" key={Number.isInteger(car.standaloneIndex) ? `standalone-${car.standaloneIndex}` : car.name} aria-labelledby={`settlement-car-${carId}`}>
           <div className="settlement-car-main">
             <div className="settlement-car-info">
-              <h3 id={`settlement-car-${carId}`}>{carLabel}</h3>
+              <h3 id={`settlement-car-${carId}`} aria-label={carLabel}>{car.name}車{calc.usesTimesRental && <span className="settlement-car-rental-label">（レンタカー）</span>}</h3>
               <div className="settlement-car-actions">
-                <Button className="settlement-car-edit-action" kind="ghost" size="sm" aria-label={`${carLabel}の費用を${hasSavedCarExpenses ? '編集' : '入力'}`} onClick={() => openCar(car)}>{hasSavedCarExpenses ? '費用を編集' : '費用を入力'}</Button>
+                <Button className="settlement-car-edit-action" kind="ghost" size="sm" aria-label={`${carLabel}の費用を${hasSavedCarExpenses ? '編集' : '入力'}`} onClick={event => openCar(car, event)}>{hasSavedCarExpenses ? '費用を編集' : '費用を入力'}</Button>
                 {result.isStandaloneSettlement && Number.isInteger(car.standaloneIndex) && <OverflowMenu ref={node => node ? standaloneDriverMenus.current.set(car.standaloneIndex, node) : standaloneDriverMenus.current.delete(car.standaloneIndex)} ariaLabel={`${carLabel}の操作`} iconDescription={`${carLabel}の操作`} size={isMobile ? 'lg' : 'sm'} flipped><OverflowMenuItem itemText="運転手の名前を編集" onClick={() => openDriverNameEditor(car)} /></OverflowMenu>}
               </div>
               {calc.driverNames.length > 1 && <p>運転手：{calc.driverNames.join('、')}（車単位で一括支払い）</p>}
@@ -453,7 +480,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
             <div><dt>割勘</dt><dd>{money(calc.adjustedSplitPay)}</dd></div>
             <div><dt>部費</dt><dd>{money(calc.adjustedClubPay)}</dd></div>
           </dl>
-          <Accordion className="settlement-car-breakdown" align="start" isFlush size="sm">
+          <Accordion className="settlement-car-breakdown" align="end" isFlush size="sm">
             <AccordionItem className="settlement-car-breakdown-item" title="支払い内訳" aria-label={breakdownAccessibleLabel}>
               <div className="settlement-cost-list">
                 {hasSplitDetails && <section className="settlement-cost-group" aria-labelledby={`settlement-split-${carId}`}>
@@ -479,7 +506,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
     <Tile className="settlement-card settlement-memo-card"><div className="settlement-section-heading"><div><h2>メモ</h2>{!memoEditing && <p>{state.memo?.trim() ? state.memo : 'メモなし'}</p>}</div>{!memoEditing && <Button kind="ghost" size="sm" onClick={openMemoEditor}>{state.memo?.trim() ? '編集' : 'メモを追加'}</Button>}</div>
       {memoEditing && <div className="settlement-memo-editor"><TextArea id="settlement-memo-editor" labelText="メモ" placeholder="例：レンタカー代は高橋さんが立替" rows={3} value={memo ?? ''} onChange={event => setMemo(event.target.value)} /><div className="settlement-memo-actions"><Button kind="tertiary" size="sm" onClick={saveMemo}>保存</Button><Button kind="ghost" size="sm" onClick={closeMemoEditor}>キャンセル</Button></div></div>}
     </Tile>
-    <Modal id="settlement-collection-modal" className="settlement-collection-modal" open={collectionOpen} size="sm" hasScrollingContent modalHeading="集金状況" closeButtonLabel="閉じる" primaryButtonText="閉じる" secondaryButtonText="未回収者をコピー" onSecondarySubmit={copyUnpaid} onRequestSubmit={() => setCollectionOpen(false)} onRequestClose={() => setCollectionOpen(false)} launcherButtonRef={collectionTriggerRef} selectorPrimaryFocus=".settlement-collection-modal .cds--content-switcher-btn">
+    <Modal id="settlement-collection-modal" className="app-modal settlement-collection-modal" open={collectionOpen} size="sm" hasScrollingContent modalHeading="集金状況" closeButtonLabel="閉じる" primaryButtonText="閉じる" secondaryButtonText="未回収者をコピー" onSecondarySubmit={copyUnpaid} onRequestSubmit={() => setCollectionOpen(false)} onRequestClose={() => setCollectionOpen(false)} launcherButtonRef={collectionTriggerRef} selectorPrimaryFocus=".settlement-collection-modal .cds--content-switcher-btn">
       <div className="settlement-collection-modal-content">
         <ContentSwitcher aria-label="集金対象者の表示" size="sm" lowContrast selectedIndex={collectionView === 'unpaid' ? 1 : 0} onChange={({ name }) => setCollectionView(name)}><Switch name="all" text="すべて" /><Switch name="unpaid" text="未回収" /></ContentSwitcher>
         <ContainedList className="settlement-collection-list" kind="on-page" size="lg" label={<span className="cds--visually-hidden">集金対象者</span>}>{result.participants.filter(person => collectionView !== 'unpaid' || (!result.excludedNames.has(person.name) && !state.paid[person.name])).map(person => {
@@ -487,11 +514,12 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
                 const paid = !!state.paid[person.name];
                 const label = state.paidBy[person.name] || person.name;
                 if (excluded) return <ContainedListItem className="settlement-collection-row excluded" key={person.name} action={<Tag type="cool-gray" size="sm">集金不要</Tag>}><span><strong>{person.name}</strong><small>{result.driverNames.has(person.name) && result.driverCollectionOffset ? '支払額から差し引き済み' : '集金対象外'}</small></span></ContainedListItem>;
-                return <ContainedListItem className="settlement-collection-row" key={person.name} onClick={() => setCollectionStatus(person, !paid)} action={<div onClick={event => event.stopPropagation()}><Checkbox id={`settlement-paid-${person.name}`} labelText={`${label}の集金チェック`} hideLabel checked={paid} onChange={(_, { checked }) => setCollectionStatus(person, checked)} /></div>}><span><strong>{label}</strong><small>{paid ? '回収済み' : '未回収'}</small></span><strong>{money(result.perPerson)}</strong></ContainedListItem>;
+                const checkboxId = `settlement-paid-${person.name}`;
+                return <ContainedListItem className="settlement-collection-row" key={person.name} action={<Checkbox id={checkboxId} labelText={`${label}の集金を記録`} aria-label={`${label}の集金を記録`} hideLabel checked={paid} onChange={(_, { checked }) => setCollectionStatus(person, checked)} />}><label className="settlement-collection-row__label" htmlFor={checkboxId}><span><strong>{label}</strong><small>{paid ? '回収済み' : '未回収'}</small></span><strong>{money(result.perPerson)}</strong></label></ContainedListItem>;
         })}</ContainedList>
       </div>
     </Modal>
-    {carEdit && <CarEditor runtime={runtime} edit={carEdit} onNotice={onNotice} onClose={saved => closeEdit(setCarEdit, carEdit, saved)} />}
+    {carEdit && <CarEditor runtime={runtime} edit={carEdit} launcherButtonRef={carLauncherButtonRef} onNotice={onNotice} onClose={closeCarEditor} />}
     {driverNameEdit && <StandaloneDriverNameModal runtime={runtime} edit={driverNameEdit.edit} launcherButtonRef={driverNameEdit.launcherButtonRef} onNotice={onNotice} onClose={saved => closeEdit(setDriverNameEdit, driverNameEdit.edit, saved)} />}
     {collector && <CollectionPrompt value={collector.value} onChange={value => setCollector(current => ({ ...current, value }))} onSave={markCollected} onClose={() => { setCollector(null); setCollectionOpen(true); }} />}
   </section>;

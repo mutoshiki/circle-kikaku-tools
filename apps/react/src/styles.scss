@@ -127,39 +127,43 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-page { display: grid; gap: layout.$spacing-04; padding-top: layout.$spacing-02; }
 .settlement-card { min-width: 0; margin: 0; padding: layout.$spacing-04 0; border: 0; background: var(--cds-layer-01, var(--cds-layer)); }
 .settlement-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: layout.$spacing-03; margin-block-end: layout.$spacing-04; }
-.settlement-vehicles-card .settlement-section-heading { align-items: flex-start; }
+.settlement-vehicles-card .settlement-section-heading { align-items: baseline; }
 .settlement-settings-action { flex: 0 0 auto; inline-size: auto; max-inline-size: none; }
 .settlement-section-heading h1, .settlement-section-heading h2 { @include carbon-type.type-style('heading-03'); }
 .settlement-section-heading p, .settlement-section-heading small { display: block; color: var(--cds-text-secondary); margin-block-start: layout.$spacing-02; }
 .settlement-card .cds--inline-notification { max-width: none; }
-.settlement-car-list { display: grid; gap: layout.$spacing-05; }
-.settlement-car { display: grid; gap: layout.$spacing-03; min-width: 0; padding-block: layout.$spacing-03; border-block-end: 1px solid var(--cds-border-subtle); }
+.settlement-car-list { display: grid; gap: 0; }
+.settlement-car { display: grid; gap: layout.$spacing-02; min-width: 0; padding-block: layout.$spacing-05; }
 .settlement-car:first-child { padding-block-start: 0; }
-.settlement-car:last-child { border-block-end: 0; }
+.settlement-car:last-child { padding-block-end: 0; }
+.settlement-car + .settlement-car { border-block-start: 1px solid var(--cds-border-subtle); }
 .settlement-car-main { min-width: 0; }
 .settlement-car-info { display: grid; grid-template-columns: minmax(0, 1fr) max-content; align-items: baseline; column-gap: layout.$spacing-03; row-gap: layout.$spacing-01; min-width: 0; }
 .settlement-car-main h3 { @include carbon-type.type-style('heading-compact-02'); grid-column: 1; min-inline-size: 0; margin-block: 0; overflow-wrap: anywhere; }
+.settlement-car-rental-label { @include carbon-type.type-style('body-compact-01'); color: var(--cds-text-secondary); }
 .settlement-car-main p { grid-column: 1 / -1; color: var(--cds-text-secondary); margin-block: 0; overflow-wrap: anywhere; }
 .settlement-car-actions { display: flex; align-items: center; justify-content: flex-end; min-inline-size: 0; }
 .settlement-car-actions { grid-column: 2; justify-self: end; }
 .settlement-car-edit-action { margin-inline-start: 0; }
 .settlement-car-breakdown { margin-block-start: 0; }
 .settlement-car .settlement-car-breakdown-item { border-block: 0; }
+.settlement-car .settlement-car-breakdown-item::before,
+.settlement-car .settlement-car-breakdown-item::after { display: none; }
 .settlement-car-amounts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: layout.$spacing-05; min-width: 0; margin: 0; }
-.settlement-car-amounts > div { display: grid; min-width: 0; }
-.settlement-car-amounts dt { @include carbon-type.type-style('body-compact-01'); color: var(--cds-text-primary); }
-.settlement-car-amounts dd { @include carbon-type.type-style('heading-compact-02'); min-width: 0; margin: 0; color: var(--cds-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.settlement-cost-list { display: grid; gap: layout.$spacing-05; margin-block-start: layout.$spacing-03; }
+.settlement-car-amounts > div { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: layout.$spacing-03; min-width: 0; }
+.settlement-car-amounts dt { @include carbon-type.type-style('body-compact-01'); color: var(--cds-text-secondary); }
+.settlement-car-amounts dd { @include carbon-type.type-style('heading-03'); @include carbon-type.font-weight('semibold'); margin: 0; color: var(--cds-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.settlement-cost-list { display: grid; gap: layout.$spacing-05; margin-block-start: 0; }
 .settlement-cost-list > div { display: flex; justify-content: space-between; gap: layout.$spacing-05; }
 .settlement-cost-group { display: grid; gap: layout.$spacing-02; }
 .settlement-cost-group h4 { @include carbon-type.type-style('heading-compact-01'); margin: 0; }
 .settlement-cost-items { display: grid; gap: layout.$spacing-02; }
-.settlement-cost-adjustments { display: grid; gap: layout.$spacing-02; margin-block-start: layout.$spacing-03; }
+.settlement-cost-adjustments { display: grid; gap: layout.$spacing-02; margin-block-start: layout.$spacing-02; }
 .settlement-cost-item { display: flex; justify-content: space-between; align-items: baseline; gap: layout.$spacing-04; }
 .settlement-cost-item > span:first-child { min-inline-size: 0; overflow-wrap: anywhere; }
 .settlement-cost-item-amount { @include carbon-type.type-style('body-compact-01'); flex: 0 0 auto; color: var(--cds-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.settlement-cost-adjustment { @include carbon-type.type-style('label-01'); display: flex; justify-content: space-between; gap: layout.$spacing-04; color: var(--cds-text-secondary); }
-.settlement-cost-adjustment strong { @include carbon-type.type-style('label-01'); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.settlement-cost-adjustment { @include carbon-type.type-style('body-compact-01'); display: flex; justify-content: space-between; gap: layout.$spacing-04; color: var(--cds-text-secondary); }
+.settlement-cost-adjustment strong { @include carbon-type.type-style('body-compact-01'); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .settlement-cost-empty { @include carbon-type.type-style('body-compact-01'); margin: 0; color: var(--cds-text-secondary); }
 .settlement-collection-summary { color: var(--cds-text-secondary); }
 .settlement-collection-summary { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: layout.$spacing-03; row-gap: layout.$spacing-01; }
@@ -167,8 +171,10 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-collection-modal-content { display: grid; gap: layout.$spacing-04; min-inline-size: 0; }
 .settlement-collection-list { margin: 0; }
 .settlement-collection-list .cds--contained-list__header { display: none; }
-.settlement-collection-row .cds--contained-list-item__content > div { display: flex; align-items: center; justify-content: space-between; gap: layout.$spacing-03; inline-size: 100%; min-inline-size: 0; }
-.settlement-collection-row .cds--contained-list-item__content > div > span { display: grid; gap: layout.$spacing-01; min-inline-size: 0; }
+.settlement-collection-row .cds--contained-list-item__content { min-inline-size: 0; }
+.settlement-collection-row__label { display: flex; align-items: center; justify-content: space-between; gap: layout.$spacing-03; inline-size: 100%; min-block-size: layout.$spacing-10; min-inline-size: 0; cursor: pointer; }
+.settlement-collection-row__label > span { display: grid; gap: layout.$spacing-01; min-inline-size: 0; }
+.settlement-collection-row__label > strong { flex: 0 0 auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .settlement-collection-row small { color: var(--cds-text-secondary); }
 .settlement-collection-row .cds--contained-list-item__action { align-items: center; inset-block: 0; padding-inline-end: layout.$spacing-03; }
 .settlement-collection-row .cds--contained-list-item__action .cds--checkbox-wrapper { flex: 0 0 auto; inline-size: fit-content; margin: 0; }
@@ -189,6 +195,9 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-settings-progress-compact { display: flex; align-items: baseline; gap: var(--cds-spacing-03, .5rem); padding-block-end: var(--cds-spacing-03, .5rem); border-block-end: 1px solid var(--cds-border-subtle); }
 .settlement-settings-progress-compact__count { @include carbon-type.type-style('label-01'); color: var(--cds-text-secondary); font-variant-numeric: tabular-nums; }
 .settlement-settings-progress-compact > strong { @include carbon-type.type-style('heading-compact-01'); color: var(--cds-text-primary); }
+.settlement-settings-footer .cds--btn-set { display: flex; justify-content: space-between; inline-size: 100%; }
+.settlement-settings-footer__right { display: flex; gap: var(--cds-spacing-03); margin-inline-start: auto; }
+.settlement-settings-footer__right > .cds--btn { flex: 0 1 auto; inline-size: auto; min-inline-size: 0; }
 .settlement-settings-step, .settlement-form-section { display: grid; gap: layout.$spacing-06; }
 .settlement-settings-step > h3, .modal-section-heading h3, .route-planner-results h3, .route-place-search h3 { @include carbon-type.type-style('heading-compact-02'); }
 .modal-section-heading { padding-block-end: layout.$spacing-04; border-bottom: 1px solid var(--cds-border-subtle); }
@@ -242,8 +251,9 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .sample-actions { display: grid; gap: .5rem; }
 .sample-actions .cds--btn { inline-size: 100%; max-inline-size: none; }
 .user-guide { display: grid; gap: 1rem; }
-.user-guide ol { display: grid; gap: .75rem; padding-inline-start: 1.5rem; }
-.user-guide li { display: flex; align-items: baseline; gap: layout.$spacing-02; }
+.user-guide ul { display: grid; gap: 1rem; padding-inline-start: 1.5rem; }
+.user-guide li { display: grid; justify-items: start; gap: layout.$spacing-02; }
+.user-guide li > strong { min-inline-size: max-content; }
 .user-guide li > span { min-inline-size: 0; }
 .timetable-list, .history-list { display: grid; gap: 1px; background: var(--cds-border-subtle); }
 .timetable-row { display: grid; grid-template-columns: 9rem minmax(0, 1fr) auto; align-items: end; gap: .75rem; padding: 1rem; background: var(--cds-layer); }
@@ -281,11 +291,12 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .cds--modal.is-visible { padding: 1rem; }
 .cds--modal.is-visible .cds--modal-container { max-block-size: calc(100dvh - 2rem); }
 .cds--modal.is-visible .cds--modal-content { overscroll-behavior: contain; }
+.app-modal .cds--modal-header { overflow: visible; }
 .settlement-car-modal .cds--modal-header { overflow: visible; }
 .settlement-car-modal .cds--modal-content { padding-block-start: layout.$spacing-03; }
 .settlement-movement-modal .cds--modal-container { overflow: hidden; }
-.settlement-movement-modal .cds--modal-header { position: relative; z-index: 1; background: var(--cds-layer); }
-.settlement-movement-modal .cds--modal-content { min-block-size: 0; background: var(--cds-layer); }
+.settlement-movement-modal .cds--modal-header { position: relative; z-index: 1; }
+.settlement-movement-modal .cds--modal-content { min-block-size: 0; }
 .settlement-movement-form .distance-field > .cds--btn { inline-size: max-content; min-inline-size: 0; max-inline-size: 100%; }
   .settlement-modal-at-bottom .cds--modal-content { -webkit-mask-image: none; mask-image: none; }
 @media (max-width: 672px) {
@@ -304,7 +315,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   .participants-page > .section-heading { align-items: center; }
   .settlement-card { padding-block: layout.$spacing-03; }
   .settlement-section-heading { flex-direction: column; }
-  .settlement-vehicles-card .settlement-section-heading { flex-direction: row; align-items: flex-start; }
+  .settlement-vehicles-card .settlement-section-heading { flex-direction: row; align-items: baseline; }
   .settlement-collection-card .settlement-section-heading { flex-direction: row; align-items: center; }
   .settlement-extra-row { grid-template-columns: 1fr; }
   .settlement-extra-row .cds--btn { width: 100%; max-width: none; }
@@ -321,7 +332,6 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   .route-planner-results { grid-column: auto; }
   .cds--modal.is-visible { align-items: flex-end; block-size: 100dvh; padding: 0; }
   .cds--modal.is-visible .cds--modal-container { position: relative; inset: auto; transform: none; inline-size: 100%; max-inline-size: 100%; block-size: auto; min-block-size: 0; max-block-size: 100dvh; margin-block-start: auto; }
-  .cds--modal.is-visible.settlement-movement-modal .cds--modal-container { block-size: min(34rem, 100dvh); }
   .settlement-settings-modal .cds--progress--space-equal .cds--progress-label { @include carbon-type.type-style('label-01'); margin-inline-end: 0; }
   .settlement-settings-modal .cds--progress--space-equal .cds--progress-step,
   .settlement-settings-modal .cds--progress--space-equal .cds--progress-line { min-inline-size: 0; }
