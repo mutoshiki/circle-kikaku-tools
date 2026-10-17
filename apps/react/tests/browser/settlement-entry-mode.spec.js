@@ -8,7 +8,7 @@ test('count-only settlement hides navigation, survives reload, and can return to
   await page.goto(`/?room=${roomId}`);
   await expect(page.getByRole('tab', { name: '精算', exact: true })).toHaveAttribute('aria-selected', 'true');
 
-  await page.getByRole('button', { name: '精算設定を編集', exact: true }).click();
+  await page.getByRole('button', { name: '精算設定', exact: true }).click();
   const settings = page.getByRole('dialog', { name: '精算設定を編集', exact: true });
   await settings.getByRole('radio', { name: '人数だけで精算', exact: true }).check({ force: true });
   await expect(settings.getByRole('spinbutton', { name: '運転手の人数' })).toHaveValue('0');
@@ -26,7 +26,7 @@ test('count-only settlement hides navigation, survives reload, and can return to
   await expect(page.getByRole('tab')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '車出し1車', exact: true })).toBeVisible();
 
-  await page.getByRole('button', { name: '精算設定を編集', exact: true }).click();
+  await page.getByRole('button', { name: '精算設定', exact: true }).click();
   const returnSettings = page.getByRole('dialog', { name: '精算設定を編集', exact: true });
   await returnSettings.getByRole('radio', { name: '参加者を登録して精算', exact: true }).check({ force: true });
   await returnSettings.getByRole('button', { name: '次へ', exact: true }).click();

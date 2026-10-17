@@ -114,7 +114,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     await expect(draftNameB).toHaveValue('端末B 当日入浴代');
     await expect(draftAmountB).toHaveValue('900');
 
-    await pageA.getByRole('button', { name: '精算設定を編集' }).click();
+    await pageA.getByRole('button', { name: '精算設定' }).click();
     const settings = pageA.getByRole('dialog', { name: '精算設定を編集' });
     await settings.getByText('10円単位', { exact: true }).click();
     await settings.getByRole('button', { name: '次へ' }).click();

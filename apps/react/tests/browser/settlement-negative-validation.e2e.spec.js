@@ -94,7 +94,7 @@ test('movement fields allow blanks and zero where valid, and reject negatives in
 });
 
 test('standalone counts and driver cooperation money reject negatives inline', async ({ page }) => {
-  await page.getByRole('button', { name: '精算設定を編集' }).click();
+  await page.getByRole('button', { name: '精算設定' }).click();
   const dialog = page.getByRole('dialog', { name: '精算設定を編集' });
   await dialog.getByText('人数だけで精算', { exact: true }).click();
   const driverCount = dialog.getByLabel('運転手の人数');

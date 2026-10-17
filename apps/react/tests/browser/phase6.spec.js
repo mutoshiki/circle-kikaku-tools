@@ -35,7 +35,7 @@ test('guidance, CSV, utility report, notifications and URL security', async ({ p
   const guidance = page.getByRole('dialog', { name: '参加者発表文を作成' });
   await guidance.getByLabel('集合時間').fill('08:30');
   await expect(guidance.getByLabel('発表文プレビュー')).toHaveValue(/参加者を発表します/);
-  await guidance.getByRole('button', { name: '閉じる' }).click();
+  await guidance.getByLabel('閉じる').click();
 
   await page.getByRole('button', { name: '引き継ぎデータを作成' }).click();
   const download = page.waitForEvent('download');
@@ -57,7 +57,7 @@ test('route draft stays local and selected distance alone enters shared settleme
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.getByRole('tab', { name: '精算', exact: true }).click();
   await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
-  const car = page.getByRole('dialog', { name: '仮参加者A車' });
+  const car = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await car.getByRole('button', { name: '費用を追加' }).click();
   await car.getByLabel('名目').fill('一時費用');
   await car.getByRole('button', { name: '戻る' }).click();
@@ -66,7 +66,7 @@ test('route draft stays local and selected distance alone enters shared settleme
   await car.getByRole('button', { name: '一時費用を削除' }).click();
   await car.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await car.getByRole('button', { name: '移動距離計算ツール' }).click();
-  const route = page.getByRole('dialog', { name: '仮参加者A車' });
+  const route = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await route.getByRole('button', { name: /出発地を追加/ }).click();
   await route.getByRole('searchbox', { name: '場所を検索' }).fill('なし');
@@ -95,7 +95,7 @@ test('route draft stays local and selected distance alone enters shared settleme
   expect(state.route.routes[0].id).toBe('fixture-route');
   expect(JSON.stringify(state.room)).not.toContain(token);
   await page.reload(); await page.getByRole('tab', { name: '精算', exact: true }).click(); await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
-  const reopened = page.getByRole('dialog', { name: '仮参加者A車' });
+  const reopened = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await reopened.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await expect(reopened.getByLabel('移動距離（km）')).toHaveValue('12.3');
   await reopened.locator('.cds--modal-close').click();

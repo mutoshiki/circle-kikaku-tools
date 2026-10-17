@@ -14,11 +14,11 @@
 
 ## 作業元
 
-- 専用worktree: `C:\Users\toshi\.codex\worktrees\vehicle-payments-release\circle-kikaku-tools`
-- branch: `codex/random-assignment-count-release-record`
-- 起点SHA: `b2ba4f9574d391c2d5bf8281b69e581ee6d2f2f7`（公開manifestと一致するツリーから開始）
-- 車割・班割のReact owner: `apps/react/src/components/Allocation.jsx`
-- 回数条件と永続化owner: `apps/react/src/domain/randomization-history.js`、`apps/react/src/store/room-store.js`、`apps/react/src/sync/room-sync.js`
+- 専用worktree: `C:\Users\toshi\.codex\worktrees\site-type-spacing\circle-kikaku-tools`
+- branch: `codex/site-typography-spacing`
+- 起点SHA: `0f9af754f84081cdc5d50c38c0995181791e71e5`（公開manifest SHA `851cb1a4c90fde012ad84eee47a3403689dac9ef` を含む `origin/main` から開始）
+- この作業の主なReact owner: `apps/react/src/styles.scss`、`apps/react/src/App.jsx`、`apps/react/src/components/SettlementSettingsModal.jsx`
+- 文字・余白の共通契約: `docs/design/react-typography-spacing.md`
 
 ## ブラウザーの使い分け
 
@@ -26,24 +26,24 @@
 |---|---|---|
 | 実際の公開版を見る | `https://mutoshiki.github.io/circle-kikaku-tools/` | 読み取り専用の見た目参照。ライブの企画データは変更しない。版は毎回公開manifestで確認する。 |
 | 以前から開かれている参照タブ | `http://127.0.0.1:4194/?room=PREVIEW-ORIGIN-VERIFY-20261011&view=seisan` | ユーザー指定のタブとして維持する。配信プロセス・build SHAを特定できるまでは、公開版や今回のpreviewと同一とは扱わない。 |
-| このworktreeの変更後preview | `http://127.0.0.1:4195/`（検証用port） | `apps/react/dist`をVite previewで配信。サンプル操作はローカル保存だけを使う。Firebase/Auth/本番ルームには接続しない。 |
+| このworktreeの変更後preview | `http://127.0.0.1:4280/`（検証用port） | `apps/react/dist`をVite previewで配信。サンプル操作はローカル保存だけを使う。Firebase/Auth/本番ルームには接続しない。 |
 
 ## build・起動・照合
 
 作業開始時に公開manifestを取得し、`sourceSha`を基準値にします。公開版が変わったらこの対応表を更新し、既存worktreeの基準を無言で入れ替えません。
 
 ```powershell
-cd C:\Users\toshi\.codex\worktrees\vehicle-payments-release\circle-kikaku-tools\apps\react
+cd C:\Users\toshi\.codex\worktrees\site-type-spacing\circle-kikaku-tools\apps\react
 npm ci
-npm run build:preview -- --baseline-source-sha b2ba4f9574d391c2d5bf8281b69e581ee6d2f2f7
-node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4195 --strictPort
+npm run build:preview -- --baseline-source-sha 851cb1a4c90fde012ad84eee47a3403689dac9ef
+node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4280 --strictPort
 ```
 
 別のPowerShellで、ブラウザーで開く前に照合します。
 
 ```powershell
-cd C:\Users\toshi\.codex\worktrees\vehicle-payments-release\circle-kikaku-tools\apps\react
-npm run check:preview -- --url http://127.0.0.1:4195/ --expected-source-sha b2ba4f9574d391c2d5bf8281b69e581ee6d2f2f7
+cd C:\Users\toshi\.codex\worktrees\site-type-spacing\circle-kikaku-tools\apps\react
+npm run check:preview -- --url http://127.0.0.1:4280/ --expected-source-sha 851cb1a4c90fde012ad84eee47a3403689dac9ef
 ```
 
 照合はmanifest基準SHA、worktreeのHEADとsource fingerprint、build metadata、配信中のHTMLとJS/CSSを確認する。ソースがbuild後に変わった場合、別worktree由来の場合、SHAやmetadataが違う場合は失敗する。成功は「このローカルpreviewが指定SHAを祖先に持つ現在のworktreeからbuildされ、ページ資産が一致する」ことを示す。公開manifestとpreviewを毎回取り直す前提なので、成功結果を次回の版確認に流用しない。

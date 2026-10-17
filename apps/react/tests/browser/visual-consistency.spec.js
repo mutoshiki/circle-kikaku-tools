@@ -40,7 +40,7 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await expect(page.getByRole('heading', { name: '集金状況', exact: true })).toBeVisible();
   const settlementInset = (await page.getByRole('heading', { name: '各車への支払い', exact: true }).boundingBox()).x;
   expect(Math.abs(settlementInset - participantInset)).toBeLessThanOrEqual(1);
-  const settingsButton = page.getByRole('button', { name: '精算設定を編集', exact: true });
+  const settingsButton = page.getByRole('button', { name: '精算設定', exact: true });
   await expect(settingsButton).toHaveClass(/cds--btn--ghost/);
   expect((await settingsButton.boundingBox()).width).toBeLessThan((await page.locator('.settlement-card').nth(1).boundingBox()).width * 0.6);
   await expect(page.locator('.settlement-collection-summary')).toHaveText(/^1人あたり (?:¥[\d,]+|未確定)$/);

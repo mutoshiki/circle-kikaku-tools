@@ -198,7 +198,7 @@ export default function App({ runtime }) {
     </Theme>
     {settlementSettingsEdit && <SettlementSettingsModal runtime={runtime} edit={settlementSettingsEdit} launcherButtonRef={settlementSettingsLauncher} onNotice={showNotice} onClose={closeSettlementSettings} />}
     {globalModal === 'guide' && <Modal className="app-modal" open passiveModal size="md" closeButtonLabel="閉じる" modalHeading="使い方" onRequestClose={() => setGlobalModal('')}>
-      <div className="user-guide"><p>参加者の選択、車割、班割、精算を上部の4つのタブから行います。</p><ol><li><strong>参加者</strong> 応募者を確認し、企画に参加する人を選びます。</li><li><strong>車割</strong> 車と参加者を割り当てます。</li><li><strong>班割</strong> 班と参加者を割り当てます。</li><li><strong>共有</strong> 右上の「企画のリンクをコピー」から通常の企画ルームURLをコピーします。</li><li><strong>精算</strong> 設定、車ごとの費用、集金・支払い状況を管理します。</li></ol></div>
+      <div className="user-guide"><p>参加者の選択、車割、班割、精算を上部の4つのタブから行います。</p><ul><li><strong>参加者</strong><span>応募者を確認し、企画に参加する人を選びます。</span></li><li><strong>車割</strong><span>車と参加者を割り当てます。</span></li><li><strong>班割</strong><span>班と参加者を割り当てます。</span></li><li><strong>共有</strong><span>右上の「企画のリンクをコピー」から通常の企画ルームURLをコピーします。</span></li><li><strong>精算</strong><span>設定、車ごとの費用、集金・支払い状況を管理します。</span></li></ul></div>
     </Modal>}
     {globalModal === 'overview' && <OverviewModal runtime={runtime} room={room} onNotice={showNotice} onClose={() => setGlobalModal('')} />}
     {globalModal === 'history' && <HistoryModal runtime={runtime} onNotice={showNotice} onClose={() => setGlobalModal('')} />}
