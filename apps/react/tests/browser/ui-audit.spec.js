@@ -165,7 +165,7 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
 
     await page.getByRole('tab', { name: '精算', exact: true }).click();
     await shot(page, viewportName, 21, 'settlement-default');
-    await page.getByRole('button', { name: '精算設定を編集' }).click();
+    await page.getByRole('button', { name: '精算設定' }).click();
     await shot(page, viewportName, 22, 'settlement-wizard-step-1');
     await page.getByRole('button', { name: '次へ' }).click();
     await shot(page, viewportName, 23, 'settlement-wizard-step-2');

@@ -61,7 +61,7 @@ test('guide labels stay on one line at mobile width and retain their order on de
 test('settlement settings use a medium progress dialog and disable back on the first step', async ({ page }) => {
   await page.setViewportSize({ width: 393, height: 852 });
   await page.getByRole('tab', { name: '精算', exact: true }).click({ force: true });
-  await page.getByRole('button', { name: '精算設定を編集' }).click({ force: true });
+  await page.getByRole('button', { name: '精算設定' }).click({ force: true });
   const dialog = page.getByRole('dialog', { name: '精算設定を編集' });
   await expect(dialog).toHaveClass(/cds--modal-container--md/);
   await expect(dialog.getByRole('button', { name: '戻る' })).toBeDisabled();
@@ -86,7 +86,7 @@ test('settlement settings use a medium progress dialog and disable back on the f
   await dialog.getByRole('button', { name: 'キャンセル' }).click();
   await expect(dialog).toHaveCount(0);
 
-  await page.getByRole('button', { name: '精算設定を編集' }).click();
+  await page.getByRole('button', { name: '精算設定' }).click();
   const standaloneDialog = page.getByRole('dialog', { name: '精算設定を編集' });
   await standaloneDialog.locator('label[for="settlement-mode-standalone"]').click();
   await standaloneDialog.getByLabel('運転手の人数').fill('1');
@@ -101,7 +101,7 @@ test('short modal headers do not scroll and long Japanese vehicle titles stay cl
   await page.setViewportSize({ width: 393, height: 667 });
   await page.evaluate(() => document.fonts.ready);
   await page.getByRole('tab', { name: '精算', exact: true }).click({ force: true });
-  await page.getByRole('button', { name: '精算設定を編集' }).click({ force: true });
+  await page.getByRole('button', { name: '精算設定' }).click({ force: true });
   const shortDialog = page.getByRole('dialog', { name: '精算設定を編集' });
   const shortHeader = await shortDialog.locator('.cds--modal-header').evaluate(node => ({
     clientHeight: node.clientHeight,
@@ -165,7 +165,7 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
   await dialog.getByRole('button', { name: 'キャンセル' }).click();
 
   await page.getByRole('tab', { name: '精算', exact: true }).click();
-  await page.getByRole('button', { name: '精算設定を編集' }).click();
+  await page.getByRole('button', { name: '精算設定' }).click();
   dialog = page.getByRole('dialog', { name: '精算設定を編集' });
   await expectViewportFrame(page, dialog);
   if (testInfo.project.name.includes('mobile')) {
@@ -238,7 +238,7 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
   await expect(appMenu.getByRole('menuitem')).toHaveText(['使い方', 'サンプルデータ', 'ダークモードに切り替え', 'バグを報告する']);
   await appMenu.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
-  await page.getByRole('button', { name: '精算設定を編集' }).click();
+  await page.getByRole('button', { name: '精算設定' }).click();
   dialog = page.getByRole('dialog', { name: '精算設定を編集' });
   await expectViewportFrame(page, dialog);
   expect(await dialog.evaluate(node => getComputedStyle(node).backgroundColor)).not.toBe('rgb(255, 255, 255)');
