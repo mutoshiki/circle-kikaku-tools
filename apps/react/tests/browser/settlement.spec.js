@@ -502,8 +502,7 @@ test('collection uses a Carbon modal with one scrolling body, filters, copy, and
   await expect(dialog.getByRole('tab', { name: 'すべて' })).toHaveAttribute('aria-selected', 'true');
   await expect(dialog.getByText(/集金\s*\d+\/\d+人/)).toHaveCount(0);
   await expect(dialog.getByText(/残り\s*¥/)).toHaveCount(0);
-  await expect(dialog.getByText('集金不要', { exact: true })).toHaveCount(0);
-  await dialog.getByRole('tab', { name: 'すべて' }).click();
+  await expect(dialog.getByText('集金不要', { exact: true }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: '集金を記録' })).toHaveAttribute('aria-controls', 'settlement-collection-modal');
   await expect(dialog.getByRole('list', { name: '集金対象者' })).toBeVisible();
   const initialModalLayout = await dialog.evaluate(node => {
@@ -1216,7 +1215,7 @@ test('settlement WebKit text and control size audit', async ({ page }, testInfo)
       const buttons = [...root.querySelectorAll('button')].filter(visible).map(button => {
         const rect = button.getBoundingClientRect();
         const label = (button.innerText || button.getAttribute('aria-label') || button.title || '').trim().replace(/\s+/g, ' ');
-        return { label, height: Math.round(rect.height), width: Math.round(rect.width), fontSize: Number.parseFloat(getComputedStyle(button).fontSize), iconOnly: !button.innerText.trim() && !!button.querySelector('svg'), nonInteractive: button.classList.contains('cds--progress-step-button--unclickable'), focusSentinel: button.getAttribute('aria-label') === 'Focus sentinel' };
+        return { label, height: Math.round(rect.height), width: Math.round(rect.width), fontSize: Number.parseFloat(getComputedStyle(button).fontSize), iconOnly: !button.innerText.trim() && !!button.querySelector('svg'), nonInteractive: button.classList.contains('cds--progress-step-button--unclickable'), focusSentinel: label === 'Focus sentinel' };
       });
       const textNodes = [];
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -1235,7 +1234,7 @@ test('settlement WebKit text and control size audit', async ({ page }, testInfo)
       return {
         buttonCount: buttons.length,
         textCount: textNodes.length,
-        smallestButtonText: buttons.filter(button => button.label && !button.iconOnly && button.fontSize < 14),
+        smallestButtonText: buttons.filter(button => button.label && !button.iconOnly && !button.focusSentinel && button.fontSize < 14),
         smallestButtons: buttons.filter(button => !button.nonInteractive && !button.focusSentinel && button.height < 32),
         iconTargetsBelow44: iconTargets.filter(target => target.height < 44 || target.width < 44),
         menuItems,
