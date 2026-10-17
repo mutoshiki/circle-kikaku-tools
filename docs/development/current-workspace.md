@@ -5,17 +5,17 @@
 ## 公開基準
 
 - 公開URL: <https://mutoshiki.github.io/circle-kikaku-tools/>
-- 確認日時: 2026-10-17（公開manifestを再取得し、実装開始前に基準SHAを確認）
+- 確認日時: 2026-10-17（PR #108のProduction Release完了後、公開manifestを確認）
 - manifest: <https://mutoshiki.github.io/circle-kikaku-tools/release-build.json>
-- 公開source SHA: `b2ba4f9574d391c2d5bf8281b69e581ee6d2f2f7`
-- 公開asset digest: `2c19f2f1f36a9c993a5c56f32f2fbda5cb5090509c02baf9cde81ecd57864617`
+- 公開source SHA: `851cb1a4c90fde012ad84eee47a3403689dac9ef`
+- 公開asset digest: `647a68524eebd8bf4fae02791a8617daf103bc5c3929bd4ff5cc6dd009a2d2de`
 - 公開サイトはReactのルートビルド。CIで`apps/react/dist`からPagesルートを構成する。
-- 公開manifestは2026-10-17に再取得し、公開source SHAとasset digestを確認済み。
+- 公開manifestはPR #108のProduction Release後に再取得し、公開source SHA・asset digestとroot HTTP 200を確認済み。
 
 ## 作業元
 
 - 専用worktree: `C:\Users\toshi\.codex\worktrees\vehicle-payments-release\circle-kikaku-tools`
-- branch: `codex/random-assignment-count`
+- branch: `codex/random-assignment-count-release-record`
 - 起点SHA: `b2ba4f9574d391c2d5bf8281b69e581ee6d2f2f7`（公開manifestと一致するツリーから開始）
 - 車割・班割のReact owner: `apps/react/src/components/Allocation.jsx`
 - 回数条件と永続化owner: `apps/react/src/domain/randomization-history.js`、`apps/react/src/store/room-store.js`、`apps/react/src/sync/room-sync.js`
