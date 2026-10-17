@@ -10,7 +10,7 @@ function freeze(value) {
   return value;
 }
 
-export function createRoomStore({ initial = {}, clientId = 'local', clock = { now: () => Date.now(), isServerAligned: () => false }, random, crypto } = {}) {
+export function createRoomStore({ initial = {}, clientId = 'local', clock = { now: () => Date.now(), isServerAligned: () => false }, random, crypto = globalThis.crypto } = {}) {
   const domain = createDomain({ clientId, clock, random, crypto });
   let snapshot = freeze(domain.migrate(initial));
   let sequence = 0;
@@ -27,6 +27,10 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
     if (!['car', 'team'].includes(type)) throw new Error('割り当ての種類が不正です。');
     return room.allocations[type];
   };
+  const createRandomizationId = () => {
+    if (typeof crypto?.randomUUID !== 'function') throw new Error('ランダム割り当ての記録に必要なIDを作成できません。');
+    return crypto.randomUUID();
+  };
   const syncApplicantVehicle = (room, id, applicant) => {
     const now = clock.now();
     if (applicant.canDrive === true) return domain.applicants.ensureDriver(room, id, applicant, now);
@@ -42,14 +46,32 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
     return ownedGroupIds.length > 0;
   };
 
-  function publish(base, local, { patch: explicitPatch, precondition = null, kind = 'edit' } = {}) {
+  function publish(base, local, { patch: explicitPatch, precondition = null, kind = 'edit', randomizationIntent = null } = {}) {
     if (Number(base.resetGeneration) !== Number(snapshot.resetGeneration)) throw new Error('企画がリセットされました。画面を開き直してください。');
+    const randomizationResets = [];
+    for (const change of domain.randomization.getRandomizationConditionChanges(base, local)) {
+      const beforeStatus = domain.randomization.getRandomizationStatus(base, change.type);
+      if (local.allocations?.[change.type]) {
+        const conditionsKey = domain.randomization.getRandomizationConditionsKey(local, change.type);
+        local.allocations[change.type].randomization = domain.randomization.createRandomizationHistory(conditionsKey, createRandomizationId());
+      }
+      if (beforeStatus.count > 0) randomizationResets.push(change);
+    }
+    if (randomizationIntent) {
+      const currentKey = domain.randomization.getRandomizationConditionsKey(local, randomizationIntent.type);
+      if (currentKey !== randomizationIntent.conditionsKey) throw new Error('割り当て条件が変更されました。最新の状態でやり直してください。');
+    }
     local.lastUpdatedAt = clock.now();
     local.lastUpdatedBy = clientId;
     for (const [id, participant] of Object.entries(local.participants || {})) {
       if (JSON.stringify(participant) !== JSON.stringify(base.participants?.[id])) participant.updatedAt = clock.now();
     }
     const patch = explicitPatch || domain.sync.buildEntityPatch(base, local);
+    for (const type of ['car', 'team']) {
+      if (JSON.stringify(base.allocations?.[type]?.randomization) !== JSON.stringify(local.allocations?.[type]?.randomization)) {
+        patch[`allocations/${type}/randomization`] = clone(local.allocations?.[type]?.randomization ?? null);
+      }
+    }
     const baseApplicantIds = base.meta?.applicantParticipantIds || {};
     const localApplicantIds = local.meta?.applicantParticipantIds || {};
     for (const key of new Set([...Object.keys(baseApplicantIds), ...Object.keys(localApplicantIds)])) {
@@ -75,7 +97,7 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
       liveApplicationMetadata = clone(local.meta.applicationSync);
     }
     snapshot = freeze(domain.migrate(next));
-    const intent = freeze({ base: clone(base), local: clone(local), patch: clone(patch), precondition: clone(precondition), sequence: ++sequence, kind });
+    const intent = freeze({ base: clone(base), local: clone(local), patch: clone(patch), precondition: clone(precondition), sequence: ++sequence, kind, ...(randomizationIntent ? { randomizationIntent: clone(randomizationIntent) } : {}), ...(randomizationResets.length ? { randomizationResets: clone(randomizationResets) } : {}) });
     notify();
     for (const listener of intentListeners) listener(intent);
     return intent;
@@ -165,7 +187,7 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
     },
     randomize(room, { type }) {
       requireAllocation(room, type);
-      domain.assignment.assign(room, type, domain.canonical);
+      return domain.assignment.assign(room, type, domain.canonical);
     },
     applySelection(room, { selectedApplicants, selectedManual }) {
       const application = room.meta?.applicationSync;
@@ -211,8 +233,15 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
     settlement(room, { state }) {
       room.settlement = domain.canonical.settlementToStorage(domain.settlement.normalizeSettlementState(state), room.participants);
     },
-    restore(room, { value }) {
+    restore(room, { value, source = 'backup' }) {
       const restored = domain.migrate(value);
+      for (const type of ['car', 'team']) {
+        if (source === 'sample' || source === 'reset') delete restored.allocations?.[type]?.randomization;
+        else {
+          const key = domain.randomization.getRandomizationConditionsKey(restored, type);
+          if (!domain.randomization.normalizeRandomizationHistory(restored.allocations?.[type]?.randomization, key)) delete restored.allocations?.[type]?.randomization;
+        }
+      }
       // Normal samples have no metadata and keep the live application metadata;
       // an explicit form-linked sample owns its applicationSync payload.
       const restoredMeta = restored.meta && Object.keys(restored.meta).length ? restored.meta : room.meta;
@@ -224,8 +253,22 @@ export function createRoomStore({ initial = {}, clientId = 'local', clock = { no
     if (!commands[name]) throw new Error(`Unknown command: ${name}`);
     const base = snapshot;
     const local = domain.canonical.set(base);
-    commands[name](local, args);
-    return publish(base, domain.migrate(local), { kind: name });
+    if (name === 'randomize' && !domain.randomization.hasRandomizationTargets(local, args.type, domain.assignment)) return null;
+    const result = commands[name](local, args);
+    if (name === 'randomize' && result === false) return null;
+    const migrated = domain.migrate(local);
+    let randomizationIntent = null;
+    if (name === 'randomize') {
+      const type = args.type;
+      const conditionsKey = domain.randomization.getRandomizationConditionsKey(migrated, type);
+      let history = domain.randomization.normalizeRandomizationHistory(migrated.allocations[type].randomization, conditionsKey);
+      if (!history) history = domain.randomization.createRandomizationHistory(conditionsKey, domain.randomization.getInitialRandomizationEpoch(conditionsKey));
+      const runId = createRandomizationId();
+      history.runs[runId] = true;
+      migrated.allocations[type].randomization = history;
+      randomizationIntent = { type, epochId: history.epochId, conditionsKey, runIds: [runId] };
+    }
+    return publish(base, migrated, { kind: name, randomizationIntent });
   }
   function beginEdit({ kind, participantId = '', scope = '' } = {}) {
     const session = { kind, participantId, scope, base: clone(snapshot), draft: clone(snapshot), closed: false };

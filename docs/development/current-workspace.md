@@ -5,20 +5,20 @@
 ## 公開基準
 
 - 公開URL: <https://mutoshiki.github.io/circle-kikaku-tools/>
-- 確認日時: 2026-10-14（公開manifestを再取得し、実装開始前に基準SHAを確認）
+- 確認日時: 2026-10-17（公開manifestを再取得し、実装開始前に基準SHAを確認）
 - manifest: <https://mutoshiki.github.io/circle-kikaku-tools/release-build.json>
-- 公開source SHA: `338737afcf47a43a4716b56a05cf49cecaf4c355`
-- 公開asset digest: `dff109eb26e81e9cbf8dea37e46c16a37b2c62ac46d1a4e477f029ce767059c2`
+- 公開source SHA: `b2ba4f9574d391c2d5bf8281b69e581ee6d2f2f7`
+- 公開asset digest: `2c19f2f1f36a9c993a5c56f32f2fbda5cb5090509c02baf9cde81ecd57864617`
 - 公開サイトはReactのルートビルド。CIで`apps/react/dist`からPagesルートを構成する。
-- 公開サイトを開いた今回のブラウザーでは`auth/network-request-failed`となり、room画面を確認できなかった。公開SHA・digestと保存済みPages archiveは既存の検証ツールで一致を確認済み。
+- 公開manifestは2026-10-17に再取得し、公開source SHAとasset digestを確認済み。
 
 ## 作業元
 
-- 専用worktree: `C:\Users\toshi\.codex\worktrees\initial-empty-state-usability\circle-kikaku-tools`
-- branch: `codex/settlement-entry-count-only`
-- 起点HEAD: `338737afcf47a43a4716b56a05cf49cecaf4c355`（公開manifestと一致。今回の作業branch `codex/settlement-entry-count-only`）
-- 公開ルートの`view=seisan`と費用編集のReact owner: `apps/react/src/components/Settlement.jsx`
-- 設定・精算計算のdomain owner: `apps/react/src/domain/settlement.js`。画面変更時も計算・保存・同期・永続化の契約を守る。
+- 専用worktree: `C:\Users\toshi\.codex\worktrees\vehicle-payments-release\circle-kikaku-tools`
+- branch: `codex/random-assignment-count`
+- 起点SHA: `b2ba4f9574d391c2d5bf8281b69e581ee6d2f2f7`（公開manifestと一致するツリーから開始）
+- 車割・班割のReact owner: `apps/react/src/components/Allocation.jsx`
+- 回数条件と永続化owner: `apps/react/src/domain/randomization-history.js`、`apps/react/src/store/room-store.js`、`apps/react/src/sync/room-sync.js`
 
 ## ブラウザーの使い分け
 
@@ -33,17 +33,17 @@
 作業開始時に公開manifestを取得し、`sourceSha`を基準値にします。公開版が変わったらこの対応表を更新し、既存worktreeの基準を無言で入れ替えません。
 
 ```powershell
-cd C:\Users\toshi\.codex\worktrees\initial-empty-state-usability\circle-kikaku-tools\apps\react
+cd C:\Users\toshi\.codex\worktrees\vehicle-payments-release\circle-kikaku-tools\apps\react
 npm ci
-npm run build:preview -- --baseline-source-sha 338737afcf47a43a4716b56a05cf49cecaf4c355
+npm run build:preview -- --baseline-source-sha b2ba4f9574d391c2d5bf8281b69e581ee6d2f2f7
 node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4195 --strictPort
 ```
 
 別のPowerShellで、ブラウザーで開く前に照合します。
 
 ```powershell
-cd C:\Users\toshi\.codex\worktrees\initial-empty-state-usability\circle-kikaku-tools\apps\react
-npm run check:preview -- --url http://127.0.0.1:4195/ --expected-source-sha 338737afcf47a43a4716b56a05cf49cecaf4c355
+cd C:\Users\toshi\.codex\worktrees\vehicle-payments-release\circle-kikaku-tools\apps\react
+npm run check:preview -- --url http://127.0.0.1:4195/ --expected-source-sha b2ba4f9574d391c2d5bf8281b69e581ee6d2f2f7
 ```
 
 照合はmanifest基準SHA、worktreeのHEADとsource fingerprint、build metadata、配信中のHTMLとJS/CSSを確認する。ソースがbuild後に変わった場合、別worktree由来の場合、SHAやmetadataが違う場合は失敗する。成功は「このローカルpreviewが指定SHAを祖先に持つ現在のworktreeからbuildされ、ページ資産が一致する」ことを示す。公開manifestとpreviewを毎回取り直す前提なので、成功結果を次回の版確認に流用しない。

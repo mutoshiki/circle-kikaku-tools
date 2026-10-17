@@ -54,8 +54,22 @@ export function createRoomSync({ store, storage, transport, clientId, clock, tim
     snapshot.revision = Math.max(Number(remote?.revision || 0), Number(snapshot.revision || 0)) + 1;
     const baseSnapshot = copy(intent.base || remote || {});
     const patch = intent.patch || sync.buildEntityPatch(baseSnapshot, snapshot, { forceCanonical });
+    const previousEntry = storage.read('outbox');
+    const combinedPatch = previousEntry && !forceCanonical ? { ...previousEntry.patch, ...patch } : patch;
     const id = `op_${clientId.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 48)}_${requestVersion}_${clock.now().toString(36)}`;
-    const entry = { id, operationId: id, requestVersion, snapshot, baseSnapshot, patch: copy(patch), precondition: copy(intent.precondition || null), createdAt: clock.now(), forceCanonical, allowPatchFallback };
+    const previousIntents = previousEntry?.randomizationIntents || [];
+    const candidates = [...previousIntents, ...(intent.randomizationIntent ? [intent.randomizationIntent] : [])];
+    const mergedIntents = new Map();
+    for (const candidate of candidates) {
+      const history = store.domain.randomization.normalizeRandomizationHistory(snapshot.allocations?.[candidate.type]?.randomization, store.domain.randomization.getRandomizationConditionsKey(snapshot, candidate.type));
+      if (!history || history.epochId !== candidate.epochId || history.conditionsKey !== candidate.conditionsKey) continue;
+      const key = `${candidate.type}:${candidate.epochId}:${candidate.conditionsKey}`;
+      const current = mergedIntents.get(key) || { type: candidate.type, epochId: candidate.epochId, conditionsKey: candidate.conditionsKey, runIds: [] };
+      current.runIds = [...new Set([...current.runIds, ...(candidate.runIds || [])])];
+      mergedIntents.set(key, current);
+    }
+    const randomizationIntents = [...mergedIntents.values()];
+    const entry = { id, operationId: id, requestVersion, snapshot, baseSnapshot, patch: copy(combinedPatch), precondition: copy(intent.precondition || null), randomizationIntents, createdAt: clock.now(), forceCanonical, allowPatchFallback };
     // Deliberately retains the existing one-record-per-room outbox contract.
     storage.write('outbox', entry);
     storage.write('room', snapshot);
@@ -93,13 +107,29 @@ export function createRoomSync({ store, storage, transport, clientId, clock, tim
       let duplicate = false;
       let reset = false;
       let preconditionFailed = false;
+      let randomizationConditionsChanged = false;
       const response = await transport.transaction(current => {
         if (sync.isUnsupportedRemoteSchema(current)) throw new Error(`Remote schema ${current.schemaVersion} is newer than this client`);
         if (Number(current?.resetGeneration || 0) !== Number(entry.baseSnapshot?.resetGeneration || 0)) { reset = true; return undefined; }
         if (current?.syncOperations?.[entry.id]) { duplicate = true; return undefined; }
         if (entry.precondition && !entry.precondition.every(({ path, value }) => sameValue(sync.getSyncPathValue(current || {}, path), value))) { preconditionFailed = true; return undefined; }
-        return entry.forceCanonical ? cleanup(current, entry) : sync.applyVersionedEntityPatch(current || {}, entry.baseSnapshot, entry.snapshot, entry.patch, entry.requestVersion, entry.id, Number(entry.snapshot.lastUpdatedAt || 0));
+        if (entry.forceCanonical) return cleanup(current, entry);
+        try {
+          return sync.applyVersionedEntityPatch(current || {}, entry.baseSnapshot, entry.snapshot, entry.patch, entry.requestVersion, entry.id, Number(entry.snapshot.lastUpdatedAt || 0), { randomizationIntents: entry.randomizationIntents || [] });
+        } catch (error) {
+          if (error?.code === 'randomization/conditions-changed') { randomizationConditionsChanged = true; return undefined; }
+          throw error;
+        }
       });
+      if (randomizationConditionsChanged) {
+        result = migrate(response.value || remote || {});
+        if (!started || currentEpoch !== epoch) return null;
+        clearOutbox(entry.id);
+        applyRemote(result);
+        record('rejected', '割り当て条件変更により古いランダム割り当て履歴を破棄', entry.patch);
+        setStatus('error', '割り当て条件が変更されたため、古いランダム割り当てを反映しませんでした。', new Error('割り当て条件が変更されました。'));
+        return result;
+      }
       if (preconditionFailed) {
         result = migrate(response.value || remote || {});
         if (!started || currentEpoch !== epoch) return null;
@@ -113,7 +143,7 @@ export function createRoomSync({ store, storage, transport, clientId, clock, tim
       result = migrate(response.value || {});
       if (reset) record('adjusted', 'リセット後の古い保存を破棄', entry.patch);
     } catch (error) {
-      if (!entry.precondition && entry.allowPatchFallback && sync.isTransactionRetryExhausted(error)) {
+      if (!entry.precondition && !entry.randomizationIntents?.length && entry.allowPatchFallback && sync.isTransactionRetryExhausted(error)) {
         try { result = await fallback(entry); } catch (fallbackError) { error = fallbackError; }
       }
       if (!result) {

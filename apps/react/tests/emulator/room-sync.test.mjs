@@ -49,6 +49,9 @@ test('real SDK + Auth/RTDB Emulator: current Rules accept React schema6 writes a
     clients[0].store.command('editParticipant', { id: ids[0], changes: { memo: 'Emulator端末A' } });
     clients[1].store.command('editParticipant', { id: ids[1], changes: { memo: 'Emulator端末B' } });
     await Promise.all(clients.map(c => c.sync.flush()));
+    clients[0].store.command('randomize', { type: 'car' });
+    clients[1].store.command('randomize', { type: 'car' });
+    await Promise.all(clients.map(c => c.sync.flush()));
     for (const c of clients) assert.equal(c.sync.getSnapshot().kind, 'connected', c.sync.getSnapshot().error);
     const saved = await read(roomId);
     assert.equal(saved.schemaVersion, 6);
@@ -56,6 +59,7 @@ test('real SDK + Auth/RTDB Emulator: current Rules accept React schema6 writes a
     assert.equal(saved.participants[ids[1]].memo, 'Emulator端末B');
     assert.deepEqual(saved.meta.applicationSync, fixture.meta.applicationSync);
     assert.deepEqual(saved.meta.applicantParticipantIds, initial.meta.applicantParticipantIds);
+    assert.equal(Object.keys(saved.allocations.car.randomization.runs).length, 2, 'two authenticated RTDB clients preserve both concurrent randomization runs');
     const oldRoom = reference.migrateAppData(saved);
     const newRoom = clients[0].store.domain.migrate(saved);
     assert.deepEqual(plain(oldRoom), plain(newRoom));

@@ -100,6 +100,8 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .allocation-toolbar p { display: flex; gap: layout.$spacing-04; flex-wrap: wrap; margin: 0; }
 .allocation-toolbar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-02; }
 .allocation-toolbar-actions > .cds--btn { flex: 0 0 auto; inline-size: auto; max-inline-size: none; }
+.allocation-randomization-action { display: inline-flex; flex: 0 0 auto; align-items: center; gap: layout.$spacing-02; }
+.allocation-randomization-count { color: var(--cds-text-secondary); font-size: var(--cds-body-compact-01-font-size); white-space: nowrap; }
 .allocation-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr)); align-items: start; gap: layout.$spacing-05; margin-block-end: layout.$spacing-05; }
 .allocation-group { min-width: 0; background: var(--cds-layer); }
 .allocation-group:not(:last-child) { padding-block-end: layout.$spacing-03; border-block-end: 1px solid var(--cds-border-subtle); }
