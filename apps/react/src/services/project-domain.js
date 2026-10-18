@@ -195,7 +195,7 @@ function bodyText({ allowPlaceholder = false } = {}) {
   }
 
 
-// Source: assets/js/features/handoff-export.js; SHA-256 1e86395cbce6aaa9e717fc3b092bdbf6e6ee9c2bd8de99d724e1f7f9b5659433
+// Source: assets/js/features/handoff-export.js; SHA-256 55ce7983aa98049a5c1decbf44b11a6568a4e3f6fc10c5d3e7ebb3056db4e1dd
 function validToken(value) {
     return /^h_[A-Za-z0-9_-]{48,160}$/.test(String(value || ''));
   }
@@ -203,7 +203,7 @@ function validToken(value) {
 function committedExportSelection() {
     const room = canonical();
     const sync = applicationSync(room);
-    if (!room || !sync) return { responseKeys: [], manualNames: [], ambiguousNames: [] };
+    if (!room || !sync) return { responseKeys: [], manualNames: [], manualParticipantIds: [], ambiguousNames: [] };
 
     const applicantsByName = new Map();
     Object.entries(sync.applicants || {}).forEach(([responseKey, applicant]) => {
@@ -216,8 +216,9 @@ function committedExportSelection() {
 
     const responseKeys = [];
     const manualNames = [];
+    const manualParticipantIds = [];
     const ambiguousNames = [];
-    Object.values(room.participants || {}).forEach(participant => {
+    Object.entries(room.participants || {}).forEach(([participantId, participant]) => {
       const name = String(participant?.name || '').trim();
       if (!name) return;
       const candidates = applicantsByName.get(normalizedName(name)) || [];
@@ -230,10 +231,11 @@ function committedExportSelection() {
         ambiguousNames.push(name);
       } else {
         manualNames.push(name);
+        manualParticipantIds.push(String(participantId));
       }
     });
 
-    return { responseKeys, manualNames, ambiguousNames };
+    return { responseKeys, manualNames, manualParticipantIds, ambiguousNames };
   }
 
 function csvCell(value) {

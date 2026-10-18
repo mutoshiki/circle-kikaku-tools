@@ -7,6 +7,7 @@ import { createOverviewDraftStorage } from './services/overview-draft.js';
 import { createShareUrl, prepareCompatibleUrl } from './services/url-compat.js';
 import { withRoutePlaceCatalogMerge } from './route-place-sync.js';
 import { recordPortalVisit, updatePortalProject } from './services/portal-history.js';
+import { createHandoffClient } from './services/handoff-client.js';
 
 export function createLocalRuntime({ location, history, storage, crypto, transport, legacyLoadWrites = true, routeService = null, externalAdapters = {} }) {
   const launch = prepareCompatibleUrl({ location, history, storage, crypto });
@@ -29,10 +30,11 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
     read(fallback = {}) { try { return JSON.parse(storage.getItem(routeDraftKey) || 'null') || structuredClone(fallback); } catch { return structuredClone(fallback); } },
     write(value) { storage.setItem(routeDraftKey, JSON.stringify(value)); return value; },
   });
+  const workerHandoff = createHandoffClient({ transport, crypto, storage: roomStorage });
   const external = Object.freeze({
     async handoff(payload) {
-      if (typeof externalAdapters.handoff !== 'function') throw new Error('引き継ぎデータ作成先が設定されていません。');
-      return externalAdapters.handoff(payload);
+      if (typeof externalAdapters.handoff === 'function') return externalAdapters.handoff(payload);
+      return workerHandoff(payload);
     },
     async bugReport(payload) {
       if (typeof externalAdapters.bugReport !== 'function') throw new Error('バグ報告の送信先が設定されていません。');

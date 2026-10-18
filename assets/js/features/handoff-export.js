@@ -71,7 +71,7 @@
   function committedExportSelection() {
     const room = canonical();
     const sync = applicationSync(room);
-    if (!room || !sync) return { responseKeys: [], manualNames: [], ambiguousNames: [] };
+    if (!room || !sync) return { responseKeys: [], manualNames: [], manualParticipantIds: [], ambiguousNames: [] };
 
     const applicantsByName = new Map();
     Object.entries(sync.applicants || {}).forEach(([responseKey, applicant]) => {
@@ -84,8 +84,9 @@
 
     const responseKeys = [];
     const manualNames = [];
+    const manualParticipantIds = [];
     const ambiguousNames = [];
-    Object.values(room.participants || {}).forEach(participant => {
+    Object.entries(room.participants || {}).forEach(([participantId, participant]) => {
       const name = String(participant?.name || '').trim();
       if (!name) return;
       const candidates = applicantsByName.get(normalizedName(name)) || [];
@@ -98,10 +99,11 @@
         ambiguousNames.push(name);
       } else {
         manualNames.push(name);
+        manualParticipantIds.push(String(participantId));
       }
     });
 
-    return { responseKeys, manualNames, ambiguousNames };
+    return { responseKeys, manualNames, manualParticipantIds, ambiguousNames };
   }
 
   function hasPendingSelection() {
