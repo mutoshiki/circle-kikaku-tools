@@ -69,7 +69,7 @@ test('guidance and handoff CSV preserve application metadata ownership and parti
   const project = createProjectDomain({ getRoom: () => room, getAnnouncement: () => ({ meetingTime: '08:30', itinerary: [{ time: '09:00', step: '出発' }] }), settlement: createDomain().settlement });
   assert.match(project.bodyText(), /10月4日\(日\)紅葉企画/);
   assert.match(project.bodyText(), /○山田 花子/);
-  assert.deepEqual(project.committedExportSelection(), { responseKeys: ['r1'], manualNames: ['手動 太郎'], ambiguousNames: [] });
+  assert.deepEqual(project.committedExportSelection(), { responseKeys: ['r1'], manualNames: ['手動 太郎'], manualParticipantIds: ['p2'], ambiguousNames: [] });
   assert.equal(project.buildParticipantCsv([{ studentId: '123', name: '山田 "花子"' }]), '\uFEFF"学籍番号","氏名"\r\n"123","山田 ""花子"""\r\n');
   assert.equal(room.meta.applicationSync.title, '紅葉');
 });

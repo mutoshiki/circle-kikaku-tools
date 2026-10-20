@@ -63,6 +63,279 @@
     "bugReportNotifications": {
       ".read": false,
       ".write": false
+    },
+    "formMakerV1": {
+      "workers": {
+        ".read": false,
+        ".write": false
+      },
+      "status": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true",
+        ".validate": "newData.hasChildren(['accepting', 'state', 'dailyCount', 'dailyLimit', 'updatedAt', 'errorCode'])",
+        "accepting": {
+          ".validate": "newData.isBoolean()"
+        },
+        "state": {
+          ".validate": "newData.val() == 'ready' || newData.val() == 'paused' || newData.val() == 'daily_limit' || newData.val() == 'error' || newData.val() == 'busy' || newData.val() == 'idle' || newData.val() == 'completed' || newData.val() == 'partial' || newData.val() == 'failed' || newData.val() == 'unknown' || newData.val() == 'worker_unavailable'"
+        },
+        "dailyCount": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "dailyLimit": {
+          ".validate": "newData.isNumber() && newData.val() > 0"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber() && newData.val() > 0"
+        },
+        "errorCode": {
+          ".validate": "newData.isString() && newData.val().length <= 80"
+        },
+        "$other": {
+          ".validate": false
+        },
+        "acceptanceMode": {
+          ".validate": "newData.val() == 'open' || newData.val() == 'test'"
+        }
+      },
+      "admission": {
+        "slots": {
+          ".read": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true",
+          ".indexOn": [
+            "requestedAt"
+          ],
+          "$slotId": {
+            ".read": "auth != null && (root.child('formMakerV1/workers').child(auth.uid).val() == true || data.child('uid').val() == auth.uid)",
+            ".write": "auth != null && ((root.child('formMakerV1/workers').child(auth.uid).val() == true && data.exists() && !newData.exists()) || (!data.exists() && newData.exists() && auth.uid == newData.child('uid').val() && root.child('formMakerV1/status').child('accepting').val() == true && (!root.child('formMakerV1/status/acceptanceMode').exists() || root.child('formMakerV1/status/acceptanceMode').val() == 'open' || (root.child('formMakerV1/status/acceptanceMode').val() == 'test' && root.child('formMakerV1/testOwners').child(auth.uid).val() == true))))",
+            ".validate": "$slotId.matches(/^(0[1-9]|[1-3][0-9]|40)$/) && newData.hasChildren(['uid', 'jobId', 'kind', 'requestHash', 'requestedAt']) && newData.child('uid').isString() && newData.child('uid').val().matches(/^[A-Za-z0-9_-]{1,128}$/) && newData.child('jobId').isString() && newData.child('jobId').val().matches(/^[A-Za-z0-9_-]{16,80}$/) && (newData.child('kind').val() == 'create' || newData.child('kind').val() == 'handoff') && newData.child('requestHash').isString() && newData.child('requestHash').val().matches(/^[a-f0-9]{64}$/) && newData.child('requestedAt').isNumber() && newData.child('requestedAt').val() > 0",
+            "uid": {
+              ".validate": "newData.val() == auth.uid || root.child('formMakerV1/workers').child(auth.uid).val() == true"
+            },
+            "jobId": {
+              ".validate": "newData.isString() && newData.val().matches(/^[A-Za-z0-9_-]{16,80}$/)"
+            },
+            "kind": {
+              ".validate": "newData.val() == 'create' || newData.val() == 'handoff'"
+            },
+            "requestHash": {
+              ".validate": "newData.isString() && newData.val().matches(/^[a-f0-9]{64}$/)"
+            },
+            "requestedAt": {
+              ".validate": "newData.isNumber() && newData.val() > 0"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        }
+      },
+      "users": {
+        ".read": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true",
+        "$uid": {
+          ".read": "auth != null && (auth.uid == $uid || root.child('formMakerV1/workers').child(auth.uid).val() == true)",
+          "jobs": {
+            ".indexOn": [
+              "state",
+              "requestedAt"
+            ],
+            "$jobId": {
+              ".read": "auth != null && (auth.uid == $uid || root.child('formMakerV1/workers').child(auth.uid).val() == true)",
+              ".write": "auth != null && auth.uid == $uid && !data.exists() && newData.exists() && newData.child('state').val() == 'queued' && root.child('formMakerV1/status').child('accepting').val() == true && (!root.child('formMakerV1/status/acceptanceMode').exists() || root.child('formMakerV1/status/acceptanceMode').val() == 'open' || (root.child('formMakerV1/status/acceptanceMode').val() == 'test' && root.child('formMakerV1/testOwners').child(auth.uid).val() == true)) && root.child('formMakerV1/admission/slots').child(newData.child('admissionSlotId').val()).child('uid').val() == auth.uid && root.child('formMakerV1/admission/slots').child(newData.child('admissionSlotId').val()).child('jobId').val() == $jobId && root.child('formMakerV1/admission/slots').child(newData.child('admissionSlotId').val()).child('kind').val() == 'create' && root.child('formMakerV1/admission/slots').child(newData.child('admissionSlotId').val()).child('requestHash').val() == newData.child('inputHash').val() && root.child('formMakerV1/admission/slots').child(newData.child('admissionSlotId').val()).child('requestedAt').val() == newData.child('requestedAt').val() && !newData.child('result').exists() && !newData.child('updatedAt').exists() && !newData.child('startedAt').exists() && !newData.child('finishedAt').exists() && !newData.child('errorCode').exists()",
+              ".validate": "newData.hasChildren(['jobId', 'protocolVersion', 'admissionSlotId', 'input', 'inputHash', 'requestedAt', 'state'])",
+              "jobId": {
+                ".validate": "newData.isString() && newData.val() == $jobId && newData.val().matches(/^[A-Za-z0-9_-]{16,80}$/)"
+              },
+              "protocolVersion": {
+                ".validate": "newData.val() == 1"
+              },
+              "admissionSlotId": {
+                ".validate": "newData.isString() && newData.val().matches(/^(0[1-9]|[1-3][0-9]|40)$/)"
+              },
+              "input": {
+                ".validate": "newData.hasChildren(['planName', 'editorEmail'])",
+                "planName": {
+                  ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
+                },
+                "editorEmail": {
+                  ".validate": "newData.isString() && newData.val().length <= 254 && newData.val().matches(/^[^@ ]+@[^@ ]+\\.[^@ ]+$/)"
+                },
+                "eventDate": {
+                  ".validate": "newData.isString() && newData.val().length <= 40"
+                },
+                "deadline": {
+                  ".validate": "newData.isString() && newData.val().length <= 40"
+                },
+                "description": {
+                  ".validate": "newData.isString() && newData.val().length <= 3000"
+                },
+                "handoffTokenHash": {
+                  ".validate": "newData.isString() && newData.val().matches(/^[a-f0-9]{64}$/)"
+                },
+                "$other": {
+                  ".validate": false
+                }
+              },
+              "inputHash": {
+                ".validate": "newData.isString() && newData.val().matches(/^[a-f0-9]{64}$/)"
+              },
+              "requestedAt": {
+                ".validate": "newData.isNumber() && newData.val() > 0"
+              },
+              "state": {
+                ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true && newData.exists() && ((data.val() == 'queued' && (newData.val() == 'running' || newData.val() == 'failed')) || (data.val() == 'running' && (newData.val() == 'completed' || newData.val() == 'partial' || newData.val() == 'failed' || newData.val() == 'unknown')) || (data.val() == 'unknown' && newData.val() == 'partial'))",
+                ".validate": "newData.val() == 'queued' || newData.val() == 'running' || newData.val() == 'completed' || newData.val() == 'partial' || newData.val() == 'failed' || newData.val() == 'unknown'"
+              },
+              "updatedAt": {
+                ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true && (root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'queued' || root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'running' || root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'unknown') && newData.exists()",
+                ".validate": "newData.isNumber() && newData.val() > 0"
+              },
+              "startedAt": {
+                ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true && (root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'queued' || root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'running' || root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'unknown') && newData.exists()",
+                ".validate": "newData.isNumber() && newData.val() > 0"
+              },
+              "finishedAt": {
+                ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true && (root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'queued' || root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'running' || root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'unknown') && newData.exists()",
+                ".validate": "newData.isNumber() && newData.val() > 0"
+              },
+              "result": {
+                ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true && (root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'running' || root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'unknown') && newData.exists()",
+                "planName": {
+                  ".validate": "newData.isString() && newData.val().length <= 100"
+                },
+                "createdAt": {
+                  ".validate": "newData.isNumber() && newData.val() > 0"
+                },
+                "formId": {
+                  ".validate": "newData.isString() && newData.val().length <= 200"
+                },
+                "formUrl": {
+                  ".validate": "newData.isString() && newData.val().length <= 2048"
+                },
+                "editUrl": {
+                  ".validate": "newData.isString() && newData.val().length <= 2048"
+                },
+                "projectId": {
+                  ".validate": "newData.isString() && newData.val().length <= 200"
+                },
+                "projectUrl": {
+                  ".validate": "newData.isString() && newData.val().length <= 2048"
+                },
+                "responseSheetUrl": {
+                  ".validate": "newData.isString() && newData.val().length <= 2048"
+                },
+                "stepResults": {
+                  "$step": {
+                    ".validate": "newData.val() == 'completed' || newData.val() == 'failed' || newData.val() == 'skipped' || newData.val() == 'unknown'"
+                  }
+                },
+                "$other": {
+                  ".validate": false
+                }
+              },
+              "errorCode": {
+                ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true && (root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'queued' || root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'running' || root.child('formMakerV1/users').child($uid).child('jobs').child($jobId).child('state').val() == 'unknown') && newData.exists()",
+                ".validate": "newData.isString() && newData.val().length <= 80"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          },
+          "handoffs": {
+            ".indexOn": [
+              "state",
+              "requestedAt"
+            ],
+            "$jobId": {
+              ".read": "auth != null && (auth.uid == $uid || root.child('formMakerV1/workers').child(auth.uid).val() == true)",
+              ".write": "auth != null && auth.uid == $uid && !data.exists() && newData.exists() && newData.child('state').val() == 'queued' && root.child('formMakerV1/status').child('accepting').val() == true && (!root.child('formMakerV1/status/acceptanceMode').exists() || root.child('formMakerV1/status/acceptanceMode').val() == 'open' || (root.child('formMakerV1/status/acceptanceMode').val() == 'test' && root.child('formMakerV1/testOwners').child(auth.uid).val() == true)) && root.child('formMakerV1/admission/slots').child(newData.child('admissionSlotId').val()).child('uid').val() == auth.uid && root.child('formMakerV1/admission/slots').child(newData.child('admissionSlotId').val()).child('jobId').val() == $jobId && root.child('formMakerV1/admission/slots').child(newData.child('admissionSlotId').val()).child('kind').val() == 'handoff' && root.child('formMakerV1/admission/slots').child(newData.child('admissionSlotId').val()).child('requestHash').val() == newData.child('input/tokenHash').val() && root.child('formMakerV1/admission/slots').child(newData.child('admissionSlotId').val()).child('requestedAt').val() == newData.child('requestedAt').val() && !newData.child('result').exists() && !newData.child('updatedAt').exists() && !newData.child('startedAt').exists() && !newData.child('finishedAt').exists() && !newData.child('errorCode').exists()",
+              ".validate": "newData.hasChildren(['jobId', 'protocolVersion', 'admissionSlotId', 'input', 'requestedAt', 'state'])",
+              "jobId": {
+                ".validate": "newData.isString() && newData.val() == $jobId && newData.val().matches(/^[A-Za-z0-9_-]{16,80}$/)"
+              },
+              "protocolVersion": {
+                ".validate": "newData.val() == 1"
+              },
+              "admissionSlotId": {
+                ".validate": "newData.isString() && newData.val().matches(/^(0[1-9]|[1-3][0-9]|40)$/)"
+              },
+              "input": {
+                ".validate": "newData.hasChildren(['projectId', 'tokenHash', 'responseKeys', 'manualParticipantHashes'])",
+                "projectId": {
+                  ".validate": "newData.isString() && newData.val().matches(/^[A-Za-z0-9_-]{6,80}$/)"
+                },
+                "tokenHash": {
+                  ".validate": "newData.isString() && newData.val().matches(/^[a-f0-9]{64}$/)"
+                },
+                "responseKeys": {
+                  ".validate": "newData.isString() && newData.val().length <= 8599 && (newData.val().length == 0 || newData.val().matches(/^r_[A-Za-z0-9_-]{12,40}(,r_[A-Za-z0-9_-]{12,40})*$/))"
+                },
+                "manualParticipantHashes": {
+                  ".validate": "newData.isString() && newData.val().length <= 12999 && (newData.val().length == 0 || newData.val().matches(/^[a-f0-9]{64}(,[a-f0-9]{64})*$/))"
+                },
+                "$other": {
+                  ".validate": false
+                }
+              },
+              "requestedAt": {
+                ".validate": "newData.isNumber() && newData.val() > 0"
+              },
+              "state": {
+                ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true && newData.exists() && ((data.val() == 'queued' && (newData.val() == 'running' || newData.val() == 'failed')) || (data.val() == 'running' && (newData.val() == 'completed' || newData.val() == 'failed' || newData.val() == 'unknown')))",
+                ".validate": "newData.val() == 'queued' || newData.val() == 'running' || newData.val() == 'completed' || newData.val() == 'failed' || newData.val() == 'unknown'"
+              },
+              "updatedAt": {
+                ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true && (data.parent().child('state').val() == 'queued' || data.parent().child('state').val() == 'running') && newData.exists()",
+                ".validate": "newData.isNumber() && newData.val() > 0"
+              },
+              "startedAt": {
+                ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true && data.parent().child('state').val() == 'queued' && newData.exists()",
+                ".validate": "newData.isNumber() && newData.val() > 0"
+              },
+              "finishedAt": {
+                ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true && data.parent().child('state').val() == 'running' && newData.exists()",
+                ".validate": "newData.isNumber() && newData.val() > 0"
+              },
+              "result": {
+                ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true && data.parent().child('state').val() == 'running' && newData.exists()",
+                "fileId": {
+                  ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
+                },
+                "downloadUrl": {
+                  ".validate": "newData.isString() && newData.val().matches(/^https:\\/\\/drive\\.google\\.com\\//) && newData.val().length <= 2048"
+                },
+                "expiresAt": {
+                  ".validate": "newData.isNumber() && newData.val() > 0"
+                },
+                "count": {
+                  ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 200"
+                },
+                "$other": {
+                  ".validate": false
+                }
+              },
+              "errorCode": {
+                ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true && (data.parent().child('state').val() == 'queued' || data.parent().child('state').val() == 'running') && newData.exists()",
+                ".validate": "newData.isString() && newData.val().length <= 80"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      },
+      "testOwners": {
+        ".read": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true",
+        ".write": "auth != null && root.child('formMakerV1/workers').child(auth.uid).val() == true",
+        "$uid": {
+          ".read": "auth != null && (auth.uid == $uid || root.child('formMakerV1/workers').child(auth.uid).val() == true)",
+          ".validate": "newData.val() == true"
+        }
+      }
     }
   }
 }

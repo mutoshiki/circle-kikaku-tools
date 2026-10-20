@@ -36,16 +36,26 @@ export function GuidanceModal({ runtime, room, onClose, onNotice }) {
 }
 
 export function ExportModal({ runtime, room, onClose, onNotice }) {
+  const [downloadUrl, setDownloadUrl] = useState('');
+  const [processing, setProcessing] = useState(false);
   const project = useMemo(() => createProjectDomain({ getRoom: () => room, settlement: runtime.store.domain.settlement }), [room, runtime]);
   const selection = project.committedExportSelection();
   const blocked = !project.applicationSync() || !runtime.handoffToken || selection.ambiguousNames.length > 0 || (!selection.responseKeys.length && !selection.manualNames.length);
   const reason = !project.applicationSync() ? '応募フォームと自動連携した企画で利用できます。' : !runtime.handoffToken ? 'この端末には作成権限がありません。' : selection.ambiguousNames.length ? `同名の応募者（${selection.ambiguousNames.join('・')}）を安全に判別できません。` : '参加者を確定してください。';
   async function download() {
+    if (processing) return;
+    setProcessing(true);
     try {
       let participants = [];
       let filename = `${String(project.applicationSync()?.title || '企画').replace(/[\\/:*?"<>|]/g, '_')}_参加者.csv`;
-      if (selection.responseKeys.length) {
-        const payload = await runtime.external.handoff({ action: 'handoff-export', projectId: runtime.roomId, token: runtime.handoffToken, responses: selection.responseKeys.join(',') });
+      if (selection.responseKeys.length || (project.applicationSync()?.handoffVersion === 1 && selection.manualNames.length)) {
+        const payload = await runtime.external.handoff({ action: 'handoff-export', projectId: runtime.roomId, token: runtime.handoffToken, responses: selection.responseKeys.join(','), manualParticipantIds: selection.manualParticipantIds || [] });
+        if (project.applicationSync()?.handoffVersion === 1) {
+          if (!payload?.ok || !/^https:\/\/drive\.google\.com\//.test(payload.downloadUrl || '')) throw new Error('ダウンロード先を確認できませんでした。');
+          setDownloadUrl(payload.downloadUrl);
+          onNotice(`${payload.count}人分のCSVを用意しました。`);
+          return;
+        }
         if (!payload?.ok || !Array.isArray(payload.participants)) throw new Error(payload?.error || '参加者データを読み取れませんでした。');
         participants = payload.participants; filename = payload.filename || filename;
       }
@@ -54,8 +64,9 @@ export function ExportModal({ runtime, room, onClose, onNotice }) {
       const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = filename; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 30000);
       onNotice(`${participants.length}人の引き継ぎデータを作成しました。`); onClose();
     } catch (error) { onNotice(error.message); }
+    finally { setProcessing(false); }
   }
-  return <Modal className="app-modal" closeButtonLabel="閉じる" open size="sm" modalHeading="引き継ぎデータ" primaryButtonText="引き継ぎデータを作成" secondaryButtonText="閉じる" primaryButtonDisabled={blocked} onRequestSubmit={download} onRequestClose={onClose}><p>学務提出書類作成ツールに読み込むための引き継ぎデータを作成します。</p>{blocked && <InlineNotification kind="warning" title="作成できません" subtitle={reason} hideCloseButton lowContrast />}</Modal>;
+  return <Modal className="app-modal" closeButtonLabel="閉じる" open size="sm" modalHeading="引き継ぎデータ" primaryButtonText={processing ? '作成しています' : '引き継ぎデータを作成'} secondaryButtonText="閉じる" primaryButtonDisabled={blocked || processing || Boolean(downloadUrl)} onRequestSubmit={download} onRequestClose={onClose}><p>学務提出書類作成ツールに読み込むための引き継ぎデータを作成します。</p>{blocked && <InlineNotification kind="warning" title="作成できません" subtitle={reason} hideCloseButton lowContrast />}{processing && <InlineNotification kind="info" title="準備しています" subtitle="完了までこの画面を開いたままお待ちください。" hideCloseButton lowContrast />}{downloadUrl && <div className="form-stack"><InlineNotification kind="success" title="準備できました" subtitle="このファイルは24時間後に削除されます。" hideCloseButton lowContrast /><a href={downloadUrl} target="_blank" rel="noopener noreferrer">CSVをダウンロード</a></div>}</Modal>;
 }
 
 export function BugModal({ runtime, room, onClose, onNotice }) {
