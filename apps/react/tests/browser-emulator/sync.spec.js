@@ -68,8 +68,10 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     await Promise.all([expect(pageA.locator('.sync-status')).toHaveText('同期完了'), expect(pageB.locator('.sync-status')).toHaveText('同期完了')]);
 
     async function openExpense(page, carHeading = '仮参加者A車', dialogName = carHeading) {
-      const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: carHeading, exact: true }) });
-      await car.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
+      // The accessible heading now identifies the section as a payment
+      // breakdown, so use the car-specific expense action to select the row.
+      const action = page.getByRole('button', { name: `${carHeading}の費用を編集`, exact: true });
+      await action.click();
       const dialog = page.getByRole('dialog', { name: dialogName });
       await dialog.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
       return dialog;
@@ -146,7 +148,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     await pageA.reload();
     await pageA.getByRole('tab', { name: '精算', exact: true }).click();
     await expect(pageA.locator('.sync-status')).toHaveText('同期完了');
-    const refreshedCar = pageA.locator('.settlement-car').filter({ has: pageA.getByRole('heading', { name: '仮参加者A車', exact: true }) });
+    const refreshedCar = pageA.locator('.settlement-car').filter({ has: pageA.getByRole('button', { name: '「仮参加者A車」支払い内訳', exact: true }) });
     await refreshedCar.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
     const refreshedDialog = pageA.getByRole('dialog', { name: '仮参加者A車' });
     await expect(refreshedDialog.locator('.settlement-cost-editor').getByText('端末A 当日駐車代', { exact: true })).toBeVisible();
@@ -184,8 +186,7 @@ test('two real browsers preserve concurrently added route places in shared room 
     await Promise.all([expect(pageA.locator('.sync-status')).toHaveText('同期完了'), expect(pageB.locator('.sync-status')).toHaveText('同期完了')]);
 
     async function openRoute(page) {
-      const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: '仮参加者A車', exact: true }) });
-      await car.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
+      await page.getByRole('button', { name: /^仮参加者A車の費用を(?:入力|編集)$/ }).click();
       const dialog = page.getByRole('dialog', { name: '仮参加者A車' });
       await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
       await dialog.getByRole('button', { name: '移動距離計算ツール' }).click();
