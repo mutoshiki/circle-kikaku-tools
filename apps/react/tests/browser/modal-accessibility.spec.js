@@ -13,7 +13,9 @@ test.beforeEach(async ({ page }, testInfo) => {
 
 test('vehicle expense dialog name includes the vehicle and current task', async ({ page }) => {
   await page.getByRole('tab', { name: '精算', exact: true }).click();
-  await page.getByRole('button', { name: /仮参加者A車の費用を(?:入力|編集)/ }).click();
+  const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) });
+  await car.getByRole('button', { name: /支払い内訳/ }).click();
+  await car.getByRole('button', { name: /仮参加者A車の費用を編集/ }).click();
   const dialog = page.getByRole('dialog', { name: '仮参加者A車：費用を編集' });
   await expect(dialog).toBeVisible();
   await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();

@@ -126,9 +126,9 @@ test('empty unlinked participant state opens count-only settlement settings with
   await settings.getByRole('button', { name: '次へ', exact: true }).click();
   await settings.getByRole('button', { name: '保存', exact: true }).click();
   await expect(settings).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: '各車への支払い', exact: true })).toBeVisible();
+  await expect(page.locator('.settlement-car-list')).toBeVisible();
   const persisted = await page.evaluate(() => JSON.parse(localStorage.getItem('sanpo-react:v1:REGISTRATION-COUNT-ONLY:room')));
   expect(persisted.settlement?.standalone?.enabled).toBe(true);
   await page.reload();
-  await expect(page.getByRole('heading', { name: '各車への支払い', exact: true })).toBeVisible();
+  await expect(page.locator('.settlement-car-list')).toBeVisible();
 });

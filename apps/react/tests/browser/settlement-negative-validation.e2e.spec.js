@@ -14,14 +14,21 @@ test.beforeEach(async ({ page }, testInfo) => {
   expect(horizontalOverflow).toBeLessThanOrEqual(1);
 });
 
+async function openFirstExpenseEditor(page) {
+  const car = page.locator('.settlement-car').first();
+  const action = car.getByRole('button', { name: /費用を(?:入力|編集)/ });
+  if (!await action.isVisible()) await car.getByRole('button', { name: /支払い内訳/ }).click();
+  await action.click();
+}
+
 test('expense editor rejects negative values and a zero-value row preserves settlement results', async ({ page }) => {
   const firstCar = page.locator('.settlement-car').first();
   const paymentView = async car => JSON.stringify({
     amounts: (await car.locator('.settlement-car-amounts').innerText()).replace(/\s+/g, ''),
-    breakdown: (await car.locator('.settlement-car-breakdown').innerText()).replace(/\s+/g, ''),
+    breakdown: (await car.locator('.settlement-cost-list').innerText()).replace(/\s+/g, ''),
   });
   const originalBreakdown = await paymentView(firstCar);
-  await page.getByRole('button', { name: /費用を(?:入力|編集)/ }).first().click();
+  await openFirstExpenseEditor(page);
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('button', { name: '新しい費用を追加' }).click();
   await dialog.getByLabel('名目').fill('E2Eゼロ円');
@@ -47,7 +54,7 @@ test('expense editor rejects negative values and a zero-value row preserves sett
   await page.getByRole('tab', { name: '精算', exact: true }).click();
   const reloadedCar = page.locator('.settlement-car').first();
   expect(await paymentView(reloadedCar)).toBe(originalBreakdown);
-  await page.getByRole('button', { name: /費用を(?:入力|編集)/ }).first().click();
+  await openFirstExpenseEditor(page);
   const reloadedDialog = page.getByRole('dialog');
   const zeroCost = reloadedDialog.getByRole('listitem').filter({ hasText: 'E2Eゼロ円' });
   await zeroCost.getByRole('button', { name: 'E2Eゼロ円を編集' }).click();
@@ -56,7 +63,7 @@ test('expense editor rejects negative values and a zero-value row preserves sett
 });
 
 test('movement fields allow blanks and zero where valid, and reject negatives inline', async ({ page }) => {
-  await page.getByRole('button', { name: /費用を(?:入力|編集)/ }).first().click();
+  await openFirstExpenseEditor(page);
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   const cases = [

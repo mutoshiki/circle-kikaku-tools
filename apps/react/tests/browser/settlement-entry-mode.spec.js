@@ -20,11 +20,11 @@ test('count-only settlement hides navigation, survives reload, and can return to
   await settings.getByRole('button', { name: '保存', exact: true }).click();
   await expect(settings).toHaveCount(0);
   await expect(page.getByRole('tab')).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: '車出し1車', exact: true })).toBeVisible();
+  await expect(page.locator('.settlement-car').first().getByRole('button', { name: '「車出し1車」支払い内訳', exact: true })).toBeVisible();
 
   await page.goto(`/?room=${roomId}&view=participants`);
   await expect(page.getByRole('tab')).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: '車出し1車', exact: true })).toBeVisible();
+  await expect(page.locator('.settlement-car').first().getByRole('button', { name: '「車出し1車」支払い内訳', exact: true })).toBeVisible();
 
   await page.getByRole('button', { name: '精算設定', exact: true }).click();
   const returnSettings = page.getByRole('dialog', { name: '精算設定を編集', exact: true });
@@ -68,19 +68,34 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await settings.getByRole('button', { name: '保存', exact: true }).click();
   await expect(settings).toHaveCount(0);
 
+  const initialDriverCar = page.locator('.settlement-car').first();
+  const initialDriverToggle = initialDriverCar.getByRole('button', { name: '「車出し1車」支払い内訳', exact: true });
+  await initialDriverToggle.click();
+  await expect(initialDriverToggle).toHaveAttribute('aria-expanded', 'true');
   await page.getByRole('button', { name: '車出し1車の操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '運転手の名前を編集', exact: true }).click();
   const nameDialog = page.getByRole('dialog', { name: '運転手の名前を編集', exact: true });
   await nameDialog.getByRole('textbox', { name: '運転手の名前（任意）' }).fill('運転手の任意名');
   await nameDialog.getByRole('button', { name: '保存', exact: true }).click();
   await expect(nameDialog).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: '運転手の任意名車', exact: true })).toBeVisible();
-
+  const driverCar = initialDriverCar;
+  const namedDriverToggle = driverCar.getByRole('button', { name: '「運転手の任意名車」支払い内訳', exact: true });
+  await expect(namedDriverToggle).toBeVisible();
+  await expect(namedDriverToggle).toHaveAttribute('aria-expanded', 'true');
   await page.getByRole('button', { name: '運転手の任意名車の費用を入力', exact: true }).click();
   const carEditor = page.getByRole('dialog');
   await expect(carEditor).toBeVisible();
-  await carEditor.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await carEditor.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
+  const expense = carEditor.locator('.settlement-cost-editor-form').last();
+  await expense.getByLabel('名目').fill('初回車費用');
+  await expense.getByRole('textbox', { name: /金額（円）/ }).fill('300');
+  await carEditor.getByRole('button', { name: '費用を追加', exact: true }).click();
+  await carEditor.getByRole('button', { name: '費用を保存', exact: true }).click();
   await expect(carEditor).toHaveCount(0);
+  const savedExpenseAction = driverCar.getByRole('button', { name: '運転手の任意名車の費用を編集', exact: true });
+  await expect(savedExpenseAction).toBeFocused();
+  await expect(namedDriverToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(savedExpenseAction).toBeVisible();
 
   await page.getByRole('button', { name: '集金を記録', exact: true }).click();
   const collection = page.getByRole('dialog', { name: '集金状況', exact: true });
