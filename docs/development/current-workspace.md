@@ -5,18 +5,18 @@
 ## 公開基準
 
 - 公開URL: <https://mutoshiki.github.io/circle-kikaku-tools/>
-- 確認日時: 2026-10-17（PR #108のProduction Release完了後、公開manifestを確認）
+- 確認日時: 2026-10-20（PR #111のProduction Release後、公開manifestを確認）
 - manifest: <https://mutoshiki.github.io/circle-kikaku-tools/release-build.json>
-- 公開source SHA: `851cb1a4c90fde012ad84eee47a3403689dac9ef`
-- 公開asset digest: `647a68524eebd8bf4fae02791a8617daf103bc5c3929bd4ff5cc6dd009a2d2de`
+- 公開source SHA: `b05ebf7959a409f400d050aef19c032b7c6fd001`
+- 公開asset digest: `3c47c1886e8b9f528e6bb6f69e7b69bbc4df015554ec73a6511ac6ded54c6f8a`
 - 公開サイトはReactのルートビルド。CIで`apps/react/dist`からPagesルートを構成する。
-- 公開manifestはPR #108のProduction Release後に再取得し、公開source SHA・asset digestとroot HTTP 200を確認済み。
+- 公開manifestはPR #111のProduction Release後に再取得し、公開source SHA・asset digestを確認済み。
 
 ## 作業元
 
 - 専用worktree: `C:\Users\toshi\.codex\worktrees\site-type-spacing\circle-kikaku-tools`
-- branch: `codex/site-typography-spacing`
-- 起点SHA: `0f9af754f84081cdc5d50c38c0995181791e71e5`（公開manifest SHA `851cb1a4c90fde012ad84eee47a3403689dac9ef` を含む `origin/main` から開始）
+- branch: `codex/settlement-detail-refinement`
+- 起点SHA: `b05ebf7959a409f400d050aef19c032b7c6fd001`（2026-10-20時点の公開manifest SHAと一致する`origin/main`から開始）
 - この作業の主なReact owner: `apps/react/src/styles.scss`、`apps/react/src/App.jsx`、`apps/react/src/components/SettlementSettingsModal.jsx`
 - 文字・余白の共通契約: `docs/design/react-typography-spacing.md`
 
@@ -26,7 +26,11 @@
 |---|---|---|
 | 実際の公開版を見る | `https://mutoshiki.github.io/circle-kikaku-tools/` | 読み取り専用の見た目参照。ライブの企画データは変更しない。版は毎回公開manifestで確認する。 |
 | 以前から開かれている参照タブ | `http://127.0.0.1:4194/?room=PREVIEW-ORIGIN-VERIFY-20261011&view=seisan` | ユーザー指定のタブとして維持する。配信プロセス・build SHAを特定できるまでは、公開版や今回のpreviewと同一とは扱わない。 |
-| このworktreeの変更後preview | `http://127.0.0.1:4280/`（検証用port） | `apps/react/dist`をVite previewで配信。サンプル操作はローカル保存だけを使う。Firebase/Auth/本番ルームには接続しない。 |
+| このworktreeの変更後preview | `http://127.0.0.1:4281/`（検証用port） | `apps/react/dist`をVite previewで配信。サンプル操作はローカル保存だけを使う。Firebase/Auth/本番ルームには接続しない。 |
+
+2026-10-20 settlement detail refinement: preview URL `http://127.0.0.1:4281/?room=SETTLEMENT-DETAIL-20261020&view=seisan`. The in-app side-browser room uses only this preview origin's localStorage. A boundary example is currently stored there (per-person collection `¥1,234,567`, one detail `¥14,803,013`, long Japanese expense name); it is synthetic and does not affect the public site or another browser origin. Multiple driver names in the live side-browser view were not exercised.
+
+2026-10-21 settlement workflow restructure: preview URL `http://127.0.0.1:4283/?room=SETTLEMENT-FLOW-LOCAL-20261021&view=seisan`. Port 4281 was stale and did not display this worktree's new UI; its process/tab was left untouched. Port 4283 is a fresh local-only Vite preview verified against the latest `apps/react/dist` build, and its synthetic sample is isolated to that origin's localStorage. The side-browser tab is marked as the current preview artifact. Mobile screenshots are saved under `.superpowers/sdd/2026-10-21-settlement-workflow-restructure/`.
 
 ## build・起動・照合
 
@@ -35,15 +39,15 @@
 ```powershell
 cd C:\Users\toshi\.codex\worktrees\site-type-spacing\circle-kikaku-tools\apps\react
 npm ci
-npm run build:preview -- --baseline-source-sha 851cb1a4c90fde012ad84eee47a3403689dac9ef
-node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4280 --strictPort
+npm run build:preview -- --baseline-source-sha b05ebf7959a409f400d050aef19c032b7c6fd001
+node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4281 --strictPort
 ```
 
 別のPowerShellで、ブラウザーで開く前に照合します。
 
 ```powershell
 cd C:\Users\toshi\.codex\worktrees\site-type-spacing\circle-kikaku-tools\apps\react
-npm run check:preview -- --url http://127.0.0.1:4280/ --expected-source-sha 851cb1a4c90fde012ad84eee47a3403689dac9ef
+npm run check:preview -- --url http://127.0.0.1:4281/ --expected-source-sha b05ebf7959a409f400d050aef19c032b7c6fd001
 ```
 
 照合はmanifest基準SHA、worktreeのHEADとsource fingerprint、build metadata、配信中のHTMLとJS/CSSを確認する。ソースがbuild後に変わった場合、別worktree由来の場合、SHAやmetadataが違う場合は失敗する。成功は「このローカルpreviewが指定SHAを祖先に持つ現在のworktreeからbuildされ、ページ資産が一致する」ことを示す。公開manifestとpreviewを毎回取り直す前提なので、成功結果を次回の版確認に流用しない。

@@ -7,7 +7,12 @@ const pageErrors = new WeakMap();
 const browserConsoleIssues = new WeakMap();
 
 async function openCarExpenseEditor(car) {
-  await car.getByRole('button', { name: /費用を(?:入力|編集)/ }).click();
+  const action = car.getByRole('button', { name: /費用を(?:入力|編集)/ });
+  if (!await action.isVisible()) {
+    const disclosure = car.getByRole('button', { name: /支払い内訳/ });
+    if (await disclosure.getAttribute('aria-expanded') !== 'true') await disclosure.click();
+  }
+  await action.click();
 }
 
 async function startNoticeCapture(page) {
@@ -47,11 +52,15 @@ test.beforeEach(async ({ page }, testInfo) => {
   page.on('console', message => { if (message.type() === 'warning' || message.type() === 'error') consoleIssues.push(`${message.type()}: ${message.text()}`); });
   const roomId = `SETTLEMENT-${testInfo.project.name}-${testInfo.retry}`;
   const initialFixture = structuredClone(fixture);
+  if (testInfo.title === 'collection remains usable when participants have no cars') {
+    initialFixture.cars = [];
+    initialFixture.settlement.cars = {};
+  }
   if (testInfo.title === 'settlement rows wrap long car names and format zero amount') {
     const oldName = initialFixture.cars[0].name;
     const longName = 'とても長い確認用のレンタカー車名とても長い確認用のレンタカー車名';
     initialFixture.cars[0].name = longName;
-    initialFixture.settlement.cars[longName] = { ...initialFixture.settlement.cars[oldName], dist: '0.01', extras: [] };
+    initialFixture.settlement.cars[longName] = { ...initialFixture.settlement.cars[oldName], dist: '0', rentalType: 'times', extras: [] };
     delete initialFixture.settlement.cars[oldName];
     if (Object.hasOwn(initialFixture.settlement.driverPaid, oldName)) {
       initialFixture.settlement.driverPaid[longName] = initialFixture.settlement.driverPaid[oldName];
@@ -77,6 +86,16 @@ test.beforeEach(async ({ page }, testInfo) => {
         { id: 'zero-net-charge', name: '立替費用', amount: '100', type: 'split' },
         { id: 'zero-net-credit', name: '費用返金', amount: '100', type: 'split-minus' },
       ],
+    };
+    initialFixture.settlement.driverReward = '0';
+    initialFixture.settlement.driverCollectionOffset = false;
+  }
+  if (testInfo.title === 'rounded negative zero is shown without a minus sign') {
+    initialFixture.settlement.cars['仮参加者D'] = {
+      ...initialFixture.settlement.cars['仮参加者D'],
+      dist: '0',
+      rentalType: 'private',
+      extras: [{ id: 'tiny-credit', name: '少額返金', amount: '0.4', type: 'split-minus' }],
     };
     initialFixture.settlement.driverReward = '0';
     initialFixture.settlement.driverCollectionOffset = false;
@@ -166,10 +185,11 @@ test.afterEach(async ({ page }) => {
 });
 
 test('settings cancel/save, signed extras, collection state and reload', async ({ page }) => {
-  await expect(page.getByRole('heading', { name: '各車への支払い' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '集金状況' })).toBeVisible();
+  await expect(page.locator('.settlement-car-list')).toBeVisible();
+  await expect(page.getByRole('region', { name: '集金', exact: true })).toBeVisible();
   expect(await page.locator('.settlement-card').evaluateAll(cards => cards.map(card => card.classList.contains('settlement-collection-card') ? 'collection' : card.classList.contains('settlement-vehicles-card') ? 'vehicles' : 'other'))).toEqual(['collection', 'vehicles', 'other']);
-  await expect(page.locator('.settlement-collection-summary')).toHaveText(/^1人あたり ¥[\d,]+$/);
+  await expect(page.locator('.settlement-collection-summary')).toContainText('1人あたりの集金額');
+  await expect(page.locator('.settlement-collection-summary__amount')).toHaveText(/^¥[\d,]+$/);
   await expect(page.getByRole('heading', { name: '精算状況' })).toHaveCount(0);
   await expect(page.getByText('精算モード', { exact: true })).toHaveCount(0);
 
@@ -256,7 +276,7 @@ test('settings cancel/save, signed extras, collection state and reload', async (
 });
 
 test('missing fuel settings do not show error notifications before the user opens a car', async ({ page }, testInfo) => {
-  await expect(page.getByRole('heading', { name: '各車への支払い' })).toBeVisible();
+  await expect(page.locator('.settlement-car-list')).toBeVisible();
   await expect(page.getByText(/ガソリン代を計算するため、.*を入力してください。/)).toHaveCount(0);
   const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) });
   await expect(car.locator('.cds--tag')).toHaveCount(0);
@@ -466,7 +486,8 @@ test('count-only settlement can record collections with blank movement costs', a
 
   const driverCar = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: '車出し1車' }) });
   await expect(driverCar.getByRole('button', { name: '費用を入力' })).toBeVisible();
-  await expect(page.locator('.settlement-collection-summary')).toHaveText(/^1人あたり ¥[\d,]+$/);
+  await expect(page.locator('.settlement-collection-summary__header')).toContainText('1人あたりの集金額');
+  await expect(page.locator('.settlement-collection-summary__amount')).toHaveText(/^¥[\d,]+$/);
   await page.getByRole('button', { name: '集金を記録' }).click();
   const collection = page.getByRole('dialog', { name: '集金状況' });
   await collection.getByRole('tab', { name: 'すべて' }).click();
@@ -563,27 +584,29 @@ test('collection uses a Carbon modal with one scrolling body, filters, copy, and
   expect(pageErrors.get(page)).toEqual([]);
 });
 
-test('vehicle settlement keeps expense input above the collapsed cost detail', async ({ page }) => {
+test('vehicle settlement keeps both payment amounts visible while cost details are collapsed', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.getByRole('heading', { name: '各車への支払い' })).toBeVisible();
+  await expect(page.locator('.settlement-car-list')).toBeVisible();
   await expect(page.locator('.settlement-car-list')).toBeVisible();
   const firstCar = page.locator('.settlement-car').first();
   const expenseAction = firstCar.getByRole('button', { name: /の費用を(?:入力|編集)$/ });
   await expect(expenseAction).toBeVisible();
-  await expect(expenseAction).toHaveClass(/cds--btn--ghost/);
   await expect(firstCar.locator('.settlement-payment-state')).toHaveCount(0);
   await expect(firstCar.getByRole('button', { name: '支払い済みにする', exact: true })).toHaveCount(0);
-  await expect(firstCar.getByRole('button', { name: /支払い内訳/ })).toHaveAttribute('aria-expanded', 'false');
+  const disclosure = firstCar.getByRole('button', { name: /支払い内訳/ });
+  await expect(disclosure).toHaveAttribute('aria-expanded', 'false');
+  await expect(firstCar.locator('.settlement-car-amount-label')).toHaveText(['割勘から', '部費から']);
+  await expect(firstCar.locator('.settlement-car-amount-value')).toHaveCount(2);
   await expect(page.locator('.settlement-check-row')).toHaveCount(0);
   await expect(page.locator('.settlement-status-grid')).toHaveCount(0);
   await expect(page.locator('.settlement-setting-list')).toHaveCount(0);
   await expect(firstCar.getByRole('heading', { name: /仮参加者A車/ })).toBeVisible();
-  const editBox = await expenseAction.boundingBox();
-  expect(editBox.y).toBeLessThan(844);
   await expect(firstCar.locator('.settlement-car-payment')).toHaveCount(0);
   const firstCarBox = await firstCar.boundingBox();
-  expect(firstCarBox.height).toBeLessThan(180);
-  await firstCar.getByRole('button', { name: /支払い内訳/ }).click();
+  expect(firstCarBox.height).toBeLessThan(240);
+  await disclosure.click();
+  await expect(expenseAction).toBeVisible();
+  await expect(expenseAction).toHaveClass(/cds--btn--ghost/);
   await expect(firstCar.getByText('運転手への支払額', { exact: true })).toHaveCount(0);
   await expect(firstCar.getByText('費用小計', { exact: true })).toHaveCount(0);
 });
@@ -591,8 +614,8 @@ test('vehicle settlement keeps expense input above the collapsed cost detail', a
 test('settlement responsive layout fits viewports and captures key states', async ({ page }, testInfo) => {
   const project = testInfo.project.name;
   const widths = project === 'webkit-mobile' || project === 'chromium-mobile'
-    ? [390, 430]
-    : [768, 1280];
+    ? [320, 374, 375, 390, 430, 671, 672, 768, 1280]
+    : [671, 672, 768, 1280];
   const height = project === 'chromium-desktop' ? 900 : 844;
   const expectNoHorizontalOverflow = async () => {
     const metrics = await page.evaluate(() => ({
@@ -623,13 +646,13 @@ test('settlement responsive layout fits viewports and captures key states', asyn
     await firstCar.getByRole('button', { name: /支払い内訳/ }).click();
     await expect(firstCar.getByText('費用小計', { exact: true })).toHaveCount(0);
     await expect(firstCar.getByText('運転手への支払額', { exact: true })).toHaveCount(0);
-    await expect(firstCar.getByText('集金分差し引き', { exact: true })).toBeVisible();
+    await expect(firstCar.getByText('集金分の差し引き', { exact: true })).toBeVisible();
     await expectNoHorizontalOverflow();
     await firstCar.screenshot({ path: testInfo.outputPath(`${width}-C-breakdown.png`) });
     await firstCar.getByRole('button', { name: /支払い内訳/ }).click();
 
     const trigger = page.getByRole('button', { name: '集金を記録' });
-    await expect(trigger).toHaveCSS('block-size', '32px');
+    await expect(trigger).toHaveCSS('block-size', '40px');
     await trigger.click();
     const dialog = page.getByRole('dialog', { name: '集金状況' });
     await expect(dialog).toBeVisible();
@@ -675,7 +698,7 @@ test('settlement responsive layout fits viewports and captures key states', asyn
 
     await page.evaluate(() => scrollTo(0, document.scrollingElement.scrollHeight));
     await capture('E-bottom');
-    await expect(page.getByRole('heading', { name: 'メモ', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'メモを追加', exact: true })).toBeVisible();
     await expect(page.locator('#settlement-memo-editor')).toHaveCount(0);
     await page.getByRole('button', { name: 'メモを追加' }).click();
     await expect(page.locator('#settlement-memo-editor')).toHaveAttribute('rows', '3');
@@ -686,12 +709,13 @@ test('settlement responsive layout fits viewports and captures key states', asyn
 
 test('settlement progress wraps as groups and cost details avoid redundant type labels', async ({ page }) => {
   await expect(page.locator('.settlement-payment-summary')).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: '各車への支払い' })).toBeVisible();
+  await expect(page.locator('.settlement-car-list')).toBeVisible();
   await expect(page.locator('.settlement-car .settlement-payment-state')).toHaveCount(0);
   await expect(page.locator('.settlement-car').first().getByRole('button', { name: /の費用を(?:入力|編集)$/ })).toBeVisible();
 
   const collectionSummary = page.locator('.settlement-collection-summary');
-  await expect(collectionSummary).toHaveText(/^1人あたり ¥[\d,]+$/);
+  await expect(collectionSummary).toContainText('1人あたりの集金額');
+  await expect(collectionSummary.locator('.settlement-collection-summary__amount')).toHaveText(/^¥[\d,]+$/);
 
   const firstCar = page.locator('.settlement-car').first();
   await firstCar.getByRole('button', { name: /支払い内訳/ }).click();
@@ -1041,53 +1065,42 @@ test('vehicle settlement presents expense and breakdown with an accessible Carbo
   await expect(car.locator('.settlement-car-menu')).toHaveCount(0);
   await expect(car.getByText('未払い', { exact: true })).toHaveCount(0);
   await expect(car.getByRole('button', { name: '支払い済みにする', exact: true })).toHaveCount(0);
-  await expect(car.getByRole('button', { name: /の費用を(?:入力|編集)$/ })).toBeVisible();
-
-  const articleSeparators = await page.locator('.settlement-car').evaluateAll(elements => elements.map(element => ({
-    top: getComputedStyle(element).borderBlockStartStyle,
-    bottom: getComputedStyle(element).borderBlockEndStyle,
-  })));
-  expect(articleSeparators.every((separator, index) => separator.bottom === 'none' && separator.top === (index === 0 ? 'none' : 'solid'))).toBe(true);
-  await expect(car.locator('.settlement-car-breakdown-item')).toHaveCSS('border-block-start-style', 'none');
-  await expect(car.locator('.settlement-car-breakdown-item')).toHaveCSS('border-block-end-style', 'none');
+  await expect(car.locator('.settlement-car-actions').getByRole('button', { name: /費用を/ })).toBeVisible();
 
   const amounts = car.locator('.settlement-car-amounts');
-  await expect(amounts.locator('dt')).toHaveText(['割勘', '部費']);
-  await expect(amounts.locator('dd')).toHaveText(['¥2,200', '¥-100']);
+  await expect(amounts.locator('.settlement-car-amount-label')).toHaveText(['割勘から', '部費から']);
+  await expect(amounts.locator('.settlement-car-amount-value')).toHaveText(['¥2,200', '−¥100']);
   const disclosure = car.getByRole('button', { name: '「仮参加者D車（レンタカー）」支払い内訳', exact: true });
   await expect(disclosure).toBeVisible();
-  await expect(disclosure).not.toContainText('¥2,200');
-  await expect(disclosure).not.toContainText('¥-100');
   const storedRoomBeforeDisclosure = await page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(localStorage).sort(([left], [right]) => left.localeCompare(right)))));
   await expect(disclosure).toHaveAttribute('aria-expanded', 'false');
   await expect(car.locator('.settlement-cost-list')).not.toBeVisible();
-  await car.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).focus();
-  await page.keyboard.press('Tab');
-  await expect(disclosure).toBeFocused();
-  expect(await disclosure.evaluate(element => element.matches(':focus-visible'))).toBe(true);
+  await disclosure.focus();
   await page.keyboard.press('Enter');
   await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
+  expect(await disclosure.evaluate(element => element.matches(':focus-visible'))).toBe(true);
   await page.keyboard.press('Space');
   await expect(disclosure).toHaveAttribute('aria-expanded', 'false');
   await disclosure.click();
   await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
-  await expect(car.locator('.settlement-cost-group h4')).toHaveText(['割勘', '部費']);
+  await expect(car.locator('.settlement-cost-group h4')).toHaveText(['割勘の内訳（¥2,200）', '部費の内訳（−¥100）']);
   await expect(car.getByText('費用小計', { exact: true })).toHaveCount(0);
-  await expect(car.locator('.settlement-car-breakdown').getByText('支払総額', { exact: true })).toHaveCount(0);
+  await expect(car.getByText('支払総額', { exact: true })).toHaveCount(0);
   await expect(car.getByText('運転手への支払額', { exact: true })).toHaveCount(0);
   await expect(car.getByText('部費の支払額', { exact: true })).toHaveCount(0);
   await expect(car.getByText('切り上げ分', { exact: true })).toBeVisible();
-  await expect(car.getByText('集金分差し引き', { exact: true })).toBeVisible();
+  await expect(car.getByText('集金分の差し引き', { exact: true })).toBeVisible();
+  await expect(car.getByText('−¥100', { exact: true })).toHaveCount(2);
+  expect(await car.locator('.settlement-cost-adjustments').first().evaluate(element => getComputedStyle(element).marginBlockStart)).toBe('8px');
   await expect(car.locator('.settlement-cost-grand-total')).toHaveCount(0);
-  await disclosure.click();
   const storedRoomAfterDisclosure = await page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(localStorage).sort(([left], [right]) => left.localeCompare(right)))));
   expect(storedRoomAfterDisclosure).toBe(storedRoomBeforeDisclosure);
-  await disclosure.click();
 
   await openCarExpenseEditor(car);
   const editDialog = page.getByRole('dialog');
   await expect(editDialog).toBeVisible();
   await editDialog.getByRole('button', { name: '閉じる' }).click();
+  await expect(car.getByRole('button', { name: '仮参加者D車（レンタカー）の費用を編集', exact: true })).toBeFocused();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(pageErrors.get(page)).toEqual([]);
 });
@@ -1100,10 +1113,13 @@ test('settlement rows wrap long car names and format zero amount', async ({ page
   const viewportWidth = await page.evaluate(() => innerWidth);
   expect(tile.x + tile.width).toBeLessThanOrEqual(viewportWidth);
   expect(await longCar.getByRole('heading').evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
-  await expect(longCar.getByRole('button', { name: /の費用を(?:入力|編集)$/ })).toBeVisible();
+  await expect(longCar.locator('.settlement-car-rental-label')).toHaveText('（レンタカー）');
+  const longCarExpenseAction = longCar.locator('.settlement-car-edit-action');
+  if (!await longCarExpenseAction.isVisible()) await longCar.getByRole('button', { name: /支払い内訳/ }).click();
+  await expect(longCarExpenseAction).toBeVisible();
   const amounts = longCar.locator('.settlement-car-amounts');
-  await expect(amounts.locator('dt')).toHaveText(['割勘', '部費']);
-  await expect(amounts.locator('dd')).toHaveText(['¥0', '¥0']);
+  await expect(amounts.locator('.settlement-car-amount-label')).toHaveText(['割勘から']);
+  await expect(amounts.locator('.settlement-car-amount-value')).toHaveText(['¥0']);
   const breakdown = longCar.getByRole('button', { name: /支払い内訳/ });
   await expect(breakdown).toBeVisible();
   await breakdown.click();
@@ -1111,24 +1127,59 @@ test('settlement rows wrap long car names and format zero amount', async ({ page
   await expect(longCar.locator('.settlement-cost-group')).toHaveCount(0);
 });
 
+test('expanded vehicle details do not overlap the next vehicle summary', async ({ page }) => {
+  const vehicles = page.locator('.settlement-car');
+  const firstCar = vehicles.nth(0);
+  const nextCar = vehicles.nth(1);
+  const disclosure = firstCar.getByRole('button', { name: /支払い内訳/ });
+  await disclosure.click();
+  await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
+  const detailEnd = await firstCar.locator('.settlement-cost-list').evaluate(element => {
+    const rect = element.getBoundingClientRect();
+    return rect.bottom;
+  });
+  const nextHeadingTop = (await nextCar.getByRole('heading').boundingBox()).y;
+  expect(nextHeadingTop).toBeGreaterThanOrEqual(detailEnd);
+});
+
 test('one payment category shows only its own details', async ({ page }) => {
   const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者D車/ }) });
   const amounts = car.locator('.settlement-car-amounts');
-  await expect(amounts.locator('dt')).toHaveText(['割勘', '部費']);
-  await expect(amounts.locator('dd')).toHaveText([/¥[\d,]+/, '¥0']);
+  await expect(amounts.locator('.settlement-car-amount-label')).toHaveText(['割勘から']);
+  await expect(amounts.locator('.settlement-car-amount-value')).toHaveText(/¥[\d,]+/);
+  await expect(amounts.locator('.settlement-car-amount-value')).toHaveClass(/--nonzero/);
   await car.getByRole('button', { name: /支払い内訳/ }).click();
-  await expect(car.locator('.settlement-cost-group h4')).toHaveText(['割勘']);
+  await expect(car.locator('.settlement-cost-group h4')).toHaveCount(0);
+  await expect(car.getByText('割勘', { exact: true })).toHaveCount(0);
+  await expect(car.getByText('部費', { exact: true })).toHaveCount(0);
   await expect(car.getByText('該当する費用なし', { exact: true })).toHaveCount(0);
 });
 
 test('zero net payment preserves offsetting expense details', async ({ page }) => {
   const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者D車/ }) });
   const amounts = car.locator('.settlement-car-amounts');
-  await expect(amounts.locator('dd').first()).toHaveText('¥0');
+  await expect(amounts.locator('.settlement-car-amount-value').first()).toHaveText('¥0');
   await car.getByRole('button', { name: /支払い内訳/ }).click();
+  await expect(car.locator('.settlement-cost-items')).toHaveCSS('display', 'grid');
+  await expect(car.locator('.settlement-cost-item').first()).toHaveCSS('display', 'flex');
   await expect(car.getByText('立替費用', { exact: true })).toBeVisible();
   await expect(car.getByText(/費用返金/)).toBeVisible();
-  await expect(car.locator('.settlement-cost-group h4')).toHaveText(['割勘']);
+  await expect(car.locator('.settlement-cost-group h4')).toHaveCount(0);
+  await expect(car.getByText('割勘', { exact: true })).toHaveCount(0);
+  await expect(car.getByText('部費', { exact: true })).toHaveCount(0);
+});
+
+test('rounded negative zero is shown without a minus sign', async ({ page }) => {
+  const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者D車/ }) });
+  await expect(car.locator('.settlement-car-amount-value').first()).toHaveText('¥0');
+  await car.getByRole('button', { name: /支払い内訳/ }).click();
+  await expect(car.getByText(/少額返金/)).toBeVisible();
+  await expect(car.locator('.settlement-cost-item-amount')).toHaveText('¥0');
+  await expect(car.locator('.settlement-cost-adjustment strong')).toHaveText('¥0');
+  await openCarExpenseEditor(car);
+  const editor = page.getByRole('dialog', { name: /仮参加者D車/ });
+  const expenseSummary = editor.locator('.settlement-cost-summary').filter({ hasText: /少額返金/ });
+  await expect(expenseSummary.locator('.settlement-cost-summary__amount')).toHaveText('¥0');
 });
 
 test('payment amounts fit narrow screens in both themes', async ({ page }) => {
@@ -1138,26 +1189,54 @@ test('payment amounts fit narrow screens in both themes', async ({ page }) => {
 
   for (const colorScheme of ['light', 'dark']) {
     await page.emulateMedia({ colorScheme });
-    for (const width of [320, 375, 390, 1280]) {
+    for (const width of [320, 374, 375, 390, 1280]) {
       await page.setViewportSize({ width, height: 900 });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      const cells = await amounts.locator(':scope > div').evaluateAll(elements => elements.map(element => element.getBoundingClientRect().width));
-      expect(Math.abs(cells[0] - cells[1])).toBeLessThanOrEqual(1);
+      const geometry = await amounts.evaluate(element => {
+        const cells = [...element.querySelectorAll('.settlement-car-amount-category')].map(cell => {
+          const bounds = cell.getBoundingClientRect();
+          const label = cell.querySelector('.settlement-car-amount-label').getBoundingClientRect();
+          const amount = cell.querySelector('.settlement-car-amount-value').getBoundingClientRect();
+          return { left: bounds.left, right: bounds.right, top: bounds.top, bottom: bounds.bottom, label, amount };
+        });
+        return { cells, width: element.getBoundingClientRect().width };
+      });
       const [fontSize, numberFits, labelAndNumberContrast] = await page.evaluate(() => {
         const tile = document.querySelector('.settlement-vehicles-card');
         const background = getComputedStyle(tile).backgroundColor;
-        const label = document.querySelector('.settlement-car-amounts dt');
-        const amount = document.querySelector('.settlement-car-amounts dd');
+        const label = document.querySelector('.settlement-car-amount-label');
+        const amount = document.querySelector('.settlement-car-amount-value');
         return [
           Number.parseFloat(getComputedStyle(label).fontSize),
-          [...document.querySelectorAll('.settlement-car-amounts dd')].every(element => element.scrollWidth <= element.clientWidth),
+          [...document.querySelectorAll('.settlement-car-amount-value')].every(element => element.scrollWidth <= element.clientWidth),
           [label, amount].map(element => ({ foreground: getComputedStyle(element).color, background })),
         ];
       });
       expect(fontSize).toBeGreaterThanOrEqual(14);
       expect(numberFits).toBe(true);
       for (const { foreground, background } of labelAndNumberContrast) expect(contrastRatio(foreground, background)).toBeGreaterThanOrEqual(4.5);
-      await expect(car.locator('.settlement-car-main h3')).toHaveCSS('overflow-wrap', 'anywhere');
+      expect(await amounts.locator('.settlement-car-amount-label').allTextContents()).toEqual(['割勘から', '部費から']);
+      if (width < 375) {
+        expect(geometry.cells[0].bottom).toBeLessThanOrEqual(geometry.cells[1].top);
+        for (const cell of geometry.cells) {
+          expect(Math.abs(cell.left - (await amounts.boundingBox()).x)).toBeLessThanOrEqual(1);
+          expect(Math.abs(cell.amount.right - cell.right)).toBeLessThanOrEqual(1);
+          expect(cell.label.right).toBeLessThanOrEqual(cell.amount.left);
+        }
+      } else if (width < 672) {
+        for (const cell of geometry.cells) {
+          expect(Math.abs(cell.left - (await amounts.boundingBox()).x)).toBeLessThanOrEqual(1);
+          expect(cell.label.bottom).toBeLessThanOrEqual(cell.amount.top);
+          expect(Math.abs(cell.amount.right - cell.right)).toBeLessThanOrEqual(1);
+        }
+      } else {
+        expect(Math.abs((geometry.cells[0].right - geometry.cells[0].left) - (geometry.cells[1].right - geometry.cells[1].left))).toBeLessThanOrEqual(1);
+        for (const cell of geometry.cells) {
+          expect(Math.abs(cell.amount.right - cell.right)).toBeLessThanOrEqual(1);
+          expect(cell.label.bottom).toBeLessThanOrEqual(cell.amount.top);
+        }
+      }
+      await expect(car.locator('.settlement-car-name')).toHaveCSS('overflow-wrap', 'anywhere');
       await disclosure.click();
       await expect(car.getByText(/とても長い費用名を折り返して/)).toBeVisible();
       await expect(car.getByText(/¥23,456,789/)).toBeVisible();
@@ -1169,34 +1248,126 @@ test('payment amounts fit narrow screens in both themes', async ({ page }) => {
 
 test('settlement memo stays summarized until lightweight inline editing is opened', async ({ page }) => {
   const memoCard = page.locator('.settlement-memo-card');
-  await expect(memoCard.getByText('メモなし', { exact: true })).toBeVisible();
+  await expect(memoCard.getByRole('heading', { name: 'メモ', exact: true })).toHaveCount(0);
+  await expect(memoCard.getByText('メモなし', { exact: true })).toHaveCount(0);
   await expect(memoCard.locator('textarea')).toHaveCount(0);
-  await memoCard.getByRole('button', { name: 'メモを追加' }).click();
+  const addMemo = memoCard.getByRole('button', { name: 'メモを追加' });
+  await addMemo.click();
   const textarea = memoCard.getByRole('textbox', { name: 'メモ' });
+  await expect(textarea).toBeFocused();
   await textarea.fill('下書き');
   await memoCard.getByRole('button', { name: 'キャンセル' }).click();
-  await expect(memoCard.getByText('メモなし', { exact: true })).toBeVisible();
-  await memoCard.getByRole('button', { name: 'メモを追加' }).click();
+  await expect(memoCard.getByRole('heading', { name: 'メモ', exact: true })).toHaveCount(0);
+  await expect(addMemo).toBeFocused();
+  await addMemo.click();
   await memoCard.getByRole('textbox', { name: 'メモ' }).fill('高速料金は武内さんが立替済み。');
   await memoCard.getByRole('button', { name: '保存' }).click();
+  await expect(memoCard.getByRole('button', { name: '編集', exact: true })).toBeFocused();
   await expect(memoCard.getByText('高速料金は武内さんが立替済み。', { exact: true })).toBeVisible();
   await page.reload();
   await page.getByRole('tab', { name: '精算', exact: true }).click();
-  await expect(page.locator('.settlement-memo-card').getByText('高速料金は武内さんが立替済み。', { exact: true })).toBeVisible();
+  const savedMemo = page.locator('.settlement-memo-card');
+  await expect(savedMemo.getByText('高速料金は武内さんが立替済み。', { exact: true })).toBeVisible();
+  const editMemo = savedMemo.getByRole('button', { name: '編集', exact: true });
+  await editMemo.click();
+  await savedMemo.getByRole('textbox', { name: 'メモ' }).fill('   \n');
+  await savedMemo.getByRole('button', { name: '保存' }).click();
+  await expect(savedMemo.getByRole('heading', { name: 'メモ', exact: true })).toHaveCount(0);
+  await expect(savedMemo.getByText('メモなし', { exact: true })).toHaveCount(0);
+  await expect(savedMemo.getByRole('button', { name: 'メモを追加', exact: true })).toBeFocused();
   await expect(pageErrors.get(page)).toEqual([]);
 });
 
-test('vehicle rows omit driver payment recording and right-align a ghost expense action', async ({ page }) => {
+test('collection summary groups collection and settlement settings with focus returning to launchers', async ({ page }) => {
+  const collection = page.getByRole('region', { name: '集金', exact: true });
+  const collectionTrigger = collection.getByRole('button', { name: '集金を記録', exact: true });
+  const settingsTrigger = collection.getByRole('button', { name: '精算設定', exact: true });
+  await expect(collection).toBeVisible();
+  await expect(collection.getByText('1人あたりの集金額', { exact: true })).toBeVisible();
+  await expect(collection.getByText(/¥[\d,]+/, { exact: true })).toBeVisible();
+  await expect(page.locator('.settlement-vehicles-card').getByRole('button', { name: '精算設定', exact: true })).toHaveCount(0);
+
+  await collectionTrigger.focus();
+  await collectionTrigger.press('Enter');
+  const collectionDialog = page.getByRole('dialog', { name: '集金状況', exact: true });
+  await expect(collectionDialog.getByRole('tab', { name: 'すべて', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await collectionDialog.getByRole('button', { name: '閉じる', exact: true }).last().click();
+  await expect(collectionTrigger).toBeFocused();
+
+  await settingsTrigger.focus();
+  await settingsTrigger.press('Enter');
+  const settingsDialog = page.getByRole('dialog', { name: '精算設定を編集', exact: true });
+  await expect(settingsDialog).toBeVisible();
+  await settingsDialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(settingsTrigger).toBeFocused();
+});
+
+test('collection remains usable when participants have no cars', async ({ page }) => {
+  await expect(page.locator('.settlement-car')).toHaveCount(0);
+  await expect(page.locator('.settlement-cars-empty')).toHaveText('車が登録されていません');
+  const collection = page.getByRole('region', { name: '集金', exact: true });
+  const trigger = collection.getByRole('button', { name: '集金を記録', exact: true });
+  await trigger.click();
+  const dialog = page.getByRole('dialog', { name: '集金状況', exact: true });
+  await expect(dialog.locator('.settlement-collection-row')).toHaveCount(1);
+  await dialog.getByRole('button', { name: '閉じる', exact: true }).last().click();
+  await expect(trigger).toBeFocused();
+});
+
+test('recording a collection shows a success toast', async ({ page }) => {
+  await page.getByRole('button', { name: '集金を記録', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '集金状況', exact: true });
+  await dialog.getByRole('tab', { name: 'すべて', exact: true }).click();
+  const checkbox = dialog.getByRole('checkbox').nth(1);
+  await expect(checkbox).not.toBeChecked();
+  const checkboxId = await checkbox.getAttribute('id');
+  await startNoticeCapture(page);
+  await dialog.locator(`label.settlement-collection-row__label[for="${checkboxId}"]`).click();
+  await expect(checkbox).toBeChecked();
+  await expect(page.locator('.notification-region')).toContainText('集金状況を更新しました。');
+});
+
+test('vehicle rows use one expandable amount summary and keep expense editing visible', async ({ page }) => {
+  const vehicles = page.locator('.settlement-vehicles-card');
+  await expect(vehicles.locator('.cds--accordion')).toHaveCount(1);
+  const first = vehicles.locator('.settlement-car').nth(0);
+  const second = vehicles.locator('.settlement-car').nth(1);
+  const firstToggle = first.getByRole('button', { name: '「仮参加者A車」支払い内訳', exact: true });
+  const secondToggle = second.getByRole('button', { name: '「仮参加者D車（レンタカー）」支払い内訳', exact: true });
+  await expect(first.locator('h3').getByRole('button')).toHaveCount(1);
+  await expect(firstToggle).toContainText('割勘');
+  await expect(firstToggle).toContainText('部費');
+  const describedBy = (await firstToggle.getAttribute('aria-describedby')).split(/\s+/);
+  expect(describedBy).toHaveLength(2);
+  for (const id of describedBy) {
+    const amountCategory = first.locator(`#${id}`);
+    await expect(amountCategory).toBeVisible();
+    await expect(amountCategory).toContainText(id.endsWith('-split') ? '割勘から' : '部費から');
+  }
+  await expect(firstToggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(first.getByRole('button', { name: '仮参加者A車の費用を編集', exact: true })).toBeVisible();
+  const arrow = firstToggle.locator('.cds--accordion__arrow');
+  const collapsedArrowTransform = await arrow.evaluate(element => getComputedStyle(element).transform);
+  await firstToggle.click();
+  await expect(firstToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect.poll(() => arrow.evaluate(element => getComputedStyle(element).transform)).not.toBe(collapsedArrowTransform);
+  await secondToggle.click();
+  await expect(firstToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(secondToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(first.locator('.settlement-car-amounts')).toContainText('¥');
+});
+
+test('vehicle rows omit driver payment recording and show expense editing outside the disclosure', async ({ page }) => {
   const car = page.locator('.settlement-car').first();
   await expect(car.getByText('支払い済み', { exact: true })).toHaveCount(0);
   await expect(car.getByText('未払い', { exact: true })).toHaveCount(0);
   await expect(car.getByRole('button', { name: '支払い済みにする', exact: true })).toHaveCount(0);
   await expect(car.getByRole('button', { name: /その他の操作/ })).toHaveCount(0);
-  const expense = car.getByRole('button', { name: /の費用を(?:入力|編集)$/ });
+  const expense = car.getByRole('button', { name: /の費用を編集$/ });
+  await expect(expense).toBeVisible();
   await expect(expense).toHaveClass(/cds--btn--ghost/);
   await expect(expense.locator('.cds--btn__icon')).toHaveCount(0);
-  const alignment = await expense.evaluate(button => ({ button: button.getBoundingClientRect().toJSON(), actions: button.parentElement.getBoundingClientRect().toJSON() }));
-  expect(Math.abs(alignment.button.right - alignment.actions.right)).toBeLessThanOrEqual(2);
+  expect(await expense.evaluate(button => button.closest('h3'))).toBeNull();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expense.click();
   await expect(page.getByRole('dialog')).toBeVisible();
