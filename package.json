@@ -41,7 +41,7 @@
     "test:collab:firebase": "playwright test tests/collaborative-sync-v50.firebase.spec.js",
     "test:bug-report:staging": "playwright test tests/bug-report-staging.firebase.spec.js",
     "test:firebase:emulator": "firebase emulators:exec --only database --project demo-circle-kikaku-tools \"node tests/firebase-rules-emulator-v67.mjs\"",
-    "test:firebase:form-maker-admission": "firebase emulators:exec --only database --project demo-circle-kikaku-tools \"node tests/form-maker-admission-rules.mjs\"",
+    "test:firebase:form-maker-admission": "firebase emulators:exec --only database --project demo-circle-kikaku-tools \"node tests/form-maker-admission-rules.mjs && node tests/form-maker-admission-rest.mjs\"",
     "test:collab:full": "npm run test:legacy:static && npm run test:collab:chaos && npm run test:collab:deep && npm run test:collab:soak && npm run test:collab:protocol"
   },
   "devDependencies": {
