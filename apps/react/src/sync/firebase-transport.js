@@ -42,7 +42,7 @@ export async function reserveAdmissionSlot({ config, db, dbSdk, auth, request, k
     try {
       const response = await fetchImpl(slotUrl, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'if-match': 'null_etag' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(reservation),
       });
       if (response.ok) return { slotId, requestedAt: request.requestedAt };

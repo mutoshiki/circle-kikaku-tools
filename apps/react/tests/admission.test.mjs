@@ -41,7 +41,7 @@ test('handoff admission reserves an unused fixed slot before writing a request',
   assert.equal(reservation.jobId, request.jobId);
   assert.equal(reservation.kind, 'handoff');
   assert.equal(reservation.requestHash, request.input.tokenHash);
-  assert.equal(calls.at(-1).options.headers['if-match'], 'null_etag');
+  assert.equal(calls.at(-1).options.headers['if-match'], undefined, 'empty admission slots are write-only for owners under Firebase Rules');
   assert.equal(reads.length, 1, 'the first occupied slot is checked for an idempotent same-owner retry');
 });
 
