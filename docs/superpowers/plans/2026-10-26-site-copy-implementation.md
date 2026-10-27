@@ -26,6 +26,7 @@
 - [x] Update status/error, route, announcement/export, guide, and bug-report copy; deferred proposals that need an unimplemented input or confirmation flow.
 - [x] Translate Carbon ProgressStep state labels through the installed `translateWithId` API.
 - [x] `git diff --check`, preview build, and preview identity check passed. Rendered UI inspected at 393×852 and 1280×900, in light and dark themes, including settlement, participant registration, and changed modals. React unit suite passed 145/145; legacy static contracts passed.
+- [x] Updated browser-test labels and notice expectations to match the clarified sample copy after CI exposed stale exact-text selectors.
 - [ ] Release validation and production publication are tracked through the repository PR and release workflow; record final run IDs and SHA after completion.
 
 ## Verification focus

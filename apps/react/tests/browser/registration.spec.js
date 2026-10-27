@@ -76,8 +76,8 @@ test('form-linked applicant rooms keep their existing selection flow without the
   await page.getByRole('button', { name: 'その他の操作', exact: true }).click();
   await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
   const sample = page.getByRole('dialog', { name: 'サンプルデータ', exact: true });
-  await sample.getByRole('radio', { name: 'フォーム連携サンプル', exact: true }).check({ force: true });
-  await sample.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
+  await sample.getByRole('radio', { name: 'フォーム連携のサンプル', exact: true }).check({ force: true });
+  await sample.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
   await page.getByRole('tab', { name: '参加者', exact: true }).click();
   await expect(page.getByRole('button', { name: '人数だけで精算', exact: true })).toHaveCount(0);
   await expect(page.getByText('応募者', { exact: false }).first()).toBeVisible();

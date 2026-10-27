@@ -37,17 +37,17 @@ async function seedSample(page) {
   await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'サンプルデータ' });
   await expect(dialog).toBeVisible();
-  await dialog.getByRole('radio', { name: '通常サンプル', exact: true }).check({ force: true });
-  await dialog.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
-  await expect(page.getByText('通常サンプルを入れました')).toBeVisible();
+  await dialog.getByRole('radio', { name: '通常のサンプル', exact: true }).check({ force: true });
+  await dialog.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
+  await expect(page.getByText('通常のサンプルに置き換えました。')).toBeVisible();
 }
 async function seedFormSample(page) {
   await openMenu(page);
   await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'サンプルデータ' });
-  await dialog.getByRole('radio', { name: 'フォーム連携サンプル', exact: true }).check({ force: true });
-  await dialog.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
-  await expect(page.getByText('フォーム連携サンプルを入れました')).toBeVisible();
+  await dialog.getByRole('radio', { name: 'フォーム連携のサンプル', exact: true }).check({ force: true });
+  await dialog.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
+  await expect(page.getByText('フォーム連携のサンプルに置き換えました。')).toBeVisible();
 }
 async function reopen(page, room) {
   await page.goto(`/?room=${room}`);
@@ -96,8 +96,8 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
     await shot(page, viewportName, 4, 'sample-data-modal');
     const sample = page.getByRole('dialog', { name: 'サンプルデータ' });
-    await sample.getByRole('radio', { name: '入力漏れサンプル', exact: true }).check({ force: true });
-    await sample.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
+    await sample.getByRole('radio', { name: '未入力項目があるサンプル', exact: true }).check({ force: true });
+    await sample.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
     await shot(page, viewportName, 5, 'sample-missing-toast');
     await closeModal(page);
 

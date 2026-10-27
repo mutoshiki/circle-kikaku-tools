@@ -6,8 +6,8 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
   const sample = page.getByRole('dialog', { name: 'サンプルデータ' });
-  await sample.getByRole('radio', { name: '通常サンプル', exact: true }).check({ force: true });
-  await sample.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
+  await sample.getByRole('radio', { name: '通常のサンプル', exact: true }).check({ force: true });
+  await sample.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
 
   const tabs = page.getByRole('tablist', { name: '画面切り替え' });
   await expect(tabs.getByRole('tab')).toHaveCount(4);

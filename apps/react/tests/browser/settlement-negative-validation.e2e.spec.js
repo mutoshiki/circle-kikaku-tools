@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: 'サンプルデータ' }).click();
   const samples = page.getByRole('dialog', { name: 'サンプルデータ' });
-  await samples.getByRole('button', { name: 'サンプルを入れる' }).click();
+  await samples.getByRole('button', { name: 'サンプルに置き換える' }).click();
   await page.getByRole('tab', { name: '精算', exact: true }).click();
   const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(horizontalOverflow).toBeLessThanOrEqual(1);
