@@ -38,7 +38,7 @@ export default function ProjectIdentity({ name, syncStatus, onRename }) {
       setSaveError('');
       setEditing(false);
     } catch {
-      setSaveError('企画名を保存できませんでした。入力内容を確認して、もう一度お試しください。');
+      setSaveError('企画名を保存できませんでした。もう一度お試しください。');
     }
   }
 

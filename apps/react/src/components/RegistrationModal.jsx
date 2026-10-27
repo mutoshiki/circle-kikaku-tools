@@ -28,7 +28,7 @@ export default function RegistrationModal({ runtime, room, launcherButtonRef, on
   const manualPeople = useMemo(() => buildManualPeople(manualNames, attributes), [manualNames, attributes]);
   const isSpreadsheet = method === 'spreadsheet';
   const parsed = sheet.trim() ? formParser.parseSpreadsheetImport(sheet) : null;
-  const urlError = isHttpUrl(sheet) ? 'URLから回答を取得できません。回答用スプレッドシートの表をコピーしてください。' : '';
+  const urlError = isHttpUrl(sheet) ? 'URLからは読み込めません。スプレッドシート内の表をコピーして貼り付けてください。' : '';
   const spreadsheetError = urlError || (parsed && !parsed.ok ? parsed.errors.join(' ') : '');
   const people = method === 'manual' ? manualPeople : (parsed?.ok ? parsed.people : []);
   const currentError = isSpreadsheet ? (fieldErrors.spreadsheet || (sheet.trim() ? spreadsheetError : '')) : fieldErrors.manual;
@@ -58,7 +58,7 @@ export default function RegistrationModal({ runtime, room, launcherButtonRef, on
       return;
     }
     if (method === 'spreadsheet' && (!parsed?.ok || !parsed.people.length)) {
-      const message = spreadsheetError || '回答データを貼り付けてください。';
+      const message = spreadsheetError || '回答表を貼り付けてください。';
       setFieldErrors(current => ({ ...current, spreadsheet: message }));
       focusField(sheetRef);
       return;
@@ -87,7 +87,7 @@ export default function RegistrationModal({ runtime, room, launcherButtonRef, on
         setSubmitError('');
       }} orientation="vertical">
         <RadioButton id="registration-mode-manual" value="manual" labelText="名前を入力" />
-        <RadioButton id="registration-mode-spreadsheet" value="spreadsheet" labelText="回答表を貼り付ける" />
+        <RadioButton id="registration-mode-spreadsheet" value="spreadsheet" labelText="回答表を貼り付け" />
       </RadioButtonGroup>
 
       {!isSpreadsheet ? <>
@@ -115,8 +115,8 @@ export default function RegistrationModal({ runtime, room, launcherButtonRef, on
           </AccordionItem>
         </Accordion>}
       </> : <>
-        <TextArea ref={sheetRef} id="registration-sheet" labelText="回答データ"
-          helperText="回答用スプレッドシートから、見出し行と回答行を一緒にコピーしてください。"
+        <TextArea ref={sheetRef} id="registration-sheet" labelText="回答表"
+          helperText="スプレッドシートの見出し行と回答を、一緒にコピーして貼り付けてください。名前の列は必須です。学年・学籍番号・車出しは、列があれば読み取ります。"
           invalid={!!currentError} invalidText={currentError} value={sheet}
           onChange={event => updateField('spreadsheet', setSheet, event.target.value)}
           onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)} rows={5} />
@@ -125,8 +125,8 @@ export default function RegistrationModal({ runtime, room, launcherButtonRef, on
           expanded={showSpreadsheetDetails} onToggleDetails={() => setShowSpreadsheetDetails(value => !value)} />}
         <Accordion>
           <AccordionItem title="貼り付け方を見る">
-            <p>応募フォームの管理画面で「回答」を開き、右上の緑色のスプレッドシートアイコンを押すと、回答用スプレッドシートを作成できます。</p>
-            <p>名前、学年または学籍番号、車出しの有無の見出しと回答を一緒にコピーしてください。列の順番は自由です。</p>
+            <p>応募フォームの管理画面で「回答」を開き、Googleフォームの回答画面から、回答先のスプレッドシートを開いてください。</p>
+            <p>回答先のスプレッドシートで、名前、学年または学籍番号、車出しの有無の見出しと回答を一緒にコピーしてください。列の順番は自由です。</p>
           </AccordionItem>
         </Accordion>
       </>}

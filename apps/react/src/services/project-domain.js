@@ -176,12 +176,12 @@ function bodyText({ allowPlaceholder = false } = {}) {
     if (supplement) lines.push(supplement);
 
     lines.push('', '【参加者】');
-    if (hasDrivers(participants)) lines.push('○は車出し');
-    lines.push('', participantLines(participants), '', `以上${participants.length}人です。`);
+    if (hasDrivers(participants)) lines.push('○：車を出してくれる人');
+    lines.push('', participantLines(participants), '', `参加者は${participants.length}人です。`);
     lines.push('', `当日は${meetingTime}に${FIXED_MEETING_PLACE}に集合してください。`);
 
     if (itinerary.length) {
-      lines.push('', '～大まかな予定～');
+      lines.push('', '【当日の予定】');
       itinerary.forEach((entry, index) => {
         const line = itineraryLine(entry);
         if (!line) return;

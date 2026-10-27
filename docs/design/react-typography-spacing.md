@@ -82,3 +82,18 @@ Include at minimum the following inventory when the change surface includes moda
 For each entry state the actual viewport, color theme, keyboard actions, observed result, and evidence path or test name. Mark browser zoom, physical-device behavior, screen-reader behavior, or unavailable UI routes as unverified when they were not exercised. Keep synthetic-room and local-only-data constraints explicit.
 
 For page headings, distinguish the first-use empty state (`heading-03` when it introduces the whole workflow) from a regular no-results or empty subsection state (`heading-02`). Use the role that matches the hierarchy and scope of the rendered state rather than styling every empty heading identically.
+
+### 2026-10-26 site copy implementation modal review
+
+Synthetic data was loaded only in the local preview room `COPY-REVIEW-20261026` on origin `http://127.0.0.1:4284`; no production room or Firebase data was used. Screenshots were inspected through `cua_repl` in the in-app browser and were not saved as workspace files.
+
+| Screen / modal | State | Width × height | Theme | Keyboard | Result | Evidence | Reason if unverified |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Sample data | Regular sample replacement | 636 × 616 | Dark | Pointer; not exercised | Pass; toast confirmed the replacement | `cua_repl` accessibility tree and screenshot; preview room localStorage only | Reset confirmation not exercised |
+| Participant registration | Manual name entry state, then cancel | 393 × 852 | Dark | Escape closed dialog and focus returned to `参加者を追加` | Pass | `cua_repl` accessibility tree | Form validation and spreadsheet paste were not exercised |
+| Settlement settings | Steps 1, 2, and 3; navigated with Next, then Escape | 393 × 852 | Light | Escape closed dialog; focus returned to `精算設定` | Pass | `cua_repl` accessibility tree; computed viewport/theme; screenshot | Save and validation states were not exercised |
+| Settlement collection | `すべて` selected, one synthetic participant marked collected | 393 × 852 | Light | Checkbox operated by pointer; dialog closed with button | Pass; status and named confirmation toast appeared | `cua_repl` accessibility tree; toast text `武内 樹を集金済みにしました。` | Count-only payer prompt and copy action were not exercised |
+| Vehicle expense | Expense list and add-expense view | 393 × 852 | Light | Escape closed dialog and focus returned to the vehicle edit button | Pass | `cua_repl` accessibility tree and screenshot | Validation and route helper states were not exercised |
+| Guide, participant editor/deletion, allocation capacity/move confirmation, standalone driver name, route helper, project overview/history/export/bug report | Not exercised | — | — | — | Not run | — | Outside this focused modal sample; no result is claimed |
+
+Viewport evidence: computed `innerWidth`/`innerHeight` were 393×852 and 1280×900; document `scrollWidth` matched each viewport. Settlement and participant screens were inspected in both light and dark themes. Screen-reader behavior, physical-device rendering, and browser zoom were not verified.

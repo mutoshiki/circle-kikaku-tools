@@ -188,10 +188,10 @@
 
         const rows = parseTable(raw);
         if (!rows.length) {
-            return { ok: false, errors: ['貼り付け内容が空です。'], warnings, people: [], groups: buildEmptyGroups(), columns: {} };
+            return { ok: false, errors: ['回答表を貼り付けてください。'], warnings, people: [], groups: buildEmptyGroups(), columns: {} };
         }
         if (rows.length < 2) {
-            return { ok: false, errors: ['見出し行と回答行を含む表を貼り付けてください。'], warnings, people: [], groups: buildEmptyGroups(), columns: {} };
+            return { ok: false, errors: ['見出し行と1行以上の回答を一緒に貼り付けてください。'], warnings, people: [], groups: buildEmptyGroups(), columns: {} };
         }
 
         const headers = rows[0].map(trimDisplay);
@@ -208,7 +208,7 @@
         };
 
         if (nameIndex < 0) {
-            errors.push('名前列が見つかりません。見出しに「名前」「氏名」「お名前」などを含めてください。');
+            errors.push('「名前」「氏名」などの見出しがある列を含めてください。');
             return { ok: false, errors, warnings, people: [], groups: buildEmptyGroups(), columns };
         }
 
@@ -240,7 +240,7 @@
                     addWarning(`${displayName}：${label}から学年を判定できませんでした（${rowNumber}行目、値「${trimDisplay(studentIdValue)}」）。`);
                 }
                 if (!gradeAndStudentIdShareColumn && parsedGrade && inferredGrade && parsedGrade !== inferredGrade) {
-                    addWarning(`${displayName}：学年列は${parsedGrade}年ですが、学籍番号からは${inferredGrade}年と推定されます。学年列の値を採用します。`);
+                    addWarning(`不一致：${rowNumber}行目・${displayName}：学年は${parsedGrade}年と${inferredGrade}年で一致しません。今回は${parsedGrade}年を使います。内容を確認してください。`);
                 }
             } else if (studentIdIndex >= 0) {
                 if (inferredGrade) {
@@ -275,14 +275,14 @@
             existing.rowNumbers.push(rowNumber);
             existing.variants.add(displayName);
             if (grade && existing.grade && grade !== existing.grade) {
-                addWarning(`${existing.name}：複数行で学年が一致しません（${existing.grade}年 / ${grade}年）。最初に判定した学年を採用します。`);
+                addWarning(`不一致：${rowNumber}行目・${existing.name}：学年は${existing.grade}年と${grade}年で一致しません。今回は${existing.grade}年を使います。内容を確認してください。`);
             } else if (grade && !existing.grade) {
                 existing.grade = grade;
             }
 
             if (driver !== null) {
                 if (existing.driver !== null && existing.driver !== undefined && existing.driver !== driver) {
-                    addWarning(`${existing.name}：複数行で車出し回答が一致しません。車出しありを優先します。`);
+                    addWarning(`不一致：${rowNumber}行目・${existing.name}：車出しの回答が一致しません。今回は「あり」を使います。内容を確認してください。`);
                 }
                 if (driver === true || existing.driver === null || existing.driver === undefined) {
                     existing.driver = driver;

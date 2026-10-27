@@ -43,8 +43,8 @@ export default function AppHeader({ theme, themePreference, onShare, onOpenUtili
             <MenuItem label="使い方" onClick={() => openUtility('guide')} />
             <MenuItem label="サンプルデータ" onClick={() => openUtility('sample')} />
             <MenuItem label={theme === 'g10' ? 'ダークモードに切り替え' : 'ライトモードに切り替え'} onClick={() => { setUtilityOpen(false); onToggleTheme(); }} />
-            {themePreference !== 'system' && <MenuItem label="端末設定に合わせる" onClick={() => { setUtilityOpen(false); onUseSystemTheme(); }} />}
-            <MenuItem label="バグを報告する" onClick={() => openUtility('bug')} />
+            {themePreference !== 'system' && <MenuItem label="端末の表示設定に合わせる" onClick={() => { setUtilityOpen(false); onUseSystemTheme(); }} />}
+            <MenuItem label="不具合を報告" onClick={() => openUtility('bug')} />
           </Menu>
         </PopoverContent>
       </Popover>

@@ -8,13 +8,13 @@ export default function RegistrationPeoplePreview({
   const existing = people.filter(person => canonical.findParticipantIdByName(participants, person.name)).length;
   return <section className="registration-modal__preview" aria-label={spreadsheet ? '回答の読み取り結果' : '参加者の登録内容'}>
     <p className="registration-modal__summary">
-      登録対象{summary.total}人（車出し{summary.drivers}人・学年未設定{summary.unknownGrades}人）
+      読み取り結果 {summary.total}人（車出しあり {summary.drivers}人／学年未設定 {summary.unknownGrades}人）
     </p>
     {existing > 0 && <p className="registration-modal__existing">
-      同じ名前の参加者{existing}人は既存情報に統合されます。学年の指定と車出し指定は既存情報にも反映されます。
+      同じ名前で登録済みの{existing}人は、新たに追加せず、学年・車出しの指定を反映します。
     </p>}
     {warnings.length > 0 && <div className="registration-modal__warnings">
-      <p>確認が必要な回答があります</p>
+      <p>読み取れなかった項目があります</p>
       <ul>{warnings.map((warning, index) => <li key={`${warning}-${index}`}>{warning}</li>)}</ul>
     </div>}
     {spreadsheet && <Accordion>
