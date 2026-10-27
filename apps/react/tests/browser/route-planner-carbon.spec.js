@@ -33,10 +33,10 @@ test('route planner shares place history and shows its privacy notice once per r
   await car.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
   let modal = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await modal.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
-  await modal.getByRole('button', { name: '移動距離計算ツール' }).click();
-  await expect(modal.getByRole('heading', { name: '移動距離計算ツール' })).toBeVisible();
-  await expect(modal.locator('.route-planner-callout')).toContainText('追加した場所は企画内で共有されます。');
-  await expect(modal.locator('.route-planner-callout')).toContainText('自宅の住所の入力は避け、近隣の施設などを代わりに入力してください。');
+  await modal.getByRole('button', { name: 'ルートから距離を計算' }).click();
+  await expect(modal.getByRole('heading', { name: 'ルートから距離を計算' })).toBeVisible();
+  await expect(modal.locator('.route-planner-callout')).toContainText('選んだ場所は企画を開く人にも共有されます。');
+  await expect(modal.locator('.route-planner-callout')).toContainText('自宅ではなく、近くの公共施設などを選んでください。');
 
   await modal.getByRole('button', { name: /出発地を追加/ }).click();
   await expect(modal.locator('.route-place-results')).toContainText('共有済み施設');
@@ -51,7 +51,7 @@ test('route planner shares place history and shows its privacy notice once per r
   await expect(modal.locator('.route-place-results')).toContainText('追加候補');
   await expect(modal.locator('.route-place-results')).not.toContainText('共有済み施設');
   await modal.locator('.route-place-results').getByText('追加候補', { exact: true }).click();
-  await expect(modal.getByRole('heading', { name: '移動距離計算ツール' })).toBeVisible();
+  await expect(modal.getByRole('heading', { name: 'ルートから距離を計算' })).toBeVisible();
   await modal.getByRole('button', { name: /目的地を追加/ }).click();
   await expect(modal.locator('.route-place-results')).toContainText('追加候補');
   await modal.getByRole('searchbox', { name: '場所を検索' }).fill('目的地候補');
@@ -66,7 +66,7 @@ test('route planner shares place history and shows its privacy notice once per r
   await car.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
   modal = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await modal.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
-  await modal.getByRole('button', { name: '移動距離計算ツール' }).click();
+  await modal.getByRole('button', { name: 'ルートから距離を計算' }).click();
   await expect(modal.locator('.route-planner-callout')).toHaveCount(0);
 });
 
@@ -94,8 +94,8 @@ test('route planner uses Carbon rows, Search states, modal footer navigation, an
   await expect(page.locator('.cds--modal.is-visible')).toHaveClass(/settlement-modal-at-bottom/);
   await expect(gasBody).toHaveCSS('mask-image', 'none');
   await page.screenshot({ path: join(evidence, `gas-settings-mobile-light-${testInfo.project.name}.png`) });
-  await modal.getByRole('button', { name: '移動距離計算ツール' }).click();
-  await expect(modal.getByRole('heading', { name: '移動距離計算ツール' })).toBeVisible();
+  await modal.getByRole('button', { name: 'ルートから距離を計算' }).click();
+  await expect(modal.getByRole('heading', { name: 'ルートから距離を計算' })).toBeVisible();
 
   const routeModal = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   const frame = await routeModal.evaluate(node => {
@@ -119,8 +119,8 @@ test('route planner uses Carbon rows, Search states, modal footer navigation, an
   });
   expect(markerColors[0]).not.toBe(markerColors[1]);
   const callout = routeModal.locator('.route-planner-callout');
-  await expect(callout).toContainText('追加した場所は企画内で共有されます。');
-  await expect(callout).toContainText('自宅の住所の入力は避け、近隣の施設などを代わりに入力してください。');
+  await expect(callout).toContainText('選んだ場所は企画を開く人にも共有されます。');
+  await expect(callout).toContainText('自宅ではなく、近くの公共施設などを選んでください。');
   const routeHeading = routeModal.locator('.route-stop-list .cds--contained-list__header');
   const [calloutBox, headingBox] = await Promise.all([callout.boundingBox(), routeHeading.boundingBox()]);
   expect(Math.abs(calloutBox.x - headingBox.x)).toBeLessThan(1);
@@ -144,7 +144,7 @@ test('route planner uses Carbon rows, Search states, modal footer navigation, an
     return (values[0] + 0.05) / (values[1] + 0.05);
   });
   expect(emptyContrast).toBeGreaterThanOrEqual(4.5);
-  await expect(routeModal.getByRole('button', { name: 'この距離を適用' })).toBeDisabled();
+  await expect(routeModal.getByRole('button', { name: '移動距離を入力' })).toBeDisabled();
   const routeBody = routeModal.locator('.cds--modal-content');
   await routeBody.evaluate(node => { node.scrollTop = node.scrollHeight; node.dispatchEvent(new Event('scroll', { bubbles: true })); });
   await expect(page.locator('.cds--modal.is-visible')).toHaveClass(/settlement-modal-at-bottom/);
@@ -165,7 +165,7 @@ test('route planner uses Carbon rows, Search states, modal footer navigation, an
   await expect(search).toBeVisible();
   await expect(routeModal.getByRole('button', { name: '戻る' })).toBeVisible();
   await expect(routeModal.getByRole('button', { name: '戻る' })).toHaveCount(1);
-  await expect(routeModal.getByRole('button', { name: 'この距離を適用' })).toHaveCount(0);
+  await expect(routeModal.getByRole('button', { name: '移動距離を入力' })).toHaveCount(0);
   await expect(routeModal.locator('.route-place-search-toolbar button')).toHaveCount(0);
   await expect(search).toHaveCSS('border-bottom-style', 'solid');
   await search.focus();
@@ -174,14 +174,14 @@ test('route planner uses Carbon rows, Search states, modal footer navigation, an
   await search.fill('待機');
   await expect(routeModal.getByText('場所を検索しています')).toBeVisible();
   await expect(routeModal.locator('.route-place-results')).toHaveCount(0);
-  await expect(routeModal.getByText('一致する場所がありません。', { exact: true })).toHaveCount(0);
+  await expect(routeModal.getByText('一致する場所がありません。地名や施設名を変えて検索してください。', { exact: true })).toHaveCount(0);
   await page.screenshot({ path: join(evidence, `route-search-loading-${testInfo.project.name}.png`) });
   await expect(routeModal.locator('.route-place-results')).toBeVisible();
   await expect(routeModal.getByText('待機', { exact: true })).toBeVisible();
   await page.screenshot({ path: join(evidence, `route-search-results-${testInfo.project.name}.png`) });
 
   await search.fill('なし');
-  await expect(routeModal.getByText('一致する場所がありません。', { exact: true })).toBeVisible();
+  await expect(routeModal.getByText('一致する場所がありません。地名や施設名を変えて検索してください。', { exact: true })).toBeVisible();
   await expect(routeModal.locator('.route-place-results')).toHaveCount(0);
   await expect(routeModal.locator('.cds--inline-notification')).toHaveCount(0);
   await page.screenshot({ path: join(evidence, `route-search-empty-${testInfo.project.name}.png`) });
@@ -191,13 +191,13 @@ test('route planner uses Carbon rows, Search states, modal footer navigation, an
   await expect(searchError).toContainText('場所を検索できませんでした');
   await expect(searchError).toContainText('もう一度お試しください。');
   await expect(searchError).not.toContainText('Cannot read properties');
-  await expect(routeModal.getByText('一致する場所がありません。', { exact: true })).toHaveCount(0);
+  await expect(routeModal.getByText('一致する場所がありません。地名や施設名を変えて検索してください。', { exact: true })).toHaveCount(0);
   await expect(routeModal.locator('.route-place-results')).toHaveCount(0);
   await page.screenshot({ path: join(evidence, `route-search-error-${testInfo.project.name}.png`) });
 
   await routeModal.getByRole('button', { name: '戻る' }).click();
   await expect(routeModal.locator('.route-stop-list')).toBeVisible();
-  await expect(routeModal.getByRole('button', { name: 'この距離を適用' })).toBeDisabled();
+  await expect(routeModal.getByRole('button', { name: '移動距離を入力' })).toBeDisabled();
   const waypointAction = routeModal.getByRole('button', { name: '経由地を追加' });
   await expect(routeModal.locator('.route-waypoint-action').getByRole('button', { name: '経由地を追加' })).toBeVisible();
   const [waypointBox, waypointContentBox] = await Promise.all([waypointAction.boundingBox(), routeModal.locator('.route-waypoint-action .cds--contained-list-item__content').boundingBox()]);
@@ -227,7 +227,7 @@ test('route planner uses Carbon rows, Search states, modal footer navigation, an
   await expect(page.locator('.cds--modal.is-visible')).toHaveClass(/settlement-modal-at-bottom/);
   await expect(darkGasBody).toHaveCSS('mask-image', 'none');
   await page.screenshot({ path: join(evidence, `gas-settings-mobile-dark-${testInfo.project.name}.png`) });
-  await darkModal.getByRole('button', { name: '移動距離計算ツール' }).click();
+  await darkModal.getByRole('button', { name: 'ルートから距離を計算' }).click();
   await expect(darkModal.locator('.route-planner-callout')).toHaveCount(0);
   await page.screenshot({ path: join(evidence, `route-planner-mobile-dark-${testInfo.project.name}.png`) });
   expect(pageErrors).toEqual([]);

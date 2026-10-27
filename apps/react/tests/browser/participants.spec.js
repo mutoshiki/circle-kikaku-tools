@@ -53,8 +53,8 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
   await expect(page.locator('.participant-list.cds--contained-list')).toBeVisible();
   const search = page.getByRole('searchbox', { name: '名前を検索' });
   await search.fill('存在しない名前');
-  await expect(page.getByText('“存在しない名前” に一致する参加者はいません', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '検索をクリア' }).click();
+  await expect(page.getByText('「存在しない名前」に一致する人はいません。', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '検索語を消去' }).click();
   await expect(page.getByRole('checkbox', { name: '仮参加者Gを参加者に含める', exact: true })).toBeVisible();
   await expect(page.locator('.selection-actions')).toHaveCount(0);
   await page.getByRole('checkbox', { name: '仮参加者Gを参加者に含める', exact: true }).check({ force: true });

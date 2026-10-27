@@ -31,21 +31,21 @@ test('expense editor rejects negative values and a zero-value row preserves sett
   await openFirstExpenseEditor(page);
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('button', { name: '新しい費用を追加' }).click();
-  await dialog.getByLabel('名目').fill('E2Eゼロ円');
+  await dialog.getByLabel('費用名').fill('E2Eゼロ円');
   const amount = dialog.getByRole('textbox', { name: /金額（円）/ });
   await amount.fill('-250');
 
   await expect(amount).toHaveAttribute('aria-invalid', 'true');
-  await expect(dialog.getByRole('button', { name: '費用を追加' })).toBeDisabled();
+  await expect(dialog.getByRole('button', { name: '一覧に追加' })).toBeDisabled();
   await amount.fill('1000000000');
   await expect(amount).not.toHaveAttribute('aria-invalid', 'true');
   await amount.fill('abc');
   await expect(amount).toHaveAttribute('aria-invalid', 'true');
-  await expect(dialog.getByText('金額は数値で入力してください。', { exact: true })).toBeVisible();
+  await expect(dialog.getByText('金額は0円以上の数値で入力してください。', { exact: true })).toBeVisible();
   await amount.fill('0');
   await expect(amount).not.toHaveAttribute('aria-invalid', 'true');
-  await expect(dialog.getByRole('button', { name: '費用を追加' })).toBeEnabled();
-  await dialog.getByRole('button', { name: '費用を追加' }).click();
+  await expect(dialog.getByRole('button', { name: '一覧に追加' })).toBeEnabled();
+  await dialog.getByRole('button', { name: '一覧に追加' }).click();
   await expect(dialog.locator('.settlement-cost-editor')).toBeVisible();
   await dialog.getByRole('button', { name: '費用を保存' }).click();
 
@@ -59,7 +59,7 @@ test('expense editor rejects negative values and a zero-value row preserves sett
   const zeroCost = reloadedDialog.getByRole('listitem').filter({ hasText: 'E2Eゼロ円' });
   await zeroCost.getByRole('button', { name: 'E2Eゼロ円を編集' }).click();
   await expect(reloadedDialog.getByRole('textbox', { name: /金額（円）/ })).toHaveValue('0');
-  await expect(reloadedDialog.getByLabel('名目')).toHaveValue('E2Eゼロ円');
+  await expect(reloadedDialog.getByLabel('費用名')).toHaveValue('E2Eゼロ円');
 });
 
 test('movement fields allow blanks and zero where valid, and reject negatives inline', async ({ page }) => {

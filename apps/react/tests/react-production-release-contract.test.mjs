@@ -114,7 +114,7 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.match(smoke, /cleanupProductionSmokeRoom\(cleanupPage/);
   assert.match(smoke, /openRoutePlannerFromMovementSettings/);
   assert.match(offlineSettlement, /openRoutePlannerFromMovementSettings/);
-  assert.match(sharedSmokeActions, /移動距離計算ツール/);
+  assert.match(sharedSmokeActions, /ルートから距離を計算/);
   assert.match(sharedSmokeActions, /returnToMovementSettingsFromRoutePlanner/);
   assert.match(smoke, /new URL\('\/circle-kikaku-tools\/legacy\//);
   assert.match(smoke, /if \(mode === 'root'\)[\s\S]*?circle-kikaku-tools\/react\/[\s\S]*?circle-kikaku-tools\/legacy\//);

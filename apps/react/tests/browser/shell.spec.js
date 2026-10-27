@@ -64,7 +64,7 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await expect(utilities.getByRole('menuitem', { name: '使い方', exact: true })).toBeVisible();
   await expect(utilities.getByRole('menuitem', { name: 'サンプルデータ', exact: true })).toBeVisible();
   await expect(utilities.getByRole('menuitem', { name: 'ダークモードに切り替え', exact: true })).toBeVisible();
-  await expect(utilities.getByRole('menuitem', { name: 'バグを報告する', exact: true })).toBeVisible();
+  await expect(utilities.getByRole('menuitem', { name: '不具合を報告', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(utilities).toBeHidden();
   await page.getByRole('button', { name: '関連アプリ', exact: true }).click();

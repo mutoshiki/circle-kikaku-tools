@@ -22,8 +22,8 @@ test('vehicle expense dialog name includes the vehicle and current task', async 
   const movement = page.getByRole('dialog', { name: '仮参加者A車：ガソリン代を設定' });
   await expect(movement).toBeVisible();
   await expect(movement.getByRole('region', { name: '仮参加者A車：ガソリン代を設定の内容' })).toBeVisible();
-  await page.getByRole('button', { name: '移動距離計算ツール' }).click();
-  await expect(page.getByRole('dialog', { name: '仮参加者A車：移動距離計算ツール' })).toBeVisible();
+  await page.getByRole('button', { name: 'ルートから距離を計算' }).click();
+  await expect(page.getByRole('dialog', { name: '仮参加者A車：ルートから距離を計算' })).toBeVisible();
   await page.getByRole('button', { name: '戻る' }).click();
   await expect(page.getByRole('dialog', { name: '仮参加者A車：ガソリン代を設定' })).toBeVisible();
   await movement.getByRole('button', { name: '戻る' }).click();
@@ -37,7 +37,7 @@ test('collection rows use one checkbox tab stop and Space records once', async (
   await page.getByRole('tab', { name: '精算', exact: true }).click();
   await page.getByRole('button', { name: '集金を記録', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '集金状況', exact: true });
-  await dialog.getByRole('tab', { name: '未回収', exact: true }).click();
+  await dialog.getByRole('tab', { name: '未集金', exact: true }).click();
 
   const rows = dialog.locator('.settlement-collection-row:not(.excluded)');
   const first = rows.first();
@@ -58,9 +58,9 @@ test('collection rows use one checkbox tab stop and Space records once', async (
     await expect(checkbox).not.toBeAttached();
     const nextId = unpaidCheckboxIds[index + 1];
     if (nextId) await expect(dialog.locator(`[id="${nextId}"]`)).toBeFocused();
-    else await expect(dialog.getByRole('tab', { name: '未回収', exact: true })).toBeFocused();
+    else await expect(dialog.getByRole('tab', { name: '未集金', exact: true })).toBeFocused();
   }
-  await expect(dialog.getByRole('tab', { name: '未回収', exact: true })).toBeFocused();
+  await expect(dialog.getByRole('tab', { name: '未集金', exact: true })).toBeFocused();
   await dialog.getByRole('tab', { name: 'すべて', exact: true }).click();
   await expect(dialog.locator(`[id="${firstCheckboxId}"]`)).toBeChecked();
   for (const id of unpaidCheckboxIds.slice(1)) await expect(dialog.locator(`[id="${id}"]`)).toBeChecked();

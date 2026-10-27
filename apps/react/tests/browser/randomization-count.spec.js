@@ -6,7 +6,7 @@ test('random assignment count is visible, persists after reload and resets when 
   await page.emulateMedia({ colorScheme: 'light' });
   await page.goto('/?room=RANDOMIZATION-COUNT');
   await expect(page.locator('.application')).toHaveClass(/cds--g10/);
-  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  await page.getByRole('button', { name: '追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者を登録' });
   await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('参加者A\n参加者B\n参加者C');
   await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
