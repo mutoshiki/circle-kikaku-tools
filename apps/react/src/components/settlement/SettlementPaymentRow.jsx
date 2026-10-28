@@ -43,6 +43,7 @@ export default function SettlementPaymentRow({ rowId, carLabel, carName, rentalL
       <span id={splitId} className="settlement-car-amount-category"><span className="settlement-car-amount-label">割勘から</span><span className={`settlement-car-amount-value${splitIsZero ? '' : ' settlement-car-amount-value--nonzero'}`}>{splitAmount}</span></span>
       {!compactAmount && <span id={clubId} className="settlement-car-amount-category"><span className="settlement-car-amount-label">部費から</span><span className={`settlement-car-amount-value${clubIsZero ? '' : ' settlement-car-amount-value--nonzero'}`}>{clubAmount}</span></span>}
     </div>
+    <span className="settlement-car-breakdown-prompt">{open ? '内訳を閉じる' : '内訳を見る'}</span>
   </div>;
 
   return <PaymentRowContext.Provider value={rowContext}>
