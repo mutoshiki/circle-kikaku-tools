@@ -36,7 +36,7 @@ test('manual theme choice persists until returning to the device setting', async
   await expect(application).toHaveClass(/cds--g10/);
 
   await page.getByRole('button', { name: 'その他の操作' }).click();
-  await page.getByRole('menuitem', { name: '端末設定に合わせる', exact: true }).click();
+  await page.getByRole('menuitem', { name: '端末の表示設定に合わせる', exact: true }).click();
   await expect(application).toHaveClass(/cds--g100/);
   await page.reload();
   await expect(application).toHaveClass(/cds--g100/);

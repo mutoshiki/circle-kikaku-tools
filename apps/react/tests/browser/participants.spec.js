@@ -22,13 +22,12 @@ test('participant selection checkbox announces the include action and has a sema
   await expect(row.getByRole('checkbox', { name: `${name}を参加者に含める`, exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: /参加者/, level: 2 })).toBeVisible();
   const selected = row.getByRole('checkbox', { name: `${name}を参加者に含める`, exact: true });
-  await expect(page.getByText('参加者に含める人を選んでください。', { exact: true })).toBeVisible();
   const before = await saved(page);
   await selected.focus();
   await page.keyboard.press('Space');
   await expect(selected).not.toBeChecked();
-  await expect(page.locator('.selection-actions')).toContainText(/選択中：\d+人/);
-  await expect(page.getByRole('button', { name: '参加者を確定', exact: true })).toBeVisible();
+  await expect(page.locator('.selection-actions')).toContainText(/選択中 \d+人/);
+  await expect(page.getByRole('button', { name: '参加者を更新', exact: true })).toBeVisible();
   expect((await saved(page)).participants).toEqual(before.participants);
 });
 
@@ -63,7 +62,7 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
   expect(await page.locator('.selection-actions').evaluate(element => getComputedStyle(element).position)).toBe('sticky');
   const sticky = await page.locator('.selection-actions').evaluate(element => ({ right: element.getBoundingClientRect().right, width: innerWidth }));
   expect(sticky.right).toBeLessThanOrEqual(sticky.width);
-  await page.getByRole('button', { name: '参加者を確定', exact: true }).click();
+  await page.getByRole('button', { name: '参加者を更新', exact: true }).click();
   await expect(page.getByText('確定済み', { exact: true })).toBeVisible();
 
   let room = await saved(page);
@@ -91,7 +90,7 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
   await page.getByRole('button', { name: '回答更新後Gの操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '削除', exact: true }).click();
   const deletion = page.getByRole('dialog', { name: '参加者を削除しますか？' });
-  await deletion.getByRole('button', { name: '削除', exact: true }).click();
+  await deletion.getByRole('button', { name: '参加者を削除', exact: true }).click();
   await expect(page.getByRole('checkbox', { name: '回答更新後Gを参加者に含める', exact: true })).not.toBeChecked();
 
   room = await saved(page);

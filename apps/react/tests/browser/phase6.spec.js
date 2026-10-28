@@ -57,10 +57,12 @@ test('route draft stays local and selected distance alone enters shared settleme
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.getByRole('tab', { name: '精算', exact: true }).click();
   await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
-  const car = page.getByRole('dialog', { name: /^仮参加者A車：/ });
-  await car.getByRole('button', { name: '一覧に追加' }).click();
+  let car = page.getByRole('dialog', { name: /^仮参加者A車：/ });
+  await car.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
   await car.getByLabel('費用名').fill('一時費用');
-  await car.getByRole('button', { name: '戻る' }).click();
+  await car.getByLabel('金額（円）').fill('100');
+  await car.getByRole('button', { name: '一覧に追加', exact: true }).click();
+  car = page.getByRole('dialog');
   const addedExpense = car.locator('.settlement-cost-list-item').filter({ hasText: '一時費用' });
   await addedExpense.getByRole('button', { name: '一時費用を編集' }).click();
   await car.getByRole('button', { name: '一時費用を削除' }).click();

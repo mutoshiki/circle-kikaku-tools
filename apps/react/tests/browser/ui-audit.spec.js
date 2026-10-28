@@ -144,7 +144,7 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
       if (await moveWaiting.count()) await moveWaiting.click();
     }
     await shot(page, viewportName, 14, 'car-allocation-default');
-    const seatAction = page.getByRole('button', { name: /空席 .*参加者を追加/ }).first();
+    const seatAction = page.getByRole('button', { name: /未割り当ての人を追加/ }).first();
     if (await seatAction.count()) { await seatAction.click(); await shot(page, viewportName, 15, 'car-candidates-expanded'); }
     await page.getByRole('button', { name: '車を追加', exact: true }).click();
     await shot(page, viewportName, 16, 'car-add-modal');
@@ -174,9 +174,11 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await cancelDialog(page);
     await page.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).first().click();
     await shot(page, viewportName, 25, 'vehicle-expense-editor');
-    await page.getByRole('button', { name: '一覧に追加' }).click();
+    await page.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
+    await page.getByLabel('費用名').fill('監査用費用');
+    await page.getByLabel('金額（円）').fill('100');
+    await page.getByRole('button', { name: '一覧に追加', exact: true }).click();
     await shot(page, viewportName, 26, 'vehicle-expense-extra-row');
-    await page.getByRole('button', { name: '戻る' }).click();
     await page.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
     await shot(page, viewportName, 27, 'movement-settings-private');
     const rental = page.locator('#settlement-rental-times');

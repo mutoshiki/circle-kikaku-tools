@@ -5,10 +5,10 @@ test('registration methods are explicit and manual attributes stay with their na
   await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '参加者を登録', exact: true });
   const manualMethod = dialog.getByRole('radio', { name: '名前を入力', exact: true });
-  const spreadsheetMethod = dialog.getByRole('radio', { name: '回答表を貼り付ける', exact: true });
+  const spreadsheetMethod = dialog.getByRole('radio', { name: '回答表を貼り付け', exact: true });
   await expect(manualMethod).toBeChecked();
   await expect(dialog.getByRole('textbox', { name: '参加者の名前', exact: true })).toBeVisible();
-  await expect(dialog.getByRole('textbox', { name: '回答データ', exact: true })).toHaveCount(0);
+  await expect(dialog.getByRole('textbox', { name: '回答表', exact: true })).toHaveCount(0);
 
   const names = dialog.getByRole('textbox', { name: '参加者の名前', exact: true });
   await names.fill('属性なしの人');
@@ -26,7 +26,7 @@ test('registration methods are explicit and manual attributes stay with their na
   await expect(dialog.locator('.registration-modal__summary')).toContainText('2人');
 
   await spreadsheetMethod.check({ force: true });
-  await expect(dialog.getByRole('textbox', { name: '回答データ', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('textbox', { name: '回答表', exact: true })).toBeVisible();
   await expect(names).toHaveCount(0);
   await manualMethod.check({ force: true });
   await expect(names).toHaveValue('属性なしの人\n属性ありの人');
@@ -44,10 +44,10 @@ test('spreadsheet registration shows deduplicated results and parser warnings be
   await page.goto('/?room=REGISTRATION-SPREADSHEET&view=participants');
   await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '参加者を登録', exact: true });
-  await dialog.getByRole('radio', { name: '回答表を貼り付ける', exact: true }).check({ force: true });
-  await dialog.getByRole('textbox', { name: '回答データ', exact: true }).fill('氏名\t学年\t車出し\n回答者A\t3\t可\n回答者A\t2\tいいえ');
-  await expect(dialog.locator('.registration-modal__summary')).toContainText('登録対象1人');
-  await expect(dialog.getByText(/複数行で学年が一致しません/)).toBeVisible();
+  await dialog.getByRole('radio', { name: '回答表を貼り付け', exact: true }).check({ force: true });
+  await dialog.getByRole('textbox', { name: '回答表', exact: true }).fill('氏名\t学年\t車出し\n回答者A\t3\t可\n回答者A\t2\tいいえ');
+  await expect(dialog.locator('.registration-modal__summary')).toContainText('読み取り結果 1人');
+  await expect(dialog.getByText(/学年は3年と2年で一致しません/)).toBeVisible();
   await dialog.getByRole('button', { name: '読み取り結果を確認', exact: true }).click();
   await expect(dialog.getByText('回答者A', { exact: true })).toBeVisible();
   await dialog.getByRole('button', { name: '参加者を登録', exact: true }).click();
