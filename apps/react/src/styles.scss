@@ -134,21 +134,21 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-card .cds--inline-notification { max-width: none; }
 .settlement-car-list { margin: 0; }
 .settlement-car { min-width: 0; }
-.settlement-car-header { display: flex; align-items: stretch; gap: layout.$spacing-03; min-inline-size: 0; }
+.settlement-car-header { display: grid; gap: layout.$spacing-03; min-inline-size: 0; padding: layout.$spacing-04 layout.$spacing-05 layout.$spacing-02; }
+.settlement-car-topline { display: flex; align-items: flex-start; gap: layout.$spacing-03; min-inline-size: 0; }
 .settlement-car-heading { flex: 1 1 auto; min-inline-size: 0; margin: 0; }
-.settlement-car-toggle { inline-size: 100%; min-inline-size: 0; padding-block: layout.$spacing-04; }
+.settlement-car-toggle { @include carbon-type.type-style('body-compact-01'); display: flex; flex-direction: row; justify-self: end; align-items: center; gap: layout.$spacing-03; inline-size: auto; min-inline-size: 0; min-block-size: 2.5rem; padding: layout.$spacing-03; }
+.settlement-car-toggle > .cds--accordion__title { flex: 0 1 auto; inline-size: auto; margin: 0; }
 .settlement-car-toggle[aria-expanded='true'] .cds--accordion__arrow { transform: rotate(-90deg); }
-.settlement-car-toggle .cds--accordion__arrow { align-self: flex-start; margin-block-start: layout.$spacing-02; }
-.settlement-car-summary { display: grid; grid-template-columns: minmax(0, 1fr) repeat(2, minmax(7rem, .38fr)); align-items: center; gap: layout.$spacing-04; inline-size: 100%; min-inline-size: 0; }
-.settlement-car-summary--single-amount { grid-template-columns: minmax(0, 1fr) minmax(0, .76fr); }
+.settlement-car-toggle .cds--accordion__arrow { order: 2; flex: 0 0 auto; align-self: center; margin: 0; }
 .settlement-car-name { @include carbon-type.type-style('heading-compact-02'); @include carbon-type.font-weight('regular'); display: flex; flex-wrap: wrap; align-content: center; align-items: baseline; column-gap: layout.$spacing-02; row-gap: layout.$spacing-01; min-inline-size: 0; color: var(--cds-text-primary); overflow-wrap: anywhere; }
 .settlement-car-rental-label { @include carbon-type.type-style('body-compact-01'); color: var(--cds-text-secondary); }
 .settlement-car-driver-names { @include carbon-type.type-style('body-compact-01'); color: var(--cds-text-secondary); }
-.settlement-car-actions { display: flex; flex: 0 0 auto; align-items: center; justify-content: flex-end; gap: layout.$spacing-01; min-inline-size: 0; }
+.settlement-car-actions { display: flex; flex: 0 0 auto; align-items: flex-start; justify-content: flex-end; gap: layout.$spacing-01; min-inline-size: 0; }
 .settlement-car-actions:empty { display: none; }
 .settlement-car-edit-action { inline-size: auto; max-inline-size: 100%; margin-inline-start: 0; }
-.settlement-car-amounts { display: grid; grid-column: 2 / 4; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: layout.$spacing-06; min-inline-size: 0; }
-.settlement-car-summary--single-amount .settlement-car-amounts { grid-column: 2; grid-template-columns: minmax(0, 1fr); }
+.settlement-car-amounts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: layout.$spacing-06; min-inline-size: 0; }
+.settlement-car-summary--single-amount .settlement-car-amounts { grid-template-columns: minmax(0, 1fr); }
 .settlement-car-amount-category { @include carbon-type.type-style('heading-compact-02'); display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: layout.$spacing-01; min-inline-size: 0; text-align: start; }
 .settlement-car-amount-label { @include carbon-type.type-style('body-compact-01'); color: var(--cds-text-secondary); }
 .settlement-car-amount-value { @include carbon-type.type-style('heading-03'); justify-self: end; min-inline-size: 0; color: var(--cds-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -322,12 +322,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   .settlement-card { padding-block: layout.$spacing-03; }
   .settlement-section-heading { flex-direction: column; }
   .settlement-vehicles-card .settlement-section-heading { flex-direction: row; align-items: baseline; }
-  .settlement-car-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; row-gap: 0; }
-  .settlement-car-heading { grid-column: 1 / -1; }
-  .settlement-car-actions { grid-column: 1 / -1; justify-self: end; }
-  .settlement-car-summary { grid-template-columns: minmax(0, 1fr); gap: layout.$spacing-04; }
-  .settlement-car-amounts { grid-column: 1; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: layout.$spacing-06; }
-  .settlement-car-summary--single-amount .settlement-car-amounts { grid-column: 1; }
+  .settlement-car-amounts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: layout.$spacing-06; }
   .settlement-car-amount-category { display: grid; align-content: start; justify-items: stretch; gap: layout.$spacing-01; text-align: start; }
   .settlement-car-summary--wide-amounts .settlement-car-amounts { grid-template-columns: minmax(0, 1fr); }
   .settlement-car-summary--wide-amounts .settlement-car-amount-category { justify-content: space-between; }

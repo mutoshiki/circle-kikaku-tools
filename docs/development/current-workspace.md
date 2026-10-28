@@ -68,6 +68,13 @@ npm run check:preview -- --url http://127.0.0.1:4281/ --expected-source-sha b05e
 
 ## 2026-10-26 site copy implementation
 
+### 2026-10-28 vehicle action correction
+
+- Public baseline refreshed: `f16105eca49f32da769b126f81825b8591dcd509`, asset digest `458bfb58fc370274b4ee73c709802a54539f9450504dea7c38c2b6a5dd7f1e49`.
+- Same worktree, branch `codex/settlement-row-actions-from-main` (PR #115). Local-only preview remains `http://127.0.0.1:4284/?room=COPY-REVIEW-20261026&view=seisan`.
+- Reproduced the misplaced arrow/label and narrowed amount column in the side browser. The corrected three-row header was inspected at 393×852 and 1280×900 in light/dark themes. Pointer and Space disclosure operations, collapsed-row expense editing, Escape dismissal and focus return were exercised. No horizontal page overflow was observed. The participant tab was also inspected.
+- Physical-device behavior, browser zoom and screen readers were not manually exercised. Automated narrow-width cases cover 320px through desktop and both themes.
+
 - Published baseline refreshed before preview: source SHA `5cbf3a4ab68af6909292412f03b7f389d7188c58`, asset digest `4233fce3d4bef9cbf74f182805f2d85b48ef55d28e35f532136c2916065ccd88` (retrieved from the live `release-build.json`).
 - Isolated worktree: `C:\Users\toshi\.codex\worktrees\site-copy-improvements\circle-kikaku-tools`; build and preview identity checks use the published SHA as baseline.
 - Local preview: `http://127.0.0.1:4284/?room=COPY-REVIEW-20261026&view=seisan`; local-only storage, synthetic regular sample. No production room/Firebase data used.

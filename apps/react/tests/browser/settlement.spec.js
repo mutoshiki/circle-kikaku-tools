@@ -1070,7 +1070,7 @@ test('vehicle settlement presents expense and breakdown with an accessible Carbo
   const amounts = car.locator('.settlement-car-amounts');
   await expect(amounts.locator('.settlement-car-amount-label')).toHaveText(['割勘から', '部費から']);
   await expect(amounts.locator('.settlement-car-amount-value')).toHaveText(['¥2,200', '−¥100']);
-  const disclosure = car.getByRole('button', { name: '「仮参加者D車（レンタカー）」支払い内訳', exact: true });
+  const disclosure = car.getByRole('button', { name: /^「仮参加者D車（レンタカー）」支払い内訳：/ });
   await expect(disclosure).toBeVisible();
   const storedRoomBeforeDisclosure = await page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(localStorage).sort(([left], [right]) => left.localeCompare(right)))));
   await expect(disclosure).toHaveAttribute('aria-expanded', 'false');
@@ -1327,16 +1327,15 @@ test('recording a collection shows a success toast', async ({ page }) => {
   await expect(page.locator('.notification-region')).toContainText('仮参加者Cを集金済みにしました。');
 });
 
-test('vehicle rows use one expandable amount summary and keep expense editing visible', async ({ page }) => {
+test('vehicle rows separate expense editing, full-width amounts and a labeled disclosure', async ({ page }) => {
   const vehicles = page.locator('.settlement-vehicles-card');
   await expect(vehicles.locator('.cds--accordion')).toHaveCount(1);
   const first = vehicles.locator('.settlement-car').nth(0);
   const second = vehicles.locator('.settlement-car').nth(1);
-  const firstToggle = first.getByRole('button', { name: '「仮参加者A車」支払い内訳', exact: true });
-  const secondToggle = second.getByRole('button', { name: '「仮参加者D車（レンタカー）」支払い内訳', exact: true });
-  await expect(first.locator('h3').getByRole('button')).toHaveCount(1);
-  await expect(firstToggle).toContainText('割勘');
-  await expect(firstToggle).toContainText('部費');
+  const firstToggle = first.getByRole('button', { name: /^「仮参加者A車」支払い内訳：/ });
+  const secondToggle = second.getByRole('button', { name: /^「仮参加者D車（レンタカー）」支払い内訳：/ });
+  await expect(first.getByRole('heading')).toHaveText('仮参加者A車');
+  await expect(firstToggle).toHaveText('内訳を見る');
   const describedBy = (await firstToggle.getAttribute('aria-describedby')).split(/\s+/);
   expect(describedBy).toHaveLength(2);
   for (const id of describedBy) {
@@ -1347,9 +1346,23 @@ test('vehicle rows use one expandable amount summary and keep expense editing vi
   await expect(firstToggle).toHaveAttribute('aria-expanded', 'false');
   await expect(first.getByRole('button', { name: '仮参加者A車の費用を編集', exact: true })).toBeVisible();
   const arrow = firstToggle.locator('.cds--accordion__arrow');
+  const layout = await first.evaluate(car => {
+    const bounds = selector => {
+      const rect = car.querySelector(selector).getBoundingClientRect();
+      return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, centerY: rect.top + rect.height / 2 };
+    };
+    return { name: bounds('.settlement-car-name'), edit: bounds('.settlement-car-edit-action'), amounts: bounds('.settlement-car-amounts'), toggle: bounds('.settlement-car-toggle'), text: bounds('.settlement-car-toggle .cds--accordion__title'), arrow: bounds('.cds--accordion__arrow') };
+  });
+  expect(layout.edit.top).toBeLessThan(layout.amounts.top);
+  expect(layout.amounts.right).toBeGreaterThanOrEqual(layout.edit.right - 1);
+  expect(layout.toggle.top).toBeGreaterThanOrEqual(layout.amounts.bottom);
+  expect(layout.arrow.left).toBeGreaterThanOrEqual(layout.text.right);
+  expect(layout.arrow.left - layout.text.right).toBeLessThanOrEqual(12);
+  expect(Math.abs(layout.arrow.centerY - layout.text.centerY)).toBeLessThanOrEqual(2);
   const collapsedArrowTransform = await arrow.evaluate(element => getComputedStyle(element).transform);
   await firstToggle.click();
   await expect(firstToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(firstToggle).toHaveText('内訳を閉じる');
   await expect.poll(() => arrow.evaluate(element => getComputedStyle(element).transform)).not.toBe(collapsedArrowTransform);
   await secondToggle.click();
   await expect(firstToggle).toHaveAttribute('aria-expanded', 'true');

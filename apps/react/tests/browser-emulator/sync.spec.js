@@ -148,7 +148,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     await pageA.reload();
     await pageA.getByRole('tab', { name: '精算', exact: true }).click();
     await expect(pageA.locator('.sync-status')).toHaveText('同期完了');
-    const refreshedCar = pageA.locator('.settlement-car').filter({ has: pageA.getByRole('button', { name: '「仮参加者A車」支払い内訳', exact: true }) });
+    const refreshedCar = pageA.locator('.settlement-car').filter({ has: pageA.getByRole('button', { name: /^「仮参加者A車」支払い内訳：/ }) });
     await refreshedCar.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
     const refreshedDialog = pageA.getByRole('dialog', { name: '仮参加者A車' });
     await expect(refreshedDialog.locator('.settlement-cost-editor').getByText('端末A 当日駐車代', { exact: true })).toBeVisible();
