@@ -97,3 +97,12 @@ Synthetic data was loaded only in the local preview room `COPY-REVIEW-20261026` 
 | Guide, participant editor/deletion, allocation capacity/move confirmation, standalone driver name, route helper, project overview/history/export/bug report | Not exercised | — | — | — | Not run | — | Outside this focused modal sample; no result is claimed |
 
 Viewport evidence: computed `innerWidth`/`innerHeight` were 393×852 and 1280×900; document `scrollWidth` matched each viewport. Settlement and participant screens were inspected in both light and dark themes. Screen-reader behavior, physical-device rendering, and browser zoom were not verified.
+
+### 2026-10-28 focused settlement correction
+
+The local-only `COPY-REVIEW-20261026` preview was rebuilt and identity-checked against published baseline `f16105eca49f32da769b126f81825b8591dcd509`. Vehicle rows were operated in the side browser at 393×852 and 1280×900 in light/dark themes: disclosure pointer/Space, collapsed-row expense editor, Escape and focus restoration. Values remained 20px/400/28px and there was no horizontal overflow. A geometry regression checks that amounts retain full width and the label and arrow stay adjacent. Screen readers and physical devices were not manually exercised.
+
+| Screen / modal | State | Width × height | Theme | Keyboard | Result | Evidence | Reason if unverified |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Settlement settings | Step 1: collection rounding; selected explanatory paragraph removed | 393 × 852 | Light | Pointer navigation to next step | Pass | Side-browser accessibility tree after verified build | Zoom and screen readers not exercised |
+| Settlement settings | Step 2: driver reward; helper sentence removed | 393 × 852 | Light | Escape closed the modal and restored focus to settlement settings | Pass | Side-browser accessibility tree and screenshot | No values changed or saved; validation unchanged |

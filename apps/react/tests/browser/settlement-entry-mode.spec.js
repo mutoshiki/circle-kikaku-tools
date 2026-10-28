@@ -20,11 +20,11 @@ test('count-only settlement hides navigation, survives reload, and can return to
   await settings.getByRole('button', { name: '保存', exact: true }).click();
   await expect(settings).toHaveCount(0);
   await expect(page.getByRole('tab')).toHaveCount(0);
-  await expect(page.locator('.settlement-car').first().getByRole('button', { name: '「車出し1車」支払い内訳', exact: true })).toBeVisible();
+  await expect(page.locator('.settlement-car').first().getByRole('button', { name: /^「車出し1車」支払い内訳：/ })).toBeVisible();
 
   await page.goto(`/?room=${roomId}&view=participants`);
   await expect(page.getByRole('tab')).toHaveCount(0);
-  await expect(page.locator('.settlement-car').first().getByRole('button', { name: '「車出し1車」支払い内訳', exact: true })).toBeVisible();
+  await expect(page.locator('.settlement-car').first().getByRole('button', { name: /^「車出し1車」支払い内訳：/ })).toBeVisible();
 
   await page.getByRole('button', { name: '精算設定', exact: true }).click();
   const returnSettings = page.getByRole('dialog', { name: '精算設定を編集', exact: true });
@@ -69,7 +69,7 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await expect(settings).toHaveCount(0);
 
   const initialDriverCar = page.locator('.settlement-car').first();
-  const initialDriverToggle = initialDriverCar.getByRole('button', { name: '「車出し1車」支払い内訳', exact: true });
+  const initialDriverToggle = initialDriverCar.getByRole('button', { name: /^「車出し1車」支払い内訳：/ });
   await initialDriverToggle.click();
   await expect(initialDriverToggle).toHaveAttribute('aria-expanded', 'true');
   await page.getByRole('button', { name: '車出し1車の操作', exact: true }).click();
@@ -79,7 +79,7 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await nameDialog.getByRole('button', { name: '保存', exact: true }).click();
   await expect(nameDialog).toHaveCount(0);
   const driverCar = initialDriverCar;
-  const namedDriverToggle = driverCar.getByRole('button', { name: '「運転手の任意名車」支払い内訳', exact: true });
+  const namedDriverToggle = driverCar.getByRole('button', { name: /^「運転手の任意名車」支払い内訳：/ });
   await expect(namedDriverToggle).toBeVisible();
   await expect(namedDriverToggle).toHaveAttribute('aria-expanded', 'true');
   await page.getByRole('button', { name: '運転手の任意名車の費用を入力', exact: true }).click();
