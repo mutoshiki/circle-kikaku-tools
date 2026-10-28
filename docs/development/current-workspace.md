@@ -65,3 +65,10 @@ npm run check:preview -- --url http://127.0.0.1:4281/ --expected-source-sha b05e
 - `C:\Users\toshi\Documents\GitHub\circle-kikaku-tools`は`codex/react-migration-rc`上の既存作業場所。未コミット・未追跡変更85件をそのまま保持し、新しい作業の起点にしない。
 - 既存の`public-current-parity` worktreeはAuth調査用のdirtyな別ブランチ。ここから公開版ソースを推測しない。
 - 4184など、過去の誤ったローカルpreview portは再利用せず、現在のworktree・build・データ接続を照合してから新しい検証用portを選ぶ。
+
+## 2026-10-26 site copy implementation
+
+- Published baseline refreshed before preview: source SHA `5cbf3a4ab68af6909292412f03b7f389d7188c58`, asset digest `4233fce3d4bef9cbf74f182805f2d85b48ef55d28e35f532136c2916065ccd88` (retrieved from the live `release-build.json`).
+- Isolated worktree: `C:\Users\toshi\.codex\worktrees\site-copy-improvements\circle-kikaku-tools`; build and preview identity checks use the published SHA as baseline.
+- Local preview: `http://127.0.0.1:4284/?room=COPY-REVIEW-20261026&view=seisan`; local-only storage, synthetic regular sample. No production room/Firebase data used.
+- Browser inspection included 393×852 and 1280×900 emulated viewports and light/dark themes. Modal evidence is recorded in `docs/design/react-typography-spacing.md`.

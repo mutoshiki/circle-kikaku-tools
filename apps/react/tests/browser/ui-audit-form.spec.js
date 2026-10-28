@@ -25,7 +25,7 @@ test('capture form-linked and registration UI states', async ({ page }, testInfo
     await page.getByRole('tab', { name: '参加者', exact: true }).click();
     await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
     await shot(page, viewportName, 37, 'participant-registration-modal');
-    await page.getByRole('radio', { name: '回答表を貼り付ける', exact: true }).check({ force: true });
+    await page.getByRole('radio', { name: '回答表を貼り付け', exact: true }).check({ force: true });
     await page.getByRole('button', { name: '貼り付け方を見る', exact: true }).click();
     await page.waitForTimeout(500);
     await shot(page, viewportName, 38, 'participant-registration-help-expanded');
@@ -33,8 +33,8 @@ test('capture form-linked and registration UI states', async ({ page }, testInfo
 
     await menu(page);
     const sample = page.getByRole('dialog', { name: 'サンプルデータ' });
-    await sample.getByRole('radio', { name: 'フォーム連携サンプル', exact: true }).check({ force: true });
-    await sample.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
+    await sample.getByRole('radio', { name: 'フォーム連携のサンプル', exact: true }).check({ force: true });
+    await sample.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
     await page.getByRole('tab', { name: '参加者', exact: true }).click();
     await shot(page, viewportName, 39, 'form-linked-participants-unconfirmed');
     const confirm = page.getByRole('button', { name: '参加者を確定', exact: true });

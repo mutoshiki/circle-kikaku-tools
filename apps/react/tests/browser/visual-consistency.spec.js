@@ -6,8 +6,8 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
   const sample = page.getByRole('dialog', { name: 'サンプルデータ' });
-  await sample.getByRole('radio', { name: '通常サンプル', exact: true }).check({ force: true });
-  await sample.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
+  await sample.getByRole('radio', { name: '通常のサンプル', exact: true }).check({ force: true });
+  await sample.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
 
   const tabs = page.getByRole('tablist', { name: '画面切り替え' });
   await expect(tabs.getByRole('tab')).toHaveCount(4);
@@ -17,8 +17,8 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   expect(await participantSummary.evaluate(element => getComputedStyle(element).marginBlockStart)).toBe('0px');
   const participantInset = (await participantSummary.boundingBox()).x;
   await expect(page.getByText('参加者を追加してください。', { exact: true })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: '追加', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '追加', exact: true }).click();
+  await expect(page.getByRole('button', { name: '参加者を追加', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
   await expect(page.getByRole('dialog', { name: '参加者を登録' })).toBeVisible();
   await page.getByRole('dialog', { name: '参加者を登録' }).getByRole('button', { name: 'キャンセル' }).click();
 
@@ -59,9 +59,9 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   const allTab = switcher.getByRole('tab', { name: 'すべて' });
   await expect(allTab).toBeVisible();
   await expect(allTab).toHaveAttribute('aria-selected', 'true');
-  await expect(switcher.getByRole('tab', { name: '未回収' })).toBeVisible();
-  await switcher.getByRole('tab', { name: '未回収' }).click();
-  await expect(switcher.getByRole('tab', { name: '未回収' })).toHaveAttribute('aria-selected', 'true');
+  await expect(switcher.getByRole('tab', { name: '未集金' })).toBeVisible();
+  await switcher.getByRole('tab', { name: '未集金' }).click();
+  await expect(switcher.getByRole('tab', { name: '未集金' })).toHaveAttribute('aria-selected', 'true');
   await switcher.getByRole('tab', { name: 'すべて' }).click();
   await expect(collectionDialog.locator('.settlement-collection-row.excluded .cds--tag').first()).toBeVisible();
   await collectionDialog.getByRole('button', { name: '閉じる', exact: true }).last().click();

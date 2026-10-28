@@ -87,9 +87,9 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await expect(carEditor).toBeVisible();
   await carEditor.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
   const expense = carEditor.locator('.settlement-cost-editor-form').last();
-  await expense.getByLabel('名目').fill('初回車費用');
+  await expense.getByLabel('費用名').fill('初回車費用');
   await expense.getByRole('textbox', { name: /金額（円）/ }).fill('300');
-  await carEditor.getByRole('button', { name: '費用を追加', exact: true }).click();
+  await carEditor.getByRole('button', { name: '一覧に追加', exact: true }).click();
   await carEditor.getByRole('button', { name: '費用を保存', exact: true }).click();
   await expect(carEditor).toHaveCount(0);
   const savedExpenseAction = driverCar.getByRole('button', { name: '運転手の任意名車の費用を編集', exact: true });
@@ -103,13 +103,13 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await collection.locator('.settlement-collection-row').filter({ hasText: '参加者1' }).click();
   const collectorPrompt = page.getByRole('dialog', { name: '集金済みにする', exact: true });
   await expect(collection).toHaveCount(0);
-  const collectorInput = collectorPrompt.getByRole('textbox', { name: '集金した人' });
+  const collectorInput = collectorPrompt.getByRole('textbox', { name: '支払った人の名前（任意）' });
   await collectorInput.fill('集金担当');
   await expect(collectorInput).toHaveValue('集金担当');
-  await collectorPrompt.getByRole('button', { name: '保存', exact: true }).click();
+  await collectorPrompt.getByRole('button', { name: '集金済みにする', exact: true }).click();
   await expect(collectorPrompt).toHaveCount(0);
   await expect(collection).toBeVisible();
   await collection.getByRole('tab', { name: 'すべて', exact: true }).click();
-  await expect(collection.locator('.settlement-collection-row').filter({ hasText: '集金担当' })).toContainText('回収済み');
+  await expect(collection.locator('.settlement-collection-row').filter({ hasText: '集金担当' })).toContainText('集金済み');
   await collection.getByRole('button', { name: '閉じる', exact: true }).last().click();
 });

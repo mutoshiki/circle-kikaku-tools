@@ -735,10 +735,10 @@ function getSettlementIssues(data, state, result) {
     const fields = new Set();
     const rows = new Set();
     const participants = result.participants || [];
-    if (!participants.length) messages.push('参加者がいません。先に登録画面から参加者を追加してください。');
-    if (!(data.cars || []).length) messages.push('運転手が未登録です。登録画面で追加してください。');
-    if (!result.isStandaloneSettlement && state.organizerFree && participants.length > 0 && !state.organizerName) messages.push('企画者を選ぶと、企画者の集金対象外を正確にできます。');
-    if (result.payerCount <= 0 && participants.length > 0) messages.push('集金対象が0人です。企画者・運転手設定を確認してください。');
+    if (!participants.length) messages.push('参加者がいません。参加者タブから追加してください。');
+    if (!(data.cars || []).length) messages.push('車の運転手が登録されていません。車割タブで車を追加し、運転手を指定してください。');
+    if (!result.isStandaloneSettlement && state.organizerFree && participants.length > 0 && !state.organizerName) messages.push('集金対象外にする企画者を、精算設定で選んでください。');
+    if (result.payerCount <= 0 && participants.length > 0) messages.push('集金する人が0人です。精算設定で、運転手・企画者の集金ルールを確認してください。');
 
     (data.cars || []).forEach(car => {
         const cState = ensureDriverRewardExtra(state.cars?.[car.name] || {}, state);
@@ -772,12 +772,12 @@ function getSettlementIssues(data, state, result) {
                 fields.add(`${car.name}:extra:${i}:name`);
                 fields.add(`${car.name}:extra:${i}:amount`);
                 rows.add(car.name);
-                messages.push(`${car.name}車の追加した諸経費が未入力です。`);
+                messages.push(`${car.name}車の追加費用が未入力です。`);
             } else {
                 if (hasAmount && !hasName) {
                     fields.add(`${car.name}:extra:${i}:name`);
                     rows.add(car.name);
-                    messages.push(`${car.name}車の諸経費に名目が空の行があります。`);
+                    messages.push(`${car.name}車の追加費用に費用名がない行があります。`);
                 }
                 if (hasName && !hasAmount && !isTimesTimeFeeExtra(ex)) {
                     fields.add(`${car.name}:extra:${i}:amount`);

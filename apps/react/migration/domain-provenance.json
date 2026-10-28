@@ -65,7 +65,7 @@
     ]
   },
   "assets/js/features/google-form-import-parser.js": {
-    "sha256": "695ca31d403fe545ff5676c2baeeb0dd9f593686e290142a6dbb9388808a9c97",
+    "sha256": "73b209d8f370b45b65fecb0c37ad8d56f5fe83755dee8f3d02c74b6885735513",
     "declarations": [
       "NAME_HEADERS",
       "GRADE_HEADERS",
@@ -153,7 +153,7 @@
     ]
   },
   "assets/js/features/settlement/02-calculator.js": {
-    "sha256": "8775e242ceb7427414962f1c51e4b29e1cbb97f438391c6fca7dc922865b2285",
+    "sha256": "2abf9b227e561f79bcd4d6ca4bbcd931bc5f9fed07a1b26cfc2bbac5fb78a30d",
     "declarations": [
       "isGasMovementFeeExtra",
       "calculateSettlement",

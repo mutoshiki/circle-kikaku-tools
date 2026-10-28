@@ -14,7 +14,7 @@ test('random assignment count is visible, persists after reload and resets when 
   await page.getByRole('button', { name: '車を追加', exact: true }).click();
   const addCar = page.getByRole('dialog', { name: '車を追加' });
   await addCar.getByRole('combobox', { name: '運転手', exact: true }).selectOption({ index: 0 });
-  await addCar.getByRole('button', { name: '追加', exact: true }).click();
+  await addCar.getByRole('button', { name: '車を追加', exact: true }).click();
   const count = page.locator('.allocation-page[aria-label="車割"] .allocation-randomization-count');
   const randomize = page.getByRole('button', { name: 'ランダム割り当て', exact: true });
   await expect(randomize).toHaveAttribute('aria-describedby', 'randomization-count-description-car');
@@ -29,7 +29,7 @@ test('random assignment count is visible, persists after reload and resets when 
   await expect(count).toHaveText('実行 0回');
   await randomize.focus();
   await page.keyboard.press('Space');
-  const execute = page.getByRole('dialog', { name: 'ランダム割り当て' }).getByRole('button', { name: '実行', exact: true });
+  const execute = page.getByRole('dialog', { name: 'ランダム割り当て' }).getByRole('button', { name: '割り当てる', exact: true });
   await execute.focus();
   await page.keyboard.press('Enter');
   await expect(count).toHaveText('実行 1回');
@@ -55,12 +55,12 @@ test('random assignment count is visible, persists after reload and resets when 
   await expect(count).toHaveText('実行 1回');
   const car = page.getByRole('region', { name: 'A車', exact: true });
   await car.getByRole('button', { name: 'A車の操作', exact: true }).click();
-  await page.getByRole('menuitem', { name: '定員変更', exact: true }).click();
+  await page.keyboard.press('Enter');
   const capacity = page.getByRole('dialog', { name: '定員を変更' });
   await capacity.getByRole('spinbutton', { name: '定員（運転手を含む）', exact: true }).fill('5');
-  await capacity.getByRole('button', { name: '保存', exact: true }).click();
+  await capacity.getByRole('button', { name: '定員を保存', exact: true }).click();
   await expect(count).toHaveText('実行 0回');
-  await expect(page.getByText('車割の条件が変わったため、ランダム割り当て回数を0に戻しました。', { exact: true })).toBeVisible();
+  await expect(page.getByText('車割：割り当て条件が変わったため、ランダム割り当ての実行回数を0に戻しました。', { exact: true })).toBeVisible();
   await expect(page.locator('.notification-region .cds--toast-notification')).toHaveCount(1);
   expect(errors).toEqual([]);
 });

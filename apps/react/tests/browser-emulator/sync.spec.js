@@ -78,15 +78,15 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     }
 
     async function fillExpense(dialog, name, amount) {
-      await dialog.getByLabel('名目').fill(name);
+      await dialog.getByLabel('費用名').fill(name);
       await dialog.getByRole('textbox', { name: /金額（円）/ }).fill(amount);
-      await dialog.getByRole('button', { name: '費用を追加', exact: true }).click();
+      await dialog.getByRole('button', { name: '一覧に追加', exact: true }).click();
     }
 
     const separateCarDialogA = await openExpense(pageA, '仮参加者A車');
     await fillExpense(separateCarDialogA, '端末A 別車の駐車代', '500');
     const separateCarDialogB = await openExpense(pageB, '仮参加者D車（レンタカー）', '仮参加者D車');
-    const separateCarDraftNameB = separateCarDialogB.getByLabel('名目');
+    const separateCarDraftNameB = separateCarDialogB.getByLabel('費用名');
     const separateCarDraftAmountB = separateCarDialogB.getByRole('textbox', { name: /金額（円）/ });
     await separateCarDraftNameB.fill('端末B 別車の入浴代');
     await separateCarDraftAmountB.fill('800');
@@ -96,7 +96,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     await expect(separateCarDialogB).toBeVisible();
     await expect(separateCarDraftNameB).toHaveValue('端末B 別車の入浴代');
     await expect(separateCarDraftAmountB).toHaveValue('800');
-    await separateCarDialogB.getByRole('button', { name: '費用を追加', exact: true }).click();
+    await separateCarDialogB.getByRole('button', { name: '一覧に追加', exact: true }).click();
     await separateCarDialogB.getByRole('button', { name: '費用を保存' }).click();
     await expect(separateCarDialogB).toHaveCount(0);
     await expect(pageB.locator('.sync-status')).toHaveText('同期完了');
@@ -105,7 +105,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     await fillExpense(dialogA, '端末A 当日駐車代', '600');
     await expect(dialogA.locator('.settlement-cost-editor').getByText('端末A 当日駐車代', { exact: true })).toBeVisible();
     const dialogB = await openExpense(pageB);
-    const draftNameB = dialogB.getByLabel('名目');
+    const draftNameB = dialogB.getByLabel('費用名');
     const draftAmountB = dialogB.getByRole('textbox', { name: /金額（円）/ });
     await draftNameB.fill('端末B 当日入浴代');
     await draftAmountB.fill('900');
@@ -127,7 +127,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
 
     await expect(draftNameB).toHaveValue('端末B 当日入浴代');
     await expect(draftAmountB).toHaveValue('900');
-    await dialogB.getByRole('button', { name: '費用を追加', exact: true }).click();
+    await dialogB.getByRole('button', { name: '一覧に追加', exact: true }).click();
     await expect(dialogB.locator('.settlement-cost-editor').getByText('端末B 当日入浴代', { exact: true })).toBeVisible();
     await dialogB.getByRole('button', { name: '費用を保存' }).click();
     await expect(dialogB).toHaveCount(0);
@@ -189,7 +189,7 @@ test('two real browsers preserve concurrently added route places in shared room 
       await page.getByRole('button', { name: /^仮参加者A車の費用を(?:入力|編集)$/ }).click();
       const dialog = page.getByRole('dialog', { name: '仮参加者A車' });
       await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
-      await dialog.getByRole('button', { name: '移動距離計算ツール' }).click();
+      await dialog.getByRole('button', { name: 'ルートから距離を計算' }).click();
       await dialog.getByRole('button', { name: /出発地を追加/ }).click();
       return dialog;
     }

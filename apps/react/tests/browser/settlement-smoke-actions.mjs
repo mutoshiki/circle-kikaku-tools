@@ -10,7 +10,7 @@ export async function openVehicleExpenseEditor(page, { carLabel, action }) {
 }
 
 export async function openRoutePlannerFromMovementSettings(dialog) {
-  await dialog.getByRole('button', { name: '移動距離計算ツール', exact: true }).click();
+  await dialog.getByRole('button', { name: 'ルートから距離を計算', exact: true }).click();
 }
 
 export async function returnToMovementSettingsFromRoutePlanner(dialog) {

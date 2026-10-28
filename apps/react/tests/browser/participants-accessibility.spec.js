@@ -28,8 +28,8 @@ test('active participant filters remain visible and can be cleared without chang
   await filterButton.click();
   await expect(page.locator('#participant-filter-panel')).toBeHidden();
   await expect(page.locator('.participant-filter-summary')).toContainText('学年: 4年');
-  await expect(page.getByRole('button', { name: '条件をクリア', exact: true })).toBeVisible();
-  await expect(page.locator('.participant-results-status')).toContainText(/表示 \d+人、全 \d+人/);
+  await expect(page.getByRole('button', { name: '絞り込みを解除', exact: true })).toBeVisible();
+  await expect(page.locator('.participant-results-status')).toContainText(/\d+人中\d+人を表示しています/);
   const announcedResult = await page.locator('.participant-results-status').textContent();
   const filteredCheckbox = page.getByRole('checkbox', { name: /を参加者に含める/ }).first();
   await filteredCheckbox.focus();
@@ -38,13 +38,13 @@ test('active participant filters remain visible and can be cleared without chang
   await expect(page.locator('.participant-results-status')).toHaveText(announcedResult);
   await filterButton.click();
   await page.locator('#participant-filter-selected').selectOption('selected');
-  await expect(page.locator('.participant-results-status')).toContainText('選択状態: 選択済み');
-  await page.getByRole('button', { name: '条件をクリア', exact: true }).click();
+  await expect(page.locator('.participant-results-status')).toContainText('参加者の選択: 選択済み');
+  await page.getByRole('button', { name: '絞り込みを解除', exact: true }).click();
 
   await expect(page.locator('.participant-filter-summary')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: '条件をクリア', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '絞り込みを解除', exact: true })).toHaveCount(0);
   await expect(filterButton).toBeFocused();
-  await expect(page.locator('.participant-results-status')).toContainText(/表示 \d+人、全 \d+人/);
+  await expect(page.locator('.participant-results-status')).toContainText(/\d+人中\d+人を表示しています/);
   expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), storageKey)).toEqual(beforeClear);
 });
 
@@ -55,10 +55,10 @@ test('search result status announces the settled result and empty results remain
   const status = page.locator('.participant-results-status');
   await expect(status).toHaveAttribute('role', 'status');
   await expect(status).toContainText('一致しない検索語');
-  await expect(status).toContainText('表示 0人');
-  await expect(page.getByText(/一致しない検索語.*に一致する参加者はいません/)).toBeVisible();
-  await expect(page.getByRole('button', { name: '条件をクリア', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '条件をクリア', exact: true }).click();
+  await expect(status).toContainText('0人を表示しています');
+  await expect(page.getByText(/一致しない検索語.*に一致する人はいません/)).toBeVisible();
+  await expect(page.getByRole('button', { name: '絞り込みを解除', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '絞り込みを解除', exact: true }).click();
   await expect(search).toBeFocused();
 });
 
@@ -125,7 +125,7 @@ test('after confirming participant deletion, focus moves to the participant head
   await row.getByRole('button', { name: `${participantName}の操作`, exact: true }).click();
   await page.getByRole('menuitem', { name: '削除', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '参加者を削除しますか？' });
-  await dialog.getByRole('button', { name: '削除', exact: true }).click();
+  await dialog.getByRole('button', { name: '参加者を削除', exact: true }).click();
   await expect(dialog).toHaveCount(0);
   await expect(page.getByRole('heading', { name: /参加者/, level: 2 })).toBeFocused();
 });

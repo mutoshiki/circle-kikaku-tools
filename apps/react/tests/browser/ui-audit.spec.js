@@ -37,17 +37,17 @@ async function seedSample(page) {
   await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'サンプルデータ' });
   await expect(dialog).toBeVisible();
-  await dialog.getByRole('radio', { name: '通常サンプル', exact: true }).check({ force: true });
-  await dialog.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
-  await expect(page.getByText('通常サンプルを入れました')).toBeVisible();
+  await dialog.getByRole('radio', { name: '通常のサンプル', exact: true }).check({ force: true });
+  await dialog.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
+  await expect(page.getByText('通常のサンプルに置き換えました。')).toBeVisible();
 }
 async function seedFormSample(page) {
   await openMenu(page);
   await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'サンプルデータ' });
-  await dialog.getByRole('radio', { name: 'フォーム連携サンプル', exact: true }).check({ force: true });
-  await dialog.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
-  await expect(page.getByText('フォーム連携サンプルを入れました')).toBeVisible();
+  await dialog.getByRole('radio', { name: 'フォーム連携のサンプル', exact: true }).check({ force: true });
+  await dialog.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
+  await expect(page.getByText('フォーム連携のサンプルに置き換えました。')).toBeVisible();
 }
 async function reopen(page, room) {
   await page.goto(`/?room=${room}`);
@@ -96,8 +96,8 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
     await shot(page, viewportName, 4, 'sample-data-modal');
     const sample = page.getByRole('dialog', { name: 'サンプルデータ' });
-    await sample.getByRole('radio', { name: '入力漏れサンプル', exact: true }).check({ force: true });
-    await sample.getByRole('button', { name: 'サンプルを入れる', exact: true }).click();
+    await sample.getByRole('radio', { name: '未入力項目があるサンプル', exact: true }).check({ force: true });
+    await sample.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
     await shot(page, viewportName, 5, 'sample-missing-toast');
     await closeModal(page);
 
@@ -113,9 +113,9 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     if (await page.getByRole('button', { name: '参加者を選び直す', exact: true }).count()) await page.getByRole('button', { name: '参加者を選び直す', exact: true }).click();
     console.log('AUDIT participants selection mode');
     await page.getByRole('searchbox', { name: '名前を検索' }).fill('存在しない名前');
-    await expect(page.getByText('“存在しない名前” に一致する参加者はいません', { exact: true })).toBeVisible();
+    await expect(page.getByText('「存在しない名前」に一致する人はいません。', { exact: true })).toBeVisible();
     await shot(page, viewportName, 7, 'participants-search-empty');
-    await page.getByRole('button', { name: '検索をクリア' }).click();
+    await page.getByRole('button', { name: '検索語を消去' }).click();
     await page.getByRole('button', { name: '絞り込み' }).click();
     await shot(page, viewportName, 8, 'participants-filter-open');
     await page.getByRole('button', { name: '絞り込み' }).click();
@@ -144,7 +144,7 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
       if (await moveWaiting.count()) await moveWaiting.click();
     }
     await shot(page, viewportName, 14, 'car-allocation-default');
-    const seatAction = page.getByRole('button', { name: /空席 .*参加者を追加/ }).first();
+    const seatAction = page.getByRole('button', { name: /未割り当ての人を追加/ }).first();
     if (await seatAction.count()) { await seatAction.click(); await shot(page, viewportName, 15, 'car-candidates-expanded'); }
     await page.getByRole('button', { name: '車を追加', exact: true }).click();
     await shot(page, viewportName, 16, 'car-add-modal');
@@ -174,15 +174,17 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await cancelDialog(page);
     await page.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).first().click();
     await shot(page, viewportName, 25, 'vehicle-expense-editor');
-    await page.getByRole('button', { name: '費用を追加' }).click();
+    await page.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
+    await page.getByLabel('費用名').fill('監査用費用');
+    await page.getByLabel('金額（円）').fill('100');
+    await page.getByRole('button', { name: '一覧に追加', exact: true }).click();
     await shot(page, viewportName, 26, 'vehicle-expense-extra-row');
-    await page.getByRole('button', { name: '戻る' }).click();
     await page.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
     await shot(page, viewportName, 27, 'movement-settings-private');
     const rental = page.locator('#settlement-rental-times');
     if (await rental.count()) await rental.check({ force: true });
     await shot(page, viewportName, 28, 'movement-settings-rental');
-    await page.getByRole('button', { name: '移動距離計算ツール' }).click();
+    await page.getByRole('button', { name: 'ルートから距離を計算' }).click();
     await shot(page, viewportName, 29, 'route-planner-empty');
     await page.getByRole('button', { name: /出発地を追加/ }).click();
     await page.getByRole('searchbox', { name: '場所を検索' }).fill('出発地');

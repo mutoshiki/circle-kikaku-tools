@@ -33,9 +33,9 @@ export default function ParticipantEditor({ runtime, session, launcherButtonRef,
       </Select>
       {session.draft.allocations.car.placements[id] && <Checkbox id="participant-edit-driver" labelText="運転手" checked={driver} onChange={(_, { checked }) => setDriver(checked)} />}
       <TextArea id="participant-edit-memo" labelText="メモ" value={draft.memo || ''} onChange={event => field('memo', event.target.value)} />
-      <Select id="participant-edit-flag" labelText="しるし" value={draft.flag || 'none'} onChange={event => field('flag', event.target.value)}>{[['none', 'しるしなし'], ['blue', '青'], ['purple', '紫'], ['yellow', '黄'], ['red', '赤']].map(([value, text]) => <SelectItem key={value} value={value} text={text} />)}</Select>
-      <Checkbox id="participant-edit-locked" labelText="固定" checked={draft.locked === true} onChange={(_, { checked }) => field('locked', checked)} />
-      <p className="participant-edit-help">固定すると、班割・車割のランダム割り当てで移動しません。</p>
+      <Select id="participant-edit-flag" labelText="目印" value={draft.flag || 'none'} onChange={event => field('flag', event.target.value)}>{[['none', '目印なし'], ['blue', '青'], ['purple', '紫'], ['yellow', '黄'], ['red', '赤']].map(([value, text]) => <SelectItem key={value} value={value} text={text} />)}</Select>
+      <Checkbox id="participant-edit-locked" labelText="割り当てを固定" checked={draft.locked === true} onChange={(_, { checked }) => field('locked', checked)} />
+      <p className="participant-edit-help">車割・班割の両方で、ランダム割り当てによる移動を防ぎます。</p>
     </div>
   </Modal>;
 }

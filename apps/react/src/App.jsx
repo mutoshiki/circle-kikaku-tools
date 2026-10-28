@@ -57,20 +57,16 @@ export default function App({ runtime }) {
     if (!resets.length) return;
     const reasons = new Set(resets.map(change => change.reason));
     const types = new Set(resets.map(change => change.type));
-    const message = reasons.has('participants')
-      ? '参加者が変わったため、車割・班割のランダム割り当て回数を0に戻しました。'
-      : reasons.has('fixed')
-        ? '固定設定が変わったため、車割・班割のランダム割り当て回数を0に戻しました。'
-        : types.size === 2
-          ? '車割・班割の条件が変わったため、ランダム割り当て回数を0に戻しました。'
-          : `${types.has('car') ? '車割' : '班割'}の条件が変わったため、ランダム割り当て回数を0に戻しました。`;
+    const reasonLabel = reasons.has('participants') ? '参加者' : reasons.has('fixed') ? '固定設定' : reasons.has('capacity') ? '定員' : '割り当て条件';
+    const typesLabel = [...types].map(type => type === 'car' ? '車割' : '班割').join('・');
+    const message = `${typesLabel}：${reasonLabel}が変わったため、ランダム割り当ての実行回数を0に戻しました。`;
     pendingResetNotice.current = message;
     setNoticeTimeout(8000);
     setNotice(message);
     queueMicrotask(() => { setNotice(message); pendingResetNotice.current = null; });
   }), [runtime]);
   async function share() {
-    try { await navigator.clipboard.writeText(runtime.createShareUrl()); showNotice('リンクをコピーしました'); }
+    try { await navigator.clipboard.writeText(runtime.createShareUrl()); showNotice('企画のリンクをコピーしました。'); }
     catch { showNotice('リンクをコピーできませんでした'); }
   }
   function openGlobalModal(name) { setGlobalModal(name); }
@@ -78,13 +74,13 @@ export default function App({ runtime }) {
     const project = createProjectDomain({ getRoom: runtime.store.getSnapshot, settlement: runtime.store.domain.settlement });
     runtime.store.command('restore', { value: project.createSampleAppData({ missing, carCount: Number(sampleCars) }), source: 'sample' });
     setGlobalModal('');
-    showNotice(missing ? '入力漏れサンプルを入れました' : '通常サンプルを入れました');
+    showNotice(missing ? '未入力項目があるサンプルに置き換えました。' : '通常のサンプルに置き換えました。');
   }
   function seedFormLinkedSample() {
     const project = createProjectDomain({ getRoom: runtime.store.getSnapshot, settlement: runtime.store.domain.settlement });
     runtime.store.command('restore', { value: project.createFormLinkedSampleData(), source: 'sample' });
     setGlobalModal('');
-    showNotice('フォーム連携サンプルを入れました');
+    showNotice('フォーム連携のサンプルに置き換えました。');
   }
   useEffect(() => {
     const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
@@ -116,7 +112,7 @@ export default function App({ runtime }) {
     if (sampleType === 'reset') {
       runtime.store.command('restore', { value: runtime.store.domain.canonical.emptyRoom(), source: 'reset' });
       setGlobalModal('');
-      showNotice('企画データをリセットしました');
+      showNotice('企画データを空にしました。');
       return;
     }
     if (sampleType === 'form') seedFormLinkedSample();
@@ -198,12 +194,12 @@ export default function App({ runtime }) {
     </Theme>
     {settlementSettingsEdit && <SettlementSettingsModal runtime={runtime} edit={settlementSettingsEdit} launcherButtonRef={settlementSettingsLauncher} onNotice={showNotice} onClose={closeSettlementSettings} />}
     {globalModal === 'guide' && <Modal className="app-modal" open passiveModal size="md" closeButtonLabel="閉じる" modalHeading="使い方" onRequestClose={() => setGlobalModal('')}>
-      <div className="user-guide"><p>参加者の選択、車割、班割、精算を上部の4つのタブから行います。</p><ul><li><strong>参加者</strong><span>応募者を確認し、企画に参加する人を選びます。</span></li><li><strong>車割</strong><span>車と参加者を割り当てます。</span></li><li><strong>班割</strong><span>班と参加者を割り当てます。</span></li><li><strong>共有</strong><span>右上の「企画のリンクをコピー」から通常の企画ルームURLをコピーします。</span></li><li><strong>精算</strong><span>設定、車ごとの費用、集金・支払い状況を管理します。</span></li></ul></div>
+      <div className="user-guide"><p>参加者を登録すると、参加者・車割・班割・精算をタブで切り替えられます。人数だけで精算する場合は、精算画面だけを使います。</p><ul><li><strong>参加者</strong><span>名前を登録するか、応募フォームの回答から参加する人を選びます。</span></li><li><strong>車割</strong><span>参加者を車に割り当てます。</span></li><li><strong>班割</strong><span>参加者を班に割り当てます。</span></li><li><strong>共有</strong><span>右上のリンクボタンから、この企画の共有リンクをコピーできます。</span></li><li><strong>精算</strong><span>1人あたりの集金額と車ごとの支払額を計算し、集金済みの人を記録します。</span></li></ul></div>
     </Modal>}
     {globalModal === 'overview' && <OverviewModal runtime={runtime} room={room} onNotice={showNotice} onClose={() => setGlobalModal('')} />}
     {globalModal === 'history' && <HistoryModal runtime={runtime} onNotice={showNotice} onClose={() => setGlobalModal('')} />}
-    {globalModal === 'sample' && <Modal className="app-modal sample-modal" open size="sm" closeButtonLabel="閉じる" modalHeading={sampleType === 'reset' ? '企画データをリセット' : 'サンプルデータ'} primaryButtonText={sampleType === 'reset' ? 'リセットする' : 'サンプルを入れる'} secondaryButtonText="キャンセル" onRequestSubmit={seedSelectedSample} onRequestClose={() => setGlobalModal('')} selectorPrimaryFocus="#sample-normal">
-      <div className="sample-form"><p>{sampleType === 'reset' ? '企画名、参加者、割り当て、精算情報を空に戻します。フォーム連携情報は保持されます。' : '現在の企画データを置き換えて、確認用サンプルを入れます。'}</p><RadioButtonGroup legendText="サンプルの種類" name="sample-type" valueSelected={sampleType} onChange={value => setSampleType(String(value))} orientation="vertical"><RadioButton id="sample-normal" labelText="通常サンプル" value="normal" /><RadioButton id="sample-form" labelText="フォーム連携サンプル" value="form" /><RadioButton id="sample-missing" labelText="入力漏れサンプル" value="missing" /><RadioButton id="sample-reset" labelText="リセット（空の状態にする）" value="reset" /></RadioButtonGroup>{(sampleType === 'normal' || sampleType === 'missing') && <Select id="sample-car-count" labelText="車の数" value={sampleCars} onChange={event => setSampleCars(event.target.value)}>{['2', '3', '4', '5'].map(value => <SelectItem key={value} value={value} text={`${value}台`} />)}</Select>}</div>
+    {globalModal === 'sample' && <Modal className="app-modal sample-modal" open size="sm" closeButtonLabel="閉じる" modalHeading={sampleType === 'reset' ? '企画データを空にしますか？' : 'サンプルデータ'} primaryButtonText={sampleType === 'reset' ? '空にする' : 'サンプルに置き換える'} secondaryButtonText="キャンセル" onRequestSubmit={seedSelectedSample} onRequestClose={() => setGlobalModal('')} selectorPrimaryFocus="#sample-normal">
+      <div className="sample-form"><p>{sampleType === 'reset' ? '企画名、参加者、割り当て、精算情報を空にします。フォーム連携情報は保持されます。' : 'この企画の参加者・割り当て・精算データをサンプルに置き換えます。共有している端末にも反映されます。'}</p><RadioButtonGroup legendText="サンプルの種類" name="sample-type" valueSelected={sampleType} onChange={value => setSampleType(String(value))} orientation="vertical"><RadioButton id="sample-normal" labelText="通常のサンプル" value="normal" /><RadioButton id="sample-form" labelText="フォーム連携のサンプル" value="form" /><RadioButton id="sample-missing" labelText="未入力項目があるサンプル" value="missing" /><RadioButton id="sample-reset" labelText="企画データを空にする" value="reset" /></RadioButtonGroup>{(sampleType === 'normal' || sampleType === 'missing') && <Select id="sample-car-count" labelText="車の数" value={sampleCars} onChange={event => setSampleCars(event.target.value)}>{['2', '3', '4', '5'].map(value => <SelectItem key={value} value={value} text={`${value}台`} />)}</Select>}</div>
     </Modal>}
     {globalModal === 'bug' && <BugModal runtime={runtime} room={room} onNotice={showNotice} onClose={() => setGlobalModal('')} />}
     {notice && <div className="notification-region"><ToastNotification key={notice} kind={noticeKind(notice)} title={notice} subtitle="" caption="" timeout={noticeTimeout} onClose={() => { setNotice(current => current === notice ? '' : current); return true; }} lowContrast /></div>}

@@ -28,6 +28,6 @@ export default function StandaloneDriverNameModal({ runtime, edit, launcherButto
   function cancel() { onClose(false); }
   return <Modal className="app-modal standalone-driver-name-modal" open size="sm" modalHeading="運転手の名前を編集" closeButtonLabel="閉じる" launcherButtonRef={launcherButtonRef} primaryButtonText="保存" secondaryButtonText="キャンセル" primaryButtonDisabled={saving} onRequestSubmit={save} onRequestClose={cancel} preventCloseOnClickOutside selectorPrimaryFocus="#standalone-driver-name">
     {error && <InlineNotification kind="error" title="名前を保存できません" subtitle={error} hideCloseButton lowContrast />}
-    <TextInput id="standalone-driver-name" labelText="運転手の名前（任意）" helperText="空欄の場合は「車出しN」と表示します。" value={name} invalid={!!error} invalidText={error} onChange={event => { setName(event.target.value); setError(''); }} />
+    <TextInput id="standalone-driver-name" labelText="運転手の名前（任意）" helperText="空欄の場合は「車出し1」などの仮名を表示します。" value={name} invalid={!!error} invalidText={error} onChange={event => { setName(event.target.value); setError(''); }} />
   </Modal>;
 }

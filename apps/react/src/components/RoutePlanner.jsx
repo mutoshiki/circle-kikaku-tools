@@ -38,14 +38,14 @@ function PlaceSearch({ runtime, target, history, onSelect }) {
     setSearchState(next.trim() ? { status: 'loading', operation: 'search' } : { status: 'idle', entries: history });
   }
   const entries = searchState.status === 'results' ? searchState.entries : searchState.status === 'idle' ? searchState.entries : [];
-  const listLabel = query.trim() ? '検索結果' : '企画で共有した場所';
+  const listLabel = query.trim() ? '検索結果' : 'この企画の登録済みの場所';
   return <section className="route-place-search" aria-label={`${roleLabel(target)}を検索`}>
     <Search id="route-place-search" labelText="場所を検索" placeholder="場所を検索" value={query} size="lg" autoComplete="off" closeButtonLabelText="検索語を消去" onChange={updateQuery} onClear={() => { setQuery(''); setSearchState({ status: 'idle', entries: history }); }} />
     {searchState.status === 'loading' && <InlineLoading description={searchState.operation === 'resolve' ? '場所を確認しています' : '場所を検索しています'} />}
-    {searchState.status === 'error' && <InlineNotification kind="error" title="場所を検索できませんでした" subtitle="もう一度お試しください。" hideCloseButton lowContrast />}
-    {searchState.status === 'empty' && <p className="route-place-empty">一致する場所がありません。</p>}
+    {searchState.status === 'error' && <InlineNotification kind="error" title="場所を検索できませんでした" subtitle="通信状態を確認して、もう一度お試しください。" hideCloseButton lowContrast />}
+    {searchState.status === 'empty' && <p className="route-place-empty">一致する場所がありません。地名や施設名を変えて検索してください。</p>}
     {entries.length > 0 && (searchState.status === 'results' || searchState.status === 'idle') && <ContainedList className="route-place-results" label={listLabel} size="lg">{entries.map((entry, index) => <ContainedListItem key={entry.placeId || entry.id || index} onClick={() => choose(entry)}><span className="route-place-result"><strong>{entry.name || entry.mainText?.text || entry.text?.text || entry.query || '候補'}</strong>{entry.address && <small>{entry.address}</small>}</span></ContainedListItem>)}</ContainedList>}
-    {searchState.status === 'idle' && !entries.length && <p className="route-place-empty">企画で共有した場所はありません。場所を検索してください。</p>}
+    {searchState.status === 'idle' && !entries.length && <p className="route-place-empty">登録済みの場所はありません。場所を検索してください。</p>}
   </section>;
 }
 
@@ -64,7 +64,7 @@ const RoutePlanner = forwardRef(function RoutePlanner({ runtime, isMobile = fals
   const selected = routeDomain.getSelectedRoute(draft);
   function persist(next) { runtime.routeDraft.write(next); setDraft(next); return next; }
   async function calculate(next = draft) {
-    if (!runtime.routeService) { setError('Google Maps / Routes adapterが設定されていません。'); return; }
+    if (!runtime.routeService) { setError('ルート計算を利用できません。移動距離を直接入力してください。'); return; }
     if (!next.origin || !next.destination) return;
     setLoading(true); setError('');
     try { persist(await runtime.routeService.calculate({ ...next, roundTrip: false })); }
@@ -100,7 +100,7 @@ const RoutePlanner = forwardRef(function RoutePlanner({ runtime, isMobile = fals
   function option(changes) { const next = { ...draft, ...changes, routes: [], selectedRouteIndex: 0, roundTrip: false }; persist(next); void calculate(next); }
   function apply() {
     const value = distanceKilometers(draft, routeDomain);
-    if (!value) { setError('適用するルートを選択してください。'); return; }
+    if (!value) { setError('距離を入力するルートを選択してください。'); return; }
     onApply(String(value));
   }
   function returnToPlanner() {
@@ -128,11 +128,11 @@ const RoutePlanner = forwardRef(function RoutePlanner({ runtime, isMobile = fals
   };
   const waypointAction = <ContainedListItem className="route-waypoint-action" renderIcon={Add} disabled={draft.waypoints.length >= 25} onClick={() => setSearchTarget({ role: 'waypoint', index: draft.waypoints.length })}>経由地を追加</ContainedListItem>;
   const distanceLabel = selected ? `${(selected.distanceMeters / 1000).toFixed(selected.distanceMeters >= 100000 ? 1 : 2)}km` : '';
-  useEffect(() => { onStatusChange({ primaryLabel: selected ? `合計 ${distanceLabel} を適用` : 'この距離を適用', disabled: !selected || loading, hidePrimaryButton: Boolean(searchTarget) }); }, [distanceLabel, loading, onStatusChange, searchTarget, selected]);
+  useEffect(() => { onStatusChange({ primaryLabel: selected ? `合計 ${distanceLabel} を適用` : '移動距離を入力', disabled: !selected || loading, hidePrimaryButton: Boolean(searchTarget) }); }, [distanceLabel, loading, onStatusChange, searchTarget, selected]);
   return <>
     {searchTarget ? <PlaceSearch runtime={runtime} target={searchTarget} history={history} onSelect={selectPlace} /> : <div className="route-planner-shell">
       <section className="route-planner-controls" aria-label="地点入力">
-        {showPrivacyNotice && <Callout className="route-planner-callout" kind="warning" title="追加した場所は企画内で共有されます。" subtitle="自宅の住所の入力は避け、近隣の施設などを代わりに入力してください。" lowContrast />}
+        {showPrivacyNotice && <Callout className="route-planner-callout" kind="warning" title="選んだ場所は企画を開く人にも共有されます。" subtitle="自宅ではなく、近くの公共施設などを選んでください。" lowContrast />}
         <ContainedList className="route-stop-list" label="ルート地点" size="lg">{stop(draft.origin, 'origin')}{draft.waypoints.map((place, index) => stop(place, 'waypoint', index))}{stop(draft.destination, 'destination')}{waypointAction}</ContainedList>
         <div className="route-toolbar"><Button kind="ghost" renderIcon={SettingsAdjust} aria-expanded={settingsOpen} onClick={() => setSettingsOpen(value => !value)}>{settingsOpen ? 'ルート設定を閉じる' : 'ルート設定'}</Button></div>
         {settingsOpen && <div className="route-options" role="group" aria-label="ルート設定"><Checkbox id="route-use-tolls" labelText="有料道路を使う" checked={!draft.avoidTolls} onChange={(_, { checked }) => option({ avoidTolls: !checked })} /><Checkbox id="route-use-highways" labelText="高速道路を使う" checked={!draft.avoidHighways} onChange={(_, { checked }) => option({ avoidHighways: !checked })} /></div>}

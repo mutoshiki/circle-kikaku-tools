@@ -194,7 +194,7 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
     expect(Math.abs(expenseFrame.bottom - expenseFrame.viewportHeight)).toBeLessThan(1);
     expect(expenseFrame.height).toBeLessThan(expenseFrame.viewportHeight * .85);
   }
-  await expect(dialog.getByRole('button', { name: '費用を追加' })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '費用を保存' })).toBeVisible();
   if (testInfo.project.name.includes('mobile')) {
     const compactRow = await dialog.locator('.settlement-cost-list-item .settlement-cost-summary').first().evaluate(row => {
       const name = row.querySelector('.settlement-cost-summary__name').getBoundingClientRect();
@@ -204,8 +204,8 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
     expect(compactRow).toBe(true);
   }
   await page.screenshot({ path: join(evidence, `vehicle-expense-${testInfo.project.name}.png`) });
-  await dialog.getByRole('button', { name: '費用を追加' }).click();
-  await dialog.getByLabel('名目').last().fill('保持する費用');
+  await dialog.getByRole('button', { name: '新しい費用を追加' }).click();
+  await dialog.getByLabel('費用名').last().fill('保持する費用');
   await dialog.getByRole('button', { name: '戻る' }).click();
   await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
 
@@ -213,14 +213,14 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await expect(movement.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
   await expectViewportFrame(page, movement);
-  await expect(movement.getByRole('heading', { name: '移動料金の計算条件' })).toBeVisible();
+  await expect(movement.getByRole('heading', { name: 'ガソリン代の計算条件' })).toBeVisible();
   await movement.getByLabel('移動距離（km）').fill('42');
-  await movement.getByRole('button', { name: '移動距離計算ツール' }).click();
+  await movement.getByRole('button', { name: 'ルートから距離を計算' }).click();
 
   const route = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await expectViewportFrame(page, route);
-  await expect(route.getByRole('heading', { name: '移動距離計算ツール' })).toBeVisible();
+  await expect(route.getByRole('heading', { name: 'ルートから距離を計算' })).toBeVisible();
   await page.screenshot({ path: join(evidence, `route-planner-${testInfo.project.name}.png`) });
   await route.getByRole('button', { name: '戻る' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(1);
@@ -235,7 +235,7 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
 
   await page.getByRole('button', { name: 'その他の操作' }).click();
   const appMenu = page.getByRole('menu', { name: 'その他の操作' });
-  await expect(appMenu.getByRole('menuitem')).toHaveText(['使い方', 'サンプルデータ', 'ダークモードに切り替え', 'バグを報告する']);
+  await expect(appMenu.getByRole('menuitem')).toHaveText(['使い方', 'サンプルデータ', 'ダークモードに切り替え', '不具合を報告']);
   await appMenu.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
   await page.getByRole('button', { name: '精算設定' }).click();

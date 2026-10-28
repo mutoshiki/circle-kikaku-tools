@@ -34,7 +34,7 @@ test('guidance, CSV, utility report, notifications and URL security', async ({ p
   await page.getByRole('button', { name: '発表文を作成' }).click();
   const guidance = page.getByRole('dialog', { name: '参加者発表文を作成' });
   await guidance.getByLabel('集合時間').fill('08:30');
-  await expect(guidance.getByLabel('発表文プレビュー')).toHaveValue(/参加者を発表します/);
+  await expect(guidance.getByLabel('発表文（確認してからコピー）')).toHaveValue(/参加者は.*人です/);
   await guidance.getByLabel('閉じる').click();
 
   await page.getByRole('button', { name: '引き継ぎデータを作成' }).click();
@@ -43,9 +43,9 @@ test('guidance, CSV, utility report, notifications and URL security', async ({ p
   expect((await download).suggestedFilename()).toBe('参加者.csv');
 
   await page.getByRole('button', { name: 'その他の操作' }).click();
-  await page.getByRole('menuitem', { name: 'バグを報告する' }).click();
-  await page.getByLabel('バグの内容').fill('fixture only');
-  await page.getByRole('dialog', { name: 'バグを報告' }).getByRole('button', { name: '送信' }).click();
+  await page.getByRole('menuitem', { name: '不具合を報告' }).click();
+  await page.getByLabel('起きたこと').fill('fixture only');
+  await page.getByRole('dialog', { name: '不具合を報告' }).getByRole('button', { name: '報告を送信' }).click();
   expect(await page.evaluate(() => window.__phase6BugReport?.message)).toBe('fixture only');
   expect(await page.evaluate(() => location.href.includes('handoff'))).toBe(false);
   expect(JSON.stringify(saved)).not.toContain(token);
@@ -57,20 +57,22 @@ test('route draft stays local and selected distance alone enters shared settleme
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.getByRole('tab', { name: '精算', exact: true }).click();
   await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
-  const car = page.getByRole('dialog', { name: /^仮参加者A車：/ });
-  await car.getByRole('button', { name: '費用を追加' }).click();
-  await car.getByLabel('名目').fill('一時費用');
-  await car.getByRole('button', { name: '戻る' }).click();
+  let car = page.getByRole('dialog', { name: /^仮参加者A車：/ });
+  await car.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
+  await car.getByLabel('費用名').fill('一時費用');
+  await car.getByLabel('金額（円）').fill('100');
+  await car.getByRole('button', { name: '一覧に追加', exact: true }).click();
+  car = page.getByRole('dialog');
   const addedExpense = car.locator('.settlement-cost-list-item').filter({ hasText: '一時費用' });
   await addedExpense.getByRole('button', { name: '一時費用を編集' }).click();
   await car.getByRole('button', { name: '一時費用を削除' }).click();
   await car.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
-  await car.getByRole('button', { name: '移動距離計算ツール' }).click();
+  await car.getByRole('button', { name: 'ルートから距離を計算' }).click();
   const route = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await route.getByRole('button', { name: /出発地を追加/ }).click();
   await route.getByRole('searchbox', { name: '場所を検索' }).fill('なし');
-  await expect(route.getByText('一致する場所がありません。', { exact: true })).toBeVisible();
+  await expect(route.getByText('一致する場所がありません。地名や施設名を変えて検索してください。', { exact: true })).toBeVisible();
   await route.getByRole('searchbox', { name: '場所を検索' }).fill('出発地');
   await expect(route.locator('.route-place-results.cds--contained-list')).toBeVisible();
   await route.getByRole('button', { name: /出発地/ }).last().click();

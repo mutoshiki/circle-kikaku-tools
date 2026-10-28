@@ -64,7 +64,7 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await expect(utilities.getByRole('menuitem', { name: '使い方', exact: true })).toBeVisible();
   await expect(utilities.getByRole('menuitem', { name: 'サンプルデータ', exact: true })).toBeVisible();
   await expect(utilities.getByRole('menuitem', { name: 'ダークモードに切り替え', exact: true })).toBeVisible();
-  await expect(utilities.getByRole('menuitem', { name: 'バグを報告する', exact: true })).toBeVisible();
+  await expect(utilities.getByRole('menuitem', { name: '不具合を報告', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(utilities).toBeHidden();
   await page.getByRole('button', { name: '関連アプリ', exact: true }).click();
@@ -160,10 +160,10 @@ test('sample menu keeps the legacy form-linked sample action', async ({ page }) 
   await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: 'サンプルデータ' }).click();
   const dialog = page.getByRole('dialog', { name: 'サンプルデータ' });
-  await expect(dialog.getByRole('radio', { name: 'フォーム連携サンプル' })).toBeVisible();
-  await dialog.getByRole('radio', { name: 'フォーム連携サンプル' }).check({ force: true });
-  await dialog.getByRole('button', { name: 'サンプルを入れる' }).click();
-  await expect(page.getByText('フォーム連携サンプルを入れました')).toBeVisible();
+  await expect(dialog.getByRole('radio', { name: 'フォーム連携のサンプル' })).toBeVisible();
+  await dialog.getByRole('radio', { name: 'フォーム連携のサンプル' }).check({ force: true });
+  await dialog.getByRole('button', { name: 'サンプルに置き換える' }).click();
+  await expect(page.getByText('フォーム連携のサンプルに置き換えました。')).toBeVisible();
   await expect(page.locator('#project-heading')).toHaveText('フォーム連携テスト企画');
   await page.getByRole('tab', { name: '参加者', exact: true }).click();
   await expect(page.getByText(/応募者 5人/)).toBeVisible();
