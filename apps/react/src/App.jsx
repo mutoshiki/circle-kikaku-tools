@@ -183,10 +183,10 @@ export default function App({ runtime }) {
         : <Tabs selectedIndex={view} onChange={({ selectedIndex }) => changeView(selectedIndex)}>
         <TabList aria-label="画面切り替え" contained fullWidth>{destinations.map(name => <Tab key={name}>{name}</Tab>)}</TabList>
         <TabPanels>
-          <TabPanel><Participants runtime={runtime} room={room} onNotice={showNotice} onOpenCountOnlySettlement={openCountOnlySettlement} openRegistrationRequestId={participantRegistrationRequest} onRegistrationRequestHandled={consumeParticipantRegistrationRequest} participantStartRef={participantStartRef} roomStatus={syncStatus} /></TabPanel>
-          <TabPanel><Allocation runtime={runtime} room={room} type="car" onNotice={showNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} /></TabPanel>
-          <TabPanel><Allocation runtime={runtime} room={room} type="team" onNotice={showNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} /></TabPanel>
-          <TabPanel><Settlement runtime={runtime} room={room} onNotice={showNotice} onOpenParticipantRegistration={openParticipantRegistration} onOpenSettings={openSettlementSettings} participantStartRef={participantStartRef} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel className="app-tab-panel"><Participants runtime={runtime} room={room} onNotice={showNotice} onOpenCountOnlySettlement={openCountOnlySettlement} openRegistrationRequestId={participantRegistrationRequest} onRegistrationRequestHandled={consumeParticipantRegistrationRequest} participantStartRef={participantStartRef} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel className="app-tab-panel"><Allocation runtime={runtime} room={room} type="car" onNotice={showNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel className="app-tab-panel"><Allocation runtime={runtime} room={room} type="team" onNotice={showNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} /></TabPanel>
+          <TabPanel className="app-tab-panel"><Settlement runtime={runtime} room={room} onNotice={showNotice} onOpenParticipantRegistration={openParticipantRegistration} onOpenSettings={openSettlementSettings} participantStartRef={participantStartRef} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} /></TabPanel>
         </TabPanels>
       </Tabs>}
     </div></Column></Grid>

@@ -77,7 +77,7 @@ test('search result status waits until Japanese IME composition has ended', asyn
 test('destructive participant confirmation is localized, cancel-focused and restores its launcher', async ({ page }) => {
   await openParticipants(page);
   const row = page.locator('.participant-row').first();
-  const participantName = await row.locator('strong').textContent();
+  const participantName = await row.locator('.participant-row-title > span').textContent();
   const trigger = row.getByRole('button', { name: `${participantName}の操作`, exact: true });
   await trigger.click();
   await page.getByRole('menuitem', { name: '削除', exact: true }).click();
@@ -107,7 +107,7 @@ test('destructive participant confirmation is localized, cancel-focused and rest
 test('participant editor close control is localized and returns focus to its launcher', async ({ page }) => {
   await openParticipants(page);
   const row = page.locator('.participant-row').first();
-  const participantName = await row.locator('strong').textContent();
+  const participantName = await row.locator('.participant-row-title > span').textContent();
   const trigger = row.getByRole('button', { name: `${participantName}の操作`, exact: true });
   await trigger.click();
   await page.getByRole('menuitem', { name: '編集', exact: true }).click();
@@ -121,7 +121,7 @@ test('participant editor close control is localized and returns focus to its lau
 test('after confirming participant deletion, focus moves to the participant heading', async ({ page }) => {
   await openParticipants(page);
   const row = page.locator('.participant-row').first();
-  const participantName = await row.locator('strong').textContent();
+  const participantName = await row.locator('.participant-row-title > span').textContent();
   await row.getByRole('button', { name: `${participantName}の操作`, exact: true }).click();
   await page.getByRole('menuitem', { name: '削除', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '参加者を削除しますか？' });

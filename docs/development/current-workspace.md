@@ -68,6 +68,11 @@ npm run check:preview -- --url http://127.0.0.1:4281/ --expected-source-sha b05e
 
 ## 2026-10-26 site copy implementation
 
+- Published baseline refreshed before preview: source SHA `5cbf3a4ab68af6909292412f03b7f389d7188c58`, asset digest `4233fce3d4bef9cbf74f182805f2d85b48ef55d28e35f532136c2916065ccd88` (retrieved from the live `release-build.json`).
+- Isolated worktree: `C:\Users\toshi\.codex\worktrees\site-copy-improvements\circle-kikaku-tools`; build and preview identity checks use the published SHA as baseline.
+- Local preview: `http://127.0.0.1:4284/?room=COPY-REVIEW-20261026&view=seisan`; local-only storage, synthetic regular sample. No production room/Firebase data used.
+- Browser inspection included 393×852 and 1280×900 emulated viewports and light/dark themes. Modal evidence is recorded in `docs/design/react-typography-spacing.md`.
+
 ### 2026-10-28 vehicle action correction
 
 - Public baseline refreshed: `f16105eca49f32da769b126f81825b8591dcd509`, asset digest `458bfb58fc370274b4ee73c709802a54539f9450504dea7c38c2b6a5dd7f1e49`.
@@ -75,7 +80,9 @@ npm run check:preview -- --url http://127.0.0.1:4281/ --expected-source-sha b05e
 - Reproduced the misplaced arrow/label and narrowed amount column in the side browser. The corrected three-row header was inspected at 393×852 and 1280×900 in light/dark themes. Pointer and Space disclosure operations, collapsed-row expense editing, Escape dismissal and focus return were exercised. No horizontal page overflow was observed. The participant tab was also inspected.
 - Physical-device behavior, browser zoom and screen readers were not manually exercised. Automated narrow-width cases cover 320px through desktop and both themes.
 
-- Published baseline refreshed before preview: source SHA `5cbf3a4ab68af6909292412f03b7f389d7188c58`, asset digest `4233fce3d4bef9cbf74f182805f2d85b48ef55d28e35f532136c2916065ccd88` (retrieved from the live `release-build.json`).
-- Isolated worktree: `C:\Users\toshi\.codex\worktrees\site-copy-improvements\circle-kikaku-tools`; build and preview identity checks use the published SHA as baseline.
-- Local preview: `http://127.0.0.1:4284/?room=COPY-REVIEW-20261026&view=seisan`; local-only storage, synthetic regular sample. No production room/Firebase data used.
-- Browser inspection included 393×852 and 1280×900 emulated viewports and light/dark themes. Modal evidence is recorded in `docs/design/react-typography-spacing.md`.
+### 2026-10-28 cross-screen visual consistency
+
+- Worktree: `C:\Users\toshi\.codex\worktrees\site-copy-improvements\circle-kikaku-tools`, branch `codex/cross-screen-visual-consistency`; public baseline at implementation start was `428224eba22e1358951c4002028b3fc5952af50e` (asset digest `afef2d8ccb21c24bffde3da8eb7ca7e5c01b02efd2b612b34cdb65606f7c9e39`).
+- Preview: `http://127.0.0.1:4285/?room=CONSISTENCY-LOCAL-20261028&view=seisan`; sample data is synthetic and saved only to this preview origin. Port 4284 was already in use and was left unchanged.
+- This change aligns the shared content inset and the typography/spacing roles on participants, car allocation, team allocation, and settlement. Allocation edits already present at task start were preserved. No calculation, persistence, sync, Firebase, schema, or permission behavior was changed.
+- Browser evidence: Playwright checks cover 320px, 393px, 676px and desktop widths, both themes, and interaction/focus behavior. In-app side-browser inspection was available at approximately 420×594; this CUA surface has no viewport-resize control, so exact 393×852 and 1280×900 visual inspection is not claimed. Browser automation covers the plan's exact responsive ranges. Browser zoom, physical devices, and screen readers remain unverified.

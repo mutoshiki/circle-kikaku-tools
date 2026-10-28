@@ -1,12 +1,53 @@
 import { test, expect } from '@playwright/test';
 import { fixture } from '../reference.mjs';
 
+async function expectTextStyle(locator, { fontSize, fontWeight, lineHeight }) {
+  const style = await locator.evaluate(element => {
+    const computed = getComputedStyle(element);
+    return [computed.fontSize, computed.fontWeight, Number.parseFloat(computed.lineHeight)];
+  });
+  expect(style.slice(0, 2)).toEqual([fontSize, fontWeight]);
+  expect(style[2]).toBeCloseTo(lineHeight, 2);
+}
+
 const roomId = 'PARTICIPANT-RC';
 const storageKey = `sanpo-react:v1:${roomId}:room`;
 
 async function saved(page) {
   return page.evaluate(key => JSON.parse(localStorage.getItem(key)), storageKey);
 }
+
+test('participant summaries, names and follow-up actions use shared hierarchy', async ({ page }) => {
+  await page.addInitScript(({ key, room }) => {
+    if (localStorage.getItem(key) === null) localStorage.setItem(key, JSON.stringify(room));
+  }, { key: storageKey, room: structuredClone(fixture) });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/?room=${roomId}`);
+  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+
+  const summary = page.locator('.participants-page > .section-heading h2');
+  await expect(summary).toBeVisible();
+  await expectTextStyle(summary, { fontSize: '14px', fontWeight: '400', lineHeight: 20 });
+  expect(await summary.locator('strong').count()).toBe(0);
+
+  const followUp = page.locator('.participants-post-confirm');
+  await expect(followUp).toBeVisible();
+  for (const heading of [followUp.locator('h2'), followUp.locator('h3').first()]) {
+    await expectTextStyle(heading, { fontSize: '16px', fontWeight: '600', lineHeight: 22 });
+  }
+  const task = followUp.locator('.participants-post-confirm__item').first();
+  expect(await task.evaluate(element => getComputedStyle(element).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
+  const action = task.getByRole('button', { name: '発表文を作成', exact: true });
+  await expect(action).toBeVisible();
+  expect((await action.boundingBox()).width).toBeLessThan((await task.boundingBox()).width);
+  expect((await action.boundingBox()).height).toBeGreaterThanOrEqual(40);
+
+  await page.getByRole('button', { name: '参加者を選び直す', exact: true }).click();
+  const firstName = page.locator('.participant-row-title > span').first();
+  await expect(firstName).toBeVisible();
+  await expectTextStyle(firstName, { fontSize: '14px', fontWeight: '400', lineHeight: 20 });
+  expect(await page.locator('.participant-row-title > strong').count()).toBe(0);
+});
 
 test('participant selection checkbox announces the include action and has a semantic section heading', async ({ page }) => {
   await page.addInitScript(({ key, room }) => {
@@ -18,7 +59,7 @@ test('participant selection checkbox announces the include action and has a sema
   if (await reopenSelection.count()) await reopenSelection.click();
 
   const row = page.locator('.participant-row').first();
-  const name = await row.locator('strong').textContent();
+  const name = await row.locator('.participant-row-title > span').textContent();
   await expect(row.getByRole('checkbox', { name: `${name}を参加者に含める`, exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: /参加者/, level: 2 })).toBeVisible();
   const selected = row.getByRole('checkbox', { name: `${name}を参加者に含める`, exact: true });
