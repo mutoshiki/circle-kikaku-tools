@@ -118,3 +118,14 @@ The shared tab content inset is 16px. Participant summaries and names use body-0
 | Side-browser visual and interaction check | Approximately 420×594 in the in-app browser; light and dark themes | Participants, car allocation, team allocation, and settlement viewed. Synthetic empty-seat add and pin/unpin were operated. Settlement expense editor and disclosure were opened; displayed amounts/details were checked. Preview-origin local storage only. | `http://127.0.0.1:4285/?room=CONSISTENCY-LOCAL-20261028&view=seisan`; screenshot was inspected inline, not saved to the repository |
 
 The CUA in-app browser did not expose viewport resizing, so exact 393×852 and 1280×900 side-browser measurements are not claimed. Playwright covers the target widths. No modal component or modal styling changed; modal regressions were included in the accessibility suite. Browser zoom, physical devices, and screen-reader behavior remain unverified.
+
+### 2026-10-29 allocation fixed status and row action clearance
+
+The grade metadata must remain separated from the row-end Carbon overflow action. Pin/unpin is now inside that menu; a gray `固定` Tag appears beside the name when locked and uses the same Carbon style as the `運転手` Tag. A geometry assertion requires at least 4px between `.person-grade` and the row's overflow action.
+
+| Check | Viewports / themes | Result | Evidence |
+| --- | --- | --- | --- |
+| Allocation row geometry and pin menu | 1280px light/dark, 390px, and 320px; Chromium and WebKit desktop/mobile projects | Pass, 8/8 checks across both browser specs and all four projects. Fix/unfix through the overflow menu and 320px document width check also pass. | `allocation.spec.js` and `carbon-remediation.spec.js` |
+| Side-browser visual check | In-app browser, preview room `CONSISTENCY-LOCAL-20261028`, light theme | Pass; fixed status uses the driver Tag style, and the row action area no longer competes with grade text. | `http://127.0.0.1:4285/?room=CONSISTENCY-LOCAL-20261028&view=car` |
+
+The dedicated pin button was removed from each row. This is an interaction and density change, not a type scale change. Browser zoom, physical devices, and screen-reader behavior were not exercised.
