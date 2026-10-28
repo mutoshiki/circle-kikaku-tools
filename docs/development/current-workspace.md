@@ -87,10 +87,10 @@ npm run check:preview -- --url http://127.0.0.1:4281/ --expected-source-sha b05e
 - This change aligns the shared content inset and the typography/spacing roles on participants, car allocation, team allocation, and settlement. Allocation edits already present at task start were preserved. No calculation, persistence, sync, Firebase, schema, or permission behavior was changed.
 - Browser evidence: Playwright checks cover 320px, 393px, 676px and desktop widths, both themes, and interaction/focus behavior. In-app side-browser inspection was available at approximately 420×594; this CUA surface has no viewport-resize control, so exact 393×852 and 1280×900 visual inspection is not claimed. Browser automation covers the plan's exact responsive ranges. Browser zoom, physical devices, and screen readers remain unverified.
 
-### 2026-10-29 allocation grade and pin overlap
+### 2026-10-29 allocation row actions and fixed status
 
 - Worktree: `C:\Users\toshi\.codex\worktrees\site-copy-improvements\circle-kikaku-tools`, branch `codex/allocation-row-overlap-fix`; preview baseline is public source SHA `eb5704634f606039bd56899b5801b3391d0f5a9f`.
 - Preview: `http://127.0.0.1:4285/?room=CONSISTENCY-LOCAL-20261028&view=car`. The page uses synthetic room data in preview-origin localStorage only.
-- Cause: Carbon positions `ContainedListItem` actions at the row edge. The earlier padding fix covered only widths below 768px; at 1280px the grade column still crossed the pin button by 20px.
-- Fix: reserve Carbon spacing-token-based action space at all widths (84px at desktop, 100px on mobile). No assignment or persistence behavior changed.
-- Verification: geometry test passed in Chromium and WebKit at desktop and mobile. It asserts a 4px gap between grade and pin at 1280px in light/dark, 390px and 320px, and checks no horizontal overflow at 320px. The updated UI was also inspected in the in-app side browser; the displayed grade labels and pin controls no longer overlap.
+- Cause: Carbon positions `ContainedListItem` actions at the row edge. With the pin as a second direct action, the grade column crossed the pin button at 1280px.
+- Fix: move pin/unpin into the participant's overflow menu. Show a gray `固定` Tag beside the name when pinned, using the same Carbon style as the driver Tag. This removes the frequent row-end icon and retains visible fixed status. No allocation or persistence semantics changed.
+- Verification: geometry and menu interaction checks passed 8/8 in Chromium and WebKit at desktop and mobile. They assert a 4px gap between grade and the remaining overflow action at 1280px in light/dark, 390px and 320px, check no horizontal overflow at 320px, and exercise fix/unfix through the menu. The updated UI was also inspected in the in-app side browser.

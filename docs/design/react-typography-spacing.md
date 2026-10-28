@@ -119,13 +119,13 @@ The shared tab content inset is 16px. Participant summaries and names use body-0
 
 The CUA in-app browser did not expose viewport resizing, so exact 393×852 and 1280×900 side-browser measurements are not claimed. Playwright covers the target widths. No modal component or modal styling changed; modal regressions were included in the accessibility suite. Browser zoom, physical devices, and screen-reader behavior remain unverified.
 
-### 2026-10-29 allocation row action clearance
+### 2026-10-29 allocation fixed status and row action clearance
 
-The grade metadata must remain separated from the row-end pin control, whose containing Carbon action area is positioned at the edge of `ContainedListItem`. A geometry assertion now requires at least 4px between `.person-grade` and `.person-lock-toggle`.
+The grade metadata must remain separated from the row-end Carbon overflow action. Pin/unpin is now inside that menu; a gray `固定` Tag appears beside the name when locked and uses the same Carbon style as the `運転手` Tag. A geometry assertion requires at least 4px between `.person-grade` and the row's overflow action.
 
 | Check | Viewports / themes | Result | Evidence |
 | --- | --- | --- | --- |
-| Allocation row geometry | 1280px light/dark, 390px, and 320px; Chromium and WebKit desktop/mobile projects | Pass, 4/4 project runs. 320px document width does not exceed the viewport. | `allocation.spec.js`, test `allocation summaries, metadata columns and fixed state follow the shared hierarchy` |
-| Side-browser visual check | In-app browser, preview room `CONSISTENCY-LOCAL-20261028`, light theme | Pass; grade labels and pin buttons are visibly separated in the populated car list. | `http://127.0.0.1:4285/?room=CONSISTENCY-LOCAL-20261028&view=car` |
+| Allocation row geometry and pin menu | 1280px light/dark, 390px, and 320px; Chromium and WebKit desktop/mobile projects | Pass, 8/8 checks across both browser specs and all four projects. Fix/unfix through the overflow menu and 320px document width check also pass. | `allocation.spec.js` and `carbon-remediation.spec.js` |
+| Side-browser visual check | In-app browser, preview room `CONSISTENCY-LOCAL-20261028`, light theme | Pass; fixed status uses the driver Tag style, and the row action area no longer competes with grade text. | `http://127.0.0.1:4285/?room=CONSISTENCY-LOCAL-20261028&view=car` |
 
-The row content reserves 84px at desktop and 100px on mobile using Carbon layout spacing tokens. This is a row action clearance, not a type scale change. Browser zoom, physical devices, and screen-reader behavior were not exercised.
+The dedicated pin button was removed from each row. This is an interaction and density change, not a type scale change. Browser zoom, physical devices, and screen-reader behavior were not exercised.

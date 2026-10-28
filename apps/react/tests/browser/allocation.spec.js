@@ -12,6 +12,12 @@ async function expectTextStyle(locator, { fontSize, fontWeight, lineHeight }) {
   expect(style[2]).toBeCloseTo(lineHeight, 2);
 }
 
+async function expectGradeClearance(row) {
+  const gradeBounds = await row.locator('.person-grade').boundingBox();
+  const actionBounds = await row.getByRole('button', { name: /の操作$/ }).boundingBox();
+  expect(gradeBounds.x + gradeBounds.width + 4).toBeLessThanOrEqual(actionBounds.x);
+}
+
 async function saved(page, room = 'ALLOCATION-RC') { return page.evaluate(key => JSON.parse(localStorage.getItem(`sanpo-react:v1:${key}:room`)), room); }
 
 test('allocation summaries, metadata columns and fixed state follow the shared hierarchy', async ({ page }) => {
@@ -48,38 +54,29 @@ test('allocation summaries, metadata columns and fixed state follow the shared h
   expect(new Set(gradePositions).size).toBe(1);
 
   const driverRow = group.locator('.cds--contained-list-item').filter({ hasText: '運転手 一郎' });
-  const gradeBounds = await driverRow.locator('.person-grade').boundingBox();
-  const lockBounds = await driverRow.locator('.person-lock-toggle').boundingBox();
-  expect(gradeBounds.x + gradeBounds.width + 4).toBeLessThanOrEqual(lockBounds.x);
+  await expectGradeClearance(driverRow);
 
   await page.setViewportSize({ width: 1280, height: 900 });
-  const desktopGradeBounds = await driverRow.locator('.person-grade').boundingBox();
-  const desktopLockBounds = await driverRow.locator('.person-lock-toggle').boundingBox();
-  expect(desktopGradeBounds.x + desktopGradeBounds.width + 4).toBeLessThanOrEqual(desktopLockBounds.x);
+  await expectGradeClearance(driverRow);
 
   await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
-  const darkDesktopGradeBounds = await driverRow.locator('.person-grade').boundingBox();
-  const darkDesktopLockBounds = await driverRow.locator('.person-lock-toggle').boundingBox();
-  expect(darkDesktopGradeBounds.x + darkDesktopGradeBounds.width + 4).toBeLessThanOrEqual(darkDesktopLockBounds.x);
+  await expectGradeClearance(driverRow);
   await page.setViewportSize({ width: 390, height: 844 });
-  const darkMobileGradeBounds = await driverRow.locator('.person-grade').boundingBox();
-  const darkMobileLockBounds = await driverRow.locator('.person-lock-toggle').boundingBox();
-  expect(darkMobileGradeBounds.x + darkMobileGradeBounds.width + 4).toBeLessThanOrEqual(darkMobileLockBounds.x);
+  await expectGradeClearance(driverRow);
 
-  const fixed = group.getByRole('button', { name: 'ランダム割り当てで参加者 二郎を固定', exact: true });
-  await expect(fixed).toHaveAttribute('aria-pressed', 'false');
-  await fixed.click();
-  const fixedState = group.locator('.person-lock-toggle[aria-pressed="true"]');
-  await expect(fixedState).toHaveCount(1);
-  expect(await fixedState.evaluate(element => getComputedStyle(element).backgroundColor)).not.toBe('rgba(0, 0, 0, 0)');
+  const participantRow = group.locator('.cds--contained-list-item').filter({ hasText: '参加者 二郎' });
+  await participantRow.getByRole('button', { name: '参加者 二郎の操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'ランダム割り当てで固定', exact: true }).click();
+  await expect(participantRow.locator('.person-fixed-tag')).toHaveText('固定');
+  await participantRow.getByRole('button', { name: '参加者 二郎の操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'ランダム割り当ての固定を解除', exact: true }).click();
+  await expect(participantRow.locator('.person-fixed-tag')).toHaveCount(0);
 
   await page.setViewportSize({ width: 320, height: 780 });
   const geometry = await page.evaluate(() => ({ width: innerWidth, scrollWidth: document.documentElement.scrollWidth }));
   expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.width);
-  const narrowGradeBounds = await driverRow.locator('.person-grade').boundingBox();
-  const narrowLockBounds = await driverRow.locator('.person-lock-toggle').boundingBox();
-  expect(narrowGradeBounds.x + narrowGradeBounds.width + 4).toBeLessThanOrEqual(narrowLockBounds.x);
+  await expectGradeClearance(driverRow);
   await expect(emptySeats).toBeVisible();
   const emptyBounds = await emptySeats.boundingBox();
   expect(emptyBounds.x).toBeGreaterThanOrEqual(0);
@@ -119,7 +116,9 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await car.getByRole('button', { name: '仮参加者DをA車に追加', exact: true }).click();
   await expect(car.getByRole('button', { name: /空き/ })).toHaveCount(0);
   await expect(car.getByRole('heading', { name: 'A車', exact: true })).toBeFocused();
-  await car.getByRole('button', { name: 'ランダム割り当てで仮参加者Bを固定', exact: true }).click();
+  await car.getByRole('button', { name: '仮参加者Bの操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'ランダム割り当てで固定', exact: true }).click();
+  await expect(car.locator('.person-fixed-tag')).toContainText('固定');
   await car.getByRole('button', { name: '仮参加者Bの操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '運転手にする', exact: true }).click();
   room = await saved(page);
@@ -418,7 +417,9 @@ test('long participant content and action menus remain readable at mobile and 20
   await page.getByRole('tab', { name: '車割', exact: true }).click();
   const group = page.getByRole('region', { name: 'A車', exact: true });
   await expect(group).toContainText(longName);
-  await group.getByRole('button', { name: `ランダム割り当てで${longName}を固定`, exact: true }).click();
+  await group.getByRole('button', { name: `${longName}の操作`, exact: true }).click();
+  await page.getByRole('menuitem', { name: 'ランダム割り当てで固定', exact: true }).click();
+  await expect(group.locator('.person-fixed-tag')).toContainText('固定');
   await group.getByRole('button', { name: `${longName}の操作`, exact: true }).click();
   const menu = page.getByRole('menu');
   await expect(menu).toBeVisible();
