@@ -47,6 +47,26 @@ test('allocation summaries, metadata columns and fixed state follow the shared h
   const gradePositions = await grades.evaluateAll(elements => elements.map(element => Math.round(element.getBoundingClientRect().x)));
   expect(new Set(gradePositions).size).toBe(1);
 
+  const driverRow = group.locator('.cds--contained-list-item').filter({ hasText: '運転手 一郎' });
+  const gradeBounds = await driverRow.locator('.person-grade').boundingBox();
+  const lockBounds = await driverRow.locator('.person-lock-toggle').boundingBox();
+  expect(gradeBounds.x + gradeBounds.width + 4).toBeLessThanOrEqual(lockBounds.x);
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const desktopGradeBounds = await driverRow.locator('.person-grade').boundingBox();
+  const desktopLockBounds = await driverRow.locator('.person-lock-toggle').boundingBox();
+  expect(desktopGradeBounds.x + desktopGradeBounds.width + 4).toBeLessThanOrEqual(desktopLockBounds.x);
+
+  await page.getByRole('button', { name: 'その他の操作' }).click();
+  await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
+  const darkDesktopGradeBounds = await driverRow.locator('.person-grade').boundingBox();
+  const darkDesktopLockBounds = await driverRow.locator('.person-lock-toggle').boundingBox();
+  expect(darkDesktopGradeBounds.x + darkDesktopGradeBounds.width + 4).toBeLessThanOrEqual(darkDesktopLockBounds.x);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const darkMobileGradeBounds = await driverRow.locator('.person-grade').boundingBox();
+  const darkMobileLockBounds = await driverRow.locator('.person-lock-toggle').boundingBox();
+  expect(darkMobileGradeBounds.x + darkMobileGradeBounds.width + 4).toBeLessThanOrEqual(darkMobileLockBounds.x);
+
   const fixed = group.getByRole('button', { name: 'ランダム割り当てで参加者 二郎を固定', exact: true });
   await expect(fixed).toHaveAttribute('aria-pressed', 'false');
   await fixed.click();
@@ -57,6 +77,9 @@ test('allocation summaries, metadata columns and fixed state follow the shared h
   await page.setViewportSize({ width: 320, height: 780 });
   const geometry = await page.evaluate(() => ({ width: innerWidth, scrollWidth: document.documentElement.scrollWidth }));
   expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.width);
+  const narrowGradeBounds = await driverRow.locator('.person-grade').boundingBox();
+  const narrowLockBounds = await driverRow.locator('.person-lock-toggle').boundingBox();
+  expect(narrowGradeBounds.x + narrowGradeBounds.width + 4).toBeLessThanOrEqual(narrowLockBounds.x);
   await expect(emptySeats).toBeVisible();
   const emptyBounds = await emptySeats.boundingBox();
   expect(emptyBounds.x).toBeGreaterThanOrEqual(0);

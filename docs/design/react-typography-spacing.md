@@ -118,3 +118,14 @@ The shared tab content inset is 16px. Participant summaries and names use body-0
 | Side-browser visual and interaction check | Approximately 420×594 in the in-app browser; light and dark themes | Participants, car allocation, team allocation, and settlement viewed. Synthetic empty-seat add and pin/unpin were operated. Settlement expense editor and disclosure were opened; displayed amounts/details were checked. Preview-origin local storage only. | `http://127.0.0.1:4285/?room=CONSISTENCY-LOCAL-20261028&view=seisan`; screenshot was inspected inline, not saved to the repository |
 
 The CUA in-app browser did not expose viewport resizing, so exact 393×852 and 1280×900 side-browser measurements are not claimed. Playwright covers the target widths. No modal component or modal styling changed; modal regressions were included in the accessibility suite. Browser zoom, physical devices, and screen-reader behavior remain unverified.
+
+### 2026-10-29 allocation row action clearance
+
+The grade metadata must remain separated from the row-end pin control, whose containing Carbon action area is positioned at the edge of `ContainedListItem`. A geometry assertion now requires at least 4px between `.person-grade` and `.person-lock-toggle`.
+
+| Check | Viewports / themes | Result | Evidence |
+| --- | --- | --- | --- |
+| Allocation row geometry | 1280px light/dark, 390px, and 320px; Chromium and WebKit desktop/mobile projects | Pass, 4/4 project runs. 320px document width does not exceed the viewport. | `allocation.spec.js`, test `allocation summaries, metadata columns and fixed state follow the shared hierarchy` |
+| Side-browser visual check | In-app browser, preview room `CONSISTENCY-LOCAL-20261028`, light theme | Pass; grade labels and pin buttons are visibly separated in the populated car list. | `http://127.0.0.1:4285/?room=CONSISTENCY-LOCAL-20261028&view=car` |
+
+The row content reserves 84px at desktop and 100px on mobile using Carbon layout spacing tokens. This is a row action clearance, not a type scale change. Browser zoom, physical devices, and screen-reader behavior were not exercised.

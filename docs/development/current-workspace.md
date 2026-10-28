@@ -5,12 +5,12 @@
 ## 公開基準
 
 - 公開URL: <https://mutoshiki.github.io/circle-kikaku-tools/>
-- 確認日時: 2026-10-20（PR #111のProduction Release後、公開manifestを確認）
+- 確認日時: 2026-10-29（PR #116のProduction Release後、公開manifestを再取得）
 - manifest: <https://mutoshiki.github.io/circle-kikaku-tools/release-build.json>
-- 公開source SHA: `b05ebf7959a409f400d050aef19c032b7c6fd001`
-- 公開asset digest: `3c47c1886e8b9f528e6bb6f69e7b69bbc4df015554ec73a6511ac6ded54c6f8a`
+- 公開source SHA: `eb5704634f606039bd56899b5801b3391d0f5a9f`
+- 公開asset digest: `7a4cb20e143f014e29545068372fb0ef27128527eb8a6bc141d3f2c032de0b27`
 - 公開サイトはReactのルートビルド。CIで`apps/react/dist`からPagesルートを構成する。
-- 公開manifestはPR #111のProduction Release後に再取得し、公開source SHA・asset digestを確認済み。
+- 公開manifestはPR #116のProduction Release後に再取得し、公開source SHA・asset digestを確認済み。
 
 ## 作業元
 
@@ -86,3 +86,11 @@ npm run check:preview -- --url http://127.0.0.1:4281/ --expected-source-sha b05e
 - Preview: `http://127.0.0.1:4285/?room=CONSISTENCY-LOCAL-20261028&view=seisan`; sample data is synthetic and saved only to this preview origin. Port 4284 was already in use and was left unchanged.
 - This change aligns the shared content inset and the typography/spacing roles on participants, car allocation, team allocation, and settlement. Allocation edits already present at task start were preserved. No calculation, persistence, sync, Firebase, schema, or permission behavior was changed.
 - Browser evidence: Playwright checks cover 320px, 393px, 676px and desktop widths, both themes, and interaction/focus behavior. In-app side-browser inspection was available at approximately 420×594; this CUA surface has no viewport-resize control, so exact 393×852 and 1280×900 visual inspection is not claimed. Browser automation covers the plan's exact responsive ranges. Browser zoom, physical devices, and screen readers remain unverified.
+
+### 2026-10-29 allocation grade and pin overlap
+
+- Worktree: `C:\Users\toshi\.codex\worktrees\site-copy-improvements\circle-kikaku-tools`, branch `codex/allocation-row-overlap-fix`; preview baseline is public source SHA `eb5704634f606039bd56899b5801b3391d0f5a9f`.
+- Preview: `http://127.0.0.1:4285/?room=CONSISTENCY-LOCAL-20261028&view=car`. The page uses synthetic room data in preview-origin localStorage only.
+- Cause: Carbon positions `ContainedListItem` actions at the row edge. The earlier padding fix covered only widths below 768px; at 1280px the grade column still crossed the pin button by 20px.
+- Fix: reserve Carbon spacing-token-based action space at all widths (84px at desktop, 100px on mobile). No assignment or persistence behavior changed.
+- Verification: geometry test passed in Chromium and WebKit at desktop and mobile. It asserts a 4px gap between grade and pin at 1280px in light/dark, 390px and 320px, and checks no horizontal overflow at 320px. The updated UI was also inspected in the in-app side browser; the displayed grade labels and pin controls no longer overlap.
