@@ -6,6 +6,15 @@ const fixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', im
 const pageErrors = new WeakMap();
 const browserConsoleIssues = new WeakMap();
 
+async function expectTextStyle(locator, { fontSize, fontWeight, lineHeight }) {
+  const style = await locator.evaluate(element => {
+    const computed = getComputedStyle(element);
+    return [computed.fontSize, computed.fontWeight, Number.parseFloat(computed.lineHeight)];
+  });
+  expect(style.slice(0, 2)).toEqual([fontSize, fontWeight]);
+  expect(style[2]).toBeCloseTo(lineHeight, 2);
+}
+
 async function openCarExpenseEditor(car) {
   const action = car.getByRole('button', { name: /費用を(?:入力|編集)/ });
   if (!await action.isVisible()) {
@@ -1103,6 +1112,25 @@ test('vehicle settlement presents expense and breakdown with an accessible Carbo
   await expect(car.getByRole('button', { name: '仮参加者D車（レンタカー）の費用を編集', exact: true })).toBeFocused();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(pageErrors.get(page)).toEqual([]);
+});
+
+test('settlement vehicle names and amounts use the shared type and spacing roles', async ({ page }) => {
+  await page.setViewportSize({ width: 393, height: 852 });
+  const cars = page.locator('.settlement-car');
+  const first = cars.first();
+  const vehicleName = first.locator('.settlement-car-name');
+  await expectTextStyle(vehicleName, { fontSize: '16px', fontWeight: '600', lineHeight: 22 });
+
+  const rentalCar = cars.filter({ has: page.getByRole('heading', { name: /仮参加者D車/ }) });
+  const rentalLabel = rentalCar.locator('.settlement-car-rental-label');
+  await expectTextStyle(rentalLabel, { fontSize: '12px', fontWeight: '400', lineHeight: 16 });
+
+  for (const amount of await page.locator('.settlement-car-amount-value').all()) {
+    await expectTextStyle(amount, { fontSize: '20px', fontWeight: '400', lineHeight: 28 });
+  }
+  expect(await first.locator('.settlement-car-header').evaluate(element => getComputedStyle(element).rowGap)).toBe('8px');
+  expect(await first.locator('.settlement-car-amount-category').first().evaluate(element => getComputedStyle(element).rowGap)).toBe('4px');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
 test('settlement rows wrap long car names and format zero amount', async ({ page }) => {
