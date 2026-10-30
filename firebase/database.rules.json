@@ -23,6 +23,52 @@
         }
       }
     },
+    "projectWorkspacesV1": {
+      "$roomId": {
+        ".read": "auth != null && $roomId.matches(/^[A-Za-z0-9_-]{6,80}$/) && root.child('rooms').child($roomId).exists()",
+        ".write": "auth != null && $roomId.matches(/^[A-Za-z0-9_-]{6,80}$/) && root.child('rooms').child($roomId).exists() && newData.exists() && (data.exists() && newData.child('schemaVersion').val() == 1 && newData.child('revision').val() == data.child('revision').val() + 1 || !data.exists() && newData.child('schemaVersion').val() == 1 && newData.child('revision').val() == 0)",
+        ".validate": "!newData.exists() || (newData.hasChildren(['schemaVersion', 'tools', 'revision', 'createdAt', 'updatedAt']) && newData.child('schemaVersion').val() == 1 && (!newData.child('template').exists() || (newData.child('template').hasChildren(['id', 'version']) && newData.child('template').child('version').val() == 1)) && newData.child('tools').hasChildren() && newData.child('revision').isNumber() && newData.child('revision').val() >= 0 && newData.child('createdAt').isNumber() && newData.child('createdAt').val() > 0 && newData.child('updatedAt').isNumber() && newData.child('updatedAt').val() > 0)",
+        "schemaVersion": { ".validate": "newData.val() == 1" },
+        "template": {
+          "id": { ".validate": "newData.val() == 'personal' || newData.val() == 'circle-mountain' || newData.val() == 'circle-event' || newData.val() == 'custom'" },
+          "version": { ".validate": "newData.val() == 1" },
+          "$other": { ".validate": false }
+        },
+        "tools": {
+          "$toolId": {
+            ".validate": "$toolId.matches(/^(application-form|submission-documents|mountain-plan|participants|car|team|settlement)$/) && newData.hasChildren(['enabled', 'pinned']) && (newData.child('pinned').val() == false || newData.child('enabled').val() == true)",
+            "enabled": { ".validate": "newData.isBoolean()" },
+            "pinned": { ".validate": "newData.isBoolean()" },
+            "$other": { ".validate": false }
+          }
+        },
+        "tabOrder": {
+          "$index": {
+            ".validate": "newData.isString() && newData.val().matches(/^(application-form|submission-documents|mountain-plan|participants|car|team|settlement)$/) && newData.val() != 'tools' && newData.parent().parent().child('tools').child(newData.val()).child('pinned').val() == true"
+          }
+        },
+        "revision": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "createdAt": { ".validate": "newData.isNumber() && newData.val() > 0" },
+        "updatedAt": { ".validate": "newData.isNumber() && newData.val() > 0" },
+        "$other": { ".validate": false }
+      }
+    },
+    "projectFormLinksV1": {
+      "$roomId": {
+        ".read": "auth != null && $roomId.matches(/^[A-Za-z0-9_-]{6,80}$/) && root.child('rooms').child($roomId).exists()",
+        ".write": "auth != null && $roomId.matches(/^[A-Za-z0-9_-]{6,80}$/) && root.child('rooms').child($roomId).exists() && ((!data.exists() && newData.exists() && newData.child('state').val() == 'pending') || (root.child('formMakerV1/workers').child(auth.uid).val() == true && data.exists() && newData.exists() && newData.child('jobId').val() == data.child('jobId').val() && newData.child('tokenHash').val() == data.child('tokenHash').val() && newData.child('requestedAt').val() == data.child('requestedAt').val() && newData.child('expiresAt').val() == data.child('expiresAt').val() && ((data.child('state').val() == 'pending' && newData.child('state').val() == 'processing') || (data.child('state').val() == 'processing' && (newData.child('state').val() == 'linked' || newData.child('state').val() == 'failed')))) || (data.exists() && newData.exists() && newData.child('state').val() == 'pending' && (data.child('state').val() == 'failed' || data.child('expiresAt').val() <= now)))",
+        ".validate": "!newData.exists() || (newData.hasChildren(['schemaVersion', 'jobId', 'tokenHash', 'state', 'requestedAt', 'expiresAt']) && newData.child('schemaVersion').val() == 1 && newData.child('jobId').isString() && newData.child('jobId').val().matches(/^[a-f0-9]{32}$/) && newData.child('tokenHash').isString() && newData.child('tokenHash').val().matches(/^[a-f0-9]{64}$/) && (newData.child('state').val() == 'pending' || newData.child('state').val() == 'processing' || newData.child('state').val() == 'linked' || newData.child('state').val() == 'failed') && newData.child('requestedAt').isNumber() && newData.child('requestedAt').val() > 0 && newData.child('expiresAt').isNumber() && newData.child('expiresAt').val() > newData.child('requestedAt').val() && newData.child('expiresAt').val() <= newData.child('requestedAt').val() + 21600000 && (!newData.child('startedAt').exists() || (newData.child('startedAt').isNumber() && newData.child('startedAt').val() > 0)) && (!newData.child('completedAt').exists() || (newData.child('completedAt').isNumber() && newData.child('completedAt').val() > 0)))",
+        "schemaVersion": { ".validate": "newData.val() == 1" },
+        "jobId": { ".validate": "newData.isString() && newData.val().matches(/^[a-f0-9]{32}$/)" },
+        "tokenHash": { ".validate": "newData.isString() && newData.val().matches(/^[a-f0-9]{64}$/)" },
+        "state": { ".validate": "newData.val() == 'pending' || newData.val() == 'processing' || newData.val() == 'linked' || newData.val() == 'failed'" },
+        "requestedAt": { ".validate": "newData.isNumber() && newData.val() > 0" },
+        "expiresAt": { ".validate": "newData.isNumber() && newData.val() > newData.parent().child('requestedAt').val() && newData.val() <= newData.parent().child('requestedAt').val() + 21600000" },
+        "startedAt": { ".validate": "newData.isNumber() && newData.val() > 0" },
+        "completedAt": { ".validate": "newData.isNumber() && newData.val() > 0" },
+        "$other": { ".validate": false }
+      }
+    },
     "bugReports": {
       ".read": false,
       "$reportId": {
@@ -146,13 +192,13 @@
                 ".validate": "newData.isString() && newData.val() == $jobId && newData.val().matches(/^[A-Za-z0-9_-]{16,80}$/)"
               },
               "protocolVersion": {
-                ".validate": "newData.val() == 1"
+                ".validate": "newData.val() == 1 || newData.val() == 2"
               },
               "admissionSlotId": {
                 ".validate": "newData.isString() && newData.val().matches(/^(0[1-9]|[1-3][0-9]|40)$/)"
               },
               "input": {
-                ".validate": "newData.hasChildren(['planName', 'editorEmail'])",
+                ".validate": "newData.hasChildren(['planName', 'editorEmail']) && ((newData.parent().child('protocolVersion').val() == 1 && !newData.child('targetRoomId').exists() && !newData.child('targetRoomCapabilityHash').exists()) || (newData.parent().child('protocolVersion').val() == 2 && newData.child('targetRoomId').isString() && newData.child('targetRoomId').val().matches(/^[A-Za-z0-9_-]{6,80}$/) && root.child('rooms').child(newData.child('targetRoomId').val()).exists() && newData.child('targetRoomCapabilityHash').isString() && newData.child('targetRoomCapabilityHash').val().matches(/^[a-f0-9]{64}$/) && root.child('projectFormLinksV1').child(newData.child('targetRoomId').val()).child('jobId').val() == newData.parent().child('jobId').val() && root.child('projectFormLinksV1').child(newData.child('targetRoomId').val()).child('tokenHash').val() == newData.child('targetRoomCapabilityHash').val() && root.child('projectFormLinksV1').child(newData.child('targetRoomId').val()).child('state').val() == 'pending'))",
                 "planName": {
                   ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
                 },
@@ -169,6 +215,12 @@
                   ".validate": "newData.isString() && newData.val().length <= 3000"
                 },
                 "handoffTokenHash": {
+                  ".validate": "newData.isString() && newData.val().matches(/^[a-f0-9]{64}$/)"
+                },
+                "targetRoomId": {
+                  ".validate": "newData.isString() && newData.val().matches(/^[A-Za-z0-9_-]{6,80}$/)"
+                },
+                "targetRoomCapabilityHash": {
                   ".validate": "newData.isString() && newData.val().matches(/^[a-f0-9]{64}$/)"
                 },
                 "$other": {

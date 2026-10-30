@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, TextInput } from '@carbon/react';
 
-export default function ProjectIdentity({ name, syncStatus, onRename }) {
+export default function ProjectIdentity({ name, syncStatus, onRename, onProjectList }) {
   const hasName = String(name ?? '').trim().length > 0;
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
@@ -60,6 +60,7 @@ export default function ProjectIdentity({ name, syncStatus, onRename }) {
     <div className="project-identity-heading">
       <h1 id="project-heading">{name || '企画名未設定'}</h1>
       <div className="project-identity-actions">
+        {onProjectList && <Button kind="ghost" size="sm" onClick={onProjectList}>企画一覧へ</Button>}
         <Button ref={editButton} kind="ghost" size="sm" aria-label={hasName ? '企画名を変更' : '企画名を設定'} hidden={editing} onClick={beginEditing}>{hasName ? '変更' : '企画名を設定'}</Button>
         {syncStatus.kind === 'connected' && <span className="sync-status sync-status--compact" role="status">{syncStatus.message}</span>}
       </div>

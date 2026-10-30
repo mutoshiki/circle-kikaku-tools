@@ -1,14 +1,37 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
-import { recordPortalVisit, updatePortalProject } from '../src/services/portal-history.js';
+import { recordPortalVisit, updatePortalProject, readPortalProjects, PORTAL_HISTORY_KEY } from '../src/services/portal-history.js';
 import { createLocalRuntime } from '../src/runtime.js';
 
 function memoryStorage() {
   const data = new Map();
   let writes = 0;
-  return { getItem: key => data.get(key) ?? null, setItem: (key, value) => { writes += 1; data.set(key, String(value)); }, data, get writes() { return writes; } };
+  return { getItem: key => data.get(key) ?? null, setItem: (key, value) => { writes += 1; data.set(key, String(value)); }, key: index => [...data.keys()][index] ?? null, get length() { return data.size; }, data, get writes() { return writes; } };
 }
+
+test('project list recovers rooms from the existing portal index, React cache, opened keys and last-room key', () => {
+  const storage = memoryStorage();
+  storage.setItem(PORTAL_HISTORY_KEY, JSON.stringify({ version: 1, projects: [{ roomId: 'ABC12345', name: 'Index name', lastOpenedAt: 100 }] }));
+  storage.setItem('sanpo-react:v1:REACT123:room', JSON.stringify({ roomName: 'Cached room', lastUpdatedAt: 300 }));
+  storage.setItem('syawari_last_opened_at_OPEN123', '200');
+  storage.setItem('syawari_last_room_id', 'LAST1234');
+  const result = readPortalProjects(storage);
+  assert.equal(result.status, 'ready');
+  assert.deepEqual(result.projects.map(project => project.roomId), ['REACT123', 'OPEN123', 'ABC12345', 'LAST1234']);
+  assert.equal(result.projects[0].name, 'Cached room');
+  assert.equal(result.projects[0].updatedAt, 300);
+});
+
+test('project list distinguishes empty storage from corrupted or inaccessible storage', () => {
+  const empty = memoryStorage();
+  assert.equal(readPortalProjects(empty).status, 'empty');
+  const broken = memoryStorage();
+  broken.setItem(PORTAL_HISTORY_KEY, '{');
+  assert.equal(readPortalProjects(broken).status, 'unavailable');
+  const inaccessible = { get length() { throw new Error('denied'); }, getItem() { throw new Error('denied'); } };
+  assert.equal(readPortalProjects(inaccessible).status, 'unavailable');
+});
 
 test('records current project visit and compatibility keys', () => {
   const storage = memoryStorage();

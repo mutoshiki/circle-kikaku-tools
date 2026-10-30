@@ -1058,7 +1058,7 @@ test('人数だけで精算するdraft survives save and reload', async ({ page 
   await expect(page.getByRole('heading', { name: '第一運転手車' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '第二運転手車' })).toBeVisible();
   await page.reload();
-  await expect(page.getByRole('tab')).toHaveCount(0);
+  await expect(page.getByRole('tab')).toHaveText(['精算', 'ツール']);
   await page.getByRole('button', { name: '精算設定', exact: true }).click();
   const reloadedSettings = page.getByRole('dialog', { name: '精算設定を編集' });
   await expect(reloadedSettings.getByLabel('運転手の人数')).toHaveValue('2');
