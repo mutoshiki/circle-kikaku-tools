@@ -8,9 +8,9 @@ const payload = { action: 'handoff-export', projectId: 'PROJECT123', token: `h_$
 
 test('test mode only admits the explicitly registered test owner', () => {
   assertHandoffAdmission({ accepting: true, acceptanceMode: 'test' }, true);
-  assert.throws(() => assertHandoffAdmission({ accepting: true, acceptanceMode: 'test' }, false), /限定確認中/);
-  assert.throws(() => assertHandoffAdmission({ accepting: false, acceptanceMode: 'test' }, true), /受付を停止/);
-  assert.throws(() => assertHandoffAdmission({ accepting: true, acceptanceMode: 'broken' }, true), /受付状態/);
+  assert.throws(() => assertHandoffAdmission({ accepting: true, acceptanceMode: 'test' }, false), /学務書類用CSVの作成は現在利用できません/);
+  assert.throws(() => assertHandoffAdmission({ accepting: false, acceptanceMode: 'test' }, true), /学務書類用CSVの作成は現在利用できません/);
+  assert.throws(() => assertHandoffAdmission({ accepting: true, acceptanceMode: 'broken' }, true), /作成できるか確認できません/);
   assertHandoffAdmission({ accepting: true }, false);
 });
 
@@ -53,11 +53,22 @@ test('worker failure, ambiguous result, invalid link, and timeout remain visible
       async getHandoffExport() { return state; },
     },
   });
-  await assert.rejects(makeClient({ state: 'failed' })(payload), /CSVを準備できませんでした/);
+  await assert.rejects(makeClient({ state: 'failed' })(payload), /CSVを作成できませんでした/);
   await assert.rejects(makeClient({ state: 'unknown' })(payload), /同じ画面からもう一度/);
-  await assert.rejects(makeClient({ state: 'completed', result: { downloadUrl: 'https://example.com/file', count: 1 } })(payload), /保存結果を確認できません/);
+  await assert.rejects(makeClient({ state: 'completed', result: { downloadUrl: 'https://example.com/file', count: 1 } })(payload), /CSVを保存できませんでした/);
   await assert.rejects(makeClient({ state: 'running' })(payload), /同じ画面からもう一度/);
-  await assert.rejects(makeClient({ state: 'running' })({ ...payload, token: 'bad' }), /引き継ぎ権限/);
+  await assert.rejects(makeClient({ state: 'running' })({ ...payload, token: 'bad' }), /この企画でCSVを作成できません/);
+});
+
+test('worker transport errors are shown in Japanese without Firebase internals', async () => {
+  const client = createHandoffClient({
+    crypto,
+    transport: {
+      async enqueueHandoffExport() { throw new Error('PERMISSION_DENIED: missing permission'); },
+      async getHandoffExport() { throw new Error('PERMISSION_DENIED: missing permission'); },
+    },
+  });
+  await assert.rejects(client(payload), /CSV作成を依頼できませんでした。通信状態を確認して/);
 });
 
 test('an uncertain handoff retry reuses its stored job ID and does not enqueue a second CSV', async () => {

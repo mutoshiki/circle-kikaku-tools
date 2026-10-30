@@ -45,14 +45,14 @@ test('application form handoff rejects an already linked or invalid room before 
     room: { roomName: '企画' },
     transport: { reserveApplicationFormLink: async () => { called = true; } },
     cryptoApi,
-  }), /企画ルームを確認できません/);
+  }), /企画を確認できません/);
   await assert.rejects(createApplicationFormHref({
     baseHref: 'https://example.com/form-maker/',
     roomId: 'ROOM1234',
     room: { meta: { applicationSync: { formId: 'existing' } } },
     transport: { reserveApplicationFormLink: async () => { called = true; } },
     cryptoApi,
-  }), /すでに応募フォームが連携されています/);
+  }), /応募フォームが連携済みです/);
   assert.equal(called, false);
 });
 

@@ -188,7 +188,7 @@ export default function Participants({ runtime, room, onNotice, onOpenCountOnlyS
       <h2 id="participants-post-confirm-title">参加者確定後</h2>
       <div className="participants-post-confirm__actions">
         <div className="participants-post-confirm__item"><div><h3>参加者発表</h3><p>らくらく連絡網に投稿する参加者発表文を作成します。</p></div><Button kind="ghost" onClick={() => setToolModal('guidance')}>発表文を作成</Button></div>
-        <div className="participants-post-confirm__item"><div><h3>引き継ぎデータ</h3><p>学務提出書類作成ツールに読み込むための引き継ぎデータを作成します。</p>{!runtime.handoffToken && <p className="participants-post-confirm__reason">この端末には作成権限がありません。応募フォーム作成後に表示される「この企画をサークル企画ツールで開く」から開いた端末で作成できます。</p>}</div><Button kind="ghost" disabled={!runtime.handoffToken} onClick={() => setToolModal('export')}>引き継ぎデータを作成</Button></div>
+        <div className="participants-post-confirm__item"><div><h3>学務書類用CSV</h3><p>確定した参加者を学務書類作成ツールに取り込むCSVを作成します。</p>{!runtime.handoffToken && <p className="participants-post-confirm__reason">CSVを作成するには、フォームメーカーの作成結果にある「企画ツールを開く」から企画を開いてください。</p>}</div><Button kind="ghost" disabled={!runtime.handoffToken} onClick={() => setToolModal('export')}>学務書類用CSVを作成</Button></div>
       </div>
     </section>}
     </>}

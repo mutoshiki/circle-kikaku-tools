@@ -14,10 +14,10 @@ function validDate(value) {
 
 export async function createApplicationFormHref({ baseHref, roomId, room = {}, transport, cryptoApi = globalThis.crypto, now = Date.now } = {}) {
   const id = String(roomId || '').trim();
-  if (!ROOM_ID.test(id) || !room || typeof room !== 'object') throw new Error('企画ルームを確認できません。企画画面を再読み込みしてください。');
-  if (room.meta?.applicationSync) throw new Error('この企画にはすでに応募フォームが連携されています。');
-  if (typeof transport?.reserveApplicationFormLink !== 'function') throw new Error('企画ルームに接続できません。通信を確認してください。');
-  if (typeof cryptoApi?.randomUUID !== 'function' || typeof cryptoApi?.subtle?.digest !== 'function') throw new Error('このブラウザーでは連携に必要な情報を作成できません。');
+  if (!ROOM_ID.test(id) || !room || typeof room !== 'object') throw new Error('企画を確認できません。企画画面を開き直してください。');
+  if (room.meta?.applicationSync) throw new Error('この企画には応募フォームが連携済みです。');
+  if (typeof transport?.reserveApplicationFormLink !== 'function') throw new Error('企画データに接続できません。通信状態を確認して、もう一度お試しください。');
+  if (typeof cryptoApi?.randomUUID !== 'function' || typeof cryptoApi?.subtle?.digest !== 'function') throw new Error('このブラウザーでは応募フォームとの連携を開始できません。ブラウザーを更新して、もう一度お試しください。');
 
   const jobId = cryptoApi.randomUUID().replaceAll('-', '');
   const token = `h_${cryptoApi.randomUUID().replaceAll('-', '')}${cryptoApi.randomUUID().replaceAll('-', '')}`;

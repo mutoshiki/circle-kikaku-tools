@@ -37,9 +37,9 @@ test('guidance, CSV, utility report, notifications and URL security', async ({ p
   await expect(guidance.getByLabel('発表文（確認してからコピー）')).toHaveValue(/参加者は.*人です/);
   await guidance.getByLabel('閉じる').click();
 
-  await page.getByRole('button', { name: '引き継ぎデータを作成' }).click();
+  await page.getByRole('button', { name: '学務書類用CSVを作成' }).click();
   const download = page.waitForEvent('download');
-  await page.getByRole('dialog', { name: '引き継ぎデータ' }).getByRole('button', { name: '引き継ぎデータを作成' }).click();
+  await page.getByRole('dialog', { name: '学務書類用CSV' }).getByRole('button', { name: '学務書類用CSVを作成' }).click();
   expect((await download).suggestedFilename()).toBe('参加者.csv');
 
   await page.getByRole('button', { name: 'その他の操作' }).click();

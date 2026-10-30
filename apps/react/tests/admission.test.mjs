@@ -61,6 +61,6 @@ test('handoff admission gives a safe response when all 40 shared slots are unava
   await assert.rejects(reserveAdmissionSlot({
     config, db: {}, dbSdk: sdk, auth, request, kind: 'handoff',
     async fetchImpl() { attempts += 1; return { ok: false, status: 403 }; },
-  }), /受付枠を確保できません/);
+  }), /学務書類用CSVの作成依頼が混み合っています/);
   assert.equal(attempts, 40);
 });

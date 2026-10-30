@@ -93,7 +93,7 @@ test('real SDK + Auth/RTDB Emulator: form-link reservation is scoped to an exist
     assert.equal(created.jobId, reservation.jobId);
     const roomAfter = await read(roomId);
     assert.deepEqual(roomAfter, roomBefore, 'the reservation sidecar must not rewrite or initialize the project room');
-    await assert.rejects(transport.reserveApplicationFormLink(roomId, { ...reservation, jobId: 'c'.repeat(32), tokenHash: 'd'.repeat(64) }), /別のフォーム連携が進行中/);
+    await assert.rejects(transport.reserveApplicationFormLink(roomId, { ...reservation, jobId: 'c'.repeat(32), tokenHash: 'd'.repeat(64) }), /応募フォームは作成を受け付け済み/);
     assert.deepEqual(await read(roomId), roomBefore);
   } finally {
     await transport.dispose();
