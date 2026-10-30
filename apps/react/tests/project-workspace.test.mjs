@@ -1,0 +1,109 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  TOOL_REGISTRY, TEMPLATE_REGISTRY, createTemplateWorkspace,
+  legacyWorkspace, normalizeWorkspace, resolveInitialTool, createWorkspaceSync,
+} from '../src/services/project-workspace.js';
+
+function memoryStorage() {
+  const data = new Map();
+  return { getItem: key => data.get(key) ?? null, setItem: (key, value) => data.set(key, String(value)) };
+}
+
+test('templates provide versioned initial tool selections without forcing dependencies', () => {
+  assert.deepEqual(TEMPLATE_REGISTRY.personal.tools, ['participants', 'car', 'settlement']);
+  assert.deepEqual(TEMPLATE_REGISTRY['circle-mountain'].tools, ['application-form', 'submission-documents', 'mountain-plan', 'participants', 'car', 'team', 'settlement']);
+  assert.deepEqual(TEMPLATE_REGISTRY['circle-event'].tools, ['application-form', 'participants', 'car', 'team', 'settlement']);
+  const custom = createTemplateWorkspace({ templateId: 'custom', customTools: [], now: 1 });
+  assert.deepEqual(custom.tabOrder, []);
+  assert.equal(resolveInitialTool(custom), 'tools');
+  assert.ok(TOOL_REGISTRY.some(tool => tool.id === 'tools' && tool.system));
+});
+
+test('new templates pin their chosen tools and initial route prefers settlement then first tool', () => {
+  const workspace = createTemplateWorkspace({ templateId: 'personal', now: 123 });
+  assert.equal(workspace.template.id, 'personal');
+  assert.equal(workspace.template.version, 1);
+  assert.deepEqual(workspace.tabOrder, ['participants', 'car', 'settlement']);
+  assert.equal(workspace.tools.settlement.pinned, true);
+  assert.equal(resolveInitialTool(workspace), 'settlement');
+  assert.equal(resolveInitialTool({ tools: { car: { enabled: true, pinned: true } }, tabOrder: ['car'] }), 'car');
+});
+
+test('legacy projects get a virtual four-tool workspace and unknown settings are normalized safely', () => {
+  const legacy = legacyWorkspace();
+  assert.deepEqual(legacy.tabOrder, ['participants', 'car', 'team', 'settlement']);
+  const normalized = normalizeWorkspace({
+    schemaVersion: 1,
+    template: { id: 'custom', version: 1 },
+    tools: { car: { enabled: true, pinned: false }, team: { enabled: true, pinned: true }, 'unknown-tool': { enabled: true, pinned: true } },
+    tabOrder: ['team', 'team', 'car', 'unknown-tool'], revision: 7,
+  });
+  assert.deepEqual(normalized.tabOrder, ['team']);
+  assert.deepEqual(Object.keys(normalized.tools), ['car', 'team']);
+  assert.equal(resolveInitialTool(normalized), 'team');
+});
+
+test('workspace normalization never permits a pinned but disabled tool', () => {
+  const normalized = normalizeWorkspace({ schemaVersion: 1, tools: { car: { enabled: false, pinned: true } }, tabOrder: ['car'] });
+  assert.equal(normalized.tools.car.pinned, false);
+  assert.deepEqual(normalized.tabOrder, []);
+});
+
+test('workspace changes synchronize across clients and reject a stale revision without overwriting remote state', async () => {
+  let remote = null;
+  const listeners = new Set();
+  const transport = {
+    subscribeWorkspace(listener) { listeners.add(listener); queueMicrotask(() => listener(remote)); return () => listeners.delete(listener); },
+    async transactionWorkspace(updater) {
+      const next = updater(remote);
+      if (next === undefined) return { committed: false, value: remote };
+      remote = next;
+      for (const listener of listeners) listener(remote);
+      return { committed: true, value: remote };
+    },
+  };
+  const left = createWorkspaceSync({ roomId: 'ROOM1234', transport, storage: memoryStorage() });
+  const right = createWorkspaceSync({ roomId: 'ROOM1234', transport, storage: memoryStorage() });
+  left.start(); right.start();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  const initial = createTemplateWorkspace({ templateId: 'personal', now: 10 });
+  await left.ensure(initial);
+  const updated = normalizeWorkspace({ ...remote, tools: { ...remote.tools, team: { enabled: true, pinned: true } }, tabOrder: [...remote.tabOrder, 'team'], revision: 1, updatedAt: 20 });
+  assert.equal((await left.save(updated, 0)).ok, true);
+  const stale = await right.save(createTemplateWorkspace({ templateId: 'circle-event', now: 30 }), 0);
+  assert.equal(stale.ok, false);
+  assert.equal(normalizeWorkspace(remote).tools.team.enabled, true);
+  assert.deepEqual(left.getSnapshot().workspace.tabOrder, ['participants', 'car', 'settlement', 'team']);
+  assert.deepEqual(right.getSnapshot().workspace.tabOrder, ['participants', 'car', 'settlement', 'team']);
+  left.dispose(); right.dispose();
+});
+
+test('workspace ensure preserves existing remote settings and surfaces transport errors', async () => {
+  const existing = createTemplateWorkspace({ templateId: 'circle-event', now: 10 });
+  const transport = {
+    subscribeWorkspace(listener) { queueMicrotask(() => listener(existing)); return () => {}; },
+    async transactionWorkspace(updater) { return { committed: false, value: existing }; },
+  };
+  const sync = createWorkspaceSync({ roomId: 'ROOM1234', transport, storage: memoryStorage() });
+  sync.start();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  await sync.ensure(createTemplateWorkspace({ templateId: 'personal', now: 20 }));
+  assert.equal(sync.getSnapshot().workspace.template.id, 'circle-event');
+  const failed = createWorkspaceSync({ roomId: 'ROOM1234', transport: { subscribeWorkspace(_listener, onError) { queueMicrotask(() => onError(new Error('denied'))); return () => {}; } }, storage: memoryStorage() });
+  failed.start();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(failed.getSnapshot().status, 'error');
+  failed.dispose(); sync.dispose();
+});
+test('virtual legacy workspace is not cached before explicit template initialization', async () => {
+  const storage = memoryStorage();
+  const sync = createWorkspaceSync({ roomId: 'NEWROOM01', storage });
+  sync.start();
+  assert.equal(storage.getItem('sanpo-workspace:v1:NEWROOM01'), null);
+  const created = createTemplateWorkspace({ templateId: 'personal', now: 2 });
+  await sync.ensure(created);
+  assert.equal(sync.getSnapshot().workspace.tools.team.enabled, false);
+  assert.equal(sync.getSnapshot().workspace.template.id, 'personal');
+  sync.dispose();
+});

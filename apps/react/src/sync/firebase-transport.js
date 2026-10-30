@@ -86,6 +86,7 @@ export async function createFirebaseTransport({ config, roomId, emulator, stagin
   try { await authSdk.signInAnonymously(auth); }
   catch (error) { await appSdk.deleteApp(app); throw error; }
   const room = dbSdk.ref(db, `rooms/${roomId}`);
+  const workspace = dbSdk.ref(db, `projectWorkspacesV1/${roomId}`);
   let offset = 0;
   let aligned = false;
   const stopClock = dbSdk.onValue(dbSdk.ref(db, '.info/serverTimeOffset'), snapshot => { offset = Number(snapshot.val() || 0); aligned = true; });
@@ -100,6 +101,42 @@ export async function createFirebaseTransport({ config, roomId, emulator, stagin
       return () => { stop(); subscriptions.delete(stop); };
     },
     async transaction(updater) { const result = await dbSdk.runTransaction(room, updater, { applyLocally: false }); return { committed: result.committed, value: result.snapshot.val() }; },
+    async createRoomIfAbsent(initialRoom) {
+      const result = await dbSdk.runTransaction(room, current => current == null ? initialRoom : undefined, { applyLocally: false });
+      return { created: result.committed, value: result.snapshot.val() };
+    },
+    subscribeWorkspace(listener, onError) {
+      if (disposed) throw new Error('Transport is disposed');
+      const stop = dbSdk.onValue(workspace, snapshot => listener(snapshot.val()), onError);
+      subscriptions.add(stop);
+      return () => { stop(); subscriptions.delete(stop); };
+    },
+    async transactionWorkspace(updater) {
+      if (disposed) throw new Error('Transport is disposed');
+      const result = await dbSdk.runTransaction(workspace, updater, { applyLocally: false });
+      return { committed: result.committed, value: result.snapshot.val() };
+    },
+    async reserveApplicationFormLink(targetRoomId, reservation) {
+      if (disposed || targetRoomId !== roomId) throw new Error('この企画へのフォーム連携要求ではありません。');
+      if (!reservation || reservation.schemaVersion !== 1 || !/^[A-Za-z0-9_-]{16,80}$/.test(String(reservation.jobId || '')) ||
+          !/^[a-f0-9]{64}$/.test(String(reservation.tokenHash || '')) || reservation.state !== 'pending' ||
+          !Number.isSafeInteger(reservation.requestedAt) || !Number.isSafeInteger(reservation.expiresAt) || reservation.expiresAt <= reservation.requestedAt) {
+        throw new Error('フォーム連携の予約情報が不正です。');
+      }
+      const applicationSync = (await dbSdk.get(dbSdk.ref(db, `rooms/${roomId}/meta/applicationSync`))).val();
+      if (applicationSync) throw new Error('この企画にはすでに応募フォームが連携されています。');
+      const link = dbSdk.ref(db, `projectFormLinksV1/${roomId}`);
+      const result = await dbSdk.runTransaction(link, current => {
+        if (current && current.jobId === reservation.jobId && current.tokenHash === reservation.tokenHash) return undefined;
+        if (current && current.state !== 'failed' && Number(current.expiresAt) > reservation.requestedAt) return undefined;
+        return reservation;
+      }, { applyLocally: false });
+      const value = result.snapshot.val();
+      if (!result.committed && (value?.jobId !== reservation.jobId || value?.tokenHash !== reservation.tokenHash)) {
+        throw new Error('この企画では別のフォーム連携が進行中です。結果を確認してから再度お試しください。');
+      }
+      return value;
+    },
     update: patch => dbSdk.update(room, patch),
     subscribeApplicationMetadata(listener, onError) {
       const stop = dbSdk.onValue(dbSdk.ref(db, `rooms/${roomId}/meta/applicationSync`), snapshot => listener(snapshot.val()), onError);

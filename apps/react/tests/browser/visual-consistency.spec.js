@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
 
-test('all four application panels share one 16px inset', async ({ page }) => {
+test('all five application panels share one 16px inset', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?room=VISUAL-PANEL-INSET&view=participants');
 
   const panels = page.locator('.app-tab-panel');
-  await expect(panels).toHaveCount(4);
-  for (const tabName of ['参加者', '車割', '班割', '精算']) {
+  await expect(panels).toHaveCount(5);
+  for (const tabName of ['参加者', '車割', '班割', '精算', 'ツール']) {
     await page.getByRole('tab', { name: tabName, exact: true }).click();
     const visiblePanel = page.locator('.app-tab-panel:visible');
     await expect(visiblePanel).toHaveCount(1);
@@ -24,8 +24,8 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await sample.getByRole('radio', { name: '通常のサンプル', exact: true }).check({ force: true });
   await sample.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
 
-  const tabs = page.getByRole('tablist', { name: '画面切り替え' });
-  await expect(tabs.getByRole('tab')).toHaveCount(4);
+  const tabs = page.getByRole('tablist', { name: '企画のツール' });
+  await expect(tabs.getByRole('tab')).toHaveCount(5);
   await expect(page.getByRole('heading', { name: '参加者', exact: true })).toHaveCount(0);
   const participantSummary = page.locator('.participants-page > .section-heading h2');
   await expect(participantSummary).toContainText(/参加者\s*\d+人/);

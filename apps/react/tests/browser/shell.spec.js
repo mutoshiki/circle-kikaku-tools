@@ -73,7 +73,7 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await expect(applications.getByRole('link', { name: '学務提出書類作成ツール', exact: true })).toHaveAttribute('href', /sampokai-submission-builder/);
   await expect(applications.getByRole('link', { name: '山歩会企画ツール一覧', exact: true })).toHaveAttribute('href', /sanpokai-kikaku-portal/);
   await page.getByRole('button', { name: '関連アプリ', exact: true }).click();
-  await expect(page.getByRole('tab')).toHaveText(['参加者', '車割', '班割', '精算']);
+  await expect(page.getByRole('tab')).toHaveText(['参加者', '車割', '班割', '精算', 'ツール']);
   await page.getByRole('button', { name: '企画名を設定' }).click();
   const projectName = page.getByRole('textbox', { name: '企画名' });
   await projectName.fill('互換性確認用の企画');
