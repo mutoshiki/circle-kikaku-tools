@@ -162,6 +162,16 @@ test('production smoke confirms the expected room is synced before root and alia
   assert.match(readiness, /同期完了/);
 });
 
+test('production smoke checks the project list when opening without a room', () => {
+  const initialEntryStart = smoke.indexOf("setSmokePhase('initial app load')");
+  const seedStart = smoke.indexOf("setSmokePhase('smoke room seed helper')", initialEntryStart);
+  assert.ok(initialEntryStart >= 0 && seedStart > initialEntryStart);
+  const initialEntry = smoke.slice(initialEntryStart, seedStart);
+  assert.match(initialEntry, /getByRole\('heading', \{ name: '企画', exact: true \}\)/);
+  assert.match(initialEntry, /getByRole\('button', \{ name: '新しい企画を作成', exact: true \}\)/);
+  assert.doesNotMatch(initialEntry, /sync-status/);
+});
+
 test('normal release preserves sanitized smoke diagnostics for each route and browser', () => {
   const promotion = job('promotion');
   const compatibilityStart = promotion.indexOf('id: compatibility-smoke');
