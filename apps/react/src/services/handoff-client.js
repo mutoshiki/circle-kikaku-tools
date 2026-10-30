@@ -16,7 +16,7 @@ export function createHandoffClient({ transport, crypto, storage, wait = ms => n
     const projectId = String(payload.projectId || '');
     const token = String(payload.token || '');
     if (!/^[A-Za-z0-9_-]{6,80}$/.test(projectId) || !/^h_[A-Za-z0-9_-]{48,160}$/.test(token)) {
-      throw new Error('この企画でCSVを作成できません。フォームメーカーの作成結果にある「企画ツールを開く」から企画を開き直してください。');
+      throw new Error('この企画ではCSVを作成できません。フォームメーカーの作成結果から「企画ツールを開く」を選んでください。');
     }
     if (!crypto?.randomUUID || !crypto?.subtle?.digest) throw new Error('このブラウザーではCSV作成を開始できません。ブラウザーを更新して、もう一度お試しください。');
     const fingerprintSource = JSON.stringify([projectId, token, String(payload.responses || ''), Array.isArray(payload.manualParticipantIds) ? payload.manualParticipantIds : []]);

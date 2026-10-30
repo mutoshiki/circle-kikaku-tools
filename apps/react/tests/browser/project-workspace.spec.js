@@ -47,9 +47,9 @@ test('legacy=1 keeps a direct way back to the original four-tab project screen',
 
 test('create flow saves template intent once and opens the selected existing app view', async ({ page }) => {
   await page.goto('/?screen=create');
-  await expect(page.getByText('テンプレートはツールの初期設定です。作成後に「ツール」から、利用するツールやタブに固定するツールを変更できます。')).toBeVisible();
-  await expect(page.getByText('このテンプレートではアクセスを制限しません。共有リンクを知っている人は企画を開けます。')).toBeVisible();
-  await expect(page.getByText('作成時にタブへ固定するツール：参加者、車割、精算')).toBeVisible();
+  await expect(page.getByText('ツールの表示は、作成後も変更できます。')).toBeVisible();
+  await expect(page.getByText('個人利用でも非公開にはなりません。共有リンクを知っている人は企画を見られます。')).toBeVisible();
+  await expect(page.getByText('最初に表示：参加者、車割、精算')).toBeVisible();
   await page.getByLabel('企画名（任意）').fill('ブラウザ作成確認');
   await page.getByRole('button', { name: '企画を作成' }).click();
   await expect(page.getByRole('heading', { name: 'ブラウザ作成確認' })).toBeVisible();
@@ -60,13 +60,13 @@ test('create flow saves template intent once and opens the selected existing app
   await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: '使い方' }).click();
   const guide = page.getByRole('dialog', { name: '使い方' });
-  await expect(guide.getByText('使うツールは企画ごとに選べます。タブに固定していないツールは「ツール」から開けます。')).toBeVisible();
-  await expect(guide.getByText(/人数だけで精算することもできます/)).toBeVisible();
+  await expect(guide.getByText('使うツールは企画ごとに選べます。')).toBeVisible();
+  await expect(guide.getByText(/人数だけでも精算できます/)).toBeVisible();
   await guide.getByRole('button', { name: '閉じる' }).click();
   await page.getByRole('tab', { name: 'ツール' }).click();
   await expect(page.getByRole('heading', { name: '利用するツール' })).toBeVisible();
-  await expect(page.getByText('この企画で利用するツールと、タブに固定するツールを設定します。')).toBeVisible();
-  await expect(page.getByText('固定を解除したツールは「ツール」から開けます。利用を解除しても、保存済みデータは削除されません。')).toBeVisible();
+  await expect(page.getByText('使うツールと、タブに表示するツールを選びます。')).toBeVisible();
+  await expect(page.getByText('タブに表示しないツールは「ツール」から開けます。利用をやめてもデータは残ります。')).toBeVisible();
   await page.locator('label[for="workspace-enabled-team"]').click();
   await page.locator('label[for="workspace-pinned-team"]').click();
   await page.getByRole('button', { name: '設定を保存' }).click();
@@ -76,7 +76,7 @@ test('create flow saves template intent once and opens the selected existing app
 
 test('custom project can have no pinned tools and opens optional tools within Tools', async ({ page }) => {
   await page.goto('/?screen=create');
-  await expect(page.getByText('テンプレートはツールの初期設定です。作成後に「ツール」から、利用するツールやタブに固定するツールを変更できます。')).toBeVisible();
+  await expect(page.getByText('ツールの表示は、作成後も変更できます。')).toBeVisible();
   await page.locator('label[for="template-custom"]').click();
   await expect(page.getByText('使うツールを選んでください。')).toBeVisible();
   await page.getByLabel('企画名（任意）').fill('カスタム企画');
@@ -88,10 +88,10 @@ test('custom project can have no pinned tools and opens optional tools within To
   await expect(page.getByRole('status').filter({ hasText: 'ツール設定を保存しました' })).toBeVisible();
   await page.getByRole('button', { name: '開く' }).click();
   await expect(page.getByRole('heading', { name: '応募フォーム' })).toBeVisible();
-  await expect(page.getByText('企画名と実施日（登録済みの場合）をフォームメーカーに引き継ぎます。フォームメーカーで編集用メールアドレスや応募締切などを入力して作成してください。作成後は、応募回答から参加者にする人を選べます。')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'フォームメーカーで作成を続ける' })).toBeVisible();
-  await page.getByRole('button', { name: 'フォームメーカーで作成を続ける' }).click();
-  await expect(page.getByRole('status').filter({ hasText: 'フォームメーカーを開く準備ができません' })).toBeVisible();
+  await expect(page.getByText('登録済みの企画名・実施日を引き継ぎます。メールアドレスや応募締切はフォームメーカーで設定してください。')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'フォームメーカーを開く' })).toBeVisible();
+  await page.getByRole('button', { name: 'フォームメーカーを開く' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'フォームメーカーを開けませんでした' })).toBeVisible();
   await expect(page.getByText('企画データに接続できません。通信状態を確認して、もう一度お試しください。')).toBeVisible();
 
   await page.getByRole('button', { name: 'ツール一覧へ戻る' }).click();
@@ -99,8 +99,8 @@ test('custom project can have no pinned tools and opens optional tools within To
   await page.getByRole('button', { name: '設定を保存' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'ツール設定を保存しました' })).toBeVisible();
   await page.locator('.project-tool-setting').filter({ hasText: '学務書類' }).getByRole('button', { name: '開く' }).click();
-  await expect(page.getByText('フォームと連携済みで、作成用リンクから開いた企画では、確定した参加者の学務書類用CSVを作成できます。')).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Windowsアプリのダウンロードページを開く' })).toBeVisible();
+  await expect(page.getByText('確定した参加者のCSVを作成します。')).toBeVisible();
+  await expect(page.getByRole('link', { name: '学務書類作成ツールをダウンロード' })).toBeVisible();
 });
 
 test('project history labels whether its timestamp is the last visit or last update', async ({ page }) => {
@@ -127,7 +127,7 @@ test('mountain-plan tool passes project metadata and explains the explicit date-
   await page.getByRole('button', { name: '設定を保存' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'ツール設定を保存しました' })).toBeVisible();
   await page.getByRole('button', { name: '開く' }).click();
-  const link = page.getByRole('link', { name: '企画情報を引き継いで開く' });
+  const link = page.getByRole('link', { name: '登山計画書を作成' });
   const href = new URL(await link.getAttribute('href'));
   expect(`${href.origin}${href.pathname}`).toBe('https://mutoshiki.github.io/tozan-keikaku-syo-maker/');
   expect(JSON.parse(new URLSearchParams(href.hash.slice(1)).get('sanpo-project'))).toEqual({
@@ -136,5 +136,5 @@ test('mountain-plan tool passes project metadata and explains the explicit date-
     projectName: '登山メーカー入口確認企画',
     eventDate: '',
   });
-  await expect(page.getByText('企画名と実施日を登山計画書メーカーに渡します。メーカーで企画名を確認できます。実施日は「実施日に反映」を選ぶと入力でき、入力済みの日付は上書きされません。')).toBeVisible();
+  await expect(page.getByText('企画名を引き継ぎます。実施日は「実施日に反映」から取り込めます。')).toBeVisible();
 });

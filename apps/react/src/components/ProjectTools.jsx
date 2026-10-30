@@ -41,7 +41,7 @@ export function ExportModal({ runtime, room, onClose, onNotice }) {
   const project = useMemo(() => createProjectDomain({ getRoom: () => room, settlement: runtime.store.domain.settlement }), [room, runtime]);
   const selection = project.committedExportSelection();
   const blocked = !project.applicationSync() || !runtime.handoffToken || selection.ambiguousNames.length > 0 || (!selection.responseKeys.length && !selection.manualNames.length);
-  const reason = !project.applicationSync() ? '応募フォームと連携した企画で利用できます。' : !runtime.handoffToken ? 'フォームメーカーの作成結果にある「企画ツールを開く」リンクから開いてください。' : selection.ambiguousNames.length ? '同じ名前の応募者が複数いるため、参加者を区別できません。応募フォームの回答を確認してください。' : '参加者を確定してください。';
+  const reason = !project.applicationSync() ? '応募フォームと連携した企画で利用できます。' : !runtime.handoffToken ? 'フォームメーカーの作成結果から「企画ツールを開く」を選んでください。' : selection.ambiguousNames.length ? '同名の応募者を区別できません。フォームの回答を確認してください。' : '参加者を確定してください。';
   async function download() {
     if (processing) return;
     setProcessing(true);
@@ -66,7 +66,7 @@ export function ExportModal({ runtime, room, onClose, onNotice }) {
     } catch (error) { const message = String(error?.message || ''); onNotice(/[ぁ-んァ-ヶ一-龠]/.test(message) ? message : 'CSVを作成できませんでした。通信状態を確認して、もう一度お試しください。'); }
     finally { setProcessing(false); }
   }
-  return <Modal className="app-modal" closeButtonLabel="閉じる" open size="sm" modalHeading="学務書類用CSV" primaryButtonText={processing ? '作成中…' : '学務書類用CSVを作成'} secondaryButtonText="閉じる" primaryButtonDisabled={blocked || processing || Boolean(downloadUrl)} onRequestSubmit={download} onRequestClose={onClose}><p>確定した参加者を学務書類作成ツールに取り込むCSVを作成します。</p>{blocked && <InlineNotification kind="warning" title="作成できません" subtitle={reason} hideCloseButton lowContrast />}{processing && <InlineNotification kind="info" title="CSVを作成しています" subtitle="完了までこの画面を開いたままお待ちください。" hideCloseButton lowContrast />}{downloadUrl && <div className="form-stack"><InlineNotification kind="success" title="CSVを作成しました" subtitle="ファイルは作成から24時間後に削除されます。" hideCloseButton lowContrast /><a href={downloadUrl} target="_blank" rel="noopener noreferrer">CSVをダウンロード</a></div>}</Modal>;
+  return <Modal className="app-modal" closeButtonLabel="閉じる" open size="sm" modalHeading="学務書類用CSV" primaryButtonText={processing ? '作成中…' : 'CSVを作成'} secondaryButtonText="閉じる" primaryButtonDisabled={blocked || processing || Boolean(downloadUrl)} onRequestSubmit={download} onRequestClose={onClose}>{blocked && <InlineNotification kind="warning" title="作成できません" subtitle={reason} hideCloseButton lowContrast />}{processing && <InlineNotification kind="info" title="CSVを作成しています" hideCloseButton lowContrast />}{downloadUrl && <div className="form-stack"><InlineNotification kind="success" title="CSVを作成しました" subtitle="ファイルは作成から24時間後に削除されます。" hideCloseButton lowContrast /><a href={downloadUrl} target="_blank" rel="noopener noreferrer">CSVをダウンロード</a></div>}</Modal>;
 }
 
 export function BugModal({ runtime, room, onClose, onNotice }) {

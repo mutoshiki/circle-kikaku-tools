@@ -57,7 +57,7 @@ test('worker failure, ambiguous result, invalid link, and timeout remain visible
   await assert.rejects(makeClient({ state: 'unknown' })(payload), /同じ画面からもう一度/);
   await assert.rejects(makeClient({ state: 'completed', result: { downloadUrl: 'https://example.com/file', count: 1 } })(payload), /CSVを保存できませんでした/);
   await assert.rejects(makeClient({ state: 'running' })(payload), /同じ画面からもう一度/);
-  await assert.rejects(makeClient({ state: 'running' })({ ...payload, token: 'bad' }), /この企画でCSVを作成できません/);
+  await assert.rejects(makeClient({ state: 'running' })({ ...payload, token: 'bad' }), /この企画ではCSVを作成できません/);
 });
 
 test('worker transport errors are shown in Japanese without Firebase internals', async () => {

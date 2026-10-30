@@ -31,7 +31,7 @@ test('worker CSV export returns a private Drive link and disables duplicate requ
   await page.getByRole('button', { name: '学務書類用CSVを作成' }).click();
 
   const dialog = page.getByRole('dialog', { name: '学務書類用CSV' });
-  const submit = dialog.getByRole('button', { name: '学務書類用CSVを作成' });
+  const submit = dialog.getByRole('button', { name: 'CSVを作成' });
   await submit.dblclick();
 
   const download = dialog.getByRole('link', { name: 'CSVをダウンロード' });

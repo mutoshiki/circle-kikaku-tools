@@ -24,7 +24,7 @@ export function ToolManager({ workspaceSnapshot, workspaceSync, openTool, onNoti
     const result = await workspaceSync.save(draft, baseRevision);
     setSaving(false);
     if (!result.ok) {
-      setMessage(result.conflict ? '最新の設定が保存されています。読み込んでから、変更をやり直してください。' : '設定を保存できませんでした。通信状態を確認して、もう一度お試しください。');
+      setMessage(result.conflict ? '別の端末で設定が変わりました。最新の設定を読み込んでください。' : '設定を保存できませんでした。通信状態を確認してください。');
       return;
     }
     setDraft(result.workspace); setBaseRevision(result.workspace.revision);
@@ -33,23 +33,23 @@ export function ToolManager({ workspaceSnapshot, workspaceSync, openTool, onNoti
 
   const ordered = draft.tabOrder.map(id => tools.find(tool => tool.id === id)).filter(Boolean);
   return <section className="project-tools-workspace" aria-labelledby="tools-heading">
-    {workspaceSnapshot.status === 'error' && <InlineNotification kind="warning" title="ツール設定を読み込めません" subtitle="現在の画面は利用できますが、ツール設定は変更できません。" hideCloseButton />}
-    <div className="project-tools-workspace__heading"><div><h2 id="tools-heading">ツール</h2><p>この企画で利用するツールと、タブに固定するツールを設定します。</p></div></div>
+    {workspaceSnapshot.status === 'error' && <InlineNotification kind="warning" title="ツール設定を読み込めません" subtitle="この企画のツールは変更できません。" hideCloseButton />}
+    <div className="project-tools-workspace__heading"><div><h2 id="tools-heading">ツール</h2><p>使うツールと、タブに表示するツールを選びます。</p></div></div>
     {message && <InlineNotification kind="warning" title={message} hideCloseButton />}
-    {changedRemotely && draftChanged && <InlineNotification kind="warning" title="別の端末で設定が更新されました" subtitle="最新設定を読み込むと、この画面で編集中の変更は破棄されます。" actions={<Button kind="ghost" size="sm" onClick={resetDraft}>最新設定を読み込む</Button>} hideCloseButton />}
+    {changedRemotely && draftChanged && <InlineNotification kind="warning" title="別の端末で設定が変わりました" subtitle="最新の設定を読み込み、もう一度編集してください。" actions={<Button kind="ghost" size="sm" onClick={resetDraft}>最新の設定を読み込む</Button>} hideCloseButton />}
     <div className="project-tools-manager">
       <h3>利用するツール</h3>
       {tools.map(tool => {
         const state = draft.tools[tool.id] || { enabled: false, pinned: false };
         return <div className="project-tool-setting" key={tool.id}>
           <div className="project-tool-setting__main"><Checkbox id={`workspace-enabled-${tool.id}`} labelText={tool.label} checked={state.enabled} onChange={(_, { checked }) => setDraft(value => setToolAvailability(value, tool.id, checked))} /></div>
-          {state.enabled && <div className="project-tool-setting__actions"><Checkbox id={`workspace-pinned-${tool.id}`} labelText="タブに固定" checked={state.pinned} onChange={(_, { checked }) => setDraft(value => setToolPinned(value, tool.id, checked))} />{state.pinned ? <><Button kind="ghost" size="sm" disabled={draft.tabOrder.indexOf(tool.id) === 0} onClick={() => setDraft(value => movePinnedTool(value, tool.id, value.tabOrder.indexOf(tool.id) - 1))}>上へ</Button><Button kind="ghost" size="sm" disabled={draft.tabOrder.indexOf(tool.id) === draft.tabOrder.length - 1} onClick={() => setDraft(value => movePinnedTool(value, tool.id, value.tabOrder.indexOf(tool.id) + 1))}>下へ</Button></> : <Button kind="ghost" size="sm" disabled={draftChanged || workspaceSnapshot.status !== 'ready'} onClick={() => openTool(tool.id)}>開く</Button>}</div>}
+          {state.enabled && <div className="project-tool-setting__actions"><Checkbox id={`workspace-pinned-${tool.id}`} labelText="タブに表示" checked={state.pinned} onChange={(_, { checked }) => setDraft(value => setToolPinned(value, tool.id, checked))} />{state.pinned ? <><Button kind="ghost" size="sm" disabled={draft.tabOrder.indexOf(tool.id) === 0} onClick={() => setDraft(value => movePinnedTool(value, tool.id, value.tabOrder.indexOf(tool.id) - 1))}>上へ</Button><Button kind="ghost" size="sm" disabled={draft.tabOrder.indexOf(tool.id) === draft.tabOrder.length - 1} onClick={() => setDraft(value => movePinnedTool(value, tool.id, value.tabOrder.indexOf(tool.id) + 1))}>下へ</Button></> : <Button kind="ghost" size="sm" disabled={draftChanged || workspaceSnapshot.status !== 'ready'} onClick={() => openTool(tool.id)}>開く</Button>}</div>}
         </div>;
       })}
-      <p className="project-tool-setting__help">固定を解除したツールは「ツール」から開けます。利用を解除しても、保存済みデータは削除されません。</p>
+      <p className="project-tool-setting__help">タブに表示しないツールは「ツール」から開けます。利用をやめてもデータは残ります。</p>
       <div className="project-tools-manager__actions"><Button kind="primary" disabled={!draftChanged || saving || workspaceSnapshot.status !== 'ready'} onClick={save}>{saving ? '保存中…' : '設定を保存'}</Button><Button kind="ghost" disabled={!draftChanged || saving} onClick={resetDraft}>変更を取り消す</Button></div>
     </div>
-    {!!ordered.length && <div className="project-tools-pinned"><h3>タブの順序</h3><ol>{ordered.map(tool => <li key={tool.id}>{tool.label}</li>)}</ol><p>固定したタブの順番は、この企画を開くすべての端末で共有されます。</p></div>}
+    {!!ordered.length && <div className="project-tools-pinned"><h3>タブの順序</h3><ol>{ordered.map(tool => <li key={tool.id}>{tool.label}</li>)}</ol><p>この順番は、企画を開く全員に反映されます。</p></div>}
   </section>;
 }
 
@@ -58,8 +58,8 @@ export function ExternalToolWorkspace({ toolId, runtime, room, onNotice }) {
   const [formLinkBusy, setFormLinkBusy] = useState(false);
   const [formLinkError, setFormLinkError] = useState('');
   const labels = new Map(tools.map(tool => [tool.id, tool.label]));
-  if (toolId === 'application-form') return <section className="external-tool-workspace"><h2>{labels.get(toolId)}</h2><p>企画名と実施日（登録済みの場合）をフォームメーカーに引き継ぎます。フォームメーカーで編集用メールアドレスや応募締切などを入力して作成してください。作成後は、応募回答から参加者にする人を選べます。</p>{formLinkError && <InlineNotification kind="error" title="フォームメーカーを開く準備ができません" subtitle={formLinkError} hideCloseButton />}<Button kind="primary" disabled={formLinkBusy || Boolean(room.meta?.applicationSync)} onClick={async () => { setFormLinkBusy(true); setFormLinkError(''); try { const href = await runtime.external.createApplicationForm({ room }); window.location.assign(href); } catch (error) { const message = String(error?.message || ''); setFormLinkError(/[ぁ-んァ-ヶ一-龠]/.test(message) ? message : '応募フォームの作成画面を開けませんでした。通信状態を確認して、もう一度お試しください。'); setFormLinkBusy(false); } }}>{formLinkBusy ? 'フォームメーカーを開いています…' : room.meta?.applicationSync ? '応募フォーム連携済み' : 'フォームメーカーで作成を続ける'}</Button></section>;
-  if (toolId === 'submission-documents') return <section className="external-tool-workspace"><h2>{labels.get(toolId)}</h2><p>フォームと連携済みで、作成用リンクから開いた企画では、確定した参加者の学務書類用CSVを作成できます。</p><Button kind="primary" disabled={!runtime.handoffToken} onClick={() => setShowExport(true)}>学務書類用CSVを作成</Button>{!runtime.handoffToken && <p>フォームメーカーの作成結果にある「企画ツールを開く」リンクから企画を開くと、この操作を使えます。</p>}<p><a href={release} target="_blank" rel="noreferrer">Windowsアプリのダウンロードページを開く</a></p>{showExport && <ExportModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setShowExport(false)} />}</section>;
-  if (toolId === 'mountain-plan') return <section className="external-tool-workspace"><h2>{labels.get(toolId)}</h2><p>企画名と実施日を登山計画書メーカーに渡します。メーカーで企画名を確認できます。実施日は「実施日に反映」を選ぶと入力でき、入力済みの日付は上書きされません。</p><Button kind="primary" href={createMountainPlanHref(mountainPlanMaker, { roomId: runtime.roomId, room }) || mountainPlanMaker} target="_blank" rel="noreferrer">企画情報を引き継いで開く</Button></section>;
+  if (toolId === 'application-form') return <section className="external-tool-workspace"><h2>{labels.get(toolId)}</h2><p>登録済みの企画名・実施日を引き継ぎます。メールアドレスや応募締切はフォームメーカーで設定してください。</p>{formLinkError && <InlineNotification kind="error" title="フォームメーカーを開けませんでした" subtitle={formLinkError} hideCloseButton />}<Button kind="primary" disabled={formLinkBusy || Boolean(room.meta?.applicationSync)} onClick={async () => { setFormLinkBusy(true); setFormLinkError(''); try { const href = await runtime.external.createApplicationForm({ room }); window.location.assign(href); } catch (error) { const message = String(error?.message || ''); setFormLinkError(/[ぁ-んァ-ヶ一-龠]/.test(message) ? message : 'フォームメーカーを開けませんでした。通信状態を確認してください。'); setFormLinkBusy(false); } }}>{formLinkBusy ? 'フォームメーカーを開いています…' : room.meta?.applicationSync ? '応募フォーム連携済み' : 'フォームメーカーを開く'}</Button></section>;
+  if (toolId === 'submission-documents') return <section className="external-tool-workspace"><h2>{labels.get(toolId)}</h2><p>確定した参加者のCSVを作成します。</p><Button kind="primary" disabled={!runtime.handoffToken} onClick={() => setShowExport(true)}>CSVを作成</Button>{!runtime.handoffToken && <p>フォームメーカーの作成結果にある「企画ツールを開く」から、この企画を開いてください。</p>}<p><a href={release} target="_blank" rel="noreferrer">学務書類作成ツールをダウンロード</a></p>{showExport && <ExportModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setShowExport(false)} />}</section>;
+  if (toolId === 'mountain-plan') return <section className="external-tool-workspace"><h2>{labels.get(toolId)}</h2><p>企画名を引き継ぎます。実施日は「実施日に反映」から取り込めます。</p><Button kind="primary" href={createMountainPlanHref(mountainPlanMaker, { roomId: runtime.roomId, room }) || mountainPlanMaker} target="_blank" rel="noreferrer">登山計画書を作成</Button></section>;
   return <section className="external-tool-workspace"><h2>このツールを開けません</h2><Button kind="ghost" onClick={() => window.location.reload()}>画面を再読み込み</Button></section>;
 }

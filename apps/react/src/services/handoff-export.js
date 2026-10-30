@@ -8,7 +8,7 @@ export async function buildHandoffRequest({ projectId, token, responseKeys, manu
   const keyList = String(responseKeys || '').split(',').filter(Boolean);
   const participantIds = Array.isArray(manualParticipantIds) ? manualParticipantIds.map(value => String(value || '')) : [];
   if (!/^[A-Za-z0-9_-]{6,80}$/.test(normalizedProjectId)) throw new Error('企画IDを確認できません。');
-  if (!HANDOFF_TOKEN.test(capability)) throw new Error('この企画で学務書類用CSVを作成できません。企画を開き直してください。');
+  if (!HANDOFF_TOKEN.test(capability)) throw new Error('この企画では学務書類用CSVを作成できません。企画を開き直してください。');
   if (!JOB_ID.test(String(jobId || ''))) throw new Error('CSV作成を開始できませんでした。ページを再読み込みしてください。');
   if (keyList.length + participantIds.length < 1 || keyList.length + participantIds.length > 200 || keyList.some(key => !RESPONSE_KEY.test(key)) || new Set(keyList).size !== keyList.length || participantIds.some(id => !id || id.length > 200 || /[\u0000-\u001f]/.test(id)) || new Set(participantIds).size !== participantIds.length) {
     throw new Error('参加者の選択を確認してください。');
