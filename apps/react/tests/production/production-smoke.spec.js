@@ -113,7 +113,10 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     const initial = createReference().migrateAppData(fixture);
     initial.roomName = smokeMarker;
     setSmokePhase('initial app load');
-    await page.goto(baseURL);
+    const initialEntryUrl = new URL(baseURL);
+    initialEntryUrl.searchParams.set('release', expectedBuildSha);
+    await page.goto(initialEntryUrl.toString());
+    await waitForProductionBuildManifest(page);
     await expect(page.locator('.application')).toBeVisible();
     await expect(page.getByRole('heading', { name: '企画', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: '新しい企画を作成', exact: true })).toBeEnabled();
