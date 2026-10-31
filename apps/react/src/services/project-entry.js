@@ -4,6 +4,7 @@ export function resolveEntryScreen(href) {
   const url = new URL(href);
   if (String(url.searchParams.get('room') || '').trim()) return null;
   if (url.searchParams.get('legacy') === '1') return null;
+  if (url.searchParams.get('debugSample') === 'all-tools') return null;
   return url.searchParams.get('screen') === 'create' ? 'create' : 'list';
 }
 

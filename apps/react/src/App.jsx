@@ -11,12 +11,14 @@ import Settlement from './components/Settlement.jsx';
 import SettlementSettingsModal from './components/SettlementSettingsModal.jsx';
 import { BugModal, HistoryModal, OverviewModal } from './components/ProjectTools.jsx';
 import { createProjectDomain } from './services/project-domain.js';
+import { createDebugSampleProject } from './services/debug-sample-project.js';
 import { beginSettlementEdit } from './components/settlement/edit.js';
 import { ToolManager, ExternalToolWorkspace } from './components/ProjectToolsWorkspace.jsx';
 import { resolveWorkspaceSelection, requestedToolFromView, workspaceTabs } from './services/project-workspace-routing.js';
 import { TOOL_REGISTRY } from './services/project-workspace.js';
 
 const legacyToolIds = ['participants', 'car', 'team', 'settlement'];
+const optionalTools = TOOL_REGISTRY.filter(tool => !tool.system);
 const THEME_PREFERENCE_KEY = 'sanpo-react:theme-preference:v1';
 function readThemePreference() {
   try {
@@ -38,6 +40,7 @@ export default function App({ runtime }) {
   const theme = themePreference === 'system' ? systemTheme : themePreference === 'dark' ? 'g100' : 'g10';
   const contentTheme = theme === 'g100' ? 'g90' : 'g10';
   const [activeToolId, setActiveToolId] = useState(() => requestedToolFromView(new URL(location.href).searchParams.get('view')) || legacyToolIds[runtime.initialView ?? 3] || 'settlement');
+  const [visitedToolIds, setVisitedToolIds] = useState(() => new Set([requestedToolFromView(new URL(location.href).searchParams.get('view')) || legacyToolIds[runtime.initialView ?? 3] || 'settlement', 'tools']));
   const legacyEntry = new URL(location.href).searchParams.get('legacy') === '1';
   const [toolsPanelId, setToolsPanelId] = useState(null);
   const standaloneMode = room.settlement?.standalone?.enabled === true;
@@ -49,6 +52,17 @@ export default function App({ runtime }) {
       : availableTabs;
   const selection = resolveWorkspaceSelection(workspaceSnapshot.workspace, activeToolId);
   const selectedIndex = Math.max(0, tabs.findIndex(tool => tool.id === selection.tabId));
+  const selectedTabId = tabs[selectedIndex]?.id || 'tools';
+  useEffect(() => {
+    setVisitedToolIds(current => {
+      if (current.has(selectedTabId) && (!selection.toolId || current.has(selection.toolId))) return current;
+      const next = new Set(current);
+      next.add(selectedTabId);
+      if (selection.toolId) next.add(selection.toolId);
+      return next;
+    });
+    if (selection.toolId && !toolsPanelId) setToolsPanelId(selection.toolId);
+  }, [selectedTabId, selection.toolId, toolsPanelId]);
   const [notice, setNotice] = useState('');
   const [noticeTimeout, setNoticeTimeout] = useState(2600);
   const pendingResetNotice = useRef(null);
@@ -97,6 +111,13 @@ export default function App({ runtime }) {
     setGlobalModal('');
     showNotice('フォーム連携のサンプルに置き換えました。');
   }
+  function resetDebugSample() {
+    if (!runtime.debugSample) return;
+    const project = createProjectDomain({ getRoom: runtime.store.getSnapshot, settlement: runtime.store.domain.settlement });
+    runtime.store.command('restore', { value: createDebugSampleProject({ projectDomain: project, now: Date.now() }), source: 'debug-sample' });
+    window.dispatchEvent(new CustomEvent('sanpo:debug-sample-reset', { detail: { roomId: runtime.roomId } }));
+    showNotice('デバッグ用サンプルを初期状態に戻しました。');
+  }
   useEffect(() => {
     const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
     const updateSystemTheme = event => setSystemTheme(event.matches ? 'g100' : 'g10');
@@ -136,6 +157,7 @@ export default function App({ runtime }) {
   function changeView(nextToolId) {
     if (typeof nextToolId === 'number') nextToolId = tabs[nextToolId]?.id || 'tools';
     setActiveToolId(nextToolId);
+    setVisitedToolIds(current => current.has(nextToolId) ? current : new Set([...current, nextToolId]));
     if (nextToolId === 'tools' || workspaceSnapshot.workspace.tools[nextToolId]?.pinned) setToolsPanelId(null);
     const url = new URL(location.href);
     url.searchParams.delete('allocation');
@@ -143,7 +165,7 @@ export default function App({ runtime }) {
     url.searchParams.set('view', requested?.view || (nextToolId === 'tools' ? 'tools' : 'seisan'));
     history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
   }
-  function openUnpinnedTool(toolId) { setToolsPanelId(toolId); setActiveToolId(toolId); const url = new URL(location.href); url.searchParams.set('view', toolId); history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`); }
+  function openUnpinnedTool(toolId) { setToolsPanelId(toolId); setActiveToolId(toolId); setVisitedToolIds(current => current.has(toolId) ? current : new Set([...current, toolId])); const url = new URL(location.href); url.searchParams.set('view', toolId); history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`); }
   function openSettlementSettings({ standalone = false, launcherButtonRef = null } = {}) {
     setSettlementSettingsLauncher(launcherButtonRef);
     setSettlementSettingsEdit(beginSettlementEdit(runtime.store, { standalone }));
@@ -166,6 +188,8 @@ export default function App({ runtime }) {
       const next = resolveWorkspaceSelection(workspaceSnapshot.workspace, requested);
       setToolsPanelId(next.toolId);
       setActiveToolId(requested || next.tabId);
+      const selected = next.toolId || next.tabId;
+      setVisitedToolIds(current => current.has(selected) ? current : new Set([...current, selected]));
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
@@ -190,10 +214,11 @@ export default function App({ runtime }) {
   }
   return <Theme theme={theme} className="application">
     <Theme theme="g100" className="app-header-theme">
-      <AppHeader theme={theme} themePreference={themePreference} onShare={share} onOpenUtility={openGlobalModal} onToggleTheme={toggleTheme} onUseSystemTheme={useSystemTheme} />
+      <AppHeader theme={theme} themePreference={themePreference} onShare={share} onOpenUtility={openGlobalModal} onToggleTheme={toggleTheme} onUseSystemTheme={useSystemTheme} debugSample={runtime.debugSample} />
     </Theme>
     <Theme theme={contentTheme} className="main-surface" data-floating-menu-container>
     <main id="main-content" tabIndex={-1} aria-labelledby="project-heading">
+    {runtime.debugSample && <Grid fullWidth className="project-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><div className="debug-sample-banner" role="status"><div><strong>デバッグ用サンプル</strong><span>架空データです。外部には送信されません。</span></div><Button kind="ghost" size="sm" onClick={resetDebugSample}>初期状態に戻す</Button></div></Column></Grid>}
     <Grid fullWidth className="project-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><ProjectIdentity name={room.roomName} syncStatus={syncStatus} onRename={name => runtime.store.command('rename', { name })} onProjectList={() => window.location.assign(new URL(import.meta.env.BASE_URL, window.location.href))} /></Column></Grid>
     <Grid fullWidth className="content-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><div className="main-content">
       {projectSetup.status === 'creating' && <ToastNotification kind="info" title="企画を作成しています" subtitle="利用するツールを設定しています。" timeout={0} lowContrast />}
@@ -202,13 +227,19 @@ export default function App({ runtime }) {
         <TabList aria-label="企画のツール" contained className="project-tool-tabs">{tabs.map(tool => <Tab key={tool.id}>{tool.label}</Tab>)}</TabList>
         <TabPanels>
           {tabs.map(tool => <TabPanel className="app-tab-panel" key={tool.id}>
-            {tool.id === 'tools' ? toolsPanelId
-              ? <div className="project-tool-panel"><Button kind="ghost" size="sm" onClick={() => { setToolsPanelId(null); setActiveToolId('tools'); }}>ツール一覧へ戻る</Button><ExternalToolWorkspace toolId={toolsPanelId} runtime={runtime} room={room} onNotice={showNotice} /></div>
-              : <ToolManager workspaceSnapshot={workspaceSnapshot} workspaceSync={runtime.workspace} openTool={openUnpinnedTool} onNotice={showNotice} />
+            {!visitedToolIds.has(tool.id) ? null : <>
+            {tool.id === 'tools' ? <div className="project-tools-panel">
+              <div className="project-tools-panel__manager" hidden={Boolean(toolsPanelId)}><ToolManager workspaceSnapshot={workspaceSnapshot} workspaceSync={runtime.workspace} openTool={openUnpinnedTool} onNotice={showNotice} /></div>
+              {optionalTools.filter(item => visitedToolIds.has(item.id) && workspaceSnapshot.workspace.tools[item.id]?.pinned !== true).map(item => <div className="project-tool-panel" key={item.id} hidden={toolsPanelId !== item.id}>
+                {toolsPanelId === item.id && <Button kind="ghost" size="sm" onClick={() => { setToolsPanelId(null); setActiveToolId('tools'); }}>ツール一覧へ戻る</Button>}
+                <ExternalToolWorkspace toolId={item.id} runtime={runtime} room={room} onNotice={showNotice} active={toolsPanelId === item.id && item.id === activeToolId} />
+              </div>)}
+            </div>
             : tool.id === 'participants' ? <Participants runtime={runtime} room={room} onNotice={showNotice} onOpenCountOnlySettlement={openCountOnlySettlement} openRegistrationRequestId={participantRegistrationRequest} onRegistrationRequestHandled={consumeParticipantRegistrationRequest} participantStartRef={participantStartRef} roomStatus={syncStatus} />
             : tool.id === 'car' || tool.id === 'team' ? <Allocation runtime={runtime} room={room} type={tool.id} onNotice={showNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} />
             : tool.id === 'settlement' ? <Settlement runtime={runtime} room={room} onNotice={showNotice} onOpenParticipantRegistration={openParticipantRegistration} onOpenSettings={openSettlementSettings} participantStartRef={participantStartRef} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} />
-            : <ExternalToolWorkspace toolId={tool.id} runtime={runtime} room={room} onNotice={showNotice} />}
+            : <ExternalToolWorkspace toolId={tool.id} runtime={runtime} room={room} onNotice={showNotice} active={tool.id === activeToolId} />}
+            </>}
           </TabPanel>)}
         </TabPanels>
       </Tabs>

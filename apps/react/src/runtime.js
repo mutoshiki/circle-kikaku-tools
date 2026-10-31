@@ -10,11 +10,16 @@ import { recordPortalVisit, updatePortalProject } from './services/portal-histor
 import { createHandoffClient } from './services/handoff-client.js';
 import { createWorkspaceSync } from './services/project-workspace.js';
 import { creationIntentKey, readCreationIntent } from './services/project-entry.js';
-import { createApplicationFormHref } from './services/application-form-link.js';
+import { createApplicationFormHref, prepareApplicationFormContext } from './services/application-form-link.js';
+import { createHandoffCapability } from './services/handoff-capability.js';
+import { tokenStorageKey, validHandoffToken } from './services/url-compat.js';
+import { createTemplateWorkspace, workspaceCacheKey } from './services/project-workspace.js';
+import { createProjectDomain } from './services/project-domain.js';
+import { createDebugSampleProject } from './services/debug-sample-project.js';
 
 const APPLICATION_FORM_PORTAL = 'https://mutoshiki.github.io/sanpokai-kikaku-portal/form-maker/';
 
-export function createLocalRuntime({ location, history, storage, crypto, transport, legacyLoadWrites = true, routeService = null, externalAdapters = {} }) {
+export function createLocalRuntime({ location, history, storage, crypto, transport, legacyLoadWrites = true, routeService = null, externalAdapters = {}, formMakerSession = null, debugSample = false }) {
   const launch = prepareCompatibleUrl({ location, history, storage, crypto });
   const roomId = launch.roomId;
   const roomStorage = createRoomStorage(storage, roomId);
@@ -37,6 +42,21 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
   });
   const workerHandoff = createHandoffClient({ transport, crypto, storage: roomStorage });
   const workspace = createWorkspaceSync({ roomId, transport, storage });
+  const formReservation = roomStorage.read('applicationFormReservation');
+  const handoffCapability = createHandoffCapability({ roomId, storage: roomStorage, initialJobId: formReservation?.jobId || (validHandoffToken(launch.handoffToken) ? 'legacy' : '') });
+  async function acceptApplicationFormHandoff(result) {
+    const current = roomStorage.read('applicationFormReservation');
+    if (!current || result?.roomId !== roomId || result?.jobId !== current.jobId || !validHandoffToken(result?.token)) return false;
+    // targetRoomCapability authenticates form creation; this token is the separate
+    // owner-scoped export capability returned by the existing form-maker session.
+    if (!handoffCapability.accept(result, current.jobId)) return false;
+    try { storage.removeItem(tokenStorageKey(roomId)); } catch {}
+    return true;
+  }
+  if (validHandoffToken(launch.handoffToken)) {
+    const expectedJobId = formReservation?.jobId || 'legacy';
+    handoffCapability.accept({ roomId, jobId: expectedJobId, token: launch.handoffToken }, expectedJobId);
+  }
   const pendingCreate = readCreationIntent(storage, roomId);
   const setupListeners = new Set();
   let projectSetup = Object.freeze({ status: pendingCreate ? 'creating' : 'idle', error: null });
@@ -52,10 +72,15 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
     workspace.start();
   }
   const external = Object.freeze({
+    formMakerSession: externalAdapters.formMakerSession || formMakerSession,
     async createApplicationForm({ room } = {}) {
       if (typeof externalAdapters.createApplicationForm === 'function') return externalAdapters.createApplicationForm({ room, roomId, transport, crypto });
-      return createApplicationFormHref({ baseHref: APPLICATION_FORM_PORTAL, roomId, room, transport, cryptoApi: crypto, now: () => transport?.clock?.now?.() || Date.now() });
+      return createApplicationFormHref({ baseHref: APPLICATION_FORM_PORTAL, roomId, room, transport, cryptoApi: crypto, now: () => transport?.clock?.now?.() || Date.now(), storage: roomStorage });
     },
+    async prepareApplicationForm({ room } = {}) {
+      return prepareApplicationFormContext({ roomId, room, transport, cryptoApi: crypto, now: () => transport?.clock?.now?.() || Date.now(), storage: roomStorage });
+    },
+    acceptApplicationFormHandoff,
     async handoff(payload) {
       if (typeof externalAdapters.handoff === 'function') return externalAdapters.handoff(payload);
       return workerHandoff(payload);
@@ -124,12 +149,38 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
     }
   }
   async function dispose() { unsubscribe?.(); unsubscribe = null; unsubscribePortal?.(); unsubscribePortal = null; applicantSync.dispose(); sync.dispose(); workspace.dispose(); await transport?.dispose(); }
-  return { roomId, initialView: launch.initialView, handoffToken: launch.handoffToken, store, storage: roomStorage, sync, workspace, projectSetup: { getSnapshot: () => projectSetup, subscribe(listener) { setupListeners.add(listener); return () => setupListeners.delete(listener); } }, history: roomHistory, overviewDraft, routeDraft, routeService, external, createShareUrl: () => createShareUrl(new URL(location.href, launch.href).href), start, dispose };
+  const runtime = { roomId, debugSample, initialView: launch.initialView, get handoffToken() { return handoffCapability.getSnapshot().token; }, handoffCapability, store, storage: roomStorage, sync, workspace, projectSetup: { getSnapshot: () => projectSetup, subscribe(listener) { setupListeners.add(listener); return () => setupListeners.delete(listener); } }, history: roomHistory, overviewDraft, routeDraft, routeService, external, createShareUrl: () => createShareUrl(new URL(location.href, launch.href).href), start, dispose };
+  return runtime;
 }
 
 export async function createRuntime(options, env = import.meta.env || {}) {
+  const requestedUrl = new URL(options.location.href);
+  if (requestedUrl.searchParams.get('debugSample') === 'all-tools') {
+    const idKey = 'sanpo-debug-sample:all-tools:room:v1';
+    let roomId = '';
+    try { roomId = options.storage.getItem(idKey) || ''; } catch {}
+    if (!/^[A-Z0-9_-]{12,80}$/.test(roomId)) {
+      roomId = `DEBUG-${options.crypto.randomUUID().replaceAll('-', '').slice(0, 16).toUpperCase()}`;
+      try { options.storage.setItem(idKey, roomId); } catch {}
+    }
+    requestedUrl.searchParams.set('room', roomId);
+    options.history.replaceState(options.history.state || null, '', requestedUrl);
+    const namespace = `sanpo-debug-sample:all-tools:v1:${roomId}:`;
+    const isolatedStorage = {
+      getItem(key) { try { return window.sessionStorage.getItem(namespace + key); } catch { return null; } },
+      setItem(key, value) { window.sessionStorage.setItem(namespace + key, value); },
+      removeItem(key) { try { window.sessionStorage.removeItem(namespace + key); } catch {} },
+    };
+    try { isolatedStorage.setItem(workspaceCacheKey(roomId), JSON.stringify(createTemplateWorkspace({ templateId: 'circle-mountain', now: Date.now() }))); } catch {}
+    const runtime = createLocalRuntime({ ...options, location: { href: requestedUrl.href }, storage: isolatedStorage, transport: null, routeService: null, externalAdapters: {}, debugSample: true });
+    if (!runtime.store.getSnapshot().roomName) {
+      const project = createProjectDomain({ getRoom: runtime.store.getSnapshot, settlement: runtime.store.domain.settlement });
+      runtime.store.command('restore', { value: createDebugSampleProject({ projectDomain: project, now: Date.now() }), source: 'debug-sample' });
+    }
+    return runtime;
+  }
   if (!env.VITE_REACT_SYNC_MODE || env.VITE_REACT_SYNC_MODE === 'local') return createLocalRuntime(options);
-  const url = new URL(options.location.href);
+  const url = requestedUrl;
   if (!url.searchParams.get('room')) {
     url.searchParams.set('room', options.crypto.randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase());
     options.history.replaceState(null, '', url);
@@ -151,5 +202,13 @@ export async function createRuntime(options, env = import.meta.env || {}) {
     stagingProjectId: env.VITE_REACT_STAGING_PROJECT_ID,
     production: env.VITE_REACT_SYNC_MODE === 'production',
   });
-  return createLocalRuntime({ ...options, transport, legacyLoadWrites: env.VITE_REACT_LEGACY_LOAD_WRITES !== 'false' });
+  const formMakerSession = env.VITE_REACT_SYNC_MODE === 'production'
+    ? await createProductionFormMakerSession(options.storage)
+    : null;
+  return createLocalRuntime({ ...options, transport, formMakerSession, legacyLoadWrites: env.VITE_REACT_LEGACY_LOAD_WRITES !== 'false' });
+}
+
+async function createProductionFormMakerSession(storage) {
+  const { createFormMakerSession, FORM_MAKER_FIREBASE_CONFIG } = await import('@sanpokai/form-maker-workspace');
+  return createFormMakerSession({ config: FORM_MAKER_FIREBASE_CONFIG, storage });
 }

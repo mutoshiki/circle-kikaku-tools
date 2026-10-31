@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Button, Checkbox, ContainedList, ContainedListItem, IconButton, Search, Select, SelectItem, Tag, OverflowMenu, OverflowMenuItem, Modal } from '@carbon/react';
 import { Add, SettingsAdjust } from '@carbon/icons-react';
 import ParticipantEditor from './ParticipantEditor.jsx';
@@ -26,6 +26,7 @@ function keepConfirmationTabWithinDialog(event) {
 }
 
 export default function Participants({ runtime, room, onNotice, onOpenCountOnlySettlement, openRegistrationRequestId = null, onRegistrationRequestHandled, participantStartRef, roomStatus }) {
+  const handoffToken = useSyncExternalStore(runtime.handoffCapability?.subscribe || (() => () => {}), () => runtime.handoffCapability?.getSnapshot().token ?? runtime.handoffToken ?? '');
   const isMobile = useMediaQuery('(max-width: 671px)');
   const [search, setSearch] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -188,7 +189,7 @@ export default function Participants({ runtime, room, onNotice, onOpenCountOnlyS
       <h2 id="participants-post-confirm-title">参加者確定後</h2>
       <div className="participants-post-confirm__actions">
         <div className="participants-post-confirm__item"><div><h3>参加者発表</h3></div><Button kind="ghost" onClick={() => setToolModal('guidance')}>発表文を作成</Button></div>
-        <div className="participants-post-confirm__item"><div><h3>学務書類用CSV</h3><p>確定した参加者をCSVで出力します。</p>{!runtime.handoffToken && <p className="participants-post-confirm__reason">フォームメーカーの作成結果から「企画ツールを開く」を選んでください。</p>}</div><Button kind="ghost" disabled={!runtime.handoffToken} onClick={() => setToolModal('export')}>学務書類用CSVを作成</Button></div>
+        <div className="participants-post-confirm__item"><div><h3>学務書類用CSV</h3><p>確定した参加者をCSVで出力します。</p>{!handoffToken && <p className="participants-post-confirm__reason">フォームメーカーの作成結果から「企画ツールを開く」を選んでください。</p>}</div><Button kind="ghost" disabled={!handoffToken} onClick={() => setToolModal('export')}>学務書類用CSVを作成</Button></div>
       </div>
     </section>}
     </>}

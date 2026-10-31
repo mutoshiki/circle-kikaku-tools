@@ -8,6 +8,10 @@
 body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; }
 * { box-sizing: border-box; }
 .application { min-height: 100dvh; color: var(--cds-text-primary); background: var(--cds-background); }
+.debug-sample-banner { display: flex; align-items: center; justify-content: space-between; gap: layout.$spacing-05; margin-block-end: layout.$spacing-05; padding: layout.$spacing-04 layout.$spacing-05; border-inline-start: 3px solid var(--cds-support-info); background: var(--cds-layer-02); }
+.debug-sample-banner > div { display: grid; gap: layout.$spacing-02; }
+.debug-sample-banner span { @include carbon-type.type-style('body-compact-01'); color: var(--cds-text-secondary); }
+@media (max-width: 671px) { .debug-sample-banner { align-items: flex-start; flex-direction: column; } }
 .app-header-theme { position: relative; z-index: 8000; }
 .app-header.cds--header { position: relative; }
 .main-surface { position: relative; min-height: calc(100dvh - 3rem); color: var(--cds-text-primary); background: var(--cds-background); }
@@ -417,6 +421,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .project-tools-pinned li { padding-block: var(--cds-spacing-02, .25rem); }
 .project-tool-panel,
 .external-tool-workspace { display: grid; gap: var(--cds-spacing-05, 1rem); }
+.project-tools-panel [hidden] { display: none !important; }
 .project-tool-panel > .cds--btn,
 .external-tool-workspace > .cds--btn { justify-self: start; }
 @media (max-width: 671px) {
