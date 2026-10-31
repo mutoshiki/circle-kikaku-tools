@@ -1,5 +1,39 @@
 import { test, expect } from '@playwright/test';
 
+test('shared section heading and spacing foundation keep semantic roles', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/?room=UI-FOUNDATION-HEADING&view=tools');
+  await page.getByRole('tab', { name: 'ツール', exact: true }).click();
+
+  const app = page.locator('.application');
+  await expect(app).toBeVisible();
+  await expect.poll(() => app.evaluate(element => getComputedStyle(element).getPropertyValue('--sanpo-ui-section-gap').trim())).toBe('2rem');
+
+  const heading = page.locator('.project-tools-workspace .ui-section-heading');
+  await expect(heading.getByRole('heading', { name: 'ツール', exact: true, level: 2 })).toBeVisible();
+  await expect(heading.getByText('使うツールと、タブに表示するツールを選びます。', { exact: true })).toBeVisible();
+  await expect(heading).toHaveCSS('display', 'flex');
+  await expect(heading.getByRole('heading')).toHaveCSS('font-size', '16px');
+  await expect(page.getByRole('heading', { name: '利用するツール', exact: true })).toHaveCSS('font-size', '14px');
+});
+
+test('project entry headings share the action layout without changing page-title hierarchy', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+
+  const entryHeading = page.locator('.project-entry-heading');
+  await expect(entryHeading).toHaveClass(/ui-section-heading/);
+  await expect(entryHeading.getByRole('heading', { name: '企画一覧', level: 1 })).toBeVisible();
+  await expect(entryHeading.getByRole('link', { name: '新しい企画を作成' })).toBeVisible();
+  await expect(entryHeading).toHaveCSS('display', 'flex');
+  await expect(entryHeading.getByRole('heading')).toHaveCSS('font-size', '28px');
+
+  await page.goto('/?screen=create');
+  const createHeading = page.locator('.project-entry-heading');
+  await expect(createHeading.getByRole('heading', { name: '新しい企画', level: 1 })).toBeVisible();
+  await expect(createHeading.getByRole('button', { name: '企画一覧へ戻る' })).toBeVisible();
+});
+
 test('all five application panels share one 16px inset', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?room=VISUAL-PANEL-INSET&view=participants');

@@ -37,3 +37,20 @@ Batch reviewed `ProjectToolsWorkspace.jsx` and `settlement/SettlementPaymentRow.
 ## Visual verification policy
 
 See [ui-screen-matrix.md](./ui-screen-matrix.md) for tested and untested states. A test assertion or Carbon MCP result is not treated as a substitute for inspecting the current production build in a browser. Production publication is not implied by this local audit.
+
+## 2026-10-31 full-site audit decisions
+
+The official rules above are guidance, not a requirement to make every component look identical. Current-screen comparisons and the Carbon MCP batch review are recorded in `ui-screen-matrix.md`; the following adoption decisions direct Tasks 2–5.
+
+| Priority | Observed concern | Official guidance | Site decision and owner |
+|---|---|---|---|
+| P1 | Shared page headings, action links, and input groups are spaced differently between shell pages, participant/settlement views, and embedded makers. | Use named type roles and spacing scale to signal hierarchy; type role and spacing role should follow content purpose. | Adopt shared heading/action/input-group primitives in Circle. Do not refactor every existing selector or force the same density onto allocation rows. Task 2–3. |
+| P1 | Modal header/body/footer patterns and long-content behavior are implemented across a broad component set. | Modal focus order and keyboard handling must match the decision and destructive-action context; keep focus in the modal and return it on close. | Retain Carbon modal contracts. Align only app-owned spacing and scroll ownership; test each modal family at narrow and desktop widths. Task 3/6. |
+| P2 | Vehicle payment summary, expense editor, and disclosure have a specific, already tested hierarchy. | Productive screens favor role-based type hierarchy and consistent spacing. | Keep settlement monetary hierarchy, split/club meaning, and disclosure behavior. Normalize repeated vehicle row rhythm only. Task 3. |
+| P2 | Dense allocation rows have local exceptions (role chips, grade, fixed status, overflow menu). | Align related metadata and leave space for controls; responsive content may wrap when necessary. | Preserve density and pin/driver roles. Adjust only verified collisions/wrapping. Do not increase all rows or replace the overflow menu. Task 3. |
+| P2 | Embedded package styles are maintained in separate repos and can leak if styling is global. | Component styles should remain scoped to their component contract. | Add embedded-root-only presentation in each package; preserve standalone headers, job lifecycle, auto-draft and document output. Tasks 4–5. |
+| P3 | Small spacing differences across independent sections and secondary actions are not consistently tokenized. | Carbon spacing uses a defined scale. | Introduce fallback-capable CSS custom properties for shared gaps, but do not rewrite purposeful values or normalize editor/document-specific layout. Task 2. |
+
+### MCP audit interpretation
+
+Carbon MCP searched the current documentation for productive typography, spacing scale, modal focus handling, and tab keyboard interaction, then audited the installed React source files `ProjectToolsWorkspace.jsx`, `SettlementPaymentRow.jsx`, `Participants.jsx`, `Allocation.jsx`, and `styles.scss`. Its batch reported 120 findings. This is a screening count, not 120 confirmed defects. Several categories are known false positives or require code/DOM review: custom settlement `renderToggle` accordion composition, dynamic modal sizes, inherited/default Carbon Button sizes, grid structures that represent data columns, and the `:focus:not(:focus-visible)` outline rule. Other findings are candidates only when a concrete visual or keyboard issue is reproduced. No automatic bulk token replacement is authorized by the audit.

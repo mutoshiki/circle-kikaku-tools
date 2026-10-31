@@ -1,0 +1,49 @@
+@use '@carbon/layout' as layout;
+@use '@carbon/type' as carbon-type;
+
+.application {
+  --sanpo-ui-page-inset: #{layout.$spacing-05};
+  --sanpo-ui-field-gap: #{layout.$spacing-05};
+  --sanpo-ui-group-gap: #{layout.$spacing-06};
+  --sanpo-ui-section-gap: #{layout.$spacing-07};
+}
+
+.ui-section-heading {
+  display: flex;
+  min-inline-size: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sanpo-ui-field-gap, #{layout.$spacing-05});
+}
+
+.ui-section-heading__copy {
+  min-inline-size: 0;
+  flex: 1 1 auto;
+}
+
+.ui-section-heading__title {
+  @include carbon-type.type-style('heading-02');
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ui-section-heading__description {
+  @include carbon-type.type-style('body-compact-01');
+  margin: layout.$spacing-02 0 0;
+  color: var(--cds-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.ui-section-heading__actions {
+  display: flex;
+  min-inline-size: 0;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: layout.$spacing-03;
+}
+
+@media (max-width: 671px) {
+  .ui-section-heading { align-items: flex-start; }
+}

@@ -64,6 +64,20 @@ When a UI change touches a modal, keep a review record that identifies the rende
 | Example: Settlement / collection | Unpaid filter, one row checked | 393 × 852 | Dark | Tab, Space | Pass / Fail / Not run | Test name, screenshot, or computed values | State, browser, or device constraint |
 | Settlement / collection | Opens with `すべて` selected; close restores focus to `集金を記録` | 1280 × 900 | Light | Pointer open/close; focus return observed | Pass | In-app side-browser DOM snapshot; `visual-consistency.spec.js` covers filter and close. Screenshot appeared inline in the work conversation and was not saved as a local file. | Modal keyboard traversal and screen reader were not exercised. |
 
+### 2026-10-31 sitewide consistency implementation review
+
+| Screen / modal | State | Width × height | Theme | Keyboard | Result | Evidence | Reason if unverified |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Form Maker inline | Synthetic filled inputs, edit-ready, local-only save action | 1280 × 720 | Light | Pointer inspection; no form submit | Pass | Final local preview Side browser; `project-workspace.spec.js` all-tools case | Save action was not triggered manually; unit/browser tests cover local save/restore |
+| Form Maker inline | Filled inputs, narrow layout, no page overflow | 390 × 844 | Dark | Menu theme switch; no form submit | Pass | Side-browser screenshot and `documentElement.scrollWidth` | Physical phone and screen reader not tested |
+| Settlement | Three vehicle totals, `割勘から` summary, disclosure affordances | 1280 × 900 | Dark | Pointer review | Pass | Final local preview Side browser; settlement browser specs | This is a synthetic project, not real money data |
+| Settlement / vehicle expense | Open editor for first synthetic vehicle; cancel returns to workspace | 521px panel | Dark | Pointer open/cancel | Pass | Side-browser interaction; `settlement.spec.js` editor and focus cases | Not repeated manually in light theme |
+| Settlement / settings | Settings wizard open and usable | 521px panel | Dark | Pointer inspection | Pass | Side-browser interaction; `settlement-entry-mode.spec.js` and `settlement.spec.js` | Validation/save branches rely on automated tests |
+| Settlement / collection | `すべて` selected by default; rows and excluded-driver state visible | 521px panel | Dark | Pointer open/close | Pass | Side-browser interaction; `settlement.spec.js` filter, focus, toast cases | No actual collection recorded in the manually inspected sample |
+| All tool tabs | All eight tabs and always-available Tools tab present with synthetic sample | 1280 × 900 | Dark | Tab selection by pointer; automation checks keyboard paths | Pass | Side-browser all-tools sample; final 524-case matrix (one allocation case passed on isolated rerun) | Not every tool state was manually opened after final build |
+
+Final matrix: 528 cases across Chromium/WebKit desktop/mobile; 526 passed, 2 skipped, 0 failed. The skipped cases are the explicit WebKit viewport-resize geometry skip in `modal-layout.spec.js`; the geometry assertion runs in Chromium. Modal accessibility, focus return, scroll, validation, and keyboard flows are otherwise covered by existing specs. Screen readers, physical devices, all modal states in both themes by manual interaction, external Form Maker create/submit, OCR/API, and printed PDF remain unverified.
+
 Include at minimum the following inventory when the change surface includes modals. Add repeated rows for materially different states or viewport/theme conditions; do not imply that one row covers every state.
 
 | Screen / modal | States to consider |
@@ -80,6 +94,20 @@ Include at minimum the following inventory when the change surface includes moda
 | Project tools | Overview, history, guidance, export, bug report |
 
 For each entry state the actual viewport, color theme, keyboard actions, observed result, and evidence path or test name. Mark browser zoom, physical-device behavior, screen-reader behavior, or unavailable UI routes as unverified when they were not exercised. Keep synthetic-room and local-only-data constraints explicit.
+
+### 2026-10-31 cross-site typography and spacing audit
+
+The rendered audit flow was exercised in Chromium at 390×844 and 1440×1000, and the current `@carbon/react` 1.115.0 installation plus Carbon MCP documentation and code audit were reviewed. Existing screen-specific tests remain the evidence for 1280px, WebKit, dark mode, 320px, and 200% cases; this run did not manually exercise all those combinations. Detailed screen-to-owner decisions are in `ui-screen-matrix.md`.
+
+| Finding | Current role / evidence | Implementation disposition |
+|---|---|---|
+| Shared section heading and action rows do not share one layout primitive. | Component structures vary across the participants page, tools manager, and settlement sections; type roles themselves are mostly intentionally distinct. | Add a small stateless SectionHeading and spacing variables in Task 2, then adopt only on semantically matching sections. Keep project-title, vehicle, amount, and tab roles distinct. |
+| Participant, allocation and settlement group spacing differs in rhythm. | Screenshots and DOM inspection show whitespace varies by owner; allocation person rows are deliberately denser than monetary details. | Reuse Carbon spacing values for page/field/group/section boundaries. Preserve dense row-specific spacing unless the mobile or long-label geometry fails (Tasks 2–3). |
+| Modal owner composition and scroll handling are not identical across dialogs. | Modal list spans Carbon `Modal`, `ComposedModal`, and custom step content. Carbon MCP reports some dynamic props/composition as warnings without following runtime conditions. | Verify installed prop types and rendered dialog before editing. Scope shared header/body/footer adjustments to app-owned elements; retain keyboard/focus/validation behavior (Tasks 3–6). |
+| Embedded maker workspaces have separate CSS and lifecycle boundaries. | Form Maker and Mountain Plan load as package workspaces under `ProjectToolsWorkspace`; each also has a standalone route/build. | Use an embedded-root modifier and fallback shared spacing vars. Do not alter worker state, autosave, form creation, or PDF/print units (Tasks 4–5). |
+| MCP spacing findings are mixed. | The batch returned arbitrary pixel/rem declarations, responsive breakpoints, `outline:none` patterns, grid usage, dynamic modal-size, Button default-size and custom Accordion composition warnings. | Treat the 120 findings as a triage list. Confirm a real contract or rendered defect before changing any declaration; no bulk token replacement (Tasks 2–3). |
+
+Manual limits for this audit: the one-off audit flow captured key reachable states in both viewport classes but is not proof that every modal state was opened. Screen-reader, physical-device, and manual browser zoom behavior remain unverified. Task 6 must record changed modal families individually and rerun relevant Chromium/WebKit tests against the final source.
 
 For page headings, distinguish the first-use empty state (`heading-03` when it introduces the whole workflow) from a regular no-results or empty subsection state (`heading-02`). Use the role that matches the hierarchy and scope of the rendered state rather than styling every empty heading identically.
 

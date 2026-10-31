@@ -7,6 +7,7 @@ import {
 import { createTemplateWorkspace, resolveInitialTool, TEMPLATE_REGISTRY, TOOL_REGISTRY } from '../services/project-workspace.js';
 import { creationIntentKey, resolveEntryScreen } from '../services/project-entry.js';
 import { readPortalProjects } from '../services/portal-history.js';
+import SectionHeading from './ui/SectionHeading.jsx';
 
 const templateTools = new Map(Object.values(TEMPLATE_REGISTRY).map(template => [template.id, template.tools]));
 const toolLabels = new Map(TOOL_REGISTRY.map(tool => [tool.id, tool.label]));
@@ -104,7 +105,7 @@ export default function ProjectEntry({ storage = window.localStorage, crypto = w
       <Grid fullWidth>
         <Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}>
           {mode === 'create' ? <section className="project-entry-panel" aria-labelledby="project-entry-heading">
-            <div className="project-entry-heading"><Button kind="ghost" size="sm" onClick={() => window.location.assign(new URL(import.meta.env.BASE_URL, window.location.href))}>企画一覧へ戻る</Button><h1 id="project-entry-heading">新しい企画</h1></div>
+            <SectionHeading as="h1" className="project-entry-heading" id="project-entry-heading" title="新しい企画" actions={<Button kind="ghost" size="sm" onClick={() => window.location.assign(new URL(import.meta.env.BASE_URL, window.location.href))}>企画一覧へ戻る</Button>} />
             <form className="project-create-form" onSubmit={createProject}>
               <TextInput id="new-project-name" labelText="企画名（任意）" placeholder="例：秋名山登山企画" value={roomName} onChange={event => setRoomName(event.target.value)} />
               <RadioButtonGroup legendText="テンプレート" name="project-template" valueSelected={templateId} onChange={value => setTemplateId(String(value))} orientation="vertical">
@@ -119,7 +120,7 @@ export default function ProjectEntry({ storage = window.localStorage, crypto = w
               <Button type="submit" kind="primary">企画を作成</Button>
             </form>
           </section> : <section className="project-entry-panel" aria-labelledby="project-entry-heading">
-            <div className="project-entry-heading"><h1 id="project-entry-heading">企画一覧</h1><Button kind="primary" href={createUrl()} target="_blank" rel="noopener">新しい企画を作成</Button></div>
+            <SectionHeading as="h1" className="project-entry-heading" id="project-entry-heading" title="企画一覧" actions={<Button kind="primary" href={createUrl()} target="_blank" rel="noopener">新しい企画を作成</Button>} />
             <p className="project-entry-local-label">この一覧は、このブラウザーで開いた企画の履歴です。他の端末とは共有されません。</p>
             {index.status === 'empty' && <div className="project-list-empty"><h2>最近開いた企画はありません</h2><p>共有リンクから企画を開くと、ここに追加されます。</p></div>}
             {index.status === 'unavailable' && <InlineNotification kind="error" title="企画履歴を読み取れません" subtitle="共有リンクから企画を開いてください。" hideCloseButton />}

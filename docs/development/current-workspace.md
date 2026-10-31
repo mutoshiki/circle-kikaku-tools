@@ -5,19 +5,20 @@
 ## 公開基準
 
 - 公開URL: <https://mutoshiki.github.io/circle-kikaku-tools/>
-- 確認日時: 2026-10-29（PR #116のProduction Release後、公開manifestを再取得）
+- 確認日時: 2026-10-31（公開manifestを再取得）
 - manifest: <https://mutoshiki.github.io/circle-kikaku-tools/release-build.json>
-- 公開source SHA: `eb5704634f606039bd56899b5801b3391d0f5a9f`
-- 公開asset digest: `7a4cb20e143f014e29545068372fb0ef27128527eb8a6bc141d3f2c032de0b27`
+- 公開source SHA: `1936ea8dc7ff260e348946c25f295d8ce6563577`
+- 公開asset digest: `d5ce5c96b0a97b0031e180acee3170ce395ba6032ee0f65dbaaa9049ea43c046`
 - 公開サイトはReactのルートビルド。CIで`apps/react/dist`からPagesルートを構成する。
-- 公開manifestはPR #116のProduction Release後に再取得し、公開source SHA・asset digestを確認済み。
+- 公開manifestからsource SHA・asset digestを再取得し、確認済み。
 
 ## 作業元
 
-- 専用worktree: `C:\Users\toshi\.codex\worktrees\site-type-spacing\circle-kikaku-tools`
-- branch: `codex/settlement-detail-refinement`
-- 起点SHA: `b05ebf7959a409f400d050aef19c032b7c6fd001`（2026-10-20時点の公開manifest SHAと一致する`origin/main`から開始）
-- この作業の主なReact owner: `apps/react/src/styles.scss`、`apps/react/src/App.jsx`、`apps/react/src/components/SettlementSettingsModal.jsx`
+- 専用worktree: `C:\Users\toshi\.codex\worktrees\project-management-integration\circle-kikaku-tools`
+- branch: `codex/sitewide-ui-ux-consistency`
+- 起点SHA: `1936ea8dc7ff260e348946c25f295d8ce6563577`（2026-10-31に確認した公開manifest SHAと一致）
+- この作業の主なReact owner: `apps/react/src/styles.scss`、`apps/react/src/components/ui/SectionHeading.jsx`、`ProjectEntry.jsx`、`Participants.jsx`、`ProjectToolsWorkspace.jsx`、`services/form-maker-workspace.js`
+- 組込メーカー: Form Maker 1.0.7、Mountain Plan 1.0.9。ソースPRとPages production smokeは成功済み。
 - 文字・余白の共通契約: `docs/design/react-typography-spacing.md`
 
 ## ブラウザーの使い分け
@@ -26,7 +27,7 @@
 |---|---|---|
 | 実際の公開版を見る | `https://mutoshiki.github.io/circle-kikaku-tools/` | 読み取り専用の見た目参照。ライブの企画データは変更しない。版は毎回公開manifestで確認する。 |
 | 以前から開かれている参照タブ | `http://127.0.0.1:4194/?room=PREVIEW-ORIGIN-VERIFY-20261011&view=seisan` | ユーザー指定のタブとして維持する。配信プロセス・build SHAを特定できるまでは、公開版や今回のpreviewと同一とは扱わない。 |
-| このworktreeの変更後preview | `http://127.0.0.1:4281/`（検証用port） | `apps/react/dist`をVite previewで配信。サンプル操作はローカル保存だけを使う。Firebase/Auth/本番ルームには接続しない。 |
+| このworktreeの変更後preview | `http://127.0.0.1:4291/?debugSample=all-tools&view=seisan&room=DEBUG-AB5CF31E9B9444DF`（検証用port） | `apps/react/dist`をVite previewで配信。全ツールの架空サンプルはこのoriginのlocalStorageのみ。Firebase/Auth/本番ルーム・実フォーム作成には接続しない。 |
 
 2026-10-20 settlement detail refinement: preview URL `http://127.0.0.1:4281/?room=SETTLEMENT-DETAIL-20261020&view=seisan`. The in-app side-browser room uses only this preview origin's localStorage. A boundary example is currently stored there (per-person collection `¥1,234,567`, one detail `¥14,803,013`, long Japanese expense name); it is synthetic and does not affect the public site or another browser origin. Multiple driver names in the live side-browser view were not exercised.
 
@@ -37,17 +38,17 @@
 作業開始時に公開manifestを取得し、`sourceSha`を基準値にします。公開版が変わったらこの対応表を更新し、既存worktreeの基準を無言で入れ替えません。
 
 ```powershell
-cd C:\Users\toshi\.codex\worktrees\site-type-spacing\circle-kikaku-tools\apps\react
+cd C:\Users\toshi\.codex\worktrees\project-management-integration\circle-kikaku-tools\apps\react
 npm ci
-npm run build:preview -- --baseline-source-sha b05ebf7959a409f400d050aef19c032b7c6fd001
-node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4281 --strictPort
+npm run build:preview -- --baseline-source-sha 1936ea8dc7ff260e348946c25f295d8ce6563577
+node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4291 --strictPort
 ```
 
 別のPowerShellで、ブラウザーで開く前に照合します。
 
 ```powershell
-cd C:\Users\toshi\.codex\worktrees\site-type-spacing\circle-kikaku-tools\apps\react
-npm run check:preview -- --url http://127.0.0.1:4281/ --expected-source-sha b05ebf7959a409f400d050aef19c032b7c6fd001
+cd C:\Users\toshi\.codex\worktrees\project-management-integration\circle-kikaku-tools\apps\react
+npm run check:preview -- --url http://127.0.0.1:4291/ --expected-source-sha 1936ea8dc7ff260e348946c25f295d8ce6563577
 ```
 
 照合はmanifest基準SHA、worktreeのHEADとsource fingerprint、build metadata、配信中のHTMLとJS/CSSを確認する。ソースがbuild後に変わった場合、別worktree由来の場合、SHAやmetadataが違う場合は失敗する。成功は「このローカルpreviewが指定SHAを祖先に持つ現在のworktreeからbuildされ、ページ資産が一致する」ことを示す。公開manifestとpreviewを毎回取り直す前提なので、成功結果を次回の版確認に流用しない。
@@ -57,6 +58,7 @@ npm run check:preview -- --url http://127.0.0.1:4281/ --expected-source-sha b05e
 ### データ接続
 
 - `build:preview`は`VITE_REACT_SYNC_MODE=local`（未指定時もlocal）だけを許可し、Firebase設定値がある場合は停止する。
+- Current sample room is `DEBUG-AB5CF31E9B9444DF` with `debugSample=all-tools`; data is synthetic and isolated to this origin. The unnecessary “初期状態に戻す” menu action has been removed.
 - 検証用room: `PREVIEW-ORIGIN-VERIFY-20261011`。このroomの内容はこのブラウザoriginのlocalStorageにのみ保存する。
 - 公開版の画面確認は読み取り専用にする。`148A7906`をlocal previewへ持ち込まず、検証用roomにsample dataを入れる。
 
@@ -94,3 +96,11 @@ npm run check:preview -- --url http://127.0.0.1:4281/ --expected-source-sha b05e
 - Cause: Carbon positions `ContainedListItem` actions at the row edge. With the pin as a second direct action, the grade column crossed the pin button at 1280px.
 - Fix: move pin/unpin into the participant's overflow menu. Show a gray `固定` Tag beside the name when pinned, using the same Carbon style as the driver Tag. This removes the frequent row-end icon and retains visible fixed status. No allocation or persistence semantics changed.
 - Verification: geometry and menu interaction checks passed 8/8 in Chromium and WebKit at desktop and mobile. They assert a 4px gap between grade and the remaining overflow action at 1280px in light/dark, 390px and 320px, check no horizontal overflow at 320px, and exercise fix/unfix through the menu. The updated UI was also inspected in the in-app side browser.
+
+### 2026-10-31 usable all-tools sample
+
+- Worktree: `C:\Users\toshi\.codex\worktrees\project-management-integration\circle-kikaku-tools`, branch `codex/hide-debug-sample-banner`; public baseline `1936ea8dc7ff260e348946c25f295d8ce6563577`.
+- Preview: `http://127.0.0.1:4291/?debugSample=all-tools&view=application-form&room=DEBUG-AB5CF31E9B9444DF`. It uses isolated local storage. It does not connect to Firebase, Apps Script, or Google Forms.
+- The fixture populates applicants/participants, 3 vehicles with settlement details, 3 teams with one unassigned participant, CSV preview, Form Maker editable inputs, and Mountain Plan draft. Form Maker edits persist locally across tool tabs. The Mountain Plan fixture automatically loads a complete sample draft; its event date is derived from the linked project data.
+- Verification: package tests 10/10, Form Maker build passed, Circle unit tests 179/179, focused sample unit tests 5/5, and the all-tools browser flow 4/4 in Chromium/WebKit desktop/mobile. Browser checks cover edits, save/restore, fee expansion, CSV preview, draft autosave, and zero external writes. `build:preview` and `check:preview` passed against the public baseline.
+- Only the sample-data milestone is complete. The broader sitewide screen/modal audit and UI consistency implementation remain pending; no production release was performed.

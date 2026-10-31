@@ -10,7 +10,6 @@ import Settlement from './components/Settlement.jsx';
 import SettlementSettingsModal from './components/SettlementSettingsModal.jsx';
 import { BugModal, HistoryModal, OverviewModal } from './components/ProjectTools.jsx';
 import { createProjectDomain } from './services/project-domain.js';
-import { createDebugSampleProject } from './services/debug-sample-project.js';
 import { beginSettlementEdit } from './components/settlement/edit.js';
 import { ToolManager, ExternalToolWorkspace } from './components/ProjectToolsWorkspace.jsx';
 import { resolveWorkspaceSelection, requestedToolFromView, workspaceTabs } from './services/project-workspace-routing.js';
@@ -110,13 +109,6 @@ export default function App({ runtime }) {
     setGlobalModal('');
     showNotice('フォーム連携のサンプルに置き換えました。');
   }
-  function resetDebugSample() {
-    if (!runtime.debugSample) return;
-    const project = createProjectDomain({ getRoom: runtime.store.getSnapshot, settlement: runtime.store.domain.settlement });
-    runtime.store.command('restore', { value: createDebugSampleProject({ projectDomain: project, now: Date.now() }), source: 'debug-sample' });
-    window.dispatchEvent(new CustomEvent('sanpo:debug-sample-reset', { detail: { roomId: runtime.roomId } }));
-    showNotice('デバッグ用サンプルを初期状態に戻しました。');
-  }
   useEffect(() => {
     const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
     const updateSystemTheme = event => setSystemTheme(event.matches ? 'g100' : 'g10');
@@ -213,7 +205,7 @@ export default function App({ runtime }) {
   }
   return <Theme theme={theme} className="application">
     <Theme theme="g100" className="app-header-theme">
-      <AppHeader projectName={room.roomName} theme={theme} themePreference={themePreference} onShare={share} onRename={name => runtime.store.command('rename', { name })} onOpenUtility={openGlobalModal} onToggleTheme={toggleTheme} onUseSystemTheme={useSystemTheme} debugSample={runtime.debugSample} onResetDebugSample={resetDebugSample} />
+      <AppHeader projectName={room.roomName} theme={theme} themePreference={themePreference} onShare={share} onRename={name => runtime.store.command('rename', { name })} onOpenUtility={openGlobalModal} onToggleTheme={toggleTheme} onUseSystemTheme={useSystemTheme} debugSample={runtime.debugSample} />
     </Theme>
     <Theme theme={contentTheme} className="main-surface" data-floating-menu-container>
     <main id="main-content" tabIndex={-1} aria-labelledby="project-heading">

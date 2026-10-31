@@ -95,6 +95,7 @@ test('custom project can have no pinned tools and opens optional tools within To
   await expect(projectPage.getByRole('status').filter({ hasText: 'ツール設定を保存しました' })).toBeVisible();
   await projectPage.getByRole('button', { name: '開く' }).click();
   await expect(projectPage.locator('.form-maker-page')).toBeVisible();
+  await expect(projectPage.locator('.form-maker-page')).toHaveClass(/form-maker-page--embedded/);
   await expect(projectPage.getByText('「カスタム企画」に連携する応募フォームを作成します。')).toBeVisible();
   await expect(projectPage.getByRole('button', { name: /フォームを作成/ })).toBeVisible();
 
@@ -152,19 +153,63 @@ test('all-tools debug sample is isolated and usable across project tools', async
   });
   const sampleContact = JSON.stringify({ plannerName: 'debug contact sentinel' });
   await page.addInitScript(value => { localStorage.setItem('tozanContactsV2', value); window.TOZAN_AI_ENDPOINT = 'https://debug-ai.example.invalid/analyze'; }, sampleContact);
+  await page.addInitScript(() => {
+    for (let index = sessionStorage.length - 1; index >= 0; index -= 1) {
+      const key = sessionStorage.key(index);
+      if (key?.startsWith('sanpo-debug-sample:all-tools:v2:')) sessionStorage.removeItem(key);
+    }
+  });
   await page.goto('/?debugSample=all-tools&view=participants');
   await expect(page.getByRole('heading', { name: 'デバッグ用サンプル企画' })).toBeVisible();
   await expect(page.locator('.debug-sample-banner')).toHaveCount(0);
   await expect(page.getByText('架空データです。外部には送信されません。')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '初期状態に戻す' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'その他の操作' }).click();
+  await expect(page.getByRole('menuitem', { name: 'サンプルを初期状態に戻す' })).toHaveCount(0);
+  await page.keyboard.press('Escape');
   for (const label of ['応募フォーム', '学務書類', '登山計画書', '参加者', '車割', '班割', '精算', 'ツール']) {
     await expect(page.getByRole('tab', { name: label })).toBeVisible();
   }
   await page.getByRole('button', { name: '参加者を選び直す' }).click();
   await expect(page.getByText('応募者01', { exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: '車割' }).click();
+  for (const carName of ['A車', 'B車', 'C車']) {
+    await expect(page.getByRole('heading', { name: carName, exact: true })).toBeVisible();
+  }
+  await expect(page.getByText('13人・3台')).toBeVisible();
+  await expect(page.getByRole('tabpanel', { name: '車割' }).getByText('参加者01', { exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: '班割' }).click();
+  for (const teamName of ['A班', 'B班', 'C班']) {
+    await expect(page.getByRole('heading', { name: teamName, exact: true })).toBeVisible();
+  }
+  await expect(page.getByRole('paragraph').getByText('未割り当て 1人')).toBeVisible();
+  await expect(page.getByRole('tabpanel', { name: '班割' }).getByText('参加者01', { exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: '精算' }).click();
+  await expect(page.getByRole('heading', { name: '参加者01車' })).toBeVisible();
+  await expect(page.getByText('¥1,900', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /参加者01車.*内訳を見る/ }).click();
+  const samplePayment = page.locator('.settlement-car').filter({ hasText: '参加者01車' });
+  await expect(samplePayment.getByText('ガソリン代', { exact: true })).toBeVisible();
+  await expect(samplePayment.getByText('車出し協力代', { exact: true })).toBeVisible();
+  await expect(samplePayment.getByText('運転手の集金分', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '応募フォーム' }).click();
-  await expect(page.getByText('フォームの作成・送信は行われません。')).toBeVisible();
-  await expect(page.getByRole('button', { name: /フォームを作成/ })).toHaveCount(0);
+  await expect(page.locator('.form-maker-page')).toBeVisible();
+  await expect(page.getByText('この企画には応募フォームが連携済みです')).toHaveCount(0);
+  await expect(page.getByLabel('企画名（必須）')).toHaveValue('デバッグ用サンプル企画');
+  await expect(page.getByLabel('メールアドレス（必須）')).toHaveValue('sample-editor@example.invalid');
+  await expect(page.getByLabel('実施日（任意）')).toHaveValue(/^\d{4}-\d{2}-\d{2}$/);
+  await expect(page.getByLabel('応募締切日（任意）')).toHaveValue(/^\d{4}-\d{2}-\d{2}$/);
+  await expect(page.getByLabel('企画の説明（任意）')).toHaveValue(/集合場所：新宿駅西口/);
+  await expect(page.getByText('作成したGoogleフォームの編集権限を、このアドレスに共有します。')).toHaveCount(0);
+  const sampleSave = page.getByRole('button', { name: '入力内容を保存' });
+  await expect(sampleSave).toBeEnabled();
+  await page.getByLabel('企画の説明（任意）').fill('サンプルの説明を編集しました。');
+  await sampleSave.click();
+  await expect(page.getByText('入力内容をサンプルとして保存しました。')).toBeVisible();
+  await page.getByRole('tab', { name: '参加者' }).click();
+  await page.getByRole('tab', { name: '応募フォーム' }).click();
+  await expect(page.getByLabel('企画の説明（任意）')).toHaveValue('サンプルの説明を編集しました。');
+  await expect(page.getByRole('button', { name: '応募フォームを作成' })).toHaveCount(0);
   await page.getByRole('tab', { name: '学務書類' }).click();
   await page.getByRole('button', { name: 'CSVをプレビュー' }).click();
   const csvPreview = page.getByRole('dialog', { name: 'サンプルCSVプレビュー' });
@@ -200,9 +245,6 @@ test('all-tools debug sample is isolated and usable across project tools', async
   await expect.poll(() => externalWrites).toEqual([]);
   const keys = await page.evaluate(() => Object.keys(localStorage));
   expect(keys.some(key => key.startsWith('sanpo-react:v1:'))).toBe(false);
-  await page.getByRole('button', { name: 'その他の操作' }).click();
-  await page.getByRole('menuitem', { name: 'サンプルを初期状態に戻す' }).click();
-  await expect(page.getByRole('status').filter({ hasText: 'デバッグ用サンプルを初期状態に戻しました。' })).toBeVisible();
 });
 
 test('project history labels whether its timestamp is the last visit or last update', async ({ page }) => {
@@ -229,6 +271,8 @@ test('mountain-plan opens inline without leaving the project tabs', async ({ pag
   const projectPage = await submitProjectCreation(page);
   await projectPage.getByRole('tab', { name: '登山計画書' }).click();
   await expect(projectPage.locator('.mountain-plan-inline')).toBeVisible();
+  await expect(projectPage.locator('.mountain-plan-workspace')).toHaveClass(/mountain-plan-workspace--embedded/);
+  await expect.poll(() => projectPage.getByRole('heading', { name: '基本情報' }).evaluate(element => getComputedStyle(element).fontSize)).toBe('16px');
   await expect(projectPage.getByRole('heading', { name: '基本情報' })).toBeVisible();
   await expect(projectPage.getByRole('link', { name: '登山計画書を作成' })).toHaveCount(0);
   await expect(projectPage.getByRole('tab', { name: 'ツール' })).toBeVisible();
