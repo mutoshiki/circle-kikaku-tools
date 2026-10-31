@@ -149,8 +149,9 @@ test('all-tools debug sample is isolated and usable across project tools', async
   await page.addInitScript(value => { localStorage.setItem('tozanContactsV2', value); window.TOZAN_AI_ENDPOINT = 'https://debug-ai.example.invalid/analyze'; }, sampleContact);
   await page.goto('/?debugSample=all-tools&view=participants');
   await expect(page.getByRole('heading', { name: 'デバッグ用サンプル企画' })).toBeVisible();
-  await expect(page.locator('.debug-sample-banner').filter({ hasText: 'デバッグ用サンプル' })).toBeVisible();
-  await expect(page.getByText('架空データです。外部には送信されません。')).toBeVisible();
+  await expect(page.locator('.debug-sample-banner')).toHaveCount(0);
+  await expect(page.getByText('架空データです。外部には送信されません。')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '初期状態に戻す' })).toHaveCount(0);
   for (const label of ['応募フォーム', '学務書類', '登山計画書', '参加者', '車割', '班割', '精算', 'ツール']) {
     await expect(page.getByRole('tab', { name: label })).toBeVisible();
   }
@@ -194,8 +195,9 @@ test('all-tools debug sample is isolated and usable across project tools', async
   await expect.poll(() => externalWrites).toEqual([]);
   const keys = await page.evaluate(() => Object.keys(localStorage));
   expect(keys.some(key => key.startsWith('sanpo-react:v1:'))).toBe(false);
-  await page.getByRole('button', { name: '初期状態に戻す' }).click();
-  await expect(page.locator('.debug-sample-banner').filter({ hasText: 'デバッグ用サンプル' })).toBeVisible();
+  await page.getByRole('button', { name: 'その他の操作' }).click();
+  await page.getByRole('menuitem', { name: 'サンプルを初期状態に戻す' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'デバッグ用サンプルを初期状態に戻しました。' })).toBeVisible();
 });
 
 test('project history labels whether its timestamp is the last visit or last update', async ({ page }) => {

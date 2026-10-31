@@ -214,11 +214,10 @@ export default function App({ runtime }) {
   }
   return <Theme theme={theme} className="application">
     <Theme theme="g100" className="app-header-theme">
-      <AppHeader theme={theme} themePreference={themePreference} onShare={share} onOpenUtility={openGlobalModal} onToggleTheme={toggleTheme} onUseSystemTheme={useSystemTheme} debugSample={runtime.debugSample} />
+      <AppHeader theme={theme} themePreference={themePreference} onShare={share} onOpenUtility={openGlobalModal} onToggleTheme={toggleTheme} onUseSystemTheme={useSystemTheme} debugSample={runtime.debugSample} onResetDebugSample={resetDebugSample} />
     </Theme>
     <Theme theme={contentTheme} className="main-surface" data-floating-menu-container>
     <main id="main-content" tabIndex={-1} aria-labelledby="project-heading">
-    {runtime.debugSample && <Grid fullWidth className="project-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><div className="debug-sample-banner" role="status"><div><strong>デバッグ用サンプル</strong><span>架空データです。外部には送信されません。</span></div><Button kind="ghost" size="sm" onClick={resetDebugSample}>初期状態に戻す</Button></div></Column></Grid>}
     <Grid fullWidth className="project-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><ProjectIdentity name={room.roomName} syncStatus={syncStatus} onRename={name => runtime.store.command('rename', { name })} onProjectList={() => window.location.assign(new URL(import.meta.env.BASE_URL, window.location.href))} /></Column></Grid>
     <Grid fullWidth className="content-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><div className="main-content">
       {projectSetup.status === 'creating' && <ToastNotification kind="info" title="企画を作成しています" subtitle="利用するツールを設定しています。" timeout={0} lowContrast />}
