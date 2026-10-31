@@ -130,7 +130,7 @@
 - [x] 参加者・車割・班割・精算へ共通の余白基礎を適用し、車/班行の密度と決済額の階層を維持する。不要な太字・二重余白・線は実画面またはDOMで確認できた範囲だけ直す。
 - [x] 既存のCarbon modal順序・スクロール・フォーカス契約を全画面specで再確認。変更なしで要件を満たすdialogは現状維持とし、今回modal markup/操作は改変しない。
 - [x] 文言は表示実態と操作に沿う範囲で点検し、不要だったdebugサンプルの初期化操作だけを削除。説明文の一括置換や内部実装説明の追加はしない。
-- [x] 関係するregistration、participants、allocation、settlement、project-navigation、initial-empty-state、modal-layout、modal-accessibility specを含む528件の最終browser matrixを実行。
+- [x] 関係するregistration、participants、allocation、settlement、project-navigation、initial-empty-state、modal-layout、modal-accessibility specを含む最終browser matrixを実行。最終Circle matrixは524件（521 pass、2既存skip、allocationの単発失敗1件は単独再実行pass）。
 - [x] モーダル結果は画面一覧の実際のviewport/theme/操作とspec evidenceに記録。2件のWebKit geometry testは既知のviewport resize制限でskipしChromiumで実行。画面リーダー、物理端末、全モーダルの手動操作は未実施と明記。
 
 **完了条件:** Task 1のCircle側差分が採用／現状維持理由付きで消化され、既存操作と表示仕様が維持される。
@@ -179,15 +179,15 @@
 ## Task 7: 最終検証・公開（実装の依頼後）
 
 - [x] 関係repoの単体・パッケージ検証後、Circleの単体179/179、対象debug sample 4/4、最終候補browser matrix 524件（521 pass、2 skip、1単発失敗；単独再実行pass）、build、`check:preview`、`git diff --cached --check`を実行。単発失敗はテスト名単位で再実行して解消を確認。
-- [ ] 各メーカーのソース変更を各repoの標準CI・PRで追跡可能にし、Circleで採用するtgzとソースSHAの一致を確認する。単独サイトの公開が必要な変更はそのrepoの公開規則に従う。
-- [ ] CircleのPRのタイトル・説明を最終範囲に合わせ、全体差分を自己レビュー。失敗はテスト名単位でbase/mainと比較し、今回の回帰を修正する。skip・削除・assertion緩和で隠さない。
-- [ ] 標準CIの成功後mergeし、merge後mainの対象SHAの`Release / Readiness`を確認する。
-- [ ] 既存`React Production Release`をdispatchする。メーカーtgz・dependency変更を含むためUI-only扱いを強制せず、既存分類器のcompatibility経路に従い、同じproduction buildをrootへ昇格する。
-- [ ] rootのChromium/WebKit smoke成功、P9A93LMQ cleanup、検証済みrollback artifact保存を確認する。失敗時は既存rollback経路へ従う。
-- [ ] 本番をサイドブラウザで開き、公開manifestと表示を照合する。通常企画は読み取り確認に留める。最終報告は変更点、対象SHA、CI/公開run、確認済み状態、未検証事項、URLを簡潔に記す。
+- [x] Form Maker source PR #26とMountain Plan source PR #22をmerge済み。各source CI／Pages公開／smoke成功を確認し、CircleのtgzはForm Maker 1.0.7／Mountain Plan 1.0.9。
+- [x] Circle PR #125の全required checks成功後merge。Circle merge SHAは`c87d938e7b9a86d16dc1b36720d1650d9061d004`。
+- [x] merge後mainの`React and Legacy CI`と同SHAの`Release / Readiness`成功を確認。
+- [x] 既存`React Production Release` run `41252865163`でcompatibility artifactとReact rootを同じproduction buildから公開。依存変更を受けて互換経路を使用。
+- [x] compatibilityとrootの本番Chromium/WebKit smoke、Firebase/Maps/Places/Routesとlegacy read compatibility、`P9A93LMQ` cleanupを確認。run-scoped build artifactとrollback payloadも保存成功。rollbackは不要。
+- [x] production manifestの`sourceSha`が`c87d938e7b9a86d16dc1b36720d1650d9061d004`、digestが`7e62879f2f70bb231237ff19c6b5c56623c44f8dca4d6447b2073aedebe19616`であることを確認。本番サイドブラウザの架空all-toolsサンプルで8タブ・精算画面の描画も確認。通常企画への書き込みはしていない。
 
 ## 実装順序と完了判定
 
 `Task 0 全ツールの架空データ → Task 1 全画面・全モーダル調査 → Task 2 代表画面と共通基礎 → Task 3 Circle全画面 → Task 4 フォーム → Task 5 登山計画書 → Task 6 全体確認・再発防止 → Task 7 公開`
 
-Task 0–6 are complete. Task 7 remains in progress until Circle's PR, main readiness, production release workflow, P9A93LMQ smoke cleanup, and production browser verification are complete. Full modal pointer walkthrough in every viewport/theme, physical devices, and screen-reader verification remain explicitly unclaimed; existing automated assertions and sampled manual checks are recorded separately.
+Task 0–7 are complete. Full modal pointer walkthrough in every viewport/theme, physical devices, and screen-reader verification remain explicitly unclaimed; existing automated assertions and sampled manual checks are recorded separately.
