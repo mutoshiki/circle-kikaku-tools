@@ -156,7 +156,7 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
 export async function createRuntime(options, env = import.meta.env || {}) {
   const requestedUrl = new URL(options.location.href);
   if (requestedUrl.searchParams.get('debugSample') === 'all-tools') {
-    const idKey = 'sanpo-debug-sample:all-tools:room:v1';
+    const idKey = 'sanpo-debug-sample:all-tools:room:v3';
     let roomId = '';
     try { roomId = options.storage.getItem(idKey) || ''; } catch {}
     if (!/^[A-Z0-9_-]{12,80}$/.test(roomId)) {
@@ -165,15 +165,16 @@ export async function createRuntime(options, env = import.meta.env || {}) {
     }
     requestedUrl.searchParams.set('room', roomId);
     options.history.replaceState(options.history.state || null, '', requestedUrl);
-    const namespace = `sanpo-debug-sample:all-tools:v1:${roomId}:`;
+    const namespace = `sanpo-debug-sample:all-tools:v2:${roomId}:`;
     const isolatedStorage = {
       getItem(key) { try { return window.sessionStorage.getItem(namespace + key); } catch { return null; } },
       setItem(key, value) { window.sessionStorage.setItem(namespace + key, value); },
       removeItem(key) { try { window.sessionStorage.removeItem(namespace + key); } catch {} },
     };
+    const savedSampleRoom = createRoomStorage(isolatedStorage, roomId).read('room', null);
     try { isolatedStorage.setItem(workspaceCacheKey(roomId), JSON.stringify(createTemplateWorkspace({ templateId: 'circle-mountain', now: Date.now() }))); } catch {}
     const runtime = createLocalRuntime({ ...options, location: { href: requestedUrl.href }, storage: isolatedStorage, transport: null, routeService: null, externalAdapters: {}, debugSample: true });
-    if (!runtime.store.getSnapshot().roomName) {
+    if (!savedSampleRoom) {
       const project = createProjectDomain({ getRoom: runtime.store.getSnapshot, settlement: runtime.store.domain.settlement });
       runtime.store.command('restore', { value: createDebugSampleProject({ projectDomain: project, now: Date.now() }), source: 'debug-sample' });
     }

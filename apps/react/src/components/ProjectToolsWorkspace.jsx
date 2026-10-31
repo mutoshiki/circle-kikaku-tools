@@ -1,6 +1,7 @@
 import { lazy, Suspense, useMemo, useState, useSyncExternalStore } from 'react';
 import { Button, Checkbox, InlineLoading, InlineNotification } from '@carbon/react';
 import { ExportModal } from './ProjectTools.jsx';
+import SectionHeading from './ui/SectionHeading.jsx';
 import { movePinnedTool, setToolAvailability, setToolPinned } from '../services/project-workspace-actions.js';
 import { TOOL_REGISTRY } from '../services/project-workspace.js';
 import { createFormMakerWorkspaceProps, loadFormMakerWorkspace } from '../services/form-maker-workspace.js';
@@ -38,7 +39,7 @@ export function ToolManager({ workspaceSnapshot, workspaceSync, openTool, onNoti
 
   return <section className="project-tools-workspace" aria-labelledby="tools-heading">
     {workspaceSnapshot.status === 'error' && <InlineNotification kind="warning" title="ツール設定を読み込めません" subtitle="この企画のツールは変更できません。" hideCloseButton />}
-    <div className="project-tools-workspace__heading"><div><h2 id="tools-heading">ツール</h2><p>使うツールと、タブに表示するツールを選びます。</p></div></div>
+    <SectionHeading className="project-tools-workspace__heading" id="tools-heading" title="ツール" description="使うツールと、タブに表示するツールを選びます。" />
     {message && <InlineNotification kind="warning" title={message} hideCloseButton />}
     {changedRemotely && draftChanged && <InlineNotification kind="warning" title="別の端末で設定が変わりました" subtitle="最新の設定を読み込み、もう一度編集してください。" actions={<Button kind="ghost" size="sm" onClick={resetDraft}>最新の設定を読み込む</Button>} hideCloseButton />}
     <div className="project-tools-manager">
@@ -60,9 +61,8 @@ export function ExternalToolWorkspace({ toolId, runtime, room, onNotice, active 
   const handoffToken = useSyncExternalStore(runtime.handoffCapability?.subscribe || (() => () => {}), () => runtime.handoffCapability?.getSnapshot().token ?? runtime.handoffToken ?? '');
   const [showExport, setShowExport] = useState(false);
   const labels = new Map(tools.map(tool => [tool.id, tool.label]));
-  if (runtime.debugSample && toolId === 'application-form') return <section className="external-tool-workspace"><h2>{labels.get(toolId)}</h2><InlineNotification kind="info" title="応募回答のサンプルを表示しています" subtitle="フォームの作成・送信は行われません。回答の確認と参加者への反映は、参加者タブで試せます。" hideCloseButton /></section>;
   if (toolId === 'application-form') return <>
-    {room.meta?.applicationSync && <InlineNotification kind="success" title="この企画には応募フォームが連携済みです" subtitle="回答は参加者タブで確認できます。フォームメーカーには、このブラウザーで確認できる作成履歴を表示します。" hideCloseButton />}
+    {room.meta?.applicationSync && !runtime.debugSample && <InlineNotification kind="success" title="この企画には応募フォームが連携済みです" subtitle="回答は参加者タブで確認できます。フォームメーカーには、このブラウザーで確認できる作成履歴を表示します。" hideCloseButton />}
     <Suspense fallback={<div className="project-tool-loading" role="status"><InlineLoading description="フォームメーカーを読み込んでいます" /></div>}><FormMakerWorkspace {...createFormMakerWorkspaceProps({ runtime, room, active, onNotice })} /></Suspense>
   </>;
   if (toolId === 'submission-documents') return <section className="external-tool-workspace"><h2>{labels.get(toolId)}</h2><p>{runtime.debugSample ? 'サンプル参加者のCSV内容を確認できます。ファイル作成や外部送信は行いません。' : '確定した参加者のCSVを作成します。'}</p><Button kind="primary" disabled={!runtime.debugSample && !handoffToken} onClick={() => setShowExport(true)}>{runtime.debugSample ? 'CSVをプレビュー' : 'CSVを作成'}</Button>{!runtime.debugSample && !handoffToken && <p>フォームメーカーの作成結果にある「企画ツールを開く」から、この企画を開いてください。</p>}{!runtime.debugSample && <p><a href={release} target="_blank" rel="noreferrer">学務書類作成ツールをダウンロード</a></p>}{showExport && <ExportModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setShowExport(false)} />}</section>;

@@ -35,3 +35,19 @@ test('form workspace receives only the explicitly configured session or the offl
   runtime.external.formMakerSession = configured;
   assert.equal(createFormMakerWorkspaceProps({ runtime, room: {} }).session, configured);
 });
+
+test('all-tools sample provides editable form input values and never enables external form creation', async () => {
+  const runtime = { roomId: 'DEBUG-ROOM-001', debugSample: true, storage: { read: () => null }, external: {} };
+  const room = { roomName: 'デバッグ用サンプル企画', meta: { applicationSync: { eventDate: '2026-11-07' } } };
+  const props = createFormMakerWorkspaceProps({ runtime, room });
+
+  assert.equal(props.sampleMode, true);
+  assert.deepEqual(props.project.sampleInput, {
+    planName: 'デバッグ用サンプル企画',
+    editorEmail: 'sample-editor@example.invalid',
+    eventDate: '2026-11-07',
+    deadline: '2026-11-05',
+    description: '集合場所：新宿駅西口。集合時刻：7:00。持ち物：雨具・飲料・昼食。雨天時は前日18時までに連絡します。',
+  });
+  assert.equal((await props.session.prepare()).accepting, false);
+});
