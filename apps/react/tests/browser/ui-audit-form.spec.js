@@ -47,7 +47,7 @@ test('capture form-linked and registration UI states', async ({ page }, testInfo
       const guidanceDialog = page.getByRole('dialog', { name: '参加者発表文を作成' });
       await guidanceDialog.getByRole('button', { name: '閉じる', exact: true }).last().click();
     }
-    const handoff = page.getByRole('button', { name: '引き継ぎデータを作成', exact: true });
+    const handoff = page.getByRole('button', { name: '学務書類用CSVを作成', exact: true });
     if (await handoff.count()) await shot(page, viewportName, 42, 'handoff-disabled-state');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }

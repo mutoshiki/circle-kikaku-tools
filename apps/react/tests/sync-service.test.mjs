@@ -341,5 +341,5 @@ test('standalone driver rename aborts atomically when the remote vehicle record 
 test('SDK boundary rejects an unspecified production connection before initialization', async () => {
   await assert.rejects(createFirebaseTransport({ config: { projectId: 'production' }, roomId: 'ROOM001' }), /staging/);
   await assert.rejects(createFirebaseTransport({ config: { projectId: 'demo-test' }, roomId: 'ROOM001', emulator: { host: 'example.com' } }), /loopback/);
-  await assert.rejects(createFirebaseTransport({ config: { projectId: 'demo-test' }, roomId: 'bad', emulator: { host: '127.0.0.1' } }), /企画ID/);
+  await assert.rejects(createFirebaseTransport({ config: { projectId: 'demo-test' }, roomId: 'bad', emulator: { host: '127.0.0.1' } }), /企画リンクを確認してください/);
 });

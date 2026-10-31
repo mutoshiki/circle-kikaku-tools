@@ -30,10 +30,14 @@ function projectUrl(roomId) {
   return url;
 }
 
-function formatDate(project) {
-  const timestamp = project.lastOpenedAt ?? project.updatedAt;
-  if (!timestamp) return '日時不明';
-  return new Intl.DateTimeFormat('ja-JP', { dateStyle: 'medium', timeStyle: 'short' }).format(timestamp);
+function formatProjectActivity(project) {
+  const hasOpenedAt = Number.isFinite(project.lastOpenedAt);
+  const timestamp = hasOpenedAt ? project.lastOpenedAt : project.updatedAt;
+  if (!Number.isFinite(timestamp)) return '閲覧日時不明';
+  try {
+    const date = new Intl.DateTimeFormat('ja-JP', { dateStyle: 'medium', timeStyle: 'short' }).format(timestamp);
+    return `${hasOpenedAt ? '最終閲覧' : '最終更新'}：${date}`;
+  } catch { return '日時不明'; }
 }
 
 export default function ProjectEntry({ storage = window.localStorage, crypto = window.crypto }) {
@@ -70,6 +74,10 @@ export default function ProjectEntry({ storage = window.localStorage, crypto = w
     event.preventDefault();
     setError('');
     try {
+      if (typeof crypto?.randomUUID !== 'function') {
+        setError('このブラウザーでは企画を作成できません。ブラウザーを更新してください。');
+        return;
+      }
       const roomId = crypto.randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase();
       const workspace = createTemplateWorkspace({ templateId, customTools });
       storage.setItem(creationIntentKey(roomId), JSON.stringify({ roomId, roomName: roomName.trim(), workspace }));
@@ -77,7 +85,7 @@ export default function ProjectEntry({ storage = window.localStorage, crypto = w
       url.searchParams.set('view', viewForTool.get(resolveInitialTool(workspace)) || 'tools');
       window.location.assign(url);
     } catch {
-      setError('企画を作成できませんでした。ブラウザの保存領域を確認して、もう一度お試しください。');
+      setError('企画を作成できませんでした。ブラウザーの保存設定を確認してください。');
     }
   }
 
@@ -92,22 +100,25 @@ export default function ProjectEntry({ storage = window.localStorage, crypto = w
           {mode === 'create' ? <section className="project-entry-panel" aria-labelledby="project-entry-heading">
             <div className="project-entry-heading"><Button kind="ghost" size="sm" onClick={() => window.location.assign(new URL(import.meta.env.BASE_URL, window.location.href))}>企画一覧へ戻る</Button><h1 id="project-entry-heading">新しい企画</h1></div>
             <form className="project-create-form" onSubmit={createProject}>
-              <TextInput id="new-project-name" labelText="企画名" placeholder="例：秋名山登山企画" value={roomName} onChange={event => setRoomName(event.target.value)} />
+              <TextInput id="new-project-name" labelText="企画名（任意）" placeholder="例：秋名山登山企画" value={roomName} onChange={event => setRoomName(event.target.value)} />
               <RadioButtonGroup legendText="テンプレート" name="project-template" valueSelected={templateId} onChange={value => setTemplateId(String(value))} orientation="vertical">
                 {Object.values(TEMPLATE_REGISTRY).map(template => <RadioButton key={template.id} id={`template-${template.id}`} labelText={template.label} value={template.id} />)}
               </RadioButtonGroup>
-              <p className="project-template-tools">{templateId === 'custom' ? '使うツールを選んでください。' : `最初に使うツール：${(templateTools.get(templateId) || []).map(id => toolLabels.get(id)).join('、')}`}</p>
+              <div className="project-template-notes">
+                <p>ツールの表示は、作成後も変更できます。</p>
+                <p>{templateId === 'custom' ? '使うツールを選んでください。' : `最初に表示：${(templateTools.get(templateId) || []).map(id => toolLabels.get(id)).join('、')}`}</p>
+              </div>
               {templateId === 'custom' && <fieldset className="project-custom-tools"><legend>使うツール</legend>{TOOL_REGISTRY.filter(tool => !tool.system).map(tool => <Checkbox key={tool.id} id={`custom-tool-${tool.id}`} labelText={tool.label} checked={customTools.includes(tool.id)} onChange={(_, { checked }) => setCustomTools(current => checked ? [...new Set([...current, tool.id])] : current.filter(id => id !== tool.id))} />)}</fieldset>}
               {error && <InlineNotification kind="error" title={error} hideCloseButton />}
               <Button type="submit" kind="primary">企画を作成</Button>
             </form>
           </section> : <section className="project-entry-panel" aria-labelledby="project-entry-heading">
-            <div className="project-entry-heading"><h1 id="project-entry-heading">企画</h1><Button kind="primary" onClick={() => { const url = new URL(import.meta.env.BASE_URL, window.location.href); url.searchParams.set('screen', 'create'); window.location.assign(url); }}>新しい企画を作成</Button></div>
-            <p className="project-entry-local-label">このブラウザで開いた企画</p>
-            {index.status === 'empty' && <div className="project-list-empty"><h2>企画はまだありません</h2><p>新しい企画を作成するか、共有リンクから企画を開くとここに表示されます。</p></div>}
-            {index.status === 'unavailable' && <InlineNotification kind="error" title="企画一覧を読み取れません" subtitle={index.errors[0] || 'ブラウザの保存領域を確認してください。'} hideCloseButton />}
-            {index.status === 'partial' && <InlineNotification kind="warning" title="一部の企画情報を読み取れません" subtitle={index.errors[0]} hideCloseButton />}
-            {index.projects.length > 0 && <ContainedList label="最近開いた企画" kind="on-page">{index.projects.map(project => <ContainedListItem key={project.roomId}><button type="button" className="project-list-item" onClick={() => openProject(project.roomId)}><span className="project-list-item__copy"><strong>{project.name || '企画名未設定'}</strong><small>{formatDate(project)}</small></span><span className="project-list-item__id">企画を開く</span></button></ContainedListItem>)}</ContainedList>}
+            <div className="project-entry-heading"><h1 id="project-entry-heading">企画一覧</h1><Button kind="primary" onClick={() => { const url = new URL(import.meta.env.BASE_URL, window.location.href); url.searchParams.set('screen', 'create'); window.location.assign(url); }}>新しい企画を作成</Button></div>
+            <p className="project-entry-local-label">この一覧は、このブラウザーで開いた企画の履歴です。他の端末とは共有されません。</p>
+            {index.status === 'empty' && <div className="project-list-empty"><h2>最近開いた企画はありません</h2><p>共有リンクから企画を開くと、ここに追加されます。</p></div>}
+            {index.status === 'unavailable' && <InlineNotification kind="error" title="企画履歴を読み取れません" subtitle="共有リンクから企画を開いてください。" hideCloseButton />}
+            {index.status === 'partial' && <InlineNotification kind="warning" title="企画履歴の一部を読み取れません" subtitle="表示されない企画は、共有リンクから直接開いてください。" hideCloseButton />}
+            {index.projects.length > 0 && <ContainedList label="最近開いた企画" kind="on-page">{index.projects.map(project => <ContainedListItem key={project.roomId}><button type="button" className="project-list-item" onClick={() => openProject(project.roomId)}><span className="project-list-item__copy"><strong>{project.name || '企画名未設定'}</strong><small>{formatProjectActivity(project)}</small></span><span className="project-list-item__id">企画を開く</span></button></ContainedListItem>)}</ContainedList>}
           </section>}
         </Column>
       </Grid>

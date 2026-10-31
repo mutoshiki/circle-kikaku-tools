@@ -196,8 +196,8 @@ export default function App({ runtime }) {
     <main id="main-content" tabIndex={-1} aria-labelledby="project-heading">
     <Grid fullWidth className="project-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><ProjectIdentity name={room.roomName} syncStatus={syncStatus} onRename={name => runtime.store.command('rename', { name })} onProjectList={() => window.location.assign(new URL(import.meta.env.BASE_URL, window.location.href))} /></Column></Grid>
     <Grid fullWidth className="content-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><div className="main-content">
-      {projectSetup.status === 'creating' && <ToastNotification kind="info" title="企画を作成しています" subtitle="共有設定を準備しています。" timeout={0} lowContrast />}
-      {projectSetup.status === 'error' && <ToastNotification kind="error" title="企画の初期設定を完了できませんでした" subtitle={projectSetup.error} timeout={0} lowContrast />}
+      {projectSetup.status === 'creating' && <ToastNotification kind="info" title="企画を作成しています" subtitle="利用するツールを設定しています。" timeout={0} lowContrast />}
+      {projectSetup.status === 'error' && <ToastNotification kind="error" title="企画を作成できませんでした" subtitle={projectSetup.error?.includes('企画IDが既に使われています') ? '企画一覧に戻り、新しい企画を作成してください。' : '通信状態を確認して、再読み込みしてください。'} timeout={0} lowContrast />}
       <Tabs selectedIndex={selectedIndex} onChange={({ selectedIndex: index }) => changeView(tabs[index]?.id || 'tools')}>
         <TabList aria-label="企画のツール" contained className="project-tool-tabs">{tabs.map(tool => <Tab key={tool.id}>{tool.label}</Tab>)}</TabList>
         <TabPanels>
@@ -217,7 +217,7 @@ export default function App({ runtime }) {
     </Theme>
     {settlementSettingsEdit && <SettlementSettingsModal runtime={runtime} edit={settlementSettingsEdit} launcherButtonRef={settlementSettingsLauncher} onNotice={showNotice} onClose={closeSettlementSettings} />}
     {globalModal === 'guide' && <Modal className="app-modal" open passiveModal size="md" closeButtonLabel="閉じる" modalHeading="使い方" onRequestClose={() => setGlobalModal('')}>
-      <div className="user-guide"><p>参加者を登録すると、参加者・車割・班割・精算をタブで切り替えられます。人数だけで精算する場合は、精算画面だけを使います。</p><ul><li><strong>参加者</strong><span>名前を登録するか、応募フォームの回答から参加する人を選びます。</span></li><li><strong>車割</strong><span>参加者を車に割り当てます。</span></li><li><strong>班割</strong><span>参加者を班に割り当てます。</span></li><li><strong>共有</strong><span>右上のリンクボタンから、この企画の共有リンクをコピーできます。</span></li><li><strong>精算</strong><span>1人あたりの集金額と車ごとの支払額を計算し、集金済みの人を記録します。</span></li></ul></div>
+      <div className="user-guide"><p>使うツールは企画ごとに選べます。</p><ul><li><strong>応募フォーム</strong><span>企画名と実施日を引き継いでフォームを作成します。回答から参加者を選べます。</span></li><li><strong>参加者</strong><span>参加者を登録し、応募者を参加者に確定します。</span></li><li><strong>車割・班割</strong><span>参加者を車や班に割り当てます。</span></li><li><strong>精算</strong><span>集金額と車ごとの支払額を計算します。人数だけでも精算できます。</span></li><li><strong>共有</strong><span>リンクから同じ企画を開けます。</span></li></ul></div>
     </Modal>}
     {globalModal === 'overview' && <OverviewModal runtime={runtime} room={room} onNotice={showNotice} onClose={() => setGlobalModal('')} />}
     {globalModal === 'history' && <HistoryModal runtime={runtime} onNotice={showNotice} onClose={() => setGlobalModal('')} />}

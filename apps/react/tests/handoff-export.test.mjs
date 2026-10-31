@@ -21,7 +21,7 @@ test('handoff request stores a digest and only selected response keys', async ()
 
 test('handoff request rejects malformed capability, duplicate keys, and more than 200 keys', async () => {
   const base = { projectId: 'PROJECT123', token: 'h_' + 'a'.repeat(64), responseKeys: 'r_123456789012', jobId: 'handoff-request-000001', requestedAt: 1, cryptoApi: webcrypto };
-  await assert.rejects(buildHandoffRequest({ ...base, token: 'bad' }), /引き継ぎ権限/);
+  await assert.rejects(buildHandoffRequest({ ...base, token: 'bad' }), /この企画では学務書類用CSVを作成できません/);
   await assert.rejects(buildHandoffRequest({ ...base, responseKeys: 'r_123456789012,r_123456789012' }), /参加者の選択/);
   await assert.rejects(buildHandoffRequest({ ...base, responseKeys: Array.from({ length: 201 }, (_, i) => `r_${String(i).padStart(12, '0')}`).join(',') }), /参加者の選択/);
   await assert.rejects(buildHandoffRequest({ ...base, manualParticipantIds: Array.from({ length: 201 }, (_, i) => `private-${i}`) }), /参加者の選択/);

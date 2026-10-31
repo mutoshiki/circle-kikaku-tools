@@ -169,5 +169,5 @@ test('sample menu keeps the legacy form-linked sample action', async ({ page }) 
   await expect(page.getByText(/応募者 5人/)).toBeVisible();
   await expect(page.getByText('参加者確定後', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '発表文を作成', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: '引き継ぎデータを作成', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '学務書類用CSVを作成', exact: true })).toBeVisible();
 });

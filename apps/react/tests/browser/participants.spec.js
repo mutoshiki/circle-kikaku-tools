@@ -86,9 +86,9 @@ test('form applicants can be selected, updated, confirmed, unconfirmed and delet
   await expect(confirmedStatus).toBeVisible();
   await expect(confirmedStatus.locator('xpath=ancestor::*[contains(@class,"cds--tag")]')).toBeVisible();
   await expect(reopenSelection).toHaveClass(/cds--btn--ghost/);
-  const disabledHandoff = page.getByRole('button', { name: '引き継ぎデータを作成', exact: true });
+  const disabledHandoff = page.getByRole('button', { name: '学務書類用CSVを作成', exact: true });
   await expect(disabledHandoff).toBeDisabled();
-  await expect(page.getByText(/この端末には作成権限がありません/)).toBeVisible();
+  await expect(page.getByText(/フォームメーカーの作成結果から「企画ツールを開く」を選んでください/)).toBeVisible();
   await reopenSelection.click();
   await expect(page.locator('.participant-list.cds--contained-list')).toBeVisible();
   const search = page.getByRole('searchbox', { name: '名前を検索' });

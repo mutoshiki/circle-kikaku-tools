@@ -30,6 +30,7 @@ export function assertFirebaseTarget({ config, mode, emulator, stagingProjectId 
 }
 
 export async function reserveAdmissionSlot({ config, db, dbSdk, auth, request, kind, fetchImpl = globalThis.fetch }) {
+  const requestLabel = kind === 'handoff' ? '学務書類用CSVの作成依頼' : 'フォーム作成の依頼';
   const requestHash = kind === 'create' ? request.inputHash : request.input.tokenHash;
   const start = (Number.parseInt(requestHash.slice(0, 8), 16) % 40) + 1;
   const idToken = await authSdkToken(auth);
@@ -47,10 +48,10 @@ export async function reserveAdmissionSlot({ config, db, dbSdk, auth, request, k
       });
       if (response.ok) return { slotId, requestedAt: request.requestedAt };
       if (response.status !== 412 && response.status !== 401 && response.status !== 403) {
-        throw new Error('Firebaseの受付枠を確認できません。時間をおいてもう一度お試しください。');
+        throw new Error(`${requestLabel}を受け付けられませんでした。時間をおいて、もう一度お試しください。`);
       }
     } catch (error) {
-      if (error instanceof TypeError) throw new Error('Firebaseに接続できません。通信状態を確認して、もう一度お試しください。');
+      if (error instanceof TypeError) throw new Error('サービスに接続できません。通信状態を確認して、もう一度お試しください。');
       if (!/^(412|401|403)$/.test(String(error?.status || ''))) throw error;
     }
     try {
@@ -61,16 +62,16 @@ export async function reserveAdmissionSlot({ config, db, dbSdk, auth, request, k
       }
     } catch { /* this slot is empty or belongs to another owner */ }
   }
-  throw new Error('受付枠を確保できません。申込みが混み合っているため、時間をおいてもう一度お試しください。');
+  throw new Error(`${requestLabel}が混み合っています。時間をおいて、もう一度お試しください。`);
 }
 
 async function authSdkToken(auth) {
-  if (!auth?.currentUser?.getIdToken) throw new Error('企画ツールの利用者を確認できません。');
+  if (!auth?.currentUser?.getIdToken) throw new Error('企画データに接続できません。ページを再読み込みして、もう一度お試しください。');
   return auth.currentUser.getIdToken();
 }
 
 export async function createFirebaseTransport({ config, roomId, emulator, stagingProjectId, production = false }) {
-  if (!/^[A-Za-z0-9_-]{6,80}$/.test(roomId)) throw new Error('企画IDが不正です。');
+  if (!/^[A-Za-z0-9_-]{6,80}$/.test(roomId)) throw new Error('企画リンクを確認してください。');
   const mode = emulator ? 'emulator' : production ? 'production' : 'staging';
   assertFirebaseTarget({ config, mode, emulator, stagingProjectId });
   const [appSdk, authSdk, dbSdk] = await Promise.all([import('firebase/app'), import('firebase/auth'), import('firebase/database')]);
@@ -117,14 +118,14 @@ export async function createFirebaseTransport({ config, roomId, emulator, stagin
       return { committed: result.committed, value: result.snapshot.val() };
     },
     async reserveApplicationFormLink(targetRoomId, reservation) {
-      if (disposed || targetRoomId !== roomId) throw new Error('この企画へのフォーム連携要求ではありません。');
+      if (disposed || targetRoomId !== roomId) throw new Error('応募フォームを作成する企画を確認できません。企画画面を開き直してください。');
       if (!reservation || reservation.schemaVersion !== 1 || !/^[A-Za-z0-9_-]{16,80}$/.test(String(reservation.jobId || '')) ||
           !/^[a-f0-9]{64}$/.test(String(reservation.tokenHash || '')) || reservation.state !== 'pending' ||
           !Number.isSafeInteger(reservation.requestedAt) || !Number.isSafeInteger(reservation.expiresAt) || reservation.expiresAt <= reservation.requestedAt) {
-        throw new Error('フォーム連携の予約情報が不正です。');
+        throw new Error('応募フォームの作成を開始できませんでした。企画画面を開き直して、もう一度お試しください。');
       }
       const applicationSync = (await dbSdk.get(dbSdk.ref(db, `rooms/${roomId}/meta/applicationSync`))).val();
-      if (applicationSync) throw new Error('この企画にはすでに応募フォームが連携されています。');
+      if (applicationSync) throw new Error('この企画には応募フォームが連携済みです。');
       const link = dbSdk.ref(db, `projectFormLinksV1/${roomId}`);
       const result = await dbSdk.runTransaction(link, current => {
         if (current && current.jobId === reservation.jobId && current.tokenHash === reservation.tokenHash) return undefined;
@@ -133,7 +134,7 @@ export async function createFirebaseTransport({ config, roomId, emulator, stagin
       }, { applyLocally: false });
       const value = result.snapshot.val();
       if (!result.committed && (value?.jobId !== reservation.jobId || value?.tokenHash !== reservation.tokenHash)) {
-        throw new Error('この企画では別のフォーム連携が進行中です。結果を確認してから再度お試しください。');
+        throw new Error('この企画では応募フォームの作成がすでに始まっています。フォームメーカーで状況を確認してください。');
       }
       return value;
     },
@@ -144,8 +145,8 @@ export async function createFirebaseTransport({ config, roomId, emulator, stagin
       return () => { stop(); subscriptions.delete(stop); };
     },
     async enqueueHandoffExport({ projectId: requestedProjectId, token, responseKeys, manualParticipantIds, jobId }) {
-      if (!auth.currentUser?.uid) throw new Error('企画ツールの利用者を確認できません。');
-      if (requestedProjectId !== roomId) throw new Error('この企画の引き継ぎ要求ではありません。');
+      if (!auth.currentUser?.uid) throw new Error('企画データに接続できません。ページを再読み込みして、もう一度お試しください。');
+      if (requestedProjectId !== roomId) throw new Error('CSVを作成する企画を確認できません。企画を開き直してください。');
       const authUid = auth.currentUser.uid;
       const status = (await dbSdk.get(dbSdk.ref(db, 'formMakerV1/status'))).val();
       const testOwner = status?.acceptanceMode === 'test'

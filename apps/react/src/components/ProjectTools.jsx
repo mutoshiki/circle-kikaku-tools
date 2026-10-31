@@ -41,7 +41,7 @@ export function ExportModal({ runtime, room, onClose, onNotice }) {
   const project = useMemo(() => createProjectDomain({ getRoom: () => room, settlement: runtime.store.domain.settlement }), [room, runtime]);
   const selection = project.committedExportSelection();
   const blocked = !project.applicationSync() || !runtime.handoffToken || selection.ambiguousNames.length > 0 || (!selection.responseKeys.length && !selection.manualNames.length);
-  const reason = !project.applicationSync() ? '応募フォームと自動連携した企画で利用できます。' : !runtime.handoffToken ? 'このブラウザーには作成権限がありません。応募フォーム作成後の「この企画をサークル企画ツールで開く」から開いてください。' : selection.ambiguousNames.length ? `同じ名前の応募者が複数いるため、参加者を区別できません。応募フォームの回答を確認してください。` : '参加者を確定してください。';
+  const reason = !project.applicationSync() ? '応募フォームと連携した企画で利用できます。' : !runtime.handoffToken ? 'フォームメーカーの作成結果から「企画ツールを開く」を選んでください。' : selection.ambiguousNames.length ? '同名の応募者を区別できません。フォームの回答を確認してください。' : '参加者を確定してください。';
   async function download() {
     if (processing) return;
     setProcessing(true);
@@ -53,7 +53,7 @@ export function ExportModal({ runtime, room, onClose, onNotice }) {
         if (project.applicationSync()?.handoffVersion === 1) {
           if (!payload?.ok || !/^https:\/\/drive\.google\.com\//.test(payload.downloadUrl || '')) throw new Error('ダウンロード先を確認できませんでした。');
           setDownloadUrl(payload.downloadUrl);
-          onNotice(`${payload.count}人分のCSVを作成しました。`);
+          onNotice(`${payload.count}人分の学務書類用CSVを作成しました。`);
           return;
         }
         if (!payload?.ok || !Array.isArray(payload.participants)) throw new Error(payload?.error || '参加者データを読み取れませんでした。');
@@ -62,11 +62,11 @@ export function ExportModal({ runtime, room, onClose, onNotice }) {
       participants.push(...selection.manualNames.map(name => ({ studentId: '', name })));
       const blob = new Blob([project.buildParticipantCsv(participants)], { type: 'text/csv;charset=utf-8' });
       const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = filename; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 30000);
-      onNotice(`${participants.length}人の引き継ぎデータを作成しました。`); onClose();
-    } catch (error) { onNotice(error.message); }
+      onNotice(`${participants.length}人分の学務書類用CSVを作成しました。`); onClose();
+    } catch (error) { const message = String(error?.message || ''); onNotice(/[ぁ-んァ-ヶ一-龠]/.test(message) ? message : 'CSVを作成できませんでした。通信状態を確認して、もう一度お試しください。'); }
     finally { setProcessing(false); }
   }
-  return <Modal className="app-modal" closeButtonLabel="閉じる" open size="sm" modalHeading="引き継ぎデータ" primaryButtonText={processing ? '作成中…' : '引き継ぎデータを作成'} secondaryButtonText="閉じる" primaryButtonDisabled={blocked || processing || Boolean(downloadUrl)} onRequestSubmit={download} onRequestClose={onClose}><p>学務提出書類作成ツールに読み込むための引き継ぎデータを作成します。</p>{blocked && <InlineNotification kind="warning" title="作成できません" subtitle={reason} hideCloseButton lowContrast />}{processing && <InlineNotification kind="info" title="CSVを作成しています" subtitle="完了までこの画面を開いたままお待ちください。" hideCloseButton lowContrast />}{downloadUrl && <div className="form-stack"><InlineNotification kind="success" title="CSVを作成しました" subtitle="ダウンロード用ファイルは作成から24時間後に削除されます。" hideCloseButton lowContrast /><a href={downloadUrl} target="_blank" rel="noopener noreferrer">CSVをダウンロード</a></div>}</Modal>;
+  return <Modal className="app-modal" closeButtonLabel="閉じる" open size="sm" modalHeading="学務書類用CSV" primaryButtonText={processing ? '作成中…' : 'CSVを作成'} secondaryButtonText="閉じる" primaryButtonDisabled={blocked || processing || Boolean(downloadUrl)} onRequestSubmit={download} onRequestClose={onClose}>{blocked && <InlineNotification kind="warning" title="作成できません" subtitle={reason} hideCloseButton lowContrast />}{processing && <InlineNotification kind="info" title="CSVを作成しています" hideCloseButton lowContrast />}{downloadUrl && <div className="form-stack"><InlineNotification kind="success" title="CSVを作成しました" subtitle="ファイルは作成から24時間後に削除されます。" hideCloseButton lowContrast /><a href={downloadUrl} target="_blank" rel="noopener noreferrer">CSVをダウンロード</a></div>}</Modal>;
 }
 
 export function BugModal({ runtime, room, onClose, onNotice }) {
@@ -79,5 +79,5 @@ export default function ProjectTools({ runtime, room, onNotice }) {
   const [open, setOpen] = useState('');
   const application = runtime.store.domain.applicants.validApplicationSync(room.meta?.applicationSync);
   const hasParticipants = Object.keys(room.participants || {}).length > 0;
-  return <><OverflowMenu ariaLabel="参加者画面のその他の操作" iconDescription="参加者画面のその他の操作" flipped><OverflowMenuItem itemText="企画情報" onClick={() => setOpen('overview')} /><OverflowMenuItem itemText="履歴" onClick={() => setOpen('history')} />{application && hasParticipants && <OverflowMenuItem itemText="案内文" onClick={() => setOpen('guidance')} />}{application && <OverflowMenuItem itemText="引き継ぎCSV" onClick={() => setOpen('export')} />}<OverflowMenuItem itemText="不具合を報告" onClick={() => setOpen('bug')} /></OverflowMenu>{open === 'overview' && <OverviewModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'history' && <HistoryModal runtime={runtime} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'guidance' && <GuidanceModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'export' && <ExportModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'bug' && <BugModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}</>;
+  return <><OverflowMenu ariaLabel="参加者画面のその他の操作" iconDescription="参加者画面のその他の操作" flipped><OverflowMenuItem itemText="企画情報" onClick={() => setOpen('overview')} /><OverflowMenuItem itemText="履歴" onClick={() => setOpen('history')} />{application && hasParticipants && <OverflowMenuItem itemText="案内文" onClick={() => setOpen('guidance')} />}{application && <OverflowMenuItem itemText="学務書類用CSV" onClick={() => setOpen('export')} />}<OverflowMenuItem itemText="不具合を報告" onClick={() => setOpen('bug')} /></OverflowMenu>{open === 'overview' && <OverviewModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'history' && <HistoryModal runtime={runtime} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'guidance' && <GuidanceModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'export' && <ExportModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}{open === 'bug' && <BugModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setOpen('')} />}</>;
 }
