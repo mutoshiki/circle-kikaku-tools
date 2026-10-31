@@ -3,17 +3,20 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { expectFontsLoaded } from './font-readiness.js';
 
-test('project name action says set before a name exists and change afterward', async ({ page }) => {
+async function openProjectNameEditor(page) {
+  await page.getByRole('button', { name: 'その他の操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '企画名を変更', exact: true }).click();
+}
+
+test('project name is shown in the header and renamed from the overflow menu', async ({ page }) => {
   await page.goto('/?room=REACT-NAME-ACTION');
-  const action = page.getByRole('button', { name: '企画名を設定', exact: true });
-  await expect(action).toBeVisible();
-  await expect(action).toHaveText('企画名を設定');
-  await action.click();
+  await expect(page.locator('.app-header .cds--header__name')).toContainText('企画名未設定');
+  await expect(page.getByRole('button', { name: '企画一覧へ' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '変更', exact: true })).toHaveCount(0);
+  await openProjectNameEditor(page);
   await page.getByRole('textbox', { name: '企画名' }).fill('企画名あり');
   await page.getByRole('button', { name: '保存', exact: true }).click();
-  const rename = page.getByRole('button', { name: '企画名を変更', exact: true });
-  await expect(rename).toBeVisible();
-  await expect(rename).toHaveText('変更');
+  await expect(page.locator('.app-header .cds--header__name')).toContainText('企画名あり');
 });
 
 test('Carbon sync status styles keep normal confirmation quiet and actionable states readable', async ({ page }) => {
@@ -74,12 +77,13 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await expect(applications.getByRole('link', { name: '山歩会企画ツール一覧', exact: true })).toHaveAttribute('href', /sanpokai-kikaku-portal/);
   await page.getByRole('button', { name: '関連アプリ', exact: true }).click();
   await expect(page.getByRole('tab')).toHaveText(['参加者', '車割', '班割', '精算', 'ツール']);
-  await page.getByRole('button', { name: '企画名を設定' }).click();
+  await openProjectNameEditor(page);
   const projectName = page.getByRole('textbox', { name: '企画名' });
   await projectName.fill('互換性確認用の企画');
   await page.getByRole('button', { name: '保存', exact: true }).click();
   await expect(page.locator('#project-heading')).toHaveText('互換性確認用の企画');
-  await expect(page.getByRole('button', { name: '企画名を変更' })).toBeFocused();
+  await expect(page.locator('.app-header .cds--header__name')).toContainText('互換性確認用の企画');
+  await expect(page.getByRole('button', { name: 'その他の操作' })).toBeFocused();
   const initialHeadings = { '参加者': '参加者を登録して始める', '車割': '車割を始める', '班割': '班割を始める', '精算': '精算を始める' };
   for (const name of ['参加者', '車割', '班割', '精算']) {
     await page.getByRole('tab', { name, exact: true }).click();
@@ -89,8 +93,8 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   for (const theme of ['g10', 'g100']) {
     if (theme === 'g100') { await page.getByRole('button', { name: 'その他の操作' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click(); }
     await expect(page.locator('.application')).toHaveClass(new RegExp(`cds--${theme}(?:\\s|$)`));
-    await page.getByRole('button', { name: '企画名を変更' }).click();
-    await expect(page.getByRole('textbox', { name: '企画名' })).toHaveCSS('background-color', theme === 'g100' ? 'rgb(57, 57, 57)' : 'rgb(255, 255, 255)');
+    await openProjectNameEditor(page);
+    await expect(page.getByRole('textbox', { name: '企画名' })).toHaveCSS('background-color', theme === 'g100' ? 'rgb(57, 57, 57)' : 'rgb(244, 244, 244)');
     await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await expectFontsLoaded(page);
@@ -102,26 +106,23 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await expect(page.locator('vite-error-overlay')).toHaveCount(0);
 });
 
-test('project name editing does not save on blur and cancel discards the draft', async ({ page }) => {
+test('project name cancel discards the draft', async ({ page }) => {
   await page.goto('/?room=REACT-NAME-EDIT');
   const title = page.locator('#project-heading');
   await expect(title).toHaveText('企画名未設定');
-  await page.getByRole('button', { name: '企画名を設定' }).click();
+  await openProjectNameEditor(page);
   const field = page.getByRole('textbox', { name: '企画名' });
   await field.fill('取消する名前');
-  await page.getByRole('tab', { name: '参加者', exact: true }).click();
-  await expect(title).toHaveText('企画名未設定');
-  await expect(field).toHaveValue('取消する名前');
   await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
   await expect(title).toHaveText('企画名未設定');
-  await expect(page.getByRole('button', { name: '企画名を設定' })).toBeFocused();
+  await expect(page.getByRole('button', { name: 'その他の操作' })).toBeFocused();
   await page.reload();
   await expect(title).toHaveText('企画名未設定');
 });
 
 test('project name Enter and Escape do not interrupt Japanese composition', async ({ page }) => {
   await page.goto('/?room=REACT-NAME-IME');
-  await page.getByRole('button', { name: '企画名を設定' }).click();
+  await openProjectNameEditor(page);
   const field = page.getByRole('textbox', { name: '企画名' });
   await field.dispatchEvent('compositionstart');
   await field.fill('変換中');
@@ -137,20 +138,18 @@ test('project name Enter and Escape do not interrupt Japanese composition', asyn
 
 test('long project names wrap at phone widths without horizontal page scrolling', async ({ page }) => {
   await page.goto('/?room=REACT-NAME-LAYOUT');
-  await page.getByRole('button', { name: '企画名を設定' }).click();
+  await openProjectNameEditor(page);
   const titleText = '秋名山登山企画'.repeat(8);
   await page.getByRole('textbox', { name: '企画名' }).fill(titleText);
   await page.getByRole('button', { name: '保存', exact: true }).click();
   await expect(page.locator('#project-heading')).toHaveText(titleText);
+  await expect(page.locator('.app-header .cds--header__name')).toContainText(titleText);
   for (const width of [320, 390, 1280]) {
     await page.setViewportSize({ width, height: 844 });
-    await expect(page.getByRole('button', { name: '企画名を変更' })).toBeVisible();
+    await expect(page.locator('.app-header .cds--header__name')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     if (width < 672) {
-      expect(await page.locator('.project-title').evaluate(element => getComputedStyle(element).paddingBlockStart)).toBe('16px');
-      const heading = page.locator('#project-heading');
-      const lineHeight = Number.parseFloat(await heading.evaluate(element => getComputedStyle(element).lineHeight));
-      expect((await heading.boundingBox()).height).toBeGreaterThan(lineHeight);
+      expect(await page.locator('.app-header .cds--header__name').evaluate(element => getComputedStyle(element).overflow)).toBe('hidden');
     }
   }
 });

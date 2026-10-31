@@ -12,7 +12,8 @@ test('production bundle migrates a legacy fixture through the external store and
   await page.goto('/?room=DOMAIN-FIXTURE&view=participants');
   await expect(page.getByRole('tabpanel')).toContainText('6人');
   await expect(page.locator('#project-heading')).toHaveText(fixture.roomName);
-  await page.getByRole('button', { name: '企画名を変更' }).click();
+  await page.getByRole('button', { name: 'その他の操作' }).click();
+  await page.getByRole('menuitem', { name: '企画名を変更' }).click();
   const field = page.getByRole('textbox', { name: '企画名' });
   await expect(field).toHaveValue(fixture.roomName);
   await field.focus();

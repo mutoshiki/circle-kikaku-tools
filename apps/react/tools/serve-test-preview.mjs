@@ -8,7 +8,7 @@ process.env.VITE_REACT_SYNC_MODE = mode === 'emulator' ? 'emulator' : 'local';
 delete process.env.VITE_REACT_FIREBASE_CONFIG;
 delete process.env.VITE_REACT_MAPS_API_KEY;
 
-const outDir = mode === 'emulator' ? 'dist-emulator-test' : 'dist-offline-test';
+const outDir = process.env.SANPO_TEST_OUT_DIR || (mode === 'emulator' ? 'dist-emulator-test' : 'dist-offline-test');
 const configFile = resolve('vite.config.js');
 await build({ configFile, mode: 'test', build: { outDir, emptyOutDir: true } });
 const port = mode === 'emulator' ? 4175 : 4176;

@@ -129,3 +129,14 @@ The grade metadata must remain separated from the row-end Carbon overflow action
 | Side-browser visual check | In-app browser, preview room `CONSISTENCY-LOCAL-20261028`, light theme | Pass; fixed status uses the driver Tag style, and the row action area no longer competes with grade text. | `http://127.0.0.1:4285/?room=CONSISTENCY-LOCAL-20261028&view=car` |
 
 The dedicated pin button was removed from each row. This is an interaction and density change, not a type scale change. Browser zoom, physical devices, and screen-reader behavior were not exercised.
+
+### 2026-10-31 project list and header name
+
+The verified local-only preview was built from this worktree against published baseline `c233cb26d81023f4249eee415173578a6a46c033` and checked at `http://127.0.0.1:4288/`. A synthetic project (`UI確認用 2026-10-31`) was created only in that preview origin's local storage. The entry list remained in its original tab; project creation opened in a new tab and submission navigated that same tab into the new project. Opening the listed project also created a separate tab. The workspace header displayed the project name; the old project identity row and its `企画一覧へ`/`変更` controls were absent.
+
+| Screen / modal | State | Width × height | Theme | Keyboard | Result | Evidence | Reason if unverified |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Project name | Save a renamed synthetic project from the header overflow menu | 390 × 844 and 1280 × 900 | Light and dark | Pointer open/save; browser suite also covers focus return on cancel and Escape during/after Japanese composition | Pass | In-app side-browser DOM snapshot; `shell.spec.js` and `project-navigation.spec.js` | Browser zoom, physical devices, and screen readers were not exercised |
+| Project list / project creation | Open recent project and create a project in a new tab | 390 × 844 and 1280 × 900 | Light and dark | Pointer; native link new-tab behavior | Pass | `project-navigation.spec.js`, `project-workspace.spec.js` | Browser zoom, physical devices, and screen readers were not exercised |
+
+Targeted Playwright suite: 84/84 checks passed across Chromium and WebKit on desktop and mobile, including both Carbon themes for shell/modal states. The local project data is isolated to preview-origin local storage; no production room or Firebase write was used.

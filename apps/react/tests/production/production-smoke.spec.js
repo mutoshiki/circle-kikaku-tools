@@ -119,7 +119,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await waitForProductionBuildManifest(page);
     await expect(page.locator('.application')).toBeVisible();
     await expect(page.getByRole('heading', { name: '企画一覧', exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: '新しい企画を作成', exact: true })).toBeEnabled();
+    await expect(page.getByRole('link', { name: '新しい企画を作成', exact: true })).toHaveAttribute('target', '_blank');
     setSmokePhase('smoke room seed helper');
     await seedProductionSmokeRoom(page, { config, roomId, marker: smokeMarker, data: initial });
     roomSeeded = true;
@@ -133,7 +133,8 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await page.reload();
     await waitForProductionBuildManifest(page);
     await waitForSmokeRoomReady(page, smokeMarker);
-    await page.getByRole('button', { name: '企画名を変更' }).click();
+    await page.getByRole('button', { name: 'その他の操作' }).click();
+    await page.getByRole('menuitem', { name: '企画名を変更' }).click();
     const projectName = page.getByRole('textbox', { name: '企画名' });
     const updatedSmokeMarker = `${smokeMarker}-updated`;
     await projectName.fill(updatedSmokeMarker);
