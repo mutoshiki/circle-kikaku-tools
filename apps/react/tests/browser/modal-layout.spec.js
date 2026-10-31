@@ -55,7 +55,7 @@ test('guide labels stay on one line at mobile width and retain their order on de
   await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: '使い方', exact: true }).click();
   const desktop = await page.getByRole('dialog', { name: '使い方' }).locator('.user-guide li > strong').allTextContents();
-  expect(desktop).toEqual(['参加者', '車割', '班割', '共有', '精算']);
+  expect(desktop).toEqual(['応募フォーム', '参加者', '車割・班割', '精算', '共有']);
 });
 
 test('settlement settings use a medium progress dialog and disable back on the first step', async ({ page }) => {
