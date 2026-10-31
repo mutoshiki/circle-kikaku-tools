@@ -1162,12 +1162,11 @@ test('expanded vehicle details do not overlap the next vehicle summary', async (
   const disclosure = firstCar.getByRole('button', { name: /支払い内訳/ });
   await disclosure.click();
   await expect(disclosure).toHaveAttribute('aria-expanded', 'true');
-  const detailEnd = await firstCar.locator('.settlement-cost-list').evaluate(element => {
-    const rect = element.getBoundingClientRect();
-    return rect.bottom;
-  });
-  const nextHeadingTop = (await nextCar.getByRole('heading').boundingBox()).y;
-  expect(nextHeadingTop).toBeGreaterThanOrEqual(detailEnd);
+  await expect.poll(async () => {
+    const detailEnd = await firstCar.locator('.settlement-cost-list').evaluate(element => element.getBoundingClientRect().bottom);
+    const nextHeadingTop = (await nextCar.getByRole('heading').boundingBox()).y;
+    return nextHeadingTop - detailEnd;
+  }).toBeGreaterThanOrEqual(0);
 });
 
 test('one payment category shows only its own details', async ({ page }) => {
