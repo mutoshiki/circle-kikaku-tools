@@ -270,8 +270,9 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await expect(car).toContainText('日本語のメモ');
   for (const theme of ['g10', 'g100']) {
     if (theme === 'g100') { await page.getByRole('button', { name: 'その他の操作' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click(); }
-    await page.getByRole('button', { name: /^企画名を(設定|変更)$/ }).click();
-    await expect(page.getByRole('textbox', { name: '企画名' })).toHaveCSS('background-color', theme === 'g100' ? 'rgb(57, 57, 57)' : 'rgb(255, 255, 255)');
+    await page.getByRole('button', { name: 'その他の操作', exact: true }).click();
+    await page.getByRole('menuitem', { name: '企画名を変更', exact: true }).click();
+    await expect(page.getByRole('textbox', { name: '企画名' })).toHaveCSS('background-color', theme === 'g100' ? 'rgb(57, 57, 57)' : 'rgb(244, 244, 244)');
     await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
     for (const width of [320, 390, 1280]) {
       await page.setViewportSize({ width, height: 844 });

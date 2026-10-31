@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }, testInfo) => {
 });
 
 test('shared Carbon layout, contextual feedback, icon labels and mobile overflow', async ({ page }) => {
-  await expect(page.locator('.project-grid')).toHaveCount(1);
+  await expect(page.locator('.app-header__project-name')).toHaveText('互換性確認用の企画');
   await expect(page.locator('.content-grid')).toHaveCount(1);
   await page.getByRole('tab', { name: '車割', exact: true }).click();
   const participantActions = page.locator('.allocation-person-list').first().getByRole('button', { name: /の操作$/ }).first();
