@@ -118,7 +118,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await page.goto(initialEntryUrl.toString());
     await waitForProductionBuildManifest(page);
     await expect(page.locator('.application')).toBeVisible();
-    await expect(page.getByRole('heading', { name: '企画', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '企画一覧', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: '新しい企画を作成', exact: true })).toBeEnabled();
     setSmokePhase('smoke room seed helper');
     await seedProductionSmokeRoom(page, { config, roomId, marker: smokeMarker, data: initial });
