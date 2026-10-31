@@ -169,7 +169,7 @@ test('production smoke checks the project list when opening without a room', () 
   const initialEntry = smoke.slice(initialEntryStart, seedStart);
   assert.match(initialEntry, /initialEntryUrl\.searchParams\.set\('release', expectedBuildSha\)/);
   assert.match(initialEntry, /await waitForProductionBuildManifest\(page\)/);
-  assert.match(initialEntry, /getByRole\('heading', \{ name: '企画', exact: true \}\)/);
+  assert.match(initialEntry, /getByRole\('heading', \{ name: '企画一覧', exact: true \}\)/);
   assert.match(initialEntry, /getByRole\('button', \{ name: '新しい企画を作成', exact: true \}\)/);
   assert.doesNotMatch(initialEntry, /sync-status/);
 });
