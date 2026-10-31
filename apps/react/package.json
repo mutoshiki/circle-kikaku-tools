@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5174 --strictPort",
     "build": "vite build",
@@ -21,6 +23,8 @@
   "dependencies": {
     "@carbon/icons-react": "11.87.0",
     "@carbon/react": "1.115.0",
+    "@sanpokai/form-maker-workspace": "file:vendor/sanpokai-form-maker-workspace-1.0.2.tgz",
+    "@sanpokai/mountain-plan-workspace": "file:vendor/sanpokai-mountain-plan-workspace-1.0.8.tgz",
     "firebase": "12.17.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",

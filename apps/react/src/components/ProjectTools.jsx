@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
 import { Button, InlineNotification, Modal, OverflowMenu, OverflowMenuItem, TextArea, TextInput } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/icons-react';
 import { createProjectDomain } from '../services/project-domain.js';
@@ -36,12 +36,17 @@ export function GuidanceModal({ runtime, room, onClose, onNotice }) {
 }
 
 export function ExportModal({ runtime, room, onClose, onNotice }) {
+  const handoffToken = useSyncExternalStore(runtime.handoffCapability?.subscribe || (() => () => {}), () => runtime.handoffCapability?.getSnapshot().token ?? runtime.handoffToken ?? '');
   const [downloadUrl, setDownloadUrl] = useState('');
   const [processing, setProcessing] = useState(false);
   const project = useMemo(() => createProjectDomain({ getRoom: () => room, settlement: runtime.store.domain.settlement }), [room, runtime]);
   const selection = project.committedExportSelection();
-  const blocked = !project.applicationSync() || !runtime.handoffToken || selection.ambiguousNames.length > 0 || (!selection.responseKeys.length && !selection.manualNames.length);
-  const reason = !project.applicationSync() ? '応募フォームと連携した企画で利用できます。' : !runtime.handoffToken ? 'フォームメーカーの作成結果から「企画ツールを開く」を選んでください。' : selection.ambiguousNames.length ? '同名の応募者を区別できません。フォームの回答を確認してください。' : '参加者を確定してください。';
+  if (runtime.debugSample) {
+    const preview = project.buildParticipantCsv(Object.values(room.participants || {}).map(person => ({ studentId: '', name: person.name })));
+    return <Modal className="app-modal" closeButtonLabel="閉じる" open size="md" hasScrollingContent passiveModal modalHeading="サンプルCSVプレビュー" onRequestClose={onClose}><InlineNotification kind="info" title="確認用の内容です" subtitle="ファイルの作成・外部送信は行いません。" hideCloseButton lowContrast /><pre className="csv-preview">{preview}</pre></Modal>;
+  }
+  const blocked = !project.applicationSync() || !handoffToken || selection.ambiguousNames.length > 0 || (!selection.responseKeys.length && !selection.manualNames.length);
+  const reason = !project.applicationSync() ? '応募フォームと連携した企画で利用できます。' : !handoffToken ? 'フォームメーカーの作成結果から「企画ツールを開く」を選んでください。' : selection.ambiguousNames.length ? '同名の応募者を区別できません。フォームの回答を確認してください。' : '参加者を確定してください。';
   async function download() {
     if (processing) return;
     setProcessing(true);
@@ -49,7 +54,7 @@ export function ExportModal({ runtime, room, onClose, onNotice }) {
       let participants = [];
       let filename = `${String(project.applicationSync()?.title || '企画').replace(/[\\/:*?"<>|]/g, '_')}_参加者.csv`;
       if (selection.responseKeys.length || (project.applicationSync()?.handoffVersion === 1 && selection.manualNames.length)) {
-        const payload = await runtime.external.handoff({ action: 'handoff-export', projectId: runtime.roomId, token: runtime.handoffToken, responses: selection.responseKeys.join(','), manualParticipantIds: selection.manualParticipantIds || [] });
+        const payload = await runtime.external.handoff({ action: 'handoff-export', projectId: runtime.roomId, token: handoffToken, responses: selection.responseKeys.join(','), manualParticipantIds: selection.manualParticipantIds || [] });
         if (project.applicationSync()?.handoffVersion === 1) {
           if (!payload?.ok || !/^https:\/\/drive\.google\.com\//.test(payload.downloadUrl || '')) throw new Error('ダウンロード先を確認できませんでした。');
           setDownloadUrl(payload.downloadUrl);

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createApplicationFormHref } from '../src/services/application-form-link.js';
+import { createApplicationFormHref, prepareApplicationFormContext } from '../src/services/application-form-link.js';
 
 const cryptoApi = {
   randomUUID: (() => {
@@ -54,6 +54,27 @@ test('application form handoff rejects an already linked or invalid room before 
     cryptoApi,
   }), /応募フォームが連携済みです/);
   assert.equal(called, false);
+});
+
+test('application form context reuses the same reserved job after an uncertain response', async () => {
+  let saved = null;
+  const storage = { read: () => saved, write: (_key, value) => { saved = value; } };
+  const records = [];
+  const options = {
+    roomId: 'ROOM1234',
+    room: { roomName: '秋名山企画', eventDate: '2026-11-02' },
+    storage,
+    cryptoApi,
+    now: () => 1000,
+    transport: { reserveApplicationFormLink: async (roomId, reservation) => { records.push({ roomId, reservation }); if (records.length === 1) throw new Error('network lost'); } },
+  };
+  await assert.rejects(prepareApplicationFormContext(options), /network lost/);
+  const recovered = await prepareApplicationFormContext(options);
+  assert.equal(records.length, 2);
+  assert.equal(records[0].reservation.jobId, records[1].reservation.jobId);
+  assert.equal(records[0].reservation.tokenHash, records[1].reservation.tokenHash);
+  assert.equal(recovered.jobId, saved.jobId);
+  assert.equal(recovered.token, saved.token);
 });
 
 async function hashToken(token) {

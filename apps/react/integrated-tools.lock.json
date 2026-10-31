@@ -1,0 +1,18 @@
+{
+  "formMaker": {
+    "package": "@sanpokai/form-maker-workspace",
+    "version": "1.0.2",
+    "sourceRepository": "mutoshiki/sanpokai-kikaku-portal",
+    "sourceSha": "5e7fb414fa98d5f1d6845cf9b9fde6e1f9907a8a",
+    "archive": "vendor/sanpokai-form-maker-workspace-1.0.2.tgz",
+    "sha256": "CD104DE680B3EEADBD44BA1C20EB81D1015E29300A6B4CDEDAFE2008857265FA"
+  },
+  "mountainPlan": {
+    "package": "@sanpokai/mountain-plan-workspace",
+    "version": "1.0.8",
+    "sourceRepository": "mutoshiki/tozan-keikaku-syo-maker",
+    "sourceSha": "27b806f067dc436488a2ca3d6a8dbe575fa1ac01",
+    "archive": "vendor/sanpokai-mountain-plan-workspace-1.0.8.tgz",
+    "sha256": "EFDA84A619B5870669A9F52F356CC1CC85E131515C9F887DE430D9AF407D0E2A"
+  }
+}

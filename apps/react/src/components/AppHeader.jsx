@@ -11,7 +11,7 @@ const relatedApplications = [
   { name: '山歩会企画ツール一覧', href: 'https://mutoshiki.github.io/sanpokai-kikaku-portal/' },
 ];
 
-export default function AppHeader({ theme, themePreference, onShare, onOpenUtility, onToggleTheme, onUseSystemTheme }) {
+export default function AppHeader({ theme, themePreference, onShare, onOpenUtility, onToggleTheme, onUseSystemTheme, debugSample = false }) {
   const [utilityOpen, setUtilityOpen] = useState(false);
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const switcherButton = useRef(null);
@@ -35,7 +35,7 @@ export default function AppHeader({ theme, themePreference, onShare, onOpenUtili
     <SkipToContent href="#main-content">メインコンテンツへ移動</SkipToContent>
     <HeaderName prefix="">サークル企画ツール</HeaderName>
     <HeaderGlobalBar>
-      <HeaderGlobalAction aria-label="企画のリンクをコピー" tooltipAlignment="end" onClick={onShare}><Link size={20} /></HeaderGlobalAction>
+      {!debugSample && <HeaderGlobalAction aria-label="企画のリンクをコピー" tooltipAlignment="end" onClick={onShare}><Link size={20} /></HeaderGlobalAction>}
       <Popover className="utility-menu-popover" open={utilityOpen} align="bottom-end" autoAlign onRequestClose={() => setUtilityOpen(false)}>
         <HeaderGlobalAction aria-label="その他の操作" tooltipAlignment="end" isActive={utilityOpen} onClick={toggleUtility}><OverflowMenuVertical size={20} /></HeaderGlobalAction>
         <PopoverContent className="utility-menu-popover__content">
