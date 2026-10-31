@@ -8,12 +8,11 @@
 body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; }
 * { box-sizing: border-box; }
 .application { min-height: 100dvh; color: var(--cds-text-primary); background: var(--cds-background); }
-.debug-sample-banner { display: flex; align-items: center; justify-content: space-between; gap: layout.$spacing-05; margin-block-end: layout.$spacing-05; padding: layout.$spacing-04 layout.$spacing-05; border-inline-start: 3px solid var(--cds-support-info); background: var(--cds-layer-02); }
-.debug-sample-banner > div { display: grid; gap: layout.$spacing-02; }
-.debug-sample-banner span { @include carbon-type.type-style('body-compact-01'); color: var(--cds-text-secondary); }
-@media (max-width: 671px) { .debug-sample-banner { align-items: flex-start; flex-direction: column; } }
 .app-header-theme { position: relative; z-index: 8000; }
 .app-header.cds--header { position: relative; }
+.app-header__project-name { flex: 1 1 auto; min-inline-size: 0; max-inline-size: min(28rem, calc(100vw - 12rem)); overflow: hidden; }
+.app-header__project-name span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.project-sync-status { display: flex; justify-content: flex-end; padding: layout.$spacing-02 layout.$spacing-05 0; }
 .main-surface { position: relative; min-height: calc(100dvh - 3rem); color: var(--cds-text-primary); background: var(--cds-background); }
 .project-entry-main { min-block-size: calc(100dvh - 3rem); padding-block: layout.$spacing-07 layout.$spacing-10; color: var(--cds-text-primary); background: var(--cds-background); }
 .project-entry-panel { display: grid; gap: layout.$spacing-05; padding: layout.$spacing-06; background: var(--cds-layer-01); }
@@ -24,7 +23,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .project-list-empty { display: grid; justify-items: start; gap: layout.$spacing-03; padding-block: layout.$spacing-06; }
 .project-list-empty h2 { @include carbon-type.type-style('heading-compact-02'); margin: 0; }
 .project-list-empty p { @include carbon-type.type-style('body-compact-01'); margin: 0; color: var(--cds-text-secondary); }
-.project-list-item { display: flex; inline-size: 100%; min-block-size: 4.5rem; align-items: center; justify-content: space-between; gap: layout.$spacing-04; padding: layout.$spacing-04; border: 0; color: inherit; background: transparent; text-align: start; cursor: pointer; }
+.project-list-item { display: flex; inline-size: 100%; min-block-size: 4.5rem; align-items: center; justify-content: space-between; gap: layout.$spacing-04; padding: layout.$spacing-04; border: 0; color: inherit; background: transparent; text-align: start; text-decoration: none; cursor: pointer; }
 .project-list-item:hover { background: var(--cds-layer-hover-01); }
 .project-list-item:focus-visible { outline: 2px solid var(--cds-focus); outline-offset: -2px; }
 .project-list-item__copy { display: grid; gap: layout.$spacing-02; min-inline-size: 0; }
@@ -43,14 +42,6 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .utility-menu-popover__content { padding: 0; }
 .utility-menu-popover .cds--menu { position: static; min-inline-size: 15rem; }
 .sample-form { display: grid; gap: 1rem; }
-.project-title { display: grid; gap: layout.$spacing-03; padding-block: layout.$spacing-06; }
-.project-identity-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: layout.$spacing-03; min-inline-size: 0; }
-.project-identity-heading h1 { @include carbon-type.type-style('heading-03'); flex: 1 1 12rem; min-inline-size: 0; margin: 0; overflow-wrap: anywhere; }
-.project-identity-actions { display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: layout.$spacing-02; min-inline-size: 0; }
-.project-identity-actions .cds--btn { flex: 0 1 auto; max-inline-size: 100%; white-space: normal; text-align: end; }
-.project-title .cds--form-item { max-inline-size: 40rem; }
-.project-name-editor { display: grid; gap: layout.$spacing-04; max-inline-size: 40rem; }
-.project-name-editor-actions { display: flex; flex-wrap: wrap; gap: layout.$spacing-02; }
 .sync-status { color: var(--cds-text-secondary); overflow-wrap: anywhere; }
 .sync-status--compact { @include carbon-type.type-style('label-01'); }
 .sync-status--prominent { @include carbon-type.type-style('body-compact-01'); }
@@ -334,7 +325,6 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-movement-form .distance-field > .cds--btn { inline-size: max-content; min-inline-size: 0; max-inline-size: 100%; }
   .settlement-modal-at-bottom .cds--modal-content { -webkit-mask-image: none; mask-image: none; }
 @media (max-width: 672px) {
-  .project-title { padding-block: layout.$spacing-05; }
   .initial-empty-state { padding: layout.$spacing-05; }
   .main-content { padding-block-end: layout.$spacing-07; }
   .cds--text-input, .cds--text-area { @include carbon-type.type-style('body-02'); }

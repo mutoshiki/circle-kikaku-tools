@@ -60,7 +60,12 @@ async function sourceFingerprint(root) {
   const digest = createHash('sha256');
   for (const relative of files) {
     const normalized = relative.split(path.sep).join('/');
-    digest.update(normalized).update('\0').update(await readFile(path.join(root, relative))).update('\0');
+    try {
+      digest.update(normalized).update('\0').update(await readFile(path.join(root, relative))).update('\0');
+    } catch (error) {
+      if (error.code === 'ENOENT') continue;
+      throw error;
+    }
   }
   return digest.digest('hex');
 }

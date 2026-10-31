@@ -30,6 +30,12 @@ function projectUrl(roomId) {
   return url;
 }
 
+function createUrl() {
+  const url = new URL(import.meta.env.BASE_URL, window.location.href);
+  url.searchParams.set('screen', 'create');
+  return url.href;
+}
+
 function formatProjectActivity(project) {
   const hasOpenedAt = Number.isFinite(project.lastOpenedAt);
   const timestamp = hasOpenedAt ? project.lastOpenedAt : project.updatedAt;
@@ -66,8 +72,7 @@ export default function ProjectEntry({ storage = window.localStorage, crypto = w
   }, []);
 
   function openProject(roomId) {
-    const url = projectUrl(roomId);
-    window.location.assign(url);
+    return projectUrl(roomId).href;
   }
 
   function createProject(event) {
@@ -80,7 +85,8 @@ export default function ProjectEntry({ storage = window.localStorage, crypto = w
       }
       const roomId = crypto.randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase();
       const workspace = createTemplateWorkspace({ templateId, customTools });
-      storage.setItem(creationIntentKey(roomId), JSON.stringify({ roomId, roomName: roomName.trim(), workspace }));
+      const intentKey = creationIntentKey(roomId);
+      storage.setItem(intentKey, JSON.stringify({ roomId, roomName: roomName.trim(), workspace }));
       const url = projectUrl(roomId);
       url.searchParams.set('view', viewForTool.get(resolveInitialTool(workspace)) || 'tools');
       window.location.assign(url);
@@ -113,12 +119,12 @@ export default function ProjectEntry({ storage = window.localStorage, crypto = w
               <Button type="submit" kind="primary">企画を作成</Button>
             </form>
           </section> : <section className="project-entry-panel" aria-labelledby="project-entry-heading">
-            <div className="project-entry-heading"><h1 id="project-entry-heading">企画一覧</h1><Button kind="primary" onClick={() => { const url = new URL(import.meta.env.BASE_URL, window.location.href); url.searchParams.set('screen', 'create'); window.location.assign(url); }}>新しい企画を作成</Button></div>
+            <div className="project-entry-heading"><h1 id="project-entry-heading">企画一覧</h1><Button kind="primary" href={createUrl()} target="_blank" rel="noopener">新しい企画を作成</Button></div>
             <p className="project-entry-local-label">この一覧は、このブラウザーで開いた企画の履歴です。他の端末とは共有されません。</p>
             {index.status === 'empty' && <div className="project-list-empty"><h2>最近開いた企画はありません</h2><p>共有リンクから企画を開くと、ここに追加されます。</p></div>}
             {index.status === 'unavailable' && <InlineNotification kind="error" title="企画履歴を読み取れません" subtitle="共有リンクから企画を開いてください。" hideCloseButton />}
             {index.status === 'partial' && <InlineNotification kind="warning" title="企画履歴の一部を読み取れません" subtitle="表示されない企画は、共有リンクから直接開いてください。" hideCloseButton />}
-            {index.projects.length > 0 && <ContainedList label="最近開いた企画" kind="on-page">{index.projects.map(project => <ContainedListItem key={project.roomId}><button type="button" className="project-list-item" onClick={() => openProject(project.roomId)}><span className="project-list-item__copy"><strong>{project.name || '企画名未設定'}</strong><small>{formatProjectActivity(project)}</small></span><span className="project-list-item__id">企画を開く</span></button></ContainedListItem>)}</ContainedList>}
+            {index.projects.length > 0 && <ContainedList label="最近開いた企画" kind="on-page">{index.projects.map(project => <ContainedListItem key={project.roomId}><a className="project-list-item" href={openProject(project.roomId)} target="_blank" rel="noopener"><span className="project-list-item__copy"><strong>{project.name || '企画名未設定'}</strong><small>{formatProjectActivity(project)}</small></span><span className="project-list-item__id">別タブで開く</span></a></ContainedListItem>)}</ContainedList>}
           </section>}
         </Column>
       </Grid>

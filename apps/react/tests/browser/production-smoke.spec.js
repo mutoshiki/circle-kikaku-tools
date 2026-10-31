@@ -62,7 +62,8 @@ test('production preview loads assets and preserves a room edit across critical 
 
   await page.goto('/?room=PHASE8PRODUCTION');
   await expect(page).toHaveTitle('サークル企画ツール');
-  await page.getByRole('button', { name: /^企画名を(設定|変更)$/ }).click();
+  await page.getByRole('button', { name: 'その他の操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '企画名を変更', exact: true }).click();
   const projectName = page.getByRole('textbox', { name: '企画名' });
   await projectName.fill('Phase 8 production smoke');
   await page.getByRole('button', { name: '保存', exact: true }).click();

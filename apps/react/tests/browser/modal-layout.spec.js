@@ -235,7 +235,7 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
 
   await page.getByRole('button', { name: 'その他の操作' }).click();
   const appMenu = page.getByRole('menu', { name: 'その他の操作' });
-  await expect(appMenu.getByRole('menuitem')).toHaveText(['使い方', 'サンプルデータ', 'ダークモードに切り替え', '不具合を報告']);
+  await expect(appMenu.getByRole('menuitem')).toHaveText(['企画名を変更', '使い方', 'サンプルデータ', 'ダークモードに切り替え', '不具合を報告']);
   await appMenu.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
   await page.getByRole('button', { name: '精算設定' }).click();
