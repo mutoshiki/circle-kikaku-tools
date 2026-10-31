@@ -5,6 +5,7 @@ import ParticipantEditor from './ParticipantEditor.jsx';
 import RegistrationModal from './RegistrationModal.jsx';
 import { ExportModal, GuidanceModal } from './ProjectTools.jsx';
 import InitialEmptyState from './InitialEmptyState.jsx';
+import SectionHeading from './ui/SectionHeading.jsx';
 import useMediaQuery from '../hooks/useMediaQuery.js';
 
 function keepConfirmationTabWithinDialog(event) {
@@ -162,9 +163,7 @@ export default function Participants({ runtime, room, onNotice, onOpenCountOnlyS
   }
   return <section className="participants-page" aria-label="参加者">
     {initialEmpty ? <InitialEmptyState headingId="participants-initial-heading" title="参加者を登録して始める" description="参加者を登録すると、車割・班割・精算ができます。" primaryAction={{ label: '参加者を追加', buttonRef: participantStartRef, onClick: event => openRegistration(event.currentTarget) }} alternateAction={{ label: '人数だけで精算', onClick: onOpenCountOnlySettlement }} roomStatus={roomStatus} /> : <>
-    <div className="section-heading"><div><h2 id="participants-heading" ref={participantsHeadingRef} tabIndex={-1}>{application ? <>応募者 {entries.length}人　参加者 <span>{participantCount}人</span></> : <>参加者 {participantCount}人</>}</h2></div>
-      <div className="inline-actions">{confirmed ? <><Tag type="green" size="sm">{editingSelection ? '選び直し中' : '確定済み'}</Tag><Button kind="ghost" size="sm" onClick={() => setEditingSelection(value => !value)}>{editingSelection ? '選び直しを閉じる' : '参加者を選び直す'}</Button></> : !application && <Button kind="ghost" renderIcon={Add} onClick={event => openRegistration(event.currentTarget)}>参加者を追加</Button>}</div>
-    </div>
+    <SectionHeading className="section-heading" id="participants-heading" ref={participantsHeadingRef} titleTabIndex={-1} title={application ? <>応募者 {entries.length}人　参加者 <span>{participantCount}人</span></> : <>参加者 {participantCount}人</>} actions={<div className="inline-actions">{confirmed ? <><Tag type="green" size="sm">{editingSelection ? '選び直し中' : '確定済み'}</Tag><Button kind="ghost" size="sm" onClick={() => setEditingSelection(value => !value)}>{editingSelection ? '選び直しを閉じる' : '参加者を選び直す'}</Button></> : !application && <Button kind="ghost" renderIcon={Add} onClick={event => openRegistration(event.currentTarget)}>参加者を追加</Button>}</div>} />
     {selectionVisible && <>
       {application ? <p className="section-description">企画に参加する人にチェックを入れてください。変更後に「{editingSelection ? '参加者を更新' : '参加者を確定'}」を押します。</p> : participantCount === 0 && <p className="section-description">参加者はまだ登録されていません。「参加者を追加」から名前を登録できます。</p>}
       <div className="participant-toolbar"><Search ref={searchRef} id="participant-search" labelText="名前を検索" placeholder="名前を検索" value={search} onCompositionStart={() => setComposingSearch(true)} onCompositionEnd={() => setComposingSearch(false)} onChange={event => { setSearch(event.target.value); setResultRevision(value => value + 1); }} closeButtonLabelText="検索語を消去" />
