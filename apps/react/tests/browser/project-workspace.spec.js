@@ -48,7 +48,7 @@ test('legacy=1 keeps a direct way back to the original four-tab project screen',
 test('create flow saves template intent once and opens the selected existing app view', async ({ page }) => {
   await page.goto('/?screen=create');
   await expect(page.getByText('ツールの表示は、作成後も変更できます。')).toBeVisible();
-  await expect(page.getByText('個人利用でも非公開にはなりません。共有リンクを知っている人は企画を見られます。')).toBeVisible();
+  await expect(page.getByText('個人利用でも非公開にはなりません。共有リンクを知っている人は企画を見られます。')).toHaveCount(0);
   await expect(page.getByText('最初に表示：参加者、車割、精算')).toBeVisible();
   await page.getByLabel('企画名（任意）').fill('ブラウザ作成確認');
   await page.getByRole('button', { name: '企画を作成' }).click();

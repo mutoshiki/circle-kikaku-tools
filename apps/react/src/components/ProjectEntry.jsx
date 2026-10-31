@@ -106,7 +106,6 @@ export default function ProjectEntry({ storage = window.localStorage, crypto = w
               </RadioButtonGroup>
               <div className="project-template-notes">
                 <p>ツールの表示は、作成後も変更できます。</p>
-                {templateId === 'personal' && <p>個人利用でも非公開にはなりません。共有リンクを知っている人は企画を見られます。</p>}
                 <p>{templateId === 'custom' ? '使うツールを選んでください。' : `最初に表示：${(templateTools.get(templateId) || []).map(id => toolLabels.get(id)).join('、')}`}</p>
               </div>
               {templateId === 'custom' && <fieldset className="project-custom-tools"><legend>使うツール</legend>{TOOL_REGISTRY.filter(tool => !tool.system).map(tool => <Checkbox key={tool.id} id={`custom-tool-${tool.id}`} labelText={tool.label} checked={customTools.includes(tool.id)} onChange={(_, { checked }) => setCustomTools(current => checked ? [...new Set([...current, tool.id])] : current.filter(id => id !== tool.id))} />)}</fieldset>}
