@@ -113,9 +113,9 @@ export default function ProjectEntry({ storage = window.localStorage, crypto = w
               </RadioButtonGroup>
               <div className="project-template-notes">
                 <p>ツールの表示は、作成後も変更できます。</p>
-                <p>{templateId === 'custom' ? '使うツールを選んでください。' : `最初に表示：${(templateTools.get(templateId) || []).map(id => toolLabels.get(id)).join('、')}`}</p>
+                <p>{templateId === 'custom' ? '最初に表示するタブを選んでください。' : `最初に表示：${(templateTools.get(templateId) || []).map(id => toolLabels.get(id)).join('、')}`}</p>
               </div>
-              {templateId === 'custom' && <fieldset className="project-custom-tools"><legend>使うツール</legend>{TOOL_REGISTRY.filter(tool => !tool.system).map(tool => <Checkbox key={tool.id} id={`custom-tool-${tool.id}`} labelText={tool.label} checked={customTools.includes(tool.id)} onChange={(_, { checked }) => setCustomTools(current => checked ? [...new Set([...current, tool.id])] : current.filter(id => id !== tool.id))} />)}</fieldset>}
+              {templateId === 'custom' && <fieldset className="project-custom-tools"><legend>最初に表示するタブ</legend>{TOOL_REGISTRY.filter(tool => !tool.system).map(tool => <Checkbox key={tool.id} id={`custom-tool-${tool.id}`} labelText={tool.label} checked={customTools.includes(tool.id)} onChange={(_, { checked }) => setCustomTools(current => checked ? [...new Set([...current, tool.id])] : current.filter(id => id !== tool.id))} />)}</fieldset>}
               {error && <InlineNotification kind="error" title={error} hideCloseButton />}
               <Button type="submit" kind="primary">企画を作成</Button>
             </form>

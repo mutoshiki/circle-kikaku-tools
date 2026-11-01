@@ -19,28 +19,11 @@ test('project name is shown in the header and renamed from the overflow menu', a
   await expect(page.locator('.app-header .cds--header__name')).toContainText('企画名あり');
 });
 
-test('Carbon sync status styles keep normal confirmation quiet and actionable states readable', async ({ page }) => {
+test('normal sync and save states do not occupy a status row', async ({ page }) => {
   await page.goto('/?room=REACT-SYNC-TYPOGRAPHY');
   await page.locator('#project-heading').waitFor();
-  await page.evaluate(() => {
-    const compact = document.createElement('span');
-    compact.id = 'sync-status-compact-test';
-    compact.className = 'sync-status sync-status--compact';
-    compact.setAttribute('role', 'status');
-    compact.textContent = '同期完了';
-    const prominent = document.createElement('span');
-    prominent.id = 'sync-status-prominent-test';
-    prominent.className = 'sync-status sync-status--prominent';
-    prominent.setAttribute('role', 'status');
-    prominent.textContent = '同期に失敗しました。再接続してください。';
-    document.querySelector('#project-heading').parentElement.append(compact, prominent);
-  });
-  await expect(page.locator('#sync-status-compact-test')).toHaveCSS('font-size', '12px');
-  expect(await page.locator('#sync-status-compact-test').evaluate(element => Number.parseFloat(getComputedStyle(element).lineHeight))).toBeCloseTo(16, 0);
-  await expect(page.locator('#sync-status-prominent-test')).toHaveCSS('font-size', '14px');
-  expect(await page.locator('#sync-status-prominent-test').evaluate(element => Number.parseFloat(getComputedStyle(element).lineHeight))).toBeCloseTo(18, 0);
-  await expect(page.locator('#sync-status-compact-test')).toHaveAttribute('role', 'status');
-  await expect(page.locator('#sync-status-prominent-test')).toHaveAttribute('role', 'status');
+  await expect(page.locator('.project-sync-status')).toHaveCount(0);
+  await expect(page.getByText('同期完了', { exact: true })).toHaveCount(0);
 });
 
 test('independent shell: semantic header utilities, related apps, Japanese input, themes and no legacy runtime', async ({ page }, testInfo) => {
@@ -76,7 +59,7 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await expect(applications.getByRole('link', { name: '学務提出書類作成ツール', exact: true })).toHaveAttribute('href', /sampokai-submission-builder/);
   await expect(applications.getByRole('link', { name: '山歩会企画ツール一覧', exact: true })).toHaveAttribute('href', /sanpokai-kikaku-portal/);
   await page.getByRole('button', { name: '関連アプリ', exact: true }).click();
-  await expect(page.getByRole('tab')).toHaveText(['参加者', '車割', '班割', '精算', 'ツール']);
+  await expect(page.getByRole('tab')).toHaveText(['参加者', '車割', '班割', '精算', 'タブを編集']);
   await openProjectNameEditor(page);
   const projectName = page.getByRole('textbox', { name: '企画名' });
   await projectName.fill('互換性確認用の企画');

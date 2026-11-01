@@ -79,6 +79,29 @@ test('workspace changes synchronize across clients and reject a stale revision w
   left.dispose(); right.dispose();
 });
 
+test('workspace stays loading and rejects edits until the first remote snapshot arrives', async () => {
+  let deliverSnapshot;
+  let writes = 0;
+  const transport = {
+    subscribeWorkspace(listener) { deliverSnapshot = listener; return () => {}; },
+    async transactionWorkspace(updater) { writes += 1; return { committed: false, value: updater(null) }; },
+  };
+  const sync = createWorkspaceSync({ roomId: 'SLOWROOM01', transport, storage: memoryStorage() });
+  sync.start();
+  assert.equal(sync.getSnapshot().status, 'loading');
+  const earlySave = await sync.save(createTemplateWorkspace({ templateId: 'personal', now: 10 }), 0);
+  assert.equal(earlySave.ok, false);
+  assert.equal(writes, 0);
+
+  const remote = createTemplateWorkspace({ templateId: 'circle-event', now: 20 });
+  deliverSnapshot(remote);
+  assert.equal(sync.getSnapshot().status, 'ready');
+  assert.equal(sync.getSnapshot().workspace.template.id, 'circle-event');
+  assert.deepEqual(sync.getSnapshot().workspace.tabOrder, ['application-form', 'participants', 'car', 'team', 'settlement']);
+  assert.equal(writes, 0);
+  sync.dispose();
+});
+
 test('workspace ensure preserves existing remote settings and surfaces transport errors', async () => {
   const existing = createTemplateWorkspace({ templateId: 'circle-event', now: 10 });
   const transport = {

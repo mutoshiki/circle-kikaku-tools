@@ -6,7 +6,7 @@ export const TOOL_REGISTRY = Object.freeze([
   { id: 'car', label: '車割', view: 'car' },
   { id: 'team', label: '班割', view: 'team' },
   { id: 'settlement', label: '精算', view: 'seisan' },
-  { id: 'tools', label: 'ツール', view: 'tools', system: true },
+  { id: 'tools', label: 'タブを編集', view: 'tools', system: true },
 ]);
 
 export const TEMPLATE_REGISTRY = Object.freeze({

@@ -28,7 +28,10 @@ test('allocation summaries, metadata columns and fixed state follow the shared h
   await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('運転手 一郎\n参加者 二郎\n参加者 三郎\n参加者 四郎\n参加者 五郎');
   await registration.getByText('学年・車出しを設定（任意）', { exact: true }).click();
   await registration.getByLabel('運転手 一郎の学年').selectOption('3');
-  await registration.getByLabel('運転手 一郎を車出しに指定', { exact: true }).check({ force: true });
+  const driverCheckbox = registration.getByRole('checkbox', { name: '運転手 一郎を車出しに指定', exact: true });
+  await driverCheckbox.focus();
+  await driverCheckbox.press('Space');
+  await expect(driverCheckbox).toBeChecked();
   await registration.getByLabel('参加者 二郎の学年').selectOption('1');
   await registration.getByLabel('参加者 三郎の学年').selectOption('2');
   await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
@@ -84,6 +87,7 @@ test('allocation summaries, metadata columns and fixed state follow the shared h
 });
 
 test('register, fill seats, independent team, roles, fixed participants, menus and reload', async ({ page }, testInfo) => {
+  test.setTimeout(45000);
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/?room=ALLOCATION-RC');

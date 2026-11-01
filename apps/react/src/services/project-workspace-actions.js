@@ -2,6 +2,20 @@ import { normalizeWorkspace, TOOL_REGISTRY } from './project-workspace.js';
 
 const toolIds = new Set(TOOL_REGISTRY.filter(tool => !tool.system).map(tool => tool.id));
 
+export function setToolTabVisibility(value, toolId, visible) {
+  const workspace = normalizeWorkspace(value);
+  if (!toolIds.has(toolId)) return workspace;
+  const shown = visible === true;
+  const tools = {
+    ...workspace.tools,
+    [toolId]: { enabled: shown, pinned: shown },
+  };
+  const tabOrder = shown
+    ? (workspace.tabOrder.includes(toolId) ? workspace.tabOrder : [...workspace.tabOrder, toolId])
+    : workspace.tabOrder.filter(id => id !== toolId);
+  return normalizeWorkspace({ ...workspace, tools, tabOrder });
+}
+
 export function setToolAvailability(value, toolId, enabled) {
   if (!toolIds.has(toolId)) return normalizeWorkspace(value);
   const workspace = normalizeWorkspace(value);
