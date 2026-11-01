@@ -57,7 +57,6 @@ async function waitForProductionBuildManifest(page) {
 async function waitForSmokeRoomReady(page, expectedRoomName) {
   await expect(page.locator('.application')).toBeVisible();
   await expect(page.locator('#project-heading')).toHaveText(expectedRoomName);
-  await expect(page.locator('.sync-status')).toHaveText('同期完了');
 }
 
 test('production app, Firebase compatibility, route APIs, and key tasks work without touching another room', async ({ page }) => {
@@ -139,7 +138,7 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     const updatedSmokeMarker = `${smokeMarker}-updated`;
     await projectName.fill(updatedSmokeMarker);
     await page.getByRole('button', { name: '保存', exact: true }).click();
-    await expect(page.locator('.sync-status')).toHaveText('同期完了');
+    await expect(page.locator('#project-heading')).toHaveText(updatedSmokeMarker);
 
     await page.getByRole('tab', { name: '車割', exact: true }).click();
     await expect(page.getByRole('region', { name: '車割', exact: true })).toBeVisible();
@@ -173,12 +172,10 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
     await editor.getByRole('button', { name: '費用を保存' }).click();
     await expect(editor).toHaveCount(0);
-    await expect(page.locator('.sync-status')).toHaveText('同期完了');
 
     setSmokePhase('React persistence reload');
     await page.reload();
-    await expect(page.locator('#project-heading')).toHaveText(updatedSmokeMarker);
-    await expect(page.locator('.sync-status')).toHaveText('同期完了');
+    await waitForSmokeRoomReady(page, updatedSmokeMarker);
 
     if (mode === 'root') {
       setSmokePhase('React alias validation');

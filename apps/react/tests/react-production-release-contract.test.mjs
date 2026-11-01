@@ -145,7 +145,7 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.match(job('prepare'), /secrets\.REACT_MAPS_API_KEY/);
 });
 
-test('production smoke confirms the expected room is synced before root and alias reloads', () => {
+test('production smoke confirms the expected room is loaded before root and alias reloads', () => {
   const roomEntry = smoke.indexOf("setSmokePhase('React room entry')");
   const roomReload = smoke.indexOf("setSmokePhase('React room reload')");
   const aliasEntry = smoke.indexOf("setSmokePhase('React alias validation')");
@@ -158,8 +158,7 @@ test('production smoke confirms the expected room is synced before root and alia
   const readiness = smoke.match(/async function waitForSmokeRoomReady\(page, expectedRoomName\) \{([\s\S]*?)\n\}/)?.[1] || '';
   assert.match(readiness, /\.application/);
   assert.match(readiness, /#project-heading/);
-  assert.match(readiness, /\.sync-status/);
-  assert.match(readiness, /同期完了/);
+  assert.doesNotMatch(readiness, /sync-status|同期完了/);
 });
 
 test('production smoke checks the project list when opening without a room', () => {

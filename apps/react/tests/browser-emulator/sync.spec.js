@@ -1,6 +1,14 @@
 import { test, expect } from '@playwright/test';
 import { fixture, createReference } from '../reference.mjs';
 
+async function waitForSavedRoom(request, adminUrl, predicate) {
+  await expect.poll(async () => {
+    const response = await request.get(adminUrl, { headers: { Authorization: 'Bearer owner' } });
+    if (!response.ok()) return false;
+    return predicate(await response.json());
+  }).toBe(true);
+}
+
 test('two real browsers save through Emulator; an active Japanese draft survives remote rename', async ({ browser, request }, testInfo) => {
   const roomId = `RCBROWSER${testInfo.project.name.startsWith('webkit') ? 'WK' : 'CH'}`;
   const adminUrl = `http://127.0.0.1:9008/rooms/${roomId}.json?ns=demo-circle-react-default-rtdb`;
@@ -14,8 +22,10 @@ test('two real browsers save through Emulator; an active Japanese draft survives
     const errors = [];
     for (const page of [pageA, pageB]) page.on('pageerror', error => errors.push(error.message));
     await Promise.all([pageA.goto(`http://127.0.0.1:4175/?room=${roomId}`), pageB.goto(`http://127.0.0.1:4175/?room=${roomId}`)]);
-    await expect(pageA.locator('.sync-status')).toHaveText('同期完了');
-    await expect(pageB.locator('.sync-status')).toHaveText('同期完了');
+    await Promise.all([
+      expect(pageA.locator('#project-heading')).toHaveText(fixture.roomName),
+      expect(pageB.locator('#project-heading')).toHaveText(fixture.roomName),
+    ]);
     const headingA = pageA.locator('#project-heading');
     const headingB = pageB.locator('#project-heading');
     await pageB.getByRole('button', { name: 'その他の操作' }).click();
@@ -29,8 +39,8 @@ test('two real browsers save through Emulator; an active Japanese draft survives
     const fieldA = pageA.getByRole('textbox', { name: '企画名' });
     await fieldA.fill('別端末で変更');
     await pageA.getByRole('button', { name: '保存', exact: true }).click();
-    await expect(pageA.locator('.sync-status')).toHaveText('同期完了');
-    await expect.poll(async () => (await (await request.get(adminUrl, { headers: { Authorization: 'Bearer owner' } })).json()).roomName).toBe('別端末で変更');
+    await expect(pageA.locator('#project-heading')).toHaveText('別端末で変更');
+    await waitForSavedRoom(request, adminUrl, saved => saved.roomName === '別端末で変更');
     await expect(fieldB).toHaveValue('にほんご編集中');
     await expect(headingA).toHaveText('別端末で変更');
     await fieldB.dispatchEvent('compositionend', { data: '日本語で確定' });
@@ -69,7 +79,10 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     for (const page of [pageA, pageB]) page.on('pageerror', error => errors.push(error.message));
     await Promise.all([pageA.goto(`http://127.0.0.1:4175/?room=${roomId}`), pageB.goto(`http://127.0.0.1:4175/?room=${roomId}`)]);
     await Promise.all([pageA.getByRole('tab', { name: '精算', exact: true }).click(), pageB.getByRole('tab', { name: '精算', exact: true }).click()]);
-    await Promise.all([expect(pageA.locator('.sync-status')).toHaveText('同期完了'), expect(pageB.locator('.sync-status')).toHaveText('同期完了')]);
+    await Promise.all([
+      expect(pageA.locator('#project-heading')).toHaveText(fixture.roomName),
+      expect(pageB.locator('#project-heading')).toHaveText(fixture.roomName),
+    ]);
 
     async function openExpense(page, carHeading = '仮参加者A車', dialogName = carHeading) {
       // The accessible heading now identifies the section as a payment
@@ -96,14 +109,14 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     await separateCarDraftAmountB.fill('800');
     await separateCarDialogA.getByRole('button', { name: '費用を保存' }).click();
     await expect(separateCarDialogA).toHaveCount(0);
-    await expect(pageA.locator('.sync-status')).toHaveText('同期完了');
+    await waitForSavedRoom(request, adminUrl, saved => Object.values(saved.settlement.carsByParticipantId).some(car => (car.extras || []).some(extra => extra.name === '端末A 別車の駐車代' && extra.amount === '500')));
     await expect(separateCarDialogB).toBeVisible();
     await expect(separateCarDraftNameB).toHaveValue('端末B 別車の入浴代');
     await expect(separateCarDraftAmountB).toHaveValue('800');
     await separateCarDialogB.getByRole('button', { name: '一覧に追加', exact: true }).click();
     await separateCarDialogB.getByRole('button', { name: '費用を保存' }).click();
     await expect(separateCarDialogB).toHaveCount(0);
-    await expect(pageB.locator('.sync-status')).toHaveText('同期完了');
+    await waitForSavedRoom(request, adminUrl, saved => Object.values(saved.settlement.carsByParticipantId).some(car => (car.extras || []).some(extra => extra.name === '端末B 別車の入浴代' && extra.amount === '800')));
 
     const dialogA = await openExpense(pageA);
     await fillExpense(dialogA, '端末A 当日駐車代', '600');
@@ -115,7 +128,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     await draftAmountB.fill('900');
     await dialogA.getByRole('button', { name: '費用を保存' }).click();
     await expect(dialogA).toHaveCount(0);
-    await expect(pageA.locator('.sync-status')).toHaveText('同期完了');
+    await waitForSavedRoom(request, adminUrl, saved => Object.values(saved.settlement.carsByParticipantId).some(car => (car.extras || []).some(extra => extra.name === '端末A 当日駐車代' && extra.amount === '600')));
     await expect(dialogB).toBeVisible();
     await expect(draftNameB).toHaveValue('端末B 当日入浴代');
     await expect(draftAmountB).toHaveValue('900');
@@ -127,7 +140,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     await settings.getByRole('button', { name: '次へ' }).click();
     await settings.getByRole('button', { name: '保存' }).click();
     await expect(settings).toHaveCount(0);
-    await expect(pageA.locator('.sync-status')).toHaveText('同期完了');
+    await waitForSavedRoom(request, adminUrl, saved => saved.settlement.rounding === '10');
 
     await expect(draftNameB).toHaveValue('端末B 当日入浴代');
     await expect(draftAmountB).toHaveValue('900');
@@ -135,7 +148,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     await expect(dialogB.locator('.settlement-cost-editor').getByText('端末B 当日入浴代', { exact: true })).toBeVisible();
     await dialogB.getByRole('button', { name: '費用を保存' }).click();
     await expect(dialogB).toHaveCount(0);
-    await expect(pageB.locator('.sync-status')).toHaveText('同期完了');
+    await waitForSavedRoom(request, adminUrl, saved => Object.values(saved.settlement.carsByParticipantId).some(car => (car.extras || []).some(extra => extra.name === '端末B 当日入浴代' && extra.amount === '900')));
 
     const response = await request.get(adminUrl, { headers: { Authorization: 'Bearer owner' } });
     expect(response.ok()).toBe(true);
@@ -151,7 +164,7 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
 
     await pageA.reload();
     await pageA.getByRole('tab', { name: '精算', exact: true }).click();
-    await expect(pageA.locator('.sync-status')).toHaveText('同期完了');
+    await expect(pageA.locator('#project-heading')).toHaveText(fixture.roomName);
     const refreshedCar = pageA.locator('.settlement-car').filter({ has: pageA.getByRole('button', { name: /^「仮参加者A車」支払い内訳：/ }) });
     await refreshedCar.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
     const refreshedDialog = pageA.getByRole('dialog', { name: '仮参加者A車' });
@@ -187,7 +200,10 @@ test('two real browsers preserve concurrently added route places in shared room 
     for (const page of [pageA, pageB]) page.on('pageerror', error => errors.push(error.message));
     await Promise.all([pageA.goto(`http://127.0.0.1:4175/?room=${roomId}`), pageB.goto(`http://127.0.0.1:4175/?room=${roomId}`)]);
     await Promise.all([pageA.getByRole('tab', { name: '精算', exact: true }).click(), pageB.getByRole('tab', { name: '精算', exact: true }).click()]);
-    await Promise.all([expect(pageA.locator('.sync-status')).toHaveText('同期完了'), expect(pageB.locator('.sync-status')).toHaveText('同期完了')]);
+    await Promise.all([
+      expect(pageA.locator('#project-heading')).toHaveText(fixture.roomName),
+      expect(pageB.locator('#project-heading')).toHaveText(fixture.roomName),
+    ]);
 
     async function openRoute(page) {
       await page.getByRole('button', { name: /^仮参加者A車の費用を(?:入力|編集)$/ }).click();
@@ -209,8 +225,6 @@ test('two real browsers preserve concurrently added route places in shared room 
       dialogA.locator('.route-place-results').getByText('端末A共有場所', { exact: true }).click(),
       dialogB.locator('.route-place-results').getByText('端末B共有場所', { exact: true }).click(),
     ]);
-    await Promise.all([expect(pageA.locator('.sync-status')).toHaveText('同期完了'), expect(pageB.locator('.sync-status')).toHaveText('同期完了')]);
-
     await expect.poll(async () => {
       const saved = await (await request.get(adminUrl, { headers: { Authorization: 'Bearer owner' } })).json();
       return (saved?.settlement?.routePlaceCatalog || []).map(place => place.placeId).sort();
