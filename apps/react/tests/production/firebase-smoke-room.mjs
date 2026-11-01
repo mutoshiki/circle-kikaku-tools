@@ -55,7 +55,14 @@ async function runRoomRequest(page, { config, roomId, marker, operation, data, a
         credentials: 'omit',
         referrerPolicy: 'origin',
       });
-      if (!response.ok) throw new Error(`Reserved smoke room seed failed (${response.status}).`);
+      if (!response.ok) {
+        let reason = '';
+        try {
+          const error = (await response.clone().json())?.error;
+          if (typeof error === 'string') reason = error.replace(/[\r\n]/g, ' ').slice(0, 120);
+        } catch { /* Firebase may return a non-JSON error body. */ }
+        throw new Error(`Reserved smoke room seed failed (${response.status}${reason ? `: ${reason}` : ''}).`);
+      }
       return 'seeded';
     }
     if (existing === null) return 'already-empty';
