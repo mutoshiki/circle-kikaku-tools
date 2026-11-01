@@ -173,7 +173,15 @@ export function createWorkspaceSync({ roomId, transport = null, storage }) {
     if (transport?.transactionWorkspace) {
       let conflict = false;
       const result = await transport.transactionWorkspace(current => {
-        if (!current || Number(current.revision || 0) !== revision) { conflict = true; return undefined; }
+        if (current == null) {
+          // Existing rooms may still use the virtual legacy workspace. Persist
+          // its first explicit tab edit instead of treating the absent sidecar
+          // as a cross-device revision conflict.
+          if (revision !== 0 || Number(snapshot.workspace.createdAt || 0) !== 0) { conflict = true; return undefined; }
+          const now = Date.now();
+          return { ...next, revision: 1, createdAt: now, updatedAt: now };
+        }
+        if (Number(current.revision || 0) !== revision) { conflict = true; return undefined; }
         return { ...next, revision: revision + 1, createdAt: Number(current.createdAt || next.createdAt || Date.now()), updatedAt: Date.now() };
       });
       const workspace = normalizeWorkspace(result.value || snapshot.workspace);
