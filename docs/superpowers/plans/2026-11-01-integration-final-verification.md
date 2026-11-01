@@ -32,8 +32,8 @@
 
 **参照:** `release-build.json`（本番）、GitHub Actions、`.github/workflows/react-production-release.yml`、workerの`deployment/form-maker-targets.json`、既存計画2件。
 
-- [x] 公開manifest/main SHAは`7a2c49486b415fb0a323881f4d9d7d05f98b12f6`。同SHAの`React Production Release` run `41288547282`は成功。`origin/main`をfetchして同SHAに揃え、既存成果物の再公開は不要と確認。
-- [x] workerは対象アカウント`sanpokai.formmaker@gmail.com`、対象プロジェクト`1Z_fpG_nd4UazqRZKbZHhzlcTsD0jBEaUXIqCXmqNTmgg5edgLNljgx50`。2026-11-01のtrigger画面で`runFormMakerQueueV1`と`runFormMakerApplicationSyncV1`がHead・エラー率0%で存在することを確認。重複するフォーム送信triggerも見えたが今回の作成・同期を止めないため触らない。
+- [x] 公開状態を更新照合：公開React root SHAは`7853f205b2b9a8b2d86fa5ae9d77b97d4f0501bb`、同SHAの`React Production Release` run `41295980761` が成功。run `41288547282` は旧公開なので現状証拠に使わない。
+- [x] workerは対象アカウント`sanpokai.formmaker@gmail.com`、対象プロジェクト`1Z_fpG_nd4UazqRZKbZHhzlcTsD0jBEaUXIqCXmqNTmgg5edgLNljgx50`。修正commit `debb3ea8783fbf2ced9a11d2f3c4246c89e49a34`、公式workflow run `41298877220` 成功。`Code.gs`/`appsscript.json` の本番読み戻しSHA-256一致を確認し、queue 5分・回答同期1時間の各トリガーを復元。現在の実行は今回P9作成を処理したrunで再照合する。
 - [x] Chromeの本番P9アプリではroom marker`react-diagnostic-1793524753984-731`、タブは未表示、画面に保存失敗が残っていた。Firebase本番Rulesには`projectWorkspacesV1`が存在することを確認。実企画データは変更していない。
 - [x] 未チェック項目を同版証拠あり・未確認・不具合ありに分類。タブ初回保存失敗の原因はRulesとクライアントのrevision不一致として修正対象に特定。
 
@@ -45,6 +45,7 @@
 
 - [ ] P9の既存検証データと現在の状態を照合し、参加者・配置・費用・集金の比較用スナップショットを確保する。古い検証データが妨げる場合だけ、markerと対象を確認して既存のguard付きcleanupを行う。
 - [ ] P9の本番「応募フォーム」タブから、明確な検証名で一件だけ作成する。予約/job IDを控え、同じjobの処理完了を追う。新規送信で再試行しない。
+- [x] 阻害原因を修正：未使用のroom reservation IDを`project.jobId`としてForm Makerへ渡していたため、送信前から既存job扱いとなり作成ボタンが無効化されていた。reservationは送信時の`createProjectLink`で取得・再利用し、送信済みjobの復旧状態は既存のproject pending stateに任せる。`form-maker-workspace.test.mjs`で回帰テストを追加し、失敗→修正後成功を確認。
 - [ ] 作成済みフォームが同じP9に関連付き、そのタブ内に結果が表示されることを確認する。他企画の履歴を結果扱いしない。
 - [ ] 作成した専用フォームへ架空の応募回答を一件送信し、その回答の同期を確認する。待機が必要なときはworkerの実行状況を確認し、既存の対象限定同期操作があれば使う。全キューの手動再実行を安易に行わない。
 - [ ] P9の応募者一覧へ反映されたこと、確定参加者は既存の選択・更新フローに従うこと、元の参加者・配置・費用・集金が上書きされていないことを比較する。
