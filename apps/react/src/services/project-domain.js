@@ -270,54 +270,26 @@ function createSampleTeamPlan(participants = []) {
         grade: parseInt(member.grade) || 0,
         locked: false
     })).filter(member => member.name);
-
-    const firstLeader = people[0] || { name: '田中 太郎', gender: 'male', grade: 1, memo: '' };
-    const secondLeader = people[4] || people[1] || { name: '伊藤 美月', gender: 'female', grade: 1, memo: '' };
-    const thirdLeader = people[8] || people[2] || { name: '石井 拓海', gender: 'male', grade: 2, memo: '' };
-    const firstMembers = people.slice(1, 4);
-    const secondMembers = people.slice(5, 8);
-    const thirdMembers = people.slice(9, 12);
-    const usedNames = new Set([
-        firstLeader.name,
-        secondLeader.name,
-        thirdLeader.name,
-        ...firstMembers.map(m => m.name),
-        ...secondMembers.map(m => m.name),
-        ...thirdMembers.map(m => m.name)
-    ]);
+    const groups = [];
+    for (let index = 0; index < people.length; index += 5) groups.push(people.slice(index, index + 5));
 
     return {
         id: typeof SINGLE_TEAM_PLAN_ID !== 'undefined' ? SINGLE_TEAM_PLAN_ID : 'plan-team',
         name: '班',
         templateType: 'team',
         lastAutoAssignLabel: '',
-        waiting: people.filter(member => !usedNames.has(member.name)),
-        cars: [
-            {
-                name: firstLeader.name,
+        waiting: [],
+        cars: groups.map(group => {
+            const leader = group[0];
+            return {
+                name: leader.name,
                 capacity: 5,
-                driverMemo: firstLeader.memo || '',
-                driverGender: firstLeader.gender || 'unknown',
-                driverGrade: firstLeader.grade || 0,
-                members: firstMembers
-            },
-            {
-                name: secondLeader.name,
-                capacity: 5,
-                driverMemo: secondLeader.memo || '',
-                driverGender: secondLeader.gender || 'unknown',
-                driverGrade: secondLeader.grade || 0,
-                members: secondMembers
-            },
-            {
-                name: thirdLeader.name,
-                capacity: 5,
-                driverMemo: thirdLeader.memo || '',
-                driverGender: thirdLeader.gender || 'unknown',
-                driverGrade: thirdLeader.grade || 0,
-                members: thirdMembers
-            }
-        ]
+                driverMemo: leader.memo || '',
+                driverGender: leader.gender || 'unknown',
+                driverGrade: leader.grade || 0,
+                members: group.slice(1)
+            };
+        })
     };
 }
 

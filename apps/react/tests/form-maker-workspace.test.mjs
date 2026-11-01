@@ -47,7 +47,7 @@ test('all-tools sample provides editable form input values and never enables ext
     editorEmail: 'sample-editor@example.invalid',
     eventDate: '2026-11-07',
     deadline: '2026-11-05',
-    description: '集合場所：新宿駅西口。集合時刻：7:00。持ち物：雨具・飲料・昼食。雨天時は前日18時までに連絡します。',
+    description: '集合場所：新宿駅西口。集合時刻：6:30。持ち物：雨具・飲料・昼食。雨天時は前日18時までに連絡します。',
   });
   assert.equal((await props.session.prepare()).accepting, false);
 });

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { setToolAvailability, setToolPinned, movePinnedTool, setToolTabVisibility } from '../src/services/project-workspace-actions.js';
-import { createTemplateWorkspace } from '../src/services/project-workspace.js';
+import { createTemplateWorkspace, normalizeWorkspace } from '../src/services/project-workspace.js';
 import { requestedToolFromView, resolveWorkspaceSelection, workspaceTabs } from '../src/services/project-workspace-routing.js';
 
 test('tool availability, pinning, and order are independent and keep Tools available', () => {
@@ -71,4 +71,42 @@ test('Tools always remains visible and registered pinned tools have no hard coun
   const workspace = createTemplateWorkspace({ templateId: 'custom', customTools: ['participants', 'car', 'team', 'settlement', 'application-form', 'submission-documents', 'mountain-plan'] });
   assert.deepEqual(workspaceTabs(workspace).map(tool => tool.id), [...workspace.tabOrder, 'tools']);
   assert.equal(workspaceTabs(workspace).at(-1).label, 'タブを編集');
+});
+
+test('legacy enabled and pinned combinations do not change while loading and only both true show a tab', () => {
+  for (const enabled of [false, true]) {
+    for (const pinned of [false, true]) {
+      const normalized = createTemplateWorkspace({ templateId: 'personal' });
+      normalized.tools.car = { enabled, pinned };
+      normalized.tabOrder = ['car'];
+
+      const loaded = normalizeWorkspace(normalized);
+      const visible = workspaceTabs(loaded).some(tool => tool.id === 'car');
+      assert.equal(visible, enabled && pinned, `enabled=${enabled}, pinned=${pinned}`);
+      if (enabled && !pinned) assert.deepEqual(loaded.tools.car, { enabled: true, pinned: false });
+    }
+  }
+});
+
+test('all tools can be hidden while the editor remains the only tab and hidden links stay non-mutating', () => {
+  const workspace = createTemplateWorkspace({ templateId: 'personal' });
+  for (const tool of Object.keys(workspace.tools)) {
+    workspace.tools[tool] = { enabled: false, pinned: false };
+  }
+  workspace.tabOrder = [];
+
+  assert.deepEqual(workspaceTabs(workspace).map(tool => tool.id), ['tools']);
+  assert.deepEqual(resolveWorkspaceSelection(workspace, null), { tabId: 'tools', toolId: null });
+  assert.deepEqual(resolveWorkspaceSelection(workspace, 'car'), { tabId: 'tools', toolId: null, hiddenToolId: 'car' });
+  assert.equal(workspace.tools.car.enabled, false);
+  assert.deepEqual(workspace.tabOrder, []);
+});
+
+test('reordering handles both ends of a long tab list', () => {
+  const workspace = createTemplateWorkspace({ templateId: 'custom', customTools: ['participants', 'car', 'team', 'settlement', 'application-form', 'submission-documents', 'mountain-plan'] });
+  const first = movePinnedTool(workspace, 'mountain-plan', 0);
+  assert.equal(first.tabOrder[0], 'mountain-plan');
+  const last = movePinnedTool(first, 'mountain-plan', first.tabOrder.length - 1);
+  assert.equal(last.tabOrder.at(-1), 'mountain-plan');
+  assert.equal(last.tabOrder.length, 7);
 });

@@ -23,8 +23,8 @@
   "dependencies": {
     "@carbon/icons-react": "11.87.0",
     "@carbon/react": "1.115.0",
-    "@sanpokai/form-maker-workspace": "file:vendor/sanpokai-form-maker-workspace-1.0.8.tgz",
-    "@sanpokai/mountain-plan-workspace": "file:vendor/sanpokai-mountain-plan-workspace-1.0.10.tgz",
+    "@sanpokai/form-maker-workspace": "file:vendor/sanpokai-form-maker-workspace-1.0.10.tgz",
+    "@sanpokai/mountain-plan-workspace": "file:vendor/sanpokai-mountain-plan-workspace-1.0.11.tgz",
     "firebase": "12.17.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",

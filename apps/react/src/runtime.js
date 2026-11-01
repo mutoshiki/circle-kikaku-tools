@@ -78,6 +78,9 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
       return createApplicationFormHref({ baseHref: APPLICATION_FORM_PORTAL, roomId, room, transport, cryptoApi: crypto, now: () => transport?.clock?.now?.() || Date.now(), storage: roomStorage });
     },
     async prepareApplicationForm({ room } = {}) {
+      if (typeof externalAdapters.prepareApplicationForm === 'function') {
+        return externalAdapters.prepareApplicationForm({ room, roomId, transport, crypto });
+      }
       return prepareApplicationFormContext({ roomId, room, transport, cryptoApi: crypto, now: () => transport?.clock?.now?.() || Date.now(), storage: roomStorage });
     },
     acceptApplicationFormHandoff,

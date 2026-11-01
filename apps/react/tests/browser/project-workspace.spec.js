@@ -110,6 +110,39 @@ test('a hidden tool link opens its tab editor row without changing the saved set
   expect(stored.tools['mountain-plan']).toEqual({ enabled: true, pinned: false });
 });
 
+test('a tool hidden in another tab returns the active page to the editor without deleting data', async ({ page, context }) => {
+  const room = 'TAB-ACTIVE-HIDDEN-REMOTE';
+  const key = `sanpo-workspace:v1:${encodeURIComponent(room)}`;
+  const initial = {
+    schemaVersion: 1,
+    template: null,
+    tools: {
+      participants: { enabled: true, pinned: true },
+      settlement: { enabled: true, pinned: true },
+      'mountain-plan': { enabled: true, pinned: true },
+    },
+    tabOrder: ['participants', 'settlement', 'mountain-plan'],
+    revision: 1,
+    createdAt: 100,
+    updatedAt: 200,
+  };
+  await page.addInitScript(({ storageKey, workspace }) => localStorage.setItem(storageKey, JSON.stringify(workspace)), { storageKey: key, workspace: initial });
+  await page.goto(`/?room=${room}&view=mountain-plan`);
+  await expect(page.getByRole('tab', { name: '登山計画書' })).toHaveAttribute('aria-selected', 'true');
+
+  const peer = await context.newPage();
+  await peer.goto(`/?room=${room}&view=tools`);
+  await expect(peer.getByRole('tab', { name: 'タブを編集' })).toHaveAttribute('aria-selected', 'true');
+  await expect(peer.locator('#workspace-tab-visible-mountain-plan')).toBeChecked();
+  await peer.locator('label[for="workspace-tab-visible-mountain-plan"]').click();
+
+  await expect(page.getByRole('tab', { name: 'タブを編集' })).toHaveAttribute('aria-selected', 'true');
+  const stored = await page.evaluate(storageKey => JSON.parse(localStorage.getItem(storageKey)), key);
+  expect(stored.tools['mountain-plan']).toEqual({ enabled: false, pinned: false });
+  expect(stored.tabOrder).toEqual(['participants', 'settlement']);
+  await expect(peer.getByRole('tab', { name: '登山計画書' })).toHaveCount(0);
+});
+
 test('tab visibility save failure keeps the prior setting and explains the failure', async ({ page }) => {
   const room = 'TAB-EDITOR-SAVE-FAILURE';
   const key = `sanpo-workspace:v1:${encodeURIComponent(room)}`;
@@ -226,7 +259,7 @@ test('all-tools debug sample is isolated and usable across project tools', async
     }
   });
   await page.goto('/?debugSample=all-tools&view=participants');
-  await expect(page.getByRole('heading', { name: 'デバッグ用サンプル企画' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '秋の登山企画（サンプル）' })).toBeVisible();
   await expect(page.locator('.debug-sample-banner')).toHaveCount(0);
   await expect(page.getByText('架空データです。外部には送信されません。')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '初期状態に戻す' })).toHaveCount(0);
@@ -237,37 +270,37 @@ test('all-tools debug sample is isolated and usable across project tools', async
     await expect(page.getByRole('tab', { name: label })).toBeVisible();
   }
   await page.getByRole('button', { name: '参加者を選び直す' }).click();
-  await expect(page.getByText('応募者01', { exact: true })).toBeVisible();
+  await expect(page.getByText('森田 玲奈', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '車割' }).click();
   for (const carName of ['A車', 'B車', 'C車']) {
     await expect(page.getByRole('heading', { name: carName, exact: true })).toBeVisible();
   }
   await expect(page.getByText('13人・3台')).toBeVisible();
-  await expect(page.getByRole('tabpanel', { name: '車割' }).getByText('参加者01', { exact: true })).toBeVisible();
+  await expect(page.getByRole('tabpanel', { name: '車割' }).getByText('佐藤 花子', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '班割' }).click();
   for (const teamName of ['A班', 'B班', 'C班']) {
     await expect(page.getByRole('heading', { name: teamName, exact: true })).toBeVisible();
   }
-  await expect(page.getByRole('paragraph').getByText('未割り当て 1人')).toBeVisible();
-  await expect(page.getByRole('tabpanel', { name: '班割' }).getByText('参加者01', { exact: true })).toBeVisible();
+  await expect(page.getByRole('paragraph').getByText('未割り当て 0人')).toBeVisible();
+  await expect(page.getByRole('tabpanel', { name: '班割' }).getByText('佐藤 花子', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '精算' }).click();
-  await expect(page.getByRole('heading', { name: '参加者01車' })).toBeVisible();
-  await expect(page.getByText('¥1,900', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: /参加者01車.*内訳を見る/ }).click();
-  const samplePayment = page.locator('.settlement-car').filter({ hasText: '参加者01車' });
+  await expect(page.getByRole('heading', { name: '佐藤 花子車' })).toBeVisible();
+  await expect(page.getByText('¥2,900', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /佐藤 花子車.*内訳を見る/ }).click();
+  const samplePayment = page.locator('.settlement-car').filter({ hasText: '佐藤 花子車' });
   await expect(samplePayment.getByText('ガソリン代', { exact: true })).toBeVisible();
   await expect(samplePayment.getByText('車出し協力代', { exact: true })).toBeVisible();
-  await expect(samplePayment.getByText('運転手の集金分', { exact: true })).toBeVisible();
+  await expect(samplePayment.getByText('運転手の集金分', { exact: true })).toHaveCount(0);
   await page.getByRole('tab', { name: '応募フォーム' }).click();
   await expect(page.locator('.form-maker-page')).toBeVisible();
   await expect(page.locator('.form-maker-page h1')).toHaveText('応募フォーム');
-  await expect(page.getByText('「デバッグ用サンプル企画」に連携する応募フォームを作成します。')).toHaveCount(0);
+  await expect(page.getByText('「秋の登山企画（サンプル）」に連携する応募フォームを作成します。')).toHaveCount(0);
   await expect(page.getByText('この企画には応募フォームが連携済みです')).toHaveCount(0);
-  await expect(page.getByLabel('企画名（必須）')).toHaveValue('デバッグ用サンプル企画');
+  await expect(page.getByLabel('企画名（必須）')).toHaveValue('秋の登山企画（サンプル）');
   await expect(page.getByLabel('メールアドレス（必須）')).toHaveValue('sample-editor@example.invalid');
   await expect(page.getByLabel('実施日（任意）')).toHaveValue(/^\d{4}-\d{2}-\d{2}$/);
   await expect(page.getByLabel('応募締切日（任意）')).toHaveValue(/^\d{4}-\d{2}-\d{2}$/);
-  await expect(page.getByLabel('企画の説明（任意）')).toHaveValue(/集合場所：新宿駅西口/);
+  await expect(page.getByLabel('企画の説明（任意）')).toHaveValue(/集合場所：新宿駅西口。集合時刻：6:30/);
   await expect(page.getByText('作成したGoogleフォームの編集権限を、このアドレスに共有します。')).toHaveCount(0);
   const sampleSave = page.getByRole('button', { name: '入力内容を保存' });
   await expect(sampleSave).toBeEnabled();
@@ -315,6 +348,52 @@ test('all-tools debug sample is isolated and usable across project tools', async
   await expect.poll(() => externalWrites).toEqual([]);
   const keys = await page.evaluate(() => Object.keys(localStorage));
   expect(keys.some(key => key.startsWith('sanpo-react:v1:'))).toBe(false);
+});
+
+test('embedded form maker validates user fields before adding reserved project credentials', async ({ page }) => {
+  const jobId = 'a'.repeat(32);
+  const token = `h_${'b'.repeat(64)}`;
+  await page.addInitScript(({ jobId, token }) => {
+    window.__REACT_EXTERNAL_ADAPTERS__ = {
+      prepareApplicationForm: async ({ roomId, room }) => ({
+        roomId,
+        jobId,
+        token,
+        projectName: room.roomName || '新しい企画',
+        eventDate: '',
+      }),
+      formMakerSession: {
+        async prepare() { return { accepting: true }; },
+        async listJobs() { return []; },
+        async getJob() { return null; },
+        async enqueue(input, options) {
+          window.__formMakerTestJob = { input, options };
+          return { ...options, state: 'queued' };
+        },
+        getHandoffToken() { return ''; },
+      },
+    };
+  }, { jobId, token });
+
+  await page.goto('/?screen=create');
+  await page.locator('label[for="template-circle-event"]').click();
+  await page.getByLabel('企画名（任意）').fill('応募フォーム動作確認');
+  const projectPage = await submitProjectCreation(page);
+  await projectPage.getByRole('tab', { name: '応募フォーム' }).click();
+  await expect(projectPage.getByLabel('企画名（必須）')).toHaveValue('応募フォーム動作確認');
+  await projectPage.getByLabel('メールアドレス（必須）').fill('editor@example.test');
+  await projectPage.getByRole('button', { name: '応募フォームを作成' }).click();
+  await expect.poll(() => projectPage.evaluate(() => window.__formMakerTestJob || null)).toMatchObject({
+    input: {
+      planName: '応募フォーム動作確認',
+      editorEmail: 'editor@example.test',
+      targetRoomId: expect.any(String),
+      targetRoomJobId: jobId,
+      targetRoomCapability: token,
+    },
+    options: { jobId },
+  });
+  await expect(projectPage.getByText('連携する企画の情報を確認できません。企画画面からフォームメーカーを開き直してください。')).toHaveCount(0);
 });
 
 test('project history labels whether its timestamp is the last visit or last update', async ({ page }) => {
