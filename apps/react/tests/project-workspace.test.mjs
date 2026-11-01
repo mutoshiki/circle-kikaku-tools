@@ -127,6 +127,8 @@ test('saving the first edit to a virtual legacy workspace initializes the missin
     async transactionWorkspace(updater) {
       const next = updater(remote);
       if (next === undefined) return { committed: false, value: remote };
+      // Mirror the deployed RTDB rule: first creation requires revision 0.
+      if (remote == null && next.revision !== 0 || remote != null && next.revision !== remote.revision + 1) throw new Error('PERMISSION_DENIED');
       remote = next;
       return { committed: true, value: remote };
     },
@@ -139,7 +141,12 @@ test('saving the first edit to a virtual legacy workspace initializes the missin
   const saved = await sync.save(edited, current.revision);
   assert.equal(saved.ok, true);
   assert.deepEqual(normalizeWorkspace(remote).tabOrder, ['participants', 'car', 'team', 'settlement', 'application-form']);
+  assert.equal(normalizeWorkspace(remote).revision, 0);
+  const secondEdit = normalizeWorkspace({ ...sync.getSnapshot().workspace, tools: { ...sync.getSnapshot().workspace.tools, team: { enabled: false, pinned: false } }, tabOrder: sync.getSnapshot().workspace.tabOrder.filter(id => id !== 'team') });
+  const savedAgain = await sync.save(secondEdit, sync.getSnapshot().workspace.revision);
+  assert.equal(savedAgain.ok, true);
   assert.equal(normalizeWorkspace(remote).revision, 1);
+  assert.deepEqual(normalizeWorkspace(remote).tabOrder, ['participants', 'car', 'settlement', 'application-form']);
   sync.dispose();
 });
 test('virtual legacy workspace is not cached before explicit template initialization', async () => {

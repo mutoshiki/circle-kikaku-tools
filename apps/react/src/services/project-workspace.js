@@ -179,7 +179,9 @@ export function createWorkspaceSync({ roomId, transport = null, storage }) {
           // as a cross-device revision conflict.
           if (revision !== 0 || Number(snapshot.workspace.createdAt || 0) !== 0) { conflict = true; return undefined; }
           const now = Date.now();
-          return { ...next, revision: 1, createdAt: now, updatedAt: now };
+          // The deployed RTDB rule accepts a new sidecar only at revision 0.
+          // The first subsequent edit advances it to revision 1.
+          return { ...next, revision: 0, createdAt: now, updatedAt: now };
         }
         if (Number(current.revision || 0) !== revision) { conflict = true; return undefined; }
         return { ...next, revision: revision + 1, createdAt: Number(current.createdAt || next.createdAt || Date.now()), updatedAt: Date.now() };
