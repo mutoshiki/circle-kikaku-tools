@@ -65,6 +65,19 @@ test('production smoke does not overwrite unmarked reserved room data', async ()
   assert.equal(requests.length, 2);
 });
 
+test('production smoke reports the Firebase seed rejection reason without exposing request credentials', async () => {
+  await withFetch(async (url, options) => {
+    if (String(url).includes('accounts:signUp')) return jsonResponse({ idToken: 'test-token' });
+    if (options.method === 'PUT') return jsonResponse({ error: 'Permission denied' }, 401);
+    return jsonResponse(null);
+  }, async () => {
+    await assert.rejects(
+      seedProductionSmokeRoom(evaluatePage(), { config, roomId, marker, data: { roomName: marker } }),
+      /Reserved smoke room seed failed \(401: Permission denied\)/,
+    );
+  });
+});
+
 test('production smoke cleanup requires an owned release marker and verifies deletion', async () => {
   let room = { roomName: `${marker}-updated` };
   const methods = [];
