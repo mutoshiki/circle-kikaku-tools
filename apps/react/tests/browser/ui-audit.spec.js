@@ -160,8 +160,14 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await page.getByRole('tab', { name: '班割', exact: true }).click();
     await shot(page, viewportName, 19, 'team-allocation-default');
     await page.getByRole('button', { name: '班を追加', exact: true }).click();
-    await shot(page, viewportName, 20, 'team-add-modal');
-    await cancelDialog(page);
+    const teamAddDialog = page.getByRole('dialog');
+    if (await teamAddDialog.count()) {
+      await shot(page, viewportName, 20, 'team-add-modal');
+      await cancelDialog(page);
+    } else {
+      await expect(page.getByText('未割り当ての参加者を選ぶと班を追加できます。', { exact: true })).toBeVisible();
+      await shot(page, viewportName, 20, 'team-add-needs-unassigned-participant');
+    }
 
     await page.getByRole('tab', { name: '精算', exact: true }).click();
     await shot(page, viewportName, 21, 'settlement-default');

@@ -18,6 +18,11 @@ import { TOOL_REGISTRY } from './services/project-workspace.js';
 const legacyToolIds = ['participants', 'car', 'team', 'settlement'];
 const optionalTools = TOOL_REGISTRY.filter(tool => !tool.system);
 const THEME_PREFERENCE_KEY = 'sanpo-react:theme-preference:v1';
+function initialToolFromLocation(runtime) {
+  const url = new URL(location.href);
+  if (url.searchParams.get('view') === 'tools') return 'tools';
+  return requestedToolFromView(url.searchParams.get('view')) || legacyToolIds[runtime.initialView ?? 3] || 'settlement';
+}
 function readThemePreference() {
   try {
     const preference = localStorage.getItem(THEME_PREFERENCE_KEY);
@@ -37,8 +42,8 @@ export default function App({ runtime }) {
   const [systemTheme, setSystemTheme] = useState(readSystemTheme);
   const theme = themePreference === 'system' ? systemTheme : themePreference === 'dark' ? 'g100' : 'g10';
   const contentTheme = theme === 'g100' ? 'g90' : 'g10';
-  const [activeToolId, setActiveToolId] = useState(() => requestedToolFromView(new URL(location.href).searchParams.get('view')) || legacyToolIds[runtime.initialView ?? 3] || 'settlement');
-  const [visitedToolIds, setVisitedToolIds] = useState(() => new Set([requestedToolFromView(new URL(location.href).searchParams.get('view')) || legacyToolIds[runtime.initialView ?? 3] || 'settlement', 'tools']));
+  const [activeToolId, setActiveToolId] = useState(() => initialToolFromLocation(runtime));
+  const [visitedToolIds, setVisitedToolIds] = useState(() => new Set([initialToolFromLocation(runtime), 'tools']));
   const legacyEntry = new URL(location.href).searchParams.get('legacy') === '1';
   const standaloneMode = room.settlement?.standalone?.enabled === true;
   const availableTabs = workspaceTabs(workspaceSnapshot.workspace);

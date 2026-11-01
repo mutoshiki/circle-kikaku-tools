@@ -95,6 +95,7 @@ export function createWorkspaceSync({ roomId, transport = null, storage }) {
   const cacheKey = workspaceCacheKey(roomId);
   let started = false;
   let unsubscribe;
+  let storageListener;
   const listeners = new Set();
   let snapshot = Object.freeze({ status: 'loading', workspace: legacyWorkspace(), error: null });
 
@@ -115,9 +116,22 @@ export function createWorkspaceSync({ roomId, transport = null, storage }) {
     } catch { return null; }
   }
 
+  function onStorage(event) {
+    if (event.key !== cacheKey || !event.newValue) return;
+    let incoming;
+    try { incoming = normalizeWorkspace(JSON.parse(event.newValue)); }
+    catch { return; }
+    if (incoming.revision < snapshot.workspace.revision) return;
+    publish('ready', incoming);
+  }
+
   function start() {
     if (started) return;
     started = true;
+    if (typeof globalThis.addEventListener === 'function') {
+      storageListener = onStorage;
+      globalThis.addEventListener('storage', storageListener);
+    }
     const cached = cachedWorkspace();
     if (cached) publish('loading', cached);
     if (transport?.subscribeWorkspace) {
@@ -174,6 +188,12 @@ export function createWorkspaceSync({ roomId, transport = null, storage }) {
     return { ok: true, workspace };
   }
 
-  function dispose() { unsubscribe?.(); unsubscribe = null; started = false; }
+  function dispose() {
+    unsubscribe?.();
+    unsubscribe = null;
+    if (storageListener) globalThis.removeEventListener?.('storage', storageListener);
+    storageListener = null;
+    started = false;
+  }
   return Object.freeze({ start, dispose, ensure, save, getSnapshot: () => snapshot, subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); } });
 }
