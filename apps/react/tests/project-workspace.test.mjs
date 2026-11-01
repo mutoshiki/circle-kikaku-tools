@@ -119,6 +119,29 @@ test('workspace ensure preserves existing remote settings and surfaces transport
   assert.equal(failed.getSnapshot().status, 'error');
   failed.dispose(); sync.dispose();
 });
+
+test('saving the first edit to a virtual legacy workspace initializes the missing remote workspace', async () => {
+  let remote = null;
+  const transport = {
+    subscribeWorkspace(listener) { queueMicrotask(() => listener(remote)); return () => {}; },
+    async transactionWorkspace(updater) {
+      const next = updater(remote);
+      if (next === undefined) return { committed: false, value: remote };
+      remote = next;
+      return { committed: true, value: remote };
+    },
+  };
+  const sync = createWorkspaceSync({ roomId: 'LEGACY01', transport, storage: memoryStorage() });
+  sync.start();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  const current = sync.getSnapshot().workspace;
+  const edited = normalizeWorkspace({ ...current, tools: { ...current.tools, 'application-form': { enabled: true, pinned: true } }, tabOrder: [...current.tabOrder, 'application-form'] });
+  const saved = await sync.save(edited, current.revision);
+  assert.equal(saved.ok, true);
+  assert.deepEqual(normalizeWorkspace(remote).tabOrder, ['participants', 'car', 'team', 'settlement', 'application-form']);
+  assert.equal(normalizeWorkspace(remote).revision, 1);
+  sync.dispose();
+});
 test('virtual legacy workspace is not cached before explicit template initialization', async () => {
   const storage = memoryStorage();
   const sync = createWorkspaceSync({ roomId: 'NEWROOM01', storage });
