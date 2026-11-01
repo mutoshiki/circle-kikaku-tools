@@ -14,7 +14,6 @@ function subtractDays(value, days) {
 }
 
 export function createFormMakerWorkspaceProps({ runtime, room, active = true, onNotice = () => {} }) {
-  const reservation = runtime.storage.read('applicationFormReservation');
   const debugSample = runtime.debugSample === true;
   const eventDate = String(room?.meta?.eventDate || room?.meta?.applicationSync?.eventDate || room?.eventDate || '');
   const project = Object.freeze({
@@ -31,7 +30,6 @@ export function createFormMakerWorkspaceProps({ runtime, room, active = true, on
         description: '集合場所：新宿駅西口。集合時刻：6:30。持ち物：雨具・飲料・昼食。雨天時は前日18時までに連絡します。',
       },
     } : {}),
-    ...(room?.meta?.applicationSync ? {} : reservation?.roomId === runtime.roomId && /^[a-f0-9]{32}$/.test(String(reservation.jobId || '')) ? { jobId: reservation.jobId } : {}),
   });
   return {
     project,

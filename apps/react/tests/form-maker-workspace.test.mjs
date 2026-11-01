@@ -23,6 +23,22 @@ test('form workspace keeps reservation explicit and scopes its callbacks to the 
   assert.deepEqual(calls, [['prepare', room], ['handoff', ready]]);
 });
 
+test('form workspace does not treat an unused room reservation as an already submitted job', async () => {
+  const reservationJobId = 'b'.repeat(32);
+  const runtime = {
+    roomId: 'P9A93LMQ',
+    storage: { read: key => key === 'applicationFormReservation' ? { roomId: 'P9A93LMQ', jobId: reservationJobId } : null },
+    external: {
+      prepareApplicationForm: async () => ({ roomId: 'P9A93LMQ', jobId: reservationJobId, token: 'capability' }),
+    },
+  };
+
+  const props = createFormMakerWorkspaceProps({ runtime, room: { roomName: 'P9 test' } });
+
+  assert.equal(props.project.jobId, undefined, 'a reservation is passed to the enqueue callback, not as an existing job');
+  assert.deepEqual(await props.createProjectLink(), { roomId: 'P9A93LMQ', jobId: reservationJobId, token: 'capability' });
+});
+
 test('form workspace receives only the explicitly configured session or the offline-safe session', async () => {
   const runtime = { roomId: 'ROOM-OFFLINE', storage: { read: () => null }, external: {} };
   const offline = createFormMakerWorkspaceProps({ runtime, room: {} });
