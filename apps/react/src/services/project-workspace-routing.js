@@ -13,9 +13,11 @@ export function workspaceTabs(value) {
 
 export function resolveWorkspaceSelection(value, requestedTool = null) {
   const workspace = normalizeWorkspace(value);
+  const knownTool = TOOL_REGISTRY.some(tool => !tool.system && tool.id === requestedTool);
   const enabled = id => Boolean(workspace.tools[id]?.enabled);
   const pinned = id => enabled(id) && Boolean(workspace.tools[id]?.pinned);
   const fallback = pinned('settlement') ? 'settlement' : workspace.tabOrder.find(pinned) || 'tools';
+  if (knownTool && !pinned(requestedTool)) return { tabId: 'tools', toolId: null, hiddenToolId: requestedTool };
   const target = requestedTool && (enabled(requestedTool) || requestedTool === 'tools') ? requestedTool : fallback;
   return {
     tabId: pinned(target) ? target : 'tools',

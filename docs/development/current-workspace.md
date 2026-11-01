@@ -5,18 +5,18 @@
 ## 公開基準
 
 - 公開URL: <https://mutoshiki.github.io/circle-kikaku-tools/>
-- 確認日時: 2026-10-31（公開manifestを再取得）
+- 確認日時: 2026-11-01（公開manifestを再取得）
 - manifest: <https://mutoshiki.github.io/circle-kikaku-tools/release-build.json>
-- 公開source SHA: `1936ea8dc7ff260e348946c25f295d8ce6563577`
-- 公開asset digest: `d5ce5c96b0a97b0031e180acee3170ce395ba6032ee0f65dbaaa9049ea43c046`
+- 公開source SHA: `9c7cc7bf96509785128165745517c9b36730806d`
+- 公開asset digest: `7e62879f2f70bb231237ff19c6b5c56623c44f8dca4d6447b2073aedebe19616`
 - 公開サイトはReactのルートビルド。CIで`apps/react/dist`からPagesルートを構成する。
 - 公開manifestからsource SHA・asset digestを再取得し、確認済み。
 
 ## 作業元
 
 - 専用worktree: `C:\Users\toshi\.codex\worktrees\project-management-integration\circle-kikaku-tools`
-- branch: `codex/sitewide-ui-ux-consistency`
-- 起点SHA: `1936ea8dc7ff260e348946c25f295d8ce6563577`（2026-10-31に確認した公開manifest SHAと一致）
+- branch: `codex/tabs-and-ui-behavior-consistency`
+- 起点SHA: `9c7cc7bf96509785128165745517c9b36730806d`（2026-11-01に確認した公開manifest SHAと一致）
 - この作業の主なReact owner: `apps/react/src/styles.scss`、`apps/react/src/components/ui/SectionHeading.jsx`、`ProjectEntry.jsx`、`Participants.jsx`、`ProjectToolsWorkspace.jsx`、`services/form-maker-workspace.js`
 - 組込メーカー: Form Maker 1.0.7、Mountain Plan 1.0.9。ソースPRとPages production smokeは成功済み。
 - 文字・余白の共通契約: `docs/design/react-typography-spacing.md`
@@ -27,7 +27,9 @@
 |---|---|---|
 | 実際の公開版を見る | `https://mutoshiki.github.io/circle-kikaku-tools/` | 読み取り専用の見た目参照。ライブの企画データは変更しない。版は毎回公開manifestで確認する。 |
 | 以前から開かれている参照タブ | `http://127.0.0.1:4194/?room=PREVIEW-ORIGIN-VERIFY-20261011&view=seisan` | ユーザー指定のタブとして維持する。配信プロセス・build SHAを特定できるまでは、公開版や今回のpreviewと同一とは扱わない。 |
-| このworktreeの変更後preview | `http://127.0.0.1:4291/?debugSample=all-tools&view=seisan&room=DEBUG-AB5CF31E9B9444DF`（検証用port） | `apps/react/dist`をVite previewで配信。全ツールの架空サンプルはこのoriginのlocalStorageのみ。Firebase/Auth/本番ルーム・実フォーム作成には接続しない。 |
+| このworktreeの変更後preview | `http://127.0.0.1:4292/?debugSample=all-tools&view=tools&room=DEBUG-TABS-20261101`（検証用port） | `apps/react/dist`をVite previewで配信。全ツールの架空サンプルはこのoriginのlocalStorageのみ。Firebase/Auth/本番ルーム・実フォーム作成には接続しない。 |
+
+2026-11-01 tabs and UI behavior consistency: worktree `codex/tabs-and-ui-behavior-consistency`, source baseline `9c7cc7bf96509785128165745517c9b36730806d`. Preview URL `http://127.0.0.1:4292/?debugSample=all-tools&view=tools&room=DEBUG-TABS-20261101`; refresh the build/identity check before opening it. The debug sample and tab preferences are isolated to this preview origin.
 
 2026-10-20 settlement detail refinement: preview URL `http://127.0.0.1:4281/?room=SETTLEMENT-DETAIL-20261020&view=seisan`. The in-app side-browser room uses only this preview origin's localStorage. A boundary example is currently stored there (per-person collection `¥1,234,567`, one detail `¥14,803,013`, long Japanese expense name); it is synthetic and does not affect the public site or another browser origin. Multiple driver names in the live side-browser view were not exercised.
 
@@ -63,6 +65,14 @@ npm run check:preview -- --url http://127.0.0.1:4291/ --expected-source-sha 1936
 - 公開版の画面確認は読み取り専用にする。`148A7906`をlocal previewへ持ち込まず、検証用roomにsample dataを入れる。
 
 ## 以前の作業場所
+
+### 2026-11-01 タブ編集・全画面の表示ルール統一
+
+- 作業branch `codex/tabs-and-ui-behavior-consistency`。起点は公開source SHA `9c7cc7bf96509785128165745517c9b36730806d`。
+- 最新local previewは `http://127.0.0.1:4292/?debugSample=all-tools&view=tools&room=DEBUG-BA87E067528B4EEA`。このroomは架空データで、preview originのlocalStorageだけに保存。Firebase/Auth、Google Forms、Apps Scriptには接続しない。
+- Preview buildと配信中asset照合は起点SHAをbaselineに成功。manifest `sourceSha=9c7cc7bf96509785128165745517c9b36730806d`、asset digest `7e62879f2f70bb231237ff19c6b5c56623c44f8dca4d6447b2073aedebe19616`。
+- Unit tests: 182/182 passed。Final browser matrix: 532 cases, 530 passed, 2 skipped, 0 failed across Chromium/WebKit desktop/mobile (20.1 minutes). The initial 30s limit on the WebKit-mobile all-tools sample flow timed out once during the combined suite; it passed twice in isolation (18.9s and 19.0s), was given a 60s budget, and passed in the final full matrix.
+- Side-browser inspection covered tab editor, hidden/show tab change, inline Form Maker/Mountain Plan, participant selection, allocation overflow/capacity, settlement settings, and light/dark at the available fixed width (~536px). This is not a manual review of every modal or desktop viewport. Production release and production smoke have not been performed.
 
 - `C:\Users\toshi\Documents\GitHub\circle-kikaku-tools`は`codex/react-migration-rc`上の既存作業場所。未コミット・未追跡変更85件をそのまま保持し、新しい作業の起点にしない。
 - 既存の`public-current-parity` worktreeはAuth調査用のdirtyな別ブランチ。ここから公開版ソースを推測しない。

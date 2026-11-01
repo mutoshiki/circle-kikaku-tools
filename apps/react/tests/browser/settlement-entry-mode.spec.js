@@ -19,11 +19,11 @@ test('count-only settlement hides unrelated tools, retains Tools, survives reloa
   await settings.getByRole('button', { name: '次へ', exact: true }).click();
   await settings.getByRole('button', { name: '保存', exact: true }).click();
   await expect(settings).toHaveCount(0);
-  await expect(page.getByRole('tab')).toHaveText(['精算', 'ツール']);
+  await expect(page.getByRole('tab')).toHaveText(['精算', 'タブを編集']);
   await expect(page.locator('.settlement-car').first().getByRole('button', { name: /^「車出し1車」支払い内訳：/ })).toBeVisible();
 
   await page.goto(`/?room=${roomId}&view=participants`);
-  await expect(page.getByRole('tab')).toHaveText(['精算', 'ツール']);
+  await expect(page.getByRole('tab')).toHaveText(['精算', 'タブを編集']);
   await expect(page.locator('.settlement-car').first().getByRole('button', { name: /^「車出し1車」支払い内訳：/ })).toBeVisible();
 
   await page.getByRole('button', { name: '精算設定', exact: true }).click();
@@ -45,7 +45,7 @@ test('opening a count-only room with zero counts asks for counts without showing
   room.settlement.standalone = { enabled: true, driverCount: '0', memberCount: '0', driverNames: [] };
   await page.addInitScript(({ id, value }) => localStorage.setItem(`sanpo-react:v1:${id}:room`, JSON.stringify(value)), { id: roomId, value: room });
   await page.goto(`/?room=${roomId}&view=participants`);
-  await expect(page.getByRole('tab')).toHaveText(['精算', 'ツール']);
+  await expect(page.getByRole('tab')).toHaveText(['精算', 'タブを編集']);
   await expect(page.getByRole('heading', { name: '人数を設定してください', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '人数を設定', exact: true })).toBeVisible();
 });

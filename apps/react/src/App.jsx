@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
   Button, Column, Grid, Modal, RadioButton, RadioButtonGroup, Select, SelectItem, Theme, Tabs, TabList, Tab,
-  TabPanels, TabPanel, ToastNotification,
+  TabPanels, TabPanel, ToastNotification, InlineLoading,
 } from '@carbon/react';
 import AppHeader from './components/AppHeader.jsx';
 import Participants from './components/Participants.jsx';
@@ -40,7 +40,6 @@ export default function App({ runtime }) {
   const [activeToolId, setActiveToolId] = useState(() => requestedToolFromView(new URL(location.href).searchParams.get('view')) || legacyToolIds[runtime.initialView ?? 3] || 'settlement');
   const [visitedToolIds, setVisitedToolIds] = useState(() => new Set([requestedToolFromView(new URL(location.href).searchParams.get('view')) || legacyToolIds[runtime.initialView ?? 3] || 'settlement', 'tools']));
   const legacyEntry = new URL(location.href).searchParams.get('legacy') === '1';
-  const [toolsPanelId, setToolsPanelId] = useState(null);
   const standaloneMode = room.settlement?.standalone?.enabled === true;
   const availableTabs = workspaceTabs(workspaceSnapshot.workspace);
   const tabs = legacyEntry
@@ -48,19 +47,14 @@ export default function App({ runtime }) {
     : standaloneMode
       ? [TOOL_REGISTRY.find(tool => tool.id === 'settlement'), availableTabs.find(tool => tool.id === 'tools')].filter(Boolean)
       : availableTabs;
-  const selection = resolveWorkspaceSelection(workspaceSnapshot.workspace, activeToolId);
+  const selection = standaloneMode
+    ? { tabId: activeToolId === 'tools' ? 'tools' : 'settlement', toolId: null, hiddenToolId: null }
+    : resolveWorkspaceSelection(workspaceSnapshot.workspace, activeToolId);
   const selectedIndex = Math.max(0, tabs.findIndex(tool => tool.id === selection.tabId));
   const selectedTabId = tabs[selectedIndex]?.id || 'tools';
   useEffect(() => {
-    setVisitedToolIds(current => {
-      if (current.has(selectedTabId) && (!selection.toolId || current.has(selection.toolId))) return current;
-      const next = new Set(current);
-      next.add(selectedTabId);
-      if (selection.toolId) next.add(selection.toolId);
-      return next;
-    });
-    if (selection.toolId && !toolsPanelId) setToolsPanelId(selection.toolId);
-  }, [selectedTabId, selection.toolId, toolsPanelId]);
+    setVisitedToolIds(current => current.has(selectedTabId) ? current : new Set([...current, selectedTabId]));
+  }, [selectedTabId]);
   const [notice, setNotice] = useState('');
   const [noticeTimeout, setNoticeTimeout] = useState(2600);
   const pendingResetNotice = useRef(null);
@@ -149,14 +143,12 @@ export default function App({ runtime }) {
     if (typeof nextToolId === 'number') nextToolId = tabs[nextToolId]?.id || 'tools';
     setActiveToolId(nextToolId);
     setVisitedToolIds(current => current.has(nextToolId) ? current : new Set([...current, nextToolId]));
-    if (nextToolId === 'tools' || workspaceSnapshot.workspace.tools[nextToolId]?.pinned) setToolsPanelId(null);
     const url = new URL(location.href);
     url.searchParams.delete('allocation');
     const requested = tabs.find(tool => tool.id === nextToolId) || (workspaceSnapshot.workspace.tools[nextToolId]?.enabled ? { view: nextToolId } : null);
     url.searchParams.set('view', requested?.view || (nextToolId === 'tools' ? 'tools' : 'seisan'));
     history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
   }
-  function openUnpinnedTool(toolId) { setToolsPanelId(toolId); setActiveToolId(toolId); setVisitedToolIds(current => current.has(toolId) ? current : new Set([...current, toolId])); const url = new URL(location.href); url.searchParams.set('view', toolId); history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`); }
   function openSettlementSettings({ standalone = false, launcherButtonRef = null } = {}) {
     setSettlementSettingsLauncher(launcherButtonRef);
     setSettlementSettingsEdit(beginSettlementEdit(runtime.store, { standalone }));
@@ -176,15 +168,16 @@ export default function App({ runtime }) {
     const onPopState = () => {
       const url = new URL(location.href);
       const requested = url.searchParams.get('view') === 'tools' ? 'tools' : requestedToolFromView(url.searchParams.get('view'));
-      const next = resolveWorkspaceSelection(workspaceSnapshot.workspace, requested);
-      setToolsPanelId(next.toolId);
+      const next = standaloneMode
+        ? { tabId: requested === 'tools' ? 'tools' : 'settlement', toolId: null }
+        : resolveWorkspaceSelection(workspaceSnapshot.workspace, requested);
       setActiveToolId(requested || next.tabId);
-      const selected = next.toolId || next.tabId;
+      const selected = next.tabId;
       setVisitedToolIds(current => current.has(selected) ? current : new Set([...current, selected]));
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
-  }, [workspaceSnapshot.workspace]);
+  }, [workspaceSnapshot.workspace, standaloneMode]);
   function openCountOnlySettlement() {
     changeView('settlement');
     const requestId = ++countOnlySettlementRequestId.current;
@@ -210,21 +203,19 @@ export default function App({ runtime }) {
     <Theme theme={contentTheme} className="main-surface" data-floating-menu-container>
     <main id="main-content" tabIndex={-1} aria-labelledby="project-heading">
     <h1 id="project-heading" className="cds--visually-hidden">{room.roomName || '企画名未設定'}</h1>
-    {syncStatus.kind === 'connected' && <div className="project-sync-status"><span className="sync-status sync-status--compact" role="status">{syncStatus.message}</span></div>}
-    {syncStatus.kind !== 'local' && syncStatus.kind !== 'connected' && <div className="project-sync-status"><span className="sync-status sync-status--prominent" role="status">{syncStatus.message}</span></div>}
+    {syncStatus.kind === 'error' && <div className="project-sync-status"><span className="sync-status sync-status--prominent" role="status">{syncStatus.message}</span></div>}
     <Grid fullWidth className="content-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><div className="main-content">
-      {projectSetup.status === 'creating' && <ToastNotification kind="info" title="企画を作成しています" subtitle="利用するツールを設定しています。" timeout={0} lowContrast />}
+      {projectSetup.status === 'creating' && <ToastNotification kind="info" title="企画を作成しています" subtitle="最初に表示するタブを準備しています。" timeout={0} lowContrast />}
       {projectSetup.status === 'error' && <ToastNotification kind="error" title="企画を作成できませんでした" subtitle={projectSetup.error?.includes('企画IDが既に使われています') ? '企画一覧に戻り、新しい企画を作成してください。' : '通信状態を確認して、再読み込みしてください。'} timeout={0} lowContrast />}
-      <Tabs selectedIndex={selectedIndex} onChange={({ selectedIndex: index }) => changeView(tabs[index]?.id || 'tools')}>
-        <TabList aria-label="企画のツール" contained className="project-tool-tabs">{tabs.map(tool => <Tab key={tool.id}>{tool.label}</Tab>)}</TabList>
+      {workspaceSnapshot.status === 'loading' ? <div className="workspace-loading" role="status"><InlineLoading description="企画を読み込んでいます" /></div> : <Tabs selectedIndex={selectedIndex} onChange={({ selectedIndex: index }) => changeView(tabs[index]?.id || 'tools')}>
+        <TabList aria-label="企画のタブ" contained className="project-tool-tabs">{tabs.map(tool => <Tab key={tool.id}>{tool.label}</Tab>)}</TabList>
         <TabPanels>
           {tabs.map(tool => <TabPanel className="app-tab-panel" key={tool.id}>
             {!visitedToolIds.has(tool.id) ? null : <>
             {tool.id === 'tools' ? <div className="project-tools-panel">
-              <div className="project-tools-panel__manager" hidden={Boolean(toolsPanelId)}><ToolManager workspaceSnapshot={workspaceSnapshot} workspaceSync={runtime.workspace} openTool={openUnpinnedTool} onNotice={showNotice} /></div>
-              {optionalTools.filter(item => visitedToolIds.has(item.id) && workspaceSnapshot.workspace.tools[item.id]?.pinned !== true).map(item => <div className="project-tool-panel" key={item.id} hidden={toolsPanelId !== item.id}>
-                {toolsPanelId === item.id && <Button kind="ghost" size="sm" onClick={() => { setToolsPanelId(null); setActiveToolId('tools'); }}>ツール一覧へ戻る</Button>}
-                <ExternalToolWorkspace toolId={item.id} runtime={runtime} room={room} onNotice={showNotice} active={toolsPanelId === item.id && item.id === activeToolId} />
+              <ToolManager workspaceSnapshot={workspaceSnapshot} workspaceSync={runtime.workspace} highlightedToolId={selection.hiddenToolId} />
+              {optionalTools.filter(item => visitedToolIds.has(item.id) && workspaceSnapshot.workspace.tools[item.id]?.pinned !== true).map(item => <div className="project-tool-panel" key={item.id} hidden>
+                <ExternalToolWorkspace toolId={item.id} runtime={runtime} room={room} onNotice={showNotice} active={false} />
               </div>)}
             </div>
             : tool.id === 'participants' ? <Participants runtime={runtime} room={room} onNotice={showNotice} onOpenCountOnlySettlement={openCountOnlySettlement} openRegistrationRequestId={participantRegistrationRequest} onRegistrationRequestHandled={consumeParticipantRegistrationRequest} participantStartRef={participantStartRef} roomStatus={syncStatus} />
@@ -234,13 +225,13 @@ export default function App({ runtime }) {
             </>}
           </TabPanel>)}
         </TabPanels>
-      </Tabs>
+      </Tabs>}
     </div></Column></Grid>
     </main>
     </Theme>
     {settlementSettingsEdit && <SettlementSettingsModal runtime={runtime} edit={settlementSettingsEdit} launcherButtonRef={settlementSettingsLauncher} onNotice={showNotice} onClose={closeSettlementSettings} />}
     {globalModal === 'guide' && <Modal className="app-modal" open passiveModal size="md" closeButtonLabel="閉じる" modalHeading="使い方" onRequestClose={() => setGlobalModal('')}>
-      <div className="user-guide"><p>使うツールは企画ごとに選べます。</p><ul><li><strong>応募フォーム</strong><span>企画名と実施日を引き継いでフォームを作成します。回答から参加者を選べます。</span></li><li><strong>参加者</strong><span>参加者を登録し、応募者を参加者に確定します。</span></li><li><strong>車割・班割</strong><span>参加者を車や班に割り当てます。</span></li><li><strong>精算</strong><span>集金額と車ごとの支払額を計算します。人数だけでも精算できます。</span></li><li><strong>共有</strong><span>リンクから同じ企画を開けます。</span></li></ul></div>
+      <div className="user-guide"><p>表示するタブは企画ごとに変更できます。</p><ul><li><strong>応募フォーム</strong><span>企画名と実施日を引き継いでフォームを作成します。回答から参加者を選べます。</span></li><li><strong>参加者</strong><span>参加者を登録し、応募者を参加者に確定します。</span></li><li><strong>車割・班割</strong><span>参加者を車や班に割り当てます。</span></li><li><strong>精算</strong><span>集金額と車ごとの支払額を計算します。人数だけでも精算できます。</span></li><li><strong>共有</strong><span>リンクから同じ企画を開けます。</span></li></ul></div>
     </Modal>}
     {globalModal === 'overview' && <OverviewModal runtime={runtime} room={room} onNotice={showNotice} onClose={() => setGlobalModal('')} />}
     {globalModal === 'history' && <HistoryModal runtime={runtime} onNotice={showNotice} onClose={() => setGlobalModal('')} />}

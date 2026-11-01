@@ -3,18 +3,18 @@ import { test, expect } from '@playwright/test';
 test('shared section heading and spacing foundation keep semantic roles', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?room=UI-FOUNDATION-HEADING&view=tools');
-  await page.getByRole('tab', { name: 'ツール', exact: true }).click();
+  await page.getByRole('tab', { name: 'タブを編集', exact: true }).click();
 
   const app = page.locator('.application');
   await expect(app).toBeVisible();
   await expect.poll(() => app.evaluate(element => getComputedStyle(element).getPropertyValue('--sanpo-ui-section-gap').trim())).toBe('2rem');
 
   const heading = page.locator('.project-tools-workspace .ui-section-heading');
-  await expect(heading.getByRole('heading', { name: 'ツール', exact: true, level: 2 })).toBeVisible();
-  await expect(heading.getByText('使うツールと、タブに表示するツールを選びます。', { exact: true })).toBeVisible();
+  await expect(heading.getByRole('heading', { name: 'タブを編集', exact: true, level: 2 })).toBeVisible();
+  await expect(heading.getByText('使うツールと、タブに表示するツールを選びます。', { exact: true })).toHaveCount(0);
   await expect(heading).toHaveCSS('display', 'flex');
   await expect(heading.getByRole('heading')).toHaveCSS('font-size', '16px');
-  await expect(page.getByRole('heading', { name: '利用するツール', exact: true })).toHaveCSS('font-size', '14px');
+  await expect(page.getByRole('heading', { name: '表示するタブ', exact: true })).toHaveCSS('font-size', '14px');
 });
 
 test('project entry headings share the action layout without changing page-title hierarchy', async ({ page }) => {
@@ -34,17 +34,21 @@ test('project entry headings share the action layout without changing page-title
   await expect(createHeading.getByRole('button', { name: '企画一覧へ戻る' })).toBeVisible();
 });
 
-test('all five application panels share one 16px inset', async ({ page }) => {
+test('tab panels align with the single shared grid gutter', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?room=VISUAL-PANEL-INSET&view=participants');
 
   const panels = page.locator('.app-tab-panel');
   await expect(panels).toHaveCount(5);
-  for (const tabName of ['参加者', '車割', '班割', '精算', 'ツール']) {
+  const tabList = page.locator('.project-tool-tabs');
+  for (const tabName of ['参加者', '車割', '班割', '精算', 'タブを編集']) {
     await page.getByRole('tab', { name: tabName, exact: true }).click();
     const visiblePanel = page.locator('.app-tab-panel:visible');
     await expect(visiblePanel).toHaveCount(1);
-    await expect.poll(() => visiblePanel.evaluate(element => getComputedStyle(element).paddingInlineStart)).toBe('16px');
+    await expect.poll(() => visiblePanel.evaluate(element => getComputedStyle(element).paddingInlineStart)).toBe('0px');
+    const tabLeft = (await tabList.boundingBox()).x;
+    const panelLeft = (await visiblePanel.boundingBox()).x;
+    expect(Math.abs(tabLeft - panelLeft)).toBeLessThanOrEqual(1);
   }
 });
 
@@ -58,7 +62,7 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await sample.getByRole('radio', { name: '通常のサンプル', exact: true }).check({ force: true });
   await sample.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
 
-  const tabs = page.getByRole('tablist', { name: '企画のツール' });
+  const tabs = page.getByRole('tablist', { name: '企画のタブ' });
   await expect(tabs.getByRole('tab')).toHaveCount(5);
   await expect(page.getByRole('heading', { name: '参加者', exact: true })).toHaveCount(0);
   const participantSummary = page.locator('.participants-page > .section-heading h2');

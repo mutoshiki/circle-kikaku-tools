@@ -44,12 +44,10 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .utility-menu-popover .cds--menu { position: static; min-inline-size: 15rem; }
 .sample-form { display: grid; gap: 1rem; }
 .sync-status { color: var(--cds-text-secondary); overflow-wrap: anywhere; }
-.sync-status--compact { @include carbon-type.type-style('label-01'); }
 .sync-status--prominent { @include carbon-type.type-style('body-compact-01'); }
-.sync-status--compact { flex: 0 1 auto; }
 .sync-status--prominent { display: block; }
 .main-content { padding: 0 0 3rem; }
-.app-tab-panel { padding: var(--sanpo-ui-page-inset, #{layout.$spacing-05}); }
+.app-tab-panel { padding: 0; }
 .empty-state { padding: 2rem 0; }
 .initial-empty-state { display: grid; justify-items: start; gap: layout.$spacing-04; padding: layout.$spacing-07; background: var(--cds-layer-01); }
 .initial-empty-state h2, .initial-empty-state p { margin: 0; }
@@ -392,32 +390,24 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .external-tool-workspace { display: grid; gap: var(--sanpo-ui-section-gap, #{layout.$spacing-07}); }
 .project-tools-workspace__heading,
 .project-tool-setting,
-.project-tool-setting__actions,
-.project-tools-manager__actions { display: flex; align-items: center; justify-content: space-between; gap: var(--cds-spacing-04, .75rem); }
+.project-tool-setting__actions { display: flex; align-items: center; justify-content: space-between; gap: var(--cds-spacing-04, .75rem); }
 .project-tools-workspace__heading h2,
 .external-tool-workspace h2 { margin: 0 0 var(--cds-spacing-02, .25rem); }
-.project-tools-workspace__heading p,
-.project-tool-setting__help,
-.project-tools-pinned p { color: var(--cds-text-secondary); margin: 0; }
-.project-tools-manager,
-.project-tools-pinned { display: grid; gap: var(--cds-spacing-04, .75rem); }
-.project-tools-manager h3,
-.project-tools-pinned h3 { @include carbon-type.type-style('heading-compact-01'); margin: 0; }
+.project-tools-workspace__heading p { color: var(--cds-text-secondary); margin: 0; }
+.project-tools-manager { display: grid; gap: var(--cds-spacing-04, .75rem); }
+.project-tools-manager h3 { @include carbon-type.type-style('heading-compact-01'); margin: 0; }
+.project-tools-manager__list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
 .project-tool-setting { min-block-size: 3.5rem; border-block-end: 1px solid var(--cds-border-subtle); flex-wrap: wrap; }
-.project-tool-setting__main .cds--checkbox-wrapper,
+.project-tool-setting[data-highlighted='true'] { margin-inline: calc(var(--cds-spacing-03, .5rem) * -1); padding-inline: var(--cds-spacing-03, .5rem); background: var(--cds-layer-hover-01); outline: 2px solid var(--cds-focus); outline-offset: -2px; }
 .project-tool-setting__actions .cds--checkbox-wrapper { margin: 0; }
 .project-tool-setting__actions { justify-content: flex-end; flex-wrap: wrap; }
-.project-tools-manager__actions { justify-content: flex-start; flex-wrap: wrap; margin-block-start: var(--cds-spacing-03, .5rem); }
-.project-tools-pinned ol { margin: 0; padding-inline-start: var(--cds-spacing-06, 2rem); }
-.project-tools-pinned li { padding-block: var(--cds-spacing-02, .25rem); }
+.project-tool-setting__focus-help { margin: 0; color: var(--cds-text-secondary); }
 .project-tool-panel,
 .external-tool-workspace { display: grid; gap: var(--cds-spacing-05, 1rem); }
 .project-tools-panel [hidden] { display: none !important; }
 .project-tool-panel > .cds--btn,
 .external-tool-workspace > .cds--btn { justify-self: start; }
 @media (max-width: 671px) {
-  .project-tool-setting { align-items: flex-start; flex-direction: column; padding-block: var(--cds-spacing-03, .5rem); }
-  .project-tool-setting__actions { justify-content: flex-start; padding-inline-start: 1.75rem; }
-  .project-tools-manager__actions { align-items: stretch; flex-direction: column; }
-  .project-tools-manager__actions .cds--btn { inline-size: 100%; max-inline-size: none; }
+  .project-tool-setting { align-items: center; padding-block: var(--cds-spacing-03, .5rem); }
+  .project-tool-setting__actions { justify-content: flex-end; }
 }
