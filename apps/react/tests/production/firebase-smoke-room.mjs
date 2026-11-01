@@ -41,10 +41,17 @@ async function runRoomRequest(page, { config, roomId, marker, operation, data, a
         const remove = await fetch(roomUrl, { method: 'DELETE', credentials: 'omit', referrerPolicy: 'origin' });
         if (!remove.ok || await readRoom() !== null) throw new Error('Stale reserved smoke room cleanup could not be verified.');
       }
+      const roomData = data && typeof data === 'object' && !Array.isArray(data) ? { ...data } : data;
+      for (const optionalMap of ['participantTombstones', 'syncOperations']) {
+        const value = roomData?.[optionalMap];
+        if (value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) {
+          delete roomData[optionalMap];
+        }
+      }
       const response = await fetch(roomUrl, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(roomData),
         credentials: 'omit',
         referrerPolicy: 'origin',
       });

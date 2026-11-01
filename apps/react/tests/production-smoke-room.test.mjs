@@ -40,10 +40,17 @@ test('production smoke seeds only the reserved empty room through a browser-orig
     if (options.method === 'PUT') return jsonResponse({ roomName: marker });
     return jsonResponse(null);
   }, async () => {
-    assert.equal(await seedProductionSmokeRoom(evaluatePage(), { config, roomId, marker, data: { roomName: marker } }), 'seeded');
+    assert.equal(await seedProductionSmokeRoom(evaluatePage(), {
+      config,
+      roomId,
+      marker,
+      data: { roomName: marker, participantTombstones: {}, syncOperations: {}, overview: { memo: 'smoke' } },
+    }), 'seeded');
   });
   assert.deepEqual(requests.map(request => request.options.method || 'GET'), ['POST', 'GET', 'PUT']);
   assert.ok(requests.every(request => request.options.referrerPolicy === 'origin'));
+  const seedRequest = requests.find(request => request.options.method === 'PUT');
+  assert.deepEqual(JSON.parse(seedRequest.options.body), { roomName: marker, overview: { memo: 'smoke' } });
 });
 
 test('production smoke does not overwrite unmarked reserved room data', async () => {
