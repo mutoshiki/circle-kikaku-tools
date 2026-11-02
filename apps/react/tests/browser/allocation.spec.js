@@ -70,10 +70,10 @@ test('allocation summaries, metadata columns and fixed state follow the shared h
 
   const participantRow = group.locator('.cds--contained-list-item').filter({ hasText: '参加者 二郎' });
   await participantRow.getByRole('button', { name: '参加者 二郎の操作', exact: true }).click();
-  await page.getByRole('menuitem', { name: 'ランダム割り当てで固定', exact: true }).click();
+  await page.getByRole('menuitem', { name: '配置を固定', exact: true }).click();
   await expect(participantRow.locator('.person-fixed-tag')).toHaveText('固定');
   await participantRow.getByRole('button', { name: '参加者 二郎の操作', exact: true }).click();
-  await page.getByRole('menuitem', { name: 'ランダム割り当ての固定を解除', exact: true }).click();
+  await page.getByRole('menuitem', { name: '固定を解除', exact: true }).click();
   await expect(participantRow.locator('.person-fixed-tag')).toHaveCount(0);
 
   await page.setViewportSize({ width: 320, height: 780 });
@@ -121,7 +121,7 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await expect(car.getByRole('button', { name: /空き/ })).toHaveCount(0);
   await expect(car.getByRole('heading', { name: 'A車', exact: true })).toBeFocused();
   await car.getByRole('button', { name: '仮参加者Bの操作', exact: true }).click();
-  await page.getByRole('menuitem', { name: 'ランダム割り当てで固定', exact: true }).click();
+  await page.getByRole('menuitem', { name: '配置を固定', exact: true }).click();
   await expect(car.locator('.person-fixed-tag')).toContainText('固定');
   await car.getByRole('button', { name: '仮参加者Bの操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '運転手にする', exact: true }).click();
@@ -423,7 +423,7 @@ test('long participant content and action menus remain readable at mobile and 20
   const group = page.getByRole('region', { name: 'A車', exact: true });
   await expect(group).toContainText(longName);
   await group.getByRole('button', { name: `${longName}の操作`, exact: true }).click();
-  await page.getByRole('menuitem', { name: 'ランダム割り当てで固定', exact: true }).click();
+  await page.getByRole('menuitem', { name: '配置を固定', exact: true }).click();
   await expect(group.locator('.person-fixed-tag')).toContainText('固定');
   await group.getByRole('button', { name: `${longName}の操作`, exact: true }).click();
   const menu = page.getByRole('menu');
