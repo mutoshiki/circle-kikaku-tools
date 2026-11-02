@@ -72,6 +72,32 @@ test('participant selection checkbox announces the include action and has a sema
   expect((await saved(page)).participants).toEqual(before.participants);
 });
 
+test('manual participant checkboxes appear only while choosing participants', async ({ page }) => {
+  const roomId = `PARTICIPANT-MANUAL-MODE-${Date.now()}`;
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/?room=${roomId}&view=participants`);
+  await page.getByRole('button', { name: 'その他の操作' }).click();
+  await page.getByRole('menuitem', { name: 'サンプルデータ', exact: true }).click();
+  const sample = page.getByRole('dialog', { name: 'サンプルデータ' });
+  await sample.getByRole('radio', { name: '通常のサンプル', exact: true }).check({ force: true });
+  await sample.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
+  await page.getByRole('tab', { name: '参加者', exact: true }).click();
+  const row = page.locator('.participant-row').first();
+  await expect(row).toBeVisible();
+  await expect(row.getByRole('checkbox')).toHaveCount(0);
+  await page.getByRole('button', { name: '参加者を選び直す', exact: true }).click();
+  const name = await row.locator('.participant-row-title > span').textContent();
+  const checkbox = row.getByRole('checkbox', { name: `${name}を参加者に含める`, exact: true });
+  await expect(checkbox).toBeChecked();
+  await checkbox.focus();
+  await page.keyboard.press('Space');
+  await expect(checkbox).not.toBeChecked();
+  await expect(page.getByRole('button', { name: 'キャンセル', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(row.getByRole('checkbox')).toHaveCount(0);
+  await expect(row).toBeVisible();
+});
+
 test('form applicants can be selected, updated, confirmed, unconfirmed and deleted without identity revival', async ({ page }) => {
   const initial = structuredClone(fixture);
   await page.addInitScript(({ key, room }) => {

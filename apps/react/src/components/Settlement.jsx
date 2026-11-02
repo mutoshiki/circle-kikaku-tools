@@ -451,7 +451,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
   if (countOnlyNeedsCounts || (!result.participants.length && !result.isStandaloneSettlement)) return <section className="settlement-page">
     {room.settlement?.standalone?.enabled === true
       ? <div className="initial-empty-state" aria-labelledby="settlement-counts-missing-heading"><h2 id="settlement-counts-missing-heading">人数を設定してください</h2><p>人数だけで精算するには、運転手または同乗者の人数を設定します。</p><Button ref={settlementStartRef} onClick={() => onOpenSettings?.({ standalone: true, launcherButtonRef: settlementStartRef })}>人数を設定</Button><Button kind="ghost" onClick={() => onOpenSettings?.({ launcherButtonRef: settlementStartRef })}>通常の精算に切り替える</Button></div>
-      : <InitialEmptyState headingId="settlement-initial-heading" title="精算を始める" description="参加者を追加するか、人数だけで精算を始められます。" primaryAction={{ label: hasFormApplication ? '参加者を確認' : '参加者を追加', onClick: onOpenParticipantRegistration }} alternateAction={{ label: '人数だけで精算', buttonRef: settlementStartRef, onClick: () => onOpenSettings?.({ standalone: true, launcherButtonRef: settlementStartRef }) }} roomStatus={roomStatus} />}
+      : <InitialEmptyState headingId="settlement-initial-heading" title="精算" description="参加者を登録するか、人数を入力して精算できます。" primaryAction={{ label: '人数だけで精算', buttonRef: settlementStartRef, onClick: () => onOpenSettings?.({ standalone: true, launcherButtonRef: settlementStartRef }) }} alternateAction={{ label: hasFormApplication ? '参加者を確認' : '参加者を追加', onClick: onOpenParticipantRegistration }} roomStatus={roomStatus} />}
   </section>;
   const memoText = state.memo?.trim();
   return <section className="settlement-page" aria-label="精算">

@@ -152,7 +152,7 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
     }
   }
   async function dispose() { unsubscribe?.(); unsubscribe = null; unsubscribePortal?.(); unsubscribePortal = null; applicantSync.dispose(); sync.dispose(); workspace.dispose(); await transport?.dispose(); }
-  const runtime = { roomId, debugSample, initialView: launch.initialView, get handoffToken() { return handoffCapability.getSnapshot().token; }, handoffCapability, store, storage: roomStorage, sync, workspace, projectSetup: { getSnapshot: () => projectSetup, subscribe(listener) { setupListeners.add(listener); return () => setupListeners.delete(listener); } }, history: roomHistory, overviewDraft, routeDraft, routeService, external, createShareUrl: () => createShareUrl(new URL(location.href, launch.href).href), start, dispose };
+  const runtime = { roomId, debugSample, initialView: launch.initialView, initialToolId: launch.initialToolId, isNewProject: Boolean(pendingCreate), get handoffToken() { return handoffCapability.getSnapshot().token; }, handoffCapability, store, storage: roomStorage, sync, workspace, projectSetup: { getSnapshot: () => projectSetup, subscribe(listener) { setupListeners.add(listener); return () => setupListeners.delete(listener); } }, history: roomHistory, overviewDraft, routeDraft, routeService, external, createShareUrl: () => createShareUrl(new URL(location.href, launch.href).href), start, dispose };
   return runtime;
 }
 

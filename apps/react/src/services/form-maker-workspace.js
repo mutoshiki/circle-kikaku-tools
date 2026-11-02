@@ -1,5 +1,5 @@
 export const offlineFormMakerSession = Object.freeze({
-  async prepare() { return { accepting: false, acceptanceMode: 'paused' }; },
+  async prepare() { return { accepting: false, acceptanceMode: 'paused', previewOnly: true }; },
   async listJobs() { return []; },
   async getJob() { return null; },
   async enqueue() { throw new Error('オフラインの確認画面ではフォームを作成できません。'); },
@@ -18,7 +18,7 @@ export function createFormMakerWorkspaceProps({ runtime, room, active = true, on
   const eventDate = String(room?.meta?.eventDate || room?.meta?.applicationSync?.eventDate || room?.eventDate || '');
   const project = Object.freeze({
     roomId: runtime.roomId,
-    projectName: String(room?.roomName || '').trim() || '新しい企画',
+    projectName: String(room?.roomName || '').trim(),
     eventDate,
     ...(debugSample ? {
       debugSample: true,
@@ -39,6 +39,7 @@ export function createFormMakerWorkspaceProps({ runtime, room, active = true, on
     onNotice,
     createProjectLink: () => runtime.external.prepareApplicationForm({ room }),
     onHandoffReady: result => runtime.external.acceptApplicationFormHandoff(result),
+    onProjectNameChange: name => runtime.store.command('rename', { name }),
   };
 }
 

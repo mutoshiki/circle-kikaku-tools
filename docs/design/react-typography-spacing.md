@@ -168,3 +168,28 @@ The verified local-only preview was built from this worktree against published b
 | Project list / project creation | Open recent project and create a project in a new tab | 390 × 844 and 1280 × 900 | Light and dark | Pointer; native link new-tab behavior | Pass | `project-navigation.spec.js`, `project-workspace.spec.js` | Browser zoom, physical devices, and screen readers were not exercised |
 
 Targeted Playwright suite: 84/84 checks passed across Chromium and WebKit on desktop and mobile, including both Carbon themes for shell/modal states. The local project data is isolated to preview-origin local storage; no production room or Firebase write was used.
+
+### 2026-11-02 project start and mobile usability
+
+The verified preview was served at `http://127.0.0.1:4295/` from the local-only build based on published source SHA `e1c43ff3693d8d6a992e276b71c117b878b13e54`. Side-browser review used its available 459 × 676 viewport; the all-tools fixture and an empty room were saved only to this preview origin's localStorage.
+
+| Screen / modal | State | Width × height | Theme | Keyboard | Result | Evidence | Reason if unverified |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Form Maker inline | Filled sample, dates, concise field labels | 459 × 676 | Dark and light | No field edits or form creation | Pass; `plan-name` computed 16px/400/24px, page width 444px at 459px viewport | Side-browser screenshot and DOM inspection; `project-workspace.spec.js` | iOS date picker, physical IME, and desktop side-browser viewport were not exercised |
+| Participants initial state | No form, no participants; primary add action and count-only settlement link | 459 × 676 | Light and dark | Pointer theme switch only | Pass; heading computed 20px/400/28px, primary button min-height 48px; no horizontal overflow | Side-browser screenshot and DOM inspection; `initial-empty-state.spec.js` | Screen reader and physical device were not exercised |
+| Hidden participants registration | Participants tab hidden; register and save from empty allocation | Chromium mobile/desktop and WebKit mobile | Automated themes | Pointer; modal save | Pass | `initial-empty-state.spec.js`: hidden participant registration regression | Physical keyboard and screen reader were not exercised |
+
+The test run found two stale browser expectations for the new participant-first route/copy; those expectations were updated, and the six affected cases passed on rerun. The added hidden-tab registration and Form Maker name/IME synchronization cases passed in all three targeted browser projects. iOS Safari, real IME input, cross-device rename, and legacy names over 100 characters remain unverified.
+
+### 2026-11-02 mobile surface and tool layout
+
+The local preview at `http://127.0.0.1:4296/` used source baseline `e1c43ff3693d8d6a992e276b71c117b878b13e54` and synthetic room `DEBUG-3AFDBB835FDB4218`. It used local storage only; no Firebase, Form, Apps Script, or live project mutation occurred.
+
+| Screen / modal | State | Width × height | Theme | Keyboard | Result | Evidence | Reason if unverified |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Mountain Plan inline | All-tools sample, first step, labels and native date/time fields | 1280 × 720 | Dark | Tab focus not manually exercised | Pass; heading, field labels, and date control stay within the shared content inset; no horizontal page overflow | Side-browser DOM/screenshot; `project-workspace.spec.js` geometry assertion at 390px | The side-browser viewport could not be resized to mobile; automated mobile geometry was used. Light theme, physical iOS picker, and keyboard traversal were not manually reviewed |
+| Form Maker inline | Filled synthetic fields and local save action visible; no form created | 1280 × 720 | Dark | No field edit or submit | Pass; shared project name and date fields render inside project workspace | Side-browser DOM/screenshot; `project-workspace.spec.js` offline preview test | Mobile was automated, not manually shown in this side-browser session; live Google Form creation is intentionally untested |
+| Participants | 13 confirmed from 15 applications; normal viewing state | 1280 × 720 | Dark | Selection was not changed | Pass; no selection checkboxes in normal view; selection action remains available | Side-browser accessibility tree; `participants.spec.js` cancel/no-write test | Selection mode itself was automated, not changed in the manual sample |
+| Settlement | Synthetic multi-vehicle payment summary | Chromium mobile, 393px | Automated theme | Not manually operated | Pass; vehicle typography and label/value alignment assertions | `settlement.spec.js` | Side-browser was left on Mountain Plan for final visual review |
+
+The first visual pass found the embedded Mountain Plan narrow Carbon Grid canceling the common inset with a negative margin. The embedded package now resets that Grid margin; a mobile regression assertion covers the heading, required-field label, and date control bounds. These changes do not affect the standalone plan builder or PDF styles. No modal was opened or changed in this task; prior modal evidence remains historical rather than new confirmation.

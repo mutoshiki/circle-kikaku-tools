@@ -2,10 +2,10 @@ import { test, expect } from '@playwright/test';
 import { fixture } from '../reference.mjs';
 
 const cases = [
-  { view: 'participants', tab: '参加者', heading: '参加者を登録して始める', description: '参加者を登録すると、車割・班割・精算ができます。', primary: '参加者を追加', alternate: '人数だけで精算' },
-  { view: 'car', tab: '車割', heading: '車割を始める', description: 'まず参加者を登録してください。', primary: '参加者を追加' },
-  { view: 'team', tab: '班割', heading: '班割を始める', description: 'まず参加者を登録してください。', primary: '参加者を追加' },
-  { view: 'seisan', tab: '精算', heading: '精算を始める', description: '参加者を追加するか、人数だけで精算を始められます。', primary: '参加者を追加', alternate: '人数だけで精算' },
+  { view: 'participants', tab: '参加者', heading: '参加者が登録されていません', description: '名前を登録すると、車割・班割・精算に使えます。', primary: '参加者を追加', alternate: '人数だけで精算' },
+  { view: 'car', tab: '車割', heading: '車割', description: '参加者を追加すると、割り当てを設定できます。', primary: '参加者を追加' },
+  { view: 'team', tab: '班割', heading: '班割', description: '参加者を追加すると、割り当てを設定できます。', primary: '参加者を追加' },
+  { view: 'seisan', tab: '精算', heading: '精算', description: '参加者を登録するか、人数を入力して精算できます。', primary: '人数だけで精算', alternate: '参加者を追加' },
 ];
 
 for (const state of cases) {
@@ -25,10 +25,10 @@ for (const state of cases) {
   });
 }
 
-test('a new room opens on settlement and orders participant registration before count-only setup', async ({ page }) => {
-  await page.goto('/?room=INITIAL-DEFAULT-SETTLEMENT');
-  await expect(page.getByRole('tab', { name: '精算', exact: true })).toHaveAttribute('aria-selected', 'true');
-  const panel = page.getByRole('tabpanel', { name: '精算', exact: true });
+test('a new room without an application form opens on participants', async ({ page }) => {
+  await page.goto('/?room=INITIAL-DEFAULT-PARTICIPANTS');
+  await expect(page.getByRole('tab', { name: '参加者', exact: true })).toHaveAttribute('aria-selected', 'true');
+  const panel = page.getByRole('tabpanel', { name: '参加者', exact: true });
   const actions = panel.locator('.initial-empty-state__actions button');
   await expect(actions).toHaveText(['参加者を追加', '人数だけで精算']);
   await expect(actions.nth(0)).toHaveClass(/cds--btn--primary/);
@@ -136,4 +136,34 @@ test('count-only setup opens from participant and settlement empty states, cance
     expect(await page.evaluate(storageKey => localStorage.getItem(storageKey), key)).toBe(before);
     await expect(settlementStart).toBeFocused();
   }
+});
+
+test('participant registration remains available when the participants tab is hidden', async ({ page }) => {
+  const roomId = 'INITIAL-HIDDEN-PARTICIPANTS';
+  const workspace = {
+    schemaVersion: 1,
+    template: null,
+    tools: {
+      participants: { enabled: true, pinned: false },
+      car: { enabled: true, pinned: true },
+      settlement: { enabled: true, pinned: true },
+    },
+    tabOrder: ['car', 'settlement'],
+    revision: 1,
+    createdAt: 100,
+    updatedAt: 100,
+  };
+  await page.addInitScript(({ id, value }) => localStorage.setItem(`sanpo-workspace:v1:${encodeURIComponent(id)}`, JSON.stringify(value)), { id: roomId, value: workspace });
+  await page.goto(`/?room=${roomId}&view=car`);
+  const carPanel = page.getByRole('tabpanel', { name: '車割', exact: true });
+  await carPanel.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '参加者を登録', exact: true });
+  await expect(dialog).toBeVisible();
+  await expect(page.getByRole('tab', { name: '参加者', exact: true })).toHaveCount(0);
+  await dialog.getByRole('textbox', { name: '参加者の名前' }).fill('手入力参加者');
+  await dialog.getByRole('button', { name: '参加者を登録', exact: true }).last().click();
+  await expect(dialog).toHaveCount(0);
+  const stored = await page.evaluate(storageKey => JSON.parse(localStorage.getItem(storageKey)), `sanpo-react:v1:${roomId}:room`);
+  expect(Object.values(stored.participants || {}).some(participant => participant.name === '手入力参加者')).toBe(true);
+  await expect(page.getByRole('tab', { name: '参加者', exact: true })).toHaveCount(0);
 });

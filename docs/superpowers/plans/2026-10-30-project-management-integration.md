@@ -337,11 +337,15 @@ Carbon公式のTabs指針は水平スクロールを許容する。参照: https
 
 **実装順序:** Phase 0で既存仕様と最小追加範囲を確認→1・2で一覧/テンプレート/共有タブ→3で既存連携の再利用を確認→3bでフォームの同一企画接続→4で既存Windows経路を整理→5で必要な登山情報の引き継ぎ。4の既存CSV案内は3bの完了を待たず進められる。確定した5点を再確認することを実装開始条件にしない。Phase 6は本依頼の確定仕様に反する先取りを避け、別途明示された場合に着手する。
 
+### 本番フォーム連携の追記（2026-11-02）
+
+同一P9企画へのフォーム作成と回答の手動full-refreshは確認したが、自動フォーム送信同期は確認できなかった。worker sourceはレビュー済みSHAへ戻した。作成したP9フォーム・回答シート・`meta/applicationSync`は削除済み。一方、Firebase Rulesが拒否した`projectFormLinksV1/P9A93LMQ`レコードと削除済みフォームを指すworker Script Propertiesは残り、未解決である。参加者・配置・精算データ保持の前後比較と共有タブ設定の保存確認も未完了。したがってPhase 3bは未完了のまま扱う。
+
 ### 実行結果（2026-10-30・継続）
 
 - Phase 1/2: browser-local企画一覧、同一画面の名前・テンプレート選択、共有workspace設定、任意ツール管理、常設Toolsタブを実装。既存room直リンクと人数だけ精算を維持。
 - Phase 3: 応募者の選び直し・既存参加者フローを回帰確認。応募回答差分適用UIや既存同期方式の変更は追加していない。
-- Phase 3b: ローカル候補は実装。Reactで一回限りのroom-link予約を取り、portalがprotocol v2 jobを作成、workerが既存roomと予約の一致を検証してETag付きで`meta/applicationSync`のみを書き込む。room rootの初期化・全体上書き、参加者・割当・費用・精算のコピーはしない。実workerのアカウント／正本はユーザーが示したブラウザーで確認。実サービスへのdeploy・実フォーム・専用roomでのend-to-end smokeはデプロイ時の明示確認待ちで未実施。
+- Phase 3b: ローカル候補とworker deployは完了。Reactで一回限りのroom-link予約を取り、portalがprotocol v2 jobを作成、workerが既存roomと予約の一致を検証してETag付きで`meta/applicationSync`のみを書き込む。room rootの初期化・全体上書き、参加者・割当・費用・精算のコピーはしない。専用workerは`sanpokai.formmaker@gmail.com`の対象プロジェクトへ反映し、queue 5分・回答同期1時間のトリガーを確認。`React Production Release` run `41303105246`（SHA `e1c43ff3693d8d6a992e276b71c117b878b13e54`）は成功。実フォーム作成・架空回答同期は未確認。2026-11-02の匿名ブラウザーはP9 room read可、workspace/form reservation readはRulesで401となったため、認証済みの企画オーナー用ブラウザー接続が必要。
 - Phase 4: 既存の権限付きWindows提出書類経路と条件不足時の案内を企画ツール入口から再利用。Windowsアプリと生成処理の変更なし。
 - Phase 5: 許可を得た分離worktree `codex/mountain-project-import` で登山メーカーの取込UIを追加。渡す値はroom ID・企画名・開催日だけとし、参加者情報は渡さない。開催日は利用者が適用を選び、既入力欄は上書きしない。
 - 検証（前回分）: React unit 164/164、Firebase emulator 4/4、React browser 486 passed・2 skipped (488 total)。登山メーカー unit 10/10、build成功、既存を含むE2E 42/42。React preview buildとorigin照合が成功。サイドブラウザで企画作成・精算開始・Tools管理を実操作確認。

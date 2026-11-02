@@ -124,11 +124,21 @@ Carbon MCP / carbon-builderで公式契約とインストール済みパッケ�
 - [ ] 全ツールの架空データで全画面・modal inventoryの全到達可能状態を手動確認。自動テスト/代表状態の確認は記録するが未確認を手動pass扱いしない。実機・screen readerは未検証。
 - [x] unitテスト182/182、全browser matrix532件中530件成功・2件skip・失敗0件を確認。初回のWebKitモバイルsample-flow timeoutは60秒へ修正し、全matrix再実行で通過。
 - [x] 公開manifestを基準に`build:preview`と`check:preview`を実行し、サイドブラウザでlight/dark、各タブと代表modalを確認。サイドブラウザは今回viewport固定のためdesktop実画面手動確認は未実施。
-- [ ] 実装の依頼を受けた後の通常公開はAGENTSどおり、source repoのPR/CI、Circle PR/CI/merge、mainの対象SHAのReadiness、既存React Production Release、root両ブラウザsmoke/P9A93LMQ cleanup/rollback artifactの順に進める。依存・workspace保存処理の変更はUI-only扱いを強制しない。
+- [x] 通常公開をmain SHA `e1c43ff3693d8d6a992e276b71c117b878b13e54`で実施。`React Production Release` run `41303105246`がReadiness、compatibility/root deploy、両ブラウザsmoke、両P9 cleanup、rollback artifact保存まで成功。実データとの再照合でrelease markerの残存を検出し、既存のmarker guardに従いP9の該当roomのみ追加削除して、空を再確認した。
 - [ ] 実装PRの計画書には「公開時に確認する項目」として記載し、実績SHA/run/cleanup結果は完了報告と既存の公開記録に記す。チェックを埋めるためだけの追加PR・再公開を繰り返さない。
+
+### Continuation record — 2026-11-02
+
+- P9のroomはread-only比較によりrelease smoke markerと架空fixtureだけと確認できた。release cleanup後にも残っていたため、完全一致markerの確認後に削除し、nullを再確認。通常企画・フォーム・回答には触れていない。
+- 新規Playwright sessionはFirebase匿名UIDであり、`projectWorkspacesV1/P9A93LMQ`と`projectFormLinksV1/P9A93LMQ`のreadがHTTP 401。タブ編集の共有保存、フォーム作成、実フォーム回答は行わず、認証済み企画オーナーsessionが必要な状態として残す。
+- 全画面/全modalの手動matrixは既存の未確認分があり、過去の代表状態チェックを全件完了扱いにはしない。
 
 ## 実装順と終了条件
 
 Task 0（有無まで調査）→ Task 1（タブ編集・初期状態不整合）→ Task 2（通知）→ Task 3（余白）→ Task 4（全画面・メーカー）→ Task 5（確認・公開）。
 
 実装状況は各Taskのチェックと `docs/design/ui-screen-matrix.md` の差分表に記録する。完了は、差分表を消化し、保存・連携・計算・PDFの必要な検証と本番smoke/cleanupに成功した時点とする。未確認の手動状態は未確認のまま報告する。
+
+### P9連携確認追記（2026-11-02）
+
+P9の架空フォーム回答を1件追加送信したが、自動送信同期の実行記録と応募者数の更新は確認できなかった。私が作成したP9フォームと回答シートは削除済み。Firebase Rulesが拒否した連携レコード、削除済みフォームのworker Script Properties、共有タブsidecar保存、参加者・配置・精算データ保持の前後比較が残るため、全画面・全機能の完了判定は未実施。

@@ -34,18 +34,24 @@ test('project entry headings share the action layout without changing page-title
   await expect(createHeading.getByRole('button', { name: '企画一覧へ戻る' })).toBeVisible();
 });
 
-test('tab panels align with the single shared grid gutter', async ({ page }) => {
+test('mobile tool surface reaches viewport edges and content keeps one shared inset', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?room=VISUAL-PANEL-INSET&view=participants');
 
   const panels = page.locator('.app-tab-panel');
   await expect(panels).toHaveCount(5);
   const tabList = page.locator('.project-tool-tabs');
+  const grid = page.locator('.content-grid');
+  const main = page.locator('.main-content');
+  await expect.poll(() => grid.evaluate(element => Math.round(element.getBoundingClientRect().x))).toBe(0);
+  await expect.poll(() => tabList.evaluate(element => Math.round(element.getBoundingClientRect().x))).toBe(0);
+  await expect.poll(() => tabList.evaluate(element => Math.round(element.getBoundingClientRect().width))).toBe(390);
+  await expect.poll(() => main.evaluate(element => Math.round(element.getBoundingClientRect().width))).toBe(390);
   for (const tabName of ['参加者', '車割', '班割', '精算', 'タブを編集']) {
     await page.getByRole('tab', { name: tabName, exact: true }).click();
     const visiblePanel = page.locator('.app-tab-panel:visible');
     await expect(visiblePanel).toHaveCount(1);
-    await expect.poll(() => visiblePanel.evaluate(element => getComputedStyle(element).paddingInlineStart)).toBe('0px');
+    await expect.poll(() => visiblePanel.evaluate(element => getComputedStyle(element).paddingInlineStart)).toBe('16px');
     const tabLeft = (await tabList.boundingBox()).x;
     const panelLeft = (await visiblePanel.boundingBox()).x;
     expect(Math.abs(tabLeft - panelLeft)).toBeLessThanOrEqual(1);

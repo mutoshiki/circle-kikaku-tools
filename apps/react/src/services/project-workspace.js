@@ -85,7 +85,8 @@ export function normalizeWorkspace(value) {
 
 export function resolveInitialTool(workspace) {
   const normalized = normalizeWorkspace(workspace);
-  if (normalized.tools.settlement?.pinned) return 'settlement';
+  if (normalized.tools['application-form']?.enabled && normalized.tools['application-form']?.pinned) return 'application-form';
+  if (normalized.tools.participants?.enabled && normalized.tools.participants?.pinned) return 'participants';
   return normalized.tabOrder[0] || 'tools';
 }
 
