@@ -6,8 +6,9 @@
 
 1. 変更前に対象SHA、`origin/main`、未コミット変更を一度確認する。無関係な差分は保持する。
 2. ローカルとCIの選択基準は `node tools/classify-release-changes.mjs <base-sha> <head-sha>` にそろえる。
-3. `profile=docs` はアプリ検証なし、`profile=react-leaf` は明示された表示専用ファイルと対応specのみを実行する。それ以外、未知path、差分取得不能は全系列へ広げる。
-4. 共有UI、App shell、style、domain、service、sync、store、Firebase、schema、依存/config変更はfull扱いを維持する。allowlistへ追加するときは実際のimportと保存・計算副作用を調べ、変更前に分類テストを追加する。
+3. CI分類器は実際のdiff内容と変更領域を確認する。表示文言だけのReact component変更は、component名と変更されたbrowser specから対象テストを選ぶ。静的な表示・レイアウト変更は対象specとvisual checkを選ぶ。
+4. event handler、状態遷移、保存・計算、共有UI、App shell、domain、service、sync、store、Firebase、schema、依存/config変更、unknown path、diff取得不能はfull扱いにする。判定できない場合は狭めない。
+5. 対象specは変更されたspec自身またはcomponentと同名のspecから動的に選ぶ。対象specが見つからないcomponent変更はfull扱いとする。固定のファイル単位許可リストは使わない。
 
 ## ローカル検証
 
