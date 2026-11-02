@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { fixture, createReference } from '../reference.mjs';
-import { openRoutePlannerFromMovementSettings, openVehicleExpenseEditor, returnToMovementSettingsFromRoutePlanner } from '../browser/settlement-smoke-actions.mjs';
+import { openDistanceGuideFromMovementSettings, openVehicleExpenseEditor, returnToMovementSettingsFromDistanceGuide } from '../browser/settlement-smoke-actions.mjs';
 import { cleanupProductionSmokeRoom, seedProductionSmokeRoom } from './firebase-smoke-room.mjs';
 import { createSmokeDiagnostics } from './production-smoke-diagnostics.mjs';
 
@@ -151,22 +151,11 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
     await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
     await editor.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
     await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
-    await openRoutePlannerFromMovementSettings(editor);
-    const routeModal = page.getByRole('dialog', { name: /仮参加者A/ });
-    await routeModal.getByRole('button', { name: /出発地を追加/ }).click();
-    const search = routeModal.getByRole('searchbox', { name: '場所を検索' });
-    await search.fill('東京駅');
-    await expect(routeModal.locator('.route-place-results')).toBeVisible();
-    await routeModal.locator('.route-place-results .cds--contained-list-item').first().click();
-    await routeModal.getByRole('button', { name: /目的地を追加/ }).click();
-    await search.fill('新宿駅');
-    await expect(routeModal.locator('.route-place-results')).toBeVisible();
-    await routeModal.locator('.route-place-results .cds--contained-list-item').first().click();
-    await expect(routeModal.locator('.route-leg-summary')).toBeVisible({ timeout: 60000 });
-    await expect(routeModal.getByRole('radio')).toHaveCount(0);
-    await expect(routeModal.getByRole('button', { name: /地図/ })).toHaveCount(0);
+    await openDistanceGuideFromMovementSettings(editor);
+    await expect(editor.locator('.distance-guide__step')).toHaveCount(4);
+    await expect(editor.getByRole('link', { name: 'Googleマップを開く' })).toHaveAttribute('href', 'https://www.google.com/maps');
     expect(forbiddenResponses).toEqual([]);
-    await returnToMovementSettingsFromRoutePlanner(routeModal);
+    await returnToMovementSettingsFromDistanceGuide(editor);
     await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
     await editor.getByRole('button', { name: 'ガソリン代を適用' }).click();
     await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();

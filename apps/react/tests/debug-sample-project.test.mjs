@@ -70,7 +70,6 @@ test('debug-sample URL forces isolated local-only storage even in production-con
     history,
     storage: local,
     crypto: globalThis.crypto,
-    routeService: { calculate: () => { throw new Error('should remain disabled'); } },
   }, { VITE_REACT_SYNC_MODE: 'production', VITE_REACT_FIREBASE_CONFIG: '{"projectId":"production"}' });
   try {
     runtime.start();

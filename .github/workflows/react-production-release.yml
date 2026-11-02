@@ -105,7 +105,6 @@ jobs:
         shell: bash
         env:
           REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
-          REACT_MAPS_API_KEY: ${{ secrets.REACT_MAPS_API_KEY }}
           RULES_ROLLBACK_READY_SHA: ${{ vars.REACT_FIREBASE_RULES_ROLLBACK_READY_SHA }}
           RULES_RELEASE_SHA: ${{ vars.REACT_FIREBASE_RULES_RELEASE_SHA }}
         run: |
@@ -114,7 +113,6 @@ jobs:
           expected_rules="$(git rev-parse HEAD:firebase/database.rules.json)"
           test "$RULES_RELEASE_SHA" = "$expected_rules"
           test -n "$REACT_FIREBASE_API_KEY"
-          test -n "$REACT_MAPS_API_KEY"
           echo "Production config and Rules SHA gates passed for $GITHUB_SHA. Values were not printed."
       - name: Install React dependencies
         working-directory: apps/react
@@ -125,12 +123,10 @@ jobs:
           VITE_BASE_PATH: ./
           VITE_REACT_SYNC_MODE: production
           REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
-          REACT_MAPS_API_KEY: ${{ secrets.REACT_MAPS_API_KEY }}
         shell: bash
         run: |
           set -euo pipefail
           export VITE_REACT_FIREBASE_CONFIG="$(node --input-type=module -e 'process.stdout.write(JSON.stringify({ apiKey: process.env.REACT_FIREBASE_API_KEY, authDomain: "sanpokai-tool.firebaseapp.com", databaseURL: "https://sanpokai-tool-default-rtdb.firebaseio.com", projectId: "sanpokai-tool", storageBucket: "sanpokai-tool.firebasestorage.app", messagingSenderId: "79505558920", appId: "1:79505558920:web:3f9a9a333fc77de7a7fe3d" }))')"
-          export VITE_REACT_MAPS_API_KEY="$REACT_MAPS_API_KEY"
           npm run build
           echo "React app built once for $GITHUB_SHA."
       - name: Assemble root React artifact
@@ -308,7 +304,7 @@ jobs:
         uses: actions/deploy-pages@v5
         with:
           artifact_name: github-pages-compatibility
-      - name: Verify compatibility app, Firebase, Maps, Places, Routes, and legacy read compatibility
+      - name: Verify compatibility app, Firebase, and legacy read compatibility
         id: compatibility-smoke
         if: needs.prepare.outputs.release_mode == 'migration' && steps.compatibility-deployment.outcome == 'success'
         working-directory: apps/react

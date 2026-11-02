@@ -9,10 +9,10 @@ export async function openVehicleExpenseEditor(page, { carLabel, action }) {
   return page.getByRole('dialog', { name: new RegExp(`^${carLabel}：`) });
 }
 
-export async function openRoutePlannerFromMovementSettings(dialog) {
-  await dialog.getByRole('button', { name: 'ルートから距離を計算', exact: true }).click();
+export async function openDistanceGuideFromMovementSettings(dialog) {
+  await dialog.getByRole('button', { name: 'Googleマップで距離を確認', exact: true }).click();
 }
 
-export async function returnToMovementSettingsFromRoutePlanner(dialog) {
+export async function returnToMovementSettingsFromDistanceGuide(dialog) {
   await dialog.getByRole('button', { name: '戻る', exact: true }).click();
 }

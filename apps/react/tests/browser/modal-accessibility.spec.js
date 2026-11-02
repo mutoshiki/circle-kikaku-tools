@@ -22,8 +22,11 @@ test('vehicle expense dialog name includes the vehicle and current task', async 
   const movement = page.getByRole('dialog', { name: '仮参加者A車：ガソリン代を設定' });
   await expect(movement).toBeVisible();
   await expect(movement.getByRole('region', { name: '仮参加者A車：ガソリン代を設定の内容' })).toBeVisible();
-  await page.getByRole('button', { name: 'ルートから距離を計算' }).click();
-  await expect(page.getByRole('dialog', { name: '仮参加者A車：ルートから距離を計算' })).toBeVisible();
+  await movement.getByRole('button', { name: 'Googleマップで距離を確認' }).click();
+  const guide = page.getByRole('dialog', { name: '仮参加者A車：Googleマップで移動距離を確認' });
+  await expect(guide).toBeVisible();
+  await expect(guide.getByRole('link', { name: 'Googleマップを開く' })).toBeFocused();
+  await expect(guide.locator('.distance-guide__step')).toHaveCount(4);
   await page.getByRole('button', { name: '戻る' }).click();
   await expect(page.getByRole('dialog', { name: '仮参加者A車：ガソリン代を設定' })).toBeVisible();
   await movement.getByRole('button', { name: '戻る' }).click();

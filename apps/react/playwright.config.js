@@ -11,7 +11,6 @@ if (configuredWorkers && !['1', '2'].includes(configuredWorkers)) {
 }
 process.env.VITE_REACT_SYNC_MODE = 'local';
 delete process.env.VITE_REACT_FIREBASE_CONFIG;
-delete process.env.VITE_REACT_MAPS_API_KEY;
 // See tests/browser/font-readiness.js: actual font loads are asserted separately.
 process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY = '1';
 export default defineConfig({

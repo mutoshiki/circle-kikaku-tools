@@ -11,11 +11,6 @@ test.beforeEach(async ({ page }, testInfo) => {
       localStorage.setItem(key, JSON.stringify(value));
       sessionStorage.setItem(`seed:${key}`, '1');
     }
-    window.__REACT_ROUTE_ADAPTER__ = {
-      async search(query) { return query === 'なし' ? [] : [{ query }]; },
-      async resolve(prediction) { return { placeId: prediction.query, name: prediction.query, address: '', latitude: prediction.query === '出発地' ? 35 : 36, longitude: prediction.query === '出発地' ? 139 : 140 }; },
-      async calculate(state) { return { ...state, routes: [{ id: 'fixture-route', label: 'おすすめ', distanceMeters: 12345, durationSeconds: 3600, legs: [{ distanceMeters: 12345, durationSeconds: 3600 }], hasTolls: false, hasHighways: false, tollPrice: '', mainRoads: [] }], selectedRouteIndex: 0, calculatedAt: Date.now() }; },
-    };
     window.__REACT_EXTERNAL_ADAPTERS__ = {
       async handoff() { return { ok: true, filename: '参加者.csv', participants: [{ studentId: 'S001', name: '仮参加者A' }] }; },
       async bugReport(payload) { window.__phase6BugReport = payload; return { ok: true }; },
@@ -53,7 +48,7 @@ test('guidance, CSV, utility report, notifications and URL security', async ({ p
   expect(errors).toEqual([]);
 });
 
-test('route draft stays local and selected distance alone enters shared settlement', async ({ page }) => {
+test('manual distance entry survives Google Maps handoff and saves through settlement', async ({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.getByRole('tab', { name: '精算', exact: true }).click();
   await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
@@ -67,39 +62,22 @@ test('route draft stays local and selected distance alone enters shared settleme
   await addedExpense.getByRole('button', { name: '一時費用を編集' }).click();
   await car.getByRole('button', { name: '一時費用を削除' }).click();
   await car.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
-  await car.getByRole('button', { name: 'ルートから距離を計算' }).click();
-  const route = page.getByRole('dialog', { name: /^仮参加者A車：/ });
-  await expect(page.getByRole('dialog')).toHaveCount(1);
-  await route.getByRole('button', { name: /出発地を追加/ }).click();
-  await route.getByRole('searchbox', { name: '場所を検索' }).fill('なし');
-  await expect(route.getByText('一致する場所がありません。地名や施設名を変えて検索してください。', { exact: true })).toBeVisible();
-  await route.getByRole('searchbox', { name: '場所を検索' }).fill('出発地');
-  await expect(route.locator('.route-place-results.cds--contained-list')).toBeVisible();
-  await route.getByRole('button', { name: /出発地/ }).last().click();
-  await route.getByRole('button', { name: /目的地を追加/ }).click();
-  await route.getByRole('searchbox', { name: '場所を検索' }).fill('目的地');
-  await route.getByRole('button', { name: /目的地/ }).last().click();
-  await expect(route.locator('.route-leg-summary')).toContainText('12.35km・60分');
-  await expect(route.getByRole('radio')).toHaveCount(0);
-  await expect(route.getByRole('button', { name: /地図/ })).toHaveCount(0);
-  await route.getByRole('button', { name: 'ルート設定' }).click();
-  const tolls = route.getByRole('checkbox', { name: '有料道路を使う' });
-  const highways = route.getByRole('checkbox', { name: '高速道路を使う' });
-  await tolls.check({ force: true });
-  await expect(highways).not.toBeChecked();
-  await route.getByRole('button', { name: /合計 12\.35km を適用/ }).click();
-  await expect(car.getByLabel('移動距離（km）')).toHaveValue('12.3');
+  await car.getByLabel('移動距離（km）').fill('186');
+  await car.getByRole('button', { name: 'Googleマップで距離を確認' }).click();
+  await expect(car.locator('.distance-guide__step')).toHaveCount(4);
+  await expect(car.getByRole('link', { name: 'Googleマップを開く' })).toHaveAttribute('href', 'https://www.google.com/maps');
+  await car.getByRole('button', { name: '戻る', exact: true }).click();
+  await expect(car.getByLabel('移動距離（km）')).toHaveValue('186');
   await car.getByRole('button', { name: 'ガソリン代を適用' }).click();
   await car.getByRole('button', { name: '費用を保存' }).click();
   await expect(car).toHaveCount(0);
-  const state = await page.evaluate(roomId => ({ room: JSON.parse(localStorage.getItem(`sanpo-react:v1:${roomId}:room`)), route: JSON.parse(localStorage.getItem(`sanpo.routePlannerState.v2:${roomId}`)) }), new URL(page.url()).searchParams.get('room'));
-  expect(JSON.stringify(state.room)).not.toContain('fixture-route');
-  expect(state.route.routes[0].id).toBe('fixture-route');
-  expect(JSON.stringify(state.room)).not.toContain(token);
+  const state = await page.evaluate(roomId => JSON.parse(localStorage.getItem(`sanpo-react:v1:${roomId}:room`)), new URL(page.url()).searchParams.get('room'));
+  expect(JSON.stringify(state)).not.toContain('fixture-route');
+  expect(JSON.stringify(state)).not.toContain(token);
   await page.reload(); await page.getByRole('tab', { name: '精算', exact: true }).click(); await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
   const reopened = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await reopened.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
-  await expect(reopened.getByLabel('移動距離（km）')).toHaveValue('12.3');
+  await expect(reopened.getByLabel('移動距離（km）')).toHaveValue('186');
   await reopened.locator('.cds--modal-close').click();
   await page.getByRole('button', { name: 'その他の操作' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);

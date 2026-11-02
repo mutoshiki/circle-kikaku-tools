@@ -28,11 +28,6 @@ test.beforeEach(async ({ page }, testInfo) => {
   const roomId = `MODAL-${testInfo.project.name}-${testInfo.retry}`;
   await page.addInitScript(({ key, value }) => {
     localStorage.setItem(key, JSON.stringify(value));
-    window.__REACT_ROUTE_ADAPTER__ = {
-      async search(query) { return [{ query }]; },
-      async resolve(prediction) { return { placeId: prediction.query, name: prediction.query, address: '', latitude: 35, longitude: 139 }; },
-      async calculate(state) { return { ...state, routes: [], selectedRouteIndex: 0, calculatedAt: Date.now() }; },
-    };
   }, { key: `sanpo-react:v1:${roomId}:room`, value: fixture });
   await page.goto(`/?room=${roomId}`);
 });
@@ -215,13 +210,14 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
   await expectViewportFrame(page, movement);
   await expect(movement.getByRole('heading', { name: 'ガソリン代の計算条件' })).toBeVisible();
   await movement.getByLabel('移動距離（km）').fill('42');
-  await movement.getByRole('button', { name: 'ルートから距離を計算' }).click();
+  await movement.getByRole('button', { name: 'Googleマップで距離を確認' }).click();
 
   const route = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await expectViewportFrame(page, route);
-  await expect(route.getByRole('heading', { name: 'ルートから距離を計算' })).toBeVisible();
-  await page.screenshot({ path: join(evidence, `route-planner-${testInfo.project.name}.png`) });
+  await expect(route.getByRole('heading', { name: 'Googleマップで移動距離を確認' })).toBeVisible();
+  await expect(route.locator('.distance-guide__step')).toHaveCount(4);
+  await page.screenshot({ path: join(evidence, `distance-guide-${testInfo.project.name}.png`) });
   await route.getByRole('button', { name: '戻る' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await expectViewportFrame(page, movement);

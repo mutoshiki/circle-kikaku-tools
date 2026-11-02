@@ -12,6 +12,7 @@
 ## ローカル検証
 
 - UI修正は対象unitと対象browser specを実行する。例: `SANPO_TEST_FIREBASE_TARGET=offline` と `demo-circle-kikaku-tools` のloopback設定の下で `npm --prefix apps/react run test:browser -- <spec> --project chromium-desktop --project chromium-mobile --workers=2`。必要に応じ同じ対象を `webkit-mobile` でも実行する。
+- React精算の移動距離はGoogleマップで確認して手入力する。Google Maps／Places／Routes APIのキーや検索通信を必要とせず、対象browser specではガイド・リンク・入力保持・既存計算を確認する。
 - Firebaseや共有境界はFirebase Emulatorと該当するlegacy互換checkを追加する。通常のテストから本番Firebaseへ接続しない。
 - ブラウザーレポートは `tools/assert-browser-clean.mjs` で確認する。0件、全skip、未実行project、unexpected/flakyは成功にしない。明示skipは通過件数と分けて表示する。
 - offline Playwrightだけ `SANPO_PLAYWRIGHT_WORKERS=1|2` を選べる。Emulatorと本番P9は直列のままにする。

@@ -1,19 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { createReference, fixture } from '../reference.mjs';
-import { openRoutePlannerFromMovementSettings, openVehicleExpenseEditor, returnToMovementSettingsFromRoutePlanner } from './settlement-smoke-actions.mjs';
+import { openDistanceGuideFromMovementSettings, openVehicleExpenseEditor, returnToMovementSettingsFromDistanceGuide } from './settlement-smoke-actions.mjs';
 
 async function seedReleaseSmokeFixture(page, roomId, { savedExpense = true } = {}) {
   const legacyFixture = structuredClone(fixture);
   if (!savedExpense) delete legacyFixture.settlement.cars['仮参加者A'];
   const migratedFixture = createReference().migrateAppData(legacyFixture);
-  await page.addInitScript(({ key, value }) => {
-    localStorage.setItem(key, JSON.stringify(value));
-    window.__REACT_ROUTE_ADAPTER__ = {
-      async search(query) { return [{ query }]; },
-      async resolve(prediction) { return { placeId: prediction.query, name: prediction.query, address: '', latitude: 35, longitude: 139 }; },
-      async calculate(state) { return { ...state, routes: [{ id: 'release-smoke-route', label: 'おすすめ', distanceMeters: 12345, durationSeconds: 3600, legs: [{ distanceMeters: 12345, durationSeconds: 3600 }], hasTolls: false, hasHighways: false, tollPrice: '', mainRoads: [] }], selectedRouteIndex: 0, calculatedAt: Date.now() }; },
-    };
-  }, { key: `sanpo-react:v1:${roomId}:room`, value: migratedFixture });
+  await page.addInitScript(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), { key: `sanpo-react:v1:${roomId}:room`, value: migratedFixture });
   await page.goto(`/?room=${roomId}&view=seisan`);
 }
 
@@ -25,18 +18,10 @@ test('release fixture opens saved car expenses with the edit action', async ({ p
   await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
   await editor.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
-  await openRoutePlannerFromMovementSettings(editor);
-  await editor.getByRole('button', { name: /出発地を追加/ }).click();
-  const search = editor.getByRole('searchbox', { name: '場所を検索' });
-  await search.fill('東京駅');
-  await expect(editor.locator('.route-place-results')).toBeVisible();
-  await editor.locator('.route-place-results .cds--contained-list-item').first().click();
-  await editor.getByRole('button', { name: /目的地を追加/ }).click();
-  await search.fill('新宿駅');
-  await expect(editor.locator('.route-place-results')).toBeVisible();
-  await editor.locator('.route-place-results .cds--contained-list-item').first().click();
-  await expect(editor.locator('.route-leg-summary')).toBeVisible();
-  await returnToMovementSettingsFromRoutePlanner(editor);
+  await openDistanceGuideFromMovementSettings(editor);
+  await expect(editor.locator('.distance-guide__step')).toHaveCount(4);
+  await expect(editor.getByRole('link', { name: 'Googleマップを開く' })).toHaveAttribute('href', 'https://www.google.com/maps');
+  await returnToMovementSettingsFromDistanceGuide(editor);
   await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
   await editor.getByRole('button', { name: 'ガソリン代を適用' }).click();
   await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
