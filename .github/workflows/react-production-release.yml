@@ -136,10 +136,9 @@ jobs:
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/react-root"
           cp -a apps/react/dist/. "$RUNNER_TEMP/react-root/"
-          mkdir -p "$RUNNER_TEMP/react-root/react" "$RUNNER_TEMP/react-root/legacy"
+          mkdir -p "$RUNNER_TEMP/react-root/react"
           cp -a apps/react/dist/. "$RUNNER_TEMP/react-root/react/"
-          cp rollback-source/index.html rollback-source/firebase-config.js rollback-source/maps-config.js rollback-source/ogp-thumbnail.png "$RUNNER_TEMP/react-root/legacy/"
-          cp -a rollback-source/assets "$RUNNER_TEMP/react-root/legacy/"
+          node apps/react/tools/legacy-route-redirect.mjs "$RUNNER_TEMP/react-root/legacy/index.html"
           touch "$RUNNER_TEMP/react-root/.nojekyll"
           test -s "$RUNNER_TEMP/react-root/index.html"
           test -n "$(find "$RUNNER_TEMP/react-root/assets" -type f -print -quit)"
@@ -151,7 +150,7 @@ jobs:
           cp apps/react/dist/release-build.json "$RUNNER_TEMP/react-root/react/release-build.json"
           echo "build_sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
           echo "asset_digest=$asset_digest" >> "$GITHUB_OUTPUT"
-          echo "Complete React root and /react/ and /legacy/ Pages artifact: $GITHUB_SHA ($asset_digest)."
+          echo "Complete React root and /react/ Pages artifact with a /legacy/ redirect: $GITHUB_SHA ($asset_digest)."
       - name: Upload root React artifact
         uses: actions/upload-pages-artifact@v5
         with:
@@ -216,7 +215,7 @@ jobs:
           PREVIOUS_SUCCESS_SHA: ${{ steps.rollback-payload.outputs.source_sha }}
           TARGET_SHA: ${{ github.sha }}
         run: node tools/classify-production-release.mjs "$PREVIOUS_SUCCESS_SHA" "$TARGET_SHA"
-      - name: Build migration artifact with stable root, /react/, and /legacy/ routes
+      - name: Build migration artifact with stable root, /react/, and /legacy/ redirect
         if: steps.release-classification.outputs.mode == 'migration'
         shell: bash
         run: |
@@ -224,7 +223,6 @@ jobs:
           node apps/react/tools/assemble-compatibility-pages.mjs \
             "$RUNNER_TEMP/react-rollback" \
             apps/react/dist \
-            rollback-source \
             _site
           test -s _site/index.html
           test -s _site/react/index.html
@@ -304,7 +302,7 @@ jobs:
         uses: actions/deploy-pages@v5
         with:
           artifact_name: github-pages-compatibility
-      - name: Verify compatibility app, Firebase, and legacy read compatibility
+      - name: Verify compatibility app, Firebase, and legacy URL compatibility
         id: compatibility-smoke
         if: needs.prepare.outputs.release_mode == 'migration' && steps.compatibility-deployment.outcome == 'success'
         working-directory: apps/react

@@ -3,6 +3,7 @@ import { copyFile, lstat, mkdir, readdir, readFile, realpath, rm } from 'node:fs
 import { constants } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { writeLegacyRouteRedirect } from './legacy-route-redirect.mjs';
 
 const shaPattern = /^[a-f0-9]{40}$/;
 const digestPattern = /^[a-f0-9]{64}$/;
@@ -56,14 +57,13 @@ async function copyDirectoryContents(source, destination, { skipRootNames = new 
   }
 }
 
-export async function assembleCompatibilityPages({ preservedPagesDirectory, reactBuildDirectory, legacyDirectory, outputDirectory }) {
+export async function assembleCompatibilityPages({ preservedPagesDirectory, reactBuildDirectory, outputDirectory }) {
   const sources = [
     ['preserved Pages', preservedPagesDirectory],
     ['React build', reactBuildDirectory],
-    ['pinned legacy build', legacyDirectory],
   ];
   if (sources.some(([, directory]) => typeof directory !== 'string' || !directory)) {
-    throw new Error('all three Pages input directories are required');
+    throw new Error('both Pages input directories are required');
   }
   if (typeof outputDirectory !== 'string' || !outputDirectory) throw new Error('output directory is required');
 
@@ -99,13 +99,11 @@ export async function assembleCompatibilityPages({ preservedPagesDirectory, reac
 
   const preservedPath = resolvedSources[0].path;
   const reactPath = resolvedSources[1].path;
-  const legacyPath = resolvedSources[2].path;
   await requireFile(preservedPath, 'index.html', 'preserved Pages root');
   await requireFile(preservedPath, 'release-build.json', 'preserved Pages root');
   await requireFile(preservedPath, '.nojekyll', 'preserved Pages root');
   await requireFile(reactPath, 'index.html', 'React build');
   await requireFile(reactPath, 'release-build.json', 'React build');
-  await requireFile(legacyPath, 'index.html', 'pinned legacy build');
   const rootManifest = await readManifest(preservedPath, 'preserved Pages root');
   const reactManifest = await readManifest(reactPath, 'React build');
 
@@ -115,7 +113,7 @@ export async function assembleCompatibilityPages({ preservedPagesDirectory, reac
     outputCreated = true;
     await copyDirectoryContents(preservedPath, resolvedOutput, { skipRootNames: new Set(['react', 'legacy']) });
     await copyDirectoryContents(reactPath, path.join(resolvedOutput, 'react'));
-    await copyDirectoryContents(legacyPath, path.join(resolvedOutput, 'legacy'));
+    await writeLegacyRouteRedirect(path.join(resolvedOutput, 'legacy', 'index.html'));
     return { rootManifest, reactManifest };
   } catch (error) {
     if (outputCreated) await rm(resolvedOutput, { recursive: true, force: true });
@@ -125,11 +123,11 @@ export async function assembleCompatibilityPages({ preservedPagesDirectory, reac
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
-    const [preservedPagesDirectory, reactBuildDirectory, legacyDirectory, outputDirectory, ...extra] = process.argv.slice(2);
-    if (!preservedPagesDirectory || !reactBuildDirectory || !legacyDirectory || !outputDirectory || extra.length) {
-      throw new Error('usage: assemble-compatibility-pages <preserved-pages> <react-build> <pinned-legacy> <new-output>');
+    const [preservedPagesDirectory, reactBuildDirectory, outputDirectory, ...extra] = process.argv.slice(2);
+    if (!preservedPagesDirectory || !reactBuildDirectory || !outputDirectory || extra.length) {
+      throw new Error('usage: assemble-compatibility-pages <preserved-pages> <react-build> <new-output>');
     }
-    const result = await assembleCompatibilityPages({ preservedPagesDirectory, reactBuildDirectory, legacyDirectory, outputDirectory });
+    const result = await assembleCompatibilityPages({ preservedPagesDirectory, reactBuildDirectory, outputDirectory });
     process.stdout.write(`${JSON.stringify(result)}\n`);
   } catch (error) {
     process.stderr.write(`${error.message}\n`);

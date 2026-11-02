@@ -38,7 +38,6 @@ test('compatibility assembly preserves root, replaces the old React alias comple
   t.after(() => rm(root, { recursive: true, force: true }));
   const preserved = path.join(root, 'preserved');
   const reactBuild = path.join(root, 'react-build');
-  const legacy = path.join(root, 'legacy');
   const output = path.join(root, 'assembled');
   const oldManifest = JSON.stringify({ sourceSha: '1'.repeat(40), assetDigest: '1'.repeat(64) });
   const newManifest = JSON.stringify({ sourceSha: '2'.repeat(40), assetDigest: '2'.repeat(64) });
@@ -59,15 +58,9 @@ test('compatibility assembly preserves root, replaces the old React alias comple
     'release-build.json': newManifest,
     'assets/target.js': 'target-react-asset',
   });
-  await writeTree(legacy, {
-    'index.html': 'pinned-legacy',
-    'assets/pinned.css': 'pinned-legacy-asset',
-  });
-
   const manifests = await assembleCompatibilityPages({
     preservedPagesDirectory: preserved,
     reactBuildDirectory: reactBuild,
-    legacyDirectory: legacy,
     outputDirectory: output,
   });
 
@@ -75,12 +68,16 @@ test('compatibility assembly preserves root, replaces the old React alias comple
     rootManifest: { sourceSha: '1'.repeat(40), assetDigest: '1'.repeat(64) },
     reactManifest: { sourceSha: '2'.repeat(40), assetDigest: '2'.repeat(64) },
   });
+  const legacyRedirect = (await readFile(path.join(output, 'legacy', 'index.html'), 'utf8'));
+  assert.match(legacyRedirect, /new URL\('\.\.\/', window\.location\.href\)/);
+  assert.match(legacyRedirect, /destination\.search = window\.location\.search/);
+  assert.match(legacyRedirect, /destination\.hash = window\.location\.hash/);
+  assert.match(legacyRedirect, /window\.location\.replace\(destination\.href\)/);
   assert.deepEqual(await readTree(output), new Map([
     ['.nojekyll', ''],
     ['assets/root.js', 'last-good-root-asset'],
     ['index.html', 'last-good-root'],
-    ['legacy/assets/pinned.css', 'pinned-legacy-asset'],
-    ['legacy/index.html', 'pinned-legacy'],
+    ['legacy/index.html', legacyRedirect],
     ['react/assets/target.js', 'target-react-asset'],
     ['react/index.html', 'target-react'],
     ['react/release-build.json', newManifest],
@@ -93,15 +90,12 @@ test('compatibility assembly rejects an output path inside an input without chan
   t.after(() => rm(root, { recursive: true, force: true }));
   const preserved = path.join(root, 'preserved');
   const reactBuild = path.join(root, 'react-build');
-  const legacy = path.join(root, 'legacy');
   await writeTree(preserved, { 'index.html': 'root', 'release-build.json': '{}', '.nojekyll': '' });
   await writeTree(reactBuild, { 'index.html': 'target', 'release-build.json': '{}' });
-  await writeTree(legacy, { 'index.html': 'legacy' });
 
   await assert.rejects(assembleCompatibilityPages({
     preservedPagesDirectory: preserved,
     reactBuildDirectory: reactBuild,
-    legacyDirectory: legacy,
     outputDirectory: path.join(preserved, 'nested-output'),
   }), /output directory must be disjoint from all input directories/);
   assert.deepEqual(await readTree(preserved), new Map([
@@ -116,16 +110,13 @@ test('compatibility assembly rejects incomplete source trees before creating out
   t.after(() => rm(root, { recursive: true, force: true }));
   const preserved = path.join(root, 'preserved');
   const reactBuild = path.join(root, 'react-build');
-  const legacy = path.join(root, 'legacy');
   const output = path.join(root, 'assembled');
   await writeTree(preserved, { 'index.html': 'root', 'release-build.json': '{}', '.nojekyll': '' });
   await writeTree(reactBuild, { 'release-build.json': '{}' });
-  await writeTree(legacy, { 'index.html': 'legacy' });
 
   await assert.rejects(assembleCompatibilityPages({
     preservedPagesDirectory: preserved,
     reactBuildDirectory: reactBuild,
-    legacyDirectory: legacy,
     outputDirectory: output,
   }), /React build is missing index.html/);
   await assert.rejects(readFile(path.join(output, 'index.html')), { code: 'ENOENT' });
@@ -136,17 +127,14 @@ test('compatibility assembly refuses an existing output directory without deleti
   t.after(() => rm(root, { recursive: true, force: true }));
   const preserved = path.join(root, 'preserved');
   const reactBuild = path.join(root, 'react-build');
-  const legacy = path.join(root, 'legacy');
   const output = path.join(root, 'assembled');
   await writeTree(preserved, { 'index.html': 'root', 'release-build.json': '{}', '.nojekyll': '' });
   await writeTree(reactBuild, { 'index.html': 'target', 'release-build.json': '{}' });
-  await writeTree(legacy, { 'index.html': 'legacy' });
   await writeTree(output, { 'keep.txt': 'do not overwrite' });
 
   await assert.rejects(assembleCompatibilityPages({
     preservedPagesDirectory: preserved,
     reactBuildDirectory: reactBuild,
-    legacyDirectory: legacy,
     outputDirectory: output,
   }), /output directory already exists/);
   assert.equal(await readFile(path.join(output, 'keep.txt'), 'utf8'), 'do not overwrite');
@@ -157,19 +145,16 @@ test('compatibility assembly CLI writes the mixed-stage artifact and reports bot
   t.after(() => rm(root, { recursive: true, force: true }));
   const preserved = path.join(root, 'preserved');
   const reactBuild = path.join(root, 'react-build');
-  const legacy = path.join(root, 'legacy');
   const output = path.join(root, 'assembled');
   const oldManifest = JSON.stringify({ sourceSha: '3'.repeat(40), assetDigest: '3'.repeat(64) });
   const newManifest = JSON.stringify({ sourceSha: '4'.repeat(40), assetDigest: '4'.repeat(64) });
   await writeTree(preserved, { 'index.html': 'old-root', 'release-build.json': oldManifest, '.nojekyll': '' });
   await writeTree(reactBuild, { 'index.html': 'new-react', 'release-build.json': newManifest });
-  await writeTree(legacy, { 'index.html': 'pinned-legacy' });
 
   const stdout = execFileSync(process.execPath, [
     fileURLToPath(new URL('../tools/assemble-compatibility-pages.mjs', import.meta.url)),
     preserved,
     reactBuild,
-    legacy,
     output,
   ], { encoding: 'utf8' });
 
@@ -179,5 +164,5 @@ test('compatibility assembly CLI writes the mixed-stage artifact and reports bot
   });
   assert.equal(await readFile(path.join(output, 'index.html'), 'utf8'), 'old-root');
   assert.equal(await readFile(path.join(output, 'react', 'index.html'), 'utf8'), 'new-react');
-  assert.equal(await readFile(path.join(output, 'legacy', 'index.html'), 'utf8'), 'pinned-legacy');
+  assert.match(await readFile(path.join(output, 'legacy', 'index.html'), 'utf8'), /location\.replace/);
 });
