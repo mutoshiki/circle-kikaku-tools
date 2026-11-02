@@ -5,6 +5,10 @@ import { assertTestFirebaseTarget } from '../../tools/test-firebase-target.mjs';
 
 const output = process.env.MIGRATION_EVIDENCE_DIR || join(tmpdir(), 'circle-react-migration-evidence');
 assertTestFirebaseTarget({ allowed: ['offline'] });
+const configuredWorkers = process.env.SANPO_PLAYWRIGHT_WORKERS;
+if (configuredWorkers && !['1', '2'].includes(configuredWorkers)) {
+  throw new Error('SANPO_PLAYWRIGHT_WORKERS must be 1 or 2');
+}
 process.env.VITE_REACT_SYNC_MODE = 'local';
 delete process.env.VITE_REACT_FIREBASE_CONFIG;
 delete process.env.VITE_REACT_MAPS_API_KEY;
@@ -14,7 +18,10 @@ export default defineConfig({
   testDir: './tests/browser',
   timeout: 30000,
   expect: { timeout: 7000 },
-  workers: 1,
+  workers: Number(configuredWorkers || 1),
+  testIgnore: process.env.SANPO_PLAYWRIGHT_EXCLUDE_VISUAL === '1'
+    ? ['tests/browser/visual-consistency.spec.js']
+    : [],
   reporter: [['line'], ['json', { outputFile: join(output, 'react-browser.json') }]],
   outputDir: join(output, 'react-browser'),
   use: { baseURL: 'http://127.0.0.1:4176', trace: 'retain-on-failure', screenshot: 'only-on-failure' },
