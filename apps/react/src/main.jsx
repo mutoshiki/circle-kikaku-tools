@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import './styles.scss';
 import { createRuntime } from './runtime.js';
-import { createConfiguredRouteService } from './route/google-maps-adapter.js';
 import { InlineNotification, Theme } from '@carbon/react';
 import ProjectEntry from './components/ProjectEntry.jsx';
 import { resolveEntryScreen } from './services/project-entry.js';
@@ -14,9 +13,8 @@ if (resolveEntryScreen(location.href)) {
 } else {
 try {
   const testAdaptersEnabled = import.meta.env.MODE === 'test';
-  const routeService = (testAdaptersEnabled && window.__REACT_ROUTE_ADAPTER__) || createConfiguredRouteService(import.meta.env, { browser: window, document });
   const externalAdapters = testAdaptersEnabled ? window.__REACT_EXTERNAL_ADAPTERS__ || {} : {};
-  const runtime = await createRuntime({ location, history, storage: localStorage, crypto, routeService, externalAdapters });
+  const runtime = await createRuntime({ location, history, storage: localStorage, crypto, externalAdapters });
   runtime.start();
   if (import.meta.hot) import.meta.hot.dispose(() => { void runtime.dispose(); });
   root.render(<React.StrictMode><App runtime={runtime} /></React.StrictMode>);

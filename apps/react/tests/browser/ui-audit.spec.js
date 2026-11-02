@@ -61,11 +61,6 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
         localStorage.removeItem(`sanpo-react:v1:${room}:room`);
         sessionStorage.setItem(resetKey, '1');
       }
-      window.__REACT_ROUTE_ADAPTER__ = {
-        async search(query) { return [{ placeId: query, name: query, address: `${query}の住所`, latitude: 35, longitude: 139 }]; },
-        async resolve(entry) { return { ...entry, placeId: entry.placeId || entry.query, name: entry.name || entry.query, address: entry.address || '' }; },
-        async calculate(state) { return { ...state, routes: [{ id: 'audit-route', label: 'おすすめ', distanceMeters: 12345, durationSeconds: 3600, legs: [{ distanceMeters: 12345, durationSeconds: 3600 }] }], selectedRouteIndex: 0, calculatedAt: Date.now() }; },
-      };
     }, { room });
 
     await gotoEmpty(page, room);
@@ -183,23 +178,10 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     const rental = page.locator('#settlement-rental-times');
     if (await rental.count()) await rental.check({ force: true });
     await shot(page, testInfo, 28, 'movement-settings-rental');
-    await page.getByRole('button', { name: 'ルートから距離を計算' }).click();
-    await shot(page, testInfo, 29, 'route-planner-empty');
-    await page.getByRole('button', { name: /出発地を追加/ }).click();
-    await page.getByRole('searchbox', { name: '場所を検索' }).fill('出発地');
-    await expect(page.getByRole('button', { name: /出発地/ }).last()).toBeVisible();
-    await shot(page, testInfo, 30, 'route-search-results');
-    await page.getByRole('button', { name: /出発地/ }).last().click();
-    await page.getByRole('button', { name: /目的地を追加/ }).click();
-    await page.getByRole('searchbox', { name: '場所を検索' }).fill('目的地');
-    await page.getByRole('button', { name: /目的地/ }).last().click();
-    await expect(page.locator('.route-leg-summary')).toContainText('12.35km');
-    await shot(page, testInfo, 31, 'route-primary-selected');
-    await page.getByRole('button', { name: 'ルート設定' }).click();
-    await shot(page, testInfo, 32, 'route-options-open');
-    await page.getByRole('button', { name: /合計 .* を適用/ }).click();
-    await shot(page, testInfo, 33, 'vehicle-expense-after-route');
-    await page.getByRole('button', { name: '戻る', exact: true }).last().click({ force: true });
+    await page.getByRole('button', { name: 'Googleマップで距離を確認' }).click();
+    await expect(page.locator('.distance-guide__step')).toHaveCount(4);
+    await shot(page, testInfo, 29, 'distance-guide');
+    await page.getByRole('button', { name: '戻る', exact: true }).click();
     await cancelDialog(page);
     const detail = page.getByRole('button', { name: /内訳を表示/ }).first();
     if (await detail.count()) { await detail.click(); await shot(page, testInfo, 34, 'settlement-payment-breakdown-open'); }

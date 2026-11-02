@@ -1,12 +1,14 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Accordion, Button, Callout, Checkbox, ComposedModal, ContainedList, ContainedListItem, ContentSwitcher, IconButton, InlineNotification, Modal, ModalBody, ModalFooter, ModalHeader,
-  NumberInput, RadioButton, RadioButtonGroup,
+  NumberInput, RadioButton, RadioButtonGroup, Link,
   Select, SelectItem, Switch, Tag, TextArea, TextInput, Tile, OverflowMenu, OverflowMenuItem,
 } from '@carbon/react';
 import { Add, Copy, Edit, TrashCan } from '@carbon/icons-react';
 import { beginSettlementEdit, beginStandaloneDriverNameEdit, commitSettlementEdit, collectionChange } from './settlement/edit.js';
-import RoutePlanner from './RoutePlanner.jsx';
+import DistanceGuide from './settlement/DistanceGuide.jsx';
+import { readDistanceGuideHidden, writeDistanceGuideHidden } from '../services/distance-guide-preference.js';
+import { clearSettlementCarCheckpoint, readSettlementCarCheckpoint, writeSettlementCarCheckpoint } from '../services/settlement-car-checkpoint.js';
 import useMediaQuery from '../hooks/useMediaQuery.js';
 import InitialEmptyState from './InitialEmptyState.jsx';
 import StandaloneDriverNameModal from './StandaloneDriverNameModal.jsx';
@@ -19,6 +21,7 @@ const money = value => {
 const hasNegativeValue = value => /^[-−]/.test(String(value ?? '').trim());
 const negativeMoneyText = '金額は0円以上で入力してください。';
 const negativeNumberText = '0以上の値を入力してください。';
+const sessionStorageOrNull = () => { try { return window.sessionStorage; } catch { return null; } };
 const extraTypeLabel = type => ({ split: '割勘', club: '部費', 'split-minus': '割勘から差し引き', 'club-minus': '部費から差し引き' })[type] || '割勘';
 const movementFieldDefinitions = times => times
   ? [{ key: 'dist', label: '移動距離' }]
@@ -79,7 +82,7 @@ function CostTypeControl({ domain, id, label, type, disabled = false, allowNegat
   {allowNegative ? <Checkbox id={`${id}-minus`} labelText={`${baseType === 'club' ? '部費' : '割勘'}の費用から差し引く`} helperText="入力した金額だけ、費用区分の費用を減らします。" checked={negative} disabled={disabled} onChange={(_, { checked }) => onChange(`${baseType}${checked ? '-minus' : ''}`)} /> : null}</div>;
 }
 
-function MovementSettingsView({ car, domain, isMobile, movementAmount, movementLabel, movementFormula, movementType, movementErrors, movementTouched, movementAttempted, movementComplete, onBlurField, onOpenRoute, onRentalType, onMovementType, onUpdate }) {
+function MovementSettingsView({ car, domain, isMobile, movementAmount, movementLabel, movementFormula, movementType, movementErrors, movementTouched, movementAttempted, movementComplete, showDistanceGuide, onBlurField, onOpenGuide, onOpenMaps, onRentalType, onMovementType, onUpdate }) {
   const times = domain.isTimesRentalCar(car);
   const input = (id, label, value, key) => {
     const error = movementTouched[key] || movementAttempted || String(value ?? '').trim() ? movementErrors[key] : '';
@@ -94,7 +97,7 @@ function MovementSettingsView({ car, domain, isMobile, movementAmount, movementL
       <section className="settlement-form-section" aria-labelledby="settlement-movement-conditions-title"><h3 className="settlement-movement-section-title" id="settlement-movement-conditions-title">{times ? '距離料金の計算条件' : 'ガソリン代の計算条件'}</h3>
         {!movementComplete && <p className="cds--form__helper-text">計算する場合は、{times ? '移動距離を' : '移動距離・燃費・ガソリン単価をすべて'}入力してください。</p>}
         <div className="form-grid">
-        <div className="distance-field">{input('settlement-distance', '移動距離（km）', car.dist, 'dist')}<Button kind="ghost" size={isMobile ? 'lg' : 'sm'} onClick={onOpenRoute}>ルートから距離を計算</Button></div>
+        <div className="distance-field">{input('settlement-distance', '移動距離（km）', car.dist, 'dist')}{showDistanceGuide ? <Button className="settlement-route-distance-action" kind="ghost" size={isMobile ? 'lg' : 'sm'} onClick={onOpenGuide}>Googleマップで距離を確認</Button> : <Link className="settlement-route-distance-action" href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer" onClick={onOpenMaps}>Googleマップで距離を確認</Link>}{!showDistanceGuide && <Button kind="ghost" size="sm" onClick={onOpenGuide}>操作方法</Button>}</div>
         {!times && <>{input('settlement-eco', '燃費（km/L）', car.eco, 'eco')}{input('settlement-price', 'ガソリン単価（円/L）', car.price, 'price')}</>}
         </div></section>
       <CostTypeControl domain={domain} id="settlement-movement-type" label="費用の負担" type={movementType || 'split'} allowNegative={false} onChange={onMovementType} />
@@ -130,7 +133,7 @@ function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [composing, setComposing] = useState(false);
-  const [view, setView] = useState('expense');
+  const [view, setView] = useState(edit.restoredView || 'expense');
   const [contentAtBottom, setContentAtBottom] = useState(false);
   const [movementTouched, setMovementTouched] = useState({});
   const [movementAttempted, setMovementAttempted] = useState(false);
@@ -142,8 +145,7 @@ function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
   const [contentHasOverflow, setContentHasOverflow] = useState(false);
   const [returnFocusId, setReturnFocusId] = useState('#settlement-movement-edit');
   const newExpenseIds = useRef(new Set());
-  const [routeStatus, setRouteStatus] = useState({ primaryLabel: '移動距離を入力', disabled: true, hidePrimaryButton: false });
-  const routeRef = useRef(null);
+  const [distanceGuideHidden, setDistanceGuideHidden] = useState(() => readDistanceGuideHidden(runtime.preferenceStorage));
   const name = edit.car.name;
   const car = edit.state.cars[name];
   const { data } = runtime.store.domain.settlementInput(edit.session.base);
@@ -178,7 +180,7 @@ function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
   const candidates = getExtraCandidates(edit.state, domain, car);
   function changeView(nextView) { setContentAtBottom(false); setView(nextView); }
   function handleModalScroll(event) {
-    if (!['expense', 'extra', 'movement', 'route'].includes(view) || !event.target?.classList?.contains('cds--modal-content')) return;
+    if (!['expense', 'extra', 'movement', 'distance-guide'].includes(view) || !event.target?.classList?.contains('cds--modal-content')) return;
     const content = event.target;
     const hasOverflow = content.scrollHeight > content.clientHeight + 1;
     const atBottom = !hasOverflow || content.scrollTop + content.clientHeight >= content.scrollHeight - 2;
@@ -215,10 +217,10 @@ function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
   useEffect(() => {
     const firstExpenseError = ['name', 'amount'].find(key => expenseFieldErrors[key]);
     const movementFocusId = firstMovementError?.key === 'dist' ? 'distance' : firstMovementError?.key;
-    const selector = view === 'expense' ? returnFocusId : view === 'extra' ? (expenseAttempted && firstExpenseError ? `#settlement-extra-${firstExpenseError}-${activeExtra?.index ?? 0}` : `#settlement-extra-name-${activeExtra?.index ?? 0}`) : view === 'movement' ? (movementAttempted && movementFocusId ? `#settlement-${movementFocusId}` : '#settlement-rental-type') : '#route-origin-action .cds--contained-list-item__content';
+    const selector = view === 'expense' ? returnFocusId : view === 'extra' ? (expenseAttempted && firstExpenseError ? `#settlement-extra-${firstExpenseError}-${activeExtra?.index ?? 0}` : `#settlement-extra-name-${activeExtra?.index ?? 0}`) : view === 'movement' ? (movementAttempted && movementFocusId ? `#settlement-${movementFocusId}` : '#settlement-rental-type') : '#distance-guide-open-maps';
     const timer = setTimeout(() => {
       document.querySelector(selector)?.focus();
-      if (view === 'movement' || view === 'route') {
+      if (view === 'movement' || view === 'distance-guide') {
         const content = document.querySelector('.settlement-car-modal .cds--modal-content');
         if (content) setContentAtBottom(content.scrollHeight <= content.clientHeight + 1);
       }
@@ -288,15 +290,30 @@ function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
     }
     catch (caught) { setError(caught.message); setSaving(false); }
   }
-  const primaryLabel = view === 'expense' ? '費用を保存' : view === 'extra' ? (extraMode === 'add' ? '一覧に追加' : '一覧に反映') : view === 'movement' ? `${movementLabel}を適用` : routeStatus.primaryLabel;
-  const primaryDisabled = view === 'expense' ? saving || composing : view === 'extra' ? saving || composing || !expenseComplete : view === 'movement' ? !movementValid : view === 'route' ? routeStatus.disabled : false;
-  const back = () => { if (view === 'route' && routeRef.current?.returnToPlanner()) return; changeView(view === 'route' ? 'movement' : 'expense'); };
-  const submit = () => { if (view === 'expense') void save(); else if (view === 'extra') { setExpenseAttempted(true); if (expenseComplete) returnToList(); } else if (view === 'movement') { setMovementAttempted(true); if (movementValid) changeView('expense'); } else routeRef.current?.apply(); };
+  const primaryLabel = view === 'expense' ? '費用を保存' : view === 'extra' ? (extraMode === 'add' ? '一覧に追加' : '一覧に反映') : view === 'movement' ? `${movementLabel}を適用` : undefined;
+  const primaryDisabled = view === 'expense' ? saving || composing : view === 'extra' ? saving || composing || !expenseComplete : view === 'movement' ? !movementValid : false;
+  const back = () => changeView(view === 'distance-guide' ? 'movement' : 'expense');
+  const submit = () => { if (view === 'expense') void save(); else if (view === 'extra') { setExpenseAttempted(true); if (expenseComplete) returnToList(); } else if (view === 'movement') { setMovementAttempted(true); if (movementValid) changeView('expense'); } };
+  function openGoogleMaps() {
+    writeDistanceGuideHidden(runtime.preferenceStorage, distanceGuideHidden);
+    try {
+      const baseState = domain.normalizeSettlementState(runtime.store.domain.settlementInput(edit.session.base).state);
+      const draftState = domain.normalizeSettlementState(edit.state);
+      writeSettlementCarCheckpoint(sessionStorageOrNull(), {
+        roomId: runtime.roomId,
+        carName: name,
+        baseCar: baseState.cars[name],
+        draftCar: draftState.cars[name],
+        resetGeneration: runtime.store.getSnapshot().resetGeneration,
+      });
+    } catch { /* Manual distance entry remains available when tab storage is blocked. */ }
+    if (view === 'distance-guide') changeView('movement');
+  }
   const returnToList = () => { setError(''); changeView('expense'); };
-  const modalHeading = view === 'route' ? 'ルートから距離を計算' : view === 'movement' ? `${movementLabel}を設定` : view === 'extra' ? (extraMode === 'add' ? '費用を追加' : `${activeExtra?.row.name || '費用'}を編集`) : '費用を編集';
-  return <ComposedModal className={`app-modal settlement-car-modal settlement-task-modal${view === 'movement' ? ' settlement-movement-modal' : view === 'route' ? ' settlement-route-modal' : ''}${contentAtBottom ? ' settlement-modal-at-bottom' : ''}`} onScrollCapture={handleModalScroll} open size={view === 'route' ? 'lg' : view === 'movement' ? 'md' : 'sm'} aria-label={`${name}車：${modalHeading}`} launcherButtonRef={launcherButtonRef} onClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus={view === 'route' ? '#route-origin-action .cds--contained-list-item__content' : view === 'movement' ? '#settlement-rental-type' : view === 'extra' ? `#settlement-extra-name-${activeExtra?.index ?? 0}` : returnFocusId}>
+  const modalHeading = view === 'distance-guide' ? 'Googleマップで移動距離を確認' : view === 'movement' ? `${movementLabel}を設定` : view === 'extra' ? (extraMode === 'add' ? '費用を追加' : `${activeExtra?.row.name || '費用'}を編集`) : '費用を編集';
+  return <ComposedModal className={`app-modal settlement-car-modal settlement-task-modal${view === 'movement' ? ' settlement-movement-modal' : view === 'distance-guide' ? ' settlement-distance-guide-modal' : ''}${contentAtBottom ? ' settlement-modal-at-bottom' : ''}`} onScrollCapture={handleModalScroll} open size={view === 'distance-guide' ? 'lg' : view === 'movement' ? 'md' : 'sm'} aria-label={`${name}車：${modalHeading}`} launcherButtonRef={launcherButtonRef} onClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus={view === 'distance-guide' ? '#distance-guide-open-maps' : view === 'movement' ? '#settlement-rental-type' : view === 'extra' ? `#settlement-extra-name-${activeExtra?.index ?? 0}` : returnFocusId}>
     <ModalHeader label={`${name}車`} title={modalHeading} iconDescription="閉じる" />
-    <ModalBody hasScrollingContent={view === 'movement' || (['expense', 'extra'].includes(view) && contentHasOverflow)} aria-labelledby="settlement-car-modal-region-title">
+    <ModalBody hasScrollingContent={view === 'movement' || view === 'distance-guide' || (['expense', 'extra'].includes(view) && contentHasOverflow)} aria-labelledby="settlement-car-modal-region-title">
       <span id="settlement-car-modal-region-title" className="cds--visually-hidden">{name}車：{modalHeading}の内容</span>
     {view === 'expense' && <div className="form-stack settlement-car-form" onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}>
       {(error || validationMessage) && <InlineNotification kind="error" title="入力内容を確認してください" subtitle={error || validationMessage} hideCloseButton lowContrast />}
@@ -334,10 +351,10 @@ function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
         {extraMode === 'edit' && !domain.isTimesTimeFeeExtra(activeExtra.row) && <div className="settlement-cost-delete-action"><Button kind="danger--ghost" size={isMobile ? 'md' : 'sm'} renderIcon={TrashCan} onClick={removeActiveExtra}>{activeExtra.row.name || '費用'}を削除</Button></div>}
       </section>
     </div>}
-    {view === 'movement' && <MovementSettingsView car={car} domain={domain} isMobile={isMobile} movementAmount={movementAmount} movementLabel={movementLabel} movementFormula={movementFormula} movementType={movement?.type} movementErrors={movementErrors} movementTouched={movementTouched} movementAttempted={movementAttempted} movementComplete={movementComplete} onBlurField={key => setMovementTouched(current => ({ ...current, [key]: true }))} onOpenRoute={() => changeView('route')} onRentalType={setRentalType} onMovementType={setMovementType} onUpdate={update} />}
-    <div aria-hidden={view !== 'route'} style={{ display: view === 'route' ? undefined : 'none' }}><RoutePlanner ref={routeRef} runtime={runtime} isMobile={isMobile} isActive={view === 'route'} onStatusChange={setRouteStatus} onApply={value => { update({ dist: value }); changeView('movement'); onNotice('計算した距離を入力しました。'); }} /></div>
+    {view === 'movement' && <MovementSettingsView car={car} domain={domain} isMobile={isMobile} movementAmount={movementAmount} movementLabel={movementLabel} movementFormula={movementFormula} movementType={movement?.type} movementErrors={movementErrors} movementTouched={movementTouched} movementAttempted={movementAttempted} movementComplete={movementComplete} showDistanceGuide={!distanceGuideHidden} onBlurField={key => setMovementTouched(current => ({ ...current, [key]: true }))} onOpenGuide={() => changeView('distance-guide')} onRentalType={setRentalType} onMovementType={setMovementType} onUpdate={update} />}
+    {view === 'distance-guide' && <DistanceGuide checked={distanceGuideHidden} onCheckedChange={setDistanceGuideHidden} onOpenMaps={openGoogleMaps} />}
     </ModalBody>
-    <ModalFooter primaryButtonText={view === 'route' && routeStatus.hidePrimaryButton ? undefined : primaryLabel} secondaryButtons={[{ buttonText: view === 'expense' ? 'キャンセル' : '戻る', onClick: view === 'expense' ? () => onClose(false) : view === 'extra' ? returnToList : back }]} primaryButtonDisabled={primaryDisabled} onRequestSubmit={submit} onRequestClose={() => onClose(false)} />
+    <ModalFooter primaryButtonText={primaryLabel} secondaryButtons={[{ buttonText: view === 'expense' ? 'キャンセル' : '戻る', onClick: view === 'expense' ? () => onClose(false) : view === 'extra' ? returnToList : back }]} primaryButtonDisabled={primaryDisabled} onRequestSubmit={submit} onRequestClose={() => onClose(false)} />
   </ComposedModal>;
 }
 
@@ -362,6 +379,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
   const carLauncherButtonRef = useMemo(() => ({ get current() { return carLauncherElement.current?.isConnected ? carLauncherElement.current : paymentHeadingRef.current; } }), []);
   const lastHandledSettingsRequest = useRef(0);
   const [carEdit, setCarEdit] = useState(null);
+  const checkpointRestoreAttempted = useRef('');
   const [driverNameEdit, setDriverNameEdit] = useState(null);
   const standaloneDriverMenus = useRef(new Map());
   const [collector, setCollector] = useState(null);
@@ -372,6 +390,42 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
   const [collectionOpen, setCollectionOpen] = useState(false);
   const [collectionView, setCollectionView] = useState('all');
   const [pendingCollectionFocus, setPendingCollectionFocus] = useState(false);
+  useEffect(() => {
+    if (roomStatus?.hasLoadedRoom === false || carEdit) return;
+    const attemptedKey = `${runtime.roomId}:${room.resetGeneration ?? 0}`;
+    if (checkpointRestoreAttempted.current === attemptedKey) return;
+    const checkpoint = readSettlementCarCheckpoint(sessionStorageOrNull(), runtime.roomId);
+    if (!checkpoint) { checkpointRestoreAttempted.current = attemptedKey; return; }
+    checkpointRestoreAttempted.current = attemptedKey;
+    if (checkpoint.resetGeneration !== runtime.store.getSnapshot().resetGeneration) {
+      clearSettlementCarCheckpoint(sessionStorageOrNull(), runtime.roomId);
+      return;
+    }
+    const currentCar = data.cars.find(car => car.name === checkpoint.carName);
+    if (!currentCar) {
+      clearSettlementCarCheckpoint(sessionStorageOrNull(), runtime.roomId);
+      onNotice('編集中の車が見つかりません。現在の企画を確認してください。');
+      return;
+    }
+    const sameValue = (left, right) => {
+      if (Object.is(left, right)) return true;
+      if (!left || !right || typeof left !== 'object' || typeof right !== 'object') return false;
+      if (Array.isArray(left) || Array.isArray(right)) return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((value, index) => sameValue(value, right[index]));
+      const leftKeys = Object.keys(left).sort();
+      const rightKeys = Object.keys(right).sort();
+      return sameValue(leftKeys, rightKeys) && leftKeys.every(key => sameValue(left[key], right[key]));
+    };
+    const currentState = settlement.normalizeSettlementState(state);
+    if (!sameValue(currentState.cars[checkpoint.carName], checkpoint.baseCar)) {
+      clearSettlementCarCheckpoint(sessionStorageOrNull(), runtime.roomId);
+      onNotice('別の端末で車の費用が更新されたため、未保存の入力は復元していません。');
+      return;
+    }
+    const edit = beginSettlementEdit(runtime.store, { car: currentCar });
+    edit.state.cars[checkpoint.carName] = structuredClone(checkpoint.draftCar);
+    edit.restoredView = 'movement';
+    setCarEdit(edit);
+  }, [runtime, room, roomStatus?.hasLoadedRoom, carEdit, data.cars, state, settlement, onNotice]);
   const collectionTriggerRef = useRef(null);
   useEffect(() => {
     if (!pendingCollectionFocus || !collectionOpen) return undefined;
@@ -408,6 +462,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
     setCarEdit(edit);
   }
   function closeCarEditor(saved) {
+    clearSettlementCarCheckpoint(sessionStorageOrNull(), runtime.roomId);
     closeEdit(setCarEdit, carEdit, saved);
     requestAnimationFrame(() => carLauncherButtonRef.current?.focus());
   }

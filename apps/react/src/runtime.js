@@ -19,7 +19,7 @@ import { createDebugSampleProject } from './services/debug-sample-project.js';
 
 const APPLICATION_FORM_PORTAL = 'https://mutoshiki.github.io/sanpokai-kikaku-portal/form-maker/';
 
-export function createLocalRuntime({ location, history, storage, crypto, transport, legacyLoadWrites = true, routeService = null, externalAdapters = {}, formMakerSession = null, debugSample = false }) {
+export function createLocalRuntime({ location, history, storage, crypto, transport, legacyLoadWrites = true, externalAdapters = {}, formMakerSession = null, debugSample = false }) {
   const launch = prepareCompatibleUrl({ location, history, storage, crypto });
   const roomId = launch.roomId;
   const roomStorage = createRoomStorage(storage, roomId);
@@ -35,11 +35,6 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
   const applicantSync = createApplicantSync({ store, transport });
   const roomHistory = createHistoryService({ storage, roomId, clock: transport?.clock });
   const overviewDraft = createOverviewDraftStorage(storage, roomId);
-  const routeDraftKey = `sanpo.routePlannerState.v2:${roomId}`;
-  const routeDraft = Object.freeze({
-    read(fallback = {}) { try { return JSON.parse(storage.getItem(routeDraftKey) || 'null') || structuredClone(fallback); } catch { return structuredClone(fallback); } },
-    write(value) { storage.setItem(routeDraftKey, JSON.stringify(value)); return value; },
-  });
   const workerHandoff = createHandoffClient({ transport, crypto, storage: roomStorage });
   const workspace = createWorkspaceSync({ roomId, transport, storage });
   const formReservation = roomStorage.read('applicationFormReservation');
@@ -152,7 +147,7 @@ export function createLocalRuntime({ location, history, storage, crypto, transpo
     }
   }
   async function dispose() { unsubscribe?.(); unsubscribe = null; unsubscribePortal?.(); unsubscribePortal = null; applicantSync.dispose(); sync.dispose(); workspace.dispose(); await transport?.dispose(); }
-  const runtime = { roomId, debugSample, initialView: launch.initialView, initialToolId: launch.initialToolId, isNewProject: Boolean(pendingCreate), get handoffToken() { return handoffCapability.getSnapshot().token; }, handoffCapability, store, storage: roomStorage, sync, workspace, projectSetup: { getSnapshot: () => projectSetup, subscribe(listener) { setupListeners.add(listener); return () => setupListeners.delete(listener); } }, history: roomHistory, overviewDraft, routeDraft, routeService, external, createShareUrl: () => createShareUrl(new URL(location.href, launch.href).href), start, dispose };
+  const runtime = { roomId, debugSample, initialView: launch.initialView, initialToolId: launch.initialToolId, isNewProject: Boolean(pendingCreate), get handoffToken() { return handoffCapability.getSnapshot().token; }, handoffCapability, store, storage: roomStorage, preferenceStorage: storage, sync, workspace, projectSetup: { getSnapshot: () => projectSetup, subscribe(listener) { setupListeners.add(listener); return () => setupListeners.delete(listener); } }, history: roomHistory, overviewDraft, external, createShareUrl: () => createShareUrl(new URL(location.href, launch.href).href), start, dispose };
   return runtime;
 }
 
@@ -176,7 +171,7 @@ export async function createRuntime(options, env = import.meta.env || {}) {
     };
     const savedSampleRoom = createRoomStorage(isolatedStorage, roomId).read('room', null);
     try { isolatedStorage.setItem(workspaceCacheKey(roomId), JSON.stringify(createTemplateWorkspace({ templateId: 'circle-mountain', now: Date.now() }))); } catch {}
-    const runtime = createLocalRuntime({ ...options, location: { href: requestedUrl.href }, storage: isolatedStorage, transport: null, routeService: null, externalAdapters: {}, debugSample: true });
+    const runtime = createLocalRuntime({ ...options, location: { href: requestedUrl.href }, storage: isolatedStorage, transport: null, externalAdapters: {}, debugSample: true });
     if (!savedSampleRoom) {
       const project = createProjectDomain({ getRoom: runtime.store.getSnapshot, settlement: runtime.store.domain.settlement });
       runtime.store.command('restore', { value: createDebugSampleProject({ projectDomain: project, now: Date.now() }), source: 'debug-sample' });

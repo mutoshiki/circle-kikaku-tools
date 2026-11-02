@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import { openRoutePlannerFromMovementSettings, returnToMovementSettingsFromRoutePlanner } from './settlement-smoke-actions.mjs';
 
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', import.meta.url)));
 const pageErrors = new WeakMap();
@@ -172,19 +171,6 @@ test.beforeEach(async ({ page }, testInfo) => {
   await page.addInitScript(({ key, value }) => { if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(value)); }, {
     key: `sanpo-react:v1:${roomId}:room`, value: initialFixture,
   });
-  if (testInfo.title === 'settlement WebKit text and control size audit') {
-    await page.addInitScript(({ key, value }) => { localStorage.setItem(key, JSON.stringify(value)); }, {
-      key: `sanpo.routePlannerState.v2:${roomId}`,
-      value: {
-        origin: { placeId: 'audit-origin', name: '出発地', address: '長野県松本市', latitude: 36.24, longitude: 137.97 },
-        waypoints: [{ placeId: 'audit-waypoint', name: '経由地', address: '長野県安曇野市', latitude: 36.3, longitude: 137.9 }],
-        destination: { placeId: 'audit-destination', name: '目的地', address: '長野県大町市', latitude: 36.5, longitude: 137.8 },
-        routes: [{ id: 'audit-route', label: 'おすすめ', distanceMeters: 24000, durationSeconds: 3600, legs: [{ fromName: '出発地', toName: '経由地', distanceMeters: 12000, durationSeconds: 1800 }, { fromName: '経由地', toName: '目的地', distanceMeters: 12000, durationSeconds: 1800 }] }],
-        selectedRouteIndex: 0,
-        recentPlaces: [],
-      },
-    });
-  }
   await page.goto(`/?room=${roomId}`);
   await page.getByRole('tab', { name: '精算', exact: true }).click();
 });
@@ -401,6 +387,10 @@ test('Times movement settings require only distance and apply the calculated amo
   await dialog.getByRole('button', { name: 'タイムズ移動料金の計算条件を編集' }).click();
 
   await distance.fill('100');
+  await dialog.getByRole('button', { name: 'Googleマップで距離を確認' }).click();
+  await expect(dialog.locator('.distance-guide__step')).toHaveCount(4);
+  await dialog.getByRole('button', { name: '戻る' }).click();
+  await expect(dialog.locator('#settlement-distance')).toHaveValue('100');
   await expect(apply).toBeEnabled();
   await dialog.locator('.cds--modal-content').evaluate(node => { node.scrollTop = node.scrollHeight; });
   await apply.click();
@@ -961,8 +951,8 @@ test('movement settings body scrolls within a short mobile viewport', async ({ p
   await expect(dialog.getByText('ガソリン代の金額')).toBeVisible();
   await expect(dialog.locator('.settlement-movement-preview')).toContainText('ガソリン代の金額¥1,633');
   await expect(dialog.locator('.settlement-movement-preview small')).toHaveCount(0);
-  const routeButton = dialog.getByRole('button', { name: 'ルートから距離を計算' });
-  const routeButtonLayout = await routeButton.evaluate(node => ({
+  const distanceGuideButton = dialog.getByRole('button', { name: 'Googleマップで距離を確認' });
+  const routeButtonLayout = await distanceGuideButton.evaluate(node => ({
     width: node.getBoundingClientRect().width,
     parentWidth: node.parentElement.getBoundingClientRect().width,
     styleWidth: getComputedStyle(node).inlineSize,
@@ -1004,10 +994,10 @@ test('movement settings body scrolls within a short mobile viewport', async ({ p
   await expect(page.locator('.settlement-movement-modal')).toHaveClass(/settlement-modal-at-bottom/);
   await expect.poll(() => content.evaluate(node => getComputedStyle(node).maskImage)).toBe('none');
   await expect(dialog.locator('.settlement-movement-preview')).toHaveCSS('opacity', '1');
-  await openRoutePlannerFromMovementSettings(dialog);
-  await expect(dialog.getByRole('heading', { name: 'ルートから距離を計算' })).toBeVisible();
-  await expect(dialog.getByRole('button', { name: /地図/ })).toHaveCount(0);
-  await returnToMovementSettingsFromRoutePlanner(dialog);
+  await distanceGuideButton.click();
+  await expect(dialog.getByRole('heading', { name: 'Googleマップで移動距離を確認' })).toBeVisible();
+  await expect(dialog.locator('.distance-guide__step')).toHaveCount(4);
+  await dialog.getByRole('button', { name: '戻る', exact: true }).click();
   await expect(dialog.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
   expect(pageErrors.get(page)).toEqual([]);
 });
@@ -1483,9 +1473,9 @@ test('settlement WebKit text and control size audit', async ({ page }, testInfo)
   await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await capture('expense-edit-action');
   await capture('movement-settings', 'settlement-movement.png');
-  await dialog.getByRole('button', { name: 'ルートから距離を計算' }).click();
-  await expect(dialog.locator('.route-stop-actions button')).toHaveCount(5);
-  await capture('route-planner', 'settlement-route.png');
+  await dialog.getByRole('button', { name: 'Googleマップで距離を確認' }).click();
+  await expect(dialog.locator('.distance-guide__step')).toHaveCount(4);
+  await capture('distance-guide', 'settlement-distance-guide.png');
   await dialog.getByRole('button', { name: '戻る' }).click();
   await dialog.getByRole('button', { name: '戻る' }).click();
   await dialog.getByRole('button', { name: '駐車代を編集' }).click();

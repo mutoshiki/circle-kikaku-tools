@@ -88,7 +88,7 @@ test('React production Pages deployments are restricted to a verified main dispa
   assert.match(job('prepare'), /rollback_asset_digest:\s*\$\{\{ steps\.rollback-payload\.outputs\.published_asset_digest \}\}/);
   assert.match(releaseArtifact, /writeGithubOutput\('published_asset_digest', currentManifest\.assetDigest\)/);
   assert.equal((releaseArtifact.match(/writeGithubOutput\('published_asset_digest'/g) || []).length, 3);
-  const compatibilitySmokeStart = promotion.indexOf('      - name: Verify compatibility app, Firebase, Maps, Places, Routes, and legacy read compatibility');
+  const compatibilitySmokeStart = promotion.indexOf('      - name: Verify compatibility app, Firebase, and legacy read compatibility');
   const compatibilitySmokeEnd = promotion.indexOf('      - name: Verify compatibility smoke-room cleanup', compatibilitySmokeStart);
   const compatibilitySmoke = promotion.slice(compatibilitySmokeStart, compatibilitySmokeEnd);
   assert.match(compatibilitySmoke, /REACT_PRODUCTION_BUILD_SHA:\s*\$\{\{ needs\.prepare\.outputs\.build_sha \}\}/);
@@ -112,10 +112,10 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.match(smoke, /const baseURL = process\.env\.REACT_PRODUCTION_SMOKE_BASE_URL/);
   assert.match(smoke, /seedProductionSmokeRoom\(page/);
   assert.match(smoke, /cleanupProductionSmokeRoom\(cleanupPage/);
-  assert.match(smoke, /openRoutePlannerFromMovementSettings/);
-  assert.match(offlineSettlement, /openRoutePlannerFromMovementSettings/);
-  assert.match(sharedSmokeActions, /ルートから距離を計算/);
-  assert.match(sharedSmokeActions, /returnToMovementSettingsFromRoutePlanner/);
+  assert.match(smoke, /settlement-smoke-actions\.mjs/);
+  assert.match(offlineSettlement, /Googleマップで距離を確認/);
+  assert.match(sharedSmokeActions, /Googleマップで距離を確認/);
+  assert.match(sharedSmokeActions, /returnToMovementSettingsFromDistanceGuide/);
   assert.match(smoke, /new URL\('\/circle-kikaku-tools\/legacy\//);
   assert.match(smoke, /if \(mode === 'root'\)[\s\S]*?circle-kikaku-tools\/react\/[\s\S]*?circle-kikaku-tools\/legacy\//);
   assert.match(smoke, /if \(!page\.isClosed\(\)\) await page\.close\(\)/);
@@ -142,7 +142,7 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.match(smoke, /message\.text\(\)\.replace/);
   assert.match(smoke, /Identity Toolkit request diagnostics/);
   for (const name of ['prepare', 'promotion', 'cleanup-recovery']) assert.match(job(name), /secrets\.REACT_FIREBASE_API_KEY/);
-  assert.match(job('prepare'), /secrets\.REACT_MAPS_API_KEY/);
+  assert.doesNotMatch(workflow, /REACT_MAPS_API_KEY/);
 });
 
 test('production smoke confirms the expected room is loaded before root and alias reloads', () => {
