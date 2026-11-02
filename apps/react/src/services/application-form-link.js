@@ -30,8 +30,8 @@ export async function prepareApplicationFormContext({ roomId, room = {}, transpo
   const requestedAt = reusable ? saved.requestedAt : currentTime;
   const reservation = { schemaVersion: 1, jobId, tokenHash, state: 'pending', requestedAt, expiresAt: reusable ? saved.expiresAt : requestedAt + LINK_TTL_MS };
   const rawName = String(room.meta?.applicationSync?.title || room.roomName || '').trim();
-  const projectName = rawName || '新しい企画';
-  const context = { version: 1, roomId: id, jobId, token, projectName: projectName.slice(0, 120), eventDate: validDate(room.eventDate || room.meta?.eventDate || room.meta?.applicationSync?.eventDate) };
+  const projectName = rawName;
+  const context = { version: 1, roomId: id, jobId, token, projectName, eventDate: validDate(room.eventDate || room.meta?.eventDate || room.meta?.applicationSync?.eventDate) };
   if (!reusable && storage?.write) storage.write('applicationFormReservation', { ...context, tokenHash, requestedAt, expiresAt: reservation.expiresAt });
   await transport.reserveApplicationFormLink(id, reservation);
   return context;

@@ -11,6 +11,7 @@ test('form workspace keeps reservation explicit and scopes its callbacks to the 
       prepareApplicationForm: async ({ room }) => { calls.push(['prepare', room]); return { roomId: 'ROOM-A', jobId: 'a'.repeat(32), token: 'secret' }; },
       acceptApplicationFormHandoff: async value => { calls.push(['handoff', value]); return true; },
     },
+    store: { command: (...args) => calls.push(['rename', ...args]) },
   };
   const room = { roomName: '秋名山企画', eventDate: '2026-11-02' };
   const props = createFormMakerWorkspaceProps({ runtime, room, active: false });
@@ -20,7 +21,8 @@ test('form workspace keeps reservation explicit and scopes its callbacks to the 
   assert.equal((await props.createProjectLink()).roomId, 'ROOM-A');
   const ready = { roomId: 'ROOM-A', jobId: 'a'.repeat(32), token: 'capability' };
   assert.equal(await props.onHandoffReady(ready), true);
-  assert.deepEqual(calls, [['prepare', room], ['handoff', ready]]);
+  props.onProjectNameChange('変更した企画名');
+  assert.deepEqual(calls, [['prepare', room], ['handoff', ready], ['rename', 'rename', { name: '変更した企画名' }]]);
 });
 
 test('form workspace does not treat an unused room reservation as an already submitted job', async () => {
@@ -36,6 +38,7 @@ test('form workspace does not treat an unused room reservation as an already sub
   const props = createFormMakerWorkspaceProps({ runtime, room: { roomName: 'P9 test' } });
 
   assert.equal(props.project.jobId, undefined, 'a reservation is passed to the enqueue callback, not as an existing job');
+  assert.equal(createFormMakerWorkspaceProps({ runtime, room: {} }).project.projectName, '', 'an unset project name remains blank');
   assert.deepEqual(await props.createProjectLink(), { roomId: 'P9A93LMQ', jobId: reservationJobId, token: 'capability' });
 });
 
@@ -43,6 +46,7 @@ test('form workspace receives only the explicitly configured session or the offl
   const runtime = { roomId: 'ROOM-OFFLINE', storage: { read: () => null }, external: {} };
   const offline = createFormMakerWorkspaceProps({ runtime, room: {} });
   assert.equal((await offline.session.prepare()).accepting, false);
+  assert.equal((await offline.session.prepare()).previewOnly, true);
   assert.deepEqual(await offline.session.listJobs(), []);
   assert.equal(await offline.session.getJob('job'), null);
   await assert.rejects(offline.session.enqueue({}), /オフライン/);

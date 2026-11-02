@@ -39,5 +39,6 @@ export function prepareCompatibleUrl({ location, history, storage, crypto }) {
   const next = `${url.pathname}${url.search}${url.hash}`;
   const current = new URL(location.href);
   if (`${current.pathname}${current.search}${current.hash}` !== next) history.replaceState(history.state || null, '', next);
-  return { roomId, href: url.href, initialView, handoffToken };
+  const initialToolId = requestedView === 'tools' ? 'tools' : legacyAllocation ? 'car' : ({ participants: 'participants', car: 'car', team: 'team', seisan: 'settlement', 'application-form': 'application-form', 'submission-documents': 'submission-documents', 'mountain-plan': 'mountain-plan' }[requestedView] || null);
+  return { roomId, href: url.href, initialView, initialToolId, handoffToken };
 }

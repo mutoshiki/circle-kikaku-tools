@@ -152,3 +152,20 @@ The app-owned modal inventory in `react-typography-spacing.md` remains authorita
 - Also opened the participant-announcement preview (did not copy), the header guide, the sample-data replacement dialog, and the random-allocation confirmation (canceled before allocation). The sample-data dialog explicitly states that replacing participant/allocation/settlement data affects shared devices; it was not submitted.
 - Viewport was 536 × 616 at the time of inspection, light theme. The previous 2026-11-01 record documents representative dark-theme review; this continuation did not independently inspect every screen/modal in dark theme. Physical devices, screen reader, every modal validation/error branch, and exact desktop/mobile viewport overrides remain unverified.
 - No new defect was confirmed in the states opened. This is additional spot-audit evidence; it does not satisfy the plan's exhaustive manual all-modal checkbox.
+
+### 2026-11-02 project-start and mobile usability
+
+| Screen / workflow | Main content and actions | Covered states and evidence | Remaining limits |
+|---|---|---|---|
+| Project initial screen | Explicit URL, new-project template, device-local recent tool, participant/form fallback | `project-start.test.mjs`; `initial-empty-state.spec.js`; `project-workspace.spec.js` on Chromium mobile/desktop and WebKit mobile | iOS Safari and a second physical device were not used |
+| Participant registration from a hidden tab | Open the existing registration modal from allocation without pinning/showing Participants | Added hidden-participant registration case on Chromium mobile/desktop and WebKit mobile; save stays in synthetic local room | Screen reader was not exercised |
+| Embedded Form Maker name and inputs | Shared project name, IME composition, header rename, date fields, concise helper copy | `project-workspace.spec.js`; package tests/build; local-only preview | Physical IME, >100-character legacy names, iOS date picker, and real Google Form creation were not exercised |
+| Empty states | Form-first where available, direct participant addition when not; count-only settlement remains available | `initial-empty-state.spec.js` and all-tools suite; explicit/new-project routes and action hierarchy | No production form or Firebase write was performed |
+
+### 2026-11-02 mobile surface and tool layout
+
+| Screen | Empty/populated/error coverage | Shared content and action rules | Evidence / limits |
+|---|---|---|---|
+| Form Maker inline | Filled sample; offline preview; no remote form creation | Embedded fields follow the workspace inset; form submission remains an explicit action | `project-workspace.spec.js`; side-browser sample on dark desktop; no live create/submit |
+| Mountain Plan inline | Populated sample, first step | Section headings, labels, and controls remain inside the workspace inset; optional/required markers stay on each field; standalone and PDF layouts excluded | `project-workspace.spec.js` mobile geometry; side-browser dark desktop. iOS date picker, light-theme manual review, and screen reader not tested |
+| Participants | Confirmed applicants in normal view; manual select/cancel path | Checkboxes appear during selection only; cancel clears the local selection draft | `participants.spec.js` and side-browser accessibility tree; no selection was persisted in manual review |

@@ -1,6 +1,6 @@
 import { Button } from '@carbon/react';
 
-export default function InitialEmptyState({ headingId, title, description, primaryAction, alternateAction, roomStatus }) {
+export default function InitialEmptyState({ headingId, title, description, primaryAction, alternateAction, tertiaryAction, roomStatus }) {
   if (roomStatus?.hasLoadedRoom === false) {
     if (roomStatus.kind === 'error') return <section className="initial-empty-state" aria-labelledby={headingId}>
       <h2 id={headingId}>企画を読み込めませんでした</h2>
@@ -17,6 +17,7 @@ export default function InitialEmptyState({ headingId, title, description, prima
     <div className="initial-empty-state__actions">
       <Button ref={primaryAction.buttonRef} onClick={primaryAction.onClick}>{primaryAction.label}</Button>
       {alternateAction && <Button ref={alternateAction.buttonRef} kind="ghost" onClick={alternateAction.onClick}>{alternateAction.label}</Button>}
+      {tertiaryAction && <Button ref={tertiaryAction.buttonRef} kind="ghost" size="sm" onClick={tertiaryAction.onClick}>{tertiaryAction.label}</Button>}
     </div>
   </section>;
 }

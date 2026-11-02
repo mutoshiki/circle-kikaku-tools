@@ -5,14 +5,26 @@
 ## 公開基準
 
 - 公開URL: <https://mutoshiki.github.io/circle-kikaku-tools/>
-- 確認日時: 2026-11-01（公開manifestを再取得）
+- 確認日時: 2026-11-02（公開manifestを再取得）
 - manifest: <https://mutoshiki.github.io/circle-kikaku-tools/release-build.json>
-- 公開source SHA: `9c7cc7bf96509785128165745517c9b36730806d`
-- 公開asset digest: `7e62879f2f70bb231237ff19c6b5c56623c44f8dca4d6447b2073aedebe19616`
+- 公開source SHA: `e1c43ff3693d8d6a992e276b71c117b878b13e54`（2026-11-02に再取得）
+- 公開asset digest: `3d81ab69b9599ad95793725f5dbef3c4f2dcc01161323105c4a2b7017bad0f04`（同時取得）
 - 公開サイトはReactのルートビルド。CIで`apps/react/dist`からPagesルートを構成する。
 - 公開manifestからsource SHA・asset digestを再取得し、確認済み。
 
-## 作業元
+## 現在の実装プレビュー
+
+- 日付: 2026-11-02
+- 作業ブランチ: `codex/project-start-mobile-usability`（HEAD `ce17e5db3cafcf2b4a6374c833d53f0b2d765b83`。公開source SHAを祖先に持つ）
+- 対象計画: `docs/superpowers/plans/2026-11-02-mobile-surface-and-tool-layout.md`
+- プレビューは `apps/react/dist` から生成し、Vite preview `http://127.0.0.1:4296/` を照合済み。
+- 確認ルームは `DEBUG-3AFDBB835FDB4218`（all-toolsサンプル）。全データはこのローカルoriginのlocalStorageに限り、Firebase・認証・Googleフォーム作成には接続しない。
+- サイドブラウザーでForm Maker、参加者、登山計画書を確認。表示サイズ1280×720、ダークテーマ。モバイル幅はPlaywrightの390pxプロジェクトで検証し、Mountain Planの見出し・必須ラベル・日付欄の左右16px境界を確認した。
+- `build:preview` と `check:preview` は公開manifest source SHA `e1c43ff3693d8d6a992e276b71c117b878b13e54` をbaselineに成功。照合時のworktree HEADは `ce17e5db3cafcf2b4a6374c833d53f0b2d765b83`、8個の配信assetが現在のworktree buildと一致。
+- Side browser: 1280×720 dark。Form Makerの入力、参加者の通常一覧、Mountain Planの基本情報を確認。Mountain Plan見出し・ラベル・入力のmobile insetは390px Chromium geometry testで確認。iOS実機やscreen readerの確認ではない。
+- 本番公開は行わない。
+
+## 直近の作業元（2026-11-01まで）
 
 - 専用worktree: `C:\Users\toshi\.codex\worktrees\project-management-integration\circle-kikaku-tools`
 - branch: `codex/tabs-and-ui-behavior-consistency`

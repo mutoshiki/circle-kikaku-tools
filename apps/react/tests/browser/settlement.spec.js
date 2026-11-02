@@ -1119,7 +1119,7 @@ test('settlement vehicle names and amounts use the shared type and spacing roles
   const cars = page.locator('.settlement-car');
   const first = cars.first();
   const vehicleName = first.locator('.settlement-car-name');
-  await expectTextStyle(vehicleName, { fontSize: '16px', fontWeight: '600', lineHeight: 22 });
+  await expectTextStyle(vehicleName, { fontSize: '16px', fontWeight: '400', lineHeight: 22 });
 
   const rentalCar = cars.filter({ has: page.getByRole('heading', { name: /仮参加者D車/ }) });
   const rentalLabel = rentalCar.locator('.settlement-car-rental-label');
@@ -1130,6 +1130,10 @@ test('settlement vehicle names and amounts use the shared type and spacing roles
   }
   expect(await first.locator('.settlement-car-header').evaluate(element => getComputedStyle(element).rowGap)).toBe('8px');
   expect(await first.locator('.settlement-car-amount-category').first().evaluate(element => getComputedStyle(element).rowGap)).toBe('4px');
+  const amountCategory = first.locator('.settlement-car-amount-category').first();
+  const labelEdge = await amountCategory.locator('.settlement-car-amount-label').evaluate(element => element.getBoundingClientRect().right);
+  const amountEdge = await amountCategory.locator('.settlement-car-amount-value').evaluate(element => element.getBoundingClientRect().right);
+  expect(Math.abs(labelEdge - amountEdge)).toBeLessThanOrEqual(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 

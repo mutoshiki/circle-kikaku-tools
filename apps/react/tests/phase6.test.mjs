@@ -18,7 +18,7 @@ test('overview draft remains local until explicit shared save', () => {
   assert.equal(createShareUrl(url.href), 'https://example.test/react/?room=ROOM-A');
 });
 
-test('initial screen defaults to settlement while explicit destinations remain addressable', () => {
+test('legacy view indices remain available while new links defer to workspace start selection', () => {
   const cases = [
     ['', 3], ['?view=unknown', 3], ['?view=participants', 0], ['?view=car', 1], ['?view=team', 2], ['?view=seisan', 3],
   ];
@@ -28,6 +28,9 @@ test('initial screen defaults to settlement while explicit destinations remain a
     const result = prepareCompatibleUrl({ location: { href: `https://example.test/react/${search}` }, history, storage, crypto: { randomUUID: () => 'abcd-1234' } });
     assert.equal(result.initialView, expected, search || 'no view');
   }
+  const storage = createMemoryStorage();
+  const result = prepareCompatibleUrl({ location: { href: 'https://example.test/react/?room=ROOM-A' }, history: { replaceState() {} }, storage, crypto: { randomUUID: () => 'unused' } });
+  assert.equal(result.initialToolId, null);
 });
 
 test('handoff capability is room-local and removed from URL before sharing', () => {

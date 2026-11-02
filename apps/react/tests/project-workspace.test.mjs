@@ -20,13 +20,13 @@ test('templates provide versioned initial tool selections without forcing depend
   assert.ok(TOOL_REGISTRY.some(tool => tool.id === 'tools' && tool.system));
 });
 
-test('new templates pin their chosen tools and initial route prefers settlement then first tool', () => {
+test('new templates pin their chosen tools and initial route prefers application then participants', () => {
   const workspace = createTemplateWorkspace({ templateId: 'personal', now: 123 });
   assert.equal(workspace.template.id, 'personal');
   assert.equal(workspace.template.version, 1);
   assert.deepEqual(workspace.tabOrder, ['participants', 'car', 'settlement']);
   assert.equal(workspace.tools.settlement.pinned, true);
-  assert.equal(resolveInitialTool(workspace), 'settlement');
+  assert.equal(resolveInitialTool(workspace), 'participants');
   assert.equal(resolveInitialTool({ tools: { car: { enabled: true, pinned: true } }, tabOrder: ['car'] }), 'car');
 });
 

@@ -51,7 +51,7 @@ test('legacy=1 keeps a direct way back to the original four-tab project screen',
   expect(new URL(page.url()).searchParams.has('room')).toBe(true);
 });
 
-test('create flow saves template intent once and opens the selected existing app view', async ({ page }) => {
+test('create flow saves template intent once and starts a personal project on participants', async ({ page }) => {
   await page.goto('/?screen=create');
   await expect(page.getByText('ツールの表示は、作成後も変更できます。')).toBeVisible();
   await expect(page.getByText('個人利用でも非公開にはなりません。共有リンクを知っている人は企画を見られます。')).toHaveCount(0);
@@ -59,10 +59,10 @@ test('create flow saves template intent once and opens the selected existing app
   await page.getByLabel('企画名（任意）').fill('ブラウザ作成確認');
   const projectPage = await submitProjectCreation(page);
   await expect(projectPage.getByRole('heading', { name: 'ブラウザ作成確認' })).toBeVisible();
-  expect(new URL(projectPage.url()).searchParams.get('view')).toBe('seisan');
+  expect(new URL(projectPage.url()).searchParams.get('view')).toBe('participants');
   await expect(projectPage.getByRole('tab', { name: '参加者' })).toBeVisible();
   await expect(projectPage.getByRole('tab', { name: '車割' })).toBeVisible();
-  await expect(projectPage.getByRole('tab', { name: '精算' })).toHaveAttribute('aria-selected', 'true');
+  await expect(projectPage.getByRole('tab', { name: '参加者' })).toHaveAttribute('aria-selected', 'true');
   await projectPage.getByRole('button', { name: 'その他の操作' }).click();
   await projectPage.getByRole('menuitem', { name: '使い方' }).click();
   const guide = projectPage.getByRole('dialog', { name: '使い方' });
@@ -319,8 +319,10 @@ test('all-tools debug sample is isolated and usable across project tools', async
   await expect(csvPreview).toContainText('ファイルの作成・外部送信は行いません');
   await csvPreview.getByRole('button', { name: '閉じる' }).click();
   await page.getByRole('tab', { name: '登山計画書' }).click();
+  await expect(page.getByText('下書きを保存しました')).toBeVisible({ timeout: 10000 });
   await expect(page.getByRole('heading', { name: '基本情報' })).toBeVisible();
-  await expect(page.getByText('「任意」の表示がない項目は必須です。入力内容はPDFに記載されます。')).toBeVisible();
+  await expect(page.getByText('「任意」の表示がない項目は必須です。入力内容はPDFに記載されます。')).toHaveCount(0);
+  await expect(page.locator('label[for="eventDate"]')).toContainText('（必須）');
   await expect(page.getByText('必須項目を入力してください。')).toHaveCount(0);
   await expect(page.getByText(/から実施日を反映しました/)).toHaveCount(0);
   await expect(page.getByRole('button', { name: '実施日に反映' })).toHaveCount(0);
@@ -332,7 +334,6 @@ test('all-tools debug sample is isolated and usable across project tools', async
   await expect(page.locator('#route-upload-list img')).toHaveCount(2);
   await expect(page.locator('#itinerary-upload-list img')).toHaveCount(2);
   await expect.poll(() => externalWrites).toEqual([]);
-  await expect(page.getByRole('status').filter({ hasText: '下書きを保存しました' })).toBeVisible({ timeout: 10000 });
   await expect(page.locator('#eventDate')).toHaveValue(/^\d{4}-\d{2}-\d{2}$/);
   await expect(page.locator('.draft-controls__menu')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '今すぐ保存' })).toHaveCount(0);
@@ -381,7 +382,7 @@ test('embedded form maker validates user fields before adding reserved project c
   const projectPage = await submitProjectCreation(page);
   await projectPage.getByRole('tab', { name: '応募フォーム' }).click();
   await expect(projectPage.getByLabel('企画名（必須）')).toHaveValue('応募フォーム動作確認');
-  await projectPage.getByLabel('メールアドレス（必須）').fill('editor@example.test');
+  await projectPage.getByLabel('編集権限を共有するメールアドレス（必須）').fill('editor@example.test');
   await projectPage.getByRole('button', { name: '応募フォームを作成' }).click();
   await expect.poll(() => projectPage.evaluate(() => window.__formMakerTestJob || null)).toMatchObject({
     input: {
@@ -394,6 +395,55 @@ test('embedded form maker validates user fields before adding reserved project c
     options: { jobId },
   });
   await expect(projectPage.getByText('連携する企画の情報を確認できません。企画画面からフォームメーカーを開き直してください。')).toHaveCount(0);
+});
+
+test('offline form maker preview explains that creation is unavailable without implying recovery timing', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__REACT_EXTERNAL_ADAPTERS__ = {
+      formMakerSession: {
+        async prepare() { return { accepting: false, acceptanceMode: 'paused', previewOnly: true }; },
+        async listJobs() { return []; },
+        async getJob() { return null; },
+        async enqueue() { throw new Error('offline preview must not submit'); },
+        getHandoffToken() { return ''; },
+      },
+    };
+  });
+  await page.goto('/?screen=create');
+  await page.locator('label[for="template-circle-event"]').click();
+  await page.getByLabel('企画名（任意）').fill('プレビュー確認');
+  await submitProjectCreation(page);
+  await page.getByRole('tab', { name: '応募フォーム' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'このプレビューではフォームを作成できません。' })).toBeVisible();
+  await expect(page.getByText('現在、新しいフォームを作成できません')).toHaveCount(0);
+  await expect(page.getByText(/時間をおいて/)).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '応募フォームを作成', exact: true })).toBeDisabled();
+});
+
+test('embedded form name and project header stay in sync without committing during IME composition', async ({ page }) => {
+  await page.goto('/?screen=create');
+  await page.locator('label[for="template-circle-event"]').click();
+  await page.getByLabel('企画名（任意）').fill('名前同期の確認');
+  const projectPage = await submitProjectCreation(page);
+  await projectPage.getByRole('tab', { name: '応募フォーム' }).click();
+  const formName = projectPage.getByLabel('企画名（必須）');
+  await expect(formName).toHaveValue('名前同期の確認');
+
+  await formName.focus();
+  await formName.dispatchEvent('compositionstart');
+  await formName.fill('変換中の企画名');
+  await expect(projectPage.getByRole('banner')).toContainText('名前同期の確認');
+  await formName.dispatchEvent('compositionend', { data: '変換中の企画名' });
+  await expect(projectPage.getByRole('banner')).toContainText('名前同期の確認');
+  await formName.evaluate(element => element.blur());
+  await expect(projectPage.getByRole('banner')).toContainText('変換中の企画名');
+
+  await projectPage.getByRole('button', { name: 'その他の操作' }).click();
+  await projectPage.getByRole('menuitem', { name: '企画名を変更' }).click();
+  const renameDialog = projectPage.getByRole('dialog', { name: '企画名を変更' });
+  await renameDialog.getByRole('textbox', { name: '企画名' }).fill('ヘッダーから変更');
+  await renameDialog.getByRole('button', { name: '保存' }).click();
+  await expect(formName).toHaveValue('ヘッダーから変更');
 });
 
 test('project history labels whether its timestamp is the last visit or last update', async ({ page }) => {
@@ -423,9 +473,21 @@ test('mountain-plan opens inline without leaving the project tabs', async ({ pag
   await expect(projectPage.locator('.mountain-plan-workspace')).toHaveClass(/mountain-plan-workspace--embedded/);
   await expect.poll(() => projectPage.getByRole('heading', { name: '基本情報' }).evaluate(element => getComputedStyle(element).fontSize)).toBe('16px');
   await expect(projectPage.getByRole('heading', { name: '基本情報' })).toBeVisible();
+  const embeddedInsets = await projectPage.evaluate(() => {
+    const heading = document.querySelector('.mountain-plan-workspace #step-heading-1').getBoundingClientRect();
+    const eventDateLabel = document.querySelector('.mountain-plan-workspace label[for="eventDate"]').getBoundingClientRect();
+    const eventDate = document.querySelector('.mountain-plan-workspace #eventDate').getBoundingClientRect();
+    return { headingLeft: heading.left, headingRight: heading.right, eventDateLabelLeft: eventDateLabel.left, eventDateLabelRight: eventDateLabel.right, eventDateLeft: eventDate.left, eventDateRight: eventDate.right, viewportWidth: innerWidth };
+  });
+  expect(embeddedInsets.headingLeft).toBeGreaterThanOrEqual(16);
+  expect(embeddedInsets.headingRight).toBeLessThanOrEqual(embeddedInsets.viewportWidth - 16);
+  expect(embeddedInsets.eventDateLabelLeft).toBeGreaterThanOrEqual(16);
+  expect(embeddedInsets.eventDateLabelRight).toBeLessThanOrEqual(embeddedInsets.viewportWidth - 16);
+  expect(embeddedInsets.eventDateLeft).toBeGreaterThanOrEqual(16);
+  expect(embeddedInsets.eventDateRight).toBeLessThanOrEqual(embeddedInsets.viewportWidth - 16);
   await expect(projectPage.getByRole('link', { name: '登山計画書を作成' })).toHaveCount(0);
   await expect(projectPage.getByRole('tab', { name: 'タブを編集' })).toBeVisible();
   await projectPage.getByRole('tab', { name: '参加者' }).click();
-  await expect(projectPage.getByRole('heading', { name: '参加者を登録して始める' })).toBeVisible();
+  await expect(projectPage.getByRole('heading', { name: '参加者が登録されていません' })).toBeVisible();
   expect(pageErrors).toEqual([]);
 });

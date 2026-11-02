@@ -112,7 +112,7 @@ test('empty unlinked participant state opens count-only settlement settings with
   await page.goto('/?room=REGISTRATION-COUNT-ONLY&view=participants');
   const before = await page.evaluate(() => localStorage.getItem('sanpo-react:v1:REGISTRATION-COUNT-ONLY:room'));
   await page.getByRole('tab', { name: '参加者', exact: true }).click();
-  await expect(page.getByRole('tabpanel', { name: '参加者' }).getByRole('heading', { name: '参加者を登録して始める', exact: true })).toBeVisible();
+  await expect(page.getByRole('tabpanel', { name: '参加者' }).getByRole('heading', { name: '参加者が登録されていません', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '人数だけで精算', exact: true }).click();
   await expect(page.getByRole('tab', { name: '精算', exact: true })).toHaveAttribute('aria-selected', 'true');
   const settings = page.getByRole('dialog', { name: '精算設定を編集', exact: true });
