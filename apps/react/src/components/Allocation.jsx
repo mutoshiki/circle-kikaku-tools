@@ -129,7 +129,7 @@ export default function Allocation({ runtime, room, type, onNotice, onParticipan
     return <ContainedListItem key={id} action={<div className="person-actions">
       <OverflowMenu ref={node => node ? personMenus.current.set(id, node) : personMenus.current.delete(id)} onOpen={() => trackMenuKeys(id)} onClose={() => closeMenu(id)} ariaLabel={`${record.name}の操作`} iconDescription={`${record.name}の操作`} size="lg" flipped>
         <OverflowMenuItem itemText="参加者情報を編集" onClick={() => edit(id)} />
-        <OverflowMenuItem itemText={record.locked ? 'ランダム割り当ての固定を解除' : 'ランダム割り当てで固定'} onClick={() => execute('editParticipant', { id, changes: { locked: !record.locked } })} />
+        <OverflowMenuItem itemText={record.locked ? '固定を解除' : '配置を固定'} onClick={() => execute('editParticipant', { id, changes: { locked: !record.locked } })} />
         <OverflowMenuItem itemText={person.driver ? `${roleLabel}を解除` : `${roleLabel}にする`} onClick={() => execute('role', { id, type, driver: !person.driver })} />
         {inWaiting ? <OverflowMenuItem itemText="割り当て先を選ぶ" onClick={() => openMoveEditor(id, true)} /> : <OverflowMenuItem itemText={`別の${groupLabel}へ移動`} onClick={() => openMoveEditor(id)} />}
         <OverflowMenuItem itemText={inWaiting ? '参加者を削除' : '未割り当てに戻す'} hasDivider isDelete={inWaiting} onClick={() => inWaiting ? setConfirmation({ title: '参加者を削除しますか？', body: `${record.name}を参加者から削除します。車割・班割の配置と、この人に紐づく精算情報が変わります。`, action: () => execute('deleteParticipant', { id }), button: '参加者を削除', danger: true }) : returnToWaiting()} />
