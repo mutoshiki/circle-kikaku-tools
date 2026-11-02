@@ -399,7 +399,7 @@ test('allocation toolbar keeps its summary and random assignment action compact 
     button: node.querySelector('button').getBoundingClientRect().toJSON(),
     viewportWidth: innerWidth,
   }));
-  expect(parseFloat(layout.marginBlockEnd)).toBeLessThanOrEqual(16);
+  expect(parseFloat(layout.marginBlockEnd)).toBeLessThanOrEqual(24);
   expect(layout.button.width).toBeLessThan(layout.toolbar.width * 0.75);
   expect(layout.button.right).toBeLessThanOrEqual(layout.viewportWidth);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

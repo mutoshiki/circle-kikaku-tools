@@ -6,7 +6,7 @@
 
 **Architecture:** 現行Reactのshellと共通余白変数を再利用し、外側の幅はshell、本文の余白は共通パネル、フォーム内部の配置は組込packageが担当する。参加者の選択操作は既存のchoices・応募者確定処理を再利用し、保存形式や計算を変更しない。
 
-**Tech Stack:** React 19 / @carbon/react 1.115.0 / SCSS / 組込Form Maker 1.0.12 / 組込Mountain Plan 1.0.13 / Playwright。
+**Tech Stack:** React 19 / @carbon/react 1.115.0 / SCSS / 組込Form Maker 1.0.12 / 組込Mountain Plan 1.0.14 / Playwright。
 
 **Spec:** 本会話の5画面に対するUI調整案、本文が面の境界に接する問題、スマホの外側の黒い余白をなくしPCの中央寄せを保つ方針。前提となる開始画面の実装は `2026-11-02-project-start-and-mobile-usability.md`。
 
@@ -180,10 +180,10 @@ iOS実機の日付picker・横スワイプ・実IME、画面読み上げ、200%�
 ## 実装結果（2026-11-02）
 
 - Task 1: モバイル本文面を全幅にし、タブパネルの本文insetを共通化。対象幅のgeometry回帰はChromium mobileで合格。
-- Task 2: 組込Form Maker 1.0.12、Mountain Plan 1.0.13をsourceからbuild/packし、hostの依存・lockfile・vendorを更新。ローカルpreview専用状態を明示し、Mountain Planの必須/任意表記・余白・自動保存通知を整えた。
+- Task 2: 組込Form Maker 1.0.12、Mountain Plan 1.0.14をsourceからbuild/packし、hostの依存・lockfile・vendorを更新。ローカルpreview専用状態を明示し、Mountain Planの必須/任意表記・余白・自動保存通知を整えた。
 - Task 3: 精算の車名をregularへ変更し、割勘/部費金額のラベル・値の右端と間隔を統一。人物行と割当ツールバーのモバイル間隔を整理。
 - Task 4: 通常閲覧では参加者チェックを隠し、選択中だけ表示。手入力参加者にも選び直しを用意し、キャンセルがdraftのみを破棄することを確認。
 - Task 5: Chromium mobileの対象browser cases、組込package tests/buildを実行。Form Maker preview role assertion、Mountain Plan inset geometry、settlement typography/spacing、participant cancel/no-writeは合格。サイドブラウザーでは全ツールの架空データを用い、Form Maker、参加者、Mountain Planを確認。公開source SHAを祖先に持つローカル専用buildとして`check:preview`を実施。
 - 実画面確認で見つかったMountain PlanのCarbon narrow Grid負マージンが共通insetを相殺する不具合を、embedded package限定のmargin resetで修正。見出し・必須ラベル・日付入力の境界を390pxの自動テストで固定。
-- Firebase、認証、worker、DB、計算、実フォーム作成、応募回答送信、PDF出力は変更・実行していない。本番公開・commit・pushも行っていない。
+- Firebase、認証、worker、DB、計算、実フォーム作成、応募回答送信、PDF出力は変更・実行していない。
 - 未確認: iOS実機のdate/time pickerとIME、スクリーンリーダー、ズーム、全ダイアログの手動操作。サイドブラウザーは1280×720のダーク表示で、モバイル幅はChromium mobile自動検証を使用。

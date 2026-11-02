@@ -67,7 +67,7 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await expect(page.locator('#project-heading')).toHaveText('互換性確認用の企画');
   await expect(page.locator('.app-header .cds--header__name')).toContainText('互換性確認用の企画');
   await expect(page.getByRole('button', { name: 'その他の操作' })).toBeFocused();
-  const initialHeadings = { '参加者': '参加者を登録して始める', '車割': '車割を始める', '班割': '班割を始める', '精算': '精算を始める' };
+  const initialHeadings = { '参加者': '参加者が登録されていません', '車割': '車割', '班割': '班割', '精算': '精算' };
   for (const name of ['参加者', '車割', '班割', '精算']) {
     await page.getByRole('tab', { name, exact: true }).click();
     await expect(page.getByRole('tab', { name, exact: true })).toHaveAttribute('aria-selected', 'true');

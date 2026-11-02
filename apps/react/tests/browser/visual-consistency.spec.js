@@ -76,10 +76,11 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   expect(await participantSummary.evaluate(element => getComputedStyle(element).marginBlockStart)).toBe('0px');
   const participantInset = (await participantSummary.boundingBox()).x;
   await expect(page.getByText('参加者を追加してください。', { exact: true })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: '参加者を追加', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
-  await expect(page.getByRole('dialog', { name: '参加者を登録' })).toBeVisible();
-  await page.getByRole('dialog', { name: '参加者を登録' }).getByRole('button', { name: 'キャンセル' }).click();
+  const selectionToggle = page.getByRole('button', { name: '参加者を選び直す', exact: true });
+  await expect(selectionToggle).toBeVisible();
+  await selectionToggle.click();
+  await expect(page.getByRole('button', { name: '選び直しを閉じる', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '選び直しを閉じる', exact: true }).click();
 
   await page.getByRole('tab', { name: '班割', exact: true }).click();
   await expect(page.getByRole('heading', { name: '班割', exact: true })).toHaveCount(0);

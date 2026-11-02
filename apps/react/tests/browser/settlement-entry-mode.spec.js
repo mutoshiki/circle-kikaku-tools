@@ -6,6 +6,8 @@ test('count-only settlement hides unrelated tools, retains Tools, survives reloa
   const room = structuredClone(fixture);
   await page.addInitScript(({ id, value }) => { const key = `sanpo-react:v1:${id}:room`; if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(value)); }, { id: roomId, value: room });
   await page.goto(`/?room=${roomId}`);
+  await expect(page.getByRole('tab', { name: '参加者', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await page.getByRole('tab', { name: '精算', exact: true }).click();
   await expect(page.getByRole('tab', { name: '精算', exact: true })).toHaveAttribute('aria-selected', 'true');
 
   await page.getByRole('button', { name: '精算設定', exact: true }).click();

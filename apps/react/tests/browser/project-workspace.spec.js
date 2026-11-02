@@ -319,6 +319,7 @@ test('all-tools debug sample is isolated and usable across project tools', async
   await expect(csvPreview).toContainText('ファイルの作成・外部送信は行いません');
   await csvPreview.getByRole('button', { name: '閉じる' }).click();
   await page.getByRole('tab', { name: '登山計画書' }).click();
+  await expect(page.getByText('下書きを保存しました')).toBeVisible({ timeout: 10000 });
   await expect(page.getByRole('heading', { name: '基本情報' })).toBeVisible();
   await expect(page.getByText('「任意」の表示がない項目は必須です。入力内容はPDFに記載されます。')).toHaveCount(0);
   await expect(page.locator('label[for="eventDate"]')).toContainText('（必須）');
@@ -333,7 +334,6 @@ test('all-tools debug sample is isolated and usable across project tools', async
   await expect(page.locator('#route-upload-list img')).toHaveCount(2);
   await expect(page.locator('#itinerary-upload-list img')).toHaveCount(2);
   await expect.poll(() => externalWrites).toEqual([]);
-  await expect(page.getByRole('status').filter({ hasText: '下書きを保存しました' })).toBeVisible({ timeout: 10000 });
   await expect(page.locator('#eventDate')).toHaveValue(/^\d{4}-\d{2}-\d{2}$/);
   await expect(page.locator('.draft-controls__menu')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '今すぐ保存' })).toHaveCount(0);

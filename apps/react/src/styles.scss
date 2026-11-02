@@ -117,7 +117,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .participants-post-confirm__item p { @include carbon-type.type-style('body-01'); margin: 0; color: var(--cds-text-secondary); }
 .participants-post-confirm__item .participants-post-confirm__reason { margin-block-start: layout.$spacing-03; max-inline-size: 48rem; }
 .participants-post-confirm__item .cds--btn { inline-size: auto; min-block-size: 2.5rem; max-inline-size: 100%; justify-content: flex-start; }
-.allocation-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: layout.$spacing-04; margin-block: 0 layout.$spacing-06; }
+.allocation-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: layout.$spacing-04; margin-block: 0 layout.$spacing-05; }
 .allocation-toolbar-summary { display: grid; gap: layout.$spacing-02; min-inline-size: 0; }
 .allocation-toolbar p { @include carbon-type.type-style('body-01'); display: flex; gap: layout.$spacing-04; flex-wrap: wrap; margin: 0; }
 .allocation-toolbar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-02; }
