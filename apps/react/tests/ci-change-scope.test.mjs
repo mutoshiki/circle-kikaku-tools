@@ -15,16 +15,50 @@ test('documentation-only changes produce an explicit no-tests plan', () => {
   assert.equal(plan.reasons.length, 1);
 });
 
-test('approved leaf UI changes select their critical and matching browser specs only', () => {
-  const plan = classifyCiChanges(['apps/react/src/components/InitialEmptyState.jsx']);
-  assert.equal(plan.profile, 'react-leaf');
-  assert.deepEqual(plan.browserSpecs, [
-    'tests/browser/production-smoke.spec.js',
-    'tests/browser/initial-empty-state.spec.js',
-  ]);
+test('copy-only component changes and their browser coverage select tests from the diff', () => {
+  const plan = classifyCiChanges([
+    'apps/react/src/components/Allocation.jsx',
+    'apps/react/tests/browser/allocation.spec.js',
+    'apps/react/tests/browser/carbon-remediation.spec.js',
+  ], {
+    patches: new Map([
+      ['apps/react/src/components/Allocation.jsx', "@@ -132 +132 @@\n-        <OverflowMenuItem itemText={record.locked ? 'ランダム割り当ての固定を解除' : 'ランダム割り当てで固定'} onClick={() => execute('editParticipant', { id, changes: { locked: !record.locked } })} />\n+        <OverflowMenuItem itemText={record.locked ? '固定を解除' : '配置を固定'} onClick={() => execute('editParticipant', { id, changes: { locked: !record.locked } })} />"],
+    ]),
+    availableBrowserSpecs: ['tests/browser/allocation.spec.js', 'tests/browser/carbon-remediation.spec.js'],
+  });
+  assert.equal(plan.profile, 'react-copy');
+  assert.deepEqual(plan.browserSpecs, ['tests/browser/production-smoke.spec.js', 'tests/browser/allocation.spec.js', 'tests/browser/carbon-remediation.spec.js']);
   assert.equal(plan.needsFirebase, false);
   assert.equal(plan.needsLegacy, false);
   assert.equal(plan.needsVisual, false);
+});
+
+test('component structure changes select focused browser specs plus visual coverage', () => {
+  const plan = classifyCiChanges(['apps/react/src/components/Panel.jsx'], {
+    patches: new Map([['apps/react/src/components/Panel.jsx', '@@ -10,0 +11 @@\n+      <section className="panel-content">']]),
+    availableBrowserSpecs: ['tests/browser/panel.spec.js'],
+  });
+  assert.equal(plan.profile, 'react-ui');
+  assert.deepEqual(plan.browserSpecs, ['tests/browser/production-smoke.spec.js', 'tests/browser/panel.spec.js']);
+  assert.equal(plan.needsVisual, true);
+  assert.equal(plan.needsFirebase, false);
+});
+
+test('behavior changes in components fail closed to full checks', () => {
+  const plan = classifyCiChanges(['apps/react/src/components/Panel.jsx'], {
+    patches: new Map([['apps/react/src/components/Panel.jsx', '@@ -10 +10 @@\\n-    onClick={saveDraft}\\n+    onClick={publishDraft}']]),
+    availableBrowserSpecs: ['tests/browser/panel.spec.js'],
+  });
+  assert.equal(plan.profile, 'full');
+  assert.equal(plan.needsFirebase, true);
+});
+
+test('event handlers embedded in otherwise presentational tags fail closed', () => {
+  const plan = classifyCiChanges(['apps/react/src/components/Panel.jsx'], {
+    patches: new Map([['apps/react/src/components/Panel.jsx', '@@ -10,0 +11 @@\n+      <Button onClick={publishDraft}>公開</Button>']]),
+    availableBrowserSpecs: ['tests/browser/panel.spec.js'],
+  });
+  assert.equal(plan.profile, 'full');
 });
 
 test('renames include both paths and broaden the selected checks', () => {
@@ -48,25 +82,28 @@ test('global UI and shared service changes remain on broad compatibility checks'
   assert.equal(shared.needsLegacy, true);
 });
 
-test('unknown paths fail closed and mixed leaf changes union their required specs', () => {
+test('unknown paths fail closed and related specs are selected by filename', () => {
   const unknown = classifyCiChanges(['unclassified/behavior.js', 'apps/react/src/components/InitialEmptyState.jsx']);
   assert.equal(unknown.profile, 'full');
   assert.equal(unknown.needsFirebase, true);
   assert.equal(unknown.needsLegacy, true);
   assert.match(unknown.reasons.join(' '), /unknown/i);
 
-  const mixed = classifyCiChanges([
-    'docs/notes.md',
-    'apps/react/src/components/InitialEmptyState.jsx',
-    'apps/react/src/components/ui/SectionHeading.jsx',
-  ]);
-  assert.equal(mixed.profile, 'react-leaf');
-  assert.deepEqual(mixed.browserSpecs, [
-    'tests/browser/production-smoke.spec.js',
-    'tests/browser/initial-empty-state.spec.js',
-  ]);
-  assert.deepEqual(mixed.visualSpecs, ['tests/browser/visual-consistency.spec.js']);
-  assert.equal(mixed.needsVisual, true);
+  const mixed = classifyCiChanges(['apps/react/tests/browser/project-navigation.spec.js'], {
+    patches: new Map([['apps/react/tests/browser/project-navigation.spec.js', '@@ -1 +1 @@\\n-test old\\n+test new']]),
+    availableBrowserSpecs: ['tests/browser/project-navigation.spec.js'],
+  });
+  assert.equal(mixed.profile, 'react-targeted');
+  assert.deepEqual(mixed.browserSpecs, ['tests/browser/production-smoke.spec.js', 'tests/browser/project-navigation.spec.js']);
+  assert.equal(mixed.needsFirebase, false);
+});
+
+test('components without discoverable browser coverage fail closed to full checks', () => {
+  const plan = classifyCiChanges(['apps/react/src/components/Uncovered.jsx'], {
+    patches: new Map([['apps/react/src/components/Uncovered.jsx', '@@ -1 +1 @@\\n-<p>Old</p>\\n+<p>New</p>']]),
+  });
+  assert.equal(plan.profile, 'full');
+  assert.equal(plan.needsFirebase, true);
 });
 
 test('legacy baseline comparison runs only after a failed head run', () => {

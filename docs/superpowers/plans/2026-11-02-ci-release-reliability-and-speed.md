@@ -1,6 +1,6 @@
 # CI・検証・本番公開の高速化と安定化 Implementation Plan
 
-> **実装状況:** Task 1・2・4を実装済み。Task 3はworker/P9の本番書き込みが絡むため今回の対象外。Task 5の実測はPR CI完了後に追記する。
+> **実装状況:** Task 1・2・4を実装済み。2026-11-03に固定leaf許可リストを廃止し、diff内容と関連specの自動検出に置き換えた。Task 3はworker/P9の本番書き込みが絡むため今回の対象外。Task 5の実測はPR CI完了後に追記する。
 
 **Goal:** 必須チェックと本番の両ブラウザーsmokeを維持し、変更に見合った検証・検証環境の分離・作業手順の固定により待ち時間と手戻りを減らす。
 
@@ -151,12 +151,12 @@ PRとmainは異なるSHAなので両方を検証する。初期案ではPR結果
 
 ### Task 2: 変更範囲に応じた検証を、既存Readinessへ接続
 
-**変更対象:** `tools/classify-release-changes.mjs`、新規 `tools/verification-scope.json`（path→spec/系列の小さな明示表）、`.github/workflows/quality-guard.yml`、`apps/react/package.json`、新規 `apps/react/tests/ci-change-scope.test.mjs`、既存 `apps/react/tests/react-production-release-contract.test.mjs`。
+**変更対象:** `tools/classify-release-changes.mjs`、`.github/workflows/quality-guard.yml`、`apps/react/package.json`、`apps/react/tests/ci-change-scope.test.mjs`、既存 `apps/react/tests/react-production-release-contract.test.mjs`。2026-11-03の実装では新規path→spec allowlistは置かず、diff内容とspec名から範囲を選ぶ。
 
 **インターフェース:** 分類器に純粋関数 `classifyCiChanges(paths)` をexportし、既存出力を保持しつつ `profile`、`browserSpecs`、`needsFirebase`、`needsLegacy`、`reasons` を追加。既存のbase/head引数CLIを残す。release側 `classify-production-release.mjs` とは役割が異なるので、CI分類でstandard公開を直接許可しない。
 
-- [ ] docsのみ、allowlist UI、global UI、shared、infrastructure/unknownを分類するfixtureを用意する。削除/renameは旧新pathの両方で判定し、複数変更は検証範囲の和集合にする。diff取得不能は全系列または明示失敗。
-- [ ] `production-smoke.spec.js`、企画遷移/空状態などの短い常設journeyと、影響するspecを選ぶ。leafの初期対象は実際のimport関係を読んでから確定し、それ以外は従来のfullを使う。
+- [ ] docsのみ、文言のみ、静的UI、挙動変更、shared、infrastructure/unknownを分類するfixtureを用意する。削除/renameは旧新pathの両方で判定し、複数変更は検証範囲の和集合にする。diff取得不能は全系列または明示失敗。
+- [ ] `production-smoke.spec.js`、企画遷移/空状態などの短い常設journeyと、変更されたspecまたは同名specを選ぶ。対象specを検出できない変更は従来のfullを使う。
 - [ ] `styles.scss`・共通UI・App構成・組込tgz・依存/設定・shared処理は狭めない。局所変更に見えるserviceのshared除外は別途依存根拠がある場合だけ行う。
 - [ ] required check名 `Release / Readiness` を保ち、選択planに従う必要jobがすべて成功したときだけ成功させる。未実行/取消/空reportを成功の代わりにしない。docs-onlyは明示的な無テストplanとして記録する。
 - [ ] CI job summaryにprofile・比較base/head・選択spec/project・結果件数・full fallback理由を表示する。ローカル開発でも同じ分類CLIを読む。常設の新しいテスト管理サービスは作らない。
