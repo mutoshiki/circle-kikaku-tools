@@ -13,3 +13,5 @@
 - production smokeが失敗した場合は、既存workflowのrollback経路に従い、原因を修正して再検証します。
 - 既存の `Release / Readiness` と `.github/workflows/react-production-release.yml` (`React Production Release`) を標準経路として使い、同じ処理を別途再実装しません。
 - ユーザーの無関係な未コミット変更や作業ファイルを変更・破棄しません。
+- CIの範囲選択、同SHAの成功check再利用、legacy base比較、Browser操作の手順は `docs/development/verification-and-release.md` を参照します。allowlist外・不明なpathはfull検証し、既知の成功工程を理由なく繰り返しません。
+- Browser接続の確認にproduction diagnoseやフォーム作成を使いません。production smokeは既存ルールどおりP9に限定します。

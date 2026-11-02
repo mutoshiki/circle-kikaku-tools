@@ -52,8 +52,8 @@ test('release fixture opens a car without saved expenses with the input action',
   await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
 });
 
-test('production preview loads assets and preserves a room edit across critical views and reload', async ({ page }) => {
-  const origin = 'http://127.0.0.1:4174';
+test('production preview loads assets and preserves a room edit across critical views and reload', async ({ page }, testInfo) => {
+  const origin = new URL(testInfo.project.use.baseURL).origin;
   const runtimeErrors = [];
   const badResponses = [];
   page.on('pageerror', error => runtimeErrors.push(error.message));

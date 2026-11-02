@@ -1,12 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
-import { join } from 'node:path';
-
-const outputRoot = join(process.cwd(), '..', '..', 'artifacts', 'ui-audit');
-function shot(page, viewportName, number, name) {
-  const directory = join(outputRoot, viewportName);
-  mkdirSync(directory, { recursive: true });
-  return page.mouse.move(1, 1).then(() => page.screenshot({ path: join(directory, `${String(number).padStart(2, '0')}-${name}.png`) }));
+function shot(page, testInfo, number, name) {
+  return page.mouse.move(1, 1).then(() => page.screenshot({
+    path: testInfo.outputPath(`${String(number).padStart(2, '0')}-${name}.png`),
+  }));
 }
 async function menu(page) {
   await page.getByRole('button', { name: 'その他の操作' }).click();
@@ -24,11 +20,11 @@ test('capture form-linked and registration UI states', async ({ page }, testInfo
     await page.goto(`/?room=${room}`);
     await page.getByRole('tab', { name: '参加者', exact: true }).click();
     await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
-    await shot(page, viewportName, 37, 'participant-registration-modal');
+    await shot(page, testInfo, 37, 'participant-registration-modal');
     await page.getByRole('radio', { name: '回答表を貼り付け', exact: true }).check({ force: true });
     await page.getByRole('button', { name: '貼り付け方を見る', exact: true }).click();
     await page.waitForTimeout(500);
-    await shot(page, viewportName, 38, 'participant-registration-help-expanded');
+    await shot(page, testInfo, 38, 'participant-registration-help-expanded');
     await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
 
     await menu(page);
@@ -36,19 +32,19 @@ test('capture form-linked and registration UI states', async ({ page }, testInfo
     await sample.getByRole('radio', { name: 'フォーム連携のサンプル', exact: true }).check({ force: true });
     await sample.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
     await page.getByRole('tab', { name: '参加者', exact: true }).click();
-    await shot(page, viewportName, 39, 'form-linked-participants-unconfirmed');
+    await shot(page, testInfo, 39, 'form-linked-participants-unconfirmed');
     const confirm = page.getByRole('button', { name: '参加者を確定', exact: true });
     if (await confirm.count()) await confirm.click();
-    await shot(page, viewportName, 40, 'form-linked-participants-confirmed');
+    await shot(page, testInfo, 40, 'form-linked-participants-confirmed');
     const guidance = page.getByRole('button', { name: '発表文を作成', exact: true });
     if (await guidance.count()) {
       await guidance.click();
-      await shot(page, viewportName, 41, 'guidance-modal');
+      await shot(page, testInfo, 41, 'guidance-modal');
       const guidanceDialog = page.getByRole('dialog', { name: '参加者発表文を作成' });
       await guidanceDialog.getByRole('button', { name: '閉じる', exact: true }).last().click();
     }
     const handoff = page.getByRole('button', { name: '学務書類用CSVを作成', exact: true });
-    if (await handoff.count()) await shot(page, viewportName, 42, 'handoff-disabled-state');
+    if (await handoff.count()) await shot(page, testInfo, 42, 'handoff-disabled-state');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
 });

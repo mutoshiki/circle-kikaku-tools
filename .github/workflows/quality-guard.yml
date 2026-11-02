@@ -24,6 +24,12 @@ jobs:
       legacy: ${{ steps.classify.outputs.legacy }}
       source_legacy: ${{ steps.classify.outputs.source_legacy }}
       infrastructure: ${{ steps.classify.outputs.infrastructure }}
+      profile: ${{ steps.classify.outputs.profile }}
+      browser_specs: ${{ steps.classify.outputs.browser_specs }}
+      visual_specs: ${{ steps.classify.outputs.visual_specs }}
+      needs_firebase: ${{ steps.classify.outputs.needs_firebase }}
+      needs_legacy: ${{ steps.classify.outputs.needs_legacy }}
+      needs_visual: ${{ steps.classify.outputs.needs_visual }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -92,6 +98,9 @@ jobs:
       SANPO_TEST_FIREBASE_TARGET: offline
       SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
       SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
+      SANPO_PLAYWRIGHT_WORKERS: '2'
+      SANPO_PLAYWRIGHT_EXCLUDE_VISUAL: '1'
+      REACT_BROWSER_SPECS: ${{ needs.changes.outputs.browser_specs }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v7
@@ -107,10 +116,10 @@ jobs:
         continue-on-error: true
         env:
           MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/head-react-chromium
-        run: npm run test:browser -- --project chromium-desktop --project chromium-mobile
+        run: npm run test:browser -- $REACT_BROWSER_SPECS --project chromium-desktop --project chromium-mobile
         working-directory: apps/react
       - name: Require every React Chromium test to pass on the PR head
-        run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-chromium/react-browser.json"
+        run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-chromium/react-browser.json" --projects=chromium-desktop,chromium-mobile
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -129,6 +138,9 @@ jobs:
       SANPO_TEST_FIREBASE_TARGET: offline
       SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
       SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
+      SANPO_PLAYWRIGHT_WORKERS: '2'
+      REACT_BROWSER_SPECS: ${{ needs.changes.outputs.browser_specs }}
+      REACT_VISUAL_SPECS: ${{ needs.changes.outputs.visual_specs }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v7
@@ -144,10 +156,10 @@ jobs:
         continue-on-error: true
         env:
           MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/head-react-webkit
-        run: npm run test:browser -- --project webkit-mobile
+        run: npm run test:browser -- $REACT_BROWSER_SPECS $REACT_VISUAL_SPECS --project webkit-mobile
         working-directory: apps/react
       - name: Require every React WebKit test to pass on the PR head
-        run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-webkit/react-browser.json"
+        run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-webkit/react-browser.json" --projects=webkit-mobile
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -159,13 +171,14 @@ jobs:
   react-visual:
     name: React / Visual and Layout
     needs: changes
-    if: needs.changes.outputs.react == 'true'
+    if: needs.changes.outputs.needs_visual == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
       SANPO_TEST_FIREBASE_TARGET: offline
       SANPO_TEST_FIREBASE_PROJECT_ID: demo-circle-kikaku-tools
       SANPO_TEST_FIREBASE_DATABASE_URL: http://127.0.0.1:9000
+      REACT_VISUAL_SPECS: ${{ needs.changes.outputs.visual_specs }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v7
@@ -181,10 +194,10 @@ jobs:
         continue-on-error: true
         env:
           MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/head-react-visual
-        run: npm run test:browser -- tests/browser/visual-consistency.spec.js --project chromium-desktop --project chromium-mobile
+        run: npm run test:browser -- ${REACT_VISUAL_SPECS:-tests/browser/visual-consistency.spec.js} --project chromium-desktop --project chromium-mobile
         working-directory: apps/react
       - name: Require every React visual and layout test to pass on the PR head
-        run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-visual/react-browser.json"
+        run: node tools/assert-browser-clean.mjs "$RUNNER_TEMP/head-react-visual/react-browser.json" --projects=chromium-desktop,chromium-mobile
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -196,7 +209,7 @@ jobs:
   react-firebase:
     name: React / Firebase and Compatibility
     needs: changes
-    if: needs.changes.outputs.react == 'true' || needs.changes.outputs.shared == 'true'
+    if: needs.changes.outputs.needs_firebase == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -209,6 +222,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/react/package-lock.json
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -237,7 +253,7 @@ jobs:
   shared-collaboration:
     name: Shared / Collaboration
     needs: changes
-    if: needs.changes.outputs.react == 'true' || needs.changes.outputs.shared == 'true'
+    if: needs.changes.outputs.needs_firebase == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
@@ -271,7 +287,7 @@ jobs:
   legacy-static:
     name: Legacy / Static
     needs: changes
-    if: needs.changes.outputs.legacy == 'true'
+    if: needs.changes.outputs.needs_legacy == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -296,21 +312,26 @@ jobs:
           STATIC_CONTRACT_REPORT: ${{ runner.temp }}/head-static.json
         run: node tools/run-static-contracts.mjs
       - uses: actions/checkout@v6
+        if: steps.head.outcome != 'success'
         with:
           ref: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
           path: legacy-base
           fetch-depth: 0
       - name: Install base dependencies
+        if: steps.head.outcome != 'success'
         run: npm ci --no-audit --no-fund
         working-directory: legacy-base
       - name: Run base static contracts
+        if: steps.head.outcome != 'success'
         continue-on-error: true
         env:
           STATIC_CONTRACT_REPORT: ${{ runner.temp }}/base-static.json
         run: node tools/run-static-contracts.mjs "$GITHUB_WORKSPACE/legacy-base"
       - name: Create empty browser report for the static-only comparison
+        if: steps.head.outcome != 'success'
         run: echo '{"suites":[]}' > "$RUNNER_TEMP/empty-browser.json"
       - name: Compare with PR base
+        if: steps.head.outcome != 'success'
         run: node tools/compare-baseline-reports.mjs "$RUNNER_TEMP/base-static.json" "$RUNNER_TEMP/head-static.json" "$RUNNER_TEMP/empty-browser.json" "$RUNNER_TEMP/empty-browser.json"
         shell: bash
       - name: Require clean legacy contracts when legacy or shared source changed
@@ -329,7 +350,7 @@ jobs:
   legacy-browser:
     name: Legacy / Browser
     needs: changes
-    if: needs.changes.outputs.legacy == 'true'
+    if: needs.changes.outputs.needs_legacy == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -343,25 +364,30 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
       - name: Run legacy browser suite against PR head
+        id: head
         continue-on-error: true
         env:
           MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/head-browser
         run: npx playwright test --config apps/react/migration/legacy.playwright.config.mjs
       - uses: actions/checkout@v6
+        if: steps.head.outcome != 'success'
         with:
           ref: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
           path: legacy-base
           fetch-depth: 0
       - name: Install base dependencies
+        if: steps.head.outcome != 'success'
         run: npm ci --no-audit --no-fund
         working-directory: legacy-base
       - name: Run legacy browser suite against PR base
+        if: steps.head.outcome != 'success'
         continue-on-error: true
         env:
           MIGRATION_EVIDENCE_DIR: ${{ runner.temp }}/base-browser
         working-directory: legacy-base
         run: npx playwright test --config apps/react/migration/legacy.playwright.config.mjs
       - name: Compare browser failures against PR base
+        if: steps.head.outcome != 'success'
         run: node tools/compare-browser-baseline.mjs "$RUNNER_TEMP/base-browser/legacy-browser-baseline.json" "$RUNNER_TEMP/head-browser/legacy-browser-baseline.json"
       - name: Require clean legacy browser suite when legacy or shared source changed
         if: needs.changes.outputs.source_legacy == 'true' || needs.changes.outputs.shared == 'true'
@@ -379,7 +405,7 @@ jobs:
   legacy-collaboration:
     name: Legacy / Five-device collaboration
     needs: changes
-    if: needs.changes.outputs.legacy == 'true'
+    if: needs.changes.outputs.needs_legacy == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
@@ -396,24 +422,29 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - name: Run legacy collaboration simulations on PR head
+        id: head
         continue-on-error: true
         env:
           COLLABORATION_REPORT: ${{ runner.temp }}/head-collaboration.json
         run: node tools/run-collaboration-baseline.mjs "$GITHUB_WORKSPACE"
       - uses: actions/checkout@v6
+        if: steps.head.outcome != 'success'
         with:
           ref: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
           path: legacy-base
           fetch-depth: 0
       - name: Install base dependencies
+        if: steps.head.outcome != 'success'
         run: npm ci --no-audit --no-fund
         working-directory: legacy-base
       - name: Run legacy collaboration simulations on PR base
+        if: steps.head.outcome != 'success'
         continue-on-error: true
         env:
           COLLABORATION_REPORT: ${{ runner.temp }}/base-collaboration.json
         run: node tools/run-collaboration-baseline.mjs "$GITHUB_WORKSPACE/legacy-base"
       - name: Compare collaboration failures against PR base
+        if: steps.head.outcome != 'success'
         run: node tools/compare-collaboration-baseline.mjs "$RUNNER_TEMP/base-collaboration.json" "$RUNNER_TEMP/head-collaboration.json"
       - name: Require clean collaboration suite when legacy or shared source changed
         if: needs.changes.outputs.source_legacy == 'true' || needs.changes.outputs.shared == 'true'
@@ -448,8 +479,9 @@ jobs:
       - name: Require relevant React, shared, and legacy checks
         env:
           REACT_NEEDED: ${{ needs.changes.outputs.react }}
-          SHARED_NEEDED: ${{ needs.changes.outputs.shared }}
-          LEGACY_NEEDED: ${{ needs.changes.outputs.legacy }}
+          VISUAL_NEEDED: ${{ needs.changes.outputs.needs_visual }}
+          FIREBASE_NEEDED: ${{ needs.changes.outputs.needs_firebase }}
+          LEGACY_NEEDED: ${{ needs.changes.outputs.needs_legacy }}
           REACT_BUILD: ${{ needs.react-build.result }}
           REACT_UNIT: ${{ needs.react-unit.result }}
           REACT_CHROMIUM: ${{ needs.react-browser-chromium.result }}
@@ -465,9 +497,10 @@ jobs:
           set -euo pipefail
           test "$CHANGE_RESULT" = success
           if [ "$REACT_NEEDED" = true ]; then
-            for result in "$REACT_BUILD" "$REACT_UNIT" "$REACT_CHROMIUM" "$REACT_WEBKIT" "$REACT_VISUAL"; do test "$result" = success; done
+            for result in "$REACT_BUILD" "$REACT_UNIT" "$REACT_CHROMIUM" "$REACT_WEBKIT"; do test "$result" = success; done
           fi
-          if [ "$REACT_NEEDED" = true ] || [ "$SHARED_NEEDED" = true ]; then
+          if [ "$VISUAL_NEEDED" = true ]; then test "$REACT_VISUAL" = success; fi
+          if [ "$FIREBASE_NEEDED" = true ]; then
             test "$REACT_FIREBASE" = success
             test "$SHARED_COLLAB" = success
           fi
