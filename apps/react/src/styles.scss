@@ -156,7 +156,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-card .cds--inline-notification { max-width: none; }
 .settlement-car-list { margin: 0; }
 .settlement-car { min-width: 0; }
-.settlement-car-header { display: grid; gap: layout.$spacing-03; min-inline-size: 0; padding: layout.$spacing-04 0 layout.$spacing-02; }
+.settlement-car-header { display: grid; gap: layout.$spacing-03; min-inline-size: 0; padding: layout.$spacing-03 0 layout.$spacing-02; }
 .settlement-car-topline { display: flex; align-items: flex-start; gap: layout.$spacing-03; min-inline-size: 0; }
 .settlement-car-heading { flex: 1 1 auto; min-inline-size: 0; margin: 0; }
 .settlement-car-toggle { @include carbon-type.type-style('body-compact-01'); display: flex; flex-direction: row; justify-self: end; align-items: center; gap: layout.$spacing-03; inline-size: auto; min-inline-size: 0; min-block-size: 2.5rem; padding: layout.$spacing-03; }
@@ -169,9 +169,9 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-car-actions { display: flex; flex: 0 0 auto; align-items: flex-start; justify-content: flex-end; gap: layout.$spacing-01; min-inline-size: 0; }
 .settlement-car-actions:empty { display: none; }
 .settlement-car-edit-action { inline-size: auto; max-inline-size: 100%; margin-inline-start: 0; }
-.settlement-car-amounts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sanpo-ui-group-gap, #{layout.$spacing-06}); min-inline-size: 0; }
+.settlement-car-amounts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sanpo-ui-group-gap, #{layout.$spacing-04}); min-inline-size: 0; }
 .settlement-car-summary--single-amount .settlement-car-amounts { grid-template-columns: minmax(0, 1fr); }
-.settlement-car-amount-category { @include carbon-type.type-style('heading-compact-02'); display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; justify-items: end; gap: layout.$spacing-01; min-inline-size: 0; text-align: end; }
+.settlement-car-amount-category { @include carbon-type.type-style('heading-compact-02'); display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; justify-items: end; gap: layout.$spacing-02; min-inline-size: 0; text-align: end; }
 .settlement-car-amount-label { @include carbon-type.type-style('body-compact-01'); color: var(--cds-text-secondary); }
 .settlement-car-amount-value { @include carbon-type.type-style('heading-03'); justify-self: end; min-inline-size: 0; color: var(--cds-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .settlement-car-summary--wide-amounts .settlement-car-amount-category { min-inline-size: 0; }
@@ -324,7 +324,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   .settlement-section-heading { flex-direction: column; }
   .settlement-vehicles-card .settlement-section-heading { flex-direction: row; align-items: baseline; }
   .settlement-car-amounts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: layout.$spacing-06; }
-  .settlement-car-amount-category { display: grid; align-content: start; justify-items: end; gap: layout.$spacing-02; text-align: end; }
+  .settlement-car-amount-category { justify-items: end; text-align: end; }
   .settlement-car-summary--wide-amounts .settlement-car-amounts { grid-template-columns: minmax(0, 1fr); }
   .settlement-car-summary--wide-amounts .settlement-car-amount-category { justify-content: space-between; }
   .settlement-extra-row { grid-template-columns: 1fr; }
@@ -354,10 +354,11 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 }
 
 @media (max-width: 374px) {
+  .settlement-car-header { padding-block-start: layout.$spacing-02; }
   .settlement-car-amounts,
   .settlement-car-summary--wide-amounts .settlement-car-amounts { grid-template-columns: minmax(0, 1fr); gap: layout.$spacing-02; }
   .settlement-car-amount-category,
-  .settlement-car-summary--wide-amounts .settlement-car-amount-category { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; justify-content: initial; justify-items: stretch; gap: layout.$spacing-02; text-align: start; }
+  .settlement-car-summary--wide-amounts .settlement-car-amount-category { grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; justify-items: stretch; gap: layout.$spacing-02; text-align: start; }
   .settlement-car-amount-category .settlement-car-amount-value { justify-self: end; }
 }
 
@@ -376,6 +377,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .project-tool-setting__actions { display: flex; align-items: center; justify-content: space-between; gap: var(--cds-spacing-04, .75rem); }
 .project-tools-workspace__heading h2,
 .external-tool-workspace h2 { margin: 0 0 var(--cds-spacing-02, .25rem); }
+.external-tool-workspace h2 { @include carbon-type.type-style('heading-03'); }
 .project-tools-workspace__heading p { color: var(--cds-text-secondary); margin: 0; }
 .project-tools-manager { display: grid; gap: var(--cds-spacing-04, .75rem); }
 .project-tools-manager h3 { @include carbon-type.type-style('heading-compact-01'); margin: 0; }
@@ -399,4 +401,113 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 @media (max-width: 671px) {
   .project-tool-setting { align-items: center; padding-block: var(--cds-spacing-03, .5rem); }
   .project-tool-setting__actions { justify-content: flex-end; }
+}
+
+/* Mobile sizing follows Carbon's productive hierarchy while keeping dense lists compact. */
+@media (max-width: 671px) {
+  .application {
+    --sanpo-ui-touch-target: 2.75rem;
+  }
+
+  .cds--label,
+  .form-maker-page--embedded .form-maker-submit-note,
+  .mountain-plan-inline .field-error,
+  .mountain-plan-inline .itinerary-table td::before {
+    @include carbon-type.type-style('label-02');
+  }
+
+  .cds--text-input,
+  .cds--text-area,
+  .cds--number .cds--number__input-wrapper input,
+  .cds--select .cds--select-input,
+  .cds--search .cds--search-input,
+  .form-maker-page--embedded input[type='date'] {
+    min-block-size: 3rem;
+  }
+
+  .project-create-form .cds--text-input,
+  .project-create-form .cds--select-input,
+  .form-maker-page--embedded .cds--text-input,
+  .form-maker-page--embedded .cds--text-area,
+  .mountain-plan-inline input,
+  .mountain-plan-inline select,
+  .mountain-plan-inline textarea {
+    font-size: 1rem;
+  }
+
+  .participants-page .section-heading .inline-actions .cds--btn,
+  .participant-filter-summary .cds--btn,
+  .allocation-toolbar-actions .cds--btn,
+  .allocation-add-area .cds--btn,
+  .settlement-car-toggle,
+  .settlement-car-edit-action,
+  .settlement-cost-add-action,
+  .settlement-memo-add-action,
+  .settlement-memo-actions .cds--btn,
+  .settlement-section-heading > .cds--btn,
+  .settlement-collection-modal .cds--content-switcher-btn,
+  .project-tool-setting__actions .cds--btn,
+  .form-maker-page--embedded button,
+  .form-maker-page--embedded a,
+  .mountain-plan-inline button,
+  .mountain-plan-inline .details-panel summary,
+  .mountain-plan-inline .upload-card__zoom summary {
+    min-block-size: var(--sanpo-ui-touch-target);
+  }
+
+  .settlement-car-toggle { min-block-size: 3rem; }
+  .settlement-car-edit-action,
+  .settlement-cost-add-action,
+  .settlement-memo-add-action,
+  .allocation-toolbar-actions .cds--btn,
+  .project-tool-setting__actions .cds--btn { min-block-size: 2.75rem; }
+
+  .cds--modal.is-visible .cds--btn,
+  .cds--modal.is-visible .cds--icon-button,
+  .form-maker-page--embedded .form-maker-history-actions a,
+  .form-maker-page--embedded .form-maker-result-links a {
+    min-block-size: var(--sanpo-ui-touch-target);
+  }
+
+  .cds--modal.is-visible .cds--btn { min-block-size: var(--sanpo-ui-touch-target); }
+  .cds--modal.is-visible .cds--icon-button { min-inline-size: var(--sanpo-ui-touch-target); }
+
+  .settlement-settings-modal .cds--radio-button-wrapper,
+  .settlement-movement-form .cds--radio-button-wrapper,
+  .form-maker-page--embedded .cds--checkbox-wrapper,
+  .mountain-plan-inline .cds--checkbox-wrapper {
+    min-block-size: 2.75rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .form-maker-page--embedded .form-maker-layout {
+    inline-size: 100%;
+  }
+
+  .application .cds--content.form-maker-page--embedded {
+    padding-inline: var(--sanpo-ui-content-inset, 1rem);
+  }
+
+  .form-maker-page--embedded .form-maker-date-grid { margin-inline: 0; }
+
+  .mountain-plan-inline .progress__step {
+    min-block-size: 2.75rem;
+    padding-block-start: .75rem;
+    font-size: .875rem;
+    line-height: 1.25rem;
+  }
+
+  .mountain-plan-inline .progress__step + .progress__step { padding-inline-start: .75rem; }
+  .mountain-plan-inline .progress__step + .progress__step .progress__dot { inset-inline-start: .75rem; }
+  .mountain-plan-inline .details-panel summary { min-block-size: 3rem; }
+  .mountain-plan-inline .upload-card__actions { align-items: center; }
+  .mountain-plan-inline .upload-card__actions button { min-block-size: 2.75rem; }
+  .mountain-plan-inline .field > span,
+  .mountain-plan-inline .field > label,
+  .mountain-plan-inline .field-optional { @include carbon-type.type-style('label-02'); }
+  .mountain-plan-inline .form-intro,
+  .mountain-plan-inline .details-panel__body > p { @include carbon-type.type-style('body-compact-01'); }
+
+  .external-tool-workspace .cds--btn { min-block-size: var(--sanpo-ui-touch-target); }
 }
