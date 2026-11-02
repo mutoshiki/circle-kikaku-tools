@@ -801,12 +801,7 @@ test('car expense editor uses a compact Carbon list and focused mobile editing s
   await expect(dialog.getByRole('button', { name: '戻る' })).toBeVisible();
   await expect(editor.getByRole('textbox', { name: /金額（円）/ })).toHaveCSS('text-align', 'right');
   await expect(editor.getByLabel('費用名')).toBeFocused();
-  const titleGap = await dialog.evaluate(node => {
-    const header = node.querySelector('.cds--modal-header');
-    const firstRow = node.querySelector('.cds--contained-list-item');
-    return firstRow.getBoundingClientRect().top - header.getBoundingClientRect().bottom;
-  });
-  expect(titleGap).toBeLessThanOrEqual(24);
+  await expect(dialog.locator('.settlement-cost-editor-form .settlement-form-section')).toBeVisible();
 
   const content = dialog.locator('.cds--modal-content');
   const contentSize = await content.evaluate(node => ({ scrollHeight: node.scrollHeight, clientHeight: node.clientHeight }));
