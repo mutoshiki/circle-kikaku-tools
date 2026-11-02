@@ -59,7 +59,22 @@ async function waitForSmokeRoomReady(page, expectedRoomName) {
   await expect(page.locator('#project-heading')).toHaveText(expectedRoomName);
 }
 
-test('production app, Firebase compatibility, route APIs, and key tasks work without touching another room', async ({ page }) => {
+async function openLegacyAlias(page, { roomId, view, expectedRoomName }) {
+  const legacyUrl = new URL('/circle-kikaku-tools/legacy/', 'https://mutoshiki.github.io');
+  legacyUrl.searchParams.set('room', roomId);
+  legacyUrl.searchParams.set('view', view);
+  legacyUrl.hash = 'compatibility-check';
+  await page.goto(legacyUrl.toString());
+
+  const destination = new URL(page.url());
+  expect(destination.pathname).toBe('/circle-kikaku-tools/');
+  expect(destination.searchParams.get('room')).toBe(roomId);
+  expect(destination.searchParams.get('view')).toBe(view);
+  expect(destination.hash).toBe('#compatibility-check');
+  await waitForSmokeRoomReady(page, expectedRoomName);
+}
+
+test('production app, Firebase compatibility, manual distance guidance, and key tasks work without touching another room', async ({ page }) => {
   assertProductionSmokeTarget();
   let roomSeeded = false;
   const consoleErrors = [];
@@ -180,21 +195,16 @@ test('production app, Firebase compatibility, route APIs, and key tasks work wit
         await waitForProductionBuildManifest(routePage);
         await waitForSmokeRoomReady(routePage, updatedSmokeMarker);
 
-        const legacyAlias = new URL('/circle-kikaku-tools/legacy/', 'https://mutoshiki.github.io');
-        legacyAlias.searchParams.set('room', roomId);
-        await routePage.goto(legacyAlias.toString());
-        await expect(routePage.locator('#roomNameInput')).toHaveJSProperty('value', updatedSmokeMarker);
+        setSmokePhase('legacy URL compatibility');
+        await openLegacyAlias(routePage, { roomId, view: 'seisan', expectedRoomName: updatedSmokeMarker });
       } finally {
         await routePage.close();
       }
     }
 
     if (mode === 'compatibility') {
-      setSmokePhase('legacy alias validation');
-      const legacyUrl = new URL('/circle-kikaku-tools/legacy/', 'https://mutoshiki.github.io');
-      legacyUrl.searchParams.set('room', roomId);
-      await page.goto(legacyUrl.toString());
-      await expect(page.locator('#roomNameInput')).toHaveJSProperty('value', updatedSmokeMarker);
+      setSmokePhase('legacy URL compatibility');
+      await openLegacyAlias(page, { roomId, view: 'seisan', expectedRoomName: updatedSmokeMarker });
       await page.goto(`${productionPath}?room=${roomId}&view=seisan`);
       await expect(page.getByRole('tabpanel', { name: '精算', exact: true })).toBeVisible();
     }

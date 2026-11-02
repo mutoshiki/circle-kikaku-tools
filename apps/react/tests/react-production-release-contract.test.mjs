@@ -59,9 +59,10 @@ test('React production Pages deployments are restricted to a verified main dispa
   const rootAssemblyStart = prepare.indexOf('      - name: Assemble root React artifact');
   const rootAssemblyEnd = prepare.indexOf('      - name: Upload root React artifact', rootAssemblyStart);
   const rootAssembly = prepare.slice(rootAssemblyStart, rootAssemblyEnd);
-  assert.match(rootAssembly, /mkdir -p "\$RUNNER_TEMP\/react-root\/react" "\$RUNNER_TEMP\/react-root\/legacy"/);
+  assert.match(rootAssembly, /mkdir -p "\$RUNNER_TEMP\/react-root\/react"/);
   assert.match(rootAssembly, /cp -a apps\/react\/dist\/\. "\$RUNNER_TEMP\/react-root\/react\/"/);
-  assert.match(rootAssembly, /cp rollback-source\/index\.html rollback-source\/firebase-config\.js rollback-source\/maps-config\.js rollback-source\/ogp-thumbnail\.png "\$RUNNER_TEMP\/react-root\/legacy\/"/);
+  assert.match(rootAssembly, /legacy-route-redirect\.mjs "\$RUNNER_TEMP\/react-root\/legacy\/index\.html"/);
+  assert.doesNotMatch(rootAssembly, /rollback-source\/(?:index\.html|firebase-config\.js|maps-config\.js|ogp-thumbnail\.png).*\/legacy\//);
   assert.match(rootAssembly, /production-release-artifact\.mjs digest "\$RUNNER_TEMP\/react-root"/);
   assert.match(rootAssembly, /release-build\.json/);
   assert.match(rootAssembly, /root\/react\/release-build\.json/);
@@ -88,7 +89,7 @@ test('React production Pages deployments are restricted to a verified main dispa
   assert.match(job('prepare'), /rollback_asset_digest:\s*\$\{\{ steps\.rollback-payload\.outputs\.published_asset_digest \}\}/);
   assert.match(releaseArtifact, /writeGithubOutput\('published_asset_digest', currentManifest\.assetDigest\)/);
   assert.equal((releaseArtifact.match(/writeGithubOutput\('published_asset_digest'/g) || []).length, 3);
-  const compatibilitySmokeStart = promotion.indexOf('      - name: Verify compatibility app, Firebase, and legacy read compatibility');
+  const compatibilitySmokeStart = promotion.indexOf('      - name: Verify compatibility app, Firebase, and legacy URL compatibility');
   const compatibilitySmokeEnd = promotion.indexOf('      - name: Verify compatibility smoke-room cleanup', compatibilitySmokeStart);
   const compatibilitySmoke = promotion.slice(compatibilitySmokeStart, compatibilitySmokeEnd);
   assert.match(compatibilitySmoke, /REACT_PRODUCTION_BUILD_SHA:\s*\$\{\{ needs\.prepare\.outputs\.build_sha \}\}/);
@@ -96,8 +97,8 @@ test('React production Pages deployments are restricted to a verified main dispa
   assert.match(promotion, /needs\.prepare\.outputs\.release_mode == 'standard'/);
   assert.match(promotion, /needs\.prepare\.outputs\.release_mode == 'migration'/);
   assert.match(promotion, /id: compatibility-deployment\s+if: needs\.prepare\.outputs\.release_mode == 'migration'/);
-  assert.match(prepare, /Build migration artifact with stable root, \/react\/, and \/legacy\//);
-  assert.match(prepare, /assemble-compatibility-pages\.mjs[\s\S]*?"\$RUNNER_TEMP\/react-rollback"[\s\S]*?apps\/react\/dist[\s\S]*?rollback-source[\s\S]*?_site/);
+  assert.match(prepare, /Build migration artifact with stable root, \/react\/, and \/legacy\/ redirect/);
+  assert.match(prepare, /assemble-compatibility-pages\.mjs[\s\S]*?"\$RUNNER_TEMP\/react-rollback"[\s\S]*?apps\/react\/dist[\s\S]*?_site/);
   assert.doesNotMatch(prepare, /cp -a "\$RUNNER_TEMP\/react-rollback\/\." _site\//);
   assert.match(repositoryRules, /React UI component・style・public UI assetだけ/);
   assert.match(repositoryRules, /旧legacyは `\/legacy\/`、移行対象Reactは `\/react\/`/);
@@ -116,8 +117,13 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.match(offlineSettlement, /Googleマップで距離を確認/);
   assert.match(sharedSmokeActions, /Googleマップで距離を確認/);
   assert.match(sharedSmokeActions, /returnToMovementSettingsFromDistanceGuide/);
-  assert.match(smoke, /new URL\('\/circle-kikaku-tools\/legacy\//);
-  assert.match(smoke, /if \(mode === 'root'\)[\s\S]*?circle-kikaku-tools\/react\/[\s\S]*?circle-kikaku-tools\/legacy\//);
+  assert.match(smoke, /async function openLegacyAlias\(page, \{ roomId, view, expectedRoomName \}\)/);
+  assert.match(smoke, /destination\.pathname\)\.toBe\('\/circle-kikaku-tools\/'\)/);
+  assert.match(smoke, /destination\.searchParams\.get\('room'\)\)\.toBe\(roomId\)/);
+  assert.match(smoke, /destination\.searchParams\.get\('view'\)\)\.toBe\(view\)/);
+  assert.match(smoke, /destination\.hash\)\.toBe\('#compatibility-check'\)/);
+  assert.match(smoke, /if \(mode === 'root'\)[\s\S]*?circle-kikaku-tools\/react\/[\s\S]*?openLegacyAlias\(routePage/);
+  assert.doesNotMatch(smoke, /#roomNameInput/);
   assert.match(smoke, /if \(!page\.isClosed\(\)\) await page\.close\(\)/);
   assert.doesNotMatch(smoke, /signInAnonymously|initializeApp\(config/);
   assert.match(roomHelper, /referrerPolicy: 'origin'/);

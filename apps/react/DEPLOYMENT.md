@@ -1,6 +1,6 @@
 # React production release
 
-React is the normal development, test, and production path. The legacy site remains available as the pinned fallback and rollback artifact.
+React is the normal development, test, and production path. The legacy app source remains available for migration tooling and the pinned rollback artifact; normal Pages releases keep `/legacy/` as a redirect to the React root.
 
 ## Pull request checks
 
@@ -19,8 +19,8 @@ The root `npm test` command runs React unit tests, and `npm run test:guard` runs
 
 1. Merge a PR after **Release / Readiness** passes.
 2. On `main`, run **React Production Release** for the exact SHA whose **Release / Readiness** check passed. It validates the production config and released Rules revision, builds React once with relative asset paths, and records the source SHA and asset digest. It classifies every changed path since the previous successful React release.
-3. A verified React UI-only change takes the standard route: publish the new build once at `/`, then run Chromium and WebKit production smoke checks. Shared, domain, sync, store, schema, Firebase, Maps/config, dependency, release-workflow, unknown, or incomplete-history changes take the migration route: first publish a compatibility artifact with the currently successful React build at `/`, the target build at `/react/`, and the pinned legacy build at `/legacy/`; verify both compatibility paths; then publish the target React build at `/`.
-4. Both routes validate the deployed manifest against the exact build SHA/digest, exercise Firebase read/write/reload using only reserved smoke room `P9A93LMQ`, real Maps/Places/Routes requests, key app views, and expense/gas dialogs. Firebase smoke-room setup and cleanup run from a browser page on the production origin so Firebase Auth receives the allowed referrer. The workflow stops without writing if the room contains unmarked data, removes only marked smoke data, and verifies a null readback. A failed smoke never becomes successful because cleanup recovered.
+3. A verified React UI-only change takes the standard route: publish the new build once at `/`, then run Chromium and WebKit production smoke checks. Shared, domain, sync, store, schema, Firebase, Maps/config, dependency, release-workflow, unknown, or incomplete-history changes take the migration route: first publish a compatibility artifact with the currently successful React build at `/`, the target build at `/react/`, and a `/legacy/` redirect to `/`; verify the candidate and preserved URL/data behavior; then publish the target React build at `/`.
+4. Both routes validate the deployed manifest against the exact build SHA/digest and exercise Firebase read/write/reload using only reserved smoke room `P9A93LMQ`, key app views, manual-distance guidance, and expense/gas dialogs. Firebase smoke-room setup and cleanup run from a browser page on the production origin so Firebase Auth receives the allowed referrer. The workflow stops without writing if the room contains unmarked data, removes only marked smoke data, and verifies a null readback. A failed smoke never becomes successful because cleanup recovered.
 5. After successful smoke and cleanup, the workflow stores the exact Pages payload and provenance in a SHA/run/attempt-specific GitHub Release for durable rollback. If root deployment, root verification/cleanup, or archival fails after promotion begins, it restores the last verified release that matches the current public manifest. During first-time bootstrap only, it uses a verified successful current Pages artifact; if the site is still legacy, it uses the pinned legacy fallback.
 
 The release summary reports exact-SHA Readiness, artifact preparation, selected route, deploy/smoke/cleanup results, rollback source, archive result, and elapsed times. Do not manually rerun successful CI for the same SHA. If a check fails, identify the failure before rerunning only the needed validation; merge results do not replace Readiness on the exact `main` SHA.
@@ -29,7 +29,7 @@ The production Firebase web API key and restricted Maps browser key are reposito
 
 ## Manual rollback
 
-If a later production issue requires rollback, run **Legacy Root Rollback** on `main`. It restores the pinned legacy site at `/` without changing Firebase data or Rules. The `/react/` path is not a separate release path after root cutover.
+If a release fails after root promotion, **React Production Release** restores the last verified Pages artifact. The pinned legacy release remains available through the separate, explicit **Legacy Root Rollback** workflow, not in normal Pages output. Normal `/legacy/` links preserve query and hash while opening the React root. The `/react/` path remains available for compatibility checks.
 
 ## Current legacy baseline
 
