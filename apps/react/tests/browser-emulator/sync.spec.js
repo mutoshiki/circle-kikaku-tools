@@ -97,7 +97,16 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     async function fillExpense(dialog, name, amount) {
       await dialog.getByLabel('費用名').fill(name);
       await dialog.getByRole('textbox', { name: /金額（円）/ }).fill(amount);
-      await dialog.getByRole('button', { name: '一覧に追加', exact: true }).click();
+    }
+
+    async function saveExpense(dialog) {
+      await dialog.getByRole('button', { name: '保存', exact: true }).click();
+      await expect(dialog.getByRole('heading', { name: '費用一覧' })).toBeVisible();
+    }
+
+    async function closeExpenseList(dialog) {
+      await dialog.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
+      await expect(dialog).toHaveCount(0);
     }
 
     const separateCarDialogA = await openExpense(pageA, '仮参加者A車');
@@ -107,32 +116,33 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     const separateCarDraftAmountB = separateCarDialogB.getByRole('textbox', { name: /金額（円）/ });
     await separateCarDraftNameB.fill('端末B 別車の入浴代');
     await separateCarDraftAmountB.fill('800');
-    await separateCarDialogA.getByRole('button', { name: '費用を保存' }).click();
-    await expect(separateCarDialogA).toHaveCount(0);
+    await saveExpense(separateCarDialogA);
+    await expect(separateCarDialogA.locator('.settlement-cost-summary').getByText('端末A 別車の駐車代', { exact: true })).toBeVisible();
     await waitForSavedRoom(request, adminUrl, saved => Object.values(saved.settlement.carsByParticipantId).some(car => (car.extras || []).some(extra => extra.name === '端末A 別車の駐車代' && extra.amount === '500')));
     await expect(separateCarDialogB).toBeVisible();
     await expect(separateCarDraftNameB).toHaveValue('端末B 別車の入浴代');
     await expect(separateCarDraftAmountB).toHaveValue('800');
-    await separateCarDialogB.getByRole('button', { name: '一覧に追加', exact: true }).click();
-    await separateCarDialogB.getByRole('button', { name: '費用を保存' }).click();
-    await expect(separateCarDialogB).toHaveCount(0);
+    await closeExpenseList(separateCarDialogA);
+    await saveExpense(separateCarDialogB);
+    await expect(separateCarDialogB.locator('.settlement-cost-summary').getByText('端末B 別車の入浴代', { exact: true })).toBeVisible();
     await waitForSavedRoom(request, adminUrl, saved => Object.values(saved.settlement.carsByParticipantId).some(car => (car.extras || []).some(extra => extra.name === '端末B 別車の入浴代' && extra.amount === '800')));
+    await closeExpenseList(separateCarDialogB);
 
     const dialogA = await openExpense(pageA);
     await fillExpense(dialogA, '端末A 当日駐車代', '600');
-    await expect(dialogA.locator('.settlement-cost-editor').getByText('端末A 当日駐車代', { exact: true })).toBeVisible();
     const dialogB = await openExpense(pageB);
     const draftNameB = dialogB.getByLabel('費用名');
     const draftAmountB = dialogB.getByRole('textbox', { name: /金額（円）/ });
     await draftNameB.fill('端末B 当日入浴代');
     await draftAmountB.fill('900');
-    await dialogA.getByRole('button', { name: '費用を保存' }).click();
-    await expect(dialogA).toHaveCount(0);
+    await saveExpense(dialogA);
+    await expect(dialogA.locator('.settlement-cost-summary').getByText('端末A 当日駐車代', { exact: true })).toBeVisible();
     await waitForSavedRoom(request, adminUrl, saved => Object.values(saved.settlement.carsByParticipantId).some(car => (car.extras || []).some(extra => extra.name === '端末A 当日駐車代' && extra.amount === '600')));
     await expect(dialogB).toBeVisible();
     await expect(draftNameB).toHaveValue('端末B 当日入浴代');
     await expect(draftAmountB).toHaveValue('900');
 
+    await closeExpenseList(dialogA);
     await pageA.getByRole('button', { name: '精算設定' }).click();
     const settings = pageA.getByRole('dialog', { name: '精算設定を編集' });
     await settings.getByText('10円単位', { exact: true }).click();
@@ -144,11 +154,10 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
 
     await expect(draftNameB).toHaveValue('端末B 当日入浴代');
     await expect(draftAmountB).toHaveValue('900');
-    await dialogB.getByRole('button', { name: '一覧に追加', exact: true }).click();
-    await expect(dialogB.locator('.settlement-cost-editor').getByText('端末B 当日入浴代', { exact: true })).toBeVisible();
-    await dialogB.getByRole('button', { name: '費用を保存' }).click();
-    await expect(dialogB).toHaveCount(0);
+    await saveExpense(dialogB);
+    await expect(dialogB.locator('.settlement-cost-summary').getByText('端末B 当日入浴代', { exact: true })).toBeVisible();
     await waitForSavedRoom(request, adminUrl, saved => Object.values(saved.settlement.carsByParticipantId).some(car => (car.extras || []).some(extra => extra.name === '端末B 当日入浴代' && extra.amount === '900')));
+    await closeExpenseList(dialogB);
 
     const response = await request.get(adminUrl, { headers: { Authorization: 'Bearer owner' } });
     expect(response.ok()).toBe(true);
