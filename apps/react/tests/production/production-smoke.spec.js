@@ -163,7 +163,7 @@ test('production app, Firebase compatibility, manual distance guidance, and key 
     await expect(page.getByRole('tabpanel', { name: '精算', exact: true })).toBeVisible();
 
     const editor = await openVehicleExpenseEditor(page, { carLabel: '仮参加者A車', action: '編集' });
-    await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
+    await expect(editor.getByRole('heading', { name: '費用一覧' })).toBeVisible();
     await editor.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
     await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
     await openDistanceGuideFromMovementSettings(editor);
@@ -172,9 +172,9 @@ test('production app, Firebase compatibility, manual distance guidance, and key 
     expect(forbiddenResponses).toEqual([]);
     await returnToMovementSettingsFromDistanceGuide(editor);
     await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
-    await editor.getByRole('button', { name: 'ガソリン代を適用' }).click();
-    await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
-    await editor.getByRole('button', { name: '費用を保存' }).click();
+    await editor.getByRole('button', { name: '保存', exact: true }).click();
+    await expect(editor.getByRole('heading', { name: '費用一覧' })).toBeVisible();
+    await editor.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
     await expect(editor).toHaveCount(0);
 
     setSmokePhase('React persistence reload');
