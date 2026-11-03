@@ -171,7 +171,9 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await page.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
     await page.getByLabel('費用名').fill('監査用費用');
     await page.getByLabel('金額（円）').fill('100');
-    await page.getByRole('button', { name: '一覧に追加', exact: true }).click();
+    await shot(page, testInfo, 26, 'vehicle-expense-add-form');
+    await page.getByRole('button', { name: '保存', exact: true }).click();
+    await expect(page.getByRole('heading', { name: '費用一覧' })).toBeVisible();
     await shot(page, testInfo, 26, 'vehicle-expense-extra-row');
     await page.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
     await shot(page, testInfo, 27, 'movement-settings-private');
@@ -182,7 +184,8 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await expect(page.locator('.distance-guide__step')).toHaveCount(4);
     await shot(page, testInfo, 29, 'distance-guide');
     await page.getByRole('button', { name: '戻る', exact: true }).click();
-    await cancelDialog(page);
+    await page.getByRole('dialog').locator('.cds--modal-footer').getByRole('button', { name: 'キャンセル', exact: true }).click();
+    await page.getByRole('dialog').locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
     const detail = page.getByRole('button', { name: /内訳を表示/ }).first();
     if (await detail.count()) { await detail.click(); await shot(page, testInfo, 34, 'settlement-payment-breakdown-open'); }
     const paid = page.getByRole('button', { name: '支払い済みにする' }).first();

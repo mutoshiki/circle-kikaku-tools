@@ -16,8 +16,13 @@ test('vehicle expense dialog name includes the vehicle and current task', async 
   const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) });
   await car.getByRole('button', { name: /支払い内訳/ }).click();
   await car.getByRole('button', { name: /仮参加者A車の費用を編集/ }).click();
-  const dialog = page.getByRole('dialog', { name: '仮参加者A車：費用を編集' });
-  await expect(dialog).toBeVisible();
+  const dialog = page.getByRole('dialog');
+  await expect(page.getByRole('dialog', { name: '仮参加者A車：費用一覧' })).toBeVisible();
+  await dialog.getByRole('button', { name: '高速代を編集' }).click();
+  await expect(page.getByRole('dialog', { name: '仮参加者A車：費用を編集' })).toBeVisible();
+  await expect(dialog.getByLabel('金額（円）')).toHaveValue('2400');
+  await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: '仮参加者A車：費用一覧' })).toBeVisible();
   await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   const movement = page.getByRole('dialog', { name: '仮参加者A車：ガソリン代を設定' });
   await expect(movement).toBeVisible();
@@ -29,10 +34,10 @@ test('vehicle expense dialog name includes the vehicle and current task', async 
   await expect(guide.locator('.distance-guide__step')).toHaveCount(4);
   await page.getByRole('button', { name: '戻る' }).click();
   await expect(page.getByRole('dialog', { name: '仮参加者A車：ガソリン代を設定' })).toBeVisible();
-  await movement.getByRole('button', { name: '戻る' }).click();
-  await expect(page.getByRole('dialog', { name: '仮参加者A車：費用を編集' })).toBeVisible();
+  await movement.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: '仮参加者A車：費用一覧' })).toBeVisible();
   const launcher = page.getByRole('button', { name: /仮参加者A車の費用を(?:入力|編集)/ });
-  await dialog.getByRole('button', { name: '閉じる' }).click();
+  await dialog.locator('.cds--modal-close').click();
   await expect(launcher).toBeFocused();
 });
 

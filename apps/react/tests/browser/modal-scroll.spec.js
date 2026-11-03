@@ -94,7 +94,7 @@ test('movement settings fit the viewport when content fits and share the modal s
   expect(frame.height).toBeLessThan(frame.viewport);
   expect(frame.headerColor).toBe(frame.bodyColor);
   await expect(body.getByText('ガソリン代の金額')).toBeVisible();
-  await expect(dialog.getByRole('button', { name: 'ガソリン代を適用' })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '保存', exact: true })).toBeVisible();
 });
 
 test('movement settings keep aligned modal surfaces in both themes', async ({ page }, testInfo) => {
@@ -129,9 +129,9 @@ test('movement settings keep aligned modal surfaces in both themes', async ({ pa
         preview: getComputedStyle(preview).backgroundColor,
       };
     });
-    await expect(dialog.getByRole('button', { name: '戻る' })).toBeVisible();
-    await dialog.getByRole('button', { name: '戻る' }).click();
-    await page.getByRole('dialog', { name: '仮参加者A車：費用を編集' }).getByRole('button', { name: 'キャンセル' }).click();
+    await expect(dialog.getByRole('button', { name: 'キャンセル', exact: true })).toBeVisible();
+    await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
+    await page.getByRole('dialog', { name: '仮参加者A車：費用一覧' }).locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
   }
 
   expect(surfaces.light.header).toBe(surfaces.light.body);
@@ -157,7 +157,7 @@ test('movement settings scroll only their body at a compact viewport and keep th
   dialog = page.getByRole('dialog', { name: '仮参加者A車：ガソリン代を設定' });
   const body = dialog.locator('.cds--modal-content');
   await expect.poll(() => body.evaluate(node => node.scrollHeight > node.clientHeight)).toBe(true);
-  await expect(dialog.getByRole('button', { name: 'ガソリン代を適用' })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '保存', exact: true })).toBeVisible();
   await body.hover();
   await page.mouse.wheel(0, 1200);
   await expect(body.getByText('ガソリン代の金額')).toBeInViewport();
@@ -178,5 +178,5 @@ test('Times movement settings keep short content compact', async ({ page }, test
   const body = dialog.locator('.cds--modal-content');
   await expect(dialog.getByRole('radio', { name: 'タイムズ' })).toBeChecked();
   await expect.poll(() => body.evaluate(node => node.scrollHeight <= node.clientHeight + 1)).toBe(true);
-  await expect(dialog.getByRole('button', { name: 'タイムズ移動料金を適用' })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '保存', exact: true })).toBeVisible();
 });

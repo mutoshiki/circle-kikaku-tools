@@ -36,18 +36,17 @@ test('expense editor rejects negative values and a zero-value row preserves sett
   await amount.fill('-250');
 
   await expect(amount).toHaveAttribute('aria-invalid', 'true');
-  await expect(dialog.getByRole('button', { name: '一覧に追加' })).toBeDisabled();
   await amount.fill('1000000000');
   await expect(amount).not.toHaveAttribute('aria-invalid', 'true');
+  await amount.fill('-250');
+  await dialog.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(dialog.getByText('金額は0円以上で入力してください。', { exact: true })).toBeVisible();
   await amount.fill('abc');
   await expect(amount).toHaveAttribute('aria-invalid', 'true');
-  await expect(dialog.getByText('金額は0円以上の数値で入力してください。', { exact: true })).toBeVisible();
   await amount.fill('0');
   await expect(amount).not.toHaveAttribute('aria-invalid', 'true');
-  await expect(dialog.getByRole('button', { name: '一覧に追加' })).toBeEnabled();
-  await dialog.getByRole('button', { name: '一覧に追加' }).click();
-  await expect(dialog.locator('.settlement-cost-editor')).toBeVisible();
-  await dialog.getByRole('button', { name: '費用を保存' }).click();
+  await dialog.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(dialog.getByRole('heading', { name: '費用一覧' })).toBeVisible();
 
   expect(await paymentView(firstCar)).toBe(originalBreakdown);
   await page.reload();
@@ -94,10 +93,10 @@ test('movement fields allow blanks and zero where valid, and reject negatives in
   await expect(dialog.getByText('ガソリン単価は数値で入力してください。', { exact: true })).toBeVisible();
   await price.fill('0');
   await expect(price).not.toHaveAttribute('aria-invalid', 'true');
-  await expect(dialog.getByRole('button', { name: 'ガソリン代を適用' })).toBeEnabled();
-  await dialog.getByRole('button', { name: '戻る' }).click();
-  await expect(dialog.getByRole('button', { name: '費用を保存' })).toBeEnabled();
-  await dialog.getByRole('button', { name: 'キャンセル' }).click();
+  await expect(dialog.getByRole('button', { name: '保存', exact: true })).toBeEnabled();
+  await dialog.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(dialog.getByRole('heading', { name: '費用一覧' })).toBeVisible();
+  await dialog.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
 });
 
 test('standalone counts and driver cooperation money reject negatives inline', async ({ page }) => {

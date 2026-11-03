@@ -151,7 +151,9 @@ function CarEditor({ runtime, edit: initialEdit, onEditChange, onClose, onNotice
   const liveSnapshot = runtime.store.getSnapshot();
   const { data: liveData, state: liveState } = runtime.store.domain.settlementInput(liveSnapshot);
   const liveCar = liveData.cars.find(item => participantId ? item.participantId === participantId : item.name === name);
-  const car = view === 'expense' ? (liveState.cars[name] || liveCar) : edit.state.cars[name];
+  const car = view === 'expense'
+    ? domain.ensureTimesRentalExtras(liveState.cars[name] || liveCar || {})
+    : edit.state.cars[name];
   const data = runtime.store.domain.settlementInput(edit.session.base).data;
   const calculated = domain.calculateSettlement(view === 'expense' ? liveData : data, domain.normalizeSettlementState(view === 'expense' ? liveState : edit.state));
   const calculatedCar = calculated.cars.find(row => row.name === name);

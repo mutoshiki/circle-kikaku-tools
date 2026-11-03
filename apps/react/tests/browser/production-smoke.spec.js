@@ -4,7 +4,7 @@ import { openDistanceGuideFromMovementSettings, openVehicleExpenseEditor, return
 
 async function seedReleaseSmokeFixture(page, roomId, { savedExpense = true } = {}) {
   const legacyFixture = structuredClone(fixture);
-  if (!savedExpense) delete legacyFixture.settlement.cars['仮参加者A'];
+  if (!savedExpense) { legacyFixture.settlement.cars['仮参加者A'].extras = []; legacyFixture.settlement.cars['仮参加者A'].dist = ''; legacyFixture.settlement.cars['仮参加者A'].eco = ''; legacyFixture.settlement.cars['仮参加者A'].price = ''; }
   const migratedFixture = createReference().migrateAppData(legacyFixture);
   await page.addInitScript(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), { key: `sanpo-react:v1:${roomId}:room`, value: migratedFixture });
   await page.goto(`/?room=${roomId}&view=seisan`);
@@ -15,7 +15,8 @@ test('release fixture opens saved car expenses with the edit action', async ({ p
   await seedReleaseSmokeFixture(page, roomId);
 
   const editor = await openVehicleExpenseEditor(page, { carLabel: '仮参加者A車', action: '編集' });
-  await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
+  await expect(editor.getByRole('heading', { name: '費用一覧' })).toBeVisible();
+  await expect(editor.locator('.settlement-cost-list-item')).toHaveCount(4);
   await editor.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
   await openDistanceGuideFromMovementSettings(editor);
@@ -23,9 +24,9 @@ test('release fixture opens saved car expenses with the edit action', async ({ p
   await expect(editor.getByRole('link', { name: 'Googleマップを開く' })).toHaveAttribute('href', 'https://www.google.com/maps');
   await returnToMovementSettingsFromDistanceGuide(editor);
   await expect(editor.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
-  await editor.getByRole('button', { name: 'ガソリン代を適用' }).click();
-  await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
-  await editor.getByRole('button', { name: '費用を保存' }).click();
+  await editor.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(editor.getByRole('heading', { name: '費用一覧' })).toBeVisible();
+  await editor.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
   await expect(editor).toHaveCount(0);
 });
 
@@ -34,7 +35,8 @@ test('release fixture opens a car without saved expenses with the input action',
   await seedReleaseSmokeFixture(page, roomId, { savedExpense: false });
 
   const editor = await openVehicleExpenseEditor(page, { carLabel: '仮参加者A車', action: '入力' });
-  await expect(editor.getByRole('heading', { name: '費用を編集' })).toBeVisible();
+  await expect(editor.getByRole('heading', { name: '費用一覧' })).toBeVisible();
+  await expect(editor.getByRole('button', { name: '新しい費用を追加' })).toBeVisible();
 });
 
 test('production preview loads assets and preserves a room edit across critical views and reload', async ({ page }, testInfo) => {
