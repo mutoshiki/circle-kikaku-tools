@@ -5,7 +5,7 @@ import {
   Select, SelectItem, Switch, Tag, TextArea, TextInput, Tile, OverflowMenu, OverflowMenuItem,
 } from '@carbon/react';
 import { Add, Copy, Edit, TrashCan } from '@carbon/icons-react';
-import { beginSettlementEdit, beginStandaloneDriverNameEdit, commitSettlementEdit, collectionChange } from './settlement/edit.js';
+import { assertSettlementExtraTargetCurrent, beginSettlementEdit, beginStandaloneDriverNameEdit, commitSettlementEdit, collectionChange } from './settlement/edit.js';
 import DistanceGuide from './settlement/DistanceGuide.jsx';
 import { readDistanceGuideHidden, writeDistanceGuideHidden } from '../services/distance-guide-preference.js';
 import { clearSettlementCarCheckpoint, readSettlementCarCheckpoint, writeSettlementCarCheckpoint } from '../services/settlement-car-checkpoint.js';
@@ -38,13 +38,13 @@ function getMovementErrors(car, domain) {
   const fields = movementFieldDefinitions(domain.isTimesRentalCar(car));
   return Object.fromEntries(fields.map(({ key, label }) => [key, movementFieldError(car?.[key], label, { allowZero: key !== 'eco' })]));
 }
-function getExpenseFieldErrors(row, domain) {
+function getExpenseFieldErrors(row) {
   const name = String(row?.name ?? '').trim();
   const amount = String(row?.amount ?? '').trim();
   const parsedAmount = amount ? Number(amount.replace(/,/g, '')) : null;
   return {
-    name: amount && !name ? '費用名を入力してください。' : '',
-    amount: hasNegativeValue(amount) ? negativeMoneyText : amount && !Number.isFinite(parsedAmount) ? '金額は0円以上の数値で入力してください。' : '',
+    name: !name ? '費用名を入力してください。' : '',
+    amount: !amount ? '金額を入力してください。' : hasNegativeValue(amount) ? negativeMoneyText : !Number.isFinite(parsedAmount) ? '金額は0円以上の数値で入力してください。' : '',
   };
 }
 function isMovementCalculationIssue(message) {
@@ -70,7 +70,7 @@ function settlementSaveNotice(label, before, after) {
   return `${label} ${change}${after.hasRecordedCollections ? ' 記録済みの集金状況を確認してください。' : ''}`;
 }
 
-function CostTypeControl({ domain, id, label, type, disabled = false, allowNegative = true, onChange }) {
+function CostTypeControl({ domain, id, label = '支払元', type, disabled = false, allowNegative = true, onChange }) {
   const normalized = domain.normalizeSettlementExtraType(type);
   const baseType = domain.getSettlementExtraBaseType(normalized);
   const negative = allowNegative && domain.isNegativeSettlementExtraType(normalized);
@@ -79,7 +79,7 @@ function CostTypeControl({ domain, id, label, type, disabled = false, allowNegat
     <RadioButton id={`${id}-split`} value="split" labelText="割勘" />
     <RadioButton id={`${id}-club`} value="club" labelText="部費" />
   </RadioButtonGroup>
-  {allowNegative ? <Checkbox id={`${id}-minus`} labelText={`${baseType === 'club' ? '部費' : '割勘'}の費用から差し引く`} helperText="入力した金額だけ、費用区分の費用を減らします。" checked={negative} disabled={disabled} onChange={(_, { checked }) => onChange(`${baseType}${checked ? '-minus' : ''}`)} /> : null}</div>;
+  {allowNegative ? <Checkbox id={`${id}-minus`} labelText={`${baseType === 'club' ? '部費' : '割勘'}から差し引く`} checked={negative} disabled={disabled} onChange={(_, { checked }) => onChange(`${baseType}${checked ? '-minus' : ''}`)} /> : null}</div>;
 }
 
 function MovementSettingsView({ car, domain, isMobile, movementAmount, movementLabel, movementFormula, movementType, movementErrors, movementTouched, movementAttempted, movementComplete, showDistanceGuide, onBlurField, onOpenGuide, onOpenMaps, onRentalType, onMovementType, onUpdate }) {
@@ -100,7 +100,7 @@ function MovementSettingsView({ car, domain, isMobile, movementAmount, movementL
         <div className="distance-field">{input('settlement-distance', '移動距離（km）', car.dist, 'dist')}{showDistanceGuide ? <Button className="settlement-route-distance-action" kind="ghost" size={isMobile ? 'lg' : 'sm'} onClick={onOpenGuide}>Googleマップで距離を確認</Button> : <Link className="settlement-route-distance-action" href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer" onClick={onOpenMaps}>Googleマップで距離を確認</Link>}{!showDistanceGuide && <Button kind="ghost" size="sm" onClick={onOpenGuide}>操作方法</Button>}</div>
         {!times && <>{input('settlement-eco', '燃費（km/L）', car.eco, 'eco')}{input('settlement-price', 'ガソリン単価（円/L）', car.price, 'price')}</>}
         </div></section>
-      <CostTypeControl domain={domain} id="settlement-movement-type" label="費用の負担" type={movementType || 'split'} allowNegative={false} onChange={onMovementType} />
+      <CostTypeControl domain={domain} id="settlement-movement-type" type={movementType || 'split'} allowNegative={false} onChange={onMovementType} />
       <Tile className="settlement-movement-preview" aria-label={`${movementLabel} ${previewAmount}。計算条件: ${movementFormula}`}><span>{movementLabel}の金額</span><strong>{previewAmount}</strong></Tile>
     </div>;
 }
@@ -126,10 +126,11 @@ function getExtraCandidates(state, domain, currentCar) {
   return [...candidates.values()];
 }
 
-function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
+function CarEditor({ runtime, edit: initialEdit, onEditChange, onClose, onNotice, launcherButtonRef }) {
   const domain = runtime.store.domain.settlement;
   const isMobile = useMediaQuery('(max-width: 671px)');
   const [, render] = useState(0);
+  const [edit, setEdit] = useState(initialEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [composing, setComposing] = useState(false);
@@ -144,12 +145,15 @@ function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
   const [removedExpense, setRemovedExpense] = useState(null);
   const [contentHasOverflow, setContentHasOverflow] = useState(false);
   const [returnFocusId, setReturnFocusId] = useState('#settlement-movement-edit');
-  const newExpenseIds = useRef(new Set());
   const [distanceGuideHidden, setDistanceGuideHidden] = useState(() => readDistanceGuideHidden(runtime.preferenceStorage));
-  const name = edit.car.name;
-  const car = edit.state.cars[name];
-  const { data } = runtime.store.domain.settlementInput(edit.session.base);
-  const calculated = domain.calculateSettlement(data, domain.normalizeSettlementState(edit.state));
+  const name = initialEdit.car.name;
+  const participantId = initialEdit.car.participantId || '';
+  const liveSnapshot = runtime.store.getSnapshot();
+  const { data: liveData, state: liveState } = runtime.store.domain.settlementInput(liveSnapshot);
+  const liveCar = liveData.cars.find(item => participantId ? item.participantId === participantId : item.name === name);
+  const car = view === 'expense' ? (liveState.cars[name] || liveCar) : edit.state.cars[name];
+  const data = runtime.store.domain.settlementInput(edit.session.base).data;
+  const calculated = domain.calculateSettlement(view === 'expense' ? liveData : data, domain.normalizeSettlementState(view === 'expense' ? liveState : edit.state));
   const calculatedCar = calculated.cars.find(row => row.name === name);
   const update = changes => { edit.state.cars[name] = { ...car, ...changes }; render(value => value + 1); };
   const updateExtra = (index, changes) => update({ extras: car.extras.map((row, rowIndex) => rowIndex === index ? { ...row, ...changes } : row) });
@@ -175,10 +179,33 @@ function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
   const validationMessage = hasNegativeExpense ? negativeMoneyText : hasNegativeMovement ? '移動距離・燃費・ガソリン単価は0以上の数値で入力してください。' : '';
   const getCostId = (row, index) => row.id || `extra-${index}`;
   const activeExtra = editable.find(({ row, index }) => getCostId(row, index) === activeCostId);
-  const expenseFieldErrors = getExpenseFieldErrors(activeExtra?.row, domain);
+  const expenseFieldErrors = getExpenseFieldErrors(activeExtra?.row);
   const expenseComplete = Object.values(expenseFieldErrors).every(message => !message);
-  const candidates = getExtraCandidates(edit.state, domain, car);
+  const candidates = getExtraCandidates(view === 'expense' ? liveState : edit.state, domain, car);
   function changeView(nextView) { setContentAtBottom(false); setView(nextView); }
+  function beginOperationEdit() {
+    if (edit?.session && !edit.session.closed) runtime.store.cancelEdit(edit.session);
+    const currentData = runtime.store.domain.settlementInput(runtime.store.getSnapshot()).data;
+    const currentCar = currentData.cars.find(item => participantId ? item.participantId === participantId : item.name === name);
+    if (!currentCar) throw new Error('対象の車が見つかりません。画面を開き直してください。');
+    const next = beginSettlementEdit(runtime.store, { car: currentCar });
+    next.state.cars[name] = domain.ensureTimesRentalExtras(next.state.cars[name]);
+    setEdit(next);
+    onEditChange(next);
+    return next;
+  }
+  function refreshList(focusId = returnFocusId) {
+    if (edit?.session && !edit.session.closed) runtime.store.cancelEdit(edit.session);
+    const currentData = runtime.store.domain.settlementInput(runtime.store.getSnapshot()).data;
+    const currentCar = currentData.cars.find(item => participantId ? item.participantId === participantId : item.name === name);
+    if (!currentCar) { onClose(false); return; }
+    const next = beginSettlementEdit(runtime.store, { car: currentCar });
+    setEdit(next);
+    onEditChange(next);
+    setReturnFocusId(focusId);
+    setError('');
+    changeView('expense');
+  }
   function handleModalScroll(event) {
     if (!['expense', 'extra', 'movement', 'distance-guide'].includes(view) || !event.target?.classList?.contains('cds--modal-content')) return;
     const content = event.target;
@@ -192,27 +219,93 @@ function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
     if (index >= 0) updateExtra(index, { type });
     else update({ extras: [...car.extras, { id: domain.createSettlementExtraId(), name: 'ガソリン代', amount: '', type }] });
   }
-  function addExtra() { const row = { id: domain.createSettlementExtraId(), name: '', amount: '', type: 'split', pending: true }; newExpenseIds.current.add(row.id); update({ extras: [...car.extras, row] }); setActiveCostId(row.id); setExtraMode('add'); setExpenseTouched({}); setExpenseAttempted(false); setRemovedExpense(null); setReturnFocusId('#settlement-cost-add'); setError(''); setView('extra'); }
-  function addCandidate(candidate) { const row = { id: domain.createSettlementExtraId(), ...candidate, pending: false }; update({ extras: [...car.extras, row] }); onNotice(`${candidate.name}を追加しました。保存すると反映されます。`); }
-  function removeActiveExtra() {
-    if (!activeExtra || extraMode !== 'edit' || domain.isTimesTimeFeeExtra(activeExtra.row)) return;
-    const { row, index } = activeExtra;
-    newExpenseIds.current.delete(row.id);
-    setRemovedExpense({ row, index });
-    update({ extras: car.extras.filter((_, rowIndex) => rowIndex !== index) });
-    setActiveCostId('movement');
-    setExpenseAttempted(false);
-    setExpenseTouched({});
-    setReturnFocusId('#settlement-cost-add');
-    setError('');
-    changeView('expense');
+  function openMovementEditor() {
+    try {
+      beginOperationEdit();
+      setMovementTouched({});
+      setMovementAttempted(false);
+      setReturnFocusId('#settlement-movement-edit');
+      changeView('movement');
+    } catch (caught) { setError(caught.message); }
   }
-  function undoRemoveExpense() {
-    if (!removedExpense) return;
+  function addExtra() {
+    try {
+      const next = beginOperationEdit();
+      const row = { id: domain.createSettlementExtraId(), name: '', amount: '', type: 'split', pending: true };
+      next.state.cars[name] = { ...next.state.cars[name], extras: [...next.state.cars[name].extras, row] };
+      setEdit(next);
+      setActiveCostId(row.id);
+      setExtraMode('add');
+      setExpenseTouched({});
+      setExpenseAttempted(false);
+      setRemovedExpense(null);
+      setReturnFocusId('#settlement-cost-add');
+      setError('');
+      changeView('extra');
+    } catch (caught) { setError(caught.message); }
+  }
+  function openExtraEditor(id, focusId) {
+    try {
+      beginOperationEdit();
+      setActiveCostId(id);
+      setExtraMode('edit');
+      setExpenseTouched({});
+      setExpenseAttempted(false);
+      setReturnFocusId(focusId);
+      setError('');
+      changeView('extra');
+    } catch (caught) { setError(caught.message); }
+  }
+  async function addCandidate(candidate) {
+    if (saving) return;
+    let next;
+    try {
+      next = beginOperationEdit();
+      const row = { id: domain.createSettlementExtraId(), ...candidate, pending: false };
+      next.state.cars[name] = { ...next.state.cars[name], extras: [...next.state.cars[name].extras, row] };
+      assertSettlementExtraTargetCurrent(runtime.store, next, { id: row.id, expected: null, intended: row });
+      setSaving(true);
+      await commitSettlementEdit(runtime, next);
+      onNotice(`${candidate.name}を追加しました。`);
+      refreshList('#settlement-cost-add');
+    } catch (caught) { setError(caught.message); }
+    finally { setSaving(false); }
+  }
+  async function removeActiveExtra() {
+    if (!activeExtra || extraMode !== 'edit' || domain.isTimesTimeFeeExtra(activeExtra.row)) return;
+    if (saving) return;
+    const { row, index } = activeExtra;
+    const original = runtime.store.domain.settlementInput(edit.session.base).state.cars[name]?.extras?.find(item => item.id === row.id) || null;
+    try {
+      assertSettlementExtraTargetCurrent(runtime.store, edit, { id: row.id, expected: original, intended: null });
+      edit.state.cars[name] = { ...edit.state.cars[name], extras: edit.state.cars[name].extras.filter(item => item.id !== row.id) };
+      setSaving(true);
+      setError('');
+      await commitSettlementEdit(runtime, edit);
+      setRemovedExpense({ row, index });
+      setActiveCostId('movement');
+      setExpenseAttempted(false);
+      setExpenseTouched({});
+      refreshList('#settlement-cost-add');
+    } catch (caught) { setError(caught.message); }
+    finally { setSaving(false); }
+  }
+  async function undoRemoveExpense() {
+    if (!removedExpense || saving) return;
     const { row, index } = removedExpense;
-    update({ extras: [...car.extras.slice(0, index), row, ...car.extras.slice(index)] });
-    setRemovedExpense(null);
-    setReturnFocusId(`#settlement-extra-edit-${index}`);
+    let next;
+    try {
+      next = beginOperationEdit();
+      assertSettlementExtraTargetCurrent(runtime.store, next, { id: row.id, expected: null, intended: row });
+      const extras = [...next.state.cars[name].extras];
+      extras.splice(Math.max(0, Math.min(index, extras.length)), 0, row);
+      next.state.cars[name] = { ...next.state.cars[name], extras };
+      setSaving(true);
+      await commitSettlementEdit(runtime, next);
+      setRemovedExpense(null);
+      refreshList(`#settlement-extra-edit-${index}`);
+    } catch (caught) { setError(caught.message); }
+    finally { setSaving(false); }
   }
   useEffect(() => {
     const firstExpenseError = ['name', 'amount'].find(key => expenseFieldErrors[key]);
@@ -249,51 +342,39 @@ function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
     mutationObserver.observe(content, { childList: true, subtree: true, characterData: true });
     return () => { resizeObserver.disconnect(); mutationObserver.disconnect(); };
   }, [view, activeCostId, car.extras.length, candidates.length]);
-  function showExpenseErrors(row) {
-    const index = editable.find(({ row: item }) => item === row)?.index;
-    if (index === undefined) return;
-    setActiveCostId(getCostId(row, index));
-    setExtraMode('edit');
-    setExpenseAttempted(true);
-    setExpenseTouched({ name: true, amount: true });
-    setError('');
-    changeView('extra');
-  }
   async function save() {
     if (composing || saving) return;
-    if (!movementValid) { setMovementAttempted(true); setError(''); changeView('movement'); return; }
-    const invalidExpense = editable.find(({ row }) => Object.values(getExpenseFieldErrors(row, domain)).some(Boolean));
-    if (invalidExpense) { showExpenseErrors(invalidExpense.row); return; }
-    const emptyNewExpenseIds = new Set(editable
-      .filter(({ row }) => newExpenseIds.current.has(row.id) && !String(row.name ?? '').trim() && !String(row.amount ?? '').trim())
-      .map(({ row }) => row.id));
-    if (emptyNewExpenseIds.size) {
-      edit.state.cars[name] = { ...edit.state.cars[name], extras: edit.state.cars[name].extras.filter(row => !emptyNewExpenseIds.has(row.id)) };
-      emptyNewExpenseIds.forEach(id => newExpenseIds.current.delete(id));
+    if (view === 'movement' && !movementValid) { setMovementAttempted(true); setError(''); return; }
+    if (view === 'extra' && !expenseComplete) { setExpenseAttempted(true); return; }
+    if (!['extra', 'movement'].includes(view) || !edit?.session || edit.session.closed) return;
+    let successLabel;
+    if (view === 'extra') {
+      const { row, index } = activeExtra;
+      const intended = { ...row, pending: false };
+      const expected = runtime.store.domain.settlementInput(edit.session.base).state.cars[name]?.extras?.find(item => item.id === row.id) || null;
+      try {
+        assertSettlementExtraTargetCurrent(runtime.store, edit, { id: row.id, expected, intended });
+      } catch (caught) { setError(caught.message); return; }
+      edit.state.cars[name] = { ...edit.state.cars[name], extras: edit.state.cars[name].extras.map((item, rowIndex) => rowIndex === index ? intended : item) };
+      successLabel = `${intended.name}を保存しました。`;
+    } else {
+      successLabel = `${movementLabel}を保存しました。`;
     }
-    const { data } = runtime.store.domain.settlementInput(edit.session.base);
-    const normalized = domain.normalizeSettlementState(edit.state);
-    const result = domain.calculateSettlement(data, normalized);
-    const issues = domain.getSettlementIssues(data, normalized, result);
-    const messages = issues.messages.filter(message => message.startsWith(`${name}車の`) && !isMovementCalculationIssue(message) && !isExpenseInputIssue(message));
-    if (messages.length) {
-      const invalidExpense = editable.find(({ index }) => issues.fields.has(`${name}:extra:${index}:name`) || issues.fields.has(`${name}:extra:${index}:amount`));
-      if (invalidExpense) { showExpenseErrors(invalidExpense.row); return; }
-      setError(messages[0]); return;
-    }
-    setSaving(true); setError('');
+    setSaving(true);
+    setError('');
     const before = getSettlementAmountSnapshot(runtime.store);
     try {
       await commitSettlementEdit(runtime, edit);
-      onNotice(settlementSaveNotice(`${name}車の費用を保存しました。`, before, getSettlementAmountSnapshot(runtime.store)));
-      onClose(true);
+      onNotice(settlementSaveNotice(successLabel, before, getSettlementAmountSnapshot(runtime.store)));
+      setSaving(false);
+      refreshList(view === 'extra' ? `#settlement-extra-edit-${activeExtra?.index ?? 0}` : '#settlement-movement-edit');
     }
     catch (caught) { setError(caught.message); setSaving(false); }
   }
-  const primaryLabel = view === 'expense' ? '費用を保存' : view === 'extra' ? (extraMode === 'add' ? '一覧に追加' : '一覧に反映') : view === 'movement' ? `${movementLabel}を適用` : undefined;
-  const primaryDisabled = view === 'expense' ? saving || composing : view === 'extra' ? saving || composing || !expenseComplete : view === 'movement' ? !movementValid : false;
+  const primaryLabel = view === 'expense' ? '閉じる' : ['extra', 'movement'].includes(view) ? '保存' : undefined;
+  const primaryDisabled = saving || composing;
   const back = () => changeView(view === 'distance-guide' ? 'movement' : 'expense');
-  const submit = () => { if (view === 'expense') void save(); else if (view === 'extra') { setExpenseAttempted(true); if (expenseComplete) returnToList(); } else if (view === 'movement') { setMovementAttempted(true); if (movementValid) changeView('expense'); } };
+  const submit = () => { if (view === 'expense') onClose(false); else if (view === 'extra') { setExpenseAttempted(true); void save(); } else if (view === 'movement') { setMovementAttempted(true); void save(); } };
   function openGoogleMaps() {
     writeDistanceGuideHidden(runtime.preferenceStorage, distanceGuideHidden);
     try {
@@ -309,8 +390,8 @@ function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
     } catch { /* Manual distance entry remains available when tab storage is blocked. */ }
     if (view === 'distance-guide') changeView('movement');
   }
-  const returnToList = () => { setError(''); changeView('expense'); };
-  const modalHeading = view === 'distance-guide' ? 'Googleマップで移動距離を確認' : view === 'movement' ? `${movementLabel}を設定` : view === 'extra' ? (extraMode === 'add' ? '費用を追加' : `${activeExtra?.row.name || '費用'}を編集`) : '費用を編集';
+  const returnToList = () => refreshList(view === 'extra' ? `#settlement-extra-edit-${activeExtra?.index ?? 0}` : '#settlement-movement-edit');
+  const modalHeading = view === 'distance-guide' ? 'Googleマップで移動距離を確認' : view === 'movement' ? `${movementLabel}を設定` : view === 'extra' ? (extraMode === 'add' ? '費用を追加' : '費用を編集') : '費用一覧';
   return <ComposedModal className={`app-modal settlement-car-modal settlement-task-modal${view === 'movement' ? ' settlement-movement-modal' : view === 'distance-guide' ? ' settlement-distance-guide-modal' : ''}${contentAtBottom ? ' settlement-modal-at-bottom' : ''}`} onScrollCapture={handleModalScroll} open size={view === 'distance-guide' ? 'lg' : view === 'movement' ? 'md' : 'sm'} aria-label={`${name}車：${modalHeading}`} launcherButtonRef={launcherButtonRef} onClose={() => onClose(false)} preventCloseOnClickOutside selectorPrimaryFocus={view === 'distance-guide' ? '#distance-guide-open-maps' : view === 'movement' ? '#settlement-rental-type' : view === 'extra' ? `#settlement-extra-name-${activeExtra?.index ?? 0}` : returnFocusId}>
     <ModalHeader label={`${name}車`} title={modalHeading} iconDescription="閉じる" />
     <ModalBody hasScrollingContent={view === 'movement' || view === 'distance-guide' || (['expense', 'extra'].includes(view) && contentHasOverflow)} aria-labelledby="settlement-car-modal-region-title">
@@ -319,9 +400,8 @@ function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
       {(error || validationMessage) && <InlineNotification kind="error" title="入力内容を確認してください" subtitle={error || validationMessage} hideCloseButton lowContrast />}
       {removedExpense && <Callout className="settlement-cost-deleted" kind="success" titleId="settlement-cost-deleted-title" title={`${removedExpense.row.name || '費用'}を削除しました`} actionButtonLabel="元に戻す" onActionButtonClick={undoRemoveExpense} lowContrast />}
       <section className="settlement-form-section" aria-label="車両費用の編集">
-      <p className="cds--form__helper-text">支払いに含める費用を入力してください。金額が空欄の費用は0円として計算します。</p>
       <ContainedList className="settlement-cost-editor" kind="disclosed" size="sm" label={<span className="cds--visually-hidden">車両費用</span>}>
-        <ContainedListItem className="settlement-cost-list-item" action={<Button id="settlement-movement-edit" kind="ghost" size={isMobile ? 'md' : 'sm'} aria-label={`${movementLabel}の計算条件を編集`} onClick={() => { setReturnFocusId('#settlement-movement-edit'); changeView('movement'); }}>編集</Button>}>
+        <ContainedListItem className="settlement-cost-list-item" action={<Button id="settlement-movement-edit" kind="ghost" size={isMobile ? 'md' : 'sm'} aria-label={`${movementLabel}の計算条件を編集`} onClick={openMovementEditor}>編集</Button>}>
             <div className="settlement-cost-summary"><span className="settlement-cost-summary__details"><span className="settlement-cost-summary__name">{movementLabel}</span><span className="settlement-cost-summary__meta">{extraTypeLabel(movement?.type || 'split')}</span></span><strong className="settlement-cost-summary__amount">{money(movementComplete ? movementAmount : 0)}</strong></div>
           </ContainedListItem>
           {editable.map(({ row, index }) => {
@@ -330,31 +410,30 @@ function CarEditor({ runtime, edit, onClose, onNotice, launcherButtonRef }) {
             const signedAmount = domain.getSignedSettlementExtraAmount(row);
             const amount = money(rawAmount ? signedAmount : 0);
             return <Fragment key={id}>
-              <ContainedListItem className="settlement-cost-list-item" action={<Button id={`settlement-extra-edit-${index}`} kind="ghost" size={isMobile ? 'md' : 'sm'} aria-label={`${row.name || '費用'}を編集`} onClick={() => { setActiveCostId(id); setExtraMode('edit'); setExpenseTouched({}); setExpenseAttempted(false); setReturnFocusId(`#settlement-extra-edit-${index}`); changeView('extra'); }}>編集</Button>}>
+              <ContainedListItem className="settlement-cost-list-item" action={<Button id={`settlement-extra-edit-${index}`} kind="ghost" size={isMobile ? 'md' : 'sm'} aria-label={`${row.name || '費用'}を編集`} onClick={() => openExtraEditor(id, `#settlement-extra-edit-${index}`)}>編集</Button>}>
                 <div className="settlement-cost-summary"><span className="settlement-cost-summary__details"><span className="settlement-cost-summary__name">{row.name || '新しい費用'}</span><span className="settlement-cost-summary__meta">{extraTypeLabel(row.type)}</span></span><strong className="settlement-cost-summary__amount">{amount}</strong></div>
               </ContainedListItem>
             </Fragment>;
           })}
         </ContainedList>
         <Button id="settlement-cost-add" className="settlement-cost-add-action" kind="ghost" size="sm" renderIcon={Add} onClick={addExtra}>新しい費用を追加</Button>
-      {candidates.length > 0 && <section className="settlement-extra-candidates" aria-labelledby="settlement-extra-candidates-title"><h3 id="settlement-extra-candidates-title">企画内の費用</h3><ContainedList kind="disclosed" size="sm" label={<span className="cds--visually-hidden">企画内で登録済みの費用</span>}>{candidates.map(candidate => <ContainedListItem key={candidate.key} className="settlement-extra-candidate" action={<Button kind="ghost" size={isMobile ? 'md' : 'sm'} onClick={() => addCandidate(candidate)}>追加</Button>}><div className="settlement-extra-candidate__details"><strong>{candidate.name}</strong><span>{money(candidate.amount)} ・ {extraTypeLabel(candidate.type)}</span></div></ContainedListItem>)}</ContainedList></section>}</section>
+      {candidates.length > 0 && <section className="settlement-extra-candidates" aria-labelledby="settlement-extra-candidates-title"><h3 id="settlement-extra-candidates-title">企画内の費用</h3><ContainedList kind="disclosed" size="sm" label={<span className="cds--visually-hidden">企画内で登録済みの費用</span>}>{candidates.map(candidate => <ContainedListItem key={candidate.key} className="settlement-extra-candidate" action={<Button kind="ghost" size={isMobile ? 'md' : 'sm'} disabled={saving} onClick={() => addCandidate(candidate)}>追加</Button>}><div className="settlement-extra-candidate__details"><strong>{candidate.name}</strong><span>{money(candidate.amount)} ・ {extraTypeLabel(candidate.type)}</span></div></ContainedListItem>)}</ContainedList></section>}</section>
     </div>}
     {view === 'extra' && activeExtra && <div className="form-stack settlement-car-form settlement-cost-editor-form" onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}>
       {error && <InlineNotification kind="error" title="入力内容を確認してください" subtitle={error} hideCloseButton lowContrast />}
       <section className="settlement-form-section" aria-label="費用の入力">
         <div className="settlement-cost-editor-fields">
-          <p className="cds--form__helper-text">一覧に追加または反映したあと、費用一覧で「費用を保存」を押すと共有されます。</p>
           <TextInput id={`settlement-extra-name-${activeExtra.index}`} labelText="費用名" invalid={!!expenseFieldErrors.name && (expenseTouched.name || expenseAttempted || !!String(activeExtra.row.amount ?? '').trim())} invalidText={expenseFieldErrors.name} value={activeExtra.row.name} readOnly={domain.isTimesTimeFeeExtra(activeExtra.row)} placeholder="例：駐車場代" onBlur={() => setExpenseTouched(current => ({ ...current, name: true }))} onChange={event => { updateExtraField(activeExtra.index, { name: event.target.value }); setError(''); }} />
-          <TextInput id={`settlement-extra-amount-${activeExtra.index}`} labelText="金額（円）" helperText="支払いに含める金額を入力してください。空欄は0円として計算します。" inputMode="numeric" invalid={!!expenseFieldErrors.amount && (expenseTouched.amount || expenseAttempted || !!String(activeExtra.row.amount ?? '').trim())} invalidText={expenseFieldErrors.amount || negativeMoneyText} value={activeExtra.row.amount} onBlur={() => setExpenseTouched(current => ({ ...current, amount: true }))} onChange={event => { updateExtraField(activeExtra.index, { amount: event.target.value }); setError(''); }} />
+          <TextInput id={`settlement-extra-amount-${activeExtra.index}`} labelText="金額（円）" inputMode="numeric" invalid={!!expenseFieldErrors.amount && (expenseTouched.amount || expenseAttempted || !!String(activeExtra.row.amount ?? '').trim())} invalidText={expenseFieldErrors.amount || negativeMoneyText} value={activeExtra.row.amount} onBlur={() => setExpenseTouched(current => ({ ...current, amount: true }))} onChange={event => { updateExtraField(activeExtra.index, { amount: event.target.value }); setError(''); }} />
         </div>
-        <CostTypeControl domain={domain} id={`settlement-extra-type-${activeExtra.index}`} label="負担区分" type={activeExtra.row.type} onChange={type => updateExtra(activeExtra.index, { type })} />
-        {extraMode === 'edit' && !domain.isTimesTimeFeeExtra(activeExtra.row) && <div className="settlement-cost-delete-action"><Button kind="danger--ghost" size={isMobile ? 'md' : 'sm'} renderIcon={TrashCan} onClick={removeActiveExtra}>{activeExtra.row.name || '費用'}を削除</Button></div>}
+        <CostTypeControl domain={domain} id={`settlement-extra-type-${activeExtra.index}`} type={activeExtra.row.type} onChange={type => updateExtra(activeExtra.index, { type })} />
+        {extraMode === 'edit' && !domain.isTimesTimeFeeExtra(activeExtra.row) && <div className="settlement-cost-delete-action"><Button kind="danger--ghost" size={isMobile ? 'md' : 'sm'} renderIcon={TrashCan} disabled={saving} onClick={removeActiveExtra}>この費用を削除</Button></div>}
       </section>
     </div>}
     {view === 'movement' && <MovementSettingsView car={car} domain={domain} isMobile={isMobile} movementAmount={movementAmount} movementLabel={movementLabel} movementFormula={movementFormula} movementType={movement?.type} movementErrors={movementErrors} movementTouched={movementTouched} movementAttempted={movementAttempted} movementComplete={movementComplete} showDistanceGuide={!distanceGuideHidden} onBlurField={key => setMovementTouched(current => ({ ...current, [key]: true }))} onOpenGuide={() => changeView('distance-guide')} onRentalType={setRentalType} onMovementType={setMovementType} onUpdate={update} />}
     {view === 'distance-guide' && <DistanceGuide checked={distanceGuideHidden} onCheckedChange={setDistanceGuideHidden} onOpenMaps={openGoogleMaps} />}
     </ModalBody>
-    <ModalFooter primaryButtonText={primaryLabel} secondaryButtons={[{ buttonText: view === 'expense' ? 'キャンセル' : '戻る', onClick: view === 'expense' ? () => onClose(false) : view === 'extra' ? returnToList : back }]} primaryButtonDisabled={primaryDisabled} onRequestSubmit={submit} onRequestClose={() => onClose(false)} />
+    <ModalFooter primaryButtonText={primaryLabel} secondaryButtons={view === 'expense' ? [] : [{ buttonText: ['extra', 'movement'].includes(view) ? 'キャンセル' : '戻る', onClick: ['extra', 'movement'].includes(view) ? returnToList : back }]} primaryButtonDisabled={primaryDisabled} onRequestSubmit={submit} onRequestClose={() => onClose(false)} />
   </ComposedModal>;
 }
 
@@ -600,7 +679,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
         })}</ContainedList>
       </div>
     </Modal>
-    {carEdit && <CarEditor runtime={runtime} edit={carEdit} launcherButtonRef={carLauncherButtonRef} onNotice={onNotice} onClose={closeCarEditor} />}
+    {carEdit && <CarEditor runtime={runtime} edit={carEdit} onEditChange={setCarEdit} launcherButtonRef={carLauncherButtonRef} onNotice={onNotice} onClose={closeCarEditor} />}
     {driverNameEdit && <StandaloneDriverNameModal runtime={runtime} edit={driverNameEdit.edit} launcherButtonRef={driverNameEdit.launcherButtonRef} onNotice={onNotice} onClose={saved => closeEdit(setDriverNameEdit, driverNameEdit.edit, saved)} />}
     {collector && <CollectionPrompt value={collector.value} onChange={value => setCollector(current => ({ ...current, value }))} onSave={markCollected} onClose={() => { setCollector(null); setCollectionOpen(true); }} />}
   </section>;

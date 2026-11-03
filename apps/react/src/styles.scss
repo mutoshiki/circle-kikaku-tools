@@ -250,7 +250,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-cost-editor-fields input[id^='settlement-extra-amount-'] { text-align: right; }
 @media (min-width: 672px) { .settlement-cost-editor-fields { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); } }
 @media (min-width: 672px) { .registration-modal__attribute-row { grid-template-columns: minmax(8rem, 1fr) minmax(10rem, .8fr) minmax(11rem, 1fr); align-items: center; } }
-.settlement-cost-type-control { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--cds-spacing-03, .5rem); min-width: 0; }
+.settlement-cost-type-control { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--cds-spacing-05, 1rem); min-width: 0; }
 .settlement-cost-type-control .cds--radio-button-group { min-width: 0; }
 .settlement-cost-type-control .cds--checkbox-wrapper { margin: 0; }
 .settlement-cost-add-action { justify-self: start; }
