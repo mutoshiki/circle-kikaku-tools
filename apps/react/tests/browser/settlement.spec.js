@@ -640,7 +640,7 @@ test('settlement responsive layout fits viewports and captures key states', asyn
     await capture('A-top');
     const firstCar = page.locator('.settlement-car').first();
     const carHeight = (await firstCar.boundingBox()).height;
-    expect(carHeight).toBeLessThan(180);
+    expect(carHeight, `vehicle summary should stay compact at ${width}px`).toBeLessThan(180);
     await firstCar.screenshot({ path: testInfo.outputPath(`${width}-B-vehicle.png`) });
     await firstCar.getByRole('button', { name: /支払い内訳/ }).click();
     await expect(firstCar.getByText('費用小計', { exact: true })).toHaveCount(0);

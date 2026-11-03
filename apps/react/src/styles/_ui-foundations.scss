@@ -3,9 +3,11 @@
 
 .application {
   --sanpo-ui-page-inset: #{layout.$spacing-05};
+  --sanpo-ui-content-inset: #{layout.$spacing-05};
   --sanpo-ui-field-gap: #{layout.$spacing-05};
   --sanpo-ui-group-gap: #{layout.$spacing-06};
   --sanpo-ui-section-gap: #{layout.$spacing-07};
+  --sanpo-ui-touch-target: 3rem;
 }
 
 .ui-section-heading {
@@ -46,4 +48,5 @@
 
 @media (max-width: 671px) {
   .ui-section-heading { align-items: flex-start; }
+  .application { --sanpo-ui-content-inset: 1rem; }
 }
