@@ -90,6 +90,25 @@ export function assertStandaloneDriverNameTargetCurrent(store, edit) {
   if (!sameValue(participantNames(store.getSnapshot().participants), participantNames(edit.session.base.participants))) throw conflict;
 }
 
+function settlementValuesEqual(left, right) {
+  if (Object.is(left, right)) return true;
+  if (left === undefined || right === undefined || left === null || right === null || typeof left !== 'object' || typeof right !== 'object') return false;
+  if (Array.isArray(left) || Array.isArray(right)) return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((value, index) => settlementValuesEqual(value, right[index]));
+  const leftKeys = Object.keys(left).sort();
+  const rightKeys = Object.keys(right).sort();
+  return settlementValuesEqual(leftKeys, rightKeys) && leftKeys.every(key => settlementValuesEqual(left[key], right[key]));
+}
+
+export function assertSettlementExtraTargetCurrent(store, edit, { id, expected = null, intended = null } = {}) {
+  const snapshot = store.getSnapshot();
+  if (Number(snapshot.resetGeneration || 0) !== Number(edit.session.base.resetGeneration || 0)) throw new Error('企画がリセットされました。画面を開き直してください。');
+  const { state } = store.domain.settlementInput(snapshot);
+  const carName = edit.car?.name || edit.session.name || '';
+  const current = state.cars[carName]?.extras?.find(extra => String(extra.id || '') === String(id || '')) || null;
+  if (settlementValuesEqual(current, expected) || settlementValuesEqual(current, intended)) return;
+  throw new Error('この費用は別の端末で更新されました。画面を開き直してください。');
+}
+
 export function writeSettlementDraft(store, edit) {
   const next = store.domain.canonical.settlementToStorage(store.domain.settlement.normalizeSettlementState(edit.state), edit.session.draft.participants);
   if (edit.session.scope === 'settlement-settings') {

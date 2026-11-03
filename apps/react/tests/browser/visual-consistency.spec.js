@@ -135,7 +135,8 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await costAction.click();
   const editCost = page.getByRole('dialog', { name: /藤原 拓海車/ });
   await expect(editCost).toBeVisible();
-  await editCost.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await editCost.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
+  await expect(editCost).toBeHidden();
   await expect(expand).toHaveAttribute('aria-expanded', 'false');
   await expand.click();
   await expect(expand).toHaveAttribute('aria-expanded', 'true');

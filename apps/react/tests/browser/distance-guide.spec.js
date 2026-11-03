@@ -41,8 +41,9 @@ test('distance guide opens Google Maps without APIs and preserves manual gas cal
   await expect(restored.getByLabel('燃費（km/L）')).toHaveValue('18');
   await expect(restored.getByLabel('ガソリン単価（円/L）')).toHaveValue('158');
   await expect(restored.getByRole('link', { name: 'Googleマップで距離を確認' })).toBeVisible();
-  await restored.getByRole('button', { name: 'ガソリン代を適用' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: '費用を保存' }).click();
+  await restored.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: '仮参加者A車：費用一覧' })).toBeVisible();
+  await page.getByRole('dialog').locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
   const carRow = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) });
   await carRow.getByRole('button', { name: /支払い内訳/ }).click();
   await expect(carRow.getByText('¥1,633', { exact: true })).toBeVisible();

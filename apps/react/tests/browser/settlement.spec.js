@@ -230,10 +230,10 @@ test('settings cancel/save, signed extras, collection state and reload', async (
   await lastRow.getByLabel('費用名').fill('日本語変換中の返金');
   await lastRow.getByRole('textbox', { name: /金額（円）/ }).fill('300');
   await lastRow.getByText('部費', { exact: true }).click();
-  await lastRow.getByRole('checkbox', { name: /^(?:部費|割勘)の費用から差し引く$/ }).check({ force: true });
-  await modal.getByRole('button', { name: '一覧に追加', exact: true }).click();
+  await lastRow.getByRole('checkbox', { name: /^(?:部費|割勘)から差し引く$/ }).check({ force: true });
+  await modal.getByRole('button', { name: '保存', exact: true }).click();
   await expect(modal.locator('.settlement-cost-editor')).toBeVisible();
-  await modal.getByRole('button', { name: '費用を保存' }).click();
+  await modal.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
   const carA = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) });
   await carA.getByRole('button', { name: /支払い内訳/ }).click();
   await expect(carA.getByText('日本語変換中の返金')).toBeVisible();
@@ -280,9 +280,9 @@ test('missing fuel settings do not show error notifications before the user open
   await openCarExpenseEditor(page.locator('.settlement-car').first());
   const dialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await expect(dialog.locator('.cds--inline-notification')).toHaveCount(0);
-  await expect(dialog.getByText('支払いに含める費用を入力してください。金額が空欄の費用は0円として計算します。')).toBeVisible();
+  await expect(dialog.getByRole('heading', { name: '費用一覧' })).toBeVisible();
   await startNoticeCapture(page);
-  await dialog.getByRole('button', { name: '費用を保存' }).click();
+  await dialog.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
   await expect(dialog).toHaveCount(0);
   expect((await capturedNotices(page)).join('\n')).not.toContain('1人あたりの集金額が');
   await expect(dialog.getByText(/ガソリン代を計算するため/)).toHaveCount(0);
@@ -309,7 +309,7 @@ test('blank and partial movement settings calculate as zero and preserve the dra
   const distance = dialog.locator('#settlement-distance');
   const efficiency = dialog.locator('#settlement-eco');
   const price = dialog.locator('#settlement-price');
-  const apply = dialog.getByRole('button', { name: 'ガソリン代を適用' });
+  const apply = dialog.getByRole('button', { name: '保存', exact: true });
   await expect(dialog.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
   await expect(dialog.locator('.settlement-movement-preview')).toContainText('¥0');
   await expect(apply).toBeEnabled();
@@ -321,50 +321,41 @@ test('blank and partial movement settings calculate as zero and preserve the dra
   await efficiency.press('Tab');
   await expect(price).not.toHaveAttribute('aria-invalid', 'true');
   await expect(apply).toBeEnabled();
-  await dialog.getByRole('button', { name: '戻る' }).click();
-  await expect(dialog.getByRole('heading', { name: '費用を編集' })).toBeVisible();
+  await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(dialog.getByRole('heading', { name: '費用一覧' })).toBeVisible();
   await expect(dialog.locator('.settlement-cost-summary').filter({ hasText: 'ガソリン代' })).toContainText('¥0');
 
   await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
-  await expect(distance).toHaveValue('500');
-  await expect(efficiency).toHaveValue('12');
+  await expect(distance).toHaveValue('');
+  await expect(efficiency).toHaveValue('');
   await expect(price).toHaveValue('');
+  await distance.fill('500');
+  await efficiency.fill('12');
   await price.fill('170');
   await expect(apply).toBeEnabled();
   await dialog.locator('.cds--modal-content').evaluate(node => { node.scrollTop = node.scrollHeight; });
   await page.screenshot({ path: testInfo.outputPath('movement-complete.png'), animations: 'disabled' });
   await apply.click();
-  await expect(dialog.getByRole('heading', { name: '費用を編集' })).toBeVisible();
+  await expect(dialog.getByRole('heading', { name: '費用一覧' })).toBeVisible();
   await expect(dialog.locator('.settlement-cost-summary').filter({ hasText: 'ガソリン代' })).toContainText('¥7,083');
 });
 
-test('clearing a new expense makes the empty draft optional and keeps named expenses at zero', async ({ page }) => {
+test('expense save requires a name and amount but accepts an explicit zero', async ({ page }) => {
   await openCarExpenseEditor(page.locator('.settlement-car').first());
   const dialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await dialog.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
-
   const name = dialog.getByLabel('費用名');
   const amount = dialog.getByRole('textbox', { name: /金額（円）/ });
-  await name.fill('一時費用');
-  await amount.fill('100');
-  await name.fill('');
-  await amount.fill('');
-
-  await expect(name).not.toHaveAttribute('aria-invalid', 'true');
-  await expect(amount).not.toHaveAttribute('aria-invalid', 'true');
-  await expect(dialog.getByRole('button', { name: '一覧に追加', exact: true })).toBeEnabled();
-  await dialog.getByRole('button', { name: '一覧に追加', exact: true }).click();
-  await expect(dialog.getByRole('button', { name: '費用を保存' })).toBeEnabled();
-  await dialog.getByRole('button', { name: 'キャンセル' }).click();
-
-  await openCarExpenseEditor(page.locator('.settlement-car').first());
-  const reopened = page.getByRole('dialog', { name: /^仮参加者A車：/ });
-  await reopened.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
-  const namedCost = reopened.getByLabel('費用名');
-  const emptyAmount = reopened.getByRole('textbox', { name: /金額（円）/ });
-  await namedCost.fill('金額未入力の費用');
-  await expect(emptyAmount).not.toHaveAttribute('aria-invalid', 'true');
-  await expect(reopened.getByRole('button', { name: '一覧に追加', exact: true })).toBeEnabled();
+  await dialog.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(name).toHaveAttribute('aria-invalid', 'true');
+  await expect(amount).toHaveAttribute('aria-invalid', 'true');
+  await expect(dialog.getByText('費用名を入力してください。')).toBeVisible();
+  await expect(dialog.getByText('金額を入力してください。')).toBeVisible();
+  await name.fill('参加費返金');
+  await amount.fill('0');
+  await dialog.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(dialog.getByRole('heading', { name: '費用一覧' })).toBeVisible();
+  await expect(dialog.locator('.settlement-cost-summary').filter({ hasText: '参加費返金' })).toContainText('¥0');
 });
 
 test('Times movement settings require only distance and apply the calculated amount', async ({ page }) => {
@@ -373,7 +364,7 @@ test('Times movement settings require only distance and apply the calculated amo
   await dialog.getByRole('button', { name: 'タイムズ移動料金の計算条件を編集' }).click();
 
   const distance = dialog.locator('#settlement-distance');
-  const apply = dialog.getByRole('button', { name: 'タイムズ移動料金を適用' });
+  const apply = dialog.getByRole('button', { name: '保存', exact: true });
   await expect(dialog.getByRole('heading', { name: 'タイムズ移動料金を設定' })).toBeVisible();
   await expect(dialog.locator('.settlement-movement-preview')).toContainText('¥0');
   await expect(dialog.getByText(/計算する場合は、移動距離を入力してください。/)).toBeVisible();
@@ -382,7 +373,7 @@ test('Times movement settings require only distance and apply the calculated amo
   await expect(apply).toBeEnabled();
 
   await apply.click();
-  await expect(dialog.getByRole('heading', { name: '費用を編集' })).toBeVisible();
+  await expect(dialog.getByRole('heading', { name: '費用一覧' })).toBeVisible();
   await expect(dialog.locator('.settlement-cost-summary').filter({ hasText: 'タイムズ移動料金' })).toContainText('¥0');
   await dialog.getByRole('button', { name: 'タイムズ移動料金の計算条件を編集' }).click();
 
@@ -394,7 +385,7 @@ test('Times movement settings require only distance and apply the calculated amo
   await expect(apply).toBeEnabled();
   await dialog.locator('.cds--modal-content').evaluate(node => { node.scrollTop = node.scrollHeight; });
   await apply.click();
-  await expect(dialog.getByRole('heading', { name: '費用を編集' })).toBeVisible();
+  await expect(dialog.getByRole('heading', { name: '費用一覧' })).toBeVisible();
   await expect(dialog.locator('.settlement-cost-summary').filter({ hasText: 'タイムズ移動料金' })).not.toContainText('未計算');
 });
 
@@ -404,11 +395,10 @@ test('expenses and collections remain usable with blank movement costs', async (
   await dialog.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
   await dialog.getByLabel('費用名').fill('温泉代');
   await dialog.getByRole('textbox', { name: /金額（円）/ }).fill('1650');
-  await dialog.getByRole('button', { name: '一覧に追加', exact: true }).click();
+  await dialog.getByRole('button', { name: '保存', exact: true }).click();
   await expect(dialog.locator('.settlement-cost-summary').filter({ hasText: 'ガソリン代' })).toContainText('¥0');
   await expect(dialog.locator('.settlement-cost-summary').filter({ hasText: '温泉代' })).toContainText('¥1,650');
-  await dialog.getByRole('button', { name: '費用を保存' }).click();
-  await expect(dialog).toHaveCount(0);
+  await dialog.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
 
   const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) });
   await expect(car.locator('.cds--tag')).toHaveCount(0);
@@ -459,11 +449,11 @@ test('changing the per-person amount notifies after save and preserves collectio
   await dialog.getByLabel('燃費（km/L）').fill('10');
   await dialog.getByLabel('ガソリン単価（円/L）').fill('200');
   await startNoticeCapture(page);
-  await dialog.getByRole('button', { name: 'ガソリン代を適用' }).click();
-  await dialog.getByRole('button', { name: '費用を保存' }).click();
-  await expect(dialog).toHaveCount(0);
+  await dialog.getByRole('button', { name: '保存', exact: true }).click();
   const notices = await capturedNotices(page);
   expect(notices.join('\n')).toMatch(/1人あたりの集金額が\s*¥[\d,]+\s*から\s*¥[\d,]+\s*に変更されました。\s*記録済みの集金状況を確認してください。/);
+  await expect(dialog.getByRole('heading', { name: '費用一覧' })).toBeVisible();
+  await dialog.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
   await page.reload();
   await page.getByRole('tab', { name: '精算', exact: true }).click();
   await page.getByRole('button', { name: '集金を記録' }).click();
@@ -743,90 +733,77 @@ test('driver names appear only when a car has multiple drivers', async ({ page }
   expect(pageErrors.get(page)).toEqual([]);
 });
 
-test('car expense editor uses a compact Carbon list and focused mobile editing surface', async ({ page }) => {
+test('car expense list and item editor have one clear save boundary on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 703 });
   await openCarExpenseEditor(page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }));
   const dialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
-  await expect(dialog.getByRole('heading', { name: '費用を編集' })).toBeVisible();
-  await expect(dialog.getByRole('heading', { name: '費用一覧' })).toHaveCount(0);
-  await expect(dialog.getByRole('button', { name: '費用を保存' })).toBeVisible();
-  await expect(dialog.locator('.settlement-cost-editor')).toHaveCount(1);
-  await expect(dialog.getByRole('list', { name: '車両費用' })).toBeVisible();
-  await expect(dialog.locator('.settlement-cost-editor .settlement-cost-list-item')).toHaveCount(4);
-  const parkingRow = dialog.getByRole('listitem').filter({ hasText: '駐車代' });
-  await expect(parkingRow.getByRole('button', { name: '駐車代を編集' })).toBeVisible();
-  await expect(dialog.getByText('自動計算')).toHaveCount(0);
-  await expect(dialog.getByRole('heading', { name: '企画内の費用' })).toBeVisible();
-  await expect(dialog.locator('.settlement-extra-candidates')).toBeVisible();
-  const modalContentMetrics = await dialog.locator('.cds--modal-content').evaluate(node => ({ client: node.clientWidth, scroll: node.scrollWidth }));
-  expect(modalContentMetrics.scroll).toBeLessThanOrEqual(modalContentMetrics.client + 1);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await dialog.getByRole('button', { name: '閉じる' }).focus();
-  await page.keyboard.press('Shift+Tab');
-  await expect(dialog.getByRole('button', { name: '費用を保存' })).toBeFocused();
-  await page.keyboard.press('Tab');
-  await expect(dialog.getByRole('button', { name: '閉じる' })).toBeFocused();
-  const candidateAction = dialog.locator('.settlement-extra-candidates').getByRole('button');
-  await expect(candidateAction.first()).toHaveAccessibleName(/追加/);
-  const candidatesBeforeAdd = await candidateAction.count();
-  expect(candidatesBeforeAdd).toBeGreaterThan(0);
+  const list = dialog.locator('.settlement-cost-editor');
+  await expect(dialog.getByRole('heading', { name: '費用一覧' })).toBeVisible();
+  await expect(dialog.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '保存', exact: true })).toHaveCount(0);
+  await expect(list.locator('.settlement-cost-list-item')).toHaveCount(4);
+  const parkingRow = list.getByRole('listitem').filter({ hasText: '駐車代' });
+  const originalAmount = await parkingRow.locator('.settlement-cost-summary__amount').textContent();
 
-  await candidateAction.first().click();
-  await expect(page.getByRole('dialog')).toHaveCount(1);
-  await expect(dialog.getByRole('button', { name: '一覧に追加', exact: true })).toHaveCount(0);
-  await expect(dialog.locator('.settlement-cost-editor .settlement-cost-list-item')).toHaveCount(5);
-  await expect(candidateAction).toHaveCount(candidatesBeforeAdd - 1);
-  await expect(page.getByText(/を追加しました。保存すると反映されます。/)).toBeVisible();
-  await dialog.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
-  const newExpenseForm = dialog.locator('.settlement-cost-editor-form');
-  await expect(newExpenseForm).toBeVisible();
-  await expect(newExpenseForm.getByLabel('費用名')).toBeFocused();
-  await dialog.getByRole('button', { name: '戻る' }).click();
-  await expect(dialog.locator('.settlement-cost-editor')).toBeVisible();
-
-  await expect(parkingRow.getByRole('button', { name: '駐車代を編集' })).toBeVisible();
-  await expect(parkingRow.getByRole('button', { name: '駐車代の操作' })).toHaveCount(0);
   await parkingRow.getByRole('button', { name: '駐車代を編集' }).click();
-  const editor = dialog.locator('.settlement-cost-editor-form');
-  await expect(editor.getByLabel('費用名')).toHaveValue('駐車代');
-  await expect(editor.getByRole('radio', { name: '割勘' })).toBeVisible();
-  await expect(editor.getByRole('checkbox', { name: /^(?:部費|割勘)の費用から差し引く$/ })).toBeVisible();
-  const editorLocation = await editor.evaluate(node => ({
-    heading: node.querySelector('h3')?.textContent,
-    belongsToOneList: !!node.closest('.settlement-cost-editor'),
-  }));
-  expect(editorLocation.heading).toBeFalsy();
-  expect(editorLocation.belongsToOneList).toBe(false);
-  await expect(dialog.getByRole('button', { name: '一覧に反映' })).toBeVisible();
-  await expect(dialog.getByRole('button', { name: '戻る' })).toBeVisible();
-  await expect(editor.getByRole('textbox', { name: /金額（円）/ })).toHaveCSS('text-align', 'right');
-  await expect(editor.getByLabel('費用名')).toBeFocused();
-  await expect(dialog.locator('.settlement-cost-editor-form .settlement-form-section')).toBeVisible();
+  const form = dialog.locator('.settlement-cost-editor-form');
+  await expect(form.getByRole('radio', { name: '割勘' })).toBeVisible();
+  await expect(form.getByRole('checkbox', { name: /^(?:部費|割勘)から差し引く$/ })).toBeVisible();
+  await expect(form.getByText('入力した金額だけ、費用区分の費用を減らします。')).toHaveCount(0);
+  await form.getByLabel('金額（円）').fill('9999');
+  await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(list).toBeVisible();
+  await expect(parkingRow.locator('.settlement-cost-summary__amount')).toHaveText(originalAmount.trim());
 
-  const content = dialog.locator('.cds--modal-content');
-  const contentSize = await content.evaluate(node => ({ scrollHeight: node.scrollHeight, clientHeight: node.clientHeight }));
-  if (contentSize.scrollHeight > contentSize.clientHeight) {
-    await content.hover();
-    await page.mouse.wheel(0, 480);
-    await expect.poll(() => content.evaluate(node => node.scrollTop)).toBeGreaterThan(0);
-  }
-  const scrollState = await dialog.evaluate(node => ({
-    containerTop: node.scrollTop,
-    containerScrollHeight: node.scrollHeight,
-    containerClientHeight: node.clientHeight,
-    headerScrollHeight: node.querySelector('.cds--modal-header').scrollHeight,
-    headerClientHeight: node.querySelector('.cds--modal-header').clientHeight,
-    headerOverflowY: getComputedStyle(node.querySelector('.cds--modal-header')).overflowY,
-    footerBottom: node.querySelector('.cds--modal-footer').getBoundingClientRect().bottom,
-    viewportHeight: window.innerHeight,
-  }));
-  expect(scrollState.containerTop).toBe(0);
-  expect(scrollState.containerScrollHeight).toBeLessThanOrEqual(scrollState.containerClientHeight + 1);
-  expect(scrollState.headerScrollHeight).toBeLessThanOrEqual(scrollState.headerClientHeight + 1);
-  expect(scrollState.headerOverflowY).toBe('visible');
-  expect(scrollState.footerBottom).toBeLessThanOrEqual(scrollState.viewportHeight);
+  await parkingRow.getByRole('button', { name: '駐車代を編集' }).click();
+  await dialog.locator('.settlement-cost-editor-form').getByLabel('金額（円）').fill('9999');
+  await dialog.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(list.getByRole('listitem').filter({ hasText: '駐車代' }).locator('.settlement-cost-summary__amount')).toHaveText('¥9,999');
+
+  await dialog.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
+  const addForm = dialog.locator('.settlement-cost-editor-form');
+  await expect(dialog.getByRole('heading', { name: '費用を追加' })).toBeVisible();
+  await addForm.getByLabel('費用名').fill('テスト中止費');
+  await addForm.getByLabel('金額（円）').fill('10');
+  await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(list.getByText('テスト中止費', { exact: true })).toHaveCount(0);
+
+  await parkingRow.getByRole('button', { name: '駐車代を編集' }).click();
+  await dialog.locator('.settlement-cost-editor-form').getByRole('button', { name: 'この費用を削除' }).click();
+  await expect(list.getByText('駐車代', { exact: true })).toHaveCount(0);
+  await dialog.getByRole('button', { name: '元に戻す' }).click();
+  await expect(list.getByText('駐車代', { exact: true })).toBeVisible();
+  await list.getByRole('listitem').filter({ hasText: '駐車代' }).getByRole('button', { name: '駐車代を編集' }).click();
+  await dialog.locator('.settlement-cost-editor-form').getByRole('button', { name: 'この費用を削除' }).click();
+  await expect(list.getByText('駐車代', { exact: true })).toHaveCount(0);
+  await dialog.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
+  await openCarExpenseEditor(page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }));
+  await expect(page.getByRole('dialog', { name: /^仮参加者A車：/ }).locator('.settlement-cost-editor').getByText('駐車代', { exact: true })).toHaveCount(0);
+  await page.getByRole('dialog', { name: /^仮参加者A車：/ }).locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(pageErrors.get(page)).toEqual([]);
+});
+
+test('editing one expense has a real cancel boundary and saves once', async ({ page }) => {
+  const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) });
+  await openCarExpenseEditor(car);
+  const dialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
+  const list = dialog.locator('.settlement-cost-editor');
+  const parking = list.getByRole('listitem').filter({ hasText: '駐車代' });
+  const originalSummary = await parking.locator('.settlement-cost-summary__amount').textContent();
+
+  await parking.getByRole('button', { name: '駐車代を編集' }).click();
+  const editor = dialog.locator('.settlement-cost-editor-form');
+  await editor.getByLabel('金額（円）').fill('9876');
+  await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(list).toBeVisible();
+  await expect(parking.locator('.settlement-cost-summary__amount')).toHaveText(originalSummary.trim());
+
+  await parking.getByRole('button', { name: '駐車代を編集' }).click();
+  await dialog.locator('.settlement-cost-editor-form').getByLabel('金額（円）').fill('9876');
+  await dialog.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(list.getByRole('listitem').filter({ hasText: '駐車代' }).locator('.settlement-cost-summary__amount')).toHaveText('¥9,876');
+  await expect(dialog.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true })).toBeEnabled();
 });
 
 test('car expense candidates omit costs already on the current car', async ({ page }) => {
@@ -838,83 +815,53 @@ test('car expense candidates omit costs already on the current car', async ({ pa
   await expect(candidates.getByRole('button', { name: '追加' })).toHaveCount(1);
 });
 
-test('vehicle expenses use an explicit list and separate focused Carbon form on mobile', async ({ page }) => {
+test('adding a suggested expense saves once and removes it from suggestions', async ({ page }) => {
+  const car = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) });
+  await openCarExpenseEditor(car);
+  const dialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
+  const suggestions = dialog.locator('.settlement-extra-candidates');
+  const action = suggestions.getByRole('button', { name: '追加' });
+  const candidateName = await suggestions.locator('.settlement-extra-candidate__details strong').textContent();
+  await action.click();
+  await expect(dialog.locator('.settlement-cost-editor').getByText(candidateName.trim(), { exact: true })).toBeVisible();
+  await expect(suggestions.getByText(candidateName.trim(), { exact: true })).toHaveCount(0);
+  await expect(page.getByText(`${candidateName.trim()}を追加しました。`)).toBeVisible();
+  await expect(dialog.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true })).toBeVisible();
+});
+
+test('vehicle expense list actions stay clear and do not overlap amounts on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 703 });
   await openCarExpenseEditor(page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }));
   const dialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   const list = dialog.locator('.settlement-cost-editor');
-  await expect(list).toBeVisible();
   const parkingRow = list.getByRole('listitem').filter({ hasText: '駐車代' });
   const editButton = parkingRow.getByRole('button', { name: '駐車代を編集' });
-  await expect(editButton).toBeVisible();
-  const expectActionButtonsNotToOverlapAmounts = async () => {
+  const checkNoOverlap = async () => {
     const overlaps = await list.locator('.settlement-cost-list-item').evaluateAll(rows => rows.flatMap(row => {
       const amount = row.querySelector('.settlement-cost-summary__amount')?.getBoundingClientRect();
-      const buttons = [...row.querySelectorAll('.cds--contained-list-item__action button')];
-      return buttons.map(button => {
+      return [...row.querySelectorAll('.cds--contained-list-item__action button')].map(button => {
         const action = button.getBoundingClientRect();
         return Boolean(amount && action.left < amount.right && action.right > amount.left && action.top < amount.bottom && action.bottom > amount.top);
       });
     }));
-    expect(overlaps).toEqual(expect.arrayContaining([false]));
     expect(overlaps.every(overlap => !overlap)).toBe(true);
   };
-  await expectActionButtonsNotToOverlapAmounts();
+  await checkNoOverlap();
   await page.setViewportSize({ width: 565, height: 703 });
-  await expectActionButtonsNotToOverlapAmounts();
+  await checkNoOverlap();
   await page.setViewportSize({ width: 390, height: 703 });
-
   await editButton.click();
   const form = dialog.locator('.settlement-cost-editor-form');
-  await expect(form).toBeVisible();
-  await expect(list).toHaveCount(0);
-  await expect(dialog.getByRole('heading', { name: '駐車代を編集' })).toBeVisible();
-  await expect(form.getByRole('heading')).toHaveCount(0);
   await expect(form.getByLabel('費用名')).toHaveValue('駐車代');
-  await expect(form.getByRole('radio', { name: '割勘' })).toBeVisible();
-  await expect(form.getByRole('checkbox', { name: /^(?:部費|割勘)の費用から差し引く$/ })).toBeVisible();
-  const deleteButton = form.getByRole('button', { name: '駐車代を削除' });
-  await expect(deleteButton).toHaveClass(/cds--btn--danger--ghost/);
-  await expect(form.getByText('入力した金額だけ、費用区分の費用を減らします。')).toBeVisible();
-  await expect(form.locator('.settlement-cost-type-control')).toHaveCSS('grid-template-columns', /^(\d+px)$/);
-
-  await dialog.getByRole('button', { name: '戻る' }).click();
-  await expect(list).toBeVisible();
-  await expect(editButton).toBeFocused();
-  await expect(parkingRow.getByRole('button', { name: '駐車代の操作' })).toHaveCount(0);
-  await dialog.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
-  await expect(form).toBeVisible();
-  await expect(dialog.getByRole('heading', { name: '費用を追加' })).toBeVisible();
-  await expect(form.getByLabel('費用名')).toBeFocused();
-  await expect(dialog.getByRole('button', { name: '一覧に追加', exact: true })).toBeVisible();
-  await dialog.getByRole('button', { name: '戻る' }).click();
-  await expect(list.getByText('駐車代', { exact: true })).toBeVisible();
-  await parkingRow.getByRole('button', { name: '駐車代を編集' }).click();
-  await form.getByRole('button', { name: '駐車代を削除' }).click();
-  await expect(list.getByText('駐車代', { exact: true })).toHaveCount(0);
-  const undo = dialog.getByRole('button', { name: '元に戻す' });
-  await expect(undo).toBeVisible();
-  await undo.click();
-  await expect(list.getByText('駐車代', { exact: true })).toBeVisible();
-
-  await parkingRow.getByRole('button', { name: '駐車代を編集' }).click();
-  await form.getByRole('button', { name: '駐車代を削除' }).click();
-  await expect(list.getByText('駐車代', { exact: true })).toHaveCount(0);
-  await dialog.getByRole('button', { name: 'キャンセル' }).click();
-  await expect(dialog).toHaveCount(0);
-
-  await openCarExpenseEditor(page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }));
-  const reopenedDialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
-  const reopenedList = reopenedDialog.locator('.settlement-cost-editor');
-  await expect(reopenedList.getByText('駐車代', { exact: true })).toBeVisible();
-  await reopenedList.getByRole('listitem').filter({ hasText: '駐車代' }).getByRole('button', { name: '駐車代を編集' }).click();
-  await reopenedDialog.getByRole('button', { name: '駐車代を削除' }).click();
-  await reopenedDialog.getByRole('button', { name: '費用を保存' }).click();
-  await expect(page.getByRole('dialog')).toHaveCount(0);
-  await page.reload();
-  await page.getByRole('tab', { name: '精算', exact: true }).click();
-  await openCarExpenseEditor(page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }));
-  await expect(page.getByRole('dialog', { name: /^仮参加者A車：/ }).getByText('駐車代', { exact: true })).toHaveCount(0);
+  await expect(dialog.getByRole('heading', { name: '費用を編集' })).toBeVisible();
+  await expect(form.getByRole('button', { name: 'この費用を削除' })).toHaveClass(/cds--btn--danger--ghost/);
+  await expect(dialog.getByRole('button', { name: 'キャンセル', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '保存', exact: true })).toBeVisible();
+  await expect(dialog.getByText('金額を入力してください。')).toHaveCount(0);
+  const modalMetrics = await dialog.locator('.cds--modal-content').evaluate(node => ({ client: node.clientWidth, scroll: node.scrollWidth }));
+  expect(modalMetrics.scroll).toBeLessThanOrEqual(modalMetrics.client + 1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(pageErrors.get(page)).toEqual([]);
 });
 
 test('movement settings body scrolls within a short mobile viewport', async ({ page }) => {
@@ -924,13 +871,13 @@ test('movement settings body scrolls within a short mobile viewport', async ({ p
   await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await expect(dialog.getByRole('heading', { name: 'ガソリン代を設定' })).toBeVisible();
-  await expect(dialog.getByRole('button', { name: 'ガソリン代を適用' })).toBeVisible();
-  const burdenGroup = dialog.getByRole('group', { name: '費用の負担' });
+  await expect(dialog.getByRole('button', { name: '保存', exact: true })).toBeVisible();
+  const burdenGroup = dialog.getByRole('group', { name: '支払元' });
   await expect(burdenGroup).toBeVisible();
   await expect(burdenGroup.getByRole('radio', { name: '割勘' })).toBeVisible();
   await expect(burdenGroup.getByRole('radio', { name: '部費' })).toBeVisible();
   const movementLabels = await dialog.locator('.settlement-movement-form legend, .settlement-movement-section-title, .settlement-movement-preview span').allTextContents();
-  expect(movementLabels).toEqual(['車の種類', 'ガソリン代の計算条件', '費用の負担', 'ガソリン代の金額']);
+  expect(movementLabels).toEqual(['車の種類', 'ガソリン代の計算条件', '支払元', 'ガソリン代の金額']);
   await expect(dialog.locator('#settlement-distance')).toHaveAttribute('inputmode', 'decimal');
   await expect(dialog.locator('#settlement-eco')).toHaveAttribute('inputmode', 'decimal');
   await expect(dialog.locator('#settlement-price')).toHaveAttribute('inputmode', 'decimal');
@@ -1001,10 +948,10 @@ test('car expense editor fits a desktop viewport without horizontal scrolling', 
   await page.setViewportSize({ width: 1280, height: 900 });
   await openCarExpenseEditor(page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }));
   const dialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
-  await expect(dialog.getByRole('heading', { name: '費用を編集' })).toBeVisible();
+  await expect(dialog.getByRole('heading', { name: '費用一覧' })).toBeVisible();
   await expect(dialog.locator('.settlement-cost-editor')).toBeVisible();
   await expect(dialog.getByRole('heading', { name: '企画内の費用' })).toBeVisible();
-  await expect(dialog.getByRole('button', { name: '費用を保存' })).toBeVisible();
+  await expect(dialog.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true })).toBeVisible();
   const dimensions = await dialog.evaluate(node => ({
     viewport: innerWidth,
     document: document.documentElement.scrollWidth,
@@ -1093,7 +1040,7 @@ test('vehicle settlement presents expense and breakdown with an accessible Carbo
   await openCarExpenseEditor(car);
   const editDialog = page.getByRole('dialog');
   await expect(editDialog).toBeVisible();
-  await editDialog.getByRole('button', { name: '閉じる' }).click();
+  await editDialog.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
   await expect(car.getByRole('button', { name: '仮参加者D車（レンタカー）の費用を編集', exact: true })).toBeFocused();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(pageErrors.get(page)).toEqual([]);
@@ -1471,15 +1418,15 @@ test('settlement WebKit text and control size audit', async ({ page }, testInfo)
   await dialog.getByRole('button', { name: 'Googleマップで距離を確認' }).click();
   await expect(dialog.locator('.distance-guide__step')).toHaveCount(4);
   await capture('distance-guide', 'settlement-distance-guide.png');
-  await dialog.getByRole('button', { name: '戻る' }).click();
-  await dialog.getByRole('button', { name: '戻る' }).click();
+  await dialog.getByRole('button', { name: '戻る', exact: true }).click();
+  await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
   await dialog.getByRole('button', { name: '駐車代を編集' }).click();
   await capture('expense-edit');
-  await dialog.getByRole('button', { name: '戻る' }).click();
+  await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
   await dialog.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
   await capture('expense-fields', 'settlement-extra.png');
-  await dialog.getByRole('button', { name: '戻る' }).click();
-  await dialog.getByRole('button', { name: 'キャンセル' }).click();
+  await dialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await dialog.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
 
   await page.getByRole('button', { name: '精算設定' }).click();
   const settings = page.getByRole('dialog', { name: '精算設定を編集' });

@@ -91,11 +91,13 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   const expense = carEditor.locator('.settlement-cost-editor-form').last();
   await expense.getByLabel('費用名').fill('初回車費用');
   await expense.getByRole('textbox', { name: /金額（円）/ }).fill('300');
-  await carEditor.getByRole('button', { name: '一覧に追加', exact: true }).click();
-  await carEditor.getByRole('button', { name: '費用を保存', exact: true }).click();
+  await carEditor.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(carEditor.getByRole('heading', { name: '費用一覧' })).toBeVisible();
+  await expect(carEditor.locator('.settlement-cost-list-item').filter({ hasText: '初回車費用' })).toBeVisible();
+  await carEditor.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
   await expect(carEditor).toHaveCount(0);
   const savedExpenseAction = driverCar.getByRole('button', { name: '運転手の任意名車の費用を編集', exact: true });
-  await expect(savedExpenseAction).toBeFocused();
+  await expect(driverCar.getByRole('button', { name: /運転手の任意名車の費用を(?:入力|編集)/ })).toBeFocused();
   await expect(namedDriverToggle).toHaveAttribute('aria-expanded', 'true');
   await expect(savedExpenseAction).toBeVisible();
 

@@ -193,3 +193,15 @@ The local preview at `http://127.0.0.1:4296/` used source baseline `e1c43ff3693d
 | Settlement | Synthetic multi-vehicle payment summary | Chromium mobile, 393px | Automated theme | Not manually operated | Pass; vehicle typography and label/value alignment assertions | `settlement.spec.js` | Side-browser was left on Mountain Plan for final visual review |
 
 The first visual pass found the embedded Mountain Plan narrow Carbon Grid canceling the common inset with a negative margin. The embedded package now resets that Grid margin; a mobile regression assertion covers the heading, required-field label, and date control bounds. These changes do not affect the standalone plan builder or PDF styles. No modal was opened or changed in this task; prior modal evidence remains historical rather than new confirmation.
+
+### 2026-11-03 settlement expense save and copy
+
+Local preview `http://127.0.0.1:4297/` used synthetic room `DEBUG-D4AF8F5E583548CE`; changes remained in preview localStorage and were canceled. At 390 × 844 in dark theme, the expense editor showed the name and amount fields, payer radios, deduction checkbox, delete action, and fixed Cancel/Save footer without horizontal overflow. Changing the amount from ¥200 to ¥250 and canceling left the list at ¥200. Browser zoom, physical-device behavior, and screen-reader behavior were not exercised.
+
+| Screen / modal | State | Width × height | Theme | Keyboard | Result | Evidence | Reason if unverified |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Vehicle expense list | Existing gasoline and parking costs | 390 × 844 | Dark | Pointer; no keyboard operation | Pass; list and single close action fit | Side-browser tab 4, local preview | Screen reader and browser zoom not exercised |
+| Vehicle expense edit | Parking ¥200, payer choice, deduction toggle, delete and fixed footer | 390 × 844 | Dark | Focus entered name field; Cancel used to discard unsaved amount change | Pass; layout fits; canceled ¥250 draft returned to ¥200 list value | Side-browser tab 4; `settlement.spec.js` Chromium mobile 37/37 | Physical mobile keyboard and screen reader not exercised |
+| Vehicle expense save/cancel | Required fields and zero amount; suggested expense; item edit | Chromium 390px WebKit and Chromium desktop 1280px | Automated light/dark cases | Pointer and keyboard behavior covered by existing spec | Pass; WebKit mobile 5/5 and Chromium desktop 3/3 focused checks | `settlement.spec.js` | Real device and zoom not exercised |
+
+Unit coverage: `settlement-edit.test.mjs` 14/14. Preview build and source-manifest check passed against baseline `bedef19f3bc1f39e4f4a617f879d3f8758105a7c`. No production room or Firebase write was used in local review.

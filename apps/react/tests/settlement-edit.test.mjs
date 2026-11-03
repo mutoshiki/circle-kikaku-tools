@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRoomStore } from '../src/store/room-store.js';
 import { fixture, createReference, plain } from './reference.mjs';
-import { beginSettlementEdit, beginStandaloneDriverNameEdit, applyStandaloneDriverName, assertStandaloneDriverNameTargetCurrent, writeSettlementDraft, commitSettlementEdit, collectionChange, undoCollectionChange } from '../src/components/settlement/edit.js';
+import { beginSettlementEdit, beginStandaloneDriverNameEdit, applyStandaloneDriverName, assertStandaloneDriverNameTargetCurrent, assertSettlementExtraTargetCurrent, writeSettlementDraft, commitSettlementEdit, collectionChange, undoCollectionChange } from '../src/components/settlement/edit.js';
 
 const create = () => createRoomStore({ initial: fixture, clientId: 'settlement-test', clock: { now: () => 1000 } });
 const runtime = store => ({ store, sync: { flush: async () => {}, getSnapshot: () => ({ kind: 'local' }) } });
@@ -198,6 +198,41 @@ test('different existing expense rows merge by ID while a car edit remains open'
   const rows = store.domain.settlementInput(store.getSnapshot()).state.cars[car.name].extras;
   assert.equal(rows.find(row => row.id === 'extra-highway-a').amount, '2600');
   assert.equal(rows.find(row => row.id === 'extra-club-a').amount, '950');
+});
+
+test('expense save rejects a remote change to the same row but preserves other-row updates', () => {
+  const store = create();
+  const car = store.domain.settlementInput(store.getSnapshot()).data.cars[0];
+  const edit = beginSettlementEdit(store, { car });
+  const baseRow = structuredClone(edit.state.cars[car.name].extras.find(row => row.id === 'extra-highway-a'));
+  const intended = { ...baseRow, amount: '2600' };
+  edit.state.cars[car.name].extras = edit.state.cars[car.name].extras.map(row => row.id === baseRow.id ? intended : row);
+
+  const remote = structuredClone(store.getSnapshot());
+  remote.settlement.carsByParticipantId[car.participantId].extras.find(row => row.id === baseRow.id).amount = '2700';
+  store.receiveRemote(remote);
+  assert.throws(() => assertSettlementExtraTargetCurrent(store, edit, { id: baseRow.id, expected: baseRow, intended }), /別の端末で更新/);
+
+  const otherStore = create();
+  const otherCar = otherStore.domain.settlementInput(otherStore.getSnapshot()).data.cars[0];
+  const otherEdit = beginSettlementEdit(otherStore, { car: otherCar });
+  const otherBase = structuredClone(otherEdit.state.cars[otherCar.name].extras.find(row => row.id === 'extra-highway-a'));
+  const otherIntended = { ...otherBase, amount: '2600' };
+  const otherRemote = structuredClone(otherStore.getSnapshot());
+  otherRemote.settlement.carsByParticipantId[otherCar.participantId].extras.find(row => row.id === 'extra-club-a').amount = '950';
+  otherStore.receiveRemote(otherRemote);
+  assert.doesNotThrow(() => assertSettlementExtraTargetCurrent(otherStore, otherEdit, { id: otherBase.id, expected: otherBase, intended: otherIntended }));
+});
+
+test('expense save rejects a target row deleted remotely', () => {
+  const store = create();
+  const car = store.domain.settlementInput(store.getSnapshot()).data.cars[0];
+  const edit = beginSettlementEdit(store, { car });
+  const row = structuredClone(edit.state.cars[car.name].extras.find(item => item.id === 'extra-highway-a'));
+  const remote = structuredClone(store.getSnapshot());
+  remote.settlement.carsByParticipantId[car.participantId].extras = remote.settlement.carsByParticipantId[car.participantId].extras.filter(item => item.id !== row.id);
+  store.receiveRemote(remote);
+  assert.throws(() => assertSettlementExtraTargetCurrent(store, edit, { id: row.id, expected: row, intended: { ...row, amount: '2600' } }), /別の端末で更新/);
 });
 
 test('settings save publishes only changed settings and keeps remote car edits', async () => {
