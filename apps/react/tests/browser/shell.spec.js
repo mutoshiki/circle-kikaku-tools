@@ -59,7 +59,7 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await expect(applications.getByRole('link', { name: '学務提出書類作成ツール', exact: true })).toHaveAttribute('href', /sampokai-submission-builder/);
   await expect(applications.getByRole('link', { name: '山歩会企画ツール一覧', exact: true })).toHaveAttribute('href', /sanpokai-kikaku-portal/);
   await page.getByRole('button', { name: '関連アプリ', exact: true }).click();
-  await expect(page.getByRole('tab')).toHaveText(['参加者', '車割', '班割', '精算', 'タブを編集']);
+  await expect(page.getByRole('tab')).toHaveText(['参加者', '車割', '班割', '精算']);
   await openProjectNameEditor(page);
   const projectName = page.getByRole('textbox', { name: '企画名' });
   await projectName.fill('互換性確認用の企画');
@@ -83,6 +83,11 @@ test('independent shell: semantic header utilities, related apps, Japanese input
     await expectFontsLoaded(page);
     await page.screenshot({ path: join(process.env.MIGRATION_EVIDENCE_DIR || join(tmpdir(), 'circle-react-migration-evidence'), `shell-${testInfo.project.name}-${theme}.png`) });
   }
+  await page.getByRole('button', { name: 'その他の操作' }).click();
+  await page.getByRole('menuitem', { name: 'タブを編集', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'タブを編集', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '企画へ戻る', exact: true }).click();
+  await expect(page.getByRole('tab', { name: '精算', exact: true })).toHaveAttribute('aria-selected', 'true');
   expect(await page.evaluate(() => !!window.SanpoCanonicalState || !!customElements.get('cds-button'))).toBe(false);
   expect(requests.filter(url => /firebaseio|firebase-config|assets\/js\/|gstatic/.test(url))).toEqual([]);
   expect(errors).toEqual([]);

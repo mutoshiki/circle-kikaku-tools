@@ -25,6 +25,36 @@ test('form workspace keeps reservation explicit and scopes its callbacks to the 
   assert.deepEqual(calls, [['prepare', room], ['handoff', ready], ['rename', 'rename', { name: '変更した企画名' }]]);
 });
 
+test('form workspace exposes only the current project public form URL for cross-browser sharing', async () => {
+  const runtime = { roomId: 'ROOM-PUBLIC', storage: { read: () => null }, external: {} };
+  const room = { roomName: '秋名山企画', meta: { applicationSync: {
+    kind: 'formApplicationSync', version: 2, projectId: 'ROOM-PUBLIC', formUrl: 'https://docs.google.com/forms/d/e/test/viewform',
+    editUrl: 'https://docs.google.com/forms/d/secret/edit', responseSheetUrl: 'https://docs.google.com/spreadsheets/d/secret', handoffTokenHash: 'private',
+  } } };
+  const props = createFormMakerWorkspaceProps({ runtime, room });
+
+  assert.deepEqual(props.applicationSnapshot, {
+    linked: true,
+    formUrl: 'https://docs.google.com/forms/d/e/test/viewform',
+    responseCount: 0,
+  });
+});
+
+test('form workspace preserves a linked state without exposing an invalid or missing URL', async () => {
+  const runtime = { roomId: 'ROOM-LEGACY', storage: { read: () => null }, external: {} };
+  const room = { meta: { applicationSync: { kind: 'formApplicationSync', version: 2, projectId: 'ROOM-LEGACY', responseCount: 2, formUrl: 'javascript:alert(1)' } } };
+  const props = createFormMakerWorkspaceProps({ runtime, room });
+  assert.deepEqual(props.applicationSnapshot, { linked: true, formUrl: '', responseCount: 2 });
+});
+
+test('form workspace rejects a Google Forms edit URL as a public application link', async () => {
+  const runtime = { roomId: 'ROOM-EDIT-URL', storage: { read: () => null }, external: {} };
+  const room = { meta: { applicationSync: { kind: 'formApplicationSync', version: 2, projectId: 'ROOM-EDIT-URL', formUrl: 'https://docs.google.com/forms/d/example/edit' } } };
+  assert.deepEqual(createFormMakerWorkspaceProps({ runtime, room }).applicationSnapshot, {
+    linked: true, formUrl: '', responseCount: 0,
+  });
+});
+
 test('form workspace does not treat an unused room reservation as an already submitted job', async () => {
   const reservationJobId = 'b'.repeat(32);
   const runtime = {

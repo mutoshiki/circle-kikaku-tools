@@ -16,6 +16,13 @@ function subtractDays(value, days) {
 export function createFormMakerWorkspaceProps({ runtime, room, active = true, onNotice = () => {} }) {
   const debugSample = runtime.debugSample === true;
   const eventDate = String(room?.meta?.eventDate || room?.meta?.applicationSync?.eventDate || room?.eventDate || '');
+  const linked = room?.meta?.applicationSync;
+  const parsedFormUrl = (() => {
+    try {
+      const url = new URL(String(linked?.formUrl || ''));
+      return url.protocol === 'https:' && url.hostname === 'docs.google.com' && /^\/forms\/d\/(?:e\/)?[A-Za-z0-9_-]+\/viewform\/?$/.test(url.pathname) ? url.href : '';
+    } catch { return ''; }
+  })();
   const project = Object.freeze({
     roomId: runtime.roomId,
     projectName: String(room?.roomName || '').trim(),
@@ -33,6 +40,9 @@ export function createFormMakerWorkspaceProps({ runtime, room, active = true, on
   });
   return {
     project,
+    applicationSnapshot: !debugSample && linked?.kind === 'formApplicationSync' && Number(linked.version) === 2 && (!linked.projectId || linked.projectId === runtime.roomId)
+      ? { linked: true, formUrl: parsedFormUrl, responseCount: Math.max(0, Number(linked.responseCount) || 0) }
+      : null,
     sampleMode: debugSample,
     session: runtime.external.formMakerSession || offlineFormMakerSession,
     active,

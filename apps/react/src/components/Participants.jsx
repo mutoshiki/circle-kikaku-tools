@@ -26,7 +26,7 @@ function keepConfirmationTabWithinDialog(event) {
   }
 }
 
-export default function Participants({ runtime, room, onNotice, onOpenCountOnlySettlement, onOpenApplicationForm, formToolEnabled = false, openRegistrationRequestId = null, onRegistrationRequestHandled, participantStartRef, roomStatus }) {
+export default function Participants({ runtime, room, onNotice, onOpenCountOnlySettlement, onOpenApplicationForm, onCopyApplicationLink, formToolEnabled = false, openRegistrationRequestId = null, onRegistrationRequestHandled, participantStartRef, roomStatus }) {
   const handoffToken = useSyncExternalStore(runtime.handoffCapability?.subscribe || (() => () => {}), () => runtime.handoffCapability?.getSnapshot().token ?? runtime.handoffToken ?? '');
   const isMobile = useMediaQuery('(max-width: 671px)');
   const [search, setSearch] = useState('');
@@ -53,10 +53,17 @@ export default function Participants({ runtime, room, onNotice, onOpenCountOnlyS
   const resultSnapshot = useRef({ conditions: '', visibleCount: 0, total: 0 });
   const applicants = runtime.store.domain.applicants;
   const application = applicants.validApplicationSync(room.meta?.applicationSync) ? room.meta.applicationSync : null;
+  const publicFormUrl = (() => {
+    try {
+      const url = new URL(String(application?.formUrl || ''));
+      return url.protocol === 'https:' && url.hostname === 'docs.google.com' && /^\/forms\/d\/(?:e\/)?[A-Za-z0-9_-]+\/viewform\/?$/.test(url.pathname) ? url.href : '';
+    } catch { return ''; }
+  })();
   const entries = applicants.applicantEntries(application);
   const acceptedIds = new Set(entries.map(([key, applicant]) => runtime.store.participantIdForApplicant(key, applicant)).filter(Boolean));
   const participantCount = Object.keys(room.participants).length;
   const initialEmpty = participantCount === 0 && !application;
+  const noResponses = Boolean(application && participantCount === 0 && entries.length === 0);
   const rows = [
     ...entries.map(([key, applicant]) => {
       const id = runtime.store.participantIdForApplicant(key, applicant);
@@ -171,7 +178,8 @@ export default function Participants({ runtime, room, onNotice, onOpenCountOnlyS
     catch (error) { onNotice(error.message); }
   }
   return <section className="participants-page" aria-label="参加者">
-    {initialEmpty ? <InitialEmptyState headingId="participants-initial-heading" title="参加者が登録されていません" description={formToolEnabled ? '応募フォームを使うか、名前を直接追加できます。' : '名前を登録すると、車割・班割・精算に使えます。'} primaryAction={formToolEnabled ? { label: '応募フォームを開く', onClick: onOpenApplicationForm } : { label: '参加者を追加', buttonRef: participantStartRef, onClick: event => openRegistration(event.currentTarget) }} alternateAction={formToolEnabled ? { label: '参加者を追加', buttonRef: participantStartRef, onClick: event => openRegistration(event.currentTarget) } : { label: '人数だけで精算', onClick: onOpenCountOnlySettlement }} tertiaryAction={formToolEnabled ? { label: '人数だけで精算', onClick: onOpenCountOnlySettlement } : undefined} roomStatus={roomStatus} /> : <>
+    {initialEmpty ? <InitialEmptyState headingId="participants-initial-heading" title="参加者が登録されていません" description={formToolEnabled ? '応募フォームを作成するか、名前を直接追加できます。' : '名前を登録すると、車割・班割・精算に使えます。'} primaryAction={formToolEnabled ? { label: '応募フォームを作成', onClick: onOpenApplicationForm } : { label: '参加者を追加', buttonRef: participantStartRef, onClick: event => openRegistration(event.currentTarget) }} alternateAction={formToolEnabled ? { label: '参加者を追加', buttonRef: participantStartRef, onClick: event => openRegistration(event.currentTarget) } : { label: '人数だけで精算', onClick: onOpenCountOnlySettlement }} tertiaryAction={formToolEnabled ? { label: '人数だけで精算', onClick: onOpenCountOnlySettlement } : undefined} roomStatus={roomStatus} />
+      : noResponses ? <InitialEmptyState headingId="participants-initial-heading" title={Number(application.responseCount || 0) > 0 ? '応募者を読み込んでいます' : '応募フォームへの回答はまだありません'} description={Number(application.responseCount || 0) > 0 ? 'フォームの回答を参加者タブに反映しています。' : publicFormUrl ? '応募リンクを共有すると、届いた回答をここで確認できます。' : '応募フォームは連携済みですが、応募リンクを確認できません。'} primaryAction={publicFormUrl ? { label: '応募リンクをコピー', onClick: onCopyApplicationLink } : { label: '参加者を追加', buttonRef: participantStartRef, onClick: event => openRegistration(event.currentTarget) }} alternateAction={publicFormUrl ? { label: '参加者を追加', buttonRef: participantStartRef, onClick: event => openRegistration(event.currentTarget) } : undefined} roomStatus={roomStatus} /> : <>
     <SectionHeading className="section-heading" id="participants-heading" ref={participantsHeadingRef} titleTabIndex={-1} title={application ? <>応募者 {entries.length}人　参加者 <span>{participantCount}人</span></> : <>参加者 {participantCount}人</>} actions={<div className="inline-actions">{confirmed ? <><Tag type="green" size="sm">{editingSelection ? '選び直し中' : '確定済み'}</Tag><Button kind="ghost" size="sm" onClick={() => { setChoices({}); setEditingSelection(value => !value); }}>{editingSelection ? '選び直しを閉じる' : '参加者を選び直す'}</Button></> : !application && (participantCount > 0 ? <Button kind="ghost" size="sm" onClick={() => { setChoices({}); setManualSelectionEditing(value => !value); }}>{manualSelectionEditing ? '選び直しを閉じる' : '参加者を選び直す'}</Button> : <Button kind="ghost" renderIcon={Add} onClick={event => openRegistration(event.currentTarget)}>参加者を追加</Button>)}</div>} />
     {selectionVisible && (application ? <p className="section-description">企画に参加する人にチェックを入れてください。変更後に「{editingSelection ? '参加者を更新' : '参加者を確定'}」を押します。</p> : participantCount === 0 ? <p className="section-description">参加者はまだ登録されていません。「参加者を追加」から名前を登録できます。</p> : manualSelectionEditing && <p className="section-description">企画に参加する人にチェックを入れてください。</p>)}
       <div className="participant-toolbar"><Search ref={searchRef} id="participant-search" labelText="名前を検索" placeholder="名前を検索" value={search} onCompositionStart={() => setComposingSearch(true)} onCompositionEnd={() => setComposingSearch(false)} onChange={event => { setSearch(event.target.value); setResultRevision(value => value + 1); }} closeButtonLabelText="検索語を消去" />

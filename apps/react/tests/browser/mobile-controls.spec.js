@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { createTemplateWorkspace, workspaceCacheKey } from '../../src/services/project-workspace.js';
 
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', import.meta.url)));
+delete fixture.meta.applicationSync;
 
 async function height(locator) {
   const box = await locator.boundingBox();
@@ -12,12 +13,15 @@ async function height(locator) {
 
 test('mobile controls keep readable type and touch targets across integrated tools', async ({ page }) => {
   const roomId = 'MOBILE-CONTROLS-AUDIT';
+  const workspace = createTemplateWorkspace({ templateId: 'circle-mountain' });
+  workspace.tools['application-form'] = { enabled: true, pinned: true };
+  if (!workspace.tabOrder.includes('application-form')) workspace.tabOrder.push('application-form');
   await page.addInitScript(({ key, value, workspaceKey, workspace }) => {
     localStorage.setItem(key, JSON.stringify(value));
     localStorage.setItem(workspaceKey, JSON.stringify(workspace));
   }, {
     key: `sanpo-react:v1:${roomId}:room`, value: fixture,
-    workspaceKey: workspaceCacheKey(roomId), workspace: createTemplateWorkspace({ templateId: 'circle-mountain' }),
+    workspaceKey: workspaceCacheKey(roomId), workspace,
   });
   await page.goto(`/?room=${roomId}&view=seisan`);
   await page.setViewportSize({ width: 393, height: 852 });
@@ -59,12 +63,15 @@ test('mobile controls keep readable type and touch targets across integrated too
   const formNameBox = await formName.boundingBox();
   expect(formNameBox.width).toBeGreaterThanOrEqual(320);
 
-  await page.getByRole('tab', { name: 'タブを編集', exact: true }).click();
+  await page.getByRole('button', { name: 'その他の操作' }).click();
+  await page.getByRole('menuitem', { name: 'タブを編集', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'タブを編集', exact: true })).toBeVisible();
   const reorder = page.getByRole('button', { name: '応募フォームを上へ', exact: true });
   expect(await height(reorder)).toBeGreaterThanOrEqual(44);
 
   await page.setViewportSize({ width: 320, height: 720 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+  await page.getByRole('button', { name: '企画へ戻る', exact: true }).click();
   await page.getByRole('tab', { name: '精算', exact: true }).click();
   expect(await height(page.locator('.settlement-car-toggle').first())).toBeGreaterThanOrEqual(44);
 });
