@@ -202,12 +202,12 @@ export async function createRuntime(options, env = import.meta.env || {}) {
     production: env.VITE_REACT_SYNC_MODE === 'production',
   });
   const formMakerSession = env.VITE_REACT_SYNC_MODE === 'production'
-    ? await createProductionFormMakerSession(options.storage)
+    ? await createProductionFormMakerSession(options.storage, env.VITE_FORM_MAKER_INTAKE_URL)
     : null;
   return createLocalRuntime({ ...options, transport, formMakerSession, legacyLoadWrites: env.VITE_REACT_LEGACY_LOAD_WRITES !== 'false' });
 }
 
-async function createProductionFormMakerSession(storage) {
+async function createProductionFormMakerSession(storage, intakeUrl) {
   const { createFormMakerSession, FORM_MAKER_FIREBASE_CONFIG } = await import('@sanpokai/form-maker-workspace');
-  return createFormMakerSession({ config: FORM_MAKER_FIREBASE_CONFIG, storage });
+  return createFormMakerSession({ config: { ...FORM_MAKER_FIREBASE_CONFIG, intakeUrl: intakeUrl || FORM_MAKER_FIREBASE_CONFIG.intakeUrl }, storage });
 }
