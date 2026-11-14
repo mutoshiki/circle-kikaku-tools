@@ -57,8 +57,8 @@ test('allocation and settlement empty states route form-linked rooms to applican
   for (const tabName of ['車割', '班割', '精算']) {
     await page.getByRole('tab', { name: tabName, exact: true }).click();
     const panel = page.getByRole('tabpanel', { name: tabName, exact: true });
-    await expect(panel.getByRole('button', { name: '参加者を確認', exact: true })).toBeVisible();
-    await panel.getByRole('button', { name: '参加者を確認', exact: true }).click();
+    await expect(panel.getByRole('button', { name: '参加者タブへ', exact: true })).toBeVisible();
+    await panel.getByRole('button', { name: '参加者タブへ', exact: true }).click();
     await expect(page.getByRole('tab', { name: '参加者', exact: true })).toHaveAttribute('aria-selected', 'true');
     await expect(page.getByRole('tabpanel', { name: '参加者', exact: true }).getByText(/応募者/).first()).toBeVisible();
     await expect(page.getByRole('dialog', { name: '参加者を登録', exact: true })).toHaveCount(0);

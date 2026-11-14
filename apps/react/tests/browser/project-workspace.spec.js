@@ -445,7 +445,7 @@ test('embedded form maker validates user fields before adding reserved project c
   await expect(projectPage.getByText('連携する企画の情報を確認できません。企画画面からフォームメーカーを開き直してください。')).toHaveCount(0);
 });
 
-test('project form links stay scoped to the current project and remain available to participants', async ({ page, context }) => {
+test('project form links stay scoped to the current project and remain available to participants', async ({ page, context }, testInfo) => {
   const roomId = 'PROJECT-SCOPED-FORM-LINKS';
   const formUrl = 'https://docs.google.com/forms/d/e/CurrentProjectForm123/viewform';
   const room = structuredClone(fixture);
@@ -472,7 +472,14 @@ test('project form links stay scoped to the current project and remain available
       },
     };
   }, { roomKey, room, workspaceKey, workspace: createTemplateWorkspace({ templateId: 'circle-event' }) });
-  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  if (testInfo.project.name.startsWith('webkit')) {
+    await page.addInitScript(() => {
+      let copiedText = '';
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { async writeText(value) { copiedText = value; }, async readText() { return copiedText; } } });
+    });
+  } else {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  }
   await page.goto(`/?room=${roomId}&view=application-form`);
 
   const currentForm = page.getByRole('region', { name: 'この企画の応募フォーム' });
