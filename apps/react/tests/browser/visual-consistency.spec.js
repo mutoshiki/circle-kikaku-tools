@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('shared section heading and spacing foundation keep semantic roles', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?room=UI-FOUNDATION-HEADING&view=tools');
-  await page.getByRole('tab', { name: 'タブを編集', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'タブを編集', exact: true })).toBeVisible();
 
   const app = page.locator('.application');
   await expect(app).toBeVisible();
@@ -39,7 +39,7 @@ test('mobile tool surface reaches viewport edges and content keeps one shared in
   await page.goto('/?room=VISUAL-PANEL-INSET&view=participants');
 
   const panels = page.locator('.app-tab-panel');
-  await expect(panels).toHaveCount(5);
+  await expect(panels).toHaveCount(4);
   const tabList = page.locator('.project-tool-tabs');
   const grid = page.locator('.content-grid');
   const main = page.locator('.main-content');
@@ -47,7 +47,7 @@ test('mobile tool surface reaches viewport edges and content keeps one shared in
   await expect.poll(() => tabList.evaluate(element => Math.round(element.getBoundingClientRect().x))).toBe(0);
   await expect.poll(() => tabList.evaluate(element => Math.round(element.getBoundingClientRect().width))).toBe(390);
   await expect.poll(() => main.evaluate(element => Math.round(element.getBoundingClientRect().width))).toBe(390);
-  for (const tabName of ['参加者', '車割', '班割', '精算', 'タブを編集']) {
+  for (const tabName of ['参加者', '車割', '班割', '精算']) {
     await page.getByRole('tab', { name: tabName, exact: true }).click();
     const visiblePanel = page.locator('.app-tab-panel:visible');
     await expect(visiblePanel).toHaveCount(1);
@@ -69,7 +69,7 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await sample.getByRole('button', { name: 'サンプルに置き換える', exact: true }).click();
 
   const tabs = page.getByRole('tablist', { name: '企画のタブ' });
-  await expect(tabs.getByRole('tab')).toHaveCount(5);
+  await expect(tabs.getByRole('tab')).toHaveCount(4);
   await expect(page.getByRole('heading', { name: '参加者', exact: true })).toHaveCount(0);
   const participantSummary = page.locator('.participants-page > .section-heading h2');
   await expect(participantSummary).toContainText(/参加者\s*\d+人/);

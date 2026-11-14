@@ -40,6 +40,7 @@ export default function App({ runtime }) {
   const contentTheme = theme === 'g100' ? 'g90' : 'g10';
   const explicitToolId = runtime.initialToolId ?? null;
   const [activeToolId, setActiveToolId] = useState(() => explicitToolId || 'participants');
+  const lastProjectToolId = useRef(explicitToolId && explicitToolId !== 'tools' ? explicitToolId : 'participants');
   const [visitedToolIds, setVisitedToolIds] = useState(() => new Set([explicitToolId || 'participants', 'tools']));
   const [startResolved, setStartResolved] = useState(false);
   const startResolvedRef = useRef(false);
@@ -49,8 +50,8 @@ export default function App({ runtime }) {
   const tabs = legacyEntry
     ? legacyToolIds.map(id => ({ id, label: ({ participants: '参加者', car: '車割', team: '班割', settlement: '精算' })[id], view: id === 'settlement' ? 'seisan' : id }))
     : standaloneMode
-      ? [TOOL_REGISTRY.find(tool => tool.id === 'settlement'), availableTabs.find(tool => tool.id === 'tools')].filter(Boolean)
-      : availableTabs;
+      ? [TOOL_REGISTRY.find(tool => tool.id === 'settlement')].filter(Boolean)
+      : availableTabs.filter(tool => !tool.system);
   const selection = standaloneMode
     ? { tabId: activeToolId === 'tools' ? 'tools' : 'settlement', toolId: null, hiddenToolId: null }
     : resolveWorkspaceSelection(workspaceSnapshot.workspace, activeToolId);
@@ -58,12 +59,20 @@ export default function App({ runtime }) {
   const selectedTabId = tabs[selectedIndex]?.id || 'tools';
   useEffect(() => {
     const list = document.querySelector('.project-tool-tabs');
-    const selected = list?.querySelector('[aria-selected="true"]');
-    if (!list || !selected) return;
-    const viewport = list.getBoundingClientRect();
-    const tab = selected.getBoundingClientRect();
-    const delta = tab.left < viewport.left ? tab.left - viewport.left : tab.right > viewport.right ? tab.right - viewport.right : 0;
-    if (delta) list.scrollBy({ left: delta, behavior: 'smooth' });
+    if (!list) return undefined;
+    const revealSelected = () => {
+      const selected = list.querySelector('[aria-selected="true"]');
+      if (!selected) return;
+      const viewport = list.getBoundingClientRect();
+      const tab = selected.getBoundingClientRect();
+      const delta = tab.left < viewport.left ? tab.left - viewport.left : tab.right > viewport.right ? tab.right - viewport.right : 0;
+      if (delta) list.scrollBy({ left: delta, behavior: 'smooth' });
+    };
+    const frame = requestAnimationFrame(revealSelected);
+    window.addEventListener('resize', revealSelected);
+    const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(revealSelected) : null;
+    observer?.observe(list);
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', revealSelected); observer?.disconnect(); };
   }, [selectedTabId, startResolved]);
   useEffect(() => {
     if (startResolvedRef.current || workspaceSnapshot.status !== 'ready' || syncStatus.hasLoadedRoom === false || projectSetup.status === 'creating') return;
@@ -80,6 +89,7 @@ export default function App({ runtime }) {
     startResolvedRef.current = true;
     setActiveToolId(start.toolId);
     const resolvedSelection = standaloneMode ? { tabId: start.toolId === 'tools' ? 'tools' : 'settlement' } : resolveWorkspaceSelection(workspaceSnapshot.workspace, start.toolId);
+      if (resolvedSelection.tabId !== 'tools') lastProjectToolId.current = resolvedSelection.tabId;
     setVisitedToolIds(current => current.has(resolvedSelection.tabId) ? current : new Set([...current, resolvedSelection.tabId]));
     writeLastProjectTool(window.localStorage, runtime.roomId, resolvedSelection.tabId);
     setStartResolved(true);
@@ -173,6 +183,8 @@ export default function App({ runtime }) {
   }
   function changeView(nextToolId) {
     if (typeof nextToolId === 'number') nextToolId = tabs[nextToolId]?.id || 'tools';
+    if (nextToolId === 'tools' && selection.tabId !== 'tools') lastProjectToolId.current = selection.tabId;
+    else if (nextToolId !== 'tools') lastProjectToolId.current = nextToolId;
     setActiveToolId(nextToolId);
     writeLastProjectTool(window.localStorage, runtime.roomId, nextToolId);
     setVisitedToolIds(current => current.has(nextToolId) ? current : new Set([...current, nextToolId]));
@@ -180,7 +192,8 @@ export default function App({ runtime }) {
     url.searchParams.delete('allocation');
     const requested = tabs.find(tool => tool.id === nextToolId) || (workspaceSnapshot.workspace.tools[nextToolId]?.enabled ? { view: nextToolId } : null);
     url.searchParams.set('view', requested?.view || (nextToolId === 'tools' ? 'tools' : 'seisan'));
-    history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
+    const editorNavigation = nextToolId === 'tools' || activeToolId === 'tools';
+    history[editorNavigation ? 'pushState' : 'replaceState'](history.state, '', `${url.pathname}${url.search}${url.hash}`);
   }
   function openSettlementSettings({ standalone = false, launcherButtonRef = null } = {}) {
     setSettlementSettingsLauncher(launcherButtonRef);
@@ -208,6 +221,7 @@ export default function App({ runtime }) {
       setActiveToolId(resolved.toolId || next.tabId);
       writeLastProjectTool(window.localStorage, runtime.roomId, next.tabId);
       const selected = next.tabId;
+      if (selected !== 'tools') lastProjectToolId.current = selected;
       setVisitedToolIds(current => current.has(selected) ? current : new Set([...current, selected]));
     };
     window.addEventListener('popstate', onPopState);
@@ -225,18 +239,38 @@ export default function App({ runtime }) {
     const requestId = ++participantRegistrationRequestId.current;
     setParticipantRegistrationRequest(requestId);
   }
+  async function copyApplicationLink() {
+    const application = runtime.store.domain.applicants.validApplicationSync(room.meta?.applicationSync) ? room.meta.applicationSync : null;
+    let formUrl = '';
+    try {
+      const candidate = new URL(String(application?.formUrl || ''));
+      if (candidate.protocol === 'https:' && candidate.hostname === 'docs.google.com' && /^\/forms\/d\/(?:e\/)?[A-Za-z0-9_-]+\/viewform\/?$/.test(candidate.pathname)) formUrl = candidate.href;
+    } catch { /* Older project snapshots may not include a public URL. */ }
+    if (!formUrl) { showNotice('この企画の応募リンクを確認できません。'); return; }
+    try {
+      await navigator.clipboard.writeText(formUrl);
+      showNotice('応募リンクをコピーしました。');
+    } catch { showNotice('コピーできませんでした。応募フォームを開いてURLをコピーしてください。'); }
+  }
   function consumeParticipantRegistrationRequest(requestId) {
     setParticipantRegistrationRequest(current => current === requestId ? null : current);
   }
   function consumeCountOnlySettlementRequest(requestId) {
     setCountOnlySettlementRequest(current => current === requestId ? null : current);
   }
+  function returnFromTabEditor() {
+    const preferred = lastProjectToolId.current;
+    const latestTabs = workspaceTabs(runtime.workspace.getSnapshot().workspace);
+    const target = latestTabs.some(tool => tool.id === preferred) ? preferred : latestTabs[0]?.id;
+    if (!target) return;
+    changeView(target);
+  }
   function renderParticipants() {
-    return <Participants runtime={runtime} room={room} onNotice={showNotice} onOpenCountOnlySettlement={openCountOnlySettlement} onOpenApplicationForm={() => changeView('application-form')} formToolEnabled={workspaceSnapshot.workspace.tools['application-form']?.enabled === true} openRegistrationRequestId={participantRegistrationRequest} onRegistrationRequestHandled={consumeParticipantRegistrationRequest} participantStartRef={participantStartRef} roomStatus={syncStatus} />;
+    return <Participants runtime={runtime} room={room} onNotice={showNotice} onOpenCountOnlySettlement={openCountOnlySettlement} onOpenApplicationForm={() => changeView('application-form')} onCopyApplicationLink={copyApplicationLink} formToolEnabled={workspaceSnapshot.workspace.tools['application-form']?.enabled === true} openRegistrationRequestId={participantRegistrationRequest} onRegistrationRequestHandled={consumeParticipantRegistrationRequest} participantStartRef={participantStartRef} roomStatus={syncStatus} />;
   }
   return <Theme theme={theme} className="application">
     <Theme theme="g100" className="app-header-theme">
-      <AppHeader projectName={room.roomName} theme={theme} themePreference={themePreference} onShare={share} onRename={name => runtime.store.command('rename', { name })} onOpenUtility={openGlobalModal} onToggleTheme={toggleTheme} onUseSystemTheme={useSystemTheme} debugSample={runtime.debugSample} />
+      <AppHeader projectName={room.roomName} theme={theme} themePreference={themePreference} onShare={share} onRename={name => runtime.store.command('rename', { name })} onOpenUtility={openGlobalModal} onOpenTabEditor={() => changeView('tools')} onToggleTheme={toggleTheme} onUseSystemTheme={useSystemTheme} debugSample={runtime.debugSample} />
     </Theme>
     <Theme theme={contentTheme} className="main-surface" data-floating-menu-container>
     <main id="main-content" tabIndex={-1} aria-labelledby="project-heading">
@@ -245,26 +279,30 @@ export default function App({ runtime }) {
     <Grid fullWidth className="content-grid"><Column sm={4} md={8} lg={{ span: 12, start: 3 }} xlg={{ span: 12, start: 3 }} max={{ span: 12, start: 3 }}><div className="main-content">
       {projectSetup.status === 'creating' && <ToastNotification kind="info" title="企画を作成しています" subtitle="最初に表示するタブを準備しています。" timeout={0} lowContrast />}
       {projectSetup.status === 'error' && <ToastNotification kind="error" title="企画を作成できませんでした" subtitle={projectSetup.error?.includes('企画IDが既に使われています') ? '企画一覧に戻り、新しい企画を作成してください。' : '通信状態を確認して、再読み込みしてください。'} timeout={0} lowContrast />}
-      {workspaceSnapshot.status !== 'ready' || !startResolved ? <div className="workspace-loading" role="status"><InlineLoading description="企画を読み込んでいます" /></div> : <Tabs selectedIndex={selectedIndex} onChange={({ selectedIndex: index }) => changeView(tabs[index]?.id || 'tools')}>
-        <TabList aria-label="企画のタブ" contained className="project-tool-tabs">{tabs.map(tool => <Tab key={tool.id}>{tool.label}</Tab>)}</TabList>
-        <TabPanels>
-          {tabs.map(tool => <TabPanel className="app-tab-panel" key={tool.id}>
-            {!visitedToolIds.has(tool.id) ? null : <>
-            {tool.id === 'tools' ? <div className="project-tools-panel">
-              <ToolManager workspaceSnapshot={workspaceSnapshot} workspaceSync={runtime.workspace} highlightedToolId={selection.hiddenToolId} />
-              {selection.hiddenToolId === 'participants' && <div className="project-tool-panel">{renderParticipants()}</div>}
-              {optionalTools.filter(item => visitedToolIds.has(item.id) && workspaceSnapshot.workspace.tools[item.id]?.pinned !== true).map(item => <div className="project-tool-panel" key={item.id} hidden={selection.hiddenToolId !== item.id}>
-                <ExternalToolWorkspace toolId={item.id} runtime={runtime} room={room} onNotice={showNotice} active={false} />
-              </div>)}
-            </div>
-            : tool.id === 'participants' ? renderParticipants()
-            : tool.id === 'car' || tool.id === 'team' ? <Allocation runtime={runtime} room={room} type={tool.id} onNotice={showNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} />
-            : tool.id === 'settlement' ? <Settlement runtime={runtime} room={room} onNotice={showNotice} onOpenParticipantRegistration={openParticipantRegistration} onOpenSettings={openSettlementSettings} participantStartRef={participantStartRef} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} />
-            : <ExternalToolWorkspace toolId={tool.id} runtime={runtime} room={room} onNotice={showNotice} active={tool.id === activeToolId} />}
-            </>}
-          </TabPanel>)}
-        </TabPanels>
-      </Tabs>}
+      {workspaceSnapshot.status !== 'ready' || !startResolved ? <div className="workspace-loading" role="status"><InlineLoading description="企画を読み込んでいます" /></div> : <>
+        <div className="project-tools-tabs-surface" hidden={selection.tabId === 'tools'}>
+          <Tabs selectedIndex={selectedIndex} onChange={({ selectedIndex: index }) => changeView(tabs[index]?.id || 'tools')}>
+            <TabList aria-label="企画のタブ" contained className="project-tool-tabs">{tabs.map(tool => <Tab key={tool.id}>{tool.label}</Tab>)}</TabList>
+            <TabPanels>
+              {tabs.map(tool => <TabPanel className="app-tab-panel" key={tool.id}>
+                {!visitedToolIds.has(tool.id) ? null : <>
+                {tool.id === 'participants' ? renderParticipants()
+                : tool.id === 'car' || tool.id === 'team' ? <Allocation runtime={runtime} room={room} type={tool.id} onNotice={showNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} />
+                : tool.id === 'settlement' ? <Settlement runtime={runtime} room={room} onNotice={showNotice} onOpenParticipantRegistration={openParticipantRegistration} onOpenSettings={openSettlementSettings} participantStartRef={participantStartRef} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} />
+                : <ExternalToolWorkspace toolId={tool.id} runtime={runtime} room={room} onNotice={showNotice} active={tool.id === activeToolId} />}
+                </>}
+              </TabPanel>)}
+            </TabPanels>
+          </Tabs>
+        </div>
+        {selection.tabId === 'tools' && <div className="project-tools-panel">
+          <ToolManager workspaceSnapshot={workspaceSnapshot} workspaceSync={runtime.workspace} highlightedToolId={selection.hiddenToolId} onReturnToProject={returnFromTabEditor} />
+          {selection.hiddenToolId === 'participants' && <div className="project-tool-panel">{renderParticipants()}</div>}
+          {optionalTools.filter(item => visitedToolIds.has(item.id) && workspaceSnapshot.workspace.tools[item.id]?.pinned !== true).map(item => <div className="project-tool-panel" key={item.id} hidden={selection.hiddenToolId !== item.id}>
+            <ExternalToolWorkspace toolId={item.id} runtime={runtime} room={room} onNotice={showNotice} active={false} />
+          </div>)}
+        </div>}
+      </>}
     </div></Column></Grid>
     </main>
     </Theme>

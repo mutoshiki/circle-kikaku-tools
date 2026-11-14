@@ -1,4 +1,4 @@
-import { lazy, Suspense, useRef, useState, useSyncExternalStore } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Button, Checkbox, InlineLoading, InlineNotification } from '@carbon/react';
 import { ExportModal } from './ProjectTools.jsx';
 import SectionHeading from './ui/SectionHeading.jsx';
@@ -14,12 +14,15 @@ const release = 'https://github.com/mutoshiki/sampokai-submission-builder/releas
 const FormMakerWorkspace = lazy(loadFormMakerWorkspace);
 const MountainPlanWorkspace = lazy(loadMountainPlanWorkspace);
 
-export function ToolManager({ workspaceSnapshot, workspaceSync, highlightedToolId = null }) {
+export function ToolManager({ workspaceSnapshot, workspaceSync, highlightedToolId = null, onReturnToProject = () => {} }) {
   const [message, setMessage] = useState('');
   const [saving, setSaving] = useState(false);
   const savingRef = useRef(false);
+  const headingRef = useRef(null);
+  useEffect(() => { requestAnimationFrame(() => headingRef.current?.focus()); }, []);
   const ready = workspaceSnapshot.status === 'ready';
   const workspace = workspaceSnapshot.workspace;
+  const hasVisibleTool = workspace.tabOrder.some(id => tools.some(tool => tool.id === id && workspace.tools[id]?.enabled === true && workspace.tools[id]?.pinned === true));
 
   async function updateWorkspace(update) {
     if (savingRef.current || workspaceSync.getSnapshot().status !== 'ready') return;
@@ -50,12 +53,13 @@ export function ToolManager({ workspaceSnapshot, workspaceSync, highlightedToolI
     .filter(Boolean);
 
   return <section className="project-tools-workspace" aria-labelledby="tab-editor-heading" aria-busy={saving}>
-    <SectionHeading className="project-tools-workspace__heading" id="tab-editor-heading" title="タブを編集" />
+    <SectionHeading ref={headingRef} titleTabIndex={-1} className="project-tools-workspace__heading" id="tab-editor-heading" title="タブを編集" actions={hasVisibleTool ? <Button kind="ghost" size="sm" disabled={saving} onClick={onReturnToProject}>企画へ戻る</Button> : null} />
     {message && <InlineNotification kind="error" title={message} hideCloseButton />}
     {workspaceSnapshot.status === 'loading' && <div className="project-tool-loading" role="status"><InlineLoading description="タブを読み込んでいます" /></div>}
     {workspaceSnapshot.status === 'error' && <InlineNotification kind="error" title="タブを読み込めませんでした" subtitle="通信状態を確認してください。" hideCloseButton />}
     {ready && <div className="project-tools-manager">
       <h3 id="tab-editor-list-heading">表示するタブ</h3>
+      {!hasVisibleTool && <p role="status">企画画面に戻るには、表示するタブを1つ以上選んでください。</p>}
       <fieldset className="project-tools-manager__group" aria-labelledby="tab-editor-list-heading" disabled={saving}>
         <ul className="project-tools-manager__list">
           {tools.map(tool => {
@@ -87,7 +91,6 @@ export function ExternalToolWorkspace({ toolId, runtime, room, onNotice, active 
   const [showExport, setShowExport] = useState(false);
   const labels = new Map(tools.map(tool => [tool.id, tool.label]));
   if (toolId === 'application-form') return <>
-    {room.meta?.applicationSync && !runtime.debugSample && <InlineNotification kind="success" title="この企画には応募フォームが連携済みです" subtitle="回答は参加者タブで確認できます。フォームメーカーには、このブラウザーで確認できる作成履歴を表示します。" hideCloseButton />}
     <Suspense fallback={<div className="project-tool-loading" role="status"><InlineLoading description="フォームメーカーを読み込んでいます" /></div>}><FormMakerWorkspace {...createFormMakerWorkspaceProps({ runtime, room, active, onNotice })} /></Suspense>
   </>;
   if (toolId === 'submission-documents') return <section className="external-tool-workspace"><h2>{labels.get(toolId)}</h2><p>{runtime.debugSample ? 'サンプル参加者のCSV内容を確認できます。ファイル作成や外部送信は行いません。' : '確定した参加者のCSVを作成します。'}</p><Button kind="primary" disabled={!runtime.debugSample && !handoffToken} onClick={() => setShowExport(true)}>{runtime.debugSample ? 'CSVをプレビュー' : 'CSVを作成'}</Button>{!runtime.debugSample && !handoffToken && <p>フォームメーカーの作成結果にある「企画ツールを開く」から、この企画を開いてください。</p>}{!runtime.debugSample && <p><a href={release} target="_blank" rel="noreferrer">学務書類作成ツールをダウンロード</a></p>}{showExport && <ExportModal runtime={runtime} room={room} onNotice={onNotice} onClose={() => setShowExport(false)} />}</section>;

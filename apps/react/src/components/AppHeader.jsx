@@ -11,7 +11,7 @@ const relatedApplications = [
   { name: '山歩会企画ツール一覧', href: 'https://mutoshiki.github.io/sanpokai-kikaku-portal/' },
 ];
 
-export default function AppHeader({ projectName, theme, themePreference, onShare, onRename, onOpenUtility, onToggleTheme, onUseSystemTheme, debugSample = false }) {
+export default function AppHeader({ projectName, theme, themePreference, onShare, onRename, onOpenUtility, onOpenTabEditor, onToggleTheme, onUseSystemTheme, debugSample = false }) {
   const [utilityOpen, setUtilityOpen] = useState(false);
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
@@ -81,6 +81,7 @@ export default function AppHeader({ projectName, theme, themePreference, onShare
         <PopoverContent className="utility-menu-popover__content">
           <Menu label="その他の操作" open={utilityOpen} target={null} legacyAutoalign={false} onClose={() => setUtilityOpen(false)}>
             {projectName !== undefined && <MenuItem label="企画名を変更" onClick={beginRename} />}
+            {projectName !== undefined && <MenuItem label="タブを編集" onClick={() => { setUtilityOpen(false); onOpenTabEditor?.(); }} />}
             <MenuItem label="使い方" onClick={() => openUtility('guide')} />
             <MenuItem label="サンプルデータ" onClick={() => openUtility('sample')} />
             <MenuItem label={theme === 'g10' ? 'ダークモードに切り替え' : 'ライトモードに切り替え'} onClick={() => { setUtilityOpen(false); onToggleTheme(); }} />
