@@ -122,6 +122,7 @@ jobs:
         env:
           VITE_BASE_PATH: ./
           VITE_REACT_SYNC_MODE: production
+          VITE_FORM_MAKER_INTAKE_URL: https://sanpokai-form-maker-intake.610unko.workers.dev/v1/form-creation-jobs
           REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
         shell: bash
         run: |
