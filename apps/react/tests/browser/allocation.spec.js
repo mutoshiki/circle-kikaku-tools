@@ -45,7 +45,7 @@ test('allocation summaries, metadata columns and fixed state follow the shared h
   await expect(pageRegion.getByRole('button', { name: 'ランダムに割り当てる', exact: true })).toBeVisible();
 
   const group = pageRegion.getByRole('region', { name: 'A車', exact: true });
-  const emptySeats = group.getByRole('button', { name: /空き\d+人.*参加者を追加/ });
+  const emptySeats = group.getByRole('button', { name: /空き\d+人.*乗せる人を選ぶ/ });
   await emptySeats.click();
   await group.getByRole('button', { name: '参加者 二郎をA車に追加', exact: true }).click();
   await group.getByRole('button', { name: '参加者 三郎をA車に追加', exact: true }).click();
@@ -123,7 +123,7 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await expect(groupDelete.locator('xpath=ancestor::li[1]')).toHaveClass(/--danger/);
   await page.keyboard.press('Escape');
   await expect(page.getByRole('button', { name: 'ランダムに割り当てる', exact: true })).toHaveClass(/cds--btn--primary/);
-  await car.getByRole('button', { name: /空き3人/ }).click();
+  await car.getByRole('button', { name: /空き3人.*乗せる人を選ぶ/ }).click();
   await car.getByRole('button', { name: '仮参加者BをA車に追加', exact: true }).click();
   await car.getByRole('button', { name: '仮参加者CをA車に追加', exact: true }).click();
   await car.getByRole('button', { name: '仮参加者DをA車に追加', exact: true }).click();
@@ -163,6 +163,7 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await expect(page.getByRole('region', { name: 'A班', exact: true })).toBeVisible();
   await expect(page.getByRole('region', { name: 'A班', exact: true })).toContainText('1/6人');
   const teamA = page.getByRole('region', { name: 'A班', exact: true });
+  await expect(teamA.getByRole('button', { name: /空き5人.*班に入れる人を選ぶ/ })).toBeVisible();
   const teamMenuButton = teamA.getByRole('button', { name: 'A班の操作', exact: true });
   expect((await teamMenuButton.boundingBox()).height).toBeGreaterThanOrEqual(44);
   await teamMenuButton.click();

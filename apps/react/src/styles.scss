@@ -382,6 +382,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   scroll-padding-inline: .25rem;
   scrollbar-width: none;
 }
+.project-tool-tabs [role='tablist']::after { content: ''; flex: 0 0 var(--tab-scroll-tail, 0px); }
 .project-tool-tabs [role='tablist']::-webkit-scrollbar { display: none; }
 .project-tool-tabs .cds--tab-content { white-space: nowrap; }
 .project-tools-workspace,
