@@ -85,7 +85,7 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   await page.getByRole('tab', { name: '班割', exact: true }).click();
   await expect(page.getByRole('heading', { name: '班割', exact: true })).toHaveCount(0);
   await expect(page.locator('.allocation-page[aria-label="班割"] .allocation-toolbar-summary')).toContainText(/\d+人・\d+班/);
-  const randomize = page.getByRole('button', { name: 'ランダム割り当て', exact: true });
+  const randomize = page.getByRole('button', { name: 'ランダムに組み直す', exact: true });
   await expect(randomize).toHaveClass(/cds--btn--ghost/);
   await randomize.hover();
   expect(await randomize.evaluate(element => getComputedStyle(element).cursor)).toBe('pointer');

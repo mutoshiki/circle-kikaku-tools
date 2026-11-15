@@ -139,7 +139,7 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     console.log('AUDIT car add captured');
     if (await page.getByRole('dialog').count()) await cancelDialog(page);
     console.log('AUDIT car add closed or notice recorded');
-    await page.getByRole('button', { name: 'ランダム割り当て', exact: true }).click();
+    await page.getByRole('button', { name: /ランダムに(割り当てる|組み直す)/ }).click();
     await shot(page, testInfo, 17, 'car-random-confirmation');
     await cancelDialog(page);
     const allocationMenu = page.getByRole('button', { name: /の操作$/ }).first();

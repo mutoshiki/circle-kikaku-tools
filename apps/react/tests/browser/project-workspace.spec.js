@@ -26,7 +26,6 @@ test('project entry follows system Carbon theme preference', async ({ page }) =>
   await page.emulateMedia({ colorScheme: 'light' });
   await expect(application).toHaveClass(/cds--g10/);
 });
-
 test('project entry honors a saved Carbon theme preference', async ({ page }) => {
   await page.addInitScript(key => localStorage.setItem(key, 'dark'), preferenceKey);
   await page.goto('/');
@@ -75,6 +74,63 @@ test('tab editor opens from the project menu and supports direct links and brows
   await page.goForward();
   await expect(page.getByRole('heading', { name: 'タブを編集', exact: true })).toBeVisible();
   await expect.poll(() => new URL(page.url()).searchParams.get('view')).toBe('tools');
+});
+
+test('mobile tab selection keeps the complete active label visible and follows browser history', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/?debugSample=all-tools&view=car');
+  const tabList = page.locator('.project-tool-tabs [role="tablist"]');
+  const selectedTab = () => tabList.locator('[aria-selected="true"]');
+  const expectSelectedTabFits = async () => {
+    await expect.poll(async () => {
+      const geometry = await page.evaluate(() => {
+      const container = document.querySelector('.project-tool-tabs');
+      const list = container?.querySelector('[role="tablist"]');
+      const active = list?.querySelector('[aria-selected="true"]');
+      const leftArrow = container?.querySelector('button[aria-label="Scroll left"]');
+      const rightArrow = container?.querySelector('button[aria-label="Scroll right"]');
+      const listBounds = list?.getBoundingClientRect();
+      const activeBounds = active?.getBoundingClientRect();
+      const leftBounds = leftArrow?.getBoundingClientRect();
+      const rightBounds = rightArrow?.getBoundingClientRect();
+      const leftVisible = leftArrow && !leftArrow.classList.contains('cds--tab--overflow-nav-button--hidden');
+      const rightVisible = rightArrow && !rightArrow.classList.contains('cds--tab--overflow-nav-button--hidden');
+      return { listLeft: leftVisible ? leftBounds.right : listBounds?.left, listRight: rightVisible ? rightBounds.left : listBounds?.right, activeLeft: activeBounds?.left, activeRight: activeBounds?.right, activeWidth: activeBounds?.width };
+      });
+      return geometry.activeWidth > 0 && geometry.activeLeft >= geometry.listLeft - 1 && geometry.activeRight <= geometry.listRight + 1;
+    }).toBe(true);
+  };
+  await expect(selectedTab()).toHaveText('車割');
+  await expectSelectedTabFits();
+  const beforeArrow = { view: new URL(page.url()).searchParams.get('view'), label: await selectedTab().innerText() };
+  const scrollRight = page.locator('.project-tool-tabs button[aria-label="Scroll right"]');
+  await scrollRight.click();
+  await expect.poll(() => new URL(page.url()).searchParams.get('view')).toBe(beforeArrow.view);
+  await expect(selectedTab()).toHaveText(beforeArrow.label);
+  await expect.poll(async () => page.locator('.project-tool-tabs [role="tablist"]').evaluate(list => {
+    const position = list.scrollLeft;
+    return [...list.querySelectorAll('[role="tab"]')].some(tab => Math.abs(tab.offsetLeft - position) <= 1);
+  })).toBe(true);
+  const scrollLeft = page.locator('.project-tool-tabs button[aria-label="Scroll left"]');
+  await scrollLeft.click();
+  await expect.poll(() => new URL(page.url()).searchParams.get('view')).toBe(beforeArrow.view);
+  await expect(selectedTab()).toHaveText(beforeArrow.label);
+  await expect.poll(async () => page.locator('.project-tool-tabs [role="tablist"]').evaluate(list => {
+    const position = list.scrollLeft;
+    return [...list.querySelectorAll('[role="tab"]')].some(tab => Math.abs(tab.offsetLeft - position) <= 1);
+  })).toBe(true);
+  await selectedTab().focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(selectedTab()).toHaveText('班割');
+  await expectSelectedTabFits();
+  await page.getByRole('button', { name: 'その他の操作' }).click();
+  await page.getByRole('menuitem', { name: 'タブを編集', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'タブを編集', exact: true })).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('tab', { name: '班割', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await expectSelectedTabFits();
+  await page.goForward();
+  await expect(page.getByRole('heading', { name: 'タブを編集', exact: true })).toBeVisible();
 });
 
 test('create flow saves template intent once and starts a personal project on participants', async ({ page }) => {
@@ -320,16 +376,18 @@ test('all-tools debug sample is isolated and usable across project tools', async
   await page.getByRole('button', { name: '参加者を選び直す' }).click();
   await expect(page.getByText('森田 玲奈', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '車割' }).click();
+  await expect(page.locator('.allocation-overcapacity-notice')).toHaveCount(0);
   for (const carName of ['A車', 'B車', 'C車']) {
     await expect(page.getByRole('heading', { name: carName, exact: true })).toBeVisible();
   }
   await expect(page.getByText('13人・3台')).toBeVisible();
   await expect(page.getByRole('tabpanel', { name: '車割' }).getByText('佐藤 花子', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '班割' }).click();
+  await expect(page.locator('.allocation-overcapacity-notice')).toHaveCount(0);
   for (const teamName of ['A班', 'B班', 'C班']) {
     await expect(page.getByRole('heading', { name: teamName, exact: true })).toBeVisible();
   }
-  await expect(page.getByRole('paragraph').getByText('未割り当て 0人')).toBeVisible();
+  await expect(page.getByRole('tabpanel', { name: '班割' }).getByRole('status')).toContainText('全員割り当て済み');
   await expect(page.getByRole('tabpanel', { name: '班割' }).getByText('佐藤 花子', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '精算' }).click();
   await expect(page.getByRole('heading', { name: '佐藤 花子車' })).toBeVisible();

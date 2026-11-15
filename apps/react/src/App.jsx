@@ -57,21 +57,35 @@ export default function App({ runtime }) {
     : resolveWorkspaceSelection(workspaceSnapshot.workspace, activeToolId);
   const selectedIndex = Math.max(0, tabs.findIndex(tool => tool.id === selection.tabId));
   const selectedTabId = tabs[selectedIndex]?.id || 'tools';
+  const scrollTabsToBoundary = direction => {
+    const list = document.querySelector('.project-tool-tabs [role="tablist"]');
+    if (!list) return;
+    const current = list.scrollLeft;
+    const maximum = list.scrollWidth - list.clientWidth;
+    const boundaries = [...list.querySelectorAll('[role="tab"]')].map(tab => tab.offsetLeft);
+    const target = direction === 'right'
+      ? boundaries.find(boundary => boundary > current + 1) ?? maximum
+      : [...boundaries].reverse().find(boundary => boundary < current - 1) ?? 0;
+    list.scrollTo({ left: Math.min(maximum, Math.max(0, target)), behavior: 'smooth' });
+  };
   useEffect(() => {
-    const list = document.querySelector('.project-tool-tabs');
-    if (!list) return undefined;
+    const container = document.querySelector('.project-tool-tabs');
+    const list = container?.querySelector('[role="tablist"]');
+    if (!container || !list) return undefined;
     const revealSelected = () => {
       const selected = list.querySelector('[aria-selected="true"]');
       if (!selected) return;
-      const viewport = list.getBoundingClientRect();
-      const tab = selected.getBoundingClientRect();
-      const delta = tab.left < viewport.left ? tab.left - viewport.left : tab.right > viewport.right ? tab.right - viewport.right : 0;
-      if (delta) list.scrollBy({ left: delta, behavior: 'smooth' });
+      const listBounds = list.getBoundingClientRect();
+      const selectedBounds = selected.getBoundingClientRect();
+      const delta = selectedBounds.left < listBounds.left
+        ? selectedBounds.left - listBounds.left
+        : selectedBounds.right > listBounds.right ? selectedBounds.right - listBounds.right : 0;
+      if (delta) list.scrollLeft += delta;
     };
-    const frame = requestAnimationFrame(revealSelected);
+    const frame = requestAnimationFrame(() => requestAnimationFrame(revealSelected));
     window.addEventListener('resize', revealSelected);
     const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(revealSelected) : null;
-    observer?.observe(list);
+    observer?.observe(container);
     return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', revealSelected); observer?.disconnect(); };
   }, [selectedTabId, startResolved]);
   useEffect(() => {
@@ -282,7 +296,7 @@ export default function App({ runtime }) {
       {workspaceSnapshot.status !== 'ready' || !startResolved ? <div className="workspace-loading" role="status"><InlineLoading description="企画を読み込んでいます" /></div> : <>
         <div className="project-tools-tabs-surface" hidden={selection.tabId === 'tools'}>
           <Tabs selectedIndex={selectedIndex} onChange={({ selectedIndex: index }) => changeView(tabs[index]?.id || 'tools')}>
-            <TabList aria-label="企画のタブ" contained className="project-tool-tabs">{tabs.map(tool => <Tab key={tool.id}>{tool.label}</Tab>)}</TabList>
+            <TabList aria-label="企画のタブ" contained scrollIntoView className="project-tool-tabs" leftOverflowButtonProps={{ onClick: () => scrollTabsToBoundary('left') }} rightOverflowButtonProps={{ onClick: () => scrollTabsToBoundary('right') }}>{tabs.map(tool => <Tab key={tool.id}>{tool.label}</Tab>)}</TabList>
             <TabPanels>
               {tabs.map(tool => <TabPanel className="app-tab-panel" key={tool.id}>
                 {!visitedToolIds.has(tool.id) ? null : <>

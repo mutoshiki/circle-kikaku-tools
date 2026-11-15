@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('random assignment count is visible, persists after reload and resets when capacity changes', async ({ page }) => {
+test('random assignment count stays out of the toolbar, persists after reload and resets when capacity changes', async ({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.emulateMedia({ colorScheme: 'light' });
@@ -15,32 +15,28 @@ test('random assignment count is visible, persists after reload and resets when 
   const addCar = page.getByRole('dialog', { name: '車を追加' });
   await addCar.getByRole('combobox', { name: '運転手', exact: true }).selectOption({ index: 0 });
   await addCar.getByRole('button', { name: '車を追加', exact: true }).click();
-  const count = page.locator('.allocation-page[aria-label="車割"] .allocation-randomization-count');
-  const randomize = page.getByRole('button', { name: 'ランダム割り当て', exact: true });
-  await expect(randomize).toHaveAttribute('aria-describedby', 'randomization-count-description-car');
-  await expect(count).toHaveText('実行 0回');
+  const randomize = page.getByRole('button', { name: 'ランダムに割り当てる', exact: true });
+  const randomizeControl = page.locator('.allocation-randomization-action button');
+  await expect(page.locator('.allocation-randomization-count')).toHaveCount(0);
+  await expect(randomize).not.toHaveAttribute('aria-describedby', /randomization-count-description/);
   await randomize.focus();
   await page.keyboard.press('Enter');
   const confirmation = page.getByRole('dialog', { name: 'ランダム割り当て' });
   const cancel = confirmation.getByRole('button', { name: 'キャンセル', exact: true });
   await cancel.focus();
   await page.keyboard.press('Enter');
-  await expect(randomize).toBeFocused();
-  await expect(count).toHaveText('実行 0回');
+  await expect(randomizeControl).toBeFocused();
   await randomize.focus();
   await page.keyboard.press('Space');
   const execute = page.getByRole('dialog', { name: 'ランダム割り当て' }).getByRole('button', { name: '割り当てる', exact: true });
   await execute.focus();
   await page.keyboard.press('Enter');
-  await expect(count).toHaveText('実行 1回');
-  await expect(randomize).toBeFocused();
+  await expect(randomizeControl).toBeFocused();
   await expect(page.getByText('車割のランダム割り当てを実行しました。1回目。', { exact: true })).toBeVisible();
   await expect(page.locator('.notification-region .cds--toast-notification')).toHaveCount(1);
   await page.emulateMedia({ colorScheme: 'dark' });
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
-  const originalViewport = page.viewportSize();
   await page.setViewportSize({ width: 320, height: 780 });
-  await count.evaluate(element => { element.textContent = '実行 1000回'; });
   const countActionBounds = await page.locator('.allocation-page[aria-label="車割"] .allocation-randomization-action').evaluate(element => {
     const action = element.getBoundingClientRect();
     const toolbar = element.closest('.allocation-toolbar-actions').getBoundingClientRect();
@@ -48,19 +44,24 @@ test('random assignment count is visible, persists after reload and resets when 
   });
   expect(countActionBounds.actionLeft).toBeGreaterThanOrEqual(countActionBounds.toolbarLeft);
   expect(countActionBounds.actionRight).toBeLessThanOrEqual(countActionBounds.toolbarRight);
-  await count.evaluate(element => { element.textContent = '実行 1回'; });
-  await page.setViewportSize(originalViewport);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.reload();
   await page.getByRole('tab', { name: '車割', exact: true }).click();
-  await expect(count).toHaveText('実行 1回');
+  const rerandomize = page.getByRole('button', { name: 'ランダムに組み直す', exact: true });
+  await expect(page.locator('.allocation-randomization-count')).toHaveCount(0);
+  await rerandomize.click();
+  await page.getByRole('dialog', { name: 'ランダム割り当て' }).getByRole('button', { name: '組み直す', exact: true }).click();
+  await expect(page.getByText('車割のランダム割り当てを実行しました。2回目。', { exact: true })).toBeVisible();
   const car = page.getByRole('region', { name: 'A車', exact: true });
   await car.getByRole('button', { name: 'A車の操作', exact: true }).click();
   await page.keyboard.press('Enter');
   const capacity = page.getByRole('dialog', { name: '定員を変更' });
   await capacity.getByRole('spinbutton', { name: '定員（運転手を含む）', exact: true }).fill('5');
   await capacity.getByRole('button', { name: '定員を保存', exact: true }).click();
-  await expect(count).toHaveText('実行 0回');
   await expect(page.getByText('車割：割り当て条件が変わったため、ランダム割り当ての実行回数を0に戻しました。', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'ランダムに組み直す', exact: true }).click();
+  await page.getByRole('dialog', { name: 'ランダム割り当て' }).getByRole('button', { name: '組み直す', exact: true }).click();
+  await expect(page.getByText('車割のランダム割り当てを実行しました。1回目。', { exact: true })).toBeVisible();
   await expect(page.locator('.notification-region .cds--toast-notification')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
