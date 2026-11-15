@@ -600,8 +600,9 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
         </div>
         <div className="settlement-collection-summary__actions">
           <strong className="settlement-collection-summary__amount">{money(result.perPerson)}</strong>
-          <Button ref={collectionTriggerRef} kind="primary" size="md" aria-expanded={collectionOpen} aria-controls="settlement-collection-modal" onClick={() => setCollectionOpen(true)}>集金を記録</Button>
+          <Button ref={collectionTriggerRef} kind="primary" size="md" aria-expanded={collectionOpen} aria-controls="settlement-collection-modal" onClick={() => setCollectionOpen(true)}>集金状況を見る</Button>
         </div>
+        {result.payerCount > 0 && <p className="settlement-collection-summary__progress">集金済み {result.paidCount} / {result.payerCount}人</p>}
       </div>
     </Tile>
     <Tile ref={paymentHeadingRef} tabIndex="-1" className="settlement-card settlement-vehicles-card">
@@ -668,7 +669,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
         ? <div className="settlement-memo-editor"><TextArea id="settlement-memo-editor" labelText="メモ" placeholder="例：レンタカー代は高橋さんが立替" rows={3} value={memo ?? ''} onChange={event => setMemo(event.target.value)} /><div className="settlement-memo-actions"><Button kind="tertiary" size="sm" onClick={saveMemo}>保存</Button><Button kind="ghost" size="sm" onClick={closeMemoEditor}>キャンセル</Button></div></div>
         : memoText
           ? <div className="settlement-section-heading"><div><h2>メモ</h2><p>{state.memo}</p></div><Button ref={memoActionRef} kind="ghost" size="sm" onClick={openMemoEditor}>編集</Button></div>
-          : <Button ref={memoActionRef} className="settlement-memo-add-action" kind="ghost" size="sm" renderIcon={Add} onClick={openMemoEditor}>メモを追加</Button>}
+          : <Button ref={memoActionRef} className="settlement-memo-add-action" kind="ghost" size="sm" renderIcon={Add} onClick={openMemoEditor}>精算メモを追加</Button>}
     </Tile>
     <Modal id="settlement-collection-modal" className="app-modal settlement-collection-modal" open={collectionOpen} size="sm" hasScrollingContent modalHeading="集金状況" closeButtonLabel="閉じる" primaryButtonText="閉じる" secondaryButtonText="未集金の人をコピー" onSecondarySubmit={copyUnpaid} onRequestSubmit={() => setCollectionOpen(false)} onRequestClose={() => setCollectionOpen(false)} launcherButtonRef={collectionTriggerRef} selectorPrimaryFocus=".settlement-collection-modal .cds--content-switcher-btn">
       <div className="settlement-collection-modal-content">

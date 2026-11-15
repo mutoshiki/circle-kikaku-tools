@@ -418,7 +418,7 @@ test('all-tools debug sample is isolated and usable across project tools', async
   await page.getByRole('tab', { name: '精算' }).click();
   await expect(page.getByRole('heading', { name: '佐藤 花子車' })).toBeVisible();
   await expect(page.getByText('¥2,900', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: /佐藤 花子車.*内訳を見る/ }).click();
+  await page.getByRole('button', { name: /佐藤 花子車.*支払いの内訳/ }).click();
   const samplePayment = page.locator('.settlement-car').filter({ hasText: '佐藤 花子車' });
   await expect(samplePayment.getByText('ガソリン代', { exact: true })).toBeVisible();
   await expect(samplePayment.getByText('車出し協力代', { exact: true })).toBeVisible();

@@ -43,7 +43,7 @@ test('vehicle expense dialog name includes the vehicle and current task', async 
 
 test('collection rows use one checkbox tab stop and Space records once', async ({ page }) => {
   await page.getByRole('tab', { name: '精算', exact: true }).click();
-  await page.getByRole('button', { name: '集金を記録', exact: true }).click();
+  await page.getByRole('button', { name: '集金状況を見る', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '集金状況', exact: true });
   await dialog.getByRole('tab', { name: '未集金', exact: true }).click();
 
