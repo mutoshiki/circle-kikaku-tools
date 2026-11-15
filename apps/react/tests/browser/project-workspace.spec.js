@@ -600,5 +600,7 @@ test('mountain-plan opens inline without leaving the project tabs', async ({ pag
   await expect(projectPage.getByRole('tab', { name: 'タブを編集' })).toHaveCount(0);
   await projectPage.getByRole('tab', { name: '参加者' }).click();
   await expect(projectPage.getByRole('heading', { name: '参加者が登録されていません' })).toBeVisible();
+  await expect(projectPage.getByText('応募フォームを作成するか、参加者を手動で追加できます。', { exact: true })).toBeVisible();
+  await expect(projectPage.getByRole('button', { name: '参加者を手動で追加', exact: true })).toBeVisible();
   expect(pageErrors).toEqual([]);
 });
