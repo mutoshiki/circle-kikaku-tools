@@ -50,8 +50,13 @@ test('React production Pages deployments are restricted to a verified main dispa
   assert.equal((promotion.match(/playwright install --with-deps chromium webkit/g) || []).length, 1);
   assert.match(promotion, /outputs:[\s\S]*root_deployment_outcome:[\s\S]*steps\.root-deployment\.outcome/);
   assert.match(promotion, /id: root-deployment\s+if: always\(\) && needs\.prepare\.result == 'success' && \(needs\.prepare\.outputs\.release_mode == 'standard' \|\| \(needs\.prepare\.outputs\.release_mode == 'migration' && steps\.compatibility-smoke\.outcome == 'success' && steps\.compatibility-cleanup\.outcome == 'success'\)\)/);
-  assert.match(job('cleanup-recovery'), /if: github\.ref == 'refs\/heads\/main' && inputs\.operation != 'diagnose' && always\(\) && needs\.prepare\.result == 'success' && needs\.promotion\.result != 'success'/);
-  assert.match(job('cleanup-recovery'), /needs:\s*\[prepare, promotion\]/);
+  const recovery = job('cleanup-recovery');
+  assert.match(recovery, /always\(\) && github\.ref == 'refs\/heads\/main'/);
+  assert.match(recovery, /inputs\.operation != 'diagnose' && needs\.prepare\.result == 'success' && needs\.promotion\.result != 'success'/);
+  assert.match(recovery, /inputs\.operation == 'diagnose' && \(needs\.diagnose\.result == 'failure' \|\| needs\.diagnose\.result == 'cancelled'\)/);
+  assert.match(recovery, /needs:\s*\[prepare, promotion, diagnose\]/);
+  assert.match(recovery, /REACT_PRODUCTION_SMOKE_MARKER:.*github\.run_id.*github\.run_attempt/);
+  assert.doesNotMatch(workflow, /P9A93LMQ|REACT_PRODUCTION_SMOKE_ROOM/);
   assert.match(job('rollback'), /needs:\s*\[prepare, promotion, cleanup-recovery, archive-successful-release\]/);
   assert.match(job('rollback'), /needs\.promotion\.outputs\.root_deployment_outcome == 'failure' \|\|/);
   assert.match(job('prepare'), /Build React app once for both deployment paths/);
@@ -128,7 +133,7 @@ test('production Firebase smoke uses browser-origin auth and keeps its room mark
   assert.doesNotMatch(smoke, /signInAnonymously|initializeApp\(config/);
   assert.match(roomHelper, /referrerPolicy: 'origin'/);
   assert.match(roomHelper, /existingMarker !== marker/);
-  assert.match(roomHelper, /Reserved smoke room contains unmarked data; no data was changed/);
+  assert.match(roomHelper, /Reserved smoke room already exists; no data was changed/);
   assert.match(cleanup, /chromium\.launch/);
   assert.match(smoke, /expect\.poll\([\s\S]*?Build identity manifest request failed/);
   assert.match(smoke, /cache:\s*'no-store'/);
