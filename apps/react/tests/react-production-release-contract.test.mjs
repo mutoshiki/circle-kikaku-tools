@@ -242,3 +242,9 @@ test('rollback uses the current verified React release and only saves a smoke-ve
   assert.match(job('prepare'), /prepare_seconds:\s*\$\{\{ steps\.prepare-summary\.outputs\.duration_seconds \}\}/);
   assert.match(promotion, /promotion_seconds:\s*\$\{\{ steps\.promotion-summary\.outputs\.duration_seconds \}\}/);
 });
+
+test('production Playwright configuration derives the same room as smoke and recovery', () => {
+  const config = readFileSync(new URL('../playwright.production.config.js', import.meta.url), 'utf8');
+  assert.match(config, /productionSmokeRoomId\(process\.env\.REACT_PRODUCTION_SMOKE_MARKER/);
+  assert.doesNotMatch(config, /P9A93LMQ|REACT_PRODUCTION_SMOKE_ROOM/);
+});

@@ -1,11 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
+import { productionSmokeRoomId } from './tests/production/firebase-smoke-room.mjs';
 
 const baseURL = String(process.env.REACT_PRODUCTION_SMOKE_BASE_URL || '');
 const mode = String(process.env.REACT_PRODUCTION_SMOKE_MODE || '');
-const room = String(process.env.REACT_PRODUCTION_SMOKE_ROOM || '');
+const room = productionSmokeRoomId(process.env.REACT_PRODUCTION_SMOKE_MARKER || '');
 const expectedPath = mode === 'compatibility' ? '/circle-kikaku-tools/react/' : mode === 'root' ? '/circle-kikaku-tools/' : '';
 const parsed = baseURL ? new URL(baseURL) : null;
-if (parsed?.origin !== 'https://mutoshiki.github.io' || parsed.pathname !== expectedPath || !room || !/^P9A93LMQ$/.test(room)) {
+if (parsed?.origin !== 'https://mutoshiki.github.io' || parsed.pathname !== expectedPath || !room) {
   throw new Error('Production smoke requires the approved GitHub Pages URL and the reserved empty smoke room.');
 }
 
