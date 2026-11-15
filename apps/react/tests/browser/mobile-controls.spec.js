@@ -42,7 +42,7 @@ test('mobile controls keep readable type and touch targets across integrated too
   await settings.getByRole('button', { name: 'キャンセル' }).click();
 
   await page.getByRole('tab', { name: '車割', exact: true }).click();
-  const randomize = page.getByRole('button', { name: 'ランダム割り当て', exact: true });
+  const randomize = page.getByRole('button', { name: /ランダムに(割り当てる|組み直す)/ });
   expect(await height(randomize)).toBeGreaterThanOrEqual(44);
 
   await page.getByRole('tab', { name: '登山計画書', exact: true }).click();

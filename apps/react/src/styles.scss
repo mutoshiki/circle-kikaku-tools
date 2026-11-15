@@ -120,22 +120,31 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .allocation-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: layout.$spacing-04; margin-block: 0 layout.$spacing-05; }
 .allocation-toolbar-summary { display: grid; gap: layout.$spacing-02; min-inline-size: 0; }
 .allocation-toolbar p { @include carbon-type.type-style('body-01'); display: flex; gap: layout.$spacing-04; flex-wrap: wrap; margin: 0; }
+.allocation-status { align-items: baseline; }
+.allocation-status > span:first-child { font-weight: 600; }
+.allocation-status--warning > span:first-child { color: var(--cds-support-warning); }
 .allocation-toolbar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-02; }
 .allocation-toolbar-actions > .cds--btn { flex: 0 0 auto; inline-size: auto; max-inline-size: none; }
 .allocation-randomization-action { display: inline-flex; flex: 0 0 auto; align-items: center; gap: layout.$spacing-02; }
-.allocation-randomization-count { @include carbon-type.type-style('label-01'); color: var(--cds-text-secondary); white-space: nowrap; }
+.allocation-overcapacity-notice { max-inline-size: none; margin-block-end: layout.$spacing-05; }
 .allocation-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr)); align-items: start; gap: var(--sanpo-ui-field-gap, #{layout.$spacing-05}); margin-block-end: var(--sanpo-ui-group-gap, #{layout.$spacing-06}); }
-.allocation-group { min-width: 0; background: var(--cds-layer); }
-.allocation-group:not(:last-child) { padding-block-end: layout.$spacing-03; border-block-end: 1px solid var(--cds-border-subtle); }
-.group-heading { display: flex; align-items: center; justify-content: space-between; gap: layout.$spacing-03; min-block-size: 3rem; padding: layout.$spacing-02 var(--sanpo-ui-page-inset, #{layout.$spacing-05}); border-bottom: 1px solid var(--cds-border-subtle); }
-.group-heading h2 { @include carbon-type.type-style('heading-compact-02'); margin: 0; overflow-wrap: anywhere; }
+.allocation-group { min-width: 0; border: 1px solid var(--cds-border-subtle); background: var(--cds-layer); }
+.allocation-group:not(:last-child) { padding-block-end: layout.$spacing-02; }
+.group-heading { display: flex; align-items: center; justify-content: space-between; gap: layout.$spacing-03; min-block-size: 3.25rem; padding: layout.$spacing-02 var(--sanpo-ui-page-inset, #{layout.$spacing-05}); border-block-end: 1px solid var(--cds-border-subtle); border-inline-start: 4px solid var(--cds-support-info); background: var(--cds-layer-hover-01); }
+.group-heading-main { display: flex; align-items: center; flex: 1 1 auto; flex-wrap: wrap; gap: layout.$spacing-03; min-inline-size: 0; }
+.group-heading h2 { @include carbon-type.type-style('heading-compact-02'); flex: 1 1 auto; min-inline-size: 0; margin: 0; overflow-wrap: anywhere; }
+.group-overcapacity { @include carbon-type.type-style('label-01'); flex: 0 0 auto; color: var(--cds-support-warning); white-space: nowrap; }
 .group-capacity-display { @include carbon-type.type-style('body-01'); color: var(--cds-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .allocation-person-list .cds--contained-list__header { display: none; }
-.person-summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 3rem; align-items: center; gap: layout.$spacing-03; min-inline-size: 0; }
+.allocation-person-row { min-block-size: 3rem; }
+.person-summary { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-03; min-inline-size: 0; }
+.person-identity { display: flex; flex: 1 1 10rem; flex-wrap: wrap; align-items: center; gap: layout.$spacing-03; min-inline-size: 0; }
 .person-name { min-inline-size: 0; overflow-wrap: anywhere; }
 .person-tags { display: flex; align-items: center; flex-wrap: wrap; gap: layout.$spacing-02; }
 .person-tags .cds--tag { margin: 0; }
-.person-grade { @include carbon-type.type-style('label-01'); color: var(--cds-text-secondary); text-align: end; white-space: nowrap; }
+.person-grade { @include carbon-type.type-style('label-01'); flex: 0 0 auto; margin-inline-start: auto; color: var(--cds-text-secondary); text-align: end; white-space: nowrap; }
+.person-actions .cds--overflow-menu,
+.group-heading .cds--overflow-menu { min-inline-size: 2.75rem; min-block-size: 2.75rem; }
 .person-memo { @include carbon-type.type-style('label-01'); margin-top: .25rem; color: var(--cds-text-secondary); overflow-wrap: anywhere; }
 .participant-edit-help { @include carbon-type.type-style('label-01'); margin: calc(-1 * layout.$spacing-03) 0 0; color: var(--cds-text-secondary); }
 .person-flag { inline-size: 1rem; block-size: 1rem; margin-right: .25rem; }
@@ -364,11 +373,17 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 
 .project-tool-tabs {
   max-inline-size: 100%;
+}
+.project-tool-tabs [role='tablist'] {
+  max-inline-size: 100%;
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-inline: contain;
-  scrollbar-width: thin;
+  scroll-padding-inline: .25rem;
+  scrollbar-width: none;
 }
+.project-tool-tabs [role='tablist']::after { content: ''; flex: 0 0 var(--tab-scroll-tail, 0px); }
+.project-tool-tabs [role='tablist']::-webkit-scrollbar { display: none; }
 .project-tool-tabs .cds--tab-content { white-space: nowrap; }
 .project-tools-workspace,
 .external-tool-workspace { display: grid; gap: var(--sanpo-ui-section-gap, #{layout.$spacing-07}); }

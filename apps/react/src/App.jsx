@@ -57,21 +57,54 @@ export default function App({ runtime }) {
     : resolveWorkspaceSelection(workspaceSnapshot.workspace, activeToolId);
   const selectedIndex = Math.max(0, tabs.findIndex(tool => tool.id === selection.tabId));
   const selectedTabId = tabs[selectedIndex]?.id || 'tools';
+  const scrollTabsToBoundary = direction => {
+    const list = document.querySelector('.project-tool-tabs [role="tablist"]');
+    if (!list) return;
+    const current = list.scrollLeft;
+    const maximum = list.scrollWidth - list.clientWidth;
+    const boundaries = [...list.querySelectorAll('[role="tab"]')].map(tab => tab.offsetLeft - list.offsetLeft);
+    const target = direction === 'right'
+      ? boundaries.find(boundary => boundary > current + 1) ?? maximum
+      : [...boundaries].reverse().find(boundary => boundary < current - 1) ?? 0;
+    list.scrollTo({ left: Math.min(maximum, Math.max(0, target)), behavior: 'smooth' });
+  };
   useEffect(() => {
-    const list = document.querySelector('.project-tool-tabs');
-    if (!list) return undefined;
+    const container = document.querySelector('.project-tool-tabs');
+    const list = container?.querySelector('[role="tablist"]');
+    if (!container || !list) return undefined;
     const revealSelected = () => {
-      const selected = list.querySelector('[aria-selected="true"]');
-      if (!selected) return;
-      const viewport = list.getBoundingClientRect();
-      const tab = selected.getBoundingClientRect();
-      const delta = tab.left < viewport.left ? tab.left - viewport.left : tab.right > viewport.right ? tab.right - viewport.right : 0;
-      if (delta) list.scrollBy({ left: delta, behavior: 'smooth' });
+      const tabNodes = [...list.querySelectorAll('[role="tab"]')];
+      const selectedIndex = tabNodes.findIndex(tab => tab.getAttribute('aria-selected') === 'true');
+      if (selectedIndex < 0) return;
+
+      // Pick the widest consecutive run that includes the selected tab. This
+      // keeps tab labels aligned to real edges instead of leaving clipped
+      // fragments underneath Carbon's overflow arrows.
+      let visibleRun = { start: selectedIndex, end: selectedIndex, count: 1, width: tabNodes[selectedIndex].getBoundingClientRect().width };
+      for (let start = 0; start <= selectedIndex; start += 1) {
+        let width = 0;
+        for (let end = start; end < tabNodes.length; end += 1) {
+          width += tabNodes[end].getBoundingClientRect().width;
+          if (width > list.clientWidth + 1) break;
+          if (end < selectedIndex) continue;
+          const count = end - start + 1;
+          if (count > visibleRun.count || (count === visibleRun.count && end > visibleRun.end)) {
+            visibleRun = { start, end, count, width };
+          }
+        }
+      }
+
+      const lastBoundary = tabNodes.at(-1).offsetLeft - list.offsetLeft;
+      list.style.setProperty('--tab-scroll-tail', '0px');
+      const baseMaximum = list.scrollWidth - list.clientWidth;
+      list.style.setProperty('--tab-scroll-tail', `${Math.max(0, lastBoundary - baseMaximum)}px`);
+      const startBoundary = tabNodes[visibleRun.start].offsetLeft - list.offsetLeft;
+      list.scrollLeft = Math.min(list.scrollWidth - list.clientWidth, Math.max(0, startBoundary));
     };
     const frame = requestAnimationFrame(revealSelected);
     window.addEventListener('resize', revealSelected);
     const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(revealSelected) : null;
-    observer?.observe(list);
+    observer?.observe(container);
     return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', revealSelected); observer?.disconnect(); };
   }, [selectedTabId, startResolved]);
   useEffect(() => {
@@ -282,7 +315,7 @@ export default function App({ runtime }) {
       {workspaceSnapshot.status !== 'ready' || !startResolved ? <div className="workspace-loading" role="status"><InlineLoading description="企画を読み込んでいます" /></div> : <>
         <div className="project-tools-tabs-surface" hidden={selection.tabId === 'tools'}>
           <Tabs selectedIndex={selectedIndex} onChange={({ selectedIndex: index }) => changeView(tabs[index]?.id || 'tools')}>
-            <TabList aria-label="企画のタブ" contained className="project-tool-tabs">{tabs.map(tool => <Tab key={tool.id}>{tool.label}</Tab>)}</TabList>
+            <TabList aria-label="企画のタブ" contained className="project-tool-tabs" leftOverflowButtonProps={{ onClick: () => scrollTabsToBoundary('left') }} rightOverflowButtonProps={{ onClick: () => scrollTabsToBoundary('right') }}>{tabs.map(tool => <Tab key={tool.id}>{tool.label}</Tab>)}</TabList>
             <TabPanels>
               {tabs.map(tool => <TabPanel className="app-tab-panel" key={tool.id}>
                 {!visitedToolIds.has(tool.id) ? null : <>
