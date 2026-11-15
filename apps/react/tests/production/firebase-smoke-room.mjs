@@ -1,8 +1,10 @@
-const expectedRoomId = 'P9A93LMQ';
-const releaseMarkerPattern = /^react-(?:release|diagnostic)-\d+-\d+(?:-updated)?$/;
+export function productionSmokeRoomId(marker) {
+  const run = /^react-(release|diagnostic)-([1-9]\d{0,19})-([1-9]\d{0,9})$/.exec(marker);
+  return run ? `SMOKE-${run[1].toUpperCase()}-${run[2]}-${run[3]}` : '';
+}
 
-function assertRoomTarget(roomId, config) {
-  if (roomId !== expectedRoomId
+function assertRoomTarget(roomId, config, marker) {
+  if (!roomId || roomId !== productionSmokeRoomId(marker)
     || config.projectId !== 'sanpokai-tool'
     || config.databaseURL !== 'https://sanpokai-tool-default-rtdb.firebaseio.com'
     || !config.apiKey) {
@@ -10,11 +12,9 @@ function assertRoomTarget(roomId, config) {
   }
 }
 
-async function runRoomRequest(page, { config, roomId, marker, operation, data, allowPriorReleaseMarker = false }) {
-  assertRoomTarget(roomId, config);
-  if (!releaseMarkerPattern.test(marker)) throw new Error('Production smoke marker guard rejected this operation.');
-  return page.evaluate(async ({ apiKey, databaseURL, roomId, marker, operation, data, allowPriorReleaseMarker }) => {
-    const browserReleaseMarkerPattern = /^react-(?:release|diagnostic)-\d+-\d+(?:-updated)?$/;
+async function runRoomRequest(page, { config, roomId, marker, operation, data }) {
+  assertRoomTarget(roomId, config, marker);
+  return page.evaluate(async ({ apiKey, databaseURL, roomId, marker, operation, data }) => {
     const authResponse = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${encodeURIComponent(apiKey)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -27,20 +27,14 @@ async function runRoomRequest(page, { config, roomId, marker, operation, data, a
     const roomUrl = new URL(`rooms/${roomId}.json`, `${databaseURL.replace(/\/$/, '')}/`);
     roomUrl.searchParams.set('auth', idToken);
     const readRoom = async () => {
-      const response = await fetch(roomUrl, { credentials: 'omit', referrerPolicy: 'origin' });
+      const response = await fetch(roomUrl, { credentials: 'omit', referrerPolicy: 'origin', headers: { 'X-Firebase-ETag': 'true' } });
       if (!response.ok) throw new Error(`Production smoke room read failed (${response.status}).`);
-      return response.json();
+      return { data: await response.json(), etag: response.headers.get('etag') };
     };
     const existing = await readRoom();
     if (operation === 'seed') {
-      if (existing !== null) {
-        const priorMarker = existing?.roomName;
-        if (typeof priorMarker !== 'string' || !browserReleaseMarkerPattern.test(priorMarker)) {
-          throw new Error('Reserved smoke room contains unmarked data; no data was changed.');
-        }
-        const remove = await fetch(roomUrl, { method: 'DELETE', credentials: 'omit', referrerPolicy: 'origin' });
-        if (!remove.ok || await readRoom() !== null) throw new Error('Stale reserved smoke room cleanup could not be verified.');
-      }
+      if (existing.data !== null) throw new Error('Reserved smoke room already exists; no data was changed.');
+      if (data?.roomName !== marker) throw new Error('Production smoke seed ownership marker mismatch.');
       const roomData = data && typeof data === 'object' && !Array.isArray(data) ? { ...data } : data;
       for (const optionalMap of ['participantTombstones', 'syncOperations']) {
         const value = roomData?.[optionalMap];
@@ -50,7 +44,7 @@ async function runRoomRequest(page, { config, roomId, marker, operation, data, a
       }
       const response = await fetch(roomUrl, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'If-Match': 'null_etag' },
         body: JSON.stringify(roomData),
         credentials: 'omit',
         referrerPolicy: 'origin',
@@ -65,14 +59,19 @@ async function runRoomRequest(page, { config, roomId, marker, operation, data, a
       }
       return 'seeded';
     }
-    if (existing === null) return 'already-empty';
-    const existingMarker = existing?.roomName;
-    if (existingMarker !== marker && existingMarker !== `${marker}-updated`
-      && !(allowPriorReleaseMarker && typeof existingMarker === 'string' && browserReleaseMarkerPattern.test(existingMarker))) {
+    if (existing.data === null) return 'already-empty';
+    const existingMarker = existing.data?.roomName;
+    if (existingMarker !== marker && existingMarker !== `${marker}-updated`) {
       throw new Error('Reserved smoke room marker does not belong to this release; data was left unchanged.');
     }
-    const response = await fetch(roomUrl, { method: 'DELETE', credentials: 'omit', referrerPolicy: 'origin' });
-    if (!response.ok || await readRoom() !== null) throw new Error('Reserved smoke room cleanup could not be verified.');
+    if (!existing.etag) throw new Error('Reserved smoke room cleanup requires a Firebase ETag.');
+    const response = await fetch(roomUrl, {
+      method: 'DELETE',
+      headers: { 'If-Match': existing.etag },
+      credentials: 'omit',
+      referrerPolicy: 'origin',
+    });
+    if (!response.ok || (await readRoom()).data !== null) throw new Error('Reserved smoke room cleanup could not be verified.');
     return 'cleaned';
   }, {
     apiKey: config.apiKey,
@@ -81,7 +80,6 @@ async function runRoomRequest(page, { config, roomId, marker, operation, data, a
     marker,
     operation,
     data: data ?? null,
-    allowPriorReleaseMarker,
   });
 }
 

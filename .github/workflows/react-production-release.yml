@@ -274,7 +274,6 @@ jobs:
       promotion_seconds: ${{ steps.promotion-summary.outputs.duration_seconds }}
     env:
       REACT_PRODUCTION_RELEASE: 'true'
-      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
       REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
       REACT_PRODUCTION_BUILD_SHA: ${{ needs.prepare.outputs.build_sha }}
       REACT_PRODUCTION_ASSET_DIGEST: ${{ needs.prepare.outputs.asset_digest }}
@@ -368,14 +367,16 @@ jobs:
 
   cleanup-recovery:
     name: Release / Recover smoke-room cleanup after runner failure
-    if: github.ref == 'refs/heads/main' && inputs.operation != 'diagnose' && always() && needs.prepare.result == 'success' && needs.promotion.result != 'success'
-    needs: [prepare, promotion]
+    if: >-
+      always() && github.ref == 'refs/heads/main' &&
+      ((inputs.operation == 'diagnose' && (needs.diagnose.result == 'failure' || needs.diagnose.result == 'cancelled')) ||
+       (inputs.operation != 'diagnose' && needs.prepare.result == 'success' && needs.promotion.result != 'success'))
+    needs: [prepare, promotion, diagnose]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
       REACT_PRODUCTION_RELEASE: 'true'
-      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
-      REACT_PRODUCTION_SMOKE_MARKER: react-release-${{ github.run_id }}-${{ github.run_attempt }}
+      REACT_PRODUCTION_SMOKE_MARKER: react-${{ inputs.operation == 'diagnose' && 'diagnostic' || 'release' }}-${{ github.run_id }}-${{ github.run_attempt }}
       REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
     steps:
       - uses: actions/checkout@v6
@@ -471,7 +472,6 @@ jobs:
       published_asset_digest: ${{ steps.current-release.outputs.published_asset_digest }}
     env:
       REACT_PRODUCTION_RELEASE: 'true'
-      REACT_PRODUCTION_SMOKE_ROOM: P9A93LMQ
       REACT_PRODUCTION_SMOKE_MARKER: react-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
       REACT_FIREBASE_API_KEY: ${{ secrets.REACT_FIREBASE_API_KEY }}
     steps:

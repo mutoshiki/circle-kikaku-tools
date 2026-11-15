@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { fixture, createReference } from '../reference.mjs';
 import { openDistanceGuideFromMovementSettings, openVehicleExpenseEditor, returnToMovementSettingsFromDistanceGuide } from '../browser/settlement-smoke-actions.mjs';
-import { cleanupProductionSmokeRoom, seedProductionSmokeRoom } from './firebase-smoke-room.mjs';
+import { cleanupProductionSmokeRoom, productionSmokeRoomId, seedProductionSmokeRoom } from './firebase-smoke-room.mjs';
 import { createSmokeDiagnostics } from './production-smoke-diagnostics.mjs';
 
-const roomId = process.env.REACT_PRODUCTION_SMOKE_ROOM;
 const mode = process.env.REACT_PRODUCTION_SMOKE_MODE;
 const baseURL = process.env.REACT_PRODUCTION_SMOKE_BASE_URL || '';
 const smokeMarker = process.env.REACT_PRODUCTION_SMOKE_MARKER || '';
+const roomId = productionSmokeRoomId(smokeMarker);
 const expectedBuildSha = process.env.REACT_PRODUCTION_BUILD_SHA || '';
 const expectedAssetDigest = process.env.REACT_PRODUCTION_ASSET_DIGEST || '';
 const diagnosticPath = process.env.REACT_PRODUCTION_DIAGNOSTICS_PATH || '';
@@ -29,7 +29,7 @@ const productionPath = mode === 'compatibility' ? '/circle-kikaku-tools/react/' 
 
 function assertProductionSmokeTarget() {
   if (process.env.REACT_PRODUCTION_RELEASE !== 'true'
-    || roomId !== 'P9A93LMQ'
+    || !roomId
     || !/^react-(?:release|diagnostic)-\d+-\d+$/.test(smokeMarker)
     || !/^[a-f0-9]{40}$/.test(expectedBuildSha)
     || !/^[a-f0-9]{64}$/.test(expectedAssetDigest)

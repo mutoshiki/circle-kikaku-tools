@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { cleanupProductionSmokeRoom, seedProductionSmokeRoom } from './production/firebase-smoke-room.mjs';
+import { cleanupProductionSmokeRoom, productionSmokeRoomId, seedProductionSmokeRoom } from './production/firebase-smoke-room.mjs';
 
 const config = {
   apiKey: 'unit-test-key',
   projectId: 'sanpokai-tool',
   databaseURL: 'https://sanpokai-tool-default-rtdb.firebaseio.com',
 };
-const roomId = 'P9A93LMQ';
 const marker = 'react-release-12345-1';
+const roomId = productionSmokeRoomId(marker);
 
 async function withFetch(handler, run) {
   const originalFetch = globalThis.fetch;
@@ -28,7 +28,7 @@ function evaluatePage() {
 function jsonResponse(body, status = 200) {
   return new Response(body === undefined ? '' : JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ETag: 'fixture-etag' },
   });
 }
 
@@ -50,6 +50,7 @@ test('production smoke seeds only the reserved empty room through a browser-orig
   assert.deepEqual(requests.map(request => request.options.method || 'GET'), ['POST', 'GET', 'PUT']);
   assert.ok(requests.every(request => request.options.referrerPolicy === 'origin'));
   const seedRequest = requests.find(request => request.options.method === 'PUT');
+  assert.equal(seedRequest.options.headers['If-Match'], 'null_etag');
   assert.deepEqual(JSON.parse(seedRequest.options.body), { roomName: marker, overview: { memo: 'smoke' } });
 });
 
@@ -60,7 +61,7 @@ test('production smoke does not overwrite unmarked reserved room data', async ()
     if (String(url).includes('accounts:signUp')) return jsonResponse({ idToken: 'test-token' });
     return jsonResponse({ roomName: 'ordinary project data' });
   }, async () => {
-    await assert.rejects(seedProductionSmokeRoom(evaluatePage(), { config, roomId, marker, data: {} }), /unmarked data/);
+    await assert.rejects(seedProductionSmokeRoom(evaluatePage(), { config, roomId, marker, data: {} }), /already exists/);
   });
   assert.equal(requests.length, 2);
 });
@@ -84,7 +85,7 @@ test('production smoke cleanup requires an owned release marker and verifies del
   await withFetch(async (url, options) => {
     methods.push(options.method || 'GET');
     if (String(url).includes('accounts:signUp')) return jsonResponse({ idToken: 'test-token' });
-    if (options.method === 'DELETE') { room = null; return jsonResponse(null); }
+    if (options.method === 'DELETE') { assert.equal(options.headers['If-Match'], 'fixture-etag'); room = null; return jsonResponse(null); }
     return jsonResponse(room);
   }, async () => {
     assert.equal(await cleanupProductionSmokeRoom(evaluatePage(), { config, roomId, marker }), 'cleaned');
@@ -100,11 +101,33 @@ test('production smoke accepts a run-scoped diagnostic marker for its reserved r
     methods.push(options.method || 'GET');
     if (String(url).includes('accounts:signUp')) return jsonResponse({ idToken: 'test-token' });
     if (options.method === 'PUT') { room = { roomName: diagnosticMarker }; return jsonResponse(room); }
-    if (options.method === 'DELETE') { room = null; return jsonResponse(null); }
+    if (options.method === 'DELETE') { assert.equal(options.headers['If-Match'], 'fixture-etag'); room = null; return jsonResponse(null); }
     return jsonResponse(room);
   }, async () => {
-    assert.equal(await seedProductionSmokeRoom(evaluatePage(), { config, roomId, marker: diagnosticMarker, data: { roomName: diagnosticMarker } }), 'seeded');
-    assert.equal(await cleanupProductionSmokeRoom(evaluatePage(), { config, roomId, marker: diagnosticMarker }), 'cleaned');
+    assert.equal(await seedProductionSmokeRoom(evaluatePage(), { config, roomId: productionSmokeRoomId(diagnosticMarker), marker: diagnosticMarker, data: { roomName: diagnosticMarker } }), 'seeded');
+    assert.equal(await cleanupProductionSmokeRoom(evaluatePage(), { config, roomId: productionSmokeRoomId(diagnosticMarker), marker: diagnosticMarker }), 'cleaned');
   });
   assert.deepEqual(methods, ['POST', 'GET', 'PUT', 'POST', 'GET', 'DELETE', 'GET']);
+});
+
+test('run, attempt and diagnostic mode use independent room IDs', () => {
+  const markers = [marker, 'react-release-12345-2', 'react-release-12346-1', 'react-diagnostic-12345-1'];
+  assert.equal(new Set(markers.map(productionSmokeRoomId)).size, markers.length);
+  assert.equal(productionSmokeRoomId('ordinary-project'), '');
+});
+
+test('cleanup refuses P9 and room IDs belonging to another run before any request', async () => {
+  for (const wrongId of ['P9A93LMQ', productionSmokeRoomId('react-release-12345-2')]) {
+    await assert.rejects(cleanupProductionSmokeRoom(null, { config, roomId: wrongId, marker }), /target guard/);
+  }
+});
+
+test('cleanup leaves foreign ownership untouched even within the expected room ID', async () => {
+  await withFetch(async (url, options) => {
+    if (String(url).includes('accounts:signUp')) return jsonResponse({ idToken: 'test-token' });
+    assert.equal(options.method, undefined);
+    return jsonResponse({ roomName: 'react-release-12345-2' });
+  }, async () => {
+    await assert.rejects(cleanupProductionSmokeRoom(evaluatePage(), { config, roomId, marker }), /does not belong/);
+  });
 });
