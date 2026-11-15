@@ -33,7 +33,7 @@ export default function SettlementPaymentRow({ rowId, carLabel, carName, rentalL
       {driverNames.length > 1 && <span className="settlement-car-driver-names">運転手：{driverNames.join('、')}（車単位で一括支払い）</span>}
     </span>;
   const amounts = <div className="settlement-car-amounts" aria-label={`${carLabel}${compactAmount ? 'の合計支払額' : 'の支払い額'}`}>
-      <span id={splitId} className="settlement-car-amount-category"><span className="settlement-car-amount-label">割勘から</span><span className={`settlement-car-amount-value${splitIsZero ? '' : ' settlement-car-amount-value--nonzero'}`}>{splitAmount}</span></span>
+      <span id={splitId} className="settlement-car-amount-category"><span className="settlement-car-amount-label">集金から</span><span className={`settlement-car-amount-value${splitIsZero ? '' : ' settlement-car-amount-value--nonzero'}`}>{splitAmount}</span></span>
       {!compactAmount && <span id={clubId} className="settlement-car-amount-category"><span className="settlement-car-amount-label">部費から</span><span className={`settlement-car-amount-value${clubIsZero ? '' : ' settlement-car-amount-value--nonzero'}`}>{clubAmount}</span></span>}
     </div>;
   const rowContext = { toggleRef, describedBy: compactAmount ? splitId : `${splitId} ${clubId}`, carLabel, driverMenu, hasSavedCarExpenses, onEdit, name, amounts, compactAmount, hasWideAmount };

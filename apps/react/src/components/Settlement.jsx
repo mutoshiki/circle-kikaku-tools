@@ -605,7 +605,9 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
       </div>
     </Tile>
     <Tile ref={paymentHeadingRef} tabIndex="-1" className="settlement-card settlement-vehicles-card">
-      {data.cars.length === 0 ? <p className="settlement-cars-empty">車が登録されていません</p> : <Accordion className="settlement-car-list" align="end" isFlush size="sm">{data.cars.map((car, index) => {
+      {data.cars.length === 0 ? <p className="settlement-cars-empty">車が登録されていません</p> : <>
+      <div className="settlement-section-heading"><h2>車ごとの支払額</h2></div>
+      <Accordion className="settlement-car-list" align="end" isFlush size="sm">{data.cars.map((car, index) => {
         const calc = result.cars.find(row => row.name === car.name);
         if (!calc) return null;
         const carLabel = `${car.name}車${calc.usesTimesRental ? '（レンタカー）' : ''}`;
@@ -641,7 +643,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
           {compactItems.length === 0 && calc.splitRound === 0 && calc.collectionOffset === 0 && calc.clubRound === 0 && <p className="settlement-cost-empty">内訳に表示する費用はありません。</p>}
         </div> : <div className="settlement-cost-list">
                 {hasSplitDetails && <section className="settlement-cost-group" aria-labelledby={`settlement-split-${carId}`}>
-                  <h4 id={`settlement-split-${carId}`}>割勘の内訳（{money(calc.adjustedSplitPay)}）</h4>
+                  <h4 id={`settlement-split-${carId}`}>集金分の内訳（{money(calc.adjustedSplitPay)}）</h4>
                   {splitItems.some(row => row.amountValue !== 0) && <div className="settlement-cost-items">{renderItems(splitItems, 'split')}</div>}
                   {(calc.splitRound !== 0 || calc.collectionOffset !== 0) && <div className="settlement-cost-adjustments">
                     {calc.splitRound !== 0 && <div className="settlement-cost-adjustment"><span>切り上げ分</span><strong>{adjustmentAmount(calc.splitRound)}</strong></div>}
@@ -649,7 +651,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
                   </div>}
                 </section>}
                 {hasClubDetails && <section className="settlement-cost-group" aria-labelledby={`settlement-club-${carId}`}>
-                  <h4 id={`settlement-club-${carId}`}>部費の内訳（{money(calc.adjustedClubPay)}）</h4>
+                  <h4 id={`settlement-club-${carId}`}>部費分の内訳（{money(calc.adjustedClubPay)}）</h4>
                   {clubItems.some(row => row.amountValue !== 0) && <div className="settlement-cost-items">{renderItems(clubItems, 'club')}</div>}
                   {calc.clubRound !== 0 && <div className="settlement-cost-adjustments"><div className="settlement-cost-adjustment"><span>切り上げ分</span><strong>{adjustmentAmount(calc.clubRound)}</strong></div></div>}
                 </section>}
@@ -659,7 +661,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
           rowId={String(carId)} carLabel={carLabel} carName={`${car.name}車`} rentalLabel={calc.usesTimesRental ? '（レンタカー）' : ''} driverNames={calc.driverNames}
           splitAmount={money(calc.adjustedSplitPay)} clubAmount={money(calc.adjustedClubPay)} compactAmount={compactPayment} hasSavedCarExpenses={hasSavedCarExpenses} details={details} driverMenu={driverMenu}
           onEdit={(event, fallbackRef) => openCar(car, event, fallbackRef)} />;
-      })}</Accordion>}
+      })}</Accordion></>}
     </Tile>
     <Tile className="settlement-card settlement-memo-card">
       {memoEditing
