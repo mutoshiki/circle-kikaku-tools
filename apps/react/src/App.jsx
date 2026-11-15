@@ -57,8 +57,11 @@ export default function App({ runtime }) {
     : resolveWorkspaceSelection(workspaceSnapshot.workspace, activeToolId);
   const selectedIndex = Math.max(0, tabs.findIndex(tool => tool.id === selection.tabId));
   const selectedTabId = tabs[selectedIndex]?.id || 'tools';
-  const scrollTabsToBoundary = direction => {
-    const list = document.querySelector('.project-tool-tabs [role="tablist"]');
+  const scrollTabsToBoundary = (event, direction) => {
+    // Carbon also scrolls on the button's native click. Handle it once,
+    // in capture, so the tab boundary wins consistently in WebKit.
+    event.stopPropagation();
+    const list = event.currentTarget.parentElement.querySelector('[role="tablist"]');
     if (!list) return;
     const current = list.scrollLeft;
     const maximum = list.scrollWidth - list.clientWidth;
@@ -66,7 +69,7 @@ export default function App({ runtime }) {
     const target = direction === 'right'
       ? boundaries.find(boundary => boundary > current + 1) ?? maximum
       : [...boundaries].reverse().find(boundary => boundary < current - 1) ?? 0;
-    list.scrollTo({ left: Math.min(maximum, Math.max(0, target)), behavior: 'smooth' });
+    list.scrollLeft = Math.min(maximum, Math.max(0, target));
   };
   useEffect(() => {
     const container = document.querySelector('.project-tool-tabs');
@@ -315,7 +318,11 @@ export default function App({ runtime }) {
       {workspaceSnapshot.status !== 'ready' || !startResolved ? <div className="workspace-loading" role="status"><InlineLoading description="企画を読み込んでいます" /></div> : <>
         <div className="project-tools-tabs-surface" hidden={selection.tabId === 'tools'}>
           <Tabs selectedIndex={selectedIndex} onChange={({ selectedIndex: index }) => changeView(tabs[index]?.id || 'tools')}>
-            <TabList aria-label="企画のタブ" contained className="project-tool-tabs" leftOverflowButtonProps={{ onClick: () => scrollTabsToBoundary('left') }} rightOverflowButtonProps={{ onClick: () => scrollTabsToBoundary('right') }}>{tabs.map(tool => <Tab key={tool.id}>{tool.label}</Tab>)}</TabList>
+            <TabList aria-label="企画のタブ" contained className="project-tool-tabs"
+              leftOverflowButtonProps={{ onClickCapture: event => scrollTabsToBoundary(event, 'left') }}
+              rightOverflowButtonProps={{ onClickCapture: event => scrollTabsToBoundary(event, 'right') }}>
+              {tabs.map(tool => <Tab key={tool.id}>{tool.label}</Tab>)}
+            </TabList>
             <TabPanels>
               {tabs.map(tool => <TabPanel className="app-tab-panel" key={tool.id}>
                 {!visitedToolIds.has(tool.id) ? null : <>

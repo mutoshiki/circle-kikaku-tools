@@ -600,12 +600,15 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
         </div>
         <div className="settlement-collection-summary__actions">
           <strong className="settlement-collection-summary__amount">{money(result.perPerson)}</strong>
-          <Button ref={collectionTriggerRef} kind="primary" size="md" aria-expanded={collectionOpen} aria-controls="settlement-collection-modal" onClick={() => setCollectionOpen(true)}>集金を記録</Button>
+          <Button ref={collectionTriggerRef} kind="primary" size="md" aria-expanded={collectionOpen} aria-controls="settlement-collection-modal" onClick={() => setCollectionOpen(true)}>集金状況を見る</Button>
         </div>
+        {result.payerCount > 0 && <p className="settlement-collection-summary__progress">集金済み {result.paidCount} / {result.payerCount}人</p>}
       </div>
     </Tile>
     <Tile ref={paymentHeadingRef} tabIndex="-1" className="settlement-card settlement-vehicles-card">
-      {data.cars.length === 0 ? <p className="settlement-cars-empty">車が登録されていません</p> : <Accordion className="settlement-car-list" align="end" isFlush size="sm">{data.cars.map((car, index) => {
+      {data.cars.length === 0 ? <p className="settlement-cars-empty">車が登録されていません</p> : <>
+      <div className="settlement-section-heading"><h2>車ごとの支払額</h2></div>
+      <Accordion className="settlement-car-list" align="end" isFlush size="sm">{data.cars.map((car, index) => {
         const calc = result.cars.find(row => row.name === car.name);
         if (!calc) return null;
         const carLabel = `${car.name}車${calc.usesTimesRental ? '（レンタカー）' : ''}`;
@@ -641,7 +644,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
           {compactItems.length === 0 && calc.splitRound === 0 && calc.collectionOffset === 0 && calc.clubRound === 0 && <p className="settlement-cost-empty">内訳に表示する費用はありません。</p>}
         </div> : <div className="settlement-cost-list">
                 {hasSplitDetails && <section className="settlement-cost-group" aria-labelledby={`settlement-split-${carId}`}>
-                  <h4 id={`settlement-split-${carId}`}>割勘の内訳（{money(calc.adjustedSplitPay)}）</h4>
+                  <h4 id={`settlement-split-${carId}`}>集金分の内訳（{money(calc.adjustedSplitPay)}）</h4>
                   {splitItems.some(row => row.amountValue !== 0) && <div className="settlement-cost-items">{renderItems(splitItems, 'split')}</div>}
                   {(calc.splitRound !== 0 || calc.collectionOffset !== 0) && <div className="settlement-cost-adjustments">
                     {calc.splitRound !== 0 && <div className="settlement-cost-adjustment"><span>切り上げ分</span><strong>{adjustmentAmount(calc.splitRound)}</strong></div>}
@@ -649,7 +652,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
                   </div>}
                 </section>}
                 {hasClubDetails && <section className="settlement-cost-group" aria-labelledby={`settlement-club-${carId}`}>
-                  <h4 id={`settlement-club-${carId}`}>部費の内訳（{money(calc.adjustedClubPay)}）</h4>
+                  <h4 id={`settlement-club-${carId}`}>部費分の内訳（{money(calc.adjustedClubPay)}）</h4>
                   {clubItems.some(row => row.amountValue !== 0) && <div className="settlement-cost-items">{renderItems(clubItems, 'club')}</div>}
                   {calc.clubRound !== 0 && <div className="settlement-cost-adjustments"><div className="settlement-cost-adjustment"><span>切り上げ分</span><strong>{adjustmentAmount(calc.clubRound)}</strong></div></div>}
                 </section>}
@@ -659,14 +662,14 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
           rowId={String(carId)} carLabel={carLabel} carName={`${car.name}車`} rentalLabel={calc.usesTimesRental ? '（レンタカー）' : ''} driverNames={calc.driverNames}
           splitAmount={money(calc.adjustedSplitPay)} clubAmount={money(calc.adjustedClubPay)} compactAmount={compactPayment} hasSavedCarExpenses={hasSavedCarExpenses} details={details} driverMenu={driverMenu}
           onEdit={(event, fallbackRef) => openCar(car, event, fallbackRef)} />;
-      })}</Accordion>}
+      })}</Accordion></>}
     </Tile>
     <Tile className="settlement-card settlement-memo-card">
       {memoEditing
         ? <div className="settlement-memo-editor"><TextArea id="settlement-memo-editor" labelText="メモ" placeholder="例：レンタカー代は高橋さんが立替" rows={3} value={memo ?? ''} onChange={event => setMemo(event.target.value)} /><div className="settlement-memo-actions"><Button kind="tertiary" size="sm" onClick={saveMemo}>保存</Button><Button kind="ghost" size="sm" onClick={closeMemoEditor}>キャンセル</Button></div></div>
         : memoText
           ? <div className="settlement-section-heading"><div><h2>メモ</h2><p>{state.memo}</p></div><Button ref={memoActionRef} kind="ghost" size="sm" onClick={openMemoEditor}>編集</Button></div>
-          : <Button ref={memoActionRef} className="settlement-memo-add-action" kind="ghost" size="sm" renderIcon={Add} onClick={openMemoEditor}>メモを追加</Button>}
+          : <Button ref={memoActionRef} className="settlement-memo-add-action" kind="ghost" size="sm" renderIcon={Add} onClick={openMemoEditor}>精算メモを追加</Button>}
     </Tile>
     <Modal id="settlement-collection-modal" className="app-modal settlement-collection-modal" open={collectionOpen} size="sm" hasScrollingContent modalHeading="集金状況" closeButtonLabel="閉じる" primaryButtonText="閉じる" secondaryButtonText="未集金の人をコピー" onSecondarySubmit={copyUnpaid} onRequestSubmit={() => setCollectionOpen(false)} onRequestClose={() => setCollectionOpen(false)} launcherButtonRef={collectionTriggerRef} selectorPrimaryFocus=".settlement-collection-modal .cds--content-switcher-btn">
       <div className="settlement-collection-modal-content">

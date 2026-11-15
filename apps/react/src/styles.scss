@@ -198,6 +198,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-cost-adjustment strong { @include carbon-type.type-style('body-compact-01'); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .settlement-cost-empty { @include carbon-type.type-style('body-compact-01'); margin: 0; color: var(--cds-text-secondary); }
 .settlement-collection-summary { display: grid; gap: layout.$spacing-01; min-inline-size: 0; }
+.settlement-collection-summary__progress { @include carbon-type.type-style('label-01'); margin-block-start: layout.$spacing-02; color: var(--cds-text-secondary); font-variant-numeric: tabular-nums; }
 .settlement-collection-summary__header { @include carbon-type.type-style('body-compact-01'); display: flex; align-items: center; justify-content: space-between; gap: layout.$spacing-03; color: var(--cds-text-secondary); }
 .settlement-collection-summary__header .cds--btn { flex: 0 0 auto; inline-size: auto; max-inline-size: none; }
 .settlement-collection-summary__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: layout.$spacing-02 layout.$spacing-04; min-inline-size: 0; }
@@ -378,6 +379,8 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   max-inline-size: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  // The app positions tabs at exact boundaries on selection and arrow clicks.
+  scroll-behavior: auto;
   overscroll-behavior-inline: contain;
   scroll-padding-inline: .25rem;
   scrollbar-width: none;

@@ -104,7 +104,7 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   const settingsButton = page.getByRole('button', { name: '精算設定', exact: true });
   await expect(settingsButton).toHaveClass(/cds--btn--ghost/);
   expect((await settingsButton.boundingBox()).width).toBeLessThan((await page.locator('.settlement-card').nth(1).boundingBox()).width * 0.6);
-  const collectionTrigger = page.getByRole('button', { name: '集金を記録', exact: true });
+  const collectionTrigger = page.getByRole('button', { name: '集金状況を見る', exact: true });
   await expect(collectionTrigger).toHaveClass(/cds--btn--primary/);
   await expect(collectionTrigger).toHaveClass(/cds--btn--md/);
   expect((await collectionTrigger.boundingBox()).height).toBe(40);

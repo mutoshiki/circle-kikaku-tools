@@ -101,7 +101,7 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await expect(namedDriverToggle).toHaveAttribute('aria-expanded', 'true');
   await expect(savedExpenseAction).toBeVisible();
 
-  await page.getByRole('button', { name: '集金を記録', exact: true }).click();
+  await page.getByRole('button', { name: '集金状況を見る', exact: true }).click();
   const collection = page.getByRole('dialog', { name: '集金状況', exact: true });
   await collection.locator('.cds--content-switcher-btn').first().click();
   await collection.locator('.settlement-collection-row').filter({ hasText: '参加者1' }).click();
