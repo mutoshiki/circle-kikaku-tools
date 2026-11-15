@@ -379,6 +379,8 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   max-inline-size: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  // The app positions tabs at exact boundaries on selection and arrow clicks.
+  scroll-behavior: auto;
   overscroll-behavior-inline: contain;
   scroll-padding-inline: .25rem;
   scrollbar-width: none;
