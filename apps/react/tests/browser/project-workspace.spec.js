@@ -165,6 +165,35 @@ test('mobile tab selection keeps the complete active label visible and follows b
   await expect(page.getByRole('heading', { name: 'タブを編集', exact: true })).toBeVisible();
 });
 
+test('viewport resize keeps the selected project tab visible', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/?debugSample=all-tools&view=seisan');
+  const tabList = page.locator('.project-tool-tabs [role="tablist"]');
+  const selectedTab = tabList.locator('[aria-selected="true"]');
+  await expect(selectedTab).toHaveText('精算');
+
+  await page.setViewportSize({ width: 320, height: 780 });
+  await expect.poll(async () => {
+    return page.evaluate(() => {
+      const container = document.querySelector('.project-tool-tabs');
+      const list = container?.querySelector('[role="tablist"]');
+      const active = list?.querySelector('[aria-selected="true"]');
+      const leftArrow = container?.querySelector('button[aria-label="Scroll left"]');
+      const rightArrow = container?.querySelector('button[aria-label="Scroll right"]');
+      const listBounds = list?.getBoundingClientRect();
+      const activeBounds = active?.getBoundingClientRect();
+      const leftBounds = leftArrow?.getBoundingClientRect();
+      const rightBounds = rightArrow?.getBoundingClientRect();
+      const leftVisible = leftArrow && !leftArrow.classList.contains('cds--tab--overflow-nav-button--hidden');
+      const rightVisible = rightArrow && !rightArrow.classList.contains('cds--tab--overflow-nav-button--hidden');
+      const visibleLeft = leftVisible ? leftBounds.right : listBounds?.left;
+      const visibleRight = rightVisible ? rightBounds.left : listBounds?.right;
+      return activeBounds?.width > 0 && activeBounds.left >= visibleLeft - 1 && activeBounds.right <= visibleRight + 1;
+    });
+  }).toBe(true);
+  await expect(selectedTab).toHaveText('精算');
+});
+
 test('overflow arrows follow one, four, and all visible project tabs', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?debugSample=all-tools&view=participants');
