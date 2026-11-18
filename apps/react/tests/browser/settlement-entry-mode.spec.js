@@ -104,6 +104,7 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await page.getByRole('button', { name: '集金状況を見る', exact: true }).click();
   const collection = page.getByRole('dialog', { name: '集金状況', exact: true });
   await collection.locator('.cds--content-switcher-btn').first().click();
+  const payerCount = await collection.getByRole('checkbox').count();
   await collection.locator('.settlement-collection-row').filter({ hasText: '参加者1' }).click();
   const collectorPrompt = page.getByRole('dialog', { name: '集金済みにする', exact: true });
   await expect(collection).toHaveCount(0);
@@ -115,5 +116,6 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await expect(collection).toBeVisible();
   await collection.getByRole('tab', { name: 'すべて', exact: true }).click();
   await expect(collection.locator('.settlement-collection-row').filter({ hasText: '集金担当' })).toContainText('集金済み');
+  await expect(page.locator('.settlement-collection-summary__progress')).toHaveText(payerCount === 1 ? '集金完了 1 / 1人' : `集金済み 1 / ${payerCount}人`);
   await collection.getByRole('button', { name: '閉じる', exact: true }).last().click();
 });

@@ -590,6 +590,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
       : <InitialEmptyState headingId="settlement-initial-heading" title="精算" description="参加者を登録するか、人数を入力して精算できます。" primaryAction={{ label: '人数だけで精算', buttonRef: settlementStartRef, onClick: () => onOpenSettings?.({ standalone: true, launcherButtonRef: settlementStartRef }) }} alternateAction={{ label: hasFormApplication ? '参加者タブへ' : '参加者を追加', onClick: onOpenParticipantRegistration }} roomStatus={roomStatus} />}
   </section>;
   const memoText = state.memo?.trim();
+  const unpaidPeople = result.participants.filter(person => !result.excludedNames.has(person.name) && !state.paid[person.name]);
   return <section className="settlement-page" aria-label="精算">
     {visibleIssues.map(message => <InlineNotification key={message} kind={message.includes('集金対象外にする企画者を') ? 'info' : 'error'} title="設定を確認してください" subtitle={message} hideCloseButton lowContrast />)}
     <Tile role="region" aria-label="集金" className="settlement-card settlement-collection-card">
@@ -602,7 +603,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
           <strong className="settlement-collection-summary__amount">{money(result.perPerson)}</strong>
           <Button ref={collectionTriggerRef} kind="primary" size="md" aria-expanded={collectionOpen} aria-controls="settlement-collection-modal" onClick={() => setCollectionOpen(true)}>集金状況を見る</Button>
         </div>
-        {result.payerCount > 0 && <p className="settlement-collection-summary__progress">集金済み {result.paidCount} / {result.payerCount}人</p>}
+        {result.payerCount > 0 && <p className="settlement-collection-summary__progress" role="status">{result.paidCount === result.payerCount ? `集金完了 ${result.paidCount} / ${result.payerCount}人` : `集金済み ${result.paidCount} / ${result.payerCount}人`}</p>}
       </div>
     </Tile>
     <Tile ref={paymentHeadingRef} tabIndex="-1" className="settlement-card settlement-vehicles-card">
@@ -660,7 +661,7 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
               </div>;
         return <SettlementPaymentRow key={Number.isInteger(car.standaloneIndex) ? `standalone-${car.standaloneIndex}` : car.name}
           rowId={String(carId)} carLabel={carLabel} carName={`${car.name}車`} rentalLabel={calc.usesTimesRental ? '（レンタカー）' : ''} driverNames={calc.driverNames}
-          splitAmount={money(calc.adjustedSplitPay)} clubAmount={money(calc.adjustedClubPay)} compactAmount={compactPayment} hasSavedCarExpenses={hasSavedCarExpenses} details={details} driverMenu={driverMenu}
+          totalAmount={money(calc.adjustedTotalPay)} splitAmount={money(calc.adjustedSplitPay)} clubAmount={money(calc.adjustedClubPay)} compactAmount={compactPayment} hasSavedCarExpenses={hasSavedCarExpenses} details={details} driverMenu={driverMenu}
           onEdit={(event, fallbackRef) => openCar(car, event, fallbackRef)} />;
       })}</Accordion></>}
     </Tile>
@@ -671,10 +672,10 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
           ? <div className="settlement-section-heading"><div><h2>メモ</h2><p>{state.memo}</p></div><Button ref={memoActionRef} kind="ghost" size="sm" onClick={openMemoEditor}>編集</Button></div>
           : <Button ref={memoActionRef} className="settlement-memo-add-action" kind="ghost" size="sm" renderIcon={Add} onClick={openMemoEditor}>精算メモを追加</Button>}
     </Tile>
-    <Modal id="settlement-collection-modal" className="app-modal settlement-collection-modal" open={collectionOpen} size="sm" hasScrollingContent modalHeading="集金状況" closeButtonLabel="閉じる" primaryButtonText="閉じる" secondaryButtonText="未集金の人をコピー" onSecondarySubmit={copyUnpaid} onRequestSubmit={() => setCollectionOpen(false)} onRequestClose={() => setCollectionOpen(false)} launcherButtonRef={collectionTriggerRef} selectorPrimaryFocus=".settlement-collection-modal .cds--content-switcher-btn">
+    <Modal id="settlement-collection-modal" className="app-modal settlement-collection-modal" open={collectionOpen} size="sm" hasScrollingContent modalHeading="集金状況" closeButtonLabel="閉じる" primaryButtonText="閉じる" secondaryButtonText={unpaidPeople.length > 0 ? '未集金の人をコピー' : undefined} onSecondarySubmit={copyUnpaid} onRequestSubmit={() => setCollectionOpen(false)} onRequestClose={() => setCollectionOpen(false)} launcherButtonRef={collectionTriggerRef} selectorPrimaryFocus=".settlement-collection-modal .cds--content-switcher-btn">
       <div className="settlement-collection-modal-content">
         <ContentSwitcher aria-label="集金対象者の表示" size="sm" lowContrast selectedIndex={collectionView === 'unpaid' ? 1 : 0} onChange={({ name }) => setCollectionView(name)}><Switch name="all" text="すべて" /><Switch name="unpaid" text="未集金" /></ContentSwitcher>
-        <ContainedList className="settlement-collection-list" kind="on-page" size="lg" label={<span className="cds--visually-hidden">集金対象者</span>}>{result.participants.filter(person => collectionView !== 'unpaid' || (!result.excludedNames.has(person.name) && !state.paid[person.name])).map(person => {
+        <ContainedList className="settlement-collection-list" kind="on-page" size="lg" label={<span className="cds--visually-hidden">集金対象者</span>}>{collectionView === 'unpaid' && unpaidPeople.length === 0 ? <ContainedListItem>未集金の人はいません</ContainedListItem> : result.participants.filter(person => collectionView !== 'unpaid' || (!result.excludedNames.has(person.name) && !state.paid[person.name])).map(person => {
                 const excluded = result.excludedNames.has(person.name);
                 const paid = !!state.paid[person.name];
                 const label = state.paidBy[person.name] || person.name;

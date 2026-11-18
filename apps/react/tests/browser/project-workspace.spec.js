@@ -100,25 +100,19 @@ test('mobile tab selection keeps the complete active label visible and follows b
       return geometry.activeWidth > 0 && geometry.activeLeft >= geometry.listLeft - 1 && geometry.activeRight <= geometry.listRight + 1;
     }).toBe(true);
   };
-  const expectVisibleTabEdgesAreAligned = async () => {
-    await expect.poll(async () => page.evaluate(() => {
-      const container = document.querySelector('.project-tool-tabs');
-      const list = container?.querySelector('[role="tablist"]');
-      const leftArrow = container?.querySelector('button[aria-label="Scroll left"]');
-      const rightArrow = container?.querySelector('button[aria-label="Scroll right"]');
-      const leftVisible = leftArrow && !leftArrow.classList.contains('cds--tab--overflow-nav-button--hidden');
-      const rightVisible = rightArrow && !rightArrow.classList.contains('cds--tab--overflow-nav-button--hidden');
-      const left = leftVisible ? leftArrow.getBoundingClientRect().right : list.getBoundingClientRect().left;
-      const right = rightVisible ? rightArrow.getBoundingClientRect().left : list.getBoundingClientRect().right;
-      return [...list.querySelectorAll('[role="tab"]')].every(tab => {
-        const bounds = tab.getBoundingClientRect();
-        return bounds.right <= left + 1 || bounds.left >= right - 1 || (bounds.left >= left - 1 && bounds.right <= right + 1);
-      });
-    })).toBe(true);
+  const expectAtTabEnd = async (direction, atEnd) => {
+    const arrow = page.locator(`.project-tool-tabs button[aria-label="Scroll ${direction}"]`);
+    if (atEnd) await expect(arrow).toHaveClass(/cds--tab--overflow-nav-button--hidden/);
+    else await expect(arrow).not.toHaveClass(/cds--tab--overflow-nav-button--hidden/);
+    const geometry = await tabList.evaluate(list => ({ left: list.scrollLeft, max: list.scrollWidth - list.clientWidth }));
+    const expected = direction === 'left' ? 0 : geometry.max;
+    if (atEnd) expect(Math.abs(expected - geometry.left)).toBeLessThanOrEqual(1);
+    else if (direction === 'left') expect(geometry.left).toBeGreaterThan(0);
+    else expect(geometry.left).toBeLessThan(geometry.max);
   };
   await expect(selectedTab()).toHaveText('車割');
   await expectSelectedTabFits();
-  await expectVisibleTabEdgesAreAligned();
+  await expectAtTabEnd('left', await tabList.evaluate(list => list.scrollLeft <= 1));
   const beforeArrow = { view: new URL(page.url()).searchParams.get('view'), label: await selectedTab().innerText() };
   const beforeRightScroll = await tabList.evaluate(list => list.scrollLeft);
   const scrollRight = page.locator('.project-tool-tabs button[aria-label="Scroll right"]');
@@ -126,25 +120,37 @@ test('mobile tab selection keeps the complete active label visible and follows b
   await expect.poll(() => new URL(page.url()).searchParams.get('view')).toBe(beforeArrow.view);
   await expect(selectedTab()).toHaveText(beforeArrow.label);
   await expect.poll(() => tabList.evaluate(list => list.scrollLeft)).toBeGreaterThan(beforeRightScroll);
-  await expectVisibleTabEdgesAreAligned();
+  await expect.poll(() => page.locator('.project-tool-tabs button[aria-label="Scroll right"]').evaluate(button => button.classList.contains('cds--tab--overflow-nav-button--hidden'))).toBe(false);
   await expect.poll(async () => page.locator('.project-tool-tabs [role="tablist"]').evaluate(list => {
     const position = list.scrollLeft;
     return [...list.querySelectorAll('[role="tab"]')].some(tab => Math.abs(tab.offsetLeft - list.offsetLeft - position) <= 1);
   })).toBe(true);
+  const scrollRightArrow = page.locator('.project-tool-tabs button[aria-label="Scroll right"]');
+  for (let step = 0; step < 8; step += 1) {
+    const position = await tabList.evaluate(list => ({ left: list.scrollLeft, max: list.scrollWidth - list.clientWidth }));
+    if (position.left >= position.max - 1) break;
+    await expect(scrollRightArrow).not.toHaveClass(/cds--tab--overflow-nav-button--hidden/);
+    const before = await tabList.evaluate(list => list.scrollLeft);
+    await scrollRightArrow.click();
+    await expect.poll(() => tabList.evaluate(list => list.scrollLeft)).toBeGreaterThan(before);
+  }
+  await expectAtTabEnd('right', true);
   const scrollLeft = page.locator('.project-tool-tabs button[aria-label="Scroll left"]');
-  const beforeLeftScroll = await tabList.evaluate(list => list.scrollLeft);
-  await scrollLeft.click();
+  for (let step = 0; step < 8; step += 1) {
+    if (await tabList.evaluate(list => list.scrollLeft <= 1)) break;
+    await expect(scrollLeft).not.toHaveClass(/cds--tab--overflow-nav-button--hidden/);
+    const before = await tabList.evaluate(list => list.scrollLeft);
+    await scrollLeft.click();
+    await expect.poll(() => tabList.evaluate(list => list.scrollLeft)).toBeLessThan(before);
+  }
+  await expectAtTabEnd('left', true);
   await expect.poll(() => new URL(page.url()).searchParams.get('view')).toBe(beforeArrow.view);
   await expect(selectedTab()).toHaveText(beforeArrow.label);
-  await expect.poll(() => tabList.evaluate(list => list.scrollLeft)).toBeLessThan(beforeLeftScroll);
-  await expectVisibleTabEdgesAreAligned();
   await expect.poll(async () => page.locator('.project-tool-tabs [role="tablist"]').evaluate(list => {
     const position = list.scrollLeft;
     return [...list.querySelectorAll('[role="tab"]')].some(tab => Math.abs(tab.offsetLeft - list.offsetLeft - position) <= 1);
   })).toBe(true);
   await page.setViewportSize({ width: 320, height: 780 });
-  await expectSelectedTabFits();
-  await expectVisibleTabEdgesAreAligned();
   await selectedTab().focus();
   await page.keyboard.press('ArrowRight');
   await expect(selectedTab()).toHaveText('班割');
@@ -157,6 +163,76 @@ test('mobile tab selection keeps the complete active label visible and follows b
   await expectSelectedTabFits();
   await page.goForward();
   await expect(page.getByRole('heading', { name: 'タブを編集', exact: true })).toBeVisible();
+});
+
+test('viewport resize keeps the selected project tab visible', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/?debugSample=all-tools&view=seisan');
+  const tabList = page.locator('.project-tool-tabs [role="tablist"]');
+  const selectedTab = tabList.locator('[aria-selected="true"]');
+  await expect(selectedTab).toHaveText('精算');
+
+  await page.setViewportSize({ width: 320, height: 780 });
+  await expect.poll(async () => {
+    return page.evaluate(() => {
+      const container = document.querySelector('.project-tool-tabs');
+      const list = container?.querySelector('[role="tablist"]');
+      const active = list?.querySelector('[aria-selected="true"]');
+      const leftArrow = container?.querySelector('button[aria-label="Scroll left"]');
+      const rightArrow = container?.querySelector('button[aria-label="Scroll right"]');
+      const listBounds = list?.getBoundingClientRect();
+      const activeBounds = active?.getBoundingClientRect();
+      const leftBounds = leftArrow?.getBoundingClientRect();
+      const rightBounds = rightArrow?.getBoundingClientRect();
+      const leftVisible = leftArrow && !leftArrow.classList.contains('cds--tab--overflow-nav-button--hidden');
+      const rightVisible = rightArrow && !rightArrow.classList.contains('cds--tab--overflow-nav-button--hidden');
+      const visibleLeft = leftVisible ? leftBounds.right : listBounds?.left;
+      const visibleRight = rightVisible ? rightBounds.left : listBounds?.right;
+      return activeBounds?.width > 0 && activeBounds.left >= visibleLeft - 1 && activeBounds.right <= visibleRight + 1;
+    });
+  }).toBe(true);
+  await expect(selectedTab).toHaveText('精算');
+});
+
+test('overflow arrows follow one, four, and all visible project tabs', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/?debugSample=all-tools&view=participants');
+  const tabList = page.locator('.project-tool-tabs [role="tablist"]');
+  const leftArrow = page.locator('.project-tool-tabs button[aria-label="Scroll left"]');
+  const rightArrow = page.locator('.project-tool-tabs button[aria-label="Scroll right"]');
+  await openTabEditor(page);
+  for (const id of ['application-form', 'submission-documents', 'mountain-plan', 'car', 'team', 'settlement']) {
+    const checkbox = page.locator(`#workspace-tab-visible-${id}`);
+    if (await checkbox.isChecked()) await page.locator(`label[for="workspace-tab-visible-${id}"]`).click();
+  }
+  await page.getByRole('button', { name: '企画へ戻る', exact: true }).click();
+  await expect(page.getByRole('tab')).toHaveCount(1);
+  await expect(leftArrow).toHaveClass(/cds--tab--overflow-nav-button--hidden/);
+  await expect(rightArrow).toHaveClass(/cds--tab--overflow-nav-button--hidden/);
+
+  await openTabEditor(page);
+  for (const id of ['car', 'team', 'settlement']) {
+    const checkbox = page.locator(`#workspace-tab-visible-${id}`);
+    if (!await checkbox.isChecked()) await page.locator(`label[for="workspace-tab-visible-${id}"]`).click();
+  }
+  await page.getByRole('button', { name: '企画へ戻る', exact: true }).click();
+  await expect(page.getByRole('tab')).toHaveCount(4);
+  await expect(leftArrow).toHaveClass(/cds--tab--overflow-nav-button--hidden/);
+  const width = await tabList.evaluate(list => ({ scroll: list.scrollWidth, visible: list.clientWidth }));
+  if (width.scroll > width.visible + 1) {
+    await expect(rightArrow).not.toHaveClass(/cds--tab--overflow-nav-button--hidden/);
+    while (await tabList.evaluate(list => list.scrollLeft < list.scrollWidth - list.clientWidth - 1)) {
+      const before = await tabList.evaluate(list => list.scrollLeft);
+      await rightArrow.click();
+      await expect.poll(() => tabList.evaluate(list => list.scrollLeft)).toBeGreaterThan(before);
+    }
+    await expect(rightArrow).toHaveClass(/cds--tab--overflow-nav-button--hidden/);
+    await expect.poll(() => tabList.evaluate(list => Math.abs(list.scrollWidth - list.clientWidth - list.scrollLeft))).toBeLessThanOrEqual(1);
+  }
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect(leftArrow).toHaveClass(/cds--tab--overflow-nav-button--hidden/);
+  await expect(rightArrow).toHaveClass(/cds--tab--overflow-nav-button--hidden/);
 });
 
 test('create flow saves template intent once and starts a personal project on participants', async ({ page }) => {
@@ -417,7 +493,8 @@ test('all-tools debug sample is isolated and usable across project tools', async
   await expect(page.getByRole('tabpanel', { name: '班割' }).getByText('佐藤 花子', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '精算' }).click();
   await expect(page.getByRole('heading', { name: '佐藤 花子車' })).toBeVisible();
-  await expect(page.getByText('¥2,900', { exact: true })).toBeVisible();
+  await expect(page.locator('.settlement-car-total strong').filter({ hasText: '¥2,900' })).toBeVisible();
+  await expect(page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: '佐藤 花子車' }) }).locator('.settlement-car-amount-value')).toHaveText(['¥2,900']);
   await page.getByRole('button', { name: /佐藤 花子車.*支払いの内訳/ }).click();
   const samplePayment = page.locator('.settlement-car').filter({ hasText: '佐藤 花子車' });
   await expect(samplePayment.getByText('ガソリン代', { exact: true })).toBeVisible();

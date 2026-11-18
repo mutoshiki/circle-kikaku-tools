@@ -124,16 +124,16 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .allocation-status > span:first-child { font-weight: 600; }
 .allocation-status--warning > span:first-child { color: var(--cds-support-warning); }
 .allocation-toolbar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-02; }
-.allocation-toolbar-actions > .cds--btn { flex: 0 0 auto; inline-size: auto; max-inline-size: none; }
+.allocation-toolbar-actions > .cds--btn { flex: 0 0 auto; inline-size: auto; max-inline-size: none; min-block-size: 2.75rem; }
 .allocation-randomization-action { display: inline-flex; flex: 0 0 auto; align-items: center; gap: layout.$spacing-02; }
 .allocation-overcapacity-notice { max-inline-size: none; margin-block-end: layout.$spacing-05; }
 .allocation-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr)); align-items: start; gap: var(--sanpo-ui-field-gap, #{layout.$spacing-05}); margin-block-end: var(--sanpo-ui-group-gap, #{layout.$spacing-06}); }
 .allocation-group { min-width: 0; border: 1px solid var(--cds-border-subtle); background: var(--cds-layer); }
 .allocation-group:not(:last-child) { padding-block-end: layout.$spacing-02; }
-.group-heading { display: flex; align-items: center; justify-content: space-between; gap: layout.$spacing-03; min-block-size: 3.25rem; padding: layout.$spacing-02 var(--sanpo-ui-page-inset, #{layout.$spacing-05}); border-block-end: 1px solid var(--cds-border-subtle); border-inline-start: 4px solid var(--cds-support-info); background: var(--cds-layer-hover-01); }
+.group-heading { display: flex; align-items: center; justify-content: space-between; gap: layout.$spacing-03; min-block-size: 3.25rem; padding: layout.$spacing-02 var(--sanpo-ui-page-inset, #{layout.$spacing-05}); padding-inline-end: 0; border-block-end: 1px solid var(--cds-border-subtle); background: var(--cds-layer-02, var(--cds-layer)); }
 .group-heading-main { display: flex; align-items: center; flex: 1 1 auto; flex-wrap: wrap; gap: layout.$spacing-03; min-inline-size: 0; }
 .group-heading h2 { @include carbon-type.type-style('heading-compact-02'); flex: 1 1 auto; min-inline-size: 0; margin: 0; overflow-wrap: anywhere; }
-.group-overcapacity { @include carbon-type.type-style('label-01'); flex: 0 0 auto; color: var(--cds-support-warning); white-space: nowrap; }
+.group-overcapacity { @include carbon-type.type-style('label-01'); display: inline-flex; flex: 0 0 auto; align-items: center; gap: layout.$spacing-01; color: var(--cds-support-warning); white-space: nowrap; }
 .group-capacity-display { @include carbon-type.type-style('body-01'); color: var(--cds-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .allocation-person-list .cds--contained-list__header { display: none; }
 .allocation-person-row { min-block-size: 3rem; }
@@ -144,7 +144,16 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .person-tags .cds--tag { margin: 0; }
 .person-grade { @include carbon-type.type-style('label-01'); flex: 0 0 auto; margin-inline-start: auto; color: var(--cds-text-secondary); text-align: end; white-space: nowrap; }
 .person-actions .cds--overflow-menu,
-.group-heading .cds--overflow-menu { min-inline-size: 2.75rem; min-block-size: 2.75rem; }
+.group-heading .cds--overflow-menu { min-inline-size: 3rem; min-block-size: 3rem; }
+.group-heading .inline-actions { min-inline-size: 3rem; justify-content: flex-end; }
+.allocation-next-person { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-03; margin-block-start: layout.$spacing-02; }
+.allocation-next-person > span { min-inline-size: 0; overflow-wrap: anywhere; }
+.allocation-next-person > .cds--btn { min-block-size: 2.75rem; }
+.allocation-full-state { display: flex; flex-wrap: wrap; align-items: center; gap: layout.$spacing-03; margin-block-start: layout.$spacing-02; color: var(--cds-text-secondary); }
+.allocation-full-state > .cds--btn { min-block-size: 2.75rem; }
+.allocation-add-person-action { min-block-size: 2.75rem; }
+.waiting-section .cds--contained-list-item__action .cds--btn { min-block-size: 2.75rem; }
+.empty-seats-action--static { min-block-size: 3rem; display: flex; align-items: center; margin: 0; padding-inline: layout.$spacing-05; color: var(--cds-text-secondary); }
 .person-memo { @include carbon-type.type-style('label-01'); margin-top: .25rem; color: var(--cds-text-secondary); overflow-wrap: anywhere; }
 .participant-edit-help { @include carbon-type.type-style('label-01'); margin: calc(-1 * layout.$spacing-03) 0 0; color: var(--cds-text-secondary); }
 .person-flag { inline-size: 1rem; block-size: 1rem; margin-right: .25rem; }
@@ -178,11 +187,14 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .settlement-car-actions { display: flex; flex: 0 0 auto; align-items: flex-start; justify-content: flex-end; gap: layout.$spacing-01; min-inline-size: 0; }
 .settlement-car-actions:empty { display: none; }
 .settlement-car-edit-action { inline-size: auto; max-inline-size: 100%; margin-inline-start: 0; }
-.settlement-car-amounts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sanpo-ui-group-gap, #{layout.$spacing-04}); min-inline-size: 0; }
+.settlement-car-payment { display: grid; gap: layout.$spacing-03; min-inline-size: 0; }
+.settlement-car-total { display: flex; align-items: baseline; justify-content: space-between; gap: layout.$spacing-03; min-inline-size: 0; @include carbon-type.type-style('heading-compact-01'); }
+.settlement-car-total strong { @include carbon-type.type-style('heading-03'); font-variant-numeric: tabular-nums; text-align: end; overflow-wrap: anywhere; }
+.settlement-car-amounts { display: grid; grid-template-columns: minmax(0, 1fr); gap: layout.$spacing-02; min-inline-size: 0; }
 .settlement-car-summary--single-amount .settlement-car-amounts { grid-template-columns: minmax(0, 1fr); }
-.settlement-car-amount-category { @include carbon-type.type-style('heading-compact-02'); display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; justify-items: end; gap: layout.$spacing-02; min-inline-size: 0; text-align: end; }
-.settlement-car-amount-label { @include carbon-type.type-style('body-compact-01'); color: var(--cds-text-secondary); }
-.settlement-car-amount-value { @include carbon-type.type-style('heading-03'); justify-self: end; min-inline-size: 0; color: var(--cds-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.settlement-car-amount-category { @include carbon-type.type-style('body-compact-01'); display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: layout.$spacing-02; min-inline-size: 0; text-align: start; }
+.settlement-car-amount-label { @include carbon-type.type-style('body-compact-01'); color: var(--cds-text-secondary); white-space: nowrap; }
+.settlement-car-amount-value { @include carbon-type.type-style('body-compact-01'); justify-self: end; min-inline-size: 0; color: var(--cds-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .settlement-car-summary--wide-amounts .settlement-car-amount-category { min-inline-size: 0; }
 .settlement-car-details { display: grid; gap: layout.$spacing-04; min-inline-size: 0; padding-inline-end: 0; }
 .settlement-cars-empty { padding-block-start: layout.$spacing-03; }
@@ -333,10 +345,8 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   .settlement-card { padding-block: layout.$spacing-03; }
   .settlement-section-heading { flex-direction: column; }
   .settlement-vehicles-card .settlement-section-heading { flex-direction: row; align-items: baseline; }
-  .settlement-car-amounts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: layout.$spacing-06; }
-  .settlement-car-amount-category { justify-items: end; text-align: end; }
-  .settlement-car-summary--wide-amounts .settlement-car-amounts { grid-template-columns: minmax(0, 1fr); }
-  .settlement-car-summary--wide-amounts .settlement-car-amount-category { justify-content: space-between; }
+  .settlement-car-amounts { grid-template-columns: minmax(0, 1fr); gap: layout.$spacing-02; }
+  .settlement-car-amount-category { grid-template-columns: minmax(0, 1fr) auto; justify-items: stretch; text-align: start; }
   .settlement-extra-row { grid-template-columns: 1fr; }
   .settlement-extra-row .cds--btn { width: 100%; max-width: none; }
   .settlement-car-modal .cds--modal-content { padding-block: var(--cds-spacing-03, .5rem) var(--cds-spacing-05, 1rem); }
@@ -365,11 +375,8 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 
 @media (max-width: 374px) {
   .settlement-car-header { padding-block-start: layout.$spacing-02; }
-  .settlement-car-amounts,
-  .settlement-car-summary--wide-amounts .settlement-car-amounts { grid-template-columns: minmax(0, 1fr); gap: layout.$spacing-02; }
-  .settlement-car-amount-category,
-  .settlement-car-summary--wide-amounts .settlement-car-amount-category { grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; justify-items: stretch; gap: layout.$spacing-02; text-align: start; }
-  .settlement-car-amount-category .settlement-car-amount-value { justify-self: end; }
+  .settlement-car-total { gap: layout.$spacing-02; }
+  .settlement-car-total strong { font-size: 1.125rem; line-height: 1.5rem; }
 }
 
 .project-tool-tabs {
@@ -385,7 +392,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
   scroll-padding-inline: .25rem;
   scrollbar-width: none;
 }
-.project-tool-tabs [role='tablist']::after { content: ''; flex: 0 0 var(--tab-scroll-tail, 0px); }
+.project-tool-tabs [role='tablist']::after { content: none; }
 .project-tool-tabs [role='tablist']::-webkit-scrollbar { display: none; }
 .project-tool-tabs .cds--tab-content { white-space: nowrap; }
 .project-tools-workspace,
