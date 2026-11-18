@@ -18,6 +18,12 @@ async function expectGradeClearance(row) {
   expect(gradeBounds.x + gradeBounds.width + 4).toBeLessThanOrEqual(actionBounds.x);
 }
 
+async function expectMenuCentersAligned(group, row) {
+  const groupAction = await group.locator('.group-heading').getByRole('button', { name: /の操作$/ }).boundingBox();
+  const personAction = await row.getByRole('button', { name: /の操作$/ }).boundingBox();
+  expect(Math.abs(groupAction.x + groupAction.width / 2 - (personAction.x + personAction.width / 2))).toBeLessThanOrEqual(1);
+}
+
 async function saved(page, room = 'ALLOCATION-RC') { return page.evaluate(key => JSON.parse(localStorage.getItem(`sanpo-react:v1:${key}:room`)), room); }
 
 test('allocation summaries, metadata columns and fixed state follow the shared hierarchy', async ({ page }) => {
@@ -46,7 +52,9 @@ test('allocation summaries, metadata columns and fixed state follow the shared h
 
   const group = pageRegion.getByRole('region', { name: 'A車', exact: true });
   const emptySeats = group.getByRole('button', { name: /空き\d+人.*乗せる人を選ぶ/ });
+  expect((await emptySeats.boundingBox()).height).toBeGreaterThanOrEqual(44);
   await emptySeats.click();
+  expect((await group.getByRole('button', { name: '参加者 二郎をA車に追加', exact: true }).boundingBox()).height).toBeGreaterThanOrEqual(44);
   await group.getByRole('button', { name: '参加者 二郎をA車に追加', exact: true }).click();
   await group.getByRole('button', { name: '参加者 三郎をA車に追加', exact: true }).click();
   await expect(pageRegion.getByRole('button', { name: 'ランダムに組み直す', exact: true })).toBeVisible();
@@ -66,15 +74,19 @@ test('allocation summaries, metadata columns and fixed state follow the shared h
   expect(new Set(gradePositions).size).toBe(1);
 
   const driverRow = group.locator('.cds--contained-list-item').filter({ hasText: '運転手 一郎' });
+  await expectMenuCentersAligned(group, driverRow);
   await expectGradeClearance(driverRow);
 
   await page.setViewportSize({ width: 1280, height: 900 });
+  await expectMenuCentersAligned(group, driverRow);
   await expectGradeClearance(driverRow);
 
   await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
+  await expectMenuCentersAligned(group, driverRow);
   await expectGradeClearance(driverRow);
   await page.setViewportSize({ width: 390, height: 844 });
+  await expectMenuCentersAligned(group, driverRow);
   await expectGradeClearance(driverRow);
 
   const participantRow = group.locator('.cds--contained-list-item').filter({ hasText: '参加者 二郎' });
@@ -163,7 +175,7 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await expect(page.getByRole('region', { name: 'A班', exact: true })).toBeVisible();
   await expect(page.getByRole('region', { name: 'A班', exact: true })).toContainText('1/6人');
   const teamA = page.getByRole('region', { name: 'A班', exact: true });
-  await expect(teamA.getByRole('button', { name: /空き5人.*班に入れる人を選ぶ/ })).toBeVisible();
+  await expect(teamA.getByRole('button', { name: /空き5人.*参加者を選ぶ/ })).toBeVisible();
   const teamMenuButton = teamA.getByRole('button', { name: 'A班の操作', exact: true });
   expect((await teamMenuButton.boundingBox()).height).toBeGreaterThanOrEqual(44);
   await teamMenuButton.click();
@@ -215,19 +227,17 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   const secondTeamDialog = page.getByRole('dialog', { name: '班を追加' });
   await secondTeamDialog.getByRole('combobox', { name: '班長', exact: true }).selectOption(c.id);
   await secondTeamDialog.getByRole('button', { name: '班を追加', exact: true }).click();
-  await page.getByRole('button', { name: '未割り当てを見る', exact: true }).click();
+  await page.getByRole('button', { name: '未割り当ての2人を見る', exact: true }).click();
   const waiting = page.getByRole('region', { name: '班割', exact: true }).getByRole('list', { name: '未割り当て', exact: true });
-  await waiting.getByRole('button', { name: `${d.name}の操作`, exact: true }).click();
-  await page.getByRole('menuitem', { name: '割り当て先を選ぶ', exact: true }).click();
-  const moveDialog = page.getByRole('dialog', { name: `${d.name}の割り当て先を選ぶ` });
-  await moveDialog.getByRole('combobox', { name: '移動先', exact: true }).selectOption({ label: 'A班（1/6人）' });
+  await waiting.getByRole('button', { name: `${d.name}の班を選ぶ`, exact: true }).click();
+  const moveDialog = page.getByRole('dialog', { name: `${d.name}の班を選ぶ` });
+  await moveDialog.getByRole('combobox', { name: '班', exact: true }).selectOption({ label: 'A班（1/6人）' });
   await moveDialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
   expect((await saved(page)).allocations.team.placements[d.id].kind).toBe('waiting');
-  await waiting.getByRole('button', { name: `${d.name}の操作`, exact: true }).click();
-  await page.getByRole('menuitem', { name: '割り当て先を選ぶ', exact: true }).click();
-  const confirmMove = page.getByRole('dialog', { name: `${d.name}の割り当て先を選ぶ` });
-  await confirmMove.getByRole('combobox', { name: '移動先', exact: true }).selectOption({ label: 'A班（1/6人）' });
-  await confirmMove.getByRole('button', { name: '移動する', exact: true }).click();
+  await waiting.getByRole('button', { name: `${d.name}の班を選ぶ`, exact: true }).click();
+  const confirmMove = page.getByRole('dialog', { name: `${d.name}の班を選ぶ` });
+  await confirmMove.getByRole('combobox', { name: '班', exact: true }).selectOption({ label: 'A班（1/6人）' });
+  await confirmMove.getByRole('button', { name: 'A班に入れる', exact: true }).click();
   await expect(teamA).toContainText(d.name);
   expect((await saved(page)).allocations.team.placements[d.id].groupId).toBe(room.allocations.team.placements[b.id].groupId);
   await page.getByRole('tab', { name: '車割', exact: true }).click();
@@ -398,7 +408,7 @@ test('allocation toolbar keeps its summary and random assignment action compact 
   await page.getByRole('tab', { name: '参加者', exact: true }).click();
   await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
   const registration = page.getByRole('dialog', { name: '参加者を登録' });
-  await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('割り当て確認 太郎');
+  await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('割り当て確認 太郎\n割り当て確認 次郎');
   await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
   await page.getByRole('tab', { name: '車割', exact: true }).click();
 
@@ -415,6 +425,137 @@ test('allocation toolbar keeps its summary and random assignment action compact 
   expect(layout.button.width).toBeLessThan(layout.toolbar.width * 0.75);
   expect(layout.button.right).toBeLessThanOrEqual(layout.viewportWidth);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('single remaining participant can be assigned from the toolbar in one step', async ({ page }) => {
+  const roomId = `ALLOCATION-LAST-PERSON-${Date.now()}`;
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/?room=${roomId}`);
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  const registration = page.getByRole('dialog', { name: '参加者を登録' });
+  await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('運転手 太郎\n参加者 花子\n参加者 次郎\n参加者 三郎');
+  await registration.getByText('学年・車出しを設定（任意）', { exact: true }).click();
+  const driver = registration.getByRole('checkbox', { name: '運転手 太郎を車出しに指定', exact: true });
+  await driver.focus();
+  await driver.press('Space');
+  await expect(driver).toBeChecked();
+  await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
+  await page.getByRole('tab', { name: '車割', exact: true }).click();
+
+  const allocation = page.locator('.allocation-page[aria-label="車割"]');
+  const car = allocation.getByRole('region', { name: 'A車', exact: true });
+  await car.getByRole('button', { name: /空き.*乗せる人を選ぶ/ }).click();
+  await car.getByRole('button', { name: '参加者 花子をA車に追加', exact: true }).click();
+  await car.getByRole('button', { name: '参加者 次郎をA車に追加', exact: true }).click();
+  await expect(allocation.getByRole('status')).toContainText('未割り当て 1人');
+  await expect(allocation.locator('.allocation-next-person').getByText('参加者 三郎', { exact: true })).toBeVisible();
+  const chooseCar = allocation.getByRole('button', { name: '車を選ぶ', exact: true });
+  await expect(chooseCar).toHaveClass(/cds--btn--primary/);
+  expect((await chooseCar.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  await expect(allocation.getByRole('button', { name: 'ランダムに組み直す', exact: true })).toHaveClass(/cds--btn--ghost/);
+  await chooseCar.click();
+  const move = page.getByRole('dialog', { name: '参加者 三郎の車を選ぶ' });
+  await expect(move.getByRole('combobox', { name: '車', exact: true })).toBeVisible();
+  const assign = move.getByRole('button', { name: 'A車に乗せる', exact: true });
+  await expect(assign).toBeEnabled();
+  await assign.click();
+  await expect(allocation.getByRole('status')).toContainText('全員割り当て済み');
+  await expect(car.getByRole('heading', { name: 'A車', exact: true })).toBeFocused();
+  const savedRoom = await saved(page, roomId);
+  const person = Object.values(savedRoom.participants).find(item => item.name === '参加者 三郎');
+  expect(savedRoom.allocations.car.placements[person.id].kind).toBe('member');
+  expect(savedRoom.allocations.car.placements[person.id].groupId).toBe(savedRoom.allocations.car.placements[Object.values(savedRoom.participants).find(item => item.name === '運転手 太郎').id].groupId);
+});
+
+test('single remaining team participant can be assigned from the toolbar in one step', async ({ page }) => {
+  const roomId = `ALLOCATION-LAST-TEAM-${Date.now()}`;
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/?room=${roomId}`);
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  const registration = page.getByRole('dialog', { name: '参加者を登録' });
+  await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('参加者 花子\n参加者 次郎\n参加者 三郎');
+  await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
+  await page.getByRole('tab', { name: '班割', exact: true }).click();
+  await page.getByRole('button', { name: '班を追加', exact: true }).click();
+  const createTeam = page.getByRole('dialog', { name: '班を追加', exact: true });
+  await createTeam.getByRole('combobox', { name: '班長', exact: true }).selectOption({ label: '参加者 花子' });
+  await createTeam.getByRole('button', { name: '班を追加', exact: true }).click();
+  const allocation = page.locator('.allocation-page[aria-label="班割"]');
+  const team = allocation.getByRole('region', { name: 'A班', exact: true });
+  await team.getByRole('button', { name: /空き.*参加者を選ぶ/ }).click();
+  await team.getByRole('button', { name: '参加者 次郎をA班に追加', exact: true }).click();
+  await expect(allocation.locator('.allocation-status')).toContainText('未割り当て 1人');
+  const chooseTeam = allocation.getByRole('button', { name: '班を選ぶ', exact: true });
+  await expect(chooseTeam).toHaveClass(/cds--btn--primary/);
+  expect((await chooseTeam.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  await chooseTeam.click();
+  const move = page.getByRole('dialog', { name: '参加者 三郎の班を選ぶ', exact: true });
+  await move.getByRole('button', { name: 'A班に入れる', exact: true }).click();
+  await expect(allocation.getByRole('status')).toContainText('全員割り当て済み');
+  await expect(team.getByRole('heading', { name: 'A班', exact: true })).toBeFocused();
+  const room = await saved(page, roomId);
+  const person = Object.values(room.participants).find(item => item.name === '参加者 三郎');
+  expect(room.allocations.team.placements[person.id].kind).toBe('member');
+});
+
+test('empty allocation offers group creation and a full group can be expanded to place the last person', async ({ page }) => {
+  const roomId = `ALLOCATION-CAPACITY-RECOVERY-${Date.now()}`;
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/?room=${roomId}`);
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  const registration = page.getByRole('dialog', { name: '参加者を登録' });
+  await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('運転手 定員確認\n参加者 一\n参加者 二\n参加者 三\n参加者 四');
+  await registration.getByText('学年・車出しを設定（任意）', { exact: true }).click();
+  const driver = registration.getByRole('checkbox', { name: '運転手 定員確認を車出しに指定', exact: true });
+  await driver.focus();
+  await driver.press('Space');
+  await expect(driver).toBeChecked();
+  await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
+
+  await page.getByRole('tab', { name: '班割', exact: true }).click();
+  const team = page.locator('.allocation-page[aria-label="班割"]');
+  await expect(team.getByRole('button', { name: '班を追加', exact: true })).toBeVisible();
+  await expect(team.getByText('空きのある班がありません', { exact: true })).toHaveCount(0);
+  await expect(team.getByRole('button', { name: '定員を変更', exact: true })).toHaveCount(0);
+
+  await page.getByRole('tab', { name: '車割', exact: true }).click();
+  const allocation = page.locator('.allocation-page[aria-label="車割"]');
+  await allocation.getByRole('button', { name: 'ランダムに割り当てる', exact: true }).click();
+  await page.getByRole('dialog', { name: 'ランダム割り当て' }).getByRole('button', { name: '割り当てる', exact: true }).click();
+  const car = allocation.getByRole('region', { name: 'A車', exact: true });
+  await expect(allocation.locator('.allocation-status')).toContainText('未割り当て 1人');
+  const roomAfterRandomization = await saved(page, roomId);
+  const waitingId = Object.entries(roomAfterRandomization.allocations.car.placements).find(([, placement]) => placement.kind === 'waiting')?.[0];
+  const waitingName = roomAfterRandomization.participants[waitingId].name;
+  await expect(allocation.getByRole('button', { name: '車を選ぶ', exact: true })).toHaveCount(0);
+  await expect(allocation.getByText('空きのある車がありません', { exact: true })).toBeVisible();
+  await allocation.getByRole('button', { name: '定員を変更', exact: true }).click();
+  const capacity = page.getByRole('dialog', { name: '定員を変更', exact: true });
+  await expect(capacity.getByRole('spinbutton', { name: '定員（運転手を含む）', exact: true })).toHaveValue('4');
+  await capacity.getByRole('spinbutton', { name: '定員（運転手を含む）', exact: true }).fill('5');
+  await capacity.getByRole('button', { name: '定員を保存', exact: true }).click();
+  const chooseCar = allocation.getByRole('button', { name: '車を選ぶ', exact: true });
+  await expect(chooseCar).toBeVisible();
+  await chooseCar.click();
+  const move = page.getByRole('dialog', { name: `${waitingName}の車を選ぶ`, exact: true });
+  await move.getByRole('button', { name: 'A車に乗せる', exact: true }).click();
+  await expect(allocation.getByRole('status')).toContainText('全員割り当て済み');
+  await expect(car.getByRole('heading', { name: 'A車', exact: true })).toBeFocused();
+});
+
+test('car allocation with waiting people and no drivers offers car creation instead of a capacity action', async ({ page }) => {
+  const roomId = `ALLOCATION-NO-CAR-GROUPS-${Date.now()}`;
+  await page.goto(`/?room=${roomId}`);
+  await page.getByRole('button', { name: '参加者を追加', exact: true }).click();
+  const registration = page.getByRole('dialog', { name: '参加者を登録' });
+  await registration.getByRole('textbox', { name: '参加者の名前', exact: true }).fill('参加者 一\n参加者 二');
+  await registration.getByRole('button', { name: '参加者を登録', exact: true }).click();
+  await page.getByRole('tab', { name: '車割', exact: true }).click();
+  const allocation = page.locator('.allocation-page[aria-label="車割"]');
+  await expect(allocation.getByRole('status').first()).toContainText('未割り当て 2人');
+  await expect(allocation.getByRole('button', { name: '車を追加', exact: true })).toBeVisible();
+  await expect(allocation.getByText('空きのある車がありません', { exact: true })).toHaveCount(0);
+  await expect(allocation.getByRole('button', { name: '定員を変更', exact: true })).toHaveCount(0);
 });
 
 test('long participant content and action menus remain readable at mobile and 200 percent zoom', async ({ page }) => {
@@ -486,27 +627,24 @@ test('car assignment can move a waiting participant directly and cancel without 
   const carB = page.getByRole('region', { name: 'B車', exact: true });
   await expect(carA).toBeVisible();
   await expect(carB).toBeVisible();
-  await page.getByRole('button', { name: '未割り当てを見る', exact: true }).click();
-  const waiting = page.getByRole('region', { name: '車割', exact: true }).getByRole('list', { name: '未割り当て', exact: true });
-  const passengerActions = waiting.getByRole('button', { name: '同乗者 三郎の操作', exact: true });
-  await passengerActions.click();
-  await page.getByRole('menuitem', { name: '割り当て先を選ぶ', exact: true }).click();
-  let moveDialog = page.getByRole('dialog', { name: '同乗者 三郎の割り当て先を選ぶ' });
-  await moveDialog.getByRole('combobox', { name: '移動先', exact: true }).selectOption({ label: 'A車（1/4人）' });
+  const chooseCar = page.getByRole('button', { name: '車を選ぶ', exact: true });
+  await chooseCar.click();
+  let moveDialog = page.getByRole('dialog', { name: '同乗者 三郎の車を選ぶ' });
+  await moveDialog.getByRole('combobox', { name: '車', exact: true }).selectOption({ label: 'A車（1/4人）' });
   await moveDialog.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(chooseCar).toBeFocused();
   const passenger = Object.values(await saved(page, roomId).then(room => room.participants)).find(person => person.name === '同乗者 三郎');
   expect((await saved(page, roomId)).allocations.car.placements[passenger.id].kind).toBe('waiting');
-  await passengerActions.click();
-  await page.getByRole('menuitem', { name: '割り当て先を選ぶ', exact: true }).click();
-  moveDialog = page.getByRole('dialog', { name: '同乗者 三郎の割り当て先を選ぶ' });
-  await moveDialog.getByRole('combobox', { name: '移動先', exact: true }).selectOption({ label: 'B車（1/4人）' });
-  await moveDialog.getByRole('button', { name: '移動する', exact: true }).click();
+  await chooseCar.click();
+  moveDialog = page.getByRole('dialog', { name: '同乗者 三郎の車を選ぶ' });
+  await moveDialog.getByRole('combobox', { name: '車', exact: true }).selectOption({ label: 'B車（1/4人）' });
+  await moveDialog.getByRole('button', { name: 'B車に乗せる', exact: true }).click();
   await expect(carB).toContainText('同乗者 三郎');
   expect((await saved(page, roomId)).allocations.car.placements[passenger.id].groupId).toBe((await saved(page, roomId)).allocations.car.placements[Object.values((await saved(page, roomId)).participants).find(person => person.name === '運転手 二郎').id].groupId);
   const movedPassengerActions = carB.getByRole('button', { name: '同乗者 三郎の操作', exact: true });
   await movedPassengerActions.click();
   await page.getByRole('menuitem', { name: '別の車へ移動', exact: true }).click();
   moveDialog = page.getByRole('dialog', { name: '同乗者 三郎を別の車へ移動' });
-  await expect(moveDialog.getByRole('combobox', { name: '移動先', exact: true }).locator('option')).toHaveCount(1);
-  await expect(moveDialog.getByRole('combobox', { name: '移動先', exact: true }).locator('option')).toHaveText('A車（1/4人）');
+  await expect(moveDialog.getByRole('combobox', { name: '車', exact: true }).locator('option')).toHaveCount(1);
+  await expect(moveDialog.getByRole('combobox', { name: '車', exact: true }).locator('option')).toHaveText('A車（1/4人）');
 });

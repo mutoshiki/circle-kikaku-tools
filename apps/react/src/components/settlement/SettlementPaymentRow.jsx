@@ -21,7 +21,7 @@ function PaymentRowToggle(props) {
   </div>;
 }
 
-export default function SettlementPaymentRow({ rowId, carLabel, carName, rentalLabel = '', driverNames = [], splitAmount, clubAmount, compactAmount = false, hasSavedCarExpenses, details, driverMenu = null, onEdit }) {
+export default function SettlementPaymentRow({ rowId, carLabel, carName, rentalLabel = '', driverNames = [], totalAmount, splitAmount, clubAmount, compactAmount = false, hasSavedCarExpenses, details, driverMenu = null, onEdit }) {
   const [open, setOpen] = useState(false);
   const toggleRef = useRef(null);
   const splitId = `settlement-car-${rowId}-split`;
@@ -32,12 +32,15 @@ export default function SettlementPaymentRow({ rowId, carLabel, carName, rentalL
   const name = <span className="settlement-car-name">{carName}<span className="settlement-car-rental-label">{rentalLabel}</span>
       {driverNames.length > 1 && <span className="settlement-car-driver-names">運転手：{driverNames.join('、')}（車単位で一括支払い）</span>}
     </span>;
-  const amounts = <div className="settlement-car-amounts" aria-label={`${carLabel}${compactAmount ? 'の合計支払額' : 'の支払い額'}`}>
-      <span id={splitId} className="settlement-car-amount-category"><span className="settlement-car-amount-label">集金から</span><span className={`settlement-car-amount-value${splitIsZero ? '' : ' settlement-car-amount-value--nonzero'}`}>{splitAmount}</span></span>
-      {!compactAmount && <span id={clubId} className="settlement-car-amount-category"><span className="settlement-car-amount-label">部費から</span><span className={`settlement-car-amount-value${clubIsZero ? '' : ' settlement-car-amount-value--nonzero'}`}>{clubAmount}</span></span>}
+  const amounts = <div className="settlement-car-payment">
+      <div className="settlement-car-total"><span>支払額</span><strong>{totalAmount}</strong></div>
+      <div className="settlement-car-amounts" aria-label={`${carLabel}の支払い額`}>
+        <span id={splitId} className="settlement-car-amount-category"><span className="settlement-car-amount-label">集金から</span><span className="settlement-car-amount-value">{splitAmount}</span></span>
+        {!compactAmount && <span id={clubId} className="settlement-car-amount-category"><span className="settlement-car-amount-label">部費から</span><span className="settlement-car-amount-value">{clubAmount}</span></span>}
+      </div>
     </div>;
   const toggleLabel = open ? '内訳を閉じる' : '支払いの内訳';
-  const rowContext = { toggleRef, toggleLabel, describedBy: compactAmount ? splitId : `${splitId} ${clubId}`, carLabel, driverMenu, hasSavedCarExpenses, onEdit, name, amounts, compactAmount, hasWideAmount };
+  const rowContext = { toggleRef, toggleLabel, describedBy: compactAmount ? splitId : `${splitId} ${clubId}`, carLabel, driverMenu, hasSavedCarExpenses, onEdit, name, amounts, compactAmount, hasWideAmount, totalAmount };
 
   return <PaymentRowContext.Provider value={rowContext}>
     <AccordionItem className="settlement-car" title={toggleLabel} aria-label={`「${carLabel}」支払い内訳`} renderToggle={PaymentRowToggle} open={open} onHeadingClick={({ isOpen }) => setOpen(isOpen)}>

@@ -80,29 +80,16 @@ export default function App({ runtime }) {
       const selectedIndex = tabNodes.findIndex(tab => tab.getAttribute('aria-selected') === 'true');
       if (selectedIndex < 0) return;
 
-      // Pick the widest consecutive run that includes the selected tab. This
-      // keeps tab labels aligned to real edges instead of leaving clipped
-      // fragments underneath Carbon's overflow arrows.
-      let visibleRun = { start: selectedIndex, end: selectedIndex, count: 1, width: tabNodes[selectedIndex].getBoundingClientRect().width };
-      for (let start = 0; start <= selectedIndex; start += 1) {
-        let width = 0;
-        for (let end = start; end < tabNodes.length; end += 1) {
-          width += tabNodes[end].getBoundingClientRect().width;
-          if (width > list.clientWidth + 1) break;
-          if (end < selectedIndex) continue;
-          const count = end - start + 1;
-          if (count > visibleRun.count || (count === visibleRun.count && end > visibleRun.end)) {
-            visibleRun = { start, end, count, width };
-          }
-        }
-      }
-
-      const lastBoundary = tabNodes.at(-1).offsetLeft - list.offsetLeft;
-      list.style.setProperty('--tab-scroll-tail', '0px');
-      const baseMaximum = list.scrollWidth - list.clientWidth;
-      list.style.setProperty('--tab-scroll-tail', `${Math.max(0, lastBoundary - baseMaximum)}px`);
-      const startBoundary = tabNodes[visibleRun.start].offsetLeft - list.offsetLeft;
-      list.scrollLeft = Math.min(list.scrollWidth - list.clientWidth, Math.max(0, startBoundary));
+      const activeBounds = tabNodes[selectedIndex].getBoundingClientRect();
+      const containerBounds = container.getBoundingClientRect();
+      const leftArrow = container.querySelector('button[aria-label="Scroll left"]');
+      const rightArrow = container.querySelector('button[aria-label="Scroll right"]');
+      const arrowVisible = arrow => arrow && !arrow.classList.contains('cds--tab--overflow-nav-button--hidden');
+      const visibleLeft = arrowVisible(leftArrow) ? leftArrow.getBoundingClientRect().right : containerBounds.left;
+      const visibleRight = arrowVisible(rightArrow) ? rightArrow.getBoundingClientRect().left : containerBounds.right;
+      const maximum = Math.max(0, list.scrollWidth - list.clientWidth);
+      if (activeBounds.left < visibleLeft - 1) list.scrollLeft = Math.max(0, list.scrollLeft + activeBounds.left - visibleLeft);
+      else if (activeBounds.right > visibleRight + 1) list.scrollLeft = Math.min(maximum, list.scrollLeft + activeBounds.right - visibleRight);
     };
     const frame = requestAnimationFrame(revealSelected);
     window.addEventListener('resize', revealSelected);
