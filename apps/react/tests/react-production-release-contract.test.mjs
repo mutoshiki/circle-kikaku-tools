@@ -208,6 +208,10 @@ test('normal release preserves sanitized smoke diagnostics for each route and br
   assert.match(uploadStep, /if-no-files-found:\s*warn/);
   assert.match(uploadStep, /retention-days:\s*7/);
   assert.match(uploadStep, /react-production-diagnostics/);
+  assert.match(uploadStep, /react-production-diagnostics\/\*\.png/);
+  assert.match(smokeDiagnostics, /assetRequests/);
+  assert.match(smokeDiagnostics, /applicationPresent: Boolean\(document\.querySelector\('\.application'\)\)/);
+  assert.match(smoke, /captureFailureScreenshot/);
 });
 
 test('rollback uses the current verified React release and only saves a smoke-verified payload', () => {
