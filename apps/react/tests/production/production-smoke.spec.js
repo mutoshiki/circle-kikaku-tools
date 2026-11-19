@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fixture, createReference } from '../reference.mjs';
 import { openDistanceGuideFromMovementSettings, openVehicleExpenseEditor, returnToMovementSettingsFromDistanceGuide } from '../browser/settlement-smoke-actions.mjs';
 import { cleanupProductionSmokeRoom, productionSmokeRoomId, seedProductionSmokeRoom } from './firebase-smoke-room.mjs';
-import { createSmokeDiagnostics } from './production-smoke-diagnostics.mjs';
+import { createSmokeDiagnostics, isExpectedFirebaseLongPollDisconnectPageError } from './production-smoke-diagnostics.mjs';
 
 const mode = process.env.REACT_PRODUCTION_SMOKE_MODE;
 const baseURL = process.env.REACT_PRODUCTION_SMOKE_BASE_URL || '';
@@ -114,7 +114,10 @@ test('production app, Firebase compatibility, manual distance guidance, and key 
     const messageText = message.text().replace(/([?&]key=)[^&\s]+/gi, '$1[redacted]');
     consoleErrors.push(`${messageText}${source}`);
   });
-  page.on('pageerror', error => { consoleErrors.push(error.message); });
+  page.on('pageerror', error => {
+    if (isExpectedFirebaseLongPollDisconnectPageError(error)) return;
+    consoleErrors.push(error.message);
+  });
   page.on('requestfailed', request => {
     const url = new URL(request.url());
     if (url.hostname !== 'identitytoolkit.googleapis.com') return;
