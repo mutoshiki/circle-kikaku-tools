@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import { fixture, createReference } from '../reference.mjs';
 import { openDistanceGuideFromMovementSettings, openVehicleExpenseEditor, returnToMovementSettingsFromDistanceGuide } from '../browser/settlement-smoke-actions.mjs';
 import { cleanupProductionSmokeRoom, productionSmokeRoomId, seedProductionSmokeRoom } from './firebase-smoke-room.mjs';
@@ -15,6 +17,18 @@ function getDiagnosticsPath() {
   if (!diagnosticPath) return '';
   if (diagnosticPath.endsWith('.json')) return diagnosticPath;
   return `${diagnosticPath}/${mode}-${test.info().project.name}.json`;
+}
+async function captureFailureScreenshot(page) {
+  const outputPath = getDiagnosticsPath();
+  if (!outputPath || page.isClosed()) return false;
+  try {
+    const screenshotPath = outputPath.replace(/\.json$/i, '.failure.png');
+    await mkdir(path.dirname(screenshotPath), { recursive: true });
+    await writeFile(screenshotPath, await page.screenshot({ animations: 'disabled' }));
+    return true;
+  } catch {
+    return false;
+  }
 }
 const config = {
   apiKey: process.env.REACT_FIREBASE_API_KEY || '',
@@ -80,6 +94,8 @@ test('production app, Firebase compatibility, manual distance guidance, and key 
   const consoleErrors = [];
   const diagnostics = createSmokeDiagnostics(page.context(), { browserName: test.info().project.name });
   diagnostics.trackPage(page);
+  let failurePage = page;
+  let failureScreenshotCaptured = false;
   const identityToolkitDiagnostics = [];
   const identityToolkitResponseTasks = [];
   const forbiddenResponses = [];
@@ -184,6 +200,7 @@ test('production app, Firebase compatibility, manual distance guidance, and key 
     if (mode === 'root') {
       setSmokePhase('React alias validation');
       const routePage = await page.context().newPage();
+      failurePage = routePage;
       try {
         const reactAlias = new URL('/circle-kikaku-tools/react/', 'https://mutoshiki.github.io');
         reactAlias.searchParams.set('room', roomId);
@@ -197,8 +214,13 @@ test('production app, Firebase compatibility, manual distance guidance, and key 
 
         setSmokePhase('legacy URL compatibility');
         await openLegacyAlias(routePage, { roomId, view: 'seisan', expectedRoomName: updatedSmokeMarker });
+      } catch (error) {
+        await diagnostics.capturePage(routePage);
+        failureScreenshotCaptured = await captureFailureScreenshot(routePage);
+        throw error;
       } finally {
         await routePage.close();
+        failurePage = page;
       }
     }
 
@@ -216,6 +238,10 @@ test('production app, Firebase compatibility, manual distance guidance, and key 
       identityToolkitDiagnostics.join('\n') || '(none)',
     ].join('\n')).toEqual([]);
     expect(forbiddenResponses).toEqual([]);
+  } catch (error) {
+    await diagnostics.capturePage(failurePage);
+    if (!failureScreenshotCaptured) await captureFailureScreenshot(failurePage);
+    throw error;
   } finally {
     try {
       if (roomSeeded) {
