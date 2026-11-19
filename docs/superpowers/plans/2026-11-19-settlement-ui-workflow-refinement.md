@@ -115,5 +115,13 @@
 - [ ] Settlement画面をブラウザーズーム200%で手動確認する。今回の画面記録では未実施。settlementの320px幅テストはCSS幅のreflow検証であり、ブラウザーズームの実機確認とは区別する。
 - [x] 「一覧から合計¥2,900と部費¥1,000を読む」「未集金の2人を見つけ、最後の人を記録して0人になる」「費用未入力の車へ距離を入力し、保存後にその車の支払額を読む」「集金済み8人の状態で設定変更前の金額差を読む」を通しで行う。見え方と操作を確認し、必要な調整後は影響する場面を再確認する。
 - [x] S01〜S15と証拠を照合し、画面マトリクス、モーダルの各状態、未実施の実機・読み上げ等を記録する。`git diff --check` を通す。
-- [ ] リリース前にこの変更をcommit、pushし、既存PRを更新するか新規PRを作成する。変更分類に沿った必須CI成功後にマージし、mainの対象SHAの `Release / Readiness` と `React Production Release` を順に確認する。成功済みチェックは同一SHAで再利用する。失敗時は同名テストで今回の回帰と既知baselineを比較する。
-- [ ] 公開workflowで両ブラウザーの本番root smoke、実行専用IDのテストデータcleanup、公開manifestのSHA・digest、失敗時の既存rollbackを確認する。公開画面のUIは書き込みのないサンプルで確認する。通常の企画で集金や費用を記録しない。
+- [x] リリース前にこの変更をcommit、pushし、PR #153（精算UI）とPR #154（Firebase long-poll切断診断の限定処理）をマージ。main SHA `1a797b22f06c782473616cf745d29c61a44c75ac` のCIと `Release / Readiness` 成功後、標準 `React Production Release` を実行。
+- [x] 公開workflow #44514543230でcompatibility/rootの本番smokeをChromium・WebKit両方で確認（各経路2件成功）、専用marker `react-release-44514543230-1` のcleanupを経路ごとに確認。rollback payloadの保存成功と、公開manifestのSHA・digest一致を確認。公開UIは書き込みのないサンプルで読み取り確認し、通常の企画データは変更していない。
+
+### 公開後の証拠（2026-11-19）
+
+- main CI #44511780526: Build、Unit、Firebase/Compatibility、Chromium、WebKit、Visual/Layout、Shared/Collaboration、Release / Readiness がすべて成功。legacy 3 jobは変更分類によりskip。
+- Production Release #44514543230: compatibilityとrootのsmokeが各2件（Chromium、WebKit）成功。各経路のrun専用smoke room cleanup、root deploy、rollback artifact保存も成功。既存rollbackは不要のため実行なし。
+- 公開manifest `https://mutoshiki.github.io/circle-kikaku-tools/release-build.json`: `sourceSha=1a797b22f06c782473616cf745d29c61a44c75ac`、`assetDigest=97584ab963e3dcaf55af6c46b672f29fc627ecfa2c804311bae0514b43f7b91d`。release targetと一致。
+- 公開rootの `?debugSample=all-tools&view=seisan` を読み取り専用で確認。参加者名と各チェックボックスのアクセシブル名が一致し、集金額・進捗、各車の金額と財源、費用一覧、設定プレビューを表示できた。編集・設定は開いて閉じ、保存操作なし。
+- Settlement画面のブラウザーズーム200%手動確認は未実施。物理端末およびスクリーンリーダーでの確認も未実施。320px幅のreflow・自動テストと割当画面の200%自動確認は上記手動確認の代替として扱わない。
