@@ -119,9 +119,10 @@ test('five-screen Carbon consistency at mobile width', async ({ page }) => {
   const allTab = switcher.getByRole('tab', { name: 'すべて' });
   await expect(allTab).toBeVisible();
   await expect(allTab).toHaveAttribute('aria-selected', 'true');
-  await expect(switcher.getByRole('tab', { name: '未集金' })).toBeVisible();
-  await switcher.getByRole('tab', { name: '未集金' }).click();
-  await expect(switcher.getByRole('tab', { name: '未集金' })).toHaveAttribute('aria-selected', 'true');
+  const unpaidTab = switcher.getByRole('tab', { name: /未集金（\d+）/ });
+  await expect(unpaidTab).toBeVisible();
+  await unpaidTab.click();
+  await expect(unpaidTab).toHaveAttribute('aria-selected', 'true');
   await switcher.getByRole('tab', { name: 'すべて' }).click();
   await expect(collectionDialog.locator('.settlement-collection-row.excluded .cds--tag').first()).toBeVisible();
   await collectionDialog.getByRole('button', { name: '閉じる', exact: true }).last().click();

@@ -45,7 +45,8 @@ test('collection rows use one checkbox tab stop and Space records once', async (
   await page.getByRole('tab', { name: '精算', exact: true }).click();
   await page.getByRole('button', { name: '集金状況を見る', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '集金状況', exact: true });
-  await dialog.getByRole('tab', { name: '未集金', exact: true }).click();
+  const unpaidTab = dialog.getByRole('tab', { name: /未集金（\d+）/, exact: true });
+  await unpaidTab.click();
 
   const rows = dialog.locator('.settlement-collection-row:not(.excluded)');
   const first = rows.first();
@@ -66,9 +67,9 @@ test('collection rows use one checkbox tab stop and Space records once', async (
     await expect(checkbox).not.toBeAttached();
     const nextId = unpaidCheckboxIds[index + 1];
     if (nextId) await expect(dialog.locator(`[id="${nextId}"]`)).toBeFocused();
-    else await expect(dialog.getByRole('tab', { name: '未集金', exact: true })).toBeFocused();
+    else await expect(unpaidTab).toBeFocused();
   }
-  await expect(dialog.getByRole('tab', { name: '未集金', exact: true })).toBeFocused();
+  await expect(unpaidTab).toBeFocused();
   await dialog.getByRole('tab', { name: 'すべて', exact: true }).click();
   await expect(dialog.locator(`[id="${firstCheckboxId}"]`)).toBeChecked();
   for (const id of unpaidCheckboxIds.slice(1)) await expect(dialog.locator(`[id="${id}"]`)).toBeChecked();

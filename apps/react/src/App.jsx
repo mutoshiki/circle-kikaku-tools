@@ -315,7 +315,7 @@ export default function App({ runtime }) {
                 {!visitedToolIds.has(tool.id) ? null : <>
                 {tool.id === 'participants' ? renderParticipants()
                 : tool.id === 'car' || tool.id === 'team' ? <Allocation runtime={runtime} room={room} type={tool.id} onNotice={showNotice} onParticipants={openParticipantRegistration} roomStatus={syncStatus} />
-                : tool.id === 'settlement' ? <Settlement runtime={runtime} room={room} onNotice={showNotice} onOpenParticipantRegistration={openParticipantRegistration} onOpenSettings={openSettlementSettings} participantStartRef={participantStartRef} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} />
+                : tool.id === 'settlement' ? <Settlement runtime={runtime} room={room} onNotice={showNotice} onOpenParticipantRegistration={openParticipantRegistration} onOpenSettings={openSettlementSettings} onOpenCarSetup={() => changeView('car')} carTabEnabled={tabs.some(item => item.id === 'car')} participantStartRef={participantStartRef} openSettingsRequestId={countOnlySettlementRequest} onSettingsRequestHandled={consumeCountOnlySettlementRequest} roomStatus={syncStatus} />
                 : <ExternalToolWorkspace toolId={tool.id} runtime={runtime} room={room} onNotice={showNotice} active={tool.id === activeToolId} />}
                 </>}
               </TabPanel>)}

@@ -74,7 +74,7 @@ test('movement fields allow blanks and zero where valid, and reject negatives in
     const input = dialog.getByLabel(label);
     await input.fill(value);
     await expect(input).toHaveAttribute('aria-invalid', 'true');
-    await expect(dialog.getByText(message, { exact: true })).toBeVisible();
+    await expect(dialog.locator('.cds--form-requirement').filter({ hasText: message })).toBeVisible();
     await input.fill(label === '移動距離（km）' ? '132' : label === '燃費（km/L）' ? '12' : '172');
   }
   const distance = dialog.getByLabel('移動距離（km）');
