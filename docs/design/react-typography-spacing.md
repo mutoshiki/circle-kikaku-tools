@@ -222,3 +222,22 @@ The local preview was built from the current published baseline `d81b6ac91966400
 | Settlement responsive/type roles | 320–1280px (automated) | Chromium desktop/mobile, WebKit mobile | Pass; heading computes to 20px / 400 / 28px; `letter-spacing: normal`; its section gap is at least 16px; no page overflow | `settlement.spec.js` responsive case; browser report 111 passed, 0 skipped | Automated coverage, not physical-device review |
 
 This change does not modify modal behavior, calculations, or data persistence. Physical devices and assistive technology were not tested.
+
+### 2026-11-19 settlement workflow modal and layout evidence
+
+| Screen / modal | State | Width × height | Theme | Keyboard | Result | Evidence | Reason if unverified |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Settlement settings | Final step; amount preview and save actions | Side browser 504 × 667; automated 390 × 667 | Light and dark automated; light side-browser | Pointer; save was not activated | Pass; preview sits above actions and both remain inside the footer and viewport | Side-browser local preview; `settlement.spec.js` short-screen case passed in Chromium/WebKit desktop/mobile | Screen reader, physical device, and browser zoom not exercised |
+| Vehicle expenses | Expense list and movement editor, then cancel | Side browser 504 × 667 | Dark | Pointer; canceled without saving | Pass; formula and movement fields were visible after scrolling; ordinary settlement remained rendered | Side-browser local preview; `settlement.spec.js` | Physical keyboard and assistive technology not exercised |
+| Collection | Unpaid filter with zero outstanding participants | Side browser 504 × 667 | Dark | Pointer | Pass; `未集金（0）` and `未集金の人はいません` were visible | Side-browser local preview and `settlement.spec.js` | Screen reader not exercised |
+
+The settlement preview was built and identity-checked against public baseline `40b6646e5bc0736d51c04bdae80b7d4f17385d5d`. The configured settlement browser suite passed 150/150 across Chromium desktop/mobile and WebKit mobile; the complete React unit suite passed 227/227. No synthetic changes were saved and no production data was used. This evidence does not claim manual screen-reader, physical-device, or browser-zoom review.
+
+### 2026-11-19 collection row identity correction
+
+Normal participant rows and their checkbox accessible names use the participant's own name even when `paidBy` records another collector. The side-browser accessibility tree confirmed this for all already-collected sample participants; changing one to unpaid placed that same participant in the unpaid filter, and rerecording restored the checked row under the same name. The all-tools synthetic room ended at its original 10/10 state. The count-only flow still uses the recorded collector name in its optional name prompt.
+
+| Check | Viewports / themes | Result | Evidence |
+| --- | --- | --- | --- |
+| Paid participant row identity, filter, undo, rerecord | Chromium desktop/mobile and WebKit mobile; local preview 504 × 667 | Pass, 3/3 new regression tests; count-only collection-name flow 3/3 | `settlement.spec.js`: `paid participant rows stay identifiable when another person recorded the collection`; `count-only settlement can record collections with blank movement costs`; side-browser AX tree |
+| 200% browser zoom | Allocation screen automated boundary case only | Pass in the previously recorded four-project allocation run; settlement-specific browser zoom was not manually exercised and remains unverified | `allocation.spec.js`: `long participant content and action menus remain readable at mobile and 200 percent zoom`; `ui-screen-matrix.md` records automated-only coverage |

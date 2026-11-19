@@ -109,7 +109,7 @@ export function assertSettlementExtraTargetCurrent(store, edit, { id, expected =
   throw new Error('この費用は別の端末で更新されました。画面を開き直してください。');
 }
 
-export function writeSettlementDraft(store, edit) {
+export function buildSettlementSettingsIntentPatch(store, edit) {
   const next = store.domain.canonical.settlementToStorage(store.domain.settlement.normalizeSettlementState(edit.state), edit.session.draft.participants);
   if (edit.session.scope === 'settlement-settings') {
     const opening = store.domain.canonical.settlementToStorage(store.domain.settlement.normalizeSettlementState(edit.openingState), edit.session.base.participants);
@@ -120,6 +120,32 @@ export function writeSettlementDraft(store, edit) {
       else delete next[key];
     }
   }
+  return next;
+}
+
+export function previewSettlementSettings(store, edit) {
+  const snapshot = store.getSnapshot();
+  const baseSettlement = edit.session.base.settlement || {};
+  const intentSettlement = buildSettlementSettingsIntentPatch(store, edit);
+  const previewRoom = structuredClone(snapshot);
+  const nextSettlement = structuredClone(snapshot.settlement || {});
+  for (const key of new Set([...Object.keys(baseSettlement), ...Object.keys(intentSettlement)])) {
+    if (JSON.stringify(baseSettlement[key]) === JSON.stringify(intentSettlement[key])) continue;
+    if (Object.hasOwn(intentSettlement, key)) nextSettlement[key] = structuredClone(intentSettlement[key]);
+    else delete nextSettlement[key];
+  }
+  previewRoom.settlement = nextSettlement;
+  const calculate = room => {
+    const { data, state } = store.domain.settlementInput(room);
+    return store.domain.settlement.calculateSettlement(data, state);
+  };
+  const before = calculate(snapshot);
+  const after = calculate(previewRoom);
+  return { beforeAmount: before.perPerson, afterAmount: after.perPerson, recordedCount: before.paidCount };
+}
+
+export function writeSettlementDraft(store, edit) {
+  const next = buildSettlementSettingsIntentPatch(store, edit);
   edit.session.draft.settlement = next;
 }
 

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRoomStore } from '../src/store/room-store.js';
 import { fixture, createReference, plain } from './reference.mjs';
-import { beginSettlementEdit, beginStandaloneDriverNameEdit, applyStandaloneDriverName, assertStandaloneDriverNameTargetCurrent, assertSettlementExtraTargetCurrent, writeSettlementDraft, commitSettlementEdit, collectionChange, undoCollectionChange } from '../src/components/settlement/edit.js';
+import { beginSettlementEdit, beginStandaloneDriverNameEdit, applyStandaloneDriverName, assertStandaloneDriverNameTargetCurrent, assertSettlementExtraTargetCurrent, writeSettlementDraft, commitSettlementEdit, collectionChange, undoCollectionChange, previewSettlementSettings } from '../src/components/settlement/edit.js';
 
 const create = () => createRoomStore({ initial: fixture, clientId: 'settlement-test', clock: { now: () => 1000 } });
 const runtime = store => ({ store, sync: { flush: async () => {}, getSnapshot: () => ({ kind: 'local' }) } });
@@ -46,6 +46,22 @@ test('settings cancel changes nothing; failed save retains draft; reset rejects 
   remote.resetGeneration++;
   store.receiveRemote(remote);
   await assert.rejects(commitSettlementEdit(runtime(store), edit), /リセット/);
+});
+
+test('settings preview is read-only and matches the amount after the same draft is saved', async () => {
+  const store = create();
+  const edit = beginSettlementEdit(store);
+  edit.state.driverReward = '1200';
+  const beforeSnapshot = structuredClone(store.getSnapshot());
+  const beforeSessionDraft = structuredClone(edit.session.draft);
+  const preview = previewSettlementSettings(store, edit);
+  assert.ok(preview.recordedCount > 0);
+  assert.notEqual(preview.beforeAmount, preview.afterAmount);
+  assert.deepEqual(store.getSnapshot(), beforeSnapshot);
+  assert.deepEqual(edit.session.draft, beforeSessionDraft);
+  await commitSettlementEdit(runtime(store), edit);
+  const { data, state } = store.domain.settlementInput(store.getSnapshot());
+  assert.equal(store.domain.settlement.calculateSettlement(data, state).perPerson, preview.afterAmount);
 });
 
 test('first count-only setup starts both counts at zero and persists the selected mode without count edits', async () => {
@@ -243,6 +259,8 @@ test('settings save publishes only changed settings and keeps remote car edits',
   const remote = structuredClone(store.getSnapshot());
   remote.settlement.carsByParticipantId[car.participantId].dist = '222';
   store.receiveRemote(remote);
+  const preview = previewSettlementSettings(store, edit);
+  assert.ok(preview.recordedCount > 0);
   let intent;
   store.subscribeIntents(value => { intent = value; });
   await commitSettlementEdit(runtime(store), edit);
@@ -250,4 +268,6 @@ test('settings save publishes only changed settings and keeps remote car edits',
   const result = store.domain.settlementInput(store.getSnapshot()).state;
   assert.equal(result.rounding, '10');
   assert.equal(result.cars[car.name].dist, '222');
+  const current = store.domain.settlementInput(store.getSnapshot());
+  assert.equal(store.domain.settlement.calculateSettlement(current.data, current.state).perPerson, preview.afterAmount);
 });

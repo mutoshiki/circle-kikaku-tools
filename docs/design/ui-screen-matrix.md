@@ -1,6 +1,6 @@
 # Integrated project screen and state matrix
 
-Updated: 2026-10-31. “Automated” refers to repository tests. It does not claim manual, screen-reader, or production verification.
+Updated: 2026-11-19. “Automated” refers to repository tests. It does not claim manual, screen-reader, or production verification.
 
 ## Screen inventory
 
@@ -38,6 +38,17 @@ Updated: 2026-10-31. “Automated” refers to repository tests. It does not cla
 | 1280px desktop | Light and dark in screen-specific specs | Final 4-project Playwright run; side preview checked 1280px and computed typography | Manual check limited to representative workspace, not every tool-state combination |
 | 200% browser zoom | Light theme | Final run included `allocation.spec.js` long Japanese/control-size boundary | Automated only |
 | Long Japanese content | Light and dark in covered flows | Final run: `shell.spec.js`, `allocation.spec.js`, `settlement.spec.js`, modal layout specs | Physical device and assistive technology not tested |
+
+### 2026-11-19 settlement workflow refinement
+
+| Screen / workflow | Main content and actions | Covered states and evidence | Remaining limits |
+|---|---|---|---|
+| Settlement overview and vehicle rows | Collection amount/progress, vehicle adjusted totals and payment sources, expense status, memo, empty-car action | 150/150 settlement, entry-mode, and negative-validation browser tests passed on Chromium desktop/mobile and WebKit mobile. Local side browser showed the synthetic all-tools sample, ¥2,900 for the first vehicle, source text, and completed collection. | Screen readers, physical devices, and browser zoom were not exercised manually. |
+| Settlement settings | Before/after per-person preview when saved collection records exist; fixed footer | Browser geometry regression passed in Chromium/WebKit desktop/mobile at 390 × 667; local side browser at 504 × 667 showed preview above visible actions. Preview result is covered by unit parity tests against saved amount after a remote state update. | Screen-reader and physical-device behavior were not exercised. |
+| Vehicle expense and movement | Missing/invalid/ready status, calculation formula, signed deduction source, save/cancel boundary | Settlement browser suite passed; focused expense and movement checks include the actual Carbon radio label click and checked native input. Local side browser opened and canceled the movement editor. | External route app, physical keyboard, and screen-reader behavior were not manually exercised. |
+| Collection identity | Participant row and checkbox name stay tied to the participant when another person recorded collection; all/unpaid filters, undo, and rerecord | `settlement.spec.js`: `paid participant rows stay identifiable when another person recorded the collection` passed 3/3 (Chromium desktop/mobile, WebKit mobile); count-only collection-name prompt case passed 3/3. Local preview accessibility tree showed the person's name for each row and checkbox before and after undo/rerecord; the synthetic room was restored to 10/10. | Production smoke and screen-reader devices remain unverified until the release workflow completes. |
+
+Verification was local-only. The preview manifest matched baseline `40b6646e5bc0736d51c04bdae80b7d4f17385d5d`; `npm test` passed 227/227, and the settlement browser run passed 150/150 with no skips. No release, production write, commit, or push was performed.
 
 ## Final preview observation — 2026-10-31
 

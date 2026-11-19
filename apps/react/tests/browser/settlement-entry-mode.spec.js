@@ -41,6 +41,23 @@ test('count-only settlement hides unrelated tools, retains Tools, survives reloa
   await expect(page.getByRole('tabpanel', { name: '参加者', exact: true }).getByRole('heading', { name: /参加者 \d+人/ })).toBeVisible();
 });
 
+test('count-only passengers without drivers can open the driver-count settings directly', async ({ page }) => {
+  const roomId = 'SETTLEMENT-ENTRY-MODE-NO-DRIVERS';
+  const room = structuredClone(fixture);
+  room.settlement.standalone = { enabled: true, driverCount: '0', memberCount: '2', driverNames: [] };
+  await page.addInitScript(({ id, value }) => { const key = `sanpo-react:v1:${id}:room`; if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(value)); }, { id: roomId, value: room });
+  await page.goto(`/?room=${roomId}&view=seisan`);
+  await expect(page.getByText('車が登録されていません', { exact: true })).toBeVisible();
+  const setup = page.getByRole('button', { name: '運転手の人数を設定', exact: true });
+  await setup.click();
+  const settings = page.getByRole('dialog', { name: '精算設定を編集', exact: true });
+  await expect(settings.getByRole('radio', { name: '人数だけで精算', exact: true })).toBeChecked();
+  await expect(settings.getByRole('spinbutton', { name: '運転手の人数' })).toHaveValue('0');
+  await expect(settings.getByRole('spinbutton', { name: '同乗者の人数' })).toHaveValue('2');
+  await settings.getByRole('button', { name: 'キャンセル', exact: true }).click();
+  await expect(setup).toBeFocused();
+});
+
 test('opening a count-only room with zero counts asks for counts without showing normal settlement data', async ({ page }) => {
   const roomId = 'SETTLEMENT-ENTRY-MODE-ZERO';
   const room = structuredClone(fixture);
@@ -116,6 +133,6 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await expect(collection).toBeVisible();
   await collection.getByRole('tab', { name: 'すべて', exact: true }).click();
   await expect(collection.locator('.settlement-collection-row').filter({ hasText: '集金担当' })).toContainText('集金済み');
-  await expect(page.locator('.settlement-collection-summary__progress')).toHaveText(payerCount === 1 ? '集金完了 1 / 1人' : `集金済み 1 / ${payerCount}人`);
+  await expect(page.locator('.settlement-collection-summary__progress')).toHaveText(payerCount === 1 ? '集金完了 1 / 1人' : `あと${payerCount - 1}人（1 / ${payerCount}人 集金済み）`);
   await collection.getByRole('button', { name: '閉じる', exact: true }).last().click();
 });

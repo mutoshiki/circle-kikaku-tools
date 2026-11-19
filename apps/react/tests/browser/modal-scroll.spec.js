@@ -93,7 +93,7 @@ test('movement settings fit the viewport when content fits and share the modal s
   expect(frame.bodyScroll).toBeLessThanOrEqual(frame.bodyHeight + 1);
   expect(frame.height).toBeLessThan(frame.viewport);
   expect(frame.headerColor).toBe(frame.bodyColor);
-  await expect(body.getByText('ガソリン代の金額')).toBeVisible();
+  await expect(body.getByLabel('ガソリン単価（円/L）')).toBeVisible();
   await expect(dialog.getByRole('button', { name: '保存', exact: true })).toBeVisible();
 });
 
@@ -160,7 +160,7 @@ test('movement settings scroll only their body at a compact viewport and keep th
   await expect(dialog.getByRole('button', { name: '保存', exact: true })).toBeVisible();
   await body.hover();
   await page.mouse.wheel(0, 1200);
-  await expect(body.getByText('ガソリン代の金額')).toBeInViewport();
+  await expect(body.getByLabel('ガソリン単価（円/L）')).toBeInViewport();
 });
 
 test('Times movement settings keep short content compact', async ({ page }, testInfo) => {

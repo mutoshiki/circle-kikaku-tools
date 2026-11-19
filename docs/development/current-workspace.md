@@ -5,10 +5,10 @@
 ## 公開基準
 
 - 公開URL: <https://mutoshiki.github.io/circle-kikaku-tools/>
-- 確認日時: 2026-11-02（公開manifestを再取得）
+- 確認日時: 2026-11-19（公開manifestを再取得）
 - manifest: <https://mutoshiki.github.io/circle-kikaku-tools/release-build.json>
-- 公開source SHA: `e1c43ff3693d8d6a992e276b71c117b878b13e54`（2026-11-02に再取得）
-- 公開asset digest: `3d81ab69b9599ad95793725f5dbef3c4f2dcc01161323105c4a2b7017bad0f04`（同時取得）
+- 公開source SHA: `40b6646e5bc0736d51c04bdae80b7d4f17385d5d`（2026-11-19に再取得）
+- 公開asset digest: `95721682a165a4af257cb1aed866ebe4d7f3a01123a93b227381c87c1f5471c7`（同時取得）
 - 公開サイトはReactのルートビルド。CIで`apps/react/dist`からPagesルートを構成する。
 - 公開manifestからsource SHA・asset digestを再取得し、確認済み。
 

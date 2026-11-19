@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, ComposedModal, InlineNotification, ModalBody, ModalFooter, ModalHeader, NumberInput, ProgressIndicator, ProgressStep, RadioButton, RadioButtonGroup, Select, SelectItem, TextInput } from '@carbon/react';
 import useMediaQuery from '../hooks/useMediaQuery.js';
-import { commitSettlementEdit, initializeStandaloneCounts } from './settlement/edit.js';
+import { commitSettlementEdit, initializeStandaloneCounts, previewSettlementSettings } from './settlement/edit.js';
 
 const steps = ['精算方法', '車出し協力代', '集金ルール'];
 const hasNegativeValue = value => /^[-−]/.test(String(value ?? '').trim());
@@ -36,6 +36,9 @@ export default function SettlementSettingsModal({ runtime, edit, launcherButtonR
   const invalidReward = hasNegativeValue(state.driverReward);
   const invalidCurrentStep = step === 0 ? invalidDriverCount || invalidMemberCount : step === 1 && invalidReward;
   const driverRule = state.driverCollectionFree ? 'free' : state.driverCollectionOffset ? 'offset' : 'normal';
+  const preview = previewSettlementSettings(runtime.store, edit);
+  const showCollectionPreview = !invalidDriverCount && !invalidMemberCount && !invalidReward
+    && preview.recordedCount > 0 && preview.beforeAmount !== preview.afterAmount;
 
   useEffect(() => {
     if (initialStep.current) { initialStep.current = false; return; }
@@ -89,11 +92,14 @@ export default function SettlementSettingsModal({ runtime, edit, launcherButtonR
         {!state.standalone.enabled && <RadioButtonGroup legendText="企画者から集金するか" name="settlement-organizer-rule" valueSelected={state.organizerFree ? 'free' : 'collect'} onChange={value => update({ organizerFree: value === 'free' })} orientation="vertical"><RadioButton id="settlement-organizer-collect" value="collect" labelText="集金する" /><RadioButton id="settlement-organizer-free" value="free" labelText="集金しない（企画者分を免除）" /></RadioButtonGroup>}</section>}
     </div>
     </ModalBody>
-    <ModalFooter className="settlement-settings-footer">
+    <ModalFooter className={`settlement-settings-footer${showCollectionPreview && step === 2 ? ' settlement-settings-footer--preview' : ''}`}>
       <Button kind="ghost" disabled={saving} onClick={() => onClose(false)}>キャンセル</Button>
       <div className="settlement-settings-footer__right">
-        <Button kind="secondary" disabled={saving || step === 0} onClick={() => go(step - 1)}>戻る</Button>
-        <Button kind="primary" disabled={saving || composing || invalidCurrentStep} onClick={() => step === 2 ? save() : go(step + 1)}>{step === 2 ? '保存' : '次へ'}</Button>
+        {showCollectionPreview && step === 2 && <div className="settlement-settings-preview" role="status"><span>1人あたり {money(preview.beforeAmount)} → {money(preview.afterAmount)}</span><span>すでに{preview.recordedCount}人から集金済み</span></div>}
+        <div className="settlement-settings-footer__actions">
+          <Button kind="secondary" disabled={saving || step === 0} onClick={() => go(step - 1)}>戻る</Button>
+          <Button kind="primary" disabled={saving || composing || invalidCurrentStep} onClick={() => step === 2 ? save() : go(step + 1)}>{step === 2 ? '保存' : '次へ'}</Button>
+        </div>
       </div>
     </ModalFooter>
   </ComposedModal>;
