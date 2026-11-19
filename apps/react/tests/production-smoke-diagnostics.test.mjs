@@ -119,6 +119,49 @@ test('records same-origin asset responses and safe browser errors without query 
   assert.equal(JSON.stringify(output).includes('?token='), false);
 });
 
+test('ignores only the Firebase Realtime Database long-poll disconnect page error', () => {
+  const context = new FakeContext();
+  const page = new FakePage();
+  const diagnostics = createSmokeDiagnostics(context, { browserName: 'webkit' });
+  context.emit('page', page);
+  page.emit('pageerror', Object.assign(
+    new Error('/s-gke-usc1-nssi2-67.firebaseio.com/.lp?disconn=t&id=123&pw=ephemeral'),
+    { name: 'XMLHttpRequest cannot load https' },
+  ));
+  page.emit('pageerror', Object.assign(
+    new Error('/s-gke-usc1-nssi2-67.firebaseio.com/.lp?start=t&id=123&pw=ephemeral'),
+    { name: 'XMLHttpRequest cannot load https' },
+  ));
+  page.emit('pageerror', Object.assign(
+    new Error('/s-gke-usc1-nssi2-67.firebaseio.com/.lp?disconn=t&id=123&pw=ephemeral'),
+    { name: 'TypeError' },
+  ));
+
+  const output = diagnostics.snapshot();
+  diagnostics.dispose();
+
+  assert.equal(output.consoleErrors.length, 2);
+  assert.equal(output.consoleErrors[0].name, 'XMLHttpRequest cannot load https');
+  assert.equal(output.consoleErrors[1].name, 'TypeError');
+});
+
+test('redacts Firebase Realtime Database long-poll passwords from browser diagnostics', () => {
+  const context = new FakeContext();
+  const page = new FakePage();
+  const diagnostics = createSmokeDiagnostics(context, { browserName: 'webkit' });
+  context.emit('page', page);
+  page.emit('pageerror', Object.assign(
+    new Error('/s-gke-usc1-nssi2-67.firebaseio.com/.lp?start=t&id=123&pw=ephemeral'),
+    { name: 'XMLHttpRequest cannot load https' },
+  ));
+
+  const output = diagnostics.snapshot();
+  diagnostics.dispose();
+
+  assert.match(output.consoleErrors[0].detail, /pw=\[redacted\]/);
+  assert.equal(JSON.stringify(output).includes('pw=ephemeral'), false);
+});
+
 test('flushes the page route, app boot state, and release manifest without query values', async t => {
   const directory = await mkdtemp(path.join(os.tmpdir(), 'production-smoke-diagnostics-'));
   t.after(() => rm(directory, { recursive: true, force: true }));

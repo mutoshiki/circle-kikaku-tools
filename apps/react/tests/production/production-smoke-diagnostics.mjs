@@ -18,10 +18,15 @@ const safeUrl = value => {
 const safeErrorText = value => boundedText(value, 320).replace(/https?:\/\/[^\s"'<>]+/gi, raw => {
   const url = safeUrl(raw);
   return url ? `${url.origin}${url.path}` : '[url omitted]';
-}).replace(/((?:key|auth|token|access_token|idToken)=)[^&\s"'<>]+/gi, '$1[redacted]');
+}).replace(/((?:key|auth|token|access_token|idToken|pw)=)[^&\s"'<>]+/gi, '$1[redacted]');
 const consoleCategory = text => /cors|access control|cross-origin/i.test(text) ? 'cors'
   : /identitytoolkit|firebase|accounts:/i.test(text) ? 'firebase'
     : /failed to load|net::err/i.test(text) ? 'resource-load' : 'other';
+
+export function isExpectedFirebaseLongPollDisconnectPageError(error) {
+  return error?.name === 'XMLHttpRequest cannot load https'
+    && /^\/s-[a-z0-9-]+\.firebaseio\.com\/\.lp\?disconn=t(?:&|$)/i.test(String(error?.message || ''));
+}
 
 export function createSmokeDiagnostics(context, { browserName, maxRequests = 200, maxConsoleErrors = 100 } = {}) {
   const started = Date.now();
@@ -124,6 +129,7 @@ export function createSmokeDiagnostics(context, { browserName, maxRequests = 200
       });
     });
     page.on('pageerror', error => {
+      if (isExpectedFirebaseLongPollDisconnectPageError(error)) return;
       if (consoleErrors.length >= maxConsoleErrors) { droppedConsoleErrors += 1; return; }
       consoleErrors.push({
         phase,
