@@ -26,13 +26,14 @@ test('project entry follows system Carbon theme preference', async ({ page }) =>
   await page.emulateMedia({ colorScheme: 'light' });
   await expect(application).toHaveClass(/cds--g10/);
 });
-test('project entry honors a saved Carbon theme preference', async ({ page }) => {
+test('project entry ignores a legacy saved Carbon theme preference', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
   await page.addInitScript(key => localStorage.setItem(key, 'dark'), preferenceKey);
   await page.goto('/');
   const application = page.locator('.application');
-  await expect(application).toHaveClass(/cds--g100/);
+  await expect(application).toHaveClass(/cds--g10/);
   await page.reload();
-  await expect(application).toHaveClass(/cds--g100/);
+  await expect(application).toHaveClass(/cds--g10/);
 });
 
 test('root lists browser-local projects without generating a room id', async ({ page }) => {

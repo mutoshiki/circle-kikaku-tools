@@ -2,6 +2,14 @@
 
 Updated: 2026-11-19. “Automated” refers to repository tests. It does not claim manual, screen-reader, or production verification.
 
+## 2026-11-20 header menu and system theme
+
+- Project shell header: replaced the related-app Switcher with one Carbon overflow menu. Project actions appear first (project list, rename, tab editor), then guide/report/sample actions, then the two external tools. Project list stays in the current tab; external tools open separately. Shell tests cover exact destinations, removed Switcher, ARIA state, keyboard navigation, outside click, Escape/focus return, rename focus, and sample share suppression.
+- Theme behavior: the project shell, project list, and creation screens now follow `prefers-color-scheme` immediately and when the device setting changes. Browser tests cover light/dark, live changes, and legacy saved `light`/`dark` values being ignored.
+- Responsive evidence: latest preview at 390px showed the complete menu labels; closing the menu returned `scrollX` to 0 and document width matched viewport. The project list preview showed its create action and browser-local history without a project share action. Playwright also checked menu bounds and no horizontal overflow at 390px and desktop widths.
+- Latest browser verification: 58 passed, 2 skipped, 0 failed across the four selected projects (Chromium and WebKit, desktop/mobile); the additional 390px no-overflow assertion passed in a focused Chromium mobile rerun. React unit suite: 229/229 passed. The two browser skips are recorded in the Playwright report; this is not physical-device or screen-reader verification.
+- Preview identity: `build:preview` / `check:preview` used published baseline source SHA `1a797b22f06c782473616cf745d29c61a44c75ac`; local-only synthetic room `DEBUG-HEADER-20261120`. No production project data was written.
+
 ## Screen inventory
 
 | Screen / workflow | Main content and actions | Covered states and evidence | Remaining limits |

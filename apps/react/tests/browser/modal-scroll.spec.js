@@ -107,7 +107,7 @@ test('movement settings keep aligned modal surfaces in both themes', async ({ pa
   const surfaces = {};
 
   for (const theme of ['light', 'dark']) {
-    await page.evaluate(themePreference => localStorage.setItem('sanpo-react:theme-preference:v1', themePreference), theme);
+    await page.emulateMedia({ colorScheme: theme });
     await page.reload();
     await page.getByRole('tab', { name: '精算', exact: true }).click();
     await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) })

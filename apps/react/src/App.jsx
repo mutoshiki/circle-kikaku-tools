@@ -4,6 +4,7 @@ import {
   TabPanels, TabPanel, ToastNotification, InlineLoading,
 } from '@carbon/react';
 import AppHeader from './components/AppHeader.jsx';
+import useSystemTheme from './hooks/useSystemTheme.js';
 import Participants from './components/Participants.jsx';
 import Allocation from './components/Allocation.jsx';
 import Settlement from './components/Settlement.jsx';
@@ -18,25 +19,13 @@ import { readLastProjectTool, resolveProjectStart, writeLastProjectTool } from '
 
 const legacyToolIds = ['participants', 'car', 'team', 'settlement'];
 const optionalTools = TOOL_REGISTRY.filter(tool => !tool.system);
-const THEME_PREFERENCE_KEY = 'sanpo-react:theme-preference:v1';
-function readThemePreference() {
-  try {
-    const preference = localStorage.getItem(THEME_PREFERENCE_KEY);
-    return preference === 'light' || preference === 'dark' ? preference : 'system';
-  } catch { return 'system'; }
-}
-function readSystemTheme() {
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'g100' : 'g10';
-}
 const noticeKind = message => /できません|失敗|エラー/.test(message) ? 'error' : /未割り当て|確認してください|選ぶと/.test(message) ? 'warning' : /ました|コピー/.test(message) ? 'success' : 'info';
 export default function App({ runtime }) {
   const room = useSyncExternalStore(runtime.store.subscribe, runtime.store.getSnapshot);
   const syncStatus = useSyncExternalStore(runtime.sync.subscribe, runtime.sync.getSnapshot);
   const workspaceSnapshot = useSyncExternalStore(runtime.workspace.subscribe, runtime.workspace.getSnapshot);
   const projectSetup = useSyncExternalStore(runtime.projectSetup.subscribe, runtime.projectSetup.getSnapshot);
-  const [themePreference, setThemePreference] = useState(readThemePreference);
-  const [systemTheme, setSystemTheme] = useState(readSystemTheme);
-  const theme = themePreference === 'system' ? systemTheme : themePreference === 'dark' ? 'g100' : 'g10';
+  const theme = useSystemTheme();
   const contentTheme = theme === 'g100' ? 'g90' : 'g10';
   const explicitToolId = runtime.initialToolId ?? null;
   const [activeToolId, setActiveToolId] = useState(() => explicitToolId || 'participants');
@@ -168,32 +157,6 @@ export default function App({ runtime }) {
     setGlobalModal('');
     showNotice('フォーム連携のサンプルに置き換えました。');
   }
-  useEffect(() => {
-    const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
-    const updateSystemTheme = event => setSystemTheme(event.matches ? 'g100' : 'g10');
-    const updateStoredPreference = event => {
-      if (event.key === THEME_PREFERENCE_KEY || event.key === null) setThemePreference(readThemePreference());
-    };
-    colorScheme.addEventListener('change', updateSystemTheme);
-    window.addEventListener('storage', updateStoredPreference);
-    return () => {
-      colorScheme.removeEventListener('change', updateSystemTheme);
-      window.removeEventListener('storage', updateStoredPreference);
-    };
-  }, []);
-  function updateThemePreference(preference) {
-    try {
-      if (preference === 'system') localStorage.removeItem(THEME_PREFERENCE_KEY);
-      else localStorage.setItem(THEME_PREFERENCE_KEY, preference);
-    } catch { /* Theme selection remains available when browser storage is disabled. */ }
-    setThemePreference(preference);
-  }
-  function toggleTheme() {
-    updateThemePreference(theme === 'g10' ? 'dark' : 'light');
-  }
-  function useSystemTheme() {
-    updateThemePreference('system');
-  }
   function seedSelectedSample() {
     if (sampleType === 'reset') {
       runtime.store.command('restore', { value: runtime.store.domain.canonical.emptyRoom(), source: 'reset' });
@@ -292,8 +255,8 @@ export default function App({ runtime }) {
     return <Participants runtime={runtime} room={room} onNotice={showNotice} onOpenCountOnlySettlement={openCountOnlySettlement} onOpenApplicationForm={() => changeView('application-form')} onCopyApplicationLink={copyApplicationLink} formToolEnabled={workspaceSnapshot.workspace.tools['application-form']?.enabled === true} openRegistrationRequestId={participantRegistrationRequest} onRegistrationRequestHandled={consumeParticipantRegistrationRequest} participantStartRef={participantStartRef} roomStatus={syncStatus} />;
   }
   return <Theme theme={theme} className="application">
-    <Theme theme="g100" className="app-header-theme">
-      <AppHeader projectName={room.roomName} theme={theme} themePreference={themePreference} onShare={share} onRename={name => runtime.store.command('rename', { name })} onOpenUtility={openGlobalModal} onOpenTabEditor={() => changeView('tools')} onToggleTheme={toggleTheme} onUseSystemTheme={useSystemTheme} debugSample={runtime.debugSample} />
+    <Theme theme={theme} className="app-header-theme">
+      <AppHeader projectName={room.roomName} theme={theme} onShare={share} onRename={name => runtime.store.command('rename', { name })} onOpenUtility={openGlobalModal} onOpenTabEditor={() => changeView('tools')} onNavigateToProjects={() => window.location.assign(new URL(import.meta.env.BASE_URL, window.location.href))} debugSample={runtime.debugSample} />
     </Theme>
     <Theme theme={contentTheme} className="main-surface" data-floating-menu-container>
     <main id="main-content" tabIndex={-1} aria-labelledby="project-heading">

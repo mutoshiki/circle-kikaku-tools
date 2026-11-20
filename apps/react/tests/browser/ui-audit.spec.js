@@ -71,10 +71,10 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await shot(page, testInfo, 44, 'side-navigation-open');
     await openMenu(page);
     await shot(page, testInfo, 2, 'header-app-menu-open');
-    await page.getByRole('menuitem', { name: 'ダークモードに切り替え', exact: true }).click();
+    await page.keyboard.press('Escape');
+    await page.emulateMedia({ colorScheme: 'dark' });
     await shot(page, testInfo, 43, 'dark-theme-shell');
-    await openMenu(page);
-    await page.getByRole('menuitem', { name: 'ライトモードに切り替え', exact: true }).click();
+    await page.emulateMedia({ colorScheme: 'light' });
     await openMenu(page);
     await page.getByRole('menuitem', { name: '使い方', exact: true }).click();
     await shot(page, testInfo, 3, 'guide-modal');

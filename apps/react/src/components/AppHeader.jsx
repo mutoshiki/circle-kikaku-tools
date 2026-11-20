@@ -1,24 +1,23 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
-  Header, HeaderGlobalAction, HeaderGlobalBar, HeaderName, HeaderPanel,
-  Menu, MenuItem, Modal, Popover, PopoverContent, SkipToContent, Switcher, SwitcherItem, TextInput, Theme,
+  Header, HeaderGlobalAction, HeaderGlobalBar, HeaderName,
+  Menu, MenuItem, MenuItemDivider, Modal, Popover, PopoverContent,
+  SkipToContent, TextInput, Theme,
 } from '@carbon/react';
-import { Link, OverflowMenuVertical, Switcher as SwitcherIcon } from '@carbon/icons-react';
+import { Link, OverflowMenuVertical } from '@carbon/icons-react';
 
-const relatedApplications = [
-  { name: '山歩会フォームメーカー', href: 'https://mutoshiki.github.io/sanpokai-kikaku-portal/form-maker/' },
-  { name: '学務提出書類作成ツール', href: 'https://github.com/mutoshiki/sampokai-submission-builder/releases' },
-  { name: '山歩会企画ツール一覧', href: 'https://mutoshiki.github.io/sanpokai-kikaku-portal/' },
+const externalTools = [
+  { name: '山歩会フォームメーカー（外部ツール）', href: 'https://mutoshiki.github.io/sanpokai-kikaku-portal/form-maker/' },
+  { name: '学務提出書類作成ツール（外部ツール）', href: 'https://github.com/mutoshiki/sampokai-submission-builder/releases' },
 ];
 
-export default function AppHeader({ projectName, theme, themePreference, onShare, onRename, onOpenUtility, onOpenTabEditor, onToggleTheme, onUseSystemTheme, debugSample = false }) {
+export default function AppHeader({ projectName, theme, onShare, onRename, onOpenUtility, onOpenTabEditor, onNavigateToProjects, debugSample = false }) {
   const [utilityOpen, setUtilityOpen] = useState(false);
-  const [switcherOpen, setSwitcherOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [draftName, setDraftName] = useState('');
   const [renameError, setRenameError] = useState('');
-  const switcherButton = useRef(null);
   const utilityButton = useRef(null);
+  const firstMenuItem = useRef(null);
   const composing = useRef(false);
   const isProject = projectName !== undefined;
   const displayName = String(projectName || '').trim() || '企画名未設定';
@@ -60,15 +59,29 @@ export default function AppHeader({ projectName, theme, themePreference, onShare
     onOpenUtility(name);
   }
 
-  function toggleUtility() {
-    setSwitcherOpen(false);
-    setUtilityOpen(value => !value);
+  function openExternalTool(href) {
+    setUtilityOpen(false);
+    window.open(href, '_blank', 'noopener,noreferrer');
   }
 
-  function toggleSwitcher() {
-    setUtilityOpen(false);
-    setSwitcherOpen(value => !value);
+  function toggleUtility() {
+    setUtilityOpen(value => {
+      const next = !value;
+      if (next) requestAnimationFrame(() => firstMenuItem.current?.focus());
+      return next;
+    });
   }
+
+  useEffect(() => {
+    if (!utilityOpen) return undefined;
+    function closeOnEscape(event) {
+      if (event.key !== 'Escape') return;
+      setUtilityOpen(false);
+      requestAnimationFrame(() => utilityButton.current?.focus());
+    }
+    document.addEventListener('keydown', closeOnEscape, true);
+    return () => document.removeEventListener('keydown', closeOnEscape, true);
+  }, [utilityOpen]);
 
   return <>
   <Header aria-label={isProject ? `${displayName}のヘッダー` : 'サークル企画ツール'} className="app-header">
@@ -76,27 +89,25 @@ export default function AppHeader({ projectName, theme, themePreference, onShare
     <HeaderName className="app-header__project-name" prefix=""><span>{isProject ? displayName : 'サークル企画ツール'}</span></HeaderName>
     <HeaderGlobalBar>
       {!debugSample && <HeaderGlobalAction aria-label="企画のリンクをコピー" tooltipAlignment="end" onClick={onShare}><Link size={20} /></HeaderGlobalAction>}
-      <Popover className="utility-menu-popover" open={utilityOpen} align="bottom-end" autoAlign onRequestClose={() => setUtilityOpen(false)}>
-        <HeaderGlobalAction ref={utilityButton} aria-label="その他の操作" tooltipAlignment="end" isActive={utilityOpen} onClick={toggleUtility}><OverflowMenuVertical size={20} /></HeaderGlobalAction>
+      <Popover className="utility-menu-popover" open={utilityOpen} align="bottom-end" onRequestClose={() => setUtilityOpen(false)}>
+        <HeaderGlobalAction ref={utilityButton} aria-label="その他の操作" aria-haspopup="menu" aria-expanded={utilityOpen} aria-controls="app-header-utility-menu" tooltipAlignment="end" isActive={utilityOpen} onClick={toggleUtility}><OverflowMenuVertical size={20} /></HeaderGlobalAction>
         <PopoverContent className="utility-menu-popover__content">
-          <Menu label="その他の操作" open={utilityOpen} target={null} legacyAutoalign={false} onClose={() => setUtilityOpen(false)}>
-            {projectName !== undefined && <MenuItem label="企画名を変更" onClick={beginRename} />}
-            {projectName !== undefined && <MenuItem label="タブを編集" onClick={() => { setUtilityOpen(false); onOpenTabEditor?.(); }} />}
+          <Menu id="app-header-utility-menu" label="その他の操作" open={utilityOpen} target={null} legacyAutoalign={false} onClose={() => setUtilityOpen(false)}>
+            {isProject && <>
+              <MenuItem ref={firstMenuItem} label="企画一覧へ" onClick={() => { setUtilityOpen(false); onNavigateToProjects?.(); }} />
+              <MenuItem label="企画名を変更" onClick={beginRename} />
+              <MenuItem label="タブを編集" onClick={() => { setUtilityOpen(false); onOpenTabEditor?.(); }} />
+            </>}
+            <MenuItemDivider />
             <MenuItem label="使い方" onClick={() => openUtility('guide')} />
-            <MenuItem label="サンプルデータ" onClick={() => openUtility('sample')} />
-            <MenuItem label={theme === 'g10' ? 'ダークモードに切り替え' : 'ライトモードに切り替え'} onClick={() => { setUtilityOpen(false); onToggleTheme(); }} />
-            {themePreference !== 'system' && <MenuItem label="端末の表示設定に合わせる" onClick={() => { setUtilityOpen(false); onUseSystemTheme(); }} />}
             <MenuItem label="不具合を報告" onClick={() => openUtility('bug')} />
+            <MenuItem label="サンプルデータ" onClick={() => openUtility('sample')} />
+            <MenuItemDivider />
+            {externalTools.map(tool => <MenuItem key={tool.href} label={tool.name} onClick={() => openExternalTool(tool.href)} />)}
           </Menu>
         </PopoverContent>
       </Popover>
-      <HeaderGlobalAction ref={switcherButton} aria-label="関連アプリ" tooltipAlignment="end" isActive={switcherOpen} onClick={toggleSwitcher}><SwitcherIcon size={20} /></HeaderGlobalAction>
     </HeaderGlobalBar>
-    <HeaderPanel role="navigation" aria-label="関連アプリ" expanded={switcherOpen} onHeaderPanelFocus={() => { setSwitcherOpen(false); switcherButton.current?.focus(); }}>
-      <Switcher aria-label="関連アプリ" expanded={switcherOpen}>
-        {relatedApplications.map(application => <SwitcherItem key={application.name} href={application.href} target="_blank" rel="noreferrer">{application.name}</SwitcherItem>)}
-      </Switcher>
-    </HeaderPanel>
   </Header>
   <Theme theme={theme}><Modal className="app-modal" closeButtonLabel="閉じる" open={renameOpen} size="sm" modalHeading="企画名を変更" primaryButtonText="保存" secondaryButtonText="キャンセル" onRequestSubmit={saveRename} onRequestClose={closeRename} selectorPrimaryFocus="#header-project-name">
     <TextInput id="header-project-name" labelText="企画名" placeholder="企画名未設定" value={draftName} invalid={!!renameError} invalidText={renameError} onChange={event => setDraftName(event.target.value)} onCompositionStart={() => { composing.current = true; }} onCompositionEnd={() => { composing.current = false; }} onKeyDown={handleRenameKeyDown} />

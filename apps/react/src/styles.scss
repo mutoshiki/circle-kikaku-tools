@@ -11,7 +11,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .application { min-height: 100dvh; color: var(--cds-text-primary); background: var(--cds-background); }
 .app-header-theme { position: relative; z-index: 8000; }
 .app-header.cds--header { position: relative; }
-.app-header__project-name { flex: 1 1 auto; min-inline-size: 0; max-inline-size: min(28rem, calc(100vw - 12rem)); overflow: hidden; }
+.app-header__project-name { flex: 1 1 auto; min-inline-size: 0; max-inline-size: none; overflow: hidden; }
 .app-header__project-name span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .project-sync-status { display: flex; justify-content: flex-end; padding: layout.$spacing-02 layout.$spacing-05 0; }
 .main-surface { position: relative; min-height: calc(100dvh - 3rem); color: var(--cds-text-primary); background: var(--cds-background); }
@@ -41,7 +41,7 @@ body { margin: 0; font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', sans-serif; 
 .project-grid, .content-grid { margin-inline: auto; }
 .utility-menu-popover { z-index: 7000; }
 .utility-menu-popover__content { padding: 0; }
-.utility-menu-popover .cds--menu { position: static; min-inline-size: 15rem; }
+.utility-menu-popover .cds--menu { position: static; min-inline-size: min(20rem, calc(100vw - 2rem)); }
 .sample-form { display: grid; gap: 1rem; }
 .sync-status { color: var(--cds-text-secondary); overflow-wrap: anywhere; }
 .sync-status--prominent { @include carbon-type.type-style('body-compact-01'); }

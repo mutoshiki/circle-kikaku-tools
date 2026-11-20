@@ -234,8 +234,13 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
 
   await page.getByRole('button', { name: 'その他の操作' }).click();
   const appMenu = page.getByRole('menu', { name: 'その他の操作' });
-  await expect(appMenu.getByRole('menuitem')).toHaveText(['企画名を変更', 'タブを編集', '使い方', 'サンプルデータ', 'ダークモードに切り替え', '不具合を報告']);
-  await appMenu.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
+  await expect(appMenu.getByRole('menuitem')).toHaveText([
+    '企画一覧へ', '企画名を変更', 'タブを編集', '使い方', '不具合を報告', 'サンプルデータ',
+    '山歩会フォームメーカー（外部ツール）', '学務提出書類作成ツール（外部ツール）',
+  ]);
+  await expect(appMenu.getByRole('separator')).toHaveCount(2);
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.keyboard.press('Escape');
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
   await page.getByRole('button', { name: '精算設定' }).click();
   dialog = page.getByRole('dialog', { name: '精算設定を編集' });

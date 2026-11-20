@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Button, Checkbox, Column, ContainedList, ContainedListItem, Grid, Header,
   HeaderName, InlineNotification, RadioButton, RadioButtonGroup, SkipToContent,
@@ -8,23 +8,11 @@ import { createTemplateWorkspace, resolveInitialTool, TEMPLATE_REGISTRY, TOOL_RE
 import { creationIntentKey, resolveEntryScreen } from '../services/project-entry.js';
 import { readPortalProjects } from '../services/portal-history.js';
 import SectionHeading from './ui/SectionHeading.jsx';
+import useSystemTheme from '../hooks/useSystemTheme.js';
 
 const templateTools = new Map(Object.values(TEMPLATE_REGISTRY).map(template => [template.id, template.tools]));
 const toolLabels = new Map(TOOL_REGISTRY.map(tool => [tool.id, tool.label]));
 const viewForTool = new Map(TOOL_REGISTRY.map(tool => [tool.id, tool.view]));
-const themePreferenceKey = 'sanpo-react:theme-preference:v1';
-
-function readThemePreference() {
-  try {
-    const preference = window.localStorage.getItem(themePreferenceKey);
-    return preference === 'light' || preference === 'dark' ? preference : 'system';
-  } catch { return 'system'; }
-}
-
-function readSystemTheme() {
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'g100' : 'g10';
-}
-
 function projectUrl(roomId) {
   const url = new URL(import.meta.env.BASE_URL, window.location.href);
   url.searchParams.set('room', roomId);
@@ -49,28 +37,12 @@ function formatProjectActivity(project) {
 
 export default function ProjectEntry({ storage = window.localStorage, crypto = window.crypto }) {
   const mode = resolveEntryScreen(window.location.href) || 'list';
-  const [themePreference, setThemePreference] = useState(readThemePreference);
-  const [systemTheme, setSystemTheme] = useState(readSystemTheme);
-  const theme = themePreference === 'dark' ? 'g100' : themePreference === 'light' ? 'g10' : systemTheme;
+  const theme = useSystemTheme();
   const [templateId, setTemplateId] = useState('personal');
   const [roomName, setRoomName] = useState('');
   const [customTools, setCustomTools] = useState([]);
   const [error, setError] = useState('');
   const index = useMemo(() => readPortalProjects(storage), [storage]);
-
-  useEffect(() => {
-    const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
-    const updateSystemTheme = event => setSystemTheme(event.matches ? 'g100' : 'g10');
-    const updateStoredPreference = event => {
-      if (event.key === themePreferenceKey || event.key === null) setThemePreference(readThemePreference());
-    };
-    colorScheme.addEventListener('change', updateSystemTheme);
-    window.addEventListener('storage', updateStoredPreference);
-    return () => {
-      colorScheme.removeEventListener('change', updateSystemTheme);
-      window.removeEventListener('storage', updateStoredPreference);
-    };
-  }, []);
 
   function openProject(roomId) {
     return projectUrl(roomId).href;
