@@ -89,7 +89,7 @@ export default function AppHeader({ projectName, theme, onShare, onRename, onOpe
     <HeaderName className="app-header__project-name" prefix=""><span>{isProject ? displayName : 'サークル企画ツール'}</span></HeaderName>
     <HeaderGlobalBar>
       {!debugSample && <HeaderGlobalAction aria-label="企画のリンクをコピー" tooltipAlignment="end" onClick={onShare}><Link size={20} /></HeaderGlobalAction>}
-      <Popover className="utility-menu-popover" open={utilityOpen} align="bottom-end" autoAlign onRequestClose={() => setUtilityOpen(false)}>
+      <Popover className="utility-menu-popover" open={utilityOpen} align="bottom-end" onRequestClose={() => setUtilityOpen(false)}>
         <HeaderGlobalAction ref={utilityButton} aria-label="その他の操作" aria-haspopup="menu" aria-expanded={utilityOpen} aria-controls="app-header-utility-menu" tooltipAlignment="end" isActive={utilityOpen} onClick={toggleUtility}><OverflowMenuVertical size={20} /></HeaderGlobalAction>
         <PopoverContent className="utility-menu-popover__content">
           <Menu id="app-header-utility-menu" label="その他の操作" open={utilityOpen} target={null} legacyAutoalign={false} onClose={() => setUtilityOpen(false)}>
