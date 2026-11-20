@@ -126,3 +126,10 @@ npm run check:preview -- --url http://127.0.0.1:4291/ --expected-source-sha 1936
 - The fixture populates applicants/participants, 3 vehicles with settlement details, 3 teams with one unassigned participant, CSV preview, Form Maker editable inputs, and Mountain Plan draft. Form Maker edits persist locally across tool tabs. The Mountain Plan fixture automatically loads a complete sample draft; its event date is derived from the linked project data.
 - Verification: package tests 10/10, Form Maker build passed, Circle unit tests 179/179, focused sample unit tests 5/5, and the all-tools browser flow 4/4 in Chromium/WebKit desktop/mobile. Browser checks cover edits, save/restore, fee expansion, CSV preview, draft autosave, and zero external writes. `build:preview` and `check:preview` passed against the public baseline.
 - Only the sample-data milestone is complete. The broader sitewide screen/modal audit and UI consistency implementation remain pending; no production release was performed.
+
+## 2026-11-20 header menu and system theme
+
+- Worktree: `C:\Users\toshi\.codex\worktrees\participant-empty-copy\circle-kikaku-tools`, branch `codex/header-menu-system-theme`, base/public source SHA `1a797b22f06c782473616cf745d29c61a44c75ac`.
+- Local preview: `http://127.0.0.1:4311/?room=DEBUG-HEADER-20261120&view=participants`; synthetic room data is stored only by this preview origin. `build:preview` and `check:preview` confirmed the baseline, current worktree HEAD, and all 8 bundled assets. No ordinary production project was written.
+- Side-browser review covered the project menu at a narrow viewport and the project list. The menu labels remained visible; Escape closed the menu and restored scrollX to 0. The project list showed create/history actions without the project share action.
+- Verification: React unit tests 229/229; selected browser matrix 58 passed, 2 skipped, 0 failed; the additional mobile 390px no-overflow check passed. Physical devices and screen readers were not tested. Production release is still pending.

@@ -81,7 +81,7 @@ test('manual distance entry survives Google Maps handoff and saves through settl
   await reopened.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await expect(reopened.getByLabel('移動距離（km）')).toHaveValue('186');
   await reopened.locator('.cds--modal-close').click();
-  await page.getByRole('button', { name: 'その他の操作' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
+  await page.emulateMedia({ colorScheme: 'dark' });
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(errors).toEqual([]);

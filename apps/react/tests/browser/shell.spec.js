@@ -6,6 +6,7 @@ import { expectFontsLoaded } from './font-readiness.js';
 async function openProjectNameEditor(page) {
   await page.getByRole('button', { name: 'その他の操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '企画名を変更', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: '企画名' })).toBeFocused();
 }
 
 test('project name is shown in the header and renamed from the overflow menu', async ({ page }) => {
@@ -26,7 +27,7 @@ test('normal sync and save states do not occupy a status row', async ({ page }) 
   await expect(page.getByText('同期完了', { exact: true })).toHaveCount(0);
 });
 
-test('independent shell: semantic header utilities, related apps, Japanese input, themes and no legacy runtime', async ({ page }, testInfo) => {
+test('independent shell: overflow menu, project navigation, Japanese input, themes and no legacy runtime', async ({ page }, testInfo) => {
   const errors = [];
   const requests = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -41,24 +42,54 @@ test('independent shell: semantic header utilities, related apps, Japanese input
   await expect(page.locator('#main-content')).toBeFocused();
   await expect(page.getByRole('button', { name: '企画のリンクをコピー', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'その他の操作', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: '関連アプリ', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'その他の操作', exact: true })).toHaveAttribute('aria-haspopup', 'menu');
+  await expect(page.getByRole('button', { name: 'その他の操作', exact: true })).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByRole('button', { name: '関連アプリ', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: /ナビゲーションを/ })).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: '山歩会ツール', exact: true })).toHaveCount(0);
   await expect(page.getByText('ローカル保存', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'その他の操作', exact: true }).click();
   const utilities = page.getByRole('menu', { name: 'その他の操作', exact: true });
+  await expect(page.getByRole('button', { name: 'その他の操作', exact: true })).toHaveAttribute('aria-expanded', 'true');
   await expect(utilities.getByRole('menuitem', { name: '使い方', exact: true })).toBeVisible();
   await expect(utilities.getByRole('menuitem', { name: 'サンプルデータ', exact: true })).toBeVisible();
-  await expect(utilities.getByRole('menuitem', { name: 'ダークモードに切り替え', exact: true })).toBeVisible();
   await expect(utilities.getByRole('menuitem', { name: '不具合を報告', exact: true })).toBeVisible();
+  await expect(utilities.getByRole('menuitem')).toHaveText([
+    '企画一覧へ', '企画名を変更', 'タブを編集', '使い方', '不具合を報告',
+    'サンプルデータ', '山歩会フォームメーカー（外部ツール）', '学務提出書類作成ツール（外部ツール）',
+  ]);
+  await expect(utilities.getByRole('separator')).toHaveCount(2);
+  await expect(utilities.getByRole('menuitem', { name: /テーマ|表示設定/ })).toHaveCount(0);
+  await expect(utilities.getByRole('menuitem', { name: '企画一覧へ' })).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(utilities.getByRole('menuitem', { name: '企画名を変更' })).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(utilities).toBeHidden();
-  await page.getByRole('button', { name: '関連アプリ', exact: true }).click();
-  const applications = page.getByRole('navigation', { name: '関連アプリ', exact: true });
-  await expect(applications.getByRole('link', { name: '山歩会フォームメーカー', exact: true })).toHaveAttribute('href', 'https://mutoshiki.github.io/sanpokai-kikaku-portal/form-maker/');
-  await expect(applications.getByRole('link', { name: '学務提出書類作成ツール', exact: true })).toHaveAttribute('href', /sampokai-submission-builder/);
-  await expect(applications.getByRole('link', { name: '山歩会企画ツール一覧', exact: true })).toHaveAttribute('href', /sanpokai-kikaku-portal/);
-  await page.getByRole('button', { name: '関連アプリ', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'その他の操作', exact: true })).toBeFocused();
+  await page.getByRole('button', { name: 'その他の操作', exact: true }).click();
+  await page.locator('#main-content').click({ position: { x: 8, y: 8 } });
+  await expect(utilities).toBeHidden();
+  await page.evaluate(() => {
+    window.__openedExternalTools = [];
+    window.open = (url, target, features) => { window.__openedExternalTools.push({ url, target, features }); return null; };
+  });
+  await page.getByRole('button', { name: 'その他の操作', exact: true }).click();
+  await utilities.getByRole('menuitem', { name: '山歩会フォームメーカー（外部ツール）', exact: true }).click();
+  await expect(utilities).toBeHidden();
+  await expect.poll(() => page.evaluate(() => window.__openedExternalTools)).toEqual([{
+    url: 'https://mutoshiki.github.io/sanpokai-kikaku-portal/form-maker/', target: '_blank', features: 'noopener,noreferrer',
+  }]);
+  await page.getByRole('button', { name: 'その他の操作', exact: true }).click();
+  await utilities.getByRole('menuitem', { name: '学務提出書類作成ツール（外部ツール）', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => window.__openedExternalTools.at(-1))).toEqual({
+    url: 'https://github.com/mutoshiki/sampokai-submission-builder/releases', target: '_blank', features: 'noopener,noreferrer',
+  });
+  await page.getByRole('button', { name: 'その他の操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '企画一覧へ', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '企画一覧', exact: true })).toBeVisible();
+  await expect(page.getByRole('tab')).toHaveCount(0);
+  expect(page.context().pages()).toHaveLength(1);
+  await page.goto('/?room=REACT-FIXTURE');
   await expect(page.getByRole('tab')).toHaveText(['参加者', '車割', '班割', '精算']);
   await openProjectNameEditor(page);
   const projectName = page.getByRole('textbox', { name: '企画名' });
@@ -74,7 +105,7 @@ test('independent shell: semantic header utilities, related apps, Japanese input
     await expect(page.getByRole('tabpanel').getByRole('heading', { name: initialHeadings[name], exact: true })).toBeVisible();
   }
   for (const theme of ['g10', 'g100']) {
-    if (theme === 'g100') { await page.getByRole('button', { name: 'その他の操作' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click(); }
+    await page.emulateMedia({ colorScheme: theme === 'g100' ? 'dark' : 'light' });
     await expect(page.locator('.application')).toHaveClass(new RegExp(`cds--${theme}(?:\\s|$)`));
     await openProjectNameEditor(page);
     await expect(page.getByRole('textbox', { name: '企画名' })).toHaveCSS('background-color', theme === 'g100' ? 'rgb(57, 57, 57)' : 'rgb(244, 244, 244)');
@@ -139,11 +170,29 @@ test('long project names wrap at phone widths without horizontal page scrolling'
     if (width < 672) {
       expect(await page.locator('.app-header .cds--header__name').evaluate(element => getComputedStyle(element).overflow)).toBe('hidden');
     }
+    if (width === 390 || width === 1280) {
+      const titleWidth = await page.locator('.app-header__project-name').evaluate(element => element.getBoundingClientRect().width);
+      expect(titleWidth).toBeGreaterThan(width === 390 ? 200 : 450);
+      await page.getByRole('button', { name: 'その他の操作', exact: true }).click();
+      expect(await page.evaluate(() => window.scrollX)).toBe(0);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      const popover = page.locator('.utility-menu-popover__content');
+      const bounds = await popover.evaluate(element => {
+        const { left, right, top, bottom } = element.getBoundingClientRect();
+        return { left, right, top, bottom, width: innerWidth, height: innerHeight };
+      });
+      expect(bounds.left).toBeGreaterThanOrEqual(0);
+      expect(bounds.right).toBeLessThanOrEqual(bounds.width);
+      expect(bounds.top).toBeGreaterThanOrEqual(0);
+      expect(bounds.bottom).toBeLessThanOrEqual(bounds.height);
+      await page.keyboard.press('Escape');
+    }
   }
 });
 
 test('sample menu keeps the legacy form-linked sample action', async ({ page }) => {
   await page.goto('/?room=REACT-FORM-SAMPLE');
+  await expect(page.getByRole('button', { name: '企画のリンクをコピー', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'その他の操作' }).click();
   await page.getByRole('menuitem', { name: 'サンプルデータ' }).click();
   const dialog = page.getByRole('dialog', { name: 'サンプルデータ' });
@@ -157,4 +206,6 @@ test('sample menu keeps the legacy form-linked sample action', async ({ page }) 
   await expect(page.getByText('参加者確定後', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '発表文を作成', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '学務書類用CSVを作成', exact: true })).toBeVisible();
+  await page.goto('/?debugSample=all-tools&view=participants&room=DEBUG-SHELL-SAMPLE');
+  await expect(page.getByRole('button', { name: '企画のリンクをコピー', exact: true })).toHaveCount(0);
 });

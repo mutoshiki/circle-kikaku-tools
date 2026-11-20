@@ -286,7 +286,7 @@ test('settings cancel/save, signed extras, collection state and reload', async (
   const driverPaidAfter = await page.evaluate(() => JSON.parse(localStorage.getItem(`sanpo-react:v1:${new URL(location.href).searchParams.get('room')}:room`)).settlement.driverPaid);
   expect(driverPaidAfter).toEqual(driverPaidBefore);
   await expect(page.locator('.settlement-car .settlement-payment-state')).toHaveCount(0);
-  await page.getByRole('button', { name: 'その他の操作' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
+  await page.emulateMedia({ colorScheme: 'dark' });
   await expect(page.locator('.application')).toHaveClass(/cds--g100/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(pageErrors.get(page)).toEqual([]);

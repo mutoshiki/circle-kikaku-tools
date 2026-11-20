@@ -81,8 +81,7 @@ test('allocation summaries, metadata columns and fixed state follow the shared h
   await expectMenuCentersAligned(group, driverRow);
   await expectGradeClearance(driverRow);
 
-  await page.getByRole('button', { name: 'その他の操作' }).click();
-  await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click();
+  await page.emulateMedia({ colorScheme: 'dark' });
   await expectMenuCentersAligned(group, driverRow);
   await expectGradeClearance(driverRow);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -295,7 +294,7 @@ test('register, fill seats, independent team, roles, fixed participants, menus a
   await expect(editor).toHaveCount(0);
   await expect(car).toContainText('日本語のメモ');
   for (const theme of ['g10', 'g100']) {
-    if (theme === 'g100') { await page.getByRole('button', { name: 'その他の操作' }).click(); await page.getByRole('menuitem', { name: 'ダークモードに切り替え' }).click(); }
+    await page.emulateMedia({ colorScheme: theme === 'g100' ? 'dark' : 'light' });
     await page.getByRole('button', { name: 'その他の操作', exact: true }).click();
     await page.getByRole('menuitem', { name: '企画名を変更', exact: true }).click();
     await expect(page.getByRole('textbox', { name: '企画名' })).toHaveCSS('background-color', theme === 'g100' ? 'rgb(57, 57, 57)' : 'rgb(244, 244, 244)');
