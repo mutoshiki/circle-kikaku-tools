@@ -50,4 +50,4 @@
 
 - [x] Run release classification after commit and verify the required CI checks without repeating unchanged successful SHA checks.
 - [x] Build and verify an offline local preview against the fetched published source SHA; inspect project and non-project screens in the side browser.
-- [x] Commit, push, open/update PR, merge, verify `Release / Readiness`, run the existing React Production Release workflow, and confirm published manifest and P9 cleanup.
+- [x] Commit, push, open/update PR, merge, verify `Release / Readiness`, run the existing React Production Release workflow, and confirm published manifest and smoke-room cleanup.
