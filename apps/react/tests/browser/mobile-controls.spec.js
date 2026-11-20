@@ -31,7 +31,9 @@ test('mobile controls keep readable type and touch targets across integrated too
   expect(await height(summary)).toBeGreaterThanOrEqual(44);
   expect(Number.parseFloat(await summary.evaluate(el => getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(14);
 
+  if (await summary.getAttribute('aria-expanded') !== 'true') await summary.click();
   const edit = page.locator('.settlement-car-edit-action').first();
+  await expect(edit).toBeVisible();
   expect(await height(edit)).toBeGreaterThanOrEqual(44);
 
   await page.getByRole('button', { name: '精算設定', exact: true }).click();

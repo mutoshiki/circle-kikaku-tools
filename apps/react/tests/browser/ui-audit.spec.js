@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { revealVehicleExpenseActions } from './settlement-smoke-actions.mjs';
 function shot(page, testInfo, number, name) {
   const path = testInfo.outputPath(`${String(number).padStart(2, '0')}-${name}.png`);
   return page.mouse.move(1, 1).then(() => page.screenshot({ path }));
@@ -166,7 +167,8 @@ test('capture reachable React UI audit states', async ({ page }, testInfo) => {
     await page.getByRole('button', { name: '次へ' }).click();
     await shot(page, testInfo, 24, 'settlement-wizard-step-3');
     await cancelDialog(page);
-    await page.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).first().click();
+    const car = page.locator('.settlement-car').first();
+    await (await revealVehicleExpenseActions(car)).click();
     await shot(page, testInfo, 25, 'vehicle-expense-editor');
     await page.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
     await page.getByLabel('費用名').fill('監査用費用');

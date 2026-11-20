@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { revealVehicleExpenseActions } from './settlement-smoke-actions.mjs';
 
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', import.meta.url)));
 
@@ -19,8 +20,8 @@ test('expense editor does not fade the end of content that fits', async ({ page 
     value: room,
   });
   await page.goto(`/?room=${roomId}&view=seisan`);
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) })
-    .getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
+  const car = page.locator('.settlement-car').filter({ has: page.locator('.settlement-car-name', { hasText: '仮参加者A車' }) });
+  await (await revealVehicleExpenseActions(car)).click();
 
   const dialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   const body = dialog.locator('.cds--modal-content');
@@ -51,8 +52,8 @@ test('long expense editor scrolls and reveals its end without a false fade', asy
     value: room,
   });
   await page.goto(`/?room=${roomId}&view=seisan`);
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) })
-    .getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
+  const car = page.locator('.settlement-car').filter({ has: page.locator('.settlement-car-name', { hasText: '仮参加者A車' }) });
+  await (await revealVehicleExpenseActions(car)).click();
 
   const dialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   const body = dialog.locator('.cds--modal-content');
@@ -76,8 +77,8 @@ test('movement settings fit the viewport when content fits and share the modal s
     key: `sanpo-react:v1:${roomId}:room`, value: structuredClone(fixture),
   });
   await page.goto(`/?room=${roomId}&view=seisan`);
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) })
-    .getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
+  const car = page.locator('.settlement-car').filter({ has: page.locator('.settlement-car-name', { hasText: '仮参加者A車' }) });
+  await (await revealVehicleExpenseActions(car)).click();
   let dialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   dialog = page.getByRole('dialog', { name: '仮参加者A車：ガソリン代を設定' });
@@ -110,8 +111,8 @@ test('movement settings keep aligned modal surfaces in both themes', async ({ pa
     await page.emulateMedia({ colorScheme: theme });
     await page.reload();
     await page.getByRole('tab', { name: '精算', exact: true }).click();
-    await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) })
-      .getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
+    const car = page.locator('.settlement-car').filter({ has: page.locator('.settlement-car-name', { hasText: '仮参加者A車' }) });
+    await (await revealVehicleExpenseActions(car)).click();
     let dialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
     await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
     dialog = page.getByRole('dialog', { name: '仮参加者A車：ガソリン代を設定' });
@@ -150,8 +151,8 @@ test('movement settings scroll only their body at a compact viewport and keep th
     key: `sanpo-react:v1:${roomId}:room`, value: structuredClone(fixture),
   });
   await page.goto(`/?room=${roomId}&view=seisan`);
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) })
-    .getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
+  const car = page.locator('.settlement-car').filter({ has: page.locator('.settlement-car-name', { hasText: '仮参加者A車' }) });
+  await (await revealVehicleExpenseActions(car)).click();
   let dialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   dialog = page.getByRole('dialog', { name: '仮参加者A車：ガソリン代を設定' });
@@ -170,8 +171,8 @@ test('Times movement settings keep short content compact', async ({ page }, test
     key: `sanpo-react:v1:${roomId}:room`, value: structuredClone(fixture),
   });
   await page.goto(`/?room=${roomId}&view=seisan`);
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者D車/ }) })
-    .getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
+  const car = page.locator('.settlement-car').filter({ has: page.locator('.settlement-car-name', { hasText: '仮参加者D車' }) });
+  await (await revealVehicleExpenseActions(car)).click();
   let dialog = page.getByRole('dialog', { name: /^仮参加者D車：/ });
   await dialog.getByRole('button', { name: 'タイムズ移動料金の計算条件を編集' }).click();
   dialog = page.getByRole('dialog', { name: '仮参加者D車：タイムズ移動料金を設定' });

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { revealVehicleExpenseActions } from './settlement-smoke-actions.mjs';
 
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', import.meta.url)));
 const token = `h_${'R'.repeat(48)}`;
@@ -51,7 +52,8 @@ test('guidance, CSV, utility report, notifications and URL security', async ({ p
 test('manual distance entry survives Google Maps handoff and saves through settlement', async ({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.getByRole('tab', { name: '精算', exact: true }).click();
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
+  const carRow = page.locator('.settlement-car').filter({ has: page.locator('.settlement-car-name', { hasText: '仮参加者A車' }) });
+  await (await revealVehicleExpenseActions(carRow)).click();
   let car = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await car.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
   await car.getByLabel('費用名').fill('一時費用');
@@ -76,7 +78,9 @@ test('manual distance entry survives Google Maps handoff and saves through settl
   const state = await page.evaluate(roomId => JSON.parse(localStorage.getItem(`sanpo-react:v1:${roomId}:room`)), new URL(page.url()).searchParams.get('room'));
   expect(JSON.stringify(state)).not.toContain('fixture-route');
   expect(JSON.stringify(state)).not.toContain(token);
-  await page.reload(); await page.getByRole('tab', { name: '精算', exact: true }).click(); await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
+  await page.reload(); await page.getByRole('tab', { name: '精算', exact: true }).click();
+  const refreshedCar = page.locator('.settlement-car').filter({ has: page.locator('.settlement-car-name', { hasText: '仮参加者A車' }) });
+  await (await revealVehicleExpenseActions(refreshedCar)).click();
   const reopened = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await reopened.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await expect(reopened.getByLabel('移動距離（km）')).toHaveValue('186');

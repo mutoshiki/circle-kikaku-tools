@@ -85,9 +85,11 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     ]);
 
     async function openExpense(page, carHeading = '仮参加者A車', dialogName = carHeading) {
-      // The accessible heading now identifies the section as a payment
-      // breakdown, so use the car-specific expense action to select the row.
-      const action = page.getByRole('button', { name: `${carHeading}の費用を編集`, exact: true });
+      // Saved expense editing is inside the disclosure, so open this car before
+      // using its action. Keep the selection scoped to the target vehicle.
+      const car = page.locator('.settlement-car').filter({ has: page.locator('.settlement-car-name', { hasText: carHeading }) });
+      const action = car.getByRole('button', { name: /の費用を編集$/ });
+      if (!await action.isVisible()) await car.locator('.settlement-car-toggle').click();
       await action.click();
       const dialog = page.getByRole('dialog', { name: dialogName });
       await dialog.getByRole('button', { name: '新しい費用を追加', exact: true }).click();
@@ -174,8 +176,9 @@ test('two real browsers preserve concurrent settlement expenses across cars and 
     await pageA.reload();
     await pageA.getByRole('tab', { name: '精算', exact: true }).click();
     await expect(pageA.locator('#project-heading')).toHaveText(fixture.roomName);
-    const refreshedCar = pageA.locator('.settlement-car').filter({ has: pageA.getByRole('button', { name: /^「仮参加者A車」支払い内訳：/ }) });
-    await refreshedCar.getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
+    const refreshedCar = pageA.locator('.settlement-car').filter({ has: pageA.locator('.settlement-car-name', { hasText: '仮参加者A車' }) });
+    await refreshedCar.locator('.settlement-car-toggle').click();
+    await refreshedCar.getByRole('button', { name: /の費用を編集$/ }).click();
     const refreshedDialog = pageA.getByRole('dialog', { name: '仮参加者A車' });
     await expect(refreshedDialog.locator('.settlement-cost-editor').getByText('端末A 当日駐車代', { exact: true })).toBeVisible();
     await expect(refreshedDialog.locator('.settlement-cost-editor').getByText('端末B 当日入浴代', { exact: true })).toBeVisible();
