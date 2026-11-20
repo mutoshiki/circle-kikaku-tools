@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { revealVehicleExpenseActions } from './settlement-smoke-actions.mjs';
 
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', import.meta.url)));
 
@@ -116,8 +117,8 @@ test('short modal headers do not scroll and long Japanese vehicle titles stay cl
   });
   await page.goto(`/?room=${roomId}&view=seisan`);
   await page.evaluate(() => document.fonts.ready);
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: new RegExp(longName) }) })
-    .getByRole('button', { name: new RegExp(`${longName}車の費用を`) }).click({ force: true });
+  const longCar = page.locator('.settlement-car').filter({ has: page.locator('.settlement-car-name', { hasText: longName }) });
+  await (await revealVehicleExpenseActions(longCar)).click({ force: true });
   const dialog = page.getByRole('dialog', { name: new RegExp(`${longName}車：費用一覧`) });
   const titleLayout = await dialog.locator('.cds--modal-header').evaluate(node => {
     const label = node.querySelector('.cds--modal-header__label').getBoundingClientRect();
@@ -130,8 +131,7 @@ test('short modal headers do not scroll and long Japanese vehicle titles stay cl
   await dialog.locator('.cds--modal-close').click({ force: true });
   await expect(dialog).toHaveCount(0);
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: new RegExp(longName) }) })
-    .getByRole('button', { name: new RegExp(`${longName}車の費用を`) }).click({ force: true });
+  await (await revealVehicleExpenseActions(longCar)).click({ force: true });
   const desktopDialog = page.getByRole('dialog', { name: new RegExp(`${longName}車：費用一覧`) });
   const desktopTitleLayout = await desktopDialog.locator('.cds--modal-header').evaluate(node => {
     const label = node.querySelector('.cds--modal-header__label').getBoundingClientRect();
@@ -177,7 +177,8 @@ test('primary dialogs retain viewport margins and usable actions', async ({ page
   await page.screenshot({ path: join(evidence, `settlement-wizard-${testInfo.project.name}.png`) });
   await dialog.getByRole('button', { name: 'キャンセル' }).click();
 
-  await page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: /仮参加者A車/ }) }).getByRole('button', { name: /の費用を(?:入力|編集)$/ }).click();
+  const car = page.locator('.settlement-car').filter({ has: page.locator('.settlement-car-name', { hasText: '仮参加者A車' }) });
+  await (await revealVehicleExpenseActions(car)).click();
   dialog = page.getByRole('dialog', { name: /^仮参加者A車：/ });
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await expectViewportFrame(page, dialog);

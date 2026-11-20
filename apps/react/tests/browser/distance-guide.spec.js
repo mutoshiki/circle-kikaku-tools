@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { openVehicleExpenseEditor } from './settlement-smoke-actions.mjs';
 
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/legacy-v4.json', import.meta.url)));
 
@@ -11,7 +12,7 @@ test('distance guide opens Google Maps without APIs and preserves manual gas cal
     key: `sanpo-react:v1:${roomId}:room`, value: structuredClone(fixture),
   });
   await page.goto(`/?room=${roomId}&view=seisan`);
-  await page.getByRole('button', { name: '仮参加者A車の費用を編集' }).click();
+  await openVehicleExpenseEditor(page, { carLabel: '仮参加者A車', action: '編集' });
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await dialog.getByLabel('移動距離（km）').fill('186');
@@ -51,7 +52,7 @@ test('distance guide opens Google Maps without APIs and preserves manual gas cal
 
   await page.reload();
   await page.getByRole('tab', { name: '精算', exact: true }).click();
-  await page.getByRole('button', { name: '仮参加者A車の費用を編集' }).click();
+  await openVehicleExpenseEditor(page, { carLabel: '仮参加者A車', action: '編集' });
   const saved = page.getByRole('dialog');
   await saved.getByRole('button', { name: 'ガソリン代の計算条件を編集' }).click();
   await expect(saved.getByRole('link', { name: 'Googleマップで距離を確認' })).toBeVisible();

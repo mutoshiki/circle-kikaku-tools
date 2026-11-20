@@ -1,11 +1,21 @@
+export async function revealVehicleExpenseActions(car) {
+  const action = car.getByRole('button', { name: /の費用を(?:入力|編集)$/ });
+  if (!await action.isVisible()) {
+    const disclosure = car.locator('.settlement-car-toggle');
+    if (await disclosure.getAttribute('aria-expanded') !== 'true') await disclosure.click();
+  }
+  return action;
+}
+
 export async function openVehicleExpenseEditor(page, { carLabel, action }) {
   if (!['入力', '編集'].includes(action)) {
     throw new Error(`Unsupported vehicle expense action: ${action}`);
   }
-  // The accordion heading has an accessible name that includes its purpose
-  // ("支払い内訳"), so it no longer matches the visible car label alone.
-  // The action's accessible name already identifies the car unambiguously.
-  await page.getByRole('button', { name: `${carLabel}の費用を${action}`, exact: true }).click();
+  const car = page.locator('.settlement-car').filter({
+    has: page.locator('.settlement-car-name', { hasText: carLabel }),
+  });
+  await revealVehicleExpenseActions(car);
+  await car.getByRole('button', { name: `${carLabel}の費用を${action}`, exact: true }).click();
   return page.getByRole('dialog', { name: new RegExp(`^${carLabel}：`) });
 }
 
