@@ -493,12 +493,12 @@ test('all-tools debug sample is isolated and usable across project tools', async
   await expect(page.getByRole('tabpanel', { name: '班割' }).getByRole('status')).toContainText('全員割り当て済み');
   await expect(page.getByRole('tabpanel', { name: '班割' }).getByText('佐藤 花子', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '精算' }).click();
-  await expect(page.getByRole('heading', { name: '佐藤 花子車' })).toBeVisible();
+  await expect(page.locator('.settlement-car-name', { hasText: '佐藤 花子車' })).toBeVisible();
   await expect(page.locator('.settlement-car-total strong').filter({ hasText: '¥2,900' })).toBeVisible();
-  const sampleCarSummary = page.locator('.settlement-car').filter({ has: page.getByRole('heading', { name: '佐藤 花子車' }) });
+  const sampleCarSummary = page.locator('.settlement-car').filter({ has: page.locator('.settlement-car-name', { hasText: '佐藤 花子車' }) });
   await expect(sampleCarSummary.locator('.settlement-car-total strong')).toHaveText('¥2,900');
   await expect(sampleCarSummary.locator('.settlement-car-amount-category')).toHaveText('全額集金から');
-  await page.getByRole('button', { name: /佐藤 花子車.*支払いの内訳/ }).click();
+  await sampleCarSummary.locator('.settlement-car-toggle').click();
   const samplePayment = page.locator('.settlement-car').filter({ hasText: '佐藤 花子車' });
   await expect(samplePayment.getByText('ガソリン代', { exact: true })).toBeVisible();
   await expect(samplePayment.getByText('車出し協力代', { exact: true })).toBeVisible();

@@ -5,10 +5,10 @@
 ## 公開基準
 
 - 公開URL: <https://mutoshiki.github.io/circle-kikaku-tools/>
-- 確認日時: 2026-11-19（公開manifestを再取得）
+- 確認日時: 2026-11-20（公開manifestを再取得）
 - manifest: <https://mutoshiki.github.io/circle-kikaku-tools/release-build.json>
-- 公開source SHA: `40b6646e5bc0736d51c04bdae80b7d4f17385d5d`（2026-11-19に再取得）
-- 公開asset digest: `95721682a165a4af257cb1aed866ebe4d7f3a01123a93b227381c87c1f5471c7`（同時取得）
+- 公開source SHA: `80372bea39646723a0a85260c022eedcbcd2e27e`（2026-11-20に再取得）
+- 公開asset digest: `1be32a3f4b6191abe9da7de1d7c3064141067a0b185bf8c00395dc7eb21572d6`（同時取得）
 - 公開サイトはReactのルートビルド。CIで`apps/react/dist`からPagesルートを構成する。
 - 公開manifestからsource SHA・asset digestを再取得し、確認済み。
 
@@ -134,3 +134,19 @@ npm run check:preview -- --url http://127.0.0.1:4291/ --expected-source-sha 1936
 - Responsive review: project menu and project list were inspected in the side browser. An ad hoc local Playwright run at 390×400 (not a committed test) measured the menu at 320×282 inside the viewport; all eight items, including the final external action, were reachable by keyboard and pointer. The document remained at `scrollX=0`, `scrollY=0`, and 390px width. The project list showed create/history actions without a project share action.
 - Verification: React unit tests 229/229; shell and system-theme browser specs 44/44 across Chromium/WebKit desktop/mobile; the earlier broader selected matrix was 58 passed, 2 skipped, 0 failed. Full CI run #44682270903 passed on PR head `9dad59d1`, and main `Release / Readiness` passed in run #44682932901.
 - PR #156 merged as main SHA `80372bea39646723a0a85260c022eedcbcd2e27e`. `React Production Release` run #44683824832 succeeded. Production manifest now reports source SHA `80372bea39646723a0a85260c022eedcbcd2e` and asset digest `1be32a3f4b6191abe9da7de1d7c3064141067a0b185bf8c00395dc7eb21572d6`. The workflow used its guarded, run-scoped smoke room `SMOKE-RELEASE-44683824832-1`; compatibility/root smoke and both cleanup checks passed. It does not use the historical fixed ID `P9A93LMQ`. Physical devices and screen readers were not tested.
+
+## 2026-11-20 settlement payment list and disclosure
+
+- Worktree: `C:\Users\toshi\.codex\worktrees\settlement-payment-list\circle-kikaku-tools`, branch `codex/settlement-payment-list-layout`, base `d4be33ac72e77e4009cbe42b6ec9283e6ef2f52` (latest `origin/main` when started).
+- Public manifest refreshed 2026-11-20: source SHA `80372bea39646723a0a85260c022eedcbcd2e27e`, asset digest `1be32a3f4b6191abe9da7de1d7c3064141067a0b185bf8c00395dc7eb21572d6`.
+- Local-only preview: `http://127.0.0.1:4323/?debugSample=all-tools&view=seisan` (preview generated its own synthetic room ID). `build:preview` and `check:preview` passed against the public source SHA; index and all 8 assets match the worktree build. Preview sync mode is local, and sample data is isolated to preview-origin local storage.
+- Browser acceptance: the plan-targeted Playwright matrix passed 316/316 across Chromium and WebKit desktop/mobile, covering responsive geometry at 320–1280px, 390px two-source alignment, 320px long-amount wrapping, light/dark computed text roles, keyboard accordion operation, expense controls, and first-save focus return.
+- Side-browser inspection: approximately 496 × 656, dark theme. Confirmed the synthetic settlement list, always-visible source amounts, expanded detail and expense list dialog; Enter and Space toggled the Carbon disclosure. Automated geometry covers 390px and desktop since the side browser viewport is fixed.
+- No production room, Firebase, or publication was used. Physical-device behavior, screen reader, and browser zoom were not manually exercised.
+
+### Expanded detail width review follow-up
+
+- A review reproduced intrinsic-width shrinkage of `.settlement-cost-list` at 390px and desktop. `.settlement-car-details` now stretches its list across the available content width; `.settlement-car-edit-action` is explicitly left/content-width.
+- Final filtered Playwright run: 12/12 across Chromium and WebKit desktop/mobile. Two-source and single-source breakdowns were checked at 390px and 1280px; right edges for detail items and adjustments match, long names and amounts fit, edit button stays content-width, and the page does not scroll horizontally.
+- Refreshed the public manifest on 2026-11-20; source SHA remains `80372bea39646723a0a85260c022eedcbcd2e27e`, asset digest `1be32a3f4b6191abe9da7de1d7c3064141067a0b185bf8c00395dc7eb21572d6`. Rebuilt preview at port 4323 and `check:preview` passed with index and all 8 assets matching. The refreshed side-browser view confirms the expanded list width and left/content-width edit action.
+- No release operation performed.

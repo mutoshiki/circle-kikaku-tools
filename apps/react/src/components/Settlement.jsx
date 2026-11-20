@@ -452,7 +452,18 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
   const emptyVehicleActionRef = useRef(null);
   const paymentHeadingRef = useRef(null);
   const carLauncherElement = useRef(null);
-  const carLauncherButtonRef = useMemo(() => ({ get current() { return carLauncherElement.current?.isConnected ? carLauncherElement.current : paymentHeadingRef.current; } }), []);
+  const carLauncherFallbackElement = useRef(null);
+  const carLauncherButtonRef = useMemo(() => ({ get current() {
+    const isVisible = element => {
+      if (!element?.isConnected || element.closest('[hidden]')) return false;
+      const bounds = element.getBoundingClientRect();
+      const style = window.getComputedStyle(element);
+      return bounds.width > 0 && bounds.height > 0 && style.display !== 'none' && style.visibility !== 'hidden';
+    };
+    return isVisible(carLauncherElement.current) ? carLauncherElement.current
+      : isVisible(carLauncherFallbackElement.current) ? carLauncherFallbackElement.current
+        : paymentHeadingRef.current;
+  } }), []);
   const lastHandledSettingsRequest = useRef(0);
   const [carEdit, setCarEdit] = useState(null);
   const checkpointRestoreAttempted = useRef('');
@@ -532,7 +543,8 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
   }, [openSettingsRequestId, onOpenSettings, onSettingsRequestHandled]);
   function closeEdit(setter, edit, saved) { if (!saved && edit && !edit.session.closed) runtime.store.cancelEdit(edit.session); setter(null); }
   function openCar(car, event, fallbackRef) {
-    carLauncherElement.current = event?.currentTarget || fallbackRef?.current || null;
+    carLauncherElement.current = event?.currentTarget || null;
+    carLauncherFallbackElement.current = fallbackRef?.current || null;
     const edit = beginSettlementEdit(runtime.store, { car });
     edit.state.cars[car.name] = settlement.ensureTimesRentalExtras(edit.state.cars[car.name]);
     setCarEdit(edit);
@@ -595,7 +607,9 @@ export default function Settlement({ runtime, room, onNotice, onOpenParticipantR
           <Button ref={settlementSettingsTriggerRef} className="settlement-settings-action" kind="ghost" size="sm" onClick={() => onOpenSettings?.({ launcherButtonRef: settlementSettingsTriggerRef })}>精算設定</Button>
         </div>
         <strong className="settlement-collection-summary__amount">{money(result.perPerson)}</strong>
-        {result.payerCount > 0 && <p className="settlement-collection-summary__progress" role="status">{result.paidCount === result.payerCount ? `集金完了 ${result.paidCount} / ${result.payerCount}人` : `あと${unpaidPeople.length}人（${result.paidCount} / ${result.payerCount}人 集金済み）`}</p>}
+        {result.payerCount > 0 && <p className="settlement-collection-summary__progress" role="status">{result.paidCount === result.payerCount
+          ? `集金完了 ${result.paidCount} / ${result.payerCount}人`
+          : <><span>未集金 {unpaidPeople.length}人</span><span aria-hidden="true"> / </span><span>対象 {result.payerCount}人</span></>}</p>}
         {result.payerCount === 0 && result.participants.length > 0 && <div className="settlement-collection-summary__excluded" role="status"><p>全員が集金対象外です</p><Button kind="ghost" size="sm" onClick={() => onOpenSettings?.({ launcherButtonRef: settlementSettingsTriggerRef })}>精算設定</Button></div>}
         <Button ref={collectionTriggerRef} className="settlement-collection-trigger" kind="primary" size="md" aria-expanded={collectionOpen} aria-controls="settlement-collection-modal" onClick={() => setCollectionOpen(true)}>集金状況を見る</Button>
       </div>

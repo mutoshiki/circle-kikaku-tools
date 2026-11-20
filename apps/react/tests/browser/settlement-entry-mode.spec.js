@@ -22,11 +22,11 @@ test('count-only settlement hides unrelated tools, retains Tools, survives reloa
   await settings.getByRole('button', { name: '保存', exact: true }).click();
   await expect(settings).toHaveCount(0);
   await expect(page.getByRole('tab')).toHaveText(['精算']);
-  await expect(page.locator('.settlement-car').first().getByRole('button', { name: /^「車出し1車」支払い内訳：/ })).toBeVisible();
+  await expect(page.locator('.settlement-car').first().locator('.settlement-car-toggle')).toBeVisible();
 
   await page.goto(`/?room=${roomId}&view=participants`);
   await expect(page.getByRole('tab')).toHaveText(['精算']);
-  await expect(page.locator('.settlement-car').first().getByRole('button', { name: /^「車出し1車」支払い内訳：/ })).toBeVisible();
+  await expect(page.locator('.settlement-car').first().locator('.settlement-car-toggle')).toBeVisible();
 
   await page.getByRole('button', { name: '精算設定', exact: true }).click();
   const returnSettings = page.getByRole('dialog', { name: '精算設定を編集', exact: true });
@@ -88,9 +88,8 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await expect(settings).toHaveCount(0);
 
   const initialDriverCar = page.locator('.settlement-car').first();
-  const initialDriverToggle = initialDriverCar.getByRole('button', { name: /^「車出し1車」支払い内訳：/ });
-  await initialDriverToggle.click();
-  await expect(initialDriverToggle).toHaveAttribute('aria-expanded', 'true');
+  const initialDriverToggle = initialDriverCar.locator('.settlement-car-toggle');
+  await expect(initialDriverToggle).toHaveAttribute('aria-expanded', 'false');
   await page.getByRole('button', { name: '車出し1車の操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '運転手の名前を編集', exact: true }).click();
   const nameDialog = page.getByRole('dialog', { name: '運転手の名前を編集', exact: true });
@@ -98,9 +97,9 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await nameDialog.getByRole('button', { name: '保存', exact: true }).click();
   await expect(nameDialog).toHaveCount(0);
   const driverCar = initialDriverCar;
-  const namedDriverToggle = driverCar.getByRole('button', { name: /^「運転手の任意名車」支払い内訳：/ });
+  const namedDriverToggle = driverCar.locator('.settlement-car-toggle');
   await expect(namedDriverToggle).toBeVisible();
-  await expect(namedDriverToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(namedDriverToggle).toHaveAttribute('aria-expanded', 'false');
   await page.getByRole('button', { name: '運転手の任意名車の費用を入力', exact: true }).click();
   const carEditor = page.getByRole('dialog');
   await expect(carEditor).toBeVisible();
@@ -114,7 +113,9 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await carEditor.locator('.cds--modal-footer').getByRole('button', { name: '閉じる', exact: true }).click();
   await expect(carEditor).toHaveCount(0);
   const savedExpenseAction = driverCar.getByRole('button', { name: '運転手の任意名車の費用を編集', exact: true });
-  await expect(driverCar.getByRole('button', { name: /運転手の任意名車の費用を(?:入力|編集)/ })).toBeFocused();
+  await expect(namedDriverToggle).toBeFocused();
+  await expect(namedDriverToggle).toHaveAttribute('aria-expanded', 'false');
+  await namedDriverToggle.click();
   await expect(namedDriverToggle).toHaveAttribute('aria-expanded', 'true');
   await expect(savedExpenseAction).toBeVisible();
 
@@ -133,6 +134,6 @@ test('count-only setup starts at zero without driver names and keeps vehicle-nam
   await expect(collection).toBeVisible();
   await collection.getByRole('tab', { name: 'すべて', exact: true }).click();
   await expect(collection.locator('.settlement-collection-row').filter({ hasText: '集金担当' })).toContainText('集金済み');
-  await expect(page.locator('.settlement-collection-summary__progress')).toHaveText(payerCount === 1 ? '集金完了 1 / 1人' : `あと${payerCount - 1}人（1 / ${payerCount}人 集金済み）`);
+  await expect(page.locator('.settlement-collection-summary__progress')).toHaveText(payerCount === 1 ? '集金完了 1 / 1人' : `未集金 ${payerCount - 1}人 / 対象 ${payerCount}人`);
   await collection.getByRole('button', { name: '閉じる', exact: true }).last().click();
 });
