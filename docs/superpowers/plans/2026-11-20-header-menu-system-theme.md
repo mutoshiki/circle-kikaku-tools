@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Preserve share eligibility on project, sample, and project-list screens.
-- Do not write to ordinary production projects; production smoke uses P9A93LMQ and cleanup.
+- Do not write to ordinary production projects; use the existing run-scoped production smoke workflow and confirm cleanup.
 - Preserve existing untracked `apps/react/dist-offline-test/`.
 - Build local previews against the freshly fetched published `sourceSha` and keep them offline.
 
